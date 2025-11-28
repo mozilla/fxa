@@ -124,4 +124,65 @@ export class ChurnInterventionService {
       }
     }
   }
+
+  async redeemChurnCoupon(
+    uid: string,
+    subscriptionId: string,
+    acceptLanguage?: string | null,
+    selectedLanguage?: string,
+  ) {
+    const eligibilityResult = await this.determineStaySubscribedEligibility(
+      uid,
+      subscriptionId,
+      acceptLanguage,
+      selectedLanguage
+    );
+
+    if (!eligibilityResult.isEligible || !eligibilityResult.cmsChurnInterventionEntry) {
+      return {
+        redeemed: false,
+        reason: eligibilityResult.reason,
+        updatedChurnInterventionEntryData: null,
+        cmsChurnInterventionEntry: eligibilityResult.cmsChurnInterventionEntry,
+      };
+    }
+
+    try {
+      const updatedSubscription = await this.subscriptionManagementService.applyStripeCouponToSubscription({
+        uid,
+        subscriptionId,
+        stripeCouponId: eligibilityResult.cmsChurnInterventionEntry.stripeCouponId,
+        setCancelAtPeriodEnd: true,
+      });
+      if (!updatedSubscription || updatedSubscription.cancel_at_period_end !== true) {
+        return {
+          redeemed: false,
+          reason: 'stripe_subscription_update_failed',
+          updatedChurnInterventionEntryData: null,
+          cmsChurnInterventionEntry: eligibilityResult.cmsChurnInterventionEntry,
+        };
+      }
+
+      const updatedEntry = await this.churnInterventionManager.updateEntry(
+        uid,
+        eligibilityResult.cmsChurnInterventionEntry.churnInterventionId,
+        1
+      );
+
+      return {
+        redeemed: true,
+        reason: 'successfully_redeemed',
+        updatedChurnInterventionEntryData: updatedEntry,
+        cmsChurnInterventionEntry: eligibilityResult.cmsChurnInterventionEntry,
+      };
+    } catch (error) {
+      this.log.error(error);
+      return {
+        redeemed: false,
+        reason: 'failed_to_redeem_coupon',
+        updatedChurnInterventionEntryData: null,
+        cmsChurnInterventionEntry: eligibilityResult.cmsChurnInterventionEntry,
+      };
+    }
+  }
 }

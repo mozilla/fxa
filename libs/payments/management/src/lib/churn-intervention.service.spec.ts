@@ -4,6 +4,7 @@
 
 import { ChurnInterventionService } from './churn-intervention.service';
 import { ChurnInterventionManager, ChurnInterventionEntryFactory } from '@fxa/payments/cart';
+import { ChurnInterventionByProductIdResultFactory } from '@fxa/shared/cms';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { SubscriptionManagementService } from './subscriptionManagement.service';
 import { Test } from '@nestjs/testing';
@@ -42,13 +43,15 @@ describe('ChurnInterventionService', () => {
           provide: ChurnInterventionManager,
           useValue: {
             getEntry: jest.fn(),
-            getRedemptionCountForUid: jest.fn()
+            getRedemptionCountForUid: jest.fn(),
+            updateEntry: jest.fn(),
           }
         },
         {
           provide: SubscriptionManagementService,
           useValue: {
             getSubscriptionStatus: jest.fn(),
+            applyStripeCouponToSubscription: jest.fn(),
           },
         },
         {
@@ -220,6 +223,158 @@ describe('ChurnInterventionService', () => {
         cmsChurnInterventionEntry: null,
       });
       expect(mockLogger.error).toHaveBeenCalled();
+    });
+  });
+
+
+  describe('redeemChurnCoupon', () => {
+    const mockCmsChurnEntry = ChurnInterventionByProductIdResultFactory();
+    const mockChurnInterventionEntry = ChurnInterventionEntryFactory();
+    const subscriptionId = 'sub_123';
+    it('successfully redeems a churn coupon', async () => {
+      jest
+        .spyOn(churnInterventionService, 'determineStaySubscribedEligibility')
+        .mockResolvedValue({
+          isEligible: true,
+          reason: 'eligible',
+          cmsChurnInterventionEntry: mockCmsChurnEntry,
+        });
+
+      (subscriptionManagementService.applyStripeCouponToSubscription as jest.Mock)
+        .mockResolvedValue({ id: subscriptionId, cancel_at_period_end: true });
+
+      const prevCount = mockChurnInterventionEntry.redemptionCount || 0;
+
+      const updatedEntry = ChurnInterventionEntryFactory({
+        ...mockChurnInterventionEntry,
+        customerId: mockChurnInterventionEntry.customerId,
+        churnInterventionId: mockChurnInterventionEntry.churnInterventionId,
+        redemptionCount: prevCount + 1,
+      });
+      (churnInterventionManager.updateEntry as jest.Mock)
+        .mockResolvedValue(updatedEntry);
+
+      const result = await churnInterventionService.redeemChurnCoupon(
+        mockChurnInterventionEntry.customerId,
+        subscriptionId
+      );
+
+      expect(subscriptionManagementService.applyStripeCouponToSubscription as jest.Mock)
+        .toHaveBeenCalledWith({
+          uid: mockChurnInterventionEntry.customerId,
+          subscriptionId,
+          stripeCouponId: mockCmsChurnEntry.stripeCouponId,
+          setCancelAtPeriodEnd: true,
+        });
+
+      expect(churnInterventionManager.updateEntry as jest.Mock)
+        .toHaveBeenCalledWith(
+          mockChurnInterventionEntry.customerId,
+          mockCmsChurnEntry.churnInterventionId,
+          1
+        );
+      expect(result.updatedChurnInterventionEntryData?.redemptionCount).toBe(prevCount + 1);
+
+      expect(result).toEqual({
+        redeemed: true,
+        reason: 'successfully_redeemed',
+        updatedChurnInterventionEntryData: updatedEntry,
+        cmsChurnInterventionEntry: mockCmsChurnEntry,
+      });
+    });
+
+    it('fails to redeem a churn coupon when an error is thrown', async () => {
+      jest
+        .spyOn(churnInterventionService, 'determineStaySubscribedEligibility')
+        .mockResolvedValue({
+          isEligible: true,
+          reason: 'eligible',
+          cmsChurnInterventionEntry: mockCmsChurnEntry,
+        });
+
+      (subscriptionManagementService.applyStripeCouponToSubscription as jest.Mock)
+        .mockRejectedValue(new Error('Stripe error'));
+
+      const result = await churnInterventionService.redeemChurnCoupon(
+        mockChurnInterventionEntry.customerId,
+        subscriptionId
+      );
+
+      expect(subscriptionManagementService.applyStripeCouponToSubscription as jest.Mock)
+        .toHaveBeenCalledWith({
+          uid: mockChurnInterventionEntry.customerId,
+          subscriptionId,
+          stripeCouponId: mockCmsChurnEntry.stripeCouponId,
+          setCancelAtPeriodEnd: true,
+        });
+
+      expect(churnInterventionManager.updateEntry as jest.Mock).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        redeemed: false,
+        reason: 'failed_to_redeem_coupon',
+        updatedChurnInterventionEntryData: null,
+        cmsChurnInterventionEntry: mockCmsChurnEntry,
+      });
+    });
+
+   it('fails to redeem a churn coupon when not eligible', async () => {
+      jest
+        .spyOn(churnInterventionService, 'determineStaySubscribedEligibility')
+        .mockResolvedValue({
+          isEligible: false,
+          reason: 'discount_already_applied',
+          cmsChurnInterventionEntry: null,
+        });
+
+      const result = await churnInterventionService.redeemChurnCoupon(
+        mockChurnInterventionEntry.customerId,
+        subscriptionId
+      );
+
+      expect(subscriptionManagementService.applyStripeCouponToSubscription as jest.Mock)
+        .not.toHaveBeenCalled();
+
+      expect(churnInterventionManager.updateEntry as jest.Mock).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        redeemed: false,
+        reason: 'discount_already_applied',
+        updatedChurnInterventionEntryData: null,
+        cmsChurnInterventionEntry: null,
+      });
+    });
+
+    it('fails to redeem a churn coupon when applyStripeCouponToSubscription fails', async () => {
+      jest
+        .spyOn(churnInterventionService, 'determineStaySubscribedEligibility')
+        .mockResolvedValue({
+          isEligible: true,
+          reason: 'eligible',
+          cmsChurnInterventionEntry: mockCmsChurnEntry,
+        });
+
+      (subscriptionManagementService.applyStripeCouponToSubscription as jest.Mock)
+        .mockResolvedValue(null);
+
+      const result = await churnInterventionService.redeemChurnCoupon(
+        mockChurnInterventionEntry.customerId,
+        subscriptionId
+      );
+
+      expect(subscriptionManagementService.applyStripeCouponToSubscription as jest.Mock)
+        .toHaveBeenCalledWith({
+          uid: mockChurnInterventionEntry.customerId,
+          subscriptionId,
+          stripeCouponId: mockCmsChurnEntry.stripeCouponId,
+          setCancelAtPeriodEnd: true,
+        });
+
+      expect(churnInterventionManager.updateEntry as jest.Mock).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        redeemed: false,
+        reason: 'stripe_subscription_update_failed',
+        updatedChurnInterventionEntryData: null,
+        cmsChurnInterventionEntry: mockCmsChurnEntry,
+      });
     });
   });
 });
