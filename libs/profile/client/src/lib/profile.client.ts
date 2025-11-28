@@ -69,10 +69,11 @@ export class ProfileClient {
     try {
       return (await this.axiosInstance[method](endpoint, requestData)).data;
     } catch (err) {
-      const response = err.response || {};
-      if (err.errno > -1 || (response.status && response.status < 500)) {
-        throw new ProfileClientError(err);
-      } else {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        if ((err as any).errno > -1 || (status !== undefined && status < 500)) {
+          throw new ProfileClientError(err);
+        }
         throw new ProfileClientServiceFailureError(
           this.config.serviceName,
           method,
@@ -80,6 +81,7 @@ export class ProfileClient {
           err
         );
       }
+      throw err;
     }
   }
 
@@ -124,8 +126,8 @@ export class ProfileClient {
       const userinfo = await this.makeRequest(
         userinfoUrl,
         {
+          // This is an override for specific keys, other default headers will be merged automatically by axios
           headers: {
-            ...this.axiosInstance.defaults.headers,
             Authorization: `Bearer ${accessToken}`,
           },
         },
