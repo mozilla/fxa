@@ -203,19 +203,13 @@ const SigninContainer = ({
     // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword, will be retrieved from Apollo cache
     hasLinkedAccount: hasLinkedAccountFromLocationState,
     hasPassword: hasPasswordFromLocationState,
+    canLinkAccountOk,
     localizedErrorMessage: localizedErrorFromLocationState,
     successBanner,
   } = location.state || ({} as LocationState);
 
   const { localizedSuccessBannerHeading, localizedSuccessBannerDescription } =
     successBanner || {};
-
-  // If hasLinkedAccount is defined from location state (React email-first), or query
-  // params (Backbone email-first) then we know the user came from email-first
-  const originFromEmailFirst = !!(
-    hasLinkedAccountFromLocationState !== undefined ||
-    queryParamModel.hasLinkedAccount
-  );
 
   const [accountStatus, setAccountStatus] = useState({
     hasLinkedAccount:
@@ -311,14 +305,16 @@ const SigninContainer = ({
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
-      // If the user was on email-first they were already prompted with the sync merge
-      // warning. The browser will automatically respond with { ok: true } without
-      // prompting the user if it matches the email the browser has data for.
+      // - If the user came from email-first WITHOUT a linked third‑party account, Index already showed
+      //   the merge prompt.
+      // - If the user HAS a linked third‑party account, Index deferred the prompt to avoid duplicates,
+      //   so we must prompt here instead.
+      // Note: the browser will repond {ok} if the email matches stored data or the user accepts the merge.
       if (
         (integration.isSync() ||
           integration.isFirefoxClientServiceRelay() ||
           integration.isFirefoxClientServiceAiMode()) &&
-        !originFromEmailFirst &&
+        !canLinkAccountOk &&
         !useFxAStatusResult.supportsCanLinkAccountUid
       ) {
         const ok = await ensureCanLinkAcountOrRedirect({
@@ -499,7 +495,7 @@ const SigninContainer = ({
       flowQueryParams,
       authClient,
       sensitiveDataClient,
-      originFromEmailFirst,
+      canLinkAccountOk,
       ftlMsgResolver,
       navigateWithQuery,
       useFxAStatusResult,

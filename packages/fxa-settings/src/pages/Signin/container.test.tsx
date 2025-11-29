@@ -305,6 +305,13 @@ const MOCK_LOCATION_STATE_COMPLETE = {
   email: MOCK_ROUTER_STATE_EMAIL,
   hasPassword: true,
   hasLinkedAccount: false,
+  canLinkAccountOk: undefined,
+};
+const MOCK_LOCATION_STATE_CAN_LINK_ACCOUNT_OK = {
+  email: MOCK_ROUTER_STATE_EMAIL,
+  hasPassword: true,
+  hasLinkedAccount: false,
+  canLinkAccountOk: true,
 };
 // Set this when testing location state
 let mockLocationState = {};
@@ -619,8 +626,9 @@ describe('signin container', () => {
     describe('showInlineRecoveryKeySetup', () => {
       beforeEach(() => {
         mockSyncDesktopV3Integration();
-        // this puts hasLinkedAccount=false in the query params to avoid more canLinkAccount mocking
-        mockUseValidateModule();
+        // Ensure early can_link_account check does not short‑circuit beginSigninHandler
+        (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+        mockLocationState = MOCK_LOCATION_STATE_CAN_LINK_ACCOUNT_OK;
         render([
           mockGqlAvatarUseQuery(),
           mockGqlCredentialStatusMutation({
@@ -760,9 +768,9 @@ describe('signin container', () => {
         (ensureCanLinkAcountOrRedirect as jest.Mock).mockRestore();
       });
       it('is not called when conditions are not met (query param)', async () => {
-        // this puts hasLinkedAccount=false in the query params
-        // We don't want this called when the user was prompted on email-first
-        mockUseValidateModule();
+        // Simulate Index already accepted/auto-OKed the merge warning
+        // avoids mocking ensureCanLinkAcountOrRedirect
+        mockLocationState = { canLinkAccountOk: true };
         render([
           mockGqlAvatarUseQuery(),
           mockGqlCredentialStatusMutation({

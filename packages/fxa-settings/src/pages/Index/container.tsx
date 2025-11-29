@@ -101,7 +101,8 @@ const IndexContainer = ({
       exists: boolean,
       hasLinkedAccount: boolean,
       hasPassword: boolean,
-      email: string
+      email: string,
+      canLinkAccountOk: boolean | undefined = undefined
     ) => {
       if (exists) {
         const signinRoute = isOAuthWebIntegration(integration)
@@ -112,6 +113,7 @@ const IndexContainer = ({
             email,
             hasLinkedAccount,
             hasPassword,
+            canLinkAccountOk,
           },
         });
       } else {
@@ -122,6 +124,7 @@ const IndexContainer = ({
           state: {
             email,
             emailStatusChecked: true,
+            canLinkAccountOk,
           },
         });
       }
@@ -154,6 +157,7 @@ const IndexContainer = ({
   const processEmailSubmission = useCallback(
     async (email: string, isManualSubmission = true) => {
       let accountExists;
+      let canLinkAccountOk: boolean | undefined = undefined;
       try {
         if (!isEmail(email)) {
           throw AuthUiErrors.EMAIL_REQUIRED;
@@ -191,8 +195,10 @@ const IndexContainer = ({
               uid: undefined,
             });
             if (!ok) {
+              canLinkAccountOk = false;
               throw AuthUiErrors.USER_CANCELED_LOGIN;
             }
+            canLinkAccountOk = true;
           }
         }
 
@@ -202,12 +208,20 @@ const IndexContainer = ({
           (integration.isSync() ||
             integration.isFirefoxClientServiceRelay() ||
             integration.isFirefoxClientServiceAiMode()) &&
-          !useFxAStatusResult.supportsCanLinkAccountUid
+          !useFxAStatusResult.supportsCanLinkAccountUid &&
+          // If the account exists and is already linked to a third‑party provider,
+          // defer can_link_account until after the user completes Google/Apple auth
+          // or submits a password. Prompting here can cause a duplicate prompt and is
+          // unsafe because the user may choose a different email during the provider
+          // flow. Signin/ThirdPartyAuthCallback will run the prompt at the correct time.
+          !(exists && hasLinkedAccount)
         ) {
           const { ok } = await firefox.fxaCanLinkAccount({ email });
           if (!ok) {
+            canLinkAccountOk = false;
             throw AuthUiErrors.USER_CANCELED_LOGIN;
           }
+          canLinkAccountOk = true;
         }
 
         isManualSubmission &&
@@ -215,7 +229,13 @@ const IndexContainer = ({
             event: { reason: accountExists ? 'login' : 'registration' },
           });
 
-        handleSuccessNavigation(exists, hasLinkedAccount, hasPassword, email);
+        handleSuccessNavigation(
+          exists,
+          hasLinkedAccount,
+          hasPassword,
+          email,
+          canLinkAccountOk
+        );
       } catch (error) {
         if (isManualSubmission && isEmail(email)) {
           GleanMetrics.emailFirst.submitFail({
