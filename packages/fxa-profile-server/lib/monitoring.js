@@ -4,7 +4,7 @@
 
 const Sentry = require('@sentry/node');
 const { initMonitoring } = require('fxa-shared/monitoring');
-const { config } = require('./config');
+const config = require('./config').getProperties();
 const log = require('./logging')('configure-sentry');
 const { version } = require('../package.json');
 

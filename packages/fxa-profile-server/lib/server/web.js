@@ -92,6 +92,7 @@ exports.create = async function createServer() {
 
   // configure Sentry
   if (config.sentry && config.sentry.dsn) {
+
     // Attach a new Sentry scope to the request for breadcrumbs/tags/extras
     server.ext({
       type: 'onRequest',
