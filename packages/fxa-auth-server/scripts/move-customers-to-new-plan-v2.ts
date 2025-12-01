@@ -95,8 +95,6 @@ async function init() {
 
   const dryRun = !!program.dryRun;
   const skipSubscriptionIfSetToCancel = !!program.skipSubscriptionIfSetToCancel;
-  if (!program.source) throw new Error('--source must be provided');
-  if (!program.destination) throw new Error('--destination must be provided');
 
   const statsd = {
     increment: () => {},
