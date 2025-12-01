@@ -131,6 +131,7 @@ const settingsConfig = {
     enabled: config.get('cms.enabled'),
     l10nEnabled: config.get('cms.l10nEnabled'),
   },
+  servicesWithEmailVerification: config.get('servicesWithEmailVerification'),
 };
 
 // Inject Settings content into the index HTML
