@@ -220,6 +220,30 @@ describe('Signin utils', () => {
         );
       });
 
+      it('returns early for OAuth integration that isServiceWithEmailVerification', async () => {
+        const mockOAuthIntegration = createMockSigninOAuthIntegration();
+
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: true,
+          integration: mockOAuthIntegration,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.any(Object)
+        );
+      });
+
       it('returns early for OAuth integration with wantsKeys', async () => {
         const mockOAuthIntegration = createMockSigninOAuthIntegration();
         (mockOAuthIntegration as any).wantsKeys = jest

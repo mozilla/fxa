@@ -111,6 +111,9 @@ jest.mock('../../models', () => {
     useSession: () => ({
       sendVerificationCode: mockSendVerificationCode,
     }),
+    useConfig: () => ({
+      servicesWithEmailVerification: ['123456'],
+    }),
   };
 });
 
@@ -1193,6 +1196,72 @@ describe('Signin component', () => {
               })
             );
           });
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('correctly provides isServiceWithEmailVerification to handleNavigation when client is in servicesWithEmailVerification', async () => {
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const finishOAuthFlowHandler = jest
+            .fn()
+            .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthIntegration({
+            clientId: '123456',
+          });
+          render({
+            beginSigninHandler: jest.fn().mockReturnValue(
+              createBeginSigninResponse({
+                emailVerified: true,
+                sessionVerified: false,
+              })
+            ),
+            integration,
+            finishOAuthFlowHandler,
+            sessionToken: MOCK_SESSION_TOKEN,
+          });
+
+          await enterPasswordAndSubmit();
+          expect(handleNavigationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              isServiceWithEmailVerification: true,
+            })
+          );
+
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('correctly provides isServiceWithEmailVerification to handleNavigation when client is not in servicesWithEmailVerification', async () => {
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const finishOAuthFlowHandler = jest
+            .fn()
+            .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthIntegration({
+            clientId: '654321',
+          });
+          render({
+            beginSigninHandler: jest.fn().mockReturnValue(
+              createBeginSigninResponse({
+                emailVerified: true,
+                sessionVerified: false,
+              })
+            ),
+            integration,
+            finishOAuthFlowHandler,
+            sessionToken: MOCK_SESSION_TOKEN,
+          });
+
+          await enterPasswordAndSubmit();
+          expect(handleNavigationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              isServiceWithEmailVerification: false,
+            })
+          );
+
           handleNavigationSpy.mockRestore();
         });
 
