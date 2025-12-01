@@ -235,8 +235,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   // 4. Users with type C session going through an RP flow that requires two-step authentication
   //    always get redirected to confirm email, before setting up TOTP
   // 5. Users with type C session going through a normal RP redirect flow will be allowed to
-  //    continue onward without getting prompted for a code. If they try to use Settings with
-  //    this session later, they will be prompted then.
+  //    continue onward without getting prompted for a code, unless the RP is in `servicesWithEmailVerification`.
+  //    If they try to use Settings with this session later, they will be prompted then.
   // 6. WebIntegrations (ie Settings) are always redirected to confirm email
   // 7. Users that are forced to change their password always get redirected to confirm email
   const isFullyVerified =
@@ -265,6 +265,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         VerificationMethods.TOTP_2FA ||
       navigationOptions.signinData.verificationReason ===
         VerificationReasons.CHANGE_PASSWORD ||
+      navigationOptions.isServiceWithEmailVerification ||
       wantsTwoStepAuthentication ||
       wantsKeys
     ) {
