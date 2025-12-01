@@ -17,6 +17,7 @@ const data = {
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
   twoFactorSupportLink:
     'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

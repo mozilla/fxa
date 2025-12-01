@@ -22,6 +22,7 @@ const data = {
   productPaymentCycleOld: 'month',
   paymentProrated: '$60.00',
   subscriptionSupportUrl: 'http://localhost:3030/support',
+  icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
 };
 
 const createStory = subplatStoryWithProps<TemplateData>(

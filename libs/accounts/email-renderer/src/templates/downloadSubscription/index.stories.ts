@@ -22,6 +22,9 @@ const data = {
   // Forces fallbacks to be used in appBadges partial
   iosUrl: undefined,
   androidUrl: undefined,
+  cssPath: '',
+  hideDeviceLink: true,
+  onDesktopOrTabletDevice: true,
 };
 
 const createStory = subplatStoryWithProps<TemplateData>(

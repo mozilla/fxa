@@ -17,6 +17,7 @@ const data = {
   resetLink: 'http://localhost:3030/reset_password',
   twoFactorSettingsLink:
     'http://localhost:3030/settings#two-step-authentication',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

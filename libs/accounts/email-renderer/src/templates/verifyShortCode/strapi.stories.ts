@@ -20,6 +20,7 @@ const data = {
   subject: 'Confirm Your Account',
   headline: 'Verify you account to start using Product!',
   description: 'Use the code below to verify your account and gogogo',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

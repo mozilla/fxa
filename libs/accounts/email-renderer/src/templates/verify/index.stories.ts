@@ -15,6 +15,7 @@ const data = {
   ...MOCK_USER_INFO,
   link: 'http://localhost:3030/verify_email',
   sync: true,
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

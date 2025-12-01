@@ -13,7 +13,7 @@ export default {
 const data = {
   productName: 'Firefox Fortress',
   isCancellationEmail: true,
-  cancellationSurveryUrl:
+  cancellationSurveyUrl:
     'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
 };
 

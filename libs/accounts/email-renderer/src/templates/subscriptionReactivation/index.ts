@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export type TemplateData = {
-  productName: string;
-  invoiceTotal: string;
-  nextInvoiceDateOnly: string;
-  icon: string;
-  subscriptionSupportUrl: string;
-};
+import { TemplateData as IconTemplateData } from '../../partials/icon';
+import { TemplateData as SubscriptionSupportTemplateData } from '../../partials/subscriptionSupport';
+
+export type TemplateData = IconTemplateData &
+  SubscriptionSupportTemplateData & {
+    productName: string;
+    invoiceTotal: string;
+    nextInvoiceDateOnly: string;
+    icon: string;
+    subscriptionSupportUrl: string;
+  };
 
 export const template = 'subscriptionReactivation';
 export const version = 2;
