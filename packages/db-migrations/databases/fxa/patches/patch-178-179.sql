@@ -2,9 +2,14 @@ SET NAMES utf8mb4 COLLATE utf8mb4_bin;
 
 CALL assertPatchLevel('178');
 
+-- In practice, this stored procedure ended up being slower than the original despite
+-- the optimizer hints, and fewer rows from the CTE filtering first. Code should still
+-- reference accountDevices_17, but this will be left so we don't have to drop the procedure.
+
 -- This migration updates the attachedDevices sproc to optimize performance
 -- using CTE and MySQL 8 optimizer hints, limiting fan-out during joins to
 -- deviceCommands and deviceCommandIdentifiers.
+
 
 CREATE PROCEDURE `accountDevices_18` (
   IN `uidArg` BINARY(16),

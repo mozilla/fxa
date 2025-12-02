@@ -442,6 +442,21 @@ export const createDB = (
       }
     }
 
+    /**
+     * Get a count of all devices for a given UID.
+     * @param uid
+     * @returns
+     */
+    async deviceCount(uid: string) {
+      log.trace('DB.deviceCount', { uid });
+      const count = await Device.countByUid(uid);
+      this.metrics?.increment('db.deviceCount.retrieve', {
+        result: 'success',
+        count,
+      });
+      return count;
+    }
+
     async sessionToken(id: string) {
       log.trace('DB.sessionToken', { id });
       const data = await RawSessionToken.findByTokenId(id);
@@ -1064,15 +1079,15 @@ export const createDB = (
       );
     }
 
-    async verifiedLoginSecurityEventsByUid(params: { uid: string; skipTimeframeMs: number}) {
+    async verifiedLoginSecurityEventsByUid(params: {
+      uid: string;
+      skipTimeframeMs: number;
+    }) {
       log.trace('DB.verifiedLoginSecurityEventsByUid', {
         params: params,
       });
       const { uid, skipTimeframeMs } = params;
-      return SecurityEvent.findByUidAndVerifiedLogin(
-        uid,
-        skipTimeframeMs
-      );
+      return SecurityEvent.findByUidAndVerifiedLogin(uid, skipTimeframeMs);
     }
 
     async securityEventsByUid(params: { uid: string }) {

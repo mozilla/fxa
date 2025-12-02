@@ -637,7 +637,7 @@ describe('POST /recoveryKey/exists', () => {
         {
           db: {
             recoveryData,
-            devices: [],
+            deviceCount: 0,
           },
         },
         {},
@@ -662,14 +662,7 @@ describe('POST /recoveryKey/exists', () => {
         {
           db: {
             recoveryData,
-            devices: [
-              {
-                type: 'desktop',
-                id: 'desktop1',
-                lastAccess: new Date(),
-                lastAccessVersion: '1.0',
-              },
-            ],
+            deviceCount: 1,
           },
         },
         {},
@@ -705,7 +698,7 @@ describe('POST /recoveryKey/exists', () => {
           },
           db: {
             recoveryData,
-            devices: [],
+            deviceCount: 0,
           },
         },
         {},

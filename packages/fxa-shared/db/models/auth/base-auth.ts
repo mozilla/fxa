@@ -39,6 +39,7 @@ export enum Proc {
   DeleteSessionToken = 'deleteSessionToken_4',
   DeleteTotpToken = 'deleteTotpToken_4',
   Device = 'device_3',
+  DeviceCount = 'deviceCount_1',
   DeviceFromTokenVerificationId = 'deviceFromTokenVerificationId_6',
   EmailBounces = 'fetchEmailBounces_3',
   FindLargeAccounts = 'findLargeAccounts_1',

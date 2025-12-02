@@ -74,6 +74,7 @@ const DB_METHOD_NAMES = [
   'deleteTotpToken',
   'devices',
   'device',
+  'deviceCount',
   'emailBounces',
   'emailRecord',
   'forgotPasswordVerified',
@@ -577,6 +578,13 @@ function mockDB(data, errors) {
       const device = data.devices.find((d) => d.id === deviceId);
       assert.ok(device);
       return Promise.resolve(device);
+    }),
+    deviceCount: sinon.spy((uid) => {
+      assert.ok(typeof uid === 'string');
+      return Promise.resolve(
+        // default to 0 if not set
+        typeof data.deviceCount !== 'undefined' ? data.deviceCount : 0
+      );
     }),
     deleteSessionToken: sinon.spy(() => {
       return Promise.resolve();

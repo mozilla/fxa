@@ -238,4 +238,11 @@ export class Device extends BaseAuthModel {
     );
     return this.fromRows(rows).shift() || null;
   }
+
+  static async countByUid(uid: string) {
+    const {
+      rows: [{ deviceCount }], // deviceCount comes from COUNT(*) in the stored procedure
+    } = await this.callProcedure(Proc.DeviceCount, uuidTransformer.to(uid));
+    return deviceCount;
+  }
 }

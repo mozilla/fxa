@@ -362,9 +362,12 @@ module.exports = (
         // We try our best to estimate the number of Sync devices that could be impacted by using a recovery key.
         // It is an estimate because we currently can't query the Sync service to get the actual number of items
         // until https://mozilla-hub.atlassian.net/browse/SYNC-4240 is implemented.
-        const services = await list(uid);
+        const [services, deviceCount] = await Promise.all([
+          list(uid),
+          db.deviceCount(uid),
+        ]);
         const estimatedSyncDeviceCount = Math.max(
-          (await db.devices(uid)).length,
+          deviceCount,
           services.filter((service) =>
             service.scope.includes(OAUTH_SCOPE_OLD_SYNC)
           ).length
