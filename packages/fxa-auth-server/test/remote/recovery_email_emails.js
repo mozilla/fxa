@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const ERRNO = require('../../lib/error').ERRNO;
+const ERRNO = require('@fxa/accounts/errors').ERRNO;
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const cfg = require('../../config').default.getProperties();
 const { email: emailHelper } = require('fxa-shared');

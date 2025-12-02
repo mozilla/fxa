@@ -80,7 +80,8 @@
       "\\.(css|sass|scss)$": "identity-obj-proxy",
       "@fxa/shared/l10n": "<rootDir>/../../libs/shared/l10n/src/index.ts",
       "@fxa/shared/metrics/glean": "<rootDir>/../../libs/shared/metrics/glean/src/index.ts",
-      "^@fxa/shared/assets(.*)$": "<rootDir>/../../libs/shared/assets/src$1"
+      "^@fxa/shared/assets(.*)$": "<rootDir>/../../libs/shared/assets/src$1",
+      "@fxa/accounts/errors": "<rootDir>/../../libs/accounts/errors/src/index.ts"
     },
     "moduleFileExtensions": [
       "web.js",

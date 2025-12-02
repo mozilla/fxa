@@ -89,6 +89,10 @@ module.exports = function (
     statsd,
     glean
   );
+  const oauthRoutes = oauth.map((route) => ({
+    path: route.path,
+    config: route.config || {},
+  }));
   const devicesSessions = require('./devices-and-sessions')(
     log,
     db,
@@ -305,6 +309,7 @@ module.exports = function (
     r.path = basePath + r.path;
   });
   const allRoutes = defaults.concat(idp, v1Routes);
+  allRoutes.oauthRoutes = oauthRoutes;
 
   allRoutes.forEach((r) => {
     // Default auth.payload to 'optional' for all authenticated routes.

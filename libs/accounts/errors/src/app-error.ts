@@ -10,9 +10,10 @@ import {
   DEFAULT_ERRROR,
   IGNORED_ERROR_NUMBERS,
   DEBUGGABLE_PAYLOAD_KEYS,
+  OAUTH_ERRNO,
 } from './constants';
 import { OauthError } from './oauth-error';
-import { Request as HapiRequest } from 'hapi';
+import type { Request as HapiRequest } from 'hapi';
 
 /**
  * Augmented Hapi request. Extends request.app interface auth-server specific feilds that this lib uses.
@@ -296,7 +297,7 @@ export class AppError extends Error {
     );
   }
 
-  static accountExists(email: string) {
+  static accountExists(email?: string) {
     return new AppError(
       {
         code: 400,
@@ -310,7 +311,7 @@ export class AppError extends Error {
     );
   }
 
-  static unknownAccount(email: string) {
+  static unknownAccount(email?: string) {
     return new AppError(
       {
         code: 400,
@@ -387,7 +388,7 @@ export class AppError extends Error {
     });
   }
 
-  static invalidVerificationCode(details: Record<string, any>) {
+  static invalidVerificationCode(details?: Record<string, any>) {
     return new AppError(
       {
         code: 400,
@@ -408,7 +409,7 @@ export class AppError extends Error {
     });
   }
 
-  static invalidRequestParameter(validation: string) {
+  static invalidRequestParameter(validation?: unknown) {
     return new AppError(
       {
         code: 400,
@@ -422,7 +423,7 @@ export class AppError extends Error {
     );
   }
 
-  static missingRequestParameter(param: string) {
+  static missingRequestParameter(param?: string) {
     return new AppError(
       {
         code: 400,
@@ -486,7 +487,7 @@ export class AppError extends Error {
     });
   }
 
-  static unauthorized(reason: string) {
+  static unauthorized(reason?: string) {
     return new AppError(
       {
         code: 401,
@@ -575,7 +576,7 @@ export class AppError extends Error {
     );
   }
 
-  static serviceUnavailable(retryAfter: number) {
+  static serviceUnavailable(retryAfter?: number) {
     if (!retryAfter) {
       retryAfter = 30;
     }
@@ -595,7 +596,7 @@ export class AppError extends Error {
     );
   }
 
-  static featureNotEnabled(retryAfter: number) {
+  static featureNotEnabled(retryAfter?: number) {
     if (!retryAfter) {
       retryAfter = 30;
     }
@@ -656,7 +657,7 @@ export class AppError extends Error {
     });
   }
 
-  static deviceSessionConflict(deviceId: string) {
+  static deviceSessionConflict(deviceId?: string) {
     return new AppError(
       {
         code: 400,
@@ -770,7 +771,10 @@ export class AppError extends Error {
     );
   }
 
-  static currencyCountryMismatch(currency: string, country: string) {
+  static currencyCountryMismatch(
+    currency?: string | null,
+    country?: string | null
+  ) {
     return new AppError(
       {
         code: 400,
@@ -785,7 +789,10 @@ export class AppError extends Error {
     );
   }
 
-  static currencyCurrencyMismatch(currencyA: string, currencyB: string) {
+  static currencyCurrencyMismatch(
+    currencyA?: string | null,
+    currencyB?: string | null
+  ) {
     return new AppError(
       {
         code: 400,
@@ -1249,6 +1256,15 @@ export class AppError extends Error {
     });
   }
 
+  static oauthNotPublicClient() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: OAUTH_ERRNO.NOT_PUBLIC_CLIENT,
+      message: 'Not a public client',
+    });
+  }
+
   static redisConflict() {
     return new AppError({
       code: 409,
@@ -1376,7 +1392,8 @@ export class AppError extends Error {
     );
   }
 
-  static unknownCustomer(uid?: string) {
+  static unknownCustomer(uid?: string | { id?: string | null } | null) {
+    const resolvedUid = typeof uid === 'string' ? uid : (uid?.id ?? undefined);
     return new AppError(
       {
         code: 404,
@@ -1385,7 +1402,7 @@ export class AppError extends Error {
         message: 'Unknown customer',
       },
       {
-        uid,
+        uid: resolvedUid,
       }
     );
   }
@@ -1433,8 +1450,8 @@ export class AppError extends Error {
   }
 
   static rejectedSubscriptionPaymentToken(
-    message: string,
-    paymentError: Error
+    message?: string,
+    paymentError?: Error
   ) {
     return new AppError(
       {
@@ -1443,11 +1460,13 @@ export class AppError extends Error {
         errno: ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN,
         message,
       },
+      undefined,
+      undefined,
       paymentError
     );
   }
 
-  static rejectedCustomerUpdate(message: string, paymentError: Error) {
+  static rejectedCustomerUpdate(message?: string, paymentError?: Error) {
     return new AppError(
       {
         code: 400,
@@ -1455,6 +1474,8 @@ export class AppError extends Error {
         errno: ERRNO.REJECTED_CUSTOMER_UPDATE,
         message,
       },
+      undefined,
+      undefined,
       paymentError
     );
   }
@@ -1541,9 +1562,9 @@ export class AppError extends Error {
 
   static invalidInvoicePreviewRequest(
     error: Error,
-    message: string,
-    priceId: string,
-    customer: string
+    message?: string,
+    priceId?: string,
+    customer?: string
   ) {
     const extra = error ? [{}, undefined, error] : [];
     return new AppError(
@@ -1638,7 +1659,12 @@ export class AppError extends Error {
     );
   }
 
-  static internalValidationError(op: string, data: unknown, error: Error) {
+  static internalValidationError(
+    op: string,
+    data?: unknown,
+    error?: Error | string
+  ) {
+    const errInstance = typeof error === 'string' ? new Error(error) : error;
     return new AppError(
       {
         code: 500,
@@ -1651,7 +1677,7 @@ export class AppError extends Error {
         data,
       },
       {},
-      error
+      errInstance
     );
   }
 

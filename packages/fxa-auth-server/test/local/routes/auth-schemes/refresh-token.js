@@ -6,7 +6,7 @@
 
 const { assert } = require('chai');
 const proxyquire = require('proxyquire');
-const error = require('../../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const sinon = require('sinon');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 

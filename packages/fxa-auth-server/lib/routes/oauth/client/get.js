@@ -4,7 +4,7 @@
 
 const Joi = require('joi');
 
-const AppError = require('../../../oauth/error');
+const { AppError } = require('@fxa/accounts/errors');
 const validators = require('../../../oauth/validators');
 const DESCRIPTION =
   require('../../../../docs/swagger/shared/descriptions').default;

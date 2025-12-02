@@ -59,7 +59,7 @@ if (config.subscriptions && config.subscriptions.stripeApiKey) {
   }
 }
 
-const error = require('../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const Token = require('../lib/tokens')(log, config);
 const SQSReceiver = require('../lib/sqs')(log, statsd);
 const bounces = require('../lib/email/bounces')(log, error, config);

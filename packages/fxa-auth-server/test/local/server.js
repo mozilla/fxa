@@ -8,13 +8,12 @@ const ROOT_DIR = '../..';
 
 const { assert } = require('chai');
 const EndpointError = require('poolee/lib/error')(require('util').inherits);
-const error = require(`${ROOT_DIR}/lib/error`);
+const { AppError: error } = require('@fxa/accounts/errors');
 const knownIpLocation = require('../known-ip-location');
 const mocks = require('../mocks');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const { Account } = require('fxa-shared/db/models/auth/account');
-const AppError = require('../../lib/error');
 const glean = mocks.mockGlean();
 const customs = mocks.mockCustoms();
 
@@ -594,6 +593,8 @@ describe('lib/server', () => {
             error: 'Request blocked',
             info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
             message: 'The request was blocked for security reasons',
+            retryAfter: undefined,
+            retryAfterLocalized: undefined,
           };
           beforeEach(() => {
             glean.registration.error.reset();
@@ -730,7 +731,7 @@ describe('lib/server', () => {
 
           it('handles customs block', async () => {
             customs.checkIpOnly = sinon.spy(async () => {
-              throw new AppError.tooManyRequests(100, 'foo');
+              throw error.tooManyRequests(100, 'foo');
             });
 
             const { statusCode, result } = await query('/account/status');
@@ -756,7 +757,7 @@ describe('lib/server', () => {
           ]) {
             it('will skip ' + endpoint, async () => {
               customs.checkIpOnly = sinon.spy(async () => {
-                throw new AppError.tooManyRequests(100, 'foo');
+                throw error.tooManyRequests(100, 'foo');
               });
               await query(endpoint);
               assert.equal(customs.checkIpOnly.callCount, 0);

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 
-const { ERRNO } = require('../../../../lib/error');
+const { ERRNO } = require('@fxa/accounts/errors');
 
 ('use strict');
 

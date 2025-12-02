@@ -8,7 +8,7 @@ const { URL } = require('url');
 const Ajv = require('ajv');
 const ajv = new Ajv();
 const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
-const error = require('../error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const fs = require('fs');
 const isA = require('joi');
 const path = require('path');
@@ -249,7 +249,7 @@ module.exports = (
           config.oauth.deviceCommandsEnabled === false &&
           credentials.refreshTokenId
         ) {
-          throw new error.featureNotEnabled();
+          throw error.featureNotEnabled();
         }
 
         if (!deviceId) {
@@ -262,7 +262,7 @@ module.exports = (
             uaOSVersion: credentials.uaOSVersion,
           });
 
-          throw new error.unknownDevice();
+          throw error.unknownDevice();
         }
 
         const response = await pushbox.retrieve(uid, deviceId, limit, index);
@@ -329,7 +329,7 @@ module.exports = (
           config.oauth.deviceCommandsEnabled === false &&
           credentials.refreshTokenId
         ) {
-          throw new error.featureNotEnabled();
+          throw error.featureNotEnabled();
         }
 
         await customs.checkAuthenticated(
@@ -606,7 +606,7 @@ module.exports = (
           config.oauth.deviceCommandsEnabled === false &&
           credentials.refreshTokenId
         ) {
-          throw new error.featureNotEnabled();
+          throw error.featureNotEnabled();
         }
 
         // If this request is using a session token we bump the last access time

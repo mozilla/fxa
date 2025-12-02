@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const OauthError = require('./error');
+const { OauthError } = require('@fxa/accounts/errors');
 const jwt = require('./jwt');
 const sub = require('./jwt_sub');
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
@@ -23,8 +23,8 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
   const audience = grant.resource
     ? [clientId, grant.resource]
     : grant.scope.contains(OAUTH_SCOPE_OLD_SYNC)
-    ? TOKEN_SERVER_URL
-    : clientId;
+      ? TOKEN_SERVER_URL
+      : clientId;
 
   // Claims list from:
   // https://tools.ietf.org/html/draft-ietf-oauth-access-token-jwt#section-2.2

@@ -9,7 +9,7 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const crypto = require('crypto');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 

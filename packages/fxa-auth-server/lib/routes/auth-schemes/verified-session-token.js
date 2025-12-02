@@ -4,7 +4,7 @@
 
 'use strict';
 
-const AppError = require('../../error');
+const { AppError } = require('@fxa/accounts/errors');
 const authMethods = require('../../authMethods');
 const { parseAuthorizationHeader } = require('./hawk-fxa-token');
 

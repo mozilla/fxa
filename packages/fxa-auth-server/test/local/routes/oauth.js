@@ -10,7 +10,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const JWTIdToken = require(`${ROOT_DIR}/lib/oauth/jwt_id_token`);
 
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');

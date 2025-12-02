@@ -12,7 +12,7 @@ const otplib = require('otplib');
 const { Container } = require('typedi');
 const crypto = require('crypto');
 const { AccountEventsManager } = require('../../../lib/account-events');
-const authErrors = require('../../../lib/error');
+const { AppError: authErrors } = require('@fxa/accounts/errors');
 const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 

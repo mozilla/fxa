@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { interpolate } from '../error-utils';
+import { OAUTH_ERRNO } from '@fxa/accounts/errors';
 
 export type AuthError = {
   errno: number;
@@ -16,93 +17,93 @@ export const UNEXPECTED_ERROR = 'Unexpected error';
 
 export const OAUTH_ERRORS: Record<string, AuthError> = {
   UNKNOWN_CLIENT: {
-    errno: 101,
+    errno: OAUTH_ERRNO.UNKNOWN_CLIENT,
     message: 'Unknown client',
   },
   INCORRECT_REDIRECT: {
-    errno: 103,
+    errno: OAUTH_ERRNO.INCORRECT_REDIRECT,
     message: 'Incorrect redirect_uri',
   },
   INVALID_ASSERTION: {
-    errno: 104,
+    errno: OAUTH_ERRNO.INVALID_ASSERTION,
     message: 'Invalid assertion',
   },
   UNKNOWN_CODE: {
-    errno: 105,
+    errno: OAUTH_ERRNO.UNKNOWN_CODE,
     message: 'Unknown code',
   },
   INCORRECT_CODE: {
-    errno: 106,
+    errno: OAUTH_ERRNO.INCORRECT_CODE,
     message: 'Incorrect code',
   },
   EXPIRED_CODE: {
-    errno: 107,
+    errno: OAUTH_ERRNO.EXPIRED_CODE,
     message: 'Expired code',
   },
   INVALID_TOKEN: {
-    errno: 108,
+    errno: OAUTH_ERRNO.INVALID_TOKEN,
     message: 'Invalid token',
   },
   INVALID_PARAMETER: {
-    errno: 109,
+    errno: OAUTH_ERRNO.INVALID_PARAMETER,
     message: 'Invalid OAuth parameter: %(param)s',
     interpolate: true,
   },
   INVALID_RESPONSE_TYPE: {
-    errno: 110,
+    errno: OAUTH_ERRNO.INVALID_RESPONSE_TYPE,
     message: UNEXPECTED_ERROR,
   },
   UNAUTHORIZED: {
-    errno: 111,
+    errno: OAUTH_ERRNO.UNAUTHORIZED,
     message: 'Unauthorized',
   },
   FORBIDDEN: {
-    errno: 112,
+    errno: OAUTH_ERRNO.FORBIDDEN,
     message: 'Forbidden',
   },
   INVALID_CONTENT_TYPE: {
-    errno: 113,
+    errno: OAUTH_ERRNO.INVALID_CONTENT_TYPE,
     message: UNEXPECTED_ERROR,
   },
   INVALID_SCOPES: {
-    errno: 114,
+    errno: OAUTH_ERRNO.INVALID_SCOPES,
     message: 'Invalid OAuth parameter: %(param)s',
     interpolate: true,
   },
   EXPIRED_TOKEN: {
-    errno: 115,
+    errno: OAUTH_ERRNO.EXPIRED_TOKEN,
     message: 'Expired token',
   },
   NOT_PUBLIC_CLIENT: {
-    errno: 116,
+    errno: OAUTH_ERRNO.NOT_PUBLIC_CLIENT,
     message: 'Not a public client',
   },
   INCORRECT_CODE_CHALLENGE: {
-    errno: 117,
+    errno: OAUTH_ERRNO.INCORRECT_CODE_CHALLENGE,
     message: 'Incorrect code_challenge',
   },
   MISSING_PKCE_PARAMETERS: {
-    errno: 118,
+    errno: OAUTH_ERRNO.MISSING_PKCE_PARAMETERS,
     message: 'PKCE parameters missing',
   },
   STALE_AUTHENTICATION_TIMESTAMP: {
-    errno: 119,
+    errno: OAUTH_ERRNO.STALE_AUTH_AT,
     message: 'Stale authentication timestamp',
   },
   MISMATCH_ACR_VALUES: {
-    errno: 120,
+    errno: OAUTH_ERRNO.MISMATCH_ACR_VALUES,
     message: 'Mismatch acr values',
   },
   INVALID_GRANT_TYPE: {
-    errno: 121,
+    errno: OAUTH_ERRNO.INVALID_GRANT_TYPE,
     message: 'Invalid grant_type',
   },
   SERVER_UNAVAILABLE: {
-    errno: 201,
+    errno: OAUTH_ERRNO.SERVER_UNAVAILABLE,
     message: 'System unavailable, try again soon',
   },
   DISABLED_CLIENT_ID: {
-    errno: 202,
+    errno: OAUTH_ERRNO.DISABLED_CLIENT_ID,
     message: 'System unavailable, try again soon',
   },
   SERVICE_UNAVAILABLE: {
@@ -194,8 +195,8 @@ export class OAuthError extends Error {
       typeof error === 'string'
         ? OAUTH_ERRORS[error]
         : typeof error === 'number'
-        ? Object.values(OAUTH_ERRORS).find((x) => x.errno === error)
-        : null;
+          ? Object.values(OAUTH_ERRORS).find((x) => x.errno === error)
+          : null;
     let msg = err != null ? err.message : UNEXPECTED_ERROR;
     if (err?.interpolate) {
       msg = interpolate(msg, params || {});

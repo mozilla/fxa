@@ -4,7 +4,7 @@
 
 import { OAuth2Client } from 'google-auth-library';
 import { Request, ResponseToolkit } from '@hapi/hapi';
-import AppError from '../../error';
+import { AppError } from '@fxa/accounts/errors';
 
 export const strategy = ({
   aud,

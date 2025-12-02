@@ -4,7 +4,7 @@
 
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
-const OauthError = require('./error');
+const { OauthError } = require('@fxa/accounts/errors');
 const { config } = require('../../config');
 const db = require('./db');
 const encrypt = require('fxa-shared/auth/encrypt');

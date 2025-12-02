@@ -5,8 +5,8 @@
 const crypto = require('crypto');
 const Joi = require('joi');
 
-const OauthError = require('../../oauth/error');
-const AuthError = require('../../error');
+const { OauthError } = require('@fxa/accounts/errors');
+const { AppError: AuthError } = require('@fxa/accounts/errors');
 const encrypt = require('fxa-shared/auth/encrypt');
 const validators = require('../../oauth/validators');
 const { getTokenId } = require('../../oauth/token');

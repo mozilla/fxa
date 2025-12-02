@@ -19,7 +19,7 @@ const {
 } = require('@fxa/payments/paypal');
 const { PayPalHelper, RefusedError } = require('../../../lib/payments/paypal');
 const { mockLog } = require('../../mocks');
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
 const successfulRefundTransactionResponse = require('./fixtures/paypal/refund_transaction_success.json');
@@ -736,7 +736,8 @@ describe('PayPalHelper', () => {
         ...validInvoice,
         amount_paid: 1000,
       };
-      const expectedErrorMessage = 'Partial refunds must be less than the amount paid on the invoice';
+      const expectedErrorMessage =
+        'Partial refunds must be less than the amount paid on the invoice';
       mockStripeHelper.getInvoicePaypalTransactionId =
         sinon.fake.returns('123');
       mockStripeHelper.getInvoicePaypalRefundTransactionId =
@@ -909,9 +910,8 @@ describe('PayPalHelper', () => {
     it('returns false with no billing agreement found', async () => {
       mockStripeHelper.getCustomerPaypalAgreement =
         sinon.fake.returns(undefined);
-      const result = await paypalHelper.conditionallyRemoveBillingAgreement(
-        mockCustomer
-      );
+      const result =
+        await paypalHelper.conditionallyRemoveBillingAgreement(mockCustomer);
       assert.isFalse(result);
     });
 
@@ -921,9 +921,8 @@ describe('PayPalHelper', () => {
       mockCustomer.subscriptions = {
         data: [{ status: 'active', collection_method: 'send_invoice' }],
       };
-      const result = await paypalHelper.conditionallyRemoveBillingAgreement(
-        mockCustomer
-      );
+      const result =
+        await paypalHelper.conditionallyRemoveBillingAgreement(mockCustomer);
       assert.isFalse(result);
     });
 
@@ -933,9 +932,8 @@ describe('PayPalHelper', () => {
       mockCustomer.subscriptions = { data: [] };
       paypalHelper.cancelBillingAgreement = sinon.fake.resolves({});
       mockStripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
-      const result = await paypalHelper.conditionallyRemoveBillingAgreement(
-        mockCustomer
-      );
+      const result =
+        await paypalHelper.conditionallyRemoveBillingAgreement(mockCustomer);
       assert.isTrue(result);
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.getCustomerPaypalAgreement,

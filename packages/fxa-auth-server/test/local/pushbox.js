@@ -10,7 +10,7 @@ const sandbox = sinon.createSandbox();
 
 const { pushboxApi } = require('../../lib/pushbox');
 const pushboxDbModule = require('../../lib/pushbox/db');
-const error = require('../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const { mockLog } = require('../mocks');
 let mockStatsD;
 

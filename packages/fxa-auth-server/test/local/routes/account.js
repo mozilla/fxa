@@ -17,7 +17,7 @@ const {
 
 const uuid = require('uuid');
 const crypto = require('crypto');
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const log = require('../../../lib/log');
 const otplib = require('otplib');
 const { Container } = require('typedi');
@@ -946,7 +946,7 @@ describe('/account/create', () => {
         wrapWrapKb: 'wibble',
       },
       {
-        emailRecord: new error.unknownAccount(),
+        emailRecord: error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -1571,7 +1571,7 @@ describe('/account/stub', () => {
         wrapWrapKb: 'wibble',
       },
       {
-        emailRecord: new error.unknownAccount(),
+        emailRecord: error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -1712,7 +1712,7 @@ describe('/account/status', () => {
       },
       {
         ...(shouldError && {
-          emailRecord: new error.unknownAccount(),
+          emailRecord: error.unknownAccount(),
         }),
       }
     );
@@ -1891,7 +1891,7 @@ describe('/account/finish_setup', () => {
         verifierSetAt: options.verifierSetAt,
       },
       {
-        emailRecord: new error.unknownAccount(),
+        emailRecord: error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -2043,7 +2043,7 @@ describe('/account/set_password', () => {
         verifierSetAt: options.verifierSetAt,
       },
       {
-        emailRecord: new error.unknownAccount(),
+        emailRecord: error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -4171,10 +4171,8 @@ describe('/account/login', () => {
           });
 
           it('unknown account', () => {
-            mockDB.accountRecord = () =>
-              Promise.reject(new error.unknownAccount());
-            mockDB.emailRecord = () =>
-              Promise.reject(new error.unknownAccount());
+            mockDB.accountRecord = () => Promise.reject(error.unknownAccount());
+            mockDB.emailRecord = () => Promise.reject(error.unknownAccount());
             return runTest(route, mockRequestWithUnblockCode).then(
               () => assert(false),
               (err) => {

@@ -6,7 +6,7 @@
 
 const butil = require('../crypto/butil');
 const emailUtils = require('./utils/email');
-const error = require('../error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const isA = require('joi');
 const random = require('../crypto/random');
 const Sentry = require('@sentry/node');

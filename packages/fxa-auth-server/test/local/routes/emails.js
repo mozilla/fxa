@@ -8,7 +8,7 @@ const sinon = require('sinon');
 
 const assert = require('../../assert');
 const crypto = require('crypto');
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const getRoute = require('../../routes_helpers').getRoute;
 const knownIpLocation = require('../../known-ip-location');
 const mocks = require('../../mocks');

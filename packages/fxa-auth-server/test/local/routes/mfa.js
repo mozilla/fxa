@@ -10,7 +10,7 @@ const { Container } = require('typedi');
 const { OtpUtils } = require('../../../lib/routes/utils/otp');
 const { AccountEventsManager } = require('../../../lib/account-events');
 const { strategy } = require('../../../lib/routes/auth-schemes/mfa');
-const AppError = require('../../../lib/error');
+const { AppError } = require('@fxa/accounts/errors');
 
 describe('mfa', () => {
   let log,

@@ -5,7 +5,7 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
-const AppError = require('../../../../lib/error');
+const { AppError } = require('@fxa/accounts/errors');
 
 let verifyIdTokenStub;
 const GoogleOIDCScheme = proxyquire(

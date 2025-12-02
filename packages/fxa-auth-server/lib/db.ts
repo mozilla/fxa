@@ -30,7 +30,7 @@ import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 import random, { base32 } from './crypto/random';
-import error from './error';
+import { AppError as error } from '@fxa/accounts/errors';
 import {
   verificationMethodToString,
   VerificationMethod,
@@ -1064,15 +1064,15 @@ export const createDB = (
       );
     }
 
-    async verifiedLoginSecurityEventsByUid(params: { uid: string; skipTimeframeMs: number}) {
+    async verifiedLoginSecurityEventsByUid(params: {
+      uid: string;
+      skipTimeframeMs: number;
+    }) {
       log.trace('DB.verifiedLoginSecurityEventsByUid', {
         params: params,
       });
       const { uid, skipTimeframeMs } = params;
-      return SecurityEvent.findByUidAndVerifiedLogin(
-        uid,
-        skipTimeframeMs
-      );
+      return SecurityEvent.findByUidAndVerifiedLogin(uid, skipTimeframeMs);
     }
 
     async securityEventsByUid(params: { uid: string }) {

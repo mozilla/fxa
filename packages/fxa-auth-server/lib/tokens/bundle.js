@@ -26,7 +26,7 @@
 
 const butil = require('../crypto/butil');
 const crypto = require('crypto');
-const error = require('../error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const hkdf = require('../crypto/hkdf');
 
 const HASH_ALGORITHM = 'sha256';

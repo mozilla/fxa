@@ -6,7 +6,7 @@ const { Container } = require('typedi');
 
 const { CapabilityService } = require('../payments/capability');
 const { config } = require('../../config');
-const OauthError = require('./error');
+const { OauthError } = require('@fxa/accounts/errors');
 const db = require('./db');
 const util = require('./util');
 const ScopeSet = require('fxa-shared').oauth.scopes;
@@ -45,7 +45,6 @@ const TRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
   'email',
   'profile:subscriptions',
 ]);
-
 
 /** @type {CapabilityService} */
 let capabilityService = undefined;
@@ -116,9 +115,13 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
   // For trusted clients, validate scopes against clients trusted scopes
   if (client.trusted) {
     const clientScopeSet = ScopeSet.fromString(client.allowedScopes || '');
-    const trustedClientAllowedScopes = clientScopeSet.union(TRUSTED_CLIENT_ALLOWED_SCOPES);
+    const trustedClientAllowedScopes = clientScopeSet.union(
+      TRUSTED_CLIENT_ALLOWED_SCOPES
+    );
 
-    const invalidScopes = requestedGrant.scope.difference(trustedClientAllowedScopes);
+    const invalidScopes = requestedGrant.scope.difference(
+      trustedClientAllowedScopes
+    );
     if (!invalidScopes.isEmpty()) {
       if (config.get('oauthServer.strictScopeValidation')) {
         // Strict mode: remove invalid scopes

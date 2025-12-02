@@ -8,7 +8,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const uuid = require('uuid');
 const mocks = require('../../../mocks');
-const error = require('../../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const Sentry = require('@sentry/node');
 const sentryModule = require('../../../../lib/sentry');
 const {
@@ -2175,7 +2175,7 @@ describe('StripeWebhookHandler', () => {
         {
           acceptLanguage: mockAccount.locale,
           ...mockInvoiceDetails,
-          email: mockAccount.primaryEmail
+          email: mockAccount.primaryEmail,
         }
       );
     });
@@ -2213,7 +2213,7 @@ describe('StripeWebhookHandler', () => {
           {
             acceptLanguage: mockAccount.locale,
             ...mockInvoiceDetails,
-            email: mockAccount.primaryEmail
+            email: mockAccount.primaryEmail,
           }
         );
         if (expectedMethodName === 'sendSubscriptionFirstInvoiceEmail') {
@@ -2225,7 +2225,7 @@ describe('StripeWebhookHandler', () => {
               {
                 acceptLanguage: mockAccount.locale,
                 ...mockInvoiceDetails,
-                email: mockAccount.primaryEmail
+                email: mockAccount.primaryEmail,
               }
             );
           } else {
@@ -2414,7 +2414,7 @@ describe('StripeWebhookHandler', () => {
             {
               acceptLanguage: mockAccount.locale,
               ...mockInvoiceDetails,
-              email: mockAccount.primaryEmail
+              email: mockAccount.primaryEmail,
             }
           );
         } else {
@@ -2455,7 +2455,7 @@ describe('StripeWebhookHandler', () => {
               ...mockInvoiceDetails,
               showOutstandingBalance: options.hasOutstandingBalance,
               cancelAtEnd: subscription.cancel_at_period_end,
-              email: mockAccount.primaryEmail
+              email: mockAccount.primaryEmail,
             }
           );
         } else {

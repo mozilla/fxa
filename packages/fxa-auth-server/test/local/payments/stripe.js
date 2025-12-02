@@ -12,7 +12,7 @@ const Chance = require('chance');
 const { setupAuthDatabase } = require('fxa-shared/db');
 const Knex = require('knex');
 const { mockLog, asyncIterable } = require('../../mocks');
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const stripeError = require('stripe').Stripe.errors;
 const uuidv4 = require('uuid').v4;
 const moment = require('moment');
@@ -125,7 +125,6 @@ const {
   newFirestoreStripeError,
   StripeFirestoreMultiError,
 } = require('../../../lib/payments/stripe-firestore');
-const AppError = require('../../../lib/error');
 
 const mockConfig = {
   authFirestore: {
@@ -2034,7 +2033,7 @@ describe('#integration - StripeHelper', () => {
         ...expectedTemplate,
         valid: false,
       };
-      const err = new AppError('previewInvoiceFailed');
+      const err = new error('previewInvoiceFailed');
       sandbox.stub(stripeHelper, 'previewInvoice').rejects(err);
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
@@ -4276,10 +4275,10 @@ describe('#integration - StripeHelper', () => {
       } catch (err) {
         thrown = err;
       }
-      assert.isObject(thrown);
+      assert.instanceOf(thrown, Error);
       assert.equal(thrown.message, 'System unavailable, try again soon');
       assert.equal(
-        thrown.cause().message,
+        thrown.jse_cause?.message,
         'Stripe Customer: cus_new has mismatched uid in metadata.'
       );
     });
@@ -4589,7 +4588,7 @@ describe('#integration - StripeHelper', () => {
         thrown = err;
       }
       assert(stripeHelper.stripe.plans.list.calledOnce);
-      assert.isObject(thrown);
+      assert.instanceOf(thrown, Error);
       assert.equal(thrown.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
     });
   });

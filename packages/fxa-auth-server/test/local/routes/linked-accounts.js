@@ -8,7 +8,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const proxyquire = require('proxyquire');
 const glean = mocks.mockGlean();
 
@@ -26,11 +26,11 @@ const makeRoutes = function (options = {}, requireMocks) {
   const statsd = options.statsd || { increment: sinon.spy() };
 
   const { linkedAccountRoutes } = proxyquire(
-  '../../../lib/routes/linked-accounts',
-  requireMocks || {}
-);
+    '../../../lib/routes/linked-accounts',
+    requireMocks || {}
+  );
 
-return linkedAccountRoutes(log, db, config, mailer, profile, statsd, glean);
+  return linkedAccountRoutes(log, db, config, mailer, profile, statsd, glean);
 };
 
 function runTest(route, request, assertions) {
@@ -141,7 +141,7 @@ describe('/linked_account', function () {
 
       it('should exchange oauth code for `id_token` and create account', async () => {
         mockDB.accountRecord = sinon.spy(() =>
-          Promise.reject(new error.unknownAccount(mockGoogleUser.email))
+          Promise.reject(error.unknownAccount(mockGoogleUser.email))
         );
 
         mockRequest.payload.code = 'oauth code';
@@ -167,7 +167,7 @@ describe('/linked_account', function () {
 
       it('should create new fxa account from new google account, return session, emit Glean events', async () => {
         mockDB.accountRecord = sinon.spy(() =>
-          Promise.reject(new error.unknownAccount(mockGoogleUser.email))
+          Promise.reject(error.unknownAccount(mockGoogleUser.email))
         );
 
         const result = await runTest(route, mockRequest);
@@ -386,7 +386,7 @@ describe('/linked_account', function () {
 
       it('should exchange oauth code for `id_token` and create account', async () => {
         mockDB.accountRecord = sinon.spy(() =>
-          Promise.reject(new error.unknownAccount(mockAppleUser.email))
+          Promise.reject(error.unknownAccount(mockAppleUser.email))
         );
 
         mockRequest.payload.code = 'oauth code';
@@ -415,7 +415,7 @@ describe('/linked_account', function () {
 
       it('should create new fxa account from new apple account, return session, emit Glean events', async () => {
         mockDB.accountRecord = sinon.spy(() =>
-          Promise.reject(new error.unknownAccount(mockAppleUser.email))
+          Promise.reject(error.unknownAccount(mockAppleUser.email))
         );
 
         const result = await runTest(route, mockRequest);
@@ -575,7 +575,7 @@ describe('/linked_account', function () {
       try {
         await runTest(route, mockRequest);
         assert.fail('should have failed');
-      } catch(err) {
+      } catch (err) {
         assert.isTrue(mockDB.deleteLinkedAccount.notCalled);
         assert.equal(err.errno, 138, 'unconfirmed session');
       }
@@ -702,7 +702,11 @@ describe('/linked_account', function () {
           {
             './utils/third-party-events': {
               validateSecurityToken: async () =>
-                options.validateSecurityToken !== undefined ? (typeof options.validateSecurityToken === 'function' ? await options.validateSecurityToken() : options.validateSecurityToken) : makeJWT(),
+                options.validateSecurityToken !== undefined
+                  ? typeof options.validateSecurityToken === 'function'
+                    ? await options.validateSecurityToken()
+                    : options.validateSecurityToken
+                  : makeJWT(),
               isValidClientId: () => true,
               getGooglePublicKey: () => {
                 return {
@@ -888,7 +892,9 @@ describe('/linked_account', function () {
       setupTest({ validateSecurityToken: makeJWT('sessionRevoked') });
 
       // Mock database to throw an error
-      mockDB.getLinkedAccount = sinon.stub().rejects(new Error('Database connection failed'));
+      mockDB.getLinkedAccount = sinon
+        .stub()
+        .rejects(new Error('Database connection failed'));
 
       // This should not throw an unhandled promise rejection
       await runTest(route, mockRequest);
@@ -913,9 +919,12 @@ describe('/linked_account', function () {
         { id: 'sessionTokenId1', uid: UID, providerId: 1 },
         { id: 'sessionTokenId2', uid: UID, providerId: 1 },
       ]);
-      mockDB.deleteSessionToken = sinon.stub()
-        .onFirstCall().resolves()
-        .onSecondCall().rejects(new Error('Session deletion failed'));
+      mockDB.deleteSessionToken = sinon
+        .stub()
+        .onFirstCall()
+        .resolves()
+        .onSecondCall()
+        .rejects(new Error('Session deletion failed'));
 
       await runTest(route, mockRequest);
 
@@ -938,7 +947,7 @@ describe('/linked_account', function () {
       });
     });
 
-        it('verifies statsd metrics are incremented for successful operations', async () => {
+    it('verifies statsd metrics are incremented for successful operations', async () => {
       setupTest({ validateSecurityToken: makeJWT('sessionRevoked') });
 
       // First call - should succeed and revoke sessions
@@ -983,12 +992,21 @@ describe('/linked_account', function () {
 
       // Debug: print all calls to statsd.increment
       // eslint-disable-next-line no-console
-      console.log('statsd.increment calls:', statsd.increment.getCalls().map(call => call.args));
+      console.log(
+        'statsd.increment calls:',
+        statsd.increment.getCalls().map((call) => call.args)
+      );
 
       // Only these two metrics should be called, in order
       sinon.assert.callCount(statsd.increment, 2);
-      sinon.assert.calledWithExactly(statsd.increment.getCall(0), 'handleGoogleSET.received');
-      sinon.assert.calledWithExactly(statsd.increment.getCall(1), 'handleGoogleSET.validationError');
+      sinon.assert.calledWithExactly(
+        statsd.increment.getCall(0),
+        'handleGoogleSET.received'
+      );
+      sinon.assert.calledWithExactly(
+        statsd.increment.getCall(1),
+        'handleGoogleSET.validationError'
+      );
 
       // Should not call decoded or processing metrics since validation failed
       assert.notCalled(mockDB.getLinkedAccount);
@@ -1153,7 +1171,9 @@ describe('/linked_account', function () {
       setupTest({ validateSecurityToken: makeJWT('consent-revoked') });
 
       // Mock database to throw an error
-      mockDB.getLinkedAccount = sinon.stub().rejects(new Error('Database connection failed'));
+      mockDB.getLinkedAccount = sinon
+        .stub()
+        .rejects(new Error('Database connection failed'));
 
       // This should not throw an unhandled promise rejection
       await runTest(route, mockRequest);

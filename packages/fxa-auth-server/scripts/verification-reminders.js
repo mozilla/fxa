@@ -20,7 +20,7 @@ const LIB_DIR = `${ROOT_DIR}/lib`;
 
 const config = require(`${ROOT_DIR}/config`).default.getProperties();
 
-const error = require(`${LIB_DIR}/error`);
+const { AppError: error } = require('@fxa/accounts/errors');
 const log = require(`${LIB_DIR}/log`)(config.log);
 const jwt = require(`${LIB_DIR}/oauth/jwt`);
 const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
@@ -30,8 +30,9 @@ const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
 const Sentry = require('@sentry/node');
 
 const cadReminders = require(`${LIB_DIR}/cad-reminders`)(config, log);
-const subscriptionAccountReminders =
-  require(`${LIB_DIR}/subscription-account-reminders`)(log, config);
+const subscriptionAccountReminders = require(
+  `${LIB_DIR}/subscription-account-reminders`
+)(log, config);
 
 Sentry.init({});
 const checkInId = Sentry.captureCheckIn({

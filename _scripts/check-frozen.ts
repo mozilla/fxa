@@ -9,10 +9,6 @@ import { execSync } from 'child_process';
 // Maintain List of frozen files here!
 const frozen: Array<{ pattern: string; reason: string }> = [
   {
-    pattern: 'packages/fxa-auth-server/(lib|lib/oauth)/error.js',
-    reason: 'Files moved to libs/accounts/errors',
-  },
-  {
     pattern: 'packages/fxa-auth-server/lib/senders/email.js',
     reason: 'Files moved to libs/accounts/email-sender',
   },

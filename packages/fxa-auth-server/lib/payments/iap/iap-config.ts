@@ -5,7 +5,7 @@ import { Firestore } from '@google-cloud/firestore';
 import { Container } from 'typedi';
 import { TypedCollectionReference } from '@fxa/vendored/typesafe-node-firestore';
 
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { AppConfig, AuthFirestore, AuthLogger } from '../../types';
 import { IapConfig } from './types';
 

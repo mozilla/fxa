@@ -5,7 +5,7 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
-const AppError = require('../../lib/oauth/error');
+const { OauthError: AppError } = require('@fxa/accounts/errors');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const TOKEN_SERVER_URL =
