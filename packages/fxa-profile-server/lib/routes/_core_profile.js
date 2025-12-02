@@ -10,6 +10,7 @@ const logger = require('../logging')('routes._core_profile');
 const request = require('../request');
 
 const AUTH_SERVER_URL = config.get('authServer.url') + '/account/profile';
+const AUTH_SERVER_TIMEOUT_MS = config.get('authServer.timeoutMs') || 5000;
 
 /**
  * This is an internal-use route that retrieves all the user
@@ -54,6 +55,7 @@ module.exports = {
               Authorization: 'Bearer ' + req.auth.credentials.token,
             },
             json: true,
+            timeout: AUTH_SERVER_TIMEOUT_MS
           },
           (err, res, body) => {
             if (err) {

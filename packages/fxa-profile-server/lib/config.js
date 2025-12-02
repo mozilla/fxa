@@ -27,6 +27,12 @@ const conf = convict({
       env: 'AUTH_SERVER_URL',
       default: 'http://localhost:9000/v1',
     },
+    timeoutMs: {
+      doc: 'Timeout in milliseconds for requests to fxa-auth-server',
+      format: 'duration',
+      default: '5 seconds',
+      env: 'AUTH_SERVER_TIMEOUT_MS',
+    },
   },
   clientAddressDepth: {
     doc: 'location of the client ip address in the remote address chain',
