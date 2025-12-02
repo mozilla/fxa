@@ -46,7 +46,6 @@
     "populate-vat-taxes": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/populate-vat-taxes.ts",
     "paypal-processor": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/paypal-processor.ts",
     "prune-tokens": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/prune-tokens.ts",
-    "prune-pocket-access-tokens": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/prune-pocket-access-tokens.ts",
     "subscription-reminders": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/subscription-reminders.ts",
     "audit-orphaned-stripe-accounts": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/audit-orphaned-customers.ts",
     "remove-unverified-accounts": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/remove-unverified-accounts.ts",
