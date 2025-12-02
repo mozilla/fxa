@@ -84,11 +84,9 @@ const ThirdPartyAuthCallback = ({
    */
   const performNavigation = useCallback(
     async (linkedAccount: LinkedAccountData, needsVerification = false) => {
-      const isNonSyncBrowserSignIn =
-        integration.isFirefoxClientServiceRelay() ||
-        integration.isFirefoxClientServiceAiMode();
+      const isFirefoxNonSync = integration.isFirefoxNonSync();
 
-      if (isNonSyncBrowserSignIn || integration.isSync()) {
+      if (integration.isFirefoxNonSync() || integration.isSync()) {
         const ok = await ensureCanLinkAcountOrRedirect({
           email: linkedAccount.email,
           uid: linkedAccount.uid,
@@ -127,8 +125,8 @@ const ThirdPartyAuthCallback = ({
         // For Sync, third‑party auth is only offered if the account is passwordless.
         // In that case, we must defer browser login/OAuth messages until after the
         // user sets a password and keys are available (see SetPassword/container.tsx).
-        handleFxaLogin: isNonSyncBrowserSignIn,
-        handleFxaOAuthLogin: isNonSyncBrowserSignIn,
+        handleFxaLogin: isFirefoxNonSync,
+        handleFxaOAuthLogin: isFirefoxNonSync,
       };
 
       const { error: navError } = await handleNavigation(navigationOptions);

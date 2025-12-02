@@ -312,9 +312,9 @@ describe('Signin component', () => {
         });
       });
 
-      it('renders third party auth when service=aimode and supportsKeysOptionalLogin is true', () => {
+      it('renders third party auth when service=aiwindow and supportsKeysOptionalLogin is true', () => {
         const integration = createMockSigninOAuthNativeIntegration({
-          service: OAuthNativeServices.AiMode,
+          service: OAuthNativeServices.AiWindow,
           isSync: false,
         });
         render({

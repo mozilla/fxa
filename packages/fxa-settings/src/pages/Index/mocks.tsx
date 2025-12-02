@@ -53,12 +53,12 @@ export function createMockIndexOAuthIntegration({
 export function createMockIndexOAuthNativeIntegration({
   isSync = true,
   isFirefoxClientServiceRelay = false,
-  isFirefoxClientServiceAiMode = false,
+  isFirefoxClientServiceAiWindow = false,
   cmsInfo,
 }: {
   isSync?: boolean;
   isFirefoxClientServiceRelay?: boolean;
-  isFirefoxClientServiceAiMode?: boolean;
+  isFirefoxClientServiceAiWindow?: boolean;
   cmsInfo?: RelierCmsInfo;
 } = {}): IndexIntegration {
   return {
@@ -66,7 +66,9 @@ export function createMockIndexOAuthNativeIntegration({
     isSync: () => isSync,
     getClientId: () => MOCK_CLIENT_ID,
     isFirefoxClientServiceRelay: () => isFirefoxClientServiceRelay,
-    isFirefoxClientServiceAiMode: () => isFirefoxClientServiceAiMode,
+    isFirefoxClientServiceAiWindow: () => isFirefoxClientServiceAiWindow,
+    isFirefoxNonSync: () =>
+      isFirefoxClientServiceRelay || isFirefoxClientServiceAiWindow,
     getCmsInfo: () => cmsInfo,
     data: new OAuthIntegrationData(
       new GenericData({
@@ -82,7 +84,8 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isSync: () => false,
     getClientId: () => undefined,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => false,
     getCmsInfo: () => undefined,
     data: new IntegrationData(
       new GenericData({

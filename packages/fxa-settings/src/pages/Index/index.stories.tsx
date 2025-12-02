@@ -50,9 +50,9 @@ export const WithThirdPartyAuthServiceRelayIntegration = storyWithProps({
   supportsKeysOptionalLogin: true,
 });
 
-export const WithThirdPartyAuthServiceAIModeIntegration = storyWithProps({
+export const WithThirdPartyAuthServiceAIWindowIntegration = storyWithProps({
   integration: createMockIndexOAuthNativeIntegration({
-    isFirefoxClientServiceAiMode: true,
+    isFirefoxClientServiceAiWindow: true,
     isSync: false,
   }),
   supportsKeysOptionalLogin: true,

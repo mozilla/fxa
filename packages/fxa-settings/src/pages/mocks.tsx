@@ -193,18 +193,18 @@ export const createMockIntegrationWithCms = () =>
 export function mockGetWebChannelServices({
   isSync = false,
   isRelay = false,
-  isAiMode = false,
+  isAiWindow = false,
 }: {
   isSync?: boolean;
   isRelay?: boolean;
-  isAiMode?: boolean;
+  isAiWindow?: boolean;
 } = {}) {
   return (syncEngines?: SyncEngines): WebChannelServices | undefined => {
     if (isRelay) {
       return { relay: {} };
     }
-    if (isAiMode) {
-      return { aimode: {} };
+    if (isAiWindow) {
+      return { aiwindow: {} };
     }
     if (isSync) {
       return { sync: syncEngines || {} };

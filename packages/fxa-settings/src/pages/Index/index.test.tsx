@@ -131,12 +131,12 @@ describe('Index page', () => {
     thirdPartyAuthWithSeparatorRendered();
   });
 
-  it('renders third party auth with service=aimode when supportsKeysOptionalLogin is true', () => {
+  it('renders third party auth with service=aiwindow when supportsKeysOptionalLogin is true', () => {
     renderWithLocalizationProvider(
       <Subject
         integration={createMockIndexOAuthNativeIntegration({
           isSync: false,
-          isFirefoxClientServiceAiMode: true,
+          isFirefoxClientServiceAiWindow: true,
         })}
         supportsKeysOptionalLogin={true}
       />

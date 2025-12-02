@@ -29,7 +29,8 @@ export const mockWebSigninIntegration = {
   isSync: () => false,
   wantsKeys: () => false,
   isFirefoxClientServiceRelay: () => false,
-  isFirefoxClientServiceAiMode: () => false,
+  isFirefoxClientServiceAiWindow: () => false,
+  isFirefoxNonSync: () => false,
   getWebChannelServices: mockGetWebChannelServices(),
   getCmsInfo: () => undefined,
   isFirefoxMobileClient: () => false,
@@ -47,7 +48,8 @@ export const mockOAuthNativeSigninIntegration = (
     isSync: () => isSync,
     wantsKeys: () => false,
     isFirefoxClientServiceRelay: () => isRelay,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => isRelay,
     getWebChannelServices: mockGetWebChannelServices({ isSync, isRelay }),
     data: new IntegrationData(
       new GenericData({

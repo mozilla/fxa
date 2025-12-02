@@ -205,9 +205,7 @@ const IndexContainer = ({
         // For older versions of Fx, send can_link_account with email regardless of
         // if the account exists or not
         if (
-          (integration.isSync() ||
-            integration.isFirefoxClientServiceRelay() ||
-            integration.isFirefoxClientServiceAiMode()) &&
+          (integration.isSync() || integration.isFirefoxNonSync()) &&
           !useFxAStatusResult.supportsCanLinkAccountUid &&
           // If the account exists and is already linked to a third‑party provider,
           // defer can_link_account until after the user completes Google/Apple auth
