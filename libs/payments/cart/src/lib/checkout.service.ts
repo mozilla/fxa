@@ -30,6 +30,8 @@ import {
   SubscriptionManager,
   SetupIntentManager,
   type TaxAddress,
+  PaymentMethodManager,
+  SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
@@ -55,7 +57,10 @@ import {
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
-import { handleEligibilityStatusMap } from './cart.utils';
+import {
+  handleEligibilityStatusMap,
+  convertStripePaymentMethodTypeToSubPlat,
+} from './cart.utils';
 import type {
   PrePayStepsResult,
   SubscriptionAttributionParams,
@@ -98,6 +103,7 @@ export class CheckoutService {
     private profileClient: ProfileClient,
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
+    private paymentMethodManager: PaymentMethodManager,
     @Inject(StatsDService) private statsd: StatsD
   ) {}
 
@@ -269,8 +275,9 @@ export class CheckoutService {
     subscription: StripeSubscription;
     uid: string;
     paymentProvider: 'stripe' | 'paypal';
+    paymentForm: SubPlatPaymentMethodType;
   }) {
-    const { cart, version, subscription, uid, paymentProvider } = args;
+    const { cart, version, subscription, uid, paymentProvider, paymentForm } = args;
     const { customer: customerId, currency } = subscription;
 
     await this.customerManager.setTaxId(customerId, currency);
@@ -290,6 +297,7 @@ export class CheckoutService {
 
     this.statsd.increment('subscription_success', {
       payment_provider: paymentProvider,
+      payment_form: paymentForm,
       offering_id: cart.offeringConfigId,
       interval: cart.interval,
     });
@@ -450,6 +458,19 @@ export class CheckoutService {
         } else {
           throw new PaymentMethodUpdateFailedError(cart.id, customer.id);
         }
+        const paymentMethod = await this.paymentMethodManager.retrieve(
+          intent.payment_method
+        );
+        const paymentForm = convertStripePaymentMethodTypeToSubPlat(paymentMethod);
+
+        await this.postPaySteps({
+          cart,
+          version: updatedVersion,
+          subscription,
+          uid,
+          paymentProvider: 'stripe',
+          paymentForm,
+        });
       } else if (intent.status === 'requires_payment_method') {
         const errorCode = isPaymentIntent(intent)
           ? intent.last_payment_error?.code
@@ -474,14 +495,6 @@ export class CheckoutService {
         );
       }
     }
-
-    await this.postPaySteps({
-      cart,
-      version: updatedVersion,
-      subscription,
-      uid,
-      paymentProvider: 'stripe',
-    });
   }
 
   async payWithPaypal(
@@ -624,6 +637,7 @@ export class CheckoutService {
         subscription,
         uid,
         paymentProvider: 'paypal',
+        paymentForm: SubPlatPaymentMethodType.PayPal,
       });
     } else {
       throw new InvalidInvoiceStateCheckoutError(
