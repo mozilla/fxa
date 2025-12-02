@@ -5,18 +5,24 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { NimbusProvider, useNimbusContext } from './NimbusContext';
-import { AppContext } from './AppContext';
+import { AppContext, AppContextValue } from './AppContext';
 import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
-import { initializeNimbus } from '../../lib/nimbus';
+import { initializeNimbus, NimbusResult } from '../../lib/nimbus';
 import * as Sentry from '@sentry/react';
+import { currentAccount } from '../../lib/cache';
+import { StoredAccountData } from '../../lib/storage-utils';
 
 jest.mock('../../contexts/DynamicLocalizationContext');
 jest.mock('../../lib/nimbus');
 jest.mock('@sentry/react');
+jest.mock('../../lib/cache', () => ({
+  currentAccount: jest.fn(),
+}));
 
 const mockUseDynamicLocalization = useDynamicLocalization as jest.MockedFunction<typeof useDynamicLocalization>;
 const mockInitializeNimbus = initializeNimbus as jest.MockedFunction<typeof initializeNimbus>;
 const mockSentryCaptureException = Sentry.captureException as jest.MockedFunction<typeof Sentry.captureException>;
+const mockCurrentAccount = currentAccount as jest.MockedFunction<typeof currentAccount>;
 
 const TestComponent = () => {
   const { experiments, loading, error } = useNimbusContext();
@@ -32,13 +38,13 @@ const TestComponent = () => {
 const mockAppContext = {
   config: {
     nimbus: { enabled: true, preview: false }
-  },
+  } as AppContextValue['config'],
   uniqueUserId: 'test-user-id'
-};
+} as Partial<AppContextValue>;
 
-const renderWithProviders = (appContext = mockAppContext) => {
+const renderWithProviders = (appContext: Partial<AppContextValue> = mockAppContext) => {
   return render(
-    <AppContext.Provider value={appContext as any}>
+    <AppContext.Provider value={appContext as AppContextValue}>
       <NimbusProvider>
         <TestComponent />
       </NimbusProvider>
@@ -54,7 +60,10 @@ describe('NimbusContext', () => {
       switchLanguage: jest.fn(),
       clearLanguagePreference: jest.fn(),
       isLoading: false
-    } as any);
+    });
+    mockCurrentAccount.mockReturnValue({
+      metricsEnabled: true,
+    } as StoredAccountData);
     Object.defineProperty(window, 'location', {
       value: { search: '' },
       writable: true
@@ -77,7 +86,7 @@ describe('NimbusContext', () => {
 
       expect(() => {
         render(
-          <AppContext.Provider value={{ uniqueUserId: 'test' } as any}>
+          <AppContext.Provider value={{ uniqueUserId: 'test' } as AppContextValue}>
             <NimbusProvider>
               <TestComponent />
             </NimbusProvider>
@@ -89,9 +98,9 @@ describe('NimbusContext', () => {
     });
 
     it('does not fetch when nimbus is disabled', async () => {
-      const disabledConfig = {
+      const disabledConfig: Partial<AppContextValue> = {
         ...mockAppContext,
-        config: { nimbus: { enabled: false, preview: false } }
+        config: { nimbus: { enabled: false, preview: false } } as AppContextValue['config']
       };
 
       renderWithProviders(disabledConfig);
@@ -101,9 +110,9 @@ describe('NimbusContext', () => {
     });
 
     it('does not fetch when uniqueUserId is missing', async () => {
-      const noUserIdConfig = {
+      const noUserIdConfig: Partial<AppContextValue> = {
         ...mockAppContext,
-        uniqueUserId: null as any
+        uniqueUserId: undefined
       };
 
       renderWithProviders(noUserIdConfig);
@@ -112,12 +121,41 @@ describe('NimbusContext', () => {
       expect(screen.getByTestId('loading')).toHaveTextContent('false');
     });
 
-    it('fetches experiments successfully', async () => {
-      const mockExperiments = {
-        Features: { 'test-feature': { enabled: true } },
+    it('does not fetch when metrics are disabled', async () => {
+      mockCurrentAccount.mockReturnValue({
+        metricsEnabled: false,
+      } as StoredAccountData);
+
+      renderWithProviders();
+
+      expect(mockInitializeNimbus).not.toHaveBeenCalled();
+      expect(screen.getByTestId('loading')).toHaveTextContent('false');
+      expect(screen.getByTestId('experiments')).toHaveTextContent('no-experiments');
+    });
+
+    it('fetches when metrics are enabled', async () => {
+      mockCurrentAccount.mockReturnValue({
+        metricsEnabled: true,
+      } as StoredAccountData);
+      const mockExperiments: NimbusResult = {
+        features: { 'test-feature': { enabled: true } },
         nimbusUserId: 'test-user-id'
       };
-      mockInitializeNimbus.mockResolvedValue(mockExperiments as any);
+      mockInitializeNimbus.mockResolvedValue(mockExperiments);
+
+      renderWithProviders();
+
+      expect(mockInitializeNimbus).toHaveBeenCalled();
+      await screen.findByTestId('experiments');
+      expect(screen.getByTestId('experiments')).toHaveTextContent('has-experiments');
+    });
+
+    it('fetches experiments successfully', async () => {
+      const mockExperiments: NimbusResult = {
+        features: { 'test-feature': { enabled: true } },
+        nimbusUserId: 'test-user-id'
+      };
+      mockInitializeNimbus.mockResolvedValue(mockExperiments);
 
       renderWithProviders();
 
@@ -132,11 +170,11 @@ describe('NimbusContext', () => {
     });
 
     it('handles API response with lowercase features', async () => {
-      const mockExperiments = {
+      const mockExperiments: NimbusResult = {
         features: { 'test-feature': { enabled: true } },
         nimbusUserId: 'test-user-id'
       };
-      mockInitializeNimbus.mockResolvedValue(mockExperiments as any);
+      mockInitializeNimbus.mockResolvedValue(mockExperiments);
 
       renderWithProviders();
 
@@ -167,9 +205,9 @@ describe('NimbusContext', () => {
     });
 
     it('handles preview mode from config', async () => {
-      const previewConfig = {
+      const previewConfig: Partial<AppContextValue> = {
         ...mockAppContext,
-        config: { nimbus: { enabled: true, preview: true } }
+        config: { nimbus: { enabled: true, preview: true } } as AppContextValue['config']
       };
 
       renderWithProviders(previewConfig);
