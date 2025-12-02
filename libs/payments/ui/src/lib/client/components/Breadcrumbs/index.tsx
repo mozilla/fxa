@@ -75,6 +75,11 @@ export function Breadcrumbs(args: {
         PAYPAL_PAYMENT_METHODS,
       ];
       break;
+    case `/${params.locale}/${params.offeringId}/${params.interval}/${
+      params.churnType
+    }/loyalty-discount/terms`:
+      breadcrumbs = [SUBSCRIPTION_MANAGEMENT];
+      break;
     case `/${params.locale}/subscriptions/manage`:
     default:
       breadcrumbs = [ACCOUNT_SETTINGS, SUBSCRIPTION_MANAGEMENT];
@@ -83,13 +88,13 @@ export function Breadcrumbs(args: {
 
   return (
     <nav
-      className="flex items-center h-11 tablet:h-[76px] pt-4 px-4 pb-2 tablet:p-6 border-b tablet:border-b-0 border-grey-100"
+      className="flex items-center h-11 tablet:h-[76px] pt-4 px-4 pb-2 tablet:p-6"
       aria-label="Breadcrumb"
     >
       <ol className="tablet:hidden">
         {breadcrumbs.map(({ label, href }, i) => {
           const isPrev = i === breadcrumbs.length - 2;
-          if (!isPrev) return null;
+          if (!isPrev && breadcrumbs.length !== 1) return null;
 
           const url = new URL(href);
           url.search = searchParams.toString();
@@ -103,7 +108,7 @@ export function Breadcrumbs(args: {
                 aria-label={l10n.getString(
                   'subscription-management-breadcrumb-back-aria',
                   {
-                    page: label
+                    page: label,
                   },
                   `Go back to ${label}`
                 )}
@@ -141,7 +146,7 @@ export function Breadcrumbs(args: {
                   />
                 </div>
               )}
-              {isLast ? (
+              {isLast && breadcrumbs.length > 1 ? (
                 <span aria-current="page" className="pb-0.5">
                   {label}
                 </span>

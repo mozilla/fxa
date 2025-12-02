@@ -32,6 +32,7 @@ export interface CancelInterstitialOffer {
   productPageUrl: string;
   upgradeButtonLabel: string;
   upgradeButtonUrl: string;
+  localizations: Partial<CancelInterstitialOffer>[];
   offering: CancelInterstitialOfferOfferingResult;
 }
 

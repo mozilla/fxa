@@ -33,13 +33,23 @@ export const churnInterventionByProductIdQuery = graphql(`
         supportUrl
       }
       churnInterventions(
-        filters: {
-          interval: { eq: $interval }
-          locale: { eq: $locale }
-          churnType: { eq: $churnType }
-        }
+        filters: { interval: { eq: $interval }, churnType: { eq: $churnType } }
         pagination: { limit: 200 }
       ) {
+        localizations(filters: { locale: { eq: $locale } }) {
+          churnInterventionId
+          churnType
+          redemptionLimit
+          stripeCouponId
+          interval
+          discountAmount
+          ctaMessage
+          modalHeading
+          modalMessage
+          productPageUrl
+          termsHeading
+          termsDetails
+        }
         churnInterventionId
         churnType
         redemptionLimit

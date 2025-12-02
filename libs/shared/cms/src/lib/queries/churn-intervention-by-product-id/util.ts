@@ -31,12 +31,26 @@ export class ChurnInterventionByProductIdResultUtil {
               ? defaultPurchase.purchaseDetails.localizations[0].webIcon
               : defaultPurchase.purchaseDetails.webIcon,
           supportUrl: commonContent.supportUrl,
-          termsDetails: this.transformArrayStringField(
-            churnIntervention.termsDetails
-          ),
+          ctaMessage:
+            churnIntervention.localizations.at(0)?.ctaMessage ??
+            churnIntervention.ctaMessage,
+          modalHeading:
+            churnIntervention.localizations.at(0)?.modalHeading ??
+            churnIntervention.modalHeading,
           modalMessage: this.transformArrayStringField(
-            churnIntervention.modalMessage
+            churnIntervention.localizations.at(0)?.modalMessage ??
+              churnIntervention.modalMessage
           ),
+          termsDetails: this.transformArrayStringField(
+            churnIntervention.localizations.at(0)?.termsDetails ??
+              churnIntervention.termsDetails
+          ),
+          termsHeading:
+            churnIntervention.localizations.at(0)?.termsHeading ??
+            churnIntervention.termsHeading,
+          productPageUrl:
+            churnIntervention.localizations.at(0)?.productPageUrl ??
+            churnIntervention.productPageUrl,
         };
       });
 

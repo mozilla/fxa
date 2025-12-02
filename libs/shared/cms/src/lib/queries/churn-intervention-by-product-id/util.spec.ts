@@ -62,10 +62,13 @@ describe('ChurnInterventionByProductIdResultUtil', () => {
         offerings: [
           ChurnInterventionByProductIdOfferingsResultFactory({
             churnInterventions: [
-              ChurnInterventionByProductIdChurnInterventionsResultFactory({
-                termsDetails: rawTermsDetails,
-                modalMessage: rawModalMessage,
-              }),
+              {
+                ...ChurnInterventionByProductIdChurnInterventionsResultFactory({
+                  termsDetails: rawTermsDetails,
+                  modalMessage: rawModalMessage,
+                }),
+                localizations: [],
+              },
             ],
           }),
         ],

@@ -32,7 +32,9 @@ export interface ChurnInterventionByProductIdOfferingResult {
   commonContent: {
     supportUrl: string;
   };
-  churnInterventions: ChurnInterventionByProductIdChurnInterventionsResult[];
+  churnInterventions: (ChurnInterventionByProductIdChurnInterventionsResult & {
+    localizations: ChurnInterventionByProductIdChurnInterventionsResult[];
+  })[];
 }
 
 export interface ChurnInterventionByProductIdRawResult {

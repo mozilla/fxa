@@ -26,9 +26,42 @@ export class CancelInterstitialOfferUtil {
 
     return {
       ...cancelInterstitialOffer,
+      ctaMessage:
+        cancelInterstitialOffer.localizations.at(0)?.ctaMessage ??
+        cancelInterstitialOffer.ctaMessage,
+      modalHeading1:
+        cancelInterstitialOffer.localizations.at(0)?.modalHeading1 ??
+        cancelInterstitialOffer.modalHeading1,
+      modalHeading2:
+        cancelInterstitialOffer.localizations.at(0)?.modalHeading2 ??
+        cancelInterstitialOffer.modalHeading2,
       modalMessage: this.transformArrayStringField(
-        cancelInterstitialOffer.modalMessage
+        cancelInterstitialOffer.localizations.at(0)?.modalMessage ??
+          cancelInterstitialOffer.modalMessage
       ),
+      productPageUrl:
+        cancelInterstitialOffer.localizations.at(0)?.productPageUrl ??
+        cancelInterstitialOffer.productPageUrl,
+      upgradeButtonLabel:
+        cancelInterstitialOffer.localizations.at(0)?.upgradeButtonLabel ??
+        cancelInterstitialOffer.upgradeButtonLabel,
+      upgradeButtonUrl:
+        cancelInterstitialOffer.localizations.at(0)?.upgradeButtonUrl ??
+        cancelInterstitialOffer.upgradeButtonUrl,
+      offering: {
+        ...cancelInterstitialOffer.offering,
+        defaultPurchase: {
+          purchaseDetails: {
+            ...cancelInterstitialOffer.offering.defaultPurchase.purchaseDetails,
+            webIcon:
+              cancelInterstitialOffer.offering.defaultPurchase.purchaseDetails.localizations.at(
+                0
+              )?.webIcon ??
+              cancelInterstitialOffer.offering.defaultPurchase.purchaseDetails
+                .webIcon,
+          },
+        },
+      },
     };
   }
 
