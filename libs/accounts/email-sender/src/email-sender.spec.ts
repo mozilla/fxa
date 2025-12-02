@@ -9,7 +9,6 @@ import type { ILogger } from '@fxa/shared/log';
 import { AppError } from '../../errors/src';
 
 jest.mock('nodemailer');
-jest.mock('@aws-sdk/client-ses');
 jest.mock('@sentry/node');
 
 // additional imports after Jest has mocked modules
@@ -159,7 +158,7 @@ describe('EmailSender', () => {
       expect(mockTransport.sendMail).not.toHaveBeenCalled();
     });
 
-    it('falls back to ses when no username/password provided', async () => {
+    it('uses SMTP without auth when no username/password provided', async () => {
       config = {
         ...config,
         user: undefined,
@@ -173,14 +172,18 @@ describe('EmailSender', () => {
         mockLogger
       );
 
-      // Verify constructor called createTransport with SES configuration
-      expect(mockNodemailer.createTransport).toHaveBeenCalledWith(
+      expect(mockNodemailer.createTransport).toHaveBeenLastCalledWith(
         expect.objectContaining({
-          SES: expect.objectContaining({
-            ses: expect.any(Object),
-          }),
-          sendingRate: 5,
-          maxConnections: 10,
+          host: config.host,
+          port: config.port,
+          secure: config.secure,
+          sendingRate: config.sendingRate,
+        })
+      );
+      expect(mockNodemailer.createTransport).toHaveBeenLastCalledWith(
+        expect.not.objectContaining({
+          SES: expect.anything(),
+          auth: expect.anything(),
         })
       );
 

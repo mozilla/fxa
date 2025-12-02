@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { SES } from '@aws-sdk/client-ses';
 import { Bounces } from './bounces';
 import { StatsD } from 'hot-shots';
 import { ILogger } from '@fxa/shared/log';
@@ -37,10 +36,14 @@ export type MailerConfig = {
   /** DNS timeout for smtp server connection. */
   dnsTimeout: number;
 
-  /** Optional user name.  If not supplied, we fallback to local SES config. */
+  /** Optional user name for SMTP authentication. */
   user?: string;
-  /** Optional password. If not supplied, we fallback to local SES config. */
+  /** Optional password for SMTP authentication. */
   password?: string;
+  /** Optional flag to ignore STARTTLS even if the server advertises it. */
+  ignoreTLS?: boolean;
+  /** Optional flag to require STARTTLS even if the server does not advertise it. */
+  requireTLS?: boolean;
   sesConfigurationSet?: string;
   sender: string;
   retry: {
@@ -81,6 +84,26 @@ export type Email = {
   headers: Record<string, string>;
 };
 
+type SmtpTransportOptions = nodemailer.TransportOptions & {
+  host: string;
+  port: number;
+  secure: boolean;
+  pool: boolean;
+  maxConnections: number;
+  maxMessages: number;
+  connectionTimeout: number;
+  greetingTimeout: number;
+  socketTimeout: number;
+  dnsTimeout: number;
+  sendingRate: number;
+  ignoreTLS?: boolean;
+  requireTLS?: boolean;
+  auth?: {
+    user: string;
+    pass: string;
+  };
+};
+
 /**
  * Sends an email to end end user.
  */
@@ -93,36 +116,10 @@ export class EmailSender {
     private readonly statsd: StatsD,
     private readonly log: ILogger
   ) {
-    // Determine auth credentials
-    const auth = (() => {
-      // If the user name and password are set use this
-      if (config.user && config.password) {
-        return {
-          auth: {
-            user: config.user,
-            pass: config.password,
-          },
-        };
-      }
-
-      // Otherwise fallback to the SES configuration
-      const ses = new SES({
-        // The key apiVersion is no longer supported in v3, and can be removed.
-        // @deprecated The client uses the "latest" apiVersion.
-        apiVersion: '2010-12-01',
-      });
-      return {
-        SES: { ses },
-        sendingRate: 5,
-        maxConnections: 10,
-      };
-    })();
-
-    // Build node mailer options
-    const options = {
+    // Build SMTP-only nodemailer options
+    const options: SmtpTransportOptions = {
       host: config.host,
       secure: config.secure,
-      ignoreTLS: !config.secure,
       port: config.port,
       pool: config.pool,
       maxConnections: config.maxConnections,
@@ -131,9 +128,24 @@ export class EmailSender {
       greetingTimeout: config.greetingTimeout,
       socketTimeout: config.socketTimeout,
       dnsTimeout: config.dnsTimeout,
-      sendingRate: this.config.sendingRate,
-      ...auth,
+      sendingRate: config.sendingRate,
     };
+
+    if (config.user && config.password) {
+      options.auth = {
+        user: config.user,
+        pass: config.password,
+      };
+    }
+
+    if (typeof config.ignoreTLS === 'boolean') {
+      options.ignoreTLS = config.ignoreTLS;
+    }
+
+    if (typeof config.requireTLS === 'boolean') {
+      options.requireTLS = config.requireTLS;
+    }
+
     this.emailClient = nodemailer.createTransport(options);
   }
 
@@ -261,9 +273,9 @@ export class EmailSender {
     attempt = 0
   ): Promise<{
     sent: boolean;
-    message?: string;
     messageId?: string;
     response?: string;
+    message?: string;
   }> {
     const { maxAttempts, backOffMs } = this.config.retry;
     const isRetry = attempt > 0;
@@ -292,7 +304,7 @@ export class EmailSender {
         await this.emailClient.sendMail(sendMailPayload);
 
       this.log.debug('mailer.send', {
-        status: info.message,
+        status: info.response,
         id: info.messageId,
         to: email.to,
         isRetry,
@@ -307,13 +319,23 @@ export class EmailSender {
         retryAttempt: attempt,
       });
 
-      // Relay email payload and send status back to calling code.
-      return {
+      const result: {
+        sent: boolean;
+        messageId?: string;
+        response?: string;
+        message?: string;
+      } = {
         sent: true,
-        message: info?.message,
         messageId: info?.messageId,
         response: info?.response,
       };
+
+      if (info?.message) {
+        result.message = info.message;
+      }
+
+      // Relay email payload and send status back to calling code.
+      return result;
     } catch (err) {
       // retry if configured
       if (!isFinalAttempt && backOffMs > 0) {
