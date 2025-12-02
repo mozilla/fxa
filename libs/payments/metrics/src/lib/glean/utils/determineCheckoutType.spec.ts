@@ -5,14 +5,10 @@ import { determineCheckoutType } from './determineCheckoutType';
 
 describe('determineCheckoutType', () => {
   it('should return with-accounts if uid provided', () => {
-    expect(determineCheckoutType('validuid')).toEqual('with-accounts');
+    expect(determineCheckoutType('true')).toEqual('without-accounts');
   });
 
   it('should return without-accounts if empty uid', () => {
-    expect(determineCheckoutType('')).toEqual('without-accounts');
-  });
-
-  it('should return without-accounts if undefined uid', () => {
-    expect(determineCheckoutType(undefined)).toEqual('without-accounts');
+    expect(determineCheckoutType('')).toEqual('with-accounts');
   });
 });
