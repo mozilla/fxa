@@ -100,10 +100,10 @@ export const WithThirdPartyAuthServiceRelayIntegration = () => (
   />
 );
 
-export const WithThirdPartyAuthServiceAIModeIntegration = () => (
+export const WithThirdPartyAuthServiceAIWindowIntegration = () => (
   <StoryWithProps
     integration={createMockSignupOAuthNativeIntegration(
-      OAuthNativeServices.AiMode,
+      OAuthNativeServices.AiWindow,
       false
     )}
     supportsKeysOptionalLogin={true}

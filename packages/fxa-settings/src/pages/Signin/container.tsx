@@ -311,9 +311,7 @@ const SigninContainer = ({
       //   so we must prompt here instead.
       // Note: the browser will repond {ok} if the email matches stored data or the user accepts the merge.
       if (
-        (integration.isSync() ||
-          integration.isFirefoxClientServiceRelay() ||
-          integration.isFirefoxClientServiceAiMode()) &&
+        (integration.isSync() || integration.isFirefoxNonSync()) &&
         !canLinkAccountOk &&
         !useFxAStatusResult.supportsCanLinkAccountUid
       ) {

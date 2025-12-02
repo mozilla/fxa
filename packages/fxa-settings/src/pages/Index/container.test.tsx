@@ -142,7 +142,7 @@ describe('IndexContainer', () => {
       getClientId: () => 'abc123',
       isSync: () => true,
       isFirefoxClientServiceRelay: () => false,
-      isFirefoxClientServiceAiMode: () => false,
+      isFirefoxClientServiceAiWindow: () => false,
       wantsKeys: () => true,
       getCmsInfo: () => undefined,
       data: { clientId: 'abc123' },

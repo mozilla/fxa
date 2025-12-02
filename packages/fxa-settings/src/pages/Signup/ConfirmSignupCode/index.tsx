@@ -70,8 +70,6 @@ const ConfirmSignupCode = ({
   const navigateWithQuery = useNavigateWithQuery();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
-  const isFirefoxClientServiceAimode =
-    integration.isFirefoxClientServiceAiMode();
   const isSync = integration.isSync();
   const submitFormOnPaste = !isSync;
 
@@ -239,10 +237,7 @@ const ConfirmSignupCode = ({
               navigate(to);
             }
             return;
-          } else if (
-            isFirefoxClientServiceRelay ||
-            isFirefoxClientServiceAimode
-          ) {
+          } else if (integration.isFirefoxNonSync()) {
             firefox.fxaOAuthLogin({
               action: 'signup',
               code,

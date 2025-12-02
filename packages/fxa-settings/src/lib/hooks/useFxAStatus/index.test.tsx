@@ -32,8 +32,7 @@ describe('useFxAStatus', () => {
       const integration = {
         type: IntegrationType.SyncDesktopV3,
         isSync: () => true,
-        isFirefoxClientServiceRelay: () => false,
-        isFirefoxClientServiceAiMode: () => false,
+        isFirefoxNonSync: () => false,
       };
 
       const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
@@ -59,8 +58,7 @@ describe('useFxAStatus', () => {
       const integration = {
         type: IntegrationType.OAuthNative,
         isSync: () => true,
-        isFirefoxClientServiceRelay: () => false,
-        isFirefoxClientServiceAiMode: () => false,
+        isFirefoxNonSync: () => false,
       };
 
       const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
@@ -84,8 +82,7 @@ describe('useFxAStatus', () => {
       const integration = {
         type: IntegrationType.OAuthNative,
         isSync: () => true,
-        isFirefoxClientServiceRelay: () => false,
-        isFirefoxClientServiceAiMode: () => false,
+        isFirefoxNonSync: () => false,
       };
 
       const { result, waitForNextUpdate } = renderHook(() =>
@@ -114,12 +111,11 @@ describe('useFxAStatus', () => {
         });
       });
 
-      it('returns supportsKeysOptionalLogin: true when Relay or AiMode service', async () => {
+      it('returns supportsKeysOptionalLogin: true when Relay or AiWindow service', async () => {
         const integration = {
           type: IntegrationType.OAuthNative,
           isSync: () => false,
-          isFirefoxClientServiceRelay: () => true,
-          isFirefoxClientServiceAiMode: () => false,
+          isFirefoxNonSync: () => true,
         };
         const { result, waitForNextUpdate } = renderHook(() =>
           useFxAStatus(integration)
@@ -133,8 +129,7 @@ describe('useFxAStatus', () => {
         const integration = {
           type: IntegrationType.OAuthNative,
           isSync: () => true,
-          isFirefoxClientServiceRelay: () => false,
-          isFirefoxClientServiceAiMode: () => false,
+          isFirefoxNonSync: () => false,
         };
         const { result } = renderHook(() => useFxAStatus(integration));
         expect(result.current.supportsKeysOptionalLogin).toBe(false);

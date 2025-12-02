@@ -193,10 +193,7 @@ export const Signup = ({
             verified: false,
             services: integration.getWebChannelServices(syncEngines),
           });
-        } else if (
-          isFirefoxClientServiceRelay ||
-          integration.isFirefoxClientServiceAiMode()
-        ) {
+        } else if (integration.isFirefoxNonSync()) {
           firefox.fxaLogin({
             email,
             sessionToken: data.signUp.sessionToken,
@@ -254,7 +251,6 @@ export const Signup = ({
       offeredSyncEngines,
       selectedEnginesForGlean,
       isSyncOAuth,
-      isFirefoxClientServiceRelay,
       integration,
       isOAuth,
       sensitiveDataClient,

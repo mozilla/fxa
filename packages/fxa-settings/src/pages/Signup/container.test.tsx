@@ -63,7 +63,8 @@ function mockIntegration() {
     isSync: () => true,
     wantsKeys: () => true,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     getCmsInfo: () => undefined,
   };

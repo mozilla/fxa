@@ -45,7 +45,8 @@ export type ConfirmSignupCodeBaseIntegration = Pick<
   | 'getService'
   | 'getClientId'
   | 'isFirefoxClientServiceRelay'
-  | 'isFirefoxClientServiceAiMode'
+  | 'isFirefoxClientServiceAiWindow'
+  | 'isFirefoxNonSync'
   | 'isSync'
   | 'getCmsInfo'
 >;
@@ -61,7 +62,8 @@ export type ConfirmSignupCodeOAuthIntegration = Pick<
   | 'isSync'
   | 'getPermissions'
   | 'isFirefoxClientServiceRelay'
-  | 'isFirefoxClientServiceAiMode'
+  | 'isFirefoxClientServiceAiWindow'
+  | 'isFirefoxNonSync'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
 >;

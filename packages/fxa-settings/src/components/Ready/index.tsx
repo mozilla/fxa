@@ -31,6 +31,7 @@ export type ReadyBaseIntegration = Pick<
   | 'getService'
   | 'getClientId'
   | 'isFirefoxClientServiceRelay'
+  | 'isFirefoxNonSync'
   | 'isSync'
   | 'getCmsInfo'
 >;

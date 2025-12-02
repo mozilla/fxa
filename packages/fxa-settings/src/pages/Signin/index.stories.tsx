@@ -113,9 +113,9 @@ export const SignInRelayWithPasswordlessSupport = storyWithProps({
   supportsKeysOptionalLogin: true,
 });
 
-export const SignInAiModeWithPasswordlessSupport = storyWithProps({
+export const SignInAiWindowWithPasswordlessSupport = storyWithProps({
   integration: createMockSigninOAuthNativeIntegration({
-    service: OAuthNativeServices.AiMode,
+    service: OAuthNativeServices.AiWindow,
     isSync: false,
   }),
   supportsKeysOptionalLogin: true,

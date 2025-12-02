@@ -107,12 +107,12 @@ export type WebChannelServices =
   | {
       sync: SyncEngines;
     }
-  // For sync optional flows (currently Relay and AiMode)
+  // For sync optional flows (currently Relay and AiWindow)
   | {
       relay: {};
     }
   | {
-      aimode: {};
+      aiwindow: {};
     };
 
 // ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
