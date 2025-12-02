@@ -3703,9 +3703,9 @@ describe('#integration - StripeHelper', () => {
       name: productName,
       metadata: {
         'product:termsOfServiceURL':
-          'https://www.mozilla.org/about/legal/terms/firefox-private-network',
+          'https://www.mozilla.org/about/legal/terms/subscription-services',
         'product:privacyNoticeURL':
-          'https://www.mozilla.org/privacy/firefox-private-network',
+          'https://www.mozilla.org/privacy/subscription-services',
       },
     };
     beforeEach(() => {
@@ -5378,9 +5378,9 @@ describe('#integration - StripeHelper', () => {
     const sourceId = eventCustomerSourceExpiring.data.object.id;
     const chargeId = 'ch_1GVm24BVqmGyQTMaUhRAfUmA';
     const privacyNoticeURL =
-      'https://www.mozilla.org/privacy/firefox-private-network';
+      'https://www.mozilla.org/privacy/subscription-services';
     const termsOfServiceURL =
-      'https://www.mozilla.org/about/legal/terms/firefox-private-network';
+      'https://www.mozilla.org/about/legal/terms/subscription-services';
     const cancellationSurveyURL =
       'https://www.mozilla.org/legal/mozilla_cancellation_survey_url';
 

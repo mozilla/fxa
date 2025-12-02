@@ -89,7 +89,7 @@ describe('components/PaymentConsentCheckbox', () => {
         );
         expect(legalCheckbox.props.children.props.children[1]).toBe(' ');
         expect(legalCheckbox.props.children.props.children[2].props.href).toBe(
-          'https://www.mozilla.org/about/legal/terms/firefox-private-network'
+          'https://www.mozilla.org/about/legal/terms/subscription-services'
         );
         expect(
           legalCheckbox.props.children.props.children[2].props.children
@@ -97,7 +97,7 @@ describe('components/PaymentConsentCheckbox', () => {
         expect(legalCheckbox.props.children.props.children[3]).toBe(' and');
         expect(legalCheckbox.props.children.props.children[4]).toBe(' ');
         expect(legalCheckbox.props.children.props.children[5].props.href).toBe(
-          'https://www.mozilla.org/privacy/firefox-private-network'
+          'https://www.mozilla.org/privacy/subscription-services'
         );
         expect(
           legalCheckbox.props.children.props.children[5].props.children
