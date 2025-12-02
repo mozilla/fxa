@@ -1696,7 +1696,7 @@ export class StripeHelper extends StripeHelperBase {
         return SubPlatPaymentMethodType.ApplePay;
       } else if (walletType === 'google_pay') {
         return SubPlatPaymentMethodType.GooglePay;
-      } else if (paymentMethod.type === 'link') {
+      } else if (paymentMethod.type === 'link' || walletType === 'link') {
         return SubPlatPaymentMethodType.Link;
       } else if (paymentMethod.type === 'card') {
         return SubPlatPaymentMethodType.Card;

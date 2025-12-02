@@ -142,7 +142,7 @@ export class PaymentMethodManager {
           type: SubPlatPaymentMethodType.GooglePay,
           paymentMethodId: customer.invoice_settings.default_payment_method,
         };
-      } else if (paymentMethod.type === 'link') {
+      } else if (paymentMethod.type === 'link' || paymentMethod.card?.wallet?.type === 'link') {
         return {
           type: SubPlatPaymentMethodType.Link,
           paymentMethodId: customer.invoice_settings.default_payment_method,
