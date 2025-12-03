@@ -76,6 +76,9 @@ import { ValidatePostalCodeActionResult } from './validators/ValidatePostalCodeA
 import { DetermineCurrencyActionResult } from './validators/DetermineCurrencyActionResult';
 import { SetupCartActionResult } from './validators/SetupCartActionResult';
 import { RestartCartActionResult } from './validators/RestartCartActionResult';
+import { GetCancelFlowContentActionResult } from './validators/GetCancelFlowContentActionResult';
+import { GetStaySubscribedFlowContentActionResult } from './validators/GetStaySubscribedFlowContentActionResult';
+import { GetSubscriptionPageContentActionArgs } from './validators/GetSubscriptionPageContentActionArgs';
 import { GetTaxAddressArgs } from './validators/GetTaxAddressArgs';
 import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
 import {
@@ -600,6 +603,54 @@ export class NextJSActionsService {
       args.postalCode,
       args.countryCode
     );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetSubscriptionPageContentActionArgs,
+    GetCancelFlowContentActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getCancelFlowContent(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    const result =
+      await this.subscriptionManagementService.getCancelFlowContent(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
+    return result;
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetSubscriptionPageContentActionArgs,
+    GetStaySubscribedFlowContentActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getStaySubscribedFlowContent(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    const result =
+      await this.subscriptionManagementService.getStaySubscribedFlowContent(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
+    return result;
   }
 
   @SanitizeExceptions()

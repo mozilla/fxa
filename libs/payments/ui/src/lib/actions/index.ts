@@ -16,6 +16,8 @@ export { getMetricsFlowAction } from './getMetricsFlow';
 export { getPayPalCheckoutToken } from './getPayPalCheckoutToken';
 export { getPayPalBillingAgreementId } from './getPayPalBillingAgreementId';
 export { createPayPalBillingAgreementId } from './createPayPalBillingAgreementId';
+export { getCancelFlowContentAction } from './getCancelFlowContent';
+export { getStaySubscribedFlowContentAction } from './getStaySubscribedFlowContent';
 export { getSubManPageContentAction } from './getSubManPageContent';
 export { getTaxAddressAction } from './getTaxAddress';
 export { handleStripeErrorAction } from './handleStripeError';
