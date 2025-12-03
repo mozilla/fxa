@@ -14,13 +14,15 @@ import {
 } from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
-import { SubscriptionManagementService, ChurnInterventionService } from '@fxa/payments/management';
+import {
+  SubscriptionManagementService,
+  ChurnInterventionService,
+} from '@fxa/payments/management';
 import {
   CheckoutTokenManager,
   PaypalBillingAgreementManager,
 } from '@fxa/payments/paypal';
 import {
-  ChurnInterventionByProductIdResultUtil,
   ProductConfigError,
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
@@ -279,15 +281,12 @@ export class NextJSActionsService {
       args.uid,
       args.subscriptionId,
       args.acceptLanguage,
-      args.selectedLanguage,
+      args.selectedLanguage
     );
   }
 
   @SanitizeExceptions()
-  @NextIOValidator(
-    RedeemChurnCouponActionArgs,
-    RedeemChurnCouponActionResult
-  )
+  @NextIOValidator(RedeemChurnCouponActionArgs, RedeemChurnCouponActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async redeemChurnCoupon(args: {
@@ -300,7 +299,7 @@ export class NextJSActionsService {
       args.uid,
       args.subscriptionId,
       args.acceptLanguage,
-      args.selectedLanguage,
+      args.selectedLanguage
     );
   }
 
@@ -903,36 +902,13 @@ export class NextJSActionsService {
     acceptLanguage?: string;
     selectedLanguage?: string;
   }) {
-    let util: ChurnInterventionByProductIdResultUtil;
-    if (args.stripeProductId) {
-      util = await this.productConfigurationManager.getChurnIntervention(
-        args.interval,
-        args.churnType,
-        args.stripeProductId,
-        null,
-        args.acceptLanguage,
-        args.selectedLanguage
-      );
-    } else if (args.offeringApiIdentifier) {
-      util = await this.productConfigurationManager.getChurnIntervention(
-        args.interval,
-        args.churnType,
-        null,
-        args.offeringApiIdentifier,
-        args.acceptLanguage,
-        args.selectedLanguage
-      );
-    } else {
-      throw new Error(
-        'Either stripeProductId or offeringApiIdentifier must be provided'
-      );
-    }
-
-    const churnInterventions =
-      util.getTransformedChurnInterventionByProductId();
-
-    return {
-      churnInterventions,
-    };
+    return await this.churnInterventionService.getChurnInterventionForProduct(
+      args.interval,
+      args.churnType,
+      args.stripeProductId,
+      args.offeringApiIdentifier,
+      args.acceptLanguage,
+      args.selectedLanguage
+    );
   }
 }

@@ -15,6 +15,7 @@ interface LinkExternalProps {
   rel?: 'noopener noreferrer' | 'author';
   tabIndex?: number;
   onClick?: () => void;
+  'aria-label'?: string;
 }
 
 export const LinkExternal = ({
@@ -26,6 +27,7 @@ export const LinkExternal = ({
   rel = 'noopener noreferrer',
   tabIndex,
   onClick,
+  'aria-label': ariaLabel,
 }: LinkExternalProps) => (
   <a
     data-testid={testid}
@@ -37,6 +39,7 @@ export const LinkExternal = ({
       rel,
       tabIndex,
       onClick,
+      'aria-label': ariaLabel,
     }}
   >
     {children}

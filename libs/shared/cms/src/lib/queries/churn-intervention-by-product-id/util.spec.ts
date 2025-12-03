@@ -36,6 +36,7 @@ describe('ChurnInterventionByProductIdResultUtil', () => {
     it('should transform churn intervention by offering', () => {
       const transformed = util.getTransformedChurnInterventionByProductId()[0];
       expect(transformed).toBeDefined();
+      expect(transformed?.productName).toBeDefined();
       expect(transformed?.webIcon).toBeDefined();
       expect(transformed?.supportUrl).toBeDefined();
       expect(transformed?.churnInterventionId).toBeDefined();

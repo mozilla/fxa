@@ -25,8 +25,9 @@ export interface ChurnInterventionByProductIdChurnInterventionsResult {
 export interface ChurnInterventionByProductIdOfferingResult {
   defaultPurchase: {
     purchaseDetails: {
+      productName: string;
       webIcon: string;
-      localizations: { webIcon: string }[];
+      localizations: { productName: string; webIcon: string }[];
     };
   };
   commonContent: {
@@ -42,6 +43,7 @@ export interface ChurnInterventionByProductIdRawResult {
 }
 
 export interface ChurnInterventionByProductIdResult {
+  productName: string;
   webIcon: string;
   churnInterventionId: string;
   churnType: Enum_Churnintervention_Churntype;

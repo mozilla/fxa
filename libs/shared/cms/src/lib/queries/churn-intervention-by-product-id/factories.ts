@@ -40,9 +40,11 @@ export const ChurnInterventionByProductIdOfferingsResultFactory = (
 ): ChurnInterventionByProductIdOfferingResult => ({
   defaultPurchase: {
     purchaseDetails: {
+      productName: faker.string.sample(),
       webIcon: faker.image.urlLoremFlickr(),
       localizations: [
         {
+          productName: faker.string.sample(),
           webIcon: faker.image.urlLoremFlickr(),
         },
       ],
@@ -77,6 +79,7 @@ export const ChurnInterventionByProductIdRawResultFactory = (
 export const ChurnInterventionByProductIdResultFactory = (
   override?: Partial<ChurnInterventionByProductIdResult>
 ): ChurnInterventionByProductIdResult => ({
+  productName: faker.string.sample(),
   webIcon: faker.image.urlLoremFlickr(),
   churnInterventionId: faker.string.uuid(),
   churnType: faker.helpers.enumValue(Enum_Churnintervention_Churntype),
