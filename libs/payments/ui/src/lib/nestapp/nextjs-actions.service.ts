@@ -20,6 +20,7 @@ import {
   PaypalBillingAgreementManager,
 } from '@fxa/payments/paypal';
 import {
+  ChurnInterventionByProductIdResultUtil,
   ProductConfigError,
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
@@ -117,6 +118,8 @@ import { DetermineStaySubscribedEligibilityActionResult } from './validators/Det
 import { NimbusManager } from '@fxa/payments/experiments';
 import { GetExperimentsActionArgs } from './validators/GetExperimentsActionArgs';
 import { GetExperimentsActionResult } from './validators/GetExperimentsActionResult';
+import { GetCMSChurnInterventionActionResult } from './validators/GetCMSChurnInterventionActionResult';
+import { GetCMSChurnInterventionActionArgs } from './validators/GetCMSChurnInterventionActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -832,5 +835,53 @@ export class NextJSActionsService {
       args.paymentMethodId,
       args.fullName
     );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetCMSChurnInterventionActionArgs,
+    GetCMSChurnInterventionActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getCMSChurnIntervention(args: {
+    interval: SubplatInterval;
+    churnType: 'cancel' | 'stay_subscribed';
+    stripeProductId?: string;
+    offeringApiIdentifier?: string;
+    acceptLanguage?: string;
+    selectedLanguage?: string;
+  }) {
+    let util: ChurnInterventionByProductIdResultUtil;
+    if (args.stripeProductId) {
+      util = await this.productConfigurationManager.getChurnIntervention(
+        args.interval,
+        args.churnType,
+        args.stripeProductId,
+        null,
+        args.acceptLanguage,
+        args.selectedLanguage
+      );
+    } else if (args.offeringApiIdentifier) {
+      util = await this.productConfigurationManager.getChurnIntervention(
+        args.interval,
+        args.churnType,
+        null,
+        args.offeringApiIdentifier,
+        args.acceptLanguage,
+        args.selectedLanguage
+      );
+    } else {
+      throw new Error(
+        'Either stripeProductId or offeringApiIdentifier must be provided'
+      );
+    }
+
+    const churnInterventions =
+      util.getTransformedChurnInterventionByProductId();
+
+    return {
+      churnInterventions,
+    };
   }
 }

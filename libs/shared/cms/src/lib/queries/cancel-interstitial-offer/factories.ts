@@ -59,6 +59,7 @@ export const CancelInterstitialOfferFactory = (
   productPageUrl: faker.internet.url(),
   upgradeButtonLabel: faker.lorem.words(2),
   upgradeButtonUrl: faker.internet.url(),
+  localizations: [],
   offering: CancelInterstitialOfferOfferingResultFactory(),
   ...override,
 });

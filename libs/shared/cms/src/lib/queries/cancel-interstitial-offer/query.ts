@@ -16,7 +16,6 @@ export const cancelInterstitialOfferQuery = graphql(`
         offeringApiIdentifier: { eq: $offeringApiIdentifier }
         currentInterval: { eq: $currentInterval }
         upgradeInterval: { eq: $upgradeInterval }
-        locale: { eq: $locale }
       }
     ) {
       offeringApiIdentifier
@@ -30,6 +29,15 @@ export const cancelInterstitialOfferQuery = graphql(`
       productPageUrl
       upgradeButtonLabel
       upgradeButtonUrl
+      localizations(filters: { locale: { eq: $locale } }) {
+        ctaMessage
+        modalHeading1
+        modalHeading2
+        modalMessage
+        productPageUrl
+        upgradeButtonLabel
+        upgradeButtonUrl
+      }
       offering {
         stripeProductId
         defaultPurchase {

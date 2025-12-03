@@ -52,7 +52,10 @@ export const ChurnInterventionByProductIdOfferingsResultFactory = (
     supportUrl: faker.internet.url(),
   },
   churnInterventions: [
-    ChurnInterventionByProductIdChurnInterventionsResultFactory(),
+    {
+      ...ChurnInterventionByProductIdChurnInterventionsResultFactory(),
+      localizations: [],
+    },
   ],
   ...override,
 });

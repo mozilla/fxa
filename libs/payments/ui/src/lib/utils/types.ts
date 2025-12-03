@@ -20,6 +20,10 @@ export interface CheckoutParams extends BaseParams {
   cartId: string;
 }
 
+export interface ChurnParams extends BaseParams {
+  churnType: 'cancel' | 'stay_subscribed';
+}
+
 export type Page =
   | 'landing'
   | 'new'
