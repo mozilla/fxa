@@ -13,10 +13,6 @@ import type { StatsD } from 'hot-shots';
 const pckg = require('../package.json');
 const config = require('../config').default.getProperties();
 
-const parseBatchSize = (batchSize: string | number) => {
-  return parseInt(batchSize.toString(), 10);
-};
-
 const parseRateLimit = (rateLimit: string | number) => {
   return parseInt(rateLimit.toString(), 10);
 };
@@ -25,26 +21,32 @@ const parseExcludePlanIds = (planIds: string) => {
   return planIds.split(',');
 };
 
+const parseRemainingValueMode = (
+  mode: string
+): "noaction" | "refund" | "prorate" | "proratedRefund" => {
+  const validModes = ['noaction', 'refund', 'prorate', 'proratedRefund'];
+  if (!validModes.includes(mode)) {
+    throw new Error(`Invalid --mode: ${mode}. Must be one of: ${validModes.join(', ')}`);
+  }
+
+  return mode as "noaction" | "refund" | "prorate" | "proratedRefund";
+};
+
 async function init() {
   program
     .version(pckg.version)
     .option(
-      '-b, --batch-size [number]',
-      'Number of subscriptions to query from firestore at a time.  Defaults to 100.',
-      100
-    )
-    .option(
       '-o, --output-file [string]',
-      'Output file to write report to. Will be output in CSV format.  Defaults to cancel-subscriptions-to-plan.csv.',
+      'Output file to write report to. Will be output in CSV format',
       'cancel-subscriptions-to-plan.csv'
     )
     .option(
       '-r, --rate-limit [number]',
-      'Rate limit for Stripe. Defaults to 70',
+      'Rate limit for Stripe',
       70
     )
     .option(
-      '-p, --price [string]',
+      '--price [string]',
       'Stripe plan ID. All customers on this price ID will have their subscriptions cancelled'
     )
     .option(
@@ -53,20 +55,17 @@ async function init() {
       ''
     )
     .option(
-      '--refund',
-      "Refund the customer's entire last bill to their card, regardless of any remaining time"
-    )
-    .option(
-      '--prorate',
-      'Prorate the customers remaining time. Cannot be used with --refund'
+      '-m, --mode [string]',
+      'How to handle remaining subscription value: noaction, refund, prorate, proratedRefund',
+      'noaction'
     )
     .option(
       '--dry-run',
-      'List the customers that would be deleted without actually deleting'
+      'List the customers that would be cancelled without actually cancelling them'
     )
     .parse(process.argv);
 
-  const { stripeHelper, database, log } = await setupProcessingTaskObjects(
+  const { stripeHelper, log } = await setupProcessingTaskObjects(
     'cancel-subscriptions-to-plan'
   );
 
@@ -85,25 +84,20 @@ async function init() {
     log,
   });
 
-  const batchSize = parseBatchSize(program.batchSize);
   const rateLimit = parseRateLimit(program.rateLimit);
   const excludePlanIds = parseExcludePlanIds(program.exclude);
+  const remainingValueMode = parseRemainingValueMode(program.mode);
 
   const dryRun = !!program.dryRun;
   if (!program.price) throw new Error('--price must be provided');
-  if (program.prorate && program.refund)
-    throw new Error('--prorate and --refund cannot be used together');
 
   const planCanceller = new PlanCanceller(
     program.price,
-    program.refund,
-    program.prorate,
+    remainingValueMode,
     excludePlanIds,
-    batchSize,
     program.outputFile,
     stripeHelper,
     paypalHelper,
-    database,
     dryRun,
     rateLimit
   );

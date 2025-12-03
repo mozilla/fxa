@@ -251,6 +251,10 @@ describe('CustomerPlanMover v2', () => {
         expect(reportArgs.subscription.id).eq('sub_123');
         expect(reportArgs.isExcluded).false;
         expect(reportArgs.amountRefunded).null;
+        expect(reportArgs.approximateAmountWasOwed).null;
+        expect(reportArgs.daysUntilNextBill).null;
+        expect(reportArgs.daysSinceLastBill).null;
+        expect(reportArgs.previousInvoiceAmountPaid).null;
         expect(reportArgs.isOwed).false;
         expect(reportArgs.error).false;
       });
@@ -614,10 +618,13 @@ describe('CustomerPlanMover v2', () => {
   });
 
   describe('attemptRefund', () => {
+    const now = Math.floor(Date.now() / 1000);
     const mockSubscriptionWithInvoice = {
       ...mockSubscription,
       id: 'sub_123',
       latest_invoice: 'inv_123',
+      current_period_start: now - 86400 * 25,
+      current_period_end: now + 86400 * 10,
     } as Stripe.Subscription;
 
     const mockPaidInvoice = {
@@ -625,7 +632,7 @@ describe('CustomerPlanMover v2', () => {
       id: 'inv_123',
       paid: true,
       amount_paid: 2000,
-      created: Math.floor(Date.now() / 1000) - 86400 * 5, // 5 days ago
+      created: Math.floor(Date.now() / 1000) - 86400 * 5,
       charge: 'ch_123',
       paid_out_of_band: false,
     } as unknown as Stripe.Invoice;
@@ -676,13 +683,22 @@ describe('CustomerPlanMover v2', () => {
     });
 
     describe('PayPal refund - full', () => {
-      const mockPayPalInvoice = {
-        ...mockPaidInvoice,
-        amount_paid: 500,
-        paid_out_of_band: true,
-      } as unknown as Stripe.Invoice;
+      let calculatedRefundAmount: number;
+      let mockPayPalInvoice: Stripe.Invoice;
 
       beforeEach(async () => {
+        const now = new Date().getTime();
+        const nextBillAt = new Date(mockSubscriptionWithInvoice.current_period_end * 1000);
+        const timeUntilBillMs = nextBillAt.getTime() - now;
+        const daysUntilBill = Math.floor(timeUntilBillMs / (1000 * 60 * 60 * 24));
+        calculatedRefundAmount = daysUntilBill * 100;
+
+        mockPayPalInvoice = {
+          ...mockPaidInvoice,
+          amount_paid: calculatedRefundAmount,
+          paid_out_of_band: true,
+        } as unknown as Stripe.Invoice;
+
         enqueueRequestStub.resolves(mockPayPalInvoice);
 
         await customerPlanMover.attemptRefund(mockSubscriptionWithInvoice);
@@ -696,13 +712,22 @@ describe('CustomerPlanMover v2', () => {
     });
 
     describe('PayPal refund - partial', () => {
-      const mockPayPalInvoice = {
-        ...mockPaidInvoice,
-        amount_paid: 1000,
-        paid_out_of_band: true,
-      } as unknown as Stripe.Invoice;
+      let calculatedRefundAmount: number;
+      let mockPayPalInvoice: Stripe.Invoice;
 
       beforeEach(async () => {
+        const now = new Date().getTime();
+        const nextBillAt = new Date(mockSubscriptionWithInvoice.current_period_end * 1000);
+        const timeUntilBillMs = nextBillAt.getTime() - now;
+        const daysUntilBill = Math.floor(timeUntilBillMs / (1000 * 60 * 60 * 24));
+        calculatedRefundAmount = daysUntilBill * 100;
+
+        mockPayPalInvoice = {
+          ...mockPaidInvoice,
+          amount_paid: calculatedRefundAmount * 2,
+          paid_out_of_band: true,
+        } as unknown as Stripe.Invoice;
+
         enqueueRequestStub.resolves(mockPayPalInvoice);
 
         await customerPlanMover.attemptRefund(mockSubscriptionWithInvoice);
@@ -712,7 +737,7 @@ describe('CustomerPlanMover v2', () => {
         expect((paypalHelperStub.refundInvoice as sinon.SinonStub).calledOnce).true;
         const args = (paypalHelperStub.refundInvoice as sinon.SinonStub).firstCall.args;
         expect(args[1].refundType).eq('Partial');
-        expect(args[1].amount).eq(500);
+        expect(args[1].amount).eq(calculatedRefundAmount);
       });
     });
 

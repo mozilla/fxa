@@ -75,8 +75,25 @@ export class CustomerPlanMover {
       const isExcluded = this.isCustomerExcluded(customer.subscriptions.data);
 
       let amountRefunded: number | null = null;
+      let approximateAmountWasOwed: number | null = null;
+      let daysUntilNextBill: number | null = null;
+      let daysSinceLastBill: number | null = null;
+      let previousInvoiceAmountPaid: number | null = null;
       let isOwed = !isExcluded;
+
       if (!isExcluded) {
+        if (this.proratedRefundRate !== null) {
+          try {
+            const calculation = await this.calculateRefundAmount(subscription);
+            approximateAmountWasOwed = calculation.refundAmount;
+            daysUntilNextBill = calculation.daysUntilBill;
+            daysSinceLastBill = calculation.daysSinceBill;
+            previousInvoiceAmountPaid = calculation.invoice.amount_paid;
+          } catch(e) {
+            console.warn(e);
+          }
+        }
+
         if (!this.dryRun) {
           await this.enqueueRequest(() =>
             this.stripe.subscriptions.update(subscription.id, {
@@ -111,6 +128,10 @@ export class CustomerPlanMover {
         customer,
         isExcluded,
         amountRefunded,
+        approximateAmountWasOwed,
+        daysUntilNextBill,
+        daysSinceLastBill,
+        previousInvoiceAmountPaid,
         isOwed,
         error: false,
       });
@@ -123,6 +144,10 @@ export class CustomerPlanMover {
         customer: null,
         isExcluded: false,
         amountRefunded: null,
+        approximateAmountWasOwed: null,
+        daysUntilNextBill: null,
+        daysSinceLastBill: null,
+        previousInvoiceAmountPaid: null,
         isOwed: false,
         error: true,
       });
@@ -147,12 +172,13 @@ export class CustomerPlanMover {
   }
 
   /**
-   * Attempt to refund customer for latest bill considering the prorated refund amount
-   * @param subscription The subscription to cancel
+   * Calculate the refund amount and days since last bill for a subscription
+   * @param subscription The subscription to calculate for
+   * @returns Object containing refundAmount, daysSinceBill, and invoice
    */
-  async attemptRefund(subscription: Stripe.Subscription) {
+  async calculateRefundAmount(subscription: Stripe.Subscription): Promise<{ refundAmount: number, daysUntilBill: number, daysSinceBill: number, invoice: Stripe.Invoice }> {
     if (!this.proratedRefundRate) {
-      throw new Error("proratedRefundRate must be specified to use attemptRefund");
+      throw new Error("proratedRefundRate must be specified to use calculateRefundAmount");
     }
 
     if (!subscription.latest_invoice) {
@@ -172,14 +198,36 @@ export class CustomerPlanMover {
       throw new Error("Customer is pending renewal right now!");
     }
 
-    const billedAt = new Date(invoice.created * 1000);
     const oneDayMs = 1000 * 60 * 60 * 24;
-    const timeSinceBillMs = new Date().getTime() - billedAt.getTime();
+
+    const lastBilledAt = new Date(subscription.current_period_start * 1000);
+    const timeSinceBillMs = new Date().getTime() - lastBilledAt.getTime();
     const daysSinceBill = Math.floor(timeSinceBillMs / oneDayMs);
-    const refundAmount = daysSinceBill * this.proratedRefundRate;
+
+    const nextBillAt = new Date(subscription.current_period_end * 1000);
+    const timeUntilBillMs = nextBillAt.getTime() - new Date().getTime();
+    const daysUntilBill = Math.floor(timeUntilBillMs / oneDayMs);
+
+    const refundAmount = daysUntilBill * this.proratedRefundRate;
+
+    return { refundAmount, daysUntilBill, daysSinceBill, invoice };
+  }
+
+  /**
+   * Attempt to refund customer for latest bill considering the prorated refund amount
+   * @param subscription The subscription to cancel
+   */
+  async attemptRefund(subscription: Stripe.Subscription) {
+    const calculation = await this.calculateRefundAmount(subscription);
+    const refundAmount = calculation.refundAmount;
+    const invoice = calculation.invoice;
 
     if (refundAmount > invoice.amount_paid) {
       throw new Error(`Will not refund ${invoice.id} for ${refundAmount} as it would eclipse the amount paid on the invoice`);
+    }
+
+    if (refundAmount <= 0) {
+      throw new Error(`Will not refund ${invoice.id} for ${refundAmount} as it is less than or equal to zero`);
     }
 
     if (invoice.paid_out_of_band) {
@@ -238,8 +286,13 @@ export class CustomerPlanMover {
       "subscriptionId",
       "fxaUid",
       "stripeEmail",
+      "postalCode",
       "isExcluded",
       "amountRefunded",
+      "approximateAmountWasOwed",
+      "daysUntilNextBill",
+      "daysSinceLastBill",
+      "previousInvoiceAmountPaid",
       "isOwed",
       "error"
     ];
@@ -257,15 +310,26 @@ export class CustomerPlanMover {
     customer: Stripe.Customer | null,
     isExcluded: boolean,
     amountRefunded: number | null,
+    approximateAmountWasOwed: number | null,
+    daysUntilNextBill: number | null,
+    daysSinceLastBill: number | null,
+    previousInvoiceAmountPaid: number | null,
     isOwed: boolean,
     error: boolean
   }) {
+    const postalCode = args.customer?.shipping?.address?.postal_code ?? args.customer?.address?.postal_code ?? "null";
+
     const data = [
       args.subscription.id,
-      args.customer?.metadata.uid,
+      args.customer?.metadata.userid,
       `"${args.customer?.email}"`,
+      postalCode,
       String(args.isExcluded),
-      args.amountRefunded || "0",
+      args.amountRefunded ?? "null",
+      args.approximateAmountWasOwed ?? "null",
+      args.daysUntilNextBill ?? "null",
+      args.daysSinceLastBill ?? "null",
+      args.previousInvoiceAmountPaid ?? "null",
       args.isOwed,
       args.error
     ];
