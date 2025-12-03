@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger, type LoggerService } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
 import {
@@ -92,7 +92,8 @@ export class SubscriptionManagementService {
     private setupIntentManager: SetupIntentManager,
     private subscriptionManager: SubscriptionManager,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
-    private paypalCustomerManager: PaypalCustomerManager
+    private paypalCustomerManager: PaypalCustomerManager,
+    @Inject(Logger) private log: LoggerService,
   ) {}
 
   @SanitizeExceptions()
@@ -687,6 +688,38 @@ export class SubscriptionManagementService {
       clientSecret: setupIntent.client_secret,
       status: setupIntent.status,
     };
+  }
+
+  async applyStripeCouponToSubscription(args: {
+    uid: string;
+    subscriptionId: string;
+    stripeCouponId: string;
+    setCancelAtPeriodEnd?: boolean;
+  }) {
+    const { uid, subscriptionId, stripeCouponId, setCancelAtPeriodEnd } = args;
+
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+    const subscription = await this.subscriptionManager.retrieve(subscriptionId);
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new SubscriptionCustomerMismatch(
+        uid,
+        accountCustomer.uid,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+    try {
+      const updatedSubscription = await this.subscriptionManager.update(subscriptionId, {
+        discounts: [{coupon: stripeCouponId}],
+        ...(setCancelAtPeriodEnd ? { cancel_at_period_end: true } : {}),
+      });
+      return updatedSubscription;
+    } catch (error) {
+      this.log.error(error);
+      return null;
+    }
   }
 
   @SanitizeExceptions()
