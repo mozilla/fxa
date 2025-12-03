@@ -10,6 +10,7 @@ import { Page2faSetup } from '.';
 import { Config } from '../../../lib/config';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
+import { MfaContext } from '../MfaGuard';
 import {
   MOCK_BACKUP_CODES,
   MOCK_FULL_PHONE_NUMBER,
@@ -133,7 +134,9 @@ function renderWithAccount(
 ) {
   return render(
     <AppContext.Provider value={mockAppContext({ account, config })}>
-      <Page2faSetup />
+      <MfaContext.Provider value="2fa">
+        <Page2faSetup />
+      </MfaContext.Provider>
     </AppContext.Provider>
   );
 }

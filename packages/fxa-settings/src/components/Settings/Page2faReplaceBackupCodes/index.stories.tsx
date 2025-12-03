@@ -14,6 +14,7 @@ import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
+import { MfaContext } from '../MfaGuard';
 
 const session = mockSession(true);
 
@@ -72,7 +73,9 @@ export const ReplaceExistingCodes = () => (
       value={mockAppContext({ account: accountWithExistingCodes, session })}
     >
       <SettingsLayout>
-        <Page2faReplaceBackupCodes />
+        <MfaContext.Provider value="2fa">
+          <Page2faReplaceBackupCodes />
+        </MfaContext.Provider>
       </SettingsLayout>
     </AppContext.Provider>
   </LocationProvider>
@@ -85,7 +88,9 @@ export const CreateNewCodes = () => (
       value={mockAppContext({ account: accountWithNoCodes, session })}
     >
       <SettingsLayout>
-        <Page2faReplaceBackupCodes />
+        <MfaContext.Provider value="2fa">
+          <Page2faReplaceBackupCodes />
+        </MfaContext.Provider>
       </SettingsLayout>
     </AppContext.Provider>
   </LocationProvider>

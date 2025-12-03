@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState } from 'react';
-import { useErrorHandler } from 'react-error-boundary';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from '@reach/router';
-import { MfaGuard } from '../MfaGuard';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import {
@@ -25,7 +24,6 @@ import {
 } from '../../../lib/error-utils';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { MfaReason } from '../../../lib/types';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
 type FormData = {
   oldPassword: string;
@@ -57,7 +55,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
 
   const [currentPasswordErrorText, setCurrentPasswordErrorText] =
     useState<string>();
@@ -93,8 +91,8 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
         logViewEvent(settingsViewName, 'change-password.success');
         alertSuccessAndGoHome();
       } catch (e) {
-        if (isInvalidJwtError(e)) {
-          errorHandler(e);
+        const errorHandled = handleMfaError(e);
+        if (errorHandled) {
           return;
         }
         const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
@@ -110,7 +108,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       account,
       alertBar,
       alertSuccessAndGoHome,
-      errorHandler,
+      handleMfaError,
       ftlMsgResolver,
       setValue,
     ]

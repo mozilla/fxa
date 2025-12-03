@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useErrorHandler } from 'react-error-boundary';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import { useAccount, useFtlMsgResolver } from '../../../models';
@@ -12,8 +11,7 @@ import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmC
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { RecoveryPhoneSetupReason, MfaReason } from '../../../lib/types';
-import { MfaGuard } from '../MfaGuard';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 
 const numberOfSteps = 2;
 
@@ -30,7 +28,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();
   const location = useLocation();
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
   const reason: RecoveryPhoneSetupReason =
     (location as any)?.state?.reason ?? RecoveryPhoneSetupReason.setup;
 
@@ -105,9 +103,8 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
         nationalFormat,
       });
     } catch (e) {
-      if (isInvalidJwtError(e)) {
-        // JWT invalid/expired
-        errorHandler(e);
+      const errorHandled = handleMfaError(e);
+      if (errorHandled) {
         return;
       }
 
@@ -121,9 +118,8 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
         ? await account.changeRecoveryPhoneWithJwt(code)
         : await account.confirmRecoveryPhoneWithJwt(code);
     } catch (e) {
-      if (isInvalidJwtError(e)) {
-        // JWT invalid/expired
-        errorHandler(e);
+      const errorHandled = handleMfaError(e);
+      if (errorHandled) {
         return;
       }
       throw e;
@@ -143,9 +139,8 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
         nationalFormat,
       });
     } catch (e) {
-      if (isInvalidJwtError(e)) {
-        // JWT invalid/expired
-        errorHandler(e);
+      const errorHandled = handleMfaError(e);
+      if (errorHandled) {
         return;
       }
 

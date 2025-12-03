@@ -16,12 +16,8 @@ import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
-import { MfaGuard } from '../MfaGuard';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import ModalVerifySession from '../ModalVerifySession';
-import {
-  clearMfaAndJwtCacheOnInvalidJwt,
-  isInvalidJwtError,
-} from '../../../lib/mfa-guard-utils';
 import { MfaReason } from '../../../lib/types';
 
 type UnitRowSecondaryEmailContentAndActionsProps = {
@@ -73,6 +69,7 @@ export const UnitRowSecondaryEmail = () => {
     const account = useAccount();
     const alertBar = useAlertBar();
     const { l10n } = useLocalization();
+    const handleMfaError = useMfaErrorHandler();
     const makePrimary = useCallback(
       async (email: string) => {
         try {
@@ -86,8 +83,8 @@ export const UnitRowSecondaryEmail = () => {
           );
           setPendingChangePrimary(undefined);
         } catch (e) {
-          if (isInvalidJwtError(e)) {
-            clearMfaAndJwtCacheOnInvalidJwt(e, 'email');
+          const errorHandled = handleMfaError(e);
+          if (errorHandled) {
             return;
           }
           alertBar.error(
@@ -100,7 +97,7 @@ export const UnitRowSecondaryEmail = () => {
           setPendingChangePrimary(undefined);
         }
       },
-      [account, alertBar, l10n]
+      [account, alertBar, l10n, handleMfaError]
     );
     useEffect(() => {
       (async () => {
@@ -120,6 +117,7 @@ export const UnitRowSecondaryEmail = () => {
     const account = useAccount();
     const alertBar = useAlertBar();
     const { l10n } = useLocalization();
+    const handleMfaError = useMfaErrorHandler();
 
     useEffect(() => {
       const deleteEmail = async () => {
@@ -133,8 +131,8 @@ export const UnitRowSecondaryEmail = () => {
             )
           );
         } catch (e) {
-          if (isInvalidJwtError(e)) {
-            clearMfaAndJwtCacheOnInvalidJwt(e, 'email');
+          const errorHandled = handleMfaError(e);
+          if (errorHandled) {
             return;
           }
           alertBar.error(
@@ -149,7 +147,7 @@ export const UnitRowSecondaryEmail = () => {
         // which means MFA has been completed successfully
       };
       deleteEmail();
-    }, [account, alertBar, l10n, email]);
+    }, [account, alertBar, l10n, email, handleMfaError]);
 
     return <></>;
   };

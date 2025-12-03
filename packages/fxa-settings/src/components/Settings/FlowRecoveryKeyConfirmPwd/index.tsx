@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useErrorHandler } from 'react-error-boundary';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -19,7 +18,7 @@ import { SETTINGS_PATH } from '../../../constants';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { formatRecoveryKey } from '../../../lib/utilities';
 import Banner from '../../Banner';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { useMfaErrorHandler } from '../MfaGuard';
 
 type FormData = {
   password: string;
@@ -44,7 +43,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
 }: FlowRecoveryKeyConfirmPwdProps) => {
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
 
   const [errorText, setErrorText] = useState<string>();
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
@@ -83,8 +82,8 @@ export const FlowRecoveryKeyConfirmPwd = ({
       logViewEvent(`flow.${viewName}`, 'confirm-password.success');
       navigateForward();
     } catch (err) {
-      if (isInvalidJwtError(err)) {
-        errorHandler(err);
+      const errorHandled = handleMfaError(err);
+      if (errorHandled) {
         return;
       }
 
@@ -115,7 +114,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
     setIsLoading,
     setFormattedRecoveryKey,
     viewName,
-    errorHandler,
+    handleMfaError,
   ]);
 
   return (

@@ -16,21 +16,23 @@ import { MfaScope } from './types';
  * Use this when checking the response from the auth server for an invalid JWT.
  * @param e - The error to check, must have code and errno properties.
  * @param scope - The scope to clear from the MFA and JWT cache.
- * @returns
+ * @returns true if the cache was cleared, false otherwise.
  */
 export const clearMfaAndJwtCacheOnInvalidJwt = (
   e: any,
   scope: MfaScope
-): void => {
+): boolean => {
   const sessionToken = getSessionToken();
   if (!sessionToken) {
     // noop - we can't do anything without a session token
-    return;
+    return false;
   }
-  if (isInvalidJwtError(e)) {
+  const shouldClear = isInvalidJwtError(e);
+  if (shouldClear) {
     MfaOtpRequestCache.remove(sessionToken, scope);
     JwtTokenCache.removeToken(sessionToken, scope);
   }
+  return shouldClear;
 };
 
 /**

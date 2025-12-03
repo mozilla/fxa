@@ -4,12 +4,13 @@
 
 import React, {
   ReactNode,
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useState,
   useSyncExternalStore,
 } from 'react';
-import { useErrorHandler } from 'react-error-boundary';
 
 import {
   useAccount,
@@ -27,9 +28,31 @@ import {
 import { MfaReason, MfaScope } from '../../../lib/types';
 import { useNavigate } from '@reach/router';
 import * as Sentry from '@sentry/react';
-import { MfaErrorBoundary } from './error-boundary';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
+import { clearMfaAndJwtCacheOnInvalidJwt } from '../../../lib/mfa-guard-utils';
+
+export const MfaContext = createContext<MfaScope | undefined>(undefined);
+
+/**
+ * Hook to handle MFA-related errors in child components.
+ * The returned function returns true if the error was handled, false otherwise.
+ */
+export const useMfaErrorHandler = () => {
+  const scope = useContext(MfaContext);
+
+  if (!scope) {
+    throw new Error('useMfaErrorHandler must be used within an MfaGuard');
+  }
+
+  // Memoize to prevent unnecessary re-renders
+  return useCallback(
+    (error: unknown) => {
+      return clearMfaAndJwtCacheOnInvalidJwt(error, scope);
+    },
+    [scope]
+  );
+};
 
 /**
  * This is a guard component designed to wrap around components that perform
@@ -49,8 +72,6 @@ export const MfaGuard = ({
   debounceIntervalMs?: number;
   reason: MfaReason;
 }) => {
-  // Let errors be handled by error boundaries in async contexts
-  const handleError = useErrorHandler();
   const config = useConfig();
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
     useState<string | undefined>(undefined);
@@ -140,7 +161,6 @@ export const MfaGuard = ({
     sessionToken,
     requiredScope,
     authClient,
-    handleError,
     alertBar,
     ftlMsgResolver,
     onDismiss,
@@ -183,10 +203,6 @@ export const MfaGuard = ({
     } catch (err) {
       MfaOtpRequestCache.remove(sessionToken, requiredScope);
       setShowResendSuccessBanner(false);
-      if (err.code === 401) {
-        handleError(err);
-        return;
-      }
       setShowResendSuccessBanner(false);
       setLocalizedErrorBannerMessage(
         getLocalizedErrorMessage(ftlMsgResolver, err)
@@ -226,20 +242,10 @@ export const MfaGuard = ({
     return getModal();
   }
 
-  // Otherwise, wrap the children in our error boundary and render them.
-  // If an invalid JWT error is encountered, the MfaErrorBoundary will
-  // destroy the current JWT for us, and the modal should be displayed again.
-  const jwt = JwtTokenCache.hasToken(sessionToken, requiredScope)
-    ? JwtTokenCache.getToken(sessionToken, requiredScope)
-    : '';
+  // Provide the scope via context so child components can use useMfaErrorHandler
   return (
-    <MfaErrorBoundary
-      sessionToken={sessionToken}
-      requiredScope={requiredScope}
-      jwt={jwt}
-      fallback={getModal()}
-    >
+    <MfaContext.Provider value={requiredScope}>
       {missingJwt ? getModal() : <>{children}</>}
-    </MfaErrorBoundary>
+    </MfaContext.Provider>
   );
 };
