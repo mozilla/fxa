@@ -21,6 +21,7 @@ import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContex
 import { parseAcceptLanguage } from '@fxa/shared/l10n';
 import { searchParams } from '../../lib/utilities';
 import * as Sentry from '@sentry/react';
+import { currentAccount } from '../../lib/cache';
 
 interface NimbusApiResponse {
   Features?: Record<string, any>;
@@ -44,7 +45,7 @@ const NimbusContext = createContext<NimbusContextValue | undefined>(undefined);
 
 export function useNimbusContext() {
   const context = useContext(NimbusContext);
-  if (context === undefined) {
+  if (context === undefined ) {
     // Return default values when no NimbusProvider is present
     return {
       experiments: null,
@@ -61,6 +62,7 @@ export interface NimbusProviderProps {
 
 export function NimbusProvider({ children }: NimbusProviderProps) {
   const { config, uniqueUserId } = useContext(AppContext);
+
   const { currentLocale } = useDynamicLocalization();
 
   if (!config) {
@@ -72,6 +74,18 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
   const [error, setError] = useState<Error | undefined>(undefined);
 
   useEffect(() => {
+
+    // Disable Nimbus if metrics are opted out, note that we specifically check
+    // the local storage account because the account stored in the AppContext is
+    // not available at this point
+    const legacyLocalStorageAccount = currentAccount();
+    if (legacyLocalStorageAccount && legacyLocalStorageAccount.metricsEnabled === false) {
+      setExperiments(null);
+      setLoading(false);
+      setError(undefined);
+      return;
+    }
+
     if (!config?.nimbus.enabled || !uniqueUserId) {
       setExperiments(null);
       setLoading(false);
