@@ -8,7 +8,7 @@ import { getApp } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { URLSearchParams } from 'url';
 import { SubplatInterval } from '@fxa/payments/customer';
-import { BaseButton, ButtonVariant } from '@fxa/payments/ui';
+import { notFound } from 'next/navigation';
 
 export default async function ChurnTerms({
   params,
@@ -37,45 +37,61 @@ export default async function ChurnTerms({
       selectedLanguage: locale,
     });
 
+  const content = churnIntervention.churnInterventions.at(0);
+
+  if (
+    !content ||
+    !content.termsHeading ||
+    !Array.isArray(content.termsDetails) ||
+    content.termsDetails.length === 0
+  ) {
+    notFound();
+  }
+
   return (
-    <div className="flex flex-col tablet:bg-white p-8 tablet:rounded-lg tablet:shadow-lg">
-      <h1 className="font-bold text-lg my-1">
-        {l10n.getString(
-          'loyalty-discount-terms-heading',
-          'Terms and Restrictions'
-        )}
-      </h1>
-      <h1 className="font-bold text-lg my-1">
-        {`${churnIntervention.churnInterventions[0].termsHeading}`}
-      </h1>
-      <ul className="list-disc ml-5 my-2 marker:text-xs text-sm font-light [&_li]:leading-5">
-        {churnIntervention.churnInterventions[0].termsDetails.map(
-          (term, index) => (
-            <li key={index}>{term}</li>
-          )
-        )}
-      </ul>
-      <div className="flex justify-start">
-        <LinkExternal
-          href={`${churnIntervention.churnInterventions[0].supportUrl}${searchParamsString}`}
-          aria-label={l10n.getString(
-            'loyalty-discount-terms-support-aria',
-            'Contact Support'
-          )}
+    <section
+      className="flex tablet:items-center justify-center min-h-[calc(100vh_-_4rem)] tablet:min-h-[calc(100vh_-_5rem)]"
+      aria-labelledby="loyalty-discount-terms"
+    >
+      <div className="max-w-xl flex flex-col p-6 pt-10 tablet:bg-white tablet:border tablet:border-grey-200 tablet:opacity-100 tablet:p-8 tablet:rounded-xl tablet:shadow-[0_0px_10px_rgba(0,0,0,0.08)]">
+        <h1
+          id="loyalty-discount-terms"
+          className="font-semibold text-xl leading-8"
         >
-          <BaseButton
-            variant={ButtonVariant.SubscriptionManagementSecondary}
-            className="w-40 mt-4"
+          {l10n.getString(
+            'loyalty-discount-terms-heading',
+            'Terms and restrictions'
+          )}
+        </h1>
+        <h2 className="font-semibold text-xl leading-8">
+          {`${content.termsHeading}`}
+        </h2>
+        <div className="mt-3 mx-6 mb-6 tablet:mx-10">
+          <ul className="font-light leading-6 list-disc marker:text-sm marker:leading-normal">
+            {content.termsDetails.map((term, index) => (
+              <li key={index}>{term}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex">
+          <LinkExternal
+            className="border box-border font-header rounded text-center py-2 px-5 border-grey-200 w-auto bg-grey-10 font-semibold hover:bg-grey-50 text-grey-700"
+            href={`${content.supportUrl}${searchParamsString}`}
+            aria-label={l10n.getString(
+              'loyalty-discount-terms-contact-support-product-aria',
+              {
+                productName: content.productName,
+              },
+              `Contact support for ${content.productName}`
+            )}
           >
-            <span>
-              {l10n.getString(
-                'loyalty-discount-terms-support',
-                'Contact Support'
-              )}
-            </span>
-          </BaseButton>
-        </LinkExternal>
+            {l10n.getString(
+              'loyalty-discount-terms-support',
+              'Contact Support'
+            )}
+          </LinkExternal>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
