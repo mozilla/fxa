@@ -48,7 +48,7 @@ import { Knex } from 'knex';
 import { AuthClientService } from '../../backend/auth-client.service';
 import { CloudTasksService } from '../../backend/cloud-tasks.service';
 import { FirestoreService } from '../../backend/firestore.service';
-import { ProfileClientService } from '../../backend/profile-client.service';
+import { ProfileClient } from '@fxa/profile/client';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
@@ -152,7 +152,7 @@ describe('#integration - AccountResolver', () => {
 
     profileClient = { deleteCache: jest.fn() };
     const MockProfileClient: Provider = {
-      provide: ProfileClientService,
+      provide: ProfileClient,
       useValue: profileClient,
     };
 
