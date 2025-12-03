@@ -225,15 +225,6 @@ module.exports = (log, config) => {
       request.app.metricsEventUid = uid;
     }
 
-    let devices;
-    try {
-      // yes, this syntax is correct. request.app.devices is a promise.
-      devices = await request.app.devices;
-    } catch (e) {
-      // ignore the error
-      devices = {};
-    }
-
     const { formFactor } = request.app.ua;
     const service = getService(request, data, metricsContext);
     const deviceId = getFromMetricsContext(
@@ -308,7 +299,6 @@ module.exports = (log, config) => {
           eventSource: 'auth',
           version: VERSION,
           deviceId,
-          devices,
           emailDomain: data.email_domain,
           emailTypes: EMAIL_TYPES,
           flowBeginTime,
@@ -331,7 +321,6 @@ module.exports = (log, config) => {
 
     const amplitudeEvent = transformEvent(event, {
       ...data,
-      devices,
       formFactor,
       uid,
       deviceId,
