@@ -26,7 +26,7 @@ module.exports = {
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_ADMIN_PANEL,
         TEST_USER_EMAIL: 'hello@mozilla.com',
-        TEST_USER_GROUP: 'vpn_fxa_admin_dsar_prod',
+        TEST_USER_GROUP: 'vpn_fxa_admin_panel_prod',
       },
       filter_env: ['npm_'],
       time: true,
