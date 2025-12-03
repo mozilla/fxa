@@ -62,7 +62,7 @@ if (config.subscriptions && config.subscriptions.stripeApiKey) {
 const { AppError: error } = require('@fxa/accounts/errors');
 const Token = require('../lib/tokens')(log, config);
 const SQSReceiver = require('../lib/sqs')(log, statsd);
-const bounces = require('../lib/email/bounces')(log, error, config);
+const bounces = require('../lib/email/bounces')(log, error, config, statsd);
 const delivery = require('../lib/email/delivery')(log, glean);
 const notifications = require('../lib/email/notifications')(log, error);
 

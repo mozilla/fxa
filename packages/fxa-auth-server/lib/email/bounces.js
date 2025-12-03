@@ -13,7 +13,7 @@ const isValidEmailAddress =
   require('./../routes/validators').isValidEmailAddress;
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
-module.exports = function (log, error, config) {
+module.exports = function (log, error, config, statsd) {
   const stripeHelper = Container.get(StripeHelper);
 
   return function start(bounceQueue, db) {
@@ -85,6 +85,13 @@ module.exports = function (log, error, config) {
 
     async function handleBounce(message) {
       logBounceMessage(message);
+
+      statsd.increment('email.bounce.message', {
+        bounceType: message?.bounce?.bounceType || 'none',
+        bounceSubType: message?.bounce?.bounceSubType || 'none',
+        hasDiagnosticCode: !!message?.diagnosticCode,
+        hasComplaint: !!message?.complaint,
+      });
 
       utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'bounce');
 
