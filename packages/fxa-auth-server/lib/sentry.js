@@ -7,7 +7,7 @@
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
 const verror = require('verror');
-const { ignoreErrors } = require('./error');
+const { ignoreErrors } = require('@fxa/accounts/errors');
 
 const {
   formatMetadataValidationErrorMessage,

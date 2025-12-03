@@ -20,7 +20,7 @@ import { StatsD } from 'hot-shots';
 import { performance } from 'perf_hooks';
 
 import { ConfigType } from '../../config';
-import error from '../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { PushboxDB } from './db';
 
 // Pushbox stores strings, so these are a little pair

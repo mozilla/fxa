@@ -9,7 +9,7 @@ const { default: Container } = require('typedi');
 const { AppConfig, AuthLogger } = require('../../lib/types');
 const mocks = require('../mocks');
 const uuid = require('uuid');
-const error = require('../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const {
   AppleIAP,
 } = require('../../lib/payments/iap/apple-app-store/apple-iap');

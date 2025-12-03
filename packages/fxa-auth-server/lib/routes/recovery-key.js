@@ -8,8 +8,7 @@ const RECOVERY_KEY_DOCS =
   require('../../docs/swagger/recovery-key-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 
-const AppError = require('../error');
-const errors = require('../error');
+const { AppError: errors } = require('@fxa/accounts/errors');
 const { recordSecurityEvent } = require('./utils/security-event');
 const validators = require('./validators');
 const isA = require('joi');
@@ -149,7 +148,7 @@ module.exports = (
             // if we are not explicitly requesting a key change
             // but an enabled key exists, throw an error
           } else if (enabledKey.exists && replaceKey !== true) {
-            throw AppError.recoveryKeyExists();
+            throw errors.recoveryKeyExists();
           } else {
             // if no key is enabled, attempt to create a new key
             await db.createRecoveryKey(

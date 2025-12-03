@@ -27,7 +27,7 @@ import {
   SessionTokenAuthCredential,
 } from '../types';
 import { E164_NUMBER } from './validators';
-import AppError from '../error';
+import { AppError } from '@fxa/accounts/errors';
 import Localizer from '../l10n';
 import NodeRendererBindings from '../senders/renderer/bindings-node';
 import { AccountEventsManager } from '../account-events';

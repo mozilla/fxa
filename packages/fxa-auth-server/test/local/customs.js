@@ -7,7 +7,7 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../mocks');
-const error = require(`../../lib/error.js`);
+const { AppError: error } = require('@fxa/accounts/errors');
 const nock = require('nock');
 
 const CUSTOMS_URL_REAL = 'http://localhost:7000';

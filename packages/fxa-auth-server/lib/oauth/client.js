@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 const Joi = require('joi');
 
-const OauthError = require('./error');
+const { OauthError } = require('@fxa/accounts/errors');
 const validators = require('./validators');
 const db = require('./db');
 const encrypt = require('fxa-shared/auth/encrypt');
@@ -59,7 +59,7 @@ module.exports.getClientCredentials = function getClientCredentials(
   // the Authorization header or request body, but not both.
   if (headers.authorization) {
     const authzMatch = validators.BASIC_AUTH_HEADER.exec(headers.authorization);
-    const err = new OauthError.invalidRequestParameter({
+    const err = OauthError.invalidRequestParameter({
       keys: ['authorization'],
     });
     if (!authzMatch || creds.client_id || creds.client_secret) {
@@ -106,7 +106,7 @@ module.exports.authenticateClient = async function authenticateClient(
   // and should never submit a client_secret.
   if (client.publicClient) {
     if (creds.client_secret) {
-      throw new OauthError.invalidRequestParameter({ keys: ['client_secret'] });
+      throw OauthError.invalidRequestParameter({ keys: ['client_secret'] });
     }
     return client;
   }
@@ -114,7 +114,7 @@ module.exports.authenticateClient = async function authenticateClient(
   // Check client_secret against both current and previous stored secrets,
   // to allow for seamless rotation of the secret.
   if (!creds.client_secret) {
-    throw new OauthError.invalidRequestParameter({ keys: ['client_secret'] });
+    throw OauthError.invalidRequestParameter({ keys: ['client_secret'] });
   }
   const submitted = encrypt.hash(buf(creds.client_secret));
   const stored = client.hashedSecret;

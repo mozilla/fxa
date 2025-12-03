@@ -7,10 +7,7 @@ import assertNotNull from 'assert';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
 import { SeverityLevel } from '@sentry/core';
-import {
-  CustomerError,
-  PromotionCodeManager,
-} from '@fxa/payments/customer';
+import { CustomerError, PromotionCodeManager } from '@fxa/payments/customer';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AbbrevPlan,
@@ -34,7 +31,7 @@ import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import {
   COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP,
   StripeHelper,
@@ -235,7 +232,7 @@ export class StripeHandler {
       subscriptionId
     );
     if (!subscription) {
-      throw error.unknownSubscription();
+      throw error.unknownSubscription(subscriptionId);
     }
 
     const currentPlan = singlePlan(subscription);
@@ -268,8 +265,9 @@ export class StripeHandler {
     const { amount: planAmount, currency: planCurrency } =
       await this.stripeHelper.findAbbrevPlanById(planId);
     assertNotNull(planAmount, 'planAmount');
-    if (customer && customer.currency !== planCurrency) {
-      throw error.currencyCurrencyMismatch(customer.currency, planCurrency);
+    const customerCurrency = customer?.currency || undefined;
+    if (customerCurrency && customerCurrency !== planCurrency) {
+      throw error.currencyCurrencyMismatch(customerCurrency, planCurrency);
     }
 
     // Update the plan
@@ -359,7 +357,7 @@ export class StripeHandler {
     const plans = await this.stripeHelper.allAbbrevPlans();
     const planForProduct = plans.find((plan) => plan.product_id === productId);
     if (!planForProduct) {
-      throw error.unknownSubscriptionPlan();
+      throw error.unknownSubscriptionPlan(productId);
     }
     this.log.info('subscriptions.getProductName', {
       productId,

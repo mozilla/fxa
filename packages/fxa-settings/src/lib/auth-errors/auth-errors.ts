@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AuthServerError } from 'fxa-auth-client/browser';
+import { ERRNO } from '@fxa/accounts/errors';
 
 export type AuthUiError = AuthServerError & { version?: number };
 
@@ -15,334 +16,334 @@ const REUSED_SINGLE_USE_CONFIRMATION_CODE_ERROR_MESSAGE =
 // We add a `version` value onto the errors for translations. This allows us to signal to translators (via the string ID) that a string has been updated.
 const ERRORS = {
   ACCOUNT_ALREADY_EXISTS: {
-    errno: 101,
+    errno: ERRNO.ACCOUNT_EXISTS,
     message: 'Account already exists',
   },
   UNKNOWN_ACCOUNT: {
-    errno: 102,
+    errno: ERRNO.ACCOUNT_UNKNOWN,
     message: 'Unknown account',
   },
   INCORRECT_PASSWORD: {
-    errno: 103,
+    errno: ERRNO.INCORRECT_PASSWORD,
     message: 'Incorrect password',
   },
   UNVERIFIED_ACCOUNT: {
-    errno: 104,
+    errno: ERRNO.ACCOUNT_UNVERIFIED,
     message: 'Unconfirmed account',
     version: 2,
   },
   INVALID_VERIFICATION_CODE: {
-    errno: 105,
+    errno: ERRNO.INVALID_VERIFICATION_CODE,
     message: 'Invalid confirmation code',
     version: 2,
   },
   INVALID_JSON: {
-    errno: 106,
+    errno: ERRNO.INVALID_JSON,
     message: 'Invalid JSON in request body',
   },
   /*
     INVALID_PARAMETER: {
-        errno: 107,
+        errno: ERRNO.INVALID_PARAMETER,
         message: 'Invalid parameter: %(param)s'
     },
     MISSING_PARAMETER: {
-        errno: 108,
+        errno: ERRNO.MISSING_PARAMETER,
         message: 'Missing parameter: %(param)s'
     },
      */
   INVALID_REQUEST_SIGNATURE: {
-    errno: 109,
+    errno: ERRNO.INVALID_REQUEST_SIGNATURE,
     message: 'Invalid request signature',
   },
   INVALID_TOKEN: {
-    errno: 110,
+    errno: ERRNO.INVALID_TOKEN,
     message: 'Invalid token',
   },
   INVALID_TIMESTAMP: {
-    errno: 111,
+    errno: ERRNO.INVALID_TIMESTAMP,
     message: 'Invalid timestamp in request signature',
   },
   MISSING_CONTENT_LENGTH_HEADER: {
-    errno: 112,
+    errno: ERRNO.MISSING_CONTENT_LENGTH_HEADER,
     message: 'Missing content-length header',
   },
   REQUEST_TOO_LARGE: {
-    errno: 113,
+    errno: ERRNO.REQUEST_TOO_LARGE,
     message: 'Request body too large',
   },
   THROTTLED: {
-    errno: 114,
+    errno: ERRNO.THROTTLED,
     message: "You've tried too many times. Try again later.",
   },
   INVALID_NONCE: {
-    errno: 115,
+    errno: ERRNO.INVALID_NONCE,
     message: 'Invalid nonce in request signature',
   },
   ENDPOINT_NOT_SUPPORTED: {
-    errno: 116,
+    errno: ERRNO.ENDPOINT_NOT_SUPPORTED,
     message: 'This endpoint is no longer supported',
   },
   INCORRECT_EMAIL_CASE: {
-    errno: 120,
+    errno: ERRNO.INCORRECT_EMAIL_CASE,
     message: 'Incorrect email case',
   },
   /*
     ACCOUNT_LOCKED: {
-      errno: 121,
+      errno: ERRNO.ACCOUNT_LOCKED,
       message: 'Your account has been locked for security reasons')
     },
     ACCOUNT_NOT_LOCKED: {
-      errno: 122,
+      errno: ERRNO.ACCOUNT_NOT_LOCKED,
       message: UNEXPECTED_ERROR_MESSAGE
     },
     */
   REQUEST_BLOCKED: {
-    errno: 125,
+    errno: ERRNO.REQUEST_BLOCKED,
     message: 'The request was blocked for security reasons',
   },
   ACCOUNT_RESET: {
-    errno: 126,
+    errno: ERRNO.ACCOUNT_RESET,
     message: 'Your account has been locked for security reasons',
   },
   INCORRECT_UNBLOCK_CODE: {
-    errno: 127,
+    errno: ERRNO.INVALID_UNBLOCK_CODE,
     message: 'Invalid authorization code',
   },
   INVALID_PHONE_NUMBER: {
-    errno: 129,
+    errno: ERRNO.INVALID_PHONE_NUMBER,
     message:
       'You entered an invalid phone number. Please check it and try again.',
     version: 2,
   },
   INVALID_PHONE_REGION: {
-    errno: 130,
+    errno: ERRNO.INVALID_REGION,
     message: 'Cannot send to this country',
   },
-  // Important! errno: 131 has been deprecated. This is no longer a valid errno and should not be reused.
-  // Important! errno: 132 has been deprecated. This is no longer a valid errno and should not be reused.
+  // Important! errno: ERRNO.INVALID_MESSAGE_ID has been deprecated. This is no longer a valid errno and should not be reused.
+  // Important! errno: ERRNO.MESSAGE_REJECTED has been deprecated. This is no longer a valid errno and should not be reused.
   EMAIL_SENT_COMPLAINT: {
-    errno: 133,
+    errno: ERRNO.BOUNCE_COMPLAINT,
     message: 'Your email was just returned',
   },
   EMAIL_HARD_BOUNCE: {
-    errno: 134,
+    errno: ERRNO.BOUNCE_HARD,
     message: 'Your email was just returned. Mistyped email?',
   },
   EMAIL_SOFT_BOUNCE: {
-    errno: 135,
+    errno: ERRNO.BOUNCE_SOFT,
     message: 'Unable to deliver email',
   },
   EMAIL_EXISTS: {
-    errno: 136,
+    errno: ERRNO.EMAIL_EXISTS,
     message: 'This email was already confirmed by another user',
     version: 2,
   },
   UNVERIFIED_SESSION: {
-    errno: 138,
+    errno: ERRNO.SESSION_UNVERIFIED,
     message: 'Unconfirmed session',
     version: 2,
   },
   EMAIL_PRIMARY_EXISTS: {
-    errno: 139,
+    errno: ERRNO.USER_PRIMARY_EMAIL_EXISTS,
     message: 'Secondary email must be different than your account email',
   },
   EMAIL_VERIFIED_PRIMARY_EXISTS: {
-    errno: 140,
+    errno: ERRNO.VERIFIED_PRIMARY_EMAIL_EXISTS,
     message: 'Account already exists',
   },
   MAX_SECONDARY_EMAILS_REACHED: {
-    errno: 188,
+    errno: ERRNO.MAX_SECONDARY_EMAILS_REACHED,
     message: 'You have reached the maximum allowed secondary emails',
   },
   ACCOUNT_OWNS_EMAIL: {
-    errno: 189,
+    errno: ERRNO.ACCOUNT_OWNS_EMAIL,
     message: 'This email already exists on your account',
   },
   UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED: {
-    errno: 141,
+    errno: ERRNO.UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED,
     message: 'Account already exists',
   },
   LOGIN_WITH_SECONDARY_EMAIL: {
-    errno: 142,
+    errno: ERRNO.LOGIN_WITH_SECONDARY_EMAIL,
     message: 'Primary account email required for sign-in',
   },
   VERIFIED_SECONDARY_EMAIL_EXISTS: {
-    errno: 144,
+    errno: ERRNO.VERIFIED_SECONDARY_EMAIL_EXISTS,
     message:
       'This email is reserved by another account. Try again later or use a different email address.',
   },
   RESET_PASSWORD_WITH_SECONDARY_EMAIL: {
-    errno: 145,
+    errno: ERRNO.RESET_PASSWORD_WITH_SECONDARY_EMAIL,
     message: 'Primary account email required for reset',
   },
   INVALID_SIGNIN_CODE: {
-    errno: 146,
+    errno: ERRNO.INVALID_SIGNIN_CODE,
     message: 'Invalid signin code',
   },
   CHANGE_EMAIL_TO_UNVERIFIED_EMAIL: {
-    errno: 147,
+    errno: ERRNO.CHANGE_EMAIL_TO_UNVERIFIED_EMAIL,
     message: 'Can not change primary email to an unconfirmed email',
     version: 2,
   },
   CHANGE_EMAIL_TO_UNOWNED_EMAIL: {
-    errno: 148,
+    errno: ERRNO.CHANGE_EMAIL_TO_UNOWNED_EMAIL,
     message:
       'Can not change primary email to an email that does not belong to this account',
   },
   LOGIN_WITH_INVALID_EMAIL: {
-    errno: 149,
+    errno: ERRNO.LOGIN_WITH_INVALID_EMAIL,
     message: 'This email can not currently be used to login',
   },
   RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL: {
-    errno: 150,
+    errno: ERRNO.RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL,
     message:
       'Can not resend email code to an email that does not belong to this account',
     version: 2,
   },
   FAILED_TO_SEND_EMAIL: {
-    errno: 151,
+    errno: ERRNO.FAILED_TO_SEND_EMAIL,
     message: 'Failed to send email',
   },
   INVALID_OTP_CODE: {
-    errno: 152,
+    errno: ERRNO.INVALID_TOKEN_VERIFICATION_CODE,
     message: 'Valid code required',
   },
   EXPIRED_TOKEN_VERIFICATION_CODE: {
-    errno: 153,
+    errno: ERRNO.EXPIRED_TOKEN_VERIFICATION_CODE,
     message: 'This confirmation code has expired',
     version: 2,
   },
   TOTP_TOKEN_EXISTS: {
-    errno: 154,
+    errno: ERRNO.TOTP_TOKEN_EXISTS,
     message: 'A TOTP token already exists for this account',
   },
   TOTP_TOKEN_NOT_FOUND: {
-    errno: 155,
+    errno: ERRNO.TOTP_TOKEN_NOT_FOUND,
     message: 'TOTP token not found',
   },
   RECOVERY_CODE_NOT_FOUND: {
-    errno: 156,
+    errno: ERRNO.RECOVERY_CODE_NOT_FOUND,
     message: 'Backup authentication code not found',
   },
   DEVICE_COMMAND_UNAVAILABLE: {
-    errno: 157,
+    errno: ERRNO.DEVICE_COMMAND_UNAVAILABLE,
     message: 'Unavailable device command',
   },
   RECOVERY_KEY_NOT_FOUND: {
-    errno: 158,
+    errno: ERRNO.RECOVERY_KEY_NOT_FOUND,
     message: 'Account recovery key not found',
   },
   INVALID_RECOVERY_KEY: {
-    errno: 159,
+    errno: ERRNO.RECOVERY_KEY_INVALID,
     message: 'Invalid account recovery key',
   },
   TOTP_REQUIRED: {
-    errno: 160,
+    errno: ERRNO.TOTP_REQUIRED,
     message:
       'This request requires two step authentication enabled on your account.',
   },
   RECOVERY_KEY_ALREADY_EXISTS: {
-    errno: 161,
+    errno: ERRNO.RECOVERY_KEY_EXISTS,
     message: 'Account recovery key already exists.',
   },
   REDIS_CONFLICT: {
-    errno: 165,
+    errno: ERRNO.REDIS_CONFLICT,
     message: 'Failed due to a conflicting request, please try again.',
   },
   INSUFFICIENT_ACR_VALUES: {
-    errno: 170,
+    errno: ERRNO.INSUFFICIENT_ACR_VALUES,
     message:
       'This request requires two step authentication enabled on your account.',
   },
   UNKNOWN_SUBSCRIPTION_CUSTOMER: {
-    errno: 176,
+    errno: ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER,
     message: 'Unknown customer for subscription.',
   },
   UNKNOWN_SUBSCRIPTION: {
-    errno: 177,
+    errno: ERRNO.UNKNOWN_SUBSCRIPTION,
     message: 'Unknown subscription.',
   },
   UNKNOWN_SUBSCRIPTION_PLAN: {
-    errno: 178,
+    errno: ERRNO.UNKNOWN_SUBSCRIPTION_PLAN,
     message: 'Unknown plan for subscription.',
   },
   REJECTED_SUBSCRIPTION_PAYMENT_TOKEN: {
-    errno: 179,
+    errno: ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN,
     message: 'Invalid payment token for subscription.',
   },
   SUBSCRIPTION_ALREADY_CANCELLED: {
-    errno: 180,
+    errno: ERRNO.SUBSCRIPTION_ALREADY_CANCELLED,
     message: 'Subscription has already been cancelled',
   },
   REJECTED_CUSTOMER_UPDATE: {
-    errno: 181,
+    errno: ERRNO.REJECTED_CUSTOMER_UPDATE,
     message: 'Update was rejected, please try again',
   },
   INVALID_EXPIRED_OTP_CODE: {
-    errno: 183,
+    errno: ERRNO.INVALID_EXPIRED_OTP_CODE,
     message: 'Invalid or expired confirmation code',
     version: 2,
   },
   SERVER_BUSY: {
-    errno: 201,
+    errno: ERRNO.SERVER_BUSY,
     message: 'Server busy, try again soon',
   },
   FEATURE_NOT_ENABLED: {
-    errno: 202,
+    errno: ERRNO.FEATURE_NOT_ENABLED,
     message: 'Feature not enabled',
   },
   BACKEND_SERVICE_FAILURE: {
-    errno: 203,
+    errno: ERRNO.BACKEND_SERVICE_FAILURE,
     message: 'System unavailable, try again soon',
   },
   DISABLED_CLIENT_ID: {
-    errno: 204,
+    errno: ERRNO.DISABLED_CLIENT_ID,
     message: 'System unavailable, try again soon',
   },
   CANNOT_CREATE_PASSWORD: {
-    errno: 206,
+    errno: ERRNO.CANNOT_CREATE_PASSWORD,
     message: 'Can not create password, password already set',
   },
   RECOVERY_PHONE_NUMBER_ALREADY_EXISTS: {
-    errno: 214,
+    errno: ERRNO.RECOVERY_PHONE_NUMBER_ALREADY_EXISTS,
     message: 'Recovery phone number already exists',
   },
   RECOVERY_PHONE_NUMBER_DOES_NOT_EXIST: {
-    errno: 215,
+    errno: ERRNO.RECOVERY_PHONE_NUMBER_DOES_NOT_EXIST,
     message: 'Recovery phone number does not exist',
   },
   SMS_SEND_RATE_LIMIT_EXCEEDED: {
-    errno: 216,
+    errno: ERRNO.SMS_SEND_RATE_LIMIT_EXCEEDED,
     message: 'Text message limit reached',
   },
   RECOVERY_PHONE_REMOVE_MISSING_RECOVERY_CODES: {
-    errno: 218,
+    errno: ERRNO.RECOVERY_PHONE_REMOVE_MISSING_RECOVERY_CODES,
     message:
       'Unable to remove recovery phone, missing backup authentication codes.',
   },
   RECOVERY_PHONE_REGISTRATION_LIMIT_REACHED: {
-    errno: 219,
+    errno: ERRNO.RECOVERY_PHONE_REGISTRATION_LIMIT_REACHED,
     message:
       'This phone number has been registered with too many accounts. Please try a different number.',
   },
   TOTP_SECRET_DOES_NOT_EXIST: {
-    errno: 220,
+    errno: ERRNO.TOTP_SECRET_DOES_NOT_EXIST,
     message: 'TOTP secret does not exist',
   },
   INSUFFICIENT_AAL: {
-    errno: 222,
+    errno: ERRNO.INSUFFICIENT_AAL,
     message: 'Insufficient AAL',
   },
   INVALID_MFA_TOKEN: {
-    errno: 223,
+    errno: ERRNO.INVALID_MFA_TOKEN,
     message: 'Invalid or expired MFA token',
   },
   SERVICE_UNAVAILABLE: {
-    errno: 998,
+    errno: ERRNO.INTERNAL_VALIDATION_ERROR,
     message: 'System unavailable, try again soon',
   },
   UNEXPECTED_ERROR: {
-    errno: 999,
+    errno: ERRNO.UNEXPECTED_ERROR,
     message: UNEXPECTED_ERROR_MESSAGE,
   },
   USER_CANCELED_LOGIN: {

@@ -10,7 +10,7 @@ const sinon = require('sinon');
 const verror = require('verror');
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
-const error = require('../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 
 const config = require('../../config').default.getProperties();
 const {
@@ -92,11 +92,9 @@ describe('Sentry', () => {
 
   it('adds payload details to an internal validation error', async () => {
     await configureSentry(server, config);
-    const err = error.internalValidationError(
-      'internalError',
-      { extra: 'data' },
-      'Missing data'
-    );
+    const err = error.internalValidationError('internalError', {
+      extra: 'data',
+    });
     await server.events.emit(
       {
         name: 'request',
@@ -106,15 +104,18 @@ describe('Sentry', () => {
       [{}, { error: err }]
     );
 
-    sandbox.assert.calledTwice(scopeSpy.setContext);
-    sandbox.assert.calledWith(scopeSpy.setContext, 'payload', {
-      code: 500,
-      errno: 998,
-      error: 'Internal Server Error',
-      info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
-      message: 'An internal validation check failed.',
-      op: 'internalError',
-    });
+    sandbox.assert.calledWithMatch(
+      scopeSpy.setContext,
+      'payload',
+      sinon.match({
+        code: 500,
+        errno: error.ERRNO.INTERNAL_VALIDATION_ERROR,
+        error: 'Internal Server Error',
+        info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
+        message: 'An internal validation check failed.',
+        op: 'internalError',
+      })
+    );
     sandbox.assert.calledWith(scopeSpy.setContext, 'payload.data', {
       extra: 'data',
     });

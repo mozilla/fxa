@@ -5,7 +5,7 @@ import { OAUTH_SCOPE_SUBSCRIPTIONS } from 'fxa-shared/oauth/constants';
 import ScopeSet from 'fxa-shared/oauth/scopes';
 import { Logger } from 'mozlog';
 
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { AuthRequest, TaxAddress } from '../../types';
 
 /**

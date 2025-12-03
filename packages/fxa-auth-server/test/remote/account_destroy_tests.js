@@ -9,7 +9,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const otplib = require('otplib');
 const crypto = require('crypto');
-const AppError = require('../../lib/error');
+const { AppError } = require('@fxa/accounts/errors');
 
 const config = require('../../config').default.getProperties();
 

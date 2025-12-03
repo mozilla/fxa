@@ -16,7 +16,7 @@ const {
 const {
   PurchaseUpdateError,
 } = require('../../../../lib/payments/iap/google-play/types/errors');
-const error = require('../../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const { AuthLogger } = require('../../../../lib/types');
 const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
 const { IAPConfig } = require('../../../../lib/payments/iap/iap-config');

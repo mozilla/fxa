@@ -22,7 +22,7 @@ import MISC_DOCS from '../../docs/swagger/misc-api';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import authMethods from '../authMethods';
 import random from '../crypto/random';
-import error from '../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { getClientById } from '../oauth/client';
 import { generateAccessToken } from '../oauth/grant';
 import jwt from '../oauth/jwt';

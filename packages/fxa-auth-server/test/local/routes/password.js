@@ -12,7 +12,7 @@ const getRoute = require('../../routes_helpers').getRoute;
 
 const uuid = require('uuid');
 const crypto = require('crypto');
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const log = require('../../../lib/log');
 const random = require('../../../lib/crypto/random');
 const glean = mocks.mockGlean();
@@ -1436,7 +1436,8 @@ describe('/password', () => {
       const authPWVersion2 = crypto.randomBytes(32).toString('hex');
       const wrapKb = crypto.randomBytes(32).toString('hex');
       const wrapKbVersion2 = crypto.randomBytes(32).toString('hex');
-      const clientSalt = 'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
+      const clientSalt =
+        'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
 
       const mockRequest = mocks.mockRequest({
         log: mockLog,
@@ -1472,7 +1473,11 @@ describe('/password', () => {
         customs: mockCustoms,
       });
 
-      const response = await runRoute(passwordRoutes, '/mfa/password/change', mockRequest);
+      const response = await runRoute(
+        passwordRoutes,
+        '/mfa/password/change',
+        mockRequest
+      );
 
       // Verify V2 credentials are handled
       const resetAccountCall = mockDB.resetAccount.firstCall.args[1];
@@ -1490,7 +1495,8 @@ describe('/password', () => {
       const authPWVersion2 = crypto.randomBytes(32).toString('hex');
       const wrapKb = crypto.randomBytes(32).toString('hex');
       const wrapKbVersion2 = crypto.randomBytes(32).toString('hex');
-      const clientSalt = 'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
+      const clientSalt =
+        'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
 
       mockDB.account = sinon.spy(() => ({
         uid,
@@ -1502,7 +1508,9 @@ describe('/password', () => {
       }));
 
       // Mock signinUtils.checkPassword to return true for upgrade scenario
-       mockDB.checkPassword = sinon.spy(() => Promise.resolve({ v1: true, v2: false }));
+      mockDB.checkPassword = sinon.spy(() =>
+        Promise.resolve({ v1: true, v2: false })
+      );
 
       const passwordRoutes = makeRoutes({
         db: mockDB,
@@ -1538,7 +1546,11 @@ describe('/password', () => {
         query: {},
       });
 
-      const response = await runRoute(passwordRoutes, '/mfa/password/change', mockRequest);
+      const response = await runRoute(
+        passwordRoutes,
+        '/mfa/password/change',
+        mockRequest
+      );
 
       // Verify upgrade scenario is handled
       const resetAccountCall = mockDB.resetAccount.firstCall;

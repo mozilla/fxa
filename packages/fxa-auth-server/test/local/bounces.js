@@ -9,7 +9,7 @@ const ROOT_DIR = '../..';
 const assert = require('assert');
 const config = require(`${ROOT_DIR}/config`).default.getProperties();
 const createBounces = require(`${ROOT_DIR}/lib/bounces`);
-const error = require(`${ROOT_DIR}/lib/error`);
+const { AppError: error } = require('@fxa/accounts/errors');
 const sinon = require('sinon');
 
 const EMAIL = Math.random() + '@example.test';

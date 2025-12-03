@@ -14,7 +14,7 @@ import PASSWORD_DOCS from '../../docs/swagger/password-api';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import * as butil from '../crypto/butil';
 import * as random from '../crypto/random';
-import * as error from '../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import { gleanMetrics } from '../metrics/glean';
 import * as requestHelper from '../routes/utils/request_helper';

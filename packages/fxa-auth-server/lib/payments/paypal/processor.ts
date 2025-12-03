@@ -8,7 +8,7 @@ import { Container } from 'typedi';
 
 import { PayPalClientError } from '@fxa/payments/paypal';
 import { ConfigType } from '../../../config';
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { StripeWebhookHandler } from '../../routes/subscriptions/stripe-webhook';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger } from '../../types';

@@ -11,7 +11,7 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const nock = require('nock');
 const { supportRoutes } = require('../../../lib/routes/subscriptions/support');
-const AppError = require('../../../lib/error');
+const { AppError } = require('@fxa/accounts/errors');
 
 let config,
   log,

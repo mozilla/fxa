@@ -4,7 +4,7 @@
 
 const { assert } = require('chai');
 const sinon = require('sinon');
-const AppError = require('../../../../lib/error');
+const { AppError } = require('@fxa/accounts/errors');
 const {
   strategy,
 } = require('../../../../lib/routes/auth-schemes/verified-session-token');

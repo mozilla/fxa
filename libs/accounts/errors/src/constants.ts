@@ -133,6 +133,33 @@ export const ERRNO = {
   UNEXPECTED_ERROR: 999,
 };
 
+export const OAUTH_ERRNO = {
+  UNKNOWN_CLIENT: 101,
+  INCORRECT_SECRET: 102,
+  INCORRECT_REDIRECT: 103,
+  INVALID_ASSERTION: 104,
+  UNKNOWN_CODE: 105,
+  INCORRECT_CODE: 106,
+  EXPIRED_CODE: 107,
+  INVALID_TOKEN: 108,
+  INVALID_PARAMETER: 109,
+  INVALID_RESPONSE_TYPE: 110,
+  UNAUTHORIZED: 111,
+  FORBIDDEN: 112,
+  INVALID_CONTENT_TYPE: 113,
+  INVALID_SCOPES: 114,
+  EXPIRED_TOKEN: 115,
+  NOT_PUBLIC_CLIENT: 116,
+  INCORRECT_CODE_CHALLENGE: 117,
+  MISSING_PKCE_PARAMETERS: 118,
+  STALE_AUTH_AT: 119,
+  MISMATCH_ACR_VALUES: 120,
+  INVALID_GRANT_TYPE: 121,
+  UNKNOWN_TOKEN: 122,
+  SERVER_UNAVAILABLE: 201,
+  DISABLED_CLIENT_ID: 202,
+};
+
 /**
  * Takes an object and swaps keys with values. Useful when a value -> key look up is needed.
  * @param obj - Object to swap keys and values on
@@ -149,6 +176,7 @@ function swapObjectKeysAndValues(obj: { [key: string]: string | number }) {
  * A reversed map of errnos.
  */
 export const ERRNO_REVERSE_MAP = swapObjectKeysAndValues(ERRNO);
+export const OAUTH_ERRNO_REVERSE_MAP = swapObjectKeysAndValues(OAUTH_ERRNO);
 
 /**
  * The Default Unexpected Error State

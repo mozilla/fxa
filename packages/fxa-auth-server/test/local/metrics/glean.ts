@@ -5,7 +5,7 @@
 import proxyquire from 'proxyquire';
 import sinon, { SinonStub } from 'sinon';
 import { assert } from 'chai';
-import AppError from '../../../lib/error';
+import { AppError } from '@fxa/accounts/errors';
 import mocks from '../../mocks';
 import { GleanMetricsType } from '../../../lib/metrics/glean';
 import { AuthRequest } from '../../../lib/types';
@@ -192,12 +192,10 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
         recordTwoStepAuthPhoneReplaceSuccess,
       recordTwoStepAuthPhoneReplaceFailure:
         recordTwoStepAuthPhoneReplaceFailure,
-      recordLoginConfirmSkipForKnownIp:
-        recordLoginConfirmSkipForKnownIp,
-      recordLoginConfirmSkipForNewAccount:
-        recordLoginConfirmSkipForNewAccount,
+      recordLoginConfirmSkipForKnownIp: recordLoginConfirmSkipForKnownIp,
+      recordLoginConfirmSkipForNewAccount: recordLoginConfirmSkipForNewAccount,
       recordLoginConfirmSkipForKnownDevice:
-      recordLoginConfirmSkipForKnownDevice,
+        recordLoginConfirmSkipForKnownDevice,
     }),
   },
 });

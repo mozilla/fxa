@@ -4,7 +4,7 @@
 
 'use strict';
 
-const AppError = require('../../error');
+const { AppError } = require('@fxa/accounts/errors');
 const joi = require('joi');
 const validators = require('../validators');
 const { BEARER_AUTH_REGEX } = validators;
@@ -26,15 +26,14 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
     return {
       async authenticate(request, h) {
         if (config.oauth.deviceAccessEnabled === false) {
-          throw new AppError.featureNotEnabled();
+          throw AppError.featureNotEnabled();
         }
 
         const bearerMatch = BEARER_AUTH_REGEX.exec(
           request.headers.authorization
         );
-        const bearerMatchErr = new AppError.invalidRequestParameter(
-          'authorization'
-        );
+        const bearerMatchErr =
+          AppError.invalidRequestParameter('authorization');
         const bearerToken = bearerMatch && bearerMatch[1];
         if (bearerToken) {
           joi.attempt(bearerMatch[1], validators.refreshToken, bearerMatchErr);
@@ -45,7 +44,7 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
         const tokenId = encrypt.hash(bearerToken);
         const refreshToken = await oauthDB.getRefreshToken(tokenId);
         if (!refreshToken) {
-          return h.unauthenticated(new AppError.invalidToken());
+          return h.unauthenticated(AppError.invalidToken());
         }
         if (
           !refreshToken.scope.intersects(ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES)
@@ -71,7 +70,7 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
 
         credentials.client = await client.getClientById(refreshToken.clientId);
         if (!credentials.client || !credentials.client.publicClient) {
-          return h.unauthenticated(new AppError.notPublicClient());
+          return h.unauthenticated(AppError.notPublicClient());
         }
         const devices = await db.devices(credentials.uid);
 

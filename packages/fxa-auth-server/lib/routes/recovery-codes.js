@@ -4,7 +4,7 @@
 
 'use strict';
 
-const errors = require('../error');
+const { AppError: errors } = require('@fxa/accounts/errors');
 const isA = require('joi');
 const validators = require('./validators');
 const { Container } = require('typedi');

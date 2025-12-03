@@ -4,7 +4,7 @@
 
 'use strict';
 
-const error = require('../../error');
+const { AppError: error } = require('@fxa/accounts/errors');
 
 const BOUNCE_ERRORS = new Set([
   error.ERRNO.BOUNCE_COMPLAINT,

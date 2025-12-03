@@ -8,7 +8,7 @@ const ROOT_DIR = '../../..';
 
 const { assert } = require('chai');
 const bounces = require(`${ROOT_DIR}/lib/email/bounces`);
-const error = require(`${ROOT_DIR}/lib/error`);
+const { AppError: error } = require('@fxa/accounts/errors');
 const { EventEmitter } = require('events');
 const { mockLog } = require('../../mocks');
 const sinon = require('sinon');
@@ -428,7 +428,7 @@ describe('bounce messages', () => {
 
   it('should log errors when deleting the email record', () => {
     mockDB.deleteAccount = sinon.spy(() =>
-      Promise.reject(new error.unknownAccount('test@example.com'))
+      Promise.reject(error.unknownAccount('test@example.com'))
     );
     const mockMsg = mockMessage({
       bounce: {
@@ -461,7 +461,7 @@ describe('bounce messages', () => {
     mockDB.accountRecord = sinon.spy((email) => {
       // Lookup only succeeds when using original, unquoted email addr.
       if (email !== 'test.@example.com') {
-        return Promise.reject(new error.unknownAccount(email));
+        return Promise.reject(error.unknownAccount(email));
       }
       return Promise.resolve({
         createdAt: Date.now(),
@@ -503,7 +503,7 @@ describe('bounce messages', () => {
     mockDB.accountRecord = sinon.spy((email) => {
       // Lookup only succeeds when using original, unquoted email addr.
       if (email !== 'test..me@example.com') {
-        return Promise.reject(new error.unknownAccount(email));
+        return Promise.reject(error.unknownAccount(email));
       }
       return Promise.resolve({
         createdAt: Date.now(),
@@ -544,7 +544,7 @@ describe('bounce messages', () => {
 
   it('should log a warning if it receives an unparseable email address', () => {
     mockDB.accountRecord = sinon.spy(() =>
-      Promise.reject(new error.unknownAccount())
+      Promise.reject(error.unknownAccount())
     );
     return mockedBounces(log, mockDB)
       .handleBounce(

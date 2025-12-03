@@ -24,7 +24,7 @@ const {
 } = require('@fxa/shared/cms');
 const TracingProvider = require('fxa-shared/tracing/node-tracing');
 
-const error = require('../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const { JWTool } = require('@fxa/vendored/jwtool');
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');

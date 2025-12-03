@@ -5,8 +5,8 @@
 const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 const Joi = require('joi');
 
-const OauthError = require('../../oauth/error');
-const AuthError = require('../../error');
+const { OauthError } = require('@fxa/accounts/errors');
+const { AppError: AuthError } = require('@fxa/accounts/errors');
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');

@@ -7,7 +7,7 @@ import sinon from 'sinon';
 
 import * as lib from '../../../scripts/recorded-future/lib';
 import { SearchResultIdentity } from '../../../scripts/recorded-future/lib';
-import AppError, { ERRNO } from '../../../lib/error';
+import { AppError, ERRNO } from '@fxa/accounts/errors';
 
 describe('Recorded Future credentials search and reset script lib', () => {
   const payload = { domain: 'login.example.com', limit: 10 };

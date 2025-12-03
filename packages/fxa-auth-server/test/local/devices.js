@@ -9,7 +9,7 @@ const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 const crypto = require('crypto');
 const mocks = require('../mocks');
-const error = require('../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const uuid = require('uuid');
 
 describe('lib/devices:', () => {

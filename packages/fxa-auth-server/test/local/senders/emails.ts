@@ -18,8 +18,7 @@ import {
   MOCK_DEVICE_OS,
   MOCK_DEVICE_OS_VERSION,
 } from '../../../lib/senders/emails/partials/userDevice/mocks';
-import AppError from '../../../lib/error';
-import { AUTH_SERVER_ERRNOS } from 'fxa-shared/lib/errors';
+import { AppError, ERRNO as AUTH_SERVER_ERRNOS } from '@fxa/accounts/errors';
 import { Container } from 'typedi';
 import { ProductConfigurationManager } from '../../../../../libs/shared/cms/src';
 

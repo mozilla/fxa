@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Request, ResponseToolkit } from '@hapi/hapi';
-import * as AppError from '../../error';
+import { AppError } from '@fxa/accounts/errors';
 import { ConfigType } from '../../../config/index';
 import * as jwt from 'jsonwebtoken';
 import { Account } from 'fxa-shared/db/models/auth';

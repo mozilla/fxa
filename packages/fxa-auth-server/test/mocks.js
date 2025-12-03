@@ -11,7 +11,7 @@
 const assert = require('assert');
 const config = require('../config').default.getProperties();
 const crypto = require('crypto');
-const error = require('../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const knownIpLocation = require('./known-ip-location');
 const sinon = require('sinon');
 const { normalizeEmail } = require('fxa-shared').email.helpers;

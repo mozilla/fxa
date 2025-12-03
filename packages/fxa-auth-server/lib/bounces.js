@@ -4,7 +4,7 @@
 
 'use strict';
 
-const error = require('./error');
+const { AppError: error } = require('@fxa/accounts/errors');
 
 module.exports = (config, db) => {
   const configBounces = (config.smtp && config.smtp.bounces) || {};

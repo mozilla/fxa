@@ -4,7 +4,7 @@
 
 'use strict';
 
-const errors = require('../error');
+const { AppError: errors } = require('@fxa/accounts/errors');
 const validators = require('./validators');
 const isA = require('joi');
 const otplib = require('otplib');

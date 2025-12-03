@@ -4,7 +4,7 @@
 
 'use strict';
 
-const error = require('../error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const isA = require('joi');
 const requestHelper = require('../routes/utils/request_helper');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;

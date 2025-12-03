@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Joi = require('joi');
-const OauthError = require('../../oauth/error');
-const AuthError = require('../../error');
+const { OauthError } = require('@fxa/accounts/errors');
+const { AppError: AuthError } = require('@fxa/accounts/errors');
 const config = require('../../../config').default.getProperties();
 const validators = require('../../oauth/validators');
 const verifyAssertion = require('../../oauth/assertion');

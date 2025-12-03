@@ -13,7 +13,7 @@ import { AuthRequest, SessionTokenAuthCredential } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
 import { ConfigType } from '../../config';
 import { OtpUtils } from './utils/otp';
-import * as AppError from '../error';
+import { AppError } from '@fxa/accounts/errors';
 
 /** Customs interface for mfa specific operations. */
 interface Customs {

@@ -7,6 +7,7 @@ import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { ERRNO } from '@fxa/accounts/errors';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import {
@@ -281,7 +282,7 @@ const ConfirmSignupCode = ({
       // Intercept invalid parameter error and set the error message to INVALID_EXPIRED_OTP_CODE
       // This error occurs when the submitted code does not pass validation for the code param
       // e.g., if the submitted code contains spaces or characters other than numbers
-      if (error.errno === 107) {
+      if (error.errno === ERRNO.INVALID_PARAMETER) {
         localizedErrorMessage = ftlMsgResolver.getMsg(
           getErrorFtlId(AuthUiErrors.INVALID_EXPIRED_OTP_CODE),
           AuthUiErrors.INVALID_EXPIRED_OTP_CODE.message
@@ -295,7 +296,7 @@ const ConfirmSignupCode = ({
         error.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno ||
         error.errno === AuthUiErrors.OTP_CODE_REQUIRED.errno ||
         error.errno === AuthUiErrors.INVALID_OTP_CODE.errno ||
-        error.errno === 107
+        error.errno === ERRNO.INVALID_PARAMETER
       ) {
         setCodeErrorMessage(localizedErrorMessage);
       } else {

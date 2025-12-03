@@ -9,7 +9,7 @@ import { Container } from 'typedi';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import { AppStoreSubscriptions } from '../../../lib/payments/iap/apple-app-store/subscriptions';
 import { PlaySubscriptions } from '../../../lib/payments/iap/google-play/subscriptions';
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import {
   appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
   playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,

@@ -61,7 +61,7 @@ import { Stripe } from 'stripe';
 import { Container } from 'typedi';
 
 import { ConfigType } from '../../config';
-import error from '../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { GoogleMapsService } from '../google-maps-services';
 import Redis from '../redis';
 import { subscriptionProductMetadataValidator } from '../routes/validators';
@@ -2181,7 +2181,7 @@ export class StripeHelper extends StripeHelperBase {
       subscriptionId
     );
     if (!subscription) {
-      throw error.unknownSubscription();
+      throw error.unknownSubscription(subscriptionId);
     }
 
     await this.updateSubscriptionAndBackfill(subscription, {
@@ -2213,7 +2213,7 @@ export class StripeHelper extends StripeHelperBase {
       subscriptionId
     );
     if (!subscription) {
-      throw error.unknownSubscription();
+      throw error.unknownSubscription(subscriptionId);
     }
 
     if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
@@ -3545,8 +3545,10 @@ export class StripeHelper extends StripeHelperBase {
    * Process a invoice event that needs to be saved to Firestore.
    */
   async processInvoiceEventToFirestore(event: Stripe.Event) {
-    if (event.data.object.object !== "invoice") {
-      throw new Error("processInvoiceEventToFirestore must receive only invoice types");
+    if (event.data.object.object !== 'invoice') {
+      throw new Error(
+        'processInvoiceEventToFirestore must receive only invoice types'
+      );
     }
     const eventData = event.data.object;
 
@@ -3554,15 +3556,21 @@ export class StripeHelper extends StripeHelperBase {
     if (!invoiceId) throw new Error('Invoice ID must be specified');
     const customerId = eventData.customer;
     if (typeof customerId !== 'string') {
-      throw new Error("customerId must be a string");
+      throw new Error('customerId must be a string');
     }
 
     try {
-      await this.stripeFirestore.fetchAndInsertInvoice(invoiceId, event.created);
+      await this.stripeFirestore.fetchAndInsertInvoice(
+        invoiceId,
+        event.created
+      );
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
         await this.stripeFirestore.fetchAndInsertCustomer(customerId);
-        await this.stripeFirestore.fetchAndInsertInvoice(invoiceId, event.created);
+        await this.stripeFirestore.fetchAndInsertInvoice(
+          invoiceId,
+          event.created
+        );
         return;
       }
       throw err;
@@ -3586,7 +3594,10 @@ export class StripeHelper extends StripeHelperBase {
     const paymentMethodId = (event.data.object as Stripe.PaymentMethod).id;
 
     try {
-      await this.stripeFirestore.fetchAndInsertPaymentMethod(paymentMethodId, event.created);
+      await this.stripeFirestore.fetchAndInsertPaymentMethod(
+        paymentMethodId,
+        event.created
+      );
     } catch (err) {
       if (
         !(

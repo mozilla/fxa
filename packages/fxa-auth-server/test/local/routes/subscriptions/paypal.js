@@ -10,7 +10,7 @@ const { Container } = require('typedi');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const { filterCustomer } = require('fxa-shared/subscriptions/stripe');
 
-const error = require('../../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const { getRoute } = require('../../../routes_helpers');
 const mocks = require('../../../mocks');
 const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
