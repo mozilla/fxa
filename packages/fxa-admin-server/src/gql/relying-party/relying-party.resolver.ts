@@ -62,11 +62,6 @@ export class RelyingPartyResolver {
       ...relyingParty,
     });
 
-    if (result.id) {
-      // Ping FxA channel, so devs know to setup a new queue
-      // TODO: Create the event broker queue
-    }
-
     return result.id;
   }
 
