@@ -28,9 +28,9 @@ export type BounceDb = {
   };
 };
 
-const BOUNCE_TYPE_HARD = 1;
-const BOUNCE_TYPE_SOFT = 2;
-const BOUNCE_TYPE_COMPLAINT = 3;
+export const BOUNCE_TYPE_HARD = 1;
+export const BOUNCE_TYPE_SOFT = 2;
+export const BOUNCE_TYPE_COMPLAINT = 3;
 
 export class Bounces {
   private readonly bounceRules: Record<number, any>;
@@ -50,15 +50,16 @@ export class Bounces {
     if (this.config.enabled) {
       return await this.checkBounces(email, template);
     }
+    return undefined;
   }
 
   async checkBounces(email: string, template: string) {
     if (this.config.ignoreTemplates.includes(template)) {
-      return;
+      return undefined;
     }
 
     const bounces = await this.db.emailBounces.findByEmail(email);
-    this.applyRules(bounces);
+    return this.applyRules(bounces);
   }
 
   private applyRules(bounces: Array<Bounce>) {
@@ -78,6 +79,8 @@ export class Bounces {
     };
     const now = Date.now();
 
+    // sort to descending order to guarantee latest bounces are processed first
+    bounces.sort((a, b) => b.createdAt - a.createdAt);
     bounces.forEach((bounce: Bounce) => {
       const type = bounce.bounceType;
       const ruleSet = this.bounceRules[type];
