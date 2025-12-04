@@ -21,9 +21,6 @@
     <mj-include path="<%- locals.cssPath %>/fxa/index.css" type="css" css-inline="inline" />
     <mj-include path="<%- locals.cssPath %>/locale-dir.css" type="css" />
     <%- include('/partials/brandMessaging/index.mjml') %>
-    <% if (locals.showBannerWarning === true) { %>
-      <%- include('/partials/bannerWarning/index.mjml') %>
-    <% } %>
 
     <mj-wrapper css-class="body">
       <mj-section>

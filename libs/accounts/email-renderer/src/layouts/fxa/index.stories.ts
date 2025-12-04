@@ -45,10 +45,3 @@ export const MessagingThroughSyncFlowWithBrandMessaging = createStory(
   },
   'Email triggered through sync flow with brand messaging'
 );
-
-export const FlowWithWarning = createStory(
-  {
-    showBannerWarning: true,
-  },
-  'Email triggered through web or AMO flow with banner warning'
-);
