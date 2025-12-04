@@ -35,8 +35,10 @@ describe('bounce messages', () => {
   beforeEach(() => {
     log = mockLog();
     mockConfig = {
-      bounces: {
-        deleteAccount: true,
+      smtp: {
+        bounces: {
+          deleteAccount: true,
+        },
       },
     };
     mockDB = {
@@ -116,7 +118,7 @@ describe('bounce messages', () => {
   });
 
   it('should not delete account when account delete is disabled', () => {
-    mockConfig.bounces.deleteAccount = false;
+    mockConfig.smtp.bounces.deleteAccount = false;
     const bounceType = 'Transient';
     const mockMsg = mockMessage({
       bounce: {
