@@ -17,7 +17,7 @@ const {
 
 const uuid = require('uuid');
 const crypto = require('crypto');
-const { AppError: error } = require('@fxa/accounts/errors');
+const error = require('../../../lib/error');
 const log = require('../../../lib/log');
 const otplib = require('otplib');
 const { Container } = require('typedi');
@@ -946,7 +946,7 @@ describe('/account/create', () => {
         wrapWrapKb: 'wibble',
       },
       {
-        emailRecord: error.unknownAccount(),
+        emailRecord: new error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -1571,7 +1571,7 @@ describe('/account/stub', () => {
         wrapWrapKb: 'wibble',
       },
       {
-        emailRecord: error.unknownAccount(),
+        emailRecord: new error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -1712,7 +1712,7 @@ describe('/account/status', () => {
       },
       {
         ...(shouldError && {
-          emailRecord: error.unknownAccount(),
+          emailRecord: new error.unknownAccount(),
         }),
       }
     );
@@ -1891,7 +1891,7 @@ describe('/account/finish_setup', () => {
         verifierSetAt: options.verifierSetAt,
       },
       {
-        emailRecord: error.unknownAccount(),
+        emailRecord: new error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -2043,7 +2043,7 @@ describe('/account/set_password', () => {
         verifierSetAt: options.verifierSetAt,
       },
       {
-        emailRecord: error.unknownAccount(),
+        emailRecord: new error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -2268,7 +2268,7 @@ describe('/account/login', () => {
       service: 'dcdb5ae7add825d2',
       reason: 'signin',
       metricsContext: {
-        deviceId: 'blee',
+        deviceId: hexString(16),
         flowBeginTime: Date.now(),
         flowId:
           'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
@@ -2286,7 +2286,7 @@ describe('/account/login', () => {
       service: undefined,
       reason: 'signin',
       metricsContext: {
-        deviceId: 'blee',
+        deviceId: hexString(16),
         flowBeginTime: Date.now(),
         flowId:
           'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
@@ -2307,7 +2307,7 @@ describe('/account/login', () => {
       service: 'dcdb5ae7add825d2',
       reason: 'signin',
       metricsContext: {
-        deviceId: 'ble20a11921ee094629aafdea72cc973c27e',
+        deviceId: hexString(16),
         flowBeginTime: Date.now(),
         flowId:
           'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
@@ -4171,8 +4171,10 @@ describe('/account/login', () => {
           });
 
           it('unknown account', () => {
-            mockDB.accountRecord = () => Promise.reject(error.unknownAccount());
-            mockDB.emailRecord = () => Promise.reject(error.unknownAccount());
+            mockDB.accountRecord = () =>
+              Promise.reject(new error.unknownAccount());
+            mockDB.emailRecord = () =>
+              Promise.reject(new error.unknownAccount());
             return runTest(route, mockRequestWithUnblockCode).then(
               () => assert(false),
               (err) => {

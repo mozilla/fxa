@@ -17,6 +17,7 @@ export type TemplateData = {
     city: string;
   };
   date: string;
+  twoFactorSettingsLink: string;
 };
 
 export const template = 'passwordResetRecoveryPhone';

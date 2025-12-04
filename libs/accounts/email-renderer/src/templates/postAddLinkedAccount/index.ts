@@ -17,6 +17,7 @@ export type TemplateData = {
     city: string;
   };
   date: string;
+  providerName: string;
 };
 
 export const template = 'postAddLinkedAccount';

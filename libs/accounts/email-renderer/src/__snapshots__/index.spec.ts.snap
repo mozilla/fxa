@@ -1,0 +1,1481 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renderAdminResetAccounts happy path: matches language 1`] = `"en"`;
+
+exports[`renderAdminResetAccounts happy path: matches preview 1`] = `""`;
+
+exports[`renderAdminResetAccounts happy path: matches subject 1`] = `"Fxa Admin: Accounts Reset"`;
+
+exports[`renderCadReminderFirst happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderCadReminderFirst happy path: matches language 1`] = `"en"`;
+
+exports[`renderCadReminderFirst happy path: matches preview 1`] = `""`;
+
+exports[`renderCadReminderFirst happy path: matches subject 1`] = `"Reminder! Let’s sync Firefox"`;
+
+exports[`renderCadReminderFirst happy path: oneClickLink element contains expected value 1`] = `
+[
+  ">
+      {
+        "@context": "http://schema.org",
+        "@type": "EmailMessage",
+        "description": "Reminder! Let’s sync Firefox",
+        "potentialAction": {
+          "@type": "ViewAction",
+          "name": "Sync another device",
+          "target": "https://mozilla.org/mock-one-click-link",
+          "url": "https://mozilla.org/mock-one-click-link"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Mozilla accounts",
+          "url": "https://accounts.firefox.com/"
+        }
+      }
+    <",
+  "
+      {
+        "@context": "http://schema.org",
+        "@type": "EmailMessage",
+        "description": "Reminder! Let’s sync Firefox",
+        "potentialAction": {
+          "@type": "ViewAction",
+          "name": "Sync another device",
+          "target": "https://mozilla.org/mock-one-click-link",
+          "url": "https://mozilla.org/mock-one-click-link"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Mozilla accounts",
+          "url": "https://accounts.firefox.com/"
+        }
+      }
+    ",
+]
+`;
+
+exports[`renderCadReminderFirst happy path: productName element contains expected value 1`] = `
+[
+  ">Reminder! Let’s sync Firefox<",
+  "Reminder! Let’s sync Firefox",
+]
+`;
+
+exports[`renderCadReminderSecond happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderCadReminderSecond happy path: matches language 1`] = `"en"`;
+
+exports[`renderCadReminderSecond happy path: matches preview 1`] = `""`;
+
+exports[`renderCadReminderSecond happy path: matches subject 1`] = `"Don’t miss out! Let’s finish your sync setup"`;
+
+exports[`renderCadReminderSecond happy path: oneClickLink element contains expected value 1`] = `
+[
+  ">
+      {
+        "@context": "http://schema.org",
+        "@type": "EmailMessage",
+        "description": "Don’t miss out! Let’s finish your sync setup",
+        "potentialAction": {
+          "@type": "ViewAction",
+          "name": "Sync another device",
+          "target": "https://mozilla.org/mock-one-click-link",
+          "url": "https://mozilla.org/mock-one-click-link"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Mozilla accounts",
+          "url": "https://accounts.firefox.com/"
+        }
+      }
+    <",
+  "
+      {
+        "@context": "http://schema.org",
+        "@type": "EmailMessage",
+        "description": "Don’t miss out! Let’s finish your sync setup",
+        "potentialAction": {
+          "@type": "ViewAction",
+          "name": "Sync another device",
+          "target": "https://mozilla.org/mock-one-click-link",
+          "url": "https://mozilla.org/mock-one-click-link"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Mozilla accounts",
+          "url": "https://accounts.firefox.com/"
+        }
+      }
+    ",
+]
+`;
+
+exports[`renderCadReminderSecond happy path: productName element contains expected value 1`] = `
+[
+  ">Sync your bookmarks, passwords, open tabs and more — everywhere you use Firefox.<",
+  "Sync your bookmarks, passwords, open tabs and more — everywhere you use Firefox.",
+]
+`;
+
+exports[`renderFoo happy path: matches language 1`] = `"en"`;
+
+exports[`renderFoo happy path: matches preview 1`] = `""`;
+
+exports[`renderFoo happy path: matches subject 1`] = `"Fxa Admin: Accounts Reset"`;
+
+exports[`renderFoo status failure: matches language 1`] = `"en"`;
+
+exports[`renderFoo status failure: matches preview 1`] = `""`;
+
+exports[`renderFoo status failure: matches subject 1`] = `"Fxa Admin: Accounts Reset"`;
+
+exports[`renderInactiveAccountFinalWarning happy path: deletionDate element contains expected value 1`] = `null`;
+
+exports[`renderInactiveAccountFinalWarning happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderInactiveAccountFinalWarning happy path: matches language 1`] = `"en"`;
+
+exports[`renderInactiveAccountFinalWarning happy path: matches preview 1`] = `"Sign in to keep your account"`;
+
+exports[`renderInactiveAccountFinalWarning happy path: matches subject 1`] = `"Donʼt lose your account"`;
+
+exports[`renderInactiveAccountFirstWarning happy path: deletionDate element contains expected value 1`] = `null`;
+
+exports[`renderInactiveAccountFirstWarning happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderInactiveAccountFirstWarning happy path: matches language 1`] = `"en"`;
+
+exports[`renderInactiveAccountFirstWarning happy path: matches preview 1`] = `"Sign in to keep your account"`;
+
+exports[`renderInactiveAccountFirstWarning happy path: matches subject 1`] = `"Donʼt lose your account"`;
+
+exports[`renderInactiveAccountSecondWarning happy path: deletionDate element contains expected value 1`] = `null`;
+
+exports[`renderInactiveAccountSecondWarning happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderInactiveAccountSecondWarning happy path: matches language 1`] = `"en"`;
+
+exports[`renderInactiveAccountSecondWarning happy path: matches preview 1`] = `"Sign in to keep your account"`;
+
+exports[`renderInactiveAccountSecondWarning happy path: matches subject 1`] = `"Action required: Account deletion in 7 days"`;
+
+exports[`renderLowRecoveryCodes happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderLowRecoveryCodes happy path: matches language 1`] = `"en"`;
+
+exports[`renderLowRecoveryCodes happy path: matches preview 1`] = `""`;
+
+exports[`renderLowRecoveryCodes happy path: matches subject 1`] = `"Only 1 backup authentication code left"`;
+
+exports[`renderNewDeviceLogin happy path: clientName element contains expected value 1`] = `
+[
+  ">New sign-in to Firefox<",
+  "New sign-in to Firefox",
+]
+`;
+
+exports[`renderNewDeviceLogin happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderNewDeviceLogin happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderNewDeviceLogin happy path: matches language 1`] = `"en"`;
+
+exports[`renderNewDeviceLogin happy path: matches preview 1`] = `""`;
+
+exports[`renderNewDeviceLogin happy path: matches subject 1`] = `"New sign-in to Firefox"`;
+
+exports[`renderNewDeviceLogin happy path: mozillaSupportUrl element contains expected value 1`] = `null`;
+
+exports[`renderNewDeviceLogin happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderNewDeviceLogin happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPasswordChangeRequired happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPasswordChangeRequired happy path: matches language 1`] = `"en"`;
+
+exports[`renderPasswordChangeRequired happy path: matches preview 1`] = `"Change your password immediately"`;
+
+exports[`renderPasswordChangeRequired happy path: matches subject 1`] = `"Suspicious activity detected"`;
+
+exports[`renderPasswordChanged happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPasswordChanged happy path: matches language 1`] = `"en"`;
+
+exports[`renderPasswordChanged happy path: matches preview 1`] = `""`;
+
+exports[`renderPasswordChanged happy path: matches subject 1`] = `"Password updated"`;
+
+exports[`renderPasswordChanged happy path: resetLink element contains expected value 1`] = `null`;
+
+exports[`renderPasswordChanged happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPasswordForgotOtp happy path: code element contains expected value 1`] = `
+[
+  ">Use 123456 to change your password<",
+  "Use 123456 to change your password",
+]
+`;
+
+exports[`renderPasswordForgotOtp happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPasswordForgotOtp happy path: matches language 1`] = `"en"`;
+
+exports[`renderPasswordForgotOtp happy path: matches preview 1`] = `"This code expires in 10 minutes"`;
+
+exports[`renderPasswordForgotOtp happy path: matches subject 1`] = `"Use 123456 to change your password"`;
+
+exports[`renderPasswordForgotOtp happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPasswordReset happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPasswordReset happy path: matches language 1`] = `"en"`;
+
+exports[`renderPasswordReset happy path: matches preview 1`] = `""`;
+
+exports[`renderPasswordReset happy path: matches subject 1`] = `"Your password has been reset"`;
+
+exports[`renderPasswordReset happy path: resetLink element contains expected value 1`] = `null`;
+
+exports[`renderPasswordReset happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPasswordResetAccountRecovery happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPasswordResetAccountRecovery happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPasswordResetAccountRecovery happy path: matches language 1`] = `"en"`;
+
+exports[`renderPasswordResetAccountRecovery happy path: matches preview 1`] = `""`;
+
+exports[`renderPasswordResetAccountRecovery happy path: matches subject 1`] = `"Your password has been reset"`;
+
+exports[`renderPasswordResetAccountRecovery happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPasswordResetAccountRecovery happy path: productName element contains expected value 1`] = `
+[
+  ">Firefox on Windows 100<",
+  "Firefox on Windows 100",
+]
+`;
+
+exports[`renderPasswordResetAccountRecovery happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPasswordResetRecoveryPhone happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPasswordResetRecoveryPhone happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPasswordResetRecoveryPhone happy path: matches language 1`] = `"en"`;
+
+exports[`renderPasswordResetRecoveryPhone happy path: matches preview 1`] = `"Check to make sure this was you"`;
+
+exports[`renderPasswordResetRecoveryPhone happy path: matches subject 1`] = `"Recovery phone used"`;
+
+exports[`renderPasswordResetRecoveryPhone happy path: resetLink element contains expected value 1`] = `null`;
+
+exports[`renderPasswordResetRecoveryPhone happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPasswordResetRecoveryPhone happy path: twoFactorSettingsLink element contains expected value 1`] = `null`;
+
+exports[`renderPasswordResetWithRecoveryKeyPrompt happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPasswordResetWithRecoveryKeyPrompt happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPasswordResetWithRecoveryKeyPrompt happy path: matches language 1`] = `"en"`;
+
+exports[`renderPasswordResetWithRecoveryKeyPrompt happy path: matches preview 1`] = `""`;
+
+exports[`renderPasswordResetWithRecoveryKeyPrompt happy path: matches subject 1`] = `"Your password has been reset"`;
+
+exports[`renderPasswordResetWithRecoveryKeyPrompt happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPasswordResetWithRecoveryKeyPrompt happy path: productName element contains expected value 1`] = `
+[
+  ">Firefox on Windows 100<",
+  "Firefox on Windows 100",
+]
+`;
+
+exports[`renderPasswordResetWithRecoveryKeyPrompt happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostAddAccountRecovery happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostAddAccountRecovery happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostAddAccountRecovery happy path: matches preview 1`] = `""`;
+
+exports[`renderPostAddAccountRecovery happy path: matches subject 1`] = `"New account recovery key created"`;
+
+exports[`renderPostAddAccountRecovery happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPostAddAccountRecovery happy path: revokeAccountRecoveryLink element contains expected value 1`] = `null`;
+
+exports[`renderPostAddLinkedAccount happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostAddLinkedAccount happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostAddLinkedAccount happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostAddLinkedAccount happy path: matches preview 1`] = `""`;
+
+exports[`renderPostAddLinkedAccount happy path: matches subject 1`] = `"New account linked to your Mozilla account"`;
+
+exports[`renderPostAddLinkedAccount happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPostAddLinkedAccount happy path: providerName element contains expected value 1`] = `
+[
+  ">Your Google account has been linked to your Mozilla account<",
+  "Your Google account has been linked to your Mozilla account",
+]
+`;
+
+exports[`renderPostAddLinkedAccount happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostAddRecoveryPhone happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostAddRecoveryPhone happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostAddRecoveryPhone happy path: maskedLastFourPhoneNumber element contains expected value 1`] = `
+[
+  ">You added 1234 as your recovery phone number<",
+  "You added 1234 as your recovery phone number",
+]
+`;
+
+exports[`renderPostAddRecoveryPhone happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostAddRecoveryPhone happy path: matches preview 1`] = `"Account protected by two-step authentication"`;
+
+exports[`renderPostAddRecoveryPhone happy path: matches subject 1`] = `"Recovery phone added"`;
+
+exports[`renderPostAddRecoveryPhone happy path: resetLink element contains expected value 1`] = `null`;
+
+exports[`renderPostAddRecoveryPhone happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostAddRecoveryPhone happy path: twoFactorSupportLink element contains expected value 1`] = `null`;
+
+exports[`renderPostAddTwoStepAuthentication happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostAddTwoStepAuthentication happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostAddTwoStepAuthentication happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostAddTwoStepAuthentication happy path: matches preview 1`] = `"Your account is protected"`;
+
+exports[`renderPostAddTwoStepAuthentication happy path: matches subject 1`] = `"Two-step authentication is on"`;
+
+exports[`renderPostAddTwoStepAuthentication happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPostAddTwoStepAuthentication happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostAddTwoStepAuthentication happy path: twoFactorSupportLink element contains expected value 1`] = `null`;
+
+exports[`renderPostChangeAccountRecovery happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostChangeAccountRecovery happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostChangeAccountRecovery happy path: matches preview 1`] = `""`;
+
+exports[`renderPostChangeAccountRecovery happy path: matches subject 1`] = `"Account recovery key changed"`;
+
+exports[`renderPostChangeAccountRecovery happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPostChangeAccountRecovery happy path: revokeAccountRecoveryLink element contains expected value 1`] = `null`;
+
+exports[`renderPostChangePrimary happy path: email element contains expected value 1`] = `
+[
+  ">You have successfully changed your primary email to newemail@example.com. This address is now your username for signing in to your Mozilla account, as well as receiving security notifications and sign-in confirmations.<",
+  "You have successfully changed your primary email to newemail@example.com. This address is now your username for signing in to your Mozilla account, as well as receiving security notifications and sign-in confirmations.",
+]
+`;
+
+exports[`renderPostChangePrimary happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostChangePrimary happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostChangePrimary happy path: matches preview 1`] = `""`;
+
+exports[`renderPostChangePrimary happy path: matches subject 1`] = `"Primary email updated"`;
+
+exports[`renderPostChangePrimary happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPostChangeRecoveryPhone happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostChangeRecoveryPhone happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostChangeRecoveryPhone happy path: matches preview 1`] = `"Account protected by two-step authentication"`;
+
+exports[`renderPostChangeRecoveryPhone happy path: matches subject 1`] = `"Recovery phone updated"`;
+
+exports[`renderPostChangeRecoveryPhone happy path: resetLink element contains expected value 1`] = `null`;
+
+exports[`renderPostChangeRecoveryPhone happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostChangeTwoStepAuthentication happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostChangeTwoStepAuthentication happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostChangeTwoStepAuthentication happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostChangeTwoStepAuthentication happy path: matches preview 1`] = `"Your account is protected"`;
+
+exports[`renderPostChangeTwoStepAuthentication happy path: matches subject 1`] = `"Two-step authentication updated"`;
+
+exports[`renderPostChangeTwoStepAuthentication happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPostChangeTwoStepAuthentication happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostChangeTwoStepAuthentication happy path: twoFactorSupportLink element contains expected value 1`] = `null`;
+
+exports[`renderPostConsumeRecoveryCode happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostConsumeRecoveryCode happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostConsumeRecoveryCode happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostConsumeRecoveryCode happy path: matches preview 1`] = `"Check to make sure this was you"`;
+
+exports[`renderPostConsumeRecoveryCode happy path: matches subject 1`] = `"Backup authentication code used"`;
+
+exports[`renderPostConsumeRecoveryCode happy path: resetLink element contains expected value 1`] = `null`;
+
+exports[`renderPostConsumeRecoveryCode happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostConsumeRecoveryCode happy path: twoFactorSettingsLink element contains expected value 1`] = `null`;
+
+exports[`renderPostNewRecoveryCodes happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostNewRecoveryCodes happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostNewRecoveryCodes happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostNewRecoveryCodes happy path: matches preview 1`] = `""`;
+
+exports[`renderPostNewRecoveryCodes happy path: matches subject 1`] = `"New backup authentication codes created"`;
+
+exports[`renderPostNewRecoveryCodes happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPostNewRecoveryCodes happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostRemoveAccountRecovery happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostRemoveAccountRecovery happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostRemoveAccountRecovery happy path: matches preview 1`] = `""`;
+
+exports[`renderPostRemoveAccountRecovery happy path: matches subject 1`] = `"Account recovery key deleted"`;
+
+exports[`renderPostRemoveAccountRecovery happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPostRemoveRecoveryPhone happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostRemoveRecoveryPhone happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostRemoveRecoveryPhone happy path: matches preview 1`] = `"Account protected by two-step authentication"`;
+
+exports[`renderPostRemoveRecoveryPhone happy path: matches subject 1`] = `"Recovery phone removed"`;
+
+exports[`renderPostRemoveRecoveryPhone happy path: resetLink element contains expected value 1`] = `null`;
+
+exports[`renderPostRemoveRecoveryPhone happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostRemoveSecondary happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostRemoveSecondary happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostRemoveSecondary happy path: matches preview 1`] = `""`;
+
+exports[`renderPostRemoveSecondary happy path: matches subject 1`] = `"Secondary email removed"`;
+
+exports[`renderPostRemoveSecondary happy path: secondaryEmail element contains expected value 1`] = `
+[
+  ">
+        You have successfully removed secondary@example.com as a secondary
+        email from your Mozilla account. Security notifications and sign-in
+        confirmations will no longer be delivered to this address.
+      <",
+  "
+        You have successfully removed secondary@example.com as a secondary
+        email from your Mozilla account. Security notifications and sign-in
+        confirmations will no longer be delivered to this address.
+      ",
+]
+`;
+
+exports[`renderPostRemoveTwoStepAuthentication happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostRemoveTwoStepAuthentication happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostRemoveTwoStepAuthentication happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostRemoveTwoStepAuthentication happy path: matches preview 1`] = `""`;
+
+exports[`renderPostRemoveTwoStepAuthentication happy path: matches subject 1`] = `"Two-step authentication turned off"`;
+
+exports[`renderPostRemoveTwoStepAuthentication happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPostRemoveTwoStepAuthentication happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostSigninRecoveryCode happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostSigninRecoveryCode happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostSigninRecoveryCode happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostSigninRecoveryCode happy path: matches preview 1`] = `"Confirm account activity"`;
+
+exports[`renderPostSigninRecoveryCode happy path: matches subject 1`] = `"Backup authentication code used to sign in"`;
+
+exports[`renderPostSigninRecoveryCode happy path: resetLink element contains expected value 1`] = `null`;
+
+exports[`renderPostSigninRecoveryCode happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostSigninRecoveryPhone happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderPostSigninRecoveryPhone happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostSigninRecoveryPhone happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostSigninRecoveryPhone happy path: matches preview 1`] = `"Confirm account activity"`;
+
+exports[`renderPostSigninRecoveryPhone happy path: matches subject 1`] = `"Recovery phone used to sign in"`;
+
+exports[`renderPostSigninRecoveryPhone happy path: resetLink element contains expected value 1`] = `null`;
+
+exports[`renderPostSigninRecoveryPhone happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderPostVerify happy path: desktopLink element contains expected value 1`] = `null`;
+
+exports[`renderPostVerify happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostVerify happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostVerify happy path: matches preview 1`] = `""`;
+
+exports[`renderPostVerify happy path: matches subject 1`] = `"Welcome to Mozilla!"`;
+
+exports[`renderPostVerify happy path: productName element contains expected value 1`] = `
+[
+  ">It’s easy! Just install Firefox on another device and log in to sync. It’s like magic!<",
+  "It’s easy! Just install Firefox on another device and log in to sync. It’s like magic!",
+]
+`;
+
+exports[`renderPostVerifySecondary happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderPostVerifySecondary happy path: matches language 1`] = `"en"`;
+
+exports[`renderPostVerifySecondary happy path: matches preview 1`] = `""`;
+
+exports[`renderPostVerifySecondary happy path: matches subject 1`] = `"Secondary email added"`;
+
+exports[`renderPostVerifySecondary happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderPostVerifySecondary happy path: secondaryEmail element contains expected value 1`] = `
+[
+  ">
+        You have successfully confirmed secondary@example.com as a secondary
+        email for your Mozilla account. Security notifications and sign-in
+        confirmations will now be delivered to both email addresses.
+      <",
+  "
+        You have successfully confirmed secondary@example.com as a secondary
+        email for your Mozilla account. Security notifications and sign-in
+        confirmations will now be delivered to both email addresses.
+      ",
+]
+`;
+
+exports[`renderRecovery happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderRecovery happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderRecovery happy path: matches language 1`] = `"en"`;
+
+exports[`renderRecovery happy path: matches preview 1`] = `""`;
+
+exports[`renderRecovery happy path: matches subject 1`] = `"Reset your password"`;
+
+exports[`renderRecovery happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderUnblockCode happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderUnblockCode happy path: matches language 1`] = `"en"`;
+
+exports[`renderUnblockCode happy path: matches preview 1`] = `"This code expires in one hour"`;
+
+exports[`renderUnblockCode happy path: matches subject 1`] = `"Use ABCD1234 to sign in"`;
+
+exports[`renderUnblockCode happy path: reportSignInLink element contains expected value 1`] = `null`;
+
+exports[`renderUnblockCode happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderUnblockCode happy path: unblockCode element contains expected value 1`] = `
+[
+  ">Use ABCD1234 to sign in<",
+  "Use ABCD1234 to sign in",
+]
+`;
+
+exports[`renderVerificationReminderFinal happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderVerificationReminderFinal happy path: matches language 1`] = `"en"`;
+
+exports[`renderVerificationReminderFinal happy path: matches preview 1`] = `""`;
+
+exports[`renderVerificationReminderFinal happy path: matches subject 1`] = `"Final reminder to confirm your account"`;
+
+exports[`renderVerificationReminderFirst happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderVerificationReminderFirst happy path: matches language 1`] = `"en"`;
+
+exports[`renderVerificationReminderFirst happy path: matches preview 1`] = `""`;
+
+exports[`renderVerificationReminderFirst happy path: matches subject 1`] = `"Remember to confirm your account"`;
+
+exports[`renderVerificationReminderSecond happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderVerificationReminderSecond happy path: matches language 1`] = `"en"`;
+
+exports[`renderVerificationReminderSecond happy path: matches preview 1`] = `""`;
+
+exports[`renderVerificationReminderSecond happy path: matches subject 1`] = `"Remember to confirm your account"`;
+
+exports[`renderVerify happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderVerify happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderVerify happy path: matches language 1`] = `"en"`;
+
+exports[`renderVerify happy path: matches preview 1`] = `""`;
+
+exports[`renderVerify happy path: matches subject 1`] = `"Finish creating your account"`;
+
+exports[`renderVerify happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderVerifyAccountChange happy path: code element contains expected value 1`] = `
+[
+  ">Use 123456 to change your account<",
+  "Use 123456 to change your account",
+]
+`;
+
+exports[`renderVerifyAccountChange happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderVerifyAccountChange happy path: matches language 1`] = `"en"`;
+
+exports[`renderVerifyAccountChange happy path: matches preview 1`] = `"This code expires in 5 minutes."`;
+
+exports[`renderVerifyAccountChange happy path: matches subject 1`] = `"Use 123456 to change your account"`;
+
+exports[`renderVerifyAccountChange happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderVerifyAccountChange happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderVerifyLogin happy path: clientName element contains expected value 1`] = `
+[
+  ">
+        Did you sign in to Firefox?
+      <",
+  "
+        Did you sign in to Firefox?
+      ",
+]
+`;
+
+exports[`renderVerifyLogin happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderVerifyLogin happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderVerifyLogin happy path: matches language 1`] = `"en"`;
+
+exports[`renderVerifyLogin happy path: matches preview 1`] = `""`;
+
+exports[`renderVerifyLogin happy path: matches subject 1`] = `"Confirm sign-in"`;
+
+exports[`renderVerifyLogin happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderVerifyLogin happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderVerifyLoginCode happy path: code element contains expected value 1`] = `
+[
+  ">Use 123456 to sign in<",
+  "Use 123456 to sign in",
+]
+`;
+
+exports[`renderVerifyLoginCode happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderVerifyLoginCode happy path: matches language 1`] = `"en"`;
+
+exports[`renderVerifyLoginCode happy path: matches preview 1`] = `"This code expires in 5 minutes."`;
+
+exports[`renderVerifyLoginCode happy path: matches subject 1`] = `"Use 123456 to sign in"`;
+
+exports[`renderVerifyLoginCode happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderVerifyLoginCode happy path: serviceName element contains expected value 1`] = `
+[
+  ">Did you sign in to Firefox?<",
+  "Did you sign in to Firefox?",
+]
+`;
+
+exports[`renderVerifyLoginCode happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderVerifyPrimary happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderVerifyPrimary happy path: link element contains expected value 1`] = `null`;
+
+exports[`renderVerifyPrimary happy path: matches language 1`] = `"en"`;
+
+exports[`renderVerifyPrimary happy path: matches preview 1`] = `""`;
+
+exports[`renderVerifyPrimary happy path: matches subject 1`] = `"Confirm primary email"`;
+
+exports[`renderVerifyPrimary happy path: passwordChangeLink element contains expected value 1`] = `null`;
+
+exports[`renderVerifyPrimary happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderVerifySecondaryCode happy path: code element contains expected value 1`] = `
+[
+  ">Use 123456 to confirm your secondary email<",
+  "Use 123456 to confirm your secondary email",
+]
+`;
+
+exports[`renderVerifySecondaryCode happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderVerifySecondaryCode happy path: email element contains expected value 1`] = `
+[
+  ">A request to use secondary@example.com as a secondary email address has been made from the following Mozilla account:<",
+  "A request to use secondary@example.com as a secondary email address has been made from the following Mozilla account:",
+]
+`;
+
+exports[`renderVerifySecondaryCode happy path: matches language 1`] = `"en"`;
+
+exports[`renderVerifySecondaryCode happy path: matches preview 1`] = `"This code expires in 5 minutes."`;
+
+exports[`renderVerifySecondaryCode happy path: matches subject 1`] = `"Use 123456 to confirm your secondary email"`;
+
+exports[`renderVerifySecondaryCode happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;
+
+exports[`renderVerifyShortCode happy path: code element contains expected value 1`] = `
+[
+  ">Use 123456 to confirm your account<",
+  "Use 123456 to confirm your account",
+]
+`;
+
+exports[`renderVerifyShortCode happy path: date element contains expected value 1`] = `
+[
+  ">
+      
+      
+        2025-01-01
+        <",
+  "
+      
+      
+        2025-01-01
+        ",
+]
+`;
+
+exports[`renderVerifyShortCode happy path: matches language 1`] = `"en"`;
+
+exports[`renderVerifyShortCode happy path: matches preview 1`] = `"This code expires in 5 minutes"`;
+
+exports[`renderVerifyShortCode happy path: matches subject 1`] = `"Use 123456 to confirm your account"`;
+
+exports[`renderVerifyShortCode happy path: time element contains expected value 1`] = `
+[
+  ">
+      
+      
+        12:00:00
+        <",
+  "
+      
+      
+        12:00:00
+        ",
+]
+`;

@@ -52,6 +52,19 @@ import * as VerifySecondaryCode from '../templates/verifySecondaryCode';
 import * as VerifyShortCode from '../templates/verifyShortCode';
 
 export class FxaEmailRenderer extends EmailRenderer {
+  renderFoo(
+    templateValues: AdminResetAccounts.TemplateData,
+    layoutTemplateValues: FxaLayouts.TemplateData
+  ) {
+    return this.renderEmail({
+      template: AdminResetAccounts.template,
+      version: AdminResetAccounts.version,
+      layout: AdminResetAccounts.layout,
+      includes: AdminResetAccounts.includes,
+      ...templateValues,
+      ...layoutTemplateValues,
+    });
+  }
   renderAdminResetAccounts(
     templateValues: AdminResetAccounts.TemplateData,
     layoutTemplateValues: FxaLayouts.TemplateData
@@ -681,4 +694,13 @@ export class FxaEmailRenderer extends EmailRenderer {
       ...layoutTemplateValues,
     });
   }
+}
+
+
+export function defineRenderTest<T extends keyof FxaEmailRenderer>(method: T extends `render${string}` ? T : never, cases: Array<{
+  name: string;
+  templateValues: Parameters<FxaEmailRenderer[T]>[0];
+  layoutTemplateValues: Parameters<FxaEmailRenderer[T]>[1];
+}>) {
+  return { method, cases };
 }

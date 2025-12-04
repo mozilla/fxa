@@ -15,6 +15,12 @@ export type TemplateData = {
   /** The current privacy url. */
   privacyUrl: string;
 
+  /** The current support url. */
+  supportUrl: string;
+
+  /** The current unsubscribe url. */
+  unsubscribeUrl: string;
+
   /** Whether or not this is a 'sync' specific email. These emails have a slightly different styling */
   sync: boolean;
 };
