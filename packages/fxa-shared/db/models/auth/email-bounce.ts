@@ -4,6 +4,7 @@
 import { EmailType } from '.';
 import { convertError } from '../../mysql';
 import { BaseAuthModel, Proc } from './base-auth';
+import * as Sentry from '@sentry/node';
 
 export const BOUNCE_TYPES = {
   __fxa__unmapped: 0,
@@ -66,9 +67,10 @@ export class EmailBounce extends BaseAuthModel {
         BOUNCE_TYPES[bounceType],
         BOUNCE_SUB_TYPES[bounceSubType],
         Date.now(),
-        diagnosticCode ?? null
+        (diagnosticCode ?? '').substring(0, 255)
       );
     } catch (e: any) {
+      Sentry.captureException(e);
       throw convertError(e);
     }
   }
