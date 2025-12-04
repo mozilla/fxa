@@ -97,7 +97,7 @@ export const MOCK_CMS_INFO = {
   entrypoint: 'app',
   name: '123Done - app',
   shared: {
-    buttonColor: '#D41C1C',
+    buttonColor: '#6B4DFB',
     logoUrl: 'https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg',
     headerLogoUrl:
       'https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg',
@@ -110,10 +110,10 @@ export const MOCK_CMS_INFO = {
     },
     favicon: '',
     backgrounds: {
-      header: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+      header: 'linear-gradient(135deg, #6B4DFB 0%, #3A1A78 100%)',
       defaultLayout:
-        'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 26, 26, 0.25) 40%, rgba(230, 0, 0, 0.3) 70%, rgba(179, 0, 0, 0.45) 100%)',
-      splitLayout: 'linear-gradient(135deg, #667eea 0%, #FF69B4 100%)',
+        'linear-gradient(135deg, #F5E9FF 0%, #E8D7FF 40%, #DCC2FF 70%, #C4A5FF 100%)',
+      splitLayout: 'linear-gradient(135deg, #6B4DFB 0%, #c230ccff 100%)',
     },
   },
   EmailFirstPage: {

@@ -79,3 +79,15 @@ export const DefaultWithCms = storyWithProps({
   serviceName: MozServices.Default,
   integration: mockOAuthNativeSigninIntegration(true, MOCK_CMS_INFO),
 });
+
+export const SplitLayoutWithCms = storyWithProps({
+  submitTotpCode: async () => ({}),
+  serviceName: MozServices.Default,
+  integration: mockOAuthNativeSigninIntegration(true, {
+    ...MOCK_CMS_INFO,
+    SigninTotpCodePage: {
+      ...MOCK_CMS_INFO.SigninTotpCodePage!,
+      splitLayout: true,
+    },
+  }),
+});

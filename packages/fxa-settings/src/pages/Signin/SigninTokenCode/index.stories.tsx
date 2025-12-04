@@ -21,6 +21,18 @@ export const DefaultWithCms = () => (
   <Subject integration={createOAuthNativeIntegration(true, MOCK_CMS_INFO)} />
 );
 
+export const SplitLayoutWithCms = () => (
+  <Subject
+    integration={createOAuthNativeIntegration(true, {
+      ...MOCK_CMS_INFO,
+      SigninTokenCodePage: {
+        ...MOCK_CMS_INFO.SigninTokenCodePage!,
+        splitLayout: true,
+      },
+    })}
+  />
+);
+
 export const OAuthDesktopServiceRelay = () => (
   <Subject integration={createOAuthNativeIntegration(false)} />
 );

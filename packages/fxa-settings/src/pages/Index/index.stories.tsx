@@ -91,6 +91,20 @@ export const WithCmsOnMobile = storyWithProps({
   isMobile: true,
 });
 
+export const WithCmsSplitLayout = storyWithProps({
+  integration: createMockIndexOAuthNativeIntegration({
+    isFirefoxClientServiceRelay: true,
+    isSync: false,
+    cmsInfo: {
+      ...MOCK_CMS_INFO,
+      EmailFirstPage: {
+        ...MOCK_CMS_INFO.EmailFirstPage,
+        splitLayout: true,
+      },
+    },
+  }),
+});
+
 export const WithCmsWithSharedFallback = storyWithProps({
   integration: createMockIndexOAuthNativeIntegration({
     isFirefoxClientServiceRelay: true,

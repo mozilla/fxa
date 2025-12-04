@@ -320,9 +320,10 @@ const ConfirmSignupCode = ({
         'confirm-signup-code-page-title',
         'Enter confirmation code'
       );
+  const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout }}>
       {cmsInfo ? (
         <>
           {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (
