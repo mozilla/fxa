@@ -14,6 +14,7 @@ export type SignupConfirmedSyncIntegration = Pick<
 export interface SignupConfirmedSyncProps {
   integration: SignupConfirmedSyncIntegration;
   offeredSyncEngines: UseFxAStatusResult['offeredSyncEngines'];
+  setCurrentSplitLayout?: (value: boolean) => void;
 }
 
 export interface LocationState {

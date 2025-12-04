@@ -49,9 +49,11 @@ function getAccountInfo(
 const SignupConfirmCodeContainer = ({
   integration,
   flowQueryParams,
+  setCurrentSplitLayout,
 }: {
   integration: Integration;
   flowQueryParams: QueryParams;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const sensitiveDataClient = useSensitiveDataClient();
@@ -122,15 +124,24 @@ const SignupConfirmCodeContainer = ({
     }
   }, [data, origin, navigateWithQuery, email]);
 
+  const cmsInfo = integration?.getCmsInfo();
+  const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;
+
   // TODO: This check and related test can be moved up the tree to the App component,
   // where a missing integration should be caught and handled.
   if (!integration) {
-    return <AppLayout loading />;
+    return (
+      <AppLayout {...{ loading: true, splitLayout, setCurrentSplitLayout }} />
+    );
   }
 
   if (!uid || !sessionToken || !email) {
     navigateWithQuery('/');
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   if (oAuthDataError) {
@@ -152,7 +163,11 @@ const SignupConfirmCodeContainer = ({
           localizedErrorMessage,
         },
       });
-      return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+      return (
+        <AppLayout
+          {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+        />
+      );
     }
     return (
       <OAuthDataError
@@ -177,6 +192,7 @@ const SignupConfirmCodeContainer = ({
         unwrapBKey,
         flowQueryParams,
         origin,
+        setCurrentSplitLayout,
       }}
     />
   );

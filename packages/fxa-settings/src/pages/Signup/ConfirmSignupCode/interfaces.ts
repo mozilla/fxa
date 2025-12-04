@@ -31,6 +31,7 @@ export type ConfirmSignupCodeProps = {
   declinedSyncEngines?: string[];
   flowQueryParams: QueryParams;
   origin?: string;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & SensitiveData.AuthData &
   RouteComponentProps;
 

@@ -64,10 +64,12 @@ const SignupContainer = ({
   integration,
   flowQueryParams,
   useFxAStatusResult,
+  setCurrentSplitLayout,
 }: {
   integration: SignupIntegration;
   flowQueryParams: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
@@ -205,9 +207,16 @@ const SignupContainer = ({
     ]
   );
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SignupSetPasswordPage?.splitLayout;
+
   if (validationError || !email) {
     navigateWithQuery('/');
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   const deeplink = queryParamModel.deeplink;
@@ -223,6 +232,7 @@ const SignupContainer = ({
         deeplink,
         flowQueryParams,
         isMobile,
+        setCurrentSplitLayout,
       }}
     />
   );

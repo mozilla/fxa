@@ -186,6 +186,11 @@ export const App = ({
   // Determine if user is actually signed in
   const [isSignedIn, setIsSignedIn] = useState<boolean | undefined>(undefined);
 
+  // Track current page's split layout state to prevent visual flashing during navigation.
+  // This state is updated by AppLayout and read by the Suspense fallback to preserve
+  // the origin page's layout until the destination page loads.
+  const [currentSplitLayout, setCurrentSplitLayout] = useState<boolean>(false);
+
   useEffect(() => {
     const initializeSession = async () => {
       if (!integration) {
@@ -350,9 +355,13 @@ export const App = ({
     );
   }
 
+  const cmsInfo = integration.getCmsInfo();
+
   return (
     <Suspense
-      fallback={<AppLayout cmsInfo={integration.getCmsInfo()} loading />}
+      fallback={
+        <AppLayout cmsInfo={cmsInfo} loading splitLayout={currentSplitLayout} />
+      }
     >
       <Router basepath="/">
         <AuthAndAccountSetupRoutes
@@ -360,10 +369,14 @@ export const App = ({
             isSignedIn,
             integration,
             flowQueryParams: updatedFlowQueryParams,
+            setCurrentSplitLayout,
           }}
           path="/*"
         />
-        <SettingsRoutes {...{ isSignedIn, integration }} path="/settings/*" />
+        <SettingsRoutes
+          {...{ isSignedIn, integration, setCurrentSplitLayout }}
+          path="/settings/*"
+        />
       </Router>
     </Suspense>
   );
@@ -372,7 +385,12 @@ export const App = ({
 const SettingsRoutes = ({
   isSignedIn,
   integration,
-}: { isSignedIn: boolean; integration: Integration } & RouteComponentProps) => {
+  setCurrentSplitLayout,
+}: {
+  isSignedIn: boolean;
+  integration: Integration;
+  setCurrentSplitLayout: (value: boolean) => void;
+} & RouteComponentProps) => {
   const location = useLocation();
   const isSync = integration != null ? integration.isSync() : false;
 
@@ -406,7 +424,10 @@ const SettingsRoutes = ({
   return (
     <SettingsContext.Provider value={settingsContext}>
       <ScrollToTop default>
-        <Settings path="/settings/*" {...{ integration }} />
+        <Settings
+          path="/settings/*"
+          {...{ integration, setCurrentSplitLayout }}
+        />
       </ScrollToTop>
     </SettingsContext.Provider>
   );
@@ -416,10 +437,12 @@ const AuthAndAccountSetupRoutes = ({
   isSignedIn,
   integration,
   flowQueryParams,
+  setCurrentSplitLayout,
 }: {
   isSignedIn: boolean;
   integration: Integration;
   flowQueryParams: QueryParams;
+  setCurrentSplitLayout: (value: boolean) => void;
 } & RouteComponentProps) => {
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
@@ -454,11 +477,23 @@ const AuthAndAccountSetupRoutes = ({
       {/* Index */}
       <IndexContainer
         path="/"
-        {...{ integration, serviceName, flowQueryParams, useFxAStatusResult }}
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
       />
       <IndexContainer
         path="/oauth"
-        {...{ integration, serviceName, flowQueryParams, useFxAStatusResult }}
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
       />
 
       {/* Legal */}
@@ -524,19 +559,43 @@ const AuthAndAccountSetupRoutes = ({
       <ReportSigninContainer path="/report_signin/*" />
       <SigninContainer
         path="/oauth/force_auth/*"
-        {...{ integration, serviceName, flowQueryParams, useFxAStatusResult }}
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
       />
       <SigninContainer
         path="/force_auth/*"
-        {...{ integration, serviceName, flowQueryParams, useFxAStatusResult }}
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
       />
       <SigninContainer
         path="/oauth/signin/*"
-        {...{ integration, serviceName, flowQueryParams, useFxAStatusResult }}
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
       />
       <SigninContainer
         path="/signin/*"
-        {...{ integration, serviceName, flowQueryParams, useFxAStatusResult }}
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
       />
       <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
       <CompleteSigninContainer path="/complete_signin/*" />
@@ -559,11 +618,11 @@ const AuthAndAccountSetupRoutes = ({
       <SigninReported path="/signin_reported/*" />
       <SigninTokenCodeContainer
         path="/signin_token_code/*"
-        {...{ integration }}
+        {...{ integration, setCurrentSplitLayout }}
       />
       <SigninTotpCodeContainer
         path="/signin_totp_code/*"
-        {...{ integration, serviceName }}
+        {...{ integration, serviceName, setCurrentSplitLayout }}
       />
       <SigninPushCodeContainer
         path="/signin_push_code/*"
@@ -579,7 +638,7 @@ const AuthAndAccountSetupRoutes = ({
       />
       <SigninUnblockContainer
         path="/signin_unblock/*"
-        {...{ integration, flowQueryParams }}
+        {...{ integration, flowQueryParams, setCurrentSplitLayout }}
       />
       <InlineRecoveryKeySetupContainer
         path="/inline_recovery_key_setup/*"
@@ -589,7 +648,7 @@ const AuthAndAccountSetupRoutes = ({
       {/* Signup */}
       <ConfirmSignupCodeContainer
         path="/confirm_signup_code/*"
-        {...{ integration, flowQueryParams }}
+        {...{ integration, flowQueryParams, setCurrentSplitLayout }}
       />
       <SignupContainer
         path="/oauth/signup/*"
@@ -598,6 +657,7 @@ const AuthAndAccountSetupRoutes = ({
           serviceName,
           flowQueryParams,
           useFxAStatusResult,
+          setCurrentSplitLayout,
         }}
       />
       <PrimaryEmailVerified
@@ -610,6 +670,7 @@ const AuthAndAccountSetupRoutes = ({
           integration,
           flowQueryParams,
           useFxAStatusResult,
+          setCurrentSplitLayout,
         }}
       />
       <SignupConfirmed
@@ -619,7 +680,7 @@ const AuthAndAccountSetupRoutes = ({
       <SignupConfirmedSync
         path="/signup_confirmed_sync/*"
         offeredSyncEngines={useFxAStatusResult.offeredSyncEngines}
-        {...{ integration }}
+        {...{ integration, setCurrentSplitLayout }}
       />
       <SignupConfirmed
         path="/signup_verified/*"

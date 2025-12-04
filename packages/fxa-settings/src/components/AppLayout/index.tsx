@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useLocalization } from '@fluent/react';
@@ -36,6 +36,10 @@ type AppLayoutProps = {
    * This preserves the background styling while showing a loading state.
    */
   loading?: boolean;
+  /** Callback to update the current split layout state in App component.
+   * Used to preserve layout during navigation Suspense fallback.
+   */
+  setCurrentSplitLayout?: (value: boolean) => void;
 };
 
 export const AppLayout = ({
@@ -46,9 +50,21 @@ export const AppLayout = ({
   splitLayout = false,
   wrapInCard = true,
   loading = false,
+  setCurrentSplitLayout,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
   const config = useConfig();
+
+  // Set the current page's layout preference in state so navigation
+  // preserves the layout during Suspense fallback, preventing visual flash.
+  // Only update if setCurrentSplitLayout is provided (it's omitted from Suspense fallback).
+  // Uses useLayoutEffect instead of useEffect to prevent flicker of incorrect layout before paint
+  useLayoutEffect(() => {
+    if (setCurrentSplitLayout) {
+      setCurrentSplitLayout(splitLayout);
+    }
+  }, [splitLayout, setCurrentSplitLayout]);
+
   const cmsBackgrounds = cmsInfo?.shared?.backgrounds;
   const cmsPageTitle = cmsInfo?.shared?.pageTitle;
   const cmsHeaderLogoUrl = cmsInfo?.shared?.headerLogoUrl;
@@ -121,23 +137,32 @@ export const AppLayout = ({
         </header>
 
         {!splitLayout ? (
-          <main className="flex mobileLandscape:items-center flex-1">
-            <section>
-              {loading ? (
-                <>
-                  <CardLoadingSpinner />
-                </>
-              ) : wrapInCard ? (
-                <>
-                  <div className={classNames('card', widthClass)}>
-                    {children}
-                  </div>
-                </>
-              ) : (
-                children
-              )}
-            </section>
-          </main>
+          <>
+            <main className="flex mobileLandscape:items-center flex-1">
+              <section>
+                {loading ? (
+                  <>
+                    <CardLoadingSpinner />
+                  </>
+                ) : wrapInCard ? (
+                  <>
+                    <div className={classNames('card', widthClass)}>
+                      {children}
+                    </div>
+                  </>
+                ) : (
+                  children
+                )}
+              </section>
+            </main>
+            {showLocaleToggle && (
+              <footer className="w-full py-2 px-4 mobileLandscape:mx-8 mobileLandscape:pb-4 flex text-grey-400">
+                <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
+                  <LocaleToggle />
+                </div>
+              </footer>
+            )}
+          </>
         ) : (
           <div className="flex flex-col tablet:flex-row w-full flex-1">
             <div
@@ -161,28 +186,26 @@ export const AppLayout = ({
                   : undefined
               }
             />
-            <main className="mobileLandscape:items-center tablet:flex-1 tablet:bg-white py-8 px-6 tablet:px-10 mobileLandscape:py-9 tablet:ml-auto flex justify-center flex-1">
-              <section className="max-w-120">
-                {loading ? (
-                  <LoadingSpinner className="h-full flex items-center" />
-                ) : (
-                  children
-                )}
-              </section>
-            </main>
+            <div className="mobileLandscape:items-center tablet:flex-1 tablet:bg-white tablet:ml-auto flex flex-col flex-1">
+              <main className="py-8 px-6 tablet:px-10 mobileLandscape:py-9 flex justify-center items-center flex-1">
+                <section className="max-w-120">
+                  {loading ? (
+                    <LoadingSpinner className="h-full flex items-center" />
+                  ) : (
+                    children
+                  )}
+                </section>
+              </main>
+              {showLocaleToggle && (
+                <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400">
+                  <div className="w-full mobileLandscape:w-auto flex items-center">
+                    <LocaleToggle />
+                  </div>
+                </footer>
+              )}
+            </div>
           </div>
         )}
-
-      {showLocaleToggle && (
-          <footer
-            className="w-full py-4 px-4 flex-wrap mobileLandscape:flex-nowrap mobileLandscape:mx-8 mobileLandscape:pb-6 flex text-grey-400"
-          >
-        <div className="w-full mobileLandscape:w-auto flex items-center mt-3 mobileLandscape:mt-0 mobileLandscape:ms-10">
-            <LocaleToggle />
-        </div>
-        </footer>
-      )}
-
       </div>
       <div id="body-bottom" className="w-full block mobileLandscape:hidden" />
     </>

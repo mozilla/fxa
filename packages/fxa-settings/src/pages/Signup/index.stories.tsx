@@ -120,6 +120,22 @@ export const WithCms = () => (
   />
 );
 
+export const WithCmsSplitLayout = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthWebIntegration(
+      MONITOR_CLIENTIDS[0],
+      undefined,
+      {
+        ...MOCK_CMS_INFO,
+        SignupSetPasswordPage: {
+          ...MOCK_CMS_INFO.SignupSetPasswordPage,
+          splitLayout: true,
+        },
+      }
+    )}
+  />
+);
+
 export const WithCmsUsingSharedFallback = () => (
   <StoryWithProps
     integration={createMockSignupOAuthWebIntegration(

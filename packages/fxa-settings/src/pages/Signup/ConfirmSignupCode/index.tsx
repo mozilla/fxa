@@ -55,6 +55,7 @@ const ConfirmSignupCode = ({
   unwrapBKey,
   flowQueryParams,
   origin,
+  setCurrentSplitLayout,
 }: ConfirmSignupCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -316,9 +317,10 @@ const ConfirmSignupCode = ({
         'confirm-signup-code-page-title',
         'Enter confirmation code'
       );
+  const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       {cmsInfo ? (
         <>
           {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (

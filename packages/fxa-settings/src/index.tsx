@@ -82,9 +82,7 @@ try {
 
   render(
     <React.StrictMode>
-      <DynamicLocalizationProvider
-        baseDir={config.l10n.baseUrl}
-      >
+      <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
         <AppErrorBoundary>
           <AppContext.Provider value={appContext}>
             <NimbusProvider>
