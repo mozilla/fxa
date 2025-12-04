@@ -44,7 +44,7 @@ module.exports = function (log, error, config) {
       let error = null;
 
       // Checks
-      const accountDeleteEnabled = config.bounces.deleteAccount === true;
+      const accountDeleteEnabled = config.smtp.bounces.deleteAccount;
       const emailUnverified = !record.emailVerified;
       const isRecentAccount =
         record.createdAt && record.createdAt > Date.now() - SIX_HOURS;
