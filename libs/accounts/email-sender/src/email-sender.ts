@@ -252,7 +252,7 @@ export class EmailSender {
         html: email.html,
         headers: email.headers,
 
-        // Legacy auth-server implmentation provided these, but they are not valid nodemailer options...
+        // Legacy auth-server implementation provided these, but they are not valid nodemailer options...
         // preview: email.preview,
         // xMailer: false,
       });
