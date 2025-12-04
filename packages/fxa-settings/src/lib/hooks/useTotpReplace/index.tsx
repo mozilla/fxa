@@ -3,15 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react';
-import { useErrorHandler } from 'react-error-boundary';
 import { useAccount, useSession } from '../../../models';
 import { TotpInfo } from '../../types';
-import { isInvalidJwtError } from '../../mfa-guard-utils';
+import { useMfaErrorHandler } from '../../../components/Settings/MfaGuard';
 
 export const useTotpReplace = () => {
   const account = useAccount();
   const session = useSession();
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
 
   const [totpInfo, setTotpInfo] = useState<TotpInfo | undefined>();
   const [loading, setLoading] = useState(true);
@@ -30,8 +29,8 @@ export const useTotpReplace = () => {
         const result = await account.startReplaceTotpWithJwt();
         if (!cancelled) setTotpInfo(result);
       } catch (err) {
-        if (isInvalidJwtError(err)) {
-          errorHandler(err);
+        const errorHandled = handleMfaError(err);
+        if (errorHandled) {
           return;
         }
         if (!cancelled) setError(err as Error);
@@ -45,7 +44,7 @@ export const useTotpReplace = () => {
     return () => {
       cancelled = true;
     };
-  }, [account, session.verified, errorHandler]);
+  }, [account, session.verified, handleMfaError]);
 
   return {
     totpInfo,

@@ -12,17 +12,15 @@ import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
-import { MfaGuard } from '../MfaGuard';
-import { useErrorHandler } from 'react-error-boundary';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 import { MfaReason } from '../../../lib/types';
 import { useFtlMsgResolver } from '../../../models/hooks';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
   const [saveBtnDisabled, setSaveBtnDisabled] = useState(true);
   const [errorText, setErrorText] = useState<string>();
   const [email, setEmail] = useState<string>();
@@ -46,9 +44,8 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
         await account.createSecondaryEmail(email);
         navigateWithQuery('emails/verify', { state: { email }, replace: true });
       } catch (e) {
-        if (isInvalidJwtError(e)) {
-          // JWT invalid/expired
-          errorHandler(e);
+        const errorHandled = handleMfaError(e);
+        if (errorHandled) {
           return;
         }
         if (e.errno) {
@@ -72,7 +69,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
       navigateWithQuery,
       setErrorText,
       alertBar,
-      errorHandler,
+      handleMfaError,
       ftlMsgResolver,
     ]
   );

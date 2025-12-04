@@ -93,7 +93,8 @@ describe('mfa-guard-utils', () => {
 
       const e = { code: 401, errno: 223 };
 
-      clearMfaAndJwtCacheOnInvalidJwt(e, scope);
+      const cleared = clearMfaAndJwtCacheOnInvalidJwt(e, scope);
+      expect(cleared).toBe(false);
 
       expect(removeOtpSpy).not.toHaveBeenCalled();
       expect(removeJwtSpy).not.toHaveBeenCalled();
@@ -108,7 +109,8 @@ describe('mfa-guard-utils', () => {
 
       const e = { code: 401, errno: 223 };
 
-      clearMfaAndJwtCacheOnInvalidJwt(e, scope);
+      const cleared = clearMfaAndJwtCacheOnInvalidJwt(e, scope);
+      expect(cleared).toBe(false);
 
       expect(removeOtpSpy).not.toHaveBeenCalled();
       expect(removeJwtSpy).not.toHaveBeenCalled();
@@ -120,7 +122,8 @@ describe('mfa-guard-utils', () => {
 
       const e = { code: 401, errno: 223 };
 
-      expect(() => clearMfaAndJwtCacheOnInvalidJwt(e, scope)).not.toThrow();
+      const cleared = clearMfaAndJwtCacheOnInvalidJwt(e, scope);
+      expect(cleared).toBe(true);
 
       expect(removeOtpSpy).toHaveBeenCalledWith(defaultSessionToken, scope);
       expect(removeJwtSpy).toHaveBeenCalledWith(defaultSessionToken, scope);

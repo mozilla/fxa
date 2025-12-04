@@ -55,9 +55,11 @@ jest.mock('./ScrollToTop', () => ({
 // Mock the MFA guard so we can assert guarded pages render it without
 // pulling in the guard's dependencies or child flows
 const mockMfaGuard = jest.fn();
+const mockMfaErrorHandler = jest.fn().mockReturnValue(false);
 jest.mock('./MfaGuard', () => ({
   __esModule: true,
   MfaGuard: (props: any) => mockMfaGuard(props),
+  useMfaErrorHandler: () => mockMfaErrorHandler,
 }));
 
 // Default behavior: render mock guard element

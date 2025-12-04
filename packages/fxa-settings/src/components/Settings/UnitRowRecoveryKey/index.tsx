@@ -13,26 +13,20 @@ import { ButtonIconTrash } from '../ButtonIcon';
 import { SETTINGS_PATH } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
-import {
-  clearMfaAndJwtCacheOnInvalidJwt,
-  isInvalidJwtError,
-} from '../../../lib/mfa-guard-utils';
-import { MfaGuard } from '../MfaGuard';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { MfaReason } from '../../../lib/types';
 
-export const UnitRowRecoveryKey = () => {
+const DeleteRecoveryKeyModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const account = useAccount();
-
-  const recoveryKey = account.recoveryKey.exists;
   const alertBar = useAlertBar();
-  const [modalRevealed, revealModal, hideModal] = useBooleanState();
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const ftlMsgResolver = useFtlMsgResolver();
+  const handleMfaError = useMfaErrorHandler();
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const deleteRecoveryKey = useCallback(async () => {
     try {
       await account.deleteRecoveryKeyWithJwt();
-      hideModal();
+      onDismiss();
       alertBar.success(
         ftlMsgResolver.getMsg(
           'rk-key-removed-2',
@@ -41,17 +35,12 @@ export const UnitRowRecoveryKey = () => {
       );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     } catch (e) {
-      if (isInvalidJwtError(e)) {
-        // JWT invalid/expired
-        // We cannot route invalid-JWT errors from here through useErrorHandler,
-        // because it throws above MfaErrorBoundary
-        // so we clear the MFA and JWT cache manually
-        // this will cause the MfaGuard to re-render and show the MfaModalDialog
-        clearMfaAndJwtCacheOnInvalidJwt(e, 'recovery_key');
+      const errorHandled = handleMfaError(e);
+      if (errorHandled) {
         return;
       }
       // we only want to hide the modal if the error is not an invalid JWT error
-      hideModal();
+      onDismiss();
       alertBar.error(
         ftlMsgResolver.getMsg(
           'rk-remove-error-2',
@@ -62,7 +51,47 @@ export const UnitRowRecoveryKey = () => {
     } finally {
       setIsDeleting(false);
     }
-  }, [account, hideModal, alertBar, ftlMsgResolver]);
+  }, [account, onDismiss, alertBar, ftlMsgResolver, handleMfaError]);
+
+  return (
+    <Modal
+      onDismiss={onDismiss}
+      onConfirm={() => {
+        setIsDeleting(true);
+        deleteRecoveryKey();
+        logViewEvent('flow.settings.account-recovery', 'confirm-revoke.submit');
+      }}
+      confirmBtnClassName="cta-caution cta-base-p"
+      confirmText={ftlMsgResolver.getMsg('rk-action-remove', 'Remove')}
+      headerId="recovery-key-header"
+      descId="recovery-key-desc"
+      isLoading={isDeleting}
+    >
+      <FtlMsg id="rk-remove-modal-heading-1">
+        <h2
+          id="recovery-key-header"
+          className="font-bold text-xl text-center mb-2"
+        >
+          Remove account recovery key?
+        </h2>
+      </FtlMsg>
+      <FtlMsg id="rk-remove-modal-content-1">
+        <p className="my-6 text-center">
+          In the event you reset your password, you wonʼt be able to use your
+          account recovery key to access your data. You canʼt undo this action.
+        </p>
+      </FtlMsg>
+    </Modal>
+  );
+};
+
+export const UnitRowRecoveryKey = () => {
+  const account = useAccount();
+
+  const recoveryKey = account.recoveryKey.exists;
+  const alertBar = useAlertBar();
+  const [modalRevealed, revealModal, hideModal] = useBooleanState();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const localizedDeleteRKIconButton = ftlMsgResolver.getMsg(
     'unit-row-recovery-key-delete-icon-button-title',
@@ -97,7 +126,7 @@ export const UnitRowRecoveryKey = () => {
           <ButtonIconTrash
             title={localizedDeleteRKIconButton}
             classNames="inline-block @mobileLandscape/row:hidden ms-1"
-            disabled={!recoveryKey || isDeleting}
+            disabled={!recoveryKey || modalRevealed}
             onClick={revealModal}
           />
         )
@@ -108,7 +137,7 @@ export const UnitRowRecoveryKey = () => {
           <ButtonIconTrash
             title={localizedDeleteRKIconButton}
             classNames="hidden @mobileLandscape/unitRow:inline-block ms-1"
-            disabled={!recoveryKey || isDeleting}
+            disabled={!recoveryKey || modalRevealed}
             onClick={revealModal}
           />
         )
@@ -141,38 +170,7 @@ export const UnitRowRecoveryKey = () => {
             onDismissCallback={async () => hideModal()}
             reason={MfaReason.removeRecoveryKey}
           >
-            <Modal
-              onDismiss={hideModal}
-              onConfirm={() => {
-                setIsDeleting(true);
-                deleteRecoveryKey();
-                logViewEvent(
-                  'flow.settings.account-recovery',
-                  'confirm-revoke.submit'
-                );
-              }}
-              confirmBtnClassName="cta-caution cta-base-p"
-              confirmText={ftlMsgResolver.getMsg('rk-action-remove', 'Remove')}
-              headerId="recovery-key-header"
-              descId="recovery-key-desc"
-              isLoading={isDeleting}
-            >
-              <FtlMsg id="rk-remove-modal-heading-1">
-                <h2
-                  id="recovery-key-header"
-                  className="font-bold text-xl text-center mb-2"
-                >
-                  Remove account recovery key?
-                </h2>
-              </FtlMsg>
-              <FtlMsg id="rk-remove-modal-content-1">
-                <p className="my-6 text-center">
-                  In the event you reset your password, you wonʼt be able to use
-                  your account recovery key to access your data. You canʼt undo
-                  this action.
-                </p>
-              </FtlMsg>
-            </Modal>
+            <DeleteRecoveryKeyModal onDismiss={hideModal} />
           </MfaGuard>
         </VerifiedSessionGuard>
       )}

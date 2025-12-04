@@ -14,11 +14,7 @@ import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import { useForm } from 'react-hook-form';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { MfaGuard } from '../MfaGuard';
-import {
-  isInvalidJwtError,
-  clearMfaAndJwtCacheOnInvalidJwt,
-} from '../../../lib/mfa-guard-utils';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { MfaReason } from '../../../lib/types';
 import Banner, { ResendCodeSuccessBanner } from '../../Banner';
 
@@ -50,6 +46,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
   const account = useAccount();
+  const handleMfaError = useMfaErrorHandler();
   const alertSuccessAndGoHome = useCallback(
     (email: string) => {
       alertBar.success(
@@ -78,17 +75,21 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         logViewEvent('verify-secondary-email.verification', 'success');
         alertSuccessAndGoHome(email);
       } catch (e) {
-        if (isInvalidJwtError(e)) {
-          // JWT invalid/expired — defer cache clear to next tick so the modal opens
-          // after the current click event completes (avoids immediate outside-click dismiss).
-          setTimeout(() => clearMfaAndJwtCacheOnInvalidJwt(e, 'email'), 0);
+        const errorHandled = handleMfaError(e);
+        if (errorHandled) {
           return;
         }
         setErrorText(getLocalizedErrorMessage(ftlMsgResolver, e));
         logViewEvent('verify-secondary-email.verification', 'fail');
       }
     },
-    [account, alertSuccessAndGoHome, setErrorText, ftlMsgResolver]
+    [
+      account,
+      alertSuccessAndGoHome,
+      setErrorText,
+      ftlMsgResolver,
+      handleMfaError,
+    ]
   );
 
   const handleResendCode = useCallback(async () => {
@@ -111,9 +112,8 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       setShowResendSuccessBanner(true);
     } catch (err) {
       setShowResendSuccessBanner(false);
-      if (isInvalidJwtError(err)) {
-        // Defer cache clear to next tick to avoid immediate outside-click dismissal.
-        setTimeout(() => clearMfaAndJwtCacheOnInvalidJwt(err, 'email'), 0);
+      const errorHandled = handleMfaError(err);
+      if (errorHandled) {
         return;
       }
       setLocalizedErrorBannerMessage(
@@ -122,7 +122,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     } finally {
       setResendCodeLoading(false);
     }
-  }, [account, email, ftlMsgResolver]);
+  }, [account, email, ftlMsgResolver, handleMfaError]);
 
   useEffect(() => {
     if (!email) {
@@ -223,7 +223,10 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
                 )}
                 data-testid="secondary-email-resend-code-button"
                 disabled={resendDisabled}
-                onClick={handleResendCode}
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  handleResendCode();
+                }}
               >
                 Resend confirmation code
               </button>
