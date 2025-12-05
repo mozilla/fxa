@@ -7,7 +7,8 @@ import { AuthClientFactory, AuthClientService } from './auth-client.service';
 import { FirestoreFactory, FirestoreService } from './firestore.service';
 import { CloudTasksFactory, CloudTasksService } from './cloud-tasks.service';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
-import { ProfileClientService } from './profile-client.service';
+import { ProfileClient } from '@fxa/profile/client';
+import { ProfileClientFactory } from './profile-client.service';
 import {
   EmailSenderFactory,
   EmailService,
@@ -24,7 +25,7 @@ import { DatabaseService } from '../database/database.service';
     CloudTasksFactory,
     DatabaseService,
     MetricsFactory,
-    ProfileClientService,
+    ProfileClientFactory,
     EmailLinkBuilderFactory,
     FxaEmailRendererFactory,
     BouncesFactory,
@@ -36,7 +37,7 @@ import { DatabaseService } from '../database/database.service';
     FirestoreService,
     CloudTasksService,
     DatabaseService,
-    ProfileClientService,
+    ProfileClient,
     EmailService,
   ],
 })
