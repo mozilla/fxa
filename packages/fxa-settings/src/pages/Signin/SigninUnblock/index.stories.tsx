@@ -8,7 +8,8 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
-  MOCK_AUTH_AT, MOCK_CMS_INFO,
+  MOCK_AUTH_AT,
+  MOCK_CMS_INFO,
   MOCK_EMAIL,
   MOCK_SESSION_TOKEN,
   MOCK_UID,
@@ -72,7 +73,29 @@ export const DefaultWithCms = () => (
       hasPassword={true}
       finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
       integration={createMockSigninOAuthIntegration({
-        cmsInfo: MOCK_CMS_INFO
+        cmsInfo: MOCK_CMS_INFO,
+      })}
+      signinWithUnblockCode={mockSuccessResponse}
+      resendUnblockCodeHandler={mockResendSuccessResponse}
+    />
+  </LocationProvider>
+);
+
+export const SplitLayoutWithCms = () => (
+  <LocationProvider>
+    <SigninUnblock
+      email={MOCK_EMAIL}
+      hasLinkedAccount={false}
+      hasPassword={true}
+      finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+      integration={createMockSigninOAuthIntegration({
+        cmsInfo: {
+          ...MOCK_CMS_INFO,
+          SigninUnblockCodePage: {
+            ...MOCK_CMS_INFO.SigninUnblockCodePage!,
+            splitLayout: true,
+          },
+        },
       })}
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendSuccessResponse}

@@ -164,9 +164,10 @@ export const SigninTotpCode = ({
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninTotpCodePage?.pageTitle;
+  const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout }}>
       {cmsInfo ? (
         <>
           {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (

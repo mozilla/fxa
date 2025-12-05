@@ -208,9 +208,10 @@ const SigninTokenCode = ({
 
   const cmsInfo = integration?.getCmsInfo();
   const title = cmsInfo?.SigninTokenCodePage?.pageTitle;
+  const splitLayout = cmsInfo?.SigninTokenCodePage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout }}>
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading-2"
