@@ -363,6 +363,7 @@ export class ProductConfigurationManager {
     acceptLanguage?: string,
     selectedLanguage?: string
   ) {
+    // reuse getSubplatIntervalBySubscription? reduce num of calls to get subscription
     const subscription =
       await this.stripeClient.subscriptionsRetrieve(subscriptionId);
     const stripeInterval =
@@ -387,6 +388,22 @@ export class ProductConfigurationManager {
       acceptLanguage,
       selectedLanguage
     );
+  }
+
+  async getSubplatIntervalBySubscription(subscriptionId: string) {
+    const subscription =
+      await this.stripeClient.subscriptionsRetrieve(subscriptionId);
+    const stripeInterval =
+      subscription.items.data.at(0)?.price.recurring?.interval;
+    const intervalCount =
+      subscription.items.data.at(0)?.price.recurring?.interval_count;
+    if (!stripeInterval || !intervalCount) {
+      throw new StripeIntervalNotFoundError(stripeInterval, intervalCount);
+    }
+    const interval = getSubplatInterval(stripeInterval, intervalCount);
+
+    if (!interval) throw new SubPlatIntervalNotFoundError(interval);
+    return interval;
   }
 
   async getCancelInterstitialOffer(

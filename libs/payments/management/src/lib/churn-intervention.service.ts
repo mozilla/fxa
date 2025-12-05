@@ -12,6 +12,7 @@ import {
   StatsDService,
 } from '@fxa/shared/metrics/statsd';
 import { StatsD } from 'hot-shots';
+import { SubplatInterval } from '@fxa/payments/customer';
 
 @Injectable()
 export class ChurnInterventionService {
@@ -183,6 +184,242 @@ export class ChurnInterventionService {
         updatedChurnInterventionEntryData: null,
         cmsChurnInterventionEntry: eligibilityResult.cmsChurnInterventionEntry,
       };
+    }
+  }
+
+  async determineCancellationIntervention(args: {
+    uid: string,
+    subscriptionId: string,
+    offeringApiIdentifier: string,
+    currentInterval: SubplatInterval,
+    upgradeInterval: SubplatInterval,
+    acceptLanguage?: string | null,
+    selectedLanguage?: string,
+  }) {
+    try {
+      const subscriptionStatus = await this.subscriptionManagementService.getSubscriptionStatus(
+        args.uid,
+        args.subscriptionId
+      );
+      if (!subscriptionStatus.active) {
+        this.statsd.increment('cancel_intervention_decision', {
+          type: 'none',
+          reason: 'subscription_not_active',
+        });
+        return {
+          cancelChurnInterventionType: 'none',
+          cancelInterstitialReason: 'subscription_not_active',
+          cancelChurnContentReason: 'subscription_not_active',
+          cmsOfferContent: null,
+        }
+      }
+
+      //change?remove? subscription is already going to cancel. do we care?
+      if (subscriptionStatus.cancelAtPeriodEnd) {
+        this.statsd.increment('cancel_intervention_decision', {
+          type: 'none',
+          reason: 'subscription_already_cancelling',
+        });
+        return {
+          cancelChurnInterventionType: 'none',
+          cancelInterstitialReason: 'subscription_already_cancelling',
+          cancelChurnContentReason: 'subscription_already_cancelling',
+          cmsOfferContent: null,
+        };
+      }
+
+      const cancelInterstitialOfferEligiblityResult = await this.determineCancelInterstitialOfferEligibility(args);
+      if (cancelInterstitialOfferEligiblityResult.isEligible) {
+        return {
+          cancelChurnInterventionType: 'cancel_interstitial_offer',
+          cancelInterstitialReason: 'eligible',
+          cancelChurnContentReason: 'not_checked',
+          cmsOfferContent: cancelInterstitialOfferEligiblityResult.cmsCancelInterstitialOfferResult,
+        }
+      }
+
+      const cancelChurnContentEligiblityResult = await this.determineCancelChurnContentEligibility(args);
+      if (cancelChurnContentEligiblityResult.isEligible) {
+        return {
+          cancelChurnInterventionType: 'cancel_churn_intervention',
+          cancelInterstitialReason: cancelInterstitialOfferEligiblityResult.reason,
+          cancelChurnContentReason: 'eligible',
+          cmsOfferContent: cancelChurnContentEligiblityResult.cmsChurnInterventionEntry,
+        }
+      }
+
+      // no interstitial offer and no churn content found
+      return {
+        cancelChurnInterventionType: 'none',
+        cancelInterstitialReason: cancelInterstitialOfferEligiblityResult.reason,
+        cancelChurnContentReason: cancelChurnContentEligiblityResult.reason,
+        cmsOfferContent: null,
+      }
+    } catch (error) {
+      this.log.error(error);
+      return {
+        cancelChurnInterventionType: 'none',
+        reason: 'general_error',
+        cmsOfferContent: null,
+      }
+    }
+  }
+
+  async determineCancelInterstitialOfferEligibility(args: {
+    uid: string,
+    subscriptionId: string,
+    offeringApiIdentifier: string,
+    currentInterval: SubplatInterval,
+    upgradeInterval: SubplatInterval,
+    acceptLanguage?: string | null,
+    selectedLanguage?: string,
+  }) {
+    /*
+      Return Cancel Interstitial offer content if
+        - custom content exists
+        - currentInterval matches current subscription plan interval
+        - the current plan interval has an upgraded plan of <toInterval>
+        - the customer is eligible for the upgraded plan of <toInterval>
+
+        TODO^^
+
+      */
+
+     // custom content exists:
+      const cmsCancelInterstitialOffer =
+        await this.productConfigurationManager.getCancelInterstitialOffer(
+          args.offeringApiIdentifier,
+          args.currentInterval,
+          args.upgradeInterval,
+          args.acceptLanguage || undefined,
+          args.selectedLanguage
+        );
+
+      const cmsCancelInterstitialOfferResult = cmsCancelInterstitialOffer.getTransformedResult();
+      if (!cmsCancelInterstitialOfferResult) {
+        this.statsd.increment('cancel_intervention_decision', {
+          type: 'none',
+          reason: 'no_cancel_interstitial_offer_found',
+        });
+        return {
+          isEligible: false,
+          reason: 'no_cancel_interstitial_offer_found',
+          cmsCancelInterstitialOfferResult: null,
+        }
+      }
+
+      // currentInterval matches current subscription plan interval
+      const currentStripeInterval = await this.productConfigurationManager.getSubplatIntervalBySubscription(
+        args.subscriptionId
+      );
+      if (!currentStripeInterval || currentStripeInterval !== args.currentInterval) {
+        this.statsd.increment('cancel_intervention_decision', {
+          type: 'none',
+          reason: 'current_interval_mismatch',
+        });
+        return {
+          isEligible: false,
+          reason: 'current_interval_mismatch',
+          cmsCancelInterstitialOfferResult: null,
+        }
+      }
+
+      // the current plan interval has an upgraded plan of <toInterval>
+      try {
+        await this.productConfigurationManager.retrieveStripePrice(
+          args.offeringApiIdentifier,
+          args.upgradeInterval
+        );
+      } catch {
+        this.statsd.increment('cancel_intervention_decision', {
+          type: 'none',
+          reason: 'no_upgrade_plan_found',
+        });
+        return {
+          isEligible: false,
+          reason: 'no_upgrade_plan_found',
+          cmsCancelInterstitialOfferResult: null,
+        };
+      }
+
+      // the customer is eligible for the upgraded plan of <toInterval>
+        // not downgrading? what else?
+
+
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'cancel_interstitial_offer'
+      });
+
+      return {
+        isEligible: true,
+        reason: 'eligible',
+        cmsCancelInterstitialOfferResult,
+      }
+  }
+
+  async determineCancelChurnContentEligibility(args: {
+    uid: string,
+    subscriptionId: string,
+    offeringApiIdentifier: string,
+    currentInterval: SubplatInterval,
+    upgradeInterval: SubplatInterval,
+    acceptLanguage?: string | null,
+    selectedLanguage?: string,
+  }) {
+  /*
+    Return Cancel churn content if
+      - churn content exists for “cancel”
+      - customer is eligible to redeem
+    */
+
+    // churn content exists for “cancel”:
+    const cmsChurnResult =
+      await this.productConfigurationManager.getChurnInterventionBySubscription(
+        args.subscriptionId,
+        'cancel',
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
+    const cmsChurnInterventionEntries = cmsChurnResult.getTransformedChurnInterventionByProductId();
+    if (!cmsChurnInterventionEntries.length) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'no_churn_intervention_found',
+      });
+      return {
+        isEligible: false,
+        reason: 'no_churn_intervention_found',
+        cmsChurnInterventionEntry: null,
+      }
+    }
+
+    // customer is eligible to redeem
+    const cmsChurnInterventionEntry = cmsChurnInterventionEntries[0];
+    const redemptionCount = await this.churnInterventionManager.getRedemptionCountForUid(
+      args.uid,
+      cmsChurnInterventionEntry.churnInterventionId
+    );
+
+    if (cmsChurnInterventionEntry.redemptionLimit && redemptionCount >= cmsChurnInterventionEntry.redemptionLimit) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'discount_already_applied',
+      });
+      return {
+        isEligible: false,
+        reason: 'discount_already_applied',
+        cmsChurnInterventionEntry: null,
+      }
+    }
+
+    this.statsd.increment('cancel_intervention_decision', {
+      type: 'cancel_churn_intervention',
+    });
+    return {
+      isEligible: true,
+      reason: 'eligible',
+      cmsChurnInterventionEntry,
     }
   }
 }
