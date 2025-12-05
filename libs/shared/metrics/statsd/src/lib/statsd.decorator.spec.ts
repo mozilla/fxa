@@ -31,6 +31,16 @@ class TestClass {
   syncMethodWithCustomHandler() {
     return 'Custom Handler';
   }
+
+  @CaptureTimingWithStatsD()
+  syncMethodWithError() {
+    throw new Error('Sync error');
+  }
+
+  @CaptureTimingWithStatsD()
+  async asyncMethodWithError() {
+    throw new Error('Async error');
+  }
 }
 
 describe('CaptureTimingWithStatsD', () => {
@@ -54,6 +64,7 @@ describe('CaptureTimingWithStatsD', () => {
       expect.any(Number),
       {
         sourceClass: 'TestClass',
+        error: 'false',
       }
     );
   });
@@ -66,6 +77,7 @@ describe('CaptureTimingWithStatsD', () => {
       expect.any(Number),
       {
         sourceClass: 'TestClass',
+        error: 'false',
       }
     );
   });
@@ -74,5 +86,55 @@ describe('CaptureTimingWithStatsD', () => {
     instance.syncMethodWithCustomHandler();
     expect(mockCallback).toHaveBeenCalledTimes(1);
     expect(mockCallback).toHaveBeenCalledWith(expect.any(Number));
+  });
+
+  it('should track error=true for synchronous methods that throw', () => {
+    expect(() => instance.syncMethodWithError()).toThrow('Sync error');
+    expect(mockStatsD.timing).toHaveBeenCalledTimes(2);
+    expect(mockStatsD.timing).toHaveBeenCalledWith(
+      'TestClass_syncMethodWithError',
+      expect.any(Number),
+      {
+        sourceClass: 'TestClass',
+        error: 'true',
+      }
+    );
+  });
+
+  it('should track error=true for asynchronous methods that throw', async () => {
+    await expect(instance.asyncMethodWithError()).rejects.toThrow('Async error');
+    expect(mockStatsD.timing).toHaveBeenCalledTimes(2);
+    expect(mockStatsD.timing).toHaveBeenCalledWith(
+      'TestClass_asyncMethodWithError',
+      expect.any(Number),
+      {
+        sourceClass: 'TestClass',
+        error: 'true',
+      }
+    );
+  });
+
+  it('should track error=false for successful synchronous methods', () => {
+    instance.syncMethod();
+    expect(mockStatsD.timing).toHaveBeenCalledWith(
+      'TestClass',
+      expect.any(Number),
+      {
+        methodName: 'syncMethod',
+        error: 'false',
+      }
+    );
+  });
+
+  it('should track error=false for successful asynchronous methods', async () => {
+    await instance.asyncMethod();
+    expect(mockStatsD.timing).toHaveBeenCalledWith(
+      'TestClass',
+      expect.any(Number),
+      {
+        methodName: 'asyncMethod',
+        error: 'false',
+      }
+    );
   });
 });
