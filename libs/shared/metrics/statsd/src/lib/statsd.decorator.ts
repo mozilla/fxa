@@ -22,39 +22,49 @@ export function CaptureTimingWithStatsD<
     const originalDef = descriptor.value;
 
     descriptor.value = function (this: T, ...args: any[]) {
-      const defaultHandler = function (this: T, elapsed: number) {
+      const defaultHandler = function (this: T, elapsed: number, error = false) {
         this.statsd.timing(`${this.constructor.name}_${key}`, elapsed, {
           sourceClass: this.constructor.name,
+          error: error.toString(),
           ...options?.tags,
         });
         this.statsd.timing(this.constructor.name, elapsed, {
           methodName: key,
+          error: error.toString(),
           ...options?.tags,
         });
       };
       const handler = options?.handle || defaultHandler;
 
       const start = performance.now();
-      const originalReturnValue = originalDef.apply(this, args);
+      let originalReturnValue;
+
+      try {
+        originalReturnValue = originalDef.apply(this, args);
+      } catch (err) {
+        const end = performance.now();
+        handler.apply(this, [end - start, true]);
+        throw err;
+      }
 
       if (originalReturnValue instanceof Promise) {
         return originalReturnValue
           .then((value) => {
             const end = performance.now();
-            handler.apply(this, [end - start]);
+            handler.apply(this, [end - start, false]);
 
             return value;
           })
           .catch((err) => {
             const end = performance.now();
-            handler.apply(this, [end - start]);
+            handler.apply(this, [end - start, true]);
 
             throw err;
           });
       }
 
       const end = performance.now();
-      handler.apply(this, [end - start]);
+      handler.apply(this, [end - start, false]);
 
       return originalReturnValue;
     };
