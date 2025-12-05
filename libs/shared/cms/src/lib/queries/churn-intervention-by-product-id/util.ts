@@ -30,6 +30,10 @@ export class ChurnInterventionByProductIdResultUtil {
             defaultPurchase.purchaseDetails.localizations.length > 0
               ? defaultPurchase.purchaseDetails.localizations[0].webIcon
               : defaultPurchase.purchaseDetails.webIcon,
+          productName:
+            defaultPurchase.purchaseDetails.localizations.length > 0
+              ? defaultPurchase.purchaseDetails.localizations[0].productName
+              : defaultPurchase.purchaseDetails.productName,
           supportUrl: commonContent.supportUrl,
           ctaMessage:
             churnIntervention.localizations.at(0)?.ctaMessage ??
