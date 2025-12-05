@@ -89,11 +89,11 @@ export function CancelSubscription({
 
   return (
     <section
-      className="flex items-center justify-center min-h-[calc(100vh_-_4rem)] tablet:min-h-[calc(100vh_-_5rem)]"
+      className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
       aria-labelledby="cancel-subscription-heading"
     >
       {cancelAtPeriodEnd && active ? (
-        <Form.Root className="max-w-[480px] p-10 text-grey-600 bg-white rounded-xl border border-grey-200 shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+        <Form.Root className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
           <div className="flex flex-col items-center justify-center gap-6 text-center">
             <Image src={webIcon} alt={productName} height={64} width={64} />
             <Localized id="subscription-cancellation-dialog-title">
@@ -167,7 +167,8 @@ export function CancelSubscription({
       ) : (
         <Form.Root
           action={cancelSubscriptionAtPeriodEnd}
-          className="max-w-[480px] p-10 text-grey-600 bg-white rounded-xl border border-grey-200 shadow-[0_0_16px_0_rgba(0,0,0,0.08)]"
+          className="max-w-[480px] p-10 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]
+          "
         >
           <div className="flex flex-col items-center justify-center gap-6 text-center">
             <Image src={webIcon} alt={productName} height={64} width={64} />
@@ -194,6 +195,11 @@ export function CancelSubscription({
                 cycle.
               </p>
             </Localized>
+            <div
+              className="border-none h-px bg-grey-100 my-6"
+              role="separator"
+              aria-hidden="true"
+            ></div>
             <Form.Label asChild className="cursor-pointer my-3">
               <label htmlFor="cancelAccess" className="flex items-start gap-4">
                 <Form.Control asChild>
