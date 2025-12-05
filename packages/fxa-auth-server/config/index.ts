@@ -603,7 +603,7 @@ const convictConf = convict({
       deleteAccount: {
         doc: 'Flag to enable deleting account on email bounce.',
         format: Boolean,
-        default: false,
+        default: true,
         env: 'BOUNCES_DELETE_ACCOUNT',
       },
     },
