@@ -13,6 +13,7 @@ import {
   SupportedPages,
   buildPageMetadata,
 } from '@fxa/payments/ui/server';
+import { auth } from 'apps/payments/next/auth';
 import { headers } from 'next/headers';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { Metadata } from 'next';
@@ -45,10 +46,12 @@ export default async function NeedsInputPage({
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
+  const session = await auth();
   const cart = await getCartOrRedirectAction(
     params.cartId,
     SupportedPages.NEEDS_INPUT,
-    searchParams
+    searchParams,
+    session?.user?.id
   );
   if (!cart.currency) {
     throw new Error('Currency is missing from the cart');

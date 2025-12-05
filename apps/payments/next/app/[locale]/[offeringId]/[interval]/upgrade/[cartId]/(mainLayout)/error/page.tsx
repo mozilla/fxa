@@ -5,7 +5,7 @@
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { auth } from 'apps/payments/next/auth';
 import errorIcon from '@fxa/shared/assets/images/error.svg';
 import {
   getApp,
@@ -50,14 +50,14 @@ export default async function UpgradeError({
 }) {
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
-
-  const cartPromise = getCartOrRedirectAction(
+  const session = await auth();
+  const cart = await getCartOrRedirectAction(
     params.cartId,
     SupportedPages.ERROR,
-    searchParams
+    searchParams,
+    session?.user?.id
   );
   const l10n = getApp().getL10n(acceptLanguage, locale);
-  const [cart] = await Promise.all([cartPromise]);
 
   const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config, searchParams);
 

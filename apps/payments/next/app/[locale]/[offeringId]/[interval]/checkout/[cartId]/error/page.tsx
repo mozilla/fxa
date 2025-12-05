@@ -5,7 +5,7 @@
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { auth } from 'apps/payments/next/auth';
 import errorIcon from '@fxa/shared/assets/images/error.svg';
 import checkIcon from '@fxa/shared/assets/images/check.svg';
 import {
@@ -15,9 +15,7 @@ import {
   getErrorFtlInfo,
   buildPageMetadata,
 } from '@fxa/payments/ui/server';
-import {
-  getCartOrRedirectAction,
-} from '@fxa/payments/ui/actions';
+import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { config } from 'apps/payments/next/config';
 import type { Metadata } from 'next';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
@@ -52,16 +50,21 @@ export default async function CheckoutError({
 }) {
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
-
-  const cartPromise = getCartOrRedirectAction(
+  const session = await auth();
+  const cart = await getCartOrRedirectAction(
     params.cartId,
     SupportedPages.ERROR,
-    searchParams
+    searchParams,
+    session?.user?.id
   );
   const l10n = getApp().getL10n(acceptLanguage, locale);
-  const [cart] = await Promise.all([cartPromise]);
 
-  const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config, searchParams);
+  const errorReason = getErrorFtlInfo(
+    cart.errorReasonId,
+    params,
+    config,
+    searchParams
+  );
 
   return (
     <>
@@ -72,7 +75,7 @@ export default async function CheckoutError({
         {
           // Once more conditionals are added, move this to a separate component
           cart.errorReasonId ===
-            CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
+          CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
             <Image
               src={checkIcon}
               alt=""
