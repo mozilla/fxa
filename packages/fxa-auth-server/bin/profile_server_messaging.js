@@ -4,6 +4,9 @@
 
 'use strict';
 
+// Important! Must be required first to get proper hooks in place.
+require('../lib/monitoring');
+
 const config = require('../config').default.getProperties();
 const StatsD = require('hot-shots');
 const statsd = new StatsD(config.statsd);
