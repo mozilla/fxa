@@ -4,6 +4,7 @@
 
 'use strict';
 
+const Sentry = require('@sentry/node');
 const config = require('../config').default.getProperties();
 const StatsD = require('hot-shots');
 const { CurrencyHelper } = require('../lib/payments/currencies');
@@ -85,6 +86,7 @@ const deliveryQueue = new SQSReceiver(region, [deliveryQueueUrl]);
 const notificationQueue = new SQSReceiver(region, [notificationQueueUrl]);
 
 DB.connect(config).then((db) => {
+  Sentry.captureMessage('Starting email_notifications.js');
   bounces(bounceQueue, db);
   delivery(deliveryQueue);
   notifications(notificationQueue, db);

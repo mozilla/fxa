@@ -6,6 +6,7 @@
 // hook into node BEFORE any frameworks are initialized/imported.
 import './monitoring';
 
+import * as Sentry from '@sentry/node';
 import bodyParser from 'body-parser';
 import { Request, Response } from 'express';
 import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
@@ -22,6 +23,8 @@ import Config from './config';
 const appConfig = Config.getProperties();
 
 async function bootstrap() {
+  Sentry.captureMessage('Staring main.ts');
+
   const nestConfig: NestApplicationOptions = {};
   if (Config.getProperties().env !== 'development') {
     nestConfig.logger = false;

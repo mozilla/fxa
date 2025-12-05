@@ -4,6 +4,7 @@
 
 'use strict';
 
+const Sentry = require('@sentry/node');
 const Firestore = require('@google-cloud/firestore');
 const StatsD = require('hot-shots');
 
@@ -23,6 +24,8 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const REMOVE_CLIENT = process.env.REMOVE_CLIENT === 'true';
 
 async function main() {
+  Sentry.captureMessage('Starting update_firestore_from_oauth.js');
+
   if (!CLIENT_ID) {
     throw new Error('No CLIENT_ID found in environment');
   }

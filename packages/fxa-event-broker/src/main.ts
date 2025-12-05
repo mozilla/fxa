@@ -6,6 +6,7 @@
 // hook into node BEFORE any frameworks are initialized/imported.
 import './monitoring';
 
+import * as Sentry from '@sentry/node';
 import { NestApplicationOptions } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -23,6 +24,8 @@ async function bootstrap() {
     Config.getProperties().tracing,
     mozLog(Config.getProperties().log)(Config.getProperties().log.app)
   );
+
+  Sentry.captureMessage('Staring main.ts');
 
   const nestConfig: NestApplicationOptions = {};
   if (Config.getProperties().env !== 'development') {

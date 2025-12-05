@@ -7,6 +7,7 @@
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
 
+const Sentry = require('@sentry/node');
 const { config } = require('../config');
 
 const Redis = require('ioredis');
@@ -445,6 +446,8 @@ async function run(config) {
 
 async function main() {
   try {
+    Sentry.captureMessage('Starting key_server.js');
+
     const server = await run(config.getProperties());
     process.on('uncaughtException', (err) => {
       server.log.fatal('uncaughtException', err);

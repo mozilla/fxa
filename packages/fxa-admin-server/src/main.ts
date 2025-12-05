@@ -5,7 +5,7 @@
 // Important! Must be imported first! This makes sure that sentry and tracing can
 // hook into node BEFORE any frameworks are initialized/imported.
 import './monitoring';
-
+import * as Sentry from '@sentry/node';
 import { NestApplicationOptions } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -18,6 +18,8 @@ import cors from 'cors';
 const appConfig = Config.getProperties() as AppConfig;
 
 async function bootstrap() {
+  Sentry.captureMessage('Staring main.ts');
+
   const nestConfig: NestApplicationOptions = {};
   if (appConfig.env !== 'development') {
     nestConfig.logger = false;

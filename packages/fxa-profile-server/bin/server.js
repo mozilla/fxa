@@ -5,6 +5,7 @@
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
 
+const Sentry = require('@sentry/node');
 const configuration = require('../lib/config');
 const db = require('../lib/db');
 const logger = require('../lib/logging')('bin.server');
@@ -14,6 +15,7 @@ const Server = require('../lib/server');
 logger.info('config', JSON.stringify(JSON.parse(configuration.toString())));
 
 async function start() {
+  Sentry.captureMessage('Staring server.js');
   const server = await Server.create();
   const events = require('../lib/events')(server);
   try {

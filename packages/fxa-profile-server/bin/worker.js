@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const Sentry = require('@sentry/node');
 const logger = require('../lib/logging')('bin.worker');
 const Server = require('../lib/server/worker');
 
 async function start() {
+  Sentry.captureMessage('Staring worker.js');
+
   const server = await Server.create();
 
   try {

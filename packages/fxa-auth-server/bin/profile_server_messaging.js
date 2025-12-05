@@ -4,6 +4,7 @@
 
 'use strict';
 
+const Sentry = require('@sentry/node');
 const config = require('../config').default.getProperties();
 const StatsD = require('hot-shots');
 const statsd = new StatsD(config.statsd);
@@ -26,5 +27,7 @@ const profileUpdatesQueue = new SQSReceiver(
 );
 
 DB.connect(config).then((db) => {
+  Sentry.captureMessage('Starting profile_server_messaging.js');
+
   profileUpdates(profileUpdatesQueue, push(log, db, config), db);
 });
