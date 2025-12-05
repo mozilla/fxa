@@ -90,13 +90,13 @@ export function StaySubscribed({
 
   return (
     <section
-      className="flex items-center justify-center min-h-[calc(100vh_-_4rem)] tablet:min-h-[calc(100vh_-_5rem)]"
+      className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
       aria-labelledby="stay-subscribed-heading"
     >
       {cancelAtPeriodEnd && active ? (
         <Form.Root
           action={resubscribe}
-          className="max-w-[480px] p-10 text-grey-600 bg-white rounded-xl border border-grey-200 shadow-[0_0_16px_0_rgba(0,0,0,0.08)]"
+          className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]"
         >
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <Image src={webIcon} alt={productName} height={64} width={64} />
@@ -201,7 +201,7 @@ export function StaySubscribed({
           </div>
         </Form.Root>
       ) : (
-        <Form.Root className="w-[480px] max-w-[480px] p-10 text-grey-600 bg-white rounded-xl border border-grey-200 shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+        <Form.Root className="w-[480px] max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <Image src={webIcon} alt={productName} height={64} width={64} />
             <Localized id="resubscribe-success-dialog-title">
