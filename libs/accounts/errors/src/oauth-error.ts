@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { DEFAULT_ERRROR } from './constants';
+import { DEFAULT_ERRROR, OAUTH_ERRNO, OAUTH_ERROR_MESSAGES } from './constants';
 
 const hex = (v: Buffer | string): string =>
   Buffer.isBuffer(v) ? v.toString('hex') : v;
@@ -141,8 +141,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 101,
-        message: 'Unknown client',
+        errno: OAUTH_ERRNO.UNKNOWN_CLIENT,
+        message: OAUTH_ERROR_MESSAGES.UNKNOWN_CLIENT,
       },
       {
         clientId: hex(clientId),
@@ -155,8 +155,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 102,
-        message: 'Incorrect secret',
+        errno: OAUTH_ERRNO.INCORRECT_SECRET,
+        message: OAUTH_ERROR_MESSAGES.INCORRECT_SECRET,
       },
       {
         clientId: hex(clientId),
@@ -169,8 +169,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 103,
-        message: 'Incorrect redirect_uri',
+        errno: OAUTH_ERRNO.INCORRECT_REDIRECT,
+        message: OAUTH_ERROR_MESSAGES.INCORRECT_REDIRECT,
       },
       {
         redirectUri: uri,
@@ -182,8 +182,8 @@ export class OauthError extends Error {
     return new OauthError({
       code: 401,
       error: 'Bad Request',
-      errno: 104,
-      message: 'Invalid assertion',
+      errno: OAUTH_ERRNO.INVALID_ASSERTION,
+      message: OAUTH_ERROR_MESSAGES.INVALID_ASSERTION,
     });
   }
 
@@ -192,8 +192,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 105,
-        message: 'Unknown code',
+        errno: OAUTH_ERRNO.UNKNOWN_CODE,
+        message: OAUTH_ERROR_MESSAGES.UNKNOWN_CODE,
       },
       {
         requestCode: code,
@@ -206,8 +206,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 106,
-        message: 'Incorrect code',
+        errno: OAUTH_ERRNO.INCORRECT_CODE,
+        message: OAUTH_ERROR_MESSAGES.INCORRECT_CODE,
       },
       {
         requestCode: hex(code),
@@ -221,8 +221,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 107,
-        message: 'Expired code',
+        errno: OAUTH_ERRNO.EXPIRED_CODE,
+        message: OAUTH_ERROR_MESSAGES.EXPIRED_CODE,
       },
       {
         requestCode: hex(code),
@@ -235,8 +235,8 @@ export class OauthError extends Error {
     return new OauthError({
       code: 400,
       error: 'Bad Request',
-      errno: 108,
-      message: 'Invalid token',
+      errno: OAUTH_ERRNO.INVALID_TOKEN,
+      message: OAUTH_ERROR_MESSAGES.INVALID_TOKEN,
     });
   }
 
@@ -245,8 +245,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 109,
-        message: 'Invalid request parameter',
+        errno: OAUTH_ERRNO.INVALID_PARAMETER,
+        message: OAUTH_ERROR_MESSAGES.INVALID_PARAMETER,
       },
       {
         validation: val,
@@ -258,8 +258,8 @@ export class OauthError extends Error {
     return new OauthError({
       code: 400,
       error: 'Bad Request',
-      errno: 110,
-      message: 'Invalid response_type',
+      errno: OAUTH_ERRNO.INVALID_RESPONSE_TYPE,
+      message: OAUTH_ERROR_MESSAGES.INVALID_RESPONSE_TYPE,
     });
   }
 
@@ -268,8 +268,8 @@ export class OauthError extends Error {
       {
         code: 401,
         error: 'Unauthorized',
-        errno: 111,
-        message: 'Unauthorized for route',
+        errno: OAUTH_ERRNO.UNAUTHORIZED,
+        message: OAUTH_ERROR_MESSAGES.UNAUTHORIZED,
       },
       {
         detail: reason,
@@ -281,8 +281,8 @@ export class OauthError extends Error {
     return new OauthError({
       code: 403,
       error: 'Forbidden',
-      errno: 112,
-      message: 'Forbidden',
+      errno: OAUTH_ERRNO.FORBIDDEN,
+      message: OAUTH_ERROR_MESSAGES.FORBIDDEN,
     });
   }
 
@@ -290,10 +290,8 @@ export class OauthError extends Error {
     return new OauthError({
       code: 415,
       error: 'Unsupported Media Type',
-      errno: 113,
-      message:
-        'Content-Type must be either application/json or ' +
-        'application/x-www-form-urlencoded',
+      errno: OAUTH_ERRNO.INVALID_CONTENT_TYPE,
+      message: OAUTH_ERROR_MESSAGES.INVALID_CONTENT_TYPE,
     });
   }
 
@@ -302,8 +300,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Invalid scopes',
-        errno: 114,
-        message: 'Requested scopes are not allowed',
+        errno: OAUTH_ERRNO.INVALID_SCOPES,
+        message: OAUTH_ERROR_MESSAGES.INVALID_SCOPES,
       },
       {
         invalidScopes: scopes,
@@ -316,8 +314,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 115,
-        message: 'Expired token',
+        errno: OAUTH_ERRNO.EXPIRED_TOKEN,
+        message: OAUTH_ERROR_MESSAGES.EXPIRED_TOKEN,
       },
       {
         expiredAt: expiredAt,
@@ -330,8 +328,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 116,
-        message: 'Not a public client',
+        errno: OAUTH_ERRNO.NOT_PUBLIC_CLIENT,
+        message: OAUTH_ERROR_MESSAGES.NOT_PUBLIC_CLIENT,
       },
       {
         clientId: hex(clientId),
@@ -344,8 +342,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 117,
-        message: 'Incorrect code_challenge',
+        errno: OAUTH_ERRNO.INCORRECT_CODE_CHALLENGE,
+        message: OAUTH_ERROR_MESSAGES.INCORRECT_CODE_CHALLENGE,
       },
       {
         requestCodeChallenge: pkceHashValue,
@@ -357,8 +355,8 @@ export class OauthError extends Error {
     return new OauthError({
       code: 400,
       error: 'PKCE parameters missing',
-      errno: 118,
-      message: 'Public clients require PKCE OAuth parameters',
+      errno: OAUTH_ERRNO.MISSING_PKCE_PARAMETERS,
+      message: OAUTH_ERROR_MESSAGES.MISSING_PKCE_PARAMETERS,
     });
   }
 
@@ -367,8 +365,8 @@ export class OauthError extends Error {
       {
         code: 401,
         error: 'Bad Request',
-        errno: 119,
-        message: 'Stale authentication timestamp',
+        errno: OAUTH_ERRNO.STALE_AUTH_AT,
+        message: OAUTH_ERROR_MESSAGES.STALE_AUTH_AT,
       },
       {
         authAt: authAt,
@@ -381,8 +379,8 @@ export class OauthError extends Error {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 120,
-        message: 'Mismatch acr value',
+        errno: OAUTH_ERRNO.MISMATCH_ACR_VALUES,
+        message: OAUTH_ERROR_MESSAGES.MISMATCH_ACR_VALUES,
       },
       { foundValue }
     );
@@ -392,8 +390,8 @@ export class OauthError extends Error {
     return new OauthError({
       code: 400,
       error: 'Bad Request',
-      errno: 121,
-      message: 'Invalid grant_type',
+      errno: OAUTH_ERRNO.INVALID_GRANT_TYPE,
+      message: OAUTH_ERROR_MESSAGES.INVALID_GRANT_TYPE,
     });
   }
 
@@ -401,8 +399,8 @@ export class OauthError extends Error {
     return new OauthError({
       code: 400,
       error: 'Bad Request',
-      errno: 122,
-      message: 'Unknown token',
+      errno: OAUTH_ERRNO.UNKNOWN_TOKEN,
+      message: OAUTH_ERROR_MESSAGES.UNKNOWN_TOKEN,
     });
   }
 
@@ -414,8 +412,8 @@ export class OauthError extends Error {
       {
         code: 503,
         error: 'Client Disabled',
-        errno: 202, // TODO reconcile this with the auth-server version
-        message: 'This client has been temporarily disabled',
+        errno: OAUTH_ERRNO.DISABLED_CLIENT_ID,
+        message: OAUTH_ERROR_MESSAGES.DISABLED_CLIENT_ID,
       },
       { clientId }
     );

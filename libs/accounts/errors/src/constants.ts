@@ -160,6 +160,34 @@ export const OAUTH_ERRNO = {
   DISABLED_CLIENT_ID: 202,
 };
 
+export const OAUTH_ERROR_MESSAGES: Record<keyof typeof OAUTH_ERRNO, string> = {
+  UNKNOWN_CLIENT: 'Unknown client',
+  INCORRECT_SECRET: 'Incorrect secret',
+  INCORRECT_REDIRECT: 'Incorrect redirect_uri',
+  INVALID_ASSERTION: 'Invalid assertion',
+  UNKNOWN_CODE: 'Unknown code',
+  INCORRECT_CODE: 'Incorrect code',
+  EXPIRED_CODE: 'Expired code',
+  INVALID_TOKEN: 'Invalid token',
+  INVALID_PARAMETER: 'Invalid request parameter',
+  INVALID_RESPONSE_TYPE: 'Invalid response_type',
+  UNAUTHORIZED: 'Unauthorized for route',
+  FORBIDDEN: 'Forbidden',
+  INVALID_CONTENT_TYPE:
+    'Content-Type must be either application/json or application/x-www-form-urlencoded',
+  INVALID_SCOPES: 'Requested scopes are not allowed',
+  EXPIRED_TOKEN: 'Expired token',
+  NOT_PUBLIC_CLIENT: 'Not a public client',
+  INCORRECT_CODE_CHALLENGE: 'Incorrect code_challenge',
+  MISSING_PKCE_PARAMETERS: 'Public clients require PKCE OAuth parameters',
+  STALE_AUTH_AT: 'Stale authentication timestamp',
+  MISMATCH_ACR_VALUES: 'Mismatch acr value',
+  INVALID_GRANT_TYPE: 'Invalid grant_type',
+  UNKNOWN_TOKEN: 'Unknown token',
+  SERVER_UNAVAILABLE: 'System unavailable, try again soon',
+  DISABLED_CLIENT_ID: 'This client has been temporarily disabled',
+};
+
 /**
  * Takes an object and swaps keys with values. Useful when a value -> key look up is needed.
  * @param obj - Object to swap keys and values on

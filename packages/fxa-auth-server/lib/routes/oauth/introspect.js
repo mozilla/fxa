@@ -5,7 +5,7 @@
 /*jshint camelcase: false*/
 const Joi = require('joi');
 const validators = require('../../oauth/validators');
-const { AppError } = require('@fxa/accounts/errors');
+const { OauthError } = require('@fxa/accounts/errors');
 const { getTokenId } = require('../../oauth/token');
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
@@ -79,7 +79,7 @@ module.exports = ({ oauthDB }) => ({
           // in the future other clients should be able to use it
           // by providing client_secret in the Authentication header
           if (!client || !client.publicClient) {
-            throw AppError.oauthNotPublicClient();
+            throw OauthError.notPublicClient(token.clientId);
           }
         }
       }

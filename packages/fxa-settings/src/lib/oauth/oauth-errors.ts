@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { interpolate } from '../error-utils';
-import { OAUTH_ERRNO } from '@fxa/accounts/errors';
+import { OAUTH_ERRNO, OAUTH_ERROR_MESSAGES } from '@fxa/accounts/errors';
 
 export type AuthError = {
   errno: number;
@@ -15,97 +15,52 @@ export type AuthError = {
 
 export const UNEXPECTED_ERROR = 'Unexpected error';
 
+const sharedError = <K extends keyof typeof OAUTH_ERROR_MESSAGES>(
+  key: K,
+  extra?: Partial<AuthError>
+): AuthError => ({
+  errno: OAUTH_ERRNO[key],
+  message: OAUTH_ERROR_MESSAGES[key],
+  ...extra,
+});
+
 export const OAUTH_ERRORS: Record<string, AuthError> = {
-  UNKNOWN_CLIENT: {
-    errno: OAUTH_ERRNO.UNKNOWN_CLIENT,
-    message: 'Unknown client',
-  },
-  INCORRECT_REDIRECT: {
-    errno: OAUTH_ERRNO.INCORRECT_REDIRECT,
-    message: 'Incorrect redirect_uri',
-  },
-  INVALID_ASSERTION: {
-    errno: OAUTH_ERRNO.INVALID_ASSERTION,
-    message: 'Invalid assertion',
-  },
-  UNKNOWN_CODE: {
-    errno: OAUTH_ERRNO.UNKNOWN_CODE,
-    message: 'Unknown code',
-  },
-  INCORRECT_CODE: {
-    errno: OAUTH_ERRNO.INCORRECT_CODE,
-    message: 'Incorrect code',
-  },
-  EXPIRED_CODE: {
-    errno: OAUTH_ERRNO.EXPIRED_CODE,
-    message: 'Expired code',
-  },
-  INVALID_TOKEN: {
-    errno: OAUTH_ERRNO.INVALID_TOKEN,
-    message: 'Invalid token',
-  },
-  INVALID_PARAMETER: {
-    errno: OAUTH_ERRNO.INVALID_PARAMETER,
+  UNKNOWN_CLIENT: sharedError('UNKNOWN_CLIENT'),
+  INCORRECT_REDIRECT: sharedError('INCORRECT_REDIRECT'),
+  INVALID_ASSERTION: sharedError('INVALID_ASSERTION'),
+  UNKNOWN_CODE: sharedError('UNKNOWN_CODE'),
+  INCORRECT_CODE: sharedError('INCORRECT_CODE'),
+  EXPIRED_CODE: sharedError('EXPIRED_CODE'),
+  INVALID_TOKEN: sharedError('INVALID_TOKEN'),
+  INVALID_PARAMETER: sharedError('INVALID_PARAMETER', {
     message: 'Invalid OAuth parameter: %(param)s',
     interpolate: true,
-  },
-  INVALID_RESPONSE_TYPE: {
-    errno: OAUTH_ERRNO.INVALID_RESPONSE_TYPE,
+  }),
+  INVALID_RESPONSE_TYPE: sharedError('INVALID_RESPONSE_TYPE', {
     message: UNEXPECTED_ERROR,
-  },
-  UNAUTHORIZED: {
-    errno: OAUTH_ERRNO.UNAUTHORIZED,
-    message: 'Unauthorized',
-  },
-  FORBIDDEN: {
-    errno: OAUTH_ERRNO.FORBIDDEN,
-    message: 'Forbidden',
-  },
-  INVALID_CONTENT_TYPE: {
-    errno: OAUTH_ERRNO.INVALID_CONTENT_TYPE,
+  }),
+  UNAUTHORIZED: sharedError('UNAUTHORIZED', { message: 'Unauthorized' }),
+  FORBIDDEN: sharedError('FORBIDDEN'),
+  INVALID_CONTENT_TYPE: sharedError('INVALID_CONTENT_TYPE', {
     message: UNEXPECTED_ERROR,
-  },
-  INVALID_SCOPES: {
-    errno: OAUTH_ERRNO.INVALID_SCOPES,
+  }),
+  INVALID_SCOPES: sharedError('INVALID_SCOPES', {
     message: 'Invalid OAuth parameter: %(param)s',
     interpolate: true,
-  },
-  EXPIRED_TOKEN: {
-    errno: OAUTH_ERRNO.EXPIRED_TOKEN,
-    message: 'Expired token',
-  },
-  NOT_PUBLIC_CLIENT: {
-    errno: OAUTH_ERRNO.NOT_PUBLIC_CLIENT,
-    message: 'Not a public client',
-  },
-  INCORRECT_CODE_CHALLENGE: {
-    errno: OAUTH_ERRNO.INCORRECT_CODE_CHALLENGE,
-    message: 'Incorrect code_challenge',
-  },
-  MISSING_PKCE_PARAMETERS: {
-    errno: OAUTH_ERRNO.MISSING_PKCE_PARAMETERS,
+  }),
+  EXPIRED_TOKEN: sharedError('EXPIRED_TOKEN'),
+  NOT_PUBLIC_CLIENT: sharedError('NOT_PUBLIC_CLIENT'),
+  INCORRECT_CODE_CHALLENGE: sharedError('INCORRECT_CODE_CHALLENGE'),
+  MISSING_PKCE_PARAMETERS: sharedError('MISSING_PKCE_PARAMETERS', {
     message: 'PKCE parameters missing',
-  },
-  STALE_AUTHENTICATION_TIMESTAMP: {
-    errno: OAUTH_ERRNO.STALE_AUTH_AT,
-    message: 'Stale authentication timestamp',
-  },
-  MISMATCH_ACR_VALUES: {
-    errno: OAUTH_ERRNO.MISMATCH_ACR_VALUES,
+  }),
+  STALE_AUTHENTICATION_TIMESTAMP: sharedError('STALE_AUTH_AT'),
+  MISMATCH_ACR_VALUES: sharedError('MISMATCH_ACR_VALUES', {
     message: 'Mismatch acr values',
-  },
-  INVALID_GRANT_TYPE: {
-    errno: OAUTH_ERRNO.INVALID_GRANT_TYPE,
-    message: 'Invalid grant_type',
-  },
-  SERVER_UNAVAILABLE: {
-    errno: OAUTH_ERRNO.SERVER_UNAVAILABLE,
-    message: 'System unavailable, try again soon',
-  },
-  DISABLED_CLIENT_ID: {
-    errno: OAUTH_ERRNO.DISABLED_CLIENT_ID,
-    message: 'System unavailable, try again soon',
-  },
+  }),
+  INVALID_GRANT_TYPE: sharedError('INVALID_GRANT_TYPE'),
+  SERVER_UNAVAILABLE: sharedError('SERVER_UNAVAILABLE'),
+  DISABLED_CLIENT_ID: sharedError('DISABLED_CLIENT_ID'),
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: 'System unavailable, try again soon',
