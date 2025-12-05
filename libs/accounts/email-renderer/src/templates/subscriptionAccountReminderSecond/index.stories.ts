@@ -15,6 +15,7 @@ const data = {
   reminderShortForm: true,
   resetLink: 'http://localhost:3030/settings/change_password',
   subscriptionSupportUrl: 'http://localhost:3030/support',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = subplatStoryWithProps<TemplateData>(

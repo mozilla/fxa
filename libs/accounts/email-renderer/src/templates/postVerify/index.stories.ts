@@ -15,6 +15,13 @@ const data = {
   desktopLink: 'https://firefox.com',
   onDesktopOrTabletDevice: true,
   productName: 'Firefox',
+  playStoreLink:
+    'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
+  appStoreLink:
+    'https://apps.apple.com/us/app/firefox-private-safe-browser/id989804926',
+  supportUrl: 'https://support.mozilla.org',
+  cssPath: '',
+  hideDeviceLink: true,
 };
 
 const createStory = storyWithProps<TemplateData>(

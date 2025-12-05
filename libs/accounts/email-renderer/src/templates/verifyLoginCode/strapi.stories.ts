@@ -22,6 +22,7 @@ const data = {
   subject: 'Confirm Your Login',
   headline: 'Are you signing in to use Product?',
   description: 'Use the code below to verify your signin.',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

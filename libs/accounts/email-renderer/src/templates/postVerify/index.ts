@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export type TemplateData = {
-  link: string;
-  desktopLink: string;
-  onDesktopOrTabletDevice: boolean;
-  productName: string;
-};
+import { TemplateData as AppBadgesTemplateData } from '../../partials/appBadges';
+import { TemplateData as AutomatedEmailNoActionTemplateData } from '../../partials/automatedEmailNoAction';
+
+export type TemplateData = AppBadgesTemplateData &
+  AutomatedEmailNoActionTemplateData & {
+    link: string;
+    desktopLink: string;
+    onDesktopOrTabletDevice: boolean;
+    productName: string;
+  };
 
 export const template = 'postVerify';
 export const version = 8;

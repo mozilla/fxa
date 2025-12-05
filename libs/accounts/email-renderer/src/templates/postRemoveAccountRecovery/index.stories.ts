@@ -15,6 +15,8 @@ const data = {
   ...MOCK_USER_INFO,
   link: 'http://localhost:3030/settings',
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
+  revokeAccountRecoveryLink: '', // Not used but partial requires type presence? No, Omit handles keyExists, but revokeAccountRecoveryLink is in partial required list. Wait.
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(
