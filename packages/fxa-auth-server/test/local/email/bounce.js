@@ -10,7 +10,7 @@ const { assert } = require('chai');
 const bounces = require(`${ROOT_DIR}/lib/email/bounces`);
 const { AppError: error } = require('@fxa/accounts/errors');
 const { EventEmitter } = require('events');
-const { mockLog } = require('../../mocks');
+const { mockLog, mockStatsd } = require('../../mocks');
 const sinon = require('sinon');
 const { default: Container } = require('typedi');
 const { StripeHelper } = require('../../../lib/payments/stripe');
@@ -20,7 +20,7 @@ const mockBounceQueue = new EventEmitter();
 mockBounceQueue.start = function start() {};
 
 describe('bounce messages', () => {
-  let log, mockConfig, mockDB, mockStripeHelper;
+  let log, mockConfig, mockDB, mockStripeHelper, statsd;
 
   function mockMessage(msg) {
     msg.del = sinon.spy();
@@ -29,11 +29,12 @@ describe('bounce messages', () => {
   }
 
   function mockedBounces(log, db) {
-    return bounces(log, error, mockConfig)(mockBounceQueue, db);
+    return bounces(log, error, mockConfig, statsd)(mockBounceQueue, db);
   }
 
   beforeEach(() => {
     log = mockLog();
+    statsd = mockStatsd();
     mockConfig = {
       smtp: {
         bounces: {
@@ -91,6 +92,31 @@ describe('bounce messages', () => {
         assert.equal(log.error.callCount, 0);
         assert.equal(log.warn.callCount, 1);
         assert.equal(log.warn.args[0][0], 'emailHeaders.keys');
+      });
+  });
+
+  it('should record metrics about bounce type', () => {
+    const bounceType = 'Transient';
+    return mockedBounces(log, mockDB)
+      .handleBounce(
+        mockMessage({
+          bounce: {
+            bounceType: bounceType,
+            bouncedRecipients: [
+              { emailAddress: 'test@example.com' },
+              { emailAddress: 'foobar@example.com' },
+            ],
+          },
+        })
+      )
+      .then(() => {
+        assert.equal(statsd.increment.callCount, 1);
+        sinon.assert.calledWith(statsd.increment, 'email.bounce.message', {
+          bounceType: bounceType,
+          bounceSubType: 'none',
+          hasDiagnosticCode: false,
+          hasComplaint: false,
+        });
       });
   });
 
