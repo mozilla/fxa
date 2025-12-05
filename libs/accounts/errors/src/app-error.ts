@@ -10,7 +10,6 @@ import {
   DEFAULT_ERRROR,
   IGNORED_ERROR_NUMBERS,
   DEBUGGABLE_PAYLOAD_KEYS,
-  OAUTH_ERRNO,
 } from './constants';
 import { OauthError } from './oauth-error';
 import type { Request as HapiRequest } from 'hapi';
@@ -1252,15 +1251,6 @@ export class AppError extends Error {
       code: 400,
       error: 'Bad Request',
       errno: ERRNO.NOT_PUBLIC_CLIENT,
-      message: 'Not a public client',
-    });
-  }
-
-  static oauthNotPublicClient() {
-    return new AppError({
-      code: 400,
-      error: 'Bad Request',
-      errno: OAUTH_ERRNO.NOT_PUBLIC_CLIENT,
       message: 'Not a public client',
     });
   }
