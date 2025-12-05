@@ -22,7 +22,7 @@ const ModalToggle = ({ children }: ModalToggleProps) => {
   const [modalRevealed, showModal, hideModal] = useBooleanState(true);
   const onClick = useCallback(
     (ev: React.MouseEvent) => {
-      ev.preventDefault();
+      ev.stopPropagation();
       showModal();
     },
     [showModal]
@@ -79,6 +79,26 @@ export const WithConfirmButton = () => (
         >
           <h2>Header goes here.</h2>
           <p>This is a modal with cancel and confirm buttons.</p>
+        </Modal>
+      )
+    }
+  </ModalToggle>
+);
+
+export const WithLongContent = () => (
+  <ModalToggle>
+    {({ modalRevealed, hideModal }) =>
+      modalRevealed && (
+        <Modal
+          headerId="some-id"
+          descId="some-description"
+          onConfirm={hideModal as () => void}
+          onDismiss={hideModal}
+        >
+          <h2>This is a modal with long content.</h2>
+          {Array.from({ length: 42 }, (_, i) => (
+            <p key={i}>Scroll down to see more</p>
+          ))}
         </Modal>
       )
     }
