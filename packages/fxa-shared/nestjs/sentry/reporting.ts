@@ -11,18 +11,7 @@ import { Message } from '@aws-sdk/client-sqs';
 import { Request } from 'express';
 
 import { CommonPiiActions } from '../../sentry/pii-filter-actions';
-import { SentryPiiFilter, SqsMessageFilter } from '../../sentry/pii-filters';
-
-const piiFilter = new SentryPiiFilter([
-  CommonPiiActions.breadthFilter,
-  CommonPiiActions.depthFilter,
-  CommonPiiActions.piiKeys,
-  CommonPiiActions.emailValues,
-  CommonPiiActions.tokenValues,
-  CommonPiiActions.ipV4Values,
-  CommonPiiActions.ipV6Values,
-  CommonPiiActions.urlUsernamePassword,
-]);
+import { SqsMessageFilter } from '../../sentry/pii-filters';
 
 const sqsMessageFilter = new SqsMessageFilter([
   CommonPiiActions.emailValues,
@@ -74,34 +63,6 @@ export function isOriginallyHttpError(
     return true;
   }
   return false;
-}
-
-/**
- * Filters all of an objects string properties to remove tokens.
- *
- * @param event Sentry ErrorEvent
- */
-export function filterObject(event: ErrorEvent) {
-  return piiFilter.filter(event);
-}
-
-/**
- * Filter potential PII from a sentry event.
- *
- * - Limits depth data beyond 5 levels
- * - Filters out pii keys, See CommonPiiActions.piiKeys for more details
- * - Filters out strings that look like emails addresses
- * - Filters out strings that look like tokens value (32 char length alphanumeric values)
- * - Filters out strings that look like ip addresses (v4/v6)
- * - Filters out urls with user name / password data
- * @param event A sentry event
- * @returns a sanitized sentry event
- */
-export function filterSentryEvent(
-  event: ErrorEvent,
-  _hint: unknown
-): ErrorEvent {
-  return piiFilter.filter(event);
 }
 
 /**
