@@ -71,7 +71,7 @@ const mockEmailTasks = {
 };
 
 const getAccountCustomerByUid = sandbox.stub();
-const emailBounceSelect = sandbox.stub().resolves([]);
+const emailBounceDistinct = sandbox.stub().resolves([]);
 const emailBounceWhere = sandbox.stub();
 const emailBounceJoin = sandbox.stub();
 const emailBounceQuery = sandbox.stub();
@@ -96,8 +96,8 @@ const EmailBounce = new (class {
     emailBounceJoin.apply(this, arguments);
     return this;
   }
-  select() {
-    return emailBounceSelect.apply(this, arguments);
+  distinct() {
+    return emailBounceDistinct.apply(this, arguments);
   }
 })();
 
@@ -139,7 +139,7 @@ describe('InactiveAccountsManager', () => {
     mockGlean.inactiveAccountDeletion.secondEmailSkipped.resetHistory();
     mockGlean.inactiveAccountDeletion.finalEmailSkipped.resetHistory();
     Object.values(mockEmailTasks).forEach((stub) => stub.resetHistory());
-    emailBounceSelect.resetHistory();
+    emailBounceDistinct.resetHistory();
     mockDeleteAccountTasks.deleteAccount.resetHistory();
     sandbox.resetHistory();
     sinon.resetHistory();
@@ -307,14 +307,14 @@ describe('InactiveAccountsManager', () => {
 
     it('should delete the account if the first email bounced', async () => {
       sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
-      emailBounceSelect.resolves([mockAccount]);
+      emailBounceDistinct.resolves([mockAccount]);
       sandbox.stub(inactiveAccountManager, 'scheduleNextEmail').resolves();
 
       await inactiveAccountManager.handleNotificationTask(
         mockSecondTaskPayload
       );
 
-      sinon.assert.calledOnceWithExactly(emailBounceSelect, ['email']);
+      sinon.assert.calledOnceWithExactly(emailBounceDistinct, 'email');
       sinon.assert.calledWithExactly(
         mockStatsd.increment,
         'account.inactive.second-email.skipped.bounce'
@@ -338,7 +338,7 @@ describe('InactiveAccountsManager', () => {
     it('should send the second email and enqueue the final', async () => {
       sandbox.stub(accountEventsManager, 'findEmailEvents').resolves([]);
       sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
-      emailBounceSelect.resolves([]);
+      emailBounceDistinct.resolves([]);
 
       await inactiveAccountManager.handleNotificationTask(
         mockSecondTaskPayload

@@ -394,14 +394,20 @@ export class InactiveAccountsManager {
       .where('emailBounces.createdAt', '>', now - 54 * aDayInMs)
       .where('emailBounces.createdAt', '<', now - 52 * aDayInMs)
       .where('emailTypes.emailType', '=', 'inactiveAccountFirstWarning')
-      .select(['email']);
+      .distinct('email');
 
+    // avoid order issues when comparing
+    const bouncedEmails = firstEmailBounces.map((x) => x.email).sort();
+    const expectedEmails = [...emails].sort();
+
+    // Notification emails are sent to *all* emails on the account.
+    // We only enqueue the account for deletion if *every* email address bounced
+    // for the first-warning notification within the expected time window.
+    // If even one email was successfully delivered (i.e., did NOT bounce),
+    // we DO NOT enqueue for deletion because the user could still be notified.
     if (
-      firstEmailBounces.length === emails.length &&
-      isEqual(
-        firstEmailBounces.map((x) => x.email),
-        emails
-      )
+      bouncedEmails.length === expectedEmails.length &&
+      isEqual(bouncedEmails, expectedEmails)
     ) {
       await this.accountTasks.deleteAccount({
         uid: taskPayload.uid,
