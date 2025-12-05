@@ -4,6 +4,9 @@
 
 'use strict';
 
+// Important! Must be required first to get proper hooks in place.
+require('../lib/monitoring');
+
 const Firestore = require('@google-cloud/firestore');
 const StatsD = require('hot-shots');
 
