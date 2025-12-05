@@ -54,6 +54,7 @@ import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeActionArgs } from './validators/ValidatePostalCodeActionArgs';
 import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
 import { DetermineStaySubscribedEligibilityActionArgs } from './validators/DetermineStaySubscribedEligibilityActionArgs';
+import { DetermineCancellationInterventionActionArgs } from './validators/DetermineCancellationInterventionActionArgs';
 import { NextIOValidator } from './NextIOValidator';
 import type {
   CommonMetrics,
@@ -120,6 +121,7 @@ import { CreatePaypalBillingAgreementIdArgs } from './validators/CreatePaypalBil
 import { DetermineCurrencyForCustomerActionArgs } from './validators/DetermineCurrencyForCustomerActionArgs';
 import { DetermineCurrencyForCustomerActionResult } from './validators/DetermineCurrencyForCustomerActionResult';
 import { DetermineStaySubscribedEligibilityActionResult } from './validators/DetermineStaySubscribedEligibilityActionResult';
+import { DetermineCancellationInterventionActionResult } from './validators/DetermineCancellationInterventionActionResult';
 import { NimbusManager } from '@fxa/payments/experiments';
 import { GetExperimentsActionArgs } from './validators/GetExperimentsActionArgs';
 import { GetExperimentsActionResult } from './validators/GetExperimentsActionResult';
@@ -283,6 +285,33 @@ export class NextJSActionsService {
       args.acceptLanguage,
       args.selectedLanguage
     );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    DetermineCancellationInterventionActionArgs,
+    DetermineCancellationInterventionActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async determineCancellationIntervention(args: {
+    uid: string,
+    subscriptionId: string,
+    offeringApiIdentifier: string,
+    currentInterval: SubplatInterval,
+    upgradeInterval: SubplatInterval,
+    acceptLanguage?: string | null,
+    selectedLanguage?: string,
+  }) {
+    return await this.churnInterventionService.determineCancellationIntervention({
+      uid: args.uid,
+      subscriptionId: args.subscriptionId,
+      offeringApiIdentifier: args.offeringApiIdentifier,
+      currentInterval: args.currentInterval,
+      upgradeInterval: args.upgradeInterval,
+      acceptLanguage: args.acceptLanguage,
+      selectedLanguage: args.selectedLanguage,
+    });
   }
 
   @SanitizeExceptions()

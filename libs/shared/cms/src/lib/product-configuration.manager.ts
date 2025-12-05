@@ -12,7 +12,7 @@ import {
   SubplatInterval,
 } from '@fxa/payments/customer';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-import { StripeClient } from '@fxa/payments/stripe';
+import { StripeClient, StripeSubscription } from '@fxa/payments/stripe';
 import {
   EligibilityContentByPlanIdsQuery,
   PurchaseWithDetailsOfferingContentQuery,
@@ -365,17 +365,7 @@ export class ProductConfigurationManager {
   ) {
     const subscription =
       await this.stripeClient.subscriptionsRetrieve(subscriptionId);
-    const stripeInterval =
-      subscription.items.data.at(0)?.price.recurring?.interval;
-    const intervalCount =
-      subscription.items.data.at(0)?.price.recurring?.interval_count;
-    if (!stripeInterval || !intervalCount) {
-      throw new StripeIntervalNotFoundError(stripeInterval, intervalCount);
-    }
-    const interval = getSubplatInterval(stripeInterval, intervalCount);
-
-    if (!interval) throw new SubPlatIntervalNotFoundError(interval);
-
+    const interval = await this.getSubplatIntervalBySubscription(subscription);
     const stripeProductId = subscription.items.data.at(0)?.price
       .product as string;
 
@@ -387,6 +377,26 @@ export class ProductConfigurationManager {
       acceptLanguage,
       selectedLanguage
     );
+  }
+
+  async getSubplatIntervalBySubscription(
+    subscriptionArg: string | StripeSubscription
+  ) {
+    const subscription = typeof subscriptionArg === 'string'
+      ? await this.stripeClient.subscriptionsRetrieve(subscriptionArg)
+      : subscriptionArg;
+
+    const stripeInterval =
+      subscription.items.data.at(0)?.price.recurring?.interval;
+    const intervalCount =
+      subscription.items.data.at(0)?.price.recurring?.interval_count;
+    if (!stripeInterval || !intervalCount) {
+      throw new StripeIntervalNotFoundError(stripeInterval, intervalCount);
+    }
+    const interval = getSubplatInterval(stripeInterval, intervalCount);
+
+    if (!interval) throw new SubPlatIntervalNotFoundError(interval);
+    return interval;
   }
 
   async getCancelInterstitialOffer(
