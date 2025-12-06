@@ -60,7 +60,7 @@
       "outputs": ["{options.outputDir}"],
       "dependsOn": ["build-css", "build-ts"],
       "options": {
-        "outputDir": "dist/storybook/accounts/email-renderer",
+        "outputDir": "libs/accounts/email-renderer/storybook-static",
         "configDir": "libs/accounts/email-renderer/.storybook"
       }
     },
@@ -84,13 +84,8 @@
         "command": "npx grunt --gruntfile libs/accounts/email-renderer/gruntfile.js l10n-watch",
         "cwd": "."
       },
-      "inputs": [
-        "{projectRoot}/gruntfile.js",
-        "{projectRoot}/src/**/en.ftl"
-      ],
-      "outputs": [
-        "{projectRoot}/public/en/auth.ftl"
-      ]
+      "inputs": ["{projectRoot}/gruntfile.js", "{projectRoot}/src/**/en.ftl"],
+      "outputs": ["{projectRoot}/public/en/auth.ftl"]
     },
     "l10n-merge": {
       "executor": "nx:run-commands",
@@ -98,13 +93,8 @@
         "command": "yarn grunt --gruntfile libs/accounts/email-renderer/gruntfile.js l10n-merge",
         "cwd": "."
       },
-      "inputs": [
-        "{projectRoot}/gruntfile.js",
-        "{projectRoot}/src/**/en.ftl"
-      ],
-      "outputs": [
-        "{projectRoot}/public/en/auth.ftl"
-      ]
+      "inputs": ["{projectRoot}/gruntfile.js", "{projectRoot}/src/**/en.ftl"],
+      "outputs": ["{projectRoot}/public/en/auth.ftl"]
     },
     "l10n-copy": {
       "executor": "nx:run-commands",
