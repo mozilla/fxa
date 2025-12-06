@@ -286,6 +286,33 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  /*@NextIOValidator(
+    DetermineCancellationInterventionActionArgs,
+    DetermineCancellationInterventionActionResult
+  )*/
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async determineCancellationIntervention(args: {
+    uid: string,
+    subscriptionId: string,
+    offeringApiIdentifier: string,
+    currentInterval: SubplatInterval,
+    upgradeInterval: SubplatInterval,
+    acceptLanguage?: string | null,
+    selectedLanguage?: string,
+  }) {
+    return await this.churnInterventionService.determineCancellationIntervention({
+      uid: args.uid,
+      subscriptionId: args.subscriptionId,
+      offeringApiIdentifier: args.offeringApiIdentifier,
+      currentInterval: args.currentInterval,
+      upgradeInterval: args.upgradeInterval,
+      acceptLanguage: args.acceptLanguage,
+      selectedLanguage: args.selectedLanguage,
+    });
+  }
+
+  @SanitizeExceptions()
   @NextIOValidator(RedeemChurnCouponActionArgs, RedeemChurnCouponActionResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
