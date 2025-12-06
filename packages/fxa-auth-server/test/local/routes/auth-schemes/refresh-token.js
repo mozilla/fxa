@@ -52,25 +52,22 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
     config = { oauth: {} };
 
     db = {
-      devices: sinon.spy(() =>
-        Promise.resolve([
-          {
-            id: '5eb89097bab6551de3614facaea59cab',
-            refreshTokenId:
-              '5b541d00ea0c0dc775e060c95a1ee7ca617cf95a05d177ec09fd6f62ca9b2913',
-            isCurrentDevice: false,
-            location: {},
-            name: 'first device',
-            type: 'mobile',
-            pushCallback: null,
-            pushPublicKey: null,
-            pushAuthKey: null,
-            pushEndpointExpired: false,
-            availableCommands: {},
-            lastAccessTime: 1552338763337,
-            lastAccessTimeFormatted: 'a few seconds ago',
-          },
-        ])
+      deviceFromRefreshTokenId: sinon.spy(() =>
+        Promise.resolve({
+          id: '5eb89097bab6551de3614facaea59cab',
+          refreshTokenId:
+            '5b541d00ea0c0dc775e060c95a1ee7ca617cf95a05d177ec09fd6f62ca9b2913',
+          isCurrentDevice: false,
+          location: {},
+          name: 'first device',
+          type: 'mobile',
+          createdAt: 1716230400000,
+          callbackURL: 'https://example.com/callback',
+          callbackPublicKey: 'public_key',
+          callbackAuthKey: 'auth_key',
+          callbackIsExpired: false,
+          availableCommands: {},
+        })
       ),
     };
 
@@ -167,11 +164,11 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
       refreshTokenId:
         '5b541d00ea0c0dc775e060c95a1ee7ca617cf95a05d177ec09fd6f62ca9b2913',
       deviceAvailableCommands: {},
-      deviceCallbackAuthKey: undefined,
-      deviceCallbackIsExpired: undefined,
-      deviceCallbackPublicKey: undefined,
-      deviceCallbackURL: undefined,
-      deviceCreatedAt: undefined,
+      deviceCallbackAuthKey: 'auth_key',
+      deviceCallbackIsExpired: false,
+      deviceCallbackPublicKey: 'public_key',
+      deviceCallbackURL: 'https://example.com/callback',
+      deviceCreatedAt: 1716230400000,
       uaBrowser: app.ua.browser,
       uaBrowserVersion: app.ua.browserVersion,
       uaOS: app.ua.os,

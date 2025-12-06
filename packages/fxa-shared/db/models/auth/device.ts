@@ -238,4 +238,13 @@ export class Device extends BaseAuthModel {
     );
     return this.fromRows(rows).shift() || null;
   }
+
+  static async findByUidAndRefreshTokenId(uid: string, refreshTokenId: string) {
+    const { rows } = await this.callProcedure(
+      Proc.DeviceFromRefreshTokenId,
+      uuidTransformer.to(uid),
+      uuidTransformer.to(refreshTokenId)
+    );
+    return this.fromRows(rows).shift() || null;
+  }
 }

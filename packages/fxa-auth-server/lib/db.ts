@@ -593,6 +593,33 @@ export const createDB = (
       return device;
     }
 
+    async deviceFromRefreshTokenId(uid: string, refreshTokenId: string) {
+      log.trace('DB.deviceFromRefreshTokenId', { uid, refreshTokenId });
+      const lastAccessTimeEnabled =
+        features.isLastAccessTimeEnabledForUser(uid);
+      const device = await Device.findByUidAndRefreshTokenId(
+        uid,
+        refreshTokenId
+      );
+      if (!device) {
+        this.metrics?.increment('db.deviceFromRefreshTokenId.retrieve', {
+          result: 'notFound',
+        });
+        return null;
+      }
+      // run devices through the 'mergeDevicesAndSessionTokens' function
+      // since it normalizes the device object how most of our handlers expect it.
+      const normalizedDevice = mergeDevicesAndSessionTokens(
+        [device],
+        {}, // no session tokens needed here.
+        lastAccessTimeEnabled
+      )[0];
+      if (!normalizedDevice) {
+        throw error.unknownDevice();
+      }
+      return normalizedDevice;
+    }
+
     // UPDATE
 
     async setPrimaryEmail(uid: string, email: string) {

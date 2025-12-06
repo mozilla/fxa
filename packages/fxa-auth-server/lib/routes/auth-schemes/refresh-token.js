@@ -72,12 +72,11 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
         if (!credentials.client || !credentials.client.publicClient) {
           return h.unauthenticated(AppError.notPublicClient());
         }
-        const devices = await db.devices(credentials.uid);
+        const device = await db.deviceFromRefreshTokenId(
+          credentials.uid,
+          credentials.refreshTokenId
+        );
 
-        // use the hashed refreshToken id to find devices
-        const device = devices.filter(
-          (device) => device.refreshTokenId === credentials.refreshTokenId
-        )[0];
         if (device) {
           credentials.deviceId = device.id;
           credentials.deviceName = device.name;
