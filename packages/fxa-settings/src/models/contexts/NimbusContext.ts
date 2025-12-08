@@ -86,7 +86,9 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
       return;
     }
 
-    if (!config?.nimbus.enabled || !uniqueUserId) {
+    const nimbusUserId = legacyLocalStorageAccount?.uid || uniqueUserId;
+
+    if (!config?.nimbus.enabled || !nimbusUserId) {
       setExperiments(null);
       setLoading(false);
       setError(undefined);
@@ -111,7 +113,7 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
           : searchParams(window.location.search)[NIMBUS_PREVIEW_PARAM] === 'true';
 
         const nimbusResult = await initializeNimbus(
-          uniqueUserId,
+          nimbusUserId,
           nimbusPreview,
           {
             language,
@@ -154,7 +156,12 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
     return () => {
       mounted = false;
     };
-  }, [config?.nimbus.enabled, config?.nimbus.preview, uniqueUserId, currentLocale]);
+  }, [
+    config?.nimbus.enabled,
+    config?.nimbus.preview,
+    uniqueUserId,
+    currentLocale
+  ]);
 
   const value: NimbusContextValue = useMemo(() => ({
     experiments,
