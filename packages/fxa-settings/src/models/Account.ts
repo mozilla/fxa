@@ -388,13 +388,17 @@ export class Account implements AccountData {
     }
   }
 
-  private get data() {
-    const { account } = this.apolloClient.cache.readQuery<{
-      account: AccountData;
-    }>({
+  private get data(): AccountData {
+    // readQuery is cache-only by default
+    const result = this.apolloClient.readQuery<{ account: AccountData }>({
       query: GET_ACCOUNT,
-    })!;
-    return account;
+    });
+
+    if (!result?.account) {
+      throw new Error('Account data not loaded from Apollo cache');
+    }
+
+    return result.account;
   }
 
   get loading() {
@@ -541,32 +545,12 @@ export class Account implements AccountData {
     );
   }
 
-  async getSecurityEvents() {
+  async getSecurityEvents(): Promise<SecurityEvent[]> {
     const { data } = await this.apolloClient.query({
       fetchPolicy: 'network-only',
       query: GET_SECURITY_EVENTS,
     });
-    const { account } = data;
-    return account.securityEvents;
-  }
-
-  async getProfileInfo() {
-    try {
-      const { data } = await this.apolloClient.query({
-        fetchPolicy: 'network-only',
-        query: GET_PROFILE_INFO,
-      });
-      const { account } = data;
-      return account as ProfileInfo;
-    } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
-        | number
-        | undefined;
-      if (errno && AuthUiErrorNos[errno]) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
-    }
+    return data?.account?.securityEvents ?? [];
   }
 
   async getRecoveryKeyBundle(
