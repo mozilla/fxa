@@ -18,14 +18,18 @@ import GleanMetrics from '../../lib/glean';
 const ResetPasswordWarning = ({
   locationState,
   searchParams,
+  defaultClosed = false,
+  showVersion2,
 }: {
   locationState: CompleteResetPasswordLocationState;
   searchParams?: string;
+  defaultClosed?: boolean;
+  showVersion2?: boolean;
 }) => {
   const ftlMsgResolver = useFtlMsgResolver();
   // component is expanded by default on desktop
   // and collapsed by default on mobile
-  const defaultOpenState = window.innerWidth > 480;
+  const defaultOpenState = !defaultClosed && window.innerWidth > 480;
   const [expanded, setExpanded] = useState(defaultOpenState);
 
   return (

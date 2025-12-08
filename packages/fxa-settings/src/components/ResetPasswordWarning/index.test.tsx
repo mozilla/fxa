@@ -141,4 +141,29 @@ describe('ResetPasswordWarning component', () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  it('defaults to collapsed view if defaultClosed is true', async () => {
+    renderWithLocalizationProvider(
+      <ResetPasswordWarning
+        locationState={createMockLocationState(false)}
+        defaultClosed
+      />
+    );
+
+    expect(
+      screen.getByRole('img', {
+        name: 'Warning',
+      })
+    ).toBeVisible();
+
+    expect(
+      screen.getByText('Your browser data may not be recovered')
+    ).toBeVisible();
+
+    expect(screen.getByRole('img', { name: 'Expand warning' })).toBeVisible();
+
+    expect(
+      screen.getByText('Have any device where you previously signed in?')
+    ).not.toBeVisible();
+  });
 });

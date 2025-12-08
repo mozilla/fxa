@@ -54,6 +54,11 @@ describe('CompleteResetPassword page', () => {
         screen.getByText('Your browser data may not be recovered')
       ).toBeVisible();
 
+      // Warning should be expanded by default for known active sync user
+      expect(
+        screen.getByRole('img', { name: 'Collapse warning' })
+      ).toBeVisible();
+
       const inputs = screen.getAllByRole('textbox');
       expect(inputs).toHaveLength(2);
       expect(screen.getByLabelText('New password')).toBeVisible();
@@ -99,10 +104,12 @@ describe('CompleteResetPassword page', () => {
         ).toBeVisible()
       );
 
-      // Warning messages about data loss should not be displayed.
+      // Warning messages about data loss is displayed but collapsed
       expect(
         screen.queryByText('Your browser data may not be recovered')
-      ).not.toBeInTheDocument();
+      ).toBeInTheDocument();
+
+      expect(screen.getByRole('img', { name: 'Expand warning' })).toBeVisible();
 
       // Warning message about using recovery key should not be displayed
       expect(
@@ -227,10 +234,12 @@ describe('CompleteResetPassword page', () => {
         ).toBeVisible()
       );
 
-      // Warning is only shown to sync users
+      // Warning messages about data loss is displayed but collapsed
       expect(
         screen.queryByText('Your browser data may not be recovered')
-      ).not.toBeInTheDocument();
+      ).toBeInTheDocument();
+
+      expect(screen.getByRole('img', { name: 'Expand warning' })).toBeVisible();
     });
   });
 
