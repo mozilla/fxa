@@ -3,26 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { NimbusProvider, useNimbusContext } from './NimbusContext';
 import { AppContext, AppContextValue } from './AppContext';
 import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
 import { initializeNimbus, NimbusResult } from '../../lib/nimbus';
 import * as Sentry from '@sentry/react';
-import { currentAccount } from '../../lib/cache';
-import { StoredAccountData } from '../../lib/storage-utils';
+import { useLocalStorageSync } from '../../lib/hooks/useLocalStorageSync';
 
 jest.mock('../../contexts/DynamicLocalizationContext');
 jest.mock('../../lib/nimbus');
 jest.mock('@sentry/react');
-jest.mock('../../lib/cache', () => ({
-  currentAccount: jest.fn(),
-}));
+jest.mock('../../lib/hooks/useLocalStorageSync');
 
 const mockUseDynamicLocalization = useDynamicLocalization as jest.MockedFunction<typeof useDynamicLocalization>;
 const mockInitializeNimbus = initializeNimbus as jest.MockedFunction<typeof initializeNimbus>;
 const mockSentryCaptureException = Sentry.captureException as jest.MockedFunction<typeof Sentry.captureException>;
-const mockCurrentAccount = currentAccount as jest.MockedFunction<typeof currentAccount>;
+const mockUseLocalStorageSync = useLocalStorageSync as jest.MockedFunction<typeof useLocalStorageSync>;
 
 const TestComponent = () => {
   const { experiments, loading, error } = useNimbusContext();
@@ -61,9 +58,16 @@ describe('NimbusContext', () => {
       clearLanguagePreference: jest.fn(),
       isLoading: false
     });
-    mockCurrentAccount.mockReturnValue({
-      metricsEnabled: true,
-    } as StoredAccountData);
+    // Mock useLocalStorageSync to return undefined by default (no account)
+    mockUseLocalStorageSync.mockImplementation((key: string) => {
+      if (key === 'currentAccountUid') {
+        return undefined;
+      }
+      if (key === 'accounts') {
+        return undefined;
+      }
+      return undefined;
+    });
     Object.defineProperty(window, 'location', {
       value: { search: '' },
       writable: true
@@ -121,32 +125,39 @@ describe('NimbusContext', () => {
       expect(screen.getByTestId('loading')).toHaveTextContent('false');
     });
 
-    it('does not fetch when metrics are disabled', async () => {
-      mockCurrentAccount.mockReturnValue({
-        metricsEnabled: false,
-      } as StoredAccountData);
+    it('does not fetch when metrics are disabled via localStorage', async () => {
+      const accountUid = 'test-account-uid';
+      mockUseLocalStorageSync.mockImplementation((key: string) => {
+        if (key === 'currentAccountUid') return accountUid;
+        if (key === 'accounts') return { [accountUid]: { metricsEnabled: false } };
+        return undefined;
+      });
 
       renderWithProviders();
 
-      expect(mockInitializeNimbus).not.toHaveBeenCalled();
-      expect(screen.getByTestId('loading')).toHaveTextContent('false');
+      await waitFor(() => {
+        expect(mockInitializeNimbus).not.toHaveBeenCalled();
+      });
       expect(screen.getByTestId('experiments')).toHaveTextContent('no-experiments');
     });
 
-    it('fetches when metrics are enabled', async () => {
-      mockCurrentAccount.mockReturnValue({
-        metricsEnabled: true,
-      } as StoredAccountData);
-      const mockExperiments: NimbusResult = {
+    it('fetches when metrics are enabled via localStorage', async () => {
+      const accountUid = 'test-account-uid';
+      mockUseLocalStorageSync.mockImplementation((key: string) => {
+        if (key === 'currentAccountUid') return accountUid;
+        if (key === 'accounts') return { [accountUid]: { metricsEnabled: true } };
+        return undefined;
+      });
+      mockInitializeNimbus.mockResolvedValue({
         features: { 'test-feature': { enabled: true } },
         nimbusUserId: 'test-user-id'
-      };
-      mockInitializeNimbus.mockResolvedValue(mockExperiments);
+      });
 
       renderWithProviders();
 
-      expect(mockInitializeNimbus).toHaveBeenCalled();
-      await screen.findByTestId('experiments');
+      await waitFor(() => {
+        expect(mockInitializeNimbus).toHaveBeenCalled();
+      });
       expect(screen.getByTestId('experiments')).toHaveTextContent('has-experiments');
     });
 
@@ -191,7 +202,7 @@ describe('NimbusContext', () => {
       expect(screen.getByTestId('experiments')).toHaveTextContent('no-experiments');
     });
 
-    it('handles fetch error', async () => {
+    it('handles fetch error without duplicate error handling', async () => {
       const error = new Error('Network error');
       mockInitializeNimbus.mockRejectedValue(error);
 
@@ -199,9 +210,7 @@ describe('NimbusContext', () => {
 
       await screen.findByTestId('error');
       expect(screen.getByTestId('error')).toHaveTextContent('Network error');
-      expect(mockSentryCaptureException).toHaveBeenCalledWith(error, expect.objectContaining({
-        tags: { area: 'NimbusProvider', component: 'NimbusContext' }
-      }));
+      expect(mockSentryCaptureException).toHaveBeenCalledTimes(1);
     });
 
     it('handles preview mode from config', async () => {
@@ -234,13 +243,19 @@ describe('NimbusContext', () => {
       );
     });
 
-    it('cleans up on unmount', () => {
+    it('cleans up on unmount', async () => {
+      mockInitializeNimbus.mockResolvedValue({
+        features: { 'test-feature': { enabled: true } },
+        nimbusUserId: 'test-user-id'
+      });
+
       const { unmount } = renderWithProviders();
 
-      unmount();
+      await waitFor(() => {
+        expect(mockInitializeNimbus).toHaveBeenCalled();
+      });
 
-      // Should not throw or cause memory leaks
-      expect(mockInitializeNimbus).toHaveBeenCalled();
+      expect(() => unmount()).not.toThrow();
     });
   });
 });

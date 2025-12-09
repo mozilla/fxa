@@ -21,7 +21,7 @@ import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContex
 import { parseAcceptLanguage } from '@fxa/shared/l10n';
 import { searchParams } from '../../lib/utilities';
 import * as Sentry from '@sentry/react';
-import { currentAccount } from '../../lib/cache';
+import { useLocalStorageSync } from '../../lib/hooks/useLocalStorageSync';
 
 interface NimbusApiResponse {
   Features?: Record<string, any>;
@@ -45,7 +45,7 @@ const NimbusContext = createContext<NimbusContextValue | undefined>(undefined);
 
 export function useNimbusContext() {
   const context = useContext(NimbusContext);
-  if (context === undefined ) {
+  if (context === undefined) {
     // Return default values when no NimbusProvider is present
     return {
       experiments: null,
@@ -73,20 +73,30 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | undefined>(undefined);
 
-  useEffect(() => {
+  // Monitor currentAccountUid changes in localStorage (reacts to same-tab and cross-tab changes)
+  const currentAccountUid = useLocalStorageSync('currentAccountUid');
+  const accounts = useLocalStorageSync('accounts');
 
-    // Disable Nimbus if metrics are opted out, note that we specifically check
-    // the local storage account because the account stored in the AppContext is
-    // not available at this point
-    const legacyLocalStorageAccount = currentAccount();
-    if (legacyLocalStorageAccount && legacyLocalStorageAccount.metricsEnabled === false) {
+  // Get metricsEnabled from accounts object, safely handling undefined values
+  const accountMetricsEnabled = useMemo(() => {
+    if (!currentAccountUid || !accounts) {
+      return undefined;
+    }
+    return accounts[currentAccountUid]?.metricsEnabled;
+  }, [currentAccountUid, accounts]);
+
+
+  useEffect(() => {
+    // Disable Nimbus if metrics are opted out
+    const nimbusUserId = currentAccountUid || uniqueUserId;
+    if (accountMetricsEnabled === false) {
       setExperiments(null);
       setLoading(false);
       setError(undefined);
       return;
     }
 
-    if (!config?.nimbus.enabled || !uniqueUserId) {
+    if (!config?.nimbus.enabled || !nimbusUserId) {
       setExperiments(null);
       setLoading(false);
       setError(undefined);
@@ -111,7 +121,7 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
           : searchParams(window.location.search)[NIMBUS_PREVIEW_PARAM] === 'true';
 
         const nimbusResult = await initializeNimbus(
-          uniqueUserId,
+          nimbusUserId,
           nimbusPreview,
           {
             language,
@@ -154,7 +164,14 @@ export function NimbusProvider({ children }: NimbusProviderProps) {
     return () => {
       mounted = false;
     };
-  }, [config?.nimbus.enabled, config?.nimbus.preview, uniqueUserId, currentLocale]);
+  }, [
+    config?.nimbus.enabled,
+    config?.nimbus.preview,
+    uniqueUserId,
+    currentLocale,
+    currentAccountUid,
+    accountMetricsEnabled,
+  ]);
 
   const value: NimbusContextValue = useMemo(() => ({
     experiments,
