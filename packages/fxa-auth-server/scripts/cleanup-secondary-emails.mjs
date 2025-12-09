@@ -2,6 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { finished } from 'stream/promises';
 import mysql from 'mysql2/promise';
 import program from 'commander';
 
@@ -77,7 +78,12 @@ host=${cfg.host} db=${cfg.database} port=${cfg.port} dryRun=${dryRun} limit=${li
 
     console.log(`[${new Date().toISOString()}] Finished: candidates=${candidates.length}, deleted=${deleted}, durationMs=${Date.now() - start}, csv=${csvPath}`);
   } finally {
-    csvStream.end();
+    try {
+      csvStream.end();
+      await finished(csvStream);
+    } catch (err) {
+      console.error(`[${new Date().toISOString()}] Warning: Error closing CSV stream:`, err);
+    }
     await pool.end();
   }
 }
