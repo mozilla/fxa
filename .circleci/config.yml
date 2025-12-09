@@ -881,7 +881,7 @@ jobs:
       - run:
           name: Publish Storybooks
           command: |
-            STORYBOOKS_USE_YARN_WORKSPACES=false STORYBOOKS_SKIP_BUILD=true LOG_LEVEL=TRACE npx github:mozilla-fxa/storybook-gcp-publisher
+            STORYBOOKS_PACKAGES_ROOT="." STORYBOOKS_PACKAGES_DEPTH=4 STORYBOOKS_USE_YARN_WORKSPACES=false STORYBOOKS_SKIP_BUILD=true LOG_LEVEL=TRACE npx github:mozilla-fxa/storybook-gcp-publisher
 
   update-yarn-cache:
     executor: default-executor

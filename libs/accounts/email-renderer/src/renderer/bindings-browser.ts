@@ -26,7 +26,7 @@ ejs.fileLoader = function (filePath: string) {
   const request = new XMLHttpRequest();
 
   // `false` makes the request synchronous
-  request.open('GET', './src/' + filePath, false);
+  request.open('GET', './src' + filePath, false);
   request.send(null);
 
   if (request.status === 200) {

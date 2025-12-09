@@ -56,12 +56,42 @@
       }
     },
     "build-storybook": {
-      "executor": "@nx/storybook:build",
-      "outputs": ["{options.outputDir}"],
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/storybook-static"],
       "dependsOn": ["build-css", "build-ts"],
       "options": {
-        "outputDir": "dist/storybook/accounts/email-renderer",
-        "configDir": "libs/accounts/email-renderer/.storybook"
+        "commands": [
+          "nx run accounts-email-renderer:build-storybook-only",
+          "nx run accounts-email-renderer:build-storybook-copy-locales",
+          "nx run accounts-email-renderer:build-storybook-copy-templates"
+        ],
+        "parallel": false
+      }
+    },
+    "build-storybook-only": {
+      "executor": "@nx/storybook:build",
+      "outputs": ["{options.outputDir}"],
+      "options": {
+        "outputDir": "{projectRoot}/storybook-static",
+        "configDir": "{projectRoot}/.storybook"
+      }
+    },
+    "build-storybook-copy-locales": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "mkdir -p {projectRoot}/storybook-static/public/locales && cp -R {projectRoot}/public/locales {projectRoot}/storybook-static/public"
+        ],
+        "cwd": "."
+      }
+    },
+    "build-storybook-copy-templates": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "mkdir -p {projectRoot}/storybook-static/templates && cp -R {projectRoot}/src {projectRoot}/storybook-static"
+        ],
+        "cwd": "."
       }
     },
     "storybook": {
@@ -84,13 +114,8 @@
         "command": "npx grunt --gruntfile libs/accounts/email-renderer/gruntfile.js l10n-watch",
         "cwd": "."
       },
-      "inputs": [
-        "{projectRoot}/gruntfile.js",
-        "{projectRoot}/src/**/en.ftl"
-      ],
-      "outputs": [
-        "{projectRoot}/public/en/auth.ftl"
-      ]
+      "inputs": ["{projectRoot}/gruntfile.js", "{projectRoot}/src/**/en.ftl"],
+      "outputs": ["{projectRoot}/public/en/auth.ftl"]
     },
     "l10n-merge": {
       "executor": "nx:run-commands",
@@ -98,13 +123,8 @@
         "command": "yarn grunt --gruntfile libs/accounts/email-renderer/gruntfile.js l10n-merge",
         "cwd": "."
       },
-      "inputs": [
-        "{projectRoot}/gruntfile.js",
-        "{projectRoot}/src/**/en.ftl"
-      ],
-      "outputs": [
-        "{projectRoot}/public/en/auth.ftl"
-      ]
+      "inputs": ["{projectRoot}/gruntfile.js", "{projectRoot}/src/**/en.ftl"],
+      "outputs": ["{projectRoot}/public/en/auth.ftl"]
     },
     "l10n-copy": {
       "executor": "nx:run-commands",

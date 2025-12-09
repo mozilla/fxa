@@ -10,7 +10,8 @@ export default {
     options: {},
   },
   stories: ['../src/**/*.stories.ts'],
-  staticDirs: process.env.STORYBOOK_BUILD !== 'true' ? ['..'] : undefined,
+  staticDirs:
+    process.env.STORYBOOK_BUILD !== 'true' ? ['../public'] : undefined,
   addons: [
     '@storybook/addon-webpack5-compiler-babel',
     '@storybook/addon-docs',
