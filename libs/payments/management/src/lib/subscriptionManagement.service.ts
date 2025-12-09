@@ -96,7 +96,7 @@ export class SubscriptionManagementService {
     private subscriptionManager: SubscriptionManager,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
-    @Inject(Logger) private log: LoggerService,
+    @Inject(Logger) private log: LoggerService
   ) {}
 
   @SanitizeExceptions()
@@ -535,7 +535,14 @@ export class SubscriptionManagementService {
     }
 
     try {
-      return await this.subscriptionManager.retrieve(subscriptionId);
+      const subscription =
+        await this.subscriptionManager.retrieve(subscriptionId);
+
+      if (subscription.customer !== accountCustomer.stripeCustomerId) {
+        return undefined;
+      }
+
+      return subscription;
     } catch (err) {
       if (
         err.type === 'StripeInvalidRequestError' &&
@@ -562,7 +569,7 @@ export class SubscriptionManagementService {
       subscriptionId
     );
 
-    if (!subscription) {
+    if (!subscription || subscription.status !== 'active') {
       return {
         flowType: 'not_found',
       };
@@ -903,7 +910,8 @@ export class SubscriptionManagementService {
 
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
-    const subscription = await this.subscriptionManager.retrieve(subscriptionId);
+    const subscription =
+      await this.subscriptionManager.retrieve(subscriptionId);
 
     if (subscription.customer !== accountCustomer.stripeCustomerId) {
       throw new SubscriptionCustomerMismatch(
@@ -914,10 +922,13 @@ export class SubscriptionManagementService {
       );
     }
     try {
-      const updatedSubscription = await this.subscriptionManager.update(subscriptionId, {
-        discounts: [{coupon: stripeCouponId}],
-        ...(setCancelAtPeriodEnd ? { cancel_at_period_end: true } : {}),
-      });
+      const updatedSubscription = await this.subscriptionManager.update(
+        subscriptionId,
+        {
+          discounts: [{ coupon: stripeCouponId }],
+          ...(setCancelAtPeriodEnd ? { cancel_at_period_end: true } : {}),
+        }
+      );
       return updatedSubscription;
     } catch (error) {
       this.log.error(error);
