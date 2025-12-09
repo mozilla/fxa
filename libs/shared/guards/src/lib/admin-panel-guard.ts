@@ -186,15 +186,15 @@ const defaultAdminPanelPermissions: Permissions = {
     level: PermissionLevel.Support,
   },
   [AdminPanelFeature.CreateRelyingParty]: {
-    name: 'Edit Relying Parties Notes',
+    name: 'Create Relying Parties',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.DeleteRelyingParty]: {
-    name: 'Edit Relying Parties Notes',
+    name: 'Delete Relying Parties',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.UpdateRelyingParty]: {
-    name: 'Edit Relying Parties Notes',
+    name: 'Update Relying Parties',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.UnsubscribeFromMailingLists]: {

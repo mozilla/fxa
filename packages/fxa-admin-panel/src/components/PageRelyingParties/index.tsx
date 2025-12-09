@@ -182,6 +182,23 @@ const RelyingPartyForm = ({
 /** UI for creating a new relying party. */
 const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
   const [status, setStatus] = useState<string>('');
+  const [rpId, setRpId] = useState<string>('');
+
+  // Note, these are v1 projects. We need to migrate queues over to V2.
+  const gcpTerminalLink =
+    window.location.host === 'fxa-admin-panel.prod.mozaws.net'
+      ? `https://console.cloud.google.com/welcome?cloudshell=true&project=moz-fx-fxa-prod-375e`
+      : `https://console.cloud.google.com/welcome?cloudshell=true&project=moz-fx-fxa-nonprod-375e`;
+
+  const oauthClientConfig =
+    window.location.host === 'fxa-admin-panel.prod.mozaws.net'
+      ? `https://github.com/mozilla/webservices-infra/blob/main/fxa/k8s/fxa/values-prod.yaml`
+      : `https://github.com/mozilla/webservices-infra/blob/main/fxa/k8s/fxa/values-stage.yaml`;
+
+  const eventBrokerTfConfig =
+    window.location.host === 'fxa-admin-panel.prod.mozaws.net'
+      ? `https://github.com/mozilla-services/cloudops-infra/blob/master/projects/fxa/tf/prod/envs/prod/resources/eventbroker.tf`
+      : `https://github.com/mozilla-services/cloudops-infra/blob/master/projects/fxa/tf/nonprod/envs/stage/resources/eventbroker.tf`;
 
   const resetState = () => {
     setStatus('');
@@ -193,13 +210,12 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
       onCompleted: (data) => {
         if (data.createRelyingParty) {
           setStatus('Success!');
-          setTimeout(onExit, 500);
-        } else {
-          setStatus(`Could not create relying party! Try again.`);
+          setRpId(data.createRelyingParty);
         }
       },
       onError: (err) => {
         setStatus(`Error Encountered: ${err.message}`);
+        setRpId('');
       },
     }
   );
@@ -224,6 +240,64 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
           status,
         }}
       />
+      {rpId && (
+        <>
+          <hr />
+          <h3 className="font-bold mb-2">
+            To finalize this new RP, a couple more steps are needed
+          </h3>
+          <p className="mb-2">
+            <b>Step 1:</b> Create a pubsub queue. In order to do this click{' '}
+            <a
+              href={gcpTerminalLink}
+              target="_blank"
+              className="underline text-blue-700"
+            >
+              here
+            </a>{' '}
+            to open a gcp terminal, and issue the following command:
+            <pre className="p-2">
+              gcloud pubsub topics create rpQueue-{rpId}{' '}
+              --message-retention-duration=2678400s
+            </pre>
+          </p>
+
+          <p className="mb-2">
+            <b>Step 2:</b> Next, update this{' '}
+            <a
+              href={eventBrokerTfConfig}
+              target="_blank"
+              className="underline text-blue-700"
+            >
+              file
+            </a>{' '}
+            accordingly. This registers the webhook used for message delivery.
+          </p>
+
+          <p className="mb-2">
+            <b>Step 3:</b> Next, update the OAUTH_CLIENT_IDS mappings{' '}
+            <a
+              href={oauthClientConfig}
+              target="_blank"
+              className="underline text-blue-700"
+            >
+              here
+            </a>
+            . This is used to map client-ids to a known name for legacy
+            amplitude events. This is considered optional, and may be RP
+            dependant.
+          </p>
+
+          <p className="mb-2">
+            <button
+              onClick={onExit}
+              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            >
+              Got it!
+            </button>
+          </p>
+        </>
+      )}
     </div>
   );
 };
