@@ -629,7 +629,7 @@ export class SubscriptionManagementService {
       subscriptionId
     );
 
-    if (!subscription) {
+    if (!subscription || subscription.status !== 'active') {
       return {
         flowType: 'not_found',
       };
