@@ -150,12 +150,14 @@ it('creates a new relying party via UI', async () => {
   await screen.findByText('Pending');
   await screen.findByText('Success!');
 
-  // Exit after success
-  await act(async () => {
-    jest.advanceTimersByTime(600);
-  });
   // Back to the collapsed Add section
+  await screen.findByText(
+    'To finalize this new RP, a couple more steps are needed'
+  );
+  fireEvent.click(screen.getByText('Got it!'));
+
   await screen.findByText('Create!');
+
   jest.useRealTimers();
 });
 
