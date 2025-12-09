@@ -30,9 +30,6 @@ const UTM_PREFIX = 'fx-';
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
 
-// Prod and stage IDs
-const CLIENT_IDS_AMO = ['a4907de5fa9d78fc', '285dd6fd9907a74c'];
-
 module.exports = function (log, config, bounces, statsd) {
   const oauthClientInfo = require('./oauth_client_info')(log, config);
   const verificationReminders = require('../verification-reminders')(
@@ -1422,11 +1419,6 @@ module.exports = function (log, config, bounces, statsd) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
-        // Only show the banner warning for new device AMO logins, or web
-        // logins with no service associated
-        showBannerWarning:
-          message.service === undefined ||
-          CLIENT_IDS_AMO.includes(message.service),
       },
     });
   };

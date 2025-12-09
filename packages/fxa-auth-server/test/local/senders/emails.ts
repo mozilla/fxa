@@ -838,57 +838,6 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ),}
   ],
 
-  // Show warning banner when service is undefined
-  ['newDeviceLoginEmail', new Map<string, Test | any>([
-    ['html', [
-      { test: 'include', expected: 'Firefox add-on developers have been targeted by phishing email attacks recently. We’ll only send emails about your Mozilla account from' },
-      { test: 'include', expected: 'accounts@firefox.com' },
-      { test: 'include', expected: 'Check to make sure the device and location you signed in to is correct.' },
-    ]],
-    ['text', [
-      { test: 'include', expected: 'Firefox add-on developers have been targeted by phishing email attacks recently. We’ll only send emails about your Mozilla account from this email address:' },
-      { test: 'include', expected: 'accounts@firefox.com' },
-      { test: 'include', expected: 'Check to make sure the device and location you signed in to is correct.' },
-    ]],
-  ]), {
-    updateTemplateValues: x => ({
-      ...x,
-      service: undefined,
-    })
-  }],
-  // Do not show warning banner when service is not in CLIENT_IDS_AMO
-  ['newDeviceLoginEmail', new Map<string, Test | any>([
-    ['html', [
-      { test: 'notInclude', expected: 'Firefox add-on developers have been targeted' },
-      { test: 'notInclude', expected: 'Check to make sure the device and location you signed in to is correct.' },
-    ]],
-    ['text', [
-      { test: 'notInclude', expected: 'Firefox add-on developers have been targeted' },
-      { test: 'notInclude', expected: 'Check to make sure the device and location you signed in to is correct.' },
-    ]],
-  ]), {
-    updateTemplateValues: x => ({
-      ...x,
-      service: '802d56ef2a9af9fa', // Monitor
-    })
-  }],
-  // Show warning banner when service is in CLIENT_IDS_AMO
-  ['newDeviceLoginEmail', new Map<string, Test | any>([
-    ['html', [
-      { test: 'include', expected: 'Firefox add-on developers have been targeted' },
-      { test: 'include', expected: 'Check to make sure the device and location you signed in to is correct.' },
-    ]],
-    ['text', [
-      { test: 'include', expected: 'Firefox add-on developers have been targeted' },
-      { test: 'include', expected: 'Check to make sure the device and location you signed in to is correct.' },
-    ]],
-  ]), {
-    updateTemplateValues: x => ({
-      ...x,
-      service: 'a4907de5fa9d78fc', // AMO
-    })
-  }],
-
   ['passwordChangedEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Password updated' }],
     ['headers', new Map([

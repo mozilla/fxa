@@ -1,3 +1,0 @@
-banner-warning-message-plaintext = "Firefox add-on developers have been targeted by phishing email attacks recently. We’ll only send emails about your Mozilla account from this email address:"
-<%- accountsEmail %>
-banner-warning-check = "Check to make sure the device and location you signed in to is correct."

@@ -19,7 +19,6 @@ export type TemplateData = {
   passwordChangeLink: string;
   link: string;
   mozillaSupportUrl: string;
-  showBannerWarning: boolean;
   cmsRpClientId?: string;
   cmsRpFromName?: string;
   entrypoint?: string;
