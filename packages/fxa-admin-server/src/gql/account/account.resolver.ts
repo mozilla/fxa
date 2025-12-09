@@ -44,7 +44,7 @@ import {
   CloudTasksService,
 } from '../../backend/cloud-tasks.service';
 import { FirestoreService } from '../../backend/firestore.service';
-import { ProfileClientService } from '../../backend/profile-client.service';
+import { ProfileClient } from '@fxa/profile/client';
 import { AppConfig } from '../../config';
 import { DatabaseService } from '../../database/database.service';
 import { uuidTransformer } from '../../database/transformers';
@@ -142,7 +142,7 @@ export class AccountResolver {
     @Inject(EmailService) private emailService: EmailService,
     @Inject(FirestoreService) private firestore: Firestore,
     @Inject(CloudTasksService) private cloudTask: CloudTasks,
-    @Inject(ProfileClientService) private profileClient: ProfileClientService
+    @Inject(ProfileClient) private profileClient: ProfileClient
   ) {}
 
   @Features(AdminPanelFeature.AccountSearch)
