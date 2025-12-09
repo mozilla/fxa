@@ -90,6 +90,39 @@ exports.create = async function createServer() {
   });
   server.validator(require('joi'));
 
+  function reportSentryError(err, request) {
+    if (!config.sentry || !config.sentry.dsn) {
+      return;
+    }
+
+    const statusCode = err?.output?.statusCode || err?.statusCode || 500;
+    if (statusCode < 500) {
+      return;
+    }
+
+    let exception = '';
+    if (err && err.stack) {
+      try {
+        exception = err.stack.split('\n')[0];
+      } catch (e) {
+        // ignore bad stack frames
+      }
+    }
+
+    Sentry.withScope((scope) => {
+      if (request && request.sentryScope) {
+        scope.addEventProcessor((sentryEvent) => {
+          sentryEvent.request = Sentry.extractRequestData(request.raw.req);
+          sentryEvent.level = 'error';
+          return sentryEvent;
+        });
+      }
+      scope.setExtra('exception', exception);
+      scope.setExtra('statusCode', statusCode);
+      Sentry.captureException(err);
+    });
+  }
+
   // configure Sentry
   if (config.sentry && config.sentry.dsn) {
 
@@ -122,27 +155,6 @@ exports.create = async function createServer() {
       },
     });
 
-    // Handle sentry errors
-    server.events.on(
-      { name: 'request', channels: 'error' },
-      (_request, event) => {
-        const err = (event && event.error) || null;
-        let exception = '';
-        if (err && err.stack) {
-          try {
-            exception = err.stack.split('\n')[0];
-          } catch (e) {
-            // ignore bad stack frames
-          }
-        }
-
-        Sentry.captureException(err, {
-          extra: {
-            exception: exception,
-          },
-        });
-      }
-    );
   }
 
   server.auth.scheme('oauth', function () {
@@ -295,12 +307,32 @@ exports.create = async function createServer() {
   server.ext('onPreResponse', (request) => {
     var response = request.response;
     if (response.isBoom) {
+
+      reportSentryError(response, request);
+
       response = AppError.translate(response);
     }
     summary(request, response);
 
     return response;
   });
+
+  if (config.sentry && config.sentry.dsn) {
+    server.events.on('start', () => {
+      Sentry.captureMessage('Profile server started', {
+        level: 'info',
+        tags: {
+          service: 'fxa-profile-server',
+          environment: config.env,
+        },
+        extra: {
+          host: config.server.host,
+          port: config.server.port,
+          uri: `http://${config.server.host}:${config.server.port}`,
+        },
+      });
+    });
+  }
 
   return server;
 };
