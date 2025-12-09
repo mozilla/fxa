@@ -47,6 +47,7 @@ export default async function UpgradeSuccess({
 }) {
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
+  const session = await auth();
 
   const cmsDataPromise = fetchCMSData(
     params.offeringId,
@@ -56,15 +57,11 @@ export default async function UpgradeSuccess({
   const cartDataPromise = getCartOrRedirectAction(
     params.cartId,
     SupportedPages.SUCCESS,
-    searchParams
+    searchParams,
+    session?.user?.id
   );
-  const sessionPromise = auth();
   const l10n = getApp().getL10n(locale);
-  const [cms, cart, session] = await Promise.all([
-    cmsDataPromise,
-    cartDataPromise,
-    sessionPromise,
-  ]);
+  const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);
 
   const { successActionButtonUrl, successActionButtonLabel } =
     cms.commonContent.localizations.at(0) || cms.commonContent;
@@ -145,7 +142,10 @@ export default async function UpgradeSuccess({
               <div className="flex items-center gap-3">
                 <Image
                   src={getCardIcon('apple_pay', l10n).img}
-                  alt={l10n.getString('apple-pay-logo-alt-text', 'Apple Pay logo')}
+                  alt={l10n.getString(
+                    'apple-pay-logo-alt-text',
+                    'Apple Pay logo'
+                  )}
                   width={40}
                   height={24}
                 />
@@ -154,7 +154,10 @@ export default async function UpgradeSuccess({
               <div className="flex items-center gap-3">
                 <Image
                   src={getCardIcon('google_pay', l10n).img}
-                  alt={l10n.getString('google-pay-logo-alt-text', 'Google Pay logo')}
+                  alt={l10n.getString(
+                    'google-pay-logo-alt-text',
+                    'Google Pay logo'
+                  )}
                   width={40}
                   height={24}
                 />
