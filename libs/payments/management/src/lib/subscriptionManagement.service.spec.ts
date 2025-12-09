@@ -2062,6 +2062,62 @@ describe('SubscriptionManagementService', () => {
       expect(result.flowType).toEqual('not_found');
     });
 
+    it('returns not_found when subscription customer does not match', async () => {
+      const mockStripeCustomer1 = StripeCustomerFactory();
+      const mockStripeCustomer2 = StripeCustomerFactory();
+      const mockAccountCustomer1 = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer1.id,
+      });
+      const mockSubscription2 = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer2.id,
+        })
+      );
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer1);
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription2);
+
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
+          mockAccountCustomer1.uid,
+          mockSubscription2.id
+        );
+
+      expect(result).toEqual({ flowType: 'not_found' });
+    });
+
+    it('returns not_found when subscription is not active', async () => {
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'canceled',
+        })
+      );
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
+          mockAccountCustomer.uid,
+          mockSubscription.id
+        );
+
+      expect(result).toEqual({ flowType: 'not_found' });
+    });
+
     it('throws error - SubscriptionManagementNoStripeCustomerFoundError', async () => {
       const mockUid = faker.string.uuid();
       const mockSubscription = StripeResponseFactory(
