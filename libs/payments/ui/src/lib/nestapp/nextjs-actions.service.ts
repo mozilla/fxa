@@ -480,7 +480,7 @@ export class NextJSActionsService {
     cartId: string;
     version: number;
     confirmationTokenId: string;
-    customerData: { locale: string; displayName: string };
+    customerData: { locale: string;};
     attribution: SubscriptionAttributionParams;
     sessionUid?: string;
   }) {
@@ -878,12 +878,10 @@ export class NextJSActionsService {
   async setDefaultStripePaymentDetails(args: {
     uid: string;
     paymentMethodId: string;
-    fullName: string;
   }) {
     return await this.subscriptionManagementService.setDefaultStripePaymentDetails(
       args.uid,
       args.paymentMethodId,
-      args.fullName
     );
   }
 

@@ -164,7 +164,6 @@ export class CheckoutService {
       customer = await this.customerManager.create({
         uid,
         email,
-        displayName: customerData.displayName,
         taxAddress,
       });
 

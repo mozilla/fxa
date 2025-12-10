@@ -9,13 +9,11 @@ import { getApp } from '../nestapp/app';
 export const setDefaultStripePaymentDetails = async (
   uid: string,
   paymentMethodId: string,
-  fullName: string
 ) => {
   const actionsService = getApp().getActionsService();
 
   return await actionsService.setDefaultStripePaymentDetails({
     uid,
     paymentMethodId,
-    fullName,
   });
 };

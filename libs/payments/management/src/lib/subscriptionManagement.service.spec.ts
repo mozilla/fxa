@@ -1477,7 +1477,6 @@ describe('SubscriptionManagementService', () => {
       const mockPaymentMethod = StripeResponseFactory(
         StripePaymentMethodFactory()
       );
-      const mockFullName = faker.person.fullName();
 
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -1486,8 +1485,7 @@ describe('SubscriptionManagementService', () => {
 
       await subscriptionManagementService.setDefaultStripePaymentDetails(
         mockCustomer.id,
-        mockPaymentMethod.id,
-        mockFullName
+        mockPaymentMethod.id
       );
 
       expect(customerManager.update).toHaveBeenCalledWith(
@@ -1496,7 +1494,6 @@ describe('SubscriptionManagementService', () => {
           invoice_settings: {
             default_payment_method: mockPaymentMethod.id,
           },
-          name: mockFullName,
         }
       );
     });
@@ -1513,7 +1510,6 @@ describe('SubscriptionManagementService', () => {
         subscriptionManagementService.setDefaultStripePaymentDetails(
           mockAccountCustomer.uid,
           'pm_12345',
-          'john doe'
         )
       ).rejects.toBeInstanceOf(SetDefaultPaymentAccountCustomerMissingStripeId);
     });

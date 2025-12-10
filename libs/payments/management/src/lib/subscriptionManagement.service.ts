@@ -940,7 +940,6 @@ export class SubscriptionManagementService {
   async setDefaultStripePaymentDetails(
     uid: string,
     paymentMethodId: string,
-    fullName: string
   ) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
@@ -952,8 +951,7 @@ export class SubscriptionManagementService {
     await this.customerManager.update(accountCustomer.stripeCustomerId, {
       invoice_settings: {
         default_payment_method: paymentMethodId,
-      },
-      name: fullName,
+      }
     });
   }
 
