@@ -735,9 +735,10 @@ describe('PayPalHelper', () => {
       const invoice = {
         ...validInvoice,
         amount_paid: 1000,
+        amount_due: 1000,
       };
       const expectedErrorMessage =
-        'Partial refunds must be less than the amount paid on the invoice';
+        'Partial refunds must be less than the amount due on the invoice';
       mockStripeHelper.getInvoicePaypalTransactionId =
         sinon.fake.returns('123');
       mockStripeHelper.getInvoicePaypalRefundTransactionId =

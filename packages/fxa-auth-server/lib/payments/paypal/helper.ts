@@ -714,10 +714,10 @@ export class PayPalHelper {
 
       if (
         behavior.refundType === RefundType.Partial &&
-        behavior.amount >= invoice.amount_paid
+        behavior.amount >= invoice.amount_due
       ) {
         throw new RefundError(
-          'Partial refunds must be less than the amount paid on the invoice'
+          'Partial refunds must be less than the amount due on the invoice'
         );
       }
       const amount =
