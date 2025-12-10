@@ -21,6 +21,11 @@ import invoicePaid from '../local/payments/fixtures/stripe/invoice_paid.json';
 const mockCustomer = customer1 as unknown as Stripe.Customer;
 const mockSubscription = subscription1 as unknown as Stripe.Subscription;
 const mockInvoice = invoicePaid as unknown as Stripe.Invoice;
+const mockPrice = {
+  id: 'destination-price-id',
+  currency: 'usd',
+  unit_amount: 999,
+} as unknown as Stripe.Price;
 
 const ROOT_DIR = '../..';
 const execAsync = util.promisify(cp.exec);
@@ -76,6 +81,7 @@ describe('CustomerPlanMover v2', () => {
       null,
       'none',
       false,
+      false,
       paypalHelperStub
     );
   });
@@ -94,6 +100,7 @@ describe('CustomerPlanMover v2', () => {
           0,
           null,
           'none',
+          false,
           false,
           paypalHelperStub
         );
@@ -114,6 +121,7 @@ describe('CustomerPlanMover v2', () => {
           null,
           'none',
           false,
+          false,
           paypalHelperStub
         );
       }).to.not.throw();
@@ -133,6 +141,7 @@ describe('CustomerPlanMover v2', () => {
           null,
           'none',
           false,
+          false,
           paypalHelperStub
         );
       }).to.not.throw();
@@ -149,6 +158,10 @@ describe('CustomerPlanMover v2', () => {
       stripeStub.subscriptions.list = sinon.stub().returns({
         autoPagingEach: autoPagingEachStub,
       }) as any;
+
+      stripeStub.prices = {
+        retrieve: sinon.stub().resolves(mockPrice),
+      } as any;
 
       writeReportHeaderStub = sinon.stub().resolves();
       customerPlanMover.writeReportHeader = writeReportHeaderStub;
@@ -223,7 +236,7 @@ describe('CustomerPlanMover v2', () => {
       beforeEach(async () => {
         stripeStub.subscriptions.update = sinon.stub().resolves(mockStripeSubscription);
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
       });
 
       it('fetches customer', () => {
@@ -232,7 +245,7 @@ describe('CustomerPlanMover v2', () => {
 
       it('updates subscription to destination price', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith('sub_123', {
+          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith('sub_123', sinon.match({
             items: [
               {
                 id: 'si_123',
@@ -241,7 +254,8 @@ describe('CustomerPlanMover v2', () => {
             ],
             discounts: undefined,
             proration_behavior: 'none',
-          })
+            billing_cycle_anchor: 'unchanged',
+          }))
         ).true;
       });
 
@@ -274,6 +288,7 @@ describe('CustomerPlanMover v2', () => {
           'test-coupon',
           'none',
           false,
+          false,
           paypalHelperStub
         );
         customerPlanMover.fetchCustomer = fetchCustomerStub;
@@ -282,12 +297,12 @@ describe('CustomerPlanMover v2', () => {
 
         stripeStub.subscriptions.update = sinon.stub().resolves(mockStripeSubscription);
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
       });
 
       it('applies coupon to subscription', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith('sub_123', {
+          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith('sub_123', sinon.match({
             items: [
               {
                 id: 'si_123',
@@ -296,7 +311,8 @@ describe('CustomerPlanMover v2', () => {
             ],
             discounts: [{ coupon: 'test-coupon' }],
             proration_behavior: 'none',
-          })
+            billing_cycle_anchor: 'unchanged',
+          }))
         ).true;
       });
     });
@@ -314,6 +330,8 @@ describe('CustomerPlanMover v2', () => {
           null,
           null,
           'create_prorations',
+          false,
+          false,
           paypalHelperStub
         );
         customerPlanMover.fetchCustomer = fetchCustomerStub;
@@ -322,12 +340,12 @@ describe('CustomerPlanMover v2', () => {
 
         stripeStub.subscriptions.update = sinon.stub().resolves(mockStripeSubscription);
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
       });
 
       it('uses specified proration behavior', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith('sub_123', {
+          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith('sub_123', sinon.match({
             items: [
               {
                 id: 'si_123',
@@ -336,7 +354,78 @@ describe('CustomerPlanMover v2', () => {
             ],
             discounts: undefined,
             proration_behavior: 'create_prorations',
-          })
+            billing_cycle_anchor: 'unchanged',
+          }))
+        ).true;
+      });
+    });
+
+    describe('success - with reset billing cycle anchor', () => {
+      beforeEach(async () => {
+        customerPlanMover = new CustomerPlanMover(
+          'source-price-id',
+          'destination-price-id',
+          [],
+          './output.csv',
+          stripeStub,
+          false,
+          20,
+          null,
+          null,
+          'none',
+          false,
+          true,
+          paypalHelperStub
+        );
+        customerPlanMover.fetchCustomer = fetchCustomerStub;
+        customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
+        customerPlanMover.writeReport = writeReportStub;
+
+        stripeStub.subscriptions.update = sinon.stub().resolves(mockStripeSubscription);
+
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
+      });
+
+      it('sets billing_cycle_anchor to "now"', () => {
+        expect(
+          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith('sub_123', sinon.match({
+            billing_cycle_anchor: 'now',
+          }))
+        ).true;
+      });
+    });
+
+    describe('success - without reset billing cycle anchor', () => {
+      beforeEach(async () => {
+        customerPlanMover = new CustomerPlanMover(
+          'source-price-id',
+          'destination-price-id',
+          [],
+          './output.csv',
+          stripeStub,
+          false,
+          20,
+          null,
+          null,
+          'none',
+          false,
+          false,
+          paypalHelperStub
+        );
+        customerPlanMover.fetchCustomer = fetchCustomerStub;
+        customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
+        customerPlanMover.writeReport = writeReportStub;
+
+        stripeStub.subscriptions.update = sinon.stub().resolves(mockStripeSubscription);
+
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
+      });
+
+      it('sets billing_cycle_anchor to "unchanged"', () => {
+        expect(
+          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith('sub_123', sinon.match({
+            billing_cycle_anchor: 'unchanged',
+          }))
         ).true;
       });
     });
@@ -357,6 +446,7 @@ describe('CustomerPlanMover v2', () => {
           null,
           'none',
           false,
+          false,
           paypalHelperStub
         );
         customerPlanMover.fetchCustomer = fetchCustomerStub;
@@ -368,7 +458,7 @@ describe('CustomerPlanMover v2', () => {
 
         stripeStub.subscriptions.update = sinon.stub().resolves(mockStripeSubscription);
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
       });
 
       it('attempts refund', () => {
@@ -399,6 +489,7 @@ describe('CustomerPlanMover v2', () => {
           null,
           'none',
           false,
+          false,
           paypalHelperStub
         );
         customerPlanMover.fetchCustomer = fetchCustomerStub;
@@ -410,7 +501,7 @@ describe('CustomerPlanMover v2', () => {
 
         stripeStub.subscriptions.update = sinon.stub().resolves(mockStripeSubscription);
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
       });
 
       it('marks customer as owed', () => {
@@ -426,7 +517,7 @@ describe('CustomerPlanMover v2', () => {
         customerPlanMover.dryRun = true;
         stripeStub.subscriptions.update = sinon.stub().resolves(mockStripeSubscription);
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
       });
 
       it('does not update subscription', () => {
@@ -443,7 +534,7 @@ describe('CustomerPlanMover v2', () => {
         isCustomerExcludedStub.returns(true);
         stripeStub.subscriptions.update = sinon.stub().resolves(mockStripeSubscription);
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
       });
 
       it('does not update subscription', () => {
@@ -473,6 +564,7 @@ describe('CustomerPlanMover v2', () => {
           null,
           'none',
           true,
+          false,
           paypalHelperStub
         );
         customerPlanMover.fetchCustomer = fetchCustomerStub;
@@ -486,7 +578,7 @@ describe('CustomerPlanMover v2', () => {
           cancel_at_period_end: true,
         } as Stripe.Subscription;
 
-        await customerPlanMover.convertSubscription(subscriptionSetToCancel);
+        await customerPlanMover.convertSubscription(subscriptionSetToCancel, mockPrice);
       });
 
       it('does not update subscription', () => {
@@ -509,7 +601,7 @@ describe('CustomerPlanMover v2', () => {
           status: 'canceled',
         } as Stripe.Subscription;
 
-        await customerPlanMover.convertSubscription(inactiveSubscription);
+        await customerPlanMover.convertSubscription(inactiveSubscription, mockPrice);
 
         expect(writeReportStub.calledOnce).true;
         const reportArgs = writeReportStub.firstCall.args[0];
@@ -522,7 +614,7 @@ describe('CustomerPlanMover v2', () => {
       it('writes error report if customer does not exist', async () => {
         customerPlanMover.fetchCustomer = sinon.stub().resolves(null);
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
 
         expect(writeReportStub.calledOnce).true;
         const reportArgs = writeReportStub.firstCall.args[0];
@@ -538,7 +630,7 @@ describe('CustomerPlanMover v2', () => {
           subscriptions: undefined,
         });
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
 
         expect(writeReportStub.calledOnce).true;
         const reportArgs = writeReportStub.firstCall.args[0];
@@ -550,7 +642,7 @@ describe('CustomerPlanMover v2', () => {
       it('writes error report if subscription update fails', async () => {
         stripeStub.subscriptions.update = sinon.stub().rejects(new Error('Update failed'));
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
 
         expect(writeReportStub.calledOnce).true;
         const reportArgs = writeReportStub.firstCall.args[0];
@@ -562,7 +654,7 @@ describe('CustomerPlanMover v2', () => {
       it('writes error report if unexpected error occurs', async () => {
         customerPlanMover.fetchCustomer = sinon.stub().rejects(new Error('Unexpected error'));
 
-        await customerPlanMover.convertSubscription(mockStripeSubscription);
+        await customerPlanMover.convertSubscription(mockStripeSubscription, mockPrice);
 
         expect(writeReportStub.calledOnce).true;
         const reportArgs = writeReportStub.firstCall.args[0];
@@ -652,6 +744,7 @@ describe('CustomerPlanMover v2', () => {
         100,
         null,
         'none',
+        false,
         false,
         paypalHelperStub
       );
@@ -767,6 +860,7 @@ describe('CustomerPlanMover v2', () => {
           null,
           null,
           'none',
+          false,
           false,
           paypalHelperStub
         );

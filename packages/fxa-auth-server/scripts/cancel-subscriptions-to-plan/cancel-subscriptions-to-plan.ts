@@ -18,6 +18,7 @@ export class PlanCanceller {
    * A tool to cancel all subscriptions under a plan
    * @param priceId A Stripe plan or price ID for which all subscriptions will be cancelled
    * @param remainingValueMode Configuration for how to handle remaining subscription value
+   * @param proratedRefundRate The rate per day (in whole cents) at which to refund subscriptions in proratedRefund mode
    * @param excludePlanIds A list of Stripe plan or price ID which if customers have will not be cancelled
    * @param outputFile A CSV file to output a report of affected subscriptions to
    * @param stripeHelper An instance of StripeHelper
@@ -28,6 +29,7 @@ export class PlanCanceller {
   constructor(
     private priceId: string,
     private remainingValueMode: "noaction" | "refund" | "prorate" | "proratedRefund",
+    private proratedRefundRate: number | null,
     private excludePlanIds: string[],
     private outputFile: string,
     private stripeHelper: StripeHelper,
@@ -35,6 +37,14 @@ export class PlanCanceller {
     public dryRun: boolean,
     rateLimit: number
   ) {
+    if (remainingValueMode === 'proratedRefund' && proratedRefundRate === null) {
+      throw new Error("proratedRefundRate must be provided when using proratedRefund mode");
+    }
+
+    if (proratedRefundRate !== null && proratedRefundRate <= 0) {
+      throw new Error("proratedRefundRate must be greater than zero");
+    }
+
     this.stripe = this.stripeHelper.stripe;
 
     this.stripeQueue = new PQueue({
@@ -95,6 +105,9 @@ export class PlanCanceller {
           await this.enqueueRequest(() =>
             this.stripe.subscriptions.cancel(subscription.id, {
               prorate: this.remainingValueMode === "prorate",
+              cancellation_details: {
+                comment: "administrative_cancellation:subplat_script"
+              }
             })
           );
         }
@@ -222,6 +235,10 @@ export class PlanCanceller {
    * @returns Object containing refundAmount, daysSinceBill, daysUntilNextBill, and invoice
    */
   async calculateRefundAmount(subscription: Stripe.Subscription): Promise<{ refundAmount: number, daysSinceBill: number, daysUntilNextBill: number, invoice: Stripe.Invoice }> {
+    if (this.proratedRefundRate === null) {
+      throw new Error("proratedRefundRate must be specified to use calculateRefundAmount");
+    }
+
     if (!subscription.latest_invoice) {
       throw new Error(`No latest invoice for ${subscription.id}`);
     }
@@ -245,15 +262,13 @@ export class PlanCanceller {
     const periodEnd = new Date(subscription.current_period_end * 1000);
     const now = new Date();
 
-    const totalPeriodMs = periodEnd.getTime() - periodStart.getTime();
     const timeElapsedMs = now.getTime() - periodStart.getTime();
     const timeRemainingMs = periodEnd.getTime() - now.getTime();
 
     const daysSinceBill = Math.floor(timeElapsedMs / oneDayMs);
-    const totalDaysInPeriod = Math.floor(totalPeriodMs / oneDayMs);
     const daysUntilNextBill = Math.floor(timeRemainingMs / oneDayMs);
 
-    const refundAmount = Math.floor((daysUntilNextBill / totalDaysInPeriod) * invoice.amount_paid);
+    const refundAmount = daysUntilNextBill * this.proratedRefundRate;
 
     return { refundAmount, daysSinceBill, daysUntilNextBill, invoice };
   }

@@ -25,7 +25,8 @@ export class CustomerPlanMover {
     private coupon: string | null,
     private prorationBehavior: 'none' | 'create_prorations' | 'always_invoice',
     private skipSubscriptionIfSetToCancel: boolean,
-    private paypalHelper: PayPalHelper,
+    private resetBillingCycleAnchor: boolean,
+    private paypalHelper: PayPalHelper
   ) {
     if (proratedRefundRate !== null && proratedRefundRate <= 0) {
       throw new Error("proratedRefundRate must be greater than zero");
@@ -44,15 +45,17 @@ export class CustomerPlanMover {
   async convert() {
     await this.writeReportHeader();
 
+    const destinationPrice = await this.stripe.prices.retrieve(this.destinationPlanId);
+
     await this.stripe.subscriptions.list({
       price: this.sourcePlanId,
       limit: 100,
     }).autoPagingEach((subscription) => {
-      return this.convertSubscription(subscription);
+      return this.convertSubscription(subscription, destinationPrice);
     });
   }
 
-  async convertSubscription(subscription: Stripe.Subscription) {
+  async convertSubscription(subscription: Stripe.Subscription, destinationPrice: Stripe.Price) {
     try {
       const customerId =
         typeof subscription.customer === 'string'
@@ -73,6 +76,13 @@ export class CustomerPlanMover {
         throw new Error(`Customer not found: ${customerId}`);
       }
       const isExcluded = this.isCustomerExcluded(customer.subscriptions.data);
+
+      const destinationPriceCurrencyOptionForCurrency = destinationPrice.currency_options?.[subscription.currency];
+      const destinationPriceUnitAmountForCurrency = 
+        destinationPriceCurrencyOptionForCurrency?.unit_amount ??
+        (typeof destinationPriceCurrencyOptionForCurrency?.unit_amount_decimal === "string"
+          ? Math.round(parseFloat(destinationPriceCurrencyOptionForCurrency.unit_amount_decimal))
+          : null);
 
       let amountRefunded: number | null = null;
       let approximateAmountWasOwed: number | null = null;
@@ -105,6 +115,13 @@ export class CustomerPlanMover {
                 coupon: this.coupon
               }] : undefined,
               proration_behavior: this.prorationBehavior,
+              metadata: {
+                currency: subscription.currency,
+                plan_change_date: new Date().getTime(),
+                previous_plan_id: this.sourcePlanId,
+                amount: destinationPriceUnitAmountForCurrency,
+              },
+              billing_cycle_anchor: this.resetBillingCycleAnchor ? "now" : "unchanged"
             })
           );
         }

@@ -50,6 +50,7 @@ describe('PlanCanceller', () => {
     planCanceller = new PlanCanceller(
       'planId',
       'refund',
+      null,
       ['exclude'],
       './cancel-subscriptions-to-plan.tmp.csv',
       stripeHelperStub,
@@ -57,6 +58,72 @@ describe('PlanCanceller', () => {
       false,
       20
     );
+  });
+
+  describe('constructor', () => {
+    it('throws error if proratedRefundRate is less than or equal to zero', () => {
+      expect(() => {
+        void new PlanCanceller(
+          'planId',
+          'proratedRefund',
+          0,
+          ['exclude'],
+          './cancel-subscriptions-to-plan.tmp.csv',
+          stripeHelperStub,
+          paypalHelperStub,
+          false,
+          20
+        );
+      }).to.throw('proratedRefundRate must be greater than zero');
+    });
+
+    it('throws error if proratedRefund mode is used without proratedRefundRate', () => {
+      expect(() => {
+        void new PlanCanceller(
+          'planId',
+          'proratedRefund',
+          null,
+          ['exclude'],
+          './cancel-subscriptions-to-plan.tmp.csv',
+          stripeHelperStub,
+          paypalHelperStub,
+          false,
+          20
+        );
+      }).to.throw('proratedRefundRate must be provided when using proratedRefund mode');
+    });
+
+    it('does not throw error if proratedRefundRate is null for non-proratedRefund mode', () => {
+      expect(() => {
+        void new PlanCanceller(
+          'planId',
+          'refund',
+          null,
+          ['exclude'],
+          './cancel-subscriptions-to-plan.tmp.csv',
+          stripeHelperStub,
+          paypalHelperStub,
+          false,
+          20
+        );
+      }).to.not.throw();
+    });
+
+    it('does not throw error if proratedRefundRate is positive', () => {
+      expect(() => {
+        void new PlanCanceller(
+          'planId',
+          'proratedRefund',
+          100,
+          ['exclude'],
+          './cancel-subscriptions-to-plan.tmp.csv',
+          stripeHelperStub,
+          paypalHelperStub,
+          false,
+          20
+        );
+      }).to.not.throw();
+    });
   });
 
   describe('run', () => {
@@ -462,6 +529,7 @@ describe('PlanCanceller', () => {
       planCanceller = new PlanCanceller(
         'planId',
         'proratedRefund',
+        100,
         ['exclude'],
         './cancel-subscriptions-to-plan.tmp.csv',
         stripeHelperStub,
@@ -481,14 +549,11 @@ describe('PlanCanceller', () => {
         await planCanceller.attemptProratedRefund(mockProratedSubscription);
 
         const oneDayMs = 1000 * 60 * 60 * 24;
-        const periodStart = new Date(mockProratedSubscription.current_period_start * 1000);
         const periodEnd = new Date(mockProratedSubscription.current_period_end * 1000);
         const nowTime = new Date();
-        const totalPeriodMs = periodEnd.getTime() - periodStart.getTime();
         const timeRemainingMs = periodEnd.getTime() - nowTime.getTime();
-        const totalDaysInPeriod = Math.floor(totalPeriodMs / oneDayMs);
         const daysRemaining = Math.floor(timeRemainingMs / oneDayMs);
-        const expectedRefund = Math.floor((daysRemaining / totalDaysInPeriod) * 10000);
+        const expectedRefund = daysRemaining * 100;
 
         sinon.assert.calledWith(refundCreateStub, sinon.match({
           charge: mockProratedInvoice.charge,
@@ -510,14 +575,11 @@ describe('PlanCanceller', () => {
 
       it('calls PayPal refund with partial amount', () => {
         const oneDayMs = 1000 * 60 * 60 * 24;
-        const periodStart = new Date(mockProratedSubscription.current_period_start * 1000);
         const periodEnd = new Date(mockProratedSubscription.current_period_end * 1000);
         const nowTime = new Date();
-        const totalPeriodMs = periodEnd.getTime() - periodStart.getTime();
         const timeRemainingMs = periodEnd.getTime() - nowTime.getTime();
-        const totalDaysInPeriod = Math.floor(totalPeriodMs / oneDayMs);
         const daysRemaining = Math.floor(timeRemainingMs / oneDayMs);
-        const expectedRefund = Math.floor((daysRemaining / totalDaysInPeriod) * 10000);
+        const expectedRefund = daysRemaining * 100;
 
         sinon.assert.calledWith(refundInvoiceStub, mockPaypalInvoice, {
           refundType: 'Partial',
@@ -560,7 +622,7 @@ describe('PlanCanceller', () => {
         invoiceRetrieveStub.resolves(mockSmallInvoice);
         await expect(
           planCanceller.attemptProratedRefund(mockProratedSubscription)
-        ).to.be.rejectedWith('less than or equal to zero');
+        ).to.be.rejectedWith('eclipse the amount paid');
       });
 
       it('throws if invoice has no charge for Stripe refund', async () => {
