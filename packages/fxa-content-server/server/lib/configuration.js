@@ -718,8 +718,8 @@ const conf = (module.exports = convict({
       format: String,
     },
     timeout: {
-      default: 200,
-      doc: 'Amount of time in milliseconds to wait for a response from cirrus',
+      default: 400,
+      doc: 'Amount of time in milliseconds to wait for a response from cirrus.',
       env: 'NIMBUS_CIRRUS_TIMEOUT',
       format: Number,
     },
