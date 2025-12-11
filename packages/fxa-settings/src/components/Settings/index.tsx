@@ -21,7 +21,7 @@ import {
 } from '@reach/router';
 import PageSettings from './PageSettings';
 import MfaGuardedPageChangePassword from './PageChangePassword';
-import PageCreatePassword from './PageCreatePassword';
+import MfaPageCreatePassword from './PageCreatePassword';
 import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
 import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
@@ -201,8 +201,8 @@ export const Settings = ({
           ) : (
             <Redirect from="/account_recovery" to="/settings" noThrow />
           )}
-          {/* PageCreatePassword internally redirects to /change_password if password exists */}
-          <PageCreatePassword path="/create_password" />
+          {/* MfaPageCreatePassword internally redirects to /change_password if password exists */}
+          <MfaPageCreatePassword path="/create_password" />
           {account.hasPassword ? (
             <>
               <MfaGuardedPageChangePassword path="/change_password" />

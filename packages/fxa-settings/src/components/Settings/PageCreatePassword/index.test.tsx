@@ -23,6 +23,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import { SETTINGS_PATH } from '../../../constants';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { LinkedAccountProviderIds } from '../../../lib/types';
+import { MfaContext } from '../MfaGuard';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -49,7 +50,7 @@ const account = {
     createdAt: 0,
   },
   hasPassword: false,
-  createPassword: jest.fn().mockResolvedValue(true),
+  createPasswordWithJwt: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
 
 const accountWithPassword = {
@@ -59,8 +60,8 @@ const accountWithPassword = {
 
 const accountThatGainsPassword = {
   ...account,
-  createPassword: jest.fn().mockImplementation(function (this: any) {
-    // Simulate the account gaining a password after createPassword is called
+  createPasswordWithJwt: jest.fn().mockImplementation(function (this: any) {
+    // Simulate the account gaining a password after createPasswordWithJwt is called
     this.hasPassword = true;
     return Promise.resolve(true);
   }),
@@ -68,7 +69,7 @@ const accountThatGainsPassword = {
 
 const accountWithCreateErr = {
   ...account,
-  createPassword: jest.fn().mockImplementation(() => {
+  createPasswordWithJwt: jest.fn().mockImplementation(() => {
     throw new Error('whoops');
   }),
 } as unknown as Account;
@@ -86,14 +87,16 @@ const render = async (accountOverride?: Account) => {
       })}
     >
       <SettingsContext.Provider value={settingsContext}>
-        <PageCreatePassword />
+        <MfaContext.Provider value="password">
+          <PageCreatePassword />
+        </MfaContext.Provider>
       </SettingsContext.Provider>
     </AppContext.Provider>
   );
   return alertBarInfo;
 };
 
-const createPassword = async (accountOverride?: Account) => {
+const createPasswordWithJwt = async (accountOverride?: Account) => {
   const alertBarInfo = await render(accountOverride);
   await inputNewPassword('testotesto');
   await inputVerifyPassword('testotesto');
@@ -138,7 +141,7 @@ describe('PageCreatePassword', () => {
   });
 
   it('redirects to settings and not /change_password if password is successfully created', async () => {
-    const alertBarInfo = await createPassword(accountThatGainsPassword);
+    const alertBarInfo = await createPasswordWithJwt(accountThatGainsPassword);
     // Should only navigate once - to settings after success, not to change_password
     expect(mockNavigate).toHaveBeenCalledTimes(1);
     expect(mockNavigate).not.toHaveBeenCalledWith(
@@ -160,7 +163,7 @@ describe('PageCreatePassword', () => {
   });
 
   it('emits metrics events on success', async () => {
-    await createPassword();
+    await createPasswordWithJwt();
     expect(logViewEvent).toHaveBeenCalledWith(
       settingsViewName,
       'create-password.engage'
@@ -176,7 +179,7 @@ describe('PageCreatePassword', () => {
   });
 
   it('emits metrics events on failure', async () => {
-    await createPassword(accountWithCreateErr);
+    await createPasswordWithJwt(accountWithCreateErr);
     expect(logViewEvent).toHaveBeenCalledWith(
       settingsViewName,
       'create-password.engage'
@@ -192,7 +195,7 @@ describe('PageCreatePassword', () => {
   });
 
   it('displays alert bar error on fail without redirecting', async () => {
-    const alertBarInfo = await createPassword(accountWithCreateErr);
+    const alertBarInfo = await createPasswordWithJwt(accountWithCreateErr);
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(alertBarInfo.error).toHaveBeenCalledTimes(1);
     expect(alertBarInfo.error).toHaveBeenCalledWith(
@@ -201,7 +204,7 @@ describe('PageCreatePassword', () => {
   });
 
   it('redirects and displays alert bar on success', async () => {
-    const alertBarInfo = await createPassword();
+    const alertBarInfo = await createPasswordWithJwt();
     expect(mockNavigate).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_PATH + '#password', {
       replace: true,
@@ -221,7 +224,7 @@ describe('PageCreatePassword', () => {
       mockLocationState = {
         wantsUnlinkProviderId: LinkedAccountProviderIds.Google,
       };
-      await createPassword();
+      await createPasswordWithJwt();
       expect(mockNavigate).toHaveBeenCalledWith(
         SETTINGS_PATH + '#linked-account',
         {

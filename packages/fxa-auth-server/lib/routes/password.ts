@@ -583,7 +583,7 @@ module.exports = function (
       method: 'POST',
       path: '/mfa/password/change',
       options: {
-        ...PASSWORD_DOCS.PASSWORD_CHANGE_JWT_POST,
+        ...PASSWORD_DOCS.MFA_PASSWORD_CHANGE_POST,
         auth: {
           strategy: 'mfa',
           scope: ['mfa:password'],
@@ -1611,6 +1611,45 @@ module.exports = function (
         }
 
         return passwordCreated;
+      },
+    },
+    {
+      method: 'POST',
+      path: '/mfa/password/create',
+      options: {
+        ...PASSWORD_DOCS.MFA_PASSWORD_CREATE_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:password'],
+          payload: false,
+        },
+        validate: {
+          payload: isA
+            .object({
+              authPW: validators.authPW.description(DESCRIPTION.authPW),
+              authPWVersion2: validators.authPWVersion2
+                .optional()
+                .description(DESCRIPTION.authPWVersion2),
+              wrapKb: validators.wrapKb
+                .optional()
+                .description(DESCRIPTION.wrapKb),
+              wrapKbVersion2: validators.wrapKb
+                .optional()
+                .description(DESCRIPTION.wrapKbVersion2),
+              clientSalt: validators.clientSalt
+                .optional()
+                .description(DESCRIPTION.clientSalt),
+            })
+            .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/password/create' && route.method === 'POST'
+          )
+          ?.handler(request);
       },
     },
     {
