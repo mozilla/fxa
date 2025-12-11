@@ -46,7 +46,7 @@ module.exports = ({ log, oauthDB }) => ({
         .then(function (client) {
           if (!client) {
             log.debug('notFound', { id: params.client_id });
-            throw AppError.unknownClient(params.client_id);
+            throw AppError.unknownClientId(params.client_id);
           } else {
             return {
               id: client.id.toString('hex'),
