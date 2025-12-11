@@ -6,7 +6,7 @@
 import { Localized, useLocalization } from '@fluent/react';
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import * as Form from '@radix-ui/react-form';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
 import {
   PaymentElement,
   useStripe,
@@ -29,6 +29,7 @@ import { useEffect, useState } from 'react';
 import { BaseButton, ButtonVariant, CheckoutCheckbox } from '@fxa/payments/ui';
 import LockImage from '@fxa/shared/assets/images/lock.svg';
 import { useCallbackOnce } from '../../hooks/useCallbackOnce';
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import {
   handleStripeErrorAction,
   recordEmitterEventAction,
@@ -38,7 +39,6 @@ import {
   checkoutCartWithPaypal,
 } from '@fxa/payments/ui/actions';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
-import { PaymentProvidersType } from '@fxa/payments/cart';
 import PaypalIcon from '@fxa/shared/assets/images/payment-methods/paypal.svg';
 import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
 
@@ -198,7 +198,7 @@ export function CheckoutForm({
         'checkoutSubmit',
         { ...params },
         Object.fromEntries(searchParams),
-        'external_paypal'
+        SubPlatPaymentMethodType.PayPal
       );
 
       await checkoutCartWithPaypal(
@@ -282,7 +282,7 @@ export function CheckoutForm({
       'checkoutSubmit',
       { ...params },
       Object.fromEntries(searchParams),
-      selectedPaymentMethod as PaymentProvidersType
+      selectedPaymentMethod as SubPlatPaymentMethodType
     );
 
     await checkoutCartWithStripe(
