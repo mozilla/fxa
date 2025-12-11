@@ -60,22 +60,29 @@ module.exports = function (config, statsd) {
           statsd.increment('cirrus.experiment-fetch-success');
         }
       } catch (err) {
-        Sentry.captureException(err, {
-          tags: {
-            source: 'nimbus-experiments',
-          },
-        });
+        const isTimeout = err.name === 'AbortError' || err.name === 'TimeoutError';
+
+        if (statsd) {
+          statsd.increment('cirrus.experiment-fetch-error');
+
+          if (isTimeout) {
+            statsd.increment('cirrus.experiment-fetch-timeout');
+          }
+        }
+
+        if (!isTimeout) {
+          Sentry.captureException(err, {
+            tags: {
+              source: 'nimbus-experiments',
+            }
+          });
+        }
 
         // Return a 'service unavailable' error. We essentially failed
         // to communicate with the cirrus server, so experiments are
         // now unavailable...
         res.status(503);
         res.end();
-
-        // Record failure
-        if (statsd) {
-          statsd.increment('cirrus.experiment-fetch-error');
-        }
       } finally {
         clearTimeout(timeoutId);
 
