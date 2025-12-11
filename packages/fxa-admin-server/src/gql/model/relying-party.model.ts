@@ -61,4 +61,19 @@ export class RelyingPartyDto {
 
   @Field({ nullable: true })
   notes!: string;
+
+  @Field({ nullable: true })
+  hasSecret!: boolean;
+
+  @Field({ nullable: true })
+  hasPreviousSecret!: boolean;
+}
+
+@ObjectType()
+export class RelyingPartyCreatedDto {
+  @Field({ nullable: true })
+  id!: string;
+
+  @Field({ nullable: true })
+  secret!: string;
 }

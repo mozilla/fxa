@@ -238,6 +238,13 @@ export interface RelyingPartyDto {
     trusted: boolean;
     allowedScopes?: Nullable<string>;
     notes?: Nullable<string>;
+    hasSecret?: Nullable<boolean>;
+    hasPreviousSecret?: Nullable<boolean>;
+}
+
+export interface RelyingPartyCreatedDto {
+    id?: Nullable<string>;
+    secret?: Nullable<string>;
 }
 
 export interface BlockStatus {
@@ -276,9 +283,11 @@ export interface IMutation {
     resetAccounts(locators: string[], notificationEmail: string): AccountResetResponse[] | Promise<AccountResetResponse[]>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
     clearRateLimits(ip?: Nullable<string>, email?: Nullable<string>, uid?: Nullable<string>): number | Promise<number>;
-    createRelyingParty(relyingParty: RelyingPartyUpdateDto): string | Promise<string>;
+    createRelyingParty(relyingParty: RelyingPartyUpdateDto): RelyingPartyCreatedDto | Promise<RelyingPartyCreatedDto>;
     updateRelyingParty(id: string, relyingParty: RelyingPartyUpdateDto): boolean | Promise<boolean>;
     deleteRelyingParty(id: string): boolean | Promise<boolean>;
+    rotateRelyingPartySecret(id: string): string | Promise<string>;
+    deletePreviousRelyingPartySecret(id: string): string | Promise<string>;
 }
 
 export type DateTime = any;

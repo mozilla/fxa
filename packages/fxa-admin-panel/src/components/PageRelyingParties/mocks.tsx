@@ -4,7 +4,11 @@
 
 import { MockedResponse } from '@apollo/client/testing';
 import { RelyingPartyDto } from 'fxa-admin-server/src/graphql';
-import { GET_RELYING_PARTIES } from './index.gql';
+import {
+  DELETE_RELYING_PARTY_PREVIOUS_SECRET,
+  GET_RELYING_PARTIES,
+  ROTATE_RELYING_PARTY_SECRET,
+} from './index.gql';
 
 // Response mocks
 export const MOCK_RP_ALL_FIELDS = {
@@ -19,6 +23,8 @@ export const MOCK_RP_ALL_FIELDS = {
     'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png',
   allowedScopes: 'https://identity.mozilla.com/apps/send',
   notes: null,
+  hasSecret: true,
+  hasPreviousSecret: false,
 } as RelyingPartyDto;
 
 export const MOCK_RP_FALSY_FIELDS = {
@@ -32,6 +38,8 @@ export const MOCK_RP_FALSY_FIELDS = {
   imageUri: '',
   allowedScopes: null,
   notes: null,
+  hasSecret: true,
+  hasPreviousSecret: false,
 } as RelyingPartyDto;
 
 // Apollo mocks
@@ -44,6 +52,30 @@ export const mockGetRelyingParties = (
   result: {
     data: {
       relyingParties,
+    },
+  },
+});
+
+export const mockRotateRelyingPartySecret = (id: string): MockedResponse => ({
+  request: {
+    query: ROTATE_RELYING_PARTY_SECRET,
+  },
+  result: {
+    data: {
+      rotateRelyingPartySecret: 'SECRET123',
+    },
+  },
+});
+
+export const mockDeletePreviousRelyingPartySecret = (
+  id: string
+): MockedResponse => ({
+  request: {
+    query: DELETE_RELYING_PARTY_PREVIOUS_SECRET,
+  },
+  result: {
+    data: {
+      deletePreviousRelyingPartySecret: 'true',
     },
   },
 });
