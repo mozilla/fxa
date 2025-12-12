@@ -172,14 +172,18 @@ export const AppLayout = ({
             </main>
           </div>
         )}
-      </div>
+
       {showLocaleToggle && (
-        <footer>
-          <div className="fixed bottom-6 left-6 z-10">
+          <footer
+            className="w-full py-4 px-4 flex-wrap mobileLandscape:flex-nowrap mobileLandscape:mx-8 mobileLandscape:pb-6 flex text-grey-400"
+          >
+        <div className="w-full mobileLandscape:w-auto flex items-center mt-3 mobileLandscape:mt-0 mobileLandscape:ms-10">
             <LocaleToggle />
-          </div>
+        </div>
         </footer>
       )}
+
+      </div>
       <div id="body-bottom" className="w-full block mobileLandscape:hidden" />
     </>
   );
