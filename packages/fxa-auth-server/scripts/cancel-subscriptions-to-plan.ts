@@ -32,6 +32,13 @@ const parseRemainingValueMode = (
   return mode as "noaction" | "refund" | "prorate" | "proratedRefund";
 };
 
+const parseProratedRefundRate = (proratedRefundRate: string) => {
+  if (!proratedRefundRate) return null;
+  const value = parseInt(proratedRefundRate);
+  if (isNaN(value) || value <= 0) throw new Error("Invalid proratedRefundRate");
+  return value;
+};
+
 async function init() {
   program
     .version(pckg.version)
@@ -58,6 +65,10 @@ async function init() {
       '-m, --mode [string]',
       'How to handle remaining subscription value: noaction, refund, prorate, proratedRefund',
       'noaction'
+    )
+    .option(
+      '-p, --prorated-refund-rate [number]',
+      'The rate per day (in whole cents) at which to refund subscriptions in proratedRefund mode'
     )
     .option(
       '--dry-run',
@@ -87,13 +98,19 @@ async function init() {
   const rateLimit = parseRateLimit(program.rateLimit);
   const excludePlanIds = parseExcludePlanIds(program.exclude);
   const remainingValueMode = parseRemainingValueMode(program.mode);
+  const proratedRefundRate = parseProratedRefundRate(program.proratedRefundRate);
 
   const dryRun = !!program.dryRun;
   if (!program.price) throw new Error('--price must be provided');
 
+  if (remainingValueMode === 'proratedRefund' && proratedRefundRate === null) {
+    throw new Error('--prorated-refund-rate must be provided when using proratedRefund mode');
+  }
+
   const planCanceller = new PlanCanceller(
     program.price,
     remainingValueMode,
+    proratedRefundRate,
     excludePlanIds,
     program.outputFile,
     stripeHelper,
