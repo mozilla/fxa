@@ -795,6 +795,7 @@ verify-secondary-email-cancel-button = Cancel
 verify-secondary-email-verify-button-2 = Confirm
 verify-secondary-email-please-enter-code-2 = Please enter the confirmation code that was sent to <strong>{ $email }</strong> within 5 minutes.
 verify-secondary-email-success-alert-2 = { $email } successfully added
+verify-secondary-email-resend-code-button = Resend confirmation code
 
 
 delete-account-link = Delete account

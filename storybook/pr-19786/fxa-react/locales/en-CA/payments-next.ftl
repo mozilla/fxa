@@ -1,3 +1,11 @@
+loyalty-discount-terms-heading = Terms and restrictions
+loyalty-discount-terms-support = Contact Support
+# $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
+loyalty-discount-terms-contact-support-product-aria = Contact Support for { $productName }
+not-found-page-title-terms = Page not found
+not-found-page-description-terms = The page you’re looking for does not exist.
+not-found-page-button-terms-manage-subscriptions = Manage subscriptions
+
 ## Page
 
 checkout-signin-or-create = 1. Sign in or create a { -product-mozilla-account }
@@ -95,6 +103,12 @@ next-payment-confirmation-download-button = Continue to download
 # $last4 (Number) - Last four numbers of credit card
 next-payment-confirmation-cc-card-ending-in = Card ending in { $last4 }
 
+## Not found page
+
+not-found-title-subscriptions = Subscription not found
+not-found-description-subscriptions = We couldn’t find your subscription. Please try again or contact support.
+not-found-button-back-to-subscriptions = Back to subscriptions
+
 ## Page - Subscription Management
 
 subscription-management-page-banner-warning-title-no-payment-method = No payment method added
@@ -173,12 +187,21 @@ subscription-cancellation-dialog-title = We’re sorry to see you go
 # $date (Date) - Last day of product access
 subscription-cancellation-dialog-msg = Your { $name } subscription has been cancelled. You will still have access to { $name } until { $date }.
 subscription-cancellation-dialog-aside = Have questions? Visit <LinkExternal>{ -brand-mozilla } Support</LinkExternal>.
+# $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+cancel-subscription-heading = Cancel { $productName } subscription
 
 ## $currentPeriodEnd (Date) - The end date of the subscription's current billing period (e.g., September, 8, 2025)
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 
 subscription-content-no-longer-use-message = You will no longer be able to use { $productName } after { $currentPeriodEnd }, the last day of your billing cycle.
 subscription-content-cancel-access-message = Cancel my access and my saved information within { $productName } on { $currentPeriodEnd }
+
+## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+
+cancel-subscription-button-cancel-subscription = Cancel subscription
+    .aria-label = Cancel your subscription to { $productName }
+cancel-subscription-button-stay-subscribed = Stay subscribed
+    .aria-label = Stay subscribed to { $productName }
 
 ## Component - Payment Consent Checkbox
 
@@ -301,9 +324,18 @@ next-new-user-subscribe-product-assurance = We only use your email to create you
 ## $productName (String) - The name of the subscribed product.
 
 resubscribe-dialog-title = Want to keep using { $productName }?
+stay-subscribed-access-will-continue = Your access to { $productName } will continue, and your billing cycle and payment will stay the same.
 subscription-content-button-resubscribe = Resubscribe
     .aria-label = Resubscribe to { $productName }
 resubscribe-success-dialog-title = Thanks! You’re all set.
+
+## $nextInvoiceTotal (String) - The total amount of the next invoice, formatted according to the user's locale and currency.
+## $taxDue (String) - The tax amount of the next invoice, formatted according to the user's locale and currency.
+## $last4 (String) - The last four digits of the default payment method card.
+## $currentPeriodEnd (Date) - The date of the next charge.
+
+stay-subscribed-next-charge-with-tax = Your next charge will be { $nextInvoiceTotal } + { $taxDue } tax on { $currentPeriodEnd }.
+stay-subscribed-next-charge-no-tax = Your next charge will be { $nextInvoiceTotal } on { $currentPeriodEnd }.
 
 ## $billOnDate (Date) - The billing date of the current invoice (e.g., September 8, 2025)
 ## $creditApplied (Number) - The amount from account credit balance used to reduce the amount due on the invoice
@@ -334,6 +366,7 @@ subscription-content-button-cancel-subscription = Cancel subscription
 ##
 
 dialog-close = Close dialog
+button-back-to-subscriptions = Back to subscriptions
 subscription-content-cancel-action-error = An unexpected error occurred. Please try again.
 
 ## PriceInterval - shared by multiple components, including Details and PurchaseDetails
@@ -434,3 +467,12 @@ next-coupon-error-generic = An error occurred processing the code. Please try ag
 next-coupon-error-invalid = The code you entered is invalid.
 # "Limit" refers to the maximum number of times a coupon can be redeemed.
 next-coupon-error-limit-reached = The code you entered has reached its limit.
+
+## Stay Subscribed Error Messages
+
+stay-subscribed-error-expired = This offer has expired.
+stay-subscribed-error-discount-used = Discount code already applied.
+# $productTitle (String) - The name of the product
+stay-subscribed-error-not-current-subscriber = This discount is only available to current { $productTitle } subscribers.
+stay-subscribed-error-still-active = Your { $productTitle } subscription is still active.
+stay-subscribed-error-general = There was an issue with renewing your subscription.
