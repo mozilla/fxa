@@ -26,6 +26,7 @@ import {
 } from '../../../../db/models/auth';
 import { defaultOpts, testDatabaseSetup } from '../../../../test/db/helpers';
 import { chance, randomAccount, randomEmail } from './helpers';
+import { sanitizeIp } from '../../../../db/models/auth/security-event';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
@@ -557,6 +558,34 @@ describe('#integration - auth', () => {
         endCreatedAtDate: Date.now(),
       });
       assert.equal(unverifiedAccounts.length, 3);
+    });
+  });
+});
+
+describe('security-event', async () => {
+  describe('sanitizes ip address', () => {
+    it('handles multiple ips', () => {
+      const ip = sanitizeIp(' 127.0.0.1, 127.0.0.2');
+      assert.equal(ip, '::127.0.0.1');
+    });
+    it('handles ip v4', () => {
+      const ip = sanitizeIp('127.0.0.1');
+      assert(ip, '::127.0.0.1');
+    });
+
+    it('handles ip v4 with spaces', () => {
+      const ip = sanitizeIp('127.0.0.1  ');
+      assert.equal(ip, '::127.0.0.1');
+    });
+
+    it('handles multiple ip v6', () => {
+      const ip = sanitizeIp('2001:db8::1111, 2001:db8::2222');
+      assert.equal(ip, '2001:db8::1111');
+    });
+
+    it('handles multiple ip v6 with spaces', () => {
+      const ip = sanitizeIp(' 2001:db8::1111 ');
+      assert.equal(ip, '2001:db8::1111');
     });
   });
 });
