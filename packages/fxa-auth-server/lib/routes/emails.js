@@ -481,8 +481,10 @@ module.exports = (
           (e) => e.normalizedEmail === normalizedEmail
         );
         if (!emailRecord || !emailRecord.emailCode) {
-          // no trace of the requested email in the account
-          throw error.unknownSecondaryEmail();
+          // No trace of the requested email in the account.
+          // This likely means the Redis reservation expired.
+          // Return invalidVerificationCode to prompt user to resend the code.
+          throw error.invalidVerificationCode();
         }
         if (emailRecord.isVerified) {
           // already verified for this account -> silent success
@@ -529,6 +531,78 @@ module.exports = (
       return {};
     },
   };
+
+  /**
+   * Helper function to recreate a Redis reservation for secondary email verification.
+   * Used when a reservation is missing (expired) or corrupted.
+   * Verifies the email is available before creating a new reservation.
+   *
+   * @param {string} normalizedEmail - The normalized email address
+   * @param {Buffer|string} uid - User ID
+   * @param {string} uidStr - User ID as base64 string
+   * @param {string} key - Redis key for the reservation
+   * @param {string} reason - Reason for recreation (for logging): 'expired' or 'corrupted'
+   * @param {string} primaryEmail - User's primary email (for validation)
+   * @returns {Promise<string>} The secret for the new reservation
+   * @throws {AppError} If email is claimed by another account or race condition occurs
+   */
+  async function recreateSecondaryEmailReservation(
+    normalizedEmail,
+    uid,
+    key,
+    reason,
+    primaryEmail
+  ) {
+    // Prevent user from creating reservation for their own primary email
+    const normalizedPrimary = normalizeEmail(primaryEmail);
+    if (normalizedEmail === normalizedPrimary) {
+      throw error.yourPrimaryEmailExists();
+    }
+
+    // Check if the email is claimed by another account in the DB
+    try {
+      const existingRecord = await db.getSecondaryEmail(normalizedEmail);
+      if (existingRecord && !butil.buffersAreEqual(existingRecord.uid, uid)) {
+        // Email belongs to another account
+        throw error.cannotResendEmailCodeToUnownedEmail();
+      }
+      // If user already has this email verified, no need to resend
+      if (
+        existingRecord &&
+        butil.buffersAreEqual(existingRecord.uid, uid) &&
+        existingRecord.isVerified
+      ) {
+        throw error.alreadyOwnsEmail();
+      }
+    } catch (err) {
+      if (err && err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
+        throw err;
+      }
+      // Email not found in DB, which is expected for new reservations
+    }
+
+    // Email is available - create a new reservation with a new secret
+    const secret = await random.hex(16);
+    const uidStr = Buffer.isBuffer(uid) ? uid.toString('base64') : String(uid);
+    const value = JSON.stringify({ uid: uidStr, secret });
+    const setResult = await authServerCacheRedis.set(
+      key,
+      value,
+      'EX',
+      SECONDARY_EMAIL_PENDING_TTL,
+      'NX'
+    );
+    if (setResult !== 'OK') {
+      // Another process claimed it between our checks
+      throw error.emailExists();
+    }
+    log.info('secondary_email.reservation_recreated', {
+      uid,
+      normalizedEmail,
+      reason,
+    });
+    return secret;
+  }
 
   const routes = [
     {
@@ -1443,7 +1517,12 @@ module.exports = (
           'recoveryEmailSecondaryResendCode'
         );
 
-        // Verify Redis reservation exists and belongs to this account
+        const { uid } = sessionToken;
+        const uidStr = Buffer.isBuffer(uid)
+          ? uid.toString('base64')
+          : String(uid);
+
+        // Check Redis reservation
         const key = toRedisSecondaryEmailReservationKey(normalizedEmail);
         const rawRecord = await authServerCacheRedis.get(key);
         let parsedRecord;
@@ -1451,23 +1530,62 @@ module.exports = (
           try {
             parsedRecord = JSON.parse(rawRecord);
           } catch (err) {
-            // Bad record: cleanup and throw unowned email error
+            // Bad/corrupted record: cleanup
+            log.warn('secondary_email.corrupted_redis_record', {
+              uid,
+              normalizedEmail,
+              error: err.message,
+            });
             await authServerCacheRedis.del(key);
-            throw error.cannotResendEmailCodeToUnownedEmail();
+            // Treat as missing and attempt to recreate below
+            parsedRecord = null;
           }
         }
 
-        const uidStr = Buffer.isBuffer(sessionToken.uid)
-          ? sessionToken.uid.toString('base64')
-          : String(sessionToken.uid);
-
-        // If there is no reservation or it belongs to another user, throw.
-        if (!parsedRecord || parsedRecord.uid !== uidStr) {
+        // If reservation exists but belongs to another user, throw.
+        if (parsedRecord && parsedRecord.uid !== uidStr) {
           throw error.cannotResendEmailCodeToUnownedEmail();
         }
 
-        // Generate a new OTP code using the reserved secret and resend the email.
-        const secret = parsedRecord.secret;
+        // If no reservation exists (expired or corrupted), recreate it if the email is available
+        let secret;
+        const hadExistingReservation = !!parsedRecord;
+        if (parsedRecord) {
+          // Use existing secret from the reservation
+          secret = parsedRecord.secret;
+        } else {
+          const reason = rawRecord ? 'corrupted' : 'expired';
+          try {
+            secret = await recreateSecondaryEmailReservation(
+              normalizedEmail,
+              uid,
+              key,
+              reason,
+              sessionToken.email
+            );
+          } catch (err) {
+            // If it's a user-facing error (email claimed, etc.), propagate it
+            if (
+              err.errno === error.ERRNO.RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL ||
+              err.errno === error.ERRNO.EMAIL_EXISTS ||
+              err.errno === error.ERRNO.ACCOUNT_OWNS_EMAIL ||
+              err.errno === error.ERRNO.USER_PRIMARY_EMAIL_EXISTS
+            ) {
+              throw err;
+            }
+            // For infrastructure errors (DB/Redis failures), log and return a service error
+            log.error('secondary_email.reservation_recreation_failed', {
+              uid,
+              normalizedEmail,
+              reason,
+              error: err.message,
+              errno: err.errno,
+            });
+            throw error.backendServiceFailure();
+          }
+        }
+
+        // Generate a new OTP code using the secret and resend the email.
         const code = otpUtils.generateOtpCode(secret, otpOptions);
 
         const {
@@ -1477,37 +1595,58 @@ module.exports = (
           uaOS,
           uaOSVersion,
           uaDeviceType,
-          uid,
         } = sessionToken;
 
         const geoData = request.app.geo;
-        await mailer.sendVerifySecondaryCodeEmail(
-          [
+        try {
+          await mailer.sendVerifySecondaryCodeEmail(
+            [
+              {
+                email,
+                normalizedEmail,
+                isVerified: false,
+                isPrimary: false,
+                uid,
+              },
+            ],
+            sessionToken,
             {
+              code,
+              deviceId,
+              acceptLanguage: request.app.acceptLanguage,
               email,
-              normalizedEmail,
-              isVerified: false,
-              isPrimary: false,
+              primaryEmail: sessionToken.email,
+              location: geoData.location,
+              timeZone: geoData.timeZone,
+              uaBrowser,
+              uaBrowserVersion,
+              uaOS,
+              uaOSVersion,
+              uaDeviceType,
               uid,
-            },
-          ],
-          sessionToken,
-          {
-            code,
-            deviceId,
-            acceptLanguage: request.app.acceptLanguage,
-            email,
-            primaryEmail: sessionToken.email,
-            location: geoData.location,
-            timeZone: geoData.timeZone,
-            uaBrowser,
-            uaBrowserVersion,
-            uaOS,
-            uaOSVersion,
-            uaDeviceType,
+            }
+          );
+        } catch (err) {
+          log.error('secondary_email.resendVerifySecondaryCodeEmail.error', {
+            err: err,
             uid,
+            normalizedEmail,
+          });
+          // If we just created a new reservation and email sending fails, clean it up
+          // to allow the user to retry from scratch
+          if (!hadExistingReservation) {
+            try {
+              await authServerCacheRedis.del(key);
+            } catch (delErr) {
+              log.error('secondary_email.resend.redis_cleanup_failed', {
+                err: delErr,
+                uid,
+                normalizedEmail,
+              });
+            }
           }
-        );
+          throw emailUtils.sendError(err, true);
+        }
 
         return {};
       },
