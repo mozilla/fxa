@@ -672,6 +672,26 @@ export class Account implements AccountData {
     });
   }
 
+  async createPasswordWithJwt(newPassword: string) {
+    const jwt = this.getCachedJwtByScope('password');
+    const passwordCreatedResult = await this.withLoadingStatus(
+      this.authClient.createPasswordWithJwt(
+        jwt,
+        this.primaryEmail.email,
+        newPassword
+      )
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        passwordCreated() {
+          return passwordCreatedResult.passwordCreated;
+        },
+      },
+    });
+  }
+
   async resetPassword(
     email: string,
     service?: string,

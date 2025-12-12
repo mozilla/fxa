@@ -25,6 +25,7 @@ export enum MfaReason {
   verifySecondaryEmail = 'verify secondary email',
   removeSecondaryEmail = 'remove secondary email',
   changePrimaryEmail = 'change primary email',
+  createPassword = 'create password',
   changePassword = 'change password',
   createRecoveryPhone = 'create recovery phone',
   changeRecoveryPhone = 'change recovery phone',
