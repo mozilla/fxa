@@ -21,14 +21,14 @@ const data = {
   invoiceNumber: '8675309',
   invoiceTotal: '$20.00',
   invoiceTotalInCents: 2000,
-  invoiceSubtotal: null,
-  invoiceTaxAmount: null,
-  invoiceDiscountAmount: null,
-  discountType: null,
-  discountDuration: null,
+  invoiceSubtotal: undefined,
+  invoiceTaxAmount: undefined,
+  invoiceDiscountAmount: undefined,
+  discountType: undefined,
+  discountDuration: undefined,
   nextInvoiceDateOnly: '11/13/2021',
   subscriptionSupportUrl: 'http://localhost:3030/support',
-  paymentProrated: null,
+  paymentProrated: undefined,
   showPaymentMethod: true,
   showProratedAmount: false,
   showTaxAmount: false,
@@ -47,6 +47,7 @@ const data = {
   invoiceStartingBalance: '$10.00',
   manageSubscriptionUrl: 'https://payments.firefox.com/', // Does this need UTM params?
   invoiceTaxAmountInCents: 1000,
+  creditReceived: '$10.00',
 };
 
 const createStory = subplatStoryWithProps<TemplateData>(
