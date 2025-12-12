@@ -8,15 +8,17 @@ import {
   PayPalButtons,
   PayPalScriptProvider,
   ReactPayPalScriptOptions,
+  usePayPalScriptReducer,
 } from '@paypal/react-paypal-js';
 import {
   createPayPalBillingAgreementId,
   getPayPalCheckoutToken,
 } from '@fxa/payments/ui/actions';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useParams, useRouter, useSearchParams, type ReadonlyURLSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import spinnerImage from '@fxa/shared/assets/images/spinner.svg';
+import { Localized } from '@fluent/react';
+import * as Sentry from '@sentry/nextjs';
 
 const paypalInitialOptions: ReactPayPalScriptOptions = {
   clientId: '',
@@ -39,14 +41,8 @@ export function PaypalManagement({
   sessionUid,
   currency,
 }: PaypalManagementProps) {
-  const router = useRouter();
   const { locale } = useParams();
   const searchParams = useSearchParams();
-  const queryParamString = searchParams.toString()
-    ? `?${searchParams.toString()}`
-    : '';
-
-  const [isLoading, setLoading] = useState<boolean>(true);
 
   return (
     <PayPalScriptProvider
@@ -59,37 +55,78 @@ export function PaypalManagement({
       }}
     >
       <div className="flex justify-center items-center max-w-md w-full h-12">
-        {isLoading && (
-          <Image
-            src={spinnerImage}
-            alt=""
-            className="absolute animate-spin h-8 w-8"
-          />
-        )}
-        <PayPalButtons
-          style={{
-            layout: 'horizontal',
-            color: 'gold',
-            shape: 'rect',
-            label: 'paypal',
-            height: 48,
-            borderRadius: 6,
-            tagline: false,
-          }}
-          className="flex justify-center w-full"
-          createOrder={async () =>
-            getPayPalCheckoutToken(currency.toLowerCase())
-          }
-          onApprove={async (data: { orderID: string }) => {
-            await createPayPalBillingAgreementId(sessionUid, data.orderID);
-            router.push(`/${locale}/subscriptions/manage` + queryParamString);
-          }}
-          onError={(error) => {
-            throw error;
-          }}
-          onInit={() => setLoading(false)}
+        <ManagementPayPalButton
+          currency={currency}
+          locale={Array.isArray(locale) ? locale[0] : locale}
+          sessionUid={sessionUid}
+          searchParams={searchParams}
         />
       </div>
     </PayPalScriptProvider>
   );
+}
+
+interface ManagementPayPalButtonProps {
+  currency: string;
+  locale: string;
+  sessionUid: string;
+  searchParams: ReadonlyURLSearchParams;
+}
+
+function ManagementPayPalButton({
+  currency,
+  locale,
+  sessionUid,
+  searchParams,
+}: ManagementPayPalButtonProps) {
+  const router = useRouter();
+  const [{ isPending, isRejected }] = usePayPalScriptReducer();
+
+  const queryParamString = searchParams.toString()
+    ? `?${searchParams.toString()}`
+    : '';
+
+  if (isPending) {
+    return (
+      <Image
+        src={spinnerImage}
+        alt=""
+        className="absolute animate-spin h-8 w-8"
+      />
+    )
+  }
+
+  if (isRejected) {
+    Sentry.captureMessage('PayPal script failed to load');
+    return (
+      <Localized id="paypal-unavailable-error">
+        <div className="mt-6 flex justify-center w-full text-center text-sm">PayPal is currently unavailable. Please use another payment option or try again later.</div>
+      </Localized>
+    )
+  }
+
+  return (
+    <PayPalButtons
+      style={{
+        layout: 'horizontal',
+        color: 'gold',
+        shape: 'rect',
+        label: 'paypal',
+        height: 48,
+        borderRadius: 6,
+        tagline: false,
+      }}
+      className="flex justify-center w-full"
+      createOrder={async () =>
+        getPayPalCheckoutToken(currency.toLowerCase())
+      }
+      onApprove={async (data: { orderID: string }) => {
+        await createPayPalBillingAgreementId(sessionUid, data.orderID);
+        router.push(`/${locale}/subscriptions/manage` + queryParamString);
+      }}
+      onError={(error) => {
+        throw error;
+      }}
+    />
+  )
 }
