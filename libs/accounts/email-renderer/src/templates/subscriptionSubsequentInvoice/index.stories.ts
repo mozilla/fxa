@@ -17,17 +17,17 @@ const data = {
   invoiceNumber: '8675309',
   invoiceTotalInCents: 2000,
   invoiceTotal: '$20.00',
-  invoiceSubtotal: null,
-  invoiceTaxAmount: null,
-  invoiceDiscountAmount: null,
-  discountType: null,
-  discountDuration: null,
+  invoiceSubtotal: undefined,
+  invoiceTaxAmount: undefined,
+  invoiceDiscountAmount: undefined,
+  discountType: undefined,
+  discountDuration: undefined,
   icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
   invoiceLink:
     'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
   nextInvoiceDateOnly: '1/14/2022',
   subscriptionSupportUrl: 'http://localhost:3030/support',
-  paymentProrated: null,
+  paymentProrated: undefined,
   showPaymentMethod: true,
   showProratedAmount: false,
   showTaxAmount: false,
@@ -45,6 +45,7 @@ const data = {
   invoiceStartingBalance: '$10.00',
   manageSubscriptionUrl: 'https://payments.firefox.com/', // Does this need UTM params?
   invoiceTaxAmountInCents: 1000,
+  creditReceived: '$10.00',
 };
 
 const createStory = subplatStoryWithProps<TemplateData>(

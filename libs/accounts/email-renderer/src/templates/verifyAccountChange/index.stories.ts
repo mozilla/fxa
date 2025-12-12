@@ -16,6 +16,7 @@ const data = {
   code: '918398',
   expirationTime: 5,
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

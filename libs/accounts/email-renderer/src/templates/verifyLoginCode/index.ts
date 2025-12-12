@@ -2,30 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export type TemplateData = {
-  code: string;
-  passwordChangeLink: string;
-  serviceName: string;
-  time: string;
-  device: {
-    uaBrowser: string;
-    uaOSVersion: string;
-    uaOS: string;
-  };
-  location: {
-    stateCode: string;
-    country: string;
-    city: string;
-  };
-  date: string;
+import { TemplateData as AutomatedEmailChangePasswordTemplateData } from '../../partials/automatedEmailChangePassword';
+import { TemplateData as UserInfoTemplateData } from '../../partials/userInfo';
 
-  cmsRpClientId?: string;
-  cmsRpFromName?: string;
-  entrypoint?: string;
-  subject?: string;
-  headline?: string;
-  description?: string;
-};
+export type TemplateData = AutomatedEmailChangePasswordTemplateData &
+  UserInfoTemplateData & {
+    code: string;
+    passwordChangeLink: string;
+    serviceName: string;
+    time: string;
+    device: {
+      uaBrowser: string;
+      uaOSVersion: string;
+      uaOS: string;
+    };
+    location: {
+      stateCode: string;
+      country: string;
+      city: string;
+    };
+    date: string;
+
+    cmsRpClientId?: string;
+    cmsRpFromName?: string;
+    entrypoint?: string;
+    subject?: string;
+    headline?: string;
+    description?: string;
+  };
 
 export const template = 'verifyLoginCode';
 export const version = 9;

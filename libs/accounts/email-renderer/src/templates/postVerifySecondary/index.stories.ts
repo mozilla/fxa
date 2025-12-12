@@ -14,6 +14,7 @@ const data = {
   link: 'http://localhost:3030/settings',
   secondaryEmail: 'secondary@email.com',
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(
