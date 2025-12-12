@@ -7,7 +7,6 @@ import {
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
-  PaymentProvidersType,
   PaymentsGleanProvider,
   SubscriptionCancellationData,
   type ExperimentationData,
@@ -64,7 +63,7 @@ export class PaymentsGleanManager {
       cmsMetricsData: CmsMetricsData;
       experimentationData: ExperimentationData;
     },
-    paymentProvider?: PaymentProvidersType
+    paymentProvider?: SubPlatPaymentMethodType
   ) {
     if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupSubmit({
@@ -102,7 +101,7 @@ export class PaymentsGleanManager {
       cmsMetricsData: CmsMetricsData;
       experimentationData: ExperimentationData;
     },
-    paymentProvider?: PaymentProvidersType
+    paymentProvider?: SubPlatPaymentMethodType
   ) {
     const commonMetrics = this.populateCommonMetrics(metrics);
 
@@ -120,7 +119,7 @@ export class PaymentsGleanManager {
       cmsMetricsData: CmsMetricsData;
       subscriptionCancellationData: SubscriptionCancellationData;
     },
-    paymentProvider?: PaymentProvidersType
+    paymentProvider?: SubPlatPaymentMethodType
   ) {
     const commonMetrics = this.populateCommonMetrics(metrics);
 
