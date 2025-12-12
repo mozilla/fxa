@@ -29,6 +29,7 @@ import { chance, randomAccount, randomEmail } from './helpers';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
+import { Device } from '../../../../db/models/auth';
 
 describe('#integration - auth', () => {
   let knex: Knex;
@@ -557,6 +558,111 @@ describe('#integration - auth', () => {
         endCreatedAtDate: Date.now(),
       });
       assert.equal(unverifiedAccounts.length, 3);
+    });
+  });
+  describe('Device.findByUidAndRefreshTokenId', () => {
+    beforeEach(async () => {
+      const testTables = [
+        'devices',
+        'deviceCommandIdentifiers',
+        'deviceCommands',
+      ];
+      for (const table of testTables) {
+        await knex.raw(`DELETE FROM ${table}`);
+      }
+    });
+
+    it('returns device when found with refreshTokenId', async () => {
+      const uid = USER_1.uid;
+      const deviceId = '0123456789abcdef0123456789abcdef';
+      const refreshTokenId =
+        'abcdef0123456789abcdef0123456789abcdef00000000000000000000000000';
+
+      await knex.raw(
+        `
+        INSERT INTO devices (uid, id, refreshTokenId, nameUtf8, type, createdAt)
+        VALUES (UNHEX(?), UNHEX(?), UNHEX(?), 'Test Device', 'mobile', ?)
+      `,
+        [uid, deviceId, refreshTokenId, Date.now()]
+      );
+
+      const device = await Device.findByUidAndRefreshTokenId(
+        uid,
+        refreshTokenId
+      );
+
+      assert.isNotNull(device);
+      assert.equal(device.id, deviceId);
+      assert.equal(device.refreshTokenId, refreshTokenId);
+      assert.equal(device.name, 'Test Device');
+      assert.equal(device.type, 'mobile');
+      assert.isObject(device.availableCommands);
+    });
+
+    it('returns null when device not found', async () => {
+      const uid = USER_1.uid;
+      const refreshTokenId =
+        'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+
+      const device = await Device.findByUidAndRefreshTokenId(
+        uid,
+        refreshTokenId
+      );
+
+      assert.isNull(device);
+    });
+
+    it('aggregates deviceCommands correctly', async () => {
+      const uid = USER_1.uid;
+      const deviceId = '11111111111111111111111111111111';
+      const refreshTokenId =
+        '2222222222222222222222222222222222222222222222222222222222222222';
+
+      await knex.raw(
+        `
+        INSERT INTO devices (uid, id, refreshTokenId, nameUtf8, type, createdAt)
+        VALUES (UNHEX(?), UNHEX(?), UNHEX(?), 'Device with Commands', 'desktop', ?)
+      `,
+        [uid, deviceId, refreshTokenId, Date.now()]
+      );
+
+      await knex.raw(`
+        INSERT IGNORE INTO deviceCommandIdentifiers (commandName)
+        VALUES ('https://identity.mozilla.com/cmd/open-uri'),
+               ('https://identity.mozilla.com/cmd/send-tab')
+      `);
+
+      // Insert device commands
+      const cmdIds = await knex.raw(`
+        SELECT commandId FROM deviceCommandIdentifiers
+        WHERE commandName IN ('https://identity.mozilla.com/cmd/open-uri',
+                              'https://identity.mozilla.com/cmd/send-tab')
+      `);
+
+      for (const cmd of cmdIds[0]) {
+        await knex.raw(
+          `
+          INSERT INTO deviceCommands (uid, deviceId, commandId, commandData)
+          VALUES (UNHEX(?), UNHEX(?), ?, '{"enabled": true}')
+        `,
+          [uid, deviceId, cmd.commandId]
+        );
+      }
+
+      const device = await Device.findByUidAndRefreshTokenId(
+        uid,
+        refreshTokenId
+      );
+
+      assert.isNotNull(device);
+      assert.isObject(device.availableCommands);
+      assert.equal(Object.keys(device.availableCommands).length, 2);
+      assert.isString(
+        device.availableCommands['https://identity.mozilla.com/cmd/open-uri']
+      );
+      assert.isString(
+        device.availableCommands['https://identity.mozilla.com/cmd/send-tab']
+      );
     });
   });
 });

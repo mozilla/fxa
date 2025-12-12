@@ -70,6 +70,7 @@ const DB_METHOD_NAMES = [
   'deletePasswordChangeToken',
   'deleteSessionToken',
   'deviceFromTokenVerificationId',
+  'deviceFromRefreshTokenId',
   'deleteRecoveryKey',
   'deleteTotpToken',
   'devices',
@@ -577,6 +578,9 @@ function mockDB(data, errors) {
       const device = data.devices.find((d) => d.id === deviceId);
       assert.ok(device);
       return Promise.resolve(device);
+    }),
+    deviceFromRefreshTokenId: sinon.spy(() => {
+      return Promise.resolve(null);
     }),
     deleteSessionToken: sinon.spy(() => {
       return Promise.resolve();
