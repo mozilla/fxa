@@ -18,7 +18,19 @@ export default {
 export const Desktop = () => <Subject />;
 
 export const DesktopWithCms = () => (
-  <Subject integration={createMockIntegration({ cmsInfo: MOCK_CMS_INFO })} />
+  <Subject integration={createMockIntegration(true, MOCK_CMS_INFO)} />
+);
+
+export const DesktopWithCmsSplitLayout = () => (
+  <Subject
+    integration={createMockIntegration(true, {
+      ...MOCK_CMS_INFO,
+      SignupConfirmedSyncPage: {
+        ...MOCK_CMS_INFO.SignupConfirmedSyncPage,
+        splitLayout: true,
+      },
+    })}
+  />
 );
 
 export const FromThirdPartyAuthSetPassword = () => (
@@ -30,5 +42,5 @@ export const DesktopWithoutPaymentMethodsSync = () => (
 );
 
 export const MobileNotCurrentlyUsed = () => (
-  <Subject integration={createMockIntegration({ isDesktopSync: false })} />
+  <Subject integration={createMockIntegration(false)} />
 );

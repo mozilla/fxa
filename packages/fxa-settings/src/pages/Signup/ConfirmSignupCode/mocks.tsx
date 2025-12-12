@@ -12,6 +12,7 @@ import {
   OAuthNativeServices,
   OAuthWebIntegration,
   RelierClientInfo,
+  RelierCmsInfo,
   WebIntegration,
 } from '../../../models';
 import {
@@ -95,7 +96,8 @@ export function createMockWebIntegration({
 }
 
 export function createMockOAuthWebIntegration(
-  serviceName = MOCK_SERVICE
+  serviceName = MOCK_SERVICE,
+  cmsInfo: RelierCmsInfo | undefined = MOCK_CMS_INFO
 ): ConfirmSignupCodeOAuthIntegration {
   // Keeping previous mock for reference... Now we mock the data and use the actual integration.
   // return {
@@ -132,7 +134,7 @@ export function createMockOAuthWebIntegration(
     redirectUri: MOCK_REDIRECT_URI,
   } as RelierClientInfo;
 
-  integration.cmsInfo = MOCK_CMS_INFO;
+  integration.getCmsInfo = () => cmsInfo;
 
   if (typeof expect !== 'undefined') {
     expect(integration.type).toEqual(IntegrationType.OAuthWeb);

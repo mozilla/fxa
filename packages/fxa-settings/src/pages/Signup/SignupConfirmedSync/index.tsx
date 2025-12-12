@@ -45,9 +45,10 @@ const SignupConfirmedSync = ({
   const cmsHideCTA = !!cmsInfo?.shared.featureFlags?.syncConfirmedPageHideCTA;
   const title = cmsInfo?.SignupConfirmedSyncPage?.pageTitle;
   const cmsSyncEnabledImage = cmsInfo?.SignupConfirmedSyncPage?.primaryImage;
+  const splitLayout = cmsInfo?.SignupConfirmedSyncPage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout }}>
       <FallingConfettiImage ariaHidden />
 
       {originPostVerifySetPassword ? (
