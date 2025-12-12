@@ -1,0 +1,121 @@
+name: Deploy Storybooks to GitHub Pages (Git-based)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: "pages-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'main' }}"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Storybooks
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Debug GitHub context
+        run: echo '${{ toJSON(github) }}'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Clone l10n repository
+        run: _scripts/l10n/clone.sh
+
+      - name: Build all Storybooks
+        run: npx nx run-many -t build-storybook
+
+      - name: Organize Storybooks for deployment
+        run: node _scripts/deploy-storybooks.js
+        env:
+          DEPLOY_DIR: ${{ github.event_name == 'pull_request' && format('storybook/pr-{0}', github.event.pull_request.number) || 'storybook/main' }}
+          GITHUB_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          COMMIT_MESSAGE: ${{ github.event_name == 'pull_request' && format(fromJSON('"{0}\n\n{1}"'), github.event.pull_request.title, github.event.pull_request.body) || github.event.head_commit.message }}
+          COMMIT_TIMESTAMP: ${{ github.event_name == 'pull_request' && github.event.pull_request.updated_at || github.event.head_commit.timestamp }}
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Copy storybooks to gh-pages
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            DEPLOY_DIR="storybook/pr-${{ github.event.pull_request.number }}"
+          else
+            DEPLOY_DIR="storybook/main"
+          fi
+
+          # Create directory structure in gh-pages
+          mkdir -p "gh-pages/$DEPLOY_DIR"
+
+          # Remove old content for this specific path
+          rm -rf "gh-pages/$DEPLOY_DIR"/*
+
+          # Copy new content
+          cp -r deploy/$DEPLOY_DIR/* "gh-pages/$DEPLOY_DIR/"
+
+      - name: Commit and push to gh-pages
+        run: |
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            COMMIT_MSG="Deploy storybooks for PR ${{ github.event.pull_request.number }}"
+          else
+            COMMIT_MSG="Deploy storybooks from main branch"
+          fi
+
+          # Only commit if there are changes
+          git diff --staged --quiet || git commit -m "$COMMIT_MSG"
+          git push origin gh-pages
+
+  cleanup:
+    name: Remove closed PR storybooks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+
+      - name: Remove PR directory
+        run: |
+          PR_DIR="storybook/pr-${{ github.event.pull_request.number }}"
+          if [ -d "$PR_DIR" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git rm -rf "$PR_DIR"
+            git commit -m "Remove storybooks for closed PR #${{ github.event.pull_request.number }}"
+            git push origin gh-pages
+            echo "Removed $PR_DIR"
+          else
+            echo "Directory $PR_DIR not found, nothing to clean up"
+          fi
