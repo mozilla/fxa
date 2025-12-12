@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
-import { Localized, useLocalization } from '@fluent/react';
+import { Localized, } from '@fluent/react';
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import * as Form from '@radix-ui/react-form';
 import Stripe from 'stripe';
@@ -97,7 +97,6 @@ export function CheckoutForm({
   sessionUid,
   sessionEmail,
 }: CheckoutFormProps) {
-  const { l10n } = useLocalization();
   const elements = useElements();
   const router = useRouter();
   const stripe = useStripe();
@@ -113,8 +112,6 @@ export function CheckoutForm({
   const [isPaymentElementLoading, setIsPaymentElementLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [stripeFieldsComplete, setStripeFieldsComplete] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [hasFullNameError, setHasFullNameError] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [isSavedPaymentMethod, setIsSavedPaymentMethod] = useState(
     !!cart?.paymentInfo?.type
@@ -123,7 +120,6 @@ export function CheckoutForm({
   const linkAuthOptions = sessionEmail
     ? { defaultValues: { email: sessionEmail } }
     : {};
-  const [isNotCard, setIsNotCard] = useState(false);
 
   const engageGlean = useCallbackOnce(() => {
     recordEmitterEventAction(
@@ -155,10 +151,6 @@ export function CheckoutForm({
           const isNewCardSelected =
             event?.value?.type === 'card' && !hasSavedPaymentMethod;
 
-          const selectedType = event?.value?.type || '';
-          const isNotCardType = selectedType !== 'card';
-          setIsNotCard(isNotCardType);
-
           setShowLinkAuthElement(isNewCardSelected && hasSavedPaymentMethod);
 
           setSelectedPaymentMethod(event?.value?.type || '');
@@ -172,13 +164,6 @@ export function CheckoutForm({
 
   const showPayPalButton = selectedPaymentMethod === 'external_paypal';
   const isStripe = cart?.paymentInfo?.type !== 'external_paypal';
-  const showFullNameInput =
-    !isPaymentElementLoading &&
-    !showPayPalButton &&
-    !isSavedPaymentMethod &&
-    selectedPaymentMethod === 'card' &&
-    !isNotCard;
-  const nonStripeFieldsComplete = !showFullNameInput || !!fullName;
 
   const submitHandler = async (
     event: React.SyntheticEvent<HTMLFormElement>
@@ -220,16 +205,6 @@ export function CheckoutForm({
       return;
     }
 
-    if (showFullNameInput) {
-      setHasFullNameError(!fullName);
-      if (!fullName) {
-        setLoading(false);
-        return;
-      }
-    } else {
-      setHasFullNameError(false);
-    }
-
     // Trigger form validation and wallet collection
     const { error: submitError } = await elements.submit();
     if (submitError) {
@@ -248,7 +223,6 @@ export function CheckoutForm({
         ? {
             payment_method_data: {
               billing_details: {
-                name: fullName,
                 email: sessionEmail || undefined,
               },
             },
@@ -291,7 +265,6 @@ export function CheckoutForm({
       confirmationToken.id,
       {
         locale,
-        displayName: fullName,
       },
       getAttributionParams(searchParams),
       sessionUid
@@ -329,55 +302,6 @@ export function CheckoutForm({
         }
         onClick={() => setShowConsentError(true)}
       >
-        {showFullNameInput && (
-          <>
-            <Localized id="next-new-user-card-title">
-              <h3 className="font-semibold text-grey-600 text-start">
-                Enter your card information
-              </h3>
-            </Localized>
-            <Form.Field
-              name="name"
-              serverInvalid={hasFullNameError}
-              className="my-6"
-            >
-              <Form.Label className="text-grey-400 block mb-1 text-start">
-                <Localized id="payment-name-label">
-                  Name as it appears on your card
-                </Localized>
-              </Form.Label>
-              <Form.Control asChild>
-                <input
-                  className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-                  type="text"
-                  data-testid="name"
-                  placeholder={l10n.getString(
-                    'payment-name-placeholder',
-                    {},
-                    'Full Name'
-                  )}
-                  readOnly={!formEnabled}
-                  tabIndex={formEnabled ? 0 : -1}
-                  value={fullName}
-                  onChange={(e) => {
-                    setFullName(e.target.value);
-                    setHasFullNameError(!e.target.value);
-                  }}
-                  aria-required
-                />
-              </Form.Control>
-              {hasFullNameError && (
-                <Form.Message asChild>
-                  <Localized id="next-payment-validate-name-error">
-                    <p className="mt-1 text-alert-red" role="alert">
-                      Please enter your name
-                    </p>
-                  </Localized>
-                </Form.Message>
-              )}
-            </Form.Field>
-          </>
-        )}
         {cart?.paymentInfo?.type === 'external_paypal' ? (
           <div className="bg-white rounded-lg border border-[#e6e6e6] shadow-stripeBox">
             <h3 className="p-4 text-sm text-[#0570de] font-semibold">Saved</h3>
@@ -470,8 +394,7 @@ export function CheckoutForm({
                 variant={ButtonVariant.Primary}
                 aria-disabled={
                   !formEnabled ||
-                  (isStripe &&
-                    !(stripeFieldsComplete && nonStripeFieldsComplete)) ||
+                  (isStripe && !stripeFieldsComplete) ||
                   loading
                 }
               >

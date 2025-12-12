@@ -49,9 +49,6 @@ export class CheckoutCartWithStripeActionAttributionData {
 export class CheckoutCartWithStripeActionCustomerData {
   @IsString()
   locale!: string;
-
-  @IsString()
-  displayName!: string;
 }
 
 export class CheckoutCartWithStripeActionArgs {

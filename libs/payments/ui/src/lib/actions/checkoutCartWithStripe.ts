@@ -13,7 +13,6 @@ export const checkoutCartWithStripe = async (
   confirmationTokenId: string,
   customerData: {
     locale: string;
-    displayName: string;
   },
   attribution: SubscriptionAttributionParams,
   sessionUid?: string

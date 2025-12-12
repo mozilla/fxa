@@ -13,7 +13,6 @@ import Stripe from 'stripe';
 
 export type CheckoutCustomerData = {
   locale: string;
-  displayName: string;
 };
 
 export type FinishCart = {

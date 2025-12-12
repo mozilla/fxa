@@ -42,8 +42,6 @@ export function PaymentMethodManagement({
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInputNewCardDetails, setIsInputNewCardDetails] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [hasFullNameError, setHasFullNameError] = useState(false);
   const [isNonDefaultCardSelected, setIsNonDefaultCardSelected] =
     useState(false);
   const [isNonCardSelected, setIsNonCardSelected] = useState(false);
@@ -68,7 +66,6 @@ export function PaymentMethodManagement({
     if (event.value.type !== 'card') {
       setIsNonCardSelected(true);
       setIsInputNewCardDetails(false);
-      setHasFullNameError(false);
       if (!!event.value.payment_method) {
         if (event.value.payment_method.id !== defaultPaymentMethodId) {
           setIsNonDefaultCardSelected(true);
@@ -82,10 +79,6 @@ export function PaymentMethodManagement({
 
     if (event.value.type === 'card' && !event.value.payment_method) {
       setIsInputNewCardDetails(true);
-
-      if (event.complete) {
-        setHasFullNameError(fullName.length === 0);
-      }
     } else if (event.value.type === 'card' && !!event.value.payment_method) {
       setIsInputNewCardDetails(false);
 
@@ -117,8 +110,7 @@ export function PaymentMethodManagement({
         uid ?? '',
         typeof response.setupIntent.payment_method === 'string'
           ? response.setupIntent.payment_method
-          : (response.setupIntent.payment_method?.id ?? ''),
-        fullName
+          : (response.setupIntent.payment_method?.id ?? '')
       );
     } else {
       throw new Error('We could not confirm your payment method');
@@ -129,11 +121,6 @@ export function PaymentMethodManagement({
     event.preventDefault();
 
     if (!stripe || !elements || !isComplete) {
-      return;
-    }
-
-    if (isInputNewCardDetails && !fullName) {
-      setHasFullNameError(true);
       return;
     }
 
@@ -154,7 +141,6 @@ export function PaymentMethodManagement({
           params: {
             payment_method_data: {
               billing_details: {
-                name: fullName,
                 email: sessionEmail || undefined,
               },
             },
@@ -206,56 +192,6 @@ export function PaymentMethodManagement({
           onSubmit={handleSubmit}
           className="px-4 tablet:px-0"
         >
-          {isInputNewCardDetails && (
-            <>
-              <Localized id="next-new-user-card-title">
-                <h2 className="font-semibold text-grey-600 text-start mt-6">
-                  Enter your card information
-                </h2>
-              </Localized>
-              <Form.Field
-                name="name"
-                serverInvalid={hasFullNameError}
-                className="my-6"
-              >
-                <Form.Label className="text-grey-400 block mb-1 text-start">
-                  <Localized id="payment-name-label">
-                    Name as it appears on your card
-                  </Localized>
-                </Form.Label>
-                <Form.Control asChild>
-                  <input
-                    className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-                    type="text"
-                    data-testid="name"
-                    placeholder={l10n.getString(
-                      'payment-name-placeholder',
-                      {},
-                      'Full Name'
-                    )}
-                    value={fullName}
-                    onChange={(e) => {
-                      setFullName(e.target.value);
-                      setHasFullNameError(!e.target.value);
-                    }}
-                    aria-required
-                  />
-                </Form.Control>
-                {hasFullNameError && (
-                  <Form.Message asChild>
-                    <Localized id="next-payment-validate-name-error">
-                      <p
-                        className="mt-1 text-alert-red font-normal"
-                        role="alert"
-                      >
-                        Please enter your full name
-                      </p>
-                    </Localized>
-                  </Form.Message>
-                )}
-              </Form.Field>
-            </>
-          )}
           <Form.Field name="payment">
             <Form.Control asChild>
               <div
@@ -297,10 +233,10 @@ export function PaymentMethodManagement({
                   type="submit"
                   variant={ButtonVariant.Primary}
                   aria-disabled={
-                    !stripe || !isComplete || isLoading || hasFullNameError
+                    !stripe || !isComplete || isLoading
                   }
                   disabled={
-                    !stripe || !isComplete || isLoading || hasFullNameError
+                    !stripe || !isComplete || isLoading
                   }
                 >
                   {isLoading ? (
