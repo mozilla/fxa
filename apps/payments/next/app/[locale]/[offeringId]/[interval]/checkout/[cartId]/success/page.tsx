@@ -6,6 +6,8 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import { auth } from 'apps/payments/next/auth';
+
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import { getCardIcon } from '@fxa/payments/ui';
 import {
   fetchCMSData,
@@ -140,47 +142,23 @@ export default async function CheckoutSuccess({
             cart.latestInvoicePreview?.currency,
             locale
           )}
-          {cart.paymentInfo.walletType === 'apple_pay' ? (
+          {cart.paymentInfo.walletType ? (
             <div className="flex items-center gap-3">
               <Image
-                src={getCardIcon('apple_pay', l10n).img}
-                alt={l10n.getString('apple-pay-logo-alt-text', 'Apple Pay logo')}
-                width={40}
-                height={24}
+                src={getCardIcon(cart.paymentInfo.walletType, l10n).img}
+                alt={getCardIcon(cart.paymentInfo.walletType, l10n).altText}
+                width={getCardIcon(cart.paymentInfo.walletType, l10n).width}
+                height={getCardIcon(cart.paymentInfo.walletType, l10n).height}
               />
             </div>
-          ) : cart.paymentInfo.walletType === 'google_pay' ? (
-            <div className="flex items-center gap-3">
-              <Image
-                src={getCardIcon('google_pay', l10n).img}
-                alt={l10n.getString('google-pay-logo-alt-text', 'Google Pay logo')}
-                width={40}
-                height={24}
-              />
-            </div>
-          ) : cart.paymentInfo.type === 'external_paypal' ? (
-            <Image
-              src={getCardIcon('paypal', l10n).img}
-              alt={l10n.getString('paypal-logo-alt-text', 'PayPal logo')}
-              width={91}
-              height={24}
-            />
-          ) : cart.paymentInfo.type === 'link' ? (
-            <Image
-              src={getCardIcon('link', l10n).img}
-              alt={l10n.getString('link-logo-alt-text', 'Link logo')}
-              width={70}
-              height={24}
-            />
-          ) : (
+          ) : cart.paymentInfo.type === SubPlatPaymentMethodType.Card &&
+            cart.paymentInfo.brand ? (
             <span className="flex items-center gap-2">
-              {cart.paymentInfo.brand && (
-                <Image
-                  src={getCardIcon(cart.paymentInfo.brand, l10n).img}
-                  alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
-                  className="w-10 h-auto object-cover"
-                />
-              )}
+              <Image
+                src={getCardIcon(cart.paymentInfo.brand, l10n).img}
+                alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
+                className="w-10 h-auto object-cover"
+              />
               {l10n.getString(
                 'next-payment-confirmation-cc-card-ending-in',
                 {
@@ -189,6 +167,15 @@ export default async function CheckoutSuccess({
                 `Card ending in ${cart.paymentInfo.last4}`
               )}
             </span>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Image
+                src={getCardIcon(cart.paymentInfo.type, l10n).img}
+                alt={getCardIcon(cart.paymentInfo.type, l10n).altText}
+                width={getCardIcon(cart.paymentInfo.type, l10n).width}
+                height={getCardIcon(cart.paymentInfo.type, l10n).height}
+              />
+            </div>
           )}
         </div>
       </div>

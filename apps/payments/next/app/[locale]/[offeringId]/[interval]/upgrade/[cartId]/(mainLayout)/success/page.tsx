@@ -3,20 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { headers } from 'next/headers';
+import Image from 'next/image';
+import { Metadata } from 'next';
 import { auth } from 'apps/payments/next/auth';
+
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import { getCardIcon } from '@fxa/payments/ui';
-import {
-  SupportedPages,
-  getApp,
-  buildPageMetadata,
-} from '@fxa/payments/ui/server';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
 } from '@fxa/payments/ui/actions';
-import { CheckoutParams } from '@fxa/payments/ui/server';
-import Image from 'next/image';
-import { Metadata } from 'next';
+import {
+  CheckoutParams,
+  SupportedPages,
+  getApp,
+  buildPageMetadata,
+} from '@fxa/payments/ui/server';
 import { config } from 'apps/payments/next/config';
 
 export const dynamic = 'force-dynamic';
@@ -141,39 +143,17 @@ export default async function UpgradeSuccess({
               cart.latestInvoicePreview?.currency,
               locale
             )}
-            {cart.paymentInfo.walletType === 'apple_pay' ? (
+            {cart.paymentInfo.walletType ? (
               <div className="flex items-center gap-3">
                 <Image
-                  src={getCardIcon('apple_pay', l10n).img}
-                  alt={l10n.getString('apple-pay-logo-alt-text', 'Apple Pay logo')}
-                  width={40}
-                  height={24}
+                  src={getCardIcon(cart.paymentInfo.walletType, l10n).img}
+                  alt={getCardIcon(cart.paymentInfo.walletType, l10n).altText}
+                  width={getCardIcon(cart.paymentInfo.walletType, l10n).width}
+                  height={getCardIcon(cart.paymentInfo.walletType, l10n).height}
                 />
               </div>
-            ) : cart.paymentInfo.walletType === 'google_pay' ? (
-              <div className="flex items-center gap-3">
-                <Image
-                  src={getCardIcon('google_pay', l10n).img}
-                  alt={l10n.getString('google-pay-logo-alt-text', 'Google Pay logo')}
-                  width={40}
-                  height={24}
-                />
-              </div>
-            ) : cart.paymentInfo.type === 'external_paypal' ? (
-              <Image
-                src={getCardIcon('paypal', l10n).img}
-                alt={l10n.getString('paypal-logo-alt-text', 'PayPal logo')}
-                width={91}
-                height={24}
-              />
-            ) : cart.paymentInfo.type === 'link' ? (
-              <Image
-                src={getCardIcon('link', l10n).img}
-                alt={l10n.getString('link-logo-alt-text', 'Link logo')}
-                width={70}
-                height={24}
-              />
-            ) : (
+            ) : cart.paymentInfo.type === SubPlatPaymentMethodType.Card &&
+              cart.paymentInfo.brand ? (
               <span className="flex items-center gap-2">
                 {cart.paymentInfo.brand && (
                   <Image
@@ -190,6 +170,15 @@ export default async function UpgradeSuccess({
                   `Card ending in ${cart.paymentInfo.last4}`
                 )}
               </span>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Image
+                  src={getCardIcon(cart.paymentInfo.type, l10n).img}
+                  alt={getCardIcon(cart.paymentInfo.type, l10n).altText}
+                  width={getCardIcon(cart.paymentInfo.type, l10n).width}
+                  height={getCardIcon(cart.paymentInfo.type, l10n).height}
+                />
+              </div>
             )}
           </div>
         </div>
