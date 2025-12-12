@@ -333,7 +333,7 @@ downloadSubscription-link-action-2 = Započni
 fraudulentAccountDeletion-subject-2 = Tvoj { -product-mozilla-account } je izbrisan
 fraudulentAccountDeletion-title = Tvoj račun je izbrisan
 fraudulentAccountDeletion-content-part1-v2 = Nedavno je stvoren { -product-mozilla-account } i pretplata je naplaćena koristeći ovu e-mail adresu. Kao što radimo sa svim novim računima, zatražili smo da potvrdiš svoj račun potvrđivanjem ove e-mail adrese.
-fraudulentAccountDeletion-content-part2-v2 = Trenutačno vidimo da račun nikada nije potvrđen. Budući da ovaj korak nije dovršen, nismo sigurni je li se radi o autoriziranoj pretplati. Zbog toga je pod ovom e-mail adresom registrirani { -product-mozilla-account } izbrisan, a pretplata je otkazana uz puni povrat novca.
+fraudulentAccountDeletion-content-part2-v2 = Trenutačno vidimo da račun nikada nije potvrđen. Budući da ovaj korak nije dovršen, nismo sigurni radi li se o autoriziranoj pretplati. Zbog toga je pod ovom e-mail adresom registrirani { -product-mozilla-account } izbrisan, a pretplata je otkazana uz puni povrat novca.
 fraudulentAccountDeletion-contact = Ako imaš pitanja, kontaktiraj naš <a data-l10n-name="mozillaSupportUrl">tim za podršku</a>.
 # Variables:
 #  $mozillaSupportUrl (String) - Link to https://support.mozilla.org
