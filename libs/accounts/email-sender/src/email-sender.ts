@@ -43,6 +43,11 @@ export type MailerConfig = {
   password?: string;
   sesConfigurationSet?: string;
   sender: string;
+  retry: {
+    maxAttempts: number;
+    backoffMs: number;
+    ignoreTemplates?: string[];
+  };
 };
 
 /**
@@ -243,7 +248,7 @@ export class EmailSender {
       // xMailer to false in the options below.
       email.headers['X-Mailer'] = '';
 
-      const info = await this.emailClient.sendMail({
+      const sendMailPayload = {
         from: email.from,
         to: email.to,
         cc: email.cc,
@@ -255,7 +260,27 @@ export class EmailSender {
         // Legacy auth-server implementation provided these, but they are not valid nodemailer options...
         // preview: email.preview,
         // xMailer: false,
-      });
+      };
+
+      let info: nodemailer.SentMessageInfo; // is this the right type? it's just 'any' in the nodemailer types 😂
+      const retryIgnoreTemplates = this.config.retry?.ignoreTemplates || [];
+      const isIgnoredTemplate = retryIgnoreTemplates.includes(email.template);
+      const { maxAttempts, backoffMs } = this.config.retry || {
+        maxAttempts: 0,
+        backoffMs: 0,
+      };
+      const canRetry = maxAttempts > 1 && backoffMs > 0 && !isIgnoredTemplate;
+
+      if (canRetry) {
+        info = await this.retryWithBackoff(
+          () => this.emailClient.sendMail(sendMailPayload),
+          this.config.retry,
+          email
+        );
+      } else {
+        info = await this.emailClient.sendMail(sendMailPayload);
+      }
+
       this.log.debug('mailer.send', {
         status: info.message,
         id: info.messageId,
@@ -299,5 +324,42 @@ export class EmailSender {
       // Throw error back to calling code.
       throw err;
     }
+  }
+
+  /**
+   * Attempts the fn factory, with exponential backoff to the max attempts specified in config.
+   *
+   * If all attempts fail, the error from the last attempt is thrown.
+   * @param fn The promise to retry
+   */
+  retryWithBackoff<T>(
+    fn: () => Promise<T>,
+    { maxAttempts, backoffMs }: MailerConfig['retry'],
+    { template }: Pick<Email, 'template'>
+  ): Promise<T> {
+    let attempts = 0;
+
+    return new Promise((resolve, reject) => {
+      const execute = async () => {
+        try {
+          attempts++;
+          const result = await fn();
+          resolve(result);
+        } catch (err) {
+          if (attempts < maxAttempts) {
+            this.statsd.increment('email.send.retry', {
+              template,
+            });
+            setTimeout(execute, backoffMs * Math.pow(2, attempts - 1));
+          } else {
+            this.statsd.increment('email.send.retry.failure', {
+              template,
+            });
+            reject(err);
+          }
+        }
+      };
+      execute();
+    });
   }
 }
