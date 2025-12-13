@@ -18,6 +18,7 @@
     "host": "localhost",
     "port": 9999,
     "secure": false,
+    "ignoreTLS": true,
     "redirectDomain": "localhost",
     "subscriptionTermsUrl": "https://www.mozilla.org/about/legal/terms/subscription-services",
     "subscriptionSettingsUrl": "http://localhost:3035/",
