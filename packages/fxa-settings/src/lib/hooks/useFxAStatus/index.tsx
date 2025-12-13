@@ -55,7 +55,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
           isPairing: false,
           service: Constants.SYNC_SERVICE,
         });
-        if (!webChannelEngines && status.capabilities.engines) {
+        if (!webChannelEngines && status?.capabilities.engines) {
           // choose_what_to_sync may be disabled for mobile sync, see:
           // https://github.com/mozilla/application-services/issues/1761
           // Desktop OAuth Sync will always provide this capability too
@@ -69,7 +69,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
         }
         // Check if third party auth (passwordless) log in to the browser is supported
         if (
-          status.capabilities.keys_optional &&
+          status?.capabilities.keys_optional &&
           isOAuthNative &&
           integration.isFirefoxNonSync()
         ) {
@@ -77,7 +77,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
         } else {
           setSupportsKeysOptionalLogin(false);
         }
-        if (status.capabilities.can_link_account_uid) {
+        if (status?.capabilities.can_link_account_uid) {
           setSupportsCanLinkAccountUid(true);
         } else {
           setSupportsCanLinkAccountUid(false);

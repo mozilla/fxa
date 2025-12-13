@@ -53,11 +53,11 @@ const WebChannelExample = (_: RouteComponentProps) => {
                   context: 'fx_desktop_v3',
                 });
                 signedInUser.authAt = Date.now();
-                signedInUser.email = status.signedInUser?.email || 'unknown';
+                signedInUser.email = status?.signedInUser?.email || 'unknown';
                 signedInUser.sessionToken =
-                  status.signedInUser?.sessionToken || 'unknown';
-                signedInUser.uid = status.signedInUser?.uid || 'unknown';
-                signedInUser.verified = status.signedInUser?.verified || false;
+                  status?.signedInUser?.sessionToken || 'unknown';
+                signedInUser.uid = status?.signedInUser?.uid || 'unknown';
+                signedInUser.verified = status?.signedInUser?.verified || false;
                 setSignedInUser(signedInUser);
                 setFxaStatusResult(JSON.stringify(status, null, 1));
               }}

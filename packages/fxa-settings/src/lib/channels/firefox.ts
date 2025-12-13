@@ -65,18 +65,20 @@ type FxAStatusRequest = {
   context: string; // ex. 'fx_desktop_v3'
 };
 
-export type FxAStatusResponse = {
-  capabilities: {
-    engines: string[];
-    multiService: boolean;
-    pairing: boolean;
-    choose_what_to_sync?: boolean;
-    keys_optional?: boolean;
-    can_link_account_uid?: boolean;
-  };
-  clientId?: string;
-  signedInUser?: SignedInUser;
-};
+export type FxAStatusResponse =
+  | {
+      capabilities: {
+        engines: string[];
+        multiService: boolean;
+        pairing: boolean;
+        choose_what_to_sync?: boolean;
+        keys_optional?: boolean;
+        can_link_account_uid?: boolean;
+      };
+      clientId?: string;
+      signedInUser?: SignedInUser;
+    }
+  | undefined;
 
 export type SignedInUser = {
   email: string;
@@ -395,7 +397,7 @@ export class Firefox extends EventTarget {
           );
 
           const status = event.detail as FxAStatusResponse;
-          resolve(status.signedInUser);
+          resolve(status?.signedInUser);
         };
 
         this.addEventListener(FirefoxCommand.FxAStatus, handleFxAStatusEvent);
