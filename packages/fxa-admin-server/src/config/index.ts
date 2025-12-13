@@ -854,6 +854,32 @@ const conf = convict({
       default: 30000,
       env: 'SMTP_DNS_TIMEOUT',
     },
+    retry: {
+      maxAttempts: {
+        doc: 'Maximum number of attempts for sending an email IF it fails. 1 means 1 additional attempt after the initial failure.',
+        format: 'int',
+        default: 3,
+        env: 'SMTP_RETRY_MAX_RETRIES',
+      },
+      backOffMs: {
+        doc: `Number of milliseconds to exponentially back off when retrying sending an email.`,
+        format: 'int',
+        default: 200,
+        env: 'SMTP_RETRY_BACKOFF_MS',
+      },
+      jitter: {
+        doc: 'Jitter factor (0-1) to add randomness to backoff timing. 0 = no jitter, 1 = up to 100% jitter.',
+        format: Number,
+        default: 0.3,
+        env: 'SMTP_RETRY_JITTER',
+      },
+      maxDelayMs: {
+        doc: 'Maximum delay in milliseconds to cap the backoff at.',
+        format: 'int',
+        default: 1000 * 10, // 10 seconds maximum delay
+        env: 'SMTP_RETRY_MAX_DELAY_MS',
+      },
+    },
   },
   bounces: {
     enabled: {

@@ -43,6 +43,16 @@ export type MailerConfig = {
   password?: string;
   sesConfigurationSet?: string;
   sender: string;
+  retry: {
+    /** Maximum number of attempts for sending an email IF it fails. 1 means 1 additional attempt after the initial failure. */
+    maxAttempts: number;
+    /** Number of milliseconds to exponentially back off when retrying sending an email. */
+    backOffMs: number;
+    /** Jitter factor (0-1) to add randomness to backoff timing. 0 = no jitter, 1 = up to 100% jitter. */
+    jitter: number;
+    /** Maximum delay in milliseconds to cap the backoff at. */
+    maxDelayMs: number;
+  };
 };
 
 /**
@@ -209,6 +219,20 @@ export class EmailSender {
     return await this.sendMail(email);
   }
 
+  /**
+   * Calculates the backoff delay with exponential increase, jitter, and max cap.
+   * @param attempt The current attempt number (0-indexed)
+   * @returns The delay in milliseconds to wait before the next retry
+   */
+  calculateBackoffDelay(attempt: number): number {
+    const { backOffMs, jitter, maxDelayMs } = this.config.retry;
+
+    const exponential = backOffMs * Math.pow(2, attempt);
+    const withJitter = exponential * (1 + Math.random() * jitter);
+
+    return Math.min(withJitter, maxDelayMs);
+  }
+
   private async hasBounceErrors({
     to,
     template,
@@ -232,18 +256,25 @@ export class EmailSender {
     return false;
   }
 
-  private async sendMail(email: Email): Promise<{
+  private async sendMail(
+    email: Email,
+    attempt = 0
+  ): Promise<{
     sent: boolean;
     message?: string;
     messageId?: string;
     response?: string;
   }> {
+    const { maxAttempts, backOffMs } = this.config.retry;
+    const isRetry = attempt > 0;
+    const isFinalAttempt = attempt >= maxAttempts;
+
     try {
       // Make sure X-Mailer: '' is set in headers. This used to be done by setting
       // xMailer to false in the options below.
       email.headers['X-Mailer'] = '';
 
-      const info = await this.emailClient.sendMail({
+      const sendMailPayload = {
         from: email.from,
         to: email.to,
         cc: email.cc,
@@ -255,17 +286,25 @@ export class EmailSender {
         // Legacy auth-server implementation provided these, but they are not valid nodemailer options...
         // preview: email.preview,
         // xMailer: false,
-      });
+      };
+
+      const info: nodemailer.SentMessageInfo =
+        await this.emailClient.sendMail(sendMailPayload);
+
       this.log.debug('mailer.send', {
         status: info.message,
         id: info.messageId,
         to: email.to,
+        isRetry,
+        retryAttempt: attempt,
       });
 
       this.log.debug('mailer.send.1', {
         email: email.to,
         template: email.template,
         headers: Object.keys(email.headers).join(','),
+        isRetry,
+        retryAttempt: attempt,
       });
 
       // Relay email payload and send status back to calling code.
@@ -276,7 +315,29 @@ export class EmailSender {
         response: info?.response,
       };
     } catch (err) {
-      // Make sure error is logged & captured
+      // retry if configured
+      if (!isFinalAttempt && backOffMs > 0) {
+        this.statsd.increment('email.send.retry', {
+          template: email.template,
+        });
+
+        const backoffDelay = this.calculateBackoffDelay(attempt);
+
+        this.log.warn('mailer.send.retry', {
+          err: err.message,
+          to: email.to,
+          template: email.template,
+          retryAttempt: attempt,
+          nextAttempt: attempt + 1,
+          backoffMs: Math.round(backoffDelay),
+        });
+
+        // Wait for backoff period, then retry
+        await new Promise((resolve) => setTimeout(resolve, backoffDelay));
+        return this.sendMail(email, ++attempt);
+      }
+
+      // This is the final failure - log and capture to Sentry
       if (isAppError(err)) {
         this.log.error('mailer.send.error', {
           err: err.message,
@@ -284,17 +345,27 @@ export class EmailSender {
           errno: err.errno,
           to: email.to,
           template: email.template,
+          isRetry,
+          retryAttempt: attempt,
         });
       } else {
         this.log.error('mailer.send.error', {
           err: err.message,
           to: email.to,
           template: email.template,
+          isRetry,
+          retryAttempt: attempt,
         });
       }
 
-      // Being paranoid and capturing error manually...
+      // Only capture to Sentry on final failure
       Sentry.captureException(err);
+
+      if (isRetry) {
+        this.statsd.increment('email.send.retry.failure', {
+          template: email.template,
+        });
+      }
 
       // Throw error back to calling code.
       throw err;
