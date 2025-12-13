@@ -15,6 +15,7 @@ const data = {
   ...MOCK_USER_INFO,
   link: 'http://localhost:3030/settings',
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
+  providerName: 'Apple',
 };
 
 const createStory = storyWithProps<TemplateData>(

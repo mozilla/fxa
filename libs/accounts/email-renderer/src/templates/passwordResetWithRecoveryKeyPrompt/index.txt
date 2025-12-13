@@ -1,6 +1,6 @@
 passwordResetWithRecoveryKeyPrompt-title = "Your password has been reset"
 
-passwordResetWithRecoveryKeyPrompt-description-2 = "You reset your Mozilla account password on:"
+passwordResetWithRecoveryKeyPrompt-description = "You reset your Mozilla account password on:"
 
 <%- include('/partials/userInfo/index.txt') %>
 

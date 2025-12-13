@@ -164,6 +164,21 @@ export class FxaEmailRenderer extends EmailRenderer {
     });
   }
 
+  renderNewDeviceLoginStrapi(
+    templateValues: NewDeviceLogin.TemplateData,
+    layoutTemplateValues: FxaLayouts.TemplateData
+  ) {
+    return this.renderEmail({
+      template: NewDeviceLogin.template,
+      version: NewDeviceLogin.version,
+      layout: NewDeviceLogin.layout,
+      includes: NewDeviceLogin.getIncludes(templateValues),
+      ...templateValues,
+      ...layoutTemplateValues,
+      target: 'strapi',
+    });
+  }
+
   async renderPasswordChanged(
     templateValues: PasswordChanged.TemplateData,
     layoutTemplateValues: FxaLayouts.TemplateData
