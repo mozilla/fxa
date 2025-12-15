@@ -42,18 +42,6 @@ export class EmailService {
       this.getLayoutData()
     );
 
-    console.log('!!! headers', {
-      template: {
-        name: emailContent.template,
-        version: emailContent.version,
-      },
-      context: {
-        language: 'en',
-        serverName: 'fxa-admin-server',
-      },
-      headers: {},
-    });
-
     const headers = await this.mailer.buildHeaders({
       template: {
         name: emailContent.template,

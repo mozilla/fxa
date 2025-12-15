@@ -221,14 +221,25 @@ type RelyingPartyDto {
   canGrant: Boolean!
   publicClient: Boolean!
   trusted: Boolean!
-  allowedScopes: String
-  notes: String
+  allowedScopes: String!
+  notes: String!
+  hasSecret: Boolean!
+  hasPreviousSecret: Boolean!
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type RelyingPartyCreatedDto {
+  id: String!
+  secret: String!
+}
+
+type RotateSecretDto {
+  secret: String!
+}
 
 type BlockStatus {
   retryAfter: Float!
@@ -266,9 +277,11 @@ type Mutation {
   resetAccounts(locators: [String!]!, notificationEmail: String!): [AccountResetResponse!]!
   clearEmailBounce(email: String!): Boolean!
   clearRateLimits(ip: String, email: String, uid: String): Float!
-  createRelyingParty(relyingParty: RelyingPartyUpdateDto!): String!
+  createRelyingParty(relyingParty: RelyingPartyUpdateDto!): RelyingPartyCreatedDto!
   updateRelyingParty(id: String!, relyingParty: RelyingPartyUpdateDto!): Boolean!
   deleteRelyingParty(id: String!): Boolean!
+  rotateRelyingPartySecret(id: String!): RotateSecretDto!
+  deletePreviousRelyingPartySecret(id: String!): Boolean!
 }
 
 input RelyingPartyUpdateDto {
@@ -278,6 +291,6 @@ input RelyingPartyUpdateDto {
   canGrant: Boolean!
   publicClient: Boolean!
   trusted: Boolean!
-  allowedScopes: String
-  notes: String
+  allowedScopes: String!
+  notes: String!
 }

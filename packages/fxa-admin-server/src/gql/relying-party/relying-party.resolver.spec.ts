@@ -80,8 +80,8 @@ describe('#integration - RelyingPartyResolver', () => {
     expect(result).toEqual([
       {
         ...MOCK_RP,
-        $intBoolFields: [],
-        $uuidFields: ['id'],
+        hasSecret: false,
+        hasPreviousSecret: false,
       },
     ]);
   });
@@ -102,8 +102,10 @@ describe('#integration - RelyingPartyResolver', () => {
     const result = await resolver.createRelyingParty(payload);
 
     expect(result).toBeDefined();
+    expect(result.id).toBeDefined();
+    expect(result.secret).toBeDefined();
     expect(
-      (await resolver.relyingParties()).some((x) => x.id === result)
+      (await resolver.relyingParties()).some((x) => x.id === result.id)
     ).toBeTruthy();
   });
 
@@ -131,9 +133,9 @@ describe('#integration - RelyingPartyResolver', () => {
       allowedScopes: '',
       notes: 'test updated',
     };
-    const result2 = await resolver.updateRelyingParty(result, payload2);
+    const result2 = await resolver.updateRelyingParty(result.id, payload2);
     const updatedState = (await resolver.relyingParties()).find(
-      (x) => x.id === result
+      (x) => x.id === result.id
     );
     expect(result).toBeDefined();
     expect(result2).toBeTruthy();
@@ -155,5 +157,46 @@ describe('#integration - RelyingPartyResolver', () => {
     expect(
       (await resolver.relyingParties()).some((x) => x.id === MOCK_RP.id)
     ).toBeFalsy();
+  });
+
+  it('should rotate relying party secret', async () => {
+    const payload = {
+      name: 'foo-rotate',
+      imageUri: 'https://mozilla.com/foo/logo.png',
+      redirectUri: 'https://mozilla.com/foo/signin',
+      canGrant: false,
+      publicClient: false,
+      createdAt: new Date('2025-10-14T00:47:42.000Z'),
+      trusted: true,
+      allowedScopes: MOCK_RP.allowedScopes,
+      notes: 'test',
+    };
+    const rp = await resolver.createRelyingParty(payload);
+
+    const rpStateBefore = (await resolver.relyingParties()).find(
+      (x) => x.id === rp.id
+    );
+
+    // Rotate the secret
+    const result = await resolver.rotateRelyingPartySecret(rp.id);
+    const rpStateAfterRotate = (await resolver.relyingParties()).find(
+      (x) => x.id === rp.id
+    );
+
+    // Revoke previous secret
+    await resolver.deletePreviousRelyingPartySecret(rp.id);
+    const rpStateAfterRevoke = (await resolver.relyingParties()).find(
+      (x) => x.id === rp.id
+    );
+
+    expect(rp).toBeDefined();
+    expect(result).toBeDefined();
+    expect(result.secret).toMatch(/^[0-9a-f]{64}$/);
+    expect(rpStateBefore?.hasSecret).toBeTruthy();
+    expect(rpStateBefore?.hasPreviousSecret).toBeFalsy();
+    expect(rpStateAfterRotate?.hasSecret).toBeTruthy();
+    expect(rpStateAfterRotate?.hasPreviousSecret).toBeTruthy();
+    expect(rpStateAfterRevoke?.hasSecret).toBeTruthy();
+    expect(rpStateAfterRevoke?.hasPreviousSecret).toBeFalsy();
   });
 });
