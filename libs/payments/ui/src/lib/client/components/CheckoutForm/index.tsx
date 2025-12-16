@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
-import { Localized, } from '@fluent/react';
-import { PayPalButtons } from '@paypal/react-paypal-js';
+import { Localized } from '@fluent/react';
+import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import * as Form from '@radix-ui/react-form';
 import Stripe from 'stripe';
 import {
@@ -41,6 +41,8 @@ import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
 import { PaymentProvidersType } from '@fxa/payments/cart';
 import PaypalIcon from '@fxa/shared/assets/images/payment-methods/paypal.svg';
 import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
+import spinnerImage from '@fxa/shared/assets/images/spinner.svg';
+import * as Sentry from '@sentry/nextjs';
 
 const getAttributionParams = (searchParams: ReadonlyURLSearchParams) => {
   const paramsRecord = Object.fromEntries(searchParams);
@@ -75,10 +77,10 @@ interface CheckoutFormProps {
     };
     paymentInfo?: {
       type:
-        | Stripe.PaymentMethod.Type
-        | 'google_iap'
-        | 'apple_iap'
-        | 'external_paypal';
+      | Stripe.PaymentMethod.Type
+      | 'google_iap'
+      | 'apple_iap'
+      | 'external_paypal';
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
@@ -221,12 +223,12 @@ export function CheckoutForm({
     const confirmationTokenParams: ConfirmationTokenCreateParams | undefined =
       !isSavedPaymentMethod
         ? {
-            payment_method_data: {
-              billing_details: {
-                email: sessionEmail || undefined,
-              },
+          payment_method_data: {
+            billing_details: {
+              email: sessionEmail || undefined,
             },
-          }
+          },
+        }
         : undefined;
 
     // Create the ConfirmationToken using the details collected by the Payment Element
@@ -345,46 +347,13 @@ export function CheckoutForm({
         {!isPaymentElementLoading && (
           <Form.Submit asChild>
             {showPayPalButton ? (
-              <PayPalButtons
-                style={{
-                  layout: 'horizontal',
-                  color: 'gold',
-                  shape: 'rect',
-                  label: 'paypal',
-                  height: 48,
-                  borderRadius: 6, // This should match 0.375rem
-                  tagline: false,
-                }}
-                className="mt-6 flex justify-center w-full"
-                createOrder={async () => getPayPalCheckoutToken(cart.currency)}
-                onApprove={async (data: { orderID: string }) => {
-                  await checkoutCartWithPaypal(
-                    cart.id,
-                    cart.version,
-                    {
-                      locale,
-                      displayName: '',
-                    },
-                    getAttributionParams(searchParams),
-                    sessionUid,
-                    data.orderID
-                  );
-                  const queryParamString = searchParams.toString()
-                    ? `?${searchParams.toString()}`
-                    : '';
-                  router.push('./processing' + queryParamString);
-                }}
-                onError={async () => {
-                  await finalizeCartWithError(
-                    cart.id,
-                    CartErrorReasonId.BASIC_ERROR
-                  );
-                  const queryParamString = searchParams.toString()
-                    ? `?${searchParams.toString()}`
-                    : '';
-
-                  router.push('./error' + queryParamString);
-                }}
+              <CheckoutPayPalButton
+                cartId={cart.id}
+                cartVersion={cart.version}
+                cartCurrency={cart.currency}
+                locale={locale}
+                sessionUid={sessionUid}
+                searchParams={searchParams}
                 disabled={loading || !formEnabled}
               />
             ) : (
@@ -423,6 +392,94 @@ export function CheckoutForm({
           </Form.Submit>
         )}
       </div>
-    </Form.Root>
+    </Form.Root >
   );
 }
+
+interface CheckoutPayPalButtonProps {
+  cartId: string;
+  cartVersion: number;
+  cartCurrency: string;
+  locale: string;
+  sessionUid?: string;
+  searchParams: ReadonlyURLSearchParams;
+  disabled: boolean;
+}
+
+function CheckoutPayPalButton({
+  cartId,
+  cartVersion,
+  cartCurrency,
+  locale,
+  sessionUid,
+  searchParams,
+  disabled,
+}: CheckoutPayPalButtonProps) {
+  const router = useRouter();
+  const [{ isPending, isRejected }] = usePayPalScriptReducer();
+
+  if (isPending) {
+    return (
+      <Image
+        src={spinnerImage}
+        alt=""
+        className="absolute animate-spin h-8 w-8"
+      />
+    )
+  }
+
+  if (isRejected) {
+    Sentry.captureMessage('PayPal script failed to load');
+    return (
+      <Localized id="paypal-unavailable-error">
+        <div className="mt-6 flex justify-center w-full text-center text-sm">PayPal is currently unavailable. Please use another payment option or try again later.</div>
+      </Localized>
+    )
+  }
+
+  return (
+    <PayPalButtons
+      style={{
+        layout: 'horizontal',
+        color: 'gold',
+        shape: 'rect',
+        label: 'paypal',
+        height: 48,
+        borderRadius: 6, // This should match 0.375rem
+        tagline: false,
+      }}
+      className="mt-6 flex justify-center w-full"
+      createOrder={async () => getPayPalCheckoutToken(cartCurrency)}
+      onApprove={async (data: { orderID: string }) => {
+        await checkoutCartWithPaypal(
+          cartId,
+          cartVersion,
+          {
+            locale,
+            displayName: '',
+          },
+          getAttributionParams(searchParams),
+          sessionUid,
+          data.orderID
+        );
+        const queryParamString = searchParams.toString()
+          ? `?${searchParams.toString()}`
+          : '';
+        router.push('./processing' + queryParamString);
+      }}
+      onError={async () => {
+        await finalizeCartWithError(
+          cartId,
+          CartErrorReasonId.BASIC_ERROR
+        );
+        const queryParamString = searchParams.toString()
+          ? `?${searchParams.toString()}`
+          : '';
+
+        router.push('./error' + queryParamString);
+      }}
+      disabled={disabled}
+    />
+  )
+}
+
