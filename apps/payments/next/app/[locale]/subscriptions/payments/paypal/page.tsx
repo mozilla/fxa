@@ -20,10 +20,8 @@ import errorIcon from '@fxa/shared/assets/images/error.svg';
 
 export default async function PaypalPaymentManagementPage({
   params,
-  searchParams,
 }: {
   params: ManageParams;
-  searchParams: Record<string, string | string[]> | undefined;
 }) {
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage);
