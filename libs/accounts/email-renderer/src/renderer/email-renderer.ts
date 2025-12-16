@@ -144,7 +144,7 @@ export class EmailRenderer extends Localizer {
     );
 
     return {
-      langauge: selectedLocale,
+      language: selectedLocale,
       html: rootElement.outerHTML,
       text: localizedPlaintext,
       subject: context.subject,
