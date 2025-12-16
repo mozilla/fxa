@@ -563,13 +563,18 @@ export class AccountHandler {
     }
 
     await this.customs.check(request, email, 'accountCreate');
-    await deleteAccountIfUnverified(
-      this.db,
-      this.stripeHelper,
-      this.log,
-      request,
-      email
-    );
+
+    if (this.config.accountDestroy.onCreateIfUnverified) {
+      await deleteAccountIfUnverified(
+        this.db,
+        this.stripeHelper,
+        this.log,
+        request,
+        email
+      );
+    } else if (await this.db.accountExists(email)) {
+      throw error.accountExists(email);
+    }
 
     // Block creation if email is reserved for secondary email registration
     const normalizedEmail = normalizeEmail(email);
@@ -670,13 +675,17 @@ export class AccountHandler {
 
     const client = await getClientById(clientId);
 
-    await deleteAccountIfUnverified(
-      this.db,
-      this.stripeHelper,
-      this.log,
-      request,
-      email
-    );
+    if (this.config.accountDestroy.onCreateIfUnverified) {
+      await deleteAccountIfUnverified(
+        this.db,
+        this.stripeHelper,
+        this.log,
+        request,
+        email
+      );
+    } else if (await this.db.accountExists(email)) {
+      throw error.accountExists(email);
+    }
 
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();
