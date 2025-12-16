@@ -94,6 +94,7 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
   config.securityHistory = config.securityHistory || {};
   config.gleanMetrics = config.gleanMetrics || defaultConfig.gleanMetrics;
   config.cloudTasks = mocks.mockCloudTasksConfig;
+  config.accountDestroy = defaultConfig.accountDestroy;
 
   const log = options.log || mocks.mockLog();
   Container.set(AuthLogger, log);

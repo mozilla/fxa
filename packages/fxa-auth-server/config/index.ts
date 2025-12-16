@@ -2079,6 +2079,12 @@ const convictConf = convict({
       format: Boolean,
       env: 'ACCOUNT_DESTROY__REQUIRE_VERIFIED_SESSION',
     },
+    onCreateIfUnverified: {
+      doc: 'Whether or not the account record should be deleted during account creation if the email has not yet been verified..',
+      default: true,
+      format: Boolean,
+      env: 'ACCOUNT_DESTROY__ON_CREATE_IF_UNVERIFIED',
+    },
   },
   passwordForgotOtp: {
     digits: {
