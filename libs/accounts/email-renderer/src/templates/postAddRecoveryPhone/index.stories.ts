@@ -18,6 +18,7 @@ const data = {
   resetLink: 'http://localhost:3030/reset_password',
   twoFactorSupportLink:
     'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

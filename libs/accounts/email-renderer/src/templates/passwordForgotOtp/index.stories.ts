@@ -14,6 +14,7 @@ export default {
 const data = {
   ...MOCK_USER_INFO,
   code: '96318398',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

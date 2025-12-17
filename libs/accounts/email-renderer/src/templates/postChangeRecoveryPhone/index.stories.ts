@@ -14,6 +14,7 @@ export default {
 const data = {
   ...MOCK_USER_INFO,
   resetLink: 'http://localhost:3030/reset_password',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

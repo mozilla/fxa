@@ -13,6 +13,8 @@ export default {
 const data = {
   deletionDate: 'Thursday, Jan 9, 2025',
   link: 'http://localhost:3030/signin',
+  supportUrl: 'https://support.mozilla.org',
+  unsubscribeUrl: 'https://accounts.firefox.com/unsubscribe',
 };
 
 const createStory = storyWithProps<TemplateData>(

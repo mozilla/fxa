@@ -16,6 +16,10 @@ const data = {
   link: 'http://localhost:3030/post_verify/finish_account_setup/set_password',
   subscriptionSupportUrl: 'http://localhost:3030/support',
   isFinishSetup: true,
+  invoiceDateOnly: '10/13/2021',
+  invoiceNumber: '8675309',
+  invoiceTotal: '$20.00',
+  nextInvoiceDateOnly: '11/13/2021',
 };
 
 const createStory = subplatStoryWithProps<TemplateData>(

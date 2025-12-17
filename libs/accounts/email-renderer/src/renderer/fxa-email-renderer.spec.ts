@@ -51,11 +51,13 @@ const renderAndSnapshotEmail = async <
 const mockLink = 'http://localhost:3030/mock-link';
 const mockLinkOneClick = 'http://localhost:3030/mock-one-click-link';
 const mockLinkSupport = 'http://localhost:3030/mock-support-link';
+const mockLinkUnsubscribe = 'http://localhost:3030/mock-unsubscribe';
 const mockLinkReset = 'http://localhost:3030/mock-reset-link';
 const mockLinkPasswordChange =
   'http://localhost:3030/mock-password-change-link';
 const mockLinkRevokeAccountRecovery =
   'http://localhost:3030/mock-revoke-account-recovery-link';
+const mockCssPath = '';
 
 const mockEmail = 'mock-email@mozilla.com';
 
@@ -98,6 +100,10 @@ describe('FxA Email Renderer', () => {
           link: mockLink,
           oneClickLink: mockLinkOneClick,
           productName: 'Firefox',
+          cssPath: mockCssPath,
+          hideDeviceLink: false,
+          onDesktopOrTabletDevice: false,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -112,6 +118,10 @@ describe('FxA Email Renderer', () => {
           link: mockLink,
           oneClickLink: mockLinkOneClick,
           productName: 'Firefox',
+          supportUrl: mockLinkSupport,
+          cssPath: mockCssPath,
+          hideDeviceLink: false,
+          onDesktopOrTabletDevice: false,
         },
         defaultLayoutTemplateValues
       );
@@ -122,7 +132,12 @@ describe('FxA Email Renderer', () => {
     it('should render and snapshot email', async () => {
       await renderAndSnapshotEmail(
         'renderInactiveAccountFinalWarning',
-        { deletionDate: 'January 1, 2025', link: mockLink },
+        {
+          deletionDate: 'January 1, 2025',
+          link: mockLink,
+          supportUrl: mockLinkSupport,
+          unsubscribeUrl: mockLinkUnsubscribe,
+        },
         defaultLayoutTemplateValues
       );
     });
@@ -132,7 +147,12 @@ describe('FxA Email Renderer', () => {
     it('should render and snapshot email', async () => {
       await renderAndSnapshotEmail(
         'renderInactiveAccountFirstWarning',
-        { deletionDate: 'January 1, 2025', link: mockLink },
+        {
+          deletionDate: 'January 1, 2025',
+          link: mockLink,
+          unsubscribeUrl: mockLinkUnsubscribe,
+          supportUrl: mockLinkSupport,
+        },
         defaultLayoutTemplateValues
       );
     });
@@ -142,7 +162,12 @@ describe('FxA Email Renderer', () => {
     it('should render and snapshot email', async () => {
       await renderAndSnapshotEmail(
         'renderInactiveAccountSecondWarning',
-        { deletionDate: 'January 1, 2025', link: mockLink },
+        {
+          deletionDate: 'January 1, 2025',
+          link: mockLink,
+          unsubscribeUrl: mockLinkUnsubscribe,
+          supportUrl: mockLinkSupport,
+        },
         defaultLayoutTemplateValues
       );
     });
@@ -152,7 +177,7 @@ describe('FxA Email Renderer', () => {
     it('should render and snapshot email', async () => {
       await renderAndSnapshotEmail(
         'renderLowRecoveryCodes',
-        { link: mockLink, numberRemaining: 3 },
+        { link: mockLink, numberRemaining: 3, supportUrl: mockLinkSupport },
         defaultLayoutTemplateValues
       );
     });
@@ -171,6 +196,8 @@ describe('FxA Email Renderer', () => {
           device: mockDevice,
           passwordChangeLink: mockLinkSupport,
           mozillaSupportUrl: mockLinkSupport,
+          supportUrl: mockLinkSupport,
+          showBannerWarning: false,
         },
         defaultLayoutTemplateValues
       );
@@ -190,6 +217,8 @@ describe('FxA Email Renderer', () => {
           device: mockDevice,
           passwordChangeLink: mockLinkSupport,
           mozillaSupportUrl: mockLinkSupport,
+          supportUrl: mockLinkSupport,
+          showBannerWarning: false,
         },
         defaultLayoutTemplateValues
       );
@@ -206,6 +235,7 @@ describe('FxA Email Renderer', () => {
           device: mockDevice,
           location: mockLocation,
           resetLink: mockLinkReset,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -232,6 +262,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           device: mockDevice,
           location: mockLocation,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -248,6 +279,7 @@ describe('FxA Email Renderer', () => {
           resetLink: mockLinkReset,
           device: mockDevice,
           location: mockLocation,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -266,6 +298,10 @@ describe('FxA Email Renderer', () => {
           link: mockLink,
           passwordChangeLink: mockLinkPasswordChange,
           productName: 'Sync',
+          supportUrl: mockLinkSupport,
+          cssPath: mockCssPath,
+          hideDeviceLink: false,
+          onDesktopOrTabletDevice: false,
         },
         defaultLayoutTemplateValues
       );
@@ -284,6 +320,7 @@ describe('FxA Email Renderer', () => {
           resetLink: mockLinkReset,
           twoFactorSettingsLink: mockLinkSupport,
           time: '12:00 PM',
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -302,6 +339,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           passwordChangeLink: mockLinkPasswordChange,
           productName: 'Sync',
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -320,6 +358,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           passwordChangeLink: mockLinkPasswordChange,
           revokeAccountRecoveryLink: mockLinkRevokeAccountRecovery,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -338,6 +377,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           passwordChangeLink: mockLinkPasswordChange,
           providerName: 'Google',
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -357,6 +397,7 @@ describe('FxA Email Renderer', () => {
           maskedLastFourPhoneNumber: '•••• •••• 1234',
           resetLink: mockLinkReset,
           twoFactorSupportLink: mockLinkSupport,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -375,6 +416,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           twoFactorSupportLink: mockLinkSupport,
           passwordChangeLink: mockLinkPasswordChange,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -393,7 +435,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           passwordChangeLink: mockLinkPasswordChange,
           revokeAccountRecoveryLink: mockLinkRevokeAccountRecovery,
-          supportLink: mockLinkSupport,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -408,6 +450,7 @@ describe('FxA Email Renderer', () => {
           email: mockEmail,
           link: mockLink,
           passwordChangeLink: mockLinkPasswordChange,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -424,6 +467,7 @@ describe('FxA Email Renderer', () => {
           location: mockLocation,
           resetLink: mockLinkReset,
           time: '12:00 PM',
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -442,6 +486,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           passwordChangeLink: mockLinkPasswordChange,
           twoFactorSupportLink: mockLinkSupport,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -460,6 +505,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           resetLink: mockLinkReset,
           twoFactorSettingsLink: mockLinkSupport,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -477,6 +523,7 @@ describe('FxA Email Renderer', () => {
           link: mockLink,
           time: '12:00 PM',
           passwordChangeLink: mockLinkPasswordChange,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -494,6 +541,8 @@ describe('FxA Email Renderer', () => {
           link: mockLink,
           time: '12:00 PM',
           passwordChangeLink: mockLinkPasswordChange,
+          supportUrl: mockLinkSupport,
+          revokeAccountRecoveryLink: mockLinkRevokeAccountRecovery,
         },
         defaultLayoutTemplateValues
       );
@@ -510,6 +559,7 @@ describe('FxA Email Renderer', () => {
           location: mockLocation,
           resetLink: mockLinkReset,
           time: '12:00 PM',
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -523,6 +573,7 @@ describe('FxA Email Renderer', () => {
         {
           link: mockLink,
           secondaryEmail: mockEmail,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -540,6 +591,7 @@ describe('FxA Email Renderer', () => {
           link: mockLink,
           time: '12:00 PM',
           passwordChangeLink: mockLinkPasswordChange,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -557,6 +609,7 @@ describe('FxA Email Renderer', () => {
           link: mockLink,
           time: '12:00 PM',
           resetLink: mockLinkReset,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -574,6 +627,7 @@ describe('FxA Email Renderer', () => {
           link: mockLink,
           time: '12:00 PM',
           resetLink: mockLinkReset,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -589,6 +643,9 @@ describe('FxA Email Renderer', () => {
           desktopLink: mockLink,
           onDesktopOrTabletDevice: true,
           productName: 'Firefox',
+          supportUrl: mockLinkSupport,
+          cssPath: mockCssPath,
+          hideDeviceLink: false,
         },
         defaultLayoutTemplateValues
       );
@@ -603,6 +660,7 @@ describe('FxA Email Renderer', () => {
           link: mockLink,
           secondaryEmail: mockEmail,
           passwordChangeLink: mockLinkPasswordChange,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -619,6 +677,7 @@ describe('FxA Email Renderer', () => {
           location: mockLocation,
           link: mockLink,
           time: '12:00 PM',
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -648,6 +707,7 @@ describe('FxA Email Renderer', () => {
         'renderVerificationReminderFinal',
         {
           link: mockLink,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -660,6 +720,7 @@ describe('FxA Email Renderer', () => {
         'renderVerificationReminderFirst',
         {
           link: mockLink,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -672,6 +733,7 @@ describe('FxA Email Renderer', () => {
         'renderVerificationReminderSecond',
         {
           link: mockLink,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -689,6 +751,7 @@ describe('FxA Email Renderer', () => {
           link: mockLink,
           time: '12:00 PM',
           sync: false,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -707,6 +770,7 @@ describe('FxA Email Renderer', () => {
           code: '123456',
           expirationTime: 15,
           passwordChangeLink: mockLinkPasswordChange,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -725,6 +789,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           clientName: 'Firefox Sync',
           passwordChangeLink: mockLinkPasswordChange,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -742,6 +807,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           code: '654321',
           passwordChangeLink: mockLinkPasswordChange,
+          supportUrl: mockLinkSupport,
           serviceName: 'Firefox Sync',
         },
         defaultLayoutTemplateValues
@@ -761,6 +827,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           sync: true,
           passwordChangeLink: mockLinkPasswordChange,
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );
@@ -778,6 +845,7 @@ describe('FxA Email Renderer', () => {
           time: '12:00 PM',
           email: mockEmail,
           code: '789012',
+          supportUrl: 'http://localhost:3030/support',
         },
         defaultLayoutTemplateValues
       );
@@ -793,6 +861,7 @@ describe('FxA Email Renderer', () => {
           device: mockDevice,
           location: mockLocation,
           code: '345678',
+          supportUrl: mockLinkSupport,
         },
         defaultLayoutTemplateValues
       );

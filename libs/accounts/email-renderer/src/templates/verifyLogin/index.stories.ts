@@ -16,6 +16,7 @@ const data = {
   link: 'http://localhost:3030/complete_signin',
   clientName: 'Firefox',
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

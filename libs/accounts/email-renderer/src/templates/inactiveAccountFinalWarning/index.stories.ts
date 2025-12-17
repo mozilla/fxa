@@ -14,6 +14,8 @@ const data = {
   // dates will be passed in to the template already localized and formatted by the email handler
   deletionDate: 'Thursday, Jan 9, 2025',
   link: 'http://localhost:3030/signin',
+  supportUrl: 'https://support.mozilla.org',
+  unsubscribeUrl: 'https://accounts.firefox.com/unsubscribe',
 };
 
 const createStory = storyWithProps<TemplateData>(

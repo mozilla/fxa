@@ -12,6 +12,7 @@ export default {
 
 const data = {
   link: 'http://localhost:3030/verify_email',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

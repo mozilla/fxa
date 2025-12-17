@@ -2,30 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export type TemplateData = {
-  device: {
-    uaBrowser: string;
-    uaOSVersion: string;
-    uaOS: string;
+import { TemplateData as AutomatedEmailNoActionTemplateData } from '../../partials/automatedEmailNoAction';
+import { TemplateData as UserInfoTemplateData } from '../../partials/userInfo';
+
+export type TemplateData = AutomatedEmailNoActionTemplateData &
+  UserInfoTemplateData & {
+    date: string;
+    time: string;
+    clientName: string;
+    passwordChangeLink: string;
+    link: string;
+    mozillaSupportUrl: string;
+    showBannerWarning: boolean;
+    cmsRpClientId?: string;
+    cmsRpFromName?: string;
+    entrypoint?: string;
+    subject?: string;
+    headline?: string;
+    description?: string;
   };
-  location: {
-    stateCode: string;
-    country: string;
-    city: string;
-  };
-  date: string;
-  time: string;
-  clientName: string;
-  passwordChangeLink: string;
-  link: string;
-  mozillaSupportUrl: string;
-  cmsRpClientId?: string;
-  cmsRpFromName?: string;
-  entrypoint?: string;
-  subject?: string;
-  headline?: string;
-  description?: string;
-};
 
 export const template = 'newDeviceLogin';
 export const version = 7;

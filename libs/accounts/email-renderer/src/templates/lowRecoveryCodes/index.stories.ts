@@ -12,6 +12,7 @@ export default {
 
 const data = {
   link: 'http://localhost:3030/settings/two_step_authentication/replace_codes?low_recovery_codes=true',
+  supportUrl: 'https://support.mozilla.org',
   numberRemaining: 1,
 };
 

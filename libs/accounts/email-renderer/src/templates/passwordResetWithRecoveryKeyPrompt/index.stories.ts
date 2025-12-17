@@ -16,6 +16,7 @@ const data = {
   link: 'http://localhost:3030/settings/account_recovery',
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
   productName: 'Firefox',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(
