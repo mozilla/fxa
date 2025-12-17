@@ -89,11 +89,37 @@ export const SignInWithCms = storyWithProps({
   }),
 });
 
+export const SignInWithCmsSplitLayout = storyWithProps({
+  integration: createMockSigninOAuthIntegration({
+    cmsInfo: {
+      ...MOCK_CMS_INFO,
+      SigninPage: {
+        ...MOCK_CMS_INFO.SigninPage!,
+        splitLayout: true,
+      },
+    },
+  }),
+});
+
 export const SignInWithCmsCachedCredentials = storyWithProps({
   sessionToken: MOCK_SESSION_TOKEN,
   integration: createMockSigninOAuthIntegration({
     wantsKeys: false,
     cmsInfo: MOCK_CMS_INFO,
+  }),
+});
+
+export const SignInWithCmsCachedCredentialsSplitLayout = storyWithProps({
+  sessionToken: MOCK_SESSION_TOKEN,
+  integration: createMockSigninOAuthIntegration({
+    wantsKeys: false,
+    cmsInfo: {
+      ...MOCK_CMS_INFO,
+      SigninPage: {
+        ...MOCK_CMS_INFO.SigninPage!,
+        splitLayout: true,
+      },
+    },
   }),
 });
 

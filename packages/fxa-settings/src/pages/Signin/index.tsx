@@ -63,6 +63,7 @@ const Signin = ({
   deeplink,
   flowQueryParams,
   useFxAStatusResult: { supportsKeysOptionalLogin },
+  setCurrentSplitLayout,
 }: SigninProps & RouteComponentProps) => {
   const config = useConfig();
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -376,9 +377,10 @@ const Signin = ({
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninPage.pageTitle;
+  const splitLayout = cmsInfo?.SigninPage.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"

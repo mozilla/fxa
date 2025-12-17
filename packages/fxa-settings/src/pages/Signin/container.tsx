@@ -155,11 +155,13 @@ const SigninContainer = ({
   serviceName,
   flowQueryParams,
   useFxAStatusResult,
+  setCurrentSplitLayout,
 }: {
   integration: Integration;
   serviceName: MozServices;
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const config = useConfig();
   const authClient = useAuthClient();
@@ -530,21 +532,34 @@ const SigninContainer = ({
     return <OAuthDataError error={oAuthDataError} />;
   }
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninPage?.splitLayout;
+
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done
   if (!email || validationError) {
     navigateWithQuery('/');
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   // Wait for async call (if needed) to complete
   if (hasLinkedAccount === undefined || hasPassword === undefined) {
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   if (isUnsupportedContext(integration.data.context)) {
     hardNavigate('/update_firefox', {}, true);
-    return <AppLayout loading />;
+    return (
+      <AppLayout {...{ loading: true, splitLayout, setCurrentSplitLayout }} />
+    );
   }
 
   const deeplink = queryParamModel.deeplink;
@@ -570,6 +585,7 @@ const SigninContainer = ({
         deeplink,
         flowQueryParams,
         useFxAStatusResult,
+        setCurrentSplitLayout,
       }}
     />
   );

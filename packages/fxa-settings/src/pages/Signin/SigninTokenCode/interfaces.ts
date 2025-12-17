@@ -12,6 +12,7 @@ export type SigninTokenCodeProps = {
   integration: SigninIntegration;
   signinState: SigninLocationState;
   onSessionVerified: (sessionId: string) => Promise<void>;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & SensitiveData.AuthData;
 
 export interface TotpStatusResponse {

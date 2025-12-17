@@ -55,9 +55,11 @@ import AppLayout from '../../../components/AppLayout';
 export const SigninUnblockContainer = ({
   integration,
   flowQueryParams,
+  setCurrentSplitLayout,
 }: {
   integration: SigninUnblockIntegration;
   flowQueryParams: QueryParams;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -226,9 +228,16 @@ export const SigninUnblockContainer = ({
     return <OAuthDataError error={oAuthDataError} />;
   }
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninUnblockCodePage?.splitLayout;
+
   if (!email || !password) {
     navigateWithQuery('/');
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
   return (
     <SigninUnblock
@@ -241,6 +250,7 @@ export const SigninUnblockContainer = ({
         resendUnblockCodeHandler,
         wantsTwoStepAuthentication,
         finishOAuthFlowHandler,
+        setCurrentSplitLayout,
       }}
     />
   );

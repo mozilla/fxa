@@ -40,8 +40,10 @@ import {
 
 const SigninTokenCodeContainer = ({
   integration,
+  setCurrentSplitLayout,
 }: {
   integration: Integration;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation() as ReturnType<typeof useLocation> & {
@@ -96,9 +98,16 @@ const SigninTokenCodeContainer = ({
     getTotpStatus();
   }, [authClient, signinState]);
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninTokenCodePage?.splitLayout;
+
   if (!signinState || !signinState.sessionToken) {
     navigateWithQuery('/');
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   // redirect if there is 2FA is set up for the account,
@@ -107,7 +116,11 @@ const SigninTokenCodeContainer = ({
     navigateWithQuery('/signin_totp_code', {
       state: signinState,
     });
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   if (oAuthDataError) {
@@ -139,6 +152,7 @@ const SigninTokenCodeContainer = ({
         keyFetchToken,
         unwrapBKey,
         onSessionVerified,
+        setCurrentSplitLayout,
       }}
     />
   );

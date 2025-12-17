@@ -48,11 +48,13 @@ import AppLayout from '../../../components/AppLayout';
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
   serviceName: MozServices;
+  setCurrentSplitLayout?: (value: boolean) => void;
 };
 
 export const SigninTotpCodeContainer = ({
   integration,
   serviceName,
+  setCurrentSplitLayout,
 }: SigninTotpCodeContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const session = useSession();
@@ -169,6 +171,9 @@ export const SigninTotpCodeContainer = ({
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
+
   if (
     !signinState ||
     (signinState.isSessionAALUpgrade !== true &&
@@ -176,7 +181,11 @@ export const SigninTotpCodeContainer = ({
       signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
   ) {
     navigateWithQuery('/');
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   return (
@@ -190,6 +199,7 @@ export const SigninTotpCodeContainer = ({
         serviceName,
         keyFetchToken,
         unwrapBKey,
+        setCurrentSplitLayout,
       }}
     />
   );

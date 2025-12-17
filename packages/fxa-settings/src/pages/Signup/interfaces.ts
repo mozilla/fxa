@@ -45,6 +45,7 @@ export interface SignupProps {
   deeplink?: string;
   flowQueryParams?: QueryParams;
   isMobile: boolean;
+  setCurrentSplitLayout?: (value: boolean) => void;
 }
 
 export type SignupIntegration = SignupOAuthIntegration | SignupBaseIntegration;

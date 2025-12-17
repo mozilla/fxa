@@ -36,6 +36,7 @@ export const Index = ({
   flowQueryParams,
   isMobile,
   useFxAStatusResult,
+  setCurrentSplitLayout,
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
@@ -103,7 +104,7 @@ export const Index = ({
   const splitLayout = cmsInfo?.EmailFirstPage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       {cmsInfo ? (
         <>
           <CmsLogo

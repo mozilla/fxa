@@ -44,6 +44,7 @@ export const SigninUnblock = ({
   resendUnblockCodeHandler,
   integration,
   finishOAuthFlowHandler,
+  setCurrentSplitLayout,
 }: SigninUnblockProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -209,9 +210,10 @@ export const SigninUnblock = ({
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninUnblockCodePage?.pageTitle;
+  const splitLayout = cmsInfo?.SigninUnblockCodePage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       <CardHeader
         headingText="Authorize this sign-in"
         headingTextFtlId="signin-unblock-header"

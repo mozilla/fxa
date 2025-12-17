@@ -24,6 +24,7 @@ export interface IndexContainerProps {
   serviceName: MozServices;
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
+  setCurrentSplitLayout?: (value: boolean) => void;
 }
 
 export interface LocationState {
@@ -47,6 +48,7 @@ export interface IndexProps extends LocationState {
   flowQueryParams?: QueryParams;
   isMobile: boolean;
   useFxAStatusResult: UseFxAStatusResult;
+  setCurrentSplitLayout?: (value: boolean) => void;
 }
 
 export interface IndexFormData {

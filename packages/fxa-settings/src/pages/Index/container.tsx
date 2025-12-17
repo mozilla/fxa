@@ -42,6 +42,7 @@ const IndexContainer = ({
   serviceName,
   flowQueryParams,
   useFxAStatusResult,
+  setCurrentSplitLayout,
 }: IndexContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -317,10 +318,15 @@ const IndexContainer = ({
   const deeplink = queryParamModel.deeplink;
   const isMobile = isMobileDevice();
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.EmailFirstPage?.splitLayout;
+
   // WebAuthn capability probe is fired at app-level (components/App/index.tsx)
 
   return isLoading ? (
-    <AppLayout cmsInfo={integration.getCmsInfo()} loading />
+    <AppLayout
+      {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+    />
   ) : (
     <Index
       {...{
@@ -337,6 +343,7 @@ const IndexContainer = ({
         flowQueryParams,
         isMobile,
         useFxAStatusResult,
+        setCurrentSplitLayout,
       }}
       prefillEmail={initialPrefill}
     />
