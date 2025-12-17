@@ -7,3 +7,5 @@ export * from './lib/subscriptionManagement.error';
 export * from './lib/subscriptionManagement.service';
 export * from './lib/types';
 export * from './lib/churn-intervention.service';
+export * from './lib/throwStripeUpdatePaymentFailedError';
+export * from './lib/manage-payment-method.error';

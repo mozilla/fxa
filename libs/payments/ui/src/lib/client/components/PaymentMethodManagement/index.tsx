@@ -8,7 +8,11 @@ import {
   useElements,
   useStripe,
 } from '@stripe/react-stripe-js';
-import { BaseButton, ButtonVariant } from '@fxa/payments/ui';
+import {
+  BaseButton,
+  ButtonVariant,
+  getManagePaymentMethodErrorFtlInfo,
+} from '@fxa/payments/ui';
 import * as Form from '@radix-ui/react-form';
 import Image from 'next/image';
 import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
@@ -151,10 +155,21 @@ export function PaymentMethodManagement({
         throw confirmationTokenError;
       }
 
-      const response = await updateStripePaymentDetails(
-        uid ?? '',
-        confirmationToken.id
-      );
+      let response;
+     try {
+      response = await updateStripePaymentDetails(
+          uid ?? '',
+          confirmationToken.id
+        );
+      } catch (error) {
+        const errorReason = getManagePaymentMethodErrorFtlInfo(error.message);
+        setError(l10n.getString(
+          errorReason.messageFtl,
+          {},
+          errorReason.message
+        ));
+        return;
+      }
 
       if (response.status === 'requires_action' && response.clientSecret) {
         await handleNextAction(response.clientSecret);
