@@ -15,6 +15,8 @@ import {
   CREATE_RELYING_PARTY,
   UPDATE_RELYING_PARTY,
   DELETE_RELYING_PARTY,
+  ROTATE_RELYING_PARTY_SECRET,
+  DELETE_RELYING_PARTY_PREVIOUS_SECRET,
 } from './index.gql';
 import { IClientConfig } from '../../../interfaces';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
@@ -77,7 +79,7 @@ it('renders as expected with a relying party containing all fields', async () =>
   screen.getByText(MOCK_RP_ALL_FIELDS.redirectUri);
   screen.getByText(MOCK_RP_ALL_FIELDS.allowedScopes!);
   screen.getByText('1970', { exact: false });
-  expect(screen.getAllByText('true')).toHaveLength(3);
+  expect(screen.getAllByText('true')).toHaveLength(4);
 });
 
 it('creates a new relying party via UI', async () => {
@@ -100,7 +102,14 @@ it('creates a new relying party via UI', async () => {
           },
         },
       },
-      result: { data: { createRelyingParty: 'new-id' } },
+      result: {
+        data: {
+          createRelyingParty: {
+            id: 'new-id',
+            secret: 'SECRET123',
+          },
+        },
+      },
     },
     // refetch after success
     mockGetRelyingParties([]),
@@ -154,6 +163,10 @@ it('creates a new relying party via UI', async () => {
   await screen.findByText(
     'To finalize this new RP, a couple more steps are needed'
   );
+  await screen.findByText(
+    'gcloud pubsub topics create rpQueue-new-id --message-retention-duration=2678400s'
+  );
+  await screen.findByText('client_secret: SECRET123');
   fireEvent.click(screen.getByText('Got it!'));
 
   await screen.findByText('Create!');
@@ -298,7 +311,95 @@ it('renders as expected with a relying party containing falsy fields', async () 
       <PageRelyingParties />
     </MockedProvider>
   );
-  expect(await screen.findAllByText('false')).toHaveLength(3);
+  expect(await screen.findAllByText('false')).toHaveLength(4);
   screen.getByText('(empty string)');
   screen.getByText('NULL');
+});
+
+it('rotates relying party secret', async () => {
+  renderWithLocalizationProvider(
+    <MockedProvider
+      mocks={[
+        mockGetRelyingParties([MOCK_RP_ALL_FIELDS]),
+        {
+          request: {
+            query: ROTATE_RELYING_PARTY_SECRET,
+            variables: {
+              id: MOCK_RP_ALL_FIELDS.id,
+            },
+          },
+          result: {
+            data: {
+              rotateRelyingPartySecret: {
+                secret: 'SECRET123',
+              },
+            },
+          },
+        },
+        mockGetRelyingParties([MOCK_RP_ALL_FIELDS]),
+        mockGetRelyingParties([
+          {
+            ...MOCK_RP_ALL_FIELDS,
+            hasPreviousSecret: true,
+          },
+        ]),
+        {
+          request: {
+            query: DELETE_RELYING_PARTY_PREVIOUS_SECRET,
+            variables: {
+              id: MOCK_RP_ALL_FIELDS.id,
+            },
+          },
+          result: {
+            data: {
+              deletePreviousRelyingPartySecret: true,
+            },
+          },
+        },
+      ]}
+      addTypename={false}
+    >
+      <PageRelyingParties />
+    </MockedProvider>
+  );
+
+  await screen.findByText(MOCK_RP_ALL_FIELDS.name);
+
+  fireEvent.click(await screen.getByText('🔑 Rotate Secret'));
+
+  // Cancel button works
+  fireEvent.click(screen.getByText('Cancel'));
+
+  // Should require valid RP name
+  fireEvent.click(screen.getByText('🔑 Rotate Secret'));
+  fireEvent.change(screen.getByPlaceholderText('Enter Relying Party Name'), {
+    target: { value: '123' },
+  });
+  fireEvent.click(screen.getByText('Submit'));
+  await screen.findByText("You must confirm the relying party's name!");
+
+  // Should rotate secret
+  fireEvent.change(screen.getByPlaceholderText('Enter Relying Party Name'), {
+    target: { value: MOCK_RP_ALL_FIELDS.name },
+  });
+  fireEvent.click(screen.getByText('Submit'));
+  await screen.findByText('client_secret: SECRET123');
+  fireEvent.click(screen.getByText('Got it!'));
+
+  // Should require valid RP name
+  await screen.findByText(MOCK_RP_ALL_FIELDS.name);
+
+  fireEvent.click(screen.getByText('❌ Revoke Previous Secret'));
+  fireEvent.change(screen.getByPlaceholderText('Enter Relying Party Name'), {
+    target: { value: '123' },
+  });
+  fireEvent.click(screen.getByText('Submit'));
+  await screen.findByText("You must confirm the relying party's name!");
+
+  // Should revoke secret
+  fireEvent.change(screen.getByPlaceholderText('Enter Relying Party Name'), {
+    target: { value: MOCK_RP_ALL_FIELDS.name },
+  });
+  fireEvent.click(screen.getByText('Submit'));
+  await screen.findByText('Success!');
 });

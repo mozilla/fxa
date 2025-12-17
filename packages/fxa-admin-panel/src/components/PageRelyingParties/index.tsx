@@ -6,8 +6,10 @@ import React, { useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import {
+  RelyingPartyCreatedDto,
   RelyingPartyDto,
   RelyingPartyUpdateDto,
+  RotateSecretDto,
 } from 'fxa-admin-server/src/graphql';
 import ErrorAlert from '../ErrorAlert';
 import { AdminPanelFeature } from '@fxa/shared/guards';
@@ -19,6 +21,8 @@ import {
   GET_RELYING_PARTIES,
   UPDATE_RELYING_PARTY,
   DELETE_RELYING_PARTY,
+  ROTATE_RELYING_PARTY_SECRET,
+  DELETE_RELYING_PARTY_PREVIOUS_SECRET,
 } from './index.gql';
 
 interface RelyingPartiesData {
@@ -81,7 +85,11 @@ const RelyingPartyForm = ({
 
   return (
     <>
-      <form onSubmit={onSubmit} onChange={resetState} className="mt-5 relative">
+      <form
+        onSubmit={onSubmit}
+        onChange={resetState}
+        className="p-4 pt-0 mt-5 relative"
+      >
         <label>Name:</label>
         <input
           className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
@@ -174,7 +182,16 @@ const RelyingPartyForm = ({
           Cancel
         </button>
       </form>
-      {status && <p className="mt-2">{status}</p>}
+      {status && (
+        <>
+          <hr />
+          <div className="p-4 pt-0">
+            <p className="mt-2">
+              <b>{status}</b>
+            </p>
+          </div>
+        </>
+      )}
     </>
   );
 };
@@ -183,6 +200,7 @@ const RelyingPartyForm = ({
 const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
   const [status, setStatus] = useState<string>('');
   const [rpId, setRpId] = useState<string>('');
+  const [rpSecret, setRpSecret] = useState<string>('');
 
   // Note, these are v1 projects. We need to migrate queues over to V2.
   const gcpTerminalLink =
@@ -204,21 +222,21 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
     setStatus('');
   };
 
-  const [createRelyingParty] = useMutation<{ createRelyingParty: string }>(
-    CREATE_RELYING_PARTY,
-    {
-      onCompleted: (data) => {
-        if (data.createRelyingParty) {
-          setStatus('Success!');
-          setRpId(data.createRelyingParty);
-        }
-      },
-      onError: (err) => {
-        setStatus(`Error Encountered: ${err.message}`);
-        setRpId('');
-      },
-    }
-  );
+  const [createRelyingParty] = useMutation<{
+    createRelyingParty: RelyingPartyCreatedDto;
+  }>(CREATE_RELYING_PARTY, {
+    onCompleted: (data) => {
+      if (data.createRelyingParty?.id && data.createRelyingParty?.secret) {
+        setStatus('Success!');
+        setRpId(data.createRelyingParty.id);
+        setRpSecret(data.createRelyingParty.secret);
+      }
+    },
+    onError: (err) => {
+      setStatus(`Error Encountered: ${err.message}`);
+      setRpId('');
+    },
+  });
 
   const handleSubmit = async (data: RelyingPartyUpdateDto) => {
     setStatus('Pending');
@@ -241,8 +259,7 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
         }}
       />
       {rpId && (
-        <>
-          <hr />
+        <div className="p-4 pt-0">
           <h3 className="font-bold mb-2">
             To finalize this new RP, a couple more steps are needed
           </h3>
@@ -289,6 +306,14 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
           </p>
 
           <p className="mb-2">
+            <b>Step 4:</b> Provide the following secret in secure manner to the
+            relying party. This secret cannot be displayed again! If it is lost
+            or compromised, the RP's secret must be rotated.
+            <br />
+            <pre className="p-4 mb-2 mt-2">client_secret: {rpSecret}</pre>
+          </p>
+
+          <p className="mb-2">
             <button
               onClick={onExit}
               className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
@@ -296,7 +321,7 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
               Got it!
             </button>
           </p>
-        </>
+        </div>
       )}
     </div>
   );
@@ -359,6 +384,217 @@ const UpdateRelyingParty = ({
         }}
       />
     </div>
+  );
+};
+
+const DeletePreviousRelyingPartySecret = ({
+  data,
+  onExit,
+}: {
+  data: RelyingPartyDto;
+  onExit: () => void;
+}) => {
+  const [status, setStatus] = useState('');
+
+  const [deletePreviousRelyingPartySecret] = useMutation<{
+    deletePreviousRelyingPartySecret: boolean;
+  }>(DELETE_RELYING_PARTY_PREVIOUS_SECRET, {
+    onCompleted: (data) => {
+      if (data.deletePreviousRelyingPartySecret) {
+        setStatus('Success!');
+        setTimeout(onExit, 2000);
+      } else {
+        setStatus('Failed to revoke secret!');
+        setTimeout(onExit, 2000);
+      }
+    },
+    onError: (err) => {
+      setStatus(`Error Encountered Deleting Previous Secret: ${err.message}`);
+    },
+  });
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('confirmName')?.toString()?.trim();
+    if (name === data.name) {
+      await deletePreviousRelyingPartySecret({
+        variables: {
+          id: data.id,
+        },
+      });
+    } else {
+      setStatus(`You must confirm the relying party's name!`);
+    }
+  };
+
+  return (
+    <>
+      <h3 className="header-lg font-bold">
+        Delete Previous Relying Party Secret: {data.name}
+      </h3>
+      <p>
+        This will delete the previous secret from the database, effectively
+        revoking it. Are you sure you want to proceed? This cannot be undone! To
+        continue, type the name the relying party's name below:
+      </p>
+
+      <form className="p-4" onSubmit={handleSubmit}>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="Enter Relying Party Name"
+          type="text"
+          name="confirmName"
+        ></input>
+        <>
+          <button
+            type="submit"
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            data-testid="rp-delete"
+          >
+            Submit
+          </button>
+          <button
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            onClick={onExit}
+          >
+            Cancel
+          </button>
+        </>
+      </form>
+
+      {status && (
+        <>
+          <hr />
+          <div className="p-4 pt-0">
+            <p className="mt-2">
+              <b>{status}</b>
+            </p>
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
+const RotateRelyingPartySecret = ({
+  data,
+  onExit,
+}: {
+  data: RelyingPartyDto;
+  onExit: () => void;
+}) => {
+  const [status, setStatus] = useState('');
+  const [secret, setSecret] = useState('');
+  const { hasPreviousSecret } = data;
+
+  const [rotateRelyingPartySecret] = useMutation<{
+    rotateRelyingPartySecret?: RotateSecretDto;
+  }>(ROTATE_RELYING_PARTY_SECRET, {
+    onCompleted: (data) => {
+      if (data.rotateRelyingPartySecret?.secret) {
+        setStatus('Success!');
+        setSecret(data.rotateRelyingPartySecret.secret);
+      } else {
+        setStatus('Could not rotate secret!');
+        setSecret('');
+      }
+    },
+    onError: (err) => {
+      setStatus(`Error Encountered Rotating Secret: ${err.message}`);
+      setSecret('');
+    },
+  });
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('confirmName')?.toString()?.trim();
+    if (name === data.name) {
+      await rotateRelyingPartySecret({
+        variables: {
+          id: data.id,
+        },
+      });
+    } else {
+      setStatus(`You must confirm the relying party's name!`);
+    }
+  };
+
+  return (
+    <>
+      <hr />
+      <h3 className="header-lg font-bold">
+        Rotate Relying Party Secret: {data.name}
+      </h3>
+      <p>
+        This will generate a new secret for this RP. The previous secret will
+        still be active until it is revoked. To continue type the name of the
+        relying party below:
+      </p>
+
+      {hasPreviousSecret && (
+        <p className="p-4 m-2 rounded bg-yellow-50">
+          <b>Warning!</b> This RP currently has a 'previous' secret active.
+          Going forward with this operation will overwrite it. Be certain the
+          previous secret is not still in use before you proceed!
+        </p>
+      )}
+
+      <form className="pl-4" onSubmit={handleSubmit}>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="Enter Relying Party Name"
+          type="text"
+          name="confirmName"
+        ></input>
+
+        <button
+          type="submit"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          data-testid="rp-delete"
+        >
+          Submit
+        </button>
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          onClick={onExit}
+        >
+          Cancel
+        </button>
+      </form>
+
+      {status && (
+        <>
+          <hr />
+          <div className="p-4 pt-0">
+            <p className="mt-2">
+              <b>{status}</b>
+            </p>
+          </div>
+        </>
+      )}
+
+      {secret && (
+        <div className="p-4 pt-0">
+          <p>
+            Provide the following secret in secure manner to the relying party.
+            This secret cannot be displayed again! If it is lost or compromised,
+            the RP's secret must be rotated yet again. Once the relying party
+            has applied this value to your servers, come back and click this
+            Relying Party's <i>'Revoke Previous Secret'</i> to finalize this
+            process.
+          </p>
+          <pre className="p-4 mb-2 mt-2">client_secret: {secret}</pre>
+          <button
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            onClick={onExit}
+          >
+            Got it!
+          </button>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -435,7 +671,16 @@ const DeleteRelyingParty = ({
           Cancel
         </button>
       </form>
-      {status && <p className="mt-2">{status}</p>}
+      {status && (
+        <>
+          <hr />
+          <div className="p-4 pt-0">
+            <p className="mt-2">
+              <b>{status}</b>
+            </p>
+          </div>
+        </>
+      )}
     </>
   );
 };
@@ -449,7 +694,9 @@ const RelyingPartyRow = ({
   onDelete: (id: string) => Promise<void>;
   onExit: () => void;
 }) => {
-  const [mode, setMode] = useState<'view' | 'update' | 'delete'>('view');
+  const [mode, setMode] = useState<
+    'view' | 'update' | 'delete' | 'rotateSecret' | 'deletePreviousSecret'
+  >('view');
 
   const {
     id,
@@ -462,12 +709,30 @@ const RelyingPartyRow = ({
     publicClient,
     notes,
     imageUri,
+    hasSecret,
+    hasPreviousSecret,
   } = data;
 
   if (mode === 'view') {
     return (
       <div className="mt-12 mb-12">
-        <h3 className="header-lg float-left">{name}</h3>
+        <h3 className="header-lg font-bold float-left mt-1">{name}</h3>
+        {hasPreviousSecret && (
+          <button
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+            onClick={() => setMode('deletePreviousSecret')}
+          >
+            ❌ Revoke Previous Secret
+          </button>
+        )}
+
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+          onClick={() => setMode('rotateSecret')}
+        >
+          🔑 Rotate Secret
+        </button>
+
         <button
           className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
           onClick={() => {
@@ -519,9 +784,16 @@ const RelyingPartyRow = ({
               )
             }
           />
+          <TableRowYHeader
+            header="Client Secret Active"
+            children={<span>{(!!hasSecret).toString()}</span>}
+          />
+          <TableRowYHeader
+            header="Previous Client Secret Active"
+            children={<span>{(!!hasPreviousSecret).toString()}</span>}
+          />
           <TableRowYHeader header="Notes" children={<span>{notes}</span>} />
         </TableYHeaders>
-        <hr />
       </div>
     );
   } else if (mode === 'update') {
@@ -540,6 +812,30 @@ const RelyingPartyRow = ({
   } else if (mode === 'delete') {
     return (
       <DeleteRelyingParty
+        {...{
+          data,
+          onExit: () => {
+            setMode('view');
+            onExit();
+          },
+        }}
+      />
+    );
+  } else if (mode === 'rotateSecret') {
+    return (
+      <RotateRelyingPartySecret
+        {...{
+          data,
+          onExit: () => {
+            setMode('view');
+            onExit();
+          },
+        }}
+      />
+    );
+  } else if (mode === 'deletePreviousSecret') {
+    return (
+      <DeletePreviousRelyingPartySecret
         {...{
           data,
           onExit: () => {

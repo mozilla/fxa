@@ -89,7 +89,7 @@ export class AuditLogInterceptor implements NestInterceptor {
         next: (result) => {
           this.safeLogInfo({
             ...baseLogData('success'),
-            result, // we could sanitize this, but there shouldn't be any sensitive data in the result
+            result: sanitizeObject(result, this.sensitiveKeys),
           });
         },
         error: (error) => {

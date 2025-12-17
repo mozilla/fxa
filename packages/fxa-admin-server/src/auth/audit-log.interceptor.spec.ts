@@ -72,7 +72,9 @@ describe('AuditLogInterceptor', () => {
     } as any);
 
     mockCallHandler = createMock<CallHandler>();
-    mockCallHandler.handle.mockReturnValue(of({ success: true }));
+    mockCallHandler.handle.mockReturnValue(
+      of({ success: true, secret: '123' })
+    );
 
     interceptor = new AuditLogInterceptor(logger, configService);
   });
@@ -124,7 +126,7 @@ describe('AuditLogInterceptor', () => {
     });
   });
 
-  it('should log success status after successful execution', (done) => {
+  it('should log sanitized response after successful execution', (done) => {
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
       next: () => {
         const calls = logger.info.mock.calls;
@@ -136,7 +138,7 @@ describe('AuditLogInterceptor', () => {
           user: 'admin@example.com',
           action: 'testMutation',
           status: 'success',
-          result: { success: true },
+          result: { success: true, secret: '[REDACTED]' },
         });
         done();
       },
@@ -255,7 +257,7 @@ describe('AuditLogInterceptor', () => {
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
       next: (result) => {
         // Request should complete successfully despite logging error
-        expect(result).toEqual({ success: true });
+        expect(result).toEqual({ success: true, secret: '123' });
         expect(logger.info).toHaveBeenCalled();
         // Verify Sentry was called with the logging error
         expect(Sentry.captureException).toHaveBeenCalledWith(
@@ -293,7 +295,7 @@ describe('AuditLogInterceptor', () => {
 
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
       next: (result) => {
-        expect(result).toEqual({ success: true });
+        expect(result).toEqual({ success: true, secret: '123' });
         expect(logger.info).toHaveBeenCalledTimes(2);
         // Verify Sentry was called with the logging error
         expect(Sentry.captureException).toHaveBeenCalledWith(
@@ -306,6 +308,10 @@ describe('AuditLogInterceptor', () => {
             extra: expect.objectContaining({
               logData: expect.objectContaining({
                 status: 'success',
+                result: {
+                  secret: '[REDACTED]',
+                  success: true,
+                },
               }),
             }),
           })
