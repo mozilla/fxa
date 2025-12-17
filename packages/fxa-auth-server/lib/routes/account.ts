@@ -1267,11 +1267,14 @@ export class AccountHandler {
       // If the request wants keys , user *must* confirm their login session before they can actually
       // use it. Otherwise, they don't *have* to verify their session. All sessions are created
       // unverified because it prevents them from being used for sync.
+      // Also require verification if the service is in the servicesWithEmailVerification list.
       let mustVerifySession =
         needsVerificationId &&
         (verificationForced === 'suspect' ||
           verificationForced === 'global' ||
-          requestHelper.wantsKeys(request));
+          requestHelper.wantsKeys(request) ||
+          (service &&
+            this.config.servicesWithEmailVerification.includes(service)));
 
       // For accounts with TOTP, we always force verifying a session.
       if (verificationMethod === 'totp-2fa') {
