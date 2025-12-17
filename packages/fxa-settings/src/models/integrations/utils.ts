@@ -7,7 +7,8 @@ import { OAuthNativeServices } from './oauth-native-integration';
 export function isFirefoxService(service?: string) {
   return (
     service === OAuthNativeServices.Sync ||
-    service === OAuthNativeServices.Relay
+    service === OAuthNativeServices.Relay ||
+    service === OAuthNativeServices.AiWindow
   );
 }
 

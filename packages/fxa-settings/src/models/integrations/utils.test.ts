@@ -16,6 +16,11 @@ describe('isFirefoxService', () => {
     expect(result).toBe(true);
   });
 
+  it('should return true for OAuthNativeServices.AiWindow', () => {
+    const result = isFirefoxService(OAuthNativeServices.AiWindow);
+    expect(result).toBe(true);
+  });
+
   it('should return false for a service that is not in OAuthNativeServices', () => {
     const result = isFirefoxService('testo');
     expect(result).toBe(false);
