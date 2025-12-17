@@ -429,6 +429,12 @@ const convictConf = convict({
       default: false,
       env: 'SMTP_SECURE',
     },
+    ignoreTLS: {
+      doc: 'Ignore STARTTLS even if the server advertises it (needed for local mail helper)',
+      format: Boolean,
+      default: false,
+      env: 'SMTP_IGNORE_TLS',
+    },
     user: {
       doc: 'SMTP username',
       format: String,
