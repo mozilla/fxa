@@ -6,7 +6,7 @@ import { renderHook } from '@testing-library/react-hooks';
 import { useFxAStatus } from '.';
 import { Constants } from '../../constants';
 import firefox from '../../channels/firefox';
-import { IntegrationType } from '../../../models';
+import { IntegrationType, isProbablyFirefox } from '../../../models';
 
 jest.mock('../../channels/firefox', () => ({
   __esModule: true,
@@ -15,9 +15,18 @@ jest.mock('../../channels/firefox', () => ({
   },
 }));
 
+jest.mock('../../../models', () => {
+  const actual = jest.requireActual('../../../models');
+  return {
+    ...actual,
+    isProbablyFirefox: jest.fn(() => true),
+  };
+});
+
 describe('useFxAStatus', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
+    (isProbablyFirefox as jest.Mock).mockImplementation(() => true);
   });
 
   describe('SyncDesktopV3 integration', () => {
@@ -146,6 +155,21 @@ describe('useFxAStatus', () => {
 
       renderHook(() => useFxAStatus(integration));
 
+      expect(firefox.fxaStatus).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Non-Firefox browser', () => {
+    it('does not call fxaStatus when isProbablyFirefox returns false', () => {
+      (isProbablyFirefox as jest.Mock).mockReturnValueOnce(false);
+
+      const integration = {
+        type: IntegrationType.SyncDesktopV3,
+        isSync: () => true,
+        isFirefoxNonSync: () => false,
+      };
+
+      renderHook(() => useFxAStatus(integration));
       expect(firefox.fxaStatus).not.toHaveBeenCalled();
     });
   });

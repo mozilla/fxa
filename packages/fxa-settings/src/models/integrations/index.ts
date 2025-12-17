@@ -14,3 +14,4 @@ export * from './sync-desktop-v3-integration';
 export * from './web-integration';
 export * from './third-party-auth-callback-integration';
 export * from './relier-interfaces';
+export * from './utils';
