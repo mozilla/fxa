@@ -87,7 +87,6 @@ export interface Config {
     debugViewTag: string;
   };
   redirectAllowlist: string[];
-  sendFxAStatusOnSettings: boolean;
   showReactApp: {
     signUpRoutes: boolean;
     signInRoutes: boolean;
@@ -189,7 +188,6 @@ export function getDefault() {
       debugViewTag: '',
     },
     redirectAllowlist: ['localhost'],
-    sendFxAStatusOnSettings: false,
     showReactApp: {
       signUpRoutes: false,
       signInRoutes: false,
