@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import AuthClient from 'fxa-auth-client/browser';
 import { AccountData, ProfileInfo, Session } from '.';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
@@ -122,6 +123,23 @@ export function mockSession(
   return session;
 }
 
+export function mockAuthClient() {
+  // There are plenty more methods to mock here, but this is these are the ones
+  // that get commonly used.
+  return {
+    sessionStatus: jest.fn().mockReturnValue({
+      state: 'verified',
+      details: {
+        verified: true,
+        accountEmailVerified: true,
+        sessionVerified: true,
+        sessionVerificationMeetsMinimumAAL: true,
+        sessionVerificationMethod: 'email',
+      },
+    }),
+  } as unknown as AuthClient;
+}
+
 export function mockSensitiveDataClient() {
   return new SensitiveDataClient();
 }
@@ -186,6 +204,7 @@ export function mockAppContext(context?: AppContextValue) {
     {
       account: MOCK_ACCOUNT,
       session: mockSession(),
+      authClient: mockAuthClient(),
       config: getDefault(),
       sensitiveDataClient: mockSensitiveDataClient(),
       uniqueUserId: '4a9512ac-3110-43df-aa8a-958A3d210b9c3',

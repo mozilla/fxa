@@ -6,7 +6,11 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mockSession, renderWithRouter } from '../../../models/mocks';
+import {
+  mockAuthClient,
+  mockSession,
+  renderWithRouter,
+} from '../../../models/mocks';
 import { Account, AppContext, Session } from '../../../models';
 import { ModalVerifySession } from '.';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
@@ -19,6 +23,10 @@ const account = {
 
 const session = mockSession(false);
 
+jest.mock('../../../models', () => ({
+  useAuthClient: () => mockAuthClient(),
+}));
+
 window.console.error = jest.fn();
 
 afterAll(() => {
@@ -30,7 +38,12 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider
+        value={{
+          account,
+          session,
+        }}
+      >
         <ModalVerifySession {...{ onDismiss, onError }} />
       </AppContext.Provider>
     );
