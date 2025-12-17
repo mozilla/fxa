@@ -14,6 +14,10 @@ const data = {
   oneClickLink: 'http://localhost:3030/connect_another_device?one_click=true',
   link: 'http://localhost:3030/connect_another_device',
   productName: 'Firefox',
+  supportUrl: 'https://support.mozilla.org',
+  cssPath: '',
+  hideDeviceLink: true,
+  onDesktopOrTabletDevice: true,
 };
 
 const createStory = storyWithProps<TemplateData>(

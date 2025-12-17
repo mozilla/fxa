@@ -16,7 +16,7 @@ const data = {
   link: 'http://localhost:3030/settings',
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
   revokeAccountRecoveryLink: 'http://localhost:3030/settings/#recovery-key',
-  supportLink: '',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

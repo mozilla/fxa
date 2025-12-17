@@ -18,6 +18,7 @@ const data = {
     'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
   productIconURLOld:
     'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
+  icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
   productName: 'Product Name B',
   productNameOld: 'Product Name A',
   productPaymentCycleNew: 'month',

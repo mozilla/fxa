@@ -12,6 +12,7 @@ export default {
 
 const data = {
   mozillaSupportUrl: 'https://support.mozilla.org',
+  supportUrl: 'https://support.mozilla.org',
   wasDeleted: true,
 };
 

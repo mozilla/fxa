@@ -15,7 +15,7 @@ const data = {
   isCancellationEmail: true,
   invoiceTotal: '$20',
   invoiceDateOnly: '11/13/2021',
-  cancellationSurveryUrl:
+  cancellationSurveyUrl:
     'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
 };
 

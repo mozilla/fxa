@@ -17,6 +17,8 @@ const data = {
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
   link: 'http://localhost:3030/settings',
   mozillaSupportUrl: 'https://support.mozilla.org',
+  showBannerWarning: false,
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(

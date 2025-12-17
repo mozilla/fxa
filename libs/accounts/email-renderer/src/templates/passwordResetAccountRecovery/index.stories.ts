@@ -16,6 +16,10 @@ const data = {
   link: 'http://localhost:3030/settings',
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
   productName: 'Firefox',
+  supportUrl: 'https://support.mozilla.org',
+  cssPath: '',
+  hideDeviceLink: true,
+  onDesktopOrTabletDevice: true,
 };
 const createStory = storyWithProps<TemplateData>(
   'passwordResetAccountRecovery',

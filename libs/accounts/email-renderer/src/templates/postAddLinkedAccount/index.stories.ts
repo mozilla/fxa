@@ -16,6 +16,7 @@ const data = {
   link: 'http://localhost:3030/settings',
   passwordChangeLink: 'http://localhost:3030/settings/change_password',
   providerName: 'Apple',
+  supportUrl: 'https://support.mozilla.org',
 };
 
 const createStory = storyWithProps<TemplateData>(
