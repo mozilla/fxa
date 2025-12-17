@@ -189,4 +189,22 @@ describe('delivery delay messages', () => {
     assert.equal(log.info.callCount, 0);
     sinon.assert.calledOnce(mockMsg.del);
   });
+
+  it('should handle errors and still delete message', async () => {
+    const log = mockLog();
+    const statsd = mockStatsd();
+    const mockMsg = createDeliveryDelayMessage();
+
+    sandbox.stub(emailHelpers, 'getAnonymizedEmailDomain').throws(new Error('Test error'));
+
+    await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(mockMsg);
+
+    sinon.assert.calledWith(log.error, 'handleDeliveryDelay.error');
+    assert.include(log.error.args[0][1], {
+      messageId: 'test-message-id',
+    });
+
+    sinon.assert.calledWith(statsd.increment, 'email.deliveryDelay.error');
+    sinon.assert.calledOnce(mockMsg.del);
+  });
 });
