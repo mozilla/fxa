@@ -1,0 +1,207 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mjml>
+  <mj-head>
+    <mj-raw>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </mj-raw>
+    <mj-title><%- locals.subject %></mj-title>
+    <mj-preview><%- locals.preview %></mj-preview>
+    <% if (!locals.productName) { locals.productName = 'Firefox' %><% } %>
+    <mj-html-attributes>
+      <mj-selector path=".mozilla-logo td">
+        <mj-html-attribute name="data-l10n-id">fxa-header-mozilla-logo</mj-html-attribute>
+      </mj-selector>
+      <mj-selector path=".mozilla-logo img">
+        <mj-html-attribute name="data-l10n-name">mozilla-logo</mj-html-attribute>
+      </mj-selector>
+
+      <mj-selector path=".sync-img td">
+        <mj-html-attribute name="data-l10n-id">fxa-header-sync-devices-image</mj-html-attribute>
+      </mj-selector>
+      <mj-selector path=".sync-img img">
+        <mj-html-attribute name="data-l10n-name">sync-devices-image</mj-html-attribute>
+      </mj-selector>
+
+      <mj-selector path=".subplat-mozilla-logo a">
+        <mj-html-attribute name="data-l10n-id">subplat-header-mozilla-logo-2</mj-html-attribute>
+      </mj-selector>
+      <mj-selector path=".subplat-mozilla-logo img">
+        <mj-html-attribute name="data-l10n-name">subplat-mozilla-logo</mj-html-attribute>
+      </mj-selector>
+
+      <mj-selector path=".mozilla-logo-footer a">
+        <mj-html-attribute name="data-l10n-id">subplat-footer-mozilla-logo-2</mj-html-attribute>
+      </mj-selector>
+      <mj-selector path=".mozilla-logo-footer img">
+        <mj-html-attribute name="data-l10n-name">mozilla-logo-footer</mj-html-attribute>
+      </mj-selector>
+
+      <mj-selector path=".graphic-devices td">
+        <mj-html-attribute name="data-l10n-id">body-devices-image</mj-html-attribute>
+      </mj-selector>
+      <mj-selector path=".graphic-devices img">
+        <mj-html-attribute name="data-l10n-name">devices-image</mj-html-attribute>
+      </mj-selector>
+      <mj-selector path=".sync-logo td">
+        <mj-html-attribute name="data-l10n-id">body-devices-image</mj-html-attribute>
+      </mj-selector>
+      <mj-selector path=".sync-logo img">
+        <mj-html-attribute name="data-l10n-name">devices-image</mj-html-attribute>
+      </mj-selector>
+
+      <mj-selector path=".app-badge-android a">
+        <mj-html-attribute name="data-l10n-id">body-android-badge</mj-html-attribute>
+        <mj-html-attribute name="data-l10n-args"><%= JSON.stringify({productName}) %></mj-html-attribute>
+      </mj-selector>
+      <mj-selector path=".app-badge-android img">
+        <mj-html-attribute name="data-l10n-name">google-play-badge</mj-html-attribute>
+      </mj-selector>
+
+      <mj-selector path=".app-badge-ios a">
+        <mj-html-attribute name="data-l10n-id">body-ios-badge</mj-html-attribute>
+        <mj-html-attribute name="data-l10n-args"><%= JSON.stringify({productName}) %></mj-html-attribute>
+      </mj-selector>
+      <mj-selector path=".app-badge-ios img">
+        <mj-html-attribute name="data-l10n-name">apple-app-badge</mj-html-attribute>
+      </mj-selector>
+    </mj-html-attributes>
+    <mj-raw>
+      <% if (locals.oneClickLink) { %>
+        <script type="application/ld+json">
+          {
+            "@context": "http://schema.org",
+            "@type": "EmailMessage",
+            "description": "<%- locals.subject %>",
+            "potentialAction": {
+              "@type": "ViewAction",
+              "name": "<%- locals.action %>",
+              "target": "<%- oneClickLink %>",
+              "url": "<%- oneClickLink %>"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "Mozilla accounts",
+              "url": "https://accounts.firefox.com/"
+            }
+          }
+        </script>
+      <% } %>
+    </mj-raw>
+  </mj-head>
+
+  <mj-body>
+    <mj-include path="<%- locals.cssPath %>/global.css" type="css" css-inline="inline" />
+    <mj-include path="<%- locals.cssPath %>/subscription/index.css" type="css" css-inline="inline" />
+    <mj-include path="<%- locals.cssPath %>/locale-dir.css" type="css" />
+    <% if (locals.brandMessagingMode == 'postlaunch') { %>
+      <mj-include path="<%- locals.cssPath %>/brandMessaging/index.css" type="css" css-inline="inline" />
+      <mj-section css-class="brand-message-container">
+        <mj-column>
+          <mj-text css-class="brand-message-text">
+            <span data-l10n-id="brand-banner-message">
+              Did you know we changed our name from Firefox accounts to Mozilla accounts?
+              <a href="https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts" class="link-blue" data-l10n-name="learnMore">Learn more</a>
+            </span>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    <% } %>
+
+    <mj-wrapper css-class="body">
+      <mj-section css-class="header-container">
+        <mj-column>
+          <mj-image css-class="subplat-mozilla-logo"
+            width="120px"
+            align="left"
+            href="https://www.mozilla.org"
+            src="https://cdn.accounts.firefox.com/product-icons/mozilla-logo.png"
+            alt="Mozilla logo"
+            title="Mozilla logo">
+          </mj-image>
+        </mj-column>
+      </mj-section>
+
+      <%- body %>
+
+      <mj-section css-class="footer-container">
+        <mj-column>
+          <mj-text css-class="footer-text-bottom-margin">
+            <% if (locals.productName) { %>
+              <span data-l10n-id="subplat-explainer-specific-2" data-l10n-args="<%= JSON.stringify({ email, productName }) %>">
+                You’re receiving this email because <%- email %> has a Mozilla account and you signed up for <%- productName %>.
+              </span>
+            <% } else if (locals.reminderShortForm) { %>
+              <span data-l10n-id="subplat-explainer-reminder-form-2" data-l10n-args="<%= JSON.stringify({ email }) %>">
+                You’re receiving this email because <%- email %> has a Mozilla account.
+              </span>
+            <% } else if (locals.wasDeleted) { %>
+              <span data-l10n-id="subplat-explainer-was-deleted-2" data-l10n-args="<%= JSON.stringify({ email }) %>">
+                You’re receiving this email because <%- email %> was registered for a Mozilla account.
+              </span>
+            <% } else { %>
+              <span data-l10n-id="subplat-explainer-multiple-2" data-l10n-args="<%= JSON.stringify({ email }) %>">
+                You’re receiving this email because <%- email %> has a Mozilla account and you have subscribed to multiple products.
+              </span>
+            <% } %>
+          </mj-text>
+
+          <% if (!locals.reminderShortForm && !locals.wasDeleted) { %>
+            <mj-text css-class="footer-text-bottom-margin">
+              <span data-l10n-id="subplat-manage-account-2">
+                Manage your Mozilla account settings by visiting your <a href="<%- accountSettingsUrl %>" class="footer-link" data-l10n-name="subplat-account-page">account page</a>.
+              </span>
+            </mj-text>
+
+            <mj-text css-class="footer-text">
+              <% if (locals.productName || locals.subscriptions?.length > 0) { %>
+                <a href="<%- subscriptionTermsUrl %>" class="footer-link" data-l10n-id="subplat-terms-policy">Terms and cancellation policy</a>
+                &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+
+                <a href="<%- subscriptionPrivacyUrl %>" class="footer-link" data-l10n-id="subplat-privacy-notice">Privacy notice</a>
+              <% } %>
+
+              <% if (!locals.isFinishSetup) { %>
+                &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+                <% if (locals.isCancellationEmail) { %>
+                  <a href="<%- reactivateSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-reactivate">Reactivate subscription</a>
+                  &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+                <% } else { %>
+                  <a href="<%- cancelSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-cancel">Cancel subscription</a>
+                  &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+                <% } %>
+
+                <a href="<%- updateBillingUrl %>" class="footer-link" data-l10n-id="subplat-update-billing">Update billing information</a>
+              <% } %>
+            </mj-text>
+          <% } else { %>
+            <mj-text css-class="footer-text">
+              <a href="<%- privacyUrl %>" class="footer-link" data-l10n-id="subplat-privacy-policy-2">Mozilla Accounts Privacy Notice</a>
+                &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+
+              <a href="<%- subscriptionTermsUrl %>" class="footer-link" data-l10n-id="subplat-moz-terms">Mozilla Accounts Terms of Service</a>
+            </mj-text>
+          <% } %>
+
+          <mj-image css-class="mozilla-logo-footer"
+            width="120px"
+            href="https://www.mozilla.org"
+            src="https://cdn.accounts.firefox.com/product-icons/mozilla-logo-w.png"
+            alt="Mozilla logo"
+            title="Mozilla">
+          </mj-image>
+
+          <mj-text css-class="footer-text-bottom-margin">149 New Montgomery St, 4th Floor, San Francisco, CA 94105</mj-text>
+
+          <mj-text css-class="footer-text">
+            <a href="https://www.mozilla.org/about/legal/terms/services/" class="footer-link" data-l10n-id="subplat-legal">Legal</a>
+            &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+            <a href="https://www.mozilla.org/privacy/websites/" class="footer-link" data-l10n-id="subplat-privacy">Privacy</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mg-wrapper>
+  </mj-body>
+</mjml>
