@@ -1687,6 +1687,45 @@ export default class AuthClient {
     };
   }
 
+  /**
+   * Create password using JWT authentication (for MFA-protected operations).
+   * This uses the /mfa/password/create endpoint that requires JWT authentication.
+   *
+   * @param jwt - Required scope: 'mfa:password'.
+   * @param email - The email of the user.
+   * @param newPassword - The new password to create.
+   * @param headers - The headers for the request.
+   * @returns Response
+   */
+  async createPasswordWithJwt(
+    jwt: string,
+    email: string,
+    newPassword: string,
+    headers?: Headers
+  ): Promise<{ passwordCreated: number; authPW: string; unwrapBKey: string }> {
+    const { authPW, unwrapBKey } = await crypto.getCredentials(
+      email,
+      newPassword
+    );
+
+    const payload = {
+      authPW,
+    };
+
+    const passwordCreated = await this.jwtPost(
+      '/mfa/password/create',
+      jwt,
+      payload,
+      headers
+    );
+
+    return {
+      passwordCreated,
+      authPW,
+      unwrapBKey,
+    };
+  }
+
   async getRandomBytes(headers?: Headers) {
     return this.request('POST', '/get_random_bytes', null, headers);
   }
