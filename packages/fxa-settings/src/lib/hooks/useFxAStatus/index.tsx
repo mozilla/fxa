@@ -8,6 +8,7 @@ import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
   isOAuthNativeIntegration,
+  isProbablyFirefox,
 } from '../../../models';
 import {
   defaultDesktopV3SyncEngineConfigs,
@@ -45,7 +46,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
     // that we listen for.
-    if (isSync || isOAuthNative) {
+    if ((isSync || isOAuthNative) && isProbablyFirefox()) {
       (async () => {
         const status = await firefox.fxaStatus({
           // TODO: Improve getting 'context', probably set this on the integration

@@ -30,6 +30,7 @@ import {
   useIntegration,
   useLocalSignedInQueryState,
   useSession,
+  isProbablyFirefox,
 } from '../../models';
 import {
   initializeSettingsContext,
@@ -216,12 +217,8 @@ export const App = ({
       // Request and update account data/state to match the browser state.
       // If there is a user actively signed into the browser,
       // we should try to use that user's account when possible.
-      const ua = navigator.userAgent.toLowerCase();
-      // This may not catch all Firefox browsers notably iOS devices, see FXA-11520 for alternate approach
-      const isProbablyFirefox = ua.includes('firefox') || ua.includes('fxios');
-
       let userFromBrowser;
-      if (isProbablyFirefox) {
+      if (isProbablyFirefox()) {
         userFromBrowser = await firefox.requestSignedInUser(
           integration.data.context || '',
           // TODO with React pairing flow, update this if pairing flow

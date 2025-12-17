@@ -12,6 +12,7 @@ export function isFirefoxService(service?: string) {
 }
 
 const NO_LONGER_SUPPORTED_CONTEXTS = new Set([
+  'fx_ios_v1',
   'fx_desktop_v1',
   'fx_desktop_v2',
   'fx_firstrun_v2',
@@ -19,4 +20,14 @@ const NO_LONGER_SUPPORTED_CONTEXTS = new Set([
 ]);
 export function isUnsupportedContext(context?: string): boolean {
   return !!context && NO_LONGER_SUPPORTED_CONTEXTS.has(context);
+}
+
+/**
+ * Checks if the browser is probably Firefox based on the user agent string.
+ * This may not catch all Firefox browsers, notably iOS devices.
+ * See FXA-11520 for alternate approach.
+ */
+export function isProbablyFirefox(): boolean {
+  const ua = navigator.userAgent.toLowerCase();
+  return ua.includes('firefox') || ua.includes('fxios');
 }
