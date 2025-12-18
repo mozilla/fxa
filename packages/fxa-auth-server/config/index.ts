@@ -2317,6 +2317,12 @@ const convictConf = convict({
       env: 'RATE_LIMIT__SKIP_ENDPOINTS',
       format: Array,
     },
+    emailAliasNormalization: {
+      default: '',
+      doc: 'List of email domain configurations for alias normalization. Each entry should have domain, regex, and replace properties. Example: [{domain: "mozilla.com", regex: "\\+[^@]+", replace: ""}]',
+      env: 'RATE_LIMIT__EMAIL_ALIAS_NORMALIZATION',
+      format: String,
+    },
   },
   recoveryPhone: {
     enabled: {
