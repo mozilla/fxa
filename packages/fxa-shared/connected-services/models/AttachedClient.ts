@@ -21,6 +21,7 @@ export type AttachedClient = {
   lastAccessTimeFormatted?: string;
   approximateLastAccessTime?: number;
   approximateLastAccessTimeFormatted?: string;
+  countryCode?: string | null;
 };
 
 export const attachedClientsDefaults: AttachedClient = {
