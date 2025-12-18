@@ -5,7 +5,6 @@ bento-menu-tagline = More products from { -brand-mozilla } that protect your pri
 
 bento-menu-vpn-2 = { -product-mozilla-vpn }
 bento-menu-monitor-3 = { -product-mozilla-monitor }
-bento-menu-pocket-2 = { -product-pocket }
 bento-menu-firefox-relay-2 = { -product-firefox-relay }
 bento-menu-firefox-desktop = { -brand-firefox } Browser for Desktop
 bento-menu-firefox-mobile = { -brand-firefox } Browser for Mobile

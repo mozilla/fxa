@@ -6,15 +6,21 @@
 
 const { assert } = require('chai');
 const verror = require('verror');
-const AppError = require('../../lib/error');
-const OauthError = require('../../lib/oauth/error');
+const { AppError, OauthError } = require('@fxa/accounts/errors');
+
+const mockOauthRoutes = [
+  {
+    path: '/token',
+    config: { cors: true },
+  },
+];
 
 describe('AppErrors', () => {
   it('exported functions exist', () => {
     assert.equal(typeof AppError, 'function');
     assert.equal(AppError.length, 4);
     assert.equal(typeof AppError.translate, 'function');
-    assert.lengthOf(AppError.translate, 2);
+    assert.lengthOf(AppError.translate, 3);
     assert.equal(typeof AppError.invalidRequestParameter, 'function');
     assert.equal(AppError.invalidRequestParameter.length, 1);
     assert.equal(typeof AppError.missingRequestParameter, 'function');
@@ -27,7 +33,8 @@ describe('AppErrors', () => {
     assert.equal(oauthError.errno, 104);
     const result = AppError.translate(
       { route: { path: '/v1/oauth/token' } },
-      oauthError
+      oauthError,
+      mockOauthRoutes
     );
     assert.ok(result instanceof AppError, 'instanceof AppError');
     assert.equal(result.errno, 110);
@@ -38,7 +45,8 @@ describe('AppErrors', () => {
     assert.equal(oauthError.errno, 104);
     const result = AppError.translate(
       { route: { path: '/v1/token' } },
-      oauthError
+      oauthError,
+      mockOauthRoutes
     );
     assert.ok(result instanceof OauthError, 'instanceof OauthError');
     assert.equal(result.errno, 104);

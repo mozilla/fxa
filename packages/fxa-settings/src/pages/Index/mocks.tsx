@@ -17,6 +17,7 @@ import Index from '.';
 import { MOCK_CLIENT_ID } from '../mocks';
 import { Constants } from '../../lib/constants';
 import { GenericData } from '../../lib/model-data';
+import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 
 export function createMockIndexOAuthIntegration({
   clientId = MOCK_CLIENT_ID,
@@ -52,10 +53,12 @@ export function createMockIndexOAuthIntegration({
 export function createMockIndexOAuthNativeIntegration({
   isSync = true,
   isFirefoxClientServiceRelay = false,
+  isFirefoxClientServiceAiWindow = false,
   cmsInfo,
 }: {
   isSync?: boolean;
   isFirefoxClientServiceRelay?: boolean;
+  isFirefoxClientServiceAiWindow?: boolean;
   cmsInfo?: RelierCmsInfo;
 } = {}): IndexIntegration {
   return {
@@ -63,6 +66,9 @@ export function createMockIndexOAuthNativeIntegration({
     isSync: () => isSync,
     getClientId: () => MOCK_CLIENT_ID,
     isFirefoxClientServiceRelay: () => isFirefoxClientServiceRelay,
+    isFirefoxClientServiceAiWindow: () => isFirefoxClientServiceAiWindow,
+    isFirefoxNonSync: () =>
+      isFirefoxClientServiceRelay || isFirefoxClientServiceAiWindow,
     getCmsInfo: () => cmsInfo,
     data: new OAuthIntegrationData(
       new GenericData({
@@ -78,6 +84,8 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isSync: () => false,
     getClientId: () => undefined,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => false,
     getCmsInfo: () => undefined,
     data: new IntegrationData(
       new GenericData({
@@ -96,6 +104,7 @@ export const Subject = ({
   initialTooltipMessage = '',
   deeplink,
   isMobile = false,
+  supportsKeysOptionalLogin = false,
 }: {
   integration?: IndexIntegration;
   serviceName?: MozServices;
@@ -105,6 +114,7 @@ export const Subject = ({
   initialTooltipMessage?: string;
   deeplink?: string;
   isMobile?: boolean;
+  supportsKeysOptionalLogin?: boolean;
 }) => {
   const [errorBannerMessage, setErrorBannerMessage] =
     React.useState(initialErrorBanner);
@@ -113,6 +123,9 @@ export const Subject = ({
   const [tooltipErrorMessage, setTooltipErrorMessage] = React.useState(
     initialTooltipMessage
   );
+  const mockUseFxAStatusResult = mockUseFxAStatus({
+    supportsKeysOptionalLogin,
+  });
   return (
     <LocationProvider>
       <Index
@@ -129,6 +142,7 @@ export const Subject = ({
           setTooltipErrorMessage,
           deeplink,
           isMobile,
+          useFxAStatusResult: mockUseFxAStatusResult,
         }}
       />
     </LocationProvider>

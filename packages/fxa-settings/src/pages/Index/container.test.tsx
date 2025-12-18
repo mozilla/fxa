@@ -8,7 +8,7 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import * as cache from '../../lib/cache';
 
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { Integration, IntegrationType, WebIntegration } from '../../models';
@@ -23,6 +23,8 @@ import { checkEmailDomain } from '../../lib/email-domain-validator';
 import GleanMetrics from '../../lib/glean';
 import { IndexQueryParams } from '../../models/pages/index';
 import { GenericData, ModelValidationErrors } from '../../lib/model-data';
+import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
+import { firefox } from '../../lib/channels/firefox';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -54,16 +56,21 @@ jest.mock('../../models', () => {
 });
 
 jest.mock('../../lib/channels/firefox', () => ({
-  fxaCanLinkAccount: jest.fn(),
+  ...jest.requireActual('../../lib/channels/firefox'),
+  firefox: {
+    fxaCanLinkAccount: jest.fn(),
+  },
 }));
 
 jest.mock('../../lib/email-domain-validator', () => ({
   checkEmailDomain: jest.fn(),
 }));
 
-jest.mock('fxa-react/components/LoadingSpinner', () => () => (
-  <div>LoadingSpinner</div>
-));
+jest.mock('fxa-react/components/LoadingSpinner', () => ({
+  __esModule: true,
+  ...jest.requireActual('fxa-react/components/LoadingSpinner'),
+  default: () => <div>LoadingSpinner</div>,
+}));
 
 const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 2,
@@ -98,6 +105,7 @@ describe('IndexContainer', () => {
   let mockUseAuthClient: jest.Mock;
 
   let integration: Integration;
+  let mockUseFxAStatusResult = mockUseFxAStatus();
 
   function mockWebIntegration() {
     // Leaving for historical record. Remove once baked.
@@ -125,6 +133,20 @@ describe('IndexContainer', () => {
     expect(integration.wantsKeys()).toBeFalsy();
     expect(integration.isDesktopSync()).toBeFalsy();
     expect(integration.isFirefoxClientServiceRelay()).toBeFalsy();
+  }
+
+  function mockOAuthNativeIntegration() {
+    integration = {
+      type: IntegrationType.OAuthNative,
+      getService: () => MozServices.FirefoxSync,
+      getClientId: () => 'abc123',
+      isSync: () => true,
+      isFirefoxClientServiceRelay: () => false,
+      isFirefoxClientServiceAiWindow: () => false,
+      wantsKeys: () => true,
+      getCmsInfo: () => undefined,
+      data: { clientId: 'abc123' },
+    } as Integration;
   }
 
   function mockUnsupportedContextIntegration() {
@@ -162,6 +184,7 @@ describe('IndexContainer', () => {
     mockReactUtilsModule();
     mockWebIntegration();
     mockNavigate.mockClear();
+    mockLocationState = {};
     mockUseValidatedQueryParams = useValidatedQueryParams as jest.Mock;
     mockUseValidatedQueryParams.mockReturnValue({
       queryParamModel: {},
@@ -186,7 +209,11 @@ describe('IndexContainer', () => {
     const { container } = renderWithLocalizationProvider(
       <LocationProvider>
         <IndexContainer
-          {...{ integration, serviceName: MozServices.Default }}
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
         />
       </LocationProvider>
     );
@@ -201,7 +228,11 @@ describe('IndexContainer', () => {
     const { container } = renderWithLocalizationProvider(
       <LocationProvider>
         <IndexContainer
-          {...{ integration, serviceName: MozServices.Default }}
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
         />
       </LocationProvider>
     );
@@ -217,7 +248,11 @@ describe('IndexContainer', () => {
     const { container } = renderWithLocalizationProvider(
       <LocationProvider>
         <IndexContainer
-          {...{ integration, serviceName: MozServices.Default }}
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
         />
       </LocationProvider>
     );
@@ -225,6 +260,27 @@ describe('IndexContainer', () => {
     expect(IndexModule.default).toHaveBeenCalled();
     await waitFor(() => {
       expect(currentIndexProps?.prefillEmail).toBe(MOCK_EMAIL);
+    });
+  });
+
+  it('should display error banner when localizedErrorFromLocationState is provided', async () => {
+    const errorMessage = 'Login cancelled';
+    mockLocationState = { localizedErrorFromLocationState: errorMessage };
+    const { container } = renderWithLocalizationProvider(
+      <LocationProvider>
+        <IndexContainer
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
+        />
+      </LocationProvider>
+    );
+    expect(container).toBeDefined();
+    expect(IndexModule.default).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(currentIndexProps?.errorBannerMessage).toBe(errorMessage);
     });
   });
 
@@ -251,7 +307,11 @@ describe('IndexContainer', () => {
     const { getByText, queryByText } = renderWithLocalizationProvider(
       <LocationProvider>
         <IndexContainer
-          {...{ integration, serviceName: MozServices.Default }}
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
         />
       </LocationProvider>
     );
@@ -280,7 +340,11 @@ describe('IndexContainer', () => {
       const { container } = renderWithLocalizationProvider(
         <LocationProvider>
           <IndexContainer
-            {...{ integration, serviceName: MozServices.Default }}
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
           />
         </LocationProvider>
       );
@@ -301,9 +365,13 @@ describe('IndexContainer', () => {
         queryParamModel: { email: 'test@example.com' },
         validationError: null,
       });
-      render(
+      renderWithLocalizationProvider(
         <IndexContainer
-          {...{ integration, serviceName: MozServices.Default }}
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
         />
       );
 
@@ -323,6 +391,8 @@ describe('IndexContainer', () => {
           email: 'test@example.com',
           hasLinkedAccount: false,
           hasPassword: true,
+          // no can_link_account check performed for non-browser services
+          canLinkAccountOk: undefined,
         },
       });
     });
@@ -340,9 +410,13 @@ describe('IndexContainer', () => {
         queryParamModel: { email: 'test@example.com' },
         validationError: null,
       });
-      render(
+      renderWithLocalizationProvider(
         <IndexContainer
-          {...{ integration, serviceName: MozServices.Default }}
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
         />
       );
 
@@ -361,6 +435,8 @@ describe('IndexContainer', () => {
         state: {
           email: 'test@example.com',
           emailStatusChecked: true,
+          // no can_link_account check performed for non-browser services
+          canLinkAccountOk: undefined,
         },
       });
     });
@@ -377,7 +453,11 @@ describe('IndexContainer', () => {
       renderWithLocalizationProvider(
         <LocationProvider>
           <IndexContainer
-            {...{ integration, serviceName: MozServices.Default }}
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
           />
         </LocationProvider>
       );
@@ -422,9 +502,13 @@ describe('IndexContainer', () => {
         accountStatusByEmail: jest.fn().mockResolvedValue(mockAccountStatus),
       });
 
-      render(
+      renderWithLocalizationProvider(
         <IndexContainer
-          {...{ integration, serviceName: MozServices.Default }}
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
         />
       );
 
@@ -439,6 +523,8 @@ describe('IndexContainer', () => {
           email: 'current@example.com',
           hasLinkedAccount: false,
           hasPassword: true,
+          // no can_link_account check performed for non-browser services
+          canLinkAccountOk: undefined,
         },
       });
     });
@@ -469,9 +555,13 @@ describe('IndexContainer', () => {
         accountStatusByEmail: jest.fn().mockResolvedValue(mockAccountStatus),
       });
 
-      render(
+      renderWithLocalizationProvider(
         <IndexContainer
-          {...{ integration, serviceName: MozServices.Default }}
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
         />
       );
 
@@ -486,15 +576,21 @@ describe('IndexContainer', () => {
           email: 'stored@example.com',
           hasLinkedAccount: false,
           hasPassword: true,
+          // no can_link_account check performed for non-browser services
+          canLinkAccountOk: undefined,
         },
       });
     });
 
     it('should redirect if context is unsupported', async () => {
       mockUnsupportedContextIntegration();
-      render(
+      renderWithLocalizationProvider(
         <IndexContainer
-          {...{ integration, serviceName: MozServices.Default }}
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
         />
       );
 
@@ -524,9 +620,13 @@ describe('IndexContainer', () => {
           'submitSuccess'
         );
 
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
-            {...{ integration, serviceName: MozServices.Default }}
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
           />
         );
 
@@ -563,9 +663,13 @@ describe('IndexContainer', () => {
           }),
         });
 
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
-            {...{ integration, serviceName: MozServices.Default }}
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
           />
         );
 
@@ -608,9 +712,13 @@ describe('IndexContainer', () => {
             hasPassword: false,
           }),
         });
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
-            {...{ integration, serviceName: MozServices.Default }}
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
           />
         );
 
@@ -640,9 +748,13 @@ describe('IndexContainer', () => {
             hasPassword: false,
           }),
         });
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
-            {...{ integration, serviceName: MozServices.Default }}
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
           />
         );
 
@@ -677,9 +789,13 @@ describe('IndexContainer', () => {
             hasPassword: false,
           }),
         });
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
-            {...{ integration, serviceName: MozServices.Default }}
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
           />
         );
 
@@ -717,9 +833,13 @@ describe('IndexContainer', () => {
           AuthUiErrors.INVALID_EMAIL_DOMAIN
         );
 
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
-            {...{ integration, serviceName: MozServices.Default }}
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
           />
         );
 
@@ -742,6 +862,113 @@ describe('IndexContainer', () => {
         );
         expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
           event: { reason: 'registration' },
+        });
+      });
+    });
+
+    describe('fxaCanLinkAccount with OAuthNative integration', () => {
+      beforeEach(() => {
+        mockOAuthNativeIntegration();
+        mockUseFxAStatusResult = mockUseFxAStatus({
+          supportsCanLinkAccountUid: true,
+        });
+      });
+      afterEach(() => {
+        (firefox.fxaCanLinkAccount as jest.Mock).mockRestore();
+      });
+
+      it('calls fxaCanLinkAccount with email when supportsCanLinkAccountUid is false', async () => {
+        mockUseFxAStatusResult = mockUseFxAStatus({
+          supportsCanLinkAccountUid: false,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Relay,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+        await waitFor(() => {
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+            email: MOCK_EMAIL,
+          });
+        });
+      });
+
+      it('calls fxaCanLinkAccount with email and UID when supportsCanLinkAccountUid is true and account does not exist', async () => {
+        mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
+          exists: false,
+          hasLinkedAccount: false,
+          hasPassword: false,
+        });
+        (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+          () => mockAuthClient
+        );
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+        await waitFor(() => {
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+            email: MOCK_EMAIL,
+            uid: undefined,
+          });
+        });
+      });
+
+      it('handles user cancelling account linking', async () => {
+        mockUseFxAStatusResult = mockUseFxAStatus({
+          supportsCanLinkAccountUid: false,
+        });
+        (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
+          ok: false,
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+        await waitFor(() => {
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalled();
+        });
+        await waitFor(() => {
+          expect(currentIndexProps?.errorBannerMessage).toBeDefined();
         });
       });
     });

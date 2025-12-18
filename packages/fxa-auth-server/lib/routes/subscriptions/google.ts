@@ -6,7 +6,7 @@ import isA from 'joi';
 import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from 'fxa-shared/oauth/constants';
 import { Container } from 'typedi';
 
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { CapabilityService } from '../../payments/capability';
 import { PlayBilling } from '../../payments/iap/google-play/play-billing';
 import { PurchaseUpdateError } from '../../payments/iap/google-play/types/errors';

@@ -22,7 +22,7 @@ import MISC_DOCS from '../../docs/swagger/misc-api';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import authMethods from '../authMethods';
 import random from '../crypto/random';
-import error from '../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { getClientById } from '../oauth/client';
 import { generateAccessToken } from '../oauth/grant';
 import jwt from '../oauth/jwt';
@@ -43,13 +43,19 @@ import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
 import { StatsD } from 'hot-shots';
-import { recordSecurityEvent, isRecognizedDevice } from './utils/security-event';
+import {
+  recordSecurityEvent,
+  isRecognizedDevice,
+} from './utils/security-event';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { OtpUtils } from './utils/otp';
+import { getExistingSecondaryEmailRecord } from './emails';
+import { Redis } from 'ioredis';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -88,7 +94,8 @@ export class AccountHandler {
     private oauth: any,
     private stripeHelper: StripeHelper,
     private glean: ReturnType<typeof gleanMetrics>,
-    private statsd: StatsD
+    private statsd: StatsD,
+    private authServerCacheRedis: Redis
   ) {
     this.otpUtils = require('./utils/otp').default(db, statsd);
     this.skipConfirmationForEmailAddresses = config.signinConfirmation
@@ -556,13 +563,31 @@ export class AccountHandler {
     }
 
     await this.customs.check(request, email, 'accountCreate');
-    await deleteAccountIfUnverified(
-      this.db,
-      this.stripeHelper,
-      this.log,
+
+    if (this.config.accountDestroy.onCreateIfUnverified) {
+      await deleteAccountIfUnverified(
+        this.db,
+        this.stripeHelper,
+        this.log,
+        request,
+        email
+      );
+    } else if (await this.db.accountExists(email)) {
+      throw error.accountExists(email);
+    }
+
+    // Block creation if email is reserved for secondary email registration
+    const normalizedEmail = normalizeEmail(email);
+    const existingSecondaryEmailRecord = await getExistingSecondaryEmailRecord(
+      normalizedEmail,
       request,
-      email
+      this.authServerCacheRedis
     );
+    if (existingSecondaryEmailRecord) {
+      // in this instance the secondary email is not verified,
+      // but the error message is adequate
+      throw error.verifiedSecondaryEmailAlreadyExists();
+    }
 
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();
@@ -650,13 +675,17 @@ export class AccountHandler {
 
     const client = await getClientById(clientId);
 
-    await deleteAccountIfUnverified(
-      this.db,
-      this.stripeHelper,
-      this.log,
-      request,
-      email
-    );
+    if (this.config.accountDestroy.onCreateIfUnverified) {
+      await deleteAccountIfUnverified(
+        this.db,
+        this.stripeHelper,
+        this.log,
+        request,
+        email
+      );
+    } else if (await this.db.accountExists(email)) {
+      throw error.accountExists(email);
+    }
 
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();
@@ -1074,38 +1103,51 @@ export class AccountHandler {
       return false;
     };
 
-    const skipTokenVerification = async (request: AuthRequest, account: any) => {
-      // Skip all checks to simulate an unverified session token state
-      if (this.config.signinConfirmation.tokenVerification === false) {
-        return false;
-      }
-
+    const skipTokenVerification = async (
+      request: AuthRequest,
+      account: any
+    ) => {
       // Check to see if there has been a recent, successfully-verified login from
       // the same device (as indicated by User-Agent string)
       if (this.config.signinConfirmation.deviceFingerprinting?.enabled) {
         try {
           const currentUserAgent = request.headers['user-agent'] || '';
-          const skipTimeframeMs = this.config.signinConfirmation.deviceFingerprinting.duration as unknown as number;
+          const skipTimeframeMs = this.config.signinConfirmation
+            .deviceFingerprinting.duration as unknown as number;
 
-          const isRecognized = await isRecognizedDevice(this.db, account.uid, currentUserAgent, skipTimeframeMs);
+          const isRecognized = await isRecognizedDevice(
+            this.db,
+            account.uid,
+            currentUserAgent,
+            skipTimeframeMs
+          );
 
           if (isRecognized) {
-            if (this.config.signinConfirmation.deviceFingerprinting.reportOnlyMode) {
-              this.statsd.increment('account.signin.confirm.bypass.knownDevice.reportOnly');
+            if (
+              this.config.signinConfirmation.deviceFingerprinting.reportOnlyMode
+            ) {
+              this.statsd.increment(
+                'account.signin.confirm.bypass.knownDevice.reportOnly'
+              );
               this.log.info('account.signin.confirm.device.match.reportOnly', {
                 uid: account.uid,
               });
             } else {
-              this.statsd.increment('account.signin.confirm.bypass.knownDevice');
+              this.statsd.increment(
+                'account.signin.confirm.bypass.knownDevice'
+              );
               this.glean.loginConfirmSkipFor.knownDevice(request);
               this.log.info('account.signin.confirm.device.skip', {
                 uid: account.uid,
               });
-              recordSecurityEvent('account.signin_confirm_bypass_known_device', {
-                db: this.db,
-                request,
-                account,
-              });
+              recordSecurityEvent(
+                'account.signin_confirm_bypass_known_device',
+                {
+                  db: this.db,
+                  request,
+                  account,
+                }
+              );
               return true;
             }
           } else {
@@ -1117,7 +1159,7 @@ export class AccountHandler {
         } catch (error) {
           this.log.error('account.signin.confirm.device.error', {
             uid: account.uid,
-            error: error.message
+            error: error.message,
           });
           // Fall through to existing logic on error
         }
@@ -1225,11 +1267,14 @@ export class AccountHandler {
       // If the request wants keys , user *must* confirm their login session before they can actually
       // use it. Otherwise, they don't *have* to verify their session. All sessions are created
       // unverified because it prevents them from being used for sync.
+      // Also require verification if the service is in the servicesWithEmailVerification list.
       let mustVerifySession =
         needsVerificationId &&
         (verificationForced === 'suspect' ||
           verificationForced === 'global' ||
-          requestHelper.wantsKeys(request));
+          requestHelper.wantsKeys(request) ||
+          (service &&
+            this.config.servicesWithEmailVerification.includes(service)));
 
       // For accounts with TOTP, we always force verifying a session.
       if (verificationMethod === 'totp-2fa') {
@@ -1284,7 +1329,8 @@ export class AccountHandler {
         request,
         accountRecord,
         sessionToken,
-        verificationMethod
+        verificationMethod,
+        passwordChangeRequired
       );
 
       // For new logins that don't send some other sort of email,
@@ -1386,6 +1432,7 @@ export class AccountHandler {
         sessionToken: sessionToken.data,
         authAt: sessionToken.lastAuthAt(),
         metricsEnabled: !accountRecord.metricsOptOutAt,
+        emailVerified: sessionToken.emailVerified,
       };
 
       if (keyFetchToken) {
@@ -1397,7 +1444,7 @@ export class AccountHandler {
       }
 
       if (passwordChangeRequired) {
-        response.verified = false;
+        response.sessionVerified = false;
         response.verificationReason = 'change_password';
         response.verificationMethod = verificationMethod;
       } else {
@@ -1410,9 +1457,14 @@ export class AccountHandler {
         );
       }
 
+      // This has stuck around for backwards compatibility and is not currently
+      // used by our front-end. RPs should be encouraged to use 'sessionVerified'
+      // or 'emailVerified' instead.
+      response.verified = response.emailVerified && response.sessionVerified;
+
       await this.signinUtils.cleanupReminders(response, accountRecord);
 
-      if (response.verified) {
+      if (response.emailVerified && response.sessionVerified) {
         this.glean.login.success(request, { uid: sessionToken.uid });
       }
 
@@ -1432,7 +1484,16 @@ export class AccountHandler {
   async status(request: AuthRequest) {
     const sessionToken = request.auth.credentials;
     if (sessionToken) {
-      return { exists: true, locale: sessionToken.locale };
+      const account = await this.db.account(sessionToken.uid as string);
+      // Make sure the account still exists
+      if (!account) {
+        throw error.unknownAccount();
+      }
+      return {
+        exists: true,
+        locale: sessionToken.locale,
+        hasPassword: account.verifierSetAt > 0,
+      };
     } else if (request.query.uid) {
       const uid = request.query.uid;
       try {
@@ -1464,6 +1525,19 @@ export class AccountHandler {
     }
 
     await this.customs.check(request, email, 'accountStatusCheck');
+
+    // Block creation if email is reserved for secondary email registration
+    const normalizedEmail = normalizeEmail(email);
+    const existingSecondaryEmailRecord = await getExistingSecondaryEmailRecord(
+      normalizedEmail,
+      request,
+      this.authServerCacheRedis
+    );
+    if (existingSecondaryEmailRecord) {
+      // in this instance the secondary email is not verified,
+      // but the error message is adequate
+      throw error.verifiedSecondaryEmailAlreadyExists();
+    }
 
     const result: {
       exists: boolean;
@@ -1883,7 +1957,7 @@ export class AccountHandler {
       const response: Record<string, any> = {
         uid: sessionToken.uid,
         sessionToken: sessionToken.data,
-        verified: sessionToken.emailVerified,
+        emailVerified: sessionToken.emailVerified,
         authAt: sessionToken.lastAuthAt(),
       };
 
@@ -2006,7 +2080,7 @@ export class AccountHandler {
       (sessionToken.tokenVerificationId ||
         (sessionToken.authenticatorAssuranceLevel as number) <= 1)
     ) {
-      throw error.unverifiedSession();
+      throw error.insufficientAal();
     }
 
     // We can also check that the email was verified. This proves the account is active and
@@ -2139,6 +2213,7 @@ export const accountRoutes = (
   stripeHelper: StripeHelper,
   pushbox: any,
   glean: ReturnType<typeof gleanMetrics>,
+  authServerCacheRedis: Redis,
   statsd: any
 ) => {
   const accountHandler = new AccountHandler(
@@ -2156,7 +2231,8 @@ export const accountRoutes = (
     oauth,
     stripeHelper,
     glean,
-    statsd
+    statsd,
+    authServerCacheRedis
   );
   const routes = [
     {
@@ -2387,6 +2463,8 @@ export const accountRoutes = (
               .string()
               .optional()
               .description(DESCRIPTION.verificationReason),
+            emailVerified: isA.boolean().required(),
+            sessionVerified: isA.boolean().required(),
             verified: isA.boolean().required(),
             authAt: isA.number().integer().description(DESCRIPTION.authAt),
             metricsEnabled: isA.boolean().required(),

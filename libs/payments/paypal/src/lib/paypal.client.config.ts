@@ -6,17 +6,21 @@ import { Type } from 'class-transformer';
 import { IsBoolean, IsNumber, IsString, ValidateNested } from 'class-validator';
 
 export class PaypalRetryConfig {
+  @Type(() => Number)
   @IsNumber()
   public readonly retries!: number;
 
+  @Type(() => Number)
   @IsNumber()
   public readonly minTimeout!: number;
 
+  @Type(() => Number)
   @IsNumber()
   public readonly factor!: number;
 }
 
 export class PaypalClientConfig {
+  @Type(() => Boolean)
   @IsBoolean()
   public readonly sandbox!: boolean;
 

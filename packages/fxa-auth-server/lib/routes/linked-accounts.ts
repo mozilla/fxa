@@ -17,7 +17,7 @@ import {
 import THIRD_PARTY_AUTH_DOCS from '../../docs/swagger/third-party-auth-api';
 import isA from 'joi';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-import error from '../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import {
   getGooglePublicKey,

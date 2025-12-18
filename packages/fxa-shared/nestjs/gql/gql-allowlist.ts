@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { readFileSync } from 'fs';
 import { Request, Response, NextFunction } from 'express';
+import { StatsD } from 'hot-shots';
 
 /**
  * Configuration options for GqlGuard
@@ -64,12 +65,13 @@ export class GqlAllowlist {
  * @param config
  * @returns
  */
-export function allowlistGqlQueries(config: Config) {
+export function allowlistGqlQueries(config: Config, statsd?: StatsD) {
   const guard = new GqlAllowlist(config);
   return (req: Request, res: Response, next: NextFunction) => {
     if (guard.allowed(req)) {
       next();
     } else {
+      statsd?.increment('gql.unsanctioned_query');
       res
         .status(403)
         .send({ statusCode: 403, message: 'Unsanctioned Graphql Query' });

@@ -17,10 +17,11 @@ import {
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthIntegration,
 } from './mocks';
-import { handleNavigation } from './utils';
+import { handleNavigation, ensureCanLinkAcountOrRedirect } from './utils';
 import * as ReachRouter from '@reach/router';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
+import { OAuthNativeServices } from '../../models';
 
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
@@ -32,12 +33,14 @@ jest.mock('../../lib/channels/firefox', () => ({
   default: {
     fxaLogin: jest.fn(),
     fxaOAuthLogin: jest.fn(),
+    fxaCanLinkAccount: jest.fn(),
   },
 }));
 
 const navigateSpy = jest.spyOn(ReachRouter, 'navigate');
 const hardNavigateSpy = jest.spyOn(ReactUtils, 'hardNavigate');
 const fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
+const fxaCanLinkAccountSpy = jest.spyOn(firefox, 'fxaCanLinkAccount');
 
 describe('Signin utils', () => {
   beforeEach(() => {
@@ -53,7 +56,8 @@ describe('Signin utils', () => {
         signinData: {
           uid: MOCK_UID,
           sessionToken: MOCK_SESSION_TOKEN,
-          verified: true,
+          emailVerified: true,
+          sessionVerified: true,
           verificationMethod: VerificationMethods.EMAIL,
           verificationReason: VerificationReasons.SIGN_IN,
           keyFetchToken: MOCK_KEY_FETCH_TOKEN,
@@ -80,11 +84,11 @@ describe('Signin utils', () => {
       expect(hardNavigateSpy).not.toHaveBeenCalled();
     });
 
-    it('sends fxaLogin with aimode services and navigates to settings for OAuthNative service=aimode', async () => {
+    it('sends fxaLogin with aiwindow services and navigates to settings for OAuthNative service=aiwindow', async () => {
       const navigationOptions = createBaseNavigationOptions({
         integration: createMockSigninOAuthNativeIntegration({
           isSync: false,
-          service: 'aimode',
+          service: OAuthNativeServices.AiWindow,
         }),
         performNavigation: true,
         handleFxaLogin: true,
@@ -96,7 +100,7 @@ describe('Signin utils', () => {
         sessionToken: MOCK_SESSION_TOKEN,
         uid: MOCK_UID,
         verified: true,
-        services: { aimode: {} },
+        services: { aiwindow: {} },
       });
       expect(result.error).toBeUndefined();
       expect(navigateSpy).toHaveBeenCalledWith('/settings', { replace: true });
@@ -121,7 +125,8 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            verified: false,
+            emailVerified: false,
+            sessionVerified: false,
             verificationReason: VerificationReasons.SIGN_UP,
           },
           integration: createMockSigninOAuthIntegration(),
@@ -140,7 +145,8 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            verified: false,
+            emailVerified: true,
+            sessionVerified: false,
             verificationMethod: VerificationMethods.TOTP_2FA,
           },
           integration: createMockSigninOAuthIntegration(),
@@ -164,7 +170,8 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            verified: false,
+            emailVerified: true,
+            sessionVerified: false,
             verificationMethod: VerificationMethods.EMAIL,
             verificationReason: VerificationReasons.SIGN_IN,
           },
@@ -189,7 +196,8 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            verified: false,
+            emailVerified: false,
+            sessionVerified: false,
             verificationMethod: VerificationMethods.EMAIL,
             verificationReason: VerificationReasons.SIGN_IN,
           },
@@ -212,6 +220,30 @@ describe('Signin utils', () => {
         );
       });
 
+      it('returns early for OAuth integration that isServiceWithEmailVerification', async () => {
+        const mockOAuthIntegration = createMockSigninOAuthIntegration();
+
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            emailVerified: true,
+            sessionVerified: false,
+            verificationMethod: VerificationMethods.EMAIL,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          isServiceWithEmailVerification: true,
+          integration: mockOAuthIntegration,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.any(Object)
+        );
+      });
+
       it('returns early for OAuth integration with wantsKeys', async () => {
         const mockOAuthIntegration = createMockSigninOAuthIntegration();
         (mockOAuthIntegration as any).wantsKeys = jest
@@ -221,7 +253,8 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            verified: false,
+            emailVerified: true,
+            sessionVerified: false,
             verificationMethod: VerificationMethods.EMAIL,
             verificationReason: VerificationReasons.SIGN_IN,
           },
@@ -237,11 +270,12 @@ describe('Signin utils', () => {
         );
       });
 
-      it('does not send fxaLogin for TOTP verification', async () => {
+      it('does not send fxaLogin if TOTP verification required', async () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            verified: false,
+            emailVerified: false,
+            sessionVerified: false,
             verificationMethod: VerificationMethods.TOTP_2FA,
           },
           integration: createMockSigninOAuthNativeSyncIntegration(),
@@ -256,6 +290,89 @@ describe('Signin utils', () => {
           '/signin_totp_code',
           expect.any(Object)
         );
+      });
+    });
+
+    describe('third party auth with non-Sync services', () => {
+      it('sends fxaOAuthLogin and navigates to settings', async () => {
+        const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const navigationOptions = createBaseNavigationOptions({
+          integration: createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Relay,
+          }),
+          isSignInWithThirdPartyAuth: true,
+          performNavigation: true,
+          handleFxaOAuthLogin: true,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
+          action: 'signin',
+          code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+          redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
+        });
+        expect(navigateSpy).toHaveBeenCalledWith('/settings', {
+          replace: true,
+        });
+      });
+    });
+  });
+
+  describe('ensureCanLinkAcountOrRedirect', () => {
+    const mockFtlMsgResolver = {
+      getMsg: jest.fn().mockReturnValue('Login attempt cancelled'),
+    };
+    const mockNavigateWithQuery = jest.fn();
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('returns true when user accepts', async () => {
+      fxaCanLinkAccountSpy.mockResolvedValue({ ok: true });
+
+      const result = await ensureCanLinkAcountOrRedirect({
+        email: MOCK_EMAIL,
+        uid: MOCK_UID,
+        ftlMsgResolver: mockFtlMsgResolver as any,
+        navigateWithQuery: mockNavigateWithQuery as any,
+      });
+
+      expect(result).toBe(true);
+      expect(fxaCanLinkAccountSpy).toHaveBeenCalledWith({
+        email: MOCK_EMAIL,
+        uid: MOCK_UID,
+      });
+      expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('navigates to Index with error banner when user cancels', async () => {
+      const linkedAccountEmail = 'user@example.com';
+      const linkedAccountUid = '123';
+      fxaCanLinkAccountSpy.mockResolvedValue({ ok: false });
+
+      const result = await ensureCanLinkAcountOrRedirect({
+        email: linkedAccountEmail,
+        uid: linkedAccountUid,
+        ftlMsgResolver: mockFtlMsgResolver as any,
+        navigateWithQuery: mockNavigateWithQuery as any,
+      });
+
+      expect(result).toBe(false);
+      expect(fxaCanLinkAccountSpy).toHaveBeenCalledWith({
+        email: linkedAccountEmail,
+        uid: linkedAccountUid,
+      });
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/', {
+        replace: true,
+        state: {
+          localizedErrorFromLocationState: 'Login attempt cancelled',
+          prefillEmail: linkedAccountEmail,
+        },
       });
     });
   });

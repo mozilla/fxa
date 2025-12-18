@@ -22,7 +22,6 @@ import {
   getCredentialsV2,
   getKeysV2,
 } from 'fxa-auth-client/lib/crypto';
-import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
 import { handleGQLError } from './utils';
@@ -30,8 +29,9 @@ import VerificationMethods from '../../constants/verification-methods';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { QueryParams } from '../..';
 import { isFirefoxService } from '../../models/integrations/utils';
-import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { isMobileDevice } from '../../lib/utilities';
+import AppLayout from '../../components/AppLayout';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -63,11 +63,13 @@ type LocationState = {
 const SignupContainer = ({
   integration,
   flowQueryParams,
-  useSyncEnginesResult,
+  useFxAStatusResult,
+  setCurrentSplitLayout,
 }: {
   integration: SignupIntegration;
   flowQueryParams: QueryParams;
-  useSyncEnginesResult: ReturnType<typeof useSyncEngines>;
+  useFxAStatusResult: UseFxAStatusResult;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
@@ -205,9 +207,16 @@ const SignupContainer = ({
     ]
   );
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SignupSetPasswordPage?.splitLayout;
+
   if (validationError || !email) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   const deeplink = queryParamModel.deeplink;
@@ -219,10 +228,11 @@ const SignupContainer = ({
         integration,
         email,
         beginSignupHandler,
-        useSyncEnginesResult,
+        useFxAStatusResult,
         deeplink,
         flowQueryParams,
         isMobile,
+        setCurrentSplitLayout,
       }}
     />
   );

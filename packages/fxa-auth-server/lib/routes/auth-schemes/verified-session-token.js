@@ -4,7 +4,7 @@
 
 'use strict';
 
-const AppError = require('../../error');
+const { AppError } = require('@fxa/accounts/errors');
 const authMethods = require('../../authMethods');
 const { parseAuthorizationHeader } = require('./hawk-fxa-token');
 
@@ -86,7 +86,7 @@ function strategy(getCredentialsFunc, db, config, statsd) {
         }
 
         // 2) session token is verified
-        if (token.tokenVerificationId || token.tokenVerified === false) {
+        if (!token.tokenVerified) {
           if (skipTokenVerifiedCheckForRoutes?.test(req.route.path)) {
             statsd?.increment('verified_session_token.token_verified.skipped', [
               `path:${req.route.path}`,
@@ -107,7 +107,7 @@ function strategy(getCredentialsFunc, db, config, statsd) {
         const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
         const sessionAal = token.authenticatorAssuranceLevel;
 
-        if (accountAal !== sessionAal) {
+        if (sessionAal < accountAal) {
           if (skipAalCheckForRoutes?.test(req.route.path)) {
             statsd?.increment('verified_session_token.aal.skipped', [
               `path:${req.route.path}`,
@@ -116,7 +116,7 @@ function strategy(getCredentialsFunc, db, config, statsd) {
             statsd?.increment('verified_session_token.aal.error', [
               `path:${req.route.path}`,
             ]);
-            throw AppError.unauthorized('AAL mismatch');
+            throw AppError.insufficientAal();
           }
         }
 

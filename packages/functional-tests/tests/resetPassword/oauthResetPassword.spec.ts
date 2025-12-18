@@ -106,7 +106,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.totp.addButton.click();
       await settings.confirmMfaGuard(credentials.email);
       const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.signOut();
 
@@ -135,18 +135,6 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(page).toHaveURL(target.relierUrl);
       expect(await relier.isLoggedIn()).toBe(true);
-
-      // update password for cleanup function
-      credentials.password = newPassword;
-
-      // Goes to settings and disables totp on user's account (required for cleanup)
-      await signin.goto();
-      await expect(signin.cachedSigninHeading).toBeVisible();
-      await signin.signInButton.click();
-
-      await expect(settings.settingsHeading).toBeVisible();
-      await settings.disconnectTotp();
-      await settings.signOut();
 
       // update password for cleanup function
       credentials.password = newPassword;

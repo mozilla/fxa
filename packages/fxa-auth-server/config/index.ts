@@ -429,6 +429,12 @@ const convictConf = convict({
       default: false,
       env: 'SMTP_SECURE',
     },
+    ignoreTLS: {
+      doc: 'Ignore STARTTLS even if the server advertises it (needed for local mail helper)',
+      format: Boolean,
+      default: false,
+      env: 'SMTP_IGNORE_TLS',
+    },
     user: {
       doc: 'SMTP username',
       format: String,
@@ -504,8 +510,7 @@ const convictConf = convict({
     subscriptionSupportUrl: {
       doc: 'url to Mozilla subscription support page',
       format: String,
-      default:
-        'https://support.mozilla.org/products',
+      default: 'https://support.mozilla.org/products',
     },
     redirectDomain: {
       doc: 'Domain that mail urls are allowed to redirect to',
@@ -526,7 +531,7 @@ const convictConf = convict({
     },
     subscriptionTermsUrl: {
       default:
-        'https://www.mozilla.org/about/legal/terms/firefox-private-network/',
+        'https://www.mozilla.org/about/legal/terms/subscription-services',
       doc: 'Subscription terms and cancellation policy URL',
       env: 'SUBSCRIPTION_TERMS_URL',
       format: String,
@@ -600,6 +605,12 @@ const convictConf = convict({
           'subscriptionAccountFinishSetup',
         ],
         env: 'BOUNCES_IGNORE_TEMPLATES',
+      },
+      deleteAccount: {
+        doc: 'Flag to enable deleting account on email bounce.',
+        format: Boolean,
+        default: true,
+        env: 'BOUNCES_DELETE_ACCOUNT',
       },
     },
     connectionTimeout: {
@@ -1212,9 +1223,6 @@ const convictConf = convict({
       },
     },
     clientIdToServiceNames: {
-      // This is used by oauth/db/index.js to identify pocket client ids so that it
-      // can store them separately in mysql.
-      // It's also used for amplitude stats
       doc: 'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
       default: {},
       format: 'Object',
@@ -1580,7 +1588,7 @@ const convictConf = convict({
   },
   signinConfirmation: {
     forcedEmailAddresses: {
-      doc: 'Force sign-in confirmation for email addresses matching this regex.',
+      doc: 'Force sign-in confirmation for email addresses matching this regex for those that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating an unverified session state',
       format: RegExp,
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX',
@@ -1593,7 +1601,7 @@ const convictConf = convict({
     },
     skipForNewAccounts: {
       enabled: {
-        doc: 'Skip sign-in confirmation for newly-created accounts.',
+        doc: 'Skip sign-in confirmation for newly-created accounts. Use this in tandem with forcedEmailAddresses',
         default: true,
         env: 'SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS',
       },
@@ -1642,12 +1650,6 @@ const convictConf = convict({
         format: 'duration',
         env: 'SIGNIN_CONFIRMATION_DEVICE_FINGERPRINTING_DURATION',
       },
-    },
-    tokenVerification: {
-      doc: 'If set to false, force sign-in confirmation for logins that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating an unverified session state',
-      format: Boolean,
-      default: true,
-      env: 'SIGNIN_CONFIRMATION_TOKEN_VERIFICATION',
     },
   },
   forcePasswordChange: {
@@ -1749,12 +1751,24 @@ const convictConf = convict({
       format: 'duration',
       env: 'SECONDARY_EMAIL_MIN_UNVERIFIED_ACCOUNT_TIME',
     },
+    pendingTtlSeconds: {
+      doc: 'TTL in seconds for pending secondary email reservations (Redis)',
+      format: 'nat',
+      default: 600,
+      env: 'SECONDARY_EMAIL_PENDING_TTL_SECONDS',
+    },
   },
   signinCodeSize: {
     doc: 'signinCode size in bytes',
     default: 6,
     format: 'nat',
     env: 'SIGNIN_CODE_SIZE',
+  },
+  servicesWithEmailVerification: {
+    doc: 'Services that will alwasy send a session verification email on sign in',
+    default: ['e6eb0d1e856335fc'],
+    format: Array,
+    env: 'SERVICES_WITH_EMAIL_VERIFICATION',
   },
   emailStatusPollingTimeout: {
     doc: 'how long before emails status polling is considered stale',
@@ -2070,6 +2084,12 @@ const convictConf = convict({
       default: true,
       format: Boolean,
       env: 'ACCOUNT_DESTROY__REQUIRE_VERIFIED_SESSION',
+    },
+    onCreateIfUnverified: {
+      doc: 'Whether or not the account record should be deleted during account creation if the email has not yet been verified..',
+      default: true,
+      format: Boolean,
+      env: 'ACCOUNT_DESTROY__ON_CREATE_IF_UNVERIFIED',
     },
   },
   passwordForgotOtp: {

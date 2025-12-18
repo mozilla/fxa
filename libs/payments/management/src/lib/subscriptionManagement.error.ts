@@ -33,6 +33,23 @@ export class CancelSubscriptionCustomerMismatch extends SubscriptionManagementEr
   }
 }
 
+export class SubscriptionCustomerMismatch extends SubscriptionManagementError {
+  constructor(
+    uid: string,
+    accountCustomer: string,
+    subscriptionCustomer: string,
+    subscriptionId: string
+  ) {
+    super('Subscription customer does not match account customer', {
+      uid,
+      accountCustomer,
+      subscriptionCustomer,
+      subscriptionId,
+    });
+    this.name = 'SubscriptionCustomerMismatch';
+  }
+}
+
 export class GetAccountCustomerMissingStripeId extends SubscriptionManagementError {
   constructor(uid: string) {
     super('Retrieved AccountCustomer is missing a Stripe customer id', { uid });
@@ -219,5 +236,25 @@ export class SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError exte
     });
     this.name =
       'SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError';
+  }
+}
+
+export class SubscriptionManagementNoStripeCustomerFoundError extends SubscriptionManagementError {
+  constructor(uid: string, subscriptionId: string) {
+    super('Stripe customer not found', {
+      uid,
+      subscriptionId,
+    });
+    this.name = 'SubscriptionManagementNoStripeCustomerFoundError';
+  }
+}
+
+export class SubscriptionManagementSubscriptionNotFoundError extends SubscriptionManagementError {
+  constructor(uid: string, subscriptionId: string) {
+    super('Subscription not found', {
+      uid,
+      subscriptionId,
+    });
+    this.name = 'SubscriptionManagementSubscriptionNotFoundError';
   }
 }

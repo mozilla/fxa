@@ -75,23 +75,26 @@ The `testAccountTracker` fixture automatically handles account cleanup after tes
 
 ### Automatic TOTP Cleanup & Fail-Fast Error Handling
 
-If a test fails before reaching its cleanup code (e.g., `await settings.disconnectTotp()`), the `TestAccountTracker` will automatically:
+All tests, regardless of success of failure will be cleaned up using `TestAccountTracer.destroyAllAccounts()`
 
-1. **Use existing session token** if available (fastest)
-2. **Create new session** if no session token exists
-3. **Attempt to disable TOTP** (automatically handles accounts with/without TOTP)
-4. **Destroy the account**
+This naively does the following:
+
+1. Fetches a new session token
+2. Uses `/session/status` to determine if the token meets minimum AAL for the account
+3. Elevates the token if necessary
+4. Checks if 2FA is enabled
+5. Disconnects 2FA if enabled
+6. Destroys the account
 
 The cleanup automatically handles session verification and token refresh if needed.
 
-**Tests FAIL immediately** if any account cleanup fails.
+**Tests FAIL immediately** if any account cleanup fails, and the error message includes the account so it can be destroyed in Admin Panel.
 
 ### Best Practices
 
-- **Still call `disconnectTotp()` explicitly** in tests for good test hygiene and faster cleanup
 - **Handle blocked accounts manually** in tests that create them (accounts with `blocked` email prefix)
-
-**Note**: the cleanup will detect invalid session tokens (e.g., due to password change) and will get fresh ones as needed.
+- **Use `disconnectTotp()` explicitly** in tests for cases where a flow is testing behavior after disconnect.
+- **Always use `totp` page** functions to setup 2FA. These functions require `Credentials` object and attach the secret for cleanup later.
 
 Example:
 
@@ -104,16 +107,11 @@ test('totp test with proper cleanup', async ({
 
   // Set up TOTP
   await settings.totp.addButton.click();
-  await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
+  await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice(credentials); //<- pass in `Credentials`
 
   // Test TOTP functionality...
-
-  // Explicit cleanup (recommended)
-  await settings.disconnectTotp();
-
-  // Even if the test fails before this line,
-  // automatic cleanup will handle the TOTP cleanup
 });
+// `testAccountTracker` cleanup will use secret attached to Credentials to destroy the account
 ```
 
 ### MFA Guard

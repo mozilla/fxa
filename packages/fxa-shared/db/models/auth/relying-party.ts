@@ -18,4 +18,6 @@ export class RelyingParty extends BaseAuthModel {
   trusted!: boolean;
   allowedScopes!: string | null;
   notes!: string | null;
+  hashedSecret!: Buffer | null;
+  hashedSecretPrevious!: Buffer | null;
 }

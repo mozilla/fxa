@@ -45,10 +45,9 @@ export class CustomerManager {
   async create(args: {
     uid: string;
     email: string;
-    displayName: string;
     taxAddress?: TaxAddress;
   }) {
-    const { uid, email, displayName, taxAddress } = args;
+    const { uid, email, taxAddress } = args;
 
     const shipping = taxAddress
       ? {
@@ -62,7 +61,6 @@ export class CustomerManager {
 
     const customer = await this.stripeClient.customersCreate({
       email,
-      name: displayName || '',
       description: uid,
       metadata: {
         [STRIPE_CUSTOMER_METADATA.Userid]: uid,

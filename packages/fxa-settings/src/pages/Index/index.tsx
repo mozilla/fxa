@@ -13,10 +13,9 @@ import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import {
   isClientMonitor,
-  isClientPocket,
   isClientRelay,
 } from '../../models/integrations/client-matching';
-import { isOAuthIntegration } from '../../models';
+import { isOAuthIntegration, isOAuthNativeIntegration } from '../../models';
 import GleanMetrics from '../../lib/glean';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
@@ -36,12 +35,13 @@ export const Index = ({
   deeplink,
   flowQueryParams,
   isMobile,
+  useFxAStatusResult,
+  setCurrentSplitLayout,
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const isOAuth = isOAuthIntegration(integration);
-  const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
   const isRelayClient = isOAuth && isClientRelay(clientId);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -104,7 +104,7 @@ export const Index = ({
   const splitLayout = cmsInfo?.EmailFirstPage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       {cmsInfo ? (
         <>
           <CmsLogo
@@ -151,7 +151,6 @@ export const Index = ({
           headingTextFtlId="index-header"
           subheadingWithDefaultServiceFtlId="index-subheader-default"
           subheadingWithCustomServiceFtlId="index-subheader-with-servicename"
-          subheadingWithLogoFtlId="index-subheader-with-logo"
           {...{ clientId, serviceName }}
         />
       )}
@@ -205,7 +204,8 @@ export const Index = ({
           </FtlMsg>
         </p>
       ) : (
-        !isFirefoxClientServiceRelay && (
+        (!isOAuthNativeIntegration(integration) ||
+          useFxAStatusResult.supportsKeysOptionalLogin) && (
           <ThirdPartyAuth
             showSeparator
             viewName="index"
@@ -215,7 +215,6 @@ export const Index = ({
       )}
       <TermsPrivacyAgreement
         {...{
-          isPocketClient,
           isMonitorClient,
           isFirefoxClientServiceRelay,
           isRelayClient,

@@ -60,6 +60,11 @@ function makeRoutes(options = {}) {
   const glean = gleanMetrics(defaultConfig);
   const { accountRoutes } = require('../../lib/routes/account');
 
+  const authServerCacheRedis = {
+    get: async () => null,
+    del: async () => 0,
+  };
+
   return accountRoutes(
     log,
     db,
@@ -76,7 +81,8 @@ function makeRoutes(options = {}) {
     null,
     null,
     glean,
-    mocks.mockStatsd(),
+    authServerCacheRedis,
+    mocks.mockStatsd()
   );
 }
 
@@ -147,7 +153,7 @@ describe('IP Profiling', function () {
         'mailer.sendVerifyLoginEmail was called'
       );
       assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
-      assert.equal(response.verified, false, 'session not verified');
+      assert.equal(response.sessionVerified, false, 'session not verified');
     });
   });
 
@@ -169,7 +175,7 @@ describe('IP Profiling', function () {
         'mailer.sendVerifyLoginEmail was not called'
       );
       assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
-      assert.equal(response.verified, true, 'session verified');
+      assert.equal(response.sessionVerified, true, 'session verified');
     });
   });
 
@@ -191,7 +197,7 @@ describe('IP Profiling', function () {
         'mailer.sendVerifyLoginEmail was called'
       );
       assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
-      assert.equal(response.verified, false, 'session verified');
+      assert.equal(response.sessionVerified, false, 'session verified');
     });
   });
 
@@ -227,7 +233,7 @@ describe('IP Profiling', function () {
         'mailer.sendVerifyLoginEmail was called'
       );
       assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
-      assert.equal(response.verified, false, 'session verified');
+      assert.equal(response.sessionVerified, false, 'session verified');
       return runTest(route, mockRequest);
     }).then((response) => {
       assert.equal(
@@ -236,7 +242,7 @@ describe('IP Profiling', function () {
         'mailer.sendVerifyLoginEmail was called'
       );
       assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
-      assert.equal(response.verified, false, 'session verified');
+      assert.equal(response.sessionVerified, false, 'session verified');
     });
   });
 
@@ -251,7 +257,7 @@ describe('IP Profiling', function () {
         'mailer.sendVerifyLoginEmail was called'
       );
       assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
-      assert.equal(response.verified, false, 'session verified');
+      assert.equal(response.sessionVerified, false, 'session verified');
       return runTest(route, mockRequest);
     }).then((response) => {
       assert.equal(
@@ -260,7 +266,7 @@ describe('IP Profiling', function () {
         'mailer.sendVerifyLoginEmail was called'
       );
       assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
-      assert.equal(response.verified, false, 'session verified');
+      assert.equal(response.sessionVerified, false, 'session verified');
     });
   });
 });

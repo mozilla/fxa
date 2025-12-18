@@ -80,7 +80,7 @@ export const Constants = {
   // flows that use the Firefox `client_id`. These may be placeholders/defaults
   // we move some of these into the CMS in FXA-12378, based on entrypoint.
   RELIER_FF_CLIENT_RELAY_SERVICE_NAME: 'Firefox Relay',
-  RELIER_FF_CLIENT_AI_MODE_SERVICE_NAME: 'Firefox AI Mode',
+  RELIER_FF_CLIENT_AI_MODE_SERVICE_NAME: 'Firefox AI Window',
 
   RELIER_KEYS_LENGTH: 32,
   RELIER_KEYS_CONTEXT_INFO_PREFIX: 'identity.mozilla.com/picl/v1/oauth/',
@@ -133,9 +133,6 @@ export const Constants = {
 
   MOZ_ORG_SYNC_GET_STARTED_LINK:
     'https://www.mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
-
-  POCKET_MORE_INFO_LINK:
-    'https://support.mozilla.org/kb/pocket-firefox-account-migration',
 
   // 20 most popular email domains, used for metrics. Matches the list
   // we use in the auth server, converted to a map for faster lookup.

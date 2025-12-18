@@ -10,7 +10,7 @@ import { isEmail } from 'class-validator';
 
 import { isEmailMask } from 'fxa-shared/email/helpers';
 
-import firefox from '../../lib/channels/firefox';
+import { firefox } from '../../lib/channels/firefox';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { currentAccount, lastStoredAccount } from '../../lib/cache';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
@@ -20,7 +20,11 @@ import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { ModelValidationErrors } from '../../lib/model-data';
 import { AuthError } from '../../lib/oauth';
 
-import { useAuthClient, useFtlMsgResolver } from '../../models';
+import {
+  isOAuthNativeIntegration,
+  useAuthClient,
+  useFtlMsgResolver,
+} from '../../models';
 import { isOAuthWebIntegration } from '../../models/integrations/oauth-web-integration';
 import { isUnsupportedContext } from '../../models/integrations/utils';
 import { IndexQueryParams } from '../../models/pages/index';
@@ -30,13 +34,15 @@ import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
 import { IndexContainerProps, LocationState } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { isMobileDevice } from '../../lib/utilities';
+import AppLayout from '../../components/AppLayout';
 
 const IndexContainer = ({
   integration,
   serviceName,
   flowQueryParams,
+  useFxAStatusResult,
+  setCurrentSplitLayout,
 }: IndexContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -45,7 +51,9 @@ const IndexContainer = ({
     state?: LocationState;
   };
 
-  const [errorBannerMessage, setErrorBannerMessage] = useState('');
+  const [errorBannerMessage, setErrorBannerMessage] = useState(
+    location.state?.localizedErrorFromLocationState || ''
+  );
   const [successBannerMessage, setSuccessBannerMessage] = useState('');
   const [tooltipErrorMessage, setTooltipErrorMessage] = useState('');
 
@@ -94,7 +102,8 @@ const IndexContainer = ({
       exists: boolean,
       hasLinkedAccount: boolean,
       hasPassword: boolean,
-      email: string
+      email: string,
+      canLinkAccountOk: boolean | undefined = undefined
     ) => {
       if (exists) {
         const signinRoute = isOAuthWebIntegration(integration)
@@ -105,6 +114,7 @@ const IndexContainer = ({
             email,
             hasLinkedAccount,
             hasPassword,
+            canLinkAccountOk,
           },
         });
       } else {
@@ -115,6 +125,7 @@ const IndexContainer = ({
           state: {
             email,
             emailStatusChecked: true,
+            canLinkAccountOk,
           },
         });
       }
@@ -147,6 +158,7 @@ const IndexContainer = ({
   const processEmailSubmission = useCallback(
     async (email: string, isManualSubmission = true) => {
       let accountExists;
+      let canLinkAccountOk: boolean | undefined = undefined;
       try {
         if (!isEmail(email)) {
           throw AuthUiErrors.EMAIL_REQUIRED;
@@ -170,13 +182,45 @@ const IndexContainer = ({
           }
           // DNS lookup for MX record
           await checkEmailDomain(email);
+
+          if (
+            isOAuthNativeIntegration(integration) &&
+            useFxAStatusResult.supportsCanLinkAccountUid
+          ) {
+            // For newer Firefox versions allowing secondary email sign-in.
+            // The merge warning will be unconditionally shown if anyone was previously
+            // logged in to the existing Profile since the account does not exist. The
+            // 'email' we pass will only be used to display the email in the alert.
+            const { ok } = await firefox.fxaCanLinkAccount({
+              email,
+              uid: undefined,
+            });
+            if (!ok) {
+              canLinkAccountOk = false;
+              throw AuthUiErrors.USER_CANCELED_LOGIN;
+            }
+            canLinkAccountOk = true;
+          }
         }
 
-        if (integration.isSync() || integration.isFirefoxClientServiceRelay()) {
+        // For older versions of Fx, send can_link_account with email regardless of
+        // if the account exists or not
+        if (
+          (integration.isSync() || integration.isFirefoxNonSync()) &&
+          !useFxAStatusResult.supportsCanLinkAccountUid &&
+          // If the account exists and is already linked to a third‑party provider,
+          // defer can_link_account until after the user completes Google/Apple auth
+          // or submits a password. Prompting here can cause a duplicate prompt and is
+          // unsafe because the user may choose a different email during the provider
+          // flow. Signin/ThirdPartyAuthCallback will run the prompt at the correct time.
+          !(exists && hasLinkedAccount)
+        ) {
           const { ok } = await firefox.fxaCanLinkAccount({ email });
           if (!ok) {
+            canLinkAccountOk = false;
             throw AuthUiErrors.USER_CANCELED_LOGIN;
           }
+          canLinkAccountOk = true;
         }
 
         isManualSubmission &&
@@ -184,7 +228,13 @@ const IndexContainer = ({
             event: { reason: accountExists ? 'login' : 'registration' },
           });
 
-        handleSuccessNavigation(exists, hasLinkedAccount, hasPassword, email);
+        handleSuccessNavigation(
+          exists,
+          hasLinkedAccount,
+          hasPassword,
+          email,
+          canLinkAccountOk
+        );
       } catch (error) {
         if (isManualSubmission && isEmail(email)) {
           GleanMetrics.emailFirst.submitFail({
@@ -203,6 +253,7 @@ const IndexContainer = ({
       handleEmailSubmissionError,
       handleSuccessNavigation,
       integration,
+      useFxAStatusResult.supportsCanLinkAccountUid,
     ]
   );
 
@@ -267,8 +318,15 @@ const IndexContainer = ({
   const deeplink = queryParamModel.deeplink;
   const isMobile = isMobileDevice();
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.EmailFirstPage?.splitLayout;
+
+  // WebAuthn capability probe is fired at app-level (components/App/index.tsx)
+
   return isLoading ? (
-    <LoadingSpinner fullScreen />
+    <AppLayout
+      {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+    />
   ) : (
     <Index
       {...{
@@ -284,6 +342,8 @@ const IndexContainer = ({
         deeplink,
         flowQueryParams,
         isMobile,
+        useFxAStatusResult,
+        setCurrentSplitLayout,
       }}
       prefillEmail={initialPrefill}
     />

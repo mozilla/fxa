@@ -4,9 +4,8 @@
 
 'use strict';
 
-const AppError = require('../../error');
+const { AppError } = require('@fxa/accounts/errors');
 const joi = require('joi');
-const hex = require('buf').to.hex;
 const validators = require('../validators');
 const { BEARER_AUTH_REGEX } = validators;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
@@ -27,15 +26,14 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
     return {
       async authenticate(request, h) {
         if (config.oauth.deviceAccessEnabled === false) {
-          throw new AppError.featureNotEnabled();
+          throw AppError.featureNotEnabled();
         }
 
         const bearerMatch = BEARER_AUTH_REGEX.exec(
           request.headers.authorization
         );
-        const bearerMatchErr = new AppError.invalidRequestParameter(
-          'authorization'
-        );
+        const bearerMatchErr =
+          AppError.invalidRequestParameter('authorization');
         const bearerToken = bearerMatch && bearerMatch[1];
         if (bearerToken) {
           joi.attempt(bearerMatch[1], validators.refreshToken, bearerMatchErr);
@@ -46,7 +44,7 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
         const tokenId = encrypt.hash(bearerToken);
         const refreshToken = await oauthDB.getRefreshToken(tokenId);
         if (!refreshToken) {
-          return h.unauthenticated(new AppError.invalidToken());
+          return h.unauthenticated(AppError.invalidToken());
         }
         if (
           !refreshToken.scope.intersects(ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES)
@@ -58,10 +56,10 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
         const { ua = {} } = request.app;
 
         const credentials = {
-          uid: hex(refreshToken.userId),
+          uid: refreshToken.userId.toString('hex'),
           emailVerified: true,
           tokenVerified: true,
-          refreshTokenId: hex(tokenId),
+          refreshTokenId: tokenId.toString('hex'),
           uaBrowser: ua.browser,
           uaBrowserVersion: ua.browserVersion,
           uaOS: ua.os,
@@ -72,14 +70,13 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
 
         credentials.client = await client.getClientById(refreshToken.clientId);
         if (!credentials.client || !credentials.client.publicClient) {
-          return h.unauthenticated(new AppError.notPublicClient());
+          return h.unauthenticated(AppError.notPublicClient());
         }
-        const devices = await db.devices(credentials.uid);
+        const device = await db.deviceFromRefreshTokenId(
+          credentials.uid,
+          credentials.refreshTokenId
+        );
 
-        // use the hashed refreshToken id to find devices
-        const device = devices.filter(
-          (device) => device.refreshTokenId === credentials.refreshTokenId
-        )[0];
         if (device) {
           credentials.deviceId = device.id;
           credentials.deviceName = device.name;

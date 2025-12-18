@@ -44,4 +44,13 @@ next-coupon-error-invalid = The code you entered is invalid.
 # "Limit" refers to the maximum number of times a coupon can be redeemed.
 next-coupon-error-limit-reached = The code you entered has reached its limit.
 
+## Stay Subscribed Error Messages
+
+stay-subscribed-error-expired = This offer has expired.
+stay-subscribed-error-discount-used = Discount code already applied.
+# $productTitle (String) - The name of the product
+stay-subscribed-error-not-current-subscriber = This discount is only available to current { $productTitle } subscribers.
+stay-subscribed-error-still-active = Your { $productTitle } subscription is still active.
+stay-subscribed-error-general = There was an issue with renewing your subscription.
+
 ##

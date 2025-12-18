@@ -216,21 +216,33 @@ test.describe('severity-1 #smoke', () => {
       await settings.secondaryEmail.deleteButton.click();
 
       await expect(settings.alertBar).toHaveText(/successfully deleted/);
+    });
 
-      await settings.secondaryEmail.addButton.click();
-      await secondaryEmail.emailTextbox.fill(newEmail);
-      await secondaryEmail.submit();
+    test('resend secondary email code and verify', async ({
+      target,
+      pages: { page, secondaryEmail, settings, signin },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpAndPrimeMfa({
+        scopes: 'email',
+      });
+      await signInAccount(target, page, settings, signin, credentials);
 
-      // skip verification
+      const newEmail = testAccountTracker.generateEmail();
+
       await settings.goto();
+      await settings.secondaryEmail.addButton.click();
+      await secondaryEmail.fillOutEmail(newEmail);
+      // let's make sure to retrieve and clear the initial code
+      // to make sure that the next code we get is the one we just resent
+      await target.emailClient.getVerifySecondaryCode(newEmail);
+      await secondaryEmail.clickResendConfirmationCode();
+      // Fetch the new secondary verification code and submit
+      const resentCode: string =
+        await target.emailClient.getVerifySecondaryCode(newEmail);
+      await secondaryEmail.fillOutVerificationCode(resentCode);
 
-      await expect(settings.secondaryEmail.unverifiedText).toHaveText(
-        'unconfirmed'
-      );
-
-      await settings.secondaryEmail.deleteButton.click();
-
-      await expect(settings.alertBar).toHaveText(/successfully deleted/);
+      await expect(settings.alertBar).toHaveText(/successfully added/);
     });
   });
 });
@@ -274,7 +286,7 @@ async function setNewPassword(
   oldPassword: string,
   newPassword: string,
   target: BaseTarget,
-  email: string,
+  email: string
 ): Promise<void> {
   await settings.password.changeButton.click();
 

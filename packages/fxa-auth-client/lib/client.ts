@@ -86,7 +86,8 @@ export type SignInOptions = {
 export type SignedInAccountData = {
   uid: hexstring;
   sessionToken: hexstring;
-  verified: boolean;
+  emailVerified: boolean;
+  sessionVerified: boolean;
   authAt: number;
   metricsEnabled: boolean;
   keyFetchToken?: hexstring;
@@ -109,6 +110,17 @@ export type SessionReauthedAccountData = Omit<
   SignedInAccountData,
   'sessionToken'
 >;
+
+export type SessionStatus = {
+  state: 'verified' | 'unverified';
+  uid: string;
+  details: {
+    accountEmailVerified: boolean;
+    sessionVerificationMethod: string | null;
+    sessionVerified: boolean;
+    sessionVerificationMeetsMinimumAAL: boolean;
+  };
+};
 
 export type AuthServerError = Error & {
   error?: string;
@@ -194,6 +206,7 @@ export default class AuthClient {
   private timeout: number;
   private keyStretchVersion: SaltVersion;
   private requireHeaders: boolean;
+  private errorHandler: (error: unknown) => Promise<void>;
 
   constructor(
     authServerUri: string,
@@ -201,6 +214,7 @@ export default class AuthClient {
       timeout?: number;
       keyStretchVersion?: SaltVersion;
       requireHeaders?: boolean;
+      errorHandler?: (error: unknown) => Promise<void>;
     } = {}
   ) {
     if (new RegExp(`/${AuthClient.VERSION}$`).test(authServerUri)) {
@@ -212,6 +226,11 @@ export default class AuthClient {
     this.localtimeOffsetMsec = 0;
     this.timeout = options.timeout || 30000;
     this.requireHeaders = options.requireHeaders === true;
+    this.errorHandler =
+      options.errorHandler ||
+      (async (e) => {
+        throw e;
+      });
   }
 
   static async create(authServerUri: string, options?: AuthClientOptions) {
@@ -237,34 +256,40 @@ export default class AuthClient {
   ) {
     if (extraHeaders === undefined) {
       if (this.requireHeaders) {
-        throw new Error('extraHeaders missing!');
+        await this.errorHandler(new Error('extraHeaders missing!'));
+        return;
       } else {
         extraHeaders = new Headers();
       }
     }
 
     extraHeaders.set('Content-Type', 'application/json');
-    const response = await fetchOrTimeout(
-      this.url(path),
-      {
-        method,
-        headers: extraHeaders,
-        body: cleanStringify(payload),
-      },
-      this.timeout
-    );
-    let result: any = await response.text();
     try {
-      result = JSON.parse(result);
-    } catch (e) {}
-    if (result.errno) {
-      throw result;
+      const response = await fetchOrTimeout(
+        this.url(path),
+        {
+          method,
+          headers: extraHeaders,
+          body: cleanStringify(payload),
+        },
+        this.timeout
+      );
+      const result = JSON.parse(await response.text());
+      if (result.errno) {
+        throw result;
+      }
+      if (!response.ok) {
+        throw new AuthClientError(
+          'Unknown error',
+          result,
+          999,
+          response.status
+        );
+      }
+      return result;
+    } catch (e) {
+      await this.errorHandler(e);
     }
-    if (!response.ok) {
-      throw new AuthClientError('Unknown error', result, 999, response.status);
-    }
-
-    return result;
   }
 
   private async hawkRequest(
@@ -277,7 +302,8 @@ export default class AuthClient {
   ) {
     if (extraHeaders === undefined) {
       if (this.requireHeaders) {
-        throw new Error('extraHeaders missing!');
+        await this.errorHandler(new Error('extraHeaders missing!'));
+        return;
       } else {
         extraHeaders = new Headers();
       }
@@ -570,9 +596,12 @@ export default class AuthClient {
             createHeaders(headers, options)
           );
         } else {
-          throw new Error(
-            'Invalid state. V2 credentials not provided and no upgraded needed.'
+          await this.errorHandler(
+            new Error(
+              'Invalid state. V2 credentials not provided and no upgraded needed.'
+            )
           );
+          return {} as SignedInAccountData;
         }
       } else {
         accountData = await this.signInWithAuthPW(
@@ -1123,7 +1152,14 @@ export default class AuthClient {
     }
   }
 
-  async accountStatus(uid: hexstring, headers?: Headers) {
+  async accountStatus(
+    uid?: hexstring,
+    sessionToken?: hexstring,
+    headers?: Headers
+  ): Promise<{ exists: boolean; locale?: string; hasPassword?: boolean }> {
+    if (sessionToken) {
+      return this.sessionGet('/account/status', sessionToken, headers);
+    }
     return this.request('GET', `/account/status?uid=${uid}`, null, headers);
   }
 
@@ -1161,16 +1197,7 @@ export default class AuthClient {
   async sessionStatus(
     sessionToken: hexstring,
     headers?: Headers
-  ): Promise<{
-    state: 'verified' | 'unverified';
-    uid: string;
-    details: {
-      accountEmailVerified: boolean;
-      sessionVerificationMethod: string | null;
-      sessionVerified: boolean;
-      sessionVerificationMeetsMinimumAAL: boolean;
-    };
-  }> {
+  ): Promise<SessionStatus> {
     return this.sessionGet('/session/status', sessionToken, headers);
   }
 
@@ -1504,7 +1531,10 @@ export default class AuthClient {
     });
 
     if (newKeys.wrapKb !== wrapKb) {
-      throw new Error('Sanity check failed. wrapKb should not drift!');
+      await this.errorHandler(
+        new Error('Sanity check failed. wrapKb should not drift!')
+      );
+      return {} as any;
     }
 
     return {
@@ -1646,6 +1676,45 @@ export default class AuthClient {
     const passwordCreated = await this.sessionPost(
       '/password/create',
       sessionToken,
+      payload,
+      headers
+    );
+
+    return {
+      passwordCreated,
+      authPW,
+      unwrapBKey,
+    };
+  }
+
+  /**
+   * Create password using JWT authentication (for MFA-protected operations).
+   * This uses the /mfa/password/create endpoint that requires JWT authentication.
+   *
+   * @param jwt - Required scope: 'mfa:password'.
+   * @param email - The email of the user.
+   * @param newPassword - The new password to create.
+   * @param headers - The headers for the request.
+   * @returns Response
+   */
+  async createPasswordWithJwt(
+    jwt: string,
+    email: string,
+    newPassword: string,
+    headers?: Headers
+  ): Promise<{ passwordCreated: number; authPW: string; unwrapBKey: string }> {
+    const { authPW, unwrapBKey } = await crypto.getCredentials(
+      email,
+      newPassword
+    );
+
+    const payload = {
+      authPW,
+    };
+
+    const passwordCreated = await this.jwtPost(
+      '/mfa/password/create',
+      jwt,
       payload,
       headers
     );
@@ -1959,6 +2028,28 @@ export default class AuthClient {
     return this.sessionPost(
       '/recovery_email/secondary/resend_code',
       sessionToken,
+      { email },
+      headers
+    );
+  }
+
+  /**
+   * Resend secondary email verification code using MFA JWT (email scope).
+   * This route supports resending when the email is reserved in Redis but
+   * not yet persisted in the DB.
+   *
+   * @param jwt MFA JWT with scope 'mfa:email'
+   * @param email Secondary email address to resend code to
+   * @param headers Optional extra headers
+   */
+  async recoveryEmailSecondaryResendCodeWithJwt(
+    jwt: string,
+    email: string,
+    headers?: Headers
+  ) {
+    return this.jwtPost(
+      '/mfa/recovery_email/secondary/resend_code',
+      jwt,
       { email },
       headers
     );
@@ -3139,7 +3230,10 @@ export default class AuthClient {
   }) {
     if (this.keyStretchVersion === 2) {
       if (!v2) {
-        throw new Error('Using key stretch version 2 requires v2 credentials.');
+        await this.errorHandler(
+          new Error('Using key stretch version 2 requires v2 credentials.')
+        );
+        return {};
       }
 
       // By passing in kB, we ensure wrapKbVersion2 will produce the same value

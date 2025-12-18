@@ -8,7 +8,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 
 const mocks = require('../mocks');
-const error = require('../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 
 const authMethods = require('../../lib/authMethods');
 

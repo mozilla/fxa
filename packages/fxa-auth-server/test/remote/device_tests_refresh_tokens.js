@@ -9,7 +9,7 @@ const crypto = require('crypto');
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
-const buf = require('buf').hex;
+const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 const testUtils = require('../lib/util');
 const encrypt = require('fxa-shared/auth/encrypt');
 const log = { trace() {}, info() {}, error() {}, debug() {}, warn() {} };

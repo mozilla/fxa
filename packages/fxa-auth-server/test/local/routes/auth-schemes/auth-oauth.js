@@ -4,8 +4,7 @@
 
 const { assert } = require('chai');
 const proxyquire = require('proxyquire');
-const AppError = require('../../../../lib/error');
-const OauthAppError = require('../../../../lib/oauth/error');
+const { AppError, OauthError: OauthAppError } = require('@fxa/accounts/errors');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const authOauthPath = '../../../../lib/routes/auth-schemes/auth-oauth';

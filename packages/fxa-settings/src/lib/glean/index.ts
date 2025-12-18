@@ -33,7 +33,10 @@ import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
-import { appFramework, cmsCustomizationEnrollment } from 'fxa-shared/metrics/glean/web/event';
+import {
+  appFramework,
+  cmsCustomizationEnrollment,
+} from 'fxa-shared/metrics/glean/web/event';
 import {
   oauthClientId,
   service,
@@ -47,6 +50,7 @@ import * as sync from 'fxa-shared/metrics/glean/web/sync';
 import * as standard from 'fxa-shared/metrics/glean/web/standard';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
+import * as webauthn from 'fxa-shared/metrics/glean/web/webauthn';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../../lib/cache';
@@ -563,9 +567,6 @@ const recordEventMetric = (
     case 'account_pref_bento_monitor':
       accountPref.bentoMonitor.record();
       break;
-    case 'account_pref_bento_pocket':
-      accountPref.bentoPocket.record();
-      break;
     case 'account_pref_bento_relay':
       accountPref.bentoRelay.record();
       break;
@@ -656,6 +657,32 @@ const recordEventMetric = (
     case 'third_party_auth_set_password_success':
       thirdPartyAuthSetPassword.success.record();
       break;
+    case 'webauthn_capabilities': {
+      const e = (gleanPingMetrics as any).event || {};
+      // Always coerce expected extras to strings to ensure they appear in Looker "Events Extras"
+      const extras: Record<string, string> = {};
+      const allKeys = [
+        'supported',
+        'ppa',
+        'cg',
+        'rel',
+        'hyb',
+        'uvpa',
+        'prf',
+        'error_reason',
+        'os_family',
+        'os_major',
+        'browser_family',
+        'browser_major',
+      ] as const;
+      for (const key of allKeys) {
+        if (e[key] !== undefined) {
+          extras[key] = String(e[key]);
+        }
+      }
+      webauthn.capabilities.record(extras as any);
+      break;
+    }
   }
 };
 

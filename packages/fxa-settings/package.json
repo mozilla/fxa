@@ -80,7 +80,8 @@
       "\\.(css|sass|scss)$": "identity-obj-proxy",
       "@fxa/shared/l10n": "<rootDir>/../../libs/shared/l10n/src/index.ts",
       "@fxa/shared/metrics/glean": "<rootDir>/../../libs/shared/metrics/glean/src/index.ts",
-      "^@fxa/shared/assets(.*)$": "<rootDir>/../../libs/shared/assets/src$1"
+      "^@fxa/shared/assets(.*)$": "<rootDir>/../../libs/shared/assets/src$1",
+      "@fxa/accounts/errors": "<rootDir>/../../libs/accounts/errors/src/index.ts"
     },
     "moduleFileExtensions": [
       "web.js",
@@ -240,9 +241,9 @@
     "grunt-hash": "^0.5.0",
     "jest-watch-typeahead": "0.6.5",
     "mutationobserver-shim": "^0.3.7",
-    "nx": "21.1.2",
+    "nx": "21.2.4",
     "persistgraphql": "^0.3.11",
-    "pm2": "^5.4.2",
+    "pm2": "^6.0.9",
     "postcss-assets": "^6.0.0",
     "postcss-import": "^16.1.0",
     "prop-types": "^15.8.1",

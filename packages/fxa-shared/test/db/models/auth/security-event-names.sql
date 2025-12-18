@@ -1,0 +1,55 @@
+CREATE TABLE IF NOT EXISTS securityEventNames (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  UNIQUE INDEX securityEventNamesUnique(name)
+) ENGINE=InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin;
+INSERT INTO securityEventNames (id, name) VALUES (1, 'account.create');
+INSERT INTO securityEventNames (id, name) VALUES (6,'account.disable');
+INSERT INTO securityEventNames (id, name) VALUES (5,'account.enable');
+INSERT INTO securityEventNames (id, name) VALUES (2, 'account.login');
+INSERT INTO securityEventNames (id, name) VALUES (7, 'account.login.failure');
+INSERT INTO securityEventNames (id, name) VALUES (45, 'account.mfa_send_otp_code');
+INSERT INTO securityEventNames (id, name) VALUES (47, 'account.mfa_verify_otp_code_failed');
+INSERT INTO securityEventNames (id, name) VALUES (46, 'account.mfa_verify_otp_code_success');
+INSERT INTO securityEventNames (id, name) VALUES (35, 'account.must_reset');
+INSERT INTO securityEventNames (id, name) VALUES (19, 'account.password_added');
+INSERT INTO securityEventNames (id, name) VALUES (20, 'account.password_changed');
+INSERT INTO securityEventNames (id, name) VALUES (24, 'account.password_reset_otp_sent');
+INSERT INTO securityEventNames (id, name) VALUES (25, 'account.password_reset_otp_verified');
+INSERT INTO securityEventNames (id, name) VALUES (13, 'account.password_reset_requested');
+INSERT INTO securityEventNames (id, name) VALUES (14, 'account.password_reset_success');
+INSERT INTO securityEventNames (id, name) VALUES (42, 'account.password_upgrade_success');
+INSERT INTO securityEventNames (id, name) VALUES (43, 'account.password_upgraded');
+INSERT INTO securityEventNames (id, name) VALUES (23, 'account.primary_secondary_swapped');
+INSERT INTO securityEventNames (id, name) VALUES (33, 'account.recovery_codes_created');
+INSERT INTO securityEventNames (id, name) VALUES (32, 'account.recovery_codes_replaced');
+INSERT INTO securityEventNames (id, name) VALUES (34, 'account.recovery_codes_signin_complete');
+INSERT INTO securityEventNames (id, name) VALUES (15, 'account.recovery_key_added');
+INSERT INTO securityEventNames (id, name) VALUES (16, 'account.recovery_key_challenge_failure');
+INSERT INTO securityEventNames (id, name) VALUES (17, 'account.recovery_key_challenge_success');
+INSERT INTO securityEventNames (id, name) VALUES (18, 'account.recovery_key_removed');
+INSERT INTO securityEventNames (id, name) VALUES (31, 'account.recovery_phone_removed');
+INSERT INTO securityEventNames (id, name) VALUES (38, 'account.recovery_phone_replace_complete');
+INSERT INTO securityEventNames (id, name) VALUES (39, 'account.recovery_phone_replace_failure');
+INSERT INTO securityEventNames (id, name) VALUES (36, 'account.recovery_phone_reset_password_complete');
+INSERT INTO securityEventNames (id, name) VALUES (37, 'account.recovery_phone_reset_password_failed');
+INSERT INTO securityEventNames (id, name) VALUES (27, 'account.recovery_phone_send_code');
+INSERT INTO securityEventNames (id, name) VALUES (28, 'account.recovery_phone_setup_complete');
+INSERT INTO securityEventNames (id, name) VALUES (44, 'account.recovery_phone_setup_failed');
+INSERT INTO securityEventNames (id, name) VALUES (29, 'account.recovery_phone_signin_complete');
+INSERT INTO securityEventNames (id, name) VALUES (30, 'account.recovery_phone_signin_failed');
+INSERT INTO securityEventNames (id, name) VALUES (3, 'account.reset');
+INSERT INTO securityEventNames (id, name) VALUES (21, 'account.secondary_email_added');
+INSERT INTO securityEventNames (id, name) VALUES (22, 'account.secondary_email_removed');
+INSERT INTO securityEventNames (id, name) VALUES (50, 'account.signin_confirm_bypass_known_device');
+INSERT INTO securityEventNames (id, name) VALUES (48, 'account.signin_confirm_bypass_known_ip');
+INSERT INTO securityEventNames (id, name) VALUES (49, 'account.signin_confirm_bypass_new_account');
+INSERT INTO securityEventNames (id, name) VALUES (8, 'account.two_factor_added');
+INSERT INTO securityEventNames (id, name) VALUES (10, 'account.two_factor_challenge_failure');
+INSERT INTO securityEventNames (id, name) VALUES (11, 'account.two_factor_challenge_success');
+INSERT INTO securityEventNames (id, name) VALUES (12, 'account.two_factor_removed');
+INSERT INTO securityEventNames (id, name) VALUES (41, 'account.two_factor_replace_failure');
+INSERT INTO securityEventNames (id, name) VALUES (40, 'account.two_factor_replace_success');
+INSERT INTO securityEventNames (id, name) VALUES (9, 'account.two_factor_requested');
+INSERT INTO securityEventNames (id, name) VALUES (4, 'emails.clearBounces');
+INSERT INTO securityEventNames (id, name) VALUES (26, 'session.destroy');

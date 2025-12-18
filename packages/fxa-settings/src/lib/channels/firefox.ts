@@ -71,6 +71,8 @@ export type FxAStatusResponse = {
     multiService: boolean;
     pairing: boolean;
     choose_what_to_sync?: boolean;
+    keys_optional?: boolean;
+    can_link_account_uid?: boolean;
   };
   clientId?: string;
   signedInUser?: SignedInUser;
@@ -105,12 +107,12 @@ export type WebChannelServices =
   | {
       sync: SyncEngines;
     }
-  // For sync optional flows (currently Relay and AiMode)
+  // For sync optional flows (currently Relay and AiWindow)
   | {
       relay: {};
     }
   | {
-      aimode: {};
+      aiwindow: {};
     };
 
 // ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
@@ -133,7 +135,11 @@ export type FxAOAuthLogin = {
 // ref: https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccountsWebChannel.sys.mjs#230
 export type FxACanLinkAccount = {
   email: string;
+  // To allow secondary email sign-ins, we send the UID up to the browser when
+  // the UID is available and the 'can_link_account_uid' capability is true.
+  uid?: string;
 };
+
 type FxACanLinkAccountResponse = {
   ok: boolean;
 };

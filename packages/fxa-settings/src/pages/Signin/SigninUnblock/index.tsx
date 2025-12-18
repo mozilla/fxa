@@ -44,6 +44,7 @@ export const SigninUnblock = ({
   resendUnblockCodeHandler,
   integration,
   finishOAuthFlowHandler,
+  setCurrentSplitLayout,
 }: SigninUnblockProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -123,12 +124,14 @@ export const SigninUnblock = ({
     if (data) {
       GleanMetrics.login.success();
 
+      const isFullyVerified =
+        data.signIn.emailVerified && data.signIn.sessionVerified;
       const accountData: StoredAccountData = {
         email,
         uid: data.signIn.uid,
         lastLogin: Date.now(),
         sessionToken: data.signIn.sessionToken,
-        verified: data.signIn.verified,
+        verified: isFullyVerified,
         metricsEnabled: data.signIn.metricsEnabled,
       };
 
@@ -145,7 +148,7 @@ export const SigninUnblock = ({
         handleFxaOAuthLogin: true,
         redirectTo,
         performNavigation: !(
-          integration.isFirefoxMobileClient() && data.signIn.verified
+          integration.isFirefoxMobileClient() && isFullyVerified
         ),
       };
 
@@ -207,9 +210,10 @@ export const SigninUnblock = ({
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninUnblockCodePage?.pageTitle;
+  const splitLayout = cmsInfo?.SigninUnblockCodePage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       <CardHeader
         headingText="Authorize this sign-in"
         headingTextFtlId="signin-unblock-header"

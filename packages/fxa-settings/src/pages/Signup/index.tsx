@@ -26,13 +26,13 @@ import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import { MozServices } from '../../lib/types';
 import {
   isOAuthIntegration,
+  isOAuthNativeIntegration,
   isOAuthNativeIntegrationSync,
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
 import {
   isClientMonitor,
-  isClientPocket,
   isClientRelay,
 } from '../../models/integrations/client-matching';
 import { SignupFormData, SignupProps } from './interfaces';
@@ -48,15 +48,17 @@ export const Signup = ({
   integration,
   email,
   beginSignupHandler,
-  useSyncEnginesResult: {
+  useFxAStatusResult: {
     offeredSyncEngines,
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
+    supportsKeysOptionalLogin,
   },
   deeplink,
   flowQueryParams,
   isMobile,
+  setCurrentSplitLayout,
 }: SignupProps) => {
   const sensitiveDataClient = useSensitiveDataClient();
 
@@ -67,11 +69,15 @@ export const Signup = ({
   }, []);
 
   const isOAuth = isOAuthIntegration(integration);
+  const isOAuthNative = isOAuthNativeIntegration(integration);
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const isSync = integration.isSync();
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const paymentMethodsWillSync =
     isSync && checkPaymentMethodsWillSync(offeredSyncEngines);
+  const showThirdPartyAuth = isOAuthNative
+    ? supportsKeysOptionalLogin
+    : !isSync;
 
   const onFocusMetricsEvent = () => {
     logViewEvent(settingsViewName, `${viewName}.engage`);
@@ -81,10 +87,6 @@ export const Signup = ({
   const [beginSignupLoading, setBeginSignupLoading] = useState<boolean>(false);
   const [bannerErrorText, setBannerErrorText] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const [
-    isAccountSuggestionBannerVisible,
-    setIsAccountSuggestionBannerVisible,
-  ] = useState<boolean>(false);
   const navigateWithQuery = useNavigateWithQuery();
 
   // no newsletters are selected by default
@@ -96,10 +98,6 @@ export const Signup = ({
   useEffect(() => {
     if (isOAuth) {
       const clientId = integration.getClientId();
-      if (isClientPocket(clientId)) {
-        setClient(MozServices.Pocket);
-        setIsAccountSuggestionBannerVisible(true);
-      }
       if (isClientMonitor(clientId)) {
         setClient(MozServices.Monitor);
       }
@@ -196,10 +194,7 @@ export const Signup = ({
             verified: false,
             services: integration.getWebChannelServices(syncEngines),
           });
-        } else if (
-          isFirefoxClientServiceRelay ||
-          integration.isFirefoxClientServiceAiMode()
-        ) {
+        } else if (integration.isFirefoxNonSync()) {
           firefox.fxaLogin({
             email,
             sessionToken: data.signUp.sessionToken,
@@ -257,7 +252,6 @@ export const Signup = ({
       offeredSyncEngines,
       selectedEnginesForGlean,
       isSyncOAuth,
-      isFirefoxClientServiceRelay,
       integration,
       isOAuth,
       sensitiveDataClient,
@@ -279,11 +273,12 @@ export const Signup = ({
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SignupSetPasswordPage?.pageTitle;
+  const splitLayout = cmsInfo?.SignupSetPasswordPage?.splitLayout;
 
   return (
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
     //       - forceMessage('Account no longer exists. Recreate it?')
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       {cmsInfo ? (
         <>
           <CmsLogo
@@ -341,30 +336,6 @@ export const Signup = ({
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
 
-      {/* AccountSuggestion is only shown to Pocket clients */}
-      {isAccountSuggestionBannerVisible && (
-        <Banner
-          type="info"
-          content={{
-            localizedHeading: ftlMsgResolver.getMsg(
-              'signup-pocket-info-banner',
-              'Why do I need to create this account?'
-            ),
-          }}
-          link={{
-            url: 'https://support.mozilla.org/kb/pocket-firefox-account-migration',
-            localizedText: ftlMsgResolver.getMsg(
-              'signup-pocket-info-banner-link',
-              'Find out here'
-            ),
-            gleanId: 'signup-pocket-info-banner-link',
-          }}
-          dismissButton={{
-            action: () => setIsAccountSuggestionBannerVisible(false),
-          }}
-        />
-      )}
-
       <div className="mt-4 mb-6">
         <p className="break-all">{email}</p>
 
@@ -416,13 +387,11 @@ export const Signup = ({
         onSubmit={handleSubmit(onSubmit)}
       />
 
-      {/* Third party auth is not currently supported for sync */}
-      {!isSync && !isFirefoxClientServiceRelay && (
+      {showThirdPartyAuth && (
         <ThirdPartyAuth viewName="signup" flowQueryParams={flowQueryParams} />
       )}
 
       <TermsPrivacyAgreement
-        isPocketClient={client === MozServices.Pocket}
         isMonitorClient={client === MozServices.Monitor}
         isRelayClient={client === MozServices.Relay}
         {...{ isFirefoxClientServiceRelay }}

@@ -18,7 +18,9 @@ export const MOCK_RP_ALL_FIELDS = {
   imageUri:
     'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png',
   allowedScopes: 'https://identity.mozilla.com/apps/send',
-  notes: null,
+  notes: '',
+  hasSecret: true,
+  hasPreviousSecret: false,
 } as RelyingPartyDto;
 
 export const MOCK_RP_FALSY_FIELDS = {
@@ -30,8 +32,10 @@ export const MOCK_RP_FALSY_FIELDS = {
   createdAt: 1583259953,
   trusted: false,
   imageUri: '',
-  allowedScopes: null,
-  notes: null,
+  allowedScopes: '',
+  notes: '',
+  hasSecret: true,
+  hasPreviousSecret: false,
 } as RelyingPartyDto;
 
 // Apollo mocks

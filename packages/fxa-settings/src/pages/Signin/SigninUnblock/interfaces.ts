@@ -21,6 +21,7 @@ export interface SigninUnblockProps {
   signinWithUnblockCode: (code: string) => Promise<BeginSigninResult>;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   integration: SigninIntegration;
+  setCurrentSplitLayout?: (value: boolean) => void;
 }
 
 export type BeginSigninWithUnblockCodeHandler = (

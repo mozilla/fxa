@@ -9,7 +9,7 @@ const assert = require('chai').assert;
 const { Container } = require('typedi');
 const uuid = require('uuid');
 const mocks = require('../../../mocks');
-const error = require('../../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const Sentry = require('@sentry/node');
 const sentryModule = require('../../../../lib/sentry');
 const {
@@ -21,7 +21,6 @@ const {
   PromotionCodeManager,
   CustomerError,
 } = require('@fxa/payments/customer');
-const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
 const proxyquire = require('proxyquire').noPreserveCache();
 const dbStub = {
@@ -337,7 +336,7 @@ describe('handleAuth', () => {
     return handleAuth(db, INVALID_AUTH).then(
       () => Promise.reject(new Error('Method expected to reject')),
       (err) => {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.message, 'Requested scopes are not allowed');
       }
     );
@@ -811,7 +810,7 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.previewInvoice(request);
         assert.fail('Preview Invoice should fail');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.INVALID_INVOICE_PREVIEW_REQUEST);
       }
     });
@@ -824,7 +823,7 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.previewInvoice(request);
         assert.fail('Preview Invoice should fail');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.UNSUPPORTED_LOCATION);
         assert.equal(
           err.message,
@@ -1046,7 +1045,7 @@ describe('DirectStripeRoutes', () => {
         );
         assert.fail('Unknown customer');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
       }
     });
@@ -1091,7 +1090,7 @@ describe('DirectStripeRoutes', () => {
           VALID_REQUEST
         );
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(
           err.errno,
           error.ERRNO.SUBSCRIPTION_PROMO_CODE_NOT_APPLIED
@@ -1314,7 +1313,7 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.createSubscriptionWithPMI(request);
         assert.fail('Create subscription should fail');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.UNSUPPORTED_LOCATION);
         assert.equal(
           err.message,
@@ -1335,7 +1334,7 @@ describe('DirectStripeRoutes', () => {
         );
         assert.fail('Create subscription without a customer should fail.');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
       }
     });
@@ -1355,7 +1354,7 @@ describe('DirectStripeRoutes', () => {
         );
         assert.fail('Create subscription when already subscribed should fail.');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.SUBSCRIPTION_ALREADY_EXISTS);
         sinon.assert.notCalled(
           directStripeRoutesInstance.stripeHelper.cancelSubscription
@@ -1377,7 +1376,7 @@ describe('DirectStripeRoutes', () => {
         );
         assert.fail('Create subscription with wrong planCurrency should fail.');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.INVALID_REGION);
         assert.equal(
           err.message,
@@ -1402,7 +1401,7 @@ describe('DirectStripeRoutes', () => {
         );
         assert.fail('Create subscription with wrong planCurrency should fail.');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.INVALID_REGION);
         assert.equal(
           err.message,
@@ -1432,7 +1431,7 @@ describe('DirectStripeRoutes', () => {
         assert.fail('Create subscription with wrong planCurrency should fail.');
       } catch (err) {
         assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.INVALID_REGION);
       }
     });
@@ -1458,7 +1457,7 @@ describe('DirectStripeRoutes', () => {
         assert.fail('Create subscription with wrong planCurrency should fail.');
       } catch (err) {
         assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.INVALID_REGION);
       }
     });
@@ -1486,7 +1485,7 @@ describe('DirectStripeRoutes', () => {
         assert.fail('Create subscription with wrong planCurrency should fail.');
       } catch (err) {
         assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.INVALID_REGION);
       }
     });
@@ -1799,7 +1798,7 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.retryInvoice(VALID_REQUEST);
         assert.fail('Create customer should fail.');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
       }
     });
@@ -1830,7 +1829,7 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.createSetupIntent(VALID_REQUEST);
         assert.fail('Create customer should fail.');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
       }
     });
@@ -1912,7 +1911,7 @@ describe('DirectStripeRoutes', () => {
           'Update default payment method with new payment method country that does not match customer currency should fail.'
         );
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.INVALID_REGION);
         assert.equal(
           err.message,
@@ -1929,7 +1928,7 @@ describe('DirectStripeRoutes', () => {
         );
         assert.fail('Create customer should fail.');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
       }
     });
@@ -2110,7 +2109,7 @@ describe('DirectStripeRoutes', () => {
           'Detaching a payment method from a non-existent customer should fail.'
         );
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
       }
     });
@@ -2267,7 +2266,7 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
         assert.fail('Update subscription with invalid plan should fail.');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.INVALID_PLAN_UPDATE);
         assert.equal(err.message, 'Subscription plan is not a valid update');
       }
@@ -2288,7 +2287,7 @@ describe('DirectStripeRoutes', () => {
           'Update subscription with wrong plan currency should fail.'
         );
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.INVALID_CURRENCY);
         assert.equal(err.message, 'Changing currencies is not permitted.');
       }
@@ -2300,7 +2299,7 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
         assert.fail('Method expected to reject');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
         assert.equal(err.message, 'Unknown subscription');
       }
@@ -2329,7 +2328,7 @@ describe('DirectStripeRoutes', () => {
         });
         assert.fail('Getting a product name should fail.');
       } catch (err) {
-        assert.instanceOf(err, WError);
+        assert.instanceOf(err, error);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
       }
     });

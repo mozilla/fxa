@@ -3,5 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 export { StatsD } from 'hot-shots';
 export * from './lib/statsd';
+export * from './lib/statsd.config';
 export * from './lib/statsd.provider';
 export * from './lib/statsd.decorator';

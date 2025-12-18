@@ -29,7 +29,6 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
@@ -44,15 +43,18 @@ import {
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import AppLayout from '../../../components/AppLayout';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
   serviceName: MozServices;
+  setCurrentSplitLayout?: (value: boolean) => void;
 };
 
 export const SigninTotpCodeContainer = ({
   integration,
   serviceName,
+  setCurrentSplitLayout,
 }: SigninTotpCodeContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const session = useSession();
@@ -80,7 +82,8 @@ export const SigninTotpCodeContainer = ({
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
     keyFetchToken,
-    unwrapBKey
+    unwrapBKey,
+    signinState?.isSignInWithThirdPartyAuth
   );
 
   const redirectTo =
@@ -163,9 +166,13 @@ export const SigninTotpCodeContainer = ({
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
+
   if (oAuthKeysCheckError) {
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
+
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
 
   if (
     !signinState ||
@@ -174,7 +181,11 @@ export const SigninTotpCodeContainer = ({
       signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
   ) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   return (
@@ -188,6 +199,7 @@ export const SigninTotpCodeContainer = ({
         serviceName,
         keyFetchToken,
         unwrapBKey,
+        setCurrentSplitLayout,
       }}
     />
   );

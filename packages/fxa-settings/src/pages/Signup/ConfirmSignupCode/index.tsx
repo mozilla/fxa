@@ -7,6 +7,7 @@ import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { ERRNO } from '@fxa/accounts/errors';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import {
@@ -54,6 +55,7 @@ const ConfirmSignupCode = ({
   unwrapBKey,
   flowQueryParams,
   origin,
+  setCurrentSplitLayout,
 }: ConfirmSignupCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -70,8 +72,6 @@ const ConfirmSignupCode = ({
   const navigateWithQuery = useNavigateWithQuery();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
-  const isFirefoxClientServiceAimode =
-    integration.isFirefoxClientServiceAiMode();
   const isSync = integration.isSync();
   const submitFormOnPaste = !isSync;
 
@@ -239,10 +239,7 @@ const ConfirmSignupCode = ({
               navigate(to);
             }
             return;
-          } else if (
-            isFirefoxClientServiceRelay ||
-            isFirefoxClientServiceAimode
-          ) {
+          } else if (integration.isFirefoxNonSync()) {
             firefox.fxaOAuthLogin({
               action: 'signup',
               code,
@@ -286,7 +283,7 @@ const ConfirmSignupCode = ({
       // Intercept invalid parameter error and set the error message to INVALID_EXPIRED_OTP_CODE
       // This error occurs when the submitted code does not pass validation for the code param
       // e.g., if the submitted code contains spaces or characters other than numbers
-      if (error.errno === 107) {
+      if (error.errno === ERRNO.INVALID_PARAMETER) {
         localizedErrorMessage = ftlMsgResolver.getMsg(
           getErrorFtlId(AuthUiErrors.INVALID_EXPIRED_OTP_CODE),
           AuthUiErrors.INVALID_EXPIRED_OTP_CODE.message
@@ -300,7 +297,7 @@ const ConfirmSignupCode = ({
         error.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno ||
         error.errno === AuthUiErrors.OTP_CODE_REQUIRED.errno ||
         error.errno === AuthUiErrors.INVALID_OTP_CODE.errno ||
-        error.errno === 107
+        error.errno === ERRNO.INVALID_PARAMETER
       ) {
         setCodeErrorMessage(localizedErrorMessage);
       } else {
@@ -320,9 +317,10 @@ const ConfirmSignupCode = ({
         'confirm-signup-code-page-title',
         'Enter confirmation code'
       );
+  const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       {cmsInfo ? (
         <>
           {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (

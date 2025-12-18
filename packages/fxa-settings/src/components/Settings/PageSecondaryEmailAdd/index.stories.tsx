@@ -8,6 +8,7 @@ import { PageSecondaryEmailAdd } from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
+import { MfaContext } from '../MfaGuard';
 
 export default {
   title: 'Pages/Settings/SecondaryEmailAdd',
@@ -18,7 +19,9 @@ export default {
 export const Default = () => (
   <LocationProvider>
     <SettingsLayout>
-      <PageSecondaryEmailAdd />
+      <MfaContext.Provider value="email">
+        <PageSecondaryEmailAdd />
+      </MfaContext.Provider>
     </SettingsLayout>
   </LocationProvider>
 );

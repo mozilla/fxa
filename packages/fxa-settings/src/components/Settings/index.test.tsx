@@ -17,6 +17,16 @@ import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject } from './mocks';
 
+jest.mock('@apollo/client', () => {
+  const actual = jest.requireActual('@apollo/client');
+  return {
+    ...actual,
+    useApolloClient: () => ({
+      clearStore: jest.fn().mockResolvedValue(undefined),
+    }),
+  };
+});
+
 const mockSessionStatus = jest.fn();
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -45,9 +55,11 @@ jest.mock('./ScrollToTop', () => ({
 // Mock the MFA guard so we can assert guarded pages render it without
 // pulling in the guard's dependencies or child flows
 const mockMfaGuard = jest.fn();
+const mockMfaErrorHandler = jest.fn().mockReturnValue(false);
 jest.mock('./MfaGuard', () => ({
   __esModule: true,
   MfaGuard: (props: any) => mockMfaGuard(props),
+  useMfaErrorHandler: () => mockMfaErrorHandler,
 }));
 
 // Default behavior: render mock guard element
@@ -360,21 +372,6 @@ describe('Settings App', () => {
     await navigate(SETTINGS_PATH + '/avatar/change');
 
     expect(history.location.pathname).toBe('/settings/avatar');
-  });
-
-  it('redirects to CreatePassword', async () => {
-    const {
-      history,
-      history: { navigate },
-    } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext()}>
-        <Subject />
-      </AppContext.Provider>,
-      { route: SETTINGS_PATH }
-    );
-
-    await navigate(SETTINGS_PATH + '/create_password');
-    expect(history.location.pathname).toBe('/settings/change_password');
   });
 
   describe('guarded routes render MFA guard', () => {

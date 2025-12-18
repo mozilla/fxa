@@ -30,7 +30,7 @@ import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 import random, { base32 } from './crypto/random';
-import error from './error';
+import { AppError as error } from '@fxa/accounts/errors';
 import {
   verificationMethodToString,
   VerificationMethod,
@@ -593,6 +593,35 @@ export const createDB = (
       return device;
     }
 
+    async deviceFromRefreshTokenId(uid: string, refreshTokenId: string) {
+      log.trace('DB.deviceFromRefreshTokenId', { uid, refreshTokenId });
+      const lastAccessTimeEnabled =
+        features.isLastAccessTimeEnabledForUser(uid);
+      const device = await Device.findByUidAndRefreshTokenId(
+        uid,
+        refreshTokenId
+      );
+
+      this.metrics?.increment('db.deviceFromRefreshTokenId.retrieve', {
+        result: device ? 'success' : 'notFound',
+      });
+
+      if (!device) {
+        // used in the refresh token scheme, we can have a token without
+        // a device and that's valid, so return null
+        return null;
+      }
+      // run devices through the 'mergeDevicesAndSessionTokens' function
+      // since it normalizes the device object how most of our handlers expect it.
+      const normalizedDevice = mergeDevicesAndSessionTokens(
+        [device],
+        {}, // no session tokens needed here.
+        lastAccessTimeEnabled
+      )[0];
+
+      return normalizedDevice;
+    }
+
     // UPDATE
 
     async setPrimaryEmail(uid: string, email: string) {
@@ -1064,15 +1093,15 @@ export const createDB = (
       );
     }
 
-    async verifiedLoginSecurityEventsByUid(params: { uid: string; skipTimeframeMs: number}) {
+    async verifiedLoginSecurityEventsByUid(params: {
+      uid: string;
+      skipTimeframeMs: number;
+    }) {
       log.trace('DB.verifiedLoginSecurityEventsByUid', {
         params: params,
       });
       const { uid, skipTimeframeMs } = params;
-      return SecurityEvent.findByUidAndVerifiedLogin(
-        uid,
-        skipTimeframeMs
-      );
+      return SecurityEvent.findByUidAndVerifiedLogin(uid, skipTimeframeMs);
     }
 
     async securityEventsByUid(params: { uid: string }) {

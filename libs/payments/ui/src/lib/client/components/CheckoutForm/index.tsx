@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
-import { Localized, useLocalization } from '@fluent/react';
-import { PayPalButtons } from '@paypal/react-paypal-js';
+import { Localized } from '@fluent/react';
+import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import * as Form from '@radix-ui/react-form';
 import Stripe from 'stripe';
 import {
@@ -41,6 +41,8 @@ import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
 import { PaymentProvidersType } from '@fxa/payments/cart';
 import PaypalIcon from '@fxa/shared/assets/images/payment-methods/paypal.svg';
 import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
+import spinnerImage from '@fxa/shared/assets/images/spinner.svg';
+import * as Sentry from '@sentry/nextjs';
 
 const getAttributionParams = (searchParams: ReadonlyURLSearchParams) => {
   const paramsRecord = Object.fromEntries(searchParams);
@@ -97,7 +99,6 @@ export function CheckoutForm({
   sessionUid,
   sessionEmail,
 }: CheckoutFormProps) {
-  const { l10n } = useLocalization();
   const elements = useElements();
   const router = useRouter();
   const stripe = useStripe();
@@ -113,8 +114,6 @@ export function CheckoutForm({
   const [isPaymentElementLoading, setIsPaymentElementLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [stripeFieldsComplete, setStripeFieldsComplete] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [hasFullNameError, setHasFullNameError] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [isSavedPaymentMethod, setIsSavedPaymentMethod] = useState(
     !!cart?.paymentInfo?.type
@@ -123,7 +122,6 @@ export function CheckoutForm({
   const linkAuthOptions = sessionEmail
     ? { defaultValues: { email: sessionEmail } }
     : {};
-  const [isNotCard, setIsNotCard] = useState(false);
 
   const engageGlean = useCallbackOnce(() => {
     recordEmitterEventAction(
@@ -155,10 +153,6 @@ export function CheckoutForm({
           const isNewCardSelected =
             event?.value?.type === 'card' && !hasSavedPaymentMethod;
 
-          const selectedType = event?.value?.type || '';
-          const isNotCardType = selectedType !== 'card';
-          setIsNotCard(isNotCardType);
-
           setShowLinkAuthElement(isNewCardSelected && hasSavedPaymentMethod);
 
           setSelectedPaymentMethod(event?.value?.type || '');
@@ -172,13 +166,6 @@ export function CheckoutForm({
 
   const showPayPalButton = selectedPaymentMethod === 'external_paypal';
   const isStripe = cart?.paymentInfo?.type !== 'external_paypal';
-  const showFullNameInput =
-    !isPaymentElementLoading &&
-    !showPayPalButton &&
-    !isSavedPaymentMethod &&
-    selectedPaymentMethod === 'card' &&
-    !isNotCard;
-  const nonStripeFieldsComplete = !showFullNameInput || !!fullName;
 
   const submitHandler = async (
     event: React.SyntheticEvent<HTMLFormElement>
@@ -220,19 +207,15 @@ export function CheckoutForm({
       return;
     }
 
-    if (showFullNameInput) {
-      setHasFullNameError(!fullName);
-      if (!fullName) {
-        setLoading(false);
-        return;
-      }
-    } else {
-      setHasFullNameError(false);
-    }
-
     // Trigger form validation and wallet collection
     const { error: submitError } = await elements.submit();
     if (submitError) {
+      setLoading(false);
+      return;
+    }
+
+    const paymentElement = elements.getElement(PaymentElement);
+    if (!paymentElement) {
       setLoading(false);
       return;
     }
@@ -242,7 +225,6 @@ export function CheckoutForm({
         ? {
           payment_method_data: {
             billing_details: {
-              name: fullName,
               email: sessionEmail || undefined,
             },
           },
@@ -259,6 +241,7 @@ export function CheckoutForm({
 
     if (confirmationTokenError) {
       if (confirmationTokenError.type === 'validation_error') {
+        setLoading(false);
         return;
       } else {
         await handleStripeErrorAction(
@@ -266,6 +249,7 @@ export function CheckoutForm({
           confirmationTokenError,
           searchParamsRecord
         );
+        setLoading(false);
         return;
       }
     }
@@ -283,7 +267,6 @@ export function CheckoutForm({
       confirmationToken.id,
       {
         locale,
-        displayName: fullName,
       },
       getAttributionParams(searchParams),
       sessionUid
@@ -321,55 +304,6 @@ export function CheckoutForm({
         }
         onClick={() => setShowConsentError(true)}
       >
-        {showFullNameInput && (
-          <>
-            <Localized id="next-new-user-card-title">
-              <h3 className="font-semibold text-grey-600 text-start">
-                Enter your card information
-              </h3>
-            </Localized>
-            <Form.Field
-              name="name"
-              serverInvalid={hasFullNameError}
-              className="my-6"
-            >
-              <Form.Label className="text-grey-400 block mb-1 text-start">
-                <Localized id="payment-name-label">
-                  Name as it appears on your card
-                </Localized>
-              </Form.Label>
-              <Form.Control asChild>
-                <input
-                  className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-                  type="text"
-                  data-testid="name"
-                  placeholder={l10n.getString(
-                    'payment-name-placeholder',
-                    {},
-                    'Full Name'
-                  )}
-                  readOnly={!formEnabled}
-                  tabIndex={formEnabled ? 0 : -1}
-                  value={fullName}
-                  onChange={(e) => {
-                    setFullName(e.target.value);
-                    setHasFullNameError(!e.target.value);
-                  }}
-                  aria-required
-                />
-              </Form.Control>
-              {hasFullNameError && (
-                <Form.Message asChild>
-                  <Localized id="next-payment-validate-name-error">
-                    <p className="mt-1 text-alert-red" role="alert">
-                      Please enter your name
-                    </p>
-                  </Localized>
-                </Form.Message>
-              )}
-            </Form.Field>
-          </>
-        )}
         {cart?.paymentInfo?.type === 'external_paypal' ? (
           <div className="bg-white rounded-lg border border-[#e6e6e6] shadow-stripeBox">
             <h3 className="p-4 text-sm text-[#0570de] font-semibold">Saved</h3>
@@ -413,46 +347,13 @@ export function CheckoutForm({
         {!isPaymentElementLoading && (
           <Form.Submit asChild>
             {showPayPalButton ? (
-              <PayPalButtons
-                style={{
-                  layout: 'horizontal',
-                  color: 'gold',
-                  shape: 'rect',
-                  label: 'paypal',
-                  height: 48,
-                  borderRadius: 6, // This should match 0.375rem
-                  tagline: false,
-                }}
-                className="mt-6 flex justify-center w-full"
-                createOrder={async () => getPayPalCheckoutToken(cart.currency)}
-                onApprove={async (data: { orderID: string }) => {
-                  await checkoutCartWithPaypal(
-                    cart.id,
-                    cart.version,
-                    {
-                      locale,
-                      displayName: '',
-                    },
-                    getAttributionParams(searchParams),
-                    sessionUid,
-                    data.orderID
-                  );
-                  const queryParamString = searchParams.toString()
-                    ? `?${searchParams.toString()}`
-                    : '';
-                  router.push('./processing' + queryParamString);
-                }}
-                onError={async () => {
-                  await finalizeCartWithError(
-                    cart.id,
-                    CartErrorReasonId.BASIC_ERROR
-                  );
-                  const queryParamString = searchParams.toString()
-                    ? `?${searchParams.toString()}`
-                    : '';
-
-                  router.push('./error' + queryParamString);
-                }}
+              <CheckoutPayPalButton
+                cartId={cart.id}
+                cartVersion={cart.version}
+                cartCurrency={cart.currency}
+                locale={locale}
+                sessionUid={sessionUid}
+                searchParams={searchParams}
                 disabled={loading || !formEnabled}
               />
             ) : (
@@ -462,8 +363,7 @@ export function CheckoutForm({
                 variant={ButtonVariant.Primary}
                 aria-disabled={
                   !formEnabled ||
-                  (isStripe &&
-                    !(stripeFieldsComplete && nonStripeFieldsComplete)) ||
+                  (isStripe && !stripeFieldsComplete) ||
                   loading
                 }
               >
@@ -492,6 +392,94 @@ export function CheckoutForm({
           </Form.Submit>
         )}
       </div>
-    </Form.Root>
+    </Form.Root >
   );
 }
+
+interface CheckoutPayPalButtonProps {
+  cartId: string;
+  cartVersion: number;
+  cartCurrency: string;
+  locale: string;
+  sessionUid?: string;
+  searchParams: ReadonlyURLSearchParams;
+  disabled: boolean;
+}
+
+function CheckoutPayPalButton({
+  cartId,
+  cartVersion,
+  cartCurrency,
+  locale,
+  sessionUid,
+  searchParams,
+  disabled,
+}: CheckoutPayPalButtonProps) {
+  const router = useRouter();
+  const [{ isPending, isRejected }] = usePayPalScriptReducer();
+
+  if (isPending) {
+    return (
+      <Image
+        src={spinnerImage}
+        alt=""
+        className="absolute animate-spin h-8 w-8"
+      />
+    )
+  }
+
+  if (isRejected) {
+    Sentry.captureMessage('PayPal script failed to load');
+    return (
+      <Localized id="paypal-unavailable-error">
+        <div className="mt-6 flex justify-center w-full text-center text-sm">PayPal is currently unavailable. Please use another payment option or try again later.</div>
+      </Localized>
+    )
+  }
+
+  return (
+    <PayPalButtons
+      style={{
+        layout: 'horizontal',
+        color: 'gold',
+        shape: 'rect',
+        label: 'paypal',
+        height: 48,
+        borderRadius: 6, // This should match 0.375rem
+        tagline: false,
+      }}
+      className="mt-6 flex justify-center w-full"
+      createOrder={async () => getPayPalCheckoutToken(cartCurrency)}
+      onApprove={async (data: { orderID: string }) => {
+        await checkoutCartWithPaypal(
+          cartId,
+          cartVersion,
+          {
+            locale,
+            displayName: '',
+          },
+          getAttributionParams(searchParams),
+          sessionUid,
+          data.orderID
+        );
+        const queryParamString = searchParams.toString()
+          ? `?${searchParams.toString()}`
+          : '';
+        router.push('./processing' + queryParamString);
+      }}
+      onError={async () => {
+        await finalizeCartWithError(
+          cartId,
+          CartErrorReasonId.BASIC_ERROR
+        );
+        const queryParamString = searchParams.toString()
+          ? `?${searchParams.toString()}`
+          : '';
+
+        router.push('./error' + queryParamString);
+      }}
+      disabled={disabled}
+    />
+  )
+}
+

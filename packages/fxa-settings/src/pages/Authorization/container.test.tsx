@@ -87,7 +87,6 @@ describe('AuthorizationContainer', () => {
     });
     mockCachedSignIn.mockResolvedValue({
       data: {
-        verified: true,
         verificationMethod: VerificationMethods.EMAIL_OTP,
         verificationReason: VerificationReasons.SIGN_IN,
         uid: mockAccount.uid,

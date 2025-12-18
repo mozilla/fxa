@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { AccountEventsManager } = require('../../../lib/account-events');
-const AppError = require('../../../lib/error');
+const { AppError } = require('@fxa/accounts/errors');
 
 const chai = require('chai');
 const { AccountManager } = require('@fxa/shared/account/account');

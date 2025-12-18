@@ -21,7 +21,7 @@ import {
   TransactionSearchOptions,
   TransactionStatus,
 } from '@fxa/payments/paypal';
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { CurrencyHelper } from '../currencies';
 import { StripeHelper } from '../stripe';
 import { RefusedError } from './error';
@@ -525,7 +525,7 @@ export class PayPalHelper {
     try {
       [transactionResponse] = (await Promise.all(promises)) as [
         ChargeResponse,
-        any
+        any,
       ];
     } catch (err) {
       if (PayPalClientError.hasPayPalNVPError(err) && !batchProcessing) {
@@ -672,7 +672,19 @@ export class PayPalHelper {
   /**
    * Refunds the invoice passed, throwing an error on any issue encountered.
    */
-  public async refundInvoice(invoice: Stripe.Invoice) {
+  public async refundInvoice(
+    invoice: Stripe.Invoice,
+    behavior:
+      | {
+          refundType: RefundType.Full;
+        }
+      | {
+          refundType: RefundType.Partial;
+          amount: number;
+        } = {
+      refundType: RefundType.Full,
+    }
+  ) {
     this.log.debug('PayPalHelper.refundInvoice', {
       invoiceId: invoice.id,
     });
@@ -700,7 +712,25 @@ export class PayPalHelper {
         throw new RefundError('Invoice already refunded with PayPal');
       }
 
-      await this.issueRefund(invoice, transactionId, RefundType.Full);
+      if (
+        behavior.refundType === RefundType.Partial &&
+        behavior.amount >= invoice.amount_paid
+      ) {
+        throw new RefundError(
+          'Partial refunds must be less than the amount paid on the invoice'
+        );
+      }
+      const amount =
+        behavior.refundType === RefundType.Partial
+          ? behavior.amount
+          : undefined;
+
+      await this.issueRefund(
+        invoice,
+        transactionId,
+        behavior.refundType,
+        amount
+      );
 
       this.log.info('refundInvoice', {
         invoiceId: invoice.id,

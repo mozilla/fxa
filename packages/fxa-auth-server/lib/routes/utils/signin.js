@@ -8,13 +8,14 @@ const emailUtils = require('./email');
 const isA = require('joi');
 const validators = require('../validators');
 const butil = require('../../crypto/butil');
-const error = require('../../error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../../account-events');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 const otp = require('../utils/otp');
 const { fetchRpCmsData } = require('../utils/account');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
+const requestHelper = require('./request_helper');
 
 const BASE_36 = validators.BASE_36;
 
@@ -292,20 +293,21 @@ module.exports = (
       request,
       accountRecord,
       sessionToken,
-      verificationMethod
+      verificationMethod,
+      passwordChangeRequired = false
     ) {
       const service = request.payload.service || request.query.service;
       const redirectTo = request.payload.redirectTo;
       const resume = request.payload.resume;
       const isUnverifiedAccount = !accountRecord.primaryEmail.isVerified;
+      const wantsKeys = requestHelper.wantsKeys(request);
 
       let sessions;
 
       const { deviceId, flowId, flowBeginTime } =
         await request.app.metricsContext;
 
-      const mustVerifySession =
-        sessionToken.mustVerify && !sessionToken.tokenVerified;
+      const mustVerifySession = !sessionToken.tokenVerified;
 
       // The final event to complete the login flow depends on the details
       // of the flow being undertaken, so prepare accordingly.
@@ -381,14 +383,29 @@ module.exports = (
           uid: accountRecord.uid,
           isUnverifiedAccount,
           mustVerifySession,
+          service,
         });
 
         // For unverified accounts, we always re-send the account verification email.
         if (isUnverifiedAccount) {
           return await sendVerifyAccountEmail();
         }
+
         // If the session needs to be verified, send the sign-in confirmation email.
-        if (mustVerifySession) {
+        if (
+          mustVerifySession &&
+          // Always send if passwordChangeRequired, wantsKeys, or no service is specified
+          // Otherwise, only send for some services
+          (passwordChangeRequired ||
+            wantsKeys ||
+            !service ||
+            // If the user is in a non-2FA unverified session state and has signed in through
+            // an OAuth flow, the front-end skips `/signin_token_code` screen to avoid friction.
+            // However we always want to send the OTP code verification email for VPN now, because
+            // they manage their own front-end and can't retroactively update old clients. We
+            // also always require verification if the request wantsKeys.
+            config.servicesWithEmailVerification.includes(service))
+        ) {
           return await sendVerifySessionEmail();
         }
         // Otherwise, no email is necessary.
@@ -605,21 +622,21 @@ module.exports = (
           verificationMethod = 'email';
         }
         return {
-          verified: false,
+          sessionVerified: false,
           verificationMethod: verificationMethod,
           verificationReason: 'signup',
         };
       }
 
-      if (sessionToken.mustVerify && !sessionToken.tokenVerified) {
+      if (!sessionToken.tokenVerified) {
         return {
-          verified: false,
+          sessionVerified: false,
           // Override the verification method if it was explicitly specified in the request.
           verificationMethod: verificationMethod || 'email',
           verificationReason: 'login',
         };
       }
-      return { verified: true };
+      return { sessionVerified: true };
     },
 
     /**
@@ -629,7 +646,7 @@ module.exports = (
       // We should only really remove reminders if the session
       // was marked as verified, ie have met all the requirements
       // to start syncing
-      if (response.verified) {
+      if (response.sessionVerified) {
         await cadReminders.delete(account.uid);
       }
       return;

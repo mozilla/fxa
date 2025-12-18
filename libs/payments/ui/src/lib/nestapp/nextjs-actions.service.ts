@@ -14,11 +14,13 @@ import {
 } from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
-import { SubscriptionManagementService } from '@fxa/payments/management';
+import {
+  SubscriptionManagementService,
+  ChurnInterventionService,
+} from '@fxa/payments/management';
 import {
   CheckoutTokenManager,
   PaypalBillingAgreementManager,
-  PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import {
   ProductConfigError,
@@ -34,6 +36,7 @@ import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithS
 import { FetchCMSDataActionArgs } from './validators/FetchCMSDataActionArgs';
 import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
 import { GetCartActionArgs } from './validators/GetCartActionArgs';
+import { GetChurnInterventionDataActionArgs } from './validators/GetChurnInterventionDataActionArgs';
 import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenArgs';
 import { GetSubManPageContentActionArgs } from './validators/GetSubManPageContentActionArgs';
 import { GetSubManPageContentActionResult } from './validators/GetSubManPageContentActionResult';
@@ -45,16 +48,20 @@ import { GetCouponArgs } from './validators/GetCouponArgs';
 import { GetCouponResult } from './validators/GetCouponResult';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessingCartActionArgs';
+import { RedeemChurnCouponActionArgs } from './validators/RedeemChurnCouponActionArgs';
 import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionArgs';
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeActionArgs } from './validators/ValidatePostalCodeActionArgs';
 import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
+import { DetermineStaySubscribedEligibilityActionArgs } from './validators/DetermineStaySubscribedEligibilityActionArgs';
+import { DetermineCancellationInterventionActionArgs } from './validators/DetermineCancellationInterventionActionArgs';
 import { NextIOValidator } from './NextIOValidator';
 import type {
   CommonMetrics,
   PaymentProvidersType,
 } from '@fxa/payments/metrics';
 import { GetCartActionResult } from './validators/GetCartActionResult';
+import { GetChurnInterventionDataActionResult } from './validators/GetChurnInterventionDataActionResult';
 import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionResult';
 import {
   CouponErrorCannotRedeem,
@@ -72,6 +79,9 @@ import { ValidatePostalCodeActionResult } from './validators/ValidatePostalCodeA
 import { DetermineCurrencyActionResult } from './validators/DetermineCurrencyActionResult';
 import { SetupCartActionResult } from './validators/SetupCartActionResult';
 import { RestartCartActionResult } from './validators/RestartCartActionResult';
+import { GetCancelFlowContentActionResult } from './validators/GetCancelFlowContentActionResult';
+import { GetStaySubscribedFlowContentActionResult } from './validators/GetStaySubscribedFlowContentActionResult';
+import { GetSubscriptionPageContentActionArgs } from './validators/GetSubscriptionPageContentActionArgs';
 import { GetTaxAddressArgs } from './validators/GetTaxAddressArgs';
 import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
 import {
@@ -102,6 +112,7 @@ import { UpdateStripePaymentDetailsResult } from './validators/UpdateStripePayme
 import { SetDefaultStripePaymentDetailsActionArgs } from './validators/SetDefaultStripePaymentDetailsActionArgs';
 import { CancelSubscriptionAtPeriodEndActionArgs } from './validators/CancelSubscriptionAtPeriodEndActionArgs';
 import { CancelSubscriptionAtPeriodEndActionResult } from './validators/CancelSubscriptionAtPeriodEndActionResult';
+import { RedeemChurnCouponActionResult } from './validators/RedeemChurnCouponActionResult';
 import { ResubscribeSubscriptionActionArgs } from './validators/ResubscribeSubscriptionActionArgs';
 import { ResubscribeSubscriptionActionResult } from './validators/ResubscribeSubscriptionActionResult';
 import { GetPaypalBillingAgreementActiveIdArgs } from './validators/GetPaypalBillingAgreementActiveIdArgs';
@@ -109,6 +120,13 @@ import { GetPaypalBillingAgreementActiveIdResult } from './validators/GetPaypalB
 import { CreatePaypalBillingAgreementIdArgs } from './validators/CreatePaypalBillingAgreementIdArgs';
 import { DetermineCurrencyForCustomerActionArgs } from './validators/DetermineCurrencyForCustomerActionArgs';
 import { DetermineCurrencyForCustomerActionResult } from './validators/DetermineCurrencyForCustomerActionResult';
+import { DetermineStaySubscribedEligibilityActionResult } from './validators/DetermineStaySubscribedEligibilityActionResult';
+import { DetermineCancellationInterventionActionResult } from './validators/DetermineCancellationInterventionActionResult';
+import { NimbusManager } from '@fxa/payments/experiments';
+import { GetExperimentsActionArgs } from './validators/GetExperimentsActionArgs';
+import { GetExperimentsActionResult } from './validators/GetExperimentsActionResult';
+import { GetCMSChurnInterventionActionResult } from './validators/GetCMSChurnInterventionActionResult';
+import { GetCMSChurnInterventionActionArgs } from './validators/GetCMSChurnInterventionActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -121,6 +139,7 @@ export class NextJSActionsService {
     private cartService: CartService,
     private taxService: TaxService,
     private checkoutTokenManager: CheckoutTokenManager,
+    private churnInterventionService: ChurnInterventionService,
     private contentServerManager: ContentServerManager,
     private emitterService: PaymentsEmitterService,
     private googleManager: GoogleManager,
@@ -131,7 +150,7 @@ export class NextJSActionsService {
     private profileClient: ProfileClient,
     private subscriptionManagementService: SubscriptionManagementService,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
-    private paypalCustomerManager: PaypalCustomerManager,
+    private nimbusManager: NimbusManager,
     @Inject(StatsDService) public statsd: StatsD,
     @Inject(Logger) private log: LoggerService
   ) {}
@@ -181,6 +200,38 @@ export class NextJSActionsService {
     return this.cartService.getCart(args.cartId);
   }
 
+  @SanitizeExceptions()
+  @NextIOValidator(GetExperimentsActionArgs, GetExperimentsActionResult)
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getExperiments(args: {
+    language: string;
+    ip: string;
+    experimentationPreview: boolean;
+    fxaUid?: string;
+    experimentationId?: string;
+  }) {
+    const nimbusUserId = this.nimbusManager.generateNimbusId(
+      args.fxaUid,
+      args.experimentationId
+    );
+    const location = this.geodbManager.getTaxAddress(args.ip);
+    const experiments = await this.nimbusManager.fetchExperiments({
+      nimbusUserId,
+      language: args.language,
+      region: location?.countryCode,
+      preview: args.experimentationPreview,
+    });
+
+    if (experiments) {
+      return {
+        experiments,
+      };
+    } else {
+      return undefined;
+    }
+  }
+
   @SanitizeExceptions({
     allowlist: [CartInvalidStateForActionError],
   })
@@ -195,6 +246,90 @@ export class NextJSActionsService {
     }
 
     return cart;
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetChurnInterventionDataActionArgs,
+    GetChurnInterventionDataActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getChurnInterventionEntryData(args: {
+    customerId: string;
+    churnInterventionId: string;
+  }) {
+    const data = await this.churnInterventionService.getChurnInterventionForCustomerId(
+      args.customerId,
+      args.churnInterventionId
+    );
+    return data;
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    DetermineStaySubscribedEligibilityActionArgs,
+    DetermineStaySubscribedEligibilityActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async determineStaySubscribedEligibility(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    return await this.churnInterventionService.determineStaySubscribedEligibility(
+      args.uid,
+      args.subscriptionId,
+      args.acceptLanguage,
+      args.selectedLanguage
+    );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    DetermineCancellationInterventionActionArgs,
+    DetermineCancellationInterventionActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async determineCancellationIntervention(args: {
+    uid: string,
+    subscriptionId: string,
+    offeringApiIdentifier: string,
+    currentInterval: SubplatInterval,
+    upgradeInterval: SubplatInterval,
+    acceptLanguage?: string | null,
+    selectedLanguage?: string,
+  }) {
+    return await this.churnInterventionService.determineCancellationIntervention({
+      uid: args.uid,
+      subscriptionId: args.subscriptionId,
+      offeringApiIdentifier: args.offeringApiIdentifier,
+      currentInterval: args.currentInterval,
+      upgradeInterval: args.upgradeInterval,
+      acceptLanguage: args.acceptLanguage,
+      selectedLanguage: args.selectedLanguage,
+    });
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(RedeemChurnCouponActionArgs, RedeemChurnCouponActionResult)
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async redeemChurnCoupon(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    return await this.churnInterventionService.redeemChurnCoupon(
+      args.uid,
+      args.subscriptionId,
+      args.acceptLanguage,
+      args.selectedLanguage
+    );
   }
 
   @SanitizeExceptions({
@@ -374,7 +509,7 @@ export class NextJSActionsService {
     cartId: string;
     version: number;
     confirmationTokenId: string;
-    customerData: { locale: string; displayName: string };
+    customerData: { locale: string;};
     attribution: SubscriptionAttributionParams;
     sessionUid?: string;
   }) {
@@ -496,6 +631,54 @@ export class NextJSActionsService {
       args.postalCode,
       args.countryCode
     );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetSubscriptionPageContentActionArgs,
+    GetCancelFlowContentActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getCancelFlowContent(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    const result =
+      await this.subscriptionManagementService.getCancelFlowContent(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
+    return result;
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetSubscriptionPageContentActionArgs,
+    GetStaySubscribedFlowContentActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getStaySubscribedFlowContent(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    const result =
+      await this.subscriptionManagementService.getStaySubscribedFlowContent(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
+    return result;
   }
 
   @SanitizeExceptions()
@@ -724,12 +907,35 @@ export class NextJSActionsService {
   async setDefaultStripePaymentDetails(args: {
     uid: string;
     paymentMethodId: string;
-    fullName: string;
   }) {
     return await this.subscriptionManagementService.setDefaultStripePaymentDetails(
       args.uid,
       args.paymentMethodId,
-      args.fullName
+    );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetCMSChurnInterventionActionArgs,
+    GetCMSChurnInterventionActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getCMSChurnIntervention(args: {
+    interval: SubplatInterval;
+    churnType: 'cancel' | 'stay_subscribed';
+    stripeProductId?: string;
+    offeringApiIdentifier?: string;
+    acceptLanguage?: string;
+    selectedLanguage?: string;
+  }) {
+    return await this.churnInterventionService.getChurnInterventionForProduct(
+      args.interval,
+      args.churnType,
+      args.stripeProductId,
+      args.offeringApiIdentifier,
+      args.acceptLanguage,
+      args.selectedLanguage
     );
   }
 }

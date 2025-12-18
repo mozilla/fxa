@@ -399,12 +399,6 @@ const conf = (module.exports = convict({
       format: String,
     },
   },
-  nimbusPreview: {
-    default: false,
-    doc: 'Enables preview mode for nimbus experiments for development and testing.',
-    format: Boolean,
-    env: 'NIMBUS_PREVIEW',
-  },
   glean: {
     enabled: {
       default: false,
@@ -705,6 +699,18 @@ const conf = (module.exports = convict({
     format: ['src', 'dist'],
   },
   nimbus: {
+    enabled: {
+      default: false,
+      doc: 'Enables nimbus experiments',
+      env: 'NIMBUS_ENABLED',
+      format: Boolean,
+    },
+    preview: {
+      default: false,
+      doc: 'Enables preview mode for nimbus experiments for development and testing.',
+      env: 'NIMBUS_PREVIEW',
+      format: Boolean,
+    },
     host: {
       default: 'http://localhost:8001',
       doc: 'Base URI for cirrus (Nimbus experimentation endpoint).',
@@ -712,8 +718,8 @@ const conf = (module.exports = convict({
       format: String,
     },
     timeout: {
-      default: 200,
-      doc: 'Amount of time in milliseconds to wait for a response from cirrus',
+      default: 400,
+      doc: 'Amount of time in milliseconds to wait for a response from cirrus.',
       env: 'NIMBUS_CIRRUS_TIMEOUT',
       format: Number,
     },
@@ -901,6 +907,12 @@ const conf = (module.exports = convict({
       env: 'SENTRY_TRACES_SAMPLE_RATE',
     },
   },
+  servicesWithEmailVerification: {
+    doc: 'Services that will alwasy send a session verification email on sign in',
+    default: ['e6eb0d1e856335fc'],
+    format: Array,
+    env: 'SERVICES_WITH_EMAIL_VERIFICATION',
+  },
   sourceMapType: {
     default: 'source-map',
     doc: 'Type of source maps created. See https://webpack.js.org/configuration/devtool/',
@@ -1038,12 +1050,12 @@ const conf = (module.exports = convict({
       env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
       format: Boolean,
     },
-    usePaymentsNextSubscriptionManagement : {
+    usePaymentsNextSubscriptionManagement: {
       default: true,
       doc: 'Whether to redirect to the new Subscription Management Page',
       env: 'FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT',
       format: Boolean,
-    }
+    },
   },
   sync_tokenserver_url: {
     default: 'http://localhost:8000/token',

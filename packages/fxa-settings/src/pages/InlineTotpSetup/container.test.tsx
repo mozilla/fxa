@@ -245,6 +245,45 @@ describe('InlineTotpSetupContainer', () => {
         );
       });
     });
+
+    it('does not call createTotp while TOTP status is loading', async () => {
+      mockTotpStatusQuery.mockImplementation(() => {
+        return {
+          data: null,
+          loading: true,
+        };
+      });
+      jest
+        .spyOn(ApolloClientModule, 'useQuery')
+        .mockReturnValue(mockTotpStatusQuery());
+
+      render();
+
+      await waitFor(() => {
+        expect(mockCreateTotpMutation).not.toHaveBeenCalled();
+      });
+    });
+
+    it('does not call createTotp when TOTP is already verified', async () => {
+      mockSessionHook.mockImplementationOnce(() => ({
+        isSessionVerified: async () => true,
+      }));
+      mockTotpStatusQuery.mockImplementation(() => {
+        return {
+          data: MOCK_TOTP_STATUS_VERIFIED,
+          loading: false,
+        };
+      });
+      jest
+        .spyOn(ApolloClientModule, 'useQuery')
+        .mockReturnValue(mockTotpStatusQuery());
+
+      render();
+
+      await waitFor(() => {
+        expect(mockCreateTotpMutation).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe('renders', () => {

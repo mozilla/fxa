@@ -10,6 +10,7 @@ import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
+import { MfaContext } from '../MfaGuard';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyConfirmPwd',
@@ -77,16 +78,18 @@ const StoryWithContext = (account: Account) => {
   return (
     <AppContext.Provider value={mockAppContext({ account })}>
       <SettingsLayout>
-        <FlowRecoveryKeyConfirmPwd
-          {...{
-            localizedBackButtonTitle,
-            localizedPageTitle,
-            navigateBackward,
-            navigateForward,
-            setFormattedRecoveryKey,
-            viewName,
-          }}
-        />
+        <MfaContext.Provider value="recovery_key">
+          <FlowRecoveryKeyConfirmPwd
+            {...{
+              localizedBackButtonTitle,
+              localizedPageTitle,
+              navigateBackward,
+              navigateForward,
+              setFormattedRecoveryKey,
+              viewName,
+            }}
+          />
+        </MfaContext.Provider>
       </SettingsLayout>
     </AppContext.Provider>
   );

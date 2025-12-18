@@ -523,3 +523,186 @@ describe('redis enabled, token-pruning disabled:', () => {
       .then(() => assert.equal(redis.pruneSessionTokens.callCount, 0));
   });
 });
+
+describe('db.deviceFromRefreshTokenId:', () => {
+  const tokenLifetimes = {
+    sessionTokenWithoutDevice: 2419200000,
+  };
+
+  let log,
+    tokens,
+    db,
+    Device,
+    features,
+    mergeDevicesAndSessionTokens,
+    errorMock;
+
+  beforeEach(() => {
+    log = mocks.mockLog();
+    tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
+
+    // Mock Device model
+    Device = {
+      findByUidAndRefreshTokenId: sinon.stub(),
+    };
+
+    // Mock features
+    features = {
+      isLastAccessTimeEnabledForUser: sinon.stub().returns(false),
+    };
+
+    // Mock mergeDevicesAndSessionTokens
+    mergeDevicesAndSessionTokens = sinon.stub();
+
+    // Mock error
+    errorMock = {
+      unknownDevice: sinon.stub().returns({
+        errno: 110,
+        message: 'Unknown device',
+        statusCode: 401,
+      }),
+    };
+
+    const { createDB } = proxyquire(`${LIB_DIR}/db.ts`, {
+      './features': () => features,
+      '@fxa/accounts/errors': { AppError: errorMock },
+      'fxa-shared/connected-services': {
+        mergeDevicesAndSessionTokens,
+        filterExpiredTokens: () => [],
+        mergeCachedSessionTokens: () => [],
+        mergeDeviceAndSessionToken: () => ({}),
+      },
+      'fxa-shared/db': { setupAuthDatabase: () => {} },
+      'fxa-shared/db/models/auth': {
+        ...models,
+        Device,
+      },
+    });
+    const DB = createDB(
+      {
+        tokenLifetimes,
+        tokenPruning: {},
+        redis: { ...config.redis, enabled: false },
+      },
+      log,
+      tokens,
+      {}
+    );
+    return DB.connect({}).then((result) => (db = result));
+  });
+
+  it('should return normalized device when device is found', async () => {
+    const uid = 'test-uid';
+    const refreshTokenId = 'test-refresh-token-id';
+    const mockDevice = {
+      id: 'device-id',
+      uid: uid,
+      refreshTokenId: refreshTokenId,
+      name: 'Test Device',
+      type: 'mobile',
+      createdAt: Date.now(),
+    };
+    const mockNormalizedDevice = {
+      id: 'device-id',
+      refreshTokenId: refreshTokenId,
+      name: 'Test Device',
+      type: 'mobile',
+      createdAt: mockDevice.createdAt,
+      availableCommands: {},
+    };
+    const metrics = {
+      increment: sinon.spy(),
+    };
+    db.metrics = metrics;
+
+    Device.findByUidAndRefreshTokenId.resolves(mockDevice);
+    features.isLastAccessTimeEnabledForUser.returns(false);
+    mergeDevicesAndSessionTokens.returns([mockNormalizedDevice]);
+
+    const result = await db.deviceFromRefreshTokenId(uid, refreshTokenId);
+
+    assert.equal(Device.findByUidAndRefreshTokenId.callCount, 1);
+    assert.equal(Device.findByUidAndRefreshTokenId.args[0][0], uid);
+    assert.equal(Device.findByUidAndRefreshTokenId.args[0][1], refreshTokenId);
+    assert.equal(features.isLastAccessTimeEnabledForUser.callCount, 1);
+    assert.equal(features.isLastAccessTimeEnabledForUser.args[0][0], uid);
+    assert.equal(mergeDevicesAndSessionTokens.callCount, 1);
+    assert.deepEqual(mergeDevicesAndSessionTokens.args[0][0], [mockDevice]);
+    assert.deepEqual(mergeDevicesAndSessionTokens.args[0][1], {});
+    assert.equal(mergeDevicesAndSessionTokens.args[0][2], false);
+    assert.deepEqual(result, mockNormalizedDevice);
+    // metrics
+    assert.equal(metrics.increment.callCount, 1);
+    assert.equal(
+      metrics.increment.args[0][0],
+      'db.deviceFromRefreshTokenId.retrieve'
+    );
+    assert.deepEqual(metrics.increment.args[0][1], { result: 'success' });
+  });
+
+  it('should return normalized device with lastAccessTime when feature is enabled', async () => {
+    const uid = 'test-uid';
+    const refreshTokenId = 'test-refresh-token-id';
+    const mockDevice = {
+      id: 'device-id',
+      uid: uid,
+      refreshTokenId: refreshTokenId,
+      name: 'Test Device',
+      type: 'mobile',
+      createdAt: Date.now(),
+    };
+    const mockNormalizedDevice = {
+      id: 'device-id',
+      refreshTokenId: refreshTokenId,
+      name: 'Test Device',
+      type: 'mobile',
+      createdAt: mockDevice.createdAt,
+      lastAccessTime: Date.now(),
+      availableCommands: {},
+    };
+
+    Device.findByUidAndRefreshTokenId.resolves(mockDevice);
+    features.isLastAccessTimeEnabledForUser.returns(true);
+    mergeDevicesAndSessionTokens.returns([mockNormalizedDevice]);
+
+    const result = await db.deviceFromRefreshTokenId(uid, refreshTokenId);
+
+    assert.equal(mergeDevicesAndSessionTokens.callCount, 1);
+    assert.deepEqual(mergeDevicesAndSessionTokens.args[0][0], [mockDevice]);
+    assert.deepEqual(mergeDevicesAndSessionTokens.args[0][1], {});
+    assert.equal(mergeDevicesAndSessionTokens.args[0][2], true);
+    assert.deepEqual(result, mockNormalizedDevice);
+  });
+
+  it('should return null and increment metrics when device is not found', async () => {
+    const uid = 'test-uid';
+    const refreshTokenId = 'test-refresh-token-id';
+    const metrics = {
+      increment: sinon.spy(),
+    };
+    db.metrics = metrics;
+
+    Device.findByUidAndRefreshTokenId.resolves(null);
+
+    const result = await db.deviceFromRefreshTokenId(uid, refreshTokenId);
+    assert.isNull(result);
+    assert.equal(metrics.increment.callCount, 1);
+    assert.equal(
+      metrics.increment.args[0][0],
+      'db.deviceFromRefreshTokenId.retrieve'
+    );
+    assert.deepEqual(metrics.increment.args[0][1], { result: 'notFound' });
+  });
+
+  it('should not increment metrics when metrics is not available', async () => {
+    const uid = 'test-uid';
+    const refreshTokenId = 'test-refresh-token-id';
+
+    db.metrics = undefined;
+    Device.findByUidAndRefreshTokenId.resolves(null);
+
+    const result = await db.deviceFromRefreshTokenId(uid, refreshTokenId);
+    // basically, just make sure it doesn't blow up without metrics
+    assert.isNull(result);
+  });
+});

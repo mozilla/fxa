@@ -27,6 +27,7 @@ import {
 import * as Sentry from '@sentry/nestjs';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import { EmitterServiceHandleAuthError } from './emitter.error';
+import { NimbusManager } from '@fxa/payments/experiments';
 
 @Injectable()
 export class PaymentsEmitterService {
@@ -37,6 +38,7 @@ export class PaymentsEmitterService {
     private cartManager: CartManager,
     private customerManager: CustomerManager,
     private log: Logger,
+    private nimbusManager: NimbusManager,
     private paymentsGleanManager: PaymentsGleanManager,
     private paymentMethodManager: PaymentMethodManager,
     private productConfigurationManager: ProductConfigurationManager,
@@ -62,6 +64,41 @@ export class PaymentsEmitterService {
     return this.emitter;
   }
 
+  async getNimbusUserId({
+    uid,
+    language,
+    region,
+    experimentationId,
+    experimentationPreview,
+  }: {
+    uid?: string;
+    language: string;
+    region?: string;
+    experimentationId: string;
+    experimentationPreview: boolean;
+  }) {
+    let experiments;
+    const generatedNimbusUserId = this.nimbusManager.generateNimbusId(
+      uid,
+      experimentationId
+    );
+    try {
+      experiments = await this.nimbusManager.fetchExperiments({
+        nimbusUserId: generatedNimbusUserId,
+        language,
+        region,
+        preview: experimentationPreview,
+      });
+    } catch (error) {
+      this.log.error(error);
+      Sentry.captureException(error);
+    }
+
+    return (
+      experiments?.Enrollments?.at(0)?.nimbus_user_id || generatedNimbusUserId
+    );
+  }
+
   async handleAuthEvent(eventData: AuthEvents) {
     const { type, errorMessage } = eventData;
     this.statsd.increment('auth_event', { type });
@@ -83,9 +120,19 @@ export class PaymentsEmitterService {
     );
 
     if (!metricsOptOut) {
+      const nimbusUserId = await this.getNimbusUserId({
+        uid: additionalData.cartMetricsData.uid,
+        language: additionalData.locale,
+        region: additionalData.cartMetricsData.taxAddress?.countryCode,
+        experimentationId: eventData.experimentationId,
+        experimentationPreview:
+          eventData?.searchParams?.['experimentationPreview'] === 'true',
+      });
+
       this.paymentsGleanManager.recordFxaPaySetupView({
         commonMetricsData: eventData,
         ...additionalData,
+        experimentationData: { nimbusUserId },
       });
     }
   }
@@ -101,9 +148,19 @@ export class PaymentsEmitterService {
       additionalData.cartMetricsData.uid
     );
     if (!metricsOptOut) {
+      const nimbusUserId = await this.getNimbusUserId({
+        uid: additionalData.cartMetricsData.uid,
+        language: additionalData.locale,
+        region: additionalData.cartMetricsData.taxAddress?.countryCode,
+        experimentationId: eventData.experimentationId,
+        experimentationPreview:
+          eventData?.searchParams?.['experimentationPreview'] === 'true',
+      });
+
       this.paymentsGleanManager.recordFxaPaySetupEngage({
         commonMetricsData: eventData,
         ...additionalData,
+        experimentationData: { nimbusUserId },
       });
     }
   }
@@ -119,10 +176,20 @@ export class PaymentsEmitterService {
       additionalData.cartMetricsData.uid
     );
     if (!metricsOptOut) {
+      const nimbusUserId = await this.getNimbusUserId({
+        uid: additionalData.cartMetricsData.uid,
+        language: additionalData.locale,
+        region: additionalData.cartMetricsData.taxAddress?.countryCode,
+        experimentationId: eventData.experimentationId,
+        experimentationPreview:
+          eventData?.searchParams?.['experimentationPreview'] === 'true',
+      });
+
       this.paymentsGleanManager.recordFxaPaySetupSubmit(
         {
           commonMetricsData: eventData,
           ...additionalData,
+          experimentationData: { nimbusUserId },
         },
         eventData.paymentProvider
       );
@@ -141,6 +208,15 @@ export class PaymentsEmitterService {
     );
 
     if (!metricsOptOut) {
+      const nimbusUserId = await this.getNimbusUserId({
+        uid: additionalData.cartMetricsData.uid,
+        language: additionalData.locale,
+        region: additionalData.cartMetricsData.taxAddress?.countryCode,
+        experimentationId: eventData.experimentationId,
+        experimentationPreview:
+          eventData?.searchParams?.['experimentationPreview'] === 'true',
+      });
+
       // Determine payment method type
       let paymentMethodType: SubPlatPaymentMethodType | undefined;
       if (additionalData.cartMetricsData.stripeCustomerId) {
@@ -163,6 +239,7 @@ export class PaymentsEmitterService {
         {
           commonMetricsData: eventData,
           ...additionalData,
+          experimentationData: { nimbusUserId },
         },
         paymentMethodType
       );
@@ -180,9 +257,19 @@ export class PaymentsEmitterService {
       additionalData.cartMetricsData.uid
     );
     if (!metricsOptOut) {
+      const nimbusUserId = await this.getNimbusUserId({
+        uid: additionalData.cartMetricsData.uid,
+        language: additionalData.locale,
+        region: additionalData.cartMetricsData.taxAddress?.countryCode,
+        experimentationId: eventData.experimentationId,
+        experimentationPreview:
+          eventData?.searchParams?.['experimentationPreview'] === 'true',
+      });
+
       this.paymentsGleanManager.recordFxaPaySetupFail({
         commonMetricsData: eventData,
         ...additionalData,
+        experimentationData: { nimbusUserId },
       });
     }
   }

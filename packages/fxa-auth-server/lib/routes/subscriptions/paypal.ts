@@ -14,7 +14,7 @@ import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { PayPalHelper } from '../../payments/paypal/helper';
 import { StripeHelper } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';

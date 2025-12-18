@@ -4,7 +4,7 @@
 
 'use strict';
 
-const error = require('../error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const isA = require('joi');
 const requestHelper = require('../routes/utils/request_helper');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
@@ -147,9 +147,11 @@ module.exports = function (
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
             verificationMethod: isA.string().optional(),
             verificationReason: isA.string().optional(),
-            verified: isA.boolean().required(),
+            emailVerified: isA.boolean().required(),
+            sessionVerified: isA.boolean().required(),
             authAt: isA.number().integer(),
             metricsEnabled: isA.boolean().required(),
+            verified: isA.boolean().required(), // Deprecated!
           }),
         },
       },
@@ -182,10 +184,7 @@ module.exports = function (
         if (!account?.primaryEmail?.isVerified) {
           statsd.increment('session_reauth.primary_email_not_verified');
         }
-        if (
-          sessionToken.tokenVerificationId ||
-          sessionToken.tokenVerified === false
-        ) {
+        if (!sessionToken.tokenVerified) {
           statsd.increment('session_reauth.token_not_verified');
         }
         const accountAmr = await authMethods.availableAuthenticationMethods(
@@ -194,7 +193,7 @@ module.exports = function (
         );
         const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
         const sessionAal = sessionToken.authenticatorAssuranceLevel;
-        if (accountAal !== sessionAal) {
+        if (sessionAal < accountAal) {
           statsd.increment('session_reauth.all_not_met');
         }
         // End temporary metrics section
@@ -262,6 +261,7 @@ module.exports = function (
           uid: sessionToken.uid,
           authAt: sessionToken.lastAuthAt(),
           metricsEnabled: !accountRecord.metricsOptOut,
+          emailVerified: sessionToken.emailVerified,
         };
 
         if (requestHelper.wantsKeys(request)) {
@@ -281,6 +281,11 @@ module.exports = function (
             verificationMethod
           )
         );
+
+        // Needed to prevent breaking API changes!
+        // Legacy implemenation would set verified true when
+        // session and email are flagged as verified
+        response.verified = response.emailVerified && response.sessionVerified;
 
         return response;
       },
@@ -302,6 +307,7 @@ module.exports = function (
               sessionVerificationMethod: isA.string().allow(null),
               sessionVerified: isA.boolean(),
               sessionVerificationMeetsMinimumAAL: isA.boolean(),
+              verified: isA.boolean(), // Deprecated!
             }),
           }),
         },
@@ -331,10 +337,13 @@ module.exports = function (
           sessionToken.verificationMethodValue || null;
 
         // See verified-session-token auth strategy
-        const sessionVerified = !sessionToken.tokenVerificationId;
+        const sessionVerified = sessionToken.tokenVerified;
 
         // Account Assurance Level
         const sessionVerificationMeetsMinimumAAL = sessionAal >= accountAal;
+
+        // Legacy verified flag. Keep for backwards compatibility.
+        const verified = accountEmailVerified && sessionVerified;
 
         return {
           state: sessionToken.state,
@@ -344,6 +353,7 @@ module.exports = function (
             sessionVerificationMethod,
             sessionVerified,
             sessionVerificationMeetsMinimumAAL,
+            verified,
           },
         };
       },
@@ -360,6 +370,18 @@ module.exports = function (
         validate: {
           payload: isA.object({
             reason: isA.string().max(16).optional(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            authAt: isA.number().integer(),
+            emailVerified: isA.boolean(),
+            sessionVerified: isA.boolean(),
+            verificationMethod: isA.string().allow(null),
+            verificationReason: isA.string().allow(null),
+            verified: isA.boolean(), // Deprecated
           }),
         },
       },
@@ -396,19 +418,24 @@ module.exports = function (
           uid: newSessionToken.uid,
           sessionToken: newSessionToken.data,
           authAt: newSessionToken.lastAuthAt(),
+          emailVerified: newSessionToken.emailVerified,
         };
 
         if (!newSessionToken.emailVerified) {
-          response.verified = false;
+          response.sessionVerified = newSessionToken.tokenVerified;
           response.verificationMethod = 'email';
           response.verificationReason = 'signup';
         } else if (!newSessionToken.tokenVerified) {
-          response.verified = false;
+          response.sessionVerified = false;
           response.verificationMethod = 'email';
           response.verificationReason = 'login';
         } else {
-          response.verified = true;
+          response.sessionVerified = true;
         }
+
+        // Prevents breaking API changes!
+        response.verified =
+          newSessionToken.emailVerified && newSessionToken.tokenVerified;
 
         return response;
       },

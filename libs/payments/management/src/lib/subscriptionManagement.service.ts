@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger, type LoggerService } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
 import {
@@ -50,8 +50,10 @@ import {
   SubscriptionContentMissingUpcomingInvoicePreviewError,
   SubscriptionManagementCouldNotRetrieveIapContentFromCMSError,
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
+  SubscriptionManagementNoStripeCustomerFoundError,
   UpdateAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
+  SubscriptionCustomerMismatch,
   ResubscribeSubscriptionCustomerMismatch,
   CreateBillingAgreementAccountCustomerMissingStripeId,
   CreateBillingAgreementActiveBillingAgreement,
@@ -63,8 +65,10 @@ import { ProfileClient } from '@fxa/profile/client';
 import {
   AppleIapPurchaseResult,
   AppleIapSubscriptionContent,
+  CancelFlowResult,
   GoogleIapPurchaseResult,
   GoogleIapSubscriptionContent,
+  StaySubscribedFlowResult,
   SubscriptionContent,
 } from './types';
 import {
@@ -91,7 +95,8 @@ export class SubscriptionManagementService {
     private setupIntentManager: SetupIntentManager,
     private subscriptionManager: SubscriptionManager,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
-    private paypalCustomerManager: PaypalCustomerManager
+    private paypalCustomerManager: PaypalCustomerManager,
+    @Inject(Logger) private log: LoggerService
   ) {}
 
   @SanitizeExceptions()
@@ -481,6 +486,240 @@ export class SubscriptionManagementService {
     };
   }
 
+  @SanitizeExceptions()
+  async getSubscriptionStatus(
+    uid: string,
+    subscriptionId: string
+  ): Promise<{
+    active: boolean;
+    cancelAtPeriodEnd: boolean;
+  }> {
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+    const subscription =
+      await this.subscriptionManager.retrieve(subscriptionId);
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new SubscriptionCustomerMismatch(
+        uid,
+        accountCustomer.uid,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+
+    return {
+      active: subscription.status === 'active',
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    };
+  }
+
+  @SanitizeExceptions({
+    allowlist: [AccountCustomerNotFoundError],
+  })
+  private async validateAndRetrieveSubscription(
+    uid: string,
+    subscriptionId: string
+  ) {
+    const accountCustomer = await this.accountCustomerManager
+      .getAccountCustomerByUid(uid)
+      .catch((error) => {
+        if (!(error instanceof AccountCustomerNotFoundError)) {
+          throw error;
+        }
+        return undefined;
+      });
+
+    if (!accountCustomer || !accountCustomer.stripeCustomerId) {
+      return undefined;
+    }
+
+    try {
+      const subscription =
+        await this.subscriptionManager.retrieve(subscriptionId);
+
+      if (subscription.customer !== accountCustomer.stripeCustomerId) {
+        return undefined;
+      }
+
+      return subscription;
+    } catch (err) {
+      if (
+        err.type === 'StripeInvalidRequestError' &&
+        (err.code === 'resource_missing' ||
+          err.message?.startsWith('No such subscription'))
+      ) {
+        return undefined;
+      }
+      throw err;
+    }
+  }
+
+  @SanitizeExceptions({
+    allowlist: [SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError],
+  })
+  async getCancelFlowContent(
+    uid: string,
+    subscriptionId: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<CancelFlowResult> {
+    const subscription = await this.validateAndRetrieveSubscription(
+      uid,
+      subscriptionId
+    );
+
+    if (!subscription || subscription.status !== 'active') {
+      return {
+        flowType: 'not_found',
+      };
+    }
+
+    const item = subscription.items.data[0];
+    const price = item.price;
+    const priceId = price.id;
+    const productMap =
+      await this.productConfigurationManager.getPageContentByPriceIds(
+        [priceId],
+        acceptLanguage,
+        selectedLanguage
+      );
+
+    if (!productMap) {
+      throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError([
+        priceId,
+      ]);
+    }
+
+    const cmsPurchase = productMap.purchaseForPriceId(priceId);
+    const productName =
+      cmsPurchase.purchaseDetails.localizations[0]?.productName ||
+      cmsPurchase.purchaseDetails.productName;
+    const supportUrl = cmsPurchase.offering.commonContent.supportUrl;
+    const webIcon = cmsPurchase.purchaseDetails.webIcon;
+    const currentPeriodEnd = subscription.current_period_end;
+
+    return {
+      flowType: 'cancel',
+      active: subscription.status === 'active',
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      currentPeriodEnd,
+      productName,
+      supportUrl,
+      webIcon,
+    };
+  }
+
+  @SanitizeExceptions({
+    allowlist: [
+      CustomerDeletedError,
+      SubscriptionManagementNoStripeCustomerFoundError,
+      SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
+      SubscriptionContentMissingUpcomingInvoicePreviewError,
+    ],
+  })
+  async getStaySubscribedFlowContent(
+    uid: string,
+    subscriptionId: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<StaySubscribedFlowResult> {
+    const subscription = await this.validateAndRetrieveSubscription(
+      uid,
+      subscriptionId
+    );
+
+    if (!subscription || subscription.status !== 'active') {
+      return {
+        flowType: 'not_found',
+      };
+    }
+
+    const stripeCustomer = await this.customerManager
+      .retrieve(subscription.customer)
+      .catch((error) => {
+        if (!(error instanceof CustomerDeletedError)) {
+          throw error;
+        }
+        return undefined;
+      });
+
+    if (!stripeCustomer)
+      throw new SubscriptionManagementNoStripeCustomerFoundError(
+        uid,
+        subscriptionId
+      );
+
+    const defaultPaymentMethod =
+      await this.paymentMethodManager.getDefaultPaymentMethod(
+        stripeCustomer,
+        [subscription],
+        uid
+      );
+
+    const item = subscription.items.data[0];
+    const price = item.price;
+    const priceId = price.id;
+    const productMap =
+      await this.productConfigurationManager.getPageContentByPriceIds(
+        [priceId],
+        acceptLanguage,
+        selectedLanguage
+      );
+
+    if (!productMap) {
+      throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError([
+        priceId,
+      ]);
+    }
+
+    const cmsPurchase = productMap.purchaseForPriceId(priceId);
+    const productName =
+      cmsPurchase.purchaseDetails.localizations[0]?.productName ||
+      cmsPurchase.purchaseDetails.productName;
+    const webIcon = cmsPurchase.purchaseDetails.webIcon;
+    const currentPeriodEnd = subscription.current_period_end;
+
+    const upcomingInvoice =
+      await this.invoiceManager.previewUpcomingSubscription({
+        customer: stripeCustomer,
+        subscription,
+      });
+
+    if (!upcomingInvoice) {
+      throw new SubscriptionContentMissingUpcomingInvoicePreviewError(
+        subscription.id,
+        stripeCustomer
+      );
+    }
+
+    const { subsequentAmount, subsequentAmountExcludingTax, subsequentTax } =
+      upcomingInvoice;
+
+    const nextInvoiceTotalExclusiveTax =
+      subsequentTax &&
+      subsequentTax
+        .filter((tax) => !tax.inclusive)
+        .reduce((sum, tax) => sum + tax.amount, 0);
+
+    return {
+      flowType: 'stay_subscribed',
+      active: subscription.status === 'active',
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      currency: subscription.currency,
+      currentPeriodEnd,
+      defaultPaymentMethodType: defaultPaymentMethod?.type,
+      last4: defaultPaymentMethod?.last4,
+      nextInvoiceTax: nextInvoiceTotalExclusiveTax,
+      nextInvoiceTotal:
+        nextInvoiceTotalExclusiveTax && nextInvoiceTotalExclusiveTax > 0
+          ? (subsequentAmountExcludingTax ?? subsequentAmount)
+          : subsequentAmount,
+      productName,
+      webIcon,
+    };
+  }
+
   async getCurrencyForCustomer(uid: string) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
@@ -661,11 +900,46 @@ export class SubscriptionManagementService {
     };
   }
 
+  async applyStripeCouponToSubscription(args: {
+    uid: string;
+    subscriptionId: string;
+    stripeCouponId: string;
+    setCancelAtPeriodEnd?: boolean;
+  }) {
+    const { uid, subscriptionId, stripeCouponId, setCancelAtPeriodEnd } = args;
+
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+    const subscription =
+      await this.subscriptionManager.retrieve(subscriptionId);
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new SubscriptionCustomerMismatch(
+        uid,
+        accountCustomer.uid,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+    try {
+      const updatedSubscription = await this.subscriptionManager.update(
+        subscriptionId,
+        {
+          discounts: [{ coupon: stripeCouponId }],
+          ...(setCancelAtPeriodEnd ? { cancel_at_period_end: true } : {}),
+        }
+      );
+      return updatedSubscription;
+    } catch (error) {
+      this.log.error(error);
+      return null;
+    }
+  }
+
   @SanitizeExceptions()
   async setDefaultStripePaymentDetails(
     uid: string,
     paymentMethodId: string,
-    fullName: string
   ) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
@@ -677,8 +951,7 @@ export class SubscriptionManagementService {
     await this.customerManager.update(accountCustomer.stripeCustomerId, {
       invoice_settings: {
         default_payment_method: paymentMethodId,
-      },
-      name: fullName,
+      }
     });
   }
 

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { interpolate } from '../error-utils';
+import { OAUTH_ERRNO, OAUTH_ERROR_MESSAGES } from '@fxa/accounts/errors';
 
 export type AuthError = {
   errno: number;
@@ -14,97 +15,52 @@ export type AuthError = {
 
 export const UNEXPECTED_ERROR = 'Unexpected error';
 
+const sharedError = <K extends keyof typeof OAUTH_ERROR_MESSAGES>(
+  key: K,
+  extra?: Partial<AuthError>
+): AuthError => ({
+  errno: OAUTH_ERRNO[key],
+  message: OAUTH_ERROR_MESSAGES[key],
+  ...extra,
+});
+
 export const OAUTH_ERRORS: Record<string, AuthError> = {
-  UNKNOWN_CLIENT: {
-    errno: 101,
-    message: 'Unknown client',
-  },
-  INCORRECT_REDIRECT: {
-    errno: 103,
-    message: 'Incorrect redirect_uri',
-  },
-  INVALID_ASSERTION: {
-    errno: 104,
-    message: 'Invalid assertion',
-  },
-  UNKNOWN_CODE: {
-    errno: 105,
-    message: 'Unknown code',
-  },
-  INCORRECT_CODE: {
-    errno: 106,
-    message: 'Incorrect code',
-  },
-  EXPIRED_CODE: {
-    errno: 107,
-    message: 'Expired code',
-  },
-  INVALID_TOKEN: {
-    errno: 108,
-    message: 'Invalid token',
-  },
-  INVALID_PARAMETER: {
-    errno: 109,
+  UNKNOWN_CLIENT: sharedError('UNKNOWN_CLIENT'),
+  INCORRECT_REDIRECT: sharedError('INCORRECT_REDIRECT'),
+  INVALID_ASSERTION: sharedError('INVALID_ASSERTION'),
+  UNKNOWN_CODE: sharedError('UNKNOWN_CODE'),
+  INCORRECT_CODE: sharedError('INCORRECT_CODE'),
+  EXPIRED_CODE: sharedError('EXPIRED_CODE'),
+  INVALID_TOKEN: sharedError('INVALID_TOKEN'),
+  INVALID_PARAMETER: sharedError('INVALID_PARAMETER', {
     message: 'Invalid OAuth parameter: %(param)s',
     interpolate: true,
-  },
-  INVALID_RESPONSE_TYPE: {
-    errno: 110,
+  }),
+  INVALID_RESPONSE_TYPE: sharedError('INVALID_RESPONSE_TYPE', {
     message: UNEXPECTED_ERROR,
-  },
-  UNAUTHORIZED: {
-    errno: 111,
-    message: 'Unauthorized',
-  },
-  FORBIDDEN: {
-    errno: 112,
-    message: 'Forbidden',
-  },
-  INVALID_CONTENT_TYPE: {
-    errno: 113,
+  }),
+  UNAUTHORIZED: sharedError('UNAUTHORIZED', { message: 'Unauthorized' }),
+  FORBIDDEN: sharedError('FORBIDDEN'),
+  INVALID_CONTENT_TYPE: sharedError('INVALID_CONTENT_TYPE', {
     message: UNEXPECTED_ERROR,
-  },
-  INVALID_SCOPES: {
-    errno: 114,
+  }),
+  INVALID_SCOPES: sharedError('INVALID_SCOPES', {
     message: 'Invalid OAuth parameter: %(param)s',
     interpolate: true,
-  },
-  EXPIRED_TOKEN: {
-    errno: 115,
-    message: 'Expired token',
-  },
-  NOT_PUBLIC_CLIENT: {
-    errno: 116,
-    message: 'Not a public client',
-  },
-  INCORRECT_CODE_CHALLENGE: {
-    errno: 117,
-    message: 'Incorrect code_challenge',
-  },
-  MISSING_PKCE_PARAMETERS: {
-    errno: 118,
+  }),
+  EXPIRED_TOKEN: sharedError('EXPIRED_TOKEN'),
+  NOT_PUBLIC_CLIENT: sharedError('NOT_PUBLIC_CLIENT'),
+  INCORRECT_CODE_CHALLENGE: sharedError('INCORRECT_CODE_CHALLENGE'),
+  MISSING_PKCE_PARAMETERS: sharedError('MISSING_PKCE_PARAMETERS', {
     message: 'PKCE parameters missing',
-  },
-  STALE_AUTHENTICATION_TIMESTAMP: {
-    errno: 119,
-    message: 'Stale authentication timestamp',
-  },
-  MISMATCH_ACR_VALUES: {
-    errno: 120,
+  }),
+  STALE_AUTHENTICATION_TIMESTAMP: sharedError('STALE_AUTH_AT'),
+  MISMATCH_ACR_VALUES: sharedError('MISMATCH_ACR_VALUES', {
     message: 'Mismatch acr values',
-  },
-  INVALID_GRANT_TYPE: {
-    errno: 121,
-    message: 'Invalid grant_type',
-  },
-  SERVER_UNAVAILABLE: {
-    errno: 201,
-    message: 'System unavailable, try again soon',
-  },
-  DISABLED_CLIENT_ID: {
-    errno: 202,
-    message: 'System unavailable, try again soon',
-  },
+  }),
+  INVALID_GRANT_TYPE: sharedError('INVALID_GRANT_TYPE'),
+  SERVER_UNAVAILABLE: sharedError('SERVER_UNAVAILABLE'),
+  DISABLED_CLIENT_ID: sharedError('DISABLED_CLIENT_ID'),
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: 'System unavailable, try again soon',
@@ -194,8 +150,8 @@ export class OAuthError extends Error {
       typeof error === 'string'
         ? OAUTH_ERRORS[error]
         : typeof error === 'number'
-        ? Object.values(OAUTH_ERRORS).find((x) => x.errno === error)
-        : null;
+          ? Object.values(OAUTH_ERRORS).find((x) => x.errno === error)
+          : null;
     let msg = err != null ? err.message : UNEXPECTED_ERROR;
     if (err?.interpolate) {
       msg = interpolate(msg, params || {});

@@ -48,15 +48,17 @@ import {
   MOCK_CLIENT_ID,
   MOCK_KEY_FETCH_TOKEN,
 } from './mocks';
+import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 import AuthClient from 'fxa-auth-client/browser';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
-import { firefox } from '../../lib/channels/firefox';
+import { ensureCanLinkAcountOrRedirect } from './utils';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
+import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import {
   OAuthNativeSyncQueryParameters,
   OAuthQueryParams,
@@ -76,6 +78,16 @@ jest.mock('../../lib/storage-utils', () => ({
   storeAccountData: jest.fn(),
 }));
 
+jest.mock('./utils', () => ({
+  ...jest.requireActual('./utils'),
+  ensureCanLinkAcountOrRedirect: jest.fn(),
+}));
+
+jest.mock('../../lib/oauth/hooks', () => ({
+  ...jest.requireActual('../../lib/oauth/hooks'),
+  useFinishOAuthFlowHandler: jest.fn(),
+}));
+
 let integration: Integration;
 
 function mockSyncDesktopV3Integration() {
@@ -88,6 +100,7 @@ function mockSyncDesktopV3Integration() {
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
+    getCmsInfo: () => undefined,
   } as Integration;
 }
 function mockOAuthWebIntegration(
@@ -102,6 +115,7 @@ function mockOAuthWebIntegration(
     data,
     isDesktopSync: () => false,
     isFirefoxClientServiceRelay: () => false,
+    getCmsInfo: () => undefined,
   } as Integration;
 }
 
@@ -114,6 +128,7 @@ function mockOAuthNativeIntegration() {
     wantsKeys: () => true,
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
+    getCmsInfo: () => undefined,
     data: {
       service: 'sync',
       context: Constants.FX_SYNC_CONTEXT,
@@ -193,7 +208,18 @@ const mockSession = {
   token: MOCK_SESSION_TOKEN,
 };
 
+const mockFinishOAuthFlowHandler = jest.fn().mockResolvedValue({
+  error: undefined,
+  redirect: undefined,
+  code: undefined,
+  state: undefined,
+});
+
 function mockModelsModule() {
+  (useFinishOAuthFlowHandler as jest.Mock).mockReturnValue({
+    finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+    oAuthDataError: undefined,
+  });
   mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
     exists: true,
     hasLinkedAccount: false,
@@ -202,10 +228,11 @@ function mockModelsModule() {
   mockAuthClient.accountProfile = jest
     .fn()
     .mockResolvedValue({ authenticationMethods: ['pwd', 'email'] });
-  mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-    verified: true,
-    sessionVerified: true,
-    emailVerified: true,
+  mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+    details: {
+      accountEmailVerified: true,
+      sessionVerified: true,
+    },
   });
   mockAuthClient.recoveryKeyExists = jest.fn().mockResolvedValue({
     exists: false,
@@ -278,6 +305,13 @@ const MOCK_LOCATION_STATE_COMPLETE = {
   email: MOCK_ROUTER_STATE_EMAIL,
   hasPassword: true,
   hasLinkedAccount: false,
+  canLinkAccountOk: undefined,
+};
+const MOCK_LOCATION_STATE_CAN_LINK_ACCOUNT_OK = {
+  email: MOCK_ROUTER_STATE_EMAIL,
+  hasPassword: true,
+  hasLinkedAccount: false,
+  canLinkAccountOk: true,
 };
 // Set this when testing location state
 let mockLocationState = {};
@@ -346,9 +380,14 @@ function mockSentryModule() {
   mockSentryCaptureMessage = jest.spyOn(SentryModule, 'captureMessage');
 }
 
-function render(mocks: Array<MockedResponse>) {
+function render(
+  mocks: Array<MockedResponse>,
+  options?: { useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus> }
+) {
   loadDevMessages();
   loadErrorMessages();
+
+  const useFxAStatusResult = options?.useFxAStatusResult || mockUseFxAStatus();
 
   return renderWithLocalizationProvider(
     <MockedProvider mocks={mocks} addTypename={false}>
@@ -357,6 +396,7 @@ function render(mocks: Array<MockedResponse>) {
           {...{
             integration,
             serviceName: MozServices.Default,
+            useFxAStatusResult,
           }}
           flowQueryParams={{ flowId: MOCK_FLOW_ID }}
         />
@@ -571,7 +611,8 @@ describe('signin container', () => {
         );
         expect(handlerResult?.data?.signIn?.authAt).toEqual(MOCK_AUTH_AT);
         expect(handlerResult?.data?.signIn?.metricsEnabled).toEqual(true);
-        expect(handlerResult?.data?.signIn?.verified).toEqual(true);
+        expect(handlerResult?.data?.signIn?.emailVerified).toEqual(true);
+        expect(handlerResult?.data?.signIn?.sessionVerified).toEqual(true);
         expect(handlerResult?.data?.signIn?.verificationMethod).toEqual(
           MOCK_VERIFICATION.verificationMethod
         );
@@ -585,8 +626,9 @@ describe('signin container', () => {
     describe('showInlineRecoveryKeySetup', () => {
       beforeEach(() => {
         mockSyncDesktopV3Integration();
-        // this puts hasLinkedAccount=false in the query params to avoid more canLinkAccount mocking
-        mockUseValidateModule();
+        // Ensure early can_link_account check does not short‑circuit beginSigninHandler
+        (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+        mockLocationState = MOCK_LOCATION_STATE_CAN_LINK_ACCOUNT_OK;
         render([
           mockGqlAvatarUseQuery(),
           mockGqlCredentialStatusMutation({
@@ -720,19 +762,15 @@ describe('signin container', () => {
     describe('fxaCanLinkAccount', () => {
       beforeEach(() => {
         mockSyncDesktopV3Integration();
+        (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
       });
       afterEach(() => {
-        (firefox.fxaCanLinkAccount as jest.Mock).mockRestore();
+        (ensureCanLinkAcountOrRedirect as jest.Mock).mockRestore();
       });
       it('is not called when conditions are not met (query param)', async () => {
-        // this puts hasLinkedAccount=false in the query params
-        // We don't want this called when the user was prompted on email-first
-        mockUseValidateModule();
-        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
-          async () => ({
-            ok: true,
-          })
-        );
+        // Simulate Index already accepted/auto-OKed the merge warning
+        // avoids mocking ensureCanLinkAcountOrRedirect
+        mockLocationState = { canLinkAccountOk: true };
         render([
           mockGqlAvatarUseQuery(),
           mockGqlCredentialStatusMutation({
@@ -751,53 +789,15 @@ describe('signin container', () => {
             MOCK_EMAIL,
             MOCK_PASSWORD
           );
-          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+          expect(ensureCanLinkAcountOrRedirect).not.toHaveBeenCalled();
         });
       });
-      it('is not called when conditions are not met (oauth web integration)', async () => {
-        mockOAuthWebIntegration({ data: {} });
-        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
-          async () => ({
-            ok: true,
-          })
-        );
-        render([mockGqlAvatarUseQuery()]);
 
-        await waitFor(async () => {
-          await currentSigninProps?.beginSigninHandler(
-            MOCK_EMAIL,
-            MOCK_PASSWORD
-          );
-          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
-        });
-      });
-      it('calls fxaCanLinkAccount when conditions are met (oauth native integration, isSyncDesktop)', async () => {
-        mockOAuthNativeIntegration();
-        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
-          async () => ({
-            ok: true,
-          })
-        );
-        render([mockGqlAvatarUseQuery()]);
-
-        await waitFor(async () => {
-          await currentSigninProps?.beginSigninHandler(
-            MOCK_EMAIL,
-            MOCK_PASSWORD
-          );
-          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
-        });
-      });
-      it('calls fxaCanLinkAccount when conditions are met', async () => {
+      it('calls ensureCanLinkAcountOrRedirect early without UID when conditions are met', async () => {
         mockLocationState = {
           hasLinkedAccount: undefined,
           email: MOCK_ROUTER_STATE_EMAIL,
         };
-        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
-          async () => ({
-            ok: true,
-          })
-        );
         render([
           mockGqlAvatarUseQuery(),
           mockGqlCredentialStatusMutation({
@@ -812,26 +812,32 @@ describe('signin container', () => {
         ]);
 
         await waitFor(async () => {
-          await currentSigninProps?.beginSigninHandler(
+          const handlerResult = await currentSigninProps?.beginSigninHandler(
             MOCK_EMAIL,
             MOCK_PASSWORD
           );
-          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+
+          expect(handlerResult?.data).toBeDefined();
+        });
+        expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledTimes(1);
+        expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
+          expect.objectContaining({
             email: MOCK_EMAIL,
-          });
-        });
+          })
+        );
+        expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
+          expect.not.objectContaining({
+            uid: expect.anything(),
+          })
+        );
       });
 
-      it('returns expected error when fxaCanLinkAccount response is ok: false', async () => {
+      it('returns error when user cancels', async () => {
         mockLocationState = {
           hasLinkedAccount: undefined,
           email: MOCK_ROUTER_STATE_EMAIL,
         };
-        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
-          async () => ({
-            ok: false,
-          })
-        );
+        (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(false);
         render([mockGqlAvatarUseQuery()]);
 
         await waitFor(async () => {
@@ -840,7 +846,51 @@ describe('signin container', () => {
             MOCK_PASSWORD
           );
           expect(handlerResult?.data).toBeUndefined();
-          expect(handlerResult?.error?.errno).toEqual(1001);
+        });
+      });
+
+      describe('with supportsCanLinkAccountUid capability and OAuthNative integration', () => {
+        beforeEach(() => {
+          mockOAuthNativeIntegration();
+        });
+
+        it('calls ensureCanLinkAcountOrRedirect with UID after successful signin', async () => {
+          const useFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: true,
+          });
+
+          render(
+            [
+              mockGqlAvatarUseQuery(),
+              mockGqlCredentialStatusMutation({
+                currentVersion: 'v2',
+                upgradeNeeded: false,
+                clientSalt: MOCK_CLIENT_SALT,
+              }),
+              mockGqlBeginSigninMutation(
+                { keys: true, service: 'sync' },
+                { email: MOCK_EMAIL }
+              ),
+            ],
+            { useFxAStatusResult }
+          );
+
+          await waitFor(async () => {
+            const handlerResult = await currentSigninProps?.beginSigninHandler(
+              MOCK_EMAIL,
+              MOCK_PASSWORD
+            );
+
+            expect(handlerResult?.data).toBeDefined();
+            expect(handlerResult?.data?.signIn?.uid).toBe(MOCK_UID);
+          });
+          expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledTimes(1);
+          expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
+            expect.objectContaining({
+              email: MOCK_EMAIL,
+              uid: MOCK_UID,
+            })
+          );
         });
       });
     });
@@ -957,7 +1007,11 @@ describe('signin container', () => {
             currentVersion: 'v1',
             clientSalt: '',
           }),
-          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: true }),
+          mockGqlBeginSigninMutation(
+            { keys: false },
+            {},
+            { emailVerified: true, sessionVerified: true }
+          ),
           {
             ...mockGqlPasswordChangeStartMutation(),
             error: mockGqlError(),
@@ -986,7 +1040,11 @@ describe('signin container', () => {
             currentVersion: 'v1',
             clientSalt: '',
           }),
-          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: true }),
+          mockGqlBeginSigninMutation(
+            { keys: false },
+            {},
+            { emailVerified: true, sessionVerified: true }
+          ),
           mockGqlPasswordChangeStartMutation(),
           {
             ...mockGqlGetAccountKeysMutation(),
@@ -1017,7 +1075,11 @@ describe('signin container', () => {
             currentVersion: 'v1',
             clientSalt: '',
           }),
-          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: true }),
+          mockGqlBeginSigninMutation(
+            { keys: false },
+            {},
+            { emailVerified: true, sessionVerified: true }
+          ),
           mockGqlPasswordChangeStartMutation(),
           mockGqlGetAccountKeysMutation(),
           {
@@ -1056,7 +1118,11 @@ describe('signin container', () => {
             currentVersion: 'v1',
           }),
           // Fallback to the V1 signin!
-          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: false }),
+          mockGqlBeginSigninMutation(
+            { keys: false },
+            {},
+            { emailVerified: false, sessionVerified: false }
+          ),
         ]);
 
         await waitFor(async () => {
@@ -1087,10 +1153,11 @@ describe('signin container', () => {
         authenticationMethods: ['pwd', 'email'],
         authenticatorAssuranceLevel: 1,
       });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: false,
-        sessionVerified: false,
-        emailVerified: true,
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        details: {
+          accountEmailVerified: true,
+          sessionVerified: false,
+        },
       });
 
       mockUseValidateModule();
@@ -1107,7 +1174,7 @@ describe('signin container', () => {
         expect(mockAuthClient.accountProfile).toHaveBeenCalledWith(
           MOCK_SESSION_TOKEN
         );
-        expect(mockAuthClient.recoveryEmailStatus).toHaveBeenCalledWith(
+        expect(mockAuthClient.sessionStatus).toHaveBeenCalledWith(
           MOCK_SESSION_TOKEN
         );
         expect(mockSession.sendVerificationCode).toHaveBeenCalled();
@@ -1118,7 +1185,6 @@ describe('signin container', () => {
         expect(handlerResult?.data?.verificationReason).toEqual(
           VerificationReasons.SIGN_IN
         );
-        expect(handlerResult?.data?.verified).toEqual(false);
         expect(handlerResult?.data?.sessionVerified).toEqual(false);
         expect(handlerResult?.data?.emailVerified).toEqual(true);
       });
@@ -1132,10 +1198,11 @@ describe('signin container', () => {
         authenticationMethods: ['pwd', 'email'],
         authenticatorAssuranceLevel: 1,
       });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: false,
-        sessionVerified: false,
-        emailVerified: false,
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        details: {
+          accountEmailVerified: false,
+          sessionVerified: false,
+        },
       });
 
       mockUseValidateModule();
@@ -1152,7 +1219,6 @@ describe('signin container', () => {
         expect(handlerResult?.data?.verificationReason).toEqual(
           VerificationReasons.SIGN_UP
         );
-        expect(handlerResult?.data?.verified).toEqual(false);
         expect(handlerResult?.data?.sessionVerified).toEqual(false);
         expect(handlerResult?.data?.emailVerified).toEqual(false);
       });
@@ -1166,10 +1232,11 @@ describe('signin container', () => {
         authenticationMethods: ['pwd', 'email', 'otp'],
         authenticatorAssuranceLevel: 2, // max account assurance level is 2fa
       });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: false,
-        sessionVerified: false,
-        emailVerified: true,
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        details: {
+          accountEmailVerified: true,
+          sessionVerified: false,
+        },
       });
 
       mockUseValidateModule();
@@ -1186,7 +1253,6 @@ describe('signin container', () => {
         expect(handlerResult?.data?.verificationReason).toEqual(
           VerificationReasons.SIGN_IN
         );
-        expect(handlerResult?.data?.verified).toEqual(false);
         expect(handlerResult?.data?.sessionVerified).toEqual(false);
         expect(handlerResult?.data?.emailVerified).toEqual(true);
       });
@@ -1200,10 +1266,11 @@ describe('signin container', () => {
         authenticationMethods: ['pwd', 'email', 'otp'],
         authenticatorAssuranceLevel: 2, // 2FA verified session
       });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: true,
-        sessionVerified: true,
-        emailVerified: true,
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        details: {
+          accountEmailVerified: true,
+          sessionVerified: true,
+        },
       });
 
       mockUseValidateModule();
@@ -1243,7 +1310,7 @@ describe('signin container', () => {
     });
 
     it('handles other errors', async () => {
-      mockAuthClient.recoveryEmailStatus = jest
+      mockAuthClient.sessionStatus = jest
         .fn()
         .mockRejectedValue(AuthUiErrors.UNEXPECTED_ERROR);
       mockUseValidateModule();

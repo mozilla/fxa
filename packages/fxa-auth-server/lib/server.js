@@ -173,6 +173,7 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
   }
 
   const server = new Hapi.Server(serverOptions);
+  const oauthRoutes = routes.oauthRoutes || [];
   server.validator(require('joi'));
 
   server.ext('onRequest', (request, h) => {
@@ -337,7 +338,7 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
         translateStripeErrors(response);
       }
 
-      response = error.translate(request, response);
+      response = error.translate(request, response, oauthRoutes);
       if (config.env !== 'prod') {
         response.backtrace(request.app.traced);
       }

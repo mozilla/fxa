@@ -9,7 +9,7 @@ const sinon = require('sinon');
 const { assert } = require('chai');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const errors = require('../../../lib/error');
+const { AppError: errors } = require('@fxa/accounts/errors');
 const proxyquire = require('proxyquire');
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 
@@ -340,7 +340,7 @@ describe('POST /recoveryKey', () => {
     beforeEach(async () => {
       mockAccountEventsManager = mocks.mockAccountEventsManager();
       const requestOptions = {
-        credentials: { uid, email },
+        credentials: { uid, email, tokenVerified: true },
         log,
         payload: { recoveryKeyId, enabled: false },
       };
@@ -814,7 +814,7 @@ describe('POST /recoveryKey/hint', () => {
     beforeEach(() => {
       const requestOptions = {
         method: 'POST',
-        credentials: { uid, email },
+        credentials: { uid, email, tokenVerified: true },
         payload: { hint },
         log,
       };
@@ -837,7 +837,7 @@ describe('POST /recoveryKey/hint', () => {
     beforeEach(async () => {
       const requestOptions = {
         method: 'POST',
-        credentials: { uid, email },
+        credentials: { uid, email, tokenVerified: true },
         payload: { hint },
         log,
       };

@@ -17,24 +17,46 @@ export const GET_RELYING_PARTIES = gql`
       trusted
       allowedScopes
       notes
+      hasSecret
+      hasPreviousSecret
     }
   }
 `;
 
 export const CREATE_RELYING_PARTY = gql`
-  mutation create($relyingParty: RelyingPartyUpdateDto!) {
-    create(relyingParty: $relyingParty)
+  mutation createRelyingParty($relyingParty: RelyingPartyUpdateDto!) {
+    createRelyingParty(relyingParty: $relyingParty) {
+      id
+      secret
+    }
   }
 `;
 
 export const UPDATE_RELYING_PARTY = gql`
-  mutation update($id: String!, $relyingParty: RelyingPartyUpdateDto!) {
-    update(id: $id, relyingParty: $relyingParty)
+  mutation updateRelyingParty(
+    $id: String!
+    $relyingParty: RelyingPartyUpdateDto!
+  ) {
+    updateRelyingParty(id: $id, relyingParty: $relyingParty)
   }
 `;
 
 export const DELETE_RELYING_PARTY = gql`
-  mutation delete($id: String!) {
-    delete(id: $id)
+  mutation deleteRelyingParty($id: String!) {
+    deleteRelyingParty(id: $id)
+  }
+`;
+
+export const ROTATE_RELYING_PARTY_SECRET = gql`
+  mutation rotateRelyingPartySecret($id: String!) {
+    rotateRelyingPartySecret(id: $id) {
+      secret
+    }
+  }
+`;
+
+export const DELETE_RELYING_PARTY_PREVIOUS_SECRET = gql`
+  mutation deletePreviousRelyingPartySecret($id: String!) {
+    deletePreviousRelyingPartySecret(id: $id)
   }
 `;

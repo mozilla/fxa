@@ -139,6 +139,18 @@ describe('support agents', () => {
           AdminPanelGroup.AdminStage
         )
       ).true;
+      expect(
+        prodGuard.allow(
+          AdminPanelFeature.Remove2FA,
+          AdminPanelGroup.SupportAgentProd
+        )
+      ).true;
+      expect(
+        stageGuard.allow(
+          AdminPanelFeature.Remove2FA,
+          AdminPanelGroup.SupportAgentStage
+        )
+      ).true;
     });
 
     it('looks up group', () => {

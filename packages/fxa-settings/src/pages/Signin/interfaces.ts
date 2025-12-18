@@ -11,6 +11,7 @@ import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
 import { QueryParams } from '../..';
+import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 
 export interface AvatarResponse {
   account: {
@@ -30,7 +31,8 @@ export type SigninUnblockIntegration = Pick<
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
-  | 'isFirefoxClientServiceAiMode'
+  | 'isFirefoxClientServiceAiWindow'
+  | 'isFirefoxNonSync'
   | 'getWebChannelServices'
   | 'wantsLogin'
   | 'getCmsInfo'
@@ -48,7 +50,8 @@ export type SigninIntegration =
       | 'data'
       | 'isDesktopSync'
       | 'isFirefoxClientServiceRelay'
-      | 'isFirefoxClientServiceAiMode'
+      | 'isFirefoxClientServiceAiWindow'
+      | 'isFirefoxNonSync'
       | 'getWebChannelServices'
       | 'getCmsInfo'
       | 'isFirefoxMobileClient'
@@ -67,7 +70,8 @@ export type SigninOAuthIntegration = Pick<
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
-  | 'isFirefoxClientServiceAiMode'
+  | 'isFirefoxClientServiceAiWindow'
+  | 'isFirefoxNonSync'
   | 'getWebChannelServices'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
@@ -77,6 +81,7 @@ export interface LocationState {
   email?: string;
   hasLinkedAccount?: boolean;
   hasPassword?: boolean;
+  canLinkAccountOk?: boolean;
   localizedErrorMessage?: string;
   successBanner?: {
     localizedSuccessBannerHeading?: string;
@@ -102,6 +107,8 @@ export interface SigninProps {
   localizedSuccessBannerDescription?: string;
   deeplink?: string;
   flowQueryParams?: QueryParams;
+  useFxAStatusResult: UseFxAStatusResult;
+  setCurrentSplitLayout?: (value: boolean) => void;
 }
 
 export type BeginSigninHandler = (
@@ -120,7 +127,8 @@ export interface BeginSigninResponse {
     sessionToken: hexstring;
     authAt: number;
     metricsEnabled: boolean;
-    verified: boolean;
+    emailVerified: boolean;
+    sessionVerified: boolean;
     verificationMethod: VerificationMethods;
     verificationReason: VerificationReasons;
     keyFetchToken?: hexstring;
@@ -134,18 +142,14 @@ export type CachedSigninHandler = (
   sessionToken: hexstring
 ) => Promise<CachedSigninHandlerResponse>;
 
-export interface RecoveryEmailStatusResponse {
-  verified: boolean;
-  sessionVerified: boolean;
-  emailVerified: boolean;
-}
-
 export interface CachedSigninHandlerResponse {
   data?: {
     verificationMethod?: VerificationMethods;
     verificationReason?: VerificationReasons;
     uid: hexstring;
-  } & RecoveryEmailStatusResponse;
+    sessionVerified: boolean;
+    emailVerified: boolean;
+  };
   error?: AuthUiError;
 }
 
@@ -203,7 +207,8 @@ export interface NavigationOptions {
   signinData: {
     uid: hexstring;
     sessionToken: hexstring;
-    verified: boolean;
+    emailVerified: boolean;
+    sessionVerified: boolean;
     verificationMethod?: VerificationMethods;
     verificationReason?: VerificationReasons;
     // keyFetchToken is included if options.keys=true
@@ -232,6 +237,7 @@ export interface NavigationOptions {
   };
   // If false, skip actually navigating. Still sends web channel messages etc.
   performNavigation?: boolean;
+  isServiceWithEmailVerification?: boolean;
 }
 
 export interface OAuthSigninResult {
@@ -243,10 +249,12 @@ export interface SigninLocationState {
   email: string;
   uid: hexstring;
   sessionToken: hexstring;
-  verified: boolean;
+  emailVerified: boolean;
+  sessionVerified: boolean;
   verificationMethod?: VerificationMethods;
   verificationReason?: VerificationReasons;
   origin?: NavigationOptions['origin'];
   showInlineRecoveryKeySetup?: boolean;
   isSessionAALUpgrade?: boolean;
+  isSignInWithThirdPartyAuth?: boolean;
 }

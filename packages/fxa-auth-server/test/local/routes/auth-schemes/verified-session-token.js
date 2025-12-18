@@ -4,7 +4,7 @@
 
 const { assert } = require('chai');
 const sinon = require('sinon');
-const AppError = require('../../../../lib/error');
+const { AppError } = require('@fxa/accounts/errors');
 const {
   strategy,
 } = require('../../../../lib/routes/auth-schemes/verified-session-token');
@@ -160,6 +160,7 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
 
   it('fails when session token is unverified', async () => {
     // Set token as unverified.
+    token.tokenVerified = false;
     token.tokenVerificationId = 'abc';
 
     const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
@@ -181,6 +182,7 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
 
   it('skips session token is unverified check when configured', async () => {
     // Set token in unverified state
+    token.tokenVerified = false;
     token.tokenVerificationId = 'abc';
 
     // Skip token verification check for path
@@ -198,12 +200,14 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     );
   });
 
-  it('fails when AAL mismatch', async () => {
+  it('fails when session AAL is less than required AAL', async () => {
     // Force account AAL=2 by returning otp along with pwd/email
     db.totpToken = sinon.fake.resolves({
       verified: true,
       enabled: true,
     });
+
+    token.authenticatorAssuranceLevel = 1;
 
     const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
     try {
@@ -211,14 +215,33 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
       assert.fail('Should have thrown');
     } catch (err) {
       const payload = err.output.payload;
-      assert.equal(payload.code, 401);
-      assert.equal(payload.errno, AppError.ERRNO.INVALID_TOKEN);
+      assert.equal(payload.code, 400);
+      assert.equal(payload.errno, AppError.ERRNO.INSUFFICIENT_AAL);
       assert.isTrue(
         statsd.increment.calledWithExactly('verified_session_token.aal.error', [
           'path:/foo/{id}',
         ])
       );
     }
+  });
+
+  it('passes when session AAL is greater than required AAL', async () => {
+    // Force account AAL=1 by returning otp along with pwd/email
+    db.totpToken = sinon.fake.resolves({
+      verified: false,
+      enabled: false,
+    });
+
+    // Fabricate higher session token AAL
+    token.authenticatorAssuranceLevel = 2;
+
+    const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
+    await authStrategy.authenticate(request, h);
+    assert.isTrue(
+      h.authenticated.calledOnceWithExactly({
+        credentials: token,
+      })
+    );
   });
 
   it('skips AAL check when configured', async () => {

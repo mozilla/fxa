@@ -64,11 +64,27 @@ import {
   PaypalClientConfig,
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
+import {
+  MockNimbusClientConfigProvider,
+  NimbusClient,
+  NimbusEnrollmentFactory,
+} from '@fxa/shared/experiments';
+import {
+  MockNimbusManagerConfigProvider,
+  NimbusManager,
+  SubPlatNimbusResultFactory,
+} from '@fxa/payments/experiments';
+import * as Sentry from '@sentry/nestjs';
+import { faker } from '@faker-js/faker/.';
 
 jest.mock('./util/retrieveAdditionalMetricsData');
 const mockedRetrieveAdditionalMetricsData = jest.mocked(
   retrieveAdditionalMetricsData
 );
+
+jest.mock('@sentry/nestjs', () => ({
+  captureException: jest.fn(),
+}));
 
 describe('PaymentsEmitterService', () => {
   let accountManager: AccountManager;
@@ -78,6 +94,7 @@ describe('PaymentsEmitterService', () => {
   let paymentsGleanManager: PaymentsGleanManager;
   let paymentMethodManager: PaymentMethodManager;
   let productConfigurationManager: ProductConfigurationManager;
+  let nimbusManager: NimbusManager;
   let statsd: StatsD;
   let logger: Logger;
   let subscriptionManager: SubscriptionManager;
@@ -125,6 +142,10 @@ describe('PaymentsEmitterService', () => {
         PaymentsEmitterService,
         PaymentMethodManager,
         SubscriptionManager,
+        NimbusClient,
+        MockNimbusClientConfigProvider,
+        NimbusManager,
+        MockNimbusManagerConfigProvider,
       ],
     }).compile();
 
@@ -134,6 +155,7 @@ describe('PaymentsEmitterService', () => {
     paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
+    nimbusManager = moduleRef.get(NimbusManager);
     cartManager = moduleRef.get(CartManager);
     statsd = moduleRef.get<StatsD>(StatsDService);
     logger = moduleRef.get<Logger>(Logger);
@@ -147,6 +169,13 @@ describe('PaymentsEmitterService', () => {
     expect(productConfigurationManager).toBeDefined();
   });
 
+  const mockEnrollment = NimbusEnrollmentFactory();
+  const mockSubPlatExperiments = SubPlatNimbusResultFactory({
+    Enrollments: [mockEnrollment],
+  });
+  const nimbusUserId = mockEnrollment.nimbus_user_id;
+  const generatedNimbusUserId = NimbusEnrollmentFactory().nimbus_user_id;
+
   beforeEach(() => {
     retrieveOptOutMock = jest
       .spyOn(paymentsEmitterService as any, 'retrieveOptOut')
@@ -154,6 +183,67 @@ describe('PaymentsEmitterService', () => {
     mockedRetrieveAdditionalMetricsData.mockResolvedValue(
       additionalMetricsData
     );
+    jest
+      .spyOn(nimbusManager, 'fetchExperiments')
+      .mockResolvedValue(mockSubPlatExperiments);
+    jest
+      .spyOn(nimbusManager, 'generateNimbusId')
+      .mockReturnValue(generatedNimbusUserId);
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe('getNimbusUserId', () => {
+    const mockInput = {
+      uid: faker.string.uuid(),
+      language: faker.location.language().alpha2,
+      region: faker.location.countryCode('alpha-2'),
+      experimentationId: faker.string.uuid(),
+      experimentationPreview: faker.datatype.boolean(),
+    };
+    beforeEach(() => {
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue(generatedNimbusUserId);
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockSubPlatExperiments);
+    });
+
+    it('should return enrollment nimbusUserId', async () => {
+      const result = await paymentsEmitterService.getNimbusUserId(mockInput);
+      expect(result).toEqual(mockEnrollment.nimbus_user_id);
+      expect(nimbusManager.generateNimbusId).toHaveBeenCalledWith(
+        mockInput.uid,
+        mockInput.experimentationId
+      );
+      expect(nimbusManager.fetchExperiments).toHaveBeenCalledWith({
+        nimbusUserId: generatedNimbusUserId,
+        language: mockInput.language,
+        region: mockInput.region,
+        preview: mockInput.experimentationPreview,
+      });
+    });
+
+    it('should return generated nimbusUserId', async () => {
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(SubPlatNimbusResultFactory({ Enrollments: [] }));
+      const result = await paymentsEmitterService.getNimbusUserId(mockInput);
+      expect(result).toEqual(generatedNimbusUserId);
+    });
+
+    it('should return generated nimbusUserId on fetchExperiments failure', async () => {
+      const expectedError = new Error('failed to fetch');
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockRejectedValue(expectedError);
+      const result = await paymentsEmitterService.getNimbusUserId(mockInput);
+      expect(result).toEqual(generatedNimbusUserId);
+      expect(Sentry.captureException).toHaveBeenCalledWith(expectedError);
+    });
   });
 
   describe('handleAuthEvent', () => {
@@ -198,8 +288,11 @@ describe('PaymentsEmitterService', () => {
       );
       expect(paymentsGleanManager.recordFxaPaySetupView).toHaveBeenCalledWith({
         commonMetricsData: mockCommonMetricsData,
+        experimentationData: { nimbusUserId },
         ...additionalMetricsData,
       });
+      expect(nimbusManager.fetchExperiments).toHaveBeenCalled();
+      expect(nimbusManager.generateNimbusId).toHaveBeenCalled();
     });
 
     it('should not record glean event if user opts out', async () => {
@@ -215,6 +308,8 @@ describe('PaymentsEmitterService', () => {
         mockCommonMetricsData.params
       );
       expect(paymentsGleanManager.recordFxaPaySetupView).not.toHaveBeenCalled();
+      expect(nimbusManager.fetchExperiments).not.toHaveBeenCalled();
+      expect(nimbusManager.generateNimbusId).not.toHaveBeenCalled();
     });
   });
 
@@ -236,6 +331,7 @@ describe('PaymentsEmitterService', () => {
       expect(paymentsGleanManager.recordFxaPaySetupEngage).toHaveBeenCalledWith(
         {
           commonMetricsData: mockCommonMetricsData,
+          experimentationData: { nimbusUserId },
           ...additionalMetricsData,
         }
       );
@@ -279,6 +375,7 @@ describe('PaymentsEmitterService', () => {
       expect(paymentsGleanManager.recordFxaPaySetupSubmit).toHaveBeenCalledWith(
         {
           commonMetricsData: mockCheckoutPaymentEvents,
+          experimentationData: { nimbusUserId },
           ...additionalMetricsData,
         },
         mockCheckoutPaymentEvents.paymentProvider
@@ -340,6 +437,7 @@ describe('PaymentsEmitterService', () => {
       ).toHaveBeenCalledWith(
         {
           commonMetricsData: mockCheckoutPaymentEvents,
+          experimentationData: { nimbusUserId },
           ...additionalMetricsData,
         },
         mockPaymentMethodType.type
@@ -383,6 +481,7 @@ describe('PaymentsEmitterService', () => {
       );
       expect(paymentsGleanManager.recordFxaPaySetupFail).toHaveBeenCalledWith({
         commonMetricsData: mockCheckoutPaymentEvents,
+        experimentationData: { nimbusUserId },
         ...additionalMetricsData,
       });
     });

@@ -13,7 +13,7 @@ import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
 
 import { ConfigType } from '../config';
-import { ERRNO } from './error';
+import { ERRNO } from '@fxa/accounts/errors';
 import OAuthDb from './oauth/db';
 import { AppleIAP } from './payments/iap/apple-app-store/apple-iap';
 import { PlayBilling } from './payments/iap/google-play/play-billing';

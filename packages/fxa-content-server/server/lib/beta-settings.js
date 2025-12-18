@@ -123,11 +123,15 @@ const settingsConfig = {
       'featureFlags.paymentsNextSubscriptionManagement'
     ),
   },
-  nimbusPreview: config.get('nimbusPreview'),
+  nimbus: {
+    enabled: config.get('nimbus.enabled'),
+    preview: config.get('nimbus.preview'),
+  },
   cms: {
     enabled: config.get('cms.enabled'),
     l10nEnabled: config.get('cms.l10nEnabled'),
   },
+  servicesWithEmailVerification: config.get('servicesWithEmailVerification'),
 };
 
 // Inject Settings content into the index HTML

@@ -1,0 +1,22 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header"><span data-l10n-id="verify-title-3">Open the internet with Mozilla</span></mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body"><span data-l10n-id="verify-description-2">Confirm your account and get the most out of Mozilla everywhere you sign in starting with:</span></mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/userInfo/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "verify-action-2",
+  buttonText: "Confirm account"
+}) %>
+<%- include('/partials/automatedEmailNoAction/index.mjml') %>

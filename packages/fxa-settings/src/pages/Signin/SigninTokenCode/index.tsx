@@ -37,6 +37,7 @@ const SigninTokenCode = ({
   keyFetchToken,
   unwrapBKey,
   onSessionVerified,
+  setCurrentSplitLayout,
 }: SigninTokenCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const session = useSession();
@@ -150,7 +151,8 @@ const SigninTokenCode = ({
             uid,
             sessionToken,
             verificationReason,
-            verified: true,
+            emailVerified: true,
+            sessionVerified: true,
             keyFetchToken,
           },
           unwrapBKey,
@@ -207,9 +209,10 @@ const SigninTokenCode = ({
 
   const cmsInfo = integration?.getCmsInfo();
   const title = cmsInfo?.SigninTokenCodePage?.pageTitle;
+  const splitLayout = cmsInfo?.SigninTokenCodePage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading-2"

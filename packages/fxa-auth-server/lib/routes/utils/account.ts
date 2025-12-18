@@ -1,6 +1,6 @@
 import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { reportSentryError } from '../../../lib/sentry';
 import { RelyingPartiesQuery } from '../../../../../libs/shared/cms/src/__generated__/graphql';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';

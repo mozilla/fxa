@@ -12,8 +12,8 @@ import { RefreshTokenMetadata } from './models/auth/refresh-token-meta-data';
 
 import opentelemetry from '@opentelemetry/api';
 const tracer = opentelemetry.trace.getTracer('redis-tracer');
-
-const hex = require('buf').to.hex;
+const hex = (v: Buffer | string): string =>
+  Buffer.isBuffer(v) ? v.toString('hex') : v;
 
 export type Config = {
   enabled?: boolean;
@@ -235,7 +235,7 @@ export class RedisShared {
   }
 
   async pruneRefreshTokens(
-    uid: Buffer | String,
+    uid: Buffer | string,
     tokenIdsToPrune: Buffer[] | string[]
   ) {
     this.metrics?.increment('redis.pruneRefreshTokens');
@@ -273,7 +273,7 @@ export class RedisShared {
     }
   }
 
-  async getAccessTokens(uid: Buffer | String) {
+  async getAccessTokens(uid: Buffer | string) {
     this.metrics?.increment('redis.getAccessTokens');
     const span = tracer.startSpan('redis.getAccessTokens');
     try {
@@ -297,7 +297,7 @@ export class RedisShared {
     }
   }
 
-  async getAccessToken(uid: Buffer | String) {
+  async getAccessToken(uid: Buffer | string) {
     this.metrics?.increment('redis.getAccessToken');
     const span = tracer.startSpan('redis.getAccessToken');
     try {

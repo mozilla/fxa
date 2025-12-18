@@ -5,7 +5,7 @@
 import React, { ReactNode } from 'react';
 import { act, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { navigate } from '@reach/router';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
 import {
@@ -32,19 +32,12 @@ import GleanMetrics from '../../lib/glean';
 import config from '../../lib/config';
 import { currentAccount } from '../../lib/cache';
 import { MozServices } from '../../lib/types';
-import mockUseSyncEngines from '../../lib/hooks/useSyncEngines/mocks';
-import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import mockUseFxAStatus from '../../lib/hooks/useFxAStatus/mocks';
+import useFxAStatus from '../../lib/hooks/useFxAStatus';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { OAuthError } from '../../lib/oauth';
 
-jest.mock('@reach/router', () => {
-  return {
-    ...jest.requireActual('@reach/router'),
-    navigate: jest.fn(),
-  };
-});
-
-jest.mock('../../lib/hooks/useSyncEngines', () => ({
+jest.mock('../../lib/hooks/useFxAStatus', () => ({
   __esModule: true,
   default: jest.fn(),
 }));
@@ -180,12 +173,12 @@ describe('metrics', () => {
     };
 
     flowInit = jest.spyOn(Metrics, 'init');
-    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+    (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
   });
 
   afterEach(() => {
     flowInit.mockReset();
-    (useSyncEngines as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockRestore();
   });
 
   it('Initializes metrics flow data when present', async () => {
@@ -232,11 +225,11 @@ describe('metrics', () => {
 
 describe('glean', () => {
   beforeEach(() => {
-    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+    (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
   });
 
   afterEach(() => {
-    (useSyncEngines as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockRestore();
   });
   it('Initializes glean', async () => {
     (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
@@ -320,6 +313,7 @@ describe('loading spinner states', () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: jest.fn().mockReturnValueOnce(true),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
+      getCmsInfo: jest.fn(),
       data: {
         context: {},
       },
@@ -349,13 +343,13 @@ describe('loading spinner states', () => {
 
 describe('AuthAndAccountSetupRoutes', () => {
   beforeEach(() => {
-    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+    (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
   });
 
   afterEach(() => {
-    (useSyncEngines as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockRestore();
   });
-  it('calls useSyncEngines with integration', async () => {
+  it('calls useFxAStatus with integration', async () => {
     const mockIntegration = {
       getServiceName: () => MozServices.FirefoxSync,
       isSync: () => true,
@@ -385,8 +379,8 @@ describe('AuthAndAccountSetupRoutes', () => {
       );
     });
 
-    expect(useSyncEngines).toHaveBeenCalledTimes(1);
-    expect(useSyncEngines).toHaveBeenCalledWith(mockIntegration);
+    expect(useFxAStatus).toHaveBeenCalledTimes(1);
+    expect(useFxAStatus).toHaveBeenCalledWith(mockIntegration);
   });
 });
 
@@ -394,7 +388,8 @@ describe('SettingsRoutes', () => {
   const settingsPath = '/settings';
 
   beforeEach(() => {
-    (navigate as jest.Mock).mockClear();
+    jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
+    jest.clearAllMocks();
     (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       loading: false,
     });
@@ -402,6 +397,7 @@ describe('SettingsRoutes', () => {
       isSync: () => false,
       isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
       getServiceName: jest.fn(),
+      getCmsInfo: jest.fn(),
     });
     (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
       data: { isSignedIn: false },
@@ -428,7 +424,6 @@ describe('SettingsRoutes', () => {
   });
 
   afterEach(() => {
-    (navigate as jest.Mock).mockRestore();
     (useIntegration as jest.Mock).mockRestore();
     (useInitialMetricsQueryState as jest.Mock).mockRestore();
     (useLocalSignedInQueryState as jest.Mock).mockRestore();
@@ -446,6 +441,7 @@ describe('SettingsRoutes', () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => false,
       isFirefoxClientServiceRelay: () => false,
+      getCmsInfo: jest.fn(),
       data: {
         context: {},
       },
@@ -469,7 +465,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
+      expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
         `/?redirect_to=${encodeURIComponent(settingsPath)}`
       );
     });
@@ -479,6 +475,7 @@ describe('SettingsRoutes', () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
       isFirefoxClientServiceRelay: () => false,
+      getCmsInfo: jest.fn(),
       data: {
         context: {},
       },
@@ -513,7 +510,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(navigate).not.toHaveBeenCalled();
+      expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
     });
 
     expect(screen.getByText('Session Expired')).toBeInTheDocument();
@@ -531,6 +528,7 @@ describe('SettingsRoutes', () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
       isFirefoxClientServiceRelay: () => false,
+      getCmsInfo: jest.fn(),
       data: {
         context: {},
       },
@@ -577,7 +575,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(navigate).not.toHaveBeenCalled();
+      expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });
@@ -609,7 +607,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(navigate).not.toHaveBeenCalled();
+      expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });
@@ -617,7 +615,7 @@ describe('SettingsRoutes', () => {
 
 describe('Integration serviceName error handling', () => {
   beforeEach(() => {
-    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+    (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
     (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       loading: false,
     });
@@ -634,7 +632,7 @@ describe('Integration serviceName error handling', () => {
   });
 
   afterEach(() => {
-    (useSyncEngines as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockRestore();
     (useInitialMetricsQueryState as jest.Mock).mockRestore();
     (useLocalSignedInQueryState as jest.Mock).mockRestore();
     (useSession as jest.Mock).mockRestore();
@@ -668,7 +666,6 @@ describe('Integration serviceName error handling', () => {
       );
     });
 
-    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
     expect(screen.getByText('Bad Request')).toBeInTheDocument();
     expect(screen.getByText(mockError.message)).toBeInTheDocument();
   });
@@ -705,8 +702,6 @@ describe('Integration serviceName error handling', () => {
       })
     ).rejects.toThrow('Non-OAuth integration error');
 
-    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
-
     consoleSpy.mockRestore();
   });
 
@@ -736,7 +731,6 @@ describe('Integration serviceName error handling', () => {
       );
     });
 
-    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
     expect(screen.getByText('Bad Request')).toBeInTheDocument();
     expect(screen.getByText(mockError.message)).toBeInTheDocument();
   });

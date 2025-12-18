@@ -8,5 +8,6 @@ export const MOCK_SIGNIN_LOCATION_STATE = {
   email: MOCK_EMAIL,
   sessionToken: MOCK_SESSION_TOKEN,
   uid: MOCK_UID,
-  verified: false,
+  emailVerified: false,
+  sessionVerified: false,
 };

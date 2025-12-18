@@ -27,6 +27,8 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: ApplePay,
         altText: l10n.getString('apple-pay-logo-alt-text', 'Apple Pay logo'),
+        width: 45,
+        height: 24,
       };
     case 'diners':
       return {
@@ -42,6 +44,8 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: GooglePay,
         altText: l10n.getString('google-pay-logo-alt-text', 'Google Pay logo'),
+        width: 45,
+        height: 24,
       };
     case 'jcb':
       return {
@@ -52,16 +56,21 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: Link,
         altText: l10n.getString('link-logo-alt-text', 'Link logo'),
-      }
+        width: 72,
+        height: 24,
+      };
     case 'mastercard':
       return {
         img: Mastercard,
         altText: l10n.getString('mastercard-logo-alt-text', 'Mastercard logo'),
       };
+    case 'external_paypal':
     case 'paypal':
       return {
         img: Paypal,
         altText: l10n.getString('paypal-logo-alt-text', 'PayPal logo'),
+        width: 91,
+        height: 24,
       };
     case 'unionpay':
       return {
@@ -77,6 +86,8 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: Unbranded,
         altText: l10n.getString('unbranded-logo-alt-text', 'Unbranded logo'),
+        width: 32,
+        height: 20,
       };
   }
 }

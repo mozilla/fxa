@@ -12,10 +12,7 @@ import {
   createMockIndexOAuthNativeIntegration,
   Subject,
 } from './mocks';
-import {
-  MONITOR_CLIENTIDS,
-  POCKET_CLIENTIDS,
-} from '../../models/integrations/client-matching';
+import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import { MozServices } from '../../lib/types';
 import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
 
@@ -31,6 +28,7 @@ const storyWithProps = ({
   initialErrorBanner?: string;
   initialSuccessBanner?: string;
   initialTooltipMessage?: string;
+  supportsKeysOptionalLogin?: boolean;
 } = {}) => {
   const story = () => <Subject {...props} />;
   return story;
@@ -43,6 +41,21 @@ export const WithServiceRelayIntegration = storyWithProps({
     isFirefoxClientServiceRelay: true,
     isSync: false,
   }),
+});
+export const WithThirdPartyAuthServiceRelayIntegration = storyWithProps({
+  integration: createMockIndexOAuthNativeIntegration({
+    isFirefoxClientServiceRelay: true,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: true,
+});
+
+export const WithThirdPartyAuthServiceAIWindowIntegration = storyWithProps({
+  integration: createMockIndexOAuthNativeIntegration({
+    isFirefoxClientServiceAiWindow: true,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: true,
 });
 
 export const WithPrefilledEmail = storyWithProps({
@@ -61,13 +74,6 @@ export const Monitor = storyWithProps({
   serviceName: MozServices.Monitor,
 });
 
-export const Pocket = storyWithProps({
-  integration: createMockIndexOAuthIntegration({
-    clientId: POCKET_CLIENTIDS[0],
-  }),
-  serviceName: MozServices.Pocket,
-});
-
 export const WithCms = storyWithProps({
   integration: createMockIndexOAuthNativeIntegration({
     isFirefoxClientServiceRelay: true,
@@ -83,6 +89,20 @@ export const WithCmsOnMobile = storyWithProps({
     cmsInfo: MOCK_CMS_INFO,
   }),
   isMobile: true,
+});
+
+export const WithCmsSplitLayout = storyWithProps({
+  integration: createMockIndexOAuthNativeIntegration({
+    isFirefoxClientServiceRelay: true,
+    isSync: false,
+    cmsInfo: {
+      ...MOCK_CMS_INFO,
+      EmailFirstPage: {
+        ...MOCK_CMS_INFO.EmailFirstPage,
+        splitLayout: true,
+      },
+    },
+  }),
 });
 
 export const WithCmsWithSharedFallback = storyWithProps({

@@ -26,15 +26,12 @@ import { MOCK_CMS_INFO, MOCK_EMAIL, MOCK_PASSWORD } from '../mocks';
 import firefox from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import * as utils from 'fxa-react/lib/utils';
-import {
-  MONITOR_CLIENTIDS,
-  POCKET_CLIENTIDS,
-} from '../../models/integrations/client-matching';
+import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import { getSyncEngineIds } from '../../lib/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
-import { useSensitiveDataClient } from '../../models';
+import { OAuthNativeServices, useSensitiveDataClient } from '../../models';
 import { userEvent } from '@testing-library/user-event';
 
 jest.mock('../../lib/metrics', () => ({
@@ -161,47 +158,6 @@ describe('Signup page', () => {
     expect(firefoxPrivacyLink).toHaveAttribute('href', '/legal/privacy');
   });
 
-  it('shows an info banner and Pocket-specific TOS when client is Pocket', async () => {
-    renderWithLocalizationProvider(
-      <Subject
-        integration={createMockSignupOAuthWebIntegration(POCKET_CLIENTIDS[0])}
-      />
-    );
-
-    const infoBannerLink = screen.getByRole('link', {
-      name: /Find out here/,
-    });
-    await waitFor(() => {
-      expect(infoBannerLink).toBeInTheDocument();
-    });
-
-    // info banner is dismissible
-    const infoBannerDismissButton = screen.getByRole('button', {
-      name: 'Close banner',
-    });
-    fireEvent.click(infoBannerDismissButton);
-    await waitFor(() => {
-      expect(infoBannerLink).not.toBeInTheDocument();
-    });
-
-    // Pocket links should always open in a new window (announced by screen readers)
-    const pocketTermsLink = screen.getByRole('link', {
-      name: 'Terms of Service Opens in new window',
-    });
-    const pocketPrivacyLink = screen.getByRole('link', {
-      name: 'Privacy Notice Opens in new window',
-    });
-
-    expect(pocketTermsLink).toHaveAttribute(
-      'href',
-      'https://getpocket.com/tos/'
-    );
-    expect(pocketPrivacyLink).toHaveAttribute(
-      'href',
-      'https://getpocket.com/privacy/'
-    );
-  });
-
   it('renders as expected when integration is sync', async () => {
     await act(() => {
       renderWithLocalizationProvider(
@@ -225,7 +181,10 @@ describe('Signup page', () => {
     await act(() => {
       renderWithLocalizationProvider(
         <Subject
-          integration={createMockSignupOAuthNativeIntegration('relay', false)}
+          integration={createMockSignupOAuthNativeIntegration(
+            OAuthNativeServices.Relay,
+            false
+          )}
         />
       );
     });
@@ -245,6 +204,48 @@ describe('Signup page', () => {
     screen.getByText(
       'A password is needed to securely manage your masked emails and access Mozilla’s security tools.'
     );
+  });
+
+  it('renders third party auth when service=relay and supportsKeysOptionalLogin is true', async () => {
+    await act(() => {
+      renderWithLocalizationProvider(
+        <Subject
+          integration={createMockSignupOAuthNativeIntegration(
+            OAuthNativeServices.Relay,
+            false
+          )}
+          supportsKeysOptionalLogin={true}
+        />
+      );
+    });
+
+    expect(
+      screen.getByRole('button', { name: /Continue with Google/ })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Continue with Apple/ })
+    ).toBeInTheDocument();
+  });
+
+  it('renders third party auth when service=aiwindow and supportsKeysOptionalLogin is true', async () => {
+    await act(() => {
+      renderWithLocalizationProvider(
+        <Subject
+          integration={createMockSignupOAuthNativeIntegration(
+            OAuthNativeServices.AiWindow,
+            false
+          )}
+          supportsKeysOptionalLogin={true}
+        />
+      );
+    });
+
+    expect(
+      screen.getByRole('button', { name: /Continue with Google/ })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Continue with Apple/ })
+    ).toBeInTheDocument();
   });
 
   it('renders as expected when cms enabled', async () => {

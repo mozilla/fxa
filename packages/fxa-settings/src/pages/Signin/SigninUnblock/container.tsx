@@ -5,8 +5,6 @@
 import { useMutation } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
 
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-
 import VerificationMethods from '../../../constants/verification-methods';
 import {
   useAuthClient,
@@ -52,13 +50,16 @@ import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import AppLayout from '../../../components/AppLayout';
 
 export const SigninUnblockContainer = ({
   integration,
   flowQueryParams,
+  setCurrentSplitLayout,
 }: {
   integration: SigninUnblockIntegration;
   flowQueryParams: QueryParams;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -166,10 +167,11 @@ export const SigninUnblockContainer = ({
         });
       }
 
-      const verified = response.data?.signIn.verified;
+      const emailVerified = response.data?.signIn.emailVerified;
+      const sessionVerified = response.data?.signIn.sessionVerified;
       const sessionToken = response.data?.signIn.sessionToken;
       // Attempt to finish key stretching upgrade now that session has been verified.
-      if (verified && sessionToken) {
+      if (emailVerified && sessionVerified && sessionToken) {
         await tryFinalizeUpgrade(
           sessionToken,
           sensitiveDataClient,
@@ -226,9 +228,16 @@ export const SigninUnblockContainer = ({
     return <OAuthDataError error={oAuthDataError} />;
   }
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninUnblockCodePage?.splitLayout;
+
   if (!email || !password) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
   return (
     <SigninUnblock
@@ -241,6 +250,7 @@ export const SigninUnblockContainer = ({
         resendUnblockCodeHandler,
         wantsTwoStepAuthentication,
         finishOAuthFlowHandler,
+        setCurrentSplitLayout,
       }}
     />
   );

@@ -12,6 +12,7 @@ import {
   CartService,
   CheckoutService,
   TaxService,
+  ChurnInterventionManager,
 } from '@fxa/payments/cart';
 import {
   EligibilityManager,
@@ -57,7 +58,7 @@ import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
 import { logger, LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
 import { NotifierService, NotifierSnsProvider } from '@fxa/shared/notifier';
-import { SubscriptionManagementService } from '@fxa/payments/management';
+import { SubscriptionManagementService, ChurnInterventionService } from '@fxa/payments/management';
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
@@ -69,6 +70,8 @@ import {
   GoogleIapClient,
   GoogleIapPurchaseManager,
 } from '@fxa/payments/iap';
+import { NimbusClient } from '@fxa/shared/experiments';
+import { NimbusManager } from '@fxa/payments/experiments';
 
 @Module({
   imports: [
@@ -100,6 +103,8 @@ import {
     CartService,
     TaxService,
     CheckoutTokenManager,
+    ChurnInterventionManager,
+    ChurnInterventionService,
     ContentServerManager,
     ContentServerClient,
     CustomerManager,
@@ -144,6 +149,8 @@ import {
     SubscriptionEventsService,
     StripeWebhookService,
     SubscriptionManagementService,
+    NimbusClient,
+    NimbusManager,
     { provide: LOGGER_PROVIDER, useValue: logger },
   ],
 })

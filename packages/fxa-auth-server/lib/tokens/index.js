@@ -4,7 +4,7 @@
 
 'use strict';
 
-const error = require('../error');
+const { AppError: error } = require('@fxa/accounts/errors');
 
 module.exports = (log, config) => {
   config = config || {};

@@ -1,0 +1,61 @@
+name: Cleanup Storybooks
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Remove closed PR storybooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 1
+
+      - name: Remove PR directory
+        run: |
+          PR_DIR="storybooks/pr-${{ github.event.pull_request.number }}"
+          if [ -d "gh-pages/$PR_DIR" ]; then
+            rm -rf "gh-pages/$PR_DIR"
+            echo "Removed $PR_DIR"
+          else
+            echo "Directory $PR_DIR not found, nothing to clean up"
+          fi
+
+      - name: Checkout main branch for scripts
+        uses: actions/checkout@v6
+        with:
+          path: main-repo
+
+      - name: Regenerate root index.html
+        run: node main-repo/_scripts/generate-storybook-index.js
+        env:
+          GH_PAGES_DIR: gh-pages
+          REPO_NAME: ${{ github.event.repository.name }}
+          REPO_OWNER: ${{ github.repository_owner }}
+
+      - name: Commit and push to gh-pages
+        run: |
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create orphan branch (no history) with current content
+          git checkout --orphan gh-pages-new
+          git add -A
+          git commit -m "Remove storybooks for closed PR ${{ github.event.pull_request.number }}"
+
+          # Replace gh-pages with the new orphan branch
+          git push --force origin gh-pages-new:gh-pages

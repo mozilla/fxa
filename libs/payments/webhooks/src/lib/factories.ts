@@ -20,25 +20,35 @@ export const CustomerSubscriptionDeletedResponseFactory = (
   override?: Partial<CustomerSubscriptionDeletedResponse>
 ): CustomerSubscriptionDeletedResponse => ({
   type: 'customer.subscription.deleted',
-  event: StripeEventCustomerSubscriptionCreatedFactory(subscription),
+  event: StripeEventCustomerSubscriptionCreatedFactory(undefined, subscription),
   eventObjectData: subscription,
   ...override,
 });
 
 export const StripeEventStoreEntryFactory = (
   override?: Partial<StripeEventStoreEntry>
-): StripeEventStoreEntry => ({
-  eventId: `evt_${faker.string.alphanumeric({ length: 24 })}`,
-  processedAt: new Date(),
-  eventDetails: StripeEventCustomerSubscriptionCreatedFactory(),
-  ...override,
-});
+): StripeEventStoreEntry => {
+  const eventId = `evt_${faker.string.alphanumeric({ length: 24 })}`;
+  return {
+    eventId,
+    processedAt: new Date(),
+    eventDetails: StripeEventCustomerSubscriptionCreatedFactory({
+      id: eventId,
+    }),
+    ...override,
+  };
+};
 
 export const StripeEventStoreEntryFirestoreRecordFactory = (
   override?: Partial<StripeEventStoreEntryFirestoreRecord>
-): StripeEventStoreEntryFirestoreRecord => ({
-  eventId: `evt_${faker.string.alphanumeric({ length: 24 })}`,
-  processedAt: Timestamp.fromDate(new Date()),
-  eventDetails: StripeEventCustomerSubscriptionCreatedFactory(),
-  ...override,
-});
+): StripeEventStoreEntryFirestoreRecord => {
+  const eventId = `evt_${faker.string.alphanumeric({ length: 24 })}`;
+  return {
+    eventId,
+    processedAt: Timestamp.fromDate(new Date()),
+    eventDetails: StripeEventCustomerSubscriptionCreatedFactory({
+      id: eventId,
+    }),
+    ...override,
+  };
+};

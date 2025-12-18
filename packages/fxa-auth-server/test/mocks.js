@@ -11,7 +11,7 @@
 const assert = require('assert');
 const config = require('../config').default.getProperties();
 const crypto = require('crypto');
-const error = require('../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const knownIpLocation = require('./known-ip-location');
 const sinon = require('sinon');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
@@ -70,6 +70,7 @@ const DB_METHOD_NAMES = [
   'deletePasswordChangeToken',
   'deleteSessionToken',
   'deviceFromTokenVerificationId',
+  'deviceFromRefreshTokenId',
   'deleteRecoveryKey',
   'deleteTotpToken',
   'devices',
@@ -577,6 +578,9 @@ function mockDB(data, errors) {
       const device = data.devices.find((d) => d.id === deviceId);
       assert.ok(device);
       return Promise.resolve(device);
+    }),
+    deviceFromRefreshTokenId: sinon.spy(() => {
+      return Promise.resolve(null);
     }),
     deleteSessionToken: sinon.spy(() => {
       return Promise.resolve();

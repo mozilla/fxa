@@ -5,6 +5,7 @@
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { NotifierService } from '@fxa/shared/notifier';
 import { Provider } from '@nestjs/common';
+import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import Chance from 'chance';
@@ -24,6 +25,7 @@ import {
   RecoveryCodes,
   RecoveryKey,
   RecoveryPhones,
+  SecurityEvent,
   SessionToken,
   TotpToken,
 } from 'fxa-shared/db/models/auth';
@@ -46,12 +48,13 @@ import { Knex } from 'knex';
 import { AuthClientService } from '../../backend/auth-client.service';
 import { CloudTasksService } from '../../backend/cloud-tasks.service';
 import { FirestoreService } from '../../backend/firestore.service';
-import { ProfileClientService } from '../../backend/profile-client.service';
+import { ProfileClient } from '@fxa/profile/client';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AccountResolver } from './account.resolver';
 import { CartManager } from '@fxa/payments/cart';
+import { EmailService } from '../../backend/email.service';
 
 export const chance = new Chance();
 
@@ -91,6 +94,7 @@ describe('#integration - AccountResolver', () => {
     linkedAccounts: LinkedAccount,
     recoveryCodes: RecoveryCodes,
     recoveryPhones: RecoveryPhones,
+    securityEvents: SecurityEvent,
     async authorizedClients(
       uid: string
     ): Promise<SerializableAttachedClient[]> {
@@ -110,6 +114,7 @@ describe('#integration - AccountResolver', () => {
   let authClient: any;
   let basketService: any;
   let firestoreService: any;
+  let emailService: any;
 
   beforeAll(async () => {
     knex = await testDatabaseSetup();
@@ -147,7 +152,7 @@ describe('#integration - AccountResolver', () => {
 
     profileClient = { deleteCache: jest.fn() };
     const MockProfileClient: Provider = {
-      provide: ProfileClientService,
+      provide: ProfileClient,
       useValue: profileClient,
     };
 
@@ -159,15 +164,21 @@ describe('#integration - AccountResolver', () => {
     const MockConfig: Provider = {
       provide: ConfigService,
       useValue: {
-        get: jest.fn().mockReturnValue({
-          authHeader: 'test',
-          i18n: {
-            defaultLanguage: 'en',
-            supportedLanguages: ['en'],
-          },
-          lastAccessTimeUpdates: {
-            earliestSaneTimestamp: 1507081020000,
-          },
+        get: jest.fn().mockImplementation((key: string) => {
+          const config: Record<string, any> = {
+            authHeader: 'test',
+            i18n: {
+              defaultLanguage: 'en',
+              supportedLanguages: ['en'],
+            },
+            lastAccessTimeUpdates: {
+              earliestSaneTimestamp: 1507081020000,
+            },
+            ipHmacKey: '000000',
+          };
+
+          const result = config[key] || config;
+          return result;
         }),
       },
     };
@@ -212,6 +223,16 @@ describe('#integration - AccountResolver', () => {
     const MockBasket: Provider = {
       provide: BasketService,
       useValue: basketService,
+    };
+
+    emailService = {
+      sendPasswordChangeRequired: jest.fn().mockResolvedValue(undefined),
+      sendPasswordResetNotification: jest.fn().mockResolvedValue(undefined),
+    };
+
+    const MockEmailService: Provider = {
+      provide: EmailService,
+      useValue: emailService,
     };
 
     const MockDb: Provider = {
@@ -271,6 +292,7 @@ describe('#integration - AccountResolver', () => {
         MockMetricsFactory,
         MockSubscription,
         MockBasket,
+        MockEmailService,
         MockDb,
         MockFirestoreService,
         MockAuthClient,
@@ -281,6 +303,10 @@ describe('#integration - AccountResolver', () => {
     }).compile();
 
     resolver = module.get<AccountResolver>(AccountResolver);
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   afterAll(async () => {
@@ -568,6 +594,150 @@ describe('#integration - AccountResolver', () => {
     const result = await resolver.accountEvents(user);
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
+  });
+
+  describe('recordAdminSecurityEvent', () => {
+    it('records security event', async () => {
+      const securityEventSpy = jest.spyOn(SecurityEvent, 'create');
+
+      await resolver.recordAdminSecurityEvent(
+        USER_1.uid,
+        'account.must_reset',
+        {
+          req: {
+            ip: '0.0.0.0',
+            headers: {
+              'user-agent': 'Mozilla!',
+              'x-forward-for': '127.0.0.1',
+            },
+          } as unknown as Request,
+        }
+      );
+
+      expect(securityEventSpy).toHaveBeenCalledWith({
+        ipAddr: '0.0.0.0',
+        ipHmacKey: '000000',
+        uid: USER_1.uid,
+        name: 'account.must_reset',
+        additionalInfo: {
+          userAgent: 'Mozilla!',
+          adminPanelAction: true,
+        },
+      });
+    });
+
+    it('records security event and prefers x-fordwarded-for header', async () => {
+      const securityEventSpy = jest.spyOn(SecurityEvent, 'create');
+
+      await resolver.recordAdminSecurityEvent(
+        USER_1.uid,
+        'account.must_reset',
+        {
+          req: {
+            ip: '0.0.0.0',
+            headers: {
+              'user-agent': 'Mozilla!',
+              'x-forwarded-for': '127.0.0.1',
+            },
+          } as unknown as Request,
+        }
+      );
+
+      expect(securityEventSpy).toHaveBeenCalledWith({
+        ipAddr: '127.0.0.1',
+        ipHmacKey: '000000',
+        uid: USER_1.uid,
+        name: 'account.must_reset',
+        additionalInfo: {
+          userAgent: 'Mozilla!',
+          adminPanelAction: true,
+        },
+      });
+    });
+  });
+
+  describe('resetAccounts', () => {
+    it('resets accounts, logs security events, and emails SRE', async () => {
+      const resetSpy = jest.spyOn(Account, 'reset');
+      const securityEventSpy = jest.spyOn(SecurityEvent, 'create');
+
+      const notify = 'ops@example.com';
+      const result = await resolver.resetAccounts(
+        [USER_1.email, USER_1.uid, 'foo@mozilla.com'],
+        notify,
+        'sre joe',
+        {
+          req: {
+            ip: '127.0.0.1',
+            headers: {
+              'user-agent': 'Mozilla!',
+            },
+          } as unknown as Request,
+        }
+      );
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result).toEqual([
+        { locator: USER_1.email, status: 'Success' },
+        { locator: USER_1.uid, status: 'Success' },
+        { locator: 'foo@mozilla.com', status: 'No account found' },
+      ]);
+      expect(resetSpy).toHaveBeenCalledTimes(2);
+      expect(emailService.sendPasswordChangeRequired).toHaveBeenCalledTimes(2);
+      expect(securityEventSpy).toHaveBeenCalledWith({
+        ipAddr: '127.0.0.1',
+        ipHmacKey: '000000',
+        uid: USER_1.uid,
+        name: 'account.must_reset',
+        additionalInfo: {
+          userAgent: 'Mozilla!',
+          adminPanelAction: true,
+        },
+      });
+      expect(securityEventSpy).toHaveBeenCalledWith({
+        ipAddr: '127.0.0.1',
+        ipHmacKey: '000000',
+        uid: USER_1.uid,
+        name: 'account.must_reset',
+        additionalInfo: {
+          userAgent: 'Mozilla!',
+          adminPanelAction: true,
+        },
+      });
+      expect(emailService.sendPasswordResetNotification).toHaveBeenCalledWith(
+        notify,
+        expect.any(Array)
+      );
+    });
+
+    it('gracefuly handles error when resetting accounts', async () => {
+      const resetSpy = jest.spyOn(Account, 'reset');
+      const securityEventSpy = jest.spyOn(SecurityEvent, 'create');
+
+      // Mimick failures, that shouldn't kill response
+      resetSpy.mockRejectedValueOnce('Boom');
+      securityEventSpy.mockRejectedValueOnce('Boom');
+      emailService.sendPasswordResetNotification.mockRejectedValueOnce('Boom');
+
+      const result = await resolver.resetAccounts(
+        [USER_1.email, USER_1.email, USER_1.email],
+        '',
+        'joe-sre',
+        {
+          req: {
+            ip: '127.0.0.1',
+            headers: {
+              'user-agent': 'Mozilla!',
+            },
+          } as unknown as Request,
+        }
+      );
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result[0]).toEqual({ locator: USER_1.email, status: 'Failure' });
+      expect(result[1]).toEqual({ locator: USER_1.email, status: 'Failure' });
+      expect(result[2]).toEqual({ locator: USER_1.email, status: 'Success' });
+    });
   });
 
   it('loads verifierSetAt', async () => {

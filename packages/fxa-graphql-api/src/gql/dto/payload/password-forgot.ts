@@ -57,7 +57,10 @@ export class AccountResetPayload {
   public sessionToken?: string;
 
   @Field({ nullable: true })
-  public verified?: boolean;
+  public emailVerified?: boolean;
+
+  @Field({ nullable: true })
+  public sessionVerified?: boolean;
 
   @Field({ nullable: true })
   public authAt?: number;

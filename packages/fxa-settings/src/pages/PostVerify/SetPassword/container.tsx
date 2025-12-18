@@ -5,11 +5,10 @@
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SetPassword from '.';
 import { currentAccount } from '../../../lib/cache';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Integration, useAuthClient } from '../../../models';
 import { cache } from '../../../lib/cache';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { CreatePasswordHandler } from './interfaces';
 import { HandledError } from '../../../lib/error-utils';
 import {
@@ -23,12 +22,13 @@ import { handleNavigation } from '../../Signin/utils';
 import GleanMetrics from '../../../lib/glean';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
-import useSyncEngines from '../../../lib/hooks/useSyncEngines';
+import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
+import AppLayout from '../../../components/AppLayout';
 
 const SetPasswordContainer = ({
   integration,
   flowQueryParams,
-  useSyncEnginesResult: {
+  useFxAStatusResult: {
     offeredSyncEngines,
     offeredSyncEngineConfigs,
     declinedSyncEngines,
@@ -37,7 +37,7 @@ const SetPasswordContainer = ({
 }: {
   integration: Integration;
   flowQueryParams: QueryParams;
-  useSyncEnginesResult: ReturnType<typeof useSyncEngines>;
+  useFxAStatusResult: UseFxAStatusResult;
 } & RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
@@ -50,6 +50,33 @@ const SetPasswordContainer = ({
   const metricsContext = queryParamsToMetricsContext(
     flowQueryParams as unknown as Record<string, string>
   );
+
+  const didRunPasswordStatusCheckRef = useRef(false);
+  useEffect(() => {
+    if (didRunPasswordStatusCheckRef.current) return;
+    didRunPasswordStatusCheckRef.current = true;
+    const checkPasswordStatus = async () => {
+      if (sessionToken) {
+        try {
+          const status = await authClient.accountStatus(
+            undefined,
+            sessionToken
+          );
+          if (status.hasPassword) {
+            // User already has a password, redirect to signin.
+            // This can happen when a user signs into the browser with third party
+            // oauth and they try to use Sync or Send Tab later, but keys are missing.
+            // Firefox will send users to this page to set a password and receive keys.
+            navigateWithQuery('/signin', { replace: true });
+          }
+        } catch (error) {
+          // TODO? Might need to retry.
+          // Request to create a PW won't go through if they already have one.
+        }
+      }
+    };
+    checkPasswordStatus();
+  }, [authClient, sessionToken, navigateWithQuery]);
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -105,7 +132,8 @@ const SetPasswordContainer = ({
             signinData: {
               uid,
               sessionToken,
-              verified: true,
+              emailVerified: true,
+              sessionVerified: true,
               keyFetchToken,
             },
             unwrapBKey,
@@ -152,7 +180,7 @@ const SetPasswordContainer = ({
   // This page is currently always for the Sync flow.
   if (!email || !sessionToken || !uid || !integration.isSync()) {
     navigateWithQuery('/signin', { replace: true });
-    return <LoadingSpinner />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;

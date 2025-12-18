@@ -45,7 +45,6 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode
       );
       await expect(settings.settingsHeading).toBeVisible();
-      await settings.disconnectTotp();
     });
 
     test('totp invalid recovery code', async ({
@@ -68,7 +67,7 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker
       );
       await settings.goto();
-      const { recoveryCodes } = await addTotp(credentials, settings, totp);
+      await addTotp(credentials, settings, totp);
       await settings.signOut();
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -79,11 +78,6 @@ test.describe('severity-1 #smoke', () => {
       await expect(
         page.getByText('Invalid backup authentication code')
       ).toBeVisible();
-
-      // Required before teardown
-      await signinRecoveryCode.fillOutCodeForm(recoveryCodes[0]);
-      await expect(settings.settingsHeading).toBeVisible();
-      await settings.disconnectTotp();
     });
 
     test('can get new backup authentication codes', async ({
@@ -133,7 +127,6 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await expect(settings.settingsHeading).toBeVisible();
-      await settings.disconnectTotp(); // Required before teardown
     });
 
     test('can get new backup authentication codes via email', async ({
@@ -206,9 +199,6 @@ test.describe('severity-1 #smoke', () => {
       // abort without completing the flow,
       // we just want to verify that email was sent
       // and link works
-      await settings.goto();
-      // Disconnect totp, required before teardown
-      await settings.disconnectTotp();
     });
   });
 });
@@ -242,7 +232,7 @@ async function addTotp(
   await settings.totp.addButton.click();
   await settings.confirmMfaGuard(credentials.email);
   const totpCredentials =
-    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.alertBar).toContainText(

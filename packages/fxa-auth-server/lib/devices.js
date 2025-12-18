@@ -8,7 +8,7 @@ const isA = require('joi');
 const Sentry = require('@sentry/node');
 const DESCRIPTION = require('../docs/swagger/shared/descriptions').default;
 const validators = require('./routes/validators');
-const error = require('./error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const oauthDB = require('./oauth/db');
 const { DISPLAY_SAFE_UNICODE_WITH_NON_BMP, HEX_STRING, URL_SAFE_BASE_64 } =
   validators;

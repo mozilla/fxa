@@ -12,6 +12,7 @@ import {
   renderWithRouter,
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
+import { MfaContext } from '../MfaGuard';
 import {
   AuthUiError,
   AuthUiErrors,
@@ -75,16 +76,18 @@ const getAccountWithErrorOnKeyChange = (error: AuthUiError) => {
 const renderFlowPage = (account: Account) => {
   renderWithRouter(
     <AppContext.Provider value={mockAppContext({ account })}>
-      <FlowRecoveryKeyConfirmPwd
-        {...{
-          localizedBackButtonTitle,
-          localizedPageTitle,
-          navigateForward,
-          navigateBackward,
-          setFormattedRecoveryKey,
-          viewName,
-        }}
-      />
+      <MfaContext.Provider value="recovery_key">
+        <FlowRecoveryKeyConfirmPwd
+          {...{
+            localizedBackButtonTitle,
+            localizedPageTitle,
+            navigateForward,
+            navigateBackward,
+            setFormattedRecoveryKey,
+            viewName,
+          }}
+        />
+      </MfaContext.Provider>
     </AppContext.Provider>
   );
 };

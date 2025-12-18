@@ -6,7 +6,7 @@ import createClient from 'openapi-fetch';
 import { components, paths } from './identity-schema';
 
 import { DB } from '../../lib/db';
-import { ERRNO } from '../../lib/error';
+import { ERRNO } from '@fxa/accounts/errors';
 import * as pbkdf2 from '../../lib/crypto/pbkdf2';
 import PasswordFn from '../../lib/crypto/password';
 import hkdf from '../../lib/crypto/hkdf';

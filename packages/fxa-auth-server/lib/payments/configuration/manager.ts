@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto';
 import { Logger } from 'mozlog';
 import { Container } from 'typedi';
 
-import errors from '../../error';
+import { AppError as errors } from '@fxa/accounts/errors';
 import { AppConfig, AuthFirestore, AuthLogger } from '../../types';
 
 import {

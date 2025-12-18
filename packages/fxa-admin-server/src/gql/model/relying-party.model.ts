@@ -23,10 +23,10 @@ export class RelyingPartyUpdateDto {
   @Field()
   trusted!: boolean;
 
-  @Field({ nullable: true })
+  @Field()
   allowedScopes!: string;
 
-  @Field({ nullable: true })
+  @Field()
   notes!: string;
 }
 
@@ -56,9 +56,30 @@ export class RelyingPartyDto {
   @Field()
   trusted!: boolean;
 
-  @Field({ nullable: true })
+  @Field()
   allowedScopes!: string;
 
-  @Field({ nullable: true })
+  @Field()
   notes!: string;
+
+  @Field()
+  hasSecret!: boolean;
+
+  @Field()
+  hasPreviousSecret!: boolean;
+}
+
+@ObjectType()
+export class RelyingPartyCreatedDto {
+  @Field()
+  id!: string;
+
+  @Field()
+  secret!: string;
+}
+
+@ObjectType()
+export class RotateSecretDto {
+  @Field()
+  secret!: string;
 }

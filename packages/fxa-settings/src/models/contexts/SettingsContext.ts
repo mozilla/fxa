@@ -7,7 +7,7 @@ import React from 'react';
 import config from '../../lib/config';
 import firefox, { FirefoxCommand } from '../../lib/channels/firefox';
 import { createApolloClient } from '../../lib/gql';
-import { Account, GET_PROFILE_INFO } from '../Account';
+import { GET_PROFILE_INFO } from '../Account';
 import { AlertBarInfo } from '../AlertBarInfo';
 
 export const INITIAL_SETTINGS_QUERY = gql`
@@ -95,17 +95,25 @@ export function initializeSettingsContext() {
   const alertBarInfo = new AlertBarInfo();
   const apolloClient = createApolloClient(config.servers.gql.url);
 
+  const GET_UID_QUERY = gql`
+    query GetUid {
+      account {
+        uid
+      }
+    }
+  `;
+
   const isForCurrentUser = (event: Event) => {
-    const { account } = apolloClient.cache.readQuery<{ account: Account }>({
-      query: gql`
-        query GetUid {
-          account {
-            uid
-          }
-        }
-      `,
-    })!;
-    return account.uid === (event as CustomEvent).detail.uid;
+    const data = apolloClient.readQuery<{ account: { uid: string } }>({
+      query: GET_UID_QUERY,
+    });
+
+    if (!data?.account?.uid) {
+      return false;
+    }
+    const currentUid = data.account.uid;
+    const eventUid = (event as CustomEvent).detail?.uid;
+    return currentUid != null && currentUid === eventUid;
   };
 
   firefox.addEventListener(FirefoxCommand.ProfileChanged, (event) => {

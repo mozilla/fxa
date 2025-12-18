@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as Sentry from '@sentry/node';
+
 import { NotifierService } from '@fxa/shared/notifier';
 import { Firestore } from '@google-cloud/firestore';
 import { Inject, UseGuards } from '@nestjs/common';
+import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import {
   Args,
+  Context,
   Mutation,
   Query,
   ResolveField,
@@ -15,14 +19,17 @@ import {
   Root,
 } from '@nestjs/graphql';
 import { SentryTraced } from '@sentry/nestjs';
-import AuthClient from 'fxa-auth-client';
 import {
   ClientFormatter,
   ConnectedServicesFactory,
   SessionToken,
 } from 'fxa-shared/connected-services';
 import { AttachedSession } from 'fxa-shared/connected-services/models/AttachedSession';
-import { Account, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
+import {
+  Account,
+  Email,
+  getAccountCustomerByUid,
+} from 'fxa-shared/db/models/auth';
 import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
@@ -30,13 +37,14 @@ import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
 import { Features } from '../../auth/user-group-header.decorator';
-import { AuthClientService } from '../../backend/auth-client.service';
+import { AuditLog } from '../../auth/audit-log.decorator';
+import { EmailService } from '../../backend/email.service';
 import {
   CloudTasks,
   CloudTasksService,
 } from '../../backend/cloud-tasks.service';
 import { FirestoreService } from '../../backend/firestore.service';
-import { ProfileClientService } from '../../backend/profile-client.service';
+import { ProfileClient } from '@fxa/profile/client';
 import { AppConfig } from '../../config';
 import { DatabaseService } from '../../database/database.service';
 import { uuidTransformer } from '../../database/transformers';
@@ -56,7 +64,12 @@ import {
   AccountDeleteStatus,
   AccountDeleteTaskStatus,
 } from '../model/account-delete-task.model';
+import {
+  AccountResetResponse,
+  AccountResetStatus,
+} from '../model/account-reset.model';
 import { CartManager } from '@fxa/payments/cart';
+import { randomBytes } from 'node:crypto';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -126,10 +139,10 @@ export class AccountResolver {
     private eventLogging: EventLoggingService,
     private basketService: BasketService,
     private notifier: NotifierService,
-    @Inject(AuthClientService) private authAPI: AuthClient,
+    @Inject(EmailService) private emailService: EmailService,
     @Inject(FirestoreService) private firestore: Firestore,
     @Inject(CloudTasksService) private cloudTask: CloudTasks,
-    @Inject(ProfileClientService) private profileClient: ProfileClientService
+    @Inject(ProfileClient) private profileClient: ProfileClient
   ) {}
 
   @Features(AdminPanelFeature.AccountSearch)
@@ -228,6 +241,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.Remove2FA)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async remove2FA(@Args('uid') uid: string) {
     this.eventLogging.onEvent(EventNames.Remove2FA);
@@ -269,6 +283,7 @@ export class AccountResolver {
 
   // unverifies the user's email. will have to verify again on next login
   @Features(AdminPanelFeature.UnverifyEmail)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async unverifyEmail(@Args('email') email: string) {
     this.eventLogging.onEvent(EventNames.UnverifyEmail);
@@ -283,6 +298,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.DisableAccount)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async disableAccount(@Args('uid') uid: string) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
@@ -303,6 +319,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.EditLocale)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async editLocale(
     @Args('uid') uid: string,
@@ -328,6 +345,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.DeleteRecoveryPhone)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async deleteRecoveryPhone(@Args('uid') uid: string): Promise<Boolean> {
     this.eventLogging.onEvent(EventNames.DeleteRecoveryPhone);
@@ -351,6 +369,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.EnableAccount)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async enableAccount(@Args('uid') uid: string) {
     const uidBuffer = uuidTransformer.to(uid);
@@ -375,15 +394,21 @@ export class AccountResolver {
   @Mutation((returns) => Boolean)
   public async recordAdminSecurityEvent(
     @Args('uid') uid: string,
-    @Args('name', { type: () => String }) name: SecurityEventNames
+    @Args('name', { type: () => String }) name: SecurityEventNames,
+    @Context() ctx: { req: Request }
   ) {
     // the ipAddr and ipHmacKey values here are required, but also have no bearing on this type of record.
     // the securityEvents table is being repurposed to store a broader variety of events, hence the dummy values.
     const result = await this.db.securityEvents.create({
       uid,
       name,
-      ipAddr: '',
+      ipAddr:
+        (ctx.req.headers['x-forwarded-for'] as string) || ctx.req.ip || '',
       ipHmacKey: this.ipHmacKey,
+      additionalInfo: {
+        userAgent: ctx.req.headers['user-agent'],
+        adminPanelAction: true,
+      },
     });
     return !!result;
   }
@@ -575,6 +600,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.UnlinkAccount)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async unlinkAccount(
     @Args('uid') uid: string,
@@ -591,6 +617,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.UnsubscribeFromMailingLists)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async unsubscribeFromMailingLists(@Args('uid') uid: string) {
     // Look up email. This end point is protected, but using a uid would makes it harder
@@ -663,6 +690,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.DeleteAccount)
+  @AuditLog()
   @Mutation((returns) => [AccountDeleteResponse])
   public async deleteAccounts(
     @Args('locators', { type: () => [String] }) locators: string[],
@@ -745,5 +773,128 @@ export class AccountResolver {
 
     const result = await Promise.all(promises);
     return result;
+  }
+
+  @Features(AdminPanelFeature.AccountReset)
+  @AuditLog()
+  @Mutation((returns) => [AccountResetResponse])
+  public async resetAccounts(
+    @Args('locators', { type: () => [String] }) locators: string[],
+    @Args('notificationEmail', { type: () => String })
+    notificationEmail: string,
+    @CurrentUser() user: string,
+    @Context() ctx: { req: Request }
+  ) {
+    this.eventLogging.onEvent('deleteAccounts');
+
+    // Limit batches to 1000 accounts at a time.
+    if (locators.length > 1000) {
+      throw new Error('Provide less than 1000 account locators.');
+    }
+
+    const status = new Array<{ locator: string; status: AccountResetStatus }>();
+    for (const locator of locators) {
+      // Important! Log this action for historical record
+      this.log.info('resetAccounts', { locator, user });
+
+      let account: Account | undefined;
+      if (/@/.test(locator)) {
+        account = await this.db.account
+          .query()
+          .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
+          .innerJoin('emails', 'emails.uid', 'accounts.uid')
+          .where('emails.normalizedEmail', locator.toLocaleLowerCase())
+          .first();
+      } else if (/.*/.test(locator)) {
+        const uidBuffer = (() => {
+          try {
+            return uuidTransformer.to(locator);
+          } catch (err) {
+            Sentry.captureException(err, {
+              extra: {
+                locator,
+              },
+            });
+          }
+          return null;
+        })();
+
+        if (uidBuffer) {
+          account = await this.db.account
+            .query()
+            .select(ACCOUNT_COLUMNS)
+            .findOne({ uid: uidBuffer });
+        }
+      }
+
+      if (!account) {
+        status.push({
+          locator,
+          status: AccountResetStatus.NoAccount,
+        });
+      } else {
+        // Reset Account
+        try {
+          const ONES = Buffer.from(
+            'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+            'hex'
+          );
+
+          // Reset the account. Note that due to how the underlying sproc is constructed
+          // the result will always say zero rows were effected, so we don't even bother
+          // checking it.
+          await Account.reset({
+            uid: account.uid,
+            verifyHash: ONES.toString('hex'),
+            verifyHashVersion2: ONES.toString('hex'),
+            wrapWrapKb: randomBytes(32).toString('hex'),
+            wrapWrapKbVersion2: randomBytes(32).toString('hex'),
+            authSalt: ONES.toString('hex'),
+            clientSalt: undefined,
+            verifierSetAt: Date.now(),
+            verifierVersion: 1,
+          });
+
+          // Look up emails... And send out noticies
+          account.emails = await Email.findByUid(account.uid);
+          await this.emailService.sendPasswordChangeRequired(account);
+
+          // Record a security event noting this transaction.
+          await this.recordAdminSecurityEvent(
+            account.uid,
+            'account.must_reset',
+            ctx
+          );
+
+          // Add account to status list
+          status.push({
+            locator,
+            status: AccountResetStatus.Success,
+          });
+        } catch (err) {
+          Sentry.captureException(err);
+
+          status.push({
+            locator,
+            status: AccountResetStatus.Failure,
+          });
+        }
+      }
+    }
+
+    // Finally, Send an email to the SRE or support agent that initiated this job.
+    // Don't let a failure here crash the request, since in practice it's not that important.
+    if (notificationEmail) {
+      try {
+        await this.emailService.sendPasswordResetNotification(
+          notificationEmail,
+          status
+        );
+      } catch (err) {
+        Sentry.captureException(err);
+      }
+    }
+
+    return status;
   }
 }

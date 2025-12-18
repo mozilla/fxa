@@ -140,7 +140,9 @@ export class CMSLocalization {
       // Convert each string to FTL format
       for (const [fieldPath, value] of Object.entries(strings)) {
         const sanitizedValue = this.sanitizeContent(value);
-        const componentName = fieldPath.replace(/\./g, '-');
+        // Use only the element name (last segment) for the component name
+        const elementName = fieldPath.split('.').pop() || fieldPath;
+        const componentName = elementName.replace(/\./g, '-');
         const ftlId = this.generateFtlId(sanitizedValue, componentName);
 
         allEntries.push({
@@ -743,7 +745,8 @@ export class CMSLocalization {
       } else if (this.shouldIncludeField(key, value)) {
         // This is a localizable string field
         const englishValue = value as string;
-        const componentName = currentFieldPath.replace(/\./g, '-');
+        const elementName = currentFieldPath.split('.').pop() || currentFieldPath;
+        const componentName = elementName.replace(/\./g, '-');
         const hash = this.generateFtlId(englishValue, componentName);
 
 

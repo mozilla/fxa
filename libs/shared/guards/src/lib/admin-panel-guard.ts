@@ -19,8 +19,8 @@ export const USER_EMAIL_HEADER = 'oidc-claim-id-token-email';
 /** Enum of known permission levels. A lower level will indicate increased permissions. */
 export enum PermissionLevel {
   Admin = 0,
-  Support = 1,
-  DSAR = 2,
+  DSAR = 1,
+  Support = 2,
   ReadOnly = 3,
   None = MaxPermissionLevel,
 }
@@ -31,6 +31,7 @@ export enum AdminPanelFeature {
   AccountSearch = 'AccountSearch',
   AccountHistory = 'AccountHistory',
   AccountDelete = 'AccountDelete',
+  AccountReset = 'AccountReset',
   ConnectedServices = 'ConnectedServices',
   LinkedAccounts = 'LinkedAccounts',
   ClearEmailBounces = 'ClearEmailBounces',
@@ -136,6 +137,10 @@ const defaultAdminPanelPermissions: Permissions = {
     name: 'Delete Account By Email/UID',
     level: PermissionLevel.DSAR,
   },
+  [AdminPanelFeature.AccountReset]: {
+    name: 'Reset Account By Email/UID',
+    level: PermissionLevel.Admin,
+  },
   [AdminPanelFeature.ConnectedServices]: {
     name: 'View Active Sessions',
     level: PermissionLevel.ReadOnly,
@@ -162,7 +167,7 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.Remove2FA]: {
     name: 'Reset 2FA',
-    level: PermissionLevel.Admin,
+    level: PermissionLevel.Support,
   },
   [AdminPanelFeature.UnverifyEmail]: {
     name: 'Unconfirm Email Address',
@@ -181,15 +186,15 @@ const defaultAdminPanelPermissions: Permissions = {
     level: PermissionLevel.Support,
   },
   [AdminPanelFeature.CreateRelyingParty]: {
-    name: 'Edit Relying Parties Notes',
+    name: 'Create Relying Parties',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.DeleteRelyingParty]: {
-    name: 'Edit Relying Parties Notes',
+    name: 'Delete Relying Parties',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.UpdateRelyingParty]: {
-    name: 'Edit Relying Parties Notes',
+    name: 'Update Relying Parties',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.UnsubscribeFromMailingLists]: {

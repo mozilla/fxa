@@ -6,15 +6,8 @@
 
 import sinon from 'sinon';
 import { expect } from 'chai';
-import Container from 'typedi';
 
-import { ConfigType } from '../../config';
-import { AppConfig, AuthFirestore } from '../../lib/types';
-
-import {
-  PlanCanceller,
-  FirestoreSubscription,
-} from '../../scripts/cancel-subscriptions-to-plan/cancel-subscriptions-to-plan';
+import { PlanCanceller } from '../../scripts/cancel-subscriptions-to-plan/cancel-subscriptions-to-plan';
 import Stripe from 'stripe';
 import { StripeHelper } from '../../lib/payments/stripe';
 
@@ -25,53 +18,15 @@ import { PayPalHelper } from '../../lib/payments/paypal/helper';
 
 const mockProduct = product1 as unknown as Stripe.Product;
 const mockCustomer = customer1 as unknown as Stripe.Customer;
-const mockSubscription = subscription1 as unknown as FirestoreSubscription;
-
-const mockAccount = {
-  locale: 'en-US',
-};
-
-const mockConfig = {
-  authFirestore: {
-    prefix: 'mock-fxa-',
-  },
-  subscriptions: {
-    playApiServiceAccount: {
-      credentials: {
-        clientEmail: 'mock-client-email',
-      },
-      keyFile: 'mock-private-keyfile',
-    },
-    productConfigsFirestore: {
-      schemaValidation: {
-        cdnUrlRegex: ['^http'],
-      },
-    },
-  },
-} as unknown as ConfigType;
+const mockSubscription = subscription1 as unknown as Stripe.Subscription;
 
 describe('PlanCanceller', () => {
   let planCanceller: PlanCanceller;
   let stripeStub: Stripe;
   let stripeHelperStub: StripeHelper;
   let paypalHelperStub: PayPalHelper;
-  let dbStub: any;
-  let firestoreGetStub: sinon.SinonStub;
 
   beforeEach(() => {
-    firestoreGetStub = sinon.stub();
-    Container.set(AuthFirestore, {
-      collectionGroup: sinon.stub().returns({
-        where: sinon.stub().returnsThis(),
-        orderBy: sinon.stub().returnsThis(),
-        startAfter: sinon.stub().returnsThis(),
-        limit: sinon.stub().returnsThis(),
-        get: firestoreGetStub,
-      }),
-    });
-
-    Container.set(AppConfig, mockConfig);
-
     stripeStub = {
       on: sinon.stub(),
       products: {},
@@ -92,109 +47,100 @@ describe('PlanCanceller', () => {
       refundInvoice: sinon.stub(),
     } as unknown as PayPalHelper;
 
-    dbStub = {
-      account: sinon.stub(),
-    };
-
     planCanceller = new PlanCanceller(
       'planId',
-      true,
-      false,
+      'refund',
       ['exclude'],
-      100,
       './cancel-subscriptions-to-plan.tmp.csv',
       stripeHelperStub,
       paypalHelperStub,
-      dbStub,
       false,
       20
     );
   });
 
-  afterEach(() => {
-    Container.reset();
-  });
-
   describe('run', () => {
-    let fetchSubsBatchStub: sinon.SinonStub;
+    let autoPagingEachStub: sinon.SinonStub;
     let processSubscriptionStub: sinon.SinonStub;
+    let writeReportHeaderStub: sinon.SinonStub;
     const mockSubs = [mockSubscription];
 
     beforeEach(async () => {
-      fetchSubsBatchStub = sinon
-        .stub()
-        .onFirstCall()
-        .returns(mockSubs)
-        .onSecondCall()
-        .returns([]);
-      planCanceller.fetchSubsBatch = fetchSubsBatchStub;
+      autoPagingEachStub = sinon.stub().callsFake(async (callback: any) => {
+        for (const sub of mockSubs) {
+          await callback(sub);
+        }
+      });
 
-      processSubscriptionStub = sinon.stub();
+      stripeStub.subscriptions.list = sinon.stub().returns({
+        autoPagingEach: autoPagingEachStub,
+      }) as any;
+
+      processSubscriptionStub = sinon.stub().resolves();
       planCanceller.processSubscription = processSubscriptionStub;
+
+      writeReportHeaderStub = sinon.stub().resolves();
+      planCanceller.writeReportHeader = writeReportHeaderStub;
 
       await planCanceller.run();
     });
 
-    it('fetches subscriptions until no results', () => {
-      expect(fetchSubsBatchStub.callCount).eq(2);
+    it('writes report header', () => {
+      expect(writeReportHeaderStub.calledOnce).true;
     });
 
-    it('generates a report for each applicable subscription', () => {
-      expect(processSubscriptionStub.callCount).eq(1);
-    });
-  });
-
-  describe('fetchSubsBatch', () => {
-    const mockSubscriptionId = 'mock-id';
-    let result: FirestoreSubscription[];
-
-    beforeEach(async () => {
-      firestoreGetStub.resolves({
-        docs: [
-          {
-            data: sinon.stub().returns(mockSubscription),
-          },
-        ],
+    it('calls Stripe subscriptions.list with correct parameters', () => {
+      sinon.assert.calledWith(stripeStub.subscriptions.list as any, {
+        price: 'planId',
+        limit: 100,
       });
-
-      result = await planCanceller.fetchSubsBatch(mockSubscriptionId);
     });
 
-    it('returns a list of subscriptions from Firestore', () => {
-      sinon.assert.match(result, [mockSubscription]);
+    it('calls autoPagingEach to iterate through all subscriptions', () => {
+      sinon.assert.calledOnce(autoPagingEachStub);
+    });
+
+    it('processes each subscription', () => {
+      sinon.assert.calledOnce(processSubscriptionStub);
+      sinon.assert.calledWith(processSubscriptionStub, mockSubscription);
     });
   });
 
   describe('processSubscription', () => {
-    const mockFirestoreSub = {
+    const mockSub = {
       id: 'test',
       customer: 'test',
       plan: {
         product: 'example-product',
       },
       status: 'active',
-    } as FirestoreSubscription;
-    const mockReport = ['mock-report'];
+    } as unknown as Stripe.Subscription;
     let logStub: sinon.SinonStub;
-    let cancelSubscriptionStub: sinon.SinonStub;
+    let cancelStub: sinon.SinonStub;
+    let attemptFullRefundStub: sinon.SinonStub;
+    let attemptProratedRefundStub: sinon.SinonStub;
     let isCustomerExcludedStub: sinon.SinonStub;
-    let buildReport: sinon.SinonStub;
     let writeReportStub: sinon.SinonStub;
 
     beforeEach(async () => {
       stripeStub.products.retrieve = sinon.stub().resolves(mockProduct);
+      stripeStub.subscriptions.cancel = sinon.stub().resolves();
+      cancelStub = stripeStub.subscriptions.cancel as sinon.SinonStub;
+
       planCanceller.fetchCustomer = sinon.stub().resolves(mockCustomer);
-      dbStub.account.resolves({
-        locale: 'en-US',
-      });
-      cancelSubscriptionStub = sinon.stub().resolves();
-      planCanceller.cancelSubscription = cancelSubscriptionStub;
+
+      attemptFullRefundStub = sinon.stub().resolves(1000);
+      planCanceller.attemptFullRefund = attemptFullRefundStub;
+
+      attemptProratedRefundStub = sinon.stub().resolves(500);
+      planCanceller.attemptProratedRefund = attemptProratedRefundStub;
+
       isCustomerExcludedStub = sinon.stub().returns(false);
       planCanceller.isCustomerExcluded = isCustomerExcludedStub;
-      buildReport = sinon.stub().returns(mockReport);
-      planCanceller.buildReport = buildReport;
+
       writeReportStub = sinon.stub().resolves();
       planCanceller.writeReport = writeReportStub;
+
       logStub = sinon.stub(console, 'log');
     });
 
@@ -202,55 +148,124 @@ describe('PlanCanceller', () => {
       logStub.restore();
     });
 
-    describe('success', () => {
+    describe('success - not excluded', () => {
       beforeEach(async () => {
-        await planCanceller.processSubscription(mockFirestoreSub);
+        await planCanceller.processSubscription(mockSub);
+      });
+
+      it('fetches customer', () => {
+        sinon.assert.calledOnce(planCanceller.fetchCustomer as sinon.SinonStub);
       });
 
       it('cancels subscription', () => {
-        expect(cancelSubscriptionStub.calledWith(mockFirestoreSub)).true;
+        sinon.assert.calledWith(cancelStub, 'test', { prorate: false });
       });
 
-      it('writes the report to disk', () => {
-        expect(writeReportStub.calledWith(mockReport)).true;
+      it('writes report', () => {
+        sinon.assert.calledWith(writeReportStub, sinon.match({
+          subscription: mockSub,
+          customer: mockCustomer,
+          isExcluded: false,
+          amountRefunded: 1000,
+          isOwed: false,
+          error: false,
+        }));
+      });
+    });
+
+    describe('success - with refund', () => {
+      beforeEach(async () => {
+        attemptFullRefundStub.resolves(1000);
+        await planCanceller.processSubscription(mockSub);
+      });
+
+      it('writes report with refund amount', () => {
+        sinon.assert.calledWith(writeReportStub, sinon.match({
+          subscription: mockSub,
+          customer: mockCustomer,
+          isExcluded: false,
+          amountRefunded: 1000,
+          isOwed: false,
+          error: false,
+        }));
       });
     });
 
     describe('dry run', () => {
       beforeEach(async () => {
         planCanceller.dryRun = true;
-        await planCanceller.processSubscription(mockFirestoreSub);
+        await planCanceller.processSubscription(mockSub);
       });
 
       it('does not cancel subscription', () => {
-        expect(cancelSubscriptionStub.calledWith(mockFirestoreSub)).false;
+        sinon.assert.notCalled(cancelStub);
       });
 
-      it('writes the report to disk', () => {
-        expect(writeReportStub.calledWith(mockReport)).true;
+      it('attempts refund', () => {
+        sinon.assert.calledOnce(attemptFullRefundStub);
+      });
+
+      it('writes report', () => {
+        sinon.assert.calledWith(writeReportStub, sinon.match({
+          subscription: mockSub,
+          customer: mockCustomer,
+          isExcluded: false,
+          amountRefunded: 1000,
+          isOwed: false,
+          error: false,
+        }));
+      });
+    });
+
+    describe('customer excluded', () => {
+      beforeEach(async () => {
+        isCustomerExcludedStub.returns(true);
+        await planCanceller.processSubscription(mockSub);
+      });
+
+      it('does not cancel subscription', () => {
+        sinon.assert.notCalled(cancelStub);
+      });
+
+      it('writes report marking as excluded', () => {
+        sinon.assert.calledWith(writeReportStub, sinon.match({
+          subscription: mockSub,
+          customer: mockCustomer,
+          isExcluded: true,
+          amountRefunded: null,
+          isOwed: false,
+          error: false,
+        }));
       });
     });
 
     describe('invalid', () => {
-      it('aborts if customer does not exist', async () => {
+      it('writes error report if customer does not exist', async () => {
         planCanceller.fetchCustomer = sinon.stub().resolves(null);
-        await planCanceller.processSubscription(mockFirestoreSub);
+        await planCanceller.processSubscription(mockSub);
 
-        expect(writeReportStub.notCalled).true;
+        sinon.assert.calledWith(writeReportStub, sinon.match({
+          subscription: mockSub,
+          customer: null,
+          isExcluded: false,
+          amountRefunded: null,
+          isOwed: false,
+          error: true,
+        }));
       });
 
-      it('aborts if account for customer does not exist', async () => {
-        dbStub.account.resolves(null);
-        await planCanceller.processSubscription(mockFirestoreSub);
+      it('writes error report if unexpected error occurs', async () => {
+        cancelStub.rejects(new Error('test error'));
+        await planCanceller.processSubscription(mockSub);
 
-        expect(writeReportStub.notCalled).true;
-      });
-
-      it('does not cancel subscription if customer is excluded', async () => {
-        planCanceller.isCustomerExcluded = sinon.stub().resolves(true);
-        await planCanceller.processSubscription(mockFirestoreSub);
-
-        expect(cancelSubscriptionStub.notCalled).true;
+        sinon.assert.calledWith(writeReportStub, sinon.match({
+          subscription: mockSub,
+          customer: null,
+          isExcluded: false,
+          amountRefunded: null,
+          isOwed: false,
+          error: true,
+        }));
       });
     });
   });
@@ -330,128 +345,230 @@ describe('PlanCanceller', () => {
     });
   });
 
-  describe('cancelSubscription', () => {
-    let cancelStub: sinon.SinonStub;
-    let invoiceStub: sinon.SinonStub;
-    let refundStub: sinon.SinonStub;
+  describe('attemptFullRefund', () => {
+    let invoiceRetrieveStub: sinon.SinonStub;
+    let refundCreateStub: sinon.SinonStub;
     let refundInvoiceStub: sinon.SinonStub;
-    const mockInvoice = {
-      charge: 'abc',
+    const mockFullRefundInvoice = {
+      charge: 'ch_123',
+      amount_paid: 1000,
+      paid_out_of_band: false,
     };
 
-    beforeEach(async () => {
-      cancelStub = sinon.stub().resolves();
-      stripeStub.subscriptions.cancel = cancelStub;
+    beforeEach(() => {
+      invoiceRetrieveStub = sinon.stub().resolves(mockFullRefundInvoice);
+      stripeStub.invoices.retrieve = invoiceRetrieveStub;
 
-      invoiceStub = sinon.stub().resolves(mockInvoice);
-      stripeStub.invoices.retrieve = invoiceStub;
-
-      refundStub = sinon.stub().resolves();
-      stripeStub.refunds.create = refundStub;
+      refundCreateStub = sinon.stub().resolves();
+      stripeStub.refunds.create = refundCreateStub;
 
       refundInvoiceStub = sinon.stub().resolves();
       paypalHelperStub.refundInvoice = refundInvoiceStub;
     });
 
-    describe('with Stripe refund', () => {
+    describe('Stripe refund', () => {
       beforeEach(async () => {
-        await planCanceller.cancelSubscription(mockSubscription);
+        await planCanceller.attemptFullRefund(mockSubscription);
       });
 
-      it('cancels subscription', () => {
-        expect(
-          cancelStub.calledWith(mockSubscription.id, {
-            prorate: false,
-          })
-        ).true;
-      });
-
-      it('fetches invoice', () => {
-        expect(invoiceStub.calledWith(mockSubscription.latest_invoice)).true;
+      it('retrieves invoice', () => {
+        sinon.assert.calledWith(invoiceRetrieveStub, mockSubscription.latest_invoice);
       });
 
       it('creates refund', () => {
-        expect(
-          refundStub.calledWith({
-            charge: mockInvoice.charge,
-          })
-        ).true;
+        sinon.assert.calledWith(refundCreateStub, {
+          charge: mockFullRefundInvoice.charge,
+        });
+      });
+
+      it('returns amount refunded', async () => {
+        const result = await planCanceller.attemptFullRefund(mockSubscription);
+        expect(result).to.equal(1000);
       });
     });
 
-    describe('with Paypal refund', () => {
+    describe('PayPal refund', () => {
       const mockPaypalInvoice = {
-        ...mockInvoice,
-        collection_method: 'send_invoice',
+        ...mockFullRefundInvoice,
+        paid_out_of_band: true,
       };
 
       beforeEach(async () => {
-        invoiceStub = sinon.stub().resolves(mockPaypalInvoice);
-        stripeStub.invoices.retrieve = invoiceStub;
-
-        await planCanceller.cancelSubscription(mockSubscription);
+        invoiceRetrieveStub.resolves(mockPaypalInvoice);
+        await planCanceller.attemptFullRefund(mockSubscription);
       });
 
-      it('cancels subscription', () => {
-        expect(
-          cancelStub.calledWith(mockSubscription.id, {
-            prorate: false,
-          })
-        ).true;
-      });
-
-      it('fetches invoice', () => {
-        expect(invoiceStub.calledWith(mockSubscription.latest_invoice)).true;
-      });
-
-      it('creates refund', () => {
-        expect(refundInvoiceStub.calledWith(mockPaypalInvoice)).true;
+      it('calls PayPal refund', () => {
+        sinon.assert.calledWith(refundInvoiceStub, mockPaypalInvoice);
       });
     });
 
-    describe('with proration', () => {
+    describe('dry run', () => {
       beforeEach(async () => {
-        planCanceller = new PlanCanceller(
-          'planId',
-          false,
-          true,
-          ['exclude'],
-          100,
-          './cancel-subscriptions-to-plan.tmp.csv',
-          stripeHelperStub,
-          paypalHelperStub,
-          dbStub,
-          false,
-          20
-        );
-
-        await planCanceller.cancelSubscription(mockSubscription);
+        planCanceller.dryRun = true;
+        await planCanceller.attemptFullRefund(mockSubscription);
       });
 
-      it('cancels subscription', () => {
-        expect(
-          cancelStub.calledWith(mockSubscription.id, {
-            prorate: true,
-          })
-        ).true;
+      it('does not create refund', () => {
+        sinon.assert.notCalled(refundCreateStub);
+      });
+    });
+
+    describe('errors', () => {
+      it('throws if subscription has no latest_invoice', async () => {
+        const subWithoutInvoice = { ...mockSubscription, latest_invoice: null };
+        await expect(
+          planCanceller.attemptFullRefund(subWithoutInvoice)
+        ).to.be.rejectedWith('No latest invoice');
       });
 
-      it('does not creates refund', () => {
-        expect(refundStub.notCalled).true;
+      it('throws if invoice has no charge', async () => {
+        invoiceRetrieveStub.resolves({ ...mockFullRefundInvoice, charge: null });
+        await expect(
+          planCanceller.attemptFullRefund(mockSubscription)
+        ).to.be.rejectedWith('No charge');
       });
     });
   });
 
-  describe('buildReport', () => {
-    it('returns a report', () => {
-      const result = planCanceller.buildReport(mockCustomer, mockAccount, true);
+  describe('attemptProratedRefund', () => {
+    let invoiceRetrieveStub: sinon.SinonStub;
+    let refundCreateStub: sinon.SinonStub;
+    let refundInvoiceStub: sinon.SinonStub;
+    const now = Math.floor(Date.now() / 1000);
+    const mockProratedSubscription = {
+      ...mockSubscription,
+      current_period_start: now - 86400 * 2,
+      current_period_end: now + 86400 * 28,
+    };
+    const mockProratedInvoice = {
+      charge: 'ch_123',
+      amount_paid: 10000,
+      paid: true,
+      paid_out_of_band: false,
+      created: Math.floor(Date.now() / 1000) - 86400,
+    };
 
-      sinon.assert.match(result, [
-        mockCustomer.metadata.userid,
-        `"${mockCustomer.email}"`,
-        'true',
-        `"${mockAccount.locale}"`,
-      ]);
+    beforeEach(() => {
+      invoiceRetrieveStub = sinon.stub().resolves(mockProratedInvoice);
+      stripeStub.invoices.retrieve = invoiceRetrieveStub;
+
+      refundCreateStub = sinon.stub().resolves();
+      stripeStub.refunds.create = refundCreateStub;
+
+      refundInvoiceStub = sinon.stub().resolves();
+      paypalHelperStub.refundInvoice = refundInvoiceStub;
+
+      planCanceller = new PlanCanceller(
+        'planId',
+        'proratedRefund',
+        ['exclude'],
+        './cancel-subscriptions-to-plan.tmp.csv',
+        stripeHelperStub,
+        paypalHelperStub,
+        false,
+        20
+      );
+    });
+
+    describe('Stripe refund', () => {
+      it('retrieves invoice', async () => {
+        await planCanceller.attemptProratedRefund(mockProratedSubscription);
+        sinon.assert.calledWith(invoiceRetrieveStub, mockProratedSubscription.latest_invoice);
+      });
+
+      it('creates refund with calculated amount', async () => {
+        await planCanceller.attemptProratedRefund(mockProratedSubscription);
+
+        const oneDayMs = 1000 * 60 * 60 * 24;
+        const periodStart = new Date(mockProratedSubscription.current_period_start * 1000);
+        const periodEnd = new Date(mockProratedSubscription.current_period_end * 1000);
+        const nowTime = new Date();
+        const totalPeriodMs = periodEnd.getTime() - periodStart.getTime();
+        const timeRemainingMs = periodEnd.getTime() - nowTime.getTime();
+        const totalDaysInPeriod = Math.floor(totalPeriodMs / oneDayMs);
+        const daysRemaining = Math.floor(timeRemainingMs / oneDayMs);
+        const expectedRefund = Math.floor((daysRemaining / totalDaysInPeriod) * 10000);
+
+        sinon.assert.calledWith(refundCreateStub, sinon.match({
+          charge: mockProratedInvoice.charge,
+          amount: expectedRefund,
+        }));
+      });
+    });
+
+    describe('PayPal refund - partial', () => {
+      const mockPaypalInvoice = {
+        ...mockProratedInvoice,
+        paid_out_of_band: true,
+      };
+
+      beforeEach(async () => {
+        invoiceRetrieveStub.resolves(mockPaypalInvoice);
+        await planCanceller.attemptProratedRefund(mockProratedSubscription);
+      });
+
+      it('calls PayPal refund with partial amount', () => {
+        const oneDayMs = 1000 * 60 * 60 * 24;
+        const periodStart = new Date(mockProratedSubscription.current_period_start * 1000);
+        const periodEnd = new Date(mockProratedSubscription.current_period_end * 1000);
+        const nowTime = new Date();
+        const totalPeriodMs = periodEnd.getTime() - periodStart.getTime();
+        const timeRemainingMs = periodEnd.getTime() - nowTime.getTime();
+        const totalDaysInPeriod = Math.floor(totalPeriodMs / oneDayMs);
+        const daysRemaining = Math.floor(timeRemainingMs / oneDayMs);
+        const expectedRefund = Math.floor((daysRemaining / totalDaysInPeriod) * 10000);
+
+        sinon.assert.calledWith(refundInvoiceStub, mockPaypalInvoice, {
+          refundType: 'Partial',
+          amount: expectedRefund,
+        });
+      });
+    });
+
+    describe('dry run', () => {
+      beforeEach(async () => {
+        planCanceller.dryRun = true;
+        await planCanceller.attemptProratedRefund(mockProratedSubscription);
+      });
+
+      it('does not create refund', () => {
+        sinon.assert.notCalled(refundCreateStub);
+      });
+    });
+
+    describe('errors', () => {
+      it('throws if subscription has no latest_invoice', async () => {
+        const subWithoutInvoice = { ...mockProratedSubscription, latest_invoice: null };
+        await expect(
+          planCanceller.attemptProratedRefund(subWithoutInvoice)
+        ).to.be.rejectedWith('No latest invoice');
+      });
+
+      it('throws if invoice is not paid', async () => {
+        invoiceRetrieveStub.resolves({ ...mockProratedInvoice, paid: false });
+        await expect(
+          planCanceller.attemptProratedRefund(mockProratedSubscription)
+        ).to.be.rejectedWith('Customer is pending renewal');
+      });
+
+      it('throws if refund amount exceeds amount paid', async () => {
+        const mockSmallInvoice = {
+          ...mockProratedInvoice,
+          amount_paid: 0,
+        };
+        invoiceRetrieveStub.resolves(mockSmallInvoice);
+        await expect(
+          planCanceller.attemptProratedRefund(mockProratedSubscription)
+        ).to.be.rejectedWith('less than or equal to zero');
+      });
+
+      it('throws if invoice has no charge for Stripe refund', async () => {
+        invoiceRetrieveStub.resolves({ ...mockProratedInvoice, charge: null });
+        await expect(
+          planCanceller.attemptProratedRefund(mockProratedSubscription)
+        ).to.be.rejectedWith('No charge');
+      });
     });
   });
 });

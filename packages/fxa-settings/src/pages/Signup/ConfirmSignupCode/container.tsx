@@ -17,7 +17,6 @@ import {
   useSensitiveDataClient,
 } from '../../../models';
 import ConfirmSignupCode from '.';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
 import { useQuery } from '@apollo/client';
 import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
@@ -25,6 +24,7 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import GleanMetrics from '../../../lib/glean';
+import AppLayout from '../../../components/AppLayout';
 
 export const POLL_INTERVAL = 5000;
 
@@ -49,9 +49,11 @@ function getAccountInfo(
 const SignupConfirmCodeContainer = ({
   integration,
   flowQueryParams,
+  setCurrentSplitLayout,
 }: {
   integration: Integration;
   flowQueryParams: QueryParams;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const sensitiveDataClient = useSensitiveDataClient();
@@ -122,34 +124,57 @@ const SignupConfirmCodeContainer = ({
     }
   }, [data, origin, navigateWithQuery, email]);
 
+  const cmsInfo = integration?.getCmsInfo();
+  const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;
+
   // TODO: This check and related test can be moved up the tree to the App component,
   // where a missing integration should be caught and handled.
   if (!integration) {
-    return <LoadingSpinner fullScreen />;
+    return (
+      <AppLayout {...{ loading: true, splitLayout, setCurrentSplitLayout }} />
+    );
   }
 
   if (!uid || !sessionToken || !email) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   if (oAuthDataError) {
-    return <OAuthDataError error={oAuthDataError} gleanMetric={GleanMetrics.signupConfirmation.error} />;
+    return (
+      <OAuthDataError
+        error={oAuthDataError}
+        gleanMetric={GleanMetrics.signupConfirmation.error}
+      />
+    );
   }
   if (oAuthKeysCheckError) {
     if (!keyFetchToken || !unwrapBKey) {
       const localizedErrorMessage = ftlMsg.getMsg(
         'signin-code-expired-error',
         'Code expired. Please sign in again.'
-      )
+      );
       navigateWithQuery('/signin', {
         state: {
-          localizedErrorMessage
-        }
+          localizedErrorMessage,
+        },
       });
-      return <LoadingSpinner fullScreen />;
+      return (
+        <AppLayout
+          {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+        />
+      );
     }
-    return <OAuthDataError error={oAuthKeysCheckError} gleanMetric={GleanMetrics.signupConfirmation.error}/>;
+    return (
+      <OAuthDataError
+        error={oAuthKeysCheckError}
+        gleanMetric={GleanMetrics.signupConfirmation.error}
+      />
+    );
   }
 
   return (
@@ -166,7 +191,8 @@ const SignupConfirmCodeContainer = ({
         keyFetchToken,
         unwrapBKey,
         flowQueryParams,
-        origin
+        origin,
+        setCurrentSplitLayout,
       }}
     />
   );

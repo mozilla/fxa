@@ -32,7 +32,7 @@ import {
 } from '../../../lib/oauth/hooks';
 import firefox from '../../../lib/channels/firefox';
 import GleanMetrics from '../../../lib/glean';
-import { mockUseSyncEngines } from '../../../lib/hooks/useSyncEngines/mocks';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import * as SigninUtils from '../../Signin/utils';
 
 jest.mock('../../../models', () => ({
@@ -125,14 +125,14 @@ function applyDefaultMocks() {
 }
 
 function render(integration = mockSyncDesktopV3Integration()) {
-  const useSyncEnginesResult = mockUseSyncEngines();
+  const useFxAStatusResult = mockUseFxAStatus();
   renderWithLocalizationProvider(
     <LocationProvider>
       <SetPasswordContainer
         {...{
           flowQueryParams: {},
           integration,
-          useSyncEnginesResult,
+          useFxAStatusResult,
         }}
       />
     </LocationProvider>
@@ -148,7 +148,8 @@ function mockSyncDesktopV3Integration() {
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => false,
     isFirefoxMobileClient: () => false,
     getCmsInfo: () => undefined,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
@@ -168,7 +169,8 @@ function mockOAuthNativeIntegration(
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => false,
     isFirefoxMobileClient: () => isFirefoxMobileClient,
     getCmsInfo: () => undefined,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),

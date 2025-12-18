@@ -1,0 +1,37 @@
+{
+  "name": "accounts-errors",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/accounts/errors/src",
+  "projectType": "library",
+  "tags": ["scope:shared:lib"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/accounts/errors",
+        "main": "libs/accounts/errors/src/index.ts",
+        "tsConfig": "libs/accounts/errors/tsconfig.lib.json",
+        "assets": ["libs/accounts/errors/*.md"],
+        "format": ["cjs"],
+        "generatePackageJson": true
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/accounts/errors/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    },
+    "test-integration": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/accounts/errors/jest.config.ts",
+        "testPathPattern": ["\\.in\\.spec\\.ts$"]
+      }
+    }
+  }
+}

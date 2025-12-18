@@ -81,21 +81,15 @@ const WithCoupon = ({
   );
 };
 
-const CouponInput = forwardRef(
-  (
-    {
-      readOnly,
-      routeCoupon,
-      errorMessage,
-      onChange,
-    }: {
-      readOnly: boolean;
-      routeCoupon?: string;
-      errorMessage: boolean;
-      onChange: () => void;
-    },
-    ref
-  ) => {
+interface CouponInputProps {
+  readOnly: boolean;
+  routeCoupon?: string;
+  errorMessage: boolean;
+  onChange: () => void;
+}
+
+const CouponInput = forwardRef<HTMLInputElement, CouponInputProps>(
+  ({ readOnly, routeCoupon, errorMessage, onChange }, ref) => {
     const { pending } = useFormStatus();
     return (
       <Localized attrs={{ placeholder: true }} id="next-coupon-enter-code">
@@ -117,11 +111,28 @@ const CouponInput = forwardRef(
           defaultValue={routeCoupon}
           maxLength={25}
           onChange={onChange}
+          ref={ref}
         />
       </Localized>
     );
   }
 );
+
+const CouponError = ({ error }: { error: string | null }) => {
+  const { pending } = useFormStatus();
+
+  if (!error || pending) {
+    return null;
+  }
+
+  return (
+    <Localized id={error}>
+      <div className="text-alert-red mt-4" data-testid="coupon-error">
+        {getFallbackTextByFluentId(error)}
+      </div>
+    </Localized>
+  );
+};
 
 interface WithoutCouponProps {
   cartId: string;
@@ -146,15 +157,14 @@ const WithoutCoupon = ({
     return result;
   }
   const routeCoupon = useSearchParams().get('coupon') || undefined;
+  const [error, formAction] = useFormState(applyCoupon, null);
   useEffect(() => {
     if (routeCoupon) {
       const formData = new FormData();
       formData.set('coupon', routeCoupon);
       formAction(formData);
     }
-  }, []);
-
-  const [error, formAction] = useFormState(applyCoupon, null);
+  }, [routeCoupon, formAction]);
 
   return (
     <section aria-labelledby="coupon-heading">
@@ -196,13 +206,7 @@ const WithoutCoupon = ({
             </Form.Submit>
           </div>
 
-          {errorMessage && error && (
-            <Localized id={error}>
-              <div className="text-alert-red mt-4" data-testid="coupon-error">
-                {getFallbackTextByFluentId(error)}
-              </div>
-            </Localized>
-          )}
+          {errorMessage && error && <CouponError error={error} />}
         </Form.Field>
       </Form.Root>
     </section>

@@ -13,3 +13,7 @@ export * from './lib/checkout.types';
 export * from './lib/tax.service';
 export * from './lib/tax.types';
 export * from './lib/cart-als.provider';
+export * from './lib/churn-intervention.config';
+export * from './lib/churn-intervention.manager';
+export * from './lib/churn-intervention.error';
+export * from './lib/churn-intervention.factories';

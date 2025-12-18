@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Boom = require('@hapi/boom');
-const AppError = require('../../error');
+const { AppError } = require('@fxa/accounts/errors');
 const crypto = require('crypto');
 
 const constantTimeCompare = (subject, object) => {

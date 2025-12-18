@@ -1,9 +1,5 @@
 <%- include('/partials/brandMessaging/index.txt') %>
 
-<% if (locals.showBannerWarning === true) { %>
-<%- include('/partials/bannerWarning/index.txt', { accountsEmail:"accounts@firefox.com" }) %>
-<% } %>
-
 <%- body %>
 Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105
 

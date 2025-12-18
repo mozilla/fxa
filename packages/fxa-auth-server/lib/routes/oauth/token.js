@@ -26,10 +26,10 @@
 
 /*jshint camelcase: false*/
 const crypto = require('crypto');
-const OauthError = require('../../oauth/error');
-const AuthError = require('../../error');
-const buf = require('buf').hex;
-const hex = require('buf').to.hex;
+const { OauthError } = require('@fxa/accounts/errors');
+const { AppError: AuthError } = require('@fxa/accounts/errors');
+const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
+const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 const Joi = require('joi');
 
 const {

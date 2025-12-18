@@ -74,14 +74,41 @@ export type PaymentProvidersType =
   | 'apple_iap'
   | 'external_paypal';
 
+export enum PaymentMethodErrorType {
+  CardExpired,
+  CardExpiringInOneMonth,
+  GenericIssue,
+}
+
+export enum BannerVariant {
+  Error = 'error',
+  Info = 'info',
+  SignedIn = 'signed_in',
+  Success = 'success',
+  Warning = 'warning',
+}
+
+export interface DefaultPaymentMethodError {
+  paymentMethodType: SubPlatPaymentMethodType;
+  bannerType: BannerVariant;
+  bannerTitle: string;
+  bannerTitleFtl: string;
+  bannerMessage: string;
+  bannerMessageFtl: string;
+  bannerLinkLabel: string;
+  bannerLinkLabelFtl: string;
+  message: string;
+  messageFtl: string;
+}
+
 export interface DefaultPaymentMethod {
-  type: PaymentProvidersType;
+  type: SubPlatPaymentMethodType;
   brand?: string;
   last4?: string;
   expMonth?: number;
   expYear?: number;
   billingAgreementId?: string;
-  walletType?: string;
+  hasPaymentMethodError: DefaultPaymentMethodError | undefined;
 }
 
 export interface PricingForCurrency {

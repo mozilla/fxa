@@ -9,7 +9,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
-const error = require('../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const testUtils = require('../lib/util');
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';

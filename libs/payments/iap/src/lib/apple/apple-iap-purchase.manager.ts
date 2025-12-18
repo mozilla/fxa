@@ -136,9 +136,11 @@ export class AppleIapPurchaseManager {
       originalTransactionId
     );
     // Find the latest transaction for the subscription
-    const item = apiResponse.data[0].lastTransactions.find(
-      (item) => item.originalTransactionId === originalTransactionId
-    );
+    const item = apiResponse.data
+      .at(0)
+      ?.lastTransactions.find(
+        (item) => item.originalTransactionId === originalTransactionId
+      );
     if (!item) {
       throw new AppleIapNoTransactionsFoundError(
         bundleId,

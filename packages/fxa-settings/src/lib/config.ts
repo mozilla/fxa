@@ -103,11 +103,15 @@ export interface Config {
     showLocaleToggle?: boolean;
     paymentsNextSubscriptionManagement?: boolean;
   };
-  nimbusPreview: boolean;
+  nimbus: {
+    enabled: boolean;
+    preview: boolean;
+  };
   cms: {
     enabled: boolean;
     l10nEnabled: boolean;
   };
+  servicesWithEmailVerification: string[];
 }
 
 export function getDefault() {
@@ -199,7 +203,11 @@ export function getDefault() {
       enabled: false,
       l10nEnabled: false,
     },
-    nimbusPreview: false,
+    nimbus: {
+      enabled: true,
+      preview: true,
+    },
+    servicesWithEmailVerification: ['e6eb0d1e856335fc'],
   } as Config;
 }
 

@@ -157,9 +157,15 @@ export class ConnectedServicesFactory {
   ): Promise<AttachedClient[]> {
     this.init();
 
-    await this.mergeDevices();
-    await this.mergeOauthClients();
-    await this.mergeSessions(sessionTokenId);
+    const [devices, oauthClients, sessions] = await Promise.all([
+      this.bindings.deviceList(),
+      this.bindings.oauthClients(),
+      this.bindings.sessions(),
+    ]);
+
+    this.mergeDevices(devices);
+    this.mergeOauthClients(oauthClients);
+    this.mergeSessions(sessions, sessionTokenId);
 
     // Now we can do some final tweaks of each item for display.
     for (const client of this.attachedClients) {
@@ -176,8 +182,8 @@ export class ConnectedServicesFactory {
     return this.attachedClients;
   }
 
-  protected async mergeSessions(sessionTokenId: string) {
-    for (const session of await this.bindings.sessions()) {
+  protected mergeSessions(sessions: AttachedSession[], sessionTokenId: string) {
+    for (const session of sessions) {
       let client = this.clientsBySessionTokenId.get(session.id);
       if (!client) {
         client = {
@@ -222,8 +228,8 @@ export class ConnectedServicesFactory {
     }
   }
 
-  protected async mergeOauthClients() {
-    for (const oauthClient of await this.bindings.oauthClients()) {
+  protected mergeOauthClients(oauthClients: AttachedOAuthClient[]) {
+    for (const oauthClient of oauthClients) {
       let client = this.clientsByRefreshTokenId.get(
         oauthClient.refresh_token_id
       );
@@ -261,8 +267,8 @@ export class ConnectedServicesFactory {
     }
   }
 
-  protected async mergeDevices() {
-    for (const device of await this.bindings.deviceList()) {
+  protected mergeDevices(devices: AttachedDevice[]) {
+    for (const device of devices) {
       const client: AttachedClient = {
         ...this.getDefaultClientFields(),
         sessionTokenId: device.sessionTokenId || null,

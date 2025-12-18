@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "subscriptionAccountFinishSetup-subject",
+    "message": "Welcome to <%- productName %>: Please set your password."
+  },
+  "action": {
+    "id": "subscriptionAccountFinishSetup-action-2",
+    "message": "Get started"
+  }
+}

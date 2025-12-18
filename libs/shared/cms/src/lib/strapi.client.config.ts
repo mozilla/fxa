@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
+import { Type } from 'class-transformer';
 import { IsNumber, IsString, IsUrl } from 'class-validator';
 
 export class StrapiClientConfig {
@@ -13,15 +14,18 @@ export class StrapiClientConfig {
   @IsString()
   public readonly apiKey!: string;
 
+  @Type(() => Number)
   @IsNumber()
   public readonly memCacheTTL?: number;
 
   @IsString()
   public readonly firestoreCacheCollectionName!: string;
 
+  @Type(() => Number)
   @IsNumber()
   public readonly firestoreCacheTTL?: number;
 
+  @Type(() => Number)
   @IsNumber()
   public readonly firestoreOfflineCacheTTL?: number;
 }

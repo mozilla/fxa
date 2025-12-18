@@ -11,6 +11,7 @@ export interface MySQLConfig {
   connectionLimitMin?: number;
   connectionLimitMax?: number;
   acquireTimeoutMillis?: number;
+  multipleStatements?: boolean;
 }
 
 export function makeMySQLConfig(envPrefix: string, database: string) {

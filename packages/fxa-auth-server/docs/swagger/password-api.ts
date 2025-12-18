@@ -165,9 +165,21 @@ const PASSWORD_CREATE_POST = {
   ],
 };
 
-const PASSWORD_CHANGE_JWT_POST = {
+const MFA_PASSWORD_CREATE_POST = {
   ...TAGS_PASSWORD,
-  description: '/password/change/jwt',
+  description: '/mfa/password/create',
+  notes: [
+    dedent`
+      🔒 Authenticated with MFA JWT (scope: mfa:password)
+
+      Creates a new password for the user associated with the session token. Creating a new password will generate new encryption key.
+    `,
+  ],
+};
+
+const MFA_PASSWORD_CHANGE_POST = {
+  ...TAGS_PASSWORD,
+  description: '/mfa/password/change',
   notes: [
     dedent`
     🔒 Authenticated with MFA JWT (scope: mfa:password)
@@ -187,7 +199,8 @@ const API_DOCS = {
   PASSWORD_FORGOT_STATUS_GET,
   PASSWORD_FORGOT_VERIFY_CODE_POST,
   PASSWORD_CREATE_POST,
-  PASSWORD_CHANGE_JWT_POST,
+  MFA_PASSWORD_CREATE_POST,
+  MFA_PASSWORD_CHANGE_POST,
 };
 
 export default API_DOCS;

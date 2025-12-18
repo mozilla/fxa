@@ -14,7 +14,7 @@ import PASSWORD_DOCS from '../../docs/swagger/password-api';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import * as butil from '../crypto/butil';
 import * as random from '../crypto/random';
-import * as error from '../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import { gleanMetrics } from '../metrics/glean';
 import * as requestHelper from '../routes/utils/request_helper';
@@ -583,7 +583,7 @@ module.exports = function (
       method: 'POST',
       path: '/mfa/password/change',
       options: {
-        ...PASSWORD_DOCS.PASSWORD_CHANGE_JWT_POST,
+        ...PASSWORD_DOCS.MFA_PASSWORD_CHANGE_POST,
         auth: {
           strategy: 'mfa',
           scope: ['mfa:password'],
@@ -999,8 +999,15 @@ module.exports = function (
         request.validateMetricsContext();
 
         const account = await db.accountRecord(email);
-        if (!emailsMatch(account.primaryEmail.normalizedEmail, email)) {
-          throw error.cannotResetPasswordWithSecondaryEmail();
+
+        const isPrimaryOrVerifiedEmail =
+          emailsMatch(account.primaryEmail.normalizedEmail, email) ||
+          account.emails.some(
+            (e) => e.isVerified && emailsMatch(e.normalizedEmail, email)
+          );
+
+        if (!isPrimaryOrVerifiedEmail) {
+          throw error.unknownAccount();
         }
 
         let flowCompleteSignal;
@@ -1193,8 +1200,14 @@ module.exports = function (
         ]);
         const accountRecord = await db.accountRecord(email);
 
-        if (!emailsMatch(accountRecord.primaryEmail.normalizedEmail, email)) {
-          throw error.cannotResetPasswordWithSecondaryEmail();
+        const isPrimaryOrVerifiedEmail =
+          emailsMatch(accountRecord.primaryEmail.normalizedEmail, email) ||
+          accountRecord.emails.some(
+            (e) => e.isVerified && emailsMatch(e.normalizedEmail, email)
+          );
+
+        if (!isPrimaryOrVerifiedEmail) {
+          throw error.unknownAccount();
         }
         // The token constructor sets createdAt from its argument.
         // Clobber the timestamp to prevent prematurely expired tokens.
@@ -1598,6 +1611,45 @@ module.exports = function (
         }
 
         return passwordCreated;
+      },
+    },
+    {
+      method: 'POST',
+      path: '/mfa/password/create',
+      options: {
+        ...PASSWORD_DOCS.MFA_PASSWORD_CREATE_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:password'],
+          payload: false,
+        },
+        validate: {
+          payload: isA
+            .object({
+              authPW: validators.authPW.description(DESCRIPTION.authPW),
+              authPWVersion2: validators.authPWVersion2
+                .optional()
+                .description(DESCRIPTION.authPWVersion2),
+              wrapKb: validators.wrapKb
+                .optional()
+                .description(DESCRIPTION.wrapKb),
+              wrapKbVersion2: validators.wrapKb
+                .optional()
+                .description(DESCRIPTION.wrapKbVersion2),
+              clientSalt: validators.clientSalt
+                .optional()
+                .description(DESCRIPTION.clientSalt),
+            })
+            .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/password/create' && route.method === 'POST'
+          )
+          ?.handler(request);
       },
     },
     {

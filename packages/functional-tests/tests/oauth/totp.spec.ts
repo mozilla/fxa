@@ -22,7 +22,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.totp.addButton.click();
       await settings.confirmMfaGuard(credentials.email);
       const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
@@ -41,7 +41,6 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await settings.page.waitForURL(/settings/);
-      await settings.disconnectTotp();
     });
 
     test('can remove TOTP from account and skip confirmation', async ({
@@ -54,7 +53,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
       await settings.totp.addButton.click();
       await settings.confirmMfaGuard(credentials.email);
-      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
       await expect(settings.totp.status).toHaveText('Enabled');
       await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
@@ -85,14 +84,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(inlineTotpSetup.introHeading).toBeVisible();
       await inlineTotpSetup.continueButton.click();
       await expect(totp.setup2faAppHeading).toBeVisible();
-      await totp.step1CantScanCodeLink.click();
-      const secret = (await totp.step1ManualCode.innerText())?.replace(
-        /\s/g,
-        ''
-      );
-      const code = await getTotpCode(secret);
-      await totp.step1AuthenticationCodeTextbox.fill(code);
-      await totp.step1SubmitButton.click();
+      await totp.setUp2faAppWithManualCode(credentials);
 
       await page.waitForURL(/inline_recovery_setup/);
 
@@ -102,22 +94,11 @@ test.describe('severity-1 #smoke', () => {
       await page.getByRole('button', { name: /Continue/ }).click();
 
       expect(await relier.isLoggedIn()).toBe(true);
-
-      await settings.goto();
-      await settings.disconnectTotp();
     });
 
     test('can setup TOTP inline with recovery phone choice', async ({
       target,
-      pages: {
-        page,
-        relier,
-        settings,
-        signin,
-        totp,
-        recoveryPhone,
-        inlineTotpSetup,
-      },
+      pages: { page, relier, signin, totp, recoveryPhone, inlineTotpSetup },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -132,14 +113,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(inlineTotpSetup.introHeading).toBeVisible();
       await inlineTotpSetup.continueButton.click();
       await expect(totp.setup2faAppHeading).toBeVisible();
-      await totp.step1CantScanCodeLink.click();
-      const secret = (await totp.step1ManualCode.innerText())?.replace(
-        /\s/g,
-        ''
-      );
-      const code = await getTotpCode(secret);
-      await totp.step1AuthenticationCodeTextbox.fill(code);
-      await totp.step1SubmitButton.click();
+      await totp.setUp2faAppWithManualCode(credentials);
 
       await page.waitForURL(/inline_recovery_setup/);
 
@@ -157,9 +131,6 @@ test.describe('severity-1 #smoke', () => {
       await page.getByRole('button', { name: 'Continue' }).click();
 
       expect(await relier.isLoggedIn()).toBe(true);
-
-      await settings.goto();
-      await settings.disconnectTotp();
     });
   });
 });

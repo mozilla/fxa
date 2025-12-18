@@ -11,8 +11,12 @@ import {
   useAuthClient,
   Integration,
   isWebIntegration,
+  useFtlMsgResolver,
 } from '../../../models';
-import { handleNavigation } from '../../Signin/utils';
+import {
+  handleNavigation,
+  ensureCanLinkAcountOrRedirect,
+} from '../../Signin/utils';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
   StoredAccountData,
@@ -48,6 +52,7 @@ const ThirdPartyAuthCallback = ({
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
     authClient,
@@ -72,18 +77,34 @@ const ThirdPartyAuthCallback = ({
   /**
    * Navigate to the next page
    * if Sync based integration -> navigate to set password or sign-in
-   * if OAuth based integration -> verify OAuth and navigate to RP
+   * If browser login without keys -> navigate to settings
+   * if OAuth web based integration -> verify OAuth and navigate to RP
    * if web redirect (SubPlat) -> navigate back to SubPlat
    * if neither -> navigate to settings
    */
   const performNavigation = useCallback(
     async (linkedAccount: LinkedAccountData, needsVerification = false) => {
+      const isFirefoxNonSync = integration.isFirefoxNonSync();
+
+      if (integration.isFirefoxNonSync() || integration.isSync()) {
+        const ok = await ensureCanLinkAcountOrRedirect({
+          email: linkedAccount.email,
+          uid: linkedAccount.uid,
+          ftlMsgResolver,
+          navigateWithQuery,
+        });
+        if (!ok) {
+          return;
+        }
+      }
+
       const navigationOptions = {
         email: linkedAccount.email,
         signinData: {
           uid: linkedAccount.uid,
           sessionToken: linkedAccount.sessionToken,
-          verified: !needsVerification,
+          emailVerified: !needsVerification,
+          sessionVerified: !needsVerification,
           verificationMethod: needsVerification
             ? VerificationMethods.TOTP_2FA
             : undefined,
@@ -99,8 +120,13 @@ const ThirdPartyAuthCallback = ({
         finishOAuthFlowHandler,
         queryParams: location.search,
         isSignInWithThirdPartyAuth: true,
-        handleFxaLogin: false,
-        handleFxaOAuthLogin: false,
+        // For non‑Sync integrations we can sign in to the browser immediately because
+        // those integrations do not require keys to be available.
+        // For Sync, third‑party auth is only offered if the account is passwordless.
+        // In that case, we must defer browser login/OAuth messages until after the
+        // user sets a password and keys are available (see SetPassword/container.tsx).
+        handleFxaLogin: isFirefoxNonSync,
+        handleFxaOAuthLogin: isFirefoxNonSync,
       };
 
       const { error: navError } = await handleNavigation(navigationOptions);
@@ -116,6 +142,7 @@ const ThirdPartyAuthCallback = ({
       location.search,
       navigateWithQuery,
       webRedirectCheck,
+      ftlMsgResolver,
     ]
   );
 
@@ -137,7 +164,10 @@ const ThirdPartyAuthCallback = ({
       // Extract relayed fxa parameters
       const params = new URLSearchParams(fxaParams || '');
       const flowId = params.get('flowId') || params.get('flow_id') || undefined;
-      const flowBeginTime = params.get('flowBeginTime') || params.get('flow_begin_time') || undefined;
+      const flowBeginTime =
+        params.get('flowBeginTime') ||
+        params.get('flow_begin_time') ||
+        undefined;
       const originalService =
         params.get('service') || params.get('client_id') || undefined;
       const linkedAccount: LinkedAccountData =
@@ -162,8 +192,9 @@ const ThirdPartyAuthCallback = ({
 
       setCurrentAccount(linkedAccount.uid);
 
-      // HACK: Hard navigate is required here to ensure that the new integration
-      // is created based off updated search params.
+      // HACK: The first time this page loads, it's a ThirdPartyAuthCallbackIntegration.
+      // We perform a hard navigate here so the integration type is updated
+      // based off updated search params.
       hardNavigate(
         `/post_verify/third_party_auth/callback${fxaParams.toString()}`
       );

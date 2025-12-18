@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const hex = require('buf').to.hex;
+const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 const Joi = require('joi');
 
-const OauthError = require('../../oauth/error');
-const AuthError = require('../../error');
+const { OauthError } = require('@fxa/accounts/errors');
+const { AppError: AuthError } = require('@fxa/accounts/errors');
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { makeAssertionJWT } = require('../../oauth/util');

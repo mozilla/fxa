@@ -26,7 +26,7 @@ const {
 } = require('../../../../lib/payments/configuration/manager');
 const { setupFirestore } = require('../../../../lib/firestore-db');
 const { randomUUID } = require('crypto');
-const errors = require('../../../../lib/error');
+const { AppError: errors } = require('@fxa/accounts/errors');
 const {
   ProductConfig,
 } = require('fxa-shared/subscriptions/configuration/product');

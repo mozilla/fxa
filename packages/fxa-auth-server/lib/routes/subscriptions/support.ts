@@ -7,11 +7,10 @@ import zendesk from 'node-zendesk';
 import pRetry from 'p-retry';
 
 import { ConfigType } from '../../../config';
-import error from '../../error';
+import { AppError } from '@fxa/accounts/errors';
 import { AuthLogger, AuthRequest } from '../../types';
 import { handleAuth } from './utils';
 import { email } from '../validators';
-import AppError from '../../error';
 
 const MISC_DOCS = require('../../../docs/swagger/misc-api').default;
 
@@ -198,7 +197,7 @@ export const supportRoutes = (
           }
           return { success: true, ticket: createRequest.id };
         } catch (err) {
-          throw error.backendServiceFailure(
+          throw AppError.backendServiceFailure(
             'zendesk',
             operation,
             { uid, email },

@@ -6,7 +6,6 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import ResetPasswordRecoveryChoice from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import {
   AuthUiErrorNos,
   AuthUiErrors,
@@ -15,6 +14,7 @@ import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/int
 import { getHandledError, HandledError } from '../../../lib/error-utils';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
+import AppLayout from '../../../components/AppLayout';
 
 export const ResetPasswordRecoveryChoiceContainer = (
   _: RouteComponentProps
@@ -223,18 +223,18 @@ export const ResetPasswordRecoveryChoiceContainer = (
   ]);
 
   if (!locationState || !locationState.state.token) {
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout loading />;
   }
 
   if (loading) {
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout loading />;
   }
 
   if (!phoneData.phoneNumber) {
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout loading />;
   } else if (!numBackupCodes || numBackupCodes === 0) {
     // Don't do anything here; auto-send is handled in useEffect above
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout loading />;
   }
 
   return (

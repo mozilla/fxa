@@ -7,7 +7,7 @@
 const isA = require('joi');
 const validators = require('./validators');
 const authorizedClients = require('../oauth/authorized_clients');
-const error = require('../error');
+const { AppError: error } = require('@fxa/accounts/errors');
 
 const HEX_STRING = validators.HEX_STRING;
 const DEVICES_SCHEMA = require('../devices').schema;

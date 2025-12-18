@@ -1,0 +1,35 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="postAddAccountRecovery-title2">You created a new account recovery key</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postAddAccountRecovery-body-part1">
+        Save this key in a safe place — you’ll need it to restore your encrypted browsing data if you forget your password.
+      </span>
+    </mj-text>
+    <mj-text  css-class="text-body">
+      <span data-l10n-id="postAddAccountRecovery-body-part2">
+        This key can only be used once. After you use it, we’ll automatically create a new one for you. Or you can create a new one any time from your account settings.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "postAddAccountRecovery-action",
+  buttonText: "Manage account"
+}) %>
+
+<%- include('/partials/automatedEmailRecoveryKey/index.mjml', {
+  keyExists: true
+}) %>

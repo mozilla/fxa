@@ -1,0 +1,25 @@
+about:
+  description: Nimbus Feature Manifest for Subscription Platform 
+channels:
+  - developer
+  - staging
+  - production
+features:
+  welcome-feature:
+    description: Display a welcome banner on the new Sub Manage page
+    variables:
+      enabled:
+        description: If the feature is enabled.
+        type: Boolean
+        default: false
+    defaults:
+      - channel: developer
+        value: { "enabled": true }
+      - channel: staging
+        value: { "enabled": false }
+      - channel: production
+        value: { "enabled": false }
+types:
+  objects: {}
+  enums: {}
+

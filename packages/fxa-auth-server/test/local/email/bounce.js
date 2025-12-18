@@ -8,9 +8,9 @@ const ROOT_DIR = '../../..';
 
 const { assert } = require('chai');
 const bounces = require(`${ROOT_DIR}/lib/email/bounces`);
-const error = require(`${ROOT_DIR}/lib/error`);
+const { AppError: error } = require('@fxa/accounts/errors');
 const { EventEmitter } = require('events');
-const { mockLog } = require('../../mocks');
+const { mockLog, mockStatsd } = require('../../mocks');
 const sinon = require('sinon');
 const { default: Container } = require('typedi');
 const { StripeHelper } = require('../../../lib/payments/stripe');
@@ -19,20 +19,29 @@ const emailHelpers = require('../../../lib/email/utils/helpers');
 const mockBounceQueue = new EventEmitter();
 mockBounceQueue.start = function start() {};
 
-function mockMessage(msg) {
-  msg.del = sinon.spy();
-  msg.headers = {};
-  return msg;
-}
-
-function mockedBounces(log, db) {
-  return bounces(log, error)(mockBounceQueue, db);
-}
-
 describe('bounce messages', () => {
-  let log, mockDB, mockStripeHelper;
+  let log, mockConfig, mockDB, mockStripeHelper, statsd;
+
+  function mockMessage(msg) {
+    msg.del = sinon.spy();
+    msg.headers = {};
+    return msg;
+  }
+
+  function mockedBounces(log, db) {
+    return bounces(log, error, mockConfig, statsd)(mockBounceQueue, db);
+  }
+
   beforeEach(() => {
     log = mockLog();
+    statsd = mockStatsd();
+    mockConfig = {
+      smtp: {
+        bounces: {
+          deleteAccount: true,
+        },
+      },
+    };
     mockDB = {
       createEmailBounce: sinon.spy(() => Promise.resolve({})),
       accountRecord: sinon.spy((email) => {
@@ -86,6 +95,31 @@ describe('bounce messages', () => {
       });
   });
 
+  it('should record metrics about bounce type', () => {
+    const bounceType = 'Transient';
+    return mockedBounces(log, mockDB)
+      .handleBounce(
+        mockMessage({
+          bounce: {
+            bounceType: bounceType,
+            bouncedRecipients: [
+              { emailAddress: 'test@example.com' },
+              { emailAddress: 'foobar@example.com' },
+            ],
+          },
+        })
+      )
+      .then(() => {
+        assert.equal(statsd.increment.callCount, 1);
+        sinon.assert.calledWith(statsd.increment, 'email.bounce.message', {
+          bounceType: bounceType,
+          bounceSubType: 'none',
+          hasDiagnosticCode: false,
+          hasComplaint: false,
+        });
+      });
+  });
+
   it('should handle multiple recipients in turn', () => {
     const bounceType = 'Permanent';
     const mockMsg = mockMessage({
@@ -106,6 +140,41 @@ describe('bounce messages', () => {
         assert.equal(mockDB.accountRecord.args[0][0], 'test@example.com');
         assert.equal(mockDB.accountRecord.args[1][0], 'foobar@example.com');
         assert.equal(mockMsg.del.callCount, 1);
+      });
+  });
+
+  it('should not delete account when account delete is disabled', () => {
+    mockConfig.smtp.bounces.deleteAccount = false;
+    const bounceType = 'Transient';
+    const mockMsg = mockMessage({
+      bounce: {
+        bounceType: bounceType,
+        bouncedRecipients: [{ emailAddress: 'test@example.com' }],
+      },
+      mail: {
+        headers: [
+          {
+            name: 'X-Template-Name',
+            value: 'verifyEmail',
+          },
+        ],
+      },
+    });
+    return mockedBounces(log, mockDB)
+      .handleBounce(mockMsg)
+      .then(() => {
+        assert.equal(mockDB.deleteAccount.callCount, 0);
+        assert.equal(mockMsg.del.callCount, 1);
+        sinon.assert.calledWith(log.debug, 'accountNotDeleted', {
+          uid: '123456',
+          email: 'test@example.com',
+          accountDeleteEnabled: false,
+          emailUnverified: true,
+          isRecentAccount: true,
+          hasNoActiveSubscription: true,
+          errorMessage: undefined,
+          errorStackTrace: undefined,
+        });
       });
   });
 
@@ -387,7 +456,7 @@ describe('bounce messages', () => {
 
   it('should log errors when deleting the email record', () => {
     mockDB.deleteAccount = sinon.spy(() =>
-      Promise.reject(new error.unknownAccount('test@example.com'))
+      Promise.reject(error.unknownAccount('test@example.com'))
     );
     const mockMsg = mockMessage({
       bounce: {
@@ -420,7 +489,7 @@ describe('bounce messages', () => {
     mockDB.accountRecord = sinon.spy((email) => {
       // Lookup only succeeds when using original, unquoted email addr.
       if (email !== 'test.@example.com') {
-        return Promise.reject(new error.unknownAccount(email));
+        return Promise.reject(error.unknownAccount(email));
       }
       return Promise.resolve({
         createdAt: Date.now(),
@@ -462,7 +531,7 @@ describe('bounce messages', () => {
     mockDB.accountRecord = sinon.spy((email) => {
       // Lookup only succeeds when using original, unquoted email addr.
       if (email !== 'test..me@example.com') {
-        return Promise.reject(new error.unknownAccount(email));
+        return Promise.reject(error.unknownAccount(email));
       }
       return Promise.resolve({
         createdAt: Date.now(),
@@ -503,7 +572,7 @@ describe('bounce messages', () => {
 
   it('should log a warning if it receives an unparseable email address', () => {
     mockDB.accountRecord = sinon.spy(() =>
-      Promise.reject(new error.unknownAccount())
+      Promise.reject(error.unknownAccount())
     );
     return mockedBounces(log, mockDB)
       .handleBounce(

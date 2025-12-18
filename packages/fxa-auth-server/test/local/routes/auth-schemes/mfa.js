@@ -4,7 +4,7 @@
 
 const { assert } = require('chai');
 const sinon = require('sinon');
-const AppError = require('../../../../lib/error');
+const { AppError } = require('@fxa/accounts/errors');
 const { strategy } = require('../../../../lib/routes/auth-schemes/mfa');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
@@ -55,6 +55,7 @@ describe('lib/routes/auth-schemes/mfa', () => {
       uid: 'account-123',
       id: 'session-123',
       authenticatorAssuranceLevel: 2,
+      tokenVerified: true,
       get foo() {
         return 'bar';
       },
@@ -135,9 +136,8 @@ describe('lib/routes/auth-schemes/mfa', () => {
       assert.instanceOf(err, AppError);
       const errorResponse = err.output.payload;
       assert.equal(errorResponse.code, 401);
-      assert.equal(errorResponse.errno, 110);
-      assert.equal(errorResponse.message, 'Unauthorized for route');
-      assert.equal(errorResponse.detail, 'Token not found');
+      assert.equal(errorResponse.errno, AppError.ERRNO.INVALID_MFA_TOKEN);
+      assert.equal(errorResponse.message, 'Invalid or expired MFA token');
     }
   });
 
@@ -152,9 +152,8 @@ describe('lib/routes/auth-schemes/mfa', () => {
       assert.instanceOf(err, AppError);
       const errorResponse = err.output.payload;
       assert.equal(errorResponse.code, 401);
-      assert.equal(errorResponse.errno, 110);
-      assert.equal(errorResponse.message, 'Unauthorized for route');
-      assert.equal(errorResponse.detail, 'Token not found');
+      assert.equal(errorResponse.errno, AppError.ERRNO.INVALID_MFA_TOKEN);
+      assert.equal(errorResponse.message, 'Invalid or expired MFA token');
     }
   });
 
@@ -170,9 +169,8 @@ describe('lib/routes/auth-schemes/mfa', () => {
       assert.instanceOf(err, AppError);
       const errorResponse = err.output.payload;
       assert.equal(errorResponse.code, 401);
-      assert.equal(errorResponse.errno, 110);
-      assert.equal(errorResponse.message, 'Unauthorized for route');
-      assert.equal(errorResponse.detail, 'Token invalid');
+      assert.equal(errorResponse.errno, AppError.ERRNO.INVALID_MFA_TOKEN);
+      assert.equal(errorResponse.message, 'Invalid or expired MFA token');
     }
   });
 
@@ -225,6 +223,7 @@ describe('lib/routes/auth-schemes/mfa', () => {
 
   it('fails when session token is unverified', async () => {
     // Set token as unverified.
+    sessionToken.tokenVerified = false;
     sessionToken.tokenVerificationId = 'abc';
 
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
@@ -246,6 +245,7 @@ describe('lib/routes/auth-schemes/mfa', () => {
 
   it('skips session token is unverified check when configured', async () => {
     // Set token in unverified state
+    sessionToken.tokenVerified = false;
     sessionToken.tokenVerificationId = 'abc';
 
     // Skip token verification check for path
@@ -277,8 +277,8 @@ describe('lib/routes/auth-schemes/mfa', () => {
       assert.fail('Should have thrown');
     } catch (err) {
       const payload = err.output.payload;
-      assert.equal(payload.code, 401);
-      assert.equal(payload.errno, AppError.ERRNO.INVALID_TOKEN);
+      assert.equal(payload.code, 400);
+      assert.equal(payload.errno, AppError.ERRNO.INSUFFICIENT_AAL);
       assert.isTrue(
         statsd.increment.calledWithExactly('verified_session_token.aal.error', [
           'path:/foo/{id}',

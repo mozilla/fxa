@@ -14,6 +14,7 @@ import { AdminPanelFeature, AdminPanelGuard } from '@fxa/shared/guards';
 import PageRelyingParties from './components/PageRelyingParties';
 import PageAccountDelete from './components/PageAccountDelete';
 import PageRateLimiting from './components/PageRateLimiting';
+import PageAccountReset from './components/PageAccountReset';
 
 const App = ({ config }: { config: IClientConfig }) => {
   const [guard, setGuard] = useState<AdminPanelGuard>(config.guard);
@@ -41,6 +42,9 @@ const App = ({ config }: { config: IClientConfig }) => {
               )}
               {guard.allow(AdminPanelFeature.RateLimiting, user.group) && (
                 <Route path="/rate-limiting" element={<PageRateLimiting />} />
+              )}
+              {guard.allow(AdminPanelFeature.AccountReset, user.group) && (
+                <Route path="/account-reset" element={<PageAccountReset />} />
               )}
               <Route path="/permissions" element={<PagePermissions />} />
             </Routes>

@@ -98,6 +98,44 @@ describe('Connected Services', () => {
     expect(screen.queryByTestId('missing-items-link')).toBeTruthy();
   });
 
+  it('disables refresh button during refresh and re-enables after completion', async () => {
+    let resolveRefresh: () => void;
+    const refreshPromise = new Promise<void>((resolve) => {
+      resolveRefresh = resolve;
+    });
+    const accountWithRefresh = {
+      ...account,
+      refresh: jest.fn().mockReturnValue(refreshPromise),
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({ account: accountWithRefresh })}
+      >
+        <ConnectedServices />
+      </AppContext.Provider>
+    );
+
+    const refreshButton = await screen.findByTestId(
+      'connected-services-refresh'
+    );
+    expect(refreshButton).not.toBeDisabled();
+
+    await act(async () => {
+      fireEvent.click(refreshButton);
+    });
+
+    expect(refreshButton).toBeDisabled();
+    expect(accountWithRefresh.refresh).toHaveBeenCalledWith('clients');
+
+    await act(async () => {
+      resolveRefresh!();
+      await refreshPromise;
+    });
+
+    expect(refreshButton).not.toBeDisabled();
+  });
+
   it('correctly filters and sorts our passed in services', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
@@ -130,13 +168,6 @@ describe('Connected Services', () => {
       )[0].lastAccessTime
     ).toEqual(1570736983000);
     expect(groupedByName['Mozilla Monitor'].length).toEqual(2);
-  });
-
-  it('should show the pocket icon and link', async () => {
-    await getIconAndServiceLink('Pocket', 'pocket-icon').then((result) => {
-      expect(result.icon).toBeTruthy();
-      expect(result.link).toHaveAttribute('href', 'https://getpocket.com/');
-    });
   });
 
   it('should show the monitor icon and link', async () => {

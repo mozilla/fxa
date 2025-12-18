@@ -10,7 +10,7 @@ import {
 import { version } from '../../../package.json';
 import { createHash } from 'crypto';
 import { AuthRequest } from '../../types';
-import * as AppError from '../../error';
+import { AppError } from '@fxa/accounts/errors';
 import { clientId as clientIdValidator } from '../../oauth/validators';
 import { MetricsContext } from '@fxa/shared/metrics/glean';
 
@@ -423,7 +423,7 @@ export function gleanMetrics(config: ConfigType) {
       knownIp: createEventFn('login_confirm_skip_for_known_ip'),
       newAccount: createEventFn('login_confirm_skip_for_new_account'),
       knownDevice: createEventFn('login_confirm_skip_for_known_device'),
-    }
+    },
   };
 }
 

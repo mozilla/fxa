@@ -10,7 +10,4 @@ export class SetDefaultStripePaymentDetailsActionArgs {
 
   @IsString()
   paymentMethodId!: string;
-
-  @IsString()
-  fullName!: string;
 }

@@ -5,7 +5,7 @@
 import { Localized } from '@fluent/react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SETTINGS_PATH } from '../../../constants';
 import {
@@ -17,14 +17,27 @@ import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import FlowContainer from '../FlowContainer';
 import FormPassword from '../../FormPassword';
 import { UnlinkAccountLocationState } from '../../../lib/types';
+import {
+  MfaGuard,
+  useMfaErrorHandler,
+} from '../../../components/Settings/MfaGuard';
+import { MfaReason } from '../../../lib/types';
 
 type FormData = {
   newPassword: string;
   confirmPassword: string;
 };
 
-// eslint-disable-next-line no-empty-pattern
-export const PageCreatePassword = ({}: RouteComponentProps) => {
+export const MfaPageCreatePassword = (props: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="password" reason={MfaReason.createPassword}>
+      <PageCreatePassword {...props} />
+    </MfaGuard>
+  );
+};
+
+export const PageCreatePassword = (_: RouteComponentProps) => {
+  const handleMfaError = useMfaErrorHandler();
   usePageViewEvent('settings.create-password');
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
@@ -50,6 +63,13 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
   };
   const { wantsUnlinkProviderId } = location.state || {};
 
+  const passwordCreated = useRef(false);
+  useEffect(() => {
+    if (account.hasPassword && !passwordCreated.current) {
+      navigateWithQuery(SETTINGS_PATH + '/change_password', { replace: true });
+    }
+  }, [account.hasPassword, navigateWithQuery]);
+
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
       ftlMsgResolver.getMsg('pw-create-success-alert-2', 'Password set')
@@ -67,10 +87,16 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
     async ({ newPassword }: FormData) => {
       try {
         logViewEvent(settingsViewName, 'create-password.submit');
-        await account.createPassword(newPassword);
+        passwordCreated.current = true;
+        await account.createPasswordWithJwt(newPassword);
         logViewEvent(settingsViewName, 'create-password.success');
         alertSuccessAndGoHome();
       } catch (e) {
+        passwordCreated.current = false;
+        const errorHandled = handleMfaError(e);
+        if (errorHandled) {
+          return;
+        }
         logViewEvent(settingsViewName, 'create-password.fail');
         alertBar.error(
           ftlMsgResolver.getMsg(
@@ -80,7 +106,7 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
         );
       }
     },
-    [ftlMsgResolver, alertSuccessAndGoHome, alertBar, account]
+    [account, alertSuccessAndGoHome, handleMfaError, alertBar, ftlMsgResolver]
   );
 
   return (
@@ -106,4 +132,4 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
   );
 };
 
-export default PageCreatePassword;
+export default MfaPageCreatePassword;

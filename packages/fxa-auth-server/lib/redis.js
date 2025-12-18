@@ -11,7 +11,7 @@ const opentelemetry = require('@opentelemetry/api');
 ('use strict');
 
 const tracer = opentelemetry.trace.getTracer('redis-tracer');
-const hex = require('buf').to.hex;
+const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 
 function resolveLogger() {
   if (Container.has(AuthLogger)) return Container.get(AuthLogger);

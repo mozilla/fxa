@@ -9,10 +9,10 @@ import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
+import AppLayout from '../../../components/AppLayout';
 
 export const SigninRecoveryChoiceContainer = ({
   integration,
@@ -217,19 +217,10 @@ export const SigninRecoveryChoiceContainer = ({
   ]);
 
   if (!signinState || !signinState.sessionToken) {
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
-  if (loading) {
-    return <LoadingSpinner fullScreen />;
-  }
-
-  if (!phoneData.phoneNumber) {
-    return <LoadingSpinner fullScreen />;
-  } else if (!numBackupCodes || numBackupCodes === 0) {
-    // Don't do anything here; auto-send is handled in useEffect above
-    return <LoadingSpinner fullScreen />;
-  }
+  const shouldLoadInCard = loading || !phoneData.phoneNumber || !numBackupCodes;
 
   return (
     <SigninRecoveryChoice
@@ -240,6 +231,7 @@ export const SigninRecoveryChoiceContainer = ({
         numBackupCodes,
         signinState,
         integration,
+        loading: shouldLoadInCard,
       }}
     />
   );

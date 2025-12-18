@@ -21,7 +21,7 @@ import {
   reportSentryMessage,
   reportValidationError,
 } from '../../../lib/sentry';
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { PayPalHelper, RefusedError } from '../../payments/paypal';
 import { RefundType } from '@fxa/payments/paypal';
 import {
@@ -949,7 +949,7 @@ export class StripeWebhookHandler extends StripeHandler {
       {
         acceptLanguage: account.locale,
         ...invoiceDetails,
-        email: account.primaryEmail
+        email: account.primaryEmail,
       }
     );
     await this.stripeHelper.updateEmailSent(invoice, 'paymentFailed');
@@ -971,7 +971,7 @@ export class StripeWebhookHandler extends StripeHandler {
       {
         acceptLanguage: account.locale,
         ...invoiceDetails,
-        email: account.primaryEmail
+        email: account.primaryEmail,
       },
     ];
     switch (invoice.billing_reason) {
@@ -1085,7 +1085,7 @@ export class StripeWebhookHandler extends StripeHandler {
           {
             acceptLanguage: account.locale,
             ...invoiceDetails,
-            email: account.primaryEmail
+            email: account.primaryEmail,
           }
         );
       } else if (!subscription.cancel_at_period_end) {
@@ -1100,7 +1100,7 @@ export class StripeWebhookHandler extends StripeHandler {
             ...invoiceDetails,
             showOutstandingBalance,
             cancelAtEnd: subscription.cancel_at_period_end,
-            email: account.primaryEmail
+            email: account.primaryEmail,
           }
         );
       }

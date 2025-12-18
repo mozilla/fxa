@@ -32,7 +32,7 @@ import {
 import * as Sentry from '@sentry/node';
 import { SeverityLevel } from '@sentry/core';
 
-import error from '../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { authEvents } from '../events';
 import { AppConfig, AuthLogger, AuthRequest } from '../types';
 import { ConfigType } from '../../config';

@@ -9,9 +9,8 @@ import {
   JwtTokenCache,
   sessionToken as getSessionToken,
 } from '../../../lib/cache';
-import { MfaGuard } from '../MfaGuard';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { RouteComponentProps } from '@reach/router';
-import { useErrorHandler } from 'react-error-boundary';
 import { MfaReason } from '../../../lib/types';
 
 export const PageMfaGuardTestWithAuthClient = (props: RouteComponentProps) => {
@@ -30,7 +29,7 @@ export default PageMfaGuardTestWithAuthClient;
  * This will go away as soon as we actually start applying the guard to real pages/flows.
  */
 const TestWithAuthClient = (_: RouteComponentProps) => {
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
   const jwtCache = useSyncExternalStore(
     JwtTokenCache.subscribe,
     JwtTokenCache.getSnapshot
@@ -59,11 +58,10 @@ const TestWithAuthClient = (_: RouteComponentProps) => {
         const result = await authClient.mfaTestGet(jwt);
         setStatus(result.status === 'success' ? 'valid' : 'invalid');
       } catch (err) {
-        // This lets the error boundary take charge
-        errorHandler(err);
+        handleMfaError(err);
       }
     })();
-  }, [jwtCache, authClient, errorHandler, sessionToken]);
+  }, [jwtCache, authClient, handleMfaError, sessionToken]);
 
   // Wrap the page's content with an MfaGuard to protect it from access without
   // a JWT that has a scope of "test"
@@ -134,7 +132,7 @@ const TestWithAuthClient = (_: RouteComponentProps) => {
         onClick={(e) => {
           // This illustrates what happens if the token held in the cache
           // expires. In this case, we should get back a 110 errno, and
-          // the MFA error boundary should pick this state up, flush the
+          // the MFA error handler should pick this state up, flush the
           // token, and the OTP modal should be displayed again.
           const expiredToken =
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1aWQiLCJzY29wZSI6WyJwcm90ZWN0ZWQtYWN0aW9uczp0ZXN0Il0sImlhdCI6MTc1NTg4MTQ4NiwianRpIjoiY2QyNTJjZjYtM2MwNi00OWYyLWE4OTItNjU5NTc2MjhjZWU5IiwiZXhwIjoxNzU1ODgxNDk2LCJhdWQiOiJmeGEiLCJpc3MiOiJhY2NvdW50cy5maXJlZm94LmNvbSJ9.GB_vrTsRXmpVF5WYKCaUPqCcP5WOBS2wOvuzvkjafiw';
@@ -151,26 +149,10 @@ const TestWithAuthClient = (_: RouteComponentProps) => {
         type="button"
         className="cta-neutral cta-xl flex-1 w-1/2"
         onClick={(e) => {
-          // In the event a random error is thrown, the MFA error boundary
-          // should let it bubble up to the AppError boundary, and
-          // we should see the General Error screen
-          errorHandler(new Error('BOOMO!'));
-          e.stopPropagation();
-        }}
-      >
-        Throw unrelated error.
-      </button>
-
-      <br />
-      <br />
-      <button
-        type="button"
-        className="cta-neutral cta-xl flex-1 w-1/2"
-        onClick={(e) => {
           // In the event a fabricated JWT-not-found error occurs,
-          // the error boundary should catch this, and clear the
+          // the error handler should catch this, and clear the
           // token from cache, which will cause the OTP modal to pop up.
-          errorHandler(new JwtNotFoundError());
+          handleMfaError(new JwtNotFoundError());
           e.stopPropagation();
         }}
       >

@@ -11,7 +11,7 @@ import {
 import Stripe from 'stripe';
 
 import { ConfigType } from '../../../config';
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import {
   IpnMerchPmtType,
   isIpnMerchPmt,

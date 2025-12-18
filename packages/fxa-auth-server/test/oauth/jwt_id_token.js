@@ -5,7 +5,7 @@
 const { assert } = require('chai');
 const jsonwebtoken = require('jsonwebtoken');
 
-const AppError = require('../../lib/oauth/error');
+const { OauthError: AppError } = require('@fxa/accounts/errors');
 const { config } = require('../../config');
 const JWTIdToken = require('../../lib/oauth/jwt_id_token');
 const {

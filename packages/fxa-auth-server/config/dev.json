@@ -18,8 +18,9 @@
     "host": "localhost",
     "port": 9999,
     "secure": false,
+    "ignoreTLS": true,
     "redirectDomain": "localhost",
-    "subscriptionTermsUrl": "https://www.mozilla.org/about/legal/terms/firefox-private-network/",
+    "subscriptionTermsUrl": "https://www.mozilla.org/about/legal/terms/subscription-services",
     "subscriptionSettingsUrl": "http://localhost:3035/",
     "user": "local",
     "password": "local"
@@ -195,8 +196,6 @@
       "dcdb5ae7add825d2": "123done",
       "5882386c6d801776": "firefox-desktop",
       "98e6508e88680e1a": "fxa-settings",
-      "7377719276ad44ee": "pocket-mobile",
-      "749818d3f2e7857f": "pocket-web",
       "8269bacd7bbc7f80": "thunderbird"
     },
     "clients": [

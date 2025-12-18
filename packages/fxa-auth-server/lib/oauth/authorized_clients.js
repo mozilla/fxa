@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const OauthError = require('./error');
+const { OauthError } = require('@fxa/accounts/errors');
 const oauthDB = require('./db');
-const hex = require('buf').to.hex;
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // Helper function to render each returned record in the expected form.
@@ -13,7 +12,7 @@ function serialize(clientIdHex, token) {
   const lastAccessTime = token.lastUsedAt.getTime();
   return {
     client_id: clientIdHex,
-    refresh_token_id: token.tokenId ? hex(token.tokenId) : undefined,
+    refresh_token_id: token.tokenId ? token.tokenId.toString('hex') : undefined,
     client_name: token.clientName,
     created_time: createdTime,
     last_access_time: lastAccessTime,
@@ -39,12 +38,17 @@ module.exports = {
     await oauthDB.ready();
     const authorizedClients = [];
 
+    const [refreshTokens, accessTokens] = await Promise.all([
+      oauthDB.getRefreshTokensByUid(uid),
+      oauthDB.getAccessTokensByUid(uid),
+    ]);
+
     // First, enumerate all the refresh tokens.
     // Each of these is a separate instance of an authorized client
     // and should be displayed to the user as such. Nice and simple!
     const seenClientIds = new Set();
-    for (const token of await oauthDB.getRefreshTokensByUid(uid)) {
-      const clientId = hex(token.clientId);
+    for (const token of refreshTokens) {
+      const clientId = token.clientId.toString('hex');
       authorizedClients.push(serialize(clientId, token));
       seenClientIds.add(clientId);
     }
@@ -57,8 +61,8 @@ module.exports = {
     //  2. Avoid showing access tokens for `canGrant` clients; such clients will always
     //     hold some other sort of token, and we don't want them to appear in the list twice.
     const accessTokenRecordsByClientId = new Map();
-    for (const token of await oauthDB.getAccessTokensByUid(uid)) {
-      const clientId = hex(token.clientId);
+    for (const token of accessTokens) {
+      const clientId = token.clientId.toString('hex');
       if (!seenClientIds.has(clientId) && !token.clientCanGrant) {
         let record = accessTokenRecordsByClientId.get(clientId);
         if (typeof record === 'undefined') {

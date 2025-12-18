@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AuthUiErrors } from './auth-errors/auth-errors';
 import {
   JwtTokenCache,
   MfaOtpRequestCache,
@@ -15,21 +16,23 @@ import { MfaScope } from './types';
  * Use this when checking the response from the auth server for an invalid JWT.
  * @param e - The error to check, must have code and errno properties.
  * @param scope - The scope to clear from the MFA and JWT cache.
- * @returns
+ * @returns true if the cache was cleared, false otherwise.
  */
 export const clearMfaAndJwtCacheOnInvalidJwt = (
   e: any,
   scope: MfaScope
-): void => {
+): boolean => {
   const sessionToken = getSessionToken();
   if (!sessionToken) {
     // noop - we can't do anything without a session token
-    return;
+    return false;
   }
-  if (isInvalidJwtError(e)) {
+  const shouldClear = isInvalidJwtError(e);
+  if (shouldClear) {
     MfaOtpRequestCache.remove(sessionToken, scope);
     JwtTokenCache.removeToken(sessionToken, scope);
   }
+  return shouldClear;
 };
 
 /**
@@ -37,6 +40,6 @@ export const clearMfaAndJwtCacheOnInvalidJwt = (
  * @param e - The error to check, must have code and errno properties.
  * @returns
  */
-export const isInvalidJwtError = (e: any): boolean => {
-  return e && e.code === 401 && e.errno === 110;
+export const isInvalidJwtError = (e: unknown): boolean => {
+  return (e as any)?.errno === AuthUiErrors.INVALID_MFA_TOKEN.errno;
 };

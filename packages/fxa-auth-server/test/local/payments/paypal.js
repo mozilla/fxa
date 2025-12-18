@@ -19,7 +19,7 @@ const {
 } = require('@fxa/payments/paypal');
 const { PayPalHelper, RefusedError } = require('../../../lib/payments/paypal');
 const { mockLog } = require('../../mocks');
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
 const successfulRefundTransactionResponse = require('./fixtures/paypal/refund_transaction_success.json');
@@ -677,6 +677,10 @@ describe('PayPalHelper', () => {
         total: 400,
         currency: 'usd',
       };
+      const invoice = {
+        ...validInvoice,
+        ...expectedInvoiceResults,
+      };
       mockStripeHelper.getInvoicePaypalTransactionId =
         sinon.fake.returns('123');
       mockStripeHelper.getInvoicePaypalRefundTransactionId =
@@ -684,16 +688,76 @@ describe('PayPalHelper', () => {
       mockStripeHelper.getPriceIdFromInvoice = sinon.fake.returns(
         expectedInvoiceResults.priceId
       );
-      await paypalHelper.refundInvoice({
-        ...validInvoice,
-        ...expectedInvoiceResults,
-      });
+      await paypalHelper.refundInvoice(invoice);
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.issueRefund,
+        invoice,
+        '123',
+        RefundType.Full,
+        undefined
+      );
       sinon.assert.calledOnceWithExactly(
         paypalHelper.log.info,
         'refundInvoice',
         expectedInvoiceResults
       );
       sinon.assert.notCalled(paypalHelper.log.error);
+    });
+
+    it('issues partial refund successfully', async () => {
+      const invoice = {
+        ...validInvoice,
+        id: 'inv_partial',
+        amount_paid: 1000,
+      };
+      mockStripeHelper.getInvoicePaypalTransactionId =
+        sinon.fake.returns('123');
+      mockStripeHelper.getInvoicePaypalRefundTransactionId =
+        sinon.fake.returns(undefined);
+      mockStripeHelper.getPriceIdFromInvoice = sinon.fake.returns('priceId1');
+
+      await paypalHelper.refundInvoice(invoice, {
+        refundType: RefundType.Partial,
+        amount: 500,
+      });
+
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.issueRefund,
+        invoice,
+        '123',
+        RefundType.Partial,
+        500
+      );
+      sinon.assert.notCalled(paypalHelper.log.error);
+    });
+
+    it('throws error if partial refund amount is not less than amount paid', async () => {
+      const invoice = {
+        ...validInvoice,
+        amount_paid: 1000,
+      };
+      const expectedErrorMessage =
+        'Partial refunds must be less than the amount paid on the invoice';
+      mockStripeHelper.getInvoicePaypalTransactionId =
+        sinon.fake.returns('123');
+      mockStripeHelper.getInvoicePaypalRefundTransactionId =
+        sinon.fake.returns(undefined);
+
+      try {
+        await paypalHelper.refundInvoice(invoice, {
+          refundType: RefundType.Partial,
+          amount: 1000,
+        });
+        sinon.assert.fail('Method did not throw error.');
+      } catch (e) {
+        sinon.assert.match(
+          e,
+          sinon.match
+            .instanceOf(RefundError)
+            .and(sinon.match.has('message', expectedErrorMessage))
+        );
+      }
+      sinon.assert.notCalled(paypalHelper.issueRefund);
     });
   });
 
@@ -846,9 +910,8 @@ describe('PayPalHelper', () => {
     it('returns false with no billing agreement found', async () => {
       mockStripeHelper.getCustomerPaypalAgreement =
         sinon.fake.returns(undefined);
-      const result = await paypalHelper.conditionallyRemoveBillingAgreement(
-        mockCustomer
-      );
+      const result =
+        await paypalHelper.conditionallyRemoveBillingAgreement(mockCustomer);
       assert.isFalse(result);
     });
 
@@ -858,9 +921,8 @@ describe('PayPalHelper', () => {
       mockCustomer.subscriptions = {
         data: [{ status: 'active', collection_method: 'send_invoice' }],
       };
-      const result = await paypalHelper.conditionallyRemoveBillingAgreement(
-        mockCustomer
-      );
+      const result =
+        await paypalHelper.conditionallyRemoveBillingAgreement(mockCustomer);
       assert.isFalse(result);
     });
 
@@ -870,9 +932,8 @@ describe('PayPalHelper', () => {
       mockCustomer.subscriptions = { data: [] };
       paypalHelper.cancelBillingAgreement = sinon.fake.resolves({});
       mockStripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
-      const result = await paypalHelper.conditionallyRemoveBillingAgreement(
-        mockCustomer
-      );
+      const result =
+        await paypalHelper.conditionallyRemoveBillingAgreement(mockCustomer);
       assert.isTrue(result);
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.getCustomerPaypalAgreement,

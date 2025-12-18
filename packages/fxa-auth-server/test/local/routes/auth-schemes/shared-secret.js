@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { assert } = require('chai');
-const AppError = require('../../../../lib/error');
+const { AppError } = require('@fxa/accounts/errors');
 const SharedSecretScheme = require('../../../../lib/routes/auth-schemes/shared-secret');
 const authStrategy = SharedSecretScheme.strategy('goodsecret')();
 const noThrowStrategy = SharedSecretScheme.strategy('goodsecret', {

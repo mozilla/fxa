@@ -4,6 +4,9 @@
 
 'use strict';
 
+// Important! Must be required first to get proper hooks in place.
+require('../lib/monitoring');
+
 const config = require('../config').default.getProperties();
 const StatsD = require('hot-shots');
 const { CurrencyHelper } = require('../lib/payments/currencies');
@@ -59,10 +62,10 @@ if (config.subscriptions && config.subscriptions.stripeApiKey) {
   }
 }
 
-const error = require('../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const Token = require('../lib/tokens')(log, config);
 const SQSReceiver = require('../lib/sqs')(log, statsd);
-const bounces = require('../lib/email/bounces')(log, error);
+const bounces = require('../lib/email/bounces')(log, error, config, statsd);
 const delivery = require('../lib/email/delivery')(log, glean);
 const notifications = require('../lib/email/notifications')(log, error);
 

@@ -4,7 +4,7 @@
 
 import { authenticator } from 'otplib';
 import { StatsD } from 'hot-shots';
-import errors from '../../error';
+import { AppError as errors } from '@fxa/accounts/errors';
 
 export interface OtpDb {
   totpToken(uid: string): Promise<{ verified: boolean; enabled: boolean }>;

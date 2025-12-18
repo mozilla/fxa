@@ -5,12 +5,12 @@
 import { useQuery } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState } from 'react';
 import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../lib/oauth/hooks';
+import AppLayout from '../../components/AppLayout';
 import { MozServices } from '../../lib/types';
 import {
   Integration,
@@ -248,7 +248,7 @@ export const InlineRecoverySetupContainer = ({
   // Some basic sanity checks
   if (!isSignedIn || !signinRecoveryLocationState?.email || !totp) {
     navigateWithQuery('/signup');
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   // we only care about "verified" here, not "exists"
@@ -259,12 +259,13 @@ export const InlineRecoverySetupContainer = ({
     navigateWithQuery('/signin_totp_code', {
       state: signinLocationState,
     });
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   // !recoveryCodes check should happen after checking !totp
+  // TODO: pass in cmsInfo when InlineRecoverySetup supports CMS
   if (totpStatusLoading || loadingAccount) {
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout loading />;
   }
 
   if (oAuthDataError) {

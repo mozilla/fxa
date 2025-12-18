@@ -40,50 +40,52 @@ function batch(request, routeFieldsMap) {
   let numForbidden = 0;
   const routeFieldsKeys = Object.keys(routeFieldsMap);
 
-  return P.each(routeFieldsKeys, (url) => {
-    return request.server
-      .inject({
-        allowInternals: true,
-        method: 'get',
-        url: url,
-        headers: request.headers,
-        auth: {
-          credentials: request.auth.credentials,
-          // As of Hapi 18: "To use the new format simply wrap the credentials and optional
-          // artifacts with an auth object and add a new strategy key with a name matching
-          // a configured authentication strategy."
-          // Ref: https://github.com/hapijs/hapi/issues/3871
-          strategy: 'oauth',
-        },
-      })
-      .then((res) => {
-        let fields;
-        switch (res.statusCode) {
-          case 200:
-            fields = routeFieldsMap[url];
-            if (fields === true) {
-              fields = Object.keys(res.result);
-            }
-            fields.forEach((field) => {
-              result[field] = res.result[field];
-            });
-            break;
-          case 403:
-            numForbidden++;
-          // This deliberately falls through to the following case.
-          case 204:
-          case 404:
-            logger.debug(url + ':' + res.statusCode, {
-              scope: request.auth.credentials.scope,
-              response: res.result,
-            });
-            break;
-          default:
-            logger.error(url + ':' + res.statusCode, res.result);
-            throw AppError.from(res.result);
-        }
-      });
-  }).then(() => {
+  return P.all(
+    routeFieldsKeys.map((url) => {
+      return request.server
+        .inject({
+          allowInternals: true,
+          method: 'get',
+          url: url,
+          headers: request.headers,
+          auth: {
+            credentials: request.auth.credentials,
+            // As of Hapi 18: "To use the new format simply wrap the credentials and optional
+            // artifacts with an auth object and add a new strategy key with a name matching
+            // a configured authentication strategy."
+            // Ref: https://github.com/hapijs/hapi/issues/3871
+            strategy: 'oauth',
+          },
+        })
+        .then((res) => {
+          let fields;
+          switch (res.statusCode) {
+            case 200:
+              fields = routeFieldsMap[url];
+              if (fields === true) {
+                fields = Object.keys(res.result);
+              }
+              fields.forEach((field) => {
+                result[field] = res.result[field];
+              });
+              break;
+            case 403:
+              numForbidden++;
+            // This deliberately falls through to the following case.
+            case 204:
+            case 404:
+              logger.debug(url + ':' + res.statusCode, {
+                scope: request.auth.credentials.scope,
+                response: res.result,
+              });
+              break;
+            default:
+              logger.error(url + ':' + res.statusCode, res.result);
+              throw AppError.from(res.result);
+          }
+        });
+    })
+  ).then(() => {
     // If *all* of the batch requests failed, fail out.
     if (numForbidden === routeFieldsKeys.length) {
       throw Boom.forbidden();

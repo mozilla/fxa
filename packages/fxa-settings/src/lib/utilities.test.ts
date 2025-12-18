@@ -8,6 +8,7 @@ import {
   formatSecret,
   isBase32Crockford,
   isMobileDevice,
+  navigateWithQueryHelper,
   once,
   resetOnce,
   searchParam,
@@ -214,5 +215,80 @@ describe('format authenticator secret', () => {
   it('formats a secret into a human-readable format', () => {
     const secret = 'qwerty123456';
     expect(formatSecret(secret)).toBe('QWER TY12 3456');
+  });
+});
+
+describe('navigateWithQueryHelper', () => {
+  let mockNavigate: jest.Mock;
+  let mockLocation: Location;
+
+  beforeEach(() => {
+    mockNavigate = jest.fn().mockResolvedValue(undefined);
+    mockLocation = {
+      search: '',
+      hash: '',
+    } as Location;
+  });
+
+  it('navigates to path without query params when none exist', async () => {
+    await navigateWithQueryHelper(mockLocation, mockNavigate, '/signin');
+    expect(mockNavigate).toHaveBeenCalledWith('/signin');
+  });
+
+  it('preserves existing query params when navigating', async () => {
+    mockLocation.search = '?email=test@example.com&service=sync';
+    await navigateWithQueryHelper(mockLocation, mockNavigate, '/signin');
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/signin?email=test@example.com&service=sync'
+    );
+  });
+
+  it('preserves hash when includeHash is true', async () => {
+    mockLocation.search = '?email=test@example.com';
+    mockLocation.hash = '#section';
+    await navigateWithQueryHelper(
+      mockLocation,
+      mockNavigate,
+      '/signin',
+      undefined,
+      true
+    );
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/signin?email=test@example.com#section'
+    );
+  });
+
+  it('excludes hash when includeHash is false', async () => {
+    mockLocation.search = '?email=test@example.com';
+    mockLocation.hash = '#section';
+    await navigateWithQueryHelper(
+      mockLocation,
+      mockNavigate,
+      '/signin',
+      undefined,
+      false
+    );
+    expect(mockNavigate).toHaveBeenCalledWith('/signin?email=test@example.com');
+  });
+
+  it('does not add query params when path already contains them', async () => {
+    mockLocation.search = '?email=old@example.com';
+    await navigateWithQueryHelper(
+      mockLocation,
+      mockNavigate,
+      '/signin?email=new@example.com'
+    );
+    expect(mockNavigate).toHaveBeenCalledWith('/signin?email=new@example.com');
+  });
+
+  it('passes navigation options when provided', async () => {
+    const options = { replace: true, state: { email: 'test@example.com' } };
+    await navigateWithQueryHelper(
+      mockLocation,
+      mockNavigate,
+      '/signin',
+      options
+    );
+    expect(mockNavigate).toHaveBeenCalledWith('/signin', options);
   });
 });

@@ -16,18 +16,18 @@ import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
 import { Localized } from '@fluent/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import LinkExternal from 'fxa-react/components/LinkExternal';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { useFtlMsgResolver } from '../../../models/hooks';
+import { useApolloClient } from '@apollo/client';
 
 type FormData = {
   password: string;
 };
 
 const checkboxLabels: Record<string, string> = {
-  'delete-account-chk-box-1-v3':
-    'Any paid subscriptions you have will be canceled (Except Pocket)',
+  'delete-account-chk-box-1-v4':
+    'Any paid subscriptions you have will be canceled',
   'delete-account-chk-box-2':
     'You may lose saved information and features within Mozilla products',
   'delete-account-chk-box-3':
@@ -72,11 +72,6 @@ const deleteProducts = [
     productName: 'Mozilla Hubs',
     href: LINK.HUBS,
   },
-  {
-    localizationId: 'delete-account-product-pocket',
-    productName: 'Pocket',
-    href: LINK.POCKET,
-  },
 ];
 
 export const PageDeleteAccount = (_: RouteComponentProps) => {
@@ -108,6 +103,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const goHome = useCallback(() => window.history.back(), []);
 
   const account = useAccount();
+  const apolloClient = useApolloClient();
 
   useEffect(() => {
     GleanMetrics.deleteAccount.view();
@@ -142,6 +138,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
           'flow.settings.account-delete',
           'confirm-password.success'
         );
+        await apolloClient.clearStore();
 
         navigateWithQuery('/', {
           state: {
@@ -166,6 +163,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
       alertBar,
       ftlMsgResolver,
       navigateWithQuery,
+      apolloClient,
     ]
   );
 
@@ -217,48 +215,6 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               ))}
             </ul>
 
-            <Localized
-              id="pocket-delete-notice"
-              elems={{
-                a: (
-                  <LinkExternal
-                    href="https://help.getpocket.com/article/986-canceling-your-pocket-premium-subscription"
-                    data-testid="link-pocket-delete-notice"
-                    className="link-blue"
-                  >
-                    cancel your subscription
-                  </LinkExternal>
-                ),
-              }}
-            >
-              <p className="mb-4">
-                If you subscribe to Pocket Premium, please make sure that you{' '}
-                <a href="#todo-change-to-button">cancel your subscription</a>{' '}
-                before deleting your account.
-              </p>
-            </Localized>
-            <Localized
-              id="pocket-delete-notice-marketing"
-              elems={{
-                a: (
-                  <LinkExternal
-                    href="https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0"
-                    data-testid="link-marketing-delete-notice"
-                    className="link-blue"
-                  >
-                    request deletion of your marketing data.
-                  </LinkExternal>
-                ),
-              }}
-            >
-              <p className="mb-4">
-                To stop receiving marketing emails from Mozilla Corporation and
-                Mozilla Foundation, you must{' '}
-                <a href="#todo-change-to-button">
-                  request deletion of your marketing data.
-                </a>{' '}
-              </p>
-            </Localized>
             <Localized id="delete-account-acknowledge">
               <p className="mb-4">
                 Please acknowledge that by deleting your account:

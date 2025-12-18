@@ -8,7 +8,7 @@ import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from 'fxa-shared/oauth/constants';
 import { Container } from 'typedi';
 
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { CapabilityService } from '../../payments/capability';
 import { AppleIAP } from '../../payments/iap/apple-app-store/apple-iap';
 import { PurchaseUpdateError } from '../../payments/iap/apple-app-store/types/errors';

@@ -103,6 +103,8 @@ export class SettingsPage extends SettingsLayout {
 
   /**
    * Removes 2FA from the account by clicking the 'disable' button on the 2FA row.
+   * If omitted, the credentials must be passed to 2FA setup so that accountDestroy
+   * has access to the secret.
    */
   async disconnectTotp() {
     await this.totp.disableButton.click();

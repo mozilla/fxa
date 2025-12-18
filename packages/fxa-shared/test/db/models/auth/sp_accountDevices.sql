@@ -3,7 +3,7 @@ CREATE PROCEDURE `accountDevices_17` (
   IN `limitArg` INT
 )
 BEGIN
-  SELECT 
+  SELECT
     d.uid,
     d.id,
     s.tokenId AS sessionTokenId, -- Ensure we only return valid sessionToken ids

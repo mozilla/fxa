@@ -96,11 +96,11 @@ describe('CMSLocalization', () => {
       assert.include(result, '# Headline for Email First Page');
       assert.include(result, '# Description for Email First Page');
 
-      // With fxa-prefixed hash IDs, we expect fxa-<component>-<hash> patterns
-      assert.match(result, /fxa-SigninPage-headline-[a-f0-9]{8} = Enter your password/);
-      assert.match(result, /fxa-SigninPage-description-[a-f0-9]{8} = to sign in to Firefox and start syncing/);
-      assert.match(result, /fxa-EmailFirstPage-headline-[a-f0-9]{8} = Welcome to Firefox Sync/);
-      assert.match(result, /fxa-EmailFirstPage-description-[a-f0-9]{8} = Sync your passwords, tabs, and bookmarks/);
+      // With fxa-prefixed hash IDs using only element name, expect fxa-<element>-<hash> patterns
+      assert.match(result, /fxa-headline-[a-f0-9]{8} = Enter your password/);
+      assert.match(result, /fxa-description-[a-f0-9]{8} = to sign in to Firefox and start syncing/);
+      assert.match(result, /fxa-headline-[a-f0-9]{8} = Welcome to Firefox Sync/);
+      assert.match(result, /fxa-description-[a-f0-9]{8} = Sync your passwords, tabs, and bookmarks/);
     });
 
     it('handles empty Strapi data', () => {
@@ -132,9 +132,9 @@ describe('CMSLocalization', () => {
 
       const result = localization.strapiToFtl(strapiData);
 
-      // With fxa-prefixed hash IDs, we expect fxa-<component>-<hash> patterns
-      assert.match(result, /fxa-SigninPage-headline-[a-f0-9]{8} = Enter your password/);
-      assert.match(result, /fxa-SigninPage-description-[a-f0-9]{8} = to sign in/);
+      // With fxa-prefixed hash IDs using only element name, expect fxa-<element>-<hash> patterns
+      assert.match(result, /fxa-headline-[a-f0-9]{8} = Enter your password/);
+      assert.match(result, /fxa-description-[a-f0-9]{8} = to sign in/);
       // Note: The current implementation doesn't filter out all non-string fields
       // This test reflects the actual behavior
     });
@@ -704,7 +704,7 @@ describe('CMSLocalization', () => {
       const generatedFtl = localization.strapiToFtl(strapiData);
 
       // Extract the hash from the generated FTL content
-      const hashMatch = generatedFtl.match(/(fxa-SigninPage-headline-[a-f0-9]{8}) = Enter your password/);
+      const hashMatch = generatedFtl.match(/(fxa-headline-[a-f0-9]{8}) = Enter your password/);
       assert.isNotNull(hashMatch, 'Should find fxa-prefixed hash in generated FTL');
       const fxaHash = hashMatch[1];
 
@@ -796,7 +796,7 @@ describe('CMSLocalization', () => {
       const generatedFtl = localization.strapiToFtl(strapiData);
 
       // Extract the hash from the generated FTL content
-      const hashMatch = generatedFtl.match(/(fxa-SigninPage-headline-[a-f0-9]{8}) = Enter your password/);
+      const hashMatch = generatedFtl.match(/(fxa-headline-[a-f0-9]{8}) = Enter your password/);
       assert.isNotNull(hashMatch, 'Should find fxa-prefixed hash in generated FTL');
       const fxaHash = hashMatch[1];
 

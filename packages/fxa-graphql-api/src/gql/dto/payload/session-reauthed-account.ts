@@ -12,7 +12,10 @@ export class SessionReauthedAccountPayload {
   public uid!: hexstring;
 
   @Field()
-  verified!: boolean;
+  emailVerified!: boolean;
+
+  @Field()
+  sessionVerified!: boolean;
 
   @Field()
   authAt!: number;

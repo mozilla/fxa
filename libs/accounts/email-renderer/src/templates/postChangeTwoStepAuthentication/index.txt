@@ -1,0 +1,13 @@
+postChangeTwoStepAuthentication-title = "Two-step authentication has been updated"
+
+postChangeTwoStepAuthentication-use-new-account = "You now need to use the new Mozilla account entry in your authenticator app. The older one will no longer work and you can remove it."
+
+postChangeTwoStepAuthentication-how-protects-plaintext = "How this protects your account:"
+<%- twoFactorSupportLink %>
+
+postChangeTwoStepAuthentication-from-device = "You requested this from:"
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>

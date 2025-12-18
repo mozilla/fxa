@@ -10,7 +10,7 @@ const logger = require('./log')(
   'configure-sentry'
 );
 const { version } = require('../package.json');
-const { ignoreErrors } = require('./error');
+const { ignoreErrors } = require('@fxa/accounts/errors');
 
 /**
  * Initialize sentry & otel

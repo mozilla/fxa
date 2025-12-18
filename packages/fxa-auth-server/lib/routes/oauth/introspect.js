@@ -5,8 +5,7 @@
 /*jshint camelcase: false*/
 const Joi = require('joi');
 const validators = require('../../oauth/validators');
-const hex = require('buf').to.hex;
-const AppError = require('../../oauth/error');
+const { OauthError } = require('@fxa/accounts/errors');
 const { getTokenId } = require('../../oauth/token');
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
@@ -80,7 +79,7 @@ module.exports = ({ oauthDB }) => ({
           // in the future other clients should be able to use it
           // by providing client_secret in the Authentication header
           if (!client || !client.publicClient) {
-            throw new AppError.notPublicClient();
+            throw OauthError.notPublicClient(token.clientId);
           }
         }
       }
@@ -95,11 +94,11 @@ module.exports = ({ oauthDB }) => ({
 
         Object.assign(response, {
           scope: token.scope.toString(),
-          client_id: hex(token.clientId),
+          client_id: token.clientId.toString('hex'),
           token_type: tokenType,
           iat: token.createdAt.getTime(),
-          sub: hex(token.userId),
-          jti: hex(tokenId),
+          sub: token.userId.toString('hex'),
+          jti: tokenId.toString('hex'),
         });
 
         if (token.expiresAt) {

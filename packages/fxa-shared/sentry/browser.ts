@@ -158,7 +158,7 @@ function configure(config: SentryConfigOpts, log?: ILogger) {
   }
 
   if (!config?.sentry?.dsn) {
-    log.error('No Sentry dsn provided');
+    log.error('sentry.dsn.missing', 'No Sentry dsn provided');
     return;
   }
 

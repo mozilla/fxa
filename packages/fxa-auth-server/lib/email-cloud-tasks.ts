@@ -14,7 +14,7 @@ import {
 import { ConfigType } from '../config';
 import { AuthRequest } from './types';
 import { IncomingHttpHeaders } from 'http';
-import AppError from './error';
+import { AppError } from '@fxa/accounts/errors';
 import {
   InactiveAccountsManager,
   emailTypeToHandlerVals,

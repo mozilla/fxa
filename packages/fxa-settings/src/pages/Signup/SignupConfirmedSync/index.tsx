@@ -21,6 +21,7 @@ import CmsButtonWithFallback from '../../../components/CmsButtonWithFallback';
 const SignupConfirmedSync = ({
   integration,
   offeredSyncEngines,
+  setCurrentSplitLayout,
 }: SignupConfirmedSyncProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const paymentMethodsSynced = checkPaymentMethodsWillSync(offeredSyncEngines);
@@ -45,10 +46,11 @@ const SignupConfirmedSync = ({
   const cmsHideCTA = !!cmsInfo?.shared.featureFlags?.syncConfirmedPageHideCTA;
   const title = cmsInfo?.SignupConfirmedSyncPage?.pageTitle;
   const cmsSyncEnabledImage = cmsInfo?.SignupConfirmedSyncPage?.primaryImage;
+  const splitLayout = cmsInfo?.SignupConfirmedSyncPage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
-      <FallingConfettiImage />
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+      <FallingConfettiImage ariaHidden />
 
       {originPostVerifySetPassword ? (
         <Banner

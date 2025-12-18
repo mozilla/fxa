@@ -33,7 +33,18 @@ export class SecondaryEmailPage extends SettingsLayout {
   }
 
   get confirmButton() {
-    return this.page.getByRole('button', { name: 'confirm' });
+    return this.page.getByRole('button', { name: /^Confirm/ });
+  }
+
+  get resendConfirmationCodeButton() {
+    return this.page.getByRole('button', {
+      name: 'Resend confirmation code',
+    });
+  }
+
+  async clickResendConfirmationCode() {
+    await expect(this.step2Heading).toBeVisible();
+    await this.resendConfirmationCodeButton.click();
   }
 
   async submit() {

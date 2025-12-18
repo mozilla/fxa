@@ -58,7 +58,6 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_SHOW_LOCALE_TOGGLE = config.get(
     'featureFlags.showLocaleToggle'
   );
-  const NIMBUS_PREVIEW = config.get('nimbusPreview');
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
   const GLEAN_UPLOAD_ENABLED = config.get('glean.uploadEnabled');
@@ -68,6 +67,8 @@ function getIndexRouteDefinition(config) {
   const GLEAN_DEBUG_VIEW_TAG = config.get('glean.debugViewTag');
   const CMS_ENABLED = config.get('cms.enabled');
   const CMS_L10N_ENABLED = config.get('cms.l10nEnabled');
+  const NIMBUS_ENABLED = config.get('nimbus.enabled');
+  const NIMBUS_PREVIEW = config.get('nimbus.preview');
 
   // Rather than relay all rollout rates, hand pick the ones that are applicable
   const ROLLOUT_RATES = config.get('rolloutRates');
@@ -129,7 +130,10 @@ function getIndexRouteDefinition(config) {
       enabled: CMS_ENABLED,
       l10nEnabled: CMS_L10N_ENABLED,
     },
-    nimbusPreview: NIMBUS_PREVIEW,
+    nimbus: {
+      enabled: NIMBUS_ENABLED,
+      preview: NIMBUS_PREVIEW,
+    },
     glean: {
       // feature toggle
       enabled: GLEAN_ENABLED,

@@ -6,7 +6,7 @@ import isA from 'joi';
 import { Container } from 'typedi';
 
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
-import error from '../../error';
+import { AppError as error } from '@fxa/accounts/errors';
 import { CapabilityService } from '../../payments/capability';
 import { PlayBilling } from '../../payments/iap/google-play/play-billing';
 import { DeveloperNotification } from '../../payments/iap/google-play/types';

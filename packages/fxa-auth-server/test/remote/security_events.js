@@ -98,7 +98,8 @@
              !response.keyFetchToken,
              'keyFetchToken token is not in response'
            );
-           assert.equal(response.verified, true, 'verified is true');
+           assert.equal(response.emailVerified, true, 'email verified is true');
+           assert.equal(response.sessionVerified, true, 'session verified is true');
          })
          .then(() => {
            return delay(1).then(() => {

@@ -24,11 +24,11 @@ import {
   useFtlMsgResolver,
   isWebIntegration,
   isOAuthIntegration,
-  useSession,
+  isOAuthNativeIntegration,
+  useConfig,
 } from '../../models';
 import {
   isClientMonitor,
-  isClientPocket,
   isClientRelay,
 } from '../../models/integrations/client-matching';
 import { SigninFormData, SigninProps } from './interfaces';
@@ -39,7 +39,6 @@ import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
-import VerificationReasons from '../../constants/verification-reasons';
 
 export const viewName = 'signin';
 
@@ -63,14 +62,16 @@ const Signin = ({
   localizedSuccessBannerDescription,
   deeplink,
   flowQueryParams,
+  useFxAStatusResult: { supportsKeysOptionalLogin },
+  setCurrentSplitLayout,
 }: SigninProps & RouteComponentProps) => {
+  const config = useConfig();
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const sensitiveDataClient = useSensitiveDataClient();
-  const session = useSession();
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -86,14 +87,16 @@ const Signin = ({
   const [hasEngaged, setHasEngaged] = useState<boolean>(false);
 
   const isOAuth = isOAuthIntegration(integration);
+  const isOAuthNative = isOAuthNativeIntegration(integration);
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const clientId = integration.getClientId();
-  const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
   const isRelayClient = isOAuth && isClientRelay(clientId);
   const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
 
   const isDeeplinking = !!deeplink;
+  const isServiceWithEmailVerification =
+    !!clientId && config.servicesWithEmailVerification.includes(clientId);
 
   // We must use a ref because we may update this value in a callback
   let isPasswordNeededRef = useRef(
@@ -120,8 +123,14 @@ const Signin = ({
     },
   });
 
-  const hideThirdPartyAuth =
-    (integration.isSync() || isFirefoxClientServiceRelay) && hasPassword;
+  // - Hide third-party auth if it's Sync and user has a password. Sync currently always
+  // requires a PW for scoped keys. Passwordless users signing into Sync will be prompted
+  // to create a PW at the end of the flow.
+  // - Hide third party auth if it's an oauth native integration without passwordless support
+  // Show for all other cases.
+  const hideThirdPartyAuth = integration.isSync()
+    ? hasPassword
+    : isOAuthNative && !supportsKeysOptionalLogin;
 
   useEffect(() => {
     if (!isPasswordNeededRef.current) {
@@ -148,9 +157,8 @@ const Signin = ({
         const navigationOptions = {
           email,
           signinData: {
-            // TODO, address signIn.verified vs session.verified discrepancy
-            // we're currently using 'sessionVerified' from recovery_email/status
-            verified: data.sessionVerified,
+            emailVerified: data.emailVerified,
+            sessionVerified: data.sessionVerified,
             verificationMethod: data.verificationMethod,
             verificationReason: data.verificationReason,
             uid: data.uid,
@@ -164,6 +172,7 @@ const Signin = ({
           finishOAuthFlowHandler,
           queryParams: location.search,
           performNavigation: !integration.isFirefoxMobileClient(),
+          isServiceWithEmailVerification,
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -192,6 +201,7 @@ const Signin = ({
       finishOAuthFlowHandler,
       location.search,
       webRedirectCheck,
+      isServiceWithEmailVerification,
     ]
   );
 
@@ -205,11 +215,12 @@ const Signin = ({
       if (data) {
         GleanMetrics.login.success();
 
+        const isFullyVerified =
+          data.signIn.emailVerified && data.signIn.sessionVerified;
         const navigationOptions = {
           email,
           signinData: data.signIn,
           unwrapBKey: data.unwrapBKey,
-          verified: data.signIn.verified,
           integration,
           finishOAuthFlowHandler,
           redirectTo:
@@ -221,8 +232,9 @@ const Signin = ({
           handleFxaLogin: true,
           handleFxaOAuthLogin: true,
           performNavigation: !(
-            integration.isFirefoxMobileClient() && data.signIn.verified
+            integration.isFirefoxMobileClient() && isFullyVerified
           ),
+          isServiceWithEmailVerification,
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -230,17 +242,6 @@ const Signin = ({
           setLocalizedBannerError(
             getLocalizedErrorMessage(ftlMsgResolver, navError)
           );
-        } else {
-          // TODO, address signIn.verified vs session.verified discrepancy
-          // currently 'verified' only checks session status, but 'verificationReason'
-          // can tell us if it's a sign up. This will be cleaned up in FXA-12454
-          if (
-            !data.signIn.verified &&
-            data.signIn.verificationReason !== VerificationReasons.SIGN_UP &&
-            isWebIntegration(integration)
-          ) {
-            session.sendVerificationCode();
-          }
         }
       }
       if (error) {
@@ -335,10 +336,10 @@ const Signin = ({
       setLocalizedBannerError,
       finishOAuthFlowHandler,
       integration,
-      session,
       location.search,
       webRedirectCheck,
       sensitiveDataClient,
+      isServiceWithEmailVerification,
     ]
   );
 
@@ -376,9 +377,10 @@ const Signin = ({
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninPage.pageTitle;
+  const splitLayout = cmsInfo?.SigninPage.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"
@@ -405,7 +407,6 @@ const Signin = ({
           headingTextFtlId="signin-header"
           subheadingWithDefaultServiceFtlId="signin-subheader-without-logo-default"
           subheadingWithCustomServiceFtlId="signin-subheader-without-logo-with-servicename"
-          subheadingWithLogoFtlId="signin-subheader-with-logo"
           {...{
             clientId,
             serviceName,
@@ -523,7 +524,6 @@ const Signin = ({
 
       <TermsPrivacyAgreement
         {...{
-          isPocketClient,
           isMonitorClient,
           isFirefoxClientServiceRelay,
           isRelayClient,

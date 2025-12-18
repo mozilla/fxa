@@ -373,7 +373,8 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
         });
     });
 
-    it('should ignore verificationMethod if not requesting keys', () => {
+
+    it('should include verificationMethod if session is unverified', () => {
       return Client.login(config.publicUrl, email, password, {
         ...testOptions,
         verificationMethod: 'email',
@@ -383,18 +384,17 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
           client = res;
           assert.equal(
             res.verificationMethod,
-            undefined,
+            'email',
             'sets correct verification method'
           );
           return client.emailStatus();
         })
         .then((status) => {
-          assert.equal(status.verified, true, 'account is verified');
           assert.equal(status.emailVerified, true, 'email is verified');
           assert.equal(
             status.sessionVerified,
             false,
-            'session is not verified'
+            'session is verified'
           );
         });
     });

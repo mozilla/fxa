@@ -34,7 +34,7 @@ describe('mfa-guard-utils', () => {
 
   describe('isInvalidJwtError', () => {
     it('should return true if the error is an invalid JWT error', () => {
-      expect(isInvalidJwtError({ code: 401, errno: 110 })).toBe(true);
+      expect(isInvalidJwtError({ code: 401, errno: 223 })).toBe(true);
     });
 
     it('should return false if the error is not an invalid JWT error', () => {
@@ -65,7 +65,7 @@ describe('mfa-guard-utils', () => {
     });
 
     it('should clear the MFA and JWT cache if the error is an invalid JWT error', () => {
-      const e = { code: 401, errno: 110 };
+      const e = { code: 401, errno: 223 };
 
       clearMfaAndJwtCacheOnInvalidJwt(e, scope);
 
@@ -91,9 +91,10 @@ describe('mfa-guard-utils', () => {
       // Override sessionToken to return undefined
       sessionTokenSpy.mockReturnValue(undefined);
 
-      const e = { code: 401, errno: 110 };
+      const e = { code: 401, errno: 223 };
 
-      clearMfaAndJwtCacheOnInvalidJwt(e, scope);
+      const cleared = clearMfaAndJwtCacheOnInvalidJwt(e, scope);
+      expect(cleared).toBe(false);
 
       expect(removeOtpSpy).not.toHaveBeenCalled();
       expect(removeJwtSpy).not.toHaveBeenCalled();
@@ -106,9 +107,10 @@ describe('mfa-guard-utils', () => {
       // Override sessionToken to return null
       sessionTokenSpy.mockReturnValue(null);
 
-      const e = { code: 401, errno: 110 };
+      const e = { code: 401, errno: 223 };
 
-      clearMfaAndJwtCacheOnInvalidJwt(e, scope);
+      const cleared = clearMfaAndJwtCacheOnInvalidJwt(e, scope);
+      expect(cleared).toBe(false);
 
       expect(removeOtpSpy).not.toHaveBeenCalled();
       expect(removeJwtSpy).not.toHaveBeenCalled();
@@ -118,9 +120,10 @@ describe('mfa-guard-utils', () => {
       // Set a token in cache with a different scope
       JwtTokenCache.setToken(defaultSessionToken, 'email', jwt);
 
-      const e = { code: 401, errno: 110 };
+      const e = { code: 401, errno: 223 };
 
-      expect(() => clearMfaAndJwtCacheOnInvalidJwt(e, scope)).not.toThrow();
+      const cleared = clearMfaAndJwtCacheOnInvalidJwt(e, scope);
+      expect(cleared).toBe(true);
 
       expect(removeOtpSpy).toHaveBeenCalledWith(defaultSessionToken, scope);
       expect(removeJwtSpy).toHaveBeenCalledWith(defaultSessionToken, scope);

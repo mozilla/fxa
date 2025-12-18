@@ -44,7 +44,6 @@ export const CheckoutCustomerDataFactory = (
   override?: Partial<CheckoutCustomerData>
 ): CheckoutCustomerData => ({
   locale: faker.helpers.arrayElement(['en-US', 'de', 'es', 'fr-FR']),
-  displayName: faker.person.fullName(),
   ...override,
 });
 

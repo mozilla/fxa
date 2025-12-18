@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import { ConfigType } from '../../config';
 import { AuthLogger, AuthRequest } from '../types';
 import { Container } from 'typedi';
-import AppError from '../error';
+import { AppError } from '@fxa/accounts/errors';
 import isA from 'joi';
 import validators from './validators';
 import { StatsD } from 'hot-shots';
@@ -28,7 +28,12 @@ export class CMSHandler {
     this.config = config;
     this.statsd = statsD;
     this.log = log;
-    this.localization = new CMSLocalization(log, config, this.cmsManager, this.statsd);
+    this.localization = new CMSLocalization(
+      log,
+      config,
+      this.cmsManager,
+      this.statsd
+    );
   }
 
   ensureCmsManager() {
@@ -109,7 +114,7 @@ export class CMSHandler {
         this.log.info('cms.getLocalizedConfig.noBaseConfig', {
           clientId,
           entrypoint,
-          locale
+          locale,
         });
         return {};
       }
@@ -120,33 +125,39 @@ export class CMSHandler {
           clientId,
           entrypoint,
           locale,
-          reason: locale === 'en' ? 'default-locale' : 'localization-disabled'
+          reason: locale === 'en' ? 'default-locale' : 'localization-disabled',
         });
         return baseConfig;
       }
 
       // 4. Try to fetch localized FTL content with fallback logic
-      const ftlContent = await this.localization.fetchLocalizedFtlWithFallback(locale);
+      const ftlContent =
+        await this.localization.fetchLocalizedFtlWithFallback(locale);
 
       // 5. If no localized content, return base config
       if (!ftlContent) {
         this.log.info('cms.getLocalizedConfig.fallbackToBase', {
           clientId,
           entrypoint,
-          locale
+          locale,
         });
         this.statsd.increment('cms.getLocalizedConfig.fallback');
         return baseConfig;
       }
 
       // 6. Merge base config with localized data
-      const localizedConfig = await this.localization.mergeConfigs(baseConfig, ftlContent, clientId, entrypoint);
+      const localizedConfig = await this.localization.mergeConfigs(
+        baseConfig,
+        ftlContent,
+        clientId,
+        entrypoint
+      );
 
       this.log.info('cms.getLocalizedConfig.success', {
         clientId,
         entrypoint,
         locale,
-        ftlContentLength: ftlContent.length
+        ftlContentLength: ftlContent.length,
       });
       this.statsd.increment('cms.getLocalizedConfig.success');
 
@@ -157,7 +168,7 @@ export class CMSHandler {
         clientId,
         entrypoint,
         locale,
-        error: error.message
+        error: error.message,
       });
       this.statsd.increment('cms.getLocalizedConfig.error');
 
@@ -169,7 +180,7 @@ export class CMSHandler {
           clientId,
           entrypoint,
           locale,
-          error: fallbackError.message
+          error: fallbackError.message,
         });
         return {};
       }
@@ -223,7 +234,11 @@ export class CMSHandler {
       // Only create PRs when entries are actually published
       const allowedEvents = ['entry.publish'];
 
-      if (!eventType || !allowedEvents.includes(eventType) || webhookPayload.model !== 'relying-party') {
+      if (
+        !eventType ||
+        !allowedEvents.includes(eventType) ||
+        webhookPayload.model !== 'relying-party'
+      ) {
         this.log.info('cms.strapiWebhook.skipped', {
           eventType,
           reason: 'Event not in allowed list or not relying-party model',
@@ -251,7 +266,8 @@ export class CMSHandler {
       await this.localization.validateGitHubConfig();
 
       // Generate FTL content for all entries
-      const ftlContent = this.localization.generateFtlContentFromEntries(allEntries);
+      const ftlContent =
+        this.localization.generateFtlContentFromEntries(allEntries);
 
       // Check for existing PR
       const existingPr = await this.localization.findExistingPR(
@@ -408,7 +424,7 @@ export const cmsRoutes = (
       },
       handler: async (request: AuthRequest) =>
         cmsHandler.handleCacheInvalidationWebhook(request),
-    }
+    },
   ];
 };
 

@@ -36,7 +36,7 @@ type EmailBounce {
   bounceType: BounceType!
   bounceSubType: BounceSubType!
   createdAt: Float!
-  diagnosticCode: String!
+  diagnosticCode: String
 }
 
 enum BounceType {
@@ -207,6 +207,11 @@ type AccountDeleteTaskStatus {
   status: String!
 }
 
+type AccountResetResponse {
+  locator: String!
+  status: String!
+}
+
 type RelyingPartyDto {
   id: ID!
   createdAt: DateTime!
@@ -216,14 +221,25 @@ type RelyingPartyDto {
   canGrant: Boolean!
   publicClient: Boolean!
   trusted: Boolean!
-  allowedScopes: String
-  notes: String
+  allowedScopes: String!
+  notes: String!
+  hasSecret: Boolean!
+  hasPreviousSecret: Boolean!
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type RelyingPartyCreatedDto {
+  id: String!
+  secret: String!
+}
+
+type RotateSecretDto {
+  secret: String!
+}
 
 type BlockStatus {
   retryAfter: Float!
@@ -258,11 +274,14 @@ type Mutation {
   unlinkAccount(uid: String!): Boolean!
   unsubscribeFromMailingLists(uid: String!): Boolean!
   deleteAccounts(locators: [String!]!): [AccountDeleteResponse!]!
+  resetAccounts(locators: [String!]!, notificationEmail: String!): [AccountResetResponse!]!
   clearEmailBounce(email: String!): Boolean!
   clearRateLimits(ip: String, email: String, uid: String): Float!
-  create(relyingParty: RelyingPartyUpdateDto!): String!
-  update(id: String!, relyingParty: RelyingPartyUpdateDto!): Boolean!
-  delete(id: String!): Boolean!
+  createRelyingParty(relyingParty: RelyingPartyUpdateDto!): RelyingPartyCreatedDto!
+  updateRelyingParty(id: String!, relyingParty: RelyingPartyUpdateDto!): Boolean!
+  deleteRelyingParty(id: String!): Boolean!
+  rotateRelyingPartySecret(id: String!): RotateSecretDto!
+  deletePreviousRelyingPartySecret(id: String!): Boolean!
 }
 
 input RelyingPartyUpdateDto {
@@ -272,6 +291,6 @@ input RelyingPartyUpdateDto {
   canGrant: Boolean!
   publicClient: Boolean!
   trusted: Boolean!
-  allowedScopes: String
-  notes: String
+  allowedScopes: String!
+  notes: String!
 }

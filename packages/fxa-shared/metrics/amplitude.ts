@@ -522,7 +522,6 @@ export const amplitude = {
           utm_term: data.utm_term,
         }),
         mapAppendProperties(data),
-        mapSyncDevices(data),
         mapSyncEngines(data),
         mapNewsletters(data)
       );

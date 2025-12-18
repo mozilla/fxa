@@ -17,7 +17,7 @@
 const Joi = require('joi');
 const validators = require('./validators');
 
-const OauthError = require('./error');
+const { OauthError } = require('@fxa/accounts/errors');
 const { config } = require('../../config');
 const { verifyJWT } = require('../../lib/serverJWT');
 

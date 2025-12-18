@@ -168,7 +168,7 @@ test.describe('severity-2 #smoke', () => {
       await settings.totp.addButton.click();
       await settings.confirmMfaGuard(credentials.email);
       const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.signOut();
 
@@ -185,10 +185,6 @@ test.describe('severity-2 #smoke', () => {
       await signinTotpCode.fillOutCodeForm(code);
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-
-      // Required before teardown
-      await settings.goto();
-      await settings.disconnectTotp();
     });
 
     test('verified email, in blocked state', async ({

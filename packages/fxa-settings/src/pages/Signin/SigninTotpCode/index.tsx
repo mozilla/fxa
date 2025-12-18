@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver, useSession } from '../../../models';
+import { useAlertBar, useFtlMsgResolver, useSession } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
 import { MozServices } from '../../../lib/types';
 import firefox from '../../../lib/channels/firefox';
@@ -38,6 +38,7 @@ export type SigninTotpCodeProps = {
   // TODO: Switch to gql error shaped object
   submitTotpCode: (totpCode: string) => Promise<{ error?: HandledError }>;
   serviceName?: MozServices;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & SensitiveData.AuthData;
 
 export const viewName = 'signin-totp-code';
@@ -50,12 +51,14 @@ export const SigninTotpCode = ({
   submitTotpCode,
   keyFetchToken,
   unwrapBKey,
+  setCurrentSplitLayout,
 }: SigninTotpCodeProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const isSessionAALUpgrade = signinState.isSessionAALUpgrade;
+  const alertBar = useAlertBar();
 
   const [bannerError, setBannerError] = useState<string>('');
 
@@ -107,6 +110,11 @@ export const SigninTotpCode = ({
       setBannerError(getLocalizedErrorMessage(ftlMsgResolver, error));
       return;
     } else {
+      // Clear lingering error alert caused by insufficient AAL error (see FXA-12707)
+      if (isSessionAALUpgrade) {
+        alertBar.hide();
+      }
+
       GleanMetrics.totpForm.success();
 
       const {
@@ -133,7 +141,8 @@ export const SigninTotpCode = ({
           sessionToken,
           verificationReason,
           verificationMethod,
-          verified: true,
+          emailVerified: true,
+          sessionVerified: true,
           keyFetchToken,
         },
         unwrapBKey,
@@ -157,9 +166,10 @@ export const SigninTotpCode = ({
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninTotpCodePage?.pageTitle;
+  const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       {cmsInfo ? (
         <>
           {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (

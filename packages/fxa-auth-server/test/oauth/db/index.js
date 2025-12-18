@@ -5,8 +5,8 @@
 const crypto = require('crypto');
 
 const { assert } = require('chai');
-const buf = require('buf').hex;
-const hex = require('buf').to.hex;
+const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
+const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const encrypt = require('fxa-shared/auth/encrypt');
@@ -681,70 +681,6 @@ describe('#integration - db', function () {
       //  - https://github.com/mozilla/fxa/issues/3017
       const tokenIdHash = hex(encrypt.hash(accessToken.token.toString('hex')));
       assert.notOk(await db.getAccessToken(tokenIdHash));
-    });
-  });
-
-  describe('Access Token storage', () => {
-    describe('Pocket tokens', () => {
-      const pocketId = buf('749818d3f2e7857f');
-      const userId = buf(randomString(16));
-      const tokenData = {
-        clientId: pocketId,
-        name: 'pocket',
-        canGrant: false,
-        publicClient: true,
-        userId: userId,
-        email: 'foo@bar.local',
-        scope: ScopeSet.fromArray(['no_scope']),
-      };
-
-      it('stores them in mysql', async () => {
-        const t = await db.generateAccessToken(tokenData);
-        const mysql = await db.mysql;
-        const tt = await mysql._getAccessToken(t.tokenId);
-        await db.removeAccessToken(t);
-        assert.equal(hex(tt.tokenId), hex(t.tokenId));
-      });
-
-      it('retrieves them with getAccessToken', async () => {
-        const t = await db.generateAccessToken(tokenData);
-        const tt = await db.getAccessToken(t.tokenId);
-        await db.removeAccessToken(t);
-        assert.equal(hex(tt.tokenId), hex(t.tokenId));
-      });
-
-      it('retrieves them with getAccessTokensByUid', async () => {
-        const t = await db.generateAccessToken(tokenData);
-        const tokens = await db.getAccessTokensByUid(userId);
-        await db.removeAccessToken(t);
-        assert.isArray(tokens);
-        assert.lengthOf(tokens, 1);
-        assert.deepEqual(tokens[0].tokenId, t.tokenId);
-        assert.deepEqual(tokens[0].clientId, t.clientId);
-      });
-
-      it('deletes them with removeAccessToken', async () => {
-        const t = await db.generateAccessToken(tokenData);
-        const tt = await db.getAccessToken(t.tokenId);
-        await db.removeAccessToken(t);
-        assert.isNotNull(tt);
-        const ttt = await db.getAccessToken(t.tokenId);
-        assert.isUndefined(ttt);
-      });
-
-      it('deletes them with deleteClientAuthorization', async () => {
-        const t = await db.generateAccessToken(tokenData);
-        await db.deleteClientAuthorization(t.clientId, t.userId);
-        const tt = await db.getAccessToken(t.tokenId);
-        assert.isUndefined(tt);
-      });
-
-      it('deletes them with removeTokensAndCodes', async () => {
-        const t = await db.generateAccessToken(tokenData);
-        await db.removeTokensAndCodes(t.userId);
-        const tt = await db.getAccessToken(t.tokenId);
-        assert.isUndefined(tt);
-      });
     });
   });
 });

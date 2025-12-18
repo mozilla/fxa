@@ -11,7 +11,7 @@ const { Container } = require('typedi');
 
 const mocks = require('../../../mocks');
 
-const error = require('../../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const completedMerchantPaymentNotification = require('../fixtures/merch_pmt_completed.json');
 const pendingMerchantPaymentNotification = require('../fixtures/merch_pmt_pending.json');
 const billingAgreementCancelNotification = require('../fixtures/mp_cancel_successful.json');

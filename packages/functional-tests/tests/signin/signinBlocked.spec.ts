@@ -234,7 +234,7 @@ test.describe('severity-2 #smoke', () => {
       await settings.confirmMfaGuard(credentials.email);
 
       const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(

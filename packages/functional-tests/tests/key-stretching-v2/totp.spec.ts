@@ -4,6 +4,7 @@
 
 import { getTotpCode } from '../../lib/totp';
 import { expect, test } from '../../lib/fixtures/standard';
+import { Credentials } from '../../lib/targets';
 
 /**
  * These tests represent various permutations between interacting with V1 and V2
@@ -33,7 +34,8 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      const { email, password } = testAccountTracker.generateAccountDetails();
+      const credentials = testAccountTracker.generateAccountDetails();
+      const { email, password } = credentials;
 
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
@@ -51,7 +53,9 @@ test.describe('severity-2 #smoke', () => {
       await settings.totp.addButton.click();
       await settings.confirmMfaGuard(email);
       const totpCredentials =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(
+          credentials as unknown as Credentials
+        );
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Enabled');
@@ -78,8 +82,6 @@ test.describe('severity-2 #smoke', () => {
         const status = await client.getCredentialStatusV2(email);
         expect(status.currentVersion).toEqual('v2');
       }
-
-      await settings.disconnectTotp(); // Required before teardown
     });
   }
 });

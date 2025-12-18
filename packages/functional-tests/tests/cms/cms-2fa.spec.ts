@@ -154,7 +154,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Set up 2FA with QR code and backup codes
       const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toContainText(
@@ -220,10 +220,6 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify successful login
       expect(await relier.isLoggedIn()).toBe(true);
-
-      // Cleanup
-      await settings.goto();
-      await settings.disconnectTotp();
     });
 
     test('enable 2FA and signin with recovery phone - 123Done', async ({
@@ -286,7 +282,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.confirmMfaGuard(credentials.email);
 
       // Set up 2FA with QR code and recovery phone
-      await totp.startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice();
+      await totp.startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice(credentials);
 
       await expect(recoveryPhone.addHeader()).toBeVisible();
 
@@ -382,10 +378,6 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify successful login
       expect(await relier.isLoggedIn()).toBe(true);
-
-      // Cleanup
-      await settings.goto();
-      await settings.disconnectTotp();
     });
 
     test('enable 2FA and signin with backup recovery code - 123Done', async ({
@@ -442,7 +434,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Set up 2FA with QR code and backup codes
       const { recoveryCodes } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toContainText(
@@ -522,10 +514,6 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify successful login
       expect(await relier.isLoggedIn()).toBe(true);
-
-      // Cleanup
-      await settings.goto();
-      await settings.disconnectTotp();
     });
 
     test('enable 2FA and signin with TOTP - Sync', async ({
@@ -588,7 +576,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Set up 2FA with QR code and backup codes
       const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toContainText(
@@ -660,9 +648,6 @@ test.describe('severity-1 #smoke', () => {
       // Verify successful login
       await expect(page).toHaveURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
-
-      // Cleanup
-      await settings.disconnectTotp();
     });
   });
 });

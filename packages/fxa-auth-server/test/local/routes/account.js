@@ -17,7 +17,7 @@ const {
 
 const uuid = require('uuid');
 const crypto = require('crypto');
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const log = require('../../../lib/log');
 const otplib = require('otplib');
 const { Container } = require('typedi');
@@ -94,6 +94,7 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
   config.securityHistory = config.securityHistory || {};
   config.gleanMetrics = config.gleanMetrics || defaultConfig.gleanMetrics;
   config.cloudTasks = mocks.mockCloudTasksConfig;
+  config.accountDestroy = defaultConfig.accountDestroy;
 
   const log = options.log || mocks.mockLog();
   Container.set(AuthLogger, log);
@@ -179,6 +180,11 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
 
   Container.set(ProfileClient, profile);
 
+  const authServerCacheRedis = options.authServerCacheRedis || {
+    get: async () => null,
+    del: async () => 0,
+  };
+
   return accountRoutes(
     log,
     db,
@@ -195,6 +201,7 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     options.stripeHelper,
     pushbox,
     glean,
+    authServerCacheRedis,
     statsd
   );
 };
@@ -517,7 +524,8 @@ describe('/account/reset', () => {
     it('should return response', () => {
       assert.ok(res.sessionToken, 'return sessionToken');
       assert.ok(res.keyFetchToken, 'return keyFetchToken');
-      assert.equal(res.verified, true, 'return verified true');
+      assert.equal(res.emailVerified, true, 'return email verified true');
+      assert.equal(res.sessionVerified, true, 'return session verified true');
       assert.equal(res.verificationMethod, undefined);
     });
 
@@ -863,7 +871,7 @@ describe('/account/create', () => {
     glean.registration.confirmationEmailSent.reset();
   });
 
-  function setup(extraConfig, mockRequestOptsCb) {
+  function setup(extraConfig, mockRequestOptsCb, makeRoutesOptions = {}) {
     const config = {
       securityHistory: {
         enabled: true,
@@ -939,7 +947,7 @@ describe('/account/create', () => {
         wrapWrapKb: 'wibble',
       },
       {
-        emailRecord: new error.unknownAccount(),
+        emailRecord: error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -964,6 +972,7 @@ describe('/account/create', () => {
       push: mockPush,
       verificationReminders,
       subscriptionAccountReminders,
+      ...makeRoutesOptions,
     });
     const route = getRoute(accountRoutes, '/account/create');
 
@@ -1289,6 +1298,23 @@ describe('/account/create', () => {
     }).finally(() => Date.now.restore());
   });
 
+  it('should reject creation when email is reserved in Redis', async () => {
+    const authServerCacheRedis = {
+      get: async () => JSON.stringify({ uid: 'someone-else', secret: 'abc' }),
+      del: async () => 1,
+    };
+    const { route, mockRequest } = setup({}, undefined, {
+      authServerCacheRedis,
+    });
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.VERIFIED_SECONDARY_EMAIL_EXISTS);
+      assert.equal(err.message, 'Email already exists');
+    }
+  });
+
   it('should create a non-sync account', () => {
     const {
       mockLog,
@@ -1546,7 +1572,7 @@ describe('/account/stub', () => {
         wrapWrapKb: 'wibble',
       },
       {
-        emailRecord: new error.unknownAccount(),
+        emailRecord: error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -1631,11 +1657,10 @@ describe('/account/stub', () => {
 });
 
 describe('/account/status', () => {
-  function setup({
-    extraConfig = {},
-    dbOptions = {},
-    shouldError = true,
-  } = {}) {
+  function setup(
+    { extraConfig = {}, dbOptions = {}, shouldError = true } = {},
+    makeRoutesOptions = {}
+  ) {
     const config = {
       securityHistory: {
         enabled: true,
@@ -1688,7 +1713,7 @@ describe('/account/status', () => {
       },
       {
         ...(shouldError && {
-          emailRecord: new error.unknownAccount(),
+          emailRecord: error.unknownAccount(),
         }),
       }
     );
@@ -1716,6 +1741,7 @@ describe('/account/status', () => {
       push: mockPush,
       verificationReminders,
       subscriptionAccountReminders,
+      ...makeRoutesOptions,
     });
     const route = getRoute(accountRoutes, '/account/status', 'POST');
 
@@ -1742,6 +1768,21 @@ describe('/account/status', () => {
     return runTest(route, mockRequest, (response) => {
       assert.equal(response.invalidDomain, false);
     });
+  });
+
+  it('rejects with EMAIL_EXISTS when reserved in Redis', async () => {
+    const authServerCacheRedis = {
+      get: async () => JSON.stringify({ uid: 'someone-else', secret: 'zzz' }),
+      del: async () => 1,
+    };
+    const { route, mockRequest } = setup({}, { authServerCacheRedis });
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.VERIFIED_SECONDARY_EMAIL_EXISTS);
+      assert.equal(err.message, 'Email already exists');
+    }
   });
 
   it('#integration -returns invalid for an invalid email domain', async () => {
@@ -1851,7 +1892,7 @@ describe('/account/finish_setup', () => {
         verifierSetAt: options.verifierSetAt,
       },
       {
-        emailRecord: new error.unknownAccount(),
+        emailRecord: error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -2003,7 +2044,7 @@ describe('/account/set_password', () => {
         verifierSetAt: options.verifierSetAt,
       },
       {
-        emailRecord: new error.unknownAccount(),
+        emailRecord: error.unknownAccount(),
       }
     );
     const mockMailer = mocks.mockMailer();
@@ -2171,6 +2212,7 @@ describe('/account/login', () => {
     signinUnblock: {
       codeLifetime: 1000,
     },
+    servicesWithEmailVerification: [],
   };
   const mockLog = log('ERROR', 'test');
   mockLog.activityEvent = sinon.spy(() => {
@@ -2242,7 +2284,7 @@ describe('/account/login', () => {
     payload: {
       authPW: hexString(32),
       email: TEST_EMAIL,
-      service: 'dcdb5ae7add825d2',
+      service: undefined,
       reason: 'signin',
       metricsContext: {
         deviceId: 'blee',
@@ -2715,9 +2757,15 @@ describe('/account/login', () => {
         );
         assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.equal(
-          response.verified,
+          response.emailVerified,
           false,
           'response indicates account is unverified'
+        );
+        // Deprecated
+        assert.equal(
+          response.verified,
+          false,
+          'response includes verified field set to false'
         );
         assert.equal(
           response.verificationMethod,
@@ -2890,7 +2938,7 @@ describe('/account/login', () => {
       });
     });
 
-    it('does not require verification when keys are not requested', () => {
+    it('does not require verification when session is verified', () => {
       const email = 'test@mozilla.com';
       mockDB.accountRecord = function () {
         return Promise.resolve({
@@ -2912,6 +2960,13 @@ describe('/account/login', () => {
           wrapWrapKb: hexString(32),
         });
       };
+      const originalCreateSessionToken = mockDB.createSessionToken;
+      mockDB.createSessionToken = sinon.spy(async (opts) => {
+        const result = await originalCreateSessionToken(opts);
+        result.tokenVerificationId = null;
+        result.tokenVerified = true;
+        return result;
+      });
 
       return runTest(route, mockRequestNoKeys, (response) => {
         assert.equal(
@@ -2924,10 +2979,14 @@ describe('/account/login', () => {
           !tokenData.mustVerify,
           'sessionToken does not have to be verified'
         );
-        assert.ok(
-          tokenData.tokenVerificationId,
-          'sessionToken was created unverified'
-        );
+        const sessionToken = mockDB.createSessionToken.returnValues[0];
+        sessionToken.then((token) => {
+          assert.ok(
+            !token.tokenVerificationId,
+            'session token has no tokenVerificationId'
+          );
+          assert.ok(token.tokenVerified, 'session token is verified');
+        });
         assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
         assert.equal(
           mockMailer.sendVerifyLoginEmail.callCount,
@@ -2946,7 +3005,19 @@ describe('/account/login', () => {
           'argument was event name'
         );
 
-        assert.ok(response.verified, 'response indicates account is verified');
+        assert.ok(
+          response.emailVerified,
+          'response indicates account is verified'
+        );
+        assert.ok(
+          response.sessionVerified,
+          'response indicates session is verified'
+        );
+        // Deprecated
+        assert.ok(
+          response.verified,
+          'response includes verified field set to true'
+        );
         assert.ok(
           !response.verificationMethod,
           "verificationMethod doesn't exist"
@@ -2955,6 +3026,9 @@ describe('/account/login', () => {
           !response.verificationReason,
           "verificationReason doesn't exist"
         );
+
+        // Restore the original function
+        mockDB.createSessionToken = originalCreateSessionToken;
       });
     });
 
@@ -3288,7 +3362,7 @@ describe('/account/login', () => {
           );
           assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
           assert.ok(
-            response.verified,
+            response.emailVerified,
             'response indicates account is verified'
           );
 
@@ -3341,7 +3415,7 @@ describe('/account/login', () => {
           );
           assert.equal(mockMailer.sendNewDeviceLoginEmail.args[0][2].uid, uid);
           assert.ok(
-            response.verified,
+            response.emailVerified,
             'response indicates account is verified'
           );
         });
@@ -3550,7 +3624,7 @@ describe('/account/login', () => {
           );
           assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
           assert.ok(
-            response.verified,
+            response.emailVerified,
             'response indicates account is verified'
           );
         });
@@ -3583,7 +3657,7 @@ describe('/account/login', () => {
         config.signinConfirmation.deviceFingerprinting = {
           enabled: true,
           reportOnlyMode: false,
-          duration: 604800000 // 7 days
+          duration: 604800000, // 7 days
         };
 
         const email = mockRequest.payload.email;
@@ -3623,9 +3697,9 @@ describe('/account/login', () => {
             oauth: {
               ...config.oauth,
               openid: {
-                key: 'test-key'
-              }
-            }
+                key: 'test-key',
+              },
+            },
           },
           customs: mockCustoms,
           db: mockDB,
@@ -3637,7 +3711,7 @@ describe('/account/login', () => {
         });
 
         route = getRoute(accountRoutes, '/account/login');
-      })
+      });
 
       it('should skip verification when device is recognized and not in report-only mode', () => {
         mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() =>
@@ -3647,18 +3721,20 @@ describe('/account/login', () => {
               verified: true,
               createdAt: Date.now() - 3600000, // 1 hour ago
               additionalInfo: JSON.stringify({
-                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                location: { country: 'US', state: 'CA' }
-              })
-            }
+                userAgent:
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                location: { country: 'US', state: 'CA' },
+              }),
+            },
           ])
         );
 
         const requestWithUserAgent = {
           ...mockRequest,
           headers: {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
+            'user-agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
         };
 
         return runTest(route, requestWithUserAgent, (response) => {
@@ -3673,7 +3749,7 @@ describe('/account/login', () => {
             'sessionToken does not require verification'
           );
           assert.ok(
-            response.verified,
+            response.sessionVerified,
             'response indicates session is verified'
           );
 
@@ -3691,9 +3767,10 @@ describe('/account/login', () => {
               ipAddr: requestWithUserAgent.app.clientAddress,
               tokenId: undefined,
               additionalInfo: {
-                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                location: requestWithUserAgent.app.geo.location
-              }
+                userAgent:
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                location: requestWithUserAgent.app.geo.location,
+              },
             })
           );
         });
@@ -3707,8 +3784,9 @@ describe('/account/login', () => {
         const requestWithDifferentUserAgent = {
           ...mockRequest,
           headers: {
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-          }
+            'user-agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+          },
         };
 
         return runTest(route, requestWithDifferentUserAgent, (response) => {
@@ -3718,10 +3796,7 @@ describe('/account/login', () => {
             'db.createSessionToken was called'
           );
           const tokenData = mockDB.createSessionToken.getCall(0).args[0];
-          assert.ok(
-            tokenData.mustVerify,
-            'sessionToken requires verification'
-          );
+          assert.ok(tokenData.mustVerify, 'sessionToken requires verification');
           assert.ok(
             !response.verified,
             'response indicates session is not verified'
@@ -3744,18 +3819,20 @@ describe('/account/login', () => {
               verified: true,
               createdAt: Date.now() - 3600000, // 1 hour ago
               additionalInfo: JSON.stringify({
-                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                location: { country: 'US', state: 'CA' }
-              })
-            }
+                userAgent:
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                location: { country: 'US', state: 'CA' },
+              }),
+            },
           ])
         );
 
         const requestWithUserAgent = {
           ...mockRequest,
           headers: {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
+            'user-agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
         };
 
         return runTest(route, requestWithUserAgent, (response) => {
@@ -3806,11 +3883,17 @@ describe('/account/login', () => {
         config.signinConfirmation.deviceFingerprinting.enabled = false;
 
         const originalSpy = mockDB.verifiedLoginSecurityEventsByUid;
-        mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() => Promise.resolve([]));
+        mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() =>
+          Promise.resolve([])
+        );
 
         return runTest(route, mockRequest, (response) => {
           // Should not call the device fingerprinting database method
-          assert.equal(mockDB.verifiedLoginSecurityEventsByUid.callCount, 0, 'device fingerprinting was not called');
+          assert.equal(
+            mockDB.verifiedLoginSecurityEventsByUid.callCount,
+            0,
+            'device fingerprinting was not called'
+          );
           // Restore original spy
           mockDB.verifiedLoginSecurityEventsByUid = originalSpy;
         });
@@ -4089,10 +4172,8 @@ describe('/account/login', () => {
           });
 
           it('unknown account', () => {
-            mockDB.accountRecord = () =>
-              Promise.reject(new error.unknownAccount());
-            mockDB.emailRecord = () =>
-              Promise.reject(new error.unknownAccount());
+            mockDB.accountRecord = () => Promise.reject(error.unknownAccount());
+            mockDB.emailRecord = () => Promise.reject(error.unknownAccount());
             return runTest(route, mockRequestWithUnblockCode).then(
               () => assert(false),
               (err) => {

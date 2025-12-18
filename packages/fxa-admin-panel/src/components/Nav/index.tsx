@@ -52,6 +52,21 @@ export const Nav = () => (
             </NavLink>
           </li>
         </Guard>
+        <Guard features={[AdminPanelFeature.AccountReset]}>
+          <li>
+            <NavLink
+              to="/account-reset"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={accountIcon}
+                alt="account icon"
+              />
+              Account Reset
+            </NavLink>
+          </li>
+        </Guard>
         <Guard features={[AdminPanelFeature.RelyingParties]}>
           <li>
             <NavLink

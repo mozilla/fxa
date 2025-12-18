@@ -11,6 +11,7 @@ export async function retrieveAdditionalMetricsData(
   cartManager: CartManager,
   params: Record<string, string | undefined>
 ): Promise<AdditionalMetricsData> {
+  const locale = params['locale'] || 'en';
   const offeringId = params['offeringId'];
   const interval = params['interval'];
   const cartId = params['cartId'];
@@ -54,6 +55,7 @@ export async function retrieveAdditionalMetricsData(
           couponCode: cartData.value.couponCode,
           currency: cartData.value.currency,
           stripeCustomerId: cartData.value.stripeCustomerId,
+          taxAddress: cartData.value.taxAddress,
         }
       : {
           uid: '',
@@ -61,10 +63,12 @@ export async function retrieveAdditionalMetricsData(
           couponCode: '',
           currency: '',
           stripeCustomerId: '',
+          taxAddress: { countryCode: '', postalCode: '' },
         };
 
   return {
     cmsMetricsData,
     cartMetricsData,
+    locale,
   };
 }

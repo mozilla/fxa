@@ -16,7 +16,10 @@ export const resubscribeSubscriptionAction = async (
     subscriptionId,
   });
 
-  revalidatePath('/[locale]/subscriptions/manage', 'page');
+  revalidatePath(
+    '/[locale]/subscriptions/[subscriptionId]/stay-subscribed',
+    'page'
+  );
 
   return result;
 };

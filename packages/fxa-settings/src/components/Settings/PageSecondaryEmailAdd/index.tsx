@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
-import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { SETTINGS_PATH } from '../../../constants';
@@ -12,26 +12,23 @@ import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
-import { AuthUiErrorNos } from 'fxa-settings/src/lib/auth-errors/auth-errors';
-import { getErrorFtlId } from '../../../lib/error-utils';
-import { MfaGuard } from '../MfaGuard';
-import { useErrorHandler } from 'react-error-boundary';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 import { MfaReason } from '../../../lib/types';
+import { useFtlMsgResolver } from '../../../models/hooks';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
   const [saveBtnDisabled, setSaveBtnDisabled] = useState(true);
   const [errorText, setErrorText] = useState<string>();
   const [email, setEmail] = useState<string>();
   const inputRefDOM = useRef<HTMLInputElement>(null);
-  const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
 
-  const subtitleText = l10n.getString(
+  const subtitleText = ftlMsgResolver.getMsg(
     'add-secondary-email-step-1',
-    null,
     'Step 1 of 2'
   );
   const navigateWithQuery = useNavigateWithQuery();
@@ -47,30 +44,34 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
         await account.createSecondaryEmail(email);
         navigateWithQuery('emails/verify', { state: { email }, replace: true });
       } catch (e) {
-        if (isInvalidJwtError(e)) {
-          // JWT invalid/expired
-          errorHandler(e);
+        const errorHandled = handleMfaError(e);
+        if (errorHandled) {
           return;
         }
         if (e.errno) {
-          const errorText = l10n.getString(
-            getErrorFtlId(e),
-            { retryAfter: e.retryAfterLocalized },
-            AuthUiErrorNos[e.errno].message
+          const localizedErrorMessage = getLocalizedErrorMessage(
+            ftlMsgResolver,
+            e
           );
-          setErrorText(errorText);
+          setErrorText(localizedErrorMessage);
         } else {
           alertBar.error(
-            l10n.getString(
+            ftlMsgResolver.getMsg(
               'add-secondary-email-error-2',
-              null,
               'There was a problem creating this email'
             )
           );
         }
       }
     },
-    [account, navigateWithQuery, setErrorText, alertBar, l10n, errorHandler]
+    [
+      account,
+      navigateWithQuery,
+      setErrorText,
+      alertBar,
+      handleMfaError,
+      ftlMsgResolver,
+    ]
   );
 
   const checkEmail = useCallback(
@@ -83,20 +84,19 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
       setErrorText('');
 
       if (isEmailMask(email)) {
-        const errorText = l10n.getString(
+        const errorText = ftlMsgResolver.getMsg(
           'add-secondary-email-mask',
-          null,
           'Email masks can’t be used as a secondary email'
         );
         setErrorText(errorText);
         setSaveBtnDisabled(true);
       }
     },
-    [setSaveBtnDisabled, setErrorText, l10n]
+    [setSaveBtnDisabled, setErrorText, ftlMsgResolver]
   );
 
   return (
-    <Localized id="add-secondary-email-page-title" attrs={{ title: true }}>
+    <FtlMsg id="add-secondary-email-page-title" attrs={{ title: true }}>
       <FlowContainer title="Secondary email" subtitle={subtitleText}>
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
@@ -109,7 +109,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
           }}
         >
           <div className="mt-4 mb-6" data-testid="secondary-email-input">
-            <Localized
+            <FtlMsg
               id="add-secondary-email-enter-address"
               attrs={{ label: true }}
             >
@@ -120,11 +120,11 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
                 inputRefDOM={inputRefDOM}
                 {...{ errorText }}
               />
-            </Localized>
+            </FtlMsg>
           </div>
 
           <div className="flex justify-center mx-auto max-w-64">
-            <Localized id="add-secondary-email-cancel-button">
+            <FtlMsg id="add-secondary-email-cancel-button">
               <button
                 type="button"
                 className="cta-neutral cta-base-p mx-2 flex-1"
@@ -133,8 +133,8 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
               >
                 Cancel
               </button>
-            </Localized>
-            <Localized id="add-secondary-email-save-button">
+            </FtlMsg>
+            <FtlMsg id="add-secondary-email-save-button">
               <button
                 type="submit"
                 className="cta-primary cta-base-p mx-2 flex-1"
@@ -143,11 +143,11 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
               >
                 Save
               </button>
-            </Localized>
+            </FtlMsg>
           </div>
         </form>
       </FlowContainer>
-    </Localized>
+    </FtlMsg>
   );
 };
 

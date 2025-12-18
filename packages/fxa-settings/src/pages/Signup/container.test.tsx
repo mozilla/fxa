@@ -47,7 +47,7 @@ import { ApolloClient } from '@apollo/client';
 import { ModelDataProvider } from '../../lib/model-data';
 import AuthClient from 'fxa-auth-client/browser';
 import { LocationProvider } from '@reach/router';
-import { mockLoadingSpinnerModule, MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
+import { MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
 // often times a mocking util isn't even necessary. Note that using the Dependency Inversion
@@ -63,7 +63,8 @@ function mockIntegration() {
     isSync: () => true,
     wantsKeys: () => true,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     getCmsInfo: () => undefined,
   };
@@ -173,6 +174,12 @@ function mockModelsModule() {
   );
 }
 
+jest.mock('../../components/AppLayout', () => ({
+  __esModule: true,
+  default: ({ children, loading }: any) =>
+    loading ? <div>loading spinner mock</div> : <div>{children}</div>,
+}));
+
 // TIP - Finally, we should create a helper function, so the defacto
 // mock behaviors can be easily applied. Once applied, they can
 // always be overridden as needed.
@@ -191,7 +198,6 @@ function applyMocks() {
   mockFirefoxModule();
   mockCryptoModule();
   mockReachRouterModule();
-  mockLoadingSpinnerModule();
 }
 
 // TIP - Since render looks more or less the same each time, we can tease this out
@@ -207,11 +213,13 @@ async function render(text?: string) {
           integration,
           serviceName,
         }}
-        useSyncEnginesResult={{
+        useFxAStatusResult={{
           offeredSyncEngines: [],
           offeredSyncEngineConfigs: [],
           selectedEnginesForGlean: {},
           declinedSyncEngines: [],
+          supportsKeysOptionalLogin: false,
+          supportsCanLinkAccountUid: false,
         }}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />

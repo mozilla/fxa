@@ -12,10 +12,11 @@ import {
 import { setContext } from '@apollo/client/link/context';
 import { ErrorHandler, onError } from '@apollo/client/link/error';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
-import { cache, sessionToken, typeDefs } from './cache';
+import { cache, currentAccount, sessionToken, typeDefs } from './cache';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 import * as Sentry from '@sentry/browser';
+import { navigateWithQuery } from './utilities';
 
 /**
  * These operation names either require auth with a valid session token
@@ -54,6 +55,11 @@ const isUnverifiedSessionError = (
   error: GraphQLError | GraphQLFormattedError
 ) => {
   return error.message === 'Must verify';
+};
+
+/** This error is returned when the user is required to complete 2FA */
+const is2faAalRequiredError = (error: GraphQLError | GraphQLFormattedError) => {
+  return error.message === 'Insufficient AAL';
 };
 
 const afterwareLink = new ApolloLink((operation, forward) => {
@@ -100,7 +106,7 @@ export const errorHandler: ErrorHandler = ({
           // Note, we relay the search query, so that RP can control the signin flow.
           // For example an RP could link to https://accounts.firefox.com/settings?email=foo@mozilla.com
           // in order to force a user to signin as foo@mozilla.com.
-          return window.location.replace(`/signin${window.location.search}`);
+          navigateWithQuery('/signin');
         } else {
           // If the user isn't in Settings and they see this message they may hit it due to
           // the initial metrics query - e.g. if they attempt to sign in and see the TOTP page,
@@ -110,6 +116,29 @@ export const errorHandler: ErrorHandler = ({
             data: { isSignedIn: false },
           });
         }
+      } else if (
+        is2faAalRequiredError(error) &&
+        window?.location.pathname.includes('settings')
+      ) {
+        cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
+          fields: {
+            totp(_, { DELETE }) {
+              return DELETE;
+            },
+          },
+        });
+
+        const storedAccount = currentAccount();
+        navigateWithQuery('/signin_totp_code', {
+          state: {
+            email: storedAccount?.email,
+            sessionToken: storedAccount?.sessionToken,
+            uid: storedAccount?.uid,
+            verified: storedAccount?.verified,
+            isSessionAALUpgrade: true,
+          },
+        });
       } else {
         // Add error as bread crumb, so if there's a down stream exception, we can
         // see potential gql problems.

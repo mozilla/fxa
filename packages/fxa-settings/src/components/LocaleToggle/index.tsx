@@ -10,15 +10,24 @@ import { getBrowserDefaultLocaleInfo } from '../../lib/locales';
 const BROWSER_DEFAULT_VALUE = 'browser-default';
 
 /**
-* Locale selection dropdown component with browser default support
-* Handles locale switching and preference clearing
-*/
+ * Locale selection dropdown component with browser default support
+ * Handles locale switching and preference clearing
+ */
 export const LocaleToggle: React.FC = () => {
   const ftlMsgResolver = useFtlMsgResolver();
-  const { currentLocale, availableLocales, switchLocale, clearLocalePreference, isUsingBrowserDefault, isLoading } = useLocaleManager();
+  const {
+    currentLocale,
+    availableLocales,
+    switchLocale,
+    clearLocalePreference,
+    isUsingBrowserDefault,
+    isLoading,
+  } = useLocaleManager();
 
   // Handle locale selection
-  const handleLocaleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleLocaleChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const newLocale = event.target.value;
 
     if (newLocale === BROWSER_DEFAULT_VALUE) {
@@ -46,7 +55,7 @@ export const LocaleToggle: React.FC = () => {
   // Determine the current value for the select
   // If using browser default, show the actual browser locale in the dropdown
   const currentValue = isUsingBrowserDefault
-    ? (browserDefaultLocale?.code || currentLocale)
+    ? browserDefaultLocale?.code || currentLocale
     : currentLocale;
 
   return (
@@ -59,7 +68,7 @@ export const LocaleToggle: React.FC = () => {
         value={currentValue}
         onChange={handleLocaleChange}
         disabled={isLoading}
-        className="text-xs text-grey-500 hover:text-grey-600 focus:outline-none focus:text-grey-600 disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-0 cursor-pointer appearance-none min-w-[8ch] w-auto"
+        className="text-xs text-grey-500 hover:text-grey-600 p-1 focus:outline-2 focus:outline-offset-1 focus:outline-blue-500 focus:text-grey-600 disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-0 cursor-pointer appearance-none min-w-[8ch] w-auto"
         data-testid="locale-select"
         aria-label={selectLabel}
       >

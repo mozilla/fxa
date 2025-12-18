@@ -26,12 +26,12 @@ export const DEFAULT_PRODUCT_DETAILS: ProductDetails = {
     'Available for Windows, iOS and Android',
   ],
   termsOfServiceURL:
-    'https://www.mozilla.org/about/legal/terms/firefox-private-network',
+    'https://www.mozilla.org/about/legal/terms/subscription-services',
   termsOfServiceDownloadURL:
-    'https://cdn.accounts.firefox.com/legal/Mozilla_VPN_ToS/en-US.pdf',
-  privacyNoticeURL: 'https://www.mozilla.org/privacy/firefox-private-network',
+    'https://cdn.accounts.firefox.com/legal/subscription_services_tos.en.pdf',
+  privacyNoticeURL: 'https://www.mozilla.org/privacy/subscription-services',
   privacyNoticeDownloadURL:
-    'https://cdn.accounts.firefox.com/legal/mozilla_vpn_privacy_notice/en-US.pdf',
+    'https://cdn.accounts.firefox.com/legal/subscription_services_privacy_notice.en.pdf',
 };
 
 // Support some default null values for product / plan metadata and

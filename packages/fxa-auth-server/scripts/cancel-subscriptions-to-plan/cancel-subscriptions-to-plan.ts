@@ -3,64 +3,39 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Stripe from 'stripe';
-import { Firestore } from '@google-cloud/firestore';
-import Container from 'typedi';
-import fs from 'fs';
+import { writeFile } from 'fs/promises';
 import PQueue from 'p-queue';
 
-import { AppConfig, AuthFirestore } from '../../lib/types';
-import { ConfigType } from '../../config';
 import { StripeHelper } from '../../lib/payments/stripe';
 import { PayPalHelper } from 'packages/fxa-auth-server/lib/payments/paypal';
-
-/**
- * Firestore subscriptions contain additional expanded information
- * on top of the base Stripe.Subscription type
- */
-export interface FirestoreSubscription extends Stripe.Subscription {
-  customer: string;
-  plan: Stripe.Plan;
-  price: Stripe.Price;
-}
+import { RefundType } from '@fxa/payments/paypal';
 
 export class PlanCanceller {
-  private config: ConfigType;
-  private firestore: Firestore;
   private stripeQueue: PQueue;
   private stripe: Stripe;
 
   /**
    * A tool to cancel all subscriptions under a plan
    * @param priceId A Stripe plan or price ID for which all subscriptions will be cancelled
-   * @param refund If true, all subscriptions will have their last charge reversed to their card, regardless of remaining time
-   * @param prorate If true, all subscriptions cancellations will generate a proration invoice item that credits remaining time
-   * @param excludePlanIds A list of Stripe plan or price ID which if customers have will not be subscribed to the destination plan
-   * @param batchSize Number of subscriptions to fetch from Firestore at a time
+   * @param remainingValueMode Configuration for how to handle remaining subscription value
+   * @param excludePlanIds A list of Stripe plan or price ID which if customers have will not be cancelled
    * @param outputFile A CSV file to output a report of affected subscriptions to
    * @param stripeHelper An instance of StripeHelper
+   * @param paypalHelper An instance of PayPalHelper
+   * @param dryRun If true, no actual changes will be made
    * @param rateLimit A limit for number of stripe requests within the period of 1 second
-   * @param database A reference to the FXA database
    */
   constructor(
     private priceId: string,
-    private refund: boolean,
-    private prorate: boolean,
+    private remainingValueMode: "noaction" | "refund" | "prorate" | "proratedRefund",
     private excludePlanIds: string[],
-    private batchSize: number,
     private outputFile: string,
     private stripeHelper: StripeHelper,
     private paypalHelper: PayPalHelper,
-    private database: any,
     public dryRun: boolean,
     rateLimit: number
   ) {
     this.stripe = this.stripeHelper.stripe;
-
-    const config = Container.get<ConfigType>(AppConfig);
-    this.config = config;
-
-    const firestore = Container.get<Firestore>(AuthFirestore);
-    this.firestore = firestore;
 
     this.stripeQueue = new PQueue({
       intervalCap: rateLimit,
@@ -68,86 +43,114 @@ export class PlanCanceller {
     });
   }
 
-  /**
-   * Cancel all customer subscriptions in batches
-   */
   async run(): Promise<void> {
-    let startAfter: string | null = null;
-    let hasMore = true;
+    await this.writeReportHeader();
 
-    while (hasMore) {
-      const subscriptions = await this.fetchSubsBatch(startAfter);
-
-      startAfter = subscriptions.at(-1)?.id as string;
-      if (!startAfter) hasMore = false;
-
-      await Promise.all(
-        subscriptions.map((sub) => this.processSubscription(sub))
-      );
-    }
+    await this.stripe.subscriptions.list({
+      price: this.priceId,
+      limit: 100,
+    }).autoPagingEach((subscription) => {
+      return this.processSubscription(subscription);
+    });
   }
 
-  /**
-   * Fetches subscriptions from Firestore paginated by batchSize
-   * @param startAfter ID of the last element of the previous batch for pagination
-   * @returns A list of subscriptions from firestore
-   */
-  async fetchSubsBatch(
-    startAfter: string | null
-  ): Promise<FirestoreSubscription[]> {
-    const collectionPrefix = `${this.config.authFirestore.prefix}stripe-`;
-    const subscriptionCollection = `${collectionPrefix}subscriptions`;
-
-    const subscriptionSnap = await this.firestore
-      .collectionGroup(subscriptionCollection)
-      .where('plan.id', '==', this.priceId)
-      .orderBy('id')
-      .startAfter(startAfter)
-      .limit(this.batchSize)
-      .get();
-
-    const subscriptions = subscriptionSnap.docs.map(
-      (doc) => doc.data() as FirestoreSubscription
-    );
-
-    return subscriptions;
-  }
-
-  /**
-   * Attempts to cancel a firestore subscription
-   * @param firestoreSubscription The subscription to cancel
-   */
   async processSubscription(
-    firestoreSubscription: FirestoreSubscription
+    subscription: Stripe.Subscription
   ): Promise<void> {
-    const { id: subscriptionId, customer: customerId } = firestoreSubscription;
+    const subscriptionId = subscription.id;
+    const customerId =
+      typeof subscription.customer === 'string'
+        ? subscription.customer
+        : subscription.customer.id;
 
     try {
       const customer = await this.fetchCustomer(customerId);
       if (!customer?.subscriptions?.data) {
-        console.error(`Customer not found: ${customerId}`);
-        return;
-      }
-
-      const account = await this.database.account(customer.metadata.userid);
-      if (!account) {
-        console.error(`Account not found: ${customer.metadata.userid}`);
-        return;
+        throw new Error(`Customer not found: ${customerId}`);
       }
 
       const isExcluded = this.isCustomerExcluded(customer.subscriptions.data);
 
-      if (!this.dryRun && !isExcluded) {
-        await this.cancelSubscription(firestoreSubscription);
+      let amountRefunded: number | null = null;
+      let approximateAmountWasOwed: number | null = null;
+      let daysSinceLastBill: number | null = null;
+      let daysUntilNextBill: number | null = null;
+      let previousInvoiceAmountPaid: number | null = null;
+      let isOwed = !isExcluded;
+
+      if (!isExcluded) {
+        if (this.remainingValueMode === "proratedRefund") {
+          try {
+            const calculation = await this.calculateRefundAmount(subscription);
+            approximateAmountWasOwed = calculation.refundAmount;
+            daysSinceLastBill = calculation.daysSinceBill;
+            daysUntilNextBill = calculation.daysUntilNextBill;
+            previousInvoiceAmountPaid = calculation.invoice.amount_paid;
+          } catch(e) {
+            console.warn(e);
+          }
+        }
+
+        if (!this.dryRun) {
+          await this.enqueueRequest(() =>
+            this.stripe.subscriptions.cancel(subscription.id, {
+              prorate: this.remainingValueMode === "prorate",
+            })
+          );
+        }
+
+        if (this.remainingValueMode === "noaction" || this.remainingValueMode === "prorate") {
+          isOwed = false;
+          amountRefunded = null;
+        } else if (this.remainingValueMode === "refund") {
+          try {
+            amountRefunded = await this.attemptFullRefund(subscription);
+            isOwed = false;
+          } catch (e) {
+            console.log(`Failed to issue a refund for ${customerId} ${e}`);
+            isOwed = true;
+          }
+        } else if (this.remainingValueMode === "proratedRefund") {
+          try {
+            amountRefunded = await this.attemptProratedRefund(subscription);
+            isOwed = false;
+          } catch (e) {
+            console.log(`Failed to issue a refund for ${customerId} ${e}`);
+            isOwed = true;
+          }
+        }
+      } else {
+        isOwed = false;
       }
 
-      const report = this.buildReport(customer, account, isExcluded);
+      await this.writeReport({
+        subscription,
+        customer,
+        isExcluded,
+        amountRefunded,
+        approximateAmountWasOwed,
+        daysSinceLastBill,
+        daysUntilNextBill,
+        previousInvoiceAmountPaid,
+        isOwed,
+        error: false,
+      });
 
-      await this.writeReport(report);
-
-      console.log(subscriptionId);
+      console.log(`Processed ${subscriptionId}`);
     } catch (e) {
       console.error(subscriptionId, e);
+      await this.writeReport({
+        subscription,
+        customer: null,
+        isExcluded: false,
+        amountRefunded: null,
+        approximateAmountWasOwed: null,
+        daysSinceLastBill: null,
+        daysUntilNextBill: null,
+        previousInvoiceAmountPaid: null,
+        isOwed: false,
+        error: true,
+      });
     }
   }
 
@@ -168,22 +171,9 @@ export class PlanCanceller {
     return customer;
   }
 
-  /**
-   * Cancel subscription and refund customer for latest bill
-   * @param subscription The subscription to cancel
-   */
-  async cancelSubscription(subscription: Stripe.Subscription): Promise<void> {
-    await this.enqueueRequest(() =>
-      this.stripe.subscriptions.cancel(subscription.id, {
-        prorate: this.prorate,
-      })
-    );
-
-    if (!this.refund) return;
-
+  async attemptFullRefund(subscription: Stripe.Subscription) {
     if (!subscription.latest_invoice) {
-      console.log(`No latest invoice for ${subscription.id}`);
-      return;
+      throw new Error(`No latest invoice for ${subscription.id}`);
     }
 
     const latestInvoiceId =
@@ -195,26 +185,127 @@ export class PlanCanceller {
       this.stripe.invoices.retrieve(latestInvoiceId)
     );
 
-    if (invoice.collection_method === 'send_invoice') {
-      console.log(`Issuing Paypal refund for ${invoice.id}`);
-      await this.paypalHelper.refundInvoice(invoice);
+    if (invoice.paid_out_of_band) {
+      console.log(`Issuing full Paypal refund for ${invoice.id}`);
+      if (this.dryRun) {
+        console.log('(dry run mode, no refund issued)');
+      } else {
+        await this.paypalHelper.refundInvoice(invoice);
+      }
     } else {
       const chargeId =
         typeof invoice.charge === 'string'
           ? invoice.charge
           : invoice.charge?.id;
       if (!chargeId) {
-        console.log(`No charge for ${invoice.id}`);
-        return;
+        throw new Error(`No charge for ${invoice.id}`);
       }
 
-      console.log(`Issuing Stripe refund for ${chargeId}`);
-      await this.enqueueRequest(() =>
-        this.stripe.refunds.create({
-          charge: chargeId,
-        })
-      );
+      console.log(`Issuing full Stripe refund for ${chargeId}`);
+      if (this.dryRun) {
+        console.log('(dry run mode, no refund issued)');
+      } else {
+        await this.enqueueRequest(() =>
+          this.stripe.refunds.create({
+            charge: chargeId,
+          })
+        );
+      }
     }
+
+    return invoice.amount_paid;
+  }
+
+  /**
+   * Calculate the refund amount and days since last bill for a subscription
+   * @param subscription The subscription to calculate for
+   * @returns Object containing refundAmount, daysSinceBill, daysUntilNextBill, and invoice
+   */
+  async calculateRefundAmount(subscription: Stripe.Subscription): Promise<{ refundAmount: number, daysSinceBill: number, daysUntilNextBill: number, invoice: Stripe.Invoice }> {
+    if (!subscription.latest_invoice) {
+      throw new Error(`No latest invoice for ${subscription.id}`);
+    }
+
+    const latestInvoiceId =
+      typeof subscription.latest_invoice === 'string'
+        ? subscription.latest_invoice
+        : subscription.latest_invoice.id;
+
+    const invoice = await this.enqueueRequest(() =>
+      this.stripe.invoices.retrieve(latestInvoiceId)
+    );
+
+    if (!invoice.paid) {
+      throw new Error("Customer is pending renewal right now!");
+    }
+
+    const oneDayMs = 1000 * 60 * 60 * 24;
+
+    const periodStart = new Date(subscription.current_period_start * 1000);
+    const periodEnd = new Date(subscription.current_period_end * 1000);
+    const now = new Date();
+
+    const totalPeriodMs = periodEnd.getTime() - periodStart.getTime();
+    const timeElapsedMs = now.getTime() - periodStart.getTime();
+    const timeRemainingMs = periodEnd.getTime() - now.getTime();
+
+    const daysSinceBill = Math.floor(timeElapsedMs / oneDayMs);
+    const totalDaysInPeriod = Math.floor(totalPeriodMs / oneDayMs);
+    const daysUntilNextBill = Math.floor(timeRemainingMs / oneDayMs);
+
+    const refundAmount = Math.floor((daysUntilNextBill / totalDaysInPeriod) * invoice.amount_paid);
+
+    return { refundAmount, daysSinceBill, daysUntilNextBill, invoice };
+  }
+
+  async attemptProratedRefund(subscription: Stripe.Subscription) {
+    const calculation = await this.calculateRefundAmount(subscription);
+    const refundAmount = calculation.refundAmount;
+    const invoice = calculation.invoice;
+
+    if (refundAmount > invoice.amount_paid) {
+      throw new Error(`Will not refund ${invoice.id} for ${refundAmount} as it would eclipse the amount paid on the invoice`);
+    }
+
+    if (refundAmount <= 0) {
+      throw new Error(`Will not refund ${invoice.id} for ${refundAmount} as it is less than or equal to zero`);
+    }
+
+    if (invoice.paid_out_of_band) {
+      const behavior = refundAmount === invoice.amount_paid ? {
+        refundType: RefundType.Full
+      } as const : {
+        refundType: RefundType.Partial,
+        amount: refundAmount,
+      } as const;
+
+      console.log(`Issuing ${refundAmount} (${behavior.refundType}) Paypal refund for ${invoice.id}`);
+      if (this.dryRun) {
+        console.log('(dry run mode, no refund issued)');
+      } else {
+        await this.paypalHelper.refundInvoice(invoice, behavior);
+      }
+    } else {
+      const chargeId =
+        typeof invoice.charge === 'string' ? invoice.charge : invoice.charge?.id;
+      if (!chargeId) {
+        throw new Error(`No charge for ${invoice.id}`);
+      }
+
+      console.log(`Issuing ${refundAmount} Stripe refund for ${invoice.id}`);
+      if (this.dryRun) {
+        console.log('(dry run mode, no refund issued)');
+      } else {
+        await this.enqueueRequest(() =>
+          this.stripe.refunds.create({
+            charge: chargeId,
+            amount: refundAmount
+          })
+        );
+      }
+    }
+
+    return refundAmount;
   }
 
   /**
@@ -231,40 +322,62 @@ export class PlanCanceller {
     return false;
   }
 
-  /**
-   * Creates an ordered array of fields destined for CSV format
-   * @returns An array representing the fields to be output to CSV
-   */
-  buildReport(
-    customer: Stripe.Customer,
-    account: any,
-    isExcluded: boolean
-  ): string[] {
-    // We build a temporary object first for readability & maintainability purposes
-    const report = {
-      uid: customer.metadata.userid,
-      email: customer.email,
-      isExcluded: isExcluded.toString(),
-
-      locale: account.locale,
-    };
-
-    return [
-      report.uid,
-      `"${report.email}"`,
-      report.isExcluded,
-      `"${report.locale}"`,
+  async writeReportHeader() {
+    const data = [
+      "subscriptionId",
+      "fxaUid",
+      "stripeEmail",
+      "postalCode",
+      "isExcluded",
+      "amountRefunded",
+      "approximateAmountWasOwed",
+      "daysSinceLastBill",
+      "daysUntilNextBill",
+      "previousInvoiceAmountPaid",
+      "isOwed",
+      "error"
     ];
+
+    const reportCSV = data.join(',') + '\n';
+
+    await writeFile(this.outputFile, reportCSV, {
+      flag: 'wx',
+      encoding: 'utf-8',
+    });
   }
 
-  /**
-   * Appends the report to the output file
-   * @param report an array representing the report CSV
-   */
-  async writeReport(report: (string | number | null)[]): Promise<void> {
-    const reportCSV = report.join(',') + '\n';
+  async writeReport(args: {
+    subscription: Stripe.Subscription,
+    customer: Stripe.Customer | null,
+    isExcluded: boolean,
+    amountRefunded: number | null,
+    approximateAmountWasOwed: number | null,
+    daysSinceLastBill: number | null,
+    daysUntilNextBill: number | null,
+    previousInvoiceAmountPaid: number | null,
+    isOwed: boolean,
+    error: boolean
+  }) {
+    const postalCode = args.customer?.shipping?.address?.postal_code ?? args.customer?.address?.postal_code ?? "null";
 
-    await fs.promises.writeFile(this.outputFile, reportCSV, {
+    const data = [
+      args.subscription.id,
+      args.customer?.metadata.userid,
+      `"${args.customer?.email}"`,
+      postalCode,
+      String(args.isExcluded),
+      args.amountRefunded ?? "null",
+      args.approximateAmountWasOwed ?? "null",
+      args.daysSinceLastBill ?? "null",
+      args.daysUntilNextBill ?? "null",
+      args.previousInvoiceAmountPaid ?? "null",
+      args.isOwed,
+      args.error
+    ];
+
+    const reportCSV = data.join(',') + '\n';
+
+    await writeFile(this.outputFile, reportCSV, {
       flag: 'a+',
       encoding: 'utf-8',
     });

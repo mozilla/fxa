@@ -6,7 +6,6 @@
 
 const emailUtils = require('../email/utils/helpers');
 const moment = require('moment-timezone');
-const { SES } = require('@aws-sdk/client-ses');
 const nodemailer = require('nodemailer');
 const safeUserAgent = require('fxa-shared/lib/user-agent').default;
 const url = require('url');
@@ -29,9 +28,6 @@ const UTM_PREFIX = 'fx-';
 
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
-
-// Prod and stage IDs
-const CLIENT_IDS_AMO = ['a4907de5fa9d78fc', '285dd6fd9907a74c'];
 
 module.exports = function (log, config, bounces, statsd) {
   const oauthClientInfo = require('./oauth_client_info')(log, config);
@@ -305,10 +301,9 @@ module.exports = function (log, config, bounces, statsd) {
   const validCardTypes = Object.keys(CARD_TYPE_TO_TEXT);
 
   function Mailer(mailerConfig, sender) {
-    let options = {
+    const options = {
       host: mailerConfig.host,
       secure: mailerConfig.secure,
-      ignoreTLS: !mailerConfig.secure,
       port: mailerConfig.port,
       pool: mailerConfig.pool,
       maxConnections: mailerConfig.maxConnections,
@@ -317,6 +312,7 @@ module.exports = function (log, config, bounces, statsd) {
       greetingTimeout: mailerConfig.greetingTimeout,
       socketTimeout: mailerConfig.socketTimeout,
       dnsTimeout: mailerConfig.dnsTimeout,
+      sendingRate: mailerConfig.sendingRate,
     };
 
     if (mailerConfig.user && mailerConfig.password) {
@@ -324,17 +320,14 @@ module.exports = function (log, config, bounces, statsd) {
         user: mailerConfig.user,
         pass: mailerConfig.password,
       };
-    } else {
-      const ses = new SES({
-        // The key apiVersion is no longer supported in v3, and can be removed.
-        // @deprecated The client uses the "latest" apiVersion.
-        apiVersion: '2010-12-01',
-      });
-      options = {
-        SES: { ses },
-        sendingRate: 5,
-        maxConnections: 10,
-      };
+    }
+
+    if (typeof mailerConfig.ignoreTLS === 'boolean') {
+      options.ignoreTLS = mailerConfig.ignoreTLS;
+    }
+
+    if (typeof mailerConfig.requireTLS === 'boolean') {
+      options.requireTLS = mailerConfig.requireTLS;
     }
 
     this.accountSettingsUrl = mailerConfig.accountSettingsUrl;
@@ -1422,11 +1415,6 @@ module.exports = function (log, config, bounces, statsd) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
-        // Only show the banner warning for new device AMO logins, or web
-        // logins with no service associated
-        showBannerWarning:
-          message.service === undefined ||
-          CLIENT_IDS_AMO.includes(message.service),
       },
     });
   };

@@ -9,7 +9,7 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
-const error = require('../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 
 const { INVALID_PARAMETER, MISSING_PARAMETER } = error.ERRNO;
 

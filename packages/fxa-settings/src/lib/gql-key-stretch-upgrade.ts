@@ -21,6 +21,7 @@ import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { deriveHawkCredentials } from 'fxa-auth-client/lib/hawk';
 import { getHandledError } from './error-utils';
 import { SensitiveDataClient } from './sensitive-data-client';
+import { ERRNO } from '@fxa/accounts/errors';
 
 export type V1Credentials = {
   authPW: string;
@@ -187,10 +188,10 @@ export class GqlKeyStretchUpgrade {
     } catch (error) {
       const errno = getHandledError(error).error.errno;
 
-      if (errno === 104) {
+      if (errno === ERRNO.ACCOUNT_UNVERIFIED) {
         // Session not verified. Trying again later.
         console.info('Account not verified. Try upgrade later.');
-      } else if (errno === 138) {
+      } else if (errno === ERRNO.SESSION_UNVERIFIED) {
         // Account not verified. Trying again later.
         console.info('Account not verified. Try upgrade later.');
       } else {

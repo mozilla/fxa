@@ -11,13 +11,17 @@ import {
   MockCurrencyConfigProvider,
 } from '@fxa/payments/currency';
 import {
+  CustomerDeletedError,
   CustomerManager,
   InvoiceManager,
+  InvoicePreview,
+  InvoicePreviewFactory,
   PaymentMethodManager,
   PriceManager,
   SubscriptionManager,
   SetupIntentManager,
   CustomerSessionManager,
+  SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
   AppleIapClient,
@@ -92,6 +96,7 @@ import {
   CreateBillingAgreementActiveBillingAgreement,
   CreateBillingAgreementCurrencyNotFound,
   CreateBillingAgreementPaypalSubscriptionNotFound,
+  SubscriptionManagementNoStripeCustomerFoundError,
 } from './subscriptionManagement.error';
 import {
   MockNotifierSnsConfigProvider,
@@ -125,6 +130,7 @@ describe('SubscriptionManagementService', () => {
   let setupIntentManager: SetupIntentManager;
   let customerSessionManager: CustomerSessionManager;
   let currencyManager: CurrencyManager;
+  let invoiceManager: InvoiceManager;
   let privateCustomerChanged: any;
   let paypalBillingAgreementManager: PaypalBillingAgreementManager;
   let paypalCustomerManager: PaypalCustomerManager;
@@ -184,6 +190,7 @@ describe('SubscriptionManagementService', () => {
 
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
     customerManager = moduleRef.get(CustomerManager);
+    invoiceManager = moduleRef.get(InvoiceManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     subscriptionManager = moduleRef.get(SubscriptionManager);
@@ -298,11 +305,12 @@ describe('SubscriptionManagementService', () => {
       );
       const mockSubscriptionContent = SubscriptionContentFactory();
       const mockPaymentMethodInformation = {
-        type: mockPaymentMethod.type,
+        type: SubPlatPaymentMethodType.Card,
         brand: mockPaymentMethod.card?.brand,
         last4: mockPaymentMethod.card?.last4,
         expMonth: mockPaymentMethod.card?.exp_month,
         expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
       };
       const mockStoreId1 = faker.string.sample();
       const mockStoreId2 = faker.string.sample();
@@ -1469,7 +1477,6 @@ describe('SubscriptionManagementService', () => {
       const mockPaymentMethod = StripeResponseFactory(
         StripePaymentMethodFactory()
       );
-      const mockFullName = faker.person.fullName();
 
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -1478,8 +1485,7 @@ describe('SubscriptionManagementService', () => {
 
       await subscriptionManagementService.setDefaultStripePaymentDetails(
         mockCustomer.id,
-        mockPaymentMethod.id,
-        mockFullName
+        mockPaymentMethod.id
       );
 
       expect(customerManager.update).toHaveBeenCalledWith(
@@ -1488,7 +1494,6 @@ describe('SubscriptionManagementService', () => {
           invoice_settings: {
             default_payment_method: mockPaymentMethod.id,
           },
-          name: mockFullName,
         }
       );
     });
@@ -1505,7 +1510,6 @@ describe('SubscriptionManagementService', () => {
         subscriptionManagementService.setDefaultStripePaymentDetails(
           mockAccountCustomer.uid,
           'pm_12345',
-          'john doe'
         )
       ).rejects.toBeInstanceOf(SetDefaultPaymentAccountCustomerMissingStripeId);
     });
@@ -1827,6 +1831,422 @@ describe('SubscriptionManagementService', () => {
         CreateBillingAgreementPaypalSubscriptionNotFound
       );
       expect(privateCustomerChanged).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getCancelFlowContent', () => {
+    it('returns content (flowType - cancel)', async () => {
+      const mockUid = faker.string.uuid();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+
+      const result = await subscriptionManagementService.getCancelFlowContent(
+        mockUid,
+        mockSubscription.id
+      );
+
+      expect(result.flowType).toEqual('cancel');
+    });
+
+    it('returns content (flowType - not_found)', async () => {
+      const mockUid = faker.string.uuid();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(undefined);
+
+      const result = await subscriptionManagementService.getCancelFlowContent(
+        mockUid,
+        mockSubscription.id
+      );
+
+      expect(result.flowType).toEqual('not_found');
+    });
+
+    it('throws error - SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError', async () => {
+      const mockUid = faker.string.uuid();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          undefined as unknown as PageContentByPriceIdsResultUtil
+        );
+
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+
+      await expect(
+        subscriptionManagementService.getCancelFlowContent(
+          mockUid,
+          mockSubscription.id
+        )
+      ).rejects.toBeInstanceOf(
+        SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError
+      );
+    });
+
+    it('returns not_found when subscription customer does not match', async () => {
+      const mockStripeCustomer1 = StripeCustomerFactory();
+      const mockStripeCustomer2 = StripeCustomerFactory();
+      const mockAccountCustomer1 = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer1.id,
+      });
+      const mockSubscription2 = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer2.id,
+        })
+      );
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer1);
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription2);
+
+      const result = await subscriptionManagementService.getCancelFlowContent(
+        mockAccountCustomer1.uid,
+        mockSubscription2.id
+      );
+
+      expect(result).toEqual({ flowType: 'not_found' });
+    });
+
+    it('returns not_found when subscription is not active', async () => {
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'canceled',
+        })
+      );
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+
+      const result = await subscriptionManagementService.getCancelFlowContent(
+        mockAccountCustomer.uid,
+        mockSubscription.id
+      );
+
+      expect(result).toEqual({ flowType: 'not_found' });
+    });
+  });
+
+  describe('getStaySubscribedFlowContent', () => {
+    it('returns content (flowType - stay_subscribed)', async () => {
+      const mockUid = faker.string.uuid();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockStripeCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({})
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const mockUpcomingInvoicePreview = InvoicePreviewFactory();
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoicePreview);
+
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
+          mockUid,
+          mockSubscription.id
+        );
+
+      expect(result.flowType).toEqual('stay_subscribed');
+    });
+
+    it('returns content (flowType - not_found)', async () => {
+      const mockUid = faker.string.uuid();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(undefined);
+
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
+          mockUid,
+          mockSubscription.id
+        );
+
+      expect(result.flowType).toEqual('not_found');
+    });
+
+    it('returns not_found when subscription customer does not match', async () => {
+      const mockStripeCustomer1 = StripeCustomerFactory();
+      const mockStripeCustomer2 = StripeCustomerFactory();
+      const mockAccountCustomer1 = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer1.id,
+      });
+      const mockSubscription2 = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer2.id,
+        })
+      );
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer1);
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription2);
+
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
+          mockAccountCustomer1.uid,
+          mockSubscription2.id
+        );
+
+      expect(result).toEqual({ flowType: 'not_found' });
+    });
+
+    it('returns not_found when subscription is not active', async () => {
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'canceled',
+        })
+      );
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
+          mockAccountCustomer.uid,
+          mockSubscription.id
+        );
+
+      expect(result).toEqual({ flowType: 'not_found' });
+    });
+
+    it('throws error - SubscriptionManagementNoStripeCustomerFoundError', async () => {
+      const mockUid = faker.string.uuid();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockRejectedValue(new CustomerDeletedError(mockUid));
+
+      await expect(
+        subscriptionManagementService.getStaySubscribedFlowContent(
+          mockUid,
+          mockSubscription.id
+        )
+      ).rejects.toBeInstanceOf(
+        SubscriptionManagementNoStripeCustomerFoundError
+      );
+    });
+
+    it('throws error - SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError', async () => {
+      const mockUid = faker.string.uuid();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockStripeCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({})
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          undefined as unknown as PageContentByPriceIdsResultUtil
+        );
+
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+
+      await expect(
+        subscriptionManagementService.getStaySubscribedFlowContent(
+          mockUid,
+          mockSubscription.id
+        )
+      ).rejects.toBeInstanceOf(
+        SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError
+      );
+    });
+
+    it('throws error - SubscriptionContentMissingUpcomingInvoicePreviewError', async () => {
+      const mockUid = faker.string.uuid();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockStripeCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({})
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(undefined as unknown as InvoicePreview);
+
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+
+      await expect(
+        subscriptionManagementService.getStaySubscribedFlowContent(
+          mockUid,
+          mockSubscription.id
+        )
+      ).rejects.toBeInstanceOf(
+        SubscriptionContentMissingUpcomingInvoicePreviewError
+      );
     });
   });
 });

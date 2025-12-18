@@ -164,14 +164,14 @@ const conf = convict({
   },
   legalDocLinks: {
     privacyNotice: {
-      default: 'https://www.mozilla.org/privacy/firefox-private-network',
+      default: 'https://www.mozilla.org/privacy/subscription-services',
       doc: 'Link to Privacy Notice',
       env: 'PAYMENT_PRIVACY_NOTICE',
       format: 'url',
     },
     termsOfService: {
       default:
-        'https://www.mozilla.org/about/legal/terms/firefox-private-network',
+        'https://www.mozilla.org/about/legal/terms/subscription-services',
       doc: 'Link to Terms of Service',
       env: 'PAYMENT_TERMS_OF_SERVCIE',
       format: 'url',

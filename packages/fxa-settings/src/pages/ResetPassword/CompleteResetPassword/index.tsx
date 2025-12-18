@@ -43,11 +43,11 @@ const CompleteResetPassword = ({
   const ftlMsgResolver = useFtlMsgResolver();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isSyncUser = !!(
+  const isActiveSyncUser = !!(
     integrationIsSync ||
     (estimatedSyncDeviceCount !== undefined && estimatedSyncDeviceCount > 0)
   );
-  const showSyncWarning = !!(!hasConfirmedRecoveryKey && isSyncUser);
+  const defaultClosed = !isActiveSyncUser;
 
   const showRecoveryKeyLink = !!(recoveryKeyExists && !hasConfirmedRecoveryKey);
 
@@ -81,9 +81,10 @@ const CompleteResetPassword = ({
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
 
-      {/* Show an error message to sync users who do not have or have not used a recovery key */}
-      {showSyncWarning && (
-        <ResetPasswordWarning {...{ locationState, searchParams }} />
+      {!hasConfirmedRecoveryKey && (
+        <ResetPasswordWarning
+          {...{ locationState, searchParams, defaultClosed }}
+        />
       )}
 
       {/*

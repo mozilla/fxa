@@ -4,10 +4,10 @@
 
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import InlineTotpSetup from '.';
 import { MozServices, TotpInfo } from '../../lib/types';
+import AppLayout from '../../components/AppLayout';
 import { Integration, useSession, useAuthClient } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { useMutation, useQuery } from '@apollo/client';
@@ -91,8 +91,9 @@ export const InlineTotpSetupContainer = ({
   useEffect(() => {
     if (
       totp !== undefined ||
-      totpStatus?.account?.totp.verified === true ||
-      isTotpCreating.current
+      totpStatus?.account?.totp.verified ||
+      isTotpCreating.current ||
+      totpStatusLoading
     ) {
       return;
     }
@@ -165,17 +166,17 @@ export const InlineTotpSetupContainer = ({
   );
 
   if (!isSignedIn || !signinState) {
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout loading />;
   }
 
   if (
     !isSignedIn ||
     !signinState ||
-    totpStatusLoading === true ||
+    totpStatusLoading ||
     totp === undefined ||
     sessionVerified === undefined
   ) {
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout loading />;
   }
 
   return (

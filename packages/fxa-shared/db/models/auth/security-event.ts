@@ -71,14 +71,29 @@ export const EVENT_NAMES: Record<string, number> = {
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
 
-function ipHmac(key: Buffer, uid: Buffer, addr: string) {
+export function sanitizeIp(addr: string) {
+  addr = addr.trim();
+
+  // x-forward-for might contain multiple values, if this happens
+  // use the left most, ie first value, which is the client ip. The
+  // other values are hops on proxies.
+  if (/,/.test(addr)) {
+    addr = addr.split(',')[0].trim();
+  }
+
+  // Pefix with :: for v6 formatting
   if (ip.isV4Format(addr)) {
     addr = '::' + addr;
   }
 
+  return addr.trim();
+}
+
+function ipHmac(key: Buffer, uid: Buffer, addr: string) {
+  addr = sanitizeIp(addr);
   const hmac = crypto.createHmac('sha256', key);
   hmac.update(uid);
-  hmac.update(ip.toBuffer(addr));
+  hmac.update(ip.toBuffer(sanitizeIp(addr)));
 
   return hmac.digest();
 }

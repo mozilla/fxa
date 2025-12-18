@@ -28,6 +28,7 @@ import {
 } from 'fxa-shared/metrics/glean/web/session';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
+import * as webauthn from 'fxa-shared/metrics/glean/web/webauthn';
 
 import { Config } from '../config';
 import { WebIntegration, useAccount, WebIntegrationData } from '../../models';
@@ -909,15 +910,6 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(spy);
       });
 
-      it('submits a ping with the account_pref_bento_pocket event name', async () => {
-        GleanMetrics.accountPref.bentoPocket();
-        const spy = sandbox.spy(accountPref.bentoPocket, 'record');
-        await GleanMetrics.isDone();
-        sinon.assert.calledOnce(setEventNameStub);
-        sinon.assert.calledWith(setEventNameStub, 'account_pref_bento_pocket');
-        sinon.assert.calledOnce(spy);
-      });
-
       it('submits a ping with the account_pref_bento_relay event name', async () => {
         GleanMetrics.accountPref.bentoRelay();
         const spy = sandbox.spy(accountPref.bentoRelay, 'record');
@@ -1140,6 +1132,30 @@ describe('lib/glean', () => {
           'delete_account_password_submit'
         );
         sinon.assert.calledOnce(spy);
+      });
+    });
+
+    describe('webauthn', () => {
+      it('stringifies extras to strings before recording', async () => {
+        const spy = sandbox.spy(webauthn.capabilities, 'record');
+        GleanMetrics.setEnabled(true);
+        GleanMetrics.webauthn.capabilities({
+          event: {
+            supported: true,
+            ppa: true,
+            cg: false,
+            error_reason: 'foo',
+            os_family: 'windows',
+          } as any,
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(spy);
+        const arg = spy.getCall(0).args[0]!;
+        expect(arg.supported).toBe('true');
+        expect(arg.ppa).toBe('true');
+        expect(arg.cg).toBe('false');
+        expect(arg.error_reason).toBe('foo');
+        expect(arg.os_family).toBe('windows');
       });
     });
   });

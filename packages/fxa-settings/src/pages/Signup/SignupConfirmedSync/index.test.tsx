@@ -82,7 +82,7 @@ describe('SignupConfirmedSync', () => {
 
   it('on mobile, shows only "Manage sync"', () => {
     renderWithLocalizationProvider(
-      <Subject integration={createMockIntegration({ isDesktopSync: false })} />
+      <Subject integration={createMockIntegration(false)} />
     );
 
     expect(screen.queryByText('Add another device')).not.toBeInTheDocument();
@@ -112,7 +112,7 @@ describe('SignupConfirmedSync', () => {
     } as unknown as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <Subject integration={createMockIntegration({ cmsInfo })} />
+      <Subject integration={createMockIntegration(false, cmsInfo)} />
     );
 
     const cmsImg = screen.getByRole('img', { name: 'sync is on' });

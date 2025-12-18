@@ -40,10 +40,7 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { SigninProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import {
-  MONITOR_CLIENTIDS,
-  POCKET_CLIENTIDS,
-} from '../../models/integrations/client-matching';
+import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
 import {
@@ -114,6 +111,9 @@ jest.mock('../../models', () => {
     useSession: () => ({
       sendVerificationCode: mockSendVerificationCode,
     }),
+    useConfig: () => ({
+      servicesWithEmailVerification: ['123456'],
+    }),
   };
 });
 
@@ -144,8 +144,9 @@ async function enterPasswordAndSubmit() {
   await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD);
   await submit();
 }
-const render = (props: Partial<SigninProps> = {}) =>
-  renderWithLocalizationProvider(<Subject {...props} />);
+const render = (
+  props: Partial<SigninProps> & { supportsKeysOptionalLogin?: boolean } = {}
+) => renderWithLocalizationProvider(<Subject {...props} />);
 
 /* Element rendered or not rendered functions */
 function signInHeaderRendered(service: MozServices = MozServices.Default) {
@@ -269,6 +270,69 @@ describe('Signin component', () => {
         });
       });
 
+      it('does not render third party auth when service=relay and supportsKeysOptionalLogin is false', () => {
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.Relay,
+          isSync: false,
+        });
+        render({
+          integration,
+          supportsKeysOptionalLogin: false,
+        });
+
+        expect(
+          screen.queryByRole('button', { name: /Continue with Google/ })
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: /Continue with Apple/ })
+        ).not.toBeInTheDocument();
+        expect(GleanMetrics.login.view).toHaveBeenCalledWith({
+          event: { thirdPartyLinks: false },
+        });
+      });
+
+      it('renders third party auth when service=relay and supportsKeysOptionalLogin is true', () => {
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.Relay,
+          isSync: false,
+        });
+        render({
+          integration,
+          supportsKeysOptionalLogin: true,
+        });
+
+        expect(
+          screen.getByRole('button', { name: /Continue with Google/ })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', { name: /Continue with Apple/ })
+        ).toBeInTheDocument();
+        expect(GleanMetrics.login.view).toHaveBeenCalledWith({
+          event: { thirdPartyLinks: true },
+        });
+      });
+
+      it('renders third party auth when service=aiwindow and supportsKeysOptionalLogin is true', () => {
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.AiWindow,
+          isSync: false,
+        });
+        render({
+          integration,
+          supportsKeysOptionalLogin: true,
+        });
+
+        expect(
+          screen.getByRole('button', { name: /Continue with Google/ })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', { name: /Continue with Apple/ })
+        ).toBeInTheDocument();
+        expect(GleanMetrics.login.view).toHaveBeenCalledWith({
+          event: { thirdPartyLinks: true },
+        });
+      });
+
       it('emits an event on forgot password link click', async () => {
         render();
         fireEvent.click(screen.getByText('Forgot password?'));
@@ -379,7 +443,8 @@ describe('Signin component', () => {
           it('navigates to /signin_totp_code when TOTP verification requested', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                verified: false,
+                emailVerified: true,
+                sessionVerified: false,
                 verificationMethod: VerificationMethods.TOTP_2FA,
               })
             );
@@ -393,7 +458,8 @@ describe('Signin component', () => {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
                   sessionToken: MOCK_SESSION_TOKEN,
-                  verified: false,
+                  emailVerified: true,
+                  sessionVerified: false,
                   verificationMethod: VerificationMethods.TOTP_2FA,
                   verificationReason: VerificationReasons.SIGN_IN,
                 },
@@ -404,7 +470,8 @@ describe('Signin component', () => {
           it('navigates to /confirm_signup_code when account unverified', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                verified: false,
+                emailVerified: false,
+                sessionVerified: false,
                 verificationReason: VerificationReasons.SIGN_UP,
               })
             );
@@ -418,7 +485,8 @@ describe('Signin component', () => {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
                   sessionToken: MOCK_SESSION_TOKEN,
-                  verified: false,
+                  emailVerified: false,
+                  sessionVerified: false,
                   verificationReason: 'signup',
                   verificationMethod: 'email-otp',
                 },
@@ -429,7 +497,8 @@ describe('Signin component', () => {
           it('navigates to /signin_token_code when session unverified', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                verified: false,
+                emailVerified: true,
+                sessionVerified: false,
               })
             );
             render({ beginSigninHandler });
@@ -442,7 +511,8 @@ describe('Signin component', () => {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
                   sessionToken: MOCK_SESSION_TOKEN,
-                  verified: false,
+                  emailVerified: true,
+                  sessionVerified: false,
                   verificationMethod: 'email-otp',
                   verificationReason: VerificationReasons.SIGN_IN,
                 },
@@ -450,26 +520,11 @@ describe('Signin component', () => {
             });
           });
 
-          it('calls sendVerificationCode with successful signin, but unverified session', async () => {
-            const beginSigninHandler = jest.fn().mockReturnValueOnce(
-              createBeginSigninResponse({
-                verified: false,
-                verificationReason: undefined,
-              })
-            );
-
-            render({ beginSigninHandler });
-
-            await enterPasswordAndSubmit();
-            await waitFor(() => {
-              expect(mockSendVerificationCode).toHaveBeenCalledTimes(1);
-            });
-          });
-
           it('does not call sendVerificationCode when reason is signup, on successful signin unverified session', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                verified: false,
+                emailVerified: false,
+                sessionVerified: false,
                 verificationReason: VerificationReasons.SIGN_UP,
               })
             );
@@ -486,7 +541,8 @@ describe('Signin component', () => {
           it('OAuth forced 2FA without TOTP navigates to /signin_token_code (email OTP first)', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                verified: false,
+                emailVerified: true,
+                sessionVerified: false,
                 verificationMethod: VerificationMethods.EMAIL_OTP,
               })
             );
@@ -508,7 +564,8 @@ describe('Signin component', () => {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
                   sessionToken: MOCK_SESSION_TOKEN,
-                  verified: false,
+                  emailVerified: true,
+                  sessionVerified: false,
                   verificationMethod: 'email-otp',
                   verificationReason: VerificationReasons.SIGN_IN,
                 },
@@ -537,7 +594,8 @@ describe('Signin component', () => {
                     email: MOCK_EMAIL,
                     uid: MOCK_UID,
                     sessionToken: MOCK_SESSION_TOKEN,
-                    verified: true,
+                    emailVerified: true,
+                    sessionVerified: true,
                     showInlineRecoveryKeySetup: true,
                     verificationMethod: 'email-otp',
                     verificationReason: VerificationReasons.SIGN_IN,
@@ -605,7 +663,8 @@ describe('Signin component', () => {
             it('is not sent if user has 2FA enabled', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
                 createBeginSigninResponse({
-                  verified: false,
+                  emailVerified: false,
+                  sessionVerified: false,
                   verificationMethod: VerificationMethods.TOTP_2FA,
                 })
               );
@@ -642,7 +701,8 @@ describe('Signin component', () => {
             it('unverified, wantsKeys, navigates to /confirm_signup_code with keys', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
                 createBeginSigninResponse({
-                  verified: false,
+                  emailVerified: false,
+                  sessionVerified: false,
                   verificationReason: VerificationReasons.SIGN_UP,
                   keyFetchToken: MOCK_KEY_FETCH_TOKEN,
                   unwrapBKey: MOCK_UNWRAP_BKEY,
@@ -663,7 +723,8 @@ describe('Signin component', () => {
                     email: MOCK_EMAIL,
                     uid: MOCK_UID,
                     sessionToken: MOCK_SESSION_TOKEN,
-                    verified: false,
+                    emailVerified: false,
+                    sessionVerified: false,
                     verificationReason: 'signup',
                     verificationMethod: 'email-otp',
                   },
@@ -673,7 +734,8 @@ describe('Signin component', () => {
             it('unverified, does not want keys, navigates to /confirm_signup_code without keys', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
                 createBeginSigninResponse({
-                  verified: false,
+                  emailVerified: false,
+                  sessionVerified: false,
                   verificationReason: VerificationReasons.SIGN_UP,
                 })
               );
@@ -692,7 +754,8 @@ describe('Signin component', () => {
                     email: MOCK_EMAIL,
                     uid: MOCK_UID,
                     sessionToken: MOCK_SESSION_TOKEN,
-                    verified: false,
+                    emailVerified: false,
+                    sessionVerified: false,
                     verificationReason: 'signup',
                     verificationMethod: 'email-otp',
                   },
@@ -1082,7 +1145,8 @@ describe('Signin component', () => {
           render({
             beginSigninHandler: jest.fn().mockReturnValue(
               createBeginSigninResponse({
-                verified: true,
+                emailVerified: true,
+                sessionVerified: true,
               })
             ),
             integration,
@@ -1115,7 +1179,8 @@ describe('Signin component', () => {
           render({
             beginSigninHandler: jest.fn().mockReturnValue(
               createBeginSigninResponse({
-                verified: false,
+                emailVerified: false,
+                sessionVerified: false,
               })
             ),
             integration,
@@ -1131,6 +1196,72 @@ describe('Signin component', () => {
               })
             );
           });
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('correctly provides isServiceWithEmailVerification to handleNavigation when client is in servicesWithEmailVerification', async () => {
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const finishOAuthFlowHandler = jest
+            .fn()
+            .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthIntegration({
+            clientId: '123456',
+          });
+          render({
+            beginSigninHandler: jest.fn().mockReturnValue(
+              createBeginSigninResponse({
+                emailVerified: true,
+                sessionVerified: false,
+              })
+            ),
+            integration,
+            finishOAuthFlowHandler,
+            sessionToken: MOCK_SESSION_TOKEN,
+          });
+
+          await enterPasswordAndSubmit();
+          expect(handleNavigationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              isServiceWithEmailVerification: true,
+            })
+          );
+
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('correctly provides isServiceWithEmailVerification to handleNavigation when client is not in servicesWithEmailVerification', async () => {
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const finishOAuthFlowHandler = jest
+            .fn()
+            .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthIntegration({
+            clientId: '654321',
+          });
+          render({
+            beginSigninHandler: jest.fn().mockReturnValue(
+              createBeginSigninResponse({
+                emailVerified: true,
+                sessionVerified: false,
+              })
+            ),
+            integration,
+            finishOAuthFlowHandler,
+            sessionToken: MOCK_SESSION_TOKEN,
+          });
+
+          await enterPasswordAndSubmit();
+          expect(handleNavigationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              isServiceWithEmailVerification: false,
+            })
+          );
+
           handleNavigationSpy.mockRestore();
         });
 
@@ -1166,13 +1297,17 @@ describe('Signin component', () => {
               unwrapBKey: signinResponse.data.unwrapBKey,
               verificationMethod: signinResponse.data.signIn.verificationMethod,
               verificationReason: signinResponse.data.signIn.verificationReason,
-              verified: signinResponse.data.signIn.verified,
+              emailVerified: signinResponse.data.signIn.emailVerified,
+              sessionVerified: signinResponse.data.signIn.sessionVerified,
             },
           });
         });
 
         it('navigates to /inline_totp_setup when RP requires two-step auth and session is verified', async () => {
-          const signinResponse = createBeginSigninResponse({ verified: true });
+          const signinResponse = createBeginSigninResponse({
+            emailVerified: true,
+            sessionVerified: true,
+          });
           const beginSigninHandler = jest
             .fn()
             .mockReturnValueOnce(signinResponse);
@@ -1204,7 +1339,8 @@ describe('Signin component', () => {
                   signinResponse.data.signIn.verificationMethod,
                 verificationReason:
                   signinResponse.data.signIn.verificationReason,
-                verified: signinResponse.data.signIn.verified,
+                emailVerified: signinResponse.data.signIn.emailVerified,
+                sessionVerified: signinResponse.data.signIn.sessionVerified,
               },
             });
           });
@@ -1326,53 +1462,6 @@ describe('Signin component', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/?', {
         state: { prefillEmail: MOCK_EMAIL },
       });
-    });
-  });
-
-  describe('when client is Pocket', () => {
-    it('shows Pocket in header', () => {
-      renderWithLocalizationProvider(
-        <Subject
-          sessionToken={MOCK_SESSION_TOKEN}
-          serviceName={MozServices.Pocket}
-          integration={createMockSigninOAuthIntegration({
-            clientId: POCKET_CLIENTIDS[0],
-            service: MozServices.Pocket,
-            wantsKeys: false,
-          })}
-        />
-      );
-
-      const pocketLogo = screen.getByAltText('Pocket');
-      expect(pocketLogo).toBeInTheDocument();
-    });
-
-    it('shows Pocket-specific TOS', () => {
-      renderWithLocalizationProvider(
-        <Subject
-          integration={createMockSigninOAuthIntegration({
-            clientId: POCKET_CLIENTIDS[0],
-            service: MozServices.Pocket,
-          })}
-        />
-      );
-
-      // Pocket links should always open in a new window (announced by screen readers)
-      const pocketTermsLink = screen.getByRole('link', {
-        name: 'Terms of Service Opens in new window',
-      });
-      const pocketPrivacyLink = screen.getByRole('link', {
-        name: 'Privacy Notice Opens in new window',
-      });
-
-      expect(pocketTermsLink).toHaveAttribute(
-        'href',
-        'https://getpocket.com/tos/'
-      );
-      expect(pocketPrivacyLink).toHaveAttribute(
-        'href',
-        'https://getpocket.com/privacy/'
-      );
     });
   });
 

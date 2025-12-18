@@ -210,7 +210,7 @@ Some highly sensitive actions require a fresh, time-bound JWT that is scoped to 
 - Displaying an MFA modal to collect the OTP
 - Exchanging the OTP for a short-lived JWT
 - Caching the JWT per `(sessionToken, scope)` via `JwtTokenCache`
-- Wrapping children in an error boundary that clears the cached JWT if it becomes invalid so the modal is shown again
+- Wrapping children in a context that provides a error handler to clear the cached JWT if it becomes invalid so the modal is shown again
 
 Use cases and guidance:
 

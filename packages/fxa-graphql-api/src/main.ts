@@ -10,6 +10,7 @@ import bodyParser from 'body-parser';
 import { Request, Response } from 'express';
 import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 import { SentryInterceptor } from '@fxa/shared/sentry';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 import helmet from 'helmet';
 
 import { NestApplicationOptions } from '@nestjs/common';
@@ -33,7 +34,7 @@ async function bootstrap() {
 
   // Configure allowlisting of gql queries
   app.use(bodyParser.json());
-  app.use(allowlistGqlQueries(appConfig.gql));
+  app.use(allowlistGqlQueries(appConfig.gql, app.get(StatsDService)));
 
   if (appConfig.hstsEnabled) {
     const maxAge = appConfig.hstsMaxAge;

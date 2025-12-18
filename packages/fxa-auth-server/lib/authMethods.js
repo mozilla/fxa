@@ -4,7 +4,7 @@
 
 'use strict';
 
-const error = require('./error');
+const { AppError: error } = require('@fxa/accounts/errors');
 
 // Maps our variety of verification methods down to a few short standard
 // "authentication method reference" strings that we're happy to expose to

@@ -15,7 +15,7 @@ const {
 const {
   PurchaseUpdateError,
 } = require('../../../../lib/payments/iap/apple-app-store/types/errors');
-const error = require('../../../../lib/error');
+const { AppError: error } = require('@fxa/accounts/errors');
 const { AuthLogger } = require('../../../../lib/types');
 const {
   AppleIAP,
@@ -75,9 +75,8 @@ describe('AppleIapHandler', () => {
         registerToUserAccount: sinon.fake.resolves({}),
       };
       iapConfig.getBundleId = sinon.fake.resolves('testPackage');
-      const result = await appleIapHandler.registerOriginalTransactionId(
-        request
-      );
+      const result =
+        await appleIapHandler.registerOriginalTransactionId(request);
       assert.calledOnce(appleIap.purchaseManager.registerToUserAccount);
       assert.calledOnce(iapConfig.getBundleId);
       assert.calledOnce(mockCapabilityService.iapUpdate);

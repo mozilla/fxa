@@ -120,7 +120,6 @@ describe('CustomerManager', () => {
       const result = await customerManager.create({
         uid: faker.string.uuid(),
         email: faker.internet.email(),
-        displayName: faker.person.fullName(),
         taxAddress: taxAddress,
       });
 

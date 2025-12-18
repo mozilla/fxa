@@ -6,7 +6,6 @@ import React from 'react';
 import { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MozServices } from '../../lib/types';
-import PocketTextLogo from '@fxa/shared/assets/images/pocket-text-logo.svg';
 
 // NOTE: this component is heavily tested in components that use it and has complete line
 // coverage. However, we may file an issue out of FXA-6589 to add more explicit coverage.
@@ -40,7 +39,6 @@ interface CardHeaderSeparateSubheadingProps extends CardHeaderRequiredProps {
   headingTextFtlId: string;
   subheadingWithDefaultServiceFtlId: string;
   subheadingWithCustomServiceFtlId: string;
-  subheadingWithLogoFtlId?: string;
   serviceName: MozServices;
 }
 
@@ -109,9 +107,7 @@ function isDefaultService(
   );
 }
 
-function isCmsHeader(
-  props: CardHeaderProps
-): props is CardHeaderCmsProps {
+function isCmsHeader(props: CardHeaderProps): props is CardHeaderCmsProps {
   return (
     (props as CardHeaderCmsProps).cmsLogoUrl !== undefined ||
     (props as CardHeaderCmsProps).cmsLogoAltText !== undefined ||
@@ -131,33 +127,6 @@ function isBasicWithCustomSubheading(
   );
 }
 
-const serviceLogos: {
-  [key in MozServices]?: ReactElement;
-} = {
-  // This is not inlined because text inside of an SVG can have rendering problems
-  [MozServices.Pocket]: (
-    <img
-      src={PocketTextLogo}
-      alt={MozServices.Pocket}
-      className="inline w-22 ps-0.5"
-    />
-  ),
-};
-
-// TODO in FXA-8290: do we want to check against these unique client IDs instead
-// of serviceName? We have a service names enum, but in theory an RP could change their
-// service name and we'd have to update the enum, vs these that don't change.
-// export const POCKET_CLIENTIDS = [
-//   '7377719276ad44ee', // pocket-mobile
-//   '749818d3f2e7857f', // pocket-web
-// ];
-// This also applies to Monitor
-// export const MONITOR_CLIENTIDS = [
-// '802d56ef2a9af9fa', // Mozilla Monitor
-// '946bfd23df91404c', // Mozilla Monitor stage
-// 'edd29a80019d61a1', // Mozilla Monitor local dev
-// };
-
 const CardHeader = (props: CardHeaderProps) => {
   const { headingText } = props;
 
@@ -173,9 +142,7 @@ const CardHeader = (props: CardHeaderProps) => {
           />
         )}
         <h1 className="card-header">{cmsHeadline}</h1>
-        <p className="card-subheader">
-          {cmsDescription}
-        </p>
+        <p className="card-subheader">{cmsDescription}</p>
       </>
     );
   }
@@ -221,25 +188,13 @@ const CardHeader = (props: CardHeaderProps) => {
   if (isSeparateSubheading(props)) {
     const { serviceName = MozServices.Default } = props;
     const isDefaultService = isDefaultServiceName(serviceName);
-    const logo = serviceLogos[serviceName];
-    const logoElem = <span>{logo}</span>;
 
     const subheadingFtlMsgProps = {
-      // If a logo corresponds to the service name and a logo FTL ID is provided, use that FTL ID.
-      // Otherwise, if the service is the default service, use the default service FTL ID.
-      // If non-default, use the custom service FTL ID.
-      id:
-        logo && props.subheadingWithLogoFtlId
-          ? props.subheadingWithLogoFtlId
-          : isDefaultService
-          ? props.subheadingWithDefaultServiceFtlId
-          : props.subheadingWithCustomServiceFtlId,
-      // include `vars={{ serviceName }}` if non-default and no logo
-      ...(!isDefaultService && !logo && { vars: { serviceName } }),
-      // include `elems={{ span: logo }}` if serviceName is given a logo in serviceLogos
-      ...(logo && {
-        elems: { span: logo },
-      }),
+      id: isDefaultService
+        ? props.subheadingWithDefaultServiceFtlId
+        : props.subheadingWithCustomServiceFtlId,
+      // include `vars={{ serviceName }}` if non-default
+      ...(!isDefaultService && { vars: { serviceName } }),
     };
 
     return (
@@ -248,9 +203,7 @@ const CardHeader = (props: CardHeaderProps) => {
           <FtlMsg id={props.headingTextFtlId}>{headingText}</FtlMsg>
         </h1>
         <FtlMsg {...subheadingFtlMsgProps}>
-          <p className="card-subheader">
-            Continue to {logo ? logoElem : serviceName}
-          </p>
+          <p className="card-subheader">Continue to {serviceName}</p>
         </FtlMsg>
       </>
     );

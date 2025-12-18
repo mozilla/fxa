@@ -109,22 +109,6 @@ export const bentoMonitor = new EventMetricType(
 );
 
 /**
- * User clicks on Pocket in the bento menu
- *
- * Generated from `account_pref.bento_pocket`.
- */
-export const bentoPocket = new EventMetricType(
-  {
-    category: 'account_pref',
-    name: 'bento_pocket',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
-);
-
-/**
  * User clicks on Firefox Relay in the bento menu
  *
  * Generated from `account_pref.bento_relay`.

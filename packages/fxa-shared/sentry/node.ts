@@ -18,7 +18,7 @@ export type InitSentryOpts = SentryConfigOpts & ExtraOpts;
 
 export function initSentry(config: InitSentryOpts, log: ILogger) {
   if (!config?.sentry?.dsn) {
-    log.error('No Sentry dsn provided. Cannot start sentry');
+    log.error('sentry.dsn.missing', 'No Sentry dsn provided. Cannot start sentry');
     return;
   }
 

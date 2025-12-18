@@ -35,6 +35,7 @@ import {
   MOCK_FLOW_ID,
   mockGetWebChannelServices,
 } from '../mocks';
+import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 import {
   BeginSigninHandler,
   BeginSigninResponse,
@@ -101,7 +102,8 @@ export const mockSigninLocationState = {
   email: MOCK_EMAIL,
   sessionToken: MOCK_SESSION_TOKEN,
   uid: MOCK_UID,
-  verified: false,
+  emailVerified: false,
+  sessionVerified: false,
 };
 
 export function createMockSigninWebIntegration({
@@ -118,7 +120,8 @@ export function createMockSigninWebIntegration({
     data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => false,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices(),
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
@@ -145,7 +148,8 @@ export function createMockSigninOAuthNativeSyncIntegration({
     data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => isSync && !isMobile,
     isFirefoxClientServiceRelay: () => !isSync && !isMobile,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => !isSync && !isMobile,
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
@@ -178,7 +182,8 @@ export function createMockSigninOAuthIntegration({
     isDesktopSync: () => isSync,
     data: new IntegrationData(new GenericData({})),
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     getCmsInfo: () => cmsInfo,
     isFirefoxMobileClient: () => false,
@@ -195,7 +200,7 @@ export function createMockSigninOAuthNativeIntegration({
   isMobile?: boolean;
 } = {}): SigninOAuthIntegration {
   const isRelay = service === OAuthNativeServices.Relay;
-  const isAiMode = service === OAuthNativeServices.AiMode;
+  const isAiWindow = service === OAuthNativeServices.AiWindow;
   return {
     type: IntegrationType.OAuthNative,
     getService: () => service,
@@ -206,11 +211,12 @@ export function createMockSigninOAuthNativeIntegration({
     isDesktopSync: () => isSync && !isMobile,
     data: new IntegrationData(new GenericData({})),
     isFirefoxClientServiceRelay: () => isRelay,
-    isFirefoxClientServiceAiMode: () => isAiMode,
+    isFirefoxClientServiceAiWindow: () => isAiWindow,
+    isFirefoxNonSync: () => isRelay || isAiWindow,
     getWebChannelServices: mockGetWebChannelServices({
       isSync,
       isRelay,
-      isAiMode,
+      isAiWindow,
     }),
     getClientId: () => MOCK_CLIENT_ID,
     getCmsInfo: () => undefined,
@@ -240,7 +246,8 @@ export function mockGqlBeginSigninMutation(
   },
   inputOverrides: any = {},
   resultOverrides?: {
-    verified?: boolean;
+    emailVerified?: boolean;
+    sessionVerified?: boolean;
   }
 ) {
   const result = opts.keys
@@ -253,8 +260,11 @@ export function mockGqlBeginSigninMutation(
     : createBeginSigninResponse();
 
   // Add ability to override result
-  if (resultOverrides?.verified !== undefined) {
-    result.data.signIn.verified = resultOverrides.verified;
+  if (resultOverrides?.emailVerified !== undefined) {
+    result.data.signIn.emailVerified = resultOverrides.emailVerified;
+  }
+  if (resultOverrides?.sessionVerified !== undefined) {
+    result.data.signIn.sessionVerified = resultOverrides.sessionVerified;
   }
 
   return {
@@ -420,7 +430,8 @@ export function createBeginSigninResponse({
   sessionToken = MOCK_SESSION_TOKEN,
   authAt = MOCK_AUTH_AT,
   metricsEnabled = true,
-  verified = true,
+  emailVerified = true,
+  sessionVerified = true,
   verificationMethod = MOCK_VERIFICATION.verificationMethod,
   verificationReason = MOCK_VERIFICATION.verificationReason,
   unwrapBKey = undefined,
@@ -439,7 +450,8 @@ export function createBeginSigninResponse({
         sessionToken,
         authAt,
         metricsEnabled,
-        verified,
+        emailVerified,
+        sessionVerified,
         verificationMethod,
         verificationReason,
         keyFetchToken,
@@ -487,7 +499,6 @@ export function createCachedSigninResponseError({
 
 export const CACHED_SIGNIN_HANDLER_RESPONSE = {
   data: {
-    verified: true,
     sessionVerified: true,
     emailVerified: true,
     uid: MOCK_UID,
@@ -525,8 +536,10 @@ export const Subject = ({
   cachedSigninHandler = mockCachedSigninHandler,
   sendUnblockEmailHandler = mockSendUnblockEmailHandler,
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
+  supportsKeysOptionalLogin = false,
   ...props // overrides
-}: Partial<SigninProps> = {}) => {
+}: Partial<SigninProps> & { supportsKeysOptionalLogin?: boolean } = {}) => {
+  const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
   return (
     <LocationProvider>
       <AppContext.Provider value={mockAppContext()}>
@@ -544,6 +557,7 @@ export const Subject = ({
             hasPassword,
             avatarData,
             avatarLoading,
+            useFxAStatusResult,
             ...props,
           }}
         />

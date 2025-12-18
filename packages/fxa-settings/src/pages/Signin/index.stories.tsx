@@ -4,12 +4,12 @@
 
 import React from 'react';
 import Signin from '.';
-import { MozServices } from '../../lib/types';
 import { Meta } from '@storybook/react';
 import {
   Subject,
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeSyncIntegration,
+  createMockSigninOAuthNativeIntegration,
   MOCK_CMS_INFO,
 } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -17,6 +17,8 @@ import { SigninProps } from './interfaces';
 import { MOCK_SERVICE, MOCK_SESSION_TOKEN } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
+import { MozServices } from '../../lib/types';
+import { OAuthNativeServices } from '../../models';
 
 export default {
   title: 'Pages/Signin',
@@ -26,7 +28,7 @@ export default {
 
 const storyWithProps = ({
   ...props // overrides
-}: Partial<SigninProps> = {}) => {
+}: Partial<SigninProps> & { supportsKeysOptionalLogin?: boolean } = {}) => {
   const story = () => <Subject {...props} />;
   return story;
 };
@@ -44,23 +46,12 @@ export const SignInToRelyingPartyWithPassword = storyWithProps({
   serviceName: MOCK_SERVICE,
 });
 
-export const SignInToPocketWithPassword = storyWithProps({
-  serviceName: MozServices.Pocket,
-  integration: createMockSigninOAuthIntegration(),
-});
-
 export const SignInToSettingsWithCachedCredentials = storyWithProps({
   sessionToken: MOCK_SESSION_TOKEN,
 });
 export const SignInToRelyingPartyWithCachedCredentials = storyWithProps({
   sessionToken: MOCK_SESSION_TOKEN,
   serviceName: MOCK_SERVICE,
-});
-
-export const SignInToPocketWithCachedCredentials = storyWithProps({
-  sessionToken: MOCK_SESSION_TOKEN,
-  serviceName: MozServices.Pocket,
-  integration: createMockSigninOAuthIntegration({ wantsKeys: false }),
 });
 
 export const SignInToSyncWithCachedCredentials = storyWithProps({
@@ -92,13 +83,21 @@ export const SignInToSyncNoPassword = storyWithProps({
   integration: createMockSigninOAuthNativeSyncIntegration(),
 });
 
-export const SignInToOAuthDesktopRelay = storyWithProps({
-  integration: createMockSigninOAuthNativeSyncIntegration({ isSync: false }),
-});
-
 export const SignInWithCms = storyWithProps({
   integration: createMockSigninOAuthIntegration({
     cmsInfo: MOCK_CMS_INFO,
+  }),
+});
+
+export const SignInWithCmsSplitLayout = storyWithProps({
+  integration: createMockSigninOAuthIntegration({
+    cmsInfo: {
+      ...MOCK_CMS_INFO,
+      SigninPage: {
+        ...MOCK_CMS_INFO.SigninPage!,
+        splitLayout: true,
+      },
+    },
   }),
 });
 
@@ -108,4 +107,42 @@ export const SignInWithCmsCachedCredentials = storyWithProps({
     wantsKeys: false,
     cmsInfo: MOCK_CMS_INFO,
   }),
+});
+
+export const SignInWithCmsCachedCredentialsSplitLayout = storyWithProps({
+  sessionToken: MOCK_SESSION_TOKEN,
+  integration: createMockSigninOAuthIntegration({
+    wantsKeys: false,
+    cmsInfo: {
+      ...MOCK_CMS_INFO,
+      SigninPage: {
+        ...MOCK_CMS_INFO.SigninPage!,
+        splitLayout: true,
+      },
+    },
+  }),
+});
+
+export const SignInRelayNoPasswordlessSupport = storyWithProps({
+  integration: createMockSigninOAuthNativeIntegration({
+    service: OAuthNativeServices.Relay,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: false,
+});
+
+export const SignInRelayWithPasswordlessSupport = storyWithProps({
+  integration: createMockSigninOAuthNativeIntegration({
+    service: OAuthNativeServices.Relay,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: true,
+});
+
+export const SignInAiWindowWithPasswordlessSupport = storyWithProps({
+  integration: createMockSigninOAuthNativeIntegration({
+    service: OAuthNativeServices.AiWindow,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: true,
 });

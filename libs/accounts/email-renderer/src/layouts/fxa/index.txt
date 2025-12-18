@@ -1,0 +1,10 @@
+<%- include('/partials/brandMessaging/index.txt') %>
+
+<%- body %>
+Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105
+
+moz-accounts-privacy-url-2 = "Mozilla Accounts Privacy Notice"
+<%- privacyUrl %>
+
+moz-accounts-terms-url = "Mozilla Accounts Terms of Service"
+https://www.mozilla.org/about/legal/terms/services/

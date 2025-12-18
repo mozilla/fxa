@@ -1,0 +1,9 @@
+passwordReset-title-2 = "Your password has been reset"
+
+passwordReset-description-2 = "You reset your Mozilla account password on:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/automatedEmailResetPassword/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>

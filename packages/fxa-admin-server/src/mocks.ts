@@ -4,29 +4,39 @@
 
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Path } from 'convict';
 import { CloudTasksService } from './backend/cloud-tasks.service';
 import { FirestoreService } from './backend/firestore.service';
 import config, { AppConfig } from './config';
 import { MozLoggerService } from '@fxa/shared/mozlog';
+import { DatabaseService } from './database/database.service';
+import { StatsD } from 'hot-shots';
 
 export const mockConfigOverrides: any = {};
 export const MockConfig: Provider = {
-  provide: ConfigService,
+  provide: ConfigService<AppConfig>,
   useValue: {
-    get: jest.fn().mockImplementation((key: Path<AppConfig>) => {
+    get(key: keyof AppConfig) {
       if (mockConfigOverrides[key] !== undefined) {
         return mockConfigOverrides[key];
       }
-      const val = config.get(key);
-      return val;
-    }),
+      return config.get(key);
+    },
   },
 };
 
 export const MockMetricsFactory: Provider = {
   provide: 'METRICS',
-  useFactory: () => undefined,
+  useValue: {},
+};
+
+export const MockStatsDFactory: Provider = {
+  provide: StatsD,
+  useValue: {},
+};
+
+export const MockDatabaseService: Provider = {
+  provide: DatabaseService,
+  useValue: {},
 };
 
 export const mockFirestoreCollection = jest.fn();

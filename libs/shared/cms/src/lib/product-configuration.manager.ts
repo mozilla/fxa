@@ -6,8 +6,13 @@ import { getOperationName } from '@apollo/client/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
-import { PriceManager, SubplatInterval } from '@fxa/payments/customer';
+import {
+  getSubplatInterval,
+  PriceManager,
+  SubplatInterval,
+} from '@fxa/payments/customer';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
+import { StripeClient, StripeSubscription } from '@fxa/payments/stripe';
 import {
   EligibilityContentByPlanIdsQuery,
   PurchaseWithDetailsOfferingContentQuery,
@@ -17,12 +22,15 @@ import {
   PageContentForOfferingQuery,
   type IapOfferingsByStoreIDsQuery,
   PageContentByPriceIdsQuery,
+  ChurnInterventionByProductIdQuery,
 } from '../__generated__/graphql';
 import {
   FetchCmsInvalidOfferingError,
   QueriesUtilError,
   RetrieveStripePriceInvalidOfferingError,
   RetrieveStripePriceNotFoundError,
+  StripeIntervalNotFoundError,
+  SubPlatIntervalNotFoundError,
 } from './cms.error';
 import { DEFAULT_LOCALE } from './constants';
 import {
@@ -59,12 +67,22 @@ import {
   iapOfferingsByStoreIDsQuery,
   IapOfferingsByStoreIDsResultUtil,
 } from './queries/iap-offerings-by-storeids';
+import {
+  churnInterventionByProductIdQuery,
+  ChurnInterventionByProductIdResultUtil,
+} from './queries/churn-intervention-by-product-id';
+import {
+  cancelInterstitialOfferQuery,
+  CancelInterstitialOfferResult,
+  CancelInterstitialOfferUtil,
+} from './queries/cancel-interstitial-offer';
 
 @Injectable()
 export class ProductConfigurationManager {
   constructor(
     private strapiClient: StrapiClient,
     private priceManager: PriceManager,
+    private stripeClient: StripeClient,
     @Inject(StatsDService) private statsd: StatsD
   ) {
     this.strapiClient.on('response', this.onStrapiClientResponse.bind(this));
@@ -292,5 +310,119 @@ export class ProductConfigurationManager {
         throw error;
       }
     }
+  }
+
+  async getChurnIntervention(
+    interval: SubplatInterval,
+    churnType: 'cancel' | 'stay_subscribed',
+    stripeProductId: null,
+    offeringApiIdentifier: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<ChurnInterventionByProductIdResultUtil>;
+  async getChurnIntervention(
+    interval: SubplatInterval,
+    churnType: 'cancel' | 'stay_subscribed',
+    stripeProductId: string,
+    offeringApiIdentifier: null,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<ChurnInterventionByProductIdResultUtil>;
+  async getChurnIntervention(
+    interval: SubplatInterval,
+    churnType: 'cancel' | 'stay_subscribed',
+    stripeProductId: string | null,
+    offeringApiIdentifier: string | null,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<ChurnInterventionByProductIdResultUtil> {
+    const locale = await this.strapiClient.getLocale(
+      acceptLanguage,
+      selectedLanguage
+    );
+
+    const queryResult = await this.strapiClient.query(
+      churnInterventionByProductIdQuery,
+      {
+        stripeProductId,
+        offeringApiIdentifier,
+        interval,
+        locale,
+        churnType,
+      }
+    );
+
+    return new ChurnInterventionByProductIdResultUtil(
+      queryResult as DeepNonNullable<ChurnInterventionByProductIdQuery>
+    );
+  }
+
+  async getChurnInterventionBySubscription(
+    subscriptionId: string,
+    churnType: 'cancel' | 'stay_subscribed',
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ) {
+    const subscription =
+      await this.stripeClient.subscriptionsRetrieve(subscriptionId);
+    const interval = await this.getSubplatIntervalBySubscription(subscription);
+    const stripeProductId = subscription.items.data.at(0)?.price
+      .product as string;
+
+    return this.getChurnIntervention(
+      interval,
+      churnType,
+      stripeProductId,
+      null,
+      acceptLanguage,
+      selectedLanguage
+    );
+  }
+
+  async getSubplatIntervalBySubscription(
+    subscriptionArg: string | StripeSubscription
+  ) {
+    const subscription = typeof subscriptionArg === 'string'
+      ? await this.stripeClient.subscriptionsRetrieve(subscriptionArg)
+      : subscriptionArg;
+
+    const stripeInterval =
+      subscription.items.data.at(0)?.price.recurring?.interval;
+    const intervalCount =
+      subscription.items.data.at(0)?.price.recurring?.interval_count;
+    if (!stripeInterval || !intervalCount) {
+      throw new StripeIntervalNotFoundError(stripeInterval, intervalCount);
+    }
+    const interval = getSubplatInterval(stripeInterval, intervalCount);
+
+    if (!interval) throw new SubPlatIntervalNotFoundError(interval);
+    return interval;
+  }
+
+  async getCancelInterstitialOffer(
+    offeringApiIdentifier: string,
+    currentInterval: SubplatInterval,
+    upgradeInterval: SubplatInterval,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ) {
+    const locale = await this.strapiClient.getLocale(
+      acceptLanguage,
+      selectedLanguage
+    );
+
+    const queryResult = await this.strapiClient.query(
+      cancelInterstitialOfferQuery,
+      {
+        offeringApiIdentifier,
+        currentInterval,
+        upgradeInterval,
+        locale,
+      }
+    );
+
+    return new CancelInterstitialOfferUtil(
+      queryResult as DeepNonNullable<CancelInterstitialOfferResult>
+    );
   }
 }

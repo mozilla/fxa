@@ -182,7 +182,8 @@ describe('signin unblock container', () => {
     expect(result?.data?.unwrapBKey).toEqual(MOCK_UNWRAP_BKEY_V2);
     expect(result?.data?.signIn?.uid).toBeDefined();
     expect(result?.data?.signIn?.sessionToken).toBeDefined();
-    expect(result?.data?.signIn?.verified).toBeDefined();
+    expect(result?.data?.signIn?.emailVerified).toBeDefined();
+    expect(result?.data?.signIn?.sessionVerified).toBeDefined();
     expect(result?.data?.signIn?.metricsEnabled).toBeDefined();
   });
 
@@ -223,7 +224,8 @@ describe('signin unblock container', () => {
     expect(result?.data?.unwrapBKey).toEqual(MOCK_UNWRAP_BKEY_V2);
     expect(result?.data?.signIn?.uid).toBeDefined();
     expect(result?.data?.signIn?.sessionToken).toBeDefined();
-    expect(result?.data?.signIn?.verified).toBeDefined();
+    expect(result?.data?.signIn?.emailVerified).toBeDefined();
+    expect(result?.data?.signIn?.sessionVerified).toBeDefined();
     expect(result?.data?.signIn?.metricsEnabled).toBeDefined();
 
     expect(tryFinalizeUpgrade).toHaveBeenCalledTimes(1);
@@ -253,7 +255,8 @@ describe('signin unblock container', () => {
     expect(result?.data?.unwrapBKey).toEqual(MOCK_UNWRAP_BKEY);
     expect(result?.data?.signIn?.uid).toBeDefined();
     expect(result?.data?.signIn?.sessionToken).toBeDefined();
-    expect(result?.data?.signIn?.verified).toBeDefined();
+    expect(result?.data?.signIn?.emailVerified).toBeDefined();
+    expect(result?.data?.signIn?.sessionVerified).toBeDefined();
     expect(result?.data?.signIn?.metricsEnabled).toBeDefined();
     // console warning during test execution is also expected here
     expect(console.warn).toHaveBeenCalledWith(

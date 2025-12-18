@@ -9,18 +9,22 @@ import { GoogleClientConfig } from '@fxa/google';
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { GeoDBConfig, GeoDBManagerConfig } from '@fxa/shared/geodb';
 import { LocationConfig } from '@fxa/payments/eligibility';
-import { PaypalClientConfig } from 'libs/payments/paypal/src/lib/paypal.client.config';
+import { PaypalClientConfig } from '@fxa/payments/paypal';
 import { StripeConfig } from '@fxa/payments/stripe';
 import { StrapiClientConfig } from '@fxa/shared/cms';
-import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
-import { StatsDConfig } from 'libs/shared/metrics/statsd/src/lib/statsd.config';
+import { StatsDConfig } from '@fxa/shared/metrics/statsd';
 import { PaymentsGleanConfig } from '@fxa/payments/metrics';
-import { CurrencyConfig } from 'libs/payments/currency/src/lib/currency.config';
+import { CurrencyConfig } from '@fxa/payments/currency';
 import { ProfileClientConfig } from '@fxa/profile/client';
 import { ContentServerClientConfig } from '@fxa/payments/content-server';
 import { NotifierSnsConfig } from '@fxa/shared/notifier';
 import { AppleIapClientConfig, GoogleIapClientConfig } from '@fxa/payments/iap';
+import { ChurnInterventionConfig } from '@fxa/payments/cart';
 import { TracingConfig } from './tracing.config';
+import { StripeEventConfig } from '@fxa/payments/webhooks';
+import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
+import { NimbusClientConfig } from 'libs/shared/experiments/src/lib/nimbus.config';
+import { NimbusManagerConfig } from '@fxa/payments/experiments';
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -41,7 +45,7 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly stripeConfig!: Partial<StripeConfig>;
-  
+
   @Type(() => TracingConfig)
   @ValidateNested()
   @IsDefined()
@@ -71,6 +75,11 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly googleIapClientConfig!: Partial<GoogleIapClientConfig>;
+
+  @Type(() => ChurnInterventionConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly churnInterventionConfig!: Partial<ChurnInterventionConfig>;
 
   @Type(() => FirestoreConfig)
   @ValidateNested()
@@ -107,8 +116,23 @@ export class RootConfig {
   @IsDefined()
   public readonly googleClientConfig!: Partial<GoogleClientConfig>;
 
+  @Type(() => StripeEventConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly stripeEventsConfig!: Partial<StripeEventConfig>;
+
   @Type(() => LocationConfig)
   @ValidateNested()
   @IsDefined()
   location!: LocationConfig;
+
+  @Type(() => NimbusClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  nimbusClient!: NimbusClientConfig;
+
+  @Type(() => NimbusManagerConfig)
+  @ValidateNested()
+  @IsDefined()
+  nimbusManager!: NimbusManagerConfig;
 }

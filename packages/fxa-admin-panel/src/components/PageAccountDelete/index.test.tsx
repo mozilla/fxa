@@ -5,7 +5,7 @@
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
-import { PageAccountDelete } from '.';
+import { PageAccountDelete } from './index';
 import { IClientConfig } from '../../../interfaces';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { mockConfigBuilder } from '../../lib/config';

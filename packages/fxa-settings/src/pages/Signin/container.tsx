@@ -14,7 +14,9 @@ import {
   useSensitiveDataClient,
   isOAuthIntegration,
   isOAuthNativeIntegrationSync,
+  isOAuthNativeIntegration,
 } from '../../models';
+import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import {
@@ -23,7 +25,6 @@ import {
   OAuthQueryParams,
 } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import {
   cache,
   currentAccount,
@@ -64,7 +65,6 @@ import {
   getHandledError,
   getLocalizedErrorMessage,
 } from '../../lib/error-utils';
-import { firefox } from '../../lib/channels/firefox';
 import {
   SensitiveData,
   SensitiveDataClient,
@@ -80,8 +80,9 @@ import {
   storeAccountData,
   StoredAccountData,
 } from '../../lib/storage-utils';
-import { cachedSignIn } from './utils';
+import { cachedSignIn, ensureCanLinkAcountOrRedirect } from './utils';
 import OAuthDataError from '../../components/OAuthDataError';
+import { AppLayout } from '../../components/AppLayout';
 
 /*
  * In Backbone, the `email` param is optional. If it's provided, we
@@ -153,10 +154,14 @@ const SigninContainer = ({
   integration,
   serviceName,
   flowQueryParams,
+  useFxAStatusResult,
+  setCurrentSplitLayout,
 }: {
   integration: Integration;
   serviceName: MozServices;
   flowQueryParams?: QueryParams;
+  useFxAStatusResult: UseFxAStatusResult;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const config = useConfig();
   const authClient = useAuthClient();
@@ -200,19 +205,13 @@ const SigninContainer = ({
     // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword, will be retrieved from Apollo cache
     hasLinkedAccount: hasLinkedAccountFromLocationState,
     hasPassword: hasPasswordFromLocationState,
+    canLinkAccountOk,
     localizedErrorMessage: localizedErrorFromLocationState,
     successBanner,
   } = location.state || ({} as LocationState);
 
   const { localizedSuccessBannerHeading, localizedSuccessBannerDescription } =
     successBanner || {};
-
-  // If hasLinkedAccount is defined from location state (React email-first), or query
-  // params (Backbone email-first) then we know the user came from email-first
-  const originFromEmailFirst = !!(
-    hasLinkedAccountFromLocationState !== undefined ||
-    queryParamModel.hasLinkedAccount
-  );
 
   const [accountStatus, setAccountStatus] = useState({
     hasLinkedAccount:
@@ -308,21 +307,23 @@ const SigninContainer = ({
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
-      // If the user was on email-first they were already prompted with the sync merge
-      // warning. The browser will automatically respond with { ok: true } without
-      // prompting the user if it matches the email the browser has data for.
+      // - If the user came from email-first WITHOUT a linked third‑party account, Index already showed
+      //   the merge prompt.
+      // - If the user HAS a linked third‑party account, Index deferred the prompt to avoid duplicates,
+      //   so we must prompt here instead.
+      // Note: the browser will repond {ok} if the email matches stored data or the user accepts the merge.
       if (
-        (integration.isSync() || integration.isFirefoxClientServiceRelay()) &&
-        !originFromEmailFirst
+        (integration.isSync() || integration.isFirefoxNonSync()) &&
+        !canLinkAccountOk &&
+        !useFxAStatusResult.supportsCanLinkAccountUid
       ) {
-        const { ok } = await firefox.fxaCanLinkAccount({ email });
+        const ok = await ensureCanLinkAcountOrRedirect({
+          email,
+          ftlMsgResolver,
+          navigateWithQuery,
+        });
         if (!ok) {
-          const error = {
-            // TODO FXA-9757, these should never be undefined
-            errno: AuthUiErrors.USER_CANCELED_LOGIN.errno!,
-            message: AuthUiErrors.USER_CANCELED_LOGIN.message!,
-          };
-          return { data: undefined, error };
+          return { data: undefined };
         }
       }
 
@@ -381,80 +382,83 @@ const SigninContainer = ({
         }
       );
 
-      // Check recovery key status if signin was successful, user is on sync Desktop
-      // and they didn't click "Do it later"; this affects navigation.
-      if (
-        'data' in result &&
-        result.data &&
-        integration.isDesktopSync() &&
-        config.featureFlags?.recoveryCodeSetupOnSyncSignIn === true &&
-        localStorage.getItem(
-          Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER
-        ) !== 'true'
-      ) {
-        try {
-          // We must use auth-client here in case the user has 2FA or should be
-          // taken to signin_token_code, else GQL responds with 'Invalid token'
-          const { exists } = await authClient.recoveryKeyExists(
-            result.data.signIn.sessionToken,
-            email
-          );
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              recoveryKey() {
-                return {
-                  exists,
-                };
-              },
-            },
+      if ('data' in result && result.data) {
+        if (
+          isOAuthNativeIntegration(integration) &&
+          useFxAStatusResult.supportsCanLinkAccountUid
+        ) {
+          const ok = await ensureCanLinkAcountOrRedirect({
+            email,
+            uid: result.data.signIn.uid,
+            ftlMsgResolver,
+            navigateWithQuery,
           });
-          result.data.showInlineRecoveryKeySetup = !exists;
-        } catch (e) {
-          // no-op, don't block the user from anything and just
-          // skip the inline_recovery_key_setup step this time.
+          if (!ok) {
+            return { data: undefined };
+          }
         }
-      }
 
-      // If an upgrade is needed try running it after we know whether or not
-      // the session is verified. If the session is not verified, there's no
-      // point in attempting the upgrade at this time.
-      //
-      // In this case, we should stash the credentials so we can try at a later
-      // point in then flow after verification is complete.
-      //
-      let isVerified = false;
-      if ('data' in result && result.data && 'signIn' in result.data) {
+        // Check recovery key status if signin was successful, user is on sync Desktop
+        // and they didn't click "Do it later"; this affects navigation.
+        if (
+          integration.isDesktopSync() &&
+          config.featureFlags?.recoveryCodeSetupOnSyncSignIn === true &&
+          localStorage.getItem(
+            Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER
+          ) !== 'true'
+        ) {
+          try {
+            // We must use auth-client here in case the user has 2FA or should be
+            // taken to signin_token_code, else GQL responds with 'Invalid token'
+            const { exists } = await authClient.recoveryKeyExists(
+              result.data.signIn.sessionToken,
+              email
+            );
+            cache.modify({
+              id: cache.identify({ __typename: 'Account' }),
+              fields: {
+                recoveryKey() {
+                  return {
+                    exists,
+                  };
+                },
+              },
+            });
+            result.data.showInlineRecoveryKeySetup = !exists;
+          } catch (e) {
+            // no-op, don't block the user from anything and just
+            // skip the inline_recovery_key_setup step this time.
+          }
+        }
+
+        // If an upgrade is needed try running it after we know whether or not
+        // the session is verified. If the session is not verified, there's no
+        // point in attempting the upgrade at this time.
+        //
+        // In this case, we should stash the credentials so we can try at a later
+        // point in then flow after verification is complete.
+        //
+        const { emailVerified, sessionVerified } = result.data.signIn;
         const accountData: StoredAccountData = {
           email,
           uid: result.data.signIn.uid,
           lastLogin: Date.now(),
           sessionToken: result.data.signIn.sessionToken,
-          // TODO, address signIn.verified vs session.verified discrepancy
-          verified: result.data.signIn.verified,
+          verified: emailVerified && sessionVerified,
           metricsEnabled: result.data.signIn.metricsEnabled,
         };
 
         storeAccountData(accountData);
 
-        // chicken and egg scenario where isSessionVerified GQL call needs
-        // the updated session token in local storage that we set with storeAccountData
-        // but we should update 'verified' once we know the real status
-        // this will be taken care of in the clean up ticket FXA-12454
-        isVerified = await session.isSessionVerified();
-        storeAccountData({
-          ...accountData,
-          verified: isVerified,
-        });
-      }
-
-      if (
-        credentials.credentialStatus?.upgradeNeeded === true &&
-        credentials.v2Credentials
-      ) {
-        let upgraded = false;
-        if ('data' in result) {
-          const sessionToken = result.data?.signIn.sessionToken;
+        if (
+          credentials.credentialStatus?.upgradeNeeded === true &&
+          credentials.v2Credentials
+        ) {
+          let upgraded = false;
+          const sessionToken = result.data.signIn.sessionToken;
+          const isVerified =
+            result.data.signIn.emailVerified &&
+            result.data.signIn.sessionVerified;
           if (sessionToken && isVerified) {
             upgraded = await upgradeClient.upgrade(
               email,
@@ -463,32 +467,20 @@ const SigninContainer = ({
               sessionToken
             );
           }
-        }
 
-        if (upgraded) {
-          sensitiveDataClient.KeyStretchUpgradeData = undefined;
-        } else {
-          sensitiveDataClient.KeyStretchUpgradeData = {
-            email,
-            v1Credentials: credentials.v1Credentials,
-            v2Credentials: credentials.v2Credentials,
-          };
+          if (upgraded) {
+            sensitiveDataClient.KeyStretchUpgradeData = undefined;
+          } else {
+            sensitiveDataClient.KeyStretchUpgradeData = {
+              email,
+              v1Credentials: credentials.v1Credentials,
+              v2Credentials: credentials.v2Credentials,
+            };
+          }
         }
       }
 
-      // TODO, address signIn.verified vs session.verified discrepancy
-      // This currently overrides data.signIn.verified with session.isSessionVerified
-      return {
-        ...result,
-        ...('data' in result &&
-          result.data && {
-            data: {
-              ...result.data,
-              // Temporarily override signIn data with session token verification state
-              signIn: { ...result.data.signIn, verified: isVerified },
-            },
-          }),
-      };
+      return result;
     },
     [
       beginSignin,
@@ -503,8 +495,10 @@ const SigninContainer = ({
       flowQueryParams,
       authClient,
       sensitiveDataClient,
-      originFromEmailFirst,
-      session,
+      canLinkAccountOk,
+      ftlMsgResolver,
+      navigateWithQuery,
+      useFxAStatusResult,
     ]
   );
 
@@ -538,21 +532,34 @@ const SigninContainer = ({
     return <OAuthDataError error={oAuthDataError} />;
   }
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninPage?.splitLayout;
+
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done
   if (!email || validationError) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   // Wait for async call (if needed) to complete
   if (hasLinkedAccount === undefined || hasPassword === undefined) {
-    return <LoadingSpinner fullScreen />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   if (isUnsupportedContext(integration.data.context)) {
     hardNavigate('/update_firefox', {}, true);
-    return <LoadingSpinner fullScreen />;
+    return (
+      <AppLayout {...{ loading: true, splitLayout, setCurrentSplitLayout }} />
+    );
   }
 
   const deeplink = queryParamModel.deeplink;
@@ -577,6 +584,8 @@ const SigninContainer = ({
         localizedSuccessBannerDescription,
         deeplink,
         flowQueryParams,
+        useFxAStatusResult,
+        setCurrentSplitLayout,
       }}
     />
   );

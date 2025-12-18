@@ -7,7 +7,7 @@
 const ROOT_DIR = '../../..';
 
 const { assert } = require('chai');
-const error = require(`${ROOT_DIR}/lib/error`);
+const { AppError: error } = require('@fxa/accounts/errors');
 const { mockLog } = require('../../mocks');
 const notifications = require(`${ROOT_DIR}/lib/email/notifications`);
 const sinon = require('sinon');

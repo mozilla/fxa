@@ -10,6 +10,7 @@ const { Container } = require('typedi');
 const { OtpUtils } = require('../../../lib/routes/utils/otp');
 const { AccountEventsManager } = require('../../../lib/account-events');
 const { strategy } = require('../../../lib/routes/auth-schemes/mfa');
+const { AppError } = require('@fxa/accounts/errors');
 
 describe('mfa', () => {
   let log,
@@ -111,6 +112,7 @@ describe('mfa', () => {
       uid: UID,
       uaBrowser: UA_BROWSER,
       authenticatorAssuranceLevel: 2,
+      tokenVerified: true,
     });
 
     Container.set(OtpUtils, otpUtils);
@@ -205,8 +207,8 @@ describe('mfa', () => {
       error = err;
     }
     assert.isDefined(error);
-    assert.equal(error.errno, 110);
-    assert.equal(error.message, 'Unauthorized for route');
+    assert.equal(error.errno, AppError.ERRNO.INVALID_MFA_TOKEN);
+    assert.equal(error.message, 'Invalid or expired MFA token');
   });
 
   it('will not allow an expired token', async () => {
@@ -220,7 +222,7 @@ describe('mfa', () => {
       error = err;
     }
     assert.isDefined(error);
-    assert.equal(error.errno, 110);
-    assert.equal(error.message, 'Unauthorized for route');
+    assert.equal(error.errno, AppError.ERRNO.INVALID_MFA_TOKEN);
+    assert.equal(error.message, 'Invalid or expired MFA token');
   });
 });

@@ -48,8 +48,8 @@ export interface RelyingPartyUpdateDto {
     canGrant: boolean;
     publicClient: boolean;
     trusted: boolean;
-    allowedScopes?: Nullable<string>;
-    notes?: Nullable<string>;
+    allowedScopes: string;
+    notes: string;
 }
 
 export interface Location {
@@ -86,7 +86,7 @@ export interface EmailBounce {
     bounceType: BounceType;
     bounceSubType: BounceSubType;
     createdAt: number;
-    diagnosticCode: string;
+    diagnosticCode?: Nullable<string>;
 }
 
 export interface Email {
@@ -222,6 +222,11 @@ export interface AccountDeleteTaskStatus {
     status: string;
 }
 
+export interface AccountResetResponse {
+    locator: string;
+    status: string;
+}
+
 export interface RelyingPartyDto {
     id: string;
     createdAt: DateTime;
@@ -231,8 +236,19 @@ export interface RelyingPartyDto {
     canGrant: boolean;
     publicClient: boolean;
     trusted: boolean;
-    allowedScopes?: Nullable<string>;
-    notes?: Nullable<string>;
+    allowedScopes: string;
+    notes: string;
+    hasSecret: boolean;
+    hasPreviousSecret: boolean;
+}
+
+export interface RelyingPartyCreatedDto {
+    id: string;
+    secret: string;
+}
+
+export interface RotateSecretDto {
+    secret: string;
 }
 
 export interface BlockStatus {
@@ -268,11 +284,14 @@ export interface IMutation {
     unlinkAccount(uid: string): boolean | Promise<boolean>;
     unsubscribeFromMailingLists(uid: string): boolean | Promise<boolean>;
     deleteAccounts(locators: string[]): AccountDeleteResponse[] | Promise<AccountDeleteResponse[]>;
+    resetAccounts(locators: string[], notificationEmail: string): AccountResetResponse[] | Promise<AccountResetResponse[]>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
     clearRateLimits(ip?: Nullable<string>, email?: Nullable<string>, uid?: Nullable<string>): number | Promise<number>;
-    create(relyingParty: RelyingPartyUpdateDto): string | Promise<string>;
-    update(id: string, relyingParty: RelyingPartyUpdateDto): boolean | Promise<boolean>;
-    delete(id: string): boolean | Promise<boolean>;
+    createRelyingParty(relyingParty: RelyingPartyUpdateDto): RelyingPartyCreatedDto | Promise<RelyingPartyCreatedDto>;
+    updateRelyingParty(id: string, relyingParty: RelyingPartyUpdateDto): boolean | Promise<boolean>;
+    deleteRelyingParty(id: string): boolean | Promise<boolean>;
+    rotateRelyingPartySecret(id: string): RotateSecretDto | Promise<RotateSecretDto>;
+    deletePreviousRelyingPartySecret(id: string): boolean | Promise<boolean>;
 }
 
 export type DateTime = any;

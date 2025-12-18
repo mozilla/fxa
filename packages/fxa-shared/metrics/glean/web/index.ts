@@ -222,7 +222,6 @@ export const eventsMap = {
     bentoFirefoxDesktop: 'account_pref_bento_firefox_desktop',
     bentoFirefoxMobile: 'account_pref_bento_firefox_mobile',
     bentoMonitor: 'account_pref_bento_monitor',
-    bentoPocket: 'account_pref_bento_pocket',
     bentoRelay: 'account_pref_bento_relay',
     bentoVpn: 'account_pref_bento_vpn',
     mfaGuardView: 'account_pref_mfa_guard_view',
@@ -233,6 +232,10 @@ export const eventsMap = {
     createRecoveryKeyView: 'account_banner_create_recovery_key_view',
     addRecoveryPhoneView: 'account_banner_add_recovery_phone_view',
     reactivationSuccessView: 'account_banner_reactivation_success_view',
+  },
+
+  webauthn: {
+    capabilities: 'webauthn_capabilities',
   },
 
   deleteAccount: {

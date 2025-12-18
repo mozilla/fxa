@@ -70,7 +70,9 @@ export const FirestoreProvider: Provider<Firestore> = {
 export const MockFirestoreProvider: Provider<Firestore> = {
   provide: FirestoreService,
   useFactory: () => {
-    return {} as Firestore;
+    return {
+      collection: () => {},
+    } as unknown as Firestore;
   },
 };
 

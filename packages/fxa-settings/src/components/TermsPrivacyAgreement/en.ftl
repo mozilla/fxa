@@ -3,8 +3,6 @@
 
 # This message is followed by a bulleted list
 terms-privacy-agreement-intro-2 = By proceeding, you agree to the:
-# links to Pocket's Terms of Service and Privacy Notice, part of a bulleted list
-terms-privacy-agreement-pocket-2 = { -product-pocket } <pocketTos>Terms of Service</pocketTos> and <pocketPrivacy>Privacy Notice</pocketPrivacy>
 # link to Monitor's Terms of Service and Privacy Notice, part of a bulleted list
 terms-privacy-agreement-monitor-3 = { -brand-mozilla } Subscription Services <mozSubscriptionTosLink>Terms of Service</mozSubscriptionTosLink> and <mozSubscriptionPrivacyLink>Privacy Notice</mozSubscriptionPrivacyLink>
 # links to Mozilla Accounts Terms of Service and Privacy Notice, part of a bulleted list

@@ -7,7 +7,7 @@
 const MISC_DOCS = require('../../docs/swagger/misc-api').default;
 const validators = require('./validators');
 const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
-const AppError = require('../../lib/error');
+const { AppError } = require('@fxa/accounts/errors');
 const Joi = require('joi');
 
 const { OAUTH_SCOPE_NEWSLETTERS } = require('fxa-shared/oauth/constants');

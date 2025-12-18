@@ -5,7 +5,7 @@
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from '@reach/router';
-import { MfaGuard } from '../MfaGuard';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import {
@@ -55,6 +55,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
+  const handleMfaError = useMfaErrorHandler();
 
   const [currentPasswordErrorText, setCurrentPasswordErrorText] =
     useState<string>();
@@ -90,6 +91,10 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
         logViewEvent(settingsViewName, 'change-password.success');
         alertSuccessAndGoHome();
       } catch (e) {
+        const errorHandled = handleMfaError(e);
+        if (errorHandled) {
+          return;
+        }
         const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
         if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
           setCurrentPasswordErrorText(localizedError);
@@ -103,9 +108,8 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       account,
       alertBar,
       alertSuccessAndGoHome,
+      handleMfaError,
       ftlMsgResolver,
-      setCurrentPasswordErrorText,
-      setNewPasswordErrorText,
       setValue,
     ]
   );
