@@ -75,7 +75,6 @@ export class EmailService {
     const link = this.linkBuilder.buildPasswordChangeRequiredLink({
       url: linksConfig.initiatePasswordResetUrl,
       email: account.primaryEmail?.email || account.email,
-      emailToHashWith: account.email,
     });
 
     const emailContent = await this.renderer.renderPasswordChangeRequired(

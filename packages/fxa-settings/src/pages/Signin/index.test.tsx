@@ -407,7 +407,7 @@ describe('Signin component', () => {
             });
             expect(resetPasswordLink).toHaveAttribute(
               'href',
-              `/reset_password?email=${MOCK_EMAIL}&email_to_hash_with=`
+              `/reset_password?email=${MOCK_EMAIL}`
             );
             expect(resetPasswordLink).toHaveAttribute(
               'data-glean-id',
