@@ -62,10 +62,10 @@ export class EmailBounce extends BaseAuthModel {
     try {
       await EmailBounce.callProcedure(
         Proc.CreateEmailBounce,
-        email,
-        templateName,
-        BOUNCE_TYPES[bounceType],
-        BOUNCE_SUB_TYPES[bounceSubType],
+        email || '',
+        templateName || 'unknown',
+        BOUNCE_TYPES[bounceType] || BOUNCE_TYPES['__fxa__unmapped'],
+        BOUNCE_SUB_TYPES[bounceSubType] || BOUNCE_TYPES['__fxa__unmapped'],
         Date.now(),
         (diagnosticCode ?? '').substring(0, 255)
       );
