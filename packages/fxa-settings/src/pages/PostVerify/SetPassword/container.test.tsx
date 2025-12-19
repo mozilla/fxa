@@ -228,13 +228,7 @@ describe('SetPassword-container', () => {
 
       expect(
         GleanMetrics.thirdPartyAuthSetPassword.success
-      ).toHaveBeenCalledWith({
-        sync: {
-          cwts: Object.fromEntries(
-            offeredEngines.map((engine) => [engine, true])
-          ),
-        },
-      });
+      ).toHaveBeenCalledTimes(1);
       expect(fxaLoginSpy).toHaveBeenCalledWith({
         email: MOCK_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,

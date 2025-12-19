@@ -60,8 +60,6 @@ jest.mock('../../lib/glean', () => ({
       submit: jest.fn(),
       submitSuccess: jest.fn(),
       successView: jest.fn(),
-      cwts: jest.fn(),
-      marketing: jest.fn(),
       changeEmail: jest.fn(),
     },
     isDone: jest.fn(),
@@ -511,22 +509,6 @@ describe('Signup page', () => {
           expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(
             1
           );
-          await waitFor(() => {
-            expect(GleanMetrics.registration.marketing).toHaveBeenCalledTimes(
-              0
-            );
-          });
-          expect(GleanMetrics.registration.cwts).toHaveBeenCalledWith({
-            sync: {
-              cwts: offeredEngines.reduce(
-                (acc, engine) => {
-                  acc[engine] = true;
-                  return acc;
-                },
-                {} as Record<string, boolean>
-              ),
-            },
-          });
         });
       });
 
@@ -622,17 +604,7 @@ describe('Signup page', () => {
           MOCK_PASSWORD
         );
       });
-      expect(GleanMetrics.registration.cwts).toHaveBeenCalledTimes(0);
       expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(1);
-      expect(GleanMetrics.registration.marketing).toHaveBeenCalledWith({
-        standard: {
-          marketing: {
-            news: false,
-            take_action: false,
-            testing: false,
-          },
-        },
-      });
     });
 
     it('on success with OAuth Native integration, service=relay', async () => {
@@ -662,11 +634,9 @@ describe('Signup page', () => {
           MOCK_EMAIL,
           MOCK_PASSWORD
         );
-        expect(GleanMetrics.registration.cwts).toHaveBeenCalledTimes(0);
         expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(
           1
         );
-        expect(GleanMetrics.registration.marketing).not.toHaveBeenCalled();
       });
     });
 

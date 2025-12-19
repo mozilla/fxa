@@ -143,12 +143,6 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'email_first_google_oauth_start':
       email.firstGoogleOauthStart.record();
       break;
-    case 'reg_cwts_engage':
-      reg.cwtsEngage.record();
-      break;
-    case 'reg_marketing_engage':
-      reg.marketingEngage.record();
-      break;
     case 'reg_view':
       reg.view.record();
       break;

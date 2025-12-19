@@ -41,23 +41,6 @@ export const changeEmailLinkClick = new EventMetricType(
 );
 
 /**
- * User interacted with the Sync "Choose What to Sync" options during account
- * registration.
- *
- * Generated from `reg.cwts_engage`.
- */
-export const cwtsEngage = new EventMetricType(
-  {
-    category: 'reg',
-    name: 'cwts_engage',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
-);
-
-/**
  * Registration Page Engagement
  * Event that indicates user engagement with the registration page, typically when
  * focusing on form fields.
@@ -73,23 +56,6 @@ export const engage = new EventMetricType(
     disabled: false,
   },
   ['reason']
-);
-
-/**
- * Event that indicates engagement with the Marketing section of the registration
- * funnel (Standard funnel only)
- *
- * Generated from `reg.marketing_engage`.
- */
-export const marketingEngage = new EventMetricType(
-  {
-    category: 'reg',
-    name: 'marketing_engage',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
 );
 
 /**

@@ -123,9 +123,7 @@ const SetPasswordContainer = ({
             sessionToken
           );
 
-          GleanMetrics.thirdPartyAuthSetPassword.success({
-            sync: { cwts: selectedEnginesForGlean },
-          });
+          GleanMetrics.thirdPartyAuthSetPassword.success();
 
           const navigationOptions: NavigationOptions = {
             email,
@@ -171,7 +169,6 @@ const SetPasswordContainer = ({
       finishOAuthFlowHandler,
       getKeyFetchToken,
       offeredSyncEngines,
-      selectedEnginesForGlean,
       location.search,
     ]
   );
