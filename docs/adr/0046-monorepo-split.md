@@ -1,6 +1,6 @@
 # Keep SubPlat in the Nx monorepo with targeted improvements
 
-* **Status:** proposed
+* **Status:** accepted
 * **Deciders:** Julian Poyourow, Reino Muhl, Vijay Budhram
 * **Date:** 2025-08-18
 
