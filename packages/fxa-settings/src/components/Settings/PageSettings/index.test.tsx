@@ -18,6 +18,7 @@ import { mockWebIntegration } from '../../../pages/Signin/SigninRecoveryCode/moc
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { Constants } from '../../../lib/constants';
 import {
+  accountAlmostEligibleForRecoveryKeyButHasNoPassword,
   accountEligibleForRecoveryKey,
   accountEligibleForRecoveryPhoneAndKey,
   accountEligibleForRecoveryPhoneOnly,
@@ -262,6 +263,23 @@ describe('PageSettings', () => {
         expect(
           screen.getByTestId('submit_create_recovery_key')
         ).toBeInTheDocument()
+      );
+    });
+
+    it('does not show key banner for passwordless accounts', async () => {
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({
+            account: accountAlmostEligibleForRecoveryKeyButHasNoPassword,
+          })}
+        >
+          <PageSettings integration={mockWebIntegration} />
+        </AppContext.Provider>
+      );
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId('submit_create_recovery_key')
+        ).not.toBeInTheDocument()
       );
     });
 
