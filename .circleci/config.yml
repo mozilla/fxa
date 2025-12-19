@@ -346,7 +346,7 @@ commands:
         type: string
       grep_invert:
         type: string
-        default: ""
+        default: ''
       fail_fast:
         type: boolean
         default: true
@@ -818,7 +818,7 @@ jobs:
           project: << parameters.project >>
       - run-playwright-tests:
           project: << parameters.project >>
-          grep_invert: "#phone"
+          grep_invert: '#phone'
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
       - upload_to_gcs:
@@ -861,7 +861,7 @@ jobs:
           project: local
       - run-playwright-tests:
           project: local
-          grep_invert: "#phone"
+          grep_invert: '#phone'
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
       - upload_to_gcs:
@@ -1231,15 +1231,6 @@ workflows:
       - playwright-functional-tests:
           name: Functional Tests - Playwright
           workflow: test_and_deploy_tag
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-          requires:
-            - Build
-      - create-fxa-image:
-          name: Create FxA Image
           filters:
             branches:
               ignore: /.*/
