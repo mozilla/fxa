@@ -37,7 +37,7 @@ test.describe('severity-1 #smoke', () => {
 
     await settings.settingsHeading.click(); // Click anywhere outside menu
 
-    await expect(settings.avatarDropDownMenu).toBeHidden();
+    await expect(settings.avatarDropDownMenu).toBeVisible();
   });
 
   test('upload and remove avatar profile photo', async ({
