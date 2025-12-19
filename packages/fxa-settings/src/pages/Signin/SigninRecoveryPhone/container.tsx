@@ -70,7 +70,8 @@ const SigninRecoveryPhoneContainer = ({
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
     keyFetchToken,
-    unwrapBKey
+    unwrapBKey,
+    signinState?.isSignInWithThirdPartyAuth
   );
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
