@@ -23,6 +23,9 @@ import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
+import {
+  throwStripeUpdatePaymentFailedError
+} from './throwStripeUpdatePaymentFailedError';
 import type {
   ResultAccountCustomer,
   StripeCustomer,
@@ -60,6 +63,14 @@ import {
   CreateBillingAgreementCurrencyNotFound,
   CreateBillingAgreementPaypalSubscriptionNotFound,
 } from './subscriptionManagement.error';
+import {
+  ManagePaymentMethodIntentCardDeclinedError,
+  ManagePaymentMethodIntentCardExpiredError,
+  ManagePaymentMethodIntentFailedGenericError,
+  ManagePaymentMethodIntentGetInTouchError,
+  ManagePaymentMethodIntentTryAgainError,
+  ManagePaymentMethodIntentInsufficientFundsError,
+} from './manage-payment-method.error';
 import { NotifierService } from '@fxa/shared/notifier';
 import { ProfileClient } from '@fxa/profile/client';
 import {
@@ -834,7 +845,16 @@ export class SubscriptionManagementService {
     await this.customerChanged(uid);
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [
+      ManagePaymentMethodIntentCardDeclinedError,
+      ManagePaymentMethodIntentCardExpiredError,
+      ManagePaymentMethodIntentFailedGenericError,
+      ManagePaymentMethodIntentGetInTouchError,
+      ManagePaymentMethodIntentTryAgainError,
+      ManagePaymentMethodIntentInsufficientFundsError,
+    ],
+  })
   async updateStripePaymentDetails(uid: string, confirmationTokenId: string) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
@@ -843,10 +863,22 @@ export class SubscriptionManagementService {
       throw new UpdateAccountCustomerMissingStripeId(uid);
     }
 
-    const setupIntent = await this.setupIntentManager.createAndConfirm(
-      accountCustomer.stripeCustomerId,
-      confirmationTokenId
-    );
+    let setupIntent;
+    try {
+      setupIntent = await this.setupIntentManager.createAndConfirm(
+        accountCustomer.stripeCustomerId,
+        confirmationTokenId
+      );
+    } catch (error) {
+      const setupIntentError = error?.setup_intent;
+      if (setupIntentError?.status === 'requires_payment_method') {
+        const code = setupIntentError.last_setup_error?.code;
+        const declineCode = setupIntentError.last_setup_error?.decline_code;
+        throwStripeUpdatePaymentFailedError(code, declineCode);
+      }
+      throw error;
+    }
+
     this.statsd.increment(
       'sub_management_update_stripe_payment_setupintent_status',
       { status: setupIntent.status }

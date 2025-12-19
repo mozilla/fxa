@@ -53,4 +53,13 @@ stay-subscribed-error-not-current-subscriber = This discount is only available t
 stay-subscribed-error-still-active = Your { $productTitle } subscription is still active.
 stay-subscribed-error-general = There was an issue with renewing your subscription.
 
+## Manage Payment Method Error Messages
+
+manage-payment-method-intent-error-card-declined = Your transaction could not be processed. Please verify your credit card information and try again.
+manage-payment-method-intent-error-expired-card-error = It looks like your credit card has expired. Try another card.
+manage-payment-method-intent-error-try-again = Hmm. There was a problem authorizing your payment. Try again or get in touch with your card issuer.
+manage-payment-method-intent-error-get-in-touch = Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.
+manage-payment-method-intent-error-insufficient-funds = It looks like your card has insufficient funds. Try another card.
+manage-payment-method-intent-error-generic = An unexpected error has occurred while processing your payment, please try again.
+
 ##

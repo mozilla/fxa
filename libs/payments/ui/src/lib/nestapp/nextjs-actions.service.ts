@@ -17,6 +17,12 @@ import { CurrencyManager } from '@fxa/payments/currency';
 import {
   SubscriptionManagementService,
   ChurnInterventionService,
+  ManagePaymentMethodIntentCardDeclinedError,
+  ManagePaymentMethodIntentCardExpiredError,
+  ManagePaymentMethodIntentFailedGenericError,
+  ManagePaymentMethodIntentGetInTouchError,
+  ManagePaymentMethodIntentTryAgainError,
+  ManagePaymentMethodIntentInsufficientFundsError,
 } from '@fxa/payments/management';
 import {
   CheckoutTokenManager,
@@ -885,7 +891,16 @@ export class NextJSActionsService {
     );
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [
+      ManagePaymentMethodIntentCardDeclinedError,
+      ManagePaymentMethodIntentCardExpiredError,
+      ManagePaymentMethodIntentFailedGenericError,
+      ManagePaymentMethodIntentGetInTouchError,
+      ManagePaymentMethodIntentTryAgainError,
+      ManagePaymentMethodIntentInsufficientFundsError,
+    ],
+  })
   @NextIOValidator(
     UpdateStripePaymentDetailsArgs,
     UpdateStripePaymentDetailsResult
