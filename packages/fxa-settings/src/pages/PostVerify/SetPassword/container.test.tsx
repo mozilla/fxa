@@ -24,7 +24,7 @@ import { LocationProvider } from '@reach/router';
 import SetPasswordContainer from './container';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
-import { act } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import { getSyncEngineIds, syncEngineConfigs } from '../../../lib/sync-engines';
 import {
   useFinishOAuthFlowHandler,
@@ -79,6 +79,9 @@ function mockModelsModule() {
   mockAuthClient.sessionReauthWithAuthPW = jest
     .fn()
     .mockResolvedValue({ keyFetchToken: MOCK_KEY_FETCH_TOKEN });
+  mockAuthClient.accountStatus = jest.fn().mockResolvedValue({
+    hasPassword: false,
+  });
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
   );
@@ -198,9 +201,22 @@ describe('SetPassword-container', () => {
 
   it('renders the component when local storage values are present', async () => {
     render();
+    await waitFor(() => {
+      expect(SetPasswordModule.default).toHaveBeenCalled();
+    });
     expect(mockNavigate).not.toHaveBeenCalled();
-    expect(SetPasswordModule.default).toHaveBeenCalled();
     expect(currentSetPasswordProps).toBeDefined();
+  });
+
+  it('redirects to signin when user already has a password', async () => {
+    mockAuthClient.accountStatus = jest.fn().mockResolvedValue({
+      hasPassword: true,
+    });
+    render();
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
+    });
+    expect(SetPasswordModule.default).not.toHaveBeenCalled();
   });
 
   describe('calling createPassword', () => {
@@ -221,7 +237,9 @@ describe('SetPassword-container', () => {
     it('does the expected things with desktop v3', async () => {
       render();
 
-      expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+      await waitFor(() => {
+        expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+      });
       await act(async () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
       });
@@ -255,7 +273,9 @@ describe('SetPassword-container', () => {
     it('does the expected things with oauth native', async () => {
       render(mockOAuthNativeIntegration());
 
-      expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+      await waitFor(() => {
+        expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+      });
       await act(async () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
       });
@@ -280,7 +300,9 @@ describe('SetPassword-container', () => {
     it('handleNavigation does not navigate when integration isFirefoxMobileClient', async () => {
       render(mockOAuthNativeIntegration({ isFirefoxMobileClient: true }));
 
-      expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+      await waitFor(() => {
+        expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+      });
 
       await act(async () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
