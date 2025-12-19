@@ -1,6 +1,6 @@
 # Improving Testing Standards and Experience in the Monorepo
 
-- Status: Proposed
+- Status: accepted
 - Deciders: Wil Clouser, Dan Schomburg, Valerie Pomerleau, Barry Chen, Amri Toufali, Vijay Budhram
 
 ## Context and Problem Statement
