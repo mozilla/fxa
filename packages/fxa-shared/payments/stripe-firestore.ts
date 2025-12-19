@@ -74,7 +74,7 @@ export class StripeFirestore {
       return customer;
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        return this.fetchAndInsertCustomer(customerId, ignoreErrors);
+        return this.legacyFetchAndInsertCustomer(customerId, ignoreErrors);
       }
       throw err;
     }
@@ -96,7 +96,7 @@ export class StripeFirestore {
         const subscription = await this.stripe.subscriptions.retrieve(
           subscriptionId
         );
-        await this.fetchAndInsertCustomer(
+        await this.legacyFetchAndInsertCustomer(
           subscription.customer as string,
           ignoreErrors
         );
@@ -142,6 +142,111 @@ export class StripeFirestore {
    * loads the customers subscriptions into Firestore.
    */
   async fetchAndInsertCustomer(
+    customerId: string,
+    eventTime: number,
+    ignoreErrors: boolean = false
+  ) {
+    const [customer, subscriptions] = await Promise.all([
+      this.stripe.customers.retrieve(customerId),
+      this.stripe.subscriptions
+        .list({
+          customer: customerId,
+          status: "all",
+          limit: 100,
+        })
+        .autoPagingToArray({ limit: 10000 }),
+    ]);
+    if (customer.deleted) {
+      if (ignoreErrors) {
+        return customer;
+      }
+      throw new FirestoreStripeErrorBuilder(
+        `Customer ${customerId} was deleted`,
+        FirestoreStripeError.STRIPE_CUSTOMER_DELETED,
+        customerId
+      );
+    }
+    const customerUid = customer.metadata.userid;
+    if (!customerUid) {
+      if (ignoreErrors) {
+        return customer;
+      }
+      throw new FirestoreStripeErrorBuilder(
+        `Customer ${customerId} has no uid`,
+        FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID,
+        customerId
+      );
+    }
+
+    await this.firestore.runTransaction(async (tx) => {
+      const storedCustomer = await tx.get(
+        this.customerCollectionDbRef
+          .doc(customerUid)
+      )
+
+      const subscriptionsToUpdate: Stripe.Subscription[] = [];
+      for (const subscription of subscriptions) {
+        const storedSubscription = await tx.get(
+          this.customerCollectionDbRef.doc(customerUid)
+            .collection(this.subscriptionCollection)
+            .doc(subscription.id),
+        );
+
+        const storedSubscriptionEventTime: number | undefined = storedSubscription.data()?.stripeEventCreatedTime;
+        // stripeEventCreatedTime can be missing since we didn't previously write this value
+        if (!storedSubscriptionEventTime || storedSubscriptionEventTime < eventTime) {
+          // If we've already stored a newer record from a more recent Stripe
+          // webhook event we don't need to do this write.
+          // In the event of a collision, Firestore transactions are re-run multiple times
+          // with random gaps. We don't need to re-run this event if we already have processed
+          // an event newer.
+          subscriptionsToUpdate.push(subscription);
+        }
+      }
+
+      const storedCustomerEventTime: number | undefined = storedCustomer.data()?.stripeEventCreatedTime;
+      // stripeEventCreatedTime can be missing since we didn't previously write this value
+      if (!storedCustomerEventTime || storedCustomerEventTime < eventTime) {
+        // If we've already stored a newer record from a more recent Stripe
+        // webhook event we don't need to do this write.
+        // In the event of a collision, Firestore transactions are re-run multiple times
+        // with random gaps. We don't need to re-run this event if we already have processed
+        // an event newer.
+        const customerRecord = {
+          ...customer,
+          stripeEventCreatedTime: eventTime
+        }
+        tx.set(this.customerCollectionDbRef.doc(customerUid), customerRecord);
+      }
+
+      // Firestore transactions require writes to occur after all reads.
+      for (const subscriptionToUpdate of subscriptionsToUpdate) {
+        const subscriptionRecord = {
+          ...subscriptionToUpdate,
+          stripeEventCreatedTime: eventTime
+        }
+        tx.set(
+          this.customerCollectionDbRef
+            .doc(customerUid)
+            .collection(this.subscriptionCollection)
+            .doc(subscriptionToUpdate.id),
+          subscriptionRecord
+        );
+      }
+    });
+
+    return customer;
+  }
+
+  /**
+   * Get a Stripe customer by id, and insert it into Firestore keyed to the fxa uid.
+   *
+   * This method is used for populating the customer if missing from Stripe and also
+   * loads the customers subscriptions into Firestore.
+   *
+   * This is kept for compatibility with methods that do not fire directly from a Stripe webhook but still want to populate Firestore
+   */
+  async legacyFetchAndInsertCustomer(
     customerId: string,
     ignoreErrors: boolean = false
   ) {
@@ -191,9 +296,10 @@ export class StripeFirestore {
         this.stripe.subscriptions
           .list({
             customer: customerId,
-            status: "all"
+            status: "all",
+            limit: 100,
           })
-          .autoPagingToArray({ limit: 100 }),
+          .autoPagingToArray({ limit: 10000 }),
       ]);
       if (customer.deleted) {
         if (ignoreErrors) {

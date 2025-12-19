@@ -4253,14 +4253,14 @@ describe('#integration - StripeHelper', () => {
       const customerSecond = deepCopy(customer1);
       const expandStub = sandbox.stub(stripeHelper, 'expandResource');
       stripeHelper.stripeFirestore = {
-        fetchAndInsertCustomer: sandbox.stub().resolves({}),
+        legacyFetchAndInsertCustomer: sandbox.stub().resolves({}),
       };
       expandStub.onFirstCall().resolves(customer);
       expandStub.onSecondCall().resolves(customerSecond);
       const result = await stripeHelper.fetchCustomer(existingCustomer.uid);
       assert.deepEqual(result, customerSecond);
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.fetchAndInsertCustomer,
+        stripeHelper.stripeFirestore.legacyFetchAndInsertCustomer,
         customer.id
       );
       sinon.assert.calledTwice(expandStub);
@@ -7112,7 +7112,8 @@ describe('#integration - StripeHelper', () => {
       );
       sinon.assert.calledOnceWithExactly(
         stripeFirestore.fetchAndInsertCustomer,
-        event.data.object.customer
+        event.data.object.customer,
+        event.created
       );
     });
 
@@ -7132,7 +7133,8 @@ describe('#integration - StripeHelper', () => {
         await stripeHelper.processWebhookEventToFirestore(event);
         sinon.assert.calledOnceWithExactly(
           stripeHelper.stripeFirestore.fetchAndInsertCustomer,
-          eventCustomerUpdated.data.object.id
+          eventCustomerUpdated.data.object.id,
+          event.created
         );
       });
     }
@@ -7168,7 +7170,8 @@ describe('#integration - StripeHelper', () => {
             );
             sinon.assert.calledOnceWithExactly(
               stripeHelper.stripeFirestore.fetchAndInsertCustomer,
-              event.data.object.customer
+              event.data.object.customer,
+              event.created
             );
           } else {
             sinon.assert.calledOnceWithExactly(
