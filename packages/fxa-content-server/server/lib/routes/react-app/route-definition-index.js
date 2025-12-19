@@ -49,9 +49,6 @@ function getIndexRouteDefinition(config) {
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
   const SHOW_REACT_APP = config.get('showReactApp');
   const BRAND_MESSAGING_MODE = config.get('brandMessagingMode');
-  const FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS = config.get(
-    'featureFlags.sendFxAStatusOnSettings'
-  );
   const FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN = config.get(
     'featureFlags.recoveryCodeSetupOnSyncSignIn'
   );
@@ -121,7 +118,6 @@ function getIndexRouteDefinition(config) {
     showReactApp: SHOW_REACT_APP,
     brandMessagingMode: BRAND_MESSAGING_MODE,
     featureFlags: {
-      sendFxAStatusOnSettings: FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS,
       recoveryCodeSetupOnSyncSignIn:
         FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
       showLocaleToggle: FEATURE_FLAGS_SHOW_LOCALE_TOGGLE,
