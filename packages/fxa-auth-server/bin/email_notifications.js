@@ -67,6 +67,7 @@ const Token = require('../lib/tokens')(log, config);
 const SQSReceiver = require('../lib/sqs')(log, statsd);
 const bounces = require('../lib/email/bounces')(log, error, config, statsd);
 const delivery = require('../lib/email/delivery')(log, glean);
+const deliveryDelay = require('../lib/email/delivery-delay')(log, statsd);
 const notifications = require('../lib/email/notifications')(log, error);
 
 const { createDB } = require('../lib/db');
@@ -76,6 +77,7 @@ const {
   bounceQueueUrl,
   complaintQueueUrl,
   deliveryQueueUrl,
+  deliveryDelayQueueUrl,
   notificationQueueUrl,
   region,
 } = config.emailNotifications;
@@ -85,10 +87,12 @@ const bounceQueue = new SQSReceiver(region, [
   complaintQueueUrl,
 ]);
 const deliveryQueue = new SQSReceiver(region, [deliveryQueueUrl]);
+const deliveryDelayQueue = new SQSReceiver(region, [deliveryDelayQueueUrl]);
 const notificationQueue = new SQSReceiver(region, [notificationQueueUrl]);
 
 DB.connect(config).then((db) => {
   bounces(bounceQueue, db);
   delivery(deliveryQueue);
+  deliveryDelay(deliveryDelayQueue);
   notifications(notificationQueue, db);
 });
