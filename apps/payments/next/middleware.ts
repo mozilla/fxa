@@ -10,7 +10,9 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname,
     request.headers.get('accept-language')
   );
-  if (result.redirect) {
+
+  // Redirect only if the pathname has changed to avoid an infinite redirect loop
+  if (result.redirect && result.pathname !== request.nextUrl.pathname) {
     return NextResponse.redirect(
       new URL(`${result.pathname}${request.nextUrl.search}`, request.url)
     );
