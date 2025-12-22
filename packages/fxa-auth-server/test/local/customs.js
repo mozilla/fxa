@@ -17,6 +17,7 @@ const customsServer = nock(CUSTOMS_URL_REAL).defaultReplyHeaders({
   'Content-Type': 'application/json',
 });
 const Customs = require(`../../lib/customs.js`);
+const configModule = require('../../config');
 
 describe('Customs', () => {
   let customsNoUrl;
@@ -724,6 +725,18 @@ describe('Customs', () => {
       mockRateLimit.check = sinon.spy();
       mockRateLimit.skip = sinon.spy(() => false);
       mockRateLimit.supportsAction = sinon.spy(() => true);
+      // Stub config.get to return email alias domain configurations for tests
+      const configGetStub = sandbox.stub(configModule.config, 'get');
+      configGetStub
+        .withArgs('rateLimit.emailAliasNormalization')
+        .returns(
+          JSON.stringify([
+            { domain: 'mozilla.com', regex: '\\+[^@]+', replace: '' },
+          ])
+        );
+      configGetStub.callThrough();
+      // Reload the config map with the stubbed config
+      Customs._reloadAliasConfigsMap();
     });
 
     it('can allow checkAccountStatus with rate-limit lib', async () => {
@@ -820,6 +833,94 @@ describe('Customs', () => {
         ip_email,
       });
       assert.callCount(mockRateLimit.check, 0);
+    });
+
+    it('normalizes emails with plus aliases for configured domains', async () => {
+      mockRateLimit.check = sandbox.spy(async () => {
+        return await Promise.resolve(null);
+      });
+
+      const emailWithAlias = 'user+alias@mozilla.com';
+      const normalizedEmail = 'user@mozilla.com';
+      const normalizedIpEmail = `${ip}_${normalizedEmail}`;
+
+      await customs.check(request, emailWithAlias, 'accountStatusCheck');
+
+      assert.calledWith(
+        mockRateLimit.check,
+        'accountStatusCheck',
+        sinon.match({
+          ip,
+          email: normalizedEmail,
+          ip_email: normalizedIpEmail,
+        })
+      );
+    });
+
+    it('normalizes emails with different cases', async () => {
+      mockRateLimit.check = sandbox.spy(async () => {
+        return await Promise.resolve(null);
+      });
+
+      const mixedCaseEmail = 'User+Alias@Mozilla.COM';
+      const normalizedEmail = 'user@mozilla.com';
+      const normalizedIpEmail = `${ip}_${normalizedEmail}`;
+
+      await customs.check(request, mixedCaseEmail, 'accountStatusCheck');
+
+      assert.calledWith(
+        mockRateLimit.check,
+        'accountStatusCheck',
+        sinon.match({
+          ip,
+          email: normalizedEmail,
+          ip_email: normalizedIpEmail,
+        })
+      );
+    });
+
+    it('does not remove aliases for non-configured domains', async () => {
+      mockRateLimit.check = sandbox.spy(async () => {
+        return await Promise.resolve(null);
+      });
+
+      const emailWithAlias = 'user+alias@example.com';
+      const normalizedEmail = 'user+alias@example.com'; // Alias should remain
+      const normalizedIpEmail = `${ip}_${normalizedEmail}`;
+
+      await customs.check(request, emailWithAlias, 'accountStatusCheck');
+
+      assert.calledWith(
+        mockRateLimit.check,
+        'accountStatusCheck',
+        sinon.match({
+          ip,
+          email: normalizedEmail,
+          ip_email: normalizedIpEmail,
+        })
+      );
+    });
+
+    it('lowercases emails for all domains', async () => {
+      mockRateLimit.check = sandbox.spy(async () => {
+        return await Promise.resolve(null);
+      });
+
+      const mixedCaseEmail = 'User@Example.COM';
+      const normalizedEmail = 'user@example.com';
+      const normalizedIpEmail = `${ip}_${normalizedEmail}`;
+
+      await customs.check(request, mixedCaseEmail, 'accountStatusCheck');
+
+      assert.calledWith(
+        mockRateLimit.check,
+        'accountStatusCheck',
+        sinon.match({
+          ip,
+          email: normalizedEmail,
+          ip_email: normalizedIpEmail,
+        })
+      );
     });
   });
 
