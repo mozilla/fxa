@@ -6,7 +6,6 @@ import {
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
-  PaymentProvidersType,
 } from '@fxa/payments/metrics';
 import { LocationStatus } from '@fxa/payments/eligibility';
 import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
@@ -14,7 +13,7 @@ import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 
 export type CheckoutEvents = CommonMetrics;
 export type CheckoutPaymentEvents = CommonMetrics & {
-  paymentProvider?: PaymentProvidersType;
+  paymentProvider?: SubPlatPaymentMethodType;
 };
 
 export type SubscriptionEndedEvents = {

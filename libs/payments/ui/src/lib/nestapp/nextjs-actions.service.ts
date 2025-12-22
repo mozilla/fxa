@@ -62,16 +62,14 @@ import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActio
 import { DetermineStaySubscribedEligibilityActionArgs } from './validators/DetermineStaySubscribedEligibilityActionArgs';
 import { DetermineCancellationInterventionActionArgs } from './validators/DetermineCancellationInterventionActionArgs';
 import { NextIOValidator } from './NextIOValidator';
-import type {
-  CommonMetrics,
-  PaymentProvidersType,
-} from '@fxa/payments/metrics';
+import type { CommonMetrics } from '@fxa/payments/metrics';
 import { GetCartActionResult } from './validators/GetCartActionResult';
 import { GetChurnInterventionDataActionResult } from './validators/GetChurnInterventionDataActionResult';
 import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionResult';
 import {
   CouponErrorCannotRedeem,
   PromotionCodeSanitizedError,
+  SubPlatPaymentMethodType,
   TaxAddress,
   type SubplatInterval,
 } from '@fxa/payments/customer';
@@ -265,10 +263,11 @@ export class NextJSActionsService {
     customerId: string;
     churnInterventionId: string;
   }) {
-    const data = await this.churnInterventionService.getChurnInterventionForCustomerId(
-      args.customerId,
-      args.churnInterventionId
-    );
+    const data =
+      await this.churnInterventionService.getChurnInterventionForCustomerId(
+        args.customerId,
+        args.churnInterventionId
+      );
     return data;
   }
 
@@ -575,7 +574,7 @@ export class NextJSActionsService {
   async recordEmitterEvent(args: {
     eventName: string;
     requestArgs: CommonMetrics;
-    paymentProvider: PaymentProvidersType | undefined;
+    paymentProvider: SubPlatPaymentMethodType | undefined;
   }) {
     const { eventName, requestArgs, paymentProvider } = args;
 
