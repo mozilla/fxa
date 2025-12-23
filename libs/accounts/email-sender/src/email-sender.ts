@@ -152,28 +152,28 @@ export class EmailSender {
   /**
    * Builds standard email headers
    */
-  async buildHeaders({
-    template,
+  buildHeaders({
     context,
     headers,
+    template,
   }: {
+    context: {
+      language: string;
+      serverName: string;
+      cmsRpClientId?: string;
+      deviceId?: string;
+      entrypoint?: string;
+      flowBeginTime?: number;
+      flowId?: string;
+      service?: string;
+      uid?: string;
+    };
+    headers: Record<string, string>;
     template: {
       name: string;
       version: number;
       metricsName?: string;
     };
-    context: {
-      serverName: string;
-      language: string;
-      deviceId?: string;
-      flowId?: string;
-      flowBeginTime?: number;
-      service?: string;
-      uid?: string;
-      entrypoint?: string;
-      cmsRpClientId?: string;
-    };
-    headers: Record<string, string>;
   }) {
     const optionalHeader = (key: string, value?: string | number) => {
       if (value) {

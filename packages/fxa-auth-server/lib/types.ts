@@ -41,7 +41,7 @@ export interface AuthApp extends RequestApplicationState {
       countryCode: string;
       postalCode?: string;
     };
-    [key: string]: any;
+    timeZone: string;
   };
 }
 

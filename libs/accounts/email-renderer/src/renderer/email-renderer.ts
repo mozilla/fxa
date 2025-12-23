@@ -20,8 +20,18 @@ const RTL_LOCALES = [
   'pa',
 ];
 
+export type RenderedTemplate = {
+  language: string;
+  html: string;
+  text: string;
+  subject: string;
+  preview: string;
+  template: string;
+  version: number;
+};
+
 /**
- * Base calss for rendering an MJML email template.
+ * Base class for rendering an MJML email template.
  * Ported from fxa-auth-server lib/senders/emails
  **/
 export class EmailRenderer extends Localizer {
@@ -62,7 +72,9 @@ export class EmailRenderer extends Localizer {
    * @returns text Plaintext rendered through EJS and localized
    * @returns subject Localized subject, for mailer use
    */
-  async renderEmail(templateContext: TemplateContext) {
+  async renderEmail(
+    templateContext: TemplateContext
+  ): Promise<RenderedTemplate> {
     const {
       acceptLanguage,
       template,
@@ -72,7 +84,7 @@ export class EmailRenderer extends Localizer {
       includes,
     } = templateContext;
     const { l10n, selectedLocale } = await super.setupDomLocalizer(
-      acceptLanguage || ''
+      acceptLanguage || 'en-US'
     );
 
     const context = {

@@ -880,6 +880,12 @@ const conf = convict({
         env: 'SMTP_RETRY_MAX_DELAY_MS',
       },
     },
+    metricsEnabled: {
+      doc: 'Flag to enable UTM metrics for SMTP links',
+      format: Boolean,
+      default: true,
+      env: 'SMTP_METRICS_ENABLED',
+    },
   },
   bounces: {
     enabled: {
