@@ -20,6 +20,7 @@ import { parseBooleanArg } from './lib/args';
 
 const DEFAULT_PLAN_LENGTH = 180;
 const DEFAULT_REMINDER_LENGTH = 14;
+const DEFAULT_ENDING_REMINDER_DAILY_LENGTH = 0;
 const DEFAULT_ENDING_REMINDER_MONTHLY_LENGTH = 7;
 const DEFAULT_ENDING_REMINDER_YEARLY_LENGTH = 14;
 
@@ -28,6 +29,7 @@ Sentry.init({});
 async function init() {
   program
     .version(pckg.version)
+    .allowUnknownOption(true)
     .option(
       '-p, --plan-length [days]',
       'Plan length in days beyond which a reminder email before the next recurring charge should be sent. Defaults to 180.',
@@ -42,6 +44,11 @@ async function init() {
       '-e, --enableEndingReminders [boolean]',
       'Enable the sending of subscription ending reminder emails. Defaults to false.',
       false
+    )
+    .option(
+      '-d, --ending-reminder-daily-length [days]',
+      'Reminder length in days before the daily subscription ending date to send the reminder email. Defaults to 0.',
+      DEFAULT_ENDING_REMINDER_DAILY_LENGTH.toString()
     )
     .option(
       '-m, --ending-reminder-monthly-length [days]',
@@ -78,6 +85,7 @@ async function init() {
     {
       enabled: parseBooleanArg(program.enableEndingReminders),
       paymentsNextUrl: config.smtp.subscriptionSettingsUrl,
+      dailyReminderDays: parseInt(program.endingReminderDailyLength),
       monthlyReminderDays: parseInt(program.endingReminderMonthlyLength),
       yearlyReminderDays: parseInt(program.endingReminderYearlyLength),
     },

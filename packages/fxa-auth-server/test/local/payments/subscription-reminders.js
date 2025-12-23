@@ -60,6 +60,7 @@ describe('SubscriptionReminders', () => {
   let mockConfig;
   let realDateNow;
 
+  const mockDailyReminderDuration = undefined;
   const mockMonthlyReminderDuration = 7;
   const mockYearlyReminderDuration = 14;
 
@@ -97,6 +98,7 @@ describe('SubscriptionReminders', () => {
       {
         enabled: false,
         paymentsNextUrl: 'http://localhost:3035',
+        dailyReminderDays: mockDailyReminderDuration,
         monthlyReminderDays: mockMonthlyReminderDuration,
         yearlyReminderDays: mockYearlyReminderDuration,
       },
@@ -716,6 +718,32 @@ describe('SubscriptionReminders', () => {
       reminder.endingReminderEnabled = true;
       await reminder.sendReminders();
 
+      sinon.assert.calledWith(
+        reminder.sendEndingReminders,
+        Duration.fromObject({ days: mockMonthlyReminderDuration }),
+        'monthly'
+      );
+      sinon.assert.calledWith(
+        reminder.sendEndingReminders,
+        Duration.fromObject({ days: mockYearlyReminderDuration }),
+        'yearly'
+      );
+    });
+
+    it('calls sendEndingReminders for daily if dailyEndingReminderDuration is provided', async () => {
+      const mockDailyReminderDays = 3;
+      reminder.sendEndingReminders = sandbox.fake.resolves({});
+      reminder.endingReminderEnabled = true;
+      reminder.dailyEndingReminderDuration = Duration.fromObject({
+        days: mockDailyReminderDays,
+      });
+      await reminder.sendReminders();
+
+      sinon.assert.calledWith(
+        reminder.sendEndingReminders,
+        Duration.fromObject({ days: mockDailyReminderDays }),
+        'daily'
+      );
       sinon.assert.calledWith(
         reminder.sendEndingReminders,
         Duration.fromObject({ days: mockMonthlyReminderDuration }),
