@@ -10,7 +10,12 @@ import { redirect } from 'next/navigation';
 import React from 'react';
 import { URLSearchParams } from 'url';
 
-import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import {
+  SubPlatPaymentMethodType,
+  SubplatInterval,
+  StaySubscribedEligibilityResult,
+  CancellationInterventionResult,
+} from '@fxa/payments/customer';
 import {
   Banner,
   BannerVariant,
@@ -22,6 +27,8 @@ import {
 import {
   getExperimentsAction,
   getSubManPageContentAction,
+  determineStaySubscribedEligibilityAction,
+  determineCancellationInterventionAction,
 } from '@fxa/payments/ui/actions';
 import { getApp } from '@fxa/payments/ui/server';
 import alertIcon from '@fxa/shared/assets/images/alert-yellow.svg';
@@ -32,6 +39,9 @@ import newWindowIcon from '@fxa/shared/assets/images/new-window.svg';
 import { LinkExternal } from '@fxa/shared/react';
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
+
+//type CancellationInterventionResult =
+//  Awaited<ReturnType<typeof determineCancellationInterventionAction>>;  // better to do this, or follow pattern of StaySubscribedEligibilityResult?
 
 export default async function Manage({
   params,
@@ -53,6 +63,7 @@ export default async function Manage({
   }
 
   const userId = session.user.id;
+  const offeringId = 'vpn';   // TODO: Find offeringId properly
 
   const experiments = await getExperimentsAction({
     fxaUid: userId,
@@ -81,6 +92,35 @@ export default async function Manage({
     expMonth && expYear
       ? l10n.getLocalizedMonthYearString(expMonth, expYear, locale)
       : undefined;
+
+  const staySubscribedEligibilityBySubId = new Map<string, StaySubscribedEligibilityResult>();
+  const cancellationInterventionBySubId = new Map<string, CancellationInterventionResult>();
+
+  await Promise.all(
+    subscriptions.map(async (sub) => {
+      const staySubscribedResult = await determineStaySubscribedEligibilityAction(
+        userId,
+        sub.id,
+        acceptLanguage,
+        locale
+      );
+
+      if (sub.interval) {
+        const cancellationInterventionResult = await determineCancellationInterventionAction({
+          uid: userId,
+          subscriptionId: sub.id,
+          offeringApiIdentifier: offeringId,
+          currentInterval: sub.interval,
+          upgradeInterval: SubplatInterval.Yearly, // TODO: find interval properly
+          acceptLanguage,
+          selectedLanguage: locale
+        });
+        cancellationInterventionBySubId.set(sub.id, cancellationInterventionResult);
+      }
+      staySubscribedEligibilityBySubId.set(sub.id, staySubscribedResult);
+    })
+  );
+
   return (
     <div
       className="w-full tablet:px-8 desktop:max-w-[1024px]"
@@ -516,6 +556,8 @@ export default async function Manage({
               )}
             >
               {subscriptions.map((sub, index: number) => {
+                const staySubscribedEligibilityForSub = staySubscribedEligibilityBySubId.get(sub.id);
+                const cancellationInterventionForSub = cancellationInterventionBySubId.get(sub.id);
                 return (
                   <li
                     key={`${sub.productName}-${index}`}
@@ -567,6 +609,9 @@ export default async function Manage({
                           <SubscriptionContent
                             subscription={sub}
                             locale={locale}
+                            offeringId={offeringId}
+                            staySubscribedEligibility={staySubscribedEligibilityForSub}
+                            cancellationIntervention={cancellationInterventionForSub}
                           />
                         </div>
                       </div>

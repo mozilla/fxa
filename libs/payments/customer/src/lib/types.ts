@@ -206,3 +206,96 @@ export interface TaxAddress {
   countryCode: string;
   postalCode: string;
 }
+
+export enum Enum_Churnintervention_Churntype {
+  Cancel = 'cancel',
+  StaySubscribed = 'stay_subscribed'
+}
+
+export enum Enum_Churnintervention_Interval {
+  Daily = 'daily',
+  Halfyearly = 'halfyearly',
+  Monthly = 'monthly',
+  Weekly = 'weekly',
+  Yearly = 'yearly'
+}
+
+export interface ChurnInterventionResult {
+  productName: string;
+  webIcon: string;
+  churnInterventionId: string;
+  churnType: Enum_Churnintervention_Churntype;
+  redemptionLimit: number;
+  stripeCouponId: string;
+  interval: Enum_Churnintervention_Interval;
+  discountAmount: number;
+  ctaMessage: string;
+  modalHeading: string;
+  modalMessage: string[];
+  productPageUrl: string;
+  termsHeading: string;
+  termsDetails: string[];
+  supportUrl: string;
+}
+
+export interface StaySubscribedEligibilityResult {
+  isEligible: boolean;
+  reason: string;
+  cmsChurnInterventionEntry: null | ChurnInterventionResult;
+};
+
+export interface CancelInterstitialOfferOfferingResult {
+  stripeProductId: string;
+  defaultPurchase: {
+    purchaseDetails: {
+      webIcon: string;
+      localizations: { webIcon: string }[];
+    };
+  };
+}
+
+export enum Enum_Cancelinterstitialoffer_Currentinterval {
+  Daily = 'daily',
+  Halfyearly = 'halfyearly',
+  Monthly = 'monthly',
+  Weekly = 'weekly',
+  Yearly = 'yearly'
+}
+
+export enum Enum_Cancelinterstitialoffer_Upgradeinterval {
+  Daily = 'daily',
+  Halfyearly = 'halfyearly',
+  Monthly = 'monthly',
+  Weekly = 'weekly',
+  Yearly = 'yearly'
+}
+
+export interface CancelInterstitialOfferResult {
+  cancelInterstitialOffers: CancelInterstitialOffer[];
+}
+export interface CancelInterstitialOffer {
+  offeringApiIdentifier: string;
+  currentInterval: Enum_Cancelinterstitialoffer_Currentinterval;
+  upgradeInterval: Enum_Cancelinterstitialoffer_Upgradeinterval;
+  advertisedSavings: number;
+  ctaMessage: string;
+  modalHeading1: string;
+  modalHeading2: string;
+  modalMessage: string;
+  productPageUrl: string;
+  upgradeButtonLabel: string;
+  upgradeButtonUrl: string;
+  localizations: Partial<CancelInterstitialOffer>[];
+  offering: CancelInterstitialOfferOfferingResult;
+}
+
+export interface CancelInterstitialOfferTransformed
+  extends Omit<CancelInterstitialOffer, 'modalMessage'> {
+  modalMessage: string[];
+}
+
+export interface CancellationInterventionResult {
+  cancelChurnInterventionType: string;
+  reason: string;
+  cmsOfferContent: null | ChurnInterventionResult | CancelInterstitialOfferTransformed;
+}
