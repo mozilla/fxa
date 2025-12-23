@@ -8,7 +8,7 @@ import { Metadata } from 'next';
 import { auth } from 'apps/payments/next/auth';
 
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
-import { getCardIcon } from '@fxa/payments/ui';
+import { buildRedirectUrl, getCardIcon } from '@fxa/payments/ui';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
@@ -20,6 +20,7 @@ import {
   buildPageMetadata,
 } from '@fxa/payments/ui/server';
 import { config } from 'apps/payments/next/config';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,6 +68,25 @@ export default async function UpgradeSuccess({
     cartDataPromise,
     sessionPromise,
   ]);
+
+  if (!session?.user?.id || cart.uid !== session.user.id) {
+    const redirectSearchParams: Record<string, string | string[]> =
+      searchParams || {};
+    delete redirectSearchParams.cartId;
+    delete redirectSearchParams.cartVersion;
+    const redirectTo = buildRedirectUrl(
+      params.offeringId,
+      params.interval,
+      'new',
+      'checkout',
+      {
+        baseUrl: config.paymentsNextHostedUrl,
+        locale,
+        searchParams: redirectSearchParams,
+      }
+    );
+    redirect(redirectTo);
+  }
 
   const { successActionButtonUrl, successActionButtonLabel } =
     cms.commonContent.localizations.at(0) || cms.commonContent;
