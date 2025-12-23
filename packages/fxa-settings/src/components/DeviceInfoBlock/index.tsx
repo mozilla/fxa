@@ -19,38 +19,52 @@ export const DeviceInfoBlock = ({ remoteMetadata }: DeviceInfoBlockProps) => {
     city,
     region,
     country,
+    countryCode,
   } = remoteMetadata;
+  const currentLocale = document.documentElement.lang || 'en-US';
+  let localizedCountry = country;
+
+  if (countryCode && typeof Intl !== 'undefined' && Intl.DisplayNames) {
+    try {
+      const regionNames = new Intl.DisplayNames([currentLocale], {
+        type: 'region',
+      });
+      localizedCountry = regionNames.of(countryCode) || country;
+    } catch (e) {
+      // Fallback to raw country name if Intl fails
+    }
+  }
   const LocalizedLocation = () => {
     if (city && region && country) {
       return (
         <FtlMsg
           id="device-info-block-location-city-region-country"
-          vars={{ city, region, country }}
-        >{`${city}, ${region}, ${country} (estimated)`}</FtlMsg>
+          vars={{ city, region, country: localizedCountry }}
+        >{`${city}, ${region}, ${localizedCountry} (estimated)`}</FtlMsg>
       );
     }
     if (region && country) {
       return (
         <FtlMsg
           id="device-info-block-location-region-country"
-          vars={{ region, country }}
-        >{`${region}, ${country} (estimated)`}</FtlMsg>
+          vars={{ region, country: localizedCountry }}
+        >{`${region}, ${localizedCountry} (estimated)`}</FtlMsg>
       );
     }
     if (city && country) {
       return (
         <FtlMsg
           id="device-info-block-location-city-country"
-          vars={{ city, country }}
-        >{`${city}, ${country} (estimated)`}</FtlMsg>
+          vars={{ city, country: localizedCountry }}
+        >{`${city}, ${localizedCountry} (estimated)`}</FtlMsg>
       );
     }
     if (country) {
       return (
         <FtlMsg
           id="device-info-block-location-country"
-          vars={{ country }}
-        >{`${country} (estimated)`}</FtlMsg>
+          vars={{ country: localizedCountry }}
+        >{`${localizedCountry} (estimated)`}</FtlMsg>
       );
     }
     return (
