@@ -281,12 +281,14 @@ export class NextJSActionsService {
   @CaptureTimingWithStatsD()
   async determineStaySubscribedEligibility(args: {
     uid: string;
+    customerId: string;
     subscriptionId: string;
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
     return await this.churnInterventionService.determineStaySubscribedEligibility(
       args.uid,
+      args.customerId,
       args.subscriptionId,
       args.acceptLanguage,
       args.selectedLanguage
@@ -302,6 +304,7 @@ export class NextJSActionsService {
   @CaptureTimingWithStatsD()
   async determineCancellationIntervention(args: {
     uid: string,
+    customerId: string,
     subscriptionId: string,
     offeringApiIdentifier: string,
     currentInterval: SubplatInterval,
@@ -311,6 +314,7 @@ export class NextJSActionsService {
   }) {
     return await this.churnInterventionService.determineCancellationIntervention({
       uid: args.uid,
+      customerId: args.customerId,
       subscriptionId: args.subscriptionId,
       offeringApiIdentifier: args.offeringApiIdentifier,
       currentInterval: args.currentInterval,
@@ -326,12 +330,14 @@ export class NextJSActionsService {
   @CaptureTimingWithStatsD()
   async redeemChurnCoupon(args: {
     uid: string;
+    customerId: string,
     subscriptionId: string;
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
     return await this.churnInterventionService.redeemChurnCoupon(
       args.uid,
+      args.customerId,
       args.subscriptionId,
       args.acceptLanguage,
       args.selectedLanguage

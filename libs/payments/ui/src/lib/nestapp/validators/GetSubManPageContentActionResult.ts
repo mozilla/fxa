@@ -87,6 +87,13 @@ class SubscriptionContent {
   @IsOptional()
   @IsString()
   promotionName?: string | null;
+
+  @IsBoolean()
+  isEligibleForChurnStaySubscribed!: boolean;
+
+  @IsOptional()
+  @IsString()
+  churnStaySubscribedCtaMessage?: string | null;
 }
 
 class AppleIapSubscriptionContent {

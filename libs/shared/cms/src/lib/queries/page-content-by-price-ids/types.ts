@@ -15,6 +15,7 @@ export interface PageContentByPriceIdsOfferingResult {
   commonContent: PageContentByPriceIdsCommonContentResult & {
     localizations: PageContentByPriceIdsCommonContentResult[];
   };
+  apiIdentifier: string;
 }
 
 export interface PageContentByPriceIdsPurchaseDetailsResult {

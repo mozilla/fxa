@@ -74,6 +74,7 @@ export interface SubscriptionContent {
   id: string;
   cancelAtPeriodEnd: boolean;
   productName: string;
+  offeringApiIdentifier: string;
   supportUrl: string;
   webIcon: string;
   canResubscribe: boolean;
@@ -90,6 +91,8 @@ export interface SubscriptionContent {
   nextInvoiceTotal?: number;
   nextPromotionName?: string | null;
   promotionName?: string | null;
+  isEligibleForChurnStaySubscribed: boolean;
+  churnStaySubscribedCtaMessage?: string | null;
 }
 
 export enum ChurnErrorReason {
