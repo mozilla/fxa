@@ -17,6 +17,14 @@
   color: global.$grey-600 !important;
 }
 
+.text-header-two div {
+  @extend %text-header-common;
+  @extend .text-lg;
+  @extend .mb-6;
+  font-weight: 700;
+  color: global.$grey-600 !important;
+}
+
 %text-body-common {
   @extend %text-body-common;
   @extend .text-md;
@@ -31,6 +39,12 @@
 .text-body-mb-4 div {
   @extend %text-body-common;
   @extend .mb-4;
+}
+
+.text-body-mt-2 div {
+  @extend %text-body-common;
+  @extend .mt-2;
+  text-align: center !important;
 }
 
 .text-title {
@@ -166,4 +180,42 @@
 
 .text-footer-automatedEmail {
   @extend .text-footer;
+}
+
+.container-grey {
+  @extend .mt-6;
+  @extend .p-4;
+  max-width: 568px !important;
+  background-color: global.$grey-50 !important;
+  border-radius: 16px !important;
+}
+
+.text-container-link div {
+  @extend .text-link;
+  font-size: 14px !important;
+  line-height: 22px !important;
+  text-align: center !important;
+}
+
+.primary-button-sm-subplat {
+  max-width: 310px !important;
+  height: 30px !important;
+  
+  td {
+    height: 30px !important;
+    background: global.$blue-500 !important;
+    border-radius: 6px !important;
+  }
+
+  a {
+    @extend .font-sans;
+    @extend .text-sm;
+    max-width: 310px !important;
+    background: global.$blue-500 !important;
+    color: global.$white;
+    font-weight: 400 !important;
+    display: unset !important;
+    padding: global.$s-1 20px !important;
+    border-radius: 6px !important;
+  }
 }

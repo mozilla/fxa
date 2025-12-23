@@ -8,6 +8,7 @@ import { Stripe } from 'stripe';
 
 import {
   StripeApiListFactory,
+  StripeApiListPromiseFactory,
   StripeResponseFactory,
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
@@ -164,6 +165,20 @@ describe('StripeClient', () => {
         customer: mockCustomer.id,
       });
       expect(result).toEqual(mockSubscriptionList);
+    });
+  });
+
+  describe('subscriptionsListGenerator', () => {
+    it('returns generator that yields subscriptions from Stripe', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+
+      mockStripeSubscriptionsList.mockResolvedValue(
+        StripeApiListPromiseFactory([mockSubscription])
+      );
+
+      const generator = stripeClient.subscriptionsListGenerator();
+      const result = (await generator.next()).value;
+      expect(result).toEqual(mockSubscription);
     });
   });
 

@@ -599,6 +599,33 @@ export type ComponentAccountsSharedInput = {
   pageTitle: InputMaybe<Scalars['String']['input']>;
 };
 
+export type ComponentAccountsTosAndPrivacyNoticeDetails = {
+  __typename?: 'ComponentAccountsTosAndPrivacyNoticeDetails';
+  fontSize: Maybe<Enum_Componentaccountstosandprivacynoticedetails_Fontsize>;
+  id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
+  privacyNoticeLink: Scalars['String']['output'];
+  termsOfServiceLink: Scalars['String']['output'];
+};
+
+export type ComponentAccountsTosAndPrivacyNoticeDetailsFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<ComponentAccountsTosAndPrivacyNoticeDetailsFiltersInput>>>;
+  fontSize: InputMaybe<StringFilterInput>;
+  label: InputMaybe<StringFilterInput>;
+  not: InputMaybe<ComponentAccountsTosAndPrivacyNoticeDetailsFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<ComponentAccountsTosAndPrivacyNoticeDetailsFiltersInput>>>;
+  privacyNoticeLink: InputMaybe<StringFilterInput>;
+  termsOfServiceLink: InputMaybe<StringFilterInput>;
+};
+
+export type ComponentAccountsTosAndPrivacyNoticeDetailsInput = {
+  fontSize: InputMaybe<Enum_Componentaccountstosandprivacynoticedetails_Fontsize>;
+  id: InputMaybe<Scalars['ID']['input']>;
+  label: InputMaybe<Scalars['String']['input']>;
+  privacyNoticeLink: InputMaybe<Scalars['String']['input']>;
+  termsOfServiceLink: InputMaybe<Scalars['String']['input']>;
+};
+
 export type ComponentIapAppleProductIDs = {
   __typename?: 'ComponentIapAppleProductIDs';
   appleProductID: Scalars['String']['output'];
@@ -780,6 +807,12 @@ export enum Enum_Churnintervention_Interval {
   Yearly = 'yearly'
 }
 
+export enum Enum_Componentaccountstosandprivacynoticedetails_Fontsize {
+  Default = 'default',
+  Large = 'large',
+  Medium = 'medium'
+}
+
 export enum Enum_Iap_Interval {
   Daily = 'daily',
   Halfyearly = 'halfyearly',
@@ -819,7 +852,7 @@ export type FloatFilterInput = {
   startsWith: InputMaybe<Scalars['Float']['input']>;
 };
 
-export type GenericMorph = CancelInterstitialOffer | Capability | ChurnIntervention | CommonContent | ComponentAccountsEmailConfig | ComponentAccountsFeatureFlags | ComponentAccountsImage | ComponentAccountsPageConfig | ComponentAccountsShared | ComponentAccountsSharedBackgrounds | ComponentIapAppleProductIDs | ComponentIapGoogleSkUs | ComponentIapStripeLegacyIapPrices | ComponentIapStripePlanChoices | ComponentStripeStripeLegacyPlans | ComponentStripeStripePlanChoices | ComponentStripeStripePromoCodes | CouponConfig | I18NLocale | Iap | Offering | Purchase | PurchaseDetail | RelyingParty | ReviewWorkflowsWorkflow | ReviewWorkflowsWorkflowStage | Service | Subgroup | UploadFile | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
+export type GenericMorph = CancelInterstitialOffer | Capability | ChurnIntervention | CommonContent | ComponentAccountsEmailConfig | ComponentAccountsFeatureFlags | ComponentAccountsImage | ComponentAccountsPageConfig | ComponentAccountsShared | ComponentAccountsSharedBackgrounds | ComponentAccountsTosAndPrivacyNoticeDetails | ComponentIapAppleProductIDs | ComponentIapGoogleSkUs | ComponentIapStripeLegacyIapPrices | ComponentIapStripePlanChoices | ComponentStripeStripeLegacyPlans | ComponentStripeStripePlanChoices | ComponentStripeStripePromoCodes | CouponConfig | I18NLocale | Iap | LegalNotice | Offering | Purchase | PurchaseDetail | RelyingParty | ReviewWorkflowsWorkflow | ReviewWorkflowsWorkflowStage | Service | Subgroup | UploadFile | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
 
 export type I18NLocale = {
   __typename?: 'I18NLocale';
@@ -969,6 +1002,43 @@ export type JsonFilterInput = {
   startsWith: InputMaybe<Scalars['JSON']['input']>;
 };
 
+export type LegalNotice = {
+  __typename?: 'LegalNotice';
+  Terms: ComponentAccountsTosAndPrivacyNoticeDetails;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  documentId: Scalars['ID']['output'];
+  l10nId: Maybe<Scalars['String']['output']>;
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  serviceOrClientId: Scalars['String']['output'];
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type LegalNoticeEntityResponseCollection = {
+  __typename?: 'LegalNoticeEntityResponseCollection';
+  nodes: Array<LegalNotice>;
+  pageInfo: Pagination;
+};
+
+export type LegalNoticeFiltersInput = {
+  Terms: InputMaybe<ComponentAccountsTosAndPrivacyNoticeDetailsFiltersInput>;
+  and: InputMaybe<Array<InputMaybe<LegalNoticeFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  documentId: InputMaybe<IdFilterInput>;
+  l10nId: InputMaybe<StringFilterInput>;
+  not: InputMaybe<LegalNoticeFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<LegalNoticeFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  serviceOrClientId: InputMaybe<StringFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type LegalNoticeInput = {
+  Terms: InputMaybe<ComponentAccountsTosAndPrivacyNoticeDetailsInput>;
+  l10nId: InputMaybe<Scalars['String']['input']>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  serviceOrClientId: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Change user password. Confirm with the current password. */
@@ -979,6 +1049,7 @@ export type Mutation = {
   createCommonContent: Maybe<CommonContent>;
   createCouponConfig: Maybe<CouponConfig>;
   createIap: Maybe<Iap>;
+  createLegalNotice: Maybe<LegalNotice>;
   createOffering: Maybe<Offering>;
   createPurchase: Maybe<Purchase>;
   createPurchaseDetail: Maybe<PurchaseDetail>;
@@ -997,6 +1068,7 @@ export type Mutation = {
   deleteCommonContent: Maybe<DeleteMutationResponse>;
   deleteCouponConfig: Maybe<DeleteMutationResponse>;
   deleteIap: Maybe<DeleteMutationResponse>;
+  deleteLegalNotice: Maybe<DeleteMutationResponse>;
   deleteOffering: Maybe<DeleteMutationResponse>;
   deletePurchase: Maybe<DeleteMutationResponse>;
   deletePurchaseDetail: Maybe<DeleteMutationResponse>;
@@ -1025,6 +1097,7 @@ export type Mutation = {
   updateCommonContent: Maybe<CommonContent>;
   updateCouponConfig: Maybe<CouponConfig>;
   updateIap: Maybe<Iap>;
+  updateLegalNotice: Maybe<LegalNotice>;
   updateOffering: Maybe<Offering>;
   updatePurchase: Maybe<Purchase>;
   updatePurchaseDetail: Maybe<PurchaseDetail>;
@@ -1083,6 +1156,12 @@ export type MutationCreateCouponConfigArgs = {
 
 export type MutationCreateIapArgs = {
   data: IapInput;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type MutationCreateLegalNoticeArgs = {
+  data: LegalNoticeInput;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -1175,6 +1254,11 @@ export type MutationDeleteCouponConfigArgs = {
 
 
 export type MutationDeleteIapArgs = {
+  documentId: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteLegalNoticeArgs = {
   documentId: Scalars['ID']['input'];
 };
 
@@ -1302,6 +1386,13 @@ export type MutationUpdateCouponConfigArgs = {
 
 export type MutationUpdateIapArgs = {
   data: IapInput;
+  documentId: Scalars['ID']['input'];
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type MutationUpdateLegalNoticeArgs = {
+  data: LegalNoticeInput;
   documentId: Scalars['ID']['input'];
   status?: InputMaybe<PublicationStatus>;
 };
@@ -1701,6 +1792,9 @@ export type Query = {
   iap: Maybe<Iap>;
   iaps: Array<Maybe<Iap>>;
   iaps_connection: Maybe<IapEntityResponseCollection>;
+  legalNotice: Maybe<LegalNotice>;
+  legalNotices: Array<Maybe<LegalNotice>>;
+  legalNotices_connection: Maybe<LegalNoticeEntityResponseCollection>;
   me: Maybe<UsersPermissionsMe>;
   offering: Maybe<Offering>;
   offerings: Array<Maybe<Offering>>;
@@ -1895,6 +1989,28 @@ export type QueryIapsArgs = {
 
 export type QueryIaps_ConnectionArgs = {
   filters: InputMaybe<IapFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryLegalNoticeArgs = {
+  documentId: Scalars['ID']['input'];
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryLegalNoticesArgs = {
+  filters: InputMaybe<LegalNoticeFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryLegalNotices_ConnectionArgs = {
+  filters: InputMaybe<LegalNoticeFiltersInput>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;

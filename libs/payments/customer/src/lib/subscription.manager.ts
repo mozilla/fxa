@@ -23,7 +23,7 @@ export class SubscriptionManager {
 
   async create(
     params: Omit<Stripe.SubscriptionCreateParams, 'metadata'> & {
-      metadata?: StripeSubscriptionMetadataInput
+      metadata?: StripeSubscriptionMetadataInput;
     },
     options?: Stripe.RequestOptions
   ) {
@@ -37,8 +37,8 @@ export class SubscriptionManager {
   async update(
     subscriptionId: string,
     params: Omit<Stripe.SubscriptionUpdateParams, 'metadata'> & {
-      metadata?: StripeSubscriptionMetadataInput
-    },
+      metadata?: StripeSubscriptionMetadataInput;
+    }
   ) {
     return this.stripeClient.subscriptionsUpdate(subscriptionId, params);
   }
@@ -49,6 +49,16 @@ export class SubscriptionManager {
     });
 
     return result.data;
+  }
+
+  async *listCancelOnDateGenerator(currentPeriodEnd: Stripe.RangeQueryParam) {
+    for await (const subscription of this.stripeClient.subscriptionsListGenerator(
+      { current_period_end: currentPeriodEnd }
+    )) {
+      if (subscription.cancel_at_period_end) {
+        yield subscription;
+      }
+    }
   }
 
   async cancelIncompleteSubscriptionsToPrice(

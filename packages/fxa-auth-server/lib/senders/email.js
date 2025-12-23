@@ -48,6 +48,7 @@ module.exports = function (log, config, bounces, statsd) {
     subscriptionAccountFinishSetup: 'subscription-account-finish-setup',
     subscriptionReactivation: 'subscription-reactivation',
     subscriptionRenewalReminder: 'subscription-renewal-reminder',
+    subscriptionEndingReminder: 'subscription-ending-reminder',
     subscriptionReplaced: 'subscription-replaced',
     subscriptionUpgrade: 'subscription-upgrade',
     subscriptionDowngrade: 'subscription-downgrade',
@@ -115,6 +116,7 @@ module.exports = function (log, config, bounces, statsd) {
     subscriptionAccountFinishSetup: 'subscriptions',
     subscriptionReactivation: 'subscriptions',
     subscriptionRenewalReminder: 'subscriptions',
+    subscriptionEndingReminder: 'subscriptions',
     subscriptionReplaced: 'subscriptions',
     subscriptionUpgrade: 'subscriptions',
     subscriptionDowngrade: 'subscriptions',
@@ -3194,6 +3196,85 @@ module.exports = function (log, config, bounces, statsd) {
         cardName: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionEndingReminderEmail = async function (message) {
+    const { email, uid, planId, acceptLanguage, subscription } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionEndingReminderEmail', {
+      enabled,
+      email,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const headers = {};
+    const template = 'subscriptionEndingReminder';
+    const productName = subscription.productName;
+    const links = this._generateLinks(
+      null,
+      message,
+      {
+        plan_id: subscription.planId,
+        product_id: subscription.productId,
+        uid,
+      },
+      template
+    );
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      template,
+      templateValues: {
+        ...links,
+        uid,
+        email,
+        productName,
+        serviceLastActiveDateOnly:
+          message.serviceLastActiveDate.toLocaleDateString(
+            determineLocale(message.acceptLanguage),
+            {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            }
+          ), // @@TODO - Include customers timezone
+        subscriptionSupportUrlWithUtm: this._generateUTMLink(
+          message.subscriptionSupportUrl,
+          {},
+          template,
+          'subscription-product-support'
+        ),
+        churnTermsUrlWithUtm: this._generateUTMLink(
+          message.churnTermsUrl,
+          {},
+          template,
+          'subscription-product-support'
+        ),
+        productIconURLNew: message.productIconURLNew,
+        ctaButtonLabel: message.ctaButtonLabel,
+        ctaButtonUrlWithUtm:
+          message.ctaButtonUrl &&
+          this._generateUTMLink(
+            message.ctaButtonUrl,
+            {},
+            template,
+            'subscription-product-support'
+          ),
+        showChurn: message.showChurn,
       },
     });
   };

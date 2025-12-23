@@ -54,12 +54,18 @@ const productMetadata = {
   'product:termsOfServiceDownloadURL': SUBSCRIPTION_TERMS_URL,
   'product:privacyNoticeDownloadURL': SUBSCRIPTION_PRIVACY_URL,
 };
+const SUBSCRIPTION_PRODUCT_SUPPORT_URL =
+  'https://support.mozilla.org/products/vpn';
+const SUBSCRIPTION_ENDING_REMINDER_DATE = 'April 19, 2020';
 
 const MESSAGE = {
   // Note: acceptLanguage is not just a single locale
   acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
   appStoreLink: 'https://example.com/app-store',
   code: 'abc123',
+  churnTermsUrl: 'http://localhost:3035/churn/terms',
+  ctaButtonLabel: 'Stay subscribed and save 20%',
+  ctaButtonUrl: 'http://localhost:3030/renew',
   expirationTime: 5,
   date: moment().tz('America/Los_Angeles').format('dddd, ll'),
   deviceId: 'foo',
@@ -126,7 +132,8 @@ const MESSAGE = {
   remainingAmountTotalInCents: undefined,
   reminderLength: 14,
   secondaryEmail: 'secondary@email.com',
-  serviceLastActiveDate: new Date(1587339098816),
+  serviceLastActiveDate: new Date(1587339098816), // 04/19/2020
+  showChurn: false,
   subscription: {
     productName: 'Cooking with Foxkeh',
     planId: 'plan-example',
@@ -2849,6 +2856,76 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName })}],
 
+  ['subscriptionEndingReminderEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Your ${MESSAGE.subscription.productName} subscription will expire soon` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionEndingReminder') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionEndingReminder' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionEndingReminder }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-ending-reminder', 'subscription-terms')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-ending-reminder', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionProductSupportUrl', 'subscription-ending-reminder', 'subscription-product-support')) },
+      { test: 'notInclude', expected: decodeUrl(configHref('churnTermsUrl', 'subscription-ending-reminder', 'subscription-product-support')) },
+      { test: 'notInclude', expected: decodeUrl(configHref('ctaButtonUrl', 'subscription-ending-reminder', 'subscription-product-support')) },
+      { test: 'include', expected: `Your ${MESSAGE.subscription.productName} subscription will expire soon` },
+      { test: 'include', expected: `Your access to ${MESSAGE.subscription.productName} will end on <strong>${SUBSCRIPTION_ENDING_REMINDER_DATE}</strong>.` },
+      { test: 'include', expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can reactivate your subscription in` },
+      { test: 'include', expected: `Account Settings` },
+      { test: 'include', expected: `before <strong>${SUBSCRIPTION_ENDING_REMINDER_DATE}</strong>. If you need assistance` },
+      { test: 'include', expected: `contact our Support Team` },
+      { test: 'include', expected: "Thanks for being a valued subscriber!" },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'Want to keep access?' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Your ${MESSAGE.subscription.productName} subscription will expire soon` },
+      { test: 'include', expected: `Your access to ${MESSAGE.subscription.productName} will end on ${SUBSCRIPTION_ENDING_REMINDER_DATE}.` },
+      { test: 'include', expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can reactivate your subscription in Account Settings before ${SUBSCRIPTION_ENDING_REMINDER_DATE}. If you need assistance, contact our Support Team.` },
+      { test: 'include', expected: "Thanks for being a valued subscriber!" },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'Want to keep access?' },
+    ]]
+  ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName, subscriptionSupportUrl: SUBSCRIPTION_PRODUCT_SUPPORT_URL })}],
+
+  ['subscriptionEndingReminderEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Your ${MESSAGE.subscription.productName} subscription will expire soon` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionEndingReminder') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionEndingReminder' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionEndingReminder }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-ending-reminder', 'subscription-terms')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-ending-reminder', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionProductSupportUrl', 'subscription-ending-reminder', 'subscription-product-support')) },
+      { test: 'include', expected: decodeUrl(configHref('churnTermsUrl', 'subscription-ending-reminder', 'subscription-product-support')) },
+      { test: 'include', expected: decodeUrl(configHref('ctaButtonUrl', 'subscription-ending-reminder', 'subscription-product-support')) },
+      { test: 'include', expected: `Your ${MESSAGE.subscription.productName} subscription will expire soon` },
+      { test: 'include', expected: `Your access to ${MESSAGE.subscription.productName} will end on <strong>${SUBSCRIPTION_ENDING_REMINDER_DATE}</strong>.` },
+      { test: 'include', expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can reactivate your subscription in` },
+      { test: 'include', expected: `Account Settings` },
+      { test: 'include', expected: `before <strong>${SUBSCRIPTION_ENDING_REMINDER_DATE}</strong>. If you need assistance` },
+      { test: 'include', expected: `contact our Support Team` },
+      { test: 'include', expected: "Thanks for being a valued subscriber!" },
+      { test: 'include', expected: 'Want to keep access?' },
+      { test: 'include', expected: MESSAGE.ctaButtonLabel },
+      { test: 'include', expected: 'Limited terms and restrictions apply' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Your ${MESSAGE.subscription.productName} subscription will expire soon` },
+      { test: 'include', expected: `Your access to ${MESSAGE.subscription.productName} will end on ${SUBSCRIPTION_ENDING_REMINDER_DATE}.` },
+      { test: 'include', expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can reactivate your subscription in Account Settings before ${SUBSCRIPTION_ENDING_REMINDER_DATE}. If you need assistance, contact our Support Team.` },
+      { test: 'include', expected: "Thanks for being a valued subscriber!" },
+      { test: 'include', expected: 'Want to keep access?' },
+      { test: 'include', expected: MESSAGE.ctaButtonLabel },
+      { test: 'include', expected: 'Limited terms and restrictions apply' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName, subscriptionSupportUrl: SUBSCRIPTION_PRODUCT_SUPPORT_URL, showChurn: true })}],
+
   ['subscriptionSubsequentInvoiceEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
     ['headers', new Map([
@@ -3959,6 +4036,12 @@ function configUrl(
     baseUri = MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.termsOfServiceDownload;
   } else if (key === 'subscriptionPrivacyUrl') {
     baseUri = MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.privacyNoticeDownload;
+  } else if (key === 'subscriptionProductSupportUrl') {
+    baseUri = SUBSCRIPTION_PRODUCT_SUPPORT_URL;
+  } else if (key === 'churnTermsUrl') {
+    baseUri = MESSAGE.churnTermsUrl;
+  } else if (key === 'ctaButtonUrl') {
+    baseUri = MESSAGE.ctaButtonUrl;
   } else {
     baseUri = config.smtp[key];
   }
