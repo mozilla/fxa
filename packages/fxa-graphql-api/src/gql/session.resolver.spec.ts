@@ -9,11 +9,11 @@ import { MozLoggerService } from '@fxa/shared/mozlog';
 import { AuthClientService } from '../backend/auth-client.service';
 import { SessionResolver } from './session.resolver';
 
-import { validateSessionToken } from '../auth/session-token.strategy';
+import { sessionTokenExists } from '../auth/session-token.strategy';
 
 jest.mock('../auth/session-token.strategy', () => ({
   ...jest.requireActual('../auth/session-token.strategy'),
-  validateSessionToken: jest.fn(),
+  sessionTokenExists: jest.fn(),
 }));
 
 describe('SessionResolver', () => {
@@ -53,7 +53,7 @@ describe('SessionResolver', () => {
     resolver = module.get<SessionResolver>(SessionResolver);
   });
   afterEach(() => {
-    (validateSessionToken as jest.Mock).mockRestore();
+    (sessionTokenExists as jest.Mock).mockRestore();
   });
 
   it('should be defined', () => {
@@ -81,16 +81,16 @@ describe('SessionResolver', () => {
 
   it('validates a session token', async () => {
     const result = await resolver.isValidToken('aaaa');
-    expect(validateSessionToken as jest.Mock).toBeCalledWith('aaaa');
+    expect(sessionTokenExists as jest.Mock).toBeCalledWith('aaaa');
     expect(result).toEqual(true);
   });
 
   it('invalidates a session token', async () => {
-    (validateSessionToken as jest.Mock).mockImplementation(() => {
+    (sessionTokenExists as jest.Mock).mockImplementation(() => {
       throw new Error('Invalid token');
     });
     const result = await resolver.isValidToken('aaaa');
-    expect(validateSessionToken as jest.Mock).toBeCalledWith('aaaa');
+    expect(sessionTokenExists as jest.Mock).toBeCalledWith('aaaa');
     expect(result).toEqual(false);
   });
 
