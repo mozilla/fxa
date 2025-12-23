@@ -3502,7 +3502,7 @@ export class StripeHelper extends StripeHelperBase {
       return;
     }
 
-    return this.stripeFirestore.fetchAndInsertCustomer(customerId);
+    return this.stripeFirestore.fetchAndInsertCustomer(customerId, event.created);
   }
 
   /**
@@ -3525,7 +3525,7 @@ export class StripeHelper extends StripeHelperBase {
       CUSTOMER_RESOURCE
     );
     if (!customer.deleted && !customer.currency) {
-      await this.stripeFirestore.fetchAndInsertCustomer(customerId);
+      await this.stripeFirestore.fetchAndInsertCustomer(customerId, event.created);
       const subscription =
         await this.stripe.subscriptions.retrieve(subscriptionId);
       return subscription;
@@ -3566,7 +3566,7 @@ export class StripeHelper extends StripeHelperBase {
       );
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        await this.stripeFirestore.fetchAndInsertCustomer(customerId);
+        await this.stripeFirestore.fetchAndInsertCustomer(customerId, event.created);
         await this.stripeFirestore.fetchAndInsertInvoice(
           invoiceId,
           event.created

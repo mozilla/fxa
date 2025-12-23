@@ -110,7 +110,7 @@ export class StripeFirestore extends StripeFirestoreBase {
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
         if (!customer.id) throw new Error('Customer ID must be provided');
-        return this.fetchAndInsertCustomer(customer.id);
+        return this.legacyFetchAndInsertCustomer(customer.id);
       } else {
         throw err;
       }
@@ -155,7 +155,7 @@ export class StripeFirestore extends StripeFirestoreBase {
       await this.insertSubscriptionRecord(subscription);
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        await this.fetchAndInsertCustomer(subscription.customer as string);
+        await this.legacyFetchAndInsertCustomer(subscription.customer as string);
       } else {
         throw err;
       }
@@ -176,7 +176,7 @@ export class StripeFirestore extends StripeFirestoreBase {
       await this.insertPaymentMethodRecord(paymentMethod);
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        await this.fetchAndInsertCustomer(paymentMethod.customer as string);
+        await this.legacyFetchAndInsertCustomer(paymentMethod.customer as string);
         return this.insertPaymentMethodRecord(paymentMethod);
       } else {
         throw err;

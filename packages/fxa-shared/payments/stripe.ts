@@ -246,7 +246,7 @@ export abstract class StripeHelper {
     // If the customer has subscriptions and no currency, we must have a stale
     // customer record. Let's update it.
     if (customer.subscriptions?.data.length && !customer.currency) {
-      await this.stripeFirestore.fetchAndInsertCustomer(customer.id);
+      await this.stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
       // Retrieve the customer again.
       customer = await this.expandResource<Stripe.Customer>(
         stripeCustomerId,
