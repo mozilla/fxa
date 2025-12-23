@@ -15,7 +15,11 @@ export interface SessionTokenResult {
 
 export const SESSION_TOKEN_REGEX = /^(?:[a-fA-F0-9]{2})+$/;
 
-export async function validateSessionToken(token: string) {
+/**
+ * Validates basic session token format and existence in database.
+ * Does NOT check verified status.
+ */
+export async function sessionTokenExists(token: string): Promise<SessionToken> {
   try {
     if (!SESSION_TOKEN_REGEX.test(token)) {
       throw new UnauthorizedException('Invalid token');
@@ -25,13 +29,7 @@ export async function validateSessionToken(token: string) {
     if (!session) {
       throw new UnauthorizedException('Invalid token');
     }
-    if (
-      session.mustVerify &&
-      (!session.tokenVerified || !session.emailVerified)
-    ) {
-      throw new UnauthorizedException('Must verify');
-    }
-    return { token, session };
+    return session;
   } catch (err) {
     if (err.status) {
       // Re-throw NestJS errors that include a status.
@@ -42,6 +40,21 @@ export async function validateSessionToken(token: string) {
       err
     );
   }
+}
+
+/**
+ * Validates session token by checking if it exists and if
+ * it is fully verified.
+ */
+export async function validateSessionToken(token: string) {
+  const session = await sessionTokenExists(token);
+  if (
+    session.mustVerify &&
+    (!session.tokenVerified || !session.emailVerified)
+  ) {
+    throw new UnauthorizedException('Must verify');
+  }
+  return { token, session };
 }
 
 @Injectable()
