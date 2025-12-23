@@ -50,47 +50,18 @@ export class ClientFormatter implements IClientFormatter {
     client: AttachedClient,
     request: IClientFormatterRequest
   ) {
-    let language;
     if (!client.location) {
       client.location = {};
     } else {
       const location = client.location;
-      try {
-        language = determineLocale(
-          request.app.acceptLanguage,
-          this.supportedLanguages
-        );
-
-        // For English, we can leave all the location components intact.
-        // For other languages, only return what we can translate
-        if (language[0] === 'e' || language[1] === 'n') {
-          client.location = {
-            city: location.city,
-            country: location.country,
-            state: location.state,
-            stateCode: location.stateCode,
-          };
-        } else if (location.countryCode) {
-          const territoriesLang =
-            language === 'en-US' ? 'en-US-POSIX' : language;
-          const territories = require(`cldr-localenames-full/main/${territoriesLang}/territories.json`);
-          client.location = {
-            country:
-              territories.main[language].localeDisplayNames.territories[
-                location.countryCode
-              ],
-          };
-        }
-      } catch (err) {
-        const log = this.logProvider();
-        log.debug('attached-clients.formatLocation.warning', {
-          err: err.message,
-          languages: request.app.acceptLanguage,
-          language,
-          location,
-        });
-        client.location = {};
-      }
+      // ClientFormatter should be locale-agnostic and return consistent identifiers across all requests.
+      client.location = {
+        city: location.city,
+        country: location.country,
+        countryCode: location.countryCode,
+        state: location.state,
+        stateCode: location.stateCode,
+      };
     }
     return client;
   }
