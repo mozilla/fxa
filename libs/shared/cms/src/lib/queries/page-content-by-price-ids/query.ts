@@ -29,6 +29,7 @@ export const pageContentByPriceIdsQuery = graphql(`
             supportUrl
           }
         }
+        apiIdentifier
       }
       purchaseDetails {
         productName

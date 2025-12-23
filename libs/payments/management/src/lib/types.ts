@@ -5,6 +5,8 @@
 import {
   SubPlatPaymentMethodType,
   SubplatInterval,
+  StaySubscribedEligibilityResult,
+  CancellationInterventionResult,
 } from '@fxa/payments/customer';
 
 export interface AppleIapPurchase {
@@ -74,6 +76,7 @@ export interface SubscriptionContent {
   id: string;
   cancelAtPeriodEnd: boolean;
   productName: string;
+  offeringApiIdentifier: string;
   supportUrl: string;
   webIcon: string;
   canResubscribe: boolean;
@@ -90,6 +93,8 @@ export interface SubscriptionContent {
   nextInvoiceTotal?: number;
   nextPromotionName?: string | null;
   promotionName?: string | null;
+  staySubscribedResult?: StaySubscribedEligibilityResult;
+  cancellationInterventionResult?: CancellationInterventionResult;
 }
 
 export enum ChurnErrorReason {

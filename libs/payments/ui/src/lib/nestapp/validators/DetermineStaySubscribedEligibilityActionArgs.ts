@@ -9,6 +9,9 @@ export class DetermineStaySubscribedEligibilityActionArgs {
   uid!: string;
 
   @IsString()
+  customerId!: string;
+
+  @IsString()
   subscriptionId!: string;
 
   @IsString()

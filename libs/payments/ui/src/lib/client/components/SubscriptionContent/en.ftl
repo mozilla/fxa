@@ -27,5 +27,7 @@ subscription-content-button-stay-subscribed =
 subscription-content-button-cancel-subscription =
   Cancel subscription
   .aria-label = Cancel your subscription to { $productName }
+subscription-content-link-churn-intervention-terms-apply = Terms apply
+subscription-content-link-churn-intervention-terms-aria = View discount terms
 
 ##

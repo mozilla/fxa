@@ -22,6 +22,7 @@ import {
   SetupIntentManager,
   CustomerSessionManager,
   SubPlatPaymentMethodType,
+  Enum_Churnintervention_Churntype,
 } from '@fxa/payments/customer';
 import {
   AppleIapClient,
@@ -72,7 +73,9 @@ import {
   PageContentByPriceIdsResultUtil,
   PageContentByPriceIdsPurchaseResultFactory,
   StrapiClient,
+  ChurnInterventionByProductIdResultFactory,
 } from '@fxa/shared/cms';
+import { ChurnInterventionService } from './churn-intervention.service';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -123,6 +126,7 @@ jest.mock('@fxa/shared/error', () => ({
 describe('SubscriptionManagementService', () => {
   let accountCustomerManager: AccountCustomerManager;
   let customerManager: CustomerManager;
+  let churnInterventionService: ChurnInterventionService;
   let paymentMethodManager: PaymentMethodManager;
   let productConfigurationManager: ProductConfigurationManager;
   let subscriptionManager: SubscriptionManager;
@@ -185,10 +189,18 @@ describe('SubscriptionManagementService', () => {
           provide: LOGGER_PROVIDER,
           useValue: mockLogger,
         },
+        {
+          provide: ChurnInterventionService,
+          useValue: {
+            determineStaySubscribedEligibility: jest.fn(),
+            determineCancellationIntervention: jest.fn(),
+          }
+        }
       ],
     }).compile();
 
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
+    churnInterventionService = moduleRef.get(ChurnInterventionService);
     customerManager = moduleRef.get(CustomerManager);
     invoiceManager = moduleRef.get(InvoiceManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
@@ -303,7 +315,27 @@ describe('SubscriptionManagementService', () => {
       const mockPaymentMethod = StripeResponseFactory(
         StripePaymentMethodFactory({})
       );
-      const mockSubscriptionContent = SubscriptionContentFactory();
+      const mockStaySubscribedCmsChurnEntry = ChurnInterventionByProductIdResultFactory({
+        churnType: Enum_Churnintervention_Churntype.StaySubscribed,
+      });
+      const mockStaySubscribedResult = {
+        isEligible: true,
+        reason: 'eligible',
+        cmsChurnInterventionEntry: mockStaySubscribedCmsChurnEntry,
+      }
+       const mockCancelCmsChurnEntry = ChurnInterventionByProductIdResultFactory({
+        churnType: Enum_Churnintervention_Churntype.Cancel,
+      });
+      const mockcancellationInterventionResult = {
+        cancelChurnInterventionType: 'cancel_churn_intervention',
+        reason: 'eligible',
+        cmsOfferContent: mockCancelCmsChurnEntry,
+      }
+      const mockSubscriptionContent = {
+        ...SubscriptionContentFactory(),
+        staySubscribedResult: mockStaySubscribedResult,
+        cancellationInterventionResult: mockcancellationInterventionResult,
+      };
       const mockPaymentMethodInformation = {
         type: SubPlatPaymentMethodType.Card,
         brand: mockPaymentMethod.card?.brand,
@@ -387,6 +419,20 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
         .mockResolvedValue(mockGoogleIapPurchaseResult);
+      jest
+        .spyOn(churnInterventionService, 'determineStaySubscribedEligibility')
+        .mockResolvedValue({
+          isEligible: true,
+          reason: 'eligible',
+          cmsChurnInterventionEntry: mockStaySubscribedCmsChurnEntry,
+        });
+      jest
+        .spyOn(churnInterventionService, 'determineCancellationIntervention')
+        .mockResolvedValue({
+          cancelChurnInterventionType: 'cancel_churn_intervention',
+          reason: 'eligible',
+          cmsOfferContent: mockCancelCmsChurnEntry,
+        });
 
       const result =
         await subscriptionManagementService.getPageContent(mockUid);

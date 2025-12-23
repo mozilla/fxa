@@ -67,7 +67,7 @@ export default async function Manage({
     subscriptions,
     appleIapSubscriptions,
     googleIapSubscriptions,
-  } = await getSubManPageContentAction(session.user?.id);
+  } = await getSubManPageContentAction(session.user?.id, acceptLanguage, locale);
   const {
     billingAgreementId,
     brand,

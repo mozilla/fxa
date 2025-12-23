@@ -46,6 +46,7 @@ export const PageContentByPriceIdsPurchaseResultFactory = (
 export const PageContentByPriceIdsOfferingResultFactory = (
   override?: Partial<PageContentByPriceIdsOfferingResult>
 ): PageContentByPriceIdsOfferingResult => ({
+  apiIdentifier: faker.string.sample(),
   stripeLegacyPlans: Array.from(
     { length: faker.number.int({ min: 1, max: 5 }) },
     () => ({

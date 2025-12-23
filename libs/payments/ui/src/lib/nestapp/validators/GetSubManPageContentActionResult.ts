@@ -15,6 +15,8 @@ import {
   SubplatInterval,
   type PaymentProvidersType,
 } from '@fxa/payments/customer';
+import { DetermineStaySubscribedEligibilityActionResult } from './DetermineStaySubscribedEligibilityActionResult';
+import { DetermineCancellationInterventionActionResult } from './DetermineCancellationInterventionActionResult';
 
 class AccountCreditBalance {
   @IsNumber()
@@ -87,6 +89,14 @@ class SubscriptionContent {
   @IsOptional()
   @IsString()
   promotionName?: string | null;
+
+  @IsOptional()
+  @Type(() => DetermineStaySubscribedEligibilityActionResult)
+  staySubscribedResult?: DetermineStaySubscribedEligibilityActionResult;
+
+  @IsOptional()
+  @Type(() => DetermineCancellationInterventionActionResult)
+  cancellationInterventionResult?: DetermineCancellationInterventionActionResult;
 }
 
 class AppleIapSubscriptionContent {

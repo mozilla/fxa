@@ -75,6 +75,7 @@ export const SubscriptionContentFactory = (
   id: `sub_${faker.string.alphanumeric({ length: 24 })}`,
   cancelAtPeriodEnd: false,
   productName: faker.string.sample(),
+  offeringApiIdentifier: faker.string.sample(),
   supportUrl: faker.internet.url(),
   webIcon: faker.internet.url(),
   canResubscribe: false,
