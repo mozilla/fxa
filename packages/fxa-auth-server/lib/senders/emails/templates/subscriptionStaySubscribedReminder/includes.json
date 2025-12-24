@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "subscriptionStaySubscribedReminder-subject",
+    "message": "<%- productName %> expiry notice"
+  }
+}
