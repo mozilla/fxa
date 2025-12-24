@@ -9,6 +9,7 @@ export { checkoutCartWithStripe } from './checkoutCartWithStripe';
 export { determineCurrencyAction } from './determineCurrency';
 export { determineCurrencyForCustomerAction } from './determineCurrencyForCustomer';
 export { determineStaySubscribedEligibilityAction } from './determineStaySubscribedEligibility';
+export { determineCancellationInterventionAction } from './determineCancellationIntervention';
 export { fetchCMSData } from './fetchCMSData';
 export { getCartAction } from './getCart';
 export { getCartOrRedirectAction } from './getCartOrRedirect';

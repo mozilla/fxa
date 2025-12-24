@@ -16,6 +16,10 @@ import {
   getLocalizedDateString,
 } from '@fxa/shared/l10n';
 import { LinkExternal } from '@fxa/shared/react';
+import {
+  StaySubscribedEligibilityResult,
+  CancellationInterventionResult,
+} from '@fxa/payments/customer';
 
 interface Subscription {
   id: string;
@@ -40,11 +44,17 @@ interface Subscription {
 interface SubscriptionContentProps {
   subscription: Subscription;
   locale: string;
+  offeringId?: string;
+  staySubscribedEligibility?: StaySubscribedEligibilityResult;
+  cancellationIntervention?: CancellationInterventionResult;
 }
 
 export const SubscriptionContent = ({
   subscription,
   locale,
+  offeringId,
+  staySubscribedEligibility,
+  cancellationIntervention,
 }: SubscriptionContentProps) => {
   const {
     canResubscribe,
@@ -84,6 +94,24 @@ export const SubscriptionContent = ({
     locale
   );
 
+  const staySubscribedEntry = staySubscribedEligibility?.isEligible
+                              ? staySubscribedEligibility.cmsChurnInterventionEntry
+                              : null;
+
+  const cancellationInterventionEntry = cancellationIntervention?.cancelChurnInterventionType === 'cancel_churn_intervention' &&
+                                        cancellationIntervention.cmsOfferContent &&
+                                        'interval' in cancellationIntervention.cmsOfferContent &&
+                                        'churnType' in cancellationIntervention.cmsOfferContent
+                                      ? cancellationIntervention.cmsOfferContent
+                                      : null;
+
+  const cancellationInterventionOfferType = cancellationIntervention?.cancelChurnInterventionType;
+  const churnContentEntry = staySubscribedEntry ?? cancellationInterventionEntry;
+
+  const churnCtaMessage = churnContentEntry?.ctaMessage ?? null;
+  const churnTermsURL = churnContentEntry
+                  ? `/${locale}/${offeringId}/${churnContentEntry.interval}/${churnContentEntry.churnType}/loyalty-discount/terms`
+                  : null;
   return (
     <>
       {isClient && (
@@ -232,10 +260,29 @@ export const SubscriptionContent = ({
         </div>
       )}
 
-      <div className="flex justify-end w-full tablet:w-auto">
+      <div className="flex justify-end w-full tablet:w-auto">   {/* TODO: CHECK FIGMA FOR PROPER UI / classnames */}
+        {churnContentEntry && churnTermsURL && (
+          <div className="mt-3 flex flex-col gap-1">
+            <p className="text-sm text-grey-600">
+              {churnCtaMessage}
+            </p>
+            <Link
+              href={churnTermsURL}
+              className="text-sm text-blue-500 hover:text-blue-600 underline w-fit"
+            >
+              Terms apply
+            </Link>
+          </div>
+        )}
         {canResubscribe ? (
           <Link
-            href={`/${locale}/subscriptions/${subscription.id}/stay-subscribed`}
+            href={
+              canResubscribe &&
+              staySubscribedEligibility?.isEligible &&
+              staySubscribedEntry
+                ? `/${locale}/subscriptions/${subscription.id}/loyalty-discount/stay-subscribed`
+                : `/${locale}/subscriptions/${subscription.id}/stay-subscribed`
+            }
             className="border box-border flex font-bold font-header h-10 items-center justify-center rounded py-2 px-5 bg-blue-500 hover:bg-blue-700 text-white w-full tablet:w-auto"
             aria-label={`Stay subscribed to ${productName}`}
           >
@@ -247,8 +294,21 @@ export const SubscriptionContent = ({
             </Localized>
           </Link>
         ) : (
+          /*
+            if cancellationInterventionOfferType === cancel_churn_intervention:
+              - Display cancellationInterventionOfferContent.ctaMessage + terms
+              - Go to /loyalty-discount/cancel page
+            else if cancellationInterventionOfferType === cancel_interstitial_offer:
+               - Go to offer page: /[locale]/subscriptions/[subscription_id]/offer
+          */
           <Link
-            href={`/${locale}/subscriptions/${subscription.id}/cancel`}
+            href={
+              cancellationInterventionOfferType === 'cancel_churn_intervention'
+              ? `/${locale}/subscriptions/${subscription.id}/loyalty-discount/cancel`
+              : cancellationInterventionOfferType === 'cancel_interstitial_offer'
+                ? `/${locale}/subscriptions/${subscription.id}/offer`
+                : `/${locale}/subscriptions/${subscription.id}/cancel`
+            }
             className="border border-grey-200 box-border flex font-bold font-header h-10 items-center justify-center rounded py-2 px-5 bg-grey-10 hover:bg-grey-50 w-full tablet:w-auto"
             aria-label={`Cancel your subscription to ${productName}`}
           >

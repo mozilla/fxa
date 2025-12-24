@@ -17,6 +17,7 @@ import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { StatsD } from 'hot-shots';
 import { SubplatInterval } from '@fxa/payments/customer';
 import { ChurnInterventionProductIdentifierMissingError } from './churn-intervention.error';
+//import { ChurnInterventionEntryFactory } from '@fxa/payments/cart';
 
 @Injectable()
 export class ChurnInterventionService {

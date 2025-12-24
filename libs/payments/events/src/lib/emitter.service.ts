@@ -290,7 +290,7 @@ export class PaymentsEmitterService {
         await this.productConfigurationManager.getPurchaseDetailsForEligibility(
           [priceId]
         );
-      const offering = cms?.offeringForPlanId(priceId);
+      const offering = cms?.offeringForPlanId(priceId);//
       offeringId = offering?.apiIdentifier;
     } catch (error) {
       Sentry.captureException(error);
