@@ -29,6 +29,7 @@ import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 export const viewName = 'signin-token-code';
 
 const SIX_DIGIT_NUMBER_REGEX = /^\d{6}$/;
+const RESEND_CODE_COUNTDOWN = 30;
 
 const SigninTokenCode = ({
   finishOAuthFlowHandler,
@@ -57,6 +58,7 @@ const SigninTokenCode = ({
   const [animateBanner, setAnimateBanner] = useState(false);
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
+  const [resendCountdown, setResendCountdown] = useState<number>(0);
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const redirectTo =
@@ -87,6 +89,17 @@ const SigninTokenCode = ({
     GleanMetrics.loginConfirmation.view();
   }, []);
 
+  // Countdown timer for resend code
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(resendCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [resendCountdown]);
+
   const handleAnimationEnd = () => {
     // We add the "shake" animation to bring attention to the success banner
     // when the success banner was already displayed. We have to remove the
@@ -98,6 +111,7 @@ const SigninTokenCode = ({
     setResendCodeLoading(true);
     try {
       await session.sendVerificationCode();
+
       if (showResendSuccessBanner) {
         // shake the banner if it is already displayed
         setAnimateBanner(true);
@@ -117,6 +131,8 @@ const SigninTokenCode = ({
       );
     } finally {
       setResendCodeLoading(false);
+      // Start countdown
+      setResendCountdown(RESEND_CODE_COUNTDOWN);
     }
   };
 
@@ -279,15 +295,29 @@ const SigninTokenCode = ({
         <FtlMsg id="signin-token-code-code-expired">
           <p>Code expired?</p>
         </FtlMsg>
-        <FtlMsg id="signin-token-code-resend-code-link">
-          <button
-            className="link-blue"
-            onClick={handleResendCode}
-            disabled={resendCodeLoading}
+        {resendCountdown > 0 ? (
+          <FtlMsg
+            id="signin-token-code-resend-code-countdown"
+            vars={{ seconds: resendCountdown }}
           >
-            Email new code.
-          </button>
-        </FtlMsg>
+            <button
+              className="link-blue cursor-not-allowed opacity-50"
+              disabled
+            >
+              Email new code in {resendCountdown} seconds
+            </button>
+          </FtlMsg>
+        ) : (
+          <FtlMsg id="signin-token-code-resend-code-link">
+            <button
+              className="link-blue"
+              onClick={handleResendCode}
+              disabled={resendCodeLoading}
+            >
+              Email new code.
+            </button>
+          </FtlMsg>
+        )}
       </div>
     </AppLayout>
   );

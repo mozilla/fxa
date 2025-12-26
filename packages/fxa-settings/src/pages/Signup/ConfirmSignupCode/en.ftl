@@ -18,6 +18,13 @@ confirm-signup-code-sync-button = Start syncing
 confirm-signup-code-code-expired = Code expired?
 # Link to resend a new code to the user's email.
 confirm-signup-code-resend-code-link = Email new code.
+# Countdown message shown when user must wait before resending code
+# { $seconds } represents the number of seconds remaining
+confirm-signup-code-resend-code-countdown =
+    { $seconds ->
+        [one] Email new code in { $seconds } second
+        *[other] Email new code in { $seconds } seconds
+    }
 confirm-signup-code-success-alert = Account confirmed successfully
 # Error displayed in tooltip.
 confirm-signup-code-is-required-error = Confirmation code is required

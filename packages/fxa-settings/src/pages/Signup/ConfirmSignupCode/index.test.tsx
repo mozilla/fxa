@@ -580,4 +580,32 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
       expect(screen.getByText('Unexpected error')).toBeInTheDocument();
     });
   });
+
+  it('shows countdown timer after successful resend', async () => {
+    jest.useFakeTimers();
+    session = mockSession(true, false);
+
+    renderWithSession({
+      session,
+      integration: mockWebIntegration,
+    });
+
+    const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+    fireEvent.click(resendButton);
+
+    await waitFor(() => {
+      expect(session.sendVerificationCode).toHaveBeenCalled();
+    });
+
+    // Countdown button should appear and be disabled
+    const resendButtonAfter = await waitFor(() => {
+      const button = screen.getByRole('button', { name: /Email new code in/ });
+      expect(button).toBeDisabled();
+      return button;
+    });
+
+    expect(resendButtonAfter.textContent).toMatch(/\d+/);
+
+    jest.useRealTimers();
+  });
 });

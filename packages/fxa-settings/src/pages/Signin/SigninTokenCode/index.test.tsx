@@ -33,7 +33,6 @@ jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
-
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
@@ -171,6 +170,33 @@ describe('SigninTokenCode page', () => {
       } as unknown as Session;
       await renderAndResend();
       screen.getByText('Something went wrong. A new code could not be sent.');
+    });
+
+    it('shows countdown timer after successful resend', async () => {
+      jest.useFakeTimers();
+      session = mockSession();
+      render();
+      await waitFor(() => {
+        screen.getByText('Code expired?');
+      });
+
+      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      fireEvent.click(resendButton);
+
+      await waitFor(() => {
+        expect(session.sendVerificationCode).toHaveBeenCalled();
+      });
+
+      // Countdown button should appear and be disabled
+      const resendButtonAfter = await waitFor(() => {
+        const button = screen.getByRole('button', { name: /Email new code in/ });
+        expect(button).toBeDisabled();
+        return button;
+      });
+
+      expect(resendButtonAfter.textContent).toMatch(/\d+/);
+
+      jest.useRealTimers();
     });
   });
 
