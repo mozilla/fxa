@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import Modal from '../Modal';
 import InputText from '../../InputText';
 import { ApolloError } from '@apollo/client';
-import { useAccount, useSession } from '../../../models';
+import { useAccount, useAuthClient, useSession } from '../../../models';
 import { Localized, useLocalization } from '@fluent/react';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { getErrorFtlId } from '../../../lib/error-utils';
@@ -28,6 +28,7 @@ export const ModalVerifySession = ({
   onCompleted,
 }: ModalProps) => {
   const session = useSession();
+  const authClient = useAuthClient();
   const [errorText, setErrorText] = useState<string>();
   const hasSentVerificationCode = useRef(false);
   const account = useAccount();
@@ -64,17 +65,21 @@ export const ModalVerifySession = ({
 
   useEffect(() => {
     const getStatus = async () => {
-      // Check cache first, then do network request for session verification
-      if (session.verified) {
+      // Don't trust the cache for now, make an actual call.
+      const status = await authClient.sessionStatus(session.token);
+      if (status.details.sessionVerified) {
         onCompleted && onCompleted();
-      } else if (!hasSentVerificationCode.current) {
+        return;
+      }
+
+      if (!hasSentVerificationCode.current) {
         hasSentVerificationCode.current = true;
         await session.sendVerificationCode();
       }
     };
 
     getStatus();
-  }, [session, onCompleted]);
+  }, [session, onCompleted, authClient]);
 
   // Destructure formState in advance to avoid logical operator short-circuiting
   // causing the isValid field to be conditionally subscribed.
