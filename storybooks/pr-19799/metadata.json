@@ -1,0 +1,13 @@
+{
+  "commit": "5ef97d987e291e5bbe141cd8fec206ce4a0e1b9b",
+  "summary": "updates",
+  "description": "",
+  "timestamp": 1765996628000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

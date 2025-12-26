@@ -1,0 +1,13 @@
+{
+  "commit": "12ff8c6eefd51beb9ee1ac502b6d3df1b540312b",
+  "summary": "chore(deps): bump mjml from 4.15.3 to 4.18.0",
+  "description": "Bumps [mjml](https://github.com/mjmlio/mjml/tree/HEAD/packages/mjml) from 4.15.3 to 4.18.0.\n- [Release notes](https://github.com/mjmlio/mjml/releases)\n- [Commits](https://github.com/mjmlio/mjml/commits/v4.18.0/packages/mjml)\n\n---\nupdated-dependencies:\n- dependency-name: mjml\n  dependency-version: 4.18.0\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1766009930000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

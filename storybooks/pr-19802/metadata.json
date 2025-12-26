@@ -1,0 +1,13 @@
+{
+  "commit": "6396851cd28a42c14f1d2a619b43d83b5c34dc81",
+  "summary": "bug(settings): Fix extraneous sign in email",
+  "description": "",
+  "timestamp": 1766000964000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

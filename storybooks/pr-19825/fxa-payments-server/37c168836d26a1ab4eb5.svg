@@ -1,0 +1,40 @@
+var _defs;
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+import * as React from "react";
+const SvgDefaultProfile = props => /*#__PURE__*/React.createElement("svg", _extends({
+  xmlns: "http://www.w3.org/2000/svg",
+  width: 57.6,
+  height: 57.6,
+  viewBox: "0 0 57.6 57.6"
+}, props), _defs || (_defs = /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
+  id: "a",
+  x1: -3.82,
+  x2: 56.35,
+  y1: 63.66,
+  y2: -0.64,
+  gradientUnits: "userSpaceOnUse"
+}, /*#__PURE__*/React.createElement("stop", {
+  offset: 0.26,
+  stopColor: "#9059ff"
+}), /*#__PURE__*/React.createElement("stop", {
+  offset: 0.96,
+  stopColor: "#00b3f4"
+})))), /*#__PURE__*/React.createElement("g", {
+  "data-name": "Layer 2"
+}, /*#__PURE__*/React.createElement("g", {
+  "data-name": "Layer 1"
+}, /*#__PURE__*/React.createElement("circle", {
+  cx: 28.8,
+  cy: 28.8,
+  r: 24.54,
+  style: {
+    fill: "#fbfbfe"
+  }
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M28.8 0a28.8 28.8 0 1 0 28.8 28.8A28.79 28.79 0 0 0 28.8 0m0 8.23a12.34 12.34 0 1 1-12.34 12.34A12.33 12.33 0 0 1 28.8 8.23m16.93 32.11a20.39 20.39 0 0 1-33.86 0 4.15 4.15 0 0 1 .28-5.05C16.5 30.27 22.53 37 28.8 37s12.3-6.76 16.65-1.74a4.15 4.15 0 0 1 .28 5.08",
+  style: {
+    fill: "url(#a)"
+  }
+}))));
+export { SvgDefaultProfile as ReactComponent };
+export default __webpack_public_path__ + "static/media/default-profile.22bb4f13.svg";

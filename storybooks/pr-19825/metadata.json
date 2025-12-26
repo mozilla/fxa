@@ -1,0 +1,13 @@
+{
+  "commit": "e0504e0919d7a30e2311e1c8f8725cca05b11d37",
+  "summary": "fix(customs): Treat alias emails and different case emails the same for rate limiting",
+  "description": "",
+  "timestamp": 1766162396000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

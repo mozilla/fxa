@@ -1,0 +1,13 @@
+{
+  "commit": "6ec9d1e866711b31d3019424abd21d4ba7b9d564",
+  "summary": "fix(metrics): Add `useLocalStorageSync` hook for reactive changes to local storage",
+  "description": "",
+  "timestamp": 1765994714000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,13 @@
+{
+  "commit": "e3b06527f4c650c310ac5205bbed474221ac8cac",
+  "summary": "feat: script to check and revalidate firestore <-> stripe sync",
+  "description": "",
+  "timestamp": 1766191046000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,14 @@
+var _path;
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+import * as React from "react";
+const SvgIconCheckWhite = props => /*#__PURE__*/React.createElement("svg", _extends({
+  xmlns: "http://www.w3.org/2000/svg",
+  width: 16,
+  height: 16,
+  viewBox: "0 0 16 16"
+}, props), _path || (_path = /*#__PURE__*/React.createElement("path", {
+  fill: "#fff",
+  d: "M6.52 12.5a1 1 0 0 1-.705-.291l-3.52-3.5a1 1 0 1 1 1.41-1.418l2.812 2.8 5.774-5.793a1 1 0 0 1 1.416 1.412l-6.479 6.5a1 1 0 0 1-.708.29"
+})));
+export { SvgIconCheckWhite as ReactComponent };
+export default __webpack_public_path__ + "static/media/icon-check-white.6c8063be.svg";

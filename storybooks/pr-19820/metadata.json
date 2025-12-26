@@ -1,0 +1,13 @@
+{
+  "commit": "f88ca40d9cd32778c63aa0fb6a3d50e4da76305c",
+  "summary": "feat(payments-next): Add redirects on mismatched cart uids Because:",
+  "description": "* Users can currently view carts associated with another account's uid when provided with the URL\n\nThis commit:\n\n* Adds in a frontend intercept that redirects the user to the start of the checkout process if the request cart's UID does not match the signed in user's UID\n\nCloses #PAY-3155",
+  "timestamp": 1766090650000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

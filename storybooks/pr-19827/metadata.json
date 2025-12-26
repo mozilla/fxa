@@ -1,0 +1,13 @@
+{
+  "commit": "b385789593954fcaa642d67f3136bf9b81207c2b",
+  "summary": "feat(tests): Add playwright trace url on failure",
+  "description": "",
+  "timestamp": 1766170054000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

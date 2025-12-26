@@ -1,0 +1,13 @@
+{
+  "commit": "42bde36d1627b8a19e933d4d75b58d614a208cea",
+  "summary": "Merge pull request #19836 from mozilla/pull-legal-docs",
+  "description": "chore(docs): Latest legal PDFs",
+  "timestamp": 1766781148000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

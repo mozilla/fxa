@@ -1,0 +1,13 @@
+{
+  "commit": "8c6d84884dfaada3c288a01edb780f7d878a59a1",
+  "summary": "feat(auth): add churn stay subscribed email Because:",
+  "description": "- Want to remind customers that do not have auto-renew set that their\n  subscription is expiring soon and potentially offer them a coupon.\n\nThis commit:\n\n- Adds subscriptionStaySubscribedReminder email\n\nCloses #PAY-3366",
+  "timestamp": 1766521805000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

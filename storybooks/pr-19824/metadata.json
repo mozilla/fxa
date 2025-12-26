@@ -1,0 +1,13 @@
+{
+  "commit": "330d369c7e3042316493c63bd6074a43c34f0fec",
+  "summary": "chore(ci): Stop building docker images on deploy",
+  "description": "",
+  "timestamp": 1766111154000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

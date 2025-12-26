@@ -1,0 +1,13 @@
+{
+  "commit": "a9bd6dea7d93eecfa3c17becfc1696512ce74576",
+  "summary": "feat(payments-next): Update page: Subscription Management Because:",
+  "description": "* We want to reduce churn by giving customers offers when they either go to cancel their subscription, or encourage them to stay subscribed to a subscription that will soon expire.\n\nThis commit:\n\n* Determines customer's eligibility, and either displays appropriate messages + takes them to corresponding links, or keeps existing behaviour.\n\nCloses #PAY-3365",
+  "timestamp": 1766592894000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,13 @@
+{
+  "commit": "8074eef18fa5822ac1de0b6a84aaebe49eda592e",
+  "summary": "chore(email, settings): remove email_to_hash_with from links to reset_password",
+  "description": "Because:\n\n* email_to_hash_with is no longer needed\n\nThis commit:\n\n* removes email_to_hash_with from query params\n\nCloses FXA-12009",
+  "timestamp": 1766094500000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

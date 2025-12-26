@@ -1,0 +1,13 @@
+{
+  "commit": "0850a60cc20b16941c02efc057722c255805907d",
+  "summary": "chore(storybook): stop deploying storybooks to GCP",
+  "description": "Because:\n\n* we already have github pages\n\nThis commit:\n\n* removes building and deploying storybooks from circleCI config\n\nCloses FXA-12812",
+  "timestamp": 1766179548000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

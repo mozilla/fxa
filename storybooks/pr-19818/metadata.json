@@ -1,0 +1,13 @@
+{
+  "commit": "3933623f893f0bcaf25087dafe78570d45c4338c",
+  "summary": "chore(deps-dev): bump storybook from 7.6.20 to 7.6.21",
+  "description": "Bumps [storybook](https://github.com/storybookjs/storybook/tree/HEAD/code/core) from 7.6.20 to 7.6.21.\n- [Release notes](https://github.com/storybookjs/storybook/releases)\n- [Changelog](https://github.com/storybookjs/storybook/blob/next/CHANGELOG.md)\n- [Commits](https://github.com/storybookjs/storybook/commits/v7.6.21/code/core)\n\n---\nupdated-dependencies:\n- dependency-name: storybook\n  dependency-version: 7.6.21\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1766085069000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
