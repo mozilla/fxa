@@ -386,12 +386,9 @@ module.exports = function (log, config, bounces, statsd) {
 
   Mailer.prototype._passwordResetLinkAttributes = function (
     email,
-    templateName,
-    emailToHashWith
+    templateName
   ) {
-    return linkAttributes(
-      this.createPasswordResetLink(email, templateName, emailToHashWith)
-    );
+    return linkAttributes(this.createPasswordResetLink(email, templateName));
   };
 
   Mailer.prototype._twoFactorSettingsLinkAttributes = function (
@@ -1251,7 +1248,7 @@ module.exports = function (log, config, bounces, statsd) {
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
       message,
-      { email: message.email, email_to_hash_with: message.emailToHashWith },
+      { email: message.email },
       templateName
     );
 
@@ -3986,15 +3983,10 @@ module.exports = function (log, config, bounces, statsd) {
       templateName
     );
 
-    links['resetLink'] = this.createPasswordResetLink(
-      email,
-      templateName,
-      query.emailToHashWith
-    );
+    links['resetLink'] = this.createPasswordResetLink(email, templateName);
     links['resetLinkAttributes'] = this._passwordResetLinkAttributes(
       email,
-      templateName,
-      query.emailToHashWith
+      templateName
     );
 
     links['twoFactorSettingsLink'] = this.createTwoFactorSettingsLink(
@@ -4169,15 +4161,8 @@ module.exports = function (log, config, bounces, statsd) {
     );
   };
 
-  Mailer.prototype.createPasswordResetLink = function (
-    email,
-    templateName,
-    emailToHashWith
-  ) {
-    const query = {
-      email: email,
-      email_to_hash_with: emailToHashWith,
-    };
+  Mailer.prototype.createPasswordResetLink = function (email, templateName) {
+    const query = { email };
 
     return this._generateUTMLink(
       this.initiatePasswordResetUrl,
