@@ -41,8 +41,6 @@ export type EventMapKeys = keyof EventsMap;
 // Type for optional values
 export type GleanPingMetrics = {
   event?: EventProperties;
-  sync?: { cwts: Record<string, boolean> };
-  standard?: { marketing: Record<string, boolean> };
 };
 
 export const eventsMap = {
@@ -61,9 +59,7 @@ export const eventsMap = {
     submit: 'reg_submit',
     submitSuccess: 'reg_submit_success',
     successView: 'reg_success_view',
-    cwts: 'reg_cwts_engage',
     ageInvalid: 'reg_age_invalid',
-    marketing: 'reg_marketing_engage',
     changeEmail: 'reg_change_email_link_click',
   },
 

@@ -38,7 +38,7 @@ export const choice = new StringMetricType({
  *
  * Generated from `event.cms_customization_enrollment`.
  */
-export const cmsCustomizationEnrollment = new StringMetricType({
+export const cmsCustomizationEnrollment = new BooleanMetricType({
   category: 'event',
   name: 'cms_customization_enrollment',
   sendInPings: ['accounts-events'],

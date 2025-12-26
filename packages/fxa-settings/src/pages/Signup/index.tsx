@@ -176,9 +176,6 @@ export const Signup = ({
             offeredEngines: offeredSyncEngines,
             declinedEngines: declinedSyncEngines,
           };
-          GleanMetrics.registration.cwts({
-            sync: { cwts: selectedEnginesForGlean },
-          });
 
           firefox.fxaLogin({
             email,
@@ -201,17 +198,6 @@ export const Signup = ({
             uid: data.signUp.uid,
             verified: false,
             services: integration.getWebChannelServices(),
-          });
-        } else {
-          GleanMetrics.registration.marketing({
-            standard: {
-              marketing: {
-                news: selectedNewsletterSlugs.indexOf('mozilla-and-you') >= 0,
-                take_action:
-                  selectedNewsletterSlugs.indexOf('mozilla-foundation') >= 0,
-                testing: selectedNewsletterSlugs.indexOf('test-pilot') >= 0,
-              },
-            },
           });
         }
 
@@ -250,7 +236,6 @@ export const Signup = ({
       email,
       isSync,
       offeredSyncEngines,
-      selectedEnginesForGlean,
       isSyncOAuth,
       integration,
       isOAuth,

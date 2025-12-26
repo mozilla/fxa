@@ -105,22 +105,6 @@ export const bentoMonitor = new EventMetricType(
 );
 
 /**
- * User clicks on Pocket in the bento menu
- *
- * Generated from `account_pref.bento_pocket`.
- */
-export const bentoPocket = new EventMetricType(
-  {
-    category: 'account_pref',
-    name: 'bento_pocket',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
-);
-
-/**
  * User clicks on Firefox Relay in the bento menu
  *
  * Generated from `account_pref.bento_relay`.
@@ -282,6 +266,38 @@ export const help = new EventMetricType(
     disabled: false,
   },
   []
+);
+
+/**
+ * User sees the MFA Guard promotion in settings page.
+ *
+ * Generated from `account_pref.mfa_guard_submit_success`.
+ */
+export const mfaGuardSubmitSuccess = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'mfa_guard_submit_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * User sees the MFA Guard promotion in settings page.
+ *
+ * Generated from `account_pref.mfa_guard_view`.
+ */
+export const mfaGuardView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'mfa_guard_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
 );
 
 /**
