@@ -4,7 +4,12 @@
 import { ResultCart } from '@fxa/payments/cart';
 import Stripe from 'stripe';
 
-export const CheckoutTypes = ['with-accounts', 'without-accounts'] as const;
+export const CheckoutTypes = [
+  'new_account',
+  'existing_account',
+  'logged_out',
+  'unknown',
+] as const;
 export type CheckoutTypesType = (typeof CheckoutTypes)[number];
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 
