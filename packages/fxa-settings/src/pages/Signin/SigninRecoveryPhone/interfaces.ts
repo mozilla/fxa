@@ -25,4 +25,5 @@ export type SigninRecoveryPhoneProps = {
   integration?: SigninIntegration;
   sendError?: AuthUiError;
   numBackupCodes?: number;
+  signinState: SigninLocationState | null;
 };
