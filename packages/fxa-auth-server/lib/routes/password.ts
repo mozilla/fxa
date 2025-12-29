@@ -1010,6 +1010,10 @@ module.exports = function (
           throw error.unknownAccount();
         }
 
+        if (!account.emailVerified) {
+          throw error.unknownAccount();
+        }
+
         let flowCompleteSignal;
         if (requestHelper.wantsKeys(request)) {
           flowCompleteSignal = 'account.signed';

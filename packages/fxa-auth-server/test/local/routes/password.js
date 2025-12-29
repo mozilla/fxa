@@ -88,6 +88,7 @@ describe('/password', () => {
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       uid,
+      emailVerified: true
     });
     const mockMailer = mocks.mockMailer();
     const mockMetricsContext = mocks.mockMetricsContext();
@@ -204,6 +205,46 @@ describe('/password', () => {
           })
         );
       });
+    });
+
+    it('throws unknownAccount error when email is not verified', async () => {
+      const unverifiedMockDB = mocks.mockDB({
+        email: TEST_EMAIL,
+        uid,
+        emailVerified: false,
+      });
+      const passwordRoutes = makeRoutes({
+        config: mockConfig,
+        customs: mockCustoms,
+        db: unverifiedMockDB,
+        mailer: mockMailer,
+        metricsContext: mockMetricsContext,
+        log: mockLog,
+        authServerCacheRedis: mockRedis,
+        statsd: mockStatsd,
+      });
+
+      const mockRequest = mocks.mockRequest({
+        log: mockLog,
+        payload: {
+          email: TEST_EMAIL,
+          metricsContext: {
+            deviceId: 'wibble',
+            flowId:
+              'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+            flowBeginTime: Date.now() - 1,
+          },
+        },
+        query: {},
+        metricsContext: mockMetricsContext,
+      });
+
+      try {
+        await runRoute(passwordRoutes, '/password/forgot/send_otp', mockRequest);
+        assert.fail('should have thrown unknownAccount error');
+      } catch (err) {
+        assert.equal(err.errno, 102, 'unknownAccount error');
+      }
     });
   });
 
