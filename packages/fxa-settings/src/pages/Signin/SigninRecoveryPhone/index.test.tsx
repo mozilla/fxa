@@ -9,6 +9,7 @@ import { userEvent } from '@testing-library/user-event';
 import SigninRecoveryPhone from './index';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { HandledError } from '../../../lib/error-utils';
+import { mockSigninLocationState } from '../mocks';
 
 describe('SigninRecoveryPhone', () => {
   const mockVerifyCode = jest.fn(() => Promise.resolve());
@@ -25,6 +26,7 @@ describe('SigninRecoveryPhone', () => {
     verifyCode: mockVerifyCode,
     resendCode: mockResendCode,
     numBackupCodes: 4,
+    signinState: mockSigninLocationState,
   };
 
   const propsWithError = {
@@ -32,6 +34,7 @@ describe('SigninRecoveryPhone', () => {
     verifyCode: mockVerifyCodeError,
     resendCode: mockResendCodeError,
     numBackupCodes: 4,
+    signinState: mockSigninLocationState,
   };
 
   const propsWithErrorNoBackupCodes = {
@@ -39,6 +42,7 @@ describe('SigninRecoveryPhone', () => {
     verifyCode: mockVerifyCodeError,
     resendCode: mockResendCodeError,
     numBackupCodes: 0,
+    signinState: mockSigninLocationState,
   };
 
   beforeEach(() => {

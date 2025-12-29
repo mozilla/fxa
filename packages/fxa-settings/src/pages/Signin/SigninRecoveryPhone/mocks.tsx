@@ -6,6 +6,7 @@ import React from 'react';
 import { LocationProvider } from '@reach/router';
 import SigninRecoveryPhone from '.';
 import { SigninRecoveryPhoneProps } from './interfaces';
+import { mockSigninLocationState } from '../mocks';
 
 const mockVerifyCodeSuccess = (code: string) => Promise.resolve();
 const mockResendCodeSuccess = () => Promise.resolve();
@@ -16,6 +17,7 @@ export const Subject = ({
   integration,
   sendError,
   numBackupCodes = 4,
+  signinState = mockSigninLocationState,
 }: Partial<SigninRecoveryPhoneProps>) => {
   const lastFourPhoneDigits = '1234';
 
@@ -29,6 +31,7 @@ export const Subject = ({
           numBackupCodes,
           integration,
           sendError,
+          signinState,
         }}
       />
     </LocationProvider>
