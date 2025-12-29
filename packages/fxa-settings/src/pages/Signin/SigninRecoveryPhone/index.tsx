@@ -59,6 +59,7 @@ const SigninRecoveryPhone = ({
   sendError,
   numBackupCodes,
   integration,
+  signinState,
 }: SigninRecoveryPhoneProps & RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorDescription, setErrorDescription] = useState('');
@@ -133,6 +134,7 @@ const SigninRecoveryPhone = ({
               'Use backup authentication codes instead?'
             ),
             gleanId: 'login_backup_phone_error_use_backup_code_link',
+            locationState: { signinState, lastFourPhoneDigits },
           });
         }
         return;
@@ -191,6 +193,7 @@ const SigninRecoveryPhone = ({
               path: errorLink.path,
               localizedText: errorLink.localizedText,
               gleanId: errorLink.gleanId,
+              locationState: errorLink.locationState,
             } as BannerLinkProps,
           })}
         />
