@@ -133,8 +133,7 @@ subscription:
   checkout_type:
     type: string
     description: |
-      Whether the checkout flow is for new users or existing users.
-      One of “with-account” or “without-account"
+      Account status at time of checkout
     lifetime: application
     send_in_pings:
       - events
@@ -143,8 +142,11 @@ subscription:
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/PAY-3182
     data_reviews:
       - https://github.com/mozilla/fxa/issues/18512
+      - https://github.com/mozilla/fxa/issues/19677
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2000681
     expires: never
     data_sensitivity:
       - interaction
