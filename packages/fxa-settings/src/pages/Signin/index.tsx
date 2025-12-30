@@ -306,7 +306,7 @@ const Signin = ({
                 )
               );
               setLocalizedBannerErrorLink({
-                path: `/reset_password?email=${email}&email_to_hash_with=`,
+                path: `/reset_password?email=${email}`,
                 localizedText: ftlMsgResolver.getMsg(
                   'signin-account-locked-banner-link',
                   'Reset your password to sign in'
