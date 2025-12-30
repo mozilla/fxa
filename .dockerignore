@@ -1,7 +1,9 @@
 .circleci
 .vscode
 .git
+.nx
 .DS_Store
+.github
 **/coverage
 **/docs
 !packages/fxa-auth-server/docs/swagger
@@ -11,10 +13,15 @@
 **/tests
 **/.nyc_output
 **/fxa-content-server-l10n
+**/*.stories.*
 packages/*/build
 packages/fxa-auth-server/.mail_output
 packages/fxa-dev-launcher
 packages/fxa-content-server/dist
+packages/fxa-settings/build/dev
+packages/123done
+packages/fortress
+packages/functional-tests
 
 # Ignore generated credentials from google-github-actions/auth
 gha-creds-*.json
