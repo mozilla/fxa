@@ -5,6 +5,7 @@
 'use strict';
 
 const { AppError: error } = require('@fxa/accounts/errors');
+const { EmailNormalization } = require('fxa-shared/email/email-normalization');
 
 module.exports = (config, db) => {
   const configBounces = (config.smtp && config.smtp.bounces) || {};
@@ -28,12 +29,24 @@ module.exports = (config, db) => {
     [BOUNCE_TYPE_COMPLAINT]: error.emailComplaint,
   };
 
-  function checkBounces(email, template) {
+  const emailNormalization = new EmailNormalization(
+    configBounces.emailAliasNormalization
+  );
+
+  async function checkBounces(email, template) {
     if (ignoreTemplates.includes(template)) {
       return;
     }
 
-    return db.emailBounces(email).then(applyRules);
+    // This strips out 'alias' stuff from an email and replace
+    // them with wildcards, allowing us to turn up bounce records
+    // on email aliases.
+    const normalizedEmail = emailNormalization.normalizeEmailAliases(
+      email,
+      '%'
+    );
+    const bounces = await db.emailBounces(normalizedEmail);
+    return applyRules(bounces);
   }
 
   // Relies on the order of the bounces array to be sorted by date,
