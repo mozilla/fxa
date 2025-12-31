@@ -9,6 +9,7 @@ const Sentry = require('@sentry/node');
 const { config } = require('../config');
 const { createHttpAgent, createHttpsAgent } = require('../lib/http-agent');
 const { performance } = require('perf_hooks');
+const { EmailNormalization } = require('fxa-shared/email/email-normalization');
 
 const localizeTimestamp =
   require('../../../libs/shared/l10n/src').localizeTimestamp({
@@ -17,30 +18,14 @@ const localizeTimestamp =
   });
 const serviceName = 'customs';
 
-// Load alias config map once at module startup
-function loadAliasConfigsMap() {
-  const aliasConfigsStr = config.get('rateLimit.emailAliasNormalization') || '';
-  let aliasConfigs = [];
-  if (aliasConfigsStr) {
-    try {
-      aliasConfigs = JSON.parse(aliasConfigsStr);
-    } catch (err) {
-      // If parsing fails, use empty array
-      aliasConfigs = [];
-    }
-  }
-  return new Map(
-    aliasConfigs.map((cfg) => [cfg.domain, cfg])
+let emailNormalization = new EmailNormalization(
+  config.get('rateLimit.emailAliasNormalization')
+);
+
+function _reloadEmailNormalization() {
+  emailNormalization = new EmailNormalization(
+    config.get('rateLimit.emailAliasNormalization')
   );
-}
-
-let aliasConfigsMap = loadAliasConfigsMap();
-
-/**
- * Reload alias configs map from configuration (useful for testing).
- */
-function reloadAliasConfigsMap() {
-  aliasConfigsMap = loadAliasConfigsMap();
 }
 
 function toOpts(ip, email, uid) {
@@ -49,7 +34,7 @@ function toOpts(ip, email, uid) {
     opts.ip = ip;
   }
   if (email) {
-    opts.email = normalizeEmailForRateLimiting(email);
+    opts.email = emailNormalization.normalizeEmailAliases(email);
   }
   if (uid) {
     opts.uid = uid;
@@ -146,7 +131,7 @@ class CustomsClient {
     const result = await this.makeRequest('/check', {
       ...this.sanitizePayload({
         ip: request.app.clientAddress,
-        email: normalizeEmailForRateLimiting(email),
+        email: emailNormalization.normalizeEmailAliases(email),
         action,
 
         // Payload in this case is additional user related data (ie phone number)
@@ -216,7 +201,7 @@ class CustomsClient {
     await this.makeRequest('/passwordReset', {
       ...this.sanitizePayload({
         ip: request.app.clientAddress,
-        email: normalizeEmailForRateLimiting(email),
+        email: emailNormalization.normalizeEmailAliases(email),
       }),
     });
   }
@@ -462,52 +447,6 @@ class CustomsClient {
   // #endregion
 }
 
-/**
- * Normalize email for rate limiting.
- * Applies domain-specific regex normalization rules from configuration
- * (e.g., removes plus aliases: user+alias@example.com -> user@example.com)
- * and lowercases the email to ensure consistent rate limiting across
- * different representations of the same email address.
- *
- * @param {string} email - The email address to normalize
- * @returns {string} The normalized email address
- */
-function normalizeEmailForRateLimiting(email) {
-  if (!email) {
-    return email;
-  }
-
-  const lowercaseEmail = email.toLowerCase();
-  const atIndex = lowercaseEmail.lastIndexOf('@');
-  if (atIndex === -1) {
-    // This shouldn't happen... but just in case.
-    return lowercaseEmail;
-  }
-
-  const localPart = lowercaseEmail.substring(0, atIndex);
-  const domainPart = lowercaseEmail.substring(atIndex);
-  const domain = domainPart.substring(1);
-
-  const domainConfig = aliasConfigsMap.get(domain);
-
-  let normalizedLocal = localPart;
-  if (domainConfig && domainConfig.regex) {
-    try {
-      const regex = new RegExp(domainConfig.regex);
-      normalizedLocal = localPart.replace(
-        regex,
-        domainConfig.replace || ''
-      );
-    } catch (err) {
-      // If regex is invalid, fall back to original local part
-      normalizedLocal = localPart;
-    }
-  }
-
-  return normalizedLocal + domainPart;
-}
-
-// Export reload function for testing
-CustomsClient._reloadAliasConfigsMap = reloadAliasConfigsMap;
+CustomsClient._reloadEmailNormalization = _reloadEmailNormalization;
 
 module.exports = CustomsClient;

@@ -606,6 +606,14 @@ const convictConf = convict({
         default: true,
         env: 'BOUNCES_DELETE_ACCOUNT',
       },
+      emailAliasNormalization: {
+        default: JSON.stringify([
+          { domain: 'mozilla.com', regex: '\\+.*', replace: '%' },
+        ]),
+        doc: 'List of email domain configurations for alias normalization. Each entry should have domain, regex, and replace properties. Example: [{domain: "mozilla.com", regex: "\\+[^@]+" }].',
+        env: 'BOUNCES_EMAIL_ALIAS_NORMALIZATION',
+        format: String,
+      },
     },
     connectionTimeout: {
       doc: 'Milliseconds to wait for the connection to establish (default is 2 minutes)',
@@ -2312,7 +2320,9 @@ const convictConf = convict({
       format: Array,
     },
     emailAliasNormalization: {
-      default: '',
+      default: JSON.stringify([
+        { domain: 'mozilla.com', regex: '\\+.*', replace: '' },
+      ]),
       doc: 'List of email domain configurations for alias normalization. Each entry should have domain, regex, and replace properties. Example: [{domain: "mozilla.com", regex: "\\+[^@]+", replace: ""}]',
       env: 'RATE_LIMIT__EMAIL_ALIAS_NORMALIZATION',
       format: String,

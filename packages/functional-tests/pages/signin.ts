@@ -86,6 +86,12 @@ export class SigninPage extends BaseLayout {
     });
   }
 
+  get emailReturnedWarning() {
+    return this.page.getByText(
+      'Your confirmation email was just returned. Mistyped email?'
+    );
+  }
+
   // for backwards compatibility with Backbone
   // not currently implemented in React, see FXA-8827
   get permissionsHeading() {
@@ -152,10 +158,7 @@ export class SigninPage extends BaseLayout {
    * assertions up to the caller.
    * @param Credentials
    */
-  async emailFirstSignin({
-    email,
-    password,
-  }: Credentials) {
+  async emailFirstSignin({ email, password }: Credentials) {
     if (this.page.url() !== this.url) {
       // avoid navigating if we don't need to.
       // Checking url is faster than an extra navigation
