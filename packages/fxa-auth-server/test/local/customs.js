@@ -731,12 +731,12 @@ describe('Customs', () => {
         .withArgs('rateLimit.emailAliasNormalization')
         .returns(
           JSON.stringify([
-            { domain: 'mozilla.com', regex: '\\+[^@]+', replace: '' },
+            { domain: 'mozilla.com', regex: '\\+.*', replace: '' },
           ])
         );
       configGetStub.callThrough();
       // Reload the config map with the stubbed config
-      Customs._reloadAliasConfigsMap();
+      Customs._reloadEmailNormalization();
     });
 
     it('can allow checkAccountStatus with rate-limit lib', async () => {
@@ -997,7 +997,7 @@ describe('Customs', () => {
         await customsWithUrl.checkAuthenticated(
           request,
           'uid',
-          'email',
+          'email@mozilla.com',
           action
         );
         assert.fail('should have failed');

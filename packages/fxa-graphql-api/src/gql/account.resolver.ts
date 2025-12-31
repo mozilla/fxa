@@ -93,6 +93,11 @@ import { EmailBounceStatusPayload } from './dto/payload/email-bounce';
 import { NotifierService } from '@fxa/shared/notifier';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { RecoveryPhone } from './model/recoveryPhone';
+import { EmailNormalization } from 'fxa-shared/email/email-normalization';
+import { ConfigService } from '@nestjs/config';
+import { AppConfig } from '../config';
+import { domainToASCII } from 'url';
+import { repl } from '@nestjs/core';
 
 function snakeToCamel(str: string) {
   return str.replace(/(_\w)/g, (m: string) => m[1].toUpperCase());
@@ -112,12 +117,20 @@ export function snakeToCamelObject(obj: { [key: string]: any }) {
 
 @Resolver((of: any) => AccountType)
 export class AccountResolver {
+  private emailNormalization: EmailNormalization;
+
   constructor(
     @Inject(AuthClientService) private authAPI: AuthClient,
     private notifier: NotifierService,
     private profileAPI: ProfileClientService,
-    private log: MozLoggerService
-  ) {}
+    private log: MozLoggerService,
+    private config: ConfigService<AppConfig>
+  ) {
+    const bounceConfig = config.get('bounces') as AppConfig['bounces'];
+    this.emailNormalization = new EmailNormalization(
+      bounceConfig.emailAliasNormalization
+    );
+  }
 
   private shouldIncludeEmails(info: GraphQLResolveInfo): boolean {
     // Introspect the query to determine if we should load the emails
@@ -495,8 +508,17 @@ export class AccountResolver {
     if (input === '') {
       return { hasHardBounce: false };
     }
-    const bounces = await EmailBounce.findByEmail(input);
-    const hasHardBounce = bounces.some((bounce) => bounce.bounceType === 1);
+
+    const normalizedEmail =
+      this.emailNormalization.normalizeEmailAliases(input);
+
+    const hardBounce = await EmailBounce.query()
+      .select('bounceType')
+      .where('email', 'like', normalizedEmail)
+      .andWhere('bounceType', 1)
+      .first();
+
+    const hasHardBounce = hardBounce !== undefined;
     return { hasHardBounce };
   }
 

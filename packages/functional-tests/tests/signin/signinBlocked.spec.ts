@@ -40,6 +40,54 @@ test.describe('severity-2 #smoke', () => {
       await removeAccount(settings, deleteAccount, page, credentials.password);
     });
 
+    test('email bounced', async ({
+      target,
+      page,
+      pages: {
+        deleteAccount,
+        secondaryEmail,
+        settings,
+        signin,
+        signup,
+        signinUnblock,
+      },
+      testAccountTracker,
+    }) => {
+      // We might have to wait a bit for the bounce to get picked up. So
+      // we will flag this as a slow test. If on local, we manually create
+      // a hard bounce record. On local, this will insert a new bounce
+      // record. On stage prod, this will silently fail, and we will rely
+      // on the email to actually bounce.
+      if (target.name === 'local') {
+        await target.emailClient.createBounce('bounced@mozilla.com');
+      } else {
+        test.slow();
+      }
+
+      // Here, we check that an email alias ie `bounced+123` will trip a bounce
+      // check when the bounce record is based on the non-aliased email form.
+      const credentials =
+        testAccountTracker.generateBouncedAliasAccountDetails('mozilla.com');
+
+      // Start the sign up process
+      await page.goto(target.contentServerUrl);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signup.fillOutSignupForm(credentials.password);
+
+      // The service that polls for bounces does so on approximately a 5 second interval.
+      // Add a little timeout to make sure that catches the bounce, and the polling
+      // mechanism can have a chance to redirect.
+      if (target.name === 'local') {
+        await page.waitForTimeout(1000);
+      } else {
+        await page.waitForTimeout(9000);
+      }
+
+      // This indicates the email bounced. The front end starts polling for bounces,
+      // it should etecte one, and then kick the user back to the sign in page.
+      await expect(signin.emailReturnedWarning).toBeVisible();
+    });
+
     test('incorrect code entered', async ({
       target,
       page,
