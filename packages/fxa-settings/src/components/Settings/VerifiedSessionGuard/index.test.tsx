@@ -12,6 +12,7 @@ import {
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import { VerifiedSessionGuard } from '.';
+import AuthClient from 'fxa-auth-client/browser';
 
 it('renders the content when verified', async () => {
   const account = {
@@ -22,16 +23,29 @@ it('renders the content when verified', async () => {
   const onDismiss = jest.fn();
   const onError = jest.fn();
 
-  await act(async () =>
+  await act(
+    async () =>
       await renderWithRouter(
         <AppContext.Provider
-        value={mockAppContext({ account, session: mockSession(true, false) })}
+          value={mockAppContext({
+            account,
+            session: mockSession(true, false),
+            authClient: {
+              sessionStatus: () => {
+                return {
+                  details: {
+                    sessionVerified: true,
+                  },
+                };
+              },
+            } as unknown as AuthClient,
+          })}
         >
-        <VerifiedSessionGuard {...{ onDismiss, onError }}>
-          <div data-testid="children">Content</div>
-        </VerifiedSessionGuard>
-      </AppContext.Provider>
-    )
+          <VerifiedSessionGuard {...{ onDismiss, onError }}>
+            <div data-testid="children">Content</div>
+          </VerifiedSessionGuard>
+        </AppContext.Provider>
+      )
   );
 
   expect(screen.getByTestId('children')).toBeInTheDocument();
@@ -46,14 +60,18 @@ it('renders the guard when unverified', async () => {
     },
   } as unknown as Account;
 
-  await act(async () => await renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account, session: mockSession(false) })}>
-        <VerifiedSessionGuard {...{ onDismiss, onError }}>
-          <div>Content</div>
-        </VerifiedSessionGuard>
-      </AppContext.Provider>
+  await act(
+    async () =>
+      await renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({ account, session: mockSession(false) })}
+        >
+          <VerifiedSessionGuard {...{ onDismiss, onError }}>
+            <div>Content</div>
+          </VerifiedSessionGuard>
+        </AppContext.Provider>
       )
-    );
+  );
 
   expect(screen.getByTestId('modal-verify-session')).toBeInTheDocument();
 });
