@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import got from 'got';
+import mysql from 'mysql2/promise';
 
 function wait() {
   return new Promise((r) => setTimeout(r, 50));
@@ -252,5 +253,41 @@ export class EmailClient {
     );
     await this.clear(email);
     return code;
+  }
+
+  /** Creates a bounce record. Note, this only works on localhost. For stage / prod, we expect we can generate a real bounce. */
+  async createBounce(
+    email: string,
+    bounceType = 1,
+    bounceSubType = 1,
+    emailTypeId = 39,
+    diagnosticCode = ''
+  ): Promise<void> {
+    try {
+      // create the connection to database
+      const connection = await mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        database: 'fxa',
+        // Since this is local, wait up to a second and fail other wise.
+        connectTimeout: 1000,
+      });
+
+      // execute will internally call prepare and query
+      connection.execute(
+        `INSERT INTO emailBounces (email, bounceType, bounceSubType, createdAt, emailTypeId, diagnosticCode)
+         VALUES (?, ?, ?, ?, ?, ?);`,
+        [
+          email,
+          bounceType,
+          bounceSubType,
+          Date.now(),
+          emailTypeId,
+          diagnosticCode,
+        ]
+      );
+    } catch (err) {
+      console.log('Could not create bounce record in local db!');
+    }
   }
 }
