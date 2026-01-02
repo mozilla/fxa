@@ -305,13 +305,14 @@ describe('#integration - AccountResolver', () => {
 
     describe('deleteTotp', () => {
       it('succeeds', async () => {
-        authClient.deleteTotpToken = jest
+        authClient.deleteTotpTokenWithJwt = jest
           .fn()
           .mockResolvedValue({ success: true });
-        const result = await resolver.deleteTotp('token', headers, {
+        const result = await resolver.deleteTotp(headers, {
           clientMutationId: 'testid',
+          jwt: 'test-jwt',
         });
-        expect(authClient.deleteTotpToken).toBeCalledTimes(1);
+        expect(authClient.deleteTotpTokenWithJwt).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
         });
@@ -435,13 +436,13 @@ describe('#integration - AccountResolver', () => {
 
     describe('deleteSecondaryEmail', () => {
       it('succeeds', async () => {
-        authClient.recoveryEmailDestroy = jest.fn().mockResolvedValue(true);
-        const result = await resolver.deleteSecondaryEmail('token', headers, {
+        authClient.recoveryEmailDestroyWithJwt = jest.fn().mockResolvedValue(true);
+        const result = await resolver.deleteSecondaryEmail(headers, {
           jwt: 'jwtToken',
           clientMutationId: 'testid',
           email: 'test@example.com',
         });
-        expect(authClient.recoveryEmailDestroy).toBeCalledTimes(1);
+        expect(authClient.recoveryEmailDestroyWithJwt).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
         });

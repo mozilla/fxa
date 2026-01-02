@@ -363,16 +363,14 @@ const Client = require('../client')();
     });
   });
 
-  function getAccountResetToken(client, server, email) {
-    return client
-      .forgotPassword()
-      .then(() => server.mailbox.waitForCode(email))
-      .then((code) =>
-        client.verifyPasswordResetCode(
-          code,
-          {},
-          { accountResetWithRecoveryKey: true }
-        )
-      );
+  async function getAccountResetToken(client, server, email) {
+    await client.forgotPassword();
+    const otpCode = await server.mailbox.waitForCode(email);
+    const result = await client.verifyPasswordForgotOtp(otpCode);
+    await client.verifyPasswordResetCode(
+      result.code,
+      {},
+      { accountResetWithRecoveryKey: true }
+    );
   }
 });

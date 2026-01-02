@@ -530,16 +530,12 @@ module.exports = (config) => {
     );
   };
 
-  Client.prototype.verifySecondaryEmailWithCode = async function (code, email) {
-    return this.api.recoveryEmailSecondaryVerifyCode(
-      this.sessionToken,
-      code,
-      email
-    );
+  Client.prototype.verifySecondaryEmailWithCode = async function (jwt, code, email) {
+    return this.api.recoveryEmailSecondaryVerifyCode(jwt, code, email);
   };
 
-  Client.prototype.resendVerifySecondaryEmailWithCode = async function (email) {
-    return this.api.recoveryEmailSecondaryResendCode(this.sessionToken, email);
+  Client.prototype.resendVerifySecondaryEmailWithCode = async function (jwt, email) {
+    return this.api.recoveryEmailSecondaryResendCode(jwt, email);
   };
 
   Client.prototype.emailStatus = function () {
@@ -836,18 +832,20 @@ module.exports = (config) => {
   };
 
   Client.prototype.forgotPassword = function (lang) {
+    return this.api.passwordForgotSendCode(this.email, this.options, lang);
+  };
+
+  Client.prototype.verifyPasswordForgotOtp = function (code, options) {
     return this.api
-      .passwordForgotSendCode(this.email, this.options, lang)
-      .then((x) => {
-        this.passwordForgotToken = x.passwordForgotToken;
+      .passwordForgotVerifyOtp(this.email, code, options || this.options)
+      .then((result) => {
+        this.passwordForgotToken = result.token;
+        return result;
       });
   };
 
-  Client.prototype.reforgotPassword = function () {
-    return this.api.passwordForgotResendCode(
-      this.passwordForgotToken,
-      this.email
-    );
+  Client.prototype.reforgotPassword = function (lang) {
+    return this.api.passwordForgotSendCode(this.email, this.options, lang);
   };
 
   Client.prototype.verifyTotpCodeForPasswordReset = function (
@@ -892,18 +890,18 @@ module.exports = (config) => {
     return this.api.accountEmails(this.sessionToken);
   };
 
-  Client.prototype.createEmail = function (email, verificationMethod) {
-    return this.api.createEmail(this.sessionToken, email, {
+  Client.prototype.createEmail = function (jwt, email, verificationMethod) {
+    return this.api.createEmail(jwt, email, {
       verificationMethod,
     });
   };
 
-  Client.prototype.deleteEmail = function (email) {
-    return this.api.deleteEmail(this.sessionToken, email);
+  Client.prototype.deleteEmail = function (jwt, email) {
+    return this.api.deleteEmail(jwt, email);
   };
 
-  Client.prototype.setPrimaryEmail = function (email) {
-    return this.api.setPrimaryEmail(this.sessionToken, email);
+  Client.prototype.setPrimaryEmail = function (jwt, email) {
+    return this.api.setPrimaryEmail(jwt, email);
   };
 
   Client.prototype.sendUnblockCode = function (email) {
@@ -914,8 +912,8 @@ module.exports = (config) => {
     return this.api.createTotpToken(this.sessionToken, options);
   };
 
-  Client.prototype.deleteTotpToken = function () {
-    return this.api.deleteTotpToken(this.sessionToken);
+  Client.prototype.deleteTotpToken = function (jwt) {
+    return this.api.deleteTotpToken(jwt);
   };
 
   Client.prototype.checkTotpTokenExists = function () {
