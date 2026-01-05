@@ -359,11 +359,19 @@ describe('QueueworkerService', () => {
       webHookService.hasWebhookRegistered = jest.fn().mockReturnValue(false);
       const msg = updateStubMessage(baseDeleteMessage);
       await (service as any).handleMessage(msg);
-      expect(logger.debug).toBeCalledTimes(3);
+      expect(logger.debug).toHaveBeenCalledTimes(3);
+
       expect(logger.debug.mock.calls[1][0]).toBe('noWebhookRegistered');
-      expect(metrics.increment).toBeCalledWith('message.webhookNotFound', {
-        clientId: baseLoginMessage.clientId,
+      expect(logger.debug.mock.calls[1][1]).toEqual({
+        clientId: '444c5d137fc34d82ae65441d7f26a504',
+        eventType: 'delete',
       });
+      expect(metrics.increment).toHaveBeenCalledWith(
+        'message.webhookNotFound',
+        {
+          eventType: 'delete',
+        }
+      );
     });
   });
 });
