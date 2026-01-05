@@ -197,7 +197,7 @@
     "@nx/nest": "21.2.4",
     "@nx/node": "21.2.4",
     "@nx/react": "21.2.4",
-    "@nx/s3-cache": "^2.1.0",
+    "@nx/s3-cache": "^5.0.0",
     "@nx/storybook": "21.2.4",
     "@nx/web": "21.2.4",
     "@nx/webpack": "21.2.4",

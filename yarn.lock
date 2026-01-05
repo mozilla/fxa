@@ -10489,24 +10489,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/devkit@npm:21.0.0":
-  version: 21.0.0
-  resolution: "@nx/devkit@npm:21.0.0"
-  dependencies:
-    ejs: "npm:^3.1.7"
-    enquirer: "npm:~2.3.6"
-    ignore: "npm:^5.0.4"
-    minimatch: "npm:9.0.3"
-    semver: "npm:^7.5.3"
-    tmp: "npm:~0.2.1"
-    tslib: "npm:^2.3.0"
-    yargs-parser: "npm:21.1.1"
-  peerDependencies:
-    nx: 21.0.0
-  checksum: 10c0/db6a66c1fcc3c5dcbe8426041d82ae728b3881660a5a323f3f8f5f501675d9fa482583f51c0fc5cab77ca8db4550013955e4c4457c045152b8c1ff396bc60872
-  languageName: node
-  linkType: hard
-
 "@nx/devkit@npm:21.2.4":
   version: 21.2.4
   resolution: "@nx/devkit@npm:21.2.4"
@@ -10522,6 +10504,23 @@ __metadata:
   peerDependencies:
     nx: 21.2.4
   checksum: 10c0/792b80b6905c11567d9ee5ff57b26278a769d28b61ffa764f382e8be2e58608f87dd46ab37257d4f04f45fcb97825cfb5c90da26abcc3366d164f1ca4a8d8a99
+  languageName: node
+  linkType: hard
+
+"@nx/devkit@npm:22.0.3":
+  version: 22.0.3
+  resolution: "@nx/devkit@npm:22.0.3"
+  dependencies:
+    "@zkochan/js-yaml": "npm:0.0.7"
+    ejs: "npm:^3.1.7"
+    enquirer: "npm:~2.3.6"
+    minimatch: "npm:9.0.3"
+    semver: "npm:^7.6.3"
+    tslib: "npm:^2.3.0"
+    yargs-parser: "npm:21.1.1"
+  peerDependencies:
+    nx: ">= 21 <= 23 || ^22.0.0-0"
+  checksum: 10c0/8d3ce8ff976b2e2d82815b582d56ada1edcc5b7b145fc2e5a288dce9a74f5dc4d95e1c88a5e8621b1ac5437ec8adafa29811e15c2fbb999d8fbb96a0c4cf3c59
   languageName: node
   linkType: hard
 
@@ -10653,86 +10652,86 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/key-darwin-arm64@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@nx/key-darwin-arm64@npm:2.1.0"
+"@nx/key-darwin-arm64@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@nx/key-darwin-arm64@npm:5.0.0"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@nx/key-darwin-x64@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@nx/key-darwin-x64@npm:2.1.0"
+"@nx/key-darwin-x64@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@nx/key-darwin-x64@npm:5.0.0"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@nx/key-linux-arm-gnueabihf@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@nx/key-linux-arm-gnueabihf@npm:2.1.0"
+"@nx/key-linux-arm-gnueabihf@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@nx/key-linux-arm-gnueabihf@npm:5.0.0"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@nx/key-linux-arm64-gnu@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@nx/key-linux-arm64-gnu@npm:2.1.0"
+"@nx/key-linux-arm64-gnu@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@nx/key-linux-arm64-gnu@npm:5.0.0"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@nx/key-linux-arm64-musl@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@nx/key-linux-arm64-musl@npm:2.1.0"
+"@nx/key-linux-arm64-musl@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@nx/key-linux-arm64-musl@npm:5.0.0"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@nx/key-linux-x64-gnu@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@nx/key-linux-x64-gnu@npm:2.1.0"
+"@nx/key-linux-x64-gnu@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@nx/key-linux-x64-gnu@npm:5.0.0"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@nx/key-linux-x64-musl@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@nx/key-linux-x64-musl@npm:2.1.0"
+"@nx/key-linux-x64-musl@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@nx/key-linux-x64-musl@npm:5.0.0"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@nx/key-win32-arm64-msvc@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@nx/key-win32-arm64-msvc@npm:2.1.0"
+"@nx/key-win32-arm64-msvc@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@nx/key-win32-arm64-msvc@npm:5.0.0"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@nx/key-win32-x64-msvc@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@nx/key-win32-x64-msvc@npm:2.1.0"
+"@nx/key-win32-x64-msvc@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@nx/key-win32-x64-msvc@npm:5.0.0"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@nx/key@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@nx/key@npm:2.1.0"
+"@nx/key@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@nx/key@npm:5.0.0"
   dependencies:
     "@napi-rs/wasm-runtime": "npm:^0.2.4"
-    "@nx/key-darwin-arm64": "npm:2.1.0"
-    "@nx/key-darwin-x64": "npm:2.1.0"
-    "@nx/key-linux-arm-gnueabihf": "npm:2.1.0"
-    "@nx/key-linux-arm64-gnu": "npm:2.1.0"
-    "@nx/key-linux-arm64-musl": "npm:2.1.0"
-    "@nx/key-linux-x64-gnu": "npm:2.1.0"
-    "@nx/key-linux-x64-musl": "npm:2.1.0"
-    "@nx/key-win32-arm64-msvc": "npm:2.1.0"
-    "@nx/key-win32-x64-msvc": "npm:2.1.0"
+    "@nx/key-darwin-arm64": "npm:5.0.0"
+    "@nx/key-darwin-x64": "npm:5.0.0"
+    "@nx/key-linux-arm-gnueabihf": "npm:5.0.0"
+    "@nx/key-linux-arm64-gnu": "npm:5.0.0"
+    "@nx/key-linux-arm64-musl": "npm:5.0.0"
+    "@nx/key-linux-x64-gnu": "npm:5.0.0"
+    "@nx/key-linux-x64-musl": "npm:5.0.0"
+    "@nx/key-win32-arm64-msvc": "npm:5.0.0"
+    "@nx/key-win32-x64-msvc": "npm:5.0.0"
     axios: "npm:^1.6.7"
     axios-retry: "npm:^4.5.0"
-    chalk: "npm:^4.1.2"
+    chalk: "npm:4.1.2"
     enquirer: "npm:^2.4.1"
     ora: "npm:^5.4.1"
   dependenciesMeta:
@@ -10754,7 +10753,7 @@ __metadata:
       optional: true
     "@nx/key-win32-x64-msvc":
       optional: true
-  checksum: 10c0/7a384a5ab11744fbfa5fe3e58a7ab4e54cb24357674652bcadfec5d6f56d671f0291a8aa587d8a38bfeee8ac520776c04914ee369cb37ea1da28f61262b3cf54
+  checksum: 10c0/479189a38bc3d9b77d2a7e40e230cab7c6d94ba600fc6afd704424726c06f440e387505e69313e6846f73bfb9390be5562b1c7e945f7d9d3c060e78d0c233f36
   languageName: node
   linkType: hard
 
@@ -10924,20 +10923,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/s3-cache@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@nx/s3-cache@npm:2.1.0"
+"@nx/s3-cache@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@nx/s3-cache@npm:5.0.0"
   dependencies:
     "@aws-sdk/client-s3": "npm:3.796.0"
     "@aws-sdk/credential-providers": "npm:3.796.0"
     "@aws-sdk/lib-storage": "npm:3.796.0"
-    "@nx/devkit": "npm:21.0.0"
-    "@nx/key": "npm:2.1.0"
+    "@nx/devkit": "npm:22.0.3"
+    "@nx/key": "npm:5.0.0"
     "@smithy/property-provider": "npm:^3.1.11"
     enquirer: "npm:^2.4.1"
     semver: "npm:7.5.4"
     tar-stream: "npm:^3.1.7"
-  checksum: 10c0/f9d328f754982c354879a23809e73bf47e9ad66333635c614ba8706bf1de918b4cebe67a575bd238aee67eeec15da8ecac51a9bdd6ca1f4eb2b4332d1fb597d1
+  peerDependencies:
+    nx: ">= 18 < 23"
+  checksum: 10c0/1019a7da36366ca86af8e4b6e6cf4ec4fd6a84002ca9501f13519c5e48dc5e519e955d720009712a530670c81e5e55befcfc6b3957d9501728b849cc9778a615
   languageName: node
   linkType: hard
 
@@ -36221,7 +36222,7 @@ __metadata:
     "@nx/next": "npm:21.2.4"
     "@nx/node": "npm:21.2.4"
     "@nx/react": "npm:21.2.4"
-    "@nx/s3-cache": "npm:^2.1.0"
+    "@nx/s3-cache": "npm:^5.0.0"
     "@nx/storybook": "npm:21.2.4"
     "@nx/web": "npm:21.2.4"
     "@nx/webpack": "npm:21.2.4"
