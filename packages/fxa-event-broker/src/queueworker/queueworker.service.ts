@@ -134,11 +134,17 @@ export class QueueworkerService
    * Publish a message to the pubsub topic for the client.
    */
   private async publishMessage(clientId: string, json: any) {
+    const eventType = json.event ?? 'unknown';
     // Ensure clientId is normalized
     clientId = clientId.toLowerCase();
     if (!this.clientWebhooks.hasWebhookRegistered(clientId)) {
-      this.log.debug('noWebhookRegistered', { clientId });
-      this.metrics.increment('message.webhookNotFound', { clientId });
+      this.log.debug('noWebhookRegistered', {
+        clientId,
+        eventType,
+      });
+      this.metrics.increment('message.webhookNotFound', {
+        eventType,
+      });
       return;
     }
     const topicName = this.topicPrefix + clientId;
