@@ -105,15 +105,6 @@ describe('Index page', () => {
     expect(screen.queryByText(syncTextSecondary)).not.toBeInTheDocument();
 
     thirdPartyAuthNotRendered();
-
-    expect(
-      screen.getAllByRole('link', {
-        name: /Terms of Service/,
-      })[0]
-    ).toHaveAttribute(
-      'href',
-      'https://www.mozilla.org/about/legal/terms/subscription-services/'
-    );
   });
 
   it('renders third party auth with service=relay when supportsKeysOptionalLogin is true', () => {
@@ -167,15 +158,6 @@ describe('Index page', () => {
       'Stay protected with continuous data monitoring and automatic data removal.'
     );
     screen.getByRole('button', { name: 'Continue' });
-
-    expect(
-      screen.getAllByRole('link', {
-        name: /Terms of Service/,
-      })[0]
-    ).toHaveAttribute(
-      'href',
-      'https://www.mozilla.org/about/legal/terms/subscription-services/'
-    );
   });
 
   it('renders as expected with cms info on mobile', () => {

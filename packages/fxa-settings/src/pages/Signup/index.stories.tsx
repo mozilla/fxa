@@ -62,11 +62,6 @@ const StoryWithProps = ({
 
 export const Default = () => <StoryWithProps />;
 export const CantChangeEmail = () => <StoryWithProps />;
-export const ClientIsMonitor = () => (
-  <StoryWithProps
-    integration={createMockSignupOAuthWebIntegration(MONITOR_CLIENTIDS[0])}
-  />
-);
 export const SyncDesktopV3 = () => (
   <StoryWithProps integration={createMockSignupSyncDesktopV3Integration()} />
 );

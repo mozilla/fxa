@@ -13,7 +13,7 @@ const proxyquire = require('proxyquire');
 const crypto = require('crypto');
 
 let log, mockConfig, mockStatsD, routes, route, request;
-let mockCmsManager, mockLocalization;
+let mockCmsManager, mockLegalTermsManager, mockLocalization;
 
 const sandbox = sinon.createSandbox();
 
@@ -48,7 +48,7 @@ function createBaseConfig(overrides = {}) {
       headline: 'Enter your password',
       description: 'to sign in to Firefox and start syncing',
     },
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -83,7 +83,8 @@ describe('cms', () => {
           secret: 'Bearer test-webhook-secret',
         },
         ftlUrl: {
-          template: 'https://raw.githubusercontent.com/test-owner/test-repo/main/locales/{locale}/cms.ftl',
+          template:
+            'https://raw.githubusercontent.com/test-owner/test-repo/main/locales/{locale}/cms.ftl',
           timeout: 5000,
         },
         github: {
@@ -104,6 +105,12 @@ describe('cms', () => {
       invalidateFtlCache: sandbox.stub(),
     };
 
+    // Mock Legal Terms Manager
+    mockLegalTermsManager = {
+      getLegalTermsByClientId: sandbox.stub(),
+      getLegalTermsByService: sandbox.stub(),
+    };
+
     // Mock Localization
     mockLocalization = {
       fetchAllStrapiEntries: sandbox.stub(),
@@ -121,14 +128,20 @@ describe('cms', () => {
       generateFtlContentFromEntries: sandbox.stub(),
     };
 
-    // Mock Container
+    // Mock Container - must be done before proxyquire
     sandbox.stub(Container, 'has').returns(true);
-    sandbox.stub(Container, 'get').returns(mockCmsManager);
+    const containerGet = sandbox.stub(Container, 'get');
+
+    // Return mocks based on call order (first call is RelyingParty, second is LegalTerms)
+    containerGet.onFirstCall().returns(mockCmsManager);
+    containerGet.onSecondCall().returns(mockLegalTermsManager);
+    containerGet.returns(mockCmsManager); // Default for any other calls
 
     // Use proxyquire to mock dependencies
     const cmsModule = proxyquire('../../../lib/routes/cms', {
       '@fxa/shared/cms': {
-        RelyingPartyConfigurationManager: mockCmsManager,
+        RelyingPartyConfigurationManager: function () {},
+        LegalTermsConfigurationManager: function () {},
       },
       './utils/cms': {
         CMSLocalization: function () {
@@ -160,7 +173,11 @@ describe('cms', () => {
       };
       mockCmsManager.fetchCMSData.resolves(mockResult);
 
-      request = createLocalizationRequest('desktopSyncFirefoxCms', 'desktop-sync', 'en');
+      request = createLocalizationRequest(
+        'desktopSyncFirefoxCms',
+        'desktop-sync',
+        'en'
+      );
 
       const response = await route.handler(request);
 
@@ -176,7 +193,11 @@ describe('cms', () => {
     it('should return empty object when no relying parties found', async () => {
       mockCmsManager.fetchCMSData.resolves({ relyingParties: [] });
 
-      request = createLocalizationRequest('test-client', 'test-entrypoint', 'en');
+      request = createLocalizationRequest(
+        'test-client',
+        'test-entrypoint',
+        'en'
+      );
 
       const response = await route.handler(request);
 
@@ -188,7 +209,11 @@ describe('cms', () => {
     it('should handle errors gracefully and return empty object', async () => {
       mockCmsManager.fetchCMSData.rejects(new Error('CMS Error'));
 
-      request = createLocalizationRequest('test-client', 'test-entrypoint', 'en');
+      request = createLocalizationRequest(
+        'test-client',
+        'test-entrypoint',
+        'en'
+      );
 
       const response = await route.handler(request);
 
@@ -199,7 +224,7 @@ describe('cms', () => {
 
     it('should validate required clientId parameter', async () => {
       const queryObj = {
-        entrypoint: 'test-entrypoint'
+        entrypoint: 'test-entrypoint',
         // Missing clientId
       };
 
@@ -207,7 +232,10 @@ describe('cms', () => {
         await route.options.validate.query.validateAsync(queryObj);
         assert.fail('Should have thrown validation error');
       } catch (error) {
-        assert.ok(error.message.includes('clientId') || error.message.includes('required'));
+        assert.ok(
+          error.message.includes('clientId') ||
+            error.message.includes('required')
+        );
       }
     });
   });
@@ -374,10 +402,10 @@ describe('cms', () => {
       assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
     });
 
-          it('should return base config when localization is disabled', async () => {
-        mockConfig.cmsl10n.enabled = false;
-        const baseConfig = createBaseConfig();
-        const mockResult = { relyingParties: [baseConfig] };
+    it('should return base config when localization is disabled', async () => {
+      mockConfig.cmsl10n.enabled = false;
+      const baseConfig = createBaseConfig();
+      const mockResult = { relyingParties: [baseConfig] };
       mockCmsManager.fetchCMSData.resolves(mockResult);
 
       request = createLocalizationRequest('sync-client', 'desktop-sync', 'es');
@@ -392,7 +420,7 @@ describe('cms', () => {
         clientId: 'sync-client',
         entrypoint: 'desktop-sync',
         locale: 'es',
-        reason: 'localization-disabled'
+        reason: 'localization-disabled',
       });
     });
 
@@ -401,8 +429,16 @@ describe('cms', () => {
       const mockResult = { relyingParties: [baseConfig] };
 
       // Create hash-based FTL content
-      const headlineHash = crypto.createHash('md5').update('Enter your password').digest('hex').substring(0, 8);
-      const descriptionHash = crypto.createHash('md5').update('Please enter your password to continue').digest('hex').substring(0, 8);
+      const headlineHash = crypto
+        .createHash('md5')
+        .update('Enter your password')
+        .digest('hex')
+        .substring(0, 8);
+      const descriptionHash = crypto
+        .createHash('md5')
+        .update('Please enter your password to continue')
+        .digest('hex')
+        .substring(0, 8);
 
       const ftlContent = `${headlineHash} = Introduzca su contraseña\n${descriptionHash} = para iniciar sesión en Firefox`;
 
@@ -417,7 +453,7 @@ describe('cms', () => {
       mockLocalization.fetchLocalizedFtlWithFallback.resolves(ftlContent);
       mockLocalization.mergeConfigs.resolves({
         ...baseConfig,
-        ...localizedData
+        ...localizedData,
       });
 
       request = createLocalizationRequest('sync-client', 'desktop-sync', 'es');
@@ -427,11 +463,20 @@ describe('cms', () => {
       assert.calledOnce(mockLocalization.fetchLocalizedFtlWithFallback);
       assert.calledWith(mockLocalization.fetchLocalizedFtlWithFallback, 'es');
       assert.calledOnce(mockLocalization.mergeConfigs);
-      assert.calledWith(mockLocalization.mergeConfigs, baseConfig, ftlContent, 'sync-client', 'desktop-sync');
+      assert.calledWith(
+        mockLocalization.mergeConfigs,
+        baseConfig,
+        ftlContent,
+        'sync-client',
+        'desktop-sync'
+      );
 
       // Should merge localized content with base config
       assert.equal(response.SigninPage.headline, 'Introduzca su contraseña');
-      assert.equal(response.SigninPage.description, 'para iniciar sesión en Firefox');
+      assert.equal(
+        response.SigninPage.description,
+        'para iniciar sesión en Firefox'
+      );
       assert.equal(response.name, 'Firefox Desktop Sync'); // Base config preserved
 
       assert.calledOnce(mockStatsD.increment);
@@ -454,10 +499,13 @@ describe('cms', () => {
       assert.calledWith(log.info, 'cms.getLocalizedConfig.fallbackToBase', {
         clientId: 'sync-client',
         entrypoint: 'desktop-sync',
-        locale: 'fr'
+        locale: 'fr',
       });
       assert.calledOnce(mockStatsD.increment);
-      assert.calledWith(mockStatsD.increment, 'cms.getLocalizedConfig.fallback');
+      assert.calledWith(
+        mockStatsD.increment,
+        'cms.getLocalizedConfig.fallback'
+      );
     });
 
     it('should return early when base config is empty object', async () => {
@@ -479,21 +527,242 @@ describe('cms', () => {
       assert.calledTwice(log.info);
 
       // First call should be from getConfig method
-      assert.calledWith(log.info.firstCall, 'cms.getConfig: No relying parties found', {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync'
-      });
+      assert.calledWith(
+        log.info.firstCall,
+        'cms.getConfig: No relying parties found',
+        {
+          clientId: 'sync-client',
+          entrypoint: 'desktop-sync',
+        }
+      );
 
       // Second call should be from the early return logic
-      assert.calledWith(log.info.secondCall, 'cms.getLocalizedConfig.noBaseConfig', {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        locale: 'es'
-      });
+      assert.calledWith(
+        log.info.secondCall,
+        'cms.getLocalizedConfig.noBaseConfig',
+        {
+          clientId: 'sync-client',
+          entrypoint: 'desktop-sync',
+          locale: 'es',
+        }
+      );
 
       // Should increment the getConfig.empty metric from the getConfig method
       assert.calledOnce(mockStatsD.increment);
       assert.calledWith(mockStatsD.increment, 'cms.getConfig.empty');
+    });
+  });
+
+  describe('GET /cms/legal-terms', () => {
+    beforeEach(() => {
+      route = getRoute(routes, '/cms/legal-terms', 'GET');
+      // Reset stubs before each test
+      mockLegalTermsManager.getLegalTermsByClientId.reset();
+      mockLegalTermsManager.getLegalTermsByService.reset();
+      mockLocalization.fetchLocalizedFtlWithFallback.reset();
+      mockLocalization.mergeConfigs.reset();
+      mockStatsD.increment.resetHistory();
+    });
+
+    const mockLegalTermsResult = {
+      label: 'Example service',
+      termsOfServiceLink: 'https://example.com/tos',
+      privacyNoticeLink: 'https://example.com/privacy',
+      fontSize: 'default',
+    };
+
+    it('should return legal terms when found by clientId', async () => {
+      const clientId = '1234567890abcdef';
+      request = {
+        query: { clientId },
+        app: { locale: 'en' },
+        log: log,
+      };
+
+      mockLegalTermsManager.getLegalTermsByClientId.resolves({
+        getLegalTerms: () => mockLegalTermsResult,
+      });
+
+      const response = await route.handler(request);
+
+      assert.calledOnce(mockLegalTermsManager.getLegalTermsByClientId);
+      assert.calledWith(
+        mockLegalTermsManager.getLegalTermsByClientId,
+        clientId
+      );
+      assert.deepEqual(response, mockLegalTermsResult);
+      assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+    });
+
+    it('should return legal terms when found by service', async () => {
+      const service = 'sync';
+      request = {
+        query: { service },
+        app: { locale: 'en' },
+        log: log,
+      };
+
+      mockLegalTermsManager.getLegalTermsByService.resolves({
+        getLegalTerms: () => mockLegalTermsResult,
+      });
+
+      const response = await route.handler(request);
+
+      assert.calledOnce(mockLegalTermsManager.getLegalTermsByService);
+      assert.calledWith(mockLegalTermsManager.getLegalTermsByService, service);
+      assert.deepEqual(response, mockLegalTermsResult);
+      assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+    });
+
+    it('should return null when no legal terms found', async () => {
+      const clientId = '1234567890abcdef';
+      request = {
+        query: { clientId },
+        app: { locale: 'en' },
+        log: log,
+      };
+
+      mockLegalTermsManager.getLegalTermsByClientId.resolves({
+        getLegalTerms: () => null,
+      });
+
+      const response = await route.handler(request);
+
+      assert.isNull(response);
+      assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.empty');
+    });
+
+    it('should throw error when both clientId and service provided', async () => {
+      request = {
+        query: { clientId: '1234567890abcdef', service: 'sync' },
+        app: { locale: 'en' },
+        log: log,
+      };
+
+      try {
+        await route.handler(request);
+        assert.fail('Should have thrown error');
+      } catch (error) {
+        assert.equal(error.message, 'Invalid parameter in request body');
+        assert.equal(error.errno, 107); // ERRNO.INVALID_PARAMETER
+        assert.equal(error.code, 400);
+      }
+    });
+
+    it('should throw error when neither clientId nor service provided', async () => {
+      request = {
+        query: {},
+        app: { locale: 'en' },
+        log: log,
+      };
+
+      try {
+        await route.handler(request);
+        assert.fail('Should have thrown error');
+      } catch (error) {
+        assert.equal(error.message, 'Invalid parameter in request body');
+        assert.equal(error.errno, 107); // ERRNO.INVALID_PARAMETER
+        assert.equal(error.code, 400);
+      }
+    });
+
+    it('should return localized legal terms for non-English locale', async () => {
+      const clientId = '1234567890abcdef';
+      const locale = 'fr';
+      const ftlContent = 'legal-terms-label = Conditions générales';
+
+      request = {
+        query: { clientId },
+        app: { locale },
+        log: log,
+      };
+
+      mockLegalTermsManager.getLegalTermsByClientId.resolves({
+        getLegalTerms: () => mockLegalTermsResult,
+      });
+
+      mockLocalization.fetchLocalizedFtlWithFallback.resolves(ftlContent);
+      mockLocalization.mergeConfigs.resolves({
+        ...mockLegalTermsResult,
+        label: 'Conditions générales',
+      });
+
+      const response = await route.handler(request);
+
+      assert.calledOnce(mockLocalization.fetchLocalizedFtlWithFallback);
+      assert.calledWith(mockLocalization.fetchLocalizedFtlWithFallback, locale);
+      assert.calledOnce(mockLocalization.mergeConfigs);
+      assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+      assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.localized');
+      assert.equal(response.label, 'Conditions générales');
+    });
+
+    it('should fallback to base legal terms when FTL content is empty', async () => {
+      const clientId = '1234567890abcdef';
+      const locale = 'de';
+
+      request = {
+        query: { clientId },
+        app: { locale },
+        log: log,
+      };
+
+      mockLegalTermsManager.getLegalTermsByClientId.resolves({
+        getLegalTerms: () => mockLegalTermsResult,
+      });
+
+      mockLocalization.fetchLocalizedFtlWithFallback.resolves(null);
+
+      const response = await route.handler(request);
+
+      assert.deepEqual(response, mockLegalTermsResult);
+      assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.fallback');
+      assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+    });
+
+    it('should return base legal terms when localization is disabled', async () => {
+      const clientId = '1234567890abcdef';
+      const locale = 'es';
+
+      // Override config for this test
+      mockConfig.cmsl10n.enabled = false;
+
+      request = {
+        query: { clientId },
+        app: { locale },
+        log: log,
+      };
+
+      mockLegalTermsManager.getLegalTermsByClientId.resolves({
+        getLegalTerms: () => mockLegalTermsResult,
+      });
+
+      const response = await route.handler(request);
+
+      assert.deepEqual(response, mockLegalTermsResult);
+      assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
+      assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+
+      // Reset config
+      mockConfig.cmsl10n.enabled = true;
+    });
+
+    it('should handle errors gracefully and return null', async () => {
+      const clientId = '1234567890abcdef';
+      request = {
+        query: { clientId },
+        app: { locale: 'en' },
+        log: log,
+      };
+
+      mockLegalTermsManager.getLegalTermsByClientId.rejects(
+        new Error('Strapi error')
+      );
+
+      const response = await route.handler(request);
+
+      assert.isNull(response);
+      assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.error');
     });
   });
 
@@ -516,11 +785,24 @@ describe('cms', () => {
     });
 
     it('should validate POST /cms/webhook/cache/reset route structure', () => {
-      const cacheResetRoute = getRoute(routes, '/cms/webhook/cache/reset', 'POST');
+      const cacheResetRoute = getRoute(
+        routes,
+        '/cms/webhook/cache/reset',
+        'POST'
+      );
 
       assert.exists(cacheResetRoute);
       assert.equal(cacheResetRoute.method, 'POST');
       assert.equal(cacheResetRoute.path, '/cms/webhook/cache/reset');
+    });
+
+    it('should validate GET /cms/legal-terms route structure', () => {
+      const legalTermsRoute = getRoute(routes, '/cms/legal-terms', 'GET');
+
+      assert.exists(legalTermsRoute);
+      assert.equal(legalTermsRoute.method, 'GET');
+      assert.equal(legalTermsRoute.path, '/cms/legal-terms');
+      assert.exists(legalTermsRoute.options.validate.query);
     });
   });
 });

@@ -52,7 +52,10 @@ const {
   TwilioFactory,
 } = require('@fxa/accounts/recovery-phone');
 const { parseConfigRules, RateLimit } = require('@fxa/accounts/rate-limit');
-const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
+const {
+  RelyingPartyConfigurationManager,
+  LegalTermsConfigurationManager,
+} = require('@fxa/shared/cms');
 const { AccountManager } = require('@fxa/shared/account/account');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { EmailCloudTaskManager } = require('../lib/email-cloud-tasks');
@@ -203,6 +206,12 @@ async function run(config) {
         log
       );
       Container.set(RelyingPartyConfigurationManager, cmsAccounts);
+
+      const legalTermsManager = new LegalTermsConfigurationManager(
+        strapiClient,
+        statsd
+      );
+      Container.set(LegalTermsConfigurationManager, legalTermsManager);
     }
 
     const { createStripeHelper } = require('../lib/payments/stripe');

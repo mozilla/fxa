@@ -14,6 +14,7 @@ import {
   RelierClientInfo,
   RelierSubscriptionInfo,
   RelierCmsInfo,
+  RelierLegalTerms,
   OAuthIntegration,
   ThirdPartyAuthCallbackIntegration,
 } from '../../models/integrations';
@@ -68,6 +69,7 @@ export class IntegrationFactory {
   protected readonly storageData: ModelDataStore;
   protected readonly clientInfo?: RelierClientInfo;
   protected readonly cmsInfo?: RelierCmsInfo;
+  protected readonly legalTerms?: RelierLegalTerms;
   protected readonly productInfo?: RelierSubscriptionInfo;
   protected readonly loading?: boolean;
   public readonly flags: IntegrationFlags;
@@ -77,6 +79,7 @@ export class IntegrationFactory {
     productInfo?: RelierSubscriptionInfo;
     clientInfo?: RelierClientInfo;
     cmsInfo?: RelierCmsInfo;
+    legalTerms?: RelierLegalTerms;
     data?: ModelDataStore;
     channelData?: ModelDataStore;
     storageData?: ModelDataStore;
@@ -95,6 +98,7 @@ export class IntegrationFactory {
     this.clientInfo = opts.clientInfo;
     this.productInfo = opts.productInfo;
     this.cmsInfo = opts.cmsInfo;
+    this.legalTerms = opts.legalTerms;
   }
 
   /**
@@ -178,6 +182,7 @@ export class IntegrationFactory {
     this.initOAuthIntegration(integration, this.flags);
     this.initClientInfo(integration);
     this.initCmsInfo(integration);
+    this.initLegalTerms(integration);
     return integration;
   }
 
@@ -194,6 +199,7 @@ export class IntegrationFactory {
     this.initOAuthIntegration(integration, this.flags);
     this.initClientInfo(integration);
     this.initCmsInfo(integration);
+    this.initLegalTerms(integration);
     return integration;
   }
 
@@ -271,6 +277,10 @@ export class IntegrationFactory {
 
   initCmsInfo(integration: Integration) {
     integration.cmsInfo = this.cmsInfo;
+  }
+
+  initLegalTerms(integration: Integration) {
+    integration.legalTerms = this.legalTerms;
   }
 
   initClientInfo(integration: OAuthIntegration) {

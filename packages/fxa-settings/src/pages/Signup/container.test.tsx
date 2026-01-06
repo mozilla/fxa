@@ -62,6 +62,7 @@ function mockIntegration() {
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     getCmsInfo: () => undefined,
+    getLegalTerms: () => undefined,
   };
 }
 let serviceName: MozServices;
