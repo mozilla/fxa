@@ -5,7 +5,7 @@
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { auth } from 'apps/payments/next/auth';
 import errorIcon from '@fxa/shared/assets/images/error.svg';
 import checkIcon from '@fxa/shared/assets/images/check.svg';
 import {
@@ -15,12 +15,12 @@ import {
   getErrorFtlInfo,
   buildPageMetadata,
 } from '@fxa/payments/ui/server';
-import {
-  getCartOrRedirectAction,
-} from '@fxa/payments/ui/actions';
+import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { config } from 'apps/payments/next/config';
 import type { Metadata } from 'next';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
+import { buildRedirectUrl } from '@fxa/payments/ui';
+import { redirect } from 'next/navigation';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
@@ -53,15 +53,40 @@ export default async function CheckoutError({
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
 
+  const sessionPromise = auth();
   const cartPromise = getCartOrRedirectAction(
     params.cartId,
     SupportedPages.ERROR,
     searchParams
   );
   const l10n = getApp().getL10n(acceptLanguage, locale);
-  const [cart] = await Promise.all([cartPromise]);
+  const [cart, session] = await Promise.all([cartPromise, sessionPromise]);
 
-  const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config, searchParams);
+  const errorReason = getErrorFtlInfo(
+    cart.errorReasonId,
+    params,
+    config,
+    searchParams
+  );
+
+  if (cart.id && cart.uid !== session?.user?.id) {
+    const redirectSearchParams: Record<string, string | string[]> =
+      searchParams || {};
+    delete redirectSearchParams.cartId;
+    delete redirectSearchParams.cartVersion;
+    const redirectTo = buildRedirectUrl(
+      params.offeringId,
+      params.interval,
+      'new',
+      'checkout',
+      {
+        baseUrl: config.paymentsNextHostedUrl,
+        locale,
+        searchParams: redirectSearchParams,
+      }
+    );
+    redirect(redirectTo);
+  }
 
   return (
     <>
@@ -72,7 +97,7 @@ export default async function CheckoutError({
         {
           // Once more conditionals are added, move this to a separate component
           cart.errorReasonId ===
-            CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
+          CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
             <Image
               src={checkIcon}
               alt=""
