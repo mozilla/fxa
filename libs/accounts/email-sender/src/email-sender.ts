@@ -345,40 +345,61 @@ export class EmailSender {
 
         const backoffDelay = this.calculateBackoffDelay(attempt);
 
-        this.log.warn('mailer.send.retry', {
+        const retryLogDetails: Record<string, unknown> = {
           err: err.message,
           to: email.to,
           template: email.template,
           retryAttempt: attempt,
           nextAttempt: attempt + 1,
           backoffMs: Math.round(backoffDelay),
-        });
+        };
+
+        if (err.response) {
+          retryLogDetails['smtpResponse'] = err.response;
+        }
+        if (err.responseCode) {
+          retryLogDetails['smtpResponseCode'] = err.responseCode;
+        }
+        if (err.rejected?.length) {
+          retryLogDetails['rejectedRecipients'] = err.rejected;
+        }
+
+        this.log.warn('mailer.send.retry', retryLogDetails);
 
         // Wait for backoff period, then retry
         await new Promise((resolve) => setTimeout(resolve, backoffDelay));
         return this.sendMail(email, ++attempt);
       }
 
-      // This is the final failure - log and capture to Sentry
-      if (isAppError(err)) {
-        this.log.error('mailer.send.error', {
-          err: err.message,
-          code: err.code,
-          errno: err.errno,
-          to: email.to,
-          template: email.template,
-          isRetry,
-          retryAttempt: attempt,
-        });
-      } else {
-        this.log.error('mailer.send.error', {
-          err: err.message,
-          to: email.to,
-          template: email.template,
-          isRetry,
-          retryAttempt: attempt,
-        });
+      const smtpErrorDetails: Record<string, unknown> = {
+        err: err.message,
+        to: email.to,
+        template: email.template,
+        isRetry,
+        retryAttempt: attempt,
+      };
+
+      if (email.cc?.length) {
+        smtpErrorDetails['cc'] = email.cc;
       }
+      if (err.response) {
+        smtpErrorDetails['smtpResponse'] = err.response;
+      }
+      if (err.responseCode) {
+        smtpErrorDetails['smtpResponseCode'] = err.responseCode;
+      }
+      if (err.rejected?.length) {
+        smtpErrorDetails['rejectedRecipients'] = err.rejected;
+      }
+      if (err.accepted?.length) {
+        smtpErrorDetails['acceptedRecipients'] = err.accepted;
+      }
+      if (isAppError(err)) {
+        smtpErrorDetails['code'] = err.code;
+        smtpErrorDetails['errno'] = err.errno;
+      }
+
+      this.log.error('mailer.send.error', smtpErrorDetails);
 
       // Only capture to Sentry on final failure
       Sentry.captureException(err);
