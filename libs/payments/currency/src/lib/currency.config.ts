@@ -24,7 +24,7 @@ export class CurrencyConfig {
 
 export const MockCurrencyConfig = {
   taxIds: { EUR: 'EU1234' },
-  currenciesToCountries: { USD: ['US'] },
+  currenciesToCountries: { USD: ['US'], EUR: ['FR', 'DE', 'NL'] },
 } satisfies CurrencyConfig;
 
 export const MockCurrencyConfigProvider = {
