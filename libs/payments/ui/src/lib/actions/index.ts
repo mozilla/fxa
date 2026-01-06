@@ -40,3 +40,4 @@ export { getStripeClientSession } from './getStripeClientSession';
 export { updateStripePaymentDetails } from './updateStripePaymentDetails';
 export { setDefaultStripePaymentDetails } from './setDefaultStripePaymentDetails';
 export { getExperimentsAction } from './getExperimentsAction';
+export { redeemChurnCouponAction } from './redeemChurnCoupon';

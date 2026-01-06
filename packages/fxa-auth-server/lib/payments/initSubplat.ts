@@ -188,9 +188,12 @@ export async function initSubplat({
     appleIapPurchaseManager
   );
   const churnInterventionService = new ChurnInterventionService(
+    accountCustomerManager,
     productConfigurationManager,
     churnInterventionManager,
     eligibilityService,
+    notifierService,
+    profileClient,
     subscriptionManager,
     statsd,
     logger

@@ -8,14 +8,12 @@ import { getApp } from '../nestapp/app';
 
 export const redeemChurnCouponAction = async (
   uid: string,
-  customerId: string,
   subscriptionId: string,
   acceptLanguage?: string | null,
-  selectedLanguage?: string,
+  selectedLanguage?: string
 ) => {
   return await getApp().getActionsService().redeemChurnCoupon({
     uid,
-    customerId,
     subscriptionId,
     acceptLanguage,
     selectedLanguage,

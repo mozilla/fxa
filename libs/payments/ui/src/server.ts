@@ -6,6 +6,7 @@
 export * from './lib/nestapp/app';
 export * from './lib/nestapp/config';
 export * from './lib/config.utils';
+export * from './lib/server/components/ChurnError';
 export * from './lib/server/components/PriceInterval';
 export * from './lib/server/components/SignedIn';
 export * from './lib/server/components/SubscriptionTitle';

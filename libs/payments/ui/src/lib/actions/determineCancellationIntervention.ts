@@ -8,18 +8,16 @@ import { getApp } from '../nestapp/app';
 import { SubplatInterval } from '@fxa/payments/customer';
 
 export const determineCancellationInterventionAction = async (args: {
-    uid: string,
-    customerId: string,
-    subscriptionId: string,
-    offeringApiIdentifier: string,
-    currentInterval: SubplatInterval,
-    upgradeInterval: SubplatInterval,
-    acceptLanguage?: string | null,
-    selectedLanguage?: string,
+  uid: string;
+  subscriptionId: string;
+  offeringApiIdentifier: string;
+  currentInterval: SubplatInterval;
+  upgradeInterval: SubplatInterval;
+  acceptLanguage?: string | null;
+  selectedLanguage?: string;
 }) => {
   return await getApp().getActionsService().determineCancellationIntervention({
     uid: args.uid,
-    customerId: args.customerId,
     subscriptionId: args.subscriptionId,
     offeringApiIdentifier: args.offeringApiIdentifier,
     currentInterval: args.currentInterval,

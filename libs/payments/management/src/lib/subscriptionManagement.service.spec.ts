@@ -192,8 +192,8 @@ describe('SubscriptionManagementService', () => {
           provide: ChurnInterventionService,
           useValue: {
             determineStaySubscribedEligibility: jest.fn(),
-          }
-        }
+          },
+        },
       ],
     }).compile();
 
@@ -313,7 +313,8 @@ describe('SubscriptionManagementService', () => {
       const mockPaymentMethod = StripeResponseFactory(
         StripePaymentMethodFactory({})
       );
-      const mockStaySubscribedCmsChurnEntry = ChurnInterventionByProductIdResultFactory();
+      const mockStaySubscribedCmsChurnEntry =
+        ChurnInterventionByProductIdResultFactory();
       const mockSubscriptionContent = SubscriptionContentFactory();
       const mockPaymentMethodInformation = {
         type: SubPlatPaymentMethodType.Card,
@@ -404,6 +405,7 @@ describe('SubscriptionManagementService', () => {
           isEligible: true,
           reason: 'eligible',
           cmsChurnInterventionEntry: mockStaySubscribedCmsChurnEntry,
+          cmsOfferingContent: null,
         });
 
       const result =
@@ -1527,7 +1529,7 @@ describe('SubscriptionManagementService', () => {
       await expect(
         subscriptionManagementService.setDefaultStripePaymentDetails(
           mockAccountCustomer.uid,
-          'pm_12345',
+          'pm_12345'
         )
       ).rejects.toBeInstanceOf(SetDefaultPaymentAccountCustomerMissingStripeId);
     });

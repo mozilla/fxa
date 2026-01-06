@@ -7,8 +7,11 @@ import { Stripe } from 'stripe';
 
 import { StripeClient, StripeSubscription } from '@fxa/payments/stripe';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/payments/stripe';
-import { type StripeSubscriptionMetadataInput } from './types';
-import { SubscriptionCustomerMismatchError} from './customer.error'
+import {
+  type StripeSubscriptionMetadataInput,
+  STRIPE_SUBSCRIPTION_METADATA,
+} from './types';
+import { SubscriptionCustomerMismatchError } from './customer.error';
 
 @Injectable()
 export class SubscriptionManager {
@@ -123,13 +126,23 @@ export class SubscriptionManager {
     };
   }
 
-  async applyStripeCouponToSubscription(args: {
+  /**
+   * Resubscribes an existing Stripe subscription and applies a coupon so
+   * the subscription remains active.
+   *
+   * This updates the subscription to:
+   * - Apply the provided coupon
+   * - Set `cancel_at_period_end` to `false`
+   * - Clear the `CancelledForCustomerAt` metadata
+   *
+   * No new subscription is created; the existing subscription is modified.
+   */
+  async resubscribeWithCoupon(args: {
     customerId: string;
     subscriptionId: string;
     stripeCouponId: string;
-    setCancelAtPeriodEnd?: boolean;
   }) {
-    const { customerId, subscriptionId, stripeCouponId, setCancelAtPeriodEnd } = args;
+    const { customerId, subscriptionId, stripeCouponId } = args;
 
     const subscription = await this.retrieve(subscriptionId);
 
@@ -141,16 +154,39 @@ export class SubscriptionManager {
       );
     }
     try {
-      const updatedSubscription = await this.update(
-        subscriptionId,
-        {
-          discounts: [{ coupon: stripeCouponId }],
-          ...(setCancelAtPeriodEnd ? { cancel_at_period_end: true } : {}),
-        }
-      );
+      const updatedSubscription = await this.update(subscriptionId, {
+        discounts: [{ coupon: stripeCouponId }],
+        cancel_at_period_end: false,
+        metadata: {
+          [STRIPE_SUBSCRIPTION_METADATA.CancelledForCustomerAt]: '',
+        },
+      });
       return updatedSubscription;
     } catch (error) {
       return null;
     }
+  }
+
+  async hasCouponId(
+    subscriptionId: string,
+    stripeCouponId: string
+  ): Promise<boolean> {
+    if (!stripeCouponId) return false;
+
+    const subscription = await this.retrieve(subscriptionId);
+    const currentSubscriptionCouponId = subscription.discount?.coupon.id;
+    if (
+      currentSubscriptionCouponId &&
+      currentSubscriptionCouponId === stripeCouponId
+    ) {
+      return true;
+    }
+
+    const discounts = subscription.discounts;
+    if (discounts.includes(stripeCouponId)) {
+      return true;
+    }
+
+    return false;
   }
 }

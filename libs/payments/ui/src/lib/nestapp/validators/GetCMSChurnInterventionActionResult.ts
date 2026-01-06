@@ -5,47 +5,50 @@
 import { IsString, IsNumber } from 'class-validator';
 
 export class ChurnInterventionResult {
-    @IsString()
-    webIcon!: string;
+  @IsString()
+  apiIdentifier!: string;
 
-    @IsString()
-    churnInterventionId!: string;
+  @IsString()
+  webIcon!: string;
 
-    @IsString()
-    churnType!: string;
+  @IsString()
+  churnInterventionId!: string;
 
-    @IsNumber()
-    redemptionLimit!: number;
+  @IsString()
+  churnType!: string;
 
-    @IsString()
-    stripeCouponId!: string;
+  @IsNumber()
+  redemptionLimit!: number;
 
-    @IsString()
-    interval!: string;
+  @IsString()
+  stripeCouponId!: string;
 
-    @IsNumber()
-    discountAmount!: number;
+  @IsString()
+  interval!: string;
 
-    @IsString()
-    ctaMessage!: string;
+  @IsNumber()
+  discountAmount!: number;
 
-    @IsString()
-    modalHeading!: string;
+  @IsString()
+  ctaMessage!: string;
 
-    @IsString({ each: true })
-    modalMessage!: string[];
+  @IsString()
+  modalHeading!: string;
 
-    @IsString()
-    productPageUrl!: string;
+  @IsString({ each: true })
+  modalMessage!: string[];
 
-    @IsString()
-    termsHeading!: string;
+  @IsString()
+  productPageUrl!: string;
 
-    @IsString({ each: true })
-    termsDetails!: string[];
+  @IsString()
+  termsHeading!: string;
 
-    @IsString()
-    supportUrl!: string;
+  @IsString({ each: true })
+  termsDetails!: string[];
+
+  @IsString()
+  supportUrl!: string;
 }
 
 export class GetCMSChurnInterventionActionResult {

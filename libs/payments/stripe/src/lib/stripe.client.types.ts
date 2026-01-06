@@ -17,37 +17,37 @@ type NegotiateExpanded<
     StripeObj,
     UnexpandedProperties
   >]: StripeObj[key] extends Array<any> // Stripe types can be in the form of Array<Stripe.XYZ | string | null>
-  ? // Extract and return type Array<string | null> out of Array<Stripe.XYZ | string | null>
-  Array<Extract<StripeObj[key][0], string | null | undefined>>
-  : // Stripe types can be in the form of (Array<Stripe.XYZ | string | null> | null)
-  StripeObj[key] extends Array<any> | null
-  ? // Extract and return type (Array<string | null> | null) out of (Array<Stripe.XYZ | string | null> | null)
-  Array<
-    Extract<NonNullable<StripeObj[key]>[0], string | null | undefined>
-  > | null
-  : // Extract and return type (string | null) out of (Stripe.XYZ | string | null)
-  Extract<StripeObj[key], string | null | undefined>;
-} & {
-    // For specified unexpanded properties
-    [key in keyof Pick<
-      StripeObj,
-      ExpandedProperties
-    >]-?: StripeObj[key] extends Array<any> // Stripe types can be in the form of Array<Stripe.XYZ | string | null>
-    ? // Extract and return type Array<Stripe.XYZ | null> out of Array<Stripe.XYZ | string | null>
-    Array<Exclude<StripeObj[key][0], string>>
+    ? // Extract and return type Array<string | null> out of Array<Stripe.XYZ | string | null>
+      Array<Extract<StripeObj[key][0], string | null | undefined>>
     : // Stripe types can be in the form of (Array<Stripe.XYZ | string | null> | null)
-    StripeObj[key] extends Array<any> | null
-    ? // Extract and return type (Array<Stripe.XYZ | null> | null) out of (Array<Stripe.XYZ | string | null> | null)
-    Array<Exclude<NonNullable<StripeObj[key]>[0], string>> | null
-    : // Extract and return type (Stripe.XYZ | null) out of (Stripe.XYZ | string | null)
-    Exclude<StripeObj[key], string>;
-  } & {
-    // All other unspecified properties return their original typing
-    [key in keyof Omit<
-      StripeObj,
-      UnexpandedProperties | ExpandedProperties
-    >]: StripeObj[key];
-  };
+      StripeObj[key] extends Array<any> | null
+      ? // Extract and return type (Array<string | null> | null) out of (Array<Stripe.XYZ | string | null> | null)
+        Array<
+          Extract<NonNullable<StripeObj[key]>[0], string | null | undefined>
+        > | null
+      : // Extract and return type (string | null) out of (Stripe.XYZ | string | null)
+        Extract<StripeObj[key], string | null | undefined>;
+} & {
+  // For specified unexpanded properties
+  [key in keyof Pick<
+    StripeObj,
+    ExpandedProperties
+  >]-?: StripeObj[key] extends Array<any> // Stripe types can be in the form of Array<Stripe.XYZ | string | null>
+    ? // Extract and return type Array<Stripe.XYZ | null> out of Array<Stripe.XYZ | string | null>
+      Array<Exclude<StripeObj[key][0], string>>
+    : // Stripe types can be in the form of (Array<Stripe.XYZ | string | null> | null)
+      StripeObj[key] extends Array<any> | null
+      ? // Extract and return type (Array<Stripe.XYZ | null> | null) out of (Array<Stripe.XYZ | string | null> | null)
+        Array<Exclude<NonNullable<StripeObj[key]>[0], string>> | null
+      : // Extract and return type (Stripe.XYZ | null) out of (Stripe.XYZ | string | null)
+        Exclude<StripeObj[key], string>;
+} & {
+  // All other unspecified properties return their original typing
+  [key in keyof Omit<
+    StripeObj,
+    UnexpandedProperties | ExpandedProperties
+  >]: StripeObj[key];
+};
 
 /**
  * Replaces some properties nested inside of an object, overriding anything in the first argument with values from the second, if provided.
@@ -254,6 +254,7 @@ export type StripeSubscription = NegotiateExpanded<
   | 'pending_setup_intent'
   | 'application'
   | 'default_source'
+  | 'discounts'
   | 'on_behalf_of'
   | 'schedule'
   | 'test_clock'
