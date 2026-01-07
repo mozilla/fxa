@@ -4,17 +4,12 @@
 
 import {
   IsArray,
-  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  Enum_Cancelinterstitialoffer_Currentinterval,
-  Enum_Cancelinterstitialoffer_Upgradeinterval,
-} from '../../../../../../shared/cms/src/__generated__/graphql';
 
 export class CmsChurnInterventionEntryResult {
   @IsString()
@@ -66,11 +61,17 @@ export class CmsChurnInterventionEntryResult {
 export class CmsPurchaseDetailsLocalizationObject {
   @IsString()
   webIcon!: string;
+
+  @IsString()
+  productName!: string;
 }
 
 export class CmsPurchaseDetailsDataObject {
   @IsString()
   webIcon!: string;
+
+  @IsString()
+  productName!: string;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -98,13 +99,13 @@ export class CmsCancelInterstitialOfferPartialResult {
   @IsOptional()
   offeringApiIdentifier?: string;
 
-  @IsEnum(Enum_Cancelinterstitialoffer_Currentinterval)
+  @IsString()
   @IsOptional()
-  currentInterval?: Enum_Cancelinterstitialoffer_Currentinterval;
+  currentInterval?: string;
 
-  @IsEnum(Enum_Cancelinterstitialoffer_Upgradeinterval)
+  @IsString()
   @IsOptional()
-  upgradeInterval?: Enum_Cancelinterstitialoffer_Upgradeinterval;
+  upgradeInterval?: string;
 
   @IsNumber()
   @IsOptional()
@@ -148,11 +149,11 @@ export class CmsCancelInterstitialOfferResult {
   @IsString()
   offeringApiIdentifier!: string;
 
-  @IsEnum(Enum_Cancelinterstitialoffer_Currentinterval)
-  currentInterval!: Enum_Cancelinterstitialoffer_Currentinterval;
+  @IsString()
+  currentInterval!: string;
 
-  @IsEnum(Enum_Cancelinterstitialoffer_Upgradeinterval)
-  upgradeInterval!: Enum_Cancelinterstitialoffer_Upgradeinterval;
+  @IsString()
+  upgradeInterval!: string;
 
   @IsNumber()
   advertisedSavings!: number;

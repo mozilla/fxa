@@ -42,8 +42,10 @@ export const cancelInterstitialOfferQuery = graphql(`
         stripeProductId
         defaultPurchase {
           purchaseDetails {
+            productName
             webIcon
             localizations(filters: { locale: { eq: $locale } }) {
+              productName
               webIcon
             }
           }

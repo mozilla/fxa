@@ -13,6 +13,7 @@ export { determineCancellationInterventionAction } from './determineCancellation
 export { fetchCMSData } from './fetchCMSData';
 export { getCartAction } from './getCart';
 export { getCartOrRedirectAction } from './getCartOrRedirect';
+export { getInterstitialOfferContentAction } from './getInterstitialOfferContent';
 export { getMetricsFlowAction } from './getMetricsFlow';
 export { getPayPalCheckoutToken } from './getPayPalCheckoutToken';
 export { getPayPalBillingAgreementId } from './getPayPalBillingAgreementId';
