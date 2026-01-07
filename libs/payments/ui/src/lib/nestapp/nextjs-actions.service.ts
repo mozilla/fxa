@@ -46,6 +46,8 @@ import { GetChurnInterventionDataActionArgs } from './validators/GetChurnInterve
 import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenArgs';
 import { GetSubManPageContentActionArgs } from './validators/GetSubManPageContentActionArgs';
 import { GetSubManPageContentActionResult } from './validators/GetSubManPageContentActionResult';
+import { GetInterstitialOfferContentActionArgs } from './validators/GetInterstitialOfferContentActionArgs';//
+import { GetInterstitialOfferContentActionResult } from './validators/GetInterstitialOfferContentActionResult';
 import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
 import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
@@ -690,6 +692,54 @@ export class NextJSActionsService {
       args.acceptLanguage || undefined,
       args.selectedLanguage
     );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetInterstitialOfferContentActionArgs,
+    GetInterstitialOfferContentActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getInterstitialOfferContent(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    const result =
+      await this.churnInterventionService.determineCancelInterstitialOfferEligibility({
+        uid: args.uid,
+        subscriptionId: args.subscriptionId,
+        acceptLanguage: args.acceptLanguage,
+        selectedLanguage: args.selectedLanguage
+      });
+
+    if (result.isEligible &&
+      result.cmsCancelInterstitialOfferResult &&
+      result.cmsCancelInterstitialOfferResult.offering.defaultPurchase.purchaseDetails
+    ) {
+      return {
+        isEligible: true,
+        pageContent: {
+          currentInterval: result.cmsCancelInterstitialOfferResult.currentInterval,
+          modalHeading1: result.cmsCancelInterstitialOfferResult.modalHeading1,
+          modalMessage: result.cmsCancelInterstitialOfferResult.modalMessage,
+          upgradeButtonLabel: result.cmsCancelInterstitialOfferResult.upgradeButtonLabel,
+          upgradeButtonUrl: result.cmsCancelInterstitialOfferResult.upgradeButtonUrl,
+          webIcon: result.cmsCancelInterstitialOfferResult.offering.defaultPurchase.purchaseDetails.webIcon,
+          productName: result.cmsCancelInterstitialOfferResult.offering.defaultPurchase.purchaseDetails.productName,
+        }
+      }
+    } else {
+      return {
+        isEligible: false,
+        pageContent: null,
+        reason: result.reason,
+        webIcon: result.webIcon,
+        productName: result.productName,
+      }
+    }
   }
 
   @SanitizeExceptions()

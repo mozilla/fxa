@@ -452,6 +452,8 @@ export class ChurnInterventionService {
         reason: 'feature_disabled',
         cmsOfferContent: null,
         cmsOfferingContent: null,
+        webIcon: null,
+        productName: null,
       };
     }
 
@@ -469,6 +471,8 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'subscription_not_found',
         cmsCancelInterstitialOfferResult: null,
+        webIcon: null,
+        productName: null,
       };
     }
 
@@ -480,6 +484,30 @@ export class ChurnInterventionService {
         args.subscriptionId
       );
     }
+
+    const stripePriceId = subscription.items.data.at(0)?.price.id;
+
+    if (!stripePriceId) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'stripe_price_id_not_found',
+      });
+      return {
+        isEligible: false,
+        reason: 'stripe_price_id_not_found',
+        cmsCancelInterstitialOfferResult: null,
+        webIcon: null,
+        productName: null,
+      };
+    }
+
+    const result =
+      await this.productConfigurationManager.getPageContentByPriceIds([
+        stripePriceId,
+      ]);
+    const { offering, purchaseDetails } = result.purchaseForPriceId(stripePriceId);
+    const offeringId = offering?.apiIdentifier;
+    const { webIcon, productName } = purchaseDetails;
 
     const subscriptionStatus =
       await this.subscriptionManager.getSubscriptionStatus(
@@ -496,6 +524,8 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'subscription_not_active',
         cmsCancelInterstitialOfferResult: null,
+        webIcon,
+        productName,
       };
     }
 
@@ -508,6 +538,8 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'already_canceling_at_period_end',
         cmsCancelInterstitialOfferResult: null,
+        webIcon,
+        productName,
       };
     }
 
@@ -528,29 +560,10 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'current_interval_not_found',
         cmsCancelInterstitialOfferResult: null,
+        webIcon,
+        productName,
       };
     }
-
-    const stripePriceId = subscription.items.data.at(0)?.price.id;
-
-    if (!stripePriceId) {
-      this.statsd.increment('cancel_intervention_decision', {
-        type: 'none',
-        reason: 'stripe_price_id_not_found',
-      });
-      return {
-        isEligible: false,
-        reason: 'stripe_price_id_not_found',
-        cmsCancelInterstitialOfferResult: null,
-      };
-    }
-
-    const result =
-      await this.productConfigurationManager.getPageContentByPriceIds([
-        stripePriceId,
-      ]);
-    const offeringId =
-      result.purchaseForPriceId(stripePriceId).offering?.apiIdentifier;
 
     if (!offeringId) {
       this.statsd.increment('cancel_intervention_decision', {
@@ -561,6 +574,8 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'offering_id_not_found',
         cmsCancelInterstitialOfferResult: null,
+        webIcon,
+        productName,
       };
     }
 
@@ -584,6 +599,8 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'no_cancel_interstitial_offer_found',
         cmsCancelInterstitialOfferResult: null,
+        webIcon,
+        productName,
       };
     }
 
@@ -601,6 +618,8 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'no_upgrade_plan_found',
         cmsCancelInterstitialOfferResult: null,
+        webIcon,
+        productName,
       };
     }
 
@@ -622,6 +641,8 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'not_eligible_for_upgrade_interval',
         cmsCancelInterstitialOfferResult: null,
+        webIcon,
+        productName,
       };
     }
 
@@ -632,6 +653,8 @@ export class ChurnInterventionService {
       isEligible: true,
       reason: 'eligible',
       cmsCancelInterstitialOfferResult,
+      webIcon,
+      productName,
     };
   }
 

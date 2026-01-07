@@ -11,8 +11,12 @@ export interface CancelInterstitialOfferOfferingResult {
   stripeProductId: string;
   defaultPurchase: {
     purchaseDetails: {
+      productName: string;
       webIcon: string;
-      localizations: { webIcon: string }[];
+      localizations: {
+        productName: string;
+        webIcon: string
+      }[];
     };
   };
 }
@@ -37,6 +41,11 @@ export interface CancelInterstitialOffer {
 }
 
 export interface CancelInterstitialOfferTransformed
-  extends Omit<CancelInterstitialOffer, 'modalMessage'> {
+  extends Omit<
+    CancelInterstitialOffer,
+    'modalMessage' | 'currentInterval' | 'upgradeInterval'
+  > {
   modalMessage: string[];
+  currentInterval: string;
+  upgradeInterval: string;
 }
