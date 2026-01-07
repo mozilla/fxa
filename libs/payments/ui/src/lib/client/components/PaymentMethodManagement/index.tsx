@@ -28,11 +28,14 @@ import {
 
 export function PaymentMethodManagement({
   uid,
-  defaultPaymentMethodId,
+  defaultPaymentMethod,
   sessionEmail,
 }: {
   uid?: string;
-  defaultPaymentMethodId?: string;
+  defaultPaymentMethod?: {
+    id: string;
+    type?: string;
+  };
   sessionEmail?: string;
 }) {
   const { l10n } = useLocalization();
@@ -65,17 +68,36 @@ export function PaymentMethodManagement({
   ) => {
     setIsComplete(event.complete);
     setError(null);
-    setHasPaymentMethod(!!event.value.payment_method);
+    setHasPaymentMethod(
+      !!event.value.payment_method ||
+        (event.value.type === 'link' && defaultPaymentMethod?.type === 'link')
+    );
 
     if (event.value.type !== 'card') {
       setIsNonCardSelected(true);
       setIsInputNewCardDetails(false);
-      if (!!event.value.payment_method) {
-        if (event.value.payment_method.id !== defaultPaymentMethodId) {
+      if (
+        event.value.payment_method?.type === 'link' &&
+        defaultPaymentMethod?.type === 'link'
+      ) {
+        /**
+         * Users can add Link to their account twice if a Link account was not associated with their Stripe
+         * account email when starting the checkout flow (i.e. this was the customers first time using Link).
+         * The Payment Element does not currently handle accounts with multiple Link payment methods,
+         * but the user can still modify their Link payment method settings in-component.
+         */
+        setIsNonDefaultCardSelected(false);
+      } else if (
+        !!event.value.payment_method &&
+        event.value.payment_method.id
+      ) {
+        if (event.value.payment_method.id !== defaultPaymentMethod?.id) {
           setIsNonDefaultCardSelected(true);
         } else {
           setIsNonDefaultCardSelected(false);
         }
+      } else {
+        setIsNonDefaultCardSelected(false);
       }
       return;
     }
@@ -86,8 +108,12 @@ export function PaymentMethodManagement({
     } else if (event.value.type === 'card' && !!event.value.payment_method) {
       setIsInputNewCardDetails(false);
 
-      if (event.value.payment_method.id !== defaultPaymentMethodId) {
-        setIsNonDefaultCardSelected(true);
+      if (event.value.payment_method.id) {
+        if (event.value.payment_method.id !== defaultPaymentMethod?.id) {
+          setIsNonDefaultCardSelected(true);
+        } else {
+          setIsNonDefaultCardSelected(false);
+        }
       } else {
         setIsNonDefaultCardSelected(false);
       }
@@ -156,18 +182,16 @@ export function PaymentMethodManagement({
       }
 
       let response;
-     try {
-      response = await updateStripePaymentDetails(
+      try {
+        response = await updateStripePaymentDetails(
           uid ?? '',
           confirmationToken.id
         );
       } catch (error) {
         const errorReason = getManagePaymentMethodErrorFtlInfo(error.message);
-        setError(l10n.getString(
-          errorReason.messageFtl,
-          {},
-          errorReason.message
-        ));
+        setError(
+          l10n.getString(errorReason.messageFtl, {}, errorReason.message)
+        );
         return;
       }
 
@@ -247,12 +271,8 @@ export function PaymentMethodManagement({
                   className="h-10 mt-10 w-full"
                   type="submit"
                   variant={ButtonVariant.Primary}
-                  aria-disabled={
-                    !stripe || !isComplete || isLoading
-                  }
-                  disabled={
-                    !stripe || !isComplete || isLoading
-                  }
+                  aria-disabled={!stripe || !isComplete || isLoading}
+                  disabled={!stripe || !isComplete || isLoading}
                 >
                   {isLoading ? (
                     <Image
