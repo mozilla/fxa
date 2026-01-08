@@ -1584,6 +1584,7 @@ describe('/session/verify_code', () => {
     assert.equal(args[0], 'account.confirmed');
     assert.equal(args[1].uid, signupCodeAccount.uid);
     sinon.assert.calledOnce(gleanMock.login.verifyCodeConfirmed);
+    assert.calledOnce(mailer.sendNewDeviceLoginEmail);
   });
 
   it('should fail for invalid code', async () => {
