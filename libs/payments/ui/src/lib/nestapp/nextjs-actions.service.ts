@@ -318,9 +318,6 @@ export class NextJSActionsService {
   async determineCancellationIntervention(args: {
     uid: string;
     subscriptionId: string;
-    offeringApiIdentifier: string;
-    currentInterval: SubplatInterval;
-    upgradeInterval: SubplatInterval;
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
@@ -328,9 +325,6 @@ export class NextJSActionsService {
       {
         uid: args.uid,
         subscriptionId: args.subscriptionId,
-        offeringApiIdentifier: args.offeringApiIdentifier,
-        currentInterval: args.currentInterval,
-        upgradeInterval: args.upgradeInterval,
         acceptLanguage: args.acceptLanguage,
         selectedLanguage: args.selectedLanguage,
       }
@@ -677,7 +671,25 @@ export class NextJSActionsService {
         args.selectedLanguage
       );
 
-    return result;
+    const churnCancelEligibility =
+      await this.churnInterventionService.determineCancellationIntervention({
+        uid: args.uid,
+        subscriptionId: args.subscriptionId,
+        acceptLanguage: args.acceptLanguage,
+        selectedLanguage: args.selectedLanguage,
+      });
+
+    return {
+      ...result,
+      isEligibleForChurnCancel:
+        churnCancelEligibility.reason === 'eligible' &&
+        churnCancelEligibility.cancelChurnInterventionType ===
+          'cancel_churn_intervention',
+      isEligibleForCancelInterstitialOffer:
+        churnCancelEligibility.reason === 'eligible' &&
+        churnCancelEligibility.cancelChurnInterventionType ===
+          'cancel_interstitial_offer',
+    };
   }
 
   @SanitizeExceptions()
@@ -701,7 +713,19 @@ export class NextJSActionsService {
         args.selectedLanguage
       );
 
-    return result;
+    const churnStaySubscribedEligibility =
+      await this.churnInterventionService.determineStaySubscribedEligibility(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage,
+        args.selectedLanguage
+      );
+
+    return {
+      ...result,
+      isEligibleforChurnStaySubscribed:
+        churnStaySubscribedEligibility.isEligible,
+    };
   }
 
   @SanitizeExceptions()

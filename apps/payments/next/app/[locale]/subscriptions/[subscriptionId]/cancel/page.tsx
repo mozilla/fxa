@@ -40,6 +40,16 @@ export default async function CancelSubscriptionPage({
     notFound();
   }
 
+  if (pageContent.isEligibleForChurnCancel === true) {
+    redirect(
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/cancel`
+    );
+  }
+
+  if (pageContent.isEligibleForCancelInterstitialOffer === true) {
+    redirect(`/${locale}/subscriptions/${subscriptionId}/offer`);
+  }
+
   return (
     <CancelSubscription
       userId={uid}
