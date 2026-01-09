@@ -9,6 +9,9 @@ export class RedeemChurnCouponActionArgs {
   uid!: string;
 
   @IsString()
+  customerId!: string;
+
+  @IsString()
   subscriptionId!: string;
 
   @IsString()

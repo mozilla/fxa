@@ -8,14 +8,16 @@ import {
   ChurnInterventionByProductIdResultUtil,
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
-import { SubscriptionManagementService } from './subscriptionManagement.service';
 import {
   EligibilityService,
   EligibilityStatus,
 } from '@fxa/payments/eligibility';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { StatsD } from 'hot-shots';
-import { SubplatInterval } from '@fxa/payments/customer';
+import {
+  SubplatInterval,
+  SubscriptionManager,
+} from '@fxa/payments/customer';
 import { ChurnInterventionProductIdentifierMissingError } from './churn-intervention.error';
 
 @Injectable()
@@ -23,8 +25,8 @@ export class ChurnInterventionService {
   constructor(
     private productConfigurationManager: ProductConfigurationManager,
     private churnInterventionManager: ChurnInterventionManager,
-    private subscriptionManagementService: SubscriptionManagementService,
     private eligibilityService: EligibilityService,
+    private subscriptionManager: SubscriptionManager,
     @Inject(StatsDService) private statsd: StatsD,
     @Inject(Logger) private log: LoggerService
   ) {}
@@ -77,6 +79,7 @@ export class ChurnInterventionService {
 
   async determineStaySubscribedEligibility(
     uid: string,
+    customerId: string,
     subscriptionId: string,
     acceptLanguage?: string | null,
     selectedLanguage?: string
@@ -127,8 +130,8 @@ export class ChurnInterventionService {
       }
 
       const subscriptionStatus =
-        await this.subscriptionManagementService.getSubscriptionStatus(
-          uid,
+        await this.subscriptionManager.getSubscriptionStatus(
+          customerId,
           subscriptionId
         );
       if (!subscriptionStatus.active) {
@@ -174,12 +177,14 @@ export class ChurnInterventionService {
 
   async redeemChurnCoupon(
     uid: string,
+    customerId: string,
     subscriptionId: string,
     acceptLanguage?: string | null,
     selectedLanguage?: string
   ) {
     const eligibilityResult = await this.determineStaySubscribedEligibility(
       uid,
+      customerId,
       subscriptionId,
       acceptLanguage,
       selectedLanguage
@@ -199,9 +204,9 @@ export class ChurnInterventionService {
 
     try {
       const updatedSubscription =
-        await this.subscriptionManagementService.applyStripeCouponToSubscription(
+        await this.subscriptionManager.applyStripeCouponToSubscription(
           {
-            uid,
+            customerId,
             subscriptionId,
             stripeCouponId:
               eligibilityResult.cmsChurnInterventionEntry.stripeCouponId,
@@ -246,6 +251,7 @@ export class ChurnInterventionService {
 
   async determineCancellationIntervention(args: {
     uid: string,
+    customerId: string,
     subscriptionId: string,
     offeringApiIdentifier: string,
     currentInterval: SubplatInterval,
@@ -254,8 +260,8 @@ export class ChurnInterventionService {
     selectedLanguage?: string,
   }) {
     try {
-      const subscriptionStatus = await this.subscriptionManagementService.getSubscriptionStatus(
-        args.uid,
+      const subscriptionStatus = await this.subscriptionManager.getSubscriptionStatus(
+        args.customerId,
         args.subscriptionId
       );
       if (!subscriptionStatus.active) {
@@ -282,15 +288,6 @@ export class ChurnInterventionService {
         };
       }
 
-      const cancelInterstitialOfferEligiblityResult = await this.determineCancelInterstitialOfferEligibility(args);
-      if (cancelInterstitialOfferEligiblityResult.isEligible) {
-        return {
-          cancelChurnInterventionType: 'cancel_interstitial_offer',
-          reason: 'eligible',
-          cmsOfferContent: cancelInterstitialOfferEligiblityResult.cmsCancelInterstitialOfferResult,
-        }
-      }
-
       const cancelChurnContentEligiblityResult = await this.determineCancelChurnContentEligibility({
         uid: args.uid,
         subscriptionId: args.subscriptionId,
@@ -302,6 +299,15 @@ export class ChurnInterventionService {
           cancelChurnInterventionType: 'cancel_churn_intervention',
           reason: 'eligible',
           cmsOfferContent: cancelChurnContentEligiblityResult.cmsChurnInterventionEntry,
+        }
+      }
+
+      const cancelInterstitialOfferEligiblityResult = await this.determineCancelInterstitialOfferEligibility(args);
+      if (cancelInterstitialOfferEligiblityResult.isEligible) {
+        return {
+          cancelChurnInterventionType: 'cancel_interstitial_offer',
+          reason: 'eligible',
+          cmsOfferContent: cancelInterstitialOfferEligiblityResult.cmsCancelInterstitialOfferResult,
         }
       }
 

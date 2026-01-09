@@ -8,6 +8,7 @@ import { Stripe } from 'stripe';
 import { StripeClient, StripeSubscription } from '@fxa/payments/stripe';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/payments/stripe';
 import { type StripeSubscriptionMetadataInput } from './types';
+import { SubscriptionCustomerMismatchError} from './customer.error'
 
 @Injectable()
 export class SubscriptionManager {
@@ -87,5 +88,59 @@ export class SubscriptionManager {
         ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
         this.getPaymentProvider(sub) === 'paypal'
     );
+  }
+
+  async getSubscriptionStatus(
+    customerId: string,
+    subscriptionId: string
+  ): Promise<{
+    active: boolean;
+    cancelAtPeriodEnd: boolean;
+  }> {
+    const subscription = await this.retrieve(subscriptionId);
+
+    if (subscription.customer !== customerId) {
+      throw new SubscriptionCustomerMismatchError(
+        customerId,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+
+    return {
+      active: subscription.status === 'active',
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    };
+  }
+
+  async applyStripeCouponToSubscription(args: {
+    customerId: string;
+    subscriptionId: string;
+    stripeCouponId: string;
+    setCancelAtPeriodEnd?: boolean;
+  }) {
+    const { customerId, subscriptionId, stripeCouponId, setCancelAtPeriodEnd } = args;
+
+    const subscription = await this.retrieve(subscriptionId);
+
+    if (subscription.customer !== customerId) {
+      throw new SubscriptionCustomerMismatchError(
+        customerId,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+    try {
+      const updatedSubscription = await this.update(
+        subscriptionId,
+        {
+          discounts: [{ coupon: stripeCouponId }],
+          ...(setCancelAtPeriodEnd ? { cancel_at_period_end: true } : {}),
+        }
+      );
+      return updatedSubscription;
+    } catch (error) {
+      return null;
+    }
   }
 }

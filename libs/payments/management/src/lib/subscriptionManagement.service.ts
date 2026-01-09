@@ -56,7 +56,6 @@ import {
   SubscriptionManagementNoStripeCustomerFoundError,
   UpdateAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
-  SubscriptionCustomerMismatch,
   ResubscribeSubscriptionCustomerMismatch,
   CreateBillingAgreementAccountCustomerMissingStripeId,
   CreateBillingAgreementActiveBillingAgreement,
@@ -87,6 +86,7 @@ import {
   PaypalCustomerManager,
   ResultPaypalCustomer,
 } from '@fxa/payments/paypal';
+import { ChurnInterventionService } from './churn-intervention.service';
 
 @Injectable()
 export class SubscriptionManagementService {
@@ -94,6 +94,7 @@ export class SubscriptionManagementService {
     @Inject(StatsDService) private statsd: StatsD,
     private accountCustomerManager: AccountCustomerManager,
     private appleIapPurchaseManager: AppleIapPurchaseManager,
+    private churnInterventionService: ChurnInterventionService,
     private currencyManager: CurrencyManager,
     private customerManager: CustomerManager,
     private customerSessionManager: CustomerSessionManager,
@@ -263,6 +264,7 @@ export class SubscriptionManagementService {
         const productName =
           cmsPurchase.purchaseDetails.localizations[0]?.productName ||
           cmsPurchase.purchaseDetails.productName;
+        const apiIdentifier = cmsPurchase.offering.apiIdentifier;
         const webIcon = cmsPurchase.purchaseDetails.webIcon;
         const supportUrl = cmsPurchase.offering.commonContent.supportUrl;
         const content = await this.getSubscriptionContent(
@@ -271,7 +273,12 @@ export class SubscriptionManagementService {
           price,
           productName,
           webIcon,
-          supportUrl
+          supportUrl,
+          apiIdentifier,
+          uid,
+          accountCustomer?.stripeCustomerId ?? stripeCustomer.id,
+          acceptLanguage,
+          selectedLanguage,
         );
 
         if (content) {
@@ -394,7 +401,12 @@ export class SubscriptionManagementService {
     price: StripePrice,
     productName: string,
     webIcon: string,
-    supportUrl: string
+    supportUrl: string,
+    offeringApiIdentifier: string,
+    uid: string,
+    customerId: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
   ): Promise<SubscriptionContent> {
     const latestInvoiceId = subscription.latest_invoice;
 
@@ -465,9 +477,18 @@ export class SubscriptionManagementService {
         .filter((tax) => !tax.inclusive)
         .reduce((sum, tax) => sum + tax.amount, 0);
 
+    const staySubscribedResult = await this.churnInterventionService.determineStaySubscribedEligibility(
+      uid,
+      customerId,
+      subscription.id,
+      acceptLanguage,
+      selectedLanguage,
+    );
+
     return {
       id: subscription.id,
       productName,
+      offeringApiIdentifier,
       supportUrl,
       webIcon,
       canResubscribe:
@@ -494,34 +515,8 @@ export class SubscriptionManagementService {
       nextPromotionName,
       promotionName,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
-    };
-  }
-
-  @SanitizeExceptions()
-  async getSubscriptionStatus(
-    uid: string,
-    subscriptionId: string
-  ): Promise<{
-    active: boolean;
-    cancelAtPeriodEnd: boolean;
-  }> {
-    const accountCustomer =
-      await this.accountCustomerManager.getAccountCustomerByUid(uid);
-    const subscription =
-      await this.subscriptionManager.retrieve(subscriptionId);
-
-    if (subscription.customer !== accountCustomer.stripeCustomerId) {
-      throw new SubscriptionCustomerMismatch(
-        uid,
-        accountCustomer.uid,
-        subscription.customer,
-        subscriptionId
-      );
-    }
-
-    return {
-      active: subscription.status === 'active',
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      isEligibleForChurnStaySubscribed: staySubscribedResult.isEligible,
+      churnStaySubscribedCtaMessage: staySubscribedResult.cmsChurnInterventionEntry?.ctaMessage,
     };
   }
 
@@ -930,42 +925,6 @@ export class SubscriptionManagementService {
       clientSecret: setupIntent.client_secret,
       status: setupIntent.status,
     };
-  }
-
-  async applyStripeCouponToSubscription(args: {
-    uid: string;
-    subscriptionId: string;
-    stripeCouponId: string;
-    setCancelAtPeriodEnd?: boolean;
-  }) {
-    const { uid, subscriptionId, stripeCouponId, setCancelAtPeriodEnd } = args;
-
-    const accountCustomer =
-      await this.accountCustomerManager.getAccountCustomerByUid(uid);
-    const subscription =
-      await this.subscriptionManager.retrieve(subscriptionId);
-
-    if (subscription.customer !== accountCustomer.stripeCustomerId) {
-      throw new SubscriptionCustomerMismatch(
-        uid,
-        accountCustomer.uid,
-        subscription.customer,
-        subscriptionId
-      );
-    }
-    try {
-      const updatedSubscription = await this.subscriptionManager.update(
-        subscriptionId,
-        {
-          discounts: [{ coupon: stripeCouponId }],
-          ...(setCancelAtPeriodEnd ? { cancel_at_period_end: true } : {}),
-        }
-      );
-      return updatedSubscription;
-    } catch (error) {
-      this.log.error(error);
-      return null;
-    }
   }
 
   @SanitizeExceptions()

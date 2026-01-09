@@ -9,6 +9,7 @@ import { SubplatInterval } from '@fxa/payments/customer';
 
 export const determineCancellationInterventionAction = async (args: {
     uid: string,
+    customerId: string,
     subscriptionId: string,
     offeringApiIdentifier: string,
     currentInterval: SubplatInterval,
@@ -18,6 +19,7 @@ export const determineCancellationInterventionAction = async (args: {
 }) => {
   return await getApp().getActionsService().determineCancellationIntervention({
     uid: args.uid,
+    customerId: args.customerId,
     subscriptionId: args.subscriptionId,
     offeringApiIdentifier: args.offeringApiIdentifier,
     currentInterval: args.currentInterval,

@@ -8,12 +8,14 @@ import { getApp } from '../nestapp/app';
 
 export const determineStaySubscribedEligibilityAction = async (
   uid: string,
+  customerId: string,
   subscriptionId: string,
   acceptLanguage?: string | null,
   selectedLanguage?: string,
 ) => {
   return await getApp().getActionsService().determineStaySubscribedEligibility({
     uid,
+    customerId,
     subscriptionId,
     acceptLanguage,
     selectedLanguage,
