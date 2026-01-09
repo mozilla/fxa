@@ -33,7 +33,14 @@ export class EmailNormalization {
     }
   }
 
-  normalizeEmailAliases(email: string): string {
+  /**
+   * Normalizes email aliases by applying configured regex replacements.
+   * Optionally, a replacement string can be overridden.
+   * @param email The email address to normalize.
+   * @param replaceOverride Optional string to replace matched aliases.
+   * @returns The normalized email address.
+   */
+  normalizeEmailAliases(email: string, replaceOverride?: string): string {
     email = email?.trim()?.toLocaleLowerCase() || '';
     const parts = email.split('@');
     if (parts?.length !== 2) {
@@ -48,7 +55,7 @@ export class EmailNormalization {
     this.emailTransforms
       .filter((x) => x.domain === domain)
       .forEach((x) => {
-        email = email.replace(x.regex, x.replace);
+        email = email.replace(x.regex, replaceOverride || x.replace);
       });
 
     return `${email}@${domain}`;

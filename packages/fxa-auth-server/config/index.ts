@@ -614,11 +614,17 @@ const convictConf = convict({
       },
       emailAliasNormalization: {
         default: JSON.stringify([
-          { domain: 'mozilla.com', regex: '\\+.*', replace: '%' },
+          { domain: 'mozilla.com', regex: '\\+.*', replace: '' },
         ]),
-        doc: 'List of email domain configurations for alias normalization. Each entry should have domain, regex, and replace properties. Example: [{domain: "mozilla.com", regex: "\\+[^@]+" }].',
+        doc: 'List of email domain configurations for alias normalization. Each entry should have domain, regex, and replace properties. The replace value is used for the root email (strip alias), and can be overridden with a wildcard pattern at runtime. Example: [{domain: "mozilla.com", regex: "\\+.*", replace: "" }].',
         env: 'BOUNCES_EMAIL_ALIAS_NORMALIZATION',
         format: String,
+      },
+      aliasCheckEnabled: {
+        doc: 'Flag to enable checking email bounces on normalized email aliases',
+        format: Boolean,
+        default: false,
+        env: 'BOUNCES_ALIAS_CHECK_ENABLED',
       },
     },
     connectionTimeout: {
