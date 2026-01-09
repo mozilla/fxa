@@ -34,6 +34,7 @@ const planIntervalsToDuration = {
 interface EndingRemindersOptions {
   enabled: boolean;
   paymentsNextUrl: string;
+  dailyReminderDays?: number;
   monthlyReminderDays: number;
   yearlyReminderDays: number;
 }
@@ -45,6 +46,7 @@ export class SubscriptionReminders {
   private planDuration: Duration;
   private reminderDuration: Duration;
   private endingReminderEnabled: boolean;
+  private dailyEndingReminderDuration: Duration | undefined;
   private monthlyEndingReminderDuration: Duration;
   private yearlyEndingReminderDuration: Duration;
   private paymentsNextUrl: string;
@@ -74,6 +76,11 @@ export class SubscriptionReminders {
     this.planDuration = Duration.fromObject({ days: planLength });
     this.reminderDuration = Duration.fromObject({ days: reminderLength });
     this.endingReminderEnabled = endingReminderOptions.enabled;
+    if (endingReminderOptions.dailyReminderDays) {
+      this.dailyEndingReminderDuration = Duration.fromObject({
+        days: endingReminderOptions.dailyReminderDays,
+      });
+    }
     this.monthlyEndingReminderDuration = Duration.fromObject({
       days: endingReminderOptions.monthlyReminderDays,
     });
@@ -414,6 +421,13 @@ export class SubscriptionReminders {
 
     // 4
     if (this.endingReminderEnabled) {
+      // Daily
+      if (this.dailyEndingReminderDuration) {
+        await this.sendEndingReminders(
+          this.dailyEndingReminderDuration,
+          SubplatInterval.Daily
+        );
+      }
       // Monthly
       await this.sendEndingReminders(
         this.monthlyEndingReminderDuration,

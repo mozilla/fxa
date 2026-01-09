@@ -216,6 +216,7 @@ export async function initSubplat({
     paypalCustomerManager,
     logger
   );
+
   /**
    * Add initialized instances to Container
    */
