@@ -3,16 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Mapping from ISO 4217 three-letter currency codes to list of ISO 3166-1 alpha-2
- * two-letter country codes: {"EUR": ["DE", "FR"], "USD": ["CA", "GB", "US" ]}
- * Requirement for only one currency per country. Tested at runtime. Must be uppercased.
- */
-export const CURRENCIES_TO_COUNTRIES = {
-  USD: ['US', 'GB', 'NZ', 'MY', 'SG', 'CA', 'AS', 'GU', 'MP', 'PR', 'VI'],
-  EUR: ['FR', 'DE'],
-};
-
-/*
  * PayPal has specific restrictions on how currencies are handled.
  * The general documentation for the AMT field is here: https://developer.paypal.com/docs/nvp-soap-api/do-reference-transaction-nvp/#payment-details-fields
  * The documentation for currency codes and the various restrictions is here: https://developer.paypal.com/docs/nvp-soap-api/currency-codes/
