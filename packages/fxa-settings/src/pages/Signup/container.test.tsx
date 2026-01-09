@@ -23,12 +23,9 @@
  *  5. Assert on mocked functions and spies.
  */
 
-import React from 'react';
-
 // TIP - Import modules for mocking. Not that `* as` lend themselves to using jest.spyOn.
 import * as SignupModule from './index';
 import * as ModelsModule from '../../models';
-import * as ApolloModule from '@apollo/client';
 import * as UseValidateModule from '../../lib/hooks/useValidate';
 import * as FirefoxModule from '../../lib/channels/firefox';
 import * as CryptoModule from 'fxa-auth-client/lib/crypto';
@@ -42,10 +39,8 @@ import { IntegrationType } from '../../models';
 import { MozServices } from '../../lib/types';
 import { SignupIntegration, SignupProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { GraphQLError } from 'graphql';
-import { ApolloClient } from '@apollo/client';
 import { ModelDataProvider } from '../../lib/model-data';
-import AuthClient from 'fxa-auth-client/browser';
+import AuthClient, { AuthServerError } from 'fxa-auth-client/browser';
 import { LocationProvider } from '@reach/router';
 import { MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
 
@@ -123,35 +118,7 @@ function mockReachRouterModule() {
   jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
 }
 
-// TIP - Sometimes it's useful to have inner mocks. In this case, we hold a reference to
-// mockBeginSignupMutation, so it can be asserted against and redefined as needed.
-let mockBeginSignupMutation = jest.fn();
-function mockApolloClientModule() {
-  mockBeginSignupMutation.mockImplementation(async () => {
-    return {
-      data: {
-        unwrapBKey: 'foo',
-        signUp: {
-          uid: 'uid123',
-          keyFetchToken: 'kft123',
-          sessionToken: 'st123',
-        },
-      },
-    };
-  });
-
-  jest.spyOn(ApolloModule, 'useMutation').mockReturnValue([
-    async (...args: any[]) => {
-      return mockBeginSignupMutation(...args);
-    },
-    {
-      loading: false,
-      called: true,
-      client: {} as ApolloClient<any>,
-      reset: () => {},
-    },
-  ]);
-}
+let mockSignUpWithAuthPW = jest.fn();
 
 // TIP - Occasionally, due to how a module is constructed, jest.spyOn will not work.
 // In this case, use the following pattern. The jest.mock approach generally works,
@@ -163,12 +130,20 @@ jest.mock('../../models', () => {
   };
 });
 function mockModelsModule() {
+  mockSignUpWithAuthPW.mockResolvedValue({
+    uid: 'uid123',
+    keyFetchToken: 'kft123',
+    sessionToken: 'st123',
+    authAt: Date.now(),
+  });
+
   let mockAuthClient = new AuthClient('localhost:9000', {
     keyStretchVersion: 1,
   });
   mockAuthClient.accountStatusByEmail = jest
     .fn()
     .mockResolvedValue({ exists: true });
+  mockAuthClient.signUpWithAuthPW = mockSignUpWithAuthPW;
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
   );
@@ -192,7 +167,6 @@ function applyMocks() {
   mockIntegration();
   mockServiceName();
   mockSignupModule();
-  mockApolloClientModule();
   mockModelsModule();
   mockUseValidateModule();
   mockFirefoxModule();
@@ -302,7 +276,7 @@ describe('sign-up-container', () => {
       integration.type = IntegrationType.SyncDesktopV3;
     });
 
-    it('runs handler and invokes sign up mutation', async () => {
+    it('runs handler and invokes signUpWithAuthPW directly', async () => {
       await render();
       expect(currentSignupProps).toBeDefined();
       const handlerResult = await currentSignupProps?.beginSignupHandler(
@@ -310,22 +284,19 @@ describe('sign-up-container', () => {
         'test123'
       );
 
-      expect(mockBeginSignupMutation).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            email: 'foo@mozilla.com',
-            authPW: 'apw123',
-            options: {
-              verificationMethod: 'email-otp',
-              keys: true,
-              service: 'sync',
-              metricsContext: {
-                flowId: MOCK_FLOW_ID,
-              },
-            },
+      expect(mockSignUpWithAuthPW).toHaveBeenCalledWith(
+        'foo@mozilla.com',
+        'apw123',
+        {},
+        {
+          verificationMethod: 'email-otp',
+          keys: true,
+          service: 'sync',
+          metricsContext: {
+            flowId: MOCK_FLOW_ID,
           },
-        },
-      });
+        }
+      );
       expect(handlerResult?.data?.unwrapBKey).toBeDefined();
       expect(handlerResult?.data?.signUp?.uid).toEqual('uid123');
       expect(handlerResult?.data?.signUp?.keyFetchToken).toEqual('kft123');
@@ -351,21 +322,32 @@ describe('sign-up-container', () => {
       );
     });
 
-    it('handles error on gql mutation', async () => {
-      mockBeginSignupMutation.mockImplementation(async () => {
-        const gqlError = new GraphQLError(
-          AuthUiErrors.UNEXPECTED_ERROR.message
+    it('handles auth-client error on signUpWithAuthPW', async () => {
+      const authError: AuthServerError = Object.assign(
+        new Error(AuthUiErrors.ACCOUNT_ALREADY_EXISTS.message),
+        {
+          errno: AuthUiErrors.ACCOUNT_ALREADY_EXISTS.errno,
+          code: 400,
+        }
+      );
+      mockSignUpWithAuthPW.mockRejectedValue(authError);
+
+      await render();
+      await waitFor(async () => {
+        const result = await currentSignupProps?.beginSignupHandler(
+          'foo@mozilla.com',
+          'test123'
         );
-        const error: GraphQLError = Object.assign(gqlError, {
-          extensions: {
-            ...(gqlError.extensions || {}),
-            errno: AuthUiErrors.UNEXPECTED_ERROR.errno,
-          },
-        });
-        throw new ApolloModule.ApolloError({
-          graphQLErrors: [error],
-        });
+
+        expect(result?.data).toBeUndefined();
+        expect(result?.error?.errno).toEqual(
+          AuthUiErrors.ACCOUNT_ALREADY_EXISTS.errno
+        );
       });
+    });
+
+    it('handles unexpected error on signUpWithAuthPW', async () => {
+      mockSignUpWithAuthPW.mockRejectedValue(new Error('Network error'));
 
       await render();
       await waitFor(async () => {
