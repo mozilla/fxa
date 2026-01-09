@@ -153,6 +153,16 @@ export class StripeClient {
   }
 
   @CaptureTimingWithStatsD()
+  async *subscriptionsListGenerator(params?: Stripe.SubscriptionListParams) {
+    for await (const subscription of this.stripe.subscriptions.list({
+      ...params,
+      expand: undefined,
+    })) {
+      yield subscription as StripeSubscription;
+    }
+  }
+
+  @CaptureTimingWithStatsD()
   async subscriptionsCreate(
     params: Stripe.SubscriptionCreateParams,
     options?: Stripe.RequestOptions

@@ -40,6 +40,7 @@ export { StripeTaxRateFactory } from './lib/factories/tax-rate.factory';
 export { StripeTotalDiscountAmountsFactory } from './lib/factories/total-discount-amounts.factory';
 export { StripeTotalTaxAmountsFactory } from './lib/factories/total-tax-amounts.factory';
 export { StripeUpcomingInvoiceFactory } from './lib/factories/upcoming-invoice.factory';
+export { StripeRangeQueryParamFactory } from './lib/factories/utils.factory';
 export * from './lib/stripe.client';
 export * from './lib/stripe.client.types';
 export * from './lib/stripe.config';

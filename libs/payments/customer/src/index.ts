@@ -20,4 +20,5 @@ export * from './lib/factories/tax-address.factory';
 export * from './lib/customer.error';
 export * from './lib/util/stripeInvoiceToFirstInvoicePreviewDTO';
 export * from './lib/util/getSubplatInterval';
+export * from './lib/util/getSubplatIntervalFromSubscription';
 export * from './lib/util/retrieveSubscriptionItem';
