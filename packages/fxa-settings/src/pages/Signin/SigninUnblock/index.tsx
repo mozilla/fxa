@@ -133,6 +133,7 @@ export const SigninUnblock = ({
         sessionToken: data.signIn.sessionToken,
         verified: isFullyVerified,
         metricsEnabled: data.signIn.metricsEnabled,
+        hasPassword: true, // User signed in with password
       };
 
       storeAccountData(accountData);
@@ -179,7 +180,7 @@ export const SigninUnblock = ({
           navigateWithQuery(`/signin`, {
             state: {
               email,
-              // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from Apollo cache
+              // TODO: in FXA-9177, consider retrieving hasLinkedAccount and hasPassword from localStorage
               hasLinkedAccount,
               hasPassword,
               localizedErrorMessage,

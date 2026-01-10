@@ -2,87 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { gql } from '@apollo/client';
 import React from 'react';
-import config from '../../lib/config';
 import firefox, { FirefoxCommand } from '../../lib/channels/firefox';
-import { createApolloClient } from '../../lib/gql';
-import { GET_PROFILE_INFO } from '../Account';
 import { AlertBarInfo } from '../AlertBarInfo';
-
-export const INITIAL_SETTINGS_QUERY = gql`
-  query GetInitialSettingsState {
-    account {
-      uid
-      displayName
-      avatar {
-        id
-        url
-        isDefault @client
-      }
-      accountCreated
-      passwordCreated
-      recoveryKey {
-        exists
-        estimatedSyncDeviceCount
-      }
-      metricsEnabled
-      primaryEmail @client
-      emails {
-        email
-        isPrimary
-        verified
-      }
-      attachedClients {
-        clientId
-        isCurrentSession
-        userAgent
-        deviceType
-        deviceId
-        name
-        lastAccessTime
-        lastAccessTimeFormatted
-        approximateLastAccessTime
-        approximateLastAccessTimeFormatted
-        location {
-          city
-          country
-          state
-          stateCode
-        }
-        os
-        sessionTokenId
-        refreshTokenId
-      }
-      totp {
-        exists
-        verified
-      }
-      backupCodes {
-        hasBackupCodes
-        count
-      }
-      recoveryPhone {
-        exists
-        phoneNumber
-        nationalFormat
-        available
-      }
-      subscriptions {
-        created
-        productName
-      }
-      linkedAccounts {
-        providerId
-        authAt
-        enabled
-      }
-    }
-    session {
-      verified
-    }
-  }
-`;
+import { getCurrentAccountUid, updateExtendedAccountState } from '../../lib/account-storage';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -93,61 +16,41 @@ export interface SettingsContextValue {
 
 export function initializeSettingsContext() {
   const alertBarInfo = new AlertBarInfo();
-  const apolloClient = createApolloClient(config.servers.gql.url);
-
-  const GET_UID_QUERY = gql`
-    query GetUid {
-      account {
-        uid
-      }
-    }
-  `;
 
   const isForCurrentUser = (event: Event) => {
-    const data = apolloClient.readQuery<{ account: { uid: string } }>({
-      query: GET_UID_QUERY,
-    });
-
-    if (!data?.account?.uid) {
+    const currentUid = getCurrentAccountUid();
+    if (!currentUid) {
       return false;
     }
-    const currentUid = data.account.uid;
     const eventUid = (event as CustomEvent).detail?.uid;
     return currentUid != null && currentUid === eventUid;
   };
 
   firefox.addEventListener(FirefoxCommand.ProfileChanged, (event) => {
     if (isForCurrentUser(event)) {
-      apolloClient.query({
-        query: GET_PROFILE_INFO,
-        fetchPolicy: 'network-only',
-      });
+      // Profile changed events will trigger a refetch via useAccountData
+      // The localStorage will be updated when the data is fetched
+      window.dispatchEvent(
+        new CustomEvent('localStorageChange', {
+          detail: { key: 'profileChanged' },
+        })
+      );
     }
   });
+
   firefox.addEventListener(FirefoxCommand.PasswordChanged, (event) => {
     if (isForCurrentUser(event)) {
-      apolloClient.writeQuery({
-        query: gql`
-          query UpdatePasswordCreated {
-            account {
-              passwordCreated
-            }
-          }
-        `,
-        data: {
-          account: {
-            passwordCreated: Date.now(),
-            __typename: 'Account',
-          },
-        },
-      });
+      // Update passwordCreated in localStorage
+      updateExtendedAccountState({ passwordCreated: Date.now() });
     }
   });
+
   firefox.addEventListener(FirefoxCommand.AccountDeleted, (event) => {
     if (isForCurrentUser(event)) {
       window.location.assign('/');
     }
   });
+
   firefox.addEventListener(FirefoxCommand.Error, (event) => {
     console.error(event);
   });

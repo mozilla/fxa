@@ -23,10 +23,14 @@ describe('bounces', () => {
     const db = {
       emailBounces: sinon.spy(() => Promise.resolve([])),
     };
+    const aliasCheckEnabled = !!config.smtp?.bounces?.aliasCheckEnabled;
+    // When aliasCheckEnabled is true, emailBounces is called twice
+    // (once for normalized email, once for wildcard pattern)
+    const expectedCallCount = aliasCheckEnabled ? 2 : 1;
     return createBounces(config, db)
       .check(EMAIL)
       .then(() => {
-        assert.equal(db.emailBounces.callCount, 1);
+        assert.equal(db.emailBounces.callCount, expectedCallCount);
       });
   });
 

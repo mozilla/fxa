@@ -2,32 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useMutation } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
 
 import VerificationMethods from '../../../constants/verification-methods';
+import VerificationReasons from '../../../constants/verification-reasons';
 import {
   useAuthClient,
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
 
-// using default signin handlers
-import {
-  BEGIN_SIGNIN_MUTATION,
-  CREDENTIAL_STATUS_MUTATION,
-  GET_ACCOUNT_KEYS_MUTATION,
-  PASSWORD_CHANGE_FINISH_MUTATION,
-  PASSWORD_CHANGE_START_MUTATION,
-} from '../gql';
-import {
-  BeginSigninResponse,
-  CredentialStatusResponse,
-  GetAccountKeysResponse,
-  PasswordChangeFinishResponse,
-  PasswordChangeStartResponse,
-  SigninUnblockIntegration,
-} from '../interfaces';
+import { SigninUnblockIntegration } from '../interfaces';
 
 import SigninUnblock from '.';
 import {
@@ -48,7 +33,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SignInOptions } from 'fxa-auth-client/browser';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { isFirefoxService } from '../../../models/integrations/utils';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import AppLayout from '../../../components/AppLayout';
 
@@ -84,20 +69,6 @@ export const SigninUnblockContainer = ({
     integration
   );
 
-  const [beginSignin] = useMutation<BeginSigninResponse>(BEGIN_SIGNIN_MUTATION);
-  const [credentialStatus] = useMutation<CredentialStatusResponse>(
-    CREDENTIAL_STATUS_MUTATION
-  );
-  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
-    PASSWORD_CHANGE_START_MUTATION
-  );
-  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
-    GET_ACCOUNT_KEYS_MUTATION
-  );
-  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
-    PASSWORD_CHANGE_FINISH_MUTATION
-  );
-
   const signinWithUnblockCode: BeginSigninWithUnblockCodeHandler = async (
     unblockCode: string,
     authEmail: string = email,
@@ -122,12 +93,8 @@ export const SigninUnblockContainer = ({
     // Get credentials with the correct key version
     const status = await (async () => {
       try {
-        const { data } = await credentialStatus({
-          variables: {
-            input: email,
-          },
-        });
-        return data?.credentialStatus;
+        const result = await authClient.getCredentialStatusV2(email);
+        return result;
       } catch (err) {
         // In the event there's a downstream error, this could be useful a breadcrumb to capture.
         console.warn('Could not get credential status!');
@@ -145,45 +112,55 @@ export const SigninUnblockContainer = ({
     })();
 
     try {
-      const response = await beginSignin({
-        variables: {
-          input: {
-            email: authEmail,
-            authPW: credentials.authPW,
-            options,
-          },
-        },
-      });
-      if (response.data != null) {
-        response.data.unwrapBKey = credentials.unwrapBKey;
+      const response = await authClient.signInWithAuthPW(
+        authEmail,
+        credentials.authPW,
+        options
+      );
 
+      if (response) {
         sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
           // Store for inline recovery key flow
           authPW: credentials.authPW,
           // Store this in case the email was corrected
           emailForAuth: email,
           unwrapBKey: credentials.unwrapBKey,
-          keyFetchToken: response.data.signIn.keyFetchToken,
+          keyFetchToken: response.keyFetchToken,
         });
       }
 
-      const emailVerified = response.data?.signIn.emailVerified;
-      const sessionVerified = response.data?.signIn.sessionVerified;
-      const sessionToken = response.data?.signIn.sessionToken;
+      const emailVerified = response?.emailVerified ?? false;
+      const sessionVerified = response?.sessionVerified ?? false;
+      const sessionToken = response?.sessionToken;
       // Attempt to finish key stretching upgrade now that session has been verified.
       if (emailVerified && sessionVerified && sessionToken) {
         await tryFinalizeUpgrade(
           sessionToken,
           sensitiveDataClient,
           'signin-unblock',
-          credentialStatus,
-          getWrappedKeys,
-          passwordChangeStart,
-          passwordChangeFinish
+          authClient
         );
       }
 
-      return response;
+      // Transform response to match expected format
+      return {
+        data: response
+          ? {
+              signIn: {
+                uid: response.uid,
+                sessionToken: response.sessionToken,
+                authAt: response.authAt,
+                metricsEnabled: response.metricsEnabled ?? true,
+                emailVerified: response.emailVerified ?? false,
+                sessionVerified: response.sessionVerified ?? false,
+                verificationMethod: (response.verificationMethod || VerificationMethods.EMAIL_OTP) as VerificationMethods,
+                verificationReason: response.verificationReason as VerificationReasons,
+                keyFetchToken: response.keyFetchToken,
+              },
+              unwrapBKey: credentials.unwrapBKey,
+            }
+          : undefined,
+      };
     } catch (error) {
       const result = getHandledError(error);
       if (

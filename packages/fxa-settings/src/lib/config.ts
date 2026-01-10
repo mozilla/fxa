@@ -49,6 +49,9 @@ export interface Config {
     paymentsNext: {
       url: string;
     };
+    legalDocs: {
+      url: string;
+    };
   };
   oauth: {
     clientId: string;
@@ -150,6 +153,9 @@ export function getDefault() {
         url: '',
       },
       paymentsNext: {
+        url: '',
+      },
+      legalDocs: {
         url: '',
       },
     },

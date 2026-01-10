@@ -7,13 +7,11 @@ import * as ConfirmSignupCodeModule from './index';
 import * as ModelsModule from '../../../models';
 import * as HooksModule from '../../../lib/oauth/hooks';
 import * as CacheModule from '../../../lib/cache';
-import * as ApolloModule from '@apollo/client';
 import * as ReachRouterModule from '@reach/router';
 import * as SentryModule from 'fxa-shared/sentry/browser';
 import * as ReactUtils from 'fxa-react/lib/utils';
 
 import { screen, waitFor } from '@testing-library/react';
-import AuthClient from 'fxa-auth-client/browser';
 import { StoredAccountData } from '../../../lib/storage-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SignupConfirmCodeContainer from './container';
@@ -60,10 +58,13 @@ jest.mock('../../../lib/glean', () => ({
 
 // Global instances
 let integration: Integration;
-let mockAuthClient = new AuthClient('localhost:9000', { keyStretchVersion: 1 });
 let currentProps: any | undefined;
-let mockEmailBounceStatusQuery = jest.fn();
 const mockSensitiveDataClient = createMockSensitiveDataClient();
+
+// Mock auth client with emailBounceStatus method
+const mockAuthClient = {
+  emailBounceStatus: jest.fn(),
+};
 
 function mockLocation(
   originIsSignup: boolean = true,
@@ -86,20 +87,18 @@ function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
-function mockEmailBounceQuery() {
-  mockEmailBounceStatusQuery.mockImplementation(() => {
-    return {
-      data: {
-        emailBounceStatus: {
-          hasHardBounce: false,
-        },
-      },
-    };
+function mockModelsModule() {
+  mockAuthClient.emailBounceStatus.mockResolvedValue({ hasHardBounce: false });
+  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+    () => mockAuthClient
+  );
+  (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
+    () => mockSensitiveDataClient
+  );
+  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+    unwrapBKey: MOCK_UNWRAP_BKEY,
   });
-
-  jest
-    .spyOn(ApolloModule, 'useQuery')
-    .mockReturnValue(mockEmailBounceStatusQuery());
 }
 
 // Apply default mocks
@@ -122,16 +121,7 @@ function applyMocks() {
     return <div>loading spinner mock</div>;
   });
 
-  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
-    () => mockAuthClient
-  );
-  (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
-    () => mockSensitiveDataClient
-  );
-  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
-    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-    unwrapBKey: MOCK_UNWRAP_BKEY,
-  });
+  mockModelsModule();
   jest
     .spyOn(HooksModule, 'useFinishOAuthFlowHandler')
     .mockImplementation(() => {
@@ -153,8 +143,6 @@ function applyMocks() {
   mockLocation();
   mockReactUtilsModule();
   jest.spyOn(SentryModule.default, 'captureException');
-
-  mockEmailBounceQuery();
 }
 
 async function render() {
@@ -213,20 +201,11 @@ describe('confirm-signup-container', () => {
     });
   });
 
-  describe('email bounce query', () => {
+  describe('email bounce status', () => {
     beforeEach(() => {
-      mockEmailBounceStatusQuery.mockImplementation(() => {
-        return {
-          data: {
-            emailBounceStatus: {
-              hasHardBounce: true,
-            },
-          },
-        };
+      mockAuthClient.emailBounceStatus.mockResolvedValue({
+        hasHardBounce: true,
       });
-      jest
-        .spyOn(ApolloModule, 'useQuery')
-        .mockReturnValue(mockEmailBounceStatusQuery());
     });
 
     it('redirects to email-first signup if there is a bounce on signup', async () => {
@@ -235,10 +214,12 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
       );
-      expect(mockEmailBounceStatusQuery).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/', {
-        state: { hasBounced: true, prefillEmail: MOCK_EMAIL },
-      });
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledWith(MOCK_EMAIL);
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/', {
+          state: { hasBounced: true, prefillEmail: MOCK_EMAIL },
+        })
+      );
     });
 
     it('redirects to signin_bounced if there is a bounce that is not on signup', async () => {
@@ -248,8 +229,10 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
       );
-      expect(mockEmailBounceStatusQuery).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/signin_bounced');
+      expect(mockAuthClient.emailBounceStatus).toHaveBeenCalledWith(MOCK_EMAIL);
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/signin_bounced')
+      );
     });
   });
 

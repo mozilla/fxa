@@ -9,8 +9,6 @@ import {
   useAuthClient,
   useSensitiveDataClient,
 } from '../../../models';
-import { useMutation } from '@apollo/client';
-import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
 import { useCallback, useState } from 'react';
 import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
@@ -18,7 +16,7 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
+import { SubmitRecoveryCode, SubmitRecoveryCodeResult } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
@@ -61,26 +59,37 @@ export const SigninRecoveryCodeContainer = ({
     signinState?.isSignInWithThirdPartyAuth
   );
 
-  const [consumeRecoveryCode] = useMutation<ConsumeRecoveryCodeResponse>(
-    CONSUME_RECOVERY_CODE_MUTATION
-  );
-
   const submitRecoveryCode: SubmitRecoveryCode = useCallback(
     async (recoveryCode: string) => {
+      if (!signinState?.sessionToken) {
+        return {
+          error: {
+            errno: AuthUiErrors.INVALID_TOKEN.errno!,
+            message: AuthUiErrors.INVALID_TOKEN.message,
+          },
+        } as SubmitRecoveryCodeResult;
+      }
+
       try {
-        // this mutation returns the number of remaining codes,
+        // this call returns the number of remaining codes,
         // if remaining codes is 0, we may want to redirect to the new code set up
         // or show a message that the user has no more codes
-        const { data } = await consumeRecoveryCode({
-          variables: { input: { code: recoveryCode } },
-        });
+        const result = await authClient.consumeRecoveryCode(
+          signinState.sessionToken,
+          recoveryCode
+        );
 
-        return { data };
+        // Format response to match expected interface
+        return {
+          data: {
+            consumeRecoveryCode: { remaining: result.remaining },
+          },
+        };
       } catch (error) {
-        return getHandledError(error);
+        return getHandledError(error) as SubmitRecoveryCodeResult;
       }
     },
-    [consumeRecoveryCode]
+    [authClient, signinState?.sessionToken]
   );
 
   const [sendingPhoneCode, setSendingPhoneCode] = useState(false);

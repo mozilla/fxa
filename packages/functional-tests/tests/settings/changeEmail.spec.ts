@@ -25,7 +25,8 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      // credentials.email is the current primary at this point
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
 
       await settings.signOut();
 
@@ -63,15 +64,17 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      // credentials.email is the current primary at this point
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
 
+      // After changePrimaryEmail, newEmail is now the primary email
+      // MFA codes are sent to the current primary, so use newEmail here
       await setNewPassword(
         settings,
         changePassword,
         initialPassword,
         newPassword,
-        target,
-        credentials.email
+        newEmail
       );
 
       credentials.password = newPassword;
@@ -111,15 +114,17 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail);
+      // credentials.email (initialEmail) is the current primary at this point
+      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail, credentials.email);
 
+      // After changePrimaryEmail, secondEmail is now the primary email
+      // MFA codes are sent to the current primary, so use secondEmail here
       await setNewPassword(
         settings,
         changePassword,
         initialPassword,
         newPassword,
-        target,
-        credentials.email
+        secondEmail
       );
 
       credentials.password = newPassword;
@@ -130,9 +135,17 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutEmailFirstForm(secondEmail);
       await signin.fillOutPasswordForm(newPassword);
 
+      // Clear any stale MFA codes from the mailbox before triggering a new one
+      await target.emailClient.clear(secondEmail);
+
       // Change back the primary email again
       await settings.secondaryEmail.makePrimaryButton.click();
-      await settings.confirmMfaGuard(credentials.email);
+      // MFA code is sent to the current PRIMARY email (secondEmail), not initialEmail
+      await settings.confirmMfaGuard(secondEmail);
+      // Wait for the success alert before signing out
+      await expect(settings.alertBar).toHaveText(
+        new RegExp(`${initialEmail}.*is now your primary email`)
+      );
       await settings.signOut();
 
       // Login with primary email and new password
@@ -141,8 +154,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
 
-      console.log('credentials.password', credentials.password);
-      // Update which password to use the account cleanup
+      // Update which password to use for account cleanup
       credentials.password = newPassword;
     });
 
@@ -168,12 +180,26 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      // credentials.email is the current primary at this point
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
 
       // Click delete account
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);
+
+      // Wait for deletion to complete before trying to sign up again
+      // Without this wait, accountStatusByEmail may still return exists=true,
+      // routing to signin (cached login) instead of signup
+      await expect(page.getByText('Account deleted successfully')).toBeVisible();
+
+      // Clear localStorage to remove stale account data from the deleted account
+      // This is necessary because deleteAccount doesn't clear localStorage,
+      // and the old account data would interfere with the new signup flow
+      await page.evaluate(() => {
+        window.localStorage.removeItem('__fxa_storage.accounts');
+        window.localStorage.removeItem('__fxa_storage.currentAccountUid');
+      });
 
       // Try creating a new account with the same secondary email as previous account and new password
       await signup.fillOutEmailForm(newEmail);
@@ -266,13 +292,19 @@ async function changePrimaryEmail(
   target: BaseTarget,
   settings: SettingsPage,
   secondaryEmail: SecondaryEmailPage,
-  email: string
+  email: string,
+  currentPrimaryEmail?: string
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
   await secondaryEmail.fillOutEmail(email);
   const code: string = await target.emailClient.getVerifySecondaryCode(email);
   await secondaryEmail.fillOutVerificationCode(code);
   await settings.secondaryEmail.makePrimaryButton.click();
+
+  // Handle MFA guard if it appears - code is sent to current primary email
+  if (currentPrimaryEmail && await settings.isMfaGuardVisible()) {
+    await settings.confirmMfaGuard(currentPrimaryEmail);
+  }
 
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.alertBar).toHaveText(
@@ -285,7 +317,6 @@ async function setNewPassword(
   changePassword: ChangePasswordPage,
   oldPassword: string,
   newPassword: string,
-  target: BaseTarget,
   email: string
 ): Promise<void> {
   await settings.password.changeButton.click();
