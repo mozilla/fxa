@@ -36,7 +36,7 @@ export const SigninPushCodeContainer = ({
     authClient,
     integration
   );
-  // TODO: FXA-9177, likely use Apollo cache here instead of location state
+  // TODO: FXA-9177, consider using localStorage instead of location state
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
   };

@@ -33,6 +33,7 @@ it('renders the content when verified', async () => {
             authClient: {
               sessionStatus: () => {
                 return {
+                  state: 'verified',
                   details: {
                     sessionVerified: true,
                   },
@@ -70,6 +71,7 @@ it('renders the guard when unverified', async () => {
             authClient: {
               sessionStatus: () => {
                 return {
+                  state: 'unverified',
                   details: {
                     sessionVerified: false,
                   },

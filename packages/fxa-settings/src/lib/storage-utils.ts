@@ -54,22 +54,31 @@ export interface StoredAccountData {
   sessionToken?: hexstring;
   metricsEnabled?: boolean;
   verified?: boolean;
+  sessionVerified?: boolean;
   alertText?: string;
   displayName?: string;
+  hasPassword?: boolean;
 }
 
 /**
  * Persists account data to localStorage.
+ * Merges with existing account data to preserve fields not being updated.
  */
 export function persistAccount(accountData: StoredAccountData) {
   const storage = localStorage();
   const uid = accountData.uid;
   let accounts = storage.get('accounts') || {};
 
-  // add the account to local storage
-  accounts[uid] = accountData;
+  // Merge with existing account data to preserve fields not being updated
+  const existingAccount = accounts[uid] || {};
+  accounts[uid] = {
+    ...existingAccount,
+    ...accountData,
+  };
 
   storage.set('accounts', accounts);
+  // Dispatch event for reactive updates
+  window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'accounts' } }));
 }
 
 /**
@@ -89,6 +98,8 @@ export function hasAccount(uid: string) {
 export function setCurrentAccount(uid: string) {
   const storage = localStorage();
   storage.set('currentAccountUid', uid);
+  // Dispatch event for reactive updates
+  window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'currentAccountUid' } }));
 }
 
 /**

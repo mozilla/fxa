@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AppLayout from '../AppLayout';
 import { navigate } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -12,7 +12,7 @@ import MarkdownLegal from '../MarkdownLegal';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { fetchLegalMd, LegalDocFile } from '../../lib/file-utils-legal';
-import { AppContext, useFtlMsgResolver } from '../../models';
+import { useFtlMsgResolver } from '../../models';
 import { searchParams } from '../../lib/utilities';
 import Banner from '../Banner';
 
@@ -41,7 +41,6 @@ const LegalWithMarkdown = ({
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const [markdown, setMarkdown] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
-  const { apolloClient } = useContext(AppContext);
   const ftlMsgResolver = useFtlMsgResolver();
 
   useEffect(() => {
@@ -51,7 +50,7 @@ const LegalWithMarkdown = ({
         if (fetchLegalDoc != null) {
           return fetchLegalDoc(locale, legalDocFile);
         }
-        return fetchLegalMd(apolloClient, locale, legalDocFile);
+        return fetchLegalMd(null, locale, legalDocFile);
       }
 
       const { markdown: fetchedMarkdown, error } = await fetchLegal(
@@ -71,7 +70,7 @@ const LegalWithMarkdown = ({
     return () => {
       isMounted = false;
     };
-  }, [locale, legalDocFile, apolloClient, fetchLegalDoc]);
+  }, [locale, legalDocFile, fetchLegalDoc]);
 
   const buttonHandler = () => {
     logViewEvent(`flow.${viewName}`, 'back', REACT_ENTRYPOINT);

@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import { alertContent, alertType, alertVisible } from '../../../models';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '../../../lib/reactive-var';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useLocalization } from '@fluent/react';
 import classNames from 'classnames';
@@ -25,6 +25,8 @@ import classNames from 'classnames';
 export const AlertBar = () => {
   const { l10n } = useLocalization();
   const visible = useReactiveVar(alertVisible);
+  const content = useReactiveVar(alertContent);
+  const type = useReactiveVar(alertType);
   const insideRef = useClickOutsideEffect<HTMLDivElement>(() => {
     // TODO: cleanup Portal component and references, FXA-2463
     // We don't want to automatically close the alert bar if a modal
@@ -91,10 +93,10 @@ export const AlertBar = () => {
             className={classNames(
               'max-w-full desktop:max-w-2xl w-full desktop:min-w-sm flex shadow-md rounded-sm text-sm font-medium text-grey-700 border border-transparent',
               {
-                'bg-red-100 error': alertType() === 'error',
-                'bg-blue-50 info': alertType() === 'info',
-                'bg-green-200 success': alertType() === 'success',
-                'bg-orange-50 warning': alertType() === 'warning',
+                'bg-red-100 error': type === 'error',
+                'bg-blue-50 info': type === 'info',
+                'bg-green-200 success': type === 'success',
+                'bg-orange-50 warning': type === 'warning',
               }
             )}
           >
@@ -106,18 +108,16 @@ export const AlertBar = () => {
                   : 'text-center'
               )}
             >
-              {alertContent()}
+              {content}
             </p>
             <button
               className={classNames(
                 'shrink-0 items-stretch justify-center py-2 px-3 focus-visible:rounded-sm focus-visible-default',
                 {
-                  'hover:bg-red-200 focus:bg-red-300': alertType() === 'error',
-                  'hover:bg-blue-100 focus:bg-blue-200': alertType() === 'info',
-                  'hover:bg-green-300 focus:bg-green-500':
-                    alertType() === 'success',
-                  'hover:bg-orange-100 focus:bg-orange-200':
-                    alertType() === 'warning',
+                  'hover:bg-red-200 focus:bg-red-300': type === 'error',
+                  'hover:bg-blue-100 focus:bg-blue-200': type === 'info',
+                  'hover:bg-green-300 focus:bg-green-500': type === 'success',
+                  'hover:bg-orange-100 focus:bg-orange-200': type === 'warning',
                 }
               )}
               onClick={() => alertVisible(false)}

@@ -61,9 +61,6 @@ const settingsConfig = {
     serverName: config.get('sentry.serverName'),
   },
   servers: {
-    gql: {
-      url: config.get('settings_gql_url'),
-    },
     oauth: {
       url: config.get('fxaccount_url'),
     },
@@ -75,6 +72,9 @@ const settingsConfig = {
     },
     paymentsNext: {
       url: config.get('payments_next_hosted_url'),
+    },
+    legalDocs: {
+      url: config.get('legal_docs_url'),
     },
   },
   oauth: {
@@ -172,10 +172,7 @@ function preconnect(val) {
 
 function resolvePreConnectDirectives(settingsConfig) {
   // Using '?' will breaks l10n extraction :9
-  let gqlUrl, authUrl, oauthUrl, sentryUrl;
-  try {
-    gqlUrl = settingsConfig.servers.gql.url;
-  } catch (e) {}
+  let authUrl, oauthUrl, sentryUrl;
   try {
     authUrl = settingsConfig.servers.auth.url;
   } catch (e) {}
@@ -187,7 +184,6 @@ function resolvePreConnectDirectives(settingsConfig) {
   } catch (e) {}
 
   return {
-    __GQL_URL_PRECONNECT__: preconnect(gqlUrl),
     __AUTH_URL_PRECONNECT__: preconnect(authUrl),
     __OAUTH_URL_PRECONNECT__: preconnect(oauthUrl),
     __SENTRY_URL_PRECONNECT__: preconnect(sentryUrl),

@@ -5,7 +5,8 @@
 import React, { ReactNode } from 'react';
 import { History } from '@reach/router';
 import { waitFor } from '@testing-library/react';
-import { Account, AppContext, useInitialSettingsState } from '../../models';
+import { Account, AppContext } from '../../models';
+import { useAccountState } from '../../models/contexts/AccountStateContext';
 import {
   mockAppContext,
   MOCK_ACCOUNT,
@@ -17,23 +18,47 @@ import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject } from './mocks';
 
-jest.mock('@apollo/client', () => {
-  const actual = jest.requireActual('@apollo/client');
-  return {
-    ...actual,
-    useApolloClient: () => ({
-      clearStore: jest.fn().mockResolvedValue(undefined),
-    }),
-  };
-});
-
 const mockSessionStatus = jest.fn();
+const mockAccountState = {
+  isLoading: false,
+  error: null,
+  uid: 'mock-uid',
+  email: 'johndoe@example.com',
+  metricsEnabled: true,
+  verified: true,
+  primaryEmail: { email: 'johndoe@example.com', isPrimary: true, verified: true },
+  displayName: null,
+  avatar: null,
+  emails: [],
+  totp: null,
+  backupCodes: null,
+  recoveryKey: null,
+  recoveryPhone: null,
+  attachedClients: [],
+  linkedAccounts: [],
+  subscriptions: [],
+  securityEvents: [],
+  accountCreated: null,
+  passwordCreated: null,
+  hasPassword: true,
+  loadingFields: new Set<string>(),
+  setAccountData: jest.fn(),
+  updateField: jest.fn(),
+  setLoading: jest.fn(),
+  setFieldLoading: jest.fn(),
+  setError: jest.fn(),
+  clearAccount: jest.fn(),
+};
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
-  useInitialSettingsState: jest.fn(),
   useAuthClient: jest.fn(() => ({
     sessionStatus: mockSessionStatus,
   })),
+}));
+
+jest.mock('../../models/contexts/AccountStateContext', () => ({
+  ...jest.requireActual('../../models/contexts/AccountStateContext'),
+  useAccountState: jest.fn(),
 }));
 
 jest.mock('../../lib/totp-utils', () => {
@@ -88,7 +113,8 @@ describe('Settings App', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
+    // Reset account state mock to default values
+    (useAccountState as jest.Mock).mockReturnValue({ ...mockAccountState, isLoading: false, error: null });
     mockNavigate.mockReset();
     mockSessionStatus.mockResolvedValue({
       details: {
@@ -105,8 +131,9 @@ describe('Settings App', () => {
   });
 
   it('renders `LoadingSpinner` component when loading initial state is true', () => {
-    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
-      loading: true,
+    (useAccountState as jest.Mock).mockReturnValueOnce({
+      ...mockAccountState,
+      isLoading: true,
     });
     const { getByLabelText } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
@@ -118,19 +145,24 @@ describe('Settings App', () => {
   });
 
   it('renders `AppErrorDialog` component when settings query errors', async () => {
-    (useInitialSettingsState as jest.Mock).mockReturnValue({
-      error: { message: 'Error' },
-    });
-    const { getByRole } = renderWithRouter(
+    (useAccountState as jest.Mock).mockImplementation(() => ({
+      ...mockAccountState,
+      isLoading: false,
+      error: new Error('Error'),
+    }));
+    const { getByTestId } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
       </AppContext.Provider>
     );
 
+    // Wait for sessionStatus to be called - the component needs this to get past the loading check
     await waitFor(() => {
-      expect(getByRole('heading', { level: 2 })).toHaveTextContent(
-        'General application error'
-      );
+      expect(mockSessionStatus).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('error-loading-app')).toBeInTheDocument();
     });
   });
 
@@ -381,11 +413,6 @@ describe('Settings App', () => {
       {
         pageName: 'PageMfaGuardTestWithAuthClient',
         route: '/mfa_guard/test/auth_client',
-        hasPassword: false,
-      },
-      {
-        pageName: 'PageMfaGuardTestWithGql',
-        route: '/mfa_guard/test/gql',
         hasPassword: false,
       },
       {

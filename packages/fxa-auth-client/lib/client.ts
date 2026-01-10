@@ -1176,12 +1176,37 @@ export default class AuthClient {
     );
   }
 
+  async emailBounceStatus(
+    email: string,
+    headers?: Headers
+  ): Promise<{ hasHardBounce: boolean }> {
+    return this.request(
+      'POST',
+      '/account/email_bounce_status',
+      { email },
+      headers
+    );
+  }
+
   async accountProfile(sessionToken: hexstring, headers?: Headers) {
     return this.sessionGet('/account/profile', sessionToken, headers);
   }
 
   async account(sessionToken: hexstring, headers?: Headers) {
     return this.sessionGet('/account', sessionToken, headers);
+  }
+
+  async metricsOpt(
+    sessionToken: hexstring,
+    state: 'in' | 'out',
+    headers?: Headers
+  ): Promise<{}> {
+    return this.sessionPost(
+      '/account/metrics_opt',
+      sessionToken,
+      { state },
+      headers
+    );
   }
 
   async sessionDestroy(

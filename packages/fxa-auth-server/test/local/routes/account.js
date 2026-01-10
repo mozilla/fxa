@@ -4733,6 +4733,7 @@ describe('/account', () => {
         },
       },
       log,
+      db: mocks.mockDB({ email, uid }),
       stripeHelper: mockStripeHelper,
     });
     return getRoute(accountRoutes, '/account');
@@ -4811,9 +4812,7 @@ describe('/account', () => {
           mockStripeHelper.subscriptionsToResponse,
           mockCustomer.subscriptions
         );
-        assert.deepEqual(result, {
-          subscriptions: mockWebSubscriptionsResponse,
-        });
+        assert.deepEqual(result.subscriptions, mockWebSubscriptionsResponse);
       });
     });
 
@@ -4823,9 +4822,7 @@ describe('/account', () => {
       });
 
       return runTest(buildRoute(), request, (result) => {
-        assert.deepEqual(result, {
-          subscriptions: [],
-        });
+        assert.deepEqual(result.subscriptions, []);
         assert.equal(log.begin.callCount, 1);
         assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
         assert.equal(mockStripeHelper.subscriptionsToResponse.callCount, 0);
@@ -4850,9 +4847,7 @@ describe('/account', () => {
 
     it('should not return stripe.customer result when subscriptions are disabled', () => {
       return runTest(buildRoute(false), request, (result) => {
-        assert.deepEqual(result, {
-          subscriptions: [],
-        });
+        assert.deepEqual(result.subscriptions, []);
 
         assert.equal(log.begin.callCount, 1);
         assert.equal(mockStripeHelper.fetchCustomer.callCount, 0);
@@ -4939,9 +4934,7 @@ describe('/account', () => {
             mockPlaySubscriptions.getSubscriptions,
             uid
           );
-          assert.deepEqual(result, {
-            subscriptions: [mockFormattedPlayStoreSubscription],
-          });
+          assert.deepEqual(result.subscriptions, [mockFormattedPlayStoreSubscription]);
         }
       );
     });
@@ -4966,12 +4959,10 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 1);
-          assert.deepEqual(result, {
-            subscriptions: [
-              ...[mockFormattedPlayStoreSubscription],
-              ...mockWebSubscriptionsResponse,
-            ],
-          });
+          assert.deepEqual(result.subscriptions, [
+            ...[mockFormattedPlayStoreSubscription],
+            ...mockWebSubscriptionsResponse,
+          ]);
         }
       );
     });
@@ -4986,9 +4977,7 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 1);
-          assert.deepEqual(result, {
-            subscriptions: [],
-          });
+          assert.deepEqual(result.subscriptions, []);
         }
       );
     });
@@ -5014,9 +5003,7 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 0);
-          assert.deepEqual(result, {
-            subscriptions: mockWebSubscriptionsResponse,
-          });
+          assert.deepEqual(result.subscriptions, mockWebSubscriptionsResponse);
         }
       );
     });
@@ -5089,9 +5076,7 @@ describe('/account', () => {
             mockAppStoreSubscriptions.getSubscriptions,
             uid
           );
-          assert.deepEqual(result, {
-            subscriptions: [mockFormattedAppStoreSubscription],
-          });
+          assert.deepEqual(result.subscriptions, [mockFormattedAppStoreSubscription]);
         }
       );
     });
@@ -5116,12 +5101,10 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockAppStoreSubscriptions.getSubscriptions.callCount, 1);
-          assert.deepEqual(result, {
-            subscriptions: [
-              ...[mockFormattedAppStoreSubscription],
-              ...mockWebSubscriptionsResponse,
-            ],
-          });
+          assert.deepEqual(result.subscriptions, [
+            ...[mockFormattedAppStoreSubscription],
+            ...mockWebSubscriptionsResponse,
+          ]);
         }
       );
     });
@@ -5136,9 +5119,7 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockAppStoreSubscriptions.getSubscriptions.callCount, 1);
-          assert.deepEqual(result, {
-            subscriptions: [],
-          });
+          assert.deepEqual(result.subscriptions, []);
         }
       );
     });
@@ -5164,9 +5145,7 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockAppStoreSubscriptions.getSubscriptions.callCount, 0);
-          assert.deepEqual(result, {
-            subscriptions: mockWebSubscriptionsResponse,
-          });
+          assert.deepEqual(result.subscriptions, mockWebSubscriptionsResponse);
         }
       );
     });

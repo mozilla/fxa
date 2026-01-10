@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import Modal from '../Modal';
 import InputText from '../../InputText';
-import { ApolloError } from '@apollo/client';
 import { useAccount, useAuthClient, useSession } from '../../../models';
 import { Localized, useLocalization } from '@fluent/react';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
@@ -14,7 +13,7 @@ import { getErrorFtlId } from '../../../lib/error-utils';
 
 type ModalProps = {
   onDismiss: () => void;
-  onError: (error: ApolloError) => void;
+  onError: (error: Error) => void;
   onCompleted?: () => void;
 };
 
@@ -46,6 +45,7 @@ export const ModalVerifySession = ({
     async (code: string) => {
       try {
         await session.verifySession(code);
+        onCompleted && onCompleted();
       } catch (e) {
         if (e.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno) {
           const errorText = l10n.getString(
@@ -60,7 +60,7 @@ export const ModalVerifySession = ({
         return;
       }
     },
-    [session, l10n, setErrorText, onError]
+    [session, l10n, setErrorText, onError, onCompleted]
   );
 
   useEffect(() => {
@@ -156,7 +156,7 @@ export const ModalVerifySession = ({
                 type="button"
                 className="cta-neutral cta-base-p mx-2 flex-1"
                 data-testid="modal-verify-session-cancel"
-                onClick={(event) => onDismiss()}
+                onClick={() => onDismiss()}
               >
                 Cancel
               </button>

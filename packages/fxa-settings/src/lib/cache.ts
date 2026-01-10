@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { InMemoryCache, gql } from '@apollo/client';
 import Storage from './storage';
-import { Email } from '../models';
 import { searchParam } from '../lib/utilities';
-import config from './config';
 import { StoredAccountData } from './storage-utils';
 import { v4 as uuid } from 'uuid';
 import * as Sentry from '@sentry/browser';
@@ -15,6 +12,18 @@ import { MfaScope } from './types';
 import { AuthUiErrors } from './auth-errors/auth-errors';
 
 const storage = Storage.factory('localStorage');
+
+// Flag to track when the user is signing out
+// When true, Account getters will return default values instead of throwing
+let _isSigningOut = false;
+
+export function setSigningOut(value: boolean): void {
+  _isSigningOut = value;
+}
+
+export function isSigningOut(): boolean {
+  return _isSigningOut;
+}
 
 // TODO in FXA-8454
 // Add checks to ensure this function cannot produce an object that would violate type safety.
@@ -139,6 +148,9 @@ export function clearSignedInAccountUid() {
   delete all[uid];
   accounts(all);
   storage.remove('currentAccountUid');
+  // Dispatch events for reactive updates
+  window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'accounts' } }));
+  window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'currentAccountUid' } }));
 }
 
 /**
@@ -206,54 +218,16 @@ export function consumeAlertTextExternal() {
   return text;
 }
 
-// sessionToken is added as a local field as an example.
-export const typeDefs = gql`
-  extend type Account {
-    primaryEmail: Email!
-  }
-  extend type Session {
-    token: String!
-  }
-`;
-
-export const cache = new InMemoryCache({
-  typePolicies: {
-    Account: {
-      fields: {
-        primaryEmail: {
-          read(_, o) {
-            const emails = o.readField<Email[]>('emails');
-            return emails?.find((email) => email.isPrimary);
-          },
-        },
-      },
-      keyFields: [],
-    },
-    Avatar: {
-      fields: {
-        isDefault: {
-          read(_, o) {
-            const url = o.readField<string>('url');
-            const id = o.readField<string>('id');
-            return !!(
-              url?.startsWith(config.servers.profile.url) ||
-              id?.startsWith('default')
-            );
-          },
-        },
-      },
-    },
-    Session: {
-      fields: {
-        token: {
-          read() {
-            return sessionToken();
-          },
-        },
-      },
-    },
+/**
+ * No-op cache shim for files still referencing the Apollo InMemoryCache.
+ * TODO: Remove once PostVerify/SetPassword and InlineRecoveryKeySetup are migrated.
+ */
+export const cache = {
+  modify(_options: any) {},
+  identify(_object: any) {
+    return '';
   },
-});
+};
 
 /*
  * Check that the React enrolled flag in local storage is set to `true`.

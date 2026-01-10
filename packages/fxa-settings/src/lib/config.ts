@@ -34,9 +34,6 @@ export interface Config {
     version: string;
   };
   servers: {
-    gql: {
-      url: string;
-    };
     auth: {
       url: string;
     };
@@ -47,6 +44,9 @@ export interface Config {
       url: string;
     };
     paymentsNext: {
+      url: string;
+    };
+    legalDocs: {
       url: string;
     };
   };
@@ -137,9 +137,6 @@ export function getDefault() {
       sampleRate: 1.0,
     },
     servers: {
-      gql: {
-        url: '',
-      },
       auth: {
         url: '',
       },
@@ -150,6 +147,9 @@ export function getDefault() {
         url: '',
       },
       paymentsNext: {
+        url: '',
+      },
+      legalDocs: {
         url: '',
       },
     },

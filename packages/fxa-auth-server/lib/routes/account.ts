@@ -10,6 +10,8 @@ import { WrappedErrorCodes } from 'fxa-shared/email/emailValidatorErrors';
 import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
 import { tryResolveIpv4, tryResolveMx } from 'fxa-shared/email/validateEmail';
 import ScopeSet from 'fxa-shared/oauth/scopes';
+import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
+import { list as listAuthorizedClients } from '../oauth/authorized_clients';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import isA from 'joi';
 import Stripe from 'stripe';
@@ -44,6 +46,7 @@ import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { EmailNormalization } from 'fxa-shared/email/email-normalization';
 import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
@@ -59,6 +62,9 @@ import { Redis } from 'ioredis';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
+import { BackupCodeManager } from '@fxa/accounts/two-factor';
+import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
+import { BOUNCE_TYPE_HARD } from '@fxa/accounts/email-sender';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -1630,6 +1636,70 @@ export class AccountHandler {
     }
   }
 
+  async emailBounceStatus(request: AuthRequest) {
+    const email = (request.payload as any).email;
+
+    // Short circuit if no email is provided.
+    if (!email) {
+      return { hasHardBounce: false };
+    }
+
+    await this.customs.check(request, email, 'emailBounceStatusCheck');
+
+    try {
+      const bouncesConfig = this.config.smtp?.bounces || {};
+      const aliasCheckEnabled = !!bouncesConfig.aliasCheckEnabled;
+
+      let bounces: Array<{ bounceType: number }>;
+
+      if (aliasCheckEnabled) {
+        // Check bounces with email alias normalization
+        // Given an email alias like test+123@domain.com:
+        // We look for bounces to the 'root' email -> `test@domain.com`
+        // And look for bounces to the alias with a wildcard -> `test+%@domain.com`
+        const emailNormalization = new EmailNormalization(
+          bouncesConfig.emailAliasNormalization
+        );
+        const normalizedEmail = emailNormalization.normalizeEmailAliases(
+          email,
+          ''
+        );
+        const wildcardEmail = emailNormalization.normalizeEmailAliases(
+          email,
+          '+%'
+        );
+
+        const [normalizedBounces, wildcardBounces] = await Promise.all([
+          this.db.emailBounces(normalizedEmail),
+          this.db.emailBounces(wildcardEmail),
+        ]);
+
+        // Combine and dedupe bounces by email and createdAt
+        const seen = new Set<string>();
+        bounces = [...normalizedBounces, ...wildcardBounces].filter(
+          (bounce: any) => {
+            const key = `${bounce.email}:${bounce.createdAt}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          }
+        );
+      } else {
+        bounces = await this.db.emailBounces(email);
+      }
+
+      const hasHardBounce = bounces.some(
+        (bounce: { bounceType: number }) =>
+          bounce.bounceType === BOUNCE_TYPE_HARD
+      );
+      return { hasHardBounce };
+    } catch (err) {
+      this.log.error('emailBounceStatus.error', { email, err });
+      // Return false on error to not block user flow
+      return { hasHardBounce: false };
+    }
+  }
+
   async profile(request: AuthRequest) {
     const auth = request.auth;
     let uid, scope;
@@ -2217,11 +2287,129 @@ export class AccountHandler {
     return {};
   }
 
+  async metricsOpt(request: AuthRequest) {
+    this.log.begin('Account.metricsOpt', request);
+
+    const { uid } = request.auth.credentials as { uid: string };
+    const { state } = request.payload as { state: 'in' | 'out' };
+    const account = await this.db.account(uid);
+    const email = account.primaryEmail?.email;
+
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'metricsOpt'
+    );
+
+    await Account.setMetricsOpt(uid, state);
+    await this.profileClient.deleteCache(uid);
+    await this.log.notifyAttachedServices('profileDataChange', request, {
+      uid,
+    });
+
+    return {};
+  }
+
   async getAccount(request: AuthRequest) {
     this.log.begin('Account.get', request);
 
-    const { uid } = request.auth.credentials;
+    const { uid } = request.auth.credentials as { uid: string };
 
+    // Fetch all data in parallel for better performance
+    const [
+      accountRecord,
+      emails,
+      linkedAccountsResult,
+      totpResult,
+      backupCodesResult,
+      recoveryKeyResult,
+      recoveryPhoneResult,
+      securityEventsResult,
+      devicesResult,
+      authorizedClientsResult,
+    ] = await Promise.allSettled([
+      this.db.account(uid),
+      this.db.accountEmails(uid),
+      this.db.getLinkedAccounts(uid).catch(() => []),
+      this.db.totpToken(uid).catch(() => null),
+      Container.get(BackupCodeManager).getCountForUserId(uid).catch(() => ({ hasBackupCodes: false, count: 0 })),
+      this.db.getRecoveryKeyRecordWithHint(uid).catch(() => null),
+      Container.get(RecoveryPhoneService).hasConfirmed(uid).catch(() => ({ exists: false, phoneNumber: null })),
+      this.db.securityEventsByUid({ uid }).catch(() => []),
+      this.db.devices(uid).catch(() => []),
+      listAuthorizedClients(uid).catch(() => []),
+    ]);
+
+    // Check if recovery phone feature is enabled globally (region check requires geo context)
+    const recoveryPhoneAvailable = this.config.recoveryPhone?.enabled ?? false;
+
+    // Account record is required
+    if (accountRecord.status === 'rejected') {
+      throw accountRecord.reason;
+    }
+    const account = accountRecord.value;
+
+    // Format emails
+    const formattedEmails = emails.status === 'fulfilled'
+      ? emails.value.map((email: any) => ({
+          email: email.email,
+          isPrimary: email.isPrimary,
+          verified: email.isVerified,
+        }))
+      : [];
+
+    // Format linked accounts
+    const linkedAccounts = linkedAccountsResult.status === 'fulfilled'
+      ? linkedAccountsResult.value.map((la: any) => ({
+          providerId: la.providerId,
+          authAt: la.authAt,
+          enabled: la.enabled,
+        }))
+      : [];
+
+    // Format TOTP status
+    const totp = totpResult.status === 'fulfilled' && totpResult.value
+      ? { exists: true, verified: !!totpResult.value.verified }
+      : { exists: false, verified: false };
+
+    // Format backup codes status
+    const backupCodes = backupCodesResult.status === 'fulfilled'
+      ? backupCodesResult.value
+      : { hasBackupCodes: false, count: 0 };
+
+    // Calculate estimated sync device count (for recovery key promo eligibility)
+    const devicesCount = devicesResult.status === 'fulfilled' ? devicesResult.value.length : 0;
+    const authorizedClients = authorizedClientsResult.status === 'fulfilled' ? authorizedClientsResult.value : [];
+    const syncOAuthClientsCount = authorizedClients.filter(
+      (client: any) => client.scope && client.scope.includes(OAUTH_SCOPE_OLD_SYNC)
+    ).length;
+    const estimatedSyncDeviceCount = Math.max(devicesCount, syncOAuthClientsCount);
+
+    // Format recovery key status
+    const recoveryKey = recoveryKeyResult.status === 'fulfilled' && recoveryKeyResult.value
+      ? { exists: true, estimatedSyncDeviceCount }
+      : { exists: false, estimatedSyncDeviceCount };
+
+    // Format recovery phone status
+    const recoveryPhoneData = recoveryPhoneResult.status === 'fulfilled'
+      ? recoveryPhoneResult.value
+      : { exists: false, phoneNumber: null };
+    const recoveryPhone = {
+      ...recoveryPhoneData,
+      available: recoveryPhoneAvailable,
+    };
+
+    // Format security events
+    const securityEvents = securityEventsResult.status === 'fulfilled'
+      ? securityEventsResult.value.map((e: any) => ({
+          name: e.name,
+          createdAt: e.createdAt,
+          verified: e.verified,
+        }))
+      : [];
+
+    // Fetch subscriptions (separate block due to complexity)
     let webSubscriptions: Awaited<WebSubscription[]> = [];
     let iapGooglePlaySubscriptions: Awaited<PlayStoreSubscription[]> = [];
     let iapAppStoreSubscriptions: Awaited<AppStoreSubscription[]> = [];
@@ -2258,6 +2446,23 @@ export class AccountHandler {
     }
 
     return {
+      // Account metadata
+      createdAt: account.createdAt,
+      passwordCreatedAt: account.verifierSetAt,
+      metricsOptOutAt: account.metricsOptOutAt,
+      hasPassword: account.verifierSetAt > 0,
+      // Emails
+      emails: formattedEmails,
+      // Linked accounts
+      linkedAccounts,
+      // 2FA status
+      totp,
+      backupCodes,
+      recoveryKey,
+      recoveryPhone,
+      // Security events
+      securityEvents,
+      // Subscriptions
       subscriptions: [
         ...iapGooglePlaySubscriptions,
         ...iapAppStoreSubscriptions,
@@ -2585,6 +2790,25 @@ export const accountRoutes = (
         accountHandler.accountStatusCheck(request),
     },
     {
+      method: 'POST',
+      path: '/account/email_bounce_status',
+      options: {
+        ...ACCOUNT_DOCS.ACCOUNT_EMAIL_BOUNCE_STATUS_POST,
+        validate: {
+          payload: isA.object({
+            email: validators.email().required(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            hasHardBounce: isA.boolean().required(),
+          }),
+        },
+      },
+      handler: (request: AuthRequest) =>
+        accountHandler.emailBounceStatus(request),
+    },
+    {
       method: 'GET',
       path: '/account/profile',
       options: {
@@ -2776,6 +3000,22 @@ export const accountRoutes = (
         accountHandler.getCredentialsStatus(request),
     },
     {
+      method: 'POST',
+      path: '/account/metrics_opt',
+      options: {
+        ...ACCOUNT_DOCS.ACCOUNT_METRICS_OPT_POST,
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: isA.object({
+            state: isA.string().valid('in', 'out').required(),
+          }),
+        },
+      },
+      handler: (request: AuthRequest) => accountHandler.metricsOpt(request),
+    },
+    {
       method: 'GET',
       path: '/account',
       options: {
@@ -2792,6 +3032,66 @@ export const accountRoutes = (
             // backend. Discussion in:
             //
             // https://github.com/mozilla/fxa/issues/1808
+            createdAt: isA.number().optional(),
+            passwordCreatedAt: isA.number().optional(),
+            metricsOptOutAt: isA.number().allow(null).optional(),
+            hasPassword: isA.boolean().optional(),
+            emails: isA
+              .array()
+              .items(
+                isA.object({
+                  email: isA.string().required(),
+                  isPrimary: isA.boolean().required(),
+                  verified: isA.boolean().required(),
+                })
+              )
+              .optional(),
+            linkedAccounts: isA
+              .array()
+              .items(
+                isA.object({
+                  providerId: isA.number().required(),
+                  authAt: isA.number().required(),
+                  enabled: isA.boolean().required(),
+                })
+              )
+              .optional(),
+            totp: isA
+              .object({
+                exists: isA.boolean().required(),
+                verified: isA.boolean().required(),
+              })
+              .optional(),
+            backupCodes: isA
+              .object({
+                hasBackupCodes: isA.boolean().required(),
+                count: isA.number().required(),
+              })
+              .optional(),
+            recoveryKey: isA
+              .object({
+                exists: isA.boolean().required(),
+                estimatedSyncDeviceCount: isA.number().optional(),
+              })
+              .optional(),
+            recoveryPhone: isA
+              .object({
+                exists: isA.boolean().required(),
+                phoneNumber: isA.string().allow(null).optional(),
+                nationalFormat: isA.string().allow(null).optional(),
+                available: isA.boolean().required(),
+              })
+              .optional(),
+            securityEvents: isA
+              .array()
+              .items(
+                isA.object({
+                  name: isA.string().required(),
+                  createdAt: isA.number().required(),
+                  verified: isA.boolean().required(),
+                })
+              )
+              .optional(),
             subscriptions: isA
               .array()
               .items(

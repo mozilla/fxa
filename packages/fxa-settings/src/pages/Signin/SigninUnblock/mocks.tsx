@@ -16,8 +16,6 @@ import {
   mockGetWebChannelServices,
 } from '../../mocks';
 
-export { CREDENTIAL_STATUS_MUTATION, BEGIN_SIGNIN_MUTATION } from '../gql';
-
 export const MOCK_SIGNIN_UNBLOCK_LOCATION_STATE = {
   email: MOCK_EMAIL,
   hasLinkedAccount: false,

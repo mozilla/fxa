@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { DecryptedRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
-import { V1Credentials, V2Credentials } from './gql-key-stretch-upgrade';
+import { V1Credentials, V2Credentials } from './auth-key-stretch-upgrade';
 
 export namespace SensitiveData {
   /**

@@ -19,7 +19,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { useFtlMsgResolver } from '../../../models/hooks';
-import { useApolloClient } from '@apollo/client';
+import { clearSignedInAccountUid, discardSessionToken } from '../../../lib/cache';
 
 type FormData = {
   password: string;
@@ -103,7 +103,6 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const goHome = useCallback(() => window.history.back(), []);
 
   const account = useAccount();
-  const apolloClient = useApolloClient();
 
   useEffect(() => {
     GleanMetrics.deleteAccount.view();
@@ -138,7 +137,8 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
           'flow.settings.account-delete',
           'confirm-password.success'
         );
-        await apolloClient.clearStore();
+        discardSessionToken();
+        clearSignedInAccountUid();
 
         navigateWithQuery('/', {
           state: {
@@ -163,7 +163,6 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
       alertBar,
       ftlMsgResolver,
       navigateWithQuery,
-      apolloClient,
     ]
   );
 

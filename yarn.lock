@@ -36216,7 +36216,6 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.9.0"
     mutationobserver-shim: "npm:^0.3.7"
     nx: "npm:21.2.4"
-    persistgraphql: "npm:^0.3.11"
     pm2: "npm:^6.0.14"
     postcss: "npm:^8.5.0"
     postcss-assets: "npm:^6.0.0"
@@ -36246,7 +36245,6 @@ __metadata:
     storybook-addon-rtl: "npm:^0.5.0"
     stream-browserify: "npm:^3.0.0"
     style-loader: "npm:^4.0.0"
-    subscriptions-transport-ws: "npm:^0.11.0"
     tailwindcss: "npm:^3.4.1"
     terser-webpack-plugin: "npm:^5.2.5"
     ts-jest: "npm:^29.2.3"
@@ -55961,7 +55959,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"subscriptions-transport-ws@npm:0.11.0, subscriptions-transport-ws@npm:^0.11.0":
+"subscriptions-transport-ws@npm:0.11.0":
   version: 0.11.0
   resolution: "subscriptions-transport-ws@npm:0.11.0"
   dependencies:

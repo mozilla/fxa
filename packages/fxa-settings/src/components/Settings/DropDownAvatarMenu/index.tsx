@@ -12,7 +12,7 @@ import { logViewEvent, settingsViewName } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 import firefox from '../../../lib/channels/firefox';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
+import { JwtTokenCache, MfaOtpRequestCache, setSigningOut } from '../../../lib/cache';
 
 export const DropDownAvatarMenu = () => {
   const { displayName, primaryEmail, avatar, uid } = useAccount();
@@ -34,6 +34,9 @@ export const DropDownAvatarMenu = () => {
   const signOut = async () => {
     if (session.destroy) {
       try {
+        // Set signing out flag to prevent React re-render errors
+        // when localStorage is cleared during session destruction
+        setSigningOut(true);
         // Destroy the current session
         await session.destroy();
 

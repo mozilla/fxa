@@ -13,6 +13,7 @@ const clientFactory = require('../client')();
 const config = require(`${ROOT_DIR}/config`).default.getProperties();
 const { AppError: error } = require('@fxa/accounts/errors');
 const testServerFactory = require('../test_server');
+const mocks = require('../mocks');
 const { CapabilityService } = require('../../lib/payments/capability');
 const { StripeHelper } = require('../../lib/payments/stripe');
 const { AuthLogger, AppConfig } = require('../../lib/types');
@@ -25,6 +26,8 @@ const {
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
 const { CapabilityManager } = require('@fxa/payments/capability');
+const { BackupCodeManager } = require('@fxa/accounts/two-factor');
+const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
 
 const validClients = config.oauthServer.clients.filter(
   (client) => client.trusted && client.canGrant && client.publicClient
@@ -112,6 +115,14 @@ const PRODUCT_NAME = 'All Done Pro';
         Container.set(CapabilityManager, mockCapabilityManager);
         Container.remove(CapabilityService);
         Container.set(CapabilityService, new CapabilityService());
+        Container.set(BackupCodeManager, {
+          getCountForUserId: async () => ({ hasBackupCodes: false, count: 0 }),
+        });
+        Container.set(RecoveryPhoneService, {
+          hasConfirmed: async () => ({ exists: false, phoneNumber: null }),
+        });
+        mocks.mockPriceManager();
+        mocks.mockProductConfigurationManager();
 
         server = await testServerFactory.start(config, false, {
           authServerMockDependencies: {
@@ -333,6 +344,14 @@ const PRODUCT_NAME = 'All Done Pro';
         config.subscriptions.stripeApiKey = null;
         config.subscriptions.stripeApiUrl = null;
         config.subscriptions.productConfigsFirestore = { enabled: true };
+        Container.set(BackupCodeManager, {
+          getCountForUserId: async () => ({ hasBackupCodes: false, count: 0 }),
+        });
+        Container.set(RecoveryPhoneService, {
+          hasConfirmed: async () => ({ exists: false, phoneNumber: null }),
+        });
+        mocks.mockPriceManager();
+        mocks.mockProductConfigurationManager();
         server = await testServerFactory.start(config);
       });
 

@@ -10,12 +10,8 @@ import { MozServices, TotpInfo } from '../../lib/types';
 import AppLayout from '../../components/AppLayout';
 import { Integration, useSession, useAuthClient } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { useMutation, useQuery } from '@apollo/client';
-import { CREATE_TOTP_MUTATION } from './gql';
 import { getSigninState } from '../Signin/utils';
 import { SigninLocationState } from '../Signin/interfaces';
-import { GET_TOTP_STATUS } from '../../components/App/gql';
-import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
 import { SigninRecoveryLocationState } from '../InlineRecoverySetupFlow/interfaces';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
@@ -36,6 +32,11 @@ export const InlineTotpSetupContainer = ({
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>(
     undefined
   );
+  const [totpStatus, setTotpStatus] = useState<
+    { exists: boolean; verified: boolean } | undefined
+  >(undefined);
+  const [totpStatusLoading, setTotpStatusLoading] = useState(true);
+
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
   };
@@ -46,17 +47,7 @@ export const InlineTotpSetupContainer = ({
     flowQueryParams as unknown as Record<string, string>
   );
   const isTotpCreating = useRef(false);
-
-  const [createTotp] = useMutation<{ createTotp: TotpInfo }>(
-    CREATE_TOTP_MUTATION
-  );
-
-  const { data: totpStatus, loading: totpStatusLoading } =
-    useQuery<TotpStatusResponse>(GET_TOTP_STATUS, {
-      // Use fetchPolicy: 'network-only' to bypass Apollo cache so this reflects the
-      // current account state, not possibly cached data from another signed-in account.
-      fetchPolicy: 'network-only',
-    });
+  const isTotpStatusChecked = useRef(false);
 
   const signinState = getSigninState(location.state);
 
@@ -73,6 +64,28 @@ export const InlineTotpSetupContainer = ({
     },
     [navigateWithQuery]
   );
+
+  // Fetch TOTP status using auth-client instead of GraphQL
+  useEffect(() => {
+    if (isTotpStatusChecked.current || !signinState?.sessionToken) {
+      return;
+    }
+    isTotpStatusChecked.current = true;
+
+    (async () => {
+      try {
+        const status = await authClient.checkTotpTokenExists(
+          signinState.sessionToken
+        );
+        setTotpStatus(status);
+      } catch (error) {
+        // If there's an error checking TOTP status, assume it doesn't exist
+        setTotpStatus({ exists: false, verified: false });
+      } finally {
+        setTotpStatusLoading(false);
+      }
+    })();
+  }, [authClient, signinState?.sessionToken]);
 
   // Determine if the session is verified
   useEffect(() => {
@@ -91,24 +104,34 @@ export const InlineTotpSetupContainer = ({
   useEffect(() => {
     if (
       totp !== undefined ||
-      totpStatus?.account?.totp.verified ||
+      totpStatus?.verified ||
       isTotpCreating.current ||
-      totpStatusLoading
+      totpStatusLoading ||
+      !signinState?.sessionToken
     ) {
       return;
     }
     (async () => {
       isTotpCreating.current = true;
-      const totpResp = await createTotp({
-        variables: {
-          input: {
-            metricsContext,
-          },
-        },
-      });
-      setTotp(totpResp.data?.createTotp);
+      try {
+        const totpResp = await authClient.createTotpToken(
+          signinState.sessionToken,
+          { metricsContext }
+        );
+        setTotp(totpResp);
+      } catch (error) {
+        // Handle error - could redirect or show error
+        console.error('Failed to create TOTP token:', error);
+      }
     })();
-  }, [createTotp, metricsContext, totpStatus, totpStatusLoading, totp]);
+  }, [
+    authClient,
+    metricsContext,
+    totpStatus,
+    totpStatusLoading,
+    totp,
+    signinState?.sessionToken,
+  ]);
 
   // Once state has settled, determine if user should be directed to another page
   useEffect(() => {
@@ -116,7 +139,7 @@ export const InlineTotpSetupContainer = ({
       navTo('/');
       return;
     }
-    if (totpStatus?.account?.totp.verified) {
+    if (totpStatus?.verified) {
       navTo('/signin_totp_code', signinState ? signinState : undefined);
       return;
     }
