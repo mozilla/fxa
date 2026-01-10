@@ -10,9 +10,9 @@ import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import {
   useAccount,
   useAuthClient,
-  useInitialSettingsState,
   useSession,
 } from '../../models';
+import { useAccountData } from '../../lib/hooks/useAccountData';
 import {
   Redirect,
   Router,
@@ -57,6 +57,10 @@ export const Settings = ({
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>();
   const [sessionVerificationMeetsAAL, setSessionVerificationMeetsAAL] =
     useState<boolean | undefined>();
+
+  // Fetch and store full account data from auth-client APIs
+  // This replaces the Apollo cache that was previously used
+  const { isLoading: loading, error } = useAccountData({ authClient });
 
   useEffect(() => {
     /**
@@ -123,7 +127,6 @@ export const Settings = ({
     return () => window.removeEventListener('focus', handleWindowFocus);
   }, [account, navigateWithQuery, session]);
 
-  const { loading, error } = useInitialSettingsState();
   const { enabled: gleanEnabled } = GleanMetrics.useGlean();
 
   useEffect(() => {

@@ -83,7 +83,6 @@ const MockAppProvider = ({ children }: { children: ReactNode }) =>
       value: {
         config: mockConfig as any,
         account: undefined,
-        apolloClient: undefined,
       },
     },
     children
@@ -192,7 +191,6 @@ describe('useCmsInfoState', () => {
           value: {
             config: disabledConfig as any,
             account: undefined,
-            apolloClient: undefined,
           },
         },
         children
@@ -413,7 +411,6 @@ describe('useCmsInfoState', () => {
           value: {
             config: l10nEnabledConfig as any,
             account: undefined,
-            apolloClient: undefined,
           },
         },
         children

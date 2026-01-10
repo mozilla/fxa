@@ -26,25 +26,19 @@ import {
   MOCK_UNWRAP_BKEY_V2,
   mockLoadingSpinnerModule,
 } from '../../mocks';
-import {
-  mockGqlBeginSigninMutation,
-  mockGqlCredentialStatusMutation,
-  mockGqlError,
-} from '../mocks';
 
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 
 import { SigninUnblockLocationState, SigninUnblockProps } from './interfaces';
 
 import { QueryParams } from '../../..';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 
 import {
   createMockSigninWebSyncIntegration,
   MOCK_SIGNIN_UNBLOCK_LOCATION_STATE,
 } from './mocks';
 import { BeginSigninResult, SigninUnblockIntegration } from '../interfaces';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
 
 let integration: SigninUnblockIntegration;
 function mockWebIntegration() {
@@ -72,7 +66,7 @@ function mockSigninUnblockModule() {
   });
 }
 
-jest.mock('../../../lib/gql-key-stretch-upgrade', () => {
+jest.mock('../../../lib/auth-key-stretch-upgrade', () => {
   return {
     tryFinalizeUpgrade: jest.fn(),
   };
@@ -112,14 +106,44 @@ function mockReachRouter(mockLocationState?: SigninUnblockLocationState) {
 }
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
+
+// Mock auth client
+const mockAuthClient = {
+  getCredentialStatusV2: jest.fn(),
+  signInWithAuthPW: jest.fn(),
+  sendUnblockCode: jest.fn(),
+};
+
 function mockModelsModule() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
+  );
+  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+    () => mockAuthClient
   );
   mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
   mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
     plainTextPassword: MOCK_PASSWORD,
   });
+
+  // Default auth client mock responses
+  mockAuthClient.getCredentialStatusV2.mockResolvedValue({
+    upgradeNeeded: true,
+    currentVersion: 'v2',
+    clientSalt: MOCK_CLIENT_SALT,
+  });
+  mockAuthClient.signInWithAuthPW.mockResolvedValue({
+    uid: 'abc123',
+    sessionToken: 'token123',
+    authAt: Date.now(),
+    metricsEnabled: true,
+    emailVerified: true,
+    sessionVerified: false,
+    verificationMethod: 'email-otp',
+    verificationReason: 'login',
+    keyFetchToken: 'kft123',
+  });
+  mockAuthClient.sendUnblockCode.mockResolvedValue({});
 }
 
 function applyDefaultMocks() {
@@ -139,19 +163,17 @@ describe('signin unblock container', () => {
   });
 
   /** Renders the container with a fake page component */
-  async function render(mocks: Array<MockedResponse>) {
+  async function render() {
     renderWithLocalizationProvider(
-      <MockedProvider mocks={mocks} addTypename={false}>
-        <LocationProvider>
-          <SigninUnblockContainer
-            {...{
-              integration,
-              serviceName: MozServices.Default,
-              flowQueryParams,
-            }}
-          />
-        </LocationProvider>
-      </MockedProvider>
+      <LocationProvider>
+        <SigninUnblockContainer
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            flowQueryParams,
+          }}
+        />
+      </LocationProvider>
     );
 
     await screen.findByText('signin unblock mock');
@@ -159,18 +181,7 @@ describe('signin unblock container', () => {
   }
 
   it('handles signin with correct code', async () => {
-    await render([
-      mockGqlCredentialStatusMutation(),
-      mockGqlBeginSigninMutation(
-        {
-          unblockCode: MOCK_UNBLOCK_CODE,
-          keys: true,
-        },
-        {
-          authPW: MOCK_AUTH_PW_V2,
-        }
-      ),
-    ]);
+    await render();
 
     let result: BeginSigninResult | undefined;
     await act(async () => {
@@ -201,18 +212,20 @@ describe('signin unblock container', () => {
       },
     };
 
-    await render([
-      mockGqlCredentialStatusMutation(),
-      mockGqlBeginSigninMutation(
-        {
-          unblockCode: MOCK_UNBLOCK_CODE,
-          keys: true,
-        },
-        {
-          authPW: MOCK_AUTH_PW_V2,
-        }
-      ),
-    ]);
+    // Override to have sessionVerified: true so tryFinalizeUpgrade is called
+    mockAuthClient.signInWithAuthPW.mockResolvedValue({
+      uid: 'abc123',
+      sessionToken: 'token123',
+      authAt: Date.now(),
+      metricsEnabled: true,
+      emailVerified: true,
+      sessionVerified: true,
+      verificationMethod: 'email-otp',
+      verificationReason: 'login',
+      keyFetchToken: 'kft123',
+    });
+
+    await render();
 
     let result: BeginSigninResult | undefined;
     await act(async () => {
@@ -233,17 +246,10 @@ describe('signin unblock container', () => {
 
   it('handles signin with correct code and failure when looking up credential status', async () => {
     jest.spyOn(global.console, 'warn');
+    // Mock credential status to fail
+    mockAuthClient.getCredentialStatusV2.mockRejectedValue(new Error('Failed'));
 
-    await render([
-      {
-        ...mockGqlCredentialStatusMutation(),
-        error: mockGqlError(),
-      },
-      mockGqlBeginSigninMutation({
-        unblockCode: MOCK_UNBLOCK_CODE,
-        keys: true,
-      }),
-    ]);
+    await render();
 
     let result: BeginSigninResult | undefined;
     await act(async () => {
@@ -266,24 +272,13 @@ describe('signin unblock container', () => {
 
   it('handles incorrect unblock code', async () => {
     const wrongCode = '000000';
-    await render([
-      mockGqlCredentialStatusMutation(),
-      {
-        ...(() => {
-          const result = mockGqlBeginSigninMutation(
-            {
-              unblockCode: wrongCode,
-              keys: true,
-            },
-            {
-              authPW: MOCK_AUTH_PW_V2,
-            }
-          );
-          return result;
-        })(),
-        error: mockGqlError(AuthUiErrors.INCORRECT_UNBLOCK_CODE),
-      },
-    ]);
+    // Mock signin to fail with incorrect unblock code error
+    mockAuthClient.signInWithAuthPW.mockRejectedValue({
+      errno: AuthUiErrors.INCORRECT_UNBLOCK_CODE.errno,
+      message: AuthUiErrors.INCORRECT_UNBLOCK_CODE.message,
+    });
+
+    await render();
 
     let result: BeginSigninResult | undefined;
     await act(async () => {

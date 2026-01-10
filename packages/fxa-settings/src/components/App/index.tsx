@@ -36,6 +36,7 @@ import {
   initializeSettingsContext,
   SettingsContext,
 } from '../../models/contexts/SettingsContext';
+import { AccountStateProvider } from '../../models/contexts/AccountStateContext';
 
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { maybeRecordWebAuthnCapabilities } from '../../lib/webauthnCapabilitiesProbe';
@@ -305,10 +306,10 @@ export const App = ({
     Metrics.init(metricsEnabled, updatedFlowQueryParams);
     if (data?.account?.metricsEnabled) {
       Metrics.initUserPreferences({
-        recoveryKey: data.account.recoveryKey.exists,
+        recoveryKey: data.account.recoveryKey?.exists ?? false,
         hasSecondaryVerifiedEmail:
           data.account.emails.length > 1 && data.account.emails[1].verified,
-        totpActive: data.account.totp.exists && data.account.totp.verified,
+        totpActive: (data.account.totp?.exists && data.account.totp?.verified) ?? false,
       });
     }
   }, [
@@ -422,14 +423,16 @@ const SettingsRoutes = ({
 
   const settingsContext = initializeSettingsContext();
   return (
-    <SettingsContext.Provider value={settingsContext}>
-      <ScrollToTop default>
-        <Settings
-          path="/settings/*"
-          {...{ integration, setCurrentSplitLayout }}
-        />
-      </ScrollToTop>
-    </SettingsContext.Provider>
+    <AccountStateProvider>
+      <SettingsContext.Provider value={settingsContext}>
+        <ScrollToTop default>
+          <Settings
+            path="/settings/*"
+            {...{ integration, setCurrentSplitLayout }}
+          />
+        </ScrollToTop>
+      </SettingsContext.Provider>
+    </AccountStateProvider>
   );
 };
 

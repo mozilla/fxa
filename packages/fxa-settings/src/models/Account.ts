@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import base32Decode from 'base32-decode';
-import { gql, ApolloClient, ApolloError } from '@apollo/client';
 import config from '../lib/config';
 import AuthClient, {
   AUTH_PROVIDER,
@@ -26,18 +25,18 @@ import Storage from '../lib/storage';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 import { LinkedAccountProviderIds, MfaScope, MozServices } from '../lib/types';
 import {
-  GET_LOCAL_SIGNED_IN_STATUS,
-  GET_TOTP_STATUS,
-  GET_BACKUP_CODES_STATUS,
-  GET_RECOVERY_PHONE,
-} from '../components/App/gql';
-import {
   AccountAvatar,
   AccountBackupCodes,
   AccountTotp,
 } from '../lib/interfaces';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { getHandledError } from '../lib/error-utils';
+import {
+  getFullAccountData,
+  updateExtendedAccountState,
+  updateBasicAccountData,
+  ExtendedAccountState,
+} from '../lib/account-storage';
 
 export interface DeviceLocation {
   city: string | null;
@@ -173,165 +172,7 @@ const DEFAULTS = {
   totpVerified: undefined,
 };
 
-export const GET_PROFILE_INFO = gql`
-  query GetProfileInfo {
-    account {
-      uid
-      displayName
-      avatar {
-        id
-        url
-      }
-      primaryEmail @client
-      emails {
-        email
-        isPrimary
-        verified
-      }
-    }
-  }
-`;
-
-export const GET_ACCOUNT = gql`
-  query GetAccount {
-    account {
-      uid
-      displayName
-      avatar {
-        id
-        url
-        isDefault @client
-      }
-      accountCreated
-      passwordCreated
-      recoveryKey {
-        exists
-        estimatedSyncDeviceCount
-      }
-      metricsEnabled
-      primaryEmail @client
-      emails {
-        email
-        isPrimary
-        verified
-      }
-      attachedClients {
-        clientId
-        isCurrentSession
-        userAgent
-        deviceType
-        deviceId
-        name
-        lastAccessTime
-        lastAccessTimeFormatted
-        approximateLastAccessTime
-        approximateLastAccessTimeFormatted
-        location {
-          city
-          country
-          state
-          stateCode
-        }
-        os
-        sessionTokenId
-        refreshTokenId
-      }
-      totp {
-        exists
-        verified
-      }
-      backupCodes {
-        hasBackupCodes
-        count
-      }
-      recoveryPhone {
-        exists
-        phoneNumber
-        nationalFormat
-        available
-      }
-      subscriptions {
-        created
-        productName
-      }
-      linkedAccounts {
-        providerId
-        authAt
-        enabled
-      }
-    }
-  }
-`;
-
-export const GET_EMAILS = gql`
-  query GetEmails {
-    account {
-      emails {
-        email
-        isPrimary
-        verified
-      }
-    }
-  }
-`;
-
-export const GET_CONNECTED_CLIENTS = gql`
-  query GetConnectedClients {
-    account {
-      attachedClients {
-        clientId
-        isCurrentSession
-        userAgent
-        deviceType
-        deviceId
-        name
-        lastAccessTime
-        lastAccessTimeFormatted
-        approximateLastAccessTime
-        approximateLastAccessTimeFormatted
-        location {
-          city
-          country
-          state
-          stateCode
-        }
-        os
-        sessionTokenId
-        refreshTokenId
-      }
-    }
-  }
-`;
-
-export const GET_RECOVERY_KEY_EXISTS = gql`
-  query GetRecoveryKeyExists {
-    account {
-      recoveryKey {
-        exists
-      }
-    }
-  }
-`;
-
-export const GET_SECURITY_EVENTS = gql`
-  query GetSecurityEvents {
-    account {
-      securityEvents {
-        name
-        createdAt
-        verified
-      }
-    }
-  }
-`;
-
-const GET_RECOVERY_BUNDLE = gql`
-  query GetRecoveryKeyBundle($input: RecoveryKeyBundleInput!) {
-    getRecoveryKeyBundle(input: $input) {
-      recoveryData
-    }
-  }
-`;
+// GraphQL queries removed - now using localStorage and direct auth-client calls
 
 export function getNextAvatar(
   existingId?: string,
@@ -368,12 +209,10 @@ export const isDefault = (account: Record<string, any>) =>
 
 export class Account implements AccountData {
   private readonly authClient: AuthClient;
-  private readonly apolloClient: ApolloClient<object>;
   private _loading: boolean;
 
-  constructor(client: AuthClient, apolloClient: ApolloClient<object>) {
+  constructor(client: AuthClient) {
     this.authClient = client;
-    this.apolloClient = apolloClient;
     this._loading = false;
   }
 
@@ -389,16 +228,31 @@ export class Account implements AccountData {
   }
 
   private get data(): AccountData {
-    // readQuery is cache-only by default
-    const result = this.apolloClient.readQuery<{ account: AccountData }>({
-      query: GET_ACCOUNT,
-    });
-
-    if (!result?.account) {
-      throw new Error('Account data not loaded from Apollo cache');
+    const accountData = getFullAccountData();
+    if (!accountData || !accountData.uid) {
+      throw new Error('Account data not loaded from localStorage');
     }
 
-    return result.account;
+    // Provide defaults for required fields
+    return {
+      uid: accountData.uid,
+      displayName: accountData.displayName,
+      avatar: accountData.avatar || { id: null, url: null, isDefault: true },
+      accountCreated: accountData.accountCreated || 0,
+      passwordCreated: accountData.passwordCreated || 0,
+      hasPassword: accountData.hasPassword,
+      recoveryKey: accountData.recoveryKey || { exists: false },
+      metricsEnabled: accountData.metricsEnabled,
+      primaryEmail: accountData.primaryEmail || { email: accountData.email || '', isPrimary: true, verified: accountData.verified },
+      emails: accountData.emails,
+      attachedClients: accountData.attachedClients,
+      linkedAccounts: accountData.linkedAccounts,
+      totp: accountData.totp || { exists: false, verified: false },
+      backupCodes: accountData.backupCodes || { hasBackupCodes: false, count: 0 },
+      recoveryPhone: accountData.recoveryPhone || { exists: false, phoneNumber: null, nationalFormat: null, available: false },
+      subscriptions: accountData.subscriptions,
+      securityEvents: accountData.securityEvents,
+    } as AccountData;
   }
 
   get loading() {
@@ -436,14 +290,12 @@ export class Account implements AccountData {
   }
 
   get hasPassword() {
-    // This might be requested before account data is ready,
-    // so default to disabled until we can get a proper read
+    // Use the stored hasPassword value from the server
+    // Default to true if data is not ready (safer default)
     try {
-      return (
-        this.data?.passwordCreated != null && this.data.passwordCreated > 0
-      );
+      return this.data?.hasPassword ?? true;
     } catch {
-      return false;
+      return true;
     }
   }
 
@@ -510,32 +362,164 @@ export class Account implements AccountData {
       | 'recoveryPhone'
       | 'emails'
   ) {
-    let query = GET_ACCOUNT;
-    switch (field) {
-      case 'clients':
-        query = GET_CONNECTED_CLIENTS;
-        break;
-      case 'recovery':
-        query = GET_RECOVERY_KEY_EXISTS;
-        break;
-      case 'totp':
-        query = GET_TOTP_STATUS;
-        break;
-      case 'backupCodes':
-        query = GET_BACKUP_CODES_STATUS;
-        break;
-      case 'recoveryPhone':
-        query = GET_RECOVERY_PHONE;
-        break;
-      case 'emails':
-        query = GET_EMAILS;
-        break;
-    }
+    const token = sessionToken();
+    if (!token) return;
+
     await this.withLoadingStatus(
-      this.apolloClient.query({
-        fetchPolicy: 'network-only',
-        query,
-      })
+      (async () => {
+        switch (field) {
+          case 'clients':
+            const clients = await this.authClient.attachedClients(token);
+            updateExtendedAccountState({
+              attachedClients: clients.map((c: any) => ({
+                clientId: c.clientId,
+                isCurrentSession: c.isCurrentSession,
+                userAgent: c.userAgent,
+                deviceType: c.deviceType,
+                deviceId: c.deviceId,
+                name: c.name,
+                lastAccessTime: c.lastAccessTime,
+                lastAccessTimeFormatted: c.lastAccessTimeFormatted,
+                approximateLastAccessTime: c.approximateLastAccessTime,
+                approximateLastAccessTimeFormatted: c.approximateLastAccessTimeFormatted,
+                location: c.location || { city: null, country: null, state: null, stateCode: null },
+                os: c.os,
+                sessionTokenId: c.sessionTokenId,
+                refreshTokenId: c.refreshTokenId,
+              })),
+            });
+            break;
+          case 'recovery':
+            const recoveryKey = await this.authClient.recoveryKeyExists(token, undefined);
+            updateExtendedAccountState({
+              recoveryKey: { exists: recoveryKey.exists ?? false },
+            });
+            break;
+          case 'totp':
+            const totp = await this.authClient.checkTotpTokenExists(token);
+            updateExtendedAccountState({
+              totp: { exists: totp.exists ?? false, verified: totp.verified ?? false },
+            });
+            break;
+          case 'backupCodes':
+            const codes = await this.authClient.getRecoveryCodesExist(token);
+            updateExtendedAccountState({
+              backupCodes: { hasBackupCodes: codes.hasBackupCodes ?? false, count: codes.count ?? 0 },
+            });
+            break;
+          case 'recoveryPhone':
+            try {
+              const [phone, available] = await Promise.all([
+                this.authClient.recoveryPhoneGet(token).catch(() => ({ exists: false })),
+                this.authClient.recoveryPhoneAvailable(token).catch(() => ({ available: false })),
+              ]);
+              updateExtendedAccountState({
+                recoveryPhone: {
+                  exists: (phone as any).exists ?? false,
+                  phoneNumber: (phone as any).phoneNumber || null,
+                  nationalFormat: (phone as any).nationalFormat || null,
+                  available: (available as any).available ?? false,
+                },
+              });
+            } catch {
+              updateExtendedAccountState({
+                recoveryPhone: { exists: false, phoneNumber: null, nationalFormat: null, available: false },
+              });
+            }
+            break;
+          case 'emails':
+            const account = await this.authClient.account(token);
+            updateExtendedAccountState({
+              emails: (account.emails || []).map((e: any) => ({
+                email: e.email,
+                isPrimary: e.isPrimary,
+                verified: e.verified,
+              })),
+            });
+            break;
+          case 'securityEvents':
+            const events = await this.authClient.securityEvents(token);
+            updateExtendedAccountState({
+              securityEvents: (events || []).map((e: any) => ({
+                name: e.name,
+                createdAt: e.createdAt,
+                verified: e.verified,
+              })),
+            });
+            break;
+          case 'account':
+          default:
+            // Fetch all account data
+            const [accountData, clientsData, totpData, codesData, keyData, phoneData, phoneAvailable] =
+              await Promise.allSettled([
+                this.authClient.account(token),
+                this.authClient.attachedClients(token),
+                this.authClient.checkTotpTokenExists(token),
+                this.authClient.getRecoveryCodesExist(token),
+                this.authClient.recoveryKeyExists(token, undefined),
+                this.authClient.recoveryPhoneGet(token),
+                this.authClient.recoveryPhoneAvailable(token),
+              ]);
+
+            const updates: Partial<ExtendedAccountState> = {};
+
+            if (accountData.status === 'fulfilled') {
+              updates.emails = (accountData.value.emails || []).map((e: any) => ({
+                email: e.email,
+                isPrimary: e.isPrimary,
+                verified: e.verified,
+              }));
+              updates.accountCreated = accountData.value.createdAt || null;
+              updates.passwordCreated = accountData.value.passwordCreatedAt || null;
+            }
+
+            if (clientsData.status === 'fulfilled') {
+              updates.attachedClients = clientsData.value.map((c: any) => ({
+                clientId: c.clientId,
+                isCurrentSession: c.isCurrentSession,
+                userAgent: c.userAgent,
+                deviceType: c.deviceType,
+                deviceId: c.deviceId,
+                name: c.name,
+                lastAccessTime: c.lastAccessTime,
+                lastAccessTimeFormatted: c.lastAccessTimeFormatted,
+                approximateLastAccessTime: c.approximateLastAccessTime,
+                approximateLastAccessTimeFormatted: c.approximateLastAccessTimeFormatted,
+                location: c.location || { city: null, country: null, state: null, stateCode: null },
+                os: c.os,
+                sessionTokenId: c.sessionTokenId,
+                refreshTokenId: c.refreshTokenId,
+              }));
+            }
+
+            if (totpData.status === 'fulfilled') {
+              updates.totp = { exists: totpData.value.exists ?? false, verified: totpData.value.verified ?? false };
+            }
+
+            if (codesData.status === 'fulfilled') {
+              updates.backupCodes = { hasBackupCodes: codesData.value.hasBackupCodes ?? false, count: codesData.value.count ?? 0 };
+            }
+
+            if (keyData.status === 'fulfilled') {
+              updates.recoveryKey = { exists: keyData.value.exists ?? false };
+            }
+
+            const isPhoneAvailable = phoneAvailable.status === 'fulfilled' ? (phoneAvailable.value as any).available ?? false : false;
+            if (phoneData.status === 'fulfilled') {
+              updates.recoveryPhone = {
+                exists: (phoneData.value as any).exists ?? false,
+                phoneNumber: (phoneData.value as any).phoneNumber || null,
+                nationalFormat: (phoneData.value as any).nationalFormat || null,
+                available: isPhoneAvailable,
+              };
+            } else {
+              updates.recoveryPhone = { exists: false, phoneNumber: null, nationalFormat: null, available: isPhoneAvailable };
+            }
+
+            updateExtendedAccountState(updates as any);
+            break;
+        }
+      })()
     );
   }
 
@@ -546,11 +530,17 @@ export class Account implements AccountData {
   }
 
   async getSecurityEvents(): Promise<SecurityEvent[]> {
-    const { data } = await this.apolloClient.query({
-      fetchPolicy: 'network-only',
-      query: GET_SECURITY_EVENTS,
-    });
-    return data?.account?.securityEvents ?? [];
+    const token = sessionToken();
+    if (!token) return [];
+
+    const events = await this.authClient.securityEvents(token);
+    const securityEvents = (events || []).map((e: any) => ({
+      name: e.name,
+      createdAt: e.createdAt,
+      verified: e.verified,
+    }));
+    updateExtendedAccountState({ securityEvents });
+    return securityEvents;
   }
 
   async getRecoveryKeyBundle(
@@ -563,22 +553,13 @@ export class Account implements AccountData {
     const recoveryKeyId = await getRecoveryKeyIdByUid(uint8RecoveryKey, uid);
 
     try {
-      const { data } = await this.apolloClient.query({
-        fetchPolicy: 'network-only',
-        query: GET_RECOVERY_BUNDLE,
-        variables: {
-          input: {
-            accountResetToken,
-            recoveryKeyId,
-          },
-        },
-      });
-      const { recoveryData } = data.getRecoveryKeyBundle;
-      return { recoveryData, recoveryKeyId };
-    } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
-        | number
-        | undefined;
+      const recoveryData = await this.authClient.getRecoveryKey(
+        accountResetToken,
+        recoveryKeyId
+      );
+      return { recoveryData: (recoveryData as any).recoveryData, recoveryKeyId };
+    } catch (err: any) {
+      const errno = err.errno;
       if (errno && AuthUiErrorNos[errno]) {
         throw AuthUiErrorNos[errno];
       }
@@ -616,24 +597,10 @@ export class Account implements AccountData {
       response.unwrapBKey
     );
     sessionToken(response.sessionToken);
-    this.apolloClient.cache.writeQuery({
-      query: gql`
-        query UpdatePassword {
-          account {
-            passwordCreated
-          }
-          session {
-            verified
-          }
-        }
-      `,
-      data: {
-        account: {
-          passwordCreated: response.authAt * 1000,
-          __typename: 'Account',
-        },
-        session: { verified: response.sessionVerified, __typename: 'Session' },
-      },
+
+    // Update localStorage
+    updateExtendedAccountState({
+      passwordCreated: response.authAt * 1000,
     });
   }
 
@@ -645,14 +612,10 @@ export class Account implements AccountData {
         newPassword
       )
     );
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        passwordCreated() {
-          return passwordCreatedResult.passwordCreated;
-        },
-      },
+
+    // Update localStorage
+    updateExtendedAccountState({
+      passwordCreated: passwordCreatedResult.passwordCreated,
     });
   }
 
@@ -665,14 +628,10 @@ export class Account implements AccountData {
         newPassword
       )
     );
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        passwordCreated() {
-          return passwordCreatedResult.passwordCreated;
-        },
-      },
+
+    // Update localStorage
+    updateExtendedAccountState({
+      passwordCreated: passwordCreatedResult.passwordCreated,
     });
   }
 
@@ -712,26 +671,12 @@ export class Account implements AccountData {
 
   async resetPasswordStatus(passwordForgotToken: string): Promise<boolean> {
     try {
-      await this.apolloClient.mutate({
-        mutation: gql`
-          mutation passwordForgotCodeStatus(
-            $input: PasswordForgotCodeStatusInput!
-          ) {
-            passwordForgotCodeStatus(input: $input) {
-              tries
-            }
-          }
-        `,
-        variables: { input: { token: passwordForgotToken } },
-      });
-
+      await this.authClient.passwordForgotStatus(passwordForgotToken);
       // If the request does not fail, that means that the token has not been
       // consumed yet
       return true;
-    } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
-        | number
-        | undefined;
+    } catch (err: any) {
+      const errno = err.errno;
 
       // Invalid token means the user has completed reset password
       // or that the provided token is stale (expired or replaced with new token)
@@ -783,32 +728,15 @@ export class Account implements AccountData {
    * Verify a passwordForgotToken, which returns an accountResetToken that can
    * be used to perform the actual password reset.
    *
-   * NOTE! and TODO: this is currently unused. We need to update the GQL
-   * endpoint to accept the `accountResetWithRecoveryKey` option and
-   * fix graphql-api not reporting the correct IP address.
-   *
    * @param token passwordForgotToken
    * @param code code
    */
   async verifyPasswordForgotToken(token: string, code: string) {
     try {
-      const verifyCodeResult = await this.apolloClient.mutate({
-        mutation: gql`
-          mutation passwordForgotVerifyCode(
-            $input: PasswordForgotVerifyCodeInput!
-          ) {
-            passwordForgotVerifyCode(input: $input) {
-              accountResetToken
-            }
-          }
-        `,
-        variables: { input: { token, code } },
-      });
-      return verifyCodeResult.data.passwordForgotVerifyCode;
-    } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
-        | number
-        | undefined;
+      const result = await this.authClient.passwordForgotVerifyCode(code, token);
+      return { accountResetToken: result.accountResetToken };
+    } catch (err: any) {
+      const errno = err.errno;
       if (errno && AuthUiErrorNos[errno]) {
         throw AuthUiErrorNos[errno];
       }
@@ -838,12 +766,6 @@ export class Account implements AccountData {
     includeRecoveryKeyPrompt = false
   ): Promise<any> {
     try {
-      // TODO: Temporary workaround (use auth-client directly) for GraphQL not
-      //  getting correct ip address
-      // const { accountResetToken } = await this.verifyPasswordForgotToken(
-      //   token,
-      //   code
-      // );
       // if we already have a reset token, that means the user successfully used a recovery key
       const accountResetToken =
         resetToken ||
@@ -877,80 +799,86 @@ export class Account implements AccountData {
         };
       }
 
-      const {
-        data: { accountReset },
-      } = await this.apolloClient.mutate({
-        mutation: gql`
-          mutation accountResetAuthPW($input: AccountResetInput!) {
-            accountReset(input: $input) {
-              clientMutationId
-              sessionToken
-              uid
-              authAt
-              keyFetchToken
-              emailVerified
-              sessionVerified
-            }
-          }
-        `,
-        variables: {
-          input: {
-            accountResetToken,
-            newPasswordAuthPW: credentials.authPW,
-            newPasswordV2,
-            options: { sessionToken: true, keys: true },
-          },
-        },
-      });
-      accountReset.unwrapBKey = credentials.unwrapBKey;
-      accountReset.unwrapBKeyVersion2 = credentialsV2?.unwrapBKey;
-      currentAccount(getStoredAccountData(accountReset));
-      sessionToken(accountReset.sessionToken);
-      if (accountReset.sessionVerified) {
-        this.apolloClient.cache.writeQuery({
-          query: GET_LOCAL_SIGNED_IN_STATUS,
-          data: { isSignedIn: true },
-        });
+      // Use auth-client directly with accountResetAuthPW
+      const v2Payload = newPasswordV2 ? {
+        wrapKb: newPasswordV2.wrapKb,
+        authPWVersion2: newPasswordV2.authPWVersion2,
+        wrapKbVersion2: newPasswordV2.wrapKbVersion2,
+        clientSalt: newPasswordV2.clientSalt,
+      } : {};
+
+      const accountReset = await this.authClient.accountResetAuthPW(
+        credentials.authPW,
+        accountResetToken,
+        v2Payload,
+        {
+          sessionToken: true,
+          keys: true,
+        }
+      );
+
+      const result = {
+        ...accountReset,
+        unwrapBKey: credentials.unwrapBKey,
+        unwrapBKeyVersion2: credentialsV2?.unwrapBKey,
+      };
+
+      currentAccount(getStoredAccountData(result));
+      sessionToken(result.sessionToken);
+
+      // Update localStorage to mark user as signed in
+      if (result.sessionVerified) {
+        updateBasicAccountData({ verified: true });
       }
-      return accountReset;
+
+      return result;
     } catch (err) {
       throw getHandledError(err);
     }
   }
 
   async setDisplayName(displayName: string) {
-    await this.withLoadingStatus(
-      this.apolloClient.mutate({
-        mutation: gql`
-          mutation updateDisplayName($input: UpdateDisplayNameInput!) {
-            updateDisplayName(input: $input) {
-              clientMutationId
-            }
-          }
-        `,
-        update: (cache) => {
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              displayName() {
-                return displayName;
-              },
-              avatar: (existing, { readField }) => {
-                const id = readField<string>('id', existing);
-                const oldUrl = readField<string>('url', existing);
-                return getNextAvatar(
-                  id,
-                  oldUrl,
-                  this.primaryEmail.email,
-                  displayName
-                );
-              },
-            },
-          });
-        },
-        variables: { input: { displayName } },
+    const token = sessionToken();
+    if (!token) throw AuthUiErrors.INVALID_TOKEN;
+
+    // Get OAuth token with profile:write scope (required by profile server)
+    const { access_token } = await this.withLoadingStatus(
+      this.authClient.createOAuthToken(token, config.oauth.clientId, {
+        scope: 'profile:write',
+        ttl: 300,
       })
     );
+
+    // Call profile server with OAuth token
+    const response = await this.withLoadingStatus(
+      fetch(`${config.servers.profile.url}/v1/display_name`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${access_token}`,
+        },
+        body: JSON.stringify({ displayName }),
+      })
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Failed to update display name');
+    }
+
+    // Update localStorage
+    const currentAvatar = this.avatar;
+    const newAvatar = getNextAvatar(
+      currentAvatar?.id ?? undefined,
+      currentAvatar?.url ?? undefined,
+      this.primaryEmail.email,
+      displayName
+    );
+    updateExtendedAccountState({
+      displayName,
+      avatar: { ...currentAvatar, ...newAvatar } as any,
+    });
+
     const legacyLocalStorageAccount = currentAccount()!;
     legacyLocalStorageAccount.displayName = displayName;
     currentAccount(legacyLocalStorageAccount);
@@ -962,74 +890,61 @@ export class Account implements AccountData {
   }
 
   async deleteAvatar() {
-    await this.withLoadingStatus(
-      this.apolloClient.mutate({
-        mutation: gql`
-          mutation deleteAvatar($input: DeleteAvatarInput!) {
-            deleteAvatar(input: $input) {
-              clientMutationId
-            }
-          }
-        `,
-        update: (cache) => {
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              avatar: () => {
-                return getNextAvatar(
-                  undefined,
-                  undefined,
-                  this.primaryEmail.email,
-                  this.displayName
-                );
-              },
-            },
-          });
-        },
-        variables: { input: { id: this.avatar.id } },
+    const token = sessionToken();
+    if (!token) throw AuthUiErrors.INVALID_TOKEN;
+
+    const avatarId = this.avatar.id;
+
+    const { access_token } = await this.withLoadingStatus(
+      this.authClient.createOAuthToken(token, config.oauth.clientId, {
+        scope: 'profile:write',
+        ttl: 300,
       })
     );
+
+    await this.withLoadingStatus(
+      fetch(`${config.servers.profile.url}/v1/avatar/${avatarId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      })
+    );
+
+    // Update localStorage
+    const newAvatar = getNextAvatar(
+      undefined,
+      undefined,
+      this.primaryEmail.email,
+      this.displayName
+    );
+    updateExtendedAccountState({
+      avatar: newAvatar as any,
+    });
+
     firefox.profileChanged({ uid: this.uid });
   }
 
   async disconnectClient(client: AttachedClient) {
+    const token = sessionToken();
+    if (!token) throw AuthUiErrors.INVALID_TOKEN;
+
     await this.withLoadingStatus(
-      this.apolloClient.mutate({
-        mutation: gql`
-          mutation attachedClientDisconnect(
-            $input: AttachedClientDisconnectInput!
-          ) {
-            attachedClientDisconnect(input: $input) {
-              clientMutationId
-            }
-          }
-        `,
-        update: (cache) => {
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              attachedClients: (existingClients) => {
-                const updatedList = [...existingClients];
-                return updatedList.filter(
-                  // TODO: should this also go into the AttachedClient model?
-                  (c) =>
-                    c.lastAccessTime !== client.lastAccessTime &&
-                    c.name !== client.name
-                );
-              },
-            },
-          });
-        },
-        variables: {
-          input: {
-            clientId: client.clientId,
-            deviceId: client.deviceId,
-            sessionTokenId: client.sessionTokenId,
-            refreshTokenId: client.refreshTokenId,
-          },
-        },
+      this.authClient.attachedClientDestroy(token, {
+        clientId: client.clientId,
+        deviceId: client.deviceId,
+        sessionTokenId: client.sessionTokenId,
+        refreshTokenId: client.refreshTokenId,
       })
     );
+
+    // Update localStorage
+    const currentClients = this.attachedClients;
+    const updatedClients = currentClients.filter(
+      (c) =>
+        c.lastAccessTime !== client.lastAccessTime && c.name !== client.name
+    );
+    updateExtendedAccountState({ attachedClients: updatedClients });
   }
 
   async verifyAccountThirdParty(
@@ -1136,15 +1051,11 @@ export class Account implements AccountData {
       this.authClient.deleteTotpTokenWithJwt(this.getCachedJwtByScope('2fa'))
     );
 
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        totp() {
-          return { exists: false, verified: false };
-        },
-      },
+    // Update localStorage
+    updateExtendedAccountState({
+      totp: { exists: false, verified: false },
     });
+
     await this.refresh('recoveryPhone');
     await this.refresh('backupCodes');
   }
@@ -1152,16 +1063,13 @@ export class Account implements AccountData {
   async deleteRecoveryKeyWithJwt() {
     const jwt = this.getCachedJwtByScope('recovery_key');
     await this.withLoadingStatus(this.authClient.deleteRecoveryKeyWithJwt(jwt));
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        recoveryKey(existingData) {
-          return {
-            exists: false,
-            estimatedSyncDeviceCount: existingData.estimatedSyncDeviceCount,
-          };
-        },
+
+    // Update localStorage
+    const currentRecoveryKey = this.recoveryKey;
+    updateExtendedAccountState({
+      recoveryKey: {
+        exists: false,
+        estimatedSyncDeviceCount: currentRecoveryKey?.estimatedSyncDeviceCount,
       },
     });
   }
@@ -1186,20 +1094,19 @@ export class Account implements AccountData {
       this.authClient.recoveryEmailSetPrimaryEmail(sessionToken()!, email)
     );
     await this.refresh('emails');
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        primaryEmail() {
-          return { email, isPrimary: true, verified: true };
-        },
-        avatar: (existing, { readField }) => {
-          const id = readField<string>('id', existing);
-          const oldUrl = readField<string>('url', existing);
-          return getNextAvatar(id, oldUrl, email, this.displayName);
-        },
-      },
+
+    // Update localStorage
+    const currentAvatar = this.avatar;
+    const newAvatar = getNextAvatar(
+      currentAvatar?.id ?? undefined,
+      currentAvatar?.url ?? undefined,
+      email,
+      this.displayName
+    );
+    updateExtendedAccountState({
+      avatar: { ...currentAvatar, ...newAvatar } as any,
     });
+    updateBasicAccountData({ email });
 
     const legacyLocalStorageAccount = currentAccount()!;
     legacyLocalStorageAccount.email = email;
@@ -1214,20 +1121,19 @@ export class Account implements AccountData {
       this.authClient.recoveryEmailSetPrimaryEmailWithJwt(jwt, email)
     );
     await this.refresh('emails');
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        primaryEmail() {
-          return { email, isPrimary: true, verified: true };
-        },
-        avatar: (existing, { readField }) => {
-          const id = readField<string>('id', existing);
-          const oldUrl = readField<string>('url', existing);
-          return getNextAvatar(id, oldUrl, email, this.displayName);
-        },
-      },
+
+    // Update localStorage
+    const currentAvatar = this.avatar;
+    const newAvatar = getNextAvatar(
+      currentAvatar?.id ?? undefined,
+      currentAvatar?.url ?? undefined,
+      email,
+      this.displayName
+    );
+    updateExtendedAccountState({
+      avatar: { ...currentAvatar, ...newAvatar } as any,
     });
+    updateBasicAccountData({ email });
 
     const legacyLocalStorageAccount = currentAccount()!;
     legacyLocalStorageAccount.email = email;
@@ -1314,15 +1220,12 @@ export class Account implements AccountData {
       throw new Error(`${response.status}`);
     }
     const newAvatar = (await response.json()) as Account['avatar'];
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        avatar() {
-          return { ...newAvatar, isDefault: false };
-        },
-      },
+
+    // Update localStorage
+    updateExtendedAccountState({
+      avatar: { ...newAvatar, isDefault: false },
     });
+
     firefox.profileChanged({ uid: this.uid });
   }
 
@@ -1371,16 +1274,12 @@ export class Account implements AccountData {
       );
     }
 
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        recoveryKey(existingData) {
-          return {
-            exists: true,
-            estimatedSyncDeviceCount: existingData.estimatedSyncDeviceCount,
-          };
-        },
+    // Update localStorage
+    const currentRecoveryKey = this.recoveryKey;
+    updateExtendedAccountState({
+      recoveryKey: {
+        exists: true,
+        estimatedSyncDeviceCount: currentRecoveryKey?.estimatedSyncDeviceCount,
       },
     });
     return recoveryKey;
@@ -1393,28 +1292,47 @@ export class Account implements AccountData {
   }
 
   async metricsOpt(state: 'in' | 'out') {
-    await this.withLoadingStatus(
-      this.apolloClient.mutate({
-        mutation: gql`
+    const token = sessionToken();
+    if (!token) throw AuthUiErrors.INVALID_TOKEN;
+
+    // Call GraphQL API directly to update metrics preference
+    // TODO: Create a dedicated auth-server endpoint for this
+    const response = await fetch(`${config.servers.gql.url}/graphql`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        query: `
           mutation metricsOpt($input: MetricsOptInput!) {
             metricsOpt(input: $input) {
               clientMutationId
             }
           }
         `,
-        update: (cache) => {
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              metricsEnabled: () => {
-                return state === 'in';
-              },
-            },
-          });
+        variables: {
+          input: {
+            clientMutationId: `metricsOpt-${Date.now()}`,
+            state,
+          },
         },
-        variables: { input: { state } },
-      })
-    );
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Failed to update metrics preference');
+    }
+
+    const result = await response.json();
+    if (result.errors && result.errors.length > 0) {
+      throw new Error(result.errors[0].message || 'Failed to update metrics preference');
+    }
+
+    // Update localStorage
+    updateBasicAccountData({ metricsEnabled: state === 'in' });
+
     const legacyLocalStorageAccount = currentAccount()!;
     legacyLocalStorageAccount.metricsEnabled = state === 'in';
     currentAccount(legacyLocalStorageAccount);
@@ -1426,17 +1344,12 @@ export class Account implements AccountData {
       this.authClient.unlinkThirdParty(sessionToken()!, providerId)
     );
 
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        linkedAccounts: (existingAccounts) => {
-          return existingAccounts.filter((linkedAcc: LinkedAccount) => {
-            return linkedAcc.providerId !== providerId;
-          });
-        },
-      },
-    });
+    // Update localStorage
+    const currentLinkedAccounts = this.linkedAccounts;
+    const updatedLinkedAccounts = currentLinkedAccounts.filter(
+      (linkedAcc) => linkedAcc.providerId !== providerId
+    );
+    updateExtendedAccountState({ linkedAccounts: updatedLinkedAccounts });
   }
 
   async destroy(password: string) {
@@ -1474,22 +1387,17 @@ export class Account implements AccountData {
     );
     currentAccount(currentAccount(getStoredAccountData(data)));
     sessionToken(data.sessionToken);
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        recoveryKey(existingData) {
-          return {
-            exists: false,
-            estimatedSyncDeviceCount: existingData.estimatedSyncDeviceCount,
-          };
-        },
+
+    // Update localStorage
+    const currentRecoveryKey = this.recoveryKey;
+    updateExtendedAccountState({
+      recoveryKey: {
+        exists: false,
+        estimatedSyncDeviceCount: currentRecoveryKey?.estimatedSyncDeviceCount,
       },
     });
-    cache.writeQuery({
-      query: GET_LOCAL_SIGNED_IN_STATUS,
-      data: { isSignedIn: true },
-    });
+    updateBasicAccountData({ verified: true });
+
     return data;
   }
 
@@ -1544,18 +1452,14 @@ export class Account implements AccountData {
     const { nationalFormat } = await this.withLoadingStatus(
       this.authClient.recoveryPhoneConfirmSetup(sessionToken()!, code)
     );
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        recoveryPhone() {
-          return {
-            exists: true,
-            phoneNumber,
-            nationalFormat,
-            available: true,
-          };
-        },
+
+    // Update localStorage
+    updateExtendedAccountState({
+      recoveryPhone: {
+        exists: true,
+        phoneNumber,
+        nationalFormat,
+        available: true,
       },
     });
   }
