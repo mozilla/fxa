@@ -569,14 +569,32 @@ module.exports = function (log, config, bounces, statsd) {
     await new Promise((resolve, reject) => {
       this.mailer.sendMail(emailConfig, (err, status) => {
         if (err) {
-          log.error('mailer.send.error', {
+          const errorLogDetails = {
             err: err.message,
             code: err.code,
             errno: err.errno,
             message: status && status.message,
             to: emailConfig && emailConfig.to,
             template,
-          });
+          };
+
+          if (emailConfig && emailConfig.cc) {
+            errorLogDetails.cc = emailConfig.cc;
+          }
+          if (err.response) {
+            errorLogDetails.smtpResponse = err.response;
+          }
+          if (err.responseCode) {
+            errorLogDetails.smtpResponseCode = err.responseCode;
+          }
+          if (err.rejected && err.rejected.length) {
+            errorLogDetails.rejectedRecipients = err.rejected;
+          }
+          if (err.accepted && err.accepted.length) {
+            errorLogDetails.acceptedRecipients = err.accepted;
+          }
+
+          log.error('mailer.send.error', errorLogDetails);
 
           return reject(err);
         }
