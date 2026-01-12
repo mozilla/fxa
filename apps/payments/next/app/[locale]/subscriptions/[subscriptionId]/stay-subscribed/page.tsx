@@ -41,6 +41,12 @@ export default async function StaySubscribedPage({
     notFound();
   }
 
+  if (pageContent.isEligibleforChurnStaySubscribed === true) {
+    redirect(
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/stay-subscribed`
+    );
+  }
+
   return (
     <StaySubscribed
       userId={uid}

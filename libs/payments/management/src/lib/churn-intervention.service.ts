@@ -327,9 +327,6 @@ export class ChurnInterventionService {
   async determineCancellationIntervention(args: {
     uid: string;
     subscriptionId: string;
-    offeringApiIdentifier: string;
-    currentInterval: SubplatInterval;
-    upgradeInterval: SubplatInterval;
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
@@ -422,23 +419,87 @@ export class ChurnInterventionService {
   async determineCancelInterstitialOfferEligibility(args: {
     uid: string;
     subscriptionId: string;
-    offeringApiIdentifier: string;
-    currentInterval: SubplatInterval;
-    upgradeInterval: SubplatInterval;
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
+    const upgradeInterval = SubplatInterval.Yearly;
+    const subscription = await this.subscriptionManager.retrieve(
+      args.subscriptionId
+    );
+
+    if (!subscription) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'subscription_not_found',
+      });
+      return {
+        isEligible: false,
+        reason: 'subscription_not_found',
+        cmsCancelInterstitialOfferResult: null,
+      };
+    }
+
+    const currentInterval =
+      await this.productConfigurationManager.getSubplatIntervalBySubscription(
+        subscription
+      );
+
+    if (!currentInterval) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'current_interval_not_found',
+      });
+      return {
+        isEligible: false,
+        reason: 'current_interval_not_found',
+        cmsCancelInterstitialOfferResult: null,
+      };
+    }
+
+    const stripePriceId = subscription.items.data.at(0)?.price.id;
+
+    if (!stripePriceId) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'stripe_price_id_not_found',
+      });
+      return {
+        isEligible: false,
+        reason: 'stripe_price_id_not_found',
+        cmsCancelInterstitialOfferResult: null,
+      };
+    }
+
+    const result =
+      await this.productConfigurationManager.getPageContentByPriceIds([
+        stripePriceId,
+      ]);
+    const offeringId =
+      result.purchaseForPriceId(stripePriceId).offering?.apiIdentifier;
+
+    if (!offeringId) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'offering_id_not_found',
+      });
+      return {
+        isEligible: false,
+        reason: 'offering_id_not_found',
+        cmsCancelInterstitialOfferResult: null,
+      };
+    }
+
     const cmsCancelInterstitialOffer =
       await this.productConfigurationManager.getCancelInterstitialOffer(
-        args.offeringApiIdentifier,
-        args.currentInterval,
-        args.upgradeInterval,
+        offeringId,
+        currentInterval,
+        upgradeInterval,
         args.acceptLanguage || undefined,
         args.selectedLanguage
       );
-
     const cmsCancelInterstitialOfferResult =
       cmsCancelInterstitialOffer.getTransformedResult();
+
     if (!cmsCancelInterstitialOfferResult) {
       this.statsd.increment('cancel_intervention_decision', {
         type: 'none',
@@ -451,29 +512,10 @@ export class ChurnInterventionService {
       };
     }
 
-    const currentStripeInterval =
-      await this.productConfigurationManager.getSubplatIntervalBySubscription(
-        args.subscriptionId
-      );
-    if (
-      !currentStripeInterval ||
-      currentStripeInterval !== args.currentInterval
-    ) {
-      this.statsd.increment('cancel_intervention_decision', {
-        type: 'none',
-        reason: 'current_interval_mismatch',
-      });
-      return {
-        isEligible: false,
-        reason: 'current_interval_mismatch',
-        cmsCancelInterstitialOfferResult: null,
-      };
-    }
-
     try {
       await this.productConfigurationManager.retrieveStripePrice(
-        args.offeringApiIdentifier,
-        args.upgradeInterval
+        offeringId,
+        upgradeInterval
       );
     } catch {
       this.statsd.increment('cancel_intervention_decision', {
@@ -488,8 +530,8 @@ export class ChurnInterventionService {
     }
 
     const eligibility = await this.eligibilityService.checkEligibility(
-      args.upgradeInterval,
-      args.offeringApiIdentifier,
+      upgradeInterval,
+      offeringId,
       args.uid,
       args.subscriptionId
     );
