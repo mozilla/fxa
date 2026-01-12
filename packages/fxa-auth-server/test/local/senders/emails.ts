@@ -140,8 +140,8 @@ const MESSAGE = {
     productId: 'wibble',
   },
   subscriptions: [
-    { productName: 'Firefox Fortress' },
-    { productName: 'Cooking with Foxkeh' },
+    { planId: 'plan-example', productName: 'Firefox Fortress' },
+    { planId: 'other-plan', productName: 'Cooking with Foxkeh' },
   ],
   showPaymentMethod: true,
   discountType: 'forever',
