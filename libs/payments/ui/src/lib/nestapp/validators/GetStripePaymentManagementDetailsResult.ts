@@ -2,7 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsOptional, IsString, ValidateNested } from 'class-validator';
+
+export class PaymentMethodDetails {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  @IsOptional()
+  type?: string;
+}
 
 export class GetStripePaymentManagementDetailsResult {
   @IsString()
@@ -11,9 +21,10 @@ export class GetStripePaymentManagementDetailsResult {
   @IsString()
   customer!: string;
 
-  @IsString()
+  @ValidateNested({ each: true })
+  @Type(() => PaymentMethodDetails)
   @IsOptional()
-  defaultPaymentMethodId?: string;
+  defaultPaymentMethod?: PaymentMethodDetails;
 
   @IsString()
   currency!: string;

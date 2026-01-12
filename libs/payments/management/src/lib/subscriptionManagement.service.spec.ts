@@ -1002,7 +1002,10 @@ describe('SubscriptionManagementService', () => {
       expect(result).toEqual({
         clientSecret: mockCustomerSession.client_secret,
         customer: mockCustomer.id,
-        defaultPaymentMethodId: mockPaymentMethod.id,
+        defaultPaymentMethod: {
+          id: mockPaymentMethod.id,
+          type: mockPaymentMethod.type,
+        },
         currency: mockCustomer.currency,
       });
     });
@@ -1072,7 +1075,10 @@ describe('SubscriptionManagementService', () => {
       expect(result).toEqual({
         clientSecret: mockCustomerSession.client_secret,
         customer: mockCustomer.id,
-        defaultPaymentMethodId: mockPaymentMethod.id,
+        defaultPaymentMethod: {
+          id: mockPaymentMethod.id,
+          type: mockPaymentMethod.type,
+        },
         currency: mockCurrency,
       });
     });
@@ -1132,7 +1138,10 @@ describe('SubscriptionManagementService', () => {
       expect(result).toEqual({
         clientSecret: mockCustomerSession.client_secret,
         customer: mockCustomer.id,
-        defaultPaymentMethodId: mockPaymentMethod.id,
+        defaultPaymentMethod: {
+          id: mockPaymentMethod.id,
+          type: mockPaymentMethod.type,
+        },
         currency: mockCurrency,
       });
     });

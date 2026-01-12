@@ -805,8 +805,15 @@ export class SubscriptionManagementService {
     return {
       clientSecret: customerSession.client_secret,
       customer: customerSession.customer,
-      defaultPaymentMethodId: defaultPaymentMethod?.id,
       currency,
+      ...(defaultPaymentMethod
+        ? {
+            defaultPaymentMethod: {
+              type: defaultPaymentMethod?.type,
+              id: defaultPaymentMethod?.id,
+            },
+          }
+        : {}),
     };
   }
 
