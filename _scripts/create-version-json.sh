@@ -12,7 +12,7 @@ if [[ "${CIRCLECI}" == "true" ]]; then
     | tee "$DIR/../packages/version.json" "$DIR/../apps/version.json"
 elif [[ "${GITHUB_ACTIONS}" == "true" ]]; then
   printf '{"version":{"hash":"%s","version":"%s","source":"https://github.com/%s","build":"%s/%s/actions/runs/%s"}}\n' \
-    "${GITHUB_SHA}" \
+    "$(git rev-parse HEAD)" \
     "${GIT_TAG}" \
     "${GITHUB_REPOSITORY}" \
     "${GITHUB_SERVER_URL}" \
