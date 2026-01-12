@@ -10,9 +10,6 @@ export class DetermineCancellationInterventionActionArgs {
   uid!: string;
 
   @IsString()
-  customerId!: string;
-
-  @IsString()
   subscriptionId!: string;
 
   @IsString()

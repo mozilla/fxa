@@ -5,9 +5,11 @@
 import {
   IsArray,
   IsBoolean,
+  IsIn,
   IsNumber,
   IsOptional,
   IsString,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -15,6 +17,9 @@ import { Type } from 'class-transformer';
 export class CmsChurnInterventionEntryResult {
   @IsString()
   webIcon!: string;
+
+  @IsString()
+  apiIdentifier!: string;
 
   @IsString()
   churnInterventionId!: string;
@@ -59,6 +64,70 @@ export class CmsChurnInterventionEntryResult {
   supportUrl!: string;
 }
 
+export class CmsOfferingContent {
+  @IsString()
+  productName!: string;
+
+  @IsString()
+  successActionButtonUrl!: string;
+
+  @IsString()
+  supportUrl!: string;
+
+  @IsString()
+  webIcon!: string;
+}
+
+export class StaySubscribedFlowResult {
+  @IsString()
+  @IsIn(['not_found', 'stay_subscribed'])
+  flowType!: 'not_found' | 'stay_subscribed';
+
+  @ValidateIf((o) => o.flowType !== 'not_found')
+  @IsBoolean()
+  active!: boolean;
+
+  @ValidateIf((o) => o.flowType !== 'not_found')
+  @IsBoolean()
+  cancelAtPeriodEnd!: boolean;
+
+  @ValidateIf((o) => o.flowType !== 'not_found')
+  @IsString()
+  currency!: string;
+
+  @ValidateIf((o) => o.flowType !== 'not_found')
+  @IsNumber()
+  currentPeriodEnd!: number;
+
+  @ValidateIf((o) => o.flowType !== 'not_found')
+  @IsOptional()
+  @IsString()
+  defaultPaymentMethodType?: string;
+
+  @ValidateIf((o) => o.flowType !== 'not_found')
+  @IsOptional()
+  @IsString()
+  last4?: string;
+
+  @ValidateIf((o) => o.flowType !== 'not_found')
+  @IsOptional()
+  @IsNumber()
+  nextInvoiceTax?: number;
+
+  @ValidateIf((o) => o.flowType !== 'not_found')
+  @IsOptional()
+  @IsNumber()
+  nextInvoiceTotal?: number;
+
+  @ValidateIf((o) => o.flowType !== 'not_found')
+  @IsString()
+  productName!: string;
+
+  @ValidateIf((o) => o.flowType !== 'not_found')
+  @IsString()
+  webIcon!: string;
+}
+
 export class DetermineStaySubscribedEligibilityActionResult {
   @IsBoolean()
   isEligible!: boolean;
@@ -70,4 +139,14 @@ export class DetermineStaySubscribedEligibilityActionResult {
   @ValidateNested()
   @Type(() => CmsChurnInterventionEntryResult)
   cmsChurnInterventionEntry!: CmsChurnInterventionEntryResult | null;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CmsOfferingContent)
+  cmsOfferingContent!: CmsOfferingContent | null;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => StaySubscribedFlowResult)
+  staySubscribedContent!: StaySubscribedFlowResult | null;
 }

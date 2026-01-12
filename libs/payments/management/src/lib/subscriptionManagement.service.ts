@@ -23,9 +23,7 @@ import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
-import {
-  throwStripeUpdatePaymentFailedError
-} from './throwStripeUpdatePaymentFailedError';
+import { throwStripeUpdatePaymentFailedError } from './throwStripeUpdatePaymentFailedError';
 import type {
   ResultAccountCustomer,
   StripeCustomer,
@@ -276,9 +274,8 @@ export class SubscriptionManagementService {
           supportUrl,
           apiIdentifier,
           uid,
-          accountCustomer?.stripeCustomerId ?? stripeCustomer.id,
           acceptLanguage,
-          selectedLanguage,
+          selectedLanguage
         );
 
         if (content) {
@@ -404,7 +401,6 @@ export class SubscriptionManagementService {
     supportUrl: string,
     offeringApiIdentifier: string,
     uid: string,
-    customerId: string,
     acceptLanguage?: string,
     selectedLanguage?: string
   ): Promise<SubscriptionContent> {
@@ -477,13 +473,13 @@ export class SubscriptionManagementService {
         .filter((tax) => !tax.inclusive)
         .reduce((sum, tax) => sum + tax.amount, 0);
 
-    const staySubscribedResult = await this.churnInterventionService.determineStaySubscribedEligibility(
-      uid,
-      customerId,
-      subscription.id,
-      acceptLanguage,
-      selectedLanguage,
-    );
+    const staySubscribedResult =
+      await this.churnInterventionService.determineStaySubscribedEligibility(
+        uid,
+        subscription.id,
+        acceptLanguage,
+        selectedLanguage
+      );
 
     return {
       id: subscription.id,
@@ -516,7 +512,8 @@ export class SubscriptionManagementService {
       promotionName,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       isEligibleForChurnStaySubscribed: staySubscribedResult.isEligible,
-      churnStaySubscribedCtaMessage: staySubscribedResult.cmsChurnInterventionEntry?.ctaMessage,
+      churnStaySubscribedCtaMessage:
+        staySubscribedResult.cmsChurnInterventionEntry?.ctaMessage,
     };
   }
 
@@ -928,10 +925,7 @@ export class SubscriptionManagementService {
   }
 
   @SanitizeExceptions()
-  async setDefaultStripePaymentDetails(
-    uid: string,
-    paymentMethodId: string,
-  ) {
+  async setDefaultStripePaymentDetails(uid: string, paymentMethodId: string) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
 
@@ -942,7 +936,7 @@ export class SubscriptionManagementService {
     await this.customerManager.update(accountCustomer.stripeCustomerId, {
       invoice_settings: {
         default_payment_method: paymentMethodId,
-      }
+      },
     });
   }
 

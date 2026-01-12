@@ -101,4 +101,5 @@ export enum ChurnErrorReason {
   SubscriptionNotActive = 'subscription_not_active',
   SubscriptionStillActive = 'subscription_still_active',
   GeneralError = 'general_error',
+  RedemptionLimitExceeded = 'redemption_limit_exceeded',
 }

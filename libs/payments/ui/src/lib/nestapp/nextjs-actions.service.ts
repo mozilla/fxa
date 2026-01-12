@@ -265,10 +265,11 @@ export class NextJSActionsService {
     customerId: string;
     churnInterventionId: string;
   }) {
-    const data = await this.churnInterventionService.getChurnInterventionForCustomerId(
-      args.customerId,
-      args.churnInterventionId
-    );
+    const data =
+      await this.churnInterventionService.getChurnInterventionForCustomerId(
+        args.customerId,
+        args.churnInterventionId
+      );
     return data;
   }
 
@@ -281,18 +282,30 @@ export class NextJSActionsService {
   @CaptureTimingWithStatsD()
   async determineStaySubscribedEligibility(args: {
     uid: string;
-    customerId: string;
     subscriptionId: string;
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    return await this.churnInterventionService.determineStaySubscribedEligibility(
-      args.uid,
-      args.customerId,
-      args.subscriptionId,
-      args.acceptLanguage,
-      args.selectedLanguage
-    );
+    const result =
+      await this.churnInterventionService.determineStaySubscribedEligibility(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage,
+        args.selectedLanguage
+      );
+
+    const staySubscribedContent =
+      await this.subscriptionManagementService.getStaySubscribedFlowContent(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
+    return {
+      ...result,
+      staySubscribedContent,
+    };
   }
 
   @SanitizeExceptions()
@@ -303,25 +316,25 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async determineCancellationIntervention(args: {
-    uid: string,
-    customerId: string,
-    subscriptionId: string,
-    offeringApiIdentifier: string,
-    currentInterval: SubplatInterval,
-    upgradeInterval: SubplatInterval,
-    acceptLanguage?: string | null,
-    selectedLanguage?: string,
+    uid: string;
+    subscriptionId: string;
+    offeringApiIdentifier: string;
+    currentInterval: SubplatInterval;
+    upgradeInterval: SubplatInterval;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
   }) {
-    return await this.churnInterventionService.determineCancellationIntervention({
-      uid: args.uid,
-      customerId: args.customerId,
-      subscriptionId: args.subscriptionId,
-      offeringApiIdentifier: args.offeringApiIdentifier,
-      currentInterval: args.currentInterval,
-      upgradeInterval: args.upgradeInterval,
-      acceptLanguage: args.acceptLanguage,
-      selectedLanguage: args.selectedLanguage,
-    });
+    return await this.churnInterventionService.determineCancellationIntervention(
+      {
+        uid: args.uid,
+        subscriptionId: args.subscriptionId,
+        offeringApiIdentifier: args.offeringApiIdentifier,
+        currentInterval: args.currentInterval,
+        upgradeInterval: args.upgradeInterval,
+        acceptLanguage: args.acceptLanguage,
+        selectedLanguage: args.selectedLanguage,
+      }
+    );
   }
 
   @SanitizeExceptions()
@@ -330,14 +343,12 @@ export class NextJSActionsService {
   @CaptureTimingWithStatsD()
   async redeemChurnCoupon(args: {
     uid: string;
-    customerId: string,
     subscriptionId: string;
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
     return await this.churnInterventionService.redeemChurnCoupon(
       args.uid,
-      args.customerId,
       args.subscriptionId,
       args.acceptLanguage,
       args.selectedLanguage
@@ -521,7 +532,7 @@ export class NextJSActionsService {
     cartId: string;
     version: number;
     confirmationTokenId: string;
-    customerData: { locale: string;};
+    customerData: { locale: string };
     attribution: SubscriptionAttributionParams;
     sessionUid?: string;
   }) {
@@ -931,7 +942,7 @@ export class NextJSActionsService {
   }) {
     return await this.subscriptionManagementService.setDefaultStripePaymentDetails(
       args.uid,
-      args.paymentMethodId,
+      args.paymentMethodId
     );
   }
 

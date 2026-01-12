@@ -14,28 +14,50 @@ import {
 } from '@fxa/payments/eligibility';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { StatsD } from 'hot-shots';
+import { SubplatInterval, SubscriptionManager } from '@fxa/payments/customer';
+import { AccountCustomerManager } from '@fxa/payments/stripe';
+import { ProfileClient } from '@fxa/profile/client';
+import { NotifierService } from '@fxa/shared/notifier';
 import {
-  SubplatInterval,
-  SubscriptionManager,
-} from '@fxa/payments/customer';
-import { ChurnInterventionProductIdentifierMissingError } from './churn-intervention.error';
+  ChurnInterventionProductIdentifierMissingError,
+  ChurnSubscriptionCustomerMismatchError,
+} from './churn-intervention.error';
 
 @Injectable()
 export class ChurnInterventionService {
   constructor(
+    private accountCustomerManager: AccountCustomerManager,
     private productConfigurationManager: ProductConfigurationManager,
     private churnInterventionManager: ChurnInterventionManager,
     private eligibilityService: EligibilityService,
+    private notifierService: NotifierService,
+    private profileClient: ProfileClient,
     private subscriptionManager: SubscriptionManager,
     @Inject(StatsDService) private statsd: StatsD,
     @Inject(Logger) private log: LoggerService
   ) {}
 
+  /**
+   * Reload the customer data to reflect a change.
+   * NOTE: This is currently duplicated in subscriptionManagement.service.ts
+   */
+  private async customerChanged(uid: string) {
+    await this.profileClient.deleteCache(uid);
+
+    this.notifierService.send({
+      event: 'profileDataChange',
+      data: {
+        ts: Date.now() / 1000,
+        uid,
+      },
+    });
+  }
+
   async getChurnInterventionForCustomerId(
     customerId: string,
     churnInterventionId: string
   ) {
-    return this.churnInterventionManager.getEntry(
+    return this.churnInterventionManager.getOrCreateEntry(
       customerId,
       churnInterventionId
     );
@@ -79,7 +101,6 @@ export class ChurnInterventionService {
 
   async determineStaySubscribedEligibility(
     uid: string,
-    customerId: string,
     subscriptionId: string,
     acceptLanguage?: string | null,
     selectedLanguage?: string
@@ -92,46 +113,24 @@ export class ChurnInterventionService {
           acceptLanguage || undefined,
           selectedLanguage
         );
+      const cmsContent = cmsChurnResult.cmsOfferingContent();
+      const accountCustomer =
+        await this.accountCustomerManager.getAccountCustomerByUid(uid);
+      const subscription =
+        await this.subscriptionManager.retrieve(subscriptionId);
 
-      const cmsChurnInterventionEntries =
-        cmsChurnResult.getTransformedChurnInterventionByProductId();
-      if (!cmsChurnInterventionEntries.length) {
-        this.statsd.increment('stay_subscribed_eligibility', {
-          eligibility: 'ineligible',
-          reason: 'no_churn_intervention_found',
-        });
-        return {
-          isEligible: false,
-          reason: 'no_churn_intervention_found',
-          cmsChurnInterventionEntry: null,
-        };
-      }
-
-      const cmsChurnInterventionEntry = cmsChurnInterventionEntries[0];
-      const redemptionCount =
-        await this.churnInterventionManager.getRedemptionCountForUid(
+      if (subscription.customer !== accountCustomer.stripeCustomerId) {
+        throw new ChurnSubscriptionCustomerMismatchError(
           uid,
-          cmsChurnInterventionEntry.churnInterventionId
+          accountCustomer.uid,
+          subscription.customer,
+          subscriptionId
         );
-
-      if (
-        cmsChurnInterventionEntry.redemptionLimit &&
-        redemptionCount >= cmsChurnInterventionEntry.redemptionLimit
-      ) {
-        this.statsd.increment('stay_subscribed_eligibility', {
-          eligibility: 'ineligible',
-          reason: 'discount_already_applied',
-        });
-        return {
-          isEligible: false,
-          reason: 'discount_already_applied',
-          cmsChurnInterventionEntry: null,
-        };
       }
 
       const subscriptionStatus =
         await this.subscriptionManager.getSubscriptionStatus(
-          customerId,
+          subscription.customer,
           subscriptionId
         );
       if (!subscriptionStatus.active) {
@@ -143,8 +142,13 @@ export class ChurnInterventionService {
           isEligible: false,
           reason: 'subscription_not_active',
           cmsChurnInterventionEntry: null,
+          cmsOfferingContent: cmsContent,
         };
       }
+
+      const cmsChurnInterventionEntries =
+        cmsChurnResult.getTransformedChurnInterventionByProductId();
+      const cmsChurnInterventionEntry = cmsChurnInterventionEntries[0];
       if (!subscriptionStatus.cancelAtPeriodEnd) {
         this.statsd.increment('stay_subscribed_eligibility', {
           eligibility: 'ineligible',
@@ -153,7 +157,65 @@ export class ChurnInterventionService {
         return {
           isEligible: false,
           reason: 'subscription_still_active',
+          cmsChurnInterventionEntry,
+          cmsOfferingContent: cmsContent,
+        };
+      }
+
+      if (!cmsChurnInterventionEntries.length) {
+        this.statsd.increment('stay_subscribed_eligibility', {
+          eligibility: 'ineligible',
+          reason: 'no_churn_intervention_found',
+        });
+        return {
+          isEligible: false,
+          reason: 'no_churn_intervention_found',
           cmsChurnInterventionEntry: null,
+          cmsOfferingContent: cmsContent,
+        };
+      }
+
+      const redemptionCount =
+        await this.churnInterventionManager.getRedemptionCountForUid(
+          uid,
+          cmsChurnInterventionEntry.churnInterventionId
+        );
+
+      const limit = cmsChurnInterventionEntry.redemptionLimit;
+
+      // redemptionLimit is allowed to be null/undefined but not 0
+      // Coupon may be redeemed indefinitely
+      const hasLimit = typeof limit === 'number';
+
+      if (hasLimit && redemptionCount >= limit) {
+        this.statsd.increment('stay_subscribed_eligibility', {
+          eligibility: 'ineligible',
+          reason: 'redemption_limit_exceeded',
+        });
+        return {
+          isEligible: false,
+          reason: 'redemption_limit_exceeded',
+          cmsChurnInterventionEntry: null,
+          cmsOfferingContent: cmsContent,
+        };
+      }
+
+      const churnCouponId = cmsChurnInterventionEntry.stripeCouponId;
+      const couponAlreadyApplied = await this.subscriptionManager.hasCouponId(
+        subscriptionId,
+        churnCouponId
+      );
+
+      if (couponAlreadyApplied) {
+        this.statsd.increment('stay_subscribed_eligibility', {
+          eligibility: 'ineligible',
+          reason: 'discount_already_applied',
+        });
+        return {
+          isEligible: false,
+          reason: 'discount_already_applied',
+          cmsChurnInterventionEntry: null,
+          cmsOfferingContent: cmsContent,
         };
       }
 
@@ -164,6 +226,7 @@ export class ChurnInterventionService {
         isEligible: true,
         reason: 'eligible',
         cmsChurnInterventionEntry,
+        cmsOfferingContent: null,
       };
     } catch (error) {
       this.log.error(error);
@@ -171,20 +234,19 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'general_error',
         cmsChurnInterventionEntry: null,
+        cmsOfferingContent: null,
       };
     }
   }
 
   async redeemChurnCoupon(
     uid: string,
-    customerId: string,
     subscriptionId: string,
     acceptLanguage?: string | null,
     selectedLanguage?: string
   ) {
     const eligibilityResult = await this.determineStaySubscribedEligibility(
       uid,
-      customerId,
       subscriptionId,
       acceptLanguage,
       selectedLanguage
@@ -203,19 +265,32 @@ export class ChurnInterventionService {
     }
 
     try {
-      const updatedSubscription =
-        await this.subscriptionManager.applyStripeCouponToSubscription(
-          {
-            customerId,
-            subscriptionId,
-            stripeCouponId:
-              eligibilityResult.cmsChurnInterventionEntry.stripeCouponId,
-            setCancelAtPeriodEnd: true,
-          }
+      const accountCustomer =
+        await this.accountCustomerManager.getAccountCustomerByUid(uid);
+      const subscription =
+        await this.subscriptionManager.retrieve(subscriptionId);
+
+      if (subscription.customer !== accountCustomer.stripeCustomerId) {
+        throw new ChurnSubscriptionCustomerMismatchError(
+          uid,
+          accountCustomer.uid,
+          subscription.customer,
+          subscriptionId
         );
+      }
+
+      const updatedSubscription =
+        await this.subscriptionManager.resubscribeWithCoupon({
+          customerId: subscription.customer,
+          subscriptionId,
+          stripeCouponId:
+            eligibilityResult.cmsChurnInterventionEntry.stripeCouponId,
+        });
+      await this.customerChanged(uid);
+
       if (
         !updatedSubscription ||
-        updatedSubscription.cancel_at_period_end !== true
+        updatedSubscription.cancel_at_period_end === true
       ) {
         return {
           redeemed: false,
@@ -250,20 +325,34 @@ export class ChurnInterventionService {
   }
 
   async determineCancellationIntervention(args: {
-    uid: string,
-    customerId: string,
-    subscriptionId: string,
-    offeringApiIdentifier: string,
-    currentInterval: SubplatInterval,
-    upgradeInterval: SubplatInterval,
-    acceptLanguage?: string | null,
-    selectedLanguage?: string,
+    uid: string;
+    subscriptionId: string;
+    offeringApiIdentifier: string;
+    currentInterval: SubplatInterval;
+    upgradeInterval: SubplatInterval;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
   }) {
     try {
-      const subscriptionStatus = await this.subscriptionManager.getSubscriptionStatus(
-        args.customerId,
+      const accountCustomer =
+        await this.accountCustomerManager.getAccountCustomerByUid(args.uid);
+      const subscription = await this.subscriptionManager.retrieve(
         args.subscriptionId
       );
+
+      if (subscription.customer !== accountCustomer.stripeCustomerId) {
+        throw new ChurnSubscriptionCustomerMismatchError(
+          args.uid,
+          accountCustomer.uid,
+          subscription.customer,
+          args.subscriptionId
+        );
+      }
+      const subscriptionStatus =
+        await this.subscriptionManager.getSubscriptionStatus(
+          subscription.customer,
+          args.subscriptionId
+        );
       if (!subscriptionStatus.active) {
         this.statsd.increment('cancel_intervention_decision', {
           type: 'none',
@@ -273,7 +362,7 @@ export class ChurnInterventionService {
           cancelChurnInterventionType: 'none',
           reason: 'subscription_not_active',
           cmsOfferContent: null,
-        }
+        };
       }
 
       if (subscriptionStatus.cancelAtPeriodEnd) {
@@ -288,141 +377,152 @@ export class ChurnInterventionService {
         };
       }
 
-      const cancelChurnContentEligiblityResult = await this.determineCancelChurnContentEligibility({
-        uid: args.uid,
-        subscriptionId: args.subscriptionId,
-        acceptLanguage: args.acceptLanguage,
-        selectedLanguage: args.selectedLanguage
-      });
+      const cancelChurnContentEligiblityResult =
+        await this.determineCancelChurnContentEligibility({
+          uid: args.uid,
+          subscriptionId: args.subscriptionId,
+          acceptLanguage: args.acceptLanguage,
+          selectedLanguage: args.selectedLanguage,
+        });
       if (cancelChurnContentEligiblityResult.isEligible) {
         return {
           cancelChurnInterventionType: 'cancel_churn_intervention',
           reason: 'eligible',
-          cmsOfferContent: cancelChurnContentEligiblityResult.cmsChurnInterventionEntry,
-        }
+          cmsOfferContent:
+            cancelChurnContentEligiblityResult.cmsChurnInterventionEntry,
+        };
       }
 
-      const cancelInterstitialOfferEligiblityResult = await this.determineCancelInterstitialOfferEligibility(args);
+      const cancelInterstitialOfferEligiblityResult =
+        await this.determineCancelInterstitialOfferEligibility(args);
       if (cancelInterstitialOfferEligiblityResult.isEligible) {
         return {
           cancelChurnInterventionType: 'cancel_interstitial_offer',
           reason: 'eligible',
-          cmsOfferContent: cancelInterstitialOfferEligiblityResult.cmsCancelInterstitialOfferResult,
-        }
+          cmsOfferContent:
+            cancelInterstitialOfferEligiblityResult.cmsCancelInterstitialOfferResult,
+        };
       }
 
       return {
         cancelChurnInterventionType: 'none',
         reason: cancelChurnContentEligiblityResult.reason,
         cmsOfferContent: null,
-      }
+      };
     } catch (error) {
       this.log.error(error);
       return {
         cancelChurnInterventionType: 'none',
         reason: 'general_error',
         cmsOfferContent: null,
-      }
+      };
     }
   }
 
   async determineCancelInterstitialOfferEligibility(args: {
-    uid: string,
-    subscriptionId: string,
-    offeringApiIdentifier: string,
-    currentInterval: SubplatInterval,
-    upgradeInterval: SubplatInterval,
-    acceptLanguage?: string | null,
-    selectedLanguage?: string,
+    uid: string;
+    subscriptionId: string;
+    offeringApiIdentifier: string;
+    currentInterval: SubplatInterval;
+    upgradeInterval: SubplatInterval;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
   }) {
-      const cmsCancelInterstitialOffer =
-        await this.productConfigurationManager.getCancelInterstitialOffer(
-          args.offeringApiIdentifier,
-          args.currentInterval,
-          args.upgradeInterval,
-          args.acceptLanguage || undefined,
-          args.selectedLanguage
-        );
-
-      const cmsCancelInterstitialOfferResult = cmsCancelInterstitialOffer.getTransformedResult();
-      if (!cmsCancelInterstitialOfferResult) {
-        this.statsd.increment('cancel_intervention_decision', {
-          type: 'none',
-          reason: 'no_cancel_interstitial_offer_found',
-        });
-        return {
-          isEligible: false,
-          reason: 'no_cancel_interstitial_offer_found',
-          cmsCancelInterstitialOfferResult: null,
-        }
-      }
-
-      const currentStripeInterval = await this.productConfigurationManager.getSubplatIntervalBySubscription(
-        args.subscriptionId
-      );
-      if (!currentStripeInterval || currentStripeInterval !== args.currentInterval) {
-        this.statsd.increment('cancel_intervention_decision', {
-          type: 'none',
-          reason: 'current_interval_mismatch',
-        });
-        return {
-          isEligible: false,
-          reason: 'current_interval_mismatch',
-          cmsCancelInterstitialOfferResult: null,
-        }
-      }
-
-      try {
-        await this.productConfigurationManager.retrieveStripePrice(
-          args.offeringApiIdentifier,
-          args.upgradeInterval
-        );
-      } catch {
-        this.statsd.increment('cancel_intervention_decision', {
-          type: 'none',
-          reason: 'no_upgrade_plan_found',
-        });
-        return {
-          isEligible: false,
-          reason: 'no_upgrade_plan_found',
-          cmsCancelInterstitialOfferResult: null,
-        };
-      }
-
-      const eligibility = await this.eligibilityService.checkEligibility(
-        args.upgradeInterval,
+    const cmsCancelInterstitialOffer =
+      await this.productConfigurationManager.getCancelInterstitialOffer(
         args.offeringApiIdentifier,
-        args.uid,
-        args.subscriptionId
+        args.currentInterval,
+        args.upgradeInterval,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
       );
 
-      if (eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE) {
-        this.statsd.increment('cancel_intervention_decision', {
-          type: 'none',
-          reason: 'not_eligible_for_upgrade_interval',
-        });
-        return {
-          isEligible: false,
-          reason: 'not_eligible_for_upgrade_interval',
-          cmsCancelInterstitialOfferResult: null,
-        }
-      }
-
+    const cmsCancelInterstitialOfferResult =
+      cmsCancelInterstitialOffer.getTransformedResult();
+    if (!cmsCancelInterstitialOfferResult) {
       this.statsd.increment('cancel_intervention_decision', {
-        type: 'cancel_interstitial_offer'
+        type: 'none',
+        reason: 'no_cancel_interstitial_offer_found',
       });
       return {
-        isEligible: true,
-        reason: 'eligible',
-        cmsCancelInterstitialOfferResult,
-      }
+        isEligible: false,
+        reason: 'no_cancel_interstitial_offer_found',
+        cmsCancelInterstitialOfferResult: null,
+      };
+    }
+
+    const currentStripeInterval =
+      await this.productConfigurationManager.getSubplatIntervalBySubscription(
+        args.subscriptionId
+      );
+    if (
+      !currentStripeInterval ||
+      currentStripeInterval !== args.currentInterval
+    ) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'current_interval_mismatch',
+      });
+      return {
+        isEligible: false,
+        reason: 'current_interval_mismatch',
+        cmsCancelInterstitialOfferResult: null,
+      };
+    }
+
+    try {
+      await this.productConfigurationManager.retrieveStripePrice(
+        args.offeringApiIdentifier,
+        args.upgradeInterval
+      );
+    } catch {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'no_upgrade_plan_found',
+      });
+      return {
+        isEligible: false,
+        reason: 'no_upgrade_plan_found',
+        cmsCancelInterstitialOfferResult: null,
+      };
+    }
+
+    const eligibility = await this.eligibilityService.checkEligibility(
+      args.upgradeInterval,
+      args.offeringApiIdentifier,
+      args.uid,
+      args.subscriptionId
+    );
+
+    if (
+      eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
+    ) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'not_eligible_for_upgrade_interval',
+      });
+      return {
+        isEligible: false,
+        reason: 'not_eligible_for_upgrade_interval',
+        cmsCancelInterstitialOfferResult: null,
+      };
+    }
+
+    this.statsd.increment('cancel_intervention_decision', {
+      type: 'cancel_interstitial_offer',
+    });
+    return {
+      isEligible: true,
+      reason: 'eligible',
+      cmsCancelInterstitialOfferResult,
+    };
   }
 
   async determineCancelChurnContentEligibility(args: {
-    uid: string,
-    subscriptionId: string,
-    acceptLanguage?: string | null,
-    selectedLanguage?: string,
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
   }) {
     const cmsChurnResult =
       await this.productConfigurationManager.getChurnInterventionBySubscription(
@@ -432,7 +532,8 @@ export class ChurnInterventionService {
         args.selectedLanguage
       );
 
-    const cmsChurnInterventionEntries = cmsChurnResult.getTransformedChurnInterventionByProductId();
+    const cmsChurnInterventionEntries =
+      cmsChurnResult.getTransformedChurnInterventionByProductId();
     if (!cmsChurnInterventionEntries.length) {
       this.statsd.increment('cancel_intervention_decision', {
         type: 'none',
@@ -442,16 +543,41 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'no_churn_intervention_found',
         cmsChurnInterventionEntry: null,
-      }
+      };
     }
 
     const cmsChurnInterventionEntry = cmsChurnInterventionEntries[0];
-    const redemptionCount = await this.churnInterventionManager.getRedemptionCountForUid(
-      args.uid,
-      cmsChurnInterventionEntry.churnInterventionId
+    const redemptionCount =
+      await this.churnInterventionManager.getRedemptionCountForUid(
+        args.uid,
+        cmsChurnInterventionEntry.churnInterventionId
+      );
+
+    const limit = cmsChurnInterventionEntry.redemptionLimit;
+
+    // redemptionLimit is allowed to be null/undefined but not 0
+    // Coupon may be redeemed indefinitely
+    const hasLimit = typeof limit === 'number';
+
+    if (hasLimit && redemptionCount >= limit) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'redemption_limit_exceeded',
+      });
+      return {
+        isEligible: false,
+        reason: 'redemption_limit_exceeded',
+        cmsChurnInterventionEntry: null,
+      };
+    }
+
+    const churnCouponId = cmsChurnInterventionEntry.stripeCouponId;
+    const couponAlreadyApplied = await this.subscriptionManager.hasCouponId(
+      args.subscriptionId,
+      churnCouponId
     );
 
-    if (cmsChurnInterventionEntry.redemptionLimit && redemptionCount >= cmsChurnInterventionEntry.redemptionLimit) {
+    if (couponAlreadyApplied) {
       this.statsd.increment('cancel_intervention_decision', {
         type: 'none',
         reason: 'discount_already_applied',
@@ -460,7 +586,7 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'discount_already_applied',
         cmsChurnInterventionEntry: null,
-      }
+      };
     }
 
     this.statsd.increment('cancel_intervention_decision', {
@@ -470,6 +596,6 @@ export class ChurnInterventionService {
       isEligible: true,
       reason: 'eligible',
       cmsChurnInterventionEntry,
-    }
+    };
   }
 }
