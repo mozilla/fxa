@@ -47,6 +47,14 @@ fi
 end=`date +%s`
 runtime=$((end-start))
 
-echo -e "\n###########################################################\n"
-echo "# Stack Started Successfully ! ${runtime}s"
-echo -e "\n###########################################################\n"
+echo -e "\n###########################################################"
+echo -e "#  ✅ Stack Started Successfully in ${runtime}s"
+echo -e "###########################################################"
+echo -e ""
+echo -e "  📍 Services:"
+echo -e "     Content Server       http://localhost:3030"
+echo -e "     Admin Panel          http://localhost:8091"
+echo -e "     123done (RP)         http://localhost:8080"
+echo -e ""
+echo -e "  💡 Run 'yarn ports' to see all service ports"
+echo -e "###########################################################\n"
