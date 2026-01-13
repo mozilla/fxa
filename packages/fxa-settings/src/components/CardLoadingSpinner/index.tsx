@@ -22,7 +22,7 @@ export const CardLoadingSpinner = ({
   return (
     <div
       className={classNames(
-        'card flex items-center justify-center min-h-48 mobileLandscape:min-h-64',
+        'card flex items-center justify-center h-full mobileLandscape:h-48',
         className
       )}
     >
