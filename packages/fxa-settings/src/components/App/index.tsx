@@ -31,6 +31,7 @@ import {
   useLocalSignedInQueryState,
   useSession,
   isProbablyFirefox,
+  ThemeProvider,
 } from '../../models';
 import {
   initializeSettingsContext,
@@ -422,14 +423,16 @@ const SettingsRoutes = ({
 
   const settingsContext = initializeSettingsContext();
   return (
-    <SettingsContext.Provider value={settingsContext}>
-      <ScrollToTop default>
-        <Settings
-          path="/settings/*"
-          {...{ integration, setCurrentSplitLayout }}
-        />
-      </ScrollToTop>
-    </SettingsContext.Provider>
+    <ThemeProvider>
+      <SettingsContext.Provider value={settingsContext}>
+        <ScrollToTop default>
+          <Settings
+            path="/settings/*"
+            {...{ integration, setCurrentSplitLayout }}
+          />
+        </ScrollToTop>
+      </SettingsContext.Provider>
+    </ThemeProvider>
   );
 };
 

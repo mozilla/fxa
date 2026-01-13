@@ -37,7 +37,7 @@ export const FlowContainer = ({
   return (
     // Transparent border is for Windows HCM - to ensure there is a visible border around the card
     <div
-      className="max-w-lg mx-auto mt-6 p-10 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl border border-transparent"
+      className="max-w-lg mx-auto mt-6 p-10 tablet:my-10 flex flex-col items-start bg-white dark:bg-grey-700 shadow tablet:rounded-xl border border-transparent"
       data-testid="flow-container"
     >
       <Head title={title} />

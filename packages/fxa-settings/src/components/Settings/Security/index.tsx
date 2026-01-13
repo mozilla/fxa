@@ -48,7 +48,7 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
         <span id="security" className="nav-anchor"></span>
         <Localized id="security-heading">Security</Localized>
       </h2>
-      <div className="bg-white tablet:rounded-xl shadow">
+      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow">
         <Localized id="security-password" attrs={{ header: true }}>
           <UnitRow
             header="Password"

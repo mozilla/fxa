@@ -5,7 +5,7 @@
 /* `@layer components` allows us to use classes like `mobileLandscape:drop-down-menu` */
 @layer components {
   .drop-down-menu {
-    @apply w-64 bg-white absolute shadow-md rounded-lg;
+    @apply w-64 bg-white dark:bg-grey-700 absolute shadow-md rounded-lg;
 
     &::before {
       content: '';

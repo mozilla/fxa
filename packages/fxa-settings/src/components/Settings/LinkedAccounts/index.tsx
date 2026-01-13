@@ -23,7 +23,7 @@ export const LinkedAccounts = forwardRef<HTMLDivElement>((_, ref) => {
             <span id="linked-accounts" className="nav-anchor"></span>
             <Localized id="la-heading">Linked Accounts</Localized>
           </h2>
-          <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
+          <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
             <div className="flex justify-between mb-4">
               <Localized id="la-description">
                 <p>You have authorized access to the following accounts.</p>

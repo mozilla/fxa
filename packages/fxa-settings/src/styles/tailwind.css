@@ -16,6 +16,7 @@
 
 body {
   @apply text-base font-body bg-grey-10 text-grey-900;
+  @apply dark:bg-grey-900 dark:text-grey-10;
 }
 
 .nav-anchor {
@@ -25,6 +26,7 @@ body {
 /* Abstracted because we directly edit the element's classList */
 .nav-active {
   @apply font-bold text-blue-500 rounded-sm bg-grey-50;
+  @apply dark:bg-grey-700 dark:text-blue-400;
 }
 
 progress {
@@ -35,12 +37,12 @@ progress {
   border-radius: 10px;
   /* for IE10 and up */
   @apply text-blue-400;
-  @apply bg-grey-100;
+  @apply bg-grey-100 dark:bg-grey-600;
 }
 
 progress::-webkit-progress-bar {
   border-radius: 10px;
-  @apply bg-grey-100;
+  @apply bg-grey-100 dark:bg-grey-600;
 }
 progress::-webkit-progress-inner-element {
   border-radius: 10px;
