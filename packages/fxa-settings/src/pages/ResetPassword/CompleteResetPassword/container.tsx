@@ -320,7 +320,8 @@ const CompleteResetPasswordContainer = ({
           );
         }
       } else if (isResetWithoutRecoveryKey) {
-        GleanMetrics.passwordReset.createNewSubmit();
+        const reason = recoveryKeyExists ? 'with key' : 'without key';
+        GleanMetrics.passwordReset.createNewSubmit({ event: { reason } });
         const includeRecoveryKeyPrompt = !!isSyncUser;
         const accountResetData = await resetPasswordWithoutRecoveryKey(
           code,
