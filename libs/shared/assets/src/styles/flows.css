@@ -6,7 +6,7 @@
  * applied after content-server no longer needs it */
 
 .card {
-  @apply relative text-center w-full mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-10 pt-33 mobileLandscape:pt-20 mobileLandscape:shadow-card-grey-drop;
+  @apply relative text-center w-full mobileLandscape:w-120 mobileLandscape:bg-white mobileLandscape:dark:bg-grey-700 rounded-xl px-8 pb-10 pt-33 mobileLandscape:pt-20 mobileLandscape:shadow-card-grey-drop;
 
   /* HACK until content-server no longer needs .card, otherwise component classes take precedence */
   &.card-xl {

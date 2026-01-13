@@ -54,6 +54,7 @@ StartupStyles.prototype = {
     this.addPasswordRevealerStyles();
     this.addFxiOSSyncStyles();
     this.addGetUserMediaStyles();
+    this.addDarkModeStyles();
   },
 
   addJSStyle: function () {
@@ -88,6 +89,32 @@ StartupStyles.prototype = {
       this._addClass('getusermedia');
     } else {
       this._addClass('no-getusermedia');
+    }
+  },
+
+  addDarkModeStyles: function () {
+    // Read theme preference from localStorage (shared with fxa-settings)
+    var themePreference = null;
+    try {
+      themePreference = this.window.localStorage.getItem('theme_preference');
+    } catch (e) {
+      // localStorage may be disabled
+    }
+
+    var prefersDark = false;
+    if (themePreference === 'dark') {
+      prefersDark = true;
+    } else if (themePreference === 'light') {
+      prefersDark = false;
+    } else {
+      // Default to system preference
+      if (this.window.matchMedia && this.window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        prefersDark = true;
+      }
+    }
+
+    if (prefersDark) {
+      this._addClass('dark');
     }
   },
 };

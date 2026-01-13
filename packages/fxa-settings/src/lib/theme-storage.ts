@@ -6,14 +6,28 @@ import Storage from './storage';
 
 const THEME_KEY = 'theme_preference';
 
-export type ThemePreference = 'light' | 'dark' | 'system';
+// All available themes
+export const THEMES = ['light', 'dark', 'cyberpunk', 'candyland', 'system'] as const;
+export type ThemePreference = (typeof THEMES)[number];
+
+// Effective themes (what's actually applied - system resolves to light/dark base)
+export type EffectiveTheme = 'light' | 'dark' | 'cyberpunk' | 'candyland';
+
+// Theme display names for the UI
+export const THEME_LABELS: Record<ThemePreference, string> = {
+  light: 'Light',
+  dark: 'Dark',
+  cyberpunk: 'Cyberpunk',
+  candyland: 'Candy Land',
+  system: 'System',
+};
 
 const storage = Storage.factory('localStorage');
 
 export function getStoredTheme(): ThemePreference {
   const stored = storage.get(THEME_KEY);
-  if (stored === 'light' || stored === 'dark' || stored === 'system') {
-    return stored;
+  if (THEMES.includes(stored as ThemePreference)) {
+    return stored as ThemePreference;
   }
   return 'system';
 }
@@ -31,6 +45,14 @@ export function getSystemTheme(): 'light' | 'dark' {
   return 'light';
 }
 
-export function getEffectiveTheme(preference: ThemePreference): 'light' | 'dark' {
-  return preference === 'system' ? getSystemTheme() : preference;
+export function getEffectiveTheme(preference: ThemePreference): EffectiveTheme {
+  if (preference === 'system') {
+    return getSystemTheme();
+  }
+  return preference as EffectiveTheme;
+}
+
+// Check if theme uses dark base (for Tailwind dark: classes)
+export function isDarkBasedTheme(theme: EffectiveTheme): boolean {
+  return theme === 'dark' || theme === 'cyberpunk';
 }

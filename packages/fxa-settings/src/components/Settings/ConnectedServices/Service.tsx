@@ -100,9 +100,9 @@ export function Service({
       data-testid="settings-connected-service"
       data-name={name}
     >
-      <div className="p-4 border-2 border-solid border-grey-100 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
+      <div className="p-4 border-2 border-solid border-grey-100 dark:border-grey-700 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
         <div className="flex flex-grow w-full mobileLandscape:flex-2">
-          <span className="flex px-2 w-10 justify-center items-center flex-0">
+          <span className="flex px-2 w-10 justify-center items-center flex-0 text-grey-900 dark:text-grey-100">
             {Icon}
           </span>
           <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row">

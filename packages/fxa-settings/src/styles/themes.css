@@ -1,0 +1,264 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* ============================================
+   CYBERPUNK THEME
+   Dark base with neon cyan, magenta, and purple accents
+   ============================================ */
+.theme-cyberpunk {
+  /* Override background colors with deeper blacks */
+  --cyberpunk-bg-primary: #0a0a0f;
+  --cyberpunk-bg-secondary: #12121a;
+  --cyberpunk-bg-card: #1a1a2e;
+
+  /* Neon accent colors */
+  --cyberpunk-accent-cyan: #00f0ff;
+  --cyberpunk-accent-magenta: #ff00ff;
+  --cyberpunk-accent-purple: #bd00ff;
+  --cyberpunk-accent-yellow: #f0ff00;
+
+  /* Text colors */
+  --cyberpunk-text-primary: #e0e0ff;
+  --cyberpunk-text-secondary: #a0a0cc;
+}
+
+/* Cyberpunk background overrides */
+.theme-cyberpunk body,
+.theme-cyberpunk [data-testid="app"] {
+  background: var(--cyberpunk-bg-primary) !important;
+}
+
+.theme-cyberpunk .bg-grey-700,
+.theme-cyberpunk .dark\:bg-grey-700 {
+  background-color: var(--cyberpunk-bg-card) !important;
+}
+
+.theme-cyberpunk .bg-grey-900,
+.theme-cyberpunk .dark\:bg-grey-900 {
+  background-color: var(--cyberpunk-bg-primary) !important;
+}
+
+/* Cyberpunk text colors */
+.theme-cyberpunk .text-grey-100,
+.theme-cyberpunk .dark\:text-grey-100 {
+  color: var(--cyberpunk-text-primary) !important;
+}
+
+.theme-cyberpunk .text-grey-300,
+.theme-cyberpunk .dark\:text-grey-300 {
+  color: var(--cyberpunk-text-secondary) !important;
+}
+
+/* Cyberpunk accent colors - links */
+.theme-cyberpunk .link-blue,
+.theme-cyberpunk a.link-blue {
+  color: var(--cyberpunk-accent-cyan) !important;
+}
+
+.theme-cyberpunk .link-blue:hover {
+  color: var(--cyberpunk-accent-magenta) !important;
+}
+
+/* Cyberpunk buttons */
+.theme-cyberpunk .cta-primary {
+  background: linear-gradient(135deg, var(--cyberpunk-accent-cyan), var(--cyberpunk-accent-purple)) !important;
+  border: none !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
+.theme-cyberpunk .cta-primary:hover {
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5), 0 0 60px rgba(189, 0, 255, 0.3);
+}
+
+.theme-cyberpunk .cta-neutral {
+  border-color: var(--cyberpunk-accent-cyan) !important;
+  color: var(--cyberpunk-accent-cyan) !important;
+}
+
+.theme-cyberpunk .cta-neutral:hover {
+  background-color: rgba(0, 240, 255, 0.1) !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+/* Cyberpunk navigation active state */
+.theme-cyberpunk .nav-active {
+  background-color: rgba(0, 240, 255, 0.15) !important;
+  color: var(--cyberpunk-accent-cyan) !important;
+  border-left-color: var(--cyberpunk-accent-cyan) !important;
+}
+
+/* Cyberpunk borders - neon glow effect */
+.theme-cyberpunk .border-grey-600,
+.theme-cyberpunk .dark\:border-grey-600 {
+  border-color: rgba(0, 240, 255, 0.3) !important;
+}
+
+.theme-cyberpunk .border-grey-700,
+.theme-cyberpunk .dark\:border-grey-700 {
+  border-color: rgba(0, 240, 255, 0.2) !important;
+}
+
+/* Cyberpunk card glow */
+.theme-cyberpunk .card {
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.1), inset 0 0 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+/* Cyberpunk input fields */
+.theme-cyberpunk input:focus,
+.theme-cyberpunk .input-container:focus-within {
+  box-shadow: 0 0 0 2px var(--cyberpunk-accent-cyan), 0 0 20px rgba(0, 240, 255, 0.3) !important;
+}
+
+/* Cyberpunk toggle switch */
+.theme-cyberpunk .bg-blue-500 {
+  background: linear-gradient(135deg, var(--cyberpunk-accent-cyan), var(--cyberpunk-accent-purple)) !important;
+}
+
+/* ============================================
+   CANDY LAND THEME
+   Bright pastels with pink and purple accents
+   Focuses on color changes only - preserves existing UI structure
+   ============================================ */
+.theme-candyland {
+  /* Sweet pastel backgrounds */
+  --candy-bg-primary: #fff0f5;
+  --candy-bg-secondary: #ffe4ec;
+  --candy-bg-card: #ffffff;
+
+  /* Candy accent colors */
+  --candy-accent-pink: #ff69b4;
+  --candy-accent-purple: #9b59b6;
+  --candy-accent-light-pink: #ffb6c1;
+
+  /* Text colors */
+  --candy-text-primary: #4a154b;
+  --candy-text-secondary: #7b4b7c;
+}
+
+/* Candy Land background overrides */
+.theme-candyland body,
+.theme-candyland [data-testid="app"] {
+  background: var(--candy-bg-primary) !important;
+}
+
+.theme-candyland .bg-grey-10 {
+  background: var(--candy-bg-primary) !important;
+}
+
+.theme-candyland .bg-white {
+  background: var(--candy-bg-card) !important;
+}
+
+/* Candy Land text colors */
+.theme-candyland,
+.theme-candyland body {
+  color: var(--candy-text-primary);
+}
+
+.theme-candyland .text-grey-900 {
+  color: var(--candy-text-primary) !important;
+}
+
+.theme-candyland .text-grey-400,
+.theme-candyland .text-grey-500 {
+  color: var(--candy-text-secondary) !important;
+}
+
+/* Candy Land accent colors - links */
+.theme-candyland .link-blue,
+.theme-candyland a.link-blue {
+  color: var(--candy-accent-purple) !important;
+}
+
+.theme-candyland .link-blue:hover {
+  color: var(--candy-accent-pink) !important;
+}
+
+/* Candy Land buttons */
+.theme-candyland .cta-primary {
+  background: linear-gradient(135deg, var(--candy-accent-pink), var(--candy-accent-purple)) !important;
+  border: none !important;
+}
+
+.theme-candyland .cta-primary:hover {
+  filter: brightness(1.1);
+}
+
+.theme-candyland .cta-neutral {
+  border-color: var(--candy-accent-pink) !important;
+  color: var(--candy-accent-pink) !important;
+}
+
+.theme-candyland .cta-neutral:hover {
+  background-color: rgba(255, 105, 180, 0.1) !important;
+}
+
+/* Candy Land navigation active state */
+.theme-candyland .nav-active {
+  background-color: rgba(255, 105, 180, 0.15) !important;
+  color: var(--candy-accent-pink) !important;
+}
+
+/* Candy Land borders - soft pink */
+.theme-candyland .border-grey-100 {
+  border-color: var(--candy-accent-light-pink) !important;
+}
+
+/* Candy Land toggle switch */
+.theme-candyland .bg-blue-500 {
+  background: linear-gradient(135deg, var(--candy-accent-pink), var(--candy-accent-purple)) !important;
+}
+
+/* Candy Land input focus */
+.theme-candyland input:focus {
+  box-shadow: 0 0 0 2px var(--candy-accent-pink) !important;
+  border-color: var(--candy-accent-pink) !important;
+}
+
+/* Candy Land icons - colorful */
+.theme-candyland .text-violet-900 {
+  color: var(--candy-accent-purple) !important;
+}
+
+.theme-candyland .text-violet-400 {
+  color: var(--candy-accent-pink) !important;
+}
+
+/* Candy Land section headers */
+.theme-candyland h2,
+.theme-candyland h3 {
+  color: var(--candy-text-primary) !important;
+}
+
+/* Candy Land navigation - ensure all nav items are readable */
+.theme-candyland nav a {
+  color: var(--candy-text-primary) !important;
+}
+
+.theme-candyland nav a:hover {
+  background-color: rgba(255, 105, 180, 0.15) !important;
+}
+
+/* Candy Land sidebar promo box */
+.theme-candyland .text-grey-600 {
+  color: var(--candy-text-secondary) !important;
+}
+
+/* Candy Land sidebar background - make transparent to match page */
+.theme-candyland aside.bg-white,
+.theme-candyland .bg-white.desktop\:bg-transparent {
+  background: transparent !important;
+}
+
+/* Candy Land - remove conflicting white borders in sidebar */
+.theme-candyland aside .border-grey-100 {
+  border-color: var(--candy-accent-light-pink) !important;
+  background: transparent !important;
+}
+
+/* Candy Land hover states */
+.theme-candyland .hover\:bg-grey-100:hover {
+  background-color: rgba(255, 105, 180, 0.15) !important;
+}

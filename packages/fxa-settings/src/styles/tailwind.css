@@ -13,6 +13,7 @@
 @import './slider';
 @import './switch';
 @import './brand-banner.css';
+@import './themes.css';
 
 body {
   @apply text-base font-body bg-grey-10 text-grey-900;

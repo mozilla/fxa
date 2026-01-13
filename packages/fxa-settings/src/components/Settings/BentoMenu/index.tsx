@@ -33,6 +33,8 @@ export const BentoMenu = () => {
   useEscKeydownEffect(setRevealed);
   const dropDownId = 'drop-down-bento-menu';
   const iconClassNames = 'inline-block w-5 -mb-1 me-1';
+  // Icons with dark colors that need inversion in dark mode
+  const darkModeIconClassNames = 'inline-block w-5 -mb-1 me-1 dark:invert';
 
   const { env } = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -112,16 +114,16 @@ export const BentoMenu = () => {
         aria-label={bentoMenuTitle}
         aria-expanded={!!isRevealed}
         aria-haspopup="menu"
-        className="rounded p-2 mx-2 border-transparent hover:bg-grey-100 transition-standard desktop:mx-8 focus-visible-default"
+        className="rounded p-2 mx-2 border-transparent hover:bg-grey-100 dark:hover:bg-grey-700 transition-standard desktop:mx-8 focus-visible-default"
       >
-        <BentoIcon className="w-5 text-violet-900" />
+        <BentoIcon className="w-5 text-violet-900 dark:text-violet-400" />
       </button>
 
       {isRevealed && (
         <div
           id={dropDownId}
           data-testid={dropDownId}
-          className={`w-full h-full fixed top-0 start-0 bg-white z-10
+          className={`w-full h-full fixed top-0 start-0 bg-white dark:bg-grey-700 text-black dark:text-grey-100 z-10
                       mobileLandscape:h-auto mobileLandscape:drop-down-menu mobileLandscape:top-10 mobileLandscape:-start-52 desktop:-start-50`}
           role="menu"
         >
@@ -148,7 +150,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="desktop-link"
                       href={desktopLink}
-                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
+                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-sm focus-visible-default"
                       onClick={() =>
                         GleanMetrics.accountPref.bentoFirefoxDesktop()
                       }
@@ -165,12 +167,12 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="mobile-link"
                       href={mobileLink}
-                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
+                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-sm focus-visible-default"
                       onClick={() =>
                         GleanMetrics.accountPref.bentoFirefoxMobile()
                       }
                     >
-                      <div className={iconClassNames}>
+                      <div className={darkModeIconClassNames}>
                         <img src={mobileIcon} alt="" />
                       </div>
                       <FtlMsg id="bento-menu-firefox-mobile">
@@ -182,7 +184,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="monitor-link"
                       href={monitorLink}
-                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
+                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-sm focus-visible-default"
                       onClick={() => GleanMetrics.accountPref.bentoMonitor()}
                     >
                       <div className={iconClassNames}>
@@ -195,10 +197,10 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="relay-link"
                       href={relayLink}
-                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
+                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-sm focus-visible-default"
                       onClick={() => GleanMetrics.accountPref.bentoRelay()}
                     >
-                      <div className={iconClassNames}>
+                      <div className={darkModeIconClassNames}>
                         <img src={relayIcon} alt="" />
                       </div>
                       <FtlMsg id="bento-menu-firefox-relay-2">
@@ -210,10 +212,10 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="vpn-link"
                       href={vpnLink}
-                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
+                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-sm focus-visible-default"
                       onClick={() => GleanMetrics.accountPref.bentoVpn()}
                     >
-                      <div className={iconClassNames}>
+                      <div className={darkModeIconClassNames}>
                         <img src={vpnIcon} alt="" />
                       </div>
                       <FtlMsg id="bento-menu-vpn-2">Mozilla VPN</FtlMsg>
@@ -223,7 +225,7 @@ export const BentoMenu = () => {
               </div>
               <LinkExternal
                 data-testid="mozilla-link"
-                className="link-blue text-xs underline-offset-4 w-full text-center p-2 block hover:bg-grey-100"
+                className="link-blue text-xs underline-offset-4 w-full text-center p-2 block hover:bg-grey-100 dark:hover:bg-grey-600"
                 href="https://www.mozilla.org/"
               >
                 {madeByMozilla}

@@ -12,16 +12,19 @@ import React, {
 } from 'react';
 import {
   ThemePreference,
+  EffectiveTheme,
   getStoredTheme,
   setStoredTheme,
   getEffectiveTheme,
   getSystemTheme,
+  isDarkBasedTheme,
 } from '../../lib/theme-storage';
 
 export interface ThemeContextValue {
   themePreference: ThemePreference;
-  effectiveTheme: 'light' | 'dark';
+  effectiveTheme: EffectiveTheme;
   setThemePreference: (theme: ThemePreference) => void;
+  isDarkBased: boolean;
 }
 
 export const ThemeContext = createContext<ThemeContextValue | undefined>(
@@ -40,11 +43,14 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
+// All theme classes that can be applied
+const THEME_CLASSES = ['dark', 'theme-cyberpunk', 'theme-candyland'] as const;
+
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [themePreference, setThemePreferenceState] = useState<ThemePreference>(
     () => getStoredTheme()
   );
-  const [effectiveTheme, setEffectiveTheme] = useState<'light' | 'dark'>(() =>
+  const [effectiveTheme, setEffectiveTheme] = useState<EffectiveTheme>(() =>
     getEffectiveTheme(getStoredTheme())
   );
 
@@ -54,13 +60,25 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     setEffectiveTheme(getEffectiveTheme(theme));
   }, []);
 
-  // Apply theme class to document
+  // Apply theme classes to document
   useEffect(() => {
     const root = document.documentElement;
-    if (effectiveTheme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+
+    // Remove all theme classes first
+    THEME_CLASSES.forEach((cls) => root.classList.remove(cls));
+
+    // Apply appropriate classes based on theme
+    switch (effectiveTheme) {
+      case 'dark':
+        root.classList.add('dark');
+        break;
+      case 'cyberpunk':
+        root.classList.add('dark', 'theme-cyberpunk');
+        break;
+      case 'candyland':
+        root.classList.add('theme-candyland');
+        break;
+      // 'light' - no classes needed (default)
     }
   }, [effectiveTheme]);
 
@@ -79,9 +97,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [themePreference]);
 
+  const isDarkBased = isDarkBasedTheme(effectiveTheme);
+
   return (
     <ThemeContext.Provider
-      value={{ themePreference, effectiveTheme, setThemePreference }}
+      value={{ themePreference, effectiveTheme, setThemePreference, isDarkBased }}
     >
       {children}
     </ThemeContext.Provider>

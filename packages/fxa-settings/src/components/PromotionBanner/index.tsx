@@ -149,7 +149,7 @@ const PromotionBanner = ({
           className="self-end absolute top-1 end-1 p-2"
           data-glean-id={`account_banner_${metricsKey}_dismiss`}
         >
-          <IconClose className="text-black w-4 h-4" role="img" />
+          <IconClose className="text-black dark:text-grey-100 w-4 h-4" role="img" />
         </button>
       </FtlMsg>
       <div className="flex flex-col tablet:flex-row tablet:items-center grow gap-4 p-4">

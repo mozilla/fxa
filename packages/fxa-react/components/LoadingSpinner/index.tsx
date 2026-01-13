@@ -60,7 +60,7 @@ export const LoadingSpinner = ({
       className={classNames(
         className,
         fullScreen &&
-          'bg-grey-20 flex items-center flex-col justify-center h-screen select-none'
+          'bg-grey-20 dark:bg-grey-900 flex items-center flex-col justify-center h-screen select-none'
       )}
       data-testid="loading-spinner"
     >

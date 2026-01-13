@@ -349,37 +349,43 @@ export const App = ({
     isSignedIn === undefined ||
     metricsEnabled === undefined
   ) {
-    return window.location.pathname?.includes('/settings') ? (
-      <LoadingSpinner fullScreen />
-    ) : (
-      <AppLayout cmsInfo={integration?.getCmsInfo()} loading />
+    return (
+      <ThemeProvider>
+        {window.location.pathname?.includes('/settings') ? (
+          <LoadingSpinner fullScreen />
+        ) : (
+          <AppLayout cmsInfo={integration?.getCmsInfo()} loading />
+        )}
+      </ThemeProvider>
     );
   }
 
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <Suspense
-      fallback={
-        <AppLayout cmsInfo={cmsInfo} loading splitLayout={currentSplitLayout} />
-      }
-    >
-      <Router basepath="/">
-        <AuthAndAccountSetupRoutes
-          {...{
-            isSignedIn,
-            integration,
-            flowQueryParams: updatedFlowQueryParams,
-            setCurrentSplitLayout,
-          }}
-          path="/*"
-        />
-        <SettingsRoutes
-          {...{ isSignedIn, integration, setCurrentSplitLayout }}
-          path="/settings/*"
-        />
-      </Router>
-    </Suspense>
+    <ThemeProvider>
+      <Suspense
+        fallback={
+          <AppLayout cmsInfo={cmsInfo} loading splitLayout={currentSplitLayout} />
+        }
+      >
+        <Router basepath="/">
+          <AuthAndAccountSetupRoutes
+            {...{
+              isSignedIn,
+              integration,
+              flowQueryParams: updatedFlowQueryParams,
+              setCurrentSplitLayout,
+            }}
+            path="/*"
+          />
+          <SettingsRoutes
+            {...{ isSignedIn, integration, setCurrentSplitLayout }}
+            path="/settings/*"
+          />
+        </Router>
+      </Suspense>
+    </ThemeProvider>
   );
 };
 
@@ -423,16 +429,14 @@ const SettingsRoutes = ({
 
   const settingsContext = initializeSettingsContext();
   return (
-    <ThemeProvider>
-      <SettingsContext.Provider value={settingsContext}>
-        <ScrollToTop default>
-          <Settings
-            path="/settings/*"
-            {...{ integration, setCurrentSplitLayout }}
-          />
-        </ScrollToTop>
-      </SettingsContext.Provider>
-    </ThemeProvider>
+    <SettingsContext.Provider value={settingsContext}>
+      <ScrollToTop default>
+        <Settings
+          path="/settings/*"
+          {...{ integration, setCurrentSplitLayout }}
+        />
+      </ScrollToTop>
+    </SettingsContext.Provider>
   );
 };
 

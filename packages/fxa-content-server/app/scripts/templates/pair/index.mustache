@@ -3,14 +3,14 @@
   <header class="relative">
     {{#showSuccessMessage}}
       <div id="fxa-connected-heading"
-          class="w-full text-md font-bold p-3 mb-5 rounded bg-green-500 text-gray-900 flex items-center justify-center before:content-icon-circle-check-outline before:flex">
+          class="w-full text-md font-bold p-3 mb-5 rounded bg-green-500 text-grey-900 dark:text-grey-900 flex items-center justify-center before:content-icon-circle-check-outline before:flex">
         <span class="ps-3 align-middle">{{#t}}Signed in successfully!{{/t}}</span>
       </div>
     {{/showSuccessMessage}}
 
     {{#needsMobileConfirmed}}
     <div class="relative flex items-center">
-      <button id="back-btn" class="me-4 tablet:me-0 p-2 inline-block tablet:absolute tablet:-start-20 -top-1.5 rounded hover:bg-grey-50 active:bg-grey-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500" aria-label="{{#t}}Back{{/t}}" title="{{#t}}Back{{/t}}">
+      <button id="back-btn" class="me-4 tablet:me-0 p-2 inline-block tablet:absolute tablet:-start-20 -top-1.5 rounded hover:bg-grey-50 dark:hover:bg-grey-600 active:bg-grey-100 dark:active:bg-grey-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500" aria-label="{{#t}}Back{{/t}}" title="{{#t}}Back{{/t}}">
         <svg height="20" viewBox="0 0 16 14" width="20" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="text-grey-400 {{tabletBackArrowColor}} w-6 h-auto rtl:transform rtl:-scale-x-100"><path d="m15 5.99998h-11.58597l4.293-4.293c.37897-.39238.37355-1.016085-.01218-1.401818-.38573-.3857343-1.00944-.3911541-1.40182-.012182l-5.999999 6c-.3903823.3905-.3903823 1.0235 0 1.414l5.999999 6.00002c.39238.379 1.01609.3735 1.40182-.0122s.39115-1.0094.01218-1.4018l-4.293-4.29302h11.58597c.5523 0 1-.44772 1-1s-.4477-1-1-1z"/></svg>
       </button>
         <h1 class="text-grey-400 mb-0 tablet:mb-5 text-base inline-block align-top tablet:mt-0" id="cad-header">{{#t}}Connect another device{{/t}}</h1>

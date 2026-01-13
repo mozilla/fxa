@@ -39,7 +39,7 @@ export const HeaderLockup = () => {
   const left = (
     <>
       <button
-        className="desktop:hidden me-6 p-2 self-center -m-2 z-[1] rounded hover:bg-grey-100 focus-visible-default"
+        className="desktop:hidden me-6 p-2 self-center -m-2 z-[1] rounded hover:bg-grey-100 dark:hover:bg-grey-700 focus-visible-default"
         data-testid="header-menu"
         aria-label={localizedMenuText}
         title={localizedMenuText}
@@ -48,9 +48,9 @@ export const HeaderLockup = () => {
         onClick={() => setNavState(!sidebarRevealedState)}
       >
         {sidebarRevealedState ? (
-          <Close className="text-violet-900 w-8" />
+          <Close className="text-violet-900 dark:text-violet-400 w-8" />
         ) : (
-          <Menu className="text-violet-900 w-8" />
+          <Menu className="text-violet-900 dark:text-violet-400 w-8" />
         )}
         {sidebarRevealedState && <Sidebar />}
       </button>
@@ -81,14 +81,14 @@ export const HeaderLockup = () => {
       <LinkExternal
         href="https://support.mozilla.org/products/mozilla-account"
         title={localizedHelpText}
-        className="inline-block relative p-2 -m-2 z-[1] rounded hover:bg-grey-100 focus-visible-default"
+        className="inline-block relative p-2 -m-2 z-[1] rounded hover:bg-grey-100 dark:hover:bg-grey-700 focus-visible-default"
         onClick={handleHelpLinkClick}
       >
         <Help
           aria-label={localizedHelpText}
           title={localizedHelpText}
           role="img"
-          className="w-5 text-violet-900"
+          className="w-5 text-violet-900 dark:text-violet-400"
         />
       </LinkExternal>
       <BentoMenu />
