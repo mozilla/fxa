@@ -5,7 +5,6 @@
 import { HandledError } from '../../lib/error-utils';
 import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { Integration, OAuthIntegration } from '../../models';
-import { MetricsContext } from '@fxa/shared/glean';
 import { QueryParams } from '../..';
 
 export interface BeginSignupResponse {
@@ -17,14 +16,6 @@ export interface BeginSignupResponse {
     keyFetchToken?: hexstring;
   };
   unwrapBKey?: hexstring;
-}
-
-// full list @ fxa-auth-client/lib/client.ts, probably port over?
-export interface BeginSignUpOptions {
-  service?: string;
-  verificationMethod?: string;
-  keys?: boolean;
-  metricsContext: MetricsContext;
 }
 
 export type BeginSignupHandler = (

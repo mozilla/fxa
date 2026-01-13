@@ -8,14 +8,7 @@ import { useAuthClient, useConfig } from '../../models';
 import { Signup } from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
-import { useMutation } from '@apollo/client';
-import {
-  BeginSignUpOptions,
-  BeginSignupHandler,
-  BeginSignupResponse,
-  SignupIntegration,
-} from './interfaces';
-import { BEGIN_SIGNUP_MUTATION } from './gql';
+import { BeginSignupHandler, SignupIntegration } from './interfaces';
 import { useCallback, useEffect } from 'react';
 import {
   getCredentials,
@@ -23,8 +16,9 @@ import {
   getKeysV2,
 } from 'fxa-auth-client/lib/crypto';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
+import { SignUpOptions } from 'fxa-auth-client/lib/client';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
-import { handleGQLError } from './utils';
+import { handleAuthClientError } from './utils';
 import VerificationMethods from '../../constants/verification-methods';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { QueryParams } from '../..';
@@ -117,14 +111,12 @@ const SignupContainer = ({
     })();
   });
 
-  const [beginSignup] = useMutation<BeginSignupResponse>(BEGIN_SIGNUP_MUTATION);
-
   const beginSignupHandler: BeginSignupHandler = useCallback(
     async (email, password) => {
       const service = integration.getService();
       const clientId = integration.getClientId();
 
-      const options: BeginSignUpOptions = {
+      const options: SignUpOptions = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: wantsKeys,
         // See oauth_client_info in the auth-server for details on service/clientId
@@ -135,23 +127,29 @@ const SignupContainer = ({
           flowQueryParams as unknown as Record<string, string>
         ),
       };
+
       try {
         const credentialsV1 = await getCredentials(email, password);
 
-        // If enabled, add in V2 key stretching support
         let credentialsV2 = undefined;
-        let passwordV2 = undefined;
+        let v2Payload: {
+          wrapKb: string;
+          authPWVersion2: string;
+          wrapKbVersion2: string;
+          clientSalt: string;
+        } | {} = {};
+
         if (keyStretchExp.queryParamModel.isV2(config)) {
           credentialsV2 = await getCredentialsV2({
             password,
-            clientSalt: await createSaltV2(),
+            clientSalt: createSaltV2(),
           });
           const { wrapKb, wrapKbVersion2 } = await getKeysV2({
             v1: credentialsV1,
             v2: credentialsV2,
           });
 
-          passwordV2 = {
+          v2Payload = {
             wrapKb,
             wrapKbVersion2,
             authPWVersion2: credentialsV2.authPW,
@@ -159,52 +157,33 @@ const SignupContainer = ({
           };
         }
 
-        const authPW = credentialsV1.authPW;
-        const input =
-          passwordV2 != null
-            ? {
-                email,
-                authPW,
-                passwordV2,
-                options,
-              }
-            : {
-                email,
-                authPW,
-                options,
-              };
-        const { data } = await beginSignup({
-          variables: {
-            input,
-          },
-        });
+        const result = await authClient.signUpWithAuthPW(
+          email,
+          credentialsV1.authPW,
+          v2Payload,
+          options
+        );
 
-        if (data) {
-          return {
-            data: {
-              ...data,
-              ...(wantsKeys && {
-                unwrapBKey: credentialsV2
-                  ? credentialsV2.unwrapBKey
-                  : credentialsV1.unwrapBKey,
-              }),
+        return {
+          data: {
+            signUp: {
+              uid: result.uid,
+              sessionToken: result.sessionToken,
+              authAt: result.authAt,
+              keyFetchToken: result.keyFetchToken,
             },
-          };
-        } else return { data: undefined };
+            ...(wantsKeys && {
+              unwrapBKey: credentialsV2
+                ? credentialsV2.unwrapBKey
+                : credentialsV1.unwrapBKey,
+            }),
+          },
+        };
       } catch (error) {
-        // TODO tweak this if we ever use auth-client here, any
-        // non-gql errors will return an unexpected error
-        return handleGQLError(error);
+        return handleAuthClientError(error);
       }
     },
-    [
-      integration,
-      wantsKeys,
-      flowQueryParams,
-      keyStretchExp.queryParamModel,
-      config,
-      beginSignup,
-    ]
+    [authClient, integration, wantsKeys, flowQueryParams, keyStretchExp.queryParamModel, config]
   );
 
   const cmsInfo = integration.getCmsInfo();

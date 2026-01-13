@@ -63,7 +63,6 @@ import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
 import { RejectUnblockCodeInput } from './dto/input/reject-unblock-code';
 import { SignInInput } from './dto/input/sign-in';
-import { SignUpInput } from './dto/input/sign-up';
 import {
   AccountResetPayload,
   AccountStatusPayload,
@@ -83,7 +82,6 @@ import {
   WrappedKeysPayload,
 } from './dto/payload';
 import { SignedInAccountPayload } from './dto/payload/signed-in-account';
-import { SignedUpAccountPayload } from './dto/payload/signed-up-account';
 import { CatchGatewayError } from './lib/error';
 import { Account as AccountType } from './model/account';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
@@ -576,28 +574,6 @@ export class AccountResolver {
       input.newPasswordAuthPW,
       input.accountResetToken,
       input.newPasswordV2 || {},
-      input.options,
-      headers
-    );
-    return {
-      clientMutationId: input.clientMutationId,
-      ...result,
-    };
-  }
-
-  @Mutation((returns) => SignedUpAccountPayload, {
-    description: 'Call auth-server to sign up an account',
-  })
-  @CatchGatewayError
-  public async signUp(
-    @GqlXHeaders() headers: Headers,
-    @Args('input', { type: () => SignUpInput })
-    input: SignUpInput
-  ): Promise<SignedUpAccountPayload> {
-    const result = await this.authAPI.signUpWithAuthPW(
-      input.email,
-      input.authPW,
-      input.passwordV2 || {},
       input.options,
       headers
     );
