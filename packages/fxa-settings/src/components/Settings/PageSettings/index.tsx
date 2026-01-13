@@ -14,7 +14,6 @@ import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
-import DisplaySettings from '../DisplaySettings';
 import GleanMetrics from '../../../lib/glean';
 import ProductPromo, {
   getProductPromoData,
@@ -176,7 +175,6 @@ export const PageSettings = ({
   const connectedServicesRef = useRef<HTMLDivElement>(null);
   const linkedAccountsRef = useRef<HTMLDivElement>(null);
   const dataCollectionRef = useRef<HTMLDivElement>(null);
-  const displaySettingsRef = useRef<HTMLDivElement>(null);
 
   return (
     <div id="fxa-settings" className="flex">
@@ -201,7 +199,6 @@ export const PageSettings = ({
         <ConnectedServices ref={connectedServicesRef} />
         <LinkedAccounts ref={linkedAccountsRef} />
         <DataCollection ref={dataCollectionRef} />
-        <DisplaySettings ref={displaySettingsRef} />
         <div className="flex mx-4 tablet:mx-0" id="delete-account">
           <Localized id="delete-account-link">
             <Link

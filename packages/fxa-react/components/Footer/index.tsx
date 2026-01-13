@@ -9,15 +9,19 @@ import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 
 export const Footer = ({
   showLocaleToggle = false,
-  localeToggleComponent
+  localeToggleComponent,
+  showDarkModeToggle = false,
+  darkModeToggleComponent,
 }: {
   showLocaleToggle?: boolean;
   localeToggleComponent?: React.ComponentType<{ placement?: 'footer' | 'header' }>;
+  showDarkModeToggle?: boolean;
+  darkModeToggleComponent?: React.ComponentType;
 }) => {
   const { l10n } = useLocalization();
   return (
     <footer
-      className="py-4 mt-16 mx-4 flex-wrap mobileLandscape:flex-nowrap mobileLandscape:mx-8 mobileLandscape:pb-6 flex border-t border-grey-100 text-grey-400"
+      className="py-4 mt-16 mx-4 flex-wrap mobileLandscape:flex-nowrap mobileLandscape:mx-8 mobileLandscape:pb-6 flex border-t border-grey-100 dark:border-grey-600 text-grey-400 dark:text-grey-300"
       data-testid="footer"
     >
       <LinkExternal
@@ -60,6 +64,11 @@ export const Footer = ({
       {showLocaleToggle && localeToggleComponent && (
         <div className="w-full mobileLandscape:w-auto flex items-center mt-3 mobileLandscape:mt-0 mobileLandscape:ml-10">
           {React.createElement(localeToggleComponent, { placement: 'footer' })}
+        </div>
+      )}
+      {showDarkModeToggle && darkModeToggleComponent && (
+        <div className="w-full mobileLandscape:w-auto flex items-center mt-3 mobileLandscape:mt-0 mobileLandscape:ml-10">
+          {React.createElement(darkModeToggleComponent)}
         </div>
       )}
     </footer>

@@ -9,6 +9,7 @@ import Footer from 'fxa-react/components/Footer';
 import { AlertBar } from '../AlertBar';
 import { useConfig } from '../../../models/hooks';
 import { LocaleToggle } from '../../LocaleToggle';
+import { DarkModeToggle } from '../../DarkModeToggle';
 
 type SettingsLayoutProps = {
   children: React.ReactNode;
@@ -34,6 +35,8 @@ export const SettingsLayout = ({ children }: SettingsLayoutProps) => {
       <Footer
         showLocaleToggle={config.featureFlags?.showLocaleToggle}
         localeToggleComponent={LocaleToggle}
+        showDarkModeToggle={true}
+        darkModeToggleComponent={DarkModeToggle}
       />
       <div id="body-bottom" className="block mobileLandscape:hidden" />
     </div>
