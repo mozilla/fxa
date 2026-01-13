@@ -37,7 +37,9 @@ interface Subscription {
   nextInvoiceTotal?: number;
   nextPromotionName?: string | null;
   promotionName?: string | null;
+  isEligibleForChurnCancel: boolean;
   isEligibleForChurnStaySubscribed: boolean;
+  isEligibleForOffer: boolean;
   churnStaySubscribedCtaMessage?: string | null;
 }
 
@@ -58,6 +60,9 @@ export const SubscriptionContent = ({
     currentInvoiceTotal,
     currentInvoiceUrl,
     currentPeriodEnd,
+    isEligibleForChurnCancel,
+    isEligibleForChurnStaySubscribed,
+    isEligibleForOffer,
     nextInvoiceTax,
     nextInvoiceTotal,
     nextPromotionName,
@@ -250,9 +255,7 @@ export const SubscriptionContent = ({
             </div>
 
             <div>
-              <p>
-                {subscription.churnStaySubscribedCtaMessage}
-              </p>
+              <p>{subscription.churnStaySubscribedCtaMessage}</p>
               <LinkExternal
                 href={`/${locale}/${subscription.offeringApiIdentifier}/${subscription.interval}/stay_subscribed/loyalty-discount/terms`}
                 className="w-fit text-sm text-blue-500 underline hover:text-blue-600"
@@ -262,7 +265,7 @@ export const SubscriptionContent = ({
                   'View coupon terms and restrictions'
                 )}
               >
-                <Localized id='subscription-content-link-churn-intervention-terms-apply'>
+                <Localized id="subscription-content-link-churn-intervention-terms-apply">
                   <span>Terms apply</span>
                 </Localized>
               </LinkExternal>
@@ -272,7 +275,11 @@ export const SubscriptionContent = ({
         <div className="ms-auto w-full tablet:w-auto">
           {canResubscribe ? (
             <Link
-              href={`/${locale}/subscriptions/${subscription.id}/stay-subscribed`}
+              href={
+                isEligibleForChurnStaySubscribed
+                  ? `/${locale}/subscriptions/${subscription.id}/loyalty-discount/stay-subscribed`
+                  : `/${locale}/subscriptions/${subscription.id}/stay-subscribed`
+              }
               className="border box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-blue-500 hover:bg-blue-700 text-white w-full tablet:w-auto"
               aria-label={`Stay subscribed to ${productName}`}
             >
@@ -285,7 +292,13 @@ export const SubscriptionContent = ({
             </Link>
           ) : (
             <Link
-              href={`/${locale}/subscriptions/${subscription.id}/cancel`}
+              href={
+                isEligibleForChurnCancel
+                  ? `/${locale}/subscriptions/${subscription.id}/loyalty-discount/cancel`
+                  : isEligibleForOffer
+                    ? `/${locale}/subscriptions/${subscription.id}/offer`
+                    : `/${locale}/subscriptions/${subscription.id}/cancel`
+              }
               className="border border-grey-200 box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-grey-10 hover:bg-grey-50 w-full tablet:w-auto"
               aria-label={`Cancel your subscription to ${productName}`}
             >

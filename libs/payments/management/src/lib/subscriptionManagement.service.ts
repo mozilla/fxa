@@ -481,6 +481,14 @@ export class SubscriptionManagementService {
         selectedLanguage
       );
 
+    const cancelIntervention =
+      await this.churnInterventionService.determineCancellationIntervention({
+        uid,
+        subscriptionId: subscription.id,
+        acceptLanguage,
+        selectedLanguage,
+      });
+
     return {
       id: subscription.id,
       productName,
@@ -511,7 +519,15 @@ export class SubscriptionManagementService {
       nextPromotionName,
       promotionName,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      isEligibleForChurnCancel:
+        cancelIntervention.reason === 'eligible' &&
+        cancelIntervention.cancelChurnInterventionType ===
+          'cancel_churn_intervention',
       isEligibleForChurnStaySubscribed: staySubscribedResult.isEligible,
+      isEligibleForOffer:
+        cancelIntervention.reason === 'eligible' &&
+        cancelIntervention.cancelChurnInterventionType ===
+          'cancel_interstitial_offer',
       churnStaySubscribedCtaMessage:
         staySubscribedResult.cmsChurnInterventionEntry?.ctaMessage,
     };
