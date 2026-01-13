@@ -353,13 +353,17 @@ const recordEventMetric = (
       passwordReset.createNewRecoveryKeyMessageClick.record();
       break;
     case 'password_reset_create_new_submit':
-      passwordReset.createNewSubmit.record();
+      passwordReset.createNewSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'password_reset_create_new_success_view':
       passwordReset.createNewSuccessView.record();
       break;
     case 'password_reset_create_new_view':
-      passwordReset.createNewView.record();
+      passwordReset.createNewView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'password_reset_email_confirmation_different_account':
       passwordReset.emailConfirmationDifferentAccount.record();

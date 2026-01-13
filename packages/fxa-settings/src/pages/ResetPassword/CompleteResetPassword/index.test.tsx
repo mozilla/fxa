@@ -127,9 +127,9 @@ describe('CompleteResetPassword page', () => {
       );
 
       await waitFor(() =>
-        expect(GleanMetrics.passwordReset.createNewView).toHaveBeenCalledTimes(
-          1
-        )
+        expect(GleanMetrics.passwordReset.createNewView).toHaveBeenCalledWith({
+          event: { reason: 'without key' },
+        })
       );
     });
   });
@@ -213,6 +213,22 @@ describe('CompleteResetPassword page', () => {
       expect(
         screen.getByRole('link', { name: 'Use account recovery key' })
       ).toBeVisible();
+    });
+
+    it('sends the expected metrics on render with "with key" reason', async () => {
+      renderWithLocalizationProvider(
+        <Subject
+          hasConfirmedRecoveryKey={false}
+          recoveryKeyExists={true}
+          estimatedSyncDeviceCount={2}
+        />
+      );
+
+      await waitFor(() =>
+        expect(GleanMetrics.passwordReset.createNewView).toHaveBeenCalledWith({
+          event: { reason: 'with key' },
+        })
+      );
     });
   });
 

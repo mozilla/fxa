@@ -1051,6 +1051,11 @@ password_reset:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates the password reset flow context: "with key" when user has a recovery key but chose the standard reset flow, or "without key" when user doesn't have a recovery key.
+        type: string
   create_new_success_view:
     type: event
     description: |
@@ -1087,6 +1092,11 @@ password_reset:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates the password reset flow context: "with key" when user has a recovery key but chose the standard reset flow, or "without key" when user doesn't have a recovery key.
+        type: string
   email_confirmation_different_account:
     type: event
     description: |
