@@ -2800,7 +2800,7 @@ module.exports = function (log, config, bounces, statsd) {
   };
 
   Mailer.prototype.subscriptionPaymentExpiredEmail = async function (message) {
-    const { email, uid, planId, acceptLanguage, subscriptions } = message;
+    const { email, uid, acceptLanguage, subscriptions } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentExpired', {
@@ -2835,7 +2835,7 @@ module.exports = function (log, config, bounces, statsd) {
     }
 
     const cmsLinks = await this._generateCmsLinks(
-      planId,
+      subscriptions[0]?.planId,
       acceptLanguage,
       template
     );
@@ -2859,7 +2859,7 @@ module.exports = function (log, config, bounces, statsd) {
   Mailer.prototype.subscriptionPaymentProviderCancelledEmail = async function (
     message
   ) {
-    const { email, uid, planId, acceptLanguage, subscriptions } = message;
+    const { email, uid, acceptLanguage, subscriptions } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentProviderCancelled', {
@@ -2894,7 +2894,7 @@ module.exports = function (log, config, bounces, statsd) {
     }
 
     const cmsLinks = await this._generateCmsLinks(
-      planId,
+      subscriptions[0]?.planId,
       acceptLanguage,
       template
     );
@@ -3219,7 +3219,7 @@ module.exports = function (log, config, bounces, statsd) {
   };
 
   Mailer.prototype.subscriptionEndingReminderEmail = async function (message) {
-    const { email, uid, planId, acceptLanguage, subscription } = message;
+    const { email, uid, acceptLanguage, subscription } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionEndingReminderEmail', {
@@ -3245,7 +3245,7 @@ module.exports = function (log, config, bounces, statsd) {
       template
     );
     const cmsLinks = await this._generateCmsLinks(
-      planId,
+      subscription.planId,
       acceptLanguage,
       template
     );
@@ -3298,7 +3298,7 @@ module.exports = function (log, config, bounces, statsd) {
   };
 
   Mailer.prototype.subscriptionRenewalReminderEmail = async function (message) {
-    const { email, uid, planId, acceptLanguage, subscription } = message;
+    const { email, uid, acceptLanguage, subscription } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionRenewalReminderEmail', {
@@ -3324,7 +3324,7 @@ module.exports = function (log, config, bounces, statsd) {
       template
     );
     const cmsLinks = await this._generateCmsLinks(
-      planId,
+      subscription.planId,
       acceptLanguage,
       template
     );
