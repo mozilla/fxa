@@ -512,6 +512,35 @@ module.exports = function (
           glean.login.verifyCodeConfirmed(request, { uid });
           await signinUtils.cleanupReminders({ verified: true }, account);
           await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
+
+          // Send new device login notification email after successful verification
+          const geoData = request.app.geo;
+          const service = options.service || request.query.service;
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            ip: request.app.clientAddress,
+            location: geoData.location,
+            service,
+            timeZone: geoData.timeZone,
+            uaBrowser: sessionToken.uaBrowser,
+            uaBrowserVersion: sessionToken.uaBrowserVersion,
+            uaOS: sessionToken.uaOS,
+            uaOSVersion: sessionToken.uaOSVersion,
+            uaDeviceType: sessionToken.uaDeviceType,
+            uid,
+          };
+
+          try {
+            await mailer.sendNewDeviceLoginEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          } catch (err) {
+            log.trace('Session.verify_code.sendNewDeviceLoginEmail.error', {
+              error: err,
+            });
+          }
         }
 
         return {};
@@ -793,6 +822,37 @@ module.exports = function (
         await signinUtils.cleanupReminders({ verified: true }, account);
         const devices = await db.devices(uid);
         await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
+
+        // Send new device login notification email after successful verification
+        if (account.primaryEmail.isVerified) {
+          const geoData = request.app.geo;
+          const service = request.query.service;
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            ip: request.app.clientAddress,
+            location: geoData.location,
+            service,
+            timeZone: geoData.timeZone,
+            uaBrowser: sessionToken.uaBrowser,
+            uaBrowserVersion: sessionToken.uaBrowserVersion,
+            uaOS: sessionToken.uaOS,
+            uaOSVersion: sessionToken.uaOSVersion,
+            uaDeviceType: sessionToken.uaDeviceType,
+            uid,
+          };
+
+          try {
+            await mailer.sendNewDeviceLoginEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          } catch (err) {
+            log.trace('Session.verify_push.sendNewDeviceLoginEmail.error', {
+              error: err,
+            });
+          }
+        }
 
         return {};
       },
