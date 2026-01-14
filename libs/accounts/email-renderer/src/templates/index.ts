@@ -48,7 +48,6 @@ export * as fraudulentAccountDeletion from './fraudulentAccountDeletion';
 export * as inactiveAccountFirstWarning from './inactiveAccountFirstWarning';
 export * as inactiveAccountSecondWarning from './inactiveAccountSecondWarning';
 export * as inactiveAccountFinalWarning from './inactiveAccountFinalWarning';
-export * as subscriptionAccountFinishSetup from './subscriptionAccountFinishSetup';
 export * as subscriptionAccountReminderFirst from './subscriptionAccountReminderFirst';
 export * as subscriptionAccountReminderSecond from './subscriptionAccountReminderSecond';
 export * as subscriptionReactivation from './subscriptionReactivation';

@@ -84,7 +84,7 @@ export class EmailRenderer extends Localizer {
       includes,
     } = templateContext;
     const { l10n, selectedLocale } = await super.setupDomLocalizer(
-      acceptLanguage || 'en-US'
+      acceptLanguage || ''
     );
 
     const context = {
