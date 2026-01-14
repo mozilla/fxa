@@ -6,7 +6,9 @@
 # the package used by the browser.
 
 # Get current version
-ejs_version=$(npm info ejs version)
+# ejs_version=$(npm info ejs version)
+# Temoporary fix for now... Latest version doesn't have minified file
+ejs_version=3.1.10
 
 # Ensure vendor dir
 [ ! -d "./vendor" ] && mkdir vendor
