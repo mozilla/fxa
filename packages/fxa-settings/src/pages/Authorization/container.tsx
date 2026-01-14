@@ -13,7 +13,6 @@ import {
   useSession,
 } from '../../models';
 
-import { cache } from '../../lib/cache';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { currentAccount } from '../../lib/cache';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
@@ -79,7 +78,6 @@ const AuthorizationContainer = ({
       const { data, error } = await cachedSignIn(
         account?.sessionToken!,
         authClient,
-        cache,
         session,
         isOauthPromptNone
       );

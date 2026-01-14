@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { GET_LEGAL_DOC } from '../models';
-import { ApolloClient } from '@apollo/client';
+import config from './config';
 
 export enum LegalDocFile {
   privacy = 'mozilla_accounts_privacy_notice',
@@ -11,39 +10,51 @@ export enum LegalDocFile {
 }
 
 export const fetchLegalMd = async (
-  apolloClient: ApolloClient<object> | undefined,
+  _unused: unknown, // Previously apolloClient, kept for backward compatibility
   locale: string,
   file: string
 ): Promise<{
   markdown?: string;
   error?: string;
 }> => {
-  const error = `Something went wrong. Try again later.`;
-
-  if (apolloClient == null) {
-    console.error('No apolloClient provided.');
-    return {
-      error,
-    };
-  }
+  const errorMsg = `Something went wrong. Try again later.`;
 
   try {
-    const result = await apolloClient.query({
-      query: GET_LEGAL_DOC,
-      variables: { input: { locale, file } },
+    // Fetch legal docs directly from GQL API
+    const response = await fetch(`${config.servers.gql.url}/graphql`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: `
+          query GetLegalDoc($input: LegalInput!) {
+            getLegalDoc(input: $input) {
+              markdown
+            }
+          }
+        `,
+        variables: { input: { locale, file } },
+      }),
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch legal doc');
+    }
+
+    const result = await response.json();
 
     if (result?.data?.getLegalDoc?.markdown) {
       return {
-        markdown: result.data.getLegalDoc?.markdown,
+        markdown: result.data.getLegalDoc.markdown,
       };
     }
 
     // If the markdown we got back is empty / invalid error out.
-    throw new Error(error);
+    throw new Error(errorMsg);
   } catch (err) {
     return {
-      error,
+      error: errorMsg,
     };
   }
 };

@@ -56,6 +56,8 @@ import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { OtpUtils } from './utils/otp';
 import { getExistingSecondaryEmailRecord } from './emails';
 import { Redis } from 'ioredis';
+import { BackupCodeManager } from '@fxa/accounts/two-factor';
+import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -1585,6 +1587,30 @@ export class AccountHandler {
     }
   }
 
+  async emailBounceStatus(request: AuthRequest) {
+    const email = (request.payload as any).email;
+
+    // Short circuit if no email is provided.
+    if (!email) {
+      return { hasHardBounce: false };
+    }
+
+    await this.customs.check(request, email, 'emailBounceStatusCheck');
+
+    try {
+      const bounces = await this.db.emailBounces(email);
+      // bounceType 1 = Permanent/Hard bounce
+      const hasHardBounce = bounces.some(
+        (bounce: { bounceType: number }) => bounce.bounceType === 1
+      );
+      return { hasHardBounce };
+    } catch (err) {
+      this.log.error('emailBounceStatus.error', { email, err });
+      // Return false on error to not block user flow
+      return { hasHardBounce: false };
+    }
+  }
+
   async profile(request: AuthRequest) {
     const auth = request.auth;
     let uid, scope;
@@ -2150,8 +2176,90 @@ export class AccountHandler {
   async getAccount(request: AuthRequest) {
     this.log.begin('Account.get', request);
 
-    const { uid } = request.auth.credentials;
+    const { uid } = request.auth.credentials as { uid: string };
 
+    // Fetch all data in parallel for better performance
+    const [
+      accountRecord,
+      emails,
+      linkedAccountsResult,
+      totpResult,
+      backupCodesResult,
+      recoveryKeyResult,
+      recoveryPhoneResult,
+      securityEventsResult,
+    ] = await Promise.allSettled([
+      this.db.account(uid),
+      this.db.accountEmails(uid),
+      this.db.getLinkedAccounts(uid).catch(() => []),
+      this.db.totpToken(uid).catch(() => null),
+      Container.get(BackupCodeManager).getCountForUserId(uid).catch(() => ({ hasBackupCodes: false, count: 0 })),
+      this.db.getRecoveryKeyRecordWithHint(uid).catch(() => null),
+      Container.get(RecoveryPhoneService).hasConfirmed(uid).catch(() => ({ exists: false, phoneNumber: null })),
+      this.db.securityEventsByUid({ uid }).catch(() => []),
+    ]);
+
+    // Check if recovery phone feature is enabled globally (region check requires geo context)
+    const recoveryPhoneAvailable = this.config.recoveryPhone?.enabled ?? false;
+
+    // Account record is required
+    if (accountRecord.status === 'rejected') {
+      throw accountRecord.reason;
+    }
+    const account = accountRecord.value;
+
+    // Format emails
+    const formattedEmails = emails.status === 'fulfilled'
+      ? emails.value.map((email: any) => ({
+          email: email.email,
+          isPrimary: email.isPrimary,
+          verified: email.isVerified,
+        }))
+      : [];
+
+    // Format linked accounts
+    const linkedAccounts = linkedAccountsResult.status === 'fulfilled'
+      ? linkedAccountsResult.value.map((la: any) => ({
+          providerId: la.providerId,
+          authAt: la.authAt,
+          enabled: la.enabled,
+        }))
+      : [];
+
+    // Format TOTP status
+    const totp = totpResult.status === 'fulfilled' && totpResult.value
+      ? { exists: true, verified: !!totpResult.value.verified }
+      : { exists: false, verified: false };
+
+    // Format backup codes status
+    const backupCodes = backupCodesResult.status === 'fulfilled'
+      ? backupCodesResult.value
+      : { hasBackupCodes: false, count: 0 };
+
+    // Format recovery key status
+    const recoveryKey = recoveryKeyResult.status === 'fulfilled' && recoveryKeyResult.value
+      ? { exists: true }
+      : { exists: false };
+
+    // Format recovery phone status
+    const recoveryPhoneData = recoveryPhoneResult.status === 'fulfilled'
+      ? recoveryPhoneResult.value
+      : { exists: false, phoneNumber: null };
+    const recoveryPhone = {
+      ...recoveryPhoneData,
+      available: recoveryPhoneAvailable,
+    };
+
+    // Format security events
+    const securityEvents = securityEventsResult.status === 'fulfilled'
+      ? securityEventsResult.value.map((e: any) => ({
+          name: e.name,
+          createdAt: e.createdAt,
+          verified: e.verified,
+        }))
+      : [];
+
+    // Fetch subscriptions (separate block due to complexity)
     let webSubscriptions: Awaited<WebSubscription[]> = [];
     let iapGooglePlaySubscriptions: Awaited<PlayStoreSubscription[]> = [];
     let iapAppStoreSubscriptions: Awaited<AppStoreSubscription[]> = [];
@@ -2188,6 +2296,23 @@ export class AccountHandler {
     }
 
     return {
+      // Account metadata
+      createdAt: account.createdAt,
+      passwordCreatedAt: account.verifierSetAt,
+      metricsOptOutAt: account.metricsOptOutAt,
+      hasPassword: account.verifierSetAt > 0,
+      // Emails
+      emails: formattedEmails,
+      // Linked accounts
+      linkedAccounts,
+      // 2FA status
+      totp,
+      backupCodes,
+      recoveryKey,
+      recoveryPhone,
+      // Security events
+      securityEvents,
+      // Subscriptions
       subscriptions: [
         ...iapGooglePlaySubscriptions,
         ...iapAppStoreSubscriptions,
@@ -2515,6 +2640,25 @@ export const accountRoutes = (
         accountHandler.accountStatusCheck(request),
     },
     {
+      method: 'POST',
+      path: '/account/email_bounce_status',
+      options: {
+        ...ACCOUNT_DOCS.ACCOUNT_EMAIL_BOUNCE_STATUS_POST,
+        validate: {
+          payload: isA.object({
+            email: validators.email().required(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            hasHardBounce: isA.boolean().required(),
+          }),
+        },
+      },
+      handler: (request: AuthRequest) =>
+        accountHandler.emailBounceStatus(request),
+    },
+    {
       method: 'GET',
       path: '/account/profile',
       options: {
@@ -2715,6 +2859,65 @@ export const accountRoutes = (
             // backend. Discussion in:
             //
             // https://github.com/mozilla/fxa/issues/1808
+            createdAt: isA.number().optional(),
+            passwordCreatedAt: isA.number().optional(),
+            metricsOptOutAt: isA.number().allow(null).optional(),
+            hasPassword: isA.boolean().optional(),
+            emails: isA
+              .array()
+              .items(
+                isA.object({
+                  email: isA.string().required(),
+                  isPrimary: isA.boolean().required(),
+                  verified: isA.boolean().required(),
+                })
+              )
+              .optional(),
+            linkedAccounts: isA
+              .array()
+              .items(
+                isA.object({
+                  providerId: isA.number().required(),
+                  authAt: isA.number().required(),
+                  enabled: isA.boolean().required(),
+                })
+              )
+              .optional(),
+            totp: isA
+              .object({
+                exists: isA.boolean().required(),
+                verified: isA.boolean().required(),
+              })
+              .optional(),
+            backupCodes: isA
+              .object({
+                hasBackupCodes: isA.boolean().required(),
+                count: isA.number().required(),
+              })
+              .optional(),
+            recoveryKey: isA
+              .object({
+                exists: isA.boolean().required(),
+              })
+              .optional(),
+            recoveryPhone: isA
+              .object({
+                exists: isA.boolean().required(),
+                phoneNumber: isA.string().allow(null).optional(),
+                nationalFormat: isA.string().allow(null).optional(),
+                available: isA.boolean().required(),
+              })
+              .optional(),
+            securityEvents: isA
+              .array()
+              .items(
+                isA.object({
+                  name: isA.string().required(),
+                  createdAt: isA.number().required(),
+                  verified: isA.boolean().required(),
+                })
+              )
+              .optional(),
             subscriptions: isA
               .array()
               .items(

@@ -22,7 +22,6 @@ import firefox from '../../lib/channels/firefox';
 import { AuthError } from '../../lib/oauth';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
-import { InMemoryCache } from '@apollo/client';
 import AuthenticationMethods from '../../constants/authentication-methods';
 
 interface NavigationTarget {
@@ -98,7 +97,6 @@ export function getSyncNavigate(
 export const cachedSignIn = async (
   sessionToken: string,
   authClient: ReturnType<typeof useAuthClient>,
-  cache: InMemoryCache,
   session: ReturnType<typeof useSession>,
   isOauthPromptNone = false
 ) => {
@@ -115,20 +113,8 @@ export const cachedSignIn = async (
     const totpIsActive = authenticationMethods.includes(
       AuthenticationMethods.OTP
     );
-    if (totpIsActive) {
-      // Cache this for subsequent requests
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          totp() {
-            return { exists: true, verified: true };
-          },
-        },
-      });
-    }
 
     // after accountProfile data is retrieved we must check verified status
-    // TODO: FXA-9177 can we use the useSession hook here? Or update Apollo Cache
     const { details } = await authClient.sessionStatus(sessionToken);
     const sessionVerified = details.sessionVerified;
     const emailVerified = details.accountEmailVerified;
@@ -162,6 +148,8 @@ export const cachedSignIn = async (
         uid: storedLocalAccount!.uid,
         sessionVerified,
         emailVerified,
+        // Return TOTP status for components that need it
+        totpIsActive,
       },
     };
   } catch (error) {

@@ -10,8 +10,7 @@ import * as CacheModule from '../../lib/cache';
 import * as CryptoModule from 'fxa-auth-client/lib/crypto';
 import * as SentryModule from '@sentry/browser';
 
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev';
+import { MockedResponse } from '@apollo/client/testing';
 import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninContainer from './container';
@@ -36,14 +35,9 @@ import {
   MOCK_UNWRAP_BKEY_V2,
   MOCK_VERIFICATION,
   MOCK_KB,
-  mockBeginSigninMutationWithV2Password,
   mockGqlAvatarUseQuery,
   mockGqlBeginSigninMutation,
   mockGqlCredentialStatusMutation,
-  mockGqlError,
-  mockGqlGetAccountKeysMutation,
-  mockGqlPasswordChangeFinishMutation,
-  mockGqlPasswordChangeStartMutation,
   MOCK_FLOW_ID,
   MOCK_CLIENT_ID,
   MOCK_KEY_FETCH_TOKEN,
@@ -164,6 +158,13 @@ function mockWebIntegration() {
   expect(integration.isFirefoxClientServiceRelay()).toBeFalsy();
 }
 
+function mockFetchModule() {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: () => Promise.resolve({ id: 'avatar-id', url: 'https://example.com/avatar.png' }),
+  });
+}
+
 function applyDefaultMocks() {
   jest.resetAllMocks();
   jest.restoreAllMocks();
@@ -178,6 +179,7 @@ function applyDefaultMocks() {
   mockCurrentAccount({ uid: '123' });
   mockCryptoModule();
   mockSentryModule();
+  mockFetchModule();
 }
 
 let mockUseCheckReactEmailFirst = jest.fn().mockReturnValue(true);
@@ -237,6 +239,33 @@ function mockModelsModule() {
   mockAuthClient.recoveryKeyExists = jest.fn().mockResolvedValue({
     exists: false,
   });
+  // Add auth-client methods used by the container
+  mockAuthClient.getCredentialStatusV2 = jest.fn().mockResolvedValue({
+    upgradeNeeded: false,
+    currentVersion: 'v1',
+    clientSalt: MOCK_CLIENT_SALT,
+  });
+  mockAuthClient.signInWithAuthPW = jest.fn().mockResolvedValue({
+    uid: MOCK_UID,
+    sessionToken: MOCK_SESSION_TOKEN,
+    authAt: MOCK_AUTH_AT,
+    metricsEnabled: true,
+    emailVerified: true,
+    sessionVerified: true,
+    verificationMethod: VerificationMethods.EMAIL_OTP,
+    verificationReason: VerificationReasons.SIGN_IN,
+    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+  });
+  mockAuthClient.wrappedAccountKeys = jest.fn().mockResolvedValue({
+    kA: MOCK_KB,
+    wrapKB: MOCK_WRAP_KB,
+  });
+  mockAuthClient.passwordChangeStartWithAuthPW = jest.fn().mockResolvedValue({
+    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+    passwordChangeToken: 'mockPasswordChangeToken',
+  });
+  mockAuthClient.passwordChangeFinish = jest.fn().mockResolvedValue({});
+
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
   );
@@ -246,6 +275,11 @@ function mockModelsModule() {
   (ModelsModule.useConfig as jest.Mock).mockImplementation(() => ({
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: true,
+    },
+    servers: {
+      profile: {
+        url: 'http://localhost:1111',
+      },
     },
   }));
   (ModelsModule.useSession as jest.Mock).mockImplementation(() => mockSession);
@@ -381,27 +415,22 @@ function mockSentryModule() {
 }
 
 function render(
-  mocks: Array<MockedResponse>,
+  _mocks?: Array<MockedResponse>,
   options?: { useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus> }
 ) {
-  loadDevMessages();
-  loadErrorMessages();
-
   const useFxAStatusResult = options?.useFxAStatusResult || mockUseFxAStatus();
 
   return renderWithLocalizationProvider(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <LocationProvider>
-        <SigninContainer
-          {...{
-            integration,
-            serviceName: MozServices.Default,
-            useFxAStatusResult,
-          }}
-          flowQueryParams={{ flowId: MOCK_FLOW_ID }}
-        />
-      </LocationProvider>
-    </MockedProvider>
+    <LocationProvider>
+      <SigninContainer
+        {...{
+          integration,
+          serviceName: MozServices.Default,
+          useFxAStatusResult,
+        }}
+        flowQueryParams={{ flowId: MOCK_FLOW_ID }}
+      />
+    </LocationProvider>
   );
 }
 
@@ -704,14 +733,14 @@ describe('signin container', () => {
       });
     });
 
-    it('handles gql mutation error', async () => {
-      render([
-        mockGqlAvatarUseQuery(),
-        {
-          ...mockGqlBeginSigninMutation({ keys: false }),
-          error: mockGqlError(AuthUiErrors.INCORRECT_PASSWORD),
-        },
-      ]);
+    it('handles auth client error', async () => {
+      // Mock signInWithAuthPW to throw an error
+      mockAuthClient.signInWithAuthPW = jest.fn().mockRejectedValue({
+        errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
+        message: AuthUiErrors.INCORRECT_PASSWORD.message,
+      });
+
+      render();
 
       await waitFor(async () => {
         const handlerResult = await currentSigninProps?.beginSigninHandler(
@@ -729,24 +758,32 @@ describe('signin container', () => {
     it('handles incorrect email case error', async () => {
       const email = `orginal-${MOCK_EMAIL}`;
       const correctedEmail = `new-${MOCK_EMAIL}`;
-      await act(() =>
-        render([
-          mockGqlAvatarUseQuery(),
-          // The first call should fail, and the incorrect email case error
-          // with the corrected email in the error response should be returned.
-          {
-            ...mockGqlBeginSigninMutation({ keys: false }, { email: email }),
-            error: mockGqlError(AuthUiErrors.INCORRECT_EMAIL_CASE, {
-              email: correctedEmail,
-            }),
-          },
-          // Note, that originalEmail should also be sent up. This is a requirement for v1 passwords!
-          mockGqlBeginSigninMutation(
-            { keys: false, originalLoginEmail: email },
-            { email: correctedEmail }
-          ),
-        ])
-      );
+
+      // First call should fail with incorrect email case error, then retry with corrected email
+      let callCount = 0;
+      mockAuthClient.signInWithAuthPW = jest.fn().mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.reject({
+            errno: AuthUiErrors.INCORRECT_EMAIL_CASE.errno,
+            message: AuthUiErrors.INCORRECT_EMAIL_CASE.message,
+            email: correctedEmail,
+          });
+        }
+        return Promise.resolve({
+          uid: MOCK_UID,
+          sessionToken: MOCK_SESSION_TOKEN,
+          authAt: MOCK_AUTH_AT,
+          metricsEnabled: true,
+          emailVerified: true,
+          sessionVerified: false,
+          verificationMethod: VerificationMethods.EMAIL_OTP,
+          verificationReason: VerificationReasons.SIGN_IN,
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+        });
+      });
+
+      render();
 
       await waitFor(async () => {
         // Emulates providing the original email even after they swapped in a primary email.
@@ -906,15 +943,26 @@ describe('signin container', () => {
       });
 
       it('runs handler and uses existing V2 credentials', async () => {
-        render([
-          mockGqlAvatarUseQuery(),
-          (() => {
-            const mock = mockGqlCredentialStatusMutation();
-            mock.result.data.credentialStatus.upgradeNeeded = false;
-            return mock;
-          })(),
-          mockBeginSigninMutationWithV2Password(),
-        ]);
+        // Mock getCredentialStatusV2 to return upgradeNeeded: false (already on v2)
+        mockAuthClient.getCredentialStatusV2 = jest.fn().mockResolvedValue({
+          upgradeNeeded: false,
+          currentVersion: 'v2',
+          clientSalt: MOCK_CLIENT_SALT,
+        });
+        // Mock signInWithAuthPW to return a successful session
+        mockAuthClient.signInWithAuthPW = jest.fn().mockResolvedValue({
+          uid: MOCK_UID,
+          sessionToken: MOCK_SESSION_TOKEN,
+          authAt: MOCK_AUTH_AT,
+          metricsEnabled: true,
+          emailVerified: true,
+          sessionVerified: false,
+          verificationMethod: VerificationMethods.EMAIL_OTP,
+          verificationReason: VerificationReasons.SIGN_IN,
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+        });
+
+        render();
 
         await waitFor(async () => {
           const handlerResult = await currentSigninProps?.beginSigninHandler(
@@ -929,14 +977,38 @@ describe('signin container', () => {
       });
 
       it('runs handler and upgrades to new V2 credentials', async () => {
-        render([
-          mockGqlAvatarUseQuery(),
-          mockGqlCredentialStatusMutation(),
-          mockGqlPasswordChangeStartMutation(),
-          mockGqlGetAccountKeysMutation(),
-          mockGqlPasswordChangeFinishMutation(),
-          mockBeginSigninMutationWithV2Password(),
-        ]);
+        // Mock getCredentialStatusV2 to return upgradeNeeded: true
+        mockAuthClient.getCredentialStatusV2 = jest.fn().mockResolvedValue({
+          upgradeNeeded: true,
+          currentVersion: 'v1',
+          clientSalt: MOCK_CLIENT_SALT,
+        });
+        // Mock signInWithAuthPW to return a verified session
+        mockAuthClient.signInWithAuthPW = jest.fn().mockResolvedValue({
+          uid: MOCK_UID,
+          sessionToken: MOCK_SESSION_TOKEN,
+          authAt: MOCK_AUTH_AT,
+          metricsEnabled: true,
+          emailVerified: true,
+          sessionVerified: true,
+          verificationMethod: VerificationMethods.EMAIL_OTP,
+          verificationReason: VerificationReasons.SIGN_IN,
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+        });
+        // Mock passwordChangeStartWithAuthPW to succeed
+        mockAuthClient.passwordChangeStartWithAuthPW = jest.fn().mockResolvedValue({
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+          passwordChangeToken: 'mockPasswordChangeToken',
+        });
+        // Mock wrappedAccountKeys to succeed
+        mockAuthClient.wrappedAccountKeys = jest.fn().mockResolvedValue({
+          kA: MOCK_KB,
+          wrapKB: MOCK_WRAP_KB,
+        });
+        // Mock passwordChangeFinish to succeed
+        mockAuthClient.passwordChangeFinish = jest.fn().mockResolvedValue({});
+
+        render();
 
         await waitFor(async () => {
           const handlerResult = await currentSigninProps?.beginSigninHandler(
@@ -975,14 +1047,13 @@ describe('signin container', () => {
       });
 
       it('handles error fetching credentials status', async () => {
-        render([
-          mockGqlAvatarUseQuery(),
-          {
-            ...mockGqlCredentialStatusMutation(),
-            error: mockGqlError(),
-          },
-          mockGqlBeginSigninMutation({ keys: false }, { email: MOCK_EMAIL }),
-        ]);
+        // Mock getCredentialStatusV2 to throw an error
+        mockAuthClient.getCredentialStatusV2 = jest.fn().mockRejectedValue({
+          errno: 999,
+          message: 'Test error',
+        });
+
+        render();
 
         await waitFor(async () => {
           const handlerResult = await currentSigninProps?.beginSigninHandler(
@@ -1000,23 +1071,31 @@ describe('signin container', () => {
       });
 
       it('handles error when starting upgrade', async () => {
-        render([
-          mockGqlAvatarUseQuery(),
-          mockGqlCredentialStatusMutation({
-            upgradeNeeded: true,
-            currentVersion: 'v1',
-            clientSalt: '',
-          }),
-          mockGqlBeginSigninMutation(
-            { keys: false },
-            {},
-            { emailVerified: true, sessionVerified: true }
-          ),
-          {
-            ...mockGqlPasswordChangeStartMutation(),
-            error: mockGqlError(),
-          },
-        ]);
+        // Mock getCredentialStatusV2 to return upgradeNeeded: true
+        mockAuthClient.getCredentialStatusV2 = jest.fn().mockResolvedValue({
+          upgradeNeeded: true,
+          currentVersion: 'v1',
+          clientSalt: '',
+        });
+        // Mock signInWithAuthPW to return verified session
+        mockAuthClient.signInWithAuthPW = jest.fn().mockResolvedValue({
+          uid: MOCK_UID,
+          sessionToken: MOCK_SESSION_TOKEN,
+          authAt: MOCK_AUTH_AT,
+          metricsEnabled: true,
+          emailVerified: true,
+          sessionVerified: true,
+          verificationMethod: VerificationMethods.EMAIL_OTP,
+          verificationReason: VerificationReasons.SIGN_IN,
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+        });
+        // Mock passwordChangeStartWithAuthPW to throw an error
+        mockAuthClient.passwordChangeStartWithAuthPW = jest.fn().mockRejectedValue({
+          errno: 999,
+          message: 'Test error',
+        });
+
+        render();
 
         await waitFor(async () => {
           const handlerResult = await currentSigninProps?.beginSigninHandler(
@@ -1033,24 +1112,36 @@ describe('signin container', () => {
       });
 
       it('handles error when fetching keys', async () => {
-        render([
-          mockGqlAvatarUseQuery(),
-          mockGqlCredentialStatusMutation({
-            upgradeNeeded: true,
-            currentVersion: 'v1',
-            clientSalt: '',
-          }),
-          mockGqlBeginSigninMutation(
-            { keys: false },
-            {},
-            { emailVerified: true, sessionVerified: true }
-          ),
-          mockGqlPasswordChangeStartMutation(),
-          {
-            ...mockGqlGetAccountKeysMutation(),
-            error: mockGqlError(),
-          },
-        ]);
+        // Mock getCredentialStatusV2 to return upgradeNeeded: true
+        mockAuthClient.getCredentialStatusV2 = jest.fn().mockResolvedValue({
+          upgradeNeeded: true,
+          currentVersion: 'v1',
+          clientSalt: '',
+        });
+        // Mock signInWithAuthPW to return verified session
+        mockAuthClient.signInWithAuthPW = jest.fn().mockResolvedValue({
+          uid: MOCK_UID,
+          sessionToken: MOCK_SESSION_TOKEN,
+          authAt: MOCK_AUTH_AT,
+          metricsEnabled: true,
+          emailVerified: true,
+          sessionVerified: true,
+          verificationMethod: VerificationMethods.EMAIL_OTP,
+          verificationReason: VerificationReasons.SIGN_IN,
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+        });
+        // Mock passwordChangeStartWithAuthPW to succeed
+        mockAuthClient.passwordChangeStartWithAuthPW = jest.fn().mockResolvedValue({
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+          passwordChangeToken: 'mockPasswordChangeToken',
+        });
+        // Mock wrappedAccountKeys to throw an error
+        mockAuthClient.wrappedAccountKeys = jest.fn().mockRejectedValue({
+          errno: 999,
+          message: 'Test error',
+        });
+
+        render();
 
         await waitFor(async () => {
           const handlerResult = await currentSigninProps?.beginSigninHandler(
@@ -1068,25 +1159,41 @@ describe('signin container', () => {
       });
 
       it('handles error when finishing password upgrade', async () => {
-        render([
-          mockGqlAvatarUseQuery(),
-          mockGqlCredentialStatusMutation({
-            upgradeNeeded: true,
-            currentVersion: 'v1',
-            clientSalt: '',
-          }),
-          mockGqlBeginSigninMutation(
-            { keys: false },
-            {},
-            { emailVerified: true, sessionVerified: true }
-          ),
-          mockGqlPasswordChangeStartMutation(),
-          mockGqlGetAccountKeysMutation(),
-          {
-            ...mockGqlPasswordChangeFinishMutation(),
-            error: mockGqlError(),
-          },
-        ]);
+        // Mock getCredentialStatusV2 to return upgradeNeeded: true
+        mockAuthClient.getCredentialStatusV2 = jest.fn().mockResolvedValue({
+          upgradeNeeded: true,
+          currentVersion: 'v1',
+          clientSalt: '',
+        });
+        // Mock signInWithAuthPW to return verified session
+        mockAuthClient.signInWithAuthPW = jest.fn().mockResolvedValue({
+          uid: MOCK_UID,
+          sessionToken: MOCK_SESSION_TOKEN,
+          authAt: MOCK_AUTH_AT,
+          metricsEnabled: true,
+          emailVerified: true,
+          sessionVerified: true,
+          verificationMethod: VerificationMethods.EMAIL_OTP,
+          verificationReason: VerificationReasons.SIGN_IN,
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+        });
+        // Mock passwordChangeStartWithAuthPW to succeed
+        mockAuthClient.passwordChangeStartWithAuthPW = jest.fn().mockResolvedValue({
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+          passwordChangeToken: 'mockPasswordChangeToken',
+        });
+        // Mock wrappedAccountKeys to succeed
+        mockAuthClient.wrappedAccountKeys = jest.fn().mockResolvedValue({
+          kA: MOCK_KB,
+          wrapKB: MOCK_WRAP_KB,
+        });
+        // Mock passwordChangeFinish to throw an error
+        mockAuthClient.passwordChangeFinish = jest.fn().mockRejectedValue({
+          errno: 999,
+          message: 'Test error',
+        });
+
+        render();
 
         await waitFor(async () => {
           const handlerResult = await currentSigninProps?.beginSigninHandler(
@@ -1111,19 +1218,26 @@ describe('signin container', () => {
           ...mockSession,
           isSessionVerified: jest.fn().mockResolvedValue(false),
         }));
-        render([
-          mockGqlAvatarUseQuery(),
-          mockGqlCredentialStatusMutation({
-            upgradeNeeded: true,
-            currentVersion: 'v1',
-          }),
-          // Fallback to the V1 signin!
-          mockGqlBeginSigninMutation(
-            { keys: false },
-            {},
-            { emailVerified: false, sessionVerified: false }
-          ),
-        ]);
+        // Mock getCredentialStatusV2 to return upgradeNeeded: true
+        mockAuthClient.getCredentialStatusV2 = jest.fn().mockResolvedValue({
+          upgradeNeeded: true,
+          currentVersion: 'v1',
+          clientSalt: '',
+        });
+        // Mock signInWithAuthPW to return unverified session
+        mockAuthClient.signInWithAuthPW = jest.fn().mockResolvedValue({
+          uid: MOCK_UID,
+          sessionToken: MOCK_SESSION_TOKEN,
+          authAt: MOCK_AUTH_AT,
+          metricsEnabled: true,
+          emailVerified: false,
+          sessionVerified: false,
+          verificationMethod: VerificationMethods.EMAIL_OTP,
+          verificationReason: VerificationReasons.SIGN_IN,
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+        });
+
+        render();
 
         await waitFor(async () => {
           const handlerResult = await currentSigninProps?.beginSigninHandler(

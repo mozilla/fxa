@@ -133,6 +133,7 @@ export const SigninUnblock = ({
         sessionToken: data.signIn.sessionToken,
         verified: isFullyVerified,
         metricsEnabled: data.signIn.metricsEnabled,
+        hasPassword: true, // User signed in with password
       };
 
       storeAccountData(accountData);

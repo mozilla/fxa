@@ -45,7 +45,7 @@ export function getStoredAccountData({
 
 type LocalAccounts = Record<hexstring, StoredAccountData>;
 
-function accounts(accounts?: LocalAccounts) {
+export function accounts(accounts?: LocalAccounts) {
   if (accounts) {
     storage.set('accounts', accounts);
     return accounts;
@@ -139,6 +139,9 @@ export function clearSignedInAccountUid() {
   delete all[uid];
   accounts(all);
   storage.remove('currentAccountUid');
+  // Dispatch events for reactive updates
+  window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'accounts' } }));
+  window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'currentAccountUid' } }));
 }
 
 /**
