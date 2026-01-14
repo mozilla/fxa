@@ -602,7 +602,6 @@ const convictConf = convict({
           'verifyLogin',
           'recovery',
           'unblockCode',
-          'subscriptionAccountFinishSetup',
         ],
         env: 'BOUNCES_IGNORE_TEMPLATES',
       },

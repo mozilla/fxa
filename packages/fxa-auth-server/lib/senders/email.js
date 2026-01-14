@@ -45,7 +45,6 @@ module.exports = function (log, config, bounces, statsd) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
-    subscriptionAccountFinishSetup: 'subscription-account-finish-setup',
     subscriptionReactivation: 'subscription-reactivation',
     subscriptionRenewalReminder: 'subscription-renewal-reminder',
     subscriptionEndingReminder: 'subscription-ending-reminder',
@@ -113,7 +112,6 @@ module.exports = function (log, config, bounces, statsd) {
   // Please create a DB migration to add the new templates into `emailTypes`
   // when you add new templates.
   const templateNameToContentMap = {
-    subscriptionAccountFinishSetup: 'subscriptions',
     subscriptionReactivation: 'subscriptions',
     subscriptionRenewalReminder: 'subscriptions',
     subscriptionEndingReminder: 'subscriptions',
@@ -2215,100 +2213,6 @@ module.exports = function (log, config, bounces, statsd) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
-      },
-    });
-  };
-
-  Mailer.prototype.subscriptionAccountFinishSetupEmail = async function (
-    message
-  ) {
-    const {
-      email,
-      uid,
-      productId,
-      planId,
-      acceptLanguage,
-      productName,
-      invoiceNumber,
-      invoiceTotalInCents,
-      invoiceTotalCurrency,
-      planEmailIconURL,
-      invoiceDate,
-      nextInvoiceDate,
-      token,
-      flowId,
-      flowBeginTime,
-      deviceId,
-    } = message;
-
-    const enabled = config.subscriptions.transactionalEmails.enabled;
-
-    log.trace('mailer.subscriptionAccountFinishSetupEmail', {
-      enabled,
-      email,
-      productId,
-      uid,
-    });
-    if (!enabled) {
-      return;
-    }
-
-    const query = {
-      email,
-      product_name: productName,
-      token,
-      product_id: productId,
-      flowId,
-      flowBeginTime,
-      deviceId,
-    };
-    const template = 'subscriptionAccountFinishSetup';
-
-    const links = this._generateLinks(
-      this.accountFinishSetupUrl,
-      message,
-      query,
-      template
-    );
-    const cmsLinks = await this._generateCmsLinks(
-      planId,
-      acceptLanguage,
-      template
-    );
-    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
-    const headers = {
-      'X-Link': links.link,
-    };
-
-    return this.send({
-      ...message,
-      headers,
-      layout: 'subscription',
-      template,
-      templateValues: {
-        ...links,
-        uid,
-        email,
-        productName,
-        invoiceNumber,
-        invoiceTotal: this._getLocalizedCurrencyString(
-          invoiceTotalInCents,
-          invoiceTotalCurrency,
-          message.acceptLanguage
-        ),
-        invoiceDateOnly: this._constructLocalDateString(
-          message.timeZone,
-          message.acceptLanguage,
-          invoiceDate
-        ),
-        isFinishSetup: true,
-        nextInvoiceDateOnly: this._constructLocalDateString(
-          message.timeZone,
-          message.acceptLanguage,
-          nextInvoiceDate
-        ),
-        icon: planEmailIconURL,
-        product: productName,
       },
     });
   };

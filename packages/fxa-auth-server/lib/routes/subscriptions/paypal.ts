@@ -20,7 +20,6 @@ import { StripeHelper } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { msToSec } from '../../time';
 import { AuthLogger, AuthRequest } from '../../types';
-import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { buildTaxAddress, handleAuth } from './utils';
@@ -148,10 +147,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       }
 
       const isPaypalCustomer = hasPaypalSubscription(customer);
-      const { token, metricsContext } = request.payload as Record<
-        string,
-        string
-      >;
+      const { token } = request.payload as Record<string, string>;
       const currentBillingAgreement =
         this.stripeHelper.getCustomerPaypalAgreement(customer);
 
@@ -189,16 +185,6 @@ export class PayPalHandler extends StripeWebhookHandler {
       this.log.info('subscriptions.createSubscriptionWithPaypal.success', {
         uid,
         subscriptionId: subscription.id,
-      });
-
-      await sendFinishSetupEmailForStubAccount({
-        uid,
-        account,
-        subscription,
-        stripeHelper: this.stripeHelper,
-        mailer: this.mailer,
-        subscriptionAccountReminders: this.subscriptionAccountReminders,
-        metricsContext,
       });
 
       return {

@@ -141,7 +141,6 @@ const LOG_METHOD_NAMES = [
 ];
 
 const MAILER_METHOD_NAMES = [
-  'sendSubscriptionAccountFinishSetupEmail',
   'sendSubscriptionUpgradeEmail',
   'sendSubscriptionDowngradeEmail',
   'sendSubscriptionPaymentExpiredEmail',
