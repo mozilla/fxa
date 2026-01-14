@@ -6,7 +6,8 @@
 
 'use strict';
 
-const sentry = require('../lib/sentry');
+// Initializes sentry
+require('../lib/sentry');
 
 // setup version first for the rest of the modules
 const loggerFactory = require('../lib/logging/log');
@@ -65,7 +66,6 @@ const fourOhFour = require('../lib/404');
 const serverErrorHandler = require('../lib/500');
 const localizedRender = require('../lib/localized-render');
 const csp = require('../lib/csp');
-const { tryCaptureValidationError } = require('../lib/sentry');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 const coop = require('../lib/coop');
@@ -237,17 +237,6 @@ function makeApp() {
     } else {
       next(err);
     }
-  });
-
-  // The sentry error handler must be before any other error middleware
-  sentry.sentryModule.setupExpressErrorHandler(app, {
-    shouldHandleError(error) {
-      const success = tryCaptureValidationError(error);
-
-      // If the validation was explicitly captured, we return false. Otherwise the
-      // error is reported twice.
-      return !success;
-    },
   });
 
   // log and capture any errors

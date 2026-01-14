@@ -6,6 +6,7 @@
 
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
+const Sentry = require('@sentry/node');
 
 const config = require('../config').default.getProperties();
 const StatsD = require('hot-shots');
@@ -29,5 +30,13 @@ const profileUpdatesQueue = new SQSReceiver(
 );
 
 DB.connect(config).then((db) => {
+  Sentry.captureMessage('Auth Server Profile Message Queue Started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server-profile-server-messaging',
+      env: config.env,
+    },
+  });
+
   profileUpdates(profileUpdatesQueue, push(log, db, config), db);
 });

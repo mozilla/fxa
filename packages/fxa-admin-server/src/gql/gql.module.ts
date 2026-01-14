@@ -22,8 +22,6 @@ import {
   RateLimitProvider,
   RateLimitRedisProvider,
 } from '@fxa/accounts/rate-limit';
-import { APP_FILTER } from '@nestjs/core';
-import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { CartModule } from './cart.module';
 
@@ -54,10 +52,6 @@ import { CartModule } from './cart.module';
       useClass: MozLoggerService,
     },
     RelyingPartyResolver,
-    {
-      provide: APP_FILTER,
-      useClass: SentryGlobalFilter,
-    },
   ],
 })
 export class GqlModule {}

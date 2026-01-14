@@ -11,7 +11,6 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import mozLog from 'mozlog';
 
-import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
 import { initTracing } from 'fxa-shared/tracing/node-tracing';
 
 import { AppModule } from './app.module';
@@ -31,9 +30,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, nestConfig);
   const config: ConfigService<AppConfig> = app.get(ConfigService);
   const proxyConfig = config.get('proxy') as AppConfig['proxy'];
-
-  // Add sentry as error reporter
-  app.useGlobalInterceptors(new SentryInterceptor());
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();

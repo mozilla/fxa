@@ -6,6 +6,15 @@ import * as Sentry from '@sentry/browser';
 import { enableSentry, SentryConfigOpts } from '@fxa/shared/sentry-utils';
 import { captureException, initSentry } from './browser';
 
+jest.mock('@sentry/browser', () => {
+  const actual = jest.requireActual('@sentry/browser');
+  return {
+    ...actual,
+    init: jest.fn(),
+    captureException: jest.fn(),
+  };
+});
+
 const config: SentryConfigOpts = {
   release: 'v0.0.0',
   sentry: {
