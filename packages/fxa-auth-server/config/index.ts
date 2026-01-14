@@ -771,6 +771,12 @@ const convictConf = convict({
       env: 'DELIVERY_QUEUE_URL',
       default: '',
     },
+    deliveryDelayQueueUrl: {
+      doc: 'The email delivery delay queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      format: String,
+      env: 'DELIVERY_DELAY_QUEUE_URL',
+      default: '',
+    },
     notificationQueueUrl: {
       doc: 'Queue URL for notifications from fxa-email-service (eventually this will be the only email-related queue)',
       format: String,
