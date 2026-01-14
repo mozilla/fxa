@@ -70,13 +70,13 @@ describe('StripeFirestore', () => {
   describe('retrieveAndFetchCustomer', () => {
     it('fetches a customer that was already retrieved', async () => {
       stripeFirestore.retrieveCustomer = sinon.fake.resolves(customer);
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
       const result = await stripeFirestore.retrieveAndFetchCustomer(
         customer.id
       );
       assert.deepEqual(result, customer);
       assert.calledOnce(stripeFirestore.retrieveCustomer);
-      assert.notCalled(stripeFirestore.fetchAndInsertCustomer);
+      assert.notCalled(stripeFirestore.legacyFetchAndInsertCustomer);
     });
 
     it('fetches a customer that hasnt been retrieved', async () => {
@@ -86,23 +86,23 @@ describe('StripeFirestore', () => {
           FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
         )
       );
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves(customer);
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves(customer);
       const result = await stripeFirestore.retrieveAndFetchCustomer(
         customer.id
       );
       assert.deepEqual(result, customer);
       assert.calledOnce(stripeFirestore.retrieveCustomer);
-      assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
+      assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
     });
 
-    it('passes ignoreErrors through to fetchAndInsertCustomer', async () => {
+    it('passes ignoreErrors through to legacyFetchAndInsertCustomer', async () => {
       stripeFirestore.retrieveCustomer = sinon.fake.rejects(
         newFirestoreStripeError(
           'Not found',
           FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
         )
       );
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves(customer);
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves(customer);
       const result = await stripeFirestore.retrieveAndFetchCustomer(
         customer.id,
         true
@@ -110,7 +110,7 @@ describe('StripeFirestore', () => {
       assert.deepEqual(result, customer);
       assert.calledOnce(stripeFirestore.retrieveCustomer);
       assert.calledOnceWithExactly(
-        stripeFirestore.fetchAndInsertCustomer,
+        stripeFirestore.legacyFetchAndInsertCustomer,
         customer.id,
         true
       );
@@ -141,13 +141,13 @@ describe('StripeFirestore', () => {
 
     it('fetches a subscription that was already retrieved', async () => {
       stripeFirestore.retrieveSubscription = sinon.fake.resolves(subscription);
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
       const result = await stripeFirestore.retrieveAndFetchSubscription(
         subscription.id
       );
       assert.deepEqual(result, subscription);
       assert.calledOnce(stripeFirestore.retrieveSubscription);
-      assert.notCalled(stripeFirestore.fetchAndInsertCustomer);
+      assert.notCalled(stripeFirestore.legacyFetchAndInsertCustomer);
     });
 
     it('fetches a subscription that hasnt been retrieved', async () => {
@@ -160,20 +160,20 @@ describe('StripeFirestore', () => {
       stripe.subscriptions = {
         retrieve: sinon.fake.resolves(subscription),
       };
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
       const result = await stripeFirestore.retrieveAndFetchSubscription(
         subscription.id
       );
       assert.deepEqual(result, subscription);
       assert.calledOnce(stripeFirestore.retrieveSubscription);
-      assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
+      assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
       assert.calledOnceWithExactly(
         stripe.subscriptions.retrieve,
         subscription.id
       );
     });
 
-    it('passes ignoreErrors through to fetchAndInsertCustomer', async () => {
+    it('passes ignoreErrors through to legacyFetchAndInsertCustomer', async () => {
       stripeFirestore.retrieveSubscription = sinon.fake.rejects(
         newFirestoreStripeError(
           'Not found',
@@ -183,7 +183,7 @@ describe('StripeFirestore', () => {
       stripe.subscriptions = {
         retrieve: sinon.fake.resolves(subscription),
       };
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
       const result = await stripeFirestore.retrieveAndFetchSubscription(
         subscription.id,
         true
@@ -191,7 +191,7 @@ describe('StripeFirestore', () => {
       assert.deepEqual(result, subscription);
       assert.calledOnce(stripeFirestore.retrieveSubscription);
       assert.calledOnceWithExactly(
-        stripeFirestore.fetchAndInsertCustomer,
+        stripeFirestore.legacyFetchAndInsertCustomer,
         subscription.customer,
         true
       );
@@ -256,7 +256,7 @@ describe('StripeFirestore', () => {
     });
   });
 
-  describe('fetchAndInsertCustomer', () => {
+  describe('legacyFetchAndInsertCustomer', () => {
     let tx;
 
     beforeEach(() => {
@@ -293,13 +293,14 @@ describe('StripeFirestore', () => {
         .resolves(customer),
       };
 
-      const result = await stripeFirestore.fetchAndInsertCustomer(customer.id);
+      const result = await stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
 
       assert.deepEqual(result, customer);
       assert.calledTwice(stripe.customers.retrieve);
       assert.calledOnceWithExactly(stripe.subscriptions.list, {
         customer: customer.id,
-        status: "all"
+        status: "all",
+        limit: 100,
       });
       assert.callCount(tx.set, 2); // customer + subscription
       assert.callCount(tx.get, 2); // customer + subscription
@@ -316,7 +317,7 @@ describe('StripeFirestore', () => {
       };
 
       try {
-        await stripeFirestore.fetchAndInsertCustomer(customer.id);
+        await stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
         assert.fail('should have thrown');
       } catch (err) {
         assert.equal(err.name, FirestoreStripeError.STRIPE_CUSTOMER_DELETED);
@@ -330,7 +331,7 @@ describe('StripeFirestore', () => {
         .resolves(deletedCustomer),
       };
 
-      const result = await stripeFirestore.fetchAndInsertCustomer(
+      const result = await stripeFirestore.legacyFetchAndInsertCustomer(
         customer.id,
         true
       );
@@ -348,7 +349,7 @@ describe('StripeFirestore', () => {
         .resolves(noMetadataCustomer),
       };
 
-      const result = await stripeFirestore.fetchAndInsertCustomer(
+      const result = await stripeFirestore.legacyFetchAndInsertCustomer(
         customer.id,
         true
       );
@@ -370,7 +371,7 @@ describe('StripeFirestore', () => {
       };
 
       try {
-        await stripeFirestore.fetchAndInsertCustomer(customer.id);
+        await stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
         assert.fail('should have thrown');
       } catch (err) {
         assert.equal(
@@ -384,13 +385,13 @@ describe('StripeFirestore', () => {
   describe('insertCustomerRecordWithBackfill', () => {
     it('retrieves a record', async () => {
       stripeFirestore.retrieveCustomer = sinon.fake.resolves(customer);
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves(customer);
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves(customer);
       await stripeFirestore.insertCustomerRecordWithBackfill(
         'fxauid',
         customer
       );
       assert.calledOnce(stripeFirestore.retrieveCustomer);
-      assert.notCalled(stripeFirestore.fetchAndInsertCustomer);
+      assert.notCalled(stripeFirestore.legacyFetchAndInsertCustomer);
     });
 
     it('backfills on customer not found', async () => {
@@ -400,13 +401,13 @@ describe('StripeFirestore', () => {
           FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
         )
       );
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
       await stripeFirestore.insertCustomerRecordWithBackfill(
         'fxauid',
         customer
       );
       assert.calledOnce(stripeFirestore.retrieveCustomer);
-      assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
+      assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
     });
   });
 
@@ -469,13 +470,13 @@ describe('StripeFirestore', () => {
           FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
         )
       );
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
       const result = await stripeFirestore.insertSubscriptionRecordWithBackfill(
         deepCopy(subscription1)
       );
       assert.isUndefined(result, {});
       assert.calledOnce(stripeFirestore.insertSubscriptionRecord);
-      assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
+      assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
     });
   });
 
@@ -966,14 +967,14 @@ describe('StripeFirestore', () => {
   describe('insertPaymentMethodRecordWithBackfill', () => {
     it('inserts a record', async () => {
       stripeFirestore.insertPaymentMethodRecord = sinon.fake.resolves({});
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
       const result =
         await stripeFirestore.insertPaymentMethodRecordWithBackfill(
           deepCopy(paymentMethod)
         );
       assert.isUndefined(result, {});
       assert.calledOnce(stripeFirestore.insertPaymentMethodRecord);
-      assert.notCalled(stripeFirestore.fetchAndInsertCustomer);
+      assert.notCalled(stripeFirestore.legacyFetchAndInsertCustomer);
     });
 
     it('backfills on customer not found', async () => {
@@ -988,12 +989,12 @@ describe('StripeFirestore', () => {
           )
         );
       insertStub.onCall(1).resolves({});
-      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
       await stripeFirestore.insertPaymentMethodRecordWithBackfill(
         deepCopy(paymentMethod)
       );
       assert.calledTwice(stripeFirestore.insertPaymentMethodRecord);
-      assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
+      assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
     });
   });
 
