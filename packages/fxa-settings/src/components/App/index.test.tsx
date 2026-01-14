@@ -195,6 +195,7 @@ describe('metrics', () => {
       getServiceName: jest.fn(),
       getClientId: jest.fn(),
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
       data: {},
     });
 
@@ -242,6 +243,7 @@ describe('glean', () => {
       getClientId: jest.fn(),
       data: {},
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
     };
     (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
     (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
@@ -314,6 +316,7 @@ describe('loading spinner states', () => {
       isSync: jest.fn().mockReturnValueOnce(true),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
       data: {
         context: {},
       },
@@ -358,6 +361,7 @@ describe('AuthAndAccountSetupRoutes', () => {
       isFirefoxClientServiceRelay: () => false,
       getClientId: () => {},
       getCmsInfo: () => undefined,
+      getLegalTerms: () => undefined,
     };
 
     (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
@@ -398,6 +402,7 @@ describe('SettingsRoutes', () => {
       isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
       getServiceName: jest.fn(),
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
     });
     (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
       data: { isSignedIn: false },
@@ -442,6 +447,7 @@ describe('SettingsRoutes', () => {
       isSync: () => false,
       isFirefoxClientServiceRelay: () => false,
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
       data: {
         context: {},
       },
@@ -476,6 +482,7 @@ describe('SettingsRoutes', () => {
       isSync: () => true,
       isFirefoxClientServiceRelay: () => false,
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
       data: {
         context: {},
       },
@@ -529,6 +536,7 @@ describe('SettingsRoutes', () => {
       isSync: () => true,
       isFirefoxClientServiceRelay: () => false,
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
       data: {
         context: {},
       },
@@ -652,6 +660,7 @@ describe('Integration serviceName error handling', () => {
       getClientId: jest.fn(),
       data: {},
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
     };
 
     (useIntegration as jest.Mock).mockReturnValue(mockOAuthIntegration);
@@ -682,6 +691,7 @@ describe('Integration serviceName error handling', () => {
       getClientId: jest.fn(),
       data: {},
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
     };
 
     (useIntegration as jest.Mock).mockReturnValue(mockNonOAuthIntegration);
@@ -717,6 +727,7 @@ describe('Integration serviceName error handling', () => {
       getClientId: jest.fn(),
       data: {},
       getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
     };
 
     (useIntegration as jest.Mock).mockReturnValue(mockOAuthNativeIntegration);

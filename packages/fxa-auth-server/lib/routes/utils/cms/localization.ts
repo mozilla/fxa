@@ -37,10 +37,11 @@ export class CMSLocalization {
    * Helper function to check if a value is a URL
    */
   private isUrl(value: any): boolean {
-    return typeof value === 'string' && (
-      value.startsWith('http://') ||
-      value.startsWith('https://') ||
-      value.startsWith('//')
+    return (
+      typeof value === 'string' &&
+      (value.startsWith('http://') ||
+        value.startsWith('https://') ||
+        value.startsWith('//'))
     );
   }
 
@@ -48,18 +49,22 @@ export class CMSLocalization {
    * Helper function to check if a value is a date
    */
   private isDate(value: any): boolean {
-    return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value);
+    return (
+      typeof value === 'string' &&
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)
+    );
   }
 
   /**
    * Helper function to check if a value is a color
    */
   private isColor(value: any): boolean {
-    return typeof value === 'string' && (
-      value.startsWith('#') ||
-      value.startsWith('rgb(') ||
-      value.startsWith('rgba(') ||
-      value.includes('linear-gradient')
+    return (
+      typeof value === 'string' &&
+      (value.startsWith('#') ||
+        value.startsWith('rgb(') ||
+        value.startsWith('rgba(') ||
+        value.includes('linear-gradient'))
     );
   }
 
@@ -68,7 +73,21 @@ export class CMSLocalization {
    */
   private shouldIncludeField(key: string, value: any): boolean {
     // Skip metadata fields
-    if (['id', 'documentId', 'clientId', 'createdAt', 'updatedAt', 'publishedAt', 'entrypoint', 'name', 'l10nId'].includes(key)) {
+    if (
+      [
+        'id',
+        'documentId',
+        'clientId',
+        'serviceOrClientId',
+        'createdAt',
+        'updatedAt',
+        'publishedAt',
+        'entrypoint',
+        'name',
+        'l10nId',
+        'fontSize',
+      ].includes(key)
+    ) {
       return false;
     }
 
@@ -84,7 +103,10 @@ export class CMSLocalization {
   /**
    * Extract string fields from an object recursively
    */
-  private extractStringsFromObject(obj: any, prefix = ''): Record<string, string> {
+  private extractStringsFromObject(
+    obj: any,
+    prefix = ''
+  ): Record<string, string> {
     const strings: Record<string, string> = {};
 
     for (const [key, value] of Object.entries(obj)) {
@@ -92,7 +114,10 @@ export class CMSLocalization {
 
       if (typeof value === 'object' && !Array.isArray(value)) {
         // Recursively extract from nested objects
-        const nestedStrings = this.extractStringsFromObject(value, prefix ? `${prefix}.${key}` : key);
+        const nestedStrings = this.extractStringsFromObject(
+          value,
+          prefix ? `${prefix}.${key}` : key
+        );
         Object.assign(strings, nestedStrings);
       } else if (this.shouldIncludeField(key, value)) {
         // Add string field
@@ -188,7 +213,12 @@ export class CMSLocalization {
       }
 
       // Add descriptive comment for each entry
-      const comment = this.generateFieldComment(entry.fieldPath, entry.value, entry.entryName, entry.entrypoint);
+      const comment = this.generateFieldComment(
+        entry.fieldPath,
+        entry.value,
+        entry.entryName,
+        entry.entrypoint
+      );
       ftlLines.push(`# ${comment}`);
       ftlLines.push(`${entry.ftlId} = ${entry.value}`);
     }
@@ -206,7 +236,7 @@ export class CMSLocalization {
       removeControlChars: false,
       trimWhitespace: false,
       normalizeLineEndings: true,
-      ensureFileTermination: true
+      ensureFileTermination: true,
     });
   }
 
@@ -215,13 +245,16 @@ export class CMSLocalization {
    * @param content - The content to sanitize
    * @param options - Sanitization options
    */
-  private sanitizeContent(content: string, options: {
-    normalizeUnicode?: boolean;
-    removeControlChars?: boolean;
-    trimWhitespace?: boolean;
-    normalizeLineEndings?: boolean;
-    ensureFileTermination?: boolean;
-  } = {}): string {
+  private sanitizeContent(
+    content: string,
+    options: {
+      normalizeUnicode?: boolean;
+      removeControlChars?: boolean;
+      trimWhitespace?: boolean;
+      normalizeLineEndings?: boolean;
+      ensureFileTermination?: boolean;
+    } = {}
+  ): string {
     if (!content || typeof content !== 'string') {
       return '';
     }
@@ -231,7 +264,7 @@ export class CMSLocalization {
       removeControlChars = true,
       trimWhitespace = true,
       normalizeLineEndings = false,
-      ensureFileTermination = false
+      ensureFileTermination = false,
     } = options;
 
     let sanitized = content
@@ -247,14 +280,16 @@ export class CMSLocalization {
     }
 
     if (removeControlChars) {
-      // eslint-disable-next-line no-control-regex
-      sanitized = sanitized.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '');
+      /* eslint-disable no-control-regex */
+      sanitized = sanitized.replace(
+        /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g,
+        ''
+      );
+      /* eslint-enable no-control-regex */
     }
 
     if (normalizeLineEndings) {
-      sanitized = sanitized
-        .replace(/\r\n/g, '\n')
-        .replace(/\r/g, '\n');
+      sanitized = sanitized.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     }
 
     if (trimWhitespace) {
@@ -277,14 +312,23 @@ export class CMSLocalization {
    */
   private generateFtlId(value: string, componentName: string): string {
     // Create a hash of the value and prefix with "fxa-<component>-"
-    const hash = crypto.createHash('md5').update(value).digest('hex').substring(0, 8);
+    const hash = crypto
+      .createHash('md5')
+      .update(value)
+      .digest('hex')
+      .substring(0, 8);
     return `fxa-${componentName}-${hash}`;
   }
 
   /**
    * Generate descriptive comment for a field
    */
-  private generateFieldComment(fieldPath: string, value: string, entryName?: string, entrypoint?: string): string {
+  private generateFieldComment(
+    fieldPath: string,
+    value: string,
+    entryName?: string,
+    entrypoint?: string
+  ): string {
     const parts = fieldPath.split('.');
     const componentName = parts[0] || 'Unknown';
     const fieldName = parts[1] || 'Unknown';
@@ -292,18 +336,17 @@ export class CMSLocalization {
     // Convert camelCase to readable format
     const readableComponentName = componentName
       .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
+      .replace(/^./, (str) => str.toUpperCase())
       .trim();
 
     const readableFieldName = fieldName
       .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
+      .replace(/^./, (str) => str.toUpperCase())
       .trim();
 
     // Create simple comment format: "Headline for Signin Page"
     return `${readableFieldName} for ${readableComponentName}`;
   }
-
 
   /**
    * Validate GitHub configuration
@@ -338,10 +381,7 @@ export class CMSLocalization {
   /**
    * Find existing pull request for the localization
    */
-  async findExistingPR(
-    owner: string,
-    repo: string
-  ): Promise<any | null> {
+  async findExistingPR(owner: string, repo: string): Promise<any | null> {
     try {
       // List open pull requests and filter locally instead of using deprecated search API
       const { data: pullRequests } = await this.octokit.pulls.list({
@@ -352,7 +392,11 @@ export class CMSLocalization {
       });
 
       const existingPR = pullRequests.find((pr: any) => {
-        return (pr.title.includes('cms.ftl') || pr.title.includes('CMS localization')) && pr.state === 'open';
+        return (
+          (pr.title.includes('cms.ftl') ||
+            pr.title.includes('CMS localization')) &&
+          pr.state === 'open'
+        );
       });
 
       if (existingPR) {
@@ -439,12 +483,14 @@ export class CMSLocalization {
         prNumber,
         fileName,
         fileSha: !!fileSha,
-        webhookDetails: webhookDetails ? {
-          eventType: webhookDetails.eventType,
-          entryId: webhookDetails.entryId,
-          model: webhookDetails.model,
-          entriesCount: webhookDetails.entriesCount
-        } : undefined,
+        webhookDetails: webhookDetails
+          ? {
+              eventType: webhookDetails.eventType,
+              entryId: webhookDetails.entryId,
+              model: webhookDetails.model,
+              entriesCount: webhookDetails.entriesCount,
+            }
+          : undefined,
       });
     } catch (error) {
       this.log.error('cms.integrations.github.pr.update.error', {
@@ -534,13 +580,17 @@ export class CMSLocalization {
 - **File**: \`locales/en/${fileName}\`
 - **Format**: FTL (Fluent Translation List)
 - **Generated**: ${new Date().toISOString()}
-- **Source**: Strapi CMS webhook${webhookDetails ? `
+- **Source**: Strapi CMS webhook${
+          webhookDetails
+            ? `
 
 ### 🔗 Webhook Details
 - **Event Type**: \`${webhookDetails.eventType || 'unknown'}\`
 - **Model**: \`${webhookDetails.model || 'unknown'}\`
 - **Entry ID**: \`${webhookDetails.entryId || 'N/A'}\`
-- **Total Entries Processed**: \`${webhookDetails.entriesCount || 'unknown'}\`` : ''}`,
+- **Total Entries Processed**: \`${webhookDetails.entriesCount || 'unknown'}\``
+            : ''
+        }`,
         head: branchName,
         base: github.branch,
       });
@@ -550,12 +600,14 @@ export class CMSLocalization {
         prUrl: prData.html_url,
         branchName,
         fileName,
-        webhookDetails: webhookDetails ? {
-          eventType: webhookDetails.eventType,
-          entryId: webhookDetails.entryId,
-          model: webhookDetails.model,
-          entriesCount: webhookDetails.entriesCount
-        } : undefined,
+        webhookDetails: webhookDetails
+          ? {
+              eventType: webhookDetails.eventType,
+              entryId: webhookDetails.entryId,
+              model: webhookDetails.model,
+              entriesCount: webhookDetails.entriesCount,
+            }
+          : undefined,
       });
     } catch (error) {
       this.log.error('cms.integrations.github.pr.create.error', {
@@ -584,34 +636,51 @@ export class CMSLocalization {
         strapiUrl: strapiBaseUrl,
       });
 
-      // Query all relying party entries from Strapi
-      const response = await fetch(
-        `${strapiBaseUrl}/api/relying-parties?populate=*`,
-        {
-          headers,
-        }
-      );
+      // Fetch from all collections that need localization
+      const collections = ['relying-parties', 'legal-notices'];
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        this.log.error('cms.integrations.strapi.fetchError', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText,
-        });
-        throw new Error(
-          `Failed to fetch Strapi entries: ${response.status} ${response.statusText} - ${errorText}`
-        );
+      const allEntries: any[] = [];
+
+      for (const collection of collections) {
+        try {
+          const response = await fetch(
+            `${strapiBaseUrl}/api/${collection}?populate=*`,
+            { headers }
+          );
+
+          if (!response.ok) {
+            // Log warning but continue with other collections
+            this.log.warn('cms.integrations.strapi.fetchCollectionError', {
+              collection,
+              status: response.status,
+              statusText: response.statusText,
+            });
+            continue;
+          }
+
+          const data = await response.json();
+          const entries = data.data || [];
+
+          this.log.info('cms.integrations.strapi.fetchedCollection', {
+            collection,
+            count: entries.length,
+          });
+
+          allEntries.push(...entries);
+        } catch (error) {
+          this.log.warn('cms.integrations.strapi.fetchCollectionException', {
+            collection,
+            error: error.message,
+          });
+          // Continue with other collections
+        }
       }
 
-      const data = await response.json();
-      const entries = data.data || [];
-
-      this.log.info('cms.integrations.strapi.fetchedEntries', {
-        count: entries.length,
+      this.log.info('cms.integrations.strapi.fetchedAllEntries', {
+        totalCount: allEntries.length,
       });
 
-      return entries;
+      return allEntries;
     } catch (error) {
       this.log.error('cms.integrations.strapi.fetchEntriesError', {
         error: error.message,
@@ -629,7 +698,10 @@ export class CMSLocalization {
 
     // First try the specific locale (e.g., 'en-US') using the cached getFtlContent method
     try {
-      const ftlContent = await this.cmsManager.getFtlContent(locale, this.config);
+      const ftlContent = await this.cmsManager.getFtlContent(
+        locale,
+        this.config
+      );
       // Even if content is empty, this is a successful fetch
       this.statsd.increment('cms.getLocalizedConfig.ftl.success');
       if (ftlContent) {
@@ -640,7 +712,7 @@ export class CMSLocalization {
       // Log the failure but don't increment metrics yet
       this.log.error('cms.getLocalizedConfig.locale.failed', {
         locale,
-        error: error.message
+        error: error.message,
       });
     }
 
@@ -650,10 +722,13 @@ export class CMSLocalization {
       try {
         this.log.info('cms.getLocalizedConfig.locale.fallback', {
           originalLocale: locale,
-          fallbackLocale: baseLocale
+          fallbackLocale: baseLocale,
         });
 
-        const fallbackContent = await this.cmsManager.getFtlContent(baseLocale, this.config);
+        const fallbackContent = await this.cmsManager.getFtlContent(
+          baseLocale,
+          this.config
+        );
         // Even if content is empty, this is a successful fetch
         this.statsd.increment('cms.getLocalizedConfig.ftl.success');
         if (fallbackContent) {
@@ -664,7 +739,7 @@ export class CMSLocalization {
         this.log.error('cms.getLocalizedConfig.locale.fallback.failed', {
           originalLocale: locale,
           fallbackLocale: baseLocale,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -721,7 +796,7 @@ export class CMSLocalization {
 
     this.log.debug('cms.localization.buildTranslationMap', {
       totalTranslations: Object.keys(translationMap).length,
-      hashes: Object.keys(translationMap)
+      hashes: Object.keys(translationMap),
     });
 
     return translationMap;
@@ -731,7 +806,11 @@ export class CMSLocalization {
    * Apply translations to a config object recursively
    * Walks through the config and replaces English strings with translations where available
    */
-  private applyTranslations(config: Record<string, unknown>, translationMap: Record<string, string>, fieldPath = ''): void {
+  private applyTranslations(
+    config: Record<string, unknown>,
+    translationMap: Record<string, string>,
+    fieldPath = ''
+  ): void {
     for (const [key, value] of Object.entries(config)) {
       if (value === null || value === undefined) {
         continue;
@@ -741,14 +820,18 @@ export class CMSLocalization {
 
       if (typeof value === 'object' && !Array.isArray(value)) {
         // Recursively apply translations to nested objects
-        this.applyTranslations(value as Record<string, unknown>, translationMap, currentFieldPath);
+        this.applyTranslations(
+          value as Record<string, unknown>,
+          translationMap,
+          currentFieldPath
+        );
       } else if (this.shouldIncludeField(key, value)) {
         // This is a localizable string field
         const englishValue = value as string;
-        const elementName = currentFieldPath.split('.').pop() || currentFieldPath;
+        const elementName =
+          currentFieldPath.split('.').pop() || currentFieldPath;
         const componentName = elementName.replace(/\./g, '-');
         const hash = this.generateFtlId(englishValue, componentName);
-
 
         if (translationMap[hash]) {
           // Replace with translation if available
@@ -759,7 +842,7 @@ export class CMSLocalization {
             fieldPath: currentFieldPath,
             hash,
             englishValue,
-            translatedValue: translationMap[hash]
+            translatedValue: translationMap[hash],
           });
         } else {
           // Keep English value if no translation exists
@@ -767,7 +850,7 @@ export class CMSLocalization {
             key,
             fieldPath: currentFieldPath,
             hash,
-            englishValue
+            englishValue,
           });
         }
       }
@@ -785,7 +868,12 @@ export class CMSLocalization {
    * 5. Otherwise, keeps the original English text as fallback
    *
    */
-  public async mergeConfigs(baseConfig: Record<string, unknown>, ftlContent: string, clientId: string, entrypoint: string): Promise<Record<string, unknown>> {
+  public async mergeConfigs(
+    baseConfig: Record<string, unknown>,
+    ftlContent: string,
+    clientId: string,
+    entrypoint: string
+  ): Promise<Record<string, unknown>> {
     if (!ftlContent || !baseConfig) {
       return baseConfig;
     }
@@ -804,9 +892,9 @@ export class CMSLocalization {
         clientId,
         entrypoint,
         totalTranslations: Object.keys(translationMap).length,
-        appliedTranslations: Object.keys(translationMap).filter(hash =>
+        appliedTranslations: Object.keys(translationMap).filter((hash) =>
           JSON.stringify(result).includes(translationMap[hash])
-        ).length
+        ).length,
       });
 
       return result;
@@ -814,18 +902,19 @@ export class CMSLocalization {
       this.log.error('cms.getLocalizedConfig.merge.error', {
         error: error.message,
         clientId,
-        entrypoint
+        entrypoint,
       });
       // Return base config if merge fails
       return baseConfig;
     }
   }
 
-
   /**
    * Generate FTL content from Strapi entries
    */
-  public generateFtlContentFromEntries(entries: Record<string, unknown>[]): string {
+  public generateFtlContentFromEntries(
+    entries: Record<string, unknown>[]
+  ): string {
     return this.strapiToFtl(entries);
   }
 }

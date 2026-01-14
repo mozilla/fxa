@@ -4,6 +4,7 @@
 
 export * from './lib/cms.error';
 export * from './lib/constants';
+export * from './lib/legal-terms-configuration.manager';
 export * from './lib/product-configuration.manager';
 export * from './lib/relying-party-configuration.manager';
 export * from './lib/queries/cancel-interstitial-offer';
@@ -12,6 +13,7 @@ export * from './lib/queries/churn-intervention-by-product-id';
 export * from './lib/queries/eligibility-content-by-offering';
 export * from './lib/queries/eligibility-content-by-plan-ids';
 export * from './lib/queries/iap-offerings-by-storeids';
+export * from './lib/queries/legal-terms';
 export * from './lib/queries/offering';
 export * from './lib/queries/page-content-for-offering';
 export * from './lib/queries/page-content-by-price-ids';

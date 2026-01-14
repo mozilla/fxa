@@ -70,6 +70,7 @@ export function createMockIndexOAuthNativeIntegration({
     isFirefoxNonSync: () =>
       isFirefoxClientServiceRelay || isFirefoxClientServiceAiWindow,
     getCmsInfo: () => cmsInfo,
+    getLegalTerms: () => undefined,
     data: new OAuthIntegrationData(
       new GenericData({
         context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
@@ -87,6 +88,7 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isFirefoxClientServiceAiWindow: () => false,
     isFirefoxNonSync: () => false,
     getCmsInfo: () => undefined,
+    getLegalTerms: () => undefined,
     data: new IntegrationData(
       new GenericData({
         context: '',
