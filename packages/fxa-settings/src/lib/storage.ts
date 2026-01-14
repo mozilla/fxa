@@ -58,10 +58,27 @@ class Storage {
 
   set(key: string, val: any): void {
     this._backend.setItem(fullKey(key), JSON.stringify(val));
+
+    // This allows useLocalStorageSync to detect changes in the same tab
+    if (this._backend === window.localStorage) {
+      window.dispatchEvent(
+        new CustomEvent('localStorageChange', {
+          detail: { key },
+        })
+      );
+    }
   }
 
   remove(key: string) {
     this._backend.removeItem(fullKey(key));
+
+    if (this._backend === window.localStorage) {
+      window.dispatchEvent(
+        new CustomEvent('localStorageChange', {
+          detail: { key },
+        })
+      );
+    }
   }
 
   clear() {

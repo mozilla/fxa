@@ -45,7 +45,7 @@ export function getStoredAccountData({
 
 type LocalAccounts = Record<hexstring, StoredAccountData>;
 
-function accounts(accounts?: LocalAccounts) {
+export function accounts(accounts?: LocalAccounts) {
   if (accounts) {
     storage.set('accounts', accounts);
     return accounts;
