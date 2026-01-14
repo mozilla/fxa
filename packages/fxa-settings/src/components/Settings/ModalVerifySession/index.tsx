@@ -46,6 +46,7 @@ export const ModalVerifySession = ({
     async (code: string) => {
       try {
         await session.verifySession(code);
+        onCompleted && onCompleted();
       } catch (e) {
         if (e.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno) {
           const errorText = l10n.getString(
@@ -60,7 +61,7 @@ export const ModalVerifySession = ({
         return;
       }
     },
-    [session, l10n, setErrorText, onError]
+    [session, l10n, setErrorText, onError, onCompleted]
   );
 
   useEffect(() => {
