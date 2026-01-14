@@ -663,33 +663,12 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    const result =
-      await this.subscriptionManagementService.getCancelFlowContent(
-        args.uid,
-        args.subscriptionId,
-        args.acceptLanguage || undefined,
-        args.selectedLanguage
-      );
-
-    const churnCancelEligibility =
-      await this.churnInterventionService.determineCancellationIntervention({
-        uid: args.uid,
-        subscriptionId: args.subscriptionId,
-        acceptLanguage: args.acceptLanguage,
-        selectedLanguage: args.selectedLanguage,
-      });
-
-    return {
-      ...result,
-      isEligibleForChurnCancel:
-        churnCancelEligibility.reason === 'eligible' &&
-        churnCancelEligibility.cancelChurnInterventionType ===
-          'cancel_churn_intervention',
-      isEligibleForCancelInterstitialOffer:
-        churnCancelEligibility.reason === 'eligible' &&
-        churnCancelEligibility.cancelChurnInterventionType ===
-          'cancel_interstitial_offer',
-    };
+    return await this.subscriptionManagementService.getCancelFlowContent(
+      args.uid,
+      args.subscriptionId,
+      args.acceptLanguage || undefined,
+      args.selectedLanguage
+    );
   }
 
   @SanitizeExceptions()
@@ -705,27 +684,12 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    const result =
-      await this.subscriptionManagementService.getStaySubscribedFlowContent(
-        args.uid,
-        args.subscriptionId,
-        args.acceptLanguage || undefined,
-        args.selectedLanguage
-      );
-
-    const churnStaySubscribedEligibility =
-      await this.churnInterventionService.determineStaySubscribedEligibility(
-        args.uid,
-        args.subscriptionId,
-        args.acceptLanguage,
-        args.selectedLanguage
-      );
-
-    return {
-      ...result,
-      isEligibleforChurnStaySubscribed:
-        churnStaySubscribedEligibility.isEligible,
-    };
+    return this.subscriptionManagementService.getStaySubscribedFlowContent(
+      args.uid,
+      args.subscriptionId,
+      args.acceptLanguage || undefined,
+      args.selectedLanguage
+    );
   }
 
   @SanitizeExceptions()

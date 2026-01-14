@@ -89,7 +89,9 @@ export const SubscriptionContentFactory = (
   nextInvoiceDate: faker.date.future().getDate(),
   nextInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
   nextInvoiceTotal: faker.number.int({ min: 1, max: 1000 }),
+  isEligibleForChurnCancel: faker.datatype.boolean(),
   isEligibleForChurnStaySubscribed: faker.datatype.boolean(),
+  isEligibleForOffer: faker.datatype.boolean(),
   churnStaySubscribedCtaMessage: faker.string.sample(),
   ...override,
 });
