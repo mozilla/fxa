@@ -6,8 +6,15 @@ import { emailsMatch } from 'fxa-shared/email/helpers';
 import { StatsD } from 'hot-shots';
 import { Redis } from 'ioredis';
 import * as isA from 'joi';
+import Container from 'typedi';
 
 import { OtpManager, OtpStorage } from '@fxa/shared/otp';
+import {
+  constructLocalTimeAndDateStrings,
+  splitEmails,
+} from '@fxa/accounts/email-renderer';
+
+import { FxaMailer } from '../senders/fxa-mailer';
 
 import { ConfigType } from '../../config';
 import PASSWORD_DOCS from '../../docs/swagger/password-api';
@@ -21,6 +28,7 @@ import * as requestHelper from '../routes/utils/request_helper';
 import { AuthLogger, AuthRequest } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
 import * as validators from './validators';
+import { formatUserAgentInfo } from 'fxa-shared/lib/user-agent';
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -59,6 +67,7 @@ module.exports = function (
   authServerCacheRedis: Redis,
   statsd: StatsD
 ) {
+  const fxaMailer = Container.get(FxaMailer);
   const otpUtils = require('../../lib/routes/utils/otp').default(db, statsd);
   const otpRedisAdapter = new OtpRedisAdapter(
     authServerCacheRedis,
@@ -1023,35 +1032,39 @@ module.exports = function (
         request.setMetricsFlowCompleteSignal(flowCompleteSignal);
 
         const code = await otpManager.create(account.uid);
-        const ip = request.app.clientAddress;
-        const service = payload.service || request.query.service;
         const { deviceId, flowId, flowBeginTime } =
           await request.app.metricsContext;
         const geoData = request.app.geo;
         const {
           browser: uaBrowser,
-          browserVersion: uaBrowserVersion,
           os: uaOS,
           osVersion: uaOSVersion,
-          deviceType: uaDeviceType,
         } = request.app.ua;
 
-        await mailer.sendPasswordForgotOtpEmail(account.emails, account, {
+        const { to, cc } = splitEmails(account.emails);
+        const { time, date, acceptLanguage, timeZone } =
+          constructLocalTimeAndDateStrings(
+            request.app.acceptLanguage,
+            geoData.timeZone
+          );
+        await fxaMailer.sendPasswordForgotOtpEmail({
           code,
-          service,
-          acceptLanguage: request.app.acceptLanguage,
+          to,
+          cc,
           deviceId,
           flowId,
           flowBeginTime,
-          ip,
-          location: geoData.location,
-          timeZone: geoData.timeZone,
-          uaBrowser,
-          uaBrowserVersion,
-          uaOS,
-          uaOSVersion,
-          uaDeviceType,
-          uid: account.uid,
+          time,
+          date,
+          acceptLanguage,
+          timeZone,
+          sync: false,
+          device: formatUserAgentInfo(uaBrowser, uaOS, uaOSVersion),
+          location: {
+            city: geoData.location?.city,
+            country: geoData.location?.country,
+            stateCode: geoData.location?.state,
+          },
         });
 
         glean.resetPassword.otpEmailSent(request);
@@ -1183,7 +1196,6 @@ module.exports = function (
 
         const email = payload.email;
         const service = payload.service || request.query.service;
-        const ip = request.app.clientAddress;
 
         request.validateMetricsContext();
 
@@ -1225,33 +1237,44 @@ module.exports = function (
         const geoData = request.app.geo;
         const {
           browser: uaBrowser,
-          browserVersion: uaBrowserVersion,
           os: uaOS,
           osVersion: uaOSVersion,
-          deviceType: uaDeviceType,
         } = request.app.ua;
 
-        await mailer.sendRecoveryEmail(emails, passwordForgotToken, {
-          emailToHashWith: passwordForgotToken.email,
-          token: passwordForgotToken.data,
-          code: passwordForgotToken.passCode,
-          service: service,
-          redirectTo: payload.redirectTo,
-          resume: payload.resume,
-          acceptLanguage: request.app.acceptLanguage,
+        const { to, cc } = splitEmails(emails);
+
+        const { time, date, timeZone, acceptLanguage } =
+          constructLocalTimeAndDateStrings(
+            geoData.timeZone,
+            request.app.acceptLanguage
+          );
+
+        await fxaMailer.sendRecoveryEmail({
+          uid: passwordForgotToken.uid,
+          to,
+          cc,
           deviceId,
           flowId,
           flowBeginTime,
-          ip,
-          location: geoData.location,
-          timeZone: geoData.timeZone,
-          uaBrowser,
-          uaBrowserVersion,
-          uaOS,
-          uaOSVersion,
-          uaDeviceType,
-          uid: passwordForgotToken.uid,
+          sync: false,
+          time,
+          date,
+          acceptLanguage,
+          timeZone,
+          token: passwordForgotToken.data,
+          code: passwordForgotToken.passCode,
+          emailToHashWith: passwordForgotToken.email,
+          service: service,
+          redirectTo: payload.redirectTo,
+          resume: payload.resume,
+          device: formatUserAgentInfo(uaBrowser, uaOS, uaOSVersion),
+          location: {
+            city: geoData.location?.city || '',
+            country: geoData.location?.country || '',
+            stateCode: geoData.location?.state || '',
+          },
         });
+
         await Promise.all([
           request.emitMetricsEvent('password.forgot.send_code.completed'),
           glean.resetPassword.emailSent(request),

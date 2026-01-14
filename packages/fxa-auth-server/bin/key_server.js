@@ -40,6 +40,7 @@ const { gleanMetrics } = require('../lib/metrics/glean');
 const Customs = require('../lib/customs');
 const { ProfileClient } = require('@fxa/profile/client');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
+const { Bounces, EmailSender } = require('@fxa/accounts/email-sender');
 const {
   DeleteAccountTasks,
   DeleteAccountTasksFactory,
@@ -60,6 +61,11 @@ const { AccountManager } = require('@fxa/shared/account/account');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { EmailCloudTaskManager } = require('../lib/email-cloud-tasks');
 const { OtpUtils } = require('../lib/routes/utils/otp');
+const { FxaMailer } = require('../lib/senders/fxa-mailer');
+const {
+  EmailLinkBuilder,
+  NodeRendererBindings,
+} = require('@fxa/accounts/email-renderer');
 
 async function run(config) {
   Container.set(AppConfig, config);
@@ -300,7 +306,11 @@ async function run(config) {
   });
   Container.set(ProfileClient, profile);
 
-  const bounces = require('../lib/bounces')(config, database);
+  const bounces = new Bounces(config.smtp.bounces, {
+    // libs expectation for db is a bit simpler so we just pass through the
+    // existing function
+    emailBounces: { findByEmail: (email) => database.emailBounces(email) },
+  });
   const senders = await require('../lib/senders')(log, config, bounces, statsd);
   const glean = gleanMetrics(config);
 
@@ -356,6 +366,21 @@ async function run(config) {
   const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
     config
   );
+  // mailer lib setup
+  const emailSender = new EmailSender(config.smtp, bounces, statsd, log);
+  const linkBuilderConfig = {
+    ...config.smtp,
+    ...config.links,
+  };
+  const linkBuilder = new EmailLinkBuilder(linkBuilderConfig);
+  const fxaMailer = new FxaMailer(
+    emailSender,
+    linkBuilder,
+    config.smtp,
+    new NodeRendererBindings()
+  );
+  Container.set(FxaMailer, fxaMailer);
+
   const routes = require('../lib/routes')(
     log,
     serverPublicKeys,

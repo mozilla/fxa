@@ -394,7 +394,7 @@ describe('EmailSender', () => {
   });
   describe('buildHeaders', () => {
     it('builds basic headers without SES configuration', async () => {
-      const headers = await emailSender.buildHeaders({
+      const headers = emailSender.buildHeaders({
         template: {
           name: 'test-template',
           version: 1,
@@ -417,7 +417,7 @@ describe('EmailSender', () => {
     });
 
     it('builds headers with optional context fields', async () => {
-      const headers = await emailSender.buildHeaders({
+      const headers = emailSender.buildHeaders({
         template: {
           name: 'test-template',
           version: 2,
