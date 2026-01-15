@@ -13,7 +13,7 @@ export class CancelInterstitialOfferUtil {
   getTransformedResult(): CancelInterstitialOfferTransformed | undefined {
     const offers = this.rawResult?.cancelInterstitialOffers ?? [];
 
-    if (offers.length !== 1) {
+    if (offers.length > 1) {
       Sentry.captureMessage(
         'Unexpected number of cancel interstitial offers found for api identifier, intervals, and locale',
         { extra: { cancelInterstitialOffersCount: offers.length } }
