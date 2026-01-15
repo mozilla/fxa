@@ -12,7 +12,7 @@ export const updateStripePaymentDetails = async (
 ) => {
   const actionsService = getApp().getActionsService();
 
-  return await actionsService.updateStripePaymentDetails({
+  return actionsService.updateStripePaymentDetails({
     uid,
     confirmationTokenId,
   });

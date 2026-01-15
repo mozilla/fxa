@@ -915,10 +915,24 @@ export class NextJSActionsService {
     uid: string;
     confirmationTokenId: string;
   }) {
-    return await this.subscriptionManagementService.updateStripePaymentDetails(
-      args.uid,
-      args.confirmationTokenId
-    );
+    try {
+      const result =
+        await this.subscriptionManagementService.updateStripePaymentDetails(
+          args.uid,
+          args.confirmationTokenId
+        );
+      return {
+        ok: true,
+        result,
+        errorMessage: null,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        result: null,
+        errorMessage: error.message,
+      };
+    }
   }
 
   @SanitizeExceptions()
