@@ -9,7 +9,6 @@
     "build-ts": "tsc",
     "build-l10n": "nx l10n-merge && nx l10n-bundle && nx l10n-merge-test",
     "build-react": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
-    "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/images storybook-static/ && cp -r public/locales ./storybook-static/locales",
     "compile": "tsc --noEmit",
     "clean": "rimraf dist",
     "l10n-merge": "yarn grunt merge-ftl",
