@@ -11,11 +11,7 @@ import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
-import {
-  isClientMonitor,
-  isClientRelay,
-} from '../../models/integrations/client-matching';
-import { isOAuthIntegration, isOAuthNativeIntegration } from '../../models';
+import { isOAuthNativeIntegration } from '../../models';
 import GleanMetrics from '../../lib/glean';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
@@ -41,10 +37,9 @@ export const Index = ({
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
-  const isOAuth = isOAuthIntegration(integration);
-  const isMonitorClient = isOAuth && isClientMonitor(clientId);
-  const isRelayClient = isOAuth && isClientRelay(clientId);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const legalTerms = integration.getLegalTerms();
 
   const emailEngageEventEmitted = useRef(false);
 
@@ -213,13 +208,7 @@ export const Index = ({
           />
         )
       )}
-      <TermsPrivacyAgreement
-        {...{
-          isMonitorClient,
-          isFirefoxClientServiceRelay,
-          isRelayClient,
-        }}
-      />
+      <TermsPrivacyAgreement legalTerms={legalTerms} />
     </AppLayout>
   );
 };

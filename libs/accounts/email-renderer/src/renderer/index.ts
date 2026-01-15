@@ -6,6 +6,7 @@ export * from './email-renderer';
 export * from './fxa-email-renderer';
 export * from './subplat-email-renderer';
 export * from './email-link-builder';
+export * from './email-helpers';
 
 // Important! do not export ./bindings-node.
 // Doing so will break storybook, since this file cannot be processed

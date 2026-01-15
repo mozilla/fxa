@@ -506,6 +506,7 @@ describe('FxA Email Renderer', () => {
           resetLink: mockLinkReset,
           twoFactorSettingsLink: mockLinkSupport,
           supportUrl: mockLinkSupport,
+          //
         },
         defaultLayoutTemplateValues
       );

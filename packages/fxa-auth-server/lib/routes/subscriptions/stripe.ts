@@ -41,7 +41,6 @@ import {
   stripeInvoicesToSubsequentInvoicePreviewsDTO,
 } from '../../payments/stripe-formatter';
 import { AuthLogger, AuthRequest } from '../../types';
-import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { buildTaxAddress, handleAuth } from './utils';
 import { generateIdempotencyKey } from '../../payments/utils';
@@ -727,7 +726,6 @@ export class StripeHandler {
         priceId,
         paymentMethodId,
         promotionCode: promotionCodeFromRequest,
-        metricsContext,
       } = request.payload as Record<string, string>;
 
       // Make sure to clean up any subscriptions that may be hanging with no payment
@@ -811,16 +809,6 @@ export class StripeHandler {
       this.log.info('subscriptions.createSubscriptionWithPMI.success', {
         uid,
         subscriptionId: subscription.id,
-      });
-
-      await sendFinishSetupEmailForStubAccount({
-        uid,
-        account,
-        subscription,
-        stripeHelper: this.stripeHelper,
-        mailer: this.mailer,
-        subscriptionAccountReminders: this.subscriptionAccountReminders,
-        metricsContext,
       });
 
       return {

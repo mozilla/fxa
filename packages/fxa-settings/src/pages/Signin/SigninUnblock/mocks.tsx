@@ -85,5 +85,6 @@ export function createMockSigninWebSyncIntegration() {
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     wantsLogin: () => false,
     getCmsInfo: () => undefined,
+    getLegalTerms: () => undefined,
   };
 }

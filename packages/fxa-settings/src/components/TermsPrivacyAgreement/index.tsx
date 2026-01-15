@@ -7,71 +7,76 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { Link } from '@reach/router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 
+export interface LegalTerms {
+  label: string;
+  termsOfServiceLink: string;
+  privacyNoticeLink: string;
+  fontSize: 'default' | 'medium' | 'large';
+}
+
 export type TermsPrivacyAgreementProps = {
-  isMonitorClient?: boolean;
-  isRelayClient?: boolean; // Relay is oauth RP
-  isFirefoxClientServiceRelay?: boolean; // `service=relay` on Fx desktop or mobile client ID
+  legalTerms?: LegalTerms | null;
 };
 
-const TermsPrivacyAgreement = ({
-  isMonitorClient = false,
-  isRelayClient = false,
-  isFirefoxClientServiceRelay = false,
-}: TermsPrivacyAgreementProps) => {
+const TermsPrivacyAgreement = ({ legalTerms }: TermsPrivacyAgreementProps) => {
+  const fontSizeClass =
+    legalTerms?.fontSize === 'large'
+      ? 'text-base'
+      : legalTerms?.fontSize === 'medium'
+        ? 'text-sm'
+        : 'text-xs';
+
+  const showCustomTos = !!legalTerms;
+
   return (
-    <div
-      className={`text-grey-500 text-xs ${isFirefoxClientServiceRelay ? 'mt-8' : 'mt-5'}`}
-    >
-      {isMonitorClient || isFirefoxClientServiceRelay || isRelayClient ? (
+    <div className={`text-grey-500 ${fontSizeClass} mt-5`}>
+      {showCustomTos ? (
         <>
-          <FtlMsg id="terms-privacy-agreement-intro-2">
-            <p>By proceeding, you agree to the:</p>
+          <FtlMsg id="terms-privacy-agreement-intro-3">
+            <p>By proceeding, you agree to the following:</p>
           </FtlMsg>
           <ul>
-            {(isMonitorClient ||
-              isFirefoxClientServiceRelay ||
-              isRelayClient) && (
-              <FtlMsg
-                id="terms-privacy-agreement-monitor-3"
-                elems={{
-                  mozSubscriptionTosLink: (
-                    <LinkExternal
-                      className="link-grey"
-                      href="https://www.mozilla.org/about/legal/terms/subscription-services/"
-                    >
-                      Terms of Service
-                    </LinkExternal>
-                  ),
-                  mozSubscriptionPrivacyLink: (
-                    <LinkExternal
-                      className="link-grey"
-                      href="https://www.mozilla.org/privacy/subscription-services/"
-                    >
-                      Privacy Notice
-                    </LinkExternal>
-                  ),
-                }}
-              >
-                <li>
-                  Mozilla Subscription Services{' '}
+            <FtlMsg
+              id="terms-privacy-agreement-customized-terms"
+              vars={{ serviceName: legalTerms.label }}
+              elems={{
+                termsLink: (
                   <LinkExternal
                     className="link-grey"
-                    href="https://www.mozilla.org/about/legal/terms/subscription-services/"
+                    href={legalTerms.termsOfServiceLink}
                   >
                     Terms of Service
-                  </LinkExternal>{' '}
-                  and{' '}
+                  </LinkExternal>
+                ),
+                privacyLink: (
                   <LinkExternal
                     className="link-grey"
-                    href="https://www.mozilla.org/privacy/subscription-services/"
+                    href={legalTerms.privacyNoticeLink}
                   >
                     Privacy Notice
                   </LinkExternal>
-                </li>
-              </FtlMsg>
-            )}
+                ),
+              }}
+            >
+              <li>
+                {legalTerms.label}:{' '}
+                <LinkExternal
+                  className="link-grey"
+                  href={legalTerms.termsOfServiceLink}
+                >
+                  Terms of Service
+                </LinkExternal>{' '}
+                and{' '}
+                <LinkExternal
+                  className="link-grey"
+                  href={legalTerms.privacyNoticeLink}
+                >
+                  Privacy Notice
+                </LinkExternal>
+              </li>
+            </FtlMsg>
             <FtlMsg
-              id="terms-privacy-agreement-mozilla"
+              id="terms-privacy-agreement-mozilla-2"
               elems={{
                 mozillaAccountsTos: (
                   <Link className="link-grey" to="/legal/terms">
@@ -86,7 +91,7 @@ const TermsPrivacyAgreement = ({
               }}
             >
               <li>
-                Mozilla Accounts{' '}
+                Mozilla Accounts:{' '}
                 <Link className="link-grey" to="/legal/terms">
                   Terms of Service
                 </Link>{' '}
@@ -101,6 +106,7 @@ const TermsPrivacyAgreement = ({
       ) : (
         <FtlMsg
           id="terms-privacy-agreement-default-2"
+          data-testid="terms-privacy-agreement-default"
           elems={{
             mozillaAccountsTos: (
               <Link className="link-grey" to="/legal/terms">
@@ -114,7 +120,7 @@ const TermsPrivacyAgreement = ({
             ),
           }}
         >
-          <p>
+          <p data-testid="terms-privacy-agreement-default">
             By proceeding, you agree to the{' '}
             <Link className="link-grey" to="/legal/terms">
               Terms of Service

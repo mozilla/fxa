@@ -23,7 +23,6 @@ import {
   usePageViewEvent,
 } from '../../lib/metrics';
 import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
-import { MozServices } from '../../lib/types';
 import {
   isOAuthIntegration,
   isOAuthNativeIntegration,
@@ -31,10 +30,6 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
-import {
-  isClientMonitor,
-  isClientRelay,
-} from '../../models/integrations/client-matching';
 import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
@@ -79,6 +74,8 @@ export const Signup = ({
     ? supportsKeysOptionalLogin
     : !isSync;
 
+  const legalTerms = integration.getLegalTerms();
+
   const onFocusMetricsEvent = () => {
     logViewEvent(settingsViewName, `${viewName}.engage`);
     GleanMetrics.registration.engage({ event: { reason: 'password' } });
@@ -93,19 +90,6 @@ export const Signup = ({
   const [selectedNewsletterSlugs, setSelectedNewsletterSlugs] = useState<
     string[]
   >([]);
-  const [client, setClient] = useState<MozServices | undefined>(undefined);
-
-  useEffect(() => {
-    if (isOAuth) {
-      const clientId = integration.getClientId();
-      if (isClientMonitor(clientId)) {
-        setClient(MozServices.Monitor);
-      }
-      if (isClientRelay(clientId)) {
-        setClient(MozServices.Relay);
-      }
-    }
-  }, [integration, isOAuth]);
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<SignupFormData>({
@@ -376,11 +360,7 @@ export const Signup = ({
         <ThirdPartyAuth viewName="signup" flowQueryParams={flowQueryParams} />
       )}
 
-      <TermsPrivacyAgreement
-        isMonitorClient={client === MozServices.Monitor}
-        isRelayClient={client === MozServices.Relay}
-        {...{ isFirefoxClientServiceRelay }}
-      />
+      <TermsPrivacyAgreement legalTerms={legalTerms} />
     </AppLayout>
   );
 };

@@ -55,6 +55,7 @@ export type SignupOAuthIntegration = Pick<
   | 'wantsKeys'
   | 'getClientId'
   | 'getCmsInfo'
+  | 'getLegalTerms'
 >;
 
 export type SignupBaseIntegration = Pick<
@@ -69,6 +70,7 @@ export type SignupBaseIntegration = Pick<
   | 'wantsKeys'
   | 'getClientId'
   | 'getCmsInfo'
+  | 'getLegalTerms'
 >;
 
 export interface SignupFormData {

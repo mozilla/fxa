@@ -106,11 +106,6 @@ function getAccountInfo(email?: string): {
   uid?: string;
 } {
   const apply = (targetAccount: StoredAccountData) => {
-    // Always calling setCurrentAccount might seem odd... but the
-    // currentAccount function is a bit twisty. This is just being a bit
-    // paranoid about how that resolves and makes sure going forward a
-    // currenAccount actually is set.
-    setCurrentAccount(targetAccount.uid);
     return {
       email: targetAccount.email,
       sessionToken: targetAccount.sessionToken,
@@ -126,7 +121,6 @@ function getAccountInfo(email?: string): {
     if (targetAccount) {
       return apply(targetAccount);
     } else {
-      setCurrentAccount('');
       return { email };
     }
   }
@@ -226,9 +220,19 @@ const SigninContainer = ({
   });
   const { hasLinkedAccount, hasPassword } = accountStatus;
 
-  const { email, sessionToken } = getAccountInfo(
+  const { email, sessionToken, uid } = getAccountInfo(
     emailFromLocationState || queryParamModel.email
   );
+
+  // Handle setCurrentAccount side effect after render to avoid updating parent during child render
+  useEffect(() => {
+    if (uid) {
+      setCurrentAccount(uid);
+    } else if (email && !uid) {
+      // Email provided but no matching account in storage
+      setCurrentAccount('');
+    }
+  }, [uid, email]);
 
   const wantsKeys = integration.wantsKeys();
 

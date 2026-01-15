@@ -133,9 +133,15 @@ export class EmailService {
 
 export const EmailLinkBuilderFactory: Provider = {
   provide: EmailLinkBuilder,
-  useFactory: async () => {
-    return new EmailLinkBuilder();
+  useFactory: async (config: ConfigService<AppConfig>) => {
+    const smtpConfig = config.get('smtp') as AppConfig['smtp'];
+    const linksConfig = config.get('links') as AppConfig['links'];
+    return new EmailLinkBuilder({
+      ...smtpConfig,
+      ...linksConfig,
+    });
   },
+  inject: [ConfigService],
 };
 
 export const FxaEmailRendererFactory: Provider = {

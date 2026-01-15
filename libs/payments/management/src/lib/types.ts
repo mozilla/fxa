@@ -93,6 +93,8 @@ export interface SubscriptionContent {
   promotionName?: string | null;
   isEligibleForChurnStaySubscribed: boolean;
   churnStaySubscribedCtaMessage?: string | null;
+  isEligibleForChurnCancel: boolean;
+  isEligibleForOffer: boolean;
 }
 
 export enum ChurnErrorReason {

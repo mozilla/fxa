@@ -247,6 +247,35 @@ There's a `Functional Tests` launch target in the root `.vscode/launch.json`. Se
 
 We record traces for failed tests locally and in CI. On CircleCI they are in the test artifacts. For more read the [Trace Viewer docs](https://playwright.dev/docs/trace-viewer).
 
+#### Trace URLs in CI
+
+When tests fail in CircleCI, the CI reporter automatically generates clickable trace URLs using [fxtrace](https://fxtrace.vercel.app). These URLs appear:
+
+1. **Inline** - Immediately after each test failure
+2. **Summary** - At the end of the test run with all failed test traces grouped together
+
+Example output:
+```
+[26/35] ❌ tests/settings/avatar.spec.ts: open and close avatar drop-down menu (19s)
+Error: Timed out 10000ms waiting for expect(locator).toBeVisible()
+...
+📊 View trace: https://fxtrace.vercel.app/?url=https://output.circle-artifacts.com/output/job/.../trace.zip
+```
+
+The summary at the end groups traces by test (including retries):
+```
+📊 Failed test traces:
+  tests/settings/avatar.spec.ts: open and close avatar drop-down menu
+    https://fxtrace.vercel.app/?url=.../trace.zip
+    https://fxtrace.vercel.app/?url=.../retry1/trace.zip
+```
+
+The reporter also tracks:
+- **Progress**: `[5/35]` shows completed tests out of total
+- **Retries**: Total retry count and which attempt `(retry #1)`
+- **Flaky tests**: Tests that failed initially but passed on retry
+- **Duration**: Total test suite run time
+
 Sync signin tests start a new browser instance and this causes problems with the recorded trace being blank; the second browsers trace is overwritten.
 
 Here's what's happening with tracing order of operations

@@ -68,6 +68,13 @@ export interface FeatureFlagsRelierCmsInfo {
   syncHidePromoAfterLogin?: boolean | undefined;
 }
 
+export interface RelierLegalTerms {
+  label: string;
+  termsOfServiceLink: string;
+  privacyNoticeLink: string;
+  fontSize: 'default' | 'medium' | 'large';
+}
+
 export interface RelierCmsInfo {
   name: string;
   clientId: string;

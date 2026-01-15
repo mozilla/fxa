@@ -35,6 +35,7 @@ import {
   RelierClientInfo,
   RelierSubscriptionInfo,
   RelierCmsInfo,
+  RelierLegalTerms,
 } from './integrations';
 import * as Sentry from '@sentry/browser';
 import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
@@ -42,10 +43,10 @@ import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
 const DEFAULT_CMS_ENTRYPOINT = 'default';
 
 // Define the hook's return type, mimicking useQuery's structure
-interface FetchState {
+interface FetchState<T> {
   loading: boolean;
   error?: Error;
-  data?: { cmsInfo: RelierCmsInfo | undefined };
+  data?: T;
 }
 
 export function useAccount() {
@@ -95,13 +96,15 @@ export function useIntegration() {
   const clientInfoState = useClientInfoState();
   const productInfoState = useProductInfoState();
   const cmsInfoState = useCmsInfoState();
+  const legalTermsState = useLegalTermsState();
 
   return useMemo(() => {
     // If we are still loading data, just return an null integration
     if (
       clientInfoState.loading ||
       productInfoState.loading ||
-      cmsInfoState.loading
+      cmsInfoState.loading ||
+      legalTermsState.loading
     ) {
       return null;
     }
@@ -112,11 +115,16 @@ export function useIntegration() {
     const storageData = new StorageData(windowWrapper);
 
     const flags = new DefaultIntegrationFlags(urlQueryData, storageData);
+
+    // Extract legal terms from REST API result
+    const legalTerms = legalTermsState.data?.legalTerms;
+
     const integrationFactory = new IntegrationFactory({
       flags,
       window: windowWrapper,
       clientInfo: clientInfoState.data?.clientInfo,
       cmsInfo: cmsInfoState.data?.cmsInfo,
+      legalTerms,
       productInfo: productInfoState.data?.productInfo,
       data: urlQueryData,
       channelData: urlHashData,
@@ -124,7 +132,7 @@ export function useIntegration() {
     });
 
     return integrationFactory.getIntegration();
-  }, [clientInfoState, productInfoState, cmsInfoState]);
+  }, [clientInfoState, productInfoState, cmsInfoState, legalTermsState]);
 }
 
 /**
@@ -208,7 +216,9 @@ export function useCmsInfoState() {
   // the fallback experience will be loaded.
   const entrypoint = urlQueryData.get('entrypoint') || DEFAULT_CMS_ENTRYPOINT;
 
-  const [state, setState] = useState<FetchState>({
+  const [state, setState] = useState<
+    FetchState<{ cmsInfo: RelierCmsInfo | undefined }>
+  >({
     loading: false,
     error: undefined,
     data: undefined,
@@ -335,6 +345,132 @@ export function useProductInfoState() {
     variables: { input: productId },
     skip: !productId,
   });
+}
+
+export function useLegalTermsState() {
+  const { config } = useContext(AppContext);
+  if (!config) {
+    throw new Error('Are you forgetting an AppContext.Provider?');
+  }
+
+  const authUrl = config?.servers.auth.url;
+  const { currentLocale } = useDynamicLocalization();
+
+  const urlQueryData = new UrlQueryData(new ReachRouterWindow());
+  const clientId = urlQueryData.get('client_id');
+  const service = urlQueryData.get('service');
+  const context = urlQueryData.get('context');
+
+  const [state, setState] = useState<
+    FetchState<{ legalTerms: RelierLegalTerms | undefined }>
+  >({
+    loading: false,
+    error: undefined,
+    data: undefined,
+  });
+
+  useEffect(() => {
+    // Determine if we should fetch by clientId or service
+    const isOAuth = !!clientId;
+    const isOAuthNative = context === 'oauth_webchannel_v1';
+
+    let shouldFetch = false;
+    let queryParam = '';
+    let queryValue = '';
+
+    if (
+      isOAuth &&
+      !isOAuthNative &&
+      clientId &&
+      isHexadecimal(clientId) &&
+      length(clientId, 16)
+    ) {
+      // OAuth RP redirect flow - query by clientId
+      shouldFetch = true;
+      queryParam = 'clientId';
+      queryValue = clientId;
+    } else if (isOAuthNative && service) {
+      // OAuth native flow - query by service
+      shouldFetch = true;
+      queryParam = 'service';
+      queryValue = service;
+    }
+
+    if (!shouldFetch) {
+      setState({ loading: false, error: undefined, data: undefined });
+      return;
+    }
+
+    let mounted = true;
+    setState((prev) => ({ ...prev, loading: true }));
+
+    const fetchLegalTerms = async () => {
+      try {
+        const url = new URL(`${authUrl}/v1/cms/legal-terms`);
+        url.searchParams.append(queryParam, queryValue);
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept-Language': currentLocale,
+          },
+        });
+
+        let legalTerms: RelierLegalTerms | null = null;
+
+        if (!response.ok) {
+          Sentry.captureMessage('Non-OK response from legal terms endpoint.', {
+            tags: { area: 'useLegalTermsState' },
+            extra: { queryParam, queryValue, status: response.status },
+          });
+        }
+
+        // Check if response has content before parsing
+        const responseText = await response.text();
+
+        if (responseText) {
+          try {
+            legalTerms = JSON.parse(responseText);
+          } catch (parseError) {
+            Sentry.captureException(parseError, {
+              tags: { area: 'useLegalTermsState' },
+              extra: { responseText },
+            });
+          }
+        }
+
+        if (mounted) {
+          setState({
+            loading: false,
+            error: undefined,
+            data: legalTerms ? { legalTerms } : undefined,
+          });
+        }
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { area: 'useLegalTermsState' },
+          extra: { queryParam, queryValue },
+        });
+
+        if (mounted) {
+          setState({
+            loading: false,
+            error: error instanceof Error ? error : new Error('Unknown error'),
+            data: undefined,
+          });
+        }
+      }
+    };
+
+    fetchLegalTerms();
+
+    return () => {
+      mounted = false;
+    };
+  }, [authUrl, clientId, service, context, currentLocale]);
+
+  return state;
 }
 
 // TODO: FXA-8286, test pattern for container components, which will determine

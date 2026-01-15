@@ -1921,40 +1921,6 @@ const TESTS: [string, any, Record<string, any>?][] = [
       {...x, productMetadata: { ...MESSAGE.productMetadata, 'product:cancellationSurveyURL': SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM}})}
   ],
 
-  ['subscriptionAccountFinishSetupEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: `Welcome to ${MESSAGE.productName}: Please set your password.` }],
-    ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountFinishSetup') }],
-      ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountFinishSetup' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountFinishSetup }],
-    ])],
-    ['html', [
-      { test: 'include', expected: `Welcome to ${MESSAGE.productName}: Please set your password.` },
-      { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy')) },
-      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support')) },
-      { test: 'notInclude', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-finish-setup', 'cancel-subscription', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId', 'uid')) },
-      { test: 'notInclude', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-finish-setup', 'update-billing', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId', 'uid'))},
-      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
-      { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
-      { test: 'include', expected: `Next Invoice: 04/19/2020` },
-      { test: 'include', expected: 'Next, you’ll create a Mozilla account password to start using your new subscription.' },
-      { test: 'include', expected: `alt="${MESSAGE.productName}"` },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-    ['text', [
-      { test: 'include', expected: `Welcome to ${MESSAGE.productName}: Please set your password.` },
-      { test: 'include', expected: configUrl('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
-      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy') },
-      { test: 'include', expected: configUrl('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
-      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
-      { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
-      { test: 'include', expected: `Next Invoice: 04/19/2020` },
-      { test: 'include', expected: 'Next, you’ll create a Mozilla account password to start using your new subscription.' },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]]
-  ])],
-
   ['subscriptionAccountReminderFirstEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Reminder: Finish setting up your account' }],
     ['headers', new Map([

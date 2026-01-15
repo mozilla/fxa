@@ -217,10 +217,43 @@ function marshallDeviceType(formFactor: string) {
   return 'mobile';
 }
 
+/**
+ * Format user agent info safely for email templates.
+ * Returns undefined if no valid browser or OS info is available.
+ *
+ * @param uaBrowser - Browser name from user agent
+ * @param uaOS - OS name from user agent
+ * @param uaOSVersion - OS version from user agent
+ */
+export const formatUserAgentInfo = (
+  uaBrowser?: string,
+  uaOS?: string,
+  uaOSVersion?: string
+):
+  | {
+      uaBrowser: string;
+      uaOS: string;
+      uaOSVersion: string;
+    }
+  | undefined => {
+  const safeBrowser = safeReturnName(uaBrowser || '');
+  const safeOS = safeReturnName(uaOS || '');
+  const safeOSVersion = safeReturnVersion(uaOSVersion || '');
+
+  return !safeBrowser && !safeOS
+    ? undefined
+    : {
+        uaBrowser: safeBrowser || '',
+        uaOS: safeOS || '',
+        uaOSVersion: safeOSVersion || '',
+      };
+};
+
 export default {
   parse,
   parseToScalars,
   isToVersionStringSupported,
+  formatUserAgentInfo,
   safeName: safeReturnName,
   safeVersion: safeReturnVersion,
 };

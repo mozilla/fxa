@@ -1649,27 +1649,6 @@ describe('DirectStripeRoutes', () => {
       );
     });
 
-    it('sends an email when the fxa account is a stub', async () => {
-      const sourceCountry = 'us';
-      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
-        sourceCountry
-      );
-      const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
-      const expected = deepCopy(subscription2);
-      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
-        expected
-      );
-      const idempotencyKey = uuidv4();
-
-      VALID_REQUEST.payload = {
-        priceId: 'quux',
-        idempotencyKey,
-      };
-      await directStripeRoutesInstance.createSubscriptionWithPMI(VALID_REQUEST);
-      sinon.assert.calledOnce(mailer.sendSubscriptionAccountFinishSetupEmail);
-    });
-
     it('does not report to Sentry if the customer has a payment method on file', async () => {
       const sentryScope = { setContext: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));

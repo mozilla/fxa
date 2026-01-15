@@ -37,6 +37,7 @@ export type SigninUnblockIntegration = Pick<
   | 'wantsLogin'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
+  | 'getLegalTerms'
 >;
 
 export type SigninIntegration =
@@ -55,6 +56,7 @@ export type SigninIntegration =
       | 'getWebChannelServices'
       | 'getCmsInfo'
       | 'isFirefoxMobileClient'
+      | 'getLegalTerms'
     >
   | SigninOAuthIntegration;
 
@@ -75,6 +77,7 @@ export type SigninOAuthIntegration = Pick<
   | 'getWebChannelServices'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
+  | 'getLegalTerms'
 >;
 
 export interface LocationState {

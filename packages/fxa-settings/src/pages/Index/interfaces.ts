@@ -17,6 +17,7 @@ export type IndexIntegration = Pick<
   | 'isFirefoxNonSync'
   | 'data'
   | 'getCmsInfo'
+  | 'getLegalTerms'
 >;
 
 export interface IndexContainerProps {

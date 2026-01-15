@@ -984,6 +984,9 @@ export class StripeWebhookHandler extends StripeHandler {
           await this.mailer.sendDownloadSubscriptionEmail(...mailParams);
         }
         break;
+      case 'subscription_update':
+        // We already send an email for subscription updates. https://mozilla-hub.atlassian.net/browse/PAY-2290
+        break;
       default:
         // Other billing reasons should be covered in subsequent invoice email
         // https://stripe.com/docs/api/invoices/object#invoice_object-billing_reason

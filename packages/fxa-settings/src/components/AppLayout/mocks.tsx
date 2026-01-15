@@ -138,13 +138,18 @@ export const MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS = {
 } as RelierCmsInfo;
 
 export const INTEGRATION_WITH_UNDEFINED_GETCMSINFO = {
+  getLegalTerms: () => undefined,
   getCmsInfo: () => undefined,
 };
 
 export const INTEGRATION_WITH_NO_GETCMSINFO = {} as Record<string, never>;
 
-export function createIntegration(cmsInfo?: RelierCmsInfo) {
+export function createIntegration(
+  cmsInfo?: RelierCmsInfo,
+  legalTerms?: string
+) {
   return {
+    getLegalTerms: () => legalTerms,
     getCmsInfo: () => cmsInfo,
   };
 }

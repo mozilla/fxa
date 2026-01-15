@@ -3,7 +3,6 @@ import * as SubscriptionLayouts from '../layouts/subscription';
 import * as DownloadSubscription from '../templates/downloadSubscription';
 import * as FraudulentAccountDeletion from '../templates/fraudulentAccountDeletion';
 import * as SubscriptionAccountDeletion from '../templates/subscriptionAccountDeletion';
-import * as SubscriptionAccountFinishSetup from '../templates/subscriptionAccountFinishSetup';
 import * as SubscriptionAccountReminderFirst from '../templates/subscriptionAccountReminderFirst';
 import * as SubscriptionAccountReminderSecond from '../templates/subscriptionAccountReminderSecond';
 import * as SubscriptionCancellation from '../templates/subscriptionCancellation';
@@ -59,20 +58,6 @@ export class SubplatEmailRender extends EmailRenderer {
       version: SubscriptionAccountDeletion.version,
       layout: SubscriptionAccountDeletion.layout,
       includes: SubscriptionAccountDeletion.includes,
-      ...templateValues,
-      ...layoutTemplateValues,
-    });
-  }
-
-  async renderSubscriptionAccountFinishSetup(
-    templateValues: SubscriptionAccountFinishSetup.TemplateData,
-    layoutTemplateValues: SubscriptionLayouts.TemplateData
-  ) {
-    return this.renderEmail({
-      template: SubscriptionAccountFinishSetup.template,
-      version: SubscriptionAccountFinishSetup.version,
-      layout: SubscriptionAccountFinishSetup.layout,
-      includes: SubscriptionAccountFinishSetup.includes,
       ...templateValues,
       ...layoutTemplateValues,
     });

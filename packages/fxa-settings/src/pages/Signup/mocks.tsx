@@ -41,6 +41,7 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
     getWebChannelServices: mockGetWebChannelServices(),
     wantsKeys: () => false,
     getCmsInfo: () => undefined,
+    getLegalTerms: () => undefined,
   };
 }
 
@@ -56,6 +57,7 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     wantsKeys: () => false,
     getCmsInfo: () => undefined,
+    getLegalTerms: () => undefined,
   };
 }
 
@@ -77,6 +79,7 @@ export function createMockSignupOAuthWebIntegration(
     getWebChannelServices: mockGetWebChannelServices(),
     wantsKeys: () => false,
     getCmsInfo: () => cmsInfo,
+    getLegalTerms: () => undefined,
   };
 }
 
@@ -104,6 +107,7 @@ export function createMockSignupOAuthNativeIntegration(
     }),
     wantsKeys: () => true,
     getCmsInfo: () => cmsInfo,
+    getLegalTerms: () => undefined,
   };
 }
 
