@@ -84,6 +84,11 @@ class Localizer {
     fetchedLocales.forEach((fetchedLocale) => {
       if (fetchedLocale.status === 'fulfilled') {
         fetched[fetchedLocale.value.locale] = fetchedLocale.value.fetchedLocale;
+      } else if (fetchedLocale.status === 'rejected') {
+        // Log the error but continue processing other locales
+        console.error(
+          `Error fetching messages for locale: ${fetchedLocale.reason}`
+        );
       }
     });
     return fetched;
