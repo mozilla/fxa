@@ -8,7 +8,9 @@ import SigninTokenCode from '.';
 import AppLayout from '../../../components/AppLayout';
 import {
   Integration,
+  isOAuthNativeIntegration,
   useAuthClient,
+  useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
 import {
@@ -34,6 +36,7 @@ import {
   PASSWORD_CHANGE_FINISH_MUTATION,
   PASSWORD_CHANGE_START_MUTATION,
 } from '../gql';
+import { useOAuthFlowRecovery } from '../../../lib/hooks/useOAuthFlowRecovery';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.
@@ -46,6 +49,7 @@ const SigninTokenCodeContainer = ({
   setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
+  const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SigninLocationState;
   };
@@ -66,6 +70,10 @@ const SigninTokenCodeContainer = ({
     unwrapBKey
   );
 
+  // Hook to recover OAuth flow after page refresh or browser crash
+  const { isRecovering, recoveryFailed, attemptOAuthFlowRecovery } =
+    useOAuthFlowRecovery(integration);
+
   const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
     PASSWORD_CHANGE_START_MUTATION
   );
@@ -80,6 +88,40 @@ const SigninTokenCodeContainer = ({
   );
 
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
+  const [recoveryAttempted, setRecoveryAttempted] = useState<boolean>(false);
+
+  // Attempt OAuth flow recovery for Sync when state is missing or keys are lost
+  useEffect(() => {
+    const shouldAttemptRecovery =
+      !recoveryAttempted &&
+      isOAuthNativeIntegration(integration) &&
+      (!signinState || !signinState.sessionToken || oAuthKeysCheckError);
+
+    if (shouldAttemptRecovery) {
+      setRecoveryAttempted(true);
+      attemptOAuthFlowRecovery();
+    }
+  }, [
+    recoveryAttempted,
+    integration,
+    signinState,
+    oAuthKeysCheckError,
+    attemptOAuthFlowRecovery,
+  ]);
+
+  // Handle recovery failure - navigate to signin with error message
+  useEffect(() => {
+    if (recoveryFailed) {
+      const localizedErrorMessage = ftlMsgResolver.getMsg(
+        'signin-recovery-error',
+        'Something went wrong. Please sign in again.'
+      );
+      navigateWithQuery('/signin', {
+        state: { localizedErrorMessage },
+      });
+    }
+  }, [recoveryFailed, ftlMsgResolver, navigateWithQuery]);
+
   useEffect(() => {
     if (!signinState || !signinState.sessionToken) {
       // case handled after the useEffect
@@ -101,8 +143,21 @@ const SigninTokenCodeContainer = ({
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.SigninTokenCodePage?.splitLayout;
 
+  // Show loading while attempting OAuth flow recovery
+  if (isRecovering) {
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
+  }
+
   if (!signinState || !signinState.sessionToken) {
-    navigateWithQuery('/');
+    // For non-OAuth Native flows, navigate to root
+    // For OAuth Native flows, recovery was already attempted above
+    if (!isOAuthNativeIntegration(integration)) {
+      navigateWithQuery('/');
+    }
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -126,7 +181,8 @@ const SigninTokenCodeContainer = ({
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
-  if (oAuthKeysCheckError) {
+  // For OAuth Native, recovery should have been attempted; for others, show error
+  if (oAuthKeysCheckError && !isOAuthNativeIntegration(integration)) {
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 

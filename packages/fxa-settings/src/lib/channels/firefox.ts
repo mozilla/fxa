@@ -22,6 +22,10 @@ export enum FirefoxCommand {
   // support will be added on Android (https://bugzilla.mozilla.org/show_bug.cgi?id=1968130)
   // and iOS (https://github.com/mozilla-mobile/firefox-ios/issues/26837)
   SyncPreferences = 'fxaccounts:sync_preferences',
+  // Check if Firefox has an active OAuth flow
+  OAuthFlowIsActive = 'fxaccounts:oauth_flow_is_active',
+  // Start new OAuth flow and get fresh params
+  OAuthFlowBegin = 'fxaccounts:oauth_flow_begin',
 }
 
 export interface FirefoxMessageDetail {
@@ -37,6 +41,7 @@ export interface FirefoxMessage {
       stack: string;
     };
   };
+  params?: Record<string, any>; // Some commands use params instead of data
   messageId: string;
   error?: string;
 }
@@ -144,6 +149,21 @@ type FxACanLinkAccountResponse = {
   ok: boolean;
 };
 
+export type FxAOAuthFlowIsActiveResponse = {
+  isActive: boolean;
+};
+
+export type FxAOAuthFlowBeginResponse = {
+  action: string;
+  response_type: string;
+  access_type: string;
+  scope: string;
+  client_id: string;
+  state: string;
+  code_challenge?: string;
+  code_challenge_method?: string;
+};
+
 // timeout tuned for device latency
 // max timeout of 100-200 ms would be optimal for an ultra-snappy UX, but could cause false negatives on mobile
 // compromising with 500ms for safer mobile support without being noticeably long if it times out
@@ -200,17 +220,18 @@ export class Firefox extends EventTarget {
       }
       const message = detail.message;
       if (message) {
-        if (message.error || message.data.error) {
+        if (message.error || message.data?.error) {
           const error = {
             message: message.error || message.data.error?.message,
-            stack: message.data.error?.stack,
+            stack: message.data?.error?.stack,
           };
           this.dispatchEvent(
             new CustomEvent(FirefoxCommand.Error, { detail: error })
           );
         } else {
+          const responseData = message.data || message.params;
           this.dispatchEvent(
-            new CustomEvent(message.command, { detail: message.data })
+            new CustomEvent(message.command, { detail: responseData })
           );
         }
       }
@@ -374,6 +395,62 @@ export class Firefox extends EventTarget {
         this.send(FirefoxCommand.CanLinkAccount, options);
       });
     });
+  }
+
+  /** Check if Firefox has an active OAuth flow in memory. */
+  async fxaOAuthFlowIsActive(): Promise<FxAOAuthFlowIsActiveResponse> {
+    let timeoutId: number;
+    return Promise.race<FxAOAuthFlowIsActiveResponse>([
+      new Promise<FxAOAuthFlowIsActiveResponse>((resolve) => {
+        const eventHandler = (firefoxEvent: any) => {
+          clearTimeout(timeoutId);
+          this.removeEventListener(
+            FirefoxCommand.OAuthFlowIsActive,
+            eventHandler
+          );
+          const response = firefoxEvent.detail as FxAOAuthFlowIsActiveResponse;
+          resolve(response);
+        };
+
+        this.addEventListener(FirefoxCommand.OAuthFlowIsActive, eventHandler);
+        requestAnimationFrame(() => {
+          this.send(FirefoxCommand.OAuthFlowIsActive, {});
+        });
+      }),
+      new Promise<FxAOAuthFlowIsActiveResponse>((resolve) => {
+        timeoutId = window.setTimeout(() => {
+          // If timeout, assume no active flow (older Firefox or not supported)
+          resolve({ isActive: false });
+        }, DEFAULT_SEND_TIMEOUT_LENGTH_MS);
+      }),
+    ]);
+  }
+
+  /** Start new OAuth flow in Firefox and get fresh params for recovery. */
+  async fxaOAuthFlowBegin(
+    scopes: string[]
+  ): Promise<FxAOAuthFlowBeginResponse | null> {
+    let timeoutId: number;
+    return Promise.race<FxAOAuthFlowBeginResponse | null>([
+      new Promise<FxAOAuthFlowBeginResponse | null>((resolve) => {
+        const eventHandler = (firefoxEvent: any) => {
+          clearTimeout(timeoutId);
+          this.removeEventListener(FirefoxCommand.OAuthFlowBegin, eventHandler);
+          const response = firefoxEvent.detail as FxAOAuthFlowBeginResponse;
+          resolve(response);
+        };
+
+        this.addEventListener(FirefoxCommand.OAuthFlowBegin, eventHandler);
+        requestAnimationFrame(() => {
+          this.send(FirefoxCommand.OAuthFlowBegin, { scopes });
+        });
+      }),
+      new Promise<FxAOAuthFlowBeginResponse | null>((resolve) => {
+        timeoutId = window.setTimeout(() => {
+          resolve(null);
+        }, DEFAULT_SEND_TIMEOUT_LENGTH_MS);
+      }),
+    ]);
   }
 
   /*
