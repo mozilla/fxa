@@ -25,6 +25,8 @@ export class CancelInterstitialOfferUtil {
 
     return {
       ...cancelInterstitialOffer,
+      currentInterval: cancelInterstitialOffer.currentInterval,
+      upgradeInterval: cancelInterstitialOffer.upgradeInterval,
       ctaMessage:
         cancelInterstitialOffer.localizations.at(0)?.ctaMessage ??
         cancelInterstitialOffer.ctaMessage,
@@ -48,6 +50,9 @@ export class CancelInterstitialOfferUtil {
         defaultPurchase: {
           purchaseDetails: {
             ...cancelInterstitialOffer.offering.defaultPurchase.purchaseDetails,
+            productName:
+              cancelInterstitialOffer.offering.defaultPurchase.purchaseDetails.localizations?.at(0)?.productName ??
+              cancelInterstitialOffer.offering.defaultPurchase.purchaseDetails.productName,
             webIcon:
               cancelInterstitialOffer.offering.defaultPurchase.purchaseDetails
                 .webIcon,

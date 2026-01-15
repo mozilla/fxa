@@ -28,9 +28,11 @@ export const CancelInterstitialOfferOfferingResultFactory = (
   defaultPurchase: {
     purchaseDetails: {
       webIcon: faker.image.urlLoremFlickr(),
+      productName: faker.string.sample(),
       localizations: [
         {
           webIcon: faker.image.urlLoremFlickr(),
+          productName: faker.string.sample(),
         },
       ],
     },
