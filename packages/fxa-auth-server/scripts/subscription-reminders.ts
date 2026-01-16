@@ -18,8 +18,9 @@ import { initSubplat } from '../lib/payments/initSubplat';
 import { parseInt } from 'lodash';
 import { parseBooleanArg } from './lib/args';
 
-const DEFAULT_PLAN_LENGTH = 180;
-const DEFAULT_REMINDER_LENGTH = 14;
+const DEFAULT_PLAN_LENGTH = 28;
+const DEFAULT_REMINDER_LENGTH = 7;
+const DEFAULT_YEARLY_RENEWAL_REMINDER_LENGTH = 15;
 const DEFAULT_ENDING_REMINDER_DAILY_LENGTH = 0;
 const DEFAULT_ENDING_REMINDER_MONTHLY_LENGTH = 7;
 const DEFAULT_ENDING_REMINDER_YEARLY_LENGTH = 14;
@@ -32,13 +33,18 @@ async function init() {
     .allowUnknownOption(true)
     .option(
       '-p, --plan-length [days]',
-      'Plan length in days beyond which a reminder email before the next recurring charge should be sent. Defaults to 180.',
+      'Plan length in days beyond which a reminder email before the next recurring charge should be sent. Defaults to 28.',
       DEFAULT_PLAN_LENGTH.toString()
     )
     .option(
       '-r, --reminder-length [days]',
-      'Reminder length in days before the renewal date to send the reminder email. Defaults to 14.',
+      'Reminder length in days before the renewal date to send the reminder email for monthly plans. Defaults to 7.',
       DEFAULT_REMINDER_LENGTH.toString()
+    )
+    .option(
+      '--yearly-renewal-reminder-length [days]',
+      'Reminder length in days before the renewal date to send the reminder email for yearly plans. Defaults to 15.',
+      DEFAULT_YEARLY_RENEWAL_REMINDER_LENGTH.toString()
     )
     .option(
       '-e, --enableEndingReminders [boolean]',
@@ -88,6 +94,9 @@ async function init() {
       dailyReminderDays: parseInt(program.endingReminderDailyLength),
       monthlyReminderDays: parseInt(program.endingReminderMonthlyLength),
       yearlyReminderDays: parseInt(program.endingReminderYearlyLength),
+    },
+    {
+      yearlyReminderDays: parseInt(program.yearlyRenewalReminderLength),
     },
     database,
     senders.email,

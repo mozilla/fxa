@@ -26,7 +26,7 @@ const longSubscription2 = require('./fixtures/stripe/subscription2.json'); // su
 const sentry = require('../../../lib/sentry');
 const planLength = 30; // days
 const planDuration = Duration.fromObject({ days: planLength });
-const reminderLength = 14; // days
+const reminderLength = 7; // days
 const reminderDuration = Duration.fromObject({ days: reminderLength });
 
 const sandbox = sinon.createSandbox();
@@ -62,7 +62,7 @@ describe('SubscriptionReminders', () => {
 
   const mockDailyReminderDuration = undefined;
   const mockMonthlyReminderDuration = 7;
-  const mockYearlyReminderDuration = 14;
+  const mockYearlyReminderDuration = 15;
 
   beforeEach(() => {
     mockConfig = {
@@ -100,6 +100,9 @@ describe('SubscriptionReminders', () => {
         paymentsNextUrl: 'http://localhost:3035',
         dailyReminderDays: mockDailyReminderDuration,
         monthlyReminderDays: mockMonthlyReminderDuration,
+        yearlyReminderDays: mockYearlyReminderDuration,
+      },
+      {
         yearlyReminderDays: mockYearlyReminderDuration,
       },
       {},
@@ -289,6 +292,7 @@ describe('SubscriptionReminders', () => {
         Math.floor(subscription.current_period_start * 1000),
         {
           subscriptionId: subscription.id,
+          reminderDays: 7,
         },
         'subscriptionRenewalReminder'
       );
@@ -376,6 +380,7 @@ describe('SubscriptionReminders', () => {
           currentPeriodStart: subscription.current_period_start,
           currentPeriodEnd: subscription.current_period_end,
           currentDateMs: Date.now(),
+          reminderLength: 7,
         }
       );
       sinon.assert.calledOnceWithExactly(
@@ -387,19 +392,20 @@ describe('SubscriptionReminders', () => {
           uid: 'uid',
           email: 'testo@test.test',
           subscription: formattedSubscription,
-          reminderLength: 14,
+          reminderLength: 7,
           planIntervalCount: 1,
           planInterval: 'month',
           invoiceTotalInCents: invoicePreview.total,
           invoiceTotalCurrency: invoicePreview.currency,
           productMetadata: formattedSubscription.productMetadata,
           planConfig,
+          hadDiscount: false,
         }
       );
       sinon.assert.calledOnceWithExactly(
         reminder.updateSentEmail,
         subscription.customer.metadata.userid,
-        { subscriptionId: subscription.id },
+        { subscriptionId: subscription.id, reminderDays: 7 },
         'subscriptionRenewalReminder'
       );
     });
@@ -676,9 +682,14 @@ describe('SubscriptionReminders', () => {
       const result = await reminder.sendReminders();
       assert.isTrue(result);
       sinon.assert.calledOnce(reminder.getEligiblePlans);
-      sinon.assert.calledOnceWithExactly(
+      sinon.assert.calledTwice(reminder.getStartAndEndTimes);
+      sinon.assert.calledWith(
         reminder.getStartAndEndTimes,
-        Duration.fromObject({ days: 14 })
+        Duration.fromObject({ days: 15 })
+      );
+      sinon.assert.calledWith(
+        reminder.getStartAndEndTimes,
+        Duration.fromObject({ days: 7 })
       );
       // We iterate through each plan, longPlan1 and longPlan2, and there is one
       // subscription, longSubscription1 and longSubscription2 respectively,
@@ -706,6 +717,7 @@ describe('SubscriptionReminders', () => {
         {
           err: throwErr,
           subscriptionId: longSubscription1.id,
+          reminderDuration: 7,
         }
       );
       stub.firstCall.calledWithExactly(longSubscription1);
@@ -754,6 +766,37 @@ describe('SubscriptionReminders', () => {
         Duration.fromObject({ days: mockYearlyReminderDuration }),
         'yearly'
       );
+    });
+
+    it('sends 15-day reminders only to yearly plans and 7-day reminders only to monthly plans', async () => {
+      const yearlyPlan = require('./fixtures/stripe/plan_yearly.json');
+      reminder.getEligiblePlans = sandbox.fake.resolves([
+        longPlan1, // monthly
+        longPlan2, // monthly
+        yearlyPlan, // yearly
+      ]);
+      reminder.getStartAndEndTimes = sandbox.fake.returns(MOCK_INTERVAL);
+
+      const sendRenewalStub = sandbox.stub(reminder, 'sendRenewalRemindersForDuration');
+      sendRenewalStub.resolves(true);
+
+      await reminder.sendReminders();
+
+      // Should be called twice: once for yearly plans, once for monthly plans
+      sinon.assert.calledTwice(sendRenewalStub);
+
+      // First call: yearly plans with 15-day duration
+      const firstCall = sendRenewalStub.getCall(0);
+      assert.equal(firstCall.args[0].length, 1, 'Should have 1 yearly plan');
+      assert.equal(firstCall.args[0][0].id, yearlyPlan.id, 'Should be the yearly plan');
+      assert.equal(firstCall.args[1].as('days'), 15, 'Should use 15-day duration');
+
+      // Second call: monthly plans with 7-day duration
+      const secondCall = sendRenewalStub.getCall(1);
+      assert.equal(secondCall.args[0].length, 2, 'Should have 2 monthly plans');
+      assert.equal(secondCall.args[0][0].id, longPlan1.id, 'Should include longPlan1');
+      assert.equal(secondCall.args[0][1].id, longPlan2.id, 'Should include longPlan2');
+      assert.equal(secondCall.args[1].as('days'), 7, 'Should use 7-day duration');
     });
   });
 

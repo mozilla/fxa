@@ -59,7 +59,7 @@
     "build-storybook": {
       "executor": "nx:run-commands",
       "outputs": ["{projectRoot}/storybook-static"],
-      "dependsOn": ["build-css", "build-ts"],
+      "dependsOn": ["l10n-merge", "build-css", "build-ts"],
       "options": {
         "commands": [
           "nx run accounts-email-renderer:build-storybook-only",
@@ -116,7 +116,7 @@
         "cwd": "."
       },
       "inputs": ["{projectRoot}/gruntfile.js", "{projectRoot}/src/**/en.ftl"],
-      "outputs": ["{projectRoot}/public/en/auth.ftl"]
+      "outputs": ["{projectRoot}/public/locales/en/branding.ftl", "{projectRoot}/public/locales/en/emails.ftl"]
     },
     "l10n-merge": {
       "dependsOn": ["l10n-prime"],
