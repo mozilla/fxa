@@ -70,7 +70,7 @@ export function PaymentMethodManagement({
     setError(null);
     setHasPaymentMethod(
       !!event.value.payment_method ||
-        (event.value.type === 'link' && defaultPaymentMethod?.type === 'link')
+      (event.value.type === 'link' && defaultPaymentMethod?.type === 'link')
     );
 
     if (event.value.type !== 'card') {
@@ -181,25 +181,21 @@ export function PaymentMethodManagement({
         throw confirmationTokenError;
       }
 
-      let response;
-      try {
-        response = await updateStripePaymentDetails(
-          uid ?? '',
-          confirmationToken.id
-        );
-      } catch (error) {
-        const errorReason = getManagePaymentMethodErrorFtlInfo(error.message);
+      const { ok, result, errorMessage } = await updateStripePaymentDetails(
+        uid ?? '',
+        confirmationToken.id
+      );
+      if (!ok || !result) {
+        const errorReason = getManagePaymentMethodErrorFtlInfo(errorMessage);
         setError(
           l10n.getString(errorReason.messageFtl, {}, errorReason.message)
         );
-        return;
+      } else {
+        if (result.status === 'requires_action' && result.clientSecret) {
+          await handleNextAction(result.clientSecret);
+        }
+        router.refresh();
       }
-
-      if (response.status === 'requires_action' && response.clientSecret) {
-        await handleNextAction(response.clientSecret);
-      }
-
-      router.refresh();
     } catch (error) {
       console.error(error);
       setError(error.message || 'An unexpected error occurred.');
@@ -265,30 +261,30 @@ export function PaymentMethodManagement({
           </Form.Field>
           {(isInputNewCardDetails ||
             (isNonCardSelected && !hasPaymentMethod)) && (
-            <div className="flex flex-row justify-center pt-4">
-              <Form.Submit asChild>
-                <BaseButton
-                  className="h-10 mt-10 w-full"
-                  type="submit"
-                  variant={ButtonVariant.Primary}
-                  aria-disabled={!stripe || !isComplete || isLoading}
-                  disabled={!stripe || !isComplete || isLoading}
-                >
-                  {isLoading ? (
-                    <Image
-                      src={spinnerWhiteImage}
-                      alt=""
-                      className="absolute animate-spin h-8 w-8"
-                    />
-                  ) : (
-                    <Localized id="payment-method-management-save-method">
-                      Save payment method
-                    </Localized>
-                  )}
-                </BaseButton>
-              </Form.Submit>
-            </div>
-          )}
+              <div className="flex flex-row justify-center pt-4">
+                <Form.Submit asChild>
+                  <BaseButton
+                    className="h-10 mt-10 w-full"
+                    type="submit"
+                    variant={ButtonVariant.Primary}
+                    aria-disabled={!stripe || !isComplete || isLoading}
+                    disabled={!stripe || !isComplete || isLoading}
+                  >
+                    {isLoading ? (
+                      <Image
+                        src={spinnerWhiteImage}
+                        alt=""
+                        className="absolute animate-spin h-8 w-8"
+                      />
+                    ) : (
+                      <Localized id="payment-method-management-save-method">
+                        Save payment method
+                      </Localized>
+                    )}
+                  </BaseButton>
+                </Form.Submit>
+              </div>
+            )}
           {isNonDefaultCardSelected && !isInputNewCardDetails && (
             <div className="flex flex-row justify-center pt-4">
               <Form.Submit asChild>

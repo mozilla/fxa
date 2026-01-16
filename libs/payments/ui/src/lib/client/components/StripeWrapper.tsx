@@ -108,10 +108,10 @@ interface StripeWrapperProps {
   cart: {
     paymentInfo?: {
       type:
-        | Stripe.PaymentMethod.Type
-        | 'google_iap'
-        | 'apple_iap'
-        | 'external_paypal';
+      | Stripe.PaymentMethod.Type
+      | 'google_iap'
+      | 'apple_iap'
+      | 'external_paypal';
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;

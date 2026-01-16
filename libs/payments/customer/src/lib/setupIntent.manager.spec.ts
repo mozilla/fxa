@@ -55,6 +55,7 @@ describe('SetupIntentManager', () => {
           enabled: true,
           allow_redirects: 'never',
         },
+        use_stripe_sdk: true,
       });
       expect(result).toEqual(mockResponse);
     });

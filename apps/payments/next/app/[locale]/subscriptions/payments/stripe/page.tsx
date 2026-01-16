@@ -17,10 +17,8 @@ import { getStripeClientSession } from '@fxa/payments/ui/actions';
 
 export default async function StripePaymentManagementPage({
   params,
-  searchParams,
 }: {
   params: ManageParams;
-  searchParams: Record<string, string | string[]> | undefined;
 }) {
   const session = await auth();
   const { locale } = params;
@@ -44,6 +42,9 @@ export default async function StripePaymentManagementPage({
   const { clientSecret, defaultPaymentMethod, currency } =
     stripeClientSession;
 
+  // Only change the instanceKey, thereby remounting the StripeManagementWrapper, when the defaultPaymentMethod changes.
+  const instanceKey = defaultPaymentMethod ? `${defaultPaymentMethod.type}-${defaultPaymentMethod.id}` : uuidv4();
+
   return (
     <section
       className="w-full tablet:px-8 desktop:max-w-[1024px]"
@@ -54,7 +55,7 @@ export default async function StripePaymentManagementPage({
         locale={locale}
         currency={currency}
         sessionSecret={clientSecret}
-        instanceKey={uuidv4()}
+        instanceKey={instanceKey}
       >
         <PaymentMethodManagement
           uid={session?.user?.id}
