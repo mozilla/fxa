@@ -11,5 +11,4 @@ export type TemplateData = UserDeviceTemplateData &
     primaryEmail?: string;
     date?: string;
     time?: string;
-    //acceptLanguage: string;
   };
