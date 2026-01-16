@@ -131,7 +131,7 @@
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.1",
     "path-browserify": "^1.0.1",
-    "pm2": "^6.0.9",
+    "pm2": "^6.0.14",
     "prettier": "^3.5.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",

@@ -18,7 +18,7 @@ __metadata:
     express: "npm:^4.21.2"
     ioredis: "npm:^5.0.6"
     morgan: "npm:^1.10.0"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     prettier: "npm:^3.5.3"
     request: "npm:^2.88.2"
   languageName: unknown
@@ -13171,7 +13171,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pm2/pm2-version-check@npm:latest":
+"@pm2/pm2-version-check@npm:^1.0.4":
   version: 1.0.4
   resolution: "@pm2/pm2-version-check@npm:1.0.4"
   dependencies:
@@ -34830,7 +34830,7 @@ __metadata:
     express: "npm:^4.21.2"
     fxa-shared: "workspace:*"
     morgan: "npm:^1.10.0"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     prettier: "npm:^3.5.3"
     stylelint: "npm:^16.14.1"
     stylelint-config-prettier: "npm:^9.0.3"
@@ -35207,7 +35207,7 @@ __metadata:
     nx: "npm:21.2.4"
     on-headers: "npm:^1.1.0"
     persistgraphql: "npm:^0.3.11"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     postcss-import: "npm:^16.1.0"
     prettier: "npm:^3.5.3"
     react-router-dom: "npm:^6.26.0"
@@ -35253,7 +35253,7 @@ __metadata:
     hot-shots: "npm:^10.2.1"
     jest: "npm:29.3.1"
     knex: "npm:^3.1.0"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     rimraf: "npm:^6.0.1"
     supertest: "npm:^7.0.0"
     tailwindcss: "npm:3.4.3"
@@ -35394,7 +35394,7 @@ __metadata:
     otplib: "npm:^11.0.1"
     p-queue: "npm:^8.1.0"
     p-retry: "npm:^4.2.0"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     poolee: "npm:^1.0.1"
     prettier: "npm:^3.5.3"
     proxyquire: "npm:^2.1.3"
@@ -35535,7 +35535,7 @@ __metadata:
     normalize.css: "npm:8.0.1"
     on-headers: "npm:1.1.0"
     otplib: "npm:^11.0.1"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     postcss-assets: "npm:^6.0.0"
     postcss-cli: "npm:11.0.0"
     postcss-import: "npm:^16.1.0"
@@ -35597,7 +35597,7 @@ __metadata:
     ip: "npm:^2.0.1"
     ip-reputation-js-client: "npm:^6.0.4"
     load-grunt-tasks: "npm:^5.1.0"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     prettier: "npm:^3.5.3"
     proxyquire: "npm:^2.1.3"
     request: "npm:^2.88.2"
@@ -35664,7 +35664,7 @@ __metadata:
     mozlog: "npm:^3.0.2"
     nock: "npm:^13.5.1"
     p-event: "npm:^6.0.0"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     prettier: "npm:^3.5.3"
     rimraf: "npm:^6.0.1"
     sqs-consumer: "npm:^11.2.0"
@@ -35737,7 +35737,7 @@ __metadata:
     mozlog: "npm:^3.0.2"
     mysql: "npm:^2.18.1"
     nock: "npm:^13.5.1"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     prettier: "npm:^3.5.3"
     rimraf: "npm:^6.0.1"
     supertest: "npm:^7.0.0"
@@ -35839,7 +35839,7 @@ __metadata:
     normalize.css: "npm:8.0.1"
     nx: "npm:21.2.4"
     on-headers: "npm:^1.1.0"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     postcss-import: "npm:16.1.0"
     prettier: "npm:^3.5.3"
     react-redux: "npm:^9.1.0"
@@ -35893,7 +35893,7 @@ __metadata:
     mysql: "npm:^2.18.1"
     nock: "npm:^13.5.1"
     nyc: "npm:^17.1.0"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     pngparse: "npm:2.0.1"
     poolee: "npm:^1.0.1"
     prettier: "npm:^3.5.3"
@@ -35950,7 +35950,7 @@ __metadata:
     jest: "npm:27.5.1"
     jest-environment-jsdom: "npm:^27.5.1"
     nx: "npm:21.2.4"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     postcss-import: "npm:^16.1.0"
     prettier: "npm:^3.5.3"
     react-helmet: "npm:^6.1.0"
@@ -36054,7 +36054,7 @@ __metadata:
     mutationobserver-shim: "npm:^0.3.7"
     nx: "npm:21.2.4"
     persistgraphql: "npm:^0.3.11"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     postcss: "npm:^8.5.0"
     postcss-assets: "npm:^6.0.0"
     postcss-flexbugs-fixes: "npm:^5.0.2"
@@ -36156,7 +36156,7 @@ __metadata:
     node-uap: "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574"
     nyc: "npm:^17.1.0"
     objection: "npm:^3.1.3"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     prettier: "npm:^3.5.3"
     proxyquire: "npm:^2.1.3"
     sinon: "npm:^9.0.3"
@@ -36361,7 +36361,7 @@ __metadata:
     passport-jwt: "npm:^4.0.1"
     path-browserify: "npm:^1.0.1"
     persistgraphql: "npm:^0.3.11"
-    pm2: "npm:^6.0.9"
+    pm2: "npm:^6.0.14"
     postcss: "npm:8.5.0"
     prettier: "npm:^3.5.3"
     react: "npm:18.3.1"
@@ -41864,14 +41864,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:4.1.0, js-yaml@npm:^4.0.0, js-yaml@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "js-yaml@npm:4.1.0"
+"js-yaml@npm:4.1.1":
+  version: 4.1.1
+  resolution: "js-yaml@npm:4.1.1"
   dependencies:
     argparse: "npm:^2.0.1"
   bin:
     js-yaml: bin/js-yaml.js
-  checksum: 10c0/184a24b4eaacfce40ad9074c64fd42ac83cf74d8c8cd137718d456ced75051229e5061b8633c3366b8aada17945a7a356b337828c19da92b51ae62126575018f
+  checksum: 10c0/561c7d7088c40a9bb53cc75becbfb1df6ae49b34b5e6e5a81744b14ae8667ec564ad2527709d1a6e7d5e5fa6d483aa0f373a50ad98d42fde368ec4a190d4fae7
   languageName: node
   linkType: hard
 
@@ -41884,6 +41884,17 @@ __metadata:
   bin:
     js-yaml: bin/js-yaml.js
   checksum: 10c0/3261f25912f5dd76605e5993d0a126c2b6c346311885d3c483706cd722efe34f697ea0331f654ce27c00a42b426e524518ec89d65ed02ea47df8ad26dcc8ce69
+  languageName: node
+  linkType: hard
+
+"js-yaml@npm:^4.0.0, js-yaml@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "js-yaml@npm:4.1.0"
+  dependencies:
+    argparse: "npm:^2.0.1"
+  bin:
+    js-yaml: bin/js-yaml.js
+  checksum: 10c0/184a24b4eaacfce40ad9074c64fd42ac83cf74d8c8cd137718d456ced75051229e5061b8633c3366b8aada17945a7a356b337828c19da92b51ae62126575018f
   languageName: node
   linkType: hard
 
@@ -48498,15 +48509,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pm2@npm:^6.0.9":
-  version: 6.0.13
-  resolution: "pm2@npm:6.0.13"
+"pm2@npm:^6.0.14":
+  version: 6.0.14
+  resolution: "pm2@npm:6.0.14"
   dependencies:
     "@pm2/agent": "npm:~2.1.1"
     "@pm2/blessed": "npm:0.1.81"
     "@pm2/io": "npm:~6.1.0"
     "@pm2/js-api": "npm:~0.8.0"
-    "@pm2/pm2-version-check": "npm:latest"
+    "@pm2/pm2-version-check": "npm:^1.0.4"
     ansis: "npm:4.0.0-node10"
     async: "npm:3.2.6"
     chokidar: "npm:3.6.0"
@@ -48518,7 +48529,7 @@ __metadata:
     enquirer: "npm:2.3.6"
     eventemitter2: "npm:5.0.1"
     fclone: "npm:1.0.11"
-    js-yaml: "npm:4.1.0"
+    js-yaml: "npm:4.1.1"
     mkdirp: "npm:1.0.4"
     needle: "npm:2.4.0"
     pidusage: "npm:3.0.2"
@@ -48540,7 +48551,7 @@ __metadata:
     pm2-dev: bin/pm2-dev
     pm2-docker: bin/pm2-docker
     pm2-runtime: bin/pm2-runtime
-  checksum: 10c0/4651fc560ee692273b29056d25e3cc9af3e3397cf742ba304a68b022f418a1847bc95124f4daee5a15b13d09d28148a7cc6a3692ac7bc0b03f38a7bd92455a35
+  checksum: 10c0/f48b4b2f58448f78a37a6fea71b8298fff4af1dd60cea38f7b6a000948dc56da53b72a187c66dff04ca6eb52bdc026a379148cb8d11795a86f9fa5f1117ed782
   languageName: node
   linkType: hard
 
