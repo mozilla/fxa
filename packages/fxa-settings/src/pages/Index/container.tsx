@@ -315,7 +315,6 @@ const IndexContainer = ({
   }, [ftlMsgResolver, deleteAccountSuccess]);
 
   const initialPrefill = prefillEmail || suggestedEmail;
-  const deeplink = queryParamModel.deeplink;
   const isMobile = isMobileDevice();
 
   const cmsInfo = integration.getCmsInfo();
@@ -339,7 +338,6 @@ const IndexContainer = ({
         errorBannerMessage,
         successBannerMessage,
         tooltipErrorMessage,
-        deeplink,
         flowQueryParams,
         isMobile,
         useFxAStatusResult,

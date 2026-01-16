@@ -28,7 +28,6 @@ export const Index = ({
   setErrorBannerMessage,
   setSuccessBannerMessage,
   setTooltipErrorMessage,
-  deeplink,
   flowQueryParams,
   isMobile,
   useFxAStatusResult,
@@ -42,8 +41,6 @@ export const Index = ({
   const legalTerms = integration.getLegalTerms();
 
   const emailEngageEventEmitted = useRef(false);
-
-  const isDeeplinking = !!deeplink;
 
   useEffect(() => {
     GleanMetrics.emailFirst.view();
@@ -81,18 +78,6 @@ export const Index = ({
       email: prefillEmail,
     },
   });
-
-  if (isDeeplinking) {
-    // To avoid flickering, we just render third party auth when deeplinking
-    return (
-      <ThirdPartyAuth
-        showSeparator={false}
-        viewName="deeplink"
-        deeplink={deeplink}
-        flowQueryParams={flowQueryParams}
-      />
-    );
-  }
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.EmailFirstPage?.pageTitle;
