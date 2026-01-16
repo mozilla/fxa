@@ -8,18 +8,14 @@ import { FxaEmailRenderer } from './renderer';
 describe('emails', () => {
   it('can render email', async () => {
     const r = new FxaEmailRenderer(new NodeRendererBindings());
-    const email = await r.renderAdminResetAccounts(
-      {
-        status: [{ locator: 'foo@mozilla.com', status: 'Success' }],
-      },
-      {
-        logoAltText: 'mock-logo-alt-text',
-        logoUrl: 'https://mozilla.org/mock-logo-url',
-        logoWidth: '100px',
-        privacyUrl: 'https://mozilla.org/mock-privacy-url',
-        sync: false,
-      }
-    );
+    const email = await r.renderAdminResetAccounts({
+      status: [{ locator: 'foo@mozilla.com', status: 'Success' }],
+      logoAltText: 'mock-logo-alt-text',
+      logoUrl: 'https://mozilla.org/mock-logo-url',
+      logoWidth: '100px',
+      privacyUrl: 'https://mozilla.org/mock-privacy-url',
+      sync: false,
+    });
 
     expect(email).toBeDefined();
 

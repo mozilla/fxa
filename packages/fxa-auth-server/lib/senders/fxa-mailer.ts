@@ -2,9 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as renderer from '@fxa/accounts/email-renderer';
-import * as sender from '@fxa/accounts/email-sender';
+import {
+  EmailLinkBuilder,
+  NodeRendererBindings,
+  WithFxaLayouts,
+  recovery,
+  passwordForgotOtp,
+} from '@fxa/accounts/email-renderer';
 
+import { EmailSender } from '@fxa/accounts/email-sender';
 import { FxaEmailRenderer } from '@fxa/accounts/email-renderer';
 import { ConfigType } from '../../config';
 
@@ -32,10 +38,10 @@ type OmitCommonLinks<T> = Omit<T, 'supportUrl' | 'privacyUrl' | 'link'>;
 
 export class FxaMailer extends FxaEmailRenderer {
   constructor(
-    private emailSender: sender.EmailSender,
-    private linkBuilder: renderer.EmailLinkBuilder,
+    private emailSender: EmailSender,
+    private linkBuilder: EmailLinkBuilder,
     private mailerConfig: ConfigType['smtp'],
-    bindings: renderer.NodeRendererBindings
+    bindings: NodeRendererBindings
   ) {
     super(bindings);
   }
@@ -50,10 +56,9 @@ export class FxaMailer extends FxaEmailRenderer {
         service?: string;
         redirectTo?: string;
         resume?: string;
-      } & OmitCommonLinks<renderer.TemplateData> &
-      OmitCommonLinks<renderer.recovery.TemplateData>
+      } & OmitCommonLinks<WithFxaLayouts<recovery.TemplateData>>
   ) {
-    const { template: name, version } = renderer.recovery;
+    const { template: name, version } = recovery;
 
     const link = new URL(this.linkBuilder.urls.initiatePasswordReset);
 
@@ -79,17 +84,12 @@ export class FxaMailer extends FxaEmailRenderer {
 
     const { privacyUrl, supportUrl } = this.linkBuilder.buildCommonLinks(name);
 
-    const rendered = await this.renderRecovery(
-      {
-        ...opts,
-        link: link.toString(),
-        supportUrl,
-      },
-      {
-        ...opts,
-        privacyUrl,
-      }
-    );
+    const rendered = await this.renderRecovery({
+      ...opts,
+      link: link.toString(),
+      supportUrl,
+      privacyUrl,
+    });
 
     const headers = this.emailSender.buildHeaders({
       context: { ...opts, serverName: SERVER, language: opts.acceptLanguage },
@@ -120,17 +120,17 @@ export class FxaMailer extends FxaEmailRenderer {
   async sendPasswordForgotOtpEmail(
     opts: EmailSenderOpts &
       EmailFlowParams &
-      OmitCommonLinks<renderer.TemplateData> &
-      OmitCommonLinks<renderer.passwordForgotOtp.TemplateData>
+      OmitCommonLinks<WithFxaLayouts<passwordForgotOtp.TemplateData>>
   ) {
-    const { template: name, version } = renderer.passwordForgotOtp;
+    const { template: name, version } = passwordForgotOtp;
 
     const { privacyUrl, supportUrl } = this.linkBuilder.buildCommonLinks(name);
 
-    const rendered = await this.renderPasswordForgotOtp(
-      { ...opts, supportUrl },
-      { ...opts, privacyUrl }
-    );
+    const rendered = await this.renderPasswordForgotOtp({
+      ...opts,
+      supportUrl,
+      privacyUrl,
+    });
 
     const headers = this.emailSender.buildHeaders({
       context: { ...opts, serverName: SERVER, language: opts.acceptLanguage },

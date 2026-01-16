@@ -15,43 +15,9 @@ import { FxaEmailRenderer } from './fxa-email-renderer';
 /**
  * Type helper to get all render methods on FxaEmailRenderer
  */
-type RendererMethods<T> = Exclude<
-  Extract<keyof T, `render${string}`>,
-  'renderEmail' //explicitly exclude base method so we don't try to test it with this helper
->;
-
-/**
- * Basic wrapper to render the email with provided parameters and snapshot the output.
- *
- * A bit complex on the type inference, but it allows us to have strongly typed
- * parameters for each render method.
- * @param func
- * @param templateValues
- * @param layoutTemplateValues
- */
-const renderAndSnapshotEmail = async <
-  T extends RendererMethods<FxaEmailRenderer>,
->(
-  func: T,
-  templateValues: Parameters<FxaEmailRenderer[T]>[0],
-  layoutTemplateValues: Parameters<FxaEmailRenderer[T]>[1]
-) => {
-  const fxaEmailRenderer = new FxaEmailRenderer(new NodeRendererBindings());
-  const renderMethod = fxaEmailRenderer[func].bind(fxaEmailRenderer) as (
-    templateValues: Parameters<FxaEmailRenderer[T]>[0],
-    layoutTemplateValues: Parameters<FxaEmailRenderer[T]>[1]
-  ) => ReturnType<FxaEmailRenderer[T]>;
-
-  const email = await renderMethod(templateValues, layoutTemplateValues);
-
-  expect(email).toBeDefined();
-  expect(email.html).toMatchSnapshot('matches full email snapshot');
-};
-
 const mockLink = 'http://localhost:3030/mock-link';
 const mockLinkOneClick = 'http://localhost:3030/mock-one-click-link';
 const mockLinkSupport = 'http://localhost:3030/mock-support-link';
-const mockLinkUnsubscribe = 'http://localhost:3030/mock-unsubscribe';
 const mockLinkReset = 'http://localhost:3030/mock-reset-link';
 const mockLinkPasswordChange =
   'http://localhost:3030/mock-password-change-link';
@@ -80,792 +46,618 @@ const defaultLayoutTemplateValues = {
 };
 
 describe('FxA Email Renderer', () => {
-  describe('renderAdminResetAccounts', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderAdminResetAccounts',
-        {
-          status: [{ locator: 'device1', status: 'active' }],
-        },
-        defaultLayoutTemplateValues
-      );
-    });
+  let renderer: FxaEmailRenderer;
+
+  beforeEach(() => {
+    renderer = new FxaEmailRenderer(new NodeRendererBindings());
   });
 
-  describe('renderCadReminderFirst', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderCadReminderFirst',
-        {
-          link: mockLink,
-          oneClickLink: mockLinkOneClick,
-          productName: 'Firefox',
-          cssPath: mockCssPath,
-          hideDeviceLink: false,
-          onDesktopOrTabletDevice: false,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderAdminResetAccounts', async () => {
+    const email = await renderer.renderAdminResetAccounts({
+      status: [{ locator: 'device1', status: 'active' }],
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderCadReminderSecond', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderCadReminderSecond',
-        {
-          link: mockLink,
-          oneClickLink: mockLinkOneClick,
-          productName: 'Firefox',
-          supportUrl: mockLinkSupport,
-          cssPath: mockCssPath,
-          hideDeviceLink: false,
-          onDesktopOrTabletDevice: false,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderCadReminderFirst', async () => {
+    const email = await renderer.renderCadReminderFirst({
+      link: mockLink,
+      oneClickLink: mockLinkOneClick,
+      productName: 'Firefox',
+      cssPath: mockCssPath,
+      hideDeviceLink: false,
+      onDesktopOrTabletDevice: false,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderInactiveAccountFinalWarning', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderInactiveAccountFinalWarning',
-        {
-          deletionDate: 'January 1, 2025',
-          link: mockLink,
-          supportUrl: mockLinkSupport,
-          unsubscribeUrl: mockLinkUnsubscribe,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderCadReminderSecond', async () => {
+    const email = await renderer.renderCadReminderSecond({
+      link: mockLink,
+      oneClickLink: mockLinkOneClick,
+      productName: 'Firefox',
+      cssPath: mockCssPath,
+      hideDeviceLink: false,
+      onDesktopOrTabletDevice: false,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderInactiveAccountFirstWarning', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderInactiveAccountFirstWarning',
-        {
-          deletionDate: 'January 1, 2025',
-          link: mockLink,
-          unsubscribeUrl: mockLinkUnsubscribe,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderInactiveAccountFinalWarning', async () => {
+    const email = await renderer.renderInactiveAccountFinalWarning({
+      deletionDate: 'January 1, 2025',
+      link: mockLink,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderInactiveAccountSecondWarning', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderInactiveAccountSecondWarning',
-        {
-          deletionDate: 'January 1, 2025',
-          link: mockLink,
-          unsubscribeUrl: mockLinkUnsubscribe,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderInactiveAccountFirstWarning', async () => {
+    const email = await renderer.renderInactiveAccountFirstWarning({
+      deletionDate: 'January 1, 2025',
+      link: mockLink,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderLowRecoveryCodes', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderLowRecoveryCodes',
-        { link: mockLink, numberRemaining: 3, supportUrl: mockLinkSupport },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderInactiveAccountSecondWarning', async () => {
+    const email = await renderer.renderInactiveAccountSecondWarning({
+      deletionDate: 'January 1, 2025',
+      link: mockLink,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderNewDeviceLogin', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderNewDeviceLogin',
-        {
-          clientName: 'Sync',
-          link: mockLink,
-          date: 'Jan 1, 2024',
-          time: '12:00 PM',
-          location: mockLocation,
-          device: mockDevice,
-          passwordChangeLink: mockLinkSupport,
-          mozillaSupportUrl: mockLinkSupport,
-          supportUrl: mockLinkSupport,
-          showBannerWarning: false,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderLowRecoveryCodes', async () => {
+    const email = await renderer.renderLowRecoveryCodes({
+      link: mockLink,
+      numberRemaining: 3,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderNewDeviceLoginStrapi', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderNewDeviceLoginStrapi',
-        {
-          clientName: 'Sync',
-          link: mockLink,
-          date: 'Jan 1, 2024',
-          time: '12:00 PM',
-          location: mockLocation,
-          device: mockDevice,
-          passwordChangeLink: mockLinkSupport,
-          mozillaSupportUrl: mockLinkSupport,
-          supportUrl: mockLinkSupport,
-          showBannerWarning: false,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderNewDeviceLogin', async () => {
+    const email = await renderer.renderNewDeviceLogin({
+      clientName: 'Sync',
+      link: mockLink,
+      date: 'Jan 1, 2024',
+      time: '12:00 PM',
+      location: mockLocation,
+      device: mockDevice,
+      passwordChangeLink: mockLinkSupport,
+      mozillaSupportUrl: mockLinkSupport,
+      showBannerWarning: false,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPasswordChanged', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPasswordChanged',
-        {
-          date: 'Jan 1, 2024',
-          time: '12:00 PM',
-          device: mockDevice,
-          location: mockLocation,
-          resetLink: mockLinkReset,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderNewDeviceLoginStrapi', async () => {
+    const email = await renderer.renderNewDeviceLoginStrapi({
+      clientName: 'Sync',
+      link: mockLink,
+      date: 'Jan 1, 2024',
+      time: '12:00 PM',
+      location: mockLocation,
+      device: mockDevice,
+      passwordChangeLink: mockLinkSupport,
+      mozillaSupportUrl: mockLinkSupport,
+      showBannerWarning: false,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPasswordChangeRequired', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPasswordChangeRequired',
-        { link: mockLink },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPasswordChanged', async () => {
+    const email = await renderer.renderPasswordChanged({
+      date: 'Jan 1, 2024',
+      time: '12:00 PM',
+      device: mockDevice,
+      location: mockLocation,
+      resetLink: mockLinkReset,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPasswordForgotOtp', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPasswordForgotOtp',
-        {
-          code: '8675309',
-          date: 'Jan 1, 2024',
-          time: '12:00 PM',
-          device: mockDevice,
-          location: mockLocation,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPasswordChangeRequired', async () => {
+    const email = await renderer.renderPasswordChangeRequired({
+      link: mockLink,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPasswordReset', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPasswordReset',
-        {
-          date: 'Jan 1, 2024',
-          time: '12:00 PM',
-          resetLink: mockLinkReset,
-          device: mockDevice,
-          location: mockLocation,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPasswordForgotOtp', async () => {
+    const email = await renderer.renderPasswordForgotOtp({
+      code: '8675309',
+      date: 'Jan 1, 2024',
+      time: '12:00 PM',
+      device: mockDevice,
+      location: mockLocation,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPasswordResetAccountRecovery',
-        {
-          date: 'Jan 1, 2024',
-          time: '12:00 PM',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          passwordChangeLink: mockLinkPasswordChange,
-          productName: 'Sync',
-          supportUrl: mockLinkSupport,
-          cssPath: mockCssPath,
-          hideDeviceLink: false,
-          onDesktopOrTabletDevice: false,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPasswordReset', async () => {
+    const email = await renderer.renderPasswordReset({
+      date: 'Jan 1, 2024',
+      time: '12:00 PM',
+      resetLink: mockLinkReset,
+      device: mockDevice,
+      location: mockLocation,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPasswordResetRecoveryPhone', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPasswordResetRecoveryPhone',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          resetLink: mockLinkReset,
-          twoFactorSettingsLink: mockLinkSupport,
-          time: '12:00 PM',
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPasswordResetAccountRecovery', async () => {
+    const email = await renderer.renderPasswordResetAccountRecovery({
+      date: 'Jan 1, 2024',
+      time: '12:00 PM',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      passwordChangeLink: mockLinkPasswordChange,
+      productName: 'Sync',
+      cssPath: mockCssPath,
+      hideDeviceLink: false,
+      onDesktopOrTabletDevice: false,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPasswordResetWithRecoveryKeyPrompt', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPasswordResetWithRecoveryKeyPrompt',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          passwordChangeLink: mockLinkPasswordChange,
-          productName: 'Sync',
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPasswordResetRecoveryPhone', async () => {
+    const email = await renderer.renderPasswordResetRecoveryPhone({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      resetLink: mockLinkReset,
+      twoFactorSettingsLink: mockLinkSupport,
+      time: '12:00 PM',
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostAddAccountRecovery', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostAddAccountRecovery',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          passwordChangeLink: mockLinkPasswordChange,
-          revokeAccountRecoveryLink: mockLinkRevokeAccountRecovery,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPasswordResetWithRecoveryKeyPrompt', async () => {
+    const email = await renderer.renderPasswordResetWithRecoveryKeyPrompt({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      passwordChangeLink: mockLinkPasswordChange,
+      productName: 'Sync',
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostAddLinkedAccount', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostAddLinkedAccount',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          passwordChangeLink: mockLinkPasswordChange,
-          providerName: 'Google',
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostAddAccountRecovery', async () => {
+    const email = await renderer.renderPostAddAccountRecovery({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      passwordChangeLink: mockLinkPasswordChange,
+      revokeAccountRecoveryLink: mockLinkRevokeAccountRecovery,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostAddRecoveryPhone', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostAddRecoveryPhone',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          maskedLastFourPhoneNumber: '•••• •••• 1234',
-          resetLink: mockLinkReset,
-          twoFactorSupportLink: mockLinkSupport,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostAddLinkedAccount', async () => {
+    const email = await renderer.renderPostAddLinkedAccount({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      passwordChangeLink: mockLinkPasswordChange,
+      providerName: 'Google',
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostAddTwoStepAuthentication', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostAddTwoStepAuthentication',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          twoFactorSupportLink: mockLinkSupport,
-          passwordChangeLink: mockLinkPasswordChange,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostAddRecoveryPhone', async () => {
+    const email = await renderer.renderPostAddRecoveryPhone({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      maskedLastFourPhoneNumber: '•••• •••• 1234',
+      resetLink: mockLinkReset,
+      twoFactorSupportLink: mockLinkSupport,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostChangeAccountRecovery', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostChangeAccountRecovery',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          passwordChangeLink: mockLinkPasswordChange,
-          revokeAccountRecoveryLink: mockLinkRevokeAccountRecovery,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostAddTwoStepAuthentication', async () => {
+    const email = await renderer.renderPostAddTwoStepAuthentication({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      twoFactorSupportLink: mockLinkSupport,
+      passwordChangeLink: mockLinkPasswordChange,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostChangePrimary', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostChangePrimary',
-        {
-          email: mockEmail,
-          link: mockLink,
-          passwordChangeLink: mockLinkPasswordChange,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostChangeAccountRecovery', async () => {
+    const email = await renderer.renderPostChangeAccountRecovery({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      passwordChangeLink: mockLinkPasswordChange,
+      revokeAccountRecoveryLink: mockLinkRevokeAccountRecovery,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostChangeRecoveryPhone', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostChangeRecoveryPhone',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          resetLink: mockLinkReset,
-          time: '12:00 PM',
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostChangePrimary', async () => {
+    const email = await renderer.renderPostChangePrimary({
+      email: mockEmail,
+      link: mockLink,
+      passwordChangeLink: mockLinkPasswordChange,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostChangeTwoStepAuthentication', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostChangeTwoStepAuthentication',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          passwordChangeLink: mockLinkPasswordChange,
-          twoFactorSupportLink: mockLinkSupport,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostChangeRecoveryPhone', async () => {
+    const email = await renderer.renderPostChangeRecoveryPhone({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      resetLink: mockLinkReset,
+      time: '12:00 PM',
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostConsumeRecoveryCode', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostConsumeRecoveryCode',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          resetLink: mockLinkReset,
-          twoFactorSettingsLink: mockLinkSupport,
-          supportUrl: mockLinkSupport,
-          //
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostChangeTwoStepAuthentication', async () => {
+    const email = await renderer.renderPostChangeTwoStepAuthentication({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      passwordChangeLink: mockLinkPasswordChange,
+      twoFactorSupportLink: mockLinkSupport,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostNewRecoveryCodes', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostNewRecoveryCodes',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          passwordChangeLink: mockLinkPasswordChange,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostConsumeRecoveryCode', async () => {
+    const email = await renderer.renderPostConsumeRecoveryCode({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      resetLink: mockLinkReset,
+      twoFactorSettingsLink: mockLinkSupport,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostRemoveAccountRecovery', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostRemoveAccountRecovery',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          passwordChangeLink: mockLinkPasswordChange,
-          supportUrl: mockLinkSupport,
-          revokeAccountRecoveryLink: mockLinkRevokeAccountRecovery,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostNewRecoveryCodes', async () => {
+    const email = await renderer.renderPostNewRecoveryCodes({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      passwordChangeLink: mockLinkPasswordChange,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostRemoveRecoveryPhone', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostRemoveRecoveryPhone',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          resetLink: mockLinkReset,
-          time: '12:00 PM',
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostRemoveAccountRecovery', async () => {
+    const email = await renderer.renderPostRemoveAccountRecovery({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      passwordChangeLink: mockLinkPasswordChange,
+      revokeAccountRecoveryLink: mockLinkRevokeAccountRecovery,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostRemoveSecondary', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostRemoveSecondary',
-        {
-          link: mockLink,
-          secondaryEmail: mockEmail,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostRemoveRecoveryPhone', async () => {
+    const email = await renderer.renderPostRemoveRecoveryPhone({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      resetLink: mockLinkReset,
+      time: '12:00 PM',
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostRemoveTwoStepAuthentication', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostRemoveTwoStepAuthentication',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          passwordChangeLink: mockLinkPasswordChange,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostRemoveSecondary', async () => {
+    const email = await renderer.renderPostRemoveSecondary({
+      link: mockLink,
+      secondaryEmail: mockEmail,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostSigninRecoveryCode', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostSigninRecoveryCode',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          resetLink: mockLinkReset,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostRemoveTwoStepAuthentication', async () => {
+    const email = await renderer.renderPostRemoveTwoStepAuthentication({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      passwordChangeLink: mockLinkPasswordChange,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostSigninRecoveryPhone', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostSigninRecoveryPhone',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          resetLink: mockLinkReset,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostSigninRecoveryCode', async () => {
+    const email = await renderer.renderPostSigninRecoveryCode({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      resetLink: mockLinkReset,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostVerify', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostVerify',
-        {
-          link: mockLink,
-          desktopLink: mockLink,
-          onDesktopOrTabletDevice: true,
-          productName: 'Firefox',
-          supportUrl: mockLinkSupport,
-          cssPath: mockCssPath,
-          hideDeviceLink: false,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostSigninRecoveryPhone', async () => {
+    const email = await renderer.renderPostSigninRecoveryPhone({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      resetLink: mockLinkReset,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderPostVerifySecondary', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderPostVerifySecondary',
-        {
-          link: mockLink,
-          secondaryEmail: mockEmail,
-          passwordChangeLink: mockLinkPasswordChange,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostVerify', async () => {
+    const email = await renderer.renderPostVerify({
+      link: mockLink,
+      desktopLink: mockLink,
+      onDesktopOrTabletDevice: true,
+      productName: 'Firefox',
+      cssPath: mockCssPath,
+      hideDeviceLink: false,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderRecovery', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderRecovery',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderPostVerifySecondary', async () => {
+    const email = await renderer.renderPostVerifySecondary({
+      link: mockLink,
+      secondaryEmail: mockEmail,
+      passwordChangeLink: mockLinkPasswordChange,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderUnblockCode', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderUnblockCode',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          time: '12:00 PM',
-          unblockCode: 'ABC123',
-          reportSignInLink: mockLink,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderRecovery', async () => {
+    const email = await renderer.renderRecovery({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderVerificationReminderFinal', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderVerificationReminderFinal',
-        {
-          link: mockLink,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderUnblockCode', async () => {
+    const email = await renderer.renderUnblockCode({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      time: '12:00 PM',
+      unblockCode: 'ABC123',
+      reportSignInLink: mockLink,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderVerificationReminderFirst', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderVerificationReminderFirst',
-        {
-          link: mockLink,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderVerificationReminderFinal', async () => {
+    const email = await renderer.renderVerificationReminderFinal({
+      link: mockLink,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderVerificationReminderSecond', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderVerificationReminderSecond',
-        {
-          link: mockLink,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderVerificationReminderFirst', async () => {
+    const email = await renderer.renderVerificationReminderFirst({
+      link: mockLink,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderVerify', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderVerify',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          sync: false,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderVerificationReminderSecond', async () => {
+    const email = await renderer.renderVerificationReminderSecond({
+      link: mockLink,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderVerifyAccountChange', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderVerifyAccountChange',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          time: '12:00 PM',
-          code: '123456',
-          expirationTime: 15,
-          passwordChangeLink: mockLinkPasswordChange,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderVerify', async () => {
+    const email = await renderer.renderVerify({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderVerifyLogin', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderVerifyLogin',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          clientName: 'Firefox Sync',
-          passwordChangeLink: mockLinkPasswordChange,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderVerifyAccountChange', async () => {
+    const email = await renderer.renderVerifyAccountChange({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      time: '12:00 PM',
+      code: '123456',
+      expirationTime: 15,
+      passwordChangeLink: mockLinkPasswordChange,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderVerifyLoginCode', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderVerifyLoginCode',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          time: '12:00 PM',
-          code: '654321',
-          passwordChangeLink: mockLinkPasswordChange,
-          supportUrl: mockLinkSupport,
-          serviceName: 'Firefox Sync',
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderVerifyLogin', async () => {
+    const email = await renderer.renderVerifyLogin({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      clientName: 'Firefox Sync',
+      passwordChangeLink: mockLinkPasswordChange,
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderVerifyPrimary', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderVerifyPrimary',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          link: mockLink,
-          time: '12:00 PM',
-          sync: true,
-          passwordChangeLink: mockLinkPasswordChange,
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderVerifyLoginCode', async () => {
+    const email = await renderer.renderVerifyLoginCode({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      time: '12:00 PM',
+      code: '654321',
+      passwordChangeLink: mockLinkPasswordChange,
+      serviceName: 'Firefox Sync',
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderVerifySecondaryCode', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderVerifySecondaryCode',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          time: '12:00 PM',
-          email: mockEmail,
-          code: '789012',
-          supportUrl: 'http://localhost:3030/support',
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderVerifyPrimary', async () => {
+    const email = await renderer.renderVerifyPrimary({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      passwordChangeLink: mockLinkPasswordChange,
+      ...defaultLayoutTemplateValues,
+      sync: true,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
-  describe('renderVerifyShortCode', () => {
-    it('should render and snapshot email', async () => {
-      await renderAndSnapshotEmail(
-        'renderVerifyShortCode',
-        {
-          date: 'Jan 1, 2024',
-          device: mockDevice,
-          location: mockLocation,
-          code: '345678',
-          supportUrl: mockLinkSupport,
-        },
-        defaultLayoutTemplateValues
-      );
+  it('should render renderVerifySecondaryCode', async () => {
+    const email = await renderer.renderVerifySecondaryCode({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      time: '12:00 PM',
+      email: mockEmail,
+      code: '789012',
+      ...defaultLayoutTemplateValues,
     });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
+
+  it('should render renderVerifyShortCode', async () => {
+    const email = await renderer.renderVerifyShortCode({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      code: '345678',
+      ...defaultLayoutTemplateValues,
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 });
