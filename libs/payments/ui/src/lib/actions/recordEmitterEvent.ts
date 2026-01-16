@@ -6,14 +6,14 @@
 import { getApp } from '../nestapp/app';
 import { flattenRouteParams } from '../utils/flatParam';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
-import { PaymentProvidersType } from '@fxa/payments/cart';
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
 
 async function recordEmitterEventAction(
   eventName: 'checkoutSubmit',
   params: Record<string, string | string[]>,
   searchParams: Record<string, string | string[]>,
-  paymentProvider: PaymentProvidersType
+  paymentProvider: SubPlatPaymentMethodType
 ): Promise<void>;
 async function recordEmitterEventAction(
   eventName:
@@ -28,7 +28,7 @@ async function recordEmitterEventAction(
   eventName: PaymentsEmitterEventsKeysType,
   params: Record<string, string | string[]>,
   searchParams: Record<string, string | string[]>,
-  paymentProvider?: PaymentProvidersType
+  paymentProvider?: SubPlatPaymentMethodType | undefined
 ) {
   const requestArgs = {
     ...getAdditionalRequestArgs(),

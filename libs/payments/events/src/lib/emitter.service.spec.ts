@@ -39,7 +39,6 @@ import {
   CommonMetricsFactory,
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
-  PaymentProvidersType,
   PaymentsGleanManager,
 } from '@fxa/payments/metrics';
 import { CartManager } from '@fxa/payments/cart';
@@ -105,7 +104,7 @@ describe('PaymentsEmitterService', () => {
   });
   const mockCheckoutPaymentEvents = {
     ...mockCommonMetricsData,
-    paymentProvider: 'stripe' as PaymentProvidersType,
+    paymentProvider: SubPlatPaymentMethodType.Stripe,
   };
   let retrieveOptOutMock: jest.SpyInstance<any, unknown[], any>;
   const mockLogger = {
