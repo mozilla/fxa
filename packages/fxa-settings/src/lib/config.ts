@@ -118,7 +118,7 @@ export function getDefault() {
     env: 'development',
     l10n: {
       strict: false,
-      baseUrl: '/settings/locales',
+      baseUrl: '/settings/static',
     },
     marketingEmailPreferencesUrl: 'https://basket.mozilla.org/fxa/',
     metrics: {

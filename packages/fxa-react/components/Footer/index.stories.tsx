@@ -8,10 +8,7 @@ import { Footer } from './index';
 import AppLocalizationProvider from '../../lib/AppLocalizationProvider';
 
 storiesOf('Components/Footer', module).add('default', () => (
-  <AppLocalizationProvider
-    baseDir="./locales"
-    userLocales={navigator.languages}
-  >
+  <AppLocalizationProvider baseDir="." userLocales={navigator.languages}>
     <Footer />
   </AppLocalizationProvider>
 ));
