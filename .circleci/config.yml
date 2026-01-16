@@ -921,7 +921,7 @@ workflows:
             - fail-fast
       - unit-test:
           name: Unit Test (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
+          nx_run: affected --base=main --head=$CIRCLE_SHA1 --skipNxCache
           workflow: test_pull_request
           requires:
             - Build (PR)
