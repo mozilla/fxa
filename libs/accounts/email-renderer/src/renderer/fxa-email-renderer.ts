@@ -51,6 +51,10 @@ import * as VerifyPrimary from '../templates/verifyPrimary';
 import * as VerifySecondaryCode from '../templates/verifySecondaryCode';
 import * as VerifyShortCode from '../templates/verifyShortCode';
 
+type WrappedTemplateData<T> = T & FxaLayouts.TemplateData;
+
+export type RenderRecoveryOpts = WrappedTemplateData<Recovery.TemplateData>;
+
 export class FxaEmailRenderer extends EmailRenderer {
   renderAdminResetAccounts(
     templateValues: AdminResetAccounts.TemplateData,
@@ -67,16 +71,14 @@ export class FxaEmailRenderer extends EmailRenderer {
   }
 
   async renderCadReminderFirst(
-    templateValues: CadReminderFirst.TemplateData,
-    layoutTemplateValues: FxaLayouts.TemplateData
+    opts: CadReminderFirst.TemplateData & FxaLayouts.TemplateData
   ) {
     return this.renderEmail({
       template: CadReminderFirst.template,
       version: CadReminderFirst.version,
       layout: CadReminderFirst.layout,
       includes: CadReminderFirst.includes,
-      ...templateValues,
-      ...layoutTemplateValues,
+      ...opts,
     });
   }
 
@@ -529,17 +531,13 @@ export class FxaEmailRenderer extends EmailRenderer {
     });
   }
 
-  async renderRecovery(
-    templateValues: Recovery.TemplateData,
-    layoutTemplateValues: FxaLayouts.TemplateData
-  ) {
+  async renderRecovery(opts: RenderRecoveryOpts) {
     return this.renderEmail({
       template: Recovery.template,
       version: Recovery.version,
       layout: Recovery.layout,
       includes: Recovery.includes,
-      ...templateValues,
-      ...layoutTemplateValues,
+      ...opts,
     });
   }
 
