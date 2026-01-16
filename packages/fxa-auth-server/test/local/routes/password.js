@@ -445,14 +445,24 @@ describe('/password', () => {
   });
 
   it('/forgot/send_code', () => {
+    // Use fake timers to control the time used by moment and avoid
+    // non-deterministic test results
+    const clock = sinon.useFakeTimers(
+      new Date('2026-01-16T18:53:07.000Z').getTime()
+    );
+
     const mockCustoms = mocks.mockCustoms();
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-    const passwordForgotTokenId = crypto.randomBytes(16).toString('hex');
+    const uid = '6bfe0db9d4b44ccaa7c175a889024b86';
+    const passwordForgotTokenId =
+      'ece341c60925fe98db33dd865b11cfb86d532fd39b4312e020e5b6ae0ac6fb79';
+    const passwordForgotTokenData =
+      'c7f6ac73733aad103d444660734c2415954045dc1e38443f68d57ecf5d715aba';
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       passCode: 'foo',
       passwordForgotTokenId,
       uid,
+      data: passwordForgotTokenData,
     });
     const mockMailer = mocks.mockMailer();
     const mockMetricsContext = mocks.mockMetricsContext();
@@ -485,93 +495,117 @@ describe('/password', () => {
           deviceId: 'wibble',
           flowId:
             'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-          flowBeginTime: Date.now() - 1,
+          flowBeginTime: '1768590114835',
         },
       },
       query: {},
       metricsContext: mockMetricsContext,
     });
-    return runRoute(
-      passwordRoutes,
-      '/password/forgot/send_code',
-      mockRequest
-    ).then((response) => {
-      assert.equal(
-        mockDB.accountRecord.callCount,
-        1,
-        'db.emailRecord was called once'
-      );
+    return runRoute(passwordRoutes, '/password/forgot/send_code', mockRequest)
+      .then((response) => {
+        assert.equal(
+          mockDB.accountRecord.callCount,
+          1,
+          'db.emailRecord was called once'
+        );
 
-      assert.equal(
-        mockDB.createPasswordForgotToken.callCount,
-        1,
-        'db.createPasswordForgotToken was called once'
-      );
-      let args = mockDB.createPasswordForgotToken.args[0];
-      assert.equal(
-        args.length,
-        1,
-        'db.createPasswordForgotToken was passed one argument'
-      );
-      assert.deepEqual(
-        args[0].uid,
-        uid,
-        'db.createPasswordForgotToken was passed the correct uid'
-      );
-      assert.equal(
-        args[0].createdAt,
-        undefined,
-        'db.createPasswordForgotToken was not passed a createdAt timestamp'
-      );
+        assert.equal(
+          mockDB.createPasswordForgotToken.callCount,
+          1,
+          'db.createPasswordForgotToken was called once'
+        );
+        let args = mockDB.createPasswordForgotToken.args[0];
+        assert.equal(
+          args.length,
+          1,
+          'db.createPasswordForgotToken was passed one argument'
+        );
+        assert.deepEqual(
+          args[0].uid,
+          uid,
+          'db.createPasswordForgotToken was passed the correct uid'
+        );
+        assert.equal(
+          args[0].createdAt,
+          undefined,
+          'db.createPasswordForgotToken was not passed a createdAt timestamp'
+        );
 
-      assert.equal(
-        mockRequest.validateMetricsContext.callCount,
-        1,
-        'validateMetricsContext was called'
-      );
+        assert.equal(
+          mockRequest.validateMetricsContext.callCount,
+          1,
+          'validateMetricsContext was called'
+        );
 
-      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1);
-      args = mockMetricsContext.setFlowCompleteSignal.args[0];
-      assert.lengthOf(args, 1);
-      assert.equal(args[0], 'account.reset');
+        assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1);
+        args = mockMetricsContext.setFlowCompleteSignal.args[0];
+        assert.lengthOf(args, 1);
+        assert.equal(args[0], 'account.reset');
 
-      assert.equal(mockMetricsContext.stash.callCount, 1);
-      args = mockMetricsContext.stash.args[0];
-      assert.lengthOf(args, 1);
-      assert.equal(args[0].id, passwordForgotTokenId);
-      assert.equal(args[0].uid, uid);
+        assert.equal(mockMetricsContext.stash.callCount, 1);
+        args = mockMetricsContext.stash.args[0];
+        assert.lengthOf(args, 1);
+        assert.equal(args[0].id, passwordForgotTokenId);
+        assert.equal(args[0].uid, uid);
 
-      assert.equal(
-        mockLog.flowEvent.callCount,
-        2,
-        'log.flowEvent was called twice'
-      );
-      assert.equal(
-        mockLog.flowEvent.args[0][0].event,
-        'password.forgot.send_code.start',
-        'password.forgot.send_code.start event was logged'
-      );
-      assert.equal(
-        mockLog.flowEvent.args[1][0].event,
-        'password.forgot.send_code.completed',
-        'password.forgot.send_code.completed event was logged'
-      );
+        assert.equal(
+          mockLog.flowEvent.callCount,
+          2,
+          'log.flowEvent was called twice'
+        );
+        assert.equal(
+          mockLog.flowEvent.args[0][0].event,
+          'password.forgot.send_code.start',
+          'password.forgot.send_code.start event was logged'
+        );
+        assert.equal(
+          mockLog.flowEvent.args[1][0].event,
+          'password.forgot.send_code.completed',
+          'password.forgot.send_code.completed event was logged'
+        );
 
-      const mailerArgs = mockFxaMailer.sendRecoveryEmail.args[0];
-      // strong typing here would be great. We're making sure the mailer is
-      // called with the required properties for fxa-mailer.sendRecoveryEmail, so we could
-      // export that type eventually and use it here for mailerArgs[1] so we're not guessing
-      assert.equal(mailerArgs[0].to, TEST_EMAIL);
-      assert.equal(mailerArgs[0].location.city, 'Mountain View');
-      assert.equal(mailerArgs[0].location.country, 'United States');
-      assert.equal(mailerArgs[0].timeZone, 'America/Los_Angeles');
-      assert.equal(mailerArgs[0].deviceId, 'wibble');
+        const mailerArgs = mockFxaMailer.sendRecoveryEmail.args[0];
 
-      sinon.assert.calledOnceWithExactly(
-        glean.resetPassword.emailSent,
-        mockRequest
-      );
-    });
+        assert.deepEqual(mailerArgs[0], {
+          acceptLanguage: 'en-US',
+          cc: [],
+          code: 'foo',
+          date: 'Friday, Jan 16, 2026',
+          device: {
+            uaBrowser: 'Firefox',
+            uaOS: 'Mac OS X',
+            uaOSVersion: '10.13',
+          },
+          deviceId: 'wibble',
+          emailToHashWith: 'emailToHashWith@email.com',
+          flowBeginTime: '1768590114835',
+          flowId:
+            'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          location: {
+            city: 'Mountain View',
+            country: 'United States',
+            stateCode: 'California',
+          },
+          redirectTo: undefined,
+          resume: undefined,
+          service: undefined,
+          sync: false,
+          time: '10:53:07 AM (PST)',
+          timeZone: 'America/Los_Angeles',
+          to: 'foo@gmail.com',
+          token:
+            'c7f6ac73733aad103d444660734c2415954045dc1e38443f68d57ecf5d715aba',
+          uid: '6bfe0db9d4b44ccaa7c175a889024b86',
+        });
+
+        sinon.assert.calledOnceWithExactly(
+          glean.resetPassword.emailSent,
+          mockRequest
+        );
+      })
+      .finally(() => {
+        clock.restore();
+      });
   });
 
   it('/forgot/resend_code', () => {

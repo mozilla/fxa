@@ -50,8 +50,9 @@ export class FxaMailer extends FxaEmailRenderer {
         service?: string;
         redirectTo?: string;
         resume?: string;
-      } & OmitCommonLinks<renderer.TemplateData> &
-      OmitCommonLinks<renderer.recovery.TemplateData>
+      } & OmitCommonLinks<
+        renderer.WithFxaLayouts<renderer.recovery.TemplateData>
+      >
   ) {
     const { template: name, version } = renderer.recovery;
 
@@ -79,17 +80,12 @@ export class FxaMailer extends FxaEmailRenderer {
 
     const { privacyUrl, supportUrl } = this.linkBuilder.buildCommonLinks(name);
 
-    const rendered = await this.renderRecovery(
-      {
-        ...opts,
-        link: link.toString(),
-        supportUrl,
-      },
-      {
-        ...opts,
-        privacyUrl,
-      }
-    );
+    const rendered = await this.renderRecovery({
+      ...opts,
+      link: link.toString(),
+      supportUrl,
+      privacyUrl,
+    });
 
     const headers = this.emailSender.buildHeaders({
       context: { ...opts, serverName: SERVER, language: opts.acceptLanguage },
@@ -120,17 +116,19 @@ export class FxaMailer extends FxaEmailRenderer {
   async sendPasswordForgotOtpEmail(
     opts: EmailSenderOpts &
       EmailFlowParams &
-      OmitCommonLinks<renderer.TemplateData> &
-      OmitCommonLinks<renderer.passwordForgotOtp.TemplateData>
+      OmitCommonLinks<
+        renderer.WithFxaLayouts<renderer.passwordForgotOtp.TemplateData>
+      >
   ) {
     const { template: name, version } = renderer.passwordForgotOtp;
 
     const { privacyUrl, supportUrl } = this.linkBuilder.buildCommonLinks(name);
 
-    const rendered = await this.renderPasswordForgotOtp(
-      { ...opts, supportUrl },
-      { ...opts, privacyUrl }
-    );
+    const rendered = await this.renderPasswordForgotOtp({
+      ...opts,
+      supportUrl,
+      privacyUrl,
+    });
 
     const headers = this.emailSender.buildHeaders({
       context: { ...opts, serverName: SERVER, language: opts.acceptLanguage },
