@@ -62,7 +62,7 @@
       "dependsOn": ["build-css", "build-ts"],
       "options": {
         "commands": [
-          "nx run accounts-email-renderer:build-storybook-only",
+          "STORYBOOK_BUILD=true nx run accounts-email-renderer:build-storybook-only",
           "nx run accounts-email-renderer:build-storybook-copy-locales",
           "nx run accounts-email-renderer:build-storybook-copy-templates"
         ],
