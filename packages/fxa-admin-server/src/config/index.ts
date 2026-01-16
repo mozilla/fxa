@@ -728,6 +728,12 @@ const conf = convict({
       env: 'ACCOUNT_RESET_URL',
       default: 'http://localhost:3030/reset_password',
     },
+    accountSettingsUrl: {
+      doc: 'URL for account settings',
+      format: String,
+      env: 'ACCOUNT_SETTINGS_URL',
+      default: 'http://localhost:3030/settings',
+    },
   },
   smtp: {
     api: {
@@ -926,12 +932,7 @@ const conf = convict({
     ignoreTemplates: {
       doc: 'Always ignore bounces from these email templates',
       format: Array,
-      default: [
-        'verifyLoginCode',
-        'verifyLogin',
-        'recovery',
-        'unblockCode',
-      ],
+      default: ['verifyLoginCode', 'verifyLogin', 'recovery', 'unblockCode'],
       env: 'BOUNCES_IGNORE_TEMPLATES',
     },
   },

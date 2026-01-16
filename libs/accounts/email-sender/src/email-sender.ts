@@ -104,6 +104,24 @@ type SmtpTransportOptions = nodemailer.TransportOptions & {
   };
 };
 
+export type EmailHeaderContext = {
+  language: string;
+  serverName: string;
+  cmsRpClientId?: string;
+  deviceId?: string;
+  entrypoint?: string;
+  flowBeginTime?: number;
+  flowId?: string;
+  service?: string;
+  uid?: string;
+};
+
+export type EmailTemplateInfo = {
+  name: string;
+  version: number;
+  metricsName?: string;
+};
+
 /**
  * Sends an email to end end user.
  */
@@ -157,23 +175,9 @@ export class EmailSender {
     headers,
     template,
   }: {
-    context: {
-      language: string;
-      serverName: string;
-      cmsRpClientId?: string;
-      deviceId?: string;
-      entrypoint?: string;
-      flowBeginTime?: number;
-      flowId?: string;
-      service?: string;
-      uid?: string;
-    };
+    context: EmailHeaderContext;
     headers: Record<string, string>;
-    template: {
-      name: string;
-      version: number;
-      metricsName?: string;
-    };
+    template: EmailTemplateInfo;
   }) {
     const optionalHeader = (key: string, value?: string | number) => {
       if (value) {

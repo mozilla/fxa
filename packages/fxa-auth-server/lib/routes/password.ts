@@ -1048,7 +1048,9 @@ module.exports = function (
             geoData.timeZone
           );
         await fxaMailer.sendPasswordForgotOtpEmail({
+          metricsEnabled: account.metricsEnabled,
           code,
+          uid: account.uid,
           to,
           cc,
           deviceId,
@@ -1250,6 +1252,7 @@ module.exports = function (
           );
 
         await fxaMailer.sendRecoveryEmail({
+          metricsEnabled: accountRecord.metricsEnabled,
           uid: passwordForgotToken.uid,
           to,
           cc,

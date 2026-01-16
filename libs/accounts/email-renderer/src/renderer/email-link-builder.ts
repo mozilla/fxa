@@ -92,7 +92,7 @@ export class EmailLinkBuilder {
    * Common base URLs used in emails. Most often paired with UTM parameters
    * to attach tracking info.
    */
-  get urls() {
+  private get urls() {
     return {
       initiatePasswordReset: this.config.initiatePasswordResetUrl,
       privacy: this.config.privacyUrl,
@@ -104,10 +104,18 @@ export class EmailLinkBuilder {
    * Adds UTM parameters to the provided link if metrics are enabled.
    * @param link - URL object to add parameters to
    * @param templateName - Email template name (used to lookup campaign)
+   * @param metricsEnabled - Inidicates if metrics/tracking is enabled for the user
    * @param content - Optional content override (defaults to template's content map value)
    */
-  addUTMParams(link: URL, templateName: string, content?: string): void {
-    if (!this.config.metricsEnabled) {
+  private addUTMParams(
+    link: URL,
+    templateName: string,
+    metricsEnabled: boolean,
+    content?: string
+  ): void {
+    // Don't include utm parameters if metrics are disabled. This flag
+    // comes from the users's account state and must be supplied.
+    if (!metricsEnabled) {
       return;
     }
 
@@ -127,14 +135,15 @@ export class EmailLinkBuilder {
   /**
    * Build common links with UTM parameters (privacy, support)
    * @param templateName
+   * @param metricsEnabled - Inidicates if metrics/tracking is enabled for the user
    * @returns Object containing privacyUrl and supportUrl as strings
    */
-  buildCommonLinks(templateName: string) {
+  buildCommonLinks(templateName: string, metricsEnabled: boolean) {
     const privacyUrl = new URL(this.urls.privacy);
     const supportUrl = new URL(this.urls.support);
 
-    this.addUTMParams(privacyUrl, templateName, 'privacy');
-    this.addUTMParams(supportUrl, templateName, 'support');
+    this.addUTMParams(privacyUrl, templateName, metricsEnabled, 'privacy');
+    this.addUTMParams(supportUrl, templateName, metricsEnabled, 'support');
 
     return {
       privacyUrl: privacyUrl.toString(),
@@ -145,7 +154,7 @@ export class EmailLinkBuilder {
   /**
    * Get the UTM campaign name for a template
    */
-  getCampaign(templateName: string): string {
+  private getCampaign(templateName: string): string {
     const campaign = TEMPLATE_NAME_TO_CAMPAIGN_MAP[templateName];
     // should probably have some logging/statsd if campaign is undefined
     return campaign ? UTM_PREFIX + campaign : '';
@@ -154,34 +163,69 @@ export class EmailLinkBuilder {
   /**
    * Get the UTM content name for a template
    */
-  getContent(templateName: string): string {
+  private getContent(templateName: string): string {
     return TEMPLATE_NAME_TO_CONTENT_MAP[templateName] || '';
   }
 
   /**
    * Adds query parameters to the provided link; includes UTM parameters if metrics are enabled.
-   * @param link
-   * @param templateName
-   * @param opts
+   * @param link - Base link string
+   * @param templateName - Email template name (used to lookup campaign)
+   * @param opts - Key/value pairs to add as query parameters
+   * @param metricsEnabled - Inidicates if metrics/tracking is enabled for the user
+   * @returns Link string with query parameters and UTM parameters (if enabled)
    */
   buildLinkWithQueryParamsAndUTM(
-    link: URL | string,
+    link: string,
     templateName: string,
-    opts: Record<string, string>
-  ) {
-    if (typeof link === 'string') {
-      link = new URL(link);
-    }
+    opts: Record<string, string | undefined>,
+    metricsEnabled: boolean
+  ): string {
+    const url = new URL(link);
+
     for (const [key, value] of Object.entries(opts)) {
-      link.searchParams.set(key, value);
+      if (value !== undefined) {
+        url.searchParams.set(key, value);
+      }
     }
-    this.addUTMParams(link, templateName);
+    this.addUTMParams(url, templateName, metricsEnabled);
+    return url.toString();
   }
 
-  buildPasswordChangeRequiredLink(opts: { url: string; email: string }) {
-    const link = new URL(opts.url);
-    this.addUTMParams(link, 'passwordResetRequired');
-    link.searchParams.set('email', opts.email);
+  /**
+   * Builds a password change required link with email and UTM parameters.
+   * @param opts
+   * @returns Link to for changing user's password
+   */
+  buildPasswordChangeRequiredLink(
+    url: string,
+    email: string,
+    metricsEnabled: boolean
+  ): string {
+    const link = new URL(url);
+    this.addUTMParams(link, 'passwordResetRequired', metricsEnabled);
+    link.searchParams.set('email', email);
     return link.toString();
+  }
+
+  buildInitiatePasswordResetLink(
+    opts: {
+      uid: string;
+      token: string;
+      code: string;
+      email: string;
+      service?: string;
+      redirectTo?: string;
+      resume?: string;
+      emailToHashWith?: string;
+    },
+    metricsEnabled: boolean
+  ): string {
+    return this.buildLinkWithQueryParamsAndUTM(
+      this.urls.initiatePasswordReset,
+      'recovery',
+      opts,
+      metricsEnabled
+    );
   }
 }
