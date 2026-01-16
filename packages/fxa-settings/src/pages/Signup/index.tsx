@@ -50,7 +50,6 @@ export const Signup = ({
     selectedEnginesForGlean,
     supportsKeysOptionalLogin,
   },
-  deeplink,
   flowQueryParams,
   isMobile,
   setCurrentSplitLayout,
@@ -226,19 +225,6 @@ export const Signup = ({
       sensitiveDataClient,
     ]
   );
-
-  const isDeeplinking = !!deeplink;
-  if (isDeeplinking) {
-    // To avoid flickering, we only render third party auth and navigate
-    return (
-      <ThirdPartyAuth
-        showSeparator={false}
-        viewName="deeplink"
-        deeplink={deeplink}
-        flowQueryParams={flowQueryParams}
-      />
-    );
-  }
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SignupSetPasswordPage?.pageTitle;

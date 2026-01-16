@@ -20,7 +20,6 @@ export type ThirdPartyAuthProps = {
   onContinueWithApple?: FormEventHandler<HTMLFormElement>;
   showSeparator?: boolean;
   viewName?: string;
-  deeplink?: string;
   flowQueryParams?: QueryParams;
   separatorType?: 'or' | 'signInWith';
 };
@@ -35,7 +34,6 @@ const ThirdPartyAuth = ({
   onContinueWithApple,
   showSeparator = true,
   viewName = 'unknown',
-  deeplink,
   flowQueryParams,
   separatorType = 'or',
 }: ThirdPartyAuthProps) => {
@@ -91,7 +89,6 @@ const ThirdPartyAuth = ({
                   <GoogleLogo className="w-full h-auto" />
                 </>
               ),
-              deeplink,
             }}
           />
           <ThirdPartySignInForm
@@ -111,7 +108,6 @@ const ThirdPartyAuth = ({
                   <AppleLogo className="w-full h-auto" />
                 </>
               ),
-              deeplink,
             }}
           />
         </div>
@@ -139,7 +135,6 @@ const ThirdPartySignInForm = ({
   buttonText,
   onSubmit,
   viewName,
-  deeplink,
   flowQueryParams,
 }: {
   party: 'google' | 'apple';
@@ -155,14 +150,12 @@ const ThirdPartySignInForm = ({
   buttonText: ReactElement;
   onSubmit?: FormEventHandler<HTMLFormElement>;
   viewName?: string;
-  deeplink?: string;
   flowQueryParams?: QueryParams;
 }) => {
   const { logViewEventOnce } = useMetrics();
   const { l10n } = useLocalization();
   const stateRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const isDeeplinking = deeplink !== undefined;
 
   const getLoginAriaLabel = () => {
     const labels = {
@@ -201,12 +194,6 @@ const ThirdPartySignInForm = ({
       case 'apple-signup':
         GleanMetrics.thirdPartyAuth.startAppleAuthFromReg();
         break;
-      case 'google-deeplink':
-        GleanMetrics.thirdPartyAuth.googleDeeplink();
-        break;
-      case 'apple-deeplink':
-        GleanMetrics.thirdPartyAuth.appleDeeplink();
-        break;
     }
 
     // wait for all the Glean events to be sent before the page unloads
@@ -220,19 +207,6 @@ const ThirdPartySignInForm = ({
   if (onSubmit === undefined) {
     onSubmit = () => true;
   }
-
-  useEffect(() => {
-    if (deeplink && formRef.current) {
-      // Only deeplink if this is the correct button
-      if (
-        (deeplink === 'googleLogin' && party === 'google') ||
-        (deeplink === 'appleLogin' && party === 'apple')
-      ) {
-        onClick();
-        formRef.current.submit();
-      }
-    }
-  }, [deeplink, onClick, party]);
 
   return (
     <form
@@ -258,22 +232,20 @@ const ThirdPartySignInForm = ({
         <input type="hidden" name="response_mode" value={responseMode} />
       )}
 
-      {!isDeeplinking ? (
-        <button
-          type="submit"
-          className={`w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
-          ${
-            party === 'google'
-              ? 'bg-[#F9F4F4] border-[#747775] border-[1px]'
-              : 'bg-black border-transparent'
-          }
-          `}
-          onClick={onClick}
-          aria-label={getLoginAriaLabel()}
-        >
-          {buttonText}
-        </button>
-      ) : null}
+      <button
+        type="submit"
+        className={`w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
+        ${
+          party === 'google'
+            ? 'bg-[#F9F4F4] border-[#747775] border-[1px]'
+            : 'bg-black border-transparent'
+        }
+        `}
+        onClick={onClick}
+        aria-label={getLoginAriaLabel()}
+      >
+        {buttonText}
+      </button>
     </form>
   );
 };
@@ -302,7 +274,6 @@ function getState(flowQueryParams: QueryParams | undefined) {
 
   // Remove unwanted keys
   const filteredParams = deleteParams(new URLSearchParams(combinedParams), [
-    'deeplink',
     'email',
     'emailStatusChecked',
     'forceExperiment',

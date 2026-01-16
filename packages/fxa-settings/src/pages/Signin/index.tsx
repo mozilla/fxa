@@ -56,7 +56,6 @@ const Signin = ({
   finishOAuthFlowHandler,
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
-  deeplink,
   flowQueryParams,
   useFxAStatusResult: { supportsKeysOptionalLogin },
   setCurrentSplitLayout,
@@ -90,7 +89,6 @@ const Signin = ({
 
   const legalTerms = integration.getLegalTerms();
 
-  const isDeeplinking = !!deeplink;
   const isServiceWithEmailVerification =
     !!clientId && config.servicesWithEmailVerification.includes(clientId);
 
@@ -358,18 +356,6 @@ const Signin = ({
       sessionToken,
     ]
   );
-
-  if (isDeeplinking) {
-    // To avoid flickering, we only render third party auth and navigate
-    return (
-      <ThirdPartyAuth
-        showSeparator={false}
-        viewName="deeplink"
-        deeplink={deeplink}
-        flowQueryParams={flowQueryParams}
-      />
-    );
-  }
 
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninPage.pageTitle;

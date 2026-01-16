@@ -143,36 +143,6 @@ describe('ThirdPartyAuthComponent', () => {
     expect(onContinueWithApple).not.toHaveBeenCalled();
   });
 
-  it('should deeplink directly to google auth, if deeplink=`googleLogin`', async () => {
-    renderWith({
-      enabled: true,
-      showSeparator: false,
-      deeplink: 'googleLogin',
-      view: 'index',
-    });
-
-    expect(
-      (await screen.findByTestId('google-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).not.toEqual('');
-  });
-
-  it('should deeplink directly to apple auth, if deeplink=`appleLogin`', async () => {
-    renderWith({
-      enabled: true,
-      showSeparator: false,
-      deeplink: 'appleLogin',
-      view: 'index',
-    });
-
-    expect(
-      (await screen.findByTestId('apple-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).not.toEqual('');
-  });
-
   it('hides separator', async () => {
     renderWith({
       enabled: true,

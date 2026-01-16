@@ -132,12 +132,14 @@ const SignupContainer = ({
         const credentialsV1 = await getCredentials(email, password);
 
         let credentialsV2 = undefined;
-        let v2Payload: {
-          wrapKb: string;
-          authPWVersion2: string;
-          wrapKbVersion2: string;
-          clientSalt: string;
-        } | {} = {};
+        let v2Payload:
+          | {
+              wrapKb: string;
+              authPWVersion2: string;
+              wrapKbVersion2: string;
+              clientSalt: string;
+            }
+          | {} = {};
 
         if (keyStretchExp.queryParamModel.isV2(config)) {
           credentialsV2 = await getCredentialsV2({
@@ -183,7 +185,14 @@ const SignupContainer = ({
         return handleAuthClientError(error);
       }
     },
-    [authClient, integration, wantsKeys, flowQueryParams, keyStretchExp.queryParamModel, config]
+    [
+      authClient,
+      integration,
+      wantsKeys,
+      flowQueryParams,
+      keyStretchExp.queryParamModel,
+      config,
+    ]
   );
 
   const cmsInfo = integration.getCmsInfo();
@@ -198,7 +207,6 @@ const SignupContainer = ({
     );
   }
 
-  const deeplink = queryParamModel.deeplink;
   const isMobile = isMobileDevice();
 
   return (
@@ -208,7 +216,6 @@ const SignupContainer = ({
         email,
         beginSignupHandler,
         useFxAStatusResult,
-        deeplink,
         flowQueryParams,
         isMobile,
         setCurrentSplitLayout,

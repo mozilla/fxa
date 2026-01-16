@@ -45,7 +45,6 @@ export interface IndexProps extends LocationState {
   errorBannerMessage?: string;
   successBannerMessage?: string;
   tooltipErrorMessage?: string;
-  deeplink?: string;
   flowQueryParams?: QueryParams;
   isMobile: boolean;
   useFxAStatusResult: UseFxAStatusResult;

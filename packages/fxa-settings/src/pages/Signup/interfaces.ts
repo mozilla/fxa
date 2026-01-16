@@ -33,7 +33,6 @@ export interface SignupProps {
   email: string;
   beginSignupHandler: BeginSignupHandler;
   useFxAStatusResult: UseFxAStatusResult;
-  deeplink?: string;
   flowQueryParams?: QueryParams;
   isMobile: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;

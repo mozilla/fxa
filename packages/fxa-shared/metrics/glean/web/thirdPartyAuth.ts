@@ -7,24 +7,6 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
- * User clicked Apple Signin link from an RP hosted site and is taken
- * directly to Apple authentication flow, bypassing Mozilla Accounts email
- * first page.
- *
- * Generated from `third_party_auth.apple_deeplink`.
- */
-export const appleDeeplink = new EventMetricType(
-  {
-    category: 'third_party_auth',
-    name: 'apple_deeplink',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
-);
-
-/**
  * User click "Continue with Apple" from the login page
  *
  * Generated from `third_party_auth.apple_login_start`.
@@ -49,24 +31,6 @@ export const appleRegStart = new EventMetricType(
   {
     category: 'third_party_auth',
     name: 'apple_reg_start',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
-);
-
-/**
- * User clicked Google Signin link from an RP hosted site and is taken
- * directly to Google authentication flow, bypassing Mozilla Accounts email
- * first page.
- *
- * Generated from `third_party_auth.google_deeplink`.
- */
-export const googleDeeplink = new EventMetricType(
-  {
-    category: 'third_party_auth',
-    name: 'google_deeplink',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,
