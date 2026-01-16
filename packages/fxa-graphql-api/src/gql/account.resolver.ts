@@ -234,12 +234,11 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async deleteTotp(
-    @GqlSessionToken() token: string,
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => DeleteTotpInput })
     input: DeleteTotpInput
   ): Promise<BasicPayload> {
-    await this.authAPI.deleteTotpToken(token, headers);
+    await this.authAPI.deleteTotpTokenWithJwt(input.jwt, headers);
     return {
       clientMutationId: input.clientMutationId,
     };
@@ -372,11 +371,10 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async deleteSecondaryEmail(
-    @GqlSessionToken() token: string,
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
-    await this.authAPI.recoveryEmailDestroy(token, input.email, headers);
+    await this.authAPI.recoveryEmailDestroyWithJwt(input.jwt, input.email, headers);
     return { clientMutationId: input.clientMutationId };
   }
 

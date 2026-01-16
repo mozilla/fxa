@@ -509,8 +509,8 @@ const config = require('../../config').default.getProperties();
           })
           .then((msg) => {
             assert.ok(
-              msg.headers['x-recovery-code'],
-              'the next email was the password-reset email'
+              msg.headers['x-password-forgot-otp'],
+              'the next email was the password-reset OTP email'
             );
           });
       });

@@ -25,7 +25,8 @@ module.exports = function (host, port, printLogs) {
       const code =
         emailData.headers['x-verify-code'] ||
         emailData.headers['x-recovery-code'] ||
-        emailData.headers['x-verify-short-code'];
+        emailData.headers['x-verify-short-code'] ||
+        emailData.headers['x-password-forgot-otp'];
       if (!code) {
         throw new Error('email did not contain a verification code');
       }

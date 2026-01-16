@@ -10,6 +10,32 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const otplib = require('otplib');
 const random = require('../../lib/crypto/random');
+const jwt = require('jsonwebtoken');
+const uuid = require('uuid');
+const tokens = require('../../lib/tokens')({ trace: function () {} });
+
+// Helper to generate MFA JWT for 2FA scope
+async function generateMfaJwt(client) {
+  const sessionTokenHex = client.sessionToken;
+  const sessionToken = await tokens.SessionToken.fromHex(sessionTokenHex);
+  const sessionTokenId = sessionToken.id;
+
+  const now = Math.floor(Date.now() / 1000);
+  const claims = {
+    sub: client.uid,
+    scope: ['mfa:2fa'],
+    iat: now,
+    jti: uuid.v4(),
+    stid: sessionTokenId,
+  };
+
+  return jwt.sign(claims, config.mfa.jwt.secretKey, {
+    algorithm: 'HS256',
+    expiresIn: config.mfa.jwt.expiresInSec,
+    audience: config.mfa.jwt.audience,
+    issuer: config.mfa.jwt.issuer,
+  });
+}
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote backup authentication codes`, function () {
@@ -176,12 +202,13 @@ const random = require('../../lib/crypto/random');
             );
             return server.mailbox.waitForEmail(email);
           })
-          .then((emailData) => {
+          .then(async (emailData) => {
             assert.equal(
               emailData.headers['x-template-name'],
               'postSigninRecoveryCode'
             );
-            return client.deleteTotpToken();
+            const mfaJwt = await generateMfaJwt(client);
+            return client.deleteTotpToken(mfaJwt);
           })
           .then((result) => {
             assert.ok(result, 'delete totp token successfully');

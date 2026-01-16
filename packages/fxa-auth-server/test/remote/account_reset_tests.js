@@ -216,9 +216,8 @@ const config = require('../../config').default.getProperties();
         );
         assert.fail('Should not have succeeded password reset');
       } catch (err) {
-        // Ensure that password reset fails with unknown token error codes
-        assert.equal(err.code, 401);
-        assert.equal(err.errno, 110);
+        assert.equal(err.code, 400);
+        assert.equal(err.errno, 105);
       }
     });
 
@@ -247,8 +246,9 @@ const config = require('../../config').default.getProperties();
       assert.ok(profileBefore['keysChangedAt'] < profileAfter['keysChangedAt']);
     });
 
-    async function resetPassword(client, code, newPassword, options) {
-      await client.verifyPasswordResetCode(code);
+    async function resetPassword(client, otpCode, newPassword, options) {
+      const result = await client.verifyPasswordForgotOtp(otpCode);
+      await client.verifyPasswordResetCode(result.code);
       return await client.resetPassword(newPassword, {}, options);
     }
   });

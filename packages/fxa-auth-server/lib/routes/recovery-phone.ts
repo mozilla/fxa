@@ -1136,27 +1136,6 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'POST',
-      path: '/recovery_phone/change',
-      options: {
-        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_CHANGE_POST,
-        pre: [{ method: featureEnabledCheck }],
-        auth: {
-          strategy: 'verifiedSessionToken',
-          payload: false,
-        },
-        validate: {
-          payload: isA.object({
-            code: isA.string().min(6).max(8),
-          }),
-        },
-      },
-      handler: function (request: AuthRequest) {
-        log.begin('recoveryPhoneChange', request);
-        return recoveryPhoneHandler.changePhoneNumber(request);
-      },
-    },
-    {
-      method: 'POST',
       path: '/mfa/recovery_phone/change',
       options: {
         ...RECOVERY_PHONE_DOCS.MFA_RECOVERY_PHONE_CHANGE_POST,
@@ -1167,13 +1146,8 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
-        return routes
-          .find(
-            (route) =>
-              route.path === '/v1/recovery_phone/change' &&
-              route.method === 'POST'
-          )
-          ?.handler(request);
+        log.begin('recoveryPhoneChange', request);
+        return recoveryPhoneHandler.changePhoneNumber(request);
       },
     },
     {

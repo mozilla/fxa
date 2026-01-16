@@ -417,8 +417,9 @@ const { decodeJWT } = testUtils;
       );
 
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
-      await client.verifyPasswordResetCode(code);
+      const otpCode = await server.mailbox.waitForCode(email);
+      const result = await client.verifyPasswordForgotOtp(otpCode);
+      await client.verifyPasswordResetCode(result.code);
       await client.resetPassword(password, {});
       await server.mailbox.waitForEmail(email);
 

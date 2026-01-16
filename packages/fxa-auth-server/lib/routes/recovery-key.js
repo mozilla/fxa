@@ -219,8 +219,8 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_VERIFY_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: {
@@ -235,10 +235,6 @@ module.exports = (
         const { uid, email } = sessionToken;
 
         try {
-          if (!sessionToken.tokenVerified) {
-            throw errors.unverifiedSession();
-          }
-
           // This route can let you check if a key is valid therefore we
           // rate limit it.
           await customs.checkAuthenticated(
@@ -397,13 +393,11 @@ module.exports = (
       handler: async function (request) {
         log.begin('updateRecoveryKeyHint', request);
 
-        const { uid, tokenVerified } = request.auth.credentials;
+        const { uid } = request.auth.credentials;
 
         const { hint } = request.payload;
 
-        if (!tokenVerified) {
-          throw errors.unverifiedSession();
-        }
+        // Note: Session verification is handled by the auth strategy
 
         const keyForUid = await db.recoveryKeyExists(uid);
 

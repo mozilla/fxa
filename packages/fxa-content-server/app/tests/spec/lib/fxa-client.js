@@ -1688,20 +1688,6 @@ function trim(str) {
       });
     });
 
-    describe('deleteTotpToken', () => {
-      it('delegates to the fxa-auth-client', () => {
-        const resp = {};
-        sinon
-          .stub(realClient, 'deleteTotpToken')
-          .callsFake(() => Promise.resolve(resp));
-
-        return client.deleteTotpToken().then((_resp) => {
-          assert.strictEqual(_resp, resp);
-          assert.isTrue(realClient.deleteTotpToken.calledOnce);
-        });
-      });
-    });
-
     describe('checkTotpTokenExists', () => {
       it('delegates to the fxa-auth-client', () => {
         const resp = {
