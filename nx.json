@@ -21,7 +21,7 @@
       "cache": true
     },
     "build-storybook": {
-      "dependsOn": ["build"],
+      "dependsOn": ["prebuild", "^build"],
       "inputs": ["production", "^production"],
       "outputs": ["{projectRoot}/storybook-static"],
       "cache": true
@@ -141,9 +141,7 @@
     },
     "l10n-prime": {
       "inputs": ["{workspaceRoot}/external/l10n/**/*.@(ftl)"],
-      "outputs": [
-        "{projectRoot}/public"
-      ],
+      "outputs": ["{projectRoot}/public"],
       "cache": true
     },
     "@nx/jest:jest": {
@@ -257,9 +255,7 @@
         "buildDepsTargetName": "build-deps",
         "watchDepsTargetName": "watch-deps"
       },
-      "exclude": [
-        "packages/**/*"
-      ]
+      "exclude": ["packages/**/*"]
     }
   ],
   "tui": {
