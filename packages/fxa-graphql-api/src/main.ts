@@ -6,10 +6,12 @@
 // hook into node BEFORE any frameworks are initialized/imported.
 import './monitoring';
 
+import * as Sentry from '@sentry/nestjs';
+import { SentryGlobalFilter } from '@sentry/nestjs/setup';
+
 import bodyParser from 'body-parser';
 import { Request, Response } from 'express';
 import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
-import { SentryInterceptor } from '@fxa/shared/sentry';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import helmet from 'helmet';
 
@@ -31,6 +33,9 @@ async function bootstrap() {
     AppModule,
     nestConfig
   );
+
+  // As of sentry v9, this should handle both regular requests and graphql requests.
+  app.useGlobalFilters(new SentryGlobalFilter());
 
   // Configure allowlisting of gql queries
   app.use(bodyParser.json());
@@ -78,11 +83,17 @@ async function bootstrap() {
     methods: ['OPTIONS', 'POST'],
   });
 
-  // Add sentry as error reporter
-  app.useGlobalInterceptors(new SentryInterceptor());
-
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();
+
+  // Capture a sentry message to 'monitor startup'.
+  Sentry.captureMessage('Graphql api server started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-graphql-api',
+      environment: appConfig.env,
+    },
+  });
 
   await app.listen(appConfig.port);
 }

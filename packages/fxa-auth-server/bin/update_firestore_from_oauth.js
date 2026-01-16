@@ -6,6 +6,7 @@
 
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
+const Sentry = require('@sentry/node');
 
 const Firestore = require('@google-cloud/firestore');
 const StatsD = require('hot-shots');
@@ -78,6 +79,15 @@ async function main() {
       inserted += 1;
     }
   }
+
+  Sentry.captureMessage('Auth Server Update Firestore From Oauth Started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server-update-firestore-from-oauth',
+      env: config.env,
+    },
+  });
+
   await firestore.terminate();
   log.info('Complete', { inserted });
   process.exit();

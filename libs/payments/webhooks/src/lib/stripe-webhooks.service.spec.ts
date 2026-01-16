@@ -52,9 +52,13 @@ import {
   NimbusManager,
 } from '@fxa/payments/experiments';
 
-jest.mock('@sentry/node', () => ({
-  captureException: jest.fn(),
-}));
+jest.mock('@sentry/node', () => {
+  const actual = jest.requireActual('@sentry/node');
+  return {
+    ...actual,
+    captureException: jest.fn(),
+  };
+});
 
 describe('StripeWebhookService', () => {
   let stripeEventManager: StripeEventManager;

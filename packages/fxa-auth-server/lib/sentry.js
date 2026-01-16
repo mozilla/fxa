@@ -47,7 +47,9 @@ function reportSentryError(err, request) {
   Sentry.withScope((scope) => {
     if (request) {
       scope.addEventProcessor((sentryEvent) => {
-        sentryEvent.request = Sentry.extractRequestData(request.raw.req);
+        // As of sentry v9, this should automatically happen by adding, Sentry.requestDataIntegration()
+        // Leaving note here for historical context.
+        // event.request = Sentry.extractRequestData(request);
         sentryEvent.level = 'error';
         return sentryEvent;
       });
@@ -140,7 +142,9 @@ async function configureSentry(server, config, processName = 'key_server') {
           op: 'auth-server',
           name: `${request.method.toUpperCase()} ${request.path}`,
           forceTransaction: true,
-          request: Sentry.extractRequestData(request.raw.req),
+          // As of sentry v9, this should automatically happen by adding, Sentry.requestDataIntegration()
+          // Leaving note here for historical context.
+          // request: Sentry.extractRequestData(request.raw.req),
         });
 
         request.app.sentry = {
