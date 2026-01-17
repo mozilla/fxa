@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
  module.exports = function(grunt) {
+  console.log('[GRUNT DEBUG] Working directory:', process.cwd());
+  console.log('[GRUNT DEBUG] __dirname:', __dirname);
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
   });

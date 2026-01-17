@@ -50,8 +50,7 @@ export class FxaMailer extends FxaEmailRenderer {
         service?: string;
         redirectTo?: string;
         resume?: string;
-      } & OmitCommonLinks<renderer.TemplateData> &
-      OmitCommonLinks<renderer.recovery.TemplateData>
+      } & OmitCommonLinks<renderer.RenderRecoveryOpts>
   ) {
     const { template: name, version } = renderer.recovery;
 
@@ -79,17 +78,12 @@ export class FxaMailer extends FxaEmailRenderer {
 
     const { privacyUrl, supportUrl } = this.linkBuilder.buildCommonLinks(name);
 
-    const rendered = await this.renderRecovery(
-      {
-        ...opts,
-        link: link.toString(),
-        supportUrl,
-      },
-      {
-        ...opts,
-        privacyUrl,
-      }
-    );
+    const rendered = await this.renderRecovery({
+      ...opts,
+      link: link.toString(),
+      supportUrl,
+      privacyUrl,
+    });
 
     const headers = this.emailSender.buildHeaders({
       context: { ...opts, serverName: SERVER, language: opts.acceptLanguage },
