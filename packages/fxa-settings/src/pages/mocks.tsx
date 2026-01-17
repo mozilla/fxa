@@ -185,6 +185,7 @@ export const createMockIntegrationWithCms = () =>
     wantsKeys: () => false,
     isFirefoxClientServiceRelay: () => false,
     getCmsInfo: () => MOCK_CMS_INFO,
+    getLegalTerms: () => undefined,
     data: {
       validate: () => {},
     },

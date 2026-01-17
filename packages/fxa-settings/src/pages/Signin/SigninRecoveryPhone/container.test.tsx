@@ -171,6 +171,7 @@ describe('SigninRecoveryPhoneContainer', () => {
         integration: expect.any(Object),
         numBackupCodes: undefined,
         sendError: undefined,
+        signinState: mockSigninLocationState,
       });
     });
 

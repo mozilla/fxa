@@ -345,10 +345,56 @@ describe('EmailSender', () => {
       );
       expect(mockSentryCaptureException).toHaveBeenCalledWith(appError);
     });
+
+    it('logs SMTP error details including rejected recipients', async () => {
+      config = {
+        ...config,
+        retry: {
+          maxAttempts: 0,
+          backOffMs: 100,
+          jitter: 0,
+          maxDelayMs: 10_000,
+        },
+      };
+
+      emailSender = new EmailSender(
+        config,
+        mockBounces,
+        mockStatsd,
+        mockLogger
+      );
+
+      const smtpError = Object.assign(new Error('Invalid RCPT TO'), {
+        response: '501 Invalid RCPT TO address provided',
+        responseCode: 501,
+        rejected: ['bad@example.com'],
+        accepted: ['good@example.com'],
+      });
+
+      const emailWithCc = {
+        ...defaultMockEmail,
+        cc: ['cc@example.com'],
+      };
+
+      mockTransport.sendMail.mockRejectedValueOnce(smtpError);
+
+      await expect(emailSender.send(emailWithCc)).rejects.toThrow();
+
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'mailer.send.error',
+        expect.objectContaining({
+          smtpResponse: '501 Invalid RCPT TO address provided',
+          smtpResponseCode: 501,
+          rejectedRecipients: ['bad@example.com'],
+          acceptedRecipients: ['good@example.com'],
+          cc: ['cc@example.com'],
+        })
+      );
+    });
   });
   describe('buildHeaders', () => {
     it('builds basic headers without SES configuration', async () => {
-      const headers = await emailSender.buildHeaders({
+      const headers = emailSender.buildHeaders({
         template: {
           name: 'test-template',
           version: 1,
@@ -371,7 +417,7 @@ describe('EmailSender', () => {
     });
 
     it('builds headers with optional context fields', async () => {
-      const headers = await emailSender.buildHeaders({
+      const headers = emailSender.buildHeaders({
         template: {
           name: 'test-template',
           version: 2,

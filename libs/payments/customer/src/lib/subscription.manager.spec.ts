@@ -8,14 +8,19 @@ import { Test } from '@nestjs/testing';
 import {
   StripeClient,
   StripeApiListFactory,
+  StripeCouponFactory,
+  StripeDiscountFactory,
   StripeResponseFactory,
   StripeCustomerFactory,
   StripeSubscriptionFactory,
   MockStripeConfigProvider,
+  StripeRangeQueryParamFactory,
 } from '@fxa/payments/stripe';
 import { STRIPE_SUBSCRIPTION_METADATA } from './types';
 import { SubscriptionManager } from './subscription.manager';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { SubscriptionCustomerMismatchError } from './customer.error';
+import { StripeSubscriptionAsyncGeneratorFactory } from 'libs/payments/stripe/src/lib/factories/subscription.factory';
 
 describe('SubscriptionManager', () => {
   let subscriptionManager: SubscriptionManager;
@@ -89,6 +94,46 @@ describe('SubscriptionManager', () => {
 
       const result = await subscriptionManager.listForCustomer(mockCustomer.id);
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('listCancelOnDateGenerator', () => {
+    const mockCurrentPeriodEnd = StripeRangeQueryParamFactory();
+    it('returns generator that yields subscriptions', async () => {
+      const mockSubscription = StripeSubscriptionFactory({
+        cancel_at_period_end: true,
+      });
+      const mockGenerator = StripeSubscriptionAsyncGeneratorFactory([
+        mockSubscription,
+      ]);
+      const expected = mockSubscription;
+
+      jest
+        .spyOn(stripeClient, 'subscriptionsListGenerator')
+        .mockReturnValue(mockGenerator);
+
+      const generator =
+        subscriptionManager.listCancelOnDateGenerator(mockCurrentPeriodEnd);
+      const result = (await generator.next()).value;
+
+      expect(result).toEqual(expected);
+    });
+
+    it('returns generator that yields no subscriptions', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockGenerator = StripeSubscriptionAsyncGeneratorFactory([
+        mockSubscription,
+      ]);
+
+      jest
+        .spyOn(stripeClient, 'subscriptionsListGenerator')
+        .mockReturnValue(mockGenerator);
+
+      const generator =
+        subscriptionManager.listCancelOnDateGenerator(mockCurrentPeriodEnd);
+      const result = (await generator.next()).value;
+
+      expect(result).toEqual(undefined);
     });
   });
 
@@ -296,6 +341,261 @@ describe('SubscriptionManager', () => {
 
       const result = subscriptionManager.getPaymentProvider(mockSubscription);
       expect(result).toEqual('paypal');
+    });
+  });
+
+  describe('getSubscriptionStatus', () => {
+    it('correctly returns active and cancelAtPeriodEnd when customerId matches', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeSubscriptionFactory({
+        status: 'active',
+        cancel_at_period_end: true,
+        customer: mockCustomer.id,
+      });
+      const mockResponse = StripeResponseFactory(mockSubscription);
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockResponse);
+
+      const result = await subscriptionManager.getSubscriptionStatus(
+        mockCustomer.id,
+        mockSubscription.id
+      );
+
+      expect(subscriptionManager.retrieve).toHaveBeenCalledWith(
+        mockSubscription.id
+      );
+      expect(result).toEqual({
+        active: true,
+        cancelAtPeriodEnd: true,
+      });
+    });
+
+    it('throws an error when customerId does not match', async () => {
+      const mockCustomer1 = StripeCustomerFactory();
+      const mockCustomer2 = StripeCustomerFactory();
+      const mockSubscription = StripeSubscriptionFactory({
+        customer: mockCustomer2.id,
+      });
+      const mockResponse = StripeResponseFactory(mockSubscription);
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValueOnce(mockResponse);
+
+      await expect(
+        subscriptionManager.getSubscriptionStatus(
+          mockCustomer1.id,
+          mockSubscription.id
+        )
+      ).rejects.toThrow(SubscriptionCustomerMismatchError);
+
+      expect(subscriptionManager.retrieve).toHaveBeenCalledWith(
+        mockSubscription.id
+      );
+    });
+  });
+
+  describe('resubscribeWithCoupon', () => {
+    it('successfully applies coupon without setCancelAtPeriodEnd', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeSubscriptionFactory({
+        customer: mockCustomer.id,
+      });
+      const mockResponse = StripeResponseFactory(mockSubscription);
+      const mockCouponId = 'coupon_123';
+      const mockUpdatedSubscription = StripeSubscriptionFactory({
+        customer: mockCustomer.id,
+      });
+      const mockUpdatedResponse = StripeResponseFactory(
+        mockUpdatedSubscription
+      );
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockResponse);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValue(mockUpdatedResponse);
+
+      const result = await subscriptionManager.resubscribeWithCoupon({
+        customerId: mockCustomer.id,
+        subscriptionId: mockSubscription.id,
+        stripeCouponId: mockCouponId,
+      });
+
+      expect(subscriptionManager.retrieve).toHaveBeenCalledWith(
+        mockSubscription.id
+      );
+      expect(subscriptionManager.update).toHaveBeenCalledWith(
+        mockSubscription.id,
+        {
+          discounts: [{ coupon: mockCouponId }],
+          cancel_at_period_end: false,
+          metadata: {
+            cancelled_for_customer_at: '',
+          },
+        }
+      );
+      expect(result).toEqual(mockUpdatedResponse);
+    });
+
+    it('successfully applies coupon with setCancelAtPeriodEnd', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeSubscriptionFactory({
+        customer: mockCustomer.id,
+      });
+      const mockResponse = StripeResponseFactory(mockSubscription);
+      const mockCouponId = 'coupon_123';
+      const mockUpdatedSubscription = StripeSubscriptionFactory({
+        customer: mockCustomer.id,
+      });
+      const mockUpdatedResponse = StripeResponseFactory(
+        mockUpdatedSubscription
+      );
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockResponse);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValue(mockUpdatedResponse);
+
+      const result = await subscriptionManager.resubscribeWithCoupon({
+        customerId: mockCustomer.id,
+        subscriptionId: mockSubscription.id,
+        stripeCouponId: mockCouponId,
+      });
+
+      expect(subscriptionManager.update).toHaveBeenCalledWith(
+        mockSubscription.id,
+        {
+          discounts: [{ coupon: mockCouponId }],
+          cancel_at_period_end: false,
+          metadata: {
+            cancelled_for_customer_at: '',
+          },
+        }
+      );
+      expect(result).toEqual(mockUpdatedResponse);
+    });
+
+    it('throws an error when customerId does not match', async () => {
+      const mockCustomer1 = StripeCustomerFactory();
+      const mockCustomer2 = StripeCustomerFactory();
+      const mockSubscription = StripeSubscriptionFactory({
+        customer: mockCustomer2.id,
+      });
+      const mockResponse = StripeResponseFactory(mockSubscription);
+      const mockCouponId = 'coupon_123';
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValueOnce(mockResponse);
+
+      await expect(
+        subscriptionManager.resubscribeWithCoupon({
+          customerId: mockCustomer1.id,
+          subscriptionId: mockSubscription.id,
+          stripeCouponId: mockCouponId,
+        })
+      ).rejects.toThrow(SubscriptionCustomerMismatchError);
+      expect(jest.spyOn(subscriptionManager, 'update')).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('hasCouponId', () => {
+    it('returns true if subscription has mentioned coupon id - in discounts', async () => {
+      const mockCoupon = StripeCouponFactory({
+        id: 'coupon_123',
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          discounts: [mockCoupon.id],
+        })
+      );
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+
+      const result = await subscriptionManager.hasCouponId(
+        mockSubscription.id,
+        mockCoupon.id
+      );
+      expect(result).toBe(true);
+    });
+
+    it('returns true if subscription has mentioned coupon id - in discount', async () => {
+      const mockCoupon = StripeCouponFactory({
+        id: 'coupon_123',
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          discount: StripeDiscountFactory({
+            coupon: StripeCouponFactory({
+              id: 'coupon_123',
+            }),
+          }),
+        })
+      );
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+
+      const result = await subscriptionManager.hasCouponId(
+        mockSubscription.id,
+        mockCoupon.id
+      );
+      expect(result).toBe(true);
+    });
+
+    it('returns false if subscription does not have mentioned coupon id - in discounts', async () => {
+      const mockCoupon = StripeCouponFactory({
+        id: 'coupon_123',
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          discounts: ['coupon_456'],
+        })
+      );
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+
+      const result = await subscriptionManager.hasCouponId(
+        mockSubscription.id,
+        mockCoupon.id
+      );
+      expect(result).toBe(false);
+    });
+
+    it('returns false if subscription does not have mentioned coupon id - in discount', async () => {
+      const mockCoupon = StripeCouponFactory({
+        id: 'coupon_123',
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          discount: StripeDiscountFactory({
+            coupon: StripeCouponFactory({
+              id: 'coupon_456',
+            }),
+          }),
+        })
+      );
+
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+
+      const result = await subscriptionManager.hasCouponId(
+        mockSubscription.id,
+        mockCoupon.id
+      );
+      expect(result).toBe(false);
     });
   });
 });

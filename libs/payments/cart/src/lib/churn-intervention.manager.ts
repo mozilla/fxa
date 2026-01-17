@@ -19,41 +19,50 @@ import {
 export class ChurnInterventionManager {
   constructor(
     private config: ChurnInterventionConfig,
-    @Inject(FirestoreService) private firestore: Firestore,
+    @Inject(FirestoreService) private firestore: Firestore
   ) {}
 
   get collectionRef(): CollectionReference {
     return this.firestore.collection(this.config.collectionName);
   }
 
-  async createEntry(
-    entry: ChurnInterventionEntry
-  ) {
-    const data = await createChurnInterventionEntry(
-      this.collectionRef,
-      {
-        customerId: entry.customerId,
-        churnInterventionId: entry.churnInterventionId,
-        redemptionCount: entry.redemptionCount ?? 0,
-      }
-    );
+  async createEntry(entry: ChurnInterventionEntry) {
+    const data = await createChurnInterventionEntry(this.collectionRef, {
+      customerId: entry.customerId,
+      churnInterventionId: entry.churnInterventionId,
+      redemptionCount: entry.redemptionCount ?? 0,
+    });
     return data;
   }
 
-  async getEntry(
-    customerId: string,
-    churnInterventionId: string
-  ) {
-    const data = await getChurnInterventionEntryData(
-      this.collectionRef,
-      customerId,
-      churnInterventionId
-    );
-    return {
-      customerId: data.customerId,
-      churnInterventionId: data.churnInterventionId,
-      redemptionCount: data.redemptionCount,
-    };
+  async getOrCreateEntry(customerId: string, churnInterventionId: string) {
+    try {
+      const data = await getChurnInterventionEntryData(
+        this.collectionRef,
+        customerId,
+        churnInterventionId
+      );
+      return {
+        customerId: data.customerId,
+        churnInterventionId: data.churnInterventionId,
+        redemptionCount: data.redemptionCount,
+      };
+    } catch (error) {
+      if (error instanceof ChurnInterventionEntryNotFoundError) {
+        const created = await this.createEntry({
+          customerId,
+          churnInterventionId,
+          redemptionCount: 0,
+        });
+
+        return {
+          customerId: created.customerId,
+          churnInterventionId: created.churnInterventionId,
+          redemptionCount: created.redemptionCount ?? 0,
+        };
+      }
+      throw error;
+    }
   }
 
   async getRedemptionCountForUid(
@@ -61,7 +70,10 @@ export class ChurnInterventionManager {
     churnInterventionId: string
   ) {
     try {
-      const churnInterventionEntryData = await this.getEntry(customerId, churnInterventionId);
+      const churnInterventionEntryData = await this.getOrCreateEntry(
+        customerId,
+        churnInterventionId
+      );
       return churnInterventionEntryData.redemptionCount ?? 0;
     } catch (error) {
       if (error instanceof ChurnInterventionEntryNotFoundError) {
@@ -74,7 +86,7 @@ export class ChurnInterventionManager {
   async updateEntry(
     customerId: string,
     churnInterventionId: string,
-    incrementBy: number,
+    incrementBy: number
   ) {
     const data = await updateChurnInterventionEntry(
       this.collectionRef,
@@ -89,10 +101,7 @@ export class ChurnInterventionManager {
     };
   }
 
-  async deleteEntry(
-    customerId: string,
-    churnInterventionId: string
-  ) {
+  async deleteEntry(customerId: string, churnInterventionId: string) {
     return await deleteChurnInterventionEntry(
       this.collectionRef,
       customerId,

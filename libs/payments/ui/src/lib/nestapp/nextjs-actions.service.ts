@@ -17,6 +17,12 @@ import { CurrencyManager } from '@fxa/payments/currency';
 import {
   SubscriptionManagementService,
   ChurnInterventionService,
+  ManagePaymentMethodIntentCardDeclinedError,
+  ManagePaymentMethodIntentCardExpiredError,
+  ManagePaymentMethodIntentFailedGenericError,
+  ManagePaymentMethodIntentGetInTouchError,
+  ManagePaymentMethodIntentTryAgainError,
+  ManagePaymentMethodIntentInsufficientFundsError,
 } from '@fxa/payments/management';
 import {
   CheckoutTokenManager,
@@ -259,10 +265,11 @@ export class NextJSActionsService {
     customerId: string;
     churnInterventionId: string;
   }) {
-    const data = await this.churnInterventionService.getChurnInterventionForCustomerId(
-      args.customerId,
-      args.churnInterventionId
-    );
+    const data =
+      await this.churnInterventionService.getChurnInterventionForCustomerId(
+        args.customerId,
+        args.churnInterventionId
+      );
     return data;
   }
 
@@ -279,12 +286,26 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    return await this.churnInterventionService.determineStaySubscribedEligibility(
-      args.uid,
-      args.subscriptionId,
-      args.acceptLanguage,
-      args.selectedLanguage
-    );
+    const result =
+      await this.churnInterventionService.determineStaySubscribedEligibility(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage,
+        args.selectedLanguage
+      );
+
+    const staySubscribedContent =
+      await this.subscriptionManagementService.getStaySubscribedFlowContent(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
+    return {
+      ...result,
+      staySubscribedContent,
+    };
   }
 
   @SanitizeExceptions()
@@ -295,23 +316,19 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async determineCancellationIntervention(args: {
-    uid: string,
-    subscriptionId: string,
-    offeringApiIdentifier: string,
-    currentInterval: SubplatInterval,
-    upgradeInterval: SubplatInterval,
-    acceptLanguage?: string | null,
-    selectedLanguage?: string,
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
   }) {
-    return await this.churnInterventionService.determineCancellationIntervention({
-      uid: args.uid,
-      subscriptionId: args.subscriptionId,
-      offeringApiIdentifier: args.offeringApiIdentifier,
-      currentInterval: args.currentInterval,
-      upgradeInterval: args.upgradeInterval,
-      acceptLanguage: args.acceptLanguage,
-      selectedLanguage: args.selectedLanguage,
-    });
+    return await this.churnInterventionService.determineCancellationIntervention(
+      {
+        uid: args.uid,
+        subscriptionId: args.subscriptionId,
+        acceptLanguage: args.acceptLanguage,
+        selectedLanguage: args.selectedLanguage,
+      }
+    );
   }
 
   @SanitizeExceptions()
@@ -509,7 +526,7 @@ export class NextJSActionsService {
     cartId: string;
     version: number;
     confirmationTokenId: string;
-    customerData: { locale: string;};
+    customerData: { locale: string };
     attribution: SubscriptionAttributionParams;
     sessionUid?: string;
   }) {
@@ -646,15 +663,12 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    const result =
-      await this.subscriptionManagementService.getCancelFlowContent(
-        args.uid,
-        args.subscriptionId,
-        args.acceptLanguage || undefined,
-        args.selectedLanguage
-      );
-
-    return result;
+    return await this.subscriptionManagementService.getCancelFlowContent(
+      args.uid,
+      args.subscriptionId,
+      args.acceptLanguage || undefined,
+      args.selectedLanguage
+    );
   }
 
   @SanitizeExceptions()
@@ -670,15 +684,12 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    const result =
-      await this.subscriptionManagementService.getStaySubscribedFlowContent(
-        args.uid,
-        args.subscriptionId,
-        args.acceptLanguage || undefined,
-        args.selectedLanguage
-      );
-
-    return result;
+    return this.subscriptionManagementService.getStaySubscribedFlowContent(
+      args.uid,
+      args.subscriptionId,
+      args.acceptLanguage || undefined,
+      args.selectedLanguage
+    );
   }
 
   @SanitizeExceptions()
@@ -885,7 +896,16 @@ export class NextJSActionsService {
     );
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [
+      ManagePaymentMethodIntentCardDeclinedError,
+      ManagePaymentMethodIntentCardExpiredError,
+      ManagePaymentMethodIntentFailedGenericError,
+      ManagePaymentMethodIntentGetInTouchError,
+      ManagePaymentMethodIntentTryAgainError,
+      ManagePaymentMethodIntentInsufficientFundsError,
+    ],
+  })
   @NextIOValidator(
     UpdateStripePaymentDetailsArgs,
     UpdateStripePaymentDetailsResult
@@ -910,7 +930,7 @@ export class NextJSActionsService {
   }) {
     return await this.subscriptionManagementService.setDefaultStripePaymentDetails(
       args.uid,
-      args.paymentMethodId,
+      args.paymentMethodId
     );
   }
 

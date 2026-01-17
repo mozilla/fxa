@@ -15,6 +15,7 @@ import {
   ChurnInterventionByProductIdResult,
   ChurnInterventionByProductIdOfferingResult,
   ChurnInterventionByProductIdChurnInterventionsResult,
+  CmsOfferingContent,
 } from '.';
 
 export const ChurnInterventionByProductIdChurnInterventionsResultFactory = (
@@ -38,6 +39,7 @@ export const ChurnInterventionByProductIdChurnInterventionsResultFactory = (
 export const ChurnInterventionByProductIdOfferingsResultFactory = (
   override?: Partial<ChurnInterventionByProductIdOfferingResult>
 ): ChurnInterventionByProductIdOfferingResult => ({
+  apiIdentifier: faker.string.sample(),
   defaultPurchase: {
     purchaseDetails: {
       productName: faker.string.sample(),
@@ -51,6 +53,7 @@ export const ChurnInterventionByProductIdOfferingsResultFactory = (
     },
   },
   commonContent: {
+    successActionButtonUrl: faker.internet.url(),
     supportUrl: faker.internet.url(),
   },
   churnInterventions: [
@@ -79,6 +82,7 @@ export const ChurnInterventionByProductIdRawResultFactory = (
 export const ChurnInterventionByProductIdResultFactory = (
   override?: Partial<ChurnInterventionByProductIdResult>
 ): ChurnInterventionByProductIdResult => ({
+  apiIdentifier: faker.string.sample(),
   productName: faker.string.sample(),
   webIcon: faker.image.urlLoremFlickr(),
   churnInterventionId: faker.string.uuid(),
@@ -94,5 +98,15 @@ export const ChurnInterventionByProductIdResultFactory = (
   termsHeading: faker.lorem.sentence(),
   termsDetails: [faker.lorem.paragraphs(2)],
   supportUrl: faker.internet.url(),
+  ...override,
+});
+
+export const CmsOfferingContentFactory = (
+  override?: Partial<CmsOfferingContent>
+): CmsOfferingContent => ({
+  productName: faker.string.sample(),
+  successActionButtonUrl: faker.internet.url(),
+  supportUrl: faker.internet.url(),
+  webIcon: faker.image.urlLoremFlickr(),
   ...override,
 });

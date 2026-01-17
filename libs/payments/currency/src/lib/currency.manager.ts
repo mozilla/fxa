@@ -4,7 +4,6 @@
 
 import { Injectable } from '@nestjs/common';
 import {
-  CURRENCIES_TO_COUNTRIES,
   SUPPORTED_PAYPAL_CURRENCIES,
   VALID_COUNTRY_CODES,
   VALID_CURRENCY_CODES,
@@ -42,7 +41,7 @@ export class CurrencyManager {
     if (
       !VALID_CURRENCY_CODES.includes(currencyUpper) ||
       !SUPPORTED_PAYPAL_CURRENCIES.includes(currencyUpper) ||
-      !CURRENCIES_TO_COUNTRIES.hasOwnProperty(currencyUpper)
+      !this.config.currenciesToCountries.hasOwnProperty(currencyUpper)
     ) {
       throw new CurrencyCodeInvalidError(currencyUpper);
     }
@@ -52,9 +51,9 @@ export class CurrencyManager {
     }
 
     if (
-      currencyUpper in CURRENCIES_TO_COUNTRIES &&
-      !CURRENCIES_TO_COUNTRIES[
-        currencyUpper as keyof typeof CURRENCIES_TO_COUNTRIES
+      currencyUpper in this.config.currenciesToCountries &&
+      !this.config.currenciesToCountries[
+        currencyUpper as keyof typeof this.config.currenciesToCountries
       ].includes(country)
     ) {
       throw new CurrencyCountryMismatchError(currencyUpper, country);

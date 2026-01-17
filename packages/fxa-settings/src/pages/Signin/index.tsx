@@ -27,10 +27,6 @@ import {
   isOAuthNativeIntegration,
   useConfig,
 } from '../../models';
-import {
-  isClientMonitor,
-  isClientRelay,
-} from '../../models/integrations/client-matching';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
@@ -90,9 +86,9 @@ const Signin = ({
   const isOAuthNative = isOAuthNativeIntegration(integration);
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const clientId = integration.getClientId();
-  const isMonitorClient = isOAuth && isClientMonitor(clientId);
-  const isRelayClient = isOAuth && isClientRelay(clientId);
   const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
+
+  const legalTerms = integration.getLegalTerms();
 
   const isDeeplinking = !!deeplink;
   const isServiceWithEmailVerification =
@@ -306,7 +302,7 @@ const Signin = ({
                 )
               );
               setLocalizedBannerErrorLink({
-                path: `/reset_password?email=${email}&email_to_hash_with=`,
+                path: `/reset_password?email=${email}`,
                 localizedText: ftlMsgResolver.getMsg(
                   'signin-account-locked-banner-link',
                   'Reset your password to sign in'
@@ -522,13 +518,7 @@ const Signin = ({
         />
       )}
 
-      <TermsPrivacyAgreement
-        {...{
-          isMonitorClient,
-          isFirefoxClientServiceRelay,
-          isRelayClient,
-        }}
-      />
+      <TermsPrivacyAgreement legalTerms={legalTerms} />
 
       <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">
         <FtlMsg id="signin-use-a-different-account-link">

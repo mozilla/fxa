@@ -65,7 +65,9 @@ export const createNewRecoveryKeyMessageClick = new EventMetricType(
  *
  * Generated from `password_reset.create_new_submit`.
  */
-export const createNewSubmit = new EventMetricType(
+export const createNewSubmit = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'password_reset',
     name: 'create_new_submit',
@@ -73,7 +75,7 @@ export const createNewSubmit = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**
@@ -99,7 +101,9 @@ export const createNewSuccessView = new EventMetricType(
  *
  * Generated from `password_reset.create_new_view`.
  */
-export const createNewView = new EventMetricType(
+export const createNewView = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'password_reset',
     name: 'create_new_view',
@@ -107,7 +111,7 @@ export const createNewView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**

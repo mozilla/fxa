@@ -46,8 +46,6 @@ import {
   entrypoint,
   flowId,
 } from 'fxa-shared/metrics/glean/web/session';
-import * as sync from 'fxa-shared/metrics/glean/web/sync';
-import * as standard from 'fxa-shared/metrics/glean/web/standard';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 import * as webauthn from 'fxa-shared/metrics/glean/web/webauthn';
@@ -193,23 +191,6 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
       event[name].set(gleanPingMetrics.event[name] || '');
     }
   }
-
-  // Initial cwts values will be included not only in the cwtsEngage event,
-  // but also in subsequent events (sucha as page load events). This is because there was no suitable data type for an
-  // event's extra keys that worked for both string and event metrics.
-  // It should be noted that the user may change their sync settings after the initial cwtsEngage event
-  // but the new settings will not be reflected in the glean pings.
-  if (gleanPingMetrics?.sync?.cwts) {
-    Object.entries(gleanPingMetrics.sync.cwts).forEach(([k, v]) => {
-      sync.cwts[k].set(v);
-    });
-  }
-
-  if (gleanPingMetrics?.standard?.marketing) {
-    Object.entries(gleanPingMetrics.standard.marketing).forEach(([k, v]) => {
-      standard.marketing[k].set(v);
-    });
-  }
 };
 
 const recordEventMetric = (
@@ -238,12 +219,6 @@ const recordEventMetric = (
       break;
     case 'email_first_apple_oauth_start':
       email.firstAppleOauthStart.record();
-      break;
-    case 'reg_cwts_engage':
-      reg.cwtsEngage.record();
-      break;
-    case 'reg_marketing_engage':
-      reg.marketingEngage.record();
       break;
     case 'reg_view':
       reg.view.record();
@@ -378,13 +353,17 @@ const recordEventMetric = (
       passwordReset.createNewRecoveryKeyMessageClick.record();
       break;
     case 'password_reset_create_new_submit':
-      passwordReset.createNewSubmit.record();
+      passwordReset.createNewSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'password_reset_create_new_success_view':
       passwordReset.createNewSuccessView.record();
       break;
     case 'password_reset_create_new_view':
-      passwordReset.createNewView.record();
+      passwordReset.createNewView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'password_reset_email_confirmation_different_account':
       passwordReset.emailConfirmationDifferentAccount.record();

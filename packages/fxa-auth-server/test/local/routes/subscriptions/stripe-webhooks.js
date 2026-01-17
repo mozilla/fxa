@@ -2262,6 +2262,40 @@ describe('StripeWebhookHandler', () => {
         'subscription_cycle'
       )
     );
+
+    it('does not send email for subscription_update billing reason', async () => {
+      const invoice = eventInvoicePaid.data.object;
+      invoice.billing_reason = 'subscription_update';
+
+      const mockInvoiceDetails = { uid: '1234', test: 'fake' };
+      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
+        mockInvoiceDetails
+      );
+
+      const mockAccount = {
+        emails: 'fakeemails',
+        locale: 'fakelocale',
+        verifierSetAt: Date.now(),
+      };
+      StripeWebhookHandlerInstance.db.account = sinon.spy(
+        async (data) => mockAccount
+      );
+
+      await StripeWebhookHandlerInstance.sendSubscriptionInvoiceEmail(invoice);
+
+      assert.isTrue(
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionFirstInvoiceEmail
+          .notCalled
+      );
+      assert.isTrue(
+        StripeWebhookHandlerInstance.mailer
+          .sendSubscriptionSubsequentInvoiceEmail.notCalled
+      );
+      assert.isTrue(
+        StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail
+          .notCalled
+      );
+    });
   });
 
   describe('sendSubscriptionUpdatedEmail', () => {

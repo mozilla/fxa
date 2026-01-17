@@ -41,7 +41,7 @@ export default async function StripePaymentManagementPage({
       throw error;
     }
   }
-  const { clientSecret, defaultPaymentMethodId, currency } =
+  const { clientSecret, defaultPaymentMethod, currency } =
     stripeClientSession;
 
   return (
@@ -58,7 +58,7 @@ export default async function StripePaymentManagementPage({
       >
         <PaymentMethodManagement
           uid={session?.user?.id}
-          defaultPaymentMethodId={defaultPaymentMethodId}
+          defaultPaymentMethod={defaultPaymentMethod}
           sessionEmail={session?.user?.email ?? undefined}
         />
       </StripeManagementWrapper>

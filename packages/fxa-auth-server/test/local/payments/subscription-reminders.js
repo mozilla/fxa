@@ -23,6 +23,7 @@ const longPlan2 = require('./fixtures/stripe/plan2.json');
 const shortPlan1 = require('./fixtures/stripe/plan3.json');
 const longSubscription1 = require('./fixtures/stripe/subscription1.json'); // sub to plan 1
 const longSubscription2 = require('./fixtures/stripe/subscription2.json'); // sub to plan 2
+const sentry = require('../../../lib/sentry');
 const planLength = 30; // days
 const planDuration = Duration.fromObject({ days: planLength });
 const reminderLength = 14; // days
@@ -49,16 +50,43 @@ function deepCopy(object) {
 
 describe('SubscriptionReminders', () => {
   let mockStripeHelper;
+  let mockSubscriptionManager;
+  let mockCustomerManager;
+  let mockChurnInterventionService;
+  let mockProductConfigurationManager;
+  let mockPurchaseForPriceId;
+  let mockStatsD;
   let reminder;
   let mockConfig;
   let realDateNow;
+
+  const mockDailyReminderDuration = undefined;
+  const mockMonthlyReminderDuration = 7;
+  const mockYearlyReminderDuration = 14;
 
   beforeEach(() => {
     mockConfig = {
       currenciesToCountries: { ZAR: ['AS', 'CA'] },
     };
     mockStripeHelper = {
+      formatSubscriptionForEmail: () => {},
       findActiveSubscriptionsByPlanId: () => {},
+    };
+    mockSubscriptionManager = {
+      listCancelOnDateGenerator: () => {},
+    };
+    mockCustomerManager = {
+      retrieve: () => {},
+    };
+    mockChurnInterventionService = {
+      determineStaySubscribedEligibility: () => {},
+    };
+    mockPurchaseForPriceId = () => {};
+    mockProductConfigurationManager = {
+      getPageContentByPriceIds: () => {},
+    };
+    mockStatsD = {
+      increment: () => {},
     };
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
@@ -67,9 +95,21 @@ describe('SubscriptionReminders', () => {
       mockLog,
       planLength,
       reminderLength,
+      {
+        enabled: false,
+        paymentsNextUrl: 'http://localhost:3035',
+        dailyReminderDays: mockDailyReminderDuration,
+        monthlyReminderDays: mockMonthlyReminderDuration,
+        yearlyReminderDays: mockYearlyReminderDuration,
+      },
       {},
       {},
-      mockStripeHelper
+      mockStatsD,
+      mockStripeHelper,
+      mockSubscriptionManager,
+      mockCustomerManager,
+      mockChurnInterventionService,
+      mockProductConfigurationManager
     );
     realDateNow = Date.now.bind(global.Date);
   });
@@ -143,7 +183,9 @@ describe('SubscriptionReminders', () => {
         DateTime.fromMillis(MOCK_DATETIME_MS, { zone: 'utc' })
       );
       const expected = MOCK_INTERVAL;
-      const actual = reminder.getStartAndEndTimes();
+      const actual = reminder.getStartAndEndTimes(
+        Duration.fromObject({ days: 14 })
+      );
       const actualStartS = actual.start.toSeconds();
       const actualEndS = actual.end.toSeconds();
       assert.equal(actualStartS, expected.start.toSeconds());
@@ -154,7 +196,7 @@ describe('SubscriptionReminders', () => {
   });
 
   describe('alreadySentEmail', () => {
-    const args = ['uid', 12345, { subscriptionId: 'sub_123' }];
+    const args = ['uid', 12345, { subscriptionId: 'sub_123' }, EMAIL_TYPE];
     const sentEmailArgs = ['uid', EMAIL_TYPE, { subscriptionId: 'sub_123' }];
     it('returns true for email already sent for this cycle', async () => {
       SentEmail.findLatestSentEmailByType = sandbox.fake.resolves({
@@ -193,7 +235,11 @@ describe('SubscriptionReminders', () => {
     it('creates a record in the SentEmails table', async () => {
       const sentEmailArgs = ['uid', EMAIL_TYPE, { subscriptionId: 'sub_123' }];
       SentEmail.createSentEmail = sandbox.fake.resolves({});
-      await reminder.updateSentEmail('uid', { subscriptionId: 'sub_123' });
+      await reminder.updateSentEmail(
+        'uid',
+        { subscriptionId: 'sub_123' },
+        EMAIL_TYPE
+      );
       sinon.assert.calledOnceWithExactly(
         SentEmail.createSentEmail,
         ...sentEmailArgs
@@ -210,9 +256,8 @@ describe('SubscriptionReminders', () => {
         },
       };
       mockLog.error = sandbox.fake.returns({});
-      const result = await reminder.sendSubscriptionRenewalReminderEmail(
-        subscription
-      );
+      const result =
+        await reminder.sendSubscriptionRenewalReminderEmail(subscription);
       assert.isFalse(result);
       sinon.assert.calledOnceWithExactly(
         mockLog.error,
@@ -244,7 +289,8 @@ describe('SubscriptionReminders', () => {
         Math.floor(subscription.current_period_start * 1000),
         {
           subscriptionId: subscription.id,
-        }
+        },
+        'subscriptionRenewalReminder'
       );
     });
 
@@ -353,7 +399,8 @@ describe('SubscriptionReminders', () => {
       sinon.assert.calledOnceWithExactly(
         reminder.updateSentEmail,
         subscription.customer.metadata.userid,
-        { subscriptionId: subscription.id }
+        { subscriptionId: subscription.id },
+        'subscriptionRenewalReminder'
       );
     });
 
@@ -420,6 +467,193 @@ describe('SubscriptionReminders', () => {
     });
   });
 
+  describe('sendSubscriptionEndingReminderEmail', () => {
+    const mockSubscriptionId = 'sub_12345';
+    const mockCustomerId = 'cus_12345';
+    const mockPlanId = 'plan_12345';
+    const mockUid = 'uid_12345';
+    const mockSubCurrentPeriodStart = 1622073600;
+    const mockSubCurrentPeriodEnd = 1624751600;
+    const mockCustomer = {
+      id: mockCustomerId,
+      metadata: {
+        userid: mockUid,
+      },
+    };
+    const mockSubscription = {
+      id: mockSubscriptionId,
+      customer: mockCustomer,
+      current_period_start: mockSubCurrentPeriodStart,
+      current_period_end: mockSubCurrentPeriodEnd,
+      items: {
+        data: [
+          {
+            price: {
+              recurring: {
+                interval: 'month',
+                interval_count: 1,
+              },
+            },
+          },
+        ],
+      },
+    };
+    const mockSupportUrl = 'http://localhost:3035/support';
+    const mockWebIcon = 'http://localhost:3035/webicon';
+    const mockCtaMessage = 'Stay with us';
+    const mockProductPageUrl = 'http://localhost:3035/product';
+    const mockAccount = {
+      emails: [],
+      email: 'testo@test.test',
+      locale: 'NZ',
+    };
+    const mockPlanConfig = {
+      wibble: 'quux',
+    };
+    const mockFormattedSubscription = {
+      id: mockSubscriptionId,
+      planId: mockPlanId,
+      productMetadata: {
+        privacyUrl: 'http://privacy',
+        termsOfServiceUrl: 'http://tos',
+      },
+      planConfig: mockPlanConfig,
+    };
+    let spyReportSentryError;
+    beforeEach(() => {
+      spyReportSentryError = sinon.spy(sentry, 'reportSentryError');
+      reminder.db.account = sandbox.fake.resolves(mockAccount);
+      reminder.alreadySentEmail = sandbox.fake.resolves(false);
+      reminder.mailer.sendSubscriptionEndingReminderEmail =
+        sandbox.fake.resolves(true);
+      reminder.updateSentEmail = sandbox.fake.resolves();
+      mockCustomerManager.retrieve = sandbox.fake.resolves(mockCustomer);
+      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves(
+        mockFormattedSubscription
+      );
+      mockPurchaseForPriceId = sandbox.fake.returns({
+        offering: {
+          commonContent: {
+            supportUrl: mockSupportUrl,
+            localizations: [
+              {
+                supportUrl: mockSupportUrl,
+              },
+            ],
+          },
+        },
+        purchaseDetails: {
+          webIcon: mockWebIcon,
+          localizations: [
+            {
+              webIcon: mockWebIcon,
+            },
+          ],
+        },
+        apiIdentifier: 'vpn',
+      });
+      mockProductConfigurationManager.getPageContentByPriceIds =
+        sandbox.fake.resolves({
+          purchaseForPriceId: mockPurchaseForPriceId,
+        });
+      mockChurnInterventionService.determineStaySubscribedEligibility =
+        sandbox.fake.resolves({
+          isEligibile: true,
+          cmsChurnInterventionEntry: {
+            ctaMessage: mockCtaMessage,
+            ctaButtonUrl: mockProductPageUrl,
+          },
+        });
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should return true if the email was sent successfully', async () => {
+      const actual =
+        await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
+
+      assert.isTrue(actual);
+      sinon.assert.calledOnceWithExactly(
+        mockCustomerManager.retrieve,
+        mockCustomer
+      );
+      sinon.assert.calledOnceWithExactly(
+        reminder.alreadySentEmail,
+        mockCustomer.metadata.userid,
+        mockSubCurrentPeriodStart * 1000,
+        { subscriptionId: mockSubscriptionId },
+        'subscriptionEndingReminder'
+      );
+      sinon.assert.calledOnceWithExactly(reminder.db.account, mockUid);
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.formatSubscriptionForEmail,
+        mockSubscription
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockProductConfigurationManager.getPageContentByPriceIds,
+        [mockPlanId],
+        mockAccount.locale
+      );
+      sinon.assert.calledOnceWithExactly(mockPurchaseForPriceId, mockPlanId);
+      sinon.assert.calledOnceWithExactly(
+        mockChurnInterventionService.determineStaySubscribedEligibility,
+        mockUid,
+        mockSubscriptionId,
+        mockAccount.locale
+      );
+      sinon.assert.calledOnce(
+        reminder.mailer.sendSubscriptionEndingReminderEmail
+      );
+      sinon.assert.calledOnceWithExactly(
+        reminder.updateSentEmail,
+        mockUid,
+        { subscriptionId: mockSubscriptionId },
+        'subscriptionEndingReminder'
+      );
+    });
+
+    it('should return false if customer uid is not provided', async () => {
+      mockCustomerManager.retrieve = sandbox.fake.resolves({
+        metadata: {},
+      });
+
+      const actual =
+        await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
+      assert.isFalse(actual);
+      sinon.assert.calledOnce(mockCustomerManager.retrieve);
+      sinon.assert.notCalled(
+        reminder.mailer.sendSubscriptionEndingReminderEmail
+      );
+      sinon.assert.calledOnce(spyReportSentryError);
+    });
+
+    it('should return false if email already sent', async () => {
+      reminder.alreadySentEmail = sandbox.fake.resolves(true);
+
+      const actual =
+        await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
+      assert.isFalse(actual);
+      sinon.assert.calledOnce(reminder.alreadySentEmail);
+      sinon.assert.notCalled(spyReportSentryError);
+      sinon.assert.notCalled(
+        reminder.mailer.sendSubscriptionEndingReminderEmail
+      );
+    });
+
+    it('should return false if an error occurs when sending the email', async () => {
+      const mockError = new Error('Failed to send email');
+      mockStripeHelper.formatSubscriptionForEmail =
+        sandbox.fake.rejects(mockError);
+
+      const actual =
+        await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
+      assert.isFalse(actual);
+      sinon.assert.calledOnceWithExactly(spyReportSentryError, mockError);
+    });
+  });
+
   describe('sendReminders', () => {
     beforeEach(() => {
       reminder.getEligiblePlans = sandbox.fake.resolves([longPlan1, longPlan2]);
@@ -442,7 +676,10 @@ describe('SubscriptionReminders', () => {
       const result = await reminder.sendReminders();
       assert.isTrue(result);
       sinon.assert.calledOnce(reminder.getEligiblePlans);
-      sinon.assert.calledOnceWithExactly(reminder.getStartAndEndTimes);
+      sinon.assert.calledOnceWithExactly(
+        reminder.getStartAndEndTimes,
+        Duration.fromObject({ days: 14 })
+      );
       // We iterate through each plan, longPlan1 and longPlan2, and there is one
       // subscription, longSubscription1 and longSubscription2 respectively,
       // returned for each plan.
@@ -474,6 +711,207 @@ describe('SubscriptionReminders', () => {
       stub.firstCall.calledWithExactly(longSubscription1);
       stub.secondCall.calledWithExactly(longSubscription2);
       sinon.assert.calledTwice(stub);
+    });
+
+    it('calls sendEndingReminders if enabled in config', async () => {
+      reminder.sendEndingReminders = sandbox.fake.resolves({});
+      reminder.endingReminderEnabled = true;
+      await reminder.sendReminders();
+
+      sinon.assert.calledWith(
+        reminder.sendEndingReminders,
+        Duration.fromObject({ days: mockMonthlyReminderDuration }),
+        'monthly'
+      );
+      sinon.assert.calledWith(
+        reminder.sendEndingReminders,
+        Duration.fromObject({ days: mockYearlyReminderDuration }),
+        'yearly'
+      );
+    });
+
+    it('calls sendEndingReminders for daily if dailyEndingReminderDuration is provided', async () => {
+      const mockDailyReminderDays = 3;
+      reminder.sendEndingReminders = sandbox.fake.resolves({});
+      reminder.endingReminderEnabled = true;
+      reminder.dailyEndingReminderDuration = Duration.fromObject({
+        days: mockDailyReminderDays,
+      });
+      await reminder.sendReminders();
+
+      sinon.assert.calledWith(
+        reminder.sendEndingReminders,
+        Duration.fromObject({ days: mockDailyReminderDays }),
+        'daily'
+      );
+      sinon.assert.calledWith(
+        reminder.sendEndingReminders,
+        Duration.fromObject({ days: mockMonthlyReminderDuration }),
+        'monthly'
+      );
+      sinon.assert.calledWith(
+        reminder.sendEndingReminders,
+        Duration.fromObject({ days: mockYearlyReminderDuration }),
+        'yearly'
+      );
+    });
+  });
+
+  describe('sendEndingReminders', () => {
+    const mockDuration = Duration.fromObject({ days: 14 });
+    const mockSubplatInterval = 'monthly';
+    const mockPriceMonthly = {
+      recurring: {
+        interval: 'month',
+        interval_count: 1,
+      },
+    };
+    const mockPriceYearly = {
+      recurring: {
+        interval: 'year',
+        interval_count: 1,
+      },
+    };
+    const mockSubscriptionMonthly = {
+      items: {
+        data: [{ price: mockPriceMonthly }],
+      },
+    };
+    const mockSubscriptionYearly = {
+      items: {
+        data: [{ price: mockPriceYearly }],
+      },
+    };
+
+    beforeEach(() => {
+      mockStatsD.increment = sandbox.fake.returns({});
+      mockSubscriptionManager.listCancelOnDateGenerator = sandbox
+        .stub()
+        .callsFake(function* () {
+          yield mockSubscriptionMonthly;
+          yield mockSubscriptionYearly;
+        });
+      reminder.sendSubscriptionEndingReminderEmail =
+        sandbox.fake.resolves(true);
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('successfully sends an email for monthly subscriptions and increments sendCount', async () => {
+      await reminder.sendEndingReminders(mockDuration, mockSubplatInterval);
+      sinon.assert.calledOnceWithExactly(
+        mockStatsD.increment,
+        'subscription-reminders.endingReminders.monthly'
+      );
+      sinon.assert.calledOnceWithExactly(
+        reminder.sendSubscriptionEndingReminderEmail,
+        mockSubscriptionMonthly
+      );
+      sinon.assert.callCount(reminder.log.info, 2);
+      sinon.assert.calledWithExactly(
+        reminder.log.info,
+        'sendSubscriptionEndingReminderEmail.sendEndingReminders.end',
+        {
+          reminderLengthDays: 14,
+          subplatInterval: mockSubplatInterval,
+          sendCount: 1,
+        }
+      );
+    });
+
+    it('successfully sends an email for yearly subscriptions and increments sendCount', async () => {
+      await reminder.sendEndingReminders(mockDuration, 'yearly');
+      sinon.assert.calledOnceWithExactly(
+        mockStatsD.increment,
+        'subscription-reminders.endingReminders.yearly'
+      );
+      sinon.assert.calledOnceWithExactly(
+        reminder.sendSubscriptionEndingReminderEmail,
+        mockSubscriptionYearly
+      );
+      sinon.assert.callCount(reminder.log.info, 2);
+      sinon.assert.calledWithExactly(
+        reminder.log.info,
+        'sendSubscriptionEndingReminderEmail.sendEndingReminders.end',
+        {
+          reminderLengthDays: 14,
+          subplatInterval: 'yearly',
+          sendCount: 1,
+        }
+      );
+    });
+
+    it('sends no emails if no subscriptions match subplat interval', async () => {
+      await reminder.sendEndingReminders(mockDuration, 'weekly');
+      sinon.assert.calledOnceWithExactly(
+        mockStatsD.increment,
+        'subscription-reminders.endingReminders.weekly'
+      );
+      sinon.assert.notCalled(reminder.sendSubscriptionEndingReminderEmail);
+      sinon.assert.calledWithExactly(
+        reminder.log.info,
+        'sendSubscriptionEndingReminderEmail.sendEndingReminders.end',
+        {
+          reminderLengthDays: 14,
+          subplatInterval: 'weekly',
+          sendCount: 0,
+        }
+      );
+    });
+
+    it('it does not increment sendCount if no email is sent', async () => {
+      reminder.sendSubscriptionEndingReminderEmail =
+        sandbox.fake.resolves(false);
+
+      await reminder.sendEndingReminders(mockDuration, mockSubplatInterval);
+      sinon.assert.calledOnceWithExactly(
+        mockStatsD.increment,
+        'subscription-reminders.endingReminders.monthly'
+      );
+      sinon.assert.calledOnceWithExactly(
+        reminder.sendSubscriptionEndingReminderEmail,
+        mockSubscriptionMonthly
+      );
+      sinon.assert.calledWithExactly(
+        reminder.log.info,
+        'sendSubscriptionEndingReminderEmail.sendEndingReminders.end',
+        {
+          reminderLengthDays: 14,
+          subplatInterval: mockSubplatInterval,
+          sendCount: 0,
+        }
+      );
+    });
+
+    it('errors if price is not recurring', async () => {
+      const mockPriceId = 'price_12345';
+      const mockSubscription = {
+        items: {
+          data: [
+            {
+              price: {
+                id: mockPriceId,
+                recurring: null,
+              },
+            },
+          ],
+        },
+      };
+      mockSubscriptionManager.listCancelOnDateGenerator = sandbox
+        .stub()
+        .callsFake(function* () {
+          yield mockSubscription;
+        });
+      try {
+        await reminder.sendEndingReminders(mockDuration, mockSubplatInterval);
+        assert.fail('should have thrown an error');
+      } catch (error) {
+        assert.isTrue(error instanceof Error);
+        assert.equal(error.info.priceId, mockPriceId);
+        sinon.assert.notCalled(reminder.sendSubscriptionEndingReminderEmail);
+      }
     });
   });
 });

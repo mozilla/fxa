@@ -52,11 +52,11 @@ describe('Localizer', () => {
         );
 
         const result = await l10n.formatValue(
-          'subscriptionAccountFinishSetup-action-2',
+          'subscriptionAccountReminderSecond-title-2',
           {}
         );
 
-        assert.equal(result, 'Einführung');
+        assert.equal(result, 'Willkommen bei Mozilla!');
       });
 
       it('localizes properly with preferred Dialect', async () => {

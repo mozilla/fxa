@@ -42,6 +42,8 @@ import { getSyncNavigate } from '../../Signin/utils';
 
 export const viewName = 'confirm-signup-code';
 
+const RESEND_CODE_COUNTDOWN = 30;
+
 const ConfirmSignupCode = ({
   email,
   sessionToken,
@@ -68,6 +70,8 @@ const ConfirmSignupCode = ({
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus.none
   );
+  const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
+  const [resendCountdown, setResendCountdown] = useState<number>(0);
 
   const navigateWithQuery = useNavigateWithQuery();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
@@ -87,6 +91,17 @@ const ConfirmSignupCode = ({
       hasEmittedView.current = true;
     }
   }, [reason]);
+
+  // Countdown timer for resend code
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(resendCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [resendCountdown]);
 
   const [localizedErrorBannerHeading, setLocalizedErrorBannerHeading] =
     useState('');
@@ -118,8 +133,10 @@ const ConfirmSignupCode = ({
   }
 
   async function handleResendCode() {
+    setResendCodeLoading(true);
     try {
       await session.sendVerificationCode();
+
       // if resending a code is successful, clear any banner already present on screen
       setLocalizedErrorBannerHeading('');
       setResendStatus(ResendStatus.sent);
@@ -128,6 +145,9 @@ const ConfirmSignupCode = ({
       setLocalizedErrorBannerHeading(
         getLocalizedErrorMessage(ftlMsgResolver, error)
       );
+    } finally {
+      setResendCodeLoading(false);
+      setResendCountdown(RESEND_CODE_COUNTDOWN);
     }
   }
 
@@ -393,20 +413,34 @@ const ConfirmSignupCode = ({
       />
 
       <div className="animate-delayed-fade-in opacity-0 text-grey-500 text-sm inline-flex gap-1">
-        <>
-          <FtlMsg id="confirm-signup-code-code-expired">
-            <p>Code expired?</p>
+        <FtlMsg id="confirm-signup-code-code-expired">
+          <p>Code expired?</p>
+        </FtlMsg>
+        {resendCountdown > 0 ? (
+          <FtlMsg
+            id="confirm-signup-code-resend-code-countdown"
+            vars={{ seconds: resendCountdown }}
+          >
+            <button
+              id="resend"
+              className="link-blue cursor-not-allowed opacity-50"
+              disabled
+            >
+              Email new code in {resendCountdown} seconds
+            </button>
           </FtlMsg>
+        ) : (
           <FtlMsg id="confirm-signup-code-resend-code-link">
             <button
               id="resend"
               className="link-blue"
               onClick={handleResendCode}
+              disabled={resendCodeLoading}
             >
               Email new code.
             </button>
           </FtlMsg>
-        </>
+        )}
       </div>
     </AppLayout>
   );

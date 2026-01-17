@@ -12,8 +12,11 @@ import {
   CurrencyCodeMissingError,
   CountryCodeMissingError,
 } from './currency.error';
-import { CURRENCIES_TO_COUNTRIES } from './currency.constants';
-import { CurrencyConfig, MockCurrencyConfigProvider } from './currency.config';
+import {
+  CurrencyConfig,
+  MockCurrencyConfig,
+  MockCurrencyConfigProvider,
+} from './currency.config';
 
 describe('CurrencyManager', () => {
   let currencyManager: CurrencyManager;
@@ -30,7 +33,7 @@ describe('CurrencyManager', () => {
 
   describe('assertCurrencyCompatibleWithCountry', () => {
     const validCountry = faker.helpers.arrayElement(
-      CURRENCIES_TO_COUNTRIES.USD
+      MockCurrencyConfig.currenciesToCountries.USD
     );
     const validCurrency = 'USD';
 

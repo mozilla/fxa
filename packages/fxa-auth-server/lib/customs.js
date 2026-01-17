@@ -9,6 +9,7 @@ const Sentry = require('@sentry/node');
 const { config } = require('../config');
 const { createHttpAgent, createHttpsAgent } = require('../lib/http-agent');
 const { performance } = require('perf_hooks');
+const { EmailNormalization } = require('fxa-shared/email/email-normalization');
 
 const localizeTimestamp =
   require('../../../libs/shared/l10n/src').localizeTimestamp({
@@ -17,13 +18,23 @@ const localizeTimestamp =
   });
 const serviceName = 'customs';
 
+let emailNormalization = new EmailNormalization(
+  config.get('rateLimit.emailAliasNormalization')
+);
+
+function _reloadEmailNormalization() {
+  emailNormalization = new EmailNormalization(
+    config.get('rateLimit.emailAliasNormalization')
+  );
+}
+
 function toOpts(ip, email, uid) {
   const opts = {};
   if (ip) {
     opts.ip = ip;
   }
   if (email) {
-    opts.email = email;
+    opts.email = emailNormalization.normalizeEmailAliases(email);
   }
   if (uid) {
     opts.uid = uid;
@@ -120,7 +131,7 @@ class CustomsClient {
     const result = await this.makeRequest('/check', {
       ...this.sanitizePayload({
         ip: request.app.clientAddress,
-        email,
+        email: emailNormalization.normalizeEmailAliases(email),
         action,
 
         // Payload in this case is additional user related data (ie phone number)
@@ -190,7 +201,7 @@ class CustomsClient {
     await this.makeRequest('/passwordReset', {
       ...this.sanitizePayload({
         ip: request.app.clientAddress,
-        email,
+        email: emailNormalization.normalizeEmailAliases(email),
       }),
     });
   }
@@ -435,5 +446,7 @@ class CustomsClient {
   }
   // #endregion
 }
+
+CustomsClient._reloadEmailNormalization = _reloadEmailNormalization;
 
 module.exports = CustomsClient;

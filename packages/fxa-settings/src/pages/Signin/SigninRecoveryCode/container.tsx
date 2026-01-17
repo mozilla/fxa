@@ -57,7 +57,8 @@ export const SigninRecoveryCodeContainer = ({
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
     keyFetchToken,
-    unwrapBKey
+    unwrapBKey,
+    signinState?.isSignInWithThirdPartyAuth
   );
 
   const [consumeRecoveryCode] = useMutation<ConsumeRecoveryCodeResponse>(

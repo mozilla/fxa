@@ -8,7 +8,7 @@ import { currentAccount } from '../../../lib/cache';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Integration, useAuthClient } from '../../../models';
 import { cache } from '../../../lib/cache';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CreatePasswordHandler } from './interfaces';
 import { HandledError } from '../../../lib/error-utils';
 import {
@@ -51,6 +51,13 @@ const SetPasswordContainer = ({
     flowQueryParams as unknown as Record<string, string>
   );
 
+  const [passwordStatus, setPasswordStatus] = useState<{
+    isLoading: boolean;
+    hasPassword: boolean;
+  }>({
+    isLoading: true,
+    hasPassword: false,
+  });
   const didRunPasswordStatusCheckRef = useRef(false);
   useEffect(() => {
     if (didRunPasswordStatusCheckRef.current) return;
@@ -62,21 +69,27 @@ const SetPasswordContainer = ({
             undefined,
             sessionToken
           );
-          if (status.hasPassword) {
-            // User already has a password, redirect to signin.
-            // This can happen when a user signs into the browser with third party
-            // oauth and they try to use Sync or Send Tab later, but keys are missing.
-            // Firefox will send users to this page to set a password and receive keys.
-            navigateWithQuery('/signin', { replace: true });
-          }
+          setPasswordStatus({
+            isLoading: false,
+            hasPassword: !!status.hasPassword,
+          });
         } catch (error) {
           // TODO? Might need to retry.
           // Request to create a PW won't go through if they already have one.
+          setPasswordStatus({
+            isLoading: false,
+            hasPassword: false,
+          });
         }
+      } else {
+        setPasswordStatus({
+          isLoading: false,
+          hasPassword: false,
+        });
       }
     };
     checkPasswordStatus();
-  }, [authClient, sessionToken, navigateWithQuery]);
+  }, [authClient, sessionToken]);
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -123,9 +136,7 @@ const SetPasswordContainer = ({
             sessionToken
           );
 
-          GleanMetrics.thirdPartyAuthSetPassword.success({
-            sync: { cwts: selectedEnginesForGlean },
-          });
+          GleanMetrics.thirdPartyAuthSetPassword.success();
 
           const navigationOptions: NavigationOptions = {
             email,
@@ -171,7 +182,6 @@ const SetPasswordContainer = ({
       finishOAuthFlowHandler,
       getKeyFetchToken,
       offeredSyncEngines,
-      selectedEnginesForGlean,
       location.search,
     ]
   );
@@ -185,6 +195,22 @@ const SetPasswordContainer = ({
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
+
+  // Don't render SetPassword until this check is finished, otherwise
+  // some users might see a flash of that page before redirecting.
+  if (passwordStatus.isLoading) {
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+  }
+
+  // User already has a password, redirect to signin.
+  // This can happen when a user signs into the browser with third party
+  // oauth and they try to use Sync or Send Tab later, but keys are missing.
+  // Firefox will send users to this page to set a password and receive keys.
+  if (passwordStatus.hasPassword) {
+    navigateWithQuery('/signin', { replace: true });
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+  }
+
   // Curry already checked values
   const createPasswordHandler = createPassword(uid, email, sessionToken);
 

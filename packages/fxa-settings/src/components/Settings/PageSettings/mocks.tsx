@@ -34,6 +34,17 @@ export const accountEligibleForRecoveryKey = {
   totp: { exists: false, verified: false },
   attachedClients: MOCK_SERVICES,
   linkedAccounts: MOCK_LINKED_ACCOUNTS,
+  hasPassword: true,
+} as unknown as Account;
+
+export const accountAlmostEligibleForRecoveryKeyButHasNoPassword = {
+  ...MOCK_ACCOUNT,
+  displayName: null,
+  recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 },
+  totp: { exists: false, verified: false },
+  attachedClients: MOCK_SERVICES,
+  linkedAccounts: MOCK_LINKED_ACCOUNTS,
+  hasPassword: false,
 } as unknown as Account;
 
 export const completelyFilledOutAccount = {

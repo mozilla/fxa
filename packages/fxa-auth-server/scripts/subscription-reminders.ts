@@ -11,15 +11,25 @@ import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-set
 import { SubscriptionReminders } from '../lib/payments/subscription-reminders';
 
 import pckg from '../package.json';
+import { CustomerManager, SubscriptionManager } from '@fxa/payments/customer';
+import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { ChurnInterventionService } from '@fxa/payments/management';
+import { initSubplat } from '../lib/payments/initSubplat';
+import { parseInt } from 'lodash';
+import { parseBooleanArg } from './lib/args';
 
 const DEFAULT_PLAN_LENGTH = 180;
 const DEFAULT_REMINDER_LENGTH = 14;
+const DEFAULT_ENDING_REMINDER_DAILY_LENGTH = 0;
+const DEFAULT_ENDING_REMINDER_MONTHLY_LENGTH = 7;
+const DEFAULT_ENDING_REMINDER_YEARLY_LENGTH = 14;
 
 Sentry.init({});
 
 async function init() {
   program
     .version(pckg.version)
+    .allowUnknownOption(true)
     .option(
       '-p, --plan-length [days]',
       'Plan length in days beyond which a reminder email before the next recurring charge should be sent. Defaults to 180.',
@@ -30,20 +40,64 @@ async function init() {
       'Reminder length in days before the renewal date to send the reminder email. Defaults to 14.',
       DEFAULT_REMINDER_LENGTH.toString()
     )
+    .option(
+      '-e, --enableEndingReminders [boolean]',
+      'Enable the sending of subscription ending reminder emails. Defaults to false.',
+      false
+    )
+    .option(
+      '-d, --ending-reminder-daily-length [days]',
+      'Reminder length in days before the daily subscription ending date to send the reminder email. Defaults to 0.',
+      DEFAULT_ENDING_REMINDER_DAILY_LENGTH.toString()
+    )
+    .option(
+      '-m, --ending-reminder-monthly-length [days]',
+      'Reminder length in days before the montly subscription ending date to send the reminder email. Defaults to 7.',
+      DEFAULT_ENDING_REMINDER_MONTHLY_LENGTH.toString()
+    )
+    .option(
+      '-y, --ending-reminder-yearly-length [days]',
+      'Reminder length in days before the yearly subscription ending date to send the reminder email. Defaults to 14.',
+      DEFAULT_ENDING_REMINDER_YEARLY_LENGTH.toString()
+    )
     .parse(process.argv);
 
-  const { log, database, senders, stripeHelper } =
+  const { log, database, senders, stripeHelper, config } =
     await setupProcessingTaskObjects('subscription-reminders');
+  await initSubplat({
+    loggerName: 'subscription-reminders',
+    legacyLog: log,
+    config,
+  });
+
+  const statsd = Container.get(StatsD);
+  const subscriptionManager = Container.get(SubscriptionManager);
+  const customerManager = Container.get(CustomerManager);
+  const churnInterventionService = Container.get(ChurnInterventionService);
+  const productConfigurationManager = Container.get(
+    ProductConfigurationManager
+  );
 
   const subscriptionReminders = new SubscriptionReminders(
     log,
     parseInt(program.planLength),
     parseInt(program.reminderLength),
+    {
+      enabled: parseBooleanArg(program.enableEndingReminders),
+      paymentsNextUrl: config.smtp.subscriptionSettingsUrl,
+      dailyReminderDays: parseInt(program.endingReminderDailyLength),
+      monthlyReminderDays: parseInt(program.endingReminderMonthlyLength),
+      yearlyReminderDays: parseInt(program.endingReminderYearlyLength),
+    },
     database,
     senders.email,
-    stripeHelper
+    statsd,
+    stripeHelper,
+    subscriptionManager,
+    customerManager,
+    churnInterventionService,
+    productConfigurationManager
   );
-  const statsd = Container.get(StatsD);
   statsd.increment('subscription-reminders.startup');
   await subscriptionReminders.sendReminders();
   statsd.increment('subscription-reminders.shutdown');

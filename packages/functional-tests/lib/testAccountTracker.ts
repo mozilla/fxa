@@ -17,6 +17,7 @@ import { SessionStatus } from 'fxa-auth-client/lib/client';
 enum EmailPrefix {
   BLOCKED = 'blocked',
   BOUNCED = 'bounced',
+  BOUNCED_ALIAS = 'bounced+',
   FORCED_PWD_CHANGE = 'forcepwdchange',
   SIGNIN = 'signin',
   SIGNUP = 'signup',
@@ -85,9 +86,12 @@ export class TestAccountTracker {
    * @param prefix email prefix to use when generating email
    * @returns email
    */
-  generateEmail(prefix: EmailPrefix = EmailPrefix.SIGNIN): string {
+  generateEmail(
+    prefix: EmailPrefix = EmailPrefix.SIGNIN,
+    domain = 'restmail.net'
+  ): string {
     const id = crypto.randomBytes(8).toString('hex');
-    return `${prefix}${id}@restmail.net`;
+    return `${prefix}${id}@${domain}`;
   }
 
   /**
@@ -105,6 +109,15 @@ export class TestAccountTracker {
    */
   generateBouncedAccountDetails(): AccountDetails {
     return this.generateAccountDetails(EmailPrefix.BOUNCED);
+  }
+
+  /**
+   * Creates a new email address with the 'bounced' prefix and a new randomized
+   * password
+   * @returns AccountDetails
+   */
+  generateBouncedAliasAccountDetails(domain: string): AccountDetails {
+    return this.generateAccountDetails(EmailPrefix.BOUNCED_ALIAS, domain);
   }
 
   /**
@@ -141,10 +154,11 @@ export class TestAccountTracker {
    * @returns AccountDetails
    */
   generateAccountDetails(
-    prefix: EmailPrefix = EmailPrefix.SIGNIN
+    prefix: EmailPrefix = EmailPrefix.SIGNIN,
+    domain = 'restmail.net'
   ): AccountDetails {
     const account = {
-      email: this.generateEmail(prefix),
+      email: this.generateEmail(prefix, domain),
       password: this.generatePassword(),
     };
     this.accounts.push(account);

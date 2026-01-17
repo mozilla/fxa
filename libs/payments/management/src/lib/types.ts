@@ -74,6 +74,7 @@ export interface SubscriptionContent {
   id: string;
   cancelAtPeriodEnd: boolean;
   productName: string;
+  offeringApiIdentifier: string;
   supportUrl: string;
   webIcon: string;
   canResubscribe: boolean;
@@ -90,6 +91,10 @@ export interface SubscriptionContent {
   nextInvoiceTotal?: number;
   nextPromotionName?: string | null;
   promotionName?: string | null;
+  isEligibleForChurnStaySubscribed: boolean;
+  churnStaySubscribedCtaMessage?: string | null;
+  isEligibleForChurnCancel: boolean;
+  isEligibleForOffer: boolean;
 }
 
 export enum ChurnErrorReason {
@@ -98,4 +103,5 @@ export enum ChurnErrorReason {
   SubscriptionNotActive = 'subscription_not_active',
   SubscriptionStillActive = 'subscription_still_active',
   GeneralError = 'general_error',
+  RedemptionLimitExceeded = 'redemption_limit_exceeded',
 }

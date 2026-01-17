@@ -166,6 +166,7 @@ export const PageSettings = ({
     (!eligibleForRecoveryPhonePromo || dismissedRecoveryPhonePromo) &&
     !dismissedRecoveryKeyPromo &&
     estimatedSyncDeviceCount > 0 &&
+    account.hasPassword &&
     !recoveryKey.exists;
 
   // Scroll to effect

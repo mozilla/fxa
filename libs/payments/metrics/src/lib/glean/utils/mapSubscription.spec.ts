@@ -26,7 +26,7 @@ describe('mapSubscription', () => {
       cmsMetricsData: mockCmsMetricsData,
     });
     expect(result).toEqual({
-      subscription_checkout_type: 'without-accounts',
+      subscription_checkout_type: 'logged_out',
       subscription_currency: mockCartData.currency,
       subscription_error_id: mockCartData.errorReasonId,
       subscription_interval: mockCommonData.params['interval'],
@@ -58,7 +58,7 @@ describe('mapSubscription', () => {
       cmsMetricsData: mockCmsMetricsData,
     });
     expect(result).toEqual({
-      subscription_checkout_type: 'without-accounts',
+      subscription_checkout_type: 'logged_out',
       subscription_currency: '',
       subscription_error_id: '',
       subscription_interval: '',

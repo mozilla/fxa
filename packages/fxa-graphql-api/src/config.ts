@@ -319,6 +319,16 @@ const conf = convict({
       format: Array,
     },
   },
+  bounces: {
+    emailAliasNormalization: {
+      default: JSON.stringify([
+        { domain: 'mozilla.com', regex: '\\+.*', replace: '%' },
+      ]),
+      doc: 'List of email domain configurations for alias normalization. Each entry should have domain, regex, and replace properties. Example: [{domain: "mozilla.com", regex: "\\+[^@]+" }].',
+      env: 'BOUNCES_EMAIL_ALIAS_NORMALIZATION',
+      format: String,
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

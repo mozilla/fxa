@@ -40,7 +40,6 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { SigninProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
 import {
@@ -65,6 +64,7 @@ jest.mock('../../lib/metrics', () => ({
     logViewEventOnce: jest.fn(),
   }),
 }));
+
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
   default: {
@@ -94,6 +94,7 @@ jest.mock('../../lib/glean', () => ({
     },
   },
 }));
+
 jest.mock('../../lib/storage-utils', () => ({
   storeAccountData: jest.fn(),
 }));
@@ -155,6 +156,7 @@ function signInHeaderRendered(service: MozServices = MozServices.Default) {
   });
   screen.getByText(`Continue to ${service}`);
 }
+
 function privacyAndTermsRendered() {
   const terms = screen.getByRole('link', {
     name: /Terms of Service/,
@@ -407,7 +409,7 @@ describe('Signin component', () => {
             });
             expect(resetPasswordLink).toHaveAttribute(
               'href',
-              `/reset_password?email=${MOCK_EMAIL}&email_to_hash_with=`
+              `/reset_password?email=${MOCK_EMAIL}`
             );
             expect(resetPasswordLink).toHaveAttribute(
               'data-glean-id',
@@ -1462,36 +1464,6 @@ describe('Signin component', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/?', {
         state: { prefillEmail: MOCK_EMAIL },
       });
-    });
-  });
-
-  describe('when client is Monitor', () => {
-    it('shows Monitor-specific TOS', async () => {
-      renderWithLocalizationProvider(
-        <Subject
-          integration={createMockSigninOAuthIntegration({
-            clientId: MONITOR_CLIENTIDS[0],
-            service: MozServices.Monitor,
-          })}
-        />
-      );
-
-      // Monitor links should always open in a new window (announced by screen readers)
-      const monitorTermsLink = screen.getByRole('link', {
-        name: 'Terms of Service Opens in new window',
-      });
-      const monitorPrivacyLink = screen.getByRole('link', {
-        name: 'Privacy Notice Opens in new window',
-      });
-
-      expect(monitorTermsLink).toHaveAttribute(
-        'href',
-        'https://www.mozilla.org/about/legal/terms/subscription-services/'
-      );
-      expect(monitorPrivacyLink).toHaveAttribute(
-        'href',
-        'https://www.mozilla.org/privacy/subscription-services/'
-      );
     });
   });
 

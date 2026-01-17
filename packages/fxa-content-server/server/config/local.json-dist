@@ -72,7 +72,6 @@
     "postVerifyThirdPartyAuthRoutes": true
   },
   "featureFlags": {
-    "sendFxAStatusOnSettings": true,
     "recoveryCodeSetupOnSyncSignIn": true,
     "showLocaleToggle": true,
     "paymentsNextSubscriptionManagement": true

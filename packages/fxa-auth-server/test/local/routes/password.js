@@ -16,8 +16,28 @@ const { AppError: error } = require('@fxa/accounts/errors');
 const log = require('../../../lib/log');
 const random = require('../../../lib/crypto/random');
 const glean = mocks.mockGlean();
+const Container = require('typedi').Container;
+const { FxaMailer } = require('../../../lib/senders/fxa-mailer');
 
 const TEST_EMAIL = 'foo@gmail.com';
+
+function setupFxaMailerMock() {
+  const mockFxaMailer = {
+    sendRecoveryEmail: sinon.stub().resolves(),
+    sendPasswordForgotOtpEmail: sinon.stub().resolves(),
+    splitEmails: sinon.stub().returns({ to: TEST_EMAIL, cc: [] }),
+    helpers: {
+      constructLocalTimeString: sinon.stub().returns({
+        timeNow: '12:00:00 PM (UTC)',
+        dateNow: 'Monday, Jan 1, 2024',
+      }),
+    },
+  };
+
+  Container.set(FxaMailer, mockFxaMailer);
+
+  return mockFxaMailer;
+}
 
 function makeRoutes(options = {}) {
   const config = options.config || {
@@ -66,13 +86,19 @@ function runRoute(routes, name, request) {
 
 describe('/password', () => {
   let mockAccountEventsManager;
+  let mockFxaMailer;
 
   beforeEach(() => {
+    // mailer mock must be done before route creation/require
+    // otherwise it won't pickup the mock we define because
+    // of module caching
+    mockFxaMailer = setupFxaMailerMock();
     mockAccountEventsManager = mocks.mockAccountEventsManager();
     glean.resetPassword.emailSent.reset();
   });
 
   afterEach(() => {
+    Container.reset();
     mocks.unMockAccountEventsManager();
   });
 
@@ -88,6 +114,7 @@ describe('/password', () => {
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       uid,
+      emailVerified: true,
     });
     const mockMailer = mocks.mockMailer();
     const mockMetricsContext = mocks.mockMetricsContext();
@@ -142,6 +169,7 @@ describe('/password', () => {
         '/password/forgot/send_otp',
         mockRequest
       ).then((response) => {
+        sinon.assert.calledOnce(mockFxaMailer.sendPasswordForgotOtpEmail);
         assert.equal(
           mockDB.accountRecord.callCount,
           1,
@@ -165,7 +193,7 @@ describe('/password', () => {
           'passwordForgotSendOtp'
         );
 
-        sinon.assert.calledOnce(mockMailer.sendPasswordForgotOtpEmail);
+        sinon.assert.calledOnce(mockFxaMailer.sendPasswordForgotOtpEmail);
 
         assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1);
         const args = mockMetricsContext.setFlowCompleteSignal.args[0];
@@ -204,6 +232,50 @@ describe('/password', () => {
           })
         );
       });
+    });
+
+    it('throws unknownAccount error when email is not verified', async () => {
+      const unverifiedMockDB = mocks.mockDB({
+        email: TEST_EMAIL,
+        uid,
+        emailVerified: false,
+      });
+      const passwordRoutes = makeRoutes({
+        config: mockConfig,
+        customs: mockCustoms,
+        db: unverifiedMockDB,
+        mailer: mockMailer,
+        metricsContext: mockMetricsContext,
+        log: mockLog,
+        authServerCacheRedis: mockRedis,
+        statsd: mockStatsd,
+      });
+
+      const mockRequest = mocks.mockRequest({
+        log: mockLog,
+        payload: {
+          email: TEST_EMAIL,
+          metricsContext: {
+            deviceId: 'wibble',
+            flowId:
+              'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+            flowBeginTime: Date.now() - 1,
+          },
+        },
+        query: {},
+        metricsContext: mockMetricsContext,
+      });
+
+      try {
+        await runRoute(
+          passwordRoutes,
+          '/password/forgot/send_otp',
+          mockRequest
+        );
+        assert.fail('should have thrown unknownAccount error');
+      } catch (err) {
+        assert.equal(err.errno, 102, 'unknownAccount error');
+      }
     });
   });
 
@@ -485,17 +557,15 @@ describe('/password', () => {
         'password.forgot.send_code.completed event was logged'
       );
 
-      assert.equal(
-        mockMailer.sendRecoveryEmail.callCount,
-        1,
-        'mailer.sendRecoveryEmail was called once'
-      );
-      args = mockMailer.sendRecoveryEmail.args[0];
-      assert.equal(args[2].location.city, 'Mountain View');
-      assert.equal(args[2].location.country, 'United States');
-      assert.equal(args[2].timeZone, 'America/Los_Angeles');
-      assert.equal(args[2].uid, uid);
-      assert.equal(args[2].deviceId, 'wibble');
+      const mailerArgs = mockFxaMailer.sendRecoveryEmail.args[0];
+      // strong typing here would be great. We're making sure the mailer is
+      // called with the required properties for fxa-mailer.sendRecoveryEmail, so we could
+      // export that type eventually and use it here for mailerArgs[1] so we're not guessing
+      assert.equal(mailerArgs[0].to, TEST_EMAIL);
+      assert.equal(mailerArgs[0].location.city, 'Mountain View');
+      assert.equal(mailerArgs[0].location.country, 'United States');
+      assert.equal(mailerArgs[0].timeZone, 'America/Los_Angeles');
+      assert.equal(mailerArgs[0].deviceId, 'wibble');
 
       sinon.assert.calledOnceWithExactly(
         glean.resetPassword.emailSent,

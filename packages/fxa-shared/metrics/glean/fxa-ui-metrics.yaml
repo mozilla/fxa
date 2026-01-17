@@ -267,64 +267,6 @@ session:
     data_sensitivity:
       - interaction
 
-sync:
-  cwts:
-    type: labeled_boolean
-    description: |
-      The set of Sync engine options at the time of an account sign up via
-      Sync.  For example, if the user only opted into syncing their Firefox
-      bookmarks and history, then "bookmarks" and "history" will have true for
-      their values, while the rest of the labels will have false.
-    labels:
-      - bookmarks
-      - history
-      - passwords
-      - addons
-      - tabs
-      - prefs
-      - addresses
-      - creditcards
-    lifetime: application
-    send_in_pings:
-      - accounts-events
-      - events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-8254
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1890377
-    expires: never
-    data_sensitivity:
-      - interaction
-
-standard:
-  marketing:
-    type: labeled_boolean
-    description: |
-      The set of marketing options at the time of an account sign up (standard flow).
-      For example, if the user only opted into getting 'news' then only news would be
-      marked as true
-    labels:
-      - take_action
-      - testing
-      - news
-    lifetime: application
-    send_in_pings:
-      - accounts-events
-      - events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-8249
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1890377
-    expires: never
-    data_sensitivity:
-      - interaction
-
 utm:
   campaign:
     description: |
@@ -1109,6 +1051,11 @@ password_reset:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates the password reset flow context: "with key" when user has a recovery key but chose the standard reset flow, or "without key" when user doesn't have a recovery key.
+        type: string
   create_new_success_view:
     type: event
     description: |
@@ -1145,6 +1092,11 @@ password_reset:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates the password reset flow context: "with key" when user has a recovery key but chose the standard reset flow, or "without key" when user doesn't have a recovery key.
+        type: string
   email_confirmation_different_account:
     type: event
     description: |
@@ -1595,39 +1547,6 @@ reg:
       reason:
         description: Indicates the flow context for the successful registration completion. Values are either "signup" (user completed initial signup flow) or "signin" (user completed first signin flow).
         type: string
-  cwts_engage:
-    type: event
-    description: |
-      User interacted with the Sync "Choose What to Sync" options during account registration.
-    send_in_pings:
-      - events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-8254
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1890377
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  marketing_engage:
-    type: event
-    description: |
-      Event that indicates engagement with the Marketing section of the registration funnel (Standard funnel only)
-    send_in_pings:
-      - events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-8249
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1890377
-    expires: never
-    data_sensitivity:
-      - interaction
 
   age_invalid:
     type: event

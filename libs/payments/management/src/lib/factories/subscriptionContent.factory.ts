@@ -75,6 +75,7 @@ export const SubscriptionContentFactory = (
   id: `sub_${faker.string.alphanumeric({ length: 24 })}`,
   cancelAtPeriodEnd: false,
   productName: faker.string.sample(),
+  offeringApiIdentifier: faker.string.sample(),
   supportUrl: faker.internet.url(),
   webIcon: faker.internet.url(),
   canResubscribe: false,
@@ -88,5 +89,9 @@ export const SubscriptionContentFactory = (
   nextInvoiceDate: faker.date.future().getDate(),
   nextInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
   nextInvoiceTotal: faker.number.int({ min: 1, max: 1000 }),
+  isEligibleForChurnCancel: faker.datatype.boolean(),
+  isEligibleForChurnStaySubscribed: faker.datatype.boolean(),
+  isEligibleForOffer: faker.datatype.boolean(),
+  churnStaySubscribedCtaMessage: faker.string.sample(),
   ...override,
 });

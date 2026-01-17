@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 
 import alertIcon from '@fxa/shared/assets/images/alert-yellow.svg';
+import couponIcon from '@fxa/shared/assets/images/coupon-purple.svg';
 import newWindowIcon from '@fxa/shared/assets/images/new-window.svg';
 import {
   getLocalizedCurrencyString,
@@ -20,6 +21,7 @@ import { LinkExternal } from '@fxa/shared/react';
 interface Subscription {
   id: string;
   productName: string;
+  offeringApiIdentifier: string;
   webIcon: string;
   canResubscribe: boolean;
   currency: string;
@@ -35,6 +37,10 @@ interface Subscription {
   nextInvoiceTotal?: number;
   nextPromotionName?: string | null;
   promotionName?: string | null;
+  isEligibleForChurnCancel: boolean;
+  isEligibleForChurnStaySubscribed: boolean;
+  isEligibleForOffer: boolean;
+  churnStaySubscribedCtaMessage?: string | null;
 }
 
 interface SubscriptionContentProps {
@@ -54,6 +60,9 @@ export const SubscriptionContent = ({
     currentInvoiceTotal,
     currentInvoiceUrl,
     currentPeriodEnd,
+    isEligibleForChurnCancel,
+    isEligibleForChurnStaySubscribed,
+    isEligibleForOffer,
     nextInvoiceTax,
     nextInvoiceTotal,
     nextPromotionName,
@@ -232,35 +241,77 @@ export const SubscriptionContent = ({
         </div>
       )}
 
-      <div className="flex justify-end w-full tablet:w-auto">
-        {canResubscribe ? (
-          <Link
-            href={`/${locale}/subscriptions/${subscription.id}/stay-subscribed`}
-            className="border box-border flex font-bold font-header h-10 items-center justify-center rounded py-2 px-5 bg-blue-500 hover:bg-blue-700 text-white w-full tablet:w-auto"
-            aria-label={`Stay subscribed to ${productName}`}
-          >
-            <Localized
-              id="subscription-content-button-stay-subscribed"
-              vars={{ productName }}
-            >
-              Stay subscribed
-            </Localized>
-          </Link>
-        ) : (
-          <Link
-            href={`/${locale}/subscriptions/${subscription.id}/cancel`}
-            className="border border-grey-200 box-border flex font-bold font-header h-10 items-center justify-center rounded py-2 px-5 bg-grey-10 hover:bg-grey-50 w-full tablet:w-auto"
-            aria-label={`Cancel your subscription to ${productName}`}
-          >
-            <Localized
-              id="subscription-content-button-cancel-subscription"
-              attrs={{ 'aria-label': true }}
-              vars={{ productName }}
-            >
-              Cancel subscription
-            </Localized>
-          </Link>
+      <div className="mt-3 tablet:mt-0 flex w-full flex-col tablet:flex-row tablet:justify-end tablet:items-center tablet:justify-between gap-3">
+        {canResubscribe && subscription.isEligibleForChurnStaySubscribed && (
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-50">
+              <Image
+                src={couponIcon}
+                alt=""
+                width={22}
+                height={22}
+                aria-hidden="true"
+              />
+            </div>
+
+            <div>
+              <p>{subscription.churnStaySubscribedCtaMessage}</p>
+              <LinkExternal
+                href={`/${locale}/${subscription.offeringApiIdentifier}/${subscription.interval}/stay_subscribed/loyalty-discount/terms`}
+                className="w-fit text-sm text-blue-500 underline hover:text-blue-600"
+                aria-label={l10n.getString(
+                  'subscription-content-link-churn-intervention-terms-aria',
+                  {},
+                  'View coupon terms and restrictions'
+                )}
+              >
+                <Localized id="subscription-content-link-churn-intervention-terms-apply">
+                  <span>Terms apply</span>
+                </Localized>
+              </LinkExternal>
+            </div>
+          </div>
         )}
+        <div className="ms-auto w-full tablet:w-auto">
+          {canResubscribe ? (
+            <Link
+              href={
+                isEligibleForChurnStaySubscribed
+                  ? `/${locale}/subscriptions/${subscription.id}/loyalty-discount/stay-subscribed`
+                  : `/${locale}/subscriptions/${subscription.id}/stay-subscribed`
+              }
+              className="border box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-blue-500 hover:bg-blue-700 text-white w-full tablet:w-auto"
+              aria-label={`Stay subscribed to ${productName}`}
+            >
+              <Localized
+                id="subscription-content-button-stay-subscribed"
+                vars={{ productName }}
+              >
+                Stay subscribed
+              </Localized>
+            </Link>
+          ) : (
+            <Link
+              href={
+                isEligibleForChurnCancel
+                  ? `/${locale}/subscriptions/${subscription.id}/loyalty-discount/cancel`
+                  : isEligibleForOffer
+                    ? `/${locale}/subscriptions/${subscription.id}/offer`
+                    : `/${locale}/subscriptions/${subscription.id}/cancel`
+              }
+              className="border border-grey-200 box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-grey-10 hover:bg-grey-50 w-full tablet:w-auto"
+              aria-label={`Cancel your subscription to ${productName}`}
+            >
+              <Localized
+                id="subscription-content-button-cancel-subscription"
+                attrs={{ 'aria-label': true }}
+                vars={{ productName }}
+              >
+                Cancel subscription
+              </Localized>
+            </Link>
+          )}
+        </div>
       </div>
     </>
   );

@@ -10,11 +10,15 @@ import { AppError } from '@fxa/accounts/errors';
 import isA from 'joi';
 import validators from './validators';
 import { StatsD } from 'hot-shots';
-import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
+import {
+  RelyingPartyConfigurationManager,
+  LegalTermsConfigurationManager,
+} from '@fxa/shared/cms';
 import { CMSLocalization, StrapiWebhookPayload } from './utils/cms';
 
 export class CMSHandler {
   private readonly cmsManager: RelyingPartyConfigurationManager;
+  private readonly legalTermsManager: LegalTermsConfigurationManager;
   private config: ConfigType;
   private statsd: StatsD;
   private localization: CMSLocalization;
@@ -25,6 +29,7 @@ export class CMSHandler {
     statsD: StatsD
   ) {
     this.cmsManager = Container.get(RelyingPartyConfigurationManager);
+    this.legalTermsManager = Container.get(LegalTermsConfigurationManager);
     this.config = config;
     this.statsd = statsD;
     this.log = log;
@@ -187,6 +192,111 @@ export class CMSHandler {
     }
   }
 
+  async getLegalTerms(request: AuthRequest) {
+    this.log.begin('cms.getLegalTerms', request);
+
+    const clientId = request.query.clientId;
+    const service = request.query.service;
+    const locale = request.app.locale || 'en';
+
+    // Must provide either clientId or service, but not both
+    if ((!clientId && !service) || (clientId && service)) {
+      this.log.error('cms.getLegalTerms.invalidParams', {
+        clientId,
+        service,
+      });
+      throw AppError.invalidRequestParameter('clientId or service');
+    }
+
+    try {
+      // 1. Fetch base legal terms from Strapi
+      let result:
+        | Awaited<
+            ReturnType<typeof this.legalTermsManager.getLegalTermsByClientId>
+          >
+        | Awaited<
+            ReturnType<typeof this.legalTermsManager.getLegalTermsByService>
+          >;
+
+      if (clientId) {
+        result = await this.legalTermsManager.getLegalTermsByClientId(clientId);
+      } else {
+        result = await this.legalTermsManager.getLegalTermsByService(service);
+      }
+
+      const baseLegalTerms = result.getLegalTerms();
+
+      // 2. If no base legal terms found, return null
+      if (!baseLegalTerms) {
+        this.statsd.increment('cms.getLegalTerms.empty');
+        this.log.info('cms.getLegalTerms: No legal terms found', {
+          clientId,
+          service,
+          locale,
+        });
+        return null;
+      }
+
+      // 3. If locale is 'en' or localization disabled, return base legal terms
+      if (locale === 'en' || !this.config.cmsl10n.enabled) {
+        this.log.info('cms.getLegalTerms.baseOnly', {
+          clientId,
+          service,
+          locale,
+          reason: locale === 'en' ? 'default-locale' : 'localization-disabled',
+        });
+        this.statsd.increment('cms.getLegalTerms.success');
+        return baseLegalTerms;
+      }
+
+      // 4. Try to fetch localized FTL content with fallback logic
+      const ftlContent =
+        await this.localization.fetchLocalizedFtlWithFallback(locale);
+
+      // 5. If no localized content, return base legal terms
+      if (!ftlContent) {
+        this.log.info('cms.getLegalTerms.fallbackToBase', {
+          clientId,
+          service,
+          locale,
+        });
+        this.statsd.increment('cms.getLegalTerms.fallback');
+        this.statsd.increment('cms.getLegalTerms.success');
+        return baseLegalTerms;
+      }
+
+      // 6. Merge base legal terms with localized data
+      const identifier = clientId || service;
+      const localizedLegalTerms = (await this.localization.mergeConfigs(
+        baseLegalTerms as unknown as Record<string, unknown>,
+        ftlContent,
+        identifier,
+        'legal-terms'
+      )) as unknown as typeof baseLegalTerms;
+
+      this.log.info('cms.getLegalTerms.localized', {
+        clientId,
+        service,
+        locale,
+        ftlContentLength: ftlContent.length,
+      });
+      this.statsd.increment('cms.getLegalTerms.success');
+      this.statsd.increment('cms.getLegalTerms.localized');
+
+      return localizedLegalTerms;
+    } catch (error) {
+      // We don't want failures to fetch legal terms to bubble up to the user
+      this.statsd.increment('cms.getLegalTerms.error');
+      this.log.error('cms.getLegalTerms: Error getting legal terms', {
+        clientId,
+        service,
+        locale,
+        error,
+      });
+      return null;
+    }
+  }
+
   async handleStrapil10nWebhook(
     request: AuthRequest
   ): Promise<{ success: boolean }> {
@@ -230,18 +340,21 @@ export class CMSHandler {
       });
 
       // Only process specific events to avoid duplicate PRs
-      // Currently handle for relying-party model and entry.publish event
+      // Handle relying-party and legal terms models on entry.publish event
       // Only create PRs when entries are actually published
+      // "model" here corresponds to the content type in Strapi
       const allowedEvents = ['entry.publish'];
+      const allowedModels = ['relying-party', 'legal-notice'];
 
       if (
         !eventType ||
         !allowedEvents.includes(eventType) ||
-        webhookPayload.model !== 'relying-party'
+        !allowedModels.includes(webhookPayload.model)
       ) {
         this.log.info('cms.strapiWebhook.skipped', {
           eventType,
-          reason: 'Event not in allowed list or not relying-party model',
+          model: webhookPayload.model,
+          reason: 'Event not in allowed list or model not supported',
         });
         return { success: true };
       }
@@ -409,6 +522,20 @@ export const cmsRoutes = (
         },
       },
       handler: (request: AuthRequest) => cmsHandler.getLocalizedConfig(request),
+    },
+    {
+      method: 'GET',
+      path: '/cms/legal-terms',
+      options: {
+        pre: [{ method: featureEnabledCheck }],
+        validate: {
+          query: isA.object({
+            clientId: validators.clientId.optional(),
+            service: validators.service.optional(),
+          }),
+        },
+      },
+      handler: (request: AuthRequest) => cmsHandler.getLegalTerms(request),
     },
     {
       method: 'POST',

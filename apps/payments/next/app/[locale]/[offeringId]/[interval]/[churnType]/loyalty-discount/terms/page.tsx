@@ -53,7 +53,7 @@ export default async function ChurnTerms({
       className="flex tablet:items-center justify-center min-h-[calc(100vh_-_4rem)] tablet:min-h-[calc(100vh_-_5rem)]"
       aria-labelledby="loyalty-discount-terms"
     >
-      <div className="max-w-xl flex flex-col p-6 pt-10 tablet:bg-white tablet:border tablet:border-grey-200 tablet:opacity-100 tablet:p-8 tablet:rounded-xl tablet:shadow-[0_0px_10px_rgba(0,0,0,0.08)]">
+      <div className="max-w-xl min-w-[480px] flex flex-col p-6 pt-10 tablet:bg-white tablet:border tablet:border-grey-200 tablet:opacity-100 tablet:p-8 tablet:rounded-xl tablet:shadow-[0_0px_10px_rgba(0,0,0,0.08)]">
         <h1
           id="loyalty-discount-terms"
           className="font-semibold text-xl leading-8"

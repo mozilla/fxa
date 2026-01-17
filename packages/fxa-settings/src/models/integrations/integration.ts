@@ -9,6 +9,7 @@ import { IntegrationFeatures } from './features';
 import {
   RelierClientInfo,
   RelierCmsInfo,
+  RelierLegalTerms,
   RelierSubscriptionInfo,
 } from './relier-interfaces';
 
@@ -49,6 +50,7 @@ export class GenericIntegration<
   clientInfo: RelierClientInfo | undefined;
   subscriptionInfo: RelierSubscriptionInfo | undefined;
   cmsInfo: RelierCmsInfo | undefined;
+  legalTerms: RelierLegalTerms | undefined;
 
   constructor(
     type: IntegrationType,
@@ -56,13 +58,15 @@ export class GenericIntegration<
     features: TFeatures,
     clientInfo?: RelierClientInfo,
     subscriptionInfo?: RelierSubscriptionInfo | undefined,
-    cmsInfo?: RelierCmsInfo | undefined
+    cmsInfo?: RelierCmsInfo | undefined,
+    legalTerms?: RelierLegalTerms | undefined
   ) {
     this.type = type;
     this.data = data;
     this.clientInfo = clientInfo;
     this.subscriptionInfo = subscriptionInfo;
     this.cmsInfo = cmsInfo;
+    this.legalTerms = legalTerms;
     this.features = features;
   }
 
@@ -179,5 +183,9 @@ export class GenericIntegration<
     return Object.keys(this.cmsInfo || {}).length > 0
       ? this.cmsInfo
       : undefined;
+  }
+
+  getLegalTerms() {
+    return this.legalTerms;
   }
 }

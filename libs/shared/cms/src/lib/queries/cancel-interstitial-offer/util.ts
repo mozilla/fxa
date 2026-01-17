@@ -10,19 +10,18 @@ import * as Sentry from '@sentry/node';
 
 export class CancelInterstitialOfferUtil {
   constructor(private rawResult: CancelInterstitialOfferResult) {}
-  getTransformedResult(): CancelInterstitialOfferTransformed {
-    if (this.rawResult.cancelInterstitialOffers.length !== 1) {
+  getTransformedResult(): CancelInterstitialOfferTransformed | undefined {
+    const offers = this.rawResult?.cancelInterstitialOffers ?? [];
+
+    if (offers.length > 1) {
       Sentry.captureMessage(
         'Unexpected number of cancel interstitial offers found for api identifier, intervals, and locale',
-        {
-          extra: {
-            cancelInterstitialOffersCount:
-              this.rawResult.cancelInterstitialOffers.length,
-          },
-        }
+        { extra: { cancelInterstitialOffersCount: offers.length } }
       );
     }
-    const cancelInterstitialOffer = this.rawResult.cancelInterstitialOffers[0];
+
+    const cancelInterstitialOffer = offers.at(0);
+    if (!cancelInterstitialOffer) return undefined;
 
     return {
       ...cancelInterstitialOffer,
@@ -39,24 +38,17 @@ export class CancelInterstitialOfferUtil {
         cancelInterstitialOffer.localizations.at(0)?.modalMessage ??
           cancelInterstitialOffer.modalMessage
       ),
-      productPageUrl:
-        cancelInterstitialOffer.localizations.at(0)?.productPageUrl ??
-        cancelInterstitialOffer.productPageUrl,
+      productPageUrl: cancelInterstitialOffer.productPageUrl,
       upgradeButtonLabel:
         cancelInterstitialOffer.localizations.at(0)?.upgradeButtonLabel ??
         cancelInterstitialOffer.upgradeButtonLabel,
-      upgradeButtonUrl:
-        cancelInterstitialOffer.localizations.at(0)?.upgradeButtonUrl ??
-        cancelInterstitialOffer.upgradeButtonUrl,
+      upgradeButtonUrl: cancelInterstitialOffer.upgradeButtonUrl,
       offering: {
         ...cancelInterstitialOffer.offering,
         defaultPurchase: {
           purchaseDetails: {
             ...cancelInterstitialOffer.offering.defaultPurchase.purchaseDetails,
             webIcon:
-              cancelInterstitialOffer.offering.defaultPurchase.purchaseDetails.localizations.at(
-                0
-              )?.webIcon ??
               cancelInterstitialOffer.offering.defaultPurchase.purchaseDetails
                 .webIcon,
           },

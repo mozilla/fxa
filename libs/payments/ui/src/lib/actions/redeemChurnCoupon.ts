@@ -10,7 +10,7 @@ export const redeemChurnCouponAction = async (
   uid: string,
   subscriptionId: string,
   acceptLanguage?: string | null,
-  selectedLanguage?: string,
+  selectedLanguage?: string
 ) => {
   return await getApp().getActionsService().redeemChurnCoupon({
     uid,

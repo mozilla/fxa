@@ -82,6 +82,10 @@ async function init() {
       '--skip-subscription-if-set-to-cancel',
       'Skip subscriptions that are set to cancel at period end'
     )
+    .option(
+      '--reset-billing-cycle-anchor',
+      'Reset the billing cycle anchor to now when updating subscriptions. If not set, billing cycle anchor remains unchanged.'
+    )
     .parse(process.argv);
 
   const { stripeHelper, log } = await setupProcessingTaskObjects(
@@ -95,6 +99,7 @@ async function init() {
 
   const dryRun = !!program.dryRun;
   const skipSubscriptionIfSetToCancel = !!program.skipSubscriptionIfSetToCancel;
+  const resetBillingCycleAnchor = !!program.resetBillingCycleAnchor;
 
   const statsd = {
     increment: () => {},
@@ -123,6 +128,7 @@ async function init() {
     program.coupon,
     prorationBehavior,
     skipSubscriptionIfSetToCancel,
+    resetBillingCycleAnchor,
     paypalHelper,
   );
 

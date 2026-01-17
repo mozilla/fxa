@@ -127,6 +127,7 @@ export function createMockSigninWebIntegration({
     wantsTwoStepAuthentication: () => false,
     getCmsInfo: () => cmsInfo,
     isFirefoxMobileClient: () => false,
+    getLegalTerms: () => undefined,
   };
 }
 
@@ -155,6 +156,7 @@ export function createMockSigninOAuthNativeSyncIntegration({
     wantsTwoStepAuthentication: () => false,
     getCmsInfo: () => undefined,
     isFirefoxMobileClient: () => isSync && isMobile,
+    getLegalTerms: () => undefined,
   };
 }
 
@@ -187,6 +189,7 @@ export function createMockSigninOAuthIntegration({
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     getCmsInfo: () => cmsInfo,
     isFirefoxMobileClient: () => false,
+    getLegalTerms: () => undefined,
   };
 }
 
@@ -221,6 +224,7 @@ export function createMockSigninOAuthNativeIntegration({
     getClientId: () => MOCK_CLIENT_ID,
     getCmsInfo: () => undefined,
     isFirefoxMobileClient: () => isSync && isMobile,
+    getLegalTerms: () => undefined,
   };
 }
 

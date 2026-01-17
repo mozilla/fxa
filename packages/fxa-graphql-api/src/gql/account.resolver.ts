@@ -63,7 +63,6 @@ import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
 import { RejectUnblockCodeInput } from './dto/input/reject-unblock-code';
 import { SignInInput } from './dto/input/sign-in';
-import { SignUpInput } from './dto/input/sign-up';
 import {
   AccountResetPayload,
   AccountStatusPayload,
@@ -83,7 +82,6 @@ import {
   WrappedKeysPayload,
 } from './dto/payload';
 import { SignedInAccountPayload } from './dto/payload/signed-in-account';
-import { SignedUpAccountPayload } from './dto/payload/signed-up-account';
 import { CatchGatewayError } from './lib/error';
 import { Account as AccountType } from './model/account';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
@@ -93,6 +91,11 @@ import { EmailBounceStatusPayload } from './dto/payload/email-bounce';
 import { NotifierService } from '@fxa/shared/notifier';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { RecoveryPhone } from './model/recoveryPhone';
+import { EmailNormalization } from 'fxa-shared/email/email-normalization';
+import { ConfigService } from '@nestjs/config';
+import { AppConfig } from '../config';
+import { domainToASCII } from 'url';
+import { repl } from '@nestjs/core';
 
 function snakeToCamel(str: string) {
   return str.replace(/(_\w)/g, (m: string) => m[1].toUpperCase());
@@ -112,12 +115,20 @@ export function snakeToCamelObject(obj: { [key: string]: any }) {
 
 @Resolver((of: any) => AccountType)
 export class AccountResolver {
+  private emailNormalization: EmailNormalization;
+
   constructor(
     @Inject(AuthClientService) private authAPI: AuthClient,
     private notifier: NotifierService,
     private profileAPI: ProfileClientService,
-    private log: MozLoggerService
-  ) {}
+    private log: MozLoggerService,
+    private config: ConfigService<AppConfig>
+  ) {
+    const bounceConfig = config.get('bounces') as AppConfig['bounces'];
+    this.emailNormalization = new EmailNormalization(
+      bounceConfig.emailAliasNormalization
+    );
+  }
 
   private shouldIncludeEmails(info: GraphQLResolveInfo): boolean {
     // Introspect the query to determine if we should load the emails
@@ -495,8 +506,17 @@ export class AccountResolver {
     if (input === '') {
       return { hasHardBounce: false };
     }
-    const bounces = await EmailBounce.findByEmail(input);
-    const hasHardBounce = bounces.some((bounce) => bounce.bounceType === 1);
+
+    const normalizedEmail =
+      this.emailNormalization.normalizeEmailAliases(input);
+
+    const hardBounce = await EmailBounce.query()
+      .select('bounceType')
+      .where('email', 'like', normalizedEmail)
+      .andWhere('bounceType', 1)
+      .first();
+
+    const hasHardBounce = hardBounce !== undefined;
     return { hasHardBounce };
   }
 
@@ -554,28 +574,6 @@ export class AccountResolver {
       input.newPasswordAuthPW,
       input.accountResetToken,
       input.newPasswordV2 || {},
-      input.options,
-      headers
-    );
-    return {
-      clientMutationId: input.clientMutationId,
-      ...result,
-    };
-  }
-
-  @Mutation((returns) => SignedUpAccountPayload, {
-    description: 'Call auth-server to sign up an account',
-  })
-  @CatchGatewayError
-  public async signUp(
-    @GqlXHeaders() headers: Headers,
-    @Args('input', { type: () => SignUpInput })
-    input: SignUpInput
-  ): Promise<SignedUpAccountPayload> {
-    const result = await this.authAPI.signUpWithAuthPW(
-      input.email,
-      input.authPW,
-      input.passwordV2 || {},
       input.options,
       headers
     );

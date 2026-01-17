@@ -5,7 +5,7 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { AppLayout } from '../../../components/AppLayout';
 import {
   useAccount,
   useAuthClient,
@@ -258,7 +258,7 @@ const ThirdPartyAuthCallback = ({
     }
   }, [integration, navigateNext]);
 
-  return <LoadingSpinner fullScreen />;
+  return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
 };
 
 export default ThirdPartyAuthCallback;

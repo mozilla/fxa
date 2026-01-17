@@ -35,10 +35,13 @@ const CompleteResetPassword = ({
   const location = useLocation();
   const searchParams = location.search;
   useEffect(() => {
-    hasConfirmedRecoveryKey
-      ? GleanMetrics.passwordReset.recoveryKeyCreatePasswordView()
-      : GleanMetrics.passwordReset.createNewView();
-  }, [hasConfirmedRecoveryKey]);
+    if (hasConfirmedRecoveryKey) {
+      GleanMetrics.passwordReset.recoveryKeyCreatePasswordView();
+    } else {
+      const reason = recoveryKeyExists ? 'with key' : 'without key';
+      GleanMetrics.passwordReset.createNewView({ event: { reason } });
+    }
+  }, [hasConfirmedRecoveryKey, recoveryKeyExists]);
 
   const ftlMsgResolver = useFtlMsgResolver();
 

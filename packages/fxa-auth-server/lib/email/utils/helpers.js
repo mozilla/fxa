@@ -207,6 +207,10 @@ function logEmailEventFromMessage(log, message, type, emailDomain) {
     emailEventInfo.complaint = true;
   }
 
+  if (message.deliveryDelay) {
+    emailEventInfo.delayed = true;
+  }
+
   log.info('emailEvent', emailEventInfo);
 
   logAmplitudeEvent(log, message, emailEventInfo);

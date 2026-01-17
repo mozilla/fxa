@@ -7,6 +7,7 @@ import {
   LoadingSpinner,
   StripeWrapper,
   PaymentInputHandler,
+  buildRedirectUrl,
 } from '@fxa/payments/ui';
 import {
   getApp,
@@ -17,6 +18,8 @@ import { headers } from 'next/headers';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { Metadata } from 'next';
 import { config } from 'apps/payments/next/config';
+import { auth } from 'apps/payments/next/auth';
+import { redirect } from 'next/navigation';
 
 export async function generateMetadata({
   params,
@@ -45,14 +48,36 @@ export default async function NeedsInputPage({
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
-  const cart = await getCartOrRedirectAction(
+  const cartPromise = getCartOrRedirectAction(
     params.cartId,
     SupportedPages.NEEDS_INPUT,
     searchParams
   );
+  const sessionPromise = auth();
+  const [session, cart] = await Promise.all([sessionPromise, cartPromise]);
   if (!cart.currency) {
     throw new Error('Currency is missing from the cart');
   }
+
+  if (!session?.user?.id || cart.uid !== session.user.id) {
+    const redirectSearchParams: Record<string, string | string[]> =
+      searchParams || {};
+    delete redirectSearchParams.cartId;
+    delete redirectSearchParams.cartVersion;
+    const redirectTo = buildRedirectUrl(
+      params.offeringId,
+      params.interval,
+      'new',
+      'checkout',
+      {
+        baseUrl: config.paymentsNextHostedUrl,
+        locale,
+        searchParams: redirectSearchParams,
+      }
+    );
+    redirect(redirectTo);
+  }
+
   return (
     <section
       className="flex flex-col text-center text-sm"
