@@ -1,0 +1,11 @@
+{
+  "commit": "45ce445b9e2c2cc35124d48bbffa6c344150572a",
+  "summary": "task(): remove 3rd-party auth deeplink functionality",
+  "description": "",
+  "timestamp": 1768605049000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

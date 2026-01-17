@@ -1,0 +1,10 @@
+{
+  "commit": "985f565dc9a550110d2e72bacb29a90112fb386c",
+  "summary": "fix(routes): Remove deprecated non-MFA endpoints and redundant session checks",
+  "description": "",
+  "timestamp": 1768525155000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

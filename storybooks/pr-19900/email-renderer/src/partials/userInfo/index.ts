@@ -1,0 +1,15 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { TemplateData as UserDeviceTemplateData } from '../userDevice';
+import { TemplateData as UserLocationTemplateData } from '../userLocation';
+
+export type TemplateData = UserDeviceTemplateData &
+  UserLocationTemplateData & {
+    cssPath?: string;
+    primaryEmail?: string;
+    date?: string;
+    time?: string;
+    //acceptLanguage: string;
+  };

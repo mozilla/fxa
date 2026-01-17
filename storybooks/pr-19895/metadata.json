@@ -1,0 +1,11 @@
+{
+  "commit": "478c2c0b0a68b8331cf6fec18864d25ff26a4c14",
+  "summary": "fix(next): show relevant stripe error msg Because:",
+  "description": "- Although a specific error message is thrown from the backend, the\n  SubManage stripe payment method page still shows the generic error\n  message.\n\nThis commit:\n\n- Updates the nextjs action service to return the error message instead\n  of the entire Error object. In a production environment, the entire\n  error object could not be passed to the frontend, resulting in the\n  generic error message being shown.\n- Only change the StripeManagementWrapper instanceKey when the default\n  payment method has changed and the component needs to be refreshed.\n\nCloses #PAY-3460",
+  "timestamp": 1768509116000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

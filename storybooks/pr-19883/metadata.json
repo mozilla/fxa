@@ -1,0 +1,13 @@
+{
+  "commit": "93847946e60244c0fa4ab738d9fb3419e4bcf28f",
+  "summary": "chore(docs): Add ADR for removing graphql from fxa-settings",
+  "description": "",
+  "timestamp": 1768413063000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

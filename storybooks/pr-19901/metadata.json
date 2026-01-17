@@ -1,0 +1,12 @@
+{
+  "commit": "e87fdece1fb49de2830619d667279918456f942b",
+  "summary": "chore(email-renderer): Flatten types for renderer and fix some tests",
+  "description": "- The types on fxa-email-renderer render functions make them difficult to use in auth-server\n- And there was some cleanup to do from the first integration with email-sender to auth-server\n\n- Flattens the types on fxa-email-renderer functions\n- Updates snapshot tests (even though they're still skipped)\n- Updates the fxa-mailer to use the flattened type\n- Fixes first libs email sender test to use deepEquals assert on params passed to mailer\n- Adds a formatGeoData to convert app request geo location data to format expected by library\n\nCloses: FXA-12885",
+  "timestamp": 1768599247000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

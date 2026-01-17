@@ -1,0 +1,13 @@
+{
+  "commit": "d46db61c3b26672e4f780ec84a294f07ea624404",
+  "summary": "task(many): Upgrade Sentry and reduce filtering",
+  "description": "",
+  "timestamp": 1768438687000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

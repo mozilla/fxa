@@ -1,0 +1,11 @@
+{
+  "commit": "23865388b974a521b34a51bde6711abd69f26f71",
+  "summary": "fix(storybook): fix local storybooks not localized",
+  "description": "Because:\n\n* localhost storybooks aren't localized\n\nThis Commit:\n\n* fixes this bug by correcting the baseDir url\n\nCloses: FXA-10885",
+  "timestamp": 1768588247000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

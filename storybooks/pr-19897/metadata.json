@@ -1,0 +1,12 @@
+{
+  "commit": "480361b6f0f518888e4893f6f69efa2ae9246dcc",
+  "summary": "fix(storybook): dedup locale files in build output",
+  "description": "Because:\n\n* some locale files are duplicated in storybook build outputs\n\nThis commit:\n\n* removes unnecessary duplicates\n\nCloses FXA-12878",
+  "timestamp": 1768600528000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

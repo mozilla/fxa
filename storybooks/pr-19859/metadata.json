@@ -1,0 +1,11 @@
+{
+  "commit": "15ba1093706435e3db216291cefc0acc427c19d5",
+  "summary": "feat(payments-next): Cancellation flow: Create page - Interstitial Offer Because:",
+  "description": "* We need a cancel interstitial offer page as part of the churn intervention epic.\n\nThis commit:\n\n* Creates /[locale]/subscriptions/[subscription_id]/offer page\n\nCloses #PAY-3371",
+  "timestamp": 1768500301000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

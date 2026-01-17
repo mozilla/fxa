@@ -1,0 +1,12 @@
+{
+  "commit": "745da87e7d1e42780bdf8a894a17be0beea4c428",
+  "summary": "Merge pull request #19898 from mozilla/dependabot/github_actions/actions/upload-pages-artifact-4",
+  "description": "chore(deps): bump actions/upload-pages-artifact from 3 to 4",
+  "timestamp": 1768573690000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

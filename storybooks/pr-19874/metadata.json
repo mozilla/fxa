@@ -1,0 +1,13 @@
+{
+  "commit": "0dc5c0e0745f927db944c97663bfbeb9370285cf",
+  "summary": "chore(deps): bump pm2 from 6.0.13 to 6.0.14",
+  "description": "Bumps [pm2](https://github.com/Unitech/pm2) from 6.0.13 to 6.0.14.\n- [Release notes](https://github.com/Unitech/pm2/releases)\n- [Changelog](https://github.com/Unitech/pm2/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/Unitech/pm2/compare/v6.0.13...v6.0.14)\n\n---\nupdated-dependencies:\n- dependency-name: pm2\n  dependency-version: 6.0.14\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1768264914000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,11 @@
+{
+  "commit": "b6f6acc8a91419583d8b6f77a441c4f51fa54549",
+  "summary": "feat(payments-next): Update subscription reminder emails Because:",
+  "description": "* Subscription reminder emails are not compatible with timing requirements from legal\n\nThis commit:\n\n* Updates the reminder timing, and the subscription renewal reminder email templates\n* Updates tests\n* Fixes l10n output to match grunt generation\n* Updates storybook email renders\n\nCloses #PAY-2262",
+  "timestamp": 1768602894000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server"
+  ],
+  "deployDir": "deploy/"
+}

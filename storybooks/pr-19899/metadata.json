@@ -1,0 +1,10 @@
+{
+  "commit": "39c43751d7933d200be7a9d64b86c1b758a60b93",
+  "summary": "grunt debugging",
+  "description": "",
+  "timestamp": 1768636341000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

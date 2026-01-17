@@ -1,0 +1,11 @@
+{
+  "commit": "74d953efcb1d3d1ecac80574bac8e9734b771cea",
+  "summary": "polish(accounts-email): A little polishing before building",
+  "description": "- Pass in metrics enabled\n- Handle undefined params in `buildLInkWithQueryParam`\n- Small polish on compound types in fxa-mailer\n- Normalize on strings as format for links, not url objects\n- Better encapsulation for link builder.",
+  "timestamp": 1768585881000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server"
+  ],
+  "deployDir": "deploy/"
+}

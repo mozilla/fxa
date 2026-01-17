@@ -1,0 +1,13 @@
+{
+  "commit": "f4b308a13508ed22d9ce1d8ce4ad0c00dd36dbbb",
+  "summary": "Merge branch 'main' of github.com:mozilla/fxa into fxa-12118",
+  "description": "",
+  "timestamp": 1768489550000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
