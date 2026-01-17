@@ -91,15 +91,30 @@ class Localizer {
 
   protected createBundleGenerator(fetched: Record<string, string>) {
     async function* generateBundles(currentLocales: string[]) {
+      console.log(
+        '[DEBUG FLUENT] generateBundles called with locales:',
+        currentLocales
+      );
+      console.log('[DEBUG FLUENT] fetched keys:', Object.keys(fetched));
       for (const locale of currentLocales) {
         const source = fetched[locale];
+        console.log(
+          `[DEBUG FLUENT] Processing locale "${locale}", source length:`,
+          source?.length || 0
+        );
         if (source) {
           const bundle = new FluentBundle(locale, {
             useIsolating: false,
           });
           const resource = new FluentResource(source);
-          bundle.addResource(resource);
+          const errors = bundle.addResource(resource);
+          console.log(
+            `[DEBUG FLUENT] Added resource for "${locale}", errors:`,
+            errors
+          );
           yield bundle;
+        } else {
+          console.log(`[DEBUG FLUENT] No source for locale "${locale}"`);
         }
       }
     }
@@ -141,14 +156,47 @@ class Localizer {
     const authPath = `${this.bindings.opts.translations.basePath}/${
       locale || 'en'
     }/emails.ftl`;
-    results.push(await this.bindings.fetchResource(authPath));
+    console.log(
+      `[DEBUG FETCH] Attempting to fetch emails.ftl for locale "${locale}":`,
+      authPath
+    );
+    try {
+      const emailsContent = await this.bindings.fetchResource(authPath);
+      console.log(
+        `[DEBUG FETCH] Successfully fetched emails.ftl, length:`,
+        emailsContent.length
+      );
+      results.push(emailsContent);
+    } catch (err) {
+      console.error(`[DEBUG FETCH] FAILED to fetch emails.ftl:`, err);
+      throw err;
+    }
 
     const brandingPath = `${this.bindings.opts.translations.basePath}/${
       locale || 'en'
     }/branding.ftl`;
-    results.push(await this.bindings.fetchResource(brandingPath));
+    console.log(
+      `[DEBUG FETCH] Attempting to fetch branding.ftl:`,
+      brandingPath
+    );
+    try {
+      const brandingContent = await this.bindings.fetchResource(brandingPath);
+      console.log(
+        `[DEBUG FETCH] Successfully fetched branding.ftl, length:`,
+        brandingContent.length
+      );
+      results.push(brandingContent);
+    } catch (err) {
+      console.error(`[DEBUG FETCH] FAILED to fetch branding.ftl:`, err);
+      throw err;
+    }
 
-    return results.join('\n\n\n');
+    const combined = results.join('\n\n\n');
+    console.log(
+      `[DEBUG FETCH] Combined FTL length for "${locale}":`,
+      combined.length
+    );
+    return combined;
   }
 
   async localizeStrings(

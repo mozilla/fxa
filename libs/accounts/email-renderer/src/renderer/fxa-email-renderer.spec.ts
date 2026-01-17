@@ -36,7 +36,39 @@ const renderAndSnapshotEmail = async <
   templateValues: Parameters<FxaEmailRenderer[T]>[0],
   layoutTemplateValues: Parameters<FxaEmailRenderer[T]>[1]
 ) => {
-  const fxaEmailRenderer = new FxaEmailRenderer(new NodeRendererBindings());
+  const bindings = new NodeRendererBindings();
+  console.log(
+    '[DEBUG] Translations basePath:',
+    bindings.opts.translations.basePath
+  );
+
+  // Check if FTL files exist
+  const fs = require('fs');
+  const path = require('path');
+  const emailsFtlPath = path.join(
+    bindings.opts.translations.basePath,
+    'en/emails.ftl'
+  );
+  const brandingFtlPath = path.join(
+    bindings.opts.translations.basePath,
+    'en/branding.ftl'
+  );
+
+  console.log('[DEBUG] emails.ftl path:', emailsFtlPath);
+  console.log('[DEBUG] emails.ftl exists:', fs.existsSync(emailsFtlPath));
+
+  if (fs.existsSync(emailsFtlPath)) {
+    const content = fs.readFileSync(emailsFtlPath, 'utf-8');
+    console.log('[DEBUG] emails.ftl length:', content.length);
+    console.log(
+      '[DEBUG] emails.ftl contains fxa-header-mozilla-logo:',
+      content.includes('fxa-header-mozilla-logo')
+    );
+  }
+
+  console.log('[DEBUG] branding.ftl exists:', fs.existsSync(brandingFtlPath));
+
+  const fxaEmailRenderer = new FxaEmailRenderer(bindings);
   const renderMethod = fxaEmailRenderer[func].bind(fxaEmailRenderer) as (
     templateValues: Parameters<FxaEmailRenderer[T]>[0],
     layoutTemplateValues: Parameters<FxaEmailRenderer[T]>[1]
