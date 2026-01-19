@@ -44,6 +44,7 @@ parameters:
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
   gcp-cli: circleci/gcp-cli@3.3.0
+  nx: nrwl/nx@1.7.0
 
 executors:
   # Default node executor with low resources. Useful for running quick / small tasks
@@ -218,12 +219,15 @@ commands:
           name: Checkout Branch
           command: |
             set +x
+            # Fetch main branch for nx affected to work properly
+            git fetch https://github.com/mozilla/fxa main --depth=50
+
             # If the PR is coming from a fork, add it as a remote, so the commit can be checked out.
             if [[ "$CIRCLE_PR_USERNAME" != "" && "$CIRCLE_PR_REPONAME" != "" ]]; then
               echo "Adding remote https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME"
-              git fetch https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME << pipeline.git.revision >> --depth=1
+              git fetch https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME << pipeline.git.revision >> --depth=50
             else
-              git fetch https://github.com/mozilla/fxa << pipeline.git.revision >> --depth=1
+              git fetch https://github.com/mozilla/fxa << pipeline.git.revision >> --depth=50
             fi
 
             git reset --hard
