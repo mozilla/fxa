@@ -9,6 +9,7 @@ import { headers } from 'next/headers';
 import { URLSearchParams } from 'url';
 import { SubplatInterval } from '@fxa/payments/customer';
 import { notFound } from 'next/navigation';
+import { config } from 'apps/payments/next/config';
 
 export default async function ChurnTerms({
   params,
@@ -17,6 +18,10 @@ export default async function ChurnTerms({
   params: ChurnParams;
   searchParams: Record<string, string | string[]> | undefined;
 }) {
+  if (!config.churnInterventionConfig.enabled) {
+    notFound();
+  }
+
   const { locale, interval, churnType, offeringId } = params;
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
