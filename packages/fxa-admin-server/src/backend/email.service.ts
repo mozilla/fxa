@@ -37,10 +37,10 @@ export class EmailService {
     notifyEmail: string,
     status: Array<{ locator: string; status: string }>
   ) {
-    const emailContent = await this.renderer.renderAdminResetAccounts(
-      { status },
-      this.getLayoutData()
-    );
+    const emailContent = await this.renderer.renderAdminResetAccounts({
+      status,
+      ...this.getLayoutData(),
+    });
 
     const headers = await this.mailer.buildHeaders({
       template: {
@@ -77,10 +77,10 @@ export class EmailService {
       email: account.primaryEmail?.email || account.email,
     });
 
-    const emailContent = await this.renderer.renderPasswordChangeRequired(
-      { link },
-      this.getLayoutData()
-    );
+    const emailContent = await this.renderer.renderPasswordChangeRequired({
+      link,
+      ...this.getLayoutData(),
+    });
 
     // Send the emails
     const headers = await this.mailer.buildHeaders({

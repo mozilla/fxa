@@ -524,13 +524,14 @@ function mockDB(data, errors) {
     }),
     createPasswordForgotToken: sinon.spy(() => {
       return Promise.resolve({
-        data: crypto.randomBytes(32).toString('hex'),
+        data: data.data || crypto.randomBytes(32).toString('hex'),
         passCode: data.passCode,
         id: data.passwordForgotTokenId,
         uid: data.uid,
         ttl: function () {
           return data.passwordForgotTokenTTL || 100;
         },
+        email: data.emailToHashWith || 'emailToHashWith@email.com',
       });
     }),
     createSessionToken: sinon.spy((opts) => {

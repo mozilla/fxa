@@ -12,6 +12,7 @@ import amplitude from './metrics/amplitude';
 import flowPerformance from './metrics/flow-performance';
 import navigationTimingSchema from './metrics/navigation-timing-validation';
 import userAgent from './lib/user-agent';
+import geoData from './lib/geo-data';
 import scopes from './oauth/scopes';
 import {
   metadataFromPlan,
@@ -42,6 +43,7 @@ module.exports = {
   lib: {
     errors,
     userAgent,
+    geoData,
   },
   subscriptions: {
     metadata: {

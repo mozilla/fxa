@@ -29,6 +29,7 @@ import { AuthLogger, AuthRequest } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
 import * as validators from './validators';
 import { formatUserAgentInfo } from 'fxa-shared/lib/user-agent';
+import { formatGeoData } from 'fxa-shared/lib/geo-data';
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -1060,11 +1061,7 @@ module.exports = function (
           timeZone,
           sync: false,
           device: formatUserAgentInfo(uaBrowser, uaOS, uaOSVersion),
-          location: {
-            city: geoData.location?.city,
-            country: geoData.location?.country,
-            stateCode: geoData.location?.state,
-          },
+          location: formatGeoData(geoData.location),
         });
 
         glean.resetPassword.otpEmailSent(request);
@@ -1419,7 +1416,7 @@ module.exports = function (
           )
           ?.handler(request);
       },
-    }
+    },
   ];
 
   return routes;
