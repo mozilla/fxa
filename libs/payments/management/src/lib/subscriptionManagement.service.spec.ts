@@ -7,6 +7,10 @@ import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import {
+  ChurnInterventionManager,
+  MockChurnInterventionConfigProvider,
+} from '@fxa/payments/cart';
+import {
   CurrencyManager,
   MockCurrencyConfigProvider,
 } from '@fxa/payments/currency';
@@ -23,6 +27,12 @@ import {
   CustomerSessionManager,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
+import {
+  EligibilityManager,
+  EligibilityService,
+  LocationConfig,
+  MockLocationConfigProvider,
+} from '@fxa/payments/eligibility';
 import {
   AppleIapClient,
   AppleIapPurchaseManager,
@@ -105,12 +115,10 @@ import {
   NotifierService,
   NotifierSnsProvider,
 } from '@fxa/shared/notifier';
-
 import {
   MockProfileClientConfigProvider,
   ProfileClient,
 } from '@fxa/profile/client';
-
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
 jest.mock('@fxa/shared/error', () => ({
@@ -150,11 +158,16 @@ describe('SubscriptionManagementService', () => {
         AccountCustomerManager,
         AppleIapClient,
         AppleIapPurchaseManager,
+        ChurnInterventionManager,
+        ChurnInterventionService,
         CurrencyManager,
         CustomerManager,
+        EligibilityManager,
+        EligibilityService,
         GoogleIapClient,
         GoogleIapPurchaseManager,
         InvoiceManager,
+        LocationConfig,
         MockAccountDatabaseNestFactory,
         MockAppleIapClientConfigProvider,
         MockCurrencyConfigProvider,
@@ -184,15 +197,11 @@ describe('SubscriptionManagementService', () => {
         CustomerSessionManager,
         CurrencyManager,
         MockCurrencyConfigProvider,
+        MockChurnInterventionConfigProvider,
+        MockLocationConfigProvider,
         {
           provide: LOGGER_PROVIDER,
           useValue: mockLogger,
-        },
-        {
-          provide: ChurnInterventionService,
-          useValue: {
-            determineStaySubscribedEligibility: jest.fn(),
-          },
         },
       ],
     }).compile();
@@ -1866,12 +1875,35 @@ describe('SubscriptionManagementService', () => {
   describe('getCancelFlowContent', () => {
     it('returns content (flowType - cancel)', async () => {
       const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          currency: 'usd',
+        })
+      );
       const mockSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory()
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'active',
+        })
       );
       const mockProductNameByPriceIdsResultUtil = {
         purchaseForPriceId: jest.fn(),
       };
+
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({
+          customer: mockStripeCustomer.id,
+        })
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
+      const mockUpcomingInvoicePreview = InvoicePreviewFactory();
 
       jest
         .spyOn(
@@ -1879,6 +1911,12 @@ describe('SubscriptionManagementService', () => {
           'validateAndRetrieveSubscription'
         )
         .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
       jest
         .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
         .mockResolvedValue(
@@ -1888,6 +1926,10 @@ describe('SubscriptionManagementService', () => {
       mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
         PageContentByPriceIdsPurchaseResultFactory()
       );
+
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoicePreview);
 
       const result = await subscriptionManagementService.getCancelFlowContent(
         mockUid,
@@ -1923,6 +1965,24 @@ describe('SubscriptionManagementService', () => {
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory()
       );
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          currency: 'usd',
+        })
+      );
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({
+          customer: mockStripeCustomer.id,
+        })
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
       const mockProductNameByPriceIdsResultUtil = {
         purchaseForPriceId: jest.fn(),
       };
@@ -1933,6 +1993,12 @@ describe('SubscriptionManagementService', () => {
           'validateAndRetrieveSubscription'
         )
         .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
       jest
         .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
         .mockResolvedValue(

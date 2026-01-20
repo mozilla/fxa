@@ -17,19 +17,21 @@ type ChurnErrorProps = {
   cmsOfferingContent: any;
   locale: string;
   reason: string;
-  pageContent: {
-    flowType: 'cancel' | 'stay_subscribed';
-    active: boolean;
-    cancelAtPeriodEnd: boolean;
-    currency: string;
-    currentPeriodEnd: number;
-    defaultPaymentMethodType?: SubPlatPaymentMethodType;
-    last4?: string;
-    nextInvoiceTax?: number;
-    nextInvoiceTotal?: number;
-    productName: string;
-    webIcon: string;
-  };
+  pageContent:
+    | {
+        flowType: 'cancel' | 'stay_subscribed';
+        active: boolean;
+        cancelAtPeriodEnd: boolean;
+        currency: string;
+        currentPeriodEnd: number;
+        defaultPaymentMethodType?: SubPlatPaymentMethodType;
+        last4?: string;
+        nextInvoiceTax?: number;
+        nextInvoiceTotal?: number;
+        productName: string;
+        webIcon: string;
+      }
+    | { flowType: 'not_found' };
   subscriptionId: string;
 };
 
@@ -71,7 +73,7 @@ export async function ChurnError({
                   {l10n.getString(
                     'churn-error-page-message-discount-already-applied',
                     { productName },
-                    `This discount was applied to a ${productName} subscription for your account. If you still need help, please contact our Support team.`
+                    `This discount was applied to a ${productName} subscription for your account. If you still need help, contact our Support team.`
                   )}
                 </p>
               </div>
@@ -136,7 +138,7 @@ export async function ChurnError({
         </section>
       );
     case 'subscription_still_active':
-      if (!pageContent) {
+      if (!pageContent || pageContent.flowType === 'not_found') {
         // Re-render as general error section below
         break;
       }

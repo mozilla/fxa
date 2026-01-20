@@ -47,8 +47,14 @@ export default async function LoyaltyDiscountStaySubscribedErrorPage({
     notFound();
   }
 
-  const { cmsOfferingContent, reason } = pageContent;
+  const { churnStaySubscribedEligibility } = pageContent;
+  if (churnStaySubscribedEligibility.isEligible) {
+    redirect(
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/stay-subscribed`
+    );
+  }
 
+  const { cmsOfferingContent, reason } = churnStaySubscribedEligibility;
   if (!cmsOfferingContent) {
     notFound();
   }

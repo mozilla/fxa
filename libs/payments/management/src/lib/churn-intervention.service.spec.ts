@@ -600,7 +600,8 @@ describe('ChurnInterventionService', () => {
 
       const result = await churnInterventionService.redeemChurnCoupon(
         mockUid,
-        mockSubscription.id
+        mockSubscription.id,
+        'stay_subscribed'
       );
 
       expect(
@@ -649,7 +650,8 @@ describe('ChurnInterventionService', () => {
 
       const result = await churnInterventionService.redeemChurnCoupon(
         mockUid,
-        mockSubscription.id
+        mockSubscription.id,
+        'stay_subscribed'
       );
 
       expect(
@@ -684,7 +686,8 @@ describe('ChurnInterventionService', () => {
 
       const result = await churnInterventionService.redeemChurnCoupon(
         mockUid,
-        mockSubscription.id
+        mockSubscription.id,
+        'stay_subscribed'
       );
 
       expect(
@@ -724,7 +727,8 @@ describe('ChurnInterventionService', () => {
 
       const result = await churnInterventionService.redeemChurnCoupon(
         mockUid,
-        mockSubscription.id
+        mockSubscription.id,
+        'stay_subscribed'
       );
 
       expect(
@@ -773,6 +777,7 @@ describe('ChurnInterventionService', () => {
           isEligible: false,
           reason: 'no_churn_intervention_found',
           cmsChurnInterventionEntry: null,
+          cmsOfferingContent: null,
         });
 
       const mockCancelInterstitialOffer =
@@ -855,6 +860,7 @@ describe('ChurnInterventionService', () => {
           isEligible: false,
           reason: 'no_churn_intervention_found',
           cmsChurnInterventionEntry: null,
+          cmsOfferingContent: null,
         });
 
       const result =
@@ -896,6 +902,7 @@ describe('ChurnInterventionService', () => {
           isEligible: false,
           reason: 'no_churn_intervention_found',
           cmsChurnInterventionEntry: null,
+          cmsOfferingContent: null,
         });
       jest
         .spyOn(
@@ -927,6 +934,7 @@ describe('ChurnInterventionService', () => {
           isEligible: false,
           reason: 'no_churn_intervention_found',
           cmsChurnInterventionEntry: null,
+          cmsOfferingContent: null,
         });
       jest
         .spyOn(
@@ -2115,6 +2123,7 @@ describe('ChurnInterventionService', () => {
       const result = await churnInterventionService.redeemChurnCoupon(
         'uid123',
         'sub_123',
+        'stay_subscribed',
         'en'
       );
 

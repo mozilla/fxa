@@ -4,7 +4,7 @@
 
 import { IsString, IsOptional } from 'class-validator';
 
-export class DetermineStaySubscribedEligibilityActionArgs {
+export class DetermineChurnEligibilityActionArgs {
   @IsString()
   uid!: string;
 

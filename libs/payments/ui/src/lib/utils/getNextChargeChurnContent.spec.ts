@@ -39,7 +39,7 @@ describe('getNextChargeChurnContent', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
           defaultPaymentMethodType: SubPlatPaymentMethodType.Card,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
           last4: faker.string.numeric({ length: 4 }),
           nextInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
         };
@@ -59,7 +59,7 @@ describe('getNextChargeChurnContent', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
           defaultPaymentMethodType: SubPlatPaymentMethodType.PayPal,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
           nextInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
@@ -80,7 +80,7 @@ describe('getNextChargeChurnContent', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
           defaultPaymentMethodType: SubPlatPaymentMethodType.Link,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
           nextInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
@@ -101,7 +101,7 @@ describe('getNextChargeChurnContent', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
           defaultPaymentMethodType: SubPlatPaymentMethodType.ApplePay,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
           nextInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
@@ -122,7 +122,7 @@ describe('getNextChargeChurnContent', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
           defaultPaymentMethodType: SubPlatPaymentMethodType.GooglePay,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
           nextInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
@@ -142,7 +142,7 @@ describe('getNextChargeChurnContent', () => {
       it('returns default', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
           nextInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
@@ -168,7 +168,7 @@ describe('getNextChargeChurnContent', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
           defaultPaymentMethodType: SubPlatPaymentMethodType.Card,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
           last4: faker.string.numeric({ length: 4 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
@@ -187,7 +187,7 @@ describe('getNextChargeChurnContent', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
           defaultPaymentMethodType: SubPlatPaymentMethodType.PayPal,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
         expect(content.l10nId).toBe(
@@ -207,7 +207,7 @@ describe('getNextChargeChurnContent', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
           defaultPaymentMethodType: SubPlatPaymentMethodType.Link,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
         expect(content.l10nId).toBe(
@@ -227,7 +227,7 @@ describe('getNextChargeChurnContent', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
           defaultPaymentMethodType: SubPlatPaymentMethodType.ApplePay,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
         expect(content.l10nId).toBe(
@@ -247,7 +247,7 @@ describe('getNextChargeChurnContent', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
           defaultPaymentMethodType: SubPlatPaymentMethodType.GooglePay,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
         expect(content.l10nId).toBe(
@@ -266,7 +266,7 @@ describe('getNextChargeChurnContent', () => {
       it('returns default', () => {
         const mockSubscriptionPageContent = {
           ...mockContent,
-          discountAmount: faker.number.int({ min: 0, max: 100 }),
+          discountAmount: faker.number.int({ min: 1, max: 100 }),
         };
         const content = getNextChargeChurnContent(mockSubscriptionPageContent);
         expect(content.l10nId).toBe('next-charge-with-discount-no-tax');
