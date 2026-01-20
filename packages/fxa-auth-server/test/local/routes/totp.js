@@ -109,131 +109,6 @@ describe('totp', () => {
         );
       });
     });
-
-    it('should be disabled for unverified email', () => {
-      return setup(
-        { db: { email: TEST_EMAIL, emailVerified: false } },
-        {},
-        '/totp/create',
-        requestOptions
-      ).then(assert.fail, (err) => {
-        assert.equal(
-          err.errno,
-          authErrors.ERRNO.ACCOUNT_UNVERIFIED,
-          'unverified email error'
-        );
-      });
-    });
-  });
-
-  describe('/totp/destroy', () => {
-    it('should delete TOTP token in verified session', () => {
-      requestOptions.credentials.tokenVerified = true;
-      return setup(
-        { db: { email: TEST_EMAIL }, profile },
-        {},
-        '/totp/destroy',
-        requestOptions
-      ).then((response) => {
-        assert.ok(response);
-        assert.equal(
-          db.deleteTotpToken.callCount,
-          1,
-          'called delete TOTP token'
-        );
-        assert.equal(
-          profile.deleteCache.callCount,
-          1,
-          'called profile client delete cache'
-        );
-        assert.equal(
-          profile.deleteCache.getCall(0).args[0],
-          'uid',
-          'called profile client delete cache'
-        );
-
-        assert.equal(
-          log.notifyAttachedServices.callCount,
-          1,
-          'called notifyAttachedServices'
-        );
-        const args = log.notifyAttachedServices.args[0];
-        assert.equal(
-          args.length,
-          3,
-          'log.notifyAttachedServices was passed three arguments'
-        );
-        assert.equal(
-          args[0],
-          'profileDataChange',
-          'first argument was event name'
-        );
-        assert.equal(args[2].uid, 'uid');
-
-        assert.equal(
-          db.verifyTokensWithMethod.callCount,
-          1,
-          'called db.verifyTokensWithMethod'
-        );
-        const dbArgs = db.verifyTokensWithMethod.args[0];
-        assert.equal(dbArgs[0], sessionId, 'first argument was sessionId');
-        assert.equal(
-          dbArgs[1],
-          'email-2fa',
-          `second argument was reduced verification level`
-        );
-
-        assert.calledOnceWithExactly(
-          accountEventsManager.recordSecurityEvent,
-          db,
-          {
-            name: 'account.two_factor_removed',
-            uid: 'uid',
-            ipAddr: '63.245.221.32',
-            tokenId: 'id',
-            additionalInfo: {
-              userAgent: 'test user-agent',
-              location: {
-                city: 'Mountain View',
-                country: 'United States',
-                countryCode: 'US',
-                state: 'California',
-                stateCode: 'CA',
-              },
-            },
-          }
-        );
-        assert.equal(mockRecoveryPhoneService.removePhoneNumber.callCount, 1);
-        assert.equal(
-          mockRecoveryPhoneService.removePhoneNumber.args[0][0],
-          'uid'
-        );
-        assert.equal(glean.twoStepAuthPhoneRemove.success.callCount, 1);
-        assert.equal(mockBackupCodeManager.deleteRecoveryCodes.callCount, 1);
-        assert.equal(
-          mockBackupCodeManager.deleteRecoveryCodes.args[0][0],
-          'uid'
-        );
-        assert.equal(glean.twoStepAuthRemove.success.callCount, 1);
-      });
-    });
-
-    it('should not delete TOTP token in unverified session', () => {
-      requestOptions.credentials.tokenVerified = false;
-      return setup(
-        { db: { email: TEST_EMAIL } },
-        {},
-        '/totp/destroy',
-        requestOptions
-      ).then(assert.fail, (err) => {
-        assert.deepEqual(err.errno, 138, 'unverified session error');
-        assert.equal(
-          log.notifyAttachedServices.callCount,
-          0,
-          'did not call notifyAttachedServices'
-        );
-      });
-    });
   });
 
   describe('/totp/exists', () => {
@@ -527,22 +402,6 @@ describe('totp', () => {
       }
     });
 
-    it('should fail for an unverified session', async () => {
-      requestOptions.credentials.tokenVerified = false;
-      requestOptions.payload = { code: '123123' };
-      try {
-        await setup(
-          { db: { email: TEST_EMAIL, emailVerified: true }, redis: { secret } },
-          {},
-          '/totp/setup/verify',
-          requestOptions
-        );
-        assert.fail('Expected unverified session error');
-      } catch (err) {
-        assert.equal(err.errno, authErrors.ERRNO.SESSION_UNVERIFIED);
-      }
-    });
-
     it('should fail for a missing secret', async () => {
       requestOptions.credentials.tokenVerified = true;
       requestOptions.payload = { code: '123123' };
@@ -556,31 +415,6 @@ describe('totp', () => {
         assert.fail('Expected missing secret error');
       } catch (err) {
         assert.equal(err.errno, authErrors.ERRNO.TOTP_TOKEN_NOT_FOUND);
-      }
-    });
-
-    it('should fail for an unverified email', async () => {
-      const authenticator = new otplib.authenticator.Authenticator();
-      authenticator.options = Object.assign({}, otplib.authenticator.options, {
-        secret,
-      });
-      requestOptions.payload = {
-        code: authenticator.generate(secret),
-      };
-
-      try {
-        await setup(
-          {
-            db: { email: TEST_EMAIL, emailVerified: false },
-            redis: { secret },
-          },
-          {},
-          '/totp/setup/verify',
-          requestOptions
-        );
-        assert.fail('Expected unverified email error');
-      } catch (err) {
-        assert.equal(err.errno, authErrors.ERRNO.ACCOUNT_UNVERIFIED);
       }
     });
   });
@@ -615,21 +449,6 @@ describe('totp', () => {
       assert.calledOnce(mailer.sendPostAddTwoStepAuthenticationEmail);
     });
 
-    it('should fail for an unverified session', async () => {
-      requestOptions.credentials.tokenVerificationId = 'notverified';
-      try {
-        await setup(
-          { db: { email: TEST_EMAIL, emailVerified: true } },
-          {},
-          '/totp/setup/complete',
-          requestOptions
-        );
-        assert.fail('Expected error');
-      } catch (err) {
-        assert.equal(err.message, 'Unconfirmed session');
-      }
-    });
-
     it('should fail for a missing secret', async () => {
       requestOptions.credentials.tokenVerified = true;
       try {
@@ -660,28 +479,6 @@ describe('totp', () => {
         responsePromise,
         authErrors.invalidTokenVerficationCode().message
       );
-    });
-
-    it('should fail for an unverified email', async () => {
-      requestOptions.credentials.tokenVerified = true;
-      const verifiedDigest = crypto
-        .createHash('sha256')
-        .update(secret)
-        .digest('hex');
-      try {
-        await setup(
-          {
-            db: { email: TEST_EMAIL, emailVerified: false },
-            redis: { secret, verifiedDigest },
-          },
-          {},
-          '/totp/setup/complete',
-          requestOptions
-        );
-        assert.fail('Expected error');
-      } catch (err) {
-        assert.equal(err.errno, authErrors.ERRNO.ACCOUNT_UNVERIFIED);
-      }
     });
   });
 
@@ -809,181 +606,6 @@ describe('totp', () => {
       assert.calledOnce(mailer.sendLowRecoveryCodesEmail);
       assert.equal(response.remaining, 1);
       assert.calledOnceWithExactly(db.consumeRecoveryCode, 'uid', '1234567890');
-    });
-  });
-
-  describe('/totp/replace/start', () => {
-    it('should create a new TOTP token if user has an existing token', async () => {
-      requestOptions.credentials.tokenVerified = true;
-      const response = await setup(
-        {
-          db: { email: TEST_EMAIL },
-          totpTokenVerified: true,
-          totpTokenEnabled: true,
-        },
-        {},
-        '/totp/replace/start',
-        requestOptions
-      );
-      assert.ok(response.qrCodeUrl);
-      assert.ok(response.secret);
-      assert.equal(
-        authServerCacheRedis.set.callCount,
-        1,
-        'stored TOTP token in Redis'
-      );
-    });
-
-    it('should error if the user does not have an existing token', async () => {
-      requestOptions.credentials.tokenVerified = true;
-      await setup(
-        {
-          db: { email: TEST_EMAIL },
-          totpTokenVerified: false,
-          totpTokenEnabled: false,
-        },
-        {},
-        '/totp/replace/start',
-        requestOptions
-      ).then(assert.fail, (err) => {
-        assert.deepEqual(
-          err.errno,
-          220,
-          'Error number for TOTP does not match'
-        );
-        assert.deepEqual(
-          err.message,
-          'TOTP secret does not exist for this account.'
-        );
-      });
-    });
-
-    it('should return an error if the session is unverified', async () => {
-      requestOptions.credentials.tokenVerified = false;
-      await setup(
-        { db: { email: TEST_EMAIL } },
-        {},
-        '/totp/replace/start',
-        requestOptions
-      ).then(assert.fail, (err) => {
-        assert.deepEqual(err.errno, 138, 'unverified session error');
-      });
-    });
-  });
-
-  describe('/totp/replace/confirm', () => {
-    beforeEach(() => {
-      glean.twoFactorAuth.replaceSuccess.reset();
-    });
-    it('should verify a valid replacement totp code', async () => {
-      requestOptions.credentials.tokenVerified = true;
-      const authenticator = new otplib.authenticator.Authenticator();
-      authenticator.options = Object.assign({}, otplib.authenticator.options, {
-        secret,
-      });
-      requestOptions.payload = {
-        code: authenticator.generate(secret),
-      };
-      const response = await setup(
-        {
-          db: { email: TEST_EMAIL },
-          redis: { secret },
-        },
-        {},
-        '/totp/replace/confirm',
-        requestOptions
-      );
-
-      assert.isTrue(response.success);
-      assert.calledOnce(db.replaceTotpToken);
-      assert.calledOnce(authServerCacheRedis.del);
-      assert.calledOnce(glean.twoFactorAuth.replaceSuccess);
-    });
-
-    it('should send postChangeTwoStepAuthentication email', async () => {
-      requestOptions.credentials.tokenVerified = true;
-      const authenticator = new otplib.authenticator.Authenticator();
-      authenticator.options = Object.assign({}, otplib.authenticator.options, {
-        secret,
-      });
-      requestOptions.payload = {
-        code: authenticator.generate(secret),
-      };
-      await setup(
-        {
-          db: { email: TEST_EMAIL },
-          redis: { secret },
-        },
-        {},
-        '/totp/replace/confirm',
-        requestOptions
-      );
-
-      assert.equal(
-        mailer.sendPostChangeTwoStepAuthenticationEmail.callCount,
-        1
-      );
-    });
-
-    it('should fail for an invalid replacement totp code', async () => {
-      requestOptions.credentials.tokenVerified = true;
-      requestOptions.payload = {
-        code: 'INVALID_CODE',
-      };
-      try {
-        await setup(
-          {
-            db: { email: TEST_EMAIL },
-            totpTokenVerified: false,
-            totpTokenEnabled: false,
-            redis: { secret },
-          },
-          {},
-          '/totp/replace/confirm',
-          requestOptions
-        );
-        assert.fail('Expected request to error but it succeeded');
-      } catch (err) {
-        assert.equal(err.message, 'Invalid token confirmation code');
-      }
-    });
-
-    it('should return false if replacement fails', async () => {
-      requestOptions.credentials.tokenVerified = true;
-      const authenticator = new otplib.authenticator.Authenticator();
-      authenticator.options = Object.assign({}, otplib.authenticator.options, {
-        secret,
-      });
-      requestOptions.payload = {
-        code: authenticator.generate(secret),
-      };
-      const response = await setup(
-        {
-          db: { email: TEST_EMAIL },
-          redis: { secret },
-        },
-        { replaceTotpToken: true },
-        '/totp/replace/confirm',
-        requestOptions
-      );
-
-      assert.equal(response.success, false, 'should be invalid code');
-    });
-
-    it('should return an error if the session is unverified', async () => {
-      requestOptions.credentials.tokenVerified = false;
-      requestOptions.payload = { code: '123456' };
-      await setup(
-        {
-          db: { email: TEST_EMAIL },
-          redis: { secret },
-        },
-        {},
-        '/totp/replace/confirm',
-        requestOptions
-      ).then(assert.fail, (err) => {
-        assert.deepEqual(err.errno, 138, 'unverified session error');
-      });
     });
   });
 });

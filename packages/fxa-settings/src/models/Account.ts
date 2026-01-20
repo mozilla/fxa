@@ -1166,13 +1166,6 @@ export class Account implements AccountData {
     });
   }
 
-  async deleteSecondaryEmail(email: string) {
-    await this.withLoadingStatus(
-      this.authClient.recoveryEmailDestroy(sessionToken()!, email)
-    );
-    await this.refresh('emails');
-  }
-
   async deleteSecondaryEmailWithJwt(email: string) {
     const jwt = this.getCachedJwtByScope('email');
     await this.withLoadingStatus(

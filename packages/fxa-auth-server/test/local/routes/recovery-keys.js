@@ -417,93 +417,6 @@ describe('POST /recoveryKey', () => {
       );
     });
   });
-
-  describe('should not verify invalid account recovery key', () => {
-    let error;
-
-    beforeEach(async () => {
-      mockAccountEventsManager = mocks.mockAccountEventsManager();
-      const requestOptions = {
-        credentials: { uid, email, tokenVerificationId: true },
-        log,
-        payload: { recoveryKeyId: recoveryKeyId, enabled: false },
-      };
-      try {
-        await setup(
-          { db: { email } },
-          {},
-          '/recoveryKey/verify',
-          requestOptions
-        );
-      } catch (e) {
-        error = e;
-      }
-    });
-    after(() => {
-      mocks.unMockAccountEventsManager();
-    });
-
-    it('records security event', () => {
-      assert.isDefined(error);
-      sinon.assert.calledWith(
-        mockAccountEventsManager.recordSecurityEvent,
-        sinon.match.defined,
-        sinon.match({
-          name: 'account.recovery_key_challenge_failure',
-          ipAddr: '63.245.221.32',
-          uid: uid,
-          tokenId: undefined,
-        })
-      );
-    });
-  });
-
-  describe('should fail for unverified session', () => {
-    beforeEach(() => {
-      mockAccountEventsManager = mocks.mockAccountEventsManager();
-    });
-
-    afterEach(() => {
-      mocks.unMockAccountEventsManager();
-    });
-
-    function makeUnverifiedReq() {
-      const requestOptions = {
-        credentials: { uid, email, tokenVerificationId: '1232311' },
-      };
-      return setup({ db: {} }, {}, '/recoveryKey', requestOptions);
-    }
-
-    it('returned the correct response', () => {
-      makeUnverifiedReq().then(assert.fail, (err) => {
-        assert.deepEqual(
-          err.errno,
-          errors.ERRNO.SESSION_UNVERIFIED,
-          'returns unverified session error'
-        );
-      });
-    });
-
-    it('records security event', () => {
-      makeUnverifiedReq().then(assert.fail, (err) => {
-        sinon.assert.calledWith(
-          mockAccountEventsManager.recordSecurityEvent,
-          sinon.match.defined,
-          sinon.match({
-            name: 'account.xxx',
-            ipAddr: '63.245.221.32',
-            uid: uid,
-            tokenId: undefined,
-          })
-        );
-        assert.deepEqual(
-          err.errno,
-          errors.ERRNO.SESSION_UNVERIFIED,
-          'returns unverified session error'
-        );
-      });
-    });
-  });
 });
 
 describe('GET /recoveryKey/{recoveryKeyId}', () => {
@@ -787,29 +700,6 @@ describe('DELETE /recoveryKey', () => {
 });
 
 describe('POST /recoveryKey/hint', () => {
-  describe('should fail for unverified session', () => {
-    beforeEach(() => {
-      const requestOptions = {
-        method: 'POST',
-        credentials: { uid, email, tokenVerificationId: 'unverified' },
-        payload: { hint },
-        log,
-      };
-      return setup({ db: {} }, {}, '/recoveryKey/hint', requestOptions).then(
-        assert.fail,
-        (err) => (response = err)
-      );
-    });
-
-    it('returned the correct response', () => {
-      assert.equal(
-        response.errno,
-        errors.ERRNO.SESSION_UNVERIFIED,
-        'unverified session'
-      );
-    });
-  });
-
   describe('should fail for unknown recovery key', () => {
     beforeEach(() => {
       const requestOptions = {

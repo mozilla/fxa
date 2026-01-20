@@ -10,6 +10,8 @@ const config = require('../../config').default.getProperties();
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const otplib = require('otplib');
+const jwt = require('jsonwebtoken');
+const uuid = require('uuid');
 const { default: Container } = require('typedi');
 const {
   PlaySubscriptions,
@@ -17,6 +19,30 @@ const {
 const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
+const tokens = require('../../lib/tokens')({ trace: function () {} });
+
+// Helper to generate MFA JWT for 2FA scope
+async function generateMfaJwt(client) {
+  const sessionTokenHex = client.sessionToken;
+  const sessionToken = await tokens.SessionToken.fromHex(sessionTokenHex);
+  const sessionTokenId = sessionToken.id;
+
+  const now = Math.floor(Date.now() / 1000);
+  const claims = {
+    sub: client.uid,
+    scope: ['mfa:2fa'],
+    iat: now,
+    jti: uuid.v4(),
+    stid: sessionTokenId,
+  };
+
+  return jwt.sign(claims, config.mfa.jwt.secretKey, {
+    algorithm: 'HS256',
+    expiresIn: config.mfa.jwt.expiresInSec,
+    audience: config.mfa.jwt.audience,
+    issuer: config.mfa.jwt.issuer,
+  });
+}
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote totp`, function () {
@@ -125,20 +151,22 @@ const {
         password,
         server.mailbox,
         testOptions
-      ).then((x) => {
+      ).then(async (x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
+        const mfaJwt = await generateMfaJwt(client);
         return client
-          .deleteTotpToken()
+          .deleteTotpToken(mfaJwt)
           .then((result) =>
             assert.ok(result, 'delete totp token successfully')
           );
       });
     });
 
-    it('should delete totp token', () => {
+    it('should delete totp token', async () => {
+      const mfaJwt = await generateMfaJwt(client);
       return client
-        .deleteTotpToken()
+        .deleteTotpToken(mfaJwt)
         .then((result) => {
           assert.ok(result, 'delete totp token successfully');
           return server.mailbox.waitForEmail(email);
@@ -202,9 +230,10 @@ const {
           );
         })
         .then((client2) => verifyTOTP(client2))
-        .then((res) => {
+        .then(async () => {
           // Attempt to delete totp from original unverified session
-          return client.deleteTotpToken().then(assert.fail, (err) => {
+          const mfaJwt = await generateMfaJwt(client);
+          return client.deleteTotpToken(mfaJwt).then(assert.fail, (err) => {
             assert.equal(err.errno, 138, 'correct unverified session errno');
           });
         });
@@ -228,9 +257,10 @@ const {
       });
     });
 
-    it('should not have `totp-2fa` verification if user has unverified totp token', () => {
+    it('should not have `totp-2fa` verification if user has unverified totp token', async () => {
+      const mfaJwt = await generateMfaJwt(client);
       return client
-        .deleteTotpToken()
+        .deleteTotpToken(mfaJwt)
         .then(() => client.createTotpToken())
         .then(() =>
           Client.login(config.publicUrl, email, password, {
@@ -325,8 +355,9 @@ const {
         'verification reason set'
       );
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
-      await client.verifyPasswordResetCode(code);
+      const otpCode = await server.mailbox.waitForCode(email);
+      const result = await client.verifyPasswordForgotOtp(otpCode);
+      await client.verifyPasswordResetCode(result.code);
 
       try {
         await client.resetPassword(newPassword, {}, { keys: true });
@@ -358,12 +389,13 @@ const {
         'verification reason set'
       );
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
+      const otpCode = await server.mailbox.waitForCode(email);
+      const result = await client.verifyPasswordForgotOtp(otpCode);
 
       const totpCode = authenticator.generate();
       await client.verifyTotpCodeForPasswordReset(totpCode);
 
-      await client.verifyPasswordResetCode(code);
+      await client.verifyPasswordResetCode(result.code);
 
       const res = await client.resetPassword(newPassword, {}, { keys: true });
       assert.equal(

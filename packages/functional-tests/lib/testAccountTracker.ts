@@ -340,9 +340,9 @@ export class TestAccountTracker {
     }
 
     if (has2FA) {
-      // TODO: `deleteTotpToken` is deprecated, use `deleteTotpTokenWithJwt` instead
-      // https://mozilla-hub.atlassian.net/browse/FXA-12629
-      await this.target.authClient.deleteTotpToken(sessionToken);
+      // Get MFA JWT for 2FA scope to delete TOTP
+      const mfaJwt = await this.getMfaJwtForScope('2fa', sessionToken, account.email);
+      await this.target.authClient.deleteTotpTokenWithJwt(mfaJwt);
     }
 
     await this.target.authClient.accountDestroy(
@@ -385,6 +385,39 @@ export class TestAccountTracker {
 
     const code = await getTotpCode(secret);
     await this.target.authClient.verifyTotpCode(sessionToken, code);
+  }
+
+  /**
+   * Gets an MFA JWT for a specific scope by requesting and verifying an OTP.
+   * This is used for operations that require MFA authentication.
+   */
+  private async getMfaJwtForScope(
+    scope: MfaScope,
+    sessionToken: string,
+    email: string
+  ): Promise<string> {
+    const { status } = await this.target.authClient.mfaRequestOtp(
+      sessionToken,
+      scope
+    );
+    if (status !== 'success') {
+      throw new Error(`Failed to request MFA OTP for scope: ${scope}`);
+    }
+
+    const code = await this.target.emailClient.getVerifyAccountChangeCode(email);
+
+    const { accessToken } = await this.target.authClient.mfaOtpVerify(
+      sessionToken,
+      code,
+      scope
+    );
+    if (!accessToken) {
+      throw new Error(
+        `Failed to get MFA JWT for scope: ${scope}. No accessToken returned`
+      );
+    }
+
+    return accessToken;
   }
 
   /**

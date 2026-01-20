@@ -1941,19 +1941,6 @@ export default class AuthClient {
     return this.jwtPost('/mfa/recovery_email', jwt, { email }, headers);
   }
 
-  async recoveryEmailDestroy(
-    sessionToken: hexstring,
-    email: string,
-    headers?: Headers
-  ) {
-    return this.sessionPost(
-      '/recovery_email/destroy',
-      sessionToken,
-      { email },
-      headers
-    );
-  }
-
   async recoveryEmailDestroyWithJwt(
     jwt: string,
     email: string,
@@ -2313,19 +2300,6 @@ export default class AuthClient {
     headers?: Headers
   ): Promise<void> {
     return this.jwtPost('/mfa/totp/replace/confirm', jwt, { code }, headers);
-  }
-
-  /**
-   * @deprecated Use deleteTotpTokenWithJwt instead
-   *
-   * Disables 2FA Protection on the account.
-   *
-   * @param sessionToken - required, must be a verified session token
-   * @param headers - Optional additional headers for the request
-   * @returns A promise that resolves when the 2FA has been removed
-   */
-  async deleteTotpToken(sessionToken: hexstring, headers?: Headers) {
-    return this.sessionPost('/totp/destroy', sessionToken, {}, headers);
   }
 
   /**
