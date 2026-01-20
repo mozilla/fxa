@@ -153,10 +153,10 @@ describe('OAuthNativeIntegration', function () {
       expect(model.getServiceName()).toBe('Firefox Relay');
     });
 
-    it('returns AI Window service name for aiwindow service', () => {
+    it('returns Smart Window service name for smartwindow service', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = OAuthNativeServices.AiWindow;
-      expect(model.getServiceName()).toBe('Firefox AI Window');
+      model.data.service = OAuthNativeServices.SmartWindow;
+      expect(model.getServiceName()).toBe('Firefox Smart Window');
     });
   });
 
@@ -173,30 +173,30 @@ describe('OAuthNativeIntegration', function () {
       expect(model.isFirefoxClientServiceRelay()).toBe(false);
     });
 
-    it('returns false when service is aiwindow', () => {
+    it('returns false when service is smartwindow', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = OAuthNativeServices.AiWindow;
+      model.data.service = OAuthNativeServices.SmartWindow;
       expect(model.isFirefoxClientServiceRelay()).toBe(false);
     });
   });
 
-  describe('isFirefoxClientServiceAiWindow', () => {
-    it('returns true when service is aiwindow', () => {
+  describe('isFirefoxClientServiceSmartWindow', () => {
+    it('returns true when service is smartwindow', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = OAuthNativeServices.AiWindow;
-      expect(model.isFirefoxClientServiceAiWindow()).toBe(true);
+      model.data.service = OAuthNativeServices.SmartWindow;
+      expect(model.isFirefoxClientServiceSmartWindow()).toBe(true);
     });
 
     it('returns false when service is sync', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
       model.data.service = OAuthNativeServices.Sync;
-      expect(model.isFirefoxClientServiceAiWindow()).toBe(false);
+      expect(model.isFirefoxClientServiceSmartWindow()).toBe(false);
     });
 
     it('returns false when service is relay', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
       model.data.service = OAuthNativeServices.Relay;
-      expect(model.isFirefoxClientServiceAiWindow()).toBe(false);
+      expect(model.isFirefoxClientServiceSmartWindow()).toBe(false);
     });
   });
 
@@ -218,9 +218,9 @@ describe('OAuthNativeIntegration', function () {
       expect(model.isFirefoxNonSync()).toBe(true);
     });
 
-    it('returns true when service is aiwindow', () => {
+    it('returns true when service is smartwindow', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = OAuthNativeServices.AiWindow;
+      model.data.service = OAuthNativeServices.SmartWindow;
       expect(model.isFirefoxNonSync()).toBe(true);
     });
   });
@@ -232,10 +232,10 @@ describe('OAuthNativeIntegration', function () {
       expect(model.getWebChannelServices()).toEqual({ relay: {} });
     });
 
-    it('returns aiwindow services when service is aiwindow', () => {
+    it('returns smartwindow services when service is smartwindow', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = OAuthNativeServices.AiWindow;
-      expect(model.getWebChannelServices()).toEqual({ aiwindow: {} });
+      model.data.service = OAuthNativeServices.SmartWindow;
+      expect(model.getWebChannelServices()).toEqual({ smartwindow: {} });
     });
 
     it('returns sync services when service is sync', () => {

@@ -314,9 +314,9 @@ describe('Signin component', () => {
         });
       });
 
-      it('renders third party auth when service=aiwindow and supportsKeysOptionalLogin is true', () => {
+      it('renders third party auth when service=smartwindow and supportsKeysOptionalLogin is true', () => {
         const integration = createMockSigninOAuthNativeIntegration({
-          service: OAuthNativeServices.AiWindow,
+          service: OAuthNativeServices.SmartWindow,
           isSync: false,
         });
         render({
@@ -1048,9 +1048,9 @@ describe('Signin component', () => {
       });
     });
 
-    it('shows cached signin for service=aiwindow when supportsKeysOptionalLogin is true', () => {
+    it('shows cached signin for service=smartwindow when supportsKeysOptionalLogin is true', () => {
       const integration = createMockSigninOAuthNativeIntegration({
-        service: OAuthNativeServices.AiWindow,
+        service: OAuthNativeServices.SmartWindow,
         isSync: false,
       });
       render({

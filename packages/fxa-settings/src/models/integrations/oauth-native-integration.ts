@@ -48,7 +48,7 @@ export enum OAuthNativeClients {
 export enum OAuthNativeServices {
   Sync = 'sync',
   Relay = 'relay',
-  AiWindow = 'aiwindow',
+  SmartWindow = 'smartwindow',
 }
 
 /**
@@ -101,17 +101,17 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     );
   }
 
-  isFirefoxClientServiceAiWindow() {
+  isFirefoxClientServiceSmartWindow() {
     return (
       this.isFirefoxClient() &&
-      this.data.service === OAuthNativeServices.AiWindow
+      this.data.service === OAuthNativeServices.SmartWindow
     );
   }
 
   isFirefoxNonSync() {
     return (
       this.isFirefoxClientServiceRelay() ||
-      this.isFirefoxClientServiceAiWindow()
+      this.isFirefoxClientServiceSmartWindow()
     );
   }
 
@@ -141,8 +141,8 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     if (this.isFirefoxClientServiceRelay()) {
       return { relay: {} };
     }
-    if (this.isFirefoxClientServiceAiWindow()) {
-      return { aiwindow: {} };
+    if (this.isFirefoxClientServiceSmartWindow()) {
+      return { smartwindow: {} };
     }
     if (this.isDefaultSyncService()) {
       return { sync: syncEngines || {} };
@@ -157,8 +157,8 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     if (this.isFirefoxClientServiceRelay()) {
       return Constants.RELIER_FF_CLIENT_RELAY_SERVICE_NAME;
     }
-    if (this.isFirefoxClientServiceAiWindow()) {
-      return Constants.RELIER_FF_CLIENT_AI_MODE_SERVICE_NAME;
+    if (this.isFirefoxClientServiceSmartWindow()) {
+      return Constants.RELIER_FF_CLIENT_SMART_WINDOW_SERVICE_NAME;
     }
     // TODO: handle Thunderbird case better? FXA-10848
     return 'Firefox';

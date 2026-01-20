@@ -13,7 +13,7 @@ export type IndexIntegration = Pick<
   | 'isSync'
   | 'getClientId'
   | 'isFirefoxClientServiceRelay'
-  | 'isFirefoxClientServiceAiWindow'
+  | 'isFirefoxClientServiceSmartWindow'
   | 'isFirefoxNonSync'
   | 'data'
   | 'getCmsInfo'

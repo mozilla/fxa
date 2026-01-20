@@ -86,7 +86,7 @@ export class GenericIntegration<
     return false;
   }
 
-  isFirefoxClientServiceAiWindow() {
+  isFirefoxClientServiceSmartWindow() {
     return false;
   }
 
