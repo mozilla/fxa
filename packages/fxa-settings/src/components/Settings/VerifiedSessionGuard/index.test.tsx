@@ -64,7 +64,19 @@ it('renders the guard when unverified', async () => {
     async () =>
       await renderWithRouter(
         <AppContext.Provider
-          value={mockAppContext({ account, session: mockSession(false) })}
+          value={mockAppContext({
+            account,
+            session: mockSession(false),
+            authClient: {
+              sessionStatus: () => {
+                return {
+                  details: {
+                    sessionVerified: false,
+                  },
+                };
+              },
+            } as unknown as AuthClient,
+          })}
         >
           <VerifiedSessionGuard {...{ onDismiss, onError }}>
             <div>Content</div>

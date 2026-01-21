@@ -1031,6 +1031,81 @@ describe('Signin component', () => {
       passwordInputNotRendered();
     });
 
+    it('shows cached signin for service=relay when supportsKeysOptionalLogin is true', () => {
+      const integration = createMockSigninOAuthNativeIntegration({
+        service: OAuthNativeServices.Relay,
+        isSync: false,
+      });
+      render({
+        integration,
+        sessionToken: MOCK_SESSION_TOKEN,
+        supportsKeysOptionalLogin: true,
+      });
+
+      passwordInputNotRendered();
+      expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
+        event: { thirdPartyLinks: true },
+      });
+    });
+
+    it('shows cached signin for service=aiwindow when supportsKeysOptionalLogin is true', () => {
+      const integration = createMockSigninOAuthNativeIntegration({
+        service: OAuthNativeServices.AiWindow,
+        isSync: false,
+      });
+      render({
+        integration,
+        sessionToken: MOCK_SESSION_TOKEN,
+        supportsKeysOptionalLogin: true,
+      });
+
+      passwordInputNotRendered();
+      expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
+        event: { thirdPartyLinks: true },
+      });
+    });
+
+    it('requires password for service=relay when supportsKeysOptionalLogin is false', () => {
+      const integration = createMockSigninOAuthNativeIntegration({
+        service: OAuthNativeServices.Relay,
+        isSync: false,
+      });
+      render({
+        integration,
+        sessionToken: MOCK_SESSION_TOKEN,
+        supportsKeysOptionalLogin: false,
+      });
+
+      passwordInputRendered();
+      expect(GleanMetrics.login.view).toHaveBeenCalledWith({
+        event: { thirdPartyLinks: false },
+      });
+    });
+
+    it('sends webchannel message if cached signin for service=relay when supportsKeysOptionalLogin is true', async () => {
+      const fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
+
+      const integration = createMockSigninOAuthNativeIntegration({
+        service: OAuthNativeServices.Relay,
+        isSync: false,
+      });
+      render({
+        integration,
+        sessionToken: MOCK_SESSION_TOKEN,
+        supportsKeysOptionalLogin: true,
+      });
+      await submit();
+      await waitFor(() => {
+        expect(fxaLoginSpy).toHaveBeenCalledWith({
+          email: MOCK_EMAIL,
+          sessionToken: MOCK_SESSION_TOKEN,
+          uid: MOCK_UID,
+          verified: true,
+          services: { relay: {} },
+        });
+      });
+    });
+
     it('emits an event on forgot password link click', async () => {
       renderWithLocalizationProvider(
         <Subject sessionToken={MOCK_SESSION_TOKEN} />
