@@ -597,12 +597,7 @@ const convictConf = convict({
       ignoreTemplates: {
         doc: 'Always ignore bounces from these email templates',
         format: Array,
-        default: [
-          'verifyLoginCode',
-          'verifyLogin',
-          'recovery',
-          'unblockCode',
-        ],
+        default: ['verifyLoginCode', 'verifyLogin', 'recovery', 'unblockCode'],
         env: 'BOUNCES_IGNORE_TEMPLATES',
       },
       deleteAccount: {
@@ -681,6 +676,12 @@ const convictConf = convict({
       format: Boolean,
       default: true,
       env: 'SMTP_METRICS_ENABLED',
+    },
+    fxaMailerDisableSend: {
+      doc: 'Array of templates that should not be supported by fxa mailer. Used to fallback to previous email sending if in a pinch.',
+      format: Array,
+      default: [''],
+      env: 'SMTP_FXA_MAILER_DISABLE_SEND',
     },
   },
   maxEventLoopDelay: {
