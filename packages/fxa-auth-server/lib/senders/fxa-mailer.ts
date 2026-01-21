@@ -53,6 +53,19 @@ export class FxaMailer extends FxaEmailRenderer {
     super(bindings);
   }
 
+  /**
+   * Feature flag esque method that signals if the template is supported by the new mailer. Used to easily
+   * fall back to old email code if necessary.
+   * @param templateName The name of the template to check on.
+   * @returns True if the email can be sent, and false if the template is included in the SMTP_FXA_MAILER_DISABLE_SEND list.
+   */
+  canSend(templateName: string) {
+    if (this.mailerConfig.fxaMailerDisableSend.includes(templateName)) {
+      return false;
+    }
+    return true;
+  }
+
   async sendRecoveryEmail(
     opts: EmailSenderOpts &
       OmitCommonLinks<TemplateData> &
