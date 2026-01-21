@@ -20,6 +20,7 @@ const { AccountEventsManager } = require('../lib/account-events');
 const { gleanMetrics } = require('../lib/metrics/glean');
 const { PriceManager } = require('@fxa/payments/customer');
 const { ProductConfigurationManager } = require('@fxa/shared/cms');
+const { FxaMailer } = require('../lib/senders/fxa-mailer');
 
 const proxyquire = require('proxyquire');
 const amplitudeModule = proxyquire('../lib/metrics/amplitude', {
@@ -355,6 +356,7 @@ module.exports = {
   unMockAccountEventsManager,
   mockPriceManager,
   mockProductConfigurationManager,
+  mockFxaMailer,
 };
 
 function mockCustoms(errors) {
@@ -1124,4 +1126,39 @@ function mockProductConfigurationManager() {
   };
   Container.set(ProductConfigurationManager, productConfigurationManager);
   return productConfigurationManager;
+}
+
+/**
+ * Used to mock the FxaMailer, injecting the mock into the Container. Be sure
+ * to call this before the code under test requests an FxaMailer instance from
+ * the Container.
+ *
+ * `canSend` is defaulted to a stub that resolves to `false`, so email
+ * sending is disabled by default in tests. Call mock setup with an override to enable
+ * sending for specific tests.
+ * ```
+ * const mockFxaMailer = mocks.mockFxaMailer({ canSend: sinon.stub().resolves(true) });
+ * // or, if you don't need to spy on the method:
+ * const mockFxaMailer = mocks.mockFxaMailer({ canSend: true });
+ * ```
+ * @param {*} overrides
+ * @returns {object} The mock FxaMailer instance for spy and assertion use.
+ * @usage
+ *
+ * ``` ts
+ * const mockFxaMailer = mocks.mockFxaMailer();
+ * // arrange, act, assert
+ * sinon.assert.calledOnce(mockFxaMailer.sendRecoveryEmail);
+ * ```
+ */
+function mockFxaMailer(overrides) {
+  const mockFxaMailer = {
+    // add new email methods here!
+    canSend: sinon.stub().resolves(false),
+    sendRecoveryEmail: sinon.stub().resolves(),
+    sendPasswordForgotOtpEmail: sinon.stub().resolves(),
+    ...overrides,
+  };
+  Container.set(FxaMailer, mockFxaMailer);
+  return mockFxaMailer;
 }
