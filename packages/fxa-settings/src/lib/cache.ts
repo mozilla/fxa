@@ -16,6 +16,18 @@ import { AuthUiErrors } from './auth-errors/auth-errors';
 
 const storage = Storage.factory('localStorage');
 
+// Flag to track when the user is signing out
+// When true, Account getters will return default values instead of throwing
+let _isSigningOut = false;
+
+export function setSigningOut(value: boolean): void {
+  _isSigningOut = value;
+}
+
+export function isSigningOut(): boolean {
+  return _isSigningOut;
+}
+
 // TODO in FXA-8454
 // Add checks to ensure this function cannot produce an object that would violate type safety.
 // Currently, there are no checks to ensure that the values are defined and non-null,
@@ -139,6 +151,9 @@ export function clearSignedInAccountUid() {
   delete all[uid];
   accounts(all);
   storage.remove('currentAccountUid');
+  // Dispatch events for reactive updates
+  window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'accounts' } }));
+  window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'currentAccountUid' } }));
 }
 
 /**

@@ -2,11 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ApolloClientModule from '@apollo/client';
 import * as InlineTotpSetupModule from '.';
 import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 
-import { ApolloClient } from '@apollo/client';
 import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MozServices } from '../../lib/types';
@@ -21,11 +19,7 @@ import {
 } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import {
-  MOCK_FLOW_ID,
-  MOCK_NO_TOTP,
-  MOCK_TOTP_STATUS_VERIFIED,
-} from '../Signin/mocks';
+import { MOCK_FLOW_ID } from '../Signin/mocks';
 
 const mockLocationHook = jest.fn();
 const mockNavigateHook = jest.fn();
@@ -40,18 +34,20 @@ jest.mock('@reach/router', () => {
 const mockSessionHook = jest.fn();
 const mockVerifyTotpSetupCode = jest.fn();
 const mockSendVerificationCode = jest.fn();
+const mockCreateTotpToken = jest.fn();
+const mockCheckTotpTokenExists = jest.fn();
+
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
     useSession: () => mockSessionHook(),
-    useAuthClient: () => ({ verifyTotpSetupCode: mockVerifyTotpSetupCode }),
+    useAuthClient: () => ({
+      verifyTotpSetupCode: mockVerifyTotpSetupCode,
+      createTotpToken: mockCreateTotpToken,
+      checkTotpTokenExists: mockCheckTotpTokenExists,
+    }),
   };
 });
-
-// No client-side TOTP validation in the new flow
-
-const mockTotpStatusQuery = jest.fn();
-const mockCreateTotpMutation = jest.fn();
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
@@ -77,33 +73,15 @@ function setMocks() {
   });
   mockVerifyTotpSetupCode.mockReset();
   mockSendVerificationCode.mockReset();
+  mockCreateTotpToken.mockReset();
+  mockCheckTotpTokenExists.mockReset();
   mockSessionHook.mockReturnValue({
     isSessionVerified: async () => true,
     sendVerificationCode: mockSendVerificationCode,
   });
-  mockCreateTotpMutation.mockResolvedValue({
-    data: { createTotp: MOCK_TOTP_TOKEN },
-  });
-  jest.spyOn(ApolloClientModule, 'useMutation').mockReturnValue([
-    async (...args: any[]) => {
-      return mockCreateTotpMutation(...args);
-    },
-    {
-      loading: false,
-      called: true,
-      client: {} as ApolloClient<any>,
-      reset: () => {},
-    },
-  ]);
-  mockTotpStatusQuery.mockImplementation(() => {
-    return {
-      data: MOCK_NO_TOTP,
-      loading: false,
-    };
-  });
-  jest
-    .spyOn(ApolloClientModule, 'useQuery')
-    .mockReturnValue(mockTotpStatusQuery());
+  // Default: TOTP doesn't exist, so we need to create one
+  mockCheckTotpTokenExists.mockResolvedValue({ exists: false, verified: false });
+  mockCreateTotpToken.mockResolvedValue(MOCK_TOTP_TOKEN);
   jest.spyOn(InlineTotpSetupModule, 'default');
   (InlineTotpSetupModule.default as jest.Mock).mockReset();
   mockNavigateHook.mockReset();
@@ -204,15 +182,7 @@ describe('InlineTotpSetupContainer', () => {
       mockSessionHook.mockImplementationOnce(() => ({
         isSessionVerified: async () => true,
       }));
-      mockTotpStatusQuery.mockImplementation(() => {
-        return {
-          data: MOCK_TOTP_STATUS_VERIFIED,
-          loading: false,
-        };
-      });
-      jest
-        .spyOn(ApolloClientModule, 'useQuery')
-        .mockReturnValue(mockTotpStatusQuery());
+      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
       render();
       const location = mockLocationHook();
       await waitFor(() => {
@@ -227,15 +197,7 @@ describe('InlineTotpSetupContainer', () => {
       mockSessionHook.mockImplementationOnce(() => ({
         isSessionVerified: async () => false,
       }));
-      mockTotpStatusQuery.mockImplementation(() => {
-        return {
-          data: MOCK_TOTP_STATUS_VERIFIED,
-          loading: false,
-        };
-      });
-      jest
-        .spyOn(ApolloClientModule, 'useQuery')
-        .mockReturnValue(mockTotpStatusQuery());
+      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
       render();
       const location = mockLocationHook();
       await waitFor(() => {
@@ -246,62 +208,38 @@ describe('InlineTotpSetupContainer', () => {
       });
     });
 
-    it('does not call createTotp while TOTP status is loading', async () => {
-      mockTotpStatusQuery.mockImplementation(() => {
-        return {
-          data: null,
-          loading: true,
-        };
-      });
-      jest
-        .spyOn(ApolloClientModule, 'useQuery')
-        .mockReturnValue(mockTotpStatusQuery());
+    it('does not call createTotpToken while TOTP status is loading', async () => {
+      // Simulate loading by not resolving the promise
+      mockCheckTotpTokenExists.mockImplementation(() => new Promise(() => {}));
 
       render();
 
-      await waitFor(() => {
-        expect(mockCreateTotpMutation).not.toHaveBeenCalled();
-      });
+      // Wait a bit to ensure the component has mounted
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(mockCreateTotpToken).not.toHaveBeenCalled();
     });
 
-    it('does not call createTotp when TOTP is already verified', async () => {
+    it('does not call createTotpToken when TOTP is already verified', async () => {
       mockSessionHook.mockImplementationOnce(() => ({
         isSessionVerified: async () => true,
       }));
-      mockTotpStatusQuery.mockImplementation(() => {
-        return {
-          data: MOCK_TOTP_STATUS_VERIFIED,
-          loading: false,
-        };
-      });
-      jest
-        .spyOn(ApolloClientModule, 'useQuery')
-        .mockReturnValue(mockTotpStatusQuery());
+      mockCheckTotpTokenExists.mockResolvedValue({ exists: true, verified: true });
 
       render();
 
       await waitFor(() => {
-        expect(mockCreateTotpMutation).not.toHaveBeenCalled();
+        expect(mockNavigateHook).toHaveBeenCalled();
       });
+      expect(mockCreateTotpToken).not.toHaveBeenCalled();
     });
   });
 
   describe('renders', () => {
     it('displays loading spinner when loading', async () => {
-      mockTotpStatusQuery.mockImplementation(() => {
-        return {
-          data: null,
-          loading: true,
-        };
-      });
-      jest
-        .spyOn(ApolloClientModule, 'useQuery')
-        .mockReturnValue(mockTotpStatusQuery());
+      // Simulate loading by not resolving the promise
+      mockCheckTotpTokenExists.mockImplementation(() => new Promise(() => {}));
 
       render();
-      await waitFor(() => {
-        expect(mockTotpStatusQuery).toHaveBeenCalled();
-      });
       screen.getByLabelText('Loading…');
       expect(InlineTotpSetupModule.default).not.toHaveBeenCalled();
     });
@@ -312,7 +250,7 @@ describe('InlineTotpSetupContainer', () => {
         expect(InlineTotpSetupModule.default).toHaveBeenCalled();
         const args = (InlineTotpSetupModule.default as jest.Mock).mock
           .calls[0][0];
-        expect(args.totp).toBe(MOCK_TOTP_TOKEN);
+        expect(args.totp).toEqual(MOCK_TOTP_TOKEN);
         expect(args.serviceName).toBe(MozServices.Default);
       });
     });

@@ -211,10 +211,17 @@ describe('PageSecondaryEmailAdd', () => {
     const setupMockAuthClient = () => {
       mockAuthClient.mfaRequestOtp = jest
         .fn()
-        .mockResolvedValueOnce({ code: 200, errno: 0 });
+        .mockResolvedValue({ code: 200, errno: 0 });
       mockAuthClient.mfaOtpVerify = jest
         .fn()
-        .mockResolvedValueOnce({ accessToken: mockJwt });
+        .mockResolvedValue({ accessToken: mockJwt });
+      // VerifiedSessionGuard calls sessionStatus, so we need to mock it
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        state: 'verified',
+        details: {
+          sessionVerified: true,
+        },
+      });
     };
 
     const resetJwtCache = () => {

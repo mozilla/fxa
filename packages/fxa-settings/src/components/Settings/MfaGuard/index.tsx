@@ -26,6 +26,7 @@ import {
   sessionToken as getSessionToken,
 } from '../../../lib/cache';
 import { MfaReason, MfaScope } from '../../../lib/types';
+import { ERRNO } from '@fxa/accounts/errors';
 import { useNavigate } from '@reach/router';
 import * as Sentry from '@sentry/react';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
@@ -143,6 +144,13 @@ export const MfaGuard = ({
         await authClient.mfaRequestOtp(sessionToken, requiredScope);
       } catch (err) {
         MfaOtpRequestCache.remove(sessionToken, requiredScope);
+
+        // If session token is invalid (destroyed/expired), redirect to signin
+        if (err?.errno === ERRNO.INVALID_TOKEN) {
+          navigate('/signin');
+          return;
+        }
+
         if (err.code === 429) {
           setShowResendSuccessBanner(false);
           setLocalizedErrorBannerMessage(
@@ -166,6 +174,7 @@ export const MfaGuard = ({
     onDismiss,
     config.mfa.otp.expiresInMinutes,
     debounce,
+    navigate,
   ]);
 
   const onSubmitOtp = async (code: string) => {

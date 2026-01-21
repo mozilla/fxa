@@ -1176,6 +1176,18 @@ export default class AuthClient {
     );
   }
 
+  async emailBounceStatus(
+    email: string,
+    headers?: Headers
+  ): Promise<{ hasHardBounce: boolean }> {
+    return this.request(
+      'POST',
+      '/account/email_bounce_status',
+      { email },
+      headers
+    );
+  }
+
   async accountProfile(sessionToken: hexstring, headers?: Headers) {
     return this.sessionGet('/account/profile', sessionToken, headers);
   }

@@ -76,6 +76,9 @@ const settingsConfig = {
     paymentsNext: {
       url: config.get('payments_next_hosted_url'),
     },
+    legalDocs: {
+      url: config.get('legal_docs_url'),
+    },
   },
   oauth: {
     clientId: config.get('oauth_client_id'),
