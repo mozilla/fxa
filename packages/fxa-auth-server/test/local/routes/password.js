@@ -17,27 +17,8 @@ const log = require('../../../lib/log');
 const random = require('../../../lib/crypto/random');
 const glean = mocks.mockGlean();
 const Container = require('typedi').Container;
-const { FxaMailer } = require('../../../lib/senders/fxa-mailer');
 
 const TEST_EMAIL = 'foo@gmail.com';
-
-function setupFxaMailerMock() {
-  const mockFxaMailer = {
-    sendRecoveryEmail: sinon.stub().resolves(),
-    sendPasswordForgotOtpEmail: sinon.stub().resolves(),
-    splitEmails: sinon.stub().returns({ to: TEST_EMAIL, cc: [] }),
-    helpers: {
-      constructLocalTimeString: sinon.stub().returns({
-        timeNow: '12:00:00 PM (UTC)',
-        dateNow: 'Monday, Jan 1, 2024',
-      }),
-    },
-  };
-
-  Container.set(FxaMailer, mockFxaMailer);
-
-  return mockFxaMailer;
-}
 
 function makeRoutes(options = {}) {
   const config = options.config || {
@@ -92,7 +73,7 @@ describe('/password', () => {
     // mailer mock must be done before route creation/require
     // otherwise it won't pickup the mock we define because
     // of module caching
-    mockFxaMailer = setupFxaMailerMock();
+    mockFxaMailer = mocks.mockFxaMailer();
     mockAccountEventsManager = mocks.mockAccountEventsManager();
     glean.resetPassword.emailSent.reset();
   });
