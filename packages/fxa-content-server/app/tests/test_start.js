@@ -153,7 +153,6 @@ require('./spec/views/elements/tel-input');
 require('./spec/views/elements/totp-code-input');
 require('./spec/views/elements/otp-code-input');
 require('./spec/views/elements/recovery-code-input');
-require('./spec/views/force_auth');
 require('./spec/views/form');
 require('./spec/views/index');
 require('./spec/views/marketing_snippet');
