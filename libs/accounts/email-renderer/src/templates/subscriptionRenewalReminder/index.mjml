@@ -13,8 +13,22 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionRenewalReminder-content-current" data-l10n-args="<%= JSON.stringify({invoiceTotal, planInterval, planIntervalCount, reminderLength}) %>">
-        Your current subscription is set to automatically renew in <%- reminderLength %> days. At that time, Mozilla will renew your <%- planIntervalCount%> <%- planInterval%> subscription and a charge of <%- invoiceTotal%> will be applied to the payment method on your account.
+      <span data-l10n-id="subscriptionRenewalReminder-content-intro" data-l10n-args="<%= JSON.stringify({reminderLength}) %>">
+        Your current subscription is set to automatically renew in <%- reminderLength %> days.
+      </span>
+    </mj-text>
+
+    <% if (locals.hadDiscount) { %>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionRenewalReminder-content-discount-ending">
+        Because a previous discount has ended, your subscription will renew at the standard price.
+      </span>
+    </mj-text>
+    <% } %>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionRenewalReminder-content-charge" data-l10n-args="<%= JSON.stringify({invoiceTotal, planInterval, planIntervalCount}) %>">
+        At that time, Mozilla will renew your <%- planIntervalCount%> <%- planInterval%> subscription and a charge of <%- invoiceTotal%> will be applied to the payment method on your account.
       </span>
     </mj-text>
 

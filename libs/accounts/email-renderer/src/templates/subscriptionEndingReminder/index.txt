@@ -1,0 +1,19 @@
+subscriptionEndingReminder-subject = "Your <%- productName %> subscription will expire soon"
+
+subscriptionEndingReminder-title = "Your <%- productName %> subscription will expire soon"
+
+subscriptionEndingReminder-content-line1-plaintext = "Your access to <%- productName %> will end on <%- serviceLastActiveDateOnly %>."
+
+subscriptionEndingReminder-content-line2-plaintext = "If you’d like to continue using <%- productName %>, you can reactivate your subscription in Account Settings before <%- serviceLastActiveDateOnly %>. If you need assistance, contact our Support Team."
+
+subscriptionEndingReminder-content-closing = "Thanks for being a valued subscriber!"
+
+<% if (locals.showChurn) { %>
+subscriptionEndingReminder-churn-title = "Want to keep access?"
+
+<%- ctaButtonLabel %>: <%- ctaButtonUrlWithUtm %>
+
+subscriptionEndingReminder-churn-terms-plaintext = "Limited terms and restrictions apply: <%- churnTermsUrlWithUtm %>"
+<% } %>
+
+subscriptionEndingReminder-content-support-plaintext = "Contact our Support Team: <%- subscriptionSupportUrlWithUtm %>"
