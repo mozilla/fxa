@@ -204,7 +204,6 @@ export function mockAppContext(context?: AppContextValue) {
     {
       account: MOCK_ACCOUNT,
       session: mockSession(),
-      authClient: mockAuthClient(),
       config: getDefault(),
       sensitiveDataClient: mockSensitiveDataClient(),
       uniqueUserId: '4a9512ac-3110-43df-aa8a-958A3d210b9c3',

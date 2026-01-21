@@ -7,7 +7,7 @@ import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import classNames from 'classnames';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
@@ -92,12 +92,14 @@ const Signin = ({
   const isServiceWithEmailVerification =
     !!clientId && config.servicesWithEmailVerification.includes(clientId);
 
-  // We must use a ref because we may update this value in a callback
-  let isPasswordNeededRef = useRef(
-    (!sessionToken && hasPassword) ||
+  const [hasCachedAccount, setHasCachedAccount] =
+    useState<boolean>(!!sessionToken);
+
+  const isPasswordNeeded =
+    ((!hasCachedAccount && hasPassword) ||
       integration.wantsKeys() ||
-      (isOAuth && integration.wantsLogin())
-  );
+      (isOAuth && integration.wantsLogin())) &&
+    !(hasCachedAccount && supportsKeysOptionalLogin);
 
   const localizedPasswordFormLabel = ftlMsgResolver.getMsg(
     'signin-password-button-label',
@@ -127,7 +129,7 @@ const Signin = ({
     : isOAuthNative && !supportsKeysOptionalLogin;
 
   useEffect(() => {
-    if (!isPasswordNeededRef.current) {
+    if (!isPasswordNeeded) {
       GleanMetrics.cachedLogin.view({
         event: { thirdPartyLinks: !hideThirdPartyAuth },
       });
@@ -136,7 +138,7 @@ const Signin = ({
         event: { thirdPartyLinks: !hideThirdPartyAuth },
       });
     }
-  }, [isPasswordNeededRef, hideThirdPartyAuth]);
+  }, [isPasswordNeeded, hideThirdPartyAuth]);
 
   const signInWithCachedAccount = useCallback(
     async (sessionToken: hexstring) => {
@@ -167,6 +169,8 @@ const Signin = ({
           queryParams: location.search,
           performNavigation: !integration.isFirefoxMobileClient(),
           isServiceWithEmailVerification,
+          handleFxaLogin: true,
+          handleFxaOAuthLogin: true,
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -181,7 +185,7 @@ const Signin = ({
           getLocalizedErrorMessage(ftlMsgResolver, error)
         );
         if (error.errno === AuthUiErrors.SESSION_EXPIRED.errno) {
-          isPasswordNeededRef.current = true;
+          setHasCachedAccount(false);
         }
         setSigninLoading(false);
       }
@@ -339,19 +343,19 @@ const Signin = ({
 
   const onSubmit = useCallback(
     async ({ password }: { password: string }) => {
-      if (isPasswordNeededRef.current && password === '') {
+      if (isPasswordNeeded && password === '') {
         setPasswordTooltipErrorText(localizedValidPasswordError);
         return;
       }
 
-      !isPasswordNeededRef.current && sessionToken
+      !isPasswordNeeded && sessionToken
         ? signInWithCachedAccount(sessionToken)
         : signInWithPassword(password);
     },
     [
       signInWithCachedAccount,
       signInWithPassword,
-      isPasswordNeededRef,
+      isPasswordNeeded,
       localizedValidPasswordError,
       sessionToken,
     ]
@@ -372,7 +376,7 @@ const Signin = ({
           }}
         />
       )}
-      {isPasswordNeededRef.current && hasPassword ? (
+      {isPasswordNeeded && hasPassword ? (
         <CardHeader
           headingText="Enter your password"
           headingAndSubheadingFtlId="signin-password-needed-header-2"
@@ -441,11 +445,12 @@ const Signin = ({
           </FtlMsg>
         )}
       </div>
-      {!hasLinkedAccountAndNoPassword && (
+      {(!hasLinkedAccountAndNoPassword ||
+        (hasCachedAccount && supportsKeysOptionalLogin)) && (
         <form onSubmit={handleSubmit(onSubmit)}>
           <input type="email" className="hidden" value={email} disabled />
 
-          {isPasswordNeededRef.current && (
+          {isPasswordNeeded && (
             <InputPassword
               name="password"
               anchorPosition="start"
@@ -538,7 +543,7 @@ const Signin = ({
               }`}
               className="text-sm link-blue mx-auto tablet:mx-0"
               onClick={() =>
-                !isPasswordNeededRef.current
+                !isPasswordNeeded
                   ? GleanMetrics.cachedLogin.forgotPassword()
                   : GleanMetrics.login.forgotPassword()
               }

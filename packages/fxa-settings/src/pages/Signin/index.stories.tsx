@@ -139,6 +139,24 @@ export const SignInRelayWithPasswordlessSupport = storyWithProps({
   supportsKeysOptionalLogin: true,
 });
 
+export const CachedSignInAiWindowWithPasswordlessSupport = storyWithProps({
+  sessionToken: MOCK_SESSION_TOKEN,
+  integration: createMockSigninOAuthNativeIntegration({
+    service: OAuthNativeServices.AiWindow,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: true,
+});
+
+export const CachedSignInRelayWithPasswordlessSupport = storyWithProps({
+  sessionToken: MOCK_SESSION_TOKEN,
+  integration: createMockSigninOAuthNativeIntegration({
+    service: OAuthNativeServices.Relay,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: true,
+});
+
 export const SignInAiWindowWithPasswordlessSupport = storyWithProps({
   integration: createMockSigninOAuthNativeIntegration({
     service: OAuthNativeServices.AiWindow,
