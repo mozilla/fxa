@@ -108,7 +108,6 @@ export interface SigninProps {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   localizedSuccessBannerHeading?: string;
   localizedSuccessBannerDescription?: string;
-  deeplink?: string;
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
   setCurrentSplitLayout?: (value: boolean) => void;

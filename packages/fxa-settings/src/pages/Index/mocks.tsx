@@ -104,7 +104,6 @@ export const Subject = ({
   initialErrorBanner = '',
   initialSuccessBanner = '',
   initialTooltipMessage = '',
-  deeplink,
   isMobile = false,
   supportsKeysOptionalLogin = false,
 }: {
@@ -114,7 +113,6 @@ export const Subject = ({
   initialErrorBanner?: string;
   initialSuccessBanner?: string;
   initialTooltipMessage?: string;
-  deeplink?: string;
   isMobile?: boolean;
   supportsKeysOptionalLogin?: boolean;
 }) => {
@@ -142,7 +140,6 @@ export const Subject = ({
           setErrorBannerMessage,
           setSuccessBannerMessage,
           setTooltipErrorMessage,
-          deeplink,
           isMobile,
           useFxAStatusResult: mockUseFxAStatusResult,
         }}

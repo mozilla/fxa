@@ -566,8 +566,6 @@ const SigninContainer = ({
     );
   }
 
-  const deeplink = queryParamModel.deeplink;
-
   return (
     <Signin
       {...{
@@ -586,7 +584,6 @@ const SigninContainer = ({
         finishOAuthFlowHandler,
         localizedSuccessBannerHeading,
         localizedSuccessBannerDescription,
-        deeplink,
         flowQueryParams,
         useFxAStatusResult,
         setCurrentSplitLayout,

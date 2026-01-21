@@ -1031,29 +1031,6 @@ describe('Signin component', () => {
       passwordInputNotRendered();
     });
 
-    // This is wrapped so that the HTMLFormElement.submit can be mocked
-    // without affecting other tests.
-    describe('deeplinking', () => {
-      beforeEach(() => {
-        HTMLFormElement.prototype.submit = jest.fn();
-      });
-      afterEach(() => {
-        jest.resetAllMocks();
-      });
-      it('does not render when deeplinking third party auth', () => {
-        renderWithLocalizationProvider(
-          <Subject sessionToken={MOCK_SESSION_TOKEN} deeplink="appleLogin" />
-        );
-
-        expect(
-          screen.queryByRole('button', { name: /Continue with Google/ })
-        ).not.toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: /Continue with Apple/ })
-        ).not.toBeInTheDocument();
-      });
-    });
-
     it('emits an event on forgot password link click', async () => {
       renderWithLocalizationProvider(
         <Subject sessionToken={MOCK_SESSION_TOKEN} />
