@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  TemplateData,
   EmailLinkBuilder,
   NodeRendererBindings,
   WithFxaLayouts,
@@ -16,11 +17,11 @@ import { ConfigType } from '../../config';
 
 const SERVER = 'fxa-auth-server';
 
-type EmailSenderOpts = {
+type AccountOpts = {
+  uid: string;
+  metricsEnabled: boolean;
   acceptLanguage: string;
-  to: string;
-  cc?: string[];
-  timeZone?: string;
+  timeZone: string;
 };
 
 type EmailFlowParams = {
@@ -28,6 +29,12 @@ type EmailFlowParams = {
   flowId?: string;
   flowBeginTime?: number;
 };
+
+type EmailSenderOpts = AccountOpts &
+  EmailFlowParams & {
+    to: string;
+    cc?: string[];
+  };
 
 /**
  * Some links are required on the underlying types, but shouldn't be
@@ -48,8 +55,8 @@ export class FxaMailer extends FxaEmailRenderer {
 
   async sendRecoveryEmail(
     opts: EmailSenderOpts &
-      EmailFlowParams & {
-        uid: string;
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<recovery.TemplateData> & {
         token: string;
         code: string;
         emailToHashWith?: string;
@@ -60,33 +67,29 @@ export class FxaMailer extends FxaEmailRenderer {
   ) {
     const { template: name, version } = recovery;
 
-    const link = new URL(this.linkBuilder.urls.initiatePasswordReset);
-
-    this.linkBuilder.buildLinkWithQueryParamsAndUTM(link, name, {
-      uid: opts.uid,
-      token: opts.token,
-      code: opts.code,
-      email: opts.to,
-    });
-
-    if (opts.service) {
-      link.searchParams.set('service', opts.service);
-    }
-    if (opts.redirectTo) {
-      link.searchParams.set('redirectTo', opts.redirectTo);
-    }
-    if (opts.resume) {
-      link.searchParams.set('resume', opts.resume);
-    }
-    if (opts.emailToHashWith) {
-      link.searchParams.set('emailToHashWith', opts.emailToHashWith);
-    }
-
-    const { privacyUrl, supportUrl } = this.linkBuilder.buildCommonLinks(name);
+    // Build links for template
+    const initiatePasswordResetLink =
+      this.linkBuilder.buildInitiatePasswordResetLink(
+        {
+          uid: opts.uid,
+          token: opts.token,
+          code: opts.code,
+          email: opts.to,
+          service: opts.service,
+          redirectTo: opts.redirectTo,
+          resume: opts.resume,
+          emailToHashWith: opts.emailToHashWith,
+        },
+        opts.metricsEnabled
+      );
+    const { supportUrl, privacyUrl } = this.linkBuilder.buildCommonLinks(
+      name,
+      opts.metricsEnabled
+    );
 
     const rendered = await this.renderRecovery({
       ...opts,
-      link: link.toString(),
+      link: initiatePasswordResetLink,
       supportUrl,
       privacyUrl,
     });
@@ -94,7 +97,7 @@ export class FxaMailer extends FxaEmailRenderer {
     const headers = this.emailSender.buildHeaders({
       context: { ...opts, serverName: SERVER, language: opts.acceptLanguage },
       headers: {
-        'X-Link': link.toString(),
+        'X-Link': initiatePasswordResetLink,
         'X-Recovery-Code': opts.code,
       },
       template: {
@@ -103,6 +106,7 @@ export class FxaMailer extends FxaEmailRenderer {
       },
     });
 
+    // Send email
     return this.emailSender.send({
       to: opts.to,
       cc: opts.cc,
@@ -124,7 +128,10 @@ export class FxaMailer extends FxaEmailRenderer {
   ) {
     const { template: name, version } = passwordForgotOtp;
 
-    const { privacyUrl, supportUrl } = this.linkBuilder.buildCommonLinks(name);
+    const { privacyUrl, supportUrl } = this.linkBuilder.buildCommonLinks(
+      name,
+      opts.metricsEnabled
+    );
 
     const rendered = await this.renderPasswordForgotOtp({
       ...opts,

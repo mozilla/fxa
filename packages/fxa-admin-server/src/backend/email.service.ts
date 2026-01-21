@@ -72,10 +72,11 @@ export class EmailService {
     const linksConfig = this.linksConfig;
 
     // Render the email
-    const link = this.linkBuilder.buildPasswordChangeRequiredLink({
-      url: linksConfig.initiatePasswordResetUrl,
-      email: account.primaryEmail?.email || account.email,
-    });
+    const link = this.linkBuilder.buildPasswordChangeRequiredLink(
+      linksConfig.initiatePasswordResetUrl,
+      account.primaryEmail?.email || account.email,
+      account.metricsOptOutAt === null
+    );
 
     const emailContent = await this.renderer.renderPasswordChangeRequired({
       link,
