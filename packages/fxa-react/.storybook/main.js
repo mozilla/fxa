@@ -4,6 +4,7 @@
 
 module.exports = {
   stories: ['../**/*.stories.tsx'],
+  staticDirs: ['../public'],
   core: {
     builder: 'webpack5',
   },
