@@ -74,6 +74,10 @@ import {
   UpgradeForSubscriptionNotFoundError,
   DetermineCheckoutAmountCustomerRequiredError,
   DetermineCheckoutAmountSubscriptionRequiredError,
+  PayWithStripeLatestInvoiceNotFoundOnSubscriptionError,
+  PayWithPaypalNullCurrencyError,
+  PayWithStripeNullCurrencyError,
+  UpgradeSubscriptionNullCurrencyError,
 } from './checkout.error';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
@@ -276,7 +280,8 @@ export class CheckoutService {
     paymentProvider: 'stripe' | 'paypal';
     paymentForm: SubPlatPaymentMethodType;
   }) {
-    const { cart, version, subscription, uid, paymentProvider, paymentForm } = args;
+    const { cart, version, subscription, uid, paymentProvider, paymentForm } =
+      args;
     const { customer: customerId, currency } = subscription;
 
     await this.customerManager.setTaxId(customerId, currency);
@@ -328,7 +333,10 @@ export class CheckoutService {
         price.id,
         cart.currency
       );
-    assertNotNull(unitAmountForCurrency);
+    assertNotNull(
+      unitAmountForCurrency,
+      new PayWithStripeNullCurrencyError(cart.id, price.id)
+    );
 
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
@@ -396,7 +404,10 @@ export class CheckoutService {
     try {
       assert(
         subscription.latest_invoice,
-        'latest_invoice does not exist on subscription'
+        new PayWithStripeLatestInvoiceNotFoundOnSubscriptionError(
+          cart.id,
+          subscription.id
+        )
       );
       const invoice = await this.invoiceManager.retrieve(
         subscription.latest_invoice
@@ -460,7 +471,8 @@ export class CheckoutService {
         const paymentMethod = await this.paymentMethodManager.retrieve(
           intent.payment_method
         );
-        const paymentForm = convertStripePaymentMethodTypeToSubPlat(paymentMethod);
+        const paymentForm =
+          convertStripePaymentMethodTypeToSubPlat(paymentMethod);
 
         await this.postPaySteps({
           cart,
@@ -530,7 +542,10 @@ export class CheckoutService {
         price.id,
         cart.currency
       );
-    assertNotNull(unitAmountForCurrency);
+    assertNotNull(
+      unitAmountForCurrency,
+      new PayWithPaypalNullCurrencyError(cart.id, price.id)
+    );
 
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'paypal',
@@ -678,7 +693,10 @@ export class CheckoutService {
         toPriceId,
         cart.currency
       );
-    assertNotNull(unitAmountForCurrency);
+    assertNotNull(
+      unitAmountForCurrency,
+      new UpgradeSubscriptionNullCurrencyError(cart.id, toPriceId)
+    );
 
     const upgradedSubscription = await this.subscriptionManager.update(
       upgradeSubscription.id,

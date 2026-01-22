@@ -1606,29 +1606,52 @@ describe('CartService', () => {
   });
 
   describe('getCart', () => {
+    const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
     const mockCustomerSession = StripeResponseFactory(
       StripeCustomerSessionFactory()
     );
     const mockSubscription = StripeSubscriptionFactory();
     const mockListSubscriptions = StripeApiListFactory([mockSubscription]);
+    const mockSubscriptionRetrieve = StripeResponseFactory(mockSubscription);
     const mockPaymentMethod = StripeResponseFactory(
       StripePaymentMethodFactory({})
     );
     const mockPricingForCurrency = PricingForCurrencyFactory();
+    const mockCheckEligibility = SubscriptionEligibilityResultFactory();
+    const mockPrice = StripePriceFactory();
+    const mockUpcomingInvoicePreview = InvoicePreviewFactory();
+    const mockLatestInvoicePreview = InvoicePreviewFactory();
 
     beforeEach(() => {
       jest
-        .spyOn(customerSessionManager, 'createCheckoutSession')
-        .mockResolvedValue(mockCustomerSession);
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
+      jest.spyOn(cartService, 'metricsOptedOut').mockResolvedValue(false);
+      jest
+        .spyOn(eligibilityService, 'checkEligibility')
+        .mockResolvedValue(mockCheckEligibility);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
         .spyOn(subscriptionManager, 'listForCustomer')
         .mockResolvedValue(mockListSubscriptions.data);
       jest
-        .spyOn(paymentMethodManager, 'retrieve')
-        .mockResolvedValue(mockPaymentMethod);
+        .spyOn(customerSessionManager, 'createCheckoutSession')
+        .mockResolvedValue(mockCustomerSession);
       jest
         .spyOn(priceManager, 'retrievePricingForCurrency')
         .mockResolvedValue(mockPricingForCurrency);
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscriptionRetrieve);
+      jest
+        .spyOn(invoiceManager, 'previewUpcoming')
+        .mockResolvedValue(mockUpcomingInvoicePreview);
+      jest
+        .spyOn(invoiceManager, 'preview')
+        .mockResolvedValue(mockLatestInvoicePreview);
     });
 
     it('returns cart and upcomingInvoicePreview', async () => {
@@ -1637,14 +1660,9 @@ describe('CartService', () => {
         stripeSubscriptionId: null,
         eligibilityStatus: CartEligibilityStatus.CREATE,
       });
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockPrice = StripePriceFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest
-        .spyOn(productConfigurationManager, 'retrieveStripePrice')
-        .mockResolvedValue(mockPrice);
       jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
         .spyOn(invoiceManager, 'previewUpcoming')
@@ -1978,17 +1996,7 @@ describe('CartService', () => {
     });
 
     it("has metricsOptedOut set to true if the cart's account has opted out of metrics", async () => {
-      const mockUid = faker.string.hexadecimal({
-        length: 32,
-        prefix: '',
-        casing: 'lower',
-      });
-      const mockAccount = AccountFactory({
-        uid: Buffer.from(mockUid, 'hex'),
-        metricsOptOutAt: faker.date.recent().valueOf(),
-      });
       const mockCart = ResultCartFactory({
-        uid: mockUid,
         stripeSubscriptionId: null,
         eligibilityStatus: CartEligibilityStatus.CREATE,
       });
@@ -1996,6 +2004,7 @@ describe('CartService', () => {
       const mockPrice = StripePriceFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
 
+      jest.spyOn(cartService, 'metricsOptedOut').mockResolvedValue(true);
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
         .spyOn(productConfigurationManager, 'retrieveStripePrice')
@@ -2004,29 +2013,16 @@ describe('CartService', () => {
       jest
         .spyOn(invoiceManager, 'previewUpcoming')
         .mockResolvedValue(mockInvoicePreview);
-      jest
-        .spyOn(accountManager, 'getAccounts')
-        .mockResolvedValue([mockAccount]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.CREATE,
       });
 
       const result = await cartService.getCart(mockCart.id);
-      expect(accountManager.getAccounts).toHaveBeenCalledWith([mockUid]);
       expect(result.metricsOptedOut).toBeTruthy();
     });
 
     it("has metricsOptedOut set to false if the cart's account has not opted out of metrics", async () => {
-      const mockUid = faker.string.hexadecimal({
-        length: 32,
-        prefix: '',
-        casing: 'lower',
-      });
-      const mockAccount = AccountFactory({
-        uid: Buffer.from(mockUid, 'hex'),
-      });
       const mockCart = ResultCartFactory({
-        uid: mockUid,
         stripeSubscriptionId: null,
         eligibilityStatus: CartEligibilityStatus.CREATE,
       });
@@ -2034,6 +2030,7 @@ describe('CartService', () => {
       const mockPrice = StripePriceFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
 
+      jest.spyOn(cartService, 'metricsOptedOut').mockResolvedValue(false);
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
         .spyOn(productConfigurationManager, 'retrieveStripePrice')
@@ -2042,15 +2039,11 @@ describe('CartService', () => {
       jest
         .spyOn(invoiceManager, 'previewUpcoming')
         .mockResolvedValue(mockInvoicePreview);
-      jest
-        .spyOn(accountManager, 'getAccounts')
-        .mockResolvedValue([mockAccount]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.CREATE,
       });
 
       const result = await cartService.getCart(mockCart.id);
-      expect(accountManager.getAccounts).toHaveBeenCalledWith([mockUid]);
       expect(result.metricsOptedOut).toBeFalsy();
     });
 
@@ -2079,6 +2072,175 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(accountManager.getAccounts).not.toHaveBeenCalled();
       expect(result.metricsOptedOut).toBeFalsy();
+    });
+
+    it('throws assertion error on missing taxAddress', async () => {
+      const mockCart = ResultCartFactory({
+        taxAddress: null,
+      });
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      await expect(cartService.getCart(mockCart.id)).rejects.toThrow(
+        /GetCartMissingTaxAddressError/
+      );
+    });
+
+    describe('CartEligibilityStatus.UPGRADE', () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.START,
+        eligibilityStatus: CartEligibilityStatus.UPGRADE,
+      });
+      const mockEligibility =
+        SubscriptionEligibilityUpgradeDowngradeResultFactory();
+      beforeEach(() => {
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(eligibilityService, 'checkEligibility')
+          .mockResolvedValue(mockEligibility);
+      });
+
+      it('throws assertion error on missing fromPrice in eligibility', async () => {
+        const mockEligibility = SubscriptionEligibilityResultFactory();
+        mockEligibility.subscriptionEligibilityResult =
+          EligibilityStatus.UPGRADE;
+        jest
+          .spyOn(eligibilityService, 'checkEligibility')
+          .mockResolvedValue(mockEligibility);
+        await expect(cartService.getCart(mockCart.id)).rejects.toThrow(
+          /GetCartFromPriceMissingError/
+        );
+      });
+
+      it('throws assertion error on missing customer', async () => {
+        const mockCart = ResultCartFactory({
+          state: CartState.START,
+          eligibilityStatus: CartEligibilityStatus.UPGRADE,
+          stripeCustomerId: undefined,
+        });
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        await expect(cartService.getCart(mockCart.id)).rejects.toThrow(
+          /GetCartCustomerMissingError/
+        );
+      });
+
+      it('throws assertion error on missing subscription', async () => {
+        jest
+          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+          .mockResolvedValue(undefined);
+        await expect(cartService.getCart(mockCart.id)).rejects.toThrow(
+          /GetCartSubscriptionMissingError/
+        );
+      });
+
+      describe('CartState.FAIL', () => {
+        const mockCart = ResultCartFactory({
+          state: CartState.FAIL,
+          eligibilityStatus: CartEligibilityStatus.UPGRADE,
+        });
+        const mockEligibility =
+          SubscriptionEligibilityUpgradeDowngradeResultFactory();
+
+        beforeEach(() => {
+          jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+          jest
+            .spyOn(eligibilityService, 'checkEligibility')
+            .mockResolvedValue(mockEligibility);
+        });
+
+        it('throws assertion error on missing fromPrice', async () => {
+          const mockEligibility = SubscriptionEligibilityResultFactory();
+          mockEligibility.subscriptionEligibilityResult =
+            EligibilityStatus.UPGRADE;
+          jest
+            .spyOn(eligibilityService, 'checkEligibility')
+            .mockResolvedValue(mockEligibility);
+          await expect(cartService.getCart(mockCart.id)).rejects.toThrow(
+            /GetCartFailureFromPriceMissingError/
+          );
+        });
+
+        it('throws assertion error on missing unitAmountForCurrency', async () => {
+          const mockFromPrice = StripePriceFactory({
+            recurring: StripePriceRecurringFactory({ interval: 'month' }),
+          });
+          const mockPricingForCurrency = PricingForCurrencyFactory({
+            price: mockFromPrice,
+            unitAmountForCurrency: null,
+          });
+          jest
+            .spyOn(priceManager, 'retrievePricingForCurrency')
+            .mockResolvedValueOnce(PricingForCurrencyFactory())
+            .mockResolvedValue(mockPricingForCurrency);
+          await expect(cartService.getCart(mockCart.id)).rejects.toThrow(
+            /GetCartUnitAmountForCurrencyMissingError/
+          );
+        });
+
+        it('throws assertion error on missing recurring price', async () => {
+          const mockFromPrice = StripePriceFactory({
+            recurring: null,
+          });
+          const mockPricingForCurrency = PricingForCurrencyFactory({
+            price: mockFromPrice,
+          });
+          jest
+            .spyOn(priceManager, 'retrievePricingForCurrency')
+            .mockResolvedValueOnce(PricingForCurrencyFactory())
+            .mockResolvedValue(mockPricingForCurrency);
+          await expect(cartService.getCart(mockCart.id)).rejects.toThrow(
+            /GetCartPriceForCurrencyRecurringMissingError/
+          );
+        });
+
+        it('throws assertion error on missing unitAmountForCurrency', async () => {
+          const mockFromPrice = StripePriceFactory({
+            recurring: StripePriceRecurringFactory({
+              interval: 'month',
+              interval_count: 5,
+            }),
+          });
+          const mockPricingForCurrency = PricingForCurrencyFactory({
+            price: mockFromPrice,
+          });
+          jest
+            .spyOn(priceManager, 'retrievePricingForCurrency')
+            .mockResolvedValue(mockPricingForCurrency);
+          await expect(cartService.getCart(mockCart.id)).rejects.toThrow(
+            /GetCartIntervalMissingError/
+          );
+        });
+      });
+    });
+
+    describe('CartState.SUCCESS', () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.SUCCESS,
+      });
+
+      beforeEach(() => {
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      });
+
+      it('throws assertion error on missing latestInvoicePreview', async () => {
+        const mockCart = ResultCartFactory({
+          state: CartState.SUCCESS,
+          stripeSubscriptionId: undefined,
+        });
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+        await expect(cartService.getCart(mockCart.id)).rejects.toThrow(
+          /GetCartLatestInvoicePreviewMissingError/
+        );
+      });
+
+      it('throws assertion error on missing paymentInfo', async () => {
+        jest
+          .spyOn(paymentMethodManager, 'determineType')
+          .mockResolvedValue(null);
+
+        await expect(cartService.getCart(mockCart.id)).rejects.toThrow(
+          /GetCartPaymentInfoMissingError/
+        );
+      });
     });
   });
 
@@ -2298,6 +2460,40 @@ describe('CartService', () => {
         paymentForm: SubPlatPaymentMethodType.Card,
       });
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
+    });
+
+    it('throws assertion error for missing stripeCustomerId', async () => {
+      const localMockCart = {
+        ...mockCart,
+        stripeCustomerId: null,
+      };
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
+
+      await expect(cartService.submitNeedsInput(mockCart.id)).rejects.toThrow(
+        /SubmitNeedsInputCustomerIdMissingError/
+      );
+    });
+    it('throws assertion error for missing stripeSubscriptionId', async () => {
+      const localMockCart = {
+        ...mockCart,
+        stripeSubscriptionId: null,
+      };
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
+
+      await expect(cartService.submitNeedsInput(mockCart.id)).rejects.toThrow(
+        /SubmitNeedsInputSubscriptionIdMissingError/
+      );
+    });
+    it('throws assertion error for missing uid', async () => {
+      const localMockCart = {
+        ...mockCart,
+        uid: undefined,
+      };
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(localMockCart);
+
+      await expect(cartService.submitNeedsInput(mockCart.id)).rejects.toThrow(
+        /SubmitNeedsInputUidMissingError/
+      );
     });
   });
 });
