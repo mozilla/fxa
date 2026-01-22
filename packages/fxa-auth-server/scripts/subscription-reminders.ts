@@ -37,7 +37,7 @@ async function init() {
       DEFAULT_PLAN_LENGTH.toString()
     )
     .option(
-      '-r, --reminder-length [days]',
+      '-r, --monthly-renewal-reminder-length [days]',
       'Reminder length in days before the renewal date to send the reminder email for monthly plans. Defaults to 7.',
       DEFAULT_REMINDER_LENGTH.toString()
     )

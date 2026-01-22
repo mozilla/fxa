@@ -3921,7 +3921,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       updateTemplateValues: (x) => ({
         ...x,
         productName: MESSAGE.subscription.productName,
-        hadDiscount: true,
+        discountEnding: true,
         hasDifferentDiscount: false,
       }),
     },
@@ -4067,7 +4067,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       updateTemplateValues: (x) => ({
         ...x,
         productName: MESSAGE.subscription.productName,
-        hadDiscount: false,
+        discountEnding: false,
         hasDifferentDiscount: true,
       }),
     },
