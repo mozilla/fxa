@@ -6,7 +6,7 @@ subscriptionRenewalReminder-content-greeting = "Dear <%- productName %> customer
 
 subscriptionRenewalReminder-content-intro = "Your current subscription is set to automatically renew in <%- reminderLength %> days."
 
-<% if (hadDiscount) { %>
+<% if (discountEnding) { %>
 subscriptionRenewalReminder-content-discount-ending = "Because a previous discount has ended, your subscription will renew at the standard price."
 <% } else if (hasDifferentDiscount) { %>
 subscriptionRenewalReminder-content-discount-change = "Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied."
