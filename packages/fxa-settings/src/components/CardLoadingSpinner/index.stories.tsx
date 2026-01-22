@@ -10,10 +10,7 @@ import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 storiesOf('Components/CardLoadingSpinner', module)
   .addDecorator((story) => (
-    <AppLocalizationProvider
-      baseDir="./locales"
-      userLocales={navigator.languages}
-    >
+    <AppLocalizationProvider baseDir="." userLocales={navigator.languages}>
       {story()}
     </AppLocalizationProvider>
   ))
