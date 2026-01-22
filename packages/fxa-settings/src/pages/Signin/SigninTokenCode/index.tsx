@@ -237,6 +237,8 @@ const SigninTokenCode = ({
           cmsLogoAltText: cmsInfo?.shared.logoAltText,
           cmsHeadline: cmsInfo?.SigninTokenCodePage?.headline,
           cmsDescription: cmsInfo?.SigninTokenCodePage?.description,
+          cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
+          cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
         }}
       />
       {showResendSuccessBanner && !localizedErrorBannerMessage && (

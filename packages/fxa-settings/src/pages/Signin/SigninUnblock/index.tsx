@@ -222,6 +222,8 @@ export const SigninUnblock = ({
           cmsLogoAltText: cmsInfo?.shared.logoAltText,
           cmsHeadline: cmsInfo?.SigninUnblockCodePage?.headline,
           cmsDescription: cmsInfo?.SigninUnblockCodePage?.description,
+          cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
+          cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
         }}
       />
       {bannerErrorMessage && (

@@ -17,6 +17,10 @@ import {
 } from '../../../components/images';
 import { checkPaymentMethodsWillSync } from '../../../lib/sync-engines';
 import CmsButtonWithFallback from '../../../components/CmsButtonWithFallback';
+import {
+  getCmsHeadlineClassName,
+  getCmsHeadlineStyle,
+} from '../../../components/CardHeader';
 
 const SignupConfirmedSync = ({
   integration,
@@ -87,7 +91,10 @@ const SignupConfirmedSync = ({
       )}
       {cmsInfo ? (
         <>
-          <h1 className="card-header">
+          <h1
+            className={getCmsHeadlineClassName(cmsInfo.shared.headlineFontSize)}
+            style={getCmsHeadlineStyle(cmsInfo.shared.headlineTextColor)}
+          >
             {cmsInfo.SignupConfirmedSyncPage?.headline}
           </h1>
           <p className="mt-2 mb-7">

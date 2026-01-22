@@ -35,6 +35,8 @@ export const relyingPartyQuery = graphql(`
           splitLayoutAltText
         }
         favicon
+        headlineFontSize
+        headlineTextColor
       }
       EmailFirstPage {
         logoUrl

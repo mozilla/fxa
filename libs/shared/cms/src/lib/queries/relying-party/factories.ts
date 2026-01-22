@@ -4,7 +4,10 @@
 
 import { faker } from '@faker-js/faker';
 
-import { RelyingPartiesQuery } from '../../../__generated__/graphql';
+import {
+  RelyingPartiesQuery,
+  Enum_Componentaccountsshared_Headlinefontsize,
+} from '../../../__generated__/graphql';
 import { RelyingPartyResult } from '@fxa/shared/cms';
 
 export const RelyingPartyQueryFactory = (
@@ -83,6 +86,12 @@ export const RelyingPartyResultFactory = (
       syncHidePromoAfterLogin: faker.datatype.boolean(),
     },
     favicon: faker.internet.url(),
+    headlineFontSize: faker.helpers.arrayElement([
+      Enum_Componentaccountsshared_Headlinefontsize.Default,
+      Enum_Componentaccountsshared_Headlinefontsize.Medium,
+      Enum_Componentaccountsshared_Headlinefontsize.Large,
+    ]),
+    headlineTextColor: faker.color.rgb(),
   },
   NewDeviceLoginEmail: {
     logoUrl: faker.internet.url(),

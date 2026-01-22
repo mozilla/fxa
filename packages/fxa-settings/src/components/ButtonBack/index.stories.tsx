@@ -9,7 +9,6 @@ import AppLayout from '../AppLayout';
 import ButtonBack from '.';
 import { HeadingPrimary } from '../HeadingPrimary';
 import { RelierCmsInfo } from '../../models/integrations';
-import { MOCK_CMS_INFO } from '../../pages/mocks';
 
 export default {
   title: 'components/ButtonBack',
@@ -43,34 +42,48 @@ const Subject = ({ cmsBackground, description }: SubjectProps) => {
   );
 };
 
-export const Default = () => (
+export const LightBackgroundDefaultArrow = () => (
   <Subject description="Default background - default arrow" />
 );
 
-export const LightBackgroundDefaultArrow = () => (
+export const LightBackgroundDarkGreyArrow = () => (
   <Subject
-    cmsBackground="linear-gradient(135deg, rgba(240, 255, 250, 1) 0%, rgba(250, 245, 240, 1) 100%)"
-    description="Light background - default arrow"
+    cmsBackground="linear-gradient(135deg, #c5e3fd 0%, #c9d6fa 100%)"
+    description="Light-medium gradient background - dark grey arrow"
+  />
+);
+
+export const MediumBackgroundBlackArrow = () => (
+  <Subject
+    cmsBackground="linear-gradient(135deg, #296615 0%, #209f40 100%)"
+    description="Medium gradient background - default arrow"
+  />
+);
+
+export const MediumBackgroundDarkGreyArrow = () => (
+  <Subject
+    cmsBackground="linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)"
+    description="Medium gradient background - dark grey arrow"
   />
 );
 
 export const MediumBackgroundWhiteArrow = () => (
   <Subject
-    cmsBackground={MOCK_CMS_INFO.shared.backgrounds.defaultLayout}
-    description="Light-medium gradient background - white arrow"
+    cmsBackground="linear-gradient(135deg, #3e59ce 0%, #4f1f80 100%)"
+    description="Medium gradient background - white arrow"
   />
 );
 
-export const DarkBackgroundWhiteArrow = () => (
+export const DarkGradientBackgroundWhiteArrow = () => (
   <Subject
-    cmsBackground="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-    description="Dark gradient background - white arrow"
+    cmsBackground="linear-gradient(135deg, #0c3521 0%, #231c4c 50%, #38243e 100%)"
+    description="Very dark gradient background - white arrow"
   />
 );
 
-export const MediumBackgroundDarkArrow = () => (
+export const DarkSolidBackgroundWhiteArrow = () => (
   <Subject
-    cmsBackground="linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)"
-    description="Medium gradient background - dark grey arrow"
+    cmsBackground="#000000"
+    description="Black background - default arrow"
   />
 );

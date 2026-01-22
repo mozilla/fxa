@@ -18,7 +18,7 @@ exports[`Signin component snapshots - CMS renders CardHeader with CMS content wh
 
 exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is needed: cms headline 1`] = `
 <h1
-  class="card-header"
+  class="card-header-cms text-xl"
 >
   Enter your password
 </h1>
@@ -42,8 +42,8 @@ exports[`Signin component snapshots - CMS renders CardHeader with CMS content wh
 
 exports[`Signin component snapshots - CMS renders the CMS-styled submit button 1`] = `
 <button
-  class="cta-primary-cms cta-xl cta-primary cta-xl"
-  style="--cta-bg: #6B4DFB; --cta-border: #6B4DFB; --cta-active: #6B4DFB; --cta-disabled: #6B4DFB60;"
+  class="cta-primary-cms cta-xl"
+  style="--cta-bg: #6B4DFB; --cta-border: #6B4DFB; --cta-active: #6B4DFB; --cta-disabled: #6B4DFB; color: rgb(255, 255, 255);"
   type="submit"
 >
   Sign in

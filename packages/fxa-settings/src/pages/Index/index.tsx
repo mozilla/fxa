@@ -6,7 +6,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { IndexFormData, IndexProps } from './interfaces';
 import AppLayout from '../../components/AppLayout';
-import CardHeader from '../../components/CardHeader';
+import CardHeader, {
+  getCmsHeadlineClassName,
+  getCmsHeadlineStyle,
+} from '../../components/CardHeader';
 import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
@@ -94,7 +97,12 @@ export const Index = ({
               logoPosition: cmsInfo.EmailFirstPage.logoUrl ? 'center' : 'left',
             }}
           />
-          <h1 className="card-header">{cmsInfo.EmailFirstPage.headline}</h1>
+          <h1
+            className={getCmsHeadlineClassName(cmsInfo.shared.headlineFontSize)}
+            style={getCmsHeadlineStyle(cmsInfo.shared.headlineTextColor)}
+          >
+            {cmsInfo.EmailFirstPage.headline}
+          </h1>
           <p className="mt-1 mb-9 text-sm">
             {cmsInfo.EmailFirstPage.description}
           </p>

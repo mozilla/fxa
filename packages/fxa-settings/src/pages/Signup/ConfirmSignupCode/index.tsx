@@ -16,7 +16,10 @@ import {
   useSession,
 } from '../../../models/hooks';
 import AppLayout from '../../../components/AppLayout';
-import CardHeader from '../../../components/CardHeader';
+import CardHeader, {
+  getCmsHeadlineClassName,
+  getCmsHeadlineStyle,
+} from '../../../components/CardHeader';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
@@ -351,7 +354,10 @@ const ConfirmSignupCode = ({
               className="justify-start mb-4 max-h-[40px]"
             />
           )}
-          <h1 className="card-header">
+          <h1
+            className={getCmsHeadlineClassName(cmsInfo.shared.headlineFontSize)}
+            style={getCmsHeadlineStyle(cmsInfo.shared.headlineTextColor)}
+          >
             {cmsInfo.SignupConfirmCodePage.headline}
           </h1>
           <p className="mt-1 text-sm">

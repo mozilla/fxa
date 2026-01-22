@@ -18,6 +18,10 @@
     @apply font-header text-xl font-bold;
   }
 
+  &-header-cms {
+    @apply font-header font-bold;
+  }
+
   &-subheader {
     @apply font-body font-normal text-sm block mt-1;
   }
