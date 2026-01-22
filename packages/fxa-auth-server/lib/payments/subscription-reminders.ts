@@ -243,7 +243,9 @@ export class SubscriptionReminders {
             `${this.paymentsNextUrl}/${offeringId}/${priceSubplatInterval}/stay-subscribed/loyalty-discount/terms`
           ).toString(),
           ctaButtonLabel: cmsChurnInterventionEntry?.ctaMessage,
-          ctaButtonUrl: cmsChurnInterventionEntry?.productPageUrl,
+          ctaButtonUrl: new URL(
+            `${this.paymentsNextUrl}/subscriptions/${subscription.id}/loyalty-discount/stay-subscribed`
+          ).toString(),
           showChurn: isEligible,
         }
       );
