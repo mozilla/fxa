@@ -455,8 +455,8 @@ export class SubscriptionReminders {
    * Sends a reminder email for all active subscriptions for all plans
    * as long or longer than `planLength`:
    *   1. Get a list of all plans of sufficient `planLength`
-   *   2. Send 30-day reminders for yearly plans (if enabled)
-   *   3. Send 14-day reminders for all plans
+   *   2. Send 15-day reminders for yearly plans (if enabled)
+   *   3. Send 7-day reminders for monthly plans
    *   4. If enabled, send subscription ending reminder emails if one
    *      hasn't already been sent.
    */
