@@ -31,14 +31,12 @@ export class NimbusManager {
     }
 
     // Temporarily log payload for debugging purposes
-    this.log.log(
-      JSON.stringify({
-        msg: 'NimbusPayload',
-        clientId: nimbusUserId,
-        context: { language: language || null, region: region || null },
-        preview,
-      })
-    );
+    this.log.log('NimbusManager.fetchExperiments.payload', {
+      msg: 'NimbusPayload',
+      clientId: nimbusUserId,
+      context: { language: language || null, region: region || null },
+      preview,
+    });
 
     const results =
       await this.nimbusClient.fetchExperiments<SubPlatNimbusResult>({
@@ -48,7 +46,7 @@ export class NimbusManager {
       });
 
     // Temporarily log results for debugging purposes
-    this.log.log(JSON.stringify(results));
+    this.log.log('NimbusManager.fetchExperiments.result', results);
 
     return results;
   }
