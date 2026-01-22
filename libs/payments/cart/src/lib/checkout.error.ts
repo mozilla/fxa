@@ -71,6 +71,16 @@ export class UpgradeForSubscriptionNotFoundError extends CheckoutError {
   }
 }
 
+export class UpgradeSubscriptionNullCurrencyError extends CheckoutError {
+  constructor(cartId: string, priceId: string) {
+    super('Currency should not be null', {
+      cartId,
+      priceId,
+    });
+    this.name = 'UpgradeSubscriptionNullCurrencyError';
+  }
+}
+
 export class LatestInvoiceNotFoundOnSubscriptionError extends CheckoutError {
   constructor(cartId: string, subscriptionId: string) {
     super('latest_invoice could not be found on subscription', {
@@ -91,6 +101,36 @@ export class PaymentMethodUpdateFailedError extends CheckoutError {
   }
 }
 
+export class PayWithStripeLatestInvoiceNotFoundOnSubscriptionError extends CheckoutError {
+  constructor(cartId: string, subscriptionId: string) {
+    super('latest_invoice does not exist on subscription', {
+      cartId,
+      subscriptionId,
+    });
+    this.name = 'PayWithStripeLatestInvoiceNotFoundOnSubscriptionError';
+  }
+}
+
+export class PayWithStripeNullCurrencyError extends CheckoutError {
+  constructor(cartId: string, priceId: string) {
+    super('Currency should not be null', {
+      cartId,
+      priceId,
+    });
+    this.name = 'PayWithStripeNullCurrencyError';
+  }
+}
+
+export class PayWithPaypalNullCurrencyError extends CheckoutError {
+  constructor(cartId: string, priceId: string) {
+    super('Currency should not be null', {
+      cartId,
+      priceId,
+    });
+    this.name = 'PayWithPaypalNullCurrencyError';
+  }
+}
+
 export class DetermineCheckoutAmountCustomerRequiredError extends CheckoutError {
   constructor(priceId: string, currency: string, taxAddress: TaxAddress) {
     super('Customer is required for upgrade', {
@@ -108,7 +148,7 @@ export class DetermineCheckoutAmountSubscriptionRequiredError extends CheckoutEr
       customerId,
       fromPriceId,
     });
-    this.name = 'DetermineCheckoutAmountCustomerRequiredError';
+    this.name = 'DetermineCheckoutAmountSubscriptionRequiredError';
   }
 }
 
@@ -205,14 +245,11 @@ export class IntentInsufficientFundsError extends IntentFailedHandledError {
     paymentIntentId: string,
     intentType: 'SetupIntent' | 'PaymentIntent'
   ) {
-    super(
-      'Intent payment method card has insufficient funds',
-      {
-        cartId,
-        paymentIntentId,
-        intentType,
-      }
-    );
+    super('Intent payment method card has insufficient funds', {
+      cartId,
+      paymentIntentId,
+      intentType,
+    });
     this.name = 'IntentInsufficientFundsError';
   }
 }

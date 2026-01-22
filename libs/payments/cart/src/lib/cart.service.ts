@@ -70,6 +70,19 @@ import {
   InvalidPromoCodeCartError,
   CartVersionMismatchError,
   CartInvalidStateForActionError,
+  GetCartMissingTaxAddressError,
+  GetCartFromPriceMissingError,
+  GetCartCustomerMissingError,
+  GetCartSubscriptionMissingError,
+  GetCartPaymentInfoMissingError,
+  GetCartLatestInvoicePreviewMissingError,
+  GetCartFailureFromPriceMissingError,
+  GetCartIntervalMissingError,
+  GetCartUnitAmountForCurrencyMissingError,
+  GetCartPriceForCurrencyRecurringMissingError,
+  SubmitNeedsInputCustomerIdMissingError,
+  SubmitNeedsInputSubscriptionIdMissingError,
+  SubmitNeedsInputUidMissingError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import type {
@@ -641,13 +654,16 @@ export class CartService {
       }
 
       let paymentForm: SubPlatPaymentMethodType;
-      if (this.subscriptionManager.getPaymentProvider(subscription) === 'paypal') {
+      if (
+        this.subscriptionManager.getPaymentProvider(subscription) === 'paypal'
+      ) {
         paymentForm = SubPlatPaymentMethodType.PayPal;
       } else {
         const stripePaymentMethod = await this.paymentMethodManager.retrieve(
-          subscription.default_payment_method ?? '',
+          subscription.default_payment_method ?? ''
         );
-        paymentForm = convertStripePaymentMethodTypeToSubPlat(stripePaymentMethod);
+        paymentForm =
+          convertStripePaymentMethodTypeToSubPlat(stripePaymentMethod);
       }
 
       await this.checkoutService.postPaySteps({
@@ -810,8 +826,7 @@ export class CartService {
       cartId
     )) as ResultCart & { taxAddress: TaxAddress; currency: string };
 
-    assert(cart.taxAddress !== null, 'Cart must have a tax address');
-    assert(cart.currency !== null, 'Cart must have a currency');
+    assert(cart.taxAddress !== null, new GetCartMissingTaxAddressError(cartId));
     const [
       price,
       metricsOptedOut,
@@ -867,15 +882,15 @@ export class CartService {
     ) {
       assert(
         'fromPrice' in eligibility,
-        'fromPrice not present for upgrade cart'
+        new GetCartFromPriceMissingError(cartId)
       );
-      assert(customer, 'Customer is required for upgrade');
+      assert(customer, new GetCartCustomerMissingError(cartId));
       const fromSubscription =
         await this.subscriptionManager.retrieveForCustomerAndPrice(
           customer.id,
           eligibility.fromPrice.id
         );
-      assert(fromSubscription, 'Subscription required');
+      assert(fromSubscription, new GetCartSubscriptionMissingError(cartId));
       const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
       upcomingInvoicePreview =
         await this.invoiceManager.previewUpcomingForUpgrade({
@@ -952,9 +967,9 @@ export class CartService {
     if (cart.state === CartState.SUCCESS) {
       assert(
         latestInvoicePreview,
-        'latestInvoicePreview not present for success cart'
+        new GetCartLatestInvoicePreviewMissingError(cartId)
       );
-      assert(paymentInfo, 'paymentInfo not present for success cart');
+      assert(paymentInfo, new GetCartPaymentInfoMissingError(cartId));
 
       return {
         ...cart,
@@ -970,21 +985,30 @@ export class CartService {
 
     let fromPrice: FromPrice | undefined;
     if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
-      assert('fromPrice' in eligibility, 'fromPrice not present for upgrade');
+      assert(
+        'fromPrice' in eligibility,
+        new GetCartFailureFromPriceMissingError(cartId)
+      );
 
       const { price: priceForCurrency, unitAmountForCurrency } =
         await this.priceManager.retrievePricingForCurrency(
           eligibility.fromPrice.id,
           cart.currency
         );
-      assertNotNull(unitAmountForCurrency);
-      assertNotNull(priceForCurrency.recurring);
+      assertNotNull(
+        unitAmountForCurrency,
+        new GetCartUnitAmountForCurrencyMissingError(cartId)
+      );
+      assertNotNull(
+        priceForCurrency.recurring,
+        new GetCartPriceForCurrencyRecurringMissingError(cartId)
+      );
 
       const interval = getSubplatInterval(
         priceForCurrency.recurring.interval,
         priceForCurrency.recurring.interval_count
       );
-      assert(interval, 'Interval not found but is required');
+      assert(interval, new GetCartIntervalMissingError(cartId));
 
       fromPrice = {
         currency: cart.currency,
@@ -1052,12 +1076,15 @@ export class CartService {
   async submitNeedsInput(cartId: string) {
     return this.wrapWithCartCatch(cartId, async () => {
       const cart = await this.cartManager.fetchCartById(cartId);
-      assert(cart.stripeCustomerId, 'Cart must have a stripeCustomerId');
+      assert(
+        cart.stripeCustomerId,
+        new SubmitNeedsInputCustomerIdMissingError(cartId)
+      );
       assert(
         cart.stripeSubscriptionId,
-        'Cart must have a stripeSubscriptionId'
+        new SubmitNeedsInputSubscriptionIdMissingError(cartId)
       );
-      assert(cart.uid, 'Cart must have a uid');
+      assert(cart.uid, new SubmitNeedsInputUidMissingError(cartId));
 
       if (!cart.stripeIntentId) {
         throw new CartIntentNotFoundError(cartId);
@@ -1087,7 +1114,8 @@ export class CartService {
         const paymentMethod = await this.paymentMethodManager.retrieve(
           intent.payment_method
         );
-        const paymentForm = convertStripePaymentMethodTypeToSubPlat(paymentMethod);
+        const paymentForm =
+          convertStripePaymentMethodTypeToSubPlat(paymentMethod);
 
         await this.checkoutService.postPaySteps({
           cart,
