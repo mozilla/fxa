@@ -381,6 +381,13 @@ async function run(config) {
   );
   Container.set(FxaMailer, fxaMailer);
 
+  const oauthClientInfo = require('../lib/senders/oauth_client_info');
+  const { OAuthClientInfoServiceName } = oauthClientInfo;
+  Container.set({
+    id: OAuthClientInfoServiceName,
+    factory: () => oauthClientInfo(log, database),
+  });
+
   const routes = require('../lib/routes')(
     log,
     serverPublicKeys,
