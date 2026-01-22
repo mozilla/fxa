@@ -25,6 +25,11 @@ export default async function LoyaltyDiscountStaySubscribedPage({
   searchParams: Record<string, string> | undefined;
 }) {
   const { locale, subscriptionId } = params;
+
+  if (!config.churnInterventionConfig.enabled) {
+    redirect(`/${locale}/subscriptions/${subscriptionId}/stay-subscribed`);
+  }
+
   const acceptLanguage = headers().get('accept-language');
 
   const session = await auth();

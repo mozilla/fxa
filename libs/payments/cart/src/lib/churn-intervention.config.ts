@@ -4,15 +4,19 @@
 
 import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
-import { IsString } from 'class-validator';
+import { IsBoolean, IsString } from 'class-validator';
 
 export class ChurnInterventionConfig {
   @IsString()
   public readonly collectionName!: string;
+
+  @IsBoolean()
+  public readonly enabled: boolean = false;
 }
 
 export const MockChurnInterventionConfig = {
   collectionName: faker.string.uuid(),
+  enabled: true,
 } satisfies ChurnInterventionConfig;
 
 export const MockChurnInterventionConfigProvider = {

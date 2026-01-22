@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Inject, Injectable, Logger, type LoggerService } from '@nestjs/common';
-import { ChurnInterventionManager } from '@fxa/payments/cart';
+import {
+  ChurnInterventionConfig,
+  ChurnInterventionManager,
+} from '@fxa/payments/cart';
 import {
   ChurnInterventionByProductIdResultUtil,
   ProductConfigurationManager,
@@ -22,6 +25,18 @@ import {
   ChurnInterventionProductIdentifierMissingError,
   ChurnSubscriptionCustomerMismatchError,
 } from './churn-intervention.error';
+export enum Enum_Churnintervention_Churntype {
+  Cancel = 'cancel',
+  StaySubscribed = 'stay_subscribed'
+}
+
+export enum Enum_Churnintervention_Interval {
+  Daily = 'daily',
+  Halfyearly = 'halfyearly',
+  Monthly = 'monthly',
+  Weekly = 'weekly',
+  Yearly = 'yearly'
+}
 
 @Injectable()
 export class ChurnInterventionService {
@@ -34,8 +49,13 @@ export class ChurnInterventionService {
     private profileClient: ProfileClient,
     private subscriptionManager: SubscriptionManager,
     @Inject(StatsDService) private statsd: StatsD,
-    @Inject(Logger) private log: LoggerService
+    @Inject(Logger) private log: LoggerService,
+    private churnInterventionConfig: ChurnInterventionConfig
   ) {}
+
+  private isFeatureEnabled(): boolean {
+    return this.churnInterventionConfig.enabled ?? false;
+  }
 
   /**
    * Reload the customer data to reflect a change.
@@ -71,6 +91,10 @@ export class ChurnInterventionService {
     acceptLanguage?: string,
     selectedLanguage?: string
   ) {
+    if (!this.isFeatureEnabled()) {
+      return { churnInterventions: [] };
+    }
+
     let util: ChurnInterventionByProductIdResultUtil;
     if (stripeProductId) {
       util = await this.productConfigurationManager.getChurnIntervention(
@@ -105,6 +129,15 @@ export class ChurnInterventionService {
     acceptLanguage?: string | null,
     selectedLanguage?: string
   ) {
+    if (!this.isFeatureEnabled()) {
+      return {
+        isEligible: false,
+        reason: 'feature_disabled',
+        cmsChurnInterventionEntry: null,
+        cmsOfferingContent: null,
+      };
+    }
+
     try {
       const cmsChurnResult =
         await this.productConfigurationManager.getChurnInterventionBySubscription(
@@ -245,6 +278,13 @@ export class ChurnInterventionService {
     acceptLanguage?: string | null,
     selectedLanguage?: string
   ) {
+    if (!this.isFeatureEnabled()) {
+      return {
+        redeemed: false,
+        errorCode: 'feature_disabled',
+      };
+    }
+
     const eligibilityResult = await this.determineStaySubscribedEligibility(
       uid,
       subscriptionId,
@@ -330,6 +370,13 @@ export class ChurnInterventionService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
+    if (!this.isFeatureEnabled()) {
+      return {
+        cancelChurnInterventionType: 'none',
+        cmsOfferContent: null,
+      };
+    }
+
     try {
       const accountCustomer =
         await this.accountCustomerManager.getAccountCustomerByUid(args.uid);
@@ -422,6 +469,15 @@ export class ChurnInterventionService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
+    if (!this.isFeatureEnabled()) {
+      return {
+        isEligible: false,
+        reason: 'feature_disabled',
+        cmsOfferContent: null,
+        cmsOfferingContent: null,
+      };
+    }
+
     const upgradeInterval = SubplatInterval.Yearly;
     const subscription = await this.subscriptionManager.retrieve(
       args.subscriptionId
@@ -566,6 +622,14 @@ export class ChurnInterventionService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
+    if (!this.isFeatureEnabled()) {
+      return {
+        isEligible: false,
+        reason: 'feature_disabled',
+        cmsChurnInterventionEntry: null,
+      };
+    }
+
     const cmsChurnResult =
       await this.productConfigurationManager.getChurnInterventionBySubscription(
         args.subscriptionId,

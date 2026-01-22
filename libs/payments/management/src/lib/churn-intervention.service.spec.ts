@@ -7,6 +7,7 @@ import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import {
+  ChurnInterventionConfig,
   ChurnInterventionManager,
   ChurnInterventionEntryFactory,
 } from '@fxa/payments/cart';
@@ -73,10 +74,19 @@ describe('ChurnInterventionService', () => {
     timing: jest.fn(),
   };
 
+  const mockChurnInterventionConfig = {
+    collectionName: 'churn-interventions',
+    enabled: true,
+  };
+
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         ChurnInterventionService,
+        {
+          provide: ChurnInterventionConfig,
+          useValue: mockChurnInterventionConfig,
+        },
         {
           provide: EligibilityService,
           useValue: {
@@ -95,6 +105,7 @@ describe('ChurnInterventionService', () => {
           provide: ProductConfigurationManager,
           useValue: {
             getChurnInterventionBySubscription: jest.fn(),
+            getChurnIntervention: jest.fn(),
             getCancelInterstitialOffer: jest.fn(),
             getPageContentByPriceIds: jest.fn(),
             getSubplatIntervalBySubscription: jest.fn(),
@@ -1156,6 +1167,103 @@ describe('ChurnInterventionService', () => {
         reason: 'redemption_limit_exceeded',
         cmsOfferContent: null,
       });
+    });
+  });
+
+  describe('when feature is disabled', () => {
+    beforeEach(() => {
+      mockChurnInterventionConfig.enabled = false;
+      jest.clearAllMocks();
+    });
+
+    afterEach(() => {
+      mockChurnInterventionConfig.enabled = true;
+    });
+
+    it('returns feature_disabled when determineStaySubscribedEligibility is called', async () => {
+      const result =
+        await churnInterventionService.determineStaySubscribedEligibility(
+          'uid_123',
+          'sub_123',
+          'en'
+        );
+
+      expect(result.isEligible).toBe(false);
+      expect(result.reason).toBe('feature_disabled');
+      expect(result.cmsChurnInterventionEntry).toBeNull();
+      expect(result.cmsOfferingContent).toBeNull();
+      expect(
+        productConfigurationManager.getChurnInterventionBySubscription
+      ).not.toHaveBeenCalled();
+    });
+
+    it('returns feature_disabled when redeemChurnCoupon is called', async () => {
+      const result = await churnInterventionService.redeemChurnCoupon(
+        'uid123',
+        'sub_123',
+        'en'
+      );
+
+      expect(result.redeemed).toBe(false);
+      expect(result.errorCode).toBe('feature_disabled');
+    });
+
+    it('determineCancellationIntervention returns none', async () => {
+      const result =
+        await churnInterventionService.determineCancellationIntervention({
+          uid: 'uid123',
+          subscriptionId: 'sub_123',
+        });
+
+      expect(result.cancelChurnInterventionType).toBe('none');
+      expect(result.cmsOfferContent).toBeNull();
+    });
+
+    it('returns feature_disabled when determineCancelChurnContentEligibility is called', async () => {
+      const result =
+        await churnInterventionService.determineCancelChurnContentEligibility({
+          uid: 'uid_123',
+          subscriptionId: 'sub_123',
+        });
+
+      expect(result.isEligible).toBe(false);
+      expect(result.reason).toBe('feature_disabled');
+      expect(result.cmsChurnInterventionEntry).toBeNull();
+      expect(
+        productConfigurationManager.getChurnInterventionBySubscription
+      ).not.toHaveBeenCalled();
+    });
+
+    it('returns feature_disabled when determineCancelInterstitialOfferEligibility is called', async () => {
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: 'uid_123',
+            subscriptionId: 'sub_123',
+          }
+        );
+
+      expect(result.isEligible).toBe(false);
+      expect(result.reason).toBe('feature_disabled');
+      expect(result.cmsOfferContent).toBeNull();
+      expect(result.cmsOfferingContent).toBeNull();
+      expect(
+        productConfigurationManager.getSubplatIntervalBySubscription
+      ).not.toHaveBeenCalled();
+    });
+
+    it('returns empty array when getChurnInterventionForProduct is called', async () => {
+      const result =
+        await churnInterventionService.getChurnInterventionForProduct(
+          SubplatInterval.Monthly,
+          'cancel',
+          'prod_123'
+        );
+
+      expect(result.churnInterventions).toEqual([]);
+      expect(
+        productConfigurationManager.getChurnIntervention
+      ).not.toHaveBeenCalled();
     });
   });
 });

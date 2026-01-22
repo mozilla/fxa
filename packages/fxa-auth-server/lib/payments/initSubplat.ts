@@ -149,8 +149,12 @@ export async function initSubplat({
   );
   const subscriptionManager = new SubscriptionManager(stripeClient);
   const customerManager = new CustomerManager(stripeClient);
+  const churnInterventionConfig = {
+    collectionName: 'churnCollection',
+    enabled: true,
+  };
   const churnInterventionManager = new ChurnInterventionManager(
-    { collectionName: 'churnCollection' },
+    churnInterventionConfig,
     firestore
   );
   const eligibilityManager = new EligibilityManager(
@@ -196,7 +200,8 @@ export async function initSubplat({
     profileClient,
     subscriptionManager,
     statsd,
-    logger
+    logger,
+    churnInterventionConfig
   );
 
   const subscriptionManagementService = new SubscriptionManagementService(
