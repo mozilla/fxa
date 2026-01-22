@@ -19,6 +19,7 @@ export class SetupIntentManager {
         enabled: true,
         allow_redirects: 'never',
       },
+      use_stripe_sdk: true,
     });
   }
 
