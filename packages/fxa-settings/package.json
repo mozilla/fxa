@@ -9,7 +9,7 @@
     "build-static": "yarn grunt hash-static",
     "build-ts": "tsc --build",
     "build-css": "NODE_ENV=production tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
-    "build-storybook": "NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider sb build && cp -r public/locales ./storybook-static/locales",
+    "build-storybook": "nx build-l10n && NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider sb build",
     "build-l10n": "nx l10n-merge && nx l10n-bundle && nx l10n-merge-test",
     "build-react": "nx build-react-dev && nx build-react-stage && nx build-react-prod",
     "build-react-dev": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/dev node scripts/build.js",

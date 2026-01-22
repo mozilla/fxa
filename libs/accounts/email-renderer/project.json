@@ -62,7 +62,7 @@
       "dependsOn": ["l10n-merge", "build-css", "build-ts"],
       "options": {
         "commands": [
-          "nx run accounts-email-renderer:build-storybook-only",
+          "STORYBOOK_BUILD=true nx run accounts-email-renderer:build-storybook-only",
           "nx run accounts-email-renderer:build-storybook-copy-locales",
           "nx run accounts-email-renderer:build-storybook-copy-templates"
         ],
@@ -97,7 +97,7 @@
     },
     "storybook": {
       "executor": "@nx/storybook:storybook",
-      "dependsOn": ["build-css", "build-ts"],
+      "dependsOn": ["l10n-merge", "build-css", "build-ts"],
       "options": {
         "port": 4400,
         "configDir": "libs/accounts/email-renderer/.storybook",
@@ -116,7 +116,10 @@
         "cwd": "."
       },
       "inputs": ["{projectRoot}/gruntfile.js", "{projectRoot}/src/**/en.ftl"],
-      "outputs": ["{projectRoot}/public/locales/en/branding.ftl", "{projectRoot}/public/locales/en/emails.ftl"]
+      "outputs": [
+        "{projectRoot}/public/locales/en/branding.ftl",
+        "{projectRoot}/public/locales/en/emails.ftl"
+      ]
     },
     "l10n-merge": {
       "dependsOn": ["l10n-prime"],
