@@ -63,6 +63,7 @@ type FxAStatusRequest = {
   service: string; // ex. 'sync'
   isPairing: boolean;
   context: string; // ex. 'fx_desktop_v3'
+  userContextId?: string;
 };
 
 export type FxAStatusResponse = {
@@ -382,7 +383,8 @@ export class Firefox extends EventTarget {
   async requestSignedInUser(
     context: string,
     isPairing: boolean,
-    service: string
+    service: string,
+    userContextId?: string
   ): Promise<undefined | SignedInUser> {
     let timeoutId: number;
     return Promise.race<undefined | SignedInUser>([
@@ -406,6 +408,7 @@ export class Firefox extends EventTarget {
             context,
             isPairing,
             service,
+            userContextId,
           });
         });
       }),
