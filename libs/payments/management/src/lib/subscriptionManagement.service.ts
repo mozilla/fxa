@@ -422,12 +422,56 @@ export class SubscriptionManagementService {
 
     const subplatInterval = getSubplatInterval(interval, intervalCount);
 
-    const [latestInvoice, upcomingInvoice] = await Promise.all([
+    const [
+      latestInvoice,
+      upcomingInvoice,
+      staySubscribedResult,
+      cancelIntervention,
+    ] = await Promise.all([
       this.invoiceManager.preview(latestInvoiceId),
       this.invoiceManager.previewUpcomingSubscription({
         customer,
         subscription,
       }),
+      this.churnInterventionService
+        .determineStaySubscribedEligibility(
+          uid,
+          subscription.id,
+          acceptLanguage,
+          selectedLanguage
+        )
+        .catch((err) => {
+          this.statsd.increment('subscription_content', {
+            part: 'churn_stay_subscribed',
+            outcome: 'error',
+          });
+          this.log.error({ err }, 'stay_subscribed churn eligibility failed');
+          return {
+            isEligible: false,
+            reason: 'error',
+            cmsChurnInterventionEntry: null,
+            cmsOfferingContent: null,
+          };
+        }),
+      this.churnInterventionService
+        .determineCancellationIntervention({
+          uid,
+          subscriptionId: subscription.id,
+          acceptLanguage,
+          selectedLanguage,
+        })
+        .catch((err) => {
+          this.statsd.increment('subscription_content', {
+            part: 'churn_cancel_intervention',
+            outcome: 'error',
+          });
+          this.log.error({ err }, 'cancel intervention failed');
+          return {
+            cancelChurnInterventionType: 'none',
+            reason: 'error',
+            cmsOfferContent: null,
+          };
+        }),
     ]);
 
     if (!latestInvoice) {
@@ -472,22 +516,6 @@ export class SubscriptionManagementService {
       subsequentTax
         .filter((tax) => !tax.inclusive)
         .reduce((sum, tax) => sum + tax.amount, 0);
-
-    const staySubscribedResult =
-      await this.churnInterventionService.determineStaySubscribedEligibility(
-        uid,
-        subscription.id,
-        acceptLanguage,
-        selectedLanguage
-      );
-
-    const cancelIntervention =
-      await this.churnInterventionService.determineCancellationIntervention({
-        uid,
-        subscriptionId: subscription.id,
-        acceptLanguage,
-        selectedLanguage,
-      });
 
     return {
       id: subscription.id,

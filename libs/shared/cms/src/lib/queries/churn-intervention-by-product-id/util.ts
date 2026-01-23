@@ -4,7 +4,6 @@
 
 import {
   ChurnInterventionByProductIdRawResult,
-  ChurnInterventionByProductIdResult,
   CmsOfferingContent,
 } from './types';
 import * as Sentry from '@sentry/node';
@@ -13,6 +12,16 @@ export class ChurnInterventionByProductIdResultUtil {
   constructor(private rawResult: ChurnInterventionByProductIdRawResult) {}
 
   getTransformedChurnInterventionByProductId() {
+    const offering = this.rawResult.offerings?.at(0);
+
+    if (!offering) {
+      Sentry.captureMessage(
+        'No offering found for product and interval (expected in environments with no churn interventions)',
+        { extra: { offeringsCount: this.rawResult.offerings?.length ?? 0 } }
+      );
+      return [];
+    }
+
     if (this.rawResult.offerings.length !== 1) {
       Sentry.captureMessage(
         'Unexpected number of offerings found for product and interval',
@@ -24,47 +33,44 @@ export class ChurnInterventionByProductIdResultUtil {
       defaultPurchase,
       commonContent,
       churnInterventions,
-    } = this.rawResult.offerings[0];
+    } = offering;
 
     // One ChurnInterventionByOfferingResult per churn intervention to handle multiple churn types
-    const churnInterventionsByProductId: ChurnInterventionByProductIdResult[] =
-      churnInterventions.map((churnIntervention) => {
-        return {
-          ...churnIntervention,
-          apiIdentifier,
-          webIcon:
-            defaultPurchase.purchaseDetails.localizations.length > 0
-              ? defaultPurchase.purchaseDetails.localizations[0].webIcon
-              : defaultPurchase.purchaseDetails.webIcon,
-          productName:
-            defaultPurchase.purchaseDetails.localizations.length > 0
-              ? defaultPurchase.purchaseDetails.localizations[0].productName
-              : defaultPurchase.purchaseDetails.productName,
-          supportUrl: commonContent.supportUrl,
-          ctaMessage:
-            churnIntervention.localizations.at(0)?.ctaMessage ??
-            churnIntervention.ctaMessage,
-          modalHeading:
-            churnIntervention.localizations.at(0)?.modalHeading ??
-            churnIntervention.modalHeading,
-          modalMessage: this.transformArrayStringField(
-            churnIntervention.localizations.at(0)?.modalMessage ??
-              churnIntervention.modalMessage
-          ),
-          termsDetails: this.transformArrayStringField(
-            churnIntervention.localizations.at(0)?.termsDetails ??
-              churnIntervention.termsDetails
-          ),
-          termsHeading:
-            churnIntervention.localizations.at(0)?.termsHeading ??
-            churnIntervention.termsHeading,
-          productPageUrl:
-            churnIntervention.localizations.at(0)?.productPageUrl ??
-            churnIntervention.productPageUrl,
-        };
-      });
-
-    return churnInterventionsByProductId;
+    return (churnInterventions ?? []).map((churnIntervention) => {
+      return {
+        ...churnIntervention,
+        apiIdentifier,
+        webIcon:
+          defaultPurchase.purchaseDetails.localizations.length > 0
+            ? defaultPurchase.purchaseDetails.localizations[0].webIcon
+            : defaultPurchase.purchaseDetails.webIcon,
+        productName:
+          defaultPurchase.purchaseDetails.localizations.length > 0
+            ? defaultPurchase.purchaseDetails.localizations[0].productName
+            : defaultPurchase.purchaseDetails.productName,
+        supportUrl: commonContent.supportUrl,
+        ctaMessage:
+          churnIntervention.localizations.at(0)?.ctaMessage ??
+          churnIntervention.ctaMessage,
+        modalHeading:
+          churnIntervention.localizations.at(0)?.modalHeading ??
+          churnIntervention.modalHeading,
+        modalMessage: this.transformArrayStringField(
+          churnIntervention.localizations.at(0)?.modalMessage ??
+            churnIntervention.modalMessage
+        ),
+        termsDetails: this.transformArrayStringField(
+          churnIntervention.localizations.at(0)?.termsDetails ??
+            churnIntervention.termsDetails
+        ),
+        termsHeading:
+          churnIntervention.localizations.at(0)?.termsHeading ??
+          churnIntervention.termsHeading,
+        productPageUrl:
+          churnIntervention.localizations.at(0)?.productPageUrl ??
+          churnIntervention.productPageUrl,
+      };
+    });
   }
 
   get churnInterventionByProductId(): ChurnInterventionByProductIdRawResult {
