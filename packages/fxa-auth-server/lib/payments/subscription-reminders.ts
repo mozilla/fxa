@@ -240,7 +240,7 @@ export class SubscriptionReminders {
             purchase.purchaseDetails.localizations.at(0)?.webIcon ||
             purchase.purchaseDetails.webIcon,
           churnTermsUrl: new URL(
-            `${this.paymentsNextUrl}/${offeringId}/${priceSubplatInterval}/stay-subscribed/loyalty-discount/terms`
+            `${this.paymentsNextUrl}/${offeringId}/${priceSubplatInterval}/stay_subscribed/loyalty-discount/terms`
           ).toString(),
           ctaButtonLabel: cmsChurnInterventionEntry?.ctaMessage,
           ctaButtonUrl: new URL(
