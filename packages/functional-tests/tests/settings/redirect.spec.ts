@@ -45,8 +45,8 @@ test.describe('severity-2 #smoke', () => {
 
       await page.bringToFront();
       await settings.secondaryEmail.addButton.click();
+      await page.waitForURL(/signin_totp_code/);
 
-      await expect(page).toHaveURL(/signin_totp_code/);
       await expect(signinTotpCode.aalUpgradeBanner).toBeVisible();
       await expect(
         page.getByRole('heading', {
@@ -97,8 +97,8 @@ test.describe('severity-2 #smoke', () => {
 
       await page.bringToFront();
       await page.reload();
+      await page.waitForURL(/signin_totp_code/);
 
-      await expect(page).toHaveURL(/signin_totp_code/);
       await expect(signinTotpCode.aalUpgradeBanner).toBeVisible();
       await expect(
         page.getByRole('heading', {
