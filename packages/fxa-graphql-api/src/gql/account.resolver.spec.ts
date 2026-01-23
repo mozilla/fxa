@@ -436,7 +436,9 @@ describe('#integration - AccountResolver', () => {
 
     describe('deleteSecondaryEmail', () => {
       it('succeeds', async () => {
-        authClient.recoveryEmailDestroyWithJwt = jest.fn().mockResolvedValue(true);
+        authClient.recoveryEmailDestroyWithJwt = jest
+          .fn()
+          .mockResolvedValue(true);
         const result = await resolver.deleteSecondaryEmail(headers, {
           jwt: 'jwtToken',
           clientMutationId: 'testid',
@@ -576,7 +578,7 @@ describe('#integration - AccountResolver', () => {
             state: 'In' as 'in',
           })
         ).rejects.toThrow(
-          'Invalid metrics opt state! State must be in or out, but recieved In.'
+          'Invalid metrics opt state! State must be in or out, but received In.'
         );
       });
     });
