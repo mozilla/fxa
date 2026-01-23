@@ -244,6 +244,10 @@ const DESCRIPTIONS = {
   status:
     'The status of the product (e.g. `active`, `canceled`, `trialing`, `unpaid`, etc).',
   sub: 'The hex id of the user.',
+  subjectToken:
+    'The token to be exchanged. Used with `grant_type=urn:ietf:params:oauth:grant-type:token-exchange` per RFC 8693.',
+  subjectTokenType:
+    'A URN identifying the type of subject_token. Must be `urn:ietf:params:oauth:token-type:refresh_token` to indicate the subject_token is a refresh token.',
   subscriptionId:
     'A unique identifier for the Stripe [subscription](https://stripe.com/docs/api/subscriptions/object).',
   subscriptions: 'A list of all subscriptions (including web and IAP).',

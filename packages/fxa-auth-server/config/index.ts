@@ -1381,6 +1381,20 @@ const convictConf = convict({
         env: 'FXA_REFRESH_TOKEN_UPDATE_AFTER',
       },
     },
+    tokenExchange: {
+      allowedClientIds: {
+        doc: 'Client IDs allowed to perform token exchange (only Firefox mobile clients as of FXA-12925)',
+        format: Array,
+        default: ['1b1a3e44c54fbb58', '3332a18d142636cb', 'a2270f727f45f648'],
+        env: 'OAUTH_TOKEN_EXCHANGE_CLIENT_IDS',
+      },
+      allowedScopes: {
+        doc: 'Scopes that can be requested via token exchange grant type',
+        format: Array,
+        default: ['https://identity.mozilla.com/apps/relay'],
+        env: 'OAUTH_TOKEN_EXCHANGE_ALLOWED_SCOPES',
+      },
+    },
     git: {
       commit: {
         doc: 'Commit SHA when in stage/production',
