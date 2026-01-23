@@ -1176,6 +1176,61 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Send a passwordless OTP code to the user's email
+   */
+  async passwordlessSendCode(
+    email: string,
+    options: { service?: string; metricsContext?: MetricsContext } = {},
+    headers?: Headers
+  ): Promise<{}> {
+    return this.request(
+      'POST',
+      '/account/passwordless/send_code',
+      { email, ...options },
+      headers
+    );
+  }
+
+  /**
+   * Confirm a passwordless OTP code and get a session token
+   */
+  async passwordlessConfirmCode(
+    email: string,
+    code: string,
+    options: { service?: string; metricsContext?: MetricsContext } = {},
+    headers?: Headers
+  ): Promise<{
+    uid: string;
+    sessionToken: string;
+    verified: boolean;
+    authAt: number;
+    isNewAccount: boolean;
+  }> {
+    return this.request(
+      'POST',
+      '/account/passwordless/confirm_code',
+      { email, code, ...options },
+      headers
+    );
+  }
+
+  /**
+   * Resend a passwordless OTP code
+   */
+  async passwordlessResendCode(
+    email: string,
+    options: { service?: string; metricsContext?: MetricsContext } = {},
+    headers?: Headers
+  ): Promise<{}> {
+    return this.request(
+      'POST',
+      '/account/passwordless/resend_code',
+      { email, ...options },
+      headers
+    );
+  }
+
   async accountProfile(sessionToken: hexstring, headers?: Headers) {
     return this.sessionGet('/account/profile', sessionToken, headers);
   }

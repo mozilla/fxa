@@ -19,6 +19,7 @@ enum EmailPrefix {
   BOUNCED = 'bounced',
   BOUNCED_ALIAS = 'bounced+',
   FORCED_PWD_CHANGE = 'forcepwdchange',
+  PASSWORDLESS = 'passwordless',
   SIGNIN = 'signin',
   SIGNUP = 'signup',
   SYNC = 'sync',
@@ -27,6 +28,10 @@ enum EmailPrefix {
 type AccountDetails = {
   email: string;
   password: string;
+  /** For passwordless accounts that don't have a password yet */
+  isPasswordless?: boolean;
+  /** Preserved session token for cleanup (used for passwordless+TOTP accounts) */
+  sessionToken?: string;
 };
 
 /**
@@ -148,6 +153,31 @@ export class TestAccountTracker {
   }
 
   /**
+   * Creates a new email address with the 'passwordless' prefix and a new
+   * randomized password. The 'passwordless' prefix triggers the passwordless
+   * flow due to server-side email regex matching.
+   * Note: The account is marked as passwordless for special cleanup handling.
+   * @returns AccountDetails
+   */
+  generatePasswordlessAccountDetails(): AccountDetails {
+    const account = {
+      email: this.generateEmail(EmailPrefix.PASSWORDLESS),
+      password: this.generatePassword(),
+      isPasswordless: true,
+    };
+    this.accounts.push(account);
+    return account;
+  }
+
+  /**
+   * Creates a new email with the 'passwordless' prefix
+   * @returns email
+   */
+  generatePasswordlessEmail(): string {
+    return this.generateEmail(EmailPrefix.PASSWORDLESS);
+  }
+
+  /**
    * Creates a new email address with a given prefix and a new randomized
    * password
    * @param prefix email prefix to use when generating email
@@ -209,6 +239,43 @@ export class TestAccountTracker {
    */
   async signUpSync(options?: any): Promise<Credentials> {
     return await this.signUp(options, EmailPrefix.SYNC);
+  }
+
+  /**
+   * Creates a passwordless account via API (verifierSetAt: 0, no password).
+   * Used for testing signin to existing passwordless accounts.
+   * Note: The account is created WITHOUT a password to remain passwordless-eligible.
+   * Cleanup will set a password before destroying the account.
+   * @returns Partial credentials with email, uid, and sessionToken
+   */
+  async signUpPasswordless(): Promise<{
+    email: string;
+    uid: string;
+    sessionToken: string;
+  }> {
+    const email = this.generateEmail(EmailPrefix.PASSWORDLESS);
+    const password = this.generatePassword();
+
+    // Send passwordless code
+    await this.target.authClient.passwordlessSendCode(email);
+
+    // Get OTP from email
+    const code = await this.target.emailClient.getPasswordlessCode(email);
+
+    // Confirm code - creates account (NO password is set - remains passwordless)
+    const result = await this.target.authClient.passwordlessConfirmCode(
+      email,
+      code
+    );
+
+    // Track for cleanup - mark as passwordless so cleanup knows to handle specially
+    this.accounts.push({ email, password, isPasswordless: true });
+
+    return {
+      email,
+      uid: result.uid,
+      sessionToken: result.sessionToken,
+    };
   }
 
   /**
@@ -299,9 +366,18 @@ export class TestAccountTracker {
    * This takes a naive approach, defaulting to fetching a new session token, checking status,
    * verifying the session if needed, and defaulting to elevating to AAL2 when 2FA is enabled.
    *
+   * For passwordless accounts, we first create a password via the passwordless API,
+   * then proceed with normal destruction.
+   *
    * Once we have a valid sessionToken, we disconnect 2FA then destroy the account.
    */
   private async destroyAccount(account: AccountDetails | Credentials) {
+    // Handle passwordless accounts - they need a password set before we can destroy them
+    const isPasswordless = 'isPasswordless' in account && account.isPasswordless;
+    if (isPasswordless) {
+      await this.setupPasswordForPasswordlessAccount(account);
+    }
+
     const { sessionToken } = await this.target.authClient.signIn(
       account.email,
       account.password
@@ -351,6 +427,87 @@ export class TestAccountTracker {
       {},
       sessionToken
     );
+  }
+
+  /**
+   * Sets up a password for a passwordless account so it can be destroyed.
+   * Uses the passwordless API to get a session token, then creates a password.
+   * If the password is already set (e.g., user set it during test via UI), this is a no-op.
+   *
+   * For accounts with TOTP enabled, passwordless API returns TOTP_REQUIRED.
+   * In that case, we use the preserved session token if available.
+   */
+  private async setupPasswordForPasswordlessAccount(
+    account: AccountDetails
+  ): Promise<void> {
+    try {
+      // Send passwordless code
+      await this.target.authClient.passwordlessSendCode(account.email);
+
+      // Get OTP from email
+      const code =
+        await this.target.emailClient.getPasswordlessCode(account.email);
+
+      // Confirm code to get session token
+      const result = await this.target.authClient.passwordlessConfirmCode(
+        account.email,
+        code
+      );
+
+      // Create password using the session token
+      await this.target.authClient.createPassword(
+        result.sessionToken,
+        account.email,
+        account.password
+      );
+    } catch (error: any) {
+      // If password is already set (e.g., user set it during test via SetPassword page),
+      // that's fine - we can proceed with normal cleanup
+      if (
+        error.message?.includes('password already set') ||
+        error.errno === 148 // ERRNO.CAN_NOT_CREATE_PASSWORD
+      ) {
+        console.log(
+          `Password already set for ${account.email}, proceeding with cleanup`
+        );
+      } else if (error.errno === 160) {
+        // TOTP_REQUIRED - account has 2FA enabled, can't use passwordless
+        // Try to use preserved session token if available
+        if (account.sessionToken) {
+          console.log(
+            `TOTP_REQUIRED for ${account.email}, using preserved session token`
+          );
+          try {
+            await this.target.authClient.createPassword(
+              account.sessionToken,
+              account.email,
+              account.password
+            );
+          } catch (pwdError: any) {
+            if (
+              pwdError.message?.includes('password already set') ||
+              pwdError.errno === 148
+            ) {
+              console.log(
+                `Password already set for ${account.email}, proceeding with cleanup`
+              );
+            } else {
+              throw pwdError;
+            }
+          }
+        } else {
+          throw new Error(
+            `Cannot set password for ${account.email}: TOTP is enabled and no session token was preserved. ` +
+              `Store the sessionToken from signUpPasswordless in the account for cleanup.`
+          );
+        }
+      } else {
+        throw error;
+      }
+    }
+
+    // Mark as no longer passwordless for this session
+    account.isPasswordless = false;
   }
 
   /**

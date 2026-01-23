@@ -108,6 +108,9 @@ const SigninRecoveryCodeContainer = lazy(
   () => import('../../pages/Signin/SigninRecoveryCode/container')
 );
 const SigninReported = lazy(() => import('../../pages/Signin/SigninReported'));
+const SigninPasswordlessCodeContainer = lazy(
+  () => import('../../pages/Signin/SigninPasswordlessCode/container')
+);
 const SigninTokenCodeContainer = lazy(
   () => import('../../pages/Signin/SigninTokenCode/container')
 );
@@ -587,6 +590,10 @@ const AuthAndAccountSetupRoutes = ({
           setCurrentSplitLayout,
         }}
       />
+      <SigninPasswordlessCodeContainer
+        path="/oauth/signin_passwordless_code/*"
+        {...{ integration, serviceName, setCurrentSplitLayout }}
+      />
       <SigninContainer
         path="/signin/*"
         {...{
@@ -616,6 +623,10 @@ const AuthAndAccountSetupRoutes = ({
         {...{ integration }}
       />
       <SigninReported path="/signin_reported/*" />
+      <SigninPasswordlessCodeContainer
+        path="/signin_passwordless_code/*"
+        {...{ integration, serviceName, setCurrentSplitLayout }}
+      />
       <SigninTokenCodeContainer
         path="/signin_token_code/*"
         {...{ integration, setCurrentSplitLayout }}

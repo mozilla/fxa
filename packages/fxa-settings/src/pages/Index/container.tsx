@@ -103,31 +103,68 @@ const IndexContainer = ({
       hasLinkedAccount: boolean,
       hasPassword: boolean,
       email: string,
-      canLinkAccountOk: boolean | undefined = undefined
+      canLinkAccountOk: boolean | undefined = undefined,
+      passwordlessSupported: boolean | undefined = undefined
     ) => {
+      const wantsKeys = integration.wantsKeys();
+      const isOAuth = isOAuthWebIntegration(integration);
+
+      // Passwordless eligibility:
+      // - For EXISTING accounts: use passwordless if passwordlessSupported && !hasPassword
+      //   (Sync users with existing passwordless accounts will verify via OTP, then set password)
+      // - For NEW accounts: use passwordless if passwordlessSupported && !wantsKeys
+      //   (Sync users should go through traditional password-first signup)
+      const canUsePasswordlessExisting = passwordlessSupported && !hasPassword;
+      const canUsePasswordlessNew = passwordlessSupported && !wantsKeys;
+
       if (exists) {
-        const signinRoute = isOAuthWebIntegration(integration)
-          ? '/oauth/signin'
-          : '/signin';
-        navigateWithQuery(signinRoute, {
-          state: {
-            email,
-            hasLinkedAccount,
-            hasPassword,
-            canLinkAccountOk,
-          },
-        });
+        if (canUsePasswordlessExisting) {
+          // Existing passwordless account - go to passwordless code page
+          // For Sync, SigninPasswordlessCode will redirect to SetPassword after OTP
+          const passwordlessRoute = isOAuth
+            ? '/oauth/signin_passwordless_code'
+            : '/signin_passwordless_code';
+          navigateWithQuery(passwordlessRoute, {
+            state: {
+              email,
+              service: integration.getService(),
+            },
+          });
+        } else {
+          const signinRoute = isOAuth ? '/oauth/signin' : '/signin';
+          navigateWithQuery(signinRoute, {
+            state: {
+              email,
+              hasLinkedAccount,
+              hasPassword,
+              canLinkAccountOk,
+            },
+          });
+        }
       } else {
-        const signupRoute = isOAuthWebIntegration(integration)
-          ? '/oauth/signup'
-          : '/signup';
-        navigateWithQuery(signupRoute, {
-          state: {
-            email,
-            emailStatusChecked: true,
-            canLinkAccountOk,
-          },
-        });
+        if (canUsePasswordlessNew) {
+          // New account with passwordless support (non-Sync only)
+          const passwordlessRoute = isOAuth
+            ? '/oauth/signin_passwordless_code'
+            : '/signin_passwordless_code';
+          navigateWithQuery(passwordlessRoute, {
+            state: {
+              email,
+              service: integration.getService(),
+              isSignup: true,
+            },
+          });
+        } else {
+          // Standard signup with password (includes Sync users)
+          const signupRoute = isOAuth ? '/oauth/signup' : '/signup';
+          navigateWithQuery(signupRoute, {
+            state: {
+              email,
+              emailStatusChecked: true,
+              canLinkAccountOk,
+            },
+          });
+        }
       }
     },
     [integration, navigateWithQuery]
@@ -164,7 +201,7 @@ const IndexContainer = ({
           throw AuthUiErrors.EMAIL_REQUIRED;
         }
 
-        const { exists, hasLinkedAccount, hasPassword } =
+        const { exists, hasLinkedAccount, hasPassword, passwordlessSupported } =
           await authClient.accountStatusByEmail(email, {
             thirdPartyAuthStatus: true,
           });
@@ -233,7 +270,8 @@ const IndexContainer = ({
           hasLinkedAccount,
           hasPassword,
           email,
-          canLinkAccountOk
+          canLinkAccountOk,
+          passwordlessSupported
         );
       } catch (error) {
         if (isManualSubmission && isEmail(email)) {

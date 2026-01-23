@@ -255,6 +255,22 @@ export class EmailClient {
     return code;
   }
 
+  /**
+   * Gets the passwordless OTP code from the email.
+   * Note: Passwordless uses the same email template as password forgot OTP.
+   * @param email - The email address that is expected to receive the code.
+   * @returns The passwordless OTP code.
+   */
+  async getPasswordlessCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.passwordForgotOtp,
+      EmailHeader.resetPasswordCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
   /** Creates a bounce record. Note, this only works on localhost. For stage / prod, we expect we can generate a real bounce. */
   async createBounce(
     email: string,

@@ -2157,6 +2157,32 @@ const convictConf = convict({
       env: 'OTP_PASSWORD_FORGOT_TTL',
     },
   },
+  passwordlessOtp: {
+    enabled: {
+      doc: 'Enable passwordless authentication feature',
+      default: false,
+      format: Boolean,
+      env: 'PASSWORDLESS_ENABLED',
+    },
+    forcedEmailAddresses: {
+      doc: 'Force passwordless flow for email addresses matching this regex (for testing)',
+      format: RegExp,
+      default: /^passwordless.*@restmail\.net$/,
+      env: 'PASSWORDLESS_FORCED_EMAIL_REGEX',
+    },
+    digits: {
+      doc: 'Number of digits in passwordless OTP code',
+      default: 8,
+      format: 'nat',
+      env: 'OTP_PASSWORDLESS_DIGITS',
+    },
+    ttl: {
+      doc: 'Duration in seconds when the passwordless OTP is valid',
+      default: 10 * 60,
+      format: 'nat',
+      env: 'OTP_PASSWORDLESS_TTL',
+    },
+  },
   syncTokenserverUrl: {
     default: 'http://localhost:8000/token',
     doc: 'The url of the Firefox Sync tokenserver',

@@ -1544,11 +1544,13 @@ export class AccountHandler {
       invalidDomain?: boolean;
       hasLinkedAccount?: boolean;
       hasPassword?: boolean;
+      passwordlessSupported?: boolean;
     } = {
       exists: false,
       invalidDomain: undefined,
       hasLinkedAccount: undefined,
       hasPassword: undefined,
+      passwordlessSupported: undefined,
     };
 
     try {
@@ -1560,6 +1562,8 @@ export class AccountHandler {
         result.exists = true;
         result.hasLinkedAccount = (account.linkedAccounts?.length || 0) > 0;
         result.hasPassword = account.verifierSetAt > 0;
+        // Passwordless is supported if account has no password set
+        result.passwordlessSupported = account.verifierSetAt === 0;
       } else {
         const exist = await this.db.accountExists(email);
         result.exists = exist;
@@ -1575,6 +1579,14 @@ export class AccountHandler {
         result.exists = false;
         if (checkDomain) {
           result.invalidDomain = invalidDomain;
+        }
+        // For non-existent accounts, check if passwordless is supported
+        // Either by matching the forced email regex (for testing) or if globally enabled
+        if (thirdPartyAuthStatus) {
+          const isPasswordlessForced =
+            this.config.passwordlessOtp.forcedEmailAddresses?.test(email);
+          result.passwordlessSupported =
+            isPasswordlessForced || this.config.passwordlessOtp.enabled;
         }
         if (this.customs.v2Enabled()) {
           await this.customs.check(request, email, 'accountStatusCheckFailed');
@@ -2508,6 +2520,7 @@ export const accountRoutes = (
             hasLinkedAccount: isA.boolean().optional(),
             hasPassword: isA.boolean().optional(),
             invalidDomain: isA.boolean().optional(),
+            passwordlessSupported: isA.boolean().optional(),
           }),
         },
       },

@@ -90,7 +90,7 @@ const SignupContainer = ({
   useEffect(() => {
     (async () => {
       if (!validationError && !emailStatusChecked) {
-        const { exists, hasLinkedAccount, hasPassword } =
+        const { exists, hasLinkedAccount, hasPassword, passwordlessSupported } =
           await authClient.accountStatusByEmail(queryParamModel.email, {
             thirdPartyAuthStatus: true,
           });
@@ -104,6 +104,16 @@ const SignupContainer = ({
               email,
               hasLinkedAccount,
               hasPassword,
+            },
+          });
+        } else if (passwordlessSupported && !wantsKeys) {
+          // New account can use passwordless signup (non-Sync RPs only)
+          navigateWithQuery('/signin_passwordless_code', {
+            replace: true,
+            state: {
+              email,
+              service: integration.getService(),
+              isSignup: true,
             },
           });
         }

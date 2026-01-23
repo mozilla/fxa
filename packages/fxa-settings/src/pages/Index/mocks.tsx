@@ -65,6 +65,8 @@ export function createMockIndexOAuthNativeIntegration({
     type: IntegrationType.OAuthNative,
     isSync: () => isSync,
     getClientId: () => MOCK_CLIENT_ID,
+    getService: () => MOCK_CLIENT_ID,
+    wantsKeys: () => false,
     isFirefoxClientServiceRelay: () => isFirefoxClientServiceRelay,
     isFirefoxClientServiceAiWindow: () => isFirefoxClientServiceAiWindow,
     isFirefoxNonSync: () =>
@@ -84,6 +86,8 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     type: IntegrationType.Web,
     isSync: () => false,
     getClientId: () => undefined,
+    getService: () => undefined,
+    wantsKeys: () => false,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceAiWindow: () => false,
     isFirefoxNonSync: () => false,

@@ -31,6 +31,7 @@ import { SigninRecoveryCodePage } from './signinRecoveryCode';
 import { SigninTokenCodePage } from './signinTokenCode';
 import { SigninTotpCodePage } from './signinTotpCode';
 import { SigninUnblockPage } from './signinUnblock';
+import { SigninPasswordlessCodePage } from './signinPasswordlessCode';
 import { SignupPage } from './signup';
 import { TermsOfService } from './termsOfService';
 import { TotpPage } from './settings/totp';
@@ -70,6 +71,7 @@ export function create(page: Page, target: BaseTarget) {
     signinTokenCode: new SigninTokenCodePage(page, target),
     signinTotpCode: new SigninTotpCodePage(page, target),
     signinUnblock: new SigninUnblockPage(page, target),
+    signinPasswordlessCode: new SigninPasswordlessCodePage(page, target),
     signup: new SignupPage(page, target),
     signupConfirmedSync: new SignupConfirmedSyncPage(page, target),
     termsOfService: new TermsOfService(page, target),
