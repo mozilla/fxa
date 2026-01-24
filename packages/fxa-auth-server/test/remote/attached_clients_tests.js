@@ -16,213 +16,277 @@ const hashRefreshToken = require('fxa-shared/auth/encrypt').hash;
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 
-
 // Note, intentionally not indenting for code review.
-[{version:""},{version:"V2"}].forEach((testOptions) => {
+[{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
+  describe(`#integration${testOptions.version} - attached clients listing`, function () {
+    this.timeout(60000);
+    let server, oauthServerDb;
+    before(async () => {
+      config.lastAccessTimeUpdates = {
+        enabled: true,
+        sampleRate: 1,
+        earliestSaneTimestamp:
+          config.lastAccessTimeUpdates.earliestSaneTimestamp,
+      };
+      testUtils.disableLogs();
+      server = await TestServer.start(config, false);
+      oauthServerDb = require('../../lib/oauth/db');
+    });
 
-describe(`#integration${testOptions.version} - attached clients listing`, function () {
-  this.timeout(60000);
-  let server, oauthServerDb;
-  before(async () => {
-    config.lastAccessTimeUpdates = {
-      enabled: true,
-      sampleRate: 1,
-      earliestSaneTimestamp: config.lastAccessTimeUpdates.earliestSaneTimestamp,
-    };
-    testUtils.disableLogs();
-    server = await TestServer.start(config, false);
-    oauthServerDb = require('../../lib/oauth/db');
-  });
+    after(async () => {
+      await TestServer.stop(server);
+      testUtils.restoreStdoutWrite();
+    });
 
-  after(async () => {
-    await TestServer.stop(server);
-    testUtils.restoreStdoutWrite();
-  });
+    it('correctly lists a variety of attached clients', async () => {
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const client = await Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      );
+      const mySessionTokenId = (
+        await tokens.SessionToken.fromHex(client.sessionToken)
+      ).id;
+      const deviceInfo = {
+        name: 'test device 🍓🔥在𝌆',
+        type: 'mobile',
+        availableCommands: { foo: 'bar' },
+        pushCallback: '',
+        pushPublicKey: '',
+        pushAuthKey: '',
+      };
 
-  it('correctly lists a variety of attached clients', async () => {
-    const email = server.uniqueEmail();
-    const password = 'test password';
-    const client = await Client.createAndVerify(
-      config.publicUrl,
-      email,
-      password,
-      server.mailbox,
-      testOptions
-    );
-    const mySessionTokenId = (
-      await tokens.SessionToken.fromHex(client.sessionToken)
-    ).id;
-    const deviceInfo = {
-      name: 'test device 🍓🔥在𝌆',
-      type: 'mobile',
-      availableCommands: { foo: 'bar' },
-      pushCallback: '',
-      pushPublicKey: '',
-      pushAuthKey: '',
-    };
+      let allClients = await client.attachedClients();
 
-    let allClients = await client.attachedClients();
+      assert.equal(allClients.length, 1);
+      assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
+      assert.equal(allClients[0].deviceId, null);
+      assert.equal(allClients[0].lastAccessTimeFormatted, 'a few seconds ago');
 
-    assert.equal(allClients.length, 1);
-    assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
-    assert.equal(allClients[0].deviceId, null);
-    assert.equal(allClients[0].lastAccessTimeFormatted, 'a few seconds ago');
+      const device = await client.updateDevice(deviceInfo);
 
-    const device = await client.updateDevice(deviceInfo);
+      allClients = await client.attachedClients();
+      assert.equal(allClients.length, 1);
+      assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
+      assert.equal(allClients[0].deviceId, device.id);
+      assert.equal(allClients[0].name, deviceInfo.name);
 
-    allClients = await client.attachedClients();
-    assert.equal(allClients.length, 1);
-    assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
-    assert.equal(allClients[0].deviceId, device.id);
-    assert.equal(allClients[0].name, deviceInfo.name);
+      const refreshToken = await oauthServerDb.generateRefreshToken({
+        clientId: buf(PUBLIC_CLIENT_ID),
+        userId: buf(client.uid),
+        email: client.email,
+        scope: ScopeSet.fromArray([
+          'profile',
+          'https://identity.mozilla.com/apps/oldsync',
+        ]),
+      });
+      const refreshTokenId = hashRefreshToken(refreshToken.token).toString(
+        'hex'
+      );
 
-    const refreshToken = await oauthServerDb.generateRefreshToken({
-      clientId: buf(PUBLIC_CLIENT_ID),
-      userId: buf(client.uid),
-      email: client.email,
-      scope: ScopeSet.fromArray([
+      allClients = await client.attachedClients();
+      assert.equal(allClients.length, 2);
+      assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
+      assert.equal(allClients[1].sessionTokenId, null);
+      assert.equal(allClients[1].refreshTokenId, refreshTokenId);
+      assert.equal(allClients[1].lastAccessTimeFormatted, 'a few seconds ago');
+      assert.equal(allClients[1].name, 'Android Components Reference Browser');
+
+      const device2 = await client.updateDeviceWithRefreshToken(
+        refreshToken.token.toString('hex'),
+        { name: 'test device', type: 'mobile' }
+      );
+      allClients = await client.attachedClients();
+      assert.equal(allClients.length, 2);
+      const one = allClients.findIndex((c) => c.name === 'test device');
+      const zero = (one + 1) % allClients.length;
+      assert.equal(allClients[zero].sessionTokenId, mySessionTokenId);
+      assert.equal(allClients[zero].deviceId, device.id);
+      assert.equal(allClients[one].refreshTokenId, refreshTokenId);
+      assert.equal(allClients[one].deviceId, device2.id);
+      assert.equal(allClients[one].name, 'test device');
+    });
+
+    it('correctly deletes by device id', async () => {
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const client = await Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      );
+      const mySessionTokenId = (
+        await tokens.SessionToken.fromHex(client.sessionToken)
+      ).id;
+
+      const client2 = await Client.login(
+        config.publicUrl,
+        email,
+        password,
+        testOptions
+      );
+      const device = await client2.updateDevice({
+        name: 'test',
+        type: 'desktop',
+      });
+
+      let allClients = await client.attachedClients();
+      assert.equal(allClients.length, 2);
+
+      await client.destroyAttachedClient({
+        deviceId: device.id,
+      });
+
+      allClients = await client.attachedClients();
+      assert.equal(allClients.length, 1);
+      assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
+    });
+
+    it('correctly deletes by sessionTokenId', async () => {
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const client = await Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      );
+      const mySessionTokenId = (
+        await tokens.SessionToken.fromHex(client.sessionToken)
+      ).id;
+
+      const client2 = await Client.login(
+        config.publicUrl,
+        email,
+        password,
+        testOptions
+      );
+      const otherSessionTokenId = (
+        await tokens.SessionToken.fromHex(client2.sessionToken)
+      ).id;
+
+      let allClients = await client.attachedClients();
+      assert.equal(allClients.length, 2);
+
+      await client.destroyAttachedClient({
+        sessionTokenId: otherSessionTokenId,
+      });
+
+      allClients = await client.attachedClients();
+      assert.equal(allClients.length, 1);
+      assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
+    });
+
+    it('correctly deletes by refreshTokenId', async () => {
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const client = await Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      );
+      const mySessionTokenId = (
+        await tokens.SessionToken.fromHex(client.sessionToken)
+      ).id;
+
+      const refreshToken = await oauthServerDb.generateRefreshToken({
+        clientId: buf(PUBLIC_CLIENT_ID),
+        userId: buf(client.uid),
+        email: client.email,
+        scope: ScopeSet.fromArray([
+          'profile',
+          'https://identity.mozilla.com/apps/oldsync',
+        ]),
+      });
+      const refreshTokenId = hashRefreshToken(refreshToken.token).toString(
+        'hex'
+      );
+
+      let allClients = await client.attachedClients();
+      assert.equal(allClients.length, 2);
+
+      await client.destroyAttachedClient({
+        refreshTokenId,
+        clientId: PUBLIC_CLIENT_ID,
+      });
+
+      allClients = await client.attachedClients();
+      assert.equal(allClients.length, 1);
+      assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
+      assert.equal(allClients[0].refreshTokenId, null);
+    });
+
+    it('correctly lists a unique list of clientIds for refresh tokens', async () => {
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const client = await Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      );
+
+      // Query endpoint - should return empty array initially
+      let oauthClients = await client.attachedOAuthClients();
+      assert.equal(oauthClients.length, 0);
+
+      const clientId = buf(PUBLIC_CLIENT_ID);
+      const userId = buf(client.uid);
+      const scope = ScopeSet.fromArray([
         'profile',
         'https://identity.mozilla.com/apps/oldsync',
-      ]),
+      ]);
+
+      // Generate first refresh token
+      await oauthServerDb.generateRefreshToken({
+        clientId: clientId,
+        userId: userId,
+        email: client.email,
+        scope: scope,
+      });
+
+      // Generate second refresh token with same clientId
+      const refreshToken2 = await oauthServerDb.generateRefreshToken({
+        clientId: clientId,
+        userId: userId,
+        email: client.email,
+        scope: scope,
+      });
+
+      // Wait a bit to ensure different timestamps
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Update the second token to have a more recent lastUsedAt
+      const newerTimestamp = new Date(Date.now() + 5000); // 5 seconds in the future
+      await oauthServerDb.mysql._touchRefreshToken(
+        refreshToken2.tokenId,
+        newerTimestamp
+      );
+
+      // Query endpoint - should return only one client with the newer timestamp
+      oauthClients = await client.attachedOAuthClients();
+
+      assert.equal(oauthClients.length, 1);
+      assert.equal(oauthClients[0].clientId, PUBLIC_CLIENT_ID);
+      // The lastAccessTime should be close to newerTimestamp (within 1 second)
+      const timeDiff = Math.abs(
+        oauthClients[0].lastAccessTime - newerTimestamp.getTime()
+      );
+      assert.isBelow(
+        timeDiff,
+        1000,
+        'lastAccessTime should match the newer token'
+      );
     });
-    const refreshTokenId = hashRefreshToken(refreshToken.token).toString('hex');
-
-    allClients = await client.attachedClients();
-    assert.equal(allClients.length, 2);
-    assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
-    assert.equal(allClients[1].sessionTokenId, null);
-    assert.equal(allClients[1].refreshTokenId, refreshTokenId);
-    assert.equal(allClients[1].lastAccessTimeFormatted, 'a few seconds ago');
-    assert.equal(allClients[1].name, 'Android Components Reference Browser');
-
-    const device2 = await client.updateDeviceWithRefreshToken(
-      refreshToken.token.toString('hex'),
-      { name: 'test device', type: 'mobile' }
-    );
-    allClients = await client.attachedClients();
-    assert.equal(allClients.length, 2);
-    const one = allClients.findIndex((c) => c.name === 'test device');
-    const zero = (one + 1) % allClients.length;
-    assert.equal(allClients[zero].sessionTokenId, mySessionTokenId);
-    assert.equal(allClients[zero].deviceId, device.id);
-    assert.equal(allClients[one].refreshTokenId, refreshTokenId);
-    assert.equal(allClients[one].deviceId, device2.id);
-    assert.equal(allClients[one].name, 'test device');
   });
-
-  it('correctly deletes by device id', async () => {
-    const email = server.uniqueEmail();
-    const password = 'test password';
-    const client = await Client.createAndVerify(
-      config.publicUrl,
-      email,
-      password,
-      server.mailbox,
-      testOptions
-    );
-    const mySessionTokenId = (
-      await tokens.SessionToken.fromHex(client.sessionToken)
-    ).id;
-
-    const client2 = await Client.login(
-      config.publicUrl,
-      email,
-      password,
-      testOptions
-    );
-    const device = await client2.updateDevice({
-      name: 'test',
-      type: 'desktop',
-    });
-
-    let allClients = await client.attachedClients();
-    assert.equal(allClients.length, 2);
-
-    await client.destroyAttachedClient({
-      deviceId: device.id,
-    });
-
-    allClients = await client.attachedClients();
-    assert.equal(allClients.length, 1);
-    assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
-  });
-
-  it('correctly deletes by sessionTokenId', async () => {
-    const email = server.uniqueEmail();
-    const password = 'test password';
-    const client = await Client.createAndVerify(
-      config.publicUrl,
-      email,
-      password,
-      server.mailbox,
-      testOptions
-    );
-    const mySessionTokenId = (
-      await tokens.SessionToken.fromHex(client.sessionToken)
-    ).id;
-
-    const client2 = await Client.login(
-      config.publicUrl,
-      email,
-      password,
-      testOptions
-    );
-    const otherSessionTokenId = (
-      await tokens.SessionToken.fromHex(client2.sessionToken)
-    ).id;
-
-    let allClients = await client.attachedClients();
-    assert.equal(allClients.length, 2);
-
-    await client.destroyAttachedClient({
-      sessionTokenId: otherSessionTokenId,
-    });
-
-    allClients = await client.attachedClients();
-    assert.equal(allClients.length, 1);
-    assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
-  });
-
-  it('correctly deletes by refreshTokenId', async () => {
-    const email = server.uniqueEmail();
-    const password = 'test password';
-    const client = await Client.createAndVerify(
-      config.publicUrl,
-      email,
-      password,
-      server.mailbox,
-      testOptions
-    );
-    const mySessionTokenId = (
-      await tokens.SessionToken.fromHex(client.sessionToken)
-    ).id;
-
-    const refreshToken = await oauthServerDb.generateRefreshToken({
-      clientId: buf(PUBLIC_CLIENT_ID),
-      userId: buf(client.uid),
-      email: client.email,
-      scope: ScopeSet.fromArray([
-        'profile',
-        'https://identity.mozilla.com/apps/oldsync',
-      ]),
-    });
-    const refreshTokenId = hashRefreshToken(refreshToken.token).toString('hex');
-
-    let allClients = await client.attachedClients();
-    assert.equal(allClients.length, 2);
-
-    await client.destroyAttachedClient({
-      refreshTokenId,
-      clientId: PUBLIC_CLIENT_ID,
-    });
-
-    allClients = await client.attachedClients();
-    assert.equal(allClients.length, 1);
-    assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
-    assert.equal(allClients[0].refreshTokenId, null);
-  });
-
-
-});
-
 });

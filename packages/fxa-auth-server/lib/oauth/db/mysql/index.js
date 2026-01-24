@@ -138,6 +138,30 @@ const QUERY_LIST_REFRESH_TOKENS_BY_UID =
   '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
   'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
   'WHERE refreshTokens.userId=?';
+
+/**
+ * Gets a unique list of refresh tokens for a given user.
+ * Groups by clientId, returning only the most recently used token for each client.
+ */
+const QUERY_LIST_UNIQUE_REFRESH_TOKENS_BY_UID =
+  'SELECT ' +
+  '  rt.clientId, ' +
+  '  rt.token AS tokenId, ' +
+  '  rt.createdAt, ' +
+  '  rt.lastUsedAt, ' +
+  '  rt.scope, ' +
+  '  clients.name AS clientName, ' +
+  '  clients.canGrant AS clientCanGrant ' +
+  'FROM refreshTokens rt ' +
+  'INNER JOIN ( ' +
+  '  SELECT clientId, MAX(lastUsedAt) AS maxLastUsedAt ' +
+  '  FROM refreshTokens ' +
+  '  WHERE userId=? ' +
+  '  GROUP BY clientId ' +
+  ') latest ON rt.clientId = latest.clientId AND rt.lastUsedAt = latest.maxLastUsedAt ' +
+  'LEFT OUTER JOIN clients ON clients.id = rt.clientId ' +
+  'WHERE rt.userId=?';
+
 const QUERY_LIST_REFRESH_TOKENS_BY_CLIENT_ID =
   'SELECT refreshTokens.createdAt, refreshTokens.userId FROM refreshTokens WHERE refreshTokens.clientId=?';
 const DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID =
@@ -420,6 +444,24 @@ class MysqlStore extends MysqlOAuthShared {
     const refreshTokens = await this._read(QUERY_LIST_REFRESH_TOKENS_BY_UID, [
       buf(uid),
     ]);
+    refreshTokens.forEach((t) => {
+      t.scope = ScopeSet.fromString(t.scope);
+    });
+    return refreshTokens;
+  }
+
+  /**
+   * Get a unique list of refresh tokens for a given user.
+   * @param {String} uid
+   * @returns {Promise}
+   */
+  async _getUniqueRefreshTokensByUid(uid) {
+    const uidBuf = buf(uid);
+    const refreshTokens = await this._read(
+      QUERY_LIST_UNIQUE_REFRESH_TOKENS_BY_UID,
+      // we need to pass uid twice because it's used two times in the query
+      [uidBuf, uidBuf]
+    );
     refreshTokens.forEach((t) => {
       t.scope = ScopeSet.fromString(t.scope);
     });

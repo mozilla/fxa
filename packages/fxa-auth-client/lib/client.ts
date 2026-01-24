@@ -1844,6 +1844,14 @@ export default class AuthClient {
     return this.sessionGet('/account/attached_clients', sessionToken, headers);
   }
 
+  async attachedOauthClients(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionGet(
+      '/account/attached_oauth_clients',
+      sessionToken,
+      headers
+    );
+  }
+
   async attachedClientDestroy(
     sessionToken: hexstring,
     clientInfo: any,

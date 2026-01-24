@@ -117,6 +117,62 @@ module.exports = (log, db, devices, clientUtils) => {
       },
     },
     {
+      method: 'GET',
+      path: '/account/attached_oauth_clients',
+      options: {
+        ...DEVICES_AND_SESSIONS_DOC.ACCOUNT_ATTACHED_OAUTH_CLIENTS_GET,
+        auth: {
+          strategy: 'sessionToken',
+        },
+        response: {
+          schema: isA
+            .array()
+            .items({
+              clientId: isA.string().regex(HEX_STRING).required(),
+              lastAccessTime: isA.number().min(0).required(),
+            })
+            .unique('clientId', { ignoreUndefined: true }),
+        },
+      },
+      handler: async function (request) {
+        log.begin('Account.attachedOAuthClients', request);
+
+        const sessionToken = request.auth && request.auth.credentials;
+
+        sessionToken.lastAccessTime = Date.now();
+        await db.touchSessionToken(sessionToken, {}, true);
+        const factory = new ConnectedServicesFactory({
+          formatTimestamps: (...args) => {
+            clientUtils.formatTimestamps(...args);
+          },
+          formatLocation: (...args) => {
+            clientUtils.formatLocation(...args);
+          },
+          deviceList: async () => {
+            return Promise.resolve([]); // not needed for this endpoint, but required by factory
+          },
+          oauthClients: async () => {
+            return await authorizedClients.listUnique(
+              request.auth.credentials.uid
+            );
+          },
+          sessions: async () => {
+            return Promise.resolve([]); // not needed for this endpoint, but required by factory
+          },
+        });
+
+        const clients = await factory.build(
+          sessionToken.id,
+          request.app.acceptLanguage
+        );
+
+        return clients.map((client) => ({
+          clientId: client.clientId,
+          lastAccessTime: client.lastAccessTime,
+        }));
+      },
+    },
+    {
       method: 'POST',
       path: '/account/attached_client/destroy',
       options: {
