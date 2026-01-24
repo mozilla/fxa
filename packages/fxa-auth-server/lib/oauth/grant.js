@@ -249,6 +249,17 @@ async function generateIdToken(grant, accessToken) {
     claims.auth_time = Math.floor(grant.authAt / 1000);
   }
 
+  if (
+    grant.email &&
+    grant.scope &&
+    (grant.scope.contains('email') ||
+      grant.scope.contains('profile') ||
+      grant.scope.contains('profile:email'))
+  ) {
+    claims.email = grant.email;
+    claims.email_verified = true;
+  }
+
   return jwt.sign(claims);
 }
 
