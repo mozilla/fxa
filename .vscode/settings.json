@@ -17,8 +17,7 @@
   "playwright.env": {
     "NODE_OPTIONS": "--dns-result-order=ipv4first"
   },
-  "editor.codeActionsOnSave": {
-  },
+  "editor.codeActionsOnSave": {},
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -35,7 +34,7 @@
     "**/node_modules": true,
     "**/tmp": true,
     "**/temp": true,
-    "*.sass-cache": true,
+    "*.sass-cache": true
   },
-  "cSpell.words": ["Frontends"]
+  "jest.jestCommandLine": "node_modules/.bin/jest --config jest.config.ts"
 }
