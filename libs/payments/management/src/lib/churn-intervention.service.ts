@@ -25,18 +25,6 @@ import {
   ChurnInterventionProductIdentifierMissingError,
   ChurnSubscriptionCustomerMismatchError,
 } from './churn-intervention.error';
-export enum Enum_Churnintervention_Churntype {
-  Cancel = 'cancel',
-  StaySubscribed = 'stay_subscribed'
-}
-
-export enum Enum_Churnintervention_Interval {
-  Daily = 'daily',
-  Halfyearly = 'halfyearly',
-  Monthly = 'monthly',
-  Weekly = 'weekly',
-  Yearly = 'yearly'
-}
 
 @Injectable()
 export class ChurnInterventionService {
@@ -123,6 +111,10 @@ export class ChurnInterventionService {
     };
   }
 
+  /**
+   * Determines whether a customer is eligible for churn intervention that encourages
+   * them to stay subscribed.
+   */
   async determineStaySubscribedEligibility(
     uid: string,
     subscriptionId: string,
@@ -138,6 +130,39 @@ export class ChurnInterventionService {
       };
     }
 
+    const [accountCustomer, subscription] = await Promise.all([
+      this.accountCustomerManager.getAccountCustomerByUid(uid),
+      this.subscriptionManager.retrieve(subscriptionId),
+    ]);
+
+    if (!subscription) {
+      this.statsd.increment('stay_subscribed_eligibility', {
+        eligibility: 'ineligible',
+        reason: 'subscription_not_found',
+      });
+      return {
+        isEligible: false,
+        reason: 'subscription_not_found',
+        cmsChurnInterventionEntry: null,
+        cmsOfferingContent: null,
+      };
+    }
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new ChurnSubscriptionCustomerMismatchError(
+        uid,
+        accountCustomer.uid,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+
+    const subscriptionStatus =
+      await this.subscriptionManager.getSubscriptionStatus(
+        subscription.customer,
+        subscriptionId
+      );
+
     try {
       const cmsChurnResult =
         await this.productConfigurationManager.getChurnInterventionBySubscription(
@@ -146,26 +171,9 @@ export class ChurnInterventionService {
           acceptLanguage || undefined,
           selectedLanguage
         );
+
       const cmsContent = cmsChurnResult.cmsOfferingContent();
-      const accountCustomer =
-        await this.accountCustomerManager.getAccountCustomerByUid(uid);
-      const subscription =
-        await this.subscriptionManager.retrieve(subscriptionId);
 
-      if (subscription.customer !== accountCustomer.stripeCustomerId) {
-        throw new ChurnSubscriptionCustomerMismatchError(
-          uid,
-          accountCustomer.uid,
-          subscription.customer,
-          subscriptionId
-        );
-      }
-
-      const subscriptionStatus =
-        await this.subscriptionManager.getSubscriptionStatus(
-          subscription.customer,
-          subscriptionId
-        );
       if (!subscriptionStatus.active) {
         this.statsd.increment('stay_subscribed_eligibility', {
           eligibility: 'ineligible',
@@ -182,6 +190,7 @@ export class ChurnInterventionService {
       const cmsChurnInterventionEntries =
         cmsChurnResult.getTransformedChurnInterventionByProductId();
       const cmsChurnInterventionEntry = cmsChurnInterventionEntries[0];
+
       if (!subscriptionStatus.cancelAtPeriodEnd) {
         this.statsd.increment('stay_subscribed_eligibility', {
           eligibility: 'ineligible',
@@ -364,6 +373,11 @@ export class ChurnInterventionService {
     }
   }
 
+  /**
+   * Determines which cancellation intervention flow (either churn intervention
+   * or cancel interstitial offer) should be presented to the customer
+   * when attempting to cancel a subscription.
+   */
   async determineCancellationIntervention(args: {
     uid: string;
     subscriptionId: string;
@@ -378,49 +392,6 @@ export class ChurnInterventionService {
     }
 
     try {
-      const accountCustomer =
-        await this.accountCustomerManager.getAccountCustomerByUid(args.uid);
-      const subscription = await this.subscriptionManager.retrieve(
-        args.subscriptionId
-      );
-
-      if (subscription.customer !== accountCustomer.stripeCustomerId) {
-        throw new ChurnSubscriptionCustomerMismatchError(
-          args.uid,
-          accountCustomer.uid,
-          subscription.customer,
-          args.subscriptionId
-        );
-      }
-      const subscriptionStatus =
-        await this.subscriptionManager.getSubscriptionStatus(
-          subscription.customer,
-          args.subscriptionId
-        );
-      if (!subscriptionStatus.active) {
-        this.statsd.increment('cancel_intervention_decision', {
-          type: 'none',
-          reason: 'subscription_not_active',
-        });
-        return {
-          cancelChurnInterventionType: 'none',
-          reason: 'subscription_not_active',
-          cmsOfferContent: null,
-        };
-      }
-
-      if (subscriptionStatus.cancelAtPeriodEnd) {
-        this.statsd.increment('cancel_intervention_decision', {
-          type: 'none',
-          reason: 'subscription_already_cancelling',
-        });
-        return {
-          cancelChurnInterventionType: 'none',
-          reason: 'subscription_already_cancelling',
-          cmsOfferContent: null,
-        };
-      }
-
       const cancelChurnContentEligiblityResult =
         await this.determineCancelChurnContentEligibility({
           uid: args.uid,
@@ -428,6 +399,7 @@ export class ChurnInterventionService {
           acceptLanguage: args.acceptLanguage,
           selectedLanguage: args.selectedLanguage,
         });
+
       if (cancelChurnContentEligiblityResult.isEligible) {
         return {
           cancelChurnInterventionType: 'cancel_churn_intervention',
@@ -439,6 +411,7 @@ export class ChurnInterventionService {
 
       const cancelInterstitialOfferEligiblityResult =
         await this.determineCancelInterstitialOfferEligibility(args);
+
       if (cancelInterstitialOfferEligiblityResult.isEligible) {
         return {
           cancelChurnInterventionType: 'cancel_interstitial_offer',
@@ -463,6 +436,10 @@ export class ChurnInterventionService {
     }
   }
 
+  /**
+   * Determines whether a customer is eligible for a cancel interstitial offer
+   * (e.g. switching from a monthly to a yearly plan) when attempting to cancel.
+   */
   async determineCancelInterstitialOfferEligibility(args: {
     uid: string;
     subscriptionId: string;
@@ -478,10 +455,10 @@ export class ChurnInterventionService {
       };
     }
 
-    const upgradeInterval = SubplatInterval.Yearly;
-    const subscription = await this.subscriptionManager.retrieve(
-      args.subscriptionId
-    );
+    const [accountCustomer, subscription] = await Promise.all([
+      this.accountCustomerManager.getAccountCustomerByUid(args.uid),
+      this.subscriptionManager.retrieve(args.subscriptionId),
+    ]);
 
     if (!subscription) {
       this.statsd.increment('cancel_intervention_decision', {
@@ -495,12 +472,54 @@ export class ChurnInterventionService {
       };
     }
 
-    const currentInterval =
-      await this.productConfigurationManager.getSubplatIntervalBySubscription(
-        subscription
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new ChurnSubscriptionCustomerMismatchError(
+        args.uid,
+        accountCustomer.uid,
+        subscription.customer,
+        args.subscriptionId
+      );
+    }
+
+    const subscriptionStatus =
+      await this.subscriptionManager.getSubscriptionStatus(
+        subscription.customer,
+        args.subscriptionId
       );
 
-    if (!currentInterval) {
+    if (!subscriptionStatus.active) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'subscription_not_active',
+      });
+      return {
+        isEligible: false,
+        reason: 'subscription_not_active',
+        cmsCancelInterstitialOfferResult: null,
+      };
+    }
+
+    if (subscriptionStatus.cancelAtPeriodEnd) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'already_canceling_at_period_end',
+      });
+      return {
+        isEligible: false,
+        reason: 'already_canceling_at_period_end',
+        cmsCancelInterstitialOfferResult: null,
+      };
+    }
+
+    const upgradeInterval = SubplatInterval.Yearly;
+
+    let currentInterval;
+    try {
+      currentInterval =
+        await this.productConfigurationManager.getSubplatIntervalBySubscription(
+          subscription
+        );
+    } catch {
       this.statsd.increment('cancel_intervention_decision', {
         type: 'none',
         reason: 'current_interval_not_found',
@@ -589,7 +608,7 @@ export class ChurnInterventionService {
       upgradeInterval,
       offeringId,
       args.uid,
-      args.subscriptionId
+      subscription.customer
     );
 
     if (
@@ -616,6 +635,10 @@ export class ChurnInterventionService {
     };
   }
 
+  /**
+   * Determines whether a customer is eligible for churn intervention
+   * when attempting to cancel a subscription.
+   */
   async determineCancelChurnContentEligibility(args: {
     uid: string;
     subscriptionId: string;
@@ -630,6 +653,39 @@ export class ChurnInterventionService {
       };
     }
 
+    const [accountCustomer, subscription] = await Promise.all([
+      this.accountCustomerManager.getAccountCustomerByUid(args.uid),
+      this.subscriptionManager.retrieve(args.subscriptionId),
+    ]);
+
+    if (!subscription) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'subscription_not_found',
+      });
+      return {
+        isEligible: false,
+        reason: 'subscription_not_found',
+        cmsChurnInterventionEntry: null,
+        cmsOfferingContent: null,
+      };
+    }
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new ChurnSubscriptionCustomerMismatchError(
+        args.uid,
+        accountCustomer.uid,
+        subscription.customer,
+        args.subscriptionId
+      );
+    }
+
+    const subscriptionStatus =
+      await this.subscriptionManager.getSubscriptionStatus(
+        subscription.customer,
+        args.subscriptionId
+      );
+
     const cmsChurnResult =
       await this.productConfigurationManager.getChurnInterventionBySubscription(
         args.subscriptionId,
@@ -638,8 +694,38 @@ export class ChurnInterventionService {
         args.selectedLanguage
       );
 
+    const cmsContent = cmsChurnResult.cmsOfferingContent();
+
+    if (!subscriptionStatus.active) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'subscription_not_active',
+      });
+      return {
+        isEligible: false,
+        reason: 'subscription_not_active',
+        cmsChurnInterventionEntry: null,
+        cmsOfferingContent: cmsContent,
+      };
+    }
+
     const cmsChurnInterventionEntries =
       cmsChurnResult.getTransformedChurnInterventionByProductId();
+    const cmsChurnInterventionEntry = cmsChurnInterventionEntries[0];
+
+    if (subscriptionStatus.cancelAtPeriodEnd) {
+      this.statsd.increment('cancel_intervention_decision', {
+        type: 'none',
+        reason: 'already_canceling_at_period_end',
+      });
+      return {
+        isEligible: false,
+        reason: 'already_canceling_at_period_end',
+        cmsChurnInterventionEntry: cmsChurnInterventionEntry,
+        cmsOfferingContent: cmsContent,
+      };
+    }
+
     if (!cmsChurnInterventionEntries.length) {
       this.statsd.increment('cancel_intervention_decision', {
         type: 'none',
@@ -649,10 +735,10 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'no_churn_intervention_found',
         cmsChurnInterventionEntry: null,
+        cmsOfferingContent: cmsContent,
       };
     }
 
-    const cmsChurnInterventionEntry = cmsChurnInterventionEntries[0];
     const redemptionCount =
       await this.churnInterventionManager.getRedemptionCountForUid(
         args.uid,
@@ -674,6 +760,7 @@ export class ChurnInterventionService {
         isEligible: false,
         reason: 'redemption_limit_exceeded',
         cmsChurnInterventionEntry: null,
+        cmsOfferingContent: cmsContent,
       };
     }
 
@@ -691,7 +778,8 @@ export class ChurnInterventionService {
       return {
         isEligible: false,
         reason: 'discount_already_applied',
-        cmsChurnInterventionEntry: null,
+        cmsChurnInterventionEntry,
+        cmsOfferingContent: cmsContent,
       };
     }
 
@@ -702,6 +790,7 @@ export class ChurnInterventionService {
       isEligible: true,
       reason: 'eligible',
       cmsChurnInterventionEntry,
+      cmsOfferingContent: null,
     };
   }
 }
