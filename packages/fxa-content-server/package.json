@@ -94,7 +94,7 @@
     "jsxgettext-recursive-next": "1.1.0",
     "legal-docs": "https://github.com/mozilla/legal-docs.git#68a02d3a95f22fb10db68893bb54e49bc0604f69",
     "load-grunt-tasks": "^5.1.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mkdirp": "3.0.1",
     "mocha": "^10.4.0",
     "morgan": "^1.10.0",

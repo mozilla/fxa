@@ -35374,7 +35374,7 @@ __metadata:
     keypair: "npm:1.0.4"
     keyv: "npm:5.2.1"
     load-grunt-tasks: "npm:^5.1.0"
-    lodash: "npm:^4.17.21"
+    lodash: "npm:^4.17.23"
     luxon: "npm:^3.5.0"
     mailparser: "npm:0.6.1"
     mjml: "npm:^4.15.3"
@@ -35523,7 +35523,7 @@ __metadata:
     jsxgettext-recursive-next: "npm:1.1.0"
     legal-docs: "https://github.com/mozilla/legal-docs.git#68a02d3a95f22fb10db68893bb54e49bc0604f69"
     load-grunt-tasks: "npm:^5.1.0"
-    lodash: "npm:^4.17.21"
+    lodash: "npm:^4.17.23"
     mini-css-extract-plugin: "npm:^2.9.2"
     mkdirp: "npm:3.0.1"
     mocha: "npm:^10.4.0"
@@ -35886,7 +35886,7 @@ __metadata:
     fxa-shared: "workspace:*"
     insist: "npm:1.0.1"
     joi: "npm:^17.13.3"
-    lodash: "npm:^4.17.21"
+    lodash: "npm:^4.17.23"
     mocha: "npm:^10.4.0"
     mocha-text-cov: "npm:0.1.1"
     mozlog: "npm:^3.0.2"
@@ -43423,6 +43423,13 @@ __metadata:
   version: 3.10.1
   resolution: "lodash@npm:3.10.1"
   checksum: 10c0/f5f6d3d87503c3f1db27d49b30a00bb38dc1bd9de716c5febe8970259cc7b447149a0e320452ccaf5996a7a4abd63d94df341bb91bd8d336584ad518d8eab144
+  languageName: node
+  linkType: hard
+
+"lodash@npm:^4.17.23":
+  version: 4.17.23
+  resolution: "lodash@npm:4.17.23"
+  checksum: 10c0/1264a90469f5bb95d4739c43eb6277d15b6d9e186df4ac68c3620443160fc669e2f14c11e7d8b2ccf078b81d06147c01a8ccced9aab9f9f63d50dcf8cace6bf6
   languageName: node
   linkType: hard
 
