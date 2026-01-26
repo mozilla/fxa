@@ -179,7 +179,8 @@ module.exports.accessToken = isA
 //
 // https://github.com/mozilla/fxa-email-service/blob/6fc6c31043598b246102cd1fdd27fc325f4514fb/src/validate/mod.rs#L28-L30
 
-const EMAIL_USER = /^[A-Z0-9.!#$%&'*+\/=?^_`{|}~-]{1,64}$/i;
+const EMAIL_USER =
+  /^(?!\-)(?!\+)(?!\.)(?!.*\.\.)[A-Z0-9.!#$%&'*+\/=?^_`{|}~-]{1,64}$/i;
 const EMAIL_DOMAIN =
   /^[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?)+$/i;
 

@@ -18,8 +18,9 @@ describe('lib/routes/validators:', () => {
     assert.strictEqual(validators.isValidEmailAddress('foo@example.com'), true);
     assert.strictEqual(validators.isValidEmailAddress('FOO@example.com'), true);
     assert.strictEqual(validators.isValidEmailAddress('42@example.com'), true);
+    // special characters are not allowed at the start of the email.
     assert.strictEqual(
-      validators.isValidEmailAddress('.+#$!%&|*/+-=?^_{}~`@example.com'),
+      validators.isValidEmailAddress('a.+#$!%&|*/+-=?^_{}~`@example.com'),
       true
     );
     assert.strictEqual(validators.isValidEmailAddress('Δ٢@example.com'), true);
@@ -145,6 +146,35 @@ describe('lib/routes/validators:', () => {
       validators.isValidEmailAddress(
         `${new Array(65).fill('a').join('')}@example.com`
       ),
+      false
+    );
+  });
+
+  it('isValidEmailAddress returns false if the user part starts with a special character', () => {
+    // no dots
+    assert.strictEqual(
+      validators.isValidEmailAddress('.foo@example.com'),
+      false
+    );
+    // no pluses
+    assert.strictEqual(
+      validators.isValidEmailAddress('+foo@example.com'),
+      false
+    );
+    // no dashes
+    assert.strictEqual(
+      validators.isValidEmailAddress('-foo@example.com'),
+      false
+    );
+  });
+
+  it('isValidEmailAddress returns false if the user part contains consecutive periods', () => {
+    assert.strictEqual(
+      validators.isValidEmailAddress('foo..bar@example.com'),
+      false
+    );
+    assert.strictEqual(
+      validators.isValidEmailAddress('foo..@example.com'),
       false
     );
   });
