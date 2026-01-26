@@ -95,10 +95,10 @@ export const WithThirdPartyAuthServiceRelayIntegration = () => (
   />
 );
 
-export const WithThirdPartyAuthServiceAIWindowIntegration = () => (
+export const WithThirdPartyAuthServiceSmartWindowIntegration = () => (
   <StoryWithProps
     integration={createMockSignupOAuthNativeIntegration(
-      OAuthNativeServices.AiWindow,
+      OAuthNativeServices.SmartWindow,
       false
     )}
     supportsKeysOptionalLogin={true}

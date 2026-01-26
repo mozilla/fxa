@@ -42,7 +42,7 @@ export const mockWebIntegration = {
   isSync: () => false,
   wantsKeys: () => false,
   isFirefoxClientServiceRelay: () => false,
-  isFirefoxClientServiceAiWindow: () => false,
+  isFirefoxClientServiceSmartWindow: () => false,
   getCmsInfo: () => undefined,
   data: {
     validate: () => {},

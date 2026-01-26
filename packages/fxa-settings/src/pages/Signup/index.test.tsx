@@ -225,12 +225,12 @@ describe('Signup page', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders third party auth when service=aiwindow and supportsKeysOptionalLogin is true', async () => {
+  it('renders third party auth when service=smartwindow and supportsKeysOptionalLogin is true', async () => {
     await act(() => {
       renderWithLocalizationProvider(
         <Subject
           integration={createMockSignupOAuthNativeIntegration(
-            OAuthNativeServices.AiWindow,
+            OAuthNativeServices.SmartWindow,
             false
           )}
           supportsKeysOptionalLogin={true}

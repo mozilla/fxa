@@ -120,7 +120,7 @@ export function createMockSigninWebIntegration({
     data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => false,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices(),
     wantsLogin: () => false,
@@ -149,7 +149,7 @@ export function createMockSigninOAuthNativeSyncIntegration({
     data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => isSync && !isMobile,
     isFirefoxClientServiceRelay: () => !isSync && !isMobile,
-    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxNonSync: () => !isSync && !isMobile,
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     wantsLogin: () => false,
@@ -184,7 +184,7 @@ export function createMockSigninOAuthIntegration({
     isDesktopSync: () => isSync,
     data: new IntegrationData(new GenericData({})),
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     getCmsInfo: () => cmsInfo,
@@ -203,7 +203,7 @@ export function createMockSigninOAuthNativeIntegration({
   isMobile?: boolean;
 } = {}): SigninOAuthIntegration {
   const isRelay = service === OAuthNativeServices.Relay;
-  const isAiWindow = service === OAuthNativeServices.AiWindow;
+  const isSmartWindow = service === OAuthNativeServices.SmartWindow;
   return {
     type: IntegrationType.OAuthNative,
     getService: () => service,
@@ -214,12 +214,12 @@ export function createMockSigninOAuthNativeIntegration({
     isDesktopSync: () => isSync && !isMobile,
     data: new IntegrationData(new GenericData({})),
     isFirefoxClientServiceRelay: () => isRelay,
-    isFirefoxClientServiceAiWindow: () => isAiWindow,
-    isFirefoxNonSync: () => isRelay || isAiWindow,
+    isFirefoxClientServiceSmartWindow: () => isSmartWindow,
+    isFirefoxNonSync: () => isRelay || isSmartWindow,
     getWebChannelServices: mockGetWebChannelServices({
       isSync,
       isRelay,
-      isAiWindow,
+      isSmartWindow,
     }),
     getClientId: () => MOCK_CLIENT_ID,
     getCmsInfo: () => undefined,

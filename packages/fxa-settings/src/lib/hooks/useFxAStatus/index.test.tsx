@@ -120,7 +120,7 @@ describe('useFxAStatus', () => {
         });
       });
 
-      it('returns supportsKeysOptionalLogin: true when Relay or AiWindow service', async () => {
+      it('returns supportsKeysOptionalLogin: true when Relay or SmartWindow service', async () => {
         const integration = {
           type: IntegrationType.OAuthNative,
           isSync: () => false,

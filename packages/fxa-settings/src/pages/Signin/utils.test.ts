@@ -84,11 +84,11 @@ describe('Signin utils', () => {
       expect(hardNavigateSpy).not.toHaveBeenCalled();
     });
 
-    it('sends fxaLogin with aiwindow services and navigates to settings for OAuthNative service=aiwindow', async () => {
+    it('sends fxaLogin with smartwindow services and navigates to settings for OAuthNative service=smartwindow', async () => {
       const navigationOptions = createBaseNavigationOptions({
         integration: createMockSigninOAuthNativeIntegration({
           isSync: false,
-          service: OAuthNativeServices.AiWindow,
+          service: OAuthNativeServices.SmartWindow,
         }),
         performNavigation: true,
         handleFxaLogin: true,
@@ -100,7 +100,7 @@ describe('Signin utils', () => {
         sessionToken: MOCK_SESSION_TOKEN,
         uid: MOCK_UID,
         verified: true,
-        services: { aiwindow: {} },
+        services: { smartwindow: {} },
       });
       expect(result.error).toBeUndefined();
       expect(navigateSpy).toHaveBeenCalledWith('/settings', { replace: true });
