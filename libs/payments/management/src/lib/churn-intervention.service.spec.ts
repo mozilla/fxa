@@ -777,6 +777,7 @@ describe('ChurnInterventionService', () => {
 
       const mockCancelInterstitialOffer =
         CancelInterstitialOfferTransformedFactory();
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
 
       jest
         .spyOn(
@@ -787,6 +788,8 @@ describe('ChurnInterventionService', () => {
           isEligible: true,
           reason: 'eligible',
           cmsCancelInterstitialOfferResult: mockCancelInterstitialOffer,
+          webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+          productName: mockPurchaseResult.purchaseDetails.productName,
         });
 
       const result =
@@ -800,6 +803,7 @@ describe('ChurnInterventionService', () => {
     });
 
     it('returns cancel_churn_intervention when one exists', async () => {
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
       jest
         .spyOn(
           churnInterventionService,
@@ -809,6 +813,8 @@ describe('ChurnInterventionService', () => {
           isEligible: false,
           reason: 'no_cancel_interstitial_offer_found',
           cmsCancelInterstitialOfferResult: null,
+          webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+          productName: mockPurchaseResult.purchaseDetails.productName,
         });
 
       const mockCmsOffer = ChurnInterventionByProductIdResultFactory();
@@ -835,6 +841,7 @@ describe('ChurnInterventionService', () => {
     });
 
     it('returns none when no cancel offers exist', async () => {
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
       jest
         .spyOn(
           churnInterventionService,
@@ -844,6 +851,8 @@ describe('ChurnInterventionService', () => {
           isEligible: false,
           reason: 'no_cancel_interstitial_offer_found',
           cmsCancelInterstitialOfferResult: null,
+          webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+          productName: mockPurchaseResult.purchaseDetails.productName,
         });
 
       jest
@@ -887,6 +896,7 @@ describe('ChurnInterventionService', () => {
     });
 
     it('returns none when there is no upgrade plan', async () => {
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
       jest
         .spyOn(
           churnInterventionService,
@@ -906,6 +916,8 @@ describe('ChurnInterventionService', () => {
           isEligible: false,
           reason: 'no_upgrade_plan_found',
           cmsCancelInterstitialOfferResult: null,
+          webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+          productName: mockPurchaseResult.purchaseDetails.productName,
         });
       const result =
         await churnInterventionService.determineCancellationIntervention(args);
@@ -918,6 +930,7 @@ describe('ChurnInterventionService', () => {
     });
 
     it('returns none when customer is not eligible for the upgrade interval plan', async () => {
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
       jest
         .spyOn(
           churnInterventionService,
@@ -937,6 +950,8 @@ describe('ChurnInterventionService', () => {
           isEligible: false,
           reason: 'not_eligible_for_upgrade_interval',
           cmsCancelInterstitialOfferResult: null,
+          webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+          productName: mockPurchaseResult.purchaseDetails.productName,
         });
 
       const result =
@@ -950,6 +965,7 @@ describe('ChurnInterventionService', () => {
     });
 
     it('returns none with discount_already_applied when customer is not eligible to redeem', async () => {
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
       jest
         .spyOn(
           churnInterventionService,
@@ -971,6 +987,8 @@ describe('ChurnInterventionService', () => {
           isEligible: false,
           reason: 'no_upgrade_plan_found',
           cmsCancelInterstitialOfferResult: null,
+          webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+          productName: mockPurchaseResult.purchaseDetails.productName,
         });
 
       const result =
@@ -984,6 +1002,7 @@ describe('ChurnInterventionService', () => {
     });
 
     it('returns none with redemption_limit_exceeded when customer is not eligible to redeem', async () => {
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
       jest
         .spyOn(
           churnInterventionService,
@@ -993,6 +1012,8 @@ describe('ChurnInterventionService', () => {
           isEligible: false,
           reason: 'no_cancel_interstitial_offer_found',
           cmsCancelInterstitialOfferResult: null,
+          webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+          productName: mockPurchaseResult.purchaseDetails.productName,
         });
       jest
         .spyOn(
@@ -1048,16 +1069,30 @@ describe('ChurnInterventionService', () => {
     it('returns not eligible if subscription not active', async () => {
       const mockUid = faker.string.uuid();
       const mockStripeCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+          interval_count: 1,
+        }),
+      });
+      const mockSubItem = StripeSubscriptionItemFactory({
+        price: mockPrice,
+      });
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
           customer: mockStripeCustomer.id,
           status: 'canceled',
+          items: StripeApiListFactory([mockSubItem]),
         })
       );
       const mockAccountCustomer = ResultAccountCustomerFactory({
         uid: mockUid,
         stripeCustomerId: mockStripeCustomer.id,
       });
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
 
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -1065,6 +1100,14 @@ describe('ChurnInterventionService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        mockPurchaseResult
+      );
       jest
         .spyOn(subscriptionManager, 'getSubscriptionStatus')
         .mockResolvedValue({
@@ -1083,6 +1126,8 @@ describe('ChurnInterventionService', () => {
         isEligible: false,
         reason: 'subscription_not_active',
         cmsCancelInterstitialOfferResult: null,
+        webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+        productName: mockPurchaseResult.purchaseDetails.productName,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1096,16 +1141,30 @@ describe('ChurnInterventionService', () => {
     it('returns not eligible if already canceling at period end', async () => {
       const mockUid = faker.string.uuid();
       const mockStripeCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+          interval_count: 1,
+        }),
+      });
+      const mockSubItem = StripeSubscriptionItemFactory({
+        price: mockPrice,
+      });
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
           customer: mockStripeCustomer.id,
           status: 'active',
+          items: StripeApiListFactory([mockSubItem]),
         })
       );
       const mockAccountCustomer = ResultAccountCustomerFactory({
         uid: mockUid,
         stripeCustomerId: mockStripeCustomer.id,
       });
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
 
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -1113,6 +1172,14 @@ describe('ChurnInterventionService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        mockPurchaseResult
+      );
       jest
         .spyOn(subscriptionManager, 'getSubscriptionStatus')
         .mockResolvedValue({
@@ -1131,6 +1198,8 @@ describe('ChurnInterventionService', () => {
         isEligible: false,
         reason: 'already_canceling_at_period_end',
         cmsCancelInterstitialOfferResult: null,
+        webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+        productName: mockPurchaseResult.purchaseDetails.productName,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1164,6 +1233,10 @@ describe('ChurnInterventionService', () => {
         uid: mockUid,
         stripeCustomerId: mockStripeCustomer.id,
       });
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
 
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -1171,6 +1244,14 @@ describe('ChurnInterventionService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        mockPurchaseResult
+      );
       jest
         .spyOn(subscriptionManager, 'getSubscriptionStatus')
         .mockResolvedValue({
@@ -1192,6 +1273,8 @@ describe('ChurnInterventionService', () => {
         isEligible: false,
         reason: 'current_interval_not_found',
         cmsCancelInterstitialOfferResult: null,
+        webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+        productName: mockPurchaseResult.purchaseDetails.productName,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1255,6 +1338,8 @@ describe('ChurnInterventionService', () => {
         isEligible: false,
         reason: 'stripe_price_id_not_found',
         cmsCancelInterstitialOfferResult: null,
+        webIcon: null,
+        productName: null,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1307,15 +1392,16 @@ describe('ChurnInterventionService', () => {
       jest
         .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
         .mockResolvedValue(SubplatInterval.Monthly);
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory({
+        offering: undefined,
+      });
       jest
         .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
         .mockResolvedValue(
           mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
         );
       mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
-        PageContentByPriceIdsPurchaseResultFactory({
-          offering: undefined,
-        })
+        mockPurchaseResult
       );
 
       const result =
@@ -1330,6 +1416,8 @@ describe('ChurnInterventionService', () => {
         isEligible: false,
         reason: 'offering_id_not_found',
         cmsCancelInterstitialOfferResult: null,
+        webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+        productName: mockPurchaseResult.purchaseDetails.productName,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1387,8 +1475,9 @@ describe('ChurnInterventionService', () => {
         .mockResolvedValue(
           mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
         );
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
       mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
-        PageContentByPriceIdsPurchaseResultFactory()
+        mockPurchaseResult
       );
       jest
         .spyOn(productConfigurationManager, 'getCancelInterstitialOffer')
@@ -1408,6 +1497,8 @@ describe('ChurnInterventionService', () => {
         isEligible: false,
         reason: 'no_cancel_interstitial_offer_found',
         cmsCancelInterstitialOfferResult: null,
+        webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+        productName: mockPurchaseResult.purchaseDetails.productName,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1467,8 +1558,9 @@ describe('ChurnInterventionService', () => {
         .mockResolvedValue(
           mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
         );
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
       mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
-        PageContentByPriceIdsPurchaseResultFactory()
+        mockPurchaseResult
       );
       jest
         .spyOn(productConfigurationManager, 'getCancelInterstitialOffer')
@@ -1489,6 +1581,8 @@ describe('ChurnInterventionService', () => {
         isEligible: false,
         reason: 'no_upgrade_plan_found',
         cmsCancelInterstitialOfferResult: null,
+        webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+        productName: mockPurchaseResult.purchaseDetails.productName,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1527,6 +1621,7 @@ describe('ChurnInterventionService', () => {
       };
       const rawResult = CancelInterstitialOfferResultFactory();
       const util = new CancelInterstitialOfferUtil(rawResult);
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
 
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -1549,7 +1644,7 @@ describe('ChurnInterventionService', () => {
           mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
         );
       mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
-        PageContentByPriceIdsPurchaseResultFactory()
+        mockPurchaseResult
       );
       jest
         .spyOn(productConfigurationManager, 'getCancelInterstitialOffer')
@@ -1573,6 +1668,8 @@ describe('ChurnInterventionService', () => {
         isEligible: false,
         reason: 'not_eligible_for_upgrade_interval',
         cmsCancelInterstitialOfferResult: null,
+        webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+        productName: mockPurchaseResult.purchaseDetails.productName,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1633,8 +1730,9 @@ describe('ChurnInterventionService', () => {
         .mockResolvedValue(
           mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
         );
+      const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory();
       mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
-        PageContentByPriceIdsPurchaseResultFactory()
+        mockPurchaseResult
       );
       jest
         .spyOn(productConfigurationManager, 'getCancelInterstitialOffer')
@@ -1663,6 +1761,8 @@ describe('ChurnInterventionService', () => {
         isEligible: true,
         reason: 'eligible',
         cmsCancelInterstitialOfferResult: mockCancelInterstitialOffer,
+        webIcon: mockPurchaseResult.purchaseDetails.webIcon,
+        productName: mockPurchaseResult.purchaseDetails.productName,
       });
     });
   });
