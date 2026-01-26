@@ -4,11 +4,11 @@
 
 import { FirefoxCommand } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
-import { relayDesktopOAuthQueryParams } from '../../lib/query-params';
+import { smartWindowDesktopOAuthQueryParams } from '../../lib/query-params';
 import { getTotpCode } from '../../lib/totp';
 
-test.describe('relay integration', () => {
-  test('signup with Relay desktop', async ({
+test.describe('smart window integration', () => {
+  test('signup with SmartWindow desktop', async ({
     target,
     syncOAuthBrowserPages: { confirmSignupCode, page, signup },
     testAccountTracker,
@@ -16,20 +16,16 @@ test.describe('relay integration', () => {
     const { email, password } =
       testAccountTracker.generateSignupAccountDetails();
 
-    await signup.goto('/authorization', relayDesktopOAuthQueryParams);
+    await signup.goto('/authorization', smartWindowDesktopOAuthQueryParams);
 
-    await expect(signup.page.getByText('Create an email mask ')).toBeVisible();
+    await expect(
+      signup.page.getByText('Firefox Smart Window', { exact: false })
+    ).toBeVisible();
 
     await signup.emailTextbox.fill(email);
     await signup.submitButton.click();
 
     await page.waitForURL(/signup/);
-
-    await expect(
-      signup.page.getByText(
-        'A password is needed to securely manage your masked emails and access ⁨Mozilla⁩’s security tools.'
-      )
-    ).toBeVisible();
 
     await signup.passwordTextbox.fill(password);
     await signup.createAccountButton.click();
@@ -43,19 +39,21 @@ test.describe('relay integration', () => {
 
     await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     await signup.checkWebChannelMessageServices(FirefoxCommand.Login, {
-      relay: {},
+      smartwindow: {},
     });
   });
 
-  test('signin with Relay desktop', async ({
+  test('signin with SmartWindow desktop', async ({
     syncOAuthBrowserPages: { page, signin },
     testAccountTracker,
   }) => {
     const { email, password } = await testAccountTracker.signUp();
 
-    await signin.goto('/authorization', relayDesktopOAuthQueryParams);
+    await signin.goto('/authorization', smartWindowDesktopOAuthQueryParams);
 
-    await expect(signin.page.getByText('Create an email mask ')).toBeVisible();
+    await expect(
+      signin.page.getByText('Firefox Smart Window', { exact: false })
+    ).toBeVisible();
 
     await signin.fillOutEmailFirstForm(email);
 
@@ -65,20 +63,22 @@ test.describe('relay integration', () => {
 
     await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     await signin.checkWebChannelMessageServices(FirefoxCommand.Login, {
-      relay: {},
+      smartwindow: {},
     });
   });
 
-  test('signin with Relay desktop - with confirm email', async ({
+  test('signin with SmartWindow desktop - with confirm email', async ({
     target,
     syncOAuthBrowserPages: { signinTokenCode, page, signin },
     testAccountTracker,
   }) => {
     const { email, password } = await testAccountTracker.signUpSync();
 
-    await signin.goto('/authorization', relayDesktopOAuthQueryParams);
+    await signin.goto('/authorization', smartWindowDesktopOAuthQueryParams);
 
-    await expect(signin.page.getByText('Create an email mask ')).toBeVisible();
+    await expect(
+      signin.page.getByText('Firefox Smart Window', { exact: false })
+    ).toBeVisible();
 
     await signin.fillOutEmailFirstForm(email);
 
@@ -92,11 +92,11 @@ test.describe('relay integration', () => {
 
     await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     await signin.checkWebChannelMessageServices(FirefoxCommand.Login, {
-      relay: {},
+      smartwindow: {},
     });
   });
 
-  test('signin with Relay desktop - with 2FA', async ({
+  test('signin with SmartWindow desktop - with 2FA', async ({
     target,
     syncOAuthBrowserPages: { signinTotpCode, totp, page, signin, settings },
     testAccountTracker,
@@ -118,9 +118,11 @@ test.describe('relay integration', () => {
     await expect(settings.totp.status).toHaveText('Enabled');
     await settings.signOut();
 
-    await signin.goto('/authorization', relayDesktopOAuthQueryParams);
+    await signin.goto('/authorization', smartWindowDesktopOAuthQueryParams);
 
-    await expect(signin.page.getByText('Create an email mask ')).toBeVisible();
+    await expect(
+      signin.page.getByText('Firefox Smart Window', { exact: false })
+    ).toBeVisible();
 
     await signin.fillOutEmailFirstForm(email);
 
@@ -135,7 +137,7 @@ test.describe('relay integration', () => {
 
     await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     await signin.checkWebChannelMessageServices(FirefoxCommand.Login, {
-      relay: {},
+      smartwindow: {},
     });
   });
 });
