@@ -47,7 +47,7 @@ import { GetChurnInterventionDataActionArgs } from './validators/GetChurnInterve
 import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenArgs';
 import { GetSubManPageContentActionArgs } from './validators/GetSubManPageContentActionArgs';
 import { GetSubManPageContentActionResult } from './validators/GetSubManPageContentActionResult';
-import { GetInterstitialOfferContentActionArgs } from './validators/GetInterstitialOfferContentActionArgs';//
+import { GetInterstitialOfferContentActionArgs } from './validators/GetInterstitialOfferContentActionArgs'; //
 import { GetInterstitialOfferContentActionResult } from './validators/GetInterstitialOfferContentActionResult';
 import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
 import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
@@ -55,7 +55,10 @@ import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 import { RecordEmitterEventArgs } from './validators/RecordEmitterEvent';
 import { GetCouponArgs } from './validators/GetCouponArgs';
 import { GetCouponResult } from './validators/GetCouponResult';
-import { PaymentsEmitterService } from '@fxa/payments/events';
+import {
+  GleanGenericEventNames,
+  PaymentsEmitterService,
+} from '@fxa/payments/events';
 import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessingCartActionArgs';
 import { RedeemChurnCouponActionArgs } from './validators/RedeemChurnCouponActionArgs';
 import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionArgs';
@@ -359,14 +362,15 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    return await this.churnInterventionService.determineCancellationIntervention(
-      {
+    const result =
+      await this.churnInterventionService.determineCancellationIntervention({
         uid: args.uid,
         subscriptionId: args.subscriptionId,
         acceptLanguage: args.acceptLanguage,
         selectedLanguage: args.selectedLanguage,
-      }
-    );
+      });
+
+    return result;
   }
 
   @SanitizeExceptions()
@@ -379,14 +383,36 @@ export class NextJSActionsService {
     churnType: 'cancel' | 'stay_subscribed';
     acceptLanguage?: string | null;
     selectedLanguage?: string;
+    requestArgs: CommonMetrics;
   }) {
-    return await this.churnInterventionService.redeemChurnCoupon(
+    const result = await this.churnInterventionService.redeemChurnCoupon(
       args.uid,
       args.subscriptionId,
       args.churnType,
       args.acceptLanguage,
       args.selectedLanguage
     );
+
+    let eventName;
+    switch (args.churnType) {
+      case 'cancel':
+        eventName = GleanGenericEventNames.ChurnCancelRedeemed;
+        break;
+      case 'stay_subscribed':
+        eventName = GleanGenericEventNames.ChurnStayRedeemed;
+        break;
+    }
+
+    if (eventName) {
+      this.emitterService.getEmitter().emit('genericGleanSubManageEvent', {
+        eventName,
+        commonMetrics: args.requestArgs,
+        uid: args.uid,
+        subscriptionId: args.subscriptionId,
+      });
+    }
+
+    return result;
   }
 
   @SanitizeExceptions({
@@ -543,16 +569,16 @@ export class NextJSActionsService {
   async checkoutCartWithPaypal(args: {
     cartId: string;
     version: number;
-    customerData: { locale: string; displayName: string };
     attribution: SubscriptionAttributionParams;
+    requestArgs: CommonMetrics;
     sessionUid?: string;
     token?: string;
   }) {
     await this.cartService.checkoutCartWithPaypal(
       args.cartId,
       args.version,
-      args.customerData,
       args.attribution,
+      args.requestArgs,
       args.sessionUid,
       args.token
     );
@@ -566,16 +592,16 @@ export class NextJSActionsService {
     cartId: string;
     version: number;
     confirmationTokenId: string;
-    customerData: { locale: string };
     attribution: SubscriptionAttributionParams;
+    requestArgs: CommonMetrics;
     sessionUid?: string;
   }) {
     await this.cartService.checkoutCartWithStripe(
       args.cartId,
       args.version,
       args.confirmationTokenId,
-      args.customerData,
       args.attribution,
+      args.requestArgs,
       args.sessionUid
     );
   }
@@ -607,6 +633,7 @@ export class NextJSActionsService {
   @CaptureTimingWithStatsD()
   async getSubManPageContent(args: {
     uid: string;
+    requestArgs: CommonMetrics;
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
@@ -615,6 +642,41 @@ export class NextJSActionsService {
       args.acceptLanguage || undefined,
       args.selectedLanguage
     );
+
+    result.subscriptions.forEach((subscription) => {
+      let eventName: GleanGenericEventNames | undefined;
+      const {
+        canResubscribe,
+        isEligibleForChurnStaySubscribed,
+        isEligibleForChurnCancel,
+        isEligibleForOffer,
+      } = subscription;
+
+      if (canResubscribe) {
+        if (isEligibleForChurnStaySubscribed) {
+          eventName = GleanGenericEventNames.StayRouteChurnContent;
+        } else {
+          eventName = GleanGenericEventNames.StayRouteStandard;
+        }
+      } else {
+        if (isEligibleForChurnCancel) {
+          eventName = GleanGenericEventNames.CancelRouteChurnContent;
+        } else {
+          if (isEligibleForOffer) {
+            eventName = GleanGenericEventNames.CancelRouteInterstitialOffer;
+          } else {
+            eventName = GleanGenericEventNames.CancelRouteStandard;
+          }
+        }
+      }
+
+      this.emitterService.getEmitter().emit('genericGleanSubManageEvent', {
+        eventName,
+        uid: args.uid,
+        commonMetrics: args.requestArgs,
+        subscriptionId: subscription.id,
+      });
+    });
 
     return result;
   }
@@ -746,29 +808,43 @@ export class NextJSActionsService {
     selectedLanguage?: string;
   }) {
     const result =
-      await this.churnInterventionService.determineCancelInterstitialOfferEligibility({
-        uid: args.uid,
-        subscriptionId: args.subscriptionId,
-        acceptLanguage: args.acceptLanguage,
-        selectedLanguage: args.selectedLanguage
-      });
+      await this.churnInterventionService.determineCancelInterstitialOfferEligibility(
+        {
+          uid: args.uid,
+          subscriptionId: args.subscriptionId,
+          acceptLanguage: args.acceptLanguage,
+          selectedLanguage: args.selectedLanguage,
+        }
+      );
 
-    if (result.isEligible &&
+    if (
+      result.isEligible &&
       result.cmsCancelInterstitialOfferResult &&
-      result.cmsCancelInterstitialOfferResult.offering.defaultPurchase.purchaseDetails
+      result.cmsCancelInterstitialOfferResult.offering.defaultPurchase
+        .purchaseDetails
     ) {
       return {
         isEligible: true,
         pageContent: {
-          currentInterval: result.cmsCancelInterstitialOfferResult.currentInterval,
+          currentInterval:
+            result.cmsCancelInterstitialOfferResult.currentInterval,
           modalHeading1: result.cmsCancelInterstitialOfferResult.modalHeading1,
           modalMessage: result.cmsCancelInterstitialOfferResult.modalMessage,
-          upgradeButtonLabel: result.cmsCancelInterstitialOfferResult.upgradeButtonLabel,
-          upgradeButtonUrl: result.cmsCancelInterstitialOfferResult.upgradeButtonUrl,
-          webIcon: result.cmsCancelInterstitialOfferResult.offering.defaultPurchase.purchaseDetails.webIcon,
-          productName: result.cmsCancelInterstitialOfferResult.offering.defaultPurchase.purchaseDetails.productName,
-        }
-      }
+          upgradeButtonLabel:
+            result.cmsCancelInterstitialOfferResult.upgradeButtonLabel,
+          upgradeButtonUrl:
+            result.cmsCancelInterstitialOfferResult.upgradeButtonUrl,
+          webIcon:
+            result.cmsCancelInterstitialOfferResult.offering.defaultPurchase
+              .purchaseDetails.webIcon,
+          productName:
+            result.cmsCancelInterstitialOfferResult.offering.defaultPurchase
+              .purchaseDetails.productName,
+        },
+        reason: result.reason,
+        webIcon: result.webIcon,
+        productName: result.productName,
+      };
     } else {
       return {
         isEligible: false,
@@ -776,7 +852,7 @@ export class NextJSActionsService {
         reason: result.reason,
         webIcon: result.webIcon,
         productName: result.productName,
-      }
+      };
     }
   }
 

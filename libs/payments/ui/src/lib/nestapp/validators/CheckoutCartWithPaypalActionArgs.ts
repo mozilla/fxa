@@ -9,6 +9,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { RequestArgs } from './common/RequestArgs';
 
 export class CheckoutCartWithPaypalActionUtmAttributionData {
   @IsString()
@@ -50,14 +51,6 @@ export class CheckoutCartWithPaypalActionAttributionData {
   session!: CheckoutCartWithPaypalActionSessionAttributionData;
 }
 
-export class CheckoutCartWithPaypalActionCustomerData {
-  @IsString()
-  locale!: string;
-
-  @IsString()
-  displayName!: string;
-}
-
 export class CheckoutCartWithPaypalActionArgs {
   @IsString()
   cartId!: string;
@@ -73,11 +66,11 @@ export class CheckoutCartWithPaypalActionArgs {
   @IsOptional()
   token?: string;
 
-  @Type(() => CheckoutCartWithPaypalActionCustomerData)
-  @ValidateNested()
-  customerData!: CheckoutCartWithPaypalActionCustomerData;
-
   @Type(() => CheckoutCartWithPaypalActionAttributionData)
   @ValidateNested()
   attributionData!: CheckoutCartWithPaypalActionAttributionData;
+
+  @Type(() => RequestArgs)
+  @ValidateNested()
+  requestArgs!: RequestArgs;
 }
