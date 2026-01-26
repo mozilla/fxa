@@ -40,7 +40,10 @@ import {
   CustomerSessionManager,
   SetupIntentManager,
 } from '@fxa/payments/customer';
-import { PaymentsGleanManager } from '@fxa/payments/metrics';
+import {
+  PaymentsGleanManager,
+  PaymentsGleanService,
+} from '@fxa/payments/metrics';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
 import {
@@ -58,7 +61,10 @@ import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
 import { logger, LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
 import { NotifierService, NotifierSnsProvider } from '@fxa/shared/notifier';
-import { SubscriptionManagementService, ChurnInterventionService } from '@fxa/payments/management';
+import {
+  SubscriptionManagementService,
+  ChurnInterventionService,
+} from '@fxa/payments/management';
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
@@ -144,6 +150,7 @@ import { NimbusManager } from '@fxa/payments/experiments';
     SubscriptionManager,
     PaymentsGleanFactory,
     PaymentsGleanManager,
+    PaymentsGleanService,
     PaymentsEmitterService,
     StripeEventManager,
     SubscriptionEventsService,

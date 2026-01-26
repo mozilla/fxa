@@ -14,7 +14,7 @@ export function NextIOValidator<
   O extends { new (...args: any[]): any } | undefined,
   Args extends object | void,
   Result extends object | void,
-  Target extends object
+  Target extends object,
 >(inputClass: I, outputClass: O) {
   type Func = (args: Args) => Promise<Result>;
 

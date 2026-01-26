@@ -86,7 +86,6 @@ import {
   NotifierSnsProvider,
 } from '@fxa/shared/notifier';
 import {
-  CheckoutCustomerDataFactory,
   FinishErrorCartFactory,
   ResultCartFactory,
   SubscriptionAttributionFactory,
@@ -128,6 +127,21 @@ import {
   AsyncLocalStorageCartProvider,
 } from './cart-als.provider';
 import { CartStoreFactory } from './cart-als.factories';
+import {
+  CommonMetricsFactory,
+  MockPaymentsGleanConfigProvider,
+  MockPaymentsGleanFactory,
+  PaymentsGleanManager,
+  PaymentsGleanService,
+} from '@fxa/payments/metrics';
+import {
+  MockNimbusManagerConfigProvider,
+  NimbusManager,
+} from '@fxa/payments/experiments';
+import {
+  MockNimbusClientConfigProvider,
+  NimbusClient,
+} from '@fxa/shared/experiments';
 
 jest.mock('next/navigation');
 jest.mock('@fxa/shared/error', () => ({
@@ -201,15 +215,23 @@ describe('CartService', () => {
         MockGeoDBNestFactory,
         MockLocationConfigProvider,
         MockNotifierSnsConfigProvider,
+        MockPaymentsGleanFactory,
+        MockPaymentsGleanConfigProvider,
         MockPaypalClientConfigProvider,
         MockProfileClientConfigProvider,
+        MockNimbusManagerConfigProvider,
+        MockNimbusClientConfigProvider,
         MockStatsDProvider,
         MockStrapiClientConfigProvider,
         MockStripeConfigProvider,
         NotifierService,
         NotifierSnsProvider,
+        NimbusManager,
+        NimbusClient,
         PaymentIntentManager,
         PaymentMethodManager,
+        PaymentsGleanManager,
+        PaymentsGleanService,
         PaypalBillingAgreementManager,
         PayPalClient,
         PaypalCustomerManager,
@@ -1012,8 +1034,8 @@ describe('CartService', () => {
   });
 
   describe('checkoutCartWithStripe', () => {
-    const mockCustomerData = CheckoutCustomerDataFactory();
     const mockAttributionData = SubscriptionAttributionFactory();
+    const mockRequestArgs = CommonMetricsFactory();
 
     it('accepts payment with stripe', async () => {
       const mockCart = ResultCartFactory();
@@ -1030,16 +1052,16 @@ describe('CartService', () => {
         mockCart.id,
         mockCart.version,
         mockPaymentMethodId,
-        mockCustomerData,
         mockAttributionData,
+        mockRequestArgs,
         mockCart.uid
       );
 
       expect(checkoutService.payWithStripe).toHaveBeenCalledWith(
         mockCart,
         mockPaymentMethodId,
-        mockCustomerData,
         mockAttributionData,
+        mockRequestArgs,
         mockCart.uid
       );
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
@@ -1060,8 +1082,8 @@ describe('CartService', () => {
           mockCart.id,
           mockCart.version,
           mockPaymentMethodId,
-          mockCustomerData,
           mockAttributionData,
+          mockRequestArgs,
           mockCart.uid
         )
       ).rejects.toBeInstanceOf(CartStateProcessingError);
@@ -1072,8 +1094,8 @@ describe('CartService', () => {
   });
 
   describe('checkoutCartWithPaypal', () => {
-    const mockCustomerData = CheckoutCustomerDataFactory();
     const mockAttributionData = SubscriptionAttributionFactory();
+    const mockRequestArgs = CommonMetricsFactory();
 
     it('accepts payment with Paypal', async () => {
       const mockCart = ResultCartFactory();
@@ -1089,16 +1111,16 @@ describe('CartService', () => {
       await cartService.checkoutCartWithPaypal(
         mockCart.id,
         mockCart.version,
-        mockCustomerData,
         mockAttributionData,
+        mockRequestArgs,
         mockCart.uid,
         mockToken
       );
 
       expect(checkoutService.payWithPaypal).toHaveBeenCalledWith(
         mockCart,
-        mockCustomerData,
         mockAttributionData,
+        mockRequestArgs,
         mockCart.uid,
         mockToken
       );
@@ -1119,8 +1141,8 @@ describe('CartService', () => {
         cartService.checkoutCartWithPaypal(
           mockCart.id,
           mockCart.version,
-          mockCustomerData,
           mockAttributionData,
+          mockRequestArgs,
           mockCart.uid,
           mockToken
         )
@@ -1198,6 +1220,7 @@ describe('CartService', () => {
         uid: mockCart.uid,
         paymentProvider: 'stripe',
         paymentForm: SubPlatPaymentMethodType.Card,
+        isCancelInterstitialOffer: false,
       });
     });
   });
@@ -2425,6 +2448,7 @@ describe('CartService', () => {
         uid: mockCart.uid,
         paymentProvider: 'stripe',
         paymentForm: SubPlatPaymentMethodType.Card,
+        isCancelInterstitialOffer: false,
       });
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });
@@ -2458,6 +2482,7 @@ describe('CartService', () => {
         uid: mockCartWithSetupIntent.uid,
         paymentProvider: 'stripe',
         paymentForm: SubPlatPaymentMethodType.Card,
+        isCancelInterstitialOffer: false,
       });
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });

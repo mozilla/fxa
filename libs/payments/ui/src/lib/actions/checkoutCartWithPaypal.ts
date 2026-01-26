@@ -6,20 +6,29 @@
 
 import { getApp } from '../nestapp/app';
 import type { SubscriptionAttributionParams } from '@fxa/payments/cart';
+import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
+import { flattenRouteParams } from '../utils/flatParam';
 
 export const checkoutCartWithPaypal = async (
   cartId: string,
   version: number,
-  customerData: { locale: string; displayName: string },
   attribution: SubscriptionAttributionParams,
+  params: Record<string, string | string[]>,
+  searchParams: Record<string, string | string[]>,
   sessionUid?: string,
   token?: string
 ) => {
+  const requestArgs = {
+    ...getAdditionalRequestArgs(),
+    params: flattenRouteParams(params),
+    searchParams: flattenRouteParams(searchParams),
+  };
+
   await getApp().getActionsService().checkoutCartWithPaypal({
     cartId,
     version,
-    customerData,
     attribution,
+    requestArgs,
     sessionUid,
     token,
   });

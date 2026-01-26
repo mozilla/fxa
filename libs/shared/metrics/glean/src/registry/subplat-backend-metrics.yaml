@@ -550,3 +550,181 @@ pay_setup:
       nimbus_user_id:
         description: Nimbus user ID
         type: string
+
+cancel_route:
+  churn_content:
+    description: Subscription management cancel route shows churn content
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3436
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2012572
+      - https://github.com/mozilla/fxa/issues/19945
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+  interstitial_offer:
+    description: Subscription management cancel route shows interstitial offer 
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3436
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2012572
+      - https://github.com/mozilla/fxa/issues/19945
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+  standard:
+    description: Subscription management cancel route shows standard content
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3436
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2012572
+      - https://github.com/mozilla/fxa/issues/19945
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+  error:
+    description: Subscription management cancel route shows an error
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3436
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2012572
+      - https://github.com/mozilla/fxa/issues/19945
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+
+stay_route:
+  churn_content:
+    description: Subscription management stay subscribed route shows churn content
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3436
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2012572
+      - https://github.com/mozilla/fxa/issues/19945
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+  standard:
+    description: Subscription management stay subscribed route shows standard content
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3436
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2012572
+      - https://github.com/mozilla/fxa/issues/19945
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+  error:
+    description: Subscription management stay subscribed route shows an error 
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3436
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2012572
+      - https://github.com/mozilla/fxa/issues/19945
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+
+churn:
+  cancel_redeemed:
+    description: Subscription management cancel churn promo successfully redeemed
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3436
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2012572
+      - https://github.com/mozilla/fxa/issues/19945
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+  stay_redeemed:
+    description: Subscription management stay subscribed churn promo successfully redeemed 
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3436
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2012572
+      - https://github.com/mozilla/fxa/issues/19945
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+
+cancel_interstitial:
+  offer_redeemed:
+    description: Subscription management cancel interstitial offer promo successfully redeemed
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3436
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2012572
+      - https://github.com/mozilla/fxa/issues/19945
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string

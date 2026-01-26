@@ -190,11 +190,9 @@ export function CheckoutForm({
       await checkoutCartWithPaypal(
         cart.id,
         cart.version,
-        {
-          locale,
-          displayName: '',
-        },
         getAttributionParams(searchParams),
+        params,
+        Object.fromEntries(searchParams),
         sessionUid
       );
 
@@ -267,10 +265,9 @@ export function CheckoutForm({
       cart.id,
       cart.version,
       confirmationToken.id,
-      {
-        locale,
-      },
       getAttributionParams(searchParams),
+      params,
+      Object.fromEntries(searchParams),
       sessionUid
     );
 
@@ -353,7 +350,6 @@ export function CheckoutForm({
                 cartId={cart.id}
                 cartVersion={cart.version}
                 cartCurrency={cart.currency}
-                locale={locale}
                 sessionUid={sessionUid}
                 searchParams={searchParams}
                 disabled={loading || !formEnabled}
@@ -400,7 +396,6 @@ interface CheckoutPayPalButtonProps {
   cartId: string;
   cartVersion: number;
   cartCurrency: string;
-  locale: string;
   sessionUid?: string;
   searchParams: ReadonlyURLSearchParams;
   disabled: boolean;
@@ -410,12 +405,12 @@ function CheckoutPayPalButton({
   cartId,
   cartVersion,
   cartCurrency,
-  locale,
   sessionUid,
   searchParams,
   disabled,
 }: CheckoutPayPalButtonProps) {
   const router = useRouter();
+  const params = useParams();
   const [{ isPending, isRejected }] = usePayPalScriptReducer();
 
   if (isPending) {
@@ -457,11 +452,9 @@ function CheckoutPayPalButton({
         await checkoutCartWithPaypal(
           cartId,
           cartVersion,
-          {
-            locale,
-            displayName: '',
-          },
           getAttributionParams(searchParams),
+          params,
+          Object.fromEntries(searchParams),
           sessionUid,
           data.orderID
         );
