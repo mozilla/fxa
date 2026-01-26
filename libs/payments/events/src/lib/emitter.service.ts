@@ -5,7 +5,12 @@ import Emittery from 'emittery';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CartManager, TaxChangeAllowedStatus } from '@fxa/payments/cart';
-import { PaymentsGleanManager } from '@fxa/payments/metrics';
+import {
+  getNimbusUserId,
+  PaymentsGleanManager,
+  retrieveAdditionalMetricsData,
+  retrieveSubManageMetricsData,
+} from '@fxa/payments/metrics';
 import { LocationStatus } from '@fxa/payments/eligibility';
 import {
   CheckoutEvents,
@@ -14,9 +19,10 @@ import {
   SP3RolloutEvent,
   SubscriptionEndedEvents,
   type AuthEvents,
+  type GenericGleanEvent,
+  type GenericGleanSubManageEvent,
 } from './emitter.types';
 import { AccountManager } from '@fxa/shared/account/account';
-import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 import {
   getSubplatInterval,
   CustomerManager,
@@ -58,45 +64,37 @@ export class PaymentsEmitterService {
     this.emitter.on('sp3Rollout', this.handleSP3Rollout.bind(this));
     this.emitter.on('locationView', this.handleLocationView.bind(this));
     this.emitter.on('auth', this.handleAuthEvent.bind(this));
+    this.emitter.on(
+      'genericGleanEvent',
+      this.handleGenericCheckoutGleanEvent.bind(this)
+    );
+    this.emitter.on(
+      'genericGleanSubManageEvent',
+      this.handleGenericSubManageGleanEvent.bind(this)
+    );
   }
 
   getEmitter(): Emittery<PaymentsEmitterEvents> {
     return this.emitter;
   }
 
-  async getNimbusUserId({
-    uid,
-    language,
-    region,
-    experimentationId,
-    experimentationPreview,
-  }: {
+  async getNimbusUserId(args: {
     uid?: string;
     language: string;
     region?: string;
     experimentationId: string;
     experimentationPreview: boolean;
   }) {
-    let experiments;
-    const generatedNimbusUserId = this.nimbusManager.generateNimbusId(
-      uid,
-      experimentationId
+    const { ok, nimbusUserId, error } = await getNimbusUserId(
+      this.nimbusManager,
+      args
     );
-    try {
-      experiments = await this.nimbusManager.fetchExperiments({
-        nimbusUserId: generatedNimbusUserId,
-        language,
-        region,
-        preview: experimentationPreview,
-      });
-    } catch (error) {
+    if (!ok) {
       this.log.error(error);
       Sentry.captureException(error);
     }
 
-    return (
-      experiments?.Enrollments?.at(0)?.nimbus_user_id || generatedNimbusUserId
-    );
+    return nimbusUserId;
   }
 
   async handleAuthEvent(eventData: AuthEvents) {
@@ -243,6 +241,62 @@ export class PaymentsEmitterService {
         },
         paymentProvider
       );
+    }
+  }
+
+  async handleGenericCheckoutGleanEvent({
+    eventName,
+    commonMetrics,
+  }: GenericGleanEvent) {
+    const additionalData = await retrieveAdditionalMetricsData(
+      this.productConfigurationManager,
+      this.cartManager,
+      commonMetrics.params
+    );
+
+    const metricsOptOut = await this.retrieveOptOut(
+      additionalData.cartMetricsData.uid
+    );
+    if (!metricsOptOut) {
+      const nimbusUserId = await this.getNimbusUserId({
+        uid: additionalData.cartMetricsData.uid,
+        language: additionalData.locale,
+        region: additionalData.cartMetricsData.taxAddress?.countryCode,
+        experimentationId: commonMetrics.experimentationId,
+        experimentationPreview:
+          commonMetrics?.searchParams?.['experimentationPreview'] === 'true',
+      });
+
+      this.paymentsGleanManager.recordGenericEvent(eventName, {
+        commonMetricsData: commonMetrics,
+        ...additionalData,
+        experimentationData: { nimbusUserId },
+      });
+    }
+  }
+
+  async handleGenericSubManageGleanEvent({
+    eventName,
+    uid,
+    subscriptionId,
+    commonMetrics,
+  }: GenericGleanSubManageEvent) {
+    const data = await retrieveSubManageMetricsData(
+      this.subscriptionManager,
+      this.customerManager,
+      this.productConfigurationManager,
+      this.accountManager,
+      this.nimbusManager,
+      commonMetrics,
+      uid,
+      subscriptionId
+    );
+
+    if (!data.accountsMetricsData.metricsOptOut) {
+      this.paymentsGleanManager.recordGenericSubManageEvent(eventName, {
+        commonMetricsData: commonMetrics,
+        ...data,
+      });
     }
   }
 

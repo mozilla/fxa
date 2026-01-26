@@ -9,7 +9,11 @@ import {
   CommonMetrics,
   PaymentsGleanProvider,
   SubscriptionCancellationData,
+  type AccountsMetricsData,
   type ExperimentationData,
+  type SessionMetricsData,
+  type StripeMetricsData,
+  type SubPlatCmsMetricsData,
 } from './glean.types';
 import { Inject, Injectable } from '@nestjs/common';
 import { PaymentProvidersType } from '@fxa/payments/customer';
@@ -20,7 +24,25 @@ import { mapSubscription } from './utils/mapSubscription';
 import { mapRelyingParty } from './utils/mapRelyingParty';
 import { normalizeGleanFalsyValues } from './utils/normalizeGleanFalsyValues';
 import { PaymentsGleanConfig } from './glean.config';
-import { mapSubscriptionCancellation } from './utils/mapSubscriptionCancellation';
+import { determineCheckoutType } from './utils/determineCheckoutType';
+
+type MethodNames<T> = {
+  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
+}[keyof T];
+
+function isMethodName<T extends object>(
+  obj: T,
+  key: PropertyKey
+): key is MethodNames<T> {
+  return key in obj && typeof (obj as any)[key] === 'function';
+}
+
+/**
+ * When necessary, properties populated by PLACEHOLDER_VALUE should
+ * be provided by the event emitter, and populated by the appropriate
+ * event handler.
+ */
+const PLACEHOLDER_FUTURE_USE = '';
 
 @Injectable()
 export class PaymentsGleanManager {
@@ -132,6 +154,105 @@ export class PaymentsGleanManager {
     }
   }
 
+  recordGenericEvent(
+    eventName: string,
+    metrics: {
+      commonMetricsData: CommonMetrics;
+      cartMetricsData: CartMetrics;
+      cmsMetricsData: CmsMetricsData;
+      experimentationData: ExperimentationData;
+    }
+  ) {
+    if (
+      this.isEnabled &&
+      isMethodName(this.paymentsGleanServerEventsLogger, eventName)
+    ) {
+      this.paymentsGleanServerEventsLogger[eventName](
+        this.populateCommonMetrics(metrics)
+      );
+    }
+  }
+
+  recordGenericSubManageEvent(
+    eventName: string,
+    metrics: {
+      commonMetricsData: CommonMetrics;
+      stripeMetricsData: StripeMetricsData;
+      accountsMetricsData: AccountsMetricsData;
+      cmsData: SubPlatCmsMetricsData;
+      sessionMetricsData: SessionMetricsData;
+      experimentationMetricsData: ExperimentationData;
+      subscriptionCancellationData?: SubscriptionCancellationData;
+    }
+  ) {
+    if (
+      this.isEnabled &&
+      isMethodName(this.paymentsGleanServerEventsLogger, eventName)
+    ) {
+      this.paymentsGleanServerEventsLogger[eventName](
+        this.mapMetricsToGleanFormat(metrics)
+      );
+    }
+  }
+
+  private mapMetricsToGleanFormat({
+    commonMetricsData,
+    stripeMetricsData,
+    accountsMetricsData,
+    cmsData,
+    sessionMetricsData,
+    experimentationMetricsData,
+    subscriptionCancellationData,
+  }: {
+    commonMetricsData: CommonMetrics;
+    stripeMetricsData: StripeMetricsData;
+    accountsMetricsData: AccountsMetricsData;
+    cmsData: SubPlatCmsMetricsData;
+    sessionMetricsData: SessionMetricsData;
+    experimentationMetricsData: ExperimentationData;
+    subscriptionCancellationData?: SubscriptionCancellationData;
+  }) {
+    const { searchParams } = commonMetricsData;
+    return {
+      user_agent: sessionMetricsData.userAgent,
+      ip_address: sessionMetricsData.ipAddress,
+      relying_party_oauth_client_id: '',
+      relying_party_service: normalizeGleanFalsyValues(searchParams['service']),
+      session_device_type: sessionMetricsData.deviceType,
+      session_entrypoint_experiment: PLACEHOLDER_FUTURE_USE,
+      session_entrypoint_variation: PLACEHOLDER_FUTURE_USE,
+      session_entrypoint: normalizeGleanFalsyValues(searchParams['entrypoint']),
+      session_flow_id: normalizeGleanFalsyValues(searchParams['flow_id']),
+      subscription_checkout_type: determineCheckoutType(
+        accountsMetricsData.uid,
+        commonMetricsData.searchParams['newAccount']
+      ),
+      subscription_currency: normalizeGleanFalsyValues(
+        stripeMetricsData.currency
+      ),
+      subscription_error_id: PLACEHOLDER_FUTURE_USE,
+      subscription_interval: cmsData.interval,
+      subscription_offering_id: cmsData.offeringId,
+      subscription_payment_provider: PLACEHOLDER_FUTURE_USE,
+      subscription_plan_id: stripeMetricsData.priceId,
+      subscription_product_id: stripeMetricsData.productId,
+      subscription_promotion_code: stripeMetricsData.couponCode,
+      subscription_subscribed_plan_ids: PLACEHOLDER_FUTURE_USE,
+      subscription_cancellation_reason: normalizeGleanFalsyValues(
+        subscriptionCancellationData?.cancellationReason
+      ),
+      subscription_provider_event_id: normalizeGleanFalsyValues(
+        subscriptionCancellationData?.providerEventId
+      ),
+      utm_campaign: normalizeGleanFalsyValues(searchParams['utm_campaign']),
+      utm_content: normalizeGleanFalsyValues(searchParams['utm_content']),
+      utm_medium: normalizeGleanFalsyValues(searchParams['utm_medium']),
+      utm_source: normalizeGleanFalsyValues(searchParams['utm_source']),
+      utm_term: normalizeGleanFalsyValues(searchParams['utm_term']),
+      nimbus_user_id: experimentationMetricsData.nimbusUserId,
+    };
+  }
+
   private populateCommonMetrics(metrics: {
     commonMetricsData?: CommonMetrics;
     cartMetricsData?: CartMetrics;
@@ -176,6 +297,7 @@ export class PaymentsGleanManager {
       metrics.subscriptionCancellationData || emptySubscriptionCancellationData;
     const experimentationData =
       metrics.experimentationData || emptyExperimentationData;
+
     return {
       user_agent: commonMetricsData.userAgent,
       ip_address: commonMetricsData.ipAddress,
@@ -188,9 +310,9 @@ export class PaymentsGleanManager {
         commonMetricsData,
         cartMetricsData,
         cmsMetricsData,
+        subscriptionCancellationData,
       }),
       ...mapUtm(commonMetricsData.searchParams),
-      ...mapSubscriptionCancellation(subscriptionCancellationData),
       nimbus_user_id: experimentationData.nimbusUserId,
     };
   }

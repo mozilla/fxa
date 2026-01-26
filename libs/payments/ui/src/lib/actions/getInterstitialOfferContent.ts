@@ -12,12 +12,10 @@ export const getInterstitialOfferContentAction = async (
   acceptLanguage?: string | null,
   selectedLanguage?: string
 ) => {
-  const result = await getApp().getActionsService().getInterstitialOfferContent({
+  return getApp().getActionsService().getInterstitialOfferContent({
     uid,
     subscriptionId,
     acceptLanguage,
     selectedLanguage,
   });
-
-  return result;
 };

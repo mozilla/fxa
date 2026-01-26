@@ -12,6 +12,19 @@ import { LocationStatus } from '@fxa/payments/eligibility';
 import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
 import { PaymentProvidersType } from '@fxa/payments/customer';
 
+export enum GleanGenericEventNames {
+  CancelRouteChurnContent = 'recordCancelRouteChurnContent',
+  CancelRouteInterstitialOffer = 'recordCancelRouteInterstitialOffer',
+  CancelRouteStandard = 'recordCancelRouteStandard',
+  CancelRouteError = 'recordCancelRouteError',
+  StayRouteChurnContent = 'recordStayRouteChurnContent',
+  StayRouteStandard = 'recordStayRouteStandard',
+  StayRouteError = 'recordStayRouteError',
+  ChurnCancelRedeemed = 'recordChurnCancelRedeemed',
+  ChurnStayRedeemed = 'recordChurnStayRedeemed',
+  CancelInterstitialOfferRedeemed = 'recordCancelInterstitialOfferRedeemed',
+}
+
 export type CheckoutEvents = CommonMetrics;
 export type CheckoutPaymentEvents = CommonMetrics & {
   paymentProvider?: PaymentProvidersType;
@@ -50,12 +63,26 @@ export type AuthEvents = {
   errorMessage?: string;
 };
 
+export type GenericGleanEvent = {
+  eventName: GleanGenericEventNames;
+  commonMetrics: CommonMetrics;
+};
+
+export type GenericGleanSubManageEvent = {
+  eventName: GleanGenericEventNames;
+  uid: string;
+  commonMetrics: CommonMetrics;
+  subscriptionId?: string;
+};
+
 export type PaymentsEmitterEvents = {
   checkoutView: CheckoutEvents;
   checkoutEngage: CheckoutEvents;
   checkoutSubmit: CheckoutPaymentEvents;
   checkoutSuccess: CheckoutPaymentEvents;
   checkoutFail: CheckoutPaymentEvents;
+  genericGleanEvent: GenericGleanEvent;
+  genericGleanSubManageEvent: GenericGleanSubManageEvent;
   subscriptionEnded: SubscriptionEndedEvents;
   sp3Rollout: SP3RolloutEvent;
   locationView: LocationStatus | TaxChangeAllowedStatus;
