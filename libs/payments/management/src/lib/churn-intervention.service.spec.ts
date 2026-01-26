@@ -25,6 +25,9 @@ import {
   AccountCustomerManager,
   ResultAccountCustomerFactory,
   StripeCustomerFactory,
+  StripeSubscriptionItemFactory,
+  StripeApiListFactory,
+  StripePriceRecurringFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -51,6 +54,7 @@ import {
   NotifierSnsProvider,
 } from '@fxa/shared/notifier';
 import { ChurnInterventionService } from './churn-intervention.service';
+import { ChurnSubscriptionCustomerMismatchError } from './churn-intervention.error';
 
 describe('ChurnInterventionService', () => {
   let accountCustomerManager: AccountCustomerManager;
@@ -80,6 +84,8 @@ describe('ChurnInterventionService', () => {
   };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const moduleRef = await Test.createTestingModule({
       providers: [
         ChurnInterventionService,
@@ -491,6 +497,24 @@ describe('ChurnInterventionService', () => {
     });
 
     it('returns general_error for general errors', async () => {
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+        })
+      );
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({ active: true, cancelAtPeriodEnd: false });
       jest
         .spyOn(
           productConfigurationManager,
@@ -729,9 +753,6 @@ describe('ChurnInterventionService', () => {
     });
 
     const mockStripeCustomer = StripeCustomerFactory();
-    const mockAccountCustomer = ResultAccountCustomerFactory({
-      stripeCustomerId: mockStripeCustomer.id,
-    });
     const mockSubscription = StripeResponseFactory(
       StripeSubscriptionFactory({
         customer: mockStripeCustomer.id,
@@ -743,16 +764,6 @@ describe('ChurnInterventionService', () => {
     };
 
     it('returns cancel_interstitial_offer when one exists', async () => {
-      jest
-        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(subscriptionManager, 'retrieve')
-        .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'getSubscriptionStatus')
-        .mockResolvedValue({ active: true, cancelAtPeriodEnd: false });
-
       jest
         .spyOn(
           churnInterventionService,
@@ -781,11 +792,6 @@ describe('ChurnInterventionService', () => {
       const result =
         await churnInterventionService.determineCancellationIntervention(args);
 
-      expect(subscriptionManager.getSubscriptionStatus).toHaveBeenCalledWith(
-        mockStripeCustomer.id,
-        args.subscriptionId
-      );
-
       expect(result).toEqual({
         cancelChurnInterventionType: 'cancel_interstitial_offer',
         reason: 'eligible',
@@ -794,16 +800,6 @@ describe('ChurnInterventionService', () => {
     });
 
     it('returns cancel_churn_intervention when one exists', async () => {
-      jest
-        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(subscriptionManager, 'retrieve')
-        .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'getSubscriptionStatus')
-        .mockResolvedValue({ active: true, cancelAtPeriodEnd: false });
-
       jest
         .spyOn(
           churnInterventionService,
@@ -825,15 +821,11 @@ describe('ChurnInterventionService', () => {
           isEligible: true,
           reason: 'eligible',
           cmsChurnInterventionEntry: mockCmsOffer,
+          cmsOfferingContent: null,
         });
 
       const result =
         await churnInterventionService.determineCancellationIntervention(args);
-
-      expect(subscriptionManager.getSubscriptionStatus).toHaveBeenCalledWith(
-        mockStripeCustomer.id,
-        args.subscriptionId
-      );
 
       expect(result).toEqual({
         cancelChurnInterventionType: 'cancel_churn_intervention',
@@ -843,16 +835,6 @@ describe('ChurnInterventionService', () => {
     });
 
     it('returns none when no cancel offers exist', async () => {
-      jest
-        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(subscriptionManager, 'retrieve')
-        .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'getSubscriptionStatus')
-        .mockResolvedValue({ active: true, cancelAtPeriodEnd: false });
-
       jest
         .spyOn(
           churnInterventionService,
@@ -877,11 +859,6 @@ describe('ChurnInterventionService', () => {
 
       const result =
         await churnInterventionService.determineCancellationIntervention(args);
-
-      expect(subscriptionManager.getSubscriptionStatus).toHaveBeenCalledWith(
-        mockStripeCustomer.id,
-        args.subscriptionId
-      );
 
       expect(
         churnInterventionService.determineCancelInterstitialOfferEligibility
@@ -911,15 +888,6 @@ describe('ChurnInterventionService', () => {
 
     it('returns none when there is no upgrade plan', async () => {
       jest
-        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(subscriptionManager, 'retrieve')
-        .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'getSubscriptionStatus')
-        .mockResolvedValue({ active: true, cancelAtPeriodEnd: false });
-      jest
         .spyOn(
           churnInterventionService,
           'determineCancelChurnContentEligibility'
@@ -930,49 +898,17 @@ describe('ChurnInterventionService', () => {
           cmsChurnInterventionEntry: null,
         });
       jest
-        .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
-        .mockResolvedValue(SubplatInterval.Monthly);
-      const mockPurchaseForPriceIdResultUtil = {
-        purchaseForPriceId: jest.fn(),
-      };
-      jest
-        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
-        .mockResolvedValue(
-          mockPurchaseForPriceIdResultUtil as unknown as PageContentByPriceIdsResultUtil
-        );
-      mockPurchaseForPriceIdResultUtil.purchaseForPriceId.mockReturnValue(
-        PageContentByPriceIdsPurchaseResultFactory({
-          offering: {
-            ...PageContentByPriceIdsPurchaseResultFactory().offering,
-            apiIdentifier: 'offering_123',
-          },
-        })
-      );
-      const rawResult = CancelInterstitialOfferResultFactory();
-      const util = new CancelInterstitialOfferUtil(rawResult);
-      jest
-        .spyOn(productConfigurationManager, 'getCancelInterstitialOffer')
-        .mockResolvedValue(util);
-      jest
-        .spyOn(productConfigurationManager, 'retrieveStripePrice')
-        .mockRejectedValue(new Error('error'));
+        .spyOn(
+          churnInterventionService,
+          'determineCancelInterstitialOfferEligibility'
+        )
+        .mockResolvedValue({
+          isEligible: false,
+          reason: 'no_upgrade_plan_found',
+          cmsCancelInterstitialOfferResult: null,
+        });
       const result =
         await churnInterventionService.determineCancellationIntervention(args);
-
-      expect(subscriptionManager.getSubscriptionStatus).toHaveBeenCalledWith(
-        mockStripeCustomer.id,
-        args.subscriptionId
-      );
-      expect(
-        productConfigurationManager.retrieveStripePrice
-      ).toHaveBeenCalledWith('offering_123', SubplatInterval.Yearly);
-      expect(mockStatsD.increment).toHaveBeenCalledWith(
-        'cancel_intervention_decision',
-        {
-          type: 'none',
-          reason: 'no_upgrade_plan_found',
-        }
-      );
 
       expect(result).toEqual({
         cancelChurnInterventionType: 'none',
@@ -983,15 +919,6 @@ describe('ChurnInterventionService', () => {
 
     it('returns none when customer is not eligible for the upgrade interval plan', async () => {
       jest
-        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(subscriptionManager, 'retrieve')
-        .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'getSubscriptionStatus')
-        .mockResolvedValue({ active: true, cancelAtPeriodEnd: false });
-      jest
         .spyOn(
           churnInterventionService,
           'determineCancelChurnContentEligibility'
@@ -1002,55 +929,18 @@ describe('ChurnInterventionService', () => {
           cmsChurnInterventionEntry: null,
         });
       jest
-        .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
-        .mockResolvedValue(SubplatInterval.Monthly);
-      const mockPurchaseForPriceIdResultUtil = {
-        purchaseForPriceId: jest.fn(),
-      };
-      jest
-        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
-        .mockResolvedValue(
-          mockPurchaseForPriceIdResultUtil as unknown as PageContentByPriceIdsResultUtil
-        );
-      mockPurchaseForPriceIdResultUtil.purchaseForPriceId.mockReturnValue(
-        PageContentByPriceIdsPurchaseResultFactory({
-          offering: {
-            ...PageContentByPriceIdsPurchaseResultFactory().offering,
-            apiIdentifier: 'offering_123',
-          },
-        })
-      );
-      const rawResult = CancelInterstitialOfferResultFactory();
-      const util = new CancelInterstitialOfferUtil(rawResult);
-      jest
-        .spyOn(productConfigurationManager, 'getCancelInterstitialOffer')
-        .mockResolvedValue(util);
-
-      const mockPrice = StripeResponseFactory(StripePriceFactory());
-      jest
-        .spyOn(productConfigurationManager, 'retrieveStripePrice')
-        .mockResolvedValue(mockPrice);
-      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
-        subscriptionEligibilityResult: EligibilityStatus.SAME,
-      });
+        .spyOn(
+          churnInterventionService,
+          'determineCancelInterstitialOfferEligibility'
+        )
+        .mockResolvedValue({
+          isEligible: false,
+          reason: 'not_eligible_for_upgrade_interval',
+          cmsCancelInterstitialOfferResult: null,
+        });
 
       const result =
         await churnInterventionService.determineCancellationIntervention(args);
-
-      expect(subscriptionManager.getSubscriptionStatus).toHaveBeenCalledWith(
-        mockStripeCustomer.id,
-        args.subscriptionId
-      );
-      expect(
-        productConfigurationManager.retrieveStripePrice
-      ).toHaveBeenCalledWith('offering_123', SubplatInterval.Yearly);
-      expect(mockStatsD.increment).toHaveBeenCalledWith(
-        'cancel_intervention_decision',
-        {
-          type: 'none',
-          reason: 'not_eligible_for_upgrade_interval',
-        }
-      );
 
       expect(result).toEqual({
         cancelChurnInterventionType: 'none',
@@ -1061,14 +951,16 @@ describe('ChurnInterventionService', () => {
 
     it('returns none with discount_already_applied when customer is not eligible to redeem', async () => {
       jest
-        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(subscriptionManager, 'retrieve')
-        .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'getSubscriptionStatus')
-        .mockResolvedValue({ active: true, cancelAtPeriodEnd: false });
+        .spyOn(
+          churnInterventionService,
+          'determineCancelChurnContentEligibility'
+        )
+        .mockResolvedValue({
+          isEligible: false,
+          reason: 'discount_already_applied',
+          cmsChurnInterventionEntry: null,
+          cmsOfferingContent: null,
+        });
 
       jest
         .spyOn(
@@ -1077,31 +969,12 @@ describe('ChurnInterventionService', () => {
         )
         .mockResolvedValue({
           isEligible: false,
-          reason: 'no_cancel_interstitial_offer_found',
+          reason: 'no_upgrade_plan_found',
           cmsCancelInterstitialOfferResult: null,
         });
 
-      const raw = ChurnInterventionByProductIdRawResultFactory();
-      const util = new ChurnInterventionByProductIdResultUtil(raw);
-
-      jest
-        .spyOn(
-          productConfigurationManager,
-          'getChurnInterventionBySubscription'
-        )
-        .mockResolvedValue(util);
-      jest.spyOn(subscriptionManager, 'hasCouponId').mockResolvedValue(true);
-
       const result =
         await churnInterventionService.determineCancellationIntervention(args);
-
-      expect(mockStatsD.increment).toHaveBeenCalledWith(
-        'cancel_intervention_decision',
-        {
-          type: 'none',
-          reason: 'discount_already_applied',
-        }
-      );
 
       expect(result).toEqual({
         cancelChurnInterventionType: 'none',
@@ -1112,16 +985,6 @@ describe('ChurnInterventionService', () => {
 
     it('returns none with redemption_limit_exceeded when customer is not eligible to redeem', async () => {
       jest
-        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(subscriptionManager, 'retrieve')
-        .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'getSubscriptionStatus')
-        .mockResolvedValue({ active: true, cancelAtPeriodEnd: false });
-
-      jest
         .spyOn(
           churnInterventionService,
           'determineCancelInterstitialOfferEligibility'
@@ -1131,13 +994,737 @@ describe('ChurnInterventionService', () => {
           reason: 'no_cancel_interstitial_offer_found',
           cmsCancelInterstitialOfferResult: null,
         });
+      jest
+        .spyOn(
+          churnInterventionService,
+          'determineCancelChurnContentEligibility'
+        )
+        .mockResolvedValue({
+          isEligible: false,
+          reason: 'redemption_limit_exceeded',
+          cmsChurnInterventionEntry: null,
+          cmsOfferingContent: null,
+        });
 
-      const raw = ChurnInterventionByProductIdRawResultFactory();
-      const util = new ChurnInterventionByProductIdResultUtil(raw);
-      const cmsEntry = ChurnInterventionByProductIdResultFactory({
-        redemptionLimit: 1,
+      const result =
+        await churnInterventionService.determineCancellationIntervention(args);
+
+      expect(result).toEqual({
+        cancelChurnInterventionType: 'none',
+        reason: 'redemption_limit_exceeded',
+        cmsOfferContent: null,
+      });
+    });
+  });
+
+  describe('determineCancelInterstitialOfferEligibility', () => {
+    it('throws if customer does not match', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
       });
 
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+
+      expect(mockStatsD.increment).not.toHaveBeenCalled();
+      await expect(
+        churnInterventionService.determineCancelInterstitialOfferEligibility({
+          uid: mockUid,
+          subscriptionId: mockSubscription.id,
+        })
+      ).rejects.toBeInstanceOf(ChurnSubscriptionCustomerMismatchError);
+    });
+
+    it('returns not eligible if subscription not active', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'canceled',
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: false,
+          cancelAtPeriodEnd: false,
+        });
+
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: mockUid,
+            subscriptionId: mockSubscription.id,
+          }
+        );
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'subscription_not_active',
+        cmsCancelInterstitialOfferResult: null,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'subscription_not_active',
+        }
+      );
+    });
+
+    it('returns not eligible if already canceling at period end', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'active',
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: true,
+        });
+
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: mockUid,
+            subscriptionId: mockSubscription.id,
+          }
+        );
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'already_canceling_at_period_end',
+        cmsCancelInterstitialOfferResult: null,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'already_canceling_at_period_end',
+        }
+      );
+    });
+
+    it('returns not eligible if current interval not found', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+          interval_count: 1,
+        }),
+      });
+      const mockSubItem = StripeSubscriptionItemFactory({
+        price: mockPrice,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'active',
+          items: StripeApiListFactory([mockSubItem]),
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
+        .mockRejectedValue(new Error());
+
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: mockUid,
+            subscriptionId: mockSubscription.id,
+          }
+        );
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'current_interval_not_found',
+        cmsCancelInterstitialOfferResult: null,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'current_interval_not_found',
+        }
+      );
+    });
+
+    it('returns not eligible if price id not found', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory({
+        id: undefined,
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+          interval_count: 1,
+        }),
+      });
+      const mockSubItem = StripeSubscriptionItemFactory({
+        price: mockPrice,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'active',
+          items: StripeApiListFactory([mockSubItem]),
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
+        .mockResolvedValue(SubplatInterval.Monthly);
+
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: mockUid,
+            subscriptionId: mockSubscription.id,
+          }
+        );
+
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'stripe_price_id_not_found',
+        cmsCancelInterstitialOfferResult: null,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'stripe_price_id_not_found',
+        }
+      );
+    });
+
+    it('returns not eligible if offering id not found', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+          interval_count: 1,
+        }),
+      });
+      const mockSubItem = StripeSubscriptionItemFactory({
+        price: mockPrice,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'active',
+          items: StripeApiListFactory([mockSubItem]),
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
+        .mockResolvedValue(SubplatInterval.Monthly);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory({
+          offering: undefined,
+        })
+      );
+
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: mockUid,
+            subscriptionId: mockSubscription.id,
+          }
+        );
+
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'offering_id_not_found',
+        cmsCancelInterstitialOfferResult: null,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'offering_id_not_found',
+        }
+      );
+    });
+
+    it('returns not eligible if no interstitial offer found', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+          interval_count: 1,
+        }),
+      });
+      const mockSubItem = StripeSubscriptionItemFactory({
+        price: mockPrice,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'active',
+          items: StripeApiListFactory([mockSubItem]),
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
+        .mockResolvedValue(SubplatInterval.Monthly);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+      jest
+        .spyOn(productConfigurationManager, 'getCancelInterstitialOffer')
+        .mockResolvedValue({
+          getTransformedResult: () => null,
+        } as any);
+
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: mockUid,
+            subscriptionId: mockSubscription.id,
+          }
+        );
+
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'no_cancel_interstitial_offer_found',
+        cmsCancelInterstitialOfferResult: null,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'no_cancel_interstitial_offer_found',
+        }
+      );
+    });
+
+    it('returns not eligible if no upgrade plan found', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+          interval_count: 1,
+        }),
+      });
+      const mockSubItem = StripeSubscriptionItemFactory({
+        price: mockPrice,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'active',
+          items: StripeApiListFactory([mockSubItem]),
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const rawResult = CancelInterstitialOfferResultFactory();
+      const util = new CancelInterstitialOfferUtil(rawResult);
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
+        .mockResolvedValue(SubplatInterval.Monthly);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+      jest
+        .spyOn(productConfigurationManager, 'getCancelInterstitialOffer')
+        .mockResolvedValue(util);
+      jest
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockRejectedValue(new Error('stripe price not found'));
+
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: mockUid,
+            subscriptionId: mockSubscription.id,
+          }
+        );
+
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'no_upgrade_plan_found',
+        cmsCancelInterstitialOfferResult: null,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'no_upgrade_plan_found',
+        }
+      );
+    });
+
+    it('returns not eligible if not eligible for upgrade', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+          interval_count: 1,
+        }),
+      });
+      const mockSubItem = StripeSubscriptionItemFactory({
+        price: mockPrice,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'active',
+          items: StripeApiListFactory([mockSubItem]),
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const rawResult = CancelInterstitialOfferResultFactory();
+      const util = new CancelInterstitialOfferUtil(rawResult);
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
+        .mockResolvedValue(SubplatInterval.Monthly);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+      jest
+        .spyOn(productConfigurationManager, 'getCancelInterstitialOffer')
+        .mockResolvedValue(util);
+      jest
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.SAME,
+      });
+
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: mockUid,
+            subscriptionId: mockSubscription.id,
+          }
+        );
+
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'not_eligible_for_upgrade_interval',
+        cmsCancelInterstitialOfferResult: null,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'not_eligible_for_upgrade_interval',
+        }
+      );
+    });
+
+    it('returns eligible for offer', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+          interval_count: 1,
+        }),
+      });
+      const mockSubItem = StripeSubscriptionItemFactory({
+        price: mockPrice,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'active',
+          items: StripeApiListFactory([mockSubItem]),
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const rawResult = CancelInterstitialOfferResultFactory();
+      const util = new CancelInterstitialOfferUtil(rawResult);
+      const mockCancelInterstitialOffer =
+        CancelInterstitialOfferTransformedFactory();
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
+        .mockResolvedValue(SubplatInterval.Monthly);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+      jest
+        .spyOn(productConfigurationManager, 'getCancelInterstitialOffer')
+        .mockResolvedValue(util);
+      jest
+        .spyOn(util, 'getTransformedResult')
+        .mockReturnValue(mockCancelInterstitialOffer);
+      jest
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+        fromOfferingConfigId: 'string',
+        fromPrice: mockPrice,
+      });
+
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: mockUid,
+            subscriptionId: mockSubscription.id,
+          }
+        );
+
+      expect(result).toEqual({
+        isEligible: true,
+        reason: 'eligible',
+        cmsCancelInterstitialOfferResult: mockCancelInterstitialOffer,
+      });
+    });
+  });
+
+  describe('determineCancelChurnContentEligibility', () => {
+    it('throws if customer does not match', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+
+      await expect(
+        churnInterventionService.determineCancelChurnContentEligibility({
+          uid: mockUid,
+          subscriptionId: mockSubscription.id,
+        })
+      ).rejects.toBeInstanceOf(ChurnSubscriptionCustomerMismatchError);
+
+      expect(mockStatsD.increment).not.toHaveBeenCalled();
+    });
+
+    it('returns not eligible if subscription not active', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'canceled',
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const rawResult = ChurnInterventionByProductIdRawResultFactory();
+      const util = new ChurnInterventionByProductIdResultUtil(rawResult);
+      const mockCmsOfferingContent = CmsOfferingContentFactory();
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: false,
+          cancelAtPeriodEnd: false,
+        });
       jest
         .spyOn(
           productConfigurationManager,
@@ -1145,15 +1732,215 @@ describe('ChurnInterventionService', () => {
         )
         .mockResolvedValue(util);
       jest
+        .spyOn(util, 'cmsOfferingContent')
+        .mockReturnValue(mockCmsOfferingContent);
+
+      const result =
+        await churnInterventionService.determineCancelChurnContentEligibility({
+          uid: mockUid,
+          subscriptionId: mockSubscription.id,
+        });
+
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'subscription_not_active',
+        cmsChurnInterventionEntry: null,
+        cmsOfferingContent: mockCmsOfferingContent,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'subscription_not_active',
+        }
+      );
+    });
+
+    it('returns not eligible if already canceling at period end', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const rawResult = ChurnInterventionByProductIdRawResultFactory();
+      const util = new ChurnInterventionByProductIdResultUtil(rawResult);
+      const mockCmsOfferingContent = CmsOfferingContentFactory();
+      const mockCmsChurnEntry = ChurnInterventionByProductIdResultFactory();
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: true,
+        });
+      jest
+        .spyOn(
+          productConfigurationManager,
+          'getChurnInterventionBySubscription'
+        )
+        .mockResolvedValue(util);
+      jest
+        .spyOn(util, 'cmsOfferingContent')
+        .mockReturnValue(mockCmsOfferingContent);
+      jest
         .spyOn(util, 'getTransformedChurnInterventionByProductId')
-        .mockReturnValue([cmsEntry]);
+        .mockReturnValue([mockCmsChurnEntry]);
+
+      const result =
+        await churnInterventionService.determineCancelChurnContentEligibility({
+          uid: mockUid,
+          subscriptionId: mockSubscription.id,
+        });
+
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'already_canceling_at_period_end',
+        cmsChurnInterventionEntry: mockCmsChurnEntry,
+        cmsOfferingContent: mockCmsOfferingContent,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'already_canceling_at_period_end',
+        }
+      );
+    });
+
+    it('returns not eligible if no churn intervention found', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const rawResult = ChurnInterventionByProductIdRawResultFactory();
+      const util = new ChurnInterventionByProductIdResultUtil(rawResult);
+      const mockCmsOfferingContent = CmsOfferingContentFactory();
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(
+          productConfigurationManager,
+          'getChurnInterventionBySubscription'
+        )
+        .mockResolvedValue(util);
+      jest
+        .spyOn(util, 'cmsOfferingContent')
+        .mockReturnValue(mockCmsOfferingContent);
+      jest
+        .spyOn(util, 'getTransformedChurnInterventionByProductId')
+        .mockReturnValue([]);
+
+      const result =
+        await churnInterventionService.determineCancelChurnContentEligibility({
+          uid: mockUid,
+          subscriptionId: mockSubscription.id,
+        });
+
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'no_churn_intervention_found',
+        cmsChurnInterventionEntry: null,
+        cmsOfferingContent: mockCmsOfferingContent,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'no_churn_intervention_found',
+        }
+      );
+    });
+
+    it('returns not eligible if redemption limit exceeded', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const rawResult = ChurnInterventionByProductIdRawResultFactory();
+      const util = new ChurnInterventionByProductIdResultUtil(rawResult);
+      const mockCmsOfferingContent = CmsOfferingContentFactory();
+      const mockCmsChurnEntry = ChurnInterventionByProductIdResultFactory({
+        churnInterventionId: 'churn_id',
+        redemptionLimit: 1,
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(
+          productConfigurationManager,
+          'getChurnInterventionBySubscription'
+        )
+        .mockResolvedValue(util);
+      jest
+        .spyOn(util, 'cmsOfferingContent')
+        .mockReturnValue(mockCmsOfferingContent);
+      jest
+        .spyOn(util, 'getTransformedChurnInterventionByProductId')
+        .mockReturnValue([mockCmsChurnEntry]);
       jest
         .spyOn(churnInterventionManager, 'getRedemptionCountForUid')
         .mockResolvedValue(1);
 
       const result =
-        await churnInterventionService.determineCancellationIntervention(args);
+        await churnInterventionService.determineCancelChurnContentEligibility({
+          uid: mockUid,
+          subscriptionId: mockSubscription.id,
+        });
 
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'redemption_limit_exceeded',
+        cmsChurnInterventionEntry: null,
+        cmsOfferingContent: mockCmsOfferingContent,
+      });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
         {
@@ -1161,11 +1948,138 @@ describe('ChurnInterventionService', () => {
           reason: 'redemption_limit_exceeded',
         }
       );
+    });
+
+    it('returns not eligible if discount already applied', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const rawResult = ChurnInterventionByProductIdRawResultFactory();
+      const util = new ChurnInterventionByProductIdResultUtil(rawResult);
+      const mockCmsOfferingContent = CmsOfferingContentFactory();
+      const mockCmsChurnEntry = ChurnInterventionByProductIdResultFactory({
+        churnInterventionId: 'churn_id',
+        redemptionLimit: 4,
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(
+          productConfigurationManager,
+          'getChurnInterventionBySubscription'
+        )
+        .mockResolvedValue(util);
+      jest
+        .spyOn(util, 'cmsOfferingContent')
+        .mockReturnValue(mockCmsOfferingContent);
+      jest
+        .spyOn(util, 'getTransformedChurnInterventionByProductId')
+        .mockReturnValue([mockCmsChurnEntry]);
+      jest
+        .spyOn(churnInterventionManager, 'getRedemptionCountForUid')
+        .mockResolvedValue(1);
+      jest.spyOn(subscriptionManager, 'hasCouponId').mockResolvedValue(true);
+
+      const result =
+        await churnInterventionService.determineCancelChurnContentEligibility({
+          uid: mockUid,
+          subscriptionId: mockSubscription.id,
+        });
 
       expect(result).toEqual({
-        cancelChurnInterventionType: 'none',
-        reason: 'redemption_limit_exceeded',
-        cmsOfferContent: null,
+        isEligible: false,
+        reason: 'discount_already_applied',
+        cmsChurnInterventionEntry: mockCmsChurnEntry,
+        cmsOfferingContent: mockCmsOfferingContent,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cancel_intervention_decision',
+        {
+          type: 'none',
+          reason: 'discount_already_applied',
+        }
+      );
+    });
+
+    it('returns eligible for churn intervention', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+        })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const rawResult = ChurnInterventionByProductIdRawResultFactory();
+      const util = new ChurnInterventionByProductIdResultUtil(rawResult);
+      const mockCmsOfferingContent = CmsOfferingContentFactory();
+      const mockCmsChurnEntry = ChurnInterventionByProductIdResultFactory({
+        churnInterventionId: 'churn_id',
+        redemptionLimit: 4,
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
+      jest
+        .spyOn(subscriptionManager, 'getSubscriptionStatus')
+        .mockResolvedValue({
+          active: true,
+          cancelAtPeriodEnd: false,
+        });
+      jest
+        .spyOn(
+          productConfigurationManager,
+          'getChurnInterventionBySubscription'
+        )
+        .mockResolvedValue(util);
+      jest
+        .spyOn(util, 'cmsOfferingContent')
+        .mockReturnValue(mockCmsOfferingContent);
+      jest
+        .spyOn(util, 'getTransformedChurnInterventionByProductId')
+        .mockReturnValue([mockCmsChurnEntry]);
+      jest
+        .spyOn(churnInterventionManager, 'getRedemptionCountForUid')
+        .mockResolvedValue(1);
+      jest.spyOn(subscriptionManager, 'hasCouponId').mockResolvedValue(false);
+
+      const result =
+        await churnInterventionService.determineCancelChurnContentEligibility({
+          uid: mockUid,
+          subscriptionId: mockSubscription.id,
+        });
+
+      expect(result).toEqual({
+        isEligible: true,
+        reason: 'eligible',
+        cmsChurnInterventionEntry: mockCmsChurnEntry,
+        cmsOfferingContent: null,
       });
     });
   });
