@@ -196,19 +196,15 @@ export const Settings = ({
           <PageSettings path="/" {...{ integration }} />
           <PageDisplayName path="/display_name" />
           <PageAvatar path="/avatar" />
-          {account.hasPassword ? (
-            <MfaGuardPageRecoveryKeyCreate path="/account_recovery" />
-          ) : (
-            <Redirect from="/account_recovery" to="/settings" noThrow />
-          )}
           {/* MfaPageCreatePassword internally redirects to /change_password if password exists */}
           <MfaPageCreatePassword path="/create_password" />
+          <MfaGuardPage2faSetup path="/two_step_authentication" />
+          <MfaGuardPage2faChange path="/two_step_authentication/change" />
+          <MfaGuardPage2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
           {account.hasPassword ? (
             <>
+              <MfaGuardPageRecoveryKeyCreate path="/account_recovery" />
               <MfaGuardedPageChangePassword path="/change_password" />
-              <MfaGuardPage2faSetup path="/two_step_authentication" />
-              <MfaGuardPage2faChange path="/two_step_authentication/change" />
-              <MfaGuardPage2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
             </>
           ) : (
             <>
@@ -218,16 +214,6 @@ export const Settings = ({
                 noThrow
               />
               <Redirect from="/account_recovery" to="/settings" noThrow />
-              <Redirect
-                from="/two_step_authentication"
-                to="/settings"
-                noThrow
-              />
-              <Redirect
-                from="/two_step_authentication/replace_codes"
-                to="/settings"
-                noThrow
-              />
             </>
           )}
           <MfaGuardPageSecondaryEmailAdd path="/emails" />

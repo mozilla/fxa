@@ -391,12 +391,12 @@ describe('Settings App', () => {
       {
         pageName: 'Page2faChange',
         route: '/two_step_authentication/change',
-        hasPassword: true,
+        hasPassword: false,
       },
       {
         pageName: 'PageSecondaryEmailAdd',
         route: '/emails',
-        hasPassword: true,
+        hasPassword: false,
       },
       {
         pageName: 'PageSecondaryEmailVerify',
@@ -406,7 +406,7 @@ describe('Settings App', () => {
       {
         pageName: 'Page2faReplaceBackupCodes',
         route: '/two_step_authentication/replace_codes',
-        hasPassword: true,
+        hasPassword: false,
       },
       {
         pageName: 'PageRecoveryPhoneSetup',
@@ -426,12 +426,12 @@ describe('Settings App', () => {
       {
         pageName: 'PageRecoveryPhoneRemove',
         route: '/recovery_phone/remove',
-        hasPassword: true,
+        hasPassword: false,
       },
       {
         pageName: 'Page2faSetup',
         route: '/two_step_authentication',
-        hasPassword: true,
+        hasPassword: false,
       },
     ];
 
@@ -488,18 +488,6 @@ describe('Settings App', () => {
 
     it('redirects PageRecoveryKeyCreate', async () => {
       await history.navigate(SETTINGS_PATH + '/account_recovery');
-      expect(history.location.pathname).toBe('/settings');
-    });
-
-    it('redirects two-step authentication page', async () => {
-      await history.navigate(SETTINGS_PATH + '/two_step_authentication');
-      expect(history.location.pathname).toBe('/settings');
-    });
-
-    it('redirects Page2faReplaceRecoveryCodes', async () => {
-      await history.navigate(
-        SETTINGS_PATH + '/two_step_authentication/replace_codes'
-      );
       expect(history.location.pathname).toBe('/settings');
     });
 
