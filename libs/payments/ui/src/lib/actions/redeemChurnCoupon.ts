@@ -5,19 +5,30 @@
 'use server';
 
 import { getApp } from '../nestapp/app';
+import { flattenRouteParams } from '../utils/flatParam';
+import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
 
 export const redeemChurnCouponAction = async (
   uid: string,
   subscriptionId: string,
   churnType: 'cancel' | 'stay_subscribed',
+  params: Record<string, string | string[]>,
+  searchParams: Record<string, string | string[]>,
   acceptLanguage?: string | null,
   selectedLanguage?: string
 ) => {
+  const requestArgs = {
+    ...getAdditionalRequestArgs(),
+    params: flattenRouteParams(params),
+    searchParams: flattenRouteParams(searchParams),
+  };
+
   return await getApp().getActionsService().redeemChurnCoupon({
     uid,
     subscriptionId,
     churnType,
     acceptLanguage,
     selectedLanguage,
+    requestArgs,
   });
 };

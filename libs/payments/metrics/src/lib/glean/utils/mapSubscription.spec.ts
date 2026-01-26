@@ -26,6 +26,7 @@ describe('mapSubscription', () => {
       cmsMetricsData: mockCmsMetricsData,
     });
     expect(result).toEqual({
+      subscription_cancellation_reason: '',
       subscription_checkout_type: 'logged_out',
       subscription_currency: mockCartData.currency,
       subscription_error_id: mockCartData.errorReasonId,
@@ -35,6 +36,7 @@ describe('mapSubscription', () => {
       subscription_plan_id: mockCmsMetricsData.priceId,
       subscription_product_id: mockCmsMetricsData.productId,
       subscription_promotion_code: mockCartData.couponCode,
+      subscription_provider_event_id: '',
       subscription_subscribed_plan_ids: '',
     });
   });
@@ -58,6 +60,7 @@ describe('mapSubscription', () => {
       cmsMetricsData: mockCmsMetricsData,
     });
     expect(result).toEqual({
+      subscription_cancellation_reason: '',
       subscription_checkout_type: 'logged_out',
       subscription_currency: '',
       subscription_error_id: '',
@@ -67,6 +70,7 @@ describe('mapSubscription', () => {
       subscription_plan_id: '',
       subscription_product_id: '',
       subscription_promotion_code: '',
+      subscription_provider_event_id: '',
       subscription_subscribed_plan_ids: '',
     });
   });

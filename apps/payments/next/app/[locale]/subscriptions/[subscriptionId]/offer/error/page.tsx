@@ -40,16 +40,16 @@ export default async function InterstitialOfferErrorPage({
   const uid = session.user.id;
 
   let interstitialOfferContent;
-   try {
+  try {
     interstitialOfferContent = await getInterstitialOfferContentAction(
-        uid,
-        subscriptionId,
-        acceptLanguage,
-        locale
+      uid,
+      subscriptionId,
+      acceptLanguage,
+      locale
     );
-   } catch (error) {
+  } catch (error) {
     notFound();
-   }
+  }
 
   if (!interstitialOfferContent) {
     notFound();
@@ -59,7 +59,7 @@ export default async function InterstitialOfferErrorPage({
     redirect(`/${locale}/subscriptions/${subscriptionId}/offer`);
   }
 
-  const { webIcon, productName} = interstitialOfferContent;
+  const { webIcon, productName } = interstitialOfferContent;
   const reason = interstitialOfferContent.reason ?? 'general_error';
 
   if (webIcon && !productName) {

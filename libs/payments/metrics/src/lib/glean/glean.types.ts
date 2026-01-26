@@ -10,6 +10,8 @@ export const CheckoutTypes = [
   'unknown',
 ] as const;
 export type CheckoutTypesType = (typeof CheckoutTypes)[number];
+import { type TaxAddress } from '@fxa/payments/customer';
+
 export const PaymentProvidersTypePartial = [
   'stripe',
   'google_iap',
@@ -43,6 +45,48 @@ export type ExperimentationData = {
 export type CmsMetricsData = {
   productId: string;
   priceId: string;
+};
+
+export type SubPlatCmsMetricsData = {
+  offeringId?: string;
+  interval?: string;
+};
+
+export type StripeMetricsData = {
+  customerId?: string;
+  couponCode?: string;
+  currency?: string;
+  taxAddress?: TaxAddress;
+  productId?: string;
+  priceId?: string;
+};
+
+export type AccountsMetricsData = {
+  uid: string;
+  metricsOptOut: boolean;
+  locale?: string;
+};
+
+export type SessionMetricsData = {
+  locale?: string;
+  ipAddress: string;
+  deviceType: string;
+  userAgent: string;
+};
+
+export type GenericGleanSubManageEvent = {
+  eventName: string;
+  uid: string;
+  commonMetrics: CommonMetrics;
+  subscriptionId?: string;
+};
+
+export type GleanMetricsData = {
+  stripe: StripeMetricsData;
+  accounts: AccountsMetricsData;
+  cms: SubPlatCmsMetricsData;
+  session: SessionMetricsData;
+  experimentation: ExperimentationData;
 };
 
 export enum CancellationReason {
