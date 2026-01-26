@@ -187,8 +187,8 @@ export const AppLayout = ({
               }
             />
             <div className="mobileLandscape:items-center tablet:flex-1 tablet:bg-white tablet:ml-auto flex flex-col flex-1">
-              <main className="py-8 px-6 tablet:px-10 mobileLandscape:py-9 flex justify-center items-center flex-1">
-                <section className="max-w-120">
+              <main className="flex justify-center items-center flex-1">
+                <section className="max-w-120 desktop:w-120 px-8 py-8">
                   {loading ? (
                     <LoadingSpinner className="h-full flex items-center" />
                   ) : (
