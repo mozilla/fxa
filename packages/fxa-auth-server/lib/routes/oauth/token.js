@@ -788,7 +788,9 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           grant.session_token = newSessionToken.data;
         }
 
-        if (grant.refresh_token) {
+        // Token exchange is swapping tokens for an already-authenticated user,
+        // so we skip the new token notification.
+        if (grant.refresh_token && req.payload.grant_type !== GRANT_TOKEN_EXCHANGE) {
           // if a refresh token has
           // been provisioned as part of the flow
           // then we want to send some notifications to the user
