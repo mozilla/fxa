@@ -473,7 +473,6 @@ describe('token exchange grant_type', function () {
       const request = {
         headers: {},
         payload: {
-          client_id: FIREFOX_IOS_CLIENT_ID,
           grant_type: GRANT_TOKEN_EXCHANGE,
           subject_token: REFRESH_TOKEN,
           subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
@@ -511,7 +510,6 @@ describe('token exchange grant_type', function () {
       const request = {
         headers: {},
         payload: {
-          client_id: NON_FIREFOX_CLIENT_ID,
           grant_type: GRANT_TOKEN_EXCHANGE,
           subject_token: REFRESH_TOKEN,
           subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
@@ -551,7 +549,6 @@ describe('token exchange grant_type', function () {
       const request = {
         headers: {},
         payload: {
-          client_id: FIREFOX_IOS_CLIENT_ID,
           grant_type: GRANT_TOKEN_EXCHANGE,
           subject_token: REFRESH_TOKEN,
           subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
@@ -613,7 +610,6 @@ describe('token exchange grant_type', function () {
       const request = {
         headers: {},
         payload: {
-          client_id: FIREFOX_IOS_CLIENT_ID,
           grant_type: GRANT_TOKEN_EXCHANGE,
           subject_token: REFRESH_TOKEN,
           subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
@@ -628,65 +624,8 @@ describe('token exchange grant_type', function () {
       assert.equal(result.refresh_token, 'new_refresh_token');
       assert.include(result.scope, SYNC_SCOPE);
       assert.include(result.scope, RELAY_SCOPE);
-      // Verify original token was revoked
-      assert.isNotNull(removedTokenId);
-    });
-
-    it('revokes original token after successful exchange', async () => {
-      let removedTokenId = null;
-      const originalTokenId = '1234567890abcdef';
-
-      const routes = proxyquire(tokenRoutePath, {
-        ...tokenRoutesDepMocks,
-        '../../oauth/grant': {
-          generateTokens: (grant) => ({
-            access_token: 'new_access_token',
-            token_type: 'bearer',
-            scope: grant.scope.toString(),
-            expires_in: 3600,
-            refresh_token: 'new_refresh_token',
-          }),
-          validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
-        },
-      })({
-        ...tokenRoutesArgMocks,
-        log: {
-          debug: () => {},
-          warn: () => {},
-          info: () => {},
-        },
-        oauthDB: {
-          ...tokenRoutesArgMocks.oauthDB,
-          async getRefreshToken() {
-            return {
-              userId: buf(UID),
-              clientId: buf(FIREFOX_IOS_CLIENT_ID),
-              tokenId: buf(originalTokenId),
-              scope: ScopeSet.fromString(SYNC_SCOPE),
-              profileChangedAt: Date.now(),
-            };
-          },
-          async removeRefreshToken({ tokenId }) {
-            removedTokenId = hex(tokenId);
-          },
-        },
-      });
-
-      const request = {
-        headers: {},
-        payload: {
-          client_id: FIREFOX_IOS_CLIENT_ID,
-          grant_type: GRANT_TOKEN_EXCHANGE,
-          subject_token: REFRESH_TOKEN,
-          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
-          scope: RELAY_SCOPE,
-        },
-        emitMetricsEvent: () => {},
-      };
-
-      await routes[0].config.handler(request);
-
-      assert.equal(removedTokenId, originalTokenId);
+      // Verify original token was revoked with correct ID
+      assert.equal(hex(removedTokenId), '1234567890abcdef');
     });
   });
 });
@@ -795,7 +734,6 @@ describe('/oauth/token POST', function () {
         auth: { credentials: null },
         headers: {},
         payload: {
-          client_id: FIREFOX_IOS_CLIENT_ID,
           grant_type: GRANT_TOKEN_EXCHANGE,
           subject_token: REFRESH_TOKEN,
           subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,

@@ -10,6 +10,7 @@
 //   * `grant_type=authorization_code` for vanilla exchange-a-code-for-a-token OAuth
 //   * `grant_type=refresh_token` for refreshing a previously-granted token
 //   * `grant_type=fxa-credentials` for directly granting via an FxA identity assertion
+//   * `grant_type=urn:ietf:params:oauth:grant-type:token-exchange` for token exchange, e.g. refresh token for a new refresh token
 //
 // And because of the different types of token that can be requested:
 //
@@ -239,15 +240,18 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         requestedGrant = await validateAssertionGrant(client, params);
         break;
       case GRANT_TOKEN_EXCHANGE:
-        requestedGrant = await validateTokenExchangeGrant(client, params);
+        requestedGrant = await validateTokenExchangeGrant(params);
         break;
       default:
         // Joi validation means this should never happen.
         throw Error('unreachable');
     }
-    requestedGrant.name = client.name;
-    requestedGrant.canGrant = client.canGrant;
-    requestedGrant.publicClient = client.publicClient;
+    // Token exchange gets client info from the subject_token, not from client auth
+    if (client) {
+      requestedGrant.name = client.name;
+      requestedGrant.canGrant = client.canGrant;
+      requestedGrant.publicClient = client.publicClient;
+    }
     requestedGrant.grantType = params.grant_type;
     requestedGrant.ppidSeed = params.ppid_seed;
     requestedGrant.resource = params.resource;
@@ -404,7 +408,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
    * This check happens on their side, and for now we will grant the request.
    * See FXA-12925
    */
-  async function validateTokenExchangeGrant(client, params) {
+  async function validateTokenExchangeGrant(params) {
     const subjectToken = await oauthDB.getRefreshToken(
       encrypt.hash(params.subject_token)
     );
@@ -459,20 +463,26 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
 
   async function tokenHandler(req) {
     var params = req.payload;
-    const client = await authenticateClient(req.headers, params);
 
-    // Refuse to generate new access tokens for disabled clients that are already
-    // connected to the account.  We allow disabled clients to claim existing authorization
-    // codes, because otherwise we risk erroring out halfway through an app login flow
-    // and presenting a very confusing user experience.  The /authorization endpoint refuses
-    // to create new codes for disabled clients.
-    if (
-      DISABLED_CLIENTS.has(hex(client.id)) &&
-      params.grant_type !== GRANT_AUTHORIZATION_CODE
-    ) {
-      throw OauthError.disabledClient(hex(client.id));
+    // Token exchange doesn't require client authentication since the
+    // subject_token is already bound to an allowed client.
+    let client = null;
+    if (params.grant_type !== GRANT_TOKEN_EXCHANGE) {
+      client = await authenticateClient(req.headers, params);
+      // Refuse to generate new access tokens for disabled clients that are already
+      // connected to the account. We allow disabled clients to claim existing authorization
+      // codes, because otherwise we risk erroring out halfway through an app login flow
+      // and presenting a very confusing user experience. The /authorization endpoint refuses
+      // to create new codes for disabled clients.
+      if (
+        DISABLED_CLIENTS.has(hex(client.id)) &&
+        params.grant_type !== GRANT_AUTHORIZATION_CODE
+      ) {
+        throw OauthError.disabledClient(hex(client.id));
+      }
     }
     const grant = await validateGrantParameters(client, params);
+
     const tokens = await generateTokens(grant);
 
     // For token exchange, revoke the original refresh token after successful generation
@@ -508,10 +518,9 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     glean.oauth.tokenCreated(req, {
       uid,
       oauthClientId,
-      reason: req.payload?.grant_type || '',
+      reason: params.grant_type,
     });
 
-    // the client receiving keys at the end of the scoped keys flow
     if (tokens.keys_jwe) {
       statsd.increment('oauth.rp.keys-jwe', { clientId: oauthClientId });
     }
@@ -641,8 +650,6 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
                 .valid(SUBJECT_TOKEN_TYPE_REFRESH)
                 .required(),
               scope: validators.scope.required(),
-              ttl: Joi.number().positive().optional(),
-              resource: validators.resourceUrl.optional(),
             })
           ),
         },
@@ -690,6 +697,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               expires_in: Joi.number().required(),
             }),
             // token exchange
+            // Does not require client_id because the client is identified from the subject_token
             Joi.object({
               access_token: validators.accessToken.required(),
               refresh_token: validators.refreshToken.required(),
