@@ -96,6 +96,7 @@ describe('mfa', () => {
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
     mailer = mocks.mockMailer();
+    const fxaMailer = mocks.mockFxaMailer();
     statsd = mocks.mockStatsd();
     db = mocks.mockDB({
       uid: UID,
@@ -121,6 +122,11 @@ describe('mfa', () => {
     code = '';
     mailer.sendVerifyAccountChangeEmail = sandbox.spy(
       (_emails, _account, data) => {
+        code = data.code;
+      }
+    );
+    fxaMailer.sendVerifyAccountChangeEmail = sandbox.spy(
+      (data) => {
         code = data.code;
       }
     );

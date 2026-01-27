@@ -413,9 +413,10 @@ function mockDB(data, errors) {
             isPrimary: true,
           },
         ],
-        uid: data.uid,
+        uid: uid || data.uid, // Prefer the uid parameter, fall back to data.uid
         verifierSetAt: data.verifierSetAt ?? Date.now(),
         wrapWrapKb: data.wrapWrapKb,
+        metricsOptOutAt: data.metricsOptOutAt || null,
       });
     }),
     accountEmails: sinon.spy((uid) => {
@@ -1160,7 +1161,7 @@ function mockProductConfigurationManager() {
 function mockFxaMailer(overrides) {
   const mockFxaMailer = {
     // add new email methods here!
-    canSend: sinon.stub().resolves(true),
+    canSend: sinon.stub().returns(true),
     sendRecoveryEmail: sinon.stub().resolves(),
     sendPasswordForgotOtpEmail: sinon.stub().resolves(),
     sendPostVerifySecondaryEmail: sinon.stub().resolves(),
@@ -1190,6 +1191,18 @@ function mockFxaMailer(overrides) {
     sendVerifySecondaryCodeEmail: sinon.stub().resolves(),
     sendVerifyLoginEmail: sinon.stub().resolves(),
     sendVerifyEmail: sinon.stub().resolves(),
+    sendVerifyAccountChangeEmail: sinon.stub().resolves(),
+    sendUnblockCodeEmail: sinon.stub().resolves(),
+    sendPasswordResetEmail: sinon.stub().resolves(),
+    sendPasswordChangedEmail: sinon.stub().resolves(),
+    sendInactiveAccountFirstWarningEmail: sinon.stub().resolves(),
+    sendInactiveAccountSecondWarningEmail: sinon.stub().resolves(),
+    sendInactiveAccountFinalWarningEmail: sinon.stub().resolves(),
+    sendVerificationReminderFirstEmail: sinon.stub().resolves(),
+    sendVerificationReminderSecondEmail: sinon.stub().resolves(),
+    sendVerificationReminderFinalEmail: sinon.stub().resolves(),
+    sendCadReminderFirstEmail: sinon.stub().resolves(),
+    sendCadReminderSecondEmail: sinon.stub().resolves(),
     ...overrides,
   };
   Container.set(FxaMailer, mockFxaMailer);

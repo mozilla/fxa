@@ -23,6 +23,7 @@
 
 import crypto from 'crypto';
 import { promisify } from 'util';
+import { join } from 'path';
 
 import { Command } from 'commander';
 import { Container } from 'typedi';
@@ -53,6 +54,13 @@ import {
 } from './lib';
 import { AppConfig } from '../../lib/types';
 import { AccountEventsManager } from '../../lib/account-events';
+import { FxaMailer } from '../../lib/senders/fxa-mailer';
+import { FxaMailerFormat } from '../../lib/senders/fxa-mailer-format';
+import {
+  EmailLinkBuilder,
+  NodeRendererBindings,
+} from '@fxa/accounts/email-renderer';
+import { EmailSender, Bounces } from '@fxa/accounts/email-sender';
 
 type ResetableAccount = NonNullable<
   Awaited<ReturnType<ReturnType<typeof createFindAccountFn>>>
@@ -292,6 +300,31 @@ async function resetAccounts(
   const mailer: any = senders.email;
   const accountEventManager = new AccountEventsManager();
 
+  // setup for fxa-mailer, since this runs outside of the key_server context we
+  // have to do a bit of manual setup
+  const bounce = new Bounces(config.smtp.bounces, {
+    // libs expectation for db is a bit simpler so we just pass through the
+    // existing function
+    emailBounces: { findByEmail: (email) => authDb.emailBounces(email) },
+  });
+  const emailSender = new EmailSender(config.smtp, bounce, statsd, log);
+  const linkBuilderConfig = {
+    baseUri: config.contentServer.url,
+    ...config.smtp,
+  };
+  const linkBuilder = new EmailLinkBuilder(linkBuilderConfig);
+  const fxaMailer = new FxaMailer(
+    emailSender,
+    linkBuilder,
+    config.smtp,
+    new NodeRendererBindings({
+      translations: {
+        basePath: join(__dirname, '../../public/locales'),
+        ftlFileName: 'auth.ftl',
+      },
+    })
+  );
+
   for (const acct of accountsToReset) {
     try {
       await authDb.resetAccount(
@@ -306,7 +339,41 @@ async function resetAccounts(
         }
       );
       await oauthDb.removeTokensAndCodes(acct.uid);
-      await mailer.sendPasswordChangeRequiredEmail(acct.emails, acct);
+      if (fxaMailer.canSend('passwordChangeRequired')) {
+        // the new fxa-mailer is more type script, so we create a 'fake'
+        // request to satisfy the type checking
+        const request = {
+          app: {
+            ua: {},
+            metricsContext: Promise.resolve({
+              flowBeginTime: 1234567890,
+              flowId: 'fxa-internal-flow-id',
+            }),
+            geo: {
+              timeZone: '',
+              location: {
+                city: '',
+                state: '',
+                stateCode: '',
+                country: '',
+                countryCode: '',
+                postalCode: '',
+              },
+            },
+            acceptLanguage: acct.locale || 'en', // should be set, but fallback if not
+          },
+        };
+        await fxaMailer.sendPasswordChangeRequiredEmail({
+          ...FxaMailerFormat.account(acct as unknown as any), // this _should_ be safe
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+        });
+      } else {
+        await mailer.sendPasswordChangeRequiredEmail(acct.emails, acct);
+      }
       await accountEventManager.recordSecurityEvent(authDb, {
         uid: acct.uid,
         name: 'account.must_reset',

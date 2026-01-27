@@ -403,28 +403,45 @@ export class AccountHandler {
           break;
         }
         default: {
-          await this.mailer.sendVerifyEmail([], account, {
-            code: account.emailCode,
-            service: form.service || query.service,
-            redirectTo: form.redirectTo,
-            resume: form.resume,
-            acceptLanguage: locale,
-            deviceId,
-            flowId,
-            flowBeginTime,
-            productId,
-            planId,
-            ip,
-            location: request.app.geo.location,
-            timeZone: request.app.geo.timeZone,
-            style,
-            uaBrowser: sessionToken.uaBrowser,
-            uaBrowserVersion: sessionToken.uaBrowserVersion,
-            uaOS: sessionToken.uaOS,
-            uaOSVersion: sessionToken.uaOSVersion,
-            uaDeviceType: sessionToken.uaDeviceType,
-            uid: sessionToken.uid,
-          });
+          if (this.fxaMailer.canSend('verify')) {
+            await this.fxaMailer.sendVerifyEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.sync(form.service || query.service),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              code: account.emailCode,
+              resume: form.resume,
+              redirectTo: form.redirectTo,
+              service: form.service || query.service,
+            });
+          } else {
+            console.debug('falling back')
+            const sent = await this.mailer.sendVerifyEmail([], account, {
+              code: account.emailCode,
+              service: form.service || query.service,
+              redirectTo: form.redirectTo,
+              resume: form.resume,
+              acceptLanguage: locale,
+              deviceId,
+              flowId,
+              flowBeginTime,
+              productId,
+              planId,
+              ip,
+              location: request.app.geo.location,
+              timeZone: request.app.geo.timeZone,
+              style,
+              uaBrowser: sessionToken.uaBrowser,
+              uaBrowserVersion: sessionToken.uaBrowserVersion,
+              uaOS: sessionToken.uaOS,
+              uaOSVersion: sessionToken.uaOSVersion,
+              uaDeviceType: sessionToken.uaDeviceType,
+              uid: sessionToken.uid,
+            });
+            console.debug('falling back sent!', sent);
+          }
         }
       }
 

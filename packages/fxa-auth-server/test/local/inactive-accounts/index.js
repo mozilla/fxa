@@ -23,6 +23,7 @@ const mockAccount = {
 };
 const mockFxaDb = mocks.mockDB(mockAccount, sandbox);
 const mockMailer = mocks.mockMailer(sandbox);
+const mockFxaMailer = mocks.mockFxaMailer();
 const mockStatsd = { increment: sandbox.stub() };
 const mockGlean = {
   inactiveAccountDeletion: {
@@ -141,6 +142,9 @@ describe('InactiveAccountsManager', () => {
     Object.values(mockEmailTasks).forEach((stub) => stub.resetHistory());
     emailBounceDistinct.resetHistory();
     mockDeleteAccountTasks.deleteAccount.resetHistory();
+    mockFxaMailer.sendInactiveAccountFirstWarningEmail.resetHistory();
+    mockFxaMailer.sendInactiveAccountSecondWarningEmail.resetHistory();
+    mockFxaMailer.sendInactiveAccountFinalWarningEmail.resetHistory();
     sandbox.resetHistory();
     sinon.resetHistory();
   });
@@ -211,16 +215,14 @@ describe('InactiveAccountsManager', () => {
       await inactiveAccountManager.handleNotificationTask(mockPayload);
 
       sinon.assert.calledOnceWithExactly(mockFxaDb.account, mockPayload.uid);
-      const account = await mockFxaDb.account.returnValues[0];
-      sinon.assert.calledOnceWithExactly(
-        mockMailer.sendInactiveAccountFirstWarningEmail,
-        account.emails,
-        account,
-        {
-          acceptLanguage: mockAccount.locale,
-          inactiveDeletionEta: now + 60 * aDayInMs,
-        }
+      sinon.assert.calledOnce(
+        mockFxaMailer.sendInactiveAccountFirstWarningEmail
       );
+      const fxaMailerCallArgs =
+        mockFxaMailer.sendInactiveAccountFirstWarningEmail.getCall(0).args[0];
+      assert.equal(fxaMailerCallArgs.to, mockAccount.email);
+      assert.equal(fxaMailerCallArgs.acceptLanguage, mockAccount.locale);
+      assert.exists(fxaMailerCallArgs.deletionDate);
       sinon.assert.calledOnceWithExactly(mockEmailTasks.scheduleSecondEmail, {
         payload: {
           uid: mockPayload.uid,
@@ -347,16 +349,14 @@ describe('InactiveAccountsManager', () => {
         mockFxaDb.account,
         mockSecondTaskPayload.uid
       );
-      const account = await mockFxaDb.account.returnValues[0];
-      sandbox.assert.calledOnceWithExactly(
-        mockMailer.sendInactiveAccountSecondWarningEmail,
-        account.emails,
-        account,
-        {
-          acceptLanguage: mockAccount.locale,
-          inactiveDeletionEta: Date.now() + 7 * aDayInMs,
-        }
+      sandbox.assert.calledOnce(
+        mockFxaMailer.sendInactiveAccountSecondWarningEmail
       );
+      const fxaMailerCallArgs =
+        mockFxaMailer.sendInactiveAccountSecondWarningEmail.getCall(0).args[0];
+      assert.equal(fxaMailerCallArgs.to, mockAccount.email);
+      assert.equal(fxaMailerCallArgs.acceptLanguage, mockAccount.locale);
+      assert.exists(fxaMailerCallArgs.deletionDate);
       sandbox.assert.calledOnceWithExactly(mockEmailTasks.scheduleFinalEmail, {
         payload: {
           uid: mockSecondTaskPayload.uid,
@@ -447,16 +447,14 @@ describe('InactiveAccountsManager', () => {
       await inactiveAccountManager.handleNotificationTask(mockFinalTaskPayload);
 
       sandbox.assert.calledOnceWithExactly(mockFxaDb.account, mockPayload.uid);
-      const account = await mockFxaDb.account.returnValues[0];
-      sandbox.assert.calledOnceWithExactly(
-        mockMailer.sendInactiveAccountFinalWarningEmail,
-        account.emails,
-        account,
-        {
-          acceptLanguage: mockAccount.locale,
-          inactiveDeletionEta: Date.now() + 1 * aDayInMs,
-        }
+      sandbox.assert.calledOnce(
+        mockFxaMailer.sendInactiveAccountFinalWarningEmail
       );
+      const fxaMailerCallArgs =
+        mockFxaMailer.sendInactiveAccountFinalWarningEmail.getCall(0).args[0];
+      assert.equal(fxaMailerCallArgs.to, mockAccount.email);
+      assert.equal(fxaMailerCallArgs.acceptLanguage, mockAccount.locale);
+      assert.exists(fxaMailerCallArgs.deletionDate);
       // No email cloud task should be run. There are no more emails to schedule.
       sandbox.assert.notCalled(mockEmailTasks.scheduleFinalEmail);
 

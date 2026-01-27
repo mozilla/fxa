@@ -145,12 +145,14 @@ export class EmailLinkBuilder {
    * @param templateName - Email template name (used to lookup campaign)
    * @param metricsEnabled - Inidicates if metrics/tracking is enabled for the user
    * @param content - Optional content override (defaults to template's content map value)
+   * @param oneClickLink - Indicates if this should be a one-click link, adding a suffix to the utm_content value
    */
   private addUTMParams(
     url: URL,
     templateName: string,
     metricsEnabled: boolean,
-    content?: string
+    content?: string,
+    oneClickLink = false
   ): void {
     // Don't include utm parameters if metrics are disabled. This flag
     // comes from the users's account state and must be supplied.
@@ -168,7 +170,13 @@ export class EmailLinkBuilder {
     }
 
     const contentValue = content || this.getContent(templateName);
-    if (contentValue) {
+    if (contentValue && oneClickLink) {
+      url.searchParams.set(
+        'utm_content',
+        UTM_PREFIX + contentValue + '-one-click'
+      );
+      url.searchParams.set('one_click', 'true');
+    } else if (contentValue) {
       url.searchParams.set('utm_content', UTM_PREFIX + contentValue);
     }
 
@@ -378,9 +386,19 @@ export class EmailLinkBuilder {
     return url.toString();
   }
 
-  buildCadLink(templateName: string, metricsEnabled: boolean) {
+  buildCadLink(
+    templateName: string,
+    metricsEnabled: boolean,
+    oneClickLink = false
+  ) {
     const url = new URL(`${this.baseUri}/connect_another_device`);
-    this.addUTMParams(url, templateName, metricsEnabled);
+    this.addUTMParams(
+      url,
+      templateName,
+      metricsEnabled,
+      undefined,
+      oneClickLink
+    );
     return url.toString();
   }
 
@@ -423,6 +441,41 @@ export class EmailLinkBuilder {
 
   buildDesktopLink() {
     return this.config.firefoxDesktopUrl;
+  }
+
+  buildVerifyEmailLink(
+    templateName: string,
+    metricsEnabled: boolean,
+    query: {
+      code: string;
+      uid: string;
+      resume?: string;
+      redirectTo?: string;
+      service?: string;
+      reminder?: 'first' | 'second' | 'final';
+    }
+  ): string {
+    const url = new URL(`${this.baseUri}/verify_email`);
+    if (this.config.prependVerificationSubdomain.enabled) {
+      url.host = `${this.config.prependVerificationSubdomain.subdomain}.${url.host}`;
+    }
+    this.addUTMParams(url, templateName, metricsEnabled);
+    this.addQueryParams(url, query);
+    return url.toString();
+  }
+
+  buildReportSignInLink(
+    templateName: string,
+    metricsEnabled: boolean,
+    query: {
+      uid: string;
+      unblockCode: string;
+    }
+  ): string {
+    const url = new URL(`${this.baseUri}/report_signin`);
+    this.addUTMParams(url, templateName, metricsEnabled, 'report');
+    this.addQueryParams(url, query);
+    return url.toString();
   }
 }
 

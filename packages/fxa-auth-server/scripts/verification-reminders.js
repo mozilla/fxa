@@ -33,6 +33,15 @@ const cadReminders = require(`${LIB_DIR}/cad-reminders`)(config, log);
 const subscriptionAccountReminders = require(
   `${LIB_DIR}/subscription-account-reminders`
 )(log, config);
+const { EmailSender } = require('@fxa/accounts/email-sender');
+const {
+  EmailLinkBuilder,
+  NodeRendererBindings,
+} = require('@fxa/accounts/email-renderer');
+const { FxaMailer } = require('../lib/senders/fxa-mailer');
+const { FxaMailerFormat } = require('../lib/senders/fxa-mailer-format');
+const { join } = require('path');
+const { StatsD } = require('hot-shots');
 
 Sentry.init({});
 const checkInId = Sentry.captureCheckIn({
@@ -78,6 +87,66 @@ async function run() {
   const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, bounces);
 
   const mailer = new Mailer(config.smtp);
+  // fxa-mailer setup
+  const statsd = config.statsd.enabled
+    ? new StatsD({
+        ...config.statsd,
+        errorHandler: (err) => {
+          // eslint-disable-next-line no-use-before-define
+          log.error('statsd.error', err);
+        },
+      })
+    : {
+        increment: () => {},
+        timing: () => {},
+        close: () => {},
+      };
+  const emailSender = new EmailSender(config.smtp, bounces, statsd, log);
+  const linkBuilderConfig = {
+    baseUri: config.contentServer.url,
+    ...config.smtp,
+  };
+  const linkBuilder = new EmailLinkBuilder(linkBuilderConfig);
+  const fxaMailer = new FxaMailer(
+    emailSender,
+    linkBuilder,
+    config.smtp,
+    new NodeRendererBindings({
+      translations: {
+        // TODO: Once this PR, https://github.com/mozilla/fxa-content-server-l10n/pull/989, is finalized we can:
+        //  - switch this to point libs/accounts/public/locales or ../public/locales (either is probably fine...)
+        //  - switch to using emails.ftl, since all email specific strings will have been migrated over
+        basePath: join(__dirname, '../public/locales'),
+        ftlFileName: 'auth.ftl',
+      },
+    })
+  );
+
+  // since these are sent via a scheduled job, we need to fabricate a request object
+  // for the fxa-mailer formatting functions
+  const request = {
+    app: {
+      clientAddress: '',
+      isMetricsEnabled: () => true,
+      metricsContext: () => ({}),
+      ua: {},
+      geo: {
+        timeZone: 'UTC',
+        location: {
+          city: '',
+          state: '',
+          stateCode: '',
+          country: '',
+          countryCode: '',
+        },
+      },
+      acceptLanguage: 'en',
+    },
+    auth: {},
+    headers: {
+      'user-agent': '',
+    },
+  };
 
   const sent = {};
 
@@ -107,14 +176,36 @@ async function run() {
           }
 
           const account = await db.account(uid);
-          await mailer[method]({
-            acceptLanguage: account.locale,
-            code: account.emailCode,
-            email: account.email,
-            flowBeginTime,
-            flowId,
-            uid,
-          });
+          // NOTE: If we need to disable these for any reason, the `method` names will
+          // be the old mailer style `verificationReminderFirstEmail`, not just the template
+          // name `verificationReminderFirst`.
+          if (fxaMailer.canSend(method)) {
+            // because of how verification-reminders keys are defined, we need to additionally
+            // prepend 'send' and capitalize the first letter to match the full method name in fxa-mailer
+            const fxaMailerMethod = `send${method[0].toUpperCase()}${method.substring(1)}`;
+            await fxaMailer[fxaMailerMethod]({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+              email: account.email,
+              code: account.emailCode,
+              flowBeginTime,
+              flowId,
+              uid,
+            });
+          } else {
+            await mailer[method]({
+              acceptLanguage: account.locale,
+              code: account.emailCode,
+              email: account.email,
+              flowBeginTime,
+              flowId,
+              uid,
+            });
+          }
           // eslint-disable-next-line require-atomic-updates
           sent[uid] = true;
         } catch (err) {
@@ -288,14 +379,27 @@ async function run() {
           }
 
           const account = await db.account(uid);
-          await mailer[method]({
-            acceptLanguage: account.locale,
-            code: account.emailCode,
-            email: account.email,
-            flowBeginTime,
-            flowId,
-            uid,
-          });
+          if (fxaMailer.canSend(method)) {
+            const fxaMailerMethod = `send${method[0].toUpperCase()}${method.substring(1)}`;
+            await fxaMailer[fxaMailerMethod]({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync('sync'),
+              productName: 'Firefox',
+            });
+          } else {
+            await mailer[method]({
+              acceptLanguage: account.locale,
+              code: account.emailCode,
+              email: account.email,
+              flowBeginTime,
+              flowId,
+              uid,
+            });
+          }
           // eslint-disable-next-line require-atomic-updates
           sent[uid] = true;
         } catch (err) {

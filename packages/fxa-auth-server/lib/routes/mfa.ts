@@ -14,6 +14,8 @@ import { recordSecurityEvent } from './utils/security-event';
 import { ConfigType } from '../../config';
 import { OtpUtils } from './utils/otp';
 import { AppError } from '@fxa/accounts/errors';
+import { FxaMailer } from '../senders/fxa-mailer';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 
 /** Customs interface for mfa specific operations. */
 interface Customs {
@@ -49,6 +51,7 @@ const toPascal = (str) =>
   str.replace(/(^|_)(\w)/g, (_, __, c) => c.toUpperCase());
 
 class MfaHandler {
+  private fxaMailer: FxaMailer;
   constructor(
     private readonly config: ConfigType,
     private readonly db: DB,
@@ -56,7 +59,9 @@ class MfaHandler {
     private readonly customs: Customs,
     private readonly mailer: Mailer,
     private readonly statsd: StatsD
-  ) {}
+  ) {
+    this.fxaMailer = Container.get(FxaMailer);
+  }
 
   async requestOtpCode(request: AuthRequest) {
     const { uid, id: sessionTokenId } = request.auth
@@ -84,12 +89,28 @@ class MfaHandler {
       // is valid for 30s.
       // For specifics see: https://www.npmjs.com/package/otplib
       const expirationTime = (options.step * options.window) / 60;
-
-      await this.mailer.sendVerifyAccountChangeEmail(account.emails, account, {
-        code,
-        uid,
-        expirationTime,
-      });
+      if (this.fxaMailer.canSend('verifyAccountChange')) {
+        await this.fxaMailer.sendVerifyAccountChangeEmail({
+          ...FxaMailerFormat.account(account),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+          code,
+          expirationTime,
+        });
+      } else {
+        await this.mailer.sendVerifyAccountChangeEmail(
+          account.emails,
+          account,
+          {
+            code,
+            uid,
+            expirationTime,
+          }
+        );
+      }
 
       success = true;
     } catch (error) {

@@ -34,6 +34,8 @@ describe('EmailLinkBuilder', () => {
       'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
     firefoxDesktopUrl:
       'https://firefox.com?utm_content=registration-confirmation&utm_medium=email&utm_source=fxa',
+    unsubscribeUrl:
+      'https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0',
   };
 
   let linkBuilder: EmailLinkBuilder;
@@ -319,6 +321,13 @@ describe('EmailLinkBuilder', () => {
       const attrs = linkBuilder.buildCadLink('postVerify', false);
       expect(attrs).toEqual('http://localhost:30303/connect_another_device');
     });
+
+    it('can build one click link', () => {
+      const attrs = linkBuilder.buildCadLink('postVerify', true, true);
+      expect(attrs).toEqual(
+        'http://localhost:30303/connect_another_device?utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-account-verified-one-click&one_click=true'
+      );
+    });
   });
 
   describe('buildVerifyLoginLink', () => {
@@ -384,6 +393,51 @@ describe('EmailLinkBuilder', () => {
       const link = linkBuilder.buildDesktopLink();
 
       expect(link).toEqual(mockConfig.firefoxDesktopUrl);
+    });
+  });
+
+  describe('buildVerifyEmailLink', () => {
+    it('can build', () => {
+      const link = linkBuilder.buildVerifyEmailLink('verifyEmail', true, {
+        code: 'abcd',
+        uid: '123',
+        redirectTo: 'http://mozilla.org',
+        reminder: 'first',
+        resume: 'xyz',
+        service: 'sync',
+      });
+      expect(link).toEqual(
+        'http://test.localhost:30303/verify_email?utm_medium=email&utm_campaign=fx-welcome&utm_content=fx-welcome&code=abcd&uid=123&redirectTo=http%3A%2F%2Fmozilla.org&reminder=first&resume=xyz&service=sync'
+      );
+    });
+    it(' can build without utm', () => {
+      const link = linkBuilder.buildVerifyEmailLink('verifyEmail', false, {
+        code: 'abcd',
+        uid: '123',
+      });
+      expect(link).toEqual(
+        'http://test.localhost:30303/verify_email?code=abcd&uid=123'
+      );
+    });
+  });
+  describe('buildReportSigninLink', () => {
+    it('can build', () => {
+      const link = linkBuilder.buildReportSignInLink('verifyEmail', true, {
+        uid: '123',
+        unblockCode: 'abcd',
+      });
+      expect(link).toEqual(
+        'http://localhost:30303/report_signin?utm_medium=email&utm_campaign=fx-welcome&utm_content=fx-report&uid=123&unblockCode=abcd'
+      );
+    });
+    it('can build without utm', () => {
+      const link = linkBuilder.buildReportSignInLink('verifyEmail', false, {
+        uid: '123',
+        unblockCode: 'abcd',
+      });
+      expect(link).toEqual(
+        'http://localhost:30303/report_signin?uid=123&unblockCode=abcd'
+      );
     });
   });
 });

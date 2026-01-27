@@ -571,12 +571,16 @@ describe('/recovery_email/status', () => {
 describe('/recovery_email/resend_code', () => {
   const config = {};
   const secondEmailCode = crypto.randomBytes(16);
-  const mockDB = mocks.mockDB({ secondEmailCode: secondEmailCode });
+  const mockDB = mocks.mockDB({
+    secondEmailCode: secondEmailCode,
+    email: TEST_EMAIL,
+  });
   const mockLog = mocks.mockLog();
   mockLog.flowEvent = sinon.spy(() => {
     return Promise.resolve();
   });
   const mockMailer = mocks.mockMailer();
+  const mockFxaMailer = mocks.mockFxaMailer();
   const mockMetricsContext = mocks.mockMetricsContext();
   const accountRoutes = makeRoutes({
     config: config,
@@ -590,6 +594,10 @@ describe('/recovery_email/resend_code', () => {
     const mockRequest = mocks.mockRequest({
       log: mockLog,
       metricsContext: mockMetricsContext,
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: 52,
+      uaOS: 'Mac OS X',
+      uaOSVersion: '10.10',
       credentials: {
         uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         deviceId: 'wibble',
@@ -605,6 +613,7 @@ describe('/recovery_email/resend_code', () => {
       payload: {
         service: 'sync',
         metricsContext: {
+          deviceId: 'wibble',
           flowBeginTime: Date.now(),
           flowId:
             'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
@@ -620,39 +629,42 @@ describe('/recovery_email/resend_code', () => {
         'email.verification.resent'
       );
 
-      assert.equal(mockMailer.sendVerifyEmail.callCount, 1);
-      const args = mockMailer.sendVerifyEmail.args[0];
-      assert.equal(args[2].uaBrowser, 'Firefox');
-      assert.equal(args[2].uaBrowserVersion, '52');
-      assert.equal(args[2].uaOS, 'Mac OS X');
-      assert.equal(args[2].uaOSVersion, '10.10');
-      assert.ok(knownIpLocation.location.city.has(args[2].location.city));
-      assert.equal(args[2].location.country, knownIpLocation.location.country);
-      assert.equal(args[2].ip, knownIpLocation.ip);
-      assert.equal(args[2].timeZone, knownIpLocation.location.tz);
-      assert.strictEqual(args[2].uaDeviceType, undefined);
-      assert.equal(args[2].deviceId, mockRequest.auth.credentials.deviceId);
-      assert.equal(args[2].flowId, mockRequest.payload.metricsContext.flowId);
+      assert.equal(mockFxaMailer.sendVerifyEmail.callCount, 1);
+      const args = mockFxaMailer.sendVerifyEmail.args[0];
+      assert.equal(args[0].device.uaBrowser, 'Firefox');
+      assert.equal(args[0].device.uaOS, 'Mac OS X');
+      assert.equal(args[0].device.uaOSVersion, '10.10');
+      assert.ok(knownIpLocation.location.city.has(args[0].location.city));
+      assert.equal(args[0].location.country, knownIpLocation.location.country);
+      assert.equal(args[0].timeZone, 'America/Los_Angeles');
+      assert.equal(args[0].deviceId, 'wibble');
+      assert.equal(args[0].flowId, mockRequest.payload.metricsContext.flowId);
       assert.equal(
-        args[2].flowBeginTime,
+        args[0].flowBeginTime,
         mockRequest.payload.metricsContext.flowBeginTime
       );
-      assert.equal(args[2].service, mockRequest.payload.service);
-      assert.equal(args[2].uid, mockRequest.auth.credentials.uid);
-      assert.equal(args[2].style, 'trailhead');
+      assert.equal(args[0].sync, mockRequest.payload.service === 'sync');
+      assert.equal(args[0].uid, mockRequest.auth.credentials.uid);
+      assert.equal(args[0].resume, mockRequest.payload.resume);
     }).then(() => {
-      mockMailer.sendVerifyEmail.resetHistory();
+      mockFxaMailer.sendVerifyEmail.resetHistory();
       mockLog.flowEvent.resetHistory();
     });
   });
 
   it('confirmation', () => {
+    const deviceId = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const mockRequest = mocks.mockRequest({
       log: mockLog,
       metricsContext: mockMetricsContext,
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '50',
+      uaOS: 'Android',
+      uaOSVersion: '6',
+      uaDeviceType: 'tablet',
       credentials: {
         uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
-        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        deviceId: deviceId,
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: false,
@@ -666,6 +678,7 @@ describe('/recovery_email/resend_code', () => {
       payload: {
         service: 'foo',
         metricsContext: {
+          deviceId: deviceId,
           flowBeginTime: Date.now(),
           flowId:
             'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
@@ -681,21 +694,20 @@ describe('/recovery_email/resend_code', () => {
         'email.confirmation.resent'
       );
 
-      assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1);
-      const args = mockMailer.sendVerifyLoginEmail.args[0];
-      assert.equal(args[2].uaBrowser, 'Firefox');
-      assert.equal(args[2].uaBrowserVersion, '50');
-      assert.equal(args[2].uaOS, 'Android');
-      assert.equal(args[2].uaOSVersion, '6');
-      assert.strictEqual(args[2].uaDeviceType, 'tablet');
-      assert.equal(args[2].deviceId, mockRequest.auth.credentials.deviceId);
-      assert.equal(args[2].flowId, mockRequest.payload.metricsContext.flowId);
+      assert.equal(mockFxaMailer.sendVerifyLoginEmail.callCount, 1);
+      const args = mockFxaMailer.sendVerifyLoginEmail.args[0];
+      assert.equal(args[0].device.uaBrowser, 'Firefox');
+      assert.equal(args[0].device.uaOS, 'Android');
+      assert.equal(args[0].device.uaOSVersion, '6');
+      assert.equal(args[0].deviceId, mockRequest.auth.credentials.deviceId);
+      assert.equal(args[0].flowId, mockRequest.payload.metricsContext.flowId);
       assert.equal(
-        args[2].flowBeginTime,
+        args[0].flowBeginTime,
         mockRequest.payload.metricsContext.flowBeginTime
       );
-      assert.equal(args[2].service, mockRequest.payload.service);
-      assert.equal(args[2].uid, mockRequest.auth.credentials.uid);
+      assert.equal(args[0].sync, mockRequest.payload.service === 'sync');
+      assert.equal(args[0].uid, mockRequest.auth.credentials.uid);
+      assert.equal(args[0].clientName, 'Firefox');
     });
   });
 });
@@ -1182,12 +1194,23 @@ describe('/recovery_email', () => {
 });
 
 describe('/mfa/recovery_email/secondary/resend_code', () => {
+  let fxaMailer;
+  beforeEach(() => {
+    fxaMailer = mocks.mockFxaMailer();
+  });
+  afterEach(() => {
+    fxaMailer.sendVerifySecondaryCodeEmail.resetHistory();
+  });
   it('resends code when redis reservation exists for this uid', async () => {
     const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
-    const normalized = normalizeEmail(email);
     const mockLog = mocks.mockLog();
     const mockMailer = mocks.mockMailer();
+    const mockDB = mocks.mockDB({
+      uid,
+      email: TEST_EMAIL,
+      emailVerified: true,
+    });
     const secret = 'abcd1234abcd1234abcd1234abcd1234';
 
     const authServerCacheRedis = {
@@ -1201,6 +1224,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
         authServerCacheRedis,
         mailer: mockMailer,
         log: mockLog,
+        db: mockDB,
       },
       {}
     );
@@ -1224,10 +1248,10 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
 
     const response = await runTest(route, request);
     assert.ok(response);
-    assert.calledOnce(mockMailer.sendVerifySecondaryCodeEmail);
-    const args = mockMailer.sendVerifySecondaryCodeEmail.args[0];
-    assert.equal(args[0][0].normalizedEmail, normalized);
-    assert.equal(args[2].code, expectedCode, 'verification codes match');
+    assert.calledOnce(fxaMailer.sendVerifySecondaryCodeEmail);
+    const args = fxaMailer.sendVerifySecondaryCodeEmail.args[0];
+    assert.equal(args[0].email, email);
+    assert.equal(args[0].code, expectedCode, 'verification codes match');
   });
 
   it('recreates reservation when expired and resends code', async () => {
@@ -1273,7 +1297,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     assert.equal(setArgs[2], 'EX'); // Expiration flag
     assert.equal(setArgs[4], 'NX'); // Only set if not exists
     // Verify email was sent
-    assert.calledOnce(mockMailer.sendVerifySecondaryCodeEmail);
+    assert.calledOnce(fxaMailer.sendVerifySecondaryCodeEmail);
     assert.calledOnce(mockLog.info);
     assert.equal(
       mockLog.info.args[0][0],
@@ -1287,6 +1311,11 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const otherUid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const email = TEST_EMAIL_ADDITIONAL;
     const mockMailer = mocks.mockMailer();
+    const mockDB = mocks.mockDB({
+      uid,
+      email: TEST_EMAIL,
+      emailVerified: true,
+    });
     const authServerCacheRedis = {
       get: sinon
         .stub()
@@ -1294,7 +1323,10 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       set: sinon.stub().resolves('OK'),
       del: sinon.stub().resolves(1),
     };
-    const routes = makeRoutes({ authServerCacheRedis, mailer: mockMailer }, {});
+    const routes = makeRoutes(
+      { authServerCacheRedis, mailer: mockMailer, db: mockDB },
+      {}
+    );
     const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
     const request = mocks.mockRequest({
       credentials: { uid, email: TEST_EMAIL },
@@ -1347,7 +1379,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     // Verify new reservation was created
     assert.calledOnce(authServerCacheRedis.set);
     // Verify email was sent
-    assert.calledOnce(mockMailer.sendVerifySecondaryCodeEmail);
+    assert.calledOnce(fxaMailer.sendVerifySecondaryCodeEmail);
     // Verify recreation was logged with correct reason
     assert.calledWith(mockLog.info, 'secondary_email.reservation_recreated', {
       uid,
@@ -1481,6 +1513,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const mockMailer = mocks.mockMailer();
     const mockLog = mocks.mockLog();
     const mockDB = mocks.mockDB({
+      uid,
       email: TEST_EMAIL,
       emailVerified: true,
     });
@@ -1488,9 +1521,9 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       errno: error.ERRNO.SECONDARY_EMAIL_UNKNOWN,
     });
     // Simulate email send failure
-    mockMailer.sendVerifySecondaryCodeEmail = sinon
-      .stub()
-      .rejects(new Error('Email service unavailable'));
+    fxaMailer.sendVerifySecondaryCodeEmail.rejects(
+      new Error('Email service unavailable')
+    );
     const authServerCacheRedis = {
       get: sinon.stub().resolves(null), // No existing reservation
       set: sinon.stub().resolves('OK'),
@@ -1531,10 +1564,15 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const secret = 'existingsecret1234567890123456';
     const mockMailer = mocks.mockMailer();
     const mockLog = mocks.mockLog();
+    const mockDB = mocks.mockDB({
+      uid,
+      email: TEST_EMAIL,
+      emailVerified: true,
+    });
     // Simulate email send failure
-    mockMailer.sendVerifySecondaryCodeEmail = sinon
-      .stub()
-      .rejects(new Error('Email service unavailable'));
+    fxaMailer.sendVerifySecondaryCodeEmail.rejects(
+      new Error('Email service unavailable')
+    );
     const authServerCacheRedis = {
       get: sinon.stub().resolves(JSON.stringify({ uid, secret })), // Existing reservation
       set: sinon.stub().resolves('OK'),
@@ -1545,6 +1583,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
         authServerCacheRedis,
         mailer: mockMailer,
         log: mockLog,
+        db: mockDB,
       },
       {}
     );
