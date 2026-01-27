@@ -9,4 +9,19 @@ export class AppController {
   getData() {
     return this.appService.getData();
   }
+
+  @Get('__lbheartbeat__')
+  __lbheartbeat__() {
+    return this.appService.__lbheartbeat__();
+  }
+
+  @Get('__heartbeat__')
+  __heartbeat__() {
+    return this.appService.__heartbeat__();
+  }
+
+  @Get('__version__')
+  __version__() {
+    return this.appService.__version__();
+  }
 }
