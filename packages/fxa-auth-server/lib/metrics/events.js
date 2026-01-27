@@ -202,6 +202,8 @@ module.exports = (log, config, glean) => {
         event,
         region: location && location.state,
         userAgent: request.headers['user-agent'],
+        sigsciRequestId: request.headers['x-sigsci-requestid'],
+        clientJa4: request.headers['client-ja4'],
       },
       data
     );
@@ -225,6 +227,8 @@ module.exports = (log, config, glean) => {
         locale: request.app && request.app.locale,
         region: location && location.state,
         userAgent: request.headers['user-agent'],
+        sigsciRequestId: request.headers['x-sigsci-requestid'],
+        clientJa4: request.headers['client-ja4'],
       })
       .then((data) => {
         if (data.flow_id) {
