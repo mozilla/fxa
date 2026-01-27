@@ -8,6 +8,7 @@ import { GoogleManager } from '@fxa/google';
 import {
   CartInvalidStateForActionError,
   CartService,
+  SubscriptionAttributionParams,
   SuccessCartDTO,
   TaxChangeAllowedStatus,
   TaxService,
@@ -64,10 +65,7 @@ import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActio
 import { DetermineStaySubscribedEligibilityActionArgs } from './validators/DetermineStaySubscribedEligibilityActionArgs';
 import { DetermineCancellationInterventionActionArgs } from './validators/DetermineCancellationInterventionActionArgs';
 import { NextIOValidator } from './NextIOValidator';
-import type {
-  CommonMetrics,
-  PaymentProvidersType,
-} from '@fxa/payments/metrics';
+import { type CommonMetrics } from '@fxa/payments/metrics';
 import { GetCartActionResult } from './validators/GetCartActionResult';
 import { GetChurnInterventionDataActionResult } from './validators/GetChurnInterventionDataActionResult';
 import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionResult';
@@ -75,6 +73,7 @@ import {
   CouponErrorCannotRedeem,
   PromotionCodeSanitizedError,
   TaxAddress,
+  type PaymentProvidersType,
   type SubplatInterval,
 } from '@fxa/payments/customer';
 import { EligibilityService, LocationStatus } from '@fxa/payments/eligibility';
@@ -108,7 +107,6 @@ import {
 } from '@fxa/shared/metrics/statsd';
 import { GetCartStateActionArgs } from './validators/GetCartStateActionArgs';
 import { GetCartStateActionResult } from './validators/GetCartStateActionResult';
-import type { SubscriptionAttributionParams } from '@fxa/payments/cart';
 import { ServerLogActionArgs } from './validators/ServerLogActionArgs';
 import { ProfileClient } from '@fxa/profile/client';
 import { GetUserinfoResult } from './validators/GetUserinfoResult';
@@ -588,7 +586,7 @@ export class NextJSActionsService {
   async recordEmitterEvent(args: {
     eventName: string;
     requestArgs: CommonMetrics;
-    paymentProvider: PaymentProvidersType | undefined;
+    paymentProvider?: PaymentProvidersType;
   }) {
     const { eventName, requestArgs, paymentProvider } = args;
 
@@ -605,7 +603,7 @@ export class NextJSActionsService {
       case 'checkoutFail': {
         this.emitterService.getEmitter().emit(eventName, {
           ...requestArgs,
-          paymentProvider: paymentProvider,
+          paymentProvider,
         });
         break;
       }

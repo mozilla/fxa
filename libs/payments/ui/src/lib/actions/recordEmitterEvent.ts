@@ -6,7 +6,7 @@
 import { getApp } from '../nestapp/app';
 import { flattenRouteParams } from '../utils/flatParam';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
-import { PaymentProvidersType } from '@fxa/payments/cart';
+import { PaymentProvidersType } from '@fxa/payments/customer';
 import { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
 
 async function recordEmitterEventAction(
@@ -39,7 +39,7 @@ async function recordEmitterEventAction(
   return getApp().getActionsService().recordEmitterEvent({
     eventName,
     requestArgs,
-    paymentProvider: paymentProvider,
+    paymentProvider,
   });
 }
 

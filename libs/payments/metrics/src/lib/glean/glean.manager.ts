@@ -7,12 +7,12 @@ import {
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
-  PaymentProvidersType,
   PaymentsGleanProvider,
   SubscriptionCancellationData,
   type ExperimentationData,
 } from './glean.types';
 import { Inject, Injectable } from '@nestjs/common';
+import { PaymentProvidersType } from '@fxa/payments/customer';
 import { type PaymentsGleanServerEventsLogger } from './glean.provider';
 import { mapSession } from './utils/mapSession';
 import { mapUtm } from './utils/mapUtm';
@@ -21,7 +21,6 @@ import { mapRelyingParty } from './utils/mapRelyingParty';
 import { normalizeGleanFalsyValues } from './utils/normalizeGleanFalsyValues';
 import { PaymentsGleanConfig } from './glean.config';
 import { mapSubscriptionCancellation } from './utils/mapSubscriptionCancellation';
-import type { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 
 @Injectable()
 export class PaymentsGleanManager {
@@ -82,7 +81,7 @@ export class PaymentsGleanManager {
       cmsMetricsData: CmsMetricsData;
       experimentationData: ExperimentationData;
     },
-    paymentProvider?: SubPlatPaymentMethodType
+    paymentProvider?: PaymentProvidersType
   ) {
     const commonMetrics = this.populateCommonMetrics(metrics);
 

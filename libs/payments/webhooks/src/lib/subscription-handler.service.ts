@@ -8,7 +8,8 @@ import {
   InvoiceManager,
   SubscriptionManager,
   PaymentMethodManager,
-  SubPlatPaymentMethodType,
+  PaymentProvider,
+  PaymentProvidersType,
 } from '@fxa/payments/customer';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import { Injectable } from '@nestjs/common';
@@ -37,7 +38,7 @@ export class SubscriptionEventsService {
     );
     const price = subscription.items.data[0].price;
 
-    let paymentProvider: SubPlatPaymentMethodType | undefined;
+    let paymentProvider: PaymentProvidersType | undefined;
     let determinedCancellation: CancellationReason | undefined;
     let uid: string | undefined;
     try {
@@ -45,14 +46,14 @@ export class SubscriptionEventsService {
         subscription.customer
       );
       uid = customer.metadata['userid'];
-      const paymentMethodType = await this.paymentMethodManager.determineType(
+      const paymentMethod = await this.paymentMethodManager.determineType(
         customer,
         [subscription]
       );
-      paymentProvider = paymentMethodType?.type;
+      paymentProvider = paymentMethod?.provider;
 
       const latestInvoice =
-        paymentProvider === SubPlatPaymentMethodType.PayPal &&
+        paymentProvider === PaymentProvider.PayPal &&
         subscription.latest_invoice
           ? await this.invoiceManager.retrieve(subscription.latest_invoice)
           : undefined;
@@ -78,7 +79,7 @@ export class SubscriptionEventsService {
       priceId: price.id,
       priceInterval: price.recurring?.interval,
       priceIntervalCount: price.recurring?.interval_count,
-      paymentProvider: paymentProvider,
+      paymentProvider,
       providerEventId: event.id,
       cancellationReason,
       uid,

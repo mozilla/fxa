@@ -5,17 +5,16 @@
 import { Type } from 'class-transformer';
 import {
   IsEnum,
+  IsIn,
   IsObject,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
+import type { PaymentProvidersType } from '@fxa/payments/customer';
 import { PaymentsEmitterEventsKeys } from '@fxa/payments/events';
 import type { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
-import {
-  PaymentProvidersTypePartial,
-  type PaymentProvidersType,
-} from '@fxa/payments/metrics';
+import { PaymentProvidersTypePartial } from '@fxa/payments/metrics';
 
 /**
  * Common metrics that can be found on all events
@@ -49,6 +48,6 @@ export class RecordEmitterEventArgs {
   requestArgs!: RequestArgs;
 
   @IsOptional()
-  @IsEnum(PaymentProvidersTypePartial)
+  @IsIn([...PaymentProvidersTypePartial])
   paymentProvider?: PaymentProvidersType;
 }
