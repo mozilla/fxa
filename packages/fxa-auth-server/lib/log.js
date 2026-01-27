@@ -149,6 +149,8 @@ Lug.prototype.summary = function (request, response) {
     path: request.path,
     lang: request.app.acceptLanguage,
     agent: request.headers['user-agent'],
+    sigsciRequestId: request.headers['x-sigsci-requestid'],
+    clientJa4: request.headers['client-ja4'],
     remoteAddressChain: request.app.remoteAddressChain,
     accountRecreated: request.app.accountRecreated,
     t: Date.now() - request.info.received,
