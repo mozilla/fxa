@@ -13,7 +13,16 @@ const { Container } = require('typedi');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 const { AccountEventsManager } = require('../../../lib/account-events');
 
-let log, db, customs, routes, route, request, requestOptions, mailer, glean;
+let log,
+  db,
+  customs,
+  routes,
+  route,
+  request,
+  requestOptions,
+  mailer,
+  fxaMailer,
+  glean;
 const TEST_EMAIL = 'test@email.com';
 const UID = 'uid';
 let sandbox;
@@ -53,6 +62,7 @@ describe('backup authentication codes', () => {
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
     mailer = mocks.mockMailer();
+    fxaMailer = mocks.mockFxaMailer();
     db = mocks.mockDB({
       uid: UID,
       email: TEST_EMAIL,
@@ -193,10 +203,10 @@ describe('backup authentication codes', () => {
         return Promise.resolve({ remaining: 1 });
       });
       await runTest('/session/verify/recoveryCode', requestOptions);
-      assert.equal(mailer.sendLowRecoveryCodesEmail.callCount, 1);
-      const args = mailer.sendLowRecoveryCodesEmail.args[0];
-      assert.lengthOf(args, 3);
-      assert.equal(args[2].numberRemaining, 1);
+      assert.equal(fxaMailer.sendLowRecoveryCodesEmail.callCount, 1);
+      const args = fxaMailer.sendLowRecoveryCodesEmail.args[0];
+      assert.lengthOf(args, 1);
+      assert.equal(args[0].numberRemaining, 1);
 
       assert.calledOnceWithExactly(
         mockAccountEventsManager.recordSecurityEvent,

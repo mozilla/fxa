@@ -369,8 +369,8 @@ async function run(config) {
   // mailer lib setup
   const emailSender = new EmailSender(config.smtp, bounces, statsd, log);
   const linkBuilderConfig = {
+    baseUri: config.contentServer.url,
     ...config.smtp,
-    ...config.links,
   };
   const linkBuilder = new EmailLinkBuilder(linkBuilderConfig);
   const fxaMailer = new FxaMailer(
@@ -385,7 +385,7 @@ async function run(config) {
   const { OAuthClientInfoServiceName } = oauthClientInfo;
   Container.set({
     id: OAuthClientInfoServiceName,
-    factory: () => oauthClientInfo(log, database),
+    factory: () => oauthClientInfo(log, config),
   });
 
   const routes = require('../lib/routes')(

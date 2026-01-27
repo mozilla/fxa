@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export type TemplateData = {
-  cssPath: string;
-  productName: string;
-  hideDeviceLink: boolean;
-  onDesktopOrTabletDevice: boolean;
+  cssPath?: string; // Not passed as template data?
+  productName: string; // Not passed as template data?
+  hideDeviceLink?: boolean; // Not passed as template data?
+  onDesktopOrTabletDevice?: boolean; // Not passed as template data?
   iosUrl?: string;
   androidUrl?: string;
   desktopLink?: string;

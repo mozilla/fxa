@@ -82,4 +82,4 @@ module.exports = (log, config) => {
   };
 };
 
-export const OAuthClientInfoServiceName = 'OAuthClientInfo';
+module.exports.OAuthClientInfoServiceName = 'OAuthClientInfo';

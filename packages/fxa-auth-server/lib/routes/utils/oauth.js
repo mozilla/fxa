@@ -12,6 +12,12 @@ const {
 } = require('fxa-shared/oauth/constants');
 const token = require('../../oauth/token');
 const ScopeSet = require('fxa-shared').oauth.scopes;
+const { Container } = require('typedi');
+const { FxaMailer } = require('../../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../../senders/fxa-mailer-format');
+const {
+  OAuthClientInfoServiceName,
+} = require('../../senders/oauth_client_info');
 
 // right now we only care about notifications for the following scopes
 // if not a match, then we don't notify
@@ -25,6 +31,9 @@ module.exports = {
     request,
     grant
   ) {
+    const fxaMailer = Container.get(FxaMailer);
+    const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
+
     const clientId = request.payload.client_id;
     const scopeSet = ScopeSet.fromString(grant.scope);
     const credentials = (request.auth && request.auth.credentials) || {};
@@ -83,11 +92,26 @@ module.exports = {
           timeZone: geoData.timeZone,
           uid: credentials.uid,
         };
-        await mailer.sendNewDeviceLoginEmail(
-          account.emails,
-          account,
-          emailOptions
-        );
+
+        if (fxaMailer.canSend('newDeviceLogin')) {
+          const clientInfo = await oauthClientInfoService.fetch(clientId);
+          await fxaMailer.sendNewDeviceLoginEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(clientId),
+            clientName: clientInfo.name,
+            showBannerWarning: false,
+          });
+        } else {
+          await mailer.sendNewDeviceLoginEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
+        }
       }
     }
   },

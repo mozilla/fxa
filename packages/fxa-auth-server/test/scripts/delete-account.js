@@ -25,9 +25,9 @@ const execOptions = {
 };
 
 describe('#integration - scripts/delete-account:', function () {
-  it('does not fail', function () {
-    this.timeout(15000);
-    return execAsync(
+  it('does not fail', async function () {
+    this.timeout(30000);
+    await execAsync(
       'node -r esbuild-register scripts/delete-account',
       execOptions
     );

@@ -5,9 +5,14 @@
 'use strict';
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
+const { Container } = require('typedi');
+const { FxaMailer } = require('../../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../../senders/fxa-mailer-format');
 const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 
 module.exports = (log, db, mailer, push, verificationReminders, glean) => {
+  const fxaMailer = Container.get(FxaMailer);
+
   return {
     /**
      * Verify the account with the specified options. This function takes
@@ -87,7 +92,18 @@ module.exports = (log, db, mailer, push, verificationReminders, glean) => {
           mailOptions.style = style;
         }
 
-        return mailer.sendPostVerifyEmail([], account, mailOptions);
+        if (fxaMailer.canSend('postVerify')) {
+          return await fxaMailer.sendPostVerifyEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.sync(service),
+            productName: 'Firefox',
+            onDesktopOrTabletDevice: !onMobileDevice,
+          });
+        } else {
+          return mailer.sendPostVerifyEmail([], account, mailOptions);
+        }
       }
 
       return {};

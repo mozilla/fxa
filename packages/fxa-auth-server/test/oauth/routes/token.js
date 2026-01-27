@@ -5,9 +5,11 @@
 const { assert } = require('chai');
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
-const path = require('path');
-const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const path = require('path');
+const { Container } = require('typedi');
+
+const proxyquire = require('proxyquire');
 
 const UID = 'eaf0';
 const CLIENT_SECRET =
@@ -102,8 +104,17 @@ function joiNotAllowed(err, param) {
   assert.equal(err.details[0].message, `"${param}" is not allowed`);
 }
 
+before(() => {
+  Container.set('OAuthClientInfo', {
+    async fetch() {
+      return 'sync';
+    },
+  });
+});
+
 describe('/token POST', function () {
   const route = tokenRoutes[0];
+
   describe('input validation', () => {
     // route validation function
     function v(req, ctx, cb) {

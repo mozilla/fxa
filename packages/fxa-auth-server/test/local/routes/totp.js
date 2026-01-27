@@ -24,6 +24,7 @@ let log,
   request,
   requestOptions,
   mailer,
+  fxaMailer,
   profile,
   accountEventsManager,
   authServerCacheRedis;
@@ -63,6 +64,9 @@ describe('totp', () => {
     accountEventsManager = {
       recordSecurityEvent: sinon.fake.resolves({}),
     };
+
+    mocks.mockOAuthClientInfo();
+    fxaMailer = mocks.mockFxaMailer();
 
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
     Container.set(BackupCodeManager, mockBackupCodeManager);
@@ -189,8 +193,11 @@ describe('totp', () => {
         });
 
         // correct emails sent
-        assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
-        assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 0);
+        assert.equal(fxaMailer.sendNewDeviceLoginEmail.callCount, 1);
+        assert.equal(
+          fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount,
+          0
+        );
 
         assert.calledOnceWithExactly(
           accountEventsManager.recordSecurityEvent,
@@ -272,8 +279,11 @@ describe('totp', () => {
         });
 
         // correct emails sent
-        assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
-        assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 0);
+        assert.equal(fxaMailer.sendNewDeviceLoginEmail.callCount, 1);
+        assert.equal(
+          fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount,
+          0
+        );
       });
     });
 
@@ -313,8 +323,11 @@ describe('totp', () => {
         );
 
         // correct emails sent
-        assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
-        assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 0);
+        assert.equal(fxaMailer.sendNewDeviceLoginEmail.callCount, 0);
+        assert.equal(
+          fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount,
+          0
+        );
 
         assert.calledOnceWithExactly(
           accountEventsManager.recordSecurityEvent,
@@ -446,7 +459,7 @@ describe('totp', () => {
       assert.calledOnce(profile.deleteCache);
       assert.calledOnce(log.notifyAttachedServices);
       assert.calledOnce(glean.twoFactorAuth.codeComplete);
-      assert.calledOnce(mailer.sendPostAddTwoStepAuthenticationEmail);
+      assert.calledOnce(fxaMailer.sendPostAddTwoStepAuthenticationEmail);
     });
 
     it('should fail for a missing secret', async () => {
@@ -558,8 +571,8 @@ describe('totp', () => {
 
       assert.calledOnce(glean.resetPassword.twoFactorRecoveryCodeSuccess);
 
-      assert.calledOnce(mailer.sendPostConsumeRecoveryCodeEmail);
-      assert.notCalled(mailer.sendLowRecoveryCodesEmail);
+      assert.calledOnce(fxaMailer.sendPostConsumeRecoveryCodeEmail);
+      assert.notCalled(fxaMailer.sendLowRecoveryCodesEmail);
 
       assert.equal(response.remaining, 2);
       assert.calledOnceWithExactly(db.consumeRecoveryCode, 'uid', '1234567890');
@@ -603,7 +616,7 @@ describe('totp', () => {
         requestOptions
       );
 
-      assert.calledOnce(mailer.sendLowRecoveryCodesEmail);
+      assert.calledOnce(fxaMailer.sendLowRecoveryCodesEmail);
       assert.equal(response.remaining, 1);
       assert.calledOnceWithExactly(db.consumeRecoveryCode, 'uid', '1234567890');
     });

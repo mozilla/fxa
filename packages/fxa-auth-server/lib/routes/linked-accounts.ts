@@ -40,6 +40,9 @@ import {
   ProfileClientServiceFailureError,
 } from '@fxa/profile/client';
 import { StatsD } from 'hot-shots';
+import { Container } from 'typedi';
+import { FxaMailer } from '../senders/fxa-mailer';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -56,6 +59,7 @@ export class LinkedAccountHandler {
     private db: any,
     private config: ConfigType,
     private mailer: any,
+    private fxaMailer: FxaMailer,
     private profile: ProfileClient,
     private statsd: StatsD,
     private glean: ReturnType<typeof gleanMetrics>
@@ -375,27 +379,40 @@ export class LinkedAccountHandler {
 
         const geoData = request.app.geo;
         const ip = request.app.clientAddress;
-        const emailOptions = {
-          acceptLanguage: request.app.acceptLanguage,
-          deviceId,
-          flowId,
-          flowBeginTime,
-          ip,
-          location: geoData.location,
-          providerName: PROVIDER_NAME[provider],
-          timeZone: geoData.timeZone,
-          uaBrowser: request.app.ua.browser,
-          uaBrowserVersion: request.app.ua.browserVersion,
-          uaOS: request.app.ua.os,
-          uaOSVersion: request.app.ua.osVersion,
-          uaDeviceType: request.app.ua.deviceType,
-          uid: accountRecord.uid,
-        };
-        await this.mailer.sendPostAddLinkedAccountEmail(
-          accountRecord.emails,
-          accountRecord,
-          emailOptions
-        );
+
+        if (this.fxaMailer.canSend('postAddLinkedAccount')) {
+          await this.fxaMailer.sendPostAddLinkedAccountEmail({
+            ...FxaMailerFormat.account(accountRecord),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(service),
+            providerName: PROVIDER_NAME[name],
+          });
+        } else {
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            deviceId,
+            flowId,
+            flowBeginTime,
+            ip,
+            location: geoData.location,
+            providerName: PROVIDER_NAME[provider],
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uid: accountRecord.uid,
+          };
+          await this.mailer.sendPostAddLinkedAccountEmail(
+            accountRecord.emails,
+            accountRecord,
+            emailOptions
+          );
+        }
         request.setMetricsFlowCompleteSignal('account.login', 'login');
         switch (provider) {
           case 'google':
@@ -606,11 +623,14 @@ export const linkedAccountRoutes = (
   statsd: any,
   glean: ReturnType<typeof gleanMetrics>
 ) => {
+  const fxaMailer = Container.get(FxaMailer);
+
   const handler = new LinkedAccountHandler(
     log,
     db,
     config,
     mailer,
+    fxaMailer,
     profile,
     statsd,
     glean

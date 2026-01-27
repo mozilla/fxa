@@ -11,7 +11,6 @@ export type TemplateData = AppBadgesTemplateData &
   UserInfoTemplateData & {
     link: string;
     passwordChangeLink: string;
-    productName: string;
   };
 
 export const template = 'passwordResetAccountRecovery';

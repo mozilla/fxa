@@ -12,6 +12,8 @@ const RECOVERY_CODES_DOCS =
   require('../../docs/swagger/recovery-codes-api').default;
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 const { recordSecurityEvent } = require('./utils/security-event');
+const { FxaMailer } = require('../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
@@ -20,6 +22,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
   const codeConfig = config.recoveryCodes;
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
   const backupCodeManager = Container.get(BackupCodeManager);
+  const fxaMailer = Container.get(FxaMailer);
 
   // Validate backup authentication codes
   const recoveryCodesSchema = validators.recoveryCodes(
@@ -59,17 +62,27 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         const account = await db.account(uid);
         const { acceptLanguage, clientAddress: geo, ua } = request.app;
 
-        await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
-          acceptLanguage,
-          location: geo.location,
-          timeZone: geo.timeZone,
-          uaBrowser: ua.browser,
-          uaBrowserVersion: ua.browserVersion,
-          uaOS: ua.os,
-          uaOSVersion: ua.osVersion,
-          uaDeviceType: ua.deviceType,
-          uid,
-        });
+        if (fxaMailer.canSend('postNewRecoveryCodes')) {
+          await fxaMailer.sendPostNewRecoveryCodesEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.sync(false),
+            ...FxaMailerFormat.localTime(request),
+          });
+        } else {
+          await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
+            acceptLanguage,
+            location: geo.location,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          });
+        }
 
         log.info('account.recoveryCode.replaced', { uid });
         await request.emitMetricsEvent('recoveryCode.replaced', { uid });
@@ -190,17 +203,27 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         const account = await db.account(uid);
         const { acceptLanguage, clientAddress: geo, ua } = request.app;
 
-        await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
-          acceptLanguage,
-          location: geo.location,
-          timeZone: geo.timeZone,
-          uaBrowser: ua.browser,
-          uaBrowserVersion: ua.browserVersion,
-          uaOS: ua.os,
-          uaOSVersion: ua.osVersion,
-          uaDeviceType: ua.deviceType,
-          uid,
-        });
+        if (fxaMailer.canSend('postNewRecoveryCodes')) {
+          await fxaMailer.sendPostNewRecoveryCodesEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.sync(false),
+            ...FxaMailerFormat.localTime(request),
+          });
+        } else {
+          await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
+            acceptLanguage,
+            location: geo.location,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          });
+        }
 
         await recordSecurityEvent('account.recovery_codes_created', {
           db,
@@ -337,31 +360,59 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         const account = await db.account(uid);
         const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
 
-        const mailerPromises = [
-          mailer.sendPostSigninRecoveryCodeEmail(account.emails, account, {
-            acceptLanguage,
-            ip,
-            location: geo.location,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          }),
-        ];
+        const mailerPromises = [];
+
+        if (fxaMailer.canSend('postSigninRecoveryCode')) {
+          mailerPromises.push(
+            fxaMailer.sendPostSigninRecoveryCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+            })
+          );
+        } else {
+          mailerPromises.push(
+            mailer.sendPostSigninRecoveryCodeEmail(account.emails, account, {
+              acceptLanguage,
+              ip,
+              location: geo.location,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            })
+          );
+        }
 
         if (remaining <= codeConfig.notifyLowCount) {
           log.info('account.recoveryCode.notifyLowCount', { uid, remaining });
 
-          mailerPromises.push(
-            mailer.sendLowRecoveryCodesEmail(account.emails, account, {
-              acceptLanguage,
-              numberRemaining: remaining,
-              uid,
-            })
-          );
+          if (fxaMailer.canSend('lowRecoveryCodes')) {
+            mailerPromises.push(
+              fxaMailer.sendLowRecoveryCodesEmail({
+                ...FxaMailerFormat.account(account),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.device(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(false),
+                numberRemaining: remaining,
+              })
+            );
+          } else {
+            mailerPromises.push(
+              mailer.sendLowRecoveryCodesEmail(account.emails, account, {
+                acceptLanguage,
+                numberRemaining: remaining,
+                uid,
+              })
+            );
+          }
         }
 
         await Promise.allSettled(mailerPromises);
