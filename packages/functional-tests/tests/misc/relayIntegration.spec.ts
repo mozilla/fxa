@@ -138,4 +138,46 @@ test.describe('relay integration', () => {
       relay: {},
     });
   });
+
+  test('reset password with Relay desktop', async ({
+    target,
+    syncOAuthBrowserPages: { page, signin, resetPassword, settings },
+    testAccountTracker,
+  }) => {
+    const { email } = await testAccountTracker.signUp();
+    const newPassword = testAccountTracker.generatePassword();
+
+    await resetPassword.goto(
+      '/authorization',
+      relayDesktopOAuthQueryParams.toString()
+    );
+
+    await expect(signin.page.getByText('Create an email mask')).toBeVisible();
+
+    await signin.fillOutEmailFirstForm(email);
+
+    await signin.forgotPasswordLink.click();
+
+    await page.waitForURL(/reset_password/);
+
+    await resetPassword.fillOutEmailForm(email);
+
+    const code = await target.emailClient.getResetPasswordCode(email);
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+
+    await page.waitForURL(/settings/);
+
+    await expect(settings.alertBar).toContainText(
+      'Your password has been reset'
+    );
+
+    await resetPassword.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+    await resetPassword.checkWebChannelMessageServices(FirefoxCommand.Login, {
+      relay: {},
+    });
+
+    testAccountTracker.updateAccountPassword(email, newPassword);
+  });
 });
