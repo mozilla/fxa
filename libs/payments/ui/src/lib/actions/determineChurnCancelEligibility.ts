@@ -6,17 +6,15 @@
 
 import { getApp } from '../nestapp/app';
 
-export const redeemChurnCouponAction = async (
+export const determineChurnCancelEligibilityAction = async (
   uid: string,
   subscriptionId: string,
-  churnType: 'cancel' | 'stay_subscribed',
   acceptLanguage?: string | null,
   selectedLanguage?: string
 ) => {
-  return await getApp().getActionsService().redeemChurnCoupon({
+  return await getApp().getActionsService().determineChurnCancelEligibility({
     uid,
     subscriptionId,
-    churnType,
     acceptLanguage,
     selectedLanguage,
   });

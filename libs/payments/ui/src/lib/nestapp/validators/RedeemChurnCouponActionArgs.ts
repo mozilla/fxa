@@ -12,6 +12,9 @@ export class RedeemChurnCouponActionArgs {
   subscriptionId!: string;
 
   @IsString()
+  churnType!: 'cancel' | 'stay_subscribed';
+
+  @IsString()
   @IsOptional()
   acceptLanguage?: string;
 

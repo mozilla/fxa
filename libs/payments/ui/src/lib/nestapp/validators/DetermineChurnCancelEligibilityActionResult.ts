@@ -78,7 +78,7 @@ export class CmsOfferingContent {
   webIcon!: string;
 }
 
-export class StaySubscribedChurnEligibilityResult {
+export class ChurnCancelEligibilityResult {
   @IsBoolean()
   isEligible!: boolean;
 
@@ -96,10 +96,10 @@ export class StaySubscribedChurnEligibilityResult {
   cmsOfferingContent!: CmsOfferingContent | null;
 }
 
-export class StaySubscribedFlowResult {
+export class CancelFlowResult {
   @IsString()
-  @IsIn(['not_found', 'stay_subscribed'])
-  flowType!: 'not_found' | 'stay_subscribed';
+  @IsIn(['not_found', 'cancel'])
+  flowType!: 'not_found' | 'cancel';
 
   @ValidateIf((o) => o.flowType !== 'not_found')
   @IsBoolean()
@@ -146,12 +146,12 @@ export class StaySubscribedFlowResult {
   webIcon!: string;
 }
 
-export class DetermineStaySubscribedEligibilityActionResult {
+export class DetermineChurnCancelEligibilityActionResult {
   @ValidateNested()
-  @Type(() => StaySubscribedChurnEligibilityResult)
-  churnStaySubscribedEligibility!: StaySubscribedChurnEligibilityResult;
+  @Type(() => ChurnCancelEligibilityResult)
+  churnCancelEligibility!: ChurnCancelEligibilityResult;
 
   @ValidateNested()
-  @Type(() => StaySubscribedFlowResult)
-  staySubscribedContent!: StaySubscribedFlowResult | null;
+  @Type(() => CancelFlowResult)
+  cancelContent!: CancelFlowResult;
 }

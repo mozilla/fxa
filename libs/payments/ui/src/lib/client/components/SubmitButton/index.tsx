@@ -6,6 +6,7 @@
 
 import Image from 'next/image';
 import { useFormStatus } from 'react-dom';
+import spinnerBlueImage from '@fxa/shared/assets/images/spinner.svg';
 import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
 import { BaseButton, ButtonVariant } from '../BaseButton';
 import { forwardRef } from 'react';
@@ -16,16 +17,19 @@ interface SubmitButtonProps {
   showLoadingSpinner?: boolean;
 }
 
-export const SubmitButton = forwardRef(function SubmitButton({
-  children,
-  disabled,
-  className,
-  variant,
-  showLoadingSpinner = true,
-  ...otherProps
-}: SubmitButtonProps & React.HTMLProps<HTMLButtonElement>, ref: React.Ref<HTMLButtonElement>) {
+export const SubmitButton = forwardRef(function SubmitButton(
+  {
+    children,
+    disabled,
+    className,
+    variant,
+    showLoadingSpinner = true,
+    ...otherProps
+  }: SubmitButtonProps & React.HTMLProps<HTMLButtonElement>,
+  ref: React.Ref<HTMLButtonElement>
+) {
   const { pending } = useFormStatus();
-
+  const variantType = ButtonVariant.SubscriptionManagementSecondary;
   return (
     <BaseButton
       variant={variant}
@@ -39,7 +43,7 @@ export const SubmitButton = forwardRef(function SubmitButton({
       {pending && showLoadingSpinner ? (
         <>
           <Image
-            src={spinnerWhiteImage}
+            src={variantType ? spinnerBlueImage : spinnerWhiteImage}
             alt=""
             className="absolute animate-spin h-8 w-8"
           />
@@ -50,4 +54,4 @@ export const SubmitButton = forwardRef(function SubmitButton({
       )}
     </BaseButton>
   );
-})
+});

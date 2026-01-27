@@ -284,6 +284,7 @@ export class ChurnInterventionService {
   async redeemChurnCoupon(
     uid: string,
     subscriptionId: string,
+    churnType: 'cancel' | 'stay_subscribed',
     acceptLanguage?: string | null,
     selectedLanguage?: string
   ) {
@@ -293,23 +294,34 @@ export class ChurnInterventionService {
         errorCode: 'feature_disabled',
       };
     }
-
-    const eligibilityResult = await this.determineStaySubscribedEligibility(
-      uid,
-      subscriptionId,
-      acceptLanguage,
-      selectedLanguage
-    );
+    let eligibilityResult;
+    if (churnType === 'cancel') {
+      eligibilityResult = await this.determineCancelChurnContentEligibility({
+        uid,
+        subscriptionId,
+        acceptLanguage,
+        selectedLanguage,
+      });
+    }
+    if (churnType === 'stay_subscribed') {
+      eligibilityResult = await this.determineStaySubscribedEligibility(
+        uid,
+        subscriptionId,
+        acceptLanguage,
+        selectedLanguage
+      );
+    }
 
     if (
+      !eligibilityResult ||
       !eligibilityResult.isEligible ||
       !eligibilityResult.cmsChurnInterventionEntry
     ) {
       return {
         redeemed: false,
-        reason: eligibilityResult.reason,
+        reason: eligibilityResult?.reason,
         updatedChurnInterventionEntryData: null,
-        cmsChurnInterventionEntry: eligibilityResult.cmsChurnInterventionEntry,
+        cmsChurnInterventionEntry: eligibilityResult?.cmsChurnInterventionEntry,
       };
     }
 

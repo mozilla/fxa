@@ -48,7 +48,12 @@ export type CancelFlowResult =
       flowType: 'cancel';
       active: boolean;
       cancelAtPeriodEnd: boolean;
+      currency: string;
       currentPeriodEnd: number;
+      defaultPaymentMethodType?: SubPlatPaymentMethodType;
+      last4?: string;
+      nextInvoiceTax?: number;
+      nextInvoiceTotal?: number;
       productName: string;
       supportUrl: string;
       webIcon: string;

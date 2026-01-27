@@ -10,13 +10,6 @@ import { determineStaySubscribedEligibilityAction } from '@fxa/payments/ui/actio
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
 
-enum ChurnStayErrorReason {
-  DiscountAlreadyApplied = 'discount_already_applied',
-  SubscriptionNotActive = 'subscription_not_active',
-  GeneralError = 'general_error',
-  RedemptionLimitExceeded = 'redemption_limit_exceeded',
-}
-
 export default async function LoyaltyDiscountStaySubscribedPage({
   params,
   searchParams,
@@ -51,17 +44,16 @@ export default async function LoyaltyDiscountStaySubscribedPage({
 
   if (!pageContent) notFound();
 
-  const { cmsOfferingContent, reason, staySubscribedContent } = pageContent;
+  const { churnStaySubscribedEligibility, staySubscribedContent } = pageContent;
+  const { cmsOfferingContent, reason, cmsChurnInterventionEntry } =
+    churnStaySubscribedEligibility;
   const reasonStr = typeof reason === 'string' ? reason : undefined;
-  const isErrorReason =
-    !!reasonStr &&
-    (Object.values(ChurnStayErrorReason) as string[]).includes(reasonStr);
   const isAllowedStayReason =
     reasonStr === 'eligible' ||
     reasonStr === 'no_churn_intervention_found' ||
     reasonStr === 'subscription_still_active';
 
-  if (isErrorReason) {
+  if (!isAllowedStayReason) {
     redirect(
       `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/stay-subscribed/error`
     );
@@ -71,17 +63,19 @@ export default async function LoyaltyDiscountStaySubscribedPage({
     !staySubscribedContent ||
     staySubscribedContent.flowType !== 'stay_subscribed'
   ) {
-    notFound();
+    redirect(
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/stay-subscribed/error`
+    );
   }
 
-  if (reasonStr == null || isAllowedStayReason) {
+  if (isAllowedStayReason) {
     return (
       <ChurnStaySubscribed
         uid={uid}
         subscriptionId={subscriptionId}
         locale={locale}
         reason={reason}
-        cmsChurnInterventionEntry={pageContent.cmsChurnInterventionEntry}
+        cmsChurnInterventionEntry={cmsChurnInterventionEntry}
         cmsOfferingContent={cmsOfferingContent}
         staySubscribedContent={staySubscribedContent}
       />

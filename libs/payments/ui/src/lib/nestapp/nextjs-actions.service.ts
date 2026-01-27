@@ -61,7 +61,8 @@ import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionA
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeActionArgs } from './validators/ValidatePostalCodeActionArgs';
 import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
-import { DetermineStaySubscribedEligibilityActionArgs } from './validators/DetermineStaySubscribedEligibilityActionArgs';
+import { DetermineChurnCancelEligibilityActionResult } from './validators/DetermineChurnCancelEligibilityActionResult';
+import { DetermineChurnEligibilityActionArgs } from './validators/DetermineChurnEligibilityActionArgs';
 import { DetermineCancellationInterventionActionArgs } from './validators/DetermineCancellationInterventionActionArgs';
 import { NextIOValidator } from './NextIOValidator';
 import type {
@@ -277,7 +278,44 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(
-    DetermineStaySubscribedEligibilityActionArgs,
+    DetermineChurnEligibilityActionArgs,
+    DetermineChurnCancelEligibilityActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async determineChurnCancelEligibility(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    const churnCancelContentEligibility =
+      await this.churnInterventionService.determineCancelChurnContentEligibility(
+        {
+          uid: args.uid,
+          subscriptionId: args.subscriptionId,
+          acceptLanguage: args.acceptLanguage,
+          selectedLanguage: args.selectedLanguage,
+        }
+      );
+
+    const cancelContent =
+      await this.subscriptionManagementService.getCancelFlowContent(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
+    return {
+      churnCancelContentEligibility,
+      cancelContent,
+    };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    DetermineChurnEligibilityActionArgs,
     DetermineStaySubscribedEligibilityActionResult
   )
   @WithTypeCachableAsyncLocalStorage()
@@ -288,7 +326,7 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    const result =
+    const churnStaySubscribedEligibility =
       await this.churnInterventionService.determineStaySubscribedEligibility(
         args.uid,
         args.subscriptionId,
@@ -305,7 +343,7 @@ export class NextJSActionsService {
       );
 
     return {
-      ...result,
+      churnStaySubscribedEligibility,
       staySubscribedContent,
     };
   }
@@ -340,12 +378,14 @@ export class NextJSActionsService {
   async redeemChurnCoupon(args: {
     uid: string;
     subscriptionId: string;
+    churnType: 'cancel' | 'stay_subscribed';
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
     return await this.churnInterventionService.redeemChurnCoupon(
       args.uid,
       args.subscriptionId,
+      args.churnType,
       args.acceptLanguage,
       args.selectedLanguage
     );

@@ -12,6 +12,7 @@ export * from './lib/client/components/Breadcrumbs';
 export * from './lib/client/components/CancelSubscription';
 export * from './lib/client/components/CheckoutForm';
 export * from './lib/client/components/CheckoutCheckbox';
+export * from './lib/client/components/ChurnCancel';
 export * from './lib/client/components/ChurnStaySubscribed';
 export * from './lib/client/components/CouponForm';
 export * from './lib/client/components/Header';

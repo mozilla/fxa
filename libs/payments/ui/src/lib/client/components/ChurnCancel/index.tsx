@@ -17,15 +17,12 @@ import {
   ButtonVariant,
   SubmitButton,
 } from '@fxa/payments/ui';
-import {
-  redeemChurnCouponAction,
-  resubscribeSubscriptionAction,
-} from '@fxa/payments/ui/actions';
+import { redeemChurnCouponAction } from '@fxa/payments/ui/actions';
 import spinner from '@fxa/shared/assets/images/spinner.svg';
 import newWindowIcon from '@fxa/shared/assets/images/new-window.svg';
 import { LinkExternal } from '@fxa/shared/react';
 
-interface ChurnStaySubscribedProps {
+interface ChurnCancelProps {
   uid: string;
   subscriptionId: string;
   locale: string;
@@ -46,12 +43,12 @@ interface ChurnStaySubscribedProps {
     termsHeading: string;
     termsDetails: string[];
     webIcon: string;
-  } | null;
+  };
   cmsOfferingContent: {
     successActionButtonUrl: string;
   } | null;
-  staySubscribedContent: {
-    flowType: 'stay_subscribed';
+  cancelContent: {
+    flowType: 'cancel';
     active: boolean;
     cancelAtPeriodEnd: boolean;
     currency: string;
@@ -61,19 +58,20 @@ interface ChurnStaySubscribedProps {
     nextInvoiceTax?: number;
     nextInvoiceTotal?: number;
     productName: string;
+    supportUrl: string;
     webIcon: string;
   };
 }
 
-export function ChurnStaySubscribed({
+export function ChurnCancel({
   uid,
   subscriptionId,
   locale,
   reason,
-  staySubscribedContent,
+  cancelContent,
   cmsChurnInterventionEntry,
   cmsOfferingContent,
-}: ChurnStaySubscribedProps) {
+}: ChurnCancelProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showResubscribeActionError, setResubscribeActionError] =
@@ -91,21 +89,20 @@ export function ChurnStaySubscribed({
   const { successActionButtonUrl } = cmsOfferingContent || {};
   const goToProductUrl = productPageUrl ?? successActionButtonUrl;
 
-  const { active, cancelAtPeriodEnd, productName, webIcon } =
-    staySubscribedContent;
+  const { active, cancelAtPeriodEnd, productName, webIcon } = cancelContent;
 
   const nextChargeChurnContent = getNextChargeChurnContent({
-    currency: staySubscribedContent.currency,
-    currentPeriodEnd: staySubscribedContent.currentPeriodEnd,
+    currency: cancelContent.currency,
+    currentPeriodEnd: cancelContent.currentPeriodEnd,
     locale,
-    defaultPaymentMethodType: staySubscribedContent.defaultPaymentMethodType,
+    defaultPaymentMethodType: cancelContent.defaultPaymentMethodType,
     discountAmount,
-    last4: staySubscribedContent.last4,
-    nextInvoiceTax: staySubscribedContent.nextInvoiceTax,
-    nextInvoiceTotal: staySubscribedContent.nextInvoiceTotal,
+    last4: cancelContent.last4,
+    nextInvoiceTax: cancelContent.nextInvoiceTax,
+    nextInvoiceTotal: cancelContent.nextInvoiceTotal,
   });
 
-  async function churnStaySubscribed() {
+  async function churnCancelFlow() {
     if (loading) return;
 
     setLoading(true);
@@ -114,7 +111,7 @@ export function ChurnStaySubscribed({
     const result = await redeemChurnCouponAction(
       uid,
       subscriptionId,
-      'stay_subscribed',
+      'cancel',
       locale
     );
 
@@ -129,73 +126,47 @@ export function ChurnStaySubscribed({
     setLoading(false);
   }
 
-  async function resubscribe() {
-    if (loading) {
-      return;
-    }
-
-    setLoading(true);
-    setResubscribeActionError(false);
-
-    const result = await resubscribeSubscriptionAction(uid, subscriptionId);
-    if (result.ok) {
-      // TODO: This is a workaround to match existing legacy behavior.
-      // Fix as part of redesign
-      setShowSuccess(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    } else {
-      setResubscribeActionError(true);
-    }
-    setLoading(false);
-  }
-
-  const isOffer = reason === 'eligible' && cancelAtPeriodEnd && active;
-  const isStillActive = reason === 'subscription_still_active';
+  const isActiveNotCanceling = !!active && !cancelAtPeriodEnd;
+  const isOffer = reason === 'eligible' && isActiveNotCanceling;
+  const isDiscountAlreadyApplied =
+    reason === 'discount_already_applied' && isActiveNotCanceling;
 
   return (
     <section
       className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
-      aria-labelledby="churn-stay-subscribed-heading"
+      aria-labelledby="churn-cancel-flow-heading"
     >
       {showSuccess ? (
-        <div className="w-[480px] max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+        <div className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <Image src={webIcon} alt={productName} height={64} width={64} />
-            <Localized id="churn-stay-subscribed-title-subscription-renewed">
+            <Localized id="churn-cancel-flow-success-title">
               <h1
-                id="churn-stay-subscribed-heading"
+                id="churn-cancel-flow-heading"
                 className="font-bold leading-7 text-xl"
               >
-                Subscription renewed
+                You’re still subscribed
               </h1>
             </Localized>
             <div className="leading-6">
               <Localized
-                id={nextChargeChurnContent.l10nId}
-                vars={nextChargeChurnContent.l10nVars}
+                id="churn-cancel-flow-success-message"
+                vars={{ discountPercent: discountAmount }}
               >
-                <p></p>
+                <p>
+                  Your subscription will continue, and you’ll save{' '}
+                  {discountAmount}% on your next bill.
+                </p>
               </Localized>
-              <Localized id="churn-stay-subscribed-thanks-valued-subscriber">
-                <p className="my-2">Thanks for being a valued subscriber!</p>
+              <Localized
+                id="churn-cancel-flow-thanks-valued-subscriber"
+                vars={{ productName }}
+              >
+                <p className="my-2">Thanks for using {productName}!</p>
               </Localized>
             </div>
 
             <div className="flex flex-col gap-3 w-full">
-              {goToProductUrl && (
-                <LinkExternal
-                  href={goToProductUrl}
-                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
-                >
-                  <Localized
-                    id="churn-stay-subscribed-button-go-to-product-page"
-                    vars={{ productName }}
-                  >
-                    <span>Go to {productName}</span>
-                  </Localized>
-                </LinkExternal>
-              )}
-
               <Link
                 className="border box-border flex font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 href={`/${locale}/subscriptions/landing`}
@@ -212,8 +183,8 @@ export function ChurnStaySubscribed({
                     className="absolute animate-spin h-8 w-8"
                   />
                 ) : (
-                  <Localized id="churn-stay-subscribed-button-go-to-subscriptions">
-                    <span>Go to Subscriptions</span>
+                  <Localized id="churn-cancel-flow-button-back-to-subscriptions">
+                    <span>Back to subscriptions</span>
                   </Localized>
                 )}
               </Link>
@@ -222,13 +193,13 @@ export function ChurnStaySubscribed({
         </div>
       ) : isOffer ? (
         <Form.Root
-          action={churnStaySubscribed}
+          action={churnCancelFlow}
           className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]"
         >
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <Image src={webIcon} alt={productName} height={64} width={64} />
             <h1
-              id="churn-stay-subscribed-heading"
+              id="churn-cancel-flow-heading"
               className="font-bold leading-7 text-center text-xl"
             >
               {modalHeading}
@@ -257,7 +228,7 @@ export function ChurnStaySubscribed({
             </div>
 
             {showResubscribeActionError && !loading && (
-              <Localized id="churn-stay-subscribed-action-error">
+              <Localized id="churn-cancel-flow-action-error">
                 <p
                   className="mt-1 text-alert-red font-normal text-start"
                   role="alert"
@@ -269,19 +240,19 @@ export function ChurnStaySubscribed({
 
             <Form.Submit asChild>
               <SubmitButton
-                className="flex h-14 items-center justify-center w-full"
-                variant={ButtonVariant.Primary}
+                className="flex font-bold h-14 items-center justify-center tablet:w-full"
+                variant={ButtonVariant.SubscriptionManagementSecondary}
                 disabled={loading}
               >
                 {typeof discountAmount === 'number' && discountAmount > 0 ? (
                   <Localized
-                    id="churn-stay-subscribed-button-stay-subscribed-and-save-discount"
+                    id="churn-cancel-flow-button-stay-subscribed-and-save-discount"
                     vars={{ discountPercent: discountAmount }}
                   >
-                    <span></span>
+                    <span>Stay subscribed and save {discountAmount}%</span>
                   </Localized>
                 ) : (
-                  <Localized id="churn-stay-subscribed-button-stay-subscribed-and-save">
+                  <Localized id="churn-cancel-flow-button-stay-subscribed-and-save">
                     <span>Stay subscribed and save</span>
                   </Localized>
                 )}
@@ -289,13 +260,14 @@ export function ChurnStaySubscribed({
             </Form.Submit>
             <Link
               className="border box-border font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
-              href={`/${locale}/subscriptions/landing`}
+              href={`/${locale}/subscriptions/${subscriptionId}/cancel`}
               onClick={(e) => {
                 e.preventDefault();
                 setLoading(true);
-                router.push(`/${locale}/subscriptions/landing`);
+                router.push(
+                  `/${locale}/subscriptions/${subscriptionId}/cancel`
+                );
               }}
-              aria-label={'Back to Subscriptions page'}
             >
               {loading ? (
                 <Image
@@ -304,20 +276,17 @@ export function ChurnStaySubscribed({
                   className="absolute animate-spin h-8 w-8"
                 />
               ) : (
-                <Localized
-                  id="churn-stay-subscribed-button-no-thanks"
-                  attrs={{ 'aria-label': true }}
-                >
-                  <span>No thanks</span>
+                <Localized id="churn-cancel-flow-button-continue-to-cancel">
+                  <span>Continue to cancel</span>
                 </Localized>
               )}
             </Link>
             <LinkExternal
-              href={`/${locale}/${apiIdentifier}/${interval}/stay_subscribed/loyalty-discount/terms`}
+              href={`/${locale}/${apiIdentifier}/${interval}/cancel/loyalty-discount/terms`}
               className="flex gap-1"
             >
               <span aria-hidden="true">*</span>
-              <Localized id="churn-stay-subscribed-link-terms-and-restrictions">
+              <Localized id="churn-cancel-flow-link-terms-and-restrictions">
                 <span className="text-blue-500 underline">
                   Limited terms and restrictions apply
                 </span>
@@ -326,17 +295,66 @@ export function ChurnStaySubscribed({
             </LinkExternal>
           </div>
         </Form.Root>
-      ) : isStillActive ? (
-        <div className="w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+      ) : isDiscountAlreadyApplied ? (
+        <section
+          className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
+          aria-labelledby="error-discount-already-applied-heading"
+        >
+          <div className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+            <div className="flex flex-col items-center justify-center gap-6 text-center">
+              <Image src={webIcon} alt={productName} height={64} width={64} />
+              <h1
+                id="error-discount-already-applied-heading"
+                className="font-bold leading-7 text-center text-xl"
+              >
+                <Localized id="churn-cancel-flow-discount-already-applied-title">
+                  <span>Discount code already applied</span>
+                </Localized>
+              </h1>
+              <div className="leading-6">
+                <Localized
+                  id="churn-cancel-flow-discount-already-applied-message"
+                  vars={{ productName }}
+                >
+                  <p className="my-2">
+                    This discount was applied to a {productName} subscription
+                    for your account. If you still need help, contact our
+                    Support team.
+                  </p>
+                </Localized>
+              </div>
+              <div className="flex flex-col gap-3 w-full">
+                <Link
+                  href={`/${locale}/subscriptions/landing`}
+                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Localized id="churn-cancel-flow-button-manage-subscriptions">
+                    <span>Manage subscriptions</span>
+                  </Localized>
+                </Link>
+                <LinkExternal
+                  href={cancelContent.supportUrl}
+                  className="box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 border-2 border-blue-600 hover:bg-grey-50 text-blue-600"
+                >
+                  <Localized id="churn-cancel-flow-button-contact-support">
+                    <span>Contact Support</span>
+                  </Localized>
+                </LinkExternal>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <div className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <Image src={webIcon} alt={productName} height={64} width={64} />
 
             <Localized
-              id="churn-stay-subscribed-title-subscription-active"
+              id="churn-cancel-flow-subscription-active-title"
               vars={{ productName }}
             >
               <h1
-                id="churn-stay-subscribed-heading"
+                id="churn-cancel-heading"
                 className="font-bold leading-7 text-center text-xl"
               >
                 Your {productName} subscription is active
@@ -358,7 +376,7 @@ export function ChurnStaySubscribed({
                   className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 >
                   <Localized
-                    id="churn-error-page-button-go-to-product-page"
+                    id="churn-cancel-flow-button-go-to-product-page"
                     vars={{ productName }}
                   >
                     <span>Go to {productName}</span>
@@ -369,86 +387,13 @@ export function ChurnStaySubscribed({
                 href={`/${locale}/subscriptions/landing`}
                 className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
               >
-                <Localized id="churn-error-page-button-manage-subscriptions">
+                <Localized id="churn-cancel-flow-button-manage-subscriptions">
                   <span>Manage subscriptions</span>
                 </Localized>
               </Link>
             </div>
           </div>
         </div>
-      ) : (
-        <Form.Root
-          action={resubscribe}
-          className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]"
-        >
-          <div className="flex flex-col items-center justify-center gap-6 text-center">
-            <Image src={webIcon} alt={productName} height={64} width={64} />
-            <Localized id="churn-stay-subscribed-title-offer-expired">
-              <h1
-                id="churn-stay-subscribed-heading"
-                className="font-bold leading-7 text-center text-xl"
-              >
-                This offer has expired
-              </h1>
-            </Localized>
-
-            <div>
-              <Localized
-                id="churn-stay-subscribed-subtitle-offer-expired"
-                vars={{ productName }}
-              >
-                <h2
-                  id="stay-subscribed-heading"
-                  className="font-bold text-violet-700"
-                >
-                  Want to keep using {productName}?
-                </h2>
-              </Localized>
-
-              <Localized
-                id="churn-stay-subscribed-message-access-will-continue"
-                vars={{
-                  productName,
-                }}
-              >
-                <p className="leading-6 my-2">
-                  Your access to {productName} will continue, and your billing
-                  cycle and payment will stay the same.
-                </p>
-              </Localized>
-
-              <Localized
-                id={nextChargeChurnContent.l10nId}
-                vars={nextChargeChurnContent.l10nVars}
-              >
-                <p className="leading-6 my-2"></p>
-              </Localized>
-            </div>
-
-            {showResubscribeActionError && (
-              <Localized id="churn-stay-subscribed-action-error">
-                <p
-                  className="mt-1 text-alert-red font-normal text-start"
-                  role="alert"
-                >
-                  An unexpected error occurred. Please try again.
-                </p>
-              </Localized>
-            )}
-
-            <Form.Submit asChild>
-              <SubmitButton
-                className="flex h-14 items-center justify-center w-full"
-                variant={ButtonVariant.Primary}
-                disabled={loading}
-              >
-                <Localized id="churn-stay-subscribed-button-stay-subscribed">
-                  Stay subscribed
-                </Localized>
-              </SubmitButton>
-            </Form.Submit>
-          </div>
-        </Form.Root>
       )}
     </section>
   );

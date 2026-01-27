@@ -8,6 +8,7 @@ export { checkoutCartWithPaypal } from './checkoutCartWithPaypal';
 export { checkoutCartWithStripe } from './checkoutCartWithStripe';
 export { determineCurrencyAction } from './determineCurrency';
 export { determineCurrencyForCustomerAction } from './determineCurrencyForCustomer';
+export { determineChurnCancelEligibilityAction } from './determineChurnCancelEligibility';
 export { determineStaySubscribedEligibilityAction } from './determineStaySubscribedEligibility';
 export { determineCancellationInterventionAction } from './determineCancellationIntervention';
 export { fetchCMSData } from './fetchCMSData';
