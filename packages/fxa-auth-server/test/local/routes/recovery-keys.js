@@ -13,7 +13,16 @@ const { AppError: errors } = require('@fxa/accounts/errors');
 const proxyquire = require('proxyquire');
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 
-let log, db, customs, mailer, glean, routes, route, request, response;
+let log,
+  db,
+  customs,
+  mailer,
+  fxaMailer,
+  glean,
+  routes,
+  route,
+  request,
+  response;
 const email = 'test@email.com';
 const recoveryKeyId = '000000';
 const recoveryData = '11111111111';
@@ -25,6 +34,7 @@ let mockAccountEventsManager;
 describe('POST /recoveryKey', () => {
   beforeEach(() => {
     mockAccountEventsManager = mocks.mockAccountEventsManager();
+    fxaMailer = mocks.mockFxaMailer();
   });
 
   afterEach(() => {
@@ -118,10 +128,10 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called mailer.sendPostAddAccountRecoveryEmail correctly', () => {
-      assert.equal(mailer.sendPostAddAccountRecoveryEmail.callCount, 1);
-      const args = mailer.sendPostAddAccountRecoveryEmail.args[0];
-      assert.equal(args.length, 3);
-      assert.equal(args[0][0].email, email);
+      assert.equal(fxaMailer.sendPostAddAccountRecoveryEmail.callCount, 1);
+      const args = fxaMailer.sendPostAddAccountRecoveryEmail.args[0];
+      assert.equal(args.length, 1);
+      assert.equal(args[0].to, email);
     });
   });
 
@@ -140,7 +150,13 @@ describe('POST /recoveryKey', () => {
         },
       };
       response = await setup(
-        { db: { recoveryData, email } },
+        {
+          db: {
+            recoveryData,
+            email,
+            uid,
+          },
+        },
         {},
         '/recoveryKey',
         requestOptions
@@ -229,10 +245,10 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called mailer.sendPostChangeAccountRecoveryEmail correctly', () => {
-      assert.equal(mailer.sendPostChangeAccountRecoveryEmail.callCount, 1);
-      const args = mailer.sendPostChangeAccountRecoveryEmail.args[0];
-      assert.equal(args.length, 3);
-      assert.equal(args[0][0].email, email);
+      assert.equal(fxaMailer.sendPostChangeAccountRecoveryEmail.callCount, 1);
+      const args = fxaMailer.sendPostChangeAccountRecoveryEmail.args[0];
+      assert.equal(args.length, 1);
+      assert.equal(args[0].to, email);
     });
   });
 
@@ -301,8 +317,8 @@ describe('POST /recoveryKey', () => {
       assert.equal(request.emitMetricsEvent.callCount, 0);
     });
 
-    it('did not call mailer.sendPostAddAccountRecoveryEmail', () => {
-      assert.equal(mailer.sendPostAddAccountRecoveryEmail.callCount, 0);
+    it('did not call fxaMailer.sendPostAddAccountRecoveryEmail', () => {
+      assert.equal(fxaMailer.sendPostAddAccountRecoveryEmail.callCount, 0);
     });
   });
 
@@ -398,10 +414,10 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called mailer.sendPostAddAccountRecoveryEmail correctly', () => {
-      assert.equal(mailer.sendPostAddAccountRecoveryEmail.callCount, 1);
-      const args = mailer.sendPostAddAccountRecoveryEmail.args[0];
-      assert.equal(args.length, 3);
-      assert.equal(args[0][0].email, email);
+      assert.equal(fxaMailer.sendPostAddAccountRecoveryEmail.callCount, 1);
+      const args = fxaMailer.sendPostAddAccountRecoveryEmail.args[0];
+      assert.equal(args.length, 1);
+      assert.equal(args[0].to, email);
     });
 
     it('records security event', () => {
@@ -637,6 +653,7 @@ describe('POST /recoveryKey/exists', () => {
 describe('DELETE /recoveryKey', () => {
   beforeEach(() => {
     mockAccountEventsManager = mocks.mockAccountEventsManager();
+    fxaMailer = mocks.mockFxaMailer();
   });
 
   afterEach(() => {
@@ -678,10 +695,10 @@ describe('DELETE /recoveryKey', () => {
     });
 
     it('called mailer.sendPostRemoveAccountRecoveryEmail correctly', () => {
-      assert.equal(mailer.sendPostRemoveAccountRecoveryEmail.callCount, 1);
-      const args = mailer.sendPostRemoveAccountRecoveryEmail.args[0];
-      assert.equal(args.length, 3);
-      assert.equal(args[0][0].email, email);
+      assert.equal(fxaMailer.sendPostRemoveAccountRecoveryEmail.callCount, 1);
+      const args = fxaMailer.sendPostRemoveAccountRecoveryEmail.args[0];
+      assert.equal(args.length, 1);
+      assert.equal(args[0].to, email);
     });
 
     it('recorded security event', () => {

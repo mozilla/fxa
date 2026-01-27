@@ -9,7 +9,6 @@ export type TemplateData = AutomatedEmailChangePasswordTemplateData &
   UserInfoTemplateData & {
     link: string;
     passwordChangeLink: string;
-    productName: string;
     time: string;
     device: {
       uaBrowser: string;

@@ -69,13 +69,14 @@ export class EmailService {
 
   public async sendPasswordChangeRequired(account: Account) {
     const smtpConfig = this.smtpConfig;
-    const linksConfig = this.linksConfig;
 
     // Render the email
     const link = this.linkBuilder.buildPasswordChangeRequiredLink(
-      linksConfig.initiatePasswordResetUrl,
-      account.primaryEmail?.email || account.email,
-      account.metricsOptOutAt === null
+      'passwordChangeRequired',
+      !account.metricsOptOutAt,
+      {
+        email: account.primaryEmail?.email || account.email,
+      }
     );
 
     const emailContent = await this.renderer.renderPasswordChangeRequired({
@@ -135,9 +136,13 @@ export class EmailService {
 export const EmailLinkBuilderFactory: Provider = {
   provide: EmailLinkBuilder,
   useFactory: async (config: ConfigService<AppConfig>) => {
+    const contentServerConfig = config.get(
+      'contentServer'
+    ) as AppConfig['contentServer'];
     const smtpConfig = config.get('smtp') as AppConfig['smtp'];
     const linksConfig = config.get('links') as AppConfig['links'];
     return new EmailLinkBuilder({
+      baseUri: contentServerConfig.url,
       ...smtpConfig,
       ...linksConfig,
     });

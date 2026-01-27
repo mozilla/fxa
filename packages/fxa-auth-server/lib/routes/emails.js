@@ -10,6 +10,9 @@ const { AppError: error } = require('@fxa/accounts/errors');
 const isA = require('joi');
 const random = require('../crypto/random');
 const Sentry = require('@sentry/node');
+const { Container } = require('typedi');
+const { FxaMailer } = require('../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 const validators = require('./validators');
 const { reportSentryError } = require('../sentry');
 const { emailsMatch, normalizeEmail } = require('fxa-shared').email.helpers;
@@ -135,6 +138,8 @@ module.exports = (
   authServerCacheRedis,
   statsd
 ) => {
+  const fxaMailer = Container.get(FxaMailer);
+
   const REMINDER_PATTERN = new RegExp(
     `^(?:${verificationReminders.keys.join('|')})$`
   );
@@ -506,11 +511,20 @@ module.exports = (
       }
 
       try {
-        await mailer.sendPostVerifySecondaryEmail([], account, {
-          acceptLanguage: request.app.acceptLanguage,
-          secondaryEmail: email,
-          uid,
-        });
+        if (fxaMailer.canSend('postVerifySecondary')) {
+          await fxaMailer.sendPostVerifySecondaryEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.sync(false),
+            secondaryEmail: email,
+          });
+        } else {
+          await mailer.sendPostVerifySecondaryEmail([], account, {
+            acceptLanguage: request.app.acceptLanguage,
+            secondaryEmail: email,
+            uid,
+          });
+        }
       } catch (e) {
         log.error('secondary_email.sendPostVerifySecondaryEmail.error', {
           uid,
@@ -1132,11 +1146,24 @@ module.exports = (
             return item;
           }
         });
-        await mailer.sendPostRemoveSecondaryEmail(emails, account, {
-          deviceId: sessionToken.deviceId,
-          secondaryEmail: email,
-          uid,
-        });
+
+        if (fxaMailer.canSend('postRemoveSecondary')) {
+          const accountData = FxaMailerFormat.account(account);
+          accountData.cc = accountData.cc.filter((e) => e !== email);
+          await fxaMailer.sendPostRemoveSecondaryEmail({
+            ...accountData,
+            ...FxaMailerFormat.localTime(request),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(false),
+            secondaryEmail: email,
+          });
+        } else {
+          await mailer.sendPostRemoveSecondaryEmail(emails, account, {
+            deviceId: sessionToken.deviceId,
+            secondaryEmail: email,
+            uid,
+          });
+        }
 
         return {};
       },
@@ -1228,10 +1255,20 @@ module.exports = (
           }
 
           const account = await db.account(uid);
-          await mailer.sendPostChangePrimaryEmail(account.emails, account, {
-            acceptLanguage: request.app.acceptLanguage,
-            uid,
-          });
+          if (fxaMailer.canSend('postVerifySecondary')) {
+            await fxaMailer.sendPostChangePrimaryEmail({
+              ...FxaMailerFormat.account(account),
+              ...FxaMailerFormat.sync(false),
+              ...FxaMailerFormat.localTime(request),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              email: FxaMailerFormat.account(account).to,
+            });
+          } else {
+            await mailer.sendPostChangePrimaryEmail(account.emails, account, {
+              acceptLanguage: request.app.acceptLanguage,
+              uid,
+            });
+          }
 
           await recordSecurityEvent('account.primary_secondary_swapped', {
             db,

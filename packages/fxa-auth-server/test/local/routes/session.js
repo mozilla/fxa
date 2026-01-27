@@ -150,6 +150,8 @@ describe('/session/status', () => {
   beforeEach(() => {
     sinon.reset();
     log = mocks.mockLog();
+    mocks.mockFxaMailer();
+    mocks.mockOAuthClientInfo();
     db = {
       account: () => {},
       totpToken: () => {},
@@ -462,6 +464,8 @@ describe('/session/reauth', () => {
       uid: TEST_UID,
     });
     mailer = mocks.mockMailer();
+    mocks.mockFxaMailer();
+    mocks.mockOAuthClientInfo();
     signinUtils = require('../../../lib/routes/utils/signin')(
       log,
       config,
@@ -1486,6 +1490,7 @@ describe('/session/verify_code', () => {
     log,
     db,
     mailer,
+    fxaMailer,
     push,
     customs,
     cadReminders,
@@ -1495,6 +1500,8 @@ describe('/session/verify_code', () => {
     db = mocks.mockDB({ ...signupCodeAccount, ...options });
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
+    fxaMailer = mocks.mockFxaMailer();
+    mocks.mockOAuthClientInfo();
     push = mocks.mockPush();
     customs = mocks.mockCustoms();
     customs.check = sinon.spy(() => Promise.resolve(true));
@@ -1560,7 +1567,7 @@ describe('/session/verify_code', () => {
       'sessionTokenId',
       'email-2fa'
     );
-    assert.calledOnce(mailer.sendPostVerifyEmail);
+    assert.calledOnce(fxaMailer.sendPostVerifyEmail);
     sinon.assert.calledOnce(gleanMock.registration.accountVerified);
     sinon.assert.calledOnce(gleanMock.registration.complete);
   });
@@ -1584,7 +1591,7 @@ describe('/session/verify_code', () => {
     assert.equal(args[0], 'account.confirmed');
     assert.equal(args[1].uid, signupCodeAccount.uid);
     sinon.assert.calledOnce(gleanMock.login.verifyCodeConfirmed);
-    assert.calledOnce(mailer.sendNewDeviceLoginEmail);
+    assert.calledOnce(fxaMailer.sendNewDeviceLoginEmail);
   });
 
   it('should fail for invalid code', async () => {
@@ -1604,7 +1611,7 @@ describe('/session/verify_code', () => {
     await runTest(route, request);
     assert.calledOnce(db.verifyEmail);
     assert.calledOnce(db.verifyTokensWithMethod);
-    assert.calledOnce(mailer.sendPostVerifyEmail);
+    assert.calledOnce(fxaMailer.sendPostVerifyEmail);
   });
 
   it('should verify the account and not send post verify email', async () => {
@@ -1615,17 +1622,28 @@ describe('/session/verify_code', () => {
     await runTest(route, request);
     assert.calledOnce(db.verifyEmail);
     assert.calledOnce(db.verifyTokensWithMethod);
+    assert.notCalled(fxaMailer.sendPostVerifyEmail);
     assert.notCalled(mailer.sendPostVerifyEmail);
   });
 });
 
 describe('/session/resend_code', () => {
-  let route, request, log, db, mailer, push, customs;
+  let route,
+    request,
+    log,
+    db,
+    mailer,
+    fxaMailer,
+    oauthClientInfo,
+    push,
+    customs;
 
   beforeEach(() => {
     db = mocks.mockDB({ ...signupCodeAccount });
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
+    fxaMailer = mocks.mockFxaMailer();
+    oauthClientInfo = mocks.mockOAuthClientInfo();
     push = mocks.mockPush();
     customs = {
       check: sinon.stub(),
@@ -1659,18 +1677,18 @@ describe('/session/resend_code', () => {
     const response = await runTest(route, request);
     assert.deepEqual(response, {});
     assert.calledOnce(db.account);
-    assert.calledOnce(mailer.sendVerifyShortCodeEmail);
+    assert.calledOnce(fxaMailer.sendVerifyShortCodeEmail);
 
     const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
-    const args = mailer.sendVerifyShortCodeEmail.args[0];
-    assert.equal(args[2].acceptLanguage, 'en-US');
-    assert.equal(args[2].code, expectedCode);
-    assert.equal(args[2].location.city, 'Mountain View');
-    assert.equal(args[2].location.country, 'United States');
-    assert.equal(args[2].location.countryCode, 'US');
-    assert.equal(args[2].location.state, 'California');
-    assert.equal(args[2].location.stateCode, 'CA');
-    assert.equal(args[2].timeZone, 'America/Los_Angeles');
+    const args = fxaMailer.sendVerifyShortCodeEmail.args[0][0];
+    assert.equal(args.acceptLanguage, 'en-US');
+    assert.equal(args.code, expectedCode);
+    assert.equal(args.location.city, 'Mountain View');
+    assert.equal(args.location.country, 'United States');
+    // assert.equal(args.location.countryCode, 'US'); not used by template!
+    // assert.equal(args.location.state, 'California'); not used by template
+    assert.equal(args.location.stateCode, 'CA');
+    assert.equal(args.timeZone, 'America/Los_Angeles');
 
     sinon.assert.calledWithExactly(
       customs.checkAuthenticated,
@@ -1696,14 +1714,15 @@ describe('/session/resend_code', () => {
     const response = await runTest(route, request);
     assert.deepEqual(response, {});
     assert.calledOnce(db.account);
-    assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
+    assert.calledOnce(oauthClientInfo.fetch);
+    assert.calledOnce(fxaMailer.sendVerifyLoginCodeEmail);
 
     const expectedCode = getExpectedOtpCode(
       {},
       verifiedAccount.primaryEmail.emailCode
     );
-    const args = mailer.sendVerifyLoginCodeEmail.args[0];
-    assert.equal(args[2].code, expectedCode);
+    const args = fxaMailer.sendVerifyLoginCodeEmail.args[0];
+    assert.equal(args[0].code, expectedCode);
   });
 });
 

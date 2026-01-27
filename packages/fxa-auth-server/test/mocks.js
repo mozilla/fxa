@@ -23,6 +23,9 @@ const { ProductConfigurationManager } = require('@fxa/shared/cms');
 const { FxaMailer } = require('../lib/senders/fxa-mailer');
 
 const proxyquire = require('proxyquire');
+const {
+  OAuthClientInfoServiceName,
+} = require('../lib/senders/oauth_client_info');
 const amplitudeModule = proxyquire('../lib/metrics/amplitude', {
   'fxa-shared/db/models/auth': {
     Account: {
@@ -357,6 +360,7 @@ module.exports = {
   mockPriceManager,
   mockProductConfigurationManager,
   mockFxaMailer,
+  mockOAuthClientInfo,
 };
 
 function mockCustoms(errors) {
@@ -1154,11 +1158,47 @@ function mockProductConfigurationManager() {
 function mockFxaMailer(overrides) {
   const mockFxaMailer = {
     // add new email methods here!
-    canSend: sinon.stub().resolves(false),
+    canSend: sinon.stub().resolves(true),
     sendRecoveryEmail: sinon.stub().resolves(),
     sendPasswordForgotOtpEmail: sinon.stub().resolves(),
+    sendPostVerifySecondaryEmail: sinon.stub().resolves(),
+    sendPostChangePrimaryEmail: sinon.stub().resolves(),
+    sendPostRemoveSecondaryEmail: sinon.stub().resolves(),
+    sendPostAddLinkedAccountEmail: sinon.stub().resolves(),
+    sendNewDeviceLoginEmail: sinon.stub().resolves(),
+    sendPostAddTwoStepAuthenticationEmail: sinon.stub().resolves(),
+    sendPostChangeTwoStepAuthenticationEmail: sinon.stub().resolves(),
+    sendPostNewRecoveryCodesEmail: sinon.stub().resolves(),
+    sendPostConsumeRecoveryCodeEmail: sinon.stub().resolves(),
+    sendLowRecoveryCodesEmail: sinon.stub().resolves(),
+    sendPostSigninRecoveryCodeEmail: sinon.stub().resolves(),
+    sendPostAddRecoveryPhoneEmail: sinon.stub().resolves(),
+    sendPostChangeRecoveryPhoneEmail: sinon.stub().resolves(),
+    sendPostRemoveRecoveryPhoneEmail: sinon.stub().resolves(),
+    sendPasswordResetRecoveryPhoneEmail: sinon.stub().resolves(),
+    sendPostSigninRecoveryPhoneEmail: sinon.stub().resolves(),
+    sendPostAddAccountRecoveryEmail: sinon.stub().resolves(),
+    sendPostChangeAccountRecoveryEmail: sinon.stub().resolves(),
+    sendPostRemoveAccountRecoveryEmail: sinon.stub().resolves(),
+    sendPasswordResetAccountRecoveryEmail: sinon.stub().resolves(),
+    sendPasswordResetWithRecoveryKeyPromptEmail: sinon.stub().resolves(),
+    sendPostVerifyEmail: sinon.stub().resolves(),
+    sendVerifyLoginCodeEmail: sinon.stub().resolves(),
+    sendVerifyShortCodeEmail: sinon.stub().resolves(),
+    sendVerifySecondaryCodeEmail: sinon.stub().resolves(),
+    sendVerifyLoginEmail: sinon.stub().resolves(),
+    sendVerifyEmail: sinon.stub().resolves(),
     ...overrides,
   };
   Container.set(FxaMailer, mockFxaMailer);
   return mockFxaMailer;
+}
+
+function mockOAuthClientInfo(overrides) {
+  const mock = {
+    fetch: sinon.stub().resolves('sync'),
+    ...overrides,
+  };
+  Container.set(OAuthClientInfoServiceName, mock);
+  return mock;
 }

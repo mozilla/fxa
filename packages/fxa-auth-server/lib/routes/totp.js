@@ -21,6 +21,9 @@ const {
 } = require('@fxa/accounts/recovery-phone');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 const { recordSecurityEvent } = require('./utils/security-event');
+const { FxaMailer } = require('../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
+const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
@@ -64,6 +67,8 @@ module.exports = (
 
   promisify(qrcode.toDataURL);
 
+  const fxaMailer = Container.get(FxaMailer);
+  const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
   const recoveryPhoneService = Container.get(RecoveryPhoneService);
   const backupCodeManager = Container.get(BackupCodeManager);
 
@@ -217,25 +222,37 @@ module.exports = (
       const geoData = request.app.geo;
       const ip = request.app.clientAddress;
       const service = request.payload.service || request.query.service;
-      const emailOptions = {
-        acceptLanguage: request.app.acceptLanguage,
-        ip: ip,
-        location: geoData.location,
-        service: service,
-        timeZone: geoData.timeZone,
-        uaBrowser: request.app.ua.browser,
-        uaBrowserVersion: request.app.ua.browserVersion,
-        uaOS: request.app.ua.os,
-        uaOSVersion: request.app.ua.osVersion,
-        uaDeviceType: request.app.ua.deviceType,
-        uid: uid,
-      };
+
       try {
-        await mailer.sendPostChangeTwoStepAuthenticationEmail(
-          account.emails,
-          account,
-          emailOptions
-        );
+        if (fxaMailer.canSend('postChangeTwoStepAuthentication')) {
+          await fxaMailer.sendPostChangeTwoStepAuthenticationEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.metricsContext(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(service),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.localTime(request),
+          });
+        } else {
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            ip: ip,
+            location: geoData.location,
+            service: service,
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uid: uid,
+          };
+          await mailer.sendPostChangeTwoStepAuthenticationEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
+        }
       } catch (error) {
         log.error('mailer.sendPostChangeTwoStepAuthenticationEmail', {
           error,
@@ -269,25 +286,36 @@ module.exports = (
 
     if (hasEnabledToken) {
       const account = await db.account(uid);
-      const geoData = request.app.geo;
-      const emailOptions = {
-        acceptLanguage: request.app.acceptLanguage,
-        location: geoData.location,
-        timeZone: geoData.timeZone,
-        uaBrowser: request.app.ua.browser,
-        uaBrowserVersion: request.app.ua.browserVersion,
-        uaOS: request.app.ua.os,
-        uaOSVersion: request.app.ua.osVersion,
-        uaDeviceType: request.app.ua.deviceType,
-        uid,
-      };
 
       try {
-        await mailer.sendPostRemoveTwoStepAuthenticationEmail(
-          account.emails,
-          account,
-          emailOptions
-        );
+        if (fxaMailer.canSend('postRemoveTwoStepAuthentication')) {
+          await fxaMailer.sendPostRemoveTwoStepAuthenticationEmail({
+            ...FxaMailerFormat.account(account),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.device(request),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.sync(service),
+          });
+        } else {
+          const geoData = request.app.geo;
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uid,
+          };
+          await mailer.sendPostRemoveTwoStepAuthenticationEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
+        }
       } catch (err) {
         // If email fails, log the error without aborting the operation.
         log.error('mailer.sendPostRemoveTwoStepAuthenticationEmail', {
@@ -684,19 +712,6 @@ module.exports = (
           const geoData = request.app.geo;
           const ip = request.app.clientAddress;
           const service = request.payload?.service || request.query?.service;
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            ip,
-            location: geoData.location,
-            service,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid,
-          };
 
           // include recovery method context if available
           const result = await recoveryPhoneService.hasConfirmed(uid);
@@ -704,15 +719,45 @@ module.exports = (
             ? recoveryPhoneService.maskPhoneNumber(result.phoneNumber)
             : undefined;
 
+          // TODO: Had to add this. Seems to be needed.
+          const recoveryMethod = maskedPhoneNumber ? 'phone' : 'codes';
+
           try {
-            await mailer.sendPostAddTwoStepAuthenticationEmail(
-              account.emails,
-              account,
-              {
-                ...emailOptions,
+            if (fxaMailer.canSend('postAddTwoStepAuthentication')) {
+              await fxaMailer.sendPostAddTwoStepAuthenticationEmail({
+                ...FxaMailerFormat.account(account),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.device(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                ...FxaMailerFormat.location(request),
+                recoveryMethod,
                 maskedPhoneNumber,
-              }
-            );
+              });
+            } else {
+              const emailOptions = {
+                acceptLanguage: request.app.acceptLanguage,
+                ip,
+                location: geoData.location,
+                service,
+                timeZone: geoData.timeZone,
+                uaBrowser: request.app.ua.browser,
+                uaBrowserVersion: request.app.ua.browserVersion,
+                uaOS: request.app.ua.os,
+                uaOSVersion: request.app.ua.osVersion,
+                uaDeviceType: request.app.ua.deviceType,
+                uid,
+              };
+              await mailer.sendPostAddTwoStepAuthenticationEmail(
+                account.emails,
+                account,
+                {
+                  ...emailOptions,
+                  recoveryMethod,
+                  maskedPhoneNumber,
+                }
+              );
+            }
           } catch (error) {
             log.error('mailer.sendPostAddTwoStepAuthenticationEmail', {
               error,
@@ -930,31 +975,59 @@ module.exports = (
 
         const { remaining } = await db.consumeRecoveryCode(uid, code);
 
-        const mailerPromises = [
-          mailer.sendPostConsumeRecoveryCodeEmail(account.emails, account, {
-            acceptLanguage,
-            ip,
-            location: geo.location,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          }),
-        ];
+        const mailerPromises = [];
+
+        if (fxaMailer.canSend('postConsumeRecoveryCode')) {
+          mailerPromises.push(
+            fxaMailer.sendPostConsumeRecoveryCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.device(request),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.sync(service),
+            })
+          );
+        } else {
+          mailerPromises.push(
+            mailer.sendPostConsumeRecoveryCodeEmail(account.emails, account, {
+              acceptLanguage,
+              ip,
+              location: geo.location,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            })
+          );
+        }
 
         if (remaining <= codeConfig.notifyLowCount) {
           log.info('account.recoveryCode.notifyLowCount', { uid, remaining });
 
-          mailerPromises.push(
-            mailer.sendLowRecoveryCodesEmail(account.emails, account, {
-              acceptLanguage,
-              numberRemaining: remaining,
-              uid,
-            })
-          );
+          if (fxaMailer.canSend('lowRecoveryCodes')) {
+            mailerPromises.push(
+              fxaMailer.sendLowRecoveryCodesEmail({
+                ...FxaMailerFormat.account(account),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.device(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                numberRemaining: remaining,
+              })
+            );
+          } else {
+            mailerPromises.push(
+              mailer.sendLowRecoveryCodesEmail(account.emails, account, {
+                acceptLanguage,
+                numberRemaining: remaining,
+                uid,
+              })
+            );
+          }
         }
 
         await Promise.all(mailerPromises);
@@ -1102,11 +1175,25 @@ module.exports = (
             uid: sessionToken.uid,
           };
 
-          return mailer.sendNewDeviceLoginEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
+          if (fxaMailer.canSend('newDeviceLogin')) {
+            const clientInfo = await oauthClientInfoService.fetch(service);
+            return await fxaMailer.sendNewDeviceLoginEmail({
+              ...FxaMailerFormat.account(account),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.sync(service),
+              clientName: clientInfo.name,
+              showBannerWarning: false,
+            });
+          } else {
+            return mailer.sendNewDeviceLoginEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          }
         }
       },
     },

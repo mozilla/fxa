@@ -37,6 +37,7 @@ export interface AuthApp extends RequestApplicationState {
     location?: {
       city: string;
       state: string;
+      stateCode: string;
       country: string;
       countryCode: string;
       postalCode?: string;
@@ -113,6 +114,12 @@ export interface AuthLogger extends Logger {
     request: AuthRequest,
     data: Record<string, any>
   ): Promise<void>;
+}
+
+export interface AuthClientInfoService {
+  fetch(service: string): Promise<{
+    name: string;
+  }>;
 }
 
 // Container token types

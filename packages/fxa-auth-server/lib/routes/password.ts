@@ -9,12 +9,8 @@ import * as isA from 'joi';
 import Container from 'typedi';
 
 import { OtpManager, OtpStorage } from '@fxa/shared/otp';
-import {
-  constructLocalTimeAndDateStrings,
-  splitEmails,
-} from '@fxa/accounts/email-renderer';
-
 import { FxaMailer } from '../senders/fxa-mailer';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 
 import { ConfigType } from '../../config';
 import PASSWORD_DOCS from '../../docs/swagger/password-api';
@@ -28,8 +24,6 @@ import * as requestHelper from '../routes/utils/request_helper';
 import { AuthLogger, AuthRequest } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
 import * as validators from './validators';
-import { formatUserAgentInfo } from 'fxa-shared/lib/user-agent';
-import { formatGeoData } from 'fxa-shared/lib/geo-data';
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -1033,38 +1027,48 @@ module.exports = function (
         request.setMetricsFlowCompleteSignal(flowCompleteSignal);
 
         const code = await otpManager.create(account.uid);
+        const ip = request.app.clientAddress;
+        const service = payload.service || request.query.service;
         const { deviceId, flowId, flowBeginTime } =
           await request.app.metricsContext;
         const geoData = request.app.geo;
         const {
           browser: uaBrowser,
+          browserVersion: uaBrowserVersion,
           os: uaOS,
           osVersion: uaOSVersion,
+          deviceType: uaDeviceType,
         } = request.app.ua;
 
-        const { to, cc } = splitEmails(account.emails);
-        const { time, date, acceptLanguage, timeZone } =
-          constructLocalTimeAndDateStrings(
-            request.app.acceptLanguage,
-            geoData.timeZone
-          );
-        await fxaMailer.sendPasswordForgotOtpEmail({
-          metricsEnabled: account.metricsEnabled,
-          code,
-          uid: account.uid,
-          to,
-          cc,
-          deviceId,
-          flowId,
-          flowBeginTime,
-          time,
-          date,
-          acceptLanguage,
-          timeZone,
-          sync: false,
-          device: formatUserAgentInfo(uaBrowser, uaOS, uaOSVersion),
-          location: formatGeoData(geoData.location),
-        });
+        if (fxaMailer.canSend('passwordForgotOtp')) {
+          await fxaMailer.sendPasswordForgotOtpEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.sync(service),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.localTime(request),
+            code,
+          });
+        } else {
+          await mailer.sendPasswordForgotOtpEmail(account.emails, account, {
+            code,
+            service,
+            acceptLanguage: request.app.acceptLanguage,
+            deviceId,
+            flowId,
+            flowBeginTime,
+            ip,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uid: account.uid,
+          });
+        }
 
         glean.resetPassword.otpEmailSent(request);
 

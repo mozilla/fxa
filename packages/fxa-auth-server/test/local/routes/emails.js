@@ -738,6 +738,7 @@ describe('/recovery_email/verify_code', () => {
   };
   const mockDB = mocks.mockDB(dbData, dbErrors);
   const mockMailer = mocks.mockMailer();
+  const mockFxaMailer = mocks.mockFxaMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = mocks.mockCustoms();
   const verificationReminders = mocks.mockVerificationReminders();
@@ -763,6 +764,8 @@ describe('/recovery_email/verify_code', () => {
     mockLog.notifyAttachedServices.resetHistory();
     mockMailer.sendPostVerifyEmail.resetHistory();
     mockMailer.sendVerifySecondaryCodeEmail.resetHistory();
+    mockFxaMailer.sendPostVerifyEmail.resetHistory();
+    mockFxaMailer.sendVerifySecondaryCodeEmail.resetHistory();
     mockPush.notifyAccountUpdated.resetHistory();
     verificationReminders.delete.resetHistory();
   });
@@ -792,15 +795,15 @@ describe('/recovery_email/verify_code', () => {
         assert.equal(args[2].userAgent, 'test user-agent');
 
         assert.equal(
-          mockMailer.sendPostVerifyEmail.callCount,
+          mockFxaMailer.sendPostVerifyEmail.callCount,
           1,
           'sendPostVerifyEmail was called once'
         );
         assert.equal(
-          mockMailer.sendPostVerifyEmail.args[0][2].service,
-          mockRequest.payload.service
+          mockFxaMailer.sendPostVerifyEmail.args[0][0].sync,
+          mockRequest.payload.service === 'sync'
         );
-        assert.equal(mockMailer.sendPostVerifyEmail.args[0][2].uid, uid);
+        assert.equal(mockFxaMailer.sendPostVerifyEmail.args[0][0].uid, uid);
 
         assert.equal(
           mockLog.activityEvent.callCount,
@@ -948,7 +951,7 @@ describe('/recovery_email/verify_code', () => {
         );
 
         assert.equal(verificationReminders.delete.callCount, 1);
-        assert.equal(mockMailer.sendPostVerifyEmail.callCount, 1);
+        assert.equal(mockFxaMailer.sendPostVerifyEmail.callCount, 1);
         assert.equal(mockPush.notifyAccountUpdated.callCount, 1);
 
         assert.equal(JSON.stringify(response), '{}');
@@ -1107,12 +1110,7 @@ describe('/recovery_email/verify_code', () => {
 describe('/recovery_email', () => {
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockLog = mocks.mockLog();
-  let dbData,
-    accountRoutes,
-    mockDB,
-    mockRequest,
-    route,
-    stripeHelper;
+  let dbData, accountRoutes, mockDB, mockRequest, route, stripeHelper;
   const mockMailer = mocks.mockMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = mocks.mockCustoms();

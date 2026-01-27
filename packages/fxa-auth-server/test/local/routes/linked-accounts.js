@@ -45,7 +45,14 @@ function runTest(route, request, assertions) {
 
 describe('/linked_account', function () {
   this.timeout(5000);
-  let mockLog, mockDB, mockMailer, mockRequest, route, axiosMock, statsd;
+  let mockLog,
+    mockDB,
+    mockMailer,
+    mockFxaMailer,
+    mockRequest,
+    route,
+    axiosMock,
+    statsd;
 
   const UID = 'fxauid';
 
@@ -66,6 +73,8 @@ describe('/linked_account', function () {
           googleAuthConfig: { clientId: 'OooOoo' },
         };
         mockMailer = mocks.mockMailer();
+        mockFxaMailer = mocks.mockFxaMailer();
+        mocks.mockOAuthClientInfo();
         mockRequest = mocks.mockRequest({
           log: mockLog,
           payload: {
@@ -229,7 +238,7 @@ describe('/linked_account', function () {
             GOOGLE_PROVIDER
           )
         );
-        assert.equal(mockMailer.sendPostAddLinkedAccountEmail.callCount, 1);
+        assert.equal(mockFxaMailer.sendPostAddLinkedAccountEmail.callCount, 1);
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
@@ -461,7 +470,7 @@ describe('/linked_account', function () {
             APPLE_PROVIDER
           )
         );
-        assert.equal(mockMailer.sendPostAddLinkedAccountEmail.callCount, 1);
+        assert.equal(mockFxaMailer.sendPostAddLinkedAccountEmail.callCount, 1);
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);

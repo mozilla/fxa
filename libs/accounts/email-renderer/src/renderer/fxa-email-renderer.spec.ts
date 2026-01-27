@@ -252,7 +252,6 @@ describe('FxA Email Renderer', () => {
       link: mockLink,
       time: '12:00 PM',
       passwordChangeLink: mockLinkPasswordChange,
-      productName: 'Sync',
       ...defaultLayoutTemplateValues,
     });
     expect(email).toBeDefined();
@@ -315,6 +314,40 @@ describe('FxA Email Renderer', () => {
       twoFactorSupportLink: mockLinkSupport,
       passwordChangeLink: mockLinkPasswordChange,
       ...defaultLayoutTemplateValues,
+      recoveryMethod: '', // Won't render phone or recovery codes section.
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
+
+  it('should render renderPostAddTwoStepAuthentication with a recovery phone messaging', async () => {
+    const email = await renderer.renderPostAddTwoStepAuthentication({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      twoFactorSupportLink: mockLinkSupport,
+      passwordChangeLink: mockLinkPasswordChange,
+      ...defaultLayoutTemplateValues,
+      recoveryMethod: 'phone',
+      maskedPhoneNumber: '*******123',
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
+
+  it('should render renderPostAddTwoStepAuthentication with a recovery codes messaging', async () => {
+    const email = await renderer.renderPostAddTwoStepAuthentication({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      time: '12:00 PM',
+      twoFactorSupportLink: mockLinkSupport,
+      passwordChangeLink: mockLinkPasswordChange,
+      ...defaultLayoutTemplateValues,
+      recoveryMethod: 'codes',
     });
     expect(email).toBeDefined();
     expect(email.html).toMatchSnapshot('matches full email snapshot');

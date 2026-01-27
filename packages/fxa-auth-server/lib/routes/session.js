@@ -20,6 +20,9 @@ const { getOptionalCmsEmailConfig } = require('./utils/account');
 const { Container } = require('typedi');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const authMethods = require('../authMethods');
+const { FxaMailer } = require('../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
+const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
 
 module.exports = function (
   log,
@@ -45,6 +48,9 @@ module.exports = function (
   const cmsManager = Container.has(RelyingPartyConfigurationManager)
     ? Container.get(RelyingPartyConfigurationManager)
     : null;
+
+  const fxaMailer = Container.get(FxaMailer);
+  const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
 
   const routes = [
     {
@@ -516,26 +522,40 @@ module.exports = function (
           // Send new device login notification email after successful verification
           const geoData = request.app.geo;
           const service = options.service || request.query.service;
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            ip: request.app.clientAddress,
-            location: geoData.location,
-            service,
-            timeZone: geoData.timeZone,
-            uaBrowser: sessionToken.uaBrowser,
-            uaBrowserVersion: sessionToken.uaBrowserVersion,
-            uaOS: sessionToken.uaOS,
-            uaOSVersion: sessionToken.uaOSVersion,
-            uaDeviceType: sessionToken.uaDeviceType,
-            uid,
-          };
 
           try {
-            await mailer.sendNewDeviceLoginEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
+            if (fxaMailer.canSend('newDeviceLogin')) {
+              const clientInfo = await oauthClientInfoService.fetch(service);
+              await fxaMailer.sendNewDeviceLoginEmail({
+                ...FxaMailerFormat.account(account),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                clientName: clientInfo.name,
+                showBannerWarning: false,
+              });
+            } else {
+              const emailOptions = {
+                acceptLanguage: request.app.acceptLanguage,
+                ip: request.app.clientAddress, // TODO: Double check this... It doesn't seem to be used?
+                location: geoData.location,
+                service,
+                timeZone: geoData.timeZone,
+                uaBrowser: sessionToken.uaBrowser,
+                uaBrowserVersion: sessionToken.uaBrowserVersion,
+                uaOS: sessionToken.uaOS,
+                uaOSVersion: sessionToken.uaOSVersion,
+                uaDeviceType: sessionToken.uaDeviceType,
+                uid,
+              };
+              await mailer.sendNewDeviceLoginEmail(
+                account.emails,
+                account,
+                emailOptions
+              );
+            }
           } catch (err) {
             log.trace('Session.verify_code.sendNewDeviceLoginEmail.error', {
               error: err,
@@ -609,27 +629,71 @@ module.exports = function (
         if (account.primaryEmail.isVerified) {
           // Unverified emails mean that the user is attempting to resend the code from signup page,
           // therefore they get sent a different email template with the code.
-          await mailer.sendVerifyLoginCodeEmail(
-            account.emails,
-            account,
-            await getOptionalCmsEmailConfig(options, {
+          if (fxaMailer.canSend('verifyLoginCode')) {
+            // This will just short-circuit to Mozilla, but leaving for future proofing.
+            const clientInfo = await oauthClientInfoService.fetch(undefined);
+            const cmsConfig = await getOptionalCmsEmailConfig(options, {
               request,
               cmsManager,
               log,
               emailTemplate: 'VerifyLoginCodeEmail',
-            })
-          );
+            });
+            await fxaMailer.sendVerifyLoginCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+              ...FxaMailerFormat.cmsLogo(cmsConfig),
+              ...FxaMailerFormat.cmsEmailSubject(cmsConfig),
+              code,
+              service: clientInfo.name,
+              serviceName: clientInfo.name,
+            });
+          } else {
+            await mailer.sendVerifyLoginCodeEmail(
+              account.emails,
+              account,
+              await getOptionalCmsEmailConfig(options, {
+                request,
+                cmsManager,
+                log,
+                emailTemplate: 'VerifyLoginCodeEmail',
+              })
+            );
+          }
         } else {
-          await mailer.sendVerifyShortCodeEmail(
-            [],
-            account,
-            await getOptionalCmsEmailConfig(options, {
+          if (fxaMailer.canSend('verifyShortCode')) {
+            const cmsConfig = await getOptionalCmsEmailConfig(options, {
               request,
               cmsManager,
               log,
               emailTemplate: 'VerifyShortCodeEmail',
-            })
-          );
+            });
+            await fxaMailer.sendVerifyShortCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+              ...FxaMailerFormat.cmsLogo(cmsConfig),
+              ...FxaMailerFormat.cmsEmailSubject(cmsConfig),
+              code,
+            });
+          } else {
+            await mailer.sendVerifyShortCodeEmail(
+              [],
+              account,
+              await getOptionalCmsEmailConfig(options, {
+                request,
+                cmsManager,
+                log,
+                emailTemplate: 'VerifyShortCodeEmail',
+              })
+            );
+          }
         }
 
         return {};
@@ -842,11 +906,25 @@ module.exports = function (
           };
 
           try {
-            await mailer.sendNewDeviceLoginEmail(
-              account.emails,
-              account,
-              emailOptions
-            );
+            if (fxaMailer.canSend('newDeviceLogin')) {
+              const clientInfo = await oauthClientInfoService.fetch(service);
+              await fxaMailer.sendNewDeviceLoginEmail({
+                ...FxaMailerFormat.account(account),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.sync(service),
+                clientName: clientInfo.name,
+                showBannerWarning: false,
+              });
+            } else {
+              await mailer.sendNewDeviceLoginEmail(
+                account.emails,
+                account,
+                emailOptions
+              );
+            }
           } catch (err) {
             log.trace('Session.verify_push.sendNewDeviceLoginEmail.error', {
               error: err,

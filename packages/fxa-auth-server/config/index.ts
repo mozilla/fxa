@@ -470,6 +470,12 @@ const convictConf = convict({
       env: 'SMTP_MAX_CONNECTIONS',
       format: Number,
     },
+    sendingRate: {
+      default: 1000,
+      doc: 'Maximum number of ses messages to send per second.',
+      env: 'SMTP_MAX_SENDING_RATE',
+      format: Number,
+    },
     prependVerificationSubdomain: {
       enabled: {
         doc: 'Flag to prepend a verification subdomain to verification emails',
@@ -501,6 +507,11 @@ const convictConf = convict({
       default:
         'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8&utm_source=email',
     },
+    mozillaSupportUrl: {
+      doc: 'url to general Mozilla support page',
+      format: String,
+      default: 'https://support.mozilla.org',
+    },
     supportUrl: {
       doc: 'url to Mozilla account support page',
       format: String,
@@ -522,6 +533,12 @@ const convictConf = convict({
       doc: 'url to Mozilla Accounts privacy page',
       format: String,
       default: 'https://www.mozilla.org/privacy/mozilla-accounts/',
+    },
+    twoFactorSupportUrl: {
+      doc: 'url to support page about two factor auth',
+      format: String,
+      default:
+        'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
     },
     passwordManagerInfoUrl: {
       doc: 'url to Firefox password manager information',
@@ -548,6 +565,12 @@ const convictConf = convict({
       env: 'UNSUBSCRIBE_EMAIL_LISTS_URL',
       default:
         'https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0',
+    },
+    defaultSurveyUrl: {
+      doc: 'The default survey link',
+      format: String,
+      default:
+        'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
     },
     sesConfigurationSet: {
       doc:
@@ -2718,6 +2741,10 @@ convictConf.set('smtp.accountSettingsUrl', `${baseUri}/settings`);
 convictConf.set(
   'smtp.accountRecoveryCodesUrl',
   `${baseUri}/settings/two_step_authentication/replace_codes`
+);
+convictConf.set(
+  'smpt.twoFactorSupportUrl',
+  'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication'
 );
 convictConf.set('smtp.verificationUrl', `${baseUri}/verify_email`);
 convictConf.set('smtp.pushVerificationUrl', `${baseUri}/push/confirm_login`);

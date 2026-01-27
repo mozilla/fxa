@@ -34,7 +34,7 @@ import {
   playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
 } from '../payments/iap/iap-formatter';
 import { StripeHelper } from '../payments/stripe';
-import { AuthLogger, AuthRequest } from '../types';
+import { AuthClientInfoService, AuthLogger, AuthRequest } from '../types';
 import { deleteAccountIfUnverified, fetchRpCmsData } from './utils/account';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
@@ -56,6 +56,9 @@ import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { OtpUtils } from './utils/otp';
 import { getExistingSecondaryEmailRecord } from './emails';
 import { Redis } from 'ioredis';
+import { FxaMailer } from '../senders/fxa-mailer';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
+import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -78,6 +81,8 @@ export class AccountHandler {
   private accountTasks: DeleteAccountTasks;
   private profileClient: ProfileClient;
   private readonly cmsManager: RelyingPartyConfigurationManager | null;
+  private fxaMailer: FxaMailer;
+  private oauthClientInfoService: AuthClientInfoService;
 
   constructor(
     private log: AuthLogger,
@@ -115,6 +120,8 @@ export class AccountHandler {
     this.cmsManager = Container.has(RelyingPartyConfigurationManager)
       ? Container.get(RelyingPartyConfigurationManager)
       : null;
+    this.fxaMailer = Container.get(FxaMailer);
+    this.oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
   }
 
   private async generateRandomValues() {
@@ -1369,28 +1376,63 @@ export class AccountHandler {
               uid: sessionToken.uid,
             };
             if (!rpCmsConfig || !rpCmsConfig.NewDeviceLoginEmail) {
-              await this.mailer.sendNewDeviceLoginEmail(
-                accountRecord.emails,
-                accountRecord,
-                emailContext
-              );
+              if (this.fxaMailer.canSend('newDeviceLogin')) {
+                const clientInfo =
+                  await this.oauthClientInfoService.fetch(service);
+                await this.fxaMailer.sendNewDeviceLoginEmail({
+                  ...FxaMailerFormat.account(accountRecord),
+                  ...FxaMailerFormat.device(request),
+                  ...FxaMailerFormat.localTime(request),
+                  ...FxaMailerFormat.location(request),
+                  ...(await FxaMailerFormat.metricsContext(request)),
+                  ...FxaMailerFormat.sync(service),
+                  clientName: clientInfo.name,
+                  showBannerWarning: false,
+                });
+              } else {
+                await this.mailer.sendNewDeviceLoginEmail(
+                  accountRecord.emails,
+                  accountRecord,
+                  emailContext
+                );
+              }
             } else {
-              const rpEmailContext = {
-                ...emailContext,
-                target: 'strapi',
-                cmsRpClientId: rpCmsConfig.clientId,
-                cmsRpFromName: rpCmsConfig.shared?.emailFromName,
-                entrypoint,
-                logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-                logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
-                logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
-                ...rpCmsConfig.NewDeviceLoginEmail,
-              };
-              await this.mailer.sendNewDeviceLoginEmail(
-                accountRecord.emails,
-                accountRecord,
-                rpEmailContext
-              );
+              if (this.fxaMailer.canSend('newDeviceLogin')) {
+                const clientInfo =
+                  await this.oauthClientInfoService.fetch(service);
+                await this.fxaMailer.sendNewDeviceLoginEmail({
+                  ...FxaMailerFormat.account(accountRecord),
+                  ...FxaMailerFormat.device(request),
+                  ...FxaMailerFormat.localTime(request),
+                  ...FxaMailerFormat.location(request),
+                  ...(await FxaMailerFormat.metricsContext(request)),
+                  ...FxaMailerFormat.sync(service),
+                  ...FxaMailerFormat.cmsLogo(rpCmsConfig.shared),
+                  ...FxaMailerFormat.cmsEmailSubject(
+                    rpCmsConfig.NewDeviceLoginEmail
+                  ),
+                  ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
+                  clientName: clientInfo.name,
+                  showBannerWarning: false,
+                });
+              } else {
+                const rpEmailContext = {
+                  ...emailContext,
+                  target: 'strapi',
+                  cmsRpClientId: rpCmsConfig.clientId,
+                  cmsRpFromName: rpCmsConfig.shared?.emailFromName,
+                  entrypoint,
+                  logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
+                  logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
+                  logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
+                  ...rpCmsConfig.NewDeviceLoginEmail,
+                };
+                await this.mailer.sendNewDeviceLoginEmail(
+                  accountRecord.emails,
+                  accountRecord,
+                  rpEmailContext
+                );
+              }
             }
           } catch (err) {
             // If we couldn't email them, no big deal. Log
@@ -1847,17 +1889,42 @@ export class AccountHandler {
         // successful login. The `isFirefoxMobileClient` option matches the
         // client-side check against `integration.isFirefoxMobileClient()`.
         if (hasTotpToken || isFirefoxMobileClient) {
-          return await this.mailer.sendPasswordResetWithRecoveryKeyPromptEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
+          if (this.fxaMailer.canSend('passwordResetWithRecoveryKeyPrompt')) {
+            return await this.fxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail(
+              {
+                ...FxaMailerFormat.account(account),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.sync(false),
+              }
+            );
+          } else {
+            return await this.mailer.sendPasswordResetWithRecoveryKeyPromptEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          }
         } else {
-          return await this.mailer.sendPasswordResetAccountRecoveryEmail(
-            account.emails,
-            account,
-            emailOptions
-          );
+          if (this.fxaMailer.canSend('passwordResetAccountRecovery')) {
+            return await this.fxaMailer.sendPasswordResetAccountRecoveryEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
+              productName: 'Firefox',
+            });
+          } else {
+            return await this.mailer.sendPasswordResetAccountRecoveryEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          }
         }
       }
     };
@@ -2657,7 +2724,14 @@ export const accountRoutes = (
             }),
         },
       },
-      handler: async (request: AuthRequest) => accountHandler.reset(request),
+      handler: async (request: AuthRequest) => {
+        try {
+          return accountHandler.reset(request);
+        } catch (err) {
+          console.log('!!!', err);
+          throw err;
+        }
+      },
     },
     {
       method: 'POST',

@@ -12,7 +12,15 @@ const { gleanMetrics } = require('../../../../lib/metrics/glean');
 const TEST_EMAIL = 'test@email.com';
 const TEST_UID = '123123';
 
-let db, log, mailer, push, request, verificationReminders, utils, account;
+let db,
+  log,
+  mailer,
+  fxaMailer,
+  push,
+  request,
+  verificationReminders,
+  utils,
+  account;
 
 const gleanConfig = {
   enabled: false,
@@ -25,6 +33,7 @@ const glean = gleanMetrics({ gleanMetrics: gleanConfig });
 async function setup(options) {
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
+  fxaMailer = mocks.mockFxaMailer();
   const mailer = options.mailer || {};
   const verificationReminders =
     options.verificationReminders || mocks.mockVerificationReminders();
@@ -132,12 +141,12 @@ describe('verifyAccount', () => {
     });
 
     it('should send post account verification email', () => {
-      assert.calledOnce(mailer.sendPostVerifyEmail);
+      assert.calledOnce(fxaMailer.sendPostVerifyEmail);
       assert.equal(
-        mailer.sendPostVerifyEmail.args[0][2].service,
-        options.service
+        fxaMailer.sendPostVerifyEmail.args[0][0].sync,
+        options.service === 'sync'
       );
-      assert.equal(mailer.sendPostVerifyEmail.args[0][2].uid, TEST_UID);
+      assert.equal(fxaMailer.sendPostVerifyEmail.args[0][0].uid, TEST_UID);
     });
   });
 });

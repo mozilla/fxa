@@ -38,6 +38,7 @@ export type UAScalarProperties = {
 
 // @ts-ignore
 import * as ua from 'node-uap';
+import { Account } from '../db/models';
 
 // We know this won't match "Symbian^3", "UI/WKWebView" or "Mail.ru" but
 // it's simpler and safer to limit to alphanumerics, underscore and space.
@@ -225,23 +226,29 @@ function marshallDeviceType(formFactor: string) {
  * @param uaOS - OS name from user agent
  * @param uaOSVersion - OS version from user agent
  */
-export const formatUserAgentInfo = (
-  uaBrowser?: string,
-  uaOS?: string,
-  uaOSVersion?: string
-):
-  | {
-      uaBrowser: string;
-      uaOS: string;
-      uaOSVersion: string;
-    }
-  | undefined => {
-  const safeBrowser = safeReturnName(uaBrowser || '');
-  const safeOS = safeReturnName(uaOS || '');
-  const safeOSVersion = safeReturnVersion(uaOSVersion || '');
+export const formatUserAgentInfo = ({
+  browser,
+  os,
+  osVersion,
+}: {
+  browser?: string;
+  os?: string;
+  osVersion?: string;
+}): {
+  uaBrowser: string;
+  uaOS: string;
+  uaOSVersion: string;
+} => {
+  const safeBrowser = safeReturnName(browser || '');
+  const safeOS = safeReturnName(os || '');
+  const safeOSVersion = safeReturnVersion(osVersion || '');
 
   return !safeBrowser && !safeOS
-    ? undefined
+    ? {
+        uaBrowser: '',
+        uaOS: '',
+        uaOSVersion: '',
+      }
     : {
         uaBrowser: safeBrowser || '',
         uaOS: safeOS || '',
