@@ -150,7 +150,7 @@ describe('IP Profiling', function () {
 
     return runTest(route, mockRequest, (response) => {
       assert.equal(
-        mockMailer.sendVerifyLoginEmail.callCount,
+        mockFxaMailer.sendVerifyLoginEmail.callCount,
         1,
         'mailer.sendVerifyLoginEmail was called'
       );
@@ -172,7 +172,7 @@ describe('IP Profiling', function () {
 
     return runTest(route, mockRequest, (response) => {
       assert.equal(
-        mockMailer.sendVerifyLoginEmail.callCount,
+        mockFxaMailer.sendVerifyLoginEmail.callCount,
         0,
         'mailer.sendVerifyLoginEmail was not called'
       );
@@ -194,7 +194,7 @@ describe('IP Profiling', function () {
 
     return runTest(route, mockRequest, (response) => {
       assert.equal(
-        mockMailer.sendVerifyLoginEmail.callCount,
+        mockFxaMailer.sendVerifyLoginEmail.callCount,
         1,
         'mailer.sendVerifyLoginEmail was called'
       );
@@ -230,7 +230,7 @@ describe('IP Profiling', function () {
 
     return runTest(route, mockRequest, (response) => {
       assert.equal(
-        mockMailer.sendVerifyLoginEmail.callCount,
+        mockFxaMailer.sendVerifyLoginEmail.callCount,
         1,
         'mailer.sendVerifyLoginEmail was called'
       );
@@ -239,7 +239,7 @@ describe('IP Profiling', function () {
       return runTest(route, mockRequest);
     }).then((response) => {
       assert.equal(
-        mockMailer.sendVerifyLoginEmail.callCount,
+        mockFxaMailer.sendVerifyLoginEmail.callCount,
         2,
         'mailer.sendVerifyLoginEmail was called'
       );
@@ -254,7 +254,7 @@ describe('IP Profiling', function () {
 
     return runTest(route, mockRequest, (response) => {
       assert.equal(
-        mockMailer.sendVerifyLoginEmail.callCount,
+        mockFxaMailer.sendVerifyLoginEmail.callCount,
         1,
         'mailer.sendVerifyLoginEmail was called'
       );
@@ -263,7 +263,7 @@ describe('IP Profiling', function () {
       return runTest(route, mockRequest);
     }).then((response) => {
       assert.equal(
-        mockMailer.sendVerifyLoginEmail.callCount,
+        mockFxaMailer.sendVerifyLoginEmail.callCount,
         2,
         'mailer.sendVerifyLoginEmail was called'
       );

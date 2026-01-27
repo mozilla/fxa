@@ -424,6 +424,40 @@ export class EmailLinkBuilder {
   buildDesktopLink() {
     return this.config.firefoxDesktopUrl;
   }
+
+  buildVerifyEmailLink(
+    templateName: string,
+    metricsEnabled: boolean,
+    query: {
+      code: string;
+      uid: string;
+      resume?: string;
+      redirectTo?: string;
+      service?: string;
+    }
+  ): string {
+    const url = new URL(`${this.baseUri}/verify_email`);
+    if (this.config.prependVerificationSubdomain.enabled) {
+      url.host = `${this.config.prependVerificationSubdomain.subdomain}.${url.host}`;
+    }
+    this.addUTMParams(url, templateName, metricsEnabled);
+    this.addQueryParams(url, query);
+    return url.toString();
+  }
+
+  buildReportSignInLink(
+    templateName: string,
+    metricsEnabled: boolean,
+    query: {
+      uid: string;
+      unblockCode: string;
+    }
+  ): string {
+    const url = new URL(`${this.baseUri}/report_signin`);
+    this.addUTMParams(url, templateName, metricsEnabled, 'report');
+    this.addQueryParams(url, query);
+    return url.toString();
+  }
 }
 
 // PORTED FROM fxa-shared/subscriptions/configuration/utils.ts

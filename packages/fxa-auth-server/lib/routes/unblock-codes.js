@@ -13,9 +13,13 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const validators = require('./validators');
 
 const { HEX_STRING, BASE_36 } = validators;
+const { Container } = require('typedi');
+const { FxaMailer } = require('../senders/fxa-mailer');
+const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 
 module.exports = (log, db, mailer, config, customs) => {
   const unblockCodeLen = (config && config.codeLength) || 0;
+  const fxaMailer = Container.get(FxaMailer);
 
   return [
     {
@@ -54,21 +58,32 @@ module.exports = (log, db, mailer, config, customs) => {
           osVersion: uaOSVersion,
           deviceType: uaDeviceType,
         } = request.app.ua;
-
-        await mailer.sendUnblockCodeEmail(emails, emailRecord, {
-          acceptLanguage: request.app.acceptLanguage,
-          unblockCode,
-          flowId,
-          flowBeginTime,
-          location: request.app.geo.location,
-          timeZone: request.app.geo.timeZone,
-          uaBrowser,
-          uaBrowserVersion,
-          uaOS,
-          uaOSVersion,
-          uaDeviceType,
-          uid,
-        });
+        if (fxaMailer.canSend('unblockCode')) {
+          await fxaMailer.sendUnblockCodeEmail({
+            ...FxaMailerFormat.account(emailRecord),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+            unblockCode,
+          });
+        } else {
+          await mailer.sendUnblockCodeEmail(emails, emailRecord, {
+            acceptLanguage: request.app.acceptLanguage,
+            unblockCode,
+            flowId,
+            flowBeginTime,
+            location: request.app.geo.location,
+            timeZone: request.app.geo.timeZone,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uid,
+          });
+        }
 
         await request.emitMetricsEvent('account.login.sentUnblockCode');
 
