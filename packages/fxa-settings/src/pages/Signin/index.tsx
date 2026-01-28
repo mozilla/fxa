@@ -83,7 +83,6 @@ const Signin = ({
 
   const isOAuth = isOAuthIntegration(integration);
   const isOAuthNative = isOAuthNativeIntegration(integration);
-  const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const clientId = integration.getClientId();
   const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
 
@@ -364,6 +363,8 @@ const Signin = ({
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninPage.pageTitle;
   const splitLayout = cmsInfo?.SigninPage.splitLayout;
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
 
   return (
     <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
@@ -440,13 +441,8 @@ const Signin = ({
           </div>
         </div>
 
-        {isFirefoxClientServiceRelay && (
-          <FtlMsg id="signin-desktop-relay">
-            <p className="mt-6 mb-4 text-sm">
-              Firefox will try sending you back to use an email mask after you
-              sign in.
-            </p>
-          </FtlMsg>
+        {additionalAccessibilityInfo && (
+          <p className="mt-6 mb-4 text-sm">{additionalAccessibilityInfo}</p>
         )}
       </div>
       {(!hasLinkedAccountAndNoPassword ||

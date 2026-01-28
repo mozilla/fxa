@@ -17,7 +17,11 @@ import { Session, AppContext } from '../../../models';
 import { SigninTokenCodeProps } from './interfaces';
 import { createOAuthNativeIntegration, Subject } from './mocks';
 import { MOCK_SIGNUP_CODE } from '../../Signup/ConfirmSignupCode/mocks';
-import { MOCK_EMAIL, MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
+import {
+  MOCK_CMS_INFO,
+  MOCK_EMAIL,
+  MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+} from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
   createMockSigninOAuthIntegration,
@@ -82,9 +86,6 @@ function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
-
 describe('SigninTokenCode page', () => {
   beforeEach(() => {
     applyDefaultMocks();
@@ -125,12 +126,17 @@ describe('SigninTokenCode page', () => {
 
     // initially hidden
     expect(screen.queryByRole('Code expired?')).not.toBeInTheDocument();
-    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
   });
 
-  it('renders expected text when service=relay', () => {
-    render({ integration: createOAuthNativeIntegration(false) });
-    screen.getByText(serviceRelayText);
+  it('renders additional accessibility info from CMS', () => {
+    const mockIntegrationWithCms = createOAuthNativeIntegration(
+      true,
+      MOCK_CMS_INFO
+    );
+    render({ integration: mockIntegrationWithCms });
+    expect(
+      screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo)
+    ).toBeInTheDocument();
   });
 
   it('emits a metrics event on render', () => {
@@ -180,7 +186,9 @@ describe('SigninTokenCode page', () => {
         screen.getByText('Code expired?');
       });
 
-      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      const resendButton = screen.getByRole('button', {
+        name: 'Email new code.',
+      });
       fireEvent.click(resendButton);
 
       await waitFor(() => {
@@ -189,7 +197,9 @@ describe('SigninTokenCode page', () => {
 
       // Countdown button should appear and be disabled
       const resendButtonAfter = await waitFor(() => {
-        const button = screen.getByRole('button', { name: /Email new code in/ });
+        const button = screen.getByRole('button', {
+          name: /Email new code in/,
+        });
         expect(button).toBeDisabled();
         return button;
       });

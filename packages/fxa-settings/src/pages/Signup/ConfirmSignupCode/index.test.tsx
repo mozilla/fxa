@@ -22,6 +22,7 @@ import {
   MOCK_AUTH_ERROR_RATE_LIMIT,
 } from './mocks';
 import {
+  MOCK_CMS_INFO,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
   MOCK_STORED_ACCOUNT,
   mockFinishOAuthFlowHandler,
@@ -118,9 +119,6 @@ function renderWithSession({
     </AppContext.Provider>
   );
 }
-
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
 
 describe('ConfirmSignupCode page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
@@ -249,6 +247,7 @@ describe('ConfirmSignupCode page', () => {
     screen.getByRole('button', { name: 'Confirm' });
     screen.getByRole('button', { name: 'Email new code.' });
     screen.getByTestId('cms-logo');
+    screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo);
   });
 
   describe('OAuth web integration', () => {
@@ -290,7 +289,6 @@ describe('ConfirmSignupCode page', () => {
         integration,
         finishOAuthFlowHandler: jest.fn(),
       });
-      expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
     });
 
     it('submits when a valid code is pasted', async () => {
@@ -384,7 +382,6 @@ describe('ConfirmSignupCode page', () => {
         integration,
         finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
       });
-      screen.getByText(serviceRelayText);
       submit();
 
       await waitFor(() => {
@@ -590,7 +587,9 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
       integration: mockWebIntegration,
     });
 
-    const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+    const resendButton = screen.getByRole('button', {
+      name: 'Email new code.',
+    });
     fireEvent.click(resendButton);
 
     await waitFor(() => {

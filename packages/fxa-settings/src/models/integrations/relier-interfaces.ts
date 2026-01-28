@@ -75,6 +75,7 @@ export interface SharedRelierCmsInfo {
   favicon?: string | undefined;
   headlineFontSize?: HeadlineFontSize | null;
   headlineTextColor?: string | null;
+  additionalAccessibilityInfo?: string | undefined;
 }
 
 export interface FeatureFlagsRelierCmsInfo {

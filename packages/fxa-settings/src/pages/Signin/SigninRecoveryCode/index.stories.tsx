@@ -66,19 +66,6 @@ export const DefaultWithCms = () => (
   />
 );
 
-export const WithOAuthDesktopServiceRelay = () => (
-  <SigninRecoveryCode
-    finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
-    integration={createMockOAuthNativeIntegration(false)}
-    navigateToRecoveryPhone={() => {
-      action('handleNavigation')();
-      return Promise.resolve();
-    }}
-    signinState={mockSigninLocationState}
-    submitRecoveryCode={mockSubmitSuccess}
-  />
-);
-
 export const WithCodeErrorOnSubmit = () => (
   <SigninRecoveryCode
     finishOAuthFlowHandler={mockFinishOAuthFlowHandler}

@@ -28,7 +28,7 @@ export type CompleteResetPasswordOAuthIntegration = Pick<
 >;
 
 type CompleteResetPasswordIntegration =
-  | Pick<Integration, 'type' | 'getServiceName'>
+  | Pick<Integration, 'type' | 'getServiceName' | 'getCmsInfo'>
   | CompleteResetPasswordOAuthIntegration;
 
 export type CompleteResetPasswordContainerProps = {
@@ -43,8 +43,7 @@ export interface CompleteResetPasswordProps {
   hasConfirmedRecoveryKey?: boolean;
   estimatedSyncDeviceCount?: number;
   recoveryKeyExists?: boolean;
-  integrationIsSync: boolean;
-  isFirefoxClientServiceRelay: boolean;
+  integration: Integration;
 }
 
 export type AccountResetData = {
