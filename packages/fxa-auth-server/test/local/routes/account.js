@@ -402,6 +402,8 @@ describe('/account/reset', () => {
           service: undefined,
           userAgent: 'test user-agent',
           uid: uid,
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'event data was correct'
       );
@@ -675,6 +677,8 @@ describe('/account/reset', () => {
           service: undefined,
           userAgent: 'test user-agent',
           uid: uid,
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'event data was correct'
       );
@@ -1140,6 +1144,8 @@ describe('/account/create', () => {
           service: 'sync',
           userAgent: 'test user-agent',
           uid: uid,
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'event data was correct'
       );
@@ -1177,6 +1183,8 @@ describe('/account/create', () => {
           utm_medium: 'utm medium',
           utm_source: 'utm source',
           utm_term: 'utm term',
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'flow event data was correct'
       );
@@ -1378,6 +1386,8 @@ describe('/account/create', () => {
           service: 'foo',
           userAgent: 'test user-agent',
           uid: uid,
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'event data was correct'
       );
@@ -2244,6 +2254,8 @@ describe('/account/login', () => {
     headers: {
       dnt: '1',
       'user-agent': 'test user-agent',
+      'x-sigsci-requestid': 'test-sigsci-id',
+      'client-ja4': 'test-ja4',
     },
     metricsContext: mockMetricsContext,
     payload: {
@@ -2529,6 +2541,8 @@ describe('/account/login', () => {
           service: 'sync',
           userAgent: 'test user-agent',
           uid: uid,
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'event data was correct'
       );
@@ -2560,6 +2574,8 @@ describe('/account/login', () => {
           time: now,
           uid: uid,
           userAgent: 'test user-agent',
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'first flow event was correct'
       );
@@ -2584,6 +2600,8 @@ describe('/account/login', () => {
           region: 'California',
           time: now,
           userAgent: 'test user-agent',
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'second flow event was correct'
       );
@@ -4487,6 +4505,8 @@ describe('/account/keys', () => {
           service: undefined,
           userAgent: 'test user-agent',
           uid: uid,
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'event data was correct'
       );

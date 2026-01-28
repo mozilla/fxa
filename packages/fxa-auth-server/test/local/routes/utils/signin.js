@@ -746,6 +746,8 @@ describe('sendSigninNotifications', () => {
     clientAddress: CLIENT_ADDRESS,
     headers: {
       'user-agent': 'test user-agent',
+      'x-sigsci-requestid': 'test-sigsci-id',
+      'client-ja4': 'test-ja4',
     },
     query: {
       keys: false,
@@ -841,6 +843,8 @@ describe('sendSigninNotifications', () => {
         region: 'California',
         service: undefined,
         userAgent: 'test user-agent',
+        sigsciRequestId: 'test-sigsci-id',
+        clientJa4: 'test-ja4',
         uid: TEST_UID,
       });
 

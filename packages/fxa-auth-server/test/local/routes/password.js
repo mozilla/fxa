@@ -789,6 +789,8 @@ describe('/password', () => {
             service: undefined,
             uid: uid.toString('hex'),
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data'
         );
@@ -955,6 +957,8 @@ describe('/password', () => {
             service: undefined,
             uid: uid.toString('hex'),
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data'
         );
