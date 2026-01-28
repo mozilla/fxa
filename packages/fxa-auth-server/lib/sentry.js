@@ -13,10 +13,6 @@ const {
   formatMetadataValidationErrorMessage,
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
-// Matches uid, session, oauth and other common tokens which we would
-// prefer not to include in Sentry reports.
-const TOKENREGEX = /[a-fA-F0-9]{32,}/gi;
-const FILTERED = '[Filtered]';
 
 function reportSentryMessage(message, captureContext) {
   Sentry.withScope((scope) => {
@@ -100,9 +96,7 @@ function reportSentryError(err, request) {
       const attempt = cause.attempt;
       if (attempt) {
         causeContext.method = attempt.method;
-        causeContext.path = attempt.path
-          ? attempt.path.replace(TOKENREGEX, FILTERED)
-          : null;
+        causeContext.path = attempt.path;
       }
       scope.setContext('cause', causeContext);
     }
