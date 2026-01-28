@@ -57,8 +57,12 @@ const {
   stripeInvoicesToSubsequentInvoicePreviewsDTO,
 } = require('../../../../lib/payments/stripe-formatter');
 
-const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
-  require('fxa-shared').subscriptions.stripe;
+const {
+  filterCustomer,
+  filterSubscription,
+  filterInvoice,
+  filterIntent,
+} = require('fxa-shared/subscriptions/stripe');
 
 const subscription2 = require('../../payments/fixtures/stripe/subscription2.json');
 const cancelledSubscription = require('../../payments/fixtures/stripe/subscription_cancelled.json');

@@ -8,7 +8,7 @@ const { assert } = require('chai');
 const proxyquire = require('proxyquire');
 const { AppError: error } = require('@fxa/accounts/errors');
 const sinon = require('sinon');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
 const USER_ID = Buffer.from('620203b5773b4c1d968e1fd4505a6885', 'hex');
 const OAUTH_CLIENT_ID = '3c49430b43dfba77';
