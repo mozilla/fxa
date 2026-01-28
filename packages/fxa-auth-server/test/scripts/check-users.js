@@ -4,8 +4,6 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
 const cp = require('child_process');
 const util = require('util');
 const path = require('path');
@@ -15,7 +13,7 @@ const execAsync = util.promisify(cp.exec);
 const config = require('../../config').config.getProperties();
 const fs = require('fs');
 
-const mocks = require(`${ROOT_DIR}/test/mocks`);
+const mocks = require('../../test/mocks');
 const { assert } = require('chai');
 const log = mocks.mockLog();
 const Token = require('../../lib/tokens')(log, config);
@@ -27,6 +25,7 @@ const AuthClient = require('../client')();
 const { createDB } = require('../../lib/db');
 const DB = createDB(config, log, Token, UnblockCode);
 
+const ROOT_DIR = '../..';
 const cwd = path.resolve(__dirname, ROOT_DIR);
 const execOptions = {
   cwd,
