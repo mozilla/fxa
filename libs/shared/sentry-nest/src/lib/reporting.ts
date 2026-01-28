@@ -118,7 +118,9 @@ export function reportRequestException(
   Sentry.withScope((scope: Sentry.Scope) => {
     scope.addEventProcessor((event) => {
       if (request) {
-        event.request = Sentry.extractRequestData(request);
+        // As of sentry v9, this should automatically happen by adding, Sentry.requestDataIntegration()
+        // Leaving note here for historical context.
+        // event.request = Sentry.extractRequestData(request);
         event.level = 'error';
         return event;
       }

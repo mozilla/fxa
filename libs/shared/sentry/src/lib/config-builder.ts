@@ -37,6 +37,7 @@ export function buildSentryConfig(config: SentryConfigOpts, log: Logger) {
     fxaName: config.sentry?.clientName || config.sentry?.serverName,
     tracesSampleRate: config.sentry?.tracesSampleRate,
     ignoreErrors: config.sentry?.ignoreErrors || [],
+    sendDefaultPii: config.sentry?.sendDefaultPii ?? true,
   };
 
   return opts;

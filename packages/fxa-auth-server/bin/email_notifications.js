@@ -7,6 +7,7 @@
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
 
+const Sentry = require('@sentry/node');
 const config = require('../config').default.getProperties();
 const StatsD = require('hot-shots');
 const { CurrencyHelper } = require('../lib/payments/currencies');
@@ -91,6 +92,14 @@ const deliveryDelayQueue = new SQSReceiver(region, [deliveryDelayQueueUrl]);
 const notificationQueue = new SQSReceiver(region, [notificationQueueUrl]);
 
 DB.connect(config).then((db) => {
+  Sentry.captureMessage('Auth Server Email Notifications Queue Started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server-email-notifications',
+      env: config.env,
+    },
+  });
+
   bounces(bounceQueue, db);
   delivery(deliveryQueue);
   deliveryDelay(deliveryDelayQueue);

@@ -10,6 +10,8 @@ import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 import * as Sentry from '@sentry/browser';
 import * as utilities from './utilities';
 
+jest.mock('@sentry/browser');
+
 describe('errorHandler', () => {
   beforeAll(() => {
     // We don't verify that console.error gets called, but mocking it out
@@ -84,10 +86,8 @@ describe('errorHandler', () => {
       } as any as Operation,
       forward: jest.fn() as NextLink,
     };
-    const captureExceptionMock = jest.fn();
-    jest
-      .spyOn(Sentry, 'captureException')
-      .mockImplementation(captureExceptionMock);
+
+    const captureExceptionMock = jest.spyOn(Sentry, 'captureException');
 
     errorHandler(errorResponse);
 

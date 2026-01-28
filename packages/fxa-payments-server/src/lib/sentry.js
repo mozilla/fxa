@@ -11,20 +11,6 @@ import {
   buildSentryConfig,
 } from 'fxa-shared/sentry';
 
-var ALLOWED_QUERY_PARAMETERS = [
-  'automatedBrowser',
-  'client_id',
-  'context',
-  'entrypoint',
-  'keys',
-  'migration',
-  'redirect_uri',
-  'scope',
-  'service',
-  'setting',
-  'style',
-];
-
 /**
  * function that gets called before data gets sent to error metrics
  *
@@ -36,10 +22,6 @@ var ALLOWED_QUERY_PARAMETERS = [
  */
 function beforeSend(data) {
   if (data && data.request) {
-    if (data.request.url) {
-      data.request.url = cleanUpQueryParam(data.request.url);
-    }
-
     if (data.tags) {
       // if this is a known errno, then use grouping with fingerprints
       // Docs: https://docs.sentry.io/hosted/learn/rollups/#fallback-grouping
@@ -49,53 +31,9 @@ function beforeSend(data) {
         data.level = 'info';
       }
     }
-
-    if (data.exception && data.exception.values) {
-      data.exception.values.forEach((value) => {
-        if (value.stacktrace && value.stacktrace.frames) {
-          value.stacktrace.frames.forEach((frame) => {
-            if (frame.abs_path) {
-              frame.abs_path = cleanUpQueryParam(frame.abs_path); // eslint-disable-line camelcase
-            }
-          });
-        }
-      });
-    }
-
-    if (data.request.headers && data.request.headers.Referer) {
-      data.request.headers.Referer = cleanUpQueryParam(
-        data.request.headers.Referer
-      );
-    }
   }
 
   return data;
-}
-
-/**
- * Overwrites sensitive query parameters with a dummy value.
- *
- * @param {String} url
- * @returns {String} url
- * @private
- */
-function cleanUpQueryParam(url = '') {
-  const urlObj = new URL(url);
-
-  if (!urlObj.search.length) {
-    return url;
-  }
-
-  // Iterate the search parameters.
-  for (const p of urlObj.searchParams) {
-    const key = p[0];
-    if (!ALLOWED_QUERY_PARAMETERS.includes(key)) {
-      // if the param is a PII (not allowed) then reset the value.
-      urlObj.searchParams.set(key, 'VALUE');
-    }
-  }
-
-  return urlObj.href;
 }
 
 /**
@@ -184,7 +122,6 @@ SentryMetrics.prototype = {
 
   // Private functions, exposed for testing
   __beforeSend: beforeSend,
-  __cleanUpQueryParam: cleanUpQueryParam,
 };
 
 const sentryMetrics = new SentryMetrics();

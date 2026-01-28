@@ -11,20 +11,6 @@ import {
 import _ from 'underscore';
 
 import Logger from './logger';
-import Url from './url';
-
-var ALLOWED_QUERY_PARAMETERS = [
-  'automatedBrowser',
-  'client_id',
-  'context',
-  'entrypoint',
-  'keys',
-  'redirect_uri',
-  'scope',
-  'service',
-  'setting',
-  'style',
-];
 
 /**
  * function that gets called before data gets sent to error metrics
@@ -38,10 +24,6 @@ var ALLOWED_QUERY_PARAMETERS = [
 function beforeSend(data) {
   data = tagCriticalEvent(data);
   if (data && data.request) {
-    if (data.request.url) {
-      data.request.url = cleanUpQueryParam(data.request.url);
-    }
-
     if (data.tags) {
       const errno = data.tags.errno;
       if (errno && _.isNumber(errno)) {
@@ -51,61 +33,9 @@ function beforeSend(data) {
         return null;
       }
     }
-
-    if (data.exception && data.exception.values) {
-      _.each(data.exception.values, function (value) {
-        if (value.stacktrace && value.stacktrace.frames) {
-          _.each(value.stacktrace.frames, function (frame) {
-            if (frame.abs_path) {
-              // clean up query parameters in absolute paths
-              frame.abs_path = cleanUpQueryParam(frame.abs_path); //eslint-disable-line camelcase
-            }
-          });
-        }
-      });
-    }
-
-    if (data.request.headers && data.request.headers.Referer) {
-      data.request.headers.Referer = cleanUpQueryParam(
-        data.request.headers.Referer
-      );
-    }
   }
 
   return data;
-}
-
-/**
- * Overwrites sensitive query parameters with a dummy value.
- *
- * @param {String} url
- * @returns {String} url
- * @private
- */
-function cleanUpQueryParam(url = '') {
-  var startOfParams = url.indexOf('?');
-  var newUrl = url;
-  var params;
-
-  if (startOfParams === -1) {
-    return newUrl;
-  }
-
-  params = Url.searchParams(url.substring(startOfParams + 1));
-  newUrl = url.substring(0, startOfParams);
-
-  if (_.isObject(params)) {
-    Object.keys(params).forEach(function (key) {
-      // if the param is a PII (not allowed) then reset the value.
-      if (!_.contains(ALLOWED_QUERY_PARAMETERS, key)) {
-        params[key] = 'VALUE';
-      }
-    });
-
-    newUrl += Url.objToSearchString(params);
-  }
-
-  return newUrl;
 }
 
 /**
@@ -165,7 +95,6 @@ SentryMetrics.prototype = {
 
   // Private functions, exposed for testing
   __beforeSend: beforeSend,
-  __cleanUpQueryParam: cleanUpQueryParam,
 };
 
 export default SentryMetrics;
