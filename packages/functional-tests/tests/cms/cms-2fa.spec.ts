@@ -56,7 +56,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(button).toHaveCSS('--cta-bg', buttonColor);
       await expect(button).toHaveCSS('--cta-border', buttonColor);
       await expect(button).toHaveCSS('--cta-active', buttonColor);
-      await expect(button).toHaveCSS('--cta-disabled', `${buttonColor}60`);
+      await expect(button).toHaveCSS('--cta-disabled', buttonColor);
     }
 
     test.beforeAll(async ({ target }) => {
