@@ -6,6 +6,7 @@ import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 import * as ConfirmSignupCodeModule from './index';
 import * as ModelsModule from '../../../models';
 import * as HooksModule from '../../../lib/oauth/hooks';
+import * as OAuthFlowRecoveryModule from '../../../lib/hooks/useOAuthFlowRecovery';
 import * as CacheModule from '../../../lib/cache';
 import * as ApolloModule from '@apollo/client';
 import * as ReachRouterModule from '@reach/router';
@@ -153,6 +154,11 @@ function applyMocks() {
   mockLocation();
   mockReactUtilsModule();
   jest.spyOn(SentryModule.default, 'captureException');
+  jest.spyOn(OAuthFlowRecoveryModule, 'useOAuthFlowRecovery').mockReturnValue({
+    isRecovering: false,
+    recoveryFailed: false,
+    attemptOAuthFlowRecovery: jest.fn().mockResolvedValue({ success: false }),
+  });
 
   mockEmailBounceQuery();
 }
@@ -304,9 +310,9 @@ describe('confirm-signup-container', () => {
     });
   });
   describe('useOAuthKeysCheck', () => {
-    it('renders error component when value is undefined', () => {
+    it('renders error component when value is undefined for non-OAuthNative', () => {
       integration = {
-        type: ModelsModule.IntegrationType.OAuthNative,
+        type: ModelsModule.IntegrationType.OAuthWeb,
         wantsKeys: () => true,
         getCmsInfo: () => undefined,
       } as Integration;
@@ -317,6 +323,37 @@ describe('confirm-signup-container', () => {
       render();
       expect(mockNavigate).toHaveBeenCalledWith('/signin', {
         state: { localizedErrorMessage: 'Code expired. Please sign in again.' },
+      });
+    });
+  });
+
+  describe('useOAuthFlowRecovery', () => {
+    it('navigates to signin with error when recovery fails for OAuthNative', async () => {
+      integration = {
+        type: ModelsModule.IntegrationType.OAuthNative,
+        wantsKeys: () => true,
+        getCmsInfo: () => undefined,
+      } as Integration;
+      mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+        keyFetchToken: undefined,
+        unwrapBKey: undefined,
+      });
+      jest
+        .spyOn(OAuthFlowRecoveryModule, 'useOAuthFlowRecovery')
+        .mockReturnValue({
+          isRecovering: false,
+          recoveryFailed: true,
+          attemptOAuthFlowRecovery: jest.fn().mockResolvedValue({ success: false }),
+        });
+
+      render();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/signin', {
+          state: {
+            localizedErrorMessage: 'Something went wrong. Please sign in again.',
+          },
+        });
       });
     });
   });

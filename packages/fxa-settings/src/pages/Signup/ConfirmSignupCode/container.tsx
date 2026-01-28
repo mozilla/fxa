@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { currentAccount } from '../../../lib/cache';
@@ -12,6 +12,7 @@ import {
 } from '../../../lib/oauth/hooks';
 import {
   Integration,
+  isOAuthNativeIntegration,
   useAuthClient,
   useFtlMsgResolver,
   useSensitiveDataClient,
@@ -25,6 +26,7 @@ import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
+import { useOAuthFlowRecovery } from '../../../lib/hooks/useOAuthFlowRecovery';
 
 export const POLL_INTERVAL = 5000;
 
@@ -67,6 +69,10 @@ const SignupConfirmCodeContainer = ({
     unwrapBKey
   );
 
+  // Hook to recover OAuth flow after page refresh or browser crash
+  const { isRecovering, recoveryFailed, attemptOAuthFlowRecovery } =
+    useOAuthFlowRecovery(integration);
+
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
   };
@@ -105,6 +111,42 @@ const SignupConfirmCodeContainer = ({
     }
   );
 
+  const [recoveryAttempted, setRecoveryAttempted] = useState<boolean>(false);
+
+  // Attempt OAuth flow recovery for Firefox/Sync when state is missing or keys are lost
+  useEffect(() => {
+    const shouldAttemptRecovery =
+      !recoveryAttempted &&
+      isOAuthNativeIntegration(integration) &&
+      (!uid || !sessionToken || !email || oAuthKeysCheckError);
+
+    if (shouldAttemptRecovery) {
+      setRecoveryAttempted(true);
+      attemptOAuthFlowRecovery();
+    }
+  }, [
+    recoveryAttempted,
+    integration,
+    uid,
+    sessionToken,
+    email,
+    oAuthKeysCheckError,
+    attemptOAuthFlowRecovery,
+  ]);
+
+  // Handle recovery failure - navigate to signin with error message
+  useEffect(() => {
+    if (recoveryFailed) {
+      const localizedErrorMessage = ftlMsg.getMsg(
+        'signin-recovery-error',
+        'Something went wrong. Please sign in again.'
+      );
+      navigateWithQuery('/signin', {
+        state: { localizedErrorMessage },
+      });
+    }
+  }, [recoveryFailed, ftlMsg, navigateWithQuery]);
+
   // Handle email bounces
   useEffect(() => {
     if (data?.emailBounceStatus.hasHardBounce) {
@@ -135,8 +177,21 @@ const SignupConfirmCodeContainer = ({
     );
   }
 
+  // Show loading while attempting OAuth flow recovery
+  if (isRecovering) {
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
+  }
+
   if (!uid || !sessionToken || !email) {
-    navigateWithQuery('/');
+    // For non-OAuth Native flows, navigate to root
+    // For OAuth Native flows, recovery was already attempted above
+    if (!isOAuthNativeIntegration(integration)) {
+      navigateWithQuery('/');
+    }
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -153,6 +208,15 @@ const SignupConfirmCodeContainer = ({
     );
   }
   if (oAuthKeysCheckError) {
+    // For OAuth Native flows, recovery was already attempted above
+    if (isOAuthNativeIntegration(integration)) {
+      // Recovery should have redirected; show loading while that happens
+      return (
+        <AppLayout
+          {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+        />
+      );
+    }
     if (!keyFetchToken || !unwrapBKey) {
       const localizedErrorMessage = ftlMsg.getMsg(
         'signin-code-expired-error',
