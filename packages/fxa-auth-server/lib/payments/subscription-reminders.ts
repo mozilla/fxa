@@ -266,15 +266,34 @@ export class SubscriptionReminders {
   }
 
   /**
-   * Determine if a discount is ending by checking that the subscription currently
-   * has a discount but the upcoming invoice does not.
-   * TODO in PAY-3485: Handle the case where the discount changes without ending.
+   * Determine if a current discount is ending by checking that the subscription currently
+   * has a discount, but the upcoming invoice either does not, or has a different discount.
    */
   private hasDiscountEnding(
     subscription: Stripe.Subscription,
     invoicePreview: Stripe.UpcomingInvoice
   ): boolean {
-    return !!subscription.discount && !invoicePreview.discount;
+    if (!subscription.discount) {
+      return false;
+    }
+    if (!invoicePreview.discount) {
+      return true;
+    }
+    return subscription.discount.id !== invoicePreview.discount.id;
+  }
+
+  /**
+   * Determine if the upcoming invoice has a discount that is different from
+   * the current subscription's discount.
+   */
+  private hasDifferentDiscount(
+    subscription: Stripe.Subscription,
+    invoicePreview: Stripe.UpcomingInvoice
+  ): boolean {
+    if (!subscription.discount || !invoicePreview.discount) {
+      return false;
+    }
+    return subscription.discount.id !== invoicePreview.discount.id;
   }
 
   /**
@@ -341,6 +360,8 @@ export class SubscriptionReminders {
 
       // Detect if discount is ending
       const hadDiscount = this.hasDiscountEnding(subscription, invoicePreview);
+      // Detect if renewal has a different discount
+      const hasDifferentDiscount = this.hasDifferentDiscount(subscription, invoicePreview);
 
       await this.mailer.sendSubscriptionRenewalReminderEmail(
         account.emails,
@@ -359,6 +380,7 @@ export class SubscriptionReminders {
           productMetadata: formattedSubscription.productMetadata,
           planConfig: formattedSubscription.planConfig,
           hadDiscount,
+          hasDifferentDiscount,
         }
       );
       await this.updateSentEmail(

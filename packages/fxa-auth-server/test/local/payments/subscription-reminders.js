@@ -400,6 +400,7 @@ describe('SubscriptionReminders', () => {
           productMetadata: formattedSubscription.productMetadata,
           planConfig,
           hadDiscount: false,
+          hasDifferentDiscount: false,
         }
       );
       sinon.assert.calledOnceWithExactly(
