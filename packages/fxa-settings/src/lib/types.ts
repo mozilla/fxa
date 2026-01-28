@@ -69,6 +69,7 @@ export type RemoteMetadata = {
   deviceOS: string;
   ipAddress: string;
   country?: string;
+  countryCode?: string;
   region?: string;
   city?: string;
 };
