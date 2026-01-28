@@ -19,7 +19,7 @@
     </mj-text>
 
     <% if (locals.hadDiscount) { %>
-      <% if (locals.hasRenewalDiscount) { %>
+      <% if (locals.hasDifferentDiscount) { %>
     <mj-text css-class="text-body">
       <span data-l10n-id="subscriptionRenewalReminder-content-discount-change">
         Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied.
