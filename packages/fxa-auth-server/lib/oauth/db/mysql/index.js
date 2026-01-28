@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const encrypt = require('fxa-shared/auth/encrypt');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const unique = require('../../unique');
 const AccessToken = require('../accessToken');
 

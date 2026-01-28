@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const { assert } = require('chai');
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
 const encrypt = require('fxa-shared/auth/encrypt');
 const db = require('../../../lib/oauth/db');

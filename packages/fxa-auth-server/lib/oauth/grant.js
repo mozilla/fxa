@@ -9,7 +9,7 @@ const { config } = require('../../config');
 const { OauthError } = require('@fxa/accounts/errors');
 const db = require('./db');
 const util = require('./util');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const JWTAccessToken = require('./jwt_access_token');
 const sub = require('./jwt_sub');
 

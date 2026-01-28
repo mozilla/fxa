@@ -196,7 +196,8 @@ like so:
 let featureFlags;
 const featureFlagConfig = config.get('featureFlags');
 if (featureFlagConfig.enabled) {
-  featureFlags = require('fxa-shared').featureFlags(featureFlagConfig, logger);
+  const
+  featureFlags = require('fxa-shared/scripts/feature-flags')(featureFlagConfig, logger);
 } else {
   featureFlags = { get: () => ({}) };
 }

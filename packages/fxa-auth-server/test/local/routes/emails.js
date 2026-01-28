@@ -15,7 +15,7 @@ const mocks = require('../../mocks');
 const nock = require('nock');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
+const { normalizeEmail } = require('fxa-shared/email/helpers');
 const { gleanMetrics } = require('../../../lib/metrics/glean');
 const gleanConfig = {
   enabled: false,

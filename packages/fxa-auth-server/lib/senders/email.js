@@ -13,7 +13,7 @@ const { URL } = url;
 const {
   localizedPlanConfig,
 } = require('fxa-shared/subscriptions/configuration/utils');
-const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
+const { productDetailsFromPlan } = require('fxa-shared/subscriptions/metadata');
 const Renderer = require('./renderer').default;
 const { NodeRendererBindings } = require('./renderer/bindings-node');
 const { determineLocale } = require('../../../../libs/shared/l10n/src');
