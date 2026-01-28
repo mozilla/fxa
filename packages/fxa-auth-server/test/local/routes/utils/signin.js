@@ -746,6 +746,8 @@ describe('sendSigninNotifications', () => {
     clientAddress: CLIENT_ADDRESS,
     headers: {
       'user-agent': 'test user-agent',
+      'x-sigsci-requestid': 'test-sigsci-id',
+      'client-ja4': 'test-ja4',
     },
     query: {
       keys: false,
