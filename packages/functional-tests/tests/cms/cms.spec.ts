@@ -55,7 +55,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(button).toHaveCSS('--cta-bg', buttonColor);
       await expect(button).toHaveCSS('--cta-border', buttonColor);
       await expect(button).toHaveCSS('--cta-active', buttonColor);
-      await expect(button).toHaveCSS('--cta-disabled', `${buttonColor}60`);
+      await expect(button).toHaveCSS('--cta-disabled', buttonColor);
     }
 
     test.beforeAll(async ({ target }) => {
@@ -160,11 +160,16 @@ test.describe('severity-1 #smoke', () => {
           buttonColor: '#4845D2',
           buttonText: 'Continue',
         });
-        await signin.passwordTextbox.fill(credentials.password);
         submitButton = page.getByRole('button', {
           name: 'Continue',
           exact: true,
         });
+        // expect button to be disabled until password fields are filled
+        await expect(submitButton).toBeDisabled();
+        await expect(submitButton).toHaveCSS('opacity', '0.5');
+        await signin.passwordTextbox.fill(credentials.password);
+        await expect(submitButton).toBeEnabled();
+        await expect(submitButton).toHaveCSS('opacity', '1');
         await submitButton.click();
 
         await assertCmsCustomization(page, {
