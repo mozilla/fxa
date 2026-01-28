@@ -4,13 +4,11 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
 const { assert } = require('chai');
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
+const config = require('../../../config').default.getProperties();
 const crypto = require('crypto');
-const mocks = require(`${ROOT_DIR}/test/mocks`);
-const senders = require(`${ROOT_DIR}/lib/senders`);
+const mocks = require('../../../test/mocks');
+const senders = require('../../../lib/senders');
 const sinon = require('sinon');
 const { Container } = require('typedi');
 const {
