@@ -21,7 +21,7 @@ const createStory = subplatStoryWithProps(
     subscriptionSupportUrl: 'http://localhost:3030/support',
     updateBillingUrl: 'http://localhost:3030/subscriptions',
     hadDiscount: false,
-    hasRenewalDiscount: false,
+    hasDifferentDiscount: false,
   }
 );
 
@@ -55,7 +55,7 @@ export const YearlyPlanDiscountEnding = createStory(
     reminderLength: '15',
     invoiceTotal: '$199.99',
     hadDiscount: true,
-    hasRenewalDiscount: false,
+    hasDifferentDiscount: false,
   },
   'Yearly Plan - Discount Ending'
 );
@@ -63,7 +63,7 @@ export const YearlyPlanDiscountEnding = createStory(
 export const MonthlyPlanDiscountChanging = createStory(
   {
     hadDiscount: true,
-    hasRenewalDiscount: true,
+    hasDifferentDiscount: true,
     invoiceTotal: '$14.00',
   },
   'Monthly Plan - Discount Changing'
@@ -76,7 +76,7 @@ export const YearlyPlanDiscountChanging = createStory(
     reminderLength: '15',
     invoiceTotal: '$139.99',
     hadDiscount: true,
-    hasRenewalDiscount: true,
+    hasDifferentDiscount: true,
   },
   'Yearly Plan - Discount Changing'
 );

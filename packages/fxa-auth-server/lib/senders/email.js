@@ -3253,7 +3253,7 @@ module.exports = function (log, config, bounces, statsd) {
           message.acceptLanguage
         ),
         hadDiscount: message.hadDiscount || false,
-        hasRenewalDiscount: message.hasRenewalDiscount || false,
+        hasDifferentDiscount: message.hasDifferentDiscount || false,
       },
     });
   };

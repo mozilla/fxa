@@ -266,23 +266,25 @@ export class SubscriptionReminders {
   }
 
   /**
-   * Determine if a discount is ending by checking that the subscription currently
-   * has a discount but the upcoming invoice does not.
+   * Determine if a discount is ending by checking that a discount currently exists
+   * but will not be present on the upcoming invoice does not.
    */
   private hasDiscountEnding(
-    subscription: Stripe.Subscription,
-    invoicePreview: Stripe.UpcomingInvoice
+    currentDiscountId: string | null,
+    upcomingDiscountId: string | null,
   ): boolean {
-    return !!subscription.discount && !invoicePreview.discount;
+    return !!currentDiscountId && !upcomingDiscountId;
   }
 
   /**
-   * Determine if the upcoming invoice has a discount.
+   * Determine if the upcoming invoice has a discount that is different from
+   * the current discount.
    */
-  private hasRenewalDiscount(
-    invoicePreview: Stripe.UpcomingInvoice
+  private hasDifferentDiscount(
+    currentDiscountId: string | null,
+    upcomingDiscountId: string | null,
   ): boolean {
-    return !!invoicePreview.discount;
+    return !!currentDiscountId && !!upcomingDiscountId && currentDiscountId !== upcomingDiscountId;
   }
 
   /**
@@ -347,10 +349,28 @@ export class SubscriptionReminders {
           subscriptionId: subscription.id,
         });
 
+      // Check latest invoice for current discount
+      let latestInvoice = subscription.latest_invoice;
+      if (typeof latestInvoice === 'string') {
+        latestInvoice = await this.stripeHelper.getInvoice(latestInvoice);
+      }
+      const currentDiscount = latestInvoice?.discount || latestInvoice?.discounts?.[0];
+      const currentDiscountId = typeof currentDiscount === 'string'
+        ? currentDiscount
+        : currentDiscount?.id ?? null;
+
+      // Check upcoming invoice for upcoming discount
+      const upcomingDiscount = invoicePreview.discount || invoicePreview.discounts?.[0];
+      const upcomingDiscountId = upcomingDiscount
+        ? typeof upcomingDiscount === 'string'
+          ? upcomingDiscount
+          : upcomingDiscount.id
+        : null;
+
       // Detect if discount is ending
-      const hadDiscount = this.hasDiscountEnding(subscription, invoicePreview);
-      // Detect if renewal has a discount
-      const hasRenewalDiscount = this.hasRenewalDiscount(invoicePreview);
+      const hadDiscount = this.hasDiscountEnding(currentDiscountId, upcomingDiscountId);
+      // Detect if renewal has a different discount
+      const hasDifferentDiscount = this.hasDifferentDiscount(currentDiscountId, upcomingDiscountId);
 
       await this.mailer.sendSubscriptionRenewalReminderEmail(
         account.emails,
@@ -369,7 +389,7 @@ export class SubscriptionReminders {
           productMetadata: formattedSubscription.productMetadata,
           planConfig: formattedSubscription.planConfig,
           hadDiscount,
-          hasRenewalDiscount,
+          hasDifferentDiscount,
         }
       );
       await this.updateSentEmail(

@@ -2824,6 +2824,72 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName })}],
 
+  ['subscriptionRenewalReminderEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.subscription.productName} automatic renewal notice` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionRenewalReminder') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionRenewalReminder' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionRenewalReminder }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-renewal-reminder', 'subscription-terms')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-renewal-reminder', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-renewal-reminder', 'subscription-support')) },
+      { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
+      { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days.` },
+      { test: 'include', expected: `Because a previous discount has ended, your subscription will renew at the standard price.` },
+      { test: 'notInclude', expected: `Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied.` },
+      { test: 'include', expected: `At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+      { test: 'include', expected: "Sincerely," },
+      { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.subscription.productName} automatic renewal notice` },
+      { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
+      { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days.` },
+      { test: 'include', expected: `Because a previous discount has ended, your subscription will renew at the standard price.` },
+      { test: 'notInclude', expected: `Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied.` },
+      { test: 'include', expected: `At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+      { test: 'include', expected: "Sincerely," },
+      { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName, hadDiscount: true, hasDifferentDiscount: false })}],
+
+  ['subscriptionRenewalReminderEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.subscription.productName} automatic renewal notice` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionRenewalReminder') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionRenewalReminder' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionRenewalReminder }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-renewal-reminder', 'subscription-terms')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-renewal-reminder', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-renewal-reminder', 'subscription-support')) },
+      { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
+      { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days.` },
+      { test: 'include', expected: `Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied.` },
+      { test: 'notInclude', expected: `Because a previous discount has ended, your subscription will renew at the standard price.` },
+      { test: 'include', expected: `At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+      { test: 'include', expected: "Sincerely," },
+      { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.subscription.productName} automatic renewal notice` },
+      { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
+      { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days.` },
+      { test: 'include', expected: `Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied.` },
+      { test: 'notInclude', expected: `Because a previous discount has ended, your subscription will renew at the standard price.` },
+      { test: 'include', expected: `At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+      { test: 'include', expected: "Sincerely," },
+      { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName, hadDiscount: false, hasDifferentDiscount: true })}],
+
   ['subscriptionEndingReminderEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `Your ${MESSAGE.subscription.productName} subscription will expire soon` }],
     ['headers', new Map([

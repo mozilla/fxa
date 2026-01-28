@@ -15,7 +15,7 @@ export type TemplateData = SubscriptionSupportContactTemplateData &
     subscriptionSupportUrl: string;
     updateBillingUrl: string;
     hadDiscount?: boolean;
-    hasRenewalDiscount?: boolean;
+    hasDifferentDiscount?: boolean;
   };
 
 export const template = 'subscriptionRenewalReminder';

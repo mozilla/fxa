@@ -7,11 +7,9 @@ subscriptionRenewalReminder-content-greeting = "Dear <%- productName %> customer
 subscriptionRenewalReminder-content-intro = "Your current subscription is set to automatically renew in <%- reminderLength %> days."
 
 <% if (hadDiscount) { %>
-  <% if (hasRenewalDiscount) { %>
-subscriptionRenewalReminder-content-discount-change = "Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied."
-  <% } else { %>
 subscriptionRenewalReminder-content-discount-ending = "Because a previous discount has ended, your subscription will renew at the standard price."
-  <% } %>
+<% } else if (hasDifferentDiscount) { %>
+subscriptionRenewalReminder-content-discount-change = "Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied."
 <% } %>
 
 subscriptionRenewalReminder-content-charge = "At that time, Mozilla will renew your <%- planIntervalCount %> <%- planInterval %> subscription and a charge of <%- invoiceTotal %> will be applied to the payment method on your account."
