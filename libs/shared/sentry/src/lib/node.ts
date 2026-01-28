@@ -40,6 +40,7 @@ export function initSentry(config: InitSentryOpts, log: Logger) {
 
   const integrations = [
     extraErrorDataIntegration({ depth: 5 }),
+    Sentry.requestDataIntegration(),
 
     // Custom Integrations
     ...(config.integrations || []),

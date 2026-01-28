@@ -4,7 +4,6 @@
 
 // Change to @sentry/browser after upgrade to Sentry 8
 import * as Sentry from '@sentry/nextjs';
-import { cleanUpQueryParam } from './cleanUpQueryParam';
 import { SentryConfigOpts } from '../models/SentryConfigOpts';
 import { tagFxaName } from './tagFxaName';
 
@@ -23,10 +22,6 @@ export function beforeSend(opts: SentryConfigOpts, event: Sentry.ErrorEvent) {
   }
 
   if (event.request) {
-    if (event.request.url) {
-      event.request.url = cleanUpQueryParam(event.request.url);
-    }
-
     if (event.tags) {
       // if this is a known errno, then use grouping with fingerprints
       // Docs: https://docs.sentry.io/hosted/learn/rollups/#fallback-grouping
@@ -35,24 +30,6 @@ export function beforeSend(opts: SentryConfigOpts, event: Sentry.ErrorEvent) {
         // if it is a known error change the error level to info.
         event.level = 'info';
       }
-    }
-
-    if (event.exception?.values) {
-      event.exception.values.forEach((value: Sentry.Exception) => {
-        if (value.stacktrace && value.stacktrace.frames) {
-          value.stacktrace.frames.forEach((frame: { abs_path?: string }) => {
-            if (frame.abs_path) {
-              frame.abs_path = cleanUpQueryParam(frame.abs_path); // eslint-disable-line camelcase
-            }
-          });
-        }
-      });
-    }
-
-    if (event.request.headers?.Referer) {
-      event.request.headers.Referer = cleanUpQueryParam(
-        event.request.headers.Referer
-      );
     }
   }
 

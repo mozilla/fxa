@@ -4,7 +4,7 @@
 
 import * as Sentry from '@sentry/nextjs';
 import { ErrorEvent } from '@sentry/core';
-import { InitSentryOpts  } from '../models/SentryConfigOpts';
+import { InitSentryOpts } from '../models/SentryConfigOpts';
 import { buildSentryConfig } from '../config-builder';
 import { Logger } from '../sentry.types';
 import { beforeSend } from '../utils/beforeSend.server';
@@ -20,14 +20,15 @@ export function initSentryForNextjsServer(config: InitSentryOpts, log: Logger) {
   const integrations = [
     // Default
     Sentry.extraErrorDataIntegration({ depth: 5 }),
+    Sentry.requestDataIntegration(),
 
     // Custom Integrations
     ...(config.integrations || []),
   ];
 
   const beforeEventSend = (event: ErrorEvent, hint: any) => {
-    return beforeSend(event, hint, config)
-  }
+    return beforeSend(event, hint, config);
+  };
 
   try {
     Sentry.init({

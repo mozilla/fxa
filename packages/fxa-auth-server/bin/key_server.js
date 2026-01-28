@@ -6,9 +6,9 @@
 
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
+const Sentry = require('@sentry/node');
 
 const { config } = require('../config');
-
 const Redis = require('ioredis');
 
 const { CapabilityManager } = require('@fxa/payments/capability');
@@ -425,6 +425,13 @@ async function run(config) {
     log.info('server.start.1', {
       msg: `running on ${server.info.uri}`,
     });
+    Sentry.captureMessage('Auth server started', {
+      level: 'info',
+      tags: {
+        service: 'fxa-auth-server',
+        env: config.env,
+      },
+    });
   } catch (err) {
     log.error('server.start.1', {
       msg: 'failed startup with error',
@@ -487,6 +494,7 @@ async function run(config) {
 async function main() {
   try {
     const server = await run(config.getProperties());
+
     process.on('uncaughtException', (err) => {
       server.log.fatal('uncaughtException', err);
       process.exit(8);

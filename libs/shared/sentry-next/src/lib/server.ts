@@ -28,6 +28,7 @@ export function initSentryForNextjsServer(config: InitSentryOpts, log: Logger) {
   const integrations = [
     // Default
     Sentry.extraErrorDataIntegration({ depth: 5 }),
+    Sentry.requestDataIntegration(),
 
     // Custom Integrations
     ...(config.integrations || []),

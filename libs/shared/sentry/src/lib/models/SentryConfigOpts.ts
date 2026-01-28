@@ -5,8 +5,8 @@
 import { ErrorEvent } from '@sentry/core';
 
 export type ExtraOpts = {
-    integrations?: any[];
-    eventFilters?: Array<(event: ErrorEvent, hint: any) => ErrorEvent>;
+  integrations?: any[];
+  eventFilters?: Array<(event: ErrorEvent, hint: any) => ErrorEvent>;
 };
 
 export type InitSentryOpts = SentryConfigOpts & ExtraOpts;
@@ -39,5 +39,8 @@ export type SentryConfigOpts = {
 
     /** The tracing sample rate. Setting this above 0 will aso result in performance metrics being captured. */
     tracesSampleRate?: number;
+
+    /** Indicates if PII can be transeferred. e.g. Send the IP address. */
+    sendDefaultPii?: boolean;
   };
 };

@@ -14,6 +14,8 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';
 import cors from 'cors';
+import { SentryGlobalFilter } from '@sentry/nestjs/setup';
+import * as Sentry from '@sentry/nestjs';
 
 const appConfig = Config.getProperties() as AppConfig;
 
@@ -26,6 +28,9 @@ async function bootstrap() {
     AppModule,
     nestConfig
   );
+
+  // As of sentry v9, this should handle both regular requests and graphql requests.
+  app.useGlobalFilters(new SentryGlobalFilter());
 
   app.use(
     cors({
@@ -57,6 +62,15 @@ async function bootstrap() {
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();
+
+  // Capture a sentry message to 'monitor startup'.
+  Sentry.captureMessage('Admin server started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-admin-server',
+      environment: appConfig.env,
+    },
+  });
 
   await app.listen(appConfig.port);
 }

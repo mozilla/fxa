@@ -147,11 +147,6 @@ if (proxyUrl) {
   );
 }
 
-// Send errors to sentry.
-if (sentryConfig.dsn) {
-  Sentry.setupExpressErrorHandler(app);
-}
-
 export default app;
 
 export async function createServer() {

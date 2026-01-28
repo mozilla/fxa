@@ -55,41 +55,9 @@ export class AppModule {}
 
 ## Sentry Module
 
-To use the Sentry module two code changes should be made.
+As of Sentry v10, the integration with nestjs has been streamed lined. As such we should not need a custom SentryModule.
 
-Update `main.ts` to use the Sentry global intercepter:
-
-```typescript
-import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
-
-//...
-
-async function bootstrap() {
-  // app is initialized
-  // remaining app setup
-}
-```
-
-Update `app.module.ts` to include the Sentry module, note that we also fetch the version:
-
-```typescript
-import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
-import { getVersionInfo } from 'fxa-shared/nestjs/version';
-
-// Must be called from within the app so that the current working directory can be passed in
-const version = getVersionInfo(__dirname);
-
-@Module({
-  imports: [
-    // .. app imports ..
-    SentryModule,
-    // .. remaining imports, etc.
-  ],
-  controllers: [],
-  providers: [],
-})
-export class AppModule {}
-```
+See https://docs.sentry.io/platforms/javascript/guides/nestjs/ for setup guidelines.
 
 ## Logging Module
 
