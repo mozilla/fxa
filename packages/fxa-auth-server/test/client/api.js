@@ -655,8 +655,13 @@ module.exports = (config) => {
   };
 
   ClientApi.prototype.changePasswordJWT = function (jwt, options = {}) {
-    return this.doRequestWithBearerToken('POST', `${this.baseURL}/mfa/password/change`, jwt, options);
-  }
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/mfa/password/change`,
+      jwt,
+      options
+    );
+  };
 
   ClientApi.prototype.passwordChangeStart = async function (
     email,
@@ -887,11 +892,16 @@ module.exports = (config) => {
     code,
     options = {}
   ) {
-    return this.doRequest('POST', `${this.baseURL}/password/forgot/verify_otp`, null, {
-      email: email,
-      code: code,
-      metricsContext: options.metricsContext || undefined,
-    });
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/password/forgot/verify_otp`,
+      null,
+      {
+        email: email,
+        code: code,
+        metricsContext: options.metricsContext || undefined,
+      }
+    );
   };
 
   ClientApi.prototype.passwordForgotStatus = function (passwordForgotTokenHex) {
@@ -1124,6 +1134,16 @@ module.exports = (config) => {
     });
   };
 
+  ClientApi.prototype.attachedOAuthClients = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
+      return this.doRequest(
+        'GET',
+        `${this.baseURL}/account/attached_oauth_clients`,
+        token
+      );
+    });
+  };
+
   ClientApi.prototype.sessionStatus = function (sessionTokenHex) {
     return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('GET', `${this.baseURL}/session/status`, token);
@@ -1166,10 +1186,15 @@ module.exports = (config) => {
   };
 
   ClientApi.prototype.createEmail = function (jwt, email, options = {}) {
-    return this.doRequestWithBearerToken('POST', `${this.baseURL}/mfa/recovery_email`, jwt, {
-      email: email,
-      verificationMethod: options.verificationMethod,
-    });
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/mfa/recovery_email`,
+      jwt,
+      {
+        email: email,
+        verificationMethod: options.verificationMethod,
+      }
+    );
   };
 
   ClientApi.prototype.deleteEmail = function (jwt, email) {
@@ -1258,7 +1283,12 @@ module.exports = (config) => {
   };
 
   ClientApi.prototype.deleteTotpToken = function (jwt) {
-    return this.doRequestWithBearerToken('POST', `${this.baseURL}/mfa/totp/destroy`, jwt, {});
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/mfa/totp/destroy`,
+      jwt,
+      {}
+    );
   };
 
   ClientApi.prototype.checkTotpTokenExists = function (sessionTokenHex) {

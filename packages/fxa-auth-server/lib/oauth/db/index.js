@@ -133,9 +133,16 @@ class OauthDB extends ConnectedServicesDb {
     return t;
   }
 
-  async getRefreshTokensByUid(uid) {
-    await this.ready();
-    const tokens = await this.mysql._getRefreshTokensByUid(uid);
+  /**
+   * Processes each refresh token, checking it against the redis cache. If
+   * found, it merges the metadata from redis into the token object. Objects
+   * found in redis, but not in mysql, are pruned.
+   * @param {*} uid
+   * @param {*} getTokens
+   * @returns
+   */
+  async _processRefreshTokens(uid, getTokens) {
+    const tokens = await getTokens;
     const extraMetadata = await this.redis.getRefreshTokens(uid);
     // We'll take this opportunity to clean up any tokens that exist in redis but
     // not in mysql, so this loop deletes each token from `extraMetadata` once handled.
@@ -152,6 +159,34 @@ class OauthDB extends ConnectedServicesDb {
       await this.redis.pruneRefreshTokens(uid, toDel);
     }
     return tokens;
+  }
+
+  /**
+   * Fetches all refresh tokens for a given uid. Multiple tokens can be
+   * returned for a single clientId
+   * @param uid
+   * @returns {Promise<*>}
+   */
+  async getRefreshTokensByUid(uid) {
+    await this.ready();
+    return this._processRefreshTokens(
+      uid,
+      this.mysql._getRefreshTokensByUid(uid)
+    );
+  }
+
+  /**
+   * Fetches all unique refresh tokens for a given uid. A clientId will
+   * only appear once, prioritized by lastUsedAt date
+   * @param uid
+   * @returns {Promise<*>}
+   */
+  async getUniqueRefreshTokensByUid(uid) {
+    await this.ready();
+    return await this._processRefreshTokens(
+      uid,
+      this.mysql._getUniqueRefreshTokensByUid(uid)
+    );
   }
 
   async removeRefreshToken(token) {

@@ -683,4 +683,62 @@ describe('#integration - db', function () {
       assert.notOk(await db.getAccessToken(tokenIdHash));
     });
   });
+
+  describe('uniqueRefreshTokens', () => {
+    const clientId = buf(randomString(8));
+    const userId = buf(randomString(16));
+    const email = 'a@b.c';
+    const scope = ['no_scope'];
+    let tokens = [];
+
+    beforeEach(async () => {
+      tokens = []; // Clear tokens array before each test
+      // create a few refresh tokens for the same clientId, userId pair
+      for (let i = 0; i < 3; i++) {
+        const refreshToken = await db.generateRefreshToken({
+          clientId: clientId,
+          userId: userId,
+          email: email,
+          scope: scope,
+        });
+        tokens.push(refreshToken);
+      }
+    });
+
+    afterEach(async () => {
+      for (const token of tokens) {
+        await db.removeRefreshToken(token);
+      }
+      tokens = []; // Clear tokens array after cleanup
+    });
+    it('can fetch unique refresh tokens for a user with the latest lastUsedAt', async () => {
+      const now = new Date('2020-01-20T12:00:00Z');
+      const lastUsedAtValues = [
+        new Date(now.getTime() - 30000),
+        new Date(now.getTime() - 20000),
+        new Date(now.getTime() - 10000),
+      ];
+      // set different lastUsedAt timestamps for each token, this is
+      // normally updated with triggering the touchRefreshToken mechanism
+      // when refresh-token-auth-scheme is used.
+      // but we just go directly to the DB here for simplicity
+      for (let i = 0; i < tokens.length; i++) {
+        const lastUsedAt = lastUsedAtValues[i];
+        const rows = await db.mysql._touchRefreshToken(
+          tokens[i].tokenId,
+          lastUsedAt
+        );
+        // guard to ensure we're updating what we expect
+        assert.equal(rows.affectedRows, 1);
+      }
+      const token = await db.getUniqueRefreshTokensByUid(hex(userId));
+      // one token
+      assert.equal(token.length, 1);
+      // make sure it's the latest one, use a static time defined above
+      assert.equal(
+        token[0].lastUsedAt.getTime(),
+        lastUsedAtValues[2].getTime()
+      );
+    });
+  });
 });

@@ -18,6 +18,7 @@ const EARLIEST_SANE_TIMESTAMP = 31536000000;
 const mockAuthorizedClients = {
   destroy: sinon.spy(() => Promise.resolve()),
   list: sinon.spy(() => Promise.resolve()),
+  listUnique: sinon.spy(() => Promise.resolve()),
 };
 
 function makeRoutes(options = {}) {
@@ -633,5 +634,117 @@ describe('/account/attached_client/destroy', () => {
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.sessionToken.calledOnceWith(sessionTokenId));
     assert.ok(db.deleteSessionToken.notCalled);
+  });
+});
+
+describe('/account/attached_oauth_clients', () => {
+  let config, uid, log, db, request, route;
+
+  beforeEach(() => {
+    config = {};
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    log = mocks.mockLog();
+    db = mocks.mockDB();
+    request = mocks.mockRequest({
+      credentials: {
+        id: crypto.randomBytes(16).toString('hex'),
+        uid: uid,
+        setUserAgentInfo: sinon.spy(() => {}),
+      },
+      headers: {
+        'user-agent': 'fake agent',
+      },
+    });
+    const accountRoutes = makeRoutes({
+      config,
+      log,
+      db,
+    });
+    route = getRoute(accountRoutes, '/account/attached_oauth_clients').handler;
+  });
+
+  it('returns a unique list of OAuth clients with clientId and lastAccessTime', async () => {
+    const now = Date.now();
+
+    // Mock OAuth clients data - simulating what listUnique would return
+    const OAUTH_CLIENTS = [
+      {
+        client_id: newId(16),
+        client_name: 'Firefox Desktop',
+        refresh_token_id: newId(),
+        created_time: now - 5000,
+        last_access_time: now - 100,
+        scope: ['profile', 'sync'],
+      },
+      {
+        client_id: newId(16),
+        client_name: 'Firefox Mobile',
+        refresh_token_id: newId(),
+        created_time: now - 3000,
+        last_access_time: now - 50,
+        scope: ['profile'],
+      },
+      {
+        client_id: newId(16),
+        client_name: 'Third Party App',
+        created_time: now - 10000,
+        last_access_time: now - 500,
+        scope: ['profile:email'],
+      },
+    ];
+
+    // Mock the listUnique method
+    mockAuthorizedClients.listUnique = sinon.spy(async () => {
+      return OAUTH_CLIENTS;
+    });
+
+    const result = await route(request);
+
+    // Verify listUnique was called with the correct uid
+    assert.equal(mockAuthorizedClients.listUnique.callCount, 1);
+    assert.equal(mockAuthorizedClients.listUnique.args[0][0], uid);
+
+    // Verify touchSessionToken was called
+    assert.equal(db.touchSessionToken.callCount, 1);
+    const args = db.touchSessionToken.args[0];
+    assert.equal(args.length, 3);
+    const laterDate = Date.now() - 60 * 1000;
+    assert.equal(laterDate < args[0].lastAccessTime, true);
+
+    assert.equal(result.length, 3);
+
+    // Each result should only have clientId and lastAccessTime
+
+    result.forEach((client, idx) => {
+      assert.equal(client.clientId, OAUTH_CLIENTS[idx].client_id);
+      assert.equal(client.lastAccessTime, OAUTH_CLIENTS[idx].last_access_time);
+
+      // Verify only these two fields exist
+      const keys = Object.keys(client);
+      assert.equal(keys.length, 2);
+      assert.ok(keys.includes('clientId'));
+      assert.ok(keys.includes('lastAccessTime'));
+    });
+
+    // Verify clientIds are unique (should be enforced by listUnique)
+    const clientIds = result.map((c) => c.clientId);
+    const uniqueClientIds = new Set(clientIds);
+    assert.equal(
+      clientIds.length,
+      uniqueClientIds.size,
+      'All clientIds should be unique'
+    );
+  });
+
+  it('returns an empty array when user has no OAuth clients', async () => {
+    mockAuthorizedClients.listUnique = sinon.spy(async () => {
+      return [];
+    });
+
+    const result = await route(request);
+
+    assert.equal(mockAuthorizedClients.listUnique.callCount, 1);
+    assert.equal(result.length, 0);
+    assert.deepEqual(result, []);
   });
 });

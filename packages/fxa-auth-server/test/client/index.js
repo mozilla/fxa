@@ -530,11 +530,18 @@ module.exports = (config) => {
     );
   };
 
-  Client.prototype.verifySecondaryEmailWithCode = async function (jwt, code, email) {
+  Client.prototype.verifySecondaryEmailWithCode = async function (
+    jwt,
+    code,
+    email
+  ) {
     return this.api.recoveryEmailSecondaryVerifyCode(jwt, code, email);
   };
 
-  Client.prototype.resendVerifySecondaryEmailWithCode = async function (jwt, email) {
+  Client.prototype.resendVerifySecondaryEmailWithCode = async function (
+    jwt,
+    email
+  ) {
     return this.api.recoveryEmailSecondaryResendCode(jwt, email);
   };
 
@@ -554,7 +561,7 @@ module.exports = (config) => {
 
   Client.prototype.changePasswordJWT = function (jwt, options = {}) {
     return this.api.changePasswordJWT(jwt, options);
-  }
+  };
 
   Client.prototype.changePassword = function (
     newPassword,
@@ -676,6 +683,13 @@ module.exports = (config) => {
     const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o.then(() => {
       return this.api.attachedClients(this.sessionToken);
+    });
+  };
+
+  Client.prototype.attachedOAuthClients = function () {
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
+    return o.then(() => {
+      return this.api.attachedOAuthClients(this.sessionToken);
     });
   };
 
