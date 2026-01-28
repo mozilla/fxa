@@ -43,13 +43,6 @@ export const TFADisabled = () =>
     backupCodes: { count: 0 },
   });
 
-export const DisabledNoPassword = () =>
-  createSubject({
-    hasPassword: false,
-    totp: { enabled: false },
-    backupCodes: { count: 0 },
-  });
-
 export const TwoFAEnabledWithBackupCodesNoBackupPhone = () =>
   createSubject({
     recoveryPhone: { exists: false, phoneNumber: null, available: true },

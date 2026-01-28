@@ -13,7 +13,6 @@ export const createSubject = (
   settingsOverrides = {}
 ) => {
   const account = {
-    hasPassword: true,
     backupCodes: { hasBackupCodes: true, count: 3 },
     totp: { exists: true, verified: true },
     recoveryPhone: {
