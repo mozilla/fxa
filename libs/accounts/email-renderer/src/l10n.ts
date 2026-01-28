@@ -9,6 +9,7 @@ import { determineLocale, parseAcceptLanguage } from '@fxa/shared/l10n';
 export type LocalizerOpts = {
   translations: {
     basePath: string;
+    ftlFileName: string;
   };
   templates: {
     cssPath: string;
@@ -135,17 +136,14 @@ class Localizer {
    */
   protected async fetchTranslatedMessages(locale?: string) {
     const results: string[] = [];
+    const basePath = this.bindings.opts.translations.basePath;
+    const ftlFileName = this.bindings.opts.translations.ftlFileName;
 
     // Note: 'en' auth.ftl only exists for browser bindings / Storybook. The fallback
     // English strings within the templates are tested and are shown in other envs
-    const authPath = `${this.bindings.opts.translations.basePath}/${
-      locale || 'en'
-    }/emails.ftl`;
-    results.push(await this.bindings.fetchResource(authPath));
-
-    const brandingPath = `${this.bindings.opts.translations.basePath}/${
-      locale || 'en'
-    }/branding.ftl`;
+    const mainFtlPath = `${basePath}/${locale || 'en'}/${ftlFileName}`;
+    const brandingPath = `${basePath}/${locale || 'en'}/branding.ftl`;
+    results.push(await this.bindings.fetchResource(mainFtlPath));
     results.push(await this.bindings.fetchResource(brandingPath));
 
     return results.join('\n\n\n');
