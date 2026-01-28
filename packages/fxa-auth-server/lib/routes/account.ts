@@ -1604,6 +1604,9 @@ export class AccountHandler {
         result.hasPassword = account.verifierSetAt > 0;
       } else {
         const exist = await this.db.accountExists(email);
+        if (!exist) {
+          await this.customs.check(request, email, 'accountStatusCheckFailed');
+        }
         result.exists = exist;
       }
 
