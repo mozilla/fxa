@@ -53,6 +53,8 @@ import {
 } from './lib';
 import { AppConfig } from '../../lib/types';
 import { AccountEventsManager } from '../../lib/account-events';
+import { FxaMailer } from '../../lib/senders/fxa-mailer';
+// import { FxaMailerFormat } from '../../lib/senders/fxa-mailer-format';
 
 type ResetableAccount = NonNullable<
   Awaited<ReturnType<ReturnType<typeof createFindAccountFn>>>
@@ -291,6 +293,7 @@ async function resetAccounts(
   // the dynamically named `send\w+Email` functions are not in the type of senders.email
   const mailer: any = senders.email;
   const accountEventManager = new AccountEventsManager();
+  const fxaMailer = Container.get(FxaMailer);
 
   for (const acct of accountsToReset) {
     try {
@@ -306,7 +309,20 @@ async function resetAccounts(
         }
       );
       await oauthDb.removeTokensAndCodes(acct.uid);
-      await mailer.sendPasswordChangeRequiredEmail(acct.emails, acct);
+      if (fxaMailer.canSend('passwordChangeRequired')) {
+        // TODO: this is a script so it's missing request, account etc.
+        // need to figure out what to pass in here
+        // await fxaMailer.sendPasswordChangeRequiredEmail({
+        //   ...FxaMailerFormat.account(acct),
+        //   ...(await FxaMailerFormat.metricsContext(request)),
+        //   ...FxaMailerFormat.localTime(request),
+        //   ...FxaMailerFormat.location(request),
+        //   ...FxaMailerFormat.device(request),
+        //   ...FxaMailerFormat.sync(service),
+        // });
+      } else {
+        await mailer.sendPasswordChangeRequiredEmail(acct.emails, acct);
+      }
       await accountEventManager.recordSecurityEvent(authDb, {
         uid: acct.uid,
         name: 'account.must_reset',
