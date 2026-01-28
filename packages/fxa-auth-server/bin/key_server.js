@@ -10,7 +10,7 @@ const Sentry = require('@sentry/node');
 
 const { config } = require('../config');
 const Redis = require('ioredis');
-
+const { join } = require('node:path');
 const { CapabilityManager } = require('@fxa/payments/capability');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
@@ -377,7 +377,15 @@ async function run(config) {
     emailSender,
     linkBuilder,
     config.smtp,
-    new NodeRendererBindings()
+    new NodeRendererBindings({
+      translations: {
+        // TODO: Once this PR, https://github.com/mozilla/fxa-content-server-l10n/pull/989, is finalized we can:
+        //  - switch this to point libs/accounts/public/locales or ../public/locales (either is probably fine...)
+        //  - switch to using emails.ftl, since all email specific strings will have been migrated over
+        basePath: join(__dirname, '../public/locales'),
+        ftlFileName: 'auth.ftl',
+      },
+    })
   );
   Container.set(FxaMailer, fxaMailer);
 

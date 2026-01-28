@@ -45,6 +45,7 @@ export class NodeRendererBindings extends RendererBindings {
         },
         translations: {
           basePath: join(__dirname, '../../public/locales'),
+          ftlFileName: 'emails.ftl',
         },
       },
       opts
