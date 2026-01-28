@@ -4,11 +4,9 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
 const assert = require('assert');
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
-const createBounces = require(`${ROOT_DIR}/lib/bounces`);
+const config = require('../../config').default.getProperties();
+const createBounces = require('../../lib/bounces');
 const { AppError: error } = require('@fxa/accounts/errors');
 const sinon = require('sinon');
 

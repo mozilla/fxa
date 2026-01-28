@@ -4,17 +4,16 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
 const { promisify } = require('util');
 const { assert } = require('chai');
 const cp = require('child_process');
 const fs = require('fs');
-const mocks = require(`${ROOT_DIR}/test/mocks`);
+const mocks = require('../../test/mocks');
 const path = require('path');
 const rimraf = require('rimraf');
 const crypto = require('crypto');
 
+const ROOT_DIR = '../..';
 const cwd = path.resolve(__dirname, ROOT_DIR);
 const execAsync = promisify(cp.exec);
 

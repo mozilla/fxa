@@ -4,8 +4,6 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
 const proxyquire = require('proxyquire');
 const { assert } = require('chai');
 const sinon = require('sinon');
@@ -35,7 +33,7 @@ describe('notifier', () => {
         },
       };
 
-      notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {
+      notifier = proxyquire('../../lib/notifier', {
         '../config': config,
       })(log);
 
@@ -123,7 +121,7 @@ describe('notifier', () => {
 
     it('captures perf stats with statsd when it is present', () => {
       const statsd = { timing: sinon.stub() };
-      notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {
+      notifier = proxyquire('../../lib/notifier', {
         '../config': config,
       })(log, statsd);
       notifier.__sns.publish = sinon.spy((event, cb) => {
@@ -156,7 +154,7 @@ describe('notifier', () => {
         },
       },
     };
-    const notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {
+    const notifier = proxyquire('../../lib/notifier', {
       '../config': config,
     })(log);
 
