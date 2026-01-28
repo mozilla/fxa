@@ -148,6 +148,8 @@ describe('metrics/events', () => {
           userAgent: 'foo',
           service: 'bar',
           uid: 'baz',
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'argument was event data'
       );
@@ -208,6 +210,8 @@ describe('metrics/events', () => {
           region: 'California',
           userAgent: 'test user-agent',
           service: 'bar',
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'argument was event data'
       );
@@ -252,6 +256,8 @@ describe('metrics/events', () => {
           region: 'California',
           service: undefined,
           userAgent: 'test user-agent',
+          sigsciRequestId: 'test-sigsci-id',
+          clientJa4: 'test-ja4',
         },
         'argument was event data'
       );
@@ -367,6 +373,8 @@ describe('metrics/events', () => {
             utm_medium: 'utm medium',
             utm_source: 'utm source',
             utm_term: 'utm term',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data'
         );
@@ -455,6 +463,8 @@ describe('metrics/events', () => {
             region: 'Dorset',
             time,
             userAgent: 'foo',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data'
         );
@@ -530,6 +540,8 @@ describe('metrics/events', () => {
             time,
             uid: 'deadbeef',
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data'
         );
@@ -605,6 +617,8 @@ describe('metrics/events', () => {
             time,
             uid: 'deadbeef',
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data'
         );
@@ -679,6 +693,8 @@ describe('metrics/events', () => {
             region: 'California',
             time,
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data'
         );
@@ -754,6 +770,8 @@ describe('metrics/events', () => {
             time,
             uid: 'qux',
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data first time'
         );
@@ -772,6 +790,8 @@ describe('metrics/events', () => {
             time,
             uid: 'qux',
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was complete event data second time'
         );
@@ -956,6 +976,8 @@ describe('metrics/events', () => {
             userAgent: 'test user-agent',
             service: undefined,
             uid: 'baz',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'activity event data was correct'
         );
@@ -986,6 +1008,8 @@ describe('metrics/events', () => {
             region: 'California',
             uid: 'baz',
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'flow event data was correct'
         );
@@ -1302,6 +1326,8 @@ describe('metrics/events', () => {
             region: 'California',
             time,
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was route summary event data'
         );
@@ -1326,6 +1352,8 @@ describe('metrics/events', () => {
             region: 'California',
             time,
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was performance event data'
         );
@@ -1393,6 +1421,8 @@ describe('metrics/events', () => {
             region: 'California',
             time,
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data'
         );
@@ -1460,6 +1490,8 @@ describe('metrics/events', () => {
             region: 'California',
             time,
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data'
         );
@@ -1575,6 +1607,8 @@ describe('metrics/events', () => {
             region: 'California',
             time,
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
           },
           'argument was event data'
         );
