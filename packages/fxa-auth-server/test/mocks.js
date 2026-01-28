@@ -966,6 +966,8 @@ function mockRequest(data, errors) {
     gatherMetricsContext: metricsContext.gather,
     headers: data.headers || {
       'user-agent': 'test user-agent',
+      'x-sigsci-requestid': 'test-sigsci-id',
+      'client-ja4': 'test-ja4',
     },
     info: {
       received: data.received || Date.now() - 1,

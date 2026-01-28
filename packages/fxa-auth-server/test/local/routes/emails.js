@@ -823,6 +823,8 @@ describe('/recovery_email/verify_code', () => {
             service: 'sync',
             uid: uid.toString('hex'),
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
             productId: undefined,
             planId: undefined,
             deviceId: undefined,
@@ -1069,6 +1071,8 @@ describe('/recovery_email/verify_code', () => {
             region: 'California',
             service: 'sync',
             userAgent: 'test user-agent',
+            sigsciRequestId: 'test-sigsci-id',
+            clientJa4: 'test-ja4',
             uid: uid.toString('hex'),
           },
           'event data was correct'

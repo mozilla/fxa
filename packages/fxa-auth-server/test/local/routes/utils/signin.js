@@ -841,6 +841,8 @@ describe('sendSigninNotifications', () => {
         region: 'California',
         service: undefined,
         userAgent: 'test user-agent',
+        sigsciRequestId: 'test-sigsci-id',
+        clientJa4: 'test-ja4',
         uid: TEST_UID,
       });
 
