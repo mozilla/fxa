@@ -371,8 +371,7 @@ const CompleteResetPasswordContainer = ({
         recoveryKeyExists,
         estimatedSyncDeviceCount,
       }}
-      isFirefoxClientServiceRelay={integration.isFirefoxClientServiceRelay()}
-      integrationIsSync={integration.isSync()}
+      integration={integration}
       locationState={location.state as CompleteResetPasswordLocationState}
     />
   );

@@ -42,6 +42,7 @@ export interface Shared {
   favicon: string | null;
   headlineFontSize: Enum_Componentaccountsshared_Headlinefontsize | null;
   headlineTextColor: string | null;
+  additionalAccessibilityInfo: string | null;
 }
 
 export interface FeatureFlags {

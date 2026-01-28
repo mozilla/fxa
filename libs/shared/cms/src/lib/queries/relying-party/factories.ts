@@ -92,6 +92,7 @@ export const RelyingPartyResultFactory = (
       Enum_Componentaccountsshared_Headlinefontsize.Large,
     ]),
     headlineTextColor: faker.color.rgb(),
+    additionalAccessibilityInfo: faker.string.sample(),
   },
   NewDeviceLoginEmail: {
     logoUrl: faker.internet.url(),
