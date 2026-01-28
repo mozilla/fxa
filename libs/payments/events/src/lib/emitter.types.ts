@@ -1,16 +1,16 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import {
   CancellationReason,
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
-  PaymentProvidersType,
 } from '@fxa/payments/metrics';
 import { LocationStatus } from '@fxa/payments/eligibility';
 import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
-import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import { PaymentProvidersType } from '@fxa/payments/customer';
 
 export type CheckoutEvents = CommonMetrics;
 export type CheckoutPaymentEvents = CommonMetrics & {
@@ -22,7 +22,7 @@ export type SubscriptionEndedEvents = {
   priceId: string;
   priceInterval?: string;
   priceIntervalCount?: number;
-  paymentProvider?: SubPlatPaymentMethodType;
+  paymentProvider?: PaymentProvidersType;
   providerEventId: string;
   cancellationReason: CancellationReason;
   uid?: string;

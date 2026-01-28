@@ -30,7 +30,7 @@ import {
   CustomerManager,
   SubscriptionManager,
   PaymentMethodManager,
-  SubPlatPaymentMethodType,
+  PaymentProvider,
   StripePaymentMethodTypeResponseFactory,
 } from '@fxa/payments/customer';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
@@ -39,7 +39,6 @@ import {
   CommonMetricsFactory,
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
-  PaymentProvidersType,
   PaymentsGleanManager,
 } from '@fxa/payments/metrics';
 import { CartManager } from '@fxa/payments/cart';
@@ -105,7 +104,7 @@ describe('PaymentsEmitterService', () => {
   });
   const mockCheckoutPaymentEvents = {
     ...mockCommonMetricsData,
-    paymentProvider: 'stripe' as PaymentProvidersType,
+    paymentProvider: PaymentProvider.Stripe,
   };
   let retrieveOptOutMock: jest.SpyInstance<any, unknown[], any>;
   const mockLogger = {
@@ -403,7 +402,7 @@ describe('PaymentsEmitterService', () => {
   describe('handleCheckoutSuccess', () => {
     const mockCustomer = StripeCustomerFactory();
     const mockSubscription = StripeSubscriptionFactory();
-    const mockPaymentMethodType = StripePaymentMethodTypeResponseFactory();
+    const mockPaymentMethod = StripePaymentMethodTypeResponseFactory();
     beforeEach(() => {
       jest
         .spyOn(customerManager, 'retrieve')
@@ -413,7 +412,7 @@ describe('PaymentsEmitterService', () => {
         .mockResolvedValue(StripeResponseFactory([mockSubscription]));
       jest
         .spyOn(paymentMethodManager, 'determineType')
-        .mockResolvedValue(mockPaymentMethodType);
+        .mockResolvedValue(mockPaymentMethod);
       jest
         .spyOn(paymentsGleanManager, 'recordFxaPaySetupSuccess')
         .mockReturnValue();
@@ -440,7 +439,7 @@ describe('PaymentsEmitterService', () => {
           experimentationData: { nimbusUserId },
           ...additionalMetricsData,
         },
-        mockPaymentMethodType.type
+        mockPaymentMethod.provider
       );
     });
 
@@ -511,7 +510,7 @@ describe('PaymentsEmitterService', () => {
       priceId: additionalMetricsData.cmsMetricsData.priceId,
       priceInterval: mockInterval,
       priceIntervalCount: 1,
-      paymentProvider: SubPlatPaymentMethodType.Card,
+      paymentProvider: PaymentProvider.Stripe,
     });
 
     const mockPrice = StripeResponseFactory(

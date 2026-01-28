@@ -30,6 +30,13 @@ export type InvoicePreview = {
   subsequentTax?: TaxAmount[];
 };
 
+export enum PaymentProvider {
+  AppleIap = 'apple_iap',
+  GoogleIap = 'google_iap',
+  PayPal = 'paypal',
+  Stripe = 'stripe',
+}
+
 export enum SubPlatPaymentMethodType {
   PayPal = 'external_paypal',
   Stripe = 'stripe',
@@ -40,6 +47,7 @@ export enum SubPlatPaymentMethodType {
 }
 
 export interface StripePaymentMethod {
+  provider: 'stripe';
   type:
     | SubPlatPaymentMethodType.Card
     | SubPlatPaymentMethodType.ApplePay
@@ -50,6 +58,7 @@ export interface StripePaymentMethod {
 }
 
 export interface PayPalPaymentMethod {
+  provider: 'paypal';
   type: SubPlatPaymentMethodType.PayPal;
 }
 
@@ -69,10 +78,10 @@ export interface AccountCreditBalance {
 }
 
 export type PaymentProvidersType =
-  | Stripe.PaymentMethod.Type
+  | 'stripe'
   | 'google_iap'
   | 'apple_iap'
-  | 'external_paypal';
+  | 'paypal';
 
 export enum PaymentMethodErrorType {
   CardExpired,

@@ -3,11 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { SubPlatPaymentMethodType, type StripePaymentMethod } from '../types';
+import {
+  PaymentProvider,
+  SubPlatPaymentMethodType,
+  type StripePaymentMethod,
+} from '../types';
 
 export const StripePaymentMethodTypeResponseFactory = (
   override?: Partial<StripePaymentMethod>
 ): StripePaymentMethod => ({
+  provider: PaymentProvider.Stripe,
   type: faker.helpers.arrayElement([
     SubPlatPaymentMethodType.Card,
     SubPlatPaymentMethodType.ApplePay,

@@ -11,7 +11,10 @@ import {
   PayPalClient,
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
-import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import {
+  PaymentProvider,
+  SubPlatPaymentMethodType,
+} from '@fxa/payments/customer';
 import {
   StripeClient,
   MockStripeConfigProvider,
@@ -99,6 +102,7 @@ describe('PaymentMethodManager', () => {
       const mockUid = faker.string.uuid();
 
       jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        provider: PaymentProvider.Stripe,
         type: SubPlatPaymentMethodType.Card,
         paymentMethodId: 'pm_id',
       });
@@ -128,6 +132,7 @@ describe('PaymentMethodManager', () => {
       const mockUid = faker.string.uuid();
 
       jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        provider: PaymentProvider.PayPal,
         type: SubPlatPaymentMethodType.PayPal,
       });
       jest
@@ -155,6 +160,7 @@ describe('PaymentMethodManager', () => {
       const mockUid = faker.string.uuid();
 
       jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        provider: PaymentProvider.Stripe,
         type: SubPlatPaymentMethodType.ApplePay,
         paymentMethodId: 'pm_id',
       });
@@ -215,6 +221,7 @@ describe('PaymentMethodManager', () => {
       const mockUid = faker.string.uuid();
 
       jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        provider: PaymentProvider.Stripe,
         type: SubPlatPaymentMethodType.Card,
         paymentMethodId: 'pm_id',
       });
@@ -289,6 +296,7 @@ describe('PaymentMethodManager', () => {
       const mockUid = faker.string.uuid();
 
       jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        provider: PaymentProvider.Stripe,
         type: SubPlatPaymentMethodType.ApplePay,
         paymentMethodId: 'pm_id',
       });
@@ -331,6 +339,7 @@ describe('PaymentMethodManager', () => {
       const mockUid = faker.string.uuid();
 
       jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        provider: PaymentProvider.PayPal,
         type: SubPlatPaymentMethodType.PayPal,
       });
       jest
@@ -385,6 +394,7 @@ describe('PaymentMethodManager', () => {
       await expect(
         paymentMethodManager.determineType(mockCustomer)
       ).resolves.toEqual({
+        provider: PaymentProvider.Stripe,
         type: SubPlatPaymentMethodType.Card,
         paymentMethodId: expect.any(String),
       });
@@ -398,6 +408,7 @@ describe('PaymentMethodManager', () => {
       await expect(
         paymentMethodManager.determineType(undefined, [mockSubscription])
       ).resolves.toEqual({
+        provider: PaymentProvider.PayPal,
         type: SubPlatPaymentMethodType.PayPal,
       });
     });
@@ -424,6 +435,7 @@ describe('PaymentMethodManager', () => {
       await expect(
         paymentMethodManager.determineType(mockCustomer)
       ).resolves.toEqual({
+        provider: PaymentProvider.Stripe,
         type: SubPlatPaymentMethodType.Link,
         paymentMethodId: expect.any(String),
       });
@@ -451,6 +463,7 @@ describe('PaymentMethodManager', () => {
       await expect(
         paymentMethodManager.determineType(mockCustomer)
       ).resolves.toEqual({
+        provider: PaymentProvider.Stripe,
         type: SubPlatPaymentMethodType.ApplePay,
         paymentMethodId: expect.any(String),
       });
@@ -478,6 +491,7 @@ describe('PaymentMethodManager', () => {
       await expect(
         paymentMethodManager.determineType(mockCustomer)
       ).resolves.toEqual({
+        provider: PaymentProvider.Stripe,
         type: SubPlatPaymentMethodType.GooglePay,
         paymentMethodId: expect.any(String),
       });

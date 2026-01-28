@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ResultCart } from '@fxa/payments/cart';
-import Stripe from 'stripe';
 
 export const CheckoutTypes = [
   'new_account',
@@ -11,21 +10,12 @@ export const CheckoutTypes = [
   'unknown',
 ] as const;
 export type CheckoutTypesType = (typeof CheckoutTypes)[number];
-import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
-
 export const PaymentProvidersTypePartial = [
-  'card',
+  'stripe',
   'google_iap',
   'apple_iap',
-  'external_paypal',
-  'link',
+  'paypal',
 ] as const;
-export type PaymentProvidersType =
-  | Stripe.PaymentMethod.Type
-  | SubPlatPaymentMethodType
-  | 'google_iap'
-  | 'apple_iap'
-  | 'external_paypal';
 
 export type CommonMetrics = {
   ipAddress: string;

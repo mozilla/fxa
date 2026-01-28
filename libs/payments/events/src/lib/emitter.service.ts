@@ -22,7 +22,7 @@ import {
   CustomerManager,
   SubscriptionManager,
   PaymentMethodManager,
-  type SubPlatPaymentMethodType,
+  PaymentProvidersType,
 } from '@fxa/payments/customer';
 import * as Sentry from '@sentry/nestjs';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
@@ -217,8 +217,8 @@ export class PaymentsEmitterService {
           eventData?.searchParams?.['experimentationPreview'] === 'true',
       });
 
-      // Determine payment method type
-      let paymentMethodType: SubPlatPaymentMethodType | undefined;
+      // Determine payment provider
+      let paymentProvider: PaymentProvidersType | undefined;
       if (additionalData.cartMetricsData.stripeCustomerId) {
         const { stripeCustomerId } = additionalData.cartMetricsData;
         const customer = await this.customerManager.retrieve(stripeCustomerId);
@@ -231,7 +231,7 @@ export class PaymentsEmitterService {
           );
 
         if (paymentMethodTypeResponse?.type) {
-          paymentMethodType = paymentMethodTypeResponse.type;
+          paymentProvider = paymentMethodTypeResponse.provider;
         }
       }
 
@@ -241,7 +241,7 @@ export class PaymentsEmitterService {
           ...additionalData,
           experimentationData: { nimbusUserId },
         },
-        paymentMethodType
+        paymentProvider
       );
     }
   }
