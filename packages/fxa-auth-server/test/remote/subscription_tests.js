@@ -4,13 +4,11 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
 const { assert } = require('chai');
 const { default: Container } = require('typedi');
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 const clientFactory = require('../client')();
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
+const config = require('../../config').default.getProperties();
 const { AppError: error } = require('@fxa/accounts/errors');
 const testServerFactory = require('../test_server');
 const mocks = require('../mocks');

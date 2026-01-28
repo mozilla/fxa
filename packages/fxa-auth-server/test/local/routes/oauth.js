@@ -4,14 +4,12 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
-const JWTIdToken = require(`${ROOT_DIR}/lib/oauth/jwt_id_token`);
+const JWTIdToken = require('../../../lib/oauth/jwt_id_token');
 
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const MOCK_CLIENT_ID = '0123456789abcdef';
@@ -53,8 +51,8 @@ describe('/oauth/ routes', () => {
   }
 
   async function mockSessionToken(props = {}) {
-    const Token = require(`${ROOT_DIR}/lib/tokens/token`)(mockLog);
-    const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(
+    const Token = require(`../../../lib/tokens/token`)(mockLog);
+    const SessionToken = require(`../../../lib/tokens/session_token`)(
       mockLog,
       Token,
       {

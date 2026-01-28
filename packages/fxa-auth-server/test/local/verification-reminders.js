@@ -4,7 +4,6 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
 const REMINDERS = ['first', 'second', 'third'];
 const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce((expected, reminder) => {
   expected[reminder] = 1;
@@ -12,7 +11,7 @@ const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce((expected, reminder) => {
 }, {});
 
 const { assert } = require('chai');
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
+const config = require('../../config').default.getProperties();
 const mocks = require('../mocks');
 
 describe('#integration - lib/verification-reminders', () => {
@@ -42,7 +41,7 @@ describe('#integration - lib/verification-reminders', () => {
       },
       mocks.mockLog()
     );
-    verificationReminders = require(`${ROOT_DIR}/lib/verification-reminders`)(
+    verificationReminders = require(`../../lib/verification-reminders`)(
       log,
       mockConfig
     );
@@ -435,7 +434,7 @@ describe('#integration - lib/verification-reminders', () => {
 describe('lib/verification-reminders with invalid config:', () => {
   it('throws if config contains clashing metadata key', () => {
     assert.throws(() => {
-      require(`${ROOT_DIR}/lib/verification-reminders`)(mocks.mockLog(), {
+      require(`../../lib/verification-reminders`)(mocks.mockLog(), {
         redis: config.redis,
         verificationReminders: {
           rolloutRate: 1,

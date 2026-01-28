@@ -4,10 +4,8 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
-const { config } = require(`${ROOT_DIR}/config`);
-const emailDomains = require(`${ROOT_DIR}/config/popular-email-domains`);
+const { config } = require('../../../config');
+const emailDomains = require('../../../config/popular-email-domains');
 const { default: Container } = require('typedi');
 const { AccountEventsManager } = require('../../account-events');
 

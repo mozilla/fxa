@@ -6,8 +6,6 @@
 const { assert } = require('chai');
 const proxyquire = require('proxyquire');
 
-const ROOT_DIR = '../../..';
-
 describe('Config', () => {
   describe('NODE_ENV=prod', () => {
     let originalEnv;
@@ -30,7 +28,7 @@ describe('Config', () => {
 
     it('errors when secret settings have their default values', () => {
       assert.throws(() => {
-        proxyquire(`${ROOT_DIR}/config`, {});
+        proxyquire('../../../config', {});
         // eslint-disable-next-line no-useless-escape
       }, /Config \'[a-zA-Z._]+\' must be set in production/);
     });
@@ -43,7 +41,7 @@ describe('Config', () => {
         'production secret here'
       );
       assert.doesNotThrow(() => {
-        proxyquire(`${ROOT_DIR}/config`, {});
+        proxyquire('../../../config', {});
       });
     });
   });

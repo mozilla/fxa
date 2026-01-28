@@ -4,8 +4,6 @@
 
 'use strict';
 
-const LIB_DIR = '../../lib';
-
 const { assert } = require('chai');
 const mocks = require('../mocks');
 const proxyquire = require('proxyquire');
@@ -38,8 +36,8 @@ describe('db, session tokens expire:', () => {
 
   beforeEach(() => {
     log = mocks.mockLog();
-    tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
-    const { createDB } = proxyquire(`${LIB_DIR}/db.ts`, {
+    tokens = require(`../../lib/tokens`)(log, { tokenLifetimes });
+    const { createDB } = proxyquire(`../../lib/db.ts`, {
       'fxa-shared/db': { setupAuthDatabase: () => {} },
       'fxa-shared/db/models/auth': models,
     });
@@ -99,8 +97,8 @@ describe('db, session tokens do not expire:', () => {
 
   beforeEach(() => {
     log = mocks.mockLog();
-    tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
-    const { createDB } = proxyquire(`${LIB_DIR}/db`, {
+    tokens = require(`../../lib/tokens`)(log, { tokenLifetimes });
+    const { createDB } = proxyquire(`../../lib/db`, {
       'fxa-shared/db': { setupAuthDatabase: () => {} },
       'fxa-shared/db/models/auth': models,
     });
@@ -160,8 +158,8 @@ describe('db with redis disabled:', () => {
 
   beforeEach(() => {
     log = mocks.mockLog();
-    tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
-    const { createDB } = proxyquire(`${LIB_DIR}/db`, {
+    tokens = require(`../../lib/tokens`)(log, { tokenLifetimes });
+    const { createDB } = proxyquire(`../../lib/db`, {
       './redis': () => {},
       'fxa-shared/db': { setupAuthDatabase: () => {} },
       'fxa-shared/db/models/auth': models,
@@ -219,8 +217,8 @@ describe('redis enabled, token-pruning enabled:', () => {
       touchSessionToken: sinon.spy(() => Promise.resolve()),
     };
     log = mocks.mockLog();
-    tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
-    const { createDB } = proxyquire(`${LIB_DIR}/db`, {
+    tokens = require(`../../lib/tokens`)(log, { tokenLifetimes });
+    const { createDB } = proxyquire(`../../lib/db`, {
       './redis': (...args) => {
         assert.equal(args.length, 2, 'redisPool was passed two arguments');
         assert.equal(args[0].foo, 'bar', 'redisPool was passed config');
@@ -462,8 +460,8 @@ describe('redis enabled, token-pruning disabled:', () => {
       pruneSessionTokens: sinon.spy(() => Promise.resolve()),
     };
     log = mocks.mockLog();
-    tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
-    const { createDB } = proxyquire(`${LIB_DIR}/db`, {
+    tokens = require(`../../lib/tokens`)(log, { tokenLifetimes });
+    const { createDB } = proxyquire(`../../lib/db`, {
       './redis': (...args) => {
         assert.equal(args.length, 2, 'redisPool was passed two arguments');
         assert.equal(args[0].foo, 'bar', 'redisPool was passed config');
@@ -539,7 +537,7 @@ describe('db.deviceFromRefreshTokenId:', () => {
 
   beforeEach(() => {
     log = mocks.mockLog();
-    tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
+    tokens = require(`../../lib/tokens`)(log, { tokenLifetimes });
 
     // Mock Device model
     Device = {
@@ -563,7 +561,7 @@ describe('db.deviceFromRefreshTokenId:', () => {
       }),
     };
 
-    const { createDB } = proxyquire(`${LIB_DIR}/db.ts`, {
+    const { createDB } = proxyquire(`../../lib/db.ts`, {
       './features': () => features,
       '@fxa/accounts/errors': { AppError: errorMock },
       'fxa-shared/connected-services': {

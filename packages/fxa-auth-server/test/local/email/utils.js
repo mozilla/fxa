@@ -4,8 +4,6 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
 const { assert } = require('chai');
 const { mockLog } = require('../../mocks');
 const proxyquire = require('proxyquire');
@@ -14,7 +12,7 @@ const { default: Container } = require('typedi');
 const { AccountEventsManager } = require('../../../lib/account-events');
 
 const amplitude = sinon.spy();
-const emailHelpers = proxyquire(`${ROOT_DIR}/lib/email/utils/helpers`, {
+const emailHelpers = proxyquire('../../../lib/email/utils/helpers', {
   '../../metrics/amplitude': () => amplitude,
 });
 
@@ -345,7 +343,7 @@ describe('email utils helpers', () => {
     beforeEach(() => {
       mockAccountEventsManager = {
         recordEmailEvent: sinon.stub(),
-        recordSecurityEvent: sinon.stub().resolves({})
+        recordSecurityEvent: sinon.stub().resolves({}),
       };
       Container.set(AccountEventsManager, mockAccountEventsManager);
     });

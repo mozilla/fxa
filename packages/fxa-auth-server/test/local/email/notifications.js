@@ -4,12 +4,10 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
 const { assert } = require('chai');
 const { AppError: error } = require('@fxa/accounts/errors');
 const { mockLog } = require('../../mocks');
-const notifications = require(`${ROOT_DIR}/lib/email/notifications`);
+const notifications = require('../../../lib/email/notifications');
 const sinon = require('sinon');
 const { default: Container } = require('typedi');
 const { StripeHelper } = require('../../../lib/payments/stripe');

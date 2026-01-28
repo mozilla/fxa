@@ -4,8 +4,6 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
 const { assert } = require('chai');
 const EndpointError = require('poolee/lib/error')(require('util').inherits);
 const { AppError: error } = require('@fxa/accounts/errors');
@@ -19,7 +17,7 @@ const customs = mocks.mockCustoms();
 
 const sandbox = sinon.createSandbox();
 const mockReportValidationError = sandbox.stub();
-const server = proxyquire(`${ROOT_DIR}/lib/server`, {
+const server = proxyquire(`../../lib/server`, {
   'fxa-shared/sentry/report-validation-error': {
     reportValidationError: mockReportValidationError,
   },

@@ -4,16 +4,13 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
 const { assert } = require('chai');
 const crypto = require('crypto');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const mocks = require('../../mocks');
 
-const modulePath = `${ROOT_DIR}/lib/metrics/context`;
-const metricsContextModule = require(modulePath);
+const metricsContextModule = require('../../../lib/metrics/context');
 
 function hashToken(token) {
   const hash = crypto.createHash('sha256');
@@ -50,7 +47,7 @@ describe('metricsContext', () => {
       },
     };
 
-    metricsContext = proxyquire(modulePath, {
+    metricsContext = proxyquire('../../../lib/metrics/context', {
       '../metricsCache': {
         MetricsRedis: cacheFactory,
       },
@@ -778,7 +775,10 @@ describe('metricsContext', () => {
       },
     };
 
-    const metricsContext = require(modulePath)(mockLog, mockConfig);
+    const metricsContext = require('../../../lib/metrics/context')(
+      mockLog,
+      mockConfig
+    );
     const result = metricsContext.validate.call(mockRequest);
 
     assert.strictEqual(result, true, 'result was true');
@@ -834,7 +834,10 @@ describe('metricsContext', () => {
       },
     };
 
-    const metricsContext = require(modulePath)(mockLog, mockConfig);
+    const metricsContext = require('../../../lib/metrics/context')(
+      mockLog,
+      mockConfig
+    );
     const valid = metricsContext.validate.call(mockRequest);
 
     assert(!valid, 'the data is treated as invalid');
@@ -860,7 +863,10 @@ describe('metricsContext', () => {
       },
     };
 
-    const metricsContext = require(modulePath)(mockLog, mockConfig);
+    const metricsContext = require('../../../lib/metrics/context')(
+      mockLog,
+      mockConfig
+    );
     const valid = metricsContext.validate.call(mockRequest);
 
     assert(!valid, 'the data is treated as invalid');
@@ -891,7 +897,10 @@ describe('metricsContext', () => {
       },
     };
 
-    const metricsContext = require(modulePath)(mockLog, mockConfig);
+    const metricsContext = require('../../../lib/metrics/context')(
+      mockLog,
+      mockConfig
+    );
     const valid = metricsContext.validate.call(mockRequest);
 
     assert(!valid, 'the data is treated as invalid');
@@ -923,7 +932,10 @@ describe('metricsContext', () => {
       },
     };
 
-    const metricsContext = require(modulePath)(mockLog, mockConfig);
+    const metricsContext = require('../../../lib/metrics/context')(
+      mockLog,
+      mockConfig
+    );
     const valid = metricsContext.validate.call(mockRequest);
 
     assert(!valid, 'the data is treated as invalid');
@@ -955,7 +967,10 @@ describe('metricsContext', () => {
       },
     };
 
-    const metricsContext = require(modulePath)(mockLog, mockConfig);
+    const metricsContext = require('../../../lib/metrics/context')(
+      mockLog,
+      mockConfig
+    );
     const valid = metricsContext.validate.call(mockRequest);
 
     assert(!valid, 'the data is treated as invalid');
@@ -994,7 +1009,10 @@ describe('metricsContext', () => {
 
     let valid;
     try {
-      const metricsContext = require(modulePath)(mockLog, mockConfig);
+      const metricsContext = require('../../../lib/metrics/context')(
+        mockLog,
+        mockConfig
+      );
       valid = metricsContext.validate.call(mockRequest);
     } finally {
       Date.now.restore();
@@ -1036,7 +1054,10 @@ describe('metricsContext', () => {
 
     let valid;
     try {
-      const metricsContext = require(modulePath)(mockLog, mockConfig);
+      const metricsContext = require('../../../lib/metrics/context')(
+        mockLog,
+        mockConfig
+      );
       valid = metricsContext.validate.call(mockRequest);
     } finally {
       Date.now.restore();
@@ -1081,7 +1102,10 @@ describe('metricsContext', () => {
 
     let valid;
     try {
-      const metricsContext = require(modulePath)(mockLog, mockConfig);
+      const metricsContext = require('../../../lib/metrics/context')(
+        mockLog,
+        mockConfig
+      );
       valid = metricsContext.validate.call(mockRequest);
     } finally {
       Date.now.restore();
@@ -1119,7 +1143,10 @@ describe('metricsContext', () => {
       },
     };
 
-    const metricsContext = require(modulePath)(mockLog, mockConfig);
+    const metricsContext = require('../../../lib/metrics/context')(
+      mockLog,
+      mockConfig
+    );
     const result = metricsContext.validate.call(mockRequest);
 
     assert.strictEqual(result, true, 'validate returned true');
