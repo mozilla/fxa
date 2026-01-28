@@ -122,6 +122,8 @@ describe('metrics/events', () => {
     const request = mocks.mockRequest({
       headers: {
         'user-agent': 'foo',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       metricsContext,
       query: {
@@ -424,6 +426,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'foo',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       payload: {
         metricsContext: {
@@ -499,6 +503,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'test user-agent',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       metricsContext,
       payload: {
@@ -576,6 +582,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'test user-agent',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       metricsContext,
       payload: {
@@ -653,6 +661,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'test user-agent',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       metricsContext,
       payload: {
@@ -729,6 +739,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'test user-agent',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       locale: 'fr',
       metricsContext,
@@ -947,6 +959,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'test user-agent',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       metricsContext,
       payload: {
@@ -1279,6 +1293,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'test user-agent',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       metricsContext,
       path: '/v1/account/create',
@@ -1383,6 +1399,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'test user-agent',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       metricsContext,
       path: '/v1/account/login',
@@ -1452,6 +1470,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'test user-agent',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       metricsContext,
       path: '/v1/recovery_email/resend_code',
@@ -1521,6 +1541,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'test user-agent',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       metricsContext,
       path: '/v1/recovery_email/resend_code',
@@ -1569,6 +1591,8 @@ describe('metrics/events', () => {
       headers: {
         dnt: '1',
         'user-agent': 'test user-agent',
+        'x-sigsci-requestid': 'test-sigsci-id',
+        'client-ja4': 'test-ja4',
       },
       metricsContext,
       path: '/v1/account/destroy',

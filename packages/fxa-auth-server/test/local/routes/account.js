@@ -2254,6 +2254,8 @@ describe('/account/login', () => {
     headers: {
       dnt: '1',
       'user-agent': 'test user-agent',
+      'x-sigsci-requestid': 'test-sigsci-id',
+      'client-ja4': 'test-ja4',
     },
     metricsContext: mockMetricsContext,
     payload: {
