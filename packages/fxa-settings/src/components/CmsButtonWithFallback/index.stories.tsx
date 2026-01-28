@@ -11,61 +11,148 @@ export default {
   component: CmsButtonWithFallback,
 } as Meta;
 
-const storyWithProps = (props: any) => {
-  const story = () => (
-    <div>
-      <CmsButtonWithFallback {...props} />
+// Gradient comparison view
+
+export const GradientComparison = () => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px',
+      padding: '20px',
+    }}
+  >
+    <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}>
+      Gradient Button Examples
+    </h2>
+
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: '600' }}>
+        Dark Gradients (White Text)
+      </h3>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <CmsButtonWithFallback
+          buttonColor="linear-gradient(90deg, #592ACB 0%, #350080 100%)"
+          buttonText="Dark Purple"
+          type="button"
+        />
+        <CmsButtonWithFallback
+          buttonColor="linear-gradient(90deg, #592ACB 0%, #350080 100%)"
+          buttonText="Disabled"
+          type="button"
+          disabled
+        />
+      </div>
     </div>
-  );
-  return story;
-};
 
-export const WithVeryLightCmsButtonColor = storyWithProps({
-  buttonColor: '#ffffcc',
-  buttonText: 'Continue with Very Light Background',
-  type: 'button',
-});
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: '600' }}>
+        Light Gradients (Dark Text)
+      </h3>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <CmsButtonWithFallback
+          buttonColor="linear-gradient(90deg, #FFD700 0%, #FFA500 100%)"
+          buttonText="Gold Orange"
+          type="button"
+        />
+        <CmsButtonWithFallback
+          buttonColor="linear-gradient(90deg, #FFD700 0%, #FFA500 100%)"
+          buttonText="Disabled"
+          type="button"
+          disabled
+        />
+      </div>
+    </div>
 
-export const WithVeryLightCmsButtonColorAndDisabled = storyWithProps({
-  buttonColor: '#ffffcc',
-  buttonText: 'Continue with Very Light Background',
-  type: 'button',
-  disabled: true,
-});
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: '600' }}>
+        Very Light Gradients (Dark Text)
+      </h3>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <CmsButtonWithFallback
+          buttonColor="linear-gradient(90deg, #FFFFCC 0%, #FFFFE0 100%)"
+          buttonText="Very Light"
+          type="button"
+        />
+        <CmsButtonWithFallback
+          buttonColor="linear-gradient(90deg, #FFFFCC 0%, #FFFFE0 100%)"
+          buttonText="Disabled"
+          type="button"
+          disabled
+        />
+      </div>
+    </div>
 
-export const WithDarkCmsButtonColor = storyWithProps({
-  buttonColor: '#350080',
-  buttonText: 'Continue with Dark Background',
-  type: 'button',
-});
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: '600' }}>
+        Multi-Color Gradients
+      </h3>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <CmsButtonWithFallback
+          buttonColor="linear-gradient(90deg, #FF4F5E 0%, #592ACB 50%, #00D4FF 100%)"
+          buttonText="Rainbow"
+          type="button"
+        />
+        <CmsButtonWithFallback
+          buttonColor="linear-gradient(90deg, #FF4F5E 0%, #592ACB 50%, #00D4FF 100%)"
+          buttonText="Disabled"
+          type="button"
+          disabled
+        />
+      </div>
+    </div>
 
-export const WithDarkCmsButtonColorAndDisabled = storyWithProps({
-  buttonColor: '#350080',
-  buttonText: 'Continue with Dark Background',
-  type: 'button',
-  disabled: true,
-});
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: '600' }}>Radial Gradients</h3>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <CmsButtonWithFallback
+          buttonColor="radial-gradient(circle, #592ACB 0%, #350080 100%)"
+          buttonText="Radial Dark"
+          type="button"
+        />
+        <CmsButtonWithFallback
+          buttonColor="radial-gradient(circle, #592ACB 0%, #350080 100%)"
+          buttonText="Disabled"
+          type="button"
+          disabled
+        />
+      </div>
+    </div>
 
-export const WithLightCmsButtonColor = storyWithProps({
-  buttonColor: '#f58742',
-  buttonText: 'Continue with Light Background',
-  type: 'button',
-});
-
-export const WithLightCmsButtonColorAndDisabled = storyWithProps({
-  buttonColor: '#f58742',
-  buttonText: 'Continue with Light Background',
-  type: 'button',
-  disabled: true,
-});
-
-export const WithDefaultFallback = storyWithProps({
-  buttonText: 'Continue with Default Styling',
-  type: 'button',
-});
-
-export const WithDefaultFallbackAndDisabled = storyWithProps({
-  buttonText: 'Continue with Default Styling',
-  type: 'button',
-  disabled: true,
-});
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: '600' }}>
+        Solid Colors (for comparison)
+      </h3>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <CmsButtonWithFallback
+          buttonColor="#592ACB"
+          buttonText="Solid Dark"
+          type="button"
+        />
+        <CmsButtonWithFallback
+          buttonColor="#592ACB"
+          buttonText="Disabled"
+          type="button"
+          disabled
+        />
+      </div>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <CmsButtonWithFallback
+          buttonColor="#FFD700"
+          buttonText="Solid Light"
+          type="button"
+        />
+        <CmsButtonWithFallback
+          buttonColor="#FFD700"
+          buttonText="Disabled"
+          type="button"
+          disabled
+        />
+      </div>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <CmsButtonWithFallback buttonText="Default (No CMS)" type="button" />
+        <CmsButtonWithFallback buttonText="Disabled" type="button" disabled />
+      </div>
+    </div>
+  </div>
+);

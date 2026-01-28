@@ -6,6 +6,7 @@ import React from 'react';
 import { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MozServices } from '../../lib/types';
+import { HeadlineFontSize } from '../../models/integrations/relier-interfaces';
 
 // NOTE: this component is heavily tested in components that use it and has complete line
 // coverage. However, we may file an issue out of FXA-6589 to add more explicit coverage.
@@ -52,6 +53,8 @@ interface CardHeaderCmsProps extends CardHeaderRequiredProps {
   cmsLogoAltText?: string;
   cmsHeadline?: string;
   cmsDescription?: string;
+  cmsHeadlineFontSize?: HeadlineFontSize | string | null;
+  cmsHeadlineTextColor?: string | null;
 }
 
 type CardHeaderProps =
@@ -112,7 +115,9 @@ function isCmsHeader(props: CardHeaderProps): props is CardHeaderCmsProps {
     (props as CardHeaderCmsProps).cmsLogoUrl !== undefined ||
     (props as CardHeaderCmsProps).cmsLogoAltText !== undefined ||
     (props as CardHeaderCmsProps).cmsHeadline !== undefined ||
-    (props as CardHeaderCmsProps).cmsDescription !== undefined
+    (props as CardHeaderCmsProps).cmsDescription !== undefined ||
+    (props as CardHeaderCmsProps).cmsHeadlineFontSize !== undefined ||
+    (props as CardHeaderCmsProps).cmsHeadlineTextColor !== undefined
   );
 }
 
@@ -127,11 +132,81 @@ function isBasicWithCustomSubheading(
   );
 }
 
+/**
+ * Maps HeadlineFontSize values to Tailwind CSS font size utility classes.
+ * @param fontSize - The font size variant (default, medium, or large)
+ * @returns The corresponding Tailwind CSS class
+ */
+function getHeadlineFontSizeClass(
+  fontSize?: HeadlineFontSize | string | null
+): string {
+  // Handle null/undefined
+  if (!fontSize) {
+    return 'text-xl';
+  }
+
+  // Handle known values (cast to lowercase for safety)
+  const normalizedSize = fontSize.toLowerCase();
+
+  const fontSizeMap: Record<string, string> = {
+    default: 'text-xl', // 22px
+    medium: 'text-xxl', // 28px
+    large: 'text-xxxl', // 32px
+  };
+
+  return fontSizeMap[normalizedSize] || 'text-xl';
+}
+
+/**
+ * Generates the className string for CMS-customizable headlines.
+ * Note: Color is applied via inline style, not className, for dynamic CMS values.
+ *
+ * @param fontSize - Optional font size variant (default, medium, or large)
+ * @returns A space-separated className string
+ *
+ * @example
+ * ```tsx
+ * // Basic usage with default size
+ * getCmsHeadlineClassName() // "card-header-cms text-xl"
+ *
+ * // Large headline
+ * getCmsHeadlineClassName('large') // "card-header-cms text-xxxl"
+ * ```
+ */
+export function getCmsHeadlineClassName(
+  fontSize?: HeadlineFontSize | string | null
+): string {
+  const classes = ['card-header-cms', getHeadlineFontSizeClass(fontSize)];
+
+  return classes.filter(Boolean).join(' ');
+}
+
+/**
+ * Generates inline styles for CMS headline customization.
+ * Used for dynamic colors that can't be in Tailwind classes.
+ *
+ * @param textColor - Optional hex color value (e.g., "#592ACB")
+ * @returns Style object for React inline styles
+ */
+export function getCmsHeadlineStyle(
+  textColor?: string | null
+): React.CSSProperties {
+  return textColor ? { color: textColor } : {};
+}
+
 const CardHeader = (props: CardHeaderProps) => {
   const { headingText } = props;
 
   if (isCmsHeader(props)) {
-    const { cmsLogoUrl, cmsLogoAltText, cmsHeadline, cmsDescription } = props;
+    const {
+      cmsLogoUrl,
+      cmsLogoAltText,
+      cmsHeadline,
+      cmsDescription,
+      cmsHeadlineFontSize,
+      cmsHeadlineTextColor,
+    } = props;
+
     return (
       <>
         {cmsLogoUrl && cmsLogoAltText && (
@@ -141,7 +216,12 @@ const CardHeader = (props: CardHeaderProps) => {
             className="justify-start mb-4 max-h-[40px]"
           />
         )}
-        <h1 className="card-header">{cmsHeadline}</h1>
+        <h1
+          className={getCmsHeadlineClassName(cmsHeadlineFontSize)}
+          style={getCmsHeadlineStyle(cmsHeadlineTextColor)}
+        >
+          {cmsHeadline}
+        </h1>
         <p className="card-subheader">{cmsDescription}</p>
       </>
     );

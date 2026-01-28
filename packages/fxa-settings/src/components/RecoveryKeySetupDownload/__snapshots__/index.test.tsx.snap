@@ -3,7 +3,7 @@
 exports[`RecoveryKeySetupDownload renders button with CMS passthrough 1`] = `
 <button
   class="cta-primary-cms cta-xl w-full mt-4"
-  style="--cta-bg: #6B4DFB; --cta-border: #6B4DFB; --cta-active: #6B4DFB; --cta-disabled: #6B4DFB60;"
+  style="--cta-bg: #6B4DFB; --cta-border: #6B4DFB; --cta-active: #6B4DFB; --cta-disabled: #6B4DFB; color: rgb(255, 255, 255);"
 >
   Download and continue
 </button>

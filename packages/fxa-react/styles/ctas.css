@@ -116,6 +116,7 @@
     --cta-border: theme(colors.blue.600);
     --cta-active: theme(colors.blue.800);
     --cta-disabled: rgb(59 130 246 / 0.4); /* blue-500/40 */
+    --cta-focus-outline: var(--cta-border);
 
     background-color: var(--cta-bg);
     border-color: var(--cta-border);
@@ -126,9 +127,46 @@
     border-color: var(--cta-active);
   }
 
+  /* For gradient buttons, remove border in normal mode but keep for HCM.
+   * When a border is present (even with transparent border-color), it creates a visible
+   * artifact at the edges of the gradient. This is because the browser still renders the
+   * border area, which interrupts the gradient rendering and creates a visible outline or
+   * "ghost border" effect. Setting border-width to 0 completely removes the border space,
+   * allowing the gradient to render cleanly to the element's edges without any artifacts.
+   * The border is restored for high-contrast mode below for accessibility. */
+
+  .cta-primary-cms.cta-gradient {
+    border-width: 0;
+  }
+
+  /* Re-enable border for high-contrast mode */
+  @media (forced-colors: active) {
+    .cta-primary-cms.cta-gradient {
+      border-width: 1px;
+      border-style: solid;
+    }
+  }
+
+  /* For gradient buttons, darken the gradient on hover and active states using background-blend-mode.
+   * This blends a semi-transparent black layer with the gradient background-image, darkening only
+   * the background without affecting text color. Uses multiply blend mode for natural darkening. */
+  @media (hover: hover) {
+    .cta-primary-cms.cta-gradient:hover:not(:disabled):not(:active):not(
+        [aria-disabled='true']
+      ) {
+      background-color: rgba(0, 0, 0, 0.1);
+      background-blend-mode: multiply;
+    }
+  }
+
+  .cta-primary-cms.cta-gradient:active:not([aria-disabled='true']) {
+    background-color: rgba(0, 0, 0, 0.15);
+    background-blend-mode: multiply;
+  }
+
   .cta-primary-cms:focus:not([aria-disabled='true']),
   .cta-primary-cms:focus-visible:not([aria-disabled='true']) {
-    outline: 2px solid var(--cta-border);
+    outline: 2px solid var(--cta-focus-outline);
     outline-offset: 2px;
   }
 

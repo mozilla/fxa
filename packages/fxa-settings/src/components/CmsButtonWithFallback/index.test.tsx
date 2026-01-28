@@ -76,7 +76,25 @@ describe('CmsButtonWithFallback', () => {
       '--cta-bg': buttonColor,
       '--cta-border': buttonColor,
       '--cta-active': buttonColor,
-      '--cta-disabled': `${buttonColor}60`,
+      '--cta-disabled': buttonColor,
+    });
+  });
+
+  it('applies expected CMS styles when buttonColor is provided and button is disabled', () => {
+    const buttonColor = '#FF5733';
+    render(
+      <CmsButtonWithFallback buttonColor={buttonColor} disabled={true}>
+        CMS Button
+      </CmsButtonWithFallback>
+    );
+
+    const button = screen.getByRole('button');
+    expect(button).toHaveStyle({
+      '--cta-bg': buttonColor,
+      '--cta-border': buttonColor,
+      '--cta-active': buttonColor,
+      '--cta-disabled': buttonColor,
+      opacity: '0.5',
     });
   });
 
@@ -153,7 +171,7 @@ describe('CmsButtonWithFallback', () => {
       '--cta-bg': buttonColor,
       '--cta-border': buttonColor,
       '--cta-active': buttonColor,
-      '--cta-disabled': `${buttonColor}60`,
+      '--cta-disabled': buttonColor,
       background: 'red',
       fontSize: '16px',
     });

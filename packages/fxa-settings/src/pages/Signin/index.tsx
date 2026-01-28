@@ -385,6 +385,8 @@ const Signin = ({
             cmsLogoAltText: cmsInfo?.shared.logoAltText,
             cmsHeadline: cmsInfo?.SigninPage.headline,
             cmsDescription: cmsInfo?.SigninPage.description,
+            cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
+            cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
           }}
         />
       ) : (
@@ -398,6 +400,8 @@ const Signin = ({
             serviceName,
             cmsLogoUrl: cmsInfo?.shared.logoUrl,
             cmsLogoAltText: cmsInfo?.shared.logoAltText,
+            cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
+            cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
           }}
         />
       )}
@@ -487,7 +491,6 @@ const Signin = ({
           <div className="flex">
             <FtlMsg id="signin-button">
               <CmsButtonWithFallback
-                className="cta-primary cta-xl"
                 type="submit"
                 disabled={signinLoading}
                 buttonColor={cmsInfo?.shared.buttonColor}

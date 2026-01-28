@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Enum_Componentaccountsshared_Headlinefontsize } from '../../../__generated__/graphql';
+
 export interface Page {
   headline: string;
   description: string | null;
@@ -38,6 +40,8 @@ export interface Shared {
   headerLogoAltText: string | null;
   featureFlags: FeatureFlags | null;
   favicon: string | null;
+  headlineFontSize: Enum_Componentaccountsshared_Headlinefontsize | null;
+  headlineTextColor: string | null;
 }
 
 export interface FeatureFlags {

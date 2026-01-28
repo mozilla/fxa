@@ -4,7 +4,7 @@ exports[`CmsButtonWithFallback combines custom className with CMS classes 1`] = 
 <div>
   <button
     class="cta-primary-cms cta-xl custom-cms-class"
-    style="--cta-bg: #592ACB; --cta-border: #592ACB; --cta-active: #592ACB; --cta-disabled: #592ACB60;"
+    style="--cta-bg: #592ACB; --cta-border: #592ACB; --cta-active: #592ACB; --cta-disabled: #592ACB; color: rgb(255, 255, 255);"
   >
     CMS Custom Class Button
   </button>
@@ -15,7 +15,7 @@ exports[`CmsButtonWithFallback renders as CMS button when buttonColor is provide
 <div>
   <button
     class="cta-primary-cms cta-xl"
-    style="--cta-bg: #592ACB; --cta-border: #592ACB; --cta-active: #592ACB; --cta-disabled: #592ACB60;"
+    style="--cta-bg: #592ACB; --cta-border: #592ACB; --cta-active: #592ACB; --cta-disabled: #592ACB; color: rgb(255, 255, 255);"
   >
     CMS Button
   </button>
