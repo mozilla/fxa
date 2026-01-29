@@ -17,6 +17,7 @@ import {
   MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS,
 } from './mocks';
 import { MOCK_CMS_INFO } from '../../pages/mocks';
+import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
 
 // Mock the useConfig hook
 jest.mock('../../models/hooks', () => ({
@@ -29,6 +30,17 @@ jest.mock('../../models/hooks', () => ({
     getMsg: (id: string, fallback: string) => fallback,
   }),
 }));
+
+jest.mock('../../contexts/DynamicLocalizationContext', () => ({
+  useDynamicLocalization: jest.fn(() => ({
+    currentLocale: 'en',
+    switchLanguage: jest.fn(),
+    clearLanguagePreference: jest.fn(),
+    isLoading: false,
+  })),
+}));
+
+const mockUseDynamicLocalization = useDynamicLocalization as jest.Mock;
 
 describe('<AppLayout />', () => {
   it('renders as expected with children', async () => {
@@ -377,6 +389,48 @@ describe('<AppLayout />', () => {
       expect(headerLogo).toMatchSnapshot('header logo');
       expect(backgroundWrapper).toMatchSnapshot('background wrapper');
       expect(headerBackground).toMatchSnapshot('header background');
+    });
+  });
+
+  describe('splitLayout with locale restrictions (temp hack)', () => {
+    it('renders split layout when splitLayout is true and locale is English', () => {
+      mockUseDynamicLocalization.mockReturnValue({
+        currentLocale: 'en-US',
+        switchLanguage: jest.fn(),
+        clearLanguagePreference: jest.fn(),
+        isLoading: false,
+      });
+
+      const { container } = renderWithLocalizationProvider(
+        <AppLayout splitLayout={true}>
+          <p>Split layout content</p>
+        </AppLayout>
+      );
+
+      // Split layout does not render the card wrapper
+      expect(container.querySelector('.card')).not.toBeInTheDocument();
+      screen.getByText('Split layout content');
+    });
+
+    it('renders default layout when splitLayout is true but locale is not English', () => {
+      mockUseDynamicLocalization.mockReturnValue({
+        currentLocale: 'fr',
+        switchLanguage: jest.fn(),
+        clearLanguagePreference: jest.fn(),
+        isLoading: false,
+      });
+
+      const { container } = renderWithLocalizationProvider(
+        <AppLayout splitLayout={true} cmsInfo={MOCK_CMS_INFO_HEADER_LOGO}>
+          <p>Default layout content</p>
+        </AppLayout>
+      );
+
+      // Default layout renders with card wrapper
+      expect(container.querySelector('.card')).toBeInTheDocument();
+      screen.getByText('Default layout content');
+      // CMS info is still applied even when split layout is disabled
+      expect(screen.getByAltText('CMS Custom Logo')).toBeInTheDocument();
     });
   });
 });
