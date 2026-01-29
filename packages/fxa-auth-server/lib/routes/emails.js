@@ -236,32 +236,45 @@ module.exports = (
 
       const geoData = request.app.geo;
       try {
-        await mailer.sendVerifySecondaryCodeEmail(
-          [
-            {
-              email,
-              normalizedEmail,
-              isVerified: false,
-              isPrimary: false,
-              uid,
-            },
-          ],
-          sessionToken,
-          {
+        if (fxaMailer.canSend('verifySecondaryCode')) {
+          await fxaMailer.sendVerifySecondaryCodeEmail({
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
             code: otpUtils.generateOtpCode(secret, otpOptions),
-            deviceId: sessionToken.deviceId,
-            acceptLanguage: request.app.acceptLanguage,
             email,
-            primaryEmail,
-            location: geoData.location,
-            timeZone: geoData.timeZone,
-            uaBrowser: sessionToken.uaBrowser,
-            uaBrowserVersion: sessionToken.uaBrowserVersion,
-            uaOS: sessionToken.uaOS,
-            uaOSVersion: sessionToken.uaOSVersion,
-            uid,
-          }
-        );
+          });
+        } else {
+          await mailer.sendVerifySecondaryCodeEmail(
+            [
+              {
+                email,
+                normalizedEmail,
+                isVerified: false,
+                isPrimary: false,
+                uid,
+              },
+            ],
+            sessionToken,
+            {
+              code: otpUtils.generateOtpCode(secret, otpOptions),
+              deviceId: sessionToken.deviceId,
+              acceptLanguage: request.app.acceptLanguage,
+              email,
+              primaryEmail,
+              location: geoData.location,
+              timeZone: geoData.timeZone,
+              uaBrowser: sessionToken.uaBrowser,
+              uaBrowserVersion: sessionToken.uaBrowserVersion,
+              uaOS: sessionToken.uaOS,
+              uaOSVersion: sessionToken.uaOSVersion,
+              uid,
+            }
+          );
+        }
       } catch (err) {
         log.error('secondary_email.sendVerifySecondaryCodeEmail.error', {
           err: err,
@@ -764,8 +777,6 @@ module.exports = (
         // This endpoint can resend multiple types of codes, set these values once it
         // is known what is being verified.
         let code;
-        let verifyFunction;
-        let event;
         let emails = [];
 
         // Return immediately if this session or token is already verified. Only exception
@@ -790,9 +801,8 @@ module.exports = (
           return {};
         }
 
-        setVerifyFunction();
-
         const { flowId, flowBeginTime } = await request.app.metricsContext;
+        const account = await db.account(sessionToken.uid);
 
         const mailerOpts = {
           code,
@@ -816,8 +826,69 @@ module.exports = (
           style,
         };
 
-        await verifyFunction(emails, sessionToken, mailerOpts);
-        await request.emitMetricsEvent(`email.${event}.resent`);
+        if (type && type === 'upgradeSession') {
+          if (fxaMailer.canSend('verifyPrimary')) {
+            await fxaMailer.sendVerifyPrimaryEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(service),
+              code,
+              service,
+              redirectTo: request.payload.redirectTo,
+              resume: request.payload.resume,
+            });
+          } else {
+            await mailer.sendVerifyPrimaryEmail(
+              emails,
+              sessionToken,
+              mailerOpts
+            );
+          }
+          await request.emitMetricsEvent(
+            `email.verification_email_primary.resent`
+          );
+        } else if (!sessionToken.emailVerified) {
+          if (fxaMailer.canSend('verify')) {
+            await fxaMailer.sendVerifyEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.sync(service),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              code,
+              service,
+              redirectTo: request.payload.redirectTo,
+              resume: request.payload.resume,
+            });
+          } else {
+            await mailer.sendVerifyEmail(emails, sessionToken, mailerOpts);
+          }
+          await request.emitMetricsEvent(`email.verification.resent`);
+        } else {
+          if (fxaMailer.canSend('verifyLogin')) {
+            await fxaMailer.sendVerifyLoginEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(service),
+              code,
+              service,
+              clientName: 'Firefox',
+              redirectTo: request.payload.redirectTo,
+              resume: request.payload.resume,
+            });
+          } else {
+            await mailer.sendVerifyLoginEmail(emails, sessionToken, mailerOpts);
+          }
+          await request.emitMetricsEvent(`email.confirmation.resent`);
+        }
+
         return {};
 
         // Returns a boolean to indicate whether to send email.
@@ -861,19 +932,6 @@ module.exports = (
           } else {
             code = sessionToken.emailCode;
             return true;
-          }
-        }
-
-        function setVerifyFunction() {
-          if (type && type === 'upgradeSession') {
-            verifyFunction = mailer.sendVerifyPrimaryEmail;
-            event = 'verification_email_primary';
-          } else if (!sessionToken.emailVerified) {
-            verifyFunction = mailer.sendVerifyEmail;
-            event = 'verification';
-          } else {
-            verifyFunction = mailer.sendVerifyLoginEmail;
-            event = 'confirmation';
           }
         }
       },
@@ -1334,6 +1392,7 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const { email } = request.payload;
         const normalizedEmail = normalizeEmail(email);
+        const account = await db.account(sessionToken.uid);
 
         await customs.checkAuthenticated(
           request,
@@ -1424,33 +1483,46 @@ module.exports = (
 
         const geoData = request.app.geo;
         try {
-          await mailer.sendVerifySecondaryCodeEmail(
-            [
-              {
-                email,
-                normalizedEmail,
-                isVerified: false,
-                isPrimary: false,
-                uid,
-              },
-            ],
-            sessionToken,
-            {
+          if (fxaMailer.canSend('verifySecondaryCode')) {
+            await fxaMailer.sendVerifySecondaryCodeEmail({
+              ...FxaMailerFormat.account(account),
+              ...(await FxaMailerFormat.metricsContext(request)),
+              ...FxaMailerFormat.localTime(request),
+              ...FxaMailerFormat.location(request),
+              ...FxaMailerFormat.device(request),
+              ...FxaMailerFormat.sync(false),
               code,
-              deviceId,
-              acceptLanguage: request.app.acceptLanguage,
               email,
-              primaryEmail: sessionToken.email,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser,
-              uaBrowserVersion,
-              uaOS,
-              uaOSVersion,
-              uaDeviceType,
-              uid,
-            }
-          );
+            });
+          } else {
+            await mailer.sendVerifySecondaryCodeEmail(
+              [
+                {
+                  email,
+                  normalizedEmail,
+                  isVerified: false,
+                  isPrimary: false,
+                  uid,
+                },
+              ],
+              sessionToken,
+              {
+                code,
+                deviceId,
+                acceptLanguage: request.app.acceptLanguage,
+                email,
+                primaryEmail: sessionToken.email,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser,
+                uaBrowserVersion,
+                uaOS,
+                uaOSVersion,
+                uaDeviceType,
+                uid,
+              }
+            );
+          }
         } catch (err) {
           log.error('secondary_email.resendVerifySecondaryCodeEmail.error', {
             err: err,
