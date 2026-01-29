@@ -415,4 +415,24 @@ describe('generateTokens', () => {
       Math.floor(requestedGrant.authAt / 1000)
     );
   });
+
+  it('should include email and email_verified in ID token claims when requested by scope', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid', 'email']);
+    requestedGrant.email = 'test@example.com';
+    const result = await generateTokens(requestedGrant);
+    assert.ok(result.id_token);
+    const jwt = decodeJWT(result.id_token);
+    assert.strictEqual(jwt.claims.email, 'test@example.com');
+    assert.strictEqual(jwt.claims.email_verified, true);
+  });
+
+  it('should NOT include email and email_verified in ID token claims when NOT requested by scope', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
+    requestedGrant.email = 'test@example.com';
+    const result = await generateTokens(requestedGrant);
+    assert.ok(result.id_token);
+    const jwt = decodeJWT(result.id_token);
+    assert.isUndefined(jwt.claims.email);
+    assert.isUndefined(jwt.claims.email_verified);
+  });
 });
