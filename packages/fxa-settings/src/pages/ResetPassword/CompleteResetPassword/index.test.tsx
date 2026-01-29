@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { Subject } from './mocks';
+import { createMockWebIntegration, Subject } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MOCK_PASSWORD } from '../../mocks';
+import { MOCK_CMS_INFO, MOCK_PASSWORD } from '../../mocks';
 import GleanMetrics from '../../../lib/glean';
 
 const mockSubmitNewPassword = jest.fn((newPassword: string) =>
@@ -22,9 +22,6 @@ jest.mock('../../../lib/glean', () => ({
     },
   },
 }));
-
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
 
 describe('CompleteResetPassword page', () => {
   beforeEach(() => {
@@ -75,19 +72,20 @@ describe('CompleteResetPassword page', () => {
       expect(
         screen.queryByRole('link', { name: 'Use account recovery key' })
       ).not.toBeInTheDocument();
-      expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
     });
 
-    it('renders expected text when service=relay', async () => {
+    it('renders additional accessibility info from CMS', async () => {
       renderWithLocalizationProvider(
         <Subject
-          isFirefoxClientServiceRelay={true}
           estimatedSyncDeviceCount={0}
           recoveryKeyExists={false}
+          integration={createMockWebIntegration({ cmsInfo: MOCK_CMS_INFO })}
         />
       );
       await waitFor(() =>
-        expect(screen.getByText(serviceRelayText)).toBeVisible()
+        expect(
+          screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo)
+        ).toBeVisible()
       );
     });
 

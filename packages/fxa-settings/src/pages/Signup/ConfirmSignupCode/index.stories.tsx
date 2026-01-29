@@ -49,12 +49,6 @@ export const WithErrors = () => (
   </AppContext.Provider>
 );
 
-export const OAuthDesktopServiceRelay = () => (
-  <AppContext.Provider value={mockAppContext({ account: accountWithSuccess })}>
-    <Subject integration={createMockOAuthNativeIntegration(false)} />
-  </AppContext.Provider>
-);
-
 export const WithSuccessCms = () => (
   <AppContext.Provider value={mockAppContext({ account: accountWithSuccess })}>
     <Subject

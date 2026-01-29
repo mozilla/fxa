@@ -109,6 +109,8 @@ export const MOCK_CMS_INFO = {
       syncHidePromoAfterLogin: false,
     },
     favicon: '',
+    additionalAccessibilityInfo:
+      'Firefox will try sending you back to use an email mask after you sign in.',
     backgrounds: {
       header: 'linear-gradient(135deg, #6B4DFB 0%, #3A1A78 100%)',
       defaultLayout:
