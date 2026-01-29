@@ -197,10 +197,12 @@ export function createMockSigninOAuthNativeIntegration({
   service = 'sync',
   isSync = true,
   isMobile = false,
+  cmsInfo = undefined,
 }: {
   service?: string;
   isSync?: boolean;
   isMobile?: boolean;
+  cmsInfo?: RelierCmsInfo;
 } = {}): SigninOAuthIntegration {
   const isRelay = service === OAuthNativeServices.Relay;
   const isSmartWindow = service === OAuthNativeServices.SmartWindow;
@@ -222,7 +224,7 @@ export function createMockSigninOAuthNativeIntegration({
       isSmartWindow,
     }),
     getClientId: () => MOCK_CLIENT_ID,
-    getCmsInfo: () => undefined,
+    getCmsInfo: () => cmsInfo,
     isFirefoxMobileClient: () => isSync && isMobile,
     getLegalTerms: () => undefined,
   };
@@ -542,7 +544,9 @@ export const Subject = ({
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   supportsKeysOptionalLogin = false,
   ...props // overrides
-}: Partial<SigninProps> & { supportsKeysOptionalLogin?: boolean } = {}) => {
+}: Partial<SigninProps> & {
+  supportsKeysOptionalLogin?: boolean;
+} = {}) => {
   const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
   return (
     <LocationProvider>

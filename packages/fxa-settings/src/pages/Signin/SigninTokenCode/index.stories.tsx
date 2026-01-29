@@ -32,7 +32,3 @@ export const SplitLayoutWithCms = () => (
     })}
   />
 );
-
-export const OAuthDesktopServiceRelay = () => (
-  <Subject integration={createOAuthNativeIntegration(false)} />
-);

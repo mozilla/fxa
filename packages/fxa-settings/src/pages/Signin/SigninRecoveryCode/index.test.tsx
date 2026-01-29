@@ -17,13 +17,13 @@ import {
 import { LocationProvider } from '@reach/router';
 import {
   MOCK_BACKUP_CODE,
+  MOCK_CMS_INFO,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
 } from '../../mocks';
 import * as SigninUtils from '../utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { tryAgainError } from '../../../lib/oauth/hooks';
-import { mockOAuthNativeSigninIntegration } from '../SigninTotpCode/mocks';
 
 const mockNavigateWithQuery = jest.fn();
 jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
@@ -42,13 +42,7 @@ jest.mock('../../../lib/glean', () => ({
 }));
 
 const mockFinishOAuthFlowHandler = jest.fn();
-const mockIntegration = {
-  ...createMockSigninWebIntegration(),
-  getCmsInfo: () => undefined,
-};
-
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
+const mockIntegration = createMockSigninWebIntegration({ cmsInfo: undefined });
 
 describe('PageSigninRecoveryCode', () => {
   beforeEach(() => {
@@ -93,7 +87,6 @@ describe('PageSigninRecoveryCode', () => {
     screen.getByRole('link', {
       name: /Are you locked out/i,
     });
-    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
   });
 
   it('has expected glean click events', async () => {
@@ -138,19 +131,27 @@ describe('PageSigninRecoveryCode', () => {
     );
   });
 
-  it('renders expected text when service=relay', () => {
+  it('renders additional accessibility info from CMS', () => {
+    const mockIntegrationWithCms = createMockSigninWebIntegration({
+      cmsInfo: MOCK_CMS_INFO,
+    });
     renderWithLocalizationProvider(
       <LocationProvider>
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
-          integration={mockOAuthNativeSigninIntegration(false)}
+          integration={mockIntegrationWithCms}
           navigateToRecoveryPhone={jest.fn()}
           signinState={mockSigninLocationState}
           submitRecoveryCode={jest.fn()}
         />
       </LocationProvider>
     );
-    screen.getByText(serviceRelayText);
+
+    const additionalInfo = screen.getByText(
+      MOCK_CMS_INFO.shared.additionalAccessibilityInfo
+    );
+
+    expect(additionalInfo).toBeInTheDocument();
   });
 
   describe('metrics', () => {

@@ -167,7 +167,8 @@ export const SigninTotpCode = ({
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninTotpCodePage?.pageTitle;
   const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
-
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
   return (
     <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
       {cmsInfo ? (
@@ -210,13 +211,8 @@ export const SigninTotpCode = ({
         </FtlMsg>
       </div>
 
-      {integration.isFirefoxClientServiceRelay() && (
-        <FtlMsg id="signin-totp-code-desktop-relay">
-          <p className="mt-2 mb-4 text-sm">
-            Firefox will try sending you back to use an email mask after you
-            sign in.
-          </p>
-        </FtlMsg>
+      {additionalAccessibilityInfo && (
+        <p className="mt-2 mb-4 text-sm">{additionalAccessibilityInfo}</p>
       )}
 
       {bannerError && (

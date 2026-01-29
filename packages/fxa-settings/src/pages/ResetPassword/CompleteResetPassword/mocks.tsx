@@ -10,8 +10,24 @@ import {
   CompleteResetPasswordLocationState,
   CompleteResetPasswordProps,
 } from './interfaces';
+import { RelierCmsInfo, WebIntegration } from '../../../models';
+import { GenericData } from '../../../lib/model-data';
 
 const mockSubmitNewPassword = (newPassword: string) => Promise.resolve();
+
+export function createMockWebIntegration({
+  cmsInfo,
+}: {
+  cmsInfo?: RelierCmsInfo;
+}) {
+  const integration = new WebIntegration(
+    new GenericData({
+      uid: MOCK_UID,
+    })
+  );
+  integration.cmsInfo = cmsInfo;
+  return integration;
+}
 
 export const Subject = ({
   submitNewPassword = mockSubmitNewPassword,
@@ -19,8 +35,7 @@ export const Subject = ({
   recoveryKeyExists,
   testErrorMessage = '',
   estimatedSyncDeviceCount,
-  integrationIsSync = false,
-  isFirefoxClientServiceRelay: isDesktopServiceRelay = false,
+  integration = createMockWebIntegration({}),
 }: Partial<CompleteResetPasswordProps> & {
   testErrorMessage?: string;
 }) => {
@@ -46,8 +61,7 @@ export const Subject = ({
           hasConfirmedRecoveryKey,
           recoveryKeyExists,
           estimatedSyncDeviceCount,
-          integrationIsSync,
-          isFirefoxClientServiceRelay: isDesktopServiceRelay,
+          integration,
         }}
       />
     </LocationProvider>

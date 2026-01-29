@@ -211,6 +211,8 @@ export const SigninUnblock = ({
   const cmsInfo = integration.getCmsInfo();
   const title = cmsInfo?.SigninUnblockCodePage?.pageTitle;
   const splitLayout = cmsInfo?.SigninUnblockCodePage?.splitLayout;
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
 
   return (
     <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
@@ -240,13 +242,8 @@ export const SigninUnblock = ({
         </p>
       </FtlMsg>
 
-      {integration.isFirefoxClientServiceRelay() && (
-        <FtlMsg id="signin-unblock-desktop-relay">
-          <p className="text-sm mt-2">
-            Firefox will try sending you back to use an email mask after you
-            sign in.
-          </p>
-        </FtlMsg>
+      {additionalAccessibilityInfo && (
+        <p className="text-sm mt-2">{additionalAccessibilityInfo}</p>
       )}
 
       <FormVerifyCode

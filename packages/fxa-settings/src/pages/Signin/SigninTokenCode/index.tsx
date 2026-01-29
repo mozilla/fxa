@@ -226,6 +226,8 @@ const SigninTokenCode = ({
   const cmsInfo = integration?.getCmsInfo();
   const title = cmsInfo?.SigninTokenCodePage?.pageTitle;
   const splitLayout = cmsInfo?.SigninTokenCodePage?.splitLayout;
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
 
   return (
     <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
@@ -270,13 +272,8 @@ const SigninTokenCode = ({
         </p>
       </FtlMsg>
 
-      {integration.isFirefoxClientServiceRelay() && (
-        <FtlMsg id="signin-token-code-instruction-desktop-relay">
-          <p className="mt-2 text-sm">
-            Firefox will try sending you back to use an email mask after you
-            sign in.
-          </p>
-        </FtlMsg>
+      {additionalAccessibilityInfo && (
+        <p className="mt-2 text-sm">{additionalAccessibilityInfo}</p>
       )}
 
       <FormVerifyCode

@@ -78,7 +78,6 @@ const ConfirmSignupCode = ({
 
   const navigateWithQuery = useNavigateWithQuery();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
-  const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const isSync = integration.isSync();
   const submitFormOnPaste = !isSync;
 
@@ -333,6 +332,8 @@ const ConfirmSignupCode = ({
   }
 
   const cmsInfo = integration.getCmsInfo();
+  const additionalAccessibilityInfo =
+    cmsInfo?.shared.additionalAccessibilityInfo;
 
   const title = cmsInfo?.SignupConfirmCodePage?.pageTitle
     ? cmsInfo?.SignupConfirmCodePage?.pageTitle
@@ -393,13 +394,8 @@ const ConfirmSignupCode = ({
         </p>
       </FtlMsg>
 
-      {isFirefoxClientServiceRelay && (
-        <FtlMsg id="confirm-signup-code-desktop-relay">
-          <p className="mt-2 text-sm">
-            Firefox will try sending you back to use an email mask after you
-            sign in.
-          </p>
-        </FtlMsg>
+      {additionalAccessibilityInfo && (
+        <p className="mt-2 text-sm">{additionalAccessibilityInfo}</p>
       )}
 
       <FormVerifyCode

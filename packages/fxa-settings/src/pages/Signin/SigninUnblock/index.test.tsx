@@ -11,7 +11,11 @@ import SigninUnblock, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { LocationProvider } from '@reach/router';
-import { MOCK_EMAIL, mockFinishOAuthFlowHandler } from '../../mocks';
+import {
+  MOCK_CMS_INFO,
+  MOCK_EMAIL,
+  mockFinishOAuthFlowHandler,
+} from '../../mocks';
 import {
   createBeginSigninResponse,
   createBeginSigninResponseError,
@@ -54,9 +58,6 @@ const hasLinkedAccount = false;
 const hasPassword = true;
 let signinWithUnblockCode = jest.fn();
 let resendUnblockCodeHandler = jest.fn();
-
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
 
 const renderWithSuccess = (
   finishOAuthFlowHandler = jest
@@ -130,17 +131,16 @@ describe('SigninUnblock', () => {
       name: 'Not in inbox or spam folder? Resend',
     });
     screen.getByRole('link', { name: /Why is this happening/ });
-    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
   });
 
   it('renders expected text when service=relay', () => {
     renderWithSuccess(
       undefined,
-      createMockSigninOAuthNativeSyncIntegration({
-        isSync: false,
-      })
+      createMockSigninOAuthIntegration({ cmsInfo: MOCK_CMS_INFO })
     );
-    screen.getByText(serviceRelayText);
+    expect(
+      screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo)
+    ).toBeInTheDocument();
   });
 
   it('emits the expected metrics on render', () => {

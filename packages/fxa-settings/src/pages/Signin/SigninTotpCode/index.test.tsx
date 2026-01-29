@@ -18,7 +18,11 @@ import {
   Subject,
   MOCK_TOTP_LOCATION_STATE,
 } from './mocks';
-import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE, MOCK_UID } from '../../mocks';
+import {
+  MOCK_CMS_INFO,
+  MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+  MOCK_UID,
+} from '../../mocks';
 import {
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeSyncIntegration,
@@ -76,9 +80,6 @@ jest.mock('@reach/router', () => ({
   useLocation: () => mockLocation(),
 }));
 
-const serviceRelayText =
-  'Firefox will try sending you back to use an email mask after you sign in.';
-
 describe('Sign in with TOTP code page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -102,7 +103,6 @@ describe('Sign in with TOTP code page', () => {
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
     screen.getByRole('link', { name: 'Use a different account' });
     screen.getByRole('link', { name: 'Trouble entering code?' });
-    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
   });
 
   it('enables submit button when code entered', async () => {
@@ -113,11 +113,15 @@ describe('Sign in with TOTP code page', () => {
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled();
   });
 
-  it('renders expected service=relay text', () => {
+  it('renders additional accessibility info from CMS', () => {
     renderWithLocalizationProvider(
-      <Subject integration={mockOAuthNativeSigninIntegration(false)} />
+      <Subject
+        integration={mockOAuthNativeSigninIntegration(false, MOCK_CMS_INFO)}
+      />
     );
-    screen.getByText(serviceRelayText);
+    expect(
+      screen.getByText(MOCK_CMS_INFO.shared.additionalAccessibilityInfo)
+    ).toBeInTheDocument();
   });
 
   it('shows the relying party in the header when a service name is provided', () => {
