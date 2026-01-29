@@ -640,6 +640,28 @@ describe('EmailSender', () => {
         }
       );
       expect(mockStatsd.increment).toHaveBeenCalledTimes(4);
+
+      // Make sure issue is still sent to sentry
+      expect(mockSentryCaptureException).toHaveBeenCalledWith(error);
+    });
+
+    it('suppresses error with directive', async () => {
+      const error = new Error('Temporary SMTP error');
+
+      mockTransport.sendMail.mockRejectedValue(error);
+
+      emailSender = new EmailSender(
+        configWithRetry,
+        mockBounces,
+        mockStatsd,
+        mockLogger
+      );
+
+      // Shouldn't error...
+      await emailSender.send(defaultMockEmail, false);
+
+      // But should capture
+      expect(mockSentryCaptureException).toHaveBeenCalledWith(error);
     });
   });
   describe('calculateBackoffDelay', () => {
