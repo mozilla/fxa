@@ -19,7 +19,7 @@ xargs -L1 bash -c 'mkdir -p packages/fxa-auth-server/$0'
 
 # Then copy the template files
 find dist/libs/accounts/email-renderer -type f | \
-grep -E "\.mjml$|\.txt$" | \
+grep --invert -E "\.js$|\.ts$|\.sh" | \
 xargs -L1 bash -c 'cp $0 packages/fxa-auth-server/$0'
 
 cd packages/fxa-auth-server
