@@ -11,7 +11,7 @@ const {
   MAX_NEW_ACCOUNT_AGE,
 } = require('fxa-shared/oauth/constants');
 const token = require('../../oauth/token');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const { Container } = require('typedi');
 const { FxaMailer } = require('../../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../../senders/fxa-mailer-format');

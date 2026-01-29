@@ -50,7 +50,7 @@ const {
   authenticateClient,
   clientAuthValidators,
 } = require('../../oauth/client');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;

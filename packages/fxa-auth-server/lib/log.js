@@ -10,7 +10,7 @@ const mozlog = require('mozlog');
 const { config } = require('../config');
 const logConfig = config.get('log');
 const amplitudeConfig = config.get('amplitude');
-const validateAmplitudeEvent = require('fxa-shared').metrics.amplitude.validate;
+const { amplitude } = require('fxa-shared/metrics/amplitude');
 let statsd;
 const Sentry = require('@sentry/node');
 const notifier = require('./notifier');
@@ -251,7 +251,7 @@ Lug.prototype.amplitudeEvent = function (data) {
 
   if (amplitudeConfig.schemaValidation) {
     try {
-      validateAmplitudeEvent(data);
+      amplitude.validate(data);
     } catch (err) {
       this.error('amplitude.validationError', { err, amplitudeEvent: data });
 

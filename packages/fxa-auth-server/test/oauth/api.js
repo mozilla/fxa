@@ -7,7 +7,7 @@ const { assert } = require('chai');
 const nock = require('nock');
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 const testServer = require('../lib/server');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const { decodeJWT } = require('../lib/util');
 const sinon = require('sinon');
 
