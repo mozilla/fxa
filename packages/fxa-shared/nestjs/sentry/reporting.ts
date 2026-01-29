@@ -6,17 +6,8 @@ import { ApolloServerErrorCode } from '@apollo/server/errors';
 import { GraphQLError } from 'graphql';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import * as Sentry from '@sentry/node';
-import { ErrorEvent } from '@sentry/core';
 import { Message } from '@aws-sdk/client-sqs';
 import { Request } from 'express';
-
-import { CommonPiiActions } from '../../sentry/pii-filter-actions';
-import { SqsMessageFilter } from '../../sentry/pii-filters';
-
-const sqsMessageFilter = new SqsMessageFilter([
-  CommonPiiActions.emailValues,
-  CommonPiiActions.tokenValues,
-]);
 
 export interface ExtraContext {
   name: string;
@@ -74,7 +65,6 @@ export function isOriginallyHttpError(
 export function captureSqsError(err: Error, message?: Message): void {
   Sentry.withScope((scope) => {
     if (message?.Body) {
-      message = sqsMessageFilter.filter(message);
       scope.setContext('SQS Message', message as Record<string, unknown>);
     }
     Sentry.captureException(err);
