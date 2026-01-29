@@ -1,0 +1,10 @@
+{
+  "commit": "738635706e542c2a2d5278d08a33d976804f2bc0",
+  "summary": "feat(payments-next): Update subscription reminder emails on discount change Because:",
+  "description": "* SubscriptionRenewalReminder doesn't handle the case where a customer’s discount is being replaced by a different discount.\n\nThis commit:\n\n* Handles that case\n\nCloses #[PAY-3485](https://mozilla-hub.atlassian.net/browse/PAY-3485)",
+  "timestamp": 1769629466000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

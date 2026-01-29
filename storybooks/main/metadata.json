@@ -1,0 +1,12 @@
+{
+  "commit": "a5c6211f45e29d78b0de6c8fd12daa52d51fdb3e",
+  "summary": "Merge pull request #19970 from mozilla/fix-email-rendering-asset-copying",
+  "description": "polish(auth): Copy all non-code assets from email renderer",
+  "timestamp": 1769654737000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

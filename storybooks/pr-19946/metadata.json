@@ -1,0 +1,10 @@
+{
+  "commit": "047dfa8e8e2eddc248088940ca3f70439a9d7907",
+  "summary": "feat(next): add churn intervention glean events Because:",
+  "description": "- Add new glean events to be used to measure the effectiveness of the\n  churn intervention features\n\nThis commit:\n\n- Updates the subplat-backend-metrics yaml with new Glean events.\n\nCloses #PAY-3436",
+  "timestamp": 1769459971000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

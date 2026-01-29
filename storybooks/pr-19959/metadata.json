@@ -1,0 +1,11 @@
+{
+  "commit": "533a110a78c37fd0e04d689b79f686b8a79245ec",
+  "summary": "feat: add new strapi customization for user expectation on the final authentication screens",
+  "description": "Because:\n\n* we want to customize \"Firefox will try sending you back to use an email mask after you sign in.\" because we need something similar for smart window\n\nThis commit:\n\n* adds additionalAccessibilityInfo (name suggested by Ross) to cmsInfo.shared\n\nCloses FXA-12638",
+  "timestamp": 1769635362000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
