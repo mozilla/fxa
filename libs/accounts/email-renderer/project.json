@@ -26,7 +26,11 @@
         "outputPath": "dist/libs/accounts/email-renderer",
         "main": "libs/accounts/email-renderer/src/index.ts",
         "tsConfig": "libs/accounts/email-renderer/tsconfig.lib.json",
-        "assets": ["libs/accounts/email-renderer/*.md"],
+        "assets": [
+          "libs/accounts/email-renderer/*.md",
+          "libs/accounts/email-renderer/src/**/*.txt",
+          "libs/accounts/email-renderer/src/**/*.mjml"
+        ],
         "format": ["cjs"],
         "generatePackageJson": true
       }

@@ -64,10 +64,12 @@ export class NodeRendererBindings extends RendererBindings {
   }
 
   async fetchResource(path: string): Promise<string> {
+    if (!existsSync(path)) {
+      throw new Error('Resource file does not exist: ' + path);
+    }
     const raw = readFileSync(path, {
       encoding: 'utf8',
     });
-
     return raw;
   }
 
