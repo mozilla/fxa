@@ -4,6 +4,4 @@ export * from './lib/before-send.browser';
 export * from './lib/sentry.types';
 export * from './lib/config-builder';
 export * from './lib/pii/filters';
-export * from './lib/pii/filter-actions';
-export * from './lib/models/pii';
 export * from './lib/models/sentry-config-opts';
