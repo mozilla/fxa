@@ -22,7 +22,11 @@ import {
   KeyTransforms as T,
   ModelDataProvider,
 } from '../../../lib/model-data';
-import { IsEmailOrEmpty, IsFxaRedirectToUrl, IsFxaRedirectUri } from '../../../lib/validation';
+import {
+  IsEmailOrEmpty,
+  IsFxaRedirectToUrl,
+  IsFxaRedirectUri,
+} from '../../../lib/validation';
 
 /**
  * Base integration class. Fields in this class represents data commonly accessed across many pages and is useful for various flows.
@@ -115,6 +119,11 @@ export class IntegrationData extends ModelDataProvider {
   @IsString()
   @bind(T.snakeCase)
   flowBeginTime: string | undefined;
+
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
+  userContextId: string | undefined;
 }
 
 /**
