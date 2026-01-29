@@ -13,6 +13,7 @@ import { LocaleToggle } from '../LocaleToggle';
 import { useConfig } from '../../models/hooks';
 import { CardLoadingSpinner } from '../CardLoadingSpinner';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
 
 type AppLayoutProps = {
   // TODO: FXA-6803 - the title prop should be made mandatory
@@ -54,6 +55,10 @@ export const AppLayout = ({
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
   const config = useConfig();
+  const { currentLocale } = useDynamicLocalization();
+
+  // TEMP HACK (FXA-12988): Only show split layout for English locales
+  const showSplitLayout = splitLayout && currentLocale.startsWith('en');
 
   // Set the current page's layout preference in state so navigation
   // preserves the layout during Suspense fallback, preventing visual flash.
@@ -61,9 +66,9 @@ export const AppLayout = ({
   // Uses useLayoutEffect instead of useEffect to prevent flicker of incorrect layout before paint
   useLayoutEffect(() => {
     if (setCurrentSplitLayout) {
-      setCurrentSplitLayout(splitLayout);
+      setCurrentSplitLayout(showSplitLayout);
     }
-  }, [splitLayout, setCurrentSplitLayout]);
+  }, [showSplitLayout, setCurrentSplitLayout]);
 
   const cmsBackgrounds = cmsInfo?.shared?.backgrounds;
   const cmsPageTitle = cmsInfo?.shared?.pageTitle;
@@ -83,7 +88,7 @@ export const AppLayout = ({
         className={classNames(
           'flex min-h-screen flex-col items-center',
           cmsBackgrounds?.defaultLayout && 'tablet:[background:var(--cms-bg)]',
-          splitLayout && 'tablet:relative'
+          showSplitLayout && 'tablet:relative'
         )}
         style={
           cmsBackgrounds?.defaultLayout
@@ -101,7 +106,7 @@ export const AppLayout = ({
             cmsBackgrounds?.header &&
               'tablet:[background:var(--cms-header-bg)]',
             // Absolute position so the background-image can optionally show through.
-            splitLayout && 'tablet:absolute'
+            showSplitLayout && 'tablet:absolute'
           )}
           style={
             cmsBackgrounds?.header
@@ -136,7 +141,7 @@ export const AppLayout = ({
           </LinkExternal>
         </header>
 
-        {!splitLayout ? (
+        {!showSplitLayout ? (
           <>
             <main className="flex mobileLandscape:items-center flex-1">
               <section>
