@@ -141,7 +141,7 @@ export class FxaMailer extends FxaEmailRenderer {
       ...opts,
       ...links,
     });
-    return this.sendEmail(opts, headers, rendered);
+    return this.sendEmail(opts, headers, rendered, true);
   }
 
   /**
@@ -174,7 +174,7 @@ export class FxaMailer extends FxaEmailRenderer {
       ...opts,
       ...links,
     });
-    return this.sendEmail(opts, headers, rendered);
+    return this.sendEmail(opts, headers, rendered, true);
   }
 
   async sendPostVerifySecondaryEmail(
@@ -1017,7 +1017,7 @@ export class FxaMailer extends FxaEmailRenderer {
       ...opts,
       ...links,
     });
-    return this.sendEmail(opts, headers, rendered);
+    return this.sendEmail(opts, headers, rendered, true);
   }
 
   async sendVerifyShortCodeEmail(
@@ -1054,7 +1054,7 @@ export class FxaMailer extends FxaEmailRenderer {
       ...opts,
       ...links,
     });
-    return this.sendEmail(opts, headers, rendered);
+    return this.sendEmail(opts, headers, rendered, true);
   }
 
   private buildHeaders(
@@ -1079,19 +1079,23 @@ export class FxaMailer extends FxaEmailRenderer {
   private async sendEmail(
     opts: { to: string; cc?: string[]; cmsRpFromName?: string },
     headers: Record<string, string>,
-    rendered: RenderedTemplate
+    rendered: RenderedTemplate,
+    throwErrorOnSendFailure = true
   ) {
     const { cmsRpFromName, to, cc } = opts;
     const from = cmsRpFromName
       ? `${cmsRpFromName} <${this.mailerConfig.sender}>`
       : this.mailerConfig.sender;
 
-    return this.emailSender.send({
-      to,
-      cc,
-      from,
-      headers,
-      ...rendered,
-    });
+    return this.emailSender.send(
+      {
+        to,
+        cc,
+        from,
+        headers,
+        ...rendered,
+      },
+      throwErrorOnSendFailure
+    );
   }
 }
