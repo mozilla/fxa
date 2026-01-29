@@ -142,7 +142,7 @@ export class SecurityEvent extends BaseAuthModel {
         EVENT_NAMES[name],
         ipAddrHmac,
         Date.now(),
-        ipAddr,
+        sanitizeIp(ipAddr),
         additionalInfo ? JSON.stringify(additionalInfo) : null
       );
     } catch (e) {
