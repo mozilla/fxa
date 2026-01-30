@@ -418,18 +418,6 @@ export class OauthError extends Error {
       { clientId }
     );
   }
-
-  static unauthorizedTokenExchangeClient(clientId: string) {
-    return new OauthError(
-      {
-        code: 400,
-        error: 'Unauthorized Client',
-        errno: OAUTH_ERRNO.UNAUTHORIZED,
-        message: 'Client is not authorized for token exchange',
-      },
-      { clientId }
-    );
-  }
 }
 
 /**

@@ -10,7 +10,6 @@
 //   * `grant_type=authorization_code` for vanilla exchange-a-code-for-a-token OAuth
 //   * `grant_type=refresh_token` for refreshing a previously-granted token
 //   * `grant_type=fxa-credentials` for directly granting via an FxA identity assertion
-//   * `grant_type=urn:ietf:params:oauth:grant-type:token-exchange` for token exchange, e.g. refresh token for a new refresh token
 //
 // And because of the different types of token that can be requested:
 //
@@ -69,23 +68,11 @@ const GRANT_REFRESH_TOKEN = 'refresh_token';
 // FxA identity assertion rather than directly specifying a password.
 // [1] https://tools.ietf.org/html/rfc6749#section-1.3.3
 const GRANT_FXA_ASSERTION = 'fxa-credentials';
-// Token exchange grant type per RFC 8693
-// 2.1 https://www.rfc-editor.org/rfc/rfc8693.html
-const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
-const SUBJECT_TOKEN_TYPE_REFRESH =
-  'urn:ietf:params:oauth:token-type:refresh_token';
 
 const ACCESS_TYPE_ONLINE = 'online';
 const ACCESS_TYPE_OFFLINE = 'offline';
 
 const DISABLED_CLIENTS = new Set(config.get('oauthServer.disabledClients'));
-
-const TOKEN_EXCHANGE_ALLOWED_CLIENT_IDS = new Set(
-  config.get('oauthServer.tokenExchange.allowedClientIds')
-);
-const TOKEN_EXCHANGE_ALLOWED_SCOPES = ScopeSet.fromArray(
-  config.get('oauthServer.tokenExchange.allowedScopes')
-);
 
 // These scopes are used to request a one-off exchange of claims or credentials,
 // but they don't make sense to use on an ongoing basis via refresh tokens.
@@ -113,10 +100,6 @@ const PAYLOAD_SCHEMA = Joi.object({
       is: GRANT_FXA_ASSERTION,
       then: Joi.optional(),
     })
-    .when('grant_type', {
-      is: GRANT_TOKEN_EXCHANGE,
-      then: Joi.forbidden(),
-    })
     .description(DESCRIPTION.clientSecret),
 
   redirect_uri: validators.redirectUri
@@ -128,12 +111,7 @@ const PAYLOAD_SCHEMA = Joi.object({
     .description(DESCRIPTION.redirectUri),
 
   grant_type: Joi.string()
-    .valid(
-      GRANT_AUTHORIZATION_CODE,
-      GRANT_REFRESH_TOKEN,
-      GRANT_FXA_ASSERTION,
-      GRANT_TOKEN_EXCHANGE
-    )
+    .valid(GRANT_AUTHORIZATION_CODE, GRANT_REFRESH_TOKEN, GRANT_FXA_ASSERTION)
     .default(GRANT_AUTHORIZATION_CODE)
     .optional()
     .description(DESCRIPTION.grantTypeOauth),
@@ -151,10 +129,6 @@ const PAYLOAD_SCHEMA = Joi.object({
     })
     .conditional('grant_type', {
       is: GRANT_FXA_ASSERTION,
-      then: validators.scope.required(),
-    })
-    .conditional('grant_type', {
-      is: GRANT_TOKEN_EXCHANGE,
       then: validators.scope.required(),
       otherwise: Joi.forbidden(),
     })
@@ -203,24 +177,6 @@ const PAYLOAD_SCHEMA = Joi.object({
     })
     .description(DESCRIPTION.assertion),
 
-  // Token exchange fields (RFC 8693)
-  subject_token: validators.token
-    .when('grant_type', {
-      is: GRANT_TOKEN_EXCHANGE,
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
-    .description(DESCRIPTION.subjectToken),
-
-  subject_token_type: Joi.string()
-    .valid(SUBJECT_TOKEN_TYPE_REFRESH)
-    .when('grant_type', {
-      is: GRANT_TOKEN_EXCHANGE,
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
-    .description(DESCRIPTION.subjectTokenType),
-
   ppid_seed: validators.ppidSeed.optional().description(DESCRIPTION.ppidSeed),
 
   resource: validators.resourceUrl.optional().description(DESCRIPTION.resource),
@@ -239,19 +195,13 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       case GRANT_FXA_ASSERTION:
         requestedGrant = await validateAssertionGrant(client, params);
         break;
-      case GRANT_TOKEN_EXCHANGE:
-        requestedGrant = await validateTokenExchangeGrant(params);
-        break;
       default:
         // Joi validation means this should never happen.
         throw Error('unreachable');
     }
-    // Token exchange gets client info from the subject_token, not from client auth
-    if (client) {
-      requestedGrant.name = client.name;
-      requestedGrant.canGrant = client.canGrant;
-      requestedGrant.publicClient = client.publicClient;
-    }
+    requestedGrant.name = client.name;
+    requestedGrant.canGrant = client.canGrant;
+    requestedGrant.publicClient = client.publicClient;
     requestedGrant.grantType = params.grant_type;
     requestedGrant.ppidSeed = params.ppid_seed;
     requestedGrant.resource = params.resource;
@@ -400,58 +350,6 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
   }
 
   /**
-   * Validate a token exchange grant (RFC 8693).
-   * Allows exchanging a token for a new token with additional scopes.
-   *
-   * For now, this is only used for Mobile Relay to request a new refresh token
-   * for already signed in users that have previously authorized the Relay scope.
-   * This check happens on their side, and for now we will grant the request.
-   * See FXA-12925
-   */
-  async function validateTokenExchangeGrant(params) {
-    const subjectToken = await oauthDB.getRefreshToken(
-      encrypt.hash(params.subject_token)
-    );
-    if (!subjectToken) {
-      log.debug('token_exchange.subject_token.notFound');
-      throw OauthError.invalidToken();
-    }
-
-    // Verify token belongs to an allowed Firefox client
-    const originalClientId = hex(subjectToken.clientId);
-    if (!TOKEN_EXCHANGE_ALLOWED_CLIENT_IDS.has(originalClientId)) {
-      log.debug('token_exchange.unauthorized_client', {
-        clientId: originalClientId,
-      });
-      throw OauthError.unauthorizedTokenExchangeClient(originalClientId);
-    }
-
-    // Validate requested scope is in allowlist
-    const requestedScope = params.scope;
-    if (!TOKEN_EXCHANGE_ALLOWED_SCOPES.contains(requestedScope)) {
-      log.debug('token_exchange.scope_not_allowed', {
-        requested: requestedScope.toString(),
-        allowed: TOKEN_EXCHANGE_ALLOWED_SCOPES.toString(),
-      });
-      // TODO future auth table checks, FXA-12937
-      throw OauthError.forbidden();
-    }
-
-    //  Original scope plus requested scope, e.g. Sync + Relay
-    const combinedScope = subjectToken.scope.union(requestedScope);
-
-    return {
-      userId: subjectToken.userId,
-      clientId: subjectToken.clientId,
-      scope: combinedScope,
-      offline: true,
-      authAt: Math.floor(Date.now() / 1000),
-      profileChangedAt: subjectToken.profileChangedAt,
-      originalRefreshTokenId: subjectToken.tokenId, // for revocation after new token generation
-    };
-  }
-
-  /**
    * Generate a PKCE code_challenge
    * See https://tools.ietf.org/html/rfc7636#section-4.6 for details
    */
@@ -463,51 +361,21 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
 
   async function tokenHandler(req) {
     var params = req.payload;
+    const client = await authenticateClient(req.headers, params);
 
-    // Token exchange doesn't require client authentication since the
-    // subject_token is already bound to an allowed client.
-    let client = null;
-    if (params.grant_type !== GRANT_TOKEN_EXCHANGE) {
-      client = await authenticateClient(req.headers, params);
-      // Refuse to generate new access tokens for disabled clients that are already
-      // connected to the account. We allow disabled clients to claim existing authorization
-      // codes, because otherwise we risk erroring out halfway through an app login flow
-      // and presenting a very confusing user experience. The /authorization endpoint refuses
-      // to create new codes for disabled clients.
-      if (
-        DISABLED_CLIENTS.has(hex(client.id)) &&
-        params.grant_type !== GRANT_AUTHORIZATION_CODE
-      ) {
-        throw OauthError.disabledClient(hex(client.id));
-      }
+    // Refuse to generate new access tokens for disabled clients that are already
+    // connected to the account.  We allow disabled clients to claim existing authorization
+    // codes, because otherwise we risk erroring out halfway through an app login flow
+    // and presenting a very confusing user experience.  The /authorization endpoint refuses
+    // to create new codes for disabled clients.
+    if (
+      DISABLED_CLIENTS.has(hex(client.id)) &&
+      params.grant_type !== GRANT_AUTHORIZATION_CODE
+    ) {
+      throw OauthError.disabledClient(hex(client.id));
     }
     const grant = await validateGrantParameters(client, params);
-
     const tokens = await generateTokens(grant);
-
-    // For token exchange, revoke the original refresh token after successful generation
-    if (
-      params.grant_type === GRANT_TOKEN_EXCHANGE &&
-      grant.originalRefreshTokenId
-    ) {
-      try {
-        await oauthDB.removeRefreshToken({
-          tokenId: grant.originalRefreshTokenId,
-        });
-        log.info('token_exchange.original_token_revoked', {
-          userId: hex(grant.userId),
-          clientId: hex(grant.clientId),
-        });
-      } catch (err) {
-        // Log but don't fail the request if revocation fails
-        log.warn('token_exchange.revocation_failed', {
-          userId: hex(grant.userId),
-          clientId: hex(grant.clientId),
-          error: err.message,
-        });
-      }
-    }
-
     const uid = hex(grant.userId);
     const oauthClientId = hex(grant.clientId);
 
@@ -518,9 +386,10 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     glean.oauth.tokenCreated(req, {
       uid,
       oauthClientId,
-      reason: params.grant_type,
+      reason: req.payload?.grant_type || '',
     });
 
+    // the client receiving keys at the end of the scoped keys flow
     if (tokens.keys_jwe) {
       statsd.increment('oauth.rp.keys-jwe', { clientId: oauthClientId });
     }
@@ -641,15 +510,6 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               ttl: Joi.number().positive().optional(),
               resource: validators.resourceUrl.optional(),
               assertion: Joi.forbidden(),
-            }),
-            // token exchange (RFC 8693)
-            Joi.object({
-              grant_type: Joi.string().valid(GRANT_TOKEN_EXCHANGE).required(),
-              subject_token: validators.refreshToken.required(),
-              subject_token_type: Joi.string()
-                .valid(SUBJECT_TOKEN_TYPE_REFRESH)
-                .required(),
-              scope: validators.scope.required(),
             })
           ),
         },
@@ -695,15 +555,6 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               auth_at: Joi.number().required(),
               token_type: Joi.string().valid('bearer').required(),
               expires_in: Joi.number().required(),
-            }),
-            // token exchange
-            // Does not require client_id because the client is identified from the subject_token
-            Joi.object({
-              access_token: validators.accessToken.required(),
-              refresh_token: validators.refreshToken.required(),
-              scope: validators.scope.required(),
-              token_type: Joi.string().valid('bearer').required(),
-              expires_in: Joi.number().required(),
             })
           ),
         },
@@ -734,17 +585,6 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               sessionToken
             );
             grant = await tokenHandler(req);
-            break;
-          case GRANT_TOKEN_EXCHANGE:
-            try {
-              grant = await tokenHandler(req);
-            } catch (err) {
-              // TODO auth/oauth error reconciliation
-              if (err.errno === 108) {
-                throw AuthError.invalidToken();
-              }
-              throw err;
-            }
             break;
           default:
             throw AuthError.internalValidationError();
@@ -788,9 +628,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           grant.session_token = newSessionToken.data;
         }
 
-        // Token exchange is swapping tokens for an already-authenticated user,
-        // so we skip the new token notification.
-        if (grant.refresh_token && req.payload.grant_type !== GRANT_TOKEN_EXCHANGE) {
+        if (grant.refresh_token) {
           // if a refresh token has
           // been provisioned as part of the flow
           // then we want to send some notifications to the user
