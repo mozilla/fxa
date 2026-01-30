@@ -4,10 +4,8 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
 const { assert } = require('chai');
-const bounces = require(`${ROOT_DIR}/lib/email/bounces`);
+const bounces = require('../../../lib/email/bounces');
 const { AppError: error } = require('@fxa/accounts/errors');
 const { EventEmitter } = require('events');
 const { mockLog, mockStatsd } = require('../../mocks');

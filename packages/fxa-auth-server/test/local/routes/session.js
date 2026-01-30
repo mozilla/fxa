@@ -16,8 +16,6 @@ const gleanMock = mocks.mockGlean();
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../../../lib/account-events');
 
-const ROOT_DIR = '../../..';
-
 const signupCodeAccount = {
   uid: 'foo',
   email: 'foo@example.org',
@@ -1138,8 +1136,8 @@ describe('/session/duplicate', () => {
     const routes = makeRoutes({ log, config, db });
     route = getRoute(routes, '/session/duplicate');
 
-    const Token = require(`${ROOT_DIR}/lib/tokens/token`)(log);
-    const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(
+    const Token = require(`../../../lib/tokens/token`)(log);
+    const SessionToken = require(`../../../lib/tokens/session_token`)(
       log,
       Token,
       {
