@@ -24,8 +24,10 @@ export const pageContentByPriceIdsQuery = graphql(`
           stripeLegacyPlan
         }
         commonContent {
+          emailIcon
           supportUrl
           localizations(filters: { locale: { eq: $locale } }) {
+            emailIcon
             supportUrl
           }
         }
