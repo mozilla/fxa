@@ -6,3 +6,7 @@ export * from './lib/glean/glean.manager';
 export * from './lib/glean/glean.config';
 export * from './lib/glean/glean.factory';
 export * from './lib/glean/glean.test-provider';
+export * from './lib/util/retrieveAdditionalMetricsData';
+export * from './lib/util/retrieveNimbusUserId';
+export * from './lib/util/retrieveOptOut';
+export * from './lib/util/retrieveSubManageMetricsData';

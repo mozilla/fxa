@@ -4,13 +4,12 @@
 import { CartManager } from '@fxa/payments/cart';
 import { SubplatInterval } from '@fxa/payments/customer';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
-import { AdditionalMetricsData } from '../emitter.types';
 
 export async function retrieveAdditionalMetricsData(
   productConfigurationManager: ProductConfigurationManager,
   cartManager: CartManager,
   params: Record<string, string | undefined>
-): Promise<AdditionalMetricsData> {
+) {
   const locale = params['locale'] || 'en';
   const offeringId = params['offeringId'];
   const interval = params['interval'];

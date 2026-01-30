@@ -56,7 +56,7 @@ import {
   CartUidMismatchError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
-import { CheckoutCustomerData, ResultCart } from './cart.types';
+import { ResultCart } from './cart.types';
 import {
   handleEligibilityStatusMap,
   convertStripePaymentMethodTypeToSubPlat,
@@ -85,6 +85,14 @@ import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { AsyncLocalStorage } from 'async_hooks';
 import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
+import {
+  getNimbusUserId,
+  retrieveAdditionalMetricsData,
+  retrieveOptOut,
+  type CommonMetrics,
+  PaymentsGleanManager,
+} from '@fxa/payments/metrics';
+import { NimbusManager } from '@fxa/payments/experiments';
 
 @Injectable()
 export class CheckoutService {
@@ -108,6 +116,8 @@ export class CheckoutService {
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
     private paymentMethodManager: PaymentMethodManager,
+    private nimbusManager: NimbusManager,
+    private gleanManager: PaymentsGleanManager,
     @Inject(StatsDService) private statsd: StatsD
   ) {}
 
@@ -129,7 +139,6 @@ export class CheckoutService {
 
   async prePaySteps(
     cart: ResultCart,
-    customerData: CheckoutCustomerData,
     sessionUid?: string
   ): Promise<PrePayStepsResult> {
     const taxAddress = cart.taxAddress;
@@ -279,6 +288,8 @@ export class CheckoutService {
     uid: string;
     paymentProvider: 'stripe' | 'paypal';
     paymentForm: SubPlatPaymentMethodType;
+    isCancelInterstitialOffer: boolean;
+    requestArgs?: CommonMetrics;
   }) {
     const { cart, version, subscription, uid, paymentProvider, paymentForm } =
       args;
@@ -299,6 +310,39 @@ export class CheckoutService {
 
     await this.cartManager.finishCart(cart.id, version, {});
 
+    if (args.isCancelInterstitialOffer && args.requestArgs) {
+      try {
+        const metricsOptOut = await retrieveOptOut(this.accountManager, uid);
+        if (!metricsOptOut) {
+          const additionalData = await retrieveAdditionalMetricsData(
+            this.productConfigurationManager,
+            this.cartManager,
+            args.requestArgs.params
+          );
+          const { nimbusUserId } = await getNimbusUserId(this.nimbusManager, {
+            uid: additionalData.cartMetricsData.uid,
+            language: additionalData.locale,
+            region: additionalData.cartMetricsData.taxAddress?.countryCode,
+            experimentationId: args.requestArgs.experimentationId,
+            experimentationPreview:
+              args.requestArgs?.searchParams?.['experimentationPreview'] ===
+              'true',
+          });
+
+          this.gleanManager.recordGenericEvent(
+            'recordCancelInterstitialOfferRedeemed',
+            {
+              commonMetricsData: args.requestArgs,
+              ...additionalData,
+              experimentationData: { nimbusUserId },
+            }
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     this.statsd.increment('subscription_success', {
       payment_provider: paymentProvider,
       payment_form: paymentForm,
@@ -310,8 +354,8 @@ export class CheckoutService {
   async payWithStripe(
     cart: ResultCart,
     confirmationTokenId: string,
-    customerData: CheckoutCustomerData,
     attribution: SubscriptionAttributionParams,
+    requestArgs: CommonMetrics,
     sessionUid?: string
   ) {
     const {
@@ -322,7 +366,7 @@ export class CheckoutService {
       version,
       price,
       eligibility,
-    } = await this.prePaySteps(cart, customerData, sessionUid);
+    } = await this.prePaySteps(cart, sessionUid);
 
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'stripe',
@@ -474,6 +518,11 @@ export class CheckoutService {
         const paymentForm =
           convertStripePaymentMethodTypeToSubPlat(paymentMethod);
 
+        const isCancelInterstitialOffer =
+          eligibility.subscriptionEligibilityResult ===
+            EligibilityStatus.UPGRADE &&
+          attribution.session_entrypoint === 'subscription-management';
+
         await this.postPaySteps({
           cart,
           version: updatedVersion,
@@ -481,6 +530,8 @@ export class CheckoutService {
           uid,
           paymentProvider: 'stripe',
           paymentForm,
+          isCancelInterstitialOffer,
+          requestArgs,
         });
       } else if (intent.status === 'requires_payment_method') {
         const errorCode = isPaymentIntent(intent)
@@ -510,8 +561,8 @@ export class CheckoutService {
 
   async payWithPaypal(
     cart: ResultCart,
-    customerData: CheckoutCustomerData,
     attribution: SubscriptionAttributionParams,
+    requestArgs: CommonMetrics,
     sessionUid?: string,
     token?: string
   ) {
@@ -523,7 +574,7 @@ export class CheckoutService {
       price,
       version,
       eligibility,
-    } = await this.prePaySteps(cart, customerData, sessionUid);
+    } = await this.prePaySteps(cart, sessionUid);
 
     const paypalSubscriptions =
       await this.subscriptionManager.getCustomerPayPalSubscriptions(
@@ -645,6 +696,11 @@ export class CheckoutService {
     const processedInvoice =
       await this.invoiceManager.processPayPalInvoice(latestInvoice);
     if (['paid', 'open'].includes(processedInvoice.status ?? '')) {
+      const isCancelInterstitialOffer =
+        eligibility.subscriptionEligibilityResult !==
+          EligibilityStatus.UPGRADE &&
+        attribution.session_entrypoint === 'subscription-management';
+
       await this.postPaySteps({
         cart,
         version: updatedVersion,
@@ -652,6 +708,8 @@ export class CheckoutService {
         uid,
         paymentProvider: 'paypal',
         paymentForm: SubPlatPaymentMethodType.PayPal,
+        isCancelInterstitialOffer,
+        requestArgs,
       });
     } else {
       throw new InvalidInvoiceStateCheckoutError(

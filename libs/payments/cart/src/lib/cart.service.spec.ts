@@ -86,7 +86,6 @@ import {
   NotifierSnsProvider,
 } from '@fxa/shared/notifier';
 import {
-  CheckoutCustomerDataFactory,
   FinishErrorCartFactory,
   ResultCartFactory,
   SubscriptionAttributionFactory,
@@ -128,6 +127,7 @@ import {
   AsyncLocalStorageCartProvider,
 } from './cart-als.provider';
 import { CartStoreFactory } from './cart-als.factories';
+import { CommonMetricsFactory } from '@fxa/payments/metrics';
 
 jest.mock('next/navigation');
 jest.mock('@fxa/shared/error', () => ({
@@ -1012,8 +1012,8 @@ describe('CartService', () => {
   });
 
   describe('checkoutCartWithStripe', () => {
-    const mockCustomerData = CheckoutCustomerDataFactory();
     const mockAttributionData = SubscriptionAttributionFactory();
+    const mockRequestArgs = CommonMetricsFactory();
 
     it('accepts payment with stripe', async () => {
       const mockCart = ResultCartFactory();
@@ -1030,15 +1030,14 @@ describe('CartService', () => {
         mockCart.id,
         mockCart.version,
         mockPaymentMethodId,
-        mockCustomerData,
         mockAttributionData,
+        mockRequestArgs,
         mockCart.uid
       );
 
       expect(checkoutService.payWithStripe).toHaveBeenCalledWith(
         mockCart,
         mockPaymentMethodId,
-        mockCustomerData,
         mockAttributionData,
         mockCart.uid
       );
@@ -1060,8 +1059,8 @@ describe('CartService', () => {
           mockCart.id,
           mockCart.version,
           mockPaymentMethodId,
-          mockCustomerData,
           mockAttributionData,
+          mockRequestArgs,
           mockCart.uid
         )
       ).rejects.toBeInstanceOf(CartStateProcessingError);
@@ -1072,8 +1071,8 @@ describe('CartService', () => {
   });
 
   describe('checkoutCartWithPaypal', () => {
-    const mockCustomerData = CheckoutCustomerDataFactory();
     const mockAttributionData = SubscriptionAttributionFactory();
+    const mockRequestArgs = CommonMetricsFactory();
 
     it('accepts payment with Paypal', async () => {
       const mockCart = ResultCartFactory();
@@ -1089,15 +1088,14 @@ describe('CartService', () => {
       await cartService.checkoutCartWithPaypal(
         mockCart.id,
         mockCart.version,
-        mockCustomerData,
         mockAttributionData,
+        mockRequestArgs,
         mockCart.uid,
         mockToken
       );
 
       expect(checkoutService.payWithPaypal).toHaveBeenCalledWith(
         mockCart,
-        mockCustomerData,
         mockAttributionData,
         mockCart.uid,
         mockToken
@@ -1119,8 +1117,8 @@ describe('CartService', () => {
         cartService.checkoutCartWithPaypal(
           mockCart.id,
           mockCart.version,
-          mockCustomerData,
           mockAttributionData,
+          mockRequestArgs,
           mockCart.uid,
           mockToken
         )

@@ -54,7 +54,7 @@ import {
   MockAccountDatabaseNestFactory,
 } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
-import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
+import { retrieveAdditionalMetricsData } from '../../../metrics/src/lib/util/retrieveAdditionalMetricsData';
 import { Logger } from '@nestjs/common';
 import { EmitterServiceHandleAuthError } from './emitter.error';
 import {
@@ -76,7 +76,7 @@ import {
 import * as Sentry from '@sentry/nestjs';
 import { faker } from '@faker-js/faker/.';
 
-jest.mock('./util/retrieveAdditionalMetricsData');
+jest.mock('../../../metrics/src/lib/util/retrieveAdditionalMetricsData');
 const mockedRetrieveAdditionalMetricsData = jest.mocked(
   retrieveAdditionalMetricsData
 );

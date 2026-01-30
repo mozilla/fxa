@@ -11,7 +11,6 @@ import {
   CartState,
 } from '@fxa/shared/db/mysql/account';
 import {
-  CheckoutCustomerData,
   FinishCart,
   FinishErrorCart,
   PaymentInfo,
@@ -39,13 +38,6 @@ const OFFERING_CONFIG_IDS = [
 ];
 
 const INTERVALS = ['daily', 'weekly', 'monthly', 'halfyearly', 'yearly'];
-
-export const CheckoutCustomerDataFactory = (
-  override?: Partial<CheckoutCustomerData>
-): CheckoutCustomerData => ({
-  locale: faker.helpers.arrayElement(['en-US', 'de', 'es', 'fr-FR']),
-  ...override,
-});
 
 export const InvoiceFactory = (override?: Partial<Invoice>): Invoice => ({
   currency: faker.finance.currencyCode().toLowerCase(),

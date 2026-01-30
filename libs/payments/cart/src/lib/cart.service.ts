@@ -49,6 +49,7 @@ import {
 } from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
+import type { CommonMetrics } from '@fxa/payments/metrics';
 
 import {
   PaidInvoiceOnFailedCartError,
@@ -87,7 +88,6 @@ import {
 import { CartManager } from './cart.manager';
 import type {
   CartDTO,
-  CheckoutCustomerData,
   FromPrice,
   GetNeedsInputResponse,
   NoInputNeededResponse,
@@ -530,8 +530,8 @@ export class CartService {
     cartId: string,
     version: number,
     confirmationTokenId: string,
-    customerData: CheckoutCustomerData,
     attribution: SubscriptionAttributionParams,
+    requestArgs: CommonMetrics,
     sessionUid?: string
   ) {
     return this.wrapWithCartCatch(cartId, async () => {
@@ -559,8 +559,8 @@ export class CartService {
             await this.checkoutService.payWithStripe(
               updatedCart,
               confirmationTokenId,
-              customerData,
               attribution,
+              requestArgs,
               sessionUid
             );
           }).catch((error) => {
@@ -582,8 +582,8 @@ export class CartService {
   async checkoutCartWithPaypal(
     cartId: string,
     version: number,
-    customerData: CheckoutCustomerData,
     attribution: SubscriptionAttributionParams,
+    requestArgs: CommonMetrics,
     sessionUid?: string,
     token?: string
   ) {
@@ -611,8 +611,8 @@ export class CartService {
           this.wrapWithCartCatch(cartId, async () => {
             await this.checkoutService.payWithPaypal(
               updatedCart,
-              customerData,
               attribution,
+              requestArgs,
               sessionUid,
               token
             );
@@ -674,6 +674,7 @@ export class CartService {
         paymentProvider:
           this.subscriptionManager.getPaymentProvider(subscription),
         paymentForm,
+        isCancelInterstitialOffer: false,
       });
     });
   }
@@ -1125,6 +1126,7 @@ export class CartService {
           paymentProvider:
             this.subscriptionManager.getPaymentProvider(subscription),
           paymentForm,
+          isCancelInterstitialOffer: false,
         });
       } else if (intent.status === 'requires_payment_method') {
         const errorCode = isPaymentIntent(intent)
