@@ -24,6 +24,12 @@
         Because a previous discount has ended, your subscription will renew at the standard price.
       </span>
     </mj-text>
+    <% } else if (hasDifferentDiscount) { %>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionRenewalReminder-content-discount-change">
+        Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied.
+      </span>
+    </mj-text>
     <% } %>
 
     <mj-text css-class="text-body">
