@@ -225,6 +225,9 @@ export class SubscriptionReminders {
         {
           uid,
           email,
+          icon:
+            purchase.offering.commonContent.localizations.at(0)?.emailIcon ||
+            purchase.offering.commonContent.emailIcon,
           acceptLanguage: account.locale,
           subscription: formattedSubscription,
           reminderLength: this.reminderDuration.as('days'),
@@ -236,9 +239,6 @@ export class SubscriptionReminders {
           subscriptionSupportUrl:
             purchase.offering.commonContent.localizations.at(0)?.supportUrl ||
             purchase.offering.commonContent.supportUrl,
-          productIconURLNew:
-            purchase.purchaseDetails.localizations.at(0)?.webIcon ||
-            purchase.purchaseDetails.webIcon,
           churnTermsUrl: new URL(
             `${this.paymentsNextUrl}/${offeringId}/${priceSubplatInterval}/stay_subscribed/loyalty-discount/terms`
           ).toString(),
