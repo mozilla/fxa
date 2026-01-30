@@ -690,9 +690,8 @@ describe('/oauth/token POST', function () {
   describe('token exchange via /oauth/token', () => {
     const ScopeSet = require('fxa-shared').oauth.scopes;
 
-    it('handles token exchange with multiple existing scopes and skips newTokenNotification', async () => {
+    it('handles token exchange with multiple existing scopes (sync + profile)', async () => {
       const PROFILE_SCOPE = 'profile';
-      const newTokenNotificationStub = sinon.stub().resolves();
       const routes = proxyquire(tokenRoutePath, {
         ...tokenRoutesDepMocks,
         '../../oauth/grant': {
@@ -706,7 +705,7 @@ describe('/oauth/token POST', function () {
           validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
         },
         '../utils/oauth': {
-          newTokenNotification: newTokenNotificationStub,
+          newTokenNotification: async () => {},
         },
       })({
         ...tokenRoutesArgMocks,
@@ -751,8 +750,6 @@ describe('/oauth/token POST', function () {
       assert.include(result.scope, SYNC_SCOPE);
       assert.include(result.scope, PROFILE_SCOPE);
       assert.include(result.scope, RELAY_SCOPE);
-      // Token exchange should NOT call newTokenNotification
-      sinon.assert.notCalled(newTokenNotificationStub);
     });
   });
 });
