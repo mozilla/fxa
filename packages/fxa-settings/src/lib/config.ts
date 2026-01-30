@@ -101,6 +101,7 @@ export interface Config {
     recoveryCodeSetupOnSyncSignIn?: boolean;
     showLocaleToggle?: boolean;
     paymentsNextSubscriptionManagement?: boolean;
+    passkeysEnabled?: boolean;
   };
   nimbus: {
     enabled: boolean;

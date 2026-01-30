@@ -158,3 +158,62 @@ describe('reset', () => {
     expect(config.version).toBeUndefined();
   });
 });
+
+describe('featureFlags', () => {
+  it('can parse passkeysEnabled feature flag', () => {
+    const data = {
+      featureFlags: {
+        passkeysEnabled: true,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeysEnabled).toBe(true);
+  });
+
+  it('handles passkeysEnabled as false', () => {
+    const data = {
+      featureFlags: {
+        passkeysEnabled: false,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeysEnabled).toBe(false);
+  });
+
+  it('handles undefined passkeysEnabled flag', () => {
+    const data = {
+      featureFlags: {
+        keyStretchV2: true,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeysEnabled).toBeUndefined();
+  });
+});
