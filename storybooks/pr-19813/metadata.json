@@ -1,0 +1,12 @@
+{
+  "commit": "5917e87d48901bbd8c31271664441aff1d6124e4",
+  "summary": "update email renderer snapshots to include new l10n wrapper provided by latest mjml version",
+  "description": "",
+  "timestamp": 1769635747000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

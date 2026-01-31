@@ -1,0 +1,10 @@
+{
+  "commit": "8120093370def92981d6a1848753541f7091c9fb",
+  "summary": "feat(auth): Use libs email in auth server",
+  "description": "Because:\n - We've moved email sending and rendering out of auth-server\n\nThis Commit:\n - Updates several emails to send using the new fxa-mailer, renderer and\n   sender\n\nCloses: FXA-12883",
+  "timestamp": 1769710850000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

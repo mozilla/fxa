@@ -1,0 +1,12 @@
+{
+  "commit": "0a5115c05277628332829a5b6ff308bf435dac2e",
+  "summary": "chore(deps): bump next from 14.2.35 to 15.5.10",
+  "description": "Bumps [next](https://github.com/vercel/next.js) from 14.2.35 to 15.5.10.\n- [Release notes](https://github.com/vercel/next.js/releases)\n- [Changelog](https://github.com/vercel/next.js/blob/canary/release.js)\n- [Commits](https://github.com/vercel/next.js/compare/v14.2.35...v15.5.10)\n\n---\nupdated-dependencies:\n- dependency-name: next\n  dependency-version: 15.5.10\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1769568112000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,11 @@
+{
+  "commit": "118a70f4a49c58eb9ae8e0347c4ce54b1a8e8f49",
+  "summary": "polish(auth): Normalize fxa-shared require references",
+  "description": "",
+  "timestamp": 1769639389000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

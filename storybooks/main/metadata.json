@@ -1,0 +1,12 @@
+{
+  "commit": "0086917b9f0de2d3d7a807cfe66fc64cb8411164",
+  "summary": "Merge pull request #19976 from mozilla/splitlayout-en",
+  "description": "feat(cms): Temporarily don't load splitLayout for non-EN locales",
+  "timestamp": 1769808047000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

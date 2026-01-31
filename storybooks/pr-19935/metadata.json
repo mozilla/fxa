@@ -1,0 +1,12 @@
+{
+  "commit": "7844ea63bdc4da10f5b8b740bffbb06aa2150dc9",
+  "summary": "feat(auth-server): Migrate email sending to libs, pt 1",
+  "description": "Becuase:\n - We have moved all mail rendering and sending to a library\n\nThis Commit:\n - Moves a set of emails in auth-server to use the new mailer\n\nCloses: FXA-12883",
+  "timestamp": 1769528719000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

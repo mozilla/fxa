@@ -1,0 +1,10 @@
+{
+  "commit": "f4897d8d93d3554be505688ed5966f6702c2580f",
+  "summary": "feat(passkeys): configure passkey feature flags",
+  "description": "",
+  "timestamp": 1769818686000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

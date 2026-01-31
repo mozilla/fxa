@@ -1,0 +1,10 @@
+{
+  "commit": "2a0b23c19ff85b832da257e870d1f5992b6259de",
+  "summary": "feat(gql): Migrate fxa-settings from GraphQL to direct auth-client calls",
+  "description": "",
+  "timestamp": 1768940020000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,11 @@
+{
+  "commit": "8116f773848727b86ea9b935d679a320b700c6d7",
+  "summary": "fix(auth): Add in missing product logo to SubscriptionEndingReminder email",
+  "description": "",
+  "timestamp": 1769805174000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

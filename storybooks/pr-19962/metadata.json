@@ -1,0 +1,12 @@
+{
+  "commit": "1cc2d8f4659d5dc5d2ca839ea18768bf7ba8eb1c",
+  "summary": "chore(deps): bump diff from 3.5.0 to 3.5.1",
+  "description": "Bumps [diff](https://github.com/kpdecker/jsdiff) from 3.5.0 to 3.5.1.\n- [Changelog](https://github.com/kpdecker/jsdiff/blob/master/release-notes.md)\n- [Commits](https://github.com/kpdecker/jsdiff/compare/v3.5.0...v3.5.1)\n\n---\nupdated-dependencies:\n- dependency-name: diff\n  dependency-version: 3.5.1\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1769619574000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
