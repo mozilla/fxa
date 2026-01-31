@@ -55,6 +55,9 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_SHOW_LOCALE_TOGGLE = config.get(
     'featureFlags.showLocaleToggle'
   );
+  const FEATURE_FLAGS_PASSKEYS_ENABLED = config.get(
+    'featureFlags.passkeysEnabled'
+  );
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
   const GLEAN_UPLOAD_ENABLED = config.get('glean.uploadEnabled');
@@ -121,6 +124,7 @@ function getIndexRouteDefinition(config) {
       recoveryCodeSetupOnSyncSignIn:
         FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
       showLocaleToggle: FEATURE_FLAGS_SHOW_LOCALE_TOGGLE,
+      passkeysEnabled: FEATURE_FLAGS_PASSKEYS_ENABLED,
     },
     cms: {
       enabled: CMS_ENABLED,
