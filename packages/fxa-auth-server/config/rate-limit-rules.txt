@@ -26,6 +26,7 @@ loadAccountFailed                     : ip                : 50          : 24 hou
 #
 accountCreate                         : ip                : 100         : 24 hours        : 24 hours    : block
 accountStatusCheck                    : ip                : 100         : 15 minute       : 15 minute   : block
+emailBounceStatusCheck                : ip                : 100         : 15 minute       : 15 minute   : block
 recoveryKeyExists                     : ip                : 100         : 15 minute       : 15 minute   : block
 getCredentialsStatus                  : ip                : 100         : 15 minute       : 15 minute   : block
 

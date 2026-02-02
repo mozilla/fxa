@@ -109,6 +109,14 @@ const ACCOUNT_STATUS_POST = {
   ],
 };
 
+const ACCOUNT_EMAIL_BOUNCE_STATUS_POST = {
+  ...TAGS_ACCOUNT,
+  description: '/account/email_bounce_status',
+  notes: [
+    'Checks if there are any hard (permanent) email bounces recorded for the provided email address. Used during signup confirmation to detect if verification emails are bouncing.',
+  ],
+};
+
 const ACCOUNT_PROFILE_GET = {
   ...TAGS_ACCOUNT,
   description: '/account/profile',
@@ -310,12 +318,24 @@ const ACCOUNT_STUB_POST = {
   description: '/account/stub',
 };
 
+const ACCOUNT_METRICS_OPT_POST = {
+  ...TAGS_ACCOUNT,
+  description: '/account/metrics_opt',
+  notes: [
+    dedent`
+      Set the metrics opt-in or opt-out state for the account. Notifies relying parties of the profile data change.
+    `,
+  ],
+};
+
 const API_DOCS = {
   ACCOUNT_CREATE_POST,
   ACCOUNT_DESTROY_POST,
+  ACCOUNT_EMAIL_BOUNCE_STATUS_POST,
   ACCOUNT_FINISH_SETUP_POST,
   ACCOUNT_KEYS_GET,
   ACCOUNT_LOGIN_POST,
+  ACCOUNT_METRICS_OPT_POST,
   ACCOUNT_PROFILE_GET,
   ACCOUNT_RESET_POST,
   ACCOUNT_CREDENTIALS_STATUS,

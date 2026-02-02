@@ -138,6 +138,7 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     ...(requireMocks || {}),
     'fxa-shared/db/models/auth': {
       getAccountCustomerByUid: mockGetAccountCustomerByUid,
+      ...((requireMocks || {})['fxa-shared/db/models/auth'] || {}),
     },
   });
   const signupUtils =
@@ -4733,6 +4734,7 @@ describe('/account', () => {
         },
       },
       log,
+      db: mocks.mockDB({ email, uid }),
       stripeHelper: mockStripeHelper,
     });
     return getRoute(accountRoutes, '/account');
@@ -4811,9 +4813,7 @@ describe('/account', () => {
           mockStripeHelper.subscriptionsToResponse,
           mockCustomer.subscriptions
         );
-        assert.deepEqual(result, {
-          subscriptions: mockWebSubscriptionsResponse,
-        });
+        assert.deepEqual(result.subscriptions, mockWebSubscriptionsResponse);
       });
     });
 
@@ -4823,9 +4823,7 @@ describe('/account', () => {
       });
 
       return runTest(buildRoute(), request, (result) => {
-        assert.deepEqual(result, {
-          subscriptions: [],
-        });
+        assert.deepEqual(result.subscriptions, []);
         assert.equal(log.begin.callCount, 1);
         assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
         assert.equal(mockStripeHelper.subscriptionsToResponse.callCount, 0);
@@ -4850,9 +4848,7 @@ describe('/account', () => {
 
     it('should not return stripe.customer result when subscriptions are disabled', () => {
       return runTest(buildRoute(false), request, (result) => {
-        assert.deepEqual(result, {
-          subscriptions: [],
-        });
+        assert.deepEqual(result.subscriptions, []);
 
         assert.equal(log.begin.callCount, 1);
         assert.equal(mockStripeHelper.fetchCustomer.callCount, 0);
@@ -4939,9 +4935,7 @@ describe('/account', () => {
             mockPlaySubscriptions.getSubscriptions,
             uid
           );
-          assert.deepEqual(result, {
-            subscriptions: [mockFormattedPlayStoreSubscription],
-          });
+          assert.deepEqual(result.subscriptions, [mockFormattedPlayStoreSubscription]);
         }
       );
     });
@@ -4966,12 +4960,10 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 1);
-          assert.deepEqual(result, {
-            subscriptions: [
-              ...[mockFormattedPlayStoreSubscription],
-              ...mockWebSubscriptionsResponse,
-            ],
-          });
+          assert.deepEqual(result.subscriptions, [
+            ...[mockFormattedPlayStoreSubscription],
+            ...mockWebSubscriptionsResponse,
+          ]);
         }
       );
     });
@@ -4986,9 +4978,7 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 1);
-          assert.deepEqual(result, {
-            subscriptions: [],
-          });
+          assert.deepEqual(result.subscriptions, []);
         }
       );
     });
@@ -5014,9 +5004,7 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 0);
-          assert.deepEqual(result, {
-            subscriptions: mockWebSubscriptionsResponse,
-          });
+          assert.deepEqual(result.subscriptions, mockWebSubscriptionsResponse);
         }
       );
     });
@@ -5089,9 +5077,7 @@ describe('/account', () => {
             mockAppStoreSubscriptions.getSubscriptions,
             uid
           );
-          assert.deepEqual(result, {
-            subscriptions: [mockFormattedAppStoreSubscription],
-          });
+          assert.deepEqual(result.subscriptions, [mockFormattedAppStoreSubscription]);
         }
       );
     });
@@ -5116,12 +5102,10 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockAppStoreSubscriptions.getSubscriptions.callCount, 1);
-          assert.deepEqual(result, {
-            subscriptions: [
-              ...[mockFormattedAppStoreSubscription],
-              ...mockWebSubscriptionsResponse,
-            ],
-          });
+          assert.deepEqual(result.subscriptions, [
+            ...[mockFormattedAppStoreSubscription],
+            ...mockWebSubscriptionsResponse,
+          ]);
         }
       );
     });
@@ -5136,9 +5120,7 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockAppStoreSubscriptions.getSubscriptions.callCount, 1);
-          assert.deepEqual(result, {
-            subscriptions: [],
-          });
+          assert.deepEqual(result.subscriptions, []);
         }
       );
     });
@@ -5164,11 +5146,146 @@ describe('/account', () => {
           assert.equal(log.begin.callCount, 1);
           assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
           assert.equal(mockAppStoreSubscriptions.getSubscriptions.callCount, 0);
-          assert.deepEqual(result, {
-            subscriptions: mockWebSubscriptionsResponse,
-          });
+          assert.deepEqual(result.subscriptions, mockWebSubscriptionsResponse);
         }
       );
+    });
+  });
+
+  describe('expanded account data fields', () => {
+    it('should return account metadata and 2FA status', () => {
+      return runTest(buildRoute(), request, (result) => {
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'createdAt'));
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'passwordCreatedAt'));
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'hasPassword'));
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'emails'));
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'totp'));
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'backupCodes'));
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'recoveryKey'));
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'recoveryPhone'));
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'securityEvents'));
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'linkedAccounts'));
+        assert.isArray(result.emails);
+        assert.isArray(result.securityEvents);
+        assert.isArray(result.linkedAccounts);
+      });
+    });
+  });
+});
+
+describe('/account/email_bounce_status', () => {
+  let log, mockDB;
+
+  const email = 'test@example.com';
+
+  function buildRoute(dbOverrides = {}) {
+    log = mocks.mockLog();
+    mockDB = {
+      emailBounces: sinon.spy(() => Promise.resolve([])),
+      ...dbOverrides,
+    };
+    const accountRoutes = makeRoutes({
+      config: { smtp: { bounces: {} } },
+      log,
+      db: mockDB,
+      customs: {
+        check: sinon.spy(() => Promise.resolve()),
+        checkAuthenticated: sinon.spy(() => Promise.resolve()),
+      },
+    });
+    return getRoute(accountRoutes, '/account/email_bounce_status');
+  }
+
+  it('should return hasHardBounce: false when no bounces exist', () => {
+    const request = mocks.mockRequest({ payload: { email } });
+    return runTest(buildRoute(), request, (result) => {
+      assert.deepEqual(result, { hasHardBounce: false });
+    });
+  });
+
+  it('should return hasHardBounce: true when a hard bounce exists', () => {
+    const request = mocks.mockRequest({ payload: { email } });
+    const route = buildRoute({
+      emailBounces: sinon.spy(() =>
+        Promise.resolve([{ bounceType: 1, email, createdAt: Date.now() }])
+      ),
+    });
+    return runTest(route, request, (result) => {
+      assert.deepEqual(result, { hasHardBounce: true });
+    });
+  });
+
+  it('should return hasHardBounce: false on db error', () => {
+    const request = mocks.mockRequest({ payload: { email } });
+    const route = buildRoute({
+      emailBounces: sinon.spy(() => Promise.reject(new Error('db error'))),
+    });
+    return runTest(route, request, (result) => {
+      assert.deepEqual(result, { hasHardBounce: false });
+    });
+  });
+});
+
+describe('/account/metrics_opt', () => {
+  let log, mockDB, mockCustoms;
+
+  const uid = 'abc123';
+  const email = 'test@example.com';
+
+  function buildRoute(setMetricsOptStub) {
+    log = mocks.mockLog();
+    mockCustoms = {
+      check: sinon.spy(() => Promise.resolve()),
+      checkAuthenticated: sinon.spy(() => Promise.resolve()),
+    };
+    mockDB = mocks.mockDB({ email, uid });
+    // Reset the shared profile mock's deleteCache spy
+    profile.deleteCache.resetHistory();
+    const accountRoutes = makeRoutes(
+      {
+        log,
+        db: mockDB,
+        customs: mockCustoms,
+      },
+      {
+        'fxa-shared/db/models/auth': {
+          Account: { setMetricsOpt: setMetricsOptStub },
+          getAccountCustomerByUid: mockGetAccountCustomerByUid,
+        },
+      }
+    );
+    return getRoute(accountRoutes, '/account/metrics_opt');
+  }
+
+  it('should call setMetricsOpt and notify services on opt-out', () => {
+    const setMetricsOptStub = sinon.stub().resolves();
+    const route = buildRoute(setMetricsOptStub);
+    const request = mocks.mockRequest({
+      credentials: { uid, email },
+      payload: { state: 'out' },
+      log,
+    });
+    return runTest(route, request, (result) => {
+      assert.deepEqual(result, {});
+      assert.calledOnce(setMetricsOptStub);
+      assert.calledWith(setMetricsOptStub, uid, 'out');
+      assert.calledOnce(mockCustoms.checkAuthenticated);
+      assert.calledOnce(profile.deleteCache);
+    });
+  });
+
+  it('should call setMetricsOpt and notify services on opt-in', () => {
+    const setMetricsOptStub = sinon.stub().resolves();
+    const route = buildRoute(setMetricsOptStub);
+    const request = mocks.mockRequest({
+      credentials: { uid, email },
+      payload: { state: 'in' },
+      log,
+    });
+    return runTest(route, request, (result) => {
+      assert.deepEqual(result, {});
+      assert.calledOnce(setMetricsOptStub);
+      assert.calledWith(setMetricsOptStub, uid, 'in');
     });
   });
 });

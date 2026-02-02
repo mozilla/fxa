@@ -73,13 +73,35 @@ const DEFAULTS = _.extend(
     verificationMethod: undefined,
     verificationReason: undefined,
     totpVerified: undefined,
+    recoveryKey: undefined,
   },
   PERSISTENT
 );
 
 const ALLOWED_KEYS = Object.keys(DEFAULTS);
 const ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
-const DEPRECATED_KEYS = ['ecosystemAnonId', 'needsOptedInToMarketingEmail'];
+const DEPRECATED_KEYS = [
+  'ecosystemAnonId',
+  'needsOptedInToMarketingEmail',
+  // The following are transient UI state from fxa-settings (should not be persisted)
+  'sessionVerified',
+  'loadingFields',
+  'isLoading',
+  'error',
+  // The following are fxa-settings extended account data (ignored by content-server)
+  'avatar',
+  'accountCreated',
+  'passwordCreated',
+  'emails',
+  'totp',
+  'backupCodes',
+  // Note: 'recoveryKey' is NOT deprecated - it contains estimatedSyncDeviceCount needed by fxa-settings
+  'recoveryPhone',
+  'attachedClients',
+  'linkedAccounts',
+  'subscriptions',
+  'securityEvents',
+];
 
 const CONTENT_SERVER_OAUTH_SCOPE = 'profile profile:write clients:write';
 
