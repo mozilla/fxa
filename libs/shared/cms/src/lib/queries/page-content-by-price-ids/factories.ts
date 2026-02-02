@@ -54,8 +54,14 @@ export const PageContentByPriceIdsOfferingResultFactory = (
     })
   ),
   commonContent: {
+    emailIcon: faker.internet.url(),
     supportUrl: faker.internet.url(),
-    localizations: [{ supportUrl: faker.internet.url() }],
+    localizations: [
+      {
+        emailIcon: faker.internet.url(),
+        supportUrl: faker.internet.url(),
+      },
+    ],
   },
   ...override,
 });
