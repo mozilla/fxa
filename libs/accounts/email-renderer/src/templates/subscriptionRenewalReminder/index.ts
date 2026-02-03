@@ -8,9 +8,10 @@ import { TemplateData as SubscriptionUpdateBillingEnsureTemplateData } from '../
 export type TemplateData = SubscriptionSupportContactTemplateData &
   SubscriptionUpdateBillingEnsureTemplateData & {
     productName: string;
+    invoiceSubtotal?: string;
+    invoiceTax?: string;
     invoiceTotal: string;
     planInterval: string;
-    planIntervalCount: string;
     reminderLength: string;
     subscriptionSupportUrl: string;
     updateBillingUrl: string;

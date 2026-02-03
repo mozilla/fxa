@@ -122,8 +122,7 @@ function sendMail(mailer, messageToSend) {
     productName: 'Firefox Fortress',
     planEmailIconURL: planConfig.urls.emailIcon,
     planSuccessActionButtonURL: planConfig.urls.download,
-    planInterval: 'week',
-    planIntervalCount: 4,
+    planInterval: 'weekly',
     playStoreLink: 'https://example.com/play-store',
     invoiceNumber: '8675309',
     cardType: 'MasterCard',
@@ -137,6 +136,8 @@ function sendMail(mailer, messageToSend) {
     productNameNew: 'Product B',
     invoiceLink:
       'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
+    invoiceSubtotalInCents: 869565.1,
+    invoiceTaxInCents: 130434.8,
     invoiceTotalInCents: 999999.9,
     invoiceTotalCurrency: 'eur',
     paymentAmountOldInCents: 9999099.9,
