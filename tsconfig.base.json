@@ -24,9 +24,12 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
-      "@fxa/accounts/errors": ["libs/accounts/errors/src/index.ts"],
+      "@fxa/accounts/email-renderer": [
+        "libs/accounts/email-renderer/src/index.ts"
+      ],
       "@fxa/accounts/email-sender": ["libs/accounts/email-sender/src/index.ts"],
-      "@fxa/accounts/email-renderer": ["libs/accounts/email-renderer/src/index.ts"],
+      "@fxa/accounts/errors": ["libs/accounts/errors/src/index.ts"],
+      "@fxa/accounts/passkey": ["libs/accounts/passkey/src/index.ts"],
       "@fxa/accounts/rate-limit": ["libs/accounts/rate-limit/src/index.ts"],
       "@fxa/accounts/recovery-phone": [
         "libs/accounts/recovery-phone/src/index.ts"
