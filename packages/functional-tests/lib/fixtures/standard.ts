@@ -15,6 +15,7 @@ import { create as createPages } from '../../pages';
 import { ServerTarget, TargetName, create } from '../targets';
 import { BaseTarget } from '../targets/base';
 import { TestAccountTracker } from '../testAccountTracker';
+import { PasskeyPage } from '../../pages/passkey';
 import { existsSync, readFileSync } from 'fs';
 import { join, dirname, basename } from 'path';
 
@@ -47,6 +48,12 @@ export const test = base.extend<TestOptions, WorkerOptions>({
   pages: async ({ target, page }, use) => {
     const pages = createPages(page, target);
     await use(pages);
+    // Cleanup passkey CDP sessions from any page that used them
+    for (const pageInstance of Object.values(pages)) {
+      if (pageInstance instanceof PasskeyPage) {
+        await pageInstance.cleanupPasskeys();
+      }
+    }
   },
 
   syncBrowserPages: async ({ target }, use, testInfo) => {
