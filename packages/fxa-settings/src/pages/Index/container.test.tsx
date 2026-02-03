@@ -7,7 +7,6 @@ import * as IndexModule from './index';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as cache from '../../lib/cache';
 
-import React from 'react';
 import { waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
@@ -969,6 +968,75 @@ describe('IndexContainer', () => {
         });
         await waitFor(() => {
           expect(currentIndexProps?.errorBannerMessage).toBeDefined();
+        });
+      });
+
+      describe('useFxAStatusResult.supportsCanLinkAccountUid and processEmailSubmission', () => {
+        beforeEach(() => {
+          jest.spyOn(cache, 'currentAccount').mockReturnValue({
+            uid: 'abc123',
+            email: MOCK_EMAIL,
+            lastLogin: Date.now(),
+          });
+        });
+
+        it('shows loading spinner and does not call fxaCanLinkAccount when supportsCanLinkAccountUid is undefined', async () => {
+          mockUseFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: undefined,
+          });
+
+          const { getByText } = renderWithLocalizationProvider(
+            <LocationProvider>
+              <IndexContainer
+                integration={integration}
+                serviceName={MozServices.FirefoxSync}
+                useFxAStatusResult={mockUseFxAStatusResult}
+              />
+            </LocationProvider>
+          );
+
+          expect(getByText('LoadingSpinner')).toBeInTheDocument();
+          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+        });
+
+        it('does not call fxaCanLinkAccount when supportsCanLinkAccountUid is true', async () => {
+          mockUseFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: true,
+          });
+
+          renderWithLocalizationProvider(
+            <LocationProvider>
+              <IndexContainer
+                integration={integration}
+                serviceName={MozServices.FirefoxSync}
+                useFxAStatusResult={mockUseFxAStatusResult}
+              />
+            </LocationProvider>
+          );
+
+          await waitFor(() => {
+            expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+          });
+        });
+
+        it('calls fxaCanLinkAccount when supportsCanLinkAccountUid is false', async () => {
+          mockUseFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: false,
+          });
+
+          renderWithLocalizationProvider(
+            <LocationProvider>
+              <IndexContainer
+                integration={integration}
+                serviceName={MozServices.FirefoxSync}
+                useFxAStatusResult={mockUseFxAStatusResult}
+              />
+            </LocationProvider>
+          );
+
+          await waitFor(() => {
+            expect(firefox.fxaCanLinkAccount).toHaveBeenCalled();
+          });
         });
       });
     });

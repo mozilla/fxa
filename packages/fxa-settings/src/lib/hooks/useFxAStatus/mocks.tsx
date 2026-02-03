@@ -7,11 +7,11 @@ import { getSyncEngineIds, syncEngineConfigs } from '../../sync-engines';
 export function mockUseFxAStatus({
   offeredSyncEnginesOverride,
   supportsKeysOptionalLogin = false,
-  supportsCanLinkAccountUid = false,
+  supportsCanLinkAccountUid,
 }: {
   offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
   supportsKeysOptionalLogin?: boolean;
-  supportsCanLinkAccountUid?: boolean;
+  supportsCanLinkAccountUid?: boolean | undefined;
 } = {}) {
   const offeredSyncEngineConfigs = syncEngineConfigs;
   const offeredSyncEngines =

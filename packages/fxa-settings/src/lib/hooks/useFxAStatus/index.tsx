@@ -41,7 +41,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
   const [supportsKeysOptionalLogin, setSupportsKeysOptionalLogin] =
     useState<boolean>(false);
   const [supportsCanLinkAccountUid, setSupportsCanLinkAccountUid] =
-    useState<boolean>(false);
+    useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
