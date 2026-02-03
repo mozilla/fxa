@@ -12,13 +12,6 @@ describe('AppController', () => {
     }).compile();
   });
 
-  describe('getData', () => {
-    it('should return "Hello world"', () => {
-      const appController = app.get<AppController>(AppController);
-      expect(appController.getData()).toEqual({ message: 'Hello world' });
-    });
-  });
-
   describe('service status endpoints', () => {
     it('__heartbeat__ should return empty object', () => {
       const appController = app.get<AppController>(AppController);

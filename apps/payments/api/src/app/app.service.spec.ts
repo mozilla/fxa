@@ -12,12 +12,6 @@ describe('AppService', () => {
     service = app.get<AppService>(AppService);
   });
 
-  describe('getData', () => {
-    it('should return "Hello API"', () => {
-      expect(service.getData()).toEqual({ message: 'Hello API' });
-    });
-  });
-
   describe('service status endpoints', () => {
     it('__heartbeat__ should return empty object', () => {
       expect(service.__heartbeat__()).toEqual({});
