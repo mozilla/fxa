@@ -384,6 +384,13 @@ export class SubscriptionReminders {
         reminderLength: effectiveReminderDuration.as('days'),
       });
 
+      let planInterval;
+      if (interval === 'month' && interval_count === 6) {
+        planInterval = 'halfyear';
+      } else {
+        planInterval = interval;
+      }
+
       await this.mailer.sendSubscriptionRenewalReminderEmail(
         account.emails,
         account,
@@ -393,9 +400,11 @@ export class SubscriptionReminders {
           acceptLanguage: account.locale,
           subscription: formattedSubscription,
           reminderLength: effectiveReminderDuration.as('days'),
-          planIntervalCount: interval_count,
-          planInterval: interval,
+          planInterval,
           // Using invoice prefix instead of plan to accommodate `yarn write-emails`.
+          showTax: (invoicePreview.tax ?? 0) > 0,
+          invoiceTotalExcludingTaxInCents: invoicePreview.total_excluding_tax,
+          invoiceTaxInCents: invoicePreview.tax,
           invoiceTotalInCents: invoicePreview.total,
           invoiceTotalCurrency: invoicePreview.currency,
           productMetadata: formattedSubscription.productMetadata,
