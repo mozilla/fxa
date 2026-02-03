@@ -2493,6 +2493,14 @@ const convictConf = convict({
       },
     },
   },
+  passkeys: {
+    enabled: {
+      default: false,
+      doc: 'Enable passkeys authentication feature',
+      env: 'PASSKEYS__ENABLED',
+      format: Boolean,
+    },
+  },
   twilio: {
     credentialMode: {
       default: '',

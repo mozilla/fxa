@@ -247,6 +247,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT',
     },
+    passkeysEnabled: {
+      default: false,
+      doc: 'Enables passkeys authentication',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEYS_ENABLED',
+    },
   },
   cms: {
     enabled: {
