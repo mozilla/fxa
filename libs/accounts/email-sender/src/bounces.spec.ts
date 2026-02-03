@@ -327,4 +327,172 @@ describe('Bounces', () => {
       });
     });
   });
+
+  describe('checkBouncesWithAliases', () => {
+    const aliasNormalizationConfig = JSON.stringify([
+      { domain: 'example.com', regex: '\\+.*', replace: '' },
+    ]);
+
+    it('uses regular check when aliasCheckEnabled is false', async () => {
+      const config: BouncesConfig = {
+        ...defaultBouncesConfig,
+        aliasCheckEnabled: false,
+        emailAliasNormalization: aliasNormalizationConfig,
+      };
+      const db: BounceDb = {
+        emailBounces: {
+          findByEmail: jest.fn().mockResolvedValue([]),
+        },
+      };
+      const bounces = new Bounces(config, db);
+
+      await bounces.check('test+alias@example.com', 'verifyEmail');
+
+      // Should only call once with the original email
+      expect(db.emailBounces.findByEmail).toHaveBeenCalledTimes(1);
+      expect(db.emailBounces.findByEmail).toHaveBeenCalledWith(
+        'test+alias@example.com'
+      );
+    });
+
+    it('queries both normalized and wildcard emails when aliasCheckEnabled is true', async () => {
+      const config: BouncesConfig = {
+        ...defaultBouncesConfig,
+        aliasCheckEnabled: true,
+        emailAliasNormalization: aliasNormalizationConfig,
+      };
+      const db: BounceDb = {
+        emailBounces: {
+          findByEmail: jest.fn().mockResolvedValue([]),
+        },
+      };
+      const bounces = new Bounces(config, db);
+
+      await bounces.check('test+alias@example.com', 'verifyEmail');
+
+      // Should call twice: once for normalized, once for wildcard
+      expect(db.emailBounces.findByEmail).toHaveBeenCalledTimes(2);
+      expect(db.emailBounces.findByEmail).toHaveBeenCalledWith(
+        'test@example.com'
+      );
+      expect(db.emailBounces.findByEmail).toHaveBeenCalledWith(
+        'test+%@example.com'
+      );
+    });
+
+    it('throws error when alias bounces exceed threshold', async () => {
+      const config: BouncesConfig = {
+        ...defaultBouncesConfig,
+        aliasCheckEnabled: true,
+        emailAliasNormalization: aliasNormalizationConfig,
+        hard: { 0: daysInMs(30) },
+      };
+      const bouncedAt = mockNow - daysInMs(10);
+      const db: BounceDb = {
+        emailBounces: {
+          findByEmail: jest.fn().mockImplementation((email: string) => {
+            if (email === 'test@example.com') {
+              return Promise.resolve([
+                {
+                  email: 'test@example.com',
+                  bounceType: BOUNCE_TYPE_HARD,
+                  createdAt: bouncedAt,
+                },
+              ]);
+            }
+            return Promise.resolve([]);
+          }),
+        },
+      };
+      const bounces = new Bounces(config, db);
+
+      // Email with alias should fail because root email has a bounce
+      await expect(
+        bounces.check('test+alias@example.com', 'verifyEmail')
+      ).rejects.toMatchObject(AppError.emailBouncedHard(bouncedAt));
+    });
+
+    it('merges and deduplicates bounces from both queries', async () => {
+      const config: BouncesConfig = {
+        ...defaultBouncesConfig,
+        aliasCheckEnabled: true,
+        emailAliasNormalization: aliasNormalizationConfig,
+        hard: { 2: daysInMs(30) }, // Allow 2 bounces before throwing
+      };
+      const bounce1At = mockNow - daysInMs(5);
+      const bounce2At = mockNow - daysInMs(10);
+      const duplicateBounceAt = mockNow - daysInMs(15);
+
+      const db: BounceDb = {
+        emailBounces: {
+          findByEmail: jest.fn().mockImplementation((email: string) => {
+            if (email === 'test@example.com') {
+              return Promise.resolve([
+                {
+                  email: 'test@example.com',
+                  bounceType: BOUNCE_TYPE_HARD,
+                  createdAt: bounce1At,
+                },
+                {
+                  email: 'test@example.com',
+                  bounceType: BOUNCE_TYPE_HARD,
+                  createdAt: duplicateBounceAt,
+                },
+              ]);
+            }
+            if (email === 'test+%@example.com') {
+              return Promise.resolve([
+                {
+                  email: 'test+alias@example.com',
+                  bounceType: BOUNCE_TYPE_HARD,
+                  createdAt: bounce2At,
+                },
+                // Duplicate entry (same email and createdAt as normalized query)
+                {
+                  email: 'test@example.com',
+                  bounceType: BOUNCE_TYPE_HARD,
+                  createdAt: duplicateBounceAt,
+                },
+              ]);
+            }
+            return Promise.resolve([]);
+          }),
+        },
+      };
+      const bounces = new Bounces(config, db);
+
+      // Should throw because we have 3 unique hard bounces (one duplicate removed)
+      await expect(
+        bounces.check('test+alias@example.com', 'verifyEmail')
+      ).rejects.toMatchObject(AppError.emailBouncedHard(bounce1At));
+    });
+
+    it('does not apply alias normalization for domains not in config', async () => {
+      const config: BouncesConfig = {
+        ...defaultBouncesConfig,
+        aliasCheckEnabled: true,
+        emailAliasNormalization: aliasNormalizationConfig, // Only example.com configured
+      };
+      const db: BounceDb = {
+        emailBounces: {
+          findByEmail: jest.fn().mockResolvedValue([]),
+        },
+      };
+      const bounces = new Bounces(config, db);
+
+      await bounces.check('test+alias@other.com', 'verifyEmail');
+
+      // For non-configured domain, both queries should use the original email
+      // (no transformation applied)
+      expect(db.emailBounces.findByEmail).toHaveBeenCalledTimes(2);
+      expect(db.emailBounces.findByEmail).toHaveBeenNthCalledWith(
+        1,
+        'test+alias@other.com'
+      );
+      expect(db.emailBounces.findByEmail).toHaveBeenNthCalledWith(
+        2,
+        'test+alias@other.com'
+      );
+    });
+  });
 });
