@@ -744,6 +744,10 @@ function mockDB(data, errors) {
         enabled: false,
       });
     }),
+    getLinkedAccounts: sinon.spy((uid) => {
+      assert.ok(typeof uid === 'string');
+      return Promise.resolve(data.linkedAccounts || []);
+    }),
   });
 }
 

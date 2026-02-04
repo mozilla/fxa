@@ -23,7 +23,11 @@
     "subscriptionTermsUrl": "https://www.mozilla.org/about/legal/terms/subscription-services",
     "subscriptionSettingsUrl": "http://localhost:3035/",
     "user": "local",
-    "password": "local"
+    "password": "local",
+    "bounces": {
+      "enabled": true,
+      "aliasCheckEnabled": true
+    }
   },
   "snsTopicArn": "arn:aws:sns:us-east-1:100010001000:fxa-account-change-dev",
   "snsTopicEndpoint": "http://localhost:4100/",
