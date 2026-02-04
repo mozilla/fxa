@@ -29,6 +29,9 @@ fi
 
 GLOB=$*
 if [ -z "$GLOB" ]; then
+  echo "Jest tests"
+  npx jest --no-coverage --forceExit
+
   echo "Local tests"
   mocha $DEFAULT_ARGS $GREP_TESTS test/local
 

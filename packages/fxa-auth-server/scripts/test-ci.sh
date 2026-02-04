@@ -29,3 +29,22 @@ done
 if [ "$TEST_TYPE" == 'integration' ]; then
   yarn run clean-up-old-ci-stripe-customers;
 fi;
+
+# Run Jest tests
+# Integration tests are in files matching *.integration.spec.ts or verification-reminders.spec.ts
+if [ "$TEST_TYPE" == 'unit' ]; then
+  echo -e "\n\nRunning Jest unit tests"
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
+  JEST_JUNIT_OUTPUT_NAME="jest-unit-results.xml" \
+  npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit --testPathIgnorePatterns='verification-reminders'
+elif [ "$TEST_TYPE" == 'integration' ]; then
+  echo -e "\n\nRunning Jest integration tests"
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
+  JEST_JUNIT_OUTPUT_NAME="jest-integration-results.xml" \
+  npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit --testPathPattern='verification-reminders'
+elif [ -z "$TEST_TYPE" ]; then
+  echo -e "\n\nRunning all Jest tests"
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
+  JEST_JUNIT_OUTPUT_NAME="jest-results.xml" \
+  npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit
+fi
