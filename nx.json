@@ -128,6 +128,17 @@
       ],
       "cache": true
     },
+    "test-integration-jest": {
+      "dependsOn": ["build", "gen-keys"],
+      "inputs": ["test", "^test"],
+      "outputs": [
+        "{workspaceRoot}/artifacts/tests",
+        "{projectRoot}/coverage",
+        "{projectRoot}/.nyc_output",
+        "{projectRoot}/test-results.xml"
+      ],
+      "cache": true
+    },
     "test-unit": {
       "dependsOn": ["build", "gen-keys"],
       "inputs": ["test", "^test"],
