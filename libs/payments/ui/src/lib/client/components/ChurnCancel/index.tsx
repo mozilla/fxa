@@ -126,10 +126,8 @@ export function ChurnCancel({
     setLoading(false);
   }
 
-  const isActiveNotCanceling = !!active && !cancelAtPeriodEnd;
-  const isOffer = reason === 'eligible' && isActiveNotCanceling;
-  const isDiscountAlreadyApplied =
-    reason === 'discount_already_applied' && isActiveNotCanceling;
+  const isOffer = reason === 'eligible' && !cancelAtPeriodEnd && active;
+  const isDiscountAlreadyApplied = reason === 'discount_already_applied';
 
   return (
     <section
