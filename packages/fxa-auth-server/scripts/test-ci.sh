@@ -35,16 +35,16 @@ fi;
 if [ "$TEST_TYPE" == 'unit' ]; then
   echo -e "\n\nRunning Jest unit tests"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
-  JEST_JUNIT_OUTPUT_NAME="jest-unit-results.xml" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-unit-results.xml" \
   npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit --testPathIgnorePatterns='verification-reminders'
 elif [ "$TEST_TYPE" == 'integration' ]; then
   echo -e "\n\nRunning Jest integration tests"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
-  JEST_JUNIT_OUTPUT_NAME="jest-integration-results.xml" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-results.xml" \
   npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit --testPathPattern='verification-reminders'
 elif [ -z "$TEST_TYPE" ]; then
   echo -e "\n\nRunning all Jest tests"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
-  JEST_JUNIT_OUTPUT_NAME="jest-results.xml" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-results.xml" \
   npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit
 fi
