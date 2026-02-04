@@ -26,6 +26,7 @@ module.exports = {
   },
   testTimeout: 10000,
   clearMocks: true,
+  setupFiles: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: ['/node_modules/'],
   // Coverage configuration (enabled via --coverage flag)
   collectCoverageFrom: [

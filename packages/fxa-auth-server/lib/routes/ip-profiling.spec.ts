@@ -10,9 +10,6 @@
  * which has proxyquire path resolution issues when called from lib/routes.
  */
 
-// IMPORTANT: Set environment variable BEFORE any imports that might load config
-process.env.FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY = 'true';
-
 import crypto from 'crypto';
 import sinon from 'sinon';
 import { Container } from 'typedi';
