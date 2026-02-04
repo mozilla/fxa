@@ -15,10 +15,11 @@ export type TemplateData = SubscriptionSupportContactTemplateData &
     subscriptionSupportUrl: string;
     updateBillingUrl: string;
     hadDiscount?: boolean;
+    hasDifferentDiscount?: boolean;
   };
 
 export const template = 'subscriptionRenewalReminder';
-export const version = 3;
+export const version = 4;
 export const layout = 'subscription';
 export const includes = {
   subject: {

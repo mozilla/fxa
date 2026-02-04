@@ -19,6 +19,7 @@ const data = {
   subscriptionSupportUrl: 'http://localhost:3030/support',
   updateBillingUrl: 'http://localhost:3030/subscriptions',
   hadDiscount: false,
+  hasDifferentDiscount: false,
 };
 
 const createStory = subplatStoryWithProps<TemplateData>(
@@ -58,6 +59,28 @@ export const YearlyPlanDiscountEnding = createStory(
     reminderLength: '15',
     invoiceTotal: '$199.99',
     hadDiscount: true,
+    hasDifferentDiscount: false,
   },
   'Yearly Plan - Discount Ending'
+);
+
+export const MonthlyPlanDiscountChanging = createStory(
+  {
+    hadDiscount: true,
+    hasDifferentDiscount: true,
+    invoiceTotal: '$14.00',
+  },
+  'Monthly Plan - Discount Changing'
+);
+
+export const YearlyPlanDiscountChanging = createStory(
+  {
+    planInterval: 'year',
+    planIntervalCount: '1',
+    reminderLength: '15',
+    invoiceTotal: '$139.99',
+    hadDiscount: true,
+    hasDifferentDiscount: true,
+  },
+  'Yearly Plan - Discount Changing'
 );
