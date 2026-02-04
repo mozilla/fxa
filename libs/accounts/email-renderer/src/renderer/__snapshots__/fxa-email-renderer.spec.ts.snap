@@ -67,7 +67,7 @@ exports[`FxA Email Renderer should render renderAdminResetAccounts: matches full
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Fxa Admin: Accounts Reset" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -334,7 +334,7 @@ exports[`FxA Email Renderer should render renderCadReminderFirst: matches full e
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Reminder! Let’s sync Firefox" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -755,7 +755,7 @@ exports[`FxA Email Renderer should render renderCadReminderSecond: matches full 
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Don’t miss out! Let’s finish your sync setup" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -1199,7 +1199,7 @@ exports[`FxA Email Renderer should render renderInactiveAccountFinalWarning: mat
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Sign in to keep your account</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Last chance to keep your Mozilla account" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -1626,7 +1626,7 @@ exports[`FxA Email Renderer should render renderInactiveAccountFirstWarning: mat
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Sign in to keep your account</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Donʼt lose your account" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -2061,7 +2061,7 @@ exports[`FxA Email Renderer should render renderInactiveAccountSecondWarning: ma
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Sign in to keep your account</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Action required: Account deletion in 7 days" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -2486,7 +2486,7 @@ exports[`FxA Email Renderer should render renderLowRecoveryCodes: matches full e
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Only 3 backup authentication codes left!" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -2852,7 +2852,7 @@ exports[`FxA Email Renderer should render renderNewDeviceLogin: matches full ema
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="New sign-in to Sync" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -3273,7 +3273,7 @@ exports[`FxA Email Renderer should render renderNewDeviceLoginStrapi: matches fu
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -3704,7 +3704,7 @@ exports[`FxA Email Renderer should render renderPasswordChangeRequired: matches 
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Change your password immediately</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Suspicious activity detected" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -4078,7 +4078,7 @@ exports[`FxA Email Renderer should render renderPasswordChanged: matches full em
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Password updated" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -4424,7 +4424,7 @@ exports[`FxA Email Renderer should render renderPasswordForgotOtp: matches full 
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">This code expires in 10 minutes</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Use 8675309 to change your password" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -4827,7 +4827,7 @@ exports[`FxA Email Renderer should render renderPasswordReset: matches full emai
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Your password has been reset" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -5201,7 +5201,7 @@ exports[`FxA Email Renderer should render renderPasswordResetAccountRecovery: ma
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Your password has been reset" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -5695,7 +5695,7 @@ exports[`FxA Email Renderer should render renderPasswordResetRecoveryPhone: matc
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Check to make sure this was you</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Recovery phone used" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -6087,7 +6087,7 @@ exports[`FxA Email Renderer should render renderPasswordResetWithRecoveryKeyProm
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Your password has been reset" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -6517,7 +6517,7 @@ exports[`FxA Email Renderer should render renderPostAddAccountRecovery: matches 
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="New account recovery key created" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -6893,7 +6893,7 @@ exports[`FxA Email Renderer should render renderPostAddLinkedAccount: matches fu
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="New account linked to your Mozilla account" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -7279,7 +7279,7 @@ exports[`FxA Email Renderer should render renderPostAddRecoveryPhone: matches fu
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Account protected by two-step authentication</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Recovery phone added" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -7692,7 +7692,7 @@ exports[`FxA Email Renderer should render renderPostAddTwoStepAuthentication wit
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Your account is protected</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Two-step authentication is on" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -8112,7 +8112,7 @@ exports[`FxA Email Renderer should render renderPostAddTwoStepAuthentication wit
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Your account is protected</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Two-step authentication is on" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -8532,7 +8532,7 @@ exports[`FxA Email Renderer should render renderPostAddTwoStepAuthentication: ma
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Your account is protected</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Two-step authentication is on" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -8942,7 +8942,7 @@ exports[`FxA Email Renderer should render renderPostChangeAccountRecovery: match
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Account recovery key changed" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -9318,7 +9318,7 @@ exports[`FxA Email Renderer should render renderPostChangePrimary: matches full 
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Primary email updated" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -9649,7 +9649,7 @@ exports[`FxA Email Renderer should render renderPostChangeRecoveryPhone: matches
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Account protected by two-step authentication</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Recovery phone updated" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -10033,7 +10033,7 @@ exports[`FxA Email Renderer should render renderPostChangeTwoStepAuthentication:
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Your account is protected</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Two-step authentication updated" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -10445,7 +10445,7 @@ exports[`FxA Email Renderer should render renderPostConsumeRecoveryCode: matches
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Check to make sure this was you</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Backup authentication code used" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -10837,7 +10837,7 @@ exports[`FxA Email Renderer should render renderPostNewRecoveryCodes: matches fu
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="New backup authentication codes created" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -11229,7 +11229,7 @@ exports[`FxA Email Renderer should render renderPostRemoveAccountRecovery: match
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Account recovery key deleted" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -11607,7 +11607,7 @@ exports[`FxA Email Renderer should render renderPostRemoveRecoveryPhone: matches
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Account protected by two-step authentication</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Recovery phone removed" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -11997,7 +11997,7 @@ exports[`FxA Email Renderer should render renderPostRemoveSecondary: matches ful
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Secondary email removed" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -12355,7 +12355,7 @@ exports[`FxA Email Renderer should render renderPostRemoveTwoStepAuthentication:
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Two-step authentication turned off" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -12757,7 +12757,7 @@ exports[`FxA Email Renderer should render renderPostSigninRecoveryCode: matches 
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Confirm account activity</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Backup authentication code used to sign in" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -13159,7 +13159,7 @@ exports[`FxA Email Renderer should render renderPostSigninRecoveryPhone: matches
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">Confirm account activity</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Recovery phone used to sign in" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -13559,7 +13559,7 @@ exports[`FxA Email Renderer should render renderPostVerify: matches full email s
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Welcome to Mozilla!" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -14009,7 +14009,7 @@ exports[`FxA Email Renderer should render renderPostVerifySecondary: matches ful
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Secondary email added" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -14368,7 +14368,7 @@ exports[`FxA Email Renderer should render renderRecovery: matches full email sna
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Reset your password" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -14799,7 +14799,7 @@ exports[`FxA Email Renderer should render renderUnblockCode: matches full email 
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">This code expires in one hour</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Use ABC123 to sign in" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -15150,7 +15150,7 @@ exports[`FxA Email Renderer should render renderVerificationReminderFinal: match
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Final reminder to confirm your account" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -15470,7 +15470,7 @@ exports[`FxA Email Renderer should render renderVerificationReminderFirst: match
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Remember to confirm your account" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -15836,7 +15836,7 @@ exports[`FxA Email Renderer should render renderVerificationReminderSecond: matc
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Remember to confirm your account" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -16210,7 +16210,7 @@ exports[`FxA Email Renderer should render renderVerify: matches full email snaps
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Finish creating your account" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -16633,7 +16633,7 @@ exports[`FxA Email Renderer should render renderVerifyAccountChange: matches ful
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">This code expires in 15 minutes.</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Use 123456 to change your account" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -17031,7 +17031,7 @@ exports[`FxA Email Renderer should render renderVerifyLogin: matches full email 
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Confirm sign-in" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -17455,7 +17455,7 @@ exports[`FxA Email Renderer should render renderVerifyLoginCode: matches full em
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">This code expires in 5 minutes.</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Use 654321 to sign in" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -17853,7 +17853,7 @@ exports[`FxA Email Renderer should render renderVerifyPrimary: matches full emai
   <body style="word-spacing:normal;">
     
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Confirm primary email" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -18315,7 +18315,7 @@ exports[`FxA Email Renderer should render renderVerifySecondaryCode: matches ful
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">This code expires in 5 minutes.</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Use 789012 to confirm your secondary email" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
@@ -18714,7 +18714,7 @@ exports[`FxA Email Renderer should render renderVerifyShortCode: matches full em
     <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">This code expires in 5 minutes</div>
   
     
-      <div style="" lang="und" dir="auto">
+      <div aria-label="Use 345678 to confirm your account" aria-roledescription="email" style="" role="article" lang="und" dir="auto">
         
       
       <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
