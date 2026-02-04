@@ -6,15 +6,21 @@
  * NOTE: This test has been migrated from test/local/ip_profiling.js
  * It tests the IP profiling behavior in the account login route.
  *
- * This test uses inline mocks to avoid dependency on the complex mocks.js
- * which has proxyquire path resolution issues when called from lib/routes.
+ * This test uses shared mocks from test/mocks.js where possible, but keeps
+ * mockRequest inline because the shared version uses proxyquire with relative
+ * paths that don't work from lib/routes/.
  */
 
 import crypto from 'crypto';
 import sinon from 'sinon';
 import { Container } from 'typedi';
 import { v4 as uuid } from 'uuid';
-import { normalizeEmail } from 'fxa-shared/email/helpers';
+
+const mocks = require('../../test/mocks');
+const { getRoute } = require('../../test/routes_helpers');
+const { ProfileClient } = require('@fxa/profile/client');
+const { AccountDeleteManager } = require('../account-delete');
+const { AppConfig, AuthLogger } = require('../types');
 
 const TEST_EMAIL = 'foo@gmail.com';
 const MS_ONE_DAY = 1000 * 60 * 60 * 24;
@@ -29,190 +35,11 @@ const KNOWN_LOCATION = {
   stateCode: 'CA',
 };
 
-const { ProfileClient } = require('@fxa/profile/client');
-const { AccountEventsManager } = require('../account-events');
-const { AccountDeleteManager } = require('../account-delete');
-const { AppConfig, AuthLogger } = require('../types');
-const { FxaMailer } = require('../senders/fxa-mailer');
-const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
-
-function mockGlean() {
-  const noopAsync = sinon.stub().resolves({});
-  return {
-    login: {
-      success: noopAsync,
-      error: noopAsync,
-      totpSuccess: noopAsync,
-      totpFailure: noopAsync,
-      verifyCodeConfirmationEmailSent: noopAsync,
-      verifyCodeEmailSent: noopAsync,
-      complete: noopAsync,
-    },
-    registration: {
-      accountCreated: noopAsync,
-      confirmationEmailSent: noopAsync,
-      complete: noopAsync,
-      error: noopAsync,
-    },
-    resetPassword: {
-      emailSent: noopAsync,
-      createNewSuccess: noopAsync,
-      accountReset: noopAsync,
-    },
-    account: {
-      passwordChanged: noopAsync,
-      passwordReset: noopAsync,
-    },
-    loginConfirmSkipFor: {
-      knownIp: noopAsync,
-    },
-  };
-}
-
-function mockLog() {
-  return {
-    activityEvent: sinon.stub().resolves(),
-    amplitudeEvent: sinon.stub().resolves(),
-    begin: sinon.stub(),
-    error: sinon.stub(),
-    flowEvent: sinon.stub().resolves(),
-    info: sinon.stub(),
-    notifyAttachedServices: sinon.stub().resolves(),
-    warn: sinon.stub(),
-    summary: sinon.stub(),
-    trace: sinon.stub(),
-    debug: sinon.stub(),
-  };
-}
-
-function mockDB(data: any) {
-  return {
-    account: sinon.stub().resolves({
-      email: data.email,
-      emailVerified: data.emailVerified,
-      uid: data.uid,
-      primaryEmail: {
-        normalizedEmail: normalizeEmail(data.email),
-        email: data.email,
-        isVerified: data.emailVerified,
-        isPrimary: true,
-      },
-    }),
-    accountRecord: sinon.stub().resolves({
-      authSalt: crypto.randomBytes(32),
-      data: crypto.randomBytes(32),
-      email: data.email,
-      emailVerified: data.emailVerified,
-      primaryEmail: {
-        normalizedEmail: normalizeEmail(data.email),
-        email: data.email,
-        isVerified: data.emailVerified,
-        isPrimary: true,
-      },
-      kA: crypto.randomBytes(32),
-      lastAuthAt: () => Date.now(),
-      uid: data.uid,
-      wrapWrapKb: crypto.randomBytes(32),
-      verifierSetAt: Date.now(),
-    }),
-    createSessionToken: sinon.stub().callsFake((opts: any) => {
-      return Promise.resolve({
-        createdAt: opts.createdAt || Date.now(),
-        data: crypto.randomBytes(32).toString('hex'),
-        email: opts.email || data.email,
-        emailVerified: opts.emailVerified ?? data.emailVerified,
-        lastAuthAt: () => opts.createdAt || Date.now(),
-        id: crypto.randomBytes(32).toString('hex'),
-        tokenVerificationId: opts.tokenVerificationId,
-        tokenVerified: !opts.tokenVerificationId,
-        mustVerify: opts.mustVerify ?? false,
-        uid: opts.uid || data.uid,
-      });
-    }),
-    createKeyFetchToken: sinon.stub().resolves({
-      data: crypto.randomBytes(32).toString('hex'),
-      id: crypto.randomBytes(32).toString('hex'),
-      uid: data.uid,
-    }),
-    securityEvents: sinon.stub().resolves([]),
-    securityEvent: sinon.stub().resolves(),
-    verifiedLoginSecurityEvents: sinon.stub().resolves([]),
-    touchSessionToken: sinon.stub().resolves(),
-    totpToken: sinon.stub().resolves({ enabled: false }),
-    sessions: sinon.stub().resolves([]),
-    devices: sinon.stub().resolves([]),
-  };
-}
-
-function mockMailer() {
-  return {
-    sendVerifyLoginEmail: sinon.stub().resolves(),
-    sendNewDeviceLoginEmail: sinon.stub().resolves(),
-    sendVerifyEmail: sinon.stub().resolves(),
-    sendVerifyLoginCodeEmail: sinon.stub().resolves(),
-  };
-}
-
-function mockFxaMailer() {
-  const mock = {
-    canSend: sinon.stub().resolves(true),
-    sendNewDeviceLoginEmail: sinon.stub().resolves(),
-    sendVerifyLoginEmail: sinon.stub().resolves(),
-  };
-  Container.set(FxaMailer, mock);
-  return mock;
-}
-
-function mockOAuthClientInfo() {
-  const mock = {
-    fetch: sinon.stub().resolves('sync'),
-  };
-  Container.set(OAuthClientInfoServiceName, mock);
-  return mock;
-}
-
-function mockPush() {
-  return {
-    notifyDeviceConnected: sinon.stub().resolves(),
-    notifyDeviceDisconnected: sinon.stub().resolves(),
-    notifyPasswordChanged: sinon.stub().resolves(),
-    notifyPasswordReset: sinon.stub().resolves(),
-    notifyAccountUpdated: sinon.stub().resolves(),
-    notifyAccountDestroyed: sinon.stub().resolves(),
-    notifyCommandReceived: sinon.stub().resolves(),
-    notifyProfileUpdated: sinon.stub().resolves(),
-    notifyVerifyLoginRequest: sinon.stub().resolves(),
-    sendPush: sinon.stub().resolves(),
-  };
-}
-
-function mockVerificationReminders() {
-  return {
-    keys: ['first', 'second', 'third', 'final'],
-    create: sinon.stub().returns({ first: 1, second: 1, third: 1, final: 1 }),
-    delete: sinon.stub().returns({ first: 1, second: 1, third: 1, final: 1 }),
-    process: sinon.stub().returns({ first: [], second: [], third: [], final: [] }),
-  };
-}
-
-function mockCadReminders() {
-  return {
-    keys: ['first', 'second', 'third'],
-    create: sinon.stub().returns({ first: 1, second: 1, third: 1 }),
-    delete: sinon.stub().returns({ first: 1, second: 1, third: 1 }),
-    get: sinon.stub().returns({ first: null, second: null, third: null }),
-    process: sinon.stub().returns({ first: [], second: [], third: [] }),
-  };
-}
-
-function mockStatsd() {
-  return {
-    increment: sinon.stub(),
-    timing: sinon.stub(),
-    histogram: sinon.stub(),
-  };
-}
-
+/**
+ * Simplified mockRequest for this test file.
+ * The shared mocks.mockRequest() uses proxyquire with relative paths
+ * that don't resolve correctly when running from lib/routes/.
+ */
 function mockRequest(data: any) {
   const metricsContext = data.payload?.metricsContext || {};
 
@@ -263,10 +90,6 @@ function mockRequest(data: any) {
   };
 }
 
-function getRoute(routes: any[], path: string) {
-  return routes.find((r: any) => r.path === path);
-}
-
 function makeRoutes(options: { db: any; mailer: any }) {
   const { db, mailer } = options;
   const config = {
@@ -280,18 +103,13 @@ function makeRoutes(options: { db: any; mailer: any }) {
     signinConfirmation: {},
     smtp: {},
   };
-  const log = mockLog();
-  Container.set(AccountEventsManager, {
-    recordSecurityEvent: sinon.stub().resolves(),
-  });
+  const log = mocks.mockLog();
+  mocks.mockAccountEventsManager();
   Container.set(AccountDeleteManager, { enqueue: sinon.stub() });
   Container.set(AppConfig, config);
   Container.set(AuthLogger, log);
-  const cadReminders = mockCadReminders();
-  const customs = {
-    check: sinon.stub().resolves(true),
-    flag: sinon.stub(),
-  };
+  const cadReminders = mocks.mockCadReminders();
+  const customs = mocks.mockCustoms();
   const signinUtils = require('./utils/signin')(
     log,
     config,
@@ -301,7 +119,7 @@ function makeRoutes(options: { db: any; mailer: any }) {
     cadReminders
   );
   signinUtils.checkPassword = () => Promise.resolve(true);
-  const glean = mockGlean();
+  const glean = mocks.mockGlean();
   const { accountRoutes } = require('./account');
 
   const authServerCacheRedis = {
@@ -318,15 +136,15 @@ function makeRoutes(options: { db: any; mailer: any }) {
     customs,
     signinUtils,
     null,
-    mockPush(),
-    mockVerificationReminders(),
+    mocks.mockPush(),
+    mocks.mockVerificationReminders(),
     null,
     null,
     null,
     null,
     glean,
     authServerCacheRedis,
-    mockStatsd()
+    mocks.mockStatsd()
   );
 }
 
@@ -354,14 +172,14 @@ describe('IP Profiling', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockFxaMailerInstance = mockFxaMailer();
-    mockOAuthClientInfo();
-    mockDBInstance = mockDB({
+    mockFxaMailerInstance = mocks.mockFxaMailer({ canSend: sinon.stub().resolves(true) });
+    mocks.mockOAuthClientInfo();
+    mockDBInstance = mocks.mockDB({
       email: TEST_EMAIL,
       emailVerified: true,
       uid: UID,
     });
-    mockMailerInstance = mockMailer();
+    mockMailerInstance = mocks.mockMailer();
     mockRequestInstance = mockRequest({
       payload: {
         authPW: crypto.randomBytes(32).toString('hex'),
