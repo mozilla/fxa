@@ -29,12 +29,16 @@ module.exports = {
     mailer,
     devices,
     request,
-    grant
+    grant,
+    options = {}
   ) {
+    const { skipEmail = false, existingDeviceId, clientId: optionsClientId } = options;
     const fxaMailer = Container.get(FxaMailer);
     const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
 
-    const clientId = request.payload.client_id;
+    // Use clientId from options if provided (e.g., for token exchange where
+    // client_id is not in the request payload), otherwise fall back to payload
+    const clientId = optionsClientId || request.payload.client_id;
     const scopeSet = ScopeSet.fromString(grant.scope);
     const credentials = (request.auth && request.auth.credentials) || {};
 
@@ -66,6 +70,12 @@ module.exports = {
       credentials.id = grant.session_token_id;
     }
 
+    // Use existing device ID if provided (e.g., from token exchange where we looked
+    // up the device associated with the old refresh token)
+    if (!credentials.deviceId && existingDeviceId) {
+      credentials.deviceId = existingDeviceId;
+    }
+
     // we set tokenVerified because the granted scope is part of NOTIFICATION_SCOPES
     credentials.tokenVerified = true;
     credentials.client = await client.getClientById(clientId);
@@ -78,8 +88,8 @@ module.exports = {
     });
 
     // Email the user about their new device connection
-    // (but don't send anything if it was an existing device or new account)
-    if (!credentials.deviceId) {
+    // (but don't send anything if it was an existing device, new account, or skipEmail is set)
+    if (!credentials.deviceId && !skipEmail) {
       const account = await db.account(credentials.uid);
       const isNewAccount = Date.now() - account.createdAt < MAX_NEW_ACCOUNT_AGE;
 
