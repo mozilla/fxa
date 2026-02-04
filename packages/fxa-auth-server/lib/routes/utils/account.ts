@@ -7,7 +7,7 @@ import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 
 export const deleteAccountIfUnverified = async (
   db: any,
-  stripeHelper: StripeHelper,
+  stripeHelper: StripeHelper | undefined,
   log: AuthLogger,
   request: AuthRequest,
   email: string
@@ -17,22 +17,27 @@ export const deleteAccountIfUnverified = async (
     // Currently, users cannot create an account from a verified
     // secondary email address
     if (secondaryEmailRecord.isPrimary) {
-      if (
-        secondaryEmailRecord.isVerified ||
-        (await stripeHelper.hasActiveSubscription(secondaryEmailRecord.uid))
-      ) {
+      // Check if account is verified or has an active subscription
+      // (if stripeHelper is available)
+      const hasActiveSubscription = stripeHelper
+        ? await stripeHelper.hasActiveSubscription(secondaryEmailRecord.uid)
+        : false;
+
+      if (secondaryEmailRecord.isVerified || hasActiveSubscription) {
         throw error.accountExists(secondaryEmailRecord.email);
       }
       request.app.accountRecreated = true;
 
       // If an unverified (stub) account has a Stripe customer without any
-      // subscriptions, delete the customer.
-      try {
-        await stripeHelper.removeCustomer(secondaryEmailRecord.uid);
-      } catch (err) {
-        // It's not an error where we'd want to stop the deletion of the
-        // account.
-        reportSentryError(err, request);
+      // subscriptions, delete the customer (if stripeHelper is available).
+      if (stripeHelper) {
+        try {
+          await stripeHelper.removeCustomer(secondaryEmailRecord.uid);
+        } catch (err) {
+          // It's not an error where we'd want to stop the deletion of the
+          // account.
+          reportSentryError(err, request);
+        }
       }
 
       const deleted = await db.deleteAccount(secondaryEmailRecord);

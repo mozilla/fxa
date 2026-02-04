@@ -4,11 +4,9 @@
 
 /**
  * Jest setup file for integration tests.
- * This runs before each test file.
+ * This runs AFTER the test environment is set up (after jest-setup-env.ts).
+ * Environment variables are set in jest-setup-env.ts which runs earlier.
  */
-
-// Bypass OAuth key validation
-process.env.FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY = 'true';
 
 // Increase timeout for integration tests (server startup can take time)
 jest.setTimeout(60000);

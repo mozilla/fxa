@@ -4,6 +4,9 @@
 
 const baseConfig = require('./jest.config');
 
+// Set NODE_ENV before any modules are loaded
+process.env.NODE_ENV = 'dev';
+
 module.exports = {
   ...baseConfig,
 
@@ -22,7 +25,16 @@ module.exports = {
   // Longer timeout for integration tests (includes server startup)
   testTimeout: 120000,
 
-  // Setup file for each test (env vars, custom matchers)
+  // Global setup/teardown - starts mail_helper once for all test suites
+  globalSetup: '<rootDir>/test/support/jest-global-setup.ts',
+  globalTeardown: '<rootDir>/test/support/jest-global-teardown.ts',
+
+  // Setup env vars BEFORE test environment (affects module loading)
+  setupFiles: [
+    '<rootDir>/test/support/jest-setup-env.ts',
+  ],
+
+  // Setup file AFTER test environment (custom matchers, timeouts)
   setupFilesAfterEnv: [
     '<rootDir>/test/support/jest-setup-integration.ts',
   ],
