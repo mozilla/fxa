@@ -5,11 +5,6 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getData() {
-    return this.appService.getData();
-  }
-
   @Get('__lbheartbeat__')
   __lbheartbeat__() {
     return this.appService.__lbheartbeat__();

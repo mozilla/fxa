@@ -4,12 +4,6 @@ import { Injectable } from '@nestjs/common';
 export class AppService {
   constructor() {}
 
-  getData() {
-    return {
-      message: 'Hello world',
-    };
-  }
-
   __heartbeat__() {
     return {};
   }
