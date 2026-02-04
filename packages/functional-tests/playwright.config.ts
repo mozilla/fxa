@@ -13,9 +13,8 @@ const CI = !!process.env.CI;
 const CI_WAF_TOKEN = process.env.CI_WAF_TOKEN;
 
 /**
- * Returns a header used for WAF bypass on stage domain.
- * Production ignores this header.
- * Requires CI_WAF_TOKEN to be set in CircleCI.
+ * Returns a header used for WAF bypass in CI environments.
+ * Requires CI_WAF_TOKEN set in CircleCI and corresponding WAF condition set for target rule
  */
 function getCIHeader(): Record<string, string> {
   return CI && CI_WAF_TOKEN ? { 'fxa-ci': CI_WAF_TOKEN } : {};
