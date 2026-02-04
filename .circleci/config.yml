@@ -1063,7 +1063,6 @@ workflows:
               only:
                 - main
                 - update-ci-image
-                - pay-3436-glean-server-churn
             tags:
               ignore: /.*/
           force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
