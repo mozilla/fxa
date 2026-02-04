@@ -111,12 +111,29 @@ function spawnAuthServer(
     }
   );
 
-  if (!printLogs && serverProcess.stderr) {
+  // Always capture stderr for error reporting
+  let stderrBuffer = '';
+  if (serverProcess.stderr) {
     serverProcess.stderr.on('data', (data) => {
-      // Silently ignore stderr unless it's a critical error
       const msg = data.toString();
-      if (msg.includes('EADDRINUSE') || msg.includes('fatal')) {
-        console.error('Server error:', msg);
+      stderrBuffer += msg;
+      if (printLogs) {
+        process.stderr.write(msg);
+      } else if (msg.includes('EADDRINUSE') || msg.includes('fatal') || msg.includes('Error') || msg.includes('error')) {
+        console.error('[Server stderr]', msg);
+      }
+    });
+  }
+
+  // Capture stdout for debugging if not printing
+  let stdoutBuffer = '';
+  if (!printLogs && serverProcess.stdout) {
+    serverProcess.stdout.on('data', (data) => {
+      const msg = data.toString();
+      stdoutBuffer += msg;
+      // Look for ERROR level logs
+      if (msg.includes('[ERROR]') || msg.includes('ERROR')) {
+        console.error('[Server ERROR]', msg);
       }
     });
   }
@@ -145,8 +162,30 @@ export async function createTestServer(
   delete require.cache[baseConfigPath];
   const baseConfig = require('../../../config').default.getProperties();
 
-  // Create temp config file with overrides
-  const configPath = createTempConfig(baseConfig, configOverrides, ports.authServerPort);
+  // Start profile helper BEFORE auth server so we can pass its URL
+  let profileServer: ProfileHelper | null = null;
+  const profileServerUrl = `http://localhost:${ports.profileServerPort}`;
+  if (baseConfig.profileServer?.url) {
+    profileServer = await createProfileHelper(ports.profileServerPort);
+  }
+
+  // Create temp config file with overrides, including profile server URL
+  // Also disable customs/rate limiting for tests
+  const fullOverrides = {
+    ...configOverrides,
+    customsUrl: 'none',
+    rateLimit: {
+      ...baseConfig.rateLimit,
+      checkAllEndpoints: false,
+      // Ignore localhost IPs for rate limiting in tests
+      ignoreIPs: ['127.0.0.1', '::1', 'localhost'],
+    },
+    profileServer: {
+      ...baseConfig.profileServer,
+      url: profileServerUrl,
+    },
+  };
+  const configPath = createTempConfig(baseConfig, fullOverrides, ports.authServerPort);
 
   // Create mailbox helper (connects to shared mail_helper HTTP API)
   const mailbox = createMailbox(
@@ -163,13 +202,10 @@ export async function createTestServer(
     await waitForServer(publicUrl);
   } catch (e) {
     serverProcess.kill();
+    if (profileServer) {
+      await profileServer.close();
+    }
     throw e;
-  }
-
-  // Start profile helper on its allocated port
-  let profileServer: ProfileHelper | null = null;
-  if (baseConfig.profileServer?.url) {
-    profileServer = await createProfileHelper(ports.profileServerPort);
   }
 
   const instance: TestServerInstance = {
