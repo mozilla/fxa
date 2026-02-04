@@ -26453,36 +26453,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:1.12.0":
-  version: 1.12.0
-  resolution: "axios@npm:1.12.0"
+"axios@npm:^1.13.4":
+  version: 1.13.4
+  resolution: "axios@npm:1.13.4"
   dependencies:
     follow-redirects: "npm:^1.15.6"
     form-data: "npm:^4.0.4"
     proxy-from-env: "npm:^1.1.0"
-  checksum: 10c0/44a1e4cfb69a2d59aa12bbc441a336e5c18e87c02b904c509fd33607d94e8cb8cc221c17e9d53f67841a4efe13abf1aa1497c85df390cdb8681ee723998d11b0
-  languageName: node
-  linkType: hard
-
-"axios@npm:1.8.4":
-  version: 1.8.4
-  resolution: "axios@npm:1.8.4"
-  dependencies:
-    follow-redirects: "npm:^1.15.6"
-    form-data: "npm:^4.0.0"
-    proxy-from-env: "npm:^1.1.0"
-  checksum: 10c0/450993c2ba975ffccaf0d480b68839a3b2435a5469a71fa2fb0b8a55cdb2c2ae47e609360b9c1e2b2534b73dfd69e2733a1cf9f8215bee0bcd729b72f801b0ce
-  languageName: node
-  linkType: hard
-
-"axios@npm:^1.5.1, axios@npm:^1.6.0, axios@npm:^1.6.7, axios@npm:^1.7.4, axios@npm:^1.8.2, axios@npm:^1.8.3":
-  version: 1.10.0
-  resolution: "axios@npm:1.10.0"
-  dependencies:
-    follow-redirects: "npm:^1.15.6"
-    form-data: "npm:^4.0.0"
-    proxy-from-env: "npm:^1.1.0"
-  checksum: 10c0/2239cb269cc789eac22f5d1aabd58e1a83f8f364c92c2caa97b6f5cbb4ab2903d2e557d9dc670b5813e9bcdebfb149e783fb8ab3e45098635cd2f559b06bd5d8
+  checksum: 10c0/474c00b7d71f4de4ad562589dae6b615149df7c2583bbc5ebba96229f3f85bfb0775d23705338df072f12e48d3e85685c065a3cf6855d58968a672d19214c728
   languageName: node
   linkType: hard
 
@@ -35806,7 +35784,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^5.59.0"
     "@typescript-eslint/parser": "npm:^7.1.1"
     audit-filter: "npm:^0.5.0"
-    axios: "npm:1.12.0"
+    axios: "npm:^1.13.4"
     chance: "npm:^1.1.8"
     convict: "npm:^6.2.4"
     convict-format-with-moment: "npm:^6.2.0"
@@ -36451,7 +36429,7 @@ __metadata:
     agentkeepalive: "npm:^4.6.0"
     app-store-server-api: "npm:^0.16.0"
     autoprefixer: "npm:^10.4.14"
-    axios: "npm:1.8.4"
+    axios: "npm:^1.13.4"
     babel-eslint: "npm:^10.1.0"
     babel-jest: "npm:29.7.0"
     base64url: "npm:^3.0.1"
