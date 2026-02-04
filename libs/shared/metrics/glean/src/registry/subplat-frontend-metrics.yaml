@@ -1,0 +1,516 @@
+---
+# Schema
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+
+subscriptions_action_submit:
+  type: event
+  description: |
+    Frontend initiated a subscription state-changing action.
+  send_in_pings:
+    - events
+  notification_emails:
+    - lchan@mozilla.com
+    - subplat-team@mozilla.com
+  bugs:
+    - FILL INNNNNNNNNN
+  data_reviews:
+    - FILL INNNNNNNNNN
+  expires: never
+  data_sensitivity:
+    - interaction
+  extra_keys:
+    action:
+      type: string
+      description: |
+        Allowed values:
+        - resume_subscription
+        - apply_churn_discount
+        - cancel_subscription
+
+subscriptions_action_result:
+  type: event
+  description: |
+    Result of a submitted subscription action.
+  send_in_pings:
+    - events
+  notification_emails:
+    - lchan@mozilla.com
+    - subplat-team@mozilla.com
+  bugs:
+    - FILL INNNNNNNNNN
+  data_reviews:
+    - FILL INNNNNNNNNN
+  expires: never
+  data_sensitivity:
+    - interaction
+  extra_keys:
+    action:
+      type: string
+    result:
+      type: string
+      description: success | failure
+    error_reason:
+      type: string
+
+subscriptions:
+  management:
+    view:
+      type: event
+      description: |
+        View of the Subscription Management page
+      send_in_pings:
+        - events
+      notification_emails:
+        - lchan@mozilla.com
+        - subplat-team@mozilla.com
+      bugs:
+        - FILL INNNNNNNNNN
+      data_reviews:
+        - FILL INNNNNNNNNN
+      expires: never
+      data_sensitivity:
+        - interaction
+
+    button_click:
+      type: event
+      description: |
+        User clicked a button on the Subscription Management page.
+        One event is recorded per click.
+
+        All buttons, except `add_payment_method` and `manage_payment_method`, are subscription-specific and
+        include product_name/offering_id and eligibility fields.
+      send_in_pings:
+        - events
+      notification_emails:
+        - lchan@mozilla.com
+        - subplat-team@mozilla.com
+      bugs:
+        - https://bugzilla.mozilla.org/show_bug.cgi?id=XXXXX
+      data_reviews:
+        - https://bugzilla.mozilla.org/show_bug.cgi?id=YYYYY
+      expires: never
+      data_sensitivity:
+        - interaction
+      extra_keys:
+        button:
+          description: |
+            Normalized button key.
+            Allowed values:
+            - add_payment_method
+            - manage_payment_method
+            - contact_support
+            - view_invoice
+            - stay_subscribed
+            - cancel_subscription
+            - manage_subscription
+          type: string
+        product_name:
+          description: The name of the product subscription (omitted for *_payment_method buttons)
+          type: string
+        offering_id:
+          description: The API id of the subscribed product (omitted for *_payment_method buttons)
+          type: string
+        interval:
+          description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+          type: string
+        isEligibleForChurnCancel:
+          description: if true, customer is eligible to redeem existing churn coupon on Cancel subscription flow
+          type: boolean
+        isEligibleForChurnStaySubscribed:
+          description: if true, customer is eligible to redeem existing churn coupon on Stay subscribed flow
+          type: boolean
+        isEligibleForOffer:
+          description: if true, customer is eligible for upgrade and save
+          type: boolean
+
+  loyalty_discount:
+    cancel:
+      view:
+        type: event
+        description: |
+          View of /subscriptions/<sub_id>/loyalty-discount/cancel
+        send_in_pings:
+          - events
+        notification_emails:
+          - lchan@mozilla.com
+          - subplat-team@mozilla.com
+        bugs:
+          - FILL INNNNNNNNNN
+        data_reviews:
+          - FILL INNNNNNNNNN
+        expires: never
+        data_sensitivity:
+          - interaction
+        extra_keys:
+          product_name:
+            description: The name of the product that the customer is subscribed
+            type: string
+          offering_id:
+            description: The API id of the subscribed product
+            type: string
+          interval:
+            description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+            type: string
+
+      button_click:
+        type: event
+        description: |
+          User clicked a button on the churn cancel subscription flow page.
+        send_in_pings:
+          - events
+        notification_emails:
+          - lchan@mozilla.com
+          - subplat-team@mozilla.com
+        bugs:
+          - https://bugzilla.mozilla.org/show_bug.cgi?id=XXXXX
+        data_reviews:
+          - https://bugzilla.mozilla.org/show_bug.cgi?id=YYYYY
+        expires: never
+        data_sensitivity:
+          - interaction
+        extra_keys:
+          button:
+            description: |
+              Allowed values:
+              - back_to_subscriptions
+              - stay_subscribed
+              - continue_to_cancel
+              - manage_subscriptions
+              - contact_support
+              - go_to_product_page
+            type: string
+          product_name:
+            description: The name of the product that the customer is subscribed
+            type: string
+          offering_id:
+            description: The API id of the subscribed product
+            type: string
+          interval:
+            description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+            type: string
+
+      error_view:
+        type: event
+        description: |
+          View of /subscriptions/<sub_id>/loyalty-discount/cancel/error
+        send_in_pings:
+          - events
+        notification_emails:
+          - lchan@mozilla.com
+          - subplat-team@mozilla.com
+        bugs:
+          - FILL INNNNNNNNNN
+        data_reviews:
+          - FILL INNNNNNNNNN
+        expires: never
+        data_sensitivity:
+          - interaction
+        extra_keys:
+          error_reason:
+            description: |
+              Reason for displaying error page
+              Allowed values:
+              - already_canceling_at_period_end
+              - discount_already_applied
+              - no_churn_intervention_found
+              - redemption_limit_exceeded
+              - subscription_not_active
+              - subscription_not_found
+            type: string
+
+      error_button_click:
+        type: event
+        description: |
+          User clicked a button on the churn cancel subscription flow error page.
+        send_in_pings:
+          - events
+        notification_emails:
+          - lchan@mozilla.com
+          - subplat-team@mozilla.com
+        bugs:
+          - https://bugzilla.mozilla.org/show_bug.cgi?id=XXXXX
+        data_reviews:
+          - https://bugzilla.mozilla.org/show_bug.cgi?id=YYYYY
+        expires: never
+        data_sensitivity:
+          - interaction
+        extra_keys:
+          button:
+            description: |
+              Allowed values:
+              - back_to_subscriptions
+              - keep_subscription
+              - stay_subscribed
+              - continue_to_cancel
+              - manage_subscriptions
+              - contact_support
+              - go_to_product_page
+              - try_again
+            type: string
+          product_name:
+            description: The name of the product that the customer is subscribed
+            type: string
+          offering_id:
+            description: The API id of the subscribed product
+            type: string
+          interval:
+            description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+            type: string
+
+    stay_subscribed:
+      view:
+        type: event
+        description: |
+          View of /subscriptions/<sub_id>/loyalty-discount/stay-subscribed
+        send_in_pings:
+          - events
+        notification_emails:
+          - lchan@mozilla.com
+          - subplat-team@mozilla.com
+        bugs:
+          - FILL INNNNNNNNNN
+        data_reviews:
+          - FILL INNNNNNNNNN
+        expires: never
+        data_sensitivity:
+          - interaction
+        extra_keys:
+          product_name:
+            description: The name of the product subscription
+            type: string
+          offering_id:
+            description: The API id of the subscribed product
+            type: string
+          interval:
+            description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+            type: string
+
+      button_click:
+        type: event
+        description: |
+          User clicked a button on the churn stay subscribed flow page.
+        send_in_pings:
+          - events
+        notification_emails:
+          - lchan@mozilla.com
+          - subplat-team@mozilla.com
+        bugs:
+          - FILL INNNNNNNNNN
+        data_reviews:
+          - FILL INNNNNNNNNN
+        expires: never
+        data_sensitivity:
+          - interaction
+        extra_keys:
+          button:
+            description: |
+              Allowed values:
+              - go_to_product_page
+              - back_to_subscriptions
+              - stay_subscribed
+              - manage_subscriptions
+            type: string
+          product_name:
+            description: The name of the product that the customer is subscribed
+            type: string
+          offering_id:
+            description: The API id of the subscribed product
+            type: string
+          interval:
+            description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+            type: string
+
+      error_view:
+        type: event
+        description: |
+          View of /subscriptions/<sub_id>/loyalty-discount/stay-subscribed/error
+        send_in_pings:
+          - events
+        notification_emails:
+          - lchan@mozilla.com
+          - subplat-team@mozilla.com
+        bugs:
+          - FILL INNNNNNNNNN
+        data_reviews:
+          - FILL INNNNNNNNNN
+        expires: never
+        data_sensitivity:
+          - interaction
+        extra_keys:
+          error_reason:
+            description: |
+              Reason for displaying error page
+              Allowed values:
+              - discount_already_applied
+              - general_error
+              - no_churn_intervention_found
+              - redemption_limit_exceeded
+              - subscription_not_active
+              - subscription_not_found
+              - subscription_still_active
+            type: string
+
+      error_button_click:
+        type: event
+        description: |
+          User clicked a button on the churn stay subscribed subscription flow error page.
+        send_in_pings:
+          - events
+        notification_emails:
+          - lchan@mozilla.com
+          - subplat-team@mozilla.com
+        bugs:
+          - FILL INNNNNNNNNN
+        data_reviews:
+          - FILL INNNNNNNNNN
+        expires: never
+        data_sensitivity:
+          - interaction
+        extra_keys:
+          button:
+            description: |
+              Allowed values:
+              - back_to_subscriptions
+              - stay_subscribed
+              - continue_to_cancel
+              - manage_subscriptions
+              - contact_support
+              - go_to_product_page
+              - try_again
+            type: string
+          product_name:
+            description: The name of the product that the customer is subscribed
+            type: string
+          offering_id:
+            description: The API id of the subscribed product
+            type: string
+          interval:
+            description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+            type: string
+
+  offer:
+    view:
+      type: event
+      description: |
+        View of /subscriptions/<sub_id>/offer
+      send_in_pings:
+        - events
+      notification_emails:
+        - lchan@mozilla.com
+        - subplat-team@mozilla.com
+      bugs:
+        - FILL INNNNNNNNNN
+      data_reviews:
+        - FILL INNNNNNNNNN
+      expires: never
+      data_sensitivity:
+        - interaction
+      extra_keys:
+        product_name:
+          description: The name of the product subscription
+          type: string
+        offering_id:
+          description: The API id of the subscribed product
+          type: string
+        interval:
+          description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+          type: string
+
+    button_click:
+      type: event
+      description: |
+        User clicked a button on the cancel interstitial offer page.
+      send_in_pings:
+        - events
+      notification_emails:
+        - lchan@mozilla.com
+        - subplat-team@mozilla.com
+      bugs:
+        - FILL INNNNNNNNNN
+      data_reviews:
+        - FILL INNNNNNNNNN
+      expires: never
+      data_sensitivity:
+        - interaction
+      extra_keys:
+        button:
+          description: |
+            Allowed values:
+            - upgrade_subscription
+            - keep_subscription
+            - continue_to_cancel
+          type: string
+        product_name:
+          description: The name of the product that the customer is subscribed
+          type: string
+        offering_id:
+          description: The API id of the subscribed product
+          type: string
+        interval:
+          description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+          type: string
+
+    error_view:
+      type: event
+      description: |
+        View of /subscriptions/<sub_id>/offer/error
+      send_in_pings:
+        - events
+      notification_emails:
+        - lchan@mozilla.com
+        - subplat-team@mozilla.com
+      bugs:
+        - FILL INNNNNNNNNN
+      data_reviews:
+        - FILL INNNNNNNNNN
+      expires: never
+      data_sensitivity:
+        - interaction
+      extra_keys:
+        error_reason:
+          description: |
+            Reason for displaying error page
+            Allowed values:
+            - already_canceling_at_period_end
+            - current_interval_not_found
+            - no_cancel_interstitial_offer_found
+            - no_upgrade_plan_found
+            - not_eligible_for_upgrade_interval
+            - offering_id_not_found
+            - stripe_price_id_not_found
+            - subscription_not_active
+            - subscription_not_found
+          type: string
+
+    error_button_click:
+      type: event
+      description: |
+        User clicked a button on the cancel interstitial offer error page.
+      send_in_pings:
+        - events
+      notification_emails:
+        - lchan@mozilla.com
+        - subplat-team@mozilla.com
+      bugs:
+        - FILL INNNNNNNNNN
+      data_reviews:
+        - FILL INNNNNNNNNN
+      expires: never
+      data_sensitivity:
+        - interaction
+      extra_keys:
+        button:
+          description: |
+            Allowed values:
+            - back_to_subscriptions
+            - continue_to_cancel
+          type: string
+        product_name:
+          description: The name of the product that the customer is subscribed
+          type: string
+        offering_id:
+          description: The API id of the subscribed product
+          type: string
+        interval:
+          description: Billing interval for the subscription (monthly | yearly)
+          type: string
