@@ -396,3 +396,150 @@ async function __sendPostVerifyEmail() {
     onDesktopOrTabletDevice: true,
   });
 }
+
+async function __sendVerifyEmail() {
+  await fxaMailer.sendVerifyEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.sync(service),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    code: 'todo',
+    resume: 'todo',
+  });
+}
+
+async function __sendVerifyLoginEmail() {
+  await fxaMailer.sendVerifyLoginEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+    code: '123456',
+    clientName: 'Firefox',
+    redirectTo: 'https://example.com',
+    resume: 'resumeToken',
+  });
+}
+
+async function __sendUnblockCodeEmail() {
+  await fxaMailer.sendUnblockCodeEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+    unblockCode: 'ABCD1234',
+  });
+}
+
+async function __sendPasswordChangedEmail() {
+  await fxaMailer.sendPasswordChangedEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+  });
+}
+
+async function __sendPasswordChangeRequiredEmail() {
+  await fxaMailer.sendPasswordChangeRequiredEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+  });
+}
+
+async function __sendPasswordResetEmail() {
+  await fxaMailer.sendPasswordResetEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+  });
+}
+
+async function __sendVerifyPrimaryEmail() {
+  await fxaMailer.sendVerifyPrimaryEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+    code: 'VERIFY123',
+  });
+}
+
+async function __sendVerifySecondaryCodeEmail() {
+  await fxaMailer.sendVerifySecondaryCodeEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+    code: 'SEC456',
+    email: FxaMailerFormat.account(account).to,
+  });
+}
+
+async function __sendVerifyAccountChangeEmail() {
+  await fxaMailer.sendVerifyAccountChangeEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+    code: 'CHANGE789',
+    expirationTime: 5,
+  });
+}
+
+async function __sendInactiveAccountFirstWarningEmail() {
+  await fxaMailer.sendInactiveAccountFirstWarningEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+    deletionDate: '',
+  });
+}
+async function __sendVerificationReminderFirstEmail() {
+  await fxaMailer.sendVerificationReminderFirstEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+    email: '',
+    code: '',
+  });
+}
+
+async function __sendCadReminderFirstEmail() {
+  await fxaMailer.sendCadReminderFirstEmail({
+    ...FxaMailerFormat.account(account),
+    ...(await FxaMailerFormat.metricsContext(request)),
+    ...FxaMailerFormat.localTime(request),
+    ...FxaMailerFormat.location(request),
+    ...FxaMailerFormat.device(request),
+    ...FxaMailerFormat.sync(service),
+    productName: 'Firefox',
+  });
+}

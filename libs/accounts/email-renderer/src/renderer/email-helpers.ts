@@ -45,7 +45,8 @@ export const splitEmails = (
  */
 export const constructLocalTimeAndDateStrings = (
   timeZone?: string,
-  acceptLanguage?: string
+  acceptLanguage?: string,
+  date?: Date | number
 ): {
   acceptLanguage: string;
   date: string;
@@ -57,18 +58,18 @@ export const constructLocalTimeAndDateStrings = (
   const locale = determineLocale(acceptLanguage) || DEFAULT_LOCALE;
   moment.locale(locale);
 
-  let timeMoment = moment();
+  let timeMoment = moment(date ? date : undefined);
   if (timeZone) {
     timeMoment = timeMoment.tz(timeZone);
   }
 
-  const time = timeMoment.format('LTS (z)');
-  const date = timeMoment.format('dddd, ll');
+  const formattedTime = timeMoment.format('LTS (z)');
+  const formattedDate = timeMoment.format('dddd, ll');
 
   return {
     acceptLanguage: locale,
-    date,
-    time,
+    date: formattedDate,
+    time: formattedTime,
     timeZone: timeZone || DEFAULT_TIMEZONE,
   };
 };

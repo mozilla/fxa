@@ -60,23 +60,27 @@ describe('enqueue inactive account deletions script', () => {
     }
   });
 
-  it('requires an BQ dataset id', async () => {
-    try {
-      await exec(command.join(' '), execOptions);
-      assert.fail('Expected script to fail without a BQ dataset id');
-    } catch (err) {
-      assert.equal(err.code, 1);
-      assert.include(err.stderr, 'BigQuery dataset ID is required.');
-    }
+  it(
+    'requires an BQ dataset id',
+    async () => {
+      try {
+        await exec(command.join(' '), execOptions);
+        assert.fail('Expected script to fail without a BQ dataset id');
+      } catch (err) {
+        assert.equal(err.code, 1);
+        assert.include(err.stderr, 'BigQuery dataset ID is required.');
+      }
 
-    try {
-      const cmd = [...command, '--bq-dataset fxa-dev.inactives-testo'];
-      await exec(cmd.join(' '), execOptions);
-      assert.ok('Script executed without error');
-    } catch (err) {
-      assert.fail(`Script failed with error: ${err}`);
-    }
-  });
+      try {
+        const cmd = [...command, '--bq-dataset fxa-dev.inactives-testo'];
+        await exec(cmd.join(' '), execOptions);
+        assert.ok('Script executed without error');
+      } catch (err) {
+        assert.fail(`Script failed with error: ${err}`);
+      }
+    },
+    30 * 1000 // increase timeout since exec can be slow, band-aid fix for now
+  );
 
   it('requires the end date to be the same or later than the start date', async () => {
     try {

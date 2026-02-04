@@ -36,16 +36,28 @@ import {
   postVerify,
   verifyLoginCode,
   verifyShortCode,
+  verify,
+  verifyLogin,
+  unblockCode,
+  passwordChanged,
+  passwordChangeRequired,
+  passwordReset,
+  verifyPrimary,
+  verifySecondaryCode,
+  verifyAccountChange,
+  inactiveAccountFirstWarning,
+  inactiveAccountSecondWarning,
+  inactiveAccountFinalWarning,
+  verificationReminderFirst,
+  verificationReminderSecond,
+  verificationReminderFinal,
+  cadReminderFirst,
+  cadReminderSecond,
 } from '@fxa/accounts/email-renderer';
 
 import { EmailSender } from '@fxa/accounts/email-sender';
 import { FxaEmailRenderer } from '@fxa/accounts/email-renderer';
 import { ConfigType } from '../../config';
-import moment from 'moment-timezone';
-import { metrics } from '@opentelemetry/api';
-import { TemplateInstance } from 'twilio/lib/rest/verify/v2/template';
-import { r } from '@faker-js/faker/dist/airline-BUL6NtOJ';
-import otp from '../routes/utils/otp';
 
 const SERVER = 'fxa-auth-server';
 
@@ -88,6 +100,9 @@ type OmitCommonLinks<T, K extends keyof T = never> = Omit<
   | 'twoFactorSettingsLink'
   | 'resetLink'
   | 'desktopLink'
+  | 'reportSignInLink'
+  | 'unsubscribeUrl'
+  | 'oneClickLink'
   | K
 >;
 
@@ -675,11 +690,9 @@ export class FxaMailer extends FxaEmailRenderer {
       resetLink: this.linkBuilder.buildResetLink(template, metricsEnabled, {
         email: opts.to,
       }),
-      link: this.linkBuilder.buildAccountSettingsLink(
-        template,
-        opts.metricsEnabled,
-        { email: opts.to, uid: opts.uid }
-      ),
+      link: this.linkBuilder.buildResetLink(template, metricsEnabled, {
+        email: opts.to,
+      }),
     };
     const headers = this.buildHeaders(
       { template, version },
@@ -1057,10 +1070,604 @@ export class FxaMailer extends FxaEmailRenderer {
     return this.sendEmail(opts, headers, rendered);
   }
 
+  async sendVerifyEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<verify.TemplateData> & {
+        code: string;
+        service?: string;
+        redirectTo?: string;
+        resume?: string;
+      }
+  ) {
+    const { template, version } = verify;
+    const { metricsEnabled } = opts;
+    const links = {
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
+        template,
+        metricsEnabled,
+        { email: opts.to }
+      ),
+      link: this.linkBuilder.buildVerifyEmailLink(template, metricsEnabled, {
+        code: opts.code,
+        uid: opts.uid,
+        service: opts.service,
+        redirectTo: opts.redirectTo,
+        resume: opts.resume,
+      }),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'X-Link': links.link, 'X-Verify-Code': opts.code },
+      opts
+    );
+    const rendered = await this.renderVerify({
+      ...opts,
+      ...links,
+    });
+    return await this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendVerifyLoginEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<verifyLogin.TemplateData> & {
+        code: string;
+        service?: string;
+        redirectTo?: string;
+        resume?: string;
+      }
+  ) {
+    const { template, version } = verifyLogin;
+    const { metricsEnabled } = opts;
+    const links = {
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
+        template,
+        metricsEnabled,
+        { email: opts.to }
+      ),
+      link: this.linkBuilder.buildVerifyLoginLink(template, metricsEnabled, {
+        code: opts.code,
+        uid: opts.uid,
+        service: opts.service,
+        redirectTo: opts.redirectTo,
+        resume: opts.resume,
+      }),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'X-Link': links.link, 'X-Verify-Code': opts.code },
+      opts
+    );
+    const rendered = await this.renderVerifyLogin({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendUnblockCodeEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<unblockCode.TemplateData> & {
+        unblockCode: string;
+      }
+  ) {
+    const { template, version } = unblockCode;
+    const { metricsEnabled } = opts;
+    const links = {
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
+        template,
+        metricsEnabled,
+        { email: opts.to }
+      ),
+      link: this.linkBuilder.buildAccountSettingsLink(
+        template,
+        metricsEnabled,
+        { email: opts.to, uid: opts.uid }
+      ),
+      reportSignInLink: this.linkBuilder.buildReportSignInLink(
+        template,
+        metricsEnabled,
+        { uid: opts.uid, unblockCode: opts.unblockCode }
+      ),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      {
+        'X-Unblock-Code': opts.unblockCode,
+        'X-Report-SignIn-Link': links.reportSignInLink,
+      },
+      opts
+    );
+    const rendered = await this.renderUnblockCode({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendPasswordChangedEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<passwordChanged.TemplateData>
+  ) {
+    const { template, version } = passwordChanged;
+    const { metricsEnabled } = opts;
+    const links = {
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
+        template,
+        metricsEnabled,
+        { email: opts.to }
+      ),
+      resetLink: this.linkBuilder.buildResetLink(template, metricsEnabled, {
+        email: opts.to,
+      }),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'X-Link': links.resetLink },
+      opts
+    );
+    const rendered = await this.renderPasswordChanged({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendPasswordChangeRequiredEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<passwordChangeRequired.TemplateData>
+  ) {
+    const { template, version } = passwordChangeRequired;
+    const { metricsEnabled } = opts;
+    const links = {
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      link: this.linkBuilder.buildPasswordChangeRequiredLink(
+        template,
+        metricsEnabled,
+        { email: opts.to }
+      ),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'X-Link': links.link },
+      opts
+    );
+    const rendered = await this.renderPasswordChangeRequired({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendPasswordResetEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<passwordReset.TemplateData>
+  ) {
+    const { template, version } = passwordReset;
+    const { metricsEnabled } = opts;
+    const links = {
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      resetLink: this.linkBuilder.buildResetLink(template, metricsEnabled, {
+        email: opts.to,
+      }),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'X-Link': links.resetLink },
+      opts
+    );
+    const rendered = await this.renderPasswordReset({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendVerifyPrimaryEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<verifyPrimary.TemplateData> & {
+        code: string;
+        service?: string;
+        redirectTo?: string;
+        resume?: string;
+      }
+  ) {
+    const { template, version } = verifyPrimary;
+    const { metricsEnabled } = opts;
+    const links = {
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
+        template,
+        metricsEnabled,
+        { email: opts.to }
+      ),
+      link: this.linkBuilder.buildVerifyEmailLink(template, metricsEnabled, {
+        code: opts.code,
+        uid: opts.uid,
+        service: opts.service,
+        redirectTo: opts.redirectTo,
+        resume: opts.resume,
+      }),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'X-Link': links.link, 'X-Verify-Code': opts.code },
+      opts
+    );
+    const rendered = await this.renderVerifyPrimary({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  /**
+   * Email sent to secondary email for verification. Uses `opts.email` as the `to` address
+   * @param opts
+   * @returns
+   */
+  async sendVerifySecondaryCodeEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<verifySecondaryCode.TemplateData> & {
+        code: string;
+        service?: string;
+        redirectTo?: string;
+        resume?: string;
+      }
+  ) {
+    // We assume that the inbound options.to is the primary account email
+    // however, the .email property is the secondary email to send to
+    const { template, version } = verifySecondaryCode;
+    const { metricsEnabled, to: primaryEmail, email: secondaryEmail } = opts;
+    const links = {
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
+        template,
+        metricsEnabled,
+        { email: primaryEmail }
+      ),
+      link: this.linkBuilder.buildVerifyEmailLink(template, metricsEnabled, {
+        code: opts.code,
+        uid: opts.uid,
+        service: opts.service,
+        redirectTo: opts.redirectTo,
+        resume: opts.resume,
+      }),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'X-Verify-Code': opts.code },
+      opts
+    );
+    const rendered = await this.renderVerifySecondaryCode({
+      ...opts,
+      ...links,
+    });
+    // explicitly override the `to` to ensure we send to the right email
+    return this.sendEmail({ ...opts, to: secondaryEmail }, headers, rendered);
+  }
+
+  async sendVerifyAccountChangeEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<verifyAccountChange.TemplateData> & {
+        code: string;
+        service?: string;
+        redirectTo?: string;
+        resume?: string;
+      }
+  ) {
+    const { template, version } = verifyAccountChange;
+    const { metricsEnabled } = opts;
+    const links = {
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
+        template,
+        metricsEnabled,
+        { email: opts.to }
+      ),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'X-Account-Change-Verify-Code': opts.code },
+      opts
+    );
+    const rendered = await this.renderVerifyAccountChange({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  // inactive account email reminders
+  async sendInactiveAccountFirstWarningEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<inactiveAccountFirstWarning.TemplateData>
+  ) {
+    const { template, version } = inactiveAccountFirstWarning;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      unsubscribeUrl: this.mailerConfig.unsubscribeUrl,
+      link: this.linkBuilder.buildAccountSettingsLink(
+        template,
+        metricsEnabled,
+        { email: opts.to, uid: opts.uid }
+      ),
+    };
+    const headers = this.buildHeaders({ template, version }, {}, opts);
+    const rendered = await this.renderInactiveAccountFirstWarning({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendInactiveAccountSecondWarningEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<inactiveAccountSecondWarning.TemplateData>
+  ) {
+    const { template, version } = inactiveAccountSecondWarning;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      unsubscribeUrl: this.mailerConfig.unsubscribeUrl,
+      link: this.linkBuilder.buildAccountSettingsLink(
+        template,
+        metricsEnabled,
+        { email: opts.to, uid: opts.uid }
+      ),
+    };
+    const headers = this.buildHeaders({ template, version }, {}, opts);
+    const rendered = await this.renderInactiveAccountSecondWarning({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendInactiveAccountFinalWarningEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<inactiveAccountFinalWarning.TemplateData>
+  ) {
+    const { template, version } = inactiveAccountFinalWarning;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      unsubscribeUrl: this.mailerConfig.unsubscribeUrl,
+      link: this.linkBuilder.buildAccountSettingsLink(
+        template,
+        metricsEnabled,
+        { email: opts.to, uid: opts.uid }
+      ),
+    };
+    const headers = this.buildHeaders({ template, version }, {}, opts);
+    const rendered = await this.renderInactiveAccountFinalWarning({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  // verification reminder emails
+  async sendVerificationReminderFirstEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<verificationReminderFirst.TemplateData> & {
+        email: string;
+        code: string;
+      }
+  ) {
+    const { template, version } = verificationReminderFirst;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      link: this.linkBuilder.buildVerifyEmailLink(template, metricsEnabled, {
+        code: opts.code,
+        uid: opts.uid,
+        reminder: 'first',
+      }),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      {
+        'X-Link': links.link,
+        'X-Verify-Code': opts.code,
+      },
+      opts
+    );
+    const rendered = await this.renderVerificationReminderFirst({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendVerificationReminderSecondEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<verificationReminderSecond.TemplateData> & {
+        email: string;
+        code: string;
+      }
+  ) {
+    const { template, version } = verificationReminderSecond;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      link: this.linkBuilder.buildVerifyEmailLink(template, metricsEnabled, {
+        code: opts.code,
+        uid: opts.uid,
+        reminder: 'second',
+      }),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      {
+        'X-Link': links.link,
+        'X-Verify-Code': opts.code,
+      },
+      opts
+    );
+    const rendered = await this.renderVerificationReminderSecond({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendVerificationReminderFinalEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<verificationReminderFinal.TemplateData> & {
+        email: string;
+        code: string;
+      }
+  ) {
+    const { template, version } = verificationReminderFinal;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      link: this.linkBuilder.buildVerifyEmailLink(template, metricsEnabled, {
+        code: opts.code,
+        uid: opts.uid,
+        reminder: 'final',
+      }),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      {
+        'X-Link': links.link,
+        'X-Verify-Code': opts.code,
+      },
+      opts
+    );
+    const rendered = await this.renderVerificationReminderFinal({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendCadReminderFirstEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<cadReminderFirst.TemplateData>
+  ) {
+    const { template, version } = cadReminderFirst;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      link: this.linkBuilder.buildCadLink(template, metricsEnabled),
+      oneClickLink: this.linkBuilder.buildCadLink(
+        template,
+        metricsEnabled,
+        true
+      ),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      {
+        'X-Link': links.link,
+      },
+      opts
+    );
+    const rendered = await this.renderCadReminderFirst({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendCadReminderSecondEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<cadReminderSecond.TemplateData>
+  ) {
+    const { template, version } = cadReminderSecond;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      link: this.linkBuilder.buildCadLink(template, metricsEnabled),
+      oneClickLink: this.linkBuilder.buildCadLink(
+        template,
+        metricsEnabled,
+        true
+      ),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      {
+        'X-Link': links.link,
+      },
+      opts
+    );
+    const rendered = await this.renderCadReminderSecond({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
   private buildHeaders(
     template: { template: string; version: number },
     headers: Record<string, string>,
-    opts: { acceptLanguage: string }
+    opts: {
+      acceptLanguage: string;
+      service?: string;
+      deviceId?: string;
+      flowId?: string;
+      flowBeginTime?: number;
+      uid?: string;
+    }
   ) {
     return this.emailSender.buildHeaders({
       context: {

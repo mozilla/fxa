@@ -35,6 +35,8 @@ import {
   getAccountCustomerByUid,
 } from 'fxa-shared/db/models/auth';
 import { BOUNCE_TYPES } from 'fxa-shared/db/models/auth/email-bounce';
+import { FxaMailer } from '../senders/fxa-mailer';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 
 const aDayInMs = 24 * 60 * 60 * 1000;
 const sixtyDaysInMs = 60 * aDayInMs;
@@ -55,6 +57,17 @@ export const requestForGlean = {
     isMetricsEnabled: () => true,
     metricsContext: () => ({}),
     ua: {},
+    geo: {
+      timeZone: 'UTC',
+      location: {
+        city: '',
+        state: '',
+        stateCode: '',
+        country: '',
+        countryCode: '',
+      },
+    },
+    acceptLanguage: 'en',
   },
   auth: {},
   headers: {
@@ -148,6 +161,7 @@ export class InactiveAccountsManager {
   statsd: StatsD;
   glean: GleanMetricsType;
   log: Logger;
+  private fxaMailer: FxaMailer;
 
   constructor({
     fxaDb,
@@ -175,6 +189,8 @@ export class InactiveAccountsManager {
     this.statsd = statsd;
     this.glean = glean;
     this.log = log;
+
+    this.fxaMailer = Container.get(FxaMailer);
   }
 
   async isActive(uid: string, activeByDateTimestamp?: number) {
@@ -281,11 +297,31 @@ export class InactiveAccountsManager {
       acceptLanguage: account.locale,
       inactiveDeletionEta: now + emailTypeSpecificVals.timeToDeletion,
     };
-    await this.mailer[emailTypeSpecificVals.emailSender](
-      account.emails,
-      account,
-      message
-    );
+
+    if (this.fxaMailer.canSend(emailTypeSpecificVals.emailTemplate)) {
+      await this.fxaMailer[emailTypeSpecificVals.emailSender]({
+        ...FxaMailerFormat.account(account),
+        ...(await FxaMailerFormat.metricsContext(requestForGlean)),
+        ...FxaMailerFormat.localTime(requestForGlean),
+        ...FxaMailerFormat.location(requestForGlean),
+        ...FxaMailerFormat.device(requestForGlean),
+        ...FxaMailerFormat.sync(false),
+        // use the formatter to convert inactiveDeletionEta to localized strings
+        deletionDate: FxaMailerFormat.localTime(
+          requestForGlean,
+          message.inactiveDeletionEta
+        ).date,
+        // override acceptLanguage to ensure email is localized as best we can
+        acceptLanguage: account.locale,
+      });
+    } else {
+      await this.mailer[emailTypeSpecificVals.emailSender](
+        account.emails,
+        account,
+        message
+      );
+    }
+
     this.statsd.increment(
       `account.inactive.${emailTypeSpecificVals.attempt}-email.sent`
     );

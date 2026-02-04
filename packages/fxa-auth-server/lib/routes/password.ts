@@ -458,18 +458,29 @@ module.exports = function (
           } = request.app.ua;
 
           try {
-            await mailer.sendPasswordChangedEmail(emails, account, {
-              acceptLanguage: request.app.acceptLanguage,
-              ip,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser,
-              uaBrowserVersion,
-              uaOS,
-              uaOSVersion,
-              uaDeviceType,
-              uid: passwordChangeToken.uid,
-            });
+            if (fxaMailer.canSend('passwordChanged')) {
+              await fxaMailer.sendPasswordChangedEmail({
+                ...FxaMailerFormat.account(account),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.sync(false),
+              });
+            } else {
+              await mailer.sendPasswordChangedEmail(emails, account, {
+                acceptLanguage: request.app.acceptLanguage,
+                ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser,
+                uaBrowserVersion,
+                uaOS,
+                uaOSVersion,
+                uaDeviceType,
+                uid: passwordChangeToken.uid,
+              });
+            }
           } catch (error) {
             // If we couldn't email them, no big deal. Log
             // and pretend everything worked.
@@ -846,18 +857,29 @@ module.exports = function (
           } = request.app.ua;
 
           try {
-            await mailer.sendPasswordChangedEmail(emails, account, {
-              acceptLanguage: request.app.acceptLanguage,
-              ip,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser,
-              uaBrowserVersion,
-              uaOS,
-              uaOSVersion,
-              uaDeviceType,
-              uid: uid,
-            });
+            if (fxaMailer.canSend('passwordChanged')) {
+              await fxaMailer.sendPasswordChangedEmail({
+                ...FxaMailerFormat.account(account),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.sync(false),
+              });
+            } else {
+              await mailer.sendPasswordChangedEmail(emails, account, {
+                acceptLanguage: request.app.acceptLanguage,
+                ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser,
+                uaBrowserVersion,
+                uaOS,
+                uaOSVersion,
+                uaDeviceType,
+                uid: uid,
+              });
+            }
           } catch (error) {
             // If we couldn't email them, no big deal. Log
             // and pretend everything worked.
@@ -1216,12 +1238,13 @@ module.exports = function (
           });
         }
 
-        const [, emails] = await Promise.all([
+        const [, emails, account] = await Promise.all([
           request.propagateMetricsContext(
             passwordForgotToken,
             accountResetToken
           ),
           db.accountEmails(passwordForgotToken.uid),
+          db.account(passwordForgotToken.uid),
         ]);
 
         const {
@@ -1257,11 +1280,22 @@ module.exports = function (
               emailOptions
             );
           } else {
-            await mailer.sendPasswordResetEmail(
-              emails,
-              passwordForgotToken,
-              emailOptions
-            );
+            if (fxaMailer.canSend('passwordReset')) {
+              await fxaMailer.sendPasswordResetEmail({
+                ...FxaMailerFormat.account(account),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.sync(false),
+              });
+            } else {
+              await mailer.sendPasswordResetEmail(
+                emails,
+                passwordForgotToken,
+                emailOptions
+              );
+            }
           }
         }
 

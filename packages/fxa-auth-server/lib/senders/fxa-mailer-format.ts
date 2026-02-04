@@ -28,7 +28,7 @@ export const FxaMailerFormat = {
     uid: string;
     email: string;
     emails?: Array<{ isPrimary: boolean; isVerified: boolean; email: string }>;
-    metricsOptOutAt: number | undefined | null;
+    metricsOptOutAt?: number | null;
   }) {
     return {
       to:
@@ -48,12 +48,24 @@ export const FxaMailerFormat = {
       device: formatUserAgentInfo(request.app.ua),
     };
   },
-  localTime(request: {
-    app: { geo: { timeZone: string }; acceptLanguage: string };
-  }) {
+  /**
+   * Formats local time and date strings based on request info.
+   *
+   * Optional date parameter can be used to specify a date other than current date.
+   * @param request
+   * @param date
+   * @returns
+   */
+  localTime(
+    request: {
+      app: { geo: { timeZone: string }; acceptLanguage: string };
+    },
+    date?: Date | number
+  ) {
     return constructLocalTimeAndDateStrings(
       request.app.geo.timeZone,
-      request.app.acceptLanguage
+      request.app.acceptLanguage,
+      date
     );
   },
   location(request: {

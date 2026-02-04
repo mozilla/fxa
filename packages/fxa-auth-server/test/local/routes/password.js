@@ -550,12 +550,10 @@ describe('/password', () => {
       assert.equal(args[1].id, accountResetToken.id);
       assert.equal(args[1].uid, uid);
 
-      assert.equal(mockMailer.sendPasswordResetEmail.callCount, 1);
-      assert.equal(mockMailer.sendPasswordResetEmail.args[0][2].uid, uid);
-      assert.equal(
-        mockMailer.sendPasswordResetEmail.args[0][2].deviceId,
-        'wibble'
-      );
+      assert.equal(mockFxaMailer.sendPasswordResetEmail.callCount, 1);
+      const passwordResetArgs = mockFxaMailer.sendPasswordResetEmail.args[0];
+      assert.equal(passwordResetArgs[0].uid, uid);
+      assert.equal(passwordResetArgs[0].deviceId, 'wibble');
     });
   });
 
@@ -760,14 +758,13 @@ describe('/password', () => {
         );
 
         assert.equal(mockDB.account.callCount, 1);
-        assert.equal(mockMailer.sendPasswordChangedEmail.callCount, 1);
-        let args = mockMailer.sendPasswordChangedEmail.args[0];
-        assert.lengthOf(args, 3);
-        assert.equal(args[1].email, TEST_EMAIL);
-        assert.equal(args[2].location.city, 'Mountain View');
-        assert.equal(args[2].location.country, 'United States');
-        assert.equal(args[2].timeZone, 'America/Los_Angeles');
-        assert.equal(args[2].uid, uid);
+        assert.equal(mockFxaMailer.sendPasswordChangedEmail.callCount, 1);
+        let args = mockFxaMailer.sendPasswordChangedEmail.args[0];
+        assert.equal(args[0].to, TEST_EMAIL);
+        assert.equal(args[0].location.city, 'Mountain View');
+        assert.equal(args[0].location.country, 'United States');
+        assert.equal(args[0].timeZone, 'America/Los_Angeles');
+        assert.equal(args[0].uid, uid);
 
         assert.equal(
           mockLog.activityEvent.callCount,
@@ -874,6 +871,10 @@ describe('/password', () => {
         }),
       };
       const mockLog = mocks.mockLog();
+
+      // Configure mockFxaMailer to reject for this test
+      mockFxaMailer.sendPasswordChangedEmail.rejects(error.emailBouncedHard());
+
       const mockRequest = mocks.mockRequest({
         credentials: {
           uid: uid,
@@ -935,7 +936,7 @@ describe('/password', () => {
         );
 
         assert.equal(mockDB.account.callCount, 1);
-        assert.equal(mockMailer.sendPasswordChangedEmail.callCount, 1);
+        assert.equal(mockFxaMailer.sendPasswordChangedEmail.callCount, 1);
 
         assert.equal(
           mockLog.activityEvent.callCount,
@@ -1218,7 +1219,7 @@ describe('/password', () => {
 
       // Verify notifications
       sinon.assert.calledOnce(mockPush.notifyPasswordChanged);
-      sinon.assert.calledOnce(mockMailer.sendPasswordChangedEmail);
+      sinon.assert.calledOnce(mockFxaMailer.sendPasswordChangedEmail);
 
       // Verify security events
       sinon.assert.calledWith(
