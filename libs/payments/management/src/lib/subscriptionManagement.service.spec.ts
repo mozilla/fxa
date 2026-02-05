@@ -108,7 +108,6 @@ import {
   CreateBillingAgreementActiveBillingAgreement,
   CreateBillingAgreementCurrencyNotFound,
   CreateBillingAgreementPaypalSubscriptionNotFound,
-  SubscriptionManagementNoStripeCustomerFoundError,
 } from './subscriptionManagement.error';
 import {
   MockNotifierSnsConfigProvider,
@@ -1960,7 +1959,7 @@ describe('SubscriptionManagementService', () => {
       expect(result.flowType).toEqual('not_found');
     });
 
-    it('throws error - SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError', async () => {
+    it('returns not_found when product names cannot be retrieved from CMS', async () => {
       const mockUid = faker.string.uuid();
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory()
@@ -2009,14 +2008,12 @@ describe('SubscriptionManagementService', () => {
         PageContentByPriceIdsPurchaseResultFactory()
       );
 
-      await expect(
-        subscriptionManagementService.getCancelFlowContent(
-          mockUid,
-          mockSubscription.id
-        )
-      ).rejects.toBeInstanceOf(
-        SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError
+      const result = await subscriptionManagementService.getCancelFlowContent(
+        mockUid,
+        mockSubscription.id
       );
+
+      expect(result).toEqual({ flowType: 'not_found' });
     });
 
     it('returns not_found when subscription customer does not match', async () => {
@@ -2209,7 +2206,7 @@ describe('SubscriptionManagementService', () => {
       expect(result).toEqual({ flowType: 'not_found' });
     });
 
-    it('throws error - SubscriptionManagementNoStripeCustomerFoundError', async () => {
+    it('returns not_found when stripe customer is not found', async () => {
       const mockUid = faker.string.uuid();
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory()
@@ -2225,17 +2222,16 @@ describe('SubscriptionManagementService', () => {
         .spyOn(customerManager, 'retrieve')
         .mockRejectedValue(new CustomerDeletedError(mockUid));
 
-      await expect(
-        subscriptionManagementService.getStaySubscribedFlowContent(
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
           mockUid,
           mockSubscription.id
-        )
-      ).rejects.toBeInstanceOf(
-        SubscriptionManagementNoStripeCustomerFoundError
-      );
+        );
+
+      expect(result).toEqual({ flowType: 'not_found' });
     });
 
-    it('throws error - SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError', async () => {
+    it('returns not_found when product names cannot be retrieved from CMS', async () => {
       const mockUid = faker.string.uuid();
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory()
@@ -2278,17 +2274,16 @@ describe('SubscriptionManagementService', () => {
         PageContentByPriceIdsPurchaseResultFactory()
       );
 
-      await expect(
-        subscriptionManagementService.getStaySubscribedFlowContent(
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
           mockUid,
           mockSubscription.id
-        )
-      ).rejects.toBeInstanceOf(
-        SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError
-      );
+        );
+
+      expect(result).toEqual({ flowType: 'not_found' });
     });
 
-    it('throws error - SubscriptionContentMissingUpcomingInvoicePreviewError', async () => {
+    it('returns not_found when upcoming invoice preview is missing', async () => {
       const mockUid = faker.string.uuid();
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory()
@@ -2334,14 +2329,13 @@ describe('SubscriptionManagementService', () => {
         PageContentByPriceIdsPurchaseResultFactory()
       );
 
-      await expect(
-        subscriptionManagementService.getStaySubscribedFlowContent(
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
           mockUid,
           mockSubscription.id
-        )
-      ).rejects.toBeInstanceOf(
-        SubscriptionContentMissingUpcomingInvoicePreviewError
-      );
+        );
+
+      expect(result).toEqual({ flowType: 'not_found' });
     });
   });
 });

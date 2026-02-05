@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { headers } from 'next/headers';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getApp } from '@fxa/payments/ui/server';
 import { getInterstitialOfferContentAction } from '@fxa/payments/ui/actions';
+import { LinkExternal } from '@fxa/shared/react';
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
 
@@ -44,6 +45,7 @@ export default async function InterstitialOfferErrorPage({
   const uid = session.user.id;
 
   let interstitialOfferContent;
+  let reason = 'general_error';
   try {
     interstitialOfferContent = await getInterstitialOfferContentAction(
       uid,
@@ -51,24 +53,26 @@ export default async function InterstitialOfferErrorPage({
       acceptLanguage,
       locale
     );
+    reason = interstitialOfferContent?.reason ?? 'general_error';
   } catch (error) {
-    notFound();
+    interstitialOfferContent = null;
+    reason = 'general_error';
   }
 
-  if (!interstitialOfferContent) {
-    notFound();
-  }
+ const webIcon = interstitialOfferContent?.webIcon;
+ const productName = interstitialOfferContent?.productName;
 
-  if (interstitialOfferContent.isEligible && interstitialOfferContent.pageContent) {
-    redirect(`/${locale}/subscriptions/${subscriptionId}/offer`);
-  }
+ if (webIcon && !productName) {
+   console.error('Missing productName for interstitial offer icon');
+   reason = 'general_error';
+ }
 
-  const { webIcon, productName } = interstitialOfferContent;
-  const reason = interstitialOfferContent.reason ?? 'general_error';
-
-  if (webIcon && !productName) {
-    throw new Error('Missing productName for interstitial offer icon');
-  }
+ if (
+   interstitialOfferContent?.isEligible &&
+   interstitialOfferContent?.pageContent
+ ) {
+   redirect(`/${locale}/subscriptions/${subscriptionId}/offer`);
+ }
 
   const l10n = getApp().getL10n(acceptLanguage, locale);
 
@@ -85,7 +89,40 @@ export default async function InterstitialOfferErrorPage({
             'interstitial-offer-error-subscription-not-found-message',
             'It looks like this subscription may no longer be active.'
           ),
-          showContinueToCancelButton: false,
+          primaryButton: {
+            label: l10n.getString(
+              'interstitial-offer-error-button-back-to-subscriptions',
+              'Back to subscriptions'
+            ),
+            href: `/${locale}/subscriptions/landing`,
+          },
+          secondaryButton: null,
+        };
+      case 'customer_mismatch':
+        return {
+          heading: l10n.getString(
+            'interstitial-offer-error-customer-mismatch-heading',
+            'This subscription is not associated with your account'
+          ),
+          message: l10n.getString(
+            'interstitial-offer-error-customer-mismatch-message',
+            'Make sure you are signed in with the correct account, or contact Support if you need help.'
+          ),
+          primaryButton: {
+            label: l10n.getString(
+              'interstitial-offer-error-button-sign-in',
+              'Sign in'
+            ),
+            href: `/${locale}/subscriptions/landing`,
+          },
+          secondaryButton: {
+            label: l10n.getString(
+              'interstitial-offer-error-button-contact-support',
+              'Contact Support'
+            ),
+            href: 'https://support.mozilla.org/',
+            isExternal: true,
+          },
         };
       default:
         return {
@@ -97,12 +134,26 @@ export default async function InterstitialOfferErrorPage({
             'interstitial-offer-error-general-message',
             'It looks like this offer is not available at this time.'
           ),
-          showContinueToCancelButton: true,
+          primaryButton: {
+            label: l10n.getString(
+              'interstitial-offer-error-button-back-to-subscriptions',
+              'Back to subscriptions'
+            ),
+            href: `/${locale}/subscriptions/landing`,
+          },
+          secondaryButton: {
+            label: l10n.getString(
+              'interstitial-offer-error-button-cancel-subscription',
+              'Continue to cancel'
+            ),
+            href: `/${locale}/subscriptions/${subscriptionId}/cancel`,
+            isExternal: false,
+          },
         };
     }
   };
 
-  const { heading, message, showContinueToCancelButton } = getErrorContent(reason);
+  const { heading, message, primaryButton, secondaryButton } = getErrorContent(reason);
 
   return (
     <section
@@ -132,23 +183,26 @@ export default async function InterstitialOfferErrorPage({
         <div className="w-full flex flex-col gap-3 mt-10">
           <Link
             className="border box-border font-header h-14 items-center justify-center rounded-md text-white text-center font-bold py-4 px-6 bg-blue-500 hover:bg-blue-700 flex w-full"
-            href={`/${locale}/subscriptions/landing`}
+            href={primaryButton.href}
           >
-            {l10n.getString(
-              'interstitial-offer-error-button-back-to-subscriptions',
-              'Back to subscriptions'
-            )}
+            {primaryButton.label}
           </Link>
-          {showContinueToCancelButton && (
-            <Link
-              className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
-              href={`/${locale}/subscriptions/${subscriptionId}/cancel`}
-            >
-              <span>{l10n.getString(
-                'interstitial-offer-error-button-cancel-subscription',
-                'Continue to cancel'
-              )}</span>
-            </Link>
+          {secondaryButton && (
+            secondaryButton.isExternal ? (
+              <LinkExternal
+                className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
+                href={secondaryButton.href}
+              >
+                {secondaryButton.label}
+              </LinkExternal>
+            ) : (
+              <Link
+                className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
+                href={secondaryButton.href}
+              >
+                <span>{secondaryButton.label}</span>
+              </Link>
+            )
           )}
         </div>
       </div>

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { headers } from 'next/headers';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 import { ChurnCancel, SubscriptionParams } from '@fxa/payments/ui';
 import { determineChurnCancelEligibilityAction } from '@fxa/payments/ui/actions';
@@ -40,13 +40,24 @@ export default async function LoyaltyDiscountCancelPage({
 
   const uid = session.user.id;
 
-  const pageContent = await determineChurnCancelEligibilityAction(
-    uid,
-    subscriptionId,
-    acceptLanguage
-  );
+  let pageContent;
+  try {
+    pageContent = await determineChurnCancelEligibilityAction(
+      uid,
+      subscriptionId,
+      acceptLanguage
+    );
+  } catch (error) {
+    redirect(
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/cancel/error`
+    );
+  }
 
-  if (!pageContent) notFound();
+  if (!pageContent) {
+    redirect(
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/cancel/error`
+    );
+  }
 
   const { churnCancelContentEligibility, cancelContent } = pageContent;
   const { cmsOfferingContent, reason, cmsChurnInterventionEntry } =
