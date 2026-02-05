@@ -37,11 +37,16 @@ export default async function LoyaltyDiscountStaySubscribedErrorPage({
 
   const uid = session.user.id;
 
-  const pageContent = await determineStaySubscribedEligibilityAction(
-    uid,
-    subscriptionId,
-    acceptLanguage
-  );
+  let pageContent;
+  try {
+    pageContent = await determineStaySubscribedEligibilityAction(
+      uid,
+      subscriptionId,
+      acceptLanguage
+    );
+  } catch (error) {
+    notFound();
+  }
 
   if (!pageContent) {
     notFound();
@@ -55,9 +60,6 @@ export default async function LoyaltyDiscountStaySubscribedErrorPage({
   }
 
   const { cmsOfferingContent, reason } = churnStaySubscribedEligibility;
-  if (!cmsOfferingContent) {
-    notFound();
-  }
 
   return (
     <ChurnError

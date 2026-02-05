@@ -54,7 +54,6 @@ import {
   NotifierSnsProvider,
 } from '@fxa/shared/notifier';
 import { ChurnInterventionService } from './churn-intervention.service';
-import { ChurnSubscriptionCustomerMismatchError } from './churn-intervention.error';
 
 describe('ChurnInterventionService', () => {
   let accountCustomerManager: AccountCustomerManager;
@@ -178,6 +177,43 @@ describe('ChurnInterventionService', () => {
 
     afterEach(() => {
       jest.resetAllMocks();
+    });
+
+    it('returns ineligible when customer does not match subscription', async () => {
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockStripeCustomer.id,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+
+      const result =
+        await churnInterventionService.determineStaySubscribedEligibility(
+          uid,
+          subscriptionId
+        );
+
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'customer_mismatch',
+        cmsChurnInterventionEntry: null,
+        cmsOfferingContent: null,
+      });
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'stay_subscribed_eligibility',
+        {
+          eligibility: 'ineligible',
+          reason: 'customer_mismatch',
+        }
+      );
     });
 
     it('returns ineligible when no churn intervention entries are found', async () => {
@@ -1047,7 +1083,7 @@ describe('ChurnInterventionService', () => {
   });
 
   describe('determineCancelInterstitialOfferEligibility', () => {
-    it('throws if customer does not match', async () => {
+    it('returns ineligible when customer does not match', async () => {
       const mockUid = faker.string.uuid();
       const mockStripeCustomer = StripeCustomerFactory();
       const mockSubscription = StripeResponseFactory(
@@ -1065,13 +1101,19 @@ describe('ChurnInterventionService', () => {
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(StripeResponseFactory(mockSubscription));
 
-      expect(mockStatsD.increment).not.toHaveBeenCalled();
-      await expect(
-        churnInterventionService.determineCancelInterstitialOfferEligibility({
+      const result =
+        await churnInterventionService.determineCancelInterstitialOfferEligibility({
           uid: mockUid,
           subscriptionId: mockSubscription.id,
-        })
-      ).rejects.toBeInstanceOf(ChurnSubscriptionCustomerMismatchError);
+        });
+
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'customer_mismatch',
+        cmsCancelInterstitialOfferResult: null,
+        webIcon: null,
+        productName: null,
+      });
     });
 
     it('returns not eligible if subscription not active', async () => {
@@ -1776,7 +1818,7 @@ describe('ChurnInterventionService', () => {
   });
 
   describe('determineCancelChurnContentEligibility', () => {
-    it('throws if customer does not match', async () => {
+    it('returns ineligible when customer does not match', async () => {
       const mockUid = faker.string.uuid();
       const mockStripeCustomer = StripeCustomerFactory();
       const mockSubscription = StripeResponseFactory(
@@ -1794,14 +1836,18 @@ describe('ChurnInterventionService', () => {
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(StripeResponseFactory(mockSubscription));
 
-      await expect(
-        churnInterventionService.determineCancelChurnContentEligibility({
+      const result =
+        await churnInterventionService.determineCancelChurnContentEligibility({
           uid: mockUid,
           subscriptionId: mockSubscription.id,
-        })
-      ).rejects.toBeInstanceOf(ChurnSubscriptionCustomerMismatchError);
+        });
 
-      expect(mockStatsD.increment).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        isEligible: false,
+        reason: 'customer_mismatch',
+        cmsChurnInterventionEntry: null,
+        cmsOfferingContent: null,
+      });
     });
 
     it('returns not eligible if subscription not active', async () => {

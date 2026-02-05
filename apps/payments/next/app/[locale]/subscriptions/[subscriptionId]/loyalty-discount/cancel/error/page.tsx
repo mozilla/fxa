@@ -41,11 +41,16 @@ export default async function LoyaltyDiscountCancelErrorPage({
 
   const uid = session.user.id;
 
-  const pageContent = await determineChurnCancelEligibilityAction(
-    uid,
-    subscriptionId,
-    acceptLanguage
-  );
+  let pageContent;
+  try {
+    pageContent = await determineChurnCancelEligibilityAction(
+      uid,
+      subscriptionId,
+      acceptLanguage
+    );
+  } catch (error) {
+    notFound();
+  }
 
   if (!pageContent) {
     notFound();
@@ -59,13 +64,10 @@ export default async function LoyaltyDiscountCancelErrorPage({
   }
 
   const { cmsOfferingContent, reason } = churnCancelContentEligibility;
-  if (!cmsOfferingContent) {
-    notFound();
-  }
 
   const cancelContent = pageContent.cancelContent;
 
-  if (cancelContent.flowType !== 'cancel') {
+  if (cancelContent.flowType !== 'cancel' || !cmsOfferingContent) {
     return (
       <ChurnError
         cmsOfferingContent={cmsOfferingContent}
