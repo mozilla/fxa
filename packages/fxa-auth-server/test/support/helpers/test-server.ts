@@ -112,11 +112,9 @@ function spawnAuthServer(
   );
 
   // Always capture stderr for error reporting
-  let stderrBuffer = '';
   if (serverProcess.stderr) {
     serverProcess.stderr.on('data', (data) => {
       const msg = data.toString();
-      stderrBuffer += msg;
       if (printLogs) {
         process.stderr.write(msg);
       } else if (msg.includes('EADDRINUSE') || msg.includes('fatal') || msg.includes('Error') || msg.includes('error')) {
@@ -126,11 +124,9 @@ function spawnAuthServer(
   }
 
   // Capture stdout for debugging if not printing
-  let stdoutBuffer = '';
   if (!printLogs && serverProcess.stdout) {
     serverProcess.stdout.on('data', (data) => {
       const msg = data.toString();
-      stdoutBuffer += msg;
       // Look for ERROR level logs
       if (msg.includes('[ERROR]') || msg.includes('ERROR')) {
         console.error('[Server ERROR]', msg);

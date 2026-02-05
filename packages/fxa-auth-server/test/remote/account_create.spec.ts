@@ -595,7 +595,7 @@ describe.each(testVersions)(
       );
       expect(client).toBeTruthy();
 
-      let emailData = await server.mailbox.waitForEmail(email);
+      const emailData = await server.mailbox.waitForEmail(email);
       expect(emailData.headers['x-template-name']).toBe('verify');
 
       const verifyCode = emailData.headers['x-verify-code'];
