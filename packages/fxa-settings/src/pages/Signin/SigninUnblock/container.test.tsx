@@ -24,7 +24,10 @@ import {
   MOCK_UNBLOCK_CODE,
   MOCK_UNWRAP_BKEY,
   MOCK_UNWRAP_BKEY_V2,
+  MOCK_CLIENT_ID,
+  MOCK_REDIRECT_URI,
   mockLoadingSpinnerModule,
+  MOCK_SERVICE,
 } from '../../mocks';
 import {
   mockGqlBeginSigninMutation,
@@ -45,6 +48,11 @@ import {
 } from './mocks';
 import { BeginSigninResult, SigninUnblockIntegration } from '../interfaces';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
+import { ensureCanLinkAcountOrRedirect } from '../utils';
+import { IntegrationType, OAuthIntegrationData } from '../../../models';
+import { GenericData } from '../../../lib/model-data';
+import { Constants } from '../../../lib/constants';
 
 let integration: SigninUnblockIntegration;
 function mockWebIntegration() {
@@ -53,6 +61,28 @@ function mockWebIntegration() {
     clientInfo: undefined,
     isFirefoxMobileClient: () => false,
   };
+}
+
+function mockOAuthNativeIntegration() {
+  integration = {
+    ...createMockSigninWebSyncIntegration(),
+    type: IntegrationType.OAuthNative,
+    data: new OAuthIntegrationData(
+      new GenericData({
+        context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
+        client_id: MOCK_CLIENT_ID,
+        state: 'mock_state',
+      })
+    ),
+    clientInfo: {
+      clientId: MOCK_CLIENT_ID,
+      redirectUri: MOCK_REDIRECT_URI,
+      imageUri: undefined,
+      serviceName: MOCK_SERVICE,
+      trusted: true,
+    },
+    isFirefoxMobileClient: () => false,
+  } as SigninUnblockIntegration;
 }
 
 let flowQueryParams: QueryParams;
@@ -77,6 +107,11 @@ jest.mock('../../../lib/gql-key-stretch-upgrade', () => {
     tryFinalizeUpgrade: jest.fn(),
   };
 });
+
+jest.mock('../utils', () => ({
+  ...jest.requireActual('../utils'),
+  ensureCanLinkAcountOrRedirect: jest.fn(),
+}));
 
 jest.mock('../../../models', () => {
   return {
@@ -139,7 +174,13 @@ describe('signin unblock container', () => {
   });
 
   /** Renders the container with a fake page component */
-  async function render(mocks: Array<MockedResponse>) {
+  async function render(
+    mocks: Array<MockedResponse>,
+    options?: { useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus> }
+  ) {
+    const useFxAStatusResult =
+      options?.useFxAStatusResult || mockUseFxAStatus();
+
     renderWithLocalizationProvider(
       <MockedProvider mocks={mocks} addTypename={false}>
         <LocationProvider>
@@ -148,6 +189,7 @@ describe('signin unblock container', () => {
               integration,
               serviceName: MozServices.Default,
               flowQueryParams,
+              useFxAStatusResult,
             }}
           />
         </LocationProvider>
@@ -185,6 +227,8 @@ describe('signin unblock container', () => {
     expect(result?.data?.signIn?.emailVerified).toBeDefined();
     expect(result?.data?.signIn?.sessionVerified).toBeDefined();
     expect(result?.data?.signIn?.metricsEnabled).toBeDefined();
+    // Should NOT call ensureCanLinkAcountOrRedirect for non-OAuthNative integration
+    expect(ensureCanLinkAcountOrRedirect).not.toHaveBeenCalled();
   });
 
   it('handles signin with with key stretching upgrade', async () => {
@@ -294,5 +338,54 @@ describe('signin unblock container', () => {
     expect(result?.data).toBeUndefined();
     expect(result?.error).toBeDefined();
     expect(result?.error?.errno).toEqual(127);
+  });
+
+  describe('with supportsCanLinkAccountUid capability and OAuthNative integration', () => {
+    beforeEach(() => {
+      mockOAuthNativeIntegration();
+      (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+    });
+
+    afterEach(() => {
+      (ensureCanLinkAcountOrRedirect as jest.Mock).mockRestore();
+    });
+
+    it('calls ensureCanLinkAcountOrRedirect with UID after successful signin', async () => {
+      const useFxAStatusResult = mockUseFxAStatus({
+        supportsCanLinkAccountUid: true,
+      });
+
+      await render(
+        [
+          mockGqlCredentialStatusMutation(),
+          mockGqlBeginSigninMutation(
+            {
+              unblockCode: MOCK_UNBLOCK_CODE,
+              keys: true,
+            },
+            {
+              authPW: MOCK_AUTH_PW_V2,
+            }
+          ),
+        ],
+        { useFxAStatusResult }
+      );
+
+      let result: BeginSigninResult | undefined;
+      await act(async () => {
+        result =
+          await currentPageProps?.signinWithUnblockCode(MOCK_UNBLOCK_CODE);
+      });
+
+      expect(result).toBeDefined();
+      expect(result?.data).toBeDefined();
+      expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledTimes(1);
+      expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: MOCK_EMAIL,
+          uid: expect.any(String),
+        })
+      );
+    });
   });
 });

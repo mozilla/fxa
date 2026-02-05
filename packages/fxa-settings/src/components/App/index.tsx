@@ -638,7 +638,12 @@ const AuthAndAccountSetupRoutes = ({
       />
       <SigninUnblockContainer
         path="/signin_unblock/*"
-        {...{ integration, flowQueryParams, setCurrentSplitLayout }}
+        {...{
+          integration,
+          flowQueryParams,
+          setCurrentSplitLayout,
+          useFxAStatusResult,
+        }}
       />
       <InlineRecoveryKeySetupContainer
         path="/inline_recovery_key_setup/*"

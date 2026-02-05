@@ -312,7 +312,7 @@ const SigninContainer = ({
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
       // - If the user came from email-first WITHOUT a linked third‑party account, Index already showed
-      //   the merge prompt.
+      //   the merge prompt for old firefox versions (supportsCanLinkAccountUid=false).
       // - If the user HAS a linked third‑party account, Index deferred the prompt to avoid duplicates,
       //   so we must prompt here instead.
       // Note: the browser will repond {ok} if the email matches stored data or the user accepts the merge.
