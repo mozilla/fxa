@@ -7,10 +7,12 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 
 import VerificationMethods from '../../../constants/verification-methods';
 import {
+  isOAuthNativeIntegration,
   useAuthClient,
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
+import { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
 
 // using default signin handlers
 import {
@@ -51,15 +53,18 @@ import { isFirefoxService } from '../../../models/integrations/utils';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import AppLayout from '../../../components/AppLayout';
+import { ensureCanLinkAcountOrRedirect } from '../utils';
 
 export const SigninUnblockContainer = ({
   integration,
   flowQueryParams,
   setCurrentSplitLayout,
+  useFxAStatusResult,
 }: {
   integration: SigninUnblockIntegration;
   flowQueryParams: QueryParams;
   setCurrentSplitLayout?: (value: boolean) => void;
+  useFxAStatusResult: UseFxAStatusResult;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -165,22 +170,37 @@ export const SigninUnblockContainer = ({
           unwrapBKey: credentials.unwrapBKey,
           keyFetchToken: response.data.signIn.keyFetchToken,
         });
-      }
 
-      const emailVerified = response.data?.signIn.emailVerified;
-      const sessionVerified = response.data?.signIn.sessionVerified;
-      const sessionToken = response.data?.signIn.sessionToken;
-      // Attempt to finish key stretching upgrade now that session has been verified.
-      if (emailVerified && sessionVerified && sessionToken) {
-        await tryFinalizeUpgrade(
-          sessionToken,
-          sensitiveDataClient,
-          'signin-unblock',
-          credentialStatus,
-          getWrappedKeys,
-          passwordChangeStart,
-          passwordChangeFinish
-        );
+        const emailVerified = response.data.signIn.emailVerified;
+        const sessionVerified = response.data.signIn.sessionVerified;
+        const sessionToken = response.data.signIn.sessionToken;
+        // Attempt to finish key stretching upgrade now that session has been verified.
+        if (emailVerified && sessionVerified && sessionToken) {
+          await tryFinalizeUpgrade(
+            sessionToken,
+            sensitiveDataClient,
+            'signin-unblock',
+            credentialStatus,
+            getWrappedKeys,
+            passwordChangeStart,
+            passwordChangeFinish
+          );
+        }
+
+        if (
+          isOAuthNativeIntegration(integration) &&
+          useFxAStatusResult.supportsCanLinkAccountUid
+        ) {
+          const ok = await ensureCanLinkAcountOrRedirect({
+            email,
+            uid: response.data.signIn.uid,
+            ftlMsgResolver,
+            navigateWithQuery,
+          });
+          if (!ok) {
+            return { data: undefined };
+          }
+        }
       }
 
       return response;
