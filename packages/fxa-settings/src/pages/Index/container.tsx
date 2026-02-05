@@ -271,12 +271,20 @@ const IndexContainer = ({
     if (isUnsupportedContext(integration.data.context)) {
       hardNavigate('/update_firefox', {}, true);
     } else if (shouldTrySuggestedEmail && !attemptedEmailAutoSubmit.current) {
-      // Without this, can_link_account can fire multiple times due to calling it in a `useEffect`,
-      // causing multiple sync warnings to be displayed. This ensures it is called once.
-      attemptedEmailAutoSubmit.current = true;
       // Must be in an async function or else `setIsLoading(false)` can be called prematurely with
       // the next render, before async actions in `processEmailSubmission` have finished
       (async () => {
+        if (integration.isSync() || integration.isFirefoxNonSync()) {
+          // Wait for this to resolve before calling 'processEmailSubmission'.
+          // Otherwise, a merge warning may show on email-first for newer Fx versions
+          // that support "can link account" by UID.
+          if (useFxAStatusResult.supportsCanLinkAccountUid === undefined) {
+            return;
+          }
+        }
+        // Without this, can_link_account can fire multiple times due to calling it in a `useEffect`,
+        // causing multiple sync warnings to be displayed. This ensures it is called once.
+        attemptedEmailAutoSubmit.current = true;
         await processEmailSubmission(suggestedEmail, false);
       })();
     } else {
@@ -290,6 +298,7 @@ const IndexContainer = ({
     shouldTrySuggestedEmail,
     integration.data.context,
     integration,
+    useFxAStatusResult.supportsCanLinkAccountUid,
   ]);
 
   useEffect(() => {
