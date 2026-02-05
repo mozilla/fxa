@@ -2304,12 +2304,21 @@ export const accountRoutes = (
     statsd,
     authServerCacheRedis
   );
+
+  // Enable CORS credentials only when using explicit origins (not wildcard, per CORS spec)
+  const enableCredentials = config.corsOrigin && config.corsOrigin[0] !== '*';
+
   const routes = [
     {
       method: 'POST',
       path: '/account/create',
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_CREATE_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         validate: {
           query: isA.object({
             keys: isA.boolean().optional().description(DESCRIPTION.keys),
