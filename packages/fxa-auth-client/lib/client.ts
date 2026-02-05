@@ -264,14 +264,27 @@ export default class AuthClient {
     }
 
     extraHeaders.set('Content-Type', 'application/json');
+
+    const requestOptions: RequestInit = {
+      method,
+      headers: extraHeaders,
+      body: cleanStringify(payload),
+    };
+
+    // For specific endpoints + HTTPS, upgrade credentials to include cookies for WAF challenges
+    const includeCredentials = [
+      '/account/create',
+      '/password/forgot/send_otp',
+    ].some((endpoint) => path.startsWith(endpoint));
+
+    if (includeCredentials && new URL(this.uri).protocol === 'https:') {
+      requestOptions.credentials = 'include';
+    }
+
     try {
       const response = await fetchOrTimeout(
         this.url(path),
-        {
-          method,
-          headers: extraHeaders,
-          body: cleanStringify(payload),
-        },
+        requestOptions,
         this.timeout
       );
       const result = JSON.parse(await response.text());
