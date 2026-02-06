@@ -243,6 +243,21 @@ export interface RecoveryPhones {
   uid: Buffer;
 }
 
+export interface Passkeys {
+  uid: Buffer;
+  credentialId: Buffer;
+  publicKey: Buffer;
+  signCount: number;
+  transports: string | null;
+  aaguid: Buffer | null;
+  name: string | null;
+  createdAt: number;
+  lastUsedAt: number | null;
+  backupEligible: Generated<ColumnType<boolean, number, number>>;
+  backupState: Generated<ColumnType<boolean, number, number>>;
+  prfEnabled: Generated<ColumnType<boolean, number, number>>;
+}
+
 export interface SecurityEventNames {
   id: Generated<number>;
   name: string;
@@ -336,6 +351,7 @@ export interface DB {
   emailTypes: EmailTypes;
   keyFetchTokens: KeyFetchTokens;
   linkedAccounts: LinkedAccounts;
+  passkeys: Passkeys;
   passwordChangeTokens: PasswordChangeTokens;
   passwordForgotTokens: PasswordForgotTokens;
   paypalCustomers: PaypalCustomers;

@@ -9,6 +9,7 @@ export {
   AccountFactory,
   AccountCustomerFactory,
   PaypalCustomerFactory,
+  PasskeyFactory,
   RecoveryPhoneFactory,
 } from './lib/factories';
 export { setupAccountDatabase, AccountDbProvider } from './lib/setup';

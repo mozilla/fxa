@@ -8,6 +8,7 @@ import {
   Account,
   AccountCustomer,
   NewCart,
+  NewPasskey,
   PaypalCustomer,
   SessionToken,
   UnverifiedToken,
@@ -180,5 +181,32 @@ export const RecoveryPhoneFactory = (override?: Partial<RecoveryPhone>) => ({
     a: 'test',
     b: 'test2',
   }),
+  ...override,
+});
+
+export const PasskeyFactory = (override?: Partial<NewPasskey>): NewPasskey => ({
+  uid: getHexBuffer(32),
+  credentialId: getHexBuffer(faker.number.int({ min: 32, max: 128 })),
+  publicKey: getHexBuffer(128),
+  signCount: 0,
+  transports: faker.helpers.arrayElement([
+    '["internal"]',
+    '["usb"]',
+    '["internal","hybrid"]',
+    null,
+  ]),
+  aaguid: faker.datatype.boolean() ? getHexBuffer(32) : null,
+  name: faker.helpers.arrayElement([
+    'Touch ID',
+    'YubiKey 5',
+    'Security Key',
+    'iPhone Face ID',
+    null,
+  ]),
+  createdAt: faker.date.recent().getTime(),
+  lastUsedAt: faker.datatype.boolean() ? faker.date.recent().getTime() : null,
+  backupEligible: faker.helpers.arrayElement([0, 1]),
+  backupState: faker.helpers.arrayElement([0, 1]),
+  prfEnabled: faker.helpers.arrayElement([0, 1]),
   ...override,
 });
