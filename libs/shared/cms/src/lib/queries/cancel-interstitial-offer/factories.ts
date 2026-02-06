@@ -50,10 +50,7 @@ export const CancelInterstitialOfferFactory = (
   upgradeInterval: faker.helpers.enumValue(
     Enum_Cancelinterstitialoffer_Upgradeinterval
   ),
-  advertisedSavings: faker.number.int({ min: 0, max: 100 }),
-  ctaMessage: faker.lorem.sentence(),
   modalHeading1: faker.lorem.sentence(),
-  modalHeading2: faker.lorem.sentence(),
   modalMessage: Array.from(
     { length: faker.number.int({ min: 1, max: 4 }) },
     () => faker.string.alpha(10)

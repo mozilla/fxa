@@ -28,10 +28,7 @@ export interface CancelInterstitialOffer {
   offeringApiIdentifier: string;
   currentInterval: Enum_Cancelinterstitialoffer_Currentinterval;
   upgradeInterval: Enum_Cancelinterstitialoffer_Upgradeinterval;
-  advertisedSavings: number;
-  ctaMessage: string;
   modalHeading1: string;
-  modalHeading2: string;
   modalMessage: string;
   productPageUrl: string;
   upgradeButtonLabel: string;
