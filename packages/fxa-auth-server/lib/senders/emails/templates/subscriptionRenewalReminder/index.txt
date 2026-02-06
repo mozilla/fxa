@@ -12,7 +12,11 @@ subscriptionRenewalReminder-content-discount-ending = "Because a previous discou
 subscriptionRenewalReminder-content-discount-change = "Your next invoice reflects a change in pricing, as a previous discount has ended and a new discount has been applied."
 <% } %>
 
-subscriptionRenewalReminder-content-charge = "At that time, Mozilla will renew your <%- planIntervalCount %> <%- planInterval %> subscription and a charge of <%- invoiceTotal %> will be applied to the payment method on your account."
+<% if (invoiceTax && invoiceSubtotal) { %>
+subscriptionRenewalReminder-content-charge-with-tax-<%- planInterval %> = "At that time, Mozilla will renew your <%- planInterval %> subscription and a charge of <%- invoiceSubtotal %> + <%- invoiceTax %> tax will be applied to the payment method on your account."
+<% } else { %>
+subscriptionRenewalReminder-content-charge-invoice-total-<%- planInterval %> = "At that time, Mozilla will renew your <%- planInterval %> subscription and a charge of <%- invoiceTotal %> will be applied to the payment method on your account."
+<% } %>
 
 <%- include ('/partials/subscriptionUpdateBillingEnsure/index.txt') %>
 

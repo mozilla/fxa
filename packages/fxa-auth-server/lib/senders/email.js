@@ -3245,8 +3245,21 @@ module.exports = function (log, config, bounces, statsd) {
         email,
         productName,
         reminderLength: message.reminderLength,
-        planIntervalCount: message.planIntervalCount,
         planInterval: message.planInterval,
+        invoiceSubtotal:
+          message.invoiceSubtotalInCents &&
+          this._getLocalizedCurrencyString(
+            message.invoiceSubtotalInCents,
+            message.invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        invoiceTax:
+          message.invoiceTaxInCents &&
+          this._getLocalizedCurrencyString(
+            message.invoiceTaxInCents,
+            message.invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
         invoiceTotal: this._getLocalizedCurrencyString(
           message.invoiceTotalInCents,
           message.invoiceTotalCurrency,

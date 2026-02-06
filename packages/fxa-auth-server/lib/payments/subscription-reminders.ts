@@ -288,6 +288,29 @@ export class SubscriptionReminders {
   }
 
   /**
+   * Maps a subscription interval and interval count to a localized plan interval ID.
+   */
+  private getPlanInterval(interval: string, intervalCount: number): string {
+    if (interval === 'month' && intervalCount === 6) {
+      return 'halfyearly';
+    }
+
+    if (intervalCount === 1) {
+      switch (interval) {
+        case 'day':
+          return 'daily';
+        case 'week':
+          return 'weekly';
+        case 'month':
+          return 'monthly';
+        case 'year':
+          return 'yearly';
+      }
+    }
+    return interval;
+  }
+
+  /**
    * Send out a renewal reminder email if we haven't already sent one.
    */
   async sendSubscriptionRenewalReminderEmail(
@@ -371,6 +394,7 @@ export class SubscriptionReminders {
       const hadDiscount = this.hasDiscountEnding(currentDiscountId, upcomingDiscountId);
       // Detect if renewal has a different discount
       const hasDifferentDiscount = this.hasDifferentDiscount(currentDiscountId, upcomingDiscountId);
+      const planInterval = this.getPlanInterval(interval, interval_count);
 
       await this.mailer.sendSubscriptionRenewalReminderEmail(
         account.emails,
@@ -381,9 +405,10 @@ export class SubscriptionReminders {
           acceptLanguage: account.locale,
           subscription: formattedSubscription,
           reminderLength: effectiveReminderDuration.as('days'),
-          planIntervalCount: interval_count,
-          planInterval: interval,
+          planInterval,
           // Using invoice prefix instead of plan to accommodate `yarn write-emails`.
+          invoiceSubtotalInCents: invoicePreview.subtotal,
+          invoiceTaxInCents: invoicePreview.tax,
           invoiceTotalInCents: invoicePreview.total,
           invoiceTotalCurrency: invoicePreview.currency,
           productMetadata: formattedSubscription.productMetadata,

@@ -15,8 +15,7 @@ const createStory = subplatStoryWithProps(
   {
     productName: 'Firefox Fortress',
     invoiceTotal: '$20.00',
-    planInterval: 'month',
-    planIntervalCount: '1',
+    planInterval: 'monthly',
     reminderLength: '7',
     subscriptionSupportUrl: 'http://localhost:3030/support',
     updateBillingUrl: 'http://localhost:3030/subscriptions',
@@ -39,8 +38,7 @@ export const MonthlyPlanDiscountEnding = createStory(
 
 export const YearlyPlanNoDiscount = createStory(
   {
-    planInterval: 'year',
-    planIntervalCount: '1',
+    planInterval: 'yearly',
     reminderLength: '15',
     invoiceTotal: '$199.99',
     hadDiscount: false,
@@ -50,8 +48,7 @@ export const YearlyPlanNoDiscount = createStory(
 
 export const YearlyPlanDiscountEnding = createStory(
   {
-    planInterval: 'year',
-    planIntervalCount: '1',
+    planInterval: 'yearly',
     reminderLength: '15',
     invoiceTotal: '$199.99',
     hadDiscount: true,

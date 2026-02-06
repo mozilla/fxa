@@ -321,6 +321,8 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves({
+        subtotal: invoicePreview.subtotal,
+        tax: invoicePreview.tax,
         total: invoicePreview.total,
         currency: invoicePreview.currency,
         discount: null,
@@ -400,8 +402,9 @@ describe('SubscriptionReminders', () => {
           email: 'testo@test.test',
           subscription: formattedSubscription,
           reminderLength: 7,
-          planIntervalCount: 1,
-          planInterval: 'month',
+          planInterval: 'monthly',
+          invoiceSubtotalInCents: invoicePreview.subtotal,
+          invoiceTaxInCents: invoicePreview.tax,
           invoiceTotalInCents: invoicePreview.total,
           invoiceTotalCurrency: invoicePreview.currency,
           productMetadata: formattedSubscription.productMetadata,
@@ -437,6 +440,8 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves({
+        subtotal: invoicePreview.subtotal,
+        tax: invoicePreview.tax,
         total: invoicePreview.total,
         currency: invoicePreview.currency,
         discount: null,
@@ -1055,6 +1060,201 @@ describe('SubscriptionReminders', () => {
       const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
       assert.isFalse(mailerCall.args[2].hadDiscount);
       assert.isTrue(mailerCall.args[2].hasDifferentDiscount);
+    });
+
+    it('includes tax information when invoice has tax', async () => {
+      const subscription = deepCopy(longSubscription1);
+      subscription.customer = {
+        email: 'abc@123.com',
+        metadata: {
+          userid: 'uid',
+        },
+      };
+      subscription.latest_invoice = 'in_test123';
+
+      const account = {
+        emails: [],
+        email: 'testo@test.test',
+        locale: 'NZ',
+      };
+
+      const mockInvoice = {
+        id: 'in_test123',
+        discount: null,
+        discounts: [],
+      };
+
+      const mockUpcomingInvoiceWithTax = {
+        subtotal: 1000,
+        tax: 200,
+        total: 1200,
+        currency: 'usd',
+        discount: null,
+        discounts: [],
+      };
+
+      reminder.alreadySentEmail = sandbox.fake.resolves(false);
+      reminder.db.account = sandbox.fake.resolves(account);
+      mockLog.info = sandbox.fake.returns({});
+      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
+        id: 'subscriptionId',
+        productMetadata: {},
+        planConfig: {},
+      });
+      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+        amount: longPlan1.amount,
+        currency: longPlan1.currency,
+        interval_count: longPlan1.interval_count,
+        interval: longPlan1.interval,
+      });
+      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoiceWithTax);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      reminder.updateSentEmail = sandbox.fake.resolves({});
+      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+
+      const result = await reminder.sendSubscriptionRenewalReminderEmail(
+        subscription,
+        longPlan1.id
+      );
+
+      assert.isTrue(result);
+      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const emailData = mailerCall.args[2];
+      assert.strictEqual(emailData.invoiceSubtotalInCents, 1000);
+      assert.strictEqual(emailData.invoiceTaxInCents, 200);
+      assert.strictEqual(emailData.invoiceTotalInCents, 1200);
+      assert.strictEqual(emailData.invoiceTotalCurrency, 'usd');
+    });
+
+    it('handles invoice when tax is 0', async () => {
+      const subscription = deepCopy(longSubscription1);
+      subscription.customer = {
+        email: 'abc@123.com',
+        metadata: {
+          userid: 'uid',
+        },
+      };
+      subscription.latest_invoice = 'in_test123';
+
+      const account = {
+        emails: [],
+        email: 'testo@test.test',
+        locale: 'NZ',
+      };
+
+      const mockInvoice = {
+        id: 'in_test123',
+        discount: null,
+        discounts: [],
+      };
+
+      const mockUpcomingInvoiceNoTax = {
+        subtotal: 1000,
+        tax: 0,
+        total: 1000,
+        currency: 'usd',
+        discount: null,
+        discounts: [],
+      };
+
+      reminder.alreadySentEmail = sandbox.fake.resolves(false);
+      reminder.db.account = sandbox.fake.resolves(account);
+      mockLog.info = sandbox.fake.returns({});
+      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
+        id: 'subscriptionId',
+        productMetadata: {},
+        planConfig: {},
+      });
+      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+        amount: longPlan1.amount,
+        currency: longPlan1.currency,
+        interval_count: longPlan1.interval_count,
+        interval: longPlan1.interval,
+      });
+      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoiceNoTax);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      reminder.updateSentEmail = sandbox.fake.resolves({});
+      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+
+      const result = await reminder.sendSubscriptionRenewalReminderEmail(
+        subscription,
+        longPlan1.id
+      );
+
+      assert.isTrue(result);
+      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const emailData = mailerCall.args[2];
+      assert.strictEqual(emailData.invoiceSubtotalInCents, 1000);
+      assert.strictEqual(emailData.invoiceTaxInCents, 0);
+      assert.strictEqual(emailData.invoiceTotalInCents, 1000);
+      assert.strictEqual(emailData.invoiceTotalCurrency, 'usd');
+    });
+
+    it('handles invoice without tax', async () => {
+      const subscription = deepCopy(longSubscription1);
+      subscription.customer = {
+        email: 'abc@123.com',
+        metadata: {
+          userid: 'uid',
+        },
+      };
+      subscription.latest_invoice = 'in_test123';
+
+      const account = {
+        emails: [],
+        email: 'testo@test.test',
+        locale: 'NZ',
+      };
+
+      const mockInvoice = {
+        id: 'in_test123',
+        discount: null,
+        discounts: [],
+      };
+
+      const mockUpcomingInvoiceNullTax = {
+        subtotal: 1000,
+        tax: null,
+        total: 1000,
+        currency: 'usd',
+        discount: null,
+        discounts: [],
+      };
+
+      reminder.alreadySentEmail = sandbox.fake.resolves(false);
+      reminder.db.account = sandbox.fake.resolves(account);
+      mockLog.info = sandbox.fake.returns({});
+      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
+        id: 'subscriptionId',
+        productMetadata: {},
+        planConfig: {},
+      });
+      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+        amount: longPlan1.amount,
+        currency: longPlan1.currency,
+        interval_count: longPlan1.interval_count,
+        interval: longPlan1.interval,
+      });
+      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoiceNullTax);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      reminder.updateSentEmail = sandbox.fake.resolves({});
+      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+
+      const result = await reminder.sendSubscriptionRenewalReminderEmail(
+        subscription,
+        longPlan1.id
+      );
+
+      assert.isTrue(result);
+      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const emailData = mailerCall.args[2];
+      assert.strictEqual(emailData.invoiceSubtotalInCents, 1000);
+      assert.strictEqual(emailData.invoiceTaxInCents, null);
+      assert.strictEqual(emailData.invoiceTotalInCents, 1000);
+      assert.strictEqual(emailData.invoiceTotalCurrency, 'usd');
     });
   });
 
