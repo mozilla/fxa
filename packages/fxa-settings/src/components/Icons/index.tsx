@@ -22,6 +22,8 @@ import { ReactComponent as FlagUsa } from './icon_flag_usa.min.svg';
 import { ReactComponent as InformationOutlineCurrent } from './icon_information_circle_outline_current.min.svg';
 import { ReactComponent as InformationOutlineBlue } from './icon_information_circle_outline_blue.min.svg';
 import { ReactComponent as Lightbulb } from './icon_lightbulb.min.svg';
+import { ReactComponent as LoadingArrow } from './icon_loading_arrow.min.svg';
+import { ReactComponent as Passkey } from './icon_passkey.min.svg';
 
 type AlertMode = 'alert' | 'attention' | 'warning';
 function getAlertAria(mode: AlertMode) {
@@ -286,6 +288,24 @@ export const LightbulbIcon = ({ className, ariaHidden }: ImageProps) => (
     Image={Lightbulb}
     ariaLabel="Lightbulb"
     ariaLabelFtlId="lightbulb-icon-aria-label"
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const LoadingArrowIcon = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedIcon
+    Image={LoadingArrow}
+    ariaLabel="Loading"
+    ariaLabelFtlId="loading-arrow-icon-aria-label"
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const PasskeyIcon = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedIcon
+    Image={Passkey}
+    ariaLabel="Passkey"
+    ariaLabelFtlId="passkey-icon-aria-label"
     {...{ className, ariaHidden }}
   />
 );
