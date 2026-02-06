@@ -37,6 +37,9 @@ import { TotpPage } from './settings/totp';
 import { InlineRecoveryKey } from './inlineRecoveryKey';
 import { SignupConfirmedSyncPage } from './signupConfirmedSync';
 import { InlineTotpSetupPage } from './inlineTotpSetup';
+import { PasskeyExamplePage } from './passkey';
+
+export { PasskeyPage } from './passkey';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -74,5 +77,6 @@ export function create(page: Page, target: BaseTarget) {
     signupConfirmedSync: new SignupConfirmedSyncPage(page, target),
     termsOfService: new TermsOfService(page, target),
     totp: new TotpPage(page, target),
+    passkeysExample: new PasskeyExamplePage(page, target),
   };
 }
