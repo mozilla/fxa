@@ -96,13 +96,13 @@ Lug.prototype.error = function (op, data) {
   // If the error object contains an email address,
   // lift it into top-level fields so that our
   // PII-scrubbing tool is able to find it.
-  if (data.err && data.err.email) {
+  if (data && data.err && data.err.email) {
     if (!data.email) {
       data.email = data.err.email;
     }
     data.err.email = null;
   }
-  this.logger.error(op, Object.assign({}, data, this.getTraceId()));
+  this.logger.error(op, Object.assign({}, data || {}, this.getTraceId()));
 };
 
 Lug.prototype.fatal = function (op, data) {
