@@ -2855,7 +2855,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
-  ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName, hadDiscount: true, hasDifferentDiscount: false })}],
+  ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName, discountEnding: true, hasDifferentDiscount: false })}],
 
   ['subscriptionRenewalReminderEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.subscription.productName} automatic renewal notice` }],
@@ -2888,7 +2888,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
-  ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName, hadDiscount: false, hasDifferentDiscount: true })}],
+  ]), {updateTemplateValues: x => ({...x, productName: MESSAGE.subscription.productName, discountEnding: false, hasDifferentDiscount: true })}],
 
   ['subscriptionEndingReminderEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `Your ${MESSAGE.subscription.productName} subscription will expire soon` }],

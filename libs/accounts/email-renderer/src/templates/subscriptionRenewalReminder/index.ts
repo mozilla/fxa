@@ -14,7 +14,7 @@ export type TemplateData = SubscriptionSupportContactTemplateData &
     reminderLength: string;
     subscriptionSupportUrl: string;
     updateBillingUrl: string;
-    hadDiscount?: boolean;
+    discountEnding?: boolean;
     hasDifferentDiscount?: boolean;
   };
 
