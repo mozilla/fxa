@@ -8,7 +8,7 @@ const proxyquire = require('proxyquire');
 const { default: Container } = require('typedi');
 
 const { config } = require('../../config');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const { OauthError: AppError } = require('@fxa/accounts/errors');
 const { decodeJWT } = require('../lib/util');
 const { CapabilityService } = require('../../lib/payments/capability');

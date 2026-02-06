@@ -24,7 +24,7 @@ const { Container } = require('typedi');
 const { CapabilityService } = require('../../../lib/payments/capability');
 const { AccountEventsManager } = require('../../../lib/account-events');
 const { AccountDeleteManager } = require('../../../lib/account-delete');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
+const { normalizeEmail } = require('fxa-shared/email/helpers');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
   PlaySubscriptions,
