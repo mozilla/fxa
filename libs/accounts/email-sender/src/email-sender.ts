@@ -222,9 +222,10 @@ export class EmailSender {
   /**
    * Send out an email.
    * @param email Email to send
+   * @param
    * @returns
    */
-  async send(email: Email) {
+  async send(email: Email, throwOnFailure = false) {
     // Always check for email bounces. Don't send if there bounce errors
     if (await this.hasBounceErrors(email)) {
       return {
@@ -232,7 +233,7 @@ export class EmailSender {
         message: 'Has bounce errors!',
       };
     }
-    return await this.sendMail(email);
+    return await this.sendMail(email, throwOnFailure);
   }
 
   /**
@@ -274,6 +275,7 @@ export class EmailSender {
 
   private async sendMail(
     email: Email,
+    throwOnFailure: boolean,
     attempt = 0
   ): Promise<{
     sent: boolean;
@@ -372,7 +374,7 @@ export class EmailSender {
 
         // Wait for backoff period, then retry
         await new Promise((resolve) => setTimeout(resolve, backoffDelay));
-        return this.sendMail(email, ++attempt);
+        return this.sendMail(email, throwOnFailure, ++attempt);
       }
 
       const smtpErrorDetails: Record<string, unknown> = {
@@ -415,7 +417,11 @@ export class EmailSender {
       }
 
       // Throw error back to calling code.
-      throw err;
+      if (throwOnFailure) {
+        throw err;
+      }
+
+      return { sent: false };
     }
   }
 }
