@@ -22,6 +22,12 @@ const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 const NON_DISABLED_CLIENT_ID = '98e6508e88680e1a';
 const CODE_WITH_KEYS = 'afafaf';
 const CODE_WITHOUT_KEYS = 'f0f0f0';
+const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
+const SUBJECT_TOKEN_TYPE_REFRESH =
+  'urn:ietf:params:oauth:token-type:refresh_token';
+const FIREFOX_IOS_CLIENT_ID = '1b1a3e44c54fbb58';
+const RELAY_SCOPE = 'https://identity.mozilla.com/apps/relay';
+const SYNC_SCOPE = 'https://identity.mozilla.com/apps/oldsync';
 
 const mockDb = { touchSessionToken: sinon.stub() };
 const mockStatsD = { increment: sinon.stub() };
@@ -374,13 +380,6 @@ describe('/token POST', function () {
   });
 });
 
-const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
-const SUBJECT_TOKEN_TYPE_REFRESH =
-  'urn:ietf:params:oauth:token-type:refresh_token';
-const FIREFOX_IOS_CLIENT_ID = '1b1a3e44c54fbb58';
-const RELAY_SCOPE = 'https://identity.mozilla.com/apps/relay';
-const SYNC_SCOPE = 'https://identity.mozilla.com/apps/oldsync';
-
 describe('token exchange grant_type', function () {
   const route = tokenRoutes[0];
 
@@ -601,6 +600,12 @@ describe('token exchange grant_type', function () {
           warn: () => {},
           info: () => {},
         },
+        db: {
+          ...tokenRoutesArgMocks.db,
+          async deviceFromRefreshTokenId() {
+            return null;
+          },
+        },
         oauthDB: {
           ...tokenRoutesArgMocks.oauthDB,
           async getRefreshToken() {
@@ -700,8 +705,9 @@ describe('/oauth/token POST', function () {
 
   describe('token exchange via /oauth/token', () => {
     const ScopeSet = require('fxa-shared').oauth.scopes;
+    const MOCK_DEVICE_ID = 'device1234567890abcdef';
 
-    it('handles token exchange with multiple existing scopes and skips newTokenNotification', async () => {
+    it('handles token exchange and passes existingDeviceId to newTokenNotification', async () => {
       const PROFILE_SCOPE = 'profile';
       const newTokenNotificationStub = sinon.stub().resolves();
       const routes = proxyquire(tokenRoutePath, {
@@ -725,6 +731,13 @@ describe('/oauth/token POST', function () {
           debug: () => {},
           warn: () => {},
           info: () => {},
+        },
+        db: {
+          ...tokenRoutesArgMocks.db,
+          async deviceFromRefreshTokenId() {
+            // Return an existing device associated with the old refresh token
+            return { id: MOCK_DEVICE_ID };
+          },
         },
         oauthDB: {
           ...tokenRoutesArgMocks.oauthDB,
@@ -762,8 +775,180 @@ describe('/oauth/token POST', function () {
       assert.include(result.scope, SYNC_SCOPE);
       assert.include(result.scope, PROFILE_SCOPE);
       assert.include(result.scope, RELAY_SCOPE);
-      // Token exchange should NOT call newTokenNotification
-      sinon.assert.notCalled(newTokenNotificationStub);
+      assert.isUndefined(result._clientId);
+      assert.isUndefined(result._existingDeviceId);
+      // Token exchange should call newTokenNotification with existingDeviceId and clientId
+      sinon.assert.calledOnce(newTokenNotificationStub);
+      const callArgs = newTokenNotificationStub.firstCall.args;
+      assert.deepEqual(callArgs[5], {
+        skipEmail: true,
+        existingDeviceId: MOCK_DEVICE_ID,
+        clientId: FIREFOX_IOS_CLIENT_ID,
+      });
+    });
+
+    it('handles token exchange when no existing device is found (existingDeviceId is undefined)', async () => {
+      const PROFILE_SCOPE = 'profile';
+      const newTokenNotificationStub = sinon.stub().resolves();
+      const routes = proxyquire(tokenRoutePath, {
+        ...tokenRoutesDepMocks,
+        '../../oauth/grant': {
+          generateTokens: (grant) => ({
+            access_token: 'new_access_token',
+            token_type: 'bearer',
+            scope: grant.scope.toString(),
+            expires_in: 3600,
+            refresh_token: 'new_refresh_token',
+          }),
+          validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
+        },
+        '../utils/oauth': {
+          newTokenNotification: newTokenNotificationStub,
+        },
+      })({
+        ...tokenRoutesArgMocks,
+        log: {
+          debug: () => {},
+          warn: () => {},
+          info: () => {},
+        },
+        db: {
+          ...tokenRoutesArgMocks.db,
+          async deviceFromRefreshTokenId() {
+            // No device associated with the refresh token
+            return null;
+          },
+        },
+        oauthDB: {
+          ...tokenRoutesArgMocks.oauthDB,
+          async getRefreshToken() {
+            return {
+              userId: buf(UID),
+              clientId: buf(FIREFOX_IOS_CLIENT_ID),
+              tokenId: buf('1234567890abcdef'),
+              scope: ScopeSet.fromString(`${SYNC_SCOPE} ${PROFILE_SCOPE}`),
+              profileChangedAt: Date.now(),
+            };
+          },
+          async removeRefreshToken() {},
+        },
+      });
+
+      const request = {
+        auth: { credentials: null },
+        headers: {},
+        payload: {
+          grant_type: GRANT_TOKEN_EXCHANGE,
+          subject_token: REFRESH_TOKEN,
+          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+          scope: RELAY_SCOPE,
+        },
+        emitMetricsEvent: async () => {},
+      };
+
+      const result = await routes[1].handler(request);
+
+      assert.equal(result.access_token, 'new_access_token');
+      assert.equal(result.refresh_token, 'new_refresh_token');
+      assert.isUndefined(result._clientId);
+      assert.isUndefined(result._existingDeviceId);
+      // Token exchange should call newTokenNotification with undefined existingDeviceId
+      sinon.assert.calledOnce(newTokenNotificationStub);
+      const callArgs = newTokenNotificationStub.firstCall.args;
+      assert.deepEqual(callArgs[5], {
+        skipEmail: true,
+        existingDeviceId: undefined,
+        clientId: FIREFOX_IOS_CLIENT_ID,
+      });
+    });
+  });
+
+  describe('fxa-credentials with reason=token_migration', () => {
+    it('calls newTokenNotification with skipEmail: true when reason is token_migration', async () => {
+      const newTokenNotificationStub = sinon.stub().resolves();
+      const routes = proxyquire(tokenRoutePath, {
+        ...tokenRoutesDepMocks,
+        '../../oauth/grant': {
+          generateTokens:
+            tokenRoutesDepMocks['../../oauth/grant'].generateTokens,
+          validateRequestedGrant: () => ({
+            offline: true,
+            scope: 'testo',
+            clientId: buf(CLIENT_ID),
+          }),
+        },
+        '../utils/oauth': {
+          newTokenNotification: newTokenNotificationStub,
+        },
+      })({
+        ...tokenRoutesArgMocks,
+        log: { debug: () => {}, warn: () => {}, info: () => {} },
+      });
+
+      const request = {
+        auth: { credentials: { uid: UID } },
+        headers: {},
+        payload: {
+          grant_type: 'fxa-credentials',
+          client_id: CLIENT_ID,
+          scope: 'profile',
+          access_type: 'offline',
+          reason: 'token_migration',
+        },
+        emitMetricsEvent: async () => {},
+      };
+
+      await routes[1].handler(request);
+      sinon.assert.calledOnce(newTokenNotificationStub);
+      const callArgs = newTokenNotificationStub.firstCall.args;
+      assert.deepEqual(callArgs[5], {
+        skipEmail: true,
+        existingDeviceId: undefined,
+        clientId: CLIENT_ID,
+      });
+    });
+
+    it('calls newTokenNotification with skipEmail: false when reason is not provided', async () => {
+      const newTokenNotificationStub = sinon.stub().resolves();
+      const routes = proxyquire(tokenRoutePath, {
+        ...tokenRoutesDepMocks,
+        '../../oauth/grant': {
+          generateTokens:
+            tokenRoutesDepMocks['../../oauth/grant'].generateTokens,
+          validateRequestedGrant: () => ({
+            offline: true,
+            scope: 'testo',
+            clientId: buf(CLIENT_ID),
+          }),
+        },
+        '../utils/oauth': {
+          newTokenNotification: newTokenNotificationStub,
+        },
+      })({
+        ...tokenRoutesArgMocks,
+        log: { debug: () => {}, warn: () => {}, info: () => {} },
+      });
+
+      const request = {
+        auth: { credentials: { uid: UID } },
+        headers: {},
+        payload: {
+          grant_type: 'fxa-credentials',
+          client_id: CLIENT_ID,
+          scope: 'profile',
+          access_type: 'offline',
+        },
+        emitMetricsEvent: async () => {},
+      };
+
+      await routes[1].handler(request);
+      sinon.assert.calledOnce(newTokenNotificationStub);
+      const callArgs = newTokenNotificationStub.firstCall.args;
+      assert.deepEqual(callArgs[5], {
+        skipEmail: false,
+        existingDeviceId: undefined,
+        clientId: CLIENT_ID,
+      });
     });
   });
 });

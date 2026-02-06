@@ -75,6 +75,9 @@ const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
 const SUBJECT_TOKEN_TYPE_REFRESH =
   'urn:ietf:params:oauth:token-type:refresh_token';
 
+// For Desktop apps migrating from using the session token to a refresh token
+const CREDENTIALS_REASON_MIGRATION = 'token_migration';
+
 const ACCESS_TYPE_ONLINE = 'online';
 const ACCESS_TYPE_OFFLINE = 'offline';
 
@@ -440,6 +443,13 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     //  Original scope plus requested scope, e.g. Sync + Relay
     const combinedScope = subjectToken.scope.union(requestedScope);
 
+    // Look up the device associated with the old refresh token so we can
+    // link the new refresh token to the same device record
+    const existingDevice = await db.deviceFromRefreshTokenId(
+      hex(subjectToken.userId),
+      hex(subjectToken.tokenId)
+    );
+
     return {
       userId: subjectToken.userId,
       clientId: subjectToken.clientId,
@@ -448,6 +458,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       authAt: Math.floor(Date.now() / 1000),
       profileChangedAt: subjectToken.profileChangedAt,
       originalRefreshTokenId: subjectToken.tokenId, // for revocation after new token generation
+      existingDeviceId: existingDevice ? existingDevice.id : undefined, // to link new token to existing device
     };
   }
 
@@ -518,11 +529,20 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     glean.oauth.tokenCreated(req, {
       uid,
       oauthClientId,
-      reason: params.grant_type,
+      reason: params.reason
+        ? `${params.grant_type}:${params.reason}`
+        : params.grant_type,
     });
 
     if (tokens.keys_jwe) {
       statsd.increment('oauth.rp.keys-jwe', { clientId: oauthClientId });
+    }
+
+    // Include grant properties needed by the /oauth/token handler for newTokenNotification.
+    // These are internal properties that get stripped before returning to the client.
+    tokens._clientId = oauthClientId;
+    if (grant.existingDeviceId) {
+      tokens._existingDeviceId = grant.existingDeviceId;
     }
 
     return tokens;
@@ -568,7 +588,13 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               .description(DESCRIPTION.keysJweOauth),
           }),
         },
-        handler: tokenHandler,
+        handler: async (req) => {
+          const result = await tokenHandler(req);
+          // Strip internal properties that are only used by /oauth/token handler
+          delete result._clientId;
+          delete result._existingDeviceId;
+          return result;
+        },
       },
     },
     {
@@ -641,6 +667,12 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
               ttl: Joi.number().positive().optional(),
               resource: validators.resourceUrl.optional(),
               assertion: Joi.forbidden(),
+              // 'token_migration' indicates a silent migration from session token to
+              // refresh token for an already-authenticated user (e.g., for Relay/Sync).
+              // This skips the new token notification email.
+              reason: Joi.string()
+                .valid(CREDENTIALS_REASON_MIGRATION)
+                .optional(),
             }),
             // token exchange (RFC 8693)
             Joi.object({
@@ -788,18 +820,35 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           grant.session_token = newSessionToken.data;
         }
 
-        // Token exchange is swapping tokens for an already-authenticated user,
-        // so we skip the new token notification.
-        if (grant.refresh_token && req.payload.grant_type !== GRANT_TOKEN_EXCHANGE) {
-          // if a refresh token has
-          // been provisioned as part of the flow
-          // then we want to send some notifications to the user
+        // If a refresh token has been provisioned as part of the flow,
+        // link it to the device record and optionally notify the user.
+        // For token exchange and token migration, skip the email notification
+        // since these are for already-authenticated users.
+        //
+        // Device association:
+        // - Token exchange: We look up the device from the old refresh token
+        //   (grant._existingDeviceId) since there's no session token auth.
+        // - Token migration: The session token auth already includes deviceId
+        //   via the SessionWithDevice stored procedure, so it's available in
+        //   request.auth.credentials.deviceId. skipEmail is a fallback for
+        //   sessions without an associated device.
+        if (grant.refresh_token) {
+          const isTokenExchange =
+            req.payload.grant_type === GRANT_TOKEN_EXCHANGE;
+          const isTokenMigration =
+            req.payload.reason === CREDENTIALS_REASON_MIGRATION;
+          const skipEmail = isTokenExchange || isTokenMigration;
           await oauthRouteUtils.newTokenNotification(
             db,
             mailer,
             devices,
             req,
-            grant
+            grant,
+            {
+              skipEmail,
+              existingDeviceId: grant._existingDeviceId,
+              clientId: grant._clientId,
+            }
           );
         }
 
@@ -808,7 +857,9 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           await db.touchSessionToken(sessionToken, {}, true);
         }
 
-        // done with 'session_token_id' at this point, do not return it.
+        // Strip internal properties before returning to client
+        delete grant._clientId;
+        delete grant._existingDeviceId;
         delete grant.session_token_id;
 
         // attempt to record metrics, but swallow the error if one is thrown.

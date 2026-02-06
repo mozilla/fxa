@@ -21,6 +21,12 @@ const JWT_ACCESS_TOKEN_CLIENT_ID = '325b4083e32fe8e7'; //321 Done
 const JWT_ACCESS_TOKEN_SECRET =
   'a084f4c36501ea1eb2de33258421af97b2e67ffbe107d2812f4a14f3579900ef';
 
+const FIREFOX_IOS_CLIENT_ID = '1b1a3e44c54fbb58';
+const RELAY_SCOPE = 'https://identity.mozilla.com/apps/relay';
+const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
+const SUBJECT_TOKEN_TYPE_REFRESH =
+  'urn:ietf:params:oauth:token-type:refresh_token';
+
 const { decodeJWT } = testUtils;
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
@@ -434,3 +440,173 @@ const { decodeJWT } = testUtils;
     });
   });
 });
+
+[{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
+  describe(`#integration${testOptions.version} - /oauth/token token exchange`, function () {
+    this.timeout(60000);
+    let client;
+    let email;
+    let password;
+    let server;
+
+    before(async () => {
+      testUtils.disableLogs();
+      server = await TestServer.start(config, false);
+    });
+
+    after(async () => {
+      await TestServer.stop(server);
+      testUtils.restoreStdoutWrite();
+    });
+
+    beforeEach(async () => {
+      email = server.uniqueEmail();
+      password = 'test password';
+      client = await Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      );
+    });
+
+    it('successfully exchanges a refresh token for a new token with additional scope', async () => {
+      // First, get a refresh token with sync scope using an allowed client
+      const initialTokens = await client.grantOAuthTokensFromSessionToken({
+        grant_type: 'fxa-credentials',
+        client_id: FIREFOX_IOS_CLIENT_ID,
+        access_type: 'offline',
+        scope: OAUTH_SCOPE_OLD_SYNC,
+      });
+
+      assert.ok(initialTokens.access_token);
+      assert.ok(initialTokens.refresh_token);
+      assert.equal(initialTokens.scope, OAUTH_SCOPE_OLD_SYNC);
+
+      // Check attached clients before token exchange - should have one device
+      const clientsBefore = await client.attachedClients();
+      const oauthClientBefore = clientsBefore.find(
+        (c) => c.refreshTokenId !== null
+      );
+      assert.ok(oauthClientBefore, 'should have an OAuth client');
+      const originalDeviceId = oauthClientBefore.deviceId;
+
+      // Now perform token exchange to get a new token with Relay scope
+      const exchangedTokens = await client.grantOAuthTokens({
+        grant_type: GRANT_TOKEN_EXCHANGE,
+        subject_token: initialTokens.refresh_token,
+        subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+        scope: RELAY_SCOPE,
+      });
+
+      assert.ok(exchangedTokens.access_token);
+      assert.ok(exchangedTokens.refresh_token);
+      // New token should have combined scopes
+      assert.include(exchangedTokens.scope, OAUTH_SCOPE_OLD_SYNC);
+      assert.include(exchangedTokens.scope, RELAY_SCOPE);
+      assert.ok(exchangedTokens.expires_in);
+      assert.equal(exchangedTokens.token_type, 'bearer');
+      // Internal properties should not be exposed
+      assert.isUndefined(exchangedTokens._clientId);
+      assert.isUndefined(exchangedTokens._existingDeviceId);
+
+      // Check attached clients after token exchange - device should be linked to new token
+      const clientsAfter = await client.attachedClients();
+      const oauthClientAfter = clientsAfter.find(
+        (c) => c.refreshTokenId !== null
+      );
+      assert.ok(oauthClientAfter, 'should still have an OAuth client');
+      assert.equal(
+        oauthClientAfter.deviceId,
+        originalDeviceId,
+        'device ID should be preserved after token exchange'
+      );
+
+      // Original refresh token should be revoked
+      try {
+        await client.grantOAuthTokens({
+          grant_type: 'refresh_token',
+          client_id: FIREFOX_IOS_CLIENT_ID,
+          refresh_token: initialTokens.refresh_token,
+        });
+        assert.fail('should have thrown - original token should be revoked');
+      } catch (err) {
+        assert.equal(err.errno, 110, 'invalid token error');
+      }
+    });
+  });
+});
+
+describe(`#integrationV2 - /oauth/token fxa-credentials with reason`, function () {
+  const testOptions = { version: 'V2' };
+    this.timeout(60000);
+    let client;
+    let email;
+    let password;
+    let server;
+
+    before(async () => {
+      testUtils.disableLogs();
+      server = await TestServer.start(config, false);
+    });
+
+    after(async () => {
+      await TestServer.stop(server);
+      testUtils.restoreStdoutWrite();
+    });
+
+    beforeEach(async () => {
+      email = server.uniqueEmail();
+      password = 'test password';
+      client = await Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      );
+    });
+
+    it('grants tokens with reason=token_migration and links to existing device', async () => {
+      const deviceInfo = {
+        name: 'Test Device',
+        type: 'desktop',
+      };
+      const device = await client.updateDevice(deviceInfo);
+      assert.ok(device.id, 'device should be created');
+
+      // Check attached clients before migration
+      const clientsBefore = await client.attachedClients();
+      assert.equal(clientsBefore.length, 1, 'should have one client (session)');
+      assert.equal(clientsBefore[0].deviceId, device.id);
+      assert.isNull(clientsBefore[0].refreshTokenId, 'no refresh token yet');
+
+      // Grant tokens with reason=token_migration
+      const tokens = await client.grantOAuthTokensFromSessionToken({
+        grant_type: 'fxa-credentials',
+        client_id: FIREFOX_IOS_CLIENT_ID,
+        access_type: 'offline',
+        scope: OAUTH_SCOPE_OLD_SYNC,
+        reason: 'token_migration',
+      });
+
+      assert.ok(tokens.access_token);
+      assert.ok(tokens.refresh_token);
+      assert.equal(tokens.scope, OAUTH_SCOPE_OLD_SYNC);
+
+      // Verify the refresh token is linked to the same existing device
+      const clientsAfter = await client.attachedClients();
+      // Should still be one device (not a new one created)
+      assert.equal(clientsAfter.length, 1, 'should still have one client');
+      assert.equal(
+        clientsAfter[0].deviceId,
+        device.id,
+        'should be the same device'
+      );
+      assert.ok(
+        clientsAfter[0].refreshTokenId,
+        'device should now have refresh token linked'
+      );
+    });
+  });
