@@ -22,17 +22,21 @@ subscriptions:
     extra_keys:
       page_name:
         description: |
-          The UI state reached by the user. Allowed values:
+          The page reached by the user. Allowed values:
           - management
           - stay_standard
-          - stay_standard_success
           - stay_retention
-          - stay_retention_success
           - cancel_standard
-          - cancel_standard_success
           - cancel_retention
-          - cancel_retention_success
           - interstitial_offer
+        type: string
+      page_variant:
+        description: |
+          UI state of page. Allowed values:
+          - stay_standard_success
+          - stay_retention_success
+          - cancel_standard_success
+          - cancel_retention_success
           - interstitial_offer_success
         type: string
       source:
@@ -110,7 +114,7 @@ subscriptions:
     extra_keys:
       flow_type:
         description: |
-          Type of retention flow. Allowed values: cancel, stay_subscribed.
+          Type of retention flow. Allowed values: cancel, stay.
         type: string
       step:
         description: |
@@ -157,7 +161,7 @@ subscriptions:
     extra_keys:
       flow_type:
         description: |
-          Type of retention flow. Allowed values: cancel, stay_subscribed.
+          Type of retention flow. Allowed values: cancel, stay.
         type: string
       step:
         description: |
