@@ -1689,7 +1689,7 @@ export class AccountHandler {
         // Combine and dedupe bounces by email and createdAt
         const seen = new Set<string>();
         bounces = [...normalizedBounces, ...wildcardBounces].filter(
-          (bounce: any) => {
+          (bounce: { email: string; createdAt: number }) => {
             const key = `${bounce.email}:${bounce.createdAt}`;
             if (seen.has(key)) return false;
             seen.add(key);
@@ -2364,7 +2364,7 @@ export class AccountHandler {
 
     // Format emails
     const formattedEmails = emails.status === 'fulfilled'
-      ? emails.value.map((email: any) => ({
+      ? emails.value.map((email: { email: string; isPrimary: boolean; isVerified: boolean }) => ({
           email: email.email,
           isPrimary: email.isPrimary,
           verified: email.isVerified,
@@ -2373,7 +2373,7 @@ export class AccountHandler {
 
     // Format linked accounts
     const linkedAccounts = linkedAccountsResult.status === 'fulfilled'
-      ? linkedAccountsResult.value.map((la: any) => ({
+      ? linkedAccountsResult.value.map((la: { providerId: number; authAt: number; enabled: boolean }) => ({
           providerId: la.providerId,
           authAt: la.authAt,
           enabled: la.enabled,
@@ -2394,7 +2394,7 @@ export class AccountHandler {
     const devicesCount = devicesResult.status === 'fulfilled' ? devicesResult.value.length : 0;
     const authorizedClients = authorizedClientsResult.status === 'fulfilled' ? authorizedClientsResult.value : [];
     const syncOAuthClientsCount = authorizedClients.filter(
-      (client: any) => client.scope && client.scope.includes(OAUTH_SCOPE_OLD_SYNC)
+      (client: { scope?: string }) => client.scope && client.scope.includes(OAUTH_SCOPE_OLD_SYNC)
     ).length;
     const estimatedSyncDeviceCount = Math.max(devicesCount, syncOAuthClientsCount);
 
@@ -2414,7 +2414,7 @@ export class AccountHandler {
 
     // Format security events
     const securityEvents = securityEventsResult.status === 'fulfilled'
-      ? securityEventsResult.value.map((e: any) => ({
+      ? securityEventsResult.value.map((e: { name: string; createdAt: number; verified?: boolean }) => ({
           name: e.name,
           createdAt: e.createdAt,
           verified: e.verified,
