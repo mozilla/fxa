@@ -62,8 +62,7 @@ describe('connected-services/formatters', () => {
     assert.exists(client.location?.state);
     assert.exists(client.location?.stateCode);
     assert.exists(client.location?.country);
-    // Not set, is this a bug?
-    // assert.exists(client.location?.countryCode);
+    assert.exists(client.location?.countryCode);
   });
 
   it('formats DE location', () => {
@@ -71,15 +70,21 @@ describe('connected-services/formatters', () => {
     client.location = {
       city: 'Berlin',
       countryCode: 'DE',
+      country: 'Germany',
+      state: 'Berlin',
+      stateCode: 'BE',
     };
     clientFormatter.formatLocation(client, request);
 
+    assert.exists(client.location?.city);
+    assert.exists(client.location?.state);
+    assert.exists(client.location?.stateCode);
     assert.exists(client.location?.country);
-    // Not set, is this a bug?
-    // assert.exists(client.location?.city);
-    // assert.exists(client.location?.state);
-    // assert.exists(client.location?.stateCode);
-    // assert.exists(client.location?.countryCode);
+    assert.exists(client.location?.countryCode);
+
+    // Assert we are NOT localizing on the backend anymore
+    assert.strictEqual(client.location?.country, 'Germany'); // Should remain as input
+    assert.strictEqual(client.location?.countryCode, 'DE');
   });
 
   it('formats timestamps', () => {
