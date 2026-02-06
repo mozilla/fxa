@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 

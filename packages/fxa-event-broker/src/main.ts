@@ -11,7 +11,7 @@ import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 
 import { NestApplicationOptions } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import mozLog from 'mozlog';
 
 import { initTracing } from 'fxa-shared/tracing/node-tracing';
@@ -34,7 +34,9 @@ async function bootstrap() {
   const config: ConfigService<AppConfig> = app.get(ConfigService);
   const proxyConfig = config.get('proxy') as AppConfig['proxy'];
 
-  app.useGlobalFilters(new SentryGlobalFilter());
+  // Register Sentry exception filter with proper HttpAdapterHost
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new SentryGlobalFilter(httpAdapter));
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();
