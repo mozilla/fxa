@@ -245,7 +245,7 @@
     "copyfiles": "^2.4.1",
     "esbuild": "^0.17.15",
     "esbuild-register": "^3.5.0",
-    "eslint": "^8.57.1",
+    "eslint": "^9.26.0",
     "eslint-config-next": "14.2.3",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-flowtype": "^8.0.3",
