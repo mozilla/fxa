@@ -25,5 +25,16 @@
     "dist",
     "fxa-*",
     "vendor"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.spec.ts"],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "fxa/async-crypto-random": "off"
+      }
+    }
   ]
 }
