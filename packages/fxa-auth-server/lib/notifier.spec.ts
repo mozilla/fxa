@@ -6,6 +6,11 @@ export {};
 
 import sinon from 'sinon';
 
+interface NotifierInstance {
+  send(event: Record<string, unknown>, cb?: () => void): void;
+  __sns: { publish: sinon.SinonSpy };
+}
+
 describe('notifier', () => {
   const log = {
     error: sinon.spy(),
@@ -19,7 +24,7 @@ describe('notifier', () => {
   });
 
   describe('with sns configuration', () => {
-    let notifier: any;
+    let notifier: NotifierInstance;
 
     beforeEach(() => {
       jest.doMock('../config', () => ({
@@ -35,7 +40,7 @@ describe('notifier', () => {
       const notifierModule = require('./notifier');
       notifier = notifierModule(log);
 
-      notifier.__sns.publish = sinon.spy((event: any, cb: any) => {
+      notifier.__sns.publish = sinon.spy((event: Record<string, unknown>, cb: (err: null, data: Record<string, unknown>) => void) => {
         cb(null, event);
       });
     });
@@ -133,7 +138,7 @@ describe('notifier', () => {
       jest.resetModules();
       const notifierModule = require('./notifier');
       notifier = notifierModule(log, statsd);
-      notifier.__sns.publish = sinon.spy((event: any, cb: any) => {
+      notifier.__sns.publish = sinon.spy((event: Record<string, unknown>, cb: (err: null, data: Record<string, unknown>) => void) => {
         cb(null, event);
       });
       notifier.send({

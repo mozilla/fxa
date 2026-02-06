@@ -10,7 +10,7 @@ const log = mocks.mockLog();
 
 describe('Token', () => {
   describe('NODE_ENV=dev', () => {
-    let Token: any;
+    let Token: ReturnType<typeof require>;
     beforeAll(() => {
       config.isProduction = false;
       Token = require('./token')(log, config);
@@ -42,14 +42,14 @@ describe('Token', () => {
 
     it('Token.createNewToken defaults createdAt to the current time', () => {
       const now = Date.now();
-      return Token.createNewToken(Token, {}).then((token: any) => {
+      return Token.createNewToken(Token, {}).then((token: { createdAt: number }) => {
         expect(token.createdAt >= now && token.createdAt <= Date.now()).toBeTruthy();
       });
     });
 
     it('Token.createNewToken ignores an override for createdAt', () => {
       const now = Date.now() - 1;
-      return Token.createNewToken(Token, { createdAt: now }).then((token: any) => {
+      return Token.createNewToken(Token, { createdAt: now }).then((token: { createdAt: number }) => {
         expect(token.createdAt).not.toBe(now);
       });
     });
@@ -58,7 +58,7 @@ describe('Token', () => {
       const now = Date.now();
       const notNow = -now;
       return Token.createNewToken(Token, { createdAt: notNow }).then(
-        (token: any) => {
+        (token: { createdAt: number }) => {
           expect(token.createdAt >= now && token.createdAt <= Date.now()).toBeTruthy();
         }
       );
@@ -68,7 +68,7 @@ describe('Token', () => {
       const now = Date.now();
       const notNow = Date.now() + 1000;
       return Token.createNewToken(Token, { createdAt: notNow }).then(
-        (token: any) => {
+        (token: { createdAt: number }) => {
           expect(token.createdAt >= now && token.createdAt <= Date.now()).toBeTruthy();
         }
       );
@@ -78,7 +78,7 @@ describe('Token', () => {
       const now = Date.now() - 20;
       return Token.createTokenFromHexData(Token, 'ABCD', {
         createdAt: now,
-      }).then((token: any) => {
+      }).then((token: { createdAt: number }) => {
         expect(token.createdAt).toBe(now);
       });
     });
@@ -86,14 +86,14 @@ describe('Token', () => {
     it('Token.createTokenFromHexData defaults to zero if not given a value for createdAt', () => {
       return Token.createTokenFromHexData(Token, 'ABCD', {
         other: 'data',
-      }).then((token: any) => {
+      }).then((token: { createdAt: number }) => {
         expect(token.createdAt).toBe(0);
       });
     });
   });
 
   describe('NODE_ENV=prod', () => {
-    let Token: any;
+    let Token: ReturnType<typeof require>;
     beforeAll(() => {
       config.isProduction = true;
       Token = require('./token')(log, config);
@@ -101,14 +101,14 @@ describe('Token', () => {
 
     it('Token.createNewToken defaults createdAt to the current time', () => {
       const now = Date.now();
-      return Token.createNewToken(Token, {}).then((token: any) => {
+      return Token.createNewToken(Token, {}).then((token: { createdAt: number }) => {
         expect(token.createdAt >= now && token.createdAt <= Date.now()).toBeTruthy();
       });
     });
 
     it('Token.createNewToken does not accept an override for createdAt', () => {
       const now = Date.now() - 1;
-      return Token.createNewToken(Token, { createdAt: now }).then((token: any) => {
+      return Token.createNewToken(Token, { createdAt: now }).then((token: { createdAt: number }) => {
         expect(token.createdAt > now && token.createdAt <= Date.now()).toBeTruthy();
       });
     });
@@ -117,7 +117,7 @@ describe('Token', () => {
       const now = Date.now() - 20;
       return Token.createTokenFromHexData(Token, 'ABCD', {
         createdAt: now,
-      }).then((token: any) => {
+      }).then((token: { createdAt: number }) => {
         expect(token.createdAt).toBe(now);
       });
     });
@@ -125,7 +125,7 @@ describe('Token', () => {
     it('Token.createTokenFromHexData defaults to zero if not given a value for createdAt', () => {
       return Token.createTokenFromHexData(Token, 'ABCD', {
         other: 'data',
-      }).then((token: any) => {
+      }).then((token: { createdAt: number }) => {
         expect(token.createdAt).toBe(0);
       });
     });

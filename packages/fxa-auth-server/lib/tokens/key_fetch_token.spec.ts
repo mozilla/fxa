@@ -23,92 +23,105 @@ const ACCOUNT = {
   emailVerified: true,
 };
 
+interface KeyFetchTokenLike {
+  data: string;
+  id: string;
+  authKey: string;
+  bundleKey: string;
+  uid: string;
+  kA: string;
+  wrapKb: string;
+  emailVerified: boolean;
+  bundleKeys(kA: string | Buffer, wrapKb: string | Buffer): Promise<string>;
+  unbundleKeys(bundle: string): Promise<{ kA: string; wrapKb: string }>;
+}
+
 describe('KeyFetchToken', () => {
   it('should re-create from tokenData', () => {
-    let token: any = null;
+    let token: KeyFetchTokenLike | null = null;
     return KeyFetchToken.create(ACCOUNT)
-      .then((x: any) => {
+      .then((x: KeyFetchTokenLike) => {
         token = x;
       })
       .then(() => {
-        return KeyFetchToken.fromHex(token.data, ACCOUNT);
+        return KeyFetchToken.fromHex(token!.data, ACCOUNT);
       })
-      .then((token2: any) => {
-        expect(token.data).toEqual(token2.data);
-        expect(token.id).toEqual(token2.id);
-        expect(token.authKey).toEqual(token2.authKey);
-        expect(token.bundleKey).toEqual(token2.bundleKey);
-        expect(token.uid).toEqual(token2.uid);
-        expect(token.kA).toEqual(token2.kA);
-        expect(token.wrapKb).toEqual(token2.wrapKb);
-        expect(token.emailVerified).toBe(token2.emailVerified);
+      .then((token2: KeyFetchTokenLike) => {
+        expect(token!.data).toEqual(token2.data);
+        expect(token!.id).toEqual(token2.id);
+        expect(token!.authKey).toEqual(token2.authKey);
+        expect(token!.bundleKey).toEqual(token2.bundleKey);
+        expect(token!.uid).toEqual(token2.uid);
+        expect(token!.kA).toEqual(token2.kA);
+        expect(token!.wrapKb).toEqual(token2.wrapKb);
+        expect(token!.emailVerified).toBe(token2.emailVerified);
       });
   });
 
   it('should re-create from id', () => {
-    let token: any = null;
+    let token: KeyFetchTokenLike | null = null;
     return KeyFetchToken.create(ACCOUNT)
-      .then((x: any) => {
+      .then((x: KeyFetchTokenLike) => {
         token = x;
         return KeyFetchToken.fromId(token.id, token);
       })
-      .then((x: any) => {
-        expect(x.id).toBe(token.id);
-        expect(x.authKey).toBe(token.authKey);
+      .then((x: KeyFetchTokenLike) => {
+        expect(x.id).toBe(token!.id);
+        expect(x.authKey).toBe(token!.authKey);
       });
   });
 
   it('should bundle / unbundle of keys', () => {
-    let token: any = null;
+    let token: KeyFetchTokenLike | null = null;
     const kA = crypto.randomBytes(32).toString('hex');
     const wrapKb = crypto.randomBytes(32).toString('hex');
     return KeyFetchToken.create(ACCOUNT)
-      .then((x: any) => {
+      .then((x: KeyFetchTokenLike) => {
         token = x;
         return x.bundleKeys(kA, wrapKb);
       })
-      .then((b: any) => {
-        return token.unbundleKeys(b);
+      .then((b: string) => {
+        return token!.unbundleKeys(b);
       })
-      .then((ub: any) => {
+      .then((ub: { kA: string; wrapKb: string }) => {
         expect(ub.kA).toEqual(kA);
         expect(ub.wrapKb).toEqual(wrapKb);
       });
   });
 
   it('should only bundle / unbundle of keys with correct token', () => {
-    let token1: any = null;
-    let token2: any = null;
+    let token1: KeyFetchTokenLike | null = null;
+    let token2: KeyFetchTokenLike | null = null;
     const kA = crypto.randomBytes(32).toString('hex');
     const wrapKb = crypto.randomBytes(32).toString('hex');
     return KeyFetchToken.create(ACCOUNT)
-      .then((x: any) => {
+      .then((x: KeyFetchTokenLike) => {
         token1 = x;
         return KeyFetchToken.create(ACCOUNT);
       })
-      .then((x: any) => {
+      .then((x: KeyFetchTokenLike) => {
         token2 = x;
-        return token1.bundleKeys(kA, wrapKb);
+        return token1!.bundleKeys(kA, wrapKb);
       })
-      .then((b: any) => {
-        return token2.unbundleKeys(b);
+      .then((b: string) => {
+        return token2!.unbundleKeys(b);
       })
       .then(
         () => {
           throw new Error('was able to unbundle using wrong token');
         },
-        (err: any) => {
+        (err: { errno: number }) => {
           expect(err.errno).toBe(109);
         }
       );
   });
 
   it('should have key derivations that are test-vector compliant', () => {
-    let token: any = null;
+    let token: KeyFetchTokenLike | null = null;
     const tokenData =
       '808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f';
     return KeyFetchToken.fromHex(tokenData, ACCOUNT)
-      .then((x: any) => {
+      .then((x: KeyFetchTokenLike) => {
         token = x;
         expect(token.data).toBe(tokenData);
         expect(token.id).toBe(
@@ -130,9 +143,9 @@ describe('KeyFetchToken', () => {
           '404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f',
           'hex'
         );
-        return token.bundleKeys(kA, wrapKb);
+        return token!.bundleKeys(kA, wrapKb);
       })
-      .then((bundle: any) => {
+      .then((bundle: string) => {
         expect(bundle).toBe(
           'ee5c58845c7c9412b11bbd20920c2fddd83c33c9cd2c2de2' +
             'd66b222613364636c2c0f8cfbb7c630472c0bd88451342c6' +

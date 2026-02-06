@@ -18,24 +18,42 @@ const TTL = '42';
 const MS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
 
 const PUSH_PAYLOADS_SCHEMA_PATH = './pushpayloads.schema.json';
-let PUSH_PAYLOADS_SCHEMA_MATCHER: any = null;
-(match as any).validPushPayload = (fields: any) => {
+let PUSH_PAYLOADS_SCHEMA_MATCHER: sinon.SinonMatcher | null = null;
+// sinon.match doesn't have validPushPayload - extending it requires `as` cast
+(match as Record<string, unknown>).validPushPayload = (fields: Record<string, unknown>) => {
   if (!PUSH_PAYLOADS_SCHEMA_MATCHER) {
     const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
     const schema = JSON.parse(fs.readFileSync(schemaPath));
-    PUSH_PAYLOADS_SCHEMA_MATCHER = match((value: any) => {
+    PUSH_PAYLOADS_SCHEMA_MATCHER = match((value: unknown) => {
       return ajv.validate(schema, value);
     }, 'matches payload schema');
   }
   return match(fields).and(PUSH_PAYLOADS_SCHEMA_MATCHER);
 };
 
+interface MockDevice {
+  id: string;
+  isCurrentDevice: boolean;
+  lastAccessTime: number;
+  name: string;
+  type: string | null;
+  availableCommands: Record<string, string>;
+  pushCallback: string;
+  pushPublicKey: string;
+  pushAuthKey: string;
+  pushEndpointExpired: boolean;
+  uaOS?: string;
+  uaOSVersion?: string;
+  uaBrowser?: string;
+  uaBrowserVersion?: string;
+}
+
 describe('push', () => {
-  let mockDb: any,
-    mockLog: any,
-    mockConfig: any,
-    mockStatsD: any,
-    mockDevices: any[],
+  let mockDb: ReturnType<typeof mocks.mockDB>,
+    mockLog: ReturnType<typeof mocks.mockLog>,
+    mockConfig: Record<string, unknown>,
+    mockStatsD: { increment: sinon.SinonSpy },
+    mockDevices: MockDevice[],
     mockSendNotification: sinon.SinonSpy;
 
   function loadMockedPushModule() {
@@ -527,7 +545,7 @@ describe('push', () => {
 
   it('push logs a warning when asked to send to more than 200 devices', async () => {
     const push = loadMockedPushModule();
-    const devices: any[] = [];
+    const devices: MockDevice[] = [];
     for (let i = 0; i < 200; i++) {
       devices.push(mockDevices[0]);
     }
@@ -544,7 +562,7 @@ describe('push', () => {
 
   it('push resets device push data when push server responds with a 400 level error', async () => {
     mockSendNotification = sinon.spy(async () => {
-      const err = new Error('Failed') as any;
+      const err: Error & { statusCode?: number } = new Error('Failed');
       err.statusCode = 410;
       throw err;
     });
@@ -625,7 +643,7 @@ describe('push', () => {
       [mockDevices[0]],
       'commandReceived',
       {
-        data: (match as any).validPushPayload({
+        data: (match as Record<string, Function>).validPushPayload({
           version: 1,
           command: 'fxaccounts:command_received',
           data: {
@@ -676,7 +694,7 @@ describe('push', () => {
       mockDevices,
       'deviceConnected',
       {
-        data: (match as any).validPushPayload({
+        data: (match as Record<string, Function>).validPushPayload({
           version: 1,
           command: 'fxaccounts:device_connected',
           data: {
@@ -700,7 +718,7 @@ describe('push', () => {
       mockDevices,
       'deviceDisconnected',
       {
-        data: (match as any).validPushPayload({
+        data: (match as Record<string, Function>).validPushPayload({
           version: 1,
           command: 'fxaccounts:device_disconnected',
           data: {
@@ -723,7 +741,7 @@ describe('push', () => {
       mockDevices,
       'passwordChange',
       {
-        data: (match as any).validPushPayload({
+        data: (match as Record<string, Function>).validPushPayload({
           version: 1,
           command: 'fxaccounts:password_changed',
           data: match.undefined,
@@ -744,7 +762,7 @@ describe('push', () => {
       mockDevices,
       'passwordReset',
       {
-        data: (match as any).validPushPayload({
+        data: (match as Record<string, Function>).validPushPayload({
           version: 1,
           command: 'fxaccounts:password_reset',
           data: match.undefined,
@@ -778,7 +796,7 @@ describe('push', () => {
       mockDevices,
       'accountDestroyed',
       {
-        data: (match as any).validPushPayload({
+        data: (match as Record<string, Function>).validPushPayload({
           version: 1,
           command: 'fxaccounts:account_destroyed',
           data: {

@@ -12,29 +12,35 @@ const ACCOUNT = {
   uid: 'xxx',
 };
 
+interface TokenLike {
+  data: string | Buffer;
+  id: string;
+  authKey: string | Buffer;
+  bundleKey: string | Buffer;
+  uid: string;
+}
+
 describe('account reset tokens', () => {
   it('should re-create from tokenData', () => {
-    let token: any = null;
+    let token: TokenLike | null = null;
     return AccountResetToken.create(ACCOUNT)
-      .then((x: any) => {
+      .then((x: TokenLike) => {
         token = x;
       })
-      .then(() => AccountResetToken.fromHex(token.data, ACCOUNT))
-      .then((token2: any) => {
-        expect(token.data).toEqual(token2.data);
-        expect(token.id).toEqual(token2.id);
-        expect(token.authKey).toEqual(token2.authKey);
-        expect(token.bundleKey).toEqual(token2.bundleKey);
-        expect(token.uid).toEqual(token2.uid);
+      .then(() => AccountResetToken.fromHex(token!.data, ACCOUNT))
+      .then((token2: TokenLike) => {
+        expect(token!.data).toEqual(token2.data);
+        expect(token!.id).toEqual(token2.id);
+        expect(token!.authKey).toEqual(token2.authKey);
+        expect(token!.bundleKey).toEqual(token2.bundleKey);
+        expect(token!.uid).toEqual(token2.uid);
       });
   });
 
   it('should have test-vector compliant key derivations', () => {
-    let token: any = null;
     const tokenData =
       'c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf';
-    return AccountResetToken.fromHex(tokenData, ACCOUNT).then((x: any) => {
-      token = x;
+    return AccountResetToken.fromHex(tokenData, ACCOUNT).then((token: TokenLike & { data: { toString(enc: string): string }; authKey: { toString(enc: string): string }; bundleKey: { toString(enc: string): string } }) => {
       expect(token.data.toString('hex')).toBe(tokenData);
       expect(token.id).toBe(
         '46ec557e56e531a058620e9344ca9c75afac0d0bcbdd6f8c3c2f36055d9540cf'

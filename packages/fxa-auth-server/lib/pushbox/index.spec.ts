@@ -12,7 +12,7 @@ const { pushboxApi } = require('./index');
 const pushboxDbModule = require('./db');
 const { AppError: error } = require('@fxa/accounts/errors');
 const { mockLog } = require('../../test/mocks');
-let mockStatsD: any;
+let mockStatsD: { increment: sinon.SinonStub; timing: sinon.SinonStub };
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -35,10 +35,14 @@ const mockDeviceIds = ['AAAA11', 'BBBB22', 'CCCC33'];
 const mockData = 'eyJmb28iOiAiYmFyIn0';
 const mockUid = 'ABCDEF';
 
+interface PushboxError extends Error {
+  errno: number;
+}
+
 describe('pushbox', () => {
   describe('using direct Pushbox database access', () => {
-    let stubDbModule: any;
-    let stubConstructor: any;
+    let stubDbModule: sinon.SinonStubbedInstance<typeof pushboxDbModule.PushboxDB>;
+    let stubConstructor: sinon.SinonStub;
 
     beforeEach(() => {
       mockStatsD = { increment: sandbox.stub(), timing: sandbox.stub() };
@@ -63,7 +67,7 @@ describe('pushbox', () => {
       );
       return pushbox
         .store(mockUid, mockDeviceIds[0], { test: 'data' })
-        .then(({ index }: any) => {
+        .then(({ index }: { index: number }) => {
           sinon.assert.calledOnceWithExactly(stubDbModule.store, {
             uid: mockUid,
             deviceId: mockDeviceIds[0],
@@ -93,7 +97,7 @@ describe('pushbox', () => {
       );
       return pushbox
         .store(mockUid, mockDeviceIds[0], { test: 'data' }, 42)
-        .then(({ index }: any) => {
+        .then(({ index }: { index: number }) => {
           sinon.assert.calledOnceWithExactly(stubDbModule.store, {
             uid: mockUid,
             deviceId: mockDeviceIds[0],
@@ -115,7 +119,7 @@ describe('pushbox', () => {
       );
       return pushbox
         .store(mockUid, mockDeviceIds[0], { test: 'data' }, 999999999)
-        .then(({ index }: any) => {
+        .then(({ index }: { index: number }) => {
           sinon.assert.calledOnceWithExactly(stubDbModule.store, {
             uid: mockUid,
             deviceId: mockDeviceIds[0],
@@ -136,7 +140,7 @@ describe('pushbox', () => {
           () => {
             throw new Error('should not happen');
           },
-          (err: any) => {
+          (err: PushboxError) => {
             expect(err).toBeTruthy();
             expect(err.errno).toBe(error.ERRNO.UNEXPECTED_ERROR);
             sinon.assert.calledOnce(log.error);
@@ -167,7 +171,7 @@ describe('pushbox', () => {
       );
       return pushbox
         .retrieve(mockUid, mockDeviceIds[0], 50, 10)
-        .then((result: any) => {
+        .then((result: { last: boolean; index: number; messages: Array<{ index: number; data: Record<string, string> }> }) => {
           expect(result).toEqual({
             last: true,
             index: 15,
@@ -189,7 +193,7 @@ describe('pushbox', () => {
         () => {
           throw new Error('should not happen');
         },
-        (err: any) => {
+        (err: PushboxError) => {
           expect(err).toBeTruthy();
           expect(err.errno).toBe(error.ERRNO.UNEXPECTED_ERROR);
           sinon.assert.calledOnce(log.error);
@@ -206,7 +210,7 @@ describe('pushbox', () => {
       const log = mockLog();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       return pushbox.deleteDevice(mockUid, mockDeviceIds[0]).then(
-        (res: any) => {
+        (res: undefined) => {
           expect(res).toBeUndefined();
           expect(mockStatsD.timing.args[0][0]).toBe(
             'pushbox.db.delete.device.success'
@@ -216,8 +220,8 @@ describe('pushbox', () => {
             'pushbox.db.delete.device'
           );
         },
-        (err: any) => {
-          throw new Error(err);
+        (err: Error) => {
+          throw new Error(err.message);
         }
       );
     });
@@ -230,7 +234,7 @@ describe('pushbox', () => {
         () => {
           throw new Error('should not happen');
         },
-        (err: any) => {
+        (err: PushboxError) => {
           expect(err).toBeTruthy();
           expect(err.errno).toBe(error.ERRNO.UNEXPECTED_ERROR);
           sinon.assert.calledOnce(log.error);
@@ -247,7 +251,7 @@ describe('pushbox', () => {
       const log = mockLog();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       return pushbox.deleteAccount(mockUid).then(
-        (res: any) => {
+        (res: undefined) => {
           expect(res).toBeUndefined();
           expect(mockStatsD.timing.args[0][0]).toBe(
             'pushbox.db.delete.account.success'
@@ -257,8 +261,8 @@ describe('pushbox', () => {
             'pushbox.db.delete.account'
           );
         },
-        (err: any) => {
-          throw new Error(err);
+        (err: Error) => {
+          throw new Error(err.message);
         }
       );
     });
@@ -273,7 +277,7 @@ describe('pushbox', () => {
         () => {
           throw new Error('should not happen');
         },
-        (err: any) => {
+        (err: PushboxError) => {
           expect(err).toBeTruthy();
           expect(err.errno).toBe(error.ERRNO.UNEXPECTED_ERROR);
           sinon.assert.calledOnce(log.error);
@@ -297,7 +301,7 @@ describe('pushbox', () => {
         () => {
           throw new Error('should not happen');
         },
-        (err: any) => {
+        (err: Error) => {
           expect(err).toBeTruthy();
           expect(err.message).toBe('Feature not enabled');
         }
@@ -307,7 +311,7 @@ describe('pushbox', () => {
         () => {
           throw new Error('should not happen');
         },
-        (err: any) => {
+        (err: Error) => {
           expect(err).toBeTruthy();
           expect(err.message).toBe('Feature not enabled');
         }

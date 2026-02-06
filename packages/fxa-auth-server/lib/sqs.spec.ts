@@ -7,7 +7,9 @@ export {};
 import sinon from 'sinon';
 
 const log = { error: sinon.stub() };
-let SQSReceiver: any, statsd: any, testQueue: any;
+let SQSReceiver: ReturnType<typeof require>;
+let statsd: { timing: sinon.SinonStub };
+let testQueue: { sqs: Record<string, unknown>; start(): void };
 
 describe('SQSReceiver', () => {
   beforeEach(() => {
@@ -17,13 +19,13 @@ describe('SQSReceiver', () => {
       'https://sqs.testo.meows.xyz/fxa/quux',
     ]);
     const receiveStub = sinon.stub();
-    receiveStub.onFirstCall().callsFake((qParams: any, cb: any) => {
+    receiveStub.onFirstCall().callsFake((qParams: Record<string, unknown>, cb: (err: null, data: Record<string, unknown>) => void) => {
       cb(null, { Messages: [JSON.stringify({ Body: 'SYN' })] });
     });
     receiveStub.returns(null);
     testQueue.sqs = {
       receiveMessage: receiveStub,
-      deleteMessage: (sParams: any, cb: any) => {
+      deleteMessage: (sParams: Record<string, unknown>, cb: (err: null) => void) => {
         cb(null);
       },
     };

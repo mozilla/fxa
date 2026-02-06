@@ -19,16 +19,23 @@ jest.mock('./oauth/db', () => ({
 const oauthDB = require('./oauth/db');
 const devicesModule = require('./devices');
 
+interface DevicesModule {
+  isSpuriousUpdate(payload: Record<string, unknown>, token: Record<string, unknown>): boolean;
+  upsert(request: unknown, credentials: unknown, device: unknown): Promise<Record<string, unknown>>;
+  destroy(request: unknown, deviceId: string): Promise<{ sessionTokenId: string | null; refreshTokenId: string | null }>;
+  synthesizeName(info: Record<string, string | undefined>): string;
+}
+
 describe('lib/devices:', () => {
   describe('instantiate:', () => {
-    let log: any,
+    let log: ReturnType<typeof mocks.mockLog>,
       deviceCreatedAt: number,
       deviceId: string,
-      device: any,
-      db: any,
-      push: any,
-      devices: any,
-      pushbox: any;
+      device: Record<string, unknown>,
+      db: ReturnType<typeof mocks.mockDB>,
+      push: ReturnType<typeof mocks.mockPush>,
+      devices: DevicesModule,
+      pushbox: ReturnType<typeof mocks.mockPushbox>;
 
     beforeEach(() => {
       log = mocks.mockLog();
@@ -238,7 +245,8 @@ describe('lib/devices:', () => {
     });
 
     describe('upsert:', () => {
-      let request: any, credentials: any;
+      let request: ReturnType<typeof mocks.mockRequest>;
+      let credentials: { id: string; uid: string; tokenVerified: boolean };
 
       beforeEach(() => {
         request = mocks.mockRequest({
@@ -252,7 +260,7 @@ describe('lib/devices:', () => {
       });
 
       it('should create', () => {
-        return devices.upsert(request, credentials, device).then((result: any) => {
+        return devices.upsert(request, credentials, device).then((result) => {
           expect(result).toEqual({
             id: deviceId,
             name: device.name,
@@ -343,7 +351,7 @@ describe('lib/devices:', () => {
         };
         return devices
           .upsert(request, credentials, deviceInfo)
-          .then((result: any) => {
+          .then((result) => {
             expect(result).toBe(deviceInfo);
 
             expect(db.createDevice.callCount).toBe(0);
@@ -381,7 +389,8 @@ describe('lib/devices:', () => {
     });
 
     describe('upsert with refreshToken:', () => {
-      let request: any, credentials: any;
+      let request: ReturnType<typeof mocks.mockRequest>;
+      let credentials: { refreshTokenId: string; uid: string; tokenVerified: boolean };
 
       beforeEach(() => {
         request = mocks.mockRequest({
@@ -395,7 +404,7 @@ describe('lib/devices:', () => {
       });
 
       it('should create', () => {
-        return devices.upsert(request, credentials, device).then((result: any) => {
+        return devices.upsert(request, credentials, device).then((result) => {
           expect(result).toEqual({
             id: deviceId,
             name: device.name,
@@ -477,7 +486,7 @@ describe('lib/devices:', () => {
         };
         return devices
           .upsert(request, credentials, deviceInfo)
-          .then((result: any) => {
+          .then((result) => {
             expect(result).toBe(deviceInfo);
 
             expect(db.createDevice.callCount).toBe(0);
@@ -515,8 +524,8 @@ describe('lib/devices:', () => {
     });
 
     describe('destroy:', () => {
-      let request: any,
-        credentials: any,
+      let request: ReturnType<typeof mocks.mockRequest>,
+        credentials: { id: string; uid: string; tokenVerified: boolean },
         deviceId2: string,
         sessionTokenId: string,
         refreshTokenId: string;
