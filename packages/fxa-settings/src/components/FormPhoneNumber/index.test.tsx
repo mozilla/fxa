@@ -21,21 +21,23 @@ describe('FormPhoneNumber', () => {
     });
   }
 
-  function renderWithInfoBannerProps() {
-    renderWithLocalizationProvider(
-      <FormPhoneNumber
-        localizedCTAText="Send code"
-        submitPhoneNumber={mockSubmit}
-        infoBannerContent={{
-          localizedDescription: 'This is a banner description',
-          localizedHeading: 'This is a banner heading',
-        }}
-        infoBannerLink={{
-          localizedText: 'This is a banner link',
-          path: '#',
-        }}
-      />
-    );
+  async function renderWithInfoBannerProps() {
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <FormPhoneNumber
+          localizedCTAText="Send code"
+          submitPhoneNumber={mockSubmit}
+          infoBannerContent={{
+            localizedDescription: 'This is a banner description',
+            localizedHeading: 'This is a banner heading',
+          }}
+          infoBannerLink={{
+            localizedText: 'This is a banner link',
+            path: '#',
+          }}
+        />
+      );
+    });
   }
 
   function getPhoneInput() {
@@ -59,7 +61,7 @@ describe('FormPhoneNumber', () => {
   });
 
   it('renders the component with info banner', async () => {
-    renderWithInfoBannerProps();
+    await renderWithInfoBannerProps();
     await waitFor(() => {
       expect(screen.getByRole('combobox')).toBeInTheDocument();
     });

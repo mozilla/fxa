@@ -208,7 +208,6 @@ const CompleteResetPasswordContainer = ({
         undefined,
         includeRecoveryKeyPrompt
       );
-    console.log('accountResetData', accountResetData);
     return accountResetData;
   };
 
