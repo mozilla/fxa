@@ -1723,6 +1723,60 @@ export class AppError extends Error {
     });
   }
 
+  static passkeyNotFound() {
+    return new AppError({
+      code: 404,
+      error: 'Not Found',
+      errno: ERRNO.PASSKEY_NOT_FOUND,
+      message: 'Passkey not found',
+    });
+  }
+
+  static passkeyAlreadyRegistered() {
+    return new AppError({
+      code: 409,
+      error: 'Conflict',
+      errno: ERRNO.PASSKEY_ALREADY_REGISTERED,
+      message: 'Passkey already registered',
+    });
+  }
+
+  static passkeyLimitReached() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.PASSKEY_LIMIT_REACHED,
+      message: 'Maximum number of passkeys reached',
+    });
+  }
+
+  static passkeyAuthenticationFailed() {
+    return new AppError({
+      code: 401,
+      error: 'Unauthorized',
+      errno: ERRNO.PASSKEY_AUTHENTICATION_FAILED,
+      message: 'Passkey authentication failed',
+    });
+  }
+
+  static passkeyRegistrationFailed(message?: string) {
+    return new AppError({
+      code: 500,
+      error: 'Internal Server Error',
+      errno: ERRNO.PASSKEY_REGISTRATION_FAILED,
+      message: message || 'Passkey registration failed',
+    });
+  }
+
+  static passkeyChallengeExpired() {
+    return new AppError({
+      code: 401,
+      error: 'Unauthorized',
+      errno: ERRNO.PASSKEY_CHALLENGE_EXPIRED,
+      message: 'Passkey challenge expired',
+    });
+  }
+
   private static decorateErrorWithRequest(error: AppError, request?: Request) {
     if (request) {
       error.output.payload.request = {
