@@ -8,10 +8,16 @@ import {
   CmsMetricsData,
   CommonMetrics,
   SubscriptionCancellationData,
+  type AccountsMetricsData,
   type ExperimentationData,
+  type GenericGleanSubManageEvent,
+  type GleanMetricsData,
+  type SessionMetricsData,
+  type StripeMetricsData,
+  type SubPlatCmsMetricsData,
 } from './glean.types';
 import { ResultCartFactory } from '@fxa/payments/cart';
-import { SubplatInterval } from '@fxa/payments/customer';
+import { SubplatInterval, TaxAddressFactory } from '@fxa/payments/customer';
 
 export const CheckoutParamsFactory = (
   override?: Record<string, string>
@@ -89,5 +95,66 @@ export const ExperimentationDataFactory = (
   override?: Partial<ExperimentationData>
 ): ExperimentationData => ({
   nimbusUserId: faker.string.uuid(),
+  ...override,
+});
+
+export const GenericGleanSubManageEventFactory = (
+  override?: Partial<GenericGleanSubManageEvent>
+): GenericGleanSubManageEvent => ({
+  eventName: faker.string.alpha({ length: 10 }),
+  uid: faker.string.uuid(),
+  commonMetrics: CommonMetricsFactory(),
+  subscriptionId: `sub_${faker.string.alphanumeric({ length: 14 })}`,
+  ...override,
+});
+
+export const StripeMetricsDataFactory = (
+  override?: Partial<StripeMetricsData>
+): StripeMetricsData => ({
+  ...override,
+});
+
+export const StripeMetricsDataPopulatedFactory = (
+  override?: Partial<StripeMetricsData>
+): StripeMetricsData => ({
+  customerId: `cus_${faker.string.alphanumeric({ length: 14 })}`,
+  couponCode: faker.string.alpha({ length: 10 }),
+  currency: faker.finance.currencyCode().toLowerCase(),
+  taxAddress: TaxAddressFactory(),
+  productId: `prod_${faker.string.alphanumeric({ length: 14 })}`,
+  priceId: `price_${faker.string.alphanumeric({ length: 14 })}`,
+  ...override,
+});
+
+export const AccountsMetricsDataFactory = (
+  override?: Partial<AccountsMetricsData>
+): AccountsMetricsData => ({
+  uid: faker.string.uuid(),
+  metricsOptOut: faker.datatype.boolean(),
+  ...override,
+});
+export const SubPlatCmsMetricsDataFactory = (
+  override?: Partial<SubPlatCmsMetricsData>
+): SubPlatCmsMetricsData => ({
+  ...override,
+});
+
+export const SessionMetricsDataFactory = (
+  override?: Partial<SessionMetricsData>
+): SessionMetricsData => ({
+  ipAddress: faker.internet.ip(),
+  deviceType: faker.string.alpha({ length: 10 }),
+  userAgent: faker.string.alpha({ length: 10 }),
+  ...override,
+});
+
+export const GleanMetricsDataFactory = (
+  override?: Partial<GleanMetricsData>
+): GleanMetricsData => ({
+  stripe: StripeMetricsDataFactory(),
+  accounts: AccountsMetricsDataFactory(),
+  cms: SubPlatCmsMetricsDataFactory(),
+  session: SessionMetricsDataFactory(),
+  experimentation: ExperimentationDataFactory(),
   ...override,
 });

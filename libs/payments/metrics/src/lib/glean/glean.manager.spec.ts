@@ -7,6 +7,7 @@ import {
   CartMetricsFactory,
   CmsMetricsDataFactory,
   CommonMetricsFactory,
+  ExperimentationDataFactory,
   SubscriptionCancellationDataFactory,
 } from './glean.factory';
 import { PaymentsGleanProvider } from './glean.types';
@@ -21,9 +22,10 @@ const mockCommonMetricsData = {
   cartMetricsData: CartMetricsFactory(),
   cmsMetricsData: CmsMetricsDataFactory(),
   subscriptionCancellationData: SubscriptionCancellationDataFactory(),
+  experimentationData: ExperimentationDataFactory(),
 };
 const mockCommonMetrics = { common: 'metrics' };
-const mockPaymentProvider = 'card';
+const mockPaymentProvider = 'stripe';
 
 describe('PaymentsGleanManager', () => {
   let paymentsGleanManager: PaymentsGleanManager;

@@ -8,7 +8,7 @@ import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
@@ -79,6 +79,8 @@ export function ChurnStaySubscribed({
   const [showResubscribeActionError, setResubscribeActionError] =
     useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const params = useParams();
+  const searchParams = useSearchParams();
   const {
     apiIdentifier,
     discountAmount,
@@ -115,6 +117,8 @@ export function ChurnStaySubscribed({
       uid,
       subscriptionId,
       'stay_subscribed',
+      { ...params },
+      Object.fromEntries(searchParams),
       locale
     );
 

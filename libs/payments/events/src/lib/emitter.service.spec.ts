@@ -37,9 +37,11 @@ import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
   CheckoutParamsFactory,
   CommonMetricsFactory,
+  GenericGleanSubManageEventFactory,
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
   PaymentsGleanManager,
+  PaymentsGleanService,
 } from '@fxa/payments/metrics';
 import { CartManager } from '@fxa/payments/cart';
 import { PaymentsEmitterService } from './emitter.service';
@@ -54,7 +56,6 @@ import {
   MockAccountDatabaseNestFactory,
 } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
-import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 import { Logger } from '@nestjs/common';
 import { EmitterServiceHandleAuthError } from './emitter.error';
 import {
@@ -75,6 +76,7 @@ import {
 } from '@fxa/payments/experiments';
 import * as Sentry from '@sentry/nestjs';
 import { faker } from '@faker-js/faker/.';
+import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 
 jest.mock('./util/retrieveAdditionalMetricsData');
 const mockedRetrieveAdditionalMetricsData = jest.mocked(
@@ -97,6 +99,7 @@ describe('PaymentsEmitterService', () => {
   let statsd: StatsD;
   let logger: Logger;
   let subscriptionManager: SubscriptionManager;
+  let paymentsGleanService: PaymentsGleanService;
 
   const additionalMetricsData = AdditionalMetricsDataFactory();
   const mockCommonMetricsData = CommonMetricsFactory({
@@ -133,6 +136,7 @@ describe('PaymentsEmitterService', () => {
         StripeClient,
         PriceManager,
         PaymentsGleanManager,
+        PaymentsGleanService,
         ProductConfigurationManager,
         PaypalBillingAgreementManager,
         PayPalClient,
@@ -159,6 +163,7 @@ describe('PaymentsEmitterService', () => {
     statsd = moduleRef.get<StatsD>(StatsDService);
     logger = moduleRef.get<Logger>(Logger);
     subscriptionManager = moduleRef.get(SubscriptionManager);
+    paymentsGleanService = moduleRef.get(PaymentsGleanService);
   });
 
   it('should be defined', () => {
@@ -498,6 +503,26 @@ describe('PaymentsEmitterService', () => {
         mockCommonMetricsData.params
       );
       expect(paymentsGleanManager.recordFxaPaySetupFail).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('handleGenericSubManageGleanEvent', () => {
+    const mockEventData = GenericGleanSubManageEventFactory();
+
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanService, 'recordGenericSubManageEvent')
+        .mockResolvedValue();
+    });
+
+    it('calls glean service', async () => {
+      await paymentsEmitterService.handleGenericSubManageGleanEvent(
+        mockEventData
+      );
+
+      expect(
+        paymentsGleanService.recordGenericSubManageEvent
+      ).toHaveBeenCalledWith(mockEventData);
     });
   });
 
