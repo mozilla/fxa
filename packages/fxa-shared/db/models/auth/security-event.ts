@@ -67,6 +67,11 @@ export const EVENT_NAMES: Record<string, number> = {
   'account.signin_confirm_bypass_known_ip': 48,
   'account.signin_confirm_bypass_new_account': 49,
   'account.signin_confirm_bypass_known_device': 50,
+  'account.passkey.registration_success': 51,
+  'account.passkey.registration_failure': 52,
+  'account.passkey.removed': 53,
+  'account.passkey.authentication_success': 54,
+  'account.passkey.authentication_failure': 55,
 } as const;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;

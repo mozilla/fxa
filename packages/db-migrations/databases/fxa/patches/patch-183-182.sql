@@ -1,0 +1,9 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.registration_success';
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.registration_failure';
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.removed';
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.authentication_success';
+-- DELETE FROM securityEventNames WHERE name = 'account.passkey.authentication_failure';
+--
+-- UPDATE dbMetadata SET value = '182' WHERE name = 'schema-patch-level';
