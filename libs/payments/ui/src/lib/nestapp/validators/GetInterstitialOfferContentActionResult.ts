@@ -44,9 +44,8 @@ export class GetInterstitialOfferContentActionResult {
   @Type(() => PageContent)
   pageContent!: PageContent | null;
 
-  @IsOptional()
   @IsString()
-  reason?: string;
+  reason!: string;
 
   @IsOptional()
   @IsString()
