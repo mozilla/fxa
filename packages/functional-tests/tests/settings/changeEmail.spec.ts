@@ -25,7 +25,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
 
       await settings.signOut();
 
@@ -63,15 +63,14 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
 
       await setNewPassword(
         settings,
         changePassword,
         initialPassword,
         newPassword,
-        target,
-        credentials.email
+        newEmail
       );
 
       credentials.password = newPassword;
@@ -111,15 +110,14 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail, credentials.email);
 
       await setNewPassword(
         settings,
         changePassword,
         initialPassword,
         newPassword,
-        target,
-        credentials.email
+        secondEmail
       );
 
       credentials.password = newPassword;
@@ -130,9 +128,14 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutEmailFirstForm(secondEmail);
       await signin.fillOutPasswordForm(newPassword);
 
+      await target.emailClient.clear(secondEmail);
+
       // Change back the primary email again
       await settings.secondaryEmail.makePrimaryButton.click();
-      await settings.confirmMfaGuard(credentials.email);
+      await settings.confirmMfaGuard(secondEmail);
+      await expect(settings.alertBar).toHaveText(
+        new RegExp(`${initialEmail}.*is now your primary email`)
+      );
       await settings.signOut();
 
       // Login with primary email and new password
@@ -141,8 +144,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
 
-      console.log('credentials.password', credentials.password);
-      // Update which password to use the account cleanup
+      // Update which password to use for account cleanup
       credentials.password = newPassword;
     });
 
@@ -168,12 +170,14 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
 
       // Click delete account
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);
+
+      await expect(page.getByText('Account deleted successfully')).toBeVisible();
 
       // Try creating a new account with the same secondary email as previous account and new password
       await signup.fillOutEmailForm(newEmail);
@@ -266,13 +270,18 @@ async function changePrimaryEmail(
   target: BaseTarget,
   settings: SettingsPage,
   secondaryEmail: SecondaryEmailPage,
-  email: string
+  email: string,
+  currentPrimaryEmail?: string
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
   await secondaryEmail.fillOutEmail(email);
   const code: string = await target.emailClient.getVerifySecondaryCode(email);
   await secondaryEmail.fillOutVerificationCode(code);
   await settings.secondaryEmail.makePrimaryButton.click();
+
+  if (currentPrimaryEmail && await settings.isMfaGuardVisible()) {
+    await settings.confirmMfaGuard(currentPrimaryEmail);
+  }
 
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.alertBar).toHaveText(
@@ -285,7 +294,6 @@ async function setNewPassword(
   changePassword: ChangePasswordPage,
   oldPassword: string,
   newPassword: string,
-  target: BaseTarget,
   email: string
 ): Promise<void> {
   await settings.password.changeButton.click();

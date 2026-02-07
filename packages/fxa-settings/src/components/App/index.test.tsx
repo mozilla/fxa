@@ -13,7 +13,6 @@ import {
   useInitialMetricsQueryState,
   useLocalSignedInQueryState,
   useIntegration,
-  useInitialSettingsState,
   useClientInfoState,
   useProductInfoState,
   useSession,
@@ -53,13 +52,9 @@ jest.mock('fxa-shared/sentry/browser', () => ({
 
 jest.mock('../../models/contexts/SettingsContext', () => ({
   ...jest.requireActual('../../models/contexts/SettingsContext'),
-  initializeSettingsContext: jest.fn().mockImplementation(() => {
-    const context = {
-      alertBarInfo: jest.fn(),
-      navigatorLanguages: jest.fn(),
-    };
-
-    return context;
+  initializeSettingsContext: jest.fn().mockReturnValue({
+    alertBarInfo: jest.fn(),
+    navigatorLanguages: jest.fn(),
   }),
 }));
 
@@ -70,9 +65,11 @@ jest.mock('../../lib/channels/firefox', () => ({
   },
 }));
 
+const mockSessionToken = jest.fn();
 jest.mock('../../lib/cache', () => ({
   ...jest.requireActual('../../lib/cache'),
   currentAccount: jest.fn(),
+  sessionToken: () => mockSessionToken(),
 }));
 
 const mockSessionStatus = jest.fn();
@@ -80,7 +77,6 @@ jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
   useInitialMetricsQueryState: jest.fn(),
   useLocalSignedInQueryState: jest.fn(),
-  useInitialSettingsState: jest.fn(),
   useClientInfoState: jest.fn(),
   useProductInfoState: jest.fn(),
   useIntegration: jest.fn(),
@@ -100,6 +96,17 @@ jest.mock('../Settings/ScrollToTop', () => ({
   ),
 }));
 
+jest.mock('../../lib/hooks/useAccountData', () => ({
+  __esModule: true,
+  useAccountData: jest.fn().mockReturnValue({
+    isLoading: false,
+    error: null,
+    data: {},
+    refetch: jest.fn(),
+    refetchField: jest.fn(),
+  }),
+}));
+
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
   default: {
@@ -108,6 +115,7 @@ jest.mock('../../lib/glean', () => ({
     useGlean: jest.fn().mockReturnValue({ enabled: true }),
     accountPref: { view: jest.fn(), promoMonitorView: jest.fn() },
     emailFirst: { view: jest.fn(), engage: jest.fn() },
+    error: { view: jest.fn() },
     pageLoad: jest.fn(),
   },
 }));
@@ -394,6 +402,8 @@ describe('SettingsRoutes', () => {
   beforeEach(() => {
     jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
     jest.clearAllMocks();
+    // Provide a session token for useAccountData hook
+    mockSessionToken.mockReturnValue('mockSessionToken123');
     (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       loading: false,
     });
@@ -419,7 +429,6 @@ describe('SettingsRoutes', () => {
       loading: false,
       data: {},
     });
-    (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
     mockSessionStatus.mockResolvedValue({
       details: {
         sessionVerified: true,
@@ -432,7 +441,6 @@ describe('SettingsRoutes', () => {
     (useIntegration as jest.Mock).mockRestore();
     (useInitialMetricsQueryState as jest.Mock).mockRestore();
     (useLocalSignedInQueryState as jest.Mock).mockRestore();
-    (useInitialSettingsState as jest.Mock).mockRestore();
     (useProductInfoState as jest.Mock).mockRestore();
     (firefox.requestSignedInUser as jest.Mock).mockRestore();
     (useClientInfoState as jest.Mock).mockRestore();

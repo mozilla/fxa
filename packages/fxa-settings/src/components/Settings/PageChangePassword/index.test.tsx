@@ -61,6 +61,12 @@ const mockAuthClient = {
     kA: 'kA-key',
     kB: 'kB-key',
   }),
+  sessionStatus: jest.fn().mockResolvedValue({
+    state: 'verified',
+    details: {
+      sessionVerified: true,
+    },
+  }),
 } as any; // Use 'as any' to avoid TypeScript strict typing for mock
 
 // Mock the cache module to provide session token and JWT cache

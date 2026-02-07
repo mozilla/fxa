@@ -72,7 +72,3 @@ export type ConfirmSignupCodeOAuthIntegration = Pick<
 export type ConfirmSignupCodeIntegration =
   | ConfirmSignupCodeBaseIntegration
   | ConfirmSignupCodeOAuthIntegration;
-
-export interface GetEmailBounceStatusResponse {
-  emailBounceStatus: { hasHardBounce: boolean };
-}

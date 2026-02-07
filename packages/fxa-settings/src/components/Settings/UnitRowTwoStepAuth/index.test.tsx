@@ -20,6 +20,12 @@ jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
   useAuthClient: () => ({
     mfaRequestOtp: jest.fn(),
+    sessionStatus: jest.fn().mockResolvedValue({
+      state: 'verified',
+      details: {
+        sessionVerified: true,
+      },
+    }),
   }),
 }));
 

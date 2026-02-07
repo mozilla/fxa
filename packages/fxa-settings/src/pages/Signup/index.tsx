@@ -145,6 +145,7 @@ export const Signup = ({
           sessionToken: data.signUp.sessionToken,
           verified: false,
           metricsEnabled: true,
+          hasPassword: true, // User signed up with password
         };
 
         // Persist account data to local storage to match parity with content-server

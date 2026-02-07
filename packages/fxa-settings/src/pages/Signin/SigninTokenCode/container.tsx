@@ -17,25 +17,12 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import {
-  CredentialStatusResponse,
-  GetAccountKeysResponse,
-  PasswordChangeFinishResponse,
-  PasswordChangeStartResponse,
-  SigninLocationState,
-} from '../interfaces';
+import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
-import { useMutation } from '@apollo/client';
-import {
-  CREDENTIAL_STATUS_MUTATION,
-  GET_ACCOUNT_KEYS_MUTATION,
-  PASSWORD_CHANGE_FINISH_MUTATION,
-  PASSWORD_CHANGE_START_MUTATION,
-} from '../gql';
+import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
 import { useOAuthFlowRecovery } from '../../../lib/hooks/useOAuthFlowRecovery';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
@@ -73,19 +60,6 @@ const SigninTokenCodeContainer = ({
   // Hook to recover OAuth flow after page refresh or browser crash
   const { isRecovering, recoveryFailed, attemptOAuthFlowRecovery } =
     useOAuthFlowRecovery(integration);
-
-  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
-    PASSWORD_CHANGE_START_MUTATION
-  );
-  const [credentialStatus] = useMutation<CredentialStatusResponse>(
-    CREDENTIAL_STATUS_MUTATION
-  );
-  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
-    GET_ACCOUNT_KEYS_MUTATION
-  );
-  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
-    PASSWORD_CHANGE_FINISH_MUTATION
-  );
 
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
   const [recoveryAttempted, setRecoveryAttempted] = useState<boolean>(false);
@@ -192,10 +166,7 @@ const SigninTokenCodeContainer = ({
       sessionId,
       sensitiveDataClient,
       'signin-token-code',
-      credentialStatus,
-      getWrappedKeys,
-      passwordChangeStart,
-      passwordChangeFinish
+      authClient
     );
   };
 
