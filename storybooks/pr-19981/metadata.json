@@ -1,0 +1,12 @@
+{
+  "commit": "1db3ce803ef4ec0dfefeb5db220bb66fcfe9d262",
+  "summary": "fix(content-server): Serve legal-docs before proxy to fix CI tests",
+  "description": "The webpack dev server returns index.html fallback for .md and .json\nlegal doc requests. Serve legal-docs static files directly from the\nbuild output before the proxy intercepts them.",
+  "timestamp": 1770484091000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

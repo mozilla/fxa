@@ -1,0 +1,11 @@
+{
+  "commit": "9b5efe38d591aedd292aa054a825fb69c48ae438",
+  "summary": "feat(payments-next): Strapi clean up - remove unused fields Because:",
+  "description": "* We didn't ed up using the advertisedSavings, ctaMessage, and modalHeading2 fields for the Cancel Interstitial Offer.\n\nThis commit:\n\n* Removes those unused fields from the shared-cms library.\n\nCloses #[PAY-3515](https://mozilla-hub.atlassian.net/browse/PAY-3515)",
+  "timestamp": 1770408992000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

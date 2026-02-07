@@ -1,0 +1,10 @@
+{
+  "commit": "c880b527a60785dae385255d2d35fa7a2507dd1e",
+  "summary": "Fix compile",
+  "description": "",
+  "timestamp": 1770228016000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

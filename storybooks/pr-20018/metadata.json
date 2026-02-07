@@ -1,0 +1,11 @@
+{
+  "commit": "a3cd9b6e80d80fb9b486c19682d9fbf831d8935f",
+  "summary": "feat(security-events): Add passkey security event names",
+  "description": "Add 5 passkey security event names to EVENT_NAMES registry and create DB migration to insert them into securityEventNames table.\n\nEvents:\n- account.passkey.registration_success\n- account.passkey.registration_failure\n- account.passkey.removed\n- account.passkey.authentication_success\n- account.passkey.authentication_failure\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>",
+  "timestamp": 1770430974000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "433d57a896b7c5bbd366cb1ef65b67e99819eb7f",
+  "summary": "Merge pull request #19992 from mozilla/FXA-12929",
+  "description": "feat(oauth): Support session token to refresh token migration, add old device association for token exchange",
+  "timestamp": 1770420407000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

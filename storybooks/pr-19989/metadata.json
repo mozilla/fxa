@@ -1,0 +1,10 @@
+{
+  "commit": "dd66115550395ed925ec3e1f16bb52da6c19ca56",
+  "summary": "feat(payments-next): subscriptionRenewalReminder-content-charge uses hard-coded English values for subscription interval",
+  "description": "Because:\n\n* The subscriptionRenewalReminder-content-charge fluent string has a variable hardcoded in English, so a localized string will display with a mix of English and translated text.\n\nThis commit:\n\n* Updates the string for proper localization and to match existing subscription plan lengths (daily, weekly, monthly, halfyearly (6-monthly), yearly.\n* Updates the string to break out the charge to show the tax amount (where applicable). - TODO\n\nCloses #[PAY-3497](https://mozilla-hub.atlassian.net/browse/PAY-3497)",
+  "timestamp": 1770313255000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

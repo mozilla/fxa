@@ -1,0 +1,10 @@
+{
+  "commit": "b0e71879704046d48ca77ea3d1289c3e85e20515",
+  "summary": "polish(settigns): Remove trailing coma",
+  "description": "",
+  "timestamp": 1770405338000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "97bf9344bd412e9f44a15a26a4acdf0034f79017",
+  "summary": "feat(auth): include credentials for fetch request",
+  "description": "",
+  "timestamp": 1770416470000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

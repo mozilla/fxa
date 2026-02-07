@@ -1,0 +1,10 @@
+{
+  "commit": "e0e3bb933913dd992fe4a7b7542f7666e480ef8b",
+  "summary": "feat(passkey): Add app server errors and passkey errors",
+  "description": "Because:\n - We want a structured and shared way to emit errors in the passkey\n   service and other apps\n\nThis Commit:\n - Adds/reserves ERRNO's for passkey errors\n - Adds passkey internal errors using shared ERRNO's\n - Adds Apperror passkey errors with the shared ERRNO's\n - Adds test for all of these\n\nCloses: FXA-12092",
+  "timestamp": 1770395709000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

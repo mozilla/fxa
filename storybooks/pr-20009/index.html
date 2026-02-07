@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 39d0fb08eb3dbafca3006a0d32c7cbe481672581</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 39d0fb08eb3dbafca3006a0d32c7cbe481672581</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>2/6/2026, 3:04:11 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(fxa-settings): clean up noisy test output across test suite</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>- Fix act() warnings by using async findBy* queries, waitFor wrappers,
+  and act() around direct async callback calls in tests affected by
+  react-hook-form and async useEffect state updates
+- Suppress jsdom requestSubmit not-implemented errors in setupTests.tsx
+- Suppress expected console output in error-path tests with mockImplementation
+- Fix React key-in-spread warning in PageRecentActivity component
+- Remove leftover debug console.log in CompleteResetPassword container
+- Use deterministic Date.now spy for MfaGuard debounce test</pre></dd>
+  </dl>
+</body>
+</html>

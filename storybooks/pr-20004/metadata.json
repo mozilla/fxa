@@ -1,0 +1,12 @@
+{
+  "commit": "555f0cfbc38b0f7a86cbabeb2e3f7e7943ef75e7",
+  "summary": "fix(auth-server): Fix lint errors in Jest integration test files",
+  "description": "Add jest env and fail global to test/.eslintrc, fix prefer-const\nin account_create.spec.ts, remove unused vars in test-server.ts.",
+  "timestamp": 1770315498000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

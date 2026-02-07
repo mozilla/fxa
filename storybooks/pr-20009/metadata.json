@@ -1,0 +1,10 @@
+{
+  "commit": "39d0fb08eb3dbafca3006a0d32c7cbe481672581",
+  "summary": "fix(fxa-settings): clean up noisy test output across test suite",
+  "description": "- Fix act() warnings by using async findBy* queries, waitFor wrappers,\n  and act() around direct async callback calls in tests affected by\n  react-hook-form and async useEffect state updates\n- Suppress jsdom requestSubmit not-implemented errors in setupTests.tsx\n- Suppress expected console output in error-path tests with mockImplementation\n- Fix React key-in-spread warning in PageRecentActivity component\n- Remove leftover debug console.log in CompleteResetPassword container\n- Use deterministic Date.now spy for MfaGuard debounce test",
+  "timestamp": 1770347051000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

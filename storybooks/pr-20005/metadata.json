@@ -1,0 +1,10 @@
+{
+  "commit": "94765d350fb71a788a7249ee9f3985af7b1a6303",
+  "summary": "feat(payments-next): Update email reminder logic Because:",
+  "description": "* We need to send emails at 15 days prior to billing for annual plans\n* We need to send emails at 7 days prior to billing for monthly plans that have an ending discount and are returning to full price\n\nThis commit:\n\n* Updates the logic to check whether a customer has an persisting discount for a monthly plan, and does not send email reminders for those plans\n* Renames the `hadDiscount` variable to `discountEnding` to better reflect its purpose\n\nCloses #PAY-2291 (to follow after merge of PR in webservices-infra)",
+  "timestamp": 1770321691000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

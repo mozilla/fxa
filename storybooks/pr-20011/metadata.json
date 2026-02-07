@@ -1,0 +1,12 @@
+{
+  "commit": "5156abcacad843d182adc034e07e5c0b5b4e4fb6",
+  "summary": "refactor(fxa-auth-server): Replace all 'any' types with proper types in Jest test files",
+  "description": "Define specific interfaces (TokenLike, SessionTokenLike, KeyFetchTokenLike,\nForgotTokenLike, MockDevice, DevicesModule, etc.) and use sinon types,\nReturnType, and Record<string, unknown> to eliminate all 'any' usage.",
+  "timestamp": 1770393223000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

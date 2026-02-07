@@ -1,0 +1,10 @@
+{
+  "commit": "ad805aecdf9cf65db9013d99fa2cf3e3c8712c27",
+  "summary": "task(auth): Seperate extraction of email ftl files from email templates",
+  "description": "Because:\n- We don't want to duplicate translation strings.\n- We want to start move over to using ftl files in libs/accounts/email-render\n\nThis Commit:\n- Sends l10n strings in the email lib that are currently being used to emails.ftl\n- Sends l10n strings in the email lib that are currently being used to emails.ftl\n- Removes tests that are no applicable from auth-server",
+  "timestamp": 1770413385000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}
