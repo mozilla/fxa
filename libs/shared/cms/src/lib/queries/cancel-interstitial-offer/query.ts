@@ -21,18 +21,13 @@ export const cancelInterstitialOfferQuery = graphql(`
       offeringApiIdentifier
       currentInterval
       upgradeInterval
-      advertisedSavings
-      ctaMessage
       modalHeading1
-      modalHeading2
       modalMessage
       productPageUrl
       upgradeButtonLabel
       upgradeButtonUrl
       localizations(filters: { locale: { eq: $locale } }) {
-        ctaMessage
         modalHeading1
-        modalHeading2
         modalMessage
         productPageUrl
         upgradeButtonLabel

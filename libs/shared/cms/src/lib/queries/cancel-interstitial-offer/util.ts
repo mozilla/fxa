@@ -27,15 +27,9 @@ export class CancelInterstitialOfferUtil {
       ...cancelInterstitialOffer,
       currentInterval: cancelInterstitialOffer.currentInterval,
       upgradeInterval: cancelInterstitialOffer.upgradeInterval,
-      ctaMessage:
-        cancelInterstitialOffer.localizations.at(0)?.ctaMessage ??
-        cancelInterstitialOffer.ctaMessage,
       modalHeading1:
         cancelInterstitialOffer.localizations.at(0)?.modalHeading1 ??
         cancelInterstitialOffer.modalHeading1,
-      modalHeading2:
-        cancelInterstitialOffer.localizations.at(0)?.modalHeading2 ??
-        cancelInterstitialOffer.modalHeading2,
       modalMessage: this.transformArrayStringField(
         cancelInterstitialOffer.localizations.at(0)?.modalMessage ??
           cancelInterstitialOffer.modalMessage
