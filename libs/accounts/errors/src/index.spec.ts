@@ -334,4 +334,183 @@ describe('AppErrors', () => {
       );
     });
   });
+
+  describe('Passkey errors', () => {
+    it('creates passkeyNotFound', () => {
+      const result = AppError.passkeyNotFound();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 224,
+        message: 'Passkey not found',
+        output: {
+          statusCode: 404,
+          payload: {
+            error: 'Not Found',
+            errno: 224,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyInvalid', () => {
+      const result = AppError.passkeyInvalid();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 225,
+        message: 'Invalid passkey',
+        output: {
+          statusCode: 400,
+          payload: {
+            error: 'Bad Request',
+            errno: 225,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyAlreadyRegistered', () => {
+      const result = AppError.passkeyAlreadyRegistered();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 226,
+        message: 'Passkey already registered',
+        output: {
+          statusCode: 409,
+          payload: {
+            error: 'Conflict',
+            errno: 226,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyLimitReached', () => {
+      const result = AppError.passkeyLimitReached();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 227,
+        message: 'Maximum number of passkeys reached',
+        output: {
+          statusCode: 400,
+          payload: {
+            error: 'Bad Request',
+            errno: 227,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyCredentialInvalid', () => {
+      const result = AppError.passkeyCredentialInvalid();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 228,
+        message: 'Invalid passkey credential',
+        output: {
+          statusCode: 401,
+          payload: {
+            error: 'Unauthorized',
+            errno: 228,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyAuthenticationFailed', () => {
+      const result = AppError.passkeyAuthenticationFailed();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 229,
+        message: 'Passkey authentication failed',
+        output: {
+          statusCode: 401,
+          payload: {
+            error: 'Unauthorized',
+            errno: 229,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyRegistrationFailed', () => {
+      const result = AppError.passkeyRegistrationFailed();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 230,
+        message: 'Passkey registration failed',
+        output: {
+          statusCode: 500,
+          payload: {
+            error: 'Internal Server Error',
+            errno: 230,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyRegistrationFailed with custom message', () => {
+      const customMessage = 'Registration failed due to server error';
+      const result = AppError.passkeyRegistrationFailed(customMessage);
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 230,
+        message: customMessage,
+        output: {
+          statusCode: 500,
+          payload: {
+            error: 'Internal Server Error',
+            errno: 230,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyVerificationFailed', () => {
+      const result = AppError.passkeyVerificationFailed();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 231,
+        message: 'Passkey verification failed',
+        output: {
+          statusCode: 401,
+          payload: {
+            error: 'Unauthorized',
+            errno: 231,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyUnsupportedAlgorithm', () => {
+      const result = AppError.passkeyUnsupportedAlgorithm();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 232,
+        message: 'Unsupported passkey algorithm',
+        output: {
+          statusCode: 400,
+          payload: {
+            error: 'Bad Request',
+            errno: 232,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyChallengeExpired', () => {
+      const result = AppError.passkeyChallengeExpired();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 238,
+        message: 'Passkey challenge expired',
+        output: {
+          statusCode: 401,
+          payload: {
+            error: 'Unauthorized',
+            errno: 238,
+          },
+        },
+      });
+    });
+  });
 });
