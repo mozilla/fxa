@@ -1000,6 +1000,7 @@ describe('signin container', () => {
       });
 
       it('handles error when starting upgrade', async () => {
+        jest.spyOn(console, 'info').mockImplementation(() => {});
         render([
           mockGqlAvatarUseQuery(),
           mockGqlCredentialStatusMutation({

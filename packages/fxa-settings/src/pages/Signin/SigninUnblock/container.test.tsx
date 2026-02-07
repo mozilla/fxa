@@ -276,7 +276,7 @@ describe('signin unblock container', () => {
   });
 
   it('handles signin with correct code and failure when looking up credential status', async () => {
-    jest.spyOn(global.console, 'warn');
+    jest.spyOn(global.console, 'warn').mockImplementation(() => {});
 
     await render([
       {

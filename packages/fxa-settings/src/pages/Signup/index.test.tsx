@@ -257,8 +257,11 @@ describe('Signup page', () => {
       />
     );
 
+    // Await to let react-hook-form's internal state updates settle.
     expect(
-      screen.queryByAltText(MOCK_CMS_INFO.SignupSetPasswordPage.logoAltText)
+      await screen.findByAltText(
+        MOCK_CMS_INFO.SignupSetPasswordPage.logoAltText
+      )
     ).toBeInTheDocument();
 
     expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
@@ -286,6 +289,9 @@ describe('Signup page', () => {
         isMobile={true}
       />
     );
+
+    // Await to let react-hook-form's internal state updates settle.
+    await screen.findByRole('heading', { name: 'Create a password' });
 
     expect(
       screen.queryByAltText(MOCK_CMS_INFO.SignupSetPasswordPage.logoAltText)
@@ -318,8 +324,9 @@ describe('Signup page', () => {
         )}
       />
     );
+    // Await to let react-hook-form's internal state updates settle.
     expect(
-      screen.queryByAltText(MOCK_CMS_INFO.shared.logoAltText)
+      await screen.findByAltText(MOCK_CMS_INFO.shared.logoAltText)
     ).toBeInTheDocument();
     expect(
       screen

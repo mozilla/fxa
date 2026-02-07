@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { act, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { MfaGuard } from './index';
@@ -303,6 +303,10 @@ describe('MfaGuard', () => {
   });
 
   it('debounces OTP resend requests', async () => {
+    // Use a deterministic clock so debounce logic is not affected by system load.
+    let now = Date.now();
+    const dateNowSpy = jest.spyOn(Date, 'now').mockImplementation(() => now);
+
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <MfaGuard
@@ -319,9 +323,8 @@ describe('MfaGuard', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'Email new code.' })
     );
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 101));
-    });
+
+    now += 101;
 
     await userEvent.click(
       screen.getByRole('button', { name: 'Email new code.' })
@@ -331,13 +334,15 @@ describe('MfaGuard', () => {
       screen.getByRole('button', { name: 'Email new code.' })
     );
 
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 101));
-    });
+    // Advance past the debounce window again
+    now += 101;
+
     await userEvent.click(
       screen.getByRole('button', { name: 'Email new code.' })
     );
 
     expect(mockAuthClient.mfaRequestOtp).toHaveBeenCalledTimes(3);
+
+    dateNowSpy.mockRestore();
   });
 });

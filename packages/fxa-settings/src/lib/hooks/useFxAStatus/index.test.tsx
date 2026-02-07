@@ -140,7 +140,10 @@ describe('useFxAStatus', () => {
           isSync: () => true,
           isFirefoxNonSync: () => false,
         };
-        const { result } = renderHook(() => useFxAStatus(integration));
+        const { result, waitForNextUpdate } = renderHook(() =>
+          useFxAStatus(integration)
+        );
+        await waitForNextUpdate();
         expect(result.current.supportsKeysOptionalLogin).toBe(false);
       });
     });

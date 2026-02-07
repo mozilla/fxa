@@ -30,7 +30,7 @@ describe('RecoveryKeySetupDownload', () => {
         const b = screen.getByRole('button', { name: 'Download and continue' });
         expect(b).toBeInTheDocument();
       },
-      { timeout: 2000 }
+      { timeout: 5000 }
     );
 
     screen.getByRole('button', {
