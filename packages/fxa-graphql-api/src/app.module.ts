@@ -52,7 +52,7 @@ const version = getVersionInfo(__dirname);
         extraHealthData: () => db.dbHealthCheck(),
       }),
     }),
-    CustomsModule
+    CustomsModule,
   ],
   controllers: [],
   providers: [

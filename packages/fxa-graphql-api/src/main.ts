@@ -16,7 +16,7 @@ import { StatsDService } from '@fxa/shared/metrics/statsd';
 import helmet from 'helmet';
 
 import { NestApplicationOptions } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 import { AppModule } from './app.module';
@@ -34,8 +34,9 @@ async function bootstrap() {
     nestConfig
   );
 
-  // As of sentry v9, this should handle both regular requests and graphql requests.
-  app.useGlobalFilters(new SentryGlobalFilter());
+  // Register Sentry exception filter with proper HttpAdapterHost
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new SentryGlobalFilter(httpAdapter));
 
   // Configure allowlisting of gql queries
   app.use(bodyParser.json());

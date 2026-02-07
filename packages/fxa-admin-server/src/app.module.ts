@@ -27,7 +27,6 @@ import { EventLoggingModule } from './event-logging/event-logging.module';
 import { GqlModule } from './gql/gql.module';
 import { NewslettersModule } from './newsletters/newsletters.module';
 import { SubscriptionModule } from './subscriptions/subscriptions.module';
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
 const version = getVersionInfo(__dirname);
 
