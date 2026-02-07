@@ -36,11 +36,18 @@ export default async function LoyaltyDiscountCancelPage({
 
   const uid = session.user.id;
 
-  const pageContent = await determineChurnCancelEligibilityAction(
-    uid,
-    subscriptionId,
-    acceptLanguage
-  );
+  let pageContent;
+  try {
+    pageContent = await determineChurnCancelEligibilityAction(
+      uid,
+      subscriptionId,
+      acceptLanguage
+    );
+  } catch (error) {
+    redirect(
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/cancel/error`
+    );
+  }
 
   if (!pageContent) notFound();
 
