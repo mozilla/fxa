@@ -116,7 +116,7 @@
     "ua-parser-js": "1.0.35",
     "underscore": "^1.13.1",
     "verror": "1.10.1",
-    "webpack": "^5.97.0"
+    "webpack": "^5.104.1"
   },
   "devDependencies": {
     "@babel/cli": "7.23.0",
