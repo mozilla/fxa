@@ -59,12 +59,18 @@ export default async function LoyaltyDiscountStaySubscribedErrorPage({
     notFound();
   }
 
+  const staySubscribedContent = pageContent.staySubscribedContent;
+
+  if (staySubscribedContent.flowType !== 'stay_subscribed') {
+    notFound();
+  }
+
   return (
     <ChurnError
       cmsOfferingContent={cmsOfferingContent}
       locale={locale}
       reason={reason}
-      pageContent={pageContent.staySubscribedContent}
+      pageContent={staySubscribedContent}
       subscriptionId={subscriptionId}
     />
   );
