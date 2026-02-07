@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ILogger } from '../log';
-import { PiiData } from '../sentry/models/pii';
-import { CommonPiiActions } from '../sentry/pii-filter-actions';
-import { FilterBase } from '../sentry/pii-filters';
+import { PiiData } from '@fxa/shared/sentry-utils';
+import { CommonPiiActions } from '@fxa/shared/sentry-utils';
+import { FilterBase } from '@fxa/shared/sentry-utils';
 
 /** Matches attribute names that need to be filtered. */
 const reTargetPiiAttributes = /^(db|http)\./;

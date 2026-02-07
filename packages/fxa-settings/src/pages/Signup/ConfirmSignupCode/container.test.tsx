@@ -10,7 +10,7 @@ import * as OAuthFlowRecoveryModule from '../../../lib/hooks/useOAuthFlowRecover
 import * as CacheModule from '../../../lib/cache';
 import * as ApolloModule from '@apollo/client';
 import * as ReachRouterModule from '@reach/router';
-import * as SentryModule from 'fxa-shared/sentry/browser';
+import * as SentryModule from '@fxa/shared/sentry/browser';
 import * as ReactUtils from 'fxa-react/lib/utils';
 
 import { screen, waitFor } from '@testing-library/react';

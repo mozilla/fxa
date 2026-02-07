@@ -5,7 +5,7 @@
 import Config, { AppConfig } from './config';
 import mozLog from 'mozlog';
 import { initTracing } from 'fxa-shared/tracing/node-tracing';
-import { initSentry } from 'fxa-shared/sentry/node';
+import { initSentry } from '@fxa/sentry-node';
 
 const log = mozLog(Config.getProperties().log)(Config.getProperties().log.app);
 const appConfig = Config.getProperties() as AppConfig;

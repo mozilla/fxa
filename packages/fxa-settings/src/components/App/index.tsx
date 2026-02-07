@@ -37,7 +37,7 @@ import {
   SettingsContext,
 } from '../../models/contexts/SettingsContext';
 
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import sentryMetrics from '@fxa/shared/sentry/browser';
 import { maybeRecordWebAuthnCapabilities } from '../../lib/webauthnCapabilitiesProbe';
 
 // Components

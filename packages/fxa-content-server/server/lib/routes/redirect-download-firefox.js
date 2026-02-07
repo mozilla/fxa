@@ -16,7 +16,7 @@ const { logFlowEvent } = require('../flow-event');
 const validation = require('../validation');
 const {
   overrideJoiMessages,
-} = require('fxa-shared/sentry/joi-message-overrides');
+} = require('@fxa/sentry-node');
 
 const {
   ACTION: ACTION_TYPE,

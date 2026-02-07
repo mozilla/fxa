@@ -14,7 +14,7 @@ const MetricsCollector = require('../metrics-collector-stderr');
 const validation = require('../validation');
 const {
   overrideJoiMessages,
-} = require('fxa-shared/sentry/joi-message-overrides');
+} = require('@fxa/sentry-node');
 
 const clientMetricsConfig = config.get('client_metrics');
 const DISABLE_CLIENT_METRICS_STDERR =

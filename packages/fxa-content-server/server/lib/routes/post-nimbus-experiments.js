@@ -6,7 +6,7 @@ const joi = require('joi');
 const Sentry = require('@sentry/node');
 const {
   overrideJoiMessages,
-} = require('fxa-shared/sentry/joi-message-overrides');
+} = require('@fxa/sentry-node');
 
 const BODY_SCHEMA = {
   client_id: joi.string().required(),

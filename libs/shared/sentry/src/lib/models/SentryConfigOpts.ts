@@ -40,6 +40,9 @@ export type SentryConfigOpts = {
     /** The tracing sample rate. Setting this above 0 will aso result in performance metrics being captured. */
     tracesSampleRate?: number;
 
+    /** The tracing sampler function. Allows dynamic sampling based on context. */
+    tracesSampler?: (context: any) => number;
+
     /** Indicates if PII can be transeferred. e.g. Send the IP address. */
     sendDefaultPii?: boolean;
   };

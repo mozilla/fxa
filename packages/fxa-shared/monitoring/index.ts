@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { initTracing } from '../tracing/node-tracing';
-import { InitSentryOpts, initSentry } from '../sentry/node';
+import { InitSentryOpts, initSentry } from '@fxa/sentry-node';
 import { TracingOpts } from '../tracing/config';
 import { ILogger } from '../log';
 
