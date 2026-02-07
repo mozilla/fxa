@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { currentAccount } from '../../../lib/cache';
@@ -18,9 +18,7 @@ import {
   useSensitiveDataClient,
 } from '../../../models';
 import ConfirmSignupCode from '.';
-import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
-import { useQuery } from '@apollo/client';
-import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
+import { LocationState } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
@@ -103,13 +101,45 @@ const SignupConfirmCodeContainer = ({
   // Poll for hard bounces registered in database for the entered email.
   // Previously, we checked if the account was deleted, and assumed
   // that implied the email bounced/was invalid.
-  const { data } = useQuery<GetEmailBounceStatusResponse>(
-    EMAIL_BOUNCE_STATUS_QUERY,
-    {
-      variables: { input: email || '' },
-      pollInterval: POLL_INTERVAL,
-    }
-  );
+  const [hasHardBounce, setHasHardBounce] = useState(false);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const checkEmailBounceStatus = async () => {
+      if (!email) return;
+      try {
+        // Type assertion needed until fxa-auth-client is rebuilt with new method
+        const result = await (
+          authClient as typeof authClient & {
+            emailBounceStatus: (
+              email: string
+            ) => Promise<{ hasHardBounce: boolean }>;
+          }
+        ).emailBounceStatus(email);
+        if (result.hasHardBounce) {
+          setHasHardBounce(true);
+        }
+      } catch (error) {
+        // Silently fail - we don't want to block the user flow on errors
+        console.error('Error checking email bounce status:', error);
+      }
+    };
+
+    // Initial check
+    checkEmailBounceStatus();
+
+    // Set up polling
+    pollIntervalRef.current = setInterval(
+      checkEmailBounceStatus,
+      POLL_INTERVAL
+    );
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, [authClient, email]);
 
   const [recoveryAttempted, setRecoveryAttempted] = useState<boolean>(false);
 
@@ -149,7 +179,7 @@ const SignupConfirmCodeContainer = ({
 
   // Handle email bounces
   useEffect(() => {
-    if (data?.emailBounceStatus.hasHardBounce) {
+    if (hasHardBounce) {
       const hasBounced = true;
       // if arriving from signup, return to '/' and allow user to signup with another email
       if (origin === 'signup') {
@@ -164,7 +194,7 @@ const SignupConfirmCodeContainer = ({
         navigateWithQuery('/signin_bounced');
       }
     }
-  }, [data, origin, navigateWithQuery, email]);
+  }, [hasHardBounce, origin, navigateWithQuery, email]);
 
   const cmsInfo = integration?.getCmsInfo();
   const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;

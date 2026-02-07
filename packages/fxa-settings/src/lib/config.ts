@@ -34,9 +34,6 @@ export interface Config {
     version: string;
   };
   servers: {
-    gql: {
-      url: string;
-    };
     auth: {
       url: string;
     };
@@ -47,6 +44,9 @@ export interface Config {
       url: string;
     };
     paymentsNext: {
+      url: string;
+    };
+    legalDocs: {
       url: string;
     };
   };
@@ -138,9 +138,6 @@ export function getDefault() {
       sampleRate: 1.0,
     },
     servers: {
-      gql: {
-        url: '',
-      },
       auth: {
         url: '',
       },
@@ -151,6 +148,9 @@ export function getDefault() {
         url: '',
       },
       paymentsNext: {
+        url: '',
+      },
+      legalDocs: {
         url: '',
       },
     },
@@ -253,17 +253,19 @@ export function decode(content: string | null) {
 export function reset() {
   const initial = getDefault();
 
-  // This resets any existing default
-  // keys back to their original value
-  Object.assign(config, initial);
+  // Reset existing default keys back to their original values
+  const initialRecord = initial as unknown as Record<string, unknown>;
+  const configRecord = config as unknown as Record<string, unknown>;
+  for (const key of Object.keys(initialRecord)) {
+    configRecord[key] = initialRecord[key];
+  }
 
-  // This removes any foreign keys that
-  // may have found there way in
-  Object.keys(config).forEach((key) => {
-    if (!initial.hasOwnProperty(key)) {
-      delete (config as any)[key];
+  // Remove any foreign keys that may have found their way in
+  for (const key of Object.keys(configRecord)) {
+    if (!(key in initialRecord)) {
+      delete configRecord[key];
     }
-  });
+  }
 }
 
 export function update(newData: { [key: string]: any }) {

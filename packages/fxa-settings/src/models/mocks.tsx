@@ -202,6 +202,7 @@ function mockExperiment() {
 export function mockAppContext(context?: AppContextValue) {
   const base = Object.assign(
     {
+      authClient: mockAuthClient(),
       account: MOCK_ACCOUNT,
       session: mockSession(),
       config: getDefault(),

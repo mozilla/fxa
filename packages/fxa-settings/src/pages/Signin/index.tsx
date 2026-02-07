@@ -278,8 +278,7 @@ const Signin = ({
               navigateWithQuery('/signin_unblock', {
                 state: {
                   email,
-                  // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword from state
-                  // will be stored in Apollo cache at the container level
+                  // TODO: in FXA-9177, consider persisting hasLinkedAccount and hasPassword to localStorage
                   hasPassword,
                   hasLinkedAccount,
                 },

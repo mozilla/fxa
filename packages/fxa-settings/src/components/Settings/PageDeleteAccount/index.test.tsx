@@ -22,18 +22,13 @@ import { typeByTestIdFn } from '../../../lib/test-utils';
 import { Account, AppContext } from '../../../models';
 import { MOCK_EMAIL } from '../../../pages/mocks';
 import GleanMetrics from '../../../lib/glean';
+import { discardSessionToken, clearSignedInAccountUid } from '../../../lib/cache';
 
-const mockApolloClearStore = jest.fn().mockResolvedValue(undefined);
-
-jest.mock('@apollo/client', () => {
-  const actual = jest.requireActual('@apollo/client');
-  return {
-    ...actual,
-    useApolloClient: () => ({
-      clearStore: mockApolloClearStore,
-    }),
-  };
-});
+jest.mock('../../../lib/cache', () => ({
+  ...jest.requireActual('../../../lib/cache'),
+  discardSessionToken: jest.fn(),
+  clearSignedInAccountUid: jest.fn(),
+}));
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -188,7 +183,8 @@ describe('PageDeleteAccount', () => {
     await waitFor(() => {
       expect(mockDestroy).toHaveBeenCalled();
     });
-    expect(mockApolloClearStore).toHaveBeenCalled();
+    expect(discardSessionToken).toHaveBeenCalled();
+    expect(clearSignedInAccountUid).toHaveBeenCalled();
     expect(window.location.pathname).toContainEqual('/');
   });
 
@@ -208,7 +204,8 @@ describe('PageDeleteAccount', () => {
     await waitFor(() => {
       expect(mockDestroy).toHaveBeenCalled();
     });
-    expect(mockApolloClearStore).toHaveBeenCalled();
+    expect(discardSessionToken).toHaveBeenCalled();
+    expect(clearSignedInAccountUid).toHaveBeenCalled();
     expect(window.location.pathname).toContainEqual('/');
   });
 

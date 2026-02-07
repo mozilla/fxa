@@ -2,14 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { ApolloError } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import groupBy from 'lodash.groupby';
 import { forwardRef, useCallback, useState } from 'react';
-import { clearSignedInAccountUid } from '../../../lib/cache';
+import { clearSignedInAccountUid, setSigningOut } from '../../../lib/cache';
 import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';
 import { AttachedClient, useAccount, useAlertBar } from '../../../models';
@@ -84,7 +82,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
   const [isRefreshingClients, setIsRefreshingClients] = useState(false);
 
   const clearDisconnectingState = useCallback(
-    (errorMessage?: string, error?: ApolloError) => {
+    (errorMessage?: string, error?: Error) => {
       hideConfirmDisconnectModal();
       setSelectedClient(null);
       setReason('');
@@ -127,6 +125,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
           (hasMultipleSessions &&
             clientsWithMatchingName.find((c) => c.isCurrentSession))
         ) {
+          setSigningOut(true);
           clearSignedInAccountUid();
           window.location.assign(`${window.location.origin}/signin`);
         } else if (reason === 'suspicious' || reason === 'lost') {
@@ -229,7 +228,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         </div>
 
         {!!sortedAndUniqueClients.length &&
-          sortedAndUniqueClients.map((client, i) => (
+          sortedAndUniqueClients.map((client) => (
             <Service
               key={`${client.lastAccessTime}:${client.name || 'unknown'}`}
               {...{

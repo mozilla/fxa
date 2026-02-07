@@ -12,7 +12,7 @@ import { logViewEvent, settingsViewName } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 import firefox from '../../../lib/channels/firefox';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
+import { JwtTokenCache, MfaOtpRequestCache, setSigningOut } from '../../../lib/cache';
 
 export const DropDownAvatarMenu = () => {
   const { displayName, primaryEmail, avatar, uid } = useAccount();
@@ -34,7 +34,7 @@ export const DropDownAvatarMenu = () => {
   const signOut = async () => {
     if (session.destroy) {
       try {
-        // Destroy the current session
+        setSigningOut(true);
         await session.destroy();
 
         // Send a logout event to Firefox even if the user is in a non-Sync flow.

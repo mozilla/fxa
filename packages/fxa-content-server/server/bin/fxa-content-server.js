@@ -214,6 +214,25 @@ function makeApp() {
     );
   }
 
+  // Serve legal-docs static files directly, even when proxying to webpack dev server.
+  // The webpack dev server's historyApiFallback returns index.html for .md and .json
+  // paths, so we must serve legal doc files before the proxy intercepts them.
+  // Check: 1) content-server dist (after grunt copy:settings), 2) fxa-settings public
+  // (populated by legal-prime, used by CRA dev server).
+  const legalDocsCandidates = [
+    path.join(__dirname, '..', '..', 'dist', 'settings', config.get('static_settings_directory'), 'legal-docs'),
+    path.join(__dirname, '..', '..', 'dist', 'settings', 'dev', 'legal-docs'),
+    path.join(__dirname, '..', '..', 'dist', 'settings', 'prod', 'legal-docs'),
+    path.join(__dirname, '..', '..', '..', 'fxa-settings', 'public', 'legal-docs'),
+  ];
+  for (const dir of legalDocsCandidates) {
+    try {
+      fs.accessSync(dir);
+      app.use(settingsPath + '/legal-docs', serveStatic(dir));
+      break;
+    } catch (e) { /* try next candidate */ }
+  }
+
   if (config.get('proxy_settings')) {
     app.use(settingsPath, createSettingsProxy);
     addNonSettingsRoutes(createSettingsProxy);
