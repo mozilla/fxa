@@ -107,21 +107,9 @@ export class CmsCancelInterstitialOfferPartialResult {
   @IsOptional()
   upgradeInterval?: string;
 
-  @IsNumber()
-  @IsOptional()
-  advertisedSavings?: number;
-
-  @IsString()
-  @IsOptional()
-  ctaMessage?: string;
-
   @IsString()
   @IsOptional()
   modalHeading1?: string;
-
-  @IsString()
-  @IsOptional()
-  modalHeading2?: string;
 
   @IsString()
   @IsOptional()
@@ -155,17 +143,8 @@ export class CmsCancelInterstitialOfferResult {
   @IsString()
   upgradeInterval!: string;
 
-  @IsNumber()
-  advertisedSavings!: number;
-
-  @IsString()
-  ctaMessage!: string;
-
   @IsString()
   modalHeading1!: string;
-
-  @IsString()
-  modalHeading2!: string;
 
   @IsString()
   modalMessage!: string;
