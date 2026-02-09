@@ -7,7 +7,7 @@ import * as IndexModule from './index';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as cache from '../../lib/cache';
 
-import { waitFor } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { Integration, IntegrationType, WebIntegration } from '../../models';
@@ -204,7 +204,7 @@ describe('IndexContainer', () => {
     jest.resetAllMocks();
   });
 
-  it('should check query parameters', () => {
+  it('should check query parameters', async () => {
     const { container } = renderWithLocalizationProvider(
       <LocationProvider>
         <IndexContainer
@@ -217,10 +217,12 @@ describe('IndexContainer', () => {
       </LocationProvider>
     );
     expect(container).toBeDefined();
-    expect(mockUseValidatedQueryParams).toHaveBeenCalledWith(
-      IndexQueryParams,
-      false
-    );
+    await waitFor(() => {
+      expect(mockUseValidatedQueryParams).toHaveBeenCalledWith(
+        IndexQueryParams,
+        false
+      );
+    });
   });
 
   it('should render the Index component when no redirection is required', async () => {
@@ -895,7 +897,9 @@ describe('IndexContainer', () => {
           expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
 
-        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
 
         await waitFor(() => {
           expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
@@ -928,7 +932,9 @@ describe('IndexContainer', () => {
         await waitFor(() => {
           expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
-        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
 
         await waitFor(() => {
           expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
@@ -961,7 +967,9 @@ describe('IndexContainer', () => {
           expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
 
-        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+        });
 
         await waitFor(() => {
           expect(firefox.fxaCanLinkAccount).toHaveBeenCalled();
