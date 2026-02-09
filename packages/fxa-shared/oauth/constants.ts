@@ -6,6 +6,7 @@ export const OAUTH_SCOPE_SUBSCRIPTIONS =
   'https://identity.mozilla.com/account/subscriptions';
 
 export const OAUTH_SCOPE_OLD_SYNC = 'https://identity.mozilla.com/apps/oldsync';
+export const OAUTH_SCOPE_RELAY = 'https://identity.mozilla.com/apps/relay';
 export const OAUTH_SCOPE_SESSION_TOKEN =
   'https://identity.mozilla.com/tokens/session';
 export const OAUTH_SCOPE_NEWSLETTERS =
@@ -18,6 +19,7 @@ export const MAX_NEW_ACCOUNT_AGE = 1000 * 60 * 60 * 24;
 
 export const OauthConsts = {
   OAUTH_SCOPE_OLD_SYNC,
+  OAUTH_SCOPE_RELAY,
   OAUTH_SCOPE_SESSION_TOKEN,
   OAUTH_SCOPE_NEWSLETTERS,
   OAUTH_SCOPE_SUBSCRIPTIONS,

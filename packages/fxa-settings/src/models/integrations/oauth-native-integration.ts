@@ -38,6 +38,8 @@ export enum OAuthNativeClients {
   FirefoxDesktop = '5882386c6d801776',
   Fenix = 'a2270f727f45f648',
   Fennec = '3332a18d142636cb',
+  // For Android testing
+  ReferenceBrowser = '3c49430b43dfba77',
   // TODO: handle Thunderbird case better, FXA-10848
   Thunderbird = '8269bacd7bbc7f80',
 }
@@ -119,7 +121,8 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     return (
       this.clientInfo?.clientId === OAuthNativeClients.FirefoxIOS ||
       this.clientInfo?.clientId === OAuthNativeClients.Fenix ||
-      this.clientInfo?.clientId === OAuthNativeClients.Fennec
+      this.clientInfo?.clientId === OAuthNativeClients.Fennec ||
+      this.clientInfo?.clientId === OAuthNativeClients.ReferenceBrowser
     );
   }
 

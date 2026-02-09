@@ -784,14 +784,24 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
 
         const scopeSet = ScopeSet.fromString(grant.scope);
 
-        if (scopeSet.contains(OAUTH_SCOPE_SESSION_TOKEN)) {
+        // Token exchange doesn't provide a session token, and token migration
+        // doesn't need a new session token created, so skip those blocks for both.
+        const isRefreshTokenUpgrade =
+          req.payload.grant_type === GRANT_TOKEN_EXCHANGE &&
+          req.payload.subject_token_type === SUBJECT_TOKEN_TYPE_REFRESH;
+        const isTokenMigration =
+          req.payload.grant_type === GRANT_FXA_ASSERTION &&
+          req.payload.reason === CREDENTIALS_REASON_MIGRATION;
+        const isSilentUpgrade = isRefreshTokenUpgrade || isTokenMigration;
+
+        if (scopeSet.contains(OAUTH_SCOPE_SESSION_TOKEN) && !isSilentUpgrade) {
           // the OAUTH_SCOPE_SESSION_TOKEN allows the client to create a new session token.
           // the sessionTokens live in the auth-server db, we create them here after the oauth-server has validated the request.
           let origSessionToken;
           try {
             origSessionToken = await db.sessionToken(grant.session_token_id);
           } catch (e) {
-            throw AuthError.unknownAuthorizationCode();
+            throw AuthError.invalidToken('Session token not found');
           }
 
           const newTokenData = await origSessionToken.copyTokenState();
@@ -833,11 +843,6 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         //   request.auth.credentials.deviceId. skipEmail is a fallback for
         //   sessions without an associated device.
         if (grant.refresh_token) {
-          const isTokenExchange =
-            req.payload.grant_type === GRANT_TOKEN_EXCHANGE;
-          const isTokenMigration =
-            req.payload.reason === CREDENTIALS_REASON_MIGRATION;
-          const skipEmail = isTokenExchange || isTokenMigration;
           await oauthRouteUtils.newTokenNotification(
             db,
             mailer,
@@ -845,7 +850,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
             req,
             grant,
             {
-              skipEmail,
+              skipEmail: isSilentUpgrade,
               existingDeviceId: grant._existingDeviceId,
               clientId: grant._clientId,
             }
