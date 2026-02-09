@@ -85,4 +85,41 @@ export class SubscriptionEventsService {
       uid,
     });
   }
+
+  async handleCustomerSubscriptionUpdated(
+    event: Stripe.Event,
+    eventSubscription: Stripe.Subscription
+  ) {
+    const previousAttributes = (event.data as any).previous_attributes;
+
+    // Detect trial to paid conversion
+    if (
+      previousAttributes?.status === 'trialing' &&
+      eventSubscription.status === 'active'
+    ) {
+      // Trial converted to paid subscription
+      console.log('Trial subscription converted to active', {
+        subscription_id: eventSubscription.id,
+        customer_id:
+          typeof eventSubscription.customer === 'string'
+            ? eventSubscription.customer
+            : eventSubscription.customer.id,
+        price_id: eventSubscription.items.data[0]?.price.id,
+        trial_end: eventSubscription.trial_end,
+        event_id: event.id,
+      });
+
+      // TODO: Process events, send emails, etc.
+      this.emitterService.getEmitter().emit('trialConverted', {
+        subscriptionId: eventSubscription.id,
+        customerId:
+          typeof eventSubscription.customer === 'string'
+            ? eventSubscription.customer
+            : eventSubscription.customer.id,
+        priceId: eventSubscription.items.data[0]?.price.id,
+        trialEnd: eventSubscription.trial_end ?? undefined,
+        providerEventId: event.id,
+      });
+    }
+  }
 }

@@ -62,7 +62,7 @@ export const StripePriceRecurringFactory = (
   meter: null,
   interval: faker.helpers.arrayElement(['day', 'week', 'month', 'year']),
   interval_count: 1,
-  trial_period_days: null,
+  trial_period_days: override?.trial_period_days ?? null, // is this needed?
   usage_type: 'licensed',
   ...override,
 });
