@@ -1690,8 +1690,16 @@ export class FxaMailer extends FxaEmailRenderer {
     throwErrorOnSendFailure = true
   ) {
     const { cmsRpFromName, to, cc } = opts;
+    // Extract just the email address from the sender config (e.g., "Name <email@example.com>" -> "email@example.com")
+    const senderEmail =
+      this.mailerConfig.sender.indexOf('<') >= 0
+        ? this.mailerConfig.sender.substring(
+            this.mailerConfig.sender.indexOf('<') + 1,
+            this.mailerConfig.sender.indexOf('>')
+          )
+        : this.mailerConfig.sender;
     const from = cmsRpFromName
-      ? `${cmsRpFromName} <${this.mailerConfig.sender}>`
+      ? `${cmsRpFromName} <${senderEmail}>`
       : this.mailerConfig.sender;
 
     return this.emailSender.send(
