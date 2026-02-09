@@ -65,3 +65,13 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = United States Flag
+
+# Used for loading arrow icon
+icon-loading-arrow-aria-label =
+    .aria-label = Loading
+
+# Used for passkey icon
+icon-passkey-aria-label =
+    .aria-label = Passkey
+
+##
