@@ -156,3 +156,27 @@ mfaOtpCodeVerifyForEmail               : uid              : 5           : 5 minu
 mfaOtpCodeVerifyFor2fa                 : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeVerifyForPassword            : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeVerifyForRecoveryKey         : uid              : 5           : 5 minutes       : 15 minutes   : block
+
+#
+# Passkey Registration
+# MFA-protected endpoints for registering new passkeys. Moderate limits since these require existing auth.
+#
+passkeyRegisterStart                   : ip_uid            : 10           : 10 minutes      : 10 minutes  : block
+passkeyRegisterFinish                  : ip_uid            : 10           : 10 minutes      : 10 minutes  : block
+
+#
+# Passkey Authentication
+# More lenient than passwords - passkeys cannot be credential-stuffed or brute-forced.
+# Rate limits are primarily for DoS prevention.
+#
+passkeyAuthenticationStart             : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
+passkeyAuthenticationVerify            : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
+passkeyLogin                           : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
+
+#
+# Passkey Management
+# Relaxed limits for normal usage. All endpoints require verifiedSessionToken or MFA JWT.
+#
+passkeysList                           : ip_uid            : 100         : 15 minutes      : 15 minutes  : block
+passkeysRename                         : ip_uid            : 100         : 15 minutes      : 15 minutes  : block
+passkeyDelete                          : ip_uid            : 100         : 15 minutes      : 15 minutes  : block
