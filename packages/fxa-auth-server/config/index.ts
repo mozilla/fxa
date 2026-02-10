@@ -2166,6 +2166,38 @@ const convictConf = convict({
       env: 'OTP_SIGNUP_DIGIT',
     },
   },
+  passwordlessOtp: {
+    enabled: {
+      doc: 'Enable passwordless authentication feature',
+      default: false,
+      format: Boolean,
+      env: 'PASSWORDLESS_ENABLED',
+    },
+    forcedEmailAddresses: {
+      doc: 'Force passwordless flow for email addresses matching this regex (for testing)',
+      format: RegExp,
+      default: /^passwordless.*@restmail\.net$/,
+      env: 'PASSWORDLESS_FORCED_EMAIL_REGEX',
+    },
+    allowedClientIds: {
+      doc: 'Array of clients ids allowed to use passwordless authentication. Empty array means all services allowed.',
+      format: Array,
+      default: [],
+      env: 'PASSWORDLESS_ALLOWED_SERVICES',
+    },
+    digits: {
+      doc: 'Number of digits in passwordless OTP code',
+      default: 8,
+      format: 'nat',
+      env: 'OTP_PASSWORDLESS_DIGITS',
+    },
+    ttl: {
+      doc: 'Duration in seconds when the passwordless OTP is valid',
+      default: 10 * 60,
+      format: 'nat',
+      env: 'OTP_PASSWORDLESS_TTL',
+    },
+  },
   accountDestroy: {
     requireVerifiedAccount: {
       doc: 'Whether or not the account must be verified in order to destroy it.',
