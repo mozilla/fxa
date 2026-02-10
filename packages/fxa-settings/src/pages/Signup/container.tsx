@@ -90,9 +90,10 @@ const SignupContainer = ({
   useEffect(() => {
     (async () => {
       if (!validationError && !emailStatusChecked) {
-        const { exists, hasLinkedAccount, hasPassword } =
+        const { exists, hasLinkedAccount, hasPassword, passwordlessSupported } =
           await authClient.accountStatusByEmail(queryParamModel.email, {
             thirdPartyAuthStatus: true,
+            clientId: integration.getClientId(),
           });
         if (exists) {
           const signInPath = location.pathname.startsWith('/oauth')
@@ -104,6 +105,16 @@ const SignupContainer = ({
               email,
               hasLinkedAccount,
               hasPassword,
+            },
+          });
+        } else if (passwordlessSupported && !wantsKeys) {
+          // New account can use passwordless signup (non-Sync RPs only)
+          navigateWithQuery('/signin_passwordless_code', {
+            replace: true,
+            state: {
+              email,
+              clientId: integration.getClientId(),
+              isSignup: true,
             },
           });
         }
@@ -134,11 +145,11 @@ const SignupContainer = ({
         let credentialsV2 = undefined;
         let v2Payload:
           | {
-              wrapKb: string;
-              authPWVersion2: string;
-              wrapKbVersion2: string;
-              clientSalt: string;
-            }
+            wrapKb: string;
+            authPWVersion2: string;
+            wrapKbVersion2: string;
+            clientSalt: string;
+          }
           | {} = {};
 
         if (keyStretchExp.queryParamModel.isV2(config)) {

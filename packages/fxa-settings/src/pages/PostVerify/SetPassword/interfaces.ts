@@ -25,4 +25,9 @@ export interface SetPasswordProps {
   createPasswordHandler: CreatePasswordHandler;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
   integration?: Integration;
+  isPasswordlessFlow?: boolean;
+}
+
+export interface SetPasswordLocationState {
+  isPasswordlessFlow?: boolean;
 }

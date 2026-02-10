@@ -1633,6 +1633,7 @@ export class AccountHandler {
           isPasswordlessEligible(
             account,
             email,
+            this.config.passwordlessOtp.enabled,
             this.config.passwordlessOtp.forcedEmailAddresses as RegExp
           ) &&
           isClientAllowedForPasswordless(
@@ -1664,12 +1665,18 @@ export class AccountHandler {
           // Passwordless is supported if:
           // 1. Account is eligible (doesn't exist OR matches forced regex OR enabled globally)
           // 2. AND clientId is allowed
-          const isEligible =
-            isPasswordlessEligible(
-              null, // null = account doesn't exist
-              email,
-              this.config.passwordlessOtp.forcedEmailAddresses as RegExp
-            ) || this.config.passwordlessOtp.enabled;
+          const isEligible = isPasswordlessEligible(
+            null, // null = account doesn't exist
+            email,
+            this.config.passwordlessOtp.enabled,
+            this.config.passwordlessOtp.forcedEmailAddresses as RegExp
+          );
+          const isAllowed = isClientAllowedForPasswordless(
+            this.config.passwordlessOtp.allowedClientIds as string[],
+            clientId
+          );
+
+          console.log({ isEligible, isAllowed });
 
           result.passwordlessSupported =
             isEligible &&

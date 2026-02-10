@@ -8,7 +8,7 @@ import { currentAccount } from '../../../lib/cache';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Integration, useAuthClient } from '../../../models';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CreatePasswordHandler } from './interfaces';
+import { CreatePasswordHandler, SetPasswordLocationState } from './interfaces';
 import { HandledError } from '../../../lib/error-utils';
 import {
   AuthUiErrorNos,
@@ -45,7 +45,11 @@ const SetPasswordContainer = ({
   const sessionToken = storedLocalAccount?.sessionToken;
   const uid = storedLocalAccount?.uid;
 
-  const location = useLocation();
+
+  const location = useLocation() as ReturnType<typeof useLocation> & {
+    state?: SetPasswordLocationState;
+  };
+  const isPasswordlessFlow = location.state?.isPasswordlessFlow ?? false;
   const metricsContext = queryParamsToMetricsContext(
     flowQueryParams as unknown as Record<string, string>
   );
@@ -212,6 +216,7 @@ const SetPasswordContainer = ({
         createPasswordHandler,
         offeredSyncEngineConfigs,
         integration,
+        isPasswordlessFlow,
       }}
     />
   );

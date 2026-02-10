@@ -1227,7 +1227,7 @@ export default class AuthClient {
    */
   async passwordlessSendCode(
     email: string,
-    options: { service?: string; metricsContext?: MetricsContext } = {},
+    options: { clientId?: string; metricsContext?: MetricsContext } = {},
     headers?: Headers
   ): Promise<{}> {
     return this.request(
@@ -1244,7 +1244,7 @@ export default class AuthClient {
   async passwordlessConfirmCode(
     email: string,
     code: string,
-    options: { service?: string; metricsContext?: MetricsContext } = {},
+    options: { clientId?: string; metricsContext?: MetricsContext } = {},
     headers?: Headers
   ): Promise<{
     uid: string;
@@ -1266,7 +1266,7 @@ export default class AuthClient {
    */
   async passwordlessResendCode(
     email: string,
-    options: { service?: string; metricsContext?: MetricsContext } = {},
+    options: { clientId?: string; metricsContext?: MetricsContext } = {},
     headers?: Headers
   ): Promise<{}> {
     return this.request(

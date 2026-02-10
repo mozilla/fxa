@@ -2176,13 +2176,13 @@ const convictConf = convict({
     forcedEmailAddresses: {
       doc: 'Force passwordless flow for email addresses matching this regex (for testing)',
       format: RegExp,
-      default: /^passwordless.*@restmail\.net$/,
+      default: /^$/,
       env: 'PASSWORDLESS_FORCED_EMAIL_REGEX',
     },
     allowedClientIds: {
       doc: 'Array of clients ids allowed to use passwordless authentication. Empty array means all services allowed.',
       format: Array,
-      default: [],
+      default: ['98e6508e88680e1a', '5882386c6d801776'],
       env: 'PASSWORDLESS_ALLOWED_SERVICES',
     },
     digits: {
