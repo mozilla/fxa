@@ -1381,6 +1381,72 @@ describe('/account/devices/invoke_command', () => {
     });
   });
 
+  it('omits sender field when deviceId is null/undefined', () => {
+    const mockPushbox = mocks.mockPushbox({
+      store: sinon.spy(async () => ({ index: 15 })),
+    });
+    const target = 'bogusid1';
+    const payload = { bogus: 'payload' };
+    mockRequest.payload = {
+      target,
+      command,
+      payload,
+    };
+    // Set deviceId to null to simulate the missing deviceId scenario
+    mockRequest.auth.credentials.deviceId = null;
+    mockRequest.auth.credentials.client = {
+      id: 'testclient',
+      name: 'Test Client',
+    };
+    mockRequest.auth.credentials.uaBrowser = 'Firefox';
+    mockRequest.auth.credentials.uaOS = 'Linux';
+
+    const route = getRoute(
+      makeRoutes({
+        customs: mockCustoms,
+        log: mockLog,
+        push: mockPush,
+        pushbox: mockPushbox,
+        db: mockDB,
+      }),
+      '/account/devices/invoke_command'
+    );
+
+    return runTest(route, mockRequest).then(() => {
+      // Verify diagnostic warning was logged
+      assert.equal(mockLog.warn.callCount, 1, 'warning was logged');
+      assert.calledWith(mockLog.warn, 'device.command.senderDeviceIdMissing');
+      const warningArgs = mockLog.warn.getCall(0).args[1];
+      assert.equal(warningArgs.uid, uid);
+      assert.equal(warningArgs.command, command);
+      assert.equal(warningArgs.clientName, 'Test Client');
+      assert.equal(warningArgs.uaBrowser, 'Firefox');
+
+      // Verify pushbox.store was called WITHOUT sender field
+      assert.equal(mockPushbox.store.callCount, 1, 'pushbox was called');
+      assert.calledWithExactly(
+        mockPushbox.store,
+        uid,
+        target,
+        {
+          command,
+          payload,
+          // Note: sender field should be completely absent, not null
+        },
+        undefined
+      );
+
+      // Verify metrics logging has sender as null
+      assert.callCount(mockLog.info, 2);
+      const invokedMetrics = mockLog.info.getCall(0).args[1];
+      assert.equal(
+        invokedMetrics.sender,
+        null,
+        'sender should be null in metrics'
+      );
+    });
+  });
+
   it('supports feature-flag for oauth devices', async () => {
     const mockPushbox = mocks.mockPushbox();
     const route = getRoute(

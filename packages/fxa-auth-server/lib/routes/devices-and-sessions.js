@@ -275,7 +275,7 @@ module.exports = (
             uid,
             target: deviceId,
             index: msg.index,
-            sender: data.sender,
+            sender: data.sender || null,
             command: data.command,
           });
         }
@@ -325,6 +325,27 @@ module.exports = (
         const email = credentials.email;
         const sender = credentials.deviceId;
 
+        // Log diagnostic info when sender deviceId is missing to help identify the cause
+        if (!sender) {
+          log.warn('device.command.senderDeviceIdMissing', {
+            uid,
+            command,
+            target,
+            hasSessionToken: !!credentials.tokenId,
+            hasRefreshToken: !!credentials.refreshTokenId,
+            clientId: credentials.client?.id
+              ? hex(credentials.client.id)
+              : null,
+            clientName: credentials.client?.name || null,
+            deviceType: credentials.deviceType || null,
+            uaBrowser: credentials.uaBrowser || null,
+            uaBrowserVersion: credentials.uaBrowserVersion || null,
+            uaOS: credentials.uaOS || null,
+            uaOSVersion: credentials.uaOSVersion || null,
+            uaDeviceType: credentials.uaDeviceType || null,
+          });
+        }
+
         if (
           config.oauth.deviceCommandsEnabled === false &&
           credentials.refreshTokenId
@@ -351,7 +372,12 @@ module.exports = (
           ttl = DEFAULT_COMMAND_TTL.get(command);
         }
 
-        const data = { command, payload, sender };
+        // Only include sender if it exists, since the validation schema expects
+        // it to be optional (missing) or a valid device ID string, not null
+        const data = { command, payload };
+        if (sender) {
+          data.sender = sender;
+        }
         const { index } = await pushbox.store(uid, targetDevice.id, data, ttl);
 
         // To measure command delivery, we emit an initial "invoked" event for each invoked
@@ -360,7 +386,7 @@ module.exports = (
           uid,
           target,
           index,
-          sender,
+          sender: sender || null,
           command,
           targetOS: targetDevice.uaOS,
           targetType: targetDevice.type,
