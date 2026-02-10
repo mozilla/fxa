@@ -32,7 +32,23 @@ exports[`Signin component snapshots - CMS renders CardHeader with CMS content wh
 />
 `;
 
-exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is not needed 1`] = `
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is not needed: cms description 1`] = `
+<p
+  class="card-subheader"
+>
+  for your Mozilla account
+</p>
+`;
+
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is not needed: cms headline 1`] = `
+<h1
+  class="card-header-cms text-xl"
+>
+  Enter your password
+</h1>
+`;
+
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is not needed: cms logo 1`] = `
 <img
   alt="logo"
   class="justify-start mb-4 max-h-[40px]"

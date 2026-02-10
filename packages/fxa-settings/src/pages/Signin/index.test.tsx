@@ -1581,17 +1581,25 @@ describe('Signin component', () => {
         hasPassword: false,
       });
 
-      // the specific case here is the falsy condition of the above ternary
-      // so, we make sure our mock headline is NOT in the document as a guard against
-      // snapshotting the wrong render.
+      // CMS headline replaces the default "Sign in" heading. Guard against
+      // snapshotting the wrong render by checking the heading is not "Sign in".
       expect(
-        screen.queryByText(cmsProps.cmsInfo.SigninPage.headline)
+        screen.queryByRole('heading', { name: 'Sign in' })
       ).not.toBeInTheDocument();
 
       const cmsLogo = screen.getByRole('img', {
         name: cmsProps.cmsInfo.shared.logoAltText,
       });
-      expect(cmsLogo).toMatchSnapshot();
+      const cmsHeadline = screen.getByText(
+        cmsProps.cmsInfo.SigninPage.headline
+      );
+      const cmsDescription = screen.getByText(
+        cmsProps.cmsInfo.SigninPage.description
+      );
+
+      expect(cmsLogo).toMatchSnapshot('cms logo');
+      expect(cmsHeadline).toMatchSnapshot('cms headline');
+      expect(cmsDescription).toMatchSnapshot('cms description');
     });
 
     it('renders the CMS-styled submit button', () => {

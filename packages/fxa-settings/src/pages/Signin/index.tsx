@@ -401,6 +401,8 @@ const Signin = ({
             serviceName,
             cmsLogoUrl: cmsInfo?.shared.logoUrl,
             cmsLogoAltText: cmsInfo?.shared.logoAltText,
+            cmsHeadline: cmsInfo?.SigninPage.headline,
+            cmsDescription: cmsInfo?.SigninPage.description,
             cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
             cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
           }}
