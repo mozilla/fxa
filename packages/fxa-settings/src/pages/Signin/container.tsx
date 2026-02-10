@@ -194,12 +194,19 @@ const SigninContainer = ({
     canLinkAccountOk,
     localizedErrorMessage: localizedErrorFromLocationState,
     successBanner,
+    // Used when redirecting from passwordless flow with TOTP_REQUIRED error
+    // to prevent redirect loop back to passwordless
+    skipPasswordlessRedirect,
   } = location.state || ({} as LocationState);
 
   const { localizedSuccessBannerHeading, localizedSuccessBannerDescription } =
     successBanner || {};
 
-  const [accountStatus, setAccountStatus] = useState({
+  const [accountStatus, setAccountStatus] = useState<{
+    hasLinkedAccount?: boolean;
+    hasPassword?: boolean;
+    passwordlessSupported?: boolean;
+  }>({
     hasLinkedAccount:
       // TODO: in FXA-9177, consider retrieving hasLinkedAccount and hasPassword from localStorage
       hasLinkedAccountFromLocationState !== undefined
@@ -209,6 +216,7 @@ const SigninContainer = ({
       hasPasswordFromLocationState !== undefined
         ? hasPasswordFromLocationState
         : queryParamModel.hasPassword,
+    passwordlessSupported: undefined,
   });
   const { hasLinkedAccount, hasPassword } = accountStatus;
 
@@ -238,19 +246,53 @@ const SigninContainer = ({
           accountStatus.hasPassword === undefined
         ) {
           try {
-            const { exists, hasLinkedAccount, hasPassword } =
+            const { exists, hasLinkedAccount, hasPassword, passwordlessSupported } =
               await authClient.accountStatusByEmail(email, {
                 thirdPartyAuthStatus: true,
+                clientId: integration.getClientId(),
               });
+            // Passwordless is enabled via config or query param (for testing)
+            const passwordlessEnabled =
+              config.featureFlags?.passwordlessEnabled === true ||
+              queryParamModel.forcePasswordless === true;
             if (!exists) {
-              const signUpPath = location.pathname.startsWith('/oauth')
-                ? '/oauth/signup'
-                : '/signup';
+              // Check if passwordless is supported for new accounts
+              // Only use passwordless for non-Sync RPs (!wantsKeys) AND when enabled
+              // Sync users should go through traditional password-first signup
+              if (passwordlessEnabled && passwordlessSupported && !wantsKeys) {
+                // Redirect to passwordless flow for new account registration (non-Sync only)
+                navigateWithQuery('/signin_passwordless_code', {
+                  state: {
+                    email,
+                    isSignup: true,
+                    clientId: integration.getClientId(),
+                  },
+                });
+              } else {
+                const signUpPath = location.pathname.startsWith('/oauth')
+                  ? '/oauth/signup'
+                  : '/signup';
 
-              navigateWithQuery(signUpPath, {
+                navigateWithQuery(signUpPath, {
+                  state: {
+                    email,
+                    emailStatusChecked: true,
+                  },
+                });
+              }
+            } else if (
+              passwordlessEnabled &&
+              passwordlessSupported &&
+              !hasPassword &&
+              !skipPasswordlessRedirect
+            ) {
+              // Existing account supports passwordless and has no password set (when enabled)
+              // For Sync, SigninPasswordlessCode will redirect to SetPassword after OTP
+              // Skip redirect if we came from passwordless with TOTP_REQUIRED error
+              navigateWithQuery('/signin_passwordless_code', {
                 state: {
                   email,
-                  emailStatusChecked: true,
+                  clientId: integration.getClientId(),
                 },
               });
             } else {
@@ -258,6 +300,7 @@ const SigninContainer = ({
               setAccountStatus({
                 hasLinkedAccount,
                 hasPassword,
+                passwordlessSupported,
               });
             }
           } catch (error) {
@@ -677,8 +720,8 @@ export async function trySignIn(
   onRetryCorrectedEmail?: (correctedEmail: string) => Promise<{
     v1Credentials: { authPW: string; unwrapBKey: string };
     v2Credentials:
-      | { authPW: string; unwrapBKey: string; clientSalt: string }
-      | undefined;
+    | { authPW: string; unwrapBKey: string; clientSalt: string }
+    | undefined;
   }>
 ) {
   try {

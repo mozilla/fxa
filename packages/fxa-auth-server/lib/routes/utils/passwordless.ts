@@ -30,26 +30,24 @@ export function isClientAllowedForPasswordless(
  * Check if an account is eligible for passwordless authentication
  * An account is eligible if:
  * - It doesn't exist (new registration)
- * - The email matches the forcedEmailAddress regex (for testing)
  * - It exists but has no password set (verifierSetAt === 0)
- * 
+ *
  * @param account - The account object (null if account doesn't exist)
  * @param email - The email address
- * @param forcedEmailRegex - Regex pattern to force passwordless for specific emails (optional)
+ * @param featureEnabled - Whether passwordless feature is enabled
  * @returns true if the account is eligible for passwordless, false otherwise
  */
 export function isPasswordlessEligible(
   account: { verifierSetAt: number } | null,
   email: string,
-  forcedEmailRegex?: RegExp
+  featureEnabled: boolean
 ): boolean {
-  // New account (doesn't exist) - eligible
-  if (!account) {
-    return true;
+  if (!featureEnabled) {
+    return false;
   }
 
-  // Check if email matches forced regex (for testing)
-  if (forcedEmailRegex && forcedEmailRegex.test(email)) {
+  // New account (doesn't exist) - eligible
+  if (!account) {
     return true;
   }
 

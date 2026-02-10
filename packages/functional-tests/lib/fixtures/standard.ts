@@ -84,6 +84,7 @@ export const test = base.extend<TestOptions, WorkerOptions>({
 
     await use(testAccountTracker);
 
+    await target.clearRateLimits();
     await testAccountTracker.destroyAllAccounts();
   },
 

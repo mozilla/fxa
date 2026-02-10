@@ -28,7 +28,10 @@ import { FxaMailer } from '../senders/fxa-mailer';
 import { formatUserAgentInfo } from 'fxa-shared/lib/user-agent';
 import { formatGeoData } from 'fxa-shared/lib/geo-data';
 import type { DB } from '../db';
-import { isClientAllowedForPasswordless, isPasswordlessEligible } from './utils/passwordless';
+import {
+  isClientAllowedForPasswordless,
+  isPasswordlessEligible,
+} from './utils/passwordless';
 
 /**
  * Redis adapter for OTP storage
@@ -128,7 +131,7 @@ class PasswordlessHandler {
       !isPasswordlessEligible(
         account,
         email,
-        this.config.passwordlessOtp.forcedEmailAddresses as RegExp
+        this.config.passwordlessOtp.enabled
       )
     ) {
       throw error.cannotCreatePassword(); // Account has a password, use standard flow
@@ -189,7 +192,7 @@ class PasswordlessHandler {
       !isPasswordlessEligible(
         account,
         email,
-        this.config.passwordlessOtp.forcedEmailAddresses as RegExp
+        this.config.passwordlessOtp.enabled
       )
     ) {
       throw error.cannotCreatePassword();
@@ -302,7 +305,7 @@ class PasswordlessHandler {
       !isPasswordlessEligible(
         account,
         email,
-        this.config.passwordlessOtp.forcedEmailAddresses as RegExp
+        this.config.passwordlessOtp.enabled
       )
     ) {
       throw error.cannotCreatePassword(); // Account has a password, use standard flow

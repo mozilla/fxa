@@ -1860,7 +1860,7 @@ const convictConf = convict({
   },
   servicesWithEmailVerification: {
     doc: 'For users in a non-2FA non-Sync unverified session state going through an RP redirect flow, we skip 1) redirecting the user to enter emailed code verification page, and we skip 2) sending that email verification. Services in this list will NOT skip the redirect or email, and are blocked in the BE from completing the oauth flow by hitting our API directly in this state. Content-server has this config as well.',
-    default: ['32aaeb6f1c21316a'],
+    default: ['32aaeb6f1c21316a', '98e6508e88680e1a'],
     format: Array,
     env: 'SERVICES_WITH_EMAIL_VERIFICATION',
   },
@@ -2173,14 +2173,8 @@ const convictConf = convict({
       format: Boolean,
       env: 'PASSWORDLESS_ENABLED',
     },
-    forcedEmailAddresses: {
-      doc: 'Force passwordless flow for email addresses matching this regex (for testing)',
-      format: RegExp,
-      default: /^passwordless.*@restmail\.net$/,
-      env: 'PASSWORDLESS_FORCED_EMAIL_REGEX',
-    },
     allowedClientIds: {
-      doc: 'Array of clients ids allowed to use passwordless authentication. Empty array means all services allowed.',
+      doc: 'Array of clients ids allowed to use passwordless authentication. Empty array means no service is allowed.',
       format: Array,
       default: [],
       env: 'PASSWORDLESS_ALLOWED_SERVICES',

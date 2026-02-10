@@ -100,11 +100,13 @@ export interface RelierCmsInfo {
 
   SignupSetPasswordPage: PageRelierCmsInfoWithLogo;
   SignupConfirmCodePage: PageRelierCmsInfo;
+  SignupPasswordlessCodePage?: PageRelierCmsInfo;
   SignupConfirmedSyncPage?: PageRelierCmsInfo;
 
   SigninPage: PageRelierCmsInfo;
   SigninCachedPage?: PageRelierCmsInfo;
   SigninTotpCodePage?: PageRelierCmsInfo;
+  SigninPasswordlessCodePage?: PageRelierCmsInfo;
   SigninTokenCodePage?: PageRelierCmsInfo;
   SigninUnblockCodePage?: PageRelierCmsInfo;
 }
