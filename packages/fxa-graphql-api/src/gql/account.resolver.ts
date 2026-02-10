@@ -374,7 +374,11 @@ export class AccountResolver {
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
-    await this.authAPI.recoveryEmailDestroyWithJwt(input.jwt, input.email, headers);
+    await this.authAPI.recoveryEmailDestroyWithJwt(
+      input.jwt,
+      input.email,
+      headers
+    );
     return { clientMutationId: input.clientMutationId };
   }
 
@@ -456,7 +460,7 @@ export class AccountResolver {
 
     if (!['in', 'out'].includes(input.state)) {
       throw new Error(
-        `Invalid metrics opt state! State must be in or out, but recieved ${input.state}.`
+        `Invalid metrics opt state! State must be in or out, but received ${input.state}.`
       );
     }
 
