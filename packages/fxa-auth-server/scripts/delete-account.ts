@@ -20,7 +20,6 @@
 import { StatsD } from 'hot-shots';
 import readline from 'readline';
 import { Container } from 'typedi';
-import { join } from 'path';
 
 import { PayPalClient } from '@fxa/payments/paypal';
 
@@ -162,12 +161,7 @@ DB.connect(config).then(async (db: any) => {
     emailSender,
     linkBuilder,
     config.smtp,
-    new NodeRendererBindings({
-      translations: {
-        basePath: join(__dirname, '../public/locales'),
-        ftlFileName: 'auth.ftl',
-      },
-    })
+    new NodeRendererBindings()
   );
   Container.set(FxaMailer, fxaMailer);
 
