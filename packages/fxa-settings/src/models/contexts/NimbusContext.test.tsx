@@ -221,11 +221,13 @@ describe('NimbusContext', () => {
 
       renderWithProviders(previewConfig);
 
-      expect(mockInitializeNimbus).toHaveBeenCalledWith(
-        'test-user-id',
-        true,
-        { language: 'en', region: 'us' }
-      );
+      await waitFor(() => {
+        expect(mockInitializeNimbus).toHaveBeenCalledWith(
+          'test-user-id',
+          true,
+          { language: 'en', region: 'us' }
+        );
+      });
     });
 
     it('handles preview mode from URL params', async () => {
@@ -236,11 +238,13 @@ describe('NimbusContext', () => {
 
       renderWithProviders();
 
-      expect(mockInitializeNimbus).toHaveBeenCalledWith(
-        'test-user-id',
-        true,
-        { language: 'en', region: 'us' }
-      );
+      await waitFor(() => {
+        expect(mockInitializeNimbus).toHaveBeenCalledWith(
+          'test-user-id',
+          true,
+          { language: 'en', region: 'us' }
+        );
+      });
     });
 
     it('cleans up on unmount', async () => {

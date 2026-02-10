@@ -195,7 +195,9 @@ describe('SetPassword-container', () => {
     mockCurrentAccount(storedAccount);
 
     render();
-    expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
+    });
     expect(SetPasswordModule.default).not.toHaveBeenCalled();
   });
 

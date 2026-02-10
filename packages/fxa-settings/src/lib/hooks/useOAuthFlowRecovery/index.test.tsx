@@ -142,6 +142,7 @@ describe('useOAuthFlowRecovery', () => {
   });
 
   it('sets recoveryFailed when fxaOAuthFlowBegin throws', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     (firefox.fxaOAuthFlowBegin as jest.Mock).mockRejectedValue(
       new Error('WebChannel error')
     );

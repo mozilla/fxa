@@ -33,8 +33,8 @@ export const PageRecentActivity = (_: RouteComponentProps) => {
         {!!securityEvents &&
           securityEvents.map((securityEvent) => (
             <SecurityEventSection
+              key={securityEvent.name + securityEvent.createdAt}
               {...{
-                key: securityEvent.name + securityEvent.createdAt,
                 name: securityEvent.name,
                 createdAt: securityEvent.createdAt,
               }}

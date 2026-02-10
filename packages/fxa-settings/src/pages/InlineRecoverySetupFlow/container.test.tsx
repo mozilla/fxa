@@ -217,15 +217,19 @@ describe('InlineRecoverySetupContainer', () => {
       });
     });
 
-    it('redirects when there is no signin state', () => {
+    it('redirects when there is no signin state', async () => {
       render();
-      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
+      await waitFor(() => {
+        expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
+      });
     });
 
-    it('redirects when there is no totp token', () => {
+    it('redirects when there is no totp token', async () => {
       mockLocationState = MOCK_SIGNIN_LOCATION_STATE;
       render();
-      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
+      await waitFor(() => {
+        expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
+      });
     });
 
     it('redirects when totp is already active', async () => {
@@ -242,12 +246,14 @@ describe('InlineRecoverySetupContainer', () => {
       mockLocationState = MOCK_SIGNIN_RECOVERY_LOCATION_STATE;
 
       render();
-      expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signin_totp_code${search}`,
-        {
-          state: MOCK_SIGNIN_LOCATION_STATE,
-        }
-      );
+      await waitFor(() => {
+        expect(mockNavigateHook).toHaveBeenCalledWith(
+          `/signin_totp_code${search}`,
+          {
+            state: MOCK_SIGNIN_LOCATION_STATE,
+          }
+        );
+      });
     });
   });
 
@@ -324,9 +330,11 @@ describe('InlineRecoverySetupContainer', () => {
 
     it('reads data from sensitive data client', async () => {
       render();
-      expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
-        SensitiveData.Key.Auth
-      );
+      await waitFor(() => {
+        expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
+          SensitiveData.Key.Auth
+        );
+      });
     });
 
     describe('callbacks', () => {

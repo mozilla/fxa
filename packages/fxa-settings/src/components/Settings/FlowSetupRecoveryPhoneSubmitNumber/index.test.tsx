@@ -41,7 +41,7 @@ describe('FlowSetupRecoveryPhoneSubmitNumber', () => {
    * @param props
    */
   async function renderWith(props = defaultProps) {
-    await act(() => {
+    await act(async () => {
       renderWithLocalizationProvider(
         <FlowSetupRecoveryPhoneSubmitNumber {...props} />
       );
@@ -85,7 +85,7 @@ describe('FlowSetupRecoveryPhoneSubmitNumber', () => {
         '1231231234'
       )
     );
-    user.click(screen.getByRole('button', { name: /Send code/i }));
+    await user.click(screen.getByRole('button', { name: /Send code/i }));
 
     await waitFor(() => expect(mockVerifyPhoneNumber).toHaveBeenCalledTimes(1));
     expect(mockNavigateForward).toHaveBeenCalledTimes(1);
