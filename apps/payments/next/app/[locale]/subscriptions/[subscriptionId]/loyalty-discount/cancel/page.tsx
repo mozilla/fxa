@@ -31,6 +31,10 @@ export default async function LoyaltyDiscountCancelPage({
       `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
     );
     redirectToUrl.search = new URLSearchParams(searchParams).toString();
+    redirectToUrl.searchParams.set(
+      'redirect_to',
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/cancel`
+    );
     redirect(redirectToUrl.href);
   }
 

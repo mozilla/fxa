@@ -17,8 +17,16 @@ export async function GET(
   const requestSearchParams = request.nextUrl.searchParams;
   const { locale } = params;
 
+  const redirectToParam = requestSearchParams.get('redirect_to');
+  requestSearchParams.delete('redirect_to');
+
+  const redirectToPath =
+    redirectToParam && redirectToParam.startsWith('/')
+      ? redirectToParam
+      : `/${locale}/subscriptions/manage`;
+
   const redirectToUrl = new URL(
-    `${config.paymentsNextHostedUrl}/${locale}/subscriptions/manage`
+    `${config.paymentsNextHostedUrl}${redirectToPath}`
   );
   redirectToUrl.search = requestSearchParams.toString();
 
