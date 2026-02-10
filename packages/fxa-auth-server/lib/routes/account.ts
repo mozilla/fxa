@@ -1607,11 +1607,13 @@ export class AccountHandler {
       invalidDomain?: boolean;
       hasLinkedAccount?: boolean;
       hasPassword?: boolean;
+      passwordlessSupported?: boolean;
     } = {
       exists: false,
       invalidDomain: undefined,
       hasLinkedAccount: undefined,
       hasPassword: undefined,
+      passwordlessSupported: undefined,
     };
 
     try {
@@ -1623,6 +1625,8 @@ export class AccountHandler {
         result.exists = true;
         result.hasLinkedAccount = (account.linkedAccounts?.length || 0) > 0;
         result.hasPassword = account.verifierSetAt > 0;
+        // Passwordless is supported if account has no password set
+        result.passwordlessSupported = account.verifierSetAt === 0;
       } else {
         const exist = await this.db.accountExists(email);
         if (!exist) {
@@ -1641,6 +1645,14 @@ export class AccountHandler {
         result.exists = false;
         if (checkDomain) {
           result.invalidDomain = invalidDomain;
+        }
+        // For non-existent accounts, check if passwordless is supported
+        // Either by matching the forced email regex (for testing) or if globally enabled
+        if (thirdPartyAuthStatus) {
+          const isPasswordlessForced =
+            this.config.passwordlessOtp.forcedEmailAddresses?.test(email);
+          result.passwordlessSupported =
+            isPasswordlessForced || this.config.passwordlessOtp.enabled;
         }
         if (this.customs.v2Enabled()) {
           await this.customs.check(request, email, 'accountStatusCheckFailed');
@@ -2305,12 +2317,7 @@ export class AccountHandler {
     const account = await this.db.account(uid);
     const email = account.primaryEmail?.email;
 
-    await this.customs.checkAuthenticated(
-      request,
-      uid,
-      email,
-      'metricsOpt'
-    );
+    await this.customs.checkAuthenticated(request, uid, email, 'metricsOpt');
 
     await Account.setMetricsOpt(uid, state);
     await this.profileClient.deleteCache(uid);
@@ -2361,63 +2368,88 @@ export class AccountHandler {
     const account = accountRecord.value;
 
     // Format emails
-    const formattedEmails = emails.status === 'fulfilled'
-      ? emails.value.map((email: { email: string; isPrimary: boolean; isVerified: boolean }) => ({
-          email: email.email,
-          isPrimary: email.isPrimary,
-          verified: email.isVerified,
-        }))
-      : [];
+    const formattedEmails =
+      emails.status === 'fulfilled'
+        ? emails.value.map(
+            (email: {
+              email: string;
+              isPrimary: boolean;
+              isVerified: boolean;
+            }) => ({
+              email: email.email,
+              isPrimary: email.isPrimary,
+              verified: email.isVerified,
+            })
+          )
+        : [];
 
     // Format linked accounts
-    const linkedAccounts = linkedAccountsResult.status === 'fulfilled'
-      ? linkedAccountsResult.value.map((la: { providerId: number; authAt: number; enabled: boolean }) => ({
-          providerId: la.providerId,
-          authAt: la.authAt,
-          enabled: la.enabled,
-        }))
-      : [];
+    const linkedAccounts =
+      linkedAccountsResult.status === 'fulfilled'
+        ? linkedAccountsResult.value.map(
+            (la: { providerId: number; authAt: number; enabled: boolean }) => ({
+              providerId: la.providerId,
+              authAt: la.authAt,
+              enabled: la.enabled,
+            })
+          )
+        : [];
 
     // Format TOTP status
-    const totp = totpResult.status === 'fulfilled' && totpResult.value
-      ? { exists: true, verified: !!totpResult.value.verified }
-      : { exists: false, verified: false };
+    const totp =
+      totpResult.status === 'fulfilled' && totpResult.value
+        ? { exists: true, verified: !!totpResult.value.verified }
+        : { exists: false, verified: false };
 
     // Format backup codes status
-    const backupCodes = backupCodesResult.status === 'fulfilled'
-      ? backupCodesResult.value
-      : { hasBackupCodes: false, count: 0 };
+    const backupCodes =
+      backupCodesResult.status === 'fulfilled'
+        ? backupCodesResult.value
+        : { hasBackupCodes: false, count: 0 };
 
     // Calculate estimated sync device count (for recovery key promo eligibility)
-    const devicesCount = devicesResult.status === 'fulfilled' ? devicesResult.value.length : 0;
-    const authorizedClients = authorizedClientsResult.status === 'fulfilled' ? authorizedClientsResult.value : [];
+    const devicesCount =
+      devicesResult.status === 'fulfilled' ? devicesResult.value.length : 0;
+    const authorizedClients =
+      authorizedClientsResult.status === 'fulfilled'
+        ? authorizedClientsResult.value
+        : [];
     const syncOAuthClientsCount = authorizedClients.filter(
-      (client: { scope?: string }) => client.scope && client.scope.includes(OAUTH_SCOPE_OLD_SYNC)
+      (client: { scope?: string }) =>
+        client.scope && client.scope.includes(OAUTH_SCOPE_OLD_SYNC)
     ).length;
-    const estimatedSyncDeviceCount = Math.max(devicesCount, syncOAuthClientsCount);
+    const estimatedSyncDeviceCount = Math.max(
+      devicesCount,
+      syncOAuthClientsCount
+    );
 
     // Format recovery key status
-    const recoveryKey = recoveryKeyResult.status === 'fulfilled' && recoveryKeyResult.value
-      ? { exists: true, estimatedSyncDeviceCount }
-      : { exists: false, estimatedSyncDeviceCount };
+    const recoveryKey =
+      recoveryKeyResult.status === 'fulfilled' && recoveryKeyResult.value
+        ? { exists: true, estimatedSyncDeviceCount }
+        : { exists: false, estimatedSyncDeviceCount };
 
     // Format recovery phone status
-    const recoveryPhoneData = recoveryPhoneResult.status === 'fulfilled'
-      ? recoveryPhoneResult.value
-      : { exists: false, phoneNumber: null };
+    const recoveryPhoneData =
+      recoveryPhoneResult.status === 'fulfilled'
+        ? recoveryPhoneResult.value
+        : { exists: false, phoneNumber: null };
     const recoveryPhone = {
       ...recoveryPhoneData,
       available: recoveryPhoneAvailable,
     };
 
     // Format security events
-    const securityEvents = securityEventsResult.status === 'fulfilled'
-      ? securityEventsResult.value.map((e: { name: string; createdAt: number; verified?: boolean }) => ({
-          name: e.name,
-          createdAt: e.createdAt,
-          verified: e.verified,
-        }))
-      : [];
+    const securityEvents =
+      securityEventsResult.status === 'fulfilled'
+        ? securityEventsResult.value.map(
+            (e: { name: string; createdAt: number; verified?: boolean }) => ({
+              name: e.name,
+              createdAt: e.createdAt,
+              verified: e.verified,
+            })
+          )
+        : [];
 
     // Fetch subscriptions (separate block due to complexity)
     let webSubscriptions: Awaited<WebSubscription[]> = [];
@@ -2802,6 +2834,7 @@ export const accountRoutes = (
             hasLinkedAccount: isA.boolean().optional(),
             hasPassword: isA.boolean().optional(),
             invalidDomain: isA.boolean().optional(),
+            passwordlessSupported: isA.boolean().optional(),
           }),
         },
       },
