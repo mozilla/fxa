@@ -38,3 +38,26 @@ tfa-row-backup-phone-description-v2 = This is the easiest recovery method if you
 # into transferring a victim's phone number to their own SIM card, enabling access to accounts secured
 # with SMS-based two-factor authentication.
 tfa-row-backup-phone-sim-swap-risk-link = Learn about SIM swap risk
+
+# This is a string that shows when the user's passkey was created.
+# Variables:
+#   $createdDate (String) - a localized date string
+passkey-sub-row-created-date = Created: { $createdDate }
+
+# This is a string that shows when the user's passkey was last used.
+# Variables:
+#   $lastUsedDate (String) - a localized date string
+passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
+
+# These two sentences are referring to the passkey
+passkey-sub-row-sign-in-only = Sign in only. Can’t be used to sync.
+
+passkey-sub-row-delete-title = Delete passkey
+passkey-delete-modal-heading = Delete your passkey?
+passkey-delete-modal-content = This passkey will be removed from your account. You’ll need to sign in using a different way.
+passkey-delete-modal-cancel-button = Cancel
+passkey-delete-modal-confirm-button = Delete passkey
+passkey-delete-success = Passkey deleted
+passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
+
+##

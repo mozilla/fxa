@@ -3,13 +3,46 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import SubRow, { BackupCodesSubRow, BackupPhoneSubRow } from './index';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import SubRow, {
+  BackupCodesSubRow,
+  BackupPhoneSubRow,
+  PasskeySubRow,
+} from './index';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
   MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER,
   MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
 } from '../../../pages/mocks';
+import { Passkey } from '../UnitRowPasskey';
+import { AppContext } from '../../../models';
+import { mockAppContext } from '../../../models/mocks';
+import { mockAuthClient } from './mock';
+import { LocationProvider } from '@reach/router';
+
+const mockJwtState = {};
+const mockAlertBar = {
+  success: jest.fn(),
+  error: jest.fn(),
+  info: jest.fn(),
+};
+
+jest.mock('../../../lib/cache', () => ({
+  ...jest.requireActual('../../../lib/cache'),
+  JwtTokenCache: {
+    hasToken: jest.fn(() => true),
+    subscribe: jest.fn((listener) => () => {}),
+    getSnapshot: jest.fn(() => mockJwtState),
+  },
+  sessionToken: jest.fn(() => 'session-123'),
+}));
+
+jest.mock('../../../models', () => ({
+  ...jest.requireActual('../../../models'),
+  useAuthClient: () => mockAuthClient,
+  useAlertBar: () => mockAlertBar,
+}));
 
 describe('SubRow', () => {
   const defaultProps = {
@@ -25,7 +58,9 @@ describe('SubRow', () => {
   };
 
   it('renders correctly when available', () => {
-    renderWithLocalizationProvider(<SubRow {...defaultProps} isEnabled />);
+    renderWithLocalizationProvider(
+      <SubRow {...defaultProps} statusIcon="checkmark" />
+    );
     expect(screen.getByText('Backup authentication codes')).toBeInTheDocument();
     expect(screen.getByText('Message')).toBeInTheDocument();
     expect(screen.getByText('Create new codes')).toBeInTheDocument();
@@ -33,16 +68,18 @@ describe('SubRow', () => {
   });
 
   it('renders correctly when unavailable', () => {
-    render(<SubRow {...defaultProps} isEnabled={false} />);
+    render(<SubRow {...defaultProps} statusIcon="alert" border={false} />);
     expect(screen.getByText('Backup authentication codes')).toBeInTheDocument();
     expect(screen.getByText('Message')).toBeInTheDocument();
     const cta = screen.getByRole('button', { name: 'Create new codes' });
     expect(cta).toBeInTheDocument();
   });
 
-  it('calls onCtaClick when CTA button is clicked', () => {
-    renderWithLocalizationProvider(<SubRow {...defaultProps} isEnabled />);
-    fireEvent.click(screen.getByText('Create new codes'));
+  it('calls onCtaClick when CTA button is clicked', async () => {
+    renderWithLocalizationProvider(
+      <SubRow {...defaultProps} statusIcon="checkmark" />
+    );
+    await userEvent.click(screen.getByText('Create new codes'));
     expect(defaultProps.onCtaClick).toHaveBeenCalled();
   });
 });
@@ -87,9 +124,9 @@ describe('BackupCodesSubRow', () => {
       ).toBeInTheDocument();
     });
 
-    it('calls onCtaClick when CTA button is clicked', () => {
+    it('calls onCtaClick when CTA button is clicked', async () => {
       renderWithLocalizationProvider(<BackupCodesSubRow {...defaultProps} />);
-      fireEvent.click(screen.getByText('Create new codes'));
+      await userEvent.click(screen.getByText('Create new codes'));
       expect(defaultProps.onCtaClick).toHaveBeenCalled();
     });
   });
@@ -108,9 +145,9 @@ describe('BackupCodesSubRow', () => {
       expect(screen.getByText('Add')).toBeInTheDocument();
     });
 
-    it('calls onCtaClick when CTA button is clicked', () => {
+    it('calls onCtaClick when CTA button is clicked', async () => {
       renderWithLocalizationProvider(<BackupCodesSubRow {...defaultProps} />);
-      fireEvent.click(screen.getByText('Add'));
+      await userEvent.click(screen.getByText('Add'));
       expect(defaultProps.onCtaClick).toHaveBeenCalled();
     });
   });
@@ -192,18 +229,18 @@ describe('BackupPhoneSubRow', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('calls onCtaClick when no phone number added', () => {
+  it('calls onCtaClick when no phone number added', async () => {
     const onCtaClick = jest.fn();
     renderWithLocalizationProvider(<BackupPhoneSubRow {...{ onCtaClick }} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add' }));
     expect(onCtaClick).toHaveBeenCalled();
   });
 
-  it('calls onCtaClick when phone number exists and CTA button is clicked', () => {
+  it('calls onCtaClick when phone number exists and CTA button is clicked', async () => {
     renderWithLocalizationProvider(
       <BackupPhoneSubRow {...defaultProps} onDeleteClick={jest.fn()} />
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Change' }));
     expect(defaultProps.onCtaClick).toHaveBeenCalled();
   });
 
@@ -219,13 +256,172 @@ describe('BackupPhoneSubRow', () => {
     expect(screen.getAllByTitle(/Remove/)).toHaveLength(2);
   });
 
-  it('calls onDeleteClick when either delete button is clicked', () => {
+  it('calls onDeleteClick when either delete button is clicked', async () => {
     const onDeleteClick = jest.fn();
     renderWithLocalizationProvider(
       <BackupPhoneSubRow {...defaultProps} onDeleteClick={onDeleteClick} />
     );
-    fireEvent.click(screen.getAllByTitle(/Remove/)[0]);
-    fireEvent.click(screen.getAllByTitle(/Remove/)[1]);
+    await userEvent.click(screen.getAllByTitle(/Remove/)[0]);
+    await userEvent.click(screen.getAllByTitle(/Remove/)[1]);
     expect(onDeleteClick).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('PasskeySubRow', () => {
+  const mockPasskey = {
+    id: 'passkey-1',
+    name: 'MacBook Pro',
+    createdAt: new Date('2026-01-01').getTime(),
+    lastUsed: new Date('2026-02-01').getTime(),
+    canSync: true,
+  };
+
+  const mockDeletePasskey = jest.fn();
+
+  beforeEach(() => {
+    mockDeletePasskey.mockClear();
+    mockAlertBar.success.mockClear();
+    mockAlertBar.error.mockClear();
+  });
+
+  const renderPasskeySubRow = (
+    passkey: Passkey = mockPasskey,
+    deletePasskey = mockDeletePasskey
+  ) => {
+    return render(
+      <LocationProvider>
+        <AppContext.Provider value={mockAppContext()}>
+          <PasskeySubRow passkey={passkey} deletePasskey={deletePasskey} />
+        </AppContext.Provider>
+      </LocationProvider>
+    );
+  };
+
+  it('renders as expected with last used date', () => {
+    renderPasskeySubRow();
+    expect(screen.getByText('MacBook Pro')).toBeInTheDocument();
+    expect(screen.getByText(/Created:/)).toBeInTheDocument();
+    expect(screen.getByText(/Last used:/)).toBeInTheDocument();
+    const deleteButtons = screen.getAllByTitle(/Delete passkey/);
+    expect(deleteButtons).toHaveLength(2);
+  });
+
+  it('does not render last used date when not available', () => {
+    const passkeyWithoutLastUsed = { ...mockPasskey, lastUsed: undefined };
+    renderPasskeySubRow(passkeyWithoutLastUsed);
+    expect(screen.queryByText(/Last used:/)).not.toBeInTheDocument();
+  });
+
+  it('renders message when canSync is false', () => {
+    const passkeyWithoutSync = { ...mockPasskey, canSync: false };
+    renderPasskeySubRow(passkeyWithoutSync);
+    expect(
+      screen.queryByText('Sign in only. Can’t be used to sync.')
+    ).toBeInTheDocument();
+  });
+
+  it('does not render message when canSync is true', () => {
+    renderPasskeySubRow();
+    expect(
+      screen.queryByText('Sign in only. Can’t be used to sync.')
+    ).not.toBeInTheDocument();
+  });
+
+  it('opens modal when delete button is clicked', async () => {
+    renderPasskeySubRow();
+    const deleteButtons = screen.getAllByTitle(/Delete passkey/);
+    await userEvent.click(deleteButtons[0]);
+
+    expect(await screen.findByText('Delete your passkey?')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'This passkey will be removed from your account. You’ll need to sign in using a different way.'
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(
+      screen.getByTestId('confirm-delete-passkey-button')
+    ).toBeInTheDocument();
+  });
+
+  it('closes modal when cancel button is clicked', async () => {
+    renderPasskeySubRow();
+    const deleteButtons = screen.getAllByTitle(/Delete passkey/);
+    await userEvent.click(deleteButtons[0]);
+
+    expect(await screen.findByText('Delete your passkey?')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText('Delete your passkey?')
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('calls deletePasskey when confirm button is clicked', async () => {
+    mockDeletePasskey.mockResolvedValue(undefined);
+    renderPasskeySubRow();
+
+    const deleteButtons = screen.getAllByTitle(/Delete passkey/);
+    await userEvent.click(deleteButtons[0]);
+
+    expect(await screen.findByText('Delete your passkey?')).toBeInTheDocument();
+
+    const confirmButton = screen.getByTestId('confirm-delete-passkey-button');
+    await userEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(mockDeletePasskey).toHaveBeenCalledWith('passkey-1');
+    });
+  });
+
+  it('shows success banner when deletion succeeds', async () => {
+    mockDeletePasskey.mockResolvedValue(undefined);
+    renderPasskeySubRow();
+
+    const deleteButtons = screen.getAllByTitle(/Delete passkey/);
+    await userEvent.click(deleteButtons[0]);
+
+    expect(await screen.findByText('Delete your passkey?')).toBeInTheDocument();
+
+    const confirmButton = screen.getByTestId('confirm-delete-passkey-button');
+    await userEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(mockAlertBar.success).toHaveBeenCalledWith('Passkey deleted');
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText('Delete your passkey?')
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('shows error banner when deletion fails', async () => {
+    mockDeletePasskey.mockRejectedValue(new Error('Some error'));
+    renderPasskeySubRow();
+
+    const deleteButtons = screen.getAllByTitle(/Delete passkey/);
+    await userEvent.click(deleteButtons[0]);
+
+    expect(await screen.findByText('Delete your passkey?')).toBeInTheDocument();
+
+    const confirmButton = screen.getByTestId('confirm-delete-passkey-button');
+    await userEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(mockAlertBar.error).toHaveBeenCalledWith(
+        'There was a problem deleting your passkey. Try again in a few minutes.'
+      );
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText('Delete your passkey?')
+      ).not.toBeInTheDocument();
+    });
   });
 });

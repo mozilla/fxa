@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
-import { useFtlMsgResolver } from '../../../models';
+import { useAlertBar, useFtlMsgResolver } from '../../../models';
+import { MfaGuard } from '../MfaGuard';
+import { MfaReason } from '../../../lib/types';
 import {
   AlertFullIcon as AlertIcon,
   BackupCodesDisabledIcon,
@@ -13,26 +15,34 @@ import {
   BackupRecoverySmsIcon,
   CheckmarkGreenIcon,
   LightbulbIcon,
+  PasskeyIcon,
 } from '../../Icons';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import {
+  FtlMsg,
+  getLocalizedDate,
+  LocalizedDateOptions,
+} from 'fxa-react/lib/utils';
 import { ButtonIconTrash } from '../ButtonIcon';
 import LinkExternal, {
   LinkExternalProps,
 } from 'fxa-react/components/LinkExternal';
+import { useBooleanState } from 'fxa-react/lib/hooks';
+import Modal from '../Modal';
 
 type SubRowProps = {
-  ctaGleanId: string;
-  ctaMessage: string;
-  ctaTestId: string;
+  ctaMessage?: string;
+  onCtaClick?: () => void;
+  ctaGleanId?: string;
+  ctaTestId?: string;
   icon: React.ReactNode;
   idPrefix: string;
-  isEnabled: boolean;
+  statusIcon?: 'checkmark' | 'alert';
+  border?: boolean;
   localizedRowTitle: string;
   localizedDeleteIconTitle?: string;
-  message: React.ReactNode;
-  onCtaClick: () => void;
-  onDeleteClick?: () => void;
-  localizedDescription?: string;
+  message?: React.ReactNode;
+  onDeleteClick?: React.MouseEventHandler<HTMLButtonElement>;
+  localizedDescription?: React.ReactNode;
   localizedInfoMessage?: string;
   linkExternalProps?: LinkExternalProps;
   deleteGleanId?: string;
@@ -52,7 +62,8 @@ const SubRow = ({
   ctaTestId,
   icon,
   idPrefix,
-  isEnabled,
+  statusIcon = undefined,
+  border = true,
   localizedDescription,
   localizedInfoMessage,
   message,
@@ -65,11 +76,11 @@ const SubRow = ({
 }: SubRowProps) => {
   const StatusIcon = () => (
     <span className="grow-0 shrink-0 ">
-      {isEnabled ? (
+      {statusIcon === 'checkmark' ? (
         <CheckmarkGreenIcon className="mt-1" mode="enabled" />
-      ) : (
+      ) : statusIcon === 'alert' ? (
         <AlertIcon className="m-0" mode="attention" />
-      )}
+      ) : null}
     </span>
   );
 
@@ -90,8 +101,8 @@ const SubRow = ({
       className={classNames(
         'flex flex-col w-full max-w-full mt-8 p-4 @mobileLandscape/unitRow:mt-4 @mobileLandscape/unitRow:rounded-lg border items-start text-sm gap-2',
         {
-          'bg-grey-10 border-transparent': !isEnabled,
-          'bg-white border-grey-100': isEnabled,
+          'bg-grey-10 border-transparent': !border,
+          'bg-white border-grey-100': border,
         }
       )}
     >
@@ -162,7 +173,7 @@ const SubRow = ({
         )}
       </div>
       {localizedInfoMessage && (
-        <div className="flex w-full max-w-full mt-2 gap-2 bg-gradient-to-tr from-blue-600/10 to-purple-500/10 rounded-md l py-2 px-4 mt-1 items-center">
+        <div className="flex w-full max-w-full mt-2 gap-2 bg-gradient-to-tr from-blue-600/10 to-purple-500/10 rounded-md py-2 px-4 items-center">
           <LightbulbIcon className="shrink-0" />
           <p className="text-sm">
             {localizedInfoMessage}
@@ -228,7 +239,8 @@ export const BackupCodesSubRow = ({
         'tfa-row-backup-codes-title',
         'Backup authentication codes'
       )}
-      isEnabled={hasCodesRemaining}
+      statusIcon={hasCodesRemaining ? 'checkmark' : 'alert'}
+      border={hasCodesRemaining}
       localizedDescription={ftlMsgResolver.getMsg(
         'tfa-row-backup-codes-description-2',
         'This is the safest recovery method if you canʼt use your mobile device or authenticator app.'
@@ -293,7 +305,8 @@ export const BackupPhoneSubRow = ({
   return (
     <SubRow
       idPrefix="backup-recovery-phone"
-      isEnabled={hasPhoneNumber}
+      statusIcon={hasPhoneNumber ? 'checkmark' : 'alert'}
+      border={hasPhoneNumber}
       {...(hasPhoneNumber && !onDeleteClick
         ? {
             // info message should only be shown when a phone number is set and the user can't delete it
@@ -325,6 +338,183 @@ export const BackupPhoneSubRow = ({
       )}
       deleteGleanId="account_pref_two_step_auth_phone_remove_submit"
     />
+  );
+};
+
+// TODO: replace with actual Passkey type when available
+type Passkey = {
+  id: string;
+  name: string;
+  createdAt: number;
+  lastUsed?: number;
+  canSync: boolean;
+};
+
+export type PasskeySubRowProps = {
+  passkey: Passkey;
+  // passing in as a prop for the sake of mocking.
+  // TODO: replace with actual auth client API call
+  deletePasskey?: (passkeyId: string) => Promise<void>;
+};
+
+const formatDateText = (timestamp: number): string => {
+  return Intl.DateTimeFormat('default', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).format(new Date(timestamp));
+};
+
+export const PasskeySubRow = ({
+  passkey,
+  deletePasskey = async (passkeyId: string) => {},
+}: PasskeySubRowProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const alertBar = useAlertBar();
+  const [deleteModalRevealed, revealDeleteModal, hideDeleteModal] =
+    useBooleanState();
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  const handleConfirmDelete = useCallback(async () => {
+    setIsDeleting(true);
+    try {
+      await deletePasskey(passkey.id);
+      // a hack to avoid alert bar being immediately removed
+      setTimeout(() => {
+        alertBar.success(
+          ftlMsgResolver.getMsg('passkey-delete-success', 'Passkey deleted')
+        );
+      }, 0);
+    } catch (error) {
+      setTimeout(() => {
+        alertBar.error(
+          // TODO: replace with more specific error messages based on error type
+          ftlMsgResolver.getMsg(
+            'passkey-delete-error',
+            'There was a problem deleting your passkey. Try again in a few minutes.'
+          )
+        );
+      }, 0);
+    } finally {
+      setIsDeleting(false);
+      hideDeleteModal();
+    }
+  }, [passkey.id, deletePasskey, alertBar, ftlMsgResolver, hideDeleteModal]);
+
+  const createdDateFluent = getLocalizedDate(
+    passkey.createdAt,
+    LocalizedDateOptions.NumericDate
+  );
+
+  const createdDateText = formatDateText(passkey.createdAt);
+
+  const lastUsedDateFluent = passkey.lastUsed
+    ? getLocalizedDate(passkey.lastUsed, LocalizedDateOptions.NumericDate)
+    : undefined;
+
+  const lastUsedText = passkey.lastUsed
+    ? formatDateText(passkey.lastUsed)
+    : undefined;
+
+  const localizedDescription = (
+    <span className="flex flex-col gap-1 mobileLandscape:flex-row mobileLandscape:gap-12">
+      <FtlMsg
+        id="passkey-sub-row-created-date"
+        vars={{ createdDate: createdDateFluent }}
+      >
+        <span>Created: {createdDateText}</span>
+      </FtlMsg>
+      {lastUsedText && lastUsedDateFluent && (
+        <FtlMsg
+          id="passkey-sub-row-last-used-date"
+          vars={{ lastUsedDate: lastUsedDateFluent }}
+        >
+          <span>Last used: {lastUsedText}</span>
+        </FtlMsg>
+      )}
+    </span>
+  );
+
+  return (
+    <>
+      <SubRow
+        idPrefix="passkey"
+        icon={
+          <PasskeyIcon ariaHidden className="h-8 w-5 ms-2 text-purple-600" />
+        }
+        localizedRowTitle={passkey.name}
+        localizedDescription={localizedDescription}
+        {...(!passkey.canSync && {
+          statusIcon: 'alert',
+          message: (
+            <FtlMsg id="passkey-sub-row-sign-in-only">
+              <p>Sign in only. Can’t be used to sync.</p>
+            </FtlMsg>
+          ),
+        })}
+        onDeleteClick={(event) => {
+          event.stopPropagation();
+          revealDeleteModal();
+        }}
+        localizedDeleteIconTitle={ftlMsgResolver.getMsg(
+          'passkey-sub-row-delete-title',
+          'Delete passkey'
+        )}
+      />
+      {deleteModalRevealed && (
+        <MfaGuard
+          // TODO: replace with actual required scope and reason when available
+          requiredScope="test"
+          onDismissCallback={async () => {
+            hideDeleteModal();
+          }}
+          reason={MfaReason.test}
+        >
+          <Modal
+            onDismiss={hideDeleteModal}
+            hasButtons={false}
+            headerId="passkey-delete-header"
+            descId="passkey-delete-desc"
+          >
+            <FtlMsg id="passkey-delete-modal-heading">
+              <h2
+                id="passkey-delete-header"
+                className="font-bold text-xl mb-2 -mt-2 mx-4"
+              >
+                Delete your passkey?
+              </h2>
+            </FtlMsg>
+            <FtlMsg id="passkey-delete-modal-content">
+              <p className="mb-10 mx-4">
+                This passkey will be removed from your account. You’ll need to
+                sign in using a different way.
+              </p>
+            </FtlMsg>
+            <div className="flex justify-center mx-2 mt-6">
+              <FtlMsg id="passkey-delete-modal-cancel-button">
+                <button
+                  className="cta-neutral mx-2 flex-1 cta-xl"
+                  onClick={hideDeleteModal}
+                >
+                  Cancel
+                </button>
+              </FtlMsg>
+              <FtlMsg id="passkey-delete-modal-confirm-button">
+                <button
+                  className="cta-caution mx-2 flex-1 cta-xl"
+                  onClick={handleConfirmDelete}
+                  disabled={isDeleting}
+                  // to avoid clashing with other delete buttons
+                  data-testid="confirm-delete-passkey-button"
+                >
+                  Delete passkey
+                </button>
+              </FtlMsg>
+            </div>
+          </Modal>
+        </MfaGuard>
+      )}
+    </>
   );
 };
 
