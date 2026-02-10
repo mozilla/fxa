@@ -28,7 +28,7 @@
         // 'src/**/en.ftl',
 
         'src/layouts/fxa/en.ftl',
-        // 'src/subscription/fxa/en.ftl',
+        // 'src/layouts/subscription/en.ftl',
 
         'src/partials/accountDeletionInfoBlock/en.ftl',
         'src/partials/appBadges/en.ftl',
@@ -42,6 +42,7 @@
         'src/partials/bannerWarning/en.ftl',
         'src/partials/brandMessaging/en.ftl',
         'src/partials/button/en.ftl',
+        // 'src/partials/cancellationSurvey/en.ftl',
         'src/partials/changePassword/en.ftl',
         // 'src/partials/icon/en.ftl',
         'src/partials/manageAccount/en.ftl',
@@ -60,7 +61,8 @@
         'src/partials/userLocation/en.ftl',
         // 'src/partials/viewInvoice/en.ftl',
 
-        'src/templates/adminResetAccounts/en.ftl',
+        // Skip translation. Internal FxA email. Not user facing.
+        // 'src/templates/adminResetAccounts/en.ftl',
         'src/templates/cadReminderFirst/en.ftl',
         'src/templates/cadReminderSecond/en.ftl',
         // 'src/templates/downloadSubscription/en.ftl',
