@@ -7799,6 +7799,14 @@ exports[`FxA Email Renderer should render renderPostAddTwoStepAuthentication wit
               </tr>
             
               <tr>
+                <td align="left" class="text-body" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                  
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="postAddTwoStepAuthentication-device-sign-out-message">To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using two-step authentication.</span></div>
+    
+                </td>
+              </tr>
+            
+              <tr>
                 <td align="left" class="text-body-no-margin" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
       <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="postAddTwoStepAuthentication-from-device-v2">You requested this from:</span></div>
@@ -8219,6 +8227,14 @@ exports[`FxA Email Renderer should render renderPostAddTwoStepAuthentication wit
               </tr>
             
               <tr>
+                <td align="left" class="text-body" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                  
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="postAddTwoStepAuthentication-device-sign-out-message">To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using two-step authentication.</span></div>
+    
+                </td>
+              </tr>
+            
+              <tr>
                 <td align="left" class="text-body-no-margin" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
       <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="postAddTwoStepAuthentication-from-device-v2">You requested this from:</span></div>
@@ -8626,6 +8642,14 @@ exports[`FxA Email Renderer should render renderPostAddTwoStepAuthentication: ma
       <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><a class="link-blue" href="http://localhost:3030/mock-support-link">
         <span data-l10n-id="postAddTwoStepAuthentication-how-protects-link">How this protects your account</span>
       </a></div>
+    
+                </td>
+              </tr>
+            
+              <tr>
+                <td align="left" class="text-body" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                  
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="postAddTwoStepAuthentication-device-sign-out-message">To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using two-step authentication.</span></div>
     
                 </td>
               </tr>
@@ -10127,6 +10151,14 @@ exports[`FxA Email Renderer should render renderPostChangeTwoStepAuthentication:
       <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><a class="link-blue" href="http://localhost:3030/mock-support-link">
         <span data-l10n-id="postChangeTwoStepAuthentication-how-protects-link">How this protects your account</span>
       </a></div>
+    
+                </td>
+              </tr>
+            
+              <tr>
+                <td align="left" class="text-body" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                  
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="postChangeTwoStepAuthentication-device-sign-out-message">To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using your new two-step authentication.</span></div>
     
                 </td>
               </tr>

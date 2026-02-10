@@ -45,7 +45,7 @@ module.exports = function (grunt) {
         // 'lib/senders/emails/partials/bannerWarning/en.ftl',
         // 'lib/senders/emails/partials/brandMessaging/en.ftl',
         // 'lib/senders/emails/partials/button/en.ftl',
-        // 'lib/senders/emails/partials/changePassword/en.ftl',
+        'lib/senders/emails/partials/cancellationSurvey/en.ftl',
         // 'lib/senders/emails/partials/changePassword/en.ftl',
         'lib/senders/emails/partials/icon/en.ftl',
         // 'lib/senders/emails/partials/manageAccount/en.ftl',

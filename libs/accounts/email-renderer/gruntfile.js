@@ -42,6 +42,7 @@
         'src/partials/bannerWarning/en.ftl',
         'src/partials/brandMessaging/en.ftl',
         'src/partials/button/en.ftl',
+        // 'src/partials/cancellationSurvey/en.ftl',
         'src/partials/changePassword/en.ftl',
         // 'src/partials/icon/en.ftl',
         'src/partials/manageAccount/en.ftl',
