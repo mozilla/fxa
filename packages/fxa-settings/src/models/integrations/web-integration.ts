@@ -8,11 +8,18 @@ import { WebIntegrationData } from './data/data';
 import { IntegrationFeatures } from './features';
 import { GenericIntegration, IntegrationType } from './integration';
 
+export type WebIntegrationOptions = {
+  clientIdFallback: string;
+};
+
 export class WebIntegration extends GenericIntegration<
   IntegrationFeatures,
   WebIntegrationData
 > {
-  constructor(data: ModelDataStore) {
+  constructor(
+    data: ModelDataStore,
+    public readonly opts?: WebIntegrationOptions
+  ) {
     super(IntegrationType.Web, new WebIntegrationData(data), {
       reuseExistingSession: true,
       // TODO: check if `navigator.userAgent` is firefox desktop.
@@ -28,6 +35,10 @@ export class WebIntegration extends GenericIntegration<
   // TODO: do we want a SyncMobileBasic integration for this?
   isSync() {
     return this.data.context === Constants.OAUTH_WEBCHANNEL_CONTEXT;
+  }
+
+  getClientId(): string | undefined {
+    return super.getClientId() || this.opts?.clientIdFallback || undefined;
   }
 }
 

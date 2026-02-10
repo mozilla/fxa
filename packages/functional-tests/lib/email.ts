@@ -34,6 +34,8 @@ export enum EmailType {
   passwordChanged,
   passwordChangeRequired,
   passwordForgotOtp,
+  passwordlessSigninOtp,
+  passwordlessSignupOtp,
   passwordReset,
   passwordResetAccountRecovery,
   passwordResetRequired,
@@ -74,6 +76,8 @@ export enum EmailHeader {
   shortCode = 'x-verify-short-code',
   unblockCode = 'x-unblock-code',
   signinCode = 'x-signin-verify-code',
+  passwordlessSignupCode = 'x-passwordless-signup-otp',
+  passwordlessSigninCode = 'x-passwordless-signin-otp',
   recoveryCode = 'x-recovery-code',
   uid = 'x-uid',
   serviceId = 'x-service-id',
@@ -287,6 +291,38 @@ export class EmailClient {
       email,
       EmailType.unblockCode,
       EmailHeader.unblockCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  /**
+   * Gets the passwordless OTP code from the email.
+   * Note: Passwordless uses the same email template as password forgot OTP.
+   * @param email - The email address that is expected to receive the code.
+   * @returns The passwordless OTP code.
+   */
+  async getPasswordlessSignupCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.passwordlessSignupOtp,
+      EmailHeader.passwordlessSignupCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  /**
+   * Gets the passwordless OTP code from the email.
+   * Note: Passwordless uses the same email template as password forgot OTP.
+   * @param email - The email address that is expected to receive the code.
+   * @returns The passwordless OTP code.
+   */
+  async getPasswordlessSigninCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.passwordlessSigninOtp,
+      EmailHeader.passwordlessSigninCode
     );
     await this.clear(email);
     return code;

@@ -18,6 +18,7 @@ export const SetPassword = ({
   createPasswordHandler,
   offeredSyncEngineConfigs,
   integration,
+  isPasswordlessFlow = false,
 }: SetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [createPasswordLoading, setCreatePasswordLoading] =
@@ -69,12 +70,20 @@ export const SetPassword = ({
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
 
-      <FtlMsg id="set-password-info-v2">
-        <p className="text-sm mt-6 mb-5">
-          This encrypts your data. It needs to be different from your Google or
-          Apple account password.
-        </p>
-      </FtlMsg>
+      {isPasswordlessFlow ? (
+        <FtlMsg id="set-password-passwordless-info">
+          <p className="text-sm mt-6 mb-5">
+            This password encrypts your synced data and keeps it secure.
+          </p>
+        </FtlMsg>
+      ) : (
+        <FtlMsg id="set-password-info-v2">
+          <p className="text-sm mt-6 mb-5">
+            This encrypts your data. It needs to be different from your Google or
+            Apple account password.
+          </p>
+        </FtlMsg>
+      )}
 
       <FormSetupAccount
         {...{

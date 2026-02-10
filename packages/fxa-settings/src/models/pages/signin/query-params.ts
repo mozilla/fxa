@@ -50,4 +50,9 @@ export class SigninQueryParams extends ModelDataProvider {
   @Validate(IsFxaRedirectToUrl, {})
   @bind(T.snakeCase)
   redirectTo: string | undefined = undefined;
+
+  @IsOptional()
+  @IsBoolean()
+  @bind(T.snakeCase)
+  forcePasswordless: boolean | undefined = undefined;
 }
