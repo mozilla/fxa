@@ -53,7 +53,7 @@ let appConfig: ConfigType;
 let gleanEventLogger: ReturnType<typeof createAccountsEventsEvent>;
 let gleanServerEventLogger: ReturnType<typeof createEventsServerEventLogger>;
 
-const isEnabled = async (request: MetricsRequest) =>
+export const isEnabled = async (request: MetricsRequest) =>
   appConfig.gleanMetrics.enabled && (await request.app.isMetricsEnabled);
 
 const findUid = (request: MetricsRequest, metricsData?: MetricsData): string =>

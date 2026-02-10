@@ -1168,6 +1168,8 @@ function mockFxaMailer(overrides) {
     canSend: sinon.stub().returns(true),
     sendRecoveryEmail: sinon.stub().resolves(),
     sendPasswordForgotOtpEmail: sinon.stub().resolves(),
+    sendPasswordlessSigninOtpEmail: sinon.stub().resolves(),
+    sendPasswordlessSignupOtpEmail: sinon.stub().resolves(),
     sendPostVerifySecondaryEmail: sinon.stub().resolves(),
     sendPostChangePrimaryEmail: sinon.stub().resolves(),
     sendPostRemoveSecondaryEmail: sinon.stub().resolves(),
