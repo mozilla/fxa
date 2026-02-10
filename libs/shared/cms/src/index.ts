@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/cms.error';
+export * from './lib/cms-content-validation.manager';
 export * from './lib/constants';
 export * from './lib/legal-terms-configuration.manager';
 export * from './lib/product-configuration.manager';
@@ -20,6 +21,7 @@ export * from './lib/queries/page-content-by-price-ids';
 export * from './lib/queries/purchase-with-details-offering-content';
 export * from './lib/queries/services-with-capabilities';
 export * from './lib/queries/relying-party';
+export * from './lib/queries/validation';
 export * from './lib/strapi.client';
 export * from './lib/strapi.client.config';
 export * from './lib/types';

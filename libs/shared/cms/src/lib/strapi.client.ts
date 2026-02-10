@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as crypto from 'crypto';
 import type { OperationVariables } from '@apollo/client';
 import { Firestore } from '@google-cloud/firestore';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
@@ -166,6 +167,20 @@ export class StrapiClient {
     }
   }
 
+  async queryUncached<Result, Variables extends OperationVariables>(
+    query: TypedDocumentNode<Result, Variables>,
+    variables: Variables
+  ): Promise<Result> {
+    try {
+      return await this.client.request<Result, any>({
+        document: query,
+        variables,
+      });
+    } catch (e) {
+      throw new StrapiQueryError(query, variables, e);
+    }
+  }
+
   @CacheClear({
     cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
     client: (_, context: StrapiClient) => context.memoryCacheAdapter,
@@ -178,6 +193,19 @@ export class StrapiClient {
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
   ) {}
+
+  verifyWebhookSignature(authorization: string): boolean {
+    const secret = this.strapiClientConfig.webhookSecret;
+    if (!secret) {
+      return false;
+    }
+
+    const expected = `Bearer ${secret}`;
+    return crypto.timingSafeEqual(
+      Buffer.from(authorization),
+      Buffer.from(expected)
+    );
+  }
 
   private async getLocales(): Promise<string[]> {
     const localesResult = (await this.query(localesQuery, {})) as LocalesResult;
