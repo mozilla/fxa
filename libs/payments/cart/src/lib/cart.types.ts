@@ -11,10 +11,6 @@ import {
 } from '@fxa/shared/db/mysql/account';
 import Stripe from 'stripe';
 
-export type CheckoutCustomerData = {
-  locale: string;
-};
-
 export type FinishCart = {
   uid?: string;
   amount?: number;

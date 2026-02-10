@@ -5,15 +5,30 @@
 'use server';
 
 import { getApp } from '../nestapp/app';
+import { flattenRouteParams } from '../utils/flatParam';
+import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
 
 export const getSubManPageContentAction = async (
   uid: string,
+  params: Record<string, string | string[]>,
+  searchParams: Record<string, string | string[]>,
   acceptLanguage?: string | null,
   selectedLanguage?: string
 ) => {
+  const requestArgs = {
+    ...getAdditionalRequestArgs(),
+    params: flattenRouteParams(params),
+    searchParams: flattenRouteParams(searchParams),
+  };
+
   const result = await getApp()
     .getActionsService()
-    .getSubManPageContent({ uid, acceptLanguage, selectedLanguage });
+    .getSubManPageContent({
+      uid,
+      requestArgs,
+      acceptLanguage,
+      selectedLanguage,
+    });
 
   return result;
 };

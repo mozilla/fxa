@@ -17,6 +17,10 @@
       },
       "dependsOn": ["glean-generate"]
     },
+    "compile": {
+      "command": "tsc -p libs/payments/metrics/tsconfig.json --noEmit",
+      "dependsOn": ["glean-generate"]
+    },
     "glean-generate": {
       "dependsOn": ["glean-lint"],
       "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml -f typescript_server -o libs/payments/metrics/src/lib/glean/__generated__"
