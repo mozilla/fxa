@@ -31,7 +31,7 @@ module.exports = function (grunt) {
         // 'lib/senders/emails/**/en.ftl',
 
         // 'lib/senders/emails/layouts/fxa/en.ftl',
-        'lib/senders/emails/subscription/fxa/en.ftl',
+        'lib/senders/emails/layouts/subscription/en.ftl',
 
         // 'lib/senders/emails/partials/accountDeletionInfoBlock/en.ftl',
         // 'lib/senders/emails/partials/appBadges/en.ftl',
