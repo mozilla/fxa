@@ -331,14 +331,6 @@ export class SubscriptionReminders {
     }
     try {
       const account = await this.db.account(uid);
-      this.log.info('sendSubscriptionRenewalReminderEmail', {
-        message: 'Sending a renewal reminder email.',
-        subscriptionId: subscription.id,
-        currentPeriodStart: subscription.current_period_start,
-        currentPeriodEnd: subscription.current_period_end,
-        currentDateMs: Date.now(),
-        reminderLength: effectiveReminderDuration.as('days'),
-      });
       const { email } = account;
       const formattedSubscription =
         await this.stripeHelper.formatSubscriptionForEmail(subscription);
@@ -368,9 +360,29 @@ export class SubscriptionReminders {
         : null;
 
       // Detect if discount is ending
-      const hadDiscount = this.hasDiscountEnding(currentDiscountId, upcomingDiscountId);
+      const discountEnding = this.hasDiscountEnding(currentDiscountId, upcomingDiscountId);
       // Detect if renewal has a different discount
       const hasDifferentDiscount = this.hasDifferentDiscount(currentDiscountId, upcomingDiscountId);
+
+      // Business rule: Monthly subscriptions only receive renewal reminders when a discount is ending,
+      // to avoid notification fatigue for standard monthly renewals.
+      if (interval === 'month' && !discountEnding) {
+        this.log.info('sendSubscriptionRenewalReminderEmail.skippingMonthlyNoDiscount', {
+          subscriptionId: subscription.id,
+          planId,
+        });
+        return false;
+      }
+
+      // If we reach here, we're sending the email
+      this.log.info('sendSubscriptionRenewalReminderEmail', {
+        message: 'Sending a renewal reminder email.',
+        subscriptionId: subscription.id,
+        currentPeriodStart: subscription.current_period_start,
+        currentPeriodEnd: subscription.current_period_end,
+        currentDateMs: Date.now(),
+        reminderLength: effectiveReminderDuration.as('days'),
+      });
 
       await this.mailer.sendSubscriptionRenewalReminderEmail(
         account.emails,
@@ -388,7 +400,7 @@ export class SubscriptionReminders {
           invoiceTotalCurrency: invoicePreview.currency,
           productMetadata: formattedSubscription.productMetadata,
           planConfig: formattedSubscription.planConfig,
-          hadDiscount,
+          discountEnding,
           hasDifferentDiscount,
         }
       );
@@ -488,8 +500,8 @@ export class SubscriptionReminders {
    * Sends a reminder email for all active subscriptions for all plans
    * as long or longer than `planLength`:
    *   1. Get a list of all plans of sufficient `planLength`
-   *   2. Send 30-day reminders for yearly plans (if enabled)
-   *   3. Send 14-day reminders for all plans
+   *   2. Send 15-day reminders for yearly plans (if enabled)
+   *   3. Send 7-day reminders for monthly plans
    *   4. If enabled, send subscription ending reminder emails if one
    *      hasn't already been sent.
    */

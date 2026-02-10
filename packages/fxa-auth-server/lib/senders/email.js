@@ -3252,7 +3252,7 @@ module.exports = function (log, config, bounces, statsd) {
           message.invoiceTotalCurrency,
           message.acceptLanguage
         ),
-        hadDiscount: message.hadDiscount || false,
+        discountEnding: message.discountEnding || false,
         hasDifferentDiscount: message.hasDifferentDiscount || false,
       },
     });
