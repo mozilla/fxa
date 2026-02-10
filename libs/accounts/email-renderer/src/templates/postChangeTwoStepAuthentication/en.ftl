@@ -7,3 +7,4 @@ postChangeTwoStepAuthentication-from-device = You requested this from:
 postChangeTwoStepAuthentication-action = Manage account
 postChangeTwoStepAuthentication-how-protects-link = How this protects your account
 postChangeTwoStepAuthentication-how-protects-plaintext = How this protects your account:
+postChangeTwoStepAuthentication-device-sign-out-message = To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using your new two-step authentication.
