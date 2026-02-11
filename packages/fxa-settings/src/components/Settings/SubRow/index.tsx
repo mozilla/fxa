@@ -463,12 +463,11 @@ export const PasskeySubRow = ({
       />
       {deleteModalRevealed && (
         <MfaGuard
-          // TODO: replace with actual required scope and reason when available
-          requiredScope="test"
+          requiredScope="passkeys"
           onDismissCallback={async () => {
             hideDeleteModal();
           }}
-          reason={MfaReason.test}
+          reason={MfaReason.removePasskey}
         >
           <Modal
             onDismiss={hideDeleteModal}
