@@ -198,6 +198,34 @@ describe('FxA Email Renderer', () => {
     expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
+  it('should render renderPasswordlessSigninOtp', async () => {
+    const email = await renderer.renderPasswordlessSigninOtp({
+      code: '96318398',
+      codeExpiryMinutes: 10,
+      date: 'Jan 1, 2024',
+      time: '12:00 PM',
+      device: mockDevice,
+      location: mockLocation,
+      ...defaultLayoutTemplateValues,
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
+
+  it('should render renderPasswordlessSignupOtp', async () => {
+    const email = await renderer.renderPasswordlessSignupOtp({
+      code: '96318398',
+      codeExpiryMinutes: 10,
+      date: 'Jan 1, 2024',
+      time: '12:00 PM',
+      device: mockDevice,
+      location: mockLocation,
+      ...defaultLayoutTemplateValues,
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
+
   it('should render renderPasswordReset', async () => {
     const email = await renderer.renderPasswordReset({
       date: 'Jan 1, 2024',

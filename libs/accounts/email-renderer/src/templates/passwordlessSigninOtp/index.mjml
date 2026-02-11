@@ -1,0 +1,44 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public #
+License, v. 2.0. If a copy of the MPL was not distributed with this # file, You
+can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="passwordless-signin-otp-title">Finish your sign in</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="passwordless-signin-otp-request">
+        This email was used to sign in from:
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/userInfo/index.mjml') %>
+
+<mj-section>
+  <mj-column>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="passwordless-signin-otp-code">
+        Use this confirmation code:
+      </span>
+    </mj-text>
+
+    <mj-text css-class="code-large"><%- code %></mj-text>
+
+    <mj-text css-class="text-body-no-margin">
+      <span data-l10n-id="passwordless-signin-otp-expiry-notice" data-l10n-args='{"codeExpiryMinutes": <%- codeExpiryMinutes %>}'>It expires in <%- codeExpiryMinutes %> minutes.</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body-subtext">
+      <%- include('/partials/automatedEmailNoAction/index.mjml') %>
+    </mj-text>
+  </mj-column>
+</mj-section>
