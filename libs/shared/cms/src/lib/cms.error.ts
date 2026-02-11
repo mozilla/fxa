@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BaseError } from '@fxa/shared/error';
+import { BaseError, BaseMultiError } from '@fxa/shared/error';
+import type { ZodError } from 'zod';
 
 /**
  * CMSError is not intended for direct use, except for type-checking errors.
@@ -115,5 +116,22 @@ export class MultipleEligilityContentOfferingResultsError extends QueriesUtilErr
   constructor(offeringIds: string[]) {
     super('More than one eligibility content offering found', { offeringIds });
     this.name = 'MultipleEligilityContentOfferingResultsError';
+  }
+}
+
+export class CmsValidationError extends CMSError {
+  constructor(
+    public readonly model: string,
+    public readonly zodErrors: ZodError[]
+  ) {
+    const errorCount = zodErrors.reduce(
+      (sum, e) => sum + e.issues.length,
+      0
+    );
+    super(`CMS validation failed for ${model}: ${errorCount} issue(s)`, {
+      model,
+      issues: zodErrors.map((e) => e.issues),
+    }, new BaseMultiError(zodErrors));
+    this.name = 'CmsValidationError';
   }
 }

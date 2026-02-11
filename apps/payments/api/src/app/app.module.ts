@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RootConfig } from '../config';
 import {
+  CmsWebhooksController,
+  CmsWebhookService,
   StripeEventManager,
   StripeWebhooksController,
   StripeWebhookService,
@@ -29,7 +31,7 @@ import { CurrencyManager } from '@fxa/payments/currency';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
 import { CartManager } from '@fxa/payments/cart';
-import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
+import { CmsContentValidationManager, ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
 import {
   MockPaymentsGleanFactory,
   PaymentsGleanManager,
@@ -53,7 +55,7 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
       }),
     }),
   ],
-  controllers: [AppController, StripeWebhooksController],
+  controllers: [AppController, CmsWebhooksController, StripeWebhooksController],
   providers: [
     Logger,
     AccountDatabaseNestFactory,
@@ -81,6 +83,8 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
     PaypalBillingAgreementManager,
     PaypalCustomerManager,
     StrapiClient,
+    CmsContentValidationManager,
+    CmsWebhookService,
     NimbusManager,
     NimbusManagerConfig,
     NimbusClient,

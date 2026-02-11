@@ -5,7 +5,7 @@
 import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
 import { Type } from 'class-transformer';
-import { IsNumber, IsString, IsUrl } from 'class-validator';
+import { IsNumber, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class StrapiClientConfig {
   @IsUrl()
@@ -28,6 +28,10 @@ export class StrapiClientConfig {
   @Type(() => Number)
   @IsNumber()
   public readonly firestoreOfflineCacheTTL?: number;
+
+  @IsOptional()
+  @IsString()
+  public readonly webhookSecret?: string;
 }
 
 export const MockStrapiClientConfig = {
