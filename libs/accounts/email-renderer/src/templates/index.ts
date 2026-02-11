@@ -14,6 +14,8 @@ export * as passwordReset from './passwordReset';
 export * as passwordChanged from './passwordChanged';
 export * as passwordChangeRequired from './passwordChangeRequired';
 export * as passwordForgotOtp from './passwordForgotOtp';
+export * as passwordlessSigninOtp from './passwordlessSigninOtp';
+export * as passwordlessSignupOtp from './passwordlessSignupOtp';
 export * as passwordResetAccountRecovery from './passwordResetAccountRecovery';
 export * as passwordResetRecoveryPhone from './passwordResetRecoveryPhone';
 export * as passwordResetWithRecoveryKeyPrompt from './passwordResetWithRecoveryKeyPrompt';
