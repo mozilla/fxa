@@ -964,6 +964,16 @@ workflows:
           requires:
             - Build (PR)
       - integration-test:
+          name: Integration Test Jest - Servers - Auth (PR)
+          nx_run: affected --base=main --head=$CIRCLE_SHA1
+          projects: --exclude '*,!tag:scope:server:auth'
+          start_customs: true
+          target: -t test-integration-jest
+          test_suite: servers-auth-jest-integration
+          workflow: test_pull_request
+          requires:
+            - Build (PR)
+      - integration-test:
           name: Integration Test - Libraries (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:shared:*'
@@ -988,6 +998,7 @@ workflows:
             - Integration Test - Servers (PR)
             - Integration Test - Servers - Auth (PR)
             - Integration Test - Servers - Auth V2 (PR)
+            - Integration Test Jest - Servers - Auth (PR)
             - Integration Test - Libraries (PR)
             - Firefox Functional Tests - Playwright (PR)
 
@@ -1165,6 +1176,21 @@ workflows:
           start_customs: true
           target: -t test-integration-v2
           test_suite: servers-auth-v2-integration
+          workflow: test_and_deploy_tag
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+          nx_run: run-many --no-cloud
+          requires:
+            - Build
+      - integration-test:
+          name: Integration Test Jest - Servers - Auth
+          projects: --exclude '*,!tag:scope:server:auth'
+          start_customs: true
+          target: -t test-integration-jest
+          test_suite: servers-auth-jest-integration
           workflow: test_and_deploy_tag
           filters:
             branches:
