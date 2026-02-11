@@ -33,6 +33,7 @@ import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
 import {
   MockPaymentsGleanFactory,
   PaymentsGleanManager,
+  PaymentsGleanService,
 } from '@fxa/payments/metrics';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 import { PaymentsEmitterService } from '@fxa/payments/events';
@@ -64,6 +65,7 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
     SubscriptionEventsService,
     PaymentsGleanFactory,
     PaymentsGleanManager,
+    PaymentsGleanService,
     PaymentsEmitterService,
     PriceManager,
     FirestoreProvider,
