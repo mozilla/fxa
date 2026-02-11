@@ -40,7 +40,6 @@ const {
 } = require('@fxa/accounts/email-renderer');
 const { FxaMailer } = require('../lib/senders/fxa-mailer');
 const { FxaMailerFormat } = require('../lib/senders/fxa-mailer-format');
-const { join } = require('path');
 const { StatsD } = require('hot-shots');
 
 Sentry.init({});
@@ -111,15 +110,7 @@ async function run() {
     emailSender,
     linkBuilder,
     config.smtp,
-    new NodeRendererBindings({
-      translations: {
-        // TODO: Once this PR, https://github.com/mozilla/fxa-content-server-l10n/pull/989, is finalized we can:
-        //  - switch this to point libs/accounts/public/locales or ../public/locales (either is probably fine...)
-        //  - switch to using emails.ftl, since all email specific strings will have been migrated over
-        basePath: join(__dirname, '../public/locales'),
-        ftlFileName: 'auth.ftl',
-      },
-    })
+    new NodeRendererBindings()
   );
 
   // since these are sent via a scheduled job, we need to fabricate a request object

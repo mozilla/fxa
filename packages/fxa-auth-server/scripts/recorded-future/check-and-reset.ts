@@ -23,7 +23,6 @@
 
 import crypto from 'crypto';
 import { promisify } from 'util';
-import { join } from 'path';
 
 import { Command } from 'commander';
 import { Container } from 'typedi';
@@ -317,12 +316,7 @@ async function resetAccounts(
     emailSender,
     linkBuilder,
     config.smtp,
-    new NodeRendererBindings({
-      translations: {
-        basePath: join(__dirname, '../../public/locales'),
-        ftlFileName: 'auth.ftl',
-      },
-    })
+    new NodeRendererBindings()
   );
 
   for (const acct of accountsToReset) {
