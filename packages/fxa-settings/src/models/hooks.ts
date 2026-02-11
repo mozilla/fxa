@@ -7,11 +7,7 @@ import { isHexadecimal, length } from 'class-validator';
 import { AppContext } from './contexts/AppContext';
 import { useNimbusContext } from './contexts/NimbusContext';
 import { NimbusResult } from '../lib/nimbus';
-import {
-  INITIAL_SETTINGS_QUERY,
-  SettingsContext,
-} from './contexts/SettingsContext';
-import { useQuery } from '@apollo/client';
+import { SettingsContext } from './contexts/SettingsContext';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { getDefault } from '../lib/config';
@@ -21,16 +17,7 @@ import {
 } from '../lib/integrations';
 import { ReachRouterWindow } from '../lib/window';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
-import {
-  GET_LOCAL_SIGNED_IN_STATUS,
-  INITIAL_METRICS_QUERY,
-  GET_PRODUCT_INFO,
-  GET_CLIENT_INFO,
-} from '../components/App/gql';
-import {
-  MetricsDataResult,
-  SignedInAccountStatus,
-} from '../components/App/interfaces';
+import { MetricsData, SignedInAccountStatus } from '../components/App/interfaces';
 import {
   RelierClientInfo,
   RelierSubscriptionInfo,
@@ -39,6 +26,9 @@ import {
 } from './integrations';
 import * as Sentry from '@sentry/browser';
 import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
+import { sessionToken } from '../lib/cache';
+import { useLocalStorageSync } from '../lib/hooks/useLocalStorageSync';
+import { getFullAccountData, isSignedIn as checkIsSignedIn } from '../lib/account-storage';
 
 const DEFAULT_CMS_ENTRYPOINT = 'default';
 
@@ -57,7 +47,7 @@ export function useAccount() {
   return account;
 }
 
-function getMissing(obj: any) {
+function getMissing(obj: Record<string, unknown>) {
   const missingKeys: string[] = [];
   for (const x of Object.keys(obj)) {
     if (obj[x] == null) {
@@ -162,41 +152,172 @@ export function useConfig() {
   return config;
 }
 
-export function useInitialSettingsState() {
-  const { apolloClient } = useContext(AppContext);
-  if (!apolloClient) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
-  }
-  return useQuery(INITIAL_SETTINGS_QUERY, { client: apolloClient });
-}
-
-// TODO: FXA-8286, test pattern for container components, which will determine
-// how we want to handle `useQuery` (e.g., directly) and tests.
 export function useInitialMetricsQueryState() {
-  const { apolloClient } = useContext(AppContext);
-  if (!apolloClient) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
-  }
-  return useQuery<MetricsDataResult>(INITIAL_METRICS_QUERY, {
-    client: apolloClient,
-  });
+  const { authClient } = useContext(AppContext);
+  const [state, setState] = useState<{
+    loading: boolean;
+    error?: Error;
+    data?: { account: MetricsData };
+  }>({ loading: true });
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchMetricsData = async () => {
+      const token = sessionToken();
+      if (!token) {
+        if (mounted) {
+          setState({ loading: false, data: undefined });
+        }
+        return;
+      }
+
+      try {
+        const cachedData = getFullAccountData();
+        if (cachedData && cachedData.uid) {
+          if (mounted) {
+            setState({
+              loading: false,
+              data: {
+                account: {
+                  uid: cachedData.uid,
+                  recoveryKey: cachedData.recoveryKey,
+                  metricsEnabled: cachedData.metricsEnabled,
+                  primaryEmail: cachedData.primaryEmail,
+                  emails: cachedData.emails,
+                  totp: cachedData.totp,
+                },
+              },
+            });
+          }
+          return;
+        }
+
+        if (!authClient) {
+          throw new Error('AuthClient not available');
+        }
+
+        const [accountResult, totpResult, recoveryKeyResult] = await Promise.allSettled([
+          authClient.account(token),
+          authClient.checkTotpTokenExists(token),
+          authClient.recoveryKeyExists(token, undefined),
+        ]);
+
+        const accountData = accountResult.status === 'fulfilled' ? accountResult.value : null;
+        const totpData = totpResult.status === 'fulfilled' ? totpResult.value : null;
+        const recoveryKeyData = recoveryKeyResult.status === 'fulfilled' ? recoveryKeyResult.value : null;
+
+        if (mounted && accountData) {
+          const emails = accountData.emails || [];
+          setState({
+            loading: false,
+            data: {
+              account: {
+                uid: accountData.uid,
+                recoveryKey: recoveryKeyData
+                  ? { exists: recoveryKeyData.exists, estimatedSyncDeviceCount: recoveryKeyData.estimatedSyncDeviceCount }
+                  : null,
+                metricsEnabled: accountData.metricsEnabled ?? true,
+                primaryEmail: emails.find((e: { isPrimary?: boolean }) => e.isPrimary) || null,
+                emails,
+                totp: totpData || null,
+              },
+            },
+          });
+        } else if (mounted) {
+          setState({ loading: false, data: undefined });
+        }
+      } catch (error) {
+        if (mounted) {
+          setState({
+            loading: false,
+            error: error instanceof Error ? error : new Error('Unknown error'),
+          });
+        }
+      }
+    };
+
+    fetchMetricsData();
+
+    return () => {
+      mounted = false;
+    };
+  }, [authClient]);
+
+  return state;
 }
 
 export function useClientInfoState() {
-  const { apolloClient } = useContext(AppContext);
-  if (!apolloClient) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
-  }
+  const { config } = useContext(AppContext);
+  const [state, setState] = useState<{
+    loading: boolean;
+    error?: Error;
+    data?: { clientInfo: RelierClientInfo };
+  }>({ loading: false });
+
   const urlQueryData = new UrlQueryData(new ReachRouterWindow());
   const clientId =
     urlQueryData.get('client_id') || urlQueryData.get('service') || '';
 
-  return useQuery<{ clientInfo: RelierClientInfo }>(GET_CLIENT_INFO, {
-    client: apolloClient,
-    variables: { input: clientId },
-    // an oauth client id is a 16 digit hex
-    skip: !isHexadecimal(clientId) || !length(clientId, 16),
-  });
+  const isValidClientId = isHexadecimal(clientId) && length(clientId, 16);
+
+  useEffect(() => {
+    if (!isValidClientId || !config) {
+      setState({ loading: false });
+      return;
+    }
+
+    let mounted = true;
+    setState((prev) => ({ ...prev, loading: true }));
+
+    const fetchClientInfo = async () => {
+      try {
+        const response = await fetch(
+          `${config.servers.auth.url}/v1/oauth/client/${clientId}`,
+          {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch client info: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (mounted) {
+          setState({
+            loading: false,
+            data: {
+              clientInfo: {
+                clientId: data.id || clientId,
+                imageUri: data.image_uri || null,
+                redirectUri: data.redirect_uri || null,
+                serviceName: data.name || null,
+                trusted: data.trusted || false,
+              },
+            },
+          });
+        }
+      } catch (error) {
+        if (mounted) {
+          setState({
+            loading: false,
+            error: error instanceof Error ? error : new Error('Unknown error'),
+          });
+        }
+      }
+    };
+
+    fetchClientInfo();
+
+    return () => {
+      mounted = false;
+    };
+  }, [clientId, isValidClientId, config]);
+
+  return state;
 }
 
 export function useCmsInfoState() {
@@ -332,19 +453,72 @@ export function useCmsInfoState() {
 }
 
 export function useProductInfoState() {
-  const { apolloClient } = useContext(AppContext);
-  if (!apolloClient) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
-  }
+  const { config } = useContext(AppContext);
+  const [state, setState] = useState<{
+    loading: boolean;
+    error?: Error;
+    data?: { productInfo: RelierSubscriptionInfo };
+  }>({ loading: false });
+
   const productId =
     new RegExp('/subscriptions/products/(.*)').exec(
       window.location.pathname
     )?.[1] || '';
-  return useQuery<{ productInfo: RelierSubscriptionInfo }>(GET_PRODUCT_INFO, {
-    client: apolloClient,
-    variables: { input: productId },
-    skip: !productId,
-  });
+
+  useEffect(() => {
+    if (!productId || !config) {
+      setState({ loading: false });
+      return;
+    }
+
+    let mounted = true;
+    setState((prev) => ({ ...prev, loading: true }));
+
+    const fetchProductInfo = async () => {
+      try {
+        const response = await fetch(
+          `${config.servers.auth.url}/v1/oauth/subscriptions/productname?productId=${encodeURIComponent(productId)}`,
+          {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch product info: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (mounted) {
+          setState({
+            loading: false,
+            data: {
+              productInfo: {
+                subscriptionProductId: data.productId || productId,
+                subscriptionProductName: data.productName || null,
+              },
+            },
+          });
+        }
+      } catch (error) {
+        if (mounted) {
+          setState({
+            loading: false,
+            error: error instanceof Error ? error : new Error('Unknown error'),
+          });
+        }
+      }
+    };
+
+    fetchProductInfo();
+
+    return () => {
+      mounted = false;
+    };
+  }, [productId, config]);
+
+  return state;
 }
 
 export function useLegalTermsState() {
@@ -475,14 +649,22 @@ export function useLegalTermsState() {
 
 // TODO: FXA-8286, test pattern for container components, which will determine
 // how we want to handle `useQuery` (e.g., directly) and tests.
+
 export function useLocalSignedInQueryState() {
-  const { apolloClient } = useContext(AppContext);
-  if (!apolloClient) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
-  }
-  return useQuery<SignedInAccountStatus>(GET_LOCAL_SIGNED_IN_STATUS, {
-    client: apolloClient,
-  });
+  const accountsData = useLocalStorageSync('accounts');
+  const currentAccountUid = useLocalStorageSync('currentAccountUid');
+  useLocalStorageSync('isSignedIn');
+
+  const isSignedIn = useMemo(() => {
+    void accountsData;
+    void currentAccountUid;
+    return checkIsSignedIn();
+  }, [accountsData, currentAccountUid]);
+
+  return {
+    loading: false,
+    data: { isSignedIn } as SignedInAccountStatus,
+  };
 }
 
 export function useAlertBar() {
@@ -507,11 +689,10 @@ export function useNotifier() {
   };
 }
 
-// TODO: use apollo-client provided polling, FXA-6991
 /**
  * Hook to run a function on an interval.
  * @param callback - function to call
- * @param delay - interval in Ms to run, null to stop poll
+ * @param delay - interval in ms to run, null to stop poll
  */
 export function useInterval(callback: () => void, delay: number | null) {
   const savedCallback = useRef(callback);

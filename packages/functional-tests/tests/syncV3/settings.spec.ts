@@ -138,6 +138,7 @@ test.describe('severity-2 #smoke', () => {
     test('sign in, delete the account', async ({
       target,
       syncBrowserPages: {
+        connectAnotherDevice,
         settings,
         deleteAccount,
         page,
@@ -147,22 +148,39 @@ test.describe('severity-2 #smoke', () => {
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUpSync();
+      const customEventDetail: LinkAccountResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.LinkAccount,
+          data: {
+            ok: true,
+          },
+        },
+      };
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
+      await signin.respondToWebChannelMessage(customEventDetail);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
       await expect(page).toHaveURL(/signin_token_code/);
 
+      await signin.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+
       const code = await target.emailClient.getVerifyLoginCode(
         credentials.email
       );
       await signinTokenCode.fillOutCodeForm(code);
-      await expect(page).toHaveURL(/pair/);
+
+      await signin.checkWebChannelMessage(FirefoxCommand.Login);
+
+      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
 
       await settings.goto();
+      await page.waitForURL(/settings/);
+      await expect(settings.settingsHeading).toBeVisible();
       //Click Delete account
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);

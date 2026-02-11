@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useQuery } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
@@ -23,8 +22,6 @@ import {
 import InlineRecoverySetup from './index';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { SigninRecoveryLocationState } from './interfaces';
-import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
-import { GET_TOTP_STATUS } from '../../components/App/gql';
 import OAuthDataError from '../../components/OAuthDataError';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Choice } from '../../components/FormChoice';
@@ -47,14 +44,9 @@ export const InlineRecoverySetupContainer = ({
 
   useEffect(() => {
     async function acctRefresh() {
-      try {
-        // can't just put an expression here so a function call it is
-        (() => account.recoveryPhone)();
-      } catch {
-        await account.refresh('account');
-      } finally {
-        setLoadingAccount(false);
-      }
+      // Refresh to get recoveryPhone.available (not populated during sign-in)
+      await account.refresh('account');
+      setLoadingAccount(false);
     }
     acctRefresh();
   }, [account]);
@@ -101,6 +93,36 @@ export const InlineRecoverySetupContainer = ({
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [generatingCodes, setGeneratingCodes] = useState(false);
   const [backupCodeError, setBackupCodeError] = useState<string>('');
+
+  const [totpStatus, setTotpStatus] = useState<
+    { exists: boolean; verified: boolean } | undefined
+  >(undefined);
+  const [totpStatusLoading, setTotpStatusLoading] = useState(true);
+  const isTotpStatusChecked = useRef(false);
+
+  useEffect(() => {
+    if (
+      isTotpStatusChecked.current ||
+      !signinRecoveryLocationState?.sessionToken
+    ) {
+      return;
+    }
+    isTotpStatusChecked.current = true;
+
+    (async () => {
+      try {
+        const status = await authClient.checkTotpTokenExists(
+          signinRecoveryLocationState.sessionToken
+        );
+        setTotpStatus(status);
+      } catch (error) {
+        // If there's an error checking TOTP status, assume it doesn't exist
+        setTotpStatus({ exists: false, verified: false });
+      } finally {
+        setTotpStatusLoading(false);
+      }
+    })();
+  }, [authClient, signinRecoveryLocationState?.sessionToken]);
 
   const createRecoveryCodes = useCallback(async () => {
     if (backupCodes.length || generatingCodes) return;
@@ -217,13 +239,6 @@ export const InlineRecoverySetupContainer = ({
     ]
   );
 
-  const { data: totpStatus, loading: totpStatusLoading } =
-    useQuery<TotpStatusResponse>(GET_TOTP_STATUS, {
-      // Use fetchPolicy: 'network-only' to bypass Apollo cache so this reflects the
-      // current account state, not possibly cached data from another signed-in account.
-      fetchPolicy: 'network-only',
-    });
-
   const successfulSetupHandler = useCallback(async () => {
     // When this is called, we know signinRecoveryLocationState exists.
     const { redirect } = await finishOAuthFlowHandler(
@@ -255,7 +270,7 @@ export const InlineRecoverySetupContainer = ({
   // because "exists" only tells us that totp setup was started.
   // Prior to using Redis during setup, tokens were directly stored in the database,
   // but may never be marked as enabled/verified if setup is aborted or unsuccessful.
-  if (totpStatus?.account?.totp.verified) {
+  if (totpStatus?.verified) {
     navigateWithQuery('/signin_totp_code', {
       state: signinLocationState,
     });

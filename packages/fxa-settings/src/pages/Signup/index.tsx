@@ -144,7 +144,9 @@ export const Signup = ({
           lastLogin: Date.now(),
           sessionToken: data.signUp.sessionToken,
           verified: false,
+          sessionVerified: false,
           metricsEnabled: true,
+          hasPassword: true,
         };
 
         // Persist account data to local storage to match parity with content-server

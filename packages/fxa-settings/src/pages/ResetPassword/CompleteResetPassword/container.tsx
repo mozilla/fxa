@@ -224,6 +224,7 @@ const CompleteResetPasswordContainer = ({
       lastLogin: Date.now(),
       sessionToken: accountResetData.sessionToken,
       verified: accountResetData.sessionVerified,
+      sessionVerified: accountResetData.sessionVerified,
     });
 
     // This handles the sync desktop v3 case and the sync oauth_webchannel_v1 case.

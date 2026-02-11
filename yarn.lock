@@ -36308,7 +36308,6 @@ __metadata:
     storybook-addon-rtl: "npm:^0.5.0"
     stream-browserify: "npm:^3.0.0"
     style-loader: "npm:^4.0.0"
-    subscriptions-transport-ws: "npm:^0.11.0"
     tailwindcss: "npm:^3.4.1"
     terser-webpack-plugin: "npm:^5.2.5"
     ts-jest: "npm:^29.2.3"
@@ -56058,7 +56057,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"subscriptions-transport-ws@npm:0.11.0, subscriptions-transport-ws@npm:^0.11.0":
+"subscriptions-transport-ws@npm:0.11.0":
   version: 0.11.0
   resolution: "subscriptions-transport-ws@npm:0.11.0"
   dependencies:

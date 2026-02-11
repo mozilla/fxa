@@ -10,6 +10,7 @@ import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
 import { BeginSignupHandler, SignupIntegration } from './interfaces';
 import { useCallback, useEffect } from 'react';
+import { handleAuthClientError } from './utils';
 import {
   getCredentials,
   getCredentialsV2,
@@ -18,7 +19,6 @@ import {
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { SignUpOptions } from 'fxa-auth-client/lib/client';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
-import { handleAuthClientError } from './utils';
 import VerificationMethods from '../../constants/verification-methods';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { QueryParams } from '../..';

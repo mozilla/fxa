@@ -35,7 +35,8 @@ describe('AppController (e2e)', () => {
       .send({
         operationName: null,
         variables: {},
-        query: 'query GetUid {\n  account {\n    uid\n  }\n}\n',
+        query:
+          'query GetTotpStatus {\n  account {\n    totp {\n      exists\n      verified\n    }\n  }\n}\n',
       })
       .expect(200);
   });

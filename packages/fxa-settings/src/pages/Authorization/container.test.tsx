@@ -92,6 +92,7 @@ describe('AuthorizationContainer', () => {
         uid: mockAccount.uid,
         sessionVerified: true,
         emailVerified: true,
+        totpIsActive: false,
       },
       error: undefined,
     });

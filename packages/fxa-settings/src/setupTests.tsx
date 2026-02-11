@@ -9,6 +9,18 @@ import { FtlMsgProps } from 'fxa-react/lib/utils';
 import { TextEncoder, TextDecoder } from 'util';
 import crypto from 'crypto';
 
+// Suppress console output during tests to reduce noise
+// Comment out specific lines below if you need to debug test failures
+beforeAll(() => {
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
 // react-pdf required TextEncoder for EncodeStream
 // See https://github.com/diegomura/react-pdf/issues/2054#issue-1407270392
 global.TextEncoder = TextEncoder;

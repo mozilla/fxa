@@ -2,44 +2,52 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { InMemoryCache, gql } from '@apollo/client';
 import Storage from './storage';
-import { Email } from '../models';
 import { searchParam } from '../lib/utilities';
-import config from './config';
 import { StoredAccountData } from './storage-utils';
 import { v4 as uuid } from 'uuid';
 import * as Sentry from '@sentry/browser';
 import { Constants } from './constants';
 import { MfaScope } from './types';
 import { AuthUiErrors } from './auth-errors/auth-errors';
+import { dispatchStorageEvent } from './account-storage';
 
 const storage = Storage.factory('localStorage');
+
+let _isSigningOut = false;
+
+export function setSigningOut(value: boolean): void {
+  _isSigningOut = value;
+}
+
+export function isSigningOut(): boolean {
+  return _isSigningOut;
+}
 
 // TODO in FXA-8454
 // Add checks to ensure this function cannot produce an object that would violate type safety.
 // Currently, there are no checks to ensure that the values are defined and non-null,
 // which could result in errors at runtime.
-export function getStoredAccountData({
-  uid,
-  sessionToken,
-  alertText,
-  displayName,
-  metricsEnabled,
-  lastLogin,
-  email,
-  emailVerified,
-  sessionVerified,
-}: Record<string, any>): StoredAccountData {
+export function getStoredAccountData(input: {
+  uid: hexstring;
+  sessionToken?: hexstring;
+  alertText?: string;
+  displayName?: string;
+  metricsEnabled?: boolean;
+  lastLogin?: number;
+  email?: string;
+  emailVerified?: boolean;
+  sessionVerified?: boolean;
+}): StoredAccountData {
   return {
-    uid,
-    sessionToken,
-    alertText,
-    displayName,
-    metricsEnabled,
-    lastLogin,
-    email,
-    verified: emailVerified && sessionVerified,
+    uid: input.uid,
+    sessionToken: input.sessionToken,
+    alertText: input.alertText,
+    displayName: input.displayName,
+    metricsEnabled: input.metricsEnabled,
+    lastLogin: input.lastLogin,
+    email: input.email,
+    verified: !!(input.emailVerified && input.sessionVerified),
   };
 }
 
@@ -139,6 +147,8 @@ export function clearSignedInAccountUid() {
   delete all[uid];
   accounts(all);
   storage.remove('currentAccountUid');
+  dispatchStorageEvent('accounts');
+  dispatchStorageEvent('currentAccountUid');
 }
 
 /**
@@ -206,54 +216,20 @@ export function consumeAlertTextExternal() {
   return text;
 }
 
-// sessionToken is added as a local field as an example.
-export const typeDefs = gql`
-  extend type Account {
-    primaryEmail: Email!
-  }
-  extend type Session {
-    token: String!
-  }
-`;
-
-export const cache = new InMemoryCache({
-  typePolicies: {
-    Account: {
-      fields: {
-        primaryEmail: {
-          read(_, o) {
-            const emails = o.readField<Email[]>('emails');
-            return emails?.find((email) => email.isPrimary);
-          },
-        },
-      },
-      keyFields: [],
-    },
-    Avatar: {
-      fields: {
-        isDefault: {
-          read(_, o) {
-            const url = o.readField<string>('url');
-            const id = o.readField<string>('id');
-            return !!(
-              url?.startsWith(config.servers.profile.url) ||
-              id?.startsWith('default')
-            );
-          },
-        },
-      },
-    },
-    Session: {
-      fields: {
-        token: {
-          read() {
-            return sessionToken();
-          },
-        },
-      },
-    },
+/**
+ * No-op cache shim for files still referencing the Apollo InMemoryCache.
+ * TODO: Remove once PostVerify/SetPassword and InlineRecoveryKeySetup are migrated.
+ */
+export const cache = {
+  writeQuery(_options: { query: unknown; data: Record<string, unknown> }): void {},
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  modify(_options: { id: string; fields: Record<string, (...args: any[]) => unknown> }): void {},
+  identify(_object: { __typename: string }): string {
+    return '';
   },
-});
+};
+
+export const typeDefs = undefined;
 
 /*
  * Check that the React enrolled flag in local storage is set to `true`.

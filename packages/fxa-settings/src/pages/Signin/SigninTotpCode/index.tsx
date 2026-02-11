@@ -132,6 +132,7 @@ export const SigninTotpCode = ({
         uid,
         // Update verification status of stored current account
         verified: true,
+        sessionVerified: true,
       });
 
       const navigationOptions = {

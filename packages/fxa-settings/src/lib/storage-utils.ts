@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Storage from './storage';
+import { dispatchStorageEvent } from './account-storage';
 
 const ORIGINAL_TAB_KEY = 'originalTab';
 
@@ -54,22 +55,29 @@ export interface StoredAccountData {
   sessionToken?: hexstring;
   metricsEnabled?: boolean;
   verified?: boolean;
+  sessionVerified?: boolean;
   alertText?: string;
   displayName?: string;
+  hasPassword?: boolean;
 }
 
 /**
  * Persists account data to localStorage.
+ * Merges with existing account data to preserve fields not being updated.
  */
 export function persistAccount(accountData: StoredAccountData) {
   const storage = localStorage();
   const uid = accountData.uid;
   let accounts = storage.get('accounts') || {};
 
-  // add the account to local storage
-  accounts[uid] = accountData;
+  const existingAccount = accounts[uid] || {};
+  accounts[uid] = {
+    ...existingAccount,
+    ...accountData,
+  };
 
   storage.set('accounts', accounts);
+  dispatchStorageEvent('accounts');
 }
 
 /**
@@ -89,6 +97,7 @@ export function hasAccount(uid: string) {
 export function setCurrentAccount(uid: string) {
   const storage = localStorage();
   storage.set('currentAccountUid', uid);
+  dispatchStorageEvent('currentAccountUid');
 }
 
 /**

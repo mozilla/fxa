@@ -20,6 +20,12 @@ jest.mock('../../../lib/cache', () => ({
   ...jest.requireActual('../../../lib/cache'),
   sessionToken: jest.fn(),
   currentAccount: jest.fn(),
+  JwtTokenCache: {
+    hasToken: jest.fn(),
+    getToken: jest.fn(),
+    getSnapshot: jest.fn().mockReturnValue({}),
+    subscribe: jest.fn().mockReturnValue(() => {}),
+  },
 }));
 
 const sessionToken = 'session-123';
@@ -40,7 +46,15 @@ const accountWithoutPassword = {
   recoveryKey: { exists: false },
 } as unknown as Account;
 
-const authClient = {} as unknown as AuthClient;
+const authClient = {
+  sessionStatus: jest.fn().mockResolvedValue({
+    state: 'verified',
+    details: {
+      sessionVerified: true,
+    },
+  }),
+  mfaRequestOtp: jest.fn().mockResolvedValue({ code: 200, errno: 0 }),
+} as unknown as AuthClient;
 
 const renderWithContext = (
   account: Partial<Account>,

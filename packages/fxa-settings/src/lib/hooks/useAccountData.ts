@@ -11,7 +11,7 @@ import {
   RecoveryPhoneStatus,
   useAccountState,
 } from '../../models/contexts/AccountStateContext';
-import { Email, AttachedClient, LinkedAccount, SecurityEvent } from '../../models/Account';
+import { Email, LinkedAccount, SecurityEvent, mapAttachedClient } from '../../models/Account';
 import { AccountTotp, AccountBackupCodes, AccountAvatar } from '../interfaces';
 import config from '../config';
 import { ERRNO } from '@fxa/accounts/errors';
@@ -177,49 +177,6 @@ async function fetchProfileData(
   }
 }
 
-/** Shape of a single entry from the /account/attached_clients endpoint. */
-interface RawAttachedClient {
-  clientId: string;
-  isCurrentSession: boolean;
-  userAgent: string;
-  deviceType: string | null;
-  deviceId: string | null;
-  name: string;
-  lastAccessTime: number;
-  lastAccessTimeFormatted: string;
-  approximateLastAccessTime: number;
-  approximateLastAccessTimeFormatted: string;
-  location?: { city?: string; country?: string; state?: string; stateCode?: string };
-  os: string;
-  sessionTokenId: string | null;
-  refreshTokenId: string | null;
-}
-
-/** Maps raw attached clients response to normalized AttachedClient objects. */
-function transformAttachedClientsResponse(response: RawAttachedClient[]): AttachedClient[] {
-  return response.map((client) => ({
-    clientId: client.clientId,
-    isCurrentSession: client.isCurrentSession,
-    userAgent: client.userAgent,
-    deviceType: client.deviceType,
-    deviceId: client.deviceId,
-    name: client.name,
-    lastAccessTime: client.lastAccessTime,
-    lastAccessTimeFormatted: client.lastAccessTimeFormatted,
-    approximateLastAccessTime: client.approximateLastAccessTime,
-    approximateLastAccessTimeFormatted: client.approximateLastAccessTimeFormatted,
-    location: {
-      city: client.location?.city || null,
-      country: client.location?.country || null,
-      state: client.location?.state || null,
-      stateCode: client.location?.stateCode || null,
-    },
-    os: client.os,
-    sessionTokenId: client.sessionTokenId,
-    refreshTokenId: client.refreshTokenId,
-  }));
-}
-
 /**
  * Hook for fetching account data from auth-server, profile server, and attached clients.
  * @throws {InvalidTokenError} When the session token is invalid
@@ -285,9 +242,7 @@ export function useAccountData({
       }
 
       if (attachedClientsResult.status === 'fulfilled') {
-        accountData.attachedClients = transformAttachedClientsResponse(
-          attachedClientsResult.value
-        );
+        accountData.attachedClients = attachedClientsResult.value.map(mapAttachedClient);
       } else {
         Sentry.captureMessage(`Failed to fetch attached clients: ${attachedClientsResult.reason}`);  
         accountData.attachedClients = [];
@@ -314,7 +269,7 @@ export function useAccountData({
         switch (field) {
           case 'attachedClients': {
             const clients = await authClient.attachedClients(token);
-            fieldData.attachedClients = transformAttachedClientsResponse(clients);
+            fieldData.attachedClients = clients.map(mapAttachedClient);
             break;
           }
           case 'displayName':

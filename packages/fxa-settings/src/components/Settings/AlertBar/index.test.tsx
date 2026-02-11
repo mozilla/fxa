@@ -7,8 +7,8 @@ import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import AlertBar from '.';
 
-jest.mock('@apollo/client', () => ({
-  ...jest.requireActual('@apollo/client'),
+jest.mock('../../../lib/reactive-var', () => ({
+  ...jest.requireActual('../../../lib/reactive-var'),
   useReactiveVar: (x: Function) => x(),
 }));
 

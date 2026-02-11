@@ -2,14 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
 import AuthClient from 'fxa-auth-client/browser';
 import {
   sessionToken,
   clearSignedInAccountUid,
   currentAccount,
 } from '../lib/cache';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
+import {
+  isSignedIn as checkIsSignedIn,
+  getSessionVerified,
+  setSessionVerified,
+  dispatchStorageEvent,
+} from '../lib/account-storage';
 
 export interface SessionData {
   verified: boolean | null;
@@ -26,39 +30,31 @@ export interface SessionData {
   destroy?: () => void;
 }
 
-export const GET_SESSION_VERIFIED = gql`
-  query GetSession {
-    session {
-      verified
-    }
-  }
-`;
+/**
+ * Check if user is signed in (derived from account storage)
+ */
+export function getStoredSignedInStatus(): boolean {
+  return checkIsSignedIn();
+}
 
-export const GET_SESSION_IS_VALID = gql`
-  query GetSessionIsValid($sessionToken: String!) {
-    isValidToken(sessionToken: $sessionToken)
+/**
+ * Mark session as verified in account storage
+ * Note: "signed in" status is derived from having a sessionToken,
+ * so this function primarily marks the session as verified.
+ */
+export function setStoredSignedInStatus(isSignedIn: boolean): void {
+  if (isSignedIn) {
+    setSessionVerified(true);
   }
-`;
-
-export const DESTROY_SESSION = gql`
-  mutation DestroySession {
-    destroySession(input: {}) {
-      clientMutationId
-    }
-  }
-`;
+  dispatchStorageEvent('isSignedIn');
+}
 
 export class Session implements SessionData {
   private readonly authClient: AuthClient;
-  private readonly apolloClient: ApolloClient<object>;
   private _loading: boolean;
 
-  constructor(
-    authClient: AuthClient,
-    apolloClient: ApolloClient<NormalizedCacheObject>
-  ) {
+  constructor(authClient: AuthClient) {
     this.authClient = authClient;
-    this.apolloClient = apolloClient;
     this._loading = false;
   }
 
@@ -66,32 +62,19 @@ export class Session implements SessionData {
     this._loading = true;
     try {
       return await promise;
-    } catch (e) {
-      throw e;
     } finally {
       this._loading = false;
     }
   }
 
-  private get data(): Session | undefined {
-    const result = this.apolloClient.cache.readQuery<{
-      session: Session;
-    }>({
-      query: GET_SESSION_VERIFIED,
-    });
-
-    return result?.session;
-  }
-
   get token(): string {
-    return this.data?.token || '';
+    return sessionToken() || '';
   }
 
   get verified(): boolean {
-    return this.data?.verified || false;
+    return getSessionVerified();
   }
 
-  // TODO: Use GQL verifyCode instead of authClient
   async verifySession(
     code: string,
     options: {
@@ -104,17 +87,8 @@ export class Session implements SessionData {
     await this.withLoadingStatus(
       this.authClient.sessionVerifyCode(sessionToken()!, code, options)
     );
-    this.apolloClient.cache.modify({
-      fields: {
-        session: () => {
-          return true;
-        },
-      },
-    });
-    this.apolloClient.cache.writeQuery({
-      query: GET_LOCAL_SIGNED_IN_STATUS,
-      data: { isSignedIn: true },
-    });
+    setSessionVerified(true);
+    setStoredSignedInStatus(true);
   }
 
   async sendVerificationCode() {
@@ -124,55 +98,43 @@ export class Session implements SessionData {
   }
 
   async destroy() {
-    await this.apolloClient.mutate({
-      mutation: DESTROY_SESSION,
-      variables: { input: {} },
-    });
-
+    const token = sessionToken();
+    if (token) {
+      await this.authClient.sessionDestroy(token);
+    }
     clearSignedInAccountUid();
+    dispatchStorageEvent('isSignedIn');
   }
 
   get isDestroyed() {
     return currentAccount() == null;
   }
 
-  async isSessionVerified() {
-    const query = GET_SESSION_VERIFIED;
-    const { data } = await this.apolloClient.query({
-      fetchPolicy: 'network-only',
-      query,
-    });
-
-    const { session } = data;
-    const sessionStatus: boolean = session.verified;
-
-    this.apolloClient.cache.modify({
-      fields: {
-        session: () => {
-          return sessionStatus;
-        },
-      },
-    });
-    return sessionStatus;
-  }
-
-  async isValid(sessionToken: string) {
-    // If the current session token is valid, the following query will succeed.
-    // If current session is not valid an 'Invalid Token' error will be thrown.
-    const query = GET_SESSION_IS_VALID;
-    const { data } = await this.apolloClient.query({
-      fetchPolicy: 'network-only',
-      query,
-      variables: { sessionToken },
-    });
-    if (data?.isValidToken === true) {
-      this.apolloClient.cache.writeQuery({
-        query: GET_LOCAL_SIGNED_IN_STATUS,
-        data: { isSignedIn: true },
-      });
-      return true;
+  async isSessionVerified(): Promise<boolean> {
+    const token = sessionToken();
+    if (!token) {
+      return false;
     }
 
-    return false;
+    try {
+      const status = await this.authClient.sessionStatus(token);
+      const verified = status.state === 'verified';
+      setSessionVerified(verified);
+      return verified;
+    } catch (e) {
+      setSessionVerified(false);
+      return false;
+    }
+  }
+
+  async isValid(token: string): Promise<boolean> {
+    try {
+      await this.authClient.sessionStatus(token);
+      setSessionVerified(true);
+      return true;
+    } catch (e) {
+      setSessionVerified(false);
+      return false;
+    }
   }
 }
