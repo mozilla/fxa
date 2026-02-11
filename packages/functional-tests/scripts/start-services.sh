@@ -20,7 +20,6 @@ NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     123done \
     fxa-auth-server \
     fxa-content-server \
-    fxa-graphql-api \
     fxa-payments-server \
     fxa-profile-server \
     fxa-settings \

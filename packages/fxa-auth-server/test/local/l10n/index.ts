@@ -64,12 +64,14 @@ describe('Localizer', () => {
           'en-GB,en-CA;q=0.7,en;q=0.3'
         );
 
-        const result = await l10n.formatValue('unblockCode-prompt', {});
-
-        assert.equal(
-          result,
-          'If yes, here is the authorisation code you need:'
+        const result = await l10n.formatValue(
+          'fraudulentAccountDeletion-content-part2-v2',
+          {}
         );
+
+        // en-GB uses British spellings: "authorised" and "cancelled"
+        assert.include(result, 'authorised');
+        assert.include(result, 'cancelled');
       });
     });
   });
@@ -80,31 +82,31 @@ describe('Localizer', () => {
     it('localizes a string correctly', async () => {
       const result = await localizer.localizeStrings('it', [
         {
-          id: 'manage-account',
-          message: 'Manage account',
+          id: 'subplat-cancel',
+          message: 'Cancel subscription',
         },
       ]);
 
       assert.deepEqual(result, {
-        'manage-account': 'Gestisci account',
+        'subplat-cancel': 'Cancella abbonamento',
       });
     });
 
     it('localizes multiple strings correctly', async () => {
       const result = await localizer.localizeStrings('it', [
         {
-          id: 'manage-account',
-          message: 'Manage account',
+          id: 'subplat-cancel',
+          message: 'Cancel subscription',
         },
         {
-          id: 'manage-account-plaintext',
-          message: 'Manage account:',
+          id: 'subplat-legal',
+          message: 'Legal',
         },
       ]);
 
       assert.deepEqual(result, {
-        'manage-account': 'Gestisci account',
-        'manage-account-plaintext': 'Gestisci account:',
+        'subplat-cancel': 'Cancella abbonamento',
+        'subplat-legal': 'Note legali',
       });
     });
 

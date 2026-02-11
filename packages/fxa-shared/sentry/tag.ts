@@ -29,8 +29,6 @@ const CRITICAL_ENDPOINTS = [
   '/api/oauth',
   '/api/todos/get',
   '/api/logout',
-  // PORTS: 8290
-  '/graphql',
   // PORTS: 9000, 9001
   '/v1/recoveryKey',
   '/v1/account',

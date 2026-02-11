@@ -324,7 +324,7 @@ module.exports = function (webpackEnv) {
                 chunks: 'all',
               },
               networking: {
-                test: /([\\/]node_modules[\\/]graphql|graphql-tag|@apollo.*[\\/])|([\\/]fxa-auth-client[\\/])/,
+                test: /([\\/]fxa-auth-client[\\/])/,
                 name: 'networking-chunk',
                 chunks: 'all',
               },

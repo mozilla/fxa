@@ -109,24 +109,24 @@ describe('Renderer', () => {
       const result = await renderer.localizeAndRender(
         undefined,
         {
-          id: 'manage-account',
-          message: 'Manage account',
+          id: 'subplat-cancel',
+          message: 'Cancel subscription',
         },
         rendererContext
       );
-      assert.equal(result, 'Gestisci account');
+      assert.equal(result, 'Cancella abbonamento');
     });
 
-    it('localizes and then renders if "<%" is present', async () => {
+    it('renders EJS when "<%" is present in the localized string', async () => {
       const result = await renderer.localizeAndRender(
         undefined,
         {
-          id: 'verifyShortCode-title-3',
-          message: 'Open the internet with Mozilla',
+          id: 'nonexistent-key-for-ejs-test',
+          message: 'Hello <%- "World" %>',
         },
         rendererContext
       );
-      assert.equal(result, 'Apri Internet con Mozilla');
+      assert.equal(result, 'Hello World');
     });
   });
 });

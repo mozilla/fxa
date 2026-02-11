@@ -7,7 +7,6 @@ import SetPassword from '.';
 import { currentAccount } from '../../../lib/cache';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Integration, useAuthClient } from '../../../models';
-import { cache } from '../../../lib/cache';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CreatePasswordHandler } from './interfaces';
 import { HandledError } from '../../../lib/error-utils';
@@ -119,16 +118,8 @@ const SetPasswordContainer = ({
     (uid: string, email: string, sessionToken: string): CreatePasswordHandler =>
       async (newPassword: string) => {
         try {
-          const { passwordCreated, authPW, unwrapBKey } =
+          const { authPW, unwrapBKey } =
             await authClient.createPassword(sessionToken, email, newPassword);
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              passwordCreated() {
-                return passwordCreated;
-              },
-            },
-          });
 
           const keyFetchToken = await getKeyFetchToken(
             authPW,

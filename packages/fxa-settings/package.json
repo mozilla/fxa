@@ -35,7 +35,6 @@
     "test-unit": "echo No unit tests present for $npm_package_name",
     "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-settings-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true node scripts/test.js --watchAll=false --ci --runInBand --reporters=default --reporters=jest-junit",
     "watch-ftl": "grunt watch-ftl",
-    "gql-extract": "persistgraphql src ../../configs/gql/allowlist/fxa-settings.json --js --extension=ts",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "jest": {
@@ -241,7 +240,6 @@
     "jest-watch-typeahead": "0.6.5",
     "mutationobserver-shim": "^0.3.7",
     "nx": "21.2.4",
-    "persistgraphql": "^0.3.11",
     "pm2": "^6.0.14",
     "postcss-assets": "^6.0.0",
     "postcss-import": "^16.1.0",

@@ -37,7 +37,6 @@ Object.defineProperty(global, 'crypto', {
 // Suppress noisy console output during tests.
 // - Glean SDK telemetry pings and init warnings
 // - Model validation warnings from tests with intentionally invalid data
-// - Apollo cache warnings from incomplete mock data
 //
 // Set SHOW_CONSOLE_NOISE=1 to disable filtering for debugging:
 //   SHOW_CONSOLE_NOISE=1 yarn test --watchAll=false

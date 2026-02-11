@@ -4,9 +4,12 @@
 
 [Relevant ADRs](#relevant-adrs)\
 [Development](#development)\
-[GQL and REST API Calls](#gql-and-rest-api-calls)\
-— [Global Application Data](#global-application-data)\
-— [GQL error handling](#gql-error-handling)\
+[API Calls](#api-calls)\
+— [Architecture overview](#architecture-overview)\
+— [Startup data loading](#startup-data-loading)\
+— [Mutations](#mutations)\
+— [MFA-protected operations](#mfa-protected-operations)\
+— [Error handling](#error-handling)\
 [Components to Know](#components-to-know)\
 — [`LinkExternal`](#linkexternal)\
 — [`AlertBar`](#alertbar-and-alertexternal)\
@@ -26,8 +29,7 @@
 — [Event Logging](#event-logging)\
 [Testing and Mocks for Tests/Storybook](#testing-and-mocks-for-testsstorybook)\
 — [`AlertBar`](#components-that-use-alertbar)\
-— [`useAccount`, `useSession`, or GQL Mocks](#components-that-use-useaccount-usesession-or-need-a-gql-mock)\
-— [Mocking mutation errors](#mocking-mutation-errors)\
+— [`useAccount` and `useSession`](#components-that-use-useaccount-or-usesession)\
 [Storybook](#storybook)\
 [Functional Testing](#functional-testing)\
 [License](#license)
@@ -36,10 +38,9 @@
 
 - [Create a New React Application for the Settings Redesign Project](https://github.com/mozilla/fxa/blob/main/docs/adr/0011-create-new-react-app-for-settings-redesign.md)
 - [React Toolchain for Settings Redesign](https://github.com/mozilla/fxa/blob/main/docs/adr/0013-react-toolchain-for-settings-redesign.md)
-- [Use GraphQL and Apollo for Settings Redesign](https://github.com/mozilla/fxa/blob/main/docs/adr/0016-use-graphql-and-apollo-for-settings-redesign.md)
-- [Switch from OAuth2 to Sharing sessionToken with GraphQL Server for Settings Redesign Auth](https://github.com/mozilla/fxa/blob/main/docs/adr/0017-switch-settings-auth-to-sessiontoken.md)
 - [Use Utility-First CSS (Tailwind) with Custom SCSS](https://github.com/mozilla/fxa/blob/main/docs/adr/0018-use-tailwind-with-custom-scss.md)
 - [Use Existing InternJS for Functional Testing in Settings V2](https://github.com/mozilla/fxa/blob/main/docs/adr/0021-use-internjs-testing.md)
+- [Remove GraphQL from fxa-settings](https://github.com/mozilla/fxa/blob/main/docs/adr/0047-remove-graphql-from-fxa-settings.md)
 
 ## Development
 
@@ -50,56 +51,66 @@ Note that the fxa-settings code is served by the fxa-content-server. To preview 
 - `yarn test` to run unit tests
 - `yarn storybook` to open Storybook
 
-## GQL and REST API Calls
+## API Calls
 
-FxA Settings communicates primarily with the FxA GraphQL API through use of [Apollo Client](https://www.apollographql.com/docs/react/) to indirectly interact with the `fxa-auth-server`. Requests that simply retrieve data are called queries and all other interaction requests are called mutations. See the [GQL documentation](https://graphql.org/learn/) to learn more. See [the documentation for `fxa-graphql-api`](https://github.com/mozilla/fxa/tree/main/packages/fxa-graphql-api) to connect to the playground, a place to view the API docs and schema, and to write and test queries and mutations before using them in a component.
+FxA Settings communicates directly with `fxa-auth-server` via [`fxa-auth-client`](https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-client) — there is no intermediary BFF or GraphQL layer. The `useAuthClient` hook provides access to the auth client instance, though most components interact through the `Account` model instead.
 
-While most API calls can be performed with GQL, there are a few calls that must directly communicate with the auth server (for now) for security reasons. To make REST API calls to the auth server, use the `useAuth` and `useAwait` hooks.
+### Architecture overview
 
-### Global Application Data
-
-This application uses [Apollo client cache](https://www.apollographql.com/docs/react/caching/cache-configuration/) to store app-global state, holding both data received from the GQL server and [local data](https://www.apollographql.com/docs/tutorial/local-state/) that needs to be globally accessible. You can see the shape of this data in the schema found within the `GetInitialState` query, noting that a `@client` directive denotes local data.
-
-Access the client cache data in top-level objects via custom `use` hooks. At the time of writing, `useAccount` and `useSession` (see the "Sessions" section) will allow you to access `data.account` and `data.session` respectively inside components where that data is needed. See the "Testing" section of this doc for how to mock calls.
-
-### GQL error handling
-
-When an error occurs from a query or mutation, the Apollo Client GQL response distinguishes between two kinds of errors on the `error` object - `graphQLErrors`, an array of errors provided by a GQL server-side resolver, and `networkError`, an error that is thrown outside of a resolver. Apollo Server [can throw](https://www.apollographql.com/docs/apollo-server/data/errors/) `AuthenticationError`, `ForbiddenError`, `UserInputError`, or a generic `ApolloError` which Apollo Client stores in `graphQLErrors`. We don’t need to send these to Sentry on the client-side because all errors aside from `UserInputError` are logged by the `fxa-gql-api` package, but a `networkError` should be logged because it means the query was rejected and no data was returned, such as if Apollo Client failed to connect to the GQL endpoint. Learn more about [Apollo error handling](https://www.apollographql.com/docs/react/data/error-handling/).
-
-All errors should be handled. As a general rule of thumb, validation errors from `graphQLErrors` should be displayed the user, while `networkErrors` should report to Sentry.
-
-When performing a GraphQL mutation, use our custom [`useMutation`](./lib/hooks.tsx) hook and set the `onError` property to handle GraphQL Errors (such as validations). The hook will automatically send any network-level errors to Sentry and return `ApolloError` for you to access GQL errors and render them in the UI or an AlertBar.
-
-Example of a mutation with errors appearing in an `AlertBar`:
-
-```tsx
-const [destroySession, { data }] = useMutation(DESTROY_SESSION_MUTATION, {
-  onError: (error) => {
-    // The useAlertBar hook's `error` method can take an ApolloError object
-    // and conditionally render GQL errors if they're present, or fall back
-    // to the error string you provided.
-    alertBar.error('Sorry, there was a problem signing you out.', error);
-  },
-});
+```
+React Component
+  │ useAccount()
+  ▼
+Account class (src/models/Account.ts)
+  │ wraps auth-client calls + updates local storage
+  ├──────────────────────┬───────────────────┐
+  ▼                      ▼                   ▼
+AuthClient            account-storage.ts   cache.ts
+(fxa-auth-client)     (localStorage)       (session tokens, JWT cache)
 ```
 
-Example of a mutation with validation errors appearing in a tooltip, and other errors in an `AlertBar`:
+**Key layers:**
 
-```tsx
-const [verifySecondaryEmail] = useMutation(VERIFY_SECONDARY_EMAIL_MUTATION, {
-  onError: (error) => {
-    // If we receive an GQL error it is related to invalid input, so we'll
-    // set it as a state string that is used in a tooltip component.
-    if (error.graphQLErrors?.length) {
-      setErrorText(error.message);
-    } else {
-      alertBar.error('There was a problem sending the verification code.');
-    }
-  },
-});
-```
+- **`Account`** (`src/models/Account.ts`) — wraps `fxa-auth-client` methods with type-safe interfaces, manages loading states, and syncs results to local storage. Components call methods like `account.setDisplayName(name)` or `account.changePassword(old, new)`.
+- **`account-storage`** (`src/lib/account-storage.ts`) — reads/writes the `UnifiedAccountData` structure to `localStorage` under `accounts[uid]`. Transient UI state (`isLoading`, `loadingFields`, `error`) is automatically filtered out before persisting.
+- **`cache`** (`src/lib/cache.ts`) — manages session tokens (`sessionToken()`), signed-in account state (`currentAccount()`), and JWT token caching for MFA-protected operations (`JwtTokenCache`).
+- **`AppContext`** (`src/models/contexts/AppContext.ts`) — created once at app startup via `initializeAppContext()`. Holds the `AuthClient`, `Account`, `Session`, and config singletons that hooks pull from.
 
-See the "Testing" section for mocking mutation errors.
+### Startup data loading
+
+When the app mounts, `useInitialMetricsQueryState()` in `hooks.ts` loads account data using a cache-first strategy:
+
+1. Check `sessionToken()` — if missing, the user is not signed in.
+2. Try `getFullAccountData()` from localStorage — if a cached account exists, return immediately (fast path).
+3. If the cache is empty, call auth-client endpoints in parallel (`authClient.account()`, `authClient.checkTotpTokenExists()`, etc.) using `Promise.allSettled()` so one failing endpoint doesn't block the others.
+4. Persist results via `updateExtendedAccountState()` for subsequent loads.
+
+### Mutations
+
+All mutations follow the same pattern:
+
+1. Component calls an `Account` method (e.g., `account.changePassword(oldPw, newPw)`)
+2. `Account` calls the corresponding `authClient` method (optionally with a JWT for MFA-protected operations)
+3. `Account` updates local storage via `updateExtendedAccountState()` or `updateBasicAccountData()`
+4. For Firefox integrations, `Account` notifies the browser channel (e.g., `firefox.passwordChanged()`)
+
+Loading state is tracked via `withLoadingStatus()`, which sets `isLoading` and `loadingFields` on the account data during async operations.
+
+### MFA-protected operations
+
+Sensitive actions (password changes, 2FA management) require a scoped JWT rather than just a session token:
+
+1. The `MfaGuard` component requests an OTP from the user for a specific scope
+2. The OTP is exchanged for a short-lived JWT via the auth-server
+3. The JWT is cached in `JwtTokenCache` (backed by both memory and localStorage) keyed by `(sessionToken, scope)`
+4. `Account` methods retrieve the cached JWT via `getCachedJwtByScope()` and pass it as the `Authorization: Bearer` header
+5. If the JWT expires or is invalidated, the MFA modal is shown again
+
+### Error handling
+
+- **Global handler:** `initializeAppContext()` installs an error handler on `AuthClient` that catches `INSUFFICIENT_AAL` (redirects to TOTP re-auth) and `INVALID_TOKEN` (marks session as signed out).
+- **Per-method mapping:** `Account` methods map auth-client `errno` values to `AuthUiErrors` for consistent, localized error messages in the UI.
+- **Resilient batch fetches:** `refresh(field)` uses `Promise.allSettled()` so a single endpoint failure (e.g., TOTP check) doesn't prevent other data from loading.
 
 ## Components to Know
 
@@ -235,7 +246,7 @@ Notes:
 
 - Downstream calls to protected endpoints must use the JWT (Authorization: Bearer ...) and not the session token.
 
-For simple examples and integration patterns, see test pages `TestPageMfaGuardWithAuthClient` and `TestPageMfaGuardWithGql` under `src/components/Settings/`. For a real-world usage in a PR, see “Add MFA guard to Change 2FA action” ([github.com/mozilla/fxa/pull/19403](https://github.com/mozilla/fxa/pull/19403)).
+For a simple example and integration pattern, see the test page `TestPageMfaGuardWithAuthClient` under `src/components/Settings/`. For a real-world usage in a PR, see "Add MFA guard to Change 2FA action" ([github.com/mozilla/fxa/pull/19403](https://github.com/mozilla/fxa/pull/19403)).
 
 #### Best practices
 
@@ -665,51 +676,22 @@ rerender(
 
 A `rerender` is necessary in order to update the component reference in the Context provider. If this is _not_ provided, it will default to using a `Portal` that renders adjacent to the root app `<div id="root"></div>` and an error will show in the console.
 
-### Components that use `useAccount`, `useSession`, or Need a GQL Mock
+### Components that use `useAccount` or `useSession`
 
-[MockedCache](./src/models/mocks.tsx) is a convenient way to test components that `useAccount` or `useSession`. Use it in place of [MockedProvider](https://www.apollographql.com/docs/react/api/react/testing/#mockedprovider) without prop overrides to use the default mocked cache, or pass in `account` to override pieces of the default mocked cache and/or `verified` to override the top-level `session.verified` data piece. A `mocks` prop can also be passed in when a query or mutation needs success or failure mocks.
+Use the mock helpers in [`src/models/mocks.tsx`](./src/models/mocks.tsx) (`mockAppContext`, `MOCK_ACCOUNT`, etc.) to provide test data for components that call `useAccount` or `useSession`. Wrap components with `AppContext.Provider` and pass a mocked context.
 
 Example:
 
 ```jsx
-const mocks = [];
-<MockedCache
-  account={{ avatar: { id: null, url: null } }}
-  verified={false}
-  {...{ mocks }}
->
-  <HeaderLockup />
-</MockedCache>;
-```
-
-### Mocking mutation errors
-
-Testing for GQL and network errors is also pretty straightforward. In your tests, wrap your component in a [MockedCache](#components-that-use-useaccount-usesession-or-need-a-gql-mock) and provide it with mock mutations that produce either an array of `GraphQLError`s, or a standard `Error`. Example with both:
-
-```tsx
-const mocks = [
-  {
-    request: {
-      query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '12345678' } },
-    },
-    result: {
-      errors: [new GraphQLError('invalid code')],
-    },
-  },
-  {
-    request: {
-      query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '87654321' } },
-    },
-    error: new Error('network error'),
-  },
-];
+const account = {
+  ...MOCK_ACCOUNT,
+  displayName: 'Test User',
+} as unknown as Account;
 
 renderWithRouter(
-  <MockedCache verified={false} {...{ mocks }}>
-    <ModalVerifySession {...{ onDismiss, onError }} />
-  </MockedCache>
+  <AppContext.Provider value={mockAppContext({ account })}>
+    <MyComponent />
+  </AppContext.Provider>
 );
 ```
 
@@ -723,20 +705,6 @@ useLocation hook was used but a LocationContext.Provider was not found in the pa
 
 ```js
 .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-```
-
-##### Lacking Mocked Apollo Provider
-
-```
-No Apollo Client instance can be found. Please ensure that you have called `ApolloProvider` higher up in your tree.
-```
-
-```js
-  .addDecorator((getStory) => (
-    <MockedProvider>
-      <MockedCache>{getStory()}</MockedCache>
-    </MockedProvider>
-  ))
 ```
 
 ## Storybook

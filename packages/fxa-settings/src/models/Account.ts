@@ -131,8 +131,6 @@ export function mapAttachedClient(c: RawAttachedClient): AttachedClient {
   };
 }
 
-// TODO: why doesn't this match fxa-graphql-api/src/lib/resolvers/types/attachedClient.ts?
-// DOUBLE TODO: The fact it doesn't can cause type safety issues. See FXA-10326
 export interface AttachedClient {
   clientId: string;
   isCurrentSession: boolean;
@@ -737,15 +735,11 @@ export class Account implements AccountData {
   }
 
   /**
-   * TODO: Remove this once we update the GQL endpoint to accept the
-   *  `accountResetWithRecoveryKey` option and fix graphql-api not reporting
-   *  the correct IP address.
-   *
    * @param token passwordForgotToken
    * @param code code
    * @param accountResetWithRecoveryKey is account being reset with recovery key?
    * @param includeRecoveryKeyPrompt should a prompt to create a recovery key be included in the success email?
-   * */
+   */
   async passwordForgotVerifyCode(
     token: string,
     code: string,

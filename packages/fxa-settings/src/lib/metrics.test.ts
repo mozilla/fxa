@@ -465,7 +465,7 @@ describe('logError', () => {
 describe('queryParamsToMetricsContext', () => {
   it('creates metrics context from query params', () => {
     // Note! The auth-server expects quite a few query params to be propagated during
-    // graphql calls. These are commonly referred to as the metrics context.
+    // API calls. These are commonly referred to as the metrics context.
     const queryParams = {
       flowId: 'test1',
       foo: 'test2',
