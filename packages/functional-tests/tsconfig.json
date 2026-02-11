@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "outDir": "./dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "module": "commonjs",
+    "types": ["../fxa-auth-client/lib/types", "mozlog", "jest"]
+  },
+  "include": ["lib","pages","tests"]
+}

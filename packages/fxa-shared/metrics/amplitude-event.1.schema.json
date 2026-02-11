@@ -1,0 +1,385 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "amplitude-event",
+  "definitions": {
+    "hex32": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{32}$"
+    },
+    "integerLike": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      ]
+    }
+  },
+  "properties": {
+    "op": {
+      "description": "Pre-existing Firefox Accounts metrics field used to identify Amplitude metrics events.",
+      "type": "string",
+      "enum": ["amplitudeEvent"]
+    },
+    "event_type": {
+      "description": "Event type in the format of 'GROUP - TYPE'.",
+      "type": "string",
+      "pattern": "^\\w+ - \\w+$"
+    },
+    "time": {
+      "description": "Event timestamp",
+      "type": "integer",
+      "minimum": 1
+    },
+    "user_id": {
+      "description": "The unique identifier for the user.",
+      "$ref": "#/definitions/hex32"
+    },
+    "device_id": {
+      "description": "The unique identifier for the device.",
+      "$ref": "#/definitions/hex32"
+    },
+    "session_id": {
+      "description": "Timestamp of flow begin time.",
+      "$ref": "#/definitions/integerLike"
+    },
+    "app_version": {
+      "description": "The version of the app.",
+      "type": "string"
+    },
+    "language": {
+      "description": "BCP 47 language tags, loosely.",
+      "type": "string",
+      "pattern": "^[a-z]{1,}(-[a-zA-Z0-9]{1,})*$"
+    },
+    "country_code": {
+      "description": "The 2 character country ISO code",
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "country": {
+      "description": "The localized full country name where the locale is based (indirectly) on a request's `Accept-Language` header.",
+      "type": "string"
+    },
+    "region": {
+      "description": "The localized full name of the province, state, or territory where the locale is based.",
+      "type": "string"
+    },
+    "os_name": {
+      "description": "The name of the operating system.",
+      "type": "string"
+    },
+    "os_version": {
+      "description": "The version of the operating system.",
+      "type": "string"
+    },
+    "device_model": {
+      "description": "A unique name provided by the device manufacturer to identify the device type or design (e.g. 'iPad', 'iPhone' or 'Pixel 2 XL').",
+      "type": "string"
+    },
+    "event_properties": {
+      "description": "Properties associated with a particular event, which values are current for the moment at which the event was triggered.",
+      "type": "object",
+      "properties": {
+        "checkout_type": {
+          "description": "Whether the checkout flow is for new users or existing users. One of “with-account” or “without-account”",
+          "type": "string",
+          "enum": ["with-account", "without-account"]
+        },
+        "country_code_source": {
+          "description": "The 2 character country ISO code. This value represents the payment method country for the user.",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "error_id": {
+          "description": "The error id, if any, encountered for a fxa_pay_setup - fail event",
+          "type": "string"
+        },
+        "oauth_client_id": {
+          "description": "The OAuth client ID for a RP integrated with FxA.",
+          "type": "string"
+        },
+        "payment_provider": {
+          "description": "The third party service ultimately processing a user’s payments (e.g. 'stripe').",
+          "type": "string",
+          "enum": ["stripe", "paypal", "google", "apple"]
+        },
+        "plan_id": {
+          "description": "Plan ID of a subscription.",
+          "type": "string",
+          "maxLength": 128
+        },
+        "previous_plan_id": {
+          "description": "The Stripe price_* or plan_* ID for the subscription the user currently has prior to the change",
+          "type": "string"
+        },
+        "previous_product_id": {
+          "description": "The Stripe product_* ID for the subscription the user currently has prior to the change",
+          "type": "string"
+        },
+        "provider_event_id": {
+          "description": "A unique identifier for the subscription notification from a payment provider. For Stripe and Stripe-managed providers like PayPal, this is the Stripe webhook event id.",
+          "type": "string",
+          "maxLength": 128
+        },
+        "product_id": {
+          "description": "Product ID of a subscription.",
+          "type": "string",
+          "maxLength": 128
+        },
+        "promotion_code": {
+          "description": "The Stripe customer-facing promotion code applied, if any.",
+          "type": "string"
+        },
+        "service": {
+          "description": "The name of the service.",
+          "type": "string"
+        },
+        "subscribed_plan_ids": {
+          "description": "Comma-separated list of Stripe price/plan IDs the user is already subscribed to.",
+          "type": "string"
+        },
+        "subscription_id": {
+          "description": "ID of a subscription being canceled.",
+          "type": "string",
+          "maxLength": 128
+        },
+        "voluntary_cancellation": {
+          "description": "True if the cancellation was a Voluntary Cancellation else false for an Involuntary Cancellation.",
+          "type": "boolean"
+        }
+      }
+    },
+    "user_properties": {
+      "description": "Properties tied to the FxA user. These values can reflect current or previous values, depending on its nature and how often it is updated.",
+      "type": "object",
+      "definitions": {
+        "entrypointPattern": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[\\w.:-]+$"
+        },
+        "utmPattern": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[\\w\\/.%-]+$"
+        }
+      },
+      "properties": {
+        "entrypoint": {
+          "description": "The specific page or browser UI element containing the first step of the FxA sign-in/sign-up process (e.g., enter email form).",
+          "$ref": "#/properties/user_properties/definitions/entrypointPattern"
+        },
+        "entrypoint_experiment": {
+          "description": "Identifier for the experiment the user is part of at the entrypoint (if any).",
+          "$ref": "#/properties/user_properties/definitions/entrypointPattern"
+        },
+        "entrypoint_variation": {
+          "description": "Identifier for the experiment variation the user is part of at the entrypoint (if any).",
+          "$ref": "#/properties/user_properties/definitions/entrypointPattern"
+        },
+        "flow_id": {
+          "description": "The flow identifier.",
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "ua_browser": {
+          "description": "The user's web browser.",
+          "type": "string"
+        },
+        "ua_version": {
+          "description": "The user's browser version.",
+          "type": "string"
+        },
+        "utm_campaign": {
+          "description": "As defined by Google Analytics, this parameter is the individual campaign name, slogan, promo code, etc. for a product.",
+          "anyOf": [
+            {
+              "$ref": "#/properties/user_properties/definitions/utmPattern"
+            },
+            {
+              "enum": ["page+referral+-+not+part+of+a+campaign"]
+            }
+          ]
+        },
+        "utm_content": {
+          "description": "As defined by Google Analytics, this parameter is used to differentiate similar content, or links within the same ad. This parameter can be used to track the name of an A-B test (i.e., if a particular call-to-action is resulting in more traffic).",
+          "$ref": "#/properties/user_properties/definitions/utmPattern"
+        },
+        "utm_medium": {
+          "description": "As defined by Google Analytics, this parameter is used to identify the medium that directed the visitor to the page (e.g., utm_medium=email).",
+          "$ref": "#/properties/user_properties/definitions/utmPattern"
+        },
+        "utm_source": {
+          "description": "Used to identify the site, or browser UI element that is sending traffic to the page containing the beginning of the FxA sign-in/sign-up process.",
+          "$ref": "#/properties/user_properties/definitions/utmPattern"
+        },
+        "utm_term": {
+          "description": "As defined by Google Analytics, this parameter is used to identify the paid search keywords that led customers to a page. It can be used to track the cohort or variation in an A-B test (i.e., if a specific term sent more customers to a page).",
+          "$ref": "#/properties/user_properties/definitions/utmPattern"
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "op",
+    "event_type",
+    "time",
+    "event_properties",
+    "user_properties"
+  ],
+  "anyOf": [
+    {
+      "required": ["user_id"]
+    },
+    {
+      "required": ["device_id"]
+    }
+  ],
+  "allOf": [
+    {
+      "if": {
+        "$comment": "Required fields for fxa_pay_setup* or fxa_pay_subscription_change* events",
+        "required": ["event_type"],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "pattern": "^fxa_pay_setup -|fxa_pay_subscription_change -"
+          }
+        }
+      },
+      "then": {
+        "required": ["language"],
+        "properties": {
+          "user_properties": {
+            "type": "object",
+            "required": ["flow_id"]
+          },
+          "event_properties": {
+            "type": "object",
+            "required": ["plan_id", "product_id"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "$comment": "Additional required fields for fxa_pay_setup* events",
+        "required": ["event_type"],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "pattern": "^fxa_pay_setup -"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "event_properties": {
+            "type": "object",
+            "required": ["checkout_type"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "$comment": "Additional required fields for fxa_pay_subscription_change* events",
+        "required": ["event_type"],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "pattern": "^fxa_pay_subscription_change -"
+          }
+        }
+      },
+      "then": {
+        "required": ["user_id"],
+        "properties": {
+          "event_properties": {
+            "type": "object",
+            "required": [
+              "previous_plan_id",
+              "previous_product_id",
+              "subscription_id",
+              "payment_provider"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "$comment": "Additional required fields for fxa_pay_setup - <submit|success|fail> events",
+        "required": ["event_type"],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "pattern": "^fxa_pay_setup - submit|fxa_pay_setup - success|fxa_pay_setup - fail"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "event_properties": {
+            "type": "object",
+            "required": ["payment_provider"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "$comment": "Require error_id event property for fxa_pay_setup - fail and fxa_pay_subscription_change - fail events",
+        "required": ["event_type"],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "pattern": "^fxa_pay_setup - fail$|fxa_pay_subscription_change - fail$"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "event_properties": {
+            "type": "object",
+            "required": ["error_id"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "$comment": "Required fields for fxa_subscribe - subscription_ended events",
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "pattern": "fxa_subscribe - subscription_ended"
+          }
+        },
+        "required": ["event_type"]
+      },
+      "then": {
+        "required": ["event_type", "language", "time", "event_properties"],
+        "properties": {
+          "event_properties": {
+            "type": "object",
+            "required": [
+              "payment_provider",
+              "plan_id",
+              "product_id",
+              "provider_event_id",
+              "subscription_id",
+              "voluntary_cancellation"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

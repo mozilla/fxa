@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "subscriptionsPaymentExpired-subject-2",
+    "message": "The payment method for your subscriptions is expired or expiring soon"
+  }
+}

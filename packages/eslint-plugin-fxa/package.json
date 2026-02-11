@@ -1,0 +1,36 @@
+{
+  "name": "eslint-plugin-fxa",
+  "version": "0.0.0",
+  "description": "eslint plugin for Firefox Accounts",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "mocha",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+  },
+  "dependencies": {
+    "eslint": "6.6.0",
+    "eslint-config-prettier": "9.1.0",
+    "ramda": "^0.30.0"
+  },
+  "devDependencies": {
+    "mocha": "^10.4.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=6.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/fxa.git"
+  },
+  "author": "Mozilla (https://mozilla.org)",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa/issues"
+  },
+  "homepage": "https://github.com/mozilla/fxa",
+  "nx": {
+    "tags": [
+      "scope:shared:plugin"
+    ]
+  }
+}

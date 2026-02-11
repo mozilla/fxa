@@ -1,0 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/** Custom gradient taken from design spec */
+.brand-banner-bg {
+  background: linear-gradient(
+    88.76deg,
+    #e4eaf6 3.37%,
+    #dbeef8 39.93%,
+    #daf3f4 65.09%,
+    #e3f6ed 102.21%
+  );
+}
+
+.brand-messaging {
+  @apply mb-32 mobileLandscape:mb-0;
+}

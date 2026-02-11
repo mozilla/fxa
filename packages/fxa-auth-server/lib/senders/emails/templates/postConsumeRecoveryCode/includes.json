@@ -1,0 +1,14 @@
+{
+  "subject": {
+    "id": "postConsumeRecoveryCode-subject-v3",
+    "message": "Backup authentication code used"
+  },
+  "action": {
+    "id": "postConsumeRecoveryCode-action",
+    "message": "Manage account"
+  },
+  "preview": {
+    "id": "postConsumeRecoveryCode-preview",
+    "message": "Check to make sure this was you"
+  }
+}

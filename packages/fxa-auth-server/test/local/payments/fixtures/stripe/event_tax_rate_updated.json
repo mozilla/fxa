@@ -1,0 +1,35 @@
+{
+  "id": "evt_1Jxj70BVqmGyQTMa0yDZuWeU",
+  "object": "event",
+  "api_version": "2019-12-03",
+  "created": 1637374529,
+  "data": {
+    "object": {
+      "id": "txr_1Jxj6zBVqmGyQTMapD0Tt42M",
+      "object": "tax_rate",
+      "active": true,
+      "country": "IT",
+      "created": 1637374529,
+      "description": "IT VAT",
+      "display_name": "Sales tax",
+      "inclusive": false,
+      "jurisdiction": null,
+      "livemode": false,
+      "metadata": {
+      },
+      "percentage": 15,
+      "state": null,
+      "tax_type": null
+    },
+    "previous_attributes": {
+      "display_name": "VAT"
+    }
+  },
+  "livemode": false,
+  "pending_webhooks": 2,
+  "request": {
+    "id": "req_ejiQzjIpytCA6q",
+    "idempotency_key": "8a38620e-2f04-4ca2-a88f-8b47f5220df4"
+  },
+  "type": "tax_rate.updated"
+}

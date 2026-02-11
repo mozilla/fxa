@@ -1,0 +1,41 @@
+{
+  "appStore": [{
+    "bundleId": "skydiving.with.foxkeh",
+    "currency": "USD",
+    "environment": "Sandbox",
+    "expiresDate": 1707012573000,
+    "formOfPayment": "APPLE_APP_STORE",
+    "isInBillingRetry": false,
+    "originalPurchaseDate": 1602501465000,
+    "originalTransactionId": "1000000728852404",
+    "productId": "examplesku",
+    "status": 1,
+    "type": "Auto-Renewable Subscription",
+    "userId": "REPLACED_BY_SCRIPT",
+    "verifiedAt": 1661990504172
+  }],
+  "playStore": [{
+    "acknowledgementState": 1,
+    "autoRenewing": false,
+    "cancelReason": 1,
+    "countryCode": "US",
+    "developerPayload": null,
+    "expiryTimeMillis": 1659609760161,
+    "formOfPayment": "GOOGLE_PLAY",
+    "isMutable": true,
+    "kind": "androidpublisher#subscriptionPurchase",
+    "orderId": "GPA.3349-0308-2630-54525..5",
+    "packageName": "org.mozilla.firefox.vpn",
+    "paymentState": 1,
+    "priceAmountMicros": 9990000,
+    "priceCurrencyCode": "USD",
+    "purchaseToken": "some_purchase_token",
+    "purchaseType": 0,
+    "replacedByAnotherPurchase": false,
+    "sku": "examplesku",
+    "skuType": "subs",
+    "startTimeMillis": 1659607657566,
+    "userId": "REPLACED_BY_SCRIPT",
+    "verifiedAt": 1662249663096
+  }]
+}

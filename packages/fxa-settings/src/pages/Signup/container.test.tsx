@@ -1,0 +1,367 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/**
+ * This is our first POC for container tests. There's more comments than normal in this file, because it is
+ * establishing the patterns going forward for future container tests. Comment blocks starting with TIP give
+ * some guidance around common testing practices
+ *
+ * A couple things to keep in mind:
+ *  - These tests should only be validating logic inside the container!
+ *  - These tests will need to mock the containers dependencies
+ *  - These tests should not:
+ *    - Validate logic in the presentation layer
+ *    - Validate logic used in hooks
+ *    - Validate functionality of third party libraries
+ *    - Require any external APIs or database
+ *
+ * The basic steps should be as follows:
+ *  1. Identify what needs to be mocked and import modules
+ *  2. Set up functions that initialize mocks and can be reused or overridden, preferably using jest.spyOn.
+ *  4. Write tests, be sure mocks & spies are reset prior to each suite.
+ *  5. Assert on mocked functions and spies.
+ */
+
+// TIP - Import modules for mocking. Not that `* as` lend themselves to using jest.spyOn.
+import * as SignupModule from './index';
+import * as ModelsModule from '../../models';
+import * as UseValidateModule from '../../lib/hooks/useValidate';
+import * as FirefoxModule from '../../lib/channels/firefox';
+import * as CryptoModule from 'fxa-auth-client/lib/crypto';
+import * as ReachRouterModule from '@reach/router';
+
+// Typical imports
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { screen, waitFor } from '@testing-library/react';
+import SignupContainer from './container';
+import { IntegrationType } from '../../models';
+import { MozServices } from '../../lib/types';
+import { SignupIntegration, SignupProps } from './interfaces';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { ModelDataProvider } from '../../lib/model-data';
+import AuthClient, { AuthServerError } from 'fxa-auth-client/browser';
+import { LocationProvider } from '@reach/router';
+import { MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
+
+// TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
+// often times a mocking util isn't even necessary. Note that using the Dependency Inversion
+// Principle, will limit the amount you need to mock. Here, we let the container specify
+// the SignupContainerIntegration interface which is a subset (and therefore compatible)
+// larger and often more specific interfaces like Integration, OAuthIntegration, etc...
+let integration: SignupIntegration;
+function mockIntegration() {
+  integration = {
+    type: IntegrationType.SyncDesktopV3,
+    getService: () => MozServices.Default,
+    getClientId: () => undefined,
+    isSync: () => true,
+    wantsKeys: () => true,
+    isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
+    isFirefoxNonSync: () => false,
+    getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
+    getCmsInfo: () => undefined,
+    getLegalTerms: () => undefined,
+  };
+}
+let serviceName: MozServices;
+function mockServiceName() {
+  serviceName = MozServices.Default;
+}
+
+// TIP - Note that we don't actually want to render the Signup or LoadingSpinner react components,
+// since we aren't testing their logic. There fore it's fine to just return something super
+// simple. And check assumptions about props if necessary.
+let currentSignupProps: SignupProps | undefined;
+function mockSignupModule() {
+  currentSignupProps = undefined;
+  jest
+    .spyOn(SignupModule, 'Signup')
+    .mockImplementation((props: SignupProps) => {
+      currentSignupProps = props;
+      return <div>signup mock</div>;
+    });
+}
+
+// TIP - Most modules can be easily mocked via jest.spyOn. As you can see this very clean.
+function mockUseValidateModule() {
+  jest.spyOn(UseValidateModule, 'useValidatedQueryParams').mockReturnValue({
+    queryParamModel: {
+      email: 'foo@bar.com',
+      isV2: () => false,
+    } as unknown as ModelDataProvider,
+    validationError: undefined,
+  });
+}
+
+function mockFirefoxModule() {
+  FirefoxModule.firefox.addEventListener = jest.fn();
+  FirefoxModule.firefox.send = jest.fn();
+}
+
+function mockCryptoModule() {
+  jest.spyOn(CryptoModule, 'getCredentials').mockResolvedValue({
+    authPW: 'apw123',
+    unwrapBKey: 'ubk123',
+  });
+
+  jest.spyOn(CryptoModule, 'getCredentialsV2').mockResolvedValue({
+    clientSalt:
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
+    authPW: 'apwV2123',
+    unwrapBKey: 'ubkV2123',
+  });
+}
+
+const mockNavigate = jest.fn();
+function mockReachRouterModule() {
+  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
+}
+
+let mockSignUpWithAuthPW = jest.fn();
+
+// TIP - Occasionally, due to how a module is constructed, jest.spyOn will not work.
+// In this case, use the following pattern. The jest.mock approach generally works,
+// but as you can see, it's quite a bit noisier.
+jest.mock('../../models', () => {
+  return {
+    ...jest.requireActual('../../models'),
+    useAuthClient: jest.fn(),
+  };
+});
+function mockModelsModule() {
+  mockSignUpWithAuthPW.mockResolvedValue({
+    uid: 'uid123',
+    keyFetchToken: 'kft123',
+    sessionToken: 'st123',
+    authAt: Date.now(),
+  });
+
+  let mockAuthClient = new AuthClient('localhost:9000', {
+    keyStretchVersion: 1,
+  });
+  mockAuthClient.accountStatusByEmail = jest
+    .fn()
+    .mockResolvedValue({ exists: true });
+  mockAuthClient.signUpWithAuthPW = mockSignUpWithAuthPW;
+  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+    () => mockAuthClient
+  );
+}
+
+jest.mock('../../components/AppLayout', () => ({
+  __esModule: true,
+  default: ({ children, loading }: any) =>
+    loading ? <div>loading spinner mock</div> : <div>{children}</div>,
+}));
+
+// TIP - Finally, we should create a helper function, so the defacto
+// mock behaviors can be easily applied. Once applied, they can
+// always be overridden as needed.
+function applyMocks() {
+  // TIP - Important! Clear previous mock states
+  jest.resetAllMocks();
+  jest.restoreAllMocks();
+
+  // Run default mocks
+  mockIntegration();
+  mockServiceName();
+  mockSignupModule();
+  mockModelsModule();
+  mockUseValidateModule();
+  mockFirefoxModule();
+  mockCryptoModule();
+  mockReachRouterModule();
+}
+
+// TIP - Since render looks more or less the same each time, we can tease this out
+// as a helper function.
+async function render(text?: string) {
+  // Even though we aren't testing presentation, there still might be presentation
+  // state/context driven by react or l10n that's required. Therefore we will invoke the
+  // container component as follows.
+  renderWithLocalizationProvider(
+    <LocationProvider>
+      <SignupContainer
+        {...{
+          integration,
+          serviceName,
+        }}
+        useFxAStatusResult={{
+          offeredSyncEngines: [],
+          offeredSyncEngineConfigs: [],
+          selectedEnginesForGlean: {},
+          declinedSyncEngines: [],
+          supportsKeysOptionalLogin: false,
+          supportsCanLinkAccountUid: false,
+        }}
+        flowQueryParams={{ flowId: MOCK_FLOW_ID }}
+      />
+    </LocationProvider>
+  );
+
+  // TIP - Wait for the expected mocked test to show up.
+  await screen.findByText(text || 'signup mock');
+
+  // TIP/HACK -To work around the fact that the container uses, requestAnimationFrame...
+  // Turns out that can create some pretty erratic test behavior...
+  await new Promise((r) => setTimeout(r, 100));
+}
+
+// TIP - It's easier to target test suites that don't have spaces in their names.
+describe('sign-up-container', () => {
+  // TIP - Always run applyMocks, this will fire before every test.
+  beforeEach(() => {
+    applyMocks();
+  });
+
+  // TIP - Using nested describe is often helpful. It makes the test easier to
+  // read and creates a natural partitioning of testing cases that are typically
+  // more understandable than a bunch of individual tests. They are also
+  // easier to focus and skip.
+  describe('default-state', () => {
+    it('renders', async () => {
+      await render();
+      expect(screen.queryByText('loading spinner mock')).toBeNull();
+      expect(SignupModule.Signup).toHaveBeenCalled();
+    });
+  });
+
+  describe('error-states', () => {
+    it('handles invalid email', async () => {
+      // In this case want to mimic a bad email value
+      jest
+        .spyOn(UseValidateModule, 'useValidatedQueryParams')
+        .mockImplementation((_params) => {
+          return {
+            queryParamModel: {
+              email: 'invalid',
+            } as unknown as ModelDataProvider,
+            validationError: {
+              property: 'email',
+            },
+          };
+        });
+      await render('loading spinner mock');
+
+      // TODO: Determine if email is valid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
+      expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
+
+    it('handles empty email', async () => {
+      // In this case want to mimic a bad email value
+      jest
+        .spyOn(UseValidateModule, 'useValidatedQueryParams')
+        .mockImplementation((_params) => {
+          return {
+            queryParamModel: {
+              email: '',
+            } as unknown as ModelDataProvider,
+            validationError: {
+              property: 'email',
+            },
+          };
+        });
+      await render('loading spinner mock');
+
+      // TODO: Show that email is invalid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
+      expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
+  });
+
+  describe('begin-sign-up-handler', () => {
+    beforeEach(() => {
+      serviceName = MozServices.FirefoxSync;
+      integration.getService = () => 'sync';
+      integration.type = IntegrationType.SyncDesktopV3;
+    });
+
+    it('runs handler and invokes signUpWithAuthPW directly', async () => {
+      await render();
+      expect(currentSignupProps).toBeDefined();
+      const handlerResult = await currentSignupProps?.beginSignupHandler(
+        'foo@mozilla.com',
+        'test123'
+      );
+
+      expect(mockSignUpWithAuthPW).toHaveBeenCalledWith(
+        'foo@mozilla.com',
+        'apw123',
+        {},
+        {
+          verificationMethod: 'email-otp',
+          keys: true,
+          service: 'sync',
+          metricsContext: {
+            flowId: MOCK_FLOW_ID,
+          },
+        }
+      );
+      expect(handlerResult?.data?.unwrapBKey).toBeDefined();
+      expect(handlerResult?.data?.signUp?.uid).toEqual('uid123');
+      expect(handlerResult?.data?.signUp?.keyFetchToken).toEqual('kft123');
+      expect(handlerResult?.data?.signUp?.sessionToken).toEqual('st123');
+    });
+
+    it('handles error fetching credentials', async () => {
+      jest
+        .spyOn(CryptoModule, 'getCredentials')
+        .mockImplementation(async () => {
+          throw new Error('BOOM');
+        });
+
+      await render();
+      const result = await currentSignupProps?.beginSignupHandler(
+        'foo@mozilla.com',
+        'test123'
+      );
+
+      expect(result?.data).toBeUndefined();
+      expect(result?.error?.message).toEqual(
+        AuthUiErrors.UNEXPECTED_ERROR.message
+      );
+    });
+
+    it('handles auth-client error on signUpWithAuthPW', async () => {
+      const authError: AuthServerError = Object.assign(
+        new Error(AuthUiErrors.ACCOUNT_ALREADY_EXISTS.message),
+        {
+          errno: AuthUiErrors.ACCOUNT_ALREADY_EXISTS.errno,
+          code: 400,
+        }
+      );
+      mockSignUpWithAuthPW.mockRejectedValue(authError);
+
+      await render();
+      await waitFor(async () => {
+        const result = await currentSignupProps?.beginSignupHandler(
+          'foo@mozilla.com',
+          'test123'
+        );
+
+        expect(result?.data).toBeUndefined();
+        expect(result?.error?.errno).toEqual(
+          AuthUiErrors.ACCOUNT_ALREADY_EXISTS.errno
+        );
+      });
+    });
+
+    it('handles unexpected error on signUpWithAuthPW', async () => {
+      mockSignUpWithAuthPW.mockRejectedValue(new Error('Network error'));
+
+      await render();
+      await waitFor(async () => {
+        const result = await currentSignupProps?.beginSignupHandler(
+          'foo@mozilla.com',
+          'test123'
+        );
+
+        expect(result?.data).toBeUndefined();
+        expect(result?.error?.message).toEqual(
+          AuthUiErrors.UNEXPECTED_ERROR.message
+        );
+      });
+    });
+  });
+});

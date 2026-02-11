@@ -1,0 +1,705 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { RouteComponentProps, Router, useLocation } from '@reach/router';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  useLayoutEffect,
+  useMemo,
+  startTransition,
+} from 'react';
+
+import { QueryParams } from '../..';
+import { storeAccountData } from '../../lib/storage-utils';
+import { currentAccount, getAccountByUid } from '../../lib/cache';
+import { firefox } from '../../lib/channels/firefox';
+import * as MetricsFlow from '../../lib/metrics-flow';
+import GleanMetrics from '../../lib/glean';
+import * as Metrics from '../../lib/metrics';
+import { MozServices } from '../../lib/types';
+
+import {
+  Integration,
+  isOAuthIntegration,
+  useConfig,
+  useInitialMetricsQueryState,
+  useIntegration,
+  useLocalSignedInQueryState,
+  useSession,
+  isProbablyFirefox,
+} from '../../models';
+import {
+  initializeSettingsContext,
+  SettingsContext,
+} from '../../models/contexts/SettingsContext';
+
+import sentryMetrics from 'fxa-shared/sentry/browser';
+import { maybeRecordWebAuthnCapabilities } from '../../lib/webauthnCapabilitiesProbe';
+
+// Components
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { ScrollToTop } from '../Settings/ScrollToTop';
+import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
+import useFxAStatus from '../../lib/hooks/useFxAStatus';
+import AppLayout from '../AppLayout';
+import { hardNavigate } from 'fxa-react/lib/utils';
+
+// Pages
+const IndexContainer = lazy(() => import('../../pages/Index/container'));
+const Clear = lazy(() => import('../../pages/Clear'));
+
+const InlineTotpSetupContainer = lazy(
+  () => import('../../pages/InlineTotpSetup/container')
+);
+const InlineRecoverySetupContainer = lazy(
+  () => import('../../pages/InlineRecoverySetupFlow/container')
+);
+
+const Legal = lazy(() => import('../../pages/Legal'));
+const LegalPrivacy = lazy(() => import('../../pages/Legal/Privacy'));
+const LegalTerms = lazy(() => import('../../pages/Legal/Terms'));
+const ThirdPartyAuthCallback = lazy(
+  () => import('../../pages/PostVerify/ThirdPartyAuthCallback')
+);
+const ResetPasswordContainer = lazy(
+  () => import('../../pages/ResetPassword/ResetPassword/container')
+);
+const ConfirmResetPasswordContainer = lazy(
+  () => import('../../pages/ResetPassword/ConfirmResetPassword/container')
+);
+const CompleteResetPasswordContainer = lazy(
+  () => import('../../pages/ResetPassword/CompleteResetPassword/container')
+);
+const AccountRecoveryConfirmKeyContainer = lazy(
+  () => import('../../pages/ResetPassword/AccountRecoveryConfirmKey/container')
+);
+const ConfirmTotpResetPasswordContainer = lazy(
+  () => import('../../pages/ResetPassword/ConfirmTotpResetPassword/container')
+);
+const ConfirmBackupCodeResetPasswordContainer = lazy(
+  () =>
+    import('../../pages/ResetPassword/ConfirmBackupCodeResetPassword/container')
+);
+const ResetPasswordConfirmedContainer = lazy(
+  () => import('../../pages/ResetPassword/ResetPasswordConfirmed/container')
+);
+const ResetPasswordWithRecoveryKeyVerifiedContainer = lazy(
+  () =>
+    import(
+      '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified/container'
+    )
+);
+const CompleteSigninContainer = lazy(
+  () => import('../../pages/Signin/CompleteSignin/container')
+);
+const SigninContainer = lazy(() => import('../../pages/Signin/container'));
+const ReportSigninContainer = lazy(
+  () => import('../../pages/Signin/ReportSignin/container')
+);
+const SigninBounced = lazy(() => import('../../pages/Signin/SigninBounced'));
+const SigninConfirmed = lazy(
+  () => import('../../pages/Signin/SigninConfirmed')
+);
+const SigninRecoveryCodeContainer = lazy(
+  () => import('../../pages/Signin/SigninRecoveryCode/container')
+);
+const SigninReported = lazy(() => import('../../pages/Signin/SigninReported'));
+const SigninTokenCodeContainer = lazy(
+  () => import('../../pages/Signin/SigninTokenCode/container')
+);
+const SigninTotpCodeContainer = lazy(
+  () => import('../../pages/Signin/SigninTotpCode/container')
+);
+const SigninPushCodeContainer = lazy(
+  () => import('../../pages/Signin/SigninPushCode/container')
+);
+const SigninPushCodeConfirmContainer = lazy(
+  () => import('../../pages/Signin/SigninPushCodeConfirm/container')
+);
+const SigninUnblockContainer = lazy(
+  () => import('../../pages/Signin/SigninUnblock/container')
+);
+const ConfirmSignupCodeContainer = lazy(
+  () => import('../../pages/Signup/ConfirmSignupCode/container')
+);
+const SignupContainer = lazy(() => import('../../pages/Signup/container'));
+const PrimaryEmailVerified = lazy(
+  () => import('../../pages/Signup/PrimaryEmailVerified')
+);
+const SignupConfirmed = lazy(
+  () => import('../../pages/Signup/SignupConfirmed')
+);
+const WebChannelExample = lazy(() => import('../../pages/WebChannelExample'));
+const SignoutSync = lazy(() => import('../Settings/SignoutSync'));
+const InlineRecoveryKeySetupContainer = lazy(
+  () => import('../../pages/InlineRecoveryKeySetup/container')
+);
+const SetPasswordContainer = lazy(
+  () => import('../../pages/PostVerify/SetPassword/container')
+);
+const SigninRecoveryChoiceContainer = lazy(
+  () => import('../../pages/Signin/SigninRecoveryChoice/container')
+);
+const SigninRecoveryPhoneContainer = lazy(
+  () => import('../../pages/Signin/SigninRecoveryPhone/container')
+);
+
+const AuthorizationContainer = lazy(
+  () => import('../../pages/Authorization/container')
+);
+const CookiesDisabled = lazy(() => import('../../pages/CookiesDisabled'));
+const OAuthDataError = lazy(() => import('../OAuthDataError'));
+const ResetPasswordRecoveryChoiceContainer = lazy(
+  () =>
+    import('../../pages/ResetPassword/ResetPasswordRecoveryChoice/container')
+);
+const ResetPasswordRecoveryPhoneContainer = lazy(
+  () => import('../../pages/ResetPassword/ResetPasswordRecoveryPhone/container')
+);
+
+const Settings = lazy(() => import('../Settings'));
+
+export const App = ({
+  flowQueryParams,
+}: { flowQueryParams: QueryParams } & RouteComponentProps) => {
+  const { data: isSignedInData } = useLocalSignedInQueryState();
+
+  // Configure Sentry before any other hooks that might throw.
+  // If no user is signed in:
+  // - we can't send any identifying metrics to sentry
+  // - we can't determine whether or not they have opted out
+  if (isSignedInData === undefined || isSignedInData.isSignedIn === false) {
+    sentryMetrics.enable();
+  }
+
+  const config = useConfig();
+  const session = useSession();
+  const integration = useIntegration();
+
+  // GQL call for minimal metrics data
+  const { loading: metricsLoading, data } = useInitialMetricsQueryState() ?? {};
+
+  // Determine if user is actually signed in
+  const [isSignedIn, setIsSignedIn] = useState<boolean | undefined>(undefined);
+
+  // Track current page's split layout state to prevent visual flashing during navigation.
+  // This state is updated by AppLayout and read by the Suspense fallback to preserve
+  // the origin page's layout until the destination page loads.
+  const [currentSplitLayout, setCurrentSplitLayout] = useState<boolean>(false);
+
+  useEffect(() => {
+    const initializeSession = async () => {
+      if (!integration) {
+        return;
+      }
+
+      // If the local apollo cache says we are signed in, then we can skip the rest.
+      if (isSignedInData?.isSignedIn === true) {
+        startTransition(() => {
+          setIsSignedIn(true);
+        });
+        return;
+      }
+
+      // if there is already a valid current account, use it
+      const localUser = currentAccount();
+      if (
+        localUser?.sessionToken &&
+        (await session.isValid(localUser.sessionToken))
+      ) {
+        startTransition(() => {
+          setIsSignedIn(true);
+        });
+        return;
+      }
+
+      let isValidSession = false;
+
+      // Request and update account data/state to match the browser state.
+      // If there is a user actively signed into the browser,
+      // we should try to use that user's account when possible.
+      let userFromBrowser;
+      if (isProbablyFirefox()) {
+        userFromBrowser = await firefox.requestSignedInUser(
+          integration.data.context || '',
+          // TODO with React pairing flow, update this if pairing flow
+          false,
+          integration.data.service || ''
+        );
+      }
+
+      if (userFromBrowser?.sessionToken) {
+        // If the session is valid, try to set it as the current account
+        isValidSession = await session.isValid(userFromBrowser.sessionToken);
+        if (isValidSession) {
+          const cachedUser = getAccountByUid(userFromBrowser.uid);
+          storeAccountData(
+            cachedUser
+              ? {
+                  ...cachedUser,
+                  // Make sure we are apply the session token we validated
+                  sessionToken: userFromBrowser.sessionToken,
+                }
+              : userFromBrowser
+          );
+        }
+      }
+
+      startTransition(() => {
+        setIsSignedIn(isValidSession);
+      });
+    };
+    initializeSession();
+  }, [integration, isSignedInData?.isSignedIn, session]);
+
+  const metricsEnabled = useMemo(() => {
+    if (metricsLoading || !integration || isSignedIn === undefined) {
+      return;
+    }
+
+    return data?.account?.metricsEnabled || !isSignedIn;
+  }, [metricsLoading, integration, isSignedIn, data?.account?.metricsEnabled]);
+
+  const metricsFlow = useMemo(
+    () => MetricsFlow.init(flowQueryParams),
+    [flowQueryParams]
+  );
+
+  const updatedFlowQueryParams = useMemo(
+    () => ({ ...flowQueryParams, ...metricsFlow }),
+    [flowQueryParams, metricsFlow]
+  );
+
+  // Initialize Glean metrics as early as possible,
+  // before the browser paints and before child components run their effects.
+  // useLayoutEffect ensures this happens immediately after DOM mutations,
+  // but before the screen is painted or child useEffect hooks are called.
+  useLayoutEffect(() => {
+    if (!metricsEnabled || !integration || GleanMetrics.getEnabled()) {
+      return;
+    }
+
+    GleanMetrics.initialize(
+      {
+        ...config.glean,
+        enabled: metricsEnabled,
+        appDisplayVersion: config.version,
+        appChannel: config.glean.appChannel,
+      },
+      {
+        metricsFlow,
+        userAgent: navigator.userAgent,
+        integration,
+      }
+    );
+  }, [metricsEnabled, integration, config.glean, config.version, metricsFlow]);
+
+  useEffect(() => {
+    if (!metricsEnabled) {
+      return;
+    }
+    Metrics.init(metricsEnabled, updatedFlowQueryParams);
+    if (data?.account?.metricsEnabled) {
+      Metrics.initUserPreferences({
+        recoveryKey: data.account.recoveryKey.exists,
+        hasSecondaryVerifiedEmail:
+          data.account.emails.length > 1 && data.account.emails[1].verified,
+        totpActive: data.account.totp.exists && data.account.totp.verified,
+      });
+    }
+  }, [
+    config,
+    data,
+    data?.account?.metricsEnabled,
+    data?.account?.emails,
+    data?.account?.totp,
+    data?.account?.recoveryKey,
+    isSignedIn,
+    metricsFlow,
+    metricsLoading,
+    metricsEnabled,
+    updatedFlowQueryParams,
+  ]);
+
+  useEffect(() => {
+    if (metricsEnabled || isSignedIn === false) {
+      sentryMetrics.enable();
+      maybeRecordWebAuthnCapabilities();
+    } else {
+      sentryMetrics.disable();
+    }
+  }, [
+    data?.account?.metricsEnabled,
+    config.sentry,
+    config.version,
+    metricsLoading,
+    isSignedIn,
+    metricsEnabled,
+  ]);
+
+  // Wait until app initialization is complete
+  if (
+    metricsLoading ||
+    !integration ||
+    isSignedIn === undefined ||
+    metricsEnabled === undefined
+  ) {
+    return window.location.pathname?.includes('/settings') ? (
+      <LoadingSpinner fullScreen />
+    ) : (
+      <AppLayout cmsInfo={integration?.getCmsInfo()} loading />
+    );
+  }
+
+  const cmsInfo = integration.getCmsInfo();
+
+  return (
+    <Suspense
+      fallback={
+        <AppLayout cmsInfo={cmsInfo} loading splitLayout={currentSplitLayout} />
+      }
+    >
+      <Router basepath="/">
+        <AuthAndAccountSetupRoutes
+          {...{
+            isSignedIn,
+            integration,
+            flowQueryParams: updatedFlowQueryParams,
+            setCurrentSplitLayout,
+          }}
+          path="/*"
+        />
+        <SettingsRoutes
+          {...{ isSignedIn, integration, setCurrentSplitLayout }}
+          path="/settings/*"
+        />
+      </Router>
+    </Suspense>
+  );
+};
+
+const SettingsRoutes = ({
+  isSignedIn,
+  integration,
+  setCurrentSplitLayout,
+}: {
+  isSignedIn: boolean;
+  integration: Integration;
+  setCurrentSplitLayout: (value: boolean) => void;
+} & RouteComponentProps) => {
+  const location = useLocation();
+  const isSync = integration != null ? integration.isSync() : false;
+
+  // If the user is not signed in, they cannot access settings! Direct them accordingly
+  // Deferring navigation to an effect prevents React from detecting a navigation
+  // during render, which can trigger "A component suspended while responding to
+  // synchronous input" and cause the UI to be replaced by a fallback. Running
+  // hardNavigate here ensures the update occurs after render.
+
+  useEffect(() => {
+    if (!isSignedIn && !isSync) {
+      // For regular RP / web logins, maybe the session token expired.
+      // In this case we just send them to the root.
+      const params = new URLSearchParams(location.search);
+      params.set('redirect_to', location.pathname);
+      hardNavigate(`/?${params.toString()}`);
+    }
+  }, [isSignedIn, isSync, location.pathname, location.search]);
+
+  if (!isSignedIn) {
+    if (isSync) {
+      // For sync this means we somehow dropped the sign out message, which is
+      // a known issue in android. In this case, our best option is to ask the
+      // user to manually signout from sync.
+      return <SignoutSync />;
+    }
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+  }
+
+  const settingsContext = initializeSettingsContext();
+  return (
+    <SettingsContext.Provider value={settingsContext}>
+      <ScrollToTop default>
+        <Settings
+          path="/settings/*"
+          {...{ integration, setCurrentSplitLayout }}
+        />
+      </ScrollToTop>
+    </SettingsContext.Provider>
+  );
+};
+
+const AuthAndAccountSetupRoutes = ({
+  isSignedIn,
+  integration,
+  flowQueryParams,
+  setCurrentSplitLayout,
+}: {
+  isSignedIn: boolean;
+  integration: Integration;
+  flowQueryParams: QueryParams;
+  setCurrentSplitLayout: (value: boolean) => void;
+} & RouteComponentProps) => {
+  const localAccount = currentAccount();
+  // TODO: MozServices / string discrepancy, FXA-6802
+  let serviceName: MozServices;
+  const location = useLocation();
+  const { enabled: gleanEnabled } = GleanMetrics.useGlean();
+
+  useEffect(() => {
+    gleanEnabled && GleanMetrics.pageLoad(location.pathname);
+  }, [location.pathname, gleanEnabled]);
+
+  const useFxAStatusResult = useFxAStatus(integration);
+  try {
+    // Handle getServiceName() errors that occur when OAuth scope validation fails.
+    // This can happen when scopes are missing, invalid, or filtered out during
+    // trusted/untrusted client validation. For OAuth integrations, show a user-friendly
+    // error page instead of letting it bubble up to the general error boundary.
+    serviceName = integration.getServiceName() as MozServices;
+  } catch (err: any) {
+    if (isOAuthIntegration(integration)) {
+      return (
+        <Suspense fallback={<AppLayout loading />}>
+          <OAuthDataError error={err} />
+        </Suspense>
+      );
+    }
+    throw err;
+  }
+
+  return (
+    <Router>
+      {/* Index */}
+      <IndexContainer
+        path="/"
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
+      />
+      <IndexContainer
+        path="/oauth"
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
+      />
+
+      {/* Legal */}
+      <Legal path="/legal/*" />
+      <LegalPrivacy path="/:locale/legal/privacy/*" />
+      <LegalTerms path="/:locale/legal/terms/*" />
+      <LegalPrivacy path="/legal/privacy/*" />
+      <LegalTerms path="/legal/terms/*" />
+
+      {/* Other */}
+      <Clear path="/clear/*" />
+      <WebChannelExample path="/web_channel_example/*" />
+      <CookiesDisabled path="cookies_disabled" />
+
+      {/* Post verify */}
+      <ThirdPartyAuthCallback
+        path="/post_verify/third_party_auth/callback/*"
+        {...{ flowQueryParams, integration }}
+      />
+      <SetPasswordContainer
+        path="/post_verify/third_party_auth/set_password/*"
+        {...{ flowQueryParams, integration, useFxAStatusResult }}
+      />
+
+      {/* Reset password */}
+      <ResetPasswordContainer
+        path="/reset_password/*"
+        {...{ flowQueryParams, serviceName }}
+      />
+      <ConfirmResetPasswordContainer path="/confirm_reset_password/*" />
+      <ResetPasswordRecoveryChoiceContainer path="/reset_password_totp_recovery_choice/*" />
+      <ResetPasswordRecoveryPhoneContainer
+        path="/reset_password_recovery_phone/*"
+        {...{ integration }}
+      />
+      <ConfirmTotpResetPasswordContainer path="/confirm_totp_reset_password/*" />
+      <ConfirmBackupCodeResetPasswordContainer path="/confirm_backup_code_reset_password/*" />
+      <CompleteResetPasswordContainer
+        path="/complete_reset_password/*"
+        {...{ integration }}
+      />
+      <CompleteResetPasswordContainer
+        path="/account_recovery_reset_password/*"
+        {...{ integration }}
+      />
+      <AccountRecoveryConfirmKeyContainer
+        path="/account_recovery_confirm_key/*"
+        {...{
+          serviceName,
+        }}
+      />
+      <ResetPasswordWithRecoveryKeyVerifiedContainer
+        path="/reset_password_with_recovery_key_verified/*"
+        {...{ integration }}
+      />
+      <ResetPasswordConfirmedContainer
+        path="/reset_password_verified/*"
+        {...{ integration, serviceName }}
+      />
+
+      {/* Signin */}
+      <AuthorizationContainer path="/authorization/*" {...{ integration }} />
+      <ReportSigninContainer path="/report_signin/*" />
+      <SigninContainer
+        path="/oauth/force_auth/*"
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
+      />
+      <SigninContainer
+        path="/force_auth/*"
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
+      />
+      <SigninContainer
+        path="/oauth/signin/*"
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
+      />
+      <SigninContainer
+        path="/signin/*"
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
+      />
+      <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
+      <CompleteSigninContainer path="/complete_signin/*" />
+      <SigninConfirmed
+        path="/signin_confirmed/*"
+        {...{ isSignedIn, serviceName, integration }}
+      />
+      <SigninRecoveryChoiceContainer
+        path="/signin_recovery_choice/*"
+        {...{ integration }}
+      />
+      <SigninRecoveryPhoneContainer
+        path="/signin_recovery_phone/*"
+        {...{ integration }}
+      />
+      <SigninRecoveryCodeContainer
+        path="/signin_recovery_code/*"
+        {...{ integration }}
+      />
+      <SigninReported path="/signin_reported/*" />
+      <SigninTokenCodeContainer
+        path="/signin_token_code/*"
+        {...{ integration, setCurrentSplitLayout }}
+      />
+      <SigninTotpCodeContainer
+        path="/signin_totp_code/*"
+        {...{ integration, serviceName, setCurrentSplitLayout }}
+      />
+      <SigninPushCodeContainer
+        path="/signin_push_code/*"
+        {...{ integration, serviceName }}
+      />
+      <SigninPushCodeConfirmContainer
+        path="/signin_push_code_confirm/*"
+        {...{ integration, serviceName }}
+      />
+      <SigninConfirmed
+        path="/signin_verified/*"
+        {...{ isSignedIn, serviceName, integration }}
+      />
+      <SigninUnblockContainer
+        path="/signin_unblock/*"
+        {...{ integration, flowQueryParams, setCurrentSplitLayout }}
+      />
+      <InlineRecoveryKeySetupContainer
+        path="/inline_recovery_key_setup/*"
+        cmsInfo={integration.getCmsInfo()}
+      />
+
+      {/* Signup */}
+      <ConfirmSignupCodeContainer
+        path="/confirm_signup_code/*"
+        {...{ integration, flowQueryParams, setCurrentSplitLayout }}
+      />
+      <SignupContainer
+        path="/oauth/signup/*"
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
+      />
+      <PrimaryEmailVerified
+        path="/primary_email_verified/*"
+        {...{ isSignedIn, serviceName, integration }}
+      />
+      <SignupContainer
+        path="/signup/*"
+        {...{
+          integration,
+          flowQueryParams,
+          useFxAStatusResult,
+          setCurrentSplitLayout,
+        }}
+      />
+      <SignupConfirmed
+        path="/signup_confirmed/*"
+        {...{ isSignedIn, serviceName }}
+      />
+      <SignupConfirmedSync
+        path="/signup_confirmed_sync/*"
+        offeredSyncEngines={useFxAStatusResult.offeredSyncEngines}
+        {...{ integration, setCurrentSplitLayout }}
+      />
+      <SignupConfirmed
+        path="/signup_verified/*"
+        {...{ isSignedIn, serviceName }}
+      />
+
+      <InlineTotpSetupContainer
+        path="/inline_totp_setup/*"
+        integration={integration}
+        {...{ isSignedIn, serviceName, flowQueryParams }}
+      />
+
+      <InlineRecoverySetupContainer
+        path="/inline_recovery_setup/*"
+        integration={integration}
+        {...{ isSignedIn, serviceName }}
+      />
+    </Router>
+  );
+};
+
+export default App;

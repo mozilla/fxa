@@ -1,0 +1,7 @@
+storybook-static
+.storybook/*.js
+config/
+public/
+scripts/
+*.config.js
+Gruntfile.js

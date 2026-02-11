@@ -1,0 +1,30 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fxa-admin-panel
+  description: Admin Panel front-end for Mozilla Accounts
+  tags:
+    - typescript
+    - node
+    - react
+    - cra
+  annotations:
+    sentry.io/project-slug: mozilla/fxa-admin-panel
+    circleci.com/project-slug: github/mozilla/fxa
+  links:
+    - url: https://fxa-admin-panel.prod.mozaws.net/
+      title: Production Admin Dashboard for Mozilla Accounts
+      icon: dashboard
+      type: admin-dashboard
+    - url: https://fxa-admin-panel.stage.mozaws.net/
+      title: Stage Admin Dashboard for Mozilla Accounts
+      icon: dashboard
+      type: admin-dashboard
+spec:
+  type: website
+  lifecycle: production
+  owner: fxa-devs
+  system: mozilla-accounts
+  dependsOn:
+    - component:fxa-admin-server

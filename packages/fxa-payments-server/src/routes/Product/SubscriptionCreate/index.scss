@@ -1,0 +1,61 @@
+@import '../../../../../fxa-content-server/app/styles/variables';
+@import '../../../../../fxa-content-server/app/styles/breakpoints';
+@import '../../../styles/variables';
+
+.subscription-title + .product-payment {
+  @include min-width('tablet') {
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgb(158, 158, 158),
+      2px 2px 2px -2px rgb(158, 158, 158);
+    grid-row: 2/3;
+  }
+}
+
+.product-payment {
+  background: $color-white;
+  color: rgba(12, 12, 13, 0.8);
+  margin-bottom: 24px;
+  min-height: 100%;
+  padding: 16px 16px 60px;
+  box-shadow: 0 -1px #fff,0 1px #fff,-2px 2px 2px -2px #9e9e9e,2px 2px 2px -2px #9e9e9e;
+
+  @include min-width('tablet'){
+    margin: 0 0 32px;
+    min-height: auto;
+  }
+
+  @include min-width('desktop') {
+    padding: 16px 48px 48px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: initial;
+    margin-top: 20px;
+    padding-bottom: 32px;
+    text-align: center;
+
+    @include min-width('desktop') {
+      margin-top: 32px;
+    }
+
+    p {
+      color: #6d6d6e;
+    }
+  }
+
+  .pay-with-heading {
+    &:before,
+    &:after {
+      content: '';
+      border-top: 1px solid #e0e0e6;
+    }
+
+    @include max-width('tablet') {
+      margin-top: 16px;
+    }
+  }
+}

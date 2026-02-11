@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "subscriptionEndingReminder-subject",
+    "message": "Your <%- productName %> subscription will expire soon"
+  }
+}

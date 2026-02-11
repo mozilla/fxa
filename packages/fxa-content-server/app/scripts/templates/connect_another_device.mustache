@@ -1,0 +1,81 @@
+<div class="card">
+  {{#isFirefoxDesktop}}
+    <h1 class="text-base text-grey-400" id="fxa-connect-another-device-header">{{#t}}Connect another device{{/t}}</h1>
+  {{/isFirefoxDesktop}}
+  {{#showSuccessMessage}}
+    {{#isSignedIn}}
+      {{^isFirefoxDesktop}}
+        <h2 id="fxa-connected-heading" class="card-header mb-8 before:content-circle-check"><span class="align-top ps-3">{{#t}}You’re signed into Firefox{{/t}}</span></h2>
+      {{/isFirefoxDesktop}}
+    {{/isSignedIn}}
+    {{^isSignedIn}}
+      {{#isSignUp}}
+        <div class="success visible" id="success-not-authenticated">{{#t}}Email confirmed{{/t}}</div>
+      {{/isSignUp}}
+      {{#isSignIn}}
+        <div class="success visible" id="success-not-authenticated">{{#t}}Sign-in confirmed{{/t}}</div>
+      {{/isSignIn}}
+    {{/isSignedIn}}
+  {{/showSuccessMessage}}
+  <section>
+    <div class="bg-image-triple-device-hearts" role="img" aria-label="{{#t}}Devices with hearts on their screens{{/t}}"></div>
+    {{#showSuccessMessage}}
+      {{#isSignedIn}}
+        {{#isFirefoxDesktop}}
+          <h2 id="fxa-connected-heading" class="card-header before:content-circle-check"><span class="align-top ps-3">{{#t}}You’re signed in to Firefox{{/t}}</span></h2>
+        {{/isFirefoxDesktop}}
+      {{/isSignedIn}}
+    {{/showSuccessMessage}}
+
+    {{#canSignIn}}
+      <p class="mb-5">
+        {{#t}}Sign in to this Firefox to complete set-up{{/t}}
+      </p>
+
+      <form novalidate>
+        <div class="flex">
+          <a data-flow-event="link.signin" id="signin" class="cta-primary cta-xl" href="{{{ escapedSignInUrl }}}">{{#t}}Sign in{{/t}}</a>
+        </div>
+      </form>
+    {{/canSignIn}}
+    {{^canSignIn}}
+      {{#isFirefoxAndroid}}
+        <!-- User verified in Fx for Android - they are using an old Fennec
+        or are already signed in. Ignore old browsers, assume already signed in.
+        Encourage installation on another device. -->
+        <p id="connect-other-firefox-from-android">
+          {{#isSignIn}}
+            {{#t}}Still adding devices?{{/t}}
+          {{/isSignIn}}
+          {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
+        </p>
+      {{/isFirefoxAndroid}}
+      {{#isFirefoxDesktop}}
+        <p id="install-mobile-firefox-desktop">
+          {{#isSignedIn}}
+            <div id="pair-value-prop" class="mb-5">
+              <p class="text-base">{{#t}}Want to get your tabs, bookmarks, and passwords on another device?{{/t}}</p>
+            </div>
+            <div class="flex">
+              <a id="sync-firefox-devices" href="{{{pairingUrl}}}" class="cta-primary cta-xl" data-flow-event="link.pair" role="button">{{#t}}Connect another device{{/t}}</a>
+            </div>
+            <div class="mt-5 text-center">
+              <a id="cad-not-now" class="link-blue" href="/settings">{{#t}}Manage your account{{/t}}</a>
+            </div>
+          {{/isSignedIn}}
+        </p>
+      {{/isFirefoxDesktop}}
+
+      {{#isMobile}}
+        {{{ unsupportedPairHtml }}}
+      {{/isMobile}}
+
+      {{^isFirefoxDesktop}}
+        <div class="marketing-area"></div>
+      {{/isFirefoxDesktop}}
+
+    {{/canSignIn}}
+    <aside class="child-view"></aside>
+  </section>
+
+</div>

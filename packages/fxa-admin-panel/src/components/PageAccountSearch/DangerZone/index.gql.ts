@@ -1,0 +1,41 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { gql } from '@apollo/client';
+
+export const UNVERIFY_EMAIL = gql`
+  mutation unverify($email: String!) {
+    unverifyEmail(email: $email)
+  }
+`;
+
+export const DISABLE_ACCOUNT = gql`
+  mutation disableAccount($uid: String!) {
+    disableAccount(uid: $uid)
+  }
+`;
+
+export const ENABLE_ACCOUNT = gql`
+  mutation enableAccount($uid: String!) {
+    enableAccount(uid: $uid)
+  }
+`;
+
+export const REMOVE_2FA = gql`
+  mutation remove2FA($uid: String!) {
+    remove2FA(uid: $uid)
+  }
+`;
+
+export const UNSUBSCRIBE_FROM_MAILING_LISTS = gql`
+  mutation unsubscribeFromMailingLists($uid: String!) {
+    unsubscribeFromMailingLists(uid: $uid)
+  }
+`;
+
+export const DELETE_RECOVERY_PHONE = gql`
+  mutation deleteRecoveryPhone($uid: String!) {
+    deleteRecoveryPhone(uid: $uid)
+  }
+`;

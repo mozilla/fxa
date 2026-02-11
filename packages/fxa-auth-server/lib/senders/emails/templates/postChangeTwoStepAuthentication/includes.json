@@ -1,0 +1,14 @@
+{
+  "subject": {
+    "id": "postChangeTwoStepAuthentication-subject",
+    "message": "Two-step authentication updated"
+  },
+  "preview": {
+    "id": "postChangeTwoStepAuthentication-preview",
+    "message": "Your account is protected"
+  },
+  "action": {
+    "id": "postChangeTwoStepAuthentication-action",
+    "message": "Manage account"
+  }
+}

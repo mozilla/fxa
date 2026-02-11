@@ -1,0 +1,25 @@
+{
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ],
+  "ignorePatterns": [
+    "build",
+    "storybook-static"
+  ],
+  "rules": {
+    "jest/no-jest-import": "off",
+    "jest/valid-describe": "off",
+    "testing-library/no-wait-for-multiple-assertions": "off",
+    "testing-library/no-render-in-setup": "off",
+    "testing-library/prefer-find-by": "off",
+    "testing-library/no-wait-for-side-effects": "off",
+    "testing-library/prefer-presence-queries": "off",
+    "testing-library/no-node-access": "off",
+    "testing-library/render-result-naming-convention": "off",
+    "testing-library/prefer-screen-queries": "off",
+    "testing-library/no-unnecessary-act": "off",
+    "testing-library/no-container": "off"
+  },
+  "root": true
+}

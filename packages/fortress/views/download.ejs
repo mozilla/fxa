@@ -1,0 +1,21 @@
+<%- include('header'); -%>
+
+<h1><%= data.global.title %>
+  <span class="highlight"><%= data.products[index].title %></span>
+</h1>
+<h2><%= data.global.congrats %></h2>
+<div class="cards">
+  <div class="card download">
+    <h3>Download <%= data.products[index].title %></h3>
+    <a href="/" class="button">Download</a>
+    <% if (data.products[index].upgradeTo) { %>
+      <% var i = data.products[index].upgradeTo %>
+      <a class="link" href="<%= `${data.global.paymentsUrl}/${data.products[i].productId}` %>">
+        Upgrade to
+        <span class="highlight"><%= data.products[i].title %></span>
+      </a>
+    <% } %>
+  </div>
+</div>
+
+<%- include('footer'); -%>

@@ -1,0 +1,15 @@
+{
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ],
+  "ignorePatterns": [
+    "build",
+    "storybook-static"
+  ],
+  "rules": {
+    "jest/no-jest-import": "off",
+    "jest/valid-describe": "off"
+  },
+  "root": true
+}

@@ -1,0 +1,11 @@
+{{#showAccountSuggestion}}
+  <div class="info" id="suggest-account">
+    <p class="info-text">
+      {{#unsafeTranslate}}Why do I need to create this account? <a %(escapedSuggestionAttrs)s>Find out here</a>{{/unsafeTranslate}}
+    </p>
+    <button type="button" class="dismiss bg-close-black" aria-label="{{#t}}Close{{/t}}">
+    {{! When this component is converted to React, use the shared close.svg
+    from fxa-react for both black and white versions. We currently use a bg-image now. }}
+    </button>
+  </div>
+{{/showAccountSuggestion}}

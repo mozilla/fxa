@@ -1,0 +1,24 @@
+{
+  "extends": ["plugin:fxa/recommended"],
+  "plugins": ["fxa"],
+  "parserOptions": {
+    "ecmaVersion": "2020",
+    "sourceType": "module",
+  },
+  "env": {
+    "mocha": true,
+  },
+  "rules": {
+    "require-atomic-updates": "off",
+    "space-unary-ops": "off",
+    "no-useless-escape": "off",
+  },
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "pm2.config.js",
+    // Weird catch 22 resulted in not being able to lint this...
+    "db/models/auth/security-event.ts",
+  ],
+  "root": true,
+}

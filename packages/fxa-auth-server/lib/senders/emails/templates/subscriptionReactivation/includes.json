@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "subscriptionReactivation-subject",
+    "message": "<%- productName %> subscription reactivated"
+  }
+}

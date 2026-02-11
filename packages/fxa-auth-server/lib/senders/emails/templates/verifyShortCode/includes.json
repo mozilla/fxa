@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "verifyShortCode-subject-4",
+    "message": "Use <%- code %> to confirm your account"
+  },
+  "preview": {
+    "id": "verifyShortCode-preview-2",
+    "message": "This code expires in 5 minutes"
+  }
+}

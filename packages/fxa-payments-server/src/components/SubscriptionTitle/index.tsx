@@ -1,0 +1,51 @@
+import React from 'react';
+import { Localized } from '@fluent/react';
+import checkLogo from './images/check.svg';
+
+export const titles = {
+  create: 'Set up your subscription',
+  success: 'Subscription confirmation',
+  processing: 'Confirming subscription…',
+  error: 'Error confirming subscription…',
+  noplanchange: 'This subscription plan change is not supported',
+  iapsubscribed: 'Already subscribed',
+  iaperrorupgrade: 'We can’t upgrade you quite yet',
+} as const;
+
+export type SubscriptionTitleProps = {
+  screenType: keyof typeof titles;
+  subtitle?: React.ReactElement;
+  className?: string;
+};
+
+export const SubscriptionTitle = ({
+  screenType,
+  subtitle,
+  className = '',
+}: SubscriptionTitleProps) => {
+  const subtitleElement = subtitle || (
+    <div className="green-icon-text mb-4">
+      <img src={checkLogo} alt="" />
+
+      <Localized id="sub-guarantee">
+        <div className="font-semibold text-sm">30-day money-back guarantee</div>
+      </Localized>
+    </div>
+  );
+
+  return (
+    <div
+      className={`subscription-title page-title-container ${className}`}
+      data-testid={`subscription-${screenType}-title`}
+    >
+      <Localized id={`subscription-${screenType}-title`}>
+        <h3 className="page-title">{titles[screenType]}</h3>
+      </Localized>
+
+      {subtitleElement}
+    </div>
+  );
+};
+
+export type SubscriptionTitleType = typeof SubscriptionTitle;
+export default SubscriptionTitle;

@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "verifyAccountChange-subject",
+    "message": "Use <%- code %> to change your account"
+  },
+  "preview": {
+    "id": "verifyAccountChange-preview",
+    "message": "This code expires in <%- expirationTime === 1 ? '1 minute' : expirationTime + ' minutes' %>."
+  }
+}

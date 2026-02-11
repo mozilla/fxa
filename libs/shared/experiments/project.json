@@ -1,0 +1,29 @@
+{
+  "name": "shared-experiments",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/experiments/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/experiments",
+        "main": "libs/shared/experiments/src/index.ts",
+        "tsConfig": "libs/shared/experiments/tsconfig.lib.json",
+        "assets": ["libs/shared/experiments/*.md"],
+        "declaration": true,
+        "generatePackageJson": true
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/experiments/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    }
+  }
+}

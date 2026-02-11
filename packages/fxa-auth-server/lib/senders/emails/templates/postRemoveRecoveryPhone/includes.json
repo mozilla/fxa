@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postRemoveRecoveryPhone-subject",
+    "message": "Recovery phone removed"
+  },
+  "preview": {
+    "id": "postRemoveRecoveryPhone-preview",
+    "message": "Account protected by two-step authentication"
+  }
+}

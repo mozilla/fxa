@@ -1,0 +1,7 @@
+LICENSE
+.*
+*.ico
+*.png
+*.svg
+node_modules/*
+scripts/test-ci.sh

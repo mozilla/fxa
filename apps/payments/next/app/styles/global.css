@@ -1,0 +1,15 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import '../../../../../libs/shared/assets/src/styles/index.css';
+
+body {
+  @apply bg-grey-10 leading-[1.15];
+}
+
+@layer utilities {
+  .clip-shadow {
+    clip-path: inset(0px -5px -5px);
+  }
+}

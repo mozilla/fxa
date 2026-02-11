@@ -1,0 +1,55 @@
+{
+  "name": "shared-l10n",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/l10n/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "main": "libs/shared/l10n/src/index.ts",
+        "outputPath": "dist/libs/shared/l10n",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/shared/l10n/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/l10n/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node",
+        "format": ["cjs", "esm"]
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/shared/l10n/**/*.ts",
+          "libs/shared/l10n/package.json"
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/l10n/jest.config.ts"
+      }
+    }
+  }
+}

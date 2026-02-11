@@ -1,0 +1,38 @@
+{
+  "root": true,
+  "extends": ["react-app", "react-app/jest"],
+  "plugins": ["header"],
+  "rules": {
+    "import/export": "error",
+    "import/named": "off",
+    "import/no-deprecated": "error",
+    "import/no-named-as-default-member": "off",
+    "import/no-unresolved": "off",
+    "jest/no-jest-import": "off",
+    "jest/valid-describe": "off",
+    "testing-library/no-wait-for-multiple-assertions": "off",
+    "testing-library/no-render-in-setup": "off",
+    "testing-library/prefer-find-by": "off",
+    "testing-library/no-wait-for-side-effects": "off",
+    "testing-library/prefer-presence-queries": "off",
+    "testing-library/no-node-access": "off",
+    "testing-library/render-result-naming-convention": "off",
+    "testing-library/prefer-screen-queries": "off",
+    "testing-library/no-unnecessary-act": "off",
+    "testing-library/no-container": "off",
+    "header/header": [
+      2, "block",
+      " This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at http://mozilla.org/MPL/2.0/. "
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": "error"
+      }
+    }
+  ],
+  "ignorePatterns": ["build/", "scripts/build.js", "dist/"]
+}

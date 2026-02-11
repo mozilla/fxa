@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "unblockCode-subject-2",
+    "message": "Use <%- unblockCode %> to sign in"
+  },
+  "preview": {
+    "id": "unblockCode-preview",
+    "message": "This code expires in one hour"
+  }
+}

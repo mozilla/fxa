@@ -1,0 +1,38 @@
+{
+  "name": "shared-glean",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/metrics/glean/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/metrics/glean",
+        "main": "libs/shared/metrics/glean/src/index.ts",
+        "tsConfig": "libs/shared/metrics/glean/tsconfig.lib.json",
+        "assets": ["libs/shared/metrics/glean/*.md"],
+        "generatePackageJson": true,
+        "declaration": true,
+        "format": ["cjs"]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/metrics/glean/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    },
+    "test-integration": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/metrics/glean/jest.config.ts",
+        "testPathPattern": ["\\.in\\.spec\\.ts$"]
+      }
+    }
+  }
+}

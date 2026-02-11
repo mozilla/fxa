@@ -1,0 +1,296 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Location {
+  city: String
+  country: String
+  countryCode: String
+  state: String
+  stateCode: String
+}
+
+type AttachedClient {
+  clientId: String
+  deviceId: String
+  sessionTokenId: String
+  refreshTokenId: String
+  isCurrentSession: Boolean
+  deviceType: String
+  name: String
+  scope: [String!]
+  location: Location
+  userAgent: String
+  os: String
+  createdTime: Float
+  createdTimeFormatted: String
+  lastAccessTime: Float
+  lastAccessTimeFormatted: String
+  approximateLastAccessTime: Float
+  approximateLastAccessTimeFormatted: String
+}
+
+type EmailBounce {
+  email: String!
+  templateName: String!
+  bounceType: BounceType!
+  bounceSubType: BounceSubType!
+  createdAt: Float!
+  diagnosticCode: String
+}
+
+enum BounceType {
+  unmapped
+  Permanent
+  Transient
+  Complaint
+  Undetermined
+}
+
+enum BounceSubType {
+  unmapped
+  Undetermined
+  General
+  NoEmail
+  Suppressed
+  MailboxFull
+  MessageTooLarge
+  ContentRejected
+  AttachmentRejected
+  Abuse
+  AuthFailure
+  Fraud
+  NotSpam
+  Other
+  Virus
+  OnAccountSuppressionList
+}
+
+type Email {
+  email: String!
+  isVerified: Boolean!
+  isPrimary: Boolean!
+  createdAt: Float!
+}
+
+type RecoveryKeys {
+  createdAt: Float
+  verifiedAt: Float
+  enabled: Boolean
+}
+
+type SecurityEvents {
+  uid: String
+  nameId: Float
+  verified: Boolean
+  ipAddrHmac: String
+  createdAt: Float
+  tokenVerificationId: String
+  name: String
+  ipAddr: String
+
+  """JSON data for additional info about the security event"""
+  additionalInfo: String
+}
+
+type Totp {
+  verified: Boolean!
+  createdAt: Float!
+  enabled: Boolean!
+}
+
+type LinkedAccount {
+  uid: String!
+  authAt: Float!
+  providerId: ProviderId!
+  enabled: Boolean!
+}
+
+enum ProviderId {
+  unmapped
+  GOOGLE
+  APPLE
+}
+
+type AccountEvent {
+  name: String
+  createdAt: Float
+  eventType: String
+  template: String
+  flowId: String
+  service: String
+}
+
+type MozSubscription {
+  created: Float!
+  currentPeriodEnd: Float!
+  currentPeriodStart: Float!
+  cancelAtPeriodEnd: Boolean!
+  endedAt: Float
+  latestInvoice: String!
+  manageSubscriptionLink: String
+  planId: String!
+  productName: String!
+  productId: String!
+  status: String!
+  subscriptionId: String!
+}
+
+type TaxAddress {
+  countryCode: String!
+  postalCode: String!
+}
+
+type Cart {
+  id: String!
+  uid: String
+  state: String!
+  errorReasonId: String
+  offeringConfigId: String!
+  interval: String!
+  experiment: String
+  taxAddress: TaxAddress
+  currency: String
+  createdAt: Float!
+  updatedAt: Float!
+  couponCode: String
+  stripeCustomerId: String
+  stripeSubscriptionId: String
+  amount: Float!
+  version: Float!
+  eligibilityStatus: String!
+}
+
+type BackupCodes {
+  hasBackupCodes: Boolean!
+  count: Float!
+}
+
+type RecoveryPhone {
+  phoneNumber: String
+  exists: Boolean!
+  lastFourDigits: String
+}
+
+type Account {
+  uid: ID!
+  email: String!
+  emailVerified: Boolean!
+  clientSalt: String
+  createdAt: Float!
+  disabledAt: Float
+  locale: String
+  lockedAt: Float
+  verifierSetAt: Float
+  emails: [Email!]
+  emailBounces: [EmailBounce!]
+  totp: [Totp!]
+  recoveryKeys: [RecoveryKeys!]
+  securityEvents: [SecurityEvents!]
+  attachedClients: [AttachedClient!]
+  subscriptions: [MozSubscription!]
+  linkedAccounts: [LinkedAccount!]
+  accountEvents: [AccountEvent!]
+  carts: [Cart!]
+  backupCodes: [BackupCodes!]
+  recoveryPhone: [RecoveryPhone!]
+}
+
+type AccountDeleteResponse {
+  taskName: String!
+  locator: String!
+  status: String!
+}
+
+type AccountDeleteTaskStatus {
+  taskName: String!
+  status: String!
+}
+
+type AccountResetResponse {
+  locator: String!
+  status: String!
+}
+
+type RelyingPartyDto {
+  id: ID!
+  createdAt: DateTime!
+  name: String!
+  imageUri: String!
+  redirectUri: String!
+  canGrant: Boolean!
+  publicClient: Boolean!
+  trusted: Boolean!
+  allowedScopes: String!
+  notes: String!
+  hasSecret: Boolean!
+  hasPreviousSecret: Boolean!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type RelyingPartyCreatedDto {
+  id: String!
+  secret: String!
+}
+
+type RotateSecretDto {
+  secret: String!
+}
+
+type BlockStatus {
+  retryAfter: Float!
+  reason: String!
+  action: String!
+  blockingOn: String!
+  startTime: Float!
+  duration: Int!
+  attempt: Int!
+  policy: String!
+}
+
+type Query {
+  accountByUid(uid: String!): Account
+  accountByEmail(email: String!, autoCompleted: Boolean!): Account
+  accountByRecoveryPhone(phoneNumber: String!, autoCompleted: Boolean!): [Account!]
+  getEmailsLike(search: String!): [Email!]
+  getRecoveryPhonesLike(search: String!): [RecoveryPhone!]
+  getDeleteStatus(taskNames: [String!]!): [AccountDeleteTaskStatus!]!
+  rateLimits(ip: String, email: String, uid: String): [BlockStatus!]!
+  relyingParties: [RelyingPartyDto!]!
+}
+
+type Mutation {
+  remove2FA(uid: String!): Boolean!
+  unverifyEmail(email: String!): Boolean!
+  disableAccount(uid: String!): Boolean!
+  editLocale(uid: String!, locale: String!): Boolean!
+  deleteRecoveryPhone(uid: String!): Boolean!
+  enableAccount(uid: String!): Boolean!
+  recordAdminSecurityEvent(uid: String!, name: String!): Boolean!
+  unlinkAccount(uid: String!): Boolean!
+  unsubscribeFromMailingLists(uid: String!): Boolean!
+  deleteAccounts(locators: [String!]!): [AccountDeleteResponse!]!
+  resetAccounts(locators: [String!]!, notificationEmail: String!): [AccountResetResponse!]!
+  clearEmailBounce(email: String!): Boolean!
+  clearRateLimits(ip: String, email: String, uid: String): Float!
+  createRelyingParty(relyingParty: RelyingPartyUpdateDto!): RelyingPartyCreatedDto!
+  updateRelyingParty(id: String!, relyingParty: RelyingPartyUpdateDto!): Boolean!
+  deleteRelyingParty(id: String!): Boolean!
+  rotateRelyingPartySecret(id: String!): RotateSecretDto!
+  deletePreviousRelyingPartySecret(id: String!): Boolean!
+}
+
+input RelyingPartyUpdateDto {
+  name: String!
+  imageUri: String!
+  redirectUri: String!
+  canGrant: Boolean!
+  publicClient: Boolean!
+  trusted: Boolean!
+  allowedScopes: String!
+  notes: String!
+}

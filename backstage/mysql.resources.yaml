@@ -1,0 +1,48 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: fxa-auth-database
+  description: Stores account, device, session, and key data.
+  tags:
+    - mysql
+spec:
+  type: database
+  owner: fxa-devs
+  system: mozilla-accounts
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: fxa-oauth-database
+  description: Stores OAuth client data and tokens.
+  tags:
+    - mysql
+spec:
+  type: database
+  owner: fxa-devs
+  system: mozilla-accounts
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: fxa-profile-database
+  description: Stores customer profile data (display name, photo  reference).
+  tags:
+    - mysql
+spec:
+  type: database
+  owner: fxa-devs
+  system: mozilla-accounts
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: fxa-pushbox-database
+  description: Stores device command data for customers.
+  tags:
+    - mysql
+spec:
+  type: database
+  owner: fxa-devs
+  system: mozilla-accounts

@@ -1,0 +1,16 @@
+{
+  "data": {
+    "subscriptionGroupIdentifier": "22222222",
+    "lastTransactions": [
+      {
+        "originalTransactionId": "1000000000000000",
+        "status": "Active",
+        "signedRenewalInfo": {},
+        "signedTransactionInfo": {}
+      }
+    ]
+  },
+  "environment": "Production",
+  "appAppleId": "1234567890",
+  "bundleId": "org.mozilla.ios.SkydivingWithFoxkeh"
+}

@@ -1,0 +1,11 @@
+
+-- ALTER TABLE refreshTokens ADD FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
+-- ALGORITHM = INPLACE, LOCK = NONE;
+
+-- ALTER TABLE codes ADD FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
+-- ALGORITHM = INPLACE, LOCK = NONE;
+
+-- ALTER TABLE tokens ADD FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
+-- ALGORITHM = INPLACE, LOCK = NONE;
+
+-- UPDATE dbMetadata SET value = '25' WHERE name = 'schema-patch-level';

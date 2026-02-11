@@ -1,0 +1,196 @@
+# Repo root
+/loop-server
+/syncserver
+/selenium-*
+/servers_android.json
+/pm2
+/dump.rdb
+external
+
+# Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+.keys
+public-key.json
+secret-key.json
+secret*
+*.gpg
+secrets.json
+
+# Build and temp files
+**/build
+**/dist
+**/temp
+**/version.json
+**/storybook-static
+*.sass-cache
+.nx/cache
+.nx/workspace-data
+**/schema.gql
+*.map
+*.swp
+.es5
+.es5cache
+/artifacts
+**/artifacts
+**/.nx/cache/**/artifacts
+.last-audit
+.eslintcache
+storybooks-publish
+tsconfig.tsbuildinfo
+tailwind.out.*
+.idea
+**/*.tmp.*
+
+# Dependencies
+**/node_modules
+**/browser_modules
+/.pnp
+.pnp.js
+
+# Logging
+*.log*
+**/logs
+
+# Testing
+coverage.html
+**/coverage
+**/.nyc_output
+test-results.xml
+**/artifacts/tests/**/*.xml
+
+# Local configuration
+/_dev/firebase/.config
+
+# System files
+*~
+\#*\#
+.\#*
+.DS_Store
+Thumbs.db
+
+# Yarn
+.yarn/cache
+.yarn/berry
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# nektos/act - Github Actions
+/bin/
+
+# Glean CLI will install glean_parser into a .venv in the dir from which the
+# command is called
+.venv
+
+## Lib Specific
+libs/accounts/email-renderer/public
+libs/accounts/email-renderer/src/css
+
+## Package-specific ##
+
+# circleci
+.circleci/local.yml
+
+# fxa-admin-server
+packages/fxa-admin-server/src/config/local.json
+
+# fxa-auth-server
+packages/fxa-auth-server/sandbox
+packages/fxa-auth-server/config/key.json
+packages/fxa-auth-server/config/oldKey.json
+packages/fxa-auth-server/config/vapid-keys.json
+packages/fxa-auth-server/test/load/bin
+packages/fxa-auth-server/test/load/lib*
+packages/fxa-auth-server/test/load/include
+packages/fxa-auth-server/test/scripts/bulk-mailer/nodemailer-mocks/test_output
+packages/fxa-auth-server/*.pyc
+packages/fxa-auth-server/server.pot
+packages/fxa-auth-server/.mail_output
+packages/fxa-auth-server/fxa-content-server-l10n
+packages/fxa-auth-server/lib/senders/emails/css
+packages/fxa-auth-server/public/locales
+packages/fxa-auth-server/vendor
+
+# fxa-content-server
+packages/fxa-content-server/pids
+packages/fxa-content-server/results
+packages/fxa-content-server/lib-cov
+packages/fxa-content-server/app/styles/main.css
+packages/fxa-content-server/app/scripts/processed
+packages/fxa-content-server/server/config/local.json
+packages/fxa-content-server/app/i18n
+packages/fxa-content-server/fxa-content-server-l10n/
+packages/fxa-content-server/locale/*/*/*.po
+packages/fxa-content-server/rerun.txt
+packages/fxa-content-server/.tmp
+packages/fxa-content-server/.tscompiled
+packages/fxa-content-server/public/locales
+# serving Settings static files
+packages/fxa-content-server/app/settings
+
+# fxa-customs-server
+packages/fxa-customs-server/test/mocks/temp.netset
+
+# fxa-payments-server
+packages/fxa-payments-server/fxa-content-server-l10n/
+packages/fxa-payments-server/public/locales
+packages/fxa-payments-server/test
+
+# fxa-profile-server
+packages/fxa-profile-server/var/public/*
+!packages/fxa-profile-server/var/public/.keep
+packages/fxa-profile-server/BUCKET_NAME
+
+# fxa-react
+packages/fxa-react/**/*.js
+!packages/fxa-react/**/gruntfile.js
+packages/fxa-react/**/*.d.ts
+!packages/fxa-react/pm2.config.js
+packages/fxa-react/fxa-content-server-l10n/
+packages/fxa-react/public/locales
+packages/fxa-react/test/
+
+# fxa-settings
+packages/fxa-settings/fxa-content-server-l10n/
+packages/fxa-settings/public/static
+packages/fxa-settings/public/locales
+packages/fxa-settings/legal-docs/
+packages/fxa-settings/public/legal-docs
+packages/fxa-settings/test/
+
+# payments-next
+apps/payments/next/public/locales
+!apps/payments/next/.env
+
+# payments-api
+!apps/payments/api/.env
+
+# payments-metrics
+libs/payments/metrics/src/lib/glean/__generated__/
+
+Library
+.node
+process.yml
+.lists
+
+**/config/gql/allowlist
+configs/gql/allowlist
+!configs/gql/allowlist/gql-playground.json
+
+# Next.js
+.next
+
+
+tmp
+
+# shared-cms
+libs/shared/cms/src/__generated__/graphql.d.ts
+libs/shared/cms/src/__generated__/graphql.js
+
+# Sentry Config File
+.env.sentry-build-plugin

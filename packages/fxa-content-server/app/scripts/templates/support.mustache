@@ -1,0 +1,110 @@
+<div id="fxa-settings-header-wrapper">
+  <header id="fxa-settings-header">
+    <h1 class="flex flex-row">
+        <img
+            class="w-8 h-8 bg-black me-4"
+            src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMC43NjkyMjYiIHk9IjAuNzY5MjI2IiB3aWR0aD0iMzAuNDYxNSIgaGVpZ2h0PSIzMC40NjE1IiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMjcuNzMxNCAyMC41MDg0SDI5LjY0NDFWMjMuNjE1NEgyMy42MTIxVjE1LjI3NDVDMjMuNjEyMSAxMi42NTY3IDIyLjc3ODEgMTEuNjcyOCAyMS4xNTkyIDExLjY3MjhDMTkuMTk3MiAxMS42NzI4IDE4LjQxMjQgMTMuMTYwOSAxOC40MTI0IDE1LjIxMzlWMjAuNDQ5NkgyMC4zMjUxVjIzLjU2MDRIMTQuMzAwOFYxNS4yNjg5QzE0LjMwMDggMTIuNjUxIDEzLjQ2NjcgMTEuNjY3MSAxMS44NDc4IDExLjY2NzFDOS44ODU4MyAxMS42NjcxIDguNzg4MjUgMTMuMTU1MiA4Ljc4ODI1IDE1LjIwODJWMjAuNDQzOUgxMS44MzY0VjIzLjU2MDRIMy4wMTQxNFYyMC40NTM0SDQuODIyNThWMTIuMzU3MkgyLjkyNjk0VjguNjU0OThIOC4zNzY5VjEwLjk5NDJDOS41MDExOSA5LjMyNDQ0IDExLjM5OTMgOC4zNDMyMiAxMy40MTE3IDguMzkxNDlDMTUuNTIxNCA4LjI3NjQ3IDE3LjQzOTkgOS42MDg1NCAxOC4wNjkzIDExLjYyNTRDMTguNzQ2NyA5LjY0MzQ2IDIwLjYzNSA4LjMzMjg3IDIyLjcyODggOC4zOTE0OUMyNC4xMDE5IDguMzI4NzkgMjUuNDM1MSA4Ljg2MzI2IDI2LjM4NDYgOS44NTcxNkMyNy4zMzQyIDEwLjg1MTEgMjcuODA3MyAxMi4yMDcyIDI3LjY4MjEgMTMuNTc2MVYyMC41MDg0SDI3LjczMTRaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K"
+            alt="{{#t}}Mozilla m logo{{/t}}"
+        />
+      <span class="font-bold text-xl">{{#t}}Mozilla account{{/t}}</span>
+    </h1>
+  </header>
+
+  <ol class="breadcrumbs">
+    <li><a class="text-blue-500" href="/settings">{{#t}}Account Home{{/t}}</a></li>
+    <li><a class="text-blue-500" href="/subscriptions">{{#t}}Subscriptions{{/t}}</a></li>
+    <li><a class="text-blue-500" href="/support">{{#t}}Contact Us{{/t}}</a></li>
+  </ol>
+
+  <div class="settings-success-wrapper">
+    <div class="success settings-success"></div>
+  </div>
+</div>
+
+<div id="fxa-settings">
+  <div id="fxa-settings-content" class="card !text-left before:content-none">
+
+    <section id="fxa-settings-profile-header-wrapper">
+      <div class="avatar-wrapper avatar-settings-view nohover"></div>
+      <div id="fxa-settings-profile-header">
+      {{{ unsafeHeaderHTML }}}
+      </div>
+    </section>
+    <div class="child-views">
+      <div class="settings-child-view support">
+        <div class="settings-unit">
+          <div class="support-form">
+            <header>
+              <h3>{{#t}}Contact Us{{/t}}</h3>
+            </header>
+            <form id="fxa-support" novalidate>
+              <div class="support-field">
+                <div class="form-label">
+                  <label for="product" id="product-label">{{#t}}What are you contacting us about?{{/t}}</label>
+                </div>
+                <div class="input-row">
+                  <select id="product" name="product" data-placeholder="{{#t}}Please select one{{/t}}">
+                    <option value=""></option>
+                    {{#subscriptions}}
+                    <option value="{{product_name}}">{{product_name}}</option>
+                    {{/subscriptions}}
+                    <option value="Other">{{#t}}Other{{/t}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="support-field">
+                <div class="form-label">
+                  <label for="topic" id="topic-label">{{#t}}What do you need help with?{{/t}}</label>
+                </div>
+                <div class="input-row">
+                  <select id="topic" name="topic" data-placeholder="{{#t}}Please select one{{/t}}">
+                    <option value=""></option>
+                    <option value="Payment & billing">{{#t}}Payment & billing{{/t}}</option>
+                    <option value="Account issues">{{#t}}Account issues{{/t}}</option>
+                    <option value="Technical issues">{{#t}}Technical issues{{/t}}</option>
+                    <option value="Provide feedback / request features">{{#t}}Provide feedback / request features{{/t}}</option>
+                    <option value="Not listed">{{#t}}Not listed{{/t}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="support-field">
+                <div class="form-label">
+                  <label for="app">{{#t}}Do you need help with a specific app or service? (optional){{/t}}</label>
+                </div>
+                <div class="input-row">
+                  <select id="app" name="app" data-placeholder="{{#t}}Please select one{{/t}}" disabled>
+                  </select>
+                </div>
+              </div>
+              <div class="support-field">
+                <div class="form-label">
+                  <label for="subject">{{#t}}Subject (optional){{/t}}</label>
+                </div>
+                <div class="input-row">
+                  <input type="text" id="subject" name="subject"/>
+                </div>
+              </div>
+              <div class="support-field">
+                <div class="form-label">
+                  <label for="message">{{#t}}Description of issue{{/t}}</label>
+                </div>
+                <div class="input-row">
+                  <textarea id="message" name="message" rows="5" cols="70"></textarea>
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="settings-button secondary-button cancel cta-neutral" type="button">{{#t}}Cancel{{/t}}</button>
+                <button type="submit" class="settings-button primary-button cta-primary" disabled>
+                  <span class="submit-content">{{#t}}Send{{/t}}</span>
+                  <div class="spinner hidden"></div>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer id="legal-footer"><a class="terms text-blue-500" href="/legal/terms">{{#t}}Terms of Service{{/t}}</a><a class="privacy text-blue-500" href="/legal/privacy">{{#t}}Privacy Notice{{/t}}</a></footer>

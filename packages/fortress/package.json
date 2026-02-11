@@ -1,0 +1,53 @@
+{
+  "name": "fortress",
+  "description": "A simple tasklist app that demonstrates FxA Sign-In",
+  "version": "0.0.0",
+  "author": {
+    "name": "Mozilla",
+    "url": "https://mozilla.org/"
+  },
+  "licenses": [
+    {
+      "type": "MPL 2.0",
+      "url": "https://mozilla.org/MPL/2.0/"
+    }
+  ],
+  "homepage": "http://fortress.firefox.org/",
+  "bugs": "https://github.com/mozilla/fxa/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa.git"
+  },
+  "private": true,
+  "dependencies": {
+    "client-sessions": "0.8.x",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "audit-filter": "0.5.0",
+    "eslint": "^7.32.0",
+    "fxa-shared": "workspace:*",
+    "pm2": "^6.0.14",
+    "prettier": "^3.5.3",
+    "stylelint": "^16.14.1",
+    "stylelint-config-prettier": "^9.0.3"
+  },
+  "scripts": {
+    "lint": "yarn lint-eslint",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "lint-eslint": "eslint .",
+    "lint-style": "stylelint --config ../../_dev/.stylelintrc static/*.css",
+    "start": "pm2 start pm2.config.js",
+    "stop": "pm2 stop pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+  },
+  "nx": {
+    "tags": [
+      "scope:demo"
+    ]
+  }
+}

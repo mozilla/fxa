@@ -1,0 +1,41 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fxa-auth-server
+  description: Auth Server back-end for Mozilla Accounts
+  tags:
+    - typescript
+    - javascript
+    - node
+    - hapi
+  annotations:
+    sentry.io/project-slug: mozilla/fxa-auth-server
+    circleci.com/project-slug: github/mozilla/fxa
+spec:
+  type: service
+  lifecycle: production
+  owner: fxa-devs
+  system: mozilla-accounts
+  providesApis:
+    - api:fxa-auth
+  dependsOn:
+    - component:fxa-customs-server
+    - resource:fxa-auth-database
+    - resource:fxa-oauth-database
+    - resource:fxa-pushbox-database
+    - resource:fxa-stripe-database
+    - resource:fxa-auth-cache
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: fxa-auth
+  description: Mozilla Accounts Auth API
+spec:
+  type: openapi
+  lifecycle: production
+  owner: fxa-devs
+  system: mozilla-accounts
+  definition:
+    $text: https://api.accounts.firefox.com/swagger.json

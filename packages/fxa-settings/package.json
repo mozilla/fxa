@@ -1,0 +1,289 @@
+{
+  "name": "fxa-settings",
+  "version": "0.0.0",
+  "homepage": "https://accounts.firefox.com/settings",
+  "private": true,
+  "scripts": {
+    "prebuild": "nx l10n-prime && nx legal-prime",
+    "build": "nx build-l10n && nx build-static && nx build-ts && nx build-css && nx build-react",
+    "build-static": "yarn grunt hash-static",
+    "build-ts": "tsc --build",
+    "build-css": "NODE_ENV=production tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
+    "build-storybook": "NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider sb build && cp -r public/locales ./storybook-static/locales",
+    "build-l10n": "nx l10n-merge && nx l10n-bundle && nx l10n-merge-test",
+    "build-react": "nx build-react-dev && nx build-react-stage && nx build-react-prod",
+    "build-react-dev": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/dev node scripts/build.js",
+    "build-react-stage": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/stage node scripts/build.js",
+    "build-react-prod": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/prod node scripts/build.js",
+    "clean": "rimraf dist",
+    "copy-dev-build": "mkdir -p ../fxa-content-server/app/settings ; NODE_ENV=production yarn build-react-dev && cp -R build/dev ../fxa-content-server/app/settings",
+    "compile": "tsc --noEmit",
+    "gql-extract": "persistgraphql src ../../configs/gql/allowlist/fxa-settings.json --js --extension=ts ",
+    "l10n-bundle": "yarn l10n:bundle packages/fxa-settings branding,react,settings",
+    "l10n-prime": "yarn l10n:prime packages/fxa-settings",
+    "l10n-merge": "yarn grunt merge-ftl",
+    "l10n-merge-test": "yarn grunt merge-ftl:test",
+    "legal-prime": "yarn legal:clone fxa-settings",
+    "lint": "eslint . .storybook",
+    "start": "BUILD_PATH=build/dev pm2 start pm2.config.js && yarn check:url localhost:3000/settings/static/js/bundle.js",
+    "stop": "pm2 stop pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
+    "storybook": "STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6008 --no-version-updates",
+    "test": "SKIP_PREFLIGHT_CHECK=true node scripts/test.js",
+    "test-watch": "SKIP_PREFLIGHT_CHECK=true node scripts/test.js",
+    "test-coverage": "yarn test --coverage --watchAll=false",
+    "test-unit": "echo No unit tests present for $npm_package_name",
+    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-settings-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true node scripts/test.js --watchAll=false --ci --runInBand --reporters=default --reporters=jest-junit",
+    "watch-ftl": "grunt watch-ftl",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx,js}",
+      "!src/**/*.stories.*",
+      "!src/**/mocks.*",
+      "!src/components/Settings/*(ScrollToTop|UnitRowRecoveryKey|PageAvatar|App)/*"
+    ],
+    "setupFiles": [
+      "react-app-polyfill/jsdom"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.tsx"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
+      "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
+    ],
+    "testEnvironment": "jsdom",
+    "transform": {
+      "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/config/jest/babelTransform.js",
+      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
+      "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js",
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "isolatedModules": true
+        }
+      ]
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\](?!sinon|@mozilla/glean)",
+      "^.+\\.module\\.(css|sass|scss)$"
+    ],
+    "modulePaths": [],
+    "moduleNameMapper": {
+      "^react-native$": "react-native-web",
+      "\\.(css|sass|scss)$": "identity-obj-proxy",
+      "@fxa/shared/l10n": "<rootDir>/../../libs/shared/l10n/src/index.ts",
+      "@fxa/shared/metrics/glean": "<rootDir>/../../libs/shared/metrics/glean/src/index.ts",
+      "^@fxa/shared/assets(.*)$": "<rootDir>/../../libs/shared/assets/src$1",
+      "@fxa/accounts/errors": "<rootDir>/../../libs/accounts/errors/src/index.ts"
+    },
+    "moduleFileExtensions": [
+      "web.js",
+      "js",
+      "web.ts",
+      "ts",
+      "web.tsx",
+      "tsx",
+      "json",
+      "web.jsx",
+      "jsx",
+      "node"
+    ],
+    "watchPlugins": [
+      "jest-watch-typeahead/filename",
+      "jest-watch-typeahead/testname"
+    ],
+    "resetMocks": false,
+    "coverageThreshold": {
+      "global": {
+        "branches": 50,
+        "lines": 45
+      },
+      "src/components/Settings/**/*": {
+        "branches": 50,
+        "lines": 65
+      }
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@material-ui/core": "v5.0.0-alpha.24",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+    "@reach/router": "^1.3.4",
+    "@react-pdf/renderer": "3.2.1",
+    "@svgr/webpack": "^8.1.0",
+    "@types/material-ui": "^0.21.8",
+    "@types/react-webcam": "^3.0.0",
+    "babel-jest": "^29.7.0",
+    "babel-loader": "^9.1.3",
+    "babel-preset-react-app": "^10.0.1",
+    "base32-decode": "^1.0.0",
+    "base32-encode": "^1.2.0",
+    "bfj": "^9.1.1",
+    "browserify-zlib": "^0.2.0",
+    "browserslist": "^4.24.0",
+    "camelcase": "^6.2.1",
+    "case-sensitive-paths-webpack-plugin": "^2.4.0",
+    "classnames": "^2.5.1",
+    "crypto-browserify": "^3.12.0",
+    "css-loader": "^6.8.1",
+    "css-minimizer-webpack-plugin": "^7.0.0",
+    "dotenv": "^16.4.5",
+    "dotenv-expand": "^12.0.1",
+    "eslint": "^8.3.0",
+    "eslint-webpack-plugin": "^4.2.0",
+    "file-loader": "^6.2.0",
+    "file-saver": "^2.0.5",
+    "fs-extra": "^11.2.0",
+    "fxa-auth-client": "workspace:*",
+    "fxa-common-password-list": "^0.0.4",
+    "fxa-react": "workspace:*",
+    "html-webpack-plugin": "^5.6.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-watch-typeahead": "^1.0.0",
+    "lodash.groupby": "^4.6.0",
+    "mini-css-extract-plugin": "^2.9.0",
+    "postcss": "^8.5.0",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-loader": "^8.1.1",
+    "postcss-normalize": "^13.0.1",
+    "postcss-preset-env": "^10.0.5",
+    "react-app-polyfill": "^3.0.0",
+    "react-async-hook": "^4.0.0",
+    "react-dev-utils": "^12.0.1",
+    "react-easy-crop": "^5.2.0",
+    "react-hook-form": "^6.15.8",
+    "react-markdown": "^8.0.5",
+    "react-refresh": "^0.16.0",
+    "react-webcam": "^7.2.0",
+    "rehype-raw": "^6.1.1",
+    "resolve": "^1.22.8",
+    "resolve-url-loader": "^5.0.0",
+    "sass-loader": "^16.0.3",
+    "semver": "^7.7.1",
+    "source-map-loader": "^5.0.0",
+    "stream-browserify": "^3.0.0",
+    "style-loader": "^4.0.0",
+    "subscriptions-transport-ws": "^0.11.0",
+    "tailwindcss": "^3.4.1",
+    "terser-webpack-plugin": "^5.2.5",
+    "ua-parser-js": "1.0.35",
+    "uuid": "^10.0.0",
+    "webpack": "^5.97.0",
+    "webpack-dev-server": "^4.6.0",
+    "webpack-manifest-plugin": "^5.0.0",
+    "workbox-webpack-plugin": "^7.1.0"
+  },
+  "devDependencies": {
+    "@babel/types": "7.25.8",
+    "@sentry/webpack-plugin": "^3.5.0",
+    "@storybook/addon-actions": "^7.0.0",
+    "@storybook/addon-essentials": "7.6.15",
+    "@storybook/addon-interactions": "7.6.16",
+    "@storybook/addon-links": "7.6.4",
+    "@storybook/addon-styling": "1.3.0",
+    "@storybook/addons": "7.6.17",
+    "@storybook/blocks": "7.0.24",
+    "@storybook/preset-create-react-app": "7.6.4",
+    "@storybook/react": "7.1.1",
+    "@storybook/react-webpack5": "7.5.3",
+    "@storybook/testing-library": "0.2.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.1.3",
+    "@testing-library/react-hooks": "^8.0.0",
+    "@testing-library/user-event": "^14.6.0",
+    "@types/classnames": "2.3.1",
+    "@types/file-saver": "^2.0.5",
+    "@types/jest": "26.0.23",
+    "@types/lodash.groupby": "^4",
+    "@types/node": "^22.13.5",
+    "@types/prop-types": "^15",
+    "@types/reach__router": "^1.3.11",
+    "@types/react-router": "^5.1.19",
+    "@types/testing-library__react-hooks": "^4",
+    "@types/ua-parser-js": "^0.7.36",
+    "@types/uuid": "^10",
+    "@types/webpack": "5.28.5",
+    "@types/webpack-bundle-analyzer": "^4",
+    "babel-loader": "^9.1.3",
+    "babel-plugin-named-exports-order": "^0.0.2",
+    "babel-plugin-transform-typescript-metadata": "^0.3.2",
+    "eslint": "^8.57.1",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-header": "^3.1.1",
+    "eslint-plugin-jest": "^27.6.0",
+    "eslint-plugin-react": "^7.32.2",
+    "fxa-shared": "workspace:*",
+    "grunt": "^1.6.1",
+    "grunt-cli": "^1.4.3",
+    "grunt-contrib-concat": "^2.1.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-hash": "^0.5.0",
+    "jest-watch-typeahead": "0.6.5",
+    "mutationobserver-shim": "^0.3.7",
+    "nx": "21.2.4",
+    "persistgraphql": "^0.3.11",
+    "pm2": "^6.0.14",
+    "postcss-assets": "^6.0.0",
+    "postcss-import": "^16.1.0",
+    "prop-types": "^15.8.1",
+    "raw-loader": "^4.0.2",
+    "sinon": "^15.0.1",
+    "storybook": "^7.6.21",
+    "storybook-addon-rtl": "^0.5.0",
+    "style-loader": "^4.0.0",
+    "ts-jest": "^29.2.3",
+    "type-fest": "^4.38.0",
+    "typescript": "5.5.3",
+    "webpack": "^5.97.0",
+    "webpack-bundle-analyzer": "^4.10.2"
+  },
+  "nx": {
+    "implicitDependencies": [
+      "crypto-relier"
+    ],
+    "tags": [
+      "scope:frontend",
+      "type:core"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "react-app",
+      [
+        "@babel/preset-env",
+        {
+          "targets": "> 0.25%, last 2 versions, not dead"
+        }
+      ]
+    ],
+    "ignore": [
+      "node_modules/**",
+      "test/**",
+      "scripts/**"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  }
+}

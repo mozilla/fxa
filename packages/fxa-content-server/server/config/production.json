@@ -1,0 +1,10 @@
+{
+  "env": "production",
+  "proxy_settings": false,
+  "static_directory": "dist",
+  "page_template_subdirectory": "dist",
+  "csp": {
+    "enabled": true,
+    "reportOnly": true
+  }
+}

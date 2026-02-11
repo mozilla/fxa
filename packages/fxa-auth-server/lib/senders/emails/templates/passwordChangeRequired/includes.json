@@ -1,0 +1,14 @@
+{
+  "subject": {
+    "id": "passwordChangeRequired-subject",
+    "message": "Suspicious activity detected"
+  },
+  "preview": {
+    "id": "passwordChangeRequired-preview",
+    "message": "Change your password immediately"
+  },
+  "action": {
+    "id": "passwordChangeRequired-action",
+    "message": "Reset password"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "subject": {
+    "id": "postSigninRecoveryPhone-subject",
+    "message": "Recovery phone used to sign in"
+  },
+  "action": {
+    "id": "postSigninRecoveryPhone-action",
+    "message": "Manage account"
+  },
+  "preview": {
+    "id": "postSigninRecoveryPhone-preview",
+    "message": "Confirm account activity"
+  }
+}

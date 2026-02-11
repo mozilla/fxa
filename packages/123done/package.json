@@ -1,0 +1,53 @@
+{
+  "name": "123done",
+  "description": "A simple tasklist app that demonstrates FxA Sign-In",
+  "version": "0.0.0",
+  "author": {
+    "name": "Mozilla",
+    "url": "https://mozilla.org/"
+  },
+  "licenses": [
+    {
+      "type": "MPL 2.0",
+      "url": "https://mozilla.org/MPL/2.0/"
+    }
+  ],
+  "homepage": "http://123done.org/",
+  "bugs": "https://github.com/mozilla/fxa/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa.git"
+  },
+  "private": true,
+  "dependencies": {
+    "convict": "^6.2.4",
+    "convict-format-with-validator": "^6.2.0",
+    "cookie-session": "^2.1.0",
+    "express": "^4.21.2",
+    "ioredis": "^5.0.6",
+    "morgan": "^1.10.0",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "@types/cookie-session": "^2",
+    "audit-filter": "0.5.0",
+    "eslint": "^7.32.0",
+    "pm2": "^6.0.14",
+    "prettier": "^3.5.3"
+  },
+  "scripts": {
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "lint": "eslint .",
+    "start": "pm2 start pm2.config.js",
+    "stop": "pm2 stop pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+  },
+  "nx": {
+    "tags": [
+      "scope:demo",
+      "type:demo"
+    ]
+  }
+}

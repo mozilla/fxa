@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Current Test",
+      "type": "shell",
+      "command": "./node_modules/mocha/bin/_mocha",
+      "args": [
+        "--recursive",
+        "--timeout",
+        "5000",
+        "--exit",
+        "${relativeFile}"
+      ],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "DB Patcher",
+      "type": "shell",
+      "command": "node ./bin/db_patcher.js >/dev/null",
+    }
+  ],
+}

@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["**/*.ts"],
+  "compilerOptions": {
+    "outDir": "./.tscompiled/",
+    "rootDirs": ["./app/scripts/", "./server/lib/routes/react-app"],
+    "baseUrl": "./app/scripts",
+    "noImplicitAny": false
+  }
+}

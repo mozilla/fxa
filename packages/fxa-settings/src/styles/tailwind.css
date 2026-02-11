@@ -1,0 +1,77 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import 'tailwindcss/variants';
+
+@import 'fxa-react/styles/index';
+@import './unit-row';
+@import './drop-down-menu';
+@import './slider';
+@import './switch';
+@import './brand-banner.css';
+
+body {
+  @apply text-base font-body bg-grey-10 text-grey-900;
+}
+
+.nav-anchor {
+  @apply absolute -top-20;
+}
+
+/* Abstracted because we directly edit the element's classList */
+.nav-active {
+  @apply font-bold text-blue-500 rounded-sm bg-grey-50;
+}
+
+progress {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  border-radius: 10px;
+  /* for IE10 and up */
+  @apply text-blue-400;
+  @apply bg-grey-100;
+}
+
+progress::-webkit-progress-bar {
+  border-radius: 10px;
+  @apply bg-grey-100;
+}
+progress::-webkit-progress-inner-element {
+  border-radius: 10px;
+}
+
+progress::-webkit-progress-value {
+  border-radius: 10px;
+  @apply bg-blue-400;
+}
+
+progress[value]::-moz-progress-bar {
+  border-radius: 10px;
+  border-radius: 10px;
+  @apply bg-blue-400;
+}
+
+@layer utilities {
+  .break-word {
+    word-break: break-word;
+  }
+
+  /* This global setting ensures that all animated SVGs are paused if a user prefers reduced motion.
+  Media queries that are directly added to SVG styles are lost when the SVG is imported as a react component */
+  @media (prefers-reduced-motion: reduce) {
+    svg,
+    svg * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+  .hide-if-prefers-reduced-motion {
+    display: none;
+  }
+}

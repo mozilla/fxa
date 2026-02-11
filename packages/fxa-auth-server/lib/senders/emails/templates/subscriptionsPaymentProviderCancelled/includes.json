@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "subscriptionsPaymentProviderCancelled-subject",
+    "message": "Payment information update required for Mozilla subscriptions"
+  }
+}

@@ -1,0 +1,153 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { getTotpCode } from '../../lib/totp';
+import { expect, test } from '../../lib/fixtures/standard';
+import { ResetPasswordPage } from '../../pages/resetPassword';
+import { SigninPage } from '../../pages/signin';
+
+test.describe('severity-1 #smoke', () => {
+  test.describe('oauth reset password', () => {
+    test('reset password', async ({
+      target,
+      page,
+      pages: { relier, resetPassword, signin },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
+      await relier.goto();
+      await relier.clickEmailFirst();
+
+      await beginPasswordReset(resetPassword, signin, credentials.email);
+
+      const code = await target.emailClient.getResetPasswordCode(
+        credentials.email
+      );
+
+      await resetPassword.fillOutResetPasswordCodeForm(code);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
+
+      await expect(page).toHaveURL(/reset_password_verified/);
+      await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
+
+      await expect(
+        resetPassword.passwordResetConfirmationContinueButton
+      ).toBeVisible();
+
+      await resetPassword.passwordResetConfirmationContinueButton.click();
+
+      await expect(page).toHaveURL(target.relierUrl);
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      // update password for cleanup function
+      credentials.password = newPassword;
+    });
+
+    test('reset password with PKCE', async ({
+      target,
+      page,
+      pages: { resetPassword, signin },
+      testAccountTracker,
+    }) => {
+      test.fixme(
+        true,
+        'FXA-10518, FXA-11952 - 123Done PKCE button is not working, and this test does not validate the PKCE flow for sign-in after reset password'
+      );
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
+      // TODO in FXA-8006 - Update this test to use the 123Done PKCE button once fixed
+      // For now navigate directly to the link.
+      await page.goto(
+        `${target.contentServerUrl}/authorization?` +
+          `access_type=offline` +
+          `&client_id=${target.relierClientID}` +
+          `&pkce_client_id=38a6b9b3a65a1871` +
+          `&redirect_uri=${encodeURIComponent(
+            target.relierUrl + '/api/oauth'
+          )}` +
+          `&scope=profile%20openid` +
+          `&action=signin` +
+          `&state=12eeaba43cc7548bf1f6b478b9de95328855b46df1e754fe94b21036c41c9cba`
+      );
+
+      await beginPasswordReset(resetPassword, signin, credentials.email);
+
+      const code = await target.emailClient.getResetPasswordCode(
+        credentials.email
+      );
+
+      await resetPassword.fillOutResetPasswordCodeForm(code);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
+
+      await expect(page).toHaveURL(/reset_password_verified/);
+      await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
+
+      // update password for cleanup function
+      credentials.password = newPassword;
+    });
+
+    test('reset password with valid totp', async ({
+      target,
+      pages: { page, relier, resetPassword, settings, signin, totp },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
+      await signin.goto();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      // Goes to settings and enables totp on user's account.
+      await expect(settings.settingsHeading).toBeVisible();
+      await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
+      const { secret } =
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
+      await expect(settings.totp.status).toHaveText('Enabled');
+      await settings.signOut();
+
+      // Makes sure user is not signed in, and goes to the relier (ie 123done)
+      await relier.goto();
+      await relier.clickEmailFirst();
+
+      await beginPasswordReset(resetPassword, signin, credentials.email);
+
+      const code = await target.emailClient.getResetPasswordCode(
+        credentials.email
+      );
+
+      await resetPassword.fillOutResetPasswordCodeForm(code);
+
+      // Fill out the TOTP form
+      const totpCode = await getTotpCode(secret);
+      await resetPassword.fillOutTotpForm(totpCode);
+
+      await resetPassword.fillOutNewPasswordForm(newPassword);
+
+      await expect(page).toHaveURL(/reset_password_verified/);
+      await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
+
+      await resetPassword.passwordResetConfirmationContinueButton.click();
+
+      await expect(page).toHaveURL(target.relierUrl);
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      // update password for cleanup function
+      credentials.password = newPassword;
+    });
+  });
+
+  async function beginPasswordReset(
+    resetPassword: ResetPasswordPage,
+    signin: SigninPage,
+    email: string
+  ): Promise<void> {
+    await signin.fillOutEmailFirstForm(email);
+    await signin.forgotPasswordLink.click();
+    await resetPassword.fillOutEmailForm(email);
+  }
+});

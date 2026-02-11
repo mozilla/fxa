@@ -1,0 +1,51 @@
+name: Tag Release
+on:
+  workflow_dispatch: {}
+permissions: {}
+jobs:
+  tagrelease:
+    permissions:
+      contents: write # To create a branch and tags
+    runs-on: ubuntu-latest
+    outputs:
+      TAG: ${{ steps.echo.outputs.tag }}
+    steps:
+      - name: Show GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+        shell: bash
+
+      - name: Check out code
+        uses: actions/checkout@v6
+
+      - name: Fetch all git tags
+        run: git fetch --tags origin
+
+      - name: Compute new version number
+        run: |
+          echo versionNumber=$(git tag -l --sort=version:refname | grep -v '-' | tail -1 | awk '{print $2 + 1}' FS='.') >> "$GITHUB_ENV"
+
+      - name: Add git tag to output
+        id: echo
+        run: |
+          echo tag=v1.${{ env.versionNumber }}.0 >> $GITHUB_OUTPUT
+
+      - name: Create release branch
+        run: git checkout -b train-${{ env.versionNumber }}
+
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "${{ github.triggering_actor }}"
+          git config user.email "noreply@github.com"
+
+      - name: Commit update to branch
+        if: env.versionNumber != ''
+        run: |
+          git push origin train-${{ env.versionNumber }}
+
+      - name: Make a new tag
+        if: env.versionNumber != ''
+        run: |
+          git tag -a "v1.${{ env.versionNumber }}.0" -m "Train release ${{ env.versionNumber }}"
+          git push origin v1.${{ env.versionNumber }}.0

@@ -1,0 +1,26 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import React from 'react';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
+import { Account, AppContext } from '../../../models';
+import PageRecoveryPhoneSetup from '.';
+import { LocationProvider } from '@reach/router';
+import { MfaContext } from '../MfaGuard';
+
+export const Subject = ({ account: accountOverrides = {} }) => {
+  const account = {
+    ...MOCK_ACCOUNT,
+    ...accountOverrides,
+  } as Account;
+  return (
+    <LocationProvider>
+      <AppContext.Provider value={{ ...mockAppContext({ account }) }}>
+        <MfaContext.Provider value="2fa">
+          <PageRecoveryPhoneSetup />
+        </MfaContext.Provider>
+      </AppContext.Provider>
+    </LocationProvider>
+  );
+};

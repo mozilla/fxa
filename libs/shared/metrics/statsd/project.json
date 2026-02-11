@@ -1,0 +1,51 @@
+{
+  "name": "shared-metrics-statsd",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/metrics/statsd/src",
+  "projectType": "library",
+  "tags": ["scope:shared:lib"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "main": "libs/shared/metrics/statsd/src/index.ts",
+        "outputPath": "dist/libs/shared/metrics/statsd",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/shared/metrics/statsd/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/metrics/statsd/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/shared/metrics/statsd/**/*.ts"]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/metrics/statsd/jest.config.ts"
+      }
+    }
+  }
+}

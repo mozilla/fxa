@@ -1,0 +1,14 @@
+{
+  "subject": {
+    "id": "inactiveAccountFinalWarning-subject",
+    "message": "Donʼt lose your account"
+  },
+  "action": {
+    "id": "inactiveAccountFinalWarning-action",
+    "message": "Sign in to keep your account"
+  },
+  "preview": {
+    "id": "inactiveAccountFinalWarning-preview",
+    "message": "Sign in to keep your account"
+  }
+}

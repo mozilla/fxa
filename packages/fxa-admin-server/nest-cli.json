@@ -1,0 +1,19 @@
+{
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "assets": [
+      {
+        "include": "**/*.gql",
+        "outDir": "dist/packages/fxa-admin-server/src",
+        "watchAssets": true
+      },
+      {
+        "include": "config/gql/allowlist/",
+        "outDir": "dist/packages/fxa-admin-server/src",
+        "watchAssets": true
+      }
+    ]
+  },
+  "entryFile": "packages/fxa-admin-server/src/main.js"
+}

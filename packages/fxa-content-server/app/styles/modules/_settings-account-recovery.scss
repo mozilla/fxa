@@ -1,0 +1,26 @@
+#fxa-recovery-key-confirm {
+  margin-bottom: 40px;
+}
+
+#account-recovery-confirm-password {
+  .note {
+    font-weight: bold;
+  }
+
+  .email {
+    font-size: 1.3em;
+    font-weight: bold;
+    overflow: hidden;
+    padding-bottom: 25px;
+    text-overflow: ellipsis;
+  }
+
+  .description {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  button.generate-key-link {
+    margin-bottom: 16px;
+  }
+}

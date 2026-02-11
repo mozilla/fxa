@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CmsLogo renders correctly with center positioning 1`] = `
+<div>
+  <div
+    class="mb-4 text-center"
+  >
+    <img
+      alt="foo"
+      class="max-h-[160px] mx-auto"
+      src="/foo.svg"
+    />
+  </div>
+</div>
+`;
+
+exports[`CmsLogo renders correctly with default left positioning 1`] = `
+<div>
+  <div
+    class="mb-4 text-left"
+  >
+    <img
+      alt="foo"
+      class="max-h-[40px]"
+      src="/foo.svg"
+    />
+  </div>
+</div>
+`;

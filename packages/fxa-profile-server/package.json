@@ -1,0 +1,78 @@
+{
+  "name": "fxa-profile-server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Firefox Accounts Profile service.",
+  "scripts": {
+    "lint": "eslint .",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "clean": "rimraf dist",
+    "outdated": "npm outdated --depth 0 || exit 0",
+    "build": "echo 'Build not required'",
+    "start": "pm2 start pm2.config.js && yarn check:url localhost:1111/__heartbeat__",
+    "stop": "pm2 stop pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
+    "test": "scripts/test-local.sh",
+    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-unit-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' --invert",
+    "test-integration": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-integration-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration'",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+  },
+  "dependencies": {
+    "@hapi/boom": "~10.0.0",
+    "@hapi/catbox-memory": "~5.0.1",
+    "@hapi/catbox-redis": "~6.0.2",
+    "@hapi/hapi": "^20.2.1",
+    "@hapi/inert": "7.1.0",
+    "bluebird": "^3.7.2",
+    "checksum": "1.0.0",
+    "compute-cluster": "0.0.9",
+    "convict": "^6.2.4",
+    "convict-format-with-moment": "^6.2.0",
+    "convict-format-with-validator": "^6.2.0",
+    "fxa-shared": "workspace:*",
+    "joi": "^17.13.3",
+    "lodash": "^4.17.21",
+    "mozlog": "^3.0.2",
+    "mysql": "^2.18.1",
+    "poolee": "^1.0.1",
+    "request": "^2.88.2",
+    "sharp": "^0.33.0",
+    "stream-to-array": "2.3.0"
+  },
+  "devDependencies": {
+    "@types/sharp": "^0",
+    "audit-filter": "^0.5.0",
+    "commander": "9.3.0",
+    "eslint": "^8.18.0",
+    "insist": "1.0.1",
+    "mocha": "^10.4.0",
+    "mocha-text-cov": "0.1.1",
+    "nock": "^13.5.1",
+    "nyc": "^17.1.0",
+    "pm2": "^6.0.14",
+    "pngparse": "2.0.1",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "sinon": "^14.0.0",
+    "through": "2.3.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa.git"
+  },
+  "bugs": "https://github.com/mozilla/fxa/issues",
+  "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-profile-server",
+  "author": "Sean McArthur <sean.monstar@gmail.com>",
+  "license": "MPL-2.0",
+  "mocha": {
+    "reporter": "mocha-multi",
+    "reporterOptions": "spec=-,mocha-junit-reporter=-"
+  },
+  "nx": {
+    "tags": [
+      "scope:server",
+      "type:core"
+    ]
+  }
+}

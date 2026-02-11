@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "$id": "https://accounts.firefox.com/feature-flags.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "communicationPrefLanguages": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z]{2}"
+      }
+    },
+    "metricsSampleRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "sentrySampleRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "tokenCodeClients": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[0-9A-Fa-f]{16}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "enableTestEmails": {
+            "type": "boolean"
+          },
+          "groups": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9A-Za-z_-]+$"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": ".+"
+          },
+          "rolloutRate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    }
+  }
+}

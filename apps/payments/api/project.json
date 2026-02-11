@@ -1,0 +1,91 @@
+{
+  "name": "payments-api",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/payments/api/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "webpack-cli build",
+        "args": ["--node-env=production"],
+        "cwd": "apps/payments/api"
+      },
+      "configurations": {
+        "development": {
+          "args": ["--node-env=development"]
+        }
+      },
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/payments/api/**/*.{ts,js}"]
+      }
+    },
+    "prune-lockfile": {
+      "dependsOn": ["build"],
+      "cache": true,
+      "executor": "@nx/js:prune-lockfile",
+      "outputs": [
+        "{workspaceRoot}/dist/apps/payments/api/package.json",
+        "{workspaceRoot}/dist/apps/payments/api/package-lock.json"
+      ],
+      "options": {
+        "buildTarget": "build"
+      }
+    },
+    "copy-workspace-modules": {
+      "dependsOn": ["build"],
+      "cache": true,
+      "outputs": ["{workspaceRoot}/dist/apps/payments/api/workspace_modules"],
+      "executor": "@nx/js:copy-workspace-modules",
+      "options": {
+        "buildTarget": "build"
+      }
+    },
+    "prune": {
+      "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
+      "executor": "nx:noop"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "payments-api:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "payments-api:build:development"
+        },
+        "production": {
+          "buildTarget": "payments-api:build:production"
+        }
+      }
+    },
+    "start": {
+      "command": "pm2 start apps/payments/api/pm2.config.js",
+    },
+    "stop": {
+      "command": "pm2 stop apps/payments/api/pm2.config.js"
+    },
+    "restart": {
+      "command": "pm2 restart apps/payments/api/pm2.config.js",
+    },
+    "delete": {
+      "command": "pm2 delete apps/payments/api/pm2.config.js"
+    },
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": ["app", "payments", "type:sp3"]
+}

@@ -1,0 +1,157 @@
+#
+# For Info See:
+# - Basic Doc: https://github.com/mozilla/fxa/tree/main/libs/accounts/rate-limit
+#
+#
+# Default rule - This is a catch all for all unspecified actions. Very tolerant 1 request per second for now.
+#
+default                               : ip                : 900         : 15 minutes      : 15 minutes    : report
+
+# Failed Login Attempts
+# These are highly suspect activities where a password or CODE is incorrectly provided.
+#
+passwordCheckFailed                   : ip                : 50          : 24 hours        : 4 hours       : ban
+unblockCodeFailed                     : ip                : 50          : 24 hours        : 15 minutes    : ban
+accountDestroyFailed                  : ip                : 50          : 24 hours        : 15 minutes    : ban
+verifyTotpCodeFailed                  : ip                : 50          : 24 hours        : 15 minutes    : ban
+verifySessionCodeFailed               : ip                : 50          : 24 hours        : 15 minutes    : ban
+statusCheckFailed                     : ip                : 50          : 24 hours        : 15 minutes    : ban
+accountStatusCheckFailed              : ip                : 50          : 24 hours        : 4 hours       : ban
+passwordChangeStartFailed             : ip                : 50          : 24 hours        : 15 minutes    : ban
+loadAccountFailed                     : ip                : 50          : 24 hours        : 15 minutes    : ban
+
+#
+# Account Status Check Limits
+# These are less suspect, but still not great. Apply short term bans. These are often used for mining known good accounts.
+#
+accountCreate                         : ip                : 100         : 24 hours        : 24 hours    : block
+accountStatusCheck                    : ip                : 100         : 15 minute       : 15 minute   : block
+recoveryKeyExists                     : ip                : 100         : 15 minute       : 15 minute   : block
+getCredentialsStatus                  : ip                : 100         : 15 minute       : 15 minute   : block
+
+#
+# Password Reset Email Send Limits
+# Controls the number of emails that can be sent
+#
+passwordForgotSendOtp                 : email             : 2           : 15 minutes      : 15 minutes  : block
+passwordForgotSendOtp                 : email             : 5           : 24 hours        : 12 hours    : block
+passwordForgotSendOtp                 : ip                : 50          : 24 hours        : 12 hours    : block
+passwordForgotSendOtp                 : ip                : 20          : 15 minutes      : 30 minutes  : block
+passwordForgotSendOtp                 : ip                : 100         : 24 hours        : 15 minutes  : ban
+
+#
+# Password Reset OTP Verification Limits
+# Controls the number of attempts a user can make at entering an OTP code. Note there are two limits for this action. One
+# operates on the typical 10 minute time window, and one that operates on a 24 hour time window. Also note that if detect
+# a single IP hitting this action frequently they get banned for the day.
+#
+passwordForgotVerifyOtp               : ip_email          : 5           : 10 minutes      : 15 minutes  : block
+passwordForgotVerifyOtp               : ip                : 100         : 24 hours        : 15 minutes  : ban
+passwordForgotVerifyOtpPerDay         : ip_email          : 10          : 24 hours        : 24 hours    : block
+passwordForgotVerifyOtpPerDay         : ip                : 100         : 24 hours        : 15 minutes  : ban
+
+#
+# Email Send - These are limits on rate at which emails can be sent out. We limit both IP and email address
+# since many of these operations do not require authentication. Some operations, however, require sessions
+# and for these we should switch over to using UID. See FXA-11777 for more details.
+#
+createEmail                           : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+recoveryEmailResendCode               : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+recoveryEmailSecondaryResendCode      : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+recoveryEmailSecondaryResendCode      : ip                : 100         : 24 hours        : 15 minutes  : ban
+passwordForgotSendCode                : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+passwordForgotSendCode                : ip                : 100         : 24 hours        : 15 minutes  : ban
+passwordForgotResendCode              : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+passwordForgotResendCode              : ip                : 100         : 24 hours        : 15 minutes  : ban
+sendVerifyCode                        : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+sendVerifyCode                        : ip                : 100         : 24 hours        : 15 minutes  : ban
+sendUnblockCode                       : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+sendUnblockCode                       : ip                : 100         : 24 hours        : 15 minutes  : ban
+unblockEmail                          : ip_email          : 10          : 10 minutes      : 15 minutes  : block
+unblockEmail                          : ip                : 100         : 24 hours        : 15 minutes  : ban
+
+#
+# Bad Login Attempts - These are specific to login failures. Again, the user hasn't authenticated yet, so we check both
+# email and ip.
+#
+accountLogin                          : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+accountLogin                          : ip                : 100         : 24 hours        : 15 minutes  : ban
+accountLogin                          : email             : 50.         : 24 hours        : 24 hours    : block
+authenticatedAccountLogin             : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+authenticatedAccountLogin             : ip                : 100         : 24 hours        : 15 minutes  : ban
+authenticatedAccountLogin             : email             : 50          : 24 hours        : 24 hours    : block
+
+#
+# Account Destroy
+# Happens when a user decides to delete their account entirely. The rule on IP, prevents any malicious attempts at taking
+# down lots of accounts.
+#
+accountDestroy                        : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+accountDestroy                        : ip                : 100         : 24 hours        : 15 minutes  : ban
+
+#
+# Password change
+# Occurs when a user attempts to change their password. This validates the password, so it should be treated in a similar
+# fashion as the login rule.
+#
+passwordChange                        : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+passwordChange                        : ip                : 100         : 24 hours        : 15 minutes  : ban
+authenticatedPasswordChange           : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+authenticatedPasswordChange           : ip                : 100         : 24 hours        : 15 minutes  : ban
+
+#
+# Verify Code Limits
+# Limits the number of attempts a user can make at providing a token code, typically sent to their email.
+#
+recoveryEmailVerifyCode               : ip_uid            : 10          : 10 minutes      : 30 minutes  : block
+recoveryEmailVerifyCode               : ip                : 100         : 24 hours        : 15 minutes  : ban
+recoveryEmailSecondaryVerifyCode      : ip_uid            : 10          : 10 minutes      : 30 minutes  : block
+recoveryEmailSecondaryVerifyCode      : ip                : 100         : 24 hours        : 15 minutes  : ban
+passwordForgotVerifyCode              : ip_email          : 10          : 10 minutes      : 30 minutes  : block
+passwordForgotVerifyCode              : ip                : 100         : 24 hours        : 15 minutes  : ban
+verifyRecoveryCode                    : ip_uid            : 10          : 10 minutes      : 30 minutes  : block
+verifyRecoveryCode                    : ip                : 100         : 24 hours        : 15 minutes  : ban
+verifySessionCode                     : ip_uid            : 10          : 15 minutes      : 15 minutes  : block
+verifySessionCode                     : ip                : 100         : 24 hours        : 15 minutes  : ban
+verifyRecoveryPhoneTotpCode           : ip_uid            : 5           : 5 minutes       : 15 minutes  : block
+verifyRecoveryPhoneTotpCode           : ip                : 100         : 24 hours        : 15 minutes  : ban
+
+#
+# Verify TOTP Code Limits
+# This is the number of times a code from a MFA authenticator app can be attempted.
+#
+verifyTotpCode                        : ip_uid            : 10          : 30 seconds      : 15 minutes  : block
+verifyTotpCode                        : ip                : 100         : 24 hours        : 15 minutes  : ban
+totpCreate                            : ip_uid            : 10          : 10 minutes      : 15 minutes  : block
+totpCreate                            : ip                : 100         : 24 hours        : 15 minutes  : ban
+
+#
+# Recovery Phone Setup Code
+# This happens when a user adds a new phone number to their account. This code verifies the presence of the the phone.
+#
+recoveryPhoneSendSetupCode            : ip_uid            : 9           : 24 hours        : 24 hours    : block
+recoveryPhoneSendSetupCode            : ip                : 100         : 24 hours        : 15 minutes  : ban
+
+#
+# Recovery Phone Signin Code
+# This happens when a user signs in with a recovery phone as their 2FA. We limit this so that users don't abuse / totally
+# rely on the feature.
+#
+recoveryPhoneSendSigninCode           : ip_uid            : 6           : 24 hours        : 24 hours    : block
+recoveryPhoneSendSigninCode           : ip                : 100         : 24 hours        : 15 minutes  : ban
+
+#
+# MFA Dialogs
+# This controls the otp code sending and verification for the MfaGuard. Note that we define these per valid mfa type/action
+# so that dialogs don't interfere with each other. ie The counts that unblock email functionality are kept separate from
+# the counts that effect 2FA activity.
+#
+mfaOtpCodeRequestForEmail              : uid              : 10          : 5 minutes       : 15 minutes   : block
+mfaOtpCodeRequestFor2fa                : uid              : 10          : 5 minutes       : 15 minutes   : block
+mfaOtpCodeRequestForPassword           : uid              : 10          : 5 minutes       : 15 minutes   : block
+mfaOtpCodeRequestForRecoveryKey        : uid              : 10          : 5 minutes       : 15 minutes   : block
+# Verify Code rate limits
+mfaOtpCodeVerifyForEmail               : uid              : 5           : 5 minutes       : 15 minutes   : block
+mfaOtpCodeVerifyFor2fa                 : uid              : 5           : 5 minutes       : 15 minutes   : block
+mfaOtpCodeVerifyForPassword            : uid              : 5           : 5 minutes       : 15 minutes   : block
+mfaOtpCodeVerifyForRecoveryKey         : uid              : 5           : 5 minutes       : 15 minutes   : block

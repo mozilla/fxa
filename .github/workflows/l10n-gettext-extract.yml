@@ -1,0 +1,91 @@
+name: String extraction test
+on:
+  pull_request:
+    paths:
+      - 'packages/fxa-content-server/**'
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Linux packages
+        run: |
+          sudo apt update
+          sudo apt install gettext -y
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 18
+      - name: Install global npm packages
+        run: |
+          yarn global add grunt-cli
+      - name: Clone l10n repository
+        uses: actions/checkout@v6
+        with:
+          repository: mozilla/fxa-content-server-l10n
+          path: 'fxa-l10n'
+      - name: Clone FxA code repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+          path: 'fxa-code'
+      - name: Install npm packages
+        run: |
+          cd fxa-l10n
+          yarn install
+      - name: Extract gettext strings and flag for review
+        run: |
+          cd fxa-code
+          _scripts/l10n/clone.sh
+          yarn workspaces focus fxa-content-server
+
+          # Extract gettext
+          cd ./packages/fxa-content-server
+          npx grunt l10n-extract
+          cd ../..
+
+          # Get hash from PR commit.
+          NEW_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
+
+          # Checkout base commit
+          git fetch origin ${{ github.event.pull_request.base.sha }}
+          git checkout ${{ github.event.pull_request.base.sha }}
+
+          # Extract gettext
+          cd ./packages/fxa-content-server
+          rm -rf ./locale/templates/LC_MESSAGES/*
+          npx grunt l10n-extract
+          cd ../..
+
+          # Get hash from base commit
+          OLD_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
+
+          # Compare hashes
+          if [ "$NEW_HASHES" = "$OLD_HASHES" ]
+          then
+            echo "No changes found."
+          else
+            # `grep -p "fxa-l10n` fails w/exit code 1 when 'fxa-l10n' is not found in the review list and breaks the
+            # command pipeline. Capture this with `GREP_STATUS` to directly check against the grep exit code
+            gh pr view $PR_NUMBER --json reviewRequests | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n" || GREP_STATUS=$?
+            if [ $GREP_STATUS -ne 0 ]; then
+                # Check if someone from the Localization Team already reviewed the PR.
+                # Get the list of fxa-l10n reviewers, excluding non-l10n members
+                L10N_REVIEWERS=$(gh api -H "Accept: application/vnd.github+json" /orgs/mozilla/teams/fxa-l10n/members | jq -r '(.[].login | select(. != "clouserw"))' | sort)
+                # Get the list of reviewers who already approved the pull request
+                PR_REVIEWERS=$(gh pr view $PR_NUMBER --json reviews | jq -r '.reviews[] | select(.state=="APPROVED") | .author.login' | sort)
+                # Check intersection of the two lists
+                L10N_APPROVERS=$(comm -12 <(echo "$L10N_REVIEWERS") <(echo "$PR_REVIEWERS"))
+                if [ -z "$L10N_APPROVERS" ]; then
+                    # Add mozilla/fxa-l10n as reviewer
+                    echo "New changes found, adding reviewer."
+                    gh pr edit $PR_NUMBER --add-reviewer mozilla/fxa-l10n
+                else
+                    echo "PR already reviewed by the localization team, skip adding reviewer."
+                fi
+            else
+                echo "fxa-l10n already added, skip adding reviewer."
+            fi
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.L10N_BUILDCHECK_GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.number }}

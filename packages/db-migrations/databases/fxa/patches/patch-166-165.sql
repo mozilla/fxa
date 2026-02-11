@@ -1,0 +1,5 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- DELETE FROM securityEventNames WHERE name = 'account.must_reset';
+--
+-- UPDATE dbMetadata SET value = '165' WHERE name = 'schema-patch-level';

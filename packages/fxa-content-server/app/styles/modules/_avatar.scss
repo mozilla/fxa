@@ -1,0 +1,97 @@
+.user-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+
+  @include respond-to('small') {
+    border-radius: 4px;
+  }
+
+  .user-info {
+    flex: 1;
+    flex-basis: 60px;
+    height: 111px;
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  a {
+    font-size: 13px;
+  }
+}
+
+.avatar-wrapper {
+  border-radius: 50%;
+  border-width: 0;
+  height: $avatar-size;
+  line-height: 0;
+  margin: 0 auto;
+  overflow: hidden;
+  position: relative;
+  width: $avatar-size;
+
+  &.spinner-completed {
+    border: 2px solid $avatar-border-color;
+    box-shadow: $card-box-low;
+  }
+
+  .default {
+    background-image: image-url('default-profile.svg');
+    background-size: cover;
+  }
+
+  // remove when Payments isn't using `avatar-settings-view`
+  &.avatar-settings-view {
+    align-items: center;
+    border: 2px solid transparent;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    margin: 0;
+
+    &.spinner-completed {
+      border: 2px solid $avatar-border-color;
+      box-shadow: $card-box-low;
+    }
+
+    @include respond-to('big') {
+      height: 64px;
+      width: 64px;
+    }
+
+    @include respond-to('small') {
+      height: 50px;
+      width: 50px;
+    }
+  }
+
+  .avatar-image {
+    @include respond-to('big') {
+      height: 64px;
+      width: 64px;
+    }
+
+    @include respond-to('small') {
+      height: 50px;
+      width: 50px;
+    }
+  }
+}
+
+#done {
+  width: 100%;
+}
+
+.notice {
+  color: $faint-text-color;
+  font-size: $base-font;
+  padding-top: 10px;
+}
+
+.no-getusermedia #camera {
+  display: none;
+}

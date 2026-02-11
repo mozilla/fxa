@@ -1,0 +1,13 @@
+{
+  "logging": {
+    "fmt": "pretty",
+    "debug": true,
+    "level": "warn"
+  },
+  "img": {
+    "driver": "local",
+    "compute": {
+      "maxProcesses": 0
+    }
+  }
+}

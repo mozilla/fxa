@@ -1,0 +1,16 @@
+.coupon-component {
+  // will be resolved after https://mozilla-hub.atlassian.net/browse/FXA-5638
+  .input-row {
+    margin: 0;
+  }
+
+  // will be resolved after https://mozilla-hub.atlassian.net/browse/FXA-5637
+  .button {
+    padding: 0 16px;
+    max-height: 40px;
+
+    @media (min-width: 521px) {
+      max-height: 48px;
+    }
+  }
+}

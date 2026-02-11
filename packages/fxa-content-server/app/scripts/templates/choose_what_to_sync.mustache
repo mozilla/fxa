@@ -1,0 +1,29 @@
+<div id="main-content" class="card choose-what-to-sync">
+  <div class="error"></div>
+  <div class="graphic graphic-choose-what-to-sync"></div>
+
+  <section>
+    <form id="choose-what-to-sync" novalidate>
+      <header>
+        <h1 id="fxa-choose-what-to-sync-header" class="font-normal mb-5 text-base">
+          {{#t}}Choose what to sync:{{/t}}
+        </h1>
+      </header>
+      <div class="flex flex-wrap text-start ltr:mobileLandscape:ml-6 rtl:mobileLandscape:mr-6">
+        {{#engines}}
+          <div class="mb-5 relative flex-50% rtl:mobileLandscape:pr-6 ltr:mobileLandscape:pl-6 rtl:pr-3 ltr:pl-3">
+            <input name="sync-content" id="sync-engine-{{id}}" type="checkbox" {{#checked}}checked="checked"{{/checked}} value="{{id}}" tabindex="{{tabindex}}" /><label class="top-1" for="sync-engine-{{id}}">{{text}}</label>
+          </div>
+        {{/engines}}
+      </div>
+      <div class="button-row">
+        <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Sync selections{{/t}}</button>
+      </div>
+      {{#showDoNotSyncButton}}
+        <div class="links">
+          <a id="do-not-sync-device" href="#">{{#t}}Don’t sync this device{{/t}}</a>
+        </div>
+      {{/showDoNotSyncButton}}
+    </form>
+  </section>
+</div>

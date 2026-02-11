@@ -1,0 +1,92 @@
+{{{ brandMessagingHTML }}}
+<div class="card">
+  <header class="mb-8">
+    {{#isSync}}
+      <h1 id="fxa-enter-email-header" class="card-header">
+        {{#t}}Continue to your Mozilla account{{/t}}
+      </h1>
+      <p class="mt-1 mb-9" id="subheader">
+        {{#t}}Sync your passwords, tabs, and bookmarks everywhere you use Firefox.{{/t}}
+      </p>
+      {{/isSync}}
+      {{^isSync}}
+        {{^isOAuthNativeRelay}}
+          <h1 id="fxa-enter-email-header" class="card-header">
+            {{#t}}Enter your email{{/t}}
+            <span class="block text-sm font-body font-normal mt-1" id="subheader">
+              {{#serviceLogo}}
+                <!-- L10N: For languages structured like English, the phrase can read "to continue to" with Pocket image following -->
+                {{#unsafeTranslate}}Continue to <div class="graphic %(serviceLogo)s">%(serviceName)s</div>{{/unsafeTranslate}}
+              {{/serviceLogo}}
+              {{^serviceLogo}}
+                <!-- L10N: For languages structured like English, the phrase can read "to continue to %(serviceName)s" -->
+                {{#t}}Continue to %(serviceName)s{{/t}}
+              {{/serviceLogo}}
+            </span>
+          </h1>
+        {{/isOAuthNativeRelay}}
+        {{#isOAuthNativeRelay}}
+          <h1 id="fxa-enter-email-header" class="card-header">
+            {{#t}}Create an email mask{{/t}}
+          </h1>
+          <p class="mt-1 mb-9 text-grey-600" id="subheader">
+            {{#t}}Please provide the email address where you’d like to forward emails from your masked email.{{/t}}
+          </p>
+        {{/isOAuthNativeRelay}}
+      {{/isSync}}
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+    {{{ syncSuggestionHTML }}}
+
+    <form novalidate>
+      <div class="tooltip-container">
+        <input name="email" type="email" class="input-text tooltip-below" autofocus placeholder="{{#t}}Enter your email{{/t}}"/>
+      </div>
+
+      <div class="flex mt-5">
+        <button id="submit-btn" type="submit" class="cta-primary cta-xl">
+          {{#t}}Sign up or sign in{{/t}}
+        </button>
+      </div>
+    </form>
+
+    {{^isSync}}
+      {{^isOAuthNativeRelay}}
+        {{{ unsafeThirdPartyAuthHTML }}}
+      {{/isOAuthNativeRelay}}
+    {{/isSync}}
+
+    <div class="text-xs text-grey-500 mb-0
+    {{#isOAuthNativeRelay}}mt-8{{/isOAuthNativeRelay}}
+    {{^isOAuthNativeRelay}}mt-5{{/isOAuthNativeRelay}}">
+      {{#isSync}}
+        <p id="firefox-family-services" class="mb-2">
+          {{#t}}A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}
+        </p>
+      {{/isSync}}
+      {{#isPocketClient}}
+        {{#unsafeTranslate}}
+          By proceeding, you agree to the:<br />
+          Pocket <a class="link-grey" id="pocket-tos" href="https://getpocket.com/tos/">Terms of Service</a> and <a id="pocket-pp" class="link-grey" href="https://getpocket.com/privacy/">Privacy Notice</a><br />
+          Mozilla Accounts <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>
+        {{/unsafeTranslate}}
+      {{/isPocketClient}}
+      {{^isPocketClient}}
+        {{#showSubscriptionTerms}}
+          {{#unsafeTranslate}}
+            By proceeding, you agree to the:<br />
+            Mozilla Subscription Services <a class="link-grey" id="moz-subscription-tos" href="https://www.mozilla.org/about/legal/terms/subscription-services/">Terms of Service</a> and <a class="link-grey" id="moz-subscription-privacy" href="https://www.mozilla.org/privacy/subscription-services/">Privacy Notice</a><br />
+            Mozilla Accounts <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>
+          {{/unsafeTranslate}}
+        {{/showSubscriptionTerms}}
+        {{^showSubscriptionTerms}}
+          {{#unsafeTranslate}}By proceeding, you agree to the <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
+        {{/showSubscriptionTerms}}
+      {{/isPocketClient}}
+    </div>
+
+  </section>
+</div>

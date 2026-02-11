@@ -1,0 +1,98 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+'use strict';
+
+// Important! Must be required first to get proper hooks in place.
+require('../lib/monitoring');
+
+const config = require('../config').default.getProperties();
+const StatsD = require('hot-shots');
+const { CurrencyHelper } = require('../lib/payments/currencies');
+
+const { Container } = require('typedi');
+const { AuthFirestore, AppConfig, AuthLogger } = require('../lib/types');
+const { StripeHelper } = require('../lib/payments/stripe');
+const { setupFirestore } = require('../lib/firestore-db');
+const { gleanMetrics } = require('../lib/metrics/glean');
+const glean = gleanMetrics(config);
+
+const statsd = new StatsD(config.statsd);
+Container.set(StatsD, statsd);
+const log = require('../lib/log')(config.log.level, 'fxa-email-bouncer', {
+  statsd,
+});
+
+Container.set(AppConfig, config);
+Container.set(AuthLogger, log);
+
+// Set currencyHelper before stripe and paypal helpers, so they can use it.
+try {
+  // eslint-disable-next-line
+  const currencyHelper = new CurrencyHelper(config);
+  Container.set(CurrencyHelper, currencyHelper);
+} catch (err) {
+  log.error('Invalid currency configuration', {
+    err: { message: err.message },
+  });
+  process.exit(1);
+}
+
+const authFirestore = setupFirestore(config);
+Container.set(AuthFirestore, authFirestore);
+
+/** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
+let stripeHelper = undefined;
+if (config.subscriptions && config.subscriptions.stripeApiKey) {
+  const { createStripeHelper } = require('../lib/payments/stripe');
+  stripeHelper = createStripeHelper(log, config, statsd);
+  Container.set(StripeHelper, stripeHelper);
+
+  if (config.subscriptions.paypalNvpSigCredentials.enabled) {
+    const { PayPalClient } = require('@fxa/payments/paypal');
+    const { PayPalHelper } = require('../lib/payments/paypal/helper');
+    const paypalClient = new PayPalClient(
+      config.subscriptions.paypalNvpSigCredentials,
+      statsd
+    );
+    Container.set(PayPalClient, paypalClient);
+    const paypalHelper = new PayPalHelper({ log });
+    Container.set(PayPalHelper, paypalHelper);
+  }
+}
+
+const { AppError: error } = require('@fxa/accounts/errors');
+const Token = require('../lib/tokens')(log, config);
+const SQSReceiver = require('../lib/sqs')(log, statsd);
+const bounces = require('../lib/email/bounces')(log, error, config, statsd);
+const delivery = require('../lib/email/delivery')(log, glean);
+const deliveryDelay = require('../lib/email/delivery-delay')(log, statsd);
+const notifications = require('../lib/email/notifications')(log, error);
+
+const { createDB } = require('../lib/db');
+const DB = createDB(config, log, Token);
+
+const {
+  bounceQueueUrl,
+  complaintQueueUrl,
+  deliveryQueueUrl,
+  deliveryDelayQueueUrl,
+  notificationQueueUrl,
+  region,
+} = config.emailNotifications;
+
+const bounceQueue = new SQSReceiver(region, [
+  bounceQueueUrl,
+  complaintQueueUrl,
+]);
+const deliveryQueue = new SQSReceiver(region, [deliveryQueueUrl]);
+const deliveryDelayQueue = new SQSReceiver(region, [deliveryDelayQueueUrl]);
+const notificationQueue = new SQSReceiver(region, [notificationQueueUrl]);
+
+DB.connect(config).then((db) => {
+  bounces(bounceQueue, db);
+  delivery(deliveryQueue);
+  deliveryDelay(deliveryDelayQueue);
+  notifications(notificationQueue, db);
+});

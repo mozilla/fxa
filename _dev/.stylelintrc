@@ -1,0 +1,46 @@
+{
+  "extends": [
+    "stylelint-config-prettier",
+    "stylelint-config-recommended-scss"
+  ],
+  "ignoreFiles": [
+    "../**/tailwind.out.scss",
+    "../libs/accounts/email-renderer/src/**/*.{scss,css}"
+  ],
+  "rules": {
+    "declaration-empty-line-before": "never",
+    "no-descending-specificity": null,
+    "selector-max-id": [
+      2,
+      {
+        "message": "Using ID selectors is discouraged",
+        "severity": "warning"
+      }
+    ],
+
+    "scss/at-extend-no-missing-placeholder": null,
+    "scss/at-import-partial-extension": null,
+    "scss/at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "at-root",
+          "each",
+          "else",
+          "error",
+          "extend",
+          "function",
+          "if",
+          "include",
+          "layer",
+          "mixin",
+          "responsive",
+          "return",
+          "screen",
+          "tailwind",
+          "use"
+        ]
+      }
+    ]
+  }
+}

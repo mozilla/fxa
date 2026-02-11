@@ -1,0 +1,19 @@
+<div class="mt-9">
+    {{#deviceName}}<h2 class="mb-5 text-base">{{deviceName}}</h2>{{/deviceName}}
+
+    <p class="text-xs" id="family-os">{{#t}}%(family)s on %(OS)s{{/t}}</p>
+    <p class="text-xs" id="location">
+        {{#country}}
+            {{#city}}
+                {{#region}}{{#t}}%(city)s, %(region)s, %(country)s (estimated){{/t}}{{/region}}
+                {{^region}}{{#t}}%(city)s, %(country)s (estimated){{/t}}{{/region}}
+            {{/city}}
+            {{^city}}
+                {{#region}}{{#t}}%(region)s, %(country)s (estimated){{/t}}{{/region}}
+                {{^region}}{{#t}}%(country)s{{/t}}{{/region}}
+            {{/city}}
+        {{/country}}
+        {{^country}}{{#t}}Location unknown{{/t}}{{/country}}
+    </p>
+    <p class="text-xs" id="ip-address">{{#t}}IP address: %(ipAddress)s{{/t}}</p>
+</div>

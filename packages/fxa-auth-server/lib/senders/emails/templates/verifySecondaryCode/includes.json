@@ -1,0 +1,14 @@
+{
+  "subject": {
+    "id": "verifySecondaryCode-subject-2",
+    "message": "Use <%- code %> to confirm your secondary email"
+  },
+  "preview": {
+    "id": "verifySecondaryCode-preview",
+    "message": "This code expires in 5 minutes."
+  },
+  "action": {
+    "id": "verifySecondaryCode-action-2",
+    "message": "Confirm email"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "env": "development",
+  "logging": {
+    "fmt": "pretty",
+    "level": "all",
+    "debug": true
+  },
+  "img": {
+    "driver": "local"
+  },
+  "serverCache": {
+    "useRedis": false
+  },
+  "secretBearerToken": "8675309jenny"
+}

@@ -1,0 +1,26 @@
+{
+  "name": "fxa-dev-launcher",
+  "version": "0.0.0",
+  "description": "",
+  "scripts": {
+    "lint": "eslint . --ext .mjs",
+    "start": "./bin/fxa-dev-launcher.mjs",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+  },
+  "bin": "./bin/fxa-dev-launcher.mjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vladikoff/fxa-dev-launcher"
+  },
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "foxfire": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/eslint": "^8",
+    "eslint": "^8.38.0",
+    "eslint-config-react-app": "^7.0.1"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker",
+    "ms-vsliveshare.vsliveshare",
+    "github.vscode-pull-request-github",
+    "bierner.github-markdown-preview",
+    "alex-young.pm2-explorer",
+    "dannycoates.pm2-node-debugger",
+    "firefox-devtools.vscode-firefox-debug",
+    "firsttris.vscode-jest-runner"
+  ]
+}

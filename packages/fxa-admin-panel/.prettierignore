@@ -1,0 +1,11 @@
+LICENSE
+.*
+*.ico
+*.png
+*.svg
+*.docker
+Dockerfile*
+public/images/*
+coverage/*
+build/*
+node_modules/*

@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postVerify-subject-4",
+    "message": "Welcome to Mozilla!"
+  },
+  "action": {
+    "id": "postVerify-action-2",
+    "message": "Connect another device"
+  }
+}

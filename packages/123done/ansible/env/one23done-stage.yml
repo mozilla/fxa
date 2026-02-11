@@ -1,0 +1,3 @@
+issuer_uri: https://accounts.stage.mozaws.net
+fqdn_trusted: 123done-stage.dev.lcip.org
+fqdn_untrusted: 321done-stage.dev.lcip.org

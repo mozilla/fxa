@@ -1,0 +1,40 @@
+<svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter x="-18.5%" y="-13.5%" width="137.1%" height="131.2%" filterUnits="objectBoundingBox" id="a">
+            <feMorphology radius="3" in="SourceAlpha" result="shadowSpreadOuter1"/>
+            <feOffset dy="12" in="shadowSpreadOuter1" result="shadowOffsetOuter1"/>
+            <feGaussianBlur stdDeviation="8" in="shadowOffsetOuter1" result="shadowBlurOuter1"/>
+            <feColorMatrix values="0 0 0 0 0.0549019608 0 0 0 0 0.0509803922 0 0 0 0 0.101960784 0 0 0 0.12 0"
+                           in="shadowBlurOuter1" result="shadowMatrixOuter1"/>
+            <feMorphology radius="4" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter2"/>
+            <feOffset dy="10" in="shadowSpreadOuter2" result="shadowOffsetOuter2"/>
+            <feGaussianBlur stdDeviation="24" in="shadowOffsetOuter2" result="shadowBlurOuter2"/>
+            <feColorMatrix values="0 0 0 0 0.0274509804 0 0 0 0 0.188235294 0 0 0 0 0.447058824 0 0 0 0.12 0"
+                           in="shadowBlurOuter2" result="shadowMatrixOuter2"/>
+            <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter3"/>
+            <feOffset dy="24" in="shadowSpreadOuter3" result="shadowOffsetOuter3"/>
+            <feGaussianBlur stdDeviation="19" in="shadowOffsetOuter3" result="shadowBlurOuter3"/>
+            <feColorMatrix values="0 0 0 0 0.133333333 0 0 0 0 0 0 0 0 0 0.2 0 0 0 0.04 0" in="shadowBlurOuter3"
+                           result="shadowMatrixOuter3"/>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"/>
+                <feMergeNode in="shadowMatrixOuter2"/>
+                <feMergeNode in="shadowMatrixOuter3"/>
+            </feMerge>
+        </filter>
+        <rect id="b" x="942" y="436" width="480" height="584" rx="12"/>
+        <path d="M20 14a1 1 0 011 1v2.5a3.5 3.5 0 01-3.5 3.5H15a1 1 0 010-2h2.5a1.5 1.5 0 001.5-1.5V15a1 1 0 011-1zM4 14a1 1 0 011 1v2.5A1.5 1.5 0 006.5 19H9a1 1 0 010 2H6.5A3.5 3.5 0 013 17.5V15a1 1 0 011-1zm13 1v2h-2v-2h2zm-4 0v2h-2v-2h2zm-4 0v2H7v-2h2zm2-2v2H9v-2h2zm4 0v2h-2v-2h2zm2-2v2h-2v-2h2zm-6-4v4H7V7h4zm4 2v2h-2V9h2zm2.5-6A3.5 3.5 0 0121 6.5V9a1 1 0 01-2 0V6.5A1.5 1.5 0 0017.5 5H15a1 1 0 010-2zM9 3a1 1 0 110 2H6.5A1.5 1.5 0 005 6.5V9a1 1 0 11-2 0V6.5A3.5 3.5 0 016.5 3zm8 4v2h-2V7h2z"
+              id="c"/>
+    </defs>
+    <g fill="none" fill-rule="evenodd">
+        <path fill="#FAFAFE" d="M-1118-853h3421v2155h-3421z"/>
+        <g transform="translate(-1118 -853)">
+            <use fill="#000" filter="url(#a)" xlink:href="#b"/>
+            <use fill="#FFF" xlink:href="#b"/>
+        </g>
+        <g transform="translate(-136 -11)">
+            <rect fill="#0060DF" width="400" height="40" rx="4"/>
+            <use fill-opacity=".799" fill="#FFF" xlink:href="#c" transform="translate(133 8)"/>
+        </g>
+    </g>
+</svg>

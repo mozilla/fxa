@@ -1,0 +1,333 @@
+{
+  "name": "fxa-shared",
+  "version": "0.0.0",
+  "description": "Shared module for FxA repositories",
+  "main": "dist/cjs/packages/fxa-shared/index.js",
+  "module": "dist/esm/packages/fxa-shared/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/packages/fxa-shared/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/index.js"
+    },
+    "./*": {
+      "import": "./dist/esm/packages/fxa-shared/*",
+      "require": "./dist/cjs/packages/fxa-shared/*"
+    },
+    "./auth": {
+      "import": "./dist/esm/packages/fxa-shared/auth/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/auth/index.js"
+    },
+    "./auth/*": {
+      "import": "./dist/esm/packages/fxa-shared/auth/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/auth/*.js"
+    },
+    "./cache/*": {
+      "import": "./dist/esm/packages/fxa-shared/cache/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/cache/*.js"
+    },
+    "./configuration/*": {
+      "import": "./dist/esm/packages/fxa-shared/configuration/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/configuration/*.js"
+    },
+    "./connected-services": {
+      "import": "./dist/esm/packages/fxa-shared/connected-services/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/connected-services/index.js"
+    },
+    "./connected-services/*": {
+      "import": "./dist/esm/packages/fxa-shared/connected-services/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/connected-services/*.js"
+    },
+    "./coverage/*": {
+      "import": "./dist/esm/packages/fxa-shared/coverage/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/coverage/*.js"
+    },
+    "./db": {
+      "import": "./dist/esm/packages/fxa-shared/db/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/index.js"
+    },
+    "./db/*": {
+      "import": "./dist/esm/packages/fxa-shared/db/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/*.js"
+    },
+    "./db/config": {
+      "import": "./dist/esm/packages/fxa-shared/db/config.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/config.js"
+    },
+    "./db/models": {
+      "import": "./dist/esm/packages/fxa-shared/db/models/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/models/index.js"
+    },
+    "./db/models/auth": {
+      "import": "./dist/esm/packages/fxa-shared/db/models/auth/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/models/auth/index.js"
+    },
+    "./db/models/auth/*": {
+      "import": "./dist/esm/packages/fxa-shared/db/models/auth/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/models/auth/*.js"
+    },
+    "./db/models/profile": {
+      "import": "./dist/esm/packages/fxa-shared/db/models/profile/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/models/profile/index.js"
+    },
+    "./db/mysql": {
+      "import": "./dist/esm/packages/fxa-shared/db/mysql.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/mysql.js"
+    },
+    "./db/redis": {
+      "import": "./dist/esm/packages/fxa-shared/db/redis.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/redis.js"
+    },
+    "./dto/*": {
+      "import": "./dist/esm/packages/fxa-shared/dto/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/dto/*.js"
+    },
+    "./email/*": {
+      "import": "./dist/esm/packages/fxa-shared/email/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/email/*.js"
+    },
+    "./email/popularDomains.json": {
+      "import": "./dist/esm/packages/fxa-shared/email/popularDomains.json",
+      "require": "./dist/cjs/packages/fxa-shared/email/popularDomains.json"
+    },
+    "./experiments/*": {
+      "import": "./dist/esm/packages/fxa-shared/experiments/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/experiments/*.js"
+    },
+    "./express": {
+      "import": "./dist/esm/packages/fxa-shared/express/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/express/index.js"
+    },
+    "./express/*": {
+      "import": "./dist/esm/packages/fxa-shared/express/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/express/*.js"
+    },
+    "./feature-flags": {
+      "import": "./dist/esm/packages/fxa-shared/feature-flags/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/feature-flags/index.js"
+    },
+    "./feature-flags/*": {
+      "import": "./dist/esm/packages/fxa-shared/feature-flags/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/feature-flags/*.js"
+    },
+    "./lib/*": {
+      "import": "./dist/esm/packages/fxa-shared/lib/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/lib/*.js"
+    },
+    "./log": {
+      "import": "./dist/esm/packages/fxa-shared/log/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/log/index.js"
+    },
+    "./log/*": {
+      "import": "./dist/esm/packages/fxa-shared/log/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/log/*.js"
+    },
+    "./monitoring": {
+      "import": "./dist/esm/packages/fxa-shared/monitoring/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/monitoring/index.js"
+    },
+    "./metrics/*": {
+      "import": "./dist/esm/packages/fxa-shared/metrics/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/metrics/*.js"
+    },
+    "./nestjs/*": {
+      "import": "./dist/esm/packages/fxa-shared/nestjs/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/nestjs/*.js"
+    },
+    "./oauth/*": {
+      "import": "./dist/esm/packages/fxa-shared/oauth/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/oauth/*.js"
+    },
+    "./payments/*": {
+      "import": "./dist/esm/packages/fxa-shared/payments/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/*.js"
+    },
+    "./payments/configuration/*": {
+      "import": "./dist/esm/packages/fxa-shared/payments/configuration/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/configuration/*.js"
+    },
+    "./payments/iap/*": {
+      "import": "./dist/esm/packages/fxa-shared/payments/iap/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/iap/*.js"
+    },
+    "./payments/iap/apple-app-store/types": {
+      "import": "./dist/esm/packages/fxa-shared/payments/iap/apple-app-store/types/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/iap/apple-app-store/types/index.js"
+    },
+    "./payments/iap/google-play/types": {
+      "import": "./dist/esm/packages/fxa-shared/payments/iap/google-play/types/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/iap/google-play/types/index.js"
+    },
+    "./payments/stripe": {
+      "import": "./dist/esm/packages/fxa-shared/payments/stripe.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/stripe.js"
+    },
+    "./payments/stripe-firestore": {
+      "import": "./dist/esm/packages/fxa-shared/payments/stripe-firestore.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/stripe-firestore.js"
+    },
+    "./scripts/*": {
+      "import": "./dist/esm/packages/fxa-shared/scripts/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/scripts/*.js"
+    },
+    "./sentry": {
+      "import": "./dist/esm/packages/fxa-shared/sentry/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/sentry/index.js"
+    },
+    "./sentry/*": {
+      "import": "./dist/esm/packages/fxa-shared/sentry/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/sentry/*.js"
+    },
+    "./speed-trap/*": {
+      "import": "./dist/esm/packages/fxa-shared/speed-trap/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/speed-trap/*.js"
+    },
+    "./subscriptions/*": {
+      "import": "./dist/esm/packages/fxa-shared/subscriptions/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/subscriptions/*.js"
+    },
+    "./tracing/*": {
+      "import": "./dist/esm/packages/fxa-shared/tracing/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/tracing/*.js"
+    },
+    "./test/db/models/auth/*": {
+      "import": "./dist/esm/packages/fxa-shared/test/db/models/auth/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/test/db/models/auth/*.js"
+    }
+  },
+  "scripts": {
+    "build": "yarn build-ts && yarn copy-assets && yarn copy-sql",
+    "build-ts": "tsc --build && tsc-alias && tsc --build tsconfig.cjs.json && tsc-alias -p tsconfig.cjs.json",
+    "clean": "rm -rf dist",
+    "compile": "yarn build-ts",
+    "copy-assets": "cp -r ./db/luaScripts ./dist/esm/packages/fxa-shared/db/luaScripts; cp -r ./db/luaScripts ./dist/cjs/packages/fxa-shared/db/luaScripts",
+    "copy-sql": "echo '{ \"type\": \"module\" }' > ./dist/esm/packages/fxa-shared/db/package.json && find test -name \\*.sql -exec cp \\{\\} dist/esm/packages/fxa-shared/\\{\\} \\; ; find test -name \\*.sql -exec cp \\{\\} dist/cjs/packages/fxa-shared/\\{\\} \\;",
+    "glean-generate": "npx glean translate ./metrics/glean/fxa-ui-pings.yaml ./metrics/glean/fxa-ui-metrics.yaml -f typescript -o ./metrics/glean/web && prettier --config ../../_dev/.prettierrc --write ./metrics/glean/web/*.ts",
+    "glean-lint": "npx glean glinter ./metrics/glean/fxa-ui-pings.yaml ./metrics/glean/fxa-ui-metrics.yaml",
+    "start": "pm2 start pm2.config.js",
+    "stop": "pm2 stop pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
+    "test": "yarn test-mocha && yarn test-jest",
+    "test-unit": "yarn test-mocha-unit && yarn test-jest-unit",
+    "test-integration": "yarn test-mocha-integration && yarn test-jest-integration",
+    "test-mocha": "tsc --build && node ./scripts/mocha-coverage.js -r esbuild-register --recursive test/**/*.{js,ts}",
+    "test-mocha-unit": "NODE_OPTIONS=--no-experimental-fetch MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-shared-mocha-unit-results.xml mocha -r esbuild-register -r tsconfig-paths/register --recursive test/**/*.{js,ts} -g '#integration' --invert",
+    "test-mocha-integration": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-shared-mocha-integration-results.xml mocha -r esbuild-register -r tsconfig-paths/register --recursive test/**/*.{js,ts} -g '#integration'",
+    "test-jest": "jest --runInBand --logHeapUsage --coverage",
+    "test-jest-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-shared-jest-unit-results.xml jest --coverage --runInBand --logHeapUsage --forceExit --coverage -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
+    "test-jest-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-shared-jest-integration-results.xml jest --coverage --runInBand --logHeapUsage --coverage -t '#integration' --ci --reporters=default --reporters=jest-junit",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "lint": "yarn glean-lint && eslint .",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa.git"
+  },
+  "keywords": [
+    "fxa"
+  ],
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa/issues"
+  },
+  "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-shared#readme",
+  "devDependencies": {
+    "@types/accept-language-parser": "^1.5.3",
+    "@types/chai": "^4.3.17",
+    "@types/chance": "^1.1.2",
+    "@types/cors": "^2.8.14",
+    "@types/express": "^4.17.12",
+    "@types/i18n-abide": "^0",
+    "@types/ioredis": "^4.26.4",
+    "@types/ip": "^1",
+    "@types/jest": "26.0.23",
+    "@types/js-md5": "^0.4.2",
+    "@types/lodash.clonedeep": "^4",
+    "@types/lodash.omitby": "^4",
+    "@types/lodash.pick": "^4",
+    "@types/mocha": "^10.0.6",
+    "@types/mysql": "^2",
+    "@types/node": "^22.13.5",
+    "@types/proxyquire": "^1.3.28",
+    "@types/sinon": "10.0.1",
+    "@types/uuid": "^10.0.0",
+    "audit-filter": "^0.5.0",
+    "chai": "^4.5.0",
+    "chance": "^1.1.8",
+    "esbuild": "^0.17.15",
+    "esbuild-register": "^3.5.0",
+    "eslint": "^7.32.0",
+    "jest": "27.5.1",
+    "jest-junit": "^16.0.0",
+    "jsdom-global": "3.0.2",
+    "mocha": "^10.4.0",
+    "nyc": "^17.1.0",
+    "pm2": "^6.0.14",
+    "prettier": "^3.5.3",
+    "proxyquire": "^2.1.3",
+    "sinon": "^9.0.3",
+    "ts-jest": "^29.2.3",
+    "ts-loader": "^9.5.1",
+    "tsc-alias": "^1.8.8",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "5.5.3",
+    "underscore": "^1.13.1",
+    "uuid": "^10.0.0"
+  },
+  "dependencies": {
+    "@fluent/langneg": "^0.7.0",
+    "accept-language-parser": "^1.5.0",
+    "ajv": "^8.17.1",
+    "celebrate": "^15.0.1",
+    "cldr-localenames-full": "46.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "find-up": "^5.0.0",
+    "graphql": "^16.10.0",
+    "hot-shots": "^10.2.1",
+    "ioredis": "^4.28.2",
+    "ip": "^2.0.1",
+    "joi": "^17.13.3",
+    "js-md5": "^0.7.3",
+    "knex": "^3.1.0",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.omitby": "^4.6.0",
+    "lodash.pick": "^4.4.0",
+    "moment": "^2.30.1",
+    "mozlog": "^3.0.2",
+    "mysql": "^2.18.1",
+    "node-uap": "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574",
+    "objection": "^3.1.3"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "nestjs",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "isolatedModules": true
+        }
+      ]
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  },
+  "mocha": {
+    "reporter": "mocha-multi",
+    "reporterOptions": "spec=-,mocha-junit-reporter=-"
+  },
+  "nx": {
+    "tags": [
+      "scope:shared:lib",
+      "type:core"
+    ]
+  }
+}

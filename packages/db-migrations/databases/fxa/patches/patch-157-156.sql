@@ -1,0 +1,2 @@
+-- DROP PROCEDURE `CREATE PROCEDURE `resetAccount_18`;
+-- UPDATE dbMetadata SET value = '156' WHERE name = 'schema-patch-level';

@@ -1,0 +1,13 @@
+{
+  "extends": ["next", "next/core-web-vitals", "../../../.eslintrc.json"],
+  "ignorePatterns": ["!**/*", ".next/**/*", "build/**/*"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {}
+    }
+  ],
+  "env": {
+    "jest": true
+  }
+}

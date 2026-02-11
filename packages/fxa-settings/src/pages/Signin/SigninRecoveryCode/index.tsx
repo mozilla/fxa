@@ -1,0 +1,317 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import {
+  AppContext,
+  isWebIntegration,
+  useFtlMsgResolver,
+} from '../../../models';
+import { BackupCodesImage } from '../../../components/images';
+import LinkExternal from 'fxa-react/components/LinkExternal';
+import FormVerifyCode, {
+  FormAttributes,
+  InputModeEnum,
+} from '../../../components/FormVerifyCode';
+import GleanMetrics from '../../../lib/glean';
+import AppLayout from '../../../components/AppLayout';
+import { SigninRecoveryCodeProps } from './interfaces';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { storeAccountData } from '../../../lib/storage-utils';
+import { handleNavigation } from '../utils';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { isBase32Crockford } from '../../../lib/utilities';
+import Banner from '../../../components/Banner';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import ButtonBack from '../../../components/ButtonBack';
+import classNames from 'classnames';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+
+export const viewName = 'signin-recovery-code';
+
+const SigninRecoveryCode = ({
+  finishOAuthFlowHandler,
+  integration,
+  keyFetchToken,
+  lastFourPhoneDigits,
+  navigateToRecoveryPhone,
+  signinState,
+  submitRecoveryCode,
+  unwrapBKey,
+  loading = false,
+}: SigninRecoveryCodeProps & RouteComponentProps) => {
+  useEffect(() => {
+    GleanMetrics.loginBackupCode.view();
+  }, []);
+
+  const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
+  const [bannerErrorMessage, setBannerErrorMessage] = useState<string>('');
+  const [bannerErrorDescription, setBannerErrorDescription] =
+    useState<string>('');
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
+    'signin-recovery-code-required-error',
+    'Backup authentication code required'
+  );
+  const location = useLocation();
+  const { apolloClient } = useContext(AppContext);
+
+  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
+
+  const redirectTo =
+    isWebIntegration(integration) && webRedirectCheck?.isValid
+      ? integration.data.redirectTo
+      : '';
+
+  const formAttributes: FormAttributes = {
+    inputFtlId: 'signin-recovery-code-input-label-v2',
+    inputLabelText: 'Enter 10-character code',
+    inputMode: InputModeEnum.text,
+    pattern: '[a-zA-Z0-9]',
+    maxLength: 10,
+    submitButtonFtlId: 'signin-recovery-code-confirm-button',
+    submitButtonText: 'Confirm',
+  };
+
+  const {
+    email,
+    sessionToken,
+    uid,
+    verificationMethod,
+    verificationReason,
+    isSessionAALUpgrade,
+  } = signinState;
+
+  const clearBanners = () => {
+    setBannerErrorMessage('');
+    setBannerErrorDescription('');
+    setCodeErrorMessage('');
+  };
+
+  const onSuccessNavigate = useCallback(async () => {
+    const navigationOptions = {
+      email,
+      signinData: {
+        uid,
+        sessionToken,
+        verificationReason,
+        verificationMethod,
+        emailVerified: true,
+        sessionVerified: true,
+        keyFetchToken,
+      },
+      unwrapBKey,
+      integration,
+      finishOAuthFlowHandler,
+      redirectTo,
+      queryParams: location.search,
+      isSessionAALUpgrade,
+      handleFxaLogin: true,
+      handleFxaOAuthLogin: true,
+      performNavigation: !integration.isFirefoxMobileClient(),
+    };
+
+    const { error } = await handleNavigation(navigationOptions);
+    if (error) {
+      setBannerErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
+    }
+  }, [
+    isSessionAALUpgrade,
+    email,
+    integration,
+    finishOAuthFlowHandler,
+    keyFetchToken,
+    location.search,
+    redirectTo,
+    sessionToken,
+    verificationMethod,
+    verificationReason,
+    uid,
+    unwrapBKey,
+    ftlMsgResolver,
+  ]);
+
+  const localizedInvalidCodeError = getLocalizedErrorMessage(
+    ftlMsgResolver,
+    AuthUiErrors.INVALID_RECOVERY_CODE
+  );
+
+  const onSubmit = async (code: string) => {
+    clearBanners();
+    GleanMetrics.loginBackupCode.submit();
+
+    if (code.length !== 10 || !isBase32Crockford(code)) {
+      setCodeErrorMessage(localizedInvalidCodeError);
+      return;
+    }
+
+    const response = await submitRecoveryCode(code.toLowerCase());
+
+    if (response.data?.consumeRecoveryCode.remaining !== undefined) {
+      GleanMetrics.loginBackupCode.success();
+      storeAccountData({
+        sessionToken,
+        email,
+        uid,
+        // Update verification status of stored current account
+        verified: true,
+      });
+
+      // There seems to be a race condition with updating the cache and state,
+      // so we need to wait a bit before navigating to the next page. This is
+      // a temporary fix until we find a better solution, most likely with refactoring
+      // how we handle state in the app.
+      apolloClient?.cache.writeQuery({
+        query: GET_LOCAL_SIGNED_IN_STATUS,
+        data: { isSignedIn: true },
+      });
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      onSuccessNavigate();
+    }
+
+    if (response.error) {
+      let localizedError: string;
+
+      localizedError = getLocalizedErrorMessage(ftlMsgResolver, response.error);
+      if (localizedError === localizedInvalidCodeError) {
+        setCodeErrorMessage(localizedError);
+        return;
+      }
+      setBannerErrorMessage(localizedError);
+    }
+  };
+
+  const handleNavigateToRecoveryPhone = async () => {
+    clearBanners();
+    const handledError = await navigateToRecoveryPhone();
+    if (!handledError) {
+      return;
+    }
+    if (
+      handledError.errno === AuthUiErrors.BACKEND_SERVICE_FAILURE.errno ||
+      handledError.errno === AuthUiErrors.FEATURE_NOT_ENABLED.errno ||
+      handledError.errno === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED.errno ||
+      handledError.errno === AuthUiErrors.UNEXPECTED_ERROR.errno
+    ) {
+      setBannerErrorMessage(
+        ftlMsgResolver.getMsg(
+          'signin-recovery-code-use-phone-failure',
+          'There was a problem sending a code to your recovery phone'
+        )
+      );
+      setBannerErrorDescription(
+        ftlMsgResolver.getMsg(
+          'signin-recovery-code-use-phone-failure-description',
+          'Please try again later.'
+        )
+      );
+      return;
+    }
+    setBannerErrorMessage(
+      getLocalizedErrorMessage(ftlMsgResolver, handledError)
+    );
+  };
+
+  const cmsInfo = integration.getCmsInfo();
+
+  return (
+    <AppLayout cmsInfo={cmsInfo} loading={loading}>
+      <div className="relative flex items-center mb-5">
+        <ButtonBack
+          cmsBackground={cmsInfo?.shared.backgrounds?.defaultLayout}
+        />
+        {cmsInfo?.shared.logoUrl && cmsInfo.shared.logoAltText ? (
+          <img
+            src={cmsInfo.shared.logoUrl}
+            alt={cmsInfo.shared.logoAltText}
+            className="justify-start mb-4 max-h-[40px]"
+          />
+        ) : (
+          <FtlMsg id="signin-recovery-code-heading">
+            <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
+          </FtlMsg>
+        )}
+      </div>
+
+      {bannerErrorMessage && (
+        <Banner
+          type="error"
+          content={{
+            localizedHeading: bannerErrorMessage,
+            localizedDescription: bannerErrorDescription,
+          }}
+        />
+      )}
+      <BackupCodesImage />
+
+      <FtlMsg id="signin-recovery-code-sub-heading">
+        <h2 className="card-header">Enter backup authentication code</h2>
+      </FtlMsg>
+
+      <FtlMsg id="signin-recovery-code-instruction-v3">
+        <p className="mt-2 text-sm">
+          Enter one of the one-time-use codes you saved when you set up two-step
+          authentication.
+        </p>
+      </FtlMsg>
+
+      {integration.isFirefoxClientServiceRelay() && (
+        <FtlMsg id="signin-recovery-code-desktop-relay">
+          <p className="text-sm mt-2">
+            Firefox will try sending you back to use an email mask after you
+            sign in.
+          </p>
+        </FtlMsg>
+      )}
+
+      <FormVerifyCode
+        {...{
+          formAttributes,
+          viewName,
+          verifyCode: onSubmit,
+          localizedCustomCodeRequiredMessage,
+          codeErrorMessage,
+          setCodeErrorMessage,
+          cmsButton: {
+            color: cmsInfo?.shared?.buttonColor,
+          },
+        }}
+        gleanDataAttrs={{ id: 'login_backup_codes_submit' }}
+      />
+
+      <div
+        className={classNames(
+          'mt-10 link-blue text-sm flex',
+          lastFourPhoneDigits ? 'justify-between' : 'justify-center'
+        )}
+      >
+        {lastFourPhoneDigits && (
+          <FtlMsg id="signin-recovery-code-phone-link">
+            <button
+              className="link-blue"
+              data-glean-id="login_backup_codes_phone_instead"
+              onClick={handleNavigateToRecoveryPhone}
+            >
+              Use recovery phone
+            </button>
+          </FtlMsg>
+        )}
+        <FtlMsg id="signin-recovery-code-support-link">
+          <LinkExternal
+            href="https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication"
+            gleanDataAttrs={{ id: 'login_backup_codes_locked_out_link' }}
+          >
+            Are you locked out?
+          </LinkExternal>
+        </FtlMsg>
+      </div>
+    </AppLayout>
+  );
+};
+
+export default SigninRecoveryCode;

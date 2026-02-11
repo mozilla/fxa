@@ -1,0 +1,126 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "allowJs": false,
+    "incremental": true,
+    "inlineSources": true,
+    "inlineSourceMap": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2021",
+    "module": "esnext",
+    "strict": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "useUnknownInCatchVariables": false,
+    "baseUrl": ".",
+    "paths": {
+      "@fxa/accounts/errors": ["libs/accounts/errors/src/index.ts"],
+      "@fxa/accounts/email-sender": ["libs/accounts/email-sender/src/index.ts"],
+      "@fxa/accounts/email-renderer": ["libs/accounts/email-renderer/src/index.ts"],
+      "@fxa/accounts/rate-limit": ["libs/accounts/rate-limit/src/index.ts"],
+      "@fxa/accounts/recovery-phone": [
+        "libs/accounts/recovery-phone/src/index.ts"
+      ],
+      "@fxa/accounts/two-factor": ["libs/accounts/two-factor/src/index.ts"],
+      "@fxa/google": ["libs/google/src/index.ts"],
+      "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
+      "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
+      "@fxa/payments/content-server": [
+        "libs/payments/content-server/src/index.ts"
+      ],
+      "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
+      "@fxa/payments/customer": ["libs/payments/customer/src/index.ts"],
+      "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
+      "@fxa/payments/events": ["libs/payments/events/src/index.ts"],
+      "@fxa/payments/experiments": ["libs/payments/experiments/src/index.ts"],
+      "@fxa/payments/iap": ["libs/payments/iap/src/index.ts"],
+      "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
+      "@fxa/payments/management": ["libs/payments/management/src/index.ts"],
+      "@fxa/payments/metrics": ["libs/payments/metrics/src/index.ts"],
+      "@fxa/payments/metrics/provider": [
+        "libs/payments/metrics/src/provider.ts"
+      ],
+      "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
+      "@fxa/payments/stripe": ["libs/payments/stripe/src/index.ts"],
+      "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
+      "@fxa/payments/ui/actions": ["libs/payments/ui/src/lib/actions/index.ts"],
+      "@fxa/payments/ui/server": ["libs/payments/ui/src/server.ts"],
+      "@fxa/payments/ui/utils": ["libs/payments/ui/src/utils.ts"],
+      "@fxa/payments/webhooks": ["libs/payments/webhooks/src/index.ts"],
+      "@fxa/profile/client": ["libs/profile/client/src/index.ts"],
+      "@fxa/shared/account/account": [
+        "libs/shared/account/account/src/index.ts"
+      ],
+      "@fxa/shared/assets/*": ["libs/shared/assets/src/*"],
+      "@fxa/shared/cloud-tasks": ["libs/shared/cloud-tasks/src/index.ts"],
+      "@fxa/shared/cms": ["libs/shared/cms/src/index.ts"],
+      "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index.ts"],
+      "@fxa/shared/db/mysql/account": [
+        "libs/shared/db/mysql/account/src/index.ts"
+      ],
+      "@fxa/shared/db/mysql/account/*": [
+        "libs/shared/db/mysql/account/src/lib/*"
+      ],
+      "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index.ts"],
+      "@fxa/shared/db/type-cacheable": [
+        "libs/shared/db/type-cacheable/src/index.ts"
+      ],
+      "@fxa/shared/error": ["libs/shared/error/src/index.ts"],
+      "@fxa/shared/error/error": ["libs/shared/error/src/lib/error.ts"],
+      "@fxa/shared/experiments": ["libs/shared/experiments/src/index.ts"],
+      "@fxa/shared/geodb": ["libs/shared/geodb/src/index.ts"],
+      "@fxa/shared/glean": ["libs/shared/metrics/glean/src/index.ts"],
+      "@fxa/shared/guards": ["libs/shared/guards/src/index.ts"],
+      "@fxa/shared/l10n": ["libs/shared/l10n/src/index.ts"],
+      "@fxa/shared/l10n/client": ["libs/shared/l10n/src/client.ts"],
+      "@fxa/shared/l10n/server": ["libs/shared/l10n/src/server.ts"],
+      "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
+      "@fxa/shared/metrics/glean": ["libs/shared/metrics/glean/src/index.ts"],
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
+      "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index.ts"],
+      "@fxa/shared/nestjs/customs": ["libs/shared/nestjs/customs/src/index.ts"],
+      "@fxa/shared/notifier": ["libs/shared/notifier/src/index.ts"],
+      "@fxa/shared/otel": ["libs/shared/otel/src/index.ts"],
+      "@fxa/shared/otp": ["libs/shared/otp/src/index.ts"],
+      "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index.ts"],
+      "@fxa/shared/react": ["libs/shared/react/src/index.ts"],
+      "@fxa/shared/sentry": ["libs/shared/sentry/src/index.ts"],
+      "@fxa/shared/sentry-browser": ["libs/shared/sentry-browser/src/index.ts"],
+      "@fxa/shared/sentry-nest": ["libs/shared/sentry-nest/src/index.ts"],
+      "@fxa/shared/sentry-next": ["libs/shared/sentry-next/src/index.ts"],
+      "@fxa/shared/sentry-node": ["libs/shared/sentry-node/src/index.ts"],
+      "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index.ts"],
+      "@fxa/shared/sentry/client": ["libs/shared/sentry/src/client.ts"],
+      "@fxa/vendored/common-password-list": [
+        "libs/vendored/common-password-list/src/index.ts"
+      ],
+      "@fxa/vendored/crypto-relier": [
+        "libs/vendored/crypto-relier/src/index.ts"
+      ],
+      "@fxa/vendored/incremental-encoder": [
+        "libs/vendored/incremental-encoder/src/index.ts"
+      ],
+      "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index.ts"],
+      "@fxa/vendored/typesafe-node-firestore": [
+        "libs/vendored/typesafe-node-firestore/src/index.ts"
+      ]
+    },
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types",
+      "./packages/*/node_modules/@types"
+    ],
+    "jsx": "react-jsx"
+  },
+  "exclude": ["packages/*/node_modules", "node_modules", "tmp"]
+}

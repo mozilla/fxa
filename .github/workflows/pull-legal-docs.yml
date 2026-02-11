@@ -1,0 +1,55 @@
+name: Pull legal-docs
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * TUE'
+
+permissions: {}
+jobs:
+  pull-legal-docs:
+    permissions:
+      contents: write  #  to push changes to fxa
+      pull-requests: write  #  to create pull request
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone FxA code repository
+        uses: actions/checkout@v6
+        with:
+          path: fxa
+          fetch-depth: 2
+
+      - name: Clone legal-docs repository
+        uses: actions/checkout@v6
+        with:
+          repository: mozilla/legal-docs
+          ref: prod
+          path: legal-docs
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull pdfs from legal-docs and push changes to FxA
+        run: |
+          cd fxa
+
+          # Setup git
+          git config --global user.email "pdfs@example.com"
+          git config --global user.name "Pdf Bot"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
+          # Checkout branch
+          git checkout -b pull-legal-docs
+
+          # Run script to pull docs
+          node _scripts/pull-legal-docs.js ../legal-docs/ assets/legal
+
+          # Add changes and push to Github
+          git add -A
+          git commit -m "[skip ci] Latest legal PDFs"
+          git push origin pull-legal-docs -f
+
+      - name: create pull request
+        run: |
+          cd fxa
+          gh pr create -B main -H pull-legal-docs --title "[skip ci] Latest legal PDFs" --body "Adding latest legal PDFs from `mozilla/legal-docs` to FxA"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

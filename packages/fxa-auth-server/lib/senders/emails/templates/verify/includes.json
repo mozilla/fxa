@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "verify-subject",
+    "message": "Finish creating your account"
+  },
+  "action": {
+    "id": "verify-action-2",
+    "message": "Confirm account"
+  }
+}

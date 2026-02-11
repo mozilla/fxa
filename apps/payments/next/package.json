@@ -1,0 +1,7 @@
+{
+  "name": "payments-next",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "next start"
+  }
+}

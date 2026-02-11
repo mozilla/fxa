@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "cadReminderFirst-subject-1",
+    "message": "Reminder! Let’s sync Firefox"
+  },
+  "action": {
+    "id": "cadReminderFirst-action",
+    "message": "Sync another device"
+  }
+}

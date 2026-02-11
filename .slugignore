@@ -1,0 +1,6 @@
+*.pdf
+*.png
+*.svg
+*.md
+assets
+docs

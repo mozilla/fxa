@@ -1,0 +1,9 @@
+---
+
+- name: restart supervisor
+  become: true
+  service: name=supervisor state=restarted
+
+- name: update supervisor
+  become: true
+  command: supervisorctl update

@@ -1,0 +1,4 @@
+---
+
+- name: update authorized_keys
+  shell: cat /home/ec2-user/identity-pubkeys/*.pub >> ~/.ssh/authorized_keys

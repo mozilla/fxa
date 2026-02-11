@@ -1,0 +1,73 @@
+{
+  "name": "payments-next",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/payments/next",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "dependsOn": ["l10n-bundle", "glean-generate"]
+    },
+    "dev": {
+      "options": {
+        "port": 3035
+      }
+    },
+    "export": {
+      "executor": "@nx/next:export",
+      "options": {
+        "buildTarget": "payments-next:build:production"
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/payments/next/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/payments/next/**/*.{ts,tsx,js,jsx}"]
+      },
+      "dependsOn": ["glean-lint"]
+    },
+    "start": {
+      "command": "pm2 start apps/payments/next/pm2.config.js && yarn check:url localhost:3035/__heartbeat__",
+      "dependsOn": ["l10n-bundle", "glean-generate"]
+    },
+    "stop": {
+      "command": "pm2 stop apps/payments/next/pm2.config.js"
+    },
+    "restart": {
+      "command": "pm2 restart apps/payments/next/pm2.config.js",
+      "dependsOn": [""]
+    },
+    "delete": {
+      "command": "pm2 delete apps/payments/next/pm2.config.js"
+    },
+    "l10n-merge": {
+      "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' merge-ftl",
+      "dependsOn": ["l10n-prime"]
+    },
+    "l10n-prime": {
+      "command": "./_scripts/l10n/prime.sh apps/payments/next"
+    },
+    "l10n-bundle": {
+      "dependsOn": ["l10n-merge"],
+      "command": "./_scripts/l10n/bundle.sh apps/payments/next branding,react,payments-next"
+    },
+    "watchers": {
+      "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' watchers"
+    },
+    "glean-generate": {
+      "dependsOn": ["glean-lint"],
+      "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml -f typescript_server -o libs/payments/metrics/src/lib/glean/__generated__"
+    },
+    "glean-lint": {
+      "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
+    }
+  },
+  "tags": ["app", "payments", "type:sp3"]
+}

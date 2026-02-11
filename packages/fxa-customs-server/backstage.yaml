@@ -1,0 +1,20 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fxa-customs-server
+  description: Customs Server back-end for Mozilla Accounts that handles fraud and abuse.
+  annotations:
+    sentry.io/project-slug: mozilla/fxa-customs
+    circleci.com/project-slug: github/mozilla/fxa
+  tags:
+    - javascript
+    - node
+    - express
+spec:
+  type: service
+  lifecycle: production
+  owner: fxa-devs
+  system: mozilla-accounts
+  dependsOn:
+    - resource:fxa-customs-cache

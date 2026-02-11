@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Signin component snapshots - CMS renders AppLayout with CMS header logo 1`] = `
+<img
+  alt="custom-header-logo"
+  class="h-auto w-[140px] mx-0"
+  src="https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg"
+/>
+`;
+
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is needed: cms description 1`] = `
+<p
+  class="card-subheader"
+>
+  for your Mozilla account
+</p>
+`;
+
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is needed: cms headline 1`] = `
+<h1
+  class="card-header"
+>
+  Enter your password
+</h1>
+`;
+
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is needed: cms logo 1`] = `
+<img
+  alt="logo"
+  class="justify-start mb-4 max-h-[40px]"
+  src="https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg"
+/>
+`;
+
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is not needed 1`] = `
+<img
+  alt="logo"
+  class="justify-start mb-4 max-h-[40px]"
+  src="https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg"
+/>
+`;
+
+exports[`Signin component snapshots - CMS renders the CMS-styled submit button 1`] = `
+<button
+  class="cta-primary-cms cta-xl cta-primary cta-xl"
+  style="--cta-bg: #6B4DFB; --cta-border: #6B4DFB; --cta-active: #6B4DFB; --cta-disabled: #6B4DFB60;"
+  type="submit"
+>
+  Sign in
+</button>
+`;

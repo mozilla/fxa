@@ -1,0 +1,34 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="verifyLoginCode-title-2" data-l10n-args="<%= JSON.stringify({ serviceName }) %>">Did you sign in to <%- locals.serviceName %>?</span>
+    </mj-text>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="verifyLoginCode-safe">Help us keep your account safe by approving your sign-in on:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/userInfo/index.mjml') %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="verifyLoginCode-prompt-3">
+        If yes, here is your authorization code:
+      </span>
+    </mj-text>
+
+    <mj-text css-class="code-large"><%- code %></mj-text>
+
+    <mj-text css-class="text-body-no-margin">
+      <span data-l10n-id="verifyLoginCode-expiry-notice">It expires in 5 minutes.</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/automatedEmailChangePassword/index.mjml') %>

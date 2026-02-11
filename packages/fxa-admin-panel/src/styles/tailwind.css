@@ -1,0 +1,33 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import './tables';
+
+.icon-dark path {
+  fill: #0c0c0d;
+}
+
+hr {
+  @apply border-grey-50 my-6;
+}
+
+.header-page {
+  @apply text-lg font-semibold mb-2;
+}
+
+.header-lg {
+  @apply text-lg mt-7 mb-2;
+}
+
+.result-none {
+  @apply border-l border-l-grey-300 border-dotted pl-2;
+}
+
+.result-grey {
+  @apply italic text-grey-500;
+}

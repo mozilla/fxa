@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "passwordResetWithRecoveryKeyPrompt-subject",
+    "message": "Your password has been reset"
+  },
+  "action": {
+    "id": "passwordResetWithRecoveryKeyPrompt-action",
+    "message": "Create account recovery key"
+  }
+}

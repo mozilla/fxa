@@ -1,0 +1,41 @@
+{
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "files.insertFinalNewline": true,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "[javascript]": {
+    "editor.detectIndentation": false,
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.detectIndentation": false,
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "playwright.env": {
+    "NODE_OPTIONS": "--dns-result-order=ipv4first"
+  },
+  "editor.codeActionsOnSave": {
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "prettier.configPath": "_dev/.prettierrc",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "files.exclude": {
+    ".nx": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/storybook-static": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/node_modules": true,
+    "**/tmp": true,
+    "**/temp": true,
+    "*.sass-cache": true,
+  },
+  "cSpell.words": ["Frontends"]
+}

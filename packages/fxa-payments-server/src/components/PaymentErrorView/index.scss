@@ -1,0 +1,11 @@
+@import '../../styles/mixins';
+@import '../../../../fxa-content-server/app/styles/variables';
+@import '../../../../fxa-content-server/app/styles/breakpoints';
+
+.subscription-title + .payment-error {
+  @include checkout-title();
+}
+
+.payment-error {
+  @include checkout-view();
+}

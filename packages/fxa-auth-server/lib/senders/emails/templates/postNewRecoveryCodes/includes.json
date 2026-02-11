@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postNewRecoveryCodes-subject-2",
+    "message": "New backup authentication codes created"
+  },
+  "action": {
+    "id": "postNewRecoveryCodes-action",
+    "message": "Manage account"
+  }
+}

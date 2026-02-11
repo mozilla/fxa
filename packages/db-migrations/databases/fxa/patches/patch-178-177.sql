@@ -1,0 +1,5 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- DELETE FROM securityEventNames WHERE name = 'account.signin_confirm_bypass_known_device';
+--
+-- UPDATE dbMetadata SET value = '177' WHERE name = 'schema-patch-level';

@@ -1,0 +1,2 @@
+packages/fxa-auth-server/bin/ejs.js
+packages/**/storybook-static

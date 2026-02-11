@@ -1,0 +1,22 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import 'fxa-react/styles/index';
+
+/* REACT NOTE: when we refactor to React it's going to be nicer to create reusable
+ * components and ditch some of these custom component classes. */
+
+@import './tailwind/state';
+@import './tailwind/ctas';
+@import './tailwind/inputs';
+@import './tailwind/images';
+@import './tailwind/tooltips';
+
+body {
+  @apply min-h-screen mobileLandscape:pt-12 text-black flex flex-col justify-center;
+}

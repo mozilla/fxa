@@ -1,0 +1,28 @@
+---
+
+- name: install libgmp
+  become: true
+  yum: name=gmp state=present
+
+- name: install 123done
+  become: true
+  become_user: app
+  git: repo={{ one23done_git_repo }}
+       dest=/home/app/123done
+       version={{ one23done_git_version }}
+       force=true
+  notify:
+    - install 123done dependencies
+    - restart 123done-web
+
+- name: configure 123done
+  become: true
+  template: src=config.json.j2 dest=/home/app/123done/config.json owner=app group=app mode=0644
+  notify: restart 123done-web
+
+- name: supervise 123done-web server
+  become: true
+  copy: src=123done-web.conf dest=/etc/supervisor.d/123done-web.conf
+  notify: update supervisor
+
+- meta: flush_handlers

@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postAddAccountRecovery-subject-3",
+    "message": "New account recovery key created"
+  },
+  "action": {
+    "id": "postAddAccountRecovery-action",
+    "message": "Manage account"
+  }
+}

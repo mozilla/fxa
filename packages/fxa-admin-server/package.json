@@ -1,0 +1,89 @@
+{
+  "name": "fxa-admin-server",
+  "version": "0.0.0",
+  "description": "FxA GraphQL Admin Server",
+  "scripts": {
+    "prebuild": "yarn clean",
+    "gql-copy": "mkdir -p src/config/gql/allowlist/ && cp ../../configs/gql/allowlist/*.json src/config/gql/allowlist/.",
+    "build": "nest build && yarn copy-config && yarn gql-copy && yarn copy-email-assets && yarn copy-email-l10n-assets",
+    "copy-config": "cp ./src/config/*.json ./dist/packages/fxa-admin-server/src/config",
+    "copy-email-assets": "copyfiles --up 1 '../../libs/accounts/email-renderer/**/*.{mjml,ftl,txt,css}' dist/libs/ ",
+    "copy-email-l10n-assets": "copyfiles --up 1 '../../libs/accounts/email-renderer/public/locales' dist/libs/accounts/email-render/public/locales ",
+    "clean": "rimraf dist",
+    "compile": "tsc --noEmit",
+    "lint": "eslint .",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "start": "pm2 start pm2.config.js",
+    "stop": "pm2 stop pm2.config.js",
+    "start-prod": "node dist/packages/fxa-graphql-api/src/main",
+    "restart": "pm2 restart pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
+    "test": "yarn gen-keys && yarn test-default && yarn test-e2e ",
+    "gen-keys": "node -r esbuild-register ./src/scripts/gen_keys.ts;",
+    "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-server-jest-unit-results.xml jest --runInBand --coverage --detectOpenHandles --forceExit --logHeapUsage -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
+    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-server-jest-integration-results.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit",
+    "test-default": "jest --runInBand --detectOpenHandles --forceExit -t=\"scripts/audit-tokens\"",
+    "test-watch": "jest --watch",
+    "test-cov": "jest --coverage",
+    "test-debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand",
+    "test-e2e": "jest --runInBand --config ./jest-e2e.config.js --forceExit",
+    "email-bounce": "node -r esbuild-register ./src/scripts/email-bounce.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/fxa.git"
+  },
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa/issues"
+  },
+  "homepage": "https://github.com/mozilla/fxa#readme",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "@golevelup/ts-jest": "^0.5.0",
+    "@google-cloud/tasks": "^5.5.0",
+    "convict": "^6.2.4",
+    "convict-format-with-moment": "^6.2.0",
+    "convict-format-with-validator": "^6.2.0",
+    "express": "^4.21.2",
+    "fxa-auth-client": "workspace:*",
+    "fxa-shared": "workspace:*",
+    "googleapis": "^144.0.0",
+    "helmet": "^8.0.0",
+    "hot-shots": "^10.2.1",
+    "knex": "^3.1.0",
+    "rimraf": "^6.0.1",
+    "ts-morph": "^24.0.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.1",
+    "@types/chance": "^1.1.2",
+    "@types/convict": "^6.1.1",
+    "@types/node": "^22.13.5",
+    "@types/supertest": "^2.0.11",
+    "@types/yargs": "^17.0.0",
+    "audit-filter": "^0.5.0",
+    "chance": "^1.1.8",
+    "copyfiles": "^2.4.1",
+    "esbuild": "^0.17.15",
+    "esbuild-register": "^3.5.0",
+    "eslint": "^8.18.0",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "jest": "29.3.1",
+    "pm2": "^6.0.14",
+    "supertest": "^7.0.0",
+    "tailwindcss": "3.4.3",
+    "ts-jest": "^29.2.5",
+    "typescript": "5.5.3",
+    "yargs": "^17.0.1"
+  },
+  "nx": {
+    "tags": [
+      "scope:server",
+      "type:admin"
+    ]
+  }
+}

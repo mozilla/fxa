@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postAddLinkedAccount-subject-2",
+    "message": "New account linked to your Mozilla account"
+  },
+  "action": {
+    "id": "postAddLinkedAccount-action",
+    "message": "Manage account"
+  }
+}

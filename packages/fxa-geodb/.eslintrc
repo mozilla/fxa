@@ -1,0 +1,12 @@
+{
+  "extends": ["plugin:fxa/server"],
+  "plugins": ["fxa"],
+  "env": {
+    "mocha": true
+  },
+  "ignorePatterns": [
+    "dist",
+    "node_modules"
+  ],
+  "root": true
+}

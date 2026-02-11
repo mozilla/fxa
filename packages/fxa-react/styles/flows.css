@@ -1,0 +1,24 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Remove this component class in favor of components with TW classes directly
+ * applied after content-server no longer needs it */
+/* Transparent border around card is for Windows HCM mode */
+
+.card {
+  @apply w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-6 py-8 mobileLandscape:px-8 mobileLandscape:py-9 mobileLandscape:shadow-card-grey-drop mobileLandscape:mb-6;
+
+  /* HACK until content-server no longer needs .card, otherwise component classes take precedence */
+  &.card-xl {
+    @apply mobileLandscape:w-184;
+  }
+
+  &-header {
+    @apply font-header text-xl font-bold;
+  }
+
+  &-subheader {
+    @apply font-body font-normal text-sm block mt-1;
+  }
+}

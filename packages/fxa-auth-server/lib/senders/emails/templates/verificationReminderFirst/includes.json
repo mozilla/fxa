@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "verificationReminderFirst-subject-2",
+    "message": "Remember to confirm your account"
+  },
+  "action": {
+    "id": "verificationReminderFirst-action-2",
+    "message": "Confirm account"
+  }
+}

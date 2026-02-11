@@ -1,0 +1,24 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: fxa-eventbroker-database
+  description: Stores oauth relying parties a customer has logged into.
+  tags:
+    - firestore
+spec:
+  type: database
+  owner: fxa-devs
+  system: mozilla-accounts
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: fxa-stripe-database
+  description: Stores customer, subscription, and invoice data from Stripe.
+  tags:
+    - firestore
+spec:
+  type: database
+  owner: fxa-devs
+  system: mozilla-accounts

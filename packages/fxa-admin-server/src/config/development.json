@@ -1,0 +1,27 @@
+{
+  "subscriptions": {
+    "enabled": true,
+    "sharedSecret": "devsecret",
+    "paymentsServer": {
+      "url": "http://localhost:3031/"
+    }
+  },
+  "featureFlags": {
+    "subscriptions": {
+      "playStore": true,
+      "appStore": true,
+      "stripe": true
+    }
+  },
+  "cloudTasks": {
+    "useLocalEmulator": true,
+    "deleteAccounts": {
+      "queueName": "delete-accounts-queue",
+      "taskUrl": "http://host.docker.internal:9000/v1/cloud-tasks/accounts/delete"
+    }
+  },
+  "profileServer": {
+    "url": "http://localhost:1111",
+    "secretBearerToken": "8675309jenny"
+  }
+}

@@ -1,0 +1,143 @@
+#main-content::before {
+  $firefox-standalone-logo-size-large: 82px;
+  $firefox-standalone-logo-size-small: 56px;
+  content: '';
+  left: 0;
+  position: absolute;
+  width: 100%;
+
+  @include respond-to('big') {
+    background-size: auto $firefox-standalone-logo-size-large;
+    height: $firefox-standalone-logo-size-large;
+    margin-top: -$firefox-standalone-logo-size-large;
+    opacity: 1 !important; // !important overrides the !important in _branding.scss
+    top: $firefox-standalone-logo-size-large / 2;
+  }
+
+  @include respond-to('small') {
+    background-size: auto $firefox-standalone-logo-size-small;
+    height: $firefox-standalone-logo-size-small;
+    margin-top: -$firefox-standalone-logo-size-small;
+    top: 10 + $firefox-standalone-logo-size-small;
+  }
+
+  .static & {
+    opacity: 1;
+  }
+
+  // IE < 10 does not support CSS transforms
+  .lt-ie10 & {
+    opacity: 1;
+  }
+}
+
+.mozilla-header {
+  width: 100%;
+  padding: 0 1.5rem;
+  margin-bottom: 1.5rem;
+
+  @include respond-to('small') {
+    width: auto;
+    margin: auto 0;
+    padding-top: 1.5rem;
+  }
+}
+#about-mozilla {
+  background: image-url('mozilla.svg') no-repeat center center;
+  cursor: pointer;
+  display: block;
+  height: 40px;
+  transition: opacity $short-transition;
+  width: 140px;
+
+  // Links to external sites cannot be opened when signing in
+  // to Sync on Firefox for iOS
+  .fx-ios-sync & {
+    display: none;
+  }
+}
+
+.brand-messaging {
+  padding-top: 0;
+
+  @include respond-to('small') {
+    padding-top: 3rem;
+    margin-bottom: 5rem;
+  }
+  .mozilla-header {
+    padding-top: 1.5rem;
+  }
+}
+
+.banner-brand-message {
+
+  @include respond-to('big') {
+    position: relative;
+  }
+
+    /** Make it fixed to keep the banner sticky on mobile and ensure
+      it doesn't get cut off by the folding line. */
+  @include respond-to('small') {
+    position: fixed;
+      bottom: 0;
+  }
+}
+
+#body-top {
+  @include respond-to('small') {
+    display: none;
+  }
+}
+
+#body-top .brand-messaging {
+  @include respond-to('small') {
+    padding-top: initial;
+  }
+}
+
+#body-bottom {
+  @include respond-to('big') {
+    display: none;
+  }
+}
+
+.brand-banner-bg {
+  background: linear-gradient(88.76deg, #E4EAF6 3.37%, #DBEEF8 39.93%, #DAF3F4 65.09%, #E3F6ED 102.21%);
+}
+
+.choose-what-to-sync {
+  .success-email-created {
+    margin-bottom: 26px;
+  }
+
+  form h2 {
+    font-size: 18px;
+    font-weight: 700;
+    padding: 0 15px;
+
+    html[dir='ltr'] & {
+      text-align: left;
+    }
+
+    html[dir='rtl'] & {
+      text-align: right;
+    }
+  }
+}
+
+.faint {
+  color: $grey-50;
+  transition-duration: $short-transition;
+
+  a {
+    color: $grey-50;
+    text-decoration: underline;
+
+    @include anchor-default-pseudo-classes(
+      $grey-60,
+      $grey-60,
+      $grey-70,
+      $grey-80
+    );
+  }
+}

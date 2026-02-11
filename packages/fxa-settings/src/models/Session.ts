@@ -1,0 +1,178 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
+import AuthClient from 'fxa-auth-client/browser';
+import {
+  sessionToken,
+  clearSignedInAccountUid,
+  currentAccount,
+} from '../lib/cache';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
+
+export interface SessionData {
+  verified: boolean | null;
+  token: string | null;
+  verifySession?: (
+    code: string,
+    options: {
+      service?: string;
+      scopes?: string[];
+      marketingOptIn?: boolean;
+      newsletters?: string[];
+    }
+  ) => Promise<void>;
+  destroy?: () => void;
+}
+
+export const GET_SESSION_VERIFIED = gql`
+  query GetSession {
+    session {
+      verified
+    }
+  }
+`;
+
+export const GET_SESSION_IS_VALID = gql`
+  query GetSessionIsValid($sessionToken: String!) {
+    isValidToken(sessionToken: $sessionToken)
+  }
+`;
+
+export const DESTROY_SESSION = gql`
+  mutation DestroySession {
+    destroySession(input: {}) {
+      clientMutationId
+    }
+  }
+`;
+
+export class Session implements SessionData {
+  private readonly authClient: AuthClient;
+  private readonly apolloClient: ApolloClient<object>;
+  private _loading: boolean;
+
+  constructor(
+    authClient: AuthClient,
+    apolloClient: ApolloClient<NormalizedCacheObject>
+  ) {
+    this.authClient = authClient;
+    this.apolloClient = apolloClient;
+    this._loading = false;
+  }
+
+  private async withLoadingStatus<T>(promise: Promise<T>) {
+    this._loading = true;
+    try {
+      return await promise;
+    } catch (e) {
+      throw e;
+    } finally {
+      this._loading = false;
+    }
+  }
+
+  private get data(): Session | undefined {
+    const result = this.apolloClient.cache.readQuery<{
+      session: Session;
+    }>({
+      query: GET_SESSION_VERIFIED,
+    });
+
+    return result?.session;
+  }
+
+  get token(): string {
+    return this.data?.token || '';
+  }
+
+  get verified(): boolean {
+    return this.data?.verified || false;
+  }
+
+  // TODO: Use GQL verifyCode instead of authClient
+  async verifySession(
+    code: string,
+    options: {
+      service?: string;
+      scopes?: string[];
+      marketingOptIn?: boolean;
+      newsletters?: string[];
+    } = {}
+  ) {
+    await this.withLoadingStatus(
+      this.authClient.sessionVerifyCode(sessionToken()!, code, options)
+    );
+    this.apolloClient.cache.modify({
+      fields: {
+        session: () => {
+          return true;
+        },
+      },
+    });
+    this.apolloClient.cache.writeQuery({
+      query: GET_LOCAL_SIGNED_IN_STATUS,
+      data: { isSignedIn: true },
+    });
+  }
+
+  async sendVerificationCode() {
+    await this.withLoadingStatus(
+      this.authClient.sessionResendVerifyCode(sessionToken()!)
+    );
+  }
+
+  async destroy() {
+    await this.apolloClient.mutate({
+      mutation: DESTROY_SESSION,
+      variables: { input: {} },
+    });
+
+    clearSignedInAccountUid();
+  }
+
+  get isDestroyed() {
+    return currentAccount() == null;
+  }
+
+  async isSessionVerified() {
+    const query = GET_SESSION_VERIFIED;
+    const { data } = await this.apolloClient.query({
+      fetchPolicy: 'network-only',
+      query,
+    });
+
+    const { session } = data;
+    const sessionStatus: boolean = session.verified;
+
+    this.apolloClient.cache.modify({
+      fields: {
+        session: () => {
+          return sessionStatus;
+        },
+      },
+    });
+    return sessionStatus;
+  }
+
+  async isValid(sessionToken: string) {
+    // If the current session token is valid, the following query will succeed.
+    // If current session is not valid an 'Invalid Token' error will be thrown.
+    const query = GET_SESSION_IS_VALID;
+    const { data } = await this.apolloClient.query({
+      fetchPolicy: 'network-only',
+      query,
+      variables: { sessionToken },
+    });
+    if (data?.isValidToken === true) {
+      this.apolloClient.cache.writeQuery({
+        query: GET_LOCAL_SIGNED_IN_STATUS,
+        data: { isSignedIn: true },
+      });
+      return true;
+    }
+
+    return false;
+  }
+}

@@ -1,0 +1,275 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["prebuild", "^build"],
+      "inputs": ["production", "^production"],
+      "outputs": [
+        "{projectRoot}/*.tsbuildinfo",
+        "{projectRoot}/*/.tmp",
+        "{projectRoot}/**/*.d.ts",
+        "{projectRoot}/app/i18n",
+        "{projectRoot}/build",
+        "{projectRoot}/dist",
+        "{projectRoot}/lib/senders/emails/css",
+        "{projectRoot}/locale",
+        "{projectRoot}/public",
+        "{projectRoot}/src/styles/*.css",
+        "{projectRoot}/test/**/*.ftl",
+        "{projectRoot}/test/**/client.json"
+      ],
+      "cache": true
+    },
+    "build-storybook": {
+      "dependsOn": ["build"],
+      "inputs": ["production", "^production"],
+      "outputs": ["{projectRoot}/storybook-static"],
+      "cache": true
+    },
+    "compile": {
+      "dependsOn": ["^compile"],
+      "inputs": ["typescript", "^typescript"],
+      "outputs": ["{projectRoot}/build", "{projectRoot}/dist"],
+      "cache": true
+    },
+    "gql-copy": {
+      "dependsOn": [
+        {
+          "projects": ["fxa-settings", "fxa-admin-panel"],
+          "target": "gql-extract"
+        }
+      ],
+      "inputs": ["typescript", "^typescript"],
+      "outputs": ["{projectRoot}/src/config/gql/allowlist"],
+      "cache": true
+    },
+    "gql-extract": {
+      "dependsOn": [],
+      "inputs": ["typescript"],
+      "outputs": ["{workspaceRoot}/configs/gql/allowlist"],
+      "cache": true
+    },
+    "lint": {
+      "inputs": ["lint", "{workspaceRoot}/.eslintrc.json"],
+      "outputs": ["{projectRoot}/.eslintcache"],
+      "cache": true
+    },
+    "prebuild": {
+      "dependsOn": ["gql-copy"],
+      "inputs": [],
+      "outputs": [
+        "{projectRoot}/public/locales",
+        "{projectRoot}/public/legal-docs",
+        "{projectRoot}/server/config/local.json",
+        "{projectRoot}/var",
+        "{projectRoot}/vendor/ejs.js",
+        "{workspaceRoot}/external/l10n/**/*.@(ftl|po|js|json|sh|py|json)",
+        "{workspaceRoot}/external/legal-docs/**/*.@(md|json)"
+      ],
+      "cache": true
+    },
+    "restart": {
+      "dependsOn": ["build", "^restart"],
+      "inputs": ["production", "^production"],
+      "outputs": []
+    },
+    "start": {
+      "dependsOn": ["build", "gen-keys", "^start"],
+      "inputs": ["production", "^production"],
+      "outputs": []
+    },
+    "storybook": {
+      "dependsOn": ["build"],
+      "inputs": ["production", "^production"],
+      "outputs": ["{projectRoot}/storybook-static"]
+    },
+    "test": {
+      "inputs": ["production", "^production"],
+      "dependsOn": ["test-unit", "test-integration", "test-e2e"],
+      "outputs": [
+        "{workspaceRoot}/artifacts/tests",
+        "{projectRoot}/coverage",
+        "{projectRoot}/.nyc_output",
+        "{projectRoot}/test-results.xml"
+      ],
+      "cache": true
+    },
+    "test-e2e": {
+      "dependsOn": ["build"],
+      "inputs": ["production", "^production"],
+      "outputs": [
+        "{workspaceRoot}/artifacts/tests",
+        "{projectRoot}/coverage",
+        "{projectRoot}/.nyc_output",
+        "{projectRoot}/test-results.xml"
+      ]
+    },
+    "test-integration": {
+      "dependsOn": ["build", "gen-keys"],
+      "inputs": ["test", "^test"],
+      "outputs": [
+        "{workspaceRoot}/artifacts/tests",
+        "{projectRoot}/coverage",
+        "{projectRoot}/.nyc_output",
+        "{projectRoot}/test-results.xml",
+        "{projectRoot}/test/scripts/test_output"
+      ],
+      "cache": true
+    },
+    "test-integration-v2": {
+      "dependsOn": ["build", "gen-keys"],
+      "inputs": ["test", "^test"],
+      "outputs": [
+        "{workspaceRoot}/artifacts/tests",
+        "{projectRoot}/coverage",
+        "{projectRoot}/.nyc_output",
+        "{projectRoot}/test-results.xml",
+        "{projectRoot}/test/scripts/test_output"
+      ],
+      "cache": true
+    },
+    "test-unit": {
+      "dependsOn": ["build", "gen-keys"],
+      "inputs": ["test", "^test"],
+      "outputs": [
+        "{workspaceRoot}/artifacts/tests",
+        "{projectRoot}/coverage",
+        "{projectRoot}/.nyc_output",
+        "{projectRoot}/test-results.xml"
+      ],
+      "cache": true
+    },
+    "l10n-prime": {
+      "inputs": ["{workspaceRoot}/external/l10n/**/*.@(ftl)"],
+      "outputs": [
+        "{projectRoot}/public"
+      ],
+      "cache": true
+    },
+    "@nx/jest:jest": {
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
+      "options": {
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      },
+      "outputs": ["{workspaceRoot}/artifacts/tests"]
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/js:swc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/esbuild:esbuild": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    }
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*.*", "sharedGlobals"],
+    "lint": ["{projectRoot}/**/*.@(js|jsx|ts|tsx)"],
+    "production": [
+      "default",
+      "{workspaceRoot}/external/l10n/**/*.@(ftl|po)",
+      "{workspaceRoot}/external/legal-docs/**/*.md",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/.storybook/**/*",
+      "!{projectRoot}/**/test/**/*",
+      "!{projectRoot}/**/tests/**/*",
+      "!{projectRoot}/**/*.stories.@(js|jsx|ts|tsx)",
+      "!{projectRoot}/**/*.(spec|test).@(js|jsx|ts|tsx)",
+      "!{projectRoot}/jest.config.@(js|ts)",
+      "!{projectRoot}/tsconfig.+(spec|storybook).json"
+    ],
+    "sharedGlobals": [
+      {
+        "runtime": "node -v"
+      },
+      {
+        "runtime": "tsc -v"
+      }
+    ],
+    "test": ["default", "{workspaceRoot}/jest.preset.js"],
+    "typescript": [
+      "{projectRoot}/**/*.@(ts|tsx)",
+      "{projectRoot}/package.json",
+      "{projectRoot}/tsconfig.*",
+      "sharedGlobals"
+    ]
+  },
+  "cli": {
+    "packageManager": "yarn"
+  },
+  "workspaceLayout": {
+    "appsDir": "apps",
+    "libsDir": "libs"
+  },
+  "generators": {
+    "@nx/react": {
+      "application": {
+        "babel": true
+      },
+      "library": {
+        "unitTestRunner": "jest"
+      }
+    },
+    "@nx/next": {
+      "application": {
+        "style": "none",
+        "linter": "eslint"
+      }
+    }
+  },
+  "neverConnectToCloud": true,
+  "plugins": [
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
+    {
+      "plugin": "@nx/next/plugin",
+      "options": {
+        "startTargetName": "next:start",
+        "buildTargetName": "build",
+        "devTargetName": "dev",
+        "serveStaticTargetName": "serve-static"
+      }
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "webpack:build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      },
+      "exclude": [
+        "packages/**/*"
+      ]
+    }
+  ],
+  "tui": {
+    "enabled": false
+  },
+  "s3": {
+    "bucket": "nx-caching",
+    "localMode": "no-cache",
+    "ciMode": "read-write",
+    "region": "us-east-1",
+    "endpoint": "https://storage.googleapis.com"
+  }
+}

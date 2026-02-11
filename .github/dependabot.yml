@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+    open-pull-requests-limit: 6
+    labels:
+      - 'maintenance'
+      - 'dependencies'
+    reviewers:
+      - '@mozilla/fxa-devs'
+    ignore:
+      - dependency-name: 'jest-watch-typeahead' # To be removed after react-scripts update
+      - dependency-name: 'esbuild' # See FXA-5948
+      - dependency-name: 'mailparser' # Used as a test helper only, see #FXA-5351
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
+    groups:
+      one-package-per-pr: # prevent grouping of unrelated PRs
+        patterns:
+          - '*'
+      opentelemetry-packages:
+        patterns:
+          - '@opentelemetry/*'
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 6
+    reviewers:
+      - '@mozilla/fxa-devs'
+    labels:
+      - 'maintenance'
+      - 'dependencies'

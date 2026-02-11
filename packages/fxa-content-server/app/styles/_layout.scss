@@ -1,0 +1,286 @@
+// Two main widths
+// Apply styles to div injected by backbone, rather than to the stage itself.
+
+#main-content {
+  position: relative;
+  text-align: center;
+
+  &.card {
+    @include respond-to('big') {
+      width: 480px;
+    }
+
+    @include respond-to('small') {
+      width: 300px;
+    }
+  }
+
+  &.panel {
+    max-width: 750px;
+    width: 96%;
+
+    .panel-text-content {
+      text-align: left;
+    }
+  }
+
+  @include respond-to('big') {
+    background: $content-background-color;
+    border-radius: $big-border-radius;
+    box-shadow: $card-box-high;
+    margin: 0 auto;
+    padding: $main-content-padding-top-desktop 40px 40px;
+  }
+
+  @include respond-to('small') {
+    margin: 0 auto;
+    min-height: 300px !important;
+    padding: $main-content-padding-top 20px 20px;
+    position: relative;
+    width: 94%;
+  }
+
+  // Below is all a * TEMP HACK * until all template files using #main-content are converted
+  // to TW. We should be able to remove all then. At that point we we can also set `a` to default
+  // to `link-blue` styles, remove that class set on `a`s, and set `link-grey` where needed
+  header {
+    margin-bottom: 15px;
+
+    h2,
+    h3 {
+      @include header-font();
+      line-height: 1em;
+      margin: 0;
+    }
+
+        h1 {
+      color: $header-color;
+      line-height: 26px;
+
+      .service,
+      .email,
+      .description {
+        display: block;
+        font-size: 15px;
+        line-height: 22px;
+        margin-top: 4px;
+      }
+    }
+
+    h2 {
+      @include title20();
+      font-size: 17px;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+
+  section p {
+    margin: 0 auto 25px 0;
+  }
+
+  .email:not(.hidden) {
+    display: block;
+  }
+
+  a:not(.button) {
+    border-radius: 2px; // Give the focusring rounded corners
+    color: $link-color-default;
+    cursor: pointer; // Use the correct cursor for anchors without an href
+    text-decoration: none;
+
+    @include anchor-default-pseudo-classes();
+  }
+
+  // can remove once every page with error class uses TW
+  // at the time of writing we need this for pages that don't have TW available like the 404 page
+  .error {
+    @include message-box($error-background-color, $error-text-color);
+    display: none;
+    margin-bottom: 10px;
+
+    a {
+      color: $color-white;
+      text-decoration: underline;
+    }
+  }
+
+  // can remove once all checkboxes use `input-checkbox` class instead
+  input[type='checkbox'] {
+    appearance: none;
+    // The background image is preloaded but forced out of the viewport
+    // until checked. Without the preload there, when the user clicks the
+    // checkbox there is a delay while the image is fetched.
+    background-image: url('/images/icon-check-white.svg');
+    background-position: 100px 100px;
+    background-repeat: no-repeat;
+    border: 1px solid rgba($grey-90, 0.3);
+    border-radius: 2px;
+    cursor: pointer;
+    display: inline-block;
+    height: 18px;
+    padding: 0 !important;
+    width: 18px;
+
+    html[dir='ltr'] & {
+      margin-right: 6px;
+    }
+
+    html[dir='rtl'] & {
+      margin-left: 6px;
+    }
+
+    &:not(:checked) {
+      background-color: rgba($grey-90, 0.1);
+
+      &:hover {
+        background-color: rgba($grey-90, 0.2);
+        border-color: rgba($grey-90, 0.3);
+      }
+
+      &:active {
+        background-color: rgba($grey-90, 0.3);
+      }
+
+      &:focus {
+        border: 0;
+        box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff,
+          0 0 0 4px rgba(10, 132, 255, 0.3);
+      }
+
+      &:focus:active {
+        background-color: rgba($grey-90, 0.3);
+      }
+
+      &:disabled {
+        background-color: rgba($grey-90, 0.1);
+      }
+    }
+
+    &:checked {
+      background-color: $blue-60;
+      background-position: center center;
+
+      &:hover {
+        background-color: $blue-70;
+      }
+
+      &:active {
+        background-color: $blue-80;
+      }
+
+      &:focus {
+        border: 0;
+        box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff,
+          0 0 0 4px rgba(10, 132, 255, 0.3);
+      }
+
+      &:focus:active {
+        background-color: rgba($grey-90, 0.3);
+      }
+
+      &:disabled {
+        background-color: $blue-60;
+      }
+    }
+
+    ~ label {
+      cursor: pointer;
+      position: relative;
+      top: -4px;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+
+      ~ label {
+        cursor: not-allowed;
+        opacity: 0.4;
+      }
+    }
+  }
+}
+
+#fxa-settings-content {
+  margin: 0 auto;
+
+  @include respond-to('big') {
+    background: $content-background-color;
+    border-radius: $big-border-radius;
+    box-shadow: $card-box-high;
+    max-width: 640px;
+    padding: 32px 0 0;
+    transition: box-shadow 250ms cubic-bezier(0.07, 0.95, 0, 1);
+    width: 100%;
+  }
+
+  @include respond-to('small') {
+    background: none;
+    border-bottom: 1px solid $settings-header-border-bottom;
+    border-top: 1px solid $settings-header-border-bottom;
+    box-shadow: none;
+    padding: 15px 0 10px;
+    width: 100%;
+    border-radius:0;
+  }
+
+  &.animate-shadow {
+    box-shadow: 0 4px 16px rgba($grey-90, 0.1);
+    transition: box-shadow 250ms cubic-bezier(0.07, 0.95, 0, 1);
+  }
+}
+
+#fxa-settings-header {
+  align-items: center;
+  display: flex;
+  margin: 0 auto;
+  white-space: nowrap;
+  width: 100%;
+
+  @include respond-to('big') {
+    padding: 16px 32px;
+  }
+
+  @include respond-to('small') {
+    padding: 0 16px;
+  }
+}
+
+#fxa-404-home {
+  margin-top: 24px;
+}
+
+.fxa-404-p {
+  line-height: 1.5em;
+  margin: 0;
+}
+
+#stage {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  opacity: 0;
+  width: 100%;
+
+  @include respond-to('small') {
+    align-items: flex-start;
+  }
+
+  .static & {
+    opacity: 1;
+  }
+
+  .lt-ie10 & {
+    display: block;
+  }
+}
+
+.error-500-page {
+  summary {
+    // Override summary for 500 error's details field to show an arrow anchor ">"
+    // See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary#Usage_notes
+    display: list-item;
+  }
+}

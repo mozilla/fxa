@@ -1,0 +1,1007 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import React, { useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client';
+import LinkExternal from 'fxa-react/components/LinkExternal';
+import {
+  RelyingPartyCreatedDto,
+  RelyingPartyDto,
+  RelyingPartyUpdateDto,
+  RotateSecretDto,
+} from 'fxa-admin-server/src/graphql';
+import ErrorAlert from '../ErrorAlert';
+import { AdminPanelFeature } from '@fxa/shared/guards';
+import { Guard } from '../Guard';
+import { getFormattedDate } from '../../lib/utils';
+import { TableRowYHeader, TableYHeaders } from '../TableYHeaders';
+import {
+  CREATE_RELYING_PARTY,
+  GET_RELYING_PARTIES,
+  UPDATE_RELYING_PARTY,
+  DELETE_RELYING_PARTY,
+  ROTATE_RELYING_PARTY_SECRET,
+  DELETE_RELYING_PARTY_PREVIOUS_SECRET,
+} from './index.gql';
+
+interface RelyingPartiesData {
+  relyingParties: RelyingPartyDto[];
+}
+
+/** Parses and formats a relying party's list of scopes. */
+const AllowedScopes = ({
+  allowedScopes,
+}: {
+  allowedScopes?: string | null;
+}) => {
+  if (!allowedScopes) {
+    return <span className="result-grey">NULL</span>;
+  }
+  const arrAllowedScopes = allowedScopes.split(' ');
+  if (arrAllowedScopes.length === 1) {
+    return <>{allowedScopes}</>;
+  }
+  return (
+    <ul className="list-disc">
+      {arrAllowedScopes.map((scope, index) => (
+        <li className="ml-4" key={`${index}-${scope}`}>
+          {scope}
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+/** Form that allows editing or creating a relying party. */
+const RelyingPartyForm = ({
+  handleSubmit,
+  resetState,
+  onExit,
+  data,
+  status,
+}: {
+  handleSubmit: (data: RelyingPartyUpdateDto) => void;
+  resetState: () => void;
+  onExit: () => void;
+  data?: RelyingPartyDto;
+  status?: string;
+}) => {
+  const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const state = {
+      name: formData.get('name')?.toString() || '',
+      imageUri: formData.get('imageUri')?.toString() || '',
+      redirectUri: formData.get('redirectUri')?.toString() || '',
+      canGrant: formData.get('canGrant') === 'true',
+      publicClient: formData.get('publicClient') === 'true',
+      trusted: formData.get('trusted') === 'true',
+      allowedScopes: formData.get('allowedScopes')?.toString() || '',
+      notes: formData.get('notes')?.toString() || '',
+    };
+    handleSubmit(state);
+  };
+
+  return (
+    <>
+      <form
+        onSubmit={onSubmit}
+        onChange={resetState}
+        className="p-4 pt-0 mt-5 relative"
+      >
+        <label>Name:</label>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="name"
+          type="text"
+          name="name"
+          defaultValue={data?.name || ''}
+        ></input>
+
+        <label>Image URL:</label>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="http://mozilla.com/rp/logo.png"
+          type="text"
+          name="imageUri"
+          defaultValue={data?.imageUri || ''}
+        ></input>
+
+        <label>Redirect URL:</label>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="http://mozilla.com/rp/login"
+          type="text"
+          name="redirectUri"
+          defaultValue={data?.redirectUri || ''}
+        ></input>
+
+        <label>Can Grant:</label>
+        <select
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          name="canGrant"
+          defaultValue={data?.canGrant?.toString() || 'true'}
+        >
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <label>Public Client: </label>
+        <select
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          name="publicClient"
+          defaultValue={data?.publicClient?.toString() || 'true'}
+        >
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <label>Trusted: </label>
+        <select
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          name="trusted"
+          defaultValue={data?.trusted?.toString() || 'true'}
+        >
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <label>Allowed Scopes:</label>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="profile"
+          type="text"
+          name="allowedScopes"
+          defaultValue={data?.allowedScopes || ''}
+        ></input>
+
+        <label>Notes:</label>
+        <textarea
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="Enter notes about RP."
+          name="notes"
+          defaultValue={data?.notes || ''}
+        ></textarea>
+
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          type="submit"
+          data-testid="rp-update"
+          hidden={status === 'pending'}
+        >
+          Submit
+        </button>
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          hidden={status === 'pending'}
+          onClick={() => {
+            onExit();
+          }}
+        >
+          Cancel
+        </button>
+      </form>
+      {status && (
+        <>
+          <hr />
+          <div className="p-4 pt-0">
+            <p className="mt-2">
+              <b>{status}</b>
+            </p>
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
+/** UI for creating a new relying party. */
+const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
+  const [status, setStatus] = useState<string>('');
+  const [rpId, setRpId] = useState<string>('');
+  const [rpSecret, setRpSecret] = useState<string>('');
+
+  // Note, these are v1 projects. We need to migrate queues over to V2.
+  const gcpTerminalLink =
+    window.location.host === 'fxa-admin-panel.prod.mozaws.net'
+      ? `https://console.cloud.google.com/welcome?cloudshell=true&project=moz-fx-fxa-prod-375e`
+      : `https://console.cloud.google.com/welcome?cloudshell=true&project=moz-fx-fxa-nonprod-375e`;
+
+  const oauthClientConfig =
+    window.location.host === 'fxa-admin-panel.prod.mozaws.net'
+      ? `https://github.com/mozilla/webservices-infra/blob/main/fxa/k8s/fxa/values-prod.yaml`
+      : `https://github.com/mozilla/webservices-infra/blob/main/fxa/k8s/fxa/values-stage.yaml`;
+
+  const eventBrokerTfConfig =
+    window.location.host === 'fxa-admin-panel.prod.mozaws.net'
+      ? `https://github.com/mozilla-services/cloudops-infra/blob/master/projects/fxa/tf/prod/envs/prod/resources/eventbroker.tf`
+      : `https://github.com/mozilla-services/cloudops-infra/blob/master/projects/fxa/tf/nonprod/envs/stage/resources/eventbroker.tf`;
+
+  const resetState = () => {
+    setStatus('');
+  };
+
+  const [createRelyingParty] = useMutation<{
+    createRelyingParty: RelyingPartyCreatedDto;
+  }>(CREATE_RELYING_PARTY, {
+    onCompleted: (data) => {
+      if (data.createRelyingParty?.id && data.createRelyingParty?.secret) {
+        setStatus('Success!');
+        setRpId(data.createRelyingParty.id);
+        setRpSecret(data.createRelyingParty.secret);
+      }
+    },
+    onError: (err) => {
+      setStatus(`Error Encountered: ${err.message}`);
+      setRpId('');
+    },
+  });
+
+  const handleSubmit = async (data: RelyingPartyUpdateDto) => {
+    setStatus('Pending');
+    const payload = {
+      variables: {
+        relyingParty: data,
+      },
+    };
+    await createRelyingParty(payload);
+  };
+
+  return (
+    <div>
+      <RelyingPartyForm
+        {...{
+          onExit,
+          handleSubmit,
+          resetState,
+          status,
+        }}
+      />
+      {rpId && (
+        <div className="p-4 pt-0">
+          <h3 className="font-bold mb-2">
+            To finalize this new RP, a couple more steps are needed
+          </h3>
+          <p className="mb-2">
+            <b>Step 1:</b> Create a pubsub queue. In order to do this click{' '}
+            <a
+              href={gcpTerminalLink}
+              target="_blank"
+              className="underline text-blue-700"
+            >
+              here
+            </a>{' '}
+            to open a gcp terminal, and issue the following command:
+            <pre className="p-2">
+              gcloud pubsub topics create rpQueue-{rpId}{' '}
+              --message-retention-duration=2678400s
+            </pre>
+          </p>
+
+          <p className="mb-2">
+            <b>Step 2:</b> Next, update this{' '}
+            <a
+              href={eventBrokerTfConfig}
+              target="_blank"
+              className="underline text-blue-700"
+            >
+              file
+            </a>{' '}
+            accordingly. This registers the webhook used for message delivery.
+          </p>
+
+          <p className="mb-2">
+            <b>Step 3:</b> Next, update the OAUTH_CLIENT_IDS mappings{' '}
+            <a
+              href={oauthClientConfig}
+              target="_blank"
+              className="underline text-blue-700"
+            >
+              here
+            </a>
+            . This is used to map client-ids to a known name for legacy
+            amplitude events. This is considered optional, and may be RP
+            dependant.
+          </p>
+
+          <p className="mb-2">
+            <b>Step 4:</b> Provide the following secret in secure manner to the
+            relying party. This secret cannot be displayed again! If it is lost
+            or compromised, the RP's secret must be rotated.
+            <br />
+            <pre className="p-4 mb-2 mt-2">client_secret: {rpSecret}</pre>
+          </p>
+
+          <p className="mb-2">
+            <button
+              onClick={onExit}
+              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            >
+              Got it!
+            </button>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/** UI for updating a relying party. */
+const UpdateRelyingParty = ({
+  data,
+  onExit,
+}: {
+  data: RelyingPartyDto;
+  onExit: () => void;
+}) => {
+  const [status, setStatus] = useState<string>('');
+
+  const resetState = () => {
+    setStatus('');
+  };
+
+  const [updateRelyingParty] = useMutation<{ updateRelyingParty: boolean }>(
+    UPDATE_RELYING_PARTY,
+    {
+      onCompleted: (data) => {
+        if (data.updateRelyingParty === true) {
+          setStatus('Success!');
+          setTimeout(onExit, 500);
+        } else {
+          setStatus(`Could not update relying party! Try again.`);
+        }
+      },
+      onError: (err) => {
+        setStatus(`Error Encountered: ${err.message}`);
+      },
+    }
+  );
+
+  const handleSubmit = (formData: RelyingPartyUpdateDto) => {
+    setStatus('pending');
+    const payload = {
+      variables: {
+        id: data.id,
+        relyingParty: formData,
+      },
+    };
+    updateRelyingParty(payload);
+  };
+
+  return (
+    <div>
+      <h3 className="header-lg font-bold">
+        Editing Relying Party: {data?.name} <i>(id:{data?.id})</i>
+      </h3>
+      <RelyingPartyForm
+        {...{
+          onExit,
+          handleSubmit,
+          resetState,
+          data,
+          status,
+        }}
+      />
+    </div>
+  );
+};
+
+const DeletePreviousRelyingPartySecret = ({
+  data,
+  onExit,
+}: {
+  data: RelyingPartyDto;
+  onExit: () => void;
+}) => {
+  const [status, setStatus] = useState('');
+
+  const [deletePreviousRelyingPartySecret] = useMutation<{
+    deletePreviousRelyingPartySecret: boolean;
+  }>(DELETE_RELYING_PARTY_PREVIOUS_SECRET, {
+    onCompleted: (data) => {
+      if (data.deletePreviousRelyingPartySecret) {
+        setStatus('Success!');
+        setTimeout(onExit, 2000);
+      } else {
+        setStatus('Failed to revoke secret!');
+        setTimeout(onExit, 2000);
+      }
+    },
+    onError: (err) => {
+      setStatus(`Error Encountered Deleting Previous Secret: ${err.message}`);
+    },
+  });
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('confirmName')?.toString()?.trim();
+    if (name === data.name) {
+      await deletePreviousRelyingPartySecret({
+        variables: {
+          id: data.id,
+        },
+      });
+    } else {
+      setStatus(`You must confirm the relying party's name!`);
+    }
+  };
+
+  return (
+    <>
+      <h3 className="header-lg font-bold">
+        Delete Previous Relying Party Secret: {data.name}
+      </h3>
+      <p>
+        This will delete the previous secret from the database, effectively
+        revoking it. Are you sure you want to proceed? This cannot be undone! To
+        continue, type the name the relying party's name below:
+      </p>
+
+      <form className="p-4" onSubmit={handleSubmit}>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="Enter Relying Party Name"
+          type="text"
+          name="confirmName"
+        ></input>
+        <>
+          <button
+            type="submit"
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            data-testid="rp-delete"
+          >
+            Submit
+          </button>
+          <button
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            onClick={onExit}
+          >
+            Cancel
+          </button>
+        </>
+      </form>
+
+      {status && (
+        <>
+          <hr />
+          <div className="p-4 pt-0">
+            <p className="mt-2">
+              <b>{status}</b>
+            </p>
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
+const RotateRelyingPartySecret = ({
+  data,
+  onExit,
+}: {
+  data: RelyingPartyDto;
+  onExit: () => void;
+}) => {
+  const [status, setStatus] = useState('');
+  const [secret, setSecret] = useState('');
+  const { hasPreviousSecret } = data;
+
+  const [rotateRelyingPartySecret] = useMutation<{
+    rotateRelyingPartySecret?: RotateSecretDto;
+  }>(ROTATE_RELYING_PARTY_SECRET, {
+    onCompleted: (data) => {
+      if (data.rotateRelyingPartySecret?.secret) {
+        setStatus('Success!');
+        setSecret(data.rotateRelyingPartySecret.secret);
+      } else {
+        setStatus('Could not rotate secret!');
+        setSecret('');
+      }
+    },
+    onError: (err) => {
+      setStatus(`Error Encountered Rotating Secret: ${err.message}`);
+      setSecret('');
+    },
+  });
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('confirmName')?.toString()?.trim();
+    if (name === data.name) {
+      await rotateRelyingPartySecret({
+        variables: {
+          id: data.id,
+        },
+      });
+    } else {
+      setStatus(`You must confirm the relying party's name!`);
+    }
+  };
+
+  return (
+    <>
+      <hr />
+      <h3 className="header-lg font-bold">
+        Rotate Relying Party Secret: {data.name}
+      </h3>
+      <p>
+        This will generate a new secret for this RP. The previous secret will
+        still be active until it is revoked. To continue type the name of the
+        relying party below:
+      </p>
+
+      {hasPreviousSecret && (
+        <p className="p-4 m-2 rounded bg-yellow-50">
+          <b>Warning!</b> This RP currently has a 'previous' secret active.
+          Going forward with this operation will overwrite it. Be certain the
+          previous secret is not still in use before you proceed!
+        </p>
+      )}
+
+      <form className="pl-4" onSubmit={handleSubmit}>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="Enter Relying Party Name"
+          type="text"
+          name="confirmName"
+        ></input>
+
+        <button
+          type="submit"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          data-testid="rp-delete"
+        >
+          Submit
+        </button>
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          onClick={onExit}
+        >
+          Cancel
+        </button>
+      </form>
+
+      {status && (
+        <>
+          <hr />
+          <div className="p-4 pt-0">
+            <p className="mt-2">
+              <b>{status}</b>
+            </p>
+          </div>
+        </>
+      )}
+
+      {secret && (
+        <div className="p-4 pt-0">
+          <p>
+            Provide the following secret in secure manner to the relying party.
+            This secret cannot be displayed again! If it is lost or compromised,
+            the RP's secret must be rotated yet again. Once the relying party
+            has applied this value to your servers, come back and click this
+            Relying Party's <i>'Revoke Previous Secret'</i> to finalize this
+            process.
+          </p>
+          <pre className="p-4 mb-2 mt-2">client_secret: {secret}</pre>
+          <button
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            onClick={onExit}
+          >
+            Got it!
+          </button>
+        </div>
+      )}
+    </>
+  );
+};
+
+/** UI for deleting an existing relying party. */
+const DeleteRelyingParty = ({
+  data,
+  onExit,
+}: {
+  data: RelyingPartyDto;
+  onExit: () => void;
+}) => {
+  const [status, setStatus] = useState('');
+
+  const [deleteRelyingParty] = useMutation<{ deleteRelyingParty: boolean }>(
+    DELETE_RELYING_PARTY,
+    {
+      onCompleted: (data) => {
+        if (data.deleteRelyingParty === true) {
+          setStatus('Success!');
+          setTimeout(onExit, 500);
+        } else {
+          setStatus('Could not delete RP. Try again!');
+        }
+      },
+      onError: (err) => {
+        setStatus(`Error Encountered Deleting RP: ${err.message}`);
+      },
+    }
+  );
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('confirmName')?.toString()?.trim();
+    if (name === data.name) {
+      await deleteRelyingParty({
+        variables: {
+          id: data.id,
+        },
+      });
+    } else {
+      setStatus(`You must confirm the relying party's name!`);
+    }
+  };
+
+  return (
+    <>
+      <h3 className="header-lg font-bold">
+        Deleting Relying Party: {data.name}
+      </h3>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Are you sure you want to proceed? This cannot be undone! To continue
+          type name below:
+        </label>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="Enter Relying Party Name"
+          type="text"
+          name="confirmName"
+        ></input>
+        <button
+          type="submit"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          data-testid="rp-delete"
+        >
+          Submit
+        </button>
+
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          onClick={onExit}
+        >
+          Cancel
+        </button>
+      </form>
+      {status && (
+        <>
+          <hr />
+          <div className="p-4 pt-0">
+            <p className="mt-2">
+              <b>{status}</b>
+            </p>
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
+/** UI for viewing relying party's current state. */
+const RelyingPartyRow = ({
+  data,
+  onExit,
+}: {
+  data: RelyingPartyDto;
+  onDelete: (id: string) => Promise<void>;
+  onExit: () => void;
+}) => {
+  const [mode, setMode] = useState<
+    'view' | 'update' | 'delete' | 'rotateSecret' | 'deletePreviousSecret'
+  >('view');
+
+  const {
+    id,
+    name,
+    createdAt,
+    redirectUri,
+    allowedScopes,
+    trusted,
+    canGrant,
+    publicClient,
+    notes,
+    imageUri,
+    hasSecret,
+    hasPreviousSecret,
+  } = data;
+
+  if (mode === 'view') {
+    return (
+      <div className="mt-12 mb-12">
+        <h3 className="header-lg font-bold float-left mt-1">{name}</h3>
+        {hasPreviousSecret && (
+          <button
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+            onClick={() => setMode('deletePreviousSecret')}
+          >
+            ❌ Revoke Previous Secret
+          </button>
+        )}
+
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+          onClick={() => setMode('rotateSecret')}
+        >
+          🔑 Rotate Secret
+        </button>
+
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+          onClick={() => {
+            setMode('delete');
+          }}
+        >
+          🗑️ Delete
+        </button>
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+          onClick={() => setMode('update')}
+        >
+          🖊️ Edit
+        </button>
+
+        <TableYHeaders key={id} className="table-y-headers w-full">
+          <TableRowYHeader header="ID" children={id} />
+          <TableRowYHeader
+            header="Created At"
+            children={getFormattedDate(createdAt)}
+          />
+          <TableRowYHeader
+            header="Redirect URI"
+            children={
+              redirectUri ? (
+                redirectUri
+              ) : (
+                <span className="result-grey">(empty string)</span>
+              )
+            }
+          />
+          <TableRowYHeader
+            header="Allowed Scopes"
+            children={<AllowedScopes {...{ allowedScopes }} />}
+          />
+          <TableRowYHeader header="Trusted" children={trusted.toString()} />
+          <TableRowYHeader header="Can Grant" children={canGrant.toString()} />
+          <TableRowYHeader
+            header="Public Client"
+            children={publicClient.toString()}
+          />
+          <TableRowYHeader
+            header="Image URI"
+            children={
+              imageUri ? (
+                imageUri
+              ) : (
+                <span className="result-grey">(empty string)</span>
+              )
+            }
+          />
+          <TableRowYHeader
+            header="Client Secret Active"
+            children={<span>{(!!hasSecret).toString()}</span>}
+          />
+          <TableRowYHeader
+            header="Previous Client Secret Active"
+            children={<span>{(!!hasPreviousSecret).toString()}</span>}
+          />
+          <TableRowYHeader header="Notes" children={<span>{notes}</span>} />
+        </TableYHeaders>
+      </div>
+    );
+  } else if (mode === 'update') {
+    return (
+      <UpdateRelyingParty
+        {...{
+          mode: 'update',
+          data,
+          onExit: () => {
+            setMode('view');
+            onExit();
+          },
+        }}
+      />
+    );
+  } else if (mode === 'delete') {
+    return (
+      <DeleteRelyingParty
+        {...{
+          data,
+          onExit: () => {
+            setMode('view');
+            onExit();
+          },
+        }}
+      />
+    );
+  } else if (mode === 'rotateSecret') {
+    return (
+      <RotateRelyingPartySecret
+        {...{
+          data,
+          onExit: () => {
+            setMode('view');
+            onExit();
+          },
+        }}
+      />
+    );
+  } else if (mode === 'deletePreviousSecret') {
+    return (
+      <DeletePreviousRelyingPartySecret
+        {...{
+          data,
+          onExit: () => {
+            setMode('view');
+            onExit();
+          },
+        }}
+      />
+    );
+  }
+  return <>?</>;
+};
+
+/** Page displaying all relying parties and allows for basic CRUD type operations. */
+export const PageRelyingParties = () => {
+  const [showAddRp, setShowAddRp] = useState(false);
+
+  const { loading, error, data, refetch } = useQuery<RelyingPartiesData>(
+    GET_RELYING_PARTIES,
+    {
+      fetchPolicy: 'network-only',
+    }
+  );
+  const [deleteRelyingParty] = useMutation<boolean>(DELETE_RELYING_PARTY);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteRelyingParty({
+        variables: {
+          id: id,
+        },
+      });
+    } catch (error) {}
+  };
+
+  // Let's us find a specific RP quickly.
+  const [filter, setFilter] = useState('');
+  const filterRelyingParties = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const rpFilter = formData.get('rpFilter');
+    try {
+      if (typeof rpFilter === 'string') {
+        setFilter(rpFilter || '');
+      }
+    } catch {}
+  };
+
+  const getFilteredRps = () => {
+    if (!error && !loading && data) {
+      if (!filter.trim()) {
+        return data.relyingParties;
+      }
+
+      return data.relyingParties.filter(
+        (x) => x.name.indexOf(filter) >= 0 || x.id.indexOf(filter) >= 0
+      );
+    }
+
+    return [];
+  };
+
+  return (
+    <>
+      <h2 className="header-page">Relying Parties</h2>
+
+      <p className="mb-2">
+        This page displays all FxA and SubPlat relying parties (RPs). With
+        adequate permissions you may also be able to edit the RPs properties,
+        delete RPs, and/or create new RPs.
+      </p>
+
+      <p>
+        Mozilla accounts integrates with Mozilla groups on request via OAuth,
+        OpenID, and webhooks, allowing them to offer users authentication and/or
+        authorization with their Mozilla account. These groups assume an RP
+        role. See{' '}
+        <LinkExternal
+          href="https://mozilla.github.io/ecosystem-platform/relying-parties/tutorials/integration-with-fxa"
+          className="underline"
+        >
+          this page
+        </LinkExternal>{' '}
+        for more info.
+      </p>
+
+      <hr />
+
+      {showAddRp && (
+        <>
+          <Guard features={[AdminPanelFeature.CreateRelyingParty]}>
+            <h3 className="header-page font-bold">Add New RP</h3>
+            <p>Fill out the form below to add a new Relying Party.</p>
+            <CreateRelyingParty
+              {...{
+                onExit: () => {
+                  refetch();
+                  setShowAddRp(false);
+                },
+              }}
+            />
+          </Guard>
+        </>
+      )}
+
+      {!showAddRp && (
+        <>
+          <Guard features={[AdminPanelFeature.CreateRelyingParty]}>
+            <h3 className="header-page font-bold">Add New RP</h3>
+            <p>Create an configure an new relying party.</p>
+            <button
+              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded mt-4"
+              onClick={() => {
+                setShowAddRp(true);
+              }}
+            >
+              Create!
+            </button>
+          </Guard>
+          <hr />
+
+          <form onSubmit={filterRelyingParties} className="mt-5 relative">
+            <input
+              type="text"
+              name="rpFilter"
+              placeholder="Filter by relying party name or ID."
+              className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+              defaultValue={filter}
+            ></input>
+            <button
+              type="submit"
+              data-testid="rp-filter"
+              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded"
+            >
+              Filter
+            </button>
+          </form>
+
+          {loading && <p className="mt-2">Loading...</p>}
+          {!loading && error && <ErrorAlert {...{ error }}></ErrorAlert>}
+          {getFilteredRps().length > 0 && (
+            <section>
+              {getFilteredRps().map((data) => (
+                <RelyingPartyRow
+                  data={data}
+                  onExit={() => {
+                    refetch();
+                  }}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </section>
+          )}
+          {!loading && !error && !(data && data.relyingParties.length > 0) && (
+            <p>
+              No relying parties were found. Check double check your filter.{' '}
+              <i>
+                Or if you're seeing this locally, try creating an account to
+                seed the database.
+              </i>
+            </p>
+          )}
+        </>
+      )}
+    </>
+  );
+};
+
+export default PageRelyingParties;
