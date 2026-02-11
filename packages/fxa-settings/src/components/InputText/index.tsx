@@ -49,6 +49,7 @@ export type InputTextProps = {
   tooltipPosition?: 'top' | 'bottom';
   isPasswordInput?: boolean;
   ariaDescribedBy?: string;
+  autocapitalize?: 'off' | 'sentences' | 'words' | 'characters';
 };
 
 export const InputText = ({
@@ -82,6 +83,7 @@ export const InputText = ({
   tooltipPosition,
   isPasswordInput = false,
   ariaDescribedBy,
+  autocapitalize,
 }: InputTextProps) => {
   const [focused, setFocused] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
