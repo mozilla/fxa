@@ -12,9 +12,11 @@ export default {
 
 const data = {
   productName: 'Firefox Fortress',
+  showTax: true,
+  invoiceTotalExcludingTax: '$18.71',
+  invoiceTax: '$1.29',
   invoiceTotal: '$20.00',
   planInterval: 'month',
-  planIntervalCount: '1',
   reminderLength: '7',
   subscriptionSupportUrl: 'http://localhost:3030/support',
   updateBillingUrl: 'http://localhost:3030/subscriptions',
@@ -44,8 +46,9 @@ export const MonthlyPlanDiscountEnding = createStory(
 export const YearlyPlanNoDiscount = createStory(
   {
     planInterval: 'year',
-    planIntervalCount: '1',
     reminderLength: '15',
+    invoiceTotalExcludingTax: '$186.90',
+    invoiceTax: '$13.09',
     invoiceTotal: '$199.99',
     discountEnding: false,
   },
@@ -55,8 +58,9 @@ export const YearlyPlanNoDiscount = createStory(
 export const YearlyPlanDiscountEnding = createStory(
   {
     planInterval: 'year',
-    planIntervalCount: '1',
     reminderLength: '15',
+    invoiceTotalExcludingTax: '$186.90',
+    invoiceTax: '$13.09',
     invoiceTotal: '$199.99',
     discountEnding: true,
     hasDifferentDiscount: false,
@@ -83,4 +87,14 @@ export const YearlyPlanDiscountChanging = createStory(
     hasDifferentDiscount: true,
   },
   'Yearly Plan - Discount Changing'
+);
+
+export const MonthlyPlanNoTax = createStory(
+  {
+    showTax: false,
+    invoiceTotalExcludingTax: undefined,
+    invoiceTax: undefined,
+    invoiceTotal: '$20.00',
+  },
+  'Monthly Plan - No Tax'
 );

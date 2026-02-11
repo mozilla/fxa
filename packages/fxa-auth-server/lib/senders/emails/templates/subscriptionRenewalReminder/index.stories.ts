@@ -16,12 +16,13 @@ const createStory = subplatStoryWithProps(
     productName: 'Firefox Fortress',
     invoiceTotal: '$20.00',
     planInterval: 'month',
-    planIntervalCount: '1',
     reminderLength: '7',
     subscriptionSupportUrl: 'http://localhost:3030/support',
     updateBillingUrl: 'http://localhost:3030/subscriptions',
     discountEnding: false,
     hasDifferentDiscount: false,
+    invoiceTax: undefined,
+    showTax: false,
   }
 );
 
@@ -40,7 +41,6 @@ export const MonthlyPlanDiscountEnding = createStory(
 export const YearlyPlanNoDiscount = createStory(
   {
     planInterval: 'year',
-    planIntervalCount: '1',
     reminderLength: '15',
     invoiceTotal: '$199.99',
     discountEnding: false,
@@ -51,7 +51,6 @@ export const YearlyPlanNoDiscount = createStory(
 export const YearlyPlanDiscountEnding = createStory(
   {
     planInterval: 'year',
-    planIntervalCount: '1',
     reminderLength: '15',
     invoiceTotal: '$199.99',
     discountEnding: true,
@@ -79,4 +78,14 @@ export const YearlyPlanDiscountChanging = createStory(
     hasDifferentDiscount: true,
   },
   'Yearly Plan - Discount Changing'
+);
+
+export const MonthlyPlanWithTax = createStory(
+  {
+    showTax: true,
+    invoiceTotalExcludingTax: '$20.00',
+    invoiceTax: '$2.60',
+    invoiceTotal: '$22.60',
+  },
+  'Monthly Plan - With Tax'
 );
