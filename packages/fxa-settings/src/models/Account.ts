@@ -128,6 +128,7 @@ export function mapAttachedClient(c: RawAttachedClient): AttachedClient {
     os: c.os,
     sessionTokenId: c.sessionTokenId,
     refreshTokenId: c.refreshTokenId,
+    scope: c.scope,
   };
 }
 
@@ -148,6 +149,7 @@ export interface AttachedClient {
   os: string | null;
   sessionTokenId: string | null;
   refreshTokenId: string | null;
+  scope: string[] | null;
 }
 
 interface Subscription {

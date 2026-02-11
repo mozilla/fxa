@@ -73,6 +73,7 @@ export interface AttachedClient {
   os: string | null;
   sessionTokenId: string | null;
   refreshTokenId: string | null;
+  scope: string[] | null;
 }
 
 export interface RecoveryKeyData {
