@@ -87,7 +87,7 @@ async function init() {
   const subscriptionReminders = new SubscriptionReminders(
     log,
     parseInt(program.planLength),
-    parseInt(program.reminderLength),
+    parseInt(program.monthlyRenewalReminderLength),
     {
       enabled: parseBooleanArg(program.enableEndingReminders),
       paymentsNextUrl: config.smtp.subscriptionSettingsUrl,
@@ -96,6 +96,7 @@ async function init() {
       yearlyReminderDays: parseInt(program.endingReminderYearlyLength),
     },
     {
+      monthlyReminderDays: parseInt(program.monthlyRenewalReminderLength),
       yearlyReminderDays: parseInt(program.yearlyRenewalReminderLength),
     },
     database,
