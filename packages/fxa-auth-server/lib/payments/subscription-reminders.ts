@@ -40,6 +40,7 @@ interface EndingRemindersOptions {
 }
 
 interface RenewalRemindersOptions {
+  monthlyReminderDays?: number;
   yearlyReminderDays?: number;
 }
 
@@ -81,6 +82,11 @@ export class SubscriptionReminders {
     this.statsd = statsd;
     this.planDuration = Duration.fromObject({ days: planLength });
     this.reminderDuration = Duration.fromObject({ days: reminderLength });
+    if (renewalRemindersOptions.monthlyReminderDays) {
+      this.reminderDuration = Duration.fromObject({
+        days: renewalRemindersOptions.monthlyReminderDays,
+      });
+    }
     if (renewalRemindersOptions.yearlyReminderDays) {
       this.yearlyRenewalReminderDuration = Duration.fromObject({
         days: renewalRemindersOptions.yearlyReminderDays,
