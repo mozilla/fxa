@@ -248,9 +248,9 @@ export interface Passkeys {
   credentialId: Buffer;
   publicKey: Buffer;
   signCount: number;
-  transports: string | null;
-  aaguid: Buffer | null;
-  name: string | null;
+  transports: Json;
+  aaguid: Buffer;
+  name: string;
   createdAt: number;
   lastUsedAt: number | null;
   backupEligible: Generated<ColumnType<boolean, number, number>>;

@@ -27,12 +27,12 @@ import { PasskeyManager } from './passkey.manager';
  * The library handles WebAuthn spec compliance and crypto operations.
  * This service translates between WebAuthn responses and our database model.
  *
- * ## Data Normalization
+ * ## Data Storage
  *
  * When storing passkey data from WebAuthn library responses:
- * - **AAGUID**: Normalize all-zeros (00000000-0000-0000-0000-000000000000) to NULL
- *   Many authenticators return all-zeros for privacy. Store NULL when meaningless.
- * - **transports**: Trust library-provided JSON array string (validated by library)
+ * - **AAGUID**: Store exactly as provided (including all-zeros for privacy-preserving authenticators)
+ * - **transports**: Store as JSON array (use [] if not provided)
+ * - **name**: Always generate a default if not provided (use "Passkey" as fallback)
  * - **backupEligible/backupState**: Extract from authenticator data flags (BE/BS bits)
  *
  */
@@ -46,19 +46,17 @@ export class PasskeyService {
 
   // TODO: Add methods for passkey operations such as:
   // - generateRegistrationChallenge
-  // - verifyRegistrationResponse (normalize AAGUID here before storing)
+  // - verifyRegistrationResponse
+  //     CRITICAL: Must ALWAYS generate a name (NOT NULL in database).
+  //     Strategy: 1) AAGUID → FIDO MDS lookup (skip if all-zeros), 2) transport-based fallback,
+  //     3) generic fallback ("Passkey"). See PASSKEY_FIELDS.md for details.
+  //     CRITICAL: Must normalize transports - use [] (empty array) if undefined/null.
+  //     Note: Store AAGUID as-is (no normalization needed, all-zeros is valid).
   // - generateAuthenticationChallenge
   // - verifyAuthenticationResponse (extract backup state, signCount, validate rollback)
   // - listPasskeysForUser
   // - renamePasskey
   // - deletePasskey
-  //
-  // TODO: Add normalizeAaguid() helper:
-  //   function normalizeAaguid(aaguid: Buffer | null | undefined): Buffer | null {
-  //     if (!aaguid || aaguid.length !== 16) return null;
-  //     if (aaguid.every(byte => byte === 0)) return null;
-  //     return aaguid;
-  //   }
   //
   // TODO: Add signCount rollback detection in verifyAuthenticationResponse():
   //   - Fetch existing passkey with current signCount

@@ -94,14 +94,15 @@ export async function insertPasskey(
  * @param credentialId - WebAuthn credential ID (Buffer)
  * @param signCount - New signature count from authenticator data
  * @param backupState - Current backup state flag (0 or 1) from authenticator data
+ * @returns true if a passkey was updated, false otherwise
  */
 export async function updatePasskeyCounterAndLastUsed(
   db: AccountDatabase,
   credentialId: Buffer,
   signCount: number,
   backupState: number
-): Promise<void> {
-  await db
+): Promise<boolean> {
+  const result = await db
     .updateTable('passkeys')
     .set({
       lastUsedAt: Date.now(),
@@ -109,7 +110,9 @@ export async function updatePasskeyCounterAndLastUsed(
       backupState: backupState,
     })
     .where('credentialId', '=', credentialId)
-    .execute();
+    .executeTakeFirst();
+
+  return result.numUpdatedRows === BigInt(1);
 }
 
 /**
@@ -129,9 +132,9 @@ export async function updatePasskeyName(
     .updateTable('passkeys')
     .set({ name })
     .where('credentialId', '=', credentialId)
-    .execute();
+    .executeTakeFirst();
 
-  return result.length;
+  return Number(result.numUpdatedRows);
 }
 
 /**

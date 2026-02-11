@@ -190,18 +190,20 @@ export const PasskeyFactory = (override?: Partial<NewPasskey>): NewPasskey => ({
   publicKey: getHexBuffer(128),
   signCount: 0,
   transports: faker.helpers.arrayElement([
-    '["internal"]',
-    '["usb"]',
-    '["internal","hybrid"]',
-    null,
+    JSON.stringify(['internal']),
+    JSON.stringify(['usb']),
+    JSON.stringify(['internal', 'hybrid']),
+    JSON.stringify([]),
   ]),
-  aaguid: faker.datatype.boolean() ? getHexBuffer(32) : null,
+  aaguid: faker.datatype.boolean()
+    ? getHexBuffer(32) // Real AAGUID (32 hex chars = 16 bytes)
+    : Buffer.alloc(16, 0), // All-zeros for privacy-preserving authenticators
   name: faker.helpers.arrayElement([
     'Touch ID',
     'YubiKey 5',
     'Security Key',
     'iPhone Face ID',
-    null,
+    'Passkey',
   ]),
   createdAt: faker.date.recent().getTime(),
   lastUsedAt: faker.datatype.boolean() ? faker.date.recent().getTime() : null,

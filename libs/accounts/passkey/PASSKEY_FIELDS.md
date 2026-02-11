@@ -13,20 +13,20 @@ This document provides detailed information about the passkey data model and fie
 
 ## Quick Reference
 
-| Field          | Type               | Required                    | Description                               |
-| -------------- | ------------------ | --------------------------- | ----------------------------------------- |
-| uid            | Buffer(16)         | Yes                         | User ID (FK to accounts.uid)              |
-| credentialId   | Buffer(1-1023)     | Yes                         | WebAuthn credential ID                    |
-| publicKey      | Buffer             | Yes                         | COSE-encoded public key                   |
-| signCount      | number             | Yes                         | Signature counter (default 0)             |
-| transports     | string \| null     | No                          | JSON array of transport types             |
-| aaguid         | Buffer(16) \| null | No                          | Authenticator AAGUID                      |
-| name           | string \| null     | No                          | Friendly name (recommended auto-generate) |
-| createdAt      | number             | Yes                         | Unix timestamp (ms)                       |
-| lastUsedAt     | number \| null     | Field: Yes, Value: Nullable | Last auth timestamp (ms)                  |
-| backupEligible | boolean\*          | No (default: 0)             | Can be backed up                          |
-| backupState    | boolean\*          | No (default: 0)             | Is currently backed up                    |
-| prfEnabled     | boolean\*          | No (default: 0)             | PRF extension enabled                     |
+| Field          | Type           | Required                    | Description                             |
+| -------------- | -------------- | --------------------------- | --------------------------------------- |
+| uid            | Buffer(16)     | Yes                         | User ID (FK to accounts.uid)            |
+| credentialId   | Buffer(1-1023) | Yes                         | WebAuthn credential ID                  |
+| publicKey      | Buffer         | Yes                         | COSE-encoded public key                 |
+| signCount      | number         | Yes                         | Signature counter (default 0)           |
+| transports     | string[]       | Yes                         | Array of transport types (JSON in DB)   |
+| aaguid         | Buffer(16)     | Yes                         | Authenticator AAGUID (may be all-zeros) |
+| name           | string         | Yes                         | Friendly name (auto-generate required)  |
+| createdAt      | number         | Yes                         | Unix timestamp (ms)                     |
+| lastUsedAt     | number \| null | Field: Yes, Value: Nullable | Last auth timestamp (ms)                |
+| backupEligible | boolean\*      | No (default: 0)             | Can be backed up                        |
+| backupState    | boolean\*      | No (default: 0)             | Is currently backed up                  |
+| prfEnabled     | boolean\*      | No (default: 0)             | PRF extension enabled                   |
 
 \*Stored as TINYINT(1) in MySQL with DEFAULT 0, converted to boolean by Kysely
 
@@ -84,12 +84,14 @@ This document provides detailed information about the passkey data model and fie
 
 ### transports
 
-- **Type**: string | null
-- **Storage**: VARCHAR(255)
-- **Description**: JSON-encoded array of authenticator transport methods
+- **Type**: string[] (JSON array in database)
+- **Required**: Yes
+- **Storage**: JSON NOT NULL
+- **Description**: Array of authenticator transport methods
 - **Spec**: [AuthenticatorTransport enum](https://www.w3.org/TR/webauthn-3/#enum-transport)
 - **Source**: From [PublicKeyCredentialDescriptor.transports](https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialdescriptor-transports)
 - **Validation**: Provided by WebAuthn library (e.g., @simplewebauthn/server) which validates spec compliance
+- **Storage Pattern**: Store `[]` (empty array) when not provided, or JSON array like `["internal","hybrid"]`
 - **Valid Values**:
   - `"internal"` - Platform authenticator (Touch ID, Windows Hello)
   - `"usb"` - USB security key
@@ -97,14 +99,15 @@ This document provides detailed information about the passkey data model and fie
   - `"ble"` - Bluetooth Low Energy
   - `"hybrid"` - Cloud-assisted BLE (formerly caBLE), per [CTAP 2.2](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html)
   - `"smart-card"` - Smart card authenticator
-- **Example**: `'["internal","hybrid"]'` for iCloud Keychain
+- **Example**: `["internal","hybrid"]` for iCloud Keychain
 - **Usage**: Helps UI show appropriate icons and authentication prompts
-- **Storage Format**: JSON array as string for efficient querying
+- **Database Type**: MySQL JSON for automatic validation and efficient JSON queries
 
 ### aaguid
 
-- **Type**: Buffer(16) | null
-- **Storage**: BINARY(16)
+- **Type**: Buffer(16)
+- **Required**: Yes
+- **Storage**: BINARY(16) NOT NULL
 - **Description**: Authenticator Attestation GUID
 - **Spec**: [AAGUID](https://www.w3.org/TR/webauthn-3/#aaguid)
 - **Source**: From authenticator's [attestedCredentialData](https://www.w3.org/TR/webauthn-3/#attested-credential-data)
@@ -118,23 +121,24 @@ This document provides detailed information about the passkey data model and fie
   - Software authenticators (browser built-in passkey managers)
   - Privacy-focused hardware keys
   - Platform authenticators (depending on policy)
-- **Normalization**: The PasskeyService normalizes all-zeros AAGUID to `NULL` before storage
-  - WebAuthn libraries return the raw AAGUID buffer from authenticator data
-  - Service layer converts all-zeros to NULL (no meaningful identifier)
-  - Only actual AAGUID values that identify specific authenticator models are stored
+- **Storage**: Store the AAGUID exactly as provided by the authenticator (including all-zeros)
+  - No normalization needed - all-zeros is a valid value per WebAuthn spec
+  - All-zeros means "privacy-preserving, no authenticator identifier"
+  - Simplifies implementation by avoiding special handling
 
-**When to expect meaningful AAGUIDs:**
+**When AAGUIDs identify specific authenticators:**
 
 - Hardware security keys (YubiKey, Titan Key, Feitian)
 - Some platform authenticators (Windows Hello, Touch ID on certain configurations)
 - Enterprise authenticators
 
-- **Usage**:
-  - Track which authenticator models are in use
-  - Apply vendor-specific quirks if needed
-  - Analytics on authenticator adoption
-  - Security policies (e.g., allow/deny specific authenticator models)
-  - Auto-generate passkey names via FIDO MDS lookup (when not all-zeros)
+**Usage:**
+
+- Track which authenticator models are in use
+- Apply vendor-specific quirks if needed
+- Analytics on authenticator adoption
+- Security policies (e.g., allow/deny specific authenticator models)
+- Auto-generate passkey names via FIDO MDS lookup (skip if all-zeros)
 - **Example**: YubiKey 5 has AAGUID `2fc0579f-8113-47ea-b116-bb5a8db9202a`, Windows Hello uses `08987058-cadc-4b81-b6e1-30de50dcbe96`
 - **Registry**: [FIDO Alliance Metadata Service](https://fidoalliance.org/metadata/) provides AAGUID registry
 
@@ -142,10 +146,12 @@ This document provides detailed information about the passkey data model and fie
 
 ### name
 
-- **Type**: string | null
-- **Storage**: VARCHAR(255)
+- **Type**: string
+- **Required**: Yes
+- **Storage**: VARCHAR(255) NOT NULL
 - **Description**: User-friendly name for the passkey
 - **Note**: FxA-specific field for UX, not part of WebAuthn spec
+- **Important**: Must always be provided during registration (auto-generated or user-provided)
 - **Examples**:
   - "Touch ID" (auto-generated from platform)
   - "YubiKey 5" (auto-generated from AAGUID)
@@ -172,12 +178,19 @@ Generate a descriptive default name using available metadata:
    - "iPhone Face ID"
    - "YubiKey 5 (Work Laptop)"
 
+**Database Requirement:**
+
+- The `name` field is **NOT NULL** in the database schema
+- Implementation **MUST** always provide a name during registration
+- Never attempt to insert a passkey without a name (will fail DB constraint)
+
 **Best Practices:**
 
-- Always set a default name on registration (never leave NULL)
-- Allow users to rename credentials later
+- Auto-generate descriptive names using the strategy above
+- Allow users to rename credentials after registration
 - Include date/device info for multiple credentials of same type
 - Example: "Touch ID (MacBook Pro, Jan 2025)"
+- Minimum fallback: Use "Passkey" if all metadata lookups fail
 
 ### createdAt
 
@@ -314,7 +327,7 @@ The PRF (Pseudo-Random Function) extension allows authenticators to derive deter
 
 ### Type Conversion (Kysely ColumnType)
 
-Backup flags use `Generated<ColumnType<boolean, number, number>>`:
+**Backup flags** use `Generated<ColumnType<boolean, number, number>>`:
 
 - **SELECT**: Returns `boolean` (true/false) - always present
 - **INSERT**: Accepts `number | undefined` (0, 1, or omit for default 0) - optional
@@ -322,7 +335,29 @@ Backup flags use `Generated<ColumnType<boolean, number, number>>`:
 
 The `Generated<...>` wrapper makes these fields optional on INSERT/UPDATE (matching the database DEFAULT 0), while ensuring they're always present as booleans on SELECT.
 
-This provides ergonomic boolean usage in application code while storing efficiently in MySQL.
+**JSON fields** (`transports`):
+
+- **Database**: MySQL JSON type for automatic validation
+- **TypeScript**: `Json` type from Kysely (represents JSON values)
+- **INSERT/UPDATE**: Provide as JavaScript value (e.g., `['internal', 'hybrid']`) or JSON string
+- **SELECT**: Returns parsed JSON value
+- **Important**: Always provide at least `[]` (empty array) - never undefined/null
+- **Example**:
+
+  ```typescript
+  // Insert
+  await db.insertInto('passkeys').values({
+    transports: ['internal', 'hybrid'], // Kysely handles serialization
+    // ... other fields
+  });
+
+  // Query result
+  const passkey = await db
+    .selectFrom('passkeys')
+    .selectAll()
+    .executeTakeFirst();
+  const transports = passkey.transports; // Already parsed, e.g., ['internal', 'hybrid']
+  ```
 
 ### Indexes
 
@@ -333,8 +368,8 @@ Note: No additional indexes needed. The number of passkeys per user is constrain
 
 ### Foreign Keys
 
-- `uid` references `accounts(uid)` with `ON DELETE CASCADE`
-- When an account is deleted, all associated passkeys are automatically removed
+- `uid` references `accounts(uid)` (no CASCADE - handled by deleteAccount stored procedure)
+- When an account is deleted, passkeys are explicitly deleted via `deleteAccount_22` stored procedure
 
 ## Implementation Resources
 
@@ -366,5 +401,5 @@ For generating fallback names when AAGUID is unavailable:
 
 ## Migration References
 
-- **Forward Migration**: `packages/db-migrations/databases/fxa/patches/patch-182-183.sql`
-- **Rollback Migration**: `packages/db-migrations/databases/fxa/patches/patch-183-182.sql`
+- **Forward Migration**: `packages/db-migrations/databases/fxa/patches/patch-184-185.sql`
+- **Rollback Migration**: `packages/db-migrations/databases/fxa/patches/patch-185-184.sql`
