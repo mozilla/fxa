@@ -12,12 +12,12 @@ type ButtonIconProps = {
   icon: [
     FunctionComponent<SVGProps<SVGSVGElement & { title?: string }>>,
     number,
-    number
+    number,
   ];
   classNames?: string;
   disabled?: boolean;
   gleanDataAttrs?: GleanClickEventDataAttrs;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   testId?: string;
 };
 
