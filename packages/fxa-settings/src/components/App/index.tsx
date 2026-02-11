@@ -36,6 +36,7 @@ import {
   initializeSettingsContext,
   SettingsContext,
 } from '../../models/contexts/SettingsContext';
+import { AccountStateProvider } from '../../models/contexts/AccountStateContext';
 
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { maybeRecordWebAuthnCapabilities } from '../../lib/webauthnCapabilitiesProbe';
@@ -197,7 +198,7 @@ export const App = ({
         return;
       }
 
-      // If the local apollo cache says we are signed in, then we can skip the rest.
+      // If localStorage indicates we are signed in, we can skip the rest.
       if (isSignedInData?.isSignedIn === true) {
         startTransition(() => {
           setIsSignedIn(true);
@@ -305,10 +306,10 @@ export const App = ({
     Metrics.init(metricsEnabled, updatedFlowQueryParams);
     if (data?.account?.metricsEnabled) {
       Metrics.initUserPreferences({
-        recoveryKey: data.account.recoveryKey.exists,
+        recoveryKey: data.account.recoveryKey?.exists ?? false,
         hasSecondaryVerifiedEmail:
           data.account.emails.length > 1 && data.account.emails[1].verified,
-        totpActive: data.account.totp.exists && data.account.totp.verified,
+        totpActive: (data.account.totp?.exists && data.account.totp?.verified) ?? false,
       });
     }
   }, [
@@ -394,6 +395,10 @@ const SettingsRoutes = ({
   const location = useLocation();
   const isSync = integration != null ? integration.isSync() : false;
 
+  // Check localStorage directly — prop is async, localStorage is sync after storeAccountData()
+  const { data: localSignedInData } = useLocalSignedInQueryState();
+  const effectiveIsSignedIn = isSignedIn || localSignedInData?.isSignedIn;
+
   // If the user is not signed in, they cannot access settings! Direct them accordingly
   // Deferring navigation to an effect prevents React from detecting a navigation
   // during render, which can trigger "A component suspended while responding to
@@ -401,16 +406,16 @@ const SettingsRoutes = ({
   // hardNavigate here ensures the update occurs after render.
 
   useEffect(() => {
-    if (!isSignedIn && !isSync) {
+    if (!effectiveIsSignedIn && !isSync) {
       // For regular RP / web logins, maybe the session token expired.
       // In this case we just send them to the root.
       const params = new URLSearchParams(location.search);
       params.set('redirect_to', location.pathname);
       hardNavigate(`/?${params.toString()}`);
     }
-  }, [isSignedIn, isSync, location.pathname, location.search]);
+  }, [effectiveIsSignedIn, isSync, location.pathname, location.search]);
 
-  if (!isSignedIn) {
+  if (!effectiveIsSignedIn) {
     if (isSync) {
       // For sync this means we somehow dropped the sign out message, which is
       // a known issue in android. In this case, our best option is to ask the
@@ -422,14 +427,16 @@ const SettingsRoutes = ({
 
   const settingsContext = initializeSettingsContext();
   return (
-    <SettingsContext.Provider value={settingsContext}>
-      <ScrollToTop default>
-        <Settings
-          path="/settings/*"
-          {...{ integration, setCurrentSplitLayout }}
-        />
-      </ScrollToTop>
-    </SettingsContext.Provider>
+    <AccountStateProvider>
+      <SettingsContext.Provider value={settingsContext}>
+        <ScrollToTop default>
+          <Settings
+            path="/settings/*"
+            {...{ integration, setCurrentSplitLayout }}
+          />
+        </ScrollToTop>
+      </SettingsContext.Provider>
+    </AccountStateProvider>
   );
 };
 

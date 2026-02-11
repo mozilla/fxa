@@ -215,6 +215,13 @@ describe('PageSecondaryEmailAdd', () => {
       mockAuthClient.mfaOtpVerify = jest
         .fn()
         .mockResolvedValueOnce({ accessToken: mockJwt });
+      // VerifiedSessionGuard calls sessionStatus, so we need to mock it
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        state: 'verified',
+        details: {
+          sessionVerified: true,
+        },
+      });
     };
 
     const resetJwtCache = () => {

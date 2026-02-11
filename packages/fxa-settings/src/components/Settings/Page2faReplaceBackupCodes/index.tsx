@@ -11,7 +11,6 @@ import {
   useAlertBar,
   useConfig,
   useFtlMsgResolver,
-  useSession,
 } from '../../../models';
 import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
@@ -34,7 +33,6 @@ export const MfaGuardPage2faReplaceBackupCodes = (
 export const Page2faReplaceBackupCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const navigateWithQuery = useNavigateWithQuery();
-  const session = useSession();
   const account = useAccount();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -155,8 +153,10 @@ export const Page2faReplaceBackupCodes = (_: RouteComponentProps) => {
   };
 
   useEffect(() => {
-    session.verified && newBackupCodes.length < 1 && createNewBackupCodes();
-  }, [session, newBackupCodes, createNewBackupCodes]);
+    if (newBackupCodes.length < 1) {
+      createNewBackupCodes();
+    }
+  }, [newBackupCodes, createNewBackupCodes]);
 
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'tfa-backup-codes-page-title',

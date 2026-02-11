@@ -123,7 +123,7 @@ export const errorHandler: ErrorHandler = ({
         cache.modify({
           id: cache.identify({ __typename: 'Account' }),
           fields: {
-            totp(_, { DELETE }) {
+            totp(_: unknown, { DELETE }: { DELETE: unknown }) {
               return DELETE;
             },
           },
@@ -230,7 +230,7 @@ export function createApolloClient(gqlServerUri: string) {
   const errorLink = onError(errorHandler);
 
   const apolloClientConfig = {
-    cache,
+    cache: cache as unknown as import('@apollo/client').InMemoryCache,
     link: from([
       errorLink,
       sentryLink,

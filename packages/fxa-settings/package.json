@@ -18,7 +18,6 @@
     "clean": "rimraf dist",
     "copy-dev-build": "mkdir -p ../fxa-content-server/app/settings ; NODE_ENV=production yarn build-react-dev && cp -R build/dev ../fxa-content-server/app/settings",
     "compile": "tsc --noEmit",
-    "gql-extract": "persistgraphql src ../../configs/gql/allowlist/fxa-settings.json --js --extension=ts ",
     "l10n-bundle": "yarn l10n:bundle packages/fxa-settings branding,react,settings",
     "l10n-prime": "yarn l10n:prime packages/fxa-settings",
     "l10n-merge": "yarn grunt merge-ftl",
@@ -36,6 +35,7 @@
     "test-unit": "echo No unit tests present for $npm_package_name",
     "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-settings-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true node scripts/test.js --watchAll=false --ci --runInBand --reporters=default --reporters=jest-junit",
     "watch-ftl": "grunt watch-ftl",
+    "gql-extract": "persistgraphql src ../../configs/gql/allowlist/fxa-settings.json --js --extension=ts",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "jest": {
@@ -184,7 +184,6 @@
     "source-map-loader": "^5.0.0",
     "stream-browserify": "^3.0.0",
     "style-loader": "^4.0.0",
-    "subscriptions-transport-ws": "^0.11.0",
     "tailwindcss": "^3.4.1",
     "terser-webpack-plugin": "^5.2.5",
     "ua-parser-js": "1.0.35",

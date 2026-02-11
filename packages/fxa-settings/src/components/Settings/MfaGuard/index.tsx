@@ -26,6 +26,7 @@ import {
   sessionToken as getSessionToken,
 } from '../../../lib/cache';
 import { MfaReason, MfaScope } from '../../../lib/types';
+import { ERRNO } from '@fxa/accounts/errors';
 import { useNavigate } from '@reach/router';
 import * as Sentry from '@sentry/react';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
@@ -143,6 +144,13 @@ export const MfaGuard = ({
         await authClient.mfaRequestOtp(sessionToken, requiredScope);
       } catch (err) {
         MfaOtpRequestCache.remove(sessionToken, requiredScope);
+
+        // If session token is invalid (destroyed/expired), redirect to signin
+        if (err?.errno === ERRNO.INVALID_TOKEN) {
+          navigate('/signin');
+          return;
+        }
+
         if (err.code === 429) {
           setShowResendSuccessBanner(false);
           setLocalizedErrorBannerMessage(
@@ -166,6 +174,7 @@ export const MfaGuard = ({
     onDismiss,
     config.mfa.otp.expiresInMinutes,
     debounce,
+    navigate,
   ]);
 
   const onSubmitOtp = async (code: string) => {
@@ -203,7 +212,6 @@ export const MfaGuard = ({
     } catch (err) {
       MfaOtpRequestCache.remove(sessionToken, requiredScope);
       setShowResendSuccessBanner(false);
-      setShowResendSuccessBanner(false);
       setLocalizedErrorBannerMessage(
         getLocalizedErrorMessage(ftlMsgResolver, err)
       );
@@ -235,17 +243,14 @@ export const MfaGuard = ({
   );
 
   // If we don't have a JWT, we need to open the modal to prompt for it.
-  // Note: I'm torn on whether we should render the child components or not. It seems
-  // like a waste since the user can't interact with them anyway.
-  const missingJwt = !JwtTokenCache.hasToken(sessionToken, requiredScope);
-  if (missingJwt) {
+  if (!JwtTokenCache.hasToken(sessionToken, requiredScope)) {
     return getModal();
   }
 
   // Provide the scope via context so child components can use useMfaErrorHandler
   return (
     <MfaContext.Provider value={requiredScope}>
-      {missingJwt ? getModal() : <>{children}</>}
+      {children}
     </MfaContext.Provider>
   );
 };

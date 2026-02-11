@@ -197,6 +197,7 @@ const ConfirmSignupCode = ({
         uid,
         // Update verification status of stored current account
         verified: true,
+        sessionVerified: true,
       });
 
       if (hasSelectedNewsletters) {

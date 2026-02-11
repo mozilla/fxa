@@ -11,8 +11,6 @@ import { NimbusProvider } from './models/contexts/NimbusContext';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
-import { ApolloProvider } from '@apollo/client';
-import { createApolloClient } from './lib/gql';
 import Storage from './lib/storage';
 import './styles/tailwind.out.css';
 import CookiesDisabled from './pages/CookiesDisabled';
@@ -52,7 +50,7 @@ try {
     return document.head.querySelector(name);
   });
 
-  // Must be configured before apollo is created. Otherwise baggage and sentry-trace headers won't be added
+  // Must be configured early. Otherwise baggage and sentry-trace headers won't be added
   sentryMetrics.configure({
     release: config.version,
     sentry: {
@@ -70,7 +68,6 @@ try {
     },
   });
 
-  const apolloClient = createApolloClient(config.servers.gql.url);
   const appContext = initializeAppContext();
 
   const View = Storage.isLocalStorageEnabled(window)
@@ -86,9 +83,7 @@ try {
         <AppErrorBoundary>
           <AppContext.Provider value={appContext}>
             <NimbusProvider>
-              <ApolloProvider client={apolloClient}>
-                <View />
-              </ApolloProvider>
+              <View />
             </NimbusProvider>
           </AppContext.Provider>
         </AppErrorBoundary>

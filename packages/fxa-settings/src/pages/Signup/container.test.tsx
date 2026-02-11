@@ -40,7 +40,7 @@ import { MozServices } from '../../lib/types';
 import { SignupIntegration, SignupProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { ModelDataProvider } from '../../lib/model-data';
-import AuthClient, { AuthServerError } from 'fxa-auth-client/browser';
+import { AuthServerError } from 'fxa-auth-client/browser';
 import { LocationProvider } from '@reach/router';
 import { MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
 
@@ -119,8 +119,6 @@ function mockReachRouterModule() {
   jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
 }
 
-let mockSignUpWithAuthPW = jest.fn();
-
 // TIP - Occasionally, due to how a module is constructed, jest.spyOn will not work.
 // In this case, use the following pattern. The jest.mock approach generally works,
 // but as you can see, it's quite a bit noisier.
@@ -130,21 +128,21 @@ jest.mock('../../models', () => {
     useAuthClient: jest.fn(),
   };
 });
+
+// Mock auth client with signUpWithAuthPW method
+const mockAuthClient = {
+  accountStatusByEmail: jest.fn(),
+  signUpWithAuthPW: jest.fn(),
+};
+
 function mockModelsModule() {
-  mockSignUpWithAuthPW.mockResolvedValue({
+  mockAuthClient.accountStatusByEmail.mockResolvedValue({ exists: true });
+  mockAuthClient.signUpWithAuthPW.mockResolvedValue({
     uid: 'uid123',
     keyFetchToken: 'kft123',
     sessionToken: 'st123',
     authAt: Date.now(),
   });
-
-  let mockAuthClient = new AuthClient('localhost:9000', {
-    keyStretchVersion: 1,
-  });
-  mockAuthClient.accountStatusByEmail = jest
-    .fn()
-    .mockResolvedValue({ exists: true });
-  mockAuthClient.signUpWithAuthPW = mockSignUpWithAuthPW;
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
   );
@@ -285,7 +283,7 @@ describe('sign-up-container', () => {
         'test123'
       );
 
-      expect(mockSignUpWithAuthPW).toHaveBeenCalledWith(
+      expect(mockAuthClient.signUpWithAuthPW).toHaveBeenCalledWith(
         'foo@mozilla.com',
         'apw123',
         {},
@@ -331,7 +329,7 @@ describe('sign-up-container', () => {
           code: 400,
         }
       );
-      mockSignUpWithAuthPW.mockRejectedValue(authError);
+      mockAuthClient.signUpWithAuthPW.mockRejectedValue(authError);
 
       await render();
       await waitFor(async () => {
@@ -348,7 +346,9 @@ describe('sign-up-container', () => {
     });
 
     it('handles unexpected error on signUpWithAuthPW', async () => {
-      mockSignUpWithAuthPW.mockRejectedValue(new Error('Network error'));
+      mockAuthClient.signUpWithAuthPW.mockRejectedValue(
+        new Error('Network error')
+      );
 
       await render();
       await waitFor(async () => {

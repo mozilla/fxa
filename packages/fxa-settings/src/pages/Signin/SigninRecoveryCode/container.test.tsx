@@ -6,13 +6,11 @@ import * as ReachRouterModule from '@reach/router';
 import * as CacheModule from '../../../lib/cache';
 import * as SigninRecoveryCodeModule from './index';
 
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev';
 import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninRecoveryCodeContainer from './container';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
-import { Integration, useSensitiveDataClient } from '../../../models';
+import { Integration, useAuthClient, useSensitiveDataClient } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import {
   MOCK_STORED_ACCOUNT,
@@ -22,8 +20,7 @@ import {
   MOCK_KEY_FETCH_TOKEN,
 } from '../../mocks';
 import { SigninRecoveryCodeProps } from './interfaces';
-import { mockGqlError, mockSigninLocationState } from '../mocks';
-import { mockConsumeRecoveryCodeUseMutation } from './mocks';
+import { mockSigninLocationState } from '../mocks';
 import { waitFor } from '@testing-library/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
@@ -55,6 +52,10 @@ jest.mock('../../../models', () => {
 
 let currentSigninRecoveryCodeProps: SigninRecoveryCodeProps | undefined;
 const mockSensitiveDataClient = createMockSensitiveDataClient();
+const mockAuthClient = {
+  consumeRecoveryCode: jest.fn(),
+  recoveryPhoneSigninSendCode: jest.fn(),
+};
 function mockSigninRecoveryCodeModule() {
   currentSigninRecoveryCodeProps = undefined;
   jest
@@ -103,6 +104,12 @@ function resetMockSensitiveDataClient() {
   });
 }
 
+function resetMockAuthClient() {
+  (useAuthClient as jest.Mock).mockReturnValue(mockAuthClient);
+  mockAuthClient.consumeRecoveryCode.mockReset();
+  mockAuthClient.recoveryPhoneSigninSendCode.mockReset();
+}
+
 function applyDefaultMocks() {
   jest.resetAllMocks();
   jest.restoreAllMocks();
@@ -114,22 +121,18 @@ function applyDefaultMocks() {
   });
   mockWebIntegration();
   resetMockSensitiveDataClient();
+  resetMockAuthClient();
 }
 
-function render(mocks: Array<MockedResponse>) {
-  loadDevMessages();
-  loadErrorMessages();
-
+function render() {
   renderWithLocalizationProvider(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <LocationProvider>
-        <SigninRecoveryCodeContainer
-          {...{
-            integration,
-          }}
-        />
-      </LocationProvider>
-    </MockedProvider>
+    <LocationProvider>
+      <SigninRecoveryCodeContainer
+        {...{
+          integration,
+        }}
+      />
+    </LocationProvider>
   );
 }
 
@@ -141,26 +144,26 @@ describe('SigninRecoveryCode container', () => {
     it('redirects if page is reached without location state', async () => {
       mockReachRouter('signin_recovery_code');
       mockCache({}, true);
-      await render([]);
+      render();
       expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('redirects if there is no sessionToken', async () => {
       mockReachRouter('signin_recovery_code');
       mockCache({ sessionToken: '' });
-      await render([]);
+      render();
       expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('retrieves the session token from local storage if no location state', async () => {
       mockReachRouter('signin_recovery_code', {});
       mockCache(MOCK_STORED_ACCOUNT);
-      await render([]);
+      render();
       expect(mockNavigate).not.toHaveBeenCalledWith('/');
     });
 
     it('reads data from sensitive data client', () => {
-      render([]);
+      render();
       expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
         SensitiveData.Key.Auth
       );
@@ -169,7 +172,8 @@ describe('SigninRecoveryCode container', () => {
 
   describe('submitRecoveryCode', () => {
     it('successful', async () => {
-      await render([mockConsumeRecoveryCodeUseMutation()]);
+      mockAuthClient.consumeRecoveryCode.mockResolvedValue({ remaining: 3 });
+      render();
       expect(currentSigninRecoveryCodeProps).toBeDefined();
       await waitFor(async () => {
         const response =
@@ -180,15 +184,17 @@ describe('SigninRecoveryCode container', () => {
           remaining: 3,
         });
       });
+      expect(mockAuthClient.consumeRecoveryCode).toHaveBeenCalledWith(
+        mockSigninLocationState.sessionToken,
+        MOCK_BACKUP_CODE
+      );
     });
 
     it('handles errors', async () => {
-      await render([
-        {
-          ...mockConsumeRecoveryCodeUseMutation(),
-          error: mockGqlError(AuthUiErrors.INVALID_RECOVERY_CODE),
-        },
-      ]);
+      const error = new Error('Invalid recovery code');
+      (error as any).errno = AuthUiErrors.INVALID_RECOVERY_CODE.errno;
+      mockAuthClient.consumeRecoveryCode.mockRejectedValue(error);
+      render();
       expect(currentSigninRecoveryCodeProps).toBeDefined();
       await waitFor(async () => {
         const response =

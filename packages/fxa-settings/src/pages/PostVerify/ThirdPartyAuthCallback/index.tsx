@@ -67,6 +67,7 @@ const ThirdPartyAuthCallback = ({
         lastLogin: Date.now(),
         sessionToken: linkedAccount.sessionToken,
         verified: !needsVerification,
+        sessionVerified: !needsVerification,
         metricsEnabled: true,
       };
       return storeAccountData(accountData);

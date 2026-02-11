@@ -8,13 +8,12 @@ import * as UseValidateModule from '../../../lib/hooks/useValidate';
 import * as CacheModule from '../../../lib/cache';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as ReachRouterModule from '@reach/router';
-import * as ApolloModule from '@apollo/client';
+import * as ModelsModule from '../../../models';
 
 // Regular imports
 import { screen } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
 import { SigninTotpCodeProps } from './index';
-import { ApolloClient } from '@apollo/client';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninTotpCodeContainer from './container';
@@ -41,7 +40,7 @@ import {
   MOCK_UNWRAP_BKEY_V2,
   mockLoadingSpinnerModule,
 } from '../../mocks';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
 
 let integration: Integration;
 
@@ -80,7 +79,7 @@ jest.mock('../../../models', () => {
   };
 });
 
-jest.mock('../../../lib/gql-key-stretch-upgrade', () => {
+jest.mock('../../../lib/auth-key-stretch-upgrade', () => {
   return {
     tryFinalizeUpgrade: jest.fn(),
   };
@@ -114,33 +113,22 @@ function mockReachRouter(mockLocationState?: SigninLocationState) {
   });
 }
 
-let mockVerifyTotpMutation: jest.Mock;
-function mockVerifyTotp(success: boolean = true, errorOut: boolean = false) {
-  mockVerifyTotpMutation = jest.fn();
-  mockVerifyTotpMutation.mockImplementation(async () => {
-    if (errorOut) {
-      throw new Error();
-    }
-    return {
-      data: {
-        verifyTotp: {
-          success,
-        },
-      },
-    };
-  });
+// Mock auth client
+const mockAuthClient = {
+  verifyTotpCode: jest.fn(),
+};
 
-  jest.spyOn(ApolloModule, 'useMutation').mockReturnValue([
-    async (...args: any[]) => {
-      return mockVerifyTotpMutation(...args);
-    },
-    {
-      loading: false,
-      called: true,
-      client: {} as ApolloClient<any>,
-      reset: () => {},
-    },
-  ]);
+function mockVerifyTotp(success: boolean = true, errorOut: boolean = false) {
+  mockAuthClient.verifyTotpCode.mockReset();
+  if (errorOut) {
+    mockAuthClient.verifyTotpCode.mockRejectedValue(new Error('Unexpected error'));
+  } else if (!success) {
+    mockAuthClient.verifyTotpCode.mockResolvedValue({ success: false });
+  } else {
+    mockAuthClient.verifyTotpCode.mockResolvedValue({ success: true });
+  }
+
+  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(() => mockAuthClient);
 }
 const mockSensitiveDataClient = createMockSensitiveDataClient();
 mockSensitiveDataClient.getDataType = jest.fn();

@@ -188,6 +188,7 @@ describe('SigninRecoveryPhoneContainer', () => {
         sessionToken: mockSigninLocationState.sessionToken,
         uid: mockSigninLocationState.uid,
         verified: true,
+        sessionVerified: true,
       });
 
       expect(handleNavigation).toHaveBeenCalled();
@@ -220,6 +221,7 @@ describe('SigninRecoveryPhoneContainer', () => {
         sessionToken: mockSigninLocationState.sessionToken,
         uid: mockSigninLocationState.uid,
         verified: true,
+        sessionVerified: true,
       });
 
       expect(handleNavigation).toHaveBeenCalledWith(

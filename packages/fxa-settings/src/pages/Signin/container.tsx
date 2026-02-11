@@ -26,35 +26,21 @@ import {
 } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
 import {
-  cache,
   currentAccount,
   lastStoredAccount,
   findAccountByEmail,
 } from '../../lib/cache';
-import { MutationFunction, useMutation, useQuery } from '@apollo/client';
-import {
-  AVATAR_QUERY,
-  BEGIN_SIGNIN_MUTATION,
-  CREDENTIAL_STATUS_MUTATION,
-  GET_ACCOUNT_KEYS_MUTATION,
-  PASSWORD_CHANGE_FINISH_MUTATION,
-  PASSWORD_CHANGE_START_MUTATION,
-} from './gql';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import {
-  AvatarResponse,
   BeginSigninHandler,
   BeginSigninResponse,
   CachedSigninHandler,
   LocationState,
-  PasswordChangeStartResponse,
-  GetAccountKeysResponse,
-  PasswordChangeFinishResponse,
-  CredentialStatusResponse,
 } from './interfaces';
 import { getCredentials } from 'fxa-auth-client/lib/crypto';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import VerificationMethods from '../../constants/verification-methods';
+import VerificationReasons from '../../constants/verification-reasons';
 import { KeyStretchExperiment } from '../../models/experiments';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { searchParams } from '../../lib/utilities';
@@ -74,7 +60,7 @@ import {
   isFirefoxService,
   isUnsupportedContext,
 } from '../../models/integrations/utils';
-import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
+import { AuthKeyStretchUpgrade } from '../../lib/auth-key-stretch-upgrade';
 import {
   setCurrentAccount,
   storeAccountData,
@@ -83,6 +69,9 @@ import {
 import { cachedSignIn, ensureCanLinkAcountOrRedirect } from './utils';
 import OAuthDataError from '../../components/OAuthDataError';
 import { AppLayout } from '../../components/AppLayout';
+
+/** OAuth token TTL in seconds for profile server requests */
+const PROFILE_OAUTH_TOKEN_TTL_SECONDS = 300;
 
 /*
  * In Backbone, the `email` param is optional. If it's provided, we
@@ -196,7 +185,7 @@ const SigninContainer = ({
   // email will either come from React (location state) or Backbone (query param)
   const {
     email: emailFromLocationState,
-    // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword, will be retrieved from Apollo cache
+    // TODO: in FXA-9177, consider storing hasLinkedAccount and hasPassword in localStorage
     hasLinkedAccount: hasLinkedAccountFromLocationState,
     hasPassword: hasPasswordFromLocationState,
     canLinkAccountOk,
@@ -209,7 +198,7 @@ const SigninContainer = ({
 
   const [accountStatus, setAccountStatus] = useState({
     hasLinkedAccount:
-      // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from Apollo cache (not state)
+      // TODO: in FXA-9177, consider retrieving hasLinkedAccount and hasPassword from localStorage
       hasLinkedAccountFromLocationState !== undefined
         ? hasLinkedAccountFromLocationState
         : queryParamModel.hasLinkedAccount,
@@ -262,7 +251,7 @@ const SigninContainer = ({
                 },
               });
             } else {
-              // TODO: in FXA-9177, also set hasLinkedAccount and hasPassword in Apollo cache
+              // TODO: in FXA-9177, consider persisting hasLinkedAccount and hasPassword to localStorage
               setAccountStatus({
                 hasLinkedAccount,
                 hasPassword,
@@ -288,26 +277,52 @@ const SigninContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { data: avatarData, loading: avatarLoading } =
-    useQuery<AvatarResponse>(AVATAR_QUERY);
+  // Avatar state - fetched directly from profile server
+  const [avatarData, setAvatarData] = useState<{ account: { avatar: { id: string; url: string } } } | undefined>(undefined);
+  const [avatarLoading, setAvatarLoading] = useState(true);
 
-  const [beginSignin] = useMutation<BeginSigninResponse>(BEGIN_SIGNIN_MUTATION);
-
-  const [credentialStatus] = useMutation<CredentialStatusResponse>(
-    CREDENTIAL_STATUS_MUTATION
-  );
-
-  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
-    PASSWORD_CHANGE_START_MUTATION
-  );
-
-  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
-    PASSWORD_CHANGE_FINISH_MUTATION
-  );
-
-  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
-    GET_ACCOUNT_KEYS_MUTATION
-  );
+  // Fetch avatar on mount from profile server (requires OAuth token)
+  useEffect(() => {
+    if (sessionToken && config?.servers?.profile?.url && config?.oauth?.clientId) {
+      // Get OAuth token with profile:avatar scope (required by profile server)
+      authClient.createOAuthToken(sessionToken, config.oauth.clientId, {
+        scope: 'profile:avatar',
+        ttl: PROFILE_OAUTH_TOKEN_TTL_SECONDS,
+      })
+        .then(({ access_token }) => {
+          return fetch(`${config.servers.profile.url}/v1/avatar`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+        })
+        .then((response) => {
+          if (!response.ok) throw new Error('Failed to fetch avatar');
+          return response.json();
+        })
+        .then((data: { id: string; url: string; avatar?: string }) => {
+          setAvatarData({
+            account: {
+              avatar: {
+                id: data.id,
+                url: data.avatar || data.url,
+              },
+            },
+          });
+        })
+        .catch(() => {
+          // Avatar fetch failed, use default
+          setAvatarData(undefined);
+        })
+        .finally(() => {
+          setAvatarLoading(false);
+        });
+    } else {
+      setAvatarLoading(false);
+    }
+  }, [authClient, config, sessionToken]);
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
@@ -337,13 +352,7 @@ const SigninContainer = ({
       const v2Enabled = keyStretchExp.queryParamModel.isV2(config);
 
       // Create client to handle key stretching upgrades
-      const upgradeClient = new GqlKeyStretchUpgrade(
-        'signin',
-        credentialStatus,
-        getWrappedKeys,
-        passwordChangeStart,
-        passwordChangeFinish
-      );
+      const upgradeClient = new AuthKeyStretchUpgrade('signin', authClient);
 
       // Get the current state of user credentials. This could indicate
       // the user has already upgraded, or it could indicate an upgrade
@@ -375,7 +384,7 @@ const SigninContainer = ({
         email,
         v1Credentials,
         v2Credentials,
-        beginSignin,
+        authClient,
         options,
         sensitiveDataClient,
         async (correctedEmail: string) => {
@@ -412,22 +421,11 @@ const SigninContainer = ({
           ) !== 'true'
         ) {
           try {
-            // We must use auth-client here in case the user has 2FA or should be
-            // taken to signin_token_code, else GQL responds with 'Invalid token'
+            // Check recovery key status to determine if we should show inline setup
             const { exists } = await authClient.recoveryKeyExists(
               result.data.signIn.sessionToken,
               email
             );
-            cache.modify({
-              id: cache.identify({ __typename: 'Account' }),
-              fields: {
-                recoveryKey() {
-                  return {
-                    exists,
-                  };
-                },
-              },
-            });
             result.data.showInlineRecoveryKeySetup = !exists;
           } catch (e) {
             // no-op, don't block the user from anything and just
@@ -449,7 +447,9 @@ const SigninContainer = ({
           lastLogin: Date.now(),
           sessionToken: result.data.signIn.sessionToken,
           verified: emailVerified && sessionVerified,
+          sessionVerified,
           metricsEnabled: result.data.signIn.metricsEnabled,
+          hasPassword: true,
         };
 
         storeAccountData(accountData);
@@ -487,14 +487,9 @@ const SigninContainer = ({
       return result;
     },
     [
-      beginSignin,
       config,
-      credentialStatus,
-      getWrappedKeys,
       integration,
       keyStretchExp.queryParamModel,
-      passwordChangeFinish,
-      passwordChangeStart,
       wantsKeys,
       flowQueryParams,
       authClient,
@@ -508,7 +503,7 @@ const SigninContainer = ({
 
   const cachedSigninHandler: CachedSigninHandler = useCallback(
     async (sessionToken: hexstring) =>
-      cachedSignIn(sessionToken, authClient, cache, session),
+      cachedSignIn(sessionToken, authClient, session),
     [authClient, session]
   );
 
@@ -593,7 +588,7 @@ const SigninContainer = ({
 };
 
 export async function getCurrentCredentials(
-  client: GqlKeyStretchUpgrade,
+  client: AuthKeyStretchUpgrade,
   email: string,
   password: string,
   v2Enabled: boolean
@@ -618,12 +613,12 @@ export async function trySignIn(
   email: string,
   v1Credentials: { authPW: string; unwrapBKey: string },
   v2Credentials: { authPW: string; unwrapBKey: string } | undefined,
-  beginSignin: MutationFunction<BeginSigninResponse>,
+  authClient: ReturnType<typeof useAuthClient>,
   options: {
     verificationMethod: VerificationMethods;
     keys: boolean;
     metricsContext: MetricsContext;
-    service?: any;
+    service?: string;
     unblockCode?: string;
     originalLoginEmail?: string;
   },
@@ -637,17 +632,16 @@ export async function trySignIn(
 ) {
   try {
     const authPW = v2Credentials?.authPW || v1Credentials.authPW;
-    const { data } = await beginSignin({
-      variables: {
-        input: {
-          email,
-          authPW,
-          options,
-        },
-      },
+    const response = await authClient.signInWithAuthPW(email, authPW, {
+      verificationMethod: options.verificationMethod,
+      keys: options.keys,
+      service: options.service,
+      metricsContext: options.metricsContext,
+      unblockCode: options.unblockCode,
+      originalLoginEmail: options.originalLoginEmail,
     });
 
-    if (data) {
+    if (response) {
       const unwrapBKey = v2Credentials
         ? v2Credentials.unwrapBKey
         : v1Credentials.unwrapBKey;
@@ -658,17 +652,28 @@ export async function trySignIn(
         // Store this in case the email was corrected
         emailForAuth: email,
         unwrapBKey,
-        keyFetchToken: data.signIn.keyFetchToken,
+        keyFetchToken: response.keyFetchToken,
       });
 
-      return {
-        data: {
-          ...data,
-          ...(options.keys && {
-            unwrapBKey,
-          }),
+      // Transform response to match expected BeginSigninResponse format
+      const data: BeginSigninResponse = {
+        signIn: {
+          uid: response.uid,
+          sessionToken: response.sessionToken,
+          authAt: response.authAt,
+          metricsEnabled: response.metricsEnabled ?? true,
+          emailVerified: response.emailVerified ?? false,
+          sessionVerified: response.sessionVerified ?? false,
+          verificationMethod: (response.verificationMethod || VerificationMethods.EMAIL_OTP) as VerificationMethods,
+          verificationReason: response.verificationReason as VerificationReasons,
+          keyFetchToken: response.keyFetchToken,
         },
+        ...(options.keys && {
+          unwrapBKey,
+        }),
       };
+
+      return { data };
     }
     return { data: undefined };
   } catch (error) {
@@ -691,7 +696,7 @@ export async function trySignIn(
         result.error.email,
         v1Credentials,
         v2Credentials,
-        beginSignin,
+        authClient,
         {
           ...options,
           originalLoginEmail: email,

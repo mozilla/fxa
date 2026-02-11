@@ -128,9 +128,9 @@ function getLegacyExtendedStateKey(uid: string): string {
   return `accountState_${uid}`;
 }
 
-function dispatchStorageEvent(): void {
+export function dispatchStorageEvent(key = 'accounts'): void {
   window.dispatchEvent(
-    new CustomEvent('localStorageChange', { detail: { key: 'accounts' } })
+    new CustomEvent('localStorageChange', { detail: { key } })
   );
 }
 
@@ -393,9 +393,5 @@ export function removeAccount(uid?: string): void {
 
 export function setCurrentAccountUid(uid: string): void {
   storage().set('currentAccountUid', uid);
-  window.dispatchEvent(
-    new CustomEvent('localStorageChange', {
-      detail: { key: 'currentAccountUid' },
-    })
-  );
+  dispatchStorageEvent('currentAccountUid');
 }

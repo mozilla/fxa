@@ -2,14 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MutationFunction } from '@apollo/client';
-import {
-  CredentialStatus,
-  CredentialStatusResponse,
-  GetAccountKeysResponse,
-  PasswordChangeFinishResponse,
-  PasswordChangeStartResponse,
-} from '../pages/Signin/interfaces';
+import AuthClient, { CredentialStatus } from 'fxa-auth-client/browser';
 import * as Sentry from '@sentry/browser';
 import {
   getCredentials,
@@ -33,27 +26,24 @@ export type V2Credentials = V1Credentials & {
 };
 
 /**
- * Convenience function for attempting an upgrade and catching any errors that might happen.
- * Note that this will manually report GQL errors to Sentry.
+ * Attempt to finalize a v2 key-stretching upgrade.
+ * This is a best-effort operation - failures are logged to Sentry but don't block sign-in.
+ *
+ * @param sessionId - The session token ID
+ * @param sensitiveDataClient - Client containing the upgrade credentials
+ * @param stage - Description of the current auth flow stage (for Sentry context)
+ * @param authClient - Auth client instance
+ * @returns true if upgrade succeeded, false otherwise
  */
 export async function tryFinalizeUpgrade(
   sessionId: string,
   sensitiveDataClient: SensitiveDataClient,
   stage: string,
-  gqlCredentialStatus: MutationFunction<CredentialStatusResponse>,
-  gqlGetWrappedKeys: MutationFunction<GetAccountKeysResponse>,
-  gqlPasswordChangeStart: MutationFunction<PasswordChangeStartResponse>,
-  gqlPasswordChangeFinish: MutationFunction<PasswordChangeFinishResponse>
+  authClient: AuthClient
 ) {
   try {
     if (sensitiveDataClient.KeyStretchUpgradeData) {
-      const upgradeClient = new GqlKeyStretchUpgrade(
-        stage,
-        gqlCredentialStatus,
-        gqlGetWrappedKeys,
-        gqlPasswordChangeStart,
-        gqlPasswordChangeFinish
-      );
+      const upgradeClient = new AuthKeyStretchUpgrade(stage, authClient);
 
       await upgradeClient.upgrade(
         sensitiveDataClient.KeyStretchUpgradeData.email,
@@ -65,27 +55,36 @@ export async function tryFinalizeUpgrade(
     }
   } catch (error) {
     // NO-OP Don't let a key stretching upgrade issue prevent sign in.
-    // Note that the upgradeClient reports errors to sentry.
   } finally {
-    // Clear out the state. No reason to keep trying this...
-    // Note that the upgradeClient will report issues to Sentry.
     sensitiveDataClient.KeyStretchUpgradeData = undefined;
   }
   return false;
 }
 
 /**
- * Handles upgrade process for key stretching
+ * Handles the v1 -> v2 key stretching upgrade process.
+ *
+ * V2 key stretching improves security by adding an additional key derivation step.
+ * The upgrade is performed transparently during sign-in when:
+ * 1. The account is still using v1 credentials
+ * 2. V2 key stretching is enabled for the user
+ *
+ * The upgrade flow:
+ * 1. Check if upgrade is needed via getCredentialStatusV2
+ * 2. Start password change with v1 credentials
+ * 3. Get wrapped keys using keyFetchToken
+ * 4. Finish password change with both v1 and v2 credentials
  */
-export class GqlKeyStretchUpgrade {
+export class AuthKeyStretchUpgrade {
   constructor(
     private readonly stage: string,
-    private readonly gqlCredentialStatus: MutationFunction<CredentialStatusResponse>,
-    private readonly gqlGetWrappedKeys: MutationFunction<GetAccountKeysResponse>,
-    private readonly gqlPasswordChangeStart: MutationFunction<PasswordChangeStartResponse>,
-    private readonly gqlPasswordChangeFinish: MutationFunction<PasswordChangeFinishResponse>
+    private readonly authClient: AuthClient
   ) {}
 
+  /**
+   * Derive credentials from email and password.
+   * If v2 is enabled, also derives v2 credentials and checks upgrade status.
+   */
   async getCredentials(
     email: string,
     password: string,
@@ -115,13 +114,19 @@ export class GqlKeyStretchUpgrade {
     };
   }
 
+  /**
+   * Perform the v1 -> v2 key stretching upgrade.
+   * This is a multi-step process that requires valid session and account verification.
+   *
+   * @returns true if upgrade succeeded, false if any step failed
+   */
   async upgrade(
     email: string,
     v1Credentials: V1Credentials,
     v2Credentials: V2Credentials,
     sessionToken: string
   ): Promise<boolean> {
-    let result1 = await this.startUpgrade(email, v1Credentials, sessionToken);
+    const result1 = await this.startUpgrade(email, v1Credentials, sessionToken);
 
     if (result1?.keyFetchToken && result1?.passwordChangeToken) {
       const result2 = await this.getWrappedKeys(result1.keyFetchToken);
@@ -143,12 +148,12 @@ export class GqlKeyStretchUpgrade {
     email: string
   ): Promise<CredentialStatus | undefined> {
     try {
-      const result = await this.gqlCredentialStatus({
-        variables: {
-          input: email,
-        },
-      });
-      return result.data?.credentialStatus;
+      const result = await this.authClient.getCredentialStatusV2(email);
+      return {
+        upgradeNeeded: result.upgradeNeeded,
+        currentVersion: result.currentVersion,
+        clientSalt: result.clientSalt,
+      };
     } catch (error) {
       Sentry.captureMessage(
         `Failure to finish v2 key-stretching upgrade. Could not get credential status during ${this.stage}`,
@@ -168,37 +173,27 @@ export class GqlKeyStretchUpgrade {
     sessionToken: string
   ) {
     try {
-      const response = await this.gqlPasswordChangeStart({
-        variables: {
-          input: {
-            email: email,
-            oldAuthPW: v1Credentials.authPW,
-            sessionToken,
-          },
-        },
-      });
-      const passwordChangeToken =
-        response.data?.passwordChangeStart?.passwordChangeToken || '';
-      const keyFetchToken =
-        response.data?.passwordChangeStart?.keyFetchToken || '';
+      const response = await this.authClient.passwordChangeStartWithAuthPW(
+        email,
+        v1Credentials.authPW,
+        sessionToken
+      );
       return {
-        keyFetchToken,
-        passwordChangeToken,
+        keyFetchToken: response.keyFetchToken || '',
+        passwordChangeToken: response.passwordChangeToken || '',
       };
     } catch (error) {
       const errno = getHandledError(error).error.errno;
 
+      // These are expected conditions where upgrade should be deferred, not errors
       if (errno === ERRNO.ACCOUNT_UNVERIFIED) {
-        // Session not verified. Trying again later.
-        console.info('Account not verified. Try upgrade later.');
+        console.info('Key stretch upgrade deferred: account not verified');
       } else if (errno === ERRNO.SESSION_UNVERIFIED) {
-        // Account not verified. Trying again later.
-        console.info('Account not verified. Try upgrade later.');
+        console.info('Key stretch upgrade deferred: session not verified');
       } else {
-        console.info('Unexpected errno. Try upgrade later.', errno);
+        console.info(`Key stretch upgrade deferred: unexpected error (errno: ${errno})`);
       }
 
-      // Unexpected state. Log it sentry, and try again later.
       Sentry.captureMessage(
         `Failure to finish v2 key-stretching upgrade. Could not start password change during ${this.stage}`,
         {
@@ -213,14 +208,9 @@ export class GqlKeyStretchUpgrade {
 
   private async getWrappedKeys(keyFetchToken: string) {
     try {
-      const keysResponse = await this.gqlGetWrappedKeys({
-        variables: {
-          input: keyFetchToken,
-        },
-      });
-      const wrapKB = keysResponse.data?.wrappedAccountKeys.wrapKB || '';
+      const response = await this.authClient.wrappedAccountKeys(keyFetchToken);
       return {
-        wrapKB,
+        wrapKB: response.wrapKB || '',
       };
     } catch (error) {
       Sentry.captureMessage(
@@ -254,21 +244,18 @@ export class GqlKeyStretchUpgrade {
         'sessionToken'
       );
 
-      const input = {
-        passwordChangeToken: passwordChangeToken,
-        authPW: v1Credentials.authPW,
-        wrapKb: keys.wrapKb,
-        authPWVersion2: v2Credentials.authPW,
-        wrapKbVersion2: keys.wrapKbVersion2,
-        clientSalt: v2Credentials.clientSalt,
-        sessionToken: credentials.id,
-      };
-
-      await this.gqlPasswordChangeFinish({
-        variables: {
-          input,
+      await this.authClient.passwordChangeFinish(
+        passwordChangeToken,
+        {
+          authPW: v1Credentials.authPW,
+          wrapKb: keys.wrapKb,
+          authPWVersion2: v2Credentials.authPW,
+          wrapKbVersion2: keys.wrapKbVersion2,
+          clientSalt: v2Credentials.clientSalt,
+          sessionToken: credentials.id,
         },
-      });
+        { keys: false }
+      );
     } catch (error) {
       Sentry.captureMessage(
         `Failure to finish v2 key-stretching upgrade. Could not finish password change during ${this.stage}`,

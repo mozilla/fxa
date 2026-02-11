@@ -2,14 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import {
-  AppContext,
-  isWebIntegration,
-  useFtlMsgResolver,
-} from '../../../models';
+import { isWebIntegration, useFtlMsgResolver } from '../../../models';
 import { BackupCodesImage } from '../../../components/images';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode, {
@@ -29,7 +25,7 @@ import Banner from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import ButtonBack from '../../../components/ButtonBack';
 import classNames from 'classnames';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import { setStoredSignedInStatus } from '../../../models/Session';
 
 export const viewName = 'signin-recovery-code';
 
@@ -58,7 +54,6 @@ const SigninRecoveryCode = ({
     'Backup authentication code required'
   );
   const location = useLocation();
-  const { apolloClient } = useContext(AppContext);
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
@@ -159,16 +154,10 @@ const SigninRecoveryCode = ({
         uid,
         // Update verification status of stored current account
         verified: true,
+        sessionVerified: true,
       });
 
-      // There seems to be a race condition with updating the cache and state,
-      // so we need to wait a bit before navigating to the next page. This is
-      // a temporary fix until we find a better solution, most likely with refactoring
-      // how we handle state in the app.
-      apolloClient?.cache.writeQuery({
-        query: GET_LOCAL_SIGNED_IN_STATUS,
-        data: { isSignedIn: true },
-      });
+      setStoredSignedInStatus(true);
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       onSuccessNavigate();

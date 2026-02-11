@@ -47,6 +47,38 @@ export type CredentialStatus = {
   clientSalt?: string;
 };
 
+export interface SecurityEvent {
+  name: string;
+  createdAt: number;
+  verified?: boolean;
+}
+
+export interface AttachedClient {
+  clientId: string;
+  isCurrentSession: boolean;
+  userAgent: string;
+  deviceType: string | null;
+  deviceId: string | null;
+  name: string | null;
+  lastAccessTime: number;
+  lastAccessTimeFormatted: string;
+  approximateLastAccessTime: number | null;
+  approximateLastAccessTimeFormatted: string | null;
+  location?: {
+    city?: string | null;
+    country?: string | null;
+    state?: string | null;
+    stateCode?: string | null;
+  };
+  os: string | null;
+  sessionTokenId: string | null;
+  refreshTokenId: string | null;
+}
+
+export interface RecoveryKeyData {
+  recoveryData: string;
+}
+
 export type SignUpOptions = {
   keys?: boolean;
   service?: string;
@@ -1874,11 +1906,11 @@ export default class AuthClient {
     return this.sessionGet('/account/sessions', sessionToken, headers);
   }
 
-  async securityEvents(sessionToken: hexstring, headers?: Headers) {
+  async securityEvents(sessionToken: hexstring, headers?: Headers): Promise<SecurityEvent[]> {
     return this.sessionGet('/securityEvents', sessionToken, headers);
   }
 
-  async attachedClients(sessionToken: hexstring, headers?: Headers) {
+  async attachedClients(sessionToken: hexstring, headers?: Headers): Promise<AttachedClient[]> {
     return this.sessionGet('/account/attached_clients', sessionToken, headers);
   }
 
@@ -2636,7 +2668,7 @@ export default class AuthClient {
     accountResetToken: hexstring,
     recoveryKeyId: string,
     headers?: Headers
-  ) {
+  ): Promise<RecoveryKeyData> {
     return this.hawkRequest(
       'GET',
       `/recoveryKey/${recoveryKeyId}`,
