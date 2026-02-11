@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
   });
@@ -110,7 +110,7 @@
         // 'src/templates/subscriptionPaymentFailed/en.ftl',
         // 'src/templates/subscriptionPaymentProviderCancelled/en.ftl',
         // 'src/templates/subscriptionReactivation/en.ftl',
-        // 'src/templates/subscriptionRenewalReminder/en.ftl',
+        'src/templates/subscriptionRenewalReminder/en.ftl',
         // 'src/templates/subscriptionReplaced/en.ftl',
         // 'src/templates/subscriptionSubsequentInvoice/en.ftl',
         // 'src/templates/subscriptionUpgrade/en.ftl',
@@ -134,9 +134,7 @@
 
   grunt.config('watch', {
     ftl: {
-      files: [
-        'src/**/en.ftl'
-      ],
+      files: ['src/**/en.ftl'],
       tasks: ['l10n-merge'],
       options: {
         interrupt: true,
@@ -150,4 +148,4 @@
 
   grunt.registerTask('l10n-watch', ['watch:ftl']);
   grunt.registerTask('l10n-merge', ['copy:branding-ftl', 'concat:emails-ftl']);
- }
+};
