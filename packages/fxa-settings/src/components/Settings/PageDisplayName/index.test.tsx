@@ -96,10 +96,10 @@ it('navigates back to settings home and shows a success message on a successful 
 });
 
 it('displays a general error in the alert bar', async () => {
-  const gqlError: any = new Error('test error');
+  const testError: any = new Error('test error');
   const account = {
     displayName: 'jrgm',
-    setDisplayName: jest.fn().mockRejectedValue(gqlError),
+    setDisplayName: jest.fn().mockRejectedValue(testError),
   } as unknown as Account;
   const context = mockAppContext({ account });
   const settingsContext = mockSettingsContext();

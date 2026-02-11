@@ -12,7 +12,7 @@ import { renderWithRouter, MOCK_ACCOUNT } from '../../models/mocks';
 import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
 import userEvent from '@testing-library/user-event';
 
-const gqlUnexpectedError: any = AuthUiErrorNos[999];
+const unexpectedError: any = AuthUiErrorNos[999];
 
 const accountWithSuccess = {
   ...MOCK_ACCOUNT,
@@ -21,7 +21,7 @@ const accountWithSuccess = {
 
 const accountWithError = {
   ...MOCK_ACCOUNT,
-  updateRecoveryKeyHint: jest.fn().mockRejectedValue(gqlUnexpectedError),
+  updateRecoveryKeyHint: jest.fn().mockRejectedValue(unexpectedError),
 } as unknown as Account;
 
 const navigateForward = jest.fn();
@@ -140,7 +140,7 @@ describe('RecoveryKeySetupHint', () => {
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'create-hint.fail',
-        gqlUnexpectedError
+        unexpectedError
       );
       expect(navigateForward).not.toHaveBeenCalled();
       // displays an error banner

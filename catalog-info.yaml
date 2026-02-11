@@ -17,7 +17,6 @@ spec:
     - ./packages/fxa-content-server/backstage.yaml
     - ./packages/fxa-customs-server/backstage.yaml
     - ./packages/fxa-event-broker/backstage.yaml
-    - ./packages/fxa-graphql-api/backstage.yaml
     - ./packages/fxa-payments-server/backstage.yaml
     - ./packages/fxa-profile-server/backstage.yaml
     - ./packages/fxa-settings/backstage.yaml

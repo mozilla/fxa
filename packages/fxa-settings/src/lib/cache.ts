@@ -216,21 +216,6 @@ export function consumeAlertTextExternal() {
   return text;
 }
 
-/**
- * No-op cache shim for files still referencing the Apollo InMemoryCache.
- * TODO: Remove once PostVerify/SetPassword and InlineRecoveryKeySetup are migrated.
- */
-export const cache = {
-  writeQuery(_options: { query: unknown; data: Record<string, unknown> }): void {},
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  modify(_options: { id: string; fields: Record<string, (...args: any[]) => unknown> }): void {},
-  identify(_object: { __typename: string }): string {
-    return '';
-  },
-};
-
-export const typeDefs = undefined;
-
 /*
  * Check that the React enrolled flag in local storage is set to `true`.
  * Note that if users don't hit the Backbone JS bundle, this is not going

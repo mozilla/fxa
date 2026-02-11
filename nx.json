@@ -35,7 +35,7 @@
     "gql-copy": {
       "dependsOn": [
         {
-          "projects": ["fxa-settings", "fxa-admin-panel"],
+          "projects": ["fxa-admin-panel"],
           "target": "gql-extract"
         }
       ],

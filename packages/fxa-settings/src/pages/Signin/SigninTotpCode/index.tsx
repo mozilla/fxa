@@ -35,7 +35,6 @@ export type SigninTotpCodeProps = {
   integration: SigninIntegration;
   redirectTo?: string;
   signinState: SigninLocationState;
-  // TODO: Switch to gql error shaped object
   submitTotpCode: (totpCode: string) => Promise<{ error?: HandledError }>;
   serviceName?: MozServices;
   setCurrentSplitLayout?: (value: boolean) => void;

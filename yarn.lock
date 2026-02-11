@@ -21920,7 +21920,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/body-parser@npm:*, @types/body-parser@npm:^1":
+"@types/body-parser@npm:*":
   version: 1.19.6
   resolution: "@types/body-parser@npm:1.19.6"
   dependencies:
@@ -22374,15 +22374,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/graphql@npm:^14.5.0":
-  version: 14.5.0
-  resolution: "@types/graphql@npm:14.5.0"
-  dependencies:
-    graphql: "npm:*"
-  checksum: 10c0/b55a22e7654d161c6337e90c5ff04277977ef3acf78a8d14d26e4b039d1e8cc98ca108c8d93ea92576530222410b5d4bd47cb75293ef60505d454a9300d487ff
-  languageName: node
-  linkType: hard
-
 "@types/hapi@npm:^18.0.15":
   version: 18.0.15
   resolution: "@types/hapi@npm:18.0.15"
@@ -22597,16 +22588,6 @@ __metadata:
     jest-diff: "npm:^26.0.0"
     pretty-format: "npm:^26.0.0"
   checksum: 10c0/ca2b1fa93ed09bff3e9474e00ee9ede6cf596fcb3f0e95fca99e196ead659c708041c240d32d3ca12f155a5f76705edc2fbed32ed95a79adc460933e3d65e374
-  languageName: node
-  linkType: hard
-
-"@types/jest@npm:29.2.5":
-  version: 29.2.5
-  resolution: "@types/jest@npm:29.2.5"
-  dependencies:
-    expect: "npm:^29.0.0"
-    pretty-format: "npm:^29.0.0"
-  checksum: 10c0/df7a21f93d1c6dbe520b2bd735a51dc1675bdc32090d421ea742a320a9ea0126680a3abe66321b0944941061dda698b1e775dcde2d16c44f19e24a94f7ef7020
   languageName: node
   linkType: hard
 
@@ -35922,55 +35903,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"fxa-graphql-api@workspace:packages/fxa-graphql-api":
-  version: 0.0.0-use.local
-  resolution: "fxa-graphql-api@workspace:packages/fxa-graphql-api"
-  dependencies:
-    "@nestjs/cli": "npm:^11.0.1"
-    "@types/body-parser": "npm:^1"
-    "@types/chance": "npm:^1.1.2"
-    "@types/convict": "npm:^5.2.2"
-    "@types/graphql": "npm:^14.5.0"
-    "@types/jest": "npm:29.2.5"
-    "@types/node": "npm:^22.13.5"
-    "@types/passport": "npm:^1.0.6"
-    "@types/passport-http-bearer": "npm:^1.0.36"
-    "@types/supertest": "npm:^2.0.11"
-    "@types/yargs": "npm:^17.0.0"
-    audit-filter: "npm:^0.5.0"
-    body-parser: "npm:^1.20.3"
-    chance: "npm:^1.1.8"
-    commander: "npm:^6.0.0"
-    convict: "npm:^6.2.4"
-    convict-format-with-moment: "npm:^6.2.0"
-    convict-format-with-validator: "npm:^6.2.0"
-    esbuild: "npm:^0.17.15"
-    esbuild-register: "npm:^3.5.0"
-    eslint: "npm:^7.32.0"
-    eslint-config-react-app: "npm:^7.0.1"
-    express: "npm:^4.21.2"
-    fxa-auth-client: "workspace:*"
-    fxa-auth-server: "workspace:*"
-    fxa-profile-server: "workspace:*"
-    fxa-shared: "workspace:*"
-    graphql-parse-resolve-info: "npm:^4.13.0"
-    graphql-query-complexity: "npm:^1.0.0"
-    helmet: "npm:^8.0.0"
-    hot-shots: "npm:^10.2.1"
-    jest: "npm:29.3.1"
-    knex: "npm:^3.1.0"
-    mozlog: "npm:^3.0.2"
-    mysql: "npm:^2.18.1"
-    nock: "npm:^13.5.1"
-    pm2: "npm:^6.0.14"
-    prettier: "npm:^3.5.3"
-    rimraf: "npm:^6.0.1"
-    supertest: "npm:^7.0.0"
-    tslib: "npm:^2.8.1"
-    typescript: "npm:5.5.3"
-  languageName: unknown
-  linkType: soft
-
 "fxa-mustache-loader@npm:0.0.2":
   version: 0.0.2
   resolution: "fxa-mustache-loader@npm:0.0.2"
@@ -36278,7 +36210,6 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.9.0"
     mutationobserver-shim: "npm:^0.3.7"
     nx: "npm:21.2.4"
-    persistgraphql: "npm:^0.3.11"
     pm2: "npm:^6.0.14"
     postcss: "npm:^8.5.0"
     postcss-assets: "npm:^6.0.0"
@@ -37486,29 +37417,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-parse-resolve-info@npm:^4.13.0":
-  version: 4.14.1
-  resolution: "graphql-parse-resolve-info@npm:4.14.1"
-  dependencies:
-    debug: "npm:^4.1.1"
-    tslib: "npm:^2.0.1"
-  peerDependencies:
-    graphql: ">=0.9 <0.14 || ^14.0.2 || ^15.4.0 || ^16.3.0"
-  checksum: 10c0/001a0050f0ee5c1db3db9a4c06e268e98c1df83b411cc9e606c0133de2b81ee407f2f60b8cdaafd069b9b397c040cce6d8a2af9a43b353d15e351fd5ab6418d8
-  languageName: node
-  linkType: hard
-
-"graphql-query-complexity@npm:^1.0.0":
-  version: 1.1.0
-  resolution: "graphql-query-complexity@npm:1.1.0"
-  dependencies:
-    lodash.get: "npm:^4.4.2"
-  peerDependencies:
-    graphql: ^15.0.0 || ^16.0.0
-  checksum: 10c0/f6679fe9878002362e3a9db9030270757a57e12626a8d4c22335148c7dff09f6340815b5bb568dfd986dfb767f742476198d6948270a47f911bb0cb93f9a9ca8
-  languageName: node
-  linkType: hard
-
 "graphql-request@npm:^6.0.0, graphql-request@npm:^6.1.0":
   version: 6.1.0
   resolution: "graphql-request@npm:6.1.0"
@@ -37563,19 +37471,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:*, graphql@npm:^16.10.0":
-  version: 16.11.0
-  resolution: "graphql@npm:16.11.0"
-  checksum: 10c0/124da7860a2292e9acf2fed0c71fc0f6a9b9ca865d390d112bdd563c1f474357141501c12891f4164fe984315764736ad67f705219c62f7580681d431a85db88
-  languageName: node
-  linkType: hard
-
 "graphql@npm:>=0.9.4 <0.11, graphql@npm:^0.10.0, graphql@npm:^0.10.3":
   version: 0.10.5
   resolution: "graphql@npm:0.10.5"
   dependencies:
     iterall: "npm:^1.1.0"
   checksum: 10c0/0ca1952bc7f9db3de4fad1cdbdb32ff704fa3549ff3e772a78c2398d71852df54eee1f9758a77569ba6a662152d4406e70733553419eb855a400a31980f09a25
+  languageName: node
+  linkType: hard
+
+"graphql@npm:^16.10.0":
+  version: 16.11.0
+  resolution: "graphql@npm:16.11.0"
+  checksum: 10c0/124da7860a2292e9acf2fed0c71fc0f6a9b9ca865d390d112bdd563c1f474357141501c12891f4164fe984315764736ad67f705219c62f7580681d431a85db88
   languageName: node
   linkType: hard
 
