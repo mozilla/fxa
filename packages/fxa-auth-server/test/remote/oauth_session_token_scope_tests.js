@@ -137,7 +137,7 @@ const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
         });
         assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.UNKNOWN_AUTHORIZATION_CODE);
+        assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
       }
     });
 

@@ -10,6 +10,11 @@ const path = require('path');
 const { Container } = require('typedi');
 
 const proxyquire = require('proxyquire');
+const {
+  OAUTH_SCOPE_OLD_SYNC,
+  OAUTH_SCOPE_RELAY,
+  OAUTH_SCOPE_SESSION_TOKEN,
+} = require('fxa-shared/oauth/constants');
 
 const UID = 'eaf0';
 const CLIENT_SECRET =
@@ -26,8 +31,6 @@ const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
 const SUBJECT_TOKEN_TYPE_REFRESH =
   'urn:ietf:params:oauth:token-type:refresh_token';
 const FIREFOX_IOS_CLIENT_ID = '1b1a3e44c54fbb58';
-const RELAY_SCOPE = 'https://identity.mozilla.com/apps/relay';
-const SYNC_SCOPE = 'https://identity.mozilla.com/apps/oldsync';
 
 const mockDb = { touchSessionToken: sinon.stub() };
 const mockStatsD = { increment: sinon.stub() };
@@ -394,7 +397,7 @@ describe('token exchange grant_type', function () {
         client_id: CLIENT_ID,
         grant_type: GRANT_TOKEN_EXCHANGE,
         subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
-        scope: RELAY_SCOPE,
+        scope: OAUTH_SCOPE_RELAY,
       });
       joiRequired(res.error, 'subject_token');
     });
@@ -404,7 +407,7 @@ describe('token exchange grant_type', function () {
         client_id: CLIENT_ID,
         grant_type: GRANT_TOKEN_EXCHANGE,
         subject_token: REFRESH_TOKEN,
-        scope: RELAY_SCOPE,
+        scope: OAUTH_SCOPE_RELAY,
       });
       joiRequired(res.error, 'subject_token_type');
     });
@@ -448,7 +451,7 @@ describe('token exchange grant_type', function () {
         grant_type: GRANT_TOKEN_EXCHANGE,
         subject_token: REFRESH_TOKEN,
         subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
-        scope: RELAY_SCOPE,
+        scope: OAUTH_SCOPE_RELAY,
       });
       joiNotAllowed(res.error, 'client_secret');
     });
@@ -459,7 +462,7 @@ describe('token exchange grant_type', function () {
         grant_type: GRANT_TOKEN_EXCHANGE,
         subject_token: REFRESH_TOKEN,
         subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
-        scope: RELAY_SCOPE,
+        scope: OAUTH_SCOPE_RELAY,
       });
       assert.equal(res.error, undefined);
     });
@@ -486,7 +489,7 @@ describe('token exchange grant_type', function () {
           grant_type: GRANT_TOKEN_EXCHANGE,
           subject_token: REFRESH_TOKEN,
           subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
-          scope: RELAY_SCOPE,
+          scope: OAUTH_SCOPE_RELAY,
         },
         emitMetricsEvent: () => {},
       };
@@ -511,7 +514,7 @@ describe('token exchange grant_type', function () {
               userId: buf(UID),
               clientId: buf(NON_FIREFOX_CLIENT_ID),
               tokenId: buf('1234567890abcdef'),
-              scope: ScopeSet.fromString(SYNC_SCOPE),
+              scope: ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC),
               profileChangedAt: Date.now(),
             };
           },
@@ -523,7 +526,7 @@ describe('token exchange grant_type', function () {
           grant_type: GRANT_TOKEN_EXCHANGE,
           subject_token: REFRESH_TOKEN,
           subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
-          scope: RELAY_SCOPE,
+          scope: OAUTH_SCOPE_RELAY,
         },
         emitMetricsEvent: () => {},
       };
@@ -550,7 +553,7 @@ describe('token exchange grant_type', function () {
               userId: buf(UID),
               clientId: buf(FIREFOX_IOS_CLIENT_ID),
               tokenId: buf('1234567890abcdef'),
-              scope: ScopeSet.fromString(SYNC_SCOPE),
+              scope: ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC),
               profileChangedAt: Date.now(),
             };
           },
@@ -581,8 +584,8 @@ describe('token exchange grant_type', function () {
         '../../oauth/grant': {
           generateTokens: (grant) => {
             // Verify combined scope is passed to token generation
-            assert.isTrue(grant.scope.contains(SYNC_SCOPE));
-            assert.isTrue(grant.scope.contains(RELAY_SCOPE));
+            assert.isTrue(grant.scope.contains(OAUTH_SCOPE_OLD_SYNC));
+            assert.isTrue(grant.scope.contains(OAUTH_SCOPE_RELAY));
             return {
               access_token: 'new_access_token',
               token_type: 'bearer',
@@ -613,7 +616,7 @@ describe('token exchange grant_type', function () {
               userId: buf(UID),
               clientId: buf(FIREFOX_IOS_CLIENT_ID),
               tokenId: buf('1234567890abcdef'),
-              scope: ScopeSet.fromString(SYNC_SCOPE),
+              scope: ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC),
               profileChangedAt: Date.now(),
             };
           },
@@ -629,7 +632,7 @@ describe('token exchange grant_type', function () {
           grant_type: GRANT_TOKEN_EXCHANGE,
           subject_token: REFRESH_TOKEN,
           subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
-          scope: RELAY_SCOPE,
+          scope: OAUTH_SCOPE_RELAY,
         },
         emitMetricsEvent: () => {},
       };
@@ -638,8 +641,8 @@ describe('token exchange grant_type', function () {
 
       assert.equal(result.access_token, 'new_access_token');
       assert.equal(result.refresh_token, 'new_refresh_token');
-      assert.include(result.scope, SYNC_SCOPE);
-      assert.include(result.scope, RELAY_SCOPE);
+      assert.include(result.scope, OAUTH_SCOPE_OLD_SYNC);
+      assert.include(result.scope, OAUTH_SCOPE_RELAY);
       // Verify original token was revoked with correct ID
       assert.equal(hex(removedTokenId), '1234567890abcdef');
     });
@@ -710,6 +713,9 @@ describe('/oauth/token POST', function () {
     it('handles token exchange and passes existingDeviceId to newTokenNotification', async () => {
       const PROFILE_SCOPE = 'profile';
       const newTokenNotificationStub = sinon.stub().resolves();
+      const sessionTokenStub = sinon
+        .stub()
+        .rejects(new Error('should not be called'));
       const routes = proxyquire(tokenRoutePath, {
         ...tokenRoutesDepMocks,
         '../../oauth/grant': {
@@ -734,6 +740,7 @@ describe('/oauth/token POST', function () {
         },
         db: {
           ...tokenRoutesArgMocks.db,
+          sessionToken: sessionTokenStub,
           async deviceFromRefreshTokenId() {
             // Return an existing device associated with the old refresh token
             return { id: MOCK_DEVICE_ID };
@@ -747,7 +754,9 @@ describe('/oauth/token POST', function () {
               userId: buf(UID),
               clientId: buf(FIREFOX_IOS_CLIENT_ID),
               tokenId: buf('1234567890abcdef'),
-              scope: ScopeSet.fromString(`${SYNC_SCOPE} ${PROFILE_SCOPE}`),
+              scope: ScopeSet.fromString(
+                `${OAUTH_SCOPE_OLD_SYNC} ${PROFILE_SCOPE} ${OAUTH_SCOPE_SESSION_TOKEN}`
+              ),
               profileChangedAt: Date.now(),
             };
           },
@@ -762,7 +771,7 @@ describe('/oauth/token POST', function () {
           grant_type: GRANT_TOKEN_EXCHANGE,
           subject_token: REFRESH_TOKEN,
           subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
-          scope: RELAY_SCOPE,
+          scope: OAUTH_SCOPE_RELAY,
         },
         emitMetricsEvent: async () => {},
       };
@@ -772,9 +781,9 @@ describe('/oauth/token POST', function () {
       assert.equal(result.access_token, 'new_access_token');
       assert.equal(result.refresh_token, 'new_refresh_token');
       // Should have all three scopes: sync, profile, and relay
-      assert.include(result.scope, SYNC_SCOPE);
+      assert.include(result.scope, OAUTH_SCOPE_OLD_SYNC);
       assert.include(result.scope, PROFILE_SCOPE);
-      assert.include(result.scope, RELAY_SCOPE);
+      assert.include(result.scope, OAUTH_SCOPE_RELAY);
       assert.isUndefined(result._clientId);
       assert.isUndefined(result._existingDeviceId);
       // Token exchange should call newTokenNotification with existingDeviceId and clientId
@@ -785,6 +794,9 @@ describe('/oauth/token POST', function () {
         existingDeviceId: MOCK_DEVICE_ID,
         clientId: FIREFOX_IOS_CLIENT_ID,
       });
+      // Token exchange for a refresh token should NOT call db.sessionToken (silent upgrade
+      // skips session token creation), even when session is in the scope
+      sinon.assert.notCalled(sessionTokenStub);
     });
 
     it('handles token exchange when no existing device is found (existingDeviceId is undefined)', async () => {
@@ -826,7 +838,9 @@ describe('/oauth/token POST', function () {
               userId: buf(UID),
               clientId: buf(FIREFOX_IOS_CLIENT_ID),
               tokenId: buf('1234567890abcdef'),
-              scope: ScopeSet.fromString(`${SYNC_SCOPE} ${PROFILE_SCOPE}`),
+              scope: ScopeSet.fromString(
+                `${OAUTH_SCOPE_OLD_SYNC} ${PROFILE_SCOPE}`
+              ),
               profileChangedAt: Date.now(),
             };
           },
@@ -841,7 +855,7 @@ describe('/oauth/token POST', function () {
           grant_type: GRANT_TOKEN_EXCHANGE,
           subject_token: REFRESH_TOKEN,
           subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
-          scope: RELAY_SCOPE,
+          scope: OAUTH_SCOPE_RELAY,
         },
         emitMetricsEvent: async () => {},
       };
@@ -866,6 +880,9 @@ describe('/oauth/token POST', function () {
   describe('fxa-credentials with reason=token_migration', () => {
     it('calls newTokenNotification with skipEmail: true when reason is token_migration', async () => {
       const newTokenNotificationStub = sinon.stub().resolves();
+      const sessionTokenStub = sinon
+        .stub()
+        .rejects(new Error('should not be called'));
       const routes = proxyquire(tokenRoutePath, {
         ...tokenRoutesDepMocks,
         '../../oauth/grant': {
@@ -873,7 +890,7 @@ describe('/oauth/token POST', function () {
             tokenRoutesDepMocks['../../oauth/grant'].generateTokens,
           validateRequestedGrant: () => ({
             offline: true,
-            scope: 'testo',
+            scope: OAUTH_SCOPE_SESSION_TOKEN,
             clientId: buf(CLIENT_ID),
           }),
         },
@@ -883,6 +900,10 @@ describe('/oauth/token POST', function () {
       })({
         ...tokenRoutesArgMocks,
         log: { debug: () => {}, warn: () => {}, info: () => {} },
+        db: {
+          ...tokenRoutesArgMocks.db,
+          sessionToken: sessionTokenStub,
+        },
       });
 
       const request = {
@@ -906,6 +927,9 @@ describe('/oauth/token POST', function () {
         existingDeviceId: undefined,
         clientId: CLIENT_ID,
       });
+      // Token exchange for a refresh token should NOT call db.sessionToken (silent upgrade
+      // skips session token creation), even when session is in the scope
+      sinon.assert.notCalled(sessionTokenStub);
     });
 
     it('calls newTokenNotification with skipEmail: false when reason is not provided', async () => {
