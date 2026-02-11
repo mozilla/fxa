@@ -35,6 +35,10 @@ export default async function InterstitialOfferPage({
       `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
     );
     redirectToUrl.search = new URLSearchParams(searchParams).toString();
+    redirectToUrl.searchParams.set(
+      'redirect_to',
+      `/${locale}/subscriptions/${subscriptionId}/offer`
+    );
     redirect(redirectToUrl.href);
   }
 

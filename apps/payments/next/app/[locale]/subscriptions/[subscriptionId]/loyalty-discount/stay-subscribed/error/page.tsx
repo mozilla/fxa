@@ -32,6 +32,10 @@ export default async function LoyaltyDiscountStaySubscribedErrorPage({
       `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
     );
     redirectToUrl.search = new URLSearchParams(searchParams).toString();
+    redirectToUrl.searchParams.set(
+      'redirect_to',
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/stay-subscribed/error`
+    );
     redirect(redirectToUrl.href);
   }
 
