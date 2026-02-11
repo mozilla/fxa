@@ -238,6 +238,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
                 lastAccessTimeFormatted: client.lastAccessTimeFormatted,
                 isCurrentSession: client.isCurrentSession,
                 clientId: client.clientId,
+                scope: client.scope,
                 handleSignOut: () => {
                   onSignOutClick(client);
                 },

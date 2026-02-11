@@ -5,6 +5,7 @@
 import React from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { DeviceLocation } from '../../../models/Account';
+import { OAuthNativeClients } from '../../../models';
 import { ReactComponent as WebIcon } from './web.svg';
 import { ReactComponent as DesktopIcon } from './desktop.svg';
 import { ReactComponent as FPNIcon } from './fpn.svg';
@@ -20,22 +21,60 @@ import { ReactComponent as MDNPlusIcon } from './mdnplus.svg';
 import { ReactComponent as PontoonIcon } from './pontoon.svg';
 import { ReactComponent as MailIcon } from './mail.svg';
 import { Localized } from '@fluent/react';
+import classNames from 'classnames';
+
+const SCOPE_RELAY = 'https://identity.mozilla.com/apps/relay';
+
+interface ScopeService {
+  name: string;
+  icon: React.ReactNode;
+}
+
+function getScopeServices(scope: string[] | null): ScopeService[] {
+  if (!scope) return [];
+  const services: ScopeService[] = [];
+  for (const individualScope of scope) {
+    // TODO: We will add other `service=` flows here when they have
+    // switched to refresh tokens and we will allow revoking
+    // scope later. For now, just display Relay read-only.
+    switch (individualScope) {
+      case SCOPE_RELAY:
+        services.push({
+          name: 'Firefox Relay',
+          icon: <RelayIcon data-testid="scope-relay-icon" />,
+        });
+        break;
+    }
+  }
+  return services;
+}
+
+const iconClasses = 'flex w-10 justify-center items-center flex-0';
 
 export function Service({
   name,
   deviceType,
   location,
   lastAccessTimeFormatted,
+  clientId,
+  scope,
   handleSignOut,
 }: {
   name: string;
   deviceType: string | null;
   location: DeviceLocation;
   lastAccessTimeFormatted: string;
+  clientId: string;
+  scope: string[] | null;
   handleSignOut: () => void;
 }) {
   const { city, stateCode, country } = location;
   const locationProvided = Boolean(city && stateCode && country);
+  const isNativeClient = Object.values(OAuthNativeClients).includes(
+    clientId as OAuthNativeClients
+  );
+  const scopeServices = isNativeClient ? getScopeServices(scope) : [];
+
   let serviceLink, Icon;
 
   switch (name) {
@@ -100,54 +139,66 @@ export function Service({
       data-testid="settings-connected-service"
       data-name={name}
     >
-      <div className="p-4 border-2 border-solid border-grey-100 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
-        <div className="flex flex-grow w-full mobileLandscape:flex-2">
-          <span className="flex px-2 w-10 justify-center items-center flex-0">
-            {Icon}
-          </span>
-          <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row">
-            <div className="flex flex-col mobileLandscape:flex-2">
-              {serviceLink ? (
-                <LinkExternal
-                  className="link-blue text-sm"
-                  href={serviceLink}
-                  data-testid="service-name"
-                >
-                  {name}
-                </LinkExternal>
-              ) : (
-                <p className="text-sm break-word" data-testid="service-name">
-                  {name}
+      <div className="border-2 border-solid border-grey-100 rounded">
+        <div className="p-4 flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
+          <div className="flex flex-grow w-full mobileLandscape:flex-2">
+            <span className={classNames(iconClasses, 'px-2')}>{Icon}</span>
+            <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row">
+              <div className="flex flex-col mobileLandscape:flex-2">
+                {serviceLink ? (
+                  <LinkExternal
+                    className="link-blue text-sm"
+                    href={serviceLink}
+                    data-testid="service-name"
+                  >
+                    {name}
+                  </LinkExternal>
+                ) : (
+                  <p className="text-sm break-word" data-testid="service-name">
+                    {name}
+                  </p>
+                )}
+                {locationProvided && (
+                  <p
+                    className="text-xs text-grey-400"
+                    data-testid="service-location"
+                  >
+                    {city}, {stateCode}, {country}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-start mobileLandscape:justify-center mobileLandscape:flex-1">
+                <p className="text-sm" data-testid="service-last-access">
+                  {lastAccessTimeFormatted}
                 </p>
-              )}
-              {locationProvided && (
-                <p
-                  className="text-xs text-grey-400"
-                  data-testid="service-location"
-                >
-                  {city}, {stateCode}, {country}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-start mobileLandscape:justify-center mobileLandscape:flex-1">
-              <p className="text-sm" data-testid="service-last-access">
-                {lastAccessTimeFormatted}
-              </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
-          <Localized id="cs-sign-out-button">
-            <button
-              className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap mobileLandscape:w-auto"
-              data-testid="connected-service-sign-out"
-              onClick={handleSignOut}
-            >
-              Sign out
-            </button>
-          </Localized>
+          <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
+            <Localized id="cs-sign-out-button">
+              <button
+                className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap mobileLandscape:w-auto"
+                data-testid="connected-service-sign-out"
+                onClick={handleSignOut}
+              >
+                Sign out
+              </button>
+            </Localized>
+          </div>
         </div>
+        {scopeServices.map((scopeService) => (
+          <div
+            key={scopeService.name}
+            className="px-4 py-2 bg-grey-50 flex items-center"
+            data-testid="scope-service"
+          >
+            <span className={classNames(iconClasses, 'px-3')}>
+              {scopeService.icon}
+            </span>
+            <p className="text-sm text-grey-600">{scopeService.name}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

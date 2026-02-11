@@ -22,6 +22,7 @@ export const DESKTOP_SYNC_MOCKS = [
     },
     userAgent: '',
     os: null,
+    scope: null,
     createdTimeFormatted: 'a month ago',
     lastAccessTimeFormatted: 'a month ago',
     approximateLastAccessTime: null,
@@ -95,6 +96,7 @@ const OAUTH_SERVICE_MOCKS = [
     name: 'Firefox Private Network',
     createdTime: 1571412069000,
     lastAccessTime: 1571412069000,
+    scope: null,
     location: {
       city: null,
       country: null,
@@ -119,6 +121,7 @@ const OAUTH_SERVICE_MOCKS = [
     name: 'Mozilla Monitor',
     createdTime: 1570736983000,
     lastAccessTime: 1570736983000,
+    scope: null,
     location: {
       city: null,
       country: null,
@@ -192,7 +195,7 @@ const OAUTH_SERVICE_MOCKS = [
     name: 'Firefox Relay',
     createdTime: 1556745521000,
     lastAccessTime: 1556745521000,
-    scope: ['profile'],
+    scope: ['profile', 'https://identity.mozilla.com/apps/relay'],
     location: {
       city: null,
       country: null,
@@ -321,6 +324,35 @@ const MOBILE_SYNC_SERVICE_MOCKS = [
     createdTime: 1570221396000,
     lastAccessTime: 1570221396619,
     scope: ['https://identity.mozilla.com/apps/oldsync', 'profile'],
+    location: {
+      city: null,
+      country: null,
+      state: null,
+      stateCode: null,
+    },
+    userAgent: '',
+    os: null,
+    createdTimeFormatted: 'a month ago',
+    lastAccessTimeFormatted: 'a month ago',
+    approximateLastAccessTime: null,
+    approximateLastAccessTimeFormatted: null,
+  },
+  {
+    clientId: '1b1a3e44c54fbb58',
+    deviceId: 'a91cc4d7b8e4495fa3c6e2edf8c5132b',
+    sessionTokenId: null,
+    refreshTokenId:
+      'c4a8f3b2d1e6a9507f2c4e8b3d1a6f9072e5c8b4a3d7f1e6920b5c8a4d3f7e1',
+    isCurrentSession: false,
+    deviceType: 'mobile',
+    name: 'Firefox for iOS',
+    createdTime: 1570100000000,
+    lastAccessTime: 1570100000000,
+    scope: [
+      'https://identity.mozilla.com/apps/oldsync',
+      'profile',
+      'https://identity.mozilla.com/apps/relay',
+    ],
     location: {
       city: null,
       country: null,
