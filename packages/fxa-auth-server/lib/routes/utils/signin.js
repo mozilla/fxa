@@ -18,6 +18,9 @@ const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const requestHelper = require('./request_helper');
 const { FxaMailer } = require('../../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../../senders/fxa-mailer-format');
+const {
+  OAuthClientInfoServiceName,
+} = require('../../senders/oauth_client_info');
 
 const BASE_36 = validators.BASE_36;
 
@@ -52,6 +55,7 @@ module.exports = (
     : null;
 
   const fxaMailer = Container.get(FxaMailer);
+  const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
 
   return {
     validators: {
@@ -436,7 +440,7 @@ module.exports = (
               code: emailCode,
               resume,
               redirectTo,
-              service
+              service,
             });
           } else {
             await mailer.sendVerifyEmail([], accountRecord, {
@@ -504,6 +508,7 @@ module.exports = (
         const geoData = request.app.geo;
         try {
           if (fxaMailer.canSend('verifyLogin')) {
+            const clientInfo = await oauthClientInfoService.fetch(service);
             await fxaMailer.sendVerifyLoginEmail({
               ...FxaMailerFormat.account(accountRecord),
               ...(await FxaMailerFormat.metricsContext(request)),
@@ -512,7 +517,7 @@ module.exports = (
               ...FxaMailerFormat.device(request),
               ...FxaMailerFormat.sync(service),
               code: sessionToken.tokenVerificationId,
-              clientName: 'Firefox',
+              clientName: clientInfo.name,
               redirectTo: redirectTo,
               service: service,
               resume: resume,
@@ -562,6 +567,7 @@ module.exports = (
 
         try {
           if (fxaMailer.canSend('verifyLoginCode')) {
+            const clientInfo = await oauthClientInfoService.fetch(service);
             await fxaMailer.sendVerifyLoginCodeEmail({
               ...FxaMailerFormat.account(accountRecord),
               ...(await FxaMailerFormat.metricsContext(request)),
@@ -571,11 +577,13 @@ module.exports = (
               ...FxaMailerFormat.sync(service),
               ...FxaMailerFormat.cmsLogo(rpCmsConfig?.shared),
               ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
-              ...FxaMailerFormat.cmsEmailSubject(rpCmsConfig?.VerifyLoginCodeEmail),
+              ...FxaMailerFormat.cmsEmailSubject(
+                rpCmsConfig?.VerifyLoginCodeEmail
+              ),
               code,
               redirectTo,
               resume,
-              serviceName: service,
+              serviceName: clientInfo.name,
             });
           } else {
             const { timeZone } = request.app.geo;
