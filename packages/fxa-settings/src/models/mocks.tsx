@@ -124,20 +124,27 @@ export function mockSession(
 }
 
 export function mockAuthClient() {
+  const mockSessionStatus = {
+    state: 'verified',
+    details: {
+      verified: true,
+      accountEmailVerified: true,
+      sessionVerified: true,
+      sessionVerificationMeetsMinimumAAL: true,
+      sessionVerificationMethod: 'email',
+    },
+  };
   // There are plenty more methods to mock here, but this is these are the ones
   // that get commonly used.
-  return {
-    sessionStatus: jest.fn().mockReturnValue({
-      state: 'verified',
-      details: {
-        verified: true,
-        accountEmailVerified: true,
-        sessionVerified: true,
-        sessionVerificationMeetsMinimumAAL: true,
-        sessionVerificationMethod: 'email',
-      },
-    }),
-  } as unknown as AuthClient;
+  if (typeof jest !== 'undefined') {
+    return {
+      sessionStatus: jest.fn().mockResolvedValue(mockSessionStatus),
+    } as unknown as AuthClient;
+  } else {
+    return {
+      sessionStatus: () => Promise.resolve(mockSessionStatus),
+    } as unknown as AuthClient;
+  }
 }
 
 export function mockSensitiveDataClient() {
