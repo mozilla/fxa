@@ -36,6 +36,9 @@ export enum MfaReason {
   createBackupCodes = 'create backup codes',
   createRecoveryKey = 'create recovery key',
   removeRecoveryKey = 'remove recovery key',
+  createPasskey = 'create passkey',
+  renamePasskey = 'rename passkey',
+  removePasskey = 'remove passkey',
   test = 'test',
 }
 
@@ -92,4 +95,10 @@ export type TotpInfo = {
   secret: string;
 };
 
-export type MfaScope = 'test' | '2fa' | 'email' | 'recovery_key' | 'password';
+export type MfaScope =
+  | 'test'
+  | '2fa'
+  | 'email'
+  | 'recovery_key'
+  | 'password'
+  | 'passkeys';
