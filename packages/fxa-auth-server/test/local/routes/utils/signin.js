@@ -56,6 +56,7 @@ describe('checkPassword', () => {
   let customs, db, signinUtils;
 
   beforeEach(() => {
+    mocks.mockOAuthClientInfo();
     db = mocks.mockDB();
     customs = {
       v2Enabled: sinon.spy(() => true),
@@ -786,6 +787,7 @@ describe('sendSigninNotifications', () => {
     db = mocks.mockDB();
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
+    mocks.mockOAuthClientInfo();
     fxaMailer = mocks.mockFxaMailer();
     metricsContext = mocks.mockMetricsContext();
     request = mocks.mockRequest(defaultMockRequestData(log, metricsContext));
@@ -1149,7 +1151,7 @@ describe('sendSigninNotifications', () => {
             uaOSVersion: '11',
           },
           code: 'tokenVerifyCode',
-          clientName: 'Firefox',
+          clientName: 'sync',
           redirectTo: request.payload.redirectTo,
           service: undefined,
           resume: request.payload.resume,
@@ -1187,7 +1189,17 @@ describe('sendSigninNotifications', () => {
     });
 
     it('emits correct notifications when verificationMethod=email-2fa', () => {
-      return sendSigninNotifications(
+      const oauthClientInfoMock = mocks.mockOAuthClientInfo({
+        fetch: sinon.stub().resolves({ name: undefined }),
+      });
+      // Re-initialize sendSigninNotifications to pick up the new mock
+      const localSendSigninNotifications = makeSigninUtils({
+        log,
+        db,
+        mailer,
+        config,
+      }).sendSigninNotifications;
+      return localSendSigninNotifications(
         request,
         accountRecord,
         sessionToken,
@@ -1211,6 +1223,8 @@ describe('sendSigninNotifications', () => {
           resume: request.payload.resume,
           serviceName: undefined,
         });
+
+        assert.calledOnce(oauthClientInfoMock.fetch);
 
         assert.calledTwice(log.flowEvent);
         assert.calledWithMatch(log.flowEvent.getCall(0), {
@@ -1271,10 +1285,12 @@ describe('sendSigninNotifications', () => {
 
   describe('email verification sending', () => {
     beforeEach(() => {
+      mocks.mockOAuthClientInfo();
       sessionToken.tokenVerified = false;
     });
 
     it('passes service parameter correctly when request wantsKeys', () => {
+      mocks.mockOAuthClientInfo();
       request.query.keys = true;
       request.query.service = 'sync';
       return sendSigninNotifications(
@@ -1290,16 +1306,26 @@ describe('sendSigninNotifications', () => {
     });
 
     it('passes service parameter correctly when service is undefined', () => {
+      const oauthClientInfoMock = mocks.mockOAuthClientInfo();
       request.payload.service = undefined;
-      return sendSigninNotifications(
+
+      // Re-initialize sendSigninNotifications to pick up the new oauthClientInfoMock
+      const localSendSigninNotifications = makeSigninUtils({
+        log,
+        db,
+        mailer,
+        config,
+      }).sendSigninNotifications;
+
+      return localSendSigninNotifications(
         request,
         accountRecord,
         sessionToken,
         'email-otp'
       ).then(() => {
         assert.calledOnce(fxaMailer.sendVerifyLoginCodeEmail);
-        const callArgs = fxaMailer.sendVerifyLoginCodeEmail.getCall(0).args[0];
-        assert.equal(callArgs.serviceName, undefined);
+        assert.calledOnce(oauthClientInfoMock.fetch);
+        assert.calledWith(oauthClientInfoMock.fetch, undefined);
       });
     });
 
@@ -1369,6 +1395,9 @@ describe('sendSigninNotifications', () => {
       sessionToken.tokenVerified = false;
       sessionToken.tokenVerificationId = 'tokenVerifyCode';
       sessionToken.mustVerify = true;
+      mocks.mockOAuthClientInfo({
+        fetch: sinon.stub().resolves({ name: 'mockOauthClientName' }),
+      });
       const rpCmsConfig = {
         clientId: '00f00f',
         shared: {
@@ -1422,7 +1451,7 @@ describe('sendSigninNotifications', () => {
             entrypoint: 'testo',
             redirectTo: req.payload.redirectTo,
             resume: req.payload.resume,
-            serviceName: undefined,
+            serviceName: 'mockOauthClientName',
             cmsRpClientId: rpCmsConfig.clientId,
             cmsRpFromName: rpCmsConfig.shared?.emailFromName,
             logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
@@ -1531,6 +1560,7 @@ describe('createKeyFetchToken', () => {
     createKeyFetchToken;
 
   beforeEach(() => {
+    mocks.mockOAuthClientInfo();
     db = mocks.mockDB();
     password = {
       unwrap: sinon.spy(() => Promise.resolve(Buffer.from('abcdef123456'))),
@@ -1602,6 +1632,7 @@ describe('getSessionVerificationStatus', () => {
   let getSessionVerificationStatus;
 
   beforeEach(() => {
+    mocks.mockOAuthClientInfo();
     getSessionVerificationStatus = makeSigninUtils(
       {}
     ).getSessionVerificationStatus;
@@ -1691,6 +1722,7 @@ describe('cleanupReminders', () => {
   let cleanupReminders, mockCadReminders;
 
   beforeEach(() => {
+    mocks.mockOAuthClientInfo();
     mockCadReminders = mocks.mockCadReminders();
     cleanupReminders = makeSigninUtils({
       cadReminders: mockCadReminders,

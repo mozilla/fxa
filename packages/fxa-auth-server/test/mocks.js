@@ -1215,7 +1215,7 @@ function mockFxaMailer(overrides) {
 
 function mockOAuthClientInfo(overrides) {
   const mock = {
-    fetch: sinon.stub().resolves('sync'),
+    fetch: sinon.stub().resolves({ name: 'sync' }),
     ...overrides,
   };
   Container.set(OAuthClientInfoServiceName, mock);
