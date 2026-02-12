@@ -35,7 +35,7 @@ import { SETTINGS_PATH } from '../../constants';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import { MfaGuardPageRecoveryKeyCreate } from './PageRecoveryKeyCreate';
-import { currentAccount, sessionToken } from '../../lib/cache';
+import { currentAccount, isSigningOut, sessionToken } from '../../lib/cache';
 import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
@@ -131,9 +131,12 @@ export const Settings = ({
 
   // This error check includes a network error
   if (error) {
-    // If the session token is invalid (destroyed/expired), redirect to signin
+    // If the session token is invalid, redirect to signin.
+    // Skip during sign-out to avoid racing with window.location.assign.
     if (error instanceof InvalidTokenError) {
-      navigateWithQuery('/signin');
+      if (!isSigningOut()) {
+        navigateWithQuery('/signin');
+      }
       return <LoadingSpinner fullScreen />;
     }
     Sentry.captureException(error, { tags: { source: 'settings' } });
