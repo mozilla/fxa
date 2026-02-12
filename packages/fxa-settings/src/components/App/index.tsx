@@ -90,9 +90,7 @@ const ResetPasswordConfirmedContainer = lazy(
 );
 const ResetPasswordWithRecoveryKeyVerifiedContainer = lazy(
   () =>
-    import(
-      '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified/container'
-    )
+    import('../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified/container')
 );
 const CompleteSigninContainer = lazy(
   () => import('../../pages/Signin/CompleteSignin/container')
@@ -229,7 +227,8 @@ export const App = ({
           integration.data.context || '',
           // TODO with React pairing flow, update this if pairing flow
           false,
-          integration.data.service || ''
+          integration.data.service || '',
+          integration.data.userContextId
         );
       }
 
