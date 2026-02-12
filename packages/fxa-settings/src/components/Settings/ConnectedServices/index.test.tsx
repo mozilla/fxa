@@ -153,13 +153,14 @@ describe('Connected Services', () => {
       expect(result[result.length - 1]).toHaveTextContent('6 months ago');
     });
 
-    const { sortedAndUniqueClients } = sortAndFilterConnectedClients(MOCK_SERVICES);
+    const { sortedAndUniqueClients } =
+      sortAndFilterConnectedClients(MOCK_SERVICES);
 
     const monitorClients = MOCK_SERVICES.filter(
       (item) => item.name === 'Mozilla Monitor'
     );
 
-    expect(sortedAndUniqueClients.length).toEqual(13);
+    expect(sortedAndUniqueClients.length).toEqual(14);
 
     expect(
       sortedAndUniqueClients.filter((item) => item.name === 'Mozilla Monitor')
@@ -170,7 +171,7 @@ describe('Connected Services', () => {
         (item) => item.name === 'Mozilla Monitor'
       )[0].lastAccessTime
     ).toEqual(1570736983000);
-      expect(monitorClients.length).toEqual(2);
+    expect(monitorClients.length).toEqual(2);
   });
 
   it('should show the monitor icon and link', async () => {
@@ -312,7 +313,7 @@ describe('Connected Services', () => {
     );
     expect(
       await screen.findAllByTestId('connected-service-sign-out')
-    ).toHaveLength(13);
+    ).toHaveLength(14);
   });
 
   it('renders proper modal when "sign out" is clicked', async () => {
