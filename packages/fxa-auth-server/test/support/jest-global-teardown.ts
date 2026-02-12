@@ -7,6 +7,8 @@ import path from 'path';
 
 const AUTH_SERVER_ROOT = path.resolve(__dirname, '../..');
 const MAIL_HELPER_PID_FILE = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp', 'mail_helper.pid');
+const VERSION_JSON_PATH = path.join(AUTH_SERVER_ROOT, 'config', 'version.json');
+const VERSION_JSON_MARKER = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp', 'version_json_created');
 
 interface NodeError extends Error {
   code?: string;
@@ -38,5 +40,11 @@ export default async function globalTeardown(): Promise<void> {
     fs.unlinkSync(MAIL_HELPER_PID_FILE);
   } catch (err) {
     console.error('[Jest Global Teardown] Error:', err);
+  }
+
+  // Clean up version.json if we created it
+  if (fs.existsSync(VERSION_JSON_MARKER)) {
+    try { fs.unlinkSync(VERSION_JSON_PATH); } catch { /* ignore */ }
+    try { fs.unlinkSync(VERSION_JSON_MARKER); } catch { /* ignore */ }
   }
 }

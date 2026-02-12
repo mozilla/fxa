@@ -26,7 +26,7 @@ export interface EmailData {
 }
 
 export interface Mailbox {
-  waitForEmail: (email: string) => Promise<EmailData>;
+  waitForEmail: (email: string) => Promise<EmailData | EmailData[]>;
   waitForCode: (email: string) => Promise<string>;
   waitForMfaCode: (email: string) => Promise<string>;
   eventEmitter: EventEmitter;
@@ -74,7 +74,7 @@ export function createMailbox(
     await fetch(url, { method: 'DELETE' });
   }
 
-  async function waitForEmail(email: string): Promise<EmailData> {
+  async function waitForEmail(email: string): Promise<EmailData | EmailData[]> {
     const username = email.split('@')[0];
 
     for (let tries = MAX_RETRIES; tries > 0; tries--) {
@@ -84,9 +84,11 @@ export function createMailbox(
 
       if (mail && mail.length > 0) {
         await deleteMail(username);
-        const emailData = mail[0];
-        eventEmitter.emit('email:message', email, emailData);
-        return emailData;
+        // Match old mailbox.js behavior: return single object when only one
+        // email, return the full array when multiple emails are queued.
+        const result = mail.length === 1 ? mail[0] : mail;
+        eventEmitter.emit('email:message', email, result);
+        return result;
       }
 
       await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
@@ -98,7 +100,8 @@ export function createMailbox(
   }
 
   async function waitForCode(email: string): Promise<string> {
-    const emailData = await waitForEmail(email);
+    const result = await waitForEmail(email);
+    const emailData = Array.isArray(result) ? result[0] : result;
     const code =
       emailData.headers['x-verify-code'] ||
       emailData.headers['x-recovery-code'] ||
@@ -113,7 +116,8 @@ export function createMailbox(
   }
 
   async function waitForMfaCode(email: string): Promise<string> {
-    const emailData = await waitForEmail(email);
+    const result = await waitForEmail(email);
+    const emailData = Array.isArray(result) ? result[0] : result;
     const code = emailData.headers['x-account-change-verify-code'];
 
     if (!code) {

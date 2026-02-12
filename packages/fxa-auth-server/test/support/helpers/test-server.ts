@@ -8,7 +8,6 @@
 
 import { spawn, ChildProcess } from 'child_process';
 import crypto from 'crypto';
-import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import net from 'net';
@@ -66,7 +65,9 @@ async function allocatePorts(): Promise<AllocatedPorts> {
   // Use JEST_WORKER_ID to give each worker its own port range,
   // avoiding TOCTOU races when workers run in parallel.
   const workerId = parseInt(process.env.JEST_WORKER_ID || '1', 10);
-  const basePort = 10000 + (workerId - 1) * 100;
+  // Start at 9100 to avoid conflicts with standard infrastructure ports
+  // (9000 = auth-server, 9001 = mail_helper, etc.)
+  const basePort = 9100 + (workerId - 1) * 100;
   const authServerPort = await getAvailablePort(basePort);
   const profileServerPort = await getAvailablePort(authServerPort + 1);
   return { authServerPort, profileServerPort };
@@ -96,7 +97,7 @@ function createTempConfig(overrides: Record<string, unknown>, port: number): str
     publicUrl: `http://localhost:${port}`,
   };
 
-  const tempDir = path.join(os.tmpdir(), 'fxa-auth-server-test');
+  const tempDir = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp');
   if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true });
   }
@@ -182,6 +183,16 @@ export async function createTestServer(
       checkAllEndpoints: false,
       ignoreIPs: ['127.0.0.1', '::1', 'localhost'],
     },
+    oauth: {
+      ...baseConfig.oauth,
+      url: publicUrl,
+    },
+    oauthServer: {
+      audience: publicUrl,
+      browserid: {
+        issuer: `localhost:${ports.authServerPort}`,
+      },
+    },
     profileServer: {
       ...baseConfig.profileServer,
       url: profileServerUrl,
@@ -244,8 +255,8 @@ export async function createTestServer(
 
       try {
         fs.unlinkSync(configPath);
-      } catch (err) {
-        console.warn(`[test-server] Failed to clean up temp config ${configPath}:`, err);
+      } catch {
+        // Ignore cleanup errors
       }
     },
   };

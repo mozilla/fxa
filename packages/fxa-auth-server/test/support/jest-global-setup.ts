@@ -13,6 +13,8 @@ import fs from 'fs';
 
 const AUTH_SERVER_ROOT = path.resolve(__dirname, '../..');
 const MAIL_HELPER_PID_FILE = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp', 'mail_helper.pid');
+const VERSION_JSON_PATH = path.join(AUTH_SERVER_ROOT, 'config', 'version.json');
+const VERSION_JSON_MARKER = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp', 'version_json_created');
 
 function generateKeysIfNeeded(): void {
   const genKeysScript = path.join(AUTH_SERVER_ROOT, 'scripts', 'gen_keys.js');
@@ -76,10 +78,35 @@ function killExistingMailHelper(): void {
   }
 }
 
+function generateVersionJsonIfNeeded(): void {
+  // In git worktree environments, .git is a file (not a directory), which causes
+  // the server's fallback `git rev-parse HEAD` (with cwd set to .git) to fail.
+  // Generate config/version.json so the server can serve / and /__version__.
+  if (fs.existsSync(VERSION_JSON_PATH)) {
+    return;
+  }
+  try {
+    const hash = execSync('git rev-parse HEAD').toString().trim();
+    let source = 'unknown';
+    try {
+      source = execSync('git config --get remote.origin.url').toString().trim();
+    } catch { /* ignore */ }
+    fs.writeFileSync(
+      VERSION_JSON_PATH,
+      JSON.stringify({ version: { hash, source } })
+    );
+    // Write a marker so teardown knows to clean it up
+    fs.writeFileSync(VERSION_JSON_MARKER, '');
+  } catch {
+    // If git isn't available, skip — version endpoints will return errors
+  }
+}
+
 export default async function globalSetup(): Promise<void> {
   const printLogs = process.env.MAIL_HELPER_LOGS === 'true';
 
   generateKeysIfNeeded();
+  generateVersionJsonIfNeeded();
 
   console.log('[Jest Global Setup] Starting mail_helper...');
 
