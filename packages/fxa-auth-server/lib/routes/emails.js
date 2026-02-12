@@ -17,6 +17,7 @@ const validators = require('./validators');
 const { reportSentryError } = require('../sentry');
 const { emailsMatch, normalizeEmail } = require('fxa-shared').email.helpers;
 const { recordSecurityEvent } = require('./utils/security-event');
+const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
 const EMAILS_DOCS = require('../../docs/swagger/emails-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
@@ -139,6 +140,7 @@ module.exports = (
   statsd
 ) => {
   const fxaMailer = Container.get(FxaMailer);
+  const oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
 
   const REMINDER_PATTERN = new RegExp(
     `^(?:${verificationReminders.keys.join('|')})$`
@@ -870,6 +872,7 @@ module.exports = (
           await request.emitMetricsEvent(`email.verification.resent`);
         } else {
           if (fxaMailer.canSend('verifyLogin')) {
+            const clientInfo = await oauthClientInfoService.fetch(service);
             await fxaMailer.sendVerifyLoginEmail({
               ...FxaMailerFormat.account(account),
               ...(await FxaMailerFormat.metricsContext(request)),
@@ -879,7 +882,7 @@ module.exports = (
               ...FxaMailerFormat.sync(service),
               code,
               service,
-              clientName: 'Firefox',
+              clientName: clientInfo.name,
               redirectTo: request.payload.redirectTo,
               resume: request.payload.resume,
             });

@@ -73,6 +73,7 @@ describe('/password', () => {
     // mailer mock must be done before route creation/require
     // otherwise it won't pickup the mock we define because
     // of module caching
+    mocks.mockOAuthClientInfo();
     mockFxaMailer = mocks.mockFxaMailer();
     mockAccountEventsManager = mocks.mockAccountEventsManager();
     glean.resetPassword.emailSent.reset();

@@ -365,6 +365,7 @@ describe('/recovery_email/status', () => {
   });
   const stripeHelper = mocks.mockStripeHelper();
   stripeHelper.hasActiveSubscription = sinon.fake.resolves(false);
+  mocks.mockOAuthClientInfo();
   const accountRoutes = makeRoutes({
     config: config,
     db: mockDB,
@@ -382,6 +383,7 @@ describe('/recovery_email/status', () => {
   describe('invalid email', () => {
     let mockRequest;
     beforeEach(() => {
+      mocks.mockOAuthClientInfo();
       mockRequest = mocks.mockRequest({
         credentials: {
           email: TEST_EMAIL_INVALID,
@@ -580,6 +582,9 @@ describe('/recovery_email/resend_code', () => {
     return Promise.resolve();
   });
   const mockMailer = mocks.mockMailer();
+  mocks.mockOAuthClientInfo({
+    fetch: sinon.stub().resolves({ name: 'Firefox' }),
+  });
   const mockFxaMailer = mocks.mockFxaMailer();
   const mockMetricsContext = mocks.mockMetricsContext();
   const accountRoutes = makeRoutes({
@@ -750,6 +755,7 @@ describe('/recovery_email/verify_code', () => {
   };
   const mockDB = mocks.mockDB(dbData, dbErrors);
   const mockMailer = mocks.mockMailer();
+  mocks.mockOAuthClientInfo();
   const mockFxaMailer = mocks.mockFxaMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = mocks.mockCustoms();
@@ -1132,6 +1138,7 @@ describe('/recovery_email', () => {
   const mockCustoms = mocks.mockCustoms();
 
   beforeEach(() => {
+    mocks.mockOAuthClientInfo();
     mockRequest = mocks.mockRequest({
       credentials: {
         uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
@@ -1196,6 +1203,7 @@ describe('/recovery_email', () => {
 describe('/mfa/recovery_email/secondary/resend_code', () => {
   let fxaMailer;
   beforeEach(() => {
+    mocks.mockOAuthClientInfo();
     fxaMailer = mocks.mockFxaMailer();
   });
   afterEach(() => {

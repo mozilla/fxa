@@ -73,6 +73,10 @@ const profile = new ProfileClient(log, statsd, {
   serviceName: 'subhub',
 });
 Container.set(ProfileClient, profile);
+Container.set({
+  id: OAuthClientInfoServiceName,
+  factory: () => oauthClientInfo(log, config),
+});
 
 DB.connect(config).then(async (db: any) => {
   // Bypass customs checks.
@@ -139,11 +143,6 @@ DB.connect(config).then(async (db: any) => {
 
   const accountTasks = DeleteAccountTasksFactory(config, statsd);
   Container.set(DeleteAccountTasks, accountTasks);
-
-  Container.set({
-    id: OAuthClientInfoServiceName,
-    factory: () => oauthClientInfo(log, config),
-  });
 
   // mailer lib setup
   const bounces = new Bounces(config.smtp.bounces, {
