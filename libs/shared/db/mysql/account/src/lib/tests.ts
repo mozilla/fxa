@@ -17,7 +17,8 @@ export type ACCOUNT_TABLES =
   | 'carts'
   | 'recoveryCodes'
   | 'recoveryPhones'
-  | 'emails';
+  | 'emails'
+  | 'passkeys';
 
 export async function testAccountDatabaseSetup(
   tables: ACCOUNT_TABLES[]

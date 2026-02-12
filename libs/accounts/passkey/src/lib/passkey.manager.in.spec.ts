@@ -16,9 +16,8 @@ describe('PasskeyManager (Integration)', () => {
 
   beforeAll(async () => {
     // Set up real database connection for integration tests
-    // TODO: Add 'passkeys' table to the setup array once the table schema is created
     try {
-      db = await testAccountDatabaseSetup(['accounts']);
+      db = await testAccountDatabaseSetup(['accounts', 'passkeys']);
 
       const moduleRef = await Test.createTestingModule({
         providers: [
@@ -48,10 +47,7 @@ describe('PasskeyManager (Integration)', () => {
     }
   });
 
-  // TODO: Add actual integration tests once:
-  // 1. Passkey database schema is defined
-  // 2. PasskeyManager methods are implemented
-  // 3. Test data factories are created
+  // TODO: Add actual integration tests once PasskeyManager methods are implemented
   it('should be defined', () => {
     expect(manager).toBeDefined();
   });

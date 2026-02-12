@@ -63,6 +63,15 @@ Unlike `libs/shared/nestjs/*`, this library **does not export a NestJS module**.
 
 This pattern gives consuming applications full control over DI setup.
 
+## Database Schema
+
+See [PASSKEY_FIELDS.md](./PASSKEY_FIELDS.md) for complete field documentation including:
+
+- Field types and constraints
+- WebAuthn backup flags (BE/BS)
+- Type conversion details (ColumnType)
+- Usage examples and patterns
+
 ## WebAuthn / Passkey Background
 
 Passkeys are a WebAuthn-based authentication method that replaces passwords:
@@ -84,6 +93,7 @@ Key WebAuthn concepts:
 
 - [WebAuthn Spec](https://www.w3.org/TR/webauthn-3/)
 - [Passkey Developer Guide](https://passkeys.dev/)
+- [Field Documentation](./PASSKEY_FIELDS.md) (detailed schema reference)
 
 ## Error Handling
 
