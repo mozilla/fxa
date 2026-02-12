@@ -16,48 +16,7 @@ const EXCEPTION_TAGS = ['code', 'context', 'errno', 'namespace', 'status'];
 // Internal flag to keep track of whether or not sentry is initialized
 let sentryEnabled = false;
 
-// HACK: allow tests to stub this function from Sentry
-// https://stackoverflow.com/questions/35240469/how-to-mock-the-imports-of-an-es6-module
-export const _Sentry = {
-  captureException: Sentry.captureException,
-  close: Sentry.close,
-};
-
-/**
- * function that gets called before data gets sent to error metrics
- *
- * @param {Object} event
- *  Error object data
- * @returns {Object} data
- *  Modified error object data
- * @private
- */
-function beforeSend(
-  opts: SentryConfigOpts,
-  event: Sentry.ErrorEvent,
-  hint?: Sentry.EventHint
-) {
-  if (sentryEnabled === false) {
-    return null;
-  }
-
-  if (event.request) {
-    if (event.tags) {
-      // if this is a known errno, then use grouping with fingerprints
-      // Docs: https://docs.sentry.io/hosted/learn/rollups/#fallback-grouping
-      if (event.tags.errno) {
-        event.fingerprint = ['errno' + (event.tags.errno as number)];
-        // if it is a known error change the error level to info.
-        event.level = 'info';
-      }
-    }
-  }
-
-  event = tagFxaName(event, opts.sentry?.clientName || opts.sentry?.serverName);
-  return event;
-}
-
-function captureException(err: Error) {
+export function captureException(err: Error) {
   if (!sentryEnabled) {
     return;
   }
@@ -79,15 +38,59 @@ function captureException(err: Error) {
   });
 }
 
-function disable() {
+export function isEnabled() {
+  return sentryEnabled;
+}
+
+/**
+ * Toggle sentry error capture to be disabled.
+ */
+export function disable() {
   sentryEnabled = false;
 }
 
-function enable() {
+/**
+ * Toggle sentry error capture to be enabled.
+ */
+export function enable() {
   sentryEnabled = true;
 }
 
-function configure(config: SentryConfigOpts, log?: Logger) {
+/**
+ * Gets called before data gets sent to error metrics. Useful for altering event state before it gets sent to Sentry.
+ * For example, we use this to set the event fingerprint based on known error numbers.
+ *
+ * @param {Object} opts - Sentry configuration options
+ * @param {Object} event - Sentry error object data
+ * @param {Object} hint - Sentry error object hint data
+ * @returns {Object} event - Modified error object data
+ */
+export function beforeSend(
+  opts: SentryConfigOpts,
+  event: Sentry.Event,
+  _hint?: Sentry.EventHint
+) {
+  if (sentryEnabled === false) {
+    return null;
+  }
+
+  if (event.request) {
+    if (event.tags) {
+      // if this is a known errno, then use grouping with fingerprints
+      // Docs: https://docs.sentry.io/hosted/learn/rollups/#fallback-grouping
+      if (event.tags.errno) {
+        event.fingerprint = ['errno' + (event.tags.errno as number)];
+        // if it is a known error change the error level to info.
+        event.level = 'info';
+      }
+    }
+  }
+
+  event = tagFxaName(event, opts.sentry?.clientName || opts.sentry?.serverName);
+  return event;
+}
+
+export function configure(config: SentryConfigOpts, log?: Logger) {
   if (!log) {
     log = console;
   }
@@ -106,7 +109,7 @@ function configure(config: SentryConfigOpts, log?: Logger) {
   try {
     Sentry.init({
       ...opts,
-      beforeSend: function (event: Sentry.ErrorEvent, hint: Sentry.EventHint) {
+      beforeSend: function (event: Sentry.ErrorEvent, hint?: Sentry.EventHint) {
         return beforeSend(opts, event, hint);
       },
     });
@@ -114,14 +117,3 @@ function configure(config: SentryConfigOpts, log?: Logger) {
     log.error(e);
   }
 }
-
-export default {
-  configure,
-  captureException,
-  disable,
-  enable,
-  __sentryEnabled: function () {
-    return sentryEnabled;
-  },
-  __beforeSend: beforeSend,
-};

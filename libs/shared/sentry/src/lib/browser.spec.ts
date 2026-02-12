@@ -3,12 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import 'jsdom-global/register';
 import * as Sentry from '@sentry/browser';
-import sentryMetrics, { _Sentry } from './browser';
+import * as sentryWrapper from './browser';
 import { SentryConfigOpts } from './models/SentryConfigOpts';
-import { Logger } from './sentry.types';
 
-const sinon = require('sinon');
-const sandbox = sinon.createSandbox();
+jest.mock('@sentry/browser', () => {
+  const actual = jest.requireActual('@sentry/browser');
+  return {
+    ...actual,
+    init: jest.fn(),
+    captureException: jest.fn(),
+  };
+});
 
 const config: SentryConfigOpts = {
   release: 'v0.0.0',
@@ -19,7 +24,7 @@ const config: SentryConfigOpts = {
     sampleRate: 0,
   },
 };
-const logger: Logger = {
+const logger = {
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),
@@ -27,29 +32,25 @@ const logger: Logger = {
 };
 
 describe('sentry/browser', () => {
-  beforeAll(() => {
-    // Reduce console log noise in test output
-    sandbox.spy(console, 'error');
-  });
-
   beforeEach(() => {
     // Make sure it's enabled by default
-    sentryMetrics.enable();
+    sentryWrapper.enable();
   });
 
-  afterAll(() => {
-    sandbox.restore();
+  afterEach(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
   });
 
   describe('init', () => {
     it('properly configures with dsn', () => {
-      sentryMetrics.configure(config, logger);
+      sentryWrapper.configure(config, logger);
     });
   });
 
   describe('beforeSend', () => {
     beforeAll(() => {
-      sentryMetrics.configure(config, logger);
+      sentryWrapper.configure(config, logger);
     });
 
     it('works without request url', () => {
@@ -57,7 +58,7 @@ describe('sentry/browser', () => {
         key: 'value',
       } as Sentry.Event;
 
-      const resultData = sentryMetrics.__beforeSend(config, data, {});
+      const resultData = sentryWrapper.beforeSend(config, data, {});
 
       expect(data).toEqual(resultData);
     });
@@ -72,7 +73,7 @@ describe('sentry/browser', () => {
         },
       } as Sentry.Event;
 
-      const resultData = sentryMetrics.__beforeSend(config, data, {});
+      const resultData = sentryWrapper.beforeSend(config, data, {});
       expect(resultData?.fingerprint?.[0]).toEqual('errno100');
       expect(resultData?.level).toEqual('info');
     });
@@ -80,27 +81,26 @@ describe('sentry/browser', () => {
 
   describe('captureException', () => {
     it('calls Sentry.captureException', () => {
-      const sentryCaptureException = sinon.stub(_Sentry, 'captureException');
-      sentryMetrics.captureException(new Error('testo'));
-      sinon.assert.calledOnce(sentryCaptureException);
-      sentryCaptureException.restore();
+      const spy = jest.spyOn(Sentry, 'captureException');
+      Sentry.captureException(new Error('testo'));
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('disable / enables', () => {
     it('enables', () => {
-      sentryMetrics.enable();
-      expect(sentryMetrics.__sentryEnabled()).toBeTruthy();
+      sentryWrapper.enable();
+      expect(sentryWrapper.isEnabled()).toBeTruthy();
     });
 
     it('disables', () => {
-      sentryMetrics.disable();
-      expect(sentryMetrics.__sentryEnabled()).toBeFalsy();
+      sentryWrapper.disable();
+      expect(sentryWrapper.isEnabled()).toBeFalsy();
     });
 
     it('will return null from before send when disabled', () => {
-      sentryMetrics.disable();
-      expect(sentryMetrics.__beforeSend({}, {}, {})).toBeNull();
+      sentryWrapper.disable();
+      expect(sentryWrapper.beforeSend({}, {}, {})).toBeNull();
     });
   });
 });
