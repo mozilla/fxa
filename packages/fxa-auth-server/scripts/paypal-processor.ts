@@ -13,7 +13,7 @@ import { PayPalHelper } from '../lib/payments/paypal/helper';
 import { PayPalClient } from '@fxa/payments/paypal';
 import { PaypalProcessor } from '../lib/payments/paypal/processor';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
-import { initSentry } from 'packages/fxa-shared/sentry/node';
+import { initSentry } from '@fxa/sentry-node';
 
 const pckg = require('../package.json');
 const config = require('../config').default.getProperties();
@@ -62,9 +62,8 @@ export async function init() {
   const lockDuration =
     parseInt(`${program.lockDuration}`) || DEFAULT_LOCK_DURATION_MS;
 
-  const { log, database, senders } = await setupProcessingTaskObjects(
-    'paypal-processor'
-  );
+  const { log, database, senders } =
+    await setupProcessingTaskObjects('paypal-processor');
 
   initSentry(
     {

@@ -33,7 +33,7 @@ import { currentAccount } from '../../lib/cache';
 import { MozServices } from '../../lib/types';
 import mockUseFxAStatus from '../../lib/hooks/useFxAStatus/mocks';
 import useFxAStatus from '../../lib/hooks/useFxAStatus';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import sentryMetrics from '@fxa/shared/sentry/browser';
 import { OAuthError } from '../../lib/oauth';
 
 jest.mock('../../lib/hooks/useFxAStatus', () => ({
@@ -41,7 +41,7 @@ jest.mock('../../lib/hooks/useFxAStatus', () => ({
   default: jest.fn(),
 }));
 
-jest.mock('fxa-shared/sentry/browser', () => ({
+jest.mock('@fxa/shared/sentry/browser', () => ({
   __esModule: true,
   default: {
     enable: jest.fn(),

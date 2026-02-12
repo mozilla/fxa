@@ -5,7 +5,7 @@
 const Sentry = require('@sentry/node');
 const config = require('./configuration');
 const RELEASE = require('../../package.json').version;
-const { buildSentryConfig, tagFxaName } = require('fxa-shared/sentry');
+const { buildSentryConfig, tagFxaName } = require('@fxa/sentry-utils');
 const logger = require('./logging/log')('sentry');
 
 if (config.get('sentry.dsn')) {

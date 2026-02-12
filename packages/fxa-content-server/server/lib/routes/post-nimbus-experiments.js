@@ -4,9 +4,7 @@
 
 const joi = require('joi');
 const Sentry = require('@sentry/node');
-const {
-  overrideJoiMessages,
-} = require('fxa-shared/sentry/joi-message-overrides');
+const { overrideJoiMessages } = require('@fxa/sentry-node');
 
 const BODY_SCHEMA = {
   client_id: joi.string().required(),
@@ -60,7 +58,8 @@ module.exports = function (config, statsd) {
           statsd.increment('cirrus.experiment-fetch-success');
         }
       } catch (err) {
-        const isTimeout = err.name === 'AbortError' || err.name === 'TimeoutError';
+        const isTimeout =
+          err.name === 'AbortError' || err.name === 'TimeoutError';
 
         if (statsd) {
           statsd.increment('cirrus.experiment-fetch-error');
@@ -74,7 +73,7 @@ module.exports = function (config, statsd) {
           Sentry.captureException(err, {
             tags: {
               source: 'nimbus-experiments',
-            }
+            },
           });
         }
 
