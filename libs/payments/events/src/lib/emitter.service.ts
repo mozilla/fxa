@@ -60,6 +60,7 @@ export class PaymentsEmitterService {
       'subscriptionEnded',
       this.handleSubscriptionEnded.bind(this)
     );
+    this.emitter.on('trialConverted', () => {});
     this.emitter.on('sp3Rollout', this.handleSP3Rollout.bind(this));
     this.emitter.on('locationView', this.handleLocationView.bind(this));
     this.emitter.on('auth', this.handleAuthEvent.bind(this));
