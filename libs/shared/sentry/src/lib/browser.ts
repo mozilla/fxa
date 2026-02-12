@@ -34,7 +34,7 @@ export function captureException(err: Error) {
         );
       }
     });
-    _Sentry.captureException(err);
+    Sentry.captureException(err);
   });
 }
 
@@ -67,7 +67,7 @@ export function enable() {
  */
 export function beforeSend(
   opts: SentryConfigOpts,
-  event: Sentry.Event,
+  event: Sentry.ErrorEvent,
   _hint?: Sentry.EventHint
 ) {
   if (sentryEnabled === false) {

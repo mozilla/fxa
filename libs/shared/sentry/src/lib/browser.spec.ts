@@ -56,7 +56,8 @@ describe('sentry/browser', () => {
     it('works without request url', () => {
       const data = {
         key: 'value',
-      } as Sentry.Event;
+        type: undefined,
+      } as Sentry.ErrorEvent;
 
       const resultData = sentryWrapper.beforeSend(config, data, {});
 
@@ -65,13 +66,14 @@ describe('sentry/browser', () => {
 
     it('fingerprints errno', () => {
       const data = {
+        type: undefined,
         request: {
           url: 'https://example.com',
         },
         tags: {
           errno: '100',
         },
-      } as Sentry.Event;
+      } as Sentry.ErrorEvent;
 
       const resultData = sentryWrapper.beforeSend(config, data, {});
       expect(resultData?.fingerprint?.[0]).toEqual('errno100');
@@ -100,7 +102,7 @@ describe('sentry/browser', () => {
 
     it('will return null from before send when disabled', () => {
       sentryWrapper.disable();
-      expect(sentryWrapper.beforeSend({}, {}, {})).toBeNull();
+      expect(sentryWrapper.beforeSend({}, { type: undefined }, {})).toBeNull();
     });
   });
 });
