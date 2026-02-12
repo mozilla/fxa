@@ -44,6 +44,7 @@ const {
 } = require('../../../lib/senders/oauth_client_info');
 
 const { FxaMailer } = require('../../../lib/senders/fxa-mailer');
+const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
 
 const glean = mocks.mockGlean();
 const profile = mocks.mockProfile();
@@ -5156,6 +5157,84 @@ describe('/account', () => {
         assert.isArray(result.emails);
         assert.isArray(result.securityEvents);
         assert.isArray(result.linkedAccounts);
+      });
+    });
+  });
+
+  describe('recoveryPhone.available', () => {
+    function buildRouteWithRecoveryPhone(recoveryPhoneConfig) {
+      const accountRoutes = makeRoutes({
+        config: {
+          subscriptions: { enabled: false },
+          recoveryPhone: recoveryPhoneConfig,
+        },
+        log,
+        db: mocks.mockDB({ email, uid }),
+        stripeHelper: mockStripeHelper,
+      });
+      return getRoute(accountRoutes, '/account');
+    }
+
+    it('should pass geo countryCode to the service', () => {
+      const mockService = {
+        hasConfirmed: sinon.fake.resolves({ exists: false, phoneNumber: null }),
+        available: sinon.fake.resolves(true),
+      };
+      Container.set(RecoveryPhoneService, mockService);
+      const route = buildRouteWithRecoveryPhone({
+        enabled: true,
+        allowedRegions: ['US'],
+      });
+      return runTest(route, request, (result) => {
+        assert.equal(mockService.available.firstCall.args[1], 'US');
+        assert.equal(result.recoveryPhone.available, true);
+      });
+    });
+
+    it('should return available false when service returns false', () => {
+      Container.set(RecoveryPhoneService, {
+        hasConfirmed: sinon.fake.resolves({ exists: false, phoneNumber: null }),
+        available: sinon.fake.resolves(false),
+      });
+      const route = buildRouteWithRecoveryPhone({
+        enabled: true,
+        allowedRegions: ['US'],
+      });
+      return runTest(route, request, (result) => {
+        assert.equal(result.recoveryPhone.available, false);
+      });
+    });
+
+    it('should return available false when service call fails', () => {
+      Container.set(RecoveryPhoneService, {
+        hasConfirmed: sinon.fake.resolves({ exists: false, phoneNumber: null }),
+        available: sinon.fake.rejects(new Error('service error')),
+      });
+      const route = buildRouteWithRecoveryPhone({
+        enabled: true,
+        allowedRegions: ['US'],
+      });
+      return runTest(route, request, (result) => {
+        assert.equal(result.recoveryPhone.available, false);
+      });
+    });
+
+    it('should return available false when geo location cannot be parsed', () => {
+      Container.set(RecoveryPhoneService, {
+        hasConfirmed: sinon.fake.resolves({ exists: false, phoneNumber: null }),
+        available: sinon.fake.resolves(false),
+      });
+      const noGeoRequest = mocks.mockRequest({
+        credentials: { uid, email },
+        log,
+        geo: {},
+      });
+      const route = buildRouteWithRecoveryPhone({
+        enabled: true,
+        allowedRegions: ['US'],
+      });
+      return runTest(route, noGeoRequest, (result) => {
+        assert.equal(result.recoveryPhone.available, false);
       });
     });
   });

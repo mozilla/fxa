@@ -2335,6 +2335,7 @@ export class AccountHandler {
       backupCodesResult,
       recoveryKeyResult,
       recoveryPhoneResult,
+      recoveryPhoneAvailableResult,
       securityEventsResult,
       devicesResult,
       authorizedClientsResult,
@@ -2346,13 +2347,17 @@ export class AccountHandler {
       Container.get(BackupCodeManager).getCountForUserId(uid),
       this.db.getRecoveryKeyRecordWithHint(uid),
       Container.get(RecoveryPhoneService).hasConfirmed(uid),
+      request.app.geo?.location?.countryCode
+        ? Container.get(RecoveryPhoneService).available(uid, request.app.geo.location.countryCode)
+        : Promise.resolve(false),
       this.db.securityEventsByUid({ uid }),
       this.db.devices(uid),
       listAuthorizedClients(uid),
     ]);
 
-    // Check if recovery phone feature is enabled globally (region check requires geo context)
-    const recoveryPhoneAvailable = this.config.recoveryPhone?.enabled ?? false;
+    const recoveryPhoneAvailable = recoveryPhoneAvailableResult.status === 'fulfilled'
+      ? recoveryPhoneAvailableResult.value
+      : false;
 
     // Account record is required
     if (accountRecord.status === 'rejected') {
