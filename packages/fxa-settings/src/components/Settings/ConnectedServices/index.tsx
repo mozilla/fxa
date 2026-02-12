@@ -29,6 +29,8 @@ const DEVICES_SUPPORT_URL =
 export function sortAndFilterConnectedClients(
   attachedClients: Array<AttachedClient>
 ) {
+  // Group clients by deviceId (for sync devices) or name (for others).
+  // This avoids merging distinct devices that happen to share the same name.
   const groupedByDevice = groupBy(attachedClients, (c) => c.deviceId || c.name);
 
   // get a unique (by device or name) list and sort by time last accessed
@@ -104,9 +106,9 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
           event: { reason: reasonValue },
         });
 
-        // disconnect all clients/sessions with this name since only unique names
-        // are displayed to the user. This is batched into one network request
-        // via BatchHttpLink
+        // Disconnect all clients/sessions in the group (same deviceId or name).
+        // Since we only display one entry per group, signing out of that entry
+        // should revoke all associated sessions. This is batched via BatchHttpLink.
         const groupByKey = (client.deviceId || client.name) ?? 'undefined';
         const sessionsInGroup = groupedByDevice[groupByKey];
         const hasMultipleSessions = sessionsInGroup.length > 1;
