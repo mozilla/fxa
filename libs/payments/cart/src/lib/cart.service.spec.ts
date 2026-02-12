@@ -350,6 +350,49 @@ describe('CartService', () => {
       );
     });
 
+    it('gracefully handles subscription not found during cancel', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: null,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+      });
+
+      const stripeError = new Stripe.errors.StripeInvalidRequestError({
+        type: 'invalid_request_error',
+        message: `No such subscription: '${mockSubscription.id}'`,
+        code: 'resource_missing',
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockRejectedValue(stripeError);
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(mockPaymentIntent);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(subscriptionManager.cancel).toHaveBeenCalled();
+    });
+
     it('cancels a created subscription with async local storage', async () => {
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockSubscription = StripeResponseFactory(
