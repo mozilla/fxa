@@ -233,7 +233,7 @@ export class FxaMailer extends FxaEmailRenderer {
    * @returns
    */
   async sendPasswordlessSignupOtpEmail(
-    opts: EmailSenderOpts &
+    opts: Omit<EmailSenderOpts, 'uid'> &
       EmailFlowParams &
       OmitCommonLinks<WithFxaLayouts<passwordlessSignupOtp.TemplateData>>
   ) {

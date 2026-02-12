@@ -150,16 +150,8 @@ class PasswordlessHandler {
         geoData.timeZone
       );
 
-    // For MVP, we'll use the password forgot OTP email
-    // TODO: Create a dedicated passwordless OTP email template
-    const emailAddresses = account
-      ? splitEmails(account.emails)
-      : { to: email, cc: [] as string[] };
-
-    await this.fxaMailer.sendPasswordForgotOtpEmail({
+    const commonArgs = {
       code,
-      to: emailAddresses.to,
-      cc: emailAddresses.cc,
       deviceId,
       flowId,
       flowBeginTime,
@@ -170,9 +162,30 @@ class PasswordlessHandler {
       sync: false,
       device: formatUserAgentInfo({ browser, os, osVersion }),
       location: formatGeoData(geoData.location),
-      uid: '',
-      metricsEnabled: false,
-    });
+      codeExpiryMinutes: this.config.passwordlessOtp.ttl / 60,
+    };
+
+    if (isNewAccount) {
+      const metricsEnabled =
+        this.config.gleanMetrics.enabled &&
+        (await request.app.isMetricsEnabled);
+
+      await this.fxaMailer.sendPasswordlessSignupOtpEmail({
+        ...commonArgs,
+        to: email,
+        cc: [],
+        metricsEnabled,
+      });
+    } else {
+      const emailAddresses = splitEmails(account.emails);
+      await this.fxaMailer.sendPasswordlessSigninOtpEmail({
+        ...commonArgs,
+        to: emailAddresses.to,
+        cc: emailAddresses.cc,
+        uid: account.uid,
+        metricsEnabled: account.metricsEnabled,
+      });
+    }
 
     this.statsd.increment('passwordless.sendCode.success');
 
