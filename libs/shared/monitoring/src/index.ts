@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { initTracing } from '../tracing/node-tracing';
-import { InitSentryOpts, initSentry } from '../sentry/node';
-import { TracingOpts } from '../tracing/config';
-import { ILogger } from '../log';
+import { initTracing } from '@fxa/shared/otel';
+import { InitSentryOpts, initSentry } from '@fxa/sentry-node';
+import { TracingOpts } from '@fxa/shared/otel';
+import { ILogger } from '@fxa/shared/log';
 
 export type MonitoringConfig = {
   log?: ILogger;
@@ -14,7 +14,7 @@ export type MonitoringConfig = {
 
 let initialized = false;
 
-// IMPORTANT! This initialization function must be called first thing when a server starts.If it's called after server
+// IMPORTANT! This initialization function must be called first thing when a server starts. If it's called after server
 // frameworks initialized instrumentation might not work properly.
 /**
  * Initializes modules related to error monitoring, performance monitoring, and tracing.

@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as Sentry from '@sentry/browser';
 
-import {
-  buildSentryConfig,
-  tagCriticalEvent,
-  tagFxaName,
-} from 'fxa-shared/sentry';
+import { buildSentryConfig, tagFxaName } from '@fxa/sentry-utils';
 import _ from 'underscore';
 
 import Logger from './logger';
@@ -22,7 +18,6 @@ import Logger from './logger';
  * @private
  */
 function beforeSend(data) {
-  data = tagCriticalEvent(data);
   if (data && data.request) {
     if (data.tags) {
       const errno = data.tags.errno;

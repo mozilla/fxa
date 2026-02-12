@@ -38,7 +38,7 @@ import {
 } from '../../models/contexts/SettingsContext';
 import { AccountStateProvider } from '../../models/contexts/AccountStateContext';
 
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import sentryMetrics from '@fxa/shared/sentry/browser';
 import { maybeRecordWebAuthnCapabilities } from '../../lib/webauthnCapabilitiesProbe';
 
 // Components
@@ -309,7 +309,8 @@ export const App = ({
         recoveryKey: data.account.recoveryKey?.exists ?? false,
         hasSecondaryVerifiedEmail:
           data.account.emails.length > 1 && data.account.emails[1].verified,
-        totpActive: (data.account.totp?.exists && data.account.totp?.verified) ?? false,
+        totpActive:
+          (data.account.totp?.exists && data.account.totp?.verified) ?? false,
       });
     }
   }, [

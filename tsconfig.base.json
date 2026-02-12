@@ -90,6 +90,7 @@
       "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
       "@fxa/shared/metrics/glean": ["libs/shared/metrics/glean/src/index.ts"],
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
+      "@fxa/shared/monitoring": ["libs/shared/monitoring/src/index.ts"],
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index.ts"],
       "@fxa/shared/nestjs/customs": ["libs/shared/nestjs/customs/src/index.ts"],
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index.ts"],
@@ -103,7 +104,12 @@
       "@fxa/shared/sentry-next": ["libs/shared/sentry-next/src/index.ts"],
       "@fxa/shared/sentry-node": ["libs/shared/sentry-node/src/index.ts"],
       "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index.ts"],
+      "@fxa/shared/sentry/browser": ["libs/shared/sentry/src/lib/browser.ts"],
       "@fxa/shared/sentry/client": ["libs/shared/sentry/src/client.ts"],
+      "@fxa/sentry-browser": ["libs/shared/sentry-browser/src/index.ts"],
+      "@fxa/sentry-nest": ["libs/shared/sentry-nest/src/index.ts"],
+      "@fxa/sentry-node": ["libs/shared/sentry-node/src/index.ts"],
+      "@fxa/sentry-utils": ["libs/shared/sentry-utils/src/index.ts"],
       "@fxa/vendored/common-password-list": [
         "libs/vendored/common-password-list/src/index.ts"
       ],

@@ -12,7 +12,7 @@ const { ignoreErrors } = require('@fxa/accounts/errors');
 const {
   formatMetadataValidationErrorMessage,
   reportValidationError,
-} = require('fxa-shared/sentry/report-validation-error');
+} = require('@fxa/sentry-node');
 
 function reportSentryMessage(message, captureContext) {
   Sentry.withScope((scope) => {

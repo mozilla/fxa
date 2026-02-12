@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Sentry = require('@sentry/node');
-const { initMonitoring } = require('fxa-shared/monitoring');
+const { initMonitoring } = require('@fxa/shared/monitoring');
 const { config } = require('../config');
 const log = require('./logging/log')('configure-sentry');
 const { version } = require('../../package.json');
