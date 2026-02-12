@@ -24,11 +24,12 @@ import {
   OAuthNativeSyncQueryParameters,
   OAuthQueryParams,
 } from '../../models/pages/signin';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   currentAccount,
   lastStoredAccount,
   findAccountByEmail,
+  discardSessionToken,
 } from '../../lib/cache';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import {
@@ -278,17 +279,24 @@ const SigninContainer = ({
   }, []);
 
   // Avatar state - fetched directly from profile server
-  const [avatarData, setAvatarData] = useState<{ account: { avatar: { id: string; url: string } } } | undefined>(undefined);
+  const [avatarData, setAvatarData] = useState<
+    { account: { avatar: { id: string; url: string } } } | undefined
+  >(undefined);
   const [avatarLoading, setAvatarLoading] = useState(true);
 
   // Fetch avatar on mount from profile server (requires OAuth token)
   useEffect(() => {
-    if (sessionToken && config?.servers?.profile?.url && config?.oauth?.clientId) {
+    if (
+      sessionToken &&
+      config?.servers?.profile?.url &&
+      config?.oauth?.clientId
+    ) {
       // Get OAuth token with profile:avatar scope (required by profile server)
-      authClient.createOAuthToken(sessionToken, config.oauth.clientId, {
-        scope: 'profile:avatar',
-        ttl: PROFILE_OAUTH_TOKEN_TTL_SECONDS,
-      })
+      authClient
+        .createOAuthToken(sessionToken, config.oauth.clientId, {
+          scope: 'profile:avatar',
+          ttl: PROFILE_OAUTH_TOKEN_TTL_SECONDS,
+        })
         .then(({ access_token }) => {
           return fetch(`${config.servers.profile.url}/v1/avatar`, {
             method: 'GET',
@@ -323,6 +331,39 @@ const SigninContainer = ({
       setAvatarLoading(false);
     }
   }, [authClient, config, sessionToken]);
+
+  // For Firefox non-Sync flows, validate the cached session token before rendering.
+  // This is because if users "sign out" from the browser menu, FxA doesn't know
+  // about it (and can't, because even with a web channel message, FxA would need
+  // to be pulled up in a tab) and Fx non-Sync flows will see cached sign-in.
+  // This provides those users with slightly less friction since they'd see an error
+  // message and then be asked to enter their password. If the session token is
+  // invalid, we discard it so the user sees the password field right away.
+  const needsSessionValidation =
+    integration.isFirefoxNonSync() && !!sessionToken;
+  const [sessionValidationComplete, setSessionValidationComplete] = useState(
+    !needsSessionValidation
+  );
+
+  const hasValidated = useRef(false);
+  useEffect(() => {
+    // This ensures the useEffect is only ran once
+    if (hasValidated.current) return;
+    hasValidated.current = true;
+
+    if (!needsSessionValidation) {
+      setSessionValidationComplete(true);
+      return;
+    }
+
+    (async () => {
+      const isValid = await session.isValid(sessionToken!);
+      if (!isValid) {
+        discardSessionToken();
+      }
+      setSessionValidationComplete(true);
+    })();
+  }, [needsSessionValidation, session, sessionToken]);
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
@@ -545,8 +586,12 @@ const SigninContainer = ({
     );
   }
 
-  // Wait for async call (if needed) to complete
-  if (hasLinkedAccount === undefined || hasPassword === undefined) {
+  // Wait for async calls (if needed) to complete
+  if (
+    hasLinkedAccount === undefined ||
+    hasPassword === undefined ||
+    !sessionValidationComplete
+  ) {
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -664,8 +709,10 @@ export async function trySignIn(
           metricsEnabled: response.metricsEnabled ?? true,
           emailVerified: response.emailVerified ?? false,
           sessionVerified: response.sessionVerified ?? false,
-          verificationMethod: (response.verificationMethod || VerificationMethods.EMAIL_OTP) as VerificationMethods,
-          verificationReason: response.verificationReason as VerificationReasons,
+          verificationMethod: (response.verificationMethod ||
+            VerificationMethods.EMAIL_OTP) as VerificationMethods,
+          verificationReason:
+            response.verificationReason as VerificationReasons,
           keyFetchToken: response.keyFetchToken,
         },
         ...(options.keys && {
