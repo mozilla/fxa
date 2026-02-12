@@ -4,8 +4,6 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
@@ -21,9 +19,9 @@ const mockUid = 'deadbeef';
 const TTL = '42';
 const MS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
 
-const pushModulePath = `${ROOT_DIR}/lib/push`;
+const pushModulePath = '../../lib/push';
 
-const PUSH_PAYLOADS_SCHEMA_PATH = `${ROOT_DIR}/lib/pushpayloads.schema.json`;
+const PUSH_PAYLOADS_SCHEMA_PATH = '../../lib/pushpayloads.schema.json';
 let PUSH_PAYLOADS_SCHEMA_MATCHER = null;
 match.validPushPayload = (fields) => {
   if (!PUSH_PAYLOADS_SCHEMA_MATCHER) {

@@ -15,24 +15,19 @@
 
 'use strict';
 
-const ROOT_DIR = '..';
-const LIB_DIR = `${ROOT_DIR}/lib`;
-
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
+const config = require('../config').default.getProperties();
 
 const { AppError: error } = require('@fxa/accounts/errors');
-const log = require(`${LIB_DIR}/log`)(config.log);
-const jwt = require(`${LIB_DIR}/oauth/jwt`);
-const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
+const log = require('../lib/log')(config.log);
+const jwt = require('../lib/oauth/jwt');
+const verificationReminders = require('../lib/verification-reminders')(
   log,
   config
 );
 const Sentry = require('@sentry/node');
-
-const cadReminders = require(`${LIB_DIR}/cad-reminders`)(config, log);
-const subscriptionAccountReminders = require(
-  `${LIB_DIR}/subscription-account-reminders`
-)(log, config);
+const cadReminders = require('../lib/cad-reminders')(config, log);
+const subscriptionAccountReminders =
+  require('../lib/subscription-account-reminders')(log, config);
 const { EmailSender } = require('@fxa/accounts/email-sender');
 const {
   EmailLinkBuilder,
@@ -41,6 +36,7 @@ const {
 const { FxaMailer } = require('../lib/senders/fxa-mailer');
 const { FxaMailerFormat } = require('../lib/senders/fxa-mailer-format');
 const { StatsD } = require('hot-shots');
+
 
 Sentry.init({});
 const checkInId = Sentry.captureCheckIn({
@@ -75,15 +71,15 @@ run()
   });
 
 async function run() {
-  const { createDB } = require(`${LIB_DIR}/db`);
+  const { createDB } = require('../lib/db');
   const [vReminders, saReminders, cReminders, db] = await Promise.all([
     verificationReminders.process(),
     subscriptionAccountReminders.process(),
     cadReminders.process(),
     createDB(config, log, {}, {}).connect(config),
   ]);
-  const bounces = require(`${LIB_DIR}/bounces`)(config, db);
-  const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, bounces);
+  const bounces = require('../lib/bounces')(config, db);
+  const Mailer = require('../lib/senders/email')(log, config, bounces);
 
   const mailer = new Mailer(config.smtp);
   // fxa-mailer setup

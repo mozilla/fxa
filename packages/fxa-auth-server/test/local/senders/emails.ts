@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const ROOT_DIR = '../../..';
-
 // We import chai from this local file to get the configuration with truncation disabled.
 import chai from '../../chaiWithoutTruncation';
 import mocks from '../../mocks';
@@ -17,7 +15,7 @@ import { Container } from 'typedi';
 import { ProductConfigurationManager } from '../../../../../libs/shared/cms/src';
 
 const moment = require('moment-timezone');
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
+const config = require('../../../config').default.getProperties();
 const { assert } = chai;
 if (!config.smtp.prependVerificationSubdomain.enabled) {
   config.smtp.prependVerificationSubdomain.enabled = true;
@@ -33,9 +31,7 @@ config.smtp.subscriptionTermsUrl = 'http://example.com/terms';
 // Force enable the subscription transactional emails
 config.subscriptions.transactionalEmails.enabled = true;
 
-const TEMPLATE_VERSIONS = require(
-  `${ROOT_DIR}/lib/senders/emails/templates/_versions.json`
-);
+const TEMPLATE_VERSIONS = require('../../../lib/senders/emails/templates/_versions.json');
 
 const SUBSCRIPTION_TERMS_URL = 'https://example.com/subscription-product/terms';
 const SUBSCRIPTION_PRIVACY_URL =
@@ -6813,7 +6809,7 @@ async function setup(
   bounces: any = null,
   statsd: any = null
 ) {
-  const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, mocks)(
+  const Mailer = proxyquire('../../../lib/senders/email', mocks)(
     log,
     config,
     bounces || {

@@ -7,14 +7,13 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
 
-const ROOT_DIR = '../..';
 let SQSReceiver, statsd, testQueue;
 const log = { error: sinon.stub() };
 
 describe('SQSReceiver', () => {
   beforeEach(() => {
     statsd = { timing: sinon.stub() };
-    SQSReceiver = require(`${ROOT_DIR}/lib/sqs`)(log, statsd);
+    SQSReceiver = require('../../lib/sqs')(log, statsd);
     testQueue = new SQSReceiver('testo', [
       'https://sqs.testo.meows.xyz/fxa/quux',
     ]);
