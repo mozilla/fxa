@@ -19,6 +19,7 @@ import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject } from './mocks';
 
 const mockSessionStatus = jest.fn();
+const mockUseAccountData = jest.fn();
 const mockAccountState = {
   isLoading: false,
   error: null,
@@ -59,6 +60,11 @@ jest.mock('../../models', () => ({
 jest.mock('../../models/contexts/AccountStateContext', () => ({
   ...jest.requireActual('../../models/contexts/AccountStateContext'),
   useAccountState: jest.fn(),
+}));
+
+jest.mock('../../lib/hooks/useAccountData', () => ({
+  ...jest.requireActual('../../lib/hooks/useAccountData'),
+  useAccountData: (...args: any[]) => mockUseAccountData(...args),
 }));
 
 jest.mock('../../lib/totp-utils', () => {
@@ -115,6 +121,13 @@ describe('Settings App', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     // Reset account state mock to default values
     (useAccountState as jest.Mock).mockReturnValue({ ...mockAccountState, isLoading: false, error: null });
+    mockUseAccountData.mockReturnValue({
+      isLoading: false,
+      error: null,
+      data: mockAccountState,
+      refetch: jest.fn(),
+      refetchField: jest.fn(),
+    });
     mockNavigate.mockReset();
     mockSessionStatus.mockResolvedValue({
       details: {
@@ -131,9 +144,12 @@ describe('Settings App', () => {
   });
 
   it('renders `LoadingSpinner` component when loading initial state is true', () => {
-    (useAccountState as jest.Mock).mockReturnValueOnce({
-      ...mockAccountState,
+    mockUseAccountData.mockReturnValue({
       isLoading: true,
+      error: null,
+      data: mockAccountState,
+      refetch: jest.fn(),
+      refetchField: jest.fn(),
     });
     const { getByLabelText } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
@@ -145,11 +161,13 @@ describe('Settings App', () => {
   });
 
   it('renders `AppErrorDialog` component when settings query errors', async () => {
-    (useAccountState as jest.Mock).mockImplementation(() => ({
-      ...mockAccountState,
+    mockUseAccountData.mockReturnValue({
       isLoading: false,
       error: new Error('Error'),
-    }));
+      data: mockAccountState,
+      refetch: jest.fn(),
+      refetchField: jest.fn(),
+    });
     const { getByTestId } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
