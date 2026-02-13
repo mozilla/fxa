@@ -5,7 +5,7 @@
 import * as Sentry from '@sentry/node';
 import { ErrorEvent } from '@sentry/core';
 import { extraErrorDataIntegration } from '@sentry/node';
-import { SentryConfigOpts } from './models/SentryConfigOpts';
+import { SentryConfigOpts } from '@fxa/shared/sentry-utils';
 import { buildSentryConfig } from './config-builder';
 import { tagFxaName } from './reporting';
 import { Logger } from './sentry.types';

@@ -4,7 +4,7 @@
 import 'jsdom-global/register';
 import * as Sentry from '@sentry/browser';
 import * as sentryWrapper from './browser';
-import { SentryConfigOpts } from './models/SentryConfigOpts';
+import { SentryConfigOpts } from '@fxa/shared/sentry-utils';
 
 jest.mock('@sentry/browser', () => {
   const actual = jest.requireActual('@sentry/browser');
