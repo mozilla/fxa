@@ -7,7 +7,7 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs';
-import { SentryConfigOpts } from '../models/SentryConfigOpts';
+import { SentryConfigOpts } from '@fxa/shared/sentry-utils';
 import { buildSentryConfig } from '../config-builder';
 import { Logger } from '../sentry.types';
 import { beforeSend } from '../utils/beforeSend.client';

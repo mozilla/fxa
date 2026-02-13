@@ -4,7 +4,7 @@
 
 // Change to @sentry/browser after upgrade to Sentry 8
 import * as Sentry from '@sentry/nextjs';
-import { SentryConfigOpts } from '../models/SentryConfigOpts';
+import { SentryConfigOpts } from '@fxa/shared/sentry-utils';
 import { tagFxaName } from './tagFxaName';
 
 /**
