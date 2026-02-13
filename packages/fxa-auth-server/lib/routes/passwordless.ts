@@ -81,6 +81,30 @@ class PasswordlessHandler {
   }
 
   /**
+   * Check if a service is allowed to use passwordless
+   * Based on the allowedServices configuration.
+   * If allowedServices is empty ([]), all services are allowed.
+   * Otherwise, the service must be in the allowed list.
+   */
+  private isServiceAllowed(service?: string): boolean {
+    const allowedServices = this.config.passwordlessOtp
+      .allowedServices as string[];
+
+    // If allowedServices is empty, all services are allowed
+    if (!allowedServices || allowedServices?.length === 0) {
+      return true;
+    }
+
+    // If no service specified and restrictions exist, deny
+    if (!service) {
+      return false;
+    }
+
+    // Check if service is in the allowed list
+    return allowedServices.includes(service);
+  }
+
+  /**
    * Check if an account is eligible for passwordless authentication
    * An account is eligible if:
    * - It doesn't exist (new registration)
@@ -109,7 +133,18 @@ class PasswordlessHandler {
   async sendCode(request: AuthRequest) {
     this.log.begin('Passwordless.sendCode', request);
 
-    const { email } = request.payload as { email: string };
+    const { email, service } = request.payload as {
+      email: string;
+      service?: string;
+    };
+
+    // Check if service is allowed to use passwordless
+    if (!this.isServiceAllowed(service)) {
+      this.log.error('passwordless.sendCode.serviceNotAllowed', {
+        service,
+      });
+      throw error.featureNotEnabled();
+    }
 
     // Rate limiting
     await this.customs.check(request, email, 'passwordlessSendOtp');
@@ -205,7 +240,19 @@ class PasswordlessHandler {
   async confirmCode(request: AuthRequest) {
     this.log.begin('Passwordless.confirmCode', request);
 
-    const { email, code } = request.payload as { email: string; code: string };
+    const { email, code, service } = request.payload as {
+      email: string;
+      code: string;
+      service?: string;
+    };
+
+    // Check if service is allowed to use passwordless
+    if (!this.isServiceAllowed(service)) {
+      this.log.error('passwordless.confirmCode.serviceNotAllowed', {
+        service,
+      });
+      throw error.featureNotEnabled();
+    }
 
     // Rate limiting
     await this.customs.check(request, email, 'passwordlessVerifyOtp');
@@ -300,7 +347,18 @@ class PasswordlessHandler {
   async resendCode(request: AuthRequest) {
     this.log.begin('Passwordless.resendCode', request);
 
-    const { email } = request.payload as { email: string };
+    const { email, service } = request.payload as {
+      email: string;
+      service?: string;
+    };
+
+    // Check if service is allowed to use passwordless
+    if (!this.isServiceAllowed(service)) {
+      this.log.error('passwordless.resendCode.serviceNotAllowed', {
+        service,
+      });
+      throw error.featureNotEnabled();
+    }
 
     // Delete existing code first
     let account: any = null;

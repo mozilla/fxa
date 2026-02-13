@@ -2179,6 +2179,12 @@ const convictConf = convict({
       default: /^passwordless.*@restmail\.net$/,
       env: 'PASSWORDLESS_FORCED_EMAIL_REGEX',
     },
+    allowedServices: {
+      doc: 'Array of services allowed to use passwordless authentication. Empty array means all services allowed.',
+      format: Array,
+      default: [],
+      env: 'PASSWORDLESS_ALLOWED_SERVICES',
+    },
     digits: {
       doc: 'Number of digits in passwordless OTP code',
       default: 8,

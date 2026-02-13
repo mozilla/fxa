@@ -34,6 +34,9 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     forcedEmailAddresses: /forcepasswordless@example.com/,
   };
   config.verifierVersion = config.verifierVersion || 0;
+  config.gleanMetrics = config.gleanMetrics || {
+    enabled: true,
+  };
 
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
@@ -611,5 +614,249 @@ describe('passwordless routes feature flags', () => {
     assert.equal(routes[1].method, 'POST');
     assert.equal(routes[2].path, '/account/passwordless/resend_code');
     assert.equal(routes[2].method, 'POST');
+  });
+});
+
+describe('passwordless service validation', () => {
+  let uid, mockLog, mockDB, mockCustoms, mockRequest, routes, route;
+
+  beforeEach(() => {
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    mockLog = mocks.mockLog();
+    mockDB = mocks.mockDB({
+      uid,
+      email: TEST_EMAIL,
+      emailVerified: true,
+      verifierSetAt: 0,
+    });
+    mockCustoms = {
+      check: sinon.spy(() => Promise.resolve()),
+      v2Enabled: () => true,
+    };
+    mockRequest = mocks.mockRequest({
+      log: mockLog,
+      payload: {
+        email: TEST_EMAIL,
+        metricsContext: {
+          deviceId: 'device123',
+          flowId: 'flow123',
+          flowBeginTime: Date.now(),
+        },
+      },
+    });
+  });
+
+  describe('when allowedServices is empty', () => {
+    beforeEach(() => {
+      routes = makeRoutes({
+        log: mockLog,
+        db: mockDB,
+        customs: mockCustoms,
+        config: {
+          passwordlessOtp: {
+            enabled: true,
+            ttl: 300,
+            digits: 6,
+            allowedServices: [],
+          },
+        },
+      });
+      route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(error.unknownAccount())
+      );
+    });
+
+    it('should allow requests without service', () => {
+      return runTest(route, mockRequest, () => {
+        assert.equal(mockCustoms.check.callCount, 1);
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+      });
+    });
+
+    it('should allow requests with any service', () => {
+      mockRequest.payload.service = 'sync';
+      return runTest(route, mockRequest, () => {
+        assert.equal(mockCustoms.check.callCount, 1);
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+      });
+    });
+
+    it('should allow requests with different service', () => {
+      mockRequest.payload.service = 'monitor';
+      return runTest(route, mockRequest, () => {
+        assert.equal(mockCustoms.check.callCount, 1);
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+      });
+    });
+  });
+
+  describe('when allowedServices is configured', () => {
+    beforeEach(() => {
+      routes = makeRoutes({
+        log: mockLog,
+        db: mockDB,
+        customs: mockCustoms,
+        config: {
+          passwordlessOtp: {
+            enabled: true,
+            ttl: 300,
+            digits: 6,
+            allowedServices: ['sync', 'monitor'],
+          },
+        },
+      });
+      route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(error.unknownAccount())
+      );
+    });
+
+    it('should reject requests without service', () => {
+      return route.handler(mockRequest).then(
+        () => assert.fail('should have thrown'),
+        (err) => {
+          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+          assert.equal(mockCustoms.check.callCount, 0);
+          assert.equal(mockOtpManagerCreate.callCount, 0);
+        }
+      );
+    });
+
+    it('should reject requests with disallowed service', () => {
+      mockRequest.payload.service = 'pocket';
+      return route.handler(mockRequest).then(
+        () => assert.fail('should have thrown'),
+        (err) => {
+          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+          assert.equal(mockCustoms.check.callCount, 0);
+          assert.equal(mockOtpManagerCreate.callCount, 0);
+        }
+      );
+    });
+
+    it('should allow requests with allowed service (sync)', () => {
+      mockRequest.payload.service = 'sync';
+      return runTest(route, mockRequest, () => {
+        assert.equal(mockCustoms.check.callCount, 1);
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+      });
+    });
+
+    it('should allow requests with allowed service (monitor)', () => {
+      mockRequest.payload.service = 'monitor';
+      return runTest(route, mockRequest, () => {
+        assert.equal(mockCustoms.check.callCount, 1);
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+      });
+    });
+  });
+
+  describe('confirm_code service validation', () => {
+    beforeEach(() => {
+      routes = makeRoutes({
+        log: mockLog,
+        db: mockDB,
+        customs: mockCustoms,
+        config: {
+          passwordlessOtp: {
+            enabled: true,
+            ttl: 300,
+            digits: 6,
+            allowedServices: ['sync'],
+          },
+        },
+      });
+      route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
+      mockRequest.payload.code = '123456';
+      mockDB.accountRecord = sinon.spy(() => ({
+        uid,
+        email: TEST_EMAIL,
+        emailVerified: true,
+        verifierSetAt: 0,
+      }));
+    });
+
+    it('should reject confirm_code without service', () => {
+      return route.handler(mockRequest).then(
+        () => assert.fail('should have thrown'),
+        (err) => {
+          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+          assert.equal(mockCustoms.check.callCount, 0);
+        }
+      );
+    });
+
+    it('should reject confirm_code with disallowed service', () => {
+      mockRequest.payload.service = 'monitor';
+      return route.handler(mockRequest).then(
+        () => assert.fail('should have thrown'),
+        (err) => {
+          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+          assert.equal(mockCustoms.check.callCount, 0);
+        }
+      );
+    });
+
+    it('should allow confirm_code with allowed service', () => {
+      mockRequest.payload.service = 'sync';
+      return runTest(route, mockRequest, (result) => {
+        assert.equal(mockCustoms.check.callCount, 2);
+        assert.isString(result.uid);
+        assert.isString(result.sessionToken);
+      });
+    });
+  });
+
+  describe('resend_code service validation', () => {
+    beforeEach(() => {
+      routes = makeRoutes({
+        log: mockLog,
+        db: mockDB,
+        customs: mockCustoms,
+        config: {
+          passwordlessOtp: {
+            enabled: true,
+            ttl: 300,
+            digits: 6,
+            allowedServices: ['sync'],
+          },
+        },
+      });
+      route = getRoute(routes, '/account/passwordless/resend_code', 'POST');
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(error.unknownAccount())
+      );
+    });
+
+    it('should reject resend_code without service', () => {
+      return route.handler(mockRequest).then(
+        () => assert.fail('should have thrown'),
+        (err) => {
+          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+          assert.equal(mockCustoms.check.callCount, 0);
+        }
+      );
+    });
+
+    it('should reject resend_code with disallowed service', () => {
+      mockRequest.payload.service = 'monitor';
+      return route.handler(mockRequest).then(
+        () => assert.fail('should have thrown'),
+        (err) => {
+          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+          assert.equal(mockCustoms.check.callCount, 0);
+        }
+      );
+    });
+
+    it('should allow resend_code with allowed service', () => {
+      mockRequest.payload.service = 'sync';
+      return runTest(route, mockRequest, () => {
+        assert.equal(mockCustoms.check.callCount, 1);
+        assert.equal(mockOtpManagerDelete.callCount, 1);
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+      });
+    });
   });
 });
