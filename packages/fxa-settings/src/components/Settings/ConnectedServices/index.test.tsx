@@ -5,7 +5,13 @@
 import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
-import { Account, AlertBarInfo, AppContext } from '../../../models';
+import {
+  Account,
+  AlertBarInfo,
+  AppContext,
+  AttachedClient,
+  OAuthNativeClients,
+} from '../../../models';
 import {
   renderWithRouter,
   mockAppContext,
@@ -156,22 +162,52 @@ describe('Connected Services', () => {
     const { sortedAndUniqueClients } =
       sortAndFilterConnectedClients(MOCK_SERVICES);
 
-    const monitorClients = MOCK_SERVICES.filter(
-      (item) => item.name === 'Mozilla Monitor'
-    );
-
-    expect(sortedAndUniqueClients.length).toEqual(14);
-
+    // Verify 'Mozilla Monitor' is grouped (since both have deviceId: null)
     expect(
       sortedAndUniqueClients.filter((item) => item.name === 'Mozilla Monitor')
         .length
     ).toEqual(1);
-    expect(
-      sortedAndUniqueClients.filter(
-        (item) => item.name === 'Mozilla Monitor'
-      )[0].lastAccessTime
-    ).toEqual(1570736983000);
-    expect(monitorClients.length).toEqual(2);
+
+    // Test grouping by deviceId: two devices with same name but different deviceId
+    // should NOT be merged.
+    const sameNameDifferentDevice = [
+      {
+        ...MOCK_SERVICES[0],
+        name: 'Same Name',
+        deviceId: 'device-1',
+        lastAccessTime: 1000,
+      },
+      {
+        ...MOCK_SERVICES[0],
+        name: 'Same Name',
+        deviceId: 'device-2',
+        lastAccessTime: 2000,
+      },
+    ];
+    const { sortedAndUniqueClients: groupedByDeviceResult } =
+      sortAndFilterConnectedClients(sameNameDifferentDevice as any);
+    expect(groupedByDeviceResult.length).toEqual(2);
+
+    // Test grouping by name: two devices with same name and null deviceId
+    // SHOULD be merged.
+    const sameNameNoDevice = [
+      {
+        ...MOCK_SERVICES[0],
+        name: 'Same Name',
+        deviceId: null,
+        lastAccessTime: 1000,
+      },
+      {
+        ...MOCK_SERVICES[0],
+        name: 'Same Name',
+        deviceId: null,
+        lastAccessTime: 2000,
+      },
+    ];
+    const { sortedAndUniqueClients: groupedByNameResult } =
+      sortAndFilterConnectedClients(sameNameNoDevice as any);
+    expect(groupedByNameResult.length).toEqual(1);
+    expect(groupedByNameResult[0].lastAccessTime).toEqual(2000);
   });
 
   it('should show the monitor icon and link', async () => {
@@ -605,6 +641,73 @@ describe('Connected Services', () => {
       );
 
       expect(mockWindowAssign).toHaveBeenCalledWith('foo-bar/signin');
+    });
+  });
+
+  describe('scope-based sub row', () => {
+    const baseMockClient = MOCK_SERVICES[0];
+
+    const renderWithClient = (client: AttachedClient) => {
+      const account = {
+        attachedClients: [client],
+        disconnectClient: jest.fn().mockResolvedValue(true),
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <ConnectedServices />
+        </AppContext.Provider>
+      );
+    };
+
+    it('does not render scope sub-entry when scope is null and client ID is OAuthNative', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: OAuthNativeClients.FirefoxDesktop,
+        name: 'Firefox Desktop',
+        scope: null,
+      });
+      await screen.findByTestId('settings-connected-service');
+      expect(screen.queryByTestId('scope-service')).not.toBeInTheDocument();
+    });
+
+    it('does not render scope sub-entry when scope has oldsync and profile but no relay', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: OAuthNativeClients.FirefoxDesktop,
+        name: 'Firefox Desktop',
+        scope: ['https://identity.mozilla.com/apps/oldsync', 'profile'],
+      });
+      await screen.findByTestId('settings-connected-service');
+      expect(screen.queryByTestId('scope-service')).not.toBeInTheDocument();
+    });
+
+    it('renders scope sub-entry when scope includes relay and client ID is OAuthNative', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: OAuthNativeClients.FirefoxIOS,
+        name: 'Firefox for iOS',
+        scope: [
+          'https://identity.mozilla.com/apps/oldsync',
+          'profile',
+          'https://identity.mozilla.com/apps/relay',
+        ],
+      });
+      await screen.findByTestId('settings-connected-service');
+      const scopeEntry = screen.getByTestId('scope-service');
+      expect(scopeEntry).toBeInTheDocument();
+      expect(scopeEntry).toHaveTextContent('Firefox Relay');
+    });
+
+    it('does not render scope sub-entry when scope includes relay but client ID is not OAuthNative', async () => {
+      renderWithClient({
+        ...baseMockClient,
+        clientId: '9ebfe2c2f9ea3c58',
+        name: 'Firefox Relay',
+        scope: ['profile', 'https://identity.mozilla.com/apps/relay'],
+      });
+      await screen.findByTestId('settings-connected-service');
+      expect(screen.queryByTestId('scope-service')).not.toBeInTheDocument();
     });
   });
 });

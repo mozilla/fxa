@@ -229,7 +229,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         </div>
 
         {!!sortedAndUniqueClients.length &&
-          sortedAndUniqueClients.map((client, i) => (
+          sortedAndUniqueClients.map((client) => (
             <Service
               key={`${client.lastAccessTime}:${client.name || 'unknown'}`}
               {...{
