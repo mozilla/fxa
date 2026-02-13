@@ -16,6 +16,8 @@ import * as NewDeviceLogin from '../templates/newDeviceLogin';
 import * as PasswordChanged from '../templates/passwordChanged';
 import * as PasswordChangeRequired from '../templates/passwordChangeRequired';
 import * as PasswordForgotOtp from '../templates/passwordForgotOtp';
+import * as PasswordlessSigninOtp from '../templates/passwordlessSigninOtp';
+import * as PasswordlessSignupOtp from '../templates/passwordlessSignupOtp';
 import * as PasswordReset from '../templates/passwordReset';
 import * as PasswordResetAccountRecovery from '../templates/passwordResetAccountRecovery';
 import * as PasswordResetRecoveryPhone from '../templates/passwordResetRecoveryPhone';
@@ -195,6 +197,30 @@ export class FxaEmailRenderer extends EmailRenderer {
       version: PasswordForgotOtp.version,
       layout: PasswordForgotOtp.layout,
       includes: PasswordForgotOtp.includes,
+      ...opts,
+    });
+  }
+
+  async renderPasswordlessSigninOtp(
+    opts: WithFxaLayouts<PasswordlessSigninOtp.TemplateData>
+  ) {
+    return this.renderEmail({
+      template: PasswordlessSigninOtp.template,
+      version: PasswordlessSigninOtp.version,
+      layout: PasswordlessSigninOtp.layout,
+      includes: PasswordlessSigninOtp.includes,
+      ...opts,
+    });
+  }
+
+  async renderPasswordlessSignupOtp(
+    opts: WithFxaLayouts<PasswordlessSignupOtp.TemplateData>
+  ) {
+    return this.renderEmail({
+      template: PasswordlessSignupOtp.template,
+      version: PasswordlessSignupOtp.version,
+      layout: PasswordlessSignupOtp.layout,
+      includes: PasswordlessSignupOtp.includes,
       ...opts,
     });
   }

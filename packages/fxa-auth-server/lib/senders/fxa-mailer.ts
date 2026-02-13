@@ -9,6 +9,8 @@ import {
   WithFxaLayouts,
   recovery,
   passwordForgotOtp,
+  passwordlessSigninOtp,
+  passwordlessSignupOtp,
   postVerifySecondary,
   postChangePrimary,
   postAddLinkedAccount,
@@ -186,6 +188,72 @@ export class FxaMailer extends FxaEmailRenderer {
       opts
     );
     const rendered = await this.renderPasswordForgotOtp({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered, true);
+  }
+
+  /**
+   * Renders and sends the passwordless sign-in OTP email.
+   * @param opts
+   * @returns
+   */
+  async sendPasswordlessSigninOtpEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<WithFxaLayouts<passwordlessSigninOtp.TemplateData>>
+  ) {
+    const { template, version } = passwordlessSigninOtp;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
+        template,
+        metricsEnabled,
+        { email: opts.to }
+      ),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'x-passwordless-signin-otp': opts.code },
+      opts
+    );
+    const rendered = await this.renderPasswordlessSigninOtp({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered, true);
+  }
+
+  /**
+   * Renders and sends the passwordless sign-up OTP email.
+   * @param opts
+   * @returns
+   */
+  async sendPasswordlessSignupOtpEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<WithFxaLayouts<passwordlessSignupOtp.TemplateData>>
+  ) {
+    const { template, version } = passwordlessSignupOtp;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
+        template,
+        metricsEnabled,
+        { email: opts.to }
+      ),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'x-passwordless-signup-otp': opts.code },
+      opts
+    );
+    const rendered = await this.renderPasswordlessSignupOtp({
       ...opts,
       ...links,
     });
