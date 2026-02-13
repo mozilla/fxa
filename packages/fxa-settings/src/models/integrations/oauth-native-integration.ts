@@ -51,6 +51,7 @@ export enum OAuthNativeServices {
   Sync = 'sync',
   Relay = 'relay',
   SmartWindow = 'smartwindow',
+  Vpn = 'vpn',
 }
 
 /**
@@ -110,10 +111,17 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     );
   }
 
+  isFirefoxClientServiceVpn() {
+    return (
+      this.isFirefoxClient() && this.data.service === OAuthNativeServices.Vpn
+    );
+  }
+
   isFirefoxNonSync() {
     return (
       this.isFirefoxClientServiceRelay() ||
-      this.isFirefoxClientServiceSmartWindow()
+      this.isFirefoxClientServiceSmartWindow() ||
+      this.isFirefoxClientServiceVpn()
     );
   }
 
@@ -147,6 +155,9 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     if (this.isFirefoxClientServiceSmartWindow()) {
       return { smartwindow: {} };
     }
+    if (this.isFirefoxClientServiceVpn()) {
+      return { vpn: {} };
+    }
     if (this.isDefaultSyncService()) {
       return { sync: syncEngines || {} };
     }
@@ -162,6 +173,9 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     }
     if (this.isFirefoxClientServiceSmartWindow()) {
       return Constants.RELIER_FF_CLIENT_SMART_WINDOW_SERVICE_NAME;
+    }
+    if (this.isFirefoxClientServiceVpn()) {
+      return Constants.RELIER_FF_CLIENT_VPN_SERVICE_NAME;
     }
     // TODO: handle Thunderbird case better? FXA-10848
     return 'Firefox';

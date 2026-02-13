@@ -145,6 +145,10 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       routes: reactRoute.getRoutes([
         'post_verify/third_party_auth/callback',
         'post_verify/third_party_auth/set_password',
+        // NOTE: This is not a third party auth route, but it must be added
+        // to a react-app.index.js list so if users refresh on the page,
+        // Express points to React.
+        'post_verify/service_welcome',
       ]),
       fullProdRollout: true,
     },

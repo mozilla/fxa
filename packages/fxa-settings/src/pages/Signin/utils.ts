@@ -336,12 +336,16 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       });
     }
     if (navigationOptions.performNavigation !== false) {
-      performNavigation({
-        to,
-        locationState,
-        shouldHardNavigate,
-        replace: true,
-      });
+      if (to === '/post_verify/service_welcome') {
+        navigate(to, { state: { origin: 'signin' }, replace: true });
+      } else {
+        performNavigation({
+          to,
+          locationState,
+          shouldHardNavigate,
+          replace: true,
+        });
+      }
     }
   }
 
@@ -544,7 +548,9 @@ const getOAuthNavigationTarget = async (
     };
   } else if (navigationOptions.integration.isFirefoxNonSync()) {
     return {
-      to: '/settings',
+      to: navigationOptions.integration.isFirefoxClientServiceVpn()
+        ? '/post_verify/service_welcome'
+        : '/settings',
       oauthData: {
         code,
         redirect,

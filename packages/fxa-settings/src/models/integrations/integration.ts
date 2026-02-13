@@ -90,6 +90,10 @@ export class GenericIntegration<
     return false;
   }
 
+  isFirefoxClientServiceVpn() {
+    return false;
+  }
+
   isFirefoxNonSync() {
     return false;
   }

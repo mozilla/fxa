@@ -59,6 +59,7 @@ function mockIntegration() {
     wantsKeys: () => true,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     getCmsInfo: () => undefined,

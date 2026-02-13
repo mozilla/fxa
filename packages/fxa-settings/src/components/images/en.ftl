@@ -36,3 +36,6 @@ sync-clouds-image-aria-label =
   .aria-label = Clouds with a sync icon
 confetti-falling-image-aria-label =
   .aria-label = Animated falling confetti
+# In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
+vpn-welcome-image-aria-label =
+  .aria-label = { -brand-firefox } window with a circular badge showing a green checkmark and “VPN,” showing the VPN is active.

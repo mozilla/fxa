@@ -32,6 +32,7 @@ export type SigninUnblockIntegration = Pick<
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
   | 'isFirefoxClientServiceSmartWindow'
+  | 'isFirefoxClientServiceVpn'
   | 'isFirefoxNonSync'
   | 'getWebChannelServices'
   | 'wantsLogin'
@@ -52,6 +53,7 @@ export type SigninIntegration =
       | 'isDesktopSync'
       | 'isFirefoxClientServiceRelay'
       | 'isFirefoxClientServiceSmartWindow'
+      | 'isFirefoxClientServiceVpn'
       | 'isFirefoxNonSync'
       | 'getWebChannelServices'
       | 'getCmsInfo'
@@ -73,6 +75,7 @@ export type SigninOAuthIntegration = Pick<
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
   | 'isFirefoxClientServiceSmartWindow'
+  | 'isFirefoxClientServiceVpn'
   | 'isFirefoxNonSync'
   | 'getWebChannelServices'
   | 'getCmsInfo'
@@ -225,7 +228,7 @@ export interface NavigationOptions {
   replace?: boolean;
   queryParams: string;
   // include when there's a condition based on what page it originated from
-  origin?: 'post-verify-set-password';
+  origin?: 'post-verify-set-password' | 'signup' | 'signin';
   showInlineRecoveryKeySetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;

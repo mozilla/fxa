@@ -9,7 +9,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { Session, AppContext } from '../../../models';
+import { Session, AppContext, OAuthNativeServices } from '../../../models';
 import { mockAppContext, mockSession } from '../../../models/mocks';
 import {
   MOCK_AUTH_ERROR,
@@ -389,6 +389,26 @@ describe('ConfirmSignupCode page', () => {
           action: 'signup',
           ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
         });
+      });
+    });
+
+    it('navigates to service_welcome with origin=signup when service=vpn', async () => {
+      const integration = createMockOAuthNativeIntegration(
+        false,
+        OAuthNativeServices.Vpn
+      );
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+      });
+      submit();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/post_verify/service_welcome',
+          { state: { origin: 'signup' } }
+        );
       });
     });
 

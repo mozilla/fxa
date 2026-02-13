@@ -101,6 +101,7 @@ export function createMockSigninWebIntegration({
     isDesktopSync: () => false,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices(),
     wantsLogin: () => false,
@@ -130,6 +131,7 @@ export function createMockSigninOAuthNativeSyncIntegration({
     isDesktopSync: () => isSync && !isMobile,
     isFirefoxClientServiceRelay: () => !isSync && !isMobile,
     isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => !isSync && !isMobile,
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     wantsLogin: () => false,
@@ -165,6 +167,7 @@ export function createMockSigninOAuthIntegration({
     data: new IntegrationData(new GenericData({})),
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     getCmsInfo: () => cmsInfo,
@@ -186,6 +189,7 @@ export function createMockSigninOAuthNativeIntegration({
 } = {}): SigninOAuthIntegration {
   const isRelay = service === OAuthNativeServices.Relay;
   const isSmartWindow = service === OAuthNativeServices.SmartWindow;
+  const isVpn = service === OAuthNativeServices.Vpn;
   return {
     type: IntegrationType.OAuthNative,
     getService: () => service,
@@ -197,11 +201,13 @@ export function createMockSigninOAuthNativeIntegration({
     data: new IntegrationData(new GenericData({})),
     isFirefoxClientServiceRelay: () => isRelay,
     isFirefoxClientServiceSmartWindow: () => isSmartWindow,
-    isFirefoxNonSync: () => isRelay || isSmartWindow,
+    isFirefoxClientServiceVpn: () => isVpn,
+    isFirefoxNonSync: () => isRelay || isSmartWindow || isVpn,
     getWebChannelServices: mockGetWebChannelServices({
       isSync,
       isRelay,
       isSmartWindow,
+      isVpn,
     }),
     getClientId: () => MOCK_CLIENT_ID,
     getCmsInfo: () => cmsInfo,

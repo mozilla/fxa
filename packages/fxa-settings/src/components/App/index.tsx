@@ -44,12 +44,17 @@ import { maybeRecordWebAuthnCapabilities } from '../../lib/webauthnCapabilitiesP
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
-import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useFxAStatus from '../../lib/hooks/useFxAStatus';
 import AppLayout from '../AppLayout';
 import { hardNavigate } from 'fxa-react/lib/utils';
 
 // Pages
+const SignupConfirmedSync = lazy(
+  () => import('../../pages/Signup/SignupConfirmedSync')
+);
+const ServiceWelcome = lazy(
+  () => import('../../pages/PostVerify/ServiceWelcome')
+);
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
 const Clear = lazy(() => import('../../pages/Clear'));
 
@@ -532,6 +537,10 @@ const AuthAndAccountSetupRoutes = ({
       <SetPasswordContainer
         path="/post_verify/third_party_auth/set_password/*"
         {...{ flowQueryParams, integration, useFxAStatusResult }}
+      />
+      <ServiceWelcome
+        path="/post_verify/service_welcome/*"
+        {...{ integration }}
       />
 
       {/* Reset password */}
