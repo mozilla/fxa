@@ -144,8 +144,12 @@ export function discardSessionToken() {
 export function clearSignedInAccountUid() {
   const all = accounts() || {};
   const uid = storage.get('currentAccountUid') as hexstring;
-  delete all[uid];
-  accounts(all);
+  // Clear the sessionToken from the account but keep the account data
+  // This allows the email to be cached for "cached signin" flow
+  if (uid && all[uid]) {
+    all[uid].sessionToken = undefined;
+    accounts(all);
+  }
   storage.remove('currentAccountUid');
   dispatchStorageEvent('accounts');
   dispatchStorageEvent('currentAccountUid');
