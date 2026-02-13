@@ -209,11 +209,6 @@ export class FxaMailer extends FxaEmailRenderer {
     const links = {
       privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
       supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
-      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
-        template,
-        metricsEnabled,
-        { email: opts.to }
-      ),
     };
     const headers = this.buildHeaders(
       { template, version },
@@ -242,11 +237,6 @@ export class FxaMailer extends FxaEmailRenderer {
     const links = {
       privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
       supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
-      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
-        template,
-        metricsEnabled,
-        { email: opts.to }
-      ),
     };
     const headers = this.buildHeaders(
       { template, version },

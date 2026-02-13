@@ -27,6 +27,7 @@ import * as validators from './validators';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { formatUserAgentInfo } from 'fxa-shared/lib/user-agent';
 import { formatGeoData } from 'fxa-shared/lib/geo-data';
+import type { DB } from '../db';
 
 /**
  * Redis adapter for OTP storage
@@ -60,7 +61,7 @@ class PasswordlessHandler {
 
   constructor(
     private log: AuthLogger,
-    private db: any,
+    private db: DB,
     private config: ConfigType,
     private customs: any,
     private glean: ReturnType<typeof gleanMetrics>,

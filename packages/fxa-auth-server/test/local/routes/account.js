@@ -1903,7 +1903,7 @@ describe('/account/status', () => {
   });
 
   it('returns passwordlessSupported true for non-existing account when globally enabled', async () => {
-    const { route, mockRequest, mockDB } = setup({
+    const { route, mockRequest } = setup({
       extraConfig: {
         passwordlessOtp: {
           enabled: true,
@@ -1921,7 +1921,7 @@ describe('/account/status', () => {
   });
 
   it('returns passwordlessSupported true for non-existing account with forced email regex', async () => {
-    const { route, mockRequest, mockDB } = setup({
+    const { route, mockRequest } = setup({
       extraConfig: {
         passwordlessOtp: {
           enabled: false,
@@ -1940,7 +1940,7 @@ describe('/account/status', () => {
   });
 
   it('returns passwordlessSupported false for non-existing account when not enabled and email does not match forced regex', async () => {
-    const { route, mockRequest, mockDB } = setup({
+    const { route, mockRequest } = setup({
       extraConfig: {
         passwordlessOtp: {
           enabled: false,
@@ -1959,7 +1959,7 @@ describe('/account/status', () => {
   });
 
   it('does not return passwordlessSupported when thirdPartyAuthStatus is not requested', async () => {
-    const { route, mockRequest, mockDB } = setup({
+    const { route, mockRequest } = setup({
       dbOptions: { exists: false },
     });
     mockRequest.payload.thirdPartyAuthStatus = false;
@@ -5027,7 +5027,9 @@ describe('/account', () => {
             mockPlaySubscriptions.getSubscriptions,
             uid
           );
-          assert.deepEqual(result.subscriptions, [mockFormattedPlayStoreSubscription]);
+          assert.deepEqual(result.subscriptions, [
+            mockFormattedPlayStoreSubscription,
+          ]);
         }
       );
     });
@@ -5169,7 +5171,9 @@ describe('/account', () => {
             mockAppStoreSubscriptions.getSubscriptions,
             uid
           );
-          assert.deepEqual(result.subscriptions, [mockFormattedAppStoreSubscription]);
+          assert.deepEqual(result.subscriptions, [
+            mockFormattedAppStoreSubscription,
+          ]);
         }
       );
     });
@@ -5248,15 +5252,23 @@ describe('/account', () => {
     it('should return account metadata and 2FA status', () => {
       return runTest(buildRoute(), request, (result) => {
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'createdAt'));
-        assert.ok(Object.prototype.hasOwnProperty.call(result, 'passwordCreatedAt'));
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(result, 'passwordCreatedAt')
+        );
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'hasPassword'));
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'emails'));
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'totp'));
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'backupCodes'));
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'recoveryKey'));
-        assert.ok(Object.prototype.hasOwnProperty.call(result, 'recoveryPhone'));
-        assert.ok(Object.prototype.hasOwnProperty.call(result, 'securityEvents'));
-        assert.ok(Object.prototype.hasOwnProperty.call(result, 'linkedAccounts'));
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(result, 'recoveryPhone')
+        );
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(result, 'securityEvents')
+        );
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(result, 'linkedAccounts')
+        );
         assert.isArray(result.emails);
         assert.isArray(result.securityEvents);
         assert.isArray(result.linkedAccounts);
