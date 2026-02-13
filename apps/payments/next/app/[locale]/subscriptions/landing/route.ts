@@ -14,6 +14,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: ManageParams }
 ) {
+  const currentUrl = request.nextUrl;
   const requestSearchParams = request.nextUrl.searchParams;
   const { locale } = params;
 
@@ -61,5 +62,12 @@ export async function GET(
     console.error(error);
   }
 
-  redirect(redirectUrl ?? redirectToUrl.href);
+  let finalRedirectUrl = redirectUrl ?? redirectToUrl.href;
+  // Avoid redirecting back to this same landing URL
+  if (finalRedirectUrl === currentUrl.href) {
+    // Prefer the manage URL instead of looping
+    finalRedirectUrl = redirectToUrl.href;
+  }
+
+  redirect(finalRedirectUrl);
 }
