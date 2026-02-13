@@ -662,6 +662,7 @@ export class Account implements AccountData {
 
     updateExtendedAccountState({
       passwordCreated: passwordCreatedResult.passwordCreated,
+      hasPassword: true,
     });
   }
 
@@ -677,6 +678,7 @@ export class Account implements AccountData {
 
     updateExtendedAccountState({
       passwordCreated: passwordCreatedResult.passwordCreated,
+      hasPassword: true,
     });
   }
 

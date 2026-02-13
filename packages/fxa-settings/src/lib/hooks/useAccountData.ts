@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import AuthClient from 'fxa-auth-client/browser';
 import { sessionToken as getSessionToken } from '../cache';
 import {
@@ -185,37 +185,40 @@ export function useAccountData({
   authClient,
   onError,
 }: UseAccountDataOptions): AccountDataResult {
-  // Ref prevents infinite re-render from unstable onError callback
+  // Refs prevent infinite re-renders from unstable callback/object references
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
+  const authClientRef = useRef(authClient);
+  authClientRef.current = authClient;
 
   const accountState = useAccountState();
   const {
     setAccountData,
-    setLoading,
-    setError,
-    isLoading,
-    error,
     ...stateData
   } = accountState;
 
+  const [localLoading, setLocalLoading] = useState(true);
+  const [localError, setLocalError] = useState<Error | null>(null);
+
   const fetchAccountData = useCallback(async () => {
+    const client = authClientRef.current;
     const token = getSessionToken();
     if (!token) {
-      setError(new Error('No session token available'));
+      setLocalError(new Error('No session token available'));
+      setLocalLoading(false);
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    setLocalLoading(true);
+    setLocalError(null);
 
     try {
       // allSettled (not .all) so a single failure doesn't discard other results
       const [accountResult, profileResult, attachedClientsResult] =
         await Promise.allSettled([
-          authClient.account(token),
-          fetchProfileData(authClient, token),
-          authClient.attachedClients(token),
+          client.account(token),
+          fetchProfileData(client, token),
+          client.attachedClients(token),
         ]);
 
       // Check for invalid token errors - user needs to sign in again
@@ -238,28 +241,29 @@ export function useAccountData({
         if (displayName !== null) accountData.displayName = displayName;
         if (avatar !== null) accountData.avatar = avatar;
       } else {
-        Sentry.captureMessage(`Failed to fetch profile: ${profileResult.reason}`);  
+        Sentry.captureMessage(`Failed to fetch profile: ${profileResult.reason}`);
       }
 
       if (attachedClientsResult.status === 'fulfilled') {
         accountData.attachedClients = attachedClientsResult.value.map(mapAttachedClient);
       } else {
-        Sentry.captureMessage(`Failed to fetch attached clients: ${attachedClientsResult.reason}`);  
+        Sentry.captureMessage(`Failed to fetch attached clients: ${attachedClientsResult.reason}`);
         accountData.attachedClients = [];
       }
 
       setAccountData(accountData);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
-      setError(error);
+      setLocalError(error);
       onErrorRef.current?.(error);
     } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
-  }, [authClient, setAccountData, setLoading, setError]);
+  }, [setAccountData]);
 
   const refetchField = useCallback(
     async (field: keyof AccountState) => {
+      const client = authClientRef.current;
       const token = getSessionToken();
       if (!token) return;
 
@@ -268,19 +272,19 @@ export function useAccountData({
 
         switch (field) {
           case 'attachedClients': {
-            const clients = await authClient.attachedClients(token);
+            const clients = await client.attachedClients(token);
             fieldData.attachedClients = clients.map(mapAttachedClient);
             break;
           }
           case 'displayName':
           case 'avatar': {
-            const { displayName, avatar } = await fetchProfileData(authClient, token);
+            const { displayName, avatar } = await fetchProfileData(client, token);
             if (displayName !== null) fieldData.displayName = displayName;
             if (avatar !== null) fieldData.avatar = avatar;
             break;
           }
           default: {
-            const account = await authClient.account(token);
+            const account = await client.account(token);
             fieldData = { ...fieldData, ...transformAccountResponse(account) };
             break;
           }
@@ -291,7 +295,7 @@ export function useAccountData({
         console.error(`Failed to refetch ${field}:`, err);
       }
     },
-    [authClient, setAccountData]
+    [setAccountData]
   );
 
   useEffect(() => {
@@ -299,9 +303,9 @@ export function useAccountData({
   }, [fetchAccountData]);
 
   return {
-    data: { ...stateData, isLoading, error } as AccountState,
-    isLoading,
-    error,
+    data: { ...stateData, isLoading: localLoading, error: localError } as AccountState,
+    isLoading: localLoading,
+    error: localError,
     refetch: fetchAccountData,
     refetchField,
   };
