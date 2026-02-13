@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import { BaseTarget } from '../lib/targets/base';
 
 import {
@@ -74,36 +74,17 @@ export abstract class BaseLayout {
   }
 
   async checkWebChannelMessage(command: FirefoxCommand) {
-    await this.page.evaluate(async (command) => {
-      const noNotificationError = new Error(
-        `NoSuchBrowserNotification - ${command}`
+    // Retry across navigations — a client-side redirect after page.goto
+    // can destroy the execution context mid-evaluate.
+    await expect(async () => {
+      const messages = await this.page.evaluate(() =>
+        JSON.parse(sessionStorage.getItem('webChannelEvents') || '[]')
       );
-
-      await new Promise((resolve, reject) => {
-        const timeoutHandle = setTimeout(
-          () => reject(noNotificationError),
-          5000
-        );
-
-        function findMessage() {
-          const messages = JSON.parse(
-            sessionStorage.getItem('webChannelEvents') || '[]'
-          );
-          const m = messages.find(
-            (x: { command: string }) => x.command === command
-          );
-
-          if (m) {
-            clearTimeout(timeoutHandle);
-            resolve(m);
-          } else {
-            setTimeout(findMessage, 50);
-          }
-        }
-
-        findMessage();
-      });
-    }, command);
+      const found = messages.find(
+        (x: { command: string }) => x.command === command
+      );
+      expect(found).toBeTruthy();
+    }).toPass({ timeout: 5000 });
   }
 
   async getWebChannelEvents(): Promise<

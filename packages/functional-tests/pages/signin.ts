@@ -142,6 +142,8 @@ export class SigninPage extends PasskeyPage {
   }
 
   async fillOutEmailFirstForm(email: string) {
+    // Ensure the page is ready after a hard navigation.
+    await expect(this.emailTextbox).toBeVisible();
     await this.emailTextbox.fill(email);
     await this.emailFirstSubmitButton.click();
   }
