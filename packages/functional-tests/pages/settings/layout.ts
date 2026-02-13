@@ -86,8 +86,17 @@ export abstract class SettingsLayout extends BaseLayout {
 
   async signOut() {
     await this.avatarDropDownMenuToggle.click();
-    await this.avatarMenuSignOut.click();
 
-    await expect(this.page).not.toHaveURL(/settings/);
+    // Wait for the hard navigation (window.location.assign) to complete.
+    // SPA redirects during sign-out can change the URL before the real
+    // page load fires, so we wait for the actual 'load' event.
+    await Promise.all([
+      this.page.waitForEvent('load'),
+      this.avatarMenuSignOut.click(),
+    ]);
+
+    // Let React hydrate and any async redirects settle before the test
+    // navigates away, otherwise page.goto can get NS_BINDING_ABORTED.
+    await this.page.waitForLoadState('networkidle');
   }
 }
