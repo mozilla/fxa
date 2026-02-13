@@ -3,13 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { renderSync } from 'sass';
-import {
-  writeFileSync,
-  mkdirSync,
-  existsSync,
-  rmdirSync,
-  readdirSync,
-} from 'fs';
+import { writeFileSync, mkdirSync, existsSync, rmSync, readdirSync } from 'fs';
 import path from 'path';
 
 const getDirectories = (source: string) =>
@@ -23,22 +17,21 @@ const templates = getDirectories(path.join(__dirname, 'templates'));
 const layouts = getDirectories(path.join(__dirname, 'layouts'));
 
 async function compileSass(dir: string, subdir: string) {
-  let styleResult: Record<any, any> = {};
   try {
-    styleResult = renderSync({
+    const styleResult = renderSync({
       file: dir,
       outFile: subdir,
     });
+    writeFileSync(subdir, styleResult.css, 'utf8');
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
-  writeFileSync(subdir, styleResult.css, 'utf8');
 }
 
 async function main(directories: Record<any, any>) {
   // remove css directory if already present
   if (existsSync(path.join(__dirname, 'css'))) {
-    rmdirSync(path.join(__dirname, 'css'), { recursive: true });
+    rmSync(path.join(__dirname, 'css'), { recursive: true, force: true });
   }
   mkdirSync(path.join(__dirname, 'css'));
 
