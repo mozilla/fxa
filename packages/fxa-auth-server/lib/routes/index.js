@@ -241,6 +241,17 @@ module.exports = function (
   const { mfaRoutes } = require('./mfa');
   const mfa = mfaRoutes(customs, db, log, mailer, statsd, config);
 
+  const { passwordlessRoutes } = require('./passwordless');
+  const passwordless = passwordlessRoutes(
+    log,
+    db,
+    config,
+    customs,
+    glean,
+    statsd,
+    authServerCacheRedis
+  );
+
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {
     basePath = '';
@@ -253,6 +264,7 @@ module.exports = function (
     attachedClients,
     emails,
     password,
+    passwordless,
     recoveryCodes,
     recoveryPhone,
     securityEvents,

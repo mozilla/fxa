@@ -180,3 +180,19 @@ passkeyLogin                           : ip_uid            : 15          : 15 mi
 passkeysList                           : ip_uid            : 100         : 15 minutes      : 15 minutes  : block
 passkeysRename                         : ip_uid            : 100         : 15 minutes      : 15 minutes  : block
 passkeyDelete                          : ip_uid            : 100         : 15 minutes      : 15 minutes  : block
+
+#
+# Passwordless Authentication OTP Limits
+# Controls the rate at which passwordless OTP codes can be sent and verified
+#
+passwordlessSendOtp                    : email            : 2           : 15 minutes      : 15 minutes   : block
+passwordlessSendOtp                    : email            : 5           : 24 hours        : 12 hours     : block
+passwordlessSendOtp                    : ip               : 50          : 24 hours        : 12 hours     : block
+passwordlessSendOtp                    : ip               : 20          : 15 minutes      : 30 minutes   : block
+passwordlessSendOtp                    : ip               : 100         : 24 hours        : 15 minutes   : ban
+
+# Passwordless OTP Verification Limits
+passwordlessVerifyOtp                  : ip_email         : 5           : 10 minutes      : 15 minutes   : block
+passwordlessVerifyOtp                  : ip               : 100         : 24 hours        : 15 minutes   : ban
+passwordlessVerifyOtpPerDay            : ip_email         : 10          : 24 hours        : 24 hours     : block
+passwordlessVerifyOtpPerDay            : ip               : 100         : 24 hours        : 15 minutes   : ban
