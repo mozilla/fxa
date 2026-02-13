@@ -388,7 +388,7 @@ export class LinkedAccountHandler {
             ...FxaMailerFormat.location(request),
             ...FxaMailerFormat.device(request),
             ...FxaMailerFormat.sync(service),
-            providerName: PROVIDER_NAME[name],
+            providerName: PROVIDER_NAME[provider],
           });
         } else {
           const emailOptions = {
