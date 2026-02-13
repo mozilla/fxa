@@ -554,6 +554,16 @@ export class PaidPaymentIntendOnFailedCartError extends CartError {
   }
 }
 
+export class CartSubscriptionDeletionFailedError extends CartError {
+  constructor(cartId: string, subscriptionId: string, cause: Error) {
+    super('Subscription deletion failed during cart cleanup', {
+      cartId,
+      subscriptionId,
+    }, cause);
+    this.name = 'CartSubscriptionDeletionFailedError';
+  }
+}
+
 export class SubscriptionPaymentIntentMissingCartError extends CartError {
   constructor(cartId: string, subscriptionId: string) {
     super('Subscription on cart has no payment intent', {

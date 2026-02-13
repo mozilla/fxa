@@ -84,6 +84,7 @@ import {
   SubmitNeedsInputCustomerIdMissingError,
   SubmitNeedsInputSubscriptionIdMissingError,
   SubmitNeedsInputUidMissingError,
+  CartSubscriptionDeletionFailedError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import type {
@@ -278,11 +279,37 @@ export class CartService {
           }
 
           if (cart.eligibilityStatus === CartEligibilityStatus.CREATE) {
-            await this.subscriptionManager.cancel(subscriptionId, {
-              cancellation_details: {
-                comment: 'Automatic Cancellation: Cart checkout failed.',
-              },
-            });
+            try {
+              await this.subscriptionManager.cancel(subscriptionId, {
+                cancellation_details: {
+                  comment: 'Automatic Cancellation: Cart checkout failed.',
+                },
+              });
+            } catch (e) {
+              if (
+                e.code === 'resource_missing' ||
+                  e.message?.startsWith('No such subscription')
+              ) {
+                this.log.log(
+                  'cartService.wrapWithCartCatch.subscriptionNotFound',
+                  {
+                    subscriptionId,
+                    eligibilityStatus: cart.eligibilityStatus,
+                    offeringId: cart.offeringConfigId,
+                    interval: cart.interval,
+                  }
+                );
+                this.statsd.increment(
+                  'subscription_deletion_failed_not_found'
+                );
+              } else {
+                throw new CartSubscriptionDeletionFailedError(
+                  cartId,
+                  subscriptionId,
+                  e
+                );
+              }
+            }
           } else {
             this.statsd.increment(
               'checkout_failure_subscription_not_cancelled'
