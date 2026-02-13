@@ -90,6 +90,7 @@ function mockSyncDesktopV3Integration() {
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxNonSync: () => false,
     getCmsInfo: () => undefined,
   } as Integration;
 }
@@ -105,6 +106,7 @@ function mockOAuthWebIntegration(
     data,
     isDesktopSync: () => false,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxNonSync: () => false,
     getCmsInfo: () => undefined,
   } as Integration;
 }
@@ -118,10 +120,28 @@ function mockOAuthNativeIntegration() {
     wantsKeys: () => true,
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxNonSync: () => false,
     getCmsInfo: () => undefined,
     data: {
       service: 'sync',
       context: Constants.FX_SYNC_CONTEXT,
+    },
+  } as Integration;
+}
+
+function mockFirefoxNonSyncIntegration() {
+  integration = {
+    type: IntegrationType.OAuthNative,
+    getService: () => ModelsModule.OAuthNativeServices.Relay,
+    getClientId: () => MOCK_CLIENT_ID,
+    isSync: () => false,
+    wantsKeys: () => false,
+    isDesktopSync: () => false,
+    isFirefoxClientServiceRelay: () => true,
+    isFirefoxNonSync: () => true,
+    getCmsInfo: () => undefined,
+    data: {
+      service: ModelsModule.OAuthNativeServices.Relay,
     },
   } as Integration;
 }
@@ -157,7 +177,11 @@ function mockWebIntegration() {
 function mockFetchModule() {
   global.fetch = jest.fn().mockResolvedValue({
     ok: true,
-    json: () => Promise.resolve({ id: 'avatar-id', url: 'https://example.com/avatar.png' }),
+    json: () =>
+      Promise.resolve({
+        id: 'avatar-id',
+        url: 'https://example.com/avatar.png',
+      }),
   });
 }
 
@@ -201,6 +225,7 @@ mockSensitiveDataClient.setDataType = jest.fn();
 
 const mockSession = {
   isSessionVerified: jest.fn().mockResolvedValue(true),
+  isValid: jest.fn().mockResolvedValue(true),
   sendVerificationCode: jest.fn().mockResolvedValue(undefined),
   verified: false,
   token: MOCK_SESSION_TOKEN,
@@ -280,6 +305,7 @@ function mockModelsModule() {
   }));
   (ModelsModule.useSession as jest.Mock).mockImplementation(() => mockSession);
   mockSession.isSessionVerified = jest.fn().mockResolvedValue(true);
+  mockSession.isValid = jest.fn().mockResolvedValue(true);
   mockSession.sendVerificationCode = jest.fn().mockResolvedValue(undefined);
 }
 
@@ -410,9 +436,9 @@ function mockSentryModule() {
   mockSentryCaptureMessage = jest.spyOn(SentryModule, 'captureMessage');
 }
 
-function render(
-  options?: { useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus> }
-) {
+function render(options?: {
+  useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus>;
+}) {
   const useFxAStatusResult = options?.useFxAStatusResult || mockUseFxAStatus();
 
   return renderWithLocalizationProvider(
@@ -940,10 +966,12 @@ describe('signin container', () => {
           keyFetchToken: MOCK_KEY_FETCH_TOKEN,
         });
         // Mock passwordChangeStartWithAuthPW to succeed
-        mockAuthClient.passwordChangeStartWithAuthPW = jest.fn().mockResolvedValue({
-          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-          passwordChangeToken: 'mockPasswordChangeToken',
-        });
+        mockAuthClient.passwordChangeStartWithAuthPW = jest
+          .fn()
+          .mockResolvedValue({
+            keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+            passwordChangeToken: 'mockPasswordChangeToken',
+          });
         // Mock wrappedAccountKeys to succeed
         mockAuthClient.wrappedAccountKeys = jest.fn().mockResolvedValue({
           kA: MOCK_KB,
@@ -1034,10 +1062,12 @@ describe('signin container', () => {
           keyFetchToken: MOCK_KEY_FETCH_TOKEN,
         });
         // Mock passwordChangeStartWithAuthPW to throw an error
-        mockAuthClient.passwordChangeStartWithAuthPW = jest.fn().mockRejectedValue({
-          errno: 999,
-          message: 'Test error',
-        });
+        mockAuthClient.passwordChangeStartWithAuthPW = jest
+          .fn()
+          .mockRejectedValue({
+            errno: 999,
+            message: 'Test error',
+          });
 
         render();
 
@@ -1075,10 +1105,12 @@ describe('signin container', () => {
           keyFetchToken: MOCK_KEY_FETCH_TOKEN,
         });
         // Mock passwordChangeStartWithAuthPW to succeed
-        mockAuthClient.passwordChangeStartWithAuthPW = jest.fn().mockResolvedValue({
-          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-          passwordChangeToken: 'mockPasswordChangeToken',
-        });
+        mockAuthClient.passwordChangeStartWithAuthPW = jest
+          .fn()
+          .mockResolvedValue({
+            keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+            passwordChangeToken: 'mockPasswordChangeToken',
+          });
         // Mock wrappedAccountKeys to throw an error
         mockAuthClient.wrappedAccountKeys = jest.fn().mockRejectedValue({
           errno: 999,
@@ -1122,10 +1154,12 @@ describe('signin container', () => {
           keyFetchToken: MOCK_KEY_FETCH_TOKEN,
         });
         // Mock passwordChangeStartWithAuthPW to succeed
-        mockAuthClient.passwordChangeStartWithAuthPW = jest.fn().mockResolvedValue({
-          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-          passwordChangeToken: 'mockPasswordChangeToken',
-        });
+        mockAuthClient.passwordChangeStartWithAuthPW = jest
+          .fn()
+          .mockResolvedValue({
+            keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+            passwordChangeToken: 'mockPasswordChangeToken',
+          });
         // Mock wrappedAccountKeys to succeed
         mockAuthClient.wrappedAccountKeys = jest.fn().mockResolvedValue({
           kA: MOCK_KB,
@@ -1382,6 +1416,98 @@ describe('signin container', () => {
         expect(handlerResult?.data).toBeUndefined();
         expect(handlerResult?.error).toEqual(AuthUiErrors.UNEXPECTED_ERROR);
       });
+    });
+  });
+
+  describe('Firefox non-Sync session validation', () => {
+    beforeEach(() => {
+      mockFirefoxNonSyncIntegration();
+    });
+
+    it('calls session.isValid and renders signin when session is valid', async () => {
+      const storedAccount = {
+        ...MOCK_STORED_ACCOUNT,
+        email: MOCK_QUERY_PARAM_EMAIL,
+        sessionToken: MOCK_SESSION_TOKEN,
+      };
+      mockCurrentAccount(storedAccount);
+      mockUseValidateModule();
+      mockSession.isValid = jest.fn().mockResolvedValue(true);
+
+      render();
+
+      await waitFor(() => {
+        expect(mockSession.isValid).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+      });
+      await waitFor(() => {
+        expect(currentSigninProps).toBeDefined();
+        expect(currentSigninProps?.sessionToken).toBe(MOCK_SESSION_TOKEN);
+      });
+      expect(CacheModule.discardSessionToken).not.toHaveBeenCalled();
+    });
+
+    it('calls session.isValid and discards token when session is invalid', async () => {
+      const storedAccount: { sessionToken?: string; [key: string]: any } = {
+        ...MOCK_STORED_ACCOUNT,
+        email: MOCK_QUERY_PARAM_EMAIL,
+        sessionToken: MOCK_SESSION_TOKEN,
+      };
+      mockCurrentAccount(storedAccount);
+      // Make the spy actually clear the token so re-render picks it up
+      jest.spyOn(CacheModule, 'discardSessionToken').mockImplementation(() => {
+        storedAccount.sessionToken = undefined;
+      });
+      mockUseValidateModule();
+      mockSession.isValid = jest.fn().mockResolvedValue(false);
+
+      render();
+
+      await waitFor(() => {
+        expect(mockSession.isValid).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+      });
+      await waitFor(() => {
+        expect(CacheModule.discardSessionToken).toHaveBeenCalled();
+      });
+      await waitFor(() => {
+        expect(currentSigninProps).toBeDefined();
+        expect(currentSigninProps?.sessionToken).toBeUndefined();
+      });
+    });
+
+    it('does not call session.isValid for Sync integration', async () => {
+      mockOAuthNativeIntegration();
+      mockCurrentAccount({
+        ...MOCK_STORED_ACCOUNT,
+        email: MOCK_QUERY_PARAM_EMAIL,
+        sessionToken: MOCK_SESSION_TOKEN,
+      });
+      mockUseValidateModule();
+      mockLocationState = MOCK_LOCATION_STATE_CAN_LINK_ACCOUNT_OK;
+      (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+
+      render();
+
+      await waitFor(() => {
+        expect(currentSigninProps).toBeDefined();
+      });
+      expect(mockSession.isValid).not.toHaveBeenCalled();
+    });
+
+    it('does not call session.isValid for OAuth web integration', async () => {
+      mockOAuthWebIntegration();
+      mockCurrentAccount({
+        ...MOCK_STORED_ACCOUNT,
+        email: MOCK_QUERY_PARAM_EMAIL,
+        sessionToken: MOCK_SESSION_TOKEN,
+      });
+      mockUseValidateModule();
+
+      render();
+
+      await waitFor(() => {
+        expect(currentSigninProps).toBeDefined();
+      });
+      expect(mockSession.isValid).not.toHaveBeenCalled();
     });
   });
 
