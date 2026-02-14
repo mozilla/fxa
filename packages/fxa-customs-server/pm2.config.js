@@ -10,7 +10,7 @@ module.exports = {
   apps: [
     {
       name: 'customs',
-      script: 'node bin/customs_server.js',
+      script: 'node -r esbuild-register bin/customs_server.js',
       cwd: __dirname,
       max_restarts: '1',
       env: {
