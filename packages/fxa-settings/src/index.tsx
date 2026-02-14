@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import * as sentryWrapper from '@fxa/shared/sentry-browser';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
 import { NimbusProvider } from './models/contexts/NimbusContext';
@@ -51,7 +51,7 @@ try {
   });
 
   // Must be configured early. Otherwise baggage and sentry-trace headers won't be added
-  sentryMetrics.configure({
+  sentryWrapper.initSentry({
     release: config.version,
     sentry: {
       ...config.sentry,

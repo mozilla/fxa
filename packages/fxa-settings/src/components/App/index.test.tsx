@@ -33,7 +33,7 @@ import { currentAccount } from '../../lib/cache';
 import { MozServices } from '../../lib/types';
 import mockUseFxAStatus from '../../lib/hooks/useFxAStatus/mocks';
 import useFxAStatus from '../../lib/hooks/useFxAStatus';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import * as sentryWrapper from '@fxa/shared/sentry-browser';
 import { OAuthError } from '../../lib/oauth';
 
 jest.mock('../../lib/hooks/useFxAStatus', () => ({
@@ -41,7 +41,7 @@ jest.mock('../../lib/hooks/useFxAStatus', () => ({
   default: jest.fn(),
 }));
 
-jest.mock('fxa-shared/sentry/browser', () => ({
+jest.mock('@fxa/shared/sentry/browser', () => ({
   __esModule: true,
   default: {
     enable: jest.fn(),
@@ -653,7 +653,7 @@ describe('Integration serviceName error handling', () => {
     (useLocalSignedInQueryState as jest.Mock).mockRestore();
     (useSession as jest.Mock).mockRestore();
     (currentAccount as jest.Mock).mockRestore();
-    (sentryMetrics.captureException as jest.Mock).mockClear();
+    (sentryWrapper.captureException as jest.Mock).mockClear();
   });
 
   it('shows OAuthDataError component when OAuth integration throws', async () => {

@@ -212,6 +212,7 @@ export class OAuthWebIntegration extends GenericIntegration<
           wantsScopeThatHasKeys = true;
         } else {
           // Requesting keys, but trying to deliver them to an unexpected uri? Nope.
+          console.warn('Invalid redirect URI:' + this.clientInfo?.redirectUri);
           throw new Error('Invalid redirect parameter');
         }
       }
