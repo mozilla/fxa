@@ -315,6 +315,7 @@
     "@fxa/vendored/crypto-relier": "./dist/libs/vendored/crypto-relier/main.cjs",
     "@fxa/vendored/crypto-relier/esm": "./dist/libs/vendored/crypto-relier/main.js",
     "@fxa/shared/pem-jwk": "./dist/libs/shared/pem-jwk/main.cjs",
-    "@fxa/shared/l10n": "./dist/libs/shared/l10n/main.cjs"
+    "@fxa/shared/l10n": "./dist/libs/shared/l10n/main.cjs",
+    "@fxa/shared/otel": "./dist/libs/shared/otel/main.cjs"
   }
 }
