@@ -14,7 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import mozLog from 'mozlog';
 
-import { initTracing } from 'fxa-shared/tracing/node-tracing';
+import { initTracing } from '@fxa/shared/otel';
 
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';

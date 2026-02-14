@@ -9,6 +9,7 @@
     "experimentalDecorators": true,
     "noEmitHelpers": true,
     "importHelpers": true,
+    "isolatedModules": true,
     "types": ["jest"]
   },
   "include": ["src"]
