@@ -4,7 +4,7 @@
 
 import Config from '../config';
 import mozLog from 'mozlog';
-import { initMonitoring } from 'fxa-shared/monitoring';
+import { initMonitoring } from '@fxa/shared/monitoring';
 import { version } from '../../package.json';
 
 const config = Config.getProperties();
