@@ -11,9 +11,7 @@ const { logFlowEvent } = require('../flow-event');
 const Url = require('url');
 const uuid = require('node-uuid');
 const validation = require('../validation');
-const {
-  overrideJoiMessages,
-} = require('fxa-shared/sentry/joi-message-overrides');
+const { overrideJoiMessages } = require('@fxa/shared/sentry-node');
 
 const {
   ACTION: ACTION_TYPE,
