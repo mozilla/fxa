@@ -9,7 +9,7 @@ import * as HooksModule from '../../../lib/oauth/hooks';
 import * as OAuthFlowRecoveryModule from '../../../lib/hooks/useOAuthFlowRecovery';
 import * as CacheModule from '../../../lib/cache';
 import * as ReachRouterModule from '@reach/router';
-import * as SentryModule from 'fxa-shared/sentry/browser';
+import * as SentryModule from '@fxa/shared/sentry-browser';
 import * as ReactUtils from 'fxa-react/lib/utils';
 
 import { screen, waitFor } from '@testing-library/react';
@@ -143,7 +143,7 @@ function applyMocks() {
     });
   mockLocation();
   mockReactUtilsModule();
-  jest.spyOn(SentryModule.default, 'captureException');
+  jest.spyOn(SentryModule, 'captureException');
   jest.spyOn(OAuthFlowRecoveryModule, 'useOAuthFlowRecovery').mockReturnValue({
     isRecovering: false,
     recoveryFailed: false,
@@ -326,7 +326,9 @@ describe('confirm-signup-container', () => {
         .mockReturnValue({
           isRecovering: false,
           recoveryFailed: true,
-          attemptOAuthFlowRecovery: jest.fn().mockResolvedValue({ success: false }),
+          attemptOAuthFlowRecovery: jest
+            .fn()
+            .mockResolvedValue({ success: false }),
         });
 
       render();
@@ -334,7 +336,8 @@ describe('confirm-signup-container', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/signin', {
           state: {
-            localizedErrorMessage: 'Something went wrong. Please sign in again.',
+            localizedErrorMessage:
+              'Something went wrong. Please sign in again.',
           },
         });
       });
