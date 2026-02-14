@@ -68,7 +68,7 @@ import { subscriptionProductMetadataValidator } from '../routes/validators';
 import {
   formatMetadataValidationErrorMessage,
   reportValidationError,
-} from 'fxa-shared/sentry/report-validation-error';
+} from '@fxa/shared/sentry-node';
 import { AppConfig, AuthFirestore, AuthLogger, TaxAddress } from '../types';
 import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
@@ -3540,7 +3540,10 @@ export class StripeHelper extends StripeHelperBase {
       CUSTOMER_RESOURCE
     );
     if (!customer.deleted && !customer.currency) {
-      await this.stripeFirestore.fetchAndInsertCustomer(customerId, event.created);
+      await this.stripeFirestore.fetchAndInsertCustomer(
+        customerId,
+        event.created
+      );
       const subscription =
         await this.stripe.subscriptions.retrieve(subscriptionId);
       return subscription;
@@ -3581,7 +3584,10 @@ export class StripeHelper extends StripeHelperBase {
       );
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        await this.stripeFirestore.fetchAndInsertCustomer(customerId, event.created);
+        await this.stripeFirestore.fetchAndInsertCustomer(
+          customerId,
+          event.created
+        );
         await this.stripeFirestore.fetchAndInsertInvoice(
           invoiceId,
           event.created
