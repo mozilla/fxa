@@ -7,6 +7,7 @@ const webpack = require('webpack');
 const path = require('path');
 const config = require('./server/lib/configuration').getProperties();
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const ENV = config.env;
 const webpackConfig = {
@@ -55,6 +56,11 @@ const webpackConfig = {
       path.resolve(__dirname, '.tscompiled/scripts'),
       path.resolve(__dirname, 'node_modules'),
       'node_modules',
+    ],
+    plugins: [
+      new TsconfigPathsPlugin({
+        configFile: path.resolve(__dirname, '../../tsconfig.base.json'),
+      }),
     ],
     alias: {
       'chosen-js': require.resolve('chosen-js/public/chosen.jquery'),
