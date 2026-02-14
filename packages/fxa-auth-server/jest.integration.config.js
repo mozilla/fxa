@@ -20,6 +20,7 @@ module.exports = {
   ],
 
   testTimeout: 120000,
+  maxWorkers: 4,
 
   globalSetup: '<rootDir>/test/support/jest-global-setup.ts',
   globalTeardown: '<rootDir>/test/support/jest-global-teardown.ts',
