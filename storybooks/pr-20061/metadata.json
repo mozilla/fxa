@@ -1,0 +1,12 @@
+{
+  "commit": "281fff5f4f032a68bc75c8ad1fb8051068d02869",
+  "summary": "chore(deps): bump axios from 1.13.4 to 1.13.5",
+  "description": "Bumps [axios](https://github.com/axios/axios) from 1.13.4 to 1.13.5.\n- [Release notes](https://github.com/axios/axios/releases)\n- [Changelog](https://github.com/axios/axios/blob/v1.x/CHANGELOG.md)\n- [Commits](https://github.com/axios/axios/compare/v1.13.4...v1.13.5)\n\n---\nupdated-dependencies:\n- dependency-name: axios\n  dependency-version: 1.13.5\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1771041340000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "13621c4dd07b408581a06026f0a0423888cf69d7",
+  "summary": "Merge pull request #20053 from mozilla/PAY-3467-error-no-such-subscription",
+  "description": "feat(payments-next): Error: No such subscription: 'sub_1SpH7cJNcmPzuWtRUU3vAbuz",
+  "timestamp": 1771009800000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

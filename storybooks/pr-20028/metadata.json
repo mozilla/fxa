@@ -1,0 +1,10 @@
+{
+  "commit": "b0ffd13616024ddb993e210db284c4ba82c5ea8c",
+  "summary": "Add fxa-auth-client changes",
+  "description": "",
+  "timestamp": 1771010397000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

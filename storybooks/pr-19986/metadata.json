@@ -1,0 +1,10 @@
+{
+  "commit": "0250eeead8b8807080f9d229e8a44f8c51a66a15",
+  "summary": "feat(settings): create ButtonPasskeySignin component",
+  "description": "Because:\n\n* we need a new button component for passkey sign in\n\nThis commit:\n\n* creates ButtonPasskeySignin\n\nCloses FXA-12906",
+  "timestamp": 1770660281000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

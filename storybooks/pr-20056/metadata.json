@@ -1,0 +1,10 @@
+{
+  "commit": "d009bf5a3d8967e554b1924bb1ff5b587ad66c93",
+  "summary": "feat(settings): Add mapping for auth passkey errors",
+  "description": "Because:\n - We want consistent error numbers between backend auth and settings\n\nThis Commit:\n - Adds new settings auth errors using previously defined passkey errno\n\nCloses: FXA-12910",
+  "timestamp": 1770939652000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

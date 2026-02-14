@@ -1,0 +1,11 @@
+{
+  "commit": "1910ae5262314cffbb59ea6ccec9e078a0d06e4c",
+  "summary": "Update session-token with improvements and add tests",
+  "description": "",
+  "timestamp": 1770619043000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

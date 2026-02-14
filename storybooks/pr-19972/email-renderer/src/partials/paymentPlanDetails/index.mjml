@@ -1,0 +1,30 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-text css-class="text-body">
+  <b data-l10n-id="payment-details">Payment details:</b>
+  <ul>
+    <li data-l10n-args="<%= JSON.stringify({productName}) %>">
+      <%- productName %>
+    </li>
+
+    <% if (locals.invoiceNumber) { %>
+      <li data-l10n-id="payment-plan-invoice-number" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>">
+        Invoice Number: <%- invoiceNumber %>
+      </li>
+    <% } %>
+
+    <% if (locals.invoiceDateOnly && locals.invoiceTotal) { %>
+      <li data-l10n-id="payment-plan-charged" data-l10n-args="<%= JSON.stringify({invoiceDateOnly, invoiceTotal}) %>">
+        Charged: <%- invoiceTotal %> on <%- invoiceDateOnly %>
+      </li>
+    <% } %>
+
+    <% if (locals.nextInvoiceDateOnly) { %>
+      <li data-l10n-id="payment-plan-next-invoice" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">
+        Next Invoice: <%- nextInvoiceDateOnly %>
+      </li>
+    <% } %>
+  </ul>
+</mj-text>
