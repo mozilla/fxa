@@ -8,8 +8,10 @@
     "target": "ES2021",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "mocha", "mozlog", "node"],
+    "lib": ["ESNext"],
+    "noImplicitAny": false
   },
-  "include": ["lib/**/*", "test/**/*"],
+  "include": ["bin/*", "lib/**/*", "scripts/**/*", "test/**/*"],
   "exclude": ["node_modules", "dist"]
 }

@@ -28,6 +28,8 @@ const argv = [
   '--reporter=text',
   '--report-dir=coverage',
   MOCHA_BIN,
+  '--require',
+  'module-alias/register',
 ];
 
 const arg = argv.concat(process.argv.slice(2));
