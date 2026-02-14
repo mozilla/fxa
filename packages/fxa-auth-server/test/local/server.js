@@ -20,7 +20,7 @@ const customs = mocks.mockCustoms();
 const sandbox = sinon.createSandbox();
 const mockReportValidationError = sandbox.stub();
 const server = proxyquire(`${ROOT_DIR}/lib/server`, {
-  'fxa-shared/sentry/report-validation-error': {
+  '@fxa/shared/sentry-node': {
     reportValidationError: mockReportValidationError,
   },
 });
