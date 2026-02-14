@@ -9,7 +9,7 @@ const Sentry = require('@sentry/node');
 const {
   formatMetadataValidationErrorMessage,
   reportValidationError,
-} = require('fxa-shared/sentry/report-validation-error');
+} = require('@fxa/shared/sentry-node');
 
 // Anything with these keys containing these strings will be redacted.
 const SENSITIVE_KEY_TERMS = new Set(['auth', 'pw', 'kb', 'key']);

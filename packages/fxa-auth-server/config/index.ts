@@ -4,7 +4,7 @@
 import convict from 'convict';
 import fs from 'fs';
 import { makeRedisConfig } from 'fxa-shared/db/config';
-import { tracingConfig } from 'fxa-shared/tracing/config';
+import { tracingConfig } from '@fxa/shared/otel';
 import { CloudTasksConvictConfigFactory } from '@fxa/shared/cloud-tasks';
 import path from 'path';
 import url from 'url';
