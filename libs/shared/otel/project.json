@@ -8,14 +8,30 @@
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/otel",
         "main": "libs/shared/otel/src/index.ts",
+        "outputPath": "dist/libs/shared/otel",
+        "outputFileName": "main.js",
         "tsConfig": "libs/shared/otel/tsconfig.lib.json",
-        "assets": ["libs/shared/otel/*.md"],
-        "generatePackageJson": true,
         "declaration": true,
-        "platform": "node"
+        "assets": [
+          {
+            "glob": "libs/shared/otel/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node",
+        "format": ["cjs", "esm"]
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "test-unit": {
