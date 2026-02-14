@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": false,
+    "outDir": "./dist",
+    "types": ["mocha", "mozlog", "node"],
+    "lib": ["ESNext"],
+    "noImplicitAny": false
+  },
+  "include": [
+    "bin/*",
+    "lib/**/*",
+    "scripts/**/*",
+    "test/**/*"
+  ]
+}
