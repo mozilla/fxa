@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const convict = require('convict');
-const { tracingConfig } = require('fxa-shared/tracing/config');
+const { tracingConfig } = require('@fxa/shared/otel');
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));

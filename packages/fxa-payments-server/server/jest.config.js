@@ -16,12 +16,15 @@ module.exports = {
     },
   },
   transform: {
-    "fxa-shared/*": [ "ts-jest", { "isolatedModules": true } ],
-    "libs/shared/l10n/src": [ "ts-jest", { "isolatedModules": true } ],
+    '^.+\\.(ts|tsx)$': 'ts-jest',
   },
   // ts-jest - Paths mapping - With helper
   // https://kulshekhar.github.io/ts-jest/docs/getting-started/paths-mapping#jest-config-with-helper
   roots: ['<rootDir>'],
   modulePaths: [compilerOptions.baseUrl],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {prefix: '<rootDir>/../../../'})
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(compilerOptions.paths, {prefix: '<rootDir>/../../../'}),
+    '^@opentelemetry/otlp-exporter-base/node-http$': '@opentelemetry/otlp-exporter-base/build/src/index-node-http.js',
+    '^@opentelemetry/otlp-exporter-base/browser-http$': '@opentelemetry/otlp-exporter-base/build/src/index-browser-http.js',
+  },
 };
