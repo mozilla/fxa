@@ -148,7 +148,7 @@ const SignupConfirmCodeContainer = ({
     const shouldAttemptRecovery =
       !recoveryAttempted &&
       isOAuthNativeIntegration(integration) &&
-      (!uid || !sessionToken || !email || oAuthKeysCheckError);
+      (!uid || !sessionToken || !email);
 
     if (shouldAttemptRecovery) {
       setRecoveryAttempted(true);
@@ -160,7 +160,6 @@ const SignupConfirmCodeContainer = ({
     uid,
     sessionToken,
     email,
-    oAuthKeysCheckError,
     attemptOAuthFlowRecovery,
   ]);
 

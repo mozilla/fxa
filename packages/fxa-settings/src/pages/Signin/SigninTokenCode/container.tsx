@@ -69,19 +69,13 @@ const SigninTokenCodeContainer = ({
     const shouldAttemptRecovery =
       !recoveryAttempted &&
       isOAuthNativeIntegration(integration) &&
-      (!signinState || !signinState.sessionToken || oAuthKeysCheckError);
+      (!signinState || !signinState.sessionToken);
 
     if (shouldAttemptRecovery) {
       setRecoveryAttempted(true);
       attemptOAuthFlowRecovery();
     }
-  }, [
-    recoveryAttempted,
-    integration,
-    signinState,
-    oAuthKeysCheckError,
-    attemptOAuthFlowRecovery,
-  ]);
+  }, [recoveryAttempted, integration, signinState, attemptOAuthFlowRecovery]);
 
   // Handle recovery failure - navigate to signin with error message
   useEffect(() => {
