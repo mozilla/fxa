@@ -7,12 +7,11 @@ import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
+import { useAccount, useAuthClient, useSession } from '../../models';
 import {
-  useAccount,
-  useAuthClient,
-  useSession,
-} from '../../models';
-import { useAccountData, InvalidTokenError } from '../../lib/hooks/useAccountData';
+  useAccountData,
+  InvalidTokenError,
+} from '../../lib/hooks/useAccountData';
 import {
   Redirect,
   Router,
@@ -117,11 +116,16 @@ export const Settings = ({
       ) {
         return;
       }
-      const { details } = await authClient.sessionStatus(sessionToken()!);
-      setSessionVerified(details.sessionVerified);
-      setSessionVerificationMeetsAAL(
-        details.sessionVerificationMeetsMinimumAAL
-      );
+      try {
+        const { details } = await authClient.sessionStatus(sessionToken()!);
+        setSessionVerified(details.sessionVerified);
+        setSessionVerificationMeetsAAL(
+          details.sessionVerificationMeetsMinimumAAL
+        );
+      } catch (error) {
+        setSessionVerified(false);
+        setSessionVerificationMeetsAAL(false);
+      }
     })();
   }, [authClient, sessionVerified, sessionVerificationMeetsAAL]);
 
