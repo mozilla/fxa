@@ -1300,6 +1300,7 @@ export class AccountHandler {
         needsVerificationId &&
         (verificationForced === 'suspect' ||
           verificationForced === 'global' ||
+          verificationForced === 'email' ||
           requestHelper.wantsKeys(request) ||
           (service &&
             this.config.servicesWithEmailVerification.includes(service)));
