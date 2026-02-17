@@ -641,6 +641,20 @@ export class Account implements AccountData {
       response.keyFetchToken,
       response.unwrapBKey
     );
+
+    // Transfer the JWT from the old session token to the new one
+    // to prevent MfaGuard from requesting another OTP code
+    if (currentSessionToken !== response.sessionToken) {
+      const oldJwt =
+        JwtTokenCache.getSnapshot()[
+          JwtTokenCache.getKey(currentSessionToken, 'password')
+        ];
+      if (oldJwt) {
+        JwtTokenCache.setToken(response.sessionToken, 'password', oldJwt);
+        JwtTokenCache.removeToken(currentSessionToken, 'password');
+      }
+    }
+
     sessionToken(response.sessionToken);
 
     updateBasicAccountData({
