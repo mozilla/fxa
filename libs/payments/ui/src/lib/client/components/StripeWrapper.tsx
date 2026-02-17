@@ -106,6 +106,7 @@ interface StripeWrapperProps {
   amount: number;
   currency: string;
   cart: {
+    id: string;
     paymentInfo?: {
       type:
       | Stripe.PaymentMethod.Type
@@ -133,6 +134,11 @@ export function StripeWrapper({
   const config = useContext(ConfigContext);
   const [stripePromise] = useState(() => loadStripe(config.stripePublicApiKey));
 
+  // Re-use initial session secret to prevent unnecessary Stripe Elements remounts
+  const [initialSessionSecret] = useState(
+    cart.paymentInfo?.customerSessionClientSecret
+  );
+
   const normalizedCurrency = currency.toLowerCase();
   const minCharge = STRIPE_MINIMUM_CHARGE_AMOUNTS[normalizedCurrency];
   const isBelowMin = amount < minCharge;
@@ -144,7 +150,7 @@ export function StripeWrapper({
     amount: isBelowMin ? undefined : amount,
     currency: normalizedCurrency,
     externalPaymentMethodTypes: ['external_paypal'],
-    customerSessionClientSecret: cart.paymentInfo?.customerSessionClientSecret,
+    customerSessionClientSecret: initialSessionSecret,
   };
 
   // Remove external_paypal if the customer has an active subscription
@@ -158,7 +164,7 @@ export function StripeWrapper({
   }
 
   return (
-    <Elements stripe={stripePromise} options={options}>
+    <Elements stripe={stripePromise} options={options} key={cart.id}>
       {children}
     </Elements>
   );
