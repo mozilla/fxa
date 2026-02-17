@@ -6,13 +6,9 @@
  * applied after content-server no longer needs it */
 /* Transparent border around card is for Windows HCM mode */
 
-.card {
-  @apply w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-6 py-8 mobileLandscape:px-8 mobileLandscape:py-9 mobileLandscape:shadow-card-grey-drop mobileLandscape:mb-6;
-
-  /* HACK until content-server no longer needs .card, otherwise component classes take precedence */
-  &.card-xl {
-    @apply mobileLandscape:w-184;
-  }
+.card,
+.card-split-layout {
+  @apply w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-6 py-8 mobileLandscape:px-8 mobileLandscape:py-9 mobileLandscape:mb-6;
 
   &-header {
     @apply font-header text-xl font-bold;
@@ -25,4 +21,17 @@
   &-subheader {
     @apply font-body font-normal text-sm block mt-1;
   }
+}
+
+.card {
+  @apply mobileLandscape:shadow-card-grey-drop;
+
+  /* HACK until content-server no longer needs .card, otherwise component classes take precedence */
+  &.card-xl {
+    @apply mobileLandscape:w-184;
+  }
+}
+
+.card-split-layout {
+  @apply desktop:shadow-card-grey-drop;
 }

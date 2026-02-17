@@ -193,13 +193,13 @@ export const AppLayout = ({
             />
             <div className="mobileLandscape:items-center tablet:flex-1 tablet:bg-white tablet:ml-auto flex flex-col flex-1">
               <main className="flex justify-center items-center flex-1">
-                <section className="max-w-120 desktop:w-120 px-8 py-8">
-                  {loading ? (
-                    <LoadingSpinner className="h-full flex items-center" />
-                  ) : (
-                    children
-                  )}
-                </section>
+                {loading ? (
+                  <LoadingSpinner className="h-full flex items-center" />
+                ) : (
+                  <section className="card-split-layout max-w-120 desktop:w-120 px-8 py-8 desktop:mx-8">
+                    {children}
+                  </section>
+                )}
               </main>
               {showLocaleToggle && (
                 <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400">
