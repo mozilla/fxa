@@ -257,7 +257,7 @@ export class ConnectedServicesFactory {
       // We fill in a default device name from the OAuth client name,
       // but individual clients can override this in their device record registration.
       if (!client.name) {
-        client.name = oauthClient.client_name;
+        client.name = oauthClient.client_name ?? null;
       }
       // For now we assume that all oauth clients that register a device record are mobile apps.
       // Ref https://github.com/mozilla/fxa/issues/449
@@ -292,6 +292,6 @@ export class ConnectedServicesFactory {
   }
 
   protected getDefaultClientFields(): AttachedClient {
-    return attachedClientsDefaults;
+    return { ...attachedClientsDefaults };
   }
 }
