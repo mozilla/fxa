@@ -27,7 +27,11 @@ const mockAccountState = {
   email: 'johndoe@example.com',
   metricsEnabled: true,
   verified: true,
-  primaryEmail: { email: 'johndoe@example.com', isPrimary: true, verified: true },
+  primaryEmail: {
+    email: 'johndoe@example.com',
+    isPrimary: true,
+    verified: true,
+  },
   displayName: null,
   avatar: null,
   emails: [],
@@ -120,7 +124,11 @@ describe('Settings App', () => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
     // Reset account state mock to default values
-    (useAccountState as jest.Mock).mockReturnValue({ ...mockAccountState, isLoading: false, error: null });
+    (useAccountState as jest.Mock).mockReturnValue({
+      ...mockAccountState,
+      isLoading: false,
+      error: null,
+    });
     mockUseAccountData.mockReturnValue({
       isLoading: false,
       error: null,
@@ -238,6 +246,29 @@ describe('Settings App', () => {
       <AppContext.Provider
         value={mockAppContext({ session: unverifiedSession })}
       >
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    });
+    warnSpy.mockRestore();
+  });
+
+  it('redirects to root when sessionStatus call fails', async () => {
+    // this warning is expected, so we don't want to see it in the test output
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
+      if (
+        msg === 'Account or email verification is require to access /settings!'
+      )
+        return;
+    });
+    mockSessionStatus.mockRejectedValue(new Error('Session status failed'));
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
         <Subject />
       </AppContext.Provider>,
       { route: SETTINGS_PATH }
