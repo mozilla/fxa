@@ -3010,8 +3010,8 @@ describe('/account/login', () => {
         );
         const tokenData = mockDB.createSessionToken.getCall(0).args[0];
         assert.ok(
-          !tokenData.mustVerify,
-          'sessionToken does not have to be verified'
+          tokenData.mustVerify,
+          'sessionToken mustVerify is true for forcedEmailAddresses'
         );
         const sessionToken = mockDB.createSessionToken.returnValues[0];
         sessionToken.then((token) => {

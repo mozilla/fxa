@@ -12,6 +12,7 @@ import {
   isSignedIn as checkIsSignedIn,
   getSessionVerified,
   setSessionVerified,
+  updateAccountData,
   dispatchStorageEvent,
 } from '../lib/account-storage';
 
@@ -88,6 +89,7 @@ export class Session implements SessionData {
       this.authClient.sessionVerifyCode(sessionToken()!, code, options)
     );
     setSessionVerified(true);
+    updateAccountData({ verified: true });
     setStoredSignedInStatus(true);
   }
 
