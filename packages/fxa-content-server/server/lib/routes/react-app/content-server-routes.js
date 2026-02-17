@@ -74,6 +74,8 @@ const FRONTEND_ROUTES = [
   'signin_recovery_choice',
   'signin_recovery_phone',
   'signin_confirmed',
+  // TODO: FXA-13100 - Uncomment when passkey fallback is fully implemented
+  // 'signin_passkey_fallback',
   'signin_permissions',
   'signin_reported',
   'signin_unblock',
