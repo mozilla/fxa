@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, Page, test } from '../../lib/fixtures/standard';
+import { EmailType } from '../../lib/email';
 import { getTotpCode } from '../../lib/totp';
 import { create as createPages } from '../../pages';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
@@ -137,6 +138,46 @@ test.describe('severity-2 #smoke', () => {
       await settings.secondaryEmail.addButton.click();
 
       await expect(page).toHaveURL(/signin/);
+    });
+
+    test('redirects to settings after forced email verification', async ({
+      target,
+      page,
+      pages: { signin, signinTokenCode },
+      testAccountTracker,
+    }) => {
+      // The `sync` prefix forces session verification via signin_token_code.
+      const credentials = await testAccountTracker.signUpSync();
+
+      await target.emailClient.clear(credentials.email);
+
+      await page.goto(target.contentServerUrl);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+
+      await expect(page).toHaveURL(/signin_token_code/);
+
+      // No newDeviceLogin email should exist before code verification
+      await target.emailClient.waitForEmail(
+        credentials.email,
+        EmailType.verifyLoginCode
+      );
+      const countBeforeCode = await target.emailClient.countEmailsByType(
+        credentials.email,
+        EmailType.newDeviceLogin
+      );
+      expect(
+        countBeforeCode,
+        'newDeviceLogin email should not be sent before the session is verified'
+      ).toBe(0);
+
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await signinTokenCode.fillOutCodeForm(code);
+
+      // After verification, should land on /settings (not redirect to /signin)
+      await expect(page).toHaveURL(/settings/);
     });
   });
 });

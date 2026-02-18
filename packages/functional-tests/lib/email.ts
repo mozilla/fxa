@@ -126,6 +126,43 @@ export class EmailClient {
   }
 
   /**
+   * Returns a summary of all emails for the given address (template name and subject).
+   * Useful for debugging which emails have been delivered.
+   * @param emailAddress - The email address to check.
+   * @returns Array of { template, subject } for each email.
+   */
+  async getEmailsByType(
+    emailAddress: string
+  ): Promise<{ template: string; subject: string }[]> {
+    const mail = (await got(
+      `${this.host}/mail/${toUsername(emailAddress)}`
+    ).json()) as any[];
+    return mail.map((m) => ({
+      template: m.headers[EmailHeader.templateName] || 'unknown',
+      subject: m.subject || '',
+    }));
+  }
+
+  /**
+   * Counts how many emails of a specific type exist for the given address.
+   * Does not clear or consume the emails.
+   * @param emailAddress - The email address to check.
+   * @param type - The type of email to count.
+   * @returns The number of matching emails.
+   */
+  async countEmailsByType(
+    emailAddress: string,
+    type: EmailType
+  ): Promise<number> {
+    const mail = (await got(
+      `${this.host}/mail/${toUsername(emailAddress)}`
+    ).json()) as any[];
+    return mail.filter(
+      (m) => m.headers[EmailHeader.templateName] === EmailType[type]
+    ).length;
+  }
+
+  /**
    * Gets the link to create new backup authentication codes from the lowRecoveryCodes email.
    * @param email - The email that is expected to receive the link.
    * @returns the backup authentication codes link
