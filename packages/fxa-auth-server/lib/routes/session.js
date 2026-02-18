@@ -312,6 +312,7 @@ module.exports = function (
               accountEmailVerified: isA.boolean(),
               sessionVerificationMethod: isA.string().allow(null),
               sessionVerified: isA.boolean(),
+              mustVerify: isA.boolean(),
               sessionVerificationMeetsMinimumAAL: isA.boolean(),
               verified: isA.boolean(), // Deprecated!
             }),
@@ -351,6 +352,8 @@ module.exports = function (
         // Legacy verified flag. Keep for backwards compatibility.
         const verified = accountEmailVerified && sessionVerified;
 
+        const mustVerify = !!sessionToken.mustVerify;
+
         return {
           state: sessionToken.state,
           uid: sessionToken.uid,
@@ -358,6 +361,7 @@ module.exports = function (
             accountEmailVerified,
             sessionVerificationMethod,
             sessionVerified,
+            mustVerify,
             sessionVerificationMeetsMinimumAAL,
             verified,
           },

@@ -151,6 +151,7 @@ export type SessionStatus = {
     accountEmailVerified: boolean;
     sessionVerificationMethod: string | null;
     sessionVerified: boolean;
+    mustVerify: boolean;
     sessionVerificationMeetsMinimumAAL: boolean;
   };
 };

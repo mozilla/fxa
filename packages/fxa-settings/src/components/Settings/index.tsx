@@ -53,6 +53,7 @@ export const Settings = ({
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>();
+  const [mustVerify, setMustVerify] = useState<boolean | undefined>();
   const [sessionVerificationMeetsAAL, setSessionVerificationMeetsAAL] =
     useState<boolean | undefined>();
 
@@ -119,17 +120,19 @@ export const Settings = ({
       try {
         const { details } = await authClient.sessionStatus(sessionToken()!);
         setSessionVerified(details.sessionVerified);
+        setMustVerify(details.mustVerify ?? false);
         setSessionVerificationMeetsAAL(
           details.sessionVerificationMeetsMinimumAAL
         );
       } catch (error) {
         setSessionVerified(false);
+        setMustVerify(true);
         setSessionVerificationMeetsAAL(false);
       }
     })();
   }, [authClient, sessionVerified, sessionVerificationMeetsAAL]);
 
-  if (loading || sessionVerified === undefined) {
+  if (loading || mustVerify === undefined || sessionVerificationMeetsAAL === undefined) {
     return <LoadingSpinner fullScreen />;
   }
 
@@ -148,13 +151,16 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" />;
   }
 
-  // If the account email isn't verified or the user is an unverified session state,
-  // kick back to root to prompt for verification. This should only happen if the user
-  // tries to access /settings directly without entering a confirmation code on
-  // confirm_signup_code page or signin_token_code page.
-  if (account.primaryEmail.verified === false || sessionVerified === false) {
+  // If the account email isn't verified, or the session requires mandatory verification
+  // (mustVerify is true for forced/suspicious logins, TOTP users, keys-requesting clients),
+  // kick back to root to prompt for verification. This matches the pre-GraphQL-removal
+  // behavior where SessionTokenStrategy checked: mustVerify && !tokenVerified.
+  if (
+    account.primaryEmail.verified === false ||
+    (mustVerify && sessionVerified === false)
+  ) {
     console.warn(
-      'Account or email verification is require to access /settings!'
+      'Account or session verification is required to access /settings!'
     );
     navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;

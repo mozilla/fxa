@@ -492,7 +492,7 @@ describe('Signin component', () => {
             });
           });
 
-          it('navigates to /signin_token_code when session unverified', async () => {
+          it('navigates to /settings when session unverified but email verified (direct web flow)', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
                 emailVerified: true,
@@ -503,7 +503,7 @@ describe('Signin component', () => {
 
             await enterPasswordAndSubmit();
             await waitFor(() => {
-              expect(navigate).toHaveBeenCalledWith('/signin_token_code', {
+              expect(navigate).toHaveBeenCalledWith('/settings', {
                 replace: false,
                 state: {
                   email: MOCK_EMAIL,

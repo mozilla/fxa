@@ -226,11 +226,12 @@ describe('Settings App', () => {
     warnSpy.mockRestore();
   });
 
-  it('redirects to root if session is not verified', async () => {
+  it('redirects to root if session is not verified and mustVerify is true', async () => {
     // this warning is expected, so we don't want to see it in the test output
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
       if (
-        msg === 'Account or email verification is require to access /settings!'
+        msg ===
+        'Account or session verification is required to access /settings!'
       )
         return;
     });
@@ -238,6 +239,7 @@ describe('Settings App', () => {
     mockSessionStatus.mockResolvedValue({
       details: {
         sessionVerified: false,
+        mustVerify: true,
         sessionVerificationMeetsMinimumAAL: true,
       },
     });
@@ -255,6 +257,34 @@ describe('Settings App', () => {
       expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
     });
     warnSpy.mockRestore();
+  });
+
+  it('allows access when session is not verified but mustVerify is false', async () => {
+    const unverifiedSession = mockSession(false);
+    mockSessionStatus.mockResolvedValue({
+      details: {
+        sessionVerified: false,
+        mustVerify: false,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
+    });
+
+    renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({ session: unverifiedSession })}
+      >
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    // Wait for sessionStatus to resolve and guard logic to execute
+    await waitFor(() => {
+      expect(mockSessionStatus).toHaveBeenCalled();
+    });
+
+    // Should NOT redirect to root — mustVerify is false so unverified session is allowed
+    expect(mockNavigateWithQuery).not.toHaveBeenCalledWith('/');
   });
 
   it('redirects to root when sessionStatus call fails', async () => {

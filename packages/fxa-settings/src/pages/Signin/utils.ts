@@ -279,7 +279,17 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     }
 
     if (navigationOptions.performNavigation !== false) {
-      performNavigation({ to, locationState });
+      // For direct web logins (non-OAuth) where the email is already verified
+      // and the session isn't TOTP-required, the session already meets the
+      // account's minimum AAL. Navigate to settings directly instead of the
+      // confirmation code page. This restores the pre-GraphQL-removal behavior
+      // where the server-side SessionTokenStrategy respected mustVerify
+      // (which was false for these non-keys, non-forced, non-TOTP cases).
+      if (navigationOptions.signinData.emailVerified) {
+        performNavigation({ to: '/settings', locationState });
+      } else {
+        performNavigation({ to, locationState });
+      }
     }
     return { error: undefined };
   }
