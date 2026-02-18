@@ -209,7 +209,7 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
       userAgent(request.headers['user-agent'])
     );
     defineLazyGetter(request.app, 'geo', () =>
-      getGeoData(request.app.clientAddress)
+      getGeoData(request.app.clientAddress, request.app.locale)
     );
     defineLazyGetter(request.app, 'metricsContext', () =>
       metricsContext.get(request)

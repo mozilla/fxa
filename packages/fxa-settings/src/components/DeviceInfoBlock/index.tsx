@@ -61,13 +61,19 @@ export const DeviceInfoBlock = ({ remoteMetadata }: DeviceInfoBlockProps) => {
   return (
     <div className="mt-8 mb-4">
       {deviceName && <h2 className="mb-4 text-base">{deviceName}</h2>}
-      <FtlMsg id="device-info-browser-os" vars={{ deviceFamily, deviceOS }}>
+      <FtlMsg
+        id="device-info-browser-os"
+        vars={{
+          deviceFamily: deviceFamily || 'Unknown',
+          deviceOS: deviceOS || 'Unknown',
+        }}
+      >
         <p className="text-xs">{`${deviceFamily} on ${deviceOS}`}</p>
       </FtlMsg>
       <p className="text-xs">
         <LocalizedLocation />
       </p>
-      <FtlMsg id="device-info-ip-address" vars={{ ipAddress }}>
+      <FtlMsg id="device-info-ip-address" vars={{ ipAddress: ipAddress || '' }}>
         <p className="text-xs">{`IP address: ${ipAddress}`}</p>
       </FtlMsg>
     </div>
