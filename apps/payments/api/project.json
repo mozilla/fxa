@@ -70,13 +70,13 @@
       }
     },
     "start": {
-      "command": "pm2 start apps/payments/api/pm2.config.js",
+      "command": "pm2 start apps/payments/api/pm2.config.js && yarn check:url localhost:3037/__heartbeat__"
     },
     "stop": {
       "command": "pm2 stop apps/payments/api/pm2.config.js"
     },
     "restart": {
-      "command": "pm2 restart apps/payments/api/pm2.config.js",
+      "command": "pm2 restart apps/payments/api/pm2.config.js"
     },
     "delete": {
       "command": "pm2 delete apps/payments/api/pm2.config.js"
