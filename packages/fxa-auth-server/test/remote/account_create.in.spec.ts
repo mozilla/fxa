@@ -2,22 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
 import crypto from 'crypto';
 
-interface AuthServerError extends Error {
-  errno: number;
-  code: number;
-  email: string;
-}
+import * as jwt from '../../lib/oauth/jwt';
+import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import { AuthServerError, generateMetricsContext } from '../support/helpers/test-utils';
 
 interface TestConfig extends Record<string, unknown> {
   smtp: { syncUrl: string };
   publicUrl: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const Client = require('../client')();
-const mocks = require('../mocks');
 
 let server: TestServerInstance;
 let config: TestConfig;
@@ -167,7 +164,6 @@ describe.each(testVersions)(
 
       const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
 
-      const jwt = require('../../lib/oauth/jwt');
       const setupToken = jwt.sign(
         { uid: stubResponse.uid, iat: Date.now() },
         { header: { typ: 'fin+JWT' } }
@@ -236,7 +232,6 @@ describe.each(testVersions)(
 
       const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
 
-      const jwt = require('../../lib/oauth/jwt');
       const setupToken = jwt.sign(
         {
           uid: stubResponse.uid,
@@ -431,6 +426,195 @@ describe.each(testVersions)(
       }
     });
 
+    it('invalid entrypointExperiment', async () => {
+      const api = new Client.Api(server.publicUrl, testOptions);
+      const email = server.uniqueEmail();
+      const authPW =
+        '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+      const options = {
+        ...testOptions,
+        metricsContext: {
+          entrypoint: 'foo',
+          entrypointExperiment: ';',
+          entrypointVariation: 'var',
+          utmCampaign: 'bar',
+          utmContent: 'baz',
+          utmMedium: 'qux',
+          utmSource: 'wibble',
+          utmTerm: 'blee',
+        },
+      };
+
+      try {
+        await api.accountCreate(email, authPW, options);
+        fail('should have thrown');
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
+      }
+    });
+
+    it('invalid entrypointVariation', async () => {
+      const api = new Client.Api(server.publicUrl, testOptions);
+      const email = server.uniqueEmail();
+      const authPW =
+        '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+      const options = {
+        ...testOptions,
+        metricsContext: {
+          entrypoint: 'foo',
+          entrypointExperiment: 'exp',
+          entrypointVariation: ';',
+          utmCampaign: 'bar',
+          utmContent: 'baz',
+          utmMedium: 'qux',
+          utmSource: 'wibble',
+          utmTerm: 'blee',
+        },
+      };
+
+      try {
+        await api.accountCreate(email, authPW, options);
+        fail('should have thrown');
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
+      }
+    });
+
+    it('invalid utmCampaign', async () => {
+      const api = new Client.Api(server.publicUrl, testOptions);
+      const email = server.uniqueEmail();
+      const authPW =
+        '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+      const options = {
+        ...testOptions,
+        metricsContext: {
+          entrypoint: 'foo',
+          entrypointExperiment: 'exp',
+          entrypointVariation: 'var',
+          utmCampaign: ';',
+          utmContent: 'bar',
+          utmMedium: 'baz',
+          utmSource: 'qux',
+          utmTerm: 'wibble',
+        },
+      };
+
+      try {
+        await api.accountCreate(email, authPW, options);
+        fail('should have thrown');
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
+      }
+    });
+
+    it('invalid utmContent', async () => {
+      const api = new Client.Api(server.publicUrl, testOptions);
+      const email = server.uniqueEmail();
+      const authPW =
+        '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+      const options = {
+        ...testOptions,
+        metricsContext: {
+          entrypoint: 'foo',
+          entrypointExperiment: 'exp',
+          entrypointVariation: 'var',
+          utmCampaign: 'bar',
+          utmContent: ';',
+          utmMedium: 'baz',
+          utmSource: 'qux',
+          utmTerm: 'wibble',
+        },
+      };
+
+      try {
+        await api.accountCreate(email, authPW, options);
+        fail('should have thrown');
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
+      }
+    });
+
+    it('invalid utmMedium', async () => {
+      const api = new Client.Api(server.publicUrl, testOptions);
+      const email = server.uniqueEmail();
+      const authPW =
+        '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+      const options = {
+        ...testOptions,
+        metricsContext: {
+          entrypoint: 'foo',
+          entrypointExperiment: 'exp',
+          entrypointVariation: 'var',
+          utmCampaign: 'bar',
+          utmContent: 'baz',
+          utmMedium: ';',
+          utmSource: 'qux',
+          utmTerm: 'wibble',
+        },
+      };
+
+      try {
+        await api.accountCreate(email, authPW, options);
+        fail('should have thrown');
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
+      }
+    });
+
+    it('invalid utmSource', async () => {
+      const api = new Client.Api(server.publicUrl, testOptions);
+      const email = server.uniqueEmail();
+      const authPW =
+        '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+      const options = {
+        ...testOptions,
+        metricsContext: {
+          entrypoint: 'foo',
+          entrypointExperiment: 'exp',
+          entrypointVariation: 'var',
+          utmCampaign: 'bar',
+          utmContent: 'baz',
+          utmMedium: 'qux',
+          utmSource: ';',
+          utmTerm: 'wibble',
+        },
+      };
+
+      try {
+        await api.accountCreate(email, authPW, options);
+        fail('should have thrown');
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
+      }
+    });
+
+    it('invalid utmTerm', async () => {
+      const api = new Client.Api(server.publicUrl, testOptions);
+      const email = server.uniqueEmail();
+      const authPW =
+        '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+      const options = {
+        ...testOptions,
+        metricsContext: {
+          entrypoint: 'foo',
+          entrypointExperiment: 'exp',
+          entrypointVariation: 'var',
+          utmCampaign: 'bar',
+          utmContent: 'baz',
+          utmMedium: 'qux',
+          utmSource: 'wibble',
+          utmTerm: ';',
+        },
+      };
+
+      try {
+        await api.accountCreate(email, authPW, options);
+        fail('should have thrown');
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
+      }
+    });
+
     it('create account with service query parameter', async () => {
       const email = server.uniqueEmail();
 
@@ -470,8 +654,8 @@ describe.each(testVersions)(
           },
         });
         fail('account creation should have failed');
-      } catch (err) {
-        expect(err).toBeTruthy();
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
       }
     });
 
@@ -488,8 +672,8 @@ describe.each(testVersions)(
           },
         });
         fail('account creation should have failed');
-      } catch (err) {
-        expect(err).toBeTruthy();
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
       }
     });
 
@@ -497,7 +681,7 @@ describe.each(testVersions)(
       const email = server.uniqueEmail();
       const options = {
         ...testOptions,
-        metricsContext: mocks.generateMetricsContext(),
+        metricsContext: generateMetricsContext(),
       };
 
       const client = await Client.create(server.publicUrl, email, 'foo', options);
@@ -532,8 +716,8 @@ describe.each(testVersions)(
           },
         });
         fail('account creation should have failed');
-      } catch (err) {
-        expect(err).toBeTruthy();
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
       }
     });
 
@@ -548,8 +732,8 @@ describe.each(testVersions)(
           },
         });
         fail('account creation should have failed');
-      } catch (err) {
-        expect(err).toBeTruthy();
+      } catch (err: unknown) {
+        expect((err as AuthServerError).errno).toBe(107);
       }
     });
 
