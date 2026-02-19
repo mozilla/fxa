@@ -114,6 +114,21 @@ export class FxaMailer extends FxaEmailRenderer {
     bindings: NodeRendererBindings
   ) {
     super(bindings);
+
+    // Since we call this from JS, let's add some sanity checks, and fail fast if
+    // we miss something.
+    if (emailSender == null) {
+      throw new Error('emailSender required');
+    }
+    if (linkBuilder == null) {
+      throw new Error('linkBuilder required');
+    }
+    if (mailerConfig == null) {
+      throw new Error('mailerConfig required');
+    }
+    if (bindings == null) {
+      throw new Error('bindings required');
+    }
   }
 
   /**
