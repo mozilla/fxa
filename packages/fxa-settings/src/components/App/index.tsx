@@ -14,7 +14,7 @@ import {
 } from 'react';
 
 import { QueryParams } from '../..';
-import { storeAccountData } from '../../lib/storage-utils';
+import { persistAccount, setCurrentAccount } from '../../lib/storage-utils';
 import { currentAccount, getAccountByUid } from '../../lib/cache';
 import { firefox } from '../../lib/channels/firefox';
 import * as MetricsFlow from '../../lib/metrics-flow';
@@ -198,7 +198,45 @@ export const App = ({
         return;
       }
 
-      // If localStorage indicates we are signed in, we can skip the rest.
+      // When running inside Firefox, fetch the session token from the browser
+      // via WebChannel. The native app owns the source-of-truth token;
+      // localStorage may hold a stale value from a previous session.
+      if (isProbablyFirefox()) {
+        const userFromBrowser = await firefox.requestSignedInUser(
+          integration.data?.context || '',
+          // TODO with React pairing flow, update this if pairing flow
+          false,
+          integration.data?.service || ''
+        );
+
+        if (userFromBrowser?.sessionToken) {
+          const isValidSession = await session.isValid(
+            userFromBrowser.sessionToken
+          );
+          if (isValidSession) {
+            const cachedUser = getAccountByUid(userFromBrowser.uid);
+            // Refresh the token without switching the "current" account.
+            persistAccount(
+              cachedUser
+                ? {
+                    ...cachedUser,
+                    sessionToken: userFromBrowser.sessionToken,
+                  }
+                : userFromBrowser
+            );
+            if (!currentAccount()?.uid) {
+              setCurrentAccount(userFromBrowser.uid);
+            }
+            startTransition(() => {
+              setIsSignedIn(true);
+            });
+            return;
+          }
+        }
+        // Fall through to localStorage checks if WebChannel timed out
+        // or the token was invalid.
+      }
+
       if (isSignedInData?.isSignedIn === true) {
         startTransition(() => {
           setIsSignedIn(true);
@@ -206,7 +244,6 @@ export const App = ({
         return;
       }
 
-      // if there is already a valid current account, use it
       const localUser = currentAccount();
       if (
         localUser?.sessionToken &&
@@ -218,40 +255,8 @@ export const App = ({
         return;
       }
 
-      let isValidSession = false;
-
-      // Request and update account data/state to match the browser state.
-      // If there is a user actively signed into the browser,
-      // we should try to use that user's account when possible.
-      let userFromBrowser;
-      if (isProbablyFirefox()) {
-        userFromBrowser = await firefox.requestSignedInUser(
-          integration.data.context || '',
-          // TODO with React pairing flow, update this if pairing flow
-          false,
-          integration.data.service || ''
-        );
-      }
-
-      if (userFromBrowser?.sessionToken) {
-        // If the session is valid, try to set it as the current account
-        isValidSession = await session.isValid(userFromBrowser.sessionToken);
-        if (isValidSession) {
-          const cachedUser = getAccountByUid(userFromBrowser.uid);
-          storeAccountData(
-            cachedUser
-              ? {
-                  ...cachedUser,
-                  // Make sure we are apply the session token we validated
-                  sessionToken: userFromBrowser.sessionToken,
-                }
-              : userFromBrowser
-          );
-        }
-      }
-
       startTransition(() => {
-        setIsSignedIn(isValidSession);
+        setIsSignedIn(false);
       });
     };
     initializeSession();
