@@ -29,11 +29,12 @@ export interface Mailbox {
   waitForEmail: (email: string) => Promise<EmailData>;
   waitForCode: (email: string) => Promise<string>;
   waitForMfaCode: (email: string) => Promise<string>;
+  waitForEmailByHeader: (email: string, headerName: string) => Promise<string>;
   eventEmitter: EventEmitter;
 }
 
 const MAX_RETRIES = 20;
-const RETRY_DELAY_MS = 1000;
+const RETRY_DELAY_MS = 200;
 
 export function createMailbox(
   host = 'localhost',
@@ -84,9 +85,9 @@ export function createMailbox(
 
       if (mail && mail.length > 0) {
         await deleteMail(username);
-        const emailData = mail[0];
-        eventEmitter.emit('email:message', email, emailData);
-        return emailData;
+        const result = mail[0];
+        eventEmitter.emit('email:message', email, result);
+        return result;
       }
 
       await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
@@ -123,10 +124,35 @@ export function createMailbox(
     return code;
   }
 
+  async function waitForEmailByHeader(email: string, headerName: string): Promise<string> {
+    const username = email.split('@')[0];
+
+    for (let tries = MAX_RETRIES; tries > 0; tries--) {
+      log('waiting for header', headerName, 'tries', tries);
+
+      const mail = await fetchMail(username);
+
+      if (mail && mail.length > 0) {
+        for (const m of mail) {
+          const headerValue = m.headers[headerName];
+          if (headerValue) {
+            await deleteMail(username);
+            return headerValue;
+          }
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    }
+
+    throw new Error(`Timeout waiting for email with header ${headerName}: ${email}`);
+  }
+
   return {
     waitForEmail,
     waitForCode,
     waitForMfaCode,
+    waitForEmailByHeader,
     eventEmitter,
   };
 }
