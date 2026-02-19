@@ -80,7 +80,7 @@
     "@types/ejs": "^3.0.6",
     "@types/mjml": "^4.7.4",
     "agentkeepalive": "^4.6.0",
-    "ajv": "^8.17.1",
+    "ajv": "^8.18.0",
     "commander": "2.18.0",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",

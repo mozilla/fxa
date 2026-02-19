@@ -279,7 +279,7 @@
   "dependencies": {
     "@fluent/langneg": "^0.7.0",
     "accept-language-parser": "^1.5.0",
-    "ajv": "^8.17.1",
+    "ajv": "^8.18.0",
     "celebrate": "^15.0.1",
     "cldr-localenames-full": "46.0.0",
     "cors": "^2.8.5",
