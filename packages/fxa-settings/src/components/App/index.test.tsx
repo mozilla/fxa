@@ -16,6 +16,7 @@ import {
   useClientInfoState,
   useProductInfoState,
   useSession,
+  isProbablyFirefox,
   Account,
   IntegrationType,
 } from '../../models';
@@ -75,6 +76,7 @@ jest.mock('../../lib/cache', () => ({
 const mockSessionStatus = jest.fn();
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
+  isProbablyFirefox: jest.fn(() => false),
   useInitialMetricsQueryState: jest.fn(),
   useLocalSignedInQueryState: jest.fn(),
   useClientInfoState: jest.fn(),
@@ -398,8 +400,13 @@ describe('AuthAndAccountSetupRoutes', () => {
 
 describe('SettingsRoutes', () => {
   const settingsPath = '/settings';
+  const originalUserAgent = window.navigator.userAgent;
 
   beforeEach(() => {
+    Object.defineProperty(window.navigator, 'userAgent', {
+      value: originalUserAgent,
+      configurable: true,
+    });
     jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
     jest.clearAllMocks();
     // Provide a session token for useAccountData hook
@@ -438,6 +445,10 @@ describe('SettingsRoutes', () => {
   });
 
   afterEach(() => {
+    Object.defineProperty(window.navigator, 'userAgent', {
+      value: originalUserAgent,
+      configurable: true,
+    });
     (useIntegration as jest.Mock).mockRestore();
     (useInitialMetricsQueryState as jest.Mock).mockRestore();
     (useLocalSignedInQueryState as jest.Mock).mockRestore();
@@ -532,13 +543,7 @@ describe('SettingsRoutes', () => {
   });
 
   it('restores sync user when session is valid', async () => {
-    // we only send a webChannel message to check for a sync user
-    // if the userAgent is a version of Firefox
-    Object.defineProperty(window.navigator, 'userAgent', {
-      value:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:118.0) Gecko/20100101 Firefox/118.0',
-      configurable: true,
-    });
+    (isProbablyFirefox as jest.Mock).mockReturnValueOnce(true);
 
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
