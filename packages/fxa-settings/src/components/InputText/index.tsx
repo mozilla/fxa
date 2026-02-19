@@ -43,13 +43,14 @@ export type InputTextProps = {
     | 'username'
     | 'current-password'
     | 'new-password'
-    | 'one-time-code';
+    | 'one-time-code'
+    | 'email';
   inputMode?: 'text' | 'numeric' | 'tel' | 'email';
   required?: boolean;
   tooltipPosition?: 'top' | 'bottom';
   isPasswordInput?: boolean;
   ariaDescribedBy?: string;
-  autocapitalize?: 'off' | 'sentences' | 'words' | 'characters';
+  autoCapitalize?: 'off' | 'sentences' | 'words' | 'characters';
 };
 
 export const InputText = ({
@@ -83,7 +84,7 @@ export const InputText = ({
   tooltipPosition,
   isPasswordInput = false,
   ariaDescribedBy,
-  autocapitalize,
+  autoCapitalize,
 }: InputTextProps) => {
   const [focused, setFocused] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
@@ -196,6 +197,7 @@ export const InputText = ({
             autoComplete,
             inputMode,
             required,
+            autoCapitalize,
           }}
         />
       </span>

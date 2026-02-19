@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders as expected 1`] = `
+exports[`InputText renders as expected 1`] = `
 <div>
   <label
     class="flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none border-grey-200 bg-white"
