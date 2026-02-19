@@ -40,13 +40,24 @@ export default async function LoyaltyDiscountStaySubscribedPage({
 
   const uid = session.user.id;
 
-  const pageContent = await determineStaySubscribedEligibilityAction(
-    uid,
-    subscriptionId,
-    acceptLanguage
-  );
+  let pageContent;
+  try {
+    pageContent = await determineStaySubscribedEligibilityAction(
+      uid,
+      subscriptionId,
+      acceptLanguage
+    );
+  } catch (error) {
+    redirect(
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/stay-subscribed/error`
+    );
+  }
 
-  if (!pageContent) notFound();
+  if (!pageContent) {
+    redirect(
+      `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/stay-subscribed/error`
+    );
+  }
 
   const { churnStaySubscribedEligibility, staySubscribedContent } = pageContent;
   const { cmsOfferingContent, reason, cmsChurnInterventionEntry } =

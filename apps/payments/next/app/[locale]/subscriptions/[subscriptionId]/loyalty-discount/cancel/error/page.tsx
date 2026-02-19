@@ -5,7 +5,7 @@
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 import { SubscriptionParams } from '@fxa/payments/ui';
 import { determineChurnCancelEligibilityAction } from '@fxa/payments/ui/actions';
@@ -45,14 +45,27 @@ export default async function LoyaltyDiscountCancelErrorPage({
 
   const uid = session.user.id;
 
-  const pageContent = await determineChurnCancelEligibilityAction(
-    uid,
-    subscriptionId,
-    acceptLanguage
-  );
+  let pageContent;
+  try {
+    pageContent = await determineChurnCancelEligibilityAction(
+      uid,
+      subscriptionId,
+      acceptLanguage
+    );
+  } catch (error) {
+    pageContent = null;
+  }
 
   if (!pageContent) {
-    notFound();
+    return (
+      <ChurnError
+        cmsOfferingContent={undefined}
+        locale={locale}
+        reason="general_error"
+        pageContent={{ flowType: 'not_found' }}
+        subscriptionId={subscriptionId}
+      />
+    );
   }
 
   const { churnCancelContentEligibility } = pageContent;
@@ -63,18 +76,15 @@ export default async function LoyaltyDiscountCancelErrorPage({
   }
 
   const { cmsOfferingContent, reason } = churnCancelContentEligibility;
-  if (!cmsOfferingContent) {
-    notFound();
-  }
 
   const cancelContent = pageContent.cancelContent;
 
-  if (cancelContent.flowType !== 'cancel') {
+  if (cancelContent.flowType !== 'cancel' || !cmsOfferingContent) {
     return (
       <ChurnError
         cmsOfferingContent={cmsOfferingContent}
         locale={locale}
-        reason={reason}
+        reason={reason ?? 'general_error'}
         pageContent={cancelContent}
         subscriptionId={subscriptionId}
       />
@@ -203,7 +213,7 @@ export default async function LoyaltyDiscountCancelErrorPage({
     <ChurnError
       cmsOfferingContent={cmsOfferingContent}
       locale={locale}
-      reason={reason}
+      reason={reason ?? 'general_error'}
       pageContent={cancelContent}
       subscriptionId={subscriptionId}
     />

@@ -113,24 +113,29 @@ export function ChurnStaySubscribed({
     setLoading(true);
     setResubscribeActionError(false);
 
-    const result = await redeemChurnCouponAction(
-      uid,
-      subscriptionId,
-      'stay_subscribed',
-      { ...params },
-      Object.fromEntries(searchParams),
-      locale
-    );
+    try {
+      const result = await redeemChurnCouponAction(
+        uid,
+        subscriptionId,
+        'stay_subscribed',
+        { ...params },
+        Object.fromEntries(searchParams),
+        locale
+      );
 
-    if (result.redeemed) {
-      // TODO: This is a workaround to match existing legacy behavior.
-      // Fix as part of redesign
-      setShowSuccess(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    } else {
+      if (result.redeemed) {
+        // TODO: This is a workaround to match existing legacy behavior.
+        // Fix as part of redesign
+        setShowSuccess(true);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      } else {
+        setResubscribeActionError(true);
+      }
+    } catch {
       setResubscribeActionError(true);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   async function resubscribe() {

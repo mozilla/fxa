@@ -109,4 +109,5 @@ export enum ChurnErrorReason {
   SubscriptionStillActive = 'subscription_still_active',
   GeneralError = 'general_error',
   RedemptionLimitExceeded = 'redemption_limit_exceeded',
+  CustomerMismatch = 'customer_mismatch',
 }

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { headers } from 'next/headers';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 import { SubscriptionParams } from '@fxa/payments/ui';
 import { determineStaySubscribedEligibilityAction } from '@fxa/payments/ui/actions';
@@ -41,14 +41,27 @@ export default async function LoyaltyDiscountStaySubscribedErrorPage({
 
   const uid = session.user.id;
 
-  const pageContent = await determineStaySubscribedEligibilityAction(
-    uid,
-    subscriptionId,
-    acceptLanguage
-  );
+  let pageContent;
+  try {
+    pageContent = await determineStaySubscribedEligibilityAction(
+      uid,
+      subscriptionId,
+      acceptLanguage
+    );
+  } catch (error) {
+    pageContent = null;
+  }
 
   if (!pageContent) {
-    notFound();
+    return (
+      <ChurnError
+        cmsOfferingContent={undefined}
+        locale={locale}
+        reason="general_error"
+        pageContent={{ flowType: 'not_found' }}
+        subscriptionId={subscriptionId}
+      />
+    );
   }
 
   const { churnStaySubscribedEligibility } = pageContent;
@@ -59,15 +72,12 @@ export default async function LoyaltyDiscountStaySubscribedErrorPage({
   }
 
   const { cmsOfferingContent, reason } = churnStaySubscribedEligibility;
-  if (!cmsOfferingContent) {
-    notFound();
-  }
 
   return (
     <ChurnError
       cmsOfferingContent={cmsOfferingContent}
       locale={locale}
-      reason={reason}
+      reason={reason ?? 'general_error'}
       pageContent={pageContent.staySubscribedContent}
       subscriptionId={subscriptionId}
     />
