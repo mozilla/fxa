@@ -60,17 +60,20 @@ export class PasskeyConfig {
    * @example 'required'
    */
   @IsString()
-  public userVerification?: string;
+  public userVerification?: 'required' | 'preferred' | 'discouraged';
 
   /**
    * Resident key (discoverable credential) requirement.
-   * - 'required': Credential must be discoverable (stored on authenticator)
+   * - 'required': Credential must be discoverable (stored on authenticator).
+   *   Must be set to 'required' for the passwordless / usernameless sign-in
+   *   flow — non-discoverable credentials cannot be surfaced by the browser
+   *   without a prior username.
    * - 'preferred': Discoverable credential preferred but not required
    * - 'discouraged': Non-discoverable credential preferred
-   * @example 'preferred'
+   * @example 'required'
    */
   @IsString()
-  public residentKey?: string;
+  public residentKey?: 'required' | 'preferred' | 'discouraged';
 
   /**
    * Authenticator attachment preference.
