@@ -166,7 +166,9 @@ export const Index = ({
             autoFocus
             errorText={tooltipErrorMessage}
             onChange={handleInputChange}
-            autocapitalize="off"
+            autoCapitalize="off"
+            autoComplete="email"
+            spellCheck={false}
           />
         </FtlMsg>
         <div className="flex mt-5">
