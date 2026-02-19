@@ -4,9 +4,9 @@ exports[`ThirdPartyAuthComponent buttons match snapshot: apple 1`] = `
 <button
   aria-label="Continue with Apple"
   class="w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
-        bg-black border-transparent
-        "
-  type="submit"
+      bg-black border-transparent
+      "
+  type="button"
 >
   <svg
     class="w-full h-auto"
@@ -20,9 +20,9 @@ exports[`ThirdPartyAuthComponent buttons match snapshot: google 1`] = `
 <button
   aria-label="Continue with Google"
   class="w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
-        bg-[#F9F4F4] border-[#747775] border-[1px]
-        "
-  type="submit"
+      bg-[#F9F4F4] border-[#747775] border-[1px]
+      "
+  type="button"
 >
   <svg
     class="w-full h-auto"

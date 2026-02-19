@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import { Subject } from './mocks';
 
 const mockViewWithNoPasswordSet = jest.fn();
@@ -14,14 +16,14 @@ const mockStartGoogleAuthFromLogin = jest.fn();
 const mockStartAppleAuthFromLogin = jest.fn();
 const mockStartGoogleAuthFromReg = jest.fn();
 const mockStartAppleAuthFromReg = jest.fn();
-const mockGleanIsDone = jest.fn();
+const mockGleanIsDone = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('../../lib/glean', () => {
   return {
     __esModule: true,
     default: {
       isDone: () => {
-        mockGleanIsDone();
+        return mockGleanIsDone();
       },
       emailFirst: {
         googleOauthStart: () => {
@@ -56,22 +58,20 @@ function renderWith(props?: any) {
   return renderWithLocalizationProvider(<Subject {...props} />);
 }
 
-const mockFormSubmit = jest.fn();
-// jsdom does not implement HTMLFormElement.prototype.submit.
-HTMLFormElement.prototype.submit = mockFormSubmit;
-
 describe('ThirdPartyAuthComponent', () => {
-  // Form submission not supported in jest test. Instead, prevent the submission
-  // and illustrate a 'short circuit' operation.
-  const onSubmit = (e: any) => {
-    e.preventDefault();
-    return false;
-  };
-  const onContinueWithApple = jest.fn().mockImplementation(onSubmit);
-  const onContinueWithGoogle = jest.fn().mockImplementation(onSubmit);
+  const onContinueWithApple = jest.fn();
+  const onContinueWithGoogle = jest.fn();
+  let hardNavigateSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    hardNavigateSpy = jest
+      .spyOn(ReactUtils, 'hardNavigate')
+      .mockImplementation(() => {});
+  });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    hardNavigateSpy.mockRestore();
+    jest.clearAllMocks();
   });
 
   it('renders', async () => {
@@ -84,69 +84,68 @@ describe('ThirdPartyAuthComponent', () => {
 
     await screen.findByLabelText('Continue with Google');
     await screen.findByLabelText('Continue with Apple');
-    expect(mockFormSubmit).not.toHaveBeenCalled();
-
-    expect(
-      (await screen.findByTestId('google-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).toEqual('http%3A%2F%2Flocalhost%2F%3FflowId%3D123');
-
-    expect(
-      (await screen.findByTestId('apple-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).toEqual('http%3A%2F%2Flocalhost%2F%3FflowId%3D123');
   });
 
   it('submits apple form', async () => {
+    const user = userEvent.setup();
     renderWith({
       enabled: true,
       showSeparator: true,
       onContinueWithApple,
       onContinueWithGoogle,
+      flowQueryParams: { flowId: '123' },
     });
 
     const button = await screen.findByLabelText('Continue with Apple');
-    button.click();
+    await user.click(button);
 
-    // Ensure the hidden input for state was updated.
-    expect(
-      (await screen.findByTestId('apple-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).not.toEqual('');
     expect(onContinueWithApple).toHaveBeenCalled();
     expect(onContinueWithGoogle).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(hardNavigateSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          state: 'http%3A%2F%2Flocalhost%2F%3FflowId%3D123',
+        }),
+        false,
+        false,
+        0
+      );
+    });
   });
 
   it('submits google form', async () => {
+    const user = userEvent.setup();
     renderWith({
       enabled: true,
       showSeparator: true,
       onContinueWithApple,
       onContinueWithGoogle,
+      flowQueryParams: { flowId: '123' },
     });
 
     const button = await screen.findByLabelText('Continue with Google');
-    button.click();
+    await user.click(button);
 
-    // Ensure the hidden input for state was updated.
-    expect(
-      (await screen.findByTestId('google-signin-form-state')).getAttribute(
-        'value'
-      )
-    ).not.toEqual('');
     expect(onContinueWithGoogle).toHaveBeenCalled();
     expect(onContinueWithApple).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(hardNavigateSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          state: 'http%3A%2F%2Flocalhost%2F%3FflowId%3D123',
+        }),
+        false,
+        false,
+        0
+      );
+    });
   });
 
   it('hides separator', async () => {
     renderWith({
       enabled: true,
       showSeparator: false,
-      onContinueWithApple,
-      onContinueWithGoogle,
     });
 
     expect(screen.queryByText('Or')).toBeNull();
@@ -157,8 +156,6 @@ describe('ThirdPartyAuthComponent', () => {
     renderWith({
       enabled: true,
       showSeparator: true,
-      onContinueWithApple,
-      onContinueWithGoogle,
     });
 
     expect(screen.queryByText('Or')).toBeDefined();
@@ -168,8 +165,6 @@ describe('ThirdPartyAuthComponent', () => {
   it('buttons match snapshot', async () => {
     renderWith({
       enabled: true,
-      onContinueWithApple,
-      onContinueWithGoogle,
     });
 
     const googleButton = await screen.findByLabelText('Continue with Google');
@@ -183,8 +178,6 @@ describe('ThirdPartyAuthComponent', () => {
       renderWith({
         enabled: true,
         showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
       });
       expect(mockViewWithNoPasswordSet).toHaveBeenCalled();
     });
@@ -193,8 +186,6 @@ describe('ThirdPartyAuthComponent', () => {
       renderWith({
         enabled: true,
         showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'index',
       });
       const button = await screen.findByLabelText('Continue with Google');
@@ -207,8 +198,6 @@ describe('ThirdPartyAuthComponent', () => {
       renderWith({
         enabled: true,
         showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'index',
       });
       const button = await screen.findByLabelText('Continue with Apple');
@@ -220,8 +209,6 @@ describe('ThirdPartyAuthComponent', () => {
       renderWith({
         enabled: true,
         showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'signin',
       });
       const button = await screen.findByLabelText('Continue with Google');
@@ -234,8 +221,6 @@ describe('ThirdPartyAuthComponent', () => {
       renderWith({
         enabled: true,
         showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'signin',
       });
       const button = await screen.findByLabelText('Continue with Apple');
@@ -247,8 +232,6 @@ describe('ThirdPartyAuthComponent', () => {
       renderWith({
         enabled: true,
         showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'signup',
       });
       const button = await screen.findByLabelText('Continue with Google');
@@ -261,8 +244,6 @@ describe('ThirdPartyAuthComponent', () => {
       renderWith({
         enabled: true,
         showSeparator: false,
-        onContinueWithApple,
-        onContinueWithGoogle,
         viewName: 'signup',
       });
       const button = await screen.findByLabelText('Continue with Apple');
