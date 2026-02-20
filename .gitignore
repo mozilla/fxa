@@ -194,3 +194,7 @@ libs/shared/cms/src/__generated__/graphql.js
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Local build logs
+build_log.txt
+build_log_2.txt

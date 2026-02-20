@@ -22,7 +22,7 @@ geodb(knownIp);
 module.exports = (log) => {
   log.info('geodb.start', { enabled: config.enabled, dbPath: config.dbPath });
 
-  return (ip) => {
+  return (ip, locale) => {
     if (config.enabled === false) {
       return {};
     }
@@ -37,7 +37,7 @@ module.exports = (log) => {
         return config.locationOverride;
       }
 
-      const location = geodb(ip);
+      const location = geodb(ip, { userLocale: locale });
       const accuracy = location.accuracy;
       let confidence = 'fxa.location.accuracy.';
 

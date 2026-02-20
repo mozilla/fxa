@@ -13,7 +13,11 @@ export const geolocate =
   (log: Logger) =>
   (request: express.Request) => {
     try {
-      return geodb(remoteAddress(request).clientAddress);
+      // @ts-ignore - locale/lang might not be in standard Request type but injected by middleware
+      const locale = request.locale || request.lang;
+      return geodb(remoteAddress(request).clientAddress, {
+        userLocale: locale,
+      });
     } catch (err) {
       log.error('geodb.error', err);
       return {};

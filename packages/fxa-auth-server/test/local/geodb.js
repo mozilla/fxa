@@ -64,4 +64,50 @@ describe('geodb', () => {
     const geoData = getGeoData('8.8.8.8');
     assert.deepEqual(geoData, {});
   });
+  it('passes userLocale to geodb and returns localized data', () => {
+    const moduleMocks = {
+      '../config': {
+        default: {
+          get: function (item) {
+            if (item === 'geodb') {
+              return {
+                enabled: true,
+                locationOverride: {},
+              };
+            }
+          },
+        },
+      },
+      'fxa-geodb': function (config) {
+        return function (ip, options) {
+          if (options && options.userLocale === 'fr') {
+            return {
+              city: 'Paris',
+              country: 'France',
+              countryCode: 'FR',
+              accuracy: 10,
+            };
+          }
+          return {
+            city: 'Mountain View',
+            country: 'United States',
+            countryCode: 'US',
+            accuracy: 10,
+          };
+        };
+      },
+    };
+    const thisMockLog = mockLog({});
+
+    const getGeoData = proxyquire(modulePath, moduleMocks)(thisMockLog);
+
+    // Call with 'fr'
+    const geoDataFr = getGeoData('8.8.8.8', 'fr');
+    assert.equal(geoDataFr.location.country, 'France');
+    assert.equal(geoDataFr.location.city, 'Paris');
+
+    // Call with 'en' or undefined (defaults to mock else)
+    const geoDataEn = getGeoData('8.8.8.8', 'en');
+    assert.equal(geoDataEn.location.country, 'United States');
+  });
 });
