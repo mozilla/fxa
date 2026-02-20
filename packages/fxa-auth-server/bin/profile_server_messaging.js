@@ -38,5 +38,5 @@ DB.connect(config).then((db) => {
     },
   });
 
-  profileUpdates(profileUpdatesQueue, push(log, db, config), db);
+  profileUpdates(profileUpdatesQueue, push(log, db, config, statsd), db);
 });
