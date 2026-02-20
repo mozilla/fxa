@@ -700,7 +700,7 @@ jobs:
         default: run-many
       resource_class:
         type: string
-        default: large
+        default: xlarge
       workflow:
         type: string
     executor: default-executor
