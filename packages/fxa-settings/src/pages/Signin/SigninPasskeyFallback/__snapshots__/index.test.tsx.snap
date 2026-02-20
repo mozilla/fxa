@@ -1,0 +1,161 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SigninPasskeyFallback renders as expected 1`] = `
+<div>
+  <div
+    class="flex min-h-screen flex-col items-center"
+    data-testid="app"
+  >
+    <div
+      class="w-full hidden mobileLandscape:block"
+      id="body-top"
+    />
+    <header
+      class="w-full px-6 py-4 mobileLandscape:py-6"
+    >
+      <a
+        class="mobileLandscape:inline-block"
+        data-testid="link-external"
+        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
+        rel="author"
+        target="_blank"
+      >
+        <img
+          alt="Mozilla logo"
+          class="h-auto w-[140px] mx-0"
+          src="moz-logo-bw-rgb.svg"
+        />
+        <span
+          class="sr-only"
+        >
+          Opens in new window
+        </span>
+      </a>
+    </header>
+    <main
+      class="flex mobileLandscape:items-center flex-1"
+    >
+      <section>
+        <div
+          class="card"
+        >
+          <span
+            data-testid="ftlmsg-mock"
+            id="signin-passkey-fallback-header"
+          >
+            <p
+              class="text-sm text-grey-500 mb-2"
+            >
+              Finish sign in
+            </p>
+          </span>
+          <span
+            data-testid="ftlmsg-mock"
+            id="signin-passkey-fallback-heading"
+          >
+            <h1
+              class="card-header mb-4"
+            >
+              Enter your password to sync
+            </h1>
+          </span>
+          <span
+            data-testid="ftlmsg-mock"
+            id="signin-passkey-fallback-body"
+          >
+            <p
+              class="text-sm mb-6"
+            >
+              To keep your data safe, you need to enter your password when you use this passkey.
+            </p>
+          </span>
+          <form>
+            <span
+              data-testid="ftlmsg-mock"
+              id="signin-passkey-fallback-password-label"
+            >
+              <div
+                class="relative"
+              >
+                <label
+                  class="flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none border-grey-200 bg-white mb-6"
+                  data-testid="password-input-container"
+                >
+                  <span
+                    class="block flex-auto"
+                  >
+                    <span
+                      class="px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body text-grey-900 mt-3 pt-px"
+                      data-testid="password-input-label"
+                    >
+                      Password
+                    </span>
+                    <input
+                      autocomplete="off"
+                      class="pb-1 pt-5 px-3 font-body rounded text-start w-[90%]"
+                      data-testid="password-input-field"
+                      name="password"
+                      spellcheck="false"
+                      type="password"
+                      value=""
+                    />
+                  </span>
+                </label>
+                <button
+                  aria-label="Your password is currently hidden."
+                  aria-pressed="false"
+                  class="absolute end-0 inset-y-0 my-auto mx-2 px-2 text-grey-500 box-content focus-visible-default rounded"
+                  data-testid="password-visibility-toggle"
+                  title="Show password"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="stroke-current"
+                    height="18"
+                    width="24"
+                  >
+                    eye-open.svg
+                  </svg>
+                </button>
+              </div>
+            </span>
+            <div
+              class="flex flex-col tablet:flex-row gap-4"
+            >
+              <span
+                data-testid="ftlmsg-mock"
+                id="signin-passkey-fallback-go-to-settings"
+              >
+                <button
+                  class="cta-neutral cta-base-p tablet:flex-1"
+                  data-testid="go-to-settings-button"
+                  type="button"
+                >
+                  Go to settings
+                </button>
+              </span>
+              <span
+                data-testid="ftlmsg-mock"
+                id="signin-passkey-fallback-continue"
+              >
+                <button
+                  class="cta-primary cta-base-p tablet:flex-1"
+                  data-testid="continue-button"
+                  type="submit"
+                >
+                  Continue
+                </button>
+              </span>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div
+    class="w-full block mobileLandscape:hidden"
+    id="body-bottom"
+  />
+</div>
+`;

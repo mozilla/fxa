@@ -105,6 +105,9 @@ const SigninBounced = lazy(() => import('../../pages/Signin/SigninBounced'));
 const SigninConfirmed = lazy(
   () => import('../../pages/Signin/SigninConfirmed')
 );
+const SigninPasskeyFallback = lazy(
+  () => import('../../pages/Signin/SigninPasskeyFallback')
+);
 const SigninRecoveryCodeContainer = lazy(
   () => import('../../pages/Signin/SigninRecoveryCode/container')
 );
@@ -314,7 +317,8 @@ export const App = ({
         recoveryKey: data.account.recoveryKey?.exists ?? false,
         hasSecondaryVerifiedEmail:
           data.account.emails.length > 1 && data.account.emails[1].verified,
-        totpActive: (data.account.totp?.exists && data.account.totp?.verified) ?? false,
+        totpActive:
+          (data.account.totp?.exists && data.account.totp?.verified) ?? false,
       });
     }
   }, [
@@ -615,6 +619,7 @@ const AuthAndAccountSetupRoutes = ({
         path="/signin_confirmed/*"
         {...{ isSignedIn, serviceName, integration }}
       />
+      <SigninPasskeyFallback path="/signin_passkey_fallback/*" />
       <SigninRecoveryChoiceContainer
         path="/signin_recovery_choice/*"
         {...{ integration }}
