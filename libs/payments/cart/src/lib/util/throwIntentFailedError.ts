@@ -64,6 +64,9 @@ export function throwIntentFailedError(
       }
     }
     case 'incorrect_cvc':
+    case 'incorrect_number':
+    case 'incorrect_zip':
+    case 'invalid_cvc':
       throw new IntentCardDeclinedError(cartId, paymentIntentId, intentType);
     case 'expired_card':
       throw new IntentCardExpiredError(cartId, paymentIntentId, intentType);
