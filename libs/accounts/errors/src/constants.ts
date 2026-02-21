@@ -248,37 +248,3 @@ export const BAD_SIGNATURE_ERRORS = [
   'Missing required payload hash',
   'Payload is invalid',
 ];
-
-/**
- * Payload properties that might help us debug unexpected errors
- * when they show up in production. Obviously we don't want to
- * accidentally send any sensitive data or PII to a 3rd-party,
- * so the set is opt-in rather than opt-out.
- */
-export const DEBUGGABLE_PAYLOAD_KEYS = new Set([
-  'availableCommands',
-  'capabilities',
-  'client_id',
-  'code',
-  'command',
-  'duration',
-  'excluded',
-  'features',
-  'messageId',
-  'metricsContext',
-  'name',
-  'preVerified',
-  'publicKey',
-  'reason',
-  'redirectTo',
-  'reminder',
-  'scope',
-  'service',
-  'target',
-  'to',
-  'TTL',
-  'ttl',
-  'type',
-  'unblockCode',
-  'verificationMethod',
-]);
