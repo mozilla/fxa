@@ -25,6 +25,9 @@ export type TracingOpts = {
     url: string;
     concurrencyLimit: number;
   };
+  sentry?: {
+    enabled: boolean;
+  };
 };
 
 /** Default convict config for node tracing */

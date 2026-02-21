@@ -21,7 +21,11 @@ initMonitoring({
     ...config.getProperties(),
     release: version,
     eventFilters: [filterSentryEvent],
-    integrations: [Sentry.linkedErrorsIntegration({ key: 'jse_cause' })],
+    integrations: [
+      // Important! This fixes a ton of problems with our previous integration.
+      Sentry.hapiIntegration(),
+      Sentry.linkedErrorsIntegration({ key: 'jse_cause' }),
+    ],
   },
 });
 
