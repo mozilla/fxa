@@ -23,6 +23,9 @@ export type SentryConfigOpts = {
     /** The name of the active server. */
     serverName?: string;
 
+    /** Let Sentry know that otel setup should be handled by the app. */
+    skipOpenTelemetrySetup?: boolean;
+
     /** When set to true, building a configuration will throw an error critical fields are missing. */
     strict?: boolean;
 

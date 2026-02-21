@@ -4,10 +4,12 @@
 
 'use strict';
 
+const Sentry = require('@sentry/node');
 const isA = require('joi');
 const random = require('../crypto/random');
 const validators = require('./validators');
 const UTIL_DOCS = require('../../docs/swagger/util-api').default;
+const { AppError } = require('../../../../libs/accounts/errors/src');
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -65,6 +67,40 @@ module.exports = (log, config, redirectDomain) => {
       },
       handler: async function (request, h) {
         return h.redirect(config.contentServer.url + request.raw.req.url);
+      },
+    },
+    {
+      method: 'GET',
+      path: '/boom',
+      options: {},
+      handler: async function (request, h) {
+        if (config.sentry.env === 'local') {
+          const traceId = Sentry.getActiveSpan().spanContext().traceId;
+          console.log(`${traceId}: crumb ${new Date().toString()}`);
+          await (async () => {
+            await new Promise((r) => {
+              setTimeout(() => {
+                console.log(`${traceId}: crumb ${new Date().toString()}`);
+                r();
+              }, 100);
+            });
+
+            // Throw fabricated error
+            console.log(`${traceId}: crumb ${new Date().toString()}`);
+            throw new AppError(
+              {
+                code: 500,
+                error: 'BOOM',
+                errno: AppError.ERRNO.UNEXPECTED_ERROR,
+                message: 'Testing error capture',
+              },
+              {
+                op: { foo: 'bar' },
+                data: { foo: 'baz' },
+              }
+            );
+          })();
+        }
       },
     },
   ];

@@ -7,6 +7,7 @@ import { suppressTracing } from '@opentelemetry/core';
 import { ILogger } from '../log';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import { SentryContextManager } from '@sentry/node';
 import {
   BatchSpanProcessor,
   NodeTracerProvider,
@@ -98,10 +99,29 @@ export class NodeTracingInitializer {
           '@opentelemetry/instrumentation-fs': {
             enabled: false,
           },
+          '@opentelemetry/instrumentation-aws-lambda': {
+            enabled: false,
+          },
+          '@opentelemetry/instrumentation-http': {
+            // Important! If Sentry is enabled, we want to rely on Sentry's http instrumentation!
+            enabled: this.opts.sentry?.enabled ? false : true,
+          },
         }),
       ],
     });
-    this.provider.register();
+    // Use SentryContextManager so that Sentry's per-request isolation scopes
+    // are properly forked for every api.context.with() call. Without this,
+    // NodeTracerProvider.register() would install a plain
+    // AsyncLocalStorageContextManager that doesn't understand Sentry's scope
+    // forking, and Sentry.init()'s own setupOtel() would overwrite our
+    // NodeTracerProvider (discarding the custom exporters).
+    if (this.opts.sentry?.enabled) {
+      this.provider.register({
+        contextManager: new SentryContextManager(),
+      });
+    } else {
+      this.provider.register();
+    }
   }
 
   public startSpan(name: string, action: () => void) {
@@ -156,12 +176,7 @@ export function initTracing(opts: TracingOpts, logger: ILogger) {
     return nodeTracing;
   }
 
-  if (
-    !opts.otel?.enabled &&
-    !opts.gcp?.enabled &&
-    !opts.console?.enabled &&
-    !opts.sentry?.enabled
-  ) {
+  if (!opts.otel?.enabled && !opts.gcp?.enabled && !opts.console?.enabled) {
     logger.debug(log_type, {
       msg: 'Trace initialization skipped. No exporters configured. Enable gcp, otel or console to activate tracing.',
     });
