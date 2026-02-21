@@ -1,0 +1,11 @@
+{
+  "commit": "37bd3835110f44a9c6574e0785a692e6cac6771a",
+  "summary": "fix(settings): fix metrics not always emitted for third party auth",
+  "description": "Because:\n\n* metrics not always emitted for third party auth\n\nThis commit:\n\n* avoids using <form> for navigation\n\nCloses FXA-12949",
+  "timestamp": 1771543839000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

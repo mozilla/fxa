@@ -1,0 +1,10 @@
+{
+  "commit": "09bebadbc583b55ed313df62c1cf0a4389e01db8",
+  "summary": "feat(email): add templates for passwordless Because:",
+  "description": "- Need new email templates for passwordless signin and signup otp\n\nThis commit:\n\n- Adds passwordlessSigninOtp email template\n- Adds passwordlessSignupOtp email template\n\nCloses #FXA-13016",
+  "timestamp": 1770993046000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

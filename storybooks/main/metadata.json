@@ -1,0 +1,12 @@
+{
+  "commit": "323dbf4400d648173daa40aa6523d8814c383f64",
+  "summary": "Merge pull request #20066 from mozilla/password-fallback-design",
+  "description": "feat(settings): create password fallback page for Sync",
+  "timestamp": 1771607301000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

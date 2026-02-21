@@ -1,0 +1,10 @@
+{
+  "commit": "c9935eaca6ce8d97b1a154f4446384a9d3d3c040",
+  "summary": "task(passkeys): Add WebAuthn error categorization utility",
+  "description": "Because:\n\n- Raw DOMExceptions from createCredential() / getCredential() must be translated into semantic, UI-safe categories before they reach components\n- Error handling strategy (Sentry routing, user messaging) differs by both error type and ceremony context (registration vs. authentication)\n- WebAuthn browser errors are explicitly out of scope for auth-errors and must not use the errno-based registry (see FXA-12910 for server errors)\n\nThis commit:\n- Adds categorizeWebAuthnError(error, operation) — maps DOMException names and TypeError to one of three categories (UserAction, DevicePlatform, Unexpected), returns an operation-specific FTL key and logToSentry flag; never throws\n- Adds handleWebAuthnError(error, operation, captureException) — single call site that categorizes the error and conditionally fires Sentry\n- Covers all WebAuthn Level 3 error types including DataError and EncodingError (thrown by parseCreationOptionsFromJSON / parseRequestOptionsFromJSON for malformed options)\n- Adds  FTL strings for all 15 error/operation combinations\n\nCloses #FXA-12912",
+  "timestamp": 1771612856000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

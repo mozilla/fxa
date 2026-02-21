@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit ebdcf883bed8efb4bfd7c47be88d66d7864db062</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit ebdcf883bed8efb4bfd7c47be88d66d7864db062</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>2/13/2026, 4:16:20 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(signin): Check if session is valid for isFirefoxNonSync before rendering cached signin</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* Now that we offer cached sign-in for non-Sync service browser sign-ins, FxA can show a stale cached sign in page when the user signs out from the browser menu
+
+This commit:
+* Adds a &quot;session is verified&quot; check for Firefox client IDs that have a non-Sync &#039;service&#039; param before we render cached sign-in
+
+closes FXA-13022</pre></dd>
+  </dl>
+</body>
+</html>

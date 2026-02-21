@@ -1,0 +1,10 @@
+{
+  "commit": "1c3d069ce3a1b7c573e7bdf6e4c61eae788b9b0e",
+  "summary": "feat(auth): add passwordless email otp routes Because:",
+  "description": "- Add necessary backend changes to enable passwordless signup and\n  signin with email OTP.\n\nThis commit:\n\n- Adds PasswordlessHandler route handler\n- Adds passworldess send/resend/confirm routes\n- Adds tests for PasswordlessHandler\n\nCloses #FXA-13014",
+  "timestamp": 1771620748000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit c9935eaca6ce8d97b1a154f4446384a9d3d3c040</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit c9935eaca6ce8d97b1a154f4446384a9d3d3c040</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>2/20/2026, 6:40:56 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>task(passkeys): Add WebAuthn error categorization utility</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- Raw DOMExceptions from createCredential() / getCredential() must be translated into semantic, UI-safe categories before they reach components
+- Error handling strategy (Sentry routing, user messaging) differs by both error type and ceremony context (registration vs. authentication)
+- WebAuthn browser errors are explicitly out of scope for auth-errors and must not use the errno-based registry (see FXA-12910 for server errors)
+
+This commit:
+- Adds categorizeWebAuthnError(error, operation) — maps DOMException names and TypeError to one of three categories (UserAction, DevicePlatform, Unexpected), returns an operation-specific FTL key and logToSentry flag; never throws
+- Adds handleWebAuthnError(error, operation, captureException) — single call site that categorizes the error and conditionally fires Sentry
+- Covers all WebAuthn Level 3 error types including DataError and EncodingError (thrown by parseCreationOptionsFromJSON / parseRequestOptionsFromJSON for malformed options)
+- Adds  FTL strings for all 15 error/operation combinations
+
+Closes #FXA-12912</pre></dd>
+  </dl>
+</body>
+</html>

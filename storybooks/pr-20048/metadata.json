@@ -1,0 +1,10 @@
+{
+  "commit": "ebdcf883bed8efb4bfd7c47be88d66d7864db062",
+  "summary": "fix(signin): Check if session is valid for isFirefoxNonSync before rendering cached signin",
+  "description": "Because:\n* Now that we offer cached sign-in for non-Sync service browser sign-ins, FxA can show a stale cached sign in page when the user signs out from the browser menu\n\nThis commit:\n* Adds a \"session is verified\" check for Firefox client IDs that have a non-Sync 'service' param before we render cached sign-in\n\ncloses FXA-13022",
+  "timestamp": 1770999380000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

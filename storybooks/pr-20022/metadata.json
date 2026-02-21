@@ -1,0 +1,11 @@
+{
+  "commit": "bb462cd55708ba1ace68db308162af65931ab699",
+  "summary": "chore(payments-next): Create proof of concept for free trials Because:",
+  "description": "* We need the ability to support free trials for our customers\n\nThis commit:\n\n* Adds in the code for a proof-of-concept that only applies to the monthly 123DonePro plan in dev\n\nCloses #PAY-3499",
+  "timestamp": 1770933976000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

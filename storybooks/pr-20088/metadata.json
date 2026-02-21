@@ -1,0 +1,10 @@
+{
+  "commit": "86ae4790e448b0dc5799c5dee77a6ee1c6094a22",
+  "summary": "task(settings): Add an example page to test webauth browser helpers",
+  "description": "Because:\n\n- The WebAuthn wrapper functions (createCredential, getCredential, isWebAuthnLevel3Supported) need a live test surface in a real secure context without requiring a running backend\n- We want to start testing options and errors without waiting for full implementation\n- We want a test page that is usable for both engineering and ux/product purposes\n\nThis commit:\n\n- Adds WebAuthnHelpersExample page with editable JSON option fields, live credential creation and authentication flows, and inline display of raw credential JSON and PRF extension results\n- Extracts field reference guides to fieldGuides.tsx (FieldSpec type, creation/request/response field arrays, JsonFieldGuide, JsonResponseGuide)\n- Adds index.stories.tsx with a suggested test sequence covering success, cancellation, rpId error, and timeout cases\n\nIssues #FXA-12911",
+  "timestamp": 1771630459000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

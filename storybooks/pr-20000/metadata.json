@@ -1,0 +1,10 @@
+{
+  "commit": "740ab23261274005ea60486c7b9ddcdde8632be6",
+  "summary": "meep",
+  "description": "",
+  "timestamp": 1770409770000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

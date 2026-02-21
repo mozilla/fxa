@@ -1,0 +1,10 @@
+{
+  "commit": "1e2a7632c669539c788932c058e6c025cc3622da",
+  "summary": "fix(payments-next): Fix churn offer page Because:",
+  "description": "* Cancel interstitial offer page is going to notFound()\n\nThis commit:\n\n* Fixes GetInterstitialOfferContentActionResult to make reason optional",
+  "timestamp": 1769704019000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}
