@@ -36755,7 +36755,7 @@ __metadata:
     babel-eslint: "npm:^10.1.0"
     babel-jest: "npm:29.7.0"
     base64url: "npm:^3.0.1"
-    bn.js: "npm:^5.2.1"
+    bn.js: "npm:^5.2.3"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:0.14.1"
     classnames: "npm:^2.5.1"
