@@ -113,6 +113,7 @@ export interface SigninProps {
   localizedSuccessBannerDescription?: string;
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
+  isSignedIntoFirefoxDesktop?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
 }
 

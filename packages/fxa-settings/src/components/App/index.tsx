@@ -195,6 +195,10 @@ export const App = ({
   // Determine if user is actually signed in
   const [isSignedIn, setIsSignedIn] = useState<boolean | undefined>(undefined);
 
+  // Track whether the user is signed into Firefox Desktop via WebChannel
+  const [isSignedIntoFirefoxDesktop, setIsSignedIntoFirefoxDesktop] =
+    useState(false);
+
   // Track current page's split layout state to prevent visual flashing during navigation.
   // This state is updated by AppLayout and read by the Suspense fallback to preserve
   // the origin page's layout until the destination page loads.
@@ -222,6 +226,10 @@ export const App = ({
             userFromBrowser.sessionToken
           );
           if (isValidSession) {
+            setIsSignedIntoFirefoxDesktop(
+              !!userFromBrowser?.sessionToken &&
+                integration.isFirefoxDesktopClient()
+            );
             const cachedUser = getAccountByUid(userFromBrowser.uid);
             // Refresh the token without switching the "current" account.
             persistAccount(
@@ -384,6 +392,7 @@ export const App = ({
             isSignedIn,
             integration,
             flowQueryParams: updatedFlowQueryParams,
+            isSignedIntoFirefoxDesktop,
             setCurrentSplitLayout,
           }}
           path="/*"
@@ -458,11 +467,13 @@ const AuthAndAccountSetupRoutes = ({
   isSignedIn,
   integration,
   flowQueryParams,
+  isSignedIntoFirefoxDesktop,
   setCurrentSplitLayout,
 }: {
   isSignedIn: boolean;
   integration: Integration;
   flowQueryParams: QueryParams;
+  isSignedIntoFirefoxDesktop: boolean;
   setCurrentSplitLayout: (value: boolean) => void;
 } & RouteComponentProps) => {
   const localAccount = currentAccount();
@@ -589,6 +600,7 @@ const AuthAndAccountSetupRoutes = ({
           serviceName,
           flowQueryParams,
           useFxAStatusResult,
+          isSignedIntoFirefoxDesktop,
           setCurrentSplitLayout,
         }}
       />
@@ -599,6 +611,7 @@ const AuthAndAccountSetupRoutes = ({
           serviceName,
           flowQueryParams,
           useFxAStatusResult,
+          isSignedIntoFirefoxDesktop,
           setCurrentSplitLayout,
         }}
       />
@@ -609,6 +622,7 @@ const AuthAndAccountSetupRoutes = ({
           serviceName,
           flowQueryParams,
           useFxAStatusResult,
+          isSignedIntoFirefoxDesktop,
           setCurrentSplitLayout,
         }}
       />
@@ -619,6 +633,7 @@ const AuthAndAccountSetupRoutes = ({
           serviceName,
           flowQueryParams,
           useFxAStatusResult,
+          isSignedIntoFirefoxDesktop,
           setCurrentSplitLayout,
         }}
       />
