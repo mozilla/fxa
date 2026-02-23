@@ -1839,6 +1839,12 @@ describe('/account/status', () => {
         verifierSetAt: 0,
       },
       shouldError: false,
+      extraConfig: {
+        passwordlessOtp: {
+          forcedEmailAddresses: /^$/,
+          allowedClientIds: [],
+        },
+      },
     });
     mockRequest.payload.thirdPartyAuthStatus = true;
 
@@ -1864,6 +1870,126 @@ describe('/account/status', () => {
       assert.equal(response.exists, false);
       assert.equal(response.linkedAccounts, undefined);
       assert.equal(response.hasPassword, undefined);
+    });
+  });
+
+  it('returns passwordlessSupported true for existing account with no password when thirdPartyAuthStatus is requested', async () => {
+    const { route, mockRequest, mockDB } = setup({
+      dbOptions: {
+        linkedAccounts: [{}],
+        verifierSetAt: 0,
+      },
+      shouldError: false,
+      extraConfig: {
+        passwordlessOtp: {
+          allowedClientIds: ['test-client-id'],
+        },
+      },
+    });
+    mockRequest.payload.thirdPartyAuthStatus = true;
+    mockRequest.payload.clientId = 'test-client-id';
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(mockDB.accountRecord.callCount, 1);
+      assert.equal(response.exists, true);
+      assert.equal(response.hasPassword, false);
+      assert.equal(response.passwordlessSupported, true);
+    });
+  });
+
+  it('returns passwordlessSupported false for existing account with password when thirdPartyAuthStatus is requested', async () => {
+    const { route, mockRequest, mockDB } = setup({
+      dbOptions: {
+        linkedAccounts: [{}],
+        verifierSetAt: Date.now(),
+      },
+      shouldError: false,
+      extraConfig: {
+        passwordlessOtp: {
+          forcedEmailAddresses: /^$/,
+          allowedClientIds: [],
+        },
+      },
+    });
+    mockRequest.payload.thirdPartyAuthStatus = true;
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(mockDB.accountRecord.callCount, 1);
+      assert.equal(response.exists, true);
+      assert.equal(response.hasPassword, true);
+      assert.equal(response.passwordlessSupported, false);
+    });
+  });
+
+  it('returns passwordlessSupported true for non-existing account when globally enabled', async () => {
+    const { route, mockRequest } = setup({
+      extraConfig: {
+        passwordlessOtp: {
+          enabled: true,
+          forcedEmailAddresses: /^passwordless.*@restmail\.net$/,
+          allowedClientIds: ['test-client-id'],
+        },
+      },
+      shouldError: true,
+    });
+    mockRequest.payload.thirdPartyAuthStatus = true;
+    mockRequest.payload.clientId = 'test-client-id';
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(response.exists, false);
+      assert.equal(response.passwordlessSupported, true);
+    });
+  });
+
+  it('returns passwordlessSupported true for non-existing account with forced email regex', async () => {
+    const { route, mockRequest } = setup({
+      extraConfig: {
+        passwordlessOtp: {
+          enabled: false,
+          forcedEmailAddresses: /^passwordless.*@restmail\.net$/,
+          allowedClientIds: ['test-client-id'],
+        },
+      },
+      shouldError: true,
+    });
+    mockRequest.payload.email = 'passwordless123@restmail.net';
+    mockRequest.payload.thirdPartyAuthStatus = true;
+    mockRequest.payload.clientId = 'test-client-id';
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(response.exists, false);
+      assert.equal(response.passwordlessSupported, true);
+    });
+  });
+
+  it('returns passwordlessSupported false for non-existing account when not enabled and email does not match forced regex', async () => {
+    const { route, mockRequest } = setup({
+      extraConfig: {
+        passwordlessOtp: {
+          enabled: false,
+          forcedEmailAddresses: /^passwordless.*@restmail\.net$/,
+        },
+      },
+      shouldError: true,
+    });
+    mockRequest.payload.email = 'regular@example.com';
+    mockRequest.payload.thirdPartyAuthStatus = true;
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(response.exists, false);
+      assert.equal(response.passwordlessSupported, false);
+    });
+  });
+
+  it('does not return passwordlessSupported when thirdPartyAuthStatus is not requested', async () => {
+    const { route, mockRequest } = setup({
+      dbOptions: { exists: false },
+    });
+    mockRequest.payload.thirdPartyAuthStatus = false;
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(response.exists, false);
+      assert.equal(response.passwordlessSupported, undefined);
     });
   });
 });
@@ -4924,7 +5050,9 @@ describe('/account', () => {
             mockPlaySubscriptions.getSubscriptions,
             uid
           );
-          assert.deepEqual(result.subscriptions, [mockFormattedPlayStoreSubscription]);
+          assert.deepEqual(result.subscriptions, [
+            mockFormattedPlayStoreSubscription,
+          ]);
         }
       );
     });
@@ -5066,7 +5194,9 @@ describe('/account', () => {
             mockAppStoreSubscriptions.getSubscriptions,
             uid
           );
-          assert.deepEqual(result.subscriptions, [mockFormattedAppStoreSubscription]);
+          assert.deepEqual(result.subscriptions, [
+            mockFormattedAppStoreSubscription,
+          ]);
         }
       );
     });
@@ -5145,15 +5275,23 @@ describe('/account', () => {
     it('should return account metadata and 2FA status', () => {
       return runTest(buildRoute(), request, (result) => {
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'createdAt'));
-        assert.ok(Object.prototype.hasOwnProperty.call(result, 'passwordCreatedAt'));
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(result, 'passwordCreatedAt')
+        );
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'hasPassword'));
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'emails'));
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'totp'));
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'backupCodes'));
         assert.ok(Object.prototype.hasOwnProperty.call(result, 'recoveryKey'));
-        assert.ok(Object.prototype.hasOwnProperty.call(result, 'recoveryPhone'));
-        assert.ok(Object.prototype.hasOwnProperty.call(result, 'securityEvents'));
-        assert.ok(Object.prototype.hasOwnProperty.call(result, 'linkedAccounts'));
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(result, 'recoveryPhone')
+        );
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(result, 'securityEvents')
+        );
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(result, 'linkedAccounts')
+        );
         assert.isArray(result.emails);
         assert.isArray(result.securityEvents);
         assert.isArray(result.linkedAccounts);

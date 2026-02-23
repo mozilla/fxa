@@ -1211,12 +1211,67 @@ export default class AuthClient {
 
   async accountStatusByEmail(
     email: string,
-    options: { thirdPartyAuthStatus?: boolean } = {},
+    options: { thirdPartyAuthStatus?: boolean; clientId?: string } = {},
     headers?: Headers
   ) {
     return this.request(
       'POST',
       '/account/status',
+      { email, ...options },
+      headers
+    );
+  }
+
+  /**
+   * Send a passwordless OTP code to the user's email
+   */
+  async passwordlessSendCode(
+    email: string,
+    options: { service?: string; metricsContext?: MetricsContext } = {},
+    headers?: Headers
+  ): Promise<{}> {
+    return this.request(
+      'POST',
+      '/account/passwordless/send_code',
+      { email, ...options },
+      headers
+    );
+  }
+
+  /**
+   * Confirm a passwordless OTP code and get a session token
+   */
+  async passwordlessConfirmCode(
+    email: string,
+    code: string,
+    options: { service?: string; metricsContext?: MetricsContext } = {},
+    headers?: Headers
+  ): Promise<{
+    uid: string;
+    sessionToken: string;
+    verified: boolean;
+    authAt: number;
+    isNewAccount: boolean;
+  }> {
+    return this.request(
+      'POST',
+      '/account/passwordless/confirm_code',
+      { email, code, ...options },
+      headers
+    );
+  }
+
+  /**
+   * Resend a passwordless OTP code
+   */
+  async passwordlessResendCode(
+    email: string,
+    options: { service?: string; metricsContext?: MetricsContext } = {},
+    headers?: Headers
+  ): Promise<{}> {
+    return this.request(
+      'POST',
+      '/account/passwordless/resend_code',
       { email, ...options },
       headers
     );
@@ -1907,11 +1962,17 @@ export default class AuthClient {
     return this.sessionGet('/account/sessions', sessionToken, headers);
   }
 
-  async securityEvents(sessionToken: hexstring, headers?: Headers): Promise<SecurityEvent[]> {
+  async securityEvents(
+    sessionToken: hexstring,
+    headers?: Headers
+  ): Promise<SecurityEvent[]> {
     return this.sessionGet('/securityEvents', sessionToken, headers);
   }
 
-  async attachedClients(sessionToken: hexstring, headers?: Headers): Promise<AttachedClient[]> {
+  async attachedClients(
+    sessionToken: hexstring,
+    headers?: Headers
+  ): Promise<AttachedClient[]> {
     return this.sessionGet('/account/attached_clients', sessionToken, headers);
   }
 
