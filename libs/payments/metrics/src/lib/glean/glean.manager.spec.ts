@@ -11,7 +11,10 @@ import {
   SubscriptionCancellationDataFactory,
 } from './glean.factory';
 import { PaymentsGleanProvider } from './glean.types';
-import { MockPaymentsGleanFactory } from './glean.test-provider';
+import {
+  MockPaymentsGleanFactory,
+  MockPaymentsGleanClientFactory,
+} from './glean.test-provider';
 import {
   MockPaymentsGleanConfigProvider,
   PaymentsGleanConfig,
@@ -39,6 +42,7 @@ describe('PaymentsGleanManager', () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         MockPaymentsGleanFactory,
+        MockPaymentsGleanClientFactory,
         PaymentsGleanManager,
         MockPaymentsGleanConfigProvider,
       ],
@@ -218,6 +222,7 @@ describe('PaymentsGleanManager', () => {
         const moduleRef = await Test.createTestingModule({
           providers: [
             MockPaymentsGleanFactory,
+            MockPaymentsGleanClientFactory,
             PaymentsGleanManager,
             MockPaymentsGleanConfigProvider,
             {

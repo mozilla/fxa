@@ -42,3 +42,30 @@ export const MockPaymentsGleanConfigProvider = {
   provide: PaymentsGleanConfig,
   useValue: MockPaymentsGleanConfig,
 } satisfies Provider<PaymentsGleanConfig>;
+
+export class PaymentsGleanClientConfig {
+  @Type(() => Boolean)
+  @IsBoolean()
+  enabled!: boolean;
+
+  @IsString()
+  applicationId!: string;
+
+  @IsString()
+  version!: string;
+
+  @IsEnum(GleanChannel)
+  channel!: string;
+}
+
+export const MockPaymentsGleanClientConfig = {
+  enabled: true,
+  applicationId: faker.string.uuid(),
+  version: '0.0.1',
+  channel: GleanChannel.Development,
+} satisfies PaymentsGleanClientConfig;
+
+export const MockPaymentsGleanClientConfigProvider = {
+  provide: PaymentsGleanClientConfig,
+  useValue: MockPaymentsGleanClientConfig,
+} satisfies Provider<PaymentsGleanClientConfig>;

@@ -126,6 +126,7 @@ import {
   CommonMetricsFactory,
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
+  MockPaymentsGleanClientFactory,
   PaymentsGleanManager,
   PaymentsGleanService,
 } from '@fxa/payments/metrics';
@@ -196,6 +197,7 @@ describe('CheckoutService', () => {
         MockCurrencyConfigProvider,
         MockFirestoreProvider,
         MockPaymentsGleanFactory,
+        MockPaymentsGleanClientFactory,
         MockLocationConfigProvider,
         MockNimbusManagerConfigProvider,
         MockNimbusClientConfigProvider,

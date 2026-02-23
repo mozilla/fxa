@@ -31,6 +31,7 @@ import {
 import {
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
+  MockPaymentsGleanClientFactory,
   PaymentsGleanManager,
   PaymentsGleanService,
 } from '@fxa/payments/metrics';
@@ -114,6 +115,7 @@ describe('StripeEventManager', () => {
         PaymentsGleanService,
         MockPaymentsGleanConfigProvider,
         MockPaymentsGleanFactory,
+        MockPaymentsGleanClientFactory,
         ProductConfigurationManager,
         CartManager,
         AccountManager,

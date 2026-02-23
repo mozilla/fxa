@@ -13,14 +13,21 @@ import {
   PageContentByPriceIdsResultUtil,
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
+import {
+  PaymentsGleanClientProvider,
+} from './glean.types';
 import type {
   AccountsMetricsData,
   CommonMetrics,
   ExperimentationData,
   GenericGleanSubManageEvent,
   GleanMetricsData,
+  IPaymentsGleanClientManager,
+  PageMetricsData,
+  RetentionFlowEventMetricsData,
   SessionMetricsData,
   StripeMetricsData,
+  SubManageMetricsArgs,
   SubPlatCmsMetricsData,
 } from './glean.types';
 import type {
@@ -30,7 +37,7 @@ import type {
 } from '@fxa/payments/stripe';
 import { getPriceFromSubscription } from 'libs/payments/customer/src/lib/util/getPriceFromSubscription';
 import { PaymentsGleanManager } from './glean.manager';
-import { Logger, Injectable } from '@nestjs/common';
+import { Inject, Logger, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class PaymentsGleanService {
@@ -39,6 +46,8 @@ export class PaymentsGleanService {
     private customerManager: CustomerManager,
     private log: Logger,
     private nimbusManager: NimbusManager,
+    @Inject(PaymentsGleanClientProvider)
+    private paymentsGleanClientManager: IPaymentsGleanClientManager,
     private paymentsGleanManager: PaymentsGleanManager,
     private productConfigurationManager: ProductConfigurationManager,
     private subscriptionManager: SubscriptionManager
@@ -218,6 +227,65 @@ export class PaymentsGleanService {
         commonMetricsData: commonMetrics,
         ...metricsData,
       });
+    }
+  }
+
+  async recordPageView(
+    {
+      uid,
+      subscriptionId,
+      commonMetrics,
+    }: SubManageMetricsArgs,
+    pageMetrics: PageMetricsData
+  ) {
+    const metricsData = await this.retrieveSubManageMetricsData(
+      commonMetrics,
+      uid,
+      subscriptionId
+    );
+
+    if (!metricsData.accounts?.metricsOptOut) {
+      this.paymentsGleanClientManager.recordPageView(pageMetrics);
+    }
+  }
+
+  async recordRetentionFlow(
+    {
+      uid,
+      subscriptionId,
+      commonMetrics,
+    }: SubManageMetricsArgs,
+    retentionFlowMetrics: RetentionFlowEventMetricsData
+  ) {
+    const metricsData = await this.retrieveSubManageMetricsData(
+      commonMetrics,
+      uid,
+      subscriptionId
+    );
+
+    if (!metricsData.accounts?.metricsOptOut) {
+      this.paymentsGleanClientManager.recordRetentionFlow(retentionFlowMetrics);
+    }
+  }
+
+  async recordInterstitialOffer(
+    {
+      uid,
+      subscriptionId,
+      commonMetrics,
+    }: SubManageMetricsArgs,
+    interstitialOfferMetrics: RetentionFlowEventMetricsData
+  ) {
+    const metricsData = await this.retrieveSubManageMetricsData(
+      commonMetrics,
+      uid,
+      subscriptionId
+    );
+
+    if (!metricsData.accounts?.metricsOptOut) {
+      this.paymentsGleanClientManager.recordInterstitialOffer(
+        interstitialOfferMetrics
+      );
     }
   }
 }

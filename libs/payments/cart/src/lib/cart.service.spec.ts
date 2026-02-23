@@ -131,6 +131,7 @@ import {
   CommonMetricsFactory,
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
+  MockPaymentsGleanClientFactory,
   PaymentsGleanManager,
   PaymentsGleanService,
 } from '@fxa/payments/metrics';
@@ -216,6 +217,7 @@ describe('CartService', () => {
         MockLocationConfigProvider,
         MockNotifierSnsConfigProvider,
         MockPaymentsGleanFactory,
+        MockPaymentsGleanClientFactory,
         MockPaymentsGleanConfigProvider,
         MockPaypalClientConfigProvider,
         MockProfileClientConfigProvider,

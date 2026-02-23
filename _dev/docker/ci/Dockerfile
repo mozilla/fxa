@@ -6,7 +6,8 @@
 # workspace will be restored into the project folder.
 FROM cimg/node:22.15.1 AS test-runner
 RUN sudo apt-get update && sudo apt-get install -y \
-    python3-venv
+    python3-venv \
+    python3-pip
 WORKDIR /home/circleci
 COPY --chown=circleci:circleci project project
 WORKDIR /home/circleci/project
@@ -39,7 +40,8 @@ RUN npx playwright install --with-deps firefox chromium webkit;
 # workspace will be restored into the project folder.
 FROM cimg/node:22.15.1-browsers AS functional-test-runner
 RUN sudo apt-get update && sudo apt-get install -y \
-    python3-venv
+    python3-venv \
+    python3-pip
 WORKDIR /home/circleci
 COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/ms-playwright .cache/ms-playwright/
 COPY --chown=circleci:circleci project project
