@@ -127,6 +127,15 @@ export const RelyingPartyResultFactory = (
     pageTitle: faker.string.sample(),
     splitLayout: faker.datatype.boolean(),
   },
+  SigninCachedPage: {
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.internet.url(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
   SigninTokenCodePage: {
     logoUrl: faker.internet.url(),
     logoAltText: faker.internet.url(),
