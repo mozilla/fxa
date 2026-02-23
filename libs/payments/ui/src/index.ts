@@ -33,6 +33,7 @@ export * from './lib/client/components/SubmitButton';
 export * from './lib/client/components/SubscriptionContent';
 export * from './lib/client/components/MetricsWrapper';
 export * from './lib/client/components/StripeWrapper';
+export * from './lib/client/hooks/useGleanMetrics';
 export * from './lib/client/providers/Providers';
 export * from './lib/constants';
 export * from './lib/utils/helpers';

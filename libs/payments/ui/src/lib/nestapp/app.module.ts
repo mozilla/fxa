@@ -93,6 +93,8 @@ import { NimbusManager } from '@fxa/payments/experiments';
           {
             ...process.env,
             GLEAN_CONFIG__VERSION: process.env['GLEAN_CONFIG__VERSION'],
+            GLEAN_CLIENT_CONFIG__VERSION:
+              process.env['GLEAN_CLIENT_CONFIG__VERSION'],
           },
           RootConfig
         ),

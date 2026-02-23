@@ -6,7 +6,9 @@ import { Test } from '@nestjs/testing';
 import { PaymentsGleanManager } from './glean.manager';
 import { PaymentsGleanService } from './glean.service';
 import { MockPaymentsGleanFactory } from './glean.test-provider';
-import { MockPaymentsGleanConfigProvider } from './glean.config';
+import {
+  MockPaymentsGleanConfigProvider,
+} from './glean.config';
 import {
   AccountsMetricsDataFactory,
   CommonMetricsFactory,
@@ -567,7 +569,7 @@ describe('PaymentsGleanService', () => {
           Enrollments: [{ nimbus_user_id: fetchedNimbusUserId }] as any,
         })
       );
-      jest.spyOn(logger, 'error');
+      jest.spyOn(logger, 'error').mockImplementation(() => {});
     });
 
     it('successfully returns data fetched from nimbus', async () => {
