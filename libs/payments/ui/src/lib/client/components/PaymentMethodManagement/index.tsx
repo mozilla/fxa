@@ -54,6 +54,7 @@ export function PaymentMethodManagement({
   const [isNonCardSelected, setIsNonCardSelected] = useState(false);
   const [hideOverflow, setHideOverflow] = useState(true);
   const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
+  const [linkInterruptedCard, setLinkInterruptedCard] = useState(false);
 
   const handleReady = () => {
     setIsReady(true);
@@ -75,6 +76,9 @@ export function PaymentMethodManagement({
 
     if (event.value.type !== 'card') {
       setIsNonCardSelected(true);
+      if (isInputNewCardDetails && !event.value.payment_method) {
+        setLinkInterruptedCard(true);
+      }
       setIsInputNewCardDetails(false);
       if (
         event.value.payment_method?.type === 'link' &&
@@ -102,6 +106,7 @@ export function PaymentMethodManagement({
       return;
     }
     setIsNonCardSelected(false);
+    setLinkInterruptedCard(false);
 
     if (event.value.type === 'card' && !event.value.payment_method) {
       setIsInputNewCardDetails(true);
@@ -243,11 +248,6 @@ export function PaymentMethodManagement({
                       radios: false,
                       spacedAccordionItems: true,
                     },
-                    defaultValues: {
-                      billingDetails: {
-                        email: sessionEmail || undefined,
-                      },
-                    },
                   }}
                 />
               </div>
@@ -260,7 +260,8 @@ export function PaymentMethodManagement({
             )}
           </Form.Field>
           {(isInputNewCardDetails ||
-            (isNonCardSelected && !hasPaymentMethod)) && (
+            (isNonCardSelected && !hasPaymentMethod) ||
+             linkInterruptedCard) && (
               <div className="flex flex-row justify-center pt-4">
                 <Form.Submit asChild>
                   <BaseButton
