@@ -1,17 +1,26 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { faker } from '@faker-js/faker';
 import {
   CancellationReason,
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
+  FlowType,
+  Outcome,
+  PageName,
+  Source,
+  Step,
   SubscriptionCancellationData,
   type AccountsMetricsData,
   type ExperimentationData,
   type GenericGleanSubManageEvent,
   type GleanMetricsData,
+  type PageMetricsData,
+  type RetentionFlowEventMetricsData,
+  type RetentionEligibilityMetricsData,
   type SessionMetricsData,
   type StripeMetricsData,
   type SubPlatCmsMetricsData,
@@ -156,5 +165,53 @@ export const GleanMetricsDataFactory = (
   cms: SubPlatCmsMetricsDataFactory(),
   session: SessionMetricsDataFactory(),
   experimentation: ExperimentationDataFactory(),
+  ...override,
+});
+
+export const PageViewEventFactory = (override?: Partial<PageMetricsData>) => ({
+  pageName: faker.helpers.arrayElement<PageName>([
+    'management',
+    'stay_standard',
+    'cancel_standard',
+  ]),
+  source: faker.helpers.arrayElement<Source>([
+    'email',
+    'internal_nav',
+    'deep_link',
+  ]),
+  offeringId: faker.string.alphanumeric(8),
+  interval: faker.helpers.enumValue(SubplatInterval),
+  ...override,
+});
+
+export const RetentionFlowEventFactory = (
+  override?: Partial<RetentionFlowEventMetricsData>
+) => ({
+  flowType: faker.helpers.arrayElement<FlowType>(['cancel', 'stay']),
+  step: faker.helpers.arrayElement<Step>(['engage', 'submit', 'result']),
+  outcome: faker.helpers.arrayElement<Outcome>(['success', 'error']),
+  offeringId: faker.string.alphanumeric(8),
+  interval: faker.helpers.enumValue(SubplatInterval),
+  ...override,
+});
+
+export const RetentionEligibilityFactory = (
+  override?: Partial<RetentionEligibilityMetricsData>
+) => ({
+  product: faker.helpers.arrayElement([
+    'vpn',
+    'relaypremiumphone',
+    'relaypremium',
+    'mdnplus5m',
+    'mdnplus10m',
+    'mdnplus5y',
+    'mdnplus10y',
+  ]),
+  interval: faker.helpers.arrayElement(['monthly', 'yearly']),
+  eligibilityStatus: faker.helpers.arrayElement([
+    'eligible_for_stay',
+    'eligible_for_cancel',
+    'eligible_for_offer',
+  ]),
   ...override,
 });

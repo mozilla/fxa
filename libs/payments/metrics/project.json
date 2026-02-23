@@ -15,7 +15,7 @@
         "assets": ["libs/payments/metrics/*.md"],
         "declaration": true
       },
-      "dependsOn": ["glean-generate"]
+      "dependsOn": ["glean-generate", "glean-generate-frontend"]
     },
     "compile": {
       "command": "tsc -p libs/payments/metrics/tsconfig.json --noEmit",
@@ -27,6 +27,13 @@
     },
     "glean-lint": {
       "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
+    },
+    "glean-generate-frontend": {
+      "dependsOn": ["glean-lint-frontend"],
+      "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml -f typescript -o libs/payments/metrics/src/lib/glean/__generated__"
+    },
+    "glean-lint-frontend": {
+      "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml"
     },
     "test-unit": {
       "executor": "@nx/jest:jest",
