@@ -15,8 +15,9 @@ import {
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 
 import { UserGroupGuard } from './auth/user-group-header.guard';
 import { BackendModule } from './backend/backend.module';
@@ -32,6 +33,7 @@ const version = getVersionInfo(__dirname);
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     ConfigModule.forRoot({
       load: [(): AppConfig => Config.getProperties()],
       isGlobal: true,
@@ -70,6 +72,10 @@ const version = getVersionInfo(__dirname);
   ],
   controllers: [],
   providers: [
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalFilter,
+    },
     MetricsFactory,
     {
       provide: APP_GUARD,

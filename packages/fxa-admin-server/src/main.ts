@@ -7,13 +7,12 @@
 import './monitoring';
 
 import { NestApplicationOptions } from '@nestjs/common';
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 import helmet from 'helmet';
 import cors from 'cors';
 import * as Sentry from '@sentry/nestjs';
-import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';
@@ -29,10 +28,6 @@ async function bootstrap() {
     AppModule,
     nestConfig
   );
-
-  // Register Sentry exception filter with proper HttpAdapterHost
-  const { httpAdapter } = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new SentryGlobalFilter(httpAdapter));
 
   app.use(
     cors({
