@@ -4,39 +4,64 @@
 
 import fs from 'fs';
 import path from 'path';
+import { killAllTrackedAuthServers } from './helpers/test-process-registry';
 
 const AUTH_SERVER_ROOT = path.resolve(__dirname, '../..');
-const MAIL_HELPER_PID_FILE = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp', 'mail_helper.pid');
+const TMP_DIR = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp');
+const MAIL_HELPER_PID_FILE = path.join(TMP_DIR, 'mail_helper.pid');
+const SHARED_SERVER_PID_FILE = path.join(TMP_DIR, 'shared_server.pid');
 
 interface NodeError extends Error {
   code?: string;
 }
 
-export default async function globalTeardown(): Promise<void> {
-  console.log('[Jest Global Teardown] Stopping mail_helper...');
-
+function killProcessByPidFile(pidFile: string, label: string): void {
   try {
-    if (!fs.existsSync(MAIL_HELPER_PID_FILE)) {
-      console.log('[Jest Global Teardown] No mail_helper PID file found');
+    if (!fs.existsSync(pidFile)) {
+      console.log(`[Jest Global Teardown] No ${label} PID file found`);
       return;
     }
 
-    const pid = parseInt(fs.readFileSync(MAIL_HELPER_PID_FILE, 'utf-8'), 10);
+    const pid = parseInt(fs.readFileSync(pidFile, 'utf-8'), 10);
 
     if (pid) {
       try {
         process.kill(pid, 'SIGTERM');
-        console.log('[Jest Global Teardown] mail_helper stopped (PID:', pid, ')');
+        console.log(`[Jest Global Teardown] ${label} stopped (PID:`, pid, ')');
       } catch (err: unknown) {
         const isProcessGone = (err as NodeError).code === 'ESRCH';
         if (!isProcessGone) {
-          console.error('[Jest Global Teardown] Error killing mail_helper:', err);
+          console.error(`[Jest Global Teardown] Error killing ${label}:`, err);
         }
       }
     }
 
-    fs.unlinkSync(MAIL_HELPER_PID_FILE);
+    fs.unlinkSync(pidFile);
   } catch (err) {
-    console.error('[Jest Global Teardown] Error:', err);
+    console.error(`[Jest Global Teardown] Error cleaning up ${label}:`, err);
   }
+}
+
+export default async function globalTeardown(): Promise<void> {
+  // Kill any remaining auth server processes first
+  console.log('[Jest Global Teardown] Cleaning up auth server processes...');
+  killAllTrackedAuthServers();
+
+  console.log('[Jest Global Teardown] Stopping shared auth server...');
+  killProcessByPidFile(SHARED_SERVER_PID_FILE, 'shared_server');
+
+  // Stop the shared profile helper (in-process Hapi server)
+  const sharedProfileHelper = (global as any).__sharedProfileHelper;
+  if (sharedProfileHelper) {
+    console.log('[Jest Global Teardown] Stopping shared profile helper...');
+    try {
+      await sharedProfileHelper.close();
+    } catch {
+      // Ignore cleanup errors
+    }
+    delete (global as any).__sharedProfileHelper;
+  }
+
+  console.log('[Jest Global Teardown] Stopping mail_helper...');
+  killProcessByPidFile(MAIL_HELPER_PID_FILE, 'mail_helper');
 }

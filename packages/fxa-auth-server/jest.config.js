@@ -26,6 +26,7 @@ module.exports = {
   },
   testTimeout: 10000,
   clearMocks: true,
+  workerIdleMemoryLimit: '512MB',
   setupFiles: ['<rootDir>/jest.setup.js', '<rootDir>/jest.setup-proxyquire.js'],
   testPathIgnorePatterns: ['/node_modules/'],
   // Coverage configuration (enabled via --coverage flag)
