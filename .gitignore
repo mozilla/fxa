@@ -194,3 +194,6 @@ libs/shared/cms/src/__generated__/graphql.js
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Anthropic's Claude AI
+.claude
