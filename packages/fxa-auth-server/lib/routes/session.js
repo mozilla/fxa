@@ -517,7 +517,9 @@ module.exports = function (
           await request.emitMetricsEvent('account.confirmed', { uid });
           glean.login.verifyCodeConfirmed(request, { uid });
           await signinUtils.cleanupReminders({ verified: true }, account);
-          await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
+          push.notifyAccountUpdated(uid, devices, 'accountConfirm').catch((err) =>
+            log.error('push.accountConfirm.error', { uid, err })
+          );
 
           // Send new device login notification email after successful verification
           const geoData = request.app.geo;
@@ -885,7 +887,9 @@ module.exports = function (
         glean.login.verifyCodeConfirmed(request, { uid });
         await signinUtils.cleanupReminders({ verified: true }, account);
         const devices = await db.devices(uid);
-        await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
+        push.notifyAccountUpdated(uid, devices, 'accountConfirm').catch((err) =>
+          log.error('push.accountConfirm.error', { uid, err })
+        );
 
         // Send new device login notification email after successful verification
         if (account.primaryEmail.isVerified) {
