@@ -205,9 +205,9 @@ module.exports = (log, db, push, pushbox) => {
     });
 
     // Notify peer devices, but dont let failure fail the whole request.
-    try {
-      await push.notifyDeviceDisconnected(uid, peers, deviceId);
-    } catch (err) {}
+    push.notifyDeviceDisconnected(uid, peers, deviceId).catch((err) => {
+      log.error('device.deleted.error', { uid, deviceId, err });
+    });
 
     await request.emitMetricsEvent('device.deleted', {
       uid: uid,

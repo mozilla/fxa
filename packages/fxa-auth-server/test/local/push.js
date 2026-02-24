@@ -479,8 +479,8 @@ describe('push', () => {
     ];
     const options = { data: Buffer.from('foobar') };
     await push.sendPush(mockUid, devices, 'deviceConnected', options);
-    assert.callCount(mockLog.debug, 1);
-    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
+    assert.callCount(mockLog.info, 1);
+    assert.calledWithMatch(mockLog.info, 'push.send.failure', {
       reason: 'deviceConnected',
       errCode: 'noKeys',
     });
@@ -495,8 +495,8 @@ describe('push', () => {
       },
     ];
     await push.sendPush(mockUid, devices, 'accountVerify');
-    assert.callCount(mockLog.debug, 1);
-    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
+    assert.callCount(mockLog.info, 1);
+    assert.calledWithMatch(mockLog.info, 'push.send.failure', {
       reason: 'accountVerify',
       errCode: 'noCallback',
     });
@@ -514,8 +514,8 @@ describe('push', () => {
       },
     ];
     await push.sendPush(mockUid, devices, 'accountVerify');
-    assert.callCount(mockLog.debug, 1);
-    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
+    assert.callCount(mockLog.info, 1);
+    assert.calledWithMatch(mockLog.info, 'push.send.failure', {
       reason: 'accountVerify',
       errCode: 'expiredCallback',
     });
@@ -585,8 +585,8 @@ describe('push', () => {
     device.pushPublicKey = `E${device.pushPublicKey.substring(1)}`; // make the key invalid
     await push.sendPush(mockUid, [device], 'accountVerify');
     assert.callCount(mockSendNotification, 1);
-    assert.callCount(mockLog.debug, 1);
-    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
+    assert.callCount(mockLog.info, 1);
+    assert.calledWithMatch(mockLog.info, 'push.send.failure', {
       reason: 'accountVerify',
       errCode: 'resetCallback',
     });
@@ -605,8 +605,8 @@ describe('push', () => {
     const device = JSON.parse(JSON.stringify(mockDevices[0]));
     await push.sendPush(mockUid, [device], 'accountVerify');
     assert.callCount(mockSendNotification, 1);
-    assert.callCount(mockLog.debug, 1);
-    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
+    assert.callCount(mockLog.info, 1);
+    assert.calledWithMatch(mockLog.info, 'push.send.failure', {
       reason: 'accountVerify',
       errCode: 'unknown',
     });

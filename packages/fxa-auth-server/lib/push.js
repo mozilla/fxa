@@ -508,7 +508,7 @@ module.exports = function (log, db, config, statsd) {
       err.errCode = errCode;
       metricsTags = { errCode, err, ...metricsTags };
       this.incrementPushMetric(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
-      log.debug(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
+      log.info(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
       return err;
     },
 
