@@ -10,21 +10,6 @@ import {
   RetentionFlowEventFactory,
 } from './glean.factory';
 
-jest.mock('@mozilla/glean/web', () => {
-  return {
-    __esModule: true,
-    default: {
-      initialize: jest.fn(),
-    },
-  };
-});
-
-jest.mock('./__generated__/subscriptions', () => ({
-  pageView: { record: jest.fn() },
-  retentionFlow: { record: jest.fn() },
-  interstitialOffer: { record: jest.fn() },
-}));
-
 const mockGlean = jest.requireMock('@mozilla/glean/web').default;
 const mockSubscriptions = jest.requireMock('./__generated__/subscriptions');
 

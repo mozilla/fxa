@@ -19,7 +19,7 @@
     },
     "compile": {
       "command": "tsc -p libs/payments/metrics/tsconfig.json --noEmit",
-      "dependsOn": ["glean-generate"]
+      "dependsOn": ["glean-generate", "glean-generate-frontend"]
     },
     "glean-generate": {
       "dependsOn": ["glean-lint"],
