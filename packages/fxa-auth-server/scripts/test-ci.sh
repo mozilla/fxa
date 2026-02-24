@@ -12,19 +12,22 @@ if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep /#integration\s-/"
 if [ "$TEST_TYPE" == 'integration-v2' ]; then GREP_TESTS="--grep /#integrationV2\s-/"; fi;
 
 
-TESTS=(local oauth remote scripts)
-if [ -z "$1" ]; then
+# Skip mocha tests for integration-jest — only run Jest tests
+if [ "$TEST_TYPE" != 'integration-jest' ]; then
   TESTS=(local oauth remote scripts)
-else
-  TESTS=($1)
+  if [ -z "$1" ]; then
+    TESTS=(local oauth remote scripts)
+  else
+    TESTS=($1)
+  fi
+
+  for t in "${TESTS[@]}"; do
+    echo -e "\n\nTesting: $t"
+
+    #./scripts/mocha-coverage.js $DEFAULT_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
+    MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-auth-server-mocha-$TEST_TYPE-$t-results.xml mocha $DEFAULT_ARGS $GREP_TESTS test/$t
+  done
 fi
-
-for t in "${TESTS[@]}"; do
-  echo -e "\n\nTesting: $t"
-
-  #./scripts/mocha-coverage.js $DEFAULT_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
-  MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-auth-server-mocha-$TEST_TYPE-$t-results.xml mocha $DEFAULT_ARGS $GREP_TESTS test/$t
-done
 
 if [ "$TEST_TYPE" == 'integration' ]; then
   yarn run clean-up-old-ci-stripe-customers;
@@ -42,6 +45,16 @@ elif [ "$TEST_TYPE" == 'integration' ]; then
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-results.xml" \
   npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit --testPathPattern='verification-reminders'
+elif [ "$TEST_TYPE" == 'integration-jest' ]; then
+  echo -e "\n\nRunning Jest verification-reminders tests"
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-verification-reminders-results.xml" \
+  npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit --testPathPattern='verification-reminders'
+
+  echo -e "\n\nRunning Jest migrated integration tests"
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-jest-results.xml" \
+  npx jest --config jest.integration.config.js --forceExit --ci --reporters=default --reporters=jest-junit
 elif [ -z "$TEST_TYPE" ]; then
   echo -e "\n\nRunning all Jest tests"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
