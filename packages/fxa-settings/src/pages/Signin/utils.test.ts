@@ -319,6 +319,27 @@ describe('Signin utils', () => {
           replace: true,
         });
       });
+
+      it('navigates to service_welcome with origin=signin for service=vpn', async () => {
+        const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const navigationOptions = createBaseNavigationOptions({
+          integration: createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Vpn,
+          }),
+          performNavigation: true,
+          handleFxaOAuthLogin: true,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(fxaOAuthLoginSpy).toHaveBeenCalled();
+        expect(navigateSpy).toHaveBeenCalledWith('/post_verify/service_welcome', {
+          state: { origin: 'signin' },
+          replace: true,
+        });
+      });
     });
   });
 

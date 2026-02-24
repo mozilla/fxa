@@ -37,6 +37,7 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
     isSync: () => false,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices(),
     wantsKeys: () => false,
@@ -53,6 +54,7 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
     isSync: () => true,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     wantsKeys: () => false,
@@ -75,6 +77,7 @@ export function createMockSignupOAuthWebIntegration(
     isSync: () => false,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getWebChannelServices: mockGetWebChannelServices(),
     wantsKeys: () => false,
@@ -90,6 +93,7 @@ export function createMockSignupOAuthNativeIntegration(
 ): SignupOAuthIntegration {
   const isRelay = service === OAuthNativeServices.Relay;
   const isSmartWindow = service === OAuthNativeServices.SmartWindow;
+  const isVpn = service === OAuthNativeServices.Vpn;
   return {
     type: IntegrationType.OAuthNative,
     getRedirectUri: () => MOCK_REDIRECT_URI,
@@ -99,11 +103,13 @@ export function createMockSignupOAuthNativeIntegration(
     isSync: () => isSync,
     isFirefoxClientServiceRelay: () => isRelay,
     isFirefoxClientServiceSmartWindow: () => isSmartWindow,
-    isFirefoxNonSync: () => isRelay || isSmartWindow,
+    isFirefoxClientServiceVpn: () => isVpn,
+    isFirefoxNonSync: () => isRelay || isSmartWindow || isVpn,
     getWebChannelServices: mockGetWebChannelServices({
       isSync,
       isRelay,
       isSmartWindow,
+      isVpn,
     }),
     wantsKeys: () => true,
     getCmsInfo: () => cmsInfo,

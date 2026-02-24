@@ -197,10 +197,12 @@ export function mockGetWebChannelServices({
   isSync = false,
   isRelay = false,
   isSmartWindow = false,
+  isVpn = false,
 }: {
   isSync?: boolean;
   isRelay?: boolean;
   isSmartWindow?: boolean;
+  isVpn?: boolean;
 } = {}) {
   return (syncEngines?: SyncEngines): WebChannelServices | undefined => {
     if (isRelay) {
@@ -208,6 +210,9 @@ export function mockGetWebChannelServices({
     }
     if (isSmartWindow) {
       return { smartwindow: {} };
+    }
+    if (isVpn) {
+      return { vpn: {} };
     }
     if (isSync) {
       return { sync: syncEngines || {} };

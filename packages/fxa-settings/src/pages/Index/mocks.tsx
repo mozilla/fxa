@@ -54,11 +54,13 @@ export function createMockIndexOAuthNativeIntegration({
   isSync = true,
   isFirefoxClientServiceRelay = false,
   isFirefoxClientServiceSmartWindow = false,
+  isFirefoxClientServiceVpn = false,
   cmsInfo,
 }: {
   isSync?: boolean;
   isFirefoxClientServiceRelay?: boolean;
   isFirefoxClientServiceSmartWindow?: boolean;
+  isFirefoxClientServiceVpn?: boolean;
   cmsInfo?: RelierCmsInfo;
 } = {}): IndexIntegration {
   return {
@@ -67,8 +69,11 @@ export function createMockIndexOAuthNativeIntegration({
     getClientId: () => MOCK_CLIENT_ID,
     isFirefoxClientServiceRelay: () => isFirefoxClientServiceRelay,
     isFirefoxClientServiceSmartWindow: () => isFirefoxClientServiceSmartWindow,
+    isFirefoxClientServiceVpn: () => isFirefoxClientServiceVpn,
     isFirefoxNonSync: () =>
-      isFirefoxClientServiceRelay || isFirefoxClientServiceSmartWindow,
+      isFirefoxClientServiceRelay ||
+      isFirefoxClientServiceSmartWindow ||
+      isFirefoxClientServiceVpn,
     getCmsInfo: () => cmsInfo,
     getLegalTerms: () => undefined,
     data: new OAuthIntegrationData(
@@ -86,6 +91,7 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     getClientId: () => undefined,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,
+    isFirefoxClientServiceVpn: () => false,
     isFirefoxNonSync: () => false,
     getCmsInfo: () => undefined,
     getLegalTerms: () => undefined,

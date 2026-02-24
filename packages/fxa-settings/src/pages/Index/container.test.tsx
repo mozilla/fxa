@@ -142,6 +142,7 @@ describe('IndexContainer', () => {
       isSync: () => true,
       isFirefoxClientServiceRelay: () => false,
       isFirefoxClientServiceSmartWindow: () => false,
+      isFirefoxClientServiceVpn: () => false,
       wantsKeys: () => true,
       getCmsInfo: () => undefined,
       data: { clientId: 'abc123' },

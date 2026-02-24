@@ -137,6 +137,12 @@ describe('OAuthNativeIntegration', function () {
   });
 
   describe('getServiceName', () => {
+    it('returns VPN service name for vpn service', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Vpn;
+      expect(model.getServiceName()).toBe('Mozilla VPN');
+    });
+
     it('returns "Firefox" for non-sync services', () => {
       model.data.service = 'non-sync-service';
       expect(model.getServiceName()).toBe('Firefox');
@@ -200,6 +206,26 @@ describe('OAuthNativeIntegration', function () {
     });
   });
 
+  describe('isFirefoxClientServiceVpn', () => {
+    it('returns true when service is vpn', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Vpn;
+      expect(model.isFirefoxClientServiceVpn()).toBe(true);
+    });
+
+    it('returns false when service is sync', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.isFirefoxClientServiceVpn()).toBe(false);
+    });
+
+    it('returns false when service is relay', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      expect(model.isFirefoxClientServiceVpn()).toBe(false);
+    });
+  });
+
   describe('isFirefoxNonSync', () => {
     it('returns false when service is sync', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
@@ -221,6 +247,12 @@ describe('OAuthNativeIntegration', function () {
     it('returns true when service is smartwindow', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
       model.data.service = OAuthNativeServices.SmartWindow;
+      expect(model.isFirefoxNonSync()).toBe(true);
+    });
+
+    it('returns true when service is vpn', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Vpn;
       expect(model.isFirefoxNonSync()).toBe(true);
     });
   });
@@ -251,6 +283,12 @@ describe('OAuthNativeIntegration', function () {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
       model.data.service = OAuthNativeServices.Sync;
       expect(model.getWebChannelServices()).toEqual({ sync: {} });
+    });
+
+    it('returns vpn services when service is vpn', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Vpn;
+      expect(model.getWebChannelServices()).toEqual({ vpn: {} });
     });
   });
 });

@@ -81,6 +81,7 @@ export const Constants = {
   // we move some of these into the CMS in FXA-12378, based on entrypoint.
   RELIER_FF_CLIENT_RELAY_SERVICE_NAME: 'Firefox Relay',
   RELIER_FF_CLIENT_SMART_WINDOW_SERVICE_NAME: 'Firefox Smart Window',
+  RELIER_FF_CLIENT_VPN_SERVICE_NAME: 'Mozilla VPN',
 
   RELIER_KEYS_LENGTH: 32,
   RELIER_KEYS_CONTEXT_INFO_PREFIX: 'identity.mozilla.com/picl/v1/oauth/',

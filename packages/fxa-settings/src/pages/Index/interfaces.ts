@@ -14,6 +14,7 @@ export type IndexIntegration = Pick<
   | 'getClientId'
   | 'isFirefoxClientServiceRelay'
   | 'isFirefoxClientServiceSmartWindow'
+  | 'isFirefoxClientServiceVpn'
   | 'isFirefoxNonSync'
   | 'data'
   | 'getCmsInfo'

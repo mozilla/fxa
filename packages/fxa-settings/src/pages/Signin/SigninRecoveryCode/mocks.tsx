@@ -17,6 +17,7 @@ export const mockWebIntegration = {
   wantsKeys: () => false,
   isFirefoxClientServiceRelay: () => false,
   isFirefoxClientServiceSmartWindow: () => false,
+  isFirefoxClientServiceVpn: () => false,
   getCmsInfo: () => undefined,
   data: {
     validate: () => {},
