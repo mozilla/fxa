@@ -103,14 +103,6 @@ export const tracingConfig = {
       format: Number,
     },
   },
-  sentry: {
-    enabled: {
-      default: true,
-      doc: 'Allows traces to reported to sentry. Note that sentry must be initialized separately and first!.',
-      env: 'TRACING_SENTRY_EXPORTER_ENABLED',
-      format: Boolean,
-    },
-  },
 };
 
 export function checkServiceName(opts: Pick<TracingOpts, 'serviceName'>) {

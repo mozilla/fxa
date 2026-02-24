@@ -9,7 +9,6 @@ import {
   TOO_LARGE,
   DEFAULT_ERRROR,
   IGNORED_ERROR_NUMBERS,
-  DEBUGGABLE_PAYLOAD_KEYS,
 } from './constants';
 import { OauthError } from './oauth-error';
 import type { Request as HapiRequest } from 'hapi';
@@ -1787,8 +1786,6 @@ export class AppError extends Error {
         method: request.method,
         path: request.path,
         query: request.query,
-        payload: scrubPii(request.payload),
-        headers: scrubHeaders(request.headers),
       };
     }
   }
@@ -1839,42 +1836,6 @@ export class AppError extends Error {
         return err;
     }
   }
-}
-
-/**
- * Tries to remove PII from payload data.
- * @param payload
- * @returns
- */
-function scrubPii(payload: any) {
-  if (!payload) {
-    return;
-  }
-
-  return Object.entries(payload).reduce((scrubbed: any, [key, value]) => {
-    if (DEBUGGABLE_PAYLOAD_KEYS.has(key)) {
-      scrubbed[key] = value;
-    }
-
-    return scrubbed;
-  }, {});
-}
-
-/**
- * Deletes feilds with senstive data from headers.
- * @param headers
- * @returns
- */
-function scrubHeaders(
-  headers?: Record<string, string>
-): Record<string, string> {
-  if (headers == null) {
-    return {};
-  }
-
-  const scrubbed = { ...headers };
-  delete scrubbed['x-forwarded-for'];
-  return scrubbed;
 }
 
 /**

@@ -46,6 +46,7 @@ describe('log', () => {
         sentryScope = { setContext: sinon.stub() };
         cb(sentryScope);
       }),
+      getActiveSpan: sinon.stub().returns(undefined),
     };
     sinon.stub(sentryModule, 'reportSentryMessage').returns({});
 
@@ -795,7 +796,7 @@ describe('log', () => {
       assert.calledOnceWithExactly(logger.info, 'op', { uid: 'bloop' });
     });
 
-    it('should set trace id', () => {
+    it('should set otel trace id', () => {
       log = proxyquire(
         '../../lib/log',
         mocks
@@ -813,7 +814,7 @@ describe('log', () => {
       });
       assert.calledOnceWithExactly(logger.info, 'op', {
         uid: 'bloop',
-        traceId: 'fake trace id',
+        otelTraceId: 'fake trace id',
       });
 
       log.debug('op', {
@@ -821,7 +822,7 @@ describe('log', () => {
       });
       assert.calledOnceWithExactly(logger.debug, 'op', {
         uid: 'bloop',
-        traceId: 'fake trace id',
+        otelTraceId: 'fake trace id',
       });
 
       log.error('op', {
@@ -829,7 +830,67 @@ describe('log', () => {
       });
       assert.calledOnceWithExactly(logger.error, 'op', {
         uid: 'bloop',
-        traceId: 'fake trace id',
+        otelTraceId: 'fake trace id',
+      });
+    });
+
+    it('should set sentry trace id', () => {
+      mockSentry.getActiveSpan = sinon.stub().returns({
+        spanContext: sinon.stub().returns({ traceId: 'fake-sentry-trace-id' }),
+      });
+      log = proxyquire(
+        '../../lib/log',
+        mocks
+      )({
+        level: 'debug',
+        name: 'test',
+        stdout: { on: sinon.spy() },
+      });
+
+      log.info('op', { uid: 'bloop' });
+      assert.calledOnceWithExactly(logger.info, 'op', {
+        uid: 'bloop',
+        sentryTraceId: 'fake-sentry-trace-id',
+      });
+    });
+
+    it('should store otel error in result on failure', () => {
+      const otelErr = new Error('otel error');
+      log = proxyquire(
+        '../../lib/log',
+        mocks
+      )({
+        level: 'debug',
+        name: 'test',
+        stdout: { on: sinon.spy() },
+        nodeTracer: {
+          getTraceId: sinon.stub().throws(otelErr),
+        },
+      });
+
+      log.info('op', { uid: 'bloop' });
+      assert.calledOnceWithExactly(logger.info, 'op', {
+        uid: 'bloop',
+        otelTraceIdErr: otelErr,
+      });
+    });
+
+    it('should store sentry error in result on failure', () => {
+      const sentryErr = new Error('sentry error');
+      mockSentry.getActiveSpan = sinon.stub().throws(sentryErr);
+      log = proxyquire(
+        '../../lib/log',
+        mocks
+      )({
+        level: 'debug',
+        name: 'test',
+        stdout: { on: sinon.spy() },
+      });
+
+      log.info('op', { uid: 'bloop' });
+      assert.calledOnceWithExactly(logger.info, 'op', {
+        uid: 'bloop',
+        sentryTraceIdError: sentryErr,
       });
     });
   });

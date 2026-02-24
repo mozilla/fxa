@@ -64,16 +64,30 @@ util.inherits(Lug, EventEmitter);
 Lug.prototype.close = function () {};
 
 Lug.prototype.getTraceId = function (data) {
-  let result = {};
+  const result = {};
 
-  if (this.nodeTracer) {
-    try {
-      result = { traceId: this.nodeTracer.getTraceId() };
-    } catch {
-      // don't let a tracing issue break logging
-      this.debug('log', { msg: 'could not get trace id' });
+  // Try decorating otel traceId
+  try {
+    const otelTraceId = this.nodeTracer?.getTraceId();
+    if (otelTraceId) {
+      result.otelTraceId = otelTraceId;
     }
+  } catch (err) {
+    // Don't let an otel hiccup break logging
+    result.otelTraceIdErr = err;
   }
+
+  // Try decorating currenty sentry trace id
+  try {
+    const spanContext = Sentry.getActiveSpan()?.spanContext();
+    if (spanContext) {
+      result.sentryTraceId = spanContext.traceId;
+    }
+  } catch (err) {
+    // Don't let a sentry hicup break logging
+    result.sentryTraceIdError = err;
+  }
+
   return result;
 };
 
