@@ -1592,6 +1592,28 @@ describe('/session/verify_code', () => {
     assert.calledOnce(fxaMailer.sendNewDeviceLoginEmail);
   });
 
+  it('should succeed even if push notification fails', async () => {
+    setup({ emailVerified: true });
+    push.notifyAccountUpdated = sinon.spy(() =>
+      Promise.reject(new Error('push timeout'))
+    );
+    const routes = makeRoutes({
+      log,
+      config: {},
+      db,
+      mailer,
+      push,
+      customs,
+      cadReminders,
+      gleanMock,
+    });
+    route = getRoute(routes, '/session/verify_code');
+
+    const response = await runTest(route, request);
+    assert.deepEqual(response, {});
+    assert.calledOnce(push.notifyAccountUpdated);
+  });
+
   it('should fail for invalid code', async () => {
     request.payload.code =
       request.payload.code === '123123' ? '123122' : '123123';
