@@ -1,13 +1,12 @@
-// /* This Source Code Form is subject to the terms of the Mozilla Public
-//  * License, v. 2.0. If a copy of the MPL was not distributed with this
-//  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test } from '@nestjs/testing';
 import { PaymentsGleanClientManager } from './glean-client.manager';
 import { PaymentsGleanClientConfig } from './glean.config';
 import {
   PageViewEventFactory,
-  RetentionEligibilityFactory,
   RetentionFlowEventFactory,
 } from './glean.factory';
 
@@ -24,9 +23,6 @@ jest.mock('./__generated__/subscriptions', () => ({
   pageView: { record: jest.fn() },
   retentionFlow: { record: jest.fn() },
   interstitialOffer: { record: jest.fn() },
-  retentionEligibility: {
-    'vpn.monthly.eligible_for_offer': { add: jest.fn() },
-  },
 }));
 
 const mockGlean = jest.requireMock('@mozilla/glean/web').default;
@@ -179,128 +175,6 @@ describe('PaymentsGleanClientManager', () => {
           PageViewEventFactory({ pageName: 'management' })
         )
       ).not.toThrow();
-    });
-  });
-
-  describe('recordRetentionEligibility', () => {
-    it('records retention eligibility', () => {
-      paymentsGleanClientManager.recordRetentionEligibility(
-        RetentionEligibilityFactory({
-          product: 'vpn',
-          interval: 'monthly',
-          eligibilityStatus: 'eligible_for_offer',
-        })
-      );
-
-      expect(
-        mockSubscriptions.retentionEligibility['vpn.monthly.eligible_for_offer']
-          .add
-      ).toHaveBeenCalled();
-      expect(
-        mockSubscriptions.retentionEligibility['vpn.monthly.eligible_for_offer']
-          .add
-      ).toHaveBeenCalledTimes(1);
-    });
-
-    it('does nothing when the label is not present', () => {
-      paymentsGleanClientManager.recordRetentionEligibility(
-        RetentionEligibilityFactory({
-          product: 'vpn',
-          interval: 'monthly',
-          eligibilityStatus: 'eligible_for_stay',
-        })
-      );
-
-      expect(
-        mockSubscriptions.retentionEligibility['vpn.monthly.eligible_for_offer']
-          .add
-      ).not.toHaveBeenCalled();
-    });
-
-    it('does not record when CI=true', () => {
-      process.env['CI'] = 'true';
-
-      paymentsGleanClientManager.recordRetentionEligibility(
-        RetentionEligibilityFactory({
-          product: 'vpn',
-          interval: 'monthly',
-          eligibilityStatus: 'eligible_for_offer',
-        })
-      );
-
-      expect(
-        mockSubscriptions.retentionEligibility['vpn.monthly.eligible_for_offer']
-          .add
-      ).not.toHaveBeenCalled();
-    });
-
-    it('does not record when config.enabled=false', async () => {
-      const moduleRef = await Test.createTestingModule({
-        providers: [
-          {
-            provide: PaymentsGleanClientConfig,
-            useValue: { ...mockConfigValue, enabled: false },
-          },
-          PaymentsGleanClientManager,
-        ],
-      }).compile();
-
-      const manager = moduleRef.get(PaymentsGleanClientManager);
-
-      manager.recordRetentionEligibility(
-        RetentionEligibilityFactory({
-          product: 'vpn',
-          interval: 'monthly',
-          eligibilityStatus: 'eligible_for_offer',
-        })
-      );
-
-      expect(
-        mockSubscriptions.retentionEligibility['vpn.monthly.eligible_for_offer']
-          .add
-      ).not.toHaveBeenCalled();
-    });
-
-    it('does not throw if the labeled counter add() throws', () => {
-      jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-      const addSpy =
-        mockSubscriptions.retentionEligibility['vpn.monthly.eligible_for_offer']
-          .add;
-
-      addSpy.mockImplementation(() => {
-        throw new Error('boom');
-      });
-
-      expect(() =>
-        paymentsGleanClientManager.recordRetentionEligibility(
-          RetentionEligibilityFactory({
-            product: 'vpn',
-            interval: 'monthly',
-            eligibilityStatus: 'eligible_for_offer',
-          })
-        )
-      ).not.toThrow();
-
-      expect(console.warn).toHaveBeenCalledWith(
-        'Glean client metric record failed',
-        expect.any(Error)
-      );
-    });
-
-    it('computes the label as `${product}.${interval}.${eligibility_status}`', () => {
-      paymentsGleanClientManager.recordRetentionEligibility(
-        RetentionEligibilityFactory({
-          product: 'vpn',
-          interval: 'monthly',
-          eligibilityStatus: 'eligible_for_offer',
-        })
-      );
-
-      expect(
-        mockSubscriptions.retentionEligibility['vpn.monthly.eligible_for_offer']
-          .add
-      ).toHaveBeenCalled();
     });
   });
 

@@ -8,6 +8,7 @@ import {
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
+  EligibilityStatus,
   FlowType,
   Outcome,
   PageName,
@@ -20,7 +21,6 @@ import {
   type GleanMetricsData,
   type PageMetricsData,
   type RetentionFlowEventMetricsData,
-  type RetentionEligibilityMetricsData,
   type SessionMetricsData,
   type StripeMetricsData,
   type SubPlatCmsMetricsData,
@@ -188,30 +188,20 @@ export const RetentionFlowEventFactory = (
   override?: Partial<RetentionFlowEventMetricsData>
 ) => ({
   flowType: faker.helpers.arrayElement<FlowType>(['cancel', 'stay']),
-  step: faker.helpers.arrayElement<Step>(['engage', 'submit', 'result']),
+  eligibilityStatus: faker.helpers.arrayElement<EligibilityStatus>([
+    'cancel',
+    'stay',
+    'offer',
+    'none',
+  ]),
+  step: faker.helpers.arrayElement<Step>([
+    'view',
+    'engage',
+    'submit',
+    'result',
+  ]),
   outcome: faker.helpers.arrayElement<Outcome>(['success', 'error']),
   offeringId: faker.string.alphanumeric(8),
   interval: faker.helpers.enumValue(SubplatInterval),
-  ...override,
-});
-
-export const RetentionEligibilityFactory = (
-  override?: Partial<RetentionEligibilityMetricsData>
-) => ({
-  product: faker.helpers.arrayElement([
-    'vpn',
-    'relaypremiumphone',
-    'relaypremium',
-    'mdnplus5m',
-    'mdnplus10m',
-    'mdnplus5y',
-    'mdnplus10y',
-  ]),
-  interval: faker.helpers.arrayElement(['monthly', 'yearly']),
-  eligibilityStatus: faker.helpers.arrayElement([
-    'eligible_for_stay',
-    'eligible_for_cancel',
-    'eligible_for_offer',
-  ]),
   ...override,
 });

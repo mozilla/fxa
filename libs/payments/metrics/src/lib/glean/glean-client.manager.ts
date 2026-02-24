@@ -8,12 +8,8 @@ import * as subscriptions from './__generated__/subscriptions';
 import { PaymentsGleanClientConfig } from './glean.config';
 import type {
   PageMetricsData,
-  RetentionEligibilityMetricsData,
   RetentionFlowEventMetricsData,
 } from './glean.types';
-
-type RetentionEligibilityLabel =
-  keyof typeof subscriptions.retentionEligibility;
 
 @Injectable()
 export class PaymentsGleanClientManager {
@@ -46,20 +42,6 @@ export class PaymentsGleanClientManager {
     this.recordWithGlean(() =>
       subscriptions.pageView.record(this.mapPageViewToGlean(args))
     );
-  }
-
-  recordRetentionEligibility(args: RetentionEligibilityMetricsData) {
-    this.recordWithGlean(() => {
-      const label = this.mapRetentionEligibilityLabel(args);
-      if (!label) return;
-
-      const metric = subscriptions.retentionEligibility[label];
-      if (!metric || typeof metric.add !== 'function') {
-        return;
-      }
-
-      metric.add();
-    });
   }
 
   recordRetentionFlow(args: RetentionFlowEventMetricsData) {
@@ -104,19 +86,6 @@ export class PaymentsGleanClientManager {
     };
   }
 
-  private mapRetentionEligibilityLabel(
-    args: RetentionEligibilityMetricsData
-  ): RetentionEligibilityLabel | null {
-    const label =
-      `${args.product}.${args.interval}.${args.eligibilityStatus}` as const;
-
-    if (!(label in subscriptions.retentionEligibility)) {
-      return null;
-    }
-
-    return label as RetentionEligibilityLabel;
-  }
-
   private mapRetentionFlowToGlean(
     retentionFlowMetrics: RetentionFlowEventMetricsData
   ) {
@@ -127,6 +96,11 @@ export class PaymentsGleanClientManager {
       error_reason: retentionFlowMetrics.errorReason ?? '',
       offering_id: retentionFlowMetrics.offeringId ?? '',
       interval: retentionFlowMetrics.interval ?? '',
+      eligibility_status: retentionFlowMetrics.eligibilityStatus ?? '',
+      entrypoint: retentionFlowMetrics.entrypoint ?? '',
+      utm_source: retentionFlowMetrics.utmSource ?? '',
+      utm_medium: retentionFlowMetrics.utmMedium ?? '',
+      utm_campaign: retentionFlowMetrics.utmCampaign ?? '',
       nimbus_user_id: retentionFlowMetrics.nimbusUserId ?? '',
     };
   }

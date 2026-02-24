@@ -51,50 +51,6 @@ subscriptions:
           Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly).
         type: string
 
-  retention_eligibility:
-    type: labeled_counter
-    description: |
-      Counts occurrences of retention eligibility outcomes by product, billing interval, and eligibility type.
-    notification_emails:
-      - lchan@mozilla.com
-      - subplat-team@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/PAY-3472
-    data_reviews:
-      - FILL IN
-    expires: never
-    labels:
-      - vpn.monthly.eligible_for_stay
-      - vpn.monthly.eligible_for_cancel
-      - vpn.monthly.eligible_for_offer
-      - vpn.yearly.eligible_for_stay
-      - vpn.yearly.eligible_for_cancel
-      - vpn.yearly.eligible_for_offer
-      - relaypremiumphone.monthly.eligible_for_stay
-      - relaypremiumphone.monthly.eligible_for_cancel
-      - relaypremiumphone.monthly.eligible_for_offer
-      - relaypremiumphone.yearly.eligible_for_stay
-      - relaypremiumphone.yearly.eligible_for_cancel
-      - relaypremiumphone.yearly.eligible_for_offer
-      - relaypremium.monthly.eligible_for_stay
-      - relaypremium.monthly.eligible_for_cancel
-      - relaypremium.monthly.eligible_for_offer
-      - relaypremium.yearly.eligible_for_stay
-      - relaypremium.yearly.eligible_for_cancel
-      - relaypremium.yearly.eligible_for_offer
-      - mdnplus5m.monthly.eligible_for_stay
-      - mdnplus5m.monthly.eligible_for_cancel
-      - mdnplus5m.monthly.eligible_for_offer
-      - mdnplus10m.monthly.eligible_for_stay
-      - mdnplus10m.monthly.eligible_for_cancel
-      - mdnplus10m.monthly.eligible_for_offer
-      - mdnplus5y.yearly.eligible_for_stay
-      - mdnplus5y.yearly.eligible_for_cancel
-      - mdnplus5y.yearly.eligible_for_offer
-      - mdnplus10y.yearly.eligible_for_stay
-      - mdnplus10y.yearly.eligible_for_cancel
-      - mdnplus10y.yearly.eligible_for_offer
-
   retention_flow:
     type: event
     description: |
@@ -112,13 +68,21 @@ subscriptions:
     data_sensitivity:
       - interaction
     extra_keys:
+      entrypoint:
+        description: |
+          Where the flow was entered from (e.g., email | internal_nav | deep_link).
+        type: string
       flow_type:
         description: |
           Type of retention flow. Allowed values: cancel, stay.
         type: string
+      eligibility_status:
+        description: |
+          Eligibility status for the subscription. Allowed values: stay, cancel, offer, none.
+        type: string
       step:
         description: |
-          Stage in the user journey lifecycle. Allowed values: engage, submit, result.
+          Stage in the user journey lifecycle. Allowed values: view, engage, submit, result.
         type: string
       outcome:
         description: |
@@ -141,6 +105,15 @@ subscriptions:
         type: string
       interval:
         description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+        type: string
+      utm_source:
+        description: UTM source (if present).
+        type: string
+      utm_medium:
+        description: UTM medium (if present).
+        type: string
+      utm_campaign:
+        description: UTM campaign (if present).
         type: string
       nimbus_user_id:
         description: Nimbus user ID
@@ -168,7 +141,7 @@ subscriptions:
         type: string
       step:
         description: |
-          Stage in the user journey lifecycle. Allowed values: engage, submit, result.
+          Stage in the user journey lifecycle. Allowed values: view, engage, submit, result.
         type: string
       outcome:
         description: |
@@ -177,14 +150,17 @@ subscriptions:
       error_reason:
         description: |
           Specific reason for failure. Allowed values:
-          - customer_mismatch
-          - discount_already_applied
-          - general_error
-          - no_churn_intervention_found
-          - redemption_limit_exceeded
-          - subscription_not_active
           - subscription_not_found
-          - subscription_still_active
+          - customer_mismatch
+          - subscription_not_active
+          - stripe_price_id_not_found
+          - already_canceling_at_period_end
+          - current_interval_not_found
+          - offering_id_not_found
+          - no_cancel_interstitial_offer_found
+          - no_upgrade_plan_found
+          - not_eligible_for_upgrade_interval
+          - general_error
         type: string
       offering_id:
         description: The API id of the specific subscription offering.
@@ -192,6 +168,15 @@ subscriptions:
       interval:
         description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
         type: string
+      utm_source:
+        type: string
+        description: UTM source (if present).
+      utm_medium:
+        type: string
+        description: UTM medium (if present).
+      utm_campaign:
+        type: string
+        description: UTM campaign (if present).
       nimbus_user_id:
         description: Nimbus user ID
         type: string

@@ -131,9 +131,9 @@ export type PageVariant =
   | 'interstitial_offer_success';
 
 export type Source = 'email' | 'internal_nav' | 'deep_link';
-
+export type EligibilityStatus = 'cancel' | 'stay' | 'offer' | 'none';
 export type FlowType = 'cancel' | 'stay';
-export type Step = 'engage' | 'submit' | 'result';
+export type Step = 'view' | 'engage' | 'submit' | 'result';
 export type Outcome = 'success' | 'error';
 
 export type ErrorReason =
@@ -163,6 +163,11 @@ export type RetentionFlowEventMetricsData = {
   errorReason?: ErrorReason;
   offeringId?: string;
   interval?: Interval;
+  eligibilityStatus?: EligibilityStatus;
+  entrypoint?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
   nimbusUserId?: string;
 };
 
