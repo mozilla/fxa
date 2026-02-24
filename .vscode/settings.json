@@ -25,6 +25,7 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.exclude": {
     ".nx": true,
+    ".claude": true,
     "**/.git": true,
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
