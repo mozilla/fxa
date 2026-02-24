@@ -1299,15 +1299,12 @@ export class AccountHandler {
       // If the request wants keys , user *must* confirm their login session before they can actually
       // use it. Otherwise, they don't *have* to verify their session. All sessions are created
       // unverified because it prevents them from being used for sync.
-      // Also require verification if the service is in the servicesWithEmailVerification list.
       let mustVerifySession =
         needsVerificationId &&
         (verificationForced === 'suspect' ||
           verificationForced === 'global' ||
           verificationForced === 'email' ||
-          requestHelper.wantsKeys(request) ||
-          (service &&
-            this.config.servicesWithEmailVerification.includes(service)));
+          requestHelper.wantsKeys(request));
 
       // For accounts with TOTP, we always force verifying a session.
       if (verificationMethod === 'totp-2fa') {
@@ -2382,16 +2379,20 @@ export class AccountHandler {
       this.db.getRecoveryKeyRecordWithHint(uid),
       Container.get(RecoveryPhoneService).hasConfirmed(uid),
       request.app.geo?.location?.countryCode
-        ? Container.get(RecoveryPhoneService).available(uid, request.app.geo.location.countryCode)
+        ? Container.get(RecoveryPhoneService).available(
+            uid,
+            request.app.geo.location.countryCode
+          )
         : Promise.resolve(false),
       this.db.securityEventsByUid({ uid }),
       this.db.devices(uid),
       listAuthorizedClients(uid),
     ]);
 
-    const recoveryPhoneAvailable = recoveryPhoneAvailableResult.status === 'fulfilled'
-      ? recoveryPhoneAvailableResult.value
-      : false;
+    const recoveryPhoneAvailable =
+      recoveryPhoneAvailableResult.status === 'fulfilled'
+        ? recoveryPhoneAvailableResult.value
+        : false;
 
     // Account record is required
     if (accountRecord.status === 'rejected') {

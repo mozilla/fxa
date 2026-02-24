@@ -908,8 +908,8 @@ const conf = (module.exports = convict({
     },
   },
   servicesWithEmailVerification: {
-    doc: 'Services that will alwasy send a session verification email on sign in',
-    default: ['e6eb0d1e856335fc'],
+    doc: 'For users in a non-2FA non-Sync unverified session state going through an RP redirect flow, we skip 1) redirecting the user to enter emailed code verification page, and we skip 2) sending that email verification. Services in this list will NOT skip the redirect or email, and are blocked in the BE from completing the oauth flow by hitting our API directly in this state. Auth-server has this config as well.',
+    default: ['32aaeb6f1c21316a'], // SubPlat dev
     format: Array,
     env: 'SERVICES_WITH_EMAIL_VERIFICATION',
   },
