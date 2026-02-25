@@ -8,14 +8,14 @@ import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import {
   getNextChargeChurnContent,
+  BaseButton,
   ButtonVariant,
-  SubmitButton,
 } from '@fxa/payments/ui';
 import { redeemChurnCouponAction } from '@fxa/payments/ui/actions';
 import spinner from '@fxa/shared/assets/images/spinner.svg';
@@ -72,7 +72,6 @@ export function ChurnCancel({
   cmsChurnInterventionEntry,
   cmsOfferingContent,
 }: ChurnCancelProps) {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showResubscribeActionError, setResubscribeActionError] =
     useState(false);
@@ -104,7 +103,8 @@ export function ChurnCancel({
     nextInvoiceTotal: cancelContent.nextInvoiceTotal,
   });
 
-  async function churnCancelFlow() {
+  async function handleRedeemSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     if (loading) return;
 
     setLoading(true);
@@ -177,30 +177,17 @@ export function ChurnCancel({
               <Link
                 className="border box-border flex font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 href={`/${locale}/subscriptions/landing`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setLoading(true);
-                  router.push(`/${locale}/subscriptions/landing`);
-                }}
               >
-                {loading ? (
-                  <Image
-                    src={spinner}
-                    alt=""
-                    className="absolute animate-spin h-8 w-8"
-                  />
-                ) : (
-                  <Localized id="churn-cancel-flow-button-back-to-subscriptions">
-                    <span>Back to subscriptions</span>
-                  </Localized>
-                )}
+                <Localized id="churn-cancel-flow-button-back-to-subscriptions">
+                  <span>Back to subscriptions</span>
+                </Localized>
               </Link>
             </div>
           </div>
         </div>
       ) : isOffer ? (
         <Form.Root
-          action={churnCancelFlow}
+          onSubmit={handleRedeemSubmit}
           className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]"
         >
           <div className="flex flex-col items-center justify-center gap-4 text-center">
@@ -246,47 +233,44 @@ export function ChurnCancel({
             )}
 
             <Form.Submit asChild>
-              <SubmitButton
+              <BaseButton
                 className="flex font-bold h-14 items-center justify-center tablet:w-full"
                 variant={ButtonVariant.SubscriptionManagementSecondary}
+                type="submit"
                 disabled={loading}
               >
-                {typeof discountAmount === 'number' && discountAmount > 0 ? (
-                  <Localized
-                    id="churn-cancel-flow-button-stay-subscribed-and-save-discount"
-                    vars={{ discountPercent: discountAmount }}
-                  >
-                    <span>Stay subscribed and save {discountAmount}%</span>
-                  </Localized>
+                {loading ? (
+                  <Image
+                    src={spinner}
+                    alt=""
+                    className="absolute animate-spin h-8 w-8"
+                  />
                 ) : (
-                  <Localized id="churn-cancel-flow-button-stay-subscribed-and-save">
-                    <span>Stay subscribed and save</span>
-                  </Localized>
+                  <>
+                    {typeof discountAmount === 'number' &&
+                    discountAmount > 0 ? (
+                      <Localized
+                        id="churn-cancel-flow-button-stay-subscribed-and-save-discount"
+                        vars={{ discountPercent: discountAmount }}
+                      >
+                        <span>Stay subscribed and save {discountAmount}%</span>
+                      </Localized>
+                    ) : (
+                      <Localized id="churn-cancel-flow-button-stay-subscribed-and-save">
+                        <span>Stay subscribed and save</span>
+                      </Localized>
+                    )}
+                  </>
                 )}
-              </SubmitButton>
+              </BaseButton>
             </Form.Submit>
             <Link
               className="border box-border font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
               href={`/${locale}/subscriptions/${subscriptionId}/cancel`}
-              onClick={(e) => {
-                e.preventDefault();
-                setLoading(true);
-                router.push(
-                  `/${locale}/subscriptions/${subscriptionId}/cancel`
-                );
-              }}
             >
-              {loading ? (
-                <Image
-                  src={spinner}
-                  alt=""
-                  className="absolute animate-spin h-8 w-8"
-                />
-              ) : (
-                <Localized id="churn-cancel-flow-button-continue-to-cancel">
-                  <span>Continue to cancel</span>
-                </Localized>
-              )}
+              <Localized id="churn-cancel-flow-button-continue-to-cancel">
+                <span>Continue to cancel</span>
+              </Localized>
             </Link>
             <LinkExternal
               href={`/${locale}/${apiIdentifier}/${interval}/cancel/loyalty-discount/terms`}

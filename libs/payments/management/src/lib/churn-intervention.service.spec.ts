@@ -785,6 +785,46 @@ describe('ChurnInterventionService', () => {
         cmsChurnInterventionEntry: mockCmsChurnEntry,
       });
     });
+
+    it('returns redeemed true and does not increment redemption when coupon already applied', async () => {
+      jest
+        .spyOn(churnInterventionService, 'determineStaySubscribedEligibility')
+        .mockResolvedValue({
+          isEligible: true,
+          reason: 'eligible',
+          cmsChurnInterventionEntry: mockCmsChurnEntry,
+          cmsOfferingContent: null,
+        });
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+
+      jest.spyOn(subscriptionManager, 'hasCouponId').mockResolvedValue(true);
+
+      const result = await churnInterventionService.redeemChurnCoupon(
+        mockUid,
+        mockSubscription.id,
+        'stay_subscribed'
+      );
+
+      expect(result).toEqual({
+        redeemed: true,
+        reason: 'discount_already_applied',
+        updatedChurnInterventionEntryData: null,
+        cmsChurnInterventionEntry: mockCmsChurnEntry,
+      });
+
+      expect(
+        jest.spyOn(subscriptionManager, 'resubscribeWithCoupon')
+      ).not.toHaveBeenCalled();
+
+      expect(
+        jest.spyOn(churnInterventionManager, 'updateEntry')
+      ).not.toHaveBeenCalled();
+    });
   });
 
   describe('determineCancellationIntervention', () => {
@@ -1102,10 +1142,12 @@ describe('ChurnInterventionService', () => {
         .mockResolvedValue(StripeResponseFactory(mockSubscription));
 
       const result =
-        await churnInterventionService.determineCancelInterstitialOfferEligibility({
-          uid: mockUid,
-          subscriptionId: mockSubscription.id,
-        });
+        await churnInterventionService.determineCancelInterstitialOfferEligibility(
+          {
+            uid: mockUid,
+            subscriptionId: mockSubscription.id,
+          }
+        );
 
       expect(result).toEqual({
         isEligible: false,

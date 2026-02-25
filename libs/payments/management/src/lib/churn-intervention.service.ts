@@ -21,9 +21,7 @@ import { SubplatInterval, SubscriptionManager } from '@fxa/payments/customer';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
 import { ProfileClient } from '@fxa/profile/client';
 import { NotifierService } from '@fxa/shared/notifier';
-import {
-  ChurnInterventionProductIdentifierMissingError,
-} from './churn-intervention.error';
+import { ChurnInterventionProductIdentifierMissingError } from './churn-intervention.error';
 
 @Injectable()
 export class ChurnInterventionService {
@@ -221,6 +219,25 @@ export class ChurnInterventionService {
           };
         }
 
+        const churnCouponId = cmsChurnInterventionEntry.stripeCouponId;
+        const couponAlreadyApplied = await this.subscriptionManager.hasCouponId(
+          subscriptionId,
+          churnCouponId
+        );
+
+        if (couponAlreadyApplied) {
+          this.statsd.increment('stay_subscribed_eligibility', {
+            eligibility: 'ineligible',
+            reason: 'discount_already_applied',
+          });
+          return {
+            isEligible: false,
+            reason: 'discount_already_applied',
+            cmsChurnInterventionEntry: null,
+            cmsOfferingContent: cmsContent,
+          };
+        }
+
         const redemptionCount =
           await this.churnInterventionManager.getRedemptionCountForUid(
             uid,
@@ -241,25 +258,6 @@ export class ChurnInterventionService {
           return {
             isEligible: false,
             reason: 'redemption_limit_exceeded',
-            cmsChurnInterventionEntry: null,
-            cmsOfferingContent: cmsContent,
-          };
-        }
-
-        const churnCouponId = cmsChurnInterventionEntry.stripeCouponId;
-        const couponAlreadyApplied = await this.subscriptionManager.hasCouponId(
-          subscriptionId,
-          churnCouponId
-        );
-
-        if (couponAlreadyApplied) {
-          this.statsd.increment('stay_subscribed_eligibility', {
-            eligibility: 'ineligible',
-            reason: 'discount_already_applied',
-          });
-          return {
-            isEligible: false,
-            reason: 'discount_already_applied',
             cmsChurnInterventionEntry: null,
             cmsOfferingContent: cmsContent,
           };
@@ -354,12 +352,29 @@ export class ChurnInterventionService {
         };
       }
 
+      const couponId =
+        eligibilityResult.cmsChurnInterventionEntry.stripeCouponId;
+
+      const couponAlreadyApplied = await this.subscriptionManager.hasCouponId(
+        subscriptionId,
+        couponId
+      );
+
+      if (couponAlreadyApplied) {
+        return {
+          redeemed: true,
+          reason: 'discount_already_applied',
+          updatedChurnInterventionEntryData: null,
+          cmsChurnInterventionEntry:
+            eligibilityResult.cmsChurnInterventionEntry,
+        };
+      }
+
       const updatedSubscription =
         await this.subscriptionManager.resubscribeWithCoupon({
           customerId: subscription.customer,
           subscriptionId,
-          stripeCouponId:
-            eligibilityResult.cmsChurnInterventionEntry.stripeCouponId,
+          stripeCouponId: couponId,
         });
       await this.customerChanged(uid);
 
@@ -537,7 +552,8 @@ export class ChurnInterventionService {
         await this.productConfigurationManager.getPageContentByPriceIds([
           stripePriceId,
         ]);
-      const { offering, purchaseDetails } = result.purchaseForPriceId(stripePriceId);
+      const { offering, purchaseDetails } =
+        result.purchaseForPriceId(stripePriceId);
       const offeringId = offering?.apiIdentifier;
       const { webIcon, productName } = purchaseDetails;
 
@@ -747,7 +763,7 @@ export class ChurnInterventionService {
           reason: 'customer_mismatch',
           cmsChurnInterventionEntry: null,
           cmsOfferingContent: null,
-        }
+        };
       }
 
       const subscriptionStatus =
@@ -809,6 +825,25 @@ export class ChurnInterventionService {
         };
       }
 
+      const churnCouponId = cmsChurnInterventionEntry.stripeCouponId;
+      const couponAlreadyApplied = await this.subscriptionManager.hasCouponId(
+        args.subscriptionId,
+        churnCouponId
+      );
+
+      if (couponAlreadyApplied) {
+        this.statsd.increment('cancel_intervention_decision', {
+          type: 'none',
+          reason: 'discount_already_applied',
+        });
+        return {
+          isEligible: false,
+          reason: 'discount_already_applied',
+          cmsChurnInterventionEntry,
+          cmsOfferingContent: cmsContent,
+        };
+      }
+
       const redemptionCount =
         await this.churnInterventionManager.getRedemptionCountForUid(
           args.uid,
@@ -830,25 +865,6 @@ export class ChurnInterventionService {
           isEligible: false,
           reason: 'redemption_limit_exceeded',
           cmsChurnInterventionEntry: null,
-          cmsOfferingContent: cmsContent,
-        };
-      }
-
-      const churnCouponId = cmsChurnInterventionEntry.stripeCouponId;
-      const couponAlreadyApplied = await this.subscriptionManager.hasCouponId(
-        args.subscriptionId,
-        churnCouponId
-      );
-
-      if (couponAlreadyApplied) {
-        this.statsd.increment('cancel_intervention_decision', {
-          type: 'none',
-          reason: 'discount_already_applied',
-        });
-        return {
-          isEligible: false,
-          reason: 'discount_already_applied',
-          cmsChurnInterventionEntry,
           cmsOfferingContent: cmsContent,
         };
       }
