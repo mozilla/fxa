@@ -17,7 +17,10 @@ import {
 } from '../lib/integrations';
 import { ReachRouterWindow } from '../lib/window';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
-import { MetricsData, SignedInAccountStatus } from '../components/App/interfaces';
+import {
+  MetricsData,
+  SignedInAccountStatus,
+} from '../components/App/interfaces';
 import {
   RelierClientInfo,
   RelierSubscriptionInfo,
@@ -28,7 +31,10 @@ import * as Sentry from '@sentry/browser';
 import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
 import { sessionToken } from '../lib/cache';
 import { useLocalStorageSync } from '../lib/hooks/useLocalStorageSync';
-import { getFullAccountData, isSignedIn as checkIsSignedIn } from '../lib/account-storage';
+import {
+  getFullAccountData,
+  isSignedIn as checkIsSignedIn,
+} from '../lib/account-storage';
 
 const DEFAULT_CMS_ENTRYPOINT = 'default';
 
@@ -197,15 +203,21 @@ export function useInitialMetricsQueryState() {
           throw new Error('AuthClient not available');
         }
 
-        const [accountResult, totpResult, recoveryKeyResult] = await Promise.allSettled([
-          authClient.account(token),
-          authClient.checkTotpTokenExists(token),
-          authClient.recoveryKeyExists(token, undefined),
-        ]);
+        const [accountResult, totpResult, recoveryKeyResult] =
+          await Promise.allSettled([
+            authClient.account(token),
+            authClient.checkTotpTokenExists(token),
+            authClient.recoveryKeyExists(token, undefined),
+          ]);
 
-        const accountData = accountResult.status === 'fulfilled' ? accountResult.value : null;
-        const totpData = totpResult.status === 'fulfilled' ? totpResult.value : null;
-        const recoveryKeyData = recoveryKeyResult.status === 'fulfilled' ? recoveryKeyResult.value : null;
+        const accountData =
+          accountResult.status === 'fulfilled' ? accountResult.value : null;
+        const totpData =
+          totpResult.status === 'fulfilled' ? totpResult.value : null;
+        const recoveryKeyData =
+          recoveryKeyResult.status === 'fulfilled'
+            ? recoveryKeyResult.value
+            : null;
 
         if (mounted && accountData) {
           const emails = accountData.emails || [];
@@ -215,10 +227,16 @@ export function useInitialMetricsQueryState() {
               account: {
                 uid: accountData.uid,
                 recoveryKey: recoveryKeyData
-                  ? { exists: recoveryKeyData.exists, estimatedSyncDeviceCount: recoveryKeyData.estimatedSyncDeviceCount }
+                  ? {
+                      exists: recoveryKeyData.exists,
+                      estimatedSyncDeviceCount:
+                        recoveryKeyData.estimatedSyncDeviceCount,
+                    }
                   : null,
                 metricsEnabled: accountData.metricsEnabled ?? true,
-                primaryEmail: emails.find((e: { isPrimary?: boolean }) => e.isPrimary) || null,
+                primaryEmail:
+                  emails.find((e: { isPrimary?: boolean }) => e.isPrimary) ||
+                  null,
                 emails,
                 totp: totpData || null,
               },
@@ -388,6 +406,7 @@ export function useCmsInfoState() {
     setState((prev) => ({ ...prev, loading: true }));
 
     const fetchConfig = async () => {
+      const fetchStart = performance.now();
       try {
         const url = new URL(`${authUrl}/v1/cms/config`);
         url.searchParams.append('clientId', clientId);
@@ -420,9 +439,17 @@ export function useCmsInfoState() {
           });
         }
       } catch (error) {
+        const fetchDuration = Math.round(performance.now() - fetchStart);
+        const cancelled = error instanceof Error && error.name === 'AbortError';
         Sentry.captureException(error, {
           tags: { area: 'useCmsInfoState' },
-          extra: { clientId, entrypoint },
+          extra: {
+            clientId,
+            entrypoint,
+            fetchDuration,
+            cancelled,
+            errorName: error instanceof Error ? error.name : typeof error,
+          },
         });
 
         if (mounted) {
@@ -579,6 +606,7 @@ export function useLegalTermsState() {
     setState((prev) => ({ ...prev, loading: true }));
 
     const fetchLegalTerms = async () => {
+      const fetchStart = performance.now();
       try {
         const url = new URL(`${authUrl}/v1/cms/legal-terms`);
         url.searchParams.append(queryParam, queryValue);
@@ -622,9 +650,17 @@ export function useLegalTermsState() {
           });
         }
       } catch (error) {
+        const fetchDuration = Math.round(performance.now() - fetchStart);
+        const cancelled = error instanceof Error && error.name === 'AbortError';
         Sentry.captureException(error, {
           tags: { area: 'useLegalTermsState' },
-          extra: { queryParam, queryValue },
+          extra: {
+            queryParam,
+            queryValue,
+            fetchDuration,
+            cancelled,
+            errorName: error instanceof Error ? error.name : typeof error,
+          },
         });
 
         if (mounted) {

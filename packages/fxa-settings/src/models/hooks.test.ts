@@ -321,7 +321,13 @@ describe('useCmsInfoState', () => {
     // why we changed the hook to start with.
     expect(Sentry.captureException).toHaveBeenCalledWith(fetchError, {
       tags: { area: 'useCmsInfoState' },
-      extra: { clientId: '1234567890abcdef', entrypoint: 'preferences' },
+      extra: {
+        clientId: '1234567890abcdef',
+        entrypoint: 'preferences',
+        cancelled: false,
+        errorName: 'Error',
+        fetchDuration: expect.any(Number),
+      },
     });
   });
 
