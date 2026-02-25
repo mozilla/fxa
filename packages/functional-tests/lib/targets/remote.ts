@@ -33,6 +33,7 @@ export abstract class RemoteTarget extends BaseTarget {
     return {
       email,
       password,
+      verified: preVerified === 'true',
       ...creds,
     };
   }

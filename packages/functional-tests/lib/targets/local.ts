@@ -42,6 +42,7 @@ export class LocalTarget extends BaseTarget {
     return {
       email,
       password,
+      verified: options.preVerified === 'true',
       ...result,
     } as Credentials;
   }

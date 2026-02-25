@@ -13,6 +13,7 @@ export type Credentials = Awaited<ReturnType<AuthClient['signUp']>> & {
   password: string;
   secret?: string;
   sessionToken?: string;
+  verified?: boolean;
 };
 
 export abstract class BaseTarget {

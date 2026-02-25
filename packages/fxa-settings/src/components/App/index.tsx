@@ -221,7 +221,13 @@ export const App = ({
           integration.data?.service || ''
         );
 
-        if (userFromBrowser?.sessionToken) {
+        // Don't intialize session state from partially succesful firefox logins (ie sync, relay, smartwindow).
+        // This reprensents an abandonded login. Basically the user hasn't actually confirmed the session yet, so
+        // don't assume it's valid.
+        if (
+          userFromBrowser?.sessionToken &&
+          userFromBrowser.verified === true
+        ) {
           const isValidSession = await session.isValid(
             userFromBrowser.sessionToken
           );
