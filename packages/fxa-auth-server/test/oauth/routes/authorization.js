@@ -17,6 +17,9 @@ const PKCE_CODE_CHALLENGE_METHOD = 'S256';
 const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 
 const _ = () => {};
+
+const SERVICES_WITH_EMAIL_VERIFICATION_CLIENT = '32aaeb6f1c21316a';
+
 const route = require('../../../lib/routes/oauth/authorization')({
   log: {
     info: _,
@@ -25,6 +28,28 @@ const route = require('../../../lib/routes/oauth/authorization')({
   },
   oauthDB: {},
 })[1];
+
+const sessionTokenRoute = require('../../../lib/routes/oauth/authorization')({
+  log: {
+    info: _,
+    debug: _,
+    warn: _,
+    notifyAttachedServices: _,
+  },
+  oauthDB: {},
+  config: {
+    oauthServer: {
+      expiration: { accessToken: 3600000 },
+      disabledClients: [DISABLED_CLIENT_ID],
+      allowHttpRedirects: false,
+      contentUrl: 'http://localhost',
+    },
+    oauth: {
+      disableNewConnectionsForClients: [],
+    },
+    servicesWithEmailVerification: [SERVICES_WITH_EMAIL_VERIFICATION_CLIENT],
+  },
+})[2];
 
 describe('/authorization POST', function () {
   describe('input validation', () => {
@@ -216,6 +241,107 @@ describe('/authorization POST', function () {
       } catch (err) {
         assert.equal(err.output.statusCode, 503);
         assert.equal(err.errno, 202); // Disabled client
+      }
+    });
+  });
+});
+
+describe('/oauth/authorization POST', function () {
+  describe('servicesWithEmailVerification enforcement', () => {
+    it('rejects unverified sessions for clients in servicesWithEmailVerification', async () => {
+      const request = {
+        headers: {},
+        auth: {
+          credentials: {
+            tokenVerified: false,
+            uid: 'abc123',
+            email: 'test@example.com',
+          },
+        },
+        payload: {
+          client_id: SERVICES_WITH_EMAIL_VERIFICATION_CLIENT,
+          state: 'foo',
+          scope: 'profile',
+        },
+      };
+
+      try {
+        await sessionTokenRoute.handler(request);
+        assert.fail('should have errored');
+      } catch (err) {
+        assert.equal(err.errno, 138); // Unverified session
+      }
+    });
+
+    it('allows verified sessions for clients in servicesWithEmailVerification', async () => {
+      const request = {
+        headers: {},
+        auth: {
+          credentials: {
+            tokenVerified: true,
+            uid: 'abc123',
+            email: 'test@example.com',
+            emailVerified: true,
+            verifierSetAt: Date.now(),
+            lastAuthAt: () => Date.now(),
+            authenticationMethods: new Set(['pwd']),
+            authenticatorAssuranceLevel: 1,
+            profileChangedAt: Date.now(),
+            keysChangedAt: Date.now(),
+            id: 'sessionTokenId',
+          },
+        },
+        payload: {
+          client_id: SERVICES_WITH_EMAIL_VERIFICATION_CLIENT,
+          state: 'foo',
+          scope: 'profile',
+        },
+      };
+
+      try {
+        await sessionTokenRoute.handler(request);
+        assert.fail('should have errored');
+      } catch (err) {
+        // Should pass the servicesWithEmailVerification check and fail
+        // further downstream (e.g., at assertion verification or grant
+        // validation), not at unverified session check.
+        assert.notEqual(err.errno, 138);
+      }
+    });
+
+    it('allows unverified sessions for clients NOT in servicesWithEmailVerification', async () => {
+      const request = {
+        headers: {},
+        auth: {
+          credentials: {
+            tokenVerified: false,
+            uid: 'abc123',
+            email: 'test@example.com',
+            emailVerified: true,
+            verifierSetAt: Date.now(),
+            lastAuthAt: () => Date.now(),
+            authenticationMethods: new Set(['pwd']),
+            authenticatorAssuranceLevel: 1,
+            profileChangedAt: Date.now(),
+            keysChangedAt: Date.now(),
+            id: 'sessionTokenId',
+            mustVerify: false,
+          },
+        },
+        payload: {
+          client_id: CLIENT_ID, // Not in servicesWithEmailVerification
+          state: 'foo',
+          scope: 'profile',
+        },
+      };
+
+      try {
+        await sessionTokenRoute.handler(request);
+        assert.fail('should have errored');
+      } catch (err) {
+        // Should NOT fail with unverified session error, but may fail
+        // further downstream for other reasons.
+        assert.notEqual(err.errno, 138);
       }
     });
   });

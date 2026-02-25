@@ -1682,7 +1682,7 @@ const convictConf = convict({
   },
   signinConfirmation: {
     forcedEmailAddresses: {
-      doc: 'Force sign-in confirmation for email addresses matching this regex for those that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating an unverified session state',
+      doc: 'Force sign-in confirmation for email addresses matching this regex for those that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating a non-Sync non-2FA unverified session state',
       format: RegExp,
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX',
@@ -1695,7 +1695,7 @@ const convictConf = convict({
     },
     skipForNewAccounts: {
       enabled: {
-        doc: 'Skip sign-in confirmation for newly-created accounts. Use this in tandem with forcedEmailAddresses',
+        doc: 'Skip all sign-in email confirmations for newly-created accounts',
         default: true,
         env: 'SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS',
       },
@@ -1859,8 +1859,8 @@ const convictConf = convict({
     env: 'SIGNIN_CODE_SIZE',
   },
   servicesWithEmailVerification: {
-    doc: 'Services that will alwasy send a session verification email on sign in',
-    default: ['e6eb0d1e856335fc'],
+    doc: 'For users in a non-2FA non-Sync unverified session state going through an RP redirect flow, we skip 1) redirecting the user to enter emailed code verification page, and we skip 2) sending that email verification. Services in this list will NOT skip the redirect or email, and are blocked in the BE from completing the oauth flow by hitting our API directly in this state. Content-server has this config as well.',
+    default: ['32aaeb6f1c21316a'],
     format: Array,
     env: 'SERVICES_WITH_EMAIL_VERIFICATION',
   },

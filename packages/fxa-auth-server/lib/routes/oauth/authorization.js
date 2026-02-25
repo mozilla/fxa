@@ -402,6 +402,20 @@ module.exports = ({ log, oauthDB, config }) => {
       handler: async function (req) {
         checkDisabledClientId(req.payload);
         const sessionToken = req.auth.credentials;
+
+        // For services that require email verification for non-2FA non-Sync
+        // flows, reject sessions in this state. This is accounted for in the
+        // front-end as well, but this guards in our BE. This purposefully
+        // does NOT check session.mustVerify because users in this kind of
+        // unverified session don't have that flag set.
+        const clientId = req.payload.client_id;
+        if (
+          config.servicesWithEmailVerification.includes(clientId) &&
+          !sessionToken.tokenVerified
+        ) {
+          throw AuthError.unverifiedSession();
+        }
+
         req.payload.assertion = await makeAssertionJWT(config, sessionToken);
         const result = await authorizationHandler(req);
 
@@ -415,8 +429,8 @@ module.exports = ({ log, oauthDB, config }) => {
           countryCode,
           deviceCount: devices.length,
           email,
-          service: req.payload.client_id,
-          clientId: req.payload.client_id,
+          service: clientId,
+          clientId,
           uid,
           userAgent: req.headers['user-agent'],
         });

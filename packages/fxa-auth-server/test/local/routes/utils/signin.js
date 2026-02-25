@@ -809,7 +809,7 @@ describe('sendSigninNotifications', () => {
     };
     config = {
       otp: otpOptions,
-      servicesWithEmailVerification: ['e6eb0d1e856335fc'],
+      servicesWithEmailVerification: ['32aaeb6f1c21316a'],
     };
 
     sendSigninNotifications = makeSigninUtils({
@@ -1346,8 +1346,8 @@ describe('sendSigninNotifications', () => {
       });
     });
 
-    it('sends verification email when service is VPN', () => {
-      request.payload.service = 'e6eb0d1e856335fc';
+    it('sends verification email when service is in servicesWithEmailVerification', () => {
+      request.payload.service = '32aaeb6f1c21316a';
       return sendSigninNotifications(
         request,
         accountRecord,

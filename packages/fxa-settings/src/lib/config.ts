@@ -206,7 +206,7 @@ export function getDefault() {
       enabled: true,
       preview: true,
     },
-    servicesWithEmailVerification: ['e6eb0d1e856335fc'],
+    servicesWithEmailVerification: ['32aaeb6f1c21316a'],
   } as Config;
 }
 
