@@ -14,24 +14,68 @@ export type MonitoringConfig = {
 
 let initialized = false;
 
-// IMPORTANT! This initialization function must be called first thing when a server starts.If it's called after server
-// frameworks initialized instrumentation might not work properly.
+/**
+ *  IMPORTANT! This initialization function must be called first thing when a server starts. If it's called after server
+ *  frameworks initialized instrumentation might not work properly.
+ */
+
 /**
  * Initializes modules related to error monitoring, performance monitoring, and tracing.
  * @param opts - Initialization options. See underlying implementations for more details.
  */
 export function initMonitoring(opts: MonitoringConfig) {
-  const { log, config } = opts;
+  const { log: logger, config } = opts;
+  const log = logger || console;
+
   if (initialized) {
-    opts.log?.warn('monitoring', 'Monitoring can only be initialized once');
+    log.warn('monitoring', 'Monitoring can only be initialized once');
     return;
   }
   initialized = true;
 
+  /**
+   * IMPORTANT!
+   *
+   * Sentry also uses OTEL under the hood. Which means:
+   *   - Mind the order of initialization. Otel should be first, if configured!
+   *   - Mind the config.tracing.sentry.enabled flag
+   *   - Mind the config.sentry.skipOpenTelemetrySetup flag
+   *
+   * If the order or flags aren't correct the following could happen:
+   *   - Traces disappear
+   *   - Sentry errors don't get recorded
+   *   - Sentry context bleeds between requests (ie breadcrumbs, stack traces, etc. seem off)
+   */
+
+  let nodeTracingInitialized = false;
   if (config.tracing) {
-    initTracing(config.tracing, log || console);
+    // Important! Sentry also uses OTEL under the hood. Flip this flag so the two can co-exist!
+    // If you start seeing funny stack traces, or cross pollinating bread crumbs, something went
+    // sideways here.
+    if (config.sentry?.dsn) {
+      config.tracing.sentry = { enabled: true };
+    }
+
+    log.info('monitoring', {
+      msg: `Initialize Tracing with: ${JSON.stringify(config.tracing)}`,
+    });
+    nodeTracingInitialized = !!initTracing(config.tracing, log);
   }
+
+  // Important! Order matters here. If otel is configured, this shoudl be done after OTEL initialization!
   if (config && config.sentry) {
-    initSentry(config, log || console);
+    if (nodeTracingInitialized) {
+      config.sentry.skipOpenTelemetrySetup = true;
+    }
+
+    log.info('monitoring', {
+      msg: `Initializing Sentry: ${JSON.stringify({
+        env: config.sentry?.env,
+        clientName: config.sentry.clientName,
+        serverName: config.sentry.serverName,
+        hasDsn: !!config.sentry?.dsn,
+      })}`,
+    });
+    initSentry(config, log);
   }
 }

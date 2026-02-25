@@ -5,7 +5,6 @@
 'use strict';
 
 const { assert } = require('chai');
-const EndpointError = require('poolee/lib/error')(require('util').inherits);
 const sinon = require('sinon');
 const verror = require('verror');
 const Hapi = require('@hapi/hapi');
@@ -16,6 +15,7 @@ const config = require('../../config').default.getProperties();
 const {
   configureSentry,
   formatMetadataValidationErrorMessage,
+  filterExtras,
 } = require('../../lib/sentry');
 
 const sandbox = sinon.createSandbox();
@@ -70,6 +70,24 @@ describe('Sentry', () => {
     );
   };
 
+  it('can filter sentry extras', () => {
+    assert.deepEqual(filterExtras({ authPW: 'secret123' }), {
+      authPW: '[Filtered]',
+    });
+    assert.deepEqual(filterExtras({ authorization: 'secret123' }), {
+      authorization: '[Filtered]',
+    });
+    assert.deepEqual(filterExtras({ l1: { authPW: 'secret123' } }), {
+      l1: { authPW: '[Filtered]' },
+    });
+    assert.deepEqual(
+      filterExtras({
+        l1: { l2: { l3: { l4: { l5: { l6: { authPW: 'secret123' } } } } } },
+      }),
+      { l1: { l2: { l3: { l4: { l5: '[Filtered]' } } } } }
+    );
+  });
+
   it('can be set up when sentry is enabled', async () => {
     let throws = false;
     try {
@@ -90,7 +108,7 @@ describe('Sentry', () => {
     assert.equal(throws, false);
   });
 
-  it('adds payload details to an internal validation error', async () => {
+  it('captures internal validation error', async () => {
     await configureSentry(server, config);
     const err = error.internalValidationError('internalError', {
       extra: 'data',
@@ -104,170 +122,7 @@ describe('Sentry', () => {
       [{}, { error: err }]
     );
 
-    sandbox.assert.calledWithMatch(
-      scopeSpy.setContext,
-      'payload',
-      sinon.match({
-        code: 500,
-        errno: error.ERRNO.INTERNAL_VALIDATION_ERROR,
-        error: 'Internal Server Error',
-        info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
-        message: 'An internal validation check failed.',
-        op: 'internalError',
-      })
-    );
-    sandbox.assert.calledWith(scopeSpy.setContext, 'payload.data', {
-      extra: 'data',
-    });
     sandbox.assert.calledOnceWithExactly(sentryCaptureSpy, err);
-  });
-
-  it('adds EndpointError details to a reported error', async () => {
-    await configureSentry(server, config);
-    const endError = new EndpointError(
-      'An internal server error has occurred',
-      {
-        reason: 'connect refused',
-        attempt: {
-          method: 'PUT',
-          path: '/account/',
-        },
-      }
-    );
-    endError.output = {
-      error: 'localhost error',
-      message: 'Underlying error',
-      statusCode: 500,
-    };
-    const fullError = new verror.WError(endError, 'Something bad happened');
-    await server.events.emit(
-      {
-        name: 'request',
-        channel: 'error',
-        tags: { handler: true, error: true },
-      },
-      [{}, { error: fullError }]
-    );
-
-    sandbox.assert.calledOnceWithExactly(scopeSpy.setContext, 'cause', {
-      errorMessage: 'An internal server error has occurred',
-      errorName: 'EndpointError',
-      method: 'PUT',
-      path: '/account/',
-      reason: 'connect refused',
-    });
-    sandbox.assert.calledOnceWithExactly(sentryCaptureSpy, fullError);
-    const ctx = scopeContextSpy.args[0][1];
-    assert.equal(ctx.method, endError.attempt.method);
-    assert.equal(ctx.path, endError.attempt.path);
-    assert.equal(ctx.errorName, 'EndpointError');
-    assert.equal(ctx.reason, endError.reason);
-  });
-
-  describe('ignores errors', () => {
-    beforeEach(async () => {
-      await configureSentry(server, config);
-    });
-
-    describe('by error code', () => {
-      // ACCOUNT_CREATION_REJECTED should not be ignored
-      const errno = error.ERRNO.ACCOUNT_CREATION_REJECTED;
-
-      // But, anything below 500 should be ignored
-      const errorCode = 400;
-
-      it('ignores standard error', async () => {
-        await emitError(_testError(errorCode, errno));
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-
-      it('ignores standard error with inner error', async () => {
-        await emitError(_testError(errorCode, errno, new Error('BOOM')));
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-
-      it('ignores WError', async () => {
-        await emitError(new verror.WError(_testError(errorCode, errno)));
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-
-      it('ignores WError inner error', async () => {
-        await emitError(
-          new verror.WError(_testError(errorCode, errno, new Error('BOOM')))
-        );
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-    });
-
-    describe('by error number', () => {
-      // Anything 500 above should not be ignored.
-      const errorCode = 500;
-
-      // But, BOUNCE_HARD should be ignored
-      const errno = error.ERRNO.BOUNCE_HARD;
-
-      it('ignores standard error', async () => {
-        await emitError(_testError(errorCode, errno));
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-
-      it('ignores standard error with inner error', async () => {
-        await emitError(_testError(errorCode, errno, new Error('BOOM')));
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-
-      it('ignores WError', async () => {
-        await emitError(new verror.WError(_testError(errorCode, errno)));
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-
-      it('ignores WError inner error', async () => {
-        await emitError(
-          new verror.WError(_testError(errorCode, errno, new Error('BOOM')))
-        );
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-    });
-
-    describe('by event state', () => {
-      // ACCOUNT_CREATION_REJECTED should not be ignored
-      const errno = error.ERRNO.ACCOUNT_CREATION_REJECTED;
-
-      // And, anything above 500 should be reported
-      const errorCode = 500;
-
-      it('ignores event without error tag', async () => {
-        await server.events.emit(
-          {
-            name: 'request',
-            channel: 'error',
-            tags: { handler: true, error: false },
-          },
-          [{}, { error: _testError(errorCode, errno) }]
-        );
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-
-      it('ignores event without handler tag', async () => {
-        await server.events.emit(
-          {
-            name: 'request',
-            channel: 'error',
-            tags: { handler: false, error: true },
-          },
-          [{}, { error: _testError(errorCode, errno) }]
-        );
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-
-      it('ignores event without tags', async () => {
-        await server.events.emit(
-          { name: 'request', channel: 'error', tags: undefined },
-          [{}, { error: _testError(errorCode, errno) }]
-        );
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-    });
   });
 
   describe('reports errors', () => {

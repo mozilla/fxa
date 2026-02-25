@@ -4,155 +4,94 @@
 
 'use strict';
 
-const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
-const verror = require('verror');
-const { ignoreErrors } = require('@fxa/accounts/errors');
 
 const {
   formatMetadataValidationErrorMessage,
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
 
+// Anything with these keys containing these strings will be redacted.
+const SENSITIVE_KEY_TERMS = new Set(['auth', 'pw', 'kb', 'key']);
+
+function filterExtras(obj, depth = 0) {
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => {
+      const lower = k.toLowerCase();
+      if ([...SENSITIVE_KEY_TERMS].some((term) => lower.includes(term))) {
+        return [k, '[Filtered]'];
+      }
+      if (v && typeof v === 'object' && !Array.isArray(v)) {
+        if (depth >= 4) {
+          return [k, '[Filtered]'];
+        }
+        return [k, filterExtras(v, depth + 1)];
+      }
+      return [k, v];
+    })
+  );
+}
+
 function reportSentryMessage(message, captureContext) {
-  Sentry.withScope((scope) => {
-    scope.setExtra('report', true);
-
-    if (captureContext && typeof captureContext === 'object') {
-      Hoek.merge(scope, captureContext);
-    }
-
-    Sentry.captureMessage(message, captureContext);
-  });
+  Sentry.captureMessage(message, captureContext);
 }
 
 function reportSentryError(err, request) {
-  let exception = '';
-  if (err && err.stack) {
-    try {
-      exception = err.stack.split('\n')[0];
-    } catch (e) {
-      // ignore bad stack frames
-    }
-  }
-
-  if (ignoreErrors(err)) {
-    return;
-  }
-
-  Sentry.withScope((scope) => {
-    if (request) {
-      scope.addEventProcessor((sentryEvent) => {
-        // As of sentry v9, this should automatically happen by adding, Sentry.requestDataIntegration()
-        // Leaving note here for historical context.
-        // event.request = Sentry.extractRequestData(request);
-        sentryEvent.level = 'error';
-        return sentryEvent;
-      });
-    }
-
-    // Important! Set a flag so that we know this is an error captured
-    // and reported by our code. Once we added tracing, we started seeing errors
-    // propagate in other ways. By setting a breakpoint or adding a console.trace
-    // in beforeSend, we can see that Sentry's internal libraries are picking up
-    // and reporting errors too. This causes problems because:
-    //  - It means errors are double captured
-    //  - It means that extra error info added below won't be there are errors
-    //    where captured by this function.
-    //  - It means the duplicate error might have a different shape, and fool
-    //    our ignoreErrors() check.
-    //
-    // See the filterSentryEvent function to see how this flag is used.
-    //
-    scope.setExtra('report', true);
-    scope.setExtra('exception', exception);
-    // If additional data was added to the error, extract it.
-    if (err.output && typeof err.output.payload === 'object') {
-      const payload = err.output.payload;
-      if (typeof payload.data === 'object') {
-        scope.setContext('payload.data', payload.data);
-        delete payload.data;
-      }
-      scope.setContext('payload', payload);
-    }
-    const cause = verror.cause(err);
-    if (cause && cause.message) {
-      const causeContext = {
-        errorName: cause.name,
-        reason: cause.reason,
-        errorMessage: cause.message,
-      };
-
-      // Poolee EndpointError's have a few other things and oddly don't include
-      // a stack at all. We try and extract a bit more to reflect what actually
-      // happened as 'socket hang up' is somewhat inaccurate when the remote server
-      // throws a 500.
-      const output = cause.output;
-      if (output && output.payload) {
-        for (const key of ['error', 'message', 'statusCode']) {
-          causeContext[key] = output.payload[key];
-        }
-      }
-      const attempt = cause.attempt;
-      if (attempt) {
-        causeContext.method = attempt.method;
-        causeContext.path = attempt.path;
-      }
-      scope.setContext('cause', causeContext);
-    }
-
-    if (request) {
-      // Merge the request scope into the temp scope
-      Hoek.merge(scope, request.sentryScope);
-    }
-    Sentry.captureException(err);
-  });
+  Sentry.captureException(err);
 }
 
 async function configureSentry(server, config, processName = 'key_server') {
   if (config.sentry.dsn) {
-    Sentry.getCurrentScope().setTag('process', processName);
+    Sentry.getGlobalScope().setTag('process', processName);
 
     if (!server) {
       return;
     }
-
-    // Attach a new Sentry scope to the request for breadcrumbs/tags/extras
     server.ext({
-      type: 'onRequest',
+      type: 'onPreHandler',
       method(request, h) {
-        request.sentryScope = new Sentry.Scope();
-
-        /**
-        // Make a transaction per request so we can get performance monitoring. There are
-        // some limitations to this approach, and distributed tracing will be off due to
-        // hapi's architecture.
-        //
-        // See https://github.com/getsentry/sentry-javascript/issues/2172 for more into. It
-        // looks like there might be some other solutions that are more complex, but would work
-        // with hapi and distributed tracing.
-        //
-        const transaction = Sentry.startInactiveSpan({
-          op: 'auth-server',
-          name: `${request.method.toUpperCase()} ${request.path}`,
-          forceTransaction: true,
-          // As of sentry v9, this should automatically happen by adding, Sentry.requestDataIntegration()
-          // Leaving note here for historical context.
-          // request: Sentry.extractRequestData(request.raw.req),
+        // hapiIntegration() manages per-request isolation scopes via async context.
+        // Set tags/extras directly on the current scope — no withIsolationScope
+        // wrapper here, which would create a synchronous child scope that is
+        // discarded before the async handler runs, causing breadcrumbs to leak
+        // onto the global scope and accumulate across requests.
+        const UNKNOWN = 'Unknown';
+        Sentry.setTag('route', request.route.path);
+        Sentry.setTag('method', request.method);
+        Sentry.setUser({
+          email:
+            request.credentials?.email ||
+            request.payload?.email ||
+            request.params?.email ||
+            UNKNOWN,
+          geo: {
+            city: request.app?.geo?.location?.city || UNKNOWN,
+            country_code:
+              request.app?.geo?.location?.countryCode ||
+              request.app?.geo?.location?.country ||
+              UNKNOWN,
+            region:
+              request.app?.geo?.location?.stateCode ||
+              request.app?.geo?.location?.state ||
+              UNKNOWN,
+          },
+          id: request.auth?.credentials?.uid || UNKNOWN,
+          ip_address: request.app?.clientAddress || UNKNOWN,
         });
-
-        request.app.sentry = {
-          transaction,
-        };
-        //*/
-
+        Sentry.setExtra('acceptLanguage', request.app?.acceptLanguage || {});
+        Sentry.setExtra('request_payload', filterExtras(request.payload || {}));
+        Sentry.setExtra('request_headers', filterExtras(request.headers || {}));
+        Sentry.setExtra('request_params', filterExtras(request.params || {}));
         return h.continue;
       },
     });
 
     server.events.on('request', (request, event, tags) => {
       if (event?.error && tags?.handler && tags?.error) {
-        reportSentryError(event.error, request);
+        Sentry.withScope((scope) => {
+          scope.setExtra('hapi_event', event);
+          Sentry.captureException(event.error);
+        });
       }
     });
   }
@@ -160,6 +99,7 @@ async function configureSentry(server, config, processName = 'key_server') {
 
 module.exports = {
   configureSentry,
+  filterExtras,
   reportSentryMessage,
   reportSentryError,
   reportValidationError,
