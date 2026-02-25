@@ -58,6 +58,7 @@ const Signin = ({
   localizedSuccessBannerDescription,
   flowQueryParams,
   useFxAStatusResult: { supportsKeysOptionalLogin },
+  isSignedIntoFirefoxDesktop = false,
   setCurrentSplitLayout,
 }: SigninProps & RouteComponentProps) => {
   const config = useConfig();
@@ -122,10 +123,13 @@ const Signin = ({
   // requires a PW for scoped keys. Passwordless users signing into Sync will be prompted
   // to create a PW at the end of the flow.
   // - Hide third party auth if it's an oauth native integration without passwordless support
+  // - Hide third party auth for all cached users (simplified UI)
   // Show for all other cases.
-  const hideThirdPartyAuth = integration.isSync()
-    ? hasPassword
-    : isOAuthNative && !supportsKeysOptionalLogin;
+  const hideThirdPartyAuth =
+    hasCachedAccount ||
+    (integration.isSync()
+      ? hasPassword
+      : isOAuthNative && !supportsKeysOptionalLogin);
 
   useEffect(() => {
     if (!isPasswordNeeded) {
@@ -451,8 +455,7 @@ const Signin = ({
           <p className="mt-6 mb-4 text-sm">{additionalAccessibilityInfo}</p>
         )}
       </div>
-      {(!hasLinkedAccountAndNoPassword ||
-        (hasCachedAccount && supportsKeysOptionalLogin)) && (
+      {(hasCachedAccount || !hasLinkedAccountAndNoPassword) && (
         <form onSubmit={handleSubmit(onSubmit)}>
           <input type="email" className="hidden" value={email} disabled />
 
@@ -518,30 +521,34 @@ const Signin = ({
       <TermsPrivacyAgreement legalTerms={legalTerms} />
 
       <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">
-        <FtlMsg id="signin-use-a-different-account-link">
-          <a
-            href="/"
-            className="text-sm link-blue cursor-pointer mb-4 mx-auto tablet:mx-0 tablet:mb-0"
-            onClick={(e) => {
-              e.preventDefault();
-              GleanMetrics.login.diffAccountLinkClick();
+        {!isSignedIntoFirefoxDesktop && (
+          <FtlMsg id="signin-use-a-different-account-link">
+            <a
+              href="/"
+              className="text-sm link-blue cursor-pointer mb-4 mx-auto tablet:mx-0 tablet:mb-0"
+              onClick={(e) => {
+                e.preventDefault();
+                GleanMetrics.login.diffAccountLinkClick();
 
-              // Some RPs may specify an email address in the query params which
-              // we prioritize. Users attempting to change their email address is a signal
-              // that the email in query params is not correct.
-              const searchParams = new URLSearchParams(window.location.search);
-              searchParams.delete('email');
-              navigateWithQuery(`/?${searchParams.toString()}`, {
-                state: {
-                  prefillEmail: email,
-                },
-              });
-            }}
-          >
-            Use a different account
-          </a>
-        </FtlMsg>
-        {!hasLinkedAccountAndNoPassword && (
+                // Some RPs may specify an email address in the query params which
+                // we prioritize. Users attempting to change their email address is a signal
+                // that the email in query params is not correct.
+                const searchParams = new URLSearchParams(
+                  window.location.search
+                );
+                searchParams.delete('email');
+                navigateWithQuery(`/?${searchParams.toString()}`, {
+                  state: {
+                    prefillEmail: email,
+                  },
+                });
+              }}
+            >
+              Use a different account
+            </a>
+          </FtlMsg>
+        )}
+        {isPasswordNeeded && !hasLinkedAccountAndNoPassword && (
           <FtlMsg id="signin-forgot-password-link">
             <Link
               to={`/reset_password${

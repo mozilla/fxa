@@ -139,12 +139,14 @@ const SigninContainer = ({
   serviceName,
   flowQueryParams,
   useFxAStatusResult,
+  isSignedIntoFirefoxDesktop = false,
   setCurrentSplitLayout,
 }: {
   integration: Integration;
   serviceName: MozServices;
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
+  isSignedIntoFirefoxDesktop?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const config = useConfig();
@@ -629,6 +631,7 @@ const SigninContainer = ({
         localizedSuccessBannerDescription,
         flowQueryParams,
         useFxAStatusResult,
+        isSignedIntoFirefoxDesktop,
         setCurrentSplitLayout,
       }}
     />

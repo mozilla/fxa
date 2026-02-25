@@ -548,6 +548,7 @@ describe('SettingsRoutes', () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
       isFirefoxClientServiceRelay: () => false,
+      isFirefoxDesktopClient: () => true,
       getCmsInfo: jest.fn(),
       getLegalTerms: jest.fn(),
       data: {

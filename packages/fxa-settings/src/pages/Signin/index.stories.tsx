@@ -147,25 +147,7 @@ export const SignInRelayNoPasswordlessSupport = storyWithProps({
   supportsKeysOptionalLogin: false,
 });
 
-export const SignInRelayWithPasswordlessSupport = storyWithProps({
-  integration: createMockSigninOAuthNativeIntegration({
-    service: OAuthNativeServices.Relay,
-    isSync: false,
-  }),
-  supportsKeysOptionalLogin: true,
-});
-
-export const CachedSignInRelayWithPasswordlessSupport = storyWithProps({
-  sessionToken: MOCK_SESSION_TOKEN,
-  integration: createMockSigninOAuthNativeIntegration({
-    service: OAuthNativeServices.Relay,
-    isSync: false,
-  }),
-  supportsKeysOptionalLogin: true,
-});
-
-export const CachedSignInSmartWindowWithPasswordlessSupport = storyWithProps({
-  sessionToken: MOCK_SESSION_TOKEN,
+export const SignInNonSyncWithBrowserPasswordlessSupport = storyWithProps({
   integration: createMockSigninOAuthNativeIntegration({
     service: OAuthNativeServices.SmartWindow,
     isSync: false,
@@ -173,10 +155,18 @@ export const CachedSignInSmartWindowWithPasswordlessSupport = storyWithProps({
   supportsKeysOptionalLogin: true,
 });
 
-export const SignInSmartWindowWithPasswordlessSupport = storyWithProps({
-  integration: createMockSigninOAuthNativeIntegration({
-    service: OAuthNativeServices.SmartWindow,
-    isSync: false,
-  }),
-  supportsKeysOptionalLogin: true,
+export const CachedSignInNonSyncWithBrowserPasswordlessSupport = storyWithProps(
+  {
+    sessionToken: MOCK_SESSION_TOKEN,
+    integration: createMockSigninOAuthNativeIntegration({
+      service: OAuthNativeServices.SmartWindow,
+      isSync: false,
+    }),
+    supportsKeysOptionalLogin: true,
+  }
+);
+
+export const CachedSignInSignedIntoFirefoxDesktop = storyWithProps({
+  sessionToken: MOCK_SESSION_TOKEN,
+  isSignedIntoFirefoxDesktop: true,
 });

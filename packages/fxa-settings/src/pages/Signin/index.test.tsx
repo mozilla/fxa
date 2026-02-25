@@ -173,6 +173,16 @@ function thirdPartyAuthRendered() {
     name: /Continue with Apple/,
   });
 }
+
+function thirdPartyAuthNotRendered() {
+  expect(
+    screen.queryByRole('button', { name: /Continue with Google/ })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: /Continue with Apple/ })
+  ).not.toBeInTheDocument();
+}
+
 function signInButtonAndSeparatorRendered() {
   screen.getByRole('button', { name: 'Sign in' });
   screen.getByText('or');
@@ -257,12 +267,7 @@ describe('Signin component', () => {
         // to `enterPasswordAndSubmit()` because it's wrapped in a `setTimeout`
         expect(hardNavigateSpy).toHaveBeenCalled();
 
-        expect(
-          screen.queryByRole('button', { name: /Continue with Google/ })
-        ).not.toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: /Continue with Apple/ })
-        ).not.toBeInTheDocument();
+        thirdPartyAuthNotRendered();
         expect(GleanMetrics.login.view).toHaveBeenCalledWith({
           event: { thirdPartyLinks: false },
         });
@@ -278,12 +283,7 @@ describe('Signin component', () => {
           supportsKeysOptionalLogin: false,
         });
 
-        expect(
-          screen.queryByRole('button', { name: /Continue with Google/ })
-        ).not.toBeInTheDocument();
-        expect(
-          screen.queryByRole('button', { name: /Continue with Apple/ })
-        ).not.toBeInTheDocument();
+        thirdPartyAuthNotRendered();
         expect(GleanMetrics.login.view).toHaveBeenCalledWith({
           event: { thirdPartyLinks: false },
         });
@@ -968,7 +968,9 @@ describe('Signin component', () => {
         thirdPartyAuthRendered();
         privacyAndTermsRendered();
         differentAccountLinkRendered();
-        resetPasswordLinkRendered();
+        expect(
+          screen.queryByRole('link', { name: 'Forgot password?' })
+        ).not.toBeInTheDocument();
 
         passwordInputNotRendered();
       });
@@ -984,7 +986,6 @@ describe('Signin component', () => {
         expect(
           screen.queryByRole('link', { name: 'Forgot password?' })
         ).not.toBeInTheDocument();
-        expect(screen.queryByText('Or')).not.toBeInTheDocument();
         expect(
           screen.queryByRole('button', { name: 'Sign in' })
         ).not.toBeInTheDocument();
@@ -1013,16 +1014,18 @@ describe('Signin component', () => {
 
       expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
-        event: { thirdPartyLinks: true },
+        event: { thirdPartyLinks: false },
       });
       signInHeaderRendered();
       avatarAndEmailRendered();
-      thirdPartyAuthRendered();
-      signInButtonAndSeparatorRendered();
+      screen.getByRole('button', { name: 'Sign in' });
       privacyAndTermsRendered();
-      resetPasswordLinkRendered();
       differentAccountLinkRendered();
-
+      thirdPartyAuthNotRendered();
+      expect(
+        screen.queryByRole('link', { name: 'Forgot password?' })
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText('or')).not.toBeInTheDocument();
       passwordInputNotRendered();
     });
 
@@ -1039,7 +1042,7 @@ describe('Signin component', () => {
 
       passwordInputNotRendered();
       expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
-        event: { thirdPartyLinks: true },
+        event: { thirdPartyLinks: false },
       });
     });
 
@@ -1056,7 +1059,7 @@ describe('Signin component', () => {
 
       passwordInputNotRendered();
       expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
-        event: { thirdPartyLinks: true },
+        event: { thirdPartyLinks: false },
       });
     });
 
@@ -1098,19 +1101,6 @@ describe('Signin component', () => {
           verified: true,
           services: { relay: {} },
         });
-      });
-    });
-
-    it('emits an event on forgot password link click', async () => {
-      renderWithLocalizationProvider(
-        <Subject sessionToken={MOCK_SESSION_TOKEN} />
-      );
-
-      fireEvent.click(screen.getByText('Forgot password?'));
-      await waitFor(() => {
-        expect(GleanMetrics.cachedLogin.forgotPassword).toHaveBeenCalledTimes(
-          1
-        );
       });
     });
 
@@ -1447,16 +1437,19 @@ describe('Signin component', () => {
 
         signInHeaderRendered();
         avatarAndEmailRendered();
-        signInButtonAndSeparatorRendered();
-        thirdPartyAuthRendered();
+        screen.getByRole('button', { name: 'Sign in' });
         privacyAndTermsRendered();
         differentAccountLinkRendered();
-        resetPasswordLinkRendered();
+        thirdPartyAuthNotRendered();
+
+        expect(
+          screen.queryByRole('link', { name: 'Forgot password?' })
+        ).not.toBeInTheDocument();
 
         passwordInputNotRendered();
       });
 
-      it('renders as expected with linked account', () => {
+      it('renders as expected with linked account (passwordless)', () => {
         renderWithLocalizationProvider(
           <Subject
             sessionToken={MOCK_SESSION_TOKEN}
@@ -1466,17 +1459,85 @@ describe('Signin component', () => {
         );
         signInHeaderRendered();
         avatarAndEmailRendered();
-        thirdPartyAuthRendered();
         privacyAndTermsRendered();
+        thirdPartyAuthNotRendered();
 
-        passwordInputNotRendered();
+        screen.getByRole('button', { name: 'Sign in' });
+
+        // OAuth buttons and forgot password should NOT be rendered for cached users
         expect(
           screen.queryByRole('link', { name: 'Forgot password?' })
         ).not.toBeInTheDocument();
-        expect(screen.queryByText('Or')).not.toBeInTheDocument();
+
+        passwordInputNotRendered();
+      });
+    });
+
+    describe('UI simplification for cached users', () => {
+      it('hides OAuth buttons for cached users', () => {
+        renderWithLocalizationProvider(
+          <Subject sessionToken={MOCK_SESSION_TOKEN} />
+        );
+
+        thirdPartyAuthNotRendered();
+      });
+
+      it('hides forgot password link for cached users', () => {
+        renderWithLocalizationProvider(
+          <Subject sessionToken={MOCK_SESSION_TOKEN} />
+        );
+
         expect(
-          screen.queryByRole('button', { name: 'Sign in' })
+          screen.queryByRole('link', { name: 'Forgot password?' })
         ).not.toBeInTheDocument();
+      });
+
+      it('hides "use a different account" link for Firefox Desktop users', () => {
+        renderWithLocalizationProvider(
+          <Subject
+            sessionToken={MOCK_SESSION_TOKEN}
+            isSignedIntoFirefoxDesktop={true}
+          />
+        );
+
+        expect(
+          screen.queryByRole('link', { name: 'Use a different account' })
+        ).not.toBeInTheDocument();
+      });
+
+      it('shows "use a different account" link for non-Firefox Desktop users', () => {
+        renderWithLocalizationProvider(
+          <Subject sessionToken={MOCK_SESSION_TOKEN} />
+        );
+
+        expect(
+          screen.getByRole('link', { name: 'Use a different account' })
+        ).toBeInTheDocument();
+      });
+
+      it('shows cached signin button for passwordless accounts', () => {
+        renderWithLocalizationProvider(
+          <Subject
+            sessionToken={MOCK_SESSION_TOKEN}
+            hasPassword={false}
+            hasLinkedAccount={true}
+          />
+        );
+
+        // Sign in button should be visible for passwordless cached users
+        expect(
+          screen.getByRole('button', { name: 'Sign in' })
+        ).toBeInTheDocument();
+      });
+
+      it('emits correct Glean metrics for cached signin with hidden OAuth', () => {
+        renderWithLocalizationProvider(
+          <Subject sessionToken={MOCK_SESSION_TOKEN} />
+        );
+
+        expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
+          event: { thirdPartyLinks: false },
+        });
       });
     });
   });

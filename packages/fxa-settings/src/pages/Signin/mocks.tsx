@@ -332,6 +332,7 @@ export const Subject = ({
   cachedSigninHandler = mockCachedSigninHandler,
   sendUnblockEmailHandler = mockSendUnblockEmailHandler,
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
+  isSignedIntoFirefoxDesktop = false,
   supportsKeysOptionalLogin = false,
   ...props // overrides
 }: Partial<SigninProps> & {
@@ -356,6 +357,7 @@ export const Subject = ({
             avatarData,
             avatarLoading,
             useFxAStatusResult,
+            isSignedIntoFirefoxDesktop,
             ...props,
           }}
         />
