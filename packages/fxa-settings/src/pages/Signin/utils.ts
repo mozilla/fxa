@@ -513,17 +513,33 @@ const getOAuthNavigationTarget = async (
     );
   if (error) {
     if (
+      error.errno === AuthUiErrors.UNVERIFIED_SESSION.errno ||
       error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
       error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
     ) {
       GleanMetrics.login.error({ event: { reason: error.message } });
-      // If user already has TOTP enabled, send them to enter their code instead of setup
-      const hasTotp =
-        locationState.verificationMethod === VerificationMethods.TOTP_2FA;
+
+      const to = (() => {
+        // If the user doesn't have totp, and encountered an unverified_session error, send them
+        // to signin_token_code, this is a 'mustVerify' case
+        if (
+          locationState.verificationMethod !== VerificationMethods.TOTP_2FA &&
+          error.errno === AuthUiErrors.UNVERIFIED_SESSION.errno
+        ) {
+          return `/signin_token_code${navigationOptions.queryParams || ''}`;
+        }
+
+        // If user already has TOTP enabled, send them to enter their code instead of setup
+        if (locationState.verificationMethod === VerificationMethods.TOTP_2FA) {
+          return `/signin_totp_code${navigationOptions.queryParams || ''}`;
+        }
+
+        // Otherwise, we are dealing with an RP that requires totp setup. Send them there.
+        return `/inline_totp_setup${navigationOptions.queryParams || ''}`;
+      })();
+
       return {
-        to: hasTotp
-          ? `/signin_totp_code${navigationOptions.queryParams || ''}`
-          : `/inline_totp_setup${navigationOptions.queryParams || ''}`,
+        to,
         locationState,
       };
     }

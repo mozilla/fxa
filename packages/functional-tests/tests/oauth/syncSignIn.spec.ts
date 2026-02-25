@@ -59,6 +59,43 @@ test.describe('severity-1 #smoke', () => {
       await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
     });
+
+    test('can sign in to OAuth after abandoning sync confirmation code', async ({
+      target,
+      syncBrowserPages: { page, signin, signinTokenCode, relier },
+      testAccountTracker,
+    }) => {
+      const syncCredentials = await testAccountTracker.signUpSync();
+
+      // Start sign-into-sync flow
+      await page.goto(
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
+      );
+      await signin.fillOutEmailFirstForm(syncCredentials.email);
+      await signin.fillOutPasswordForm(syncCredentials.password);
+
+      // Confirm we reached the token code page, but intentionally skip entering the code
+      await expect(page).toHaveURL(/signin_token_code/);
+
+      // Navigate to 123done without completing sync verification
+      await relier.goto();
+      await relier.clickEmailFirst();
+
+      // FxA sees the existing session and shows cached account
+      await expect(signin.cachedSigninHeading).toBeVisible();
+      await signin.signInButton.click();
+
+      // We get a signin code, because we are using a restmail address, and forces
+      // verification. ie Must verify will always be set on this client.
+      await expect(page).toHaveURL(/signin_token_code/);
+      const signinCode = await target.emailClient.getVerifyLoginCode(
+        syncCredentials.email
+      );
+      await signinTokenCode.fillOutCodeForm(signinCode);
+
+      // OAuth sign-in should succeed even though the sync session was not verified
+      expect(await relier.isLoggedIn()).toBe(true);
+    });
   });
 
   test.describe('signin to Sync after OAuth', () => {

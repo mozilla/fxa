@@ -10,6 +10,7 @@ import {
 } from '../../../models';
 import firefox from '../../channels/firefox';
 import { hardNavigate } from 'fxa-react/lib/utils';
+import { discardSessionToken } from '../../cache';
 
 export type OAuthFlowRecoveryResult = {
   isRecovering: boolean;
@@ -67,8 +68,15 @@ export function useOAuthFlowRecovery(
         currentParams.set('code_challenge', params.code_challenge);
       }
       if (params.code_challenge_method) {
-        currentParams.set('code_challenge_method', params.code_challenge_method);
+        currentParams.set(
+          'code_challenge_method',
+          params.code_challenge_method
+        );
       }
+
+      // Discard the current session token. We need to do this, otherwise the cached session will be used
+      // and the UI will show an option to enter a password. This can lead to an infinite sign in loop.
+      discardSessionToken();
 
       // Redirect to /signin - user will re-enter password
       hardNavigate(`/signin?${currentParams.toString()}`);

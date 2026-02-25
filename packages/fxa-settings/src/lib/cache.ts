@@ -134,7 +134,15 @@ export function discardSessionToken() {
     const account = currentAccount();
     if (account) {
       account.sessionToken = undefined;
+      account.verified = undefined;
+      account.sessionVerified = undefined;
+      account.hasPassword = undefined;
+
       currentAccount(account);
+
+      // If there was a state change, dispatch an event
+      dispatchStorageEvent('accounts');
+      dispatchStorageEvent('currentAccountUid');
     }
   } catch (e) {
     // noop

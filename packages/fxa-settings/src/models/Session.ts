@@ -131,9 +131,10 @@ export class Session implements SessionData {
 
   async isValid(token: string): Promise<boolean> {
     try {
-      await this.authClient.sessionStatus(token);
-      setSessionVerified(true);
-      return true;
+      const resp = await this.authClient.sessionStatus(token);
+      const isVerified = resp.state === 'verified';
+      setSessionVerified(isVerified);
+      return isVerified;
     } catch (e) {
       setSessionVerified(false);
       return false;

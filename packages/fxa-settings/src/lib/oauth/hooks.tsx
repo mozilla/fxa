@@ -231,7 +231,11 @@ export function useFinishOAuthFlowHandler(
       } catch (error) {
         // We only care about these errors, else just tell the user to try again.
         if (
+          // Signals that session requires verification, ie a mustVerify state
+          error.errno === AuthUiErrors.UNVERIFIED_SESSION.errno ||
+          // Signals that session requires totp verification
           error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
+          // Signals that we are dealing with an RP that requires a second factor
           error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
         ) {
           return { error };
