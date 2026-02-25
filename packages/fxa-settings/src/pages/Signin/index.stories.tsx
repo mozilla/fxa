@@ -123,6 +123,22 @@ export const SignInWithCmsCachedCredentialsSplitLayout = storyWithProps({
   }),
 });
 
+export const SignInWithCmsCachedPage = storyWithProps({
+  sessionToken: MOCK_SESSION_TOKEN,
+  integration: createMockSigninOAuthIntegration({
+    wantsKeys: false,
+    cmsInfo: {
+      ...MOCK_CMS_INFO,
+      SigninCachedPage: {
+        headline: 'Welcome back',
+        description: 'Continue to your Mozilla account',
+        primaryButtonText: 'Continue',
+        pageTitle: 'Welcome back',
+      },
+    },
+  }),
+});
+
 export const SignInRelayNoPasswordlessSupport = storyWithProps({
   integration: createMockSigninOAuthNativeIntegration({
     service: OAuthNativeServices.Relay,

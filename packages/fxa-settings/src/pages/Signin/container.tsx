@@ -573,7 +573,10 @@ const SigninContainer = ({
   }
 
   const cmsInfo = integration.getCmsInfo();
-  const splitLayout = cmsInfo?.SigninPage?.splitLayout;
+  // sessionToken is a necessary precondition for showing the cached page
+  const splitLayout = sessionToken
+    ? (cmsInfo?.SigninCachedPage?.splitLayout ?? cmsInfo?.SigninPage?.splitLayout)
+    : cmsInfo?.SigninPage?.splitLayout;
 
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done

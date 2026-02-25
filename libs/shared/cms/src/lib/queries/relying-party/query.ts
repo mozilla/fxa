@@ -82,6 +82,15 @@ export const relyingPartyQuery = graphql(`
         pageTitle
         splitLayout
       }
+      SigninCachedPage {
+        logoUrl
+        logoAltText
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        splitLayout
+      }
       SigninTokenCodePage {
         headline
         description

@@ -1581,17 +1581,18 @@ describe('Signin component', () => {
         hasPassword: false,
       });
 
-      // the specific case here is the falsy condition of the above ternary
-      // so, we make sure our mock headline is NOT in the document as a guard against
-      // snapshotting the wrong render.
-      expect(
-        screen.queryByText(cmsProps.cmsInfo.SigninPage.headline)
-      ).not.toBeInTheDocument();
-
       const cmsLogo = screen.getByRole('img', {
         name: cmsProps.cmsInfo.shared.logoAltText,
       });
       expect(cmsLogo).toMatchSnapshot();
+
+      // When no SigninCachedPage is set, the non-password path falls back
+      // to SigninPage headline and description
+      expect(
+        screen.getByRole('heading', {
+          name: cmsProps.cmsInfo.SigninPage.headline,
+        })
+      ).toBeInTheDocument();
     });
 
     it('renders the CMS-styled submit button', () => {
@@ -1620,6 +1621,78 @@ describe('Signin component', () => {
       );
 
       expect(additionalInfo).toBeInTheDocument();
+    });
+
+    describe('SigninCachedPage CMS config', () => {
+      const cachedCmsProps = {
+        cmsInfo: {
+          ...MOCK_CMS_INFO,
+          SigninCachedPage: {
+            headline: 'Welcome back',
+            description: 'Continue to your Mozilla account',
+            primaryButtonText: 'Continue',
+            pageTitle: 'Welcome back',
+          },
+        },
+      };
+
+      it('renders cached CMS headline and description for cached user', () => {
+        render({
+          integration: createMockSigninWebIntegration(cachedCmsProps),
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.getByRole('heading', { name: 'Welcome back' })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText('Continue to your Mozilla account')
+        ).toBeInTheDocument();
+      });
+
+      it('renders cached CMS button text for cached user', () => {
+        render({
+          integration: createMockSigninWebIntegration(cachedCmsProps),
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.getByRole('button', { name: 'Continue' })
+        ).toBeInTheDocument();
+      });
+
+      it('falls back to SigninPage CMS config when SigninCachedPage is not set', () => {
+        render({
+          integration: createMockSigninWebIntegration(cmsProps),
+          sessionToken: MOCK_SESSION_TOKEN,
+          hasPassword: true,
+        });
+
+        expect(
+          screen.getByRole('heading', {
+            name: cmsProps.cmsInfo.SigninPage.headline,
+          })
+        ).toBeInTheDocument();
+      });
+
+      it('uses SigninPage CMS config for non-cached user even when SigninCachedPage is set', () => {
+        render({
+          integration: createMockSigninWebIntegration(cachedCmsProps),
+          hasPassword: true,
+          sessionToken: undefined,
+        });
+
+        expect(
+          screen.getByRole('heading', {
+            name: cachedCmsProps.cmsInfo.SigninPage.headline,
+          })
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole('heading', { name: 'Welcome back' })
+        ).not.toBeInTheDocument();
+      });
     });
   });
 });
