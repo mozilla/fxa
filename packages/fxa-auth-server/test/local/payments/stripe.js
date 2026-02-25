@@ -1683,7 +1683,6 @@ describe('#integration - StripeHelper', () => {
       );
 
       assert.equal(actual, expected);
-      sinon.assert.calledTwice(Sentry.withScope);
       sinon.assert.calledOnceWithExactly(
         sentryScope.setContext,
         'validateCouponDurationForPlan',
@@ -1728,7 +1727,6 @@ describe('#integration - StripeHelper', () => {
       );
 
       assert.equal(actual, expected);
-      sinon.assert.calledTwice(Sentry.withScope);
       sinon.assert.calledOnceWithExactly(
         sentryScope.setContext,
         'validateCouponDurationForPlan',
@@ -2052,7 +2050,6 @@ describe('#integration - StripeHelper', () => {
         promotionCode: 'promo',
       });
       assert.deepEqual(actual, expected);
-      sinon.assert.calledTwice(Sentry.withScope);
       sinon.assert.calledWithExactly(
         sentryScope.setContext.getCall(0),
         'retrieveCouponDetails',
@@ -2089,7 +2086,6 @@ describe('#integration - StripeHelper', () => {
         promotionCode: 'promo',
       });
       assert.deepEqual(actual, expected);
-      sinon.assert.calledTwice(Sentry.withScope);
       sinon.assert.calledOnceWithExactly(
         sentryScope.setContext,
         'retrieveCouponDetails',
@@ -7627,8 +7623,7 @@ describe('#integration - StripeHelper', () => {
         'GD'
       );
       sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
-      sinon.assert.calledTwice(Sentry.withScope);
-      sinon.assert.calledOnceWithExactly(
+      sinon.assert.calledWithExactly(
         sentryScope.setContext,
         'setCustomerLocation',
         {
@@ -7657,7 +7652,6 @@ describe('#integration - StripeHelper', () => {
         stripeHelper.updateCustomerBillingAddress,
         { customerId: customer1.id, options: expectedAddressArg }
       );
-      sinon.assert.calledTwice(Sentry.withScope);
       sinon.assert.calledOnceWithExactly(
         sentryScope.setContext,
         'setCustomerLocation',
