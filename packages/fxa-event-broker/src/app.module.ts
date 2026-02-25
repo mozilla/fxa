@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
@@ -22,6 +24,7 @@ const version = getVersionInfo(__dirname);
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     AuthModule,
     ClientCapabilityModule,
     ClientWebhooksModule,
@@ -38,6 +41,12 @@ const version = getVersionInfo(__dirname);
     PubsubProxyModule,
   ],
   controllers: [],
-  providers: [MetricsFactory],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalFilter,
+    },
+    MetricsFactory,
+  ],
 })
 export class AppModule {}
