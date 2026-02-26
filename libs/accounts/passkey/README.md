@@ -54,6 +54,10 @@ This library follows the layered architecture pattern used across `libs/accounts
    - Validated with class-validator decorators
    - Loaded from Convict config in consuming applications
 
+6. **WebAuthn Adapter** (`webauthn-adapter.ts`)
+   - Thin wrapper around `@simplewebauthn/server` v13.
+   - Transforms between repository data structures and library format
+
 ### Pattern: No Module Export
 
 Unlike `libs/shared/nestjs/*`, this library **does not export a NestJS module**. This is intentional:

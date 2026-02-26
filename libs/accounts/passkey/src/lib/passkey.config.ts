@@ -2,7 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsArray, IsBoolean, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import type {
+  AuthenticatorAttachment,
+  ResidentKeyRequirement,
+  UserVerificationRequirement,
+} from '@simplewebauthn/server';
 
 /**
  * Configuration for passkey (WebAuthn) functionality.
@@ -59,8 +71,9 @@ export class PasskeyConfig {
    * - 'discouraged': User verification should not occur
    * @example 'required'
    */
-  @IsString()
-  public userVerification?: 'required' | 'preferred' | 'discouraged';
+  @IsOptional()
+  @IsIn(['required', 'preferred', 'discouraged'])
+  public userVerification?: UserVerificationRequirement;
 
   /**
    * Resident key (discoverable credential) requirement.
@@ -72,8 +85,9 @@ export class PasskeyConfig {
    * - 'discouraged': Non-discoverable credential preferred
    * @example 'required'
    */
-  @IsString()
-  public residentKey?: 'required' | 'preferred' | 'discouraged';
+  @IsOptional()
+  @IsIn(['required', 'preferred', 'discouraged'])
+  public residentKey?: ResidentKeyRequirement;
 
   /**
    * Authenticator attachment preference.
@@ -81,6 +95,7 @@ export class PasskeyConfig {
    * - 'cross-platform': Roaming authenticators (USB security keys)
    * - undefined: No preference (allow any)
    */
-  @IsString()
-  public authenticatorAttachment?: string;
+  @IsOptional()
+  @IsIn(['platform', 'cross-platform'])
+  public authenticatorAttachment?: AuthenticatorAttachment;
 }
