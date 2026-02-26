@@ -19,7 +19,8 @@ export abstract class RemoteTarget extends BaseTarget {
     const creds = await this.authClient.signUp(
       email,
       password,
-      filteredOptions
+      filteredOptions,
+      this.ciHeader
     );
     if (preVerified === 'true') {
       const code = await this.emailClient.getVerifyCode(email);

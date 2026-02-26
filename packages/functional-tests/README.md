@@ -34,6 +34,10 @@ For example, to run a specific test against stage:
 yarn test --project=stage --grep="errors on xss redirect_to parameter"
 ```
 
+### Running against Stage or Production
+
+In order to run local tests against stage or production, you'll need to set a few environment variables first. Some tests make use of the auth-client for direct calls to auth-server, so we use a bypass header for the WAF to allow the traffic. You'll need to set both `CI=1` and `CI_WAF_TOKEN="my_token"` environment variables. You can get a copy of the bypass token from 1Password.
+
 ### Specifying a target in tests
 
 Some tests only work with certain targets. The content-server mocha tests for example will only work on `local`. Use [annotations](https://playwright.dev/docs/test-annotations#annotations) and [TestInfo](https://playwright.dev/docs/api/class-testinfo) to determine when a test should run.
