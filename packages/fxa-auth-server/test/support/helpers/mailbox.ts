@@ -27,6 +27,7 @@ export interface EmailData {
 
 export interface Mailbox {
   waitForEmail: (email: string) => Promise<EmailData>;
+  waitForEmails: (email: string, count: number) => Promise<EmailData[]>;
   waitForCode: (email: string) => Promise<string>;
   waitForMfaCode: (email: string) => Promise<string>;
   waitForEmailByHeader: (email: string, headerName: string) => Promise<string>;
@@ -98,6 +99,27 @@ export function createMailbox(
     throw error;
   }
 
+  async function waitForEmails(email: string, count: number): Promise<EmailData[]> {
+    const username = email.split('@')[0];
+
+    for (let tries = MAX_RETRIES; tries > 0; tries--) {
+      log('mail status tries', tries, 'waiting for', count, 'emails');
+
+      const mail = await fetchMail(username);
+
+      if (mail && mail.length >= count) {
+        await deleteMail(username);
+        return mail;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    }
+
+    const error = new Error(`Timeout waiting for ${count} emails: ${email}`);
+    eventEmitter.emit('email:error', email, error);
+    throw error;
+  }
+
   async function waitForCode(email: string): Promise<string> {
     const emailData = await waitForEmail(email);
     const code =
@@ -150,6 +172,7 @@ export function createMailbox(
 
   return {
     waitForEmail,
+    waitForEmails,
     waitForCode,
     waitForMfaCode,
     waitForEmailByHeader,
