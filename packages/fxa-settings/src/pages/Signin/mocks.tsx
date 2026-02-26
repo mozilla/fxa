@@ -145,13 +145,11 @@ export function createMockSigninOAuthNativeSyncIntegration({
 export function createMockSigninOAuthIntegration({
   clientId,
   service,
-  wantsKeys = true,
   isSync = false,
   cmsInfo = undefined,
 }: {
   clientId?: string;
   service?: MozServices;
-  wantsKeys?: boolean;
   isSync?: boolean;
   cmsInfo?: RelierCmsInfo;
 } = {}): SigninOAuthIntegration {
@@ -160,7 +158,7 @@ export function createMockSigninOAuthIntegration({
     getService: () => service || MozServices.Default,
     getClientId: () => clientId || MOCK_CLIENT_ID,
     isSync: () => isSync,
-    wantsKeys: () => wantsKeys,
+    wantsKeys: () => false,
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     isDesktopSync: () => isSync,

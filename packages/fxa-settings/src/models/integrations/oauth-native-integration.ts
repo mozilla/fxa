@@ -143,8 +143,8 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     );
   }
 
+  // See JSDoc comment above the generic integration base class wantsKeys
   wantsKeys() {
-    // TODO: this will not always be true when working on FXA-12374
     return true;
   }
 

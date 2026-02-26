@@ -58,6 +58,7 @@ export enum MozServices {
   Default = 'account settings',
   Monitor = 'Mozilla Monitor',
   FirefoxSync = 'Firefox Sync',
+  SmartWindow = 'Smart Window',
   MozillaVPN = 'Mozilla VPN',
   Relay = 'Mozilla Relay',
   TestService = '123Done',
