@@ -40,8 +40,9 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
   const [declinedSyncEngines, setDeclinedSyncEngines] = useState<string[]>([]);
   const [supportsKeysOptionalLogin, setSupportsKeysOptionalLogin] =
     useState<boolean>(false);
-  const [supportsCanLinkAccountUid, setSupportsCanLinkAccountUid] =
-    useState<boolean | undefined>(undefined);
+  const [supportsCanLinkAccountUid, setSupportsCanLinkAccountUid] = useState<
+    boolean | undefined
+  >(undefined);
 
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
@@ -68,7 +69,8 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
             setWebChannelEngines(status.capabilities.engines);
           }
         }
-        // Check if third party auth (passwordless) log in to the browser is supported
+        // Check if third party auth (passwordless) log in to the browser is supported,
+        // currently only Firefox desktop 147+ as of Q1 2026
         if (
           status.capabilities.keys_optional &&
           isOAuthNative &&
