@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionCancellation',
   'Sent when a user cancels their subscription.',
   {
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     isCancellationEmail: true,
     invoiceTotal: '$2,000.00',
     invoiceDateOnly: '11/13/2021',

@@ -15,7 +15,7 @@ const createStory = subplatStoryWithProps(
   {
     subscriptions: [
       {
-        productName: 'Firefox Fortress',
+        productName: '123Done Pro',
       },
       {
         productName: 'Mozilla VPN',

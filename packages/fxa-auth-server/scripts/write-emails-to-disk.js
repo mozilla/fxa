@@ -119,7 +119,7 @@ function sendMail(mailer, messageToSend) {
     numberRemaining: 2,
     productId: '0123456789abcdef',
     planId: 'plan-example',
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     planEmailIconURL: planConfig.urls.emailIcon,
     planSuccessActionButtonURL: planConfig.urls.download,
     planInterval: 'week',
@@ -175,7 +175,7 @@ function sendMail(mailer, messageToSend) {
       planId: 'plan-example',
       productId: '0123456789abcdef',
       productMetadata,
-      productName: 'Firefox Fortress',
+      productName: '123Done Pro',
     },
     subscriptions: [
       {
@@ -184,7 +184,7 @@ function sendMail(mailer, messageToSend) {
         planId: 'plan-example',
         productId: '0123456789abcdef',
         productMetadata,
-        productName: 'Firefox Fortress',
+        productName: '123Done Pro',
       },
     ],
     planConfig,

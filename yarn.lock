@@ -29005,15 +29005,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"client-sessions@npm:0.8.x":
-  version: 0.8.0
-  resolution: "client-sessions@npm:0.8.0"
-  dependencies:
-    cookies: "npm:^0.7.0"
-  checksum: 10c0/b53995540b212d9c5992d48432eb97aa9a2e8a91c4d487c6a495c3c5b39711789422096b4d24e00b1b3ac41d87a16a4411673fffc2d56f7fb840d15841413b1b
-  languageName: node
-  linkType: hard
-
 "cliui@npm:^3.2.0":
   version: 3.2.0
   resolution: "cliui@npm:3.2.0"
@@ -29918,16 +29909,6 @@ __metadata:
     depd: "npm:~2.0.0"
     keygrip: "npm:~1.1.0"
   checksum: 10c0/3ffa1c0e992b62ee119adae4dd2ddd4a89166fa5434cd9bd9ff84ec4d2f14dfe2318a601280abfe32a4f64f884ec9345fb1912e488b002d188d2efa0d3919ba3
-  languageName: node
-  linkType: hard
-
-"cookies@npm:^0.7.0":
-  version: 0.7.3
-  resolution: "cookies@npm:0.7.3"
-  dependencies:
-    depd: "npm:~1.1.2"
-    keygrip: "npm:~1.0.3"
-  checksum: 10c0/ecb29d0cb442e530bf3f5642e542346d747de0f9f94c092bba4eebd44d4d55dfde6d2cf20e58387ae8dc5d2e1f1562c6623a5b1df1e4539df2ca021ae27b802c
   languageName: node
   linkType: hard
 
@@ -35328,24 +35309,6 @@ __metadata:
   checksum: 10c0/3a311ce57617eb8f532368e91c0f2bbfb299a0f1a35090e085bd6ca772298f196fbb0b66f0d4b5549d7bf3c5e1844439338d4402b7b6d1fedbe206ad44a931f8
   languageName: node
   linkType: hard
-
-"fortress@workspace:packages/fortress":
-  version: 0.0.0-use.local
-  resolution: "fortress@workspace:packages/fortress"
-  dependencies:
-    audit-filter: "npm:0.5.0"
-    client-sessions: "npm:0.8.x"
-    ejs: "npm:^3.1.10"
-    eslint: "npm:^7.32.0"
-    express: "npm:^4.21.2"
-    fxa-shared: "workspace:*"
-    morgan: "npm:^1.10.0"
-    pm2: "npm:^6.0.14"
-    prettier: "npm:^3.5.3"
-    stylelint: "npm:^16.14.1"
-    stylelint-config-prettier: "npm:^9.0.3"
-  languageName: unknown
-  linkType: soft
 
 "forwarded-parse@npm:2.1.2":
   version: 2.1.2
@@ -43094,13 +43057,6 @@ __metadata:
   version: 0.0.1
   resolution: "keep-alive-agent@npm:0.0.1"
   checksum: 10c0/e44d7f26087f384647ea8c1e2b258e1584bf56037b29c25456effe26809aadf0abd5f3913bfeff1956f6faf55347d778ffc74af9866294228cad5d93210cc069
-  languageName: node
-  linkType: hard
-
-"keygrip@npm:~1.0.3":
-  version: 1.0.3
-  resolution: "keygrip@npm:1.0.3"
-  checksum: 10c0/2a94700bbdd6f53c3f77932aa2d211ff7f537472a21d257203aa48972c2fdc71c60f82e661415887ea068061ce3c7532c5fdd7e8efd4390ad154d51f1a5932a9
   languageName: node
   linkType: hard
 

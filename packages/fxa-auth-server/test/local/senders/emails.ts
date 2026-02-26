@@ -113,7 +113,7 @@ const MESSAGE = {
     'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
   productId: 'wibble',
   productMetadata,
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
   productNameOld: 'Product A',
   productNameNew: 'Product B',
   productPaymentCycleNew: 'month',
@@ -130,7 +130,7 @@ const MESSAGE = {
     productId: 'wibble',
   },
   subscriptions: [
-    { planId: 'plan-example', productName: 'Firefox Fortress' },
+    { planId: 'plan-example', productName: '123Done Pro' },
     { planId: 'other-plan', productName: 'Cooking with Foxkeh' },
   ],
   showPaymentMethod: true,
@@ -3491,7 +3491,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
             test: 'include',
             expected: 'Sorry, we’re having trouble with your payment method',
           },
-          { test: 'include', expected: 'Firefox Fortress' },
+          { test: 'include', expected: '123Done Pro' },
           { test: 'include', expected: 'Cooking with Foxkeh' },
           {
             test: 'include',
@@ -3540,7 +3540,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
             test: 'include',
             expected: 'Sorry, we’re having trouble with your payment method',
           },
-          { test: 'include', expected: 'Firefox Fortress' },
+          { test: 'include', expected: '123Done Pro' },
           { test: 'include', expected: 'Cooking with Foxkeh' },
           {
             test: 'include',

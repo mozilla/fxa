@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionPaymentProviderCancelled',
   'Sent when a problem is detected with the payment method.',
   {
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     subscriptionSupportUrl: 'http://localhost:3030/support',
     updateBillingUrl: 'http://localhost:3030/subscriptions',
   }

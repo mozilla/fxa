@@ -11,7 +11,7 @@ export default {
 } as Meta;
 
 const data = {
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
   isCancellationEmail: true,
   invoiceTotal: '$20',
   invoiceDateOnly: '11/13/2021',

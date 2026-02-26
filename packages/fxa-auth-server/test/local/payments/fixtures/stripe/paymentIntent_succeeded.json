@@ -39,7 +39,7 @@
       "name": "BMO",
       "phone": null
     },
-    "calculated_statement_descriptor": "FIREFOX FORTRESS",
+    "calculated_statement_descriptor": "123DONE PRO",
     "captured": true,
     "created": 1591368350,
     "currency": "usd",
@@ -123,7 +123,7 @@
       "tokenization_method": null
     },
     "source_transfer": null,
-    "statement_descriptor": "Firefox Fortress",
+    "statement_descriptor": "123Done Pro",
     "statement_descriptor_suffix": null,
     "status": "succeeded",
     "transfer_data": null,
