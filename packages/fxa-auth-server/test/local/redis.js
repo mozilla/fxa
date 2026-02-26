@@ -7,8 +7,15 @@
 const { assert } = require('chai');
 const AccessToken = require('../../lib/oauth/db/accessToken');
 const RefreshTokenMetadata = require('../../lib/oauth/db/refreshTokenMetadata');
+const { Container } = require('typedi');
+const { StatsD } = require('hot-shots');
 const config = require('../../config').default.getProperties();
 const mocks = require('../mocks');
+
+// Inject a mock StatsD into the global Container before the redis module is
+// initialized. This prevents crashes when the redis module attempts to report
+// metrics during initialization or tests.
+Container.set(StatsD, mocks.mockStatsd());
 
 const recordLimit = 20;
 const prefix = 'test:';
