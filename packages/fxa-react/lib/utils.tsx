@@ -16,7 +16,8 @@ export function hardNavigate(
   href: string,
   additionalQueryParams: Record<string, string> = {},
   includeCurrentQueryParams = false,
-  replace: boolean = false
+  replace: boolean = false,
+  timeoutMs: number = DEFAULT_NAVIGATE_TIMEOUT_MS
 ) {
   // If there are any query params in the href, we automatically include them in the new url.
   const url = new URL(href, window.location.origin);
@@ -40,11 +41,11 @@ export function hardNavigate(
   if (replace) {
     setTimeout(() => {
       window.location.replace(url.href);
-    }, DEFAULT_NAVIGATE_TIMEOUT_MS);
+    }, timeoutMs);
   } else {
     setTimeout(() => {
       window.location.href = url.href;
-    }, DEFAULT_NAVIGATE_TIMEOUT_MS);
+    }, timeoutMs);
   }
 }
 
