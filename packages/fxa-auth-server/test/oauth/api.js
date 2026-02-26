@@ -2064,7 +2064,10 @@ describe('#integration - /v1', function () {
 
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
-            assert.equal(res.result.scope, 'email https://identity.mozilla.com/apps/notes');
+            assert.equal(
+              res.result.scope,
+              'email https://identity.mozilla.com/apps/notes'
+            );
           });
         });
       });
@@ -2296,7 +2299,10 @@ describe('#integration - /v1', function () {
           assert.equal(res.statusCode, 200);
           assert.ok(res.result.access_token);
           // Should contain all requested scopes (including invalid ones)
-          assert.equal(res.result.scope, 'profile email invalid:scope another:invalid');
+          assert.equal(
+            res.result.scope,
+            'profile email invalid:scope another:invalid'
+          );
         });
       });
     });
@@ -3337,7 +3343,7 @@ describe('#integration - /v1', function () {
         assert.equal(clients2[0].client_id, client2Id.toString('hex'));
       });
 
-      it('should seperately list different refresh tokens from the same client', async () => {
+      it('should separately list different refresh tokens from the same client', async () => {
         await makeAccessToken(client1, user1, ['profile']);
         await makeAccessToken(client1, user1, ['other', 'scope']);
         await makeRefreshToken(client2, user1, ['profile']);
