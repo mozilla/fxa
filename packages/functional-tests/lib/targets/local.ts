@@ -33,7 +33,12 @@ export class LocalTarget extends BaseTarget {
   ) {
     // Quick and dirty way to see if this works...
     await this.rateLimitClient.resetCounts();
-    const result = await this.authClient.signUp(email, password, options);
+    const result = await this.authClient.signUp(
+      email,
+      password,
+      options,
+      this.ciHeader
+    );
     await this.authClient.deviceRegister(
       result.sessionToken,
       'playwright',
