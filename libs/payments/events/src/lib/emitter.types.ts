@@ -42,6 +42,14 @@ export type SubscriptionEndedEvents = {
   uid?: string;
 };
 
+export type TrialConvertedEvents = {
+  subscriptionId: string;
+  customerId: string;
+  priceId?: string;
+  trialEnd?: number;
+  providerEventId: string;
+}
+
 export const PaymentsEmitterEventsKeys = [
   'checkoutView',
   'checkoutEngage',
@@ -78,6 +86,7 @@ export type PaymentsEmitterEvents = {
   genericGleanEvent: GenericGleanEvent;
   genericGleanSubManageEvent: GenericGleanSubManageEvent;
   subscriptionEnded: SubscriptionEndedEvents;
+  trialConverted: TrialConvertedEvents;
   sp3Rollout: SP3RolloutEvent;
   locationView: LocationStatus | TaxChangeAllowedStatus;
   auth: AuthEvents;

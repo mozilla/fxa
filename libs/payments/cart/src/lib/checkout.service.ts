@@ -117,6 +117,27 @@ export class CheckoutService {
     @Inject(StatsDService) private statsd: StatsD
   ) {}
 
+  private getTrialDays(priceId: string): number | undefined {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('[blocked] Unexpected trial attempt in production', {
+        priceId,
+      });
+      return undefined;
+    }
+
+    // TODO: Fetch from Strapi
+    // current: hard-coded 14 day trial enabled for 123DonePro
+    const trialDays = ['price_1NSnz3BVqmGyQTMaIkV5wjEc'].includes(priceId)
+      ? 14
+      : undefined;
+
+    if (trialDays) {
+      console.log('Trial enabled for price', { priceId, trialDays });
+    }
+
+    return trialDays;
+  }
+
   /**
    * Reload the customer data to reflect a change.
    * NOTE: This is currently duplicated in subscriptionManagement.service.ts
@@ -354,6 +375,8 @@ export class CheckoutService {
       new PayWithStripeNullCurrencyError(cart.id, price.id)
     );
 
+    const trialDays = this.getTrialDays(price.id);
+
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
         ? await this.subscriptionManager.create(
@@ -368,7 +391,10 @@ export class CheckoutService {
                   price: price.id,
                 },
               ],
-              payment_behavior: 'default_incomplete',
+              // Note: payment_behavior and trial_period_days cannot both be set
+              ...(trialDays
+                ? { trial_period_days: trialDays }
+                : { payment_behavior: 'default_incomplete' }),
               currency: cart.currency ?? undefined,
               metadata: {
                 // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
@@ -417,27 +443,15 @@ export class CheckoutService {
 
     // Get payment/setup intent for subscription
     let intent: StripePaymentIntent | StripeSetupIntent | undefined;
-    try {
-      assert(
-        subscription.latest_invoice,
-        new PayWithStripeLatestInvoiceNotFoundOnSubscriptionError(
-          cart.id,
-          subscription.id
-        )
-      );
-      const invoice = await this.invoiceManager.retrieve(
-        subscription.latest_invoice
-      );
+    const isTrial = subscription.status === 'trialing';
 
-      if (invoice.payment_intent && invoice.amount_due !== 0) {
-        intent = await this.paymentIntentManager.confirm(
-          invoice.payment_intent,
-          {
-            confirmation_token: confirmationTokenId,
-            off_session: false,
-          }
-        );
-      } else {
+    try {
+      if (isTrial) {
+        console.log('Creating SetupIntent for trial subscription', {
+          subscription_id: subscription.id,
+          trial_end: subscription.trial_end,
+        });
+
         intent = await this.setupIntentManager.createAndConfirm(
           customer.id,
           confirmationTokenId
@@ -445,7 +459,52 @@ export class CheckoutService {
 
         this.statsd.increment('checkout_stripe_payment_setupintent_status', {
           status: intent.status,
+          trial: 'true',
         });
+
+        // Set payment method as default for trial-end charge
+        if (intent.status === 'succeeded' && intent.payment_method) {
+          await this.customerManager.update(customer.id, {
+            invoice_settings: {
+              default_payment_method: intent.payment_method,
+            },
+          });
+          console.log('Set default payment method for trial', {
+            customer_id: customer.id,
+            payment_method: intent.payment_method,
+          });
+        }
+      } else {
+        // Standard payment flow
+        assert(
+          subscription.latest_invoice,
+          new PayWithStripeLatestInvoiceNotFoundOnSubscriptionError(
+            cart.id,
+            subscription.id
+          )
+        );
+        const invoice = await this.invoiceManager.retrieve(
+          subscription.latest_invoice
+        );
+
+        if (invoice.payment_intent && invoice.amount_due !== 0) {
+          intent = await this.paymentIntentManager.confirm(
+            invoice.payment_intent,
+            {
+              confirmation_token: confirmationTokenId,
+              off_session: false,
+            }
+          );
+        } else {
+          intent = await this.setupIntentManager.createAndConfirm(
+            customer.id,
+            confirmationTokenId
+          );
+
+          this.statsd.increment('checkout_stripe_payment_setupintent_status', {
+            status: intent.status,
+          });
+        }
       }
     } catch (error) {
       if (error?.payment_intent) {
@@ -572,6 +631,8 @@ export class CheckoutService {
       payment_provider: 'paypal',
     });
 
+    const trialDays = this.getTrialDays(price.id);
+
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
         ? await this.subscriptionManager.create(
@@ -588,6 +649,8 @@ export class CheckoutService {
                   price: price.id,
                 },
               ],
+              // Add trial_period_days if trial is enabled
+              ...(trialDays ? { trial_period_days: trialDays } : {}),
               currency: cart.currency ?? undefined,
               metadata: {
                 // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
@@ -654,18 +717,19 @@ export class CheckoutService {
 
     const updatedVersion = version + 1;
 
-    if (!subscription.latest_invoice) {
-      throw new LatestInvoiceNotFoundOnSubscriptionError(
-        cart.id,
-        subscription.id
-      );
-    }
-    const latestInvoice = await this.invoiceManager.retrieve(
-      subscription.latest_invoice
-    );
-    const processedInvoice =
-      await this.invoiceManager.processPayPalInvoice(latestInvoice);
-    if (['paid', 'open'].includes(processedInvoice.status ?? '')) {
+    const isTrial = subscription.status === 'trialing';
+
+    if (isTrial) {
+      console.log('PayPal trial subscription created', {
+        subscription_id: subscription.id,
+        trial_end: subscription.trial_end,
+        billing_agreement_id: billingAgreementId,
+      });
+
+      this.statsd.increment('checkout_paypal_trial_subscription', {
+        trial: 'true',
+      });
+
       await this.postPaySteps({
         cart,
         version: updatedVersion,
@@ -680,11 +744,39 @@ export class CheckoutService {
         requestArgs,
       });
     } else {
-      throw new InvalidInvoiceStateCheckoutError(
-        cart.id,
-        processedInvoice.id,
-        processedInvoice.status ?? undefined
+      // Standard payment flow - process invoice immediately
+      if (!subscription.latest_invoice) {
+        throw new LatestInvoiceNotFoundOnSubscriptionError(
+          cart.id,
+          subscription.id
+        );
+      }
+      const latestInvoice = await this.invoiceManager.retrieve(
+        subscription.latest_invoice
       );
+      const processedInvoice =
+        await this.invoiceManager.processPayPalInvoice(latestInvoice);
+      if (['paid', 'open'].includes(processedInvoice.status ?? '')) {
+        await this.postPaySteps({
+          cart,
+          version: updatedVersion,
+          subscription,
+          uid,
+          paymentProvider: 'paypal',
+          paymentForm: SubPlatPaymentMethodType.PayPal,
+          isCancelInterstitialOffer: isCancelInterstitialOffer(
+            eligibility.subscriptionEligibilityResult,
+            attribution.session_entrypoint
+          ),
+          requestArgs,
+        });
+      } else {
+        throw new InvalidInvoiceStateCheckoutError(
+          cart.id,
+          processedInvoice.id,
+          processedInvoice.status ?? undefined
+        );
+      }
     }
   }
 

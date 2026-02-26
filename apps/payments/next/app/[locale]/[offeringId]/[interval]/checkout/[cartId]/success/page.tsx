@@ -91,6 +91,8 @@ export default async function CheckoutSuccess({
   const { successActionButtonUrl, successActionButtonLabel } =
     cms.commonContent.localizations.at(0) || cms.commonContent;
 
+  const isTrial = cart.trialDays && cart.trialDays > 0;
+
   return (
     <section
       className="h-[640px]"
@@ -102,103 +104,163 @@ export default async function CheckoutSuccess({
             id="subscription-confirmation-heading"
             className="text-xl font-medium mx-0 mb-2"
           >
-            {l10n.getString(
-              'next-payment-confirmation-thanks-heading-account-exists',
-              'Thanks, now check your email!'
-            )}
+            {isTrial
+              ? `Your ${cart.trialDays}-day free trial has started!`
+              : l10n.getString(
+                  'next-payment-confirmation-thanks-heading-account-exists',
+                  'Thanks, now check your email!'
+                )}
           </h2>
 
           <p className="text-black max-w-sm text-sm leading-5 font-normal">
-            {l10n.getString(
-              'payment-confirmation-thanks-subheading-account-exists-2',
-              {
-                email: session?.user?.email || '',
-              },
-              `You’ll receive an email at ${session?.user?.email} with instructions about your subscription, as well as your payment details.`
-            )}
+            {isTrial
+              ? `You won't be charged until your trial ends. Cancel anytime before then to avoid charges. You'll receive an email at ${session?.user?.email} with details about your trial.`
+              : l10n.getString(
+                  'payment-confirmation-thanks-subheading-account-exists-2',
+                  {
+                    email: session?.user?.email || '',
+                  },
+                  `You’ll receive an email at ${session?.user?.email} with instructions about your subscription, as well as your payment details.`
+                )}
           </p>
         </div>
       </div>
 
-      <div className="border-b border-grey-200 pb-6 text-sm">
-        <div className="font-semibold py-4">
-          {l10n.getString(
-            'next-payment-confirmation-order-heading',
-            'Order details'
-          )}
+      {isTrial && (
+        <div className="border-b border-grey-200 pb-6 pt-6 text-sm">
+          <div className="font-semibold pb-4">Trial Information</div>
+          <div className="flex flex-col gap-3 text-grey-400">
+            <div className="flex items-center justify-between">
+              <span>Trial Period:</span>
+              <span>{cart.trialDays} days</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Payment Method Saved:</span>
+              <span className="flex items-center gap-2">
+                {cart.paymentInfo.walletType ? (
+                  <Image
+                    src={getCardIcon(cart.paymentInfo.walletType, l10n).img}
+                    alt={getCardIcon(cart.paymentInfo.walletType, l10n).altText}
+                    width={getCardIcon(cart.paymentInfo.walletType, l10n).width}
+                    height={getCardIcon(cart.paymentInfo.walletType, l10n).height}
+                  />
+                ) : cart.paymentInfo.type === SubPlatPaymentMethodType.Card &&
+                  cart.paymentInfo.brand ? (
+                  <>
+                    <Image
+                      src={getCardIcon(cart.paymentInfo.brand, l10n).img}
+                      alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
+                      className="w-10 h-auto object-cover"
+                    />
+                    {`Card ending in ${cart.paymentInfo.last4}`}
+                  </>
+                ) : (
+                  <Image
+                    src={getCardIcon(cart.paymentInfo.type, l10n).img}
+                    alt={getCardIcon(cart.paymentInfo.type, l10n).altText}
+                    width={getCardIcon(cart.paymentInfo.type, l10n).width}
+                    height={getCardIcon(cart.paymentInfo.type, l10n).height}
+                  />
+                )}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Amount After Trial:</span>
+              <span>
+                {l10n.getLocalizedCurrencyString(
+                  cart.offeringPrice,
+                  cart.currency,
+                  locale
+                )}
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center justify-between text-grey-400">
-          <span>
-            {l10n.getString(
-              'next-payment-confirmation-invoice-number',
-              {
-                invoiceNumber: cart.latestInvoicePreview?.number ?? '',
-              },
-              `Invoice #${cart.latestInvoicePreview?.number}`
-            )}
-          </span>
-          <span>
-            {l10n.getString(
-              'next-payment-confirmation-invoice-date',
-              {
-                invoiceDate: l10n.getLocalizedDate(cart.createdAt / 1000),
-              },
-              l10n.getLocalizedDateString(cart.createdAt / 1000)
-            )}
-          </span>
-        </div>
-      </div>
+      )}
 
-      <div className="text-sm">
-        <div className="font-semibold py-4">
-          {l10n.getString(
-            'next-payment-confirmation-details-heading-2',
-            'Payment information'
-          )}
-        </div>
-        <div className="flex items-center justify-between text-grey-400">
-          {l10n.getLocalizedCurrencyString(
-            cart.latestInvoicePreview?.amountDue,
-            cart.latestInvoicePreview?.currency,
-            locale
-          )}
-          {cart.paymentInfo.walletType ? (
-            <div className="flex items-center gap-3">
-              <Image
-                src={getCardIcon(cart.paymentInfo.walletType, l10n).img}
-                alt={getCardIcon(cart.paymentInfo.walletType, l10n).altText}
-                width={getCardIcon(cart.paymentInfo.walletType, l10n).width}
-                height={getCardIcon(cart.paymentInfo.walletType, l10n).height}
-              />
-            </div>
-          ) : cart.paymentInfo.type === SubPlatPaymentMethodType.Card &&
-            cart.paymentInfo.brand ? (
-            <span className="flex items-center gap-2">
-              <Image
-                src={getCardIcon(cart.paymentInfo.brand, l10n).img}
-                alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
-                className="w-10 h-auto object-cover"
-              />
+      {!isTrial && (
+        <>
+          <div className="border-b border-grey-200 pb-6 text-sm">
+            <div className="font-semibold py-4">
               {l10n.getString(
-                'next-payment-confirmation-cc-card-ending-in',
-                {
-                  last4: cart.paymentInfo.last4 ?? '',
-                },
-                `Card ending in ${cart.paymentInfo.last4}`
+                'next-payment-confirmation-order-heading',
+                'Order details'
               )}
-            </span>
-          ) : (
-            <div className="flex items-center gap-3">
-              <Image
-                src={getCardIcon(cart.paymentInfo.type, l10n).img}
-                alt={getCardIcon(cart.paymentInfo.type, l10n).altText}
-                width={getCardIcon(cart.paymentInfo.type, l10n).width}
-                height={getCardIcon(cart.paymentInfo.type, l10n).height}
-              />
             </div>
-          )}
-        </div>
-      </div>
+            <div className="flex items-center justify-between text-grey-400">
+              <span>
+                {l10n.getString(
+                  'next-payment-confirmation-invoice-number',
+                  {
+                    invoiceNumber: cart.latestInvoicePreview?.number ?? '',
+                  },
+                  `Invoice #${cart.latestInvoicePreview?.number}`
+                )}
+              </span>
+              <span>
+                {l10n.getString(
+                  'next-payment-confirmation-invoice-date',
+                  {
+                    invoiceDate: l10n.getLocalizedDate(cart.createdAt / 1000),
+                  },
+                  l10n.getLocalizedDateString(cart.createdAt / 1000)
+                )}
+              </span>
+            </div>
+          </div>
+
+          <div className="text-sm">
+            <div className="font-semibold py-4">
+              {l10n.getString(
+                'next-payment-confirmation-details-heading-2',
+                'Payment information'
+              )}
+            </div>
+            <div className="flex items-center justify-between text-grey-400">
+              {l10n.getLocalizedCurrencyString(
+                cart.latestInvoicePreview?.amountDue,
+                cart.latestInvoicePreview?.currency,
+                locale
+              )}
+              {cart.paymentInfo.walletType ? (
+                <div className="flex items-center gap-3">
+                  <Image
+                    src={getCardIcon(cart.paymentInfo.walletType, l10n).img}
+                    alt={getCardIcon(cart.paymentInfo.walletType, l10n).altText}
+                    width={getCardIcon(cart.paymentInfo.walletType, l10n).width}
+                    height={getCardIcon(cart.paymentInfo.walletType, l10n).height}
+                  />
+                </div>
+              ) : cart.paymentInfo.type === SubPlatPaymentMethodType.Card &&
+                cart.paymentInfo.brand ? (
+                <span className="flex items-center gap-2">
+                  <Image
+                    src={getCardIcon(cart.paymentInfo.brand, l10n).img}
+                    alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
+                    className="w-10 h-auto object-cover"
+                  />
+                  {l10n.getString(
+                    'next-payment-confirmation-cc-card-ending-in',
+                    {
+                      last4: cart.paymentInfo.last4 ?? '',
+                    },
+                    `Card ending in ${cart.paymentInfo.last4}`
+                  )}
+                </span>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Image
+                    src={getCardIcon(cart.paymentInfo.type, l10n).img}
+                    alt={getCardIcon(cart.paymentInfo.type, l10n).altText}
+                    width={getCardIcon(cart.paymentInfo.type, l10n).width}
+                    height={getCardIcon(cart.paymentInfo.type, l10n).height}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       <a
         className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
