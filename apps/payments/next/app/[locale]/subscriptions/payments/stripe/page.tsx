@@ -61,6 +61,7 @@ export default async function StripePaymentManagementPage({
           uid={session?.user?.id}
           defaultPaymentMethod={defaultPaymentMethod}
           sessionEmail={session?.user?.email ?? undefined}
+          locale={locale}
         />
       </StripeManagementWrapper>
     </section>
