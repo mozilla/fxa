@@ -24,6 +24,8 @@ const AUTH_SERVER_ROOT = path.resolve(__dirname, '../..');
 const TMP_DIR = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp');
 const MAIL_HELPER_PID_FILE = path.join(TMP_DIR, 'mail_helper.pid');
 const SHARED_SERVER_PID_FILE = path.join(TMP_DIR, 'shared_server.pid');
+const VERSION_JSON_PATH = path.join(AUTH_SERVER_ROOT, 'config', 'version.json');
+const VERSION_JSON_MARKER = path.join(TMP_DIR, 'version_json_created');
 
 function generateKeysIfNeeded(): void {
   const genKeysScript = path.join(AUTH_SERVER_ROOT, 'scripts', 'gen_keys.js');
@@ -86,10 +88,35 @@ function killExistingProcess(pidFile: string, label: string): void {
   }
 }
 
+function generateVersionJsonIfNeeded(): void {
+  // In git worktree environments, .git is a file (not a directory), which causes
+  // the server's fallback `git rev-parse HEAD` (with cwd set to .git) to fail.
+  // Generate config/version.json so the server can serve / and /__version__.
+  if (fs.existsSync(VERSION_JSON_PATH)) {
+    return;
+  }
+  try {
+    const hash = execSync('git rev-parse HEAD').toString().trim();
+    let source = 'unknown';
+    try {
+      source = execSync('git config --get remote.origin.url').toString().trim();
+    } catch { /* ignore */ }
+    fs.writeFileSync(
+      VERSION_JSON_PATH,
+      JSON.stringify({ version: { hash, source } })
+    );
+    // Write a marker so teardown knows to clean it up
+    fs.writeFileSync(VERSION_JSON_MARKER, '');
+  } catch {
+    // If git isn't available, skip — version endpoints will return errors
+  }
+}
+
 export default async function globalSetup(): Promise<void> {
   const printLogs = process.env.MAIL_HELPER_LOGS === 'true';
 
   generateKeysIfNeeded();
+  generateVersionJsonIfNeeded();
 
   // Kill stale auth servers from previous runs before starting new ones
   console.log('[Jest Global Setup] Cleaning up stale auth server processes...');
