@@ -150,6 +150,20 @@ export class GenericIntegration<
     }
   }
 
+  /**
+   * Currently only Sync _requires_ keys (entering a password). Other
+   * services may see cached signin or choose to sign in with third party auth.
+   * However, for non-Sync browser service signins, if the password is entered,
+   * we go ahead and get Sync keys so users can turn Sync on in the browser
+   * without being bounced back to FxA.
+   *
+   * Note, the Relay browser service login launched in Firefox desktop 135, and
+   * the "keys optional" capability launched in Fx desktop 147, meaning all Relay
+   * service users in those Fx versions require a password.
+   *
+   * Desktop OAuth launched with Fx 134. SyncDesktopV3 users don't have non-Sync
+   * browser support.
+   * */
   wantsKeys(): boolean {
     return false;
   }
