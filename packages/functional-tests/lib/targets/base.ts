@@ -38,15 +38,14 @@ export abstract class BaseTarget {
   }
 
   /**
-   * Will return a `Headers` object with the WAF bypass header if we're in
-   * CI and the token is set, otherwise undefined.
+   * Will return a `Headers` object with the WAF bypass header if the
+   * `CI_WAF_TOKEN` environment variable is set, otherwise it returns `undefined`.
    *
    * This can be passed to the auth-client calls that support optional headers.
    */
   get ciHeader(): Headers | undefined {
-    const ci = !!process.env.CI;
     const ciWafToken = process.env.CI_WAF_TOKEN;
-    return ci && ciWafToken ? new Headers({ 'fxa-ci': ciWafToken }) : undefined;
+    return ciWafToken ? new Headers({ 'fxa-ci': ciWafToken }) : undefined;
   }
 
   constructor(

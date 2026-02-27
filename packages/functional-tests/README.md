@@ -36,7 +36,7 @@ yarn test --project=stage --grep="errors on xss redirect_to parameter"
 
 ### Running against Stage or Production
 
-In order to run local tests against stage or production, you'll need to set a few environment variables first. Some tests make use of the auth-client for direct calls to auth-server, so we use a bypass header for the WAF to allow the traffic. You'll need to set both `CI=1` and `CI_WAF_TOKEN="my_token"` environment variables. You can get a copy of the bypass token from 1Password.
+In order to run local tests against stage or production, you'll need to set a `CI_WAF_TOKEN` environment variable. We use a bypass header for the WAF to allow the traffic through and not be stopped by CAPTCHA or similar. Check 1Password for the token and make sure it's available in your environment `export CI_WAF_TOKEN=<mytoken>`.
 
 ### Specifying a target in tests
 
