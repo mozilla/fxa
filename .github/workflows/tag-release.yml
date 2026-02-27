@@ -17,7 +17,9 @@ jobs:
         shell: bash
 
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: Fetch all git tags
         run: git fetch --tags origin
@@ -29,23 +31,23 @@ jobs:
       - name: Add git tag to output
         id: echo
         run: |
-          echo tag=v1.${{ env.versionNumber }}.0 >> $GITHUB_OUTPUT
+          echo tag=v1.${versionNumber}.0 >> $GITHUB_OUTPUT
 
       - name: Create release branch
-        run: git checkout -b train-${{ env.versionNumber }}
+        run: git checkout -b train-${versionNumber}
 
       - name: Initialize mandatory git config
         run: |
-          git config user.name "${{ github.triggering_actor }}"
+          git config user.name "${GITHUB_TRIGGERING_ACTOR}"
           git config user.email "noreply@github.com"
 
       - name: Commit update to branch
         if: env.versionNumber != ''
         run: |
-          git push origin train-${{ env.versionNumber }}
+          git push origin train-${versionNumber}
 
       - name: Make a new tag
         if: env.versionNumber != ''
         run: |
-          git tag -a "v1.${{ env.versionNumber }}.0" -m "Train release ${{ env.versionNumber }}"
-          git push origin v1.${{ env.versionNumber }}.0
+          git tag -a "v1.${versionNumber}.0" -m "Train release ${versionNumber}"
+          git push origin v1.${versionNumber}.0
