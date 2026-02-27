@@ -98,6 +98,8 @@ const SignupConfirmCodeContainer = ({
     integration
   );
 
+  console.log('From confirm container', integration)
+
   // Poll for hard bounces registered in database for the entered email.
   // Previously, we checked if the account was deleted, and assumed
   // that implied the email bounced/was invalid.

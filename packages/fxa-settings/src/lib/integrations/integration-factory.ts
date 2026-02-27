@@ -204,7 +204,9 @@ export class IntegrationFactory {
   }
 
   private createWebIntegration(data: ModelDataStore) {
-    const integration = new WebIntegration(data);
+    const integration = new WebIntegration(data, {
+      clientIdFallback: config.oauth.clientId,
+    });
     this.initIntegration(integration);
     return integration;
   }
