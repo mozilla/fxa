@@ -5,7 +5,7 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "dependsOn": ["l10n-bundle", "glean-generate"]
+      "dependsOn": ["l10n-bundle", "glean-generate", "glean-generate-frontend"]
     },
     "dev": {
       "options": {
@@ -39,7 +39,7 @@
     },
     "start": {
       "command": "pm2 start apps/payments/next/pm2.config.js && yarn check:url localhost:3035/__heartbeat__",
-      "dependsOn": ["l10n-bundle", "glean-generate"]
+      "dependsOn": ["l10n-bundle", "glean-generate", "glean-generate-frontend"]
     },
     "stop": {
       "command": "pm2 stop apps/payments/next/pm2.config.js"
@@ -71,6 +71,13 @@
     },
     "glean-lint": {
       "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
+    },
+    "glean-generate-frontend": {
+      "dependsOn": ["glean-lint-frontend"],
+      "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml -f typescript -o libs/payments/metrics/src/lib/glean/__generated__"
+    },
+    "glean-lint-frontend": {
+      "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-frontend-metrics.yaml"
     }
   },
   "tags": ["app", "payments", "type:sp3"]

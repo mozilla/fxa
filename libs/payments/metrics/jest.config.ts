@@ -28,6 +28,7 @@ const config: Config = {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../../coverage/libs/payments/metrics',
+  setupFilesAfterEnv: ['<rootDir>/test/jest.setup.ts'],
   reporters: [
     'default',
     [

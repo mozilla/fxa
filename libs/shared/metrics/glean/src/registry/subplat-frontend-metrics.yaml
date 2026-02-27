@@ -1,0 +1,182 @@
+---
+# Schema
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+
+subscriptions:
+  page_view:
+    type: event
+    description: |
+      View of pages (management, standard, retention, interstitial offer)
+    send_in_pings:
+      - events
+    notification_emails:
+      - lchan@mozilla.com
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3472
+    data_reviews:
+      - FILL IN
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      page_name:
+        description: |
+          The page reached by the user. Allowed values:
+          - management
+          - stay_standard
+          - stay_retention
+          - cancel_standard
+          - cancel_retention
+          - interstitial_offer
+        type: string
+      page_variant:
+        description: |
+          UI state of page. Allowed values:
+          - stay_standard_success
+          - stay_retention_success
+          - cancel_standard_success
+          - cancel_retention_success
+          - interstitial_offer_success
+        type: string
+      source:
+        description: |
+          Source of traffic. Allowed values: email, internal_nav, deep_link.
+        type: string
+      offering_id:
+        description: The API id of the specific subscription offering.
+        type: string
+      interval:
+        description: |
+          Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly).
+        type: string
+
+  retention_flow:
+    type: event
+    description: |
+      Tracks the lifecycle of a retention flow decision.
+    send_in_pings:
+      - events
+    notification_emails:
+      - lchan@mozilla.com
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3472
+    data_reviews:
+      - FILL IN
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      entrypoint:
+        description: |
+          Where the flow was entered from (e.g., email | internal_nav | deep_link).
+        type: string
+      flow_type:
+        description: |
+          Type of retention flow. Allowed values: cancel, stay.
+        type: string
+      eligibility_status:
+        description: |
+          Eligibility status for the subscription. Allowed values: stay, cancel, offer, none.
+        type: string
+      step:
+        description: |
+          Stage in the user journey lifecycle. Allowed values: view, engage, submit, result.
+        type: string
+      outcome:
+        description: |
+          The category of the result. Allowed values: success, error.
+        type: string
+      error_reason:
+        description: |
+          Specific reason for failure. Allowed values:
+          - customer_mismatch
+          - discount_already_applied
+          - general_error
+          - no_churn_intervention_found
+          - redemption_limit_exceeded
+          - subscription_not_active
+          - subscription_not_found
+          - subscription_still_active
+        type: string
+      offering_id:
+        description: The API id of the specific subscription offering.
+        type: string
+      interval:
+        description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+        type: string
+      utm_source:
+        description: UTM source (if present).
+        type: string
+      utm_medium:
+        description: UTM medium (if present).
+        type: string
+      utm_campaign:
+        description: UTM campaign (if present).
+        type: string
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
+
+  interstitial_offer:
+    type: event
+    description: Tracks engagement with non-retention flow.
+    send_in_pings:
+      - events
+    notification_emails:
+      - lchan@mozilla.com
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3472
+    data_reviews:
+      - FILL IN
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      flow_type:
+        description: |
+          Type of retention flow. Allowed values: cancel, stay.
+        type: string
+      step:
+        description: |
+          Stage in the user journey lifecycle. Allowed values: view, engage, submit, result.
+        type: string
+      outcome:
+        description: |
+          The category of the result. Allowed values: success, error.
+        type: string
+      error_reason:
+        description: |
+          Specific reason for failure. Allowed values:
+          - subscription_not_found
+          - customer_mismatch
+          - subscription_not_active
+          - stripe_price_id_not_found
+          - already_canceling_at_period_end
+          - current_interval_not_found
+          - offering_id_not_found
+          - no_cancel_interstitial_offer_found
+          - no_upgrade_plan_found
+          - not_eligible_for_upgrade_interval
+          - general_error
+        type: string
+      offering_id:
+        description: The API id of the specific subscription offering.
+        type: string
+      interval:
+        description: Billing interval for the subscription (daily | weekly | monthly | halfyearly | yearly)
+        type: string
+      utm_source:
+        type: string
+        description: UTM source (if present).
+      utm_medium:
+        type: string
+        description: UTM medium (if present).
+      utm_campaign:
+        type: string
+        description: UTM campaign (if present).
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string

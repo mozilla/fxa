@@ -303,6 +303,25 @@ commands:
         default: run-many
     steps:
       - run:
+          name: Ensure Python venv has pip (for glean lint)
+          command: |
+            set -euxo pipefail
+
+            echo "Python version:"
+            python3 --version
+
+            rm -rf .venv
+
+            python3 -m venv .venv
+            . .venv/bin/activate
+
+            python -m ensurepip --upgrade || true
+            python -m pip install --upgrade pip setuptools wheel
+
+            echo "pip version:"
+            python -m pip --version
+
+      - run:
           name: Linting
           command: npx nx << parameters.nx_run >> --parallel=1 -t lint
 
