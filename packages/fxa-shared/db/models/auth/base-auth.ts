@@ -43,7 +43,7 @@ export enum Proc {
   DeviceFromRefreshTokenId = 'deviceFromRefreshTokenId_1',
   EmailBounces = 'fetchEmailBounces_4',
   FindLargeAccounts = 'findLargeAccounts_1',
-  ForgotPasswordVerified = 'forgotPasswordVerified_9',
+  ForgotPasswordVerified = 'forgotPasswordVerified_10',
   KeyFetchToken = 'keyFetchToken_1',
   KeyFetchTokenWithVerificationStatus = 'keyFetchTokenWithVerificationStatus_2',
   LimitSessions = 'limitSessions_3',
