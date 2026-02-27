@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef, FormEventHandler, useEffect, useCallback } from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import React, { useEffect, useCallback } from 'react';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useLocalization } from '@fluent/react';
 
 import { ReactComponent as GoogleLogo } from './google-logo-viewbox.svg';
@@ -16,8 +16,8 @@ import GleanMetrics from '../../lib/glean';
 import { QueryParams } from '../..';
 
 export type ThirdPartyAuthProps = {
-  onContinueWithGoogle?: FormEventHandler<HTMLFormElement>;
-  onContinueWithApple?: FormEventHandler<HTMLFormElement>;
+  onContinueWithGoogle?: () => void;
+  onContinueWithApple?: () => void;
   showSeparator?: boolean;
   viewName?: string;
   flowQueryParams?: QueryParams;
@@ -73,16 +73,16 @@ const ThirdPartyAuth = ({
           </>
         )}
         <div className="flex gap-4 justify-center">
-          <ThirdPartySignInForm
+          <ThirdPartySignInButton
             {...{
               party: 'google',
               ...config.googleAuthConfig,
-              state: getState(flowQueryParams),
               scope: 'openid email profile',
               responseType: 'code',
               accessType: 'offline',
               prompt: 'consent',
               viewName,
+              flowQueryParams,
               onSubmit: onContinueWithGoogle,
               buttonText: (
                 <>
@@ -91,17 +91,17 @@ const ThirdPartyAuth = ({
               ),
             }}
           />
-          <ThirdPartySignInForm
+          <ThirdPartySignInButton
             {...{
               party: 'apple',
               ...config.appleAuthConfig,
-              state: getState(flowQueryParams),
               scope: 'email',
               responseType: 'code id_token',
               accessType: 'offline',
               prompt: 'consent',
               viewName,
               responseMode: 'form_post',
+              flowQueryParams,
               onSubmit: onContinueWithApple,
               buttonText: (
                 <>
@@ -116,15 +116,9 @@ const ThirdPartyAuth = ({
   );
 };
 
-/**
- * Represents the sign in form posted to google third party auth.
- * Note that the innerRef is used by the parent component to trigger
- * a form submission.
- */
-const ThirdPartySignInForm = ({
+const ThirdPartySignInButton = ({
   party,
   authorizationEndpoint,
-  state,
   clientId,
   scope,
   redirectUri,
@@ -139,7 +133,6 @@ const ThirdPartySignInForm = ({
 }: {
   party: 'google' | 'apple';
   authorizationEndpoint: string;
-  state: string;
   clientId: string;
   scope: string;
   redirectUri: string;
@@ -148,14 +141,12 @@ const ThirdPartySignInForm = ({
   responseType: string;
   responseMode?: string;
   buttonText: ReactElement;
-  onSubmit?: FormEventHandler<HTMLFormElement>;
+  onSubmit?: () => void;
   viewName?: string;
   flowQueryParams?: QueryParams;
 }) => {
   const { logViewEventOnce } = useMetrics();
   const { l10n } = useLocalization();
-  const stateRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
 
   const getLoginAriaLabel = () => {
     const labels = {
@@ -173,7 +164,8 @@ const ThirdPartySignInForm = ({
     return labels[party];
   };
 
-  const onClick = useCallback(async () => {
+  const handleClick = useCallback(async () => {
+    onSubmit?.();
     logViewEventOnce(`flow.${party}`, 'oauth-start');
     switch (`${party}-${viewName}`) {
       case 'google-index':
@@ -196,57 +188,51 @@ const ThirdPartySignInForm = ({
         break;
     }
 
-    // wait for all the Glean events to be sent before the page unloads
+    // Wait for all Glean events to be sent before navigating away.
     await GleanMetrics.isDone();
 
-    if (stateRef.current) {
-      stateRef.current.value = getState(flowQueryParams);
-    }
-  }, [party, stateRef, viewName, logViewEventOnce, flowQueryParams]);
-
-  if (onSubmit === undefined) {
-    onSubmit = () => true;
-  }
+    const params = {
+      state: getState(flowQueryParams),
+      client_id: clientId,
+      scope,
+      redirect_uri: redirectUri,
+      access_type: accessType,
+      prompt,
+      response_type: responseType,
+      ...(responseMode ? { response_mode: responseMode } : {}),
+    };
+    hardNavigate(authorizationEndpoint, params, false, false, 0);
+  }, [
+    party,
+    viewName,
+    logViewEventOnce,
+    flowQueryParams,
+    clientId,
+    scope,
+    redirectUri,
+    accessType,
+    prompt,
+    responseType,
+    responseMode,
+    authorizationEndpoint,
+    onSubmit,
+  ]);
 
   return (
-    <form
-      action={authorizationEndpoint}
-      method="GET"
-      onSubmit={onSubmit}
-      ref={formRef}
+    <button
+      type="button"
+      className={`w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
+      ${
+        party === 'google'
+          ? 'bg-[#F9F4F4] border-[#747775] border-[1px]'
+          : 'bg-black border-transparent'
+      }
+      `}
+      onClick={handleClick}
+      aria-label={getLoginAriaLabel()}
     >
-      <input
-        data-testid={`${party}-signin-form-state`}
-        ref={stateRef}
-        type="hidden"
-        name="state"
-        value={state}
-      />
-      <input type="hidden" name="client_id" value={clientId} />
-      <input type="hidden" name="scope" value={scope} />
-      <input type="hidden" name="redirect_uri" value={redirectUri} />
-      <input type="hidden" name="access_type" value={accessType} />
-      <input type="hidden" name="prompt" value={prompt} />
-      <input type="hidden" name="response_type" value={responseType} />
-      {responseMode && (
-        <input type="hidden" name="response_mode" value={responseMode} />
-      )}
-
-      <button
-        type="submit"
-        className={`w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border focus-visible-default outline-offset-2
-        ${
-          party === 'google'
-            ? 'bg-[#F9F4F4] border-[#747775] border-[1px]'
-            : 'bg-black border-transparent'
-        }
-        `}
-        onClick={onClick}
-        aria-label={getLoginAriaLabel()}
-      >
-        {buttonText}
-      </button>
-    </form>
+      {buttonText}
+    </button>
   );
 };
 
