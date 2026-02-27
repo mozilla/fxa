@@ -192,11 +192,40 @@ describe('Settings App', () => {
     });
   });
 
+  it('redirects to root when account data is unavailable in localStorage', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    // Create an account object where accessing primaryEmail throws,
+    // simulating the Account.data getter failure when localStorage has no data
+    const brokenAccount = {
+      ...MOCK_ACCOUNT,
+    } as unknown as Account;
+    Object.defineProperty(brokenAccount, 'primaryEmail', {
+      get() {
+        throw new Error('Account data not loaded from localStorage');
+      },
+    });
+
+    renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({ account: brokenAccount })}
+      >
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    });
+    warnSpy.mockRestore();
+  });
+
   it('redirects to root if account is not verified', async () => {
     // this warning is expected, so we don't want to see it in the test output
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
       if (
-        msg === 'Account or email verification is require to access /settings!'
+        msg === 'Account or email verification is required to access /settings!'
       )
         return;
     });
@@ -230,7 +259,7 @@ describe('Settings App', () => {
     // this warning is expected, so we don't want to see it in the test output
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
       if (
-        msg === 'Account or email verification is require to access /settings!'
+        msg === 'Account or email verification is required to access /settings!'
       )
         return;
     });
@@ -261,7 +290,7 @@ describe('Settings App', () => {
     // this warning is expected, so we don't want to see it in the test output
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
       if (
-        msg === 'Account or email verification is require to access /settings!'
+        msg === 'Account or email verification is required to access /settings!'
       )
         return;
     });

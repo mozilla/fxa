@@ -148,14 +148,19 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" />;
   }
 
-  // If the account email isn't verified or the user is an unverified session state,
-  // kick back to root to prompt for verification. This should only happen if the user
-  // tries to access /settings directly without entering a confirmation code on
-  // confirm_signup_code page or signin_token_code page.
-  if (account.primaryEmail.verified === false || sessionVerified === false) {
-    console.warn(
-      'Account or email verification is require to access /settings!'
-    );
+  // Redirect to root if the account or session is unverified. The try-catch
+  // handles the case where account data may be missing from localStorage
+  // (e.g. WKWebView storage eviction on iOS).
+  try {
+    if (account.primaryEmail.verified === false || sessionVerified === false) {
+      console.warn(
+        'Account or email verification is required to access /settings!'
+      );
+      navigateWithQuery('/');
+      return <LoadingSpinner fullScreen />;
+    }
+  } catch {
+    console.warn('Account data unavailable, redirecting to sign-in');
     navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;
   }
@@ -178,6 +183,15 @@ export const Settings = ({
     return <LoadingSpinner fullScreen />;
   }
 
+  // Default to true when account data is unavailable, so
+  // password-gated routes remain accessible rather than silently redirecting.
+  let hasPassword = true;
+  try {
+    hasPassword = account.hasPassword;
+  } catch {
+    // account data missing from localStorage
+  }
+
   return (
     <SettingsLayout>
       <Head />
@@ -191,7 +205,7 @@ export const Settings = ({
           <MfaGuardPage2faSetup path="/two_step_authentication" />
           <MfaGuardPage2faChange path="/two_step_authentication/change" />
           <MfaGuardPage2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
-          {account.hasPassword ? (
+          {hasPassword ? (
             <>
               <MfaGuardPageRecoveryKeyCreate path="/account_recovery" />
               <MfaGuardedPageChangePassword path="/change_password" />

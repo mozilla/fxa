@@ -162,6 +162,30 @@ export function getCurrentAccountUid(): string | null {
   return storage().get('currentAccountUid') || null;
 }
 
+/**
+ * Find a valid account UID when currentAccountUid is missing.
+ * Returns the most recently logged-in account with a session token, or null.
+ * Used as a recovery path when WKWebView storage eviction loses the UID
+ * but account data still exists in the accounts map.
+ */
+export function findActiveAccountUid(): string | null {
+  const accounts = storage().get('accounts') || {};
+  let bestUid: string | null = null;
+  let bestLastLogin = -1;
+
+  for (const uid of Object.keys(accounts)) {
+    const account = accounts[uid];
+    if (account?.sessionToken && account.uid) {
+      const lastLogin = account.lastLogin ?? 0;
+      if (lastLogin > bestLastLogin) {
+        bestLastLogin = lastLogin;
+        bestUid = uid;
+      }
+    }
+  }
+  return bestUid;
+}
+
 export function getAccountData(uid?: string): UnifiedAccountData | null {
   const accountUid = uid || getCurrentAccountUid();
   if (!accountUid) return null;

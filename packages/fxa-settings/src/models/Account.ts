@@ -32,8 +32,10 @@ import {
 } from '../lib/interfaces';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { getHandledError } from '../lib/error-utils';
+import * as Sentry from '@sentry/browser';
 import {
   getFullAccountData,
+  getCurrentAccountUid,
   updateExtendedAccountState,
   updateBasicAccountData,
   ExtendedAccountState,
@@ -308,7 +310,18 @@ export class Account implements AccountData {
           securityEvents: [],
         } as AccountData;
       }
-      throw new Error('Account data not loaded from localStorage');
+      const error = new Error('Account data not loaded from localStorage');
+      Sentry.captureException(error, {
+        tags: { isIOS: /FxiOS/.test(navigator.userAgent) },
+        extra: {
+          currentAccountUid: getCurrentAccountUid(),
+          hasAccountsKey: !!localStorage.getItem('__fxa_storage.accounts'),
+          pathname: window.location.pathname,
+          search: window.location.search,
+          entrypoint: new URLSearchParams(window.location.search).get('entrypoint'),
+        },
+      });
+      throw error;
     }
 
     return {

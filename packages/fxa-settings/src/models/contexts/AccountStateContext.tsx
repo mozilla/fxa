@@ -21,11 +21,14 @@ import {
   SecurityEvent,
 } from '../Account';
 import { useLocalStorageSync } from '../../lib/hooks/useLocalStorageSync';
+import * as Sentry from '@sentry/browser';
 import {
   getAccountData,
   updateAccountData,
   clearExtendedAccountState,
   getCurrentAccountUid,
+  setCurrentAccountUid,
+  findActiveAccountUid,
   UnifiedAccountData,
 } from '../../lib/account-storage';
 
@@ -168,6 +171,23 @@ function unifiedToAccountState(
   };
 }
 
+/**
+ * Recover the current account UID when it is missing from localStorage.
+ * This primarily affects Firefox iOS where WKWebView storage eviction can
+ * lose currentAccountUid while account data still exists.
+ *
+ * Recovery order: URL ?uid= param, then fallback UID, then scan for an
+ * active session in accounts storage.
+ */
+function recoverAccountUid(fallbackUid?: string | null): string | null {
+  const urlUid = new URLSearchParams(window.location.search).get('uid');
+  const recovered = urlUid || fallbackUid || findActiveAccountUid();
+  if (recovered) {
+    setCurrentAccountUid(recovered);
+  }
+  return recovered;
+}
+
 export function AccountStateProvider({
   children,
   initialState,
@@ -175,7 +195,12 @@ export function AccountStateProvider({
   // useLocalStorageSync triggers re-renders on storage changes;
   // we read from getAccountData() rather than the return value directly
   useLocalStorageSync('accounts');
-  const currentAccountUid = useLocalStorageSync('currentAccountUid') as string | undefined;
+  let currentAccountUid = useLocalStorageSync('currentAccountUid') as string | undefined;
+
+  // Recover UID when missing (iOS WKWebView storage eviction)
+  if (!currentAccountUid) {
+    currentAccountUid = recoverAccountUid() ?? undefined;
+  }
 
   const accountState = unifiedToAccountState(
     getAccountData(currentAccountUid),
@@ -185,8 +210,24 @@ export function AccountStateProvider({
   // Serialize AccountState -> UnifiedAccountData for localStorage:
   // Set -> Array, Error -> {message,name}, exclude derived 'primaryEmail'
   const setAccountDataCallback = useCallback((data: Partial<AccountState>) => {
-    const uid = getCurrentAccountUid();
-    if (!uid) return;
+    let uid = getCurrentAccountUid();
+
+    // Recover UID when currentAccountUid is missing
+    if (!uid) {
+      uid = recoverAccountUid(data.uid);
+    }
+
+    if (!uid) {
+      Sentry.captureMessage('setAccountData called with no currentAccountUid', {
+        level: 'warning',
+        extra: {
+          pathname: window.location.pathname,
+          search: window.location.search,
+          hasAccountsKey: !!localStorage.getItem('__fxa_storage.accounts'),
+        },
+      });
+      return;
+    }
 
     const { uid: dataUid, email: dataEmail, primaryEmail, ...rest } = data;
     const storageData: Partial<UnifiedAccountData> = {
