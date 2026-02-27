@@ -5,6 +5,7 @@
 import { faker } from '@faker-js/faker';
 import type {
   WelcomeFeature,
+  FreeTrialFeature,
   Features,
   SubPlatNimbusResult,
 } from './nimbus.types';
@@ -16,8 +17,16 @@ export const WelcomeFeatureFactory = (
   ...override,
 });
 
+export const FreeTrialFeatureFactory = (
+  override?: Partial<FreeTrialFeature>
+): FreeTrialFeature => ({
+  enabled: faker.datatype.boolean(),
+  ...override,
+});
+
 export const FeaturesFactory = (override?: Partial<Features>): Features => ({
   'welcome-feature': WelcomeFeatureFactory(),
+  'free-trial-feature': FreeTrialFeatureFactory(),
   ...override,
 });
 

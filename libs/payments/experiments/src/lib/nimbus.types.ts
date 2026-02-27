@@ -8,8 +8,13 @@ export interface WelcomeFeature {
   enabled: boolean;
 }
 
+export interface FreeTrialFeature {
+  enabled: boolean;
+}
+
 export interface Features {
   'welcome-feature': WelcomeFeature;
+  'free-trial-feature': FreeTrialFeature;
 }
 
 export interface SubPlatNimbusResult extends NimbusResult {
