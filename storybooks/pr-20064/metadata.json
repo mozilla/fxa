@@ -1,0 +1,12 @@
+{
+  "commit": "3c3ed688a7d498a9b7f036f19666a158d9fac7c7",
+  "summary": "chore(deps): bump ajv from 8.17.1 to 8.18.0",
+  "description": "Bumps [ajv](https://github.com/ajv-validator/ajv) from 8.17.1 to 8.18.0.\n- [Release notes](https://github.com/ajv-validator/ajv/releases)\n- [Commits](https://github.com/ajv-validator/ajv/compare/v8.17.1...v8.18.0)\n\n---\nupdated-dependencies:\n- dependency-name: ajv\n  dependency-version: 8.18.0\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1771347327000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

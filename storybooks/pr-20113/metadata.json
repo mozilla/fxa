@@ -1,0 +1,11 @@
+{
+  "commit": "06820c7d534d2049c3b199e6851d2e79666f10f0",
+  "summary": "bug(settings,auth): Password reset flow breaks after entering invalid ARK",
+  "description": "Because:\n- When a user provides an invalid account recovery key, the flow would break.\n- At this point, the password reset token has been exchanged and was no longer valid\n\nThis Commit:\n- Allows auth endpoints to accept a password forgot token or account reset token\n- Passes the account reset token as 'token' in location state\n- Introduces the 'kind' field, to signal if token is a account reset or password forgot token.\n- Cleans up some cruft in auth client\n- Brings account reset token and password forgot into alignment (same shape)",
+  "timestamp": 1772154279000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

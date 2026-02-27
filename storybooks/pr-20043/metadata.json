@@ -1,0 +1,12 @@
+{
+  "commit": "3a6b191d6029436b752c81c536f61413ff6c7ccf",
+  "summary": "chore(deps): bump webpack from 5.105.0 to 5.105.1",
+  "description": "Bumps [webpack](https://github.com/webpack/webpack) from 5.105.0 to 5.105.1.\n- [Release notes](https://github.com/webpack/webpack/releases)\n- [Changelog](https://github.com/webpack/webpack/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/webpack/webpack/compare/v5.105.0...v5.105.1)\n\n---\nupdated-dependencies:\n- dependency-name: webpack\n  dependency-version: 5.105.1\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1770835975000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

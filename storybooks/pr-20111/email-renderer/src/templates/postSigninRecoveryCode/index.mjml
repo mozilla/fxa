@@ -1,0 +1,27 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="postSigninRecoveryCode-title">Your backup authentication code was used to sign in</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postSigninRecoveryCode-description">If you didn’t do this, you should change your password immediately to keep your account safe.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body-no-margin">
+      <span data-l10n-id="postSigninRecoveryCode-device">You signed in from:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<%- include('/partials/userInfo/index.mjml') %>
+
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "postSigninRecoveryCode-action",
+  buttonText: "Manage account"
+}) %>
+
+<%- include('/partials/automatedEmailResetPassword/index.mjml') %>

@@ -1,0 +1,13 @@
+{
+  "commit": "0bb6c37544f4b575e7303d7e58d904e0b6ab9682",
+  "summary": "test do not merge",
+  "description": "",
+  "timestamp": 1767651400000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

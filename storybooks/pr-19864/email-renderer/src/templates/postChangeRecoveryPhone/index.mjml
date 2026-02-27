@@ -1,0 +1,25 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="postChangeRecoveryPhone-title">You changed your recovery phone</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postChangeRecoveryPhone-description">You now have a new recovery phone. Your previous phone number was deleted.</span>
+    </mj-text>
+    <mj-text css-class="text-body-no-margin">
+      <span data-l10n-id="postChangeRecoveryPhone-requested-device">You requested it from:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<%- include('/partials/userInfo/index.mjml') %>
+
+<%- include('/partials/automatedEmailResetPassword/index.mjml') %>

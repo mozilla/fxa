@@ -1,0 +1,13 @@
+{
+  "commit": "f8201593a3f4685c35a1ed460841ac17a5a3c55c",
+  "summary": "chore(deps): bump @smithy/config-resolver from 4.1.4 to 4.4.5",
+  "description": "Bumps [@smithy/config-resolver](https://github.com/smithy-lang/smithy-typescript/tree/HEAD/packages/config-resolver) from 4.1.4 to 4.4.5.\n- [Release notes](https://github.com/smithy-lang/smithy-typescript/releases)\n- [Changelog](https://github.com/smithy-lang/smithy-typescript/blob/main/packages/config-resolver/CHANGELOG.md)\n- [Commits](https://github.com/smithy-lang/smithy-typescript/commits/@smithy/config-resolver@4.4.5/packages/config-resolver)\n\n---\nupdated-dependencies:\n- dependency-name: \"@smithy/config-resolver\"\n  dependency-version: 4.4.5\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1767914212000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

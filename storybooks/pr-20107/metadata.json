@@ -1,0 +1,12 @@
+{
+  "commit": "f2f600e7b6991444e83488463ab47dbe6e5adb70",
+  "summary": "chore(deps): bump basic-ftp from 5.0.5 to 5.2.0",
+  "description": "Bumps [basic-ftp](https://github.com/patrickjuchli/basic-ftp) from 5.0.5 to 5.2.0.\n- [Release notes](https://github.com/patrickjuchli/basic-ftp/releases)\n- [Changelog](https://github.com/patrickjuchli/basic-ftp/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/patrickjuchli/basic-ftp/compare/v5.0.5...v5.2.0)\n\n---\nupdated-dependencies:\n- dependency-name: basic-ftp\n  dependency-version: 5.2.0\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1772059629000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

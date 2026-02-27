@@ -1,0 +1,10 @@
+{
+  "commit": "f73a8493bd914b69eccddf468557b9ce0c00c1ed",
+  "summary": "feat(settings): add passwordless otp ui Because:",
+  "description": "- The passwordless otp signup/signin needs its own pages that vary\n  slightly from existing signin flows.\n\nThis commit:\n\n- Adds signin and signup pages, containers and components\n\nCloses #FXA-13017",
+  "timestamp": 1772226519000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

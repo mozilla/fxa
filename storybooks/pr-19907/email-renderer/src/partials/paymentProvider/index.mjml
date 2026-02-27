@@ -1,0 +1,27 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<% if (invoiceAmountDueInCents > 0) { %>
+  <% if (paymentProviderName) { %>
+    <mj-text css-class="text-body-no-bottom-margin">
+      <span data-l10n-id="payment-method-payment-provider" data-l10n-args="<%= JSON.stringify({paymentProviderName}) %>">
+        <b>Payment method:</b> <%- paymentProviderName %>
+      </span>
+    </mj-text>
+  <% } else { %>
+    <% if (cardName && lastFour) { %>
+      <mj-text css-class="text-body-no-bottom-margin">
+        <span data-l10n-id="payment-provider-card-ending-in-card-name" data-l10n-args="<%= JSON.stringify({cardName, lastFour}) %>">
+          <b>Payment method:</b> <%- cardName %> ending in <%- lastFour %>
+        </span>
+      </mj-text>
+    <% } else { %>
+      <mj-text css-class="text-body-no-bottom-margin">
+        <span data-l10n-id="payment-provider-card-ending-in" data-l10n-args="<%= JSON.stringify({lastFour}) %>">
+          <b>Payment method:</b> Card ending in <%- lastFour %>
+        </span>
+      </mj-text>
+    <% } %>
+  <% } %>
+<% } %>

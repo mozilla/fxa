@@ -1,0 +1,11 @@
+{
+  "commit": "c6db6d79512179ba2d68eb609128ed8e620738e2",
+  "summary": "polish(auth): Add sentry traceId to logs",
+  "description": "",
+  "timestamp": 1771636979000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

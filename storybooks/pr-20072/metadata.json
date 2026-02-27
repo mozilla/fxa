@@ -1,0 +1,11 @@
+{
+  "commit": "6960f36bc1f2a5953cb426d7c11fe400555484da",
+  "summary": "fix(oauth): Prevent validation errors from orphaned client tokens",
+  "description": "Because:\n\n* Sentry showed ValidationError: \"[0].name\" is required\n* OAuth token queries use LEFT OUTER JOIN with clients table\n* When a client is deleted but tokens remain (orphaned), the JOIN returns NULL\n* This may be converted to undefined, which fails Joi validation\n\nThis commit:\n\n* Add nullish coalescing in factories.ts when merging OAuth client names; Joi validation explicitely allows null\n* Fix shared reference bug in getDefaultClientFields() to return copy of defaults\n* Add regression test for undefined client_name handling\n\nCloses #FXA-13132",
+  "timestamp": 1771899518000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

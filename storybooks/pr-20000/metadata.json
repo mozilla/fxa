@@ -1,0 +1,10 @@
+{
+  "commit": "259abac7813126132b607789e08e13e1cd3beeac",
+  "summary": "Fix CI?",
+  "description": "",
+  "timestamp": 1771967425000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

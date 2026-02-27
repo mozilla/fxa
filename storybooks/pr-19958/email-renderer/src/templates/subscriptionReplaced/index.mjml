@@ -1,0 +1,29 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public # License, v. 2.0. If a copy of the MPL was not
+  distributed with this # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="subscriptionReplaced-title">Your subscription has been updated</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionReplaced-content-replaced"
+        data-l10n-args="<%= JSON.stringify({productName}) %>">
+        Your individual <%- productName %> subscription has been replaced and is now included in your new bundle.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionReplaced-content-credit">
+        You’ll receive a credit for any unused time from your previous subscription. This credit will be automatically applied to your account and used toward future charges.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionReplaced-content-not-action">
+        No action is required on your part.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>

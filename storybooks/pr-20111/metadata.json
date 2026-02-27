@@ -1,0 +1,12 @@
+{
+  "commit": "d56b4ab13a3b2867e5d3cefe6438f175c25bd586",
+  "summary": "chore(deps): bump rollup from 2.79.2 to 2.80.0",
+  "description": "Bumps [rollup](https://github.com/rollup/rollup) from 2.79.2 to 2.80.0.\n- [Release notes](https://github.com/rollup/rollup/releases)\n- [Changelog](https://github.com/rollup/rollup/blob/v2.80.0/CHANGELOG.md)\n- [Commits](https://github.com/rollup/rollup/compare/v2.79.2...v2.80.0)\n\n---\nupdated-dependencies:\n- dependency-name: rollup\n  dependency-version: 2.80.0\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1772122339000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

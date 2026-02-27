@@ -1,0 +1,12 @@
+{
+  "commit": "93277467cc11aa99426b474562d1dd378369e65c",
+  "summary": "chore(deps): bump @apollo/server from 4.12.2 to 5.4.0",
+  "description": "Bumps [@apollo/server](https://github.com/apollographql/apollo-server/tree/HEAD/packages/server) from 4.12.2 to 5.4.0.\n- [Release notes](https://github.com/apollographql/apollo-server/releases)\n- [Changelog](https://github.com/apollographql/apollo-server/blob/main/packages/server/CHANGELOG.md)\n- [Commits](https://github.com/apollographql/apollo-server/commits/@apollo/server@5.4.0/packages/server)\n\n---\nupdated-dependencies:\n- dependency-name: \"@apollo/server\"\n  dependency-version: 5.4.0\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1770659480000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

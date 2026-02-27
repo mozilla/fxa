@@ -1,0 +1,12 @@
+{
+  "commit": "2c5d31c71d47d720245b222484b1c09d7588d498",
+  "summary": "chore(deps): bump lodash-es from 4.17.21 to 4.17.23",
+  "description": "Bumps [lodash-es](https://github.com/lodash/lodash) from 4.17.21 to 4.17.23.\n- [Release notes](https://github.com/lodash/lodash/releases)\n- [Commits](https://github.com/lodash/lodash/compare/4.17.21...4.17.23)\n\n---\nupdated-dependencies:\n- dependency-name: lodash-es\n  dependency-version: 4.17.23\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1770242644000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

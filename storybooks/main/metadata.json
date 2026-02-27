@@ -1,0 +1,12 @@
+{
+  "commit": "e3da348339165947127843879f8ba83c7f8b0d8a",
+  "summary": "Merge pull request #20122 from mozilla/PAY-3555",
+  "description": "feat(payments-next): Add Free Trial Nimbus config",
+  "timestamp": 1772227271000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

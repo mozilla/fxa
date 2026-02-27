@@ -1,0 +1,48 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<%- include ('/partials/icon/index.mjml') %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="subscriptionEndingReminder-title" data-l10n-args="<%= JSON.stringify({ productName }) %>">Your <%- productName %> subscription will expire soon</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionEndingReminder-content-line1" data-l10n-args="<%= JSON.stringify({productName, serviceLastActiveDateOnly }) %>">
+        Your access to <%- productName %> will end on <strong><%- serviceLastActiveDateOnly %></strong>.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionEndingReminder-content-line2" data-l10n-args="<%= JSON.stringify({productName, serviceLastActiveDateOnly, accountSettingsUrl, subscriptionSupportUrlWithUtm }) %>">
+        If you’d like to continue using <%- productName %>, you can reactivate your subscription in <a href="<%- accountSettingsUrl %>" class="link-blue" data-l10n-name="subscriptionEndingReminder-account-settings">Account Settings</a> before <strong><%- serviceLastActiveDateOnly %></strong>. If you need assistance, <a href="<%- subscriptionSupportUrlWithUtm %>" class="link-blue" data-l10n-name="subscriptionEndingReminder-contact-support">contact our Support Team</a>.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionEndingReminder-content-closing">Thanks for being a valued subscriber!</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+
+<% if (locals.showChurn) { %>
+<mj-section css-class="container-grey">
+  <mj-column>
+    <mj-text css-class="text-header-two">
+      <span data-l10n-id="subscriptionEndingReminder-churn-title">Want to keep access?</span>
+    </mj-text>
+    <mj-button css-class="primary-button-sm-subplat" href="<%- ctaButtonUrlWithUtm %>">
+      <span><%- ctaButtonLabel %></span>
+    </mj-button>
+    <mj-text css-class="text-container-link">
+      <span data-l10n-id="subscriptionEndingReminder-churn-terms" data-l10n-args="<%= JSON.stringify({churnTermsUrlWithUtm}) %>">
+        <a href="<%- churnTermsUrlWithUtm %>" class="link-blue" data-l10n-name="subscriptionEndingReminder-churn-terms">Limited terms and restrictions apply</a>
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<% } %>

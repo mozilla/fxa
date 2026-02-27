@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postRemoveAccountRecovery-subject-2",
+    "message": "Account recovery key deleted"
+  },
+  "action": {
+    "id": "postRemoveAccountRecovery-action",
+    "message": "Manage account"
+  }
+}

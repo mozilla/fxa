@@ -1,0 +1,9 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-text css-class="text-body">
+  <span data-l10n-id="subscriptionUpdateBillingEnsure">
+    You can ensure that your payment method and account information are up to date <a data-l10n-name="updateBillingUrl" href="<%- locals.updateBillingUrl %>">here</a>.
+  </span>
+</mj-text>

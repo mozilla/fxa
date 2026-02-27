@@ -1,0 +1,11 @@
+{
+  "commit": "b04c4b9efca5590afb65eed1ac2002d3665756df",
+  "summary": "feat(payments-next): Add free trial configuration to Strapi Because:",
+  "description": "* Relying Parties should be able to control the details of a free trial including marketing language specific to the free trial.\n\nThis commit:\n\n* Adds free trial query, util, factories, types to fetch free trials records.\n* Updates ProductConfigurationManager to return the content\n\nCloses #[PAY-3542](https://mozilla-hub.atlassian.net/browse/PAY-3542)",
+  "timestamp": 1772226554000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

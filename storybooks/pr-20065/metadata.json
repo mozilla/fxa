@@ -1,0 +1,11 @@
+{
+  "commit": "7939ed8fb0c2c1a63205aab866b25dd023189e35",
+  "summary": "feat(settings): add card border to split layout and center loading spinner",
+  "description": "Because:\n\n* loading spinner in split layout is off-centered\n* Ross want card border in split layout\n\nThis commit:\n\n* adds card border to split layout and centers loading spinner\n\nCloses FXA-13007",
+  "timestamp": 1772126085000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

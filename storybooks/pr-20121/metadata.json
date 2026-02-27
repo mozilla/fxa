@@ -1,0 +1,11 @@
+{
+  "commit": "070cf41608439783bc030eb55244ddd7ab9dfd06",
+  "summary": "bug(settings): Entering invalid ARK breaks reset flow",
+  "description": "",
+  "timestamp": 1772220385000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

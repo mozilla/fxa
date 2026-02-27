@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 6960f36bc1f2a5953cb426d7c11fe400555484da</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 6960f36bc1f2a5953cb426d7c11fe400555484da</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>2/24/2026, 2:18:38 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(oauth): Prevent validation errors from orphaned client tokens</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Sentry showed ValidationError: &quot;[0].name&quot; is required
+* OAuth token queries use LEFT OUTER JOIN with clients table
+* When a client is deleted but tokens remain (orphaned), the JOIN returns NULL
+* This may be converted to undefined, which fails Joi validation
+
+This commit:
+
+* Add nullish coalescing in factories.ts when merging OAuth client names; Joi validation explicitely allows null
+* Fix shared reference bug in getDefaultClientFields() to return copy of defaults
+* Add regression test for undefined client_name handling
+
+Closes #FXA-13132</pre></dd>
+  </dl>
+</body>
+</html>

@@ -1,0 +1,93 @@
+## Non-email strings
+
+session-verify-send-push-title-2 = កំពុងចូលទៅក្នុង { -product-mozilla-account } របស់អ្នកមែនទេ?
+session-verify-send-push-body-2 = ចុចទីនេះដើម្បីបញ្ជាក់ថាជាអ្នក
+# Message sent by SMS with limited character length, please test translation with the messaging segment calculator
+# https://twiliodeved.github.io/message-segment-calculator/
+# Messages should be limited to one segment
+# $code  - 6 digit code used to verify phone ownership when registering a recovery phone
+recovery-phone-setup-sms-body = { $code } គឺជាលេខកូដផ្ទៀងផ្ទាត់ { -brand-mozilla } របស់អ្នក។ ផុតកំណត់ក្នុងរយៈពេល 5 នាទី។
+# Shorter message sent by SMS with limited character length, please test translation with the messaging segment calculator
+# https://twiliodeved.github.io/message-segment-calculator/
+# Messages should be limited to one segment
+# $code  - 6 digit code used to verify phone ownership when registering a recovery phone
+recovery-phone-setup-sms-short-body = លេខកូដផ្ទៀងផ្ទាត់ { -brand-mozilla }៖ { $code }
+# Message sent by SMS with limited character length, please test translation with the messaging segment calculator
+# https://twiliodeved.github.io/message-segment-calculator/
+# Messages should be limited to one segment
+# $code  - 6 digit code used to sign in with a recovery phone as backup for two-step authentication
+recovery-phone-signin-sms-body = { $code } គឺជាលេខកូដសង្គ្រោះ { -brand-mozilla } របស់អ្នក។ ផុតកំណត់ក្នុងរយៈពេល 5 នាទី។
+# Shorter message sent by SMS with limited character length, please test translation with the messaging segment calculator
+# https://twiliodeved.github.io/message-segment-calculator/
+# Messages should be limited to one segment
+# $code  - 6 digit code used to sign in with a recovery phone as backup for two-step authentication
+recovery-phone-signin-sms-short-body = លេខកូដ { -brand-mozilla }៖ { $code }
+# Message sent by SMS with limited character length, please test translation with the messaging segment calculator
+# https://twiliodeved.github.io/message-segment-calculator/
+# Messages should be limited to one segment
+# $code  - 6 digit code used to sign in with a recovery phone as backup for account password reset
+recovery-phone-reset-password-sms-body = { $code } គឺជាលេខកូដសង្គ្រោះ { -brand-mozilla } របស់អ្នក។ ផុតកំណត់ក្នុងរយៈពេល 5 នាទី។
+# Shorter message sent by SMS with limited character length, please test translation with the messaging segment calculator
+# https://twiliodeved.github.io/message-segment-calculator/
+# Messages should be limited to one segment
+# $code  - 6 digit code used to sign in with a recovery phone as backup for account password reset
+recovery-phone-reset-password-short-body = លេខកូដ { -brand-mozilla }៖ { $code }
+
+## Email content
+## Emails do not contain buttons, only links. Emails have a rich HTML version and a plaintext
+## version. The strings are usually identical but sometimes they differ slightly.
+
+fxa-header-mozilla-logo = <img data-l10n-name="mozilla-logo" alt="{ -brand-mozilla } logo">
+fxa-header-sync-devices-image = <img data-l10n-name="sync-devices-image" alt="Sync devices">
+body-devices-image = <img data-l10n-name="devices-image" alt="Devices">
+fxa-privacy-url = គោលនយោបាយ​ឯកជនភាព { -brand-mozilla }
+moz-accounts-terms-url = { -product-mozilla-accounts(capitalization: "uppercase") } លក្ខខណ្ឌនៃសេវាកម្ម
+subplat-header-mozilla-logo-2 = <img data-l10n-name="subplat-mozilla-logo" alt="{ -brand-mozilla } logo">
+subplat-footer-mozilla-logo-2 = <img data-l10n-name="mozilla-logo-footer" alt="{ -brand-mozilla } logo">
+subplat-automated-email = នេះ​គឺ​ជា​អ៊ីម៉ែល​ស្វ័យ​ប្រវត្តិ។ បើ​អ្នកទទួល​បាន​អ៊ីម៉ែល​នេះ​ដោយ​កំហុស សូម​ទុក​វា​ចោល​ចុះ។
+subplat-privacy-notice = កំណត់ហេតុ​​ឯកជនភាព
+subplat-privacy-plaintext = កំណត់ហេតុឯកជនភាព:
+subplat-update-billing-plaintext = { subplat-update-billing }៖
+subplat-privacy-policy-plaintext = { subplat-privacy-policy } ៖
+subplat-privacy-policy-plaintext-2 = { subplat-privacy-policy-2 } ៖
+subplat-moz-terms = { -product-mozilla-accounts(capitalization: "uppercase") } លក្ខខណ្ឌនៃសេវាកម្ម
+subplat-moz-terms-plaintext = { subplat-moz-terms } ៖
+subplat-legal = ស្របច្បាប់
+subplat-legal-plaintext = { subplat-legal } ៖
+subplat-privacy = ឯកជនភាព
+subplat-privacy-website-plaintext = { subplat-privacy } ៖
+# Variables:
+#  $productName (String) - The name of the product to be downloaded, e.g. Mozilla VPN, or Firefox
+ios-download-plaintext = ទាញយក { $productName } នៅលើ App Store៖
+# Variables:
+#  $productName (String) - The name of the product to be downloaded, e.g. Mozilla VPN, or Firefox
+another-device-plaintext = ដំឡើង { $productName } នៅលើឧបករណ៍ផ្សេងទៀត៖
+manage-account = គ្រប់គ្រង​គណនី
+
+## $invoiceDiscountAmount (String) - The amount of the discount of the subscription invoice, including currency, e.g. $2.00
+## $discountDuration - The duration of the discount in number of months, e.g. "3" if the discount is 3-months
+
+subscription-charges-repeating-discount = បញ្ចុះតម្លៃ { $discountDuration } ខែ
+
+##
+
+fraudulentAccountDeletion-title = គណនីរបស់អ្នកត្រូវបានលុបចេញ
+newDeviceLogin-action = គ្រប់គ្រង​គណនី
+passwordChanged-title = បាន​ផ្លាស់ប្ដូរ​ពាក្យសម្ងាត់​ដោយ​ជោគជ័យ
+passwordResetAccountRecovery-action-4 = គ្រប់គ្រង​គណនី
+passwordResetRecoveryPhone-action = គ្រប់គ្រង​គណនី
+postAddAccountRecovery-action = គ្រប់គ្រង​គណនី
+postAddLinkedAccount-action = គ្រប់គ្រង​គណនី
+postAddRecoveryPhone-action = គ្រប់គ្រង​គណនី
+postAddTwoStepAuthentication-action = គ្រប់គ្រង​គណនី
+postChangeAccountRecovery-action = គ្រប់គ្រង​គណនី
+postChangePrimary-action = គ្រប់គ្រង​គណនី
+postChangeTwoStepAuthentication-action = គ្រប់គ្រង​គណនី
+postConsumeRecoveryCode-action = គ្រប់គ្រង​គណនី
+postNewRecoveryCodes-action = គ្រប់គ្រង​គណនី
+postRemoveAccountRecovery-action = គ្រប់គ្រង​គណនី
+postRemoveSecondary-action = គ្រប់គ្រង​គណនី
+postRemoveTwoStepAuthentication-action = គ្រប់គ្រង​គណនី
+postSigninRecoveryCode-action = គ្រប់គ្រង​គណនី
+postSigninRecoveryPhone-action = គ្រប់គ្រង​គណនី
+postVerifySecondary-action = គ្រប់គ្រង​គណនី
