@@ -30,6 +30,7 @@ export function PaymentMethodManagement({
   uid,
   defaultPaymentMethod,
   sessionEmail,
+  locale,
 }: {
   uid?: string;
   defaultPaymentMethod?: {
@@ -37,6 +38,7 @@ export function PaymentMethodManagement({
     type?: string;
   };
   sessionEmail?: string;
+  locale: string;
 }) {
   const { l10n } = useLocalization();
   const stripe = useStripe();
@@ -199,7 +201,7 @@ export function PaymentMethodManagement({
         if (result.status === 'requires_action' && result.clientSecret) {
           await handleNextAction(result.clientSecret);
         }
-        router.refresh();
+        router.push(`/${locale}/subscriptions/manage`);
       }
     } catch (error) {
       console.error(error);
