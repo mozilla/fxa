@@ -95,6 +95,15 @@ const Signin = ({
   const [hasCachedAccount, setHasCachedAccount] =
     useState<boolean>(!!sessionToken);
 
+  // A password is needed if:
+  // * There is no session token in local storage and the user has a password, OR
+  // * The integration wants keys (e.g. Sync always wants keys, and non-sync browser
+  //   services like Smart Window also request keys if there's no cached sign-in
+  //   to prevent a redirect to FxA to turn Sync on), OR
+  // * The integration is OAuth and wants login (prompt=login)
+  // UNLESS the user has a cached account AND they are in an OAuth Native flow AND
+  // the browser supports the "keys optional" capability for non-Sync browser signins.
+  // These users will be redirected to FxA later to enter a password to turn Sync on.
   const isPasswordNeeded =
     ((!hasCachedAccount && hasPassword) ||
       integration.wantsKeys() ||

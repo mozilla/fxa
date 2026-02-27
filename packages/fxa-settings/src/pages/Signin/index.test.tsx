@@ -1137,10 +1137,8 @@ describe('Signin component', () => {
         });
 
         it('always renders password input when integration wants keys', () => {
-          const integration = createMockSigninOAuthIntegration({
-            wantsKeys: true,
-          });
-          render({ integration });
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          render({ integration, sessionToken: MOCK_SESSION_TOKEN });
           passwordInputRendered();
         });
 
@@ -1156,7 +1154,6 @@ describe('Signin component', () => {
             cachedSigninHandler,
             integration,
             finishOAuthFlowHandler,
-            sessionToken: MOCK_SESSION_TOKEN,
           });
 
           await enterPasswordAndSubmit();
@@ -1258,7 +1255,6 @@ describe('Signin component', () => {
             ),
             integration,
             finishOAuthFlowHandler,
-            sessionToken: MOCK_SESSION_TOKEN,
           });
 
           await enterPasswordAndSubmit();
@@ -1291,7 +1287,6 @@ describe('Signin component', () => {
             ),
             integration,
             finishOAuthFlowHandler,
-            sessionToken: MOCK_SESSION_TOKEN,
           });
 
           await enterPasswordAndSubmit();
