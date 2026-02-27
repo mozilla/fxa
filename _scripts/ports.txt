@@ -8,7 +8,6 @@
 9000 # auth-server key server
 3030 # content-server
 1111 # profile-server
-9292 # Fortress
 8080 # 123done
 10139 # 321done
 3031 # payments server

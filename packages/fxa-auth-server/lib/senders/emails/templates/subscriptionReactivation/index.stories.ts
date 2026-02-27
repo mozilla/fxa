@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionReactivation',
   'Sent when a user reactivates their subscription.',
   {
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     invoiceTotal: '$20',
     nextInvoiceDateOnly: '11/13/2021',
     icon: 'https://placekitten.com/512/512',

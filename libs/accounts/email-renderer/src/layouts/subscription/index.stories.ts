@@ -35,7 +35,7 @@ export const LayoutMultipleProducts = createStory(
   {
     subscriptions: [
       {
-        productName: 'Firefox Fortress',
+        productName: '123Done Pro',
       },
       {
         productName: 'Mozilla VPN',
@@ -49,7 +49,7 @@ export const LayoutMultipleProductsWithBrandMessaging = createStory(
   {
     subscriptions: [
       {
-        productName: 'Firefox Fortress',
+        productName: '123Done Pro',
       },
       {
         productName: 'Mozilla VPN',

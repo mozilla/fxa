@@ -11,7 +11,7 @@ export default {
 } as Meta;
 
 const data = {
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
   serviceLastActiveDateOnly: 'July 15, 2025',
   accountSettingsUrl: 'http://localhost:3030/settings',
   subscriptionSupportUrlWithUtm: 'http://localhost:3030/support',

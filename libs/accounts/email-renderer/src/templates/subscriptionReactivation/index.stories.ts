@@ -11,7 +11,7 @@ export default {
 } as Meta;
 
 const data = {
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
   invoiceTotal: '$20',
   nextInvoiceDateOnly: '11/13/2021',
   icon: 'https://placekitten.com/512/512',

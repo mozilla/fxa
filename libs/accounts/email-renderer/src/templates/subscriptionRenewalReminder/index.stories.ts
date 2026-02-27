@@ -11,7 +11,7 @@ export default {
 } as Meta;
 
 const data = {
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
   showTax: true,
   invoiceTotalExcludingTax: '$18.71',
   invoiceTax: '$1.29',

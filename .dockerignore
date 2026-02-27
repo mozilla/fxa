@@ -20,7 +20,6 @@ packages/fxa-dev-launcher
 packages/fxa-content-server/dist
 packages/fxa-settings/build/dev
 packages/123done
-packages/fortress
 packages/functional-tests
 
 # Ignore generated credentials from google-github-actions/auth

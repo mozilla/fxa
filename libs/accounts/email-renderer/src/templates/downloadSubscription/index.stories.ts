@@ -13,7 +13,7 @@ export default {
 const data = {
   icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
   link: 'http://getfirefox.com/',
-  productName: 'Firefox Fortress',
+  productName: '123Done Pro',
   subscriptionSupportUrl: 'http://localhost:3030/support',
   playStoreLink:
     'https://play.google.com/store/apps/details?id=org.mozilla.firefox',

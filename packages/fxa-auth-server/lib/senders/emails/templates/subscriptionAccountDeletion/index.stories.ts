@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionAccountDeletion',
   'Sent when a user with an active subscription deletes their Mozilla account.',
   {
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     isCancellationEmail: true,
     invoiceTotal: '$20',
     invoiceDateOnly: '11/13/2021',

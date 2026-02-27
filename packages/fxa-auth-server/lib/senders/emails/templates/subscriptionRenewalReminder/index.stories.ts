@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionRenewalReminder',
   'Sent to remind a user of an upcoming automatic subscription renewal X days out from charge',
   {
-    productName: 'Firefox Fortress',
+    productName: '123Done Pro',
     invoiceTotal: '$20.00',
     planInterval: 'month',
     reminderLength: '7',

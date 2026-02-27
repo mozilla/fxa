@@ -217,7 +217,7 @@ describe('lib/glean', () => {
 
     it('sets the metrics values', async () => {
       mockFlowEventMetadata = {
-        entrypoint: 'firefox_fortress',
+        entrypoint: '123done',
         flowId: '0f0f',
         utmCampaign: 'quux',
         utmContent: 'fizz',
@@ -228,7 +228,7 @@ describe('lib/glean', () => {
         entrypointVariation: 'earth',
       };
       mockClientId = '133t';
-      mockService = 'fortress';
+      mockService = '123done';
       mockDeviceType = 'banana_phone';
 
       await GleanMetrics.registration.view();
