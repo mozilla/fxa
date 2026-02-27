@@ -13,6 +13,7 @@ export * from './lib/queries/capability-service-by-plan-ids';
 export * from './lib/queries/churn-intervention-by-product-id';
 export * from './lib/queries/eligibility-content-by-offering';
 export * from './lib/queries/eligibility-content-by-plan-ids';
+export * from './lib/queries/free-trial';
 export * from './lib/queries/iap-offerings-by-storeids';
 export * from './lib/queries/legal-terms';
 export * from './lib/queries/offering';
