@@ -331,13 +331,20 @@ describe('/recovery_phone', () => {
       );
     });
 
-    it('requires a passwordForgotToken', () => {
+    it('requires a passwordForgotToken or account reset token', () => {
       const route = getRoute(
         routes,
         '/recovery_phone/reset_password/send_code',
         'POST'
       );
-      assert.equal(route.options.auth.strategy, 'passwordForgotToken');
+      assert.include(
+        route.options.auth.strategies,
+        'multiStrategyPasswordForgotToken'
+      );
+      assert.include(
+        route.options.auth.strategies,
+        'multiStrategyAccountResetToken'
+      );
     });
   });
 

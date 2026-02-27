@@ -7,6 +7,7 @@ import {
   VerificationMethod,
   verificationMethodToNumber,
 } from './session-token';
+import { Account } from './account';
 
 export class AccountResetToken extends BaseAuthModel {
   public static tableName = 'accountResetTokens';
@@ -21,6 +22,7 @@ export class AccountResetToken extends BaseAuthModel {
   verificationMethod!: number;
 
   // joined fields (from accountResetToken_# stored proc)
+  email!: string;
   verifierSetAt!: number;
 
   static async delete(id: string) {
@@ -31,13 +33,30 @@ export class AccountResetToken extends BaseAuthModel {
   }
 
   static async findByTokenId(id: string) {
-    const { rows } = await AccountResetToken.callProcedure(
-      Proc.AccountResetToken,
-      uuidTransformer.to(id)
+    const a = Account.tableName;
+    const t = AccountResetToken.tableName;
+    return (
+      AccountResetToken.query()
+        .join(a, `${a}.uid`, '=', `${t}.uid`)
+        .where('tokenId', uuidTransformer.to(id))
+        .select(
+          `${t}.uid`,
+          `${t}.tokenData`,
+          `${t}.createdAt`,
+          `${a}.verifierSetAt`,
+          `${t}.verificationMethod`,
+          `${a}.email`
+        )
+        .first() || null
     );
-    if (!rows.length) {
-      return null;
-    }
-    return AccountResetToken.fromDatabaseJson(rows[0]);
+  }
+
+  static async updateVerificationMethod(
+    id: string,
+    method: VerificationMethod | number
+  ) {
+    await AccountResetToken.query()
+      .update({ verificationMethod: verificationMethodToNumber(method) })
+      .where('tokenId', uuidTransformer.to(id));
   }
 }

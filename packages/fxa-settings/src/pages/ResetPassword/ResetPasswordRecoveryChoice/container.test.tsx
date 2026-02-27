@@ -39,9 +39,8 @@ function mockModelsModule({
   }),
   mockRecoveryPhonePasswordResetSendCode = jest.fn().mockResolvedValue(true),
 }) {
-  mockAuthClient.getRecoveryCodesExistWithPasswordForgotToken =
-    mockGetRecoveryCodesExist;
-  mockAuthClient.recoveryPhoneGetWithPasswordForgotToken = mockRecoveryPhoneGet;
+  mockAuthClient.getRecoveryCodesExist = mockGetRecoveryCodesExist;
+  mockAuthClient.recoveryPhoneGet = mockRecoveryPhoneGet;
   mockAuthClient.recoveryPhonePasswordResetSendCode =
     mockRecoveryPhonePasswordResetSendCode;
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
@@ -83,6 +82,7 @@ function applyDefaultMocks() {
   mockLoadingSpinnerModule();
   mockReachRouter('reset_password_totp_recovery_choice', {
     token: 'tok',
+    kind: 'kind',
   });
 }
 
@@ -119,12 +119,8 @@ describe('ResetPasswordRecoveryChoice container', () => {
     it('fetches recovery codes and phone number successfully', async () => {
       render();
       await waitFor(() => {
-        expect(
-          mockAuthClient.getRecoveryCodesExistWithPasswordForgotToken
-        ).toHaveBeenCalled();
-        expect(
-          mockAuthClient.recoveryPhoneGetWithPasswordForgotToken
-        ).toHaveBeenCalled();
+        expect(mockAuthClient.getRecoveryCodesExist).toHaveBeenCalled();
+        expect(mockAuthClient.recoveryPhoneGet).toHaveBeenCalled();
         expect(mockResetPasswordRecoveryChoice).toHaveBeenCalled();
       });
     });
@@ -139,7 +135,7 @@ describe('ResetPasswordRecoveryChoice container', () => {
             maskedPhoneNumber: 'Number ending in 1234',
             handlePhoneChoice: expect.any(Function),
             numBackupCodes: 3,
-            completeResetPasswordLocationState: { token: 'tok' },
+            completeResetPasswordLocationState: { token: 'tok', kind: 'kind' },
           },
           {}
         );
@@ -157,12 +153,13 @@ describe('ResetPasswordRecoveryChoice container', () => {
       await waitFor(() => {
         expect(
           mockAuthClient.recoveryPhonePasswordResetSendCode
-        ).toHaveBeenCalledWith('tok');
+        ).toHaveBeenCalledWith('tok', 'kind');
         expect(mockNavigate).toHaveBeenCalledWith(
           '/reset_password_recovery_phone',
           {
             state: {
               token: 'tok',
+              kind: 'kind',
               lastFourPhoneDigits: '1234',
               numBackupCodes: 0,
               sendError: undefined,
@@ -187,12 +184,13 @@ describe('ResetPasswordRecoveryChoice container', () => {
       await waitFor(() => {
         expect(
           mockAuthClient.recoveryPhonePasswordResetSendCode
-        ).toHaveBeenCalledWith('tok');
+        ).toHaveBeenCalledWith('tok', 'kind');
         expect(mockNavigate).toHaveBeenCalledWith(
           '/reset_password_recovery_phone',
           {
             state: {
               token: 'tok',
+              kind: 'kind',
               lastFourPhoneDigits: '1234',
               numBackupCodes: 0,
               sendError: AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED,
@@ -209,18 +207,14 @@ describe('ResetPasswordRecoveryChoice container', () => {
       });
       render();
       await waitFor(() => {
-        expect(
-          mockAuthClient.getRecoveryCodesExistWithPasswordForgotToken
-        ).toHaveBeenCalled();
-        expect(
-          mockAuthClient.recoveryPhoneGetWithPasswordForgotToken
-        ).toHaveBeenCalled();
+        expect(mockAuthClient.getRecoveryCodesExist).toHaveBeenCalled();
+        expect(mockAuthClient.recoveryPhoneGet).toHaveBeenCalled();
         expect(mockResetPasswordRecoveryChoice).not.toHaveBeenCalled();
         expect(mockNavigate).toHaveBeenCalledWith(
           '/confirm_backup_code_reset_password',
           {
             replace: true,
-            state: { token: 'tok' },
+            state: { token: 'tok', kind: 'kind' },
           }
         );
       });
@@ -236,12 +230,13 @@ describe('ResetPasswordRecoveryChoice container', () => {
       await waitFor(() => {
         expect(
           mockAuthClient.recoveryPhonePasswordResetSendCode
-        ).toHaveBeenCalledWith('tok');
+        ).toHaveBeenCalledWith('tok', 'kind');
         expect(mockNavigate).toHaveBeenCalledWith(
           '/reset_password_recovery_phone',
           {
             state: {
               token: 'tok',
+              kind: 'kind',
               lastFourPhoneDigits: '1234',
               numBackupCodes: 0,
               sendError: undefined,
@@ -264,7 +259,7 @@ describe('ResetPasswordRecoveryChoice container', () => {
           '/confirm_backup_code_reset_password',
           {
             replace: true,
-            state: { token: 'tok' },
+            state: { token: 'tok', kind: 'kind' },
           }
         );
       });
@@ -285,7 +280,7 @@ describe('ResetPasswordRecoveryChoice container', () => {
           '/confirm_backup_code_reset_password',
           {
             replace: true,
-            state: { token: 'tok' },
+            state: { token: 'tok', kind: 'kind' },
           }
         );
       });

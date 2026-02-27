@@ -5,7 +5,10 @@ import { AuthCredentials, Request, RequestApplicationState } from '@hapi/hapi';
 import { Token } from 'typedi';
 import { Logger } from 'mozlog';
 import { ConfigType } from '../config';
-import { PasswordForgotToken } from 'fxa-shared/db/models/auth';
+import {
+  AccountResetToken,
+  PasswordForgotToken,
+} from 'fxa-shared/db/models/auth';
 
 /**
  * Auth-Server specific interfaces to use objects.
@@ -47,6 +50,7 @@ export interface AuthApp extends RequestApplicationState {
 }
 
 export interface AuthCredential {
+  id: string;
   uid: string;
   email: string | null;
 }
@@ -85,8 +89,10 @@ export interface AuthRequest extends Request {
     // the auth-oauth scheme
     credentials:
       | AuthCredentialsWithScope
+      | AuthCredential
       | SessionTokenAuthCredential
-      | PasswordForgotToken;
+      | PasswordForgotToken
+      | AccountResetToken;
   };
   // eslint-disable-next-line no-use-before-define
   log: AuthLogger;

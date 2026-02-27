@@ -14,6 +14,7 @@ import { ResendStatus } from '../../../lib/types';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
+import { ResetPasswordTokenTypes, tokenType } from 'fxa-auth-client/browser';
 
 const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
@@ -41,6 +42,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     code: string,
     emailToHashWith: string,
     token: string,
+    kind: ResetPasswordTokenTypes,
     uid: string,
     estimatedSyncDeviceCount?: number,
     recoveryKeyExists?: boolean,
@@ -57,6 +59,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
           recoveryKeyExists,
           recoveryKeyHint,
           token,
+          kind,
           uid,
         },
         replace: true,
@@ -71,6 +74,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
           recoveryKeyExists,
           recoveryKeyHint,
           token,
+          kind,
           uid,
           totpExists,
         },
@@ -85,6 +89,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
           estimatedSyncDeviceCount,
           recoveryKeyExists,
           token,
+          kind,
           uid,
         },
         replace: true,
@@ -106,10 +111,6 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     }
   };
 
-  const checkForTotp = async (token: string) => {
-    return await authClient.checkTotpTokenExistsWithPasswordForgotToken(token);
-  };
-
   const clearBanners = () => {
     setErrorMessage('');
     setResendErrorMessage('');
@@ -128,13 +129,17 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         hint: recoveryKeyHint,
         estimatedSyncDeviceCount,
       } = await checkForRecoveryKey(token);
-      const totpStatus = await checkForTotp(token);
+      const totpStatus = await authClient.checkTotpTokenExists(
+        token,
+        tokenType.passwordForgotToken
+      );
       const totpExists = totpStatus.exists && totpStatus.verified;
 
       handleNavigation(
         code,
         emailToHashWith,
         token,
+        tokenType.passwordForgotToken,
         uid,
         estimatedSyncDeviceCount,
         recoveryKeyExists,

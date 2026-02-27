@@ -18,6 +18,7 @@ const ConfirmBackupCodeResetPasswordContainer = (_: RouteComponentProps) => {
     code,
     email,
     token,
+    kind,
     emailToHashWith,
     recoveryKeyExists,
     estimatedSyncDeviceCount,
@@ -38,6 +39,7 @@ const ConfirmBackupCodeResetPasswordContainer = (_: RouteComponentProps) => {
         estimatedSyncDeviceCount,
         recoveryKeyExists,
         token,
+        kind,
         uid,
       },
       replace: true,
@@ -47,10 +49,7 @@ const ConfirmBackupCodeResetPasswordContainer = (_: RouteComponentProps) => {
   const verifyBackupCode = async (backupCode: string) => {
     setCodeErrorMessage('');
     try {
-      await authClient.consumeRecoveryCodeWithPasswordForgotToken(
-        token,
-        backupCode
-      );
+      await authClient.consumeTotpRecoveryCode(token, kind, backupCode);
       onSuccess();
     } catch (error) {
       setCodeErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));

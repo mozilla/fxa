@@ -9,6 +9,7 @@ import { SyncEngines, WebChannelServices } from '../lib/channels/firefox';
 import { MOCK_ACCOUNT } from '../models/mocks';
 import { Integration, IntegrationType } from '../models';
 import PLACEHOLDER_IMAGE_URL from './cat.jpg';
+import { tokenType } from 'fxa-auth-client/browser';
 
 export const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
 export const MOCK_UID = 'abcd1234abcd1234abcd1234abcd1234';
@@ -53,6 +54,7 @@ export const mockFinishOAuthFlowHandler = () =>
   Promise.resolve(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
 export const MOCK_WRAP_KB = '0123456789abcdef0123456789abcdef';
 export const MOCK_HEXSTRING_32 = '0123456789abcdef0123456789abcdef';
+export const MOCK_PASSWORD_FORGOT_TOKEN_KIND = tokenType.passwordForgotToken;
 
 export const MOCK_CLIENT_SALT =
   'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
@@ -61,6 +63,7 @@ export const MOCK_UNWRAP_BKEY_V2 = '20000000000000000123456789abcdef';
 export const MOCK_WRAP_KB_V2 = '20000000000000000123456789abcdef';
 export const MOCK_AUTH_PW_V2 = 'apw234';
 export const MOCK_PASSWORD_CHANGE_TOKEN = '123456789abcdef0';
+export const MOCK_PASSWORD_CHANGE_TOKEN_KIND = 'passwordForgotToken';
 export const MOCK_FLOW_ID = '00ff';
 
 export function mockLoadingSpinnerModule() {

@@ -33,6 +33,7 @@ import { LocationState } from '../../Signin/interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { tokenType } from 'fxa-auth-client/browser';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -69,6 +70,7 @@ const CompleteResetPasswordContainer = ({
     code,
     email,
     token,
+    kind,
     accountResetToken,
     emailToHashWith,
     recoveryKeyId,
@@ -189,28 +191,6 @@ const CompleteResetPasswordContainer = ({
     return accountResetData;
   };
 
-  const resetPasswordWithoutRecoveryKey = async (
-    code: string,
-    emailToUse: string,
-    newPassword: string,
-    token: string,
-    includeRecoveryKeyPrompt: boolean
-  ) => {
-    // TODO in FXA-9672: do not use Account model in reset password pages
-    const accountResetData: AccountResetData =
-      await account.completeResetPassword(
-        keyStretchExperiment.queryParamModel.isV2(config),
-        token,
-        code,
-        emailToUse,
-        newPassword,
-        undefined,
-        undefined,
-        includeRecoveryKeyPrompt
-      );
-    return accountResetData;
-  };
-
   const notifyClientOfSignin = async (accountResetData: AccountResetData) => {
     // Users will not be verified if they have 2FA. If this is the case, users are
     // taken back to `/signin`, where they can sign in with 2FA and login to Sync.
@@ -326,13 +306,19 @@ const CompleteResetPasswordContainer = ({
         const reason = recoveryKeyExists ? 'with key' : 'without key';
         GleanMetrics.passwordReset.createNewSubmit({ event: { reason } });
         const includeRecoveryKeyPrompt = !!isSyncUser;
-        const accountResetData = await resetPasswordWithoutRecoveryKey(
-          code,
-          emailToUse,
-          newPassword,
-          token,
-          includeRecoveryKeyPrompt
-        );
+        const accountResetData: AccountResetData =
+          await account.completeResetPassword(
+            keyStretchExperiment.queryParamModel.isV2(config),
+            token,
+            kind,
+            code,
+            emailToUse,
+            newPassword,
+            kind === tokenType.accountResetToken ? token : accountResetToken,
+            undefined,
+            includeRecoveryKeyPrompt
+          );
+
         // TODO add frontend Glean event for successful reset?
         await notifyClientOfSignin(accountResetData);
 

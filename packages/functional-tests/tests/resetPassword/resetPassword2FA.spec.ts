@@ -338,6 +338,176 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.recoveryKey.status).toHaveText('Not Set');
   });
 
+  test('provide invalid recovery key then reset with totp authenticator code', async ({
+    page,
+    target,
+    pages: {
+      signin,
+      resetPassword,
+      settings,
+      totp,
+      confirmTotpResetPassword,
+      recoveryKey,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+
+    // Sign Into Settings
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+    await expect(page).toHaveURL(/settings/);
+
+    // Create Recovery Key
+    await settings.recoveryKey.createButton.click();
+    await settings.confirmMfaGuard(credentials.email);
+    await recoveryKey.createRecoveryKey(credentials.password, 'hint');
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
+
+    // Enable 2FA
+    await expect(settings.totp.status).toHaveText('Disabled');
+    await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
+    const { secret } =
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toContainText(
+      'Two-step authentication has been enabled'
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    // Start Reset Password Flow
+    await settings.signOut();
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.forgotPasswordLink.click();
+    await resetPassword.fillOutEmailForm(credentials.email);
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+    await await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    // Enter Invalid Recovery Key
+    await expect(resetPassword.confirmRecoveryKeyHeading).toBeVisible();
+    await resetPassword.recoveryKeyTextbox.fill(
+      '12345678-12345678-12345678-12345678'
+    );
+    await resetPassword.confirmRecoveryKeyButton.click();
+    await expect(resetPassword.errorBanner).toBeVisible();
+
+    // Note! This is the start of edge case this test validates. When we provided
+    // a recovery key, we took our password forgot token and exchange it for an
+    // account reset token, which resulted in the passwordForgotToken becoming
+    // invalid. We therefore must use the account reset token for the rest of
+    // the web requests in this flow.
+
+    // Click Forgot Key Link
+    await resetPassword.forgotKeyLink.click();
+
+    // Provide TOTP Code from Authenticator
+    await page.waitForURL(/confirm_totp_reset_password/);
+    await expect(page.getByLabel('Enter 6-digit code')).toBeVisible();
+    const totpCode = await getTotpCode(secret);
+    await confirmTotpResetPassword.fillOutCodeForm(totpCode);
+
+    // Create a New Password
+    await expect(resetPassword.dataLossWarning).toBeVisible();
+    const newPassword = testAccountTracker.generatePassword();
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
+
+    // Observe Settings
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toHaveText('Your password has been reset');
+  });
+
+  test('provide invalid recovery key then reset with totp back up code', async ({
+    page,
+    target,
+    pages: { signin, resetPassword, settings, totp, recoveryKey },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+
+    // Sign Into Settings
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    // Create Recovery Key
+    await expect(page).toHaveURL(/settings/);
+    await settings.recoveryKey.createButton.click();
+    await settings.confirmMfaGuard(credentials.email);
+    await recoveryKey.createRecoveryKey(credentials.password, 'hint');
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
+
+    // Enable 2FA
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.totp.status).toHaveText('Disabled');
+    await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
+    const { recoveryCodes } =
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toContainText(
+      'Two-step authentication has been enabled'
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    // Start Reset Password Flow
+    await settings.signOut();
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.forgotPasswordLink.click();
+    await resetPassword.fillOutEmailForm(credentials.email);
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    // Enter Invalid Recovery Key
+    await expect(resetPassword.confirmRecoveryKeyHeading).toBeVisible();
+    await resetPassword.recoveryKeyTextbox.fill(
+      '12345678-12345678-12345678-12345678'
+    );
+    await resetPassword.confirmRecoveryKeyButton.click();
+    await expect(resetPassword.errorBanner).toBeVisible();
+
+    /// Note! This is the start of edge case this test validates. When we provided
+    // a recovery key, we took our password forgot token and exchange it for an
+    // account reset token, which resulted in the passwordForgotToken becoming
+    // invalid. We therefore must use the account reset token for the rest of
+    // the web requests in this flow.
+
+    // Click Forgot Key Link
+    await resetPassword.forgotKeyLink.click();
+
+    // Verify TOTP code entry page is shown
+    await page.waitForURL(/confirm_totp_reset_password/);
+    await expect(page.getByLabel('Enter 6-digit code')).toBeVisible();
+    await resetPassword.clickTroubleEnteringCode();
+
+    // Provide a Backup TOTP Codes
+    await expect(totp.confirmBackupCodeHeading).toBeVisible();
+    await totp.confirmBackupCodeTextbox.fill(recoveryCodes[0]);
+    await totp.confirmBackupCodeConfirmButton.click();
+
+    // Create a New Password
+    await expect(resetPassword.dataLossWarning).toBeVisible();
+    const newPassword = testAccountTracker.generatePassword();
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
+
+    // Observe Settings Page
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toHaveText('Your password has been reset');
+  });
+
   test('can reset password with unverified 2FA and skip recovery key', async ({
     page,
     target,
@@ -569,5 +739,115 @@ test.describe('reset password with recovery phone', () => {
     await expect(settings.alertBar).toHaveText('Your password has been reset');
 
     await expect(settings.settingsHeading).toBeVisible();
+  });
+
+  test('provide invalid recovery key then reset with recovery phone', async ({
+    page,
+    target,
+    pages: {
+      signin,
+      resetPassword,
+      settings,
+      totp,
+      recoveryKey,
+      recoveryPhone,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    const testNumber = target.smsClient.getPhoneNumber();
+
+    // Sign Into Settings
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+    await expect(page).toHaveURL(/settings/);
+
+    // Create Recovery Key
+    await settings.recoveryKey.createButton.click();
+    await settings.confirmMfaGuard(credentials.email);
+    await recoveryKey.createRecoveryKey(credentials.password, 'hint');
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
+
+    // Enable 2FA
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.totp.status).toHaveText('Disabled');
+    await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
+    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toContainText(
+      'Two-step authentication has been enabled'
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    // Enable Recovery Phone
+    await settings.totp.addRecoveryPhoneButton.click();
+    await page.waitForURL(/recovery_phone\/setup/);
+    await expect(recoveryPhone.addHeader()).toBeVisible();
+    await recoveryPhone.enterPhoneNumber(testNumber);
+    await recoveryPhone.clickSendCode();
+    await expect(recoveryPhone.confirmHeader).toBeVisible();
+    let smsCode = await target.smsClient.getCode({ ...credentials });
+    await recoveryPhone.enterCode(smsCode);
+    await recoveryPhone.clickConfirm();
+    await page.waitForURL(/settings/);
+    await expect(settings.alertBar).toHaveText('Recovery phone added');
+
+    // Start Reset Password Flow
+    await settings.signOut();
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.forgotPasswordLink.click();
+    await resetPassword.fillOutEmailForm(credentials.email);
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+    await expect(resetPassword.confirmRecoveryKeyHeading).toBeVisible();
+
+    // Enter Invalid Recovery Key
+    await resetPassword.recoveryKeyTextbox.fill(
+      '12345678-12345678-12345678-12345678'
+    );
+    await resetPassword.confirmRecoveryKeyButton.click();
+    await expect(resetPassword.errorBanner).toBeVisible();
+
+    // Note! This is the start of edge case this test validates. When we provided
+    // a recovery key, we took our password forgot token and exchange it for an
+    // account reset token, which resulted in the passwordForgotToken becoming
+    // invalid. We therefore must use the account reset token for the rest of
+    // the web requests in this flow.
+
+    // Click Forgot Key Link
+    await resetPassword.forgotKeyLink.click();
+
+    // Verify TOTP code entry page is shown
+    await page.waitForURL(/confirm_totp_reset_password/);
+    await expect(page.getByLabel('Enter 6-digit code')).toBeVisible();
+    await resetPassword.clickTroubleEnteringCode();
+
+    // Choose Recovery Phone Option
+    await page.waitForURL(/reset_password_totp_recovery_choice/);
+    await resetPassword.clickChoosePhone();
+    await resetPassword.clickContinueButton();
+
+    // Provide SMS Code
+    await page.waitForURL(/reset_password_recovery_phone/);
+
+    smsCode = await target.smsClient.getCode({ ...credentials });
+    await resetPassword.fillRecoveryPhoneCodeForm(smsCode);
+    await resetPassword.clickConfirmButton();
+
+    // Create a New Password
+    await expect(resetPassword.dataLossWarning).toBeVisible();
+    const newPassword = testAccountTracker.generatePassword();
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
+
+    // Observe Settings Page
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toHaveText('Your password has been reset');
   });
 });

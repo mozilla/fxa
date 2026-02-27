@@ -820,6 +820,7 @@ module.exports = (
           strategies: [
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
+            'multiStrategyAccountResetToken',
           ],
         },
         response: {
@@ -858,7 +859,10 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_VERIFY_POST,
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: [
+            'multiStrategyPasswordForgotToken',
+            'multiStrategyAccountResetToken',
+          ],
           payload: 'required',
         },
         validate: {
@@ -881,17 +885,17 @@ module.exports = (
         log.begin('totp.verify', request);
 
         const code = request.payload.code;
-        const passwordForgotToken = request.auth.credentials;
+        const authToken = request.auth.credentials;
 
         await customs.checkAuthenticated(
           request,
-          passwordForgotToken.uid,
-          passwordForgotToken.email,
+          authToken.uid,
+          authToken.email,
           'verifyTotpCode'
         );
 
         try {
-          const totpRecord = await db.totpToken(passwordForgotToken.uid);
+          const totpRecord = await db.totpToken(authToken.uid);
           const sharedSecret = totpRecord.sharedSecret;
 
           // Default options for TOTP
@@ -910,13 +914,21 @@ module.exports = (
 
           if (isValidCode) {
             glean.resetPassword.twoFactorSuccess(request, {
-              uid: passwordForgotToken.uid,
+              uid: authToken.uid,
             });
 
-            await db.verifyPasswordForgotTokenWithMethod(
-              passwordForgotToken.id,
-              'totp-2fa'
-            );
+            const { strategy } = request.auth;
+            if (strategy === 'multiStrategyPasswordForgotToken')
+              await db.verifyPasswordForgotTokenWithMethod(
+                authToken.id,
+                'totp-2fa'
+              );
+            else if (strategy === 'multiStrategyAccountResetToken') {
+              await db.verifyAccountResetTokenWithMethod(
+                authToken.id,
+                'totp-2fa'
+              );
+            }
           }
 
           return {
@@ -938,7 +950,10 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_VERIFY_RECOVERY_CODE_POST,
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: [
+            'multiStrategyPasswordForgotToken',
+            'multiStrategyAccountResetToken',
+          ],
         },
         validate: {
           payload: isA.object({
@@ -961,7 +976,7 @@ module.exports = (
 
         const code = request.payload.code;
         const { uid, email } = request.auth.credentials;
-        const passwordForgotToken = request.auth.credentials;
+        const authToken = request.auth.credentials;
 
         await customs.checkAuthenticated(
           request,
@@ -1036,10 +1051,19 @@ module.exports = (
           uid,
         });
 
-        await db.verifyPasswordForgotTokenWithMethod(
-          passwordForgotToken.id,
-          'recovery-code'
-        );
+        // Mark auth token as verified
+        const { strategy } = request.auth;
+        if (strategy === 'multiStrategyPasswordForgotToken') {
+          await db.verifyPasswordForgotTokenWithMethod(
+            authToken.id,
+            'recovery-code'
+          );
+        } else if (strategy === 'multiStrategyAccountResetToken') {
+          await db.verifyAccountResetTokenWithMethod(
+            authToken.id,
+            'recovery-code'
+          );
+        }
 
         return {
           remaining,

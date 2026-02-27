@@ -6,14 +6,19 @@ import React from 'react';
 import { LocationProvider } from '@reach/router';
 import { act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { MOCK_EMAIL, MOCK_PASSWORD_CHANGE_TOKEN, MOCK_UID } from '../../mocks';
+import {
+  MOCK_EMAIL,
+  MOCK_PASSWORD_CHANGE_TOKEN,
+  MOCK_PASSWORD_CHANGE_TOKEN_KIND,
+  MOCK_UID,
+} from '../../mocks';
 import ConfirmBackupCodeResetPasswordContainer from './container';
 
 const mockConsume = jest.fn();
 jest.mock('../../../models', () => ({
   __esModule: true,
   useAuthClient: () => ({
-    consumeRecoveryCodeWithPasswordForgotToken: mockConsume,
+    consumeTotpRecoveryCode: mockConsume,
   }),
   useFtlMsgResolver: () => ({
     getMsg: (_id: string, fallback: string) => fallback,
@@ -29,6 +34,7 @@ let mockLocationState = {
   code: 'ignored',
   email: MOCK_EMAIL,
   token: MOCK_PASSWORD_CHANGE_TOKEN,
+  kind: MOCK_PASSWORD_CHANGE_TOKEN_KIND,
   emailToHashWith: MOCK_EMAIL,
   recoveryKeyExists: false,
   estimatedSyncDeviceCount: 2,
@@ -79,12 +85,14 @@ describe('ConfirmBackupCodeResetPasswordContainer', () => {
 
     expect(mockConsume).toHaveBeenCalledWith(
       MOCK_PASSWORD_CHANGE_TOKEN,
+      MOCK_PASSWORD_CHANGE_TOKEN_KIND,
       'BACKUPCODE'
     );
 
     expect(mockNavigate).toHaveBeenCalledWith('/complete_reset_password', {
       state: expect.objectContaining({
         token: MOCK_PASSWORD_CHANGE_TOKEN,
+        kind: MOCK_PASSWORD_CHANGE_TOKEN_KIND,
         email: MOCK_EMAIL,
         uid: MOCK_UID,
       }),

@@ -1187,7 +1187,10 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_FORGOT_VERIFY_CODE_POST,
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: [
+            'multiStrategyPasswordForgotToken',
+            'multiStrategyAccountResetToken',
+          ],
           payload: 'required',
         },
         validate: {

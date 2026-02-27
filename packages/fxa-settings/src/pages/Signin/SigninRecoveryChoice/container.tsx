@@ -72,15 +72,15 @@ export const SigninRecoveryChoiceContainer = ({
           await authClient.recoveryPhoneGet(signinState.sessionToken);
 
         const { maskedPhoneNumber, lastFourPhoneDigits } = formatPhoneNumber({
-          phoneNumber,
-          nationalFormat,
+          phoneNumber: phoneNumber || '',
+          nationalFormat: nationalFormat || '',
           ftlMsgResolver,
         });
         setPhoneData({
-          phoneNumber,
-          nationalFormat,
-          maskedPhoneNumber,
-          lastFourPhoneDigits,
+          phoneNumber: phoneNumber || '',
+          nationalFormat: nationalFormat || '',
+          maskedPhoneNumber: maskedPhoneNumber || '',
+          lastFourPhoneDigits: lastFourPhoneDigits || '',
         });
         phoneSuccess = true;
       } catch (err) {

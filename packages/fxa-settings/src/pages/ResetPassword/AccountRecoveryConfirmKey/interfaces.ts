@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { tokenType } from 'fxa-auth-client/browser';
+
 export interface AccountRecoveryConfirmKeyFormData {
   recoveryKey: string;
 }
@@ -11,6 +13,7 @@ export interface AccountRecoveryConfirmKeyLocationState {
   email: string;
   estimatedSyncDeviceCount: number;
   token: string;
+  kind: tokenType.passwordForgotToken;
   uid: string;
   accountResetToken?: string;
   emailToHashWith?: string;

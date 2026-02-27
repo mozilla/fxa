@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { MOCK_EMAIL, MOCK_HEXSTRING_32, MOCK_UID } from '../../mocks';
+import {
+  MOCK_EMAIL,
+  MOCK_HEXSTRING_32,
+  MOCK_PASSWORD_FORGOT_TOKEN_KIND,
+  MOCK_UID,
+} from '../../mocks';
 import AccountRecoveryConfirmKey from '.';
 import { LocationProvider } from '@reach/router';
 import { AccountRecoveryConfirmKeyProps } from './interfaces';
@@ -20,6 +25,7 @@ export const Subject = ({
   const email = MOCK_EMAIL;
   const estimatedSyncDeviceCount = 2;
   const token = MOCK_HEXSTRING_32;
+  const kind = MOCK_PASSWORD_FORGOT_TOKEN_KIND;
   const uid = MOCK_UID;
   const mockVerifyRecoveryKey = success
     ? () => Promise.resolve()
@@ -42,6 +48,7 @@ export const Subject = ({
           setErrorMessage,
           setIsSubmitDisabled,
           token,
+          kind,
           uid,
         }}
       />
