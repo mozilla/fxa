@@ -10,6 +10,8 @@ const AUTH_SERVER_ROOT = path.resolve(__dirname, '../..');
 const TMP_DIR = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp');
 const MAIL_HELPER_PID_FILE = path.join(TMP_DIR, 'mail_helper.pid');
 const SHARED_SERVER_PID_FILE = path.join(TMP_DIR, 'shared_server.pid');
+const VERSION_JSON_PATH = path.join(AUTH_SERVER_ROOT, 'config', 'version.json');
+const VERSION_JSON_MARKER = path.join(TMP_DIR, 'version_json_created');
 
 interface NodeError extends Error {
   code?: string;
@@ -39,6 +41,12 @@ function killProcessByPidFile(pidFile: string, label: string): void {
     fs.unlinkSync(pidFile);
   } catch (err) {
     console.error(`[Jest Global Teardown] Error cleaning up ${label}:`, err);
+  }
+
+  // Clean up version.json if we created it
+  if (fs.existsSync(VERSION_JSON_MARKER)) {
+    try { fs.unlinkSync(VERSION_JSON_PATH); } catch { /* ignore */ }
+    try { fs.unlinkSync(VERSION_JSON_MARKER); } catch { /* ignore */ }
   }
 }
 
