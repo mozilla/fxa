@@ -858,7 +858,58 @@ export type FloatFilterInput = {
   startsWith: InputMaybe<Scalars['Float']['input']>;
 };
 
-export type GenericMorph = CancelInterstitialOffer | Capability | ChurnIntervention | CommonContent | ComponentAccountsEmailConfig | ComponentAccountsFeatureFlags | ComponentAccountsImage | ComponentAccountsPageConfig | ComponentAccountsShared | ComponentAccountsSharedBackgrounds | ComponentAccountsTosAndPrivacyNoticeDetails | ComponentIapAppleProductIDs | ComponentIapGoogleSkUs | ComponentIapStripeLegacyIapPrices | ComponentIapStripePlanChoices | ComponentStripeStripeLegacyPlans | ComponentStripeStripePlanChoices | ComponentStripeStripePromoCodes | CouponConfig | I18NLocale | Iap | LegalNotice | Offering | Purchase | PurchaseDetail | RelyingParty | ReviewWorkflowsWorkflow | ReviewWorkflowsWorkflowStage | Service | Subgroup | UploadFile | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
+export type FreeTrial = {
+  __typename?: 'FreeTrial';
+  cooldownPeriodMonths: Scalars['Int']['output'];
+  countries: Scalars['JSON']['output'];
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  documentId: Scalars['ID']['output'];
+  internalName: Scalars['String']['output'];
+  intervals: Scalars['JSON']['output'];
+  offering: Maybe<Offering>;
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  trialLengthDays: Scalars['Int']['output'];
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type FreeTrialEntityResponseCollection = {
+  __typename?: 'FreeTrialEntityResponseCollection';
+  nodes: Array<FreeTrial>;
+  pageInfo: Pagination;
+};
+
+export type FreeTrialFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<FreeTrialFiltersInput>>>;
+  cooldownPeriodMonths: InputMaybe<IntFilterInput>;
+  countries: InputMaybe<JsonFilterInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  documentId: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  intervals: InputMaybe<JsonFilterInput>;
+  not: InputMaybe<FreeTrialFiltersInput>;
+  offering: InputMaybe<OfferingFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<FreeTrialFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  trialLengthDays: InputMaybe<IntFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type FreeTrialInput = {
+  cooldownPeriodMonths: InputMaybe<Scalars['Int']['input']>;
+  countries: InputMaybe<Scalars['JSON']['input']>;
+  internalName: InputMaybe<Scalars['String']['input']>;
+  intervals: InputMaybe<Scalars['JSON']['input']>;
+  offering: InputMaybe<Scalars['ID']['input']>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  trialLengthDays: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type FreeTrialRelationResponseCollection = {
+  __typename?: 'FreeTrialRelationResponseCollection';
+  nodes: Array<FreeTrial>;
+};
+
+export type GenericMorph = CancelInterstitialOffer | Capability | ChurnIntervention | CommonContent | ComponentAccountsEmailConfig | ComponentAccountsFeatureFlags | ComponentAccountsImage | ComponentAccountsPageConfig | ComponentAccountsShared | ComponentAccountsSharedBackgrounds | ComponentAccountsTosAndPrivacyNoticeDetails | ComponentIapAppleProductIDs | ComponentIapGoogleSkUs | ComponentIapStripeLegacyIapPrices | ComponentIapStripePlanChoices | ComponentStripeStripeLegacyPlans | ComponentStripeStripePlanChoices | ComponentStripeStripePromoCodes | CouponConfig | FreeTrial | I18NLocale | Iap | LegalNotice | Offering | Purchase | PurchaseDetail | RelyingParty | ReviewWorkflowsWorkflow | ReviewWorkflowsWorkflowStage | Service | Subgroup | UploadFile | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
 
 export type I18NLocale = {
   __typename?: 'I18NLocale';
@@ -1054,6 +1105,7 @@ export type Mutation = {
   createChurnIntervention: Maybe<ChurnIntervention>;
   createCommonContent: Maybe<CommonContent>;
   createCouponConfig: Maybe<CouponConfig>;
+  createFreeTrial: Maybe<FreeTrial>;
   createIap: Maybe<Iap>;
   createLegalNotice: Maybe<LegalNotice>;
   createOffering: Maybe<Offering>;
@@ -1073,6 +1125,7 @@ export type Mutation = {
   deleteChurnIntervention: Maybe<DeleteMutationResponse>;
   deleteCommonContent: Maybe<DeleteMutationResponse>;
   deleteCouponConfig: Maybe<DeleteMutationResponse>;
+  deleteFreeTrial: Maybe<DeleteMutationResponse>;
   deleteIap: Maybe<DeleteMutationResponse>;
   deleteLegalNotice: Maybe<DeleteMutationResponse>;
   deleteOffering: Maybe<DeleteMutationResponse>;
@@ -1102,6 +1155,7 @@ export type Mutation = {
   updateChurnIntervention: Maybe<ChurnIntervention>;
   updateCommonContent: Maybe<CommonContent>;
   updateCouponConfig: Maybe<CouponConfig>;
+  updateFreeTrial: Maybe<FreeTrial>;
   updateIap: Maybe<Iap>;
   updateLegalNotice: Maybe<LegalNotice>;
   updateOffering: Maybe<Offering>;
@@ -1156,6 +1210,12 @@ export type MutationCreateCommonContentArgs = {
 
 export type MutationCreateCouponConfigArgs = {
   data: CouponConfigInput;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type MutationCreateFreeTrialArgs = {
+  data: FreeTrialInput;
   status?: InputMaybe<PublicationStatus>;
 };
 
@@ -1255,6 +1315,11 @@ export type MutationDeleteCommonContentArgs = {
 
 
 export type MutationDeleteCouponConfigArgs = {
+  documentId: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteFreeTrialArgs = {
   documentId: Scalars['ID']['input'];
 };
 
@@ -1390,6 +1455,13 @@ export type MutationUpdateCouponConfigArgs = {
 };
 
 
+export type MutationUpdateFreeTrialArgs = {
+  data: FreeTrialInput;
+  documentId: Scalars['ID']['input'];
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
 export type MutationUpdateIapArgs = {
   data: IapInput;
   documentId: Scalars['ID']['input'];
@@ -1495,6 +1567,8 @@ export type Offering = {
   description: Maybe<Scalars['String']['output']>;
   documentId: Scalars['ID']['output'];
   experimentPurchase: Maybe<Purchase>;
+  free_trials: Array<Maybe<FreeTrial>>;
+  free_trials_connection: Maybe<FreeTrialRelationResponseCollection>;
   iaps: Array<Maybe<Iap>>;
   iaps_connection: Maybe<IapRelationResponseCollection>;
   internalName: Scalars['String']['output'];
@@ -1544,6 +1618,20 @@ export type OfferingChurnInterventionsArgs = {
 
 export type OfferingChurnInterventions_ConnectionArgs = {
   filters: InputMaybe<ChurnInterventionFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type OfferingFree_TrialsArgs = {
+  filters: InputMaybe<FreeTrialFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type OfferingFree_Trials_ConnectionArgs = {
+  filters: InputMaybe<FreeTrialFiltersInput>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
@@ -1603,6 +1691,7 @@ export type OfferingFiltersInput = {
   description: InputMaybe<StringFilterInput>;
   documentId: InputMaybe<IdFilterInput>;
   experimentPurchase: InputMaybe<PurchaseFiltersInput>;
+  free_trials: InputMaybe<FreeTrialFiltersInput>;
   iaps: InputMaybe<IapFiltersInput>;
   internalName: InputMaybe<StringFilterInput>;
   not: InputMaybe<OfferingFiltersInput>;
@@ -1625,6 +1714,7 @@ export type OfferingInput = {
   defaultPurchase: InputMaybe<Scalars['ID']['input']>;
   description: InputMaybe<Scalars['String']['input']>;
   experimentPurchase: InputMaybe<Scalars['ID']['input']>;
+  free_trials: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   iaps: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   internalName: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
@@ -1792,6 +1882,9 @@ export type Query = {
   couponConfig: Maybe<CouponConfig>;
   couponConfigs: Array<Maybe<CouponConfig>>;
   couponConfigs_connection: Maybe<CouponConfigEntityResponseCollection>;
+  freeTrial: Maybe<FreeTrial>;
+  freeTrials: Array<Maybe<FreeTrial>>;
+  freeTrials_connection: Maybe<FreeTrialEntityResponseCollection>;
   i18NLocale: Maybe<I18NLocale>;
   i18NLocales: Array<Maybe<I18NLocale>>;
   i18NLocales_connection: Maybe<I18NLocaleEntityResponseCollection>;
@@ -1951,6 +2044,28 @@ export type QueryCouponConfigsArgs = {
 
 export type QueryCouponConfigs_ConnectionArgs = {
   filters: InputMaybe<CouponConfigFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryFreeTrialArgs = {
+  documentId: Scalars['ID']['input'];
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryFreeTrialsArgs = {
+  filters: InputMaybe<FreeTrialFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status?: InputMaybe<PublicationStatus>;
+};
+
+
+export type QueryFreeTrials_ConnectionArgs = {
+  filters: InputMaybe<FreeTrialFiltersInput>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2271,6 +2386,7 @@ export type RelyingParty = {
   __typename?: 'RelyingParty';
   EmailFirstPage: ComponentAccountsPageConfig;
   NewDeviceLoginEmail: Maybe<ComponentAccountsEmailConfig>;
+  SigninCachedPage: Maybe<ComponentAccountsPageConfig>;
   SigninPage: ComponentAccountsPageConfig;
   SigninTokenCodePage: Maybe<ComponentAccountsPageConfig>;
   SigninUnblockCodePage: Maybe<ComponentAccountsPageConfig>;
@@ -2299,6 +2415,7 @@ export type RelyingPartyEntityResponseCollection = {
 export type RelyingPartyFiltersInput = {
   EmailFirstPage: InputMaybe<ComponentAccountsPageConfigFiltersInput>;
   NewDeviceLoginEmail: InputMaybe<ComponentAccountsEmailConfigFiltersInput>;
+  SigninCachedPage: InputMaybe<ComponentAccountsPageConfigFiltersInput>;
   SigninPage: InputMaybe<ComponentAccountsPageConfigFiltersInput>;
   SigninTokenCodePage: InputMaybe<ComponentAccountsPageConfigFiltersInput>;
   SigninUnblockCodePage: InputMaybe<ComponentAccountsPageConfigFiltersInput>;
@@ -2324,6 +2441,7 @@ export type RelyingPartyFiltersInput = {
 export type RelyingPartyInput = {
   EmailFirstPage: InputMaybe<ComponentAccountsPageConfigInput>;
   NewDeviceLoginEmail: InputMaybe<ComponentAccountsEmailConfigInput>;
+  SigninCachedPage: InputMaybe<ComponentAccountsPageConfigInput>;
   SigninPage: InputMaybe<ComponentAccountsPageConfigInput>;
   SigninTokenCodePage: InputMaybe<ComponentAccountsPageConfigInput>;
   SigninUnblockCodePage: InputMaybe<ComponentAccountsPageConfigInput>;
@@ -2888,6 +3006,13 @@ export type EligibilityContentByPlanIdsQueryVariables = Exact<{
 
 export type EligibilityContentByPlanIdsQuery = { __typename?: 'Query', purchases: Array<{ __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null, offering: { __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, countries: any, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string } | null> | null, subGroups: Array<{ __typename?: 'Subgroup', groupName: string | null, offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, countries: any, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string } | null> | null } | null> } | null> } | null } | null> };
 
+export type FreeTrialQueryVariables = Exact<{
+  apiIdentifier: Scalars['String']['input'];
+}>;
+
+
+export type FreeTrialQuery = { __typename?: 'Query', freeTrials: Array<{ __typename?: 'FreeTrial', internalName: string, intervals: any, trialLengthDays: number, countries: any, cooldownPeriodMonths: number } | null> };
+
 export type IapOfferingsByStoreIDsQueryVariables = Exact<{
   locale: Scalars['String']['input'];
   storeIDs: Array<Scalars['String']['input']> | Scalars['String']['input'];
@@ -3014,6 +3139,7 @@ export const CapabilityServiceByPlanIdsDocument = {"kind":"Document","definition
 export const ChurnInterventionByProductIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ChurnInterventionByProductId"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offeringApiIdentifier"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripeProductId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"interval"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"churnType"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offerings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeProductId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripeProductId"}}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"apiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offeringApiIdentifier"}}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"successActionButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"churnInterventions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"interval"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"interval"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"churnType"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"churnType"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"churnInterventionId"}},{"kind":"Field","name":{"kind":"Name","value":"churnType"}},{"kind":"Field","name":{"kind":"Name","value":"redemptionLimit"}},{"kind":"Field","name":{"kind":"Name","value":"stripeCouponId"}},{"kind":"Field","name":{"kind":"Name","value":"interval"}},{"kind":"Field","name":{"kind":"Name","value":"discountAmount"}},{"kind":"Field","name":{"kind":"Name","value":"ctaMessage"}},{"kind":"Field","name":{"kind":"Name","value":"modalHeading"}},{"kind":"Field","name":{"kind":"Name","value":"modalMessage"}},{"kind":"Field","name":{"kind":"Name","value":"productPageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsHeading"}},{"kind":"Field","name":{"kind":"Name","value":"termsDetails"}}]}},{"kind":"Field","name":{"kind":"Name","value":"churnInterventionId"}},{"kind":"Field","name":{"kind":"Name","value":"churnType"}},{"kind":"Field","name":{"kind":"Name","value":"redemptionLimit"}},{"kind":"Field","name":{"kind":"Name","value":"stripeCouponId"}},{"kind":"Field","name":{"kind":"Name","value":"interval"}},{"kind":"Field","name":{"kind":"Name","value":"discountAmount"}},{"kind":"Field","name":{"kind":"Name","value":"ctaMessage"}},{"kind":"Field","name":{"kind":"Name","value":"modalHeading"}},{"kind":"Field","name":{"kind":"Name","value":"modalMessage"}},{"kind":"Field","name":{"kind":"Name","value":"productPageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsHeading"}},{"kind":"Field","name":{"kind":"Name","value":"termsDetails"}}]}}]}}]}}]} as unknown as DocumentNode<ChurnInterventionByProductIdQuery, ChurnInterventionByProductIdQueryVariables>;
 export const EligibilityContentByOfferingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"EligibilityContentByOffering"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offerings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"apiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"subGroups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groupName"}},{"kind":"Field","name":{"kind":"Name","value":"offerings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<EligibilityContentByOfferingQuery, EligibilityContentByOfferingQueryVariables>;
 export const EligibilityContentByPlanIdsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"EligibilityContentByPlanIds"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchases"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoices"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoice"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offering"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlans"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlan"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}},{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"countries"}},{"kind":"Field","name":{"kind":"Name","value":"subGroups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groupName"}},{"kind":"Field","name":{"kind":"Name","value":"offerings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"countries"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<EligibilityContentByPlanIdsQuery, EligibilityContentByPlanIdsQueryVariables>;
+export const FreeTrialDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FreeTrial"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"freeTrials"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offering"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"apiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}}}]}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"internalName"}},{"kind":"Field","name":{"kind":"Name","value":"intervals"}},{"kind":"Field","name":{"kind":"Name","value":"trialLengthDays"}},{"kind":"Field","name":{"kind":"Name","value":"countries"}},{"kind":"Field","name":{"kind":"Name","value":"cooldownPeriodMonths"}}]}}]}}]} as unknown as DocumentNode<FreeTrialQuery, FreeTrialQueryVariables>;
 export const IapOfferingsByStoreIDsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"IapOfferingsByStoreIDs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"storeIDs"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"iaps"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"storeID"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"storeIDs"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storeID"}},{"kind":"Field","name":{"kind":"Name","value":"interval"}},{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}},{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"subGroups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groupName"}},{"kind":"Field","name":{"kind":"Name","value":"offerings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<IapOfferingsByStoreIDsQuery, IapOfferingsByStoreIDsQueryVariables>;
 export const LegalTermsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LegalTerms"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"legalNotices"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"serviceOrClientId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"1"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"serviceOrClientId"}},{"kind":"Field","name":{"kind":"Name","value":"Terms"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceLink"}},{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeLink"}},{"kind":"Field","name":{"kind":"Name","value":"fontSize"}}]}},{"kind":"Field","name":{"kind":"Name","value":"l10nId"}}]}}]}}]} as unknown as DocumentNode<LegalTermsQuery, LegalTermsQueryVariables>;
 export const LocalesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Locales"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"i18NLocales"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"100"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"code"}}]}}]}}]} as unknown as DocumentNode<LocalesQuery, LocalesQueryVariables>;

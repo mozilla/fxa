@@ -61,6 +61,11 @@ import {
   PageContentByPriceIdsResultUtil,
 } from './queries/page-content-by-price-ids';
 import { faker } from '@faker-js/faker/.';
+import {
+    freeTrialQuery,
+    FreeTrialResultFactory,
+    FreeTrialUtil,
+} from './queries/free-trial';
 
 jest.mock('@type-cacheable/core', () => {
   const noopDecorator =
@@ -748,6 +753,26 @@ describe('productConfigurationManager', () => {
       expect(
         result.cancelInterstitialOffer.cancelInterstitialOffers
       ).toHaveLength(1);
+    });
+  });
+
+  describe('getFreeTrial', () => {
+    it('returns free trials based on offering api identifier', async () => {
+      const queryData = FreeTrialResultFactory();
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+
+      const apiIdentifier = faker.string.sample();
+
+      const result =
+        await productConfigurationManager.getFreeTrial(apiIdentifier);
+
+      expect(strapiClient.query).toHaveBeenCalledWith(
+        freeTrialQuery,
+        { apiIdentifier }
+      );
+
+      expect(result).toBeInstanceOf(FreeTrialUtil);
+      expect(result.freeTrial.freeTrials).toHaveLength(1);
     });
   });
 });
