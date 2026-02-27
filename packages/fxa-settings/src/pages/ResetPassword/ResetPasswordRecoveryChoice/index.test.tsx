@@ -13,9 +13,11 @@ import ResetPasswordRecoveryChoice from '.';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
 import { MOCK_MASKED_PHONE_NUMBER_WITH_COPY } from '../../mocks';
+import { ResetPasswordTokenTypes, tokenType } from 'fxa-auth-client/browser';
 
 const fakeState = {
   token: 'tok',
+  kind: tokenType.accountResetToken as ResetPasswordTokenTypes,
   code: '123098',
   uid: '9001',
   email: 'testo@example.gg',

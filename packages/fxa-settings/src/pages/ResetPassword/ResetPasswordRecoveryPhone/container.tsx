@@ -39,6 +39,7 @@ const ResetPasswordRecoveryPhoneContainer = (_: RouteComponentProps) => {
     try {
       await authClient.recoveryPhoneResetPasswordConfirm(
         locationState.state.token,
+        locationState.state.kind,
         otpCode
       );
 
@@ -53,7 +54,8 @@ const ResetPasswordRecoveryPhoneContainer = (_: RouteComponentProps) => {
   const resendCode = async () => {
     try {
       await authClient.recoveryPhonePasswordResetSendCode(
-        locationState.state.token
+        locationState.state.token,
+        locationState.state.kind
       );
       return;
     } catch (err) {

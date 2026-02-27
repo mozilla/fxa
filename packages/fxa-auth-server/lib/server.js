@@ -436,6 +436,12 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
       throwOnFailure: false,
     })
   );
+  server.auth.scheme(
+    'multi-strategy-fxa-hawk-accountReset-token',
+    hawkFxAToken.strategy(makeCredentialFn(db.accountResetToken.bind(db)), {
+      throwOnFailure: false,
+    })
+  );
 
   server.auth.strategy('sessionToken', 'fxa-hawk-session-token');
   server.auth.strategy('keyFetchToken', 'fxa-hawk-keyFetch-token');
@@ -456,6 +462,10 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
   server.auth.strategy(
     'multiStrategyPasswordForgotToken',
     'multi-strategy-fxa-hawk-passwordForgot-token'
+  );
+  server.auth.strategy(
+    'multiStrategyAccountResetToken',
+    'multi-strategy-fxa-hawk-accountReset-token'
   );
 
   server.auth.scheme(authOauth.AUTH_SCHEME, authOauth.strategy);

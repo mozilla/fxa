@@ -1001,15 +1001,36 @@ export const createDB = (
       );
     }
 
+    async verifyAccountResetTokenWithMethod(
+      tokenId: string,
+      verificationMethod: VerificationMethod | number
+    ) {
+      log.trace('DB.verifyAccountResetTokenWithMethod', {
+        tokenId,
+        verificationMethod,
+      });
+
+      this.metrics?.increment('db.verify.accountResetTokensWithMethod', {
+        method: verificationMethodToString(verificationMethod),
+      });
+
+      await RawAccountResetToken.updateVerificationMethod(
+        tokenId,
+        verificationMethod
+      );
+    }
+
     async forgotPasswordVerified(passwordForgotToken: {
       id: string;
       uid: string;
+      email: string;
       verificationMethod: VerificationMethod | number;
     }) {
-      const { id, uid, verificationMethod } = passwordForgotToken;
+      const { id, uid, email, verificationMethod } = passwordForgotToken;
       log.trace('DB.forgotPasswordVerified', { uid });
       const accountResetToken = await AccountResetToken.create({
         uid,
+        email,
         verificationMethod,
       });
       await RawPasswordForgotToken.verify(id, accountResetToken);

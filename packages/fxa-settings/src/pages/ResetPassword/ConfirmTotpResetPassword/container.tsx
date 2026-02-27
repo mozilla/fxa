@@ -18,10 +18,12 @@ const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
     code,
     email,
     token,
+    kind,
     emailToHashWith,
     recoveryKeyExists,
     estimatedSyncDeviceCount,
     uid,
+    accountResetToken,
   } = location.state as CompleteResetPasswordLocationState;
 
   const ftlMsgResolver = useFtlMsgResolver();
@@ -38,6 +40,8 @@ const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
         estimatedSyncDeviceCount,
         recoveryKeyExists,
         token,
+        kind,
+        accountResetToken,
         uid,
       },
       replace: true,
@@ -47,10 +51,7 @@ const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
   const verifyCode = async (totpCode: string) => {
     setCodeErrorMessage('');
     try {
-      const result = await authClient.checkTotpTokenCodeWithPasswordForgotToken(
-        token,
-        totpCode
-      );
+      const result = await authClient.checkTotpTokenCode(token, kind, totpCode);
       if (result.success) {
         onSuccess();
       } else {
@@ -77,6 +78,7 @@ const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
         estimatedSyncDeviceCount,
         recoveryKeyExists,
         token,
+        kind,
         uid,
       },
       replace: false,

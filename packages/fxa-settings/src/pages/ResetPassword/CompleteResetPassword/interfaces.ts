@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ResetPasswordTokenTypes } from 'fxa-auth-client/browser';
 import { Integration, OAuthIntegration } from '../../../models';
 
 export interface CompleteResetPasswordFormData {
@@ -13,6 +14,7 @@ export type CompleteResetPasswordLocationState = {
   code: string;
   email: string;
   token: string;
+  kind: ResetPasswordTokenTypes;
   uid: string;
   accountResetToken?: string;
   emailToHashWith?: string;

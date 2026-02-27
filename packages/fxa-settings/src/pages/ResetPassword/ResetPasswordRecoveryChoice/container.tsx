@@ -49,10 +49,10 @@ export const ResetPasswordRecoveryChoiceContainer = (
 
       // Fetch backup codes
       try {
-        const { count } =
-          await authClient.getRecoveryCodesExistWithPasswordForgotToken(
-            locationState.state.token
-          );
+        const { count } = await authClient.getRecoveryCodesExist(
+          locationState.state.token,
+          locationState.state.kind
+        );
         count && setNumBackupCodes(count);
         backupCodesSuccess = true;
       } catch (err) {
@@ -69,8 +69,9 @@ export const ResetPasswordRecoveryChoiceContainer = (
       // Fetch phone data
       try {
         const { phoneNumber, nationalFormat } =
-          await authClient.recoveryPhoneGetWithPasswordForgotToken(
-            locationState.state.token
+          await authClient.recoveryPhoneGet(
+            locationState.state.token,
+            locationState.state.kind
           );
 
         if (phoneNumber) {
@@ -121,7 +122,8 @@ export const ResetPasswordRecoveryChoiceContainer = (
     }
     try {
       await authClient.recoveryPhonePasswordResetSendCode(
-        locationState.state.token
+        locationState.state.token,
+        locationState.state.kind
       );
       return undefined;
     } catch (err) {

@@ -36,7 +36,6 @@ import RECOVERY_PHONE_DOCS from '../../docs/swagger/recovery-phone-api';
 
 import { Container } from 'typedi';
 import { ConfigType } from '../../config';
-import { PasswordForgotToken } from 'fxa-shared/db/models/auth';
 import { OtpUtils } from './utils/otp';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
@@ -205,7 +204,7 @@ class RecoveryPhoneHandler {
   }
 
   async sendResetPasswordCode(request: AuthRequest) {
-    const { uid, email } = request.auth.credentials as PasswordForgotToken;
+    const { uid, email } = request.auth.credentials as AuthCredential;
 
     if (!email) {
       throw AppError.invalidToken();
@@ -731,11 +730,7 @@ class RecoveryPhoneHandler {
   }
 
   async confirmResetPasswordCode(request: AuthRequest) {
-    const { id, uid, email } = request.auth.credentials as unknown as {
-      id: string;
-      uid: string;
-      email: string;
-    };
+    const { id, uid, email } = request.auth.credentials as AuthCredential;
 
     const { code } = request.payload as unknown as {
       code: string;
@@ -769,7 +764,13 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
-      await this.db.verifyPasswordForgotTokenWithMethod(id, 'totp-2fa');
+      // Mark auth token as verified
+      const { strategy } = request.auth;
+      if (strategy === 'multiStrategyPasswordForgotToken') {
+        await this.db.verifyPasswordForgotTokenWithMethod(id, 'totp-2fa');
+      } else if (strategy === 'multiStrategyAccountResetToken') {
+        await this.db.verifyAccountResetTokenWithMethod(id, 'totp-2fa');
+      }
 
       await this.glean.resetPassword.recoveryPhoneCodeComplete(request);
 
@@ -1257,7 +1258,10 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_RESET_PASSWORD_SEND_CODE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: [
+            'multiStrategyPasswordForgotToken',
+            'multiStrategyAccountResetToken',
+          ],
         },
       },
       handler: function (request: AuthRequest) {
@@ -1272,7 +1276,10 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_RESET_PASSWORD_CONFIRM_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: [
+            'multiStrategyPasswordForgotToken',
+            'multiStrategyAccountResetToken',
+          ],
         },
       },
       handler: function (request: AuthRequest) {
@@ -1324,6 +1331,7 @@ export const recoveryPhoneRoutes = (
           strategies: [
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
+            'multiStrategyAccountResetToken',
           ],
         },
       },

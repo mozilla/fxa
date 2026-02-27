@@ -368,6 +368,7 @@ module.exports = (
           strategies: [
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
+            'multiStrategyAccountResetToken',
           ],
         },
         validate: {

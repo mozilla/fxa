@@ -274,6 +274,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
           strategies: [
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
+            'multiStrategyAccountResetToken',
           ],
           payload: 'required',
         },

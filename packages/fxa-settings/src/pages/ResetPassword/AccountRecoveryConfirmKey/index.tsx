@@ -23,6 +23,7 @@ import { RecoveryKeyImage } from '../../../components/images';
 import { Constants } from '../../../lib/constants';
 import Banner from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import { tokenType } from 'fxa-auth-client/browser';
 
 // TODO in FXA-7894 use sensitive data client to pass sensitive data
 // Depends on FXA-7400
@@ -43,6 +44,7 @@ const AccountRecoveryConfirmKey = ({
   setIsSubmitDisabled,
   verifyRecoveryKey,
   token,
+  kind,
   uid,
   totpExists,
 }: AccountRecoveryConfirmKeyProps) => {
@@ -220,7 +222,12 @@ const AccountRecoveryConfirmKey = ({
               estimatedSyncDeviceCount,
               recoveryKeyExists,
               recoveryKeyHint,
-              token,
+              // Once we exchange the passwordForgotToken for an accountResetToken, the
+              // passwordForgotToken becomes invalid. Therefore, for this point forward
+              // we will pass the accountReset token in the token field, and this should be
+              // used for authentication of web requests.
+              token: !!accountResetToken ? accountResetToken : token,
+              kind: !!accountResetToken ? tokenType.accountResetToken : kind,
               uid,
             }}
             onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
@@ -240,7 +247,12 @@ const AccountRecoveryConfirmKey = ({
               estimatedSyncDeviceCount,
               recoveryKeyExists,
               recoveryKeyHint,
-              token,
+              // Once we exchange the passwordForgotToken for an accountResetToken, the
+              // passwordForgotToken becomes invalid. Therefore, for this point forward
+              // we will pass the accountReset token in the token field, and this should be
+              // used for authentication of web requests.
+              token: !!accountResetToken ? accountResetToken : token,
+              kind: !!accountResetToken ? tokenType.accountResetToken : kind,
               uid,
             }}
             onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}

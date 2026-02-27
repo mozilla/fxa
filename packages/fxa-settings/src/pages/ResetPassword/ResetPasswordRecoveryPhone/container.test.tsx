@@ -7,7 +7,12 @@ import { LocationProvider } from '@reach/router';
 import { act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
-import { MOCK_EMAIL, MOCK_PASSWORD_CHANGE_TOKEN, MOCK_UID } from '../../mocks';
+import {
+  MOCK_EMAIL,
+  MOCK_PASSWORD_CHANGE_TOKEN,
+  MOCK_PASSWORD_CHANGE_TOKEN_KIND,
+  MOCK_UID,
+} from '../../mocks';
 
 import ResetPasswordRecoveryPhoneContainer from './container';
 
@@ -36,6 +41,7 @@ let mockLocationState = {
   code: 'ignored',
   email: MOCK_EMAIL,
   token: MOCK_PASSWORD_CHANGE_TOKEN,
+  kind: MOCK_PASSWORD_CHANGE_TOKEN_KIND,
   emailToHashWith: MOCK_EMAIL,
   recoveryKeyExists: false,
   estimatedSyncDeviceCount: 2,
@@ -87,12 +93,14 @@ describe('ResetPasswordRecoveryPhoneContainer', () => {
 
     expect(mockRecoveryPhoneResetPasswordConfirm).toHaveBeenCalledWith(
       MOCK_PASSWORD_CHANGE_TOKEN,
+      MOCK_PASSWORD_CHANGE_TOKEN_KIND,
       '123456'
     );
 
     expect(mockNavigate).toHaveBeenCalledWith('/complete_reset_password', {
       state: expect.objectContaining({
         token: MOCK_PASSWORD_CHANGE_TOKEN,
+        kind: MOCK_PASSWORD_CHANGE_TOKEN_KIND,
         email: MOCK_EMAIL,
         uid: MOCK_UID,
       }),

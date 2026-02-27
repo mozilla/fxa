@@ -10,6 +10,7 @@ module.exports = function (log, Token, lifetime) {
   function AccountResetToken(keys, details) {
     details.lifetime = lifetime;
     this.verificationMethod = details.verificationMethod || null;
+    this.email = details.email || null;
     Token.call(this, keys, details);
   }
   inherits(AccountResetToken, Token);

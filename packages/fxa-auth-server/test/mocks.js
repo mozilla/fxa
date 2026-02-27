@@ -128,6 +128,7 @@ const DB_METHOD_NAMES = [
   'deleteLinkedAccount',
   'accountExists',
   'verifyPasswordForgotTokenWithMethod',
+  'verifyAccountResetTokenWithMethod',
 ];
 
 const LOG_METHOD_NAMES = [

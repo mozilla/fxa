@@ -38,6 +38,7 @@ const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
     recoveryKeyExists,
     recoveryKeyHint,
     token,
+    kind,
     uid,
     totpExists,
   } = (location.state as AccountRecoveryConfirmKeyLocationState) || {};
@@ -92,6 +93,7 @@ const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
         // TODO in FXA-9672: do not use Account model in reset password pages
         fetchedAccountResetToken = await account.passwordForgotVerifyCode(
           token,
+          kind,
           code,
           true
         );
@@ -122,6 +124,7 @@ const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
         setErrorMessage,
         setIsSubmitDisabled,
         token,
+        kind,
         verifyRecoveryKey,
         uid,
         totpExists,

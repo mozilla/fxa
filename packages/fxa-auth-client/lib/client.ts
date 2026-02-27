@@ -14,13 +14,19 @@ enum ERRORS {
   INCORRECT_EMAIL_CASE = 120,
 }
 
-enum tokenType {
+export enum tokenType {
   sessionToken = 'sessionToken',
   passwordForgotToken = 'passwordForgotToken',
   keyFetchToken = 'keyFetchToken',
   accountResetToken = 'accountResetToken',
   passwordChangeToken = 'passwordChangeToken',
 }
+
+export type SessionTokenTypes = tokenType.sessionToken;
+
+export type ResetPasswordTokenTypes =
+  | tokenType.passwordForgotToken
+  | tokenType.accountResetToken;
 
 export enum AUTH_PROVIDER {
   GOOGLE = 'google',
@@ -864,7 +870,8 @@ export default class AuthClient {
 
   async passwordForgotVerifyCode(
     code: string,
-    passwordForgotToken: hexstring,
+    token: hexstring,
+    kind: ResetPasswordTokenTypes,
     options: {
       accountResetWithRecoveryKey?: boolean;
       includeRecoveryKeyPrompt?: boolean;
@@ -878,8 +885,8 @@ export default class AuthClient {
     return this.hawkRequest(
       'POST',
       '/password/forgot/verify_code',
-      passwordForgotToken,
-      tokenType.passwordForgotToken,
+      token,
+      kind,
       payload,
       headers
     );
@@ -2454,28 +2461,16 @@ export default class AuthClient {
   }
 
   async checkTotpTokenExists(
-    sessionToken: hexstring,
+    token: hexstring,
+    kind: SessionTokenTypes | ResetPasswordTokenTypes = tokenType.sessionToken,
     headers?: Headers
   ): Promise<{ exists: boolean; verified: boolean }> {
-    return this.sessionGet('/totp/exists', sessionToken, headers);
+    return this.hawkRequest('GET', '/totp/exists', token, kind, null, headers);
   }
 
-  async checkTotpTokenExistsWithPasswordForgotToken(
+  async checkTotpTokenCode(
     token: hexstring,
-    headers?: Headers
-  ): Promise<{ exists: boolean; verified: boolean }> {
-    return this.hawkRequest(
-      'GET',
-      '/totp/exists',
-      token,
-      tokenType.passwordForgotToken,
-      null,
-      headers
-    );
-  }
-
-  async checkTotpTokenCodeWithPasswordForgotToken(
-    token: hexstring,
+    kind: ResetPasswordTokenTypes,
     code: string,
     headers?: Headers
   ): Promise<{ success: boolean }> {
@@ -2483,14 +2478,15 @@ export default class AuthClient {
       'POST',
       '/totp/verify',
       token,
-      tokenType.passwordForgotToken,
+      kind,
       { code },
       headers
     );
   }
 
-  async consumeRecoveryCodeWithPasswordForgotToken(
+  async totpVerifyRecoveryCode(
     token: hexstring,
+    kind: ResetPasswordTokenTypes,
     code: string,
     headers?: Headers
   ): Promise<{ success: boolean }> {
@@ -2498,7 +2494,7 @@ export default class AuthClient {
       'POST',
       '/totp/verify/recoveryCode',
       token,
-      tokenType.passwordForgotToken,
+      kind,
       { code },
       headers
     );
@@ -2628,23 +2624,40 @@ export default class AuthClient {
     return this.jwtPut('/mfa/recoveryCodes', jwt, { recoveryCodes }, headers);
   }
 
+  /**
+   * Gets whether or not recovery codes exist on the account
+   * @param token A valid auth token
+   * @param type The token's type
+   * @param headers
+   * @returns
+   */
   async getRecoveryCodesExist(
-    sessionToken: hexstring,
-    headers?: Headers
-  ): Promise<{ hasBackupCodes?: boolean; count?: number }> {
-    return this.sessionGet('/recoveryCodes/exists', sessionToken, headers);
-  }
-
-  async getRecoveryCodesExistWithPasswordForgotToken(
-    passwordForgotToken: hexstring,
+    token: hexstring,
+    kind: SessionTokenTypes | ResetPasswordTokenTypes = tokenType.sessionToken,
     headers?: Headers
   ): Promise<{ hasBackupCodes?: boolean; count?: number }> {
     return this.hawkRequest(
       'GET',
       '/recoveryCodes/exists',
-      passwordForgotToken,
-      tokenType.passwordForgotToken,
+      token,
+      kind,
       null,
+      headers
+    );
+  }
+
+  async consumeTotpRecoveryCode(
+    token: hexstring,
+    kind: ResetPasswordTokenTypes,
+    code: string,
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.hawkRequest(
+      'POST',
+      '/totp/verify/recoveryCode',
+      token,
+      kind,
+      { code },
       headers
     );
   }
@@ -2842,14 +2855,17 @@ export default class AuthClient {
   }
 
   async recoveryKeyExists(
-    sessionToken: hexstring | undefined,
+    token: hexstring,
     email: string | undefined,
+    kind: SessionTokenTypes | ResetPasswordTokenTypes = tokenType.sessionToken,
     headers?: Headers
   ) {
-    if (sessionToken) {
-      return this.sessionPost(
+    if (token) {
+      return this.hawkRequest(
+        'POST',
         '/recoveryKey/exists',
-        sessionToken,
+        token,
+        kind,
         { email },
         headers
       );
@@ -3201,18 +3217,20 @@ export default class AuthClient {
   /**
    * Sends a code to the users phone during password reset.
    *
-   * @param passwordForgotToken
-   * @param headers
+   * @param token A valid token
+   * @param kind The token's type
+   * @param headers Optional request headers
    */
   async recoveryPhonePasswordResetSendCode(
-    passwordForgotToken: string,
+    token: string,
+    kind: ResetPasswordTokenTypes,
     headers?: Headers
   ) {
     return this.hawkRequest(
       'POST',
       '/recovery_phone/reset_password/send_code',
-      passwordForgotToken,
-      tokenType.passwordForgotToken,
+      token,
+      kind,
       {},
       headers
     );
@@ -3221,21 +3239,22 @@ export default class AuthClient {
   /**
    * Confirms the code sent to the recovery phone during a password reset.
    *
-   *
-   * @param passwordForgotToken
+   * @param token A valid auth token
+   * @param type The token's type
    * @param code The otp code sent to the user's phone
    * @param headers
    */
   async recoveryPhoneResetPasswordConfirm(
-    passwordForgotToken: string,
+    token: string,
+    kind: ResetPasswordTokenTypes,
     code: string,
     headers?: Headers
   ) {
     return this.hawkRequest(
       'POST',
       '/recovery_phone/reset_password/confirm',
-      passwordForgotToken,
-      tokenType.passwordForgotToken,
+      token,
+      kind,
       {
         code,
       },
@@ -3266,16 +3285,14 @@ export default class AuthClient {
 
   /**
    * Gets status of the recovery phone on the users account.
-   * @param sessionToken The user's current session token
+   * @param token A valid auth token
+   * @param kind The token's type
    * @param headers
    * @returns { exists:boolean, phoneNumber: string }
    */
-  async recoveryPhoneGet(sessionToken: string, headers?: Headers) {
-    return this.sessionGet('/recovery_phone', sessionToken, headers);
-  }
-
-  async recoveryPhoneGetWithPasswordForgotToken(
-    passwordForgotToken: string,
+  async recoveryPhoneGet(
+    token: string,
+    kind: SessionTokenTypes | ResetPasswordTokenTypes = tokenType.sessionToken,
     headers?: Headers
   ): Promise<{
     exists: boolean;
@@ -3285,8 +3302,8 @@ export default class AuthClient {
     return this.hawkRequest(
       'GET',
       '/recovery_phone',
-      passwordForgotToken,
-      tokenType.passwordForgotToken,
+      token,
+      kind,
       null,
       headers
     );
