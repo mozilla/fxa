@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import React from 'react';
+import { ApolloError } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import groupBy from 'lodash.groupby';
 import { forwardRef, useCallback, useState } from 'react';
-import { clearSignedInAccountUid, setSigningOut } from '../../../lib/cache';
+import { clearSignedInAccountUid } from '../../../lib/cache';
 import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';
 import { AttachedClient, useAccount, useAlertBar } from '../../../models';
@@ -27,12 +29,14 @@ const DEVICES_SUPPORT_URL =
 export function sortAndFilterConnectedClients(
   attachedClients: Array<AttachedClient>
 ) {
-  const groupedByName = groupBy(attachedClients, 'name');
+  // Group clients by deviceId (for sync devices) or name (for others).
+  // This avoids merging distinct devices that happen to share the same name.
+  const groupedByDevice = groupBy(attachedClients, (c) => c.deviceId || c.name);
 
-  // get a unique (by name) list and sort by time last accessed
-  const sortedAndUniqueClients = Object.keys(groupedByName)
+  // get a unique (by device or name) list and sort by time last accessed
+  const sortedAndUniqueClients = Object.keys(groupedByDevice)
     .map((key) => {
-      return groupedByName[key].sort(
+      return groupedByDevice[key].sort(
         (a: AttachedClient, b: AttachedClient) =>
           b.lastAccessTime - a.lastAccessTime
       )[0];
@@ -47,14 +51,14 @@ export function sortAndFilterConnectedClients(
     }
   });
 
-  return { groupedByName, sortedAndUniqueClients };
+  return { groupedByDevice, sortedAndUniqueClients };
 }
 
 export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const attachedClients = account.attachedClients;
-  const { groupedByName, sortedAndUniqueClients } =
+  const { groupedByDevice, sortedAndUniqueClients } =
     sortAndFilterConnectedClients([...attachedClients]);
 
   const showMobilePromo = !sortedAndUniqueClients.filter(isMobileDevice).length;
@@ -82,7 +86,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
   const [isRefreshingClients, setIsRefreshingClients] = useState(false);
 
   const clearDisconnectingState = useCallback(
-    (errorMessage?: string, error?: Error) => {
+    (errorMessage?: string, error?: ApolloError | Error) => {
       hideConfirmDisconnectModal();
       setSelectedClient(null);
       setReason('');
@@ -102,17 +106,15 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
           event: { reason: reasonValue },
         });
 
-        // disconnect all clients/sessions with this name since only unique names
-        // are displayed to the user. This is batched into one network request
-        // via BatchHttpLink
-        const groupByKey = client.name ?? 'undefined';
-        const clientsWithMatchingName = groupedByName[groupByKey];
-        const hasMultipleSessions = clientsWithMatchingName.length > 1;
+        // Disconnect all clients/sessions in the group (same deviceId or name).
+        // Since we only display one entry per group, signing out of that entry
+        // should revoke all associated sessions. This is batched via BatchHttpLink.
+        const groupByKey = (client.deviceId || client.name) ?? 'undefined';
+        const sessionsInGroup = groupedByDevice[groupByKey];
+        const hasMultipleSessions = sessionsInGroup.length > 1;
         if (hasMultipleSessions) {
           await Promise.all(
-            clientsWithMatchingName.map(
-              async (c) => await account.disconnectClient(c)
-            )
+            sessionsInGroup.map(async (c) => await account.disconnectClient(c))
           );
         } else {
           await account.disconnectClient(client);
@@ -123,9 +125,8 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         if (
           client.isCurrentSession ||
           (hasMultipleSessions &&
-            clientsWithMatchingName.find((c) => c.isCurrentSession))
+            sessionsInGroup.find((c) => c.isCurrentSession))
         ) {
-          setSigningOut(true);
           clearSignedInAccountUid();
           window.location.assign(`${window.location.origin}/signin`);
         } else if (reason === 'suspicious' || reason === 'lost') {
@@ -150,7 +151,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
     [
       account,
       hideConfirmDisconnectModal,
-      groupedByName,
+      groupedByDevice,
       revealAdviceModal,
       alertBar,
       l10n,
