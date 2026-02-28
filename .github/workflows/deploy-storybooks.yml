@@ -127,7 +127,7 @@ jobs:
         run: rm -rf "gh-pages/${{ steps.deploy-dir.outputs.path }}"
 
       - name: Download storybooks artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: storybooks-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'main' }}
           path: gh-pages/${{ steps.deploy-dir.outputs.path }}
