@@ -3038,12 +3038,7 @@ export const accountRoutes = (
         },
       },
       handler: async (request: AuthRequest) => {
-        try {
-          return accountHandler.reset(request);
-        } catch (err) {
-          console.log('!!!', err);
-          throw err;
-        }
+        return accountHandler.reset(request);
       },
     },
     {
