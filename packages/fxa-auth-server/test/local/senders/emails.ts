@@ -4629,9 +4629,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
           },
           {
             test: 'include',
-            expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can reactivate your subscription in`,
+            expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can stay subscribed in`,
           },
-          { test: 'include', expected: `Account Settings` },
+          { test: 'include', expected: `Subscription Management` },
           {
             test: 'include',
             expected: `before <strong>${SUBSCRIPTION_ENDING_REMINDER_DATE}</strong>. If you need assistance`,
@@ -4658,7 +4658,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
           },
           {
             test: 'include',
-            expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can reactivate your subscription in Account Settings before ${SUBSCRIPTION_ENDING_REMINDER_DATE}. If you need assistance, contact our Support Team.`,
+            expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can stay subscribed in Subscription Management before ${SUBSCRIPTION_ENDING_REMINDER_DATE}. If you need assistance, contact our Support Team.`,
           },
           {
             test: 'include',
@@ -4778,9 +4778,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
           },
           {
             test: 'include',
-            expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can reactivate your subscription in`,
+            expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can stay subscribed in`,
           },
-          { test: 'include', expected: `Account Settings` },
+          { test: 'include', expected: `Subscription Management` },
           {
             test: 'include',
             expected: `before <strong>${SUBSCRIPTION_ENDING_REMINDER_DATE}</strong>. If you need assistance`,
@@ -4809,7 +4809,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
           },
           {
             test: 'include',
-            expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can reactivate your subscription in Account Settings before ${SUBSCRIPTION_ENDING_REMINDER_DATE}. If you need assistance, contact our Support Team.`,
+            expected: `If you’d like to continue using ${MESSAGE.subscription.productName}, you can stay subscribed in Subscription Management before ${SUBSCRIPTION_ENDING_REMINDER_DATE}. If you need assistance, contact our Support Team.`,
           },
           {
             test: 'include',
