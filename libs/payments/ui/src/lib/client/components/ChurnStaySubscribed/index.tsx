@@ -245,7 +245,7 @@ export function ChurnStaySubscribed({
 
             <div className="leading-6">
               {modalMessage && (
-                <div>
+                <>
                   {modalMessage.map((line, i) => (
                     <p key={i} className="my-2">
                       {line}
@@ -254,15 +254,23 @@ export function ChurnStaySubscribed({
                       )}
                     </p>
                   ))}
-                </div>
+                </>
               )}
 
-              <Localized
-                id={nextChargeChurnContent.l10nId}
-                vars={nextChargeChurnContent.l10nVars}
-              >
-                <p className="my-2"></p>
-              </Localized>
+              <p className="my-2">
+                <Localized
+                  id={nextChargeChurnContent.l10nId}
+                  vars={nextChargeChurnContent.l10nVars}
+                >
+                  <span></span>
+                </Localized>{' '}
+                <Localized id="churn-stay-subscribed-after">
+                  <span>
+                    After that, your subscription will automatically renew at
+                    the standard fee, unless you cancel.
+                  </span>
+                </Localized>
+              </p>
             </div>
 
             {showResubscribeActionError && !loading && (

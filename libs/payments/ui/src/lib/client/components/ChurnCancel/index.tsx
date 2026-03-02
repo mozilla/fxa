@@ -14,12 +14,17 @@ import { useState } from 'react';
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import {
   getNextChargeChurnContent,
+  AlreadyCanceling,
   BaseButton,
   ButtonVariant,
 } from '@fxa/payments/ui';
-import { redeemChurnCouponAction } from '@fxa/payments/ui/actions';
+import {
+  cancelSubscriptionAtPeriodEndAction,
+  redeemChurnCouponAction,
+} from '@fxa/payments/ui/actions';
 import spinner from '@fxa/shared/assets/images/spinner.svg';
 import newWindowIcon from '@fxa/shared/assets/images/new-window.svg';
+import { getLocalizedDateString } from '@fxa/shared/l10n';
 import { LinkExternal } from '@fxa/shared/react';
 
 interface ChurnCancelProps {
@@ -73,9 +78,12 @@ export function ChurnCancel({
   cmsOfferingContent,
 }: ChurnCancelProps) {
   const [loading, setLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
   const [showResubscribeActionError, setResubscribeActionError] =
     useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showCancelSuccess, setShowCancelSuccess] = useState(false);
+
   const params = useParams();
   const searchParams = useSearchParams();
   const {
@@ -90,7 +98,14 @@ export function ChurnCancel({
   const { successActionButtonUrl } = cmsOfferingContent || {};
   const goToProductUrl = productPageUrl ?? successActionButtonUrl;
 
-  const { active, cancelAtPeriodEnd, productName, webIcon } = cancelContent;
+  const {
+    active,
+    cancelAtPeriodEnd,
+    currentPeriodEnd,
+    productName,
+    supportUrl,
+    webIcon,
+  } = cancelContent;
 
   const nextChargeChurnContent = getNextChargeChurnContent({
     currency: cancelContent.currency,
@@ -135,15 +150,127 @@ export function ChurnCancel({
     }
   }
 
+  async function cancelSubscriptionAtPeriodEnd() {
+    if (cancelLoading) return;
+
+    setCancelLoading(true);
+    setResubscribeActionError(false);
+
+    try {
+      const result = await cancelSubscriptionAtPeriodEndAction(
+        uid,
+        subscriptionId
+      );
+
+      if (result.ok) {
+        // TODO: This is a workaround to match existing legacy behavior.
+        // Fix as part of redesign
+        setShowCancelSuccess(true);
+        await new Promise((resolve) => setTimeout(resolve, 500)); // optional: match legacy feel
+      } else {
+        setResubscribeActionError(true);
+      }
+    } catch {
+      setResubscribeActionError(true);
+    } finally {
+      setCancelLoading(false);
+    }
+  }
+
   const isOffer = reason === 'eligible' && !cancelAtPeriodEnd && active;
   const isDiscountAlreadyApplied = reason === 'discount_already_applied';
+  const currentPeriodEndLongFallback = getLocalizedDateString(
+    currentPeriodEnd,
+    false,
+    locale
+  );
 
   return (
     <section
       className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
       aria-labelledby="churn-cancel-flow-heading"
     >
-      {showSuccess ? (
+      {showCancelSuccess ? (
+        <div className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+          <div className="flex flex-col items-center justify-center gap-6 text-center">
+            <Image src={webIcon} alt={productName} height={64} width={64} />
+            <div>
+              <Localized id="churn-cancel-flow-cancel-success-title">
+                <h1
+                  id="churn-cancel-flow-heading"
+                  className="font-bold leading-7 text-xl"
+                >
+                  We’re sorry to see you go
+                </h1>
+              </Localized>
+
+              <div className="leading-6 text-center">
+                <Localized
+                  id="churn-cancel-flow-cancel-success-dialog-msg"
+                  vars={{
+                    productName,
+                    date: currentPeriodEndLongFallback,
+                  }}
+                >
+                  <p className="my-2">
+                    Your {productName} subscription has been cancelled. You will
+                    still have access to {productName} until{' '}
+                    {currentPeriodEndLongFallback}.
+                  </p>
+                </Localized>{' '}
+                <Localized id="churn-cancel-flow-cancel-turn-back-on">
+                  <p className="my-2">
+                    You can turn your subscription back on anytime before it
+                    ends.
+                  </p>
+                </Localized>
+                <Localized
+                  id="churn-cancel-flow-cancel-success-dialog-aside"
+                  vars={{ url: supportUrl }}
+                  elems={{
+                    LinkExternal: (
+                      <LinkExternal
+                        href={supportUrl}
+                        className="text-blue-500 underline"
+                      >
+                        Mozilla Support
+                      </LinkExternal>
+                    ),
+                  }}
+                >
+                  <p className="my-2">
+                    Have questions? Visit{' '}
+                    <LinkExternal
+                      href={supportUrl}
+                      className="text-blue-500 underline"
+                    >
+                      Mozilla Support
+                    </LinkExternal>
+                    .
+                  </p>
+                </Localized>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 w-full">
+              <Link
+                className="border box-border flex font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                href={`/${locale}/subscriptions/landing`}
+              >
+                <Localized id="churn-cancel-flow-button-back-to-subscriptions">
+                  <span>Back to subscriptions</span>
+                </Localized>
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : reason === 'already_canceling_at_period_end' ? (
+        <AlreadyCanceling
+          currentPeriodEnd={currentPeriodEnd}
+          locale={locale}
+          productName={productName}
+          webIcon={webIcon}
+        />
+      ) : showSuccess ? (
         <div className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <Image src={webIcon} alt={productName} height={64} width={64} />
@@ -201,7 +328,7 @@ export function ChurnCancel({
 
             <div className="leading-6">
               {modalMessage && (
-                <div>
+                <>
                   {modalMessage.map((line, i) => (
                     <p key={i} className="my-2">
                       {line}
@@ -210,15 +337,23 @@ export function ChurnCancel({
                       )}
                     </p>
                   ))}
-                </div>
+                </>
               )}
 
-              <Localized
-                id={nextChargeChurnContent.l10nId}
-                vars={nextChargeChurnContent.l10nVars}
-              >
-                <p className="my-2"></p>
-              </Localized>
+              <p className="my-2">
+                <Localized
+                  id={nextChargeChurnContent.l10nId}
+                  vars={nextChargeChurnContent.l10nVars}
+                >
+                  <span></span>
+                </Localized>{' '}
+                <Localized id="churn-cancel-flow-after">
+                  <span>
+                    After that, your subscription will automatically renew at
+                    the standard fee, unless you cancel.
+                  </span>
+                </Localized>
+              </p>
             </div>
 
             {showResubscribeActionError && !loading && (
@@ -264,14 +399,24 @@ export function ChurnCancel({
                 )}
               </BaseButton>
             </Form.Submit>
-            <Link
-              className="border box-border font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
-              href={`/${locale}/subscriptions/${subscriptionId}/cancel`}
+            <BaseButton
+              className="border box-border font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full tablet:w-full"
+              variant={ButtonVariant.SubscriptionManagementSecondary}
+              onClick={cancelSubscriptionAtPeriodEnd}
+              disabled={cancelLoading}
             >
-              <Localized id="churn-cancel-flow-button-continue-to-cancel">
-                <span>Continue to cancel</span>
-              </Localized>
-            </Link>
+              {cancelLoading ? (
+                <Image
+                  src={spinner}
+                  alt=""
+                  className="absolute animate-spin h-8 w-8"
+                />
+              ) : (
+                <Localized id="churn-cancel-flow-button-cancel-subscription">
+                  <span>Cancel subscription</span>
+                </Localized>
+              )}
+            </BaseButton>
             <LinkExternal
               href={`/${locale}/${apiIdentifier}/${interval}/cancel/loyalty-discount/terms`}
               className="flex gap-1"

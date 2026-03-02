@@ -17,5 +17,7 @@ churn-stay-subscribed-thanks-valued-subscriber = Thanks for being a valued subsc
 churn-stay-subscribed-button-go-to-product-page = Go to { $productName }
 churn-stay-subscribed-button-go-to-subscriptions = Go to Subscriptions
 churn-stay-subscribed-button-stay-subscribed = Stay subscribed
+# The sentence before this informs the customer that they will save a discount on their next bill (e.g. You will save 10% on your next charge of $12 to your PayPal payment method on March 6, 2026.)
+churn-stay-subscribed-after = After that, your subscription will automatically renew at the standard fee, unless you cancel.
 
 ##

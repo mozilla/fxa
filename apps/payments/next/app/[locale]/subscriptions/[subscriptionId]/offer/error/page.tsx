@@ -44,8 +44,8 @@ export default async function InterstitialOfferErrorPage({
 
   const uid = session.user.id;
 
-  let interstitialOfferContent;
-  let reason = 'general_error';
+  let interstitialOfferContent = null;
+
   try {
     interstitialOfferContent = await getInterstitialOfferContentAction(
       uid,
@@ -53,27 +53,41 @@ export default async function InterstitialOfferErrorPage({
       acceptLanguage,
       locale
     );
-    reason = interstitialOfferContent?.reason ?? 'general_error';
-  } catch (error) {
+  } catch {
     interstitialOfferContent = null;
-    reason = 'general_error';
   }
 
- const webIcon = interstitialOfferContent?.webIcon;
- const productName = interstitialOfferContent?.productName;
+  const cancelContent = interstitialOfferContent?.cancelContent;
+  let reason =
+    typeof interstitialOfferContent?.reason === 'string'
+      ? interstitialOfferContent.reason
+      : 'general_error';
 
- if (webIcon && !productName) {
-   console.error('Missing productName for interstitial offer icon');
-   reason = 'general_error';
- }
+  const canRenderOfferPage =
+    reason === 'eligible' || reason === 'already_canceling_at_period_end';
 
- if (
-   interstitialOfferContent?.isEligible &&
-   interstitialOfferContent?.pageContent
- ) {
-   redirect(`/${locale}/subscriptions/${subscriptionId}/offer`);
- }
+  if (cancelContent?.flowType === 'cancel' && canRenderOfferPage) {
+    redirect(`/${locale}/subscriptions/${subscriptionId}/offer`);
+  }
 
+  const pageContent = interstitialOfferContent?.pageContent;
+
+  const productName =
+    pageContent?.productName ??
+    (cancelContent?.flowType === 'cancel' ? cancelContent.productName : null);
+
+  const supportUrl =
+    pageContent?.supportUrl ??
+    (cancelContent?.flowType === 'cancel' ? cancelContent.supportUrl : null) ??
+    'https://support.mozilla.org';
+
+  const webIcon =
+    pageContent?.webIcon ??
+    (cancelContent?.flowType === 'cancel' ? cancelContent.webIcon : null);
+
+  if (webIcon && !productName) {
+    reason = 'general_error';
+  }
   const l10n = getApp().getL10n(acceptLanguage, locale);
 
   const getErrorContent = (reason: string) => {
@@ -120,7 +134,7 @@ export default async function InterstitialOfferErrorPage({
               'interstitial-offer-error-button-contact-support',
               'Contact Support'
             ),
-            href: 'https://support.mozilla.org/',
+            href: supportUrl,
             isExternal: true,
           },
         };
@@ -153,7 +167,8 @@ export default async function InterstitialOfferErrorPage({
     }
   };
 
-  const { heading, message, primaryButton, secondaryButton } = getErrorContent(reason);
+  const { heading, message, primaryButton, secondaryButton } =
+    getErrorContent(reason);
 
   return (
     <section
@@ -187,8 +202,8 @@ export default async function InterstitialOfferErrorPage({
           >
             {primaryButton.label}
           </Link>
-          {secondaryButton && (
-            secondaryButton.isExternal ? (
+          {secondaryButton &&
+            (secondaryButton.isExternal ? (
               <LinkExternal
                 className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
                 href={secondaryButton.href}
@@ -202,8 +217,7 @@ export default async function InterstitialOfferErrorPage({
               >
                 <span>{secondaryButton.label}</span>
               </Link>
-            )
-          )}
+            ))}
         </div>
       </div>
     </section>

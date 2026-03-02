@@ -9,8 +9,7 @@ import { redirect } from 'next/navigation';
 
 import { SubscriptionParams } from '@fxa/payments/ui';
 import { determineChurnCancelEligibilityAction } from '@fxa/payments/ui/actions';
-import { ChurnError, getApp } from '@fxa/payments/ui/server';
-import { getLocalizedDateString } from '@fxa/shared/l10n';
+import { getApp, ChurnError } from '@fxa/payments/ui/server';
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
 
@@ -76,7 +75,6 @@ export default async function LoyaltyDiscountCancelErrorPage({
   }
 
   const { cmsOfferingContent, reason } = churnCancelContentEligibility;
-
   const cancelContent = pageContent.cancelContent;
 
   if (cancelContent.flowType !== 'cancel' || !cmsOfferingContent) {
@@ -136,70 +134,6 @@ export default async function LoyaltyDiscountCancelErrorPage({
                 {l10n.getString(
                   'churn-cancel-flow-error-page-button-back-to-subscriptions',
                   'Back to subscriptions'
-                )}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (reason === 'already_canceling_at_period_end') {
-    const { productName, webIcon } = cmsOfferingContent;
-    const { currentPeriodEnd } = cancelContent;
-    const currentPeriodEndLongFallback = getLocalizedDateString(
-      currentPeriodEnd,
-      false,
-      locale
-    );
-    return (
-      <section
-        className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
-        aria-labelledby="error-already-canceling-heading"
-      >
-        <div className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
-          <div className="flex flex-col items-center justify-center gap-4 text-center">
-            <Image src={webIcon} alt={productName} height={64} width={64} />
-
-            <h1
-              id="error-already-canceling-heading"
-              className="font-bold leading-7 text-center text-xl"
-            >
-              {l10n.getString(
-                'churn-cancel-flow-error-already-canceling-title',
-                'Your subscription is set to end'
-              )}
-            </h1>
-            <div className="leading-6">
-              <p className="my-2">
-                {l10n.getString(
-                  'churn-cancel-flow-error-already-canceling-message',
-                  {
-                    productName,
-                    currentPeriodEnd: currentPeriodEndLongFallback,
-                  },
-                  `You’ll continue to have access to ${productName} until ${currentPeriodEndLongFallback}.`
-                )}
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 w-full">
-              <Link
-                href={`/${locale}/subscriptions/landing`}
-                className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
-              >
-                {l10n.getString(
-                  'churn-cancel-flow-error-page-button-back-to-subscriptions',
-                  'Back to subscriptions'
-                )}
-              </Link>
-              <Link
-                href={`/${locale}/subscriptions/${subscriptionId}/stay-subscribed`}
-                className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
-              >
-                {l10n.getString(
-                  'churn-cancel-flow-error-page-button-keep-subscription',
-                  'Keep subscription'
                 )}
               </Link>
             </div>

@@ -14,7 +14,6 @@ subscription-content-cancel-access-message = Cancel my access and my saved infor
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 cancel-subscription-button-cancel-subscription = Cancel subscription
   .aria-label = Cancel your subscription to { $productName }
-cancel-subscription-button-stay-subscribed = Stay subscribed
-  .aria-label = Stay subscribed to { $productName }
+cancel-subscription-button-keep-subscription = Keep subscription
 
 ##

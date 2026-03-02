@@ -64,7 +64,9 @@ export default async function LoyaltyDiscountCancelPage({
     churnCancelContentEligibility;
   const reasonStr = typeof reason === 'string' ? reason : undefined;
   const isAllowedCancelReason =
-    reasonStr === 'eligible' || reasonStr === 'discount_already_applied';
+    reasonStr === 'eligible' ||
+    reasonStr === 'discount_already_applied' ||
+    reasonStr === 'already_canceling_at_period_end';
 
   if (!isAllowedCancelReason) {
     redirect(

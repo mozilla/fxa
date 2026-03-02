@@ -6,6 +6,7 @@
 
 export * from './lib/client/components/ActionButton';
 export * from './lib/client/components/AlertBar';
+export * from './lib/client/components/AlreadyCanceling';
 export * from './lib/client/components/Banner';
 export * from './lib/client/components/BaseButton';
 export * from './lib/client/components/Breadcrumbs';
@@ -16,6 +17,7 @@ export * from './lib/client/components/ChurnCancel';
 export * from './lib/client/components/ChurnStaySubscribed';
 export * from './lib/client/components/CouponForm';
 export * from './lib/client/components/Header';
+export * from './lib/client/components/InterstitialOffer';
 export * from './lib/client/components/LoadingSpinner';
 export * from './lib/client/components/PageNotFound';
 export * from './lib/client/components/PaymentStateObserver';
