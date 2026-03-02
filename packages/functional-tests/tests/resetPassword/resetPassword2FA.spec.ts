@@ -397,12 +397,6 @@ test.describe('severity-1 #smoke', () => {
     await resetPassword.confirmRecoveryKeyButton.click();
     await expect(resetPassword.errorBanner).toBeVisible();
 
-    // Note! This is the start of edge case this test validates. When we provided
-    // a recovery key, we took our password forgot token and exchange it for an
-    // account reset token, which resulted in the passwordForgotToken becoming
-    // invalid. We therefore must use the account reset token for the rest of
-    // the web requests in this flow.
-
     // Click Forgot Key Link
     await resetPassword.forgotKeyLink.click();
 
@@ -477,12 +471,6 @@ test.describe('severity-1 #smoke', () => {
     );
     await resetPassword.confirmRecoveryKeyButton.click();
     await expect(resetPassword.errorBanner).toBeVisible();
-
-    /// Note! This is the start of edge case this test validates. When we provided
-    // a recovery key, we took our password forgot token and exchange it for an
-    // account reset token, which resulted in the passwordForgotToken becoming
-    // invalid. We therefore must use the account reset token for the rest of
-    // the web requests in this flow.
 
     // Click Forgot Key Link
     await resetPassword.forgotKeyLink.click();
@@ -813,12 +801,6 @@ test.describe('reset password with recovery phone', () => {
     );
     await resetPassword.confirmRecoveryKeyButton.click();
     await expect(resetPassword.errorBanner).toBeVisible();
-
-    // Note! This is the start of edge case this test validates. When we provided
-    // a recovery key, we took our password forgot token and exchange it for an
-    // account reset token, which resulted in the passwordForgotToken becoming
-    // invalid. We therefore must use the account reset token for the rest of
-    // the web requests in this flow.
 
     // Click Forgot Key Link
     await resetPassword.forgotKeyLink.click();
