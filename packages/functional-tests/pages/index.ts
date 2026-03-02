@@ -7,6 +7,7 @@ import { AvatarPage } from './settings/avatar';
 import { BaseTarget } from '../lib/targets/base';
 import { ConfigPage } from './config';
 import { ConfirmSignupCodePage } from './confirmSignupCode';
+import { ConfirmTotpResetPassword } from './confirmTotpResetPassword';
 import { ConnectAnotherDevicePage } from './connectAnotherDevice';
 import { CookiesDisabledPage } from './cookiesDisabled';
 import { ChangePasswordPage } from './settings/changePassword';
@@ -47,6 +48,7 @@ export function create(page: Page, target: BaseTarget) {
     changePassword: new ChangePasswordPage(page, target),
     configPage: new ConfigPage(page, target),
     confirmSignupCode: new ConfirmSignupCodePage(page, target),
+    confirmTotpResetPassword: new ConfirmTotpResetPassword(page, target),
     connectAnotherDevice: new ConnectAnotherDevicePage(page, target),
     cookiesDisabled: new CookiesDisabledPage(page, target),
     deleteAccount: new DeleteAccountPage(page, target),

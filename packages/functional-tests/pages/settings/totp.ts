@@ -94,6 +94,10 @@ export class TotpPage extends SettingsLayout {
     return this.page.getByRole('button', { name: 'Finish' });
   }
 
+  get confirmBackupCodeConfirmButton() {
+    return this.page.getByRole('button', { name: 'Confirm' });
+  }
+
   get confirmBackupCodeTextbox() {
     return (
       this.page
