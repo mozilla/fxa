@@ -31,7 +31,8 @@ export class CacheFirstStrategy implements CacheStrategy {
       startTime: number,
       endTime: number,
       cacheResult: CacheResult
-    ) => void
+    ) => void,
+    private logger: { error: (msg: unknown) => void; warn: (msg: string) => void } = console
   ) {}
 
   private findCachedValue = async (client: CacheClient, key: string) => {
@@ -87,10 +88,10 @@ export class CacheFirstStrategy implements CacheStrategy {
           .set(context.key, methodValue, context.ttl)
           .catch((err) => {
             this.onAsyncCacheWriteFailure?.(err);
-            console.error(err);
+            this.logger.error(err);
 
             if (context.debug) {
-              console.warn(
+              this.logger.warn(
                 `type-cacheable Cacheable set cache failure on method ${
                   context.originalMethod.name
                 } due to client error: ${(err as Error).message}`

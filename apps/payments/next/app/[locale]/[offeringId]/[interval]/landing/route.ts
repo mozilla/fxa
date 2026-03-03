@@ -21,16 +21,6 @@ import * as Sentry from '@sentry/nextjs';
 
 export const dynamic = 'force-dynamic'; // defaults to auto
 
-function reportError(message: string, details?: any) {
-  if (details) {
-    console.error(message, details);
-    Sentry.captureMessage(message, details);
-  } else {
-    console.error(message);
-    Sentry.captureMessage(message, 'error');
-  }
-}
-
 /**
  * This landing route will initiate the OAuth no prompt signin
  * attempt with FxA.
@@ -54,8 +44,19 @@ export async function GET(
   { params }: { params: BaseParams }
 ) {
   const requestSearchParams = request.nextUrl.searchParams;
+  const logger = getApp().getLogger();
   const emitterService = getApp().getEmitterService();
   const ipAddress = getIpAddress();
+
+  const reportError = (message: string, details?: any) => {
+    if (details) {
+      logger.error(message, details);
+      Sentry.captureMessage(message, details);
+    } else {
+      logger.error(message);
+      Sentry.captureMessage(message, 'error');
+    }
+  };
 
   if (config.sp2redirect.enabled) {
     const queryCurrency = requestSearchParams.get('currency');
@@ -97,10 +98,10 @@ export async function GET(
         });
 
         if (config.sp2redirect.shadowMode) {
-          console.log('SP2 Redirect Shadow Mode enabled', { sp2RedirectUrl });
+          logger.info('SP2 Redirect Shadow Mode enabled', { sp2RedirectUrl });
         }
       } catch (error) {
-        console.log(error);
+        logger.error('SP2 redirect error', { error });
       } finally {
         if (!config.sp2redirect.shadowMode) {
           if (!sp2RedirectUrl) {
@@ -155,7 +156,7 @@ export async function GET(
         metricsFlow.flowBeginTime.toString()
       );
     } catch (error) {
-      console.error(error);
+      logger.error('Failed to fetch metrics flow', { error });
     }
     redirectUrl = await signIn(
       'fxa',
@@ -167,7 +168,7 @@ export async function GET(
     );
   } catch (error) {
     // Log the error and redirect to /new without attempting signIn
-    console.error(error);
+    logger.error('Failed to sign in', { error });
   }
 
   if (!redirectUrl) {

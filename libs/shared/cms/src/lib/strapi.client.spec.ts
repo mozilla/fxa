@@ -10,6 +10,7 @@ import { OfferingQuery } from '../__generated__/graphql';
 import { StrapiQueryError } from './cms.error';
 import { MockStrapiClientConfigProvider } from './strapi.client.config';
 import { LocalesResultFactory } from './queries/locales';
+import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { relyingPartyQuery } from './queries/relying-party';
@@ -68,6 +69,16 @@ describe('StrapiClient', () => {
         MockStrapiClientConfigProvider,
         StrapiClient,
         MockFirestoreProvider,
+        {
+          provide: Logger,
+          useValue: {
+            error: jest.fn(),
+            log: jest.fn(),
+            warn: jest.fn(),
+            debug: jest.fn(),
+            info: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
