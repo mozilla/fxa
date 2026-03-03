@@ -55,7 +55,7 @@ export class PasskeyConfig {
    * Maximum number of passkeys a user can register.
    */
   @IsNumber()
-  public maxPasskeysPerUser?: number;
+  public maxPasskeysPerUser!: number;
 
   /**
    * Challenge expiration timeout in milliseconds.
