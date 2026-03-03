@@ -11,7 +11,11 @@ const packageJson = require('../../package.json');
 let server: TestServerInstance;
 
 beforeAll(async () => {
-  server = await createTestServer();
+  server = await createTestServer({
+    configOverrides: {
+      corsOrigin: ['http://foo', 'http://bar'],
+    },
+  });
 }, 120000);
 
 afterAll(async () => {
