@@ -32,15 +32,26 @@ import type {
 } from '@fxa/shared/db/mysql/account';
 
 /**
- * Find all passkeys for a given user.
+ * Type guard for MySQL duplicate-entry errors (ER_DUP_ENTRY).
  *
- * Note: Results are not ordered. The number of passkeys per user will be
- * constrained (typically < 10), so ordering is not necessary and clients
- * can sort as needed.
+ * Use this instead of `err.code === 'ER_DUP_ENTRY'` on an `any`-typed catch
+ * variable. Safe to use with `catch (err: unknown)`.
+ */
+export function isMysqlDupEntry(err: unknown): err is { code: 'ER_DUP_ENTRY' } {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'code' in err &&
+    (err as { code: unknown }).code === 'ER_DUP_ENTRY'
+  );
+}
+
+/**
+ * Find all passkeys for a given user, ordered by creation date newest-first.
  *
  * @param db - Database instance
  * @param uid - User ID (16-byte Buffer)
- * @returns Array of passkeys for the user (unordered)
+ * @returns Array of passkeys ordered by createdAt descending
  */
 export async function findPasskeysByUid(
   db: AccountDatabase,
@@ -50,6 +61,8 @@ export async function findPasskeysByUid(
     .selectFrom('passkeys')
     .selectAll()
     .where('uid', '=', uid)
+    .orderBy('createdAt', 'desc')
+    .orderBy('credentialId', 'asc')
     .execute();
 }
 
@@ -88,16 +101,29 @@ export async function insertPasskey(
  * Update passkey metadata after successful authentication.
  *
  * Updates lastUsedAt, signCount, and backupState for a passkey.
- * Should only be called after successful authentication.
+ * Must only be called after the WebAuthn assertion has been fully verified
+ * by the service layer, including signCount validation.
+ *
+ * The WHERE clause enforces two cases per the WebAuthn spec:
+ * - newSignCount > 0: stored must be strictly less than new (normal increment)
+ * - newSignCount = 0: stored must also be 0 (authenticators that never increment)
+ * Identical non-zero counters are rejected as a potential cloning signal.
+ *
+ * This is a data integrity guard against concurrent writes — not the primary
+ * protection against replay or cloning attacks. Replays are blocked by
+ * single-use challenge validation, and clone detection is performed by
+ * verifyAuthenticationResponse() before this function is called.
  *
  * @param db - Database instance
+ * @param uid - User ID (16-byte Buffer)
  * @param credentialId - WebAuthn credential ID (Buffer)
- * @param signCount - New signature count from authenticator data
+ * @param signCount - Verified new signature count from authenticator data
  * @param backupState - Current backup state flag (0 or 1) from authenticator data
- * @returns true if a passkey was updated, false otherwise
+ * @returns true if updated, false if credential not found or concurrent write conflict
  */
 export async function updatePasskeyCounterAndLastUsed(
   db: AccountDatabase,
+  uid: Buffer,
   credentialId: Buffer,
   signCount: number,
   backupState: number
@@ -109,7 +135,16 @@ export async function updatePasskeyCounterAndLastUsed(
       signCount: signCount,
       backupState: backupState,
     })
+    .where('uid', '=', uid)
     .where('credentialId', '=', credentialId)
+    .where((eb) =>
+      // Per WebAuthn spec: authenticators that never increment always return 0
+      // (both stored and new must be 0). For all other authenticators, the new
+      // value must be strictly greater than the stored value.
+      signCount === 0
+        ? eb('signCount', '=', 0)
+        : eb('signCount', '<', signCount)
+    )
     .executeTakeFirst();
 
   return result.numUpdatedRows === BigInt(1);
@@ -118,19 +153,25 @@ export async function updatePasskeyCounterAndLastUsed(
 /**
  * Update the friendly name for a passkey.
  *
+ * Both uid and credentialId must match so that one user cannot rename
+ * another user's passkey with a known credential ID.
+ *
  * @param db - Database instance
+ * @param uid - User ID (16-byte Buffer)
  * @param credentialId - WebAuthn credential ID (Buffer)
  * @param name - New friendly name for the passkey
- * @returns Number of rows updated (should be 1 if successful)
+ * @returns Number of rows updated (1 if successful, 0 if not found or wrong user)
  */
 export async function updatePasskeyName(
   db: AccountDatabase,
+  uid: Buffer,
   credentialId: Buffer,
   name: string
 ): Promise<number> {
   const result = await db
     .updateTable('passkeys')
     .set({ name })
+    .where('uid', '=', uid)
     .where('credentialId', '=', credentialId)
     .executeTakeFirst();
 
