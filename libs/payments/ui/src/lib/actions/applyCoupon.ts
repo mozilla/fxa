@@ -44,7 +44,7 @@ export const applyCouponAction = async (
       case 'CouponErrorLimitReached':
         response = CouponErrorMessageType.LimitReached;
         break;
-      case 'CouponErrorInvalid':
+      case 'CouponErrorInvalidCode':
       default:
         response = CouponErrorMessageType.Invalid;
     }
