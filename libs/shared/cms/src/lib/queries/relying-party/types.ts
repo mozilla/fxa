@@ -5,9 +5,9 @@
 import { Enum_Componentaccountsshared_Headlinefontsize } from '../../../__generated__/graphql';
 
 export interface Page {
-  headline: string;
+  headline: string | null;
   description: string | null;
-  primaryButtonText: string;
+  primaryButtonText: string | null;
   logoUrl: string | null;
   logoAltText: string | null;
   pageTitle: string | null;
@@ -63,6 +63,10 @@ export interface RelyingPartyResult {
   SigninCachedPage?: Page;
   SigninTokenCodePage?: Page;
   SigninUnblockCodePage?: Page;
+  SigninTotpCodePage?: Page;
+  SigninRecoveryChoicePage?: Page;
+  SigninRecoveryCodePage?: Page;
+  SigninRecoveryPhonePage?: Page;
   shared: Shared;
   NewDeviceLoginEmail?: Email;
   VerifyLoginCodeEmail?: Email;

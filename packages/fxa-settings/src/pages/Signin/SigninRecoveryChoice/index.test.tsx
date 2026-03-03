@@ -13,7 +13,11 @@ import SigninRecoveryChoice from '.';
 import { MOCK_SIGNIN_LOCATION_STATE } from './mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
-import { MOCK_MASKED_PHONE_NUMBER_WITH_COPY } from '../mocks';
+import {
+  createMockSigninWebIntegration,
+  MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
+} from '../mocks';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 function renderSigninRecoveryChoice(overrides = {}) {
   const defaultProps = {
@@ -91,6 +95,19 @@ describe('SigninRecoveryChoice', () => {
       screen.getByLabelText(/Backup authentication codes/i)
     ).toBeInTheDocument();
     expect(screen.getByText('4 codes remaining')).toBeInTheDocument();
+  });
+
+  it('renders CMS headline and description when provided', () => {
+    const mockIntegrationWithCms = createMockSigninWebIntegration({
+      cmsInfo: MOCK_CMS_INFO,
+    });
+    renderSigninRecoveryChoice({ integration: mockIntegrationWithCms });
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryChoicePage!.headline!)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryChoicePage!.description!)
+    ).toBeInTheDocument();
   });
 
   it('renders as expected with one backup authentication code', () => {

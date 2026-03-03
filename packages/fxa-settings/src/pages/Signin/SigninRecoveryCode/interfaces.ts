@@ -15,6 +15,7 @@ export type SigninRecoveryCodeProps = {
   submitRecoveryCode: SubmitRecoveryCode;
   lastFourPhoneDigits?: string;
   loading?: boolean;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & SensitiveData.AuthData;
 
 export type SubmitRecoveryCode = (

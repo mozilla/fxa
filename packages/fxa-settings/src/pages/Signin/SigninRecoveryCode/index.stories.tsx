@@ -66,6 +66,25 @@ export const DefaultWithCms = () => (
   />
 );
 
+export const SplitLayoutWithCms = () => (
+  <SigninRecoveryCode
+    finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+    integration={createMockOAuthNativeIntegration(true, {
+      ...MOCK_CMS_INFO,
+      SigninRecoveryCodePage: {
+        ...MOCK_CMS_INFO.SigninRecoveryCodePage,
+        splitLayout: true,
+      },
+    })}
+    navigateToRecoveryPhone={() => {
+      action('handleNavigation')();
+      return Promise.resolve();
+    }}
+    signinState={mockSigninLocationState}
+    submitRecoveryCode={mockSubmitSuccess}
+  />
+);
+
 export const WithCodeErrorOnSubmit = () => (
   <SigninRecoveryCode
     finishOAuthFlowHandler={mockFinishOAuthFlowHandler}

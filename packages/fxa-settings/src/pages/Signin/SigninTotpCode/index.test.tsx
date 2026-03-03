@@ -124,6 +124,20 @@ describe('Sign in with TOTP code page', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders CMS headline and description when provided', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={mockOAuthNativeSigninIntegration(false, MOCK_CMS_INFO)}
+      />
+    );
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninTotpCodePage!.headline!)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninTotpCodePage!.description!)
+    ).toBeInTheDocument();
+  });
+
   it('shows the relying party in the header when a service name is provided', () => {
     renderWithLocalizationProvider(
       <Subject

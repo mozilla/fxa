@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -39,6 +40,7 @@ const SigninRecoveryCode = ({
   submitRecoveryCode,
   unwrapBKey,
   loading = false,
+  setCurrentSplitLayout,
 }: SigninRecoveryCodeProps & RouteComponentProps) => {
   useEffect(() => {
     GleanMetrics.loginBackupCode.view();
@@ -207,26 +209,24 @@ const SigninRecoveryCode = ({
   };
 
   const cmsInfo = integration.getCmsInfo();
+  const cmsPage = cmsInfo?.SigninRecoveryCodePage;
+  const splitLayout = cmsPage?.splitLayout;
+  const title = cmsPage?.pageTitle;
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
 
   return (
-    <AppLayout cmsInfo={cmsInfo} loading={loading}>
+    <AppLayout
+      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      loading={loading}
+    >
       <div className="relative flex items-center mb-5">
         <ButtonBack
           cmsBackground={cmsInfo?.shared.backgrounds?.defaultLayout}
         />
-        {cmsInfo?.shared.logoUrl && cmsInfo.shared.logoAltText ? (
-          <img
-            src={cmsInfo.shared.logoUrl}
-            alt={cmsInfo.shared.logoAltText}
-            className="justify-start mb-4 max-h-[40px]"
-          />
-        ) : (
-          <FtlMsg id="signin-recovery-code-heading">
-            <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
-          </FtlMsg>
-        )}
+        <FtlMsg id="signin-recovery-code-heading">
+          <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
+        </FtlMsg>
       </div>
 
       {bannerErrorMessage && (
@@ -238,18 +238,34 @@ const SigninRecoveryCode = ({
           }}
         />
       )}
-      <BackupCodesImage />
+      {cmsPage?.primaryImage?.url ? (
+        <img
+          src={cmsPage.primaryImage.url}
+          alt={cmsPage.primaryImage.altText || ''}
+          className="mx-auto my-4"
+        />
+      ) : (
+        <BackupCodesImage />
+      )}
 
-      <FtlMsg id="signin-recovery-code-sub-heading">
-        <h2 className="card-header">Enter backup authentication code</h2>
-      </FtlMsg>
+      {cmsPage?.headline ? (
+        <h2 className="card-header">{cmsPage.headline}</h2>
+      ) : (
+        <FtlMsg id="signin-recovery-code-sub-heading">
+          <h2 className="card-header">Enter backup authentication code</h2>
+        </FtlMsg>
+      )}
 
-      <FtlMsg id="signin-recovery-code-instruction-v3">
-        <p className="mt-2 text-sm">
-          Enter one of the one-time-use codes you saved when you set up two-step
-          authentication.
-        </p>
-      </FtlMsg>
+      {cmsPage?.description ? (
+        <p className="mt-2 text-sm">{cmsPage.description}</p>
+      ) : (
+        <FtlMsg id="signin-recovery-code-instruction-v3">
+          <p className="mt-2 text-sm">
+            Enter one of the one-time-use codes you saved when you set up
+            two-step authentication.
+          </p>
+        </FtlMsg>
+      )}
 
       {additionalAccessibilityInfo && (
         <p className="text-sm mt-2">{additionalAccessibilityInfo}</p>
@@ -265,6 +281,7 @@ const SigninRecoveryCode = ({
           setCodeErrorMessage,
           cmsButton: {
             color: cmsInfo?.shared?.buttonColor,
+            text: cmsPage?.primaryButtonText,
           },
         }}
         gleanDataAttrs={{ id: 'login_backup_codes_submit' }}

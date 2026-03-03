@@ -31,10 +31,12 @@ type SigninRecoveryCodeLocationState = {
 
 export type SigninRecoveryCodeContainerProps = {
   integration: Integration;
+  setCurrentSplitLayout?: (value: boolean) => void;
 };
 
 export const SigninRecoveryCodeContainer = ({
   integration,
+  setCurrentSplitLayout,
 }: SigninRecoveryCodeContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
@@ -124,9 +126,16 @@ export const SigninRecoveryCodeContainer = ({
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninRecoveryCodePage?.splitLayout;
+
   if (!signinState) {
     navigateWithQuery('/');
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   return (
@@ -141,6 +150,7 @@ export const SigninRecoveryCodeContainer = ({
         submitRecoveryCode,
         unwrapBKey,
         loading: sendingPhoneCode,
+        setCurrentSplitLayout,
       }}
     />
   );

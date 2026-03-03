@@ -34,6 +34,7 @@ import { SigninLocationState } from '../interfaces';
 
 const SigninRecoveryPhoneContainer = ({
   integration,
+  setCurrentSplitLayout,
 }: SigninRecoveryPhoneContainerProps & RouteComponentProps) => {
   const alertBar = useAlertBar();
   const authClient = useAuthClient();
@@ -192,6 +193,7 @@ const SigninRecoveryPhoneContainer = ({
         numBackupCodes,
         integration,
         signinState,
+        setCurrentSplitLayout,
       }}
     />
   );
