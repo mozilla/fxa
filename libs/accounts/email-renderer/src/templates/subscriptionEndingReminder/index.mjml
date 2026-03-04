@@ -17,8 +17,8 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionEndingReminder-content-line2" data-l10n-args="<%= JSON.stringify({productName, serviceLastActiveDateOnly, accountSettingsUrl, subscriptionSupportUrlWithUtm }) %>">
-        If you’d like to continue using <%- productName %>, you can reactivate your subscription in <a href="<%- accountSettingsUrl %>" class="link-blue" data-l10n-name="subscriptionEndingReminder-account-settings">Account Settings</a> before <strong><%- serviceLastActiveDateOnly %></strong>. If you need assistance, <a href="<%- subscriptionSupportUrlWithUtm %>" class="link-blue" data-l10n-name="subscriptionEndingReminder-contact-support">contact our Support Team</a>.
+      <span data-l10n-id="subscriptionEndingReminder-content-line2-v2" data-l10n-args="<%= JSON.stringify({productName, serviceLastActiveDateOnly, manageSubscriptionUrl, subscriptionSupportUrlWithUtm }) %>">
+        If you’d like to continue using <%- productName %>, you can stay subscribed in <a href="<%- manageSubscriptionUrl %>" class="link-blue" data-l10n-name="subscriptionEndingReminder-subscription-management">Subscription Management</a> before <strong><%- serviceLastActiveDateOnly %></strong>. If you need assistance, <a href="<%- subscriptionSupportUrlWithUtm %>" class="link-blue" data-l10n-name="subscriptionEndingReminder-contact-support">contact our Support Team</a>.
       </span>
     </mj-text>
 

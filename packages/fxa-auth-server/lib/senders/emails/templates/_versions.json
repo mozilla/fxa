@@ -1,7 +1,7 @@
 {
   "subscriptionReactivation": 2,
   "subscriptionRenewalReminder": 4,
-  "subscriptionEndingReminder": 1,
+  "subscriptionEndingReminder": 2,
   "subscriptionUpgrade": 7,
   "subscriptionDowngrade": 2,
   "subscriptionPaymentExpired": 4,

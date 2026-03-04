@@ -5,7 +5,7 @@
 export type TemplateData = {
   productName: string;
   serviceLastActiveDateOnly: string;
-  accountSettingsUrl: string;
+  manageSubscriptionUrl: string;
   subscriptionSupportUrlWithUtm: string;
   churnTermsUrlWithUtm: string;
   productIconURLNew: string;
@@ -15,7 +15,7 @@ export type TemplateData = {
 };
 
 export const template = 'subscriptionEndingReminder';
-export const version = 1;
+export const version = 2;
 export const layout = 'subscription';
 export const includes = {
   subject: {

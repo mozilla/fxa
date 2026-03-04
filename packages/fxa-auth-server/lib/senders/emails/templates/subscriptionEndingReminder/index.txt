@@ -4,7 +4,7 @@ subscriptionEndingReminder-title = "Your <%- productName %> subscription will ex
 
 subscriptionEndingReminder-content-line1-plaintext = "Your access to <%- productName %> will end on <%- serviceLastActiveDateOnly %>."
 
-subscriptionEndingReminder-content-line2-plaintext = "If you’d like to continue using <%- productName %>, you can reactivate your subscription in Account Settings before <%- serviceLastActiveDateOnly %>. If you need assistance, contact our Support Team."
+subscriptionEndingReminder-content-line2-plaintext-v2 = "If you’d like to continue using <%- productName %>, you can stay subscribed in Subscription Management before <%- serviceLastActiveDateOnly %>. If you need assistance, contact our Support Team."
 
 subscriptionEndingReminder-content-closing = "Thanks for being a valued subscriber!"
 
