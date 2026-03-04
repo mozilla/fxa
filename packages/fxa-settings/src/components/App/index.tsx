@@ -117,6 +117,9 @@ const SigninRecoveryCodeContainer = lazy(
   () => import('../../pages/Signin/SigninRecoveryCode/container')
 );
 const SigninReported = lazy(() => import('../../pages/Signin/SigninReported'));
+const SigninPasswordlessCodeContainer = lazy(
+  () => import('../../pages/Signin/SigninPasswordlessCode/container')
+);
 const SigninTokenCodeContainer = lazy(
   () => import('../../pages/Signin/SigninTokenCode/container')
 );
@@ -241,9 +244,9 @@ export const App = ({
             persistAccount(
               cachedUser
                 ? {
-                    ...cachedUser,
-                    sessionToken: userFromBrowser.sessionToken,
-                  }
+                  ...cachedUser,
+                  sessionToken: userFromBrowser.sessionToken,
+                }
                 : userFromBrowser
             );
             if (!currentAccount()?.uid) {
@@ -620,6 +623,14 @@ const AuthAndAccountSetupRoutes = ({
           isSignedIntoFirefoxDesktop,
           setCurrentSplitLayout,
         }}
+      />
+      <SigninPasswordlessCodeContainer
+        path="/oauth/signin_passwordless_code/*"
+        {...{ integration, serviceName, setCurrentSplitLayout }}
+      />
+      <SigninPasswordlessCodeContainer
+        path="/signin_passwordless_code/*"
+        {...{ integration, serviceName, setCurrentSplitLayout }}
       />
       <SigninContainer
         path="/oauth/signin/*"

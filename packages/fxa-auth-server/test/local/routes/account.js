@@ -1882,6 +1882,7 @@ describe('/account/status', () => {
       shouldError: false,
       extraConfig: {
         passwordlessOtp: {
+          enabled: true,
           allowedClientIds: ['test-client-id'],
         },
       },
@@ -1926,7 +1927,6 @@ describe('/account/status', () => {
       extraConfig: {
         passwordlessOtp: {
           enabled: true,
-          forcedEmailAddresses: /^passwordless.*@restmail\.net$/,
           allowedClientIds: ['test-client-id'],
         },
       },
@@ -1941,33 +1941,11 @@ describe('/account/status', () => {
     });
   });
 
-  it('returns passwordlessSupported true for non-existing account with forced email regex', async () => {
+  it('returns passwordlessSupported false for non-existing account when not enabled', async () => {
     const { route, mockRequest } = setup({
       extraConfig: {
         passwordlessOtp: {
           enabled: false,
-          forcedEmailAddresses: /^passwordless.*@restmail\.net$/,
-          allowedClientIds: ['test-client-id'],
-        },
-      },
-      shouldError: true,
-    });
-    mockRequest.payload.email = 'passwordless123@restmail.net';
-    mockRequest.payload.thirdPartyAuthStatus = true;
-    mockRequest.payload.clientId = 'test-client-id';
-
-    return runTest(route, mockRequest, (response) => {
-      assert.equal(response.exists, false);
-      assert.equal(response.passwordlessSupported, true);
-    });
-  });
-
-  it('returns passwordlessSupported false for non-existing account when not enabled and email does not match forced regex', async () => {
-    const { route, mockRequest } = setup({
-      extraConfig: {
-        passwordlessOtp: {
-          enabled: false,
-          forcedEmailAddresses: /^passwordless.*@restmail\.net$/,
         },
       },
       shouldError: true,

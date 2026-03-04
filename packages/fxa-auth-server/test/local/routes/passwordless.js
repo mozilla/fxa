@@ -18,7 +18,6 @@ function hexString(bytes) {
 }
 
 const TEST_EMAIL = 'test@example.com';
-const FORCED_EMAIL = 'forcepasswordless@example.com';
 
 let mockOtpManager;
 let mockOtpManagerCreate;
@@ -31,7 +30,6 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     enabled: true,
     ttl: 300,
     digits: 6,
-    forcedEmailAddresses: /forcepasswordless@example.com/,
     allowedClientIds: [],
   };
   config.verifierVersion = config.verifierVersion || 0;
@@ -136,7 +134,6 @@ describe('/account/passwordless/send_code', () => {
           enabled: true,
           ttl: 300,
           digits: 6,
-          forcedEmailAddresses: /forcepasswordless@example.com/,
           allowedClientIds: ['test-client-id'],
         },
       },
@@ -192,40 +189,6 @@ describe('/account/passwordless/send_code', () => {
         emails: [{ email: TEST_EMAIL, isPrimary: true }],
       })
     );
-
-    return runTest(route, mockRequest, (result) => {
-      assert.equal(mockDB.accountRecord.callCount, 1);
-      assert.equal(mockOtpManagerCreate.callCount, 1);
-      assert.equal(
-        mockOtpManagerCreate.args[0][0],
-        uid,
-        'otpManager.create called with uid for existing account'
-      );
-      assert.deepEqual(result, {});
-    });
-  });
-
-  it('should send OTP for forcedEmailAddress', () => {
-    mockDB.accountRecord = sinon.spy(() =>
-      Promise.resolve({
-        uid,
-        email: FORCED_EMAIL,
-        verifierSetAt: Date.now(),
-        emails: [{ email: FORCED_EMAIL, isPrimary: true }],
-      })
-    );
-    mockRequest = mocks.mockRequest({
-      log: mockLog,
-      payload: {
-        email: FORCED_EMAIL,
-        clientId: 'test-client-id',
-        metricsContext: {
-          deviceId: 'device123',
-          flowId: 'flow123',
-          flowBeginTime: Date.now(),
-        },
-      },
-    });
 
     return runTest(route, mockRequest, (result) => {
       assert.equal(mockDB.accountRecord.callCount, 1);
@@ -313,7 +276,7 @@ describe('/account/passwordless/confirm_code', () => {
           enabled: true,
           ttl: 300,
           digits: 6,
-          forcedEmailAddresses: /forcepasswordless@example.com/,
+
           allowedClientIds: ['test-client-id'],
         },
       },
@@ -458,7 +421,7 @@ describe('/account/passwordless/confirm_code', () => {
           enabled: true,
           ttl: 300,
           digits: 6,
-          forcedEmailAddresses: /forcepasswordless@example.com/,
+
           allowedClientIds: ['test-client-id'],
         },
       },
@@ -572,7 +535,7 @@ describe('/account/passwordless/resend_code', () => {
           enabled: true,
           ttl: 300,
           digits: 6,
-          forcedEmailAddresses: /forcepasswordless@example.com/,
+
           allowedClientIds: ['test-client-id'],
         },
       },
@@ -659,7 +622,6 @@ describe('passwordless routes feature flags', () => {
       config: {
         passwordlessOtp: {
           enabled: false,
-          forcedEmailAddresses: /^$/,
         },
       },
     });

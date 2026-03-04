@@ -93,6 +93,8 @@ export interface LocationState {
     localizedSuccessBannerHeading?: string;
     localizedSuccessBannerDescription?: string;
   };
+  /** When redirecting from passwordless with TOTP_REQUIRED, skip redirect back to passwordless */
+  skipPasswordlessRedirect?: boolean;
 }
 
 export interface SigninProps {

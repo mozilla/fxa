@@ -102,6 +102,7 @@ export interface Config {
     showLocaleToggle?: boolean;
     paymentsNextSubscriptionManagement?: boolean;
     passkeysEnabled?: boolean;
+    passwordlessEnabled?: boolean;
   };
   nimbus: {
     enabled: boolean;
@@ -197,6 +198,7 @@ export function getDefault() {
       recoveryCodeSetupOnSyncSignIn: false,
       showLocaleToggle: false,
       paymentsNextSubscriptionManagement: false,
+      passwordlessEnabled: false,
     },
     cms: {
       enabled: false,
