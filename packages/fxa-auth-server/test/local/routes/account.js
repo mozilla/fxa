@@ -3192,6 +3192,69 @@ describe('/account/login', () => {
       });
     });
 
+    it('does not send new device login email during login when session is unverified (deferred to verify_code)', () => {
+      // Regression test: when a session is unverified but mustVerify=false (e.g. a non-sync
+      // login for an older account), the newDeviceLogin email must NOT be sent during login.
+      // It will be sent by session.js:verify_code after the user completes token verification.
+      // Previously the condition `tokenVerified || !mustVerify` would send it here too,
+      // resulting in two emails.
+      const email = 'test@mozilla.com';
+      mockDB.accountRecord = function () {
+        return Promise.resolve({
+          authSalt: hexString(32),
+          data: hexString(32),
+          email: email,
+          emailVerified: true,
+          primaryEmail: {
+            normalizedEmail: normalizeEmail(email),
+            email: email,
+            isVerified: true,
+            isPrimary: true,
+          },
+          kA: hexString(32),
+          lastAuthAt: function () {
+            return Date.now();
+          },
+          uid: uid,
+          wrapWrapKb: hexString(32),
+        });
+      };
+
+      // Simulate an unverified session state. This will supress the sending of
+      // a 'new device login' email.
+      const originalCreateSessionToken = mockDB.createSessionToken;
+      mockDB.createSessionToken = sinon.spy(async (opts) => {
+        const result = await originalCreateSessionToken(opts);
+        result.tokenVerificationId = hexString(16);
+        result.tokenVerified = false;
+        return result;
+      });
+
+      return runTest(route, mockRequestNoKeys, (response) => {
+        mockDB.createSessionToken = originalCreateSessionToken;
+
+        const tokenData = mockDB.createSessionToken.getCall(0).args[0];
+        assert.ok(
+          tokenData.tokenVerificationId,
+          'sessionToken was created unverified'
+        );
+        // newDeviceLogin email must NOT be sent during login when the session is
+        // unverified — it will be sent by session.js:verify_code after verification.
+        assert.equal(
+          mockFxaMailer.sendNewDeviceLoginEmail.callCount,
+          0,
+          'newDeviceLogin email is not sent during login for an unverified session'
+        );
+        assert.ok(
+          !response.verified,
+          'response indicates session is not verified'
+        );
+
+        // Restore the original function
+        mockDB.createSessionToken = originalCreateSessionToken;
+      });
+    });
+
     it('requires change password verification when the lockedAt field is set', () => {
       const email = 'test@mozilla.com';
       mockDB.accountRecord = function () {
@@ -4510,6 +4573,7 @@ describe('/account/login', () => {
     }
   });
 
+  // Breaking
   it('should use RP CMS email content for new login email', () => {
     rpConfigManager.fetchCMSData.resetHistory();
     const email = 'test@mozilla.com';
@@ -4533,7 +4597,20 @@ describe('/account/login', () => {
         wrapWrapKb: hexString(32),
       });
     };
+
+    const originalCreateSessionToken = mockDB.createSessionToken;
+
+    // Simulate a verified session state. This will result in a new device
+    // login email being sent.
+    mockDB.createSessionToken = sinon.spy(async (opts) => {
+      const result = await originalCreateSessionToken(opts);
+      result.tokenVerificationId = null;
+      result.tokenVerified = true;
+      return result;
+    });
+
     return runTest(route, mockRequestWithRpCmsConfig, () => {
+      mockDB.createSessionToken = originalCreateSessionToken;
       assert.calledOnce(mockFxaMailer.sendNewDeviceLoginEmail);
       const args = mockFxaMailer.sendNewDeviceLoginEmail.args[0];
       const emailMessage = args[0];
