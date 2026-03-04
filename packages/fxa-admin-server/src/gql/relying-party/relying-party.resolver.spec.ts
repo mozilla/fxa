@@ -10,7 +10,7 @@ import { AuditLogInterceptor } from '../../auth/audit-log.interceptor';
 import { RelyingParty } from 'fxa-shared/db/models/auth';
 import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import { Knex } from 'knex';
-import { RelyingPartyResolver } from './relying-party.resolver';
+import { RelyingPartyController } from '../../rest/relying-party/relying-party.controller';
 
 const MOCK_RP_ID = 'fced6b5e3f4c66b9';
 
@@ -28,12 +28,12 @@ const MOCK_RP = {
   notes: '',
 };
 
-describe('#integration - RelyingPartyResolver', () => {
+describe('#integration - RelyingPartyController', () => {
   let knex: Knex;
   let db = {
     relyingParty: RelyingParty,
   };
-  let resolver: RelyingPartyResolver;
+  let controller: RelyingPartyController;
 
   beforeAll(async () => {
     knex = await testDatabaseSetup();
@@ -54,7 +54,7 @@ describe('#integration - RelyingPartyResolver', () => {
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        RelyingPartyResolver,
+        RelyingPartyController,
         AuditLogInterceptor,
         MockMozLoggerService,
         MockConfig,
@@ -62,7 +62,7 @@ describe('#integration - RelyingPartyResolver', () => {
       ],
     }).compile();
 
-    resolver = module.get<RelyingPartyResolver>(RelyingPartyResolver);
+    controller = module.get<RelyingPartyController>(RelyingPartyController);
   });
 
   afterAll(async () => {
@@ -74,7 +74,7 @@ describe('#integration - RelyingPartyResolver', () => {
   });
 
   it('should return relying parties with transformed ID', async () => {
-    const result = await resolver.relyingParties();
+    const result = await controller.relyingParties();
 
     expect(result.length).toEqual(1);
     expect(result).toEqual([
@@ -99,13 +99,13 @@ describe('#integration - RelyingPartyResolver', () => {
       notes: 'test',
     };
 
-    const result = await resolver.createRelyingParty(payload);
+    const result = await controller.createRelyingParty(payload);
 
     expect(result).toBeDefined();
     expect(result.id).toBeDefined();
     expect(result.secret).toBeDefined();
     expect(
-      (await resolver.relyingParties()).some((x) => x.id === result.id)
+      (await controller.relyingParties()).some((x) => x.id === result.id)
     ).toBeTruthy();
   });
 
@@ -121,7 +121,7 @@ describe('#integration - RelyingPartyResolver', () => {
       allowedScopes: MOCK_RP.allowedScopes,
       notes: 'test',
     };
-    const result = await resolver.createRelyingParty(payload);
+    const result = await controller.createRelyingParty(payload);
 
     const payload2 = {
       name: 'foo123',
@@ -133,8 +133,8 @@ describe('#integration - RelyingPartyResolver', () => {
       allowedScopes: '',
       notes: 'test updated',
     };
-    const result2 = await resolver.updateRelyingParty(result.id, payload2);
-    const updatedState = (await resolver.relyingParties()).find(
+    const result2 = await controller.updateRelyingParty(result.id, payload2);
+    const updatedState = (await controller.relyingParties()).find(
       (x) => x.id === result.id
     );
     expect(result).toBeDefined();
@@ -151,11 +151,11 @@ describe('#integration - RelyingPartyResolver', () => {
   });
 
   it('should delete relying party', async () => {
-    const result = await resolver.deleteRelyingParty(MOCK_RP.id);
+    const result = await controller.deleteRelyingParty(MOCK_RP.id);
 
     expect(result).toBeTruthy();
     expect(
-      (await resolver.relyingParties()).some((x) => x.id === MOCK_RP.id)
+      (await controller.relyingParties()).some((x) => x.id === MOCK_RP.id)
     ).toBeFalsy();
   });
 
@@ -171,21 +171,21 @@ describe('#integration - RelyingPartyResolver', () => {
       allowedScopes: MOCK_RP.allowedScopes,
       notes: 'test',
     };
-    const rp = await resolver.createRelyingParty(payload);
+    const rp = await controller.createRelyingParty(payload);
 
-    const rpStateBefore = (await resolver.relyingParties()).find(
+    const rpStateBefore = (await controller.relyingParties()).find(
       (x) => x.id === rp.id
     );
 
     // Rotate the secret
-    const result = await resolver.rotateRelyingPartySecret(rp.id);
-    const rpStateAfterRotate = (await resolver.relyingParties()).find(
+    const result = await controller.rotateRelyingPartySecret(rp.id);
+    const rpStateAfterRotate = (await controller.relyingParties()).find(
       (x) => x.id === rp.id
     );
 
     // Revoke previous secret
-    await resolver.deletePreviousRelyingPartySecret(rp.id);
-    const rpStateAfterRevoke = (await resolver.relyingParties()).find(
+    await controller.deletePreviousRelyingPartySecret(rp.id);
+    const rpStateAfterRevoke = (await controller.relyingParties()).find(
       (x) => x.id === rp.id
     );
 

@@ -15,15 +15,15 @@ import {
 import { Knex } from 'knex';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 
-import { EmailBounceResolver } from './email-bounce.resolver';
+import { EmailBounceController } from '../../rest/email-bounce/email-bounce.controller';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
 const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email);
 
-describe('#integration - EmailBounceResolver', () => {
-  let resolver: EmailBounceResolver;
+describe('#integration - EmailBounceController', () => {
+  let controller: EmailBounceController;
   let logger: any;
   let knex: Knex;
   let db = {
@@ -62,7 +62,7 @@ describe('#integration - EmailBounceResolver', () => {
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        EmailBounceResolver,
+        EmailBounceController,
         EventLoggingService,
         MockMozLoggerService,
         MockConfig,
@@ -71,7 +71,7 @@ describe('#integration - EmailBounceResolver', () => {
       ],
     }).compile();
 
-    resolver = module.get<EmailBounceResolver>(EmailBounceResolver);
+    controller = module.get<EmailBounceController>(EmailBounceController);
   });
 
   afterAll(async () => {
@@ -83,7 +83,7 @@ describe('#integration - EmailBounceResolver', () => {
   });
 
   it('should clear email bounces', async () => {
-    const result = await resolver.clearEmailBounce(USER_1.email, 'test');
+    const result = await controller.clearEmailBounce(USER_1.email, 'test');
     expect(result).toBeTruthy();
     expect(logger.info).toBeCalledTimes(2);
   });

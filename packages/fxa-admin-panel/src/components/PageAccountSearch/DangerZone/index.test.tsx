@@ -5,14 +5,12 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent, UserEvent } from '@testing-library/user-event';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { DangerZone } from './index';
-import { Email } from 'fxa-admin-server/src/graphql';
-import { DELETE_RECOVERY_PHONE } from './index.gql';
-import { RECORD_ADMIN_SECURITY_EVENT } from '../Account/index.gql';
+import { Email } from 'fxa-admin-server/src/types';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { mockConfigBuilder } from '../../../lib/config';
 import { IClientConfig } from '../../../../interfaces';
+import { adminApi } from '../../../lib/api';
 
 const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
 const mockGroup = mockGuard.getGroup(AdminPanelGroup.AdminProd);
@@ -41,12 +39,25 @@ jest.mock('../../../hooks/GuardContext.ts', () => ({
   }),
 }));
 
+jest.mock('../../../lib/api', () => ({
+  adminApi: {
+    unverifyEmail: jest.fn(),
+    unsubscribeFromMailingLists: jest.fn(),
+    disableAccount: jest.fn(),
+    enableAccount: jest.fn(),
+    remove2FA: jest.fn(),
+    deleteRecoveryPhone: jest.fn(),
+    recordSecurityEvent: jest.fn(),
+  },
+}));
+
 const mockAlert = jest.fn();
 const mockConfirm = jest.fn();
 
 beforeEach(() => {
   jest.spyOn(window, 'alert').mockImplementation(mockAlert);
   jest.spyOn(window, 'confirm').mockImplementation(mockConfirm);
+  (adminApi.recordSecurityEvent as jest.Mock).mockResolvedValue(true);
 });
 
 afterEach(() => {
@@ -69,67 +80,9 @@ const defaultProps = {
   hasRecoveryPhone: true,
 };
 
-class DeleteRecoveryPhone {
-  static request(uid: string) {
-    return {
-      query: DELETE_RECOVERY_PHONE,
-      variables: { uid },
-    };
-  }
-
-  static result(success: boolean = true) {
-    return {
-      data: { deleteRecoveryPhone: success },
-    };
-  }
-
-  static mock(uid: string, success: boolean = true): MockedResponse {
-    return {
-      request: this.request(uid),
-      result: this.result(success),
-    };
-  }
-
-  static errorMock(uid: string, error: Error): MockedResponse {
-    return {
-      request: this.request(uid),
-      error,
-    };
-  }
-}
-
-class RecordAdminSecurityEvent {
-  static request(uid: string, name: string) {
-    return {
-      query: RECORD_ADMIN_SECURITY_EVENT,
-      variables: { uid, name },
-    };
-  }
-
-  static result() {
-    return {
-      data: { recordAdminSecurityEvent: {} },
-    };
-  }
-
-  static mock(uid: string, name: string): MockedResponse {
-    return {
-      request: this.request(uid, name),
-      result: this.result(),
-    };
-  }
-}
-
-function renderDangerZone(
-  props: Partial<typeof defaultProps> = {},
-  mocks: MockedResponse[] = []
-) {
+function renderDangerZone(props: Partial<typeof defaultProps> = {}) {
   const mergedProps = { ...defaultProps, ...props };
-  return render(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <DangerZone {...mergedProps} />
-    </MockedProvider>
-  );
+  return render(<DangerZone {...mergedProps} />);
 }
 
 describe('DangerZone Component', () => {
@@ -197,16 +150,9 @@ describe('DangerZone Component', () => {
 
     it('calls deleteRecoveryPhone mutation when user confirms deletion', async () => {
       mockConfirm.mockReturnValue(true);
+      (adminApi.deleteRecoveryPhone as jest.Mock).mockResolvedValue(true);
 
-      const mocks = [
-        DeleteRecoveryPhone.mock('test-uid-123'),
-        RecordAdminSecurityEvent.mock(
-          'test-uid-123',
-          'account.recovery_phone_deleted'
-        ),
-      ];
-
-      renderDangerZone({}, mocks);
+      renderDangerZone();
 
       await user.click(screen.getByTestId('delete-recovery-phone'));
 
@@ -220,11 +166,11 @@ describe('DangerZone Component', () => {
 
     it('handles failed deleteRecoveryPhone mutation', async () => {
       mockConfirm.mockReturnValue(true);
+      (adminApi.deleteRecoveryPhone as jest.Mock).mockRejectedValue(
+        new Error('Network error')
+      );
 
-      const error = new Error('Network error');
-      const mocks = [DeleteRecoveryPhone.errorMock('test-uid-123', error)];
-
-      renderDangerZone({}, mocks);
+      renderDangerZone();
 
       await user.click(screen.getByTestId('delete-recovery-phone'));
 
@@ -237,19 +183,11 @@ describe('DangerZone Component', () => {
 
     it('handles GraphQL error in deleteRecoveryPhone mutation', async () => {
       mockConfirm.mockReturnValue(true);
+      (adminApi.deleteRecoveryPhone as jest.Mock).mockRejectedValue(
+        new Error('GraphQL error')
+      );
 
-      const graphQLError = {
-        message: 'GraphQL error',
-        locations: [{ line: 1, column: 1 }],
-        path: ['deleteRecoveryPhone'],
-      };
-
-      const error = new Error('GraphQL error') as any;
-      error.graphQLErrors = [graphQLError];
-
-      const mocks = [DeleteRecoveryPhone.errorMock('test-uid-123', error)];
-
-      renderDangerZone({}, mocks);
+      renderDangerZone();
 
       await user.click(screen.getByTestId('delete-recovery-phone'));
 

@@ -9,7 +9,6 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Request } from 'express';
@@ -20,9 +19,9 @@ import { AppConfig } from '../config';
 /**
  * Interceptor that automatically logs admin actions with:
  * - User (admin who performed the action)
- * - Action (function/mutation name)
+ * - Action (function/handler name)
  * - Date (timestamp)
- * - Payload (arguments passed to the mutation)
+ * - Payload (arguments passed to the handler)
  */
 @Injectable()
 export class AuditLogInterceptor implements NestInterceptor {
@@ -60,11 +59,14 @@ export class AuditLogInterceptor implements NestInterceptor {
   }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const gqlContext = GqlExecutionContext.create(context);
-    const gqlContextValue = gqlContext.getContext();
-    const request = gqlContextValue.req as Request;
+    const request = context.switchToHttp().getRequest<Request>();
     const handler = context.getHandler();
-    const args = gqlContext.getArgs();
+
+    const args = {
+      ...request.body,
+      ...request.query,
+      ...request.params,
+    };
 
     const user = (request as any).user || 'unknown';
     const actionName = handler.name;
@@ -79,7 +81,6 @@ export class AuditLogInterceptor implements NestInterceptor {
       status,
     });
 
-    // Log before execution - don't let logging errors block the request
     this.safeLogInfo({
       ...baseLogData('initiated'),
     });
@@ -119,7 +120,6 @@ export function sanitizeObject(
   if (typeof args !== 'object') {
     return args;
   }
-  // check if args is an array of objects, then sanitize each object
   if (Array.isArray(args)) {
     return args.map((item) => sanitizeObject(item, sensitiveKeys));
   }
@@ -128,7 +128,6 @@ export function sanitizeObject(
 
   for (const key in sanitized) {
     if (typeof sanitized[key] === 'object') {
-      // recursive into nested objects
       sanitized[key] = sanitizeObject(sanitized[key], sensitiveKeys);
       continue;
     }

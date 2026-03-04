@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { render } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
 import { Account, AccountProps } from './index';
-import { BounceSubType, BounceType } from 'fxa-admin-server/src/graphql';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { IClientConfig } from '../../../../interfaces';
 import { mockConfigBuilder } from '../../../lib/config';
@@ -31,6 +29,15 @@ jest.mock('../../../hooks/UserContext.ts', () => ({
   },
 }));
 
+jest.mock('../../../lib/api', () => ({
+  adminApi: {
+    editLocale: jest.fn(),
+    unlinkAccount: jest.fn(),
+    clearEmailBounce: jest.fn(),
+    recordSecurityEvent: jest.fn().mockResolvedValue(true),
+  },
+}));
+
 let accountResponse: AccountProps = {
   uid: 'ca1c61239f2448b2af618f0b50226cde',
   email: 'hey@happy.com',
@@ -45,13 +52,13 @@ let accountResponse: AccountProps = {
     },
   ],
   createdAt: 1589467100316,
-  disabledAt: null,
-  lockedAt: null,
+  disabledAt: undefined,
+  lockedAt: undefined,
   verifierSetAt: 1589467100316,
   emailBounces: [
     {
-      bounceSubType: BounceSubType.NoEmail,
-      bounceType: BounceType.Permanent,
+      bounceSubType: 'NoEmail',
+      bounceType: 'Permanent',
       createdAt: 556061927,
       diagnosticCode: '',
       email: 'bloop@mozilla.com',
@@ -89,24 +96,19 @@ let accountResponse: AccountProps = {
   ],
   attachedClients: [],
   securityEvents: [],
+  subscriptions: [],
+  linkedAccounts: [],
+  accountEvents: [],
 };
 
 it('renders without imploding', () => {
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...accountResponse} />);
 
   expect(getByTestId('account-section')).toBeInTheDocument();
 });
 
 it('displays the account', async () => {
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...accountResponse} />);
 
   expect(getByTestId('account-section')).toBeInTheDocument();
   expect(getByTestId('sign-up-email')).toHaveTextContent(accountResponse.email);
@@ -129,11 +131,7 @@ it('displays when account is disabled', async () => {
     ...accountResponse,
     disabledAt: accountResponse.createdAt + 1000 * 60 * 60,
   };
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...disabledAccount} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...disabledAccount} />);
 
   expect(getByTestId('account-disabled-at')).toHaveTextContent(
     (disabledAccount.disabledAt || '').toString()
@@ -145,11 +143,7 @@ it('displays when account is locked', async () => {
     ...accountResponse,
     lockedAt: accountResponse.createdAt + 1000 * 60 * 60,
   };
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...lockedAccount} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...lockedAccount} />);
 
   expect(getByTestId('account-locked-at')).toHaveTextContent(
     (lockedAccount.lockedAt || '').toString()
@@ -161,11 +155,7 @@ it('displays when account password is not set', async () => {
     ...accountResponse,
     verifierSetAt: 0,
   };
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...lockedAccount} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...lockedAccount} />);
 
   expect(getByTestId('account-password-set')).toHaveTextContent('No');
 });
@@ -175,40 +165,24 @@ it('displays when account password is set', async () => {
     ...accountResponse,
     verifierSetAt: 1589467100316,
   };
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...lockedAccount} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...lockedAccount} />);
 
   expect(getByTestId('account-password-set')).toHaveTextContent('Yes');
 });
 
 it('displays the unconfirmed account', async () => {
   accountResponse.emails![0].isVerified = false;
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...accountResponse} />);
   expect(getByTestId('primary-verified')).toHaveTextContent('No');
 });
 
 it('displays the bounce type description', async () => {
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...accountResponse} />);
   expect(getByTestId('bounce-description')).toBeInTheDocument();
 });
 
 it('displays the totp status', async () => {
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...accountResponse} />);
   expect(getByTestId('totp-created-at')).toBeInTheDocument();
   expect(getByTestId('totp-verified')).toBeInTheDocument();
   expect(getByTestId('totp-enabled')).toBeInTheDocument();
@@ -216,9 +190,7 @@ it('displays the totp status', async () => {
 
 it('displays the backup codes status', async () => {
   const { getByRole, getByTestId, getByText } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
+    <Account {...accountResponse} />
   );
   expect(
     getByRole('heading', { name: /2fa recovery methods/i })
@@ -230,9 +202,7 @@ it('displays the backup codes status', async () => {
 
 it('displays the recovery phone status', async () => {
   const { getByRole, getByTestId, getByText } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
+    <Account {...accountResponse} />
   );
   expect(
     getByRole('heading', { name: /2fa recovery methods/i })
@@ -243,11 +213,7 @@ it('displays the recovery phone status', async () => {
 });
 
 it('displays the account recovery key status', async () => {
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...accountResponse} />);
   expect(getByTestId('recovery-keys-created-at')).toBeInTheDocument();
   expect(getByTestId('recovery-keys-verified')).toBeInTheDocument();
   expect(getByTestId('recovery-keys-enabled')).toBeInTheDocument();
@@ -261,11 +227,7 @@ it('displays secondary emails', async () => {
     createdAt: 1589467100316,
   });
 
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...accountResponse} />);
 
   expect(getByTestId('secondary-section')).toBeInTheDocument();
   expect(getByTestId('secondary-email')).toHaveTextContent(
@@ -275,11 +237,7 @@ it('displays secondary emails', async () => {
 });
 
 it('displays the locale', async () => {
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...accountResponse} />);
   expect(getByTestId('account-locale')).toHaveTextContent('en-US');
   expect(getByTestId('edit-account-locale')).toBeInTheDocument();
 });
@@ -289,11 +247,7 @@ it('displays key-stretch-version', async () => {
     ...accountResponse,
     verifierSetAt: 0,
   };
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...lockedAccount} />
-    </MockedProvider>
-  );
+  const { getByTestId } = render(<Account {...lockedAccount} />);
 
   expect(getByTestId('key-stretch-version')).toBeInTheDocument();
 });

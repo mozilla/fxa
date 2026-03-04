@@ -4,17 +4,15 @@
 
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../../Guard';
-import { useMutation } from '@apollo/client';
-import { RECORD_ADMIN_SECURITY_EVENT } from '../Account/index.gql';
 import {
   EmailBounce as EmailBounceType,
   Email as EmailType,
-} from 'fxa-admin-server/src/graphql';
+} from 'fxa-admin-server/src/types';
 import { TableRowYHeader, TableYHeaders } from '../../TableYHeaders';
 import getEmailBounceDescription from './getBounceDescription';
 import { getFormattedDate } from '../../../lib/utils';
 import { HIDE_ROW } from '../../../../constants';
-import { CLEAR_BOUNCES_BY_EMAIL } from './index.gql';
+import { adminApi } from '../../../lib/api';
 
 const ClearButton = ({
   emails,
@@ -25,10 +23,7 @@ const ClearButton = ({
   onCleared: Function;
   uid: string;
 }) => {
-  const [clearBounces] = useMutation(CLEAR_BOUNCES_BY_EMAIL);
-  const [recordAdminSecurityEvent] = useMutation(RECORD_ADMIN_SECURITY_EVENT);
-
-  const handleClear = () => {
+  const handleClear = async () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
@@ -36,10 +31,10 @@ const ClearButton = ({
     // This could be improved to clear bounces for individual email
     // addresses, but for now it seems satisfactory to clear all bounces
     // for all emails, since they own all of the addresses
-    emails.forEach((email) => clearBounces({ variables: { email } }));
-    recordAdminSecurityEvent({
-      variables: { uid: uid, name: 'emails.clearBounces' },
-    });
+    await Promise.all(emails.map((email) => adminApi.clearEmailBounce(email)));
+    await adminApi
+      .recordSecurityEvent(uid, 'emails.clearBounces')
+      .catch(() => {});
     onCleared();
   };
 

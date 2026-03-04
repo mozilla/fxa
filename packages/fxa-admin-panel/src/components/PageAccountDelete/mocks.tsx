@@ -2,59 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  ACCOUNT_DELETE_MUTATION,
-  ACCOUNT_DELETE_TASK_STATUS_QUERY,
-} from './index.gql';
+import { AccountDeleteTaskStatus } from 'fxa-admin-server/src/types';
 
-export function mockGqlAccountDeleteTaskStatusQuery() {
-  return {
-    request: {
-      query: ACCOUNT_DELETE_TASK_STATUS_QUERY,
-      variables: {
-        taskNames: ['task-foo', 'task-bar'],
-      },
-    },
-    result: {
-      data: {
-        getDeleteStatus: [
-          {
-            taskName: 'task-foo',
-            status: 'Pending',
-          },
-          {
-            taskName: 'task-bar',
-            status: 'Task completed.',
-          },
-        ],
-      },
-    },
-  };
-}
+export const mockDeleteResults = [
+  { taskName: 'task-foo', locator: 'foo@mozilla.com', status: 'Pending' },
+  { taskName: 'task-bar', locator: 'bar@mozilla.com', status: 'Pending' },
+];
 
-export function mockGqlAccountDeleteMutation() {
-  return {
-    request: {
-      query: ACCOUNT_DELETE_MUTATION,
-      variables: {
-        locators: ['foo@mozilla.com', 'bar@mozilla.com'],
-      },
-    },
-    result: {
-      data: {
-        deleteAccounts: [
-          {
-            taskName: 'task-foo',
-            locator: 'foo@mozilla.com',
-            status: 'Pending',
-          },
-          {
-            taskName: 'task-bar',
-            locator: 'bar@mozilla.com',
-            status: 'Pending',
-          },
-        ],
-      },
-    },
-  };
-}
+export const mockTaskStatuses: AccountDeleteTaskStatus[] = [
+  { taskName: 'task-foo', status: 'Pending' },
+  { taskName: 'task-bar', status: 'Task completed.' },
+];

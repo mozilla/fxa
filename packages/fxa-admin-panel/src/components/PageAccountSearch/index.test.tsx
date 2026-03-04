@@ -5,28 +5,14 @@
 import React from 'react';
 import Chance from 'chance';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { AccountSearch } from './index';
-import { EDIT_LOCALE, RECORD_ADMIN_SECURITY_EVENT } from './Account/index.gql';
-import {
-  GET_ACCOUNT_BY_EMAIL,
-  GET_ACCOUNT_BY_RECOVERY_PHONE,
-  GET_EMAILS_LIKE,
-  GET_RECOVERY_PHONES_LIKE,
-} from './index.gql';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
-import { UNSUBSCRIBE_FROM_MAILING_LISTS } from './DangerZone/index.gql';
-import { CLEAR_BOUNCES_BY_EMAIL } from './EmailBounces/index.gql';
+import { adminApi } from '../../lib/api';
 
 const chance = new Chance();
 
 let testEmail: string;
 let testPhone: string;
-let testLocale: string = 'en-US';
-let deleteBouncesMutationCalled = false;
-let calledAccountSearch = false;
-let calledGetEmailsLike = false;
-let calledGetRecoveryPhonesLike = false;
 
 // Mock AdminPanelGuard
 const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
@@ -47,504 +33,154 @@ jest.mock('../../hooks/UserContext.ts', () => {
   };
 });
 
-// Apollo mocks
-class ClearBouncesByEmail {
-  static request(email: string) {
-    return {
-      query: CLEAR_BOUNCES_BY_EMAIL,
-      variables: {
+jest.mock('../../lib/api', () => ({
+  adminApi: {
+    getAccountByEmail: jest.fn(),
+    getAccountByUid: jest.fn(),
+    getAccountByPhone: jest.fn(),
+    getEmailsLike: jest.fn(),
+    getPhonesLike: jest.fn(),
+    clearEmailBounce: jest.fn(),
+    recordSecurityEvent: jest.fn(),
+    editLocale: jest.fn(),
+    unsubscribeFromMailingLists: jest.fn(),
+    disableAccount: jest.fn(),
+    enableAccount: jest.fn(),
+    remove2FA: jest.fn(),
+    deleteRecoveryPhone: jest.fn(),
+    unlinkAccount: jest.fn(),
+  },
+}));
+
+// Test data helpers
+function makeMinimalAccount(email: string, locale = 'en-US') {
+  return {
+    uid: '123',
+    clientSalt: '',
+    createdAt: 1658534643990,
+    verifierSetAt: 1589467100316,
+    disabledAt: null,
+    locale,
+    lockedAt: null,
+    email,
+    emailVerified: true,
+    emails: [
+      { email, isVerified: true, isPrimary: true, createdAt: 1658534643990 },
+    ],
+    emailBounces: [],
+    securityEvents: [],
+    totp: [],
+    backupCodes: [],
+    recoveryPhone: [],
+    recoveryKeys: [],
+    linkedAccounts: [],
+    attachedClients: [],
+    subscriptions: [],
+    accountEvents: [],
+    carts: [],
+  };
+}
+
+function makeRichAccount(email: string) {
+  return {
+    uid: 'a1b2c3',
+    clientSalt: '',
+    createdAt: chance.timestamp(),
+    verifierSetAt: 1589467100316,
+    disabledAt: null,
+    locale: 'en-US',
+    lockedAt: null,
+    email,
+    emailVerified: true,
+    emails: [
+      {
         email,
+        isPrimary: true,
+        isVerified: true,
+        createdAt: chance.timestamp(),
       },
-    };
-  }
-  static result() {
-    deleteBouncesMutationCalled = true;
-    return {
-      data: {
-        clearEmailBounce: true,
-      },
-    };
-  }
-  static mock(email: string): MockedResponse {
-    return {
-      request: this.request(email),
-      result: this.result(),
-    };
-  }
-}
-class GetAccountsByEmail {
-  static request(email: string, autoCompleted: boolean) {
-    return {
-      query: GET_ACCOUNT_BY_EMAIL,
-      variables: {
+    ],
+    emailBounces: [
+      {
         email,
-        autoCompleted,
+        createdAt: chance.timestamp(),
+        bounceType: 'Permanent',
+        bounceSubType: 'General',
+        diagnosticCode: '',
+        templateName: 'xyz',
       },
-    };
-  }
-  static result(email: string, minimal: boolean) {
-    calledAccountSearch = true;
-
-    // Minimal flag indicates a sparse response is okay
-    if (minimal) {
-      return {
-        data: {
-          accountByEmail: {
-            uid: '123',
-            clientSalt: '',
-            createdAt: 1658534643990,
-            verifierSetAt: 1589467100316,
-            disabledAt: null,
-            locale: testLocale,
-            lockedAt: null,
-            email: email,
-            emails: [
-              {
-                email,
-                isVerified: true,
-                isPrimary: true,
-                createdAt: 1658534643990,
-              },
-            ],
-            emailBounces: [],
-            securityEvents: [],
-            totp: [],
-            backupCodes: [],
-            recoveryPhone: [],
-            recoveryKeys: [],
-            linkedAccounts: [],
-            attachedClients: [],
-            subscriptions: [],
-            accountEvents: [],
-            carts: [],
-          },
+      {
+        email,
+        createdAt: chance.timestamp(),
+        bounceType: 'Permanent',
+        bounceSubType: 'General',
+        diagnosticCode: '',
+        templateName: 'xyz',
+      },
+    ],
+    totp: [{ verified: true, enabled: true, createdAt: 1589467100316 }],
+    backupCodes: [{ hasBackupCodes: true, count: 3 }],
+    recoveryPhone: [{ exists: true, lastFourDigits: '7890' }],
+    recoveryKeys: [
+      { createdAt: 1589467100316, verifiedAt: 1589467100316, enabled: true },
+    ],
+    attachedClients: [
+      {
+        deviceId: 'xxxxxxxx-did-1',
+        deviceType: 'desktop',
+        clientId: null,
+        createdTime: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
+        createdTimeFormatted: '1 hour ago',
+        lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
+        lastAccessTimeFormatted: '5 seconds ago',
+        location: {
+          city: null,
+          country: null,
+          countryCode: null,
+          state: null,
+          stateCode: null,
         },
-      };
-    }
-
-    // Otherwise provide richer result
-    const bounce = {
-      email,
-      createdAt: chance.timestamp(),
-      bounceType: 'Permanent',
-      bounceSubType: 'General',
-      diagnosticCode: 100,
-      templateName: 'xyz',
-    };
-
-    return {
-      data: {
-        accountByEmail: {
-          uid: 'a1b2c3',
-          clientSalt: '',
-          verifierSetAt: 1589467100316,
-          email: email,
-          emails: [
-            {
-              email,
-              isPrimary: true,
-              isVerified: true,
-              createdAt: chance.timestamp(),
-            },
-          ],
-          createdAt: chance.timestamp(),
-          disabledAt: null,
-          locale: testLocale,
-          lockedAt: null,
-          emailBounces: [bounce, { ...bounce, createdAt: chance.timestamp() }],
-          totp: [
-            {
-              verified: true,
-              enabled: true,
-              createdAt: 1589467100316,
-            },
-          ],
-          backupCodes: [
-            {
-              hasBackupCodes: true,
-              count: 3,
-            },
-          ],
-          recoveryPhone: [
-            {
-              exists: true,
-              lastFourDigits: '7890',
-            },
-          ],
-          recoveryKeys: [
-            {
-              createdAt: 1589467100316,
-              verifiedAt: 1589467100316,
-              enabled: true,
-            },
-          ],
-          attachedClients: [
-            {
-              deviceId: 'xxxxxxxx-did-1',
-              deviceType: 'desktop',
-              clientId: null,
-              createdTime: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
-              createdTimeFormatted: '1 hour ago',
-              lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
-              lastAccessTimeFormatted: '5 seconds ago',
-              location: {
-                city: null,
-                country: null,
-                countryCode: null,
-                state: null,
-                stateCode: null,
-              },
-              name: "UserX's Nightly on machine-xyz",
-              os: 'Mac OS X',
-              userAgent: 'Chrome 89',
-              sessionTokenId: 'xxxxxxxx-stid-1',
-              refreshTokenId: null,
-            },
-          ],
-          linkedAccounts: [],
-          securityEvents: [],
-          subscriptions: [],
-          carts: [],
-          accountEvents: [
-            {
-              name: 'emailSent',
-              createdAt: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
-              template: 'recovery',
-              eventType: 'emailEvent',
-              service: 'sync',
-            },
-          ],
-        },
+        name: "UserX's Nightly on machine-xyz",
+        os: 'Mac OS X',
+        userAgent: 'Chrome 89',
+        sessionTokenId: 'xxxxxxxx-stid-1',
+        refreshTokenId: null,
       },
-    };
-  }
-  static mock(
-    email: string,
-    autoCompleted: boolean,
-    minimal: boolean,
-    error?: Error
-  ) {
-    return {
-      request: this.request(email, autoCompleted),
-      result: this.result(email, minimal),
-      error,
-    };
-  }
+    ],
+    linkedAccounts: [],
+    securityEvents: [],
+    subscriptions: [],
+    carts: [],
+    accountEvents: [
+      {
+        name: 'emailSent',
+        createdAt: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
+        template: 'recovery',
+        eventType: 'emailEvent',
+        service: 'sync',
+      },
+    ],
+  };
 }
 
-class GetAccountsByRecoveryPhone {
-  static request(phoneNumber: string, autoCompleted: boolean) {
-    return {
-      query: GET_ACCOUNT_BY_RECOVERY_PHONE,
-      variables: {
-        phoneNumber,
-        autoCompleted,
-      },
-    };
-  }
-  static result(phoneNumber: string, minimal: boolean) {
-    calledAccountSearch = true;
-
-    // Minimal flag indicates a sparse response is okay
-    if (minimal) {
-      return {
-        data: {
-          accountByEmail: {
-            uid: '123',
-            clientSalt: '',
-            createdAt: 1658534643990,
-            verifierSetAt: 1589467100316,
-            disabledAt: null,
-            locale: testLocale,
-            lockedAt: null,
-            email: testEmail,
-            emails: [
-              {
-                email: testEmail,
-                isVerified: true,
-                isPrimary: true,
-                createdAt: 1658534643990,
-              },
-            ],
-            emailBounces: [],
-            securityEvents: [],
-            totp: [],
-            backupCodes: [],
-            recoveryPhone: [
-              {
-                exists: true,
-                lastFourDigits: phoneNumber.slice(-4),
-              },
-            ],
-            recoveryKeys: [],
-            linkedAccounts: [],
-            attachedClients: [],
-            subscriptions: [],
-            accountEvents: [],
-            carts: [],
-          },
-        },
-      };
-    }
-
-    // Otherwise provide richer result
-    const bounce = {
-      email: testEmail,
-      createdAt: chance.timestamp(),
-      bounceType: 'Permanent',
-      bounceSubType: 'General',
-      diagnosticCode: 100,
-      templateName: 'xyz',
-    };
-
-    return {
-      data: {
-        accountByEmail: {
-          uid: 'a1b2c3',
-          clientSalt: '',
-          verifierSetAt: 1589467100316,
-          email: testEmail,
-          emails: [
-            {
-              email: testEmail,
-              isPrimary: true,
-              isVerified: true,
-              createdAt: chance.timestamp(),
-            },
-          ],
-          createdAt: chance.timestamp(),
-          disabledAt: null,
-          locale: testLocale,
-          lockedAt: null,
-          emailBounces: [bounce, { ...bounce, createdAt: chance.timestamp() }],
-          totp: [
-            {
-              verified: true,
-              enabled: true,
-              createdAt: 1589467100316,
-            },
-          ],
-          backupCodes: [
-            {
-              hasBackupCodes: true,
-              count: 3,
-            },
-          ],
-          recoveryPhone: [
-            {
-              exists: true,
-              lastFourDigits: phoneNumber.slice(-4),
-            },
-          ],
-          recoveryKeys: [
-            {
-              createdAt: 1589467100316,
-              verifiedAt: 1589467100316,
-              enabled: true,
-            },
-          ],
-          attachedClients: [
-            {
-              deviceId: 'xxxxxxxx-did-1',
-              deviceType: 'desktop',
-              clientId: null,
-              createdTime: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
-              createdTimeFormatted: '1 hour ago',
-              lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
-              lastAccessTimeFormatted: '5 seconds ago',
-              location: {
-                city: null,
-                country: null,
-                countryCode: null,
-                state: null,
-                stateCode: null,
-              },
-              name: "UserX's Nightly on machine-xyz",
-              os: 'Mac OS X',
-              userAgent: 'Chrome 89',
-              sessionTokenId: 'xxxxxxxx-stid-1',
-              refreshTokenId: null,
-            },
-          ],
-          linkedAccounts: [],
-          securityEvents: [],
-          subscriptions: [],
-          carts: [],
-          accountEvents: [
-            {
-              name: 'emailSent',
-              createdAt: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
-              template: 'recovery',
-              eventType: 'emailEvent',
-              service: 'sync',
-            },
-          ],
-        },
-      },
-    };
-  }
-  static mock(
-    phoneNumber: string,
-    autoCompleted: boolean,
-    minimal: boolean,
-    error?: Error
-  ) {
-    return {
-      request: this.request(phoneNumber, autoCompleted),
-      result: this.result(phoneNumber, minimal),
-      error,
-    };
-  }
-}
-
-class EditLocaleMock {
-  static request(uid: string, locale: string) {
-    // Update the test locale fake state. This will effect the result from
-    // the GetAccountsByEmail.mock
-    testLocale = locale;
-    return {
-      query: EDIT_LOCALE,
-      variables: {
-        uid,
-        locale,
-      },
-    };
-  }
-
-  static result(success: boolean) {
-    return {
-      data: {
-        editLocale: success,
-      },
-    };
-  }
-
-  static mock(uid: string, locale: string, success: boolean) {
-    return {
-      request: this.request(uid, locale),
-      result: this.result(success),
-    };
-  }
-  /**
-   * Used to simulate a failed request to edit a user's locale.
-   * @param uid - The user's uid.
-   * @param locale - The locale to edit to.
-   */
-  static errorMock(uid: string, locale: string) {
-    return {
-      request: this.request(uid, locale),
-      error: new Error('Forced network error'),
-    };
-  }
-}
-
-class RecordAdminSecurityEvent {
-  static request() {
-    return {
-      query: RECORD_ADMIN_SECURITY_EVENT,
-      variables: {
-        uid: 'a1b2c3',
-        name: 'emails.clearBounces',
-      },
-    };
-  }
-  static result() {
-    return {
-      data: {
-        recordAdminSecurityEvent: {},
-      },
-    };
-  }
-  static mock() {
-    return {
-      request: this.request(),
-      result: this.result(),
-    };
-  }
-}
-
-class GetEmailsLike {
-  static request(searchTerm: string) {
-    return {
-      query: GET_EMAILS_LIKE,
-      variables: {
-        search: searchTerm,
-      },
-    };
-  }
-  static result(search: string) {
-    calledGetEmailsLike = true;
-    // Return the original testEmail if the search matches its first 6 characters
-    // Otherwise return a mock email that matches the search pattern
-    const mockEmail =
-      search === testEmail.substring(0, 6)
-        ? testEmail
-        : search.includes('@')
-          ? search
-          : `${search}@example.com`;
-    return {
-      data: {
-        getEmailsLike: [{ email: mockEmail }],
-      },
-    };
-  }
-  static mock(search: string) {
-    return {
-      request: this.request(search),
-      result: this.result(search),
-    };
-  }
-}
-
-class GetRecoveryPhonesLike {
-  static request(searchTerm: string) {
-    return {
-      query: GET_RECOVERY_PHONES_LIKE,
-      variables: {
-        search: searchTerm,
-      },
-    };
-  }
-  static result(search: string) {
-    calledGetRecoveryPhonesLike = true;
-    if (testPhone.startsWith(search)) {
-      return {
-        data: {
-          getRecoveryPhonesLike: [{ phoneNumber: testPhone }],
-        },
-      };
-    }
-    return {
-      data: {
-        getRecoveryPhonesLike: [],
-      },
-    };
-  }
-  static mock(search: string) {
-    return {
-      request: this.request(search),
-      result: this.result(search),
-    };
-  }
-}
-
-// Helper function to render Account Search with mocks
-function renderView(mocks?: any) {
-  render(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <AccountSearch />
-    </MockedProvider>
-  );
+function makePhoneAccount(email: string, phone: string) {
+  return {
+    ...makeMinimalAccount(email),
+    recoveryPhone: [{ exists: true, lastFourDigits: phone.slice(-4) }],
+  };
 }
 
 beforeEach(() => {
   jest.spyOn(window, 'confirm').mockImplementation(() => true);
   testEmail = chance.email();
   testPhone = '+12345678900';
-  deleteBouncesMutationCalled = false;
-  calledAccountSearch = false;
-  calledGetEmailsLike = false;
-  testLocale = 'en-US';
+  // Default mocks for autocomplete (won't throw, return empty)
+  (adminApi.getEmailsLike as jest.Mock).mockResolvedValue([]);
+  (adminApi.getPhonesLike as jest.Mock).mockResolvedValue([]);
+  (adminApi.clearEmailBounce as jest.Mock).mockResolvedValue(true);
+  (adminApi.recordSecurityEvent as jest.Mock).mockResolvedValue(true);
+  (adminApi.editLocale as jest.Mock).mockResolvedValue(true);
+  (adminApi.unsubscribeFromMailingLists as jest.Mock).mockResolvedValue(true);
 });
 
 afterEach(() => {
@@ -552,52 +188,51 @@ afterEach(() => {
 });
 
 it('renders without imploding', () => {
-  renderView();
+  render(<AccountSearch />);
   expect(screen.getByTestId('search-form')).toBeInTheDocument();
 });
 
 it('calls account search by email', async () => {
-  renderView([
-    GetAccountsByEmail.mock(testEmail, false, true),
-    GetAccountsByRecoveryPhone.mock(testPhone, false, true),
-    GetEmailsLike.mock(testEmail),
-    GetRecoveryPhonesLike.mock(testEmail),
-  ]);
+  (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue(
+    makeMinimalAccount(testEmail)
+  );
+
+  render(<AccountSearch />);
   fireEvent.change(screen.getByTestId('email-input'), {
     target: { value: testEmail },
   });
   fireEvent.click(screen.getByTestId('search-button'));
 
   await waitFor(() => screen.getByTestId('account-section'));
-  expect(calledAccountSearch).toBeTruthy();
+  expect(adminApi.getAccountByEmail).toHaveBeenCalled();
 });
 
 it('calls account search by recovery phone', async () => {
-  renderView([
-    GetAccountsByEmail.mock(testEmail, false, true),
-    GetAccountsByRecoveryPhone.mock(testPhone, false, true),
-    GetEmailsLike.mock(testPhone),
-    GetRecoveryPhonesLike.mock(testPhone),
+  (adminApi.getAccountByPhone as jest.Mock).mockResolvedValue([
+    makePhoneAccount(testEmail, testPhone),
   ]);
 
+  render(<AccountSearch />);
   fireEvent.change(screen.getByTestId('email-input'), {
     target: { value: testPhone },
   });
   fireEvent.click(screen.getByTestId('search-button'));
 
   await waitFor(() => screen.getByTestId('account-section'));
-  expect(calledAccountSearch).toBeTruthy();
+  expect(adminApi.getAccountByPhone).toHaveBeenCalled();
 });
 
 it('auto completes email suggestions', async () => {
   const searchTerm = testEmail.substring(0, 6);
-  renderView([
-    GetAccountsByEmail.mock(testEmail, true, true),
-    GetAccountsByRecoveryPhone.mock(testPhone, true, true),
-    GetEmailsLike.mock(searchTerm),
-    GetRecoveryPhonesLike.mock(searchTerm),
+  (adminApi.getEmailsLike as jest.Mock).mockResolvedValue([
+    { email: testEmail },
   ]);
+  (adminApi.getPhonesLike as jest.Mock).mockResolvedValue([]);
+  (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue(
+    makeMinimalAccount(testEmail)
+  );
 
+  render(<AccountSearch />);
   fireEvent.change(screen.getByTestId('email-input'), {
     target: { value: searchTerm },
   });
@@ -610,20 +245,22 @@ it('auto completes email suggestions', async () => {
   fireEvent.click(screen.getByTestId('search-button'));
 
   await waitFor(() => screen.getByTestId('account-section'));
-  expect(calledGetEmailsLike).toBeTruthy();
-  expect(calledAccountSearch).toBeTruthy();
+  expect(adminApi.getEmailsLike).toHaveBeenCalled();
+  expect(adminApi.getAccountByEmail).toHaveBeenCalled();
   expect(screen.getByTestId('email-input')).toHaveValue(testEmail);
 });
 
 it('auto completes recovery phone suggestions', async () => {
   const searchTerm = testPhone.substring(0, 6);
-  renderView([
-    GetAccountsByEmail.mock(testEmail, true, true),
-    GetAccountsByRecoveryPhone.mock(testPhone, true, true),
-    GetEmailsLike.mock(searchTerm),
-    GetRecoveryPhonesLike.mock(searchTerm),
+  (adminApi.getEmailsLike as jest.Mock).mockResolvedValue([]);
+  (adminApi.getPhonesLike as jest.Mock).mockResolvedValue([
+    { phoneNumber: testPhone },
+  ]);
+  (adminApi.getAccountByPhone as jest.Mock).mockResolvedValue([
+    makePhoneAccount(testEmail, testPhone),
   ]);
 
+  render(<AccountSearch />);
   fireEvent.change(screen.getByTestId('email-input'), {
     target: { value: searchTerm },
   });
@@ -637,21 +274,17 @@ it('auto completes recovery phone suggestions', async () => {
   fireEvent.click(screen.getByTestId('search-button'));
 
   await waitFor(() => screen.getByTestId('account-section'));
-  expect(calledGetRecoveryPhonesLike).toBeTruthy();
-  expect(calledAccountSearch).toBeTruthy();
+  expect(adminApi.getPhonesLike).toHaveBeenCalled();
+  expect(adminApi.getAccountByPhone).toHaveBeenCalled();
   expect(screen.getByTestId('email-input')).toHaveValue(testPhone);
 });
 
 it('displays the account email bounces, and can clear them', async () => {
-  renderView([
-    GetEmailsLike.mock(testEmail),
-    GetRecoveryPhonesLike.mock(testEmail),
-    GetAccountsByEmail.mock(testEmail, false, false),
-    RecordAdminSecurityEvent.mock(),
-    ClearBouncesByEmail.mock(testEmail),
-    GetAccountsByEmail.mock(testEmail, false, true),
-  ]);
+  (adminApi.getAccountByEmail as jest.Mock)
+    .mockResolvedValueOnce(makeRichAccount(testEmail))
+    .mockResolvedValueOnce(makeMinimalAccount(testEmail));
 
+  render(<AccountSearch />);
   fireEvent.change(screen.getByTestId('email-input'), {
     target: { value: testEmail },
   });
@@ -666,22 +299,21 @@ it('displays the account email bounces, and can clear them', async () => {
   await waitFor(() => screen.findAllByText(testEmail));
   expect(screen.queryAllByTestId('bounce-group').length).toEqual(0);
   expect(screen.getByTestId('no-bounces-message')).toBeInTheDocument();
-  expect(deleteBouncesMutationCalled).toBe(true);
+  expect(adminApi.clearEmailBounce).toHaveBeenCalled();
 });
 
 it('displays the error state if there is an error', async () => {
-  renderView([
-    GetEmailsLike.mock(testEmail),
-    GetRecoveryPhonesLike.mock(testEmail),
-    GetAccountsByEmail.mock(testEmail, false, true, new Error('zoiks')),
-  ]);
+  (adminApi.getAccountByEmail as jest.Mock).mockRejectedValue(
+    new Error('zoiks')
+  );
 
+  render(<AccountSearch />);
   fireEvent.change(screen.getByTestId('email-input'), {
     target: { value: testEmail },
   });
   fireEvent.click(screen.getByTestId('search-button'));
   await waitFor(() => screen.getByTestId('error-alert'));
-  expect(calledAccountSearch).toBeTruthy();
+  expect(adminApi.getAccountByEmail).toHaveBeenCalled();
 });
 
 describe('Editing user locale', () => {
@@ -689,22 +321,24 @@ describe('Editing user locale', () => {
   let alertSpy: jest.SpyInstance;
   let promptSpy: jest.SpyInstance;
 
-  // A setup method instead of beforeEach so params can be used.
   async function setup(newLocale: string | null, success: boolean = true) {
-    const mocks = [
-      GetEmailsLike.mock(testEmail),
-      GetRecoveryPhonesLike.mock(testEmail),
-      GetAccountsByEmail.mock(testEmail, false, true),
-      EditLocaleMock.mock('123', 'en-CA', success),
-      GetAccountsByEmail.mock(testEmail, false, true),
-      // this is for `reports error during edit`, it doesn't use the default
-      // and instead is checking that a failed request is handled correctly.
-      EditLocaleMock.errorMock('123', 'NA'),
-    ];
+    const secondLocale =
+      newLocale && success && newLocale !== 'NA' ? newLocale : 'en-US';
 
-    renderView(mocks);
+    (adminApi.getAccountByEmail as jest.Mock)
+      .mockResolvedValueOnce(makeMinimalAccount(testEmail, 'en-US'))
+      .mockResolvedValueOnce(makeMinimalAccount(testEmail, secondLocale));
 
-    // Look up account
+    if (newLocale === 'NA') {
+      (adminApi.editLocale as jest.Mock).mockRejectedValue(
+        new Error('Forced network error')
+      );
+    } else {
+      (adminApi.editLocale as jest.Mock).mockResolvedValue(success);
+    }
+
+    render(<AccountSearch />);
+
     fireEvent.change(await screen.findByTestId('email-input'), {
       target: { value: testEmail },
     });
@@ -753,8 +387,6 @@ describe('Editing user locale', () => {
   });
 
   it('reports error during edit', async () => {
-    // This will throw an error, because there is no matching mock, which
-    // allows testing the error case.
     await setup('NA', false);
     fireEvent.click(await screen.findByTestId('edit-account-locale'));
 
@@ -770,46 +402,22 @@ describe('Editing user locale', () => {
 });
 
 describe('unsubscribe from mailing lists', () => {
-  class Unsubscribe {
-    static readonly ErrorMessage = 'Error unsubscribing';
-
-    static request(uid: string) {
-      return {
-        query: UNSUBSCRIBE_FROM_MAILING_LISTS,
-        variables: {
-          uid: uid,
-        },
-      };
-    }
-    static result(success: boolean) {
-      return {
-        data: { unsubscribeFromMailingLists: success },
-      };
-    }
-
-    static mock(uid: string, success: boolean) {
-      return {
-        request: this.request(uid),
-        result: this.result(success),
-      };
-    }
-  }
-
   let alertSpy: jest.SpyInstance;
 
   async function renderAndClickUnSubscribe(success: boolean) {
-    renderView([
-      GetEmailsLike.mock(testEmail),
-      GetRecoveryPhonesLike.mock(testEmail),
-      GetAccountsByEmail.mock(testEmail, false, true),
-      Unsubscribe.mock('123', success),
-    ]);
+    (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue(
+      makeMinimalAccount(testEmail)
+    );
+    (adminApi.unsubscribeFromMailingLists as jest.Mock).mockResolvedValue(
+      success
+    );
 
     jest.spyOn(window, 'confirm').mockImplementation(() => true);
     alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {
       return true;
     });
 
+    render(<AccountSearch />);
     fireEvent.change(screen.getByTestId('email-input'), {
       target: { value: testEmail },
     });

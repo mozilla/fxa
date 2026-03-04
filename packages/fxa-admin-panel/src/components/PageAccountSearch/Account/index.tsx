@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { useMutation } from '@apollo/client';
 import {
   Account as AccountType,
   SecurityEvents as SecurityEventsType,
@@ -11,7 +10,7 @@ import {
   AccountEvent as AccountEventType,
   BackupCodes as BackupCodesType,
   RecoveryPhone as RecoveryPhoneType,
-} from 'fxa-admin-server/src/graphql';
+} from 'fxa-admin-server/src/types';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../../Guard';
 import Subscription from '../Subscription';
@@ -23,7 +22,7 @@ import { getFormattedDate } from '../../../lib/utils';
 import DangerZone from '../DangerZone';
 import ResultBoolean from '../../ResultBoolean';
 import { HIDE_ROW } from '../../../../constants';
-import { EDIT_LOCALE, UNLINK_ACCOUNT } from './index.gql';
+import { adminApi } from '../../../lib/api';
 import { Carts } from '../Cart';
 
 export type AccountProps = AccountType & {
@@ -39,25 +38,20 @@ export const LinkedAccount = ({
 }: {
   uid: string;
   authAt: number;
-  providerId: string;
+  providerId: number;
   onCleared: () => void;
 }) => {
-  const [unlinkAccount] = useMutation(UNLINK_ACCOUNT, {
-    onCompleted: () => {
-      window.alert('The linked account has been removed.');
-    },
-    onError: () => {
-      window.alert('Error unlinking account');
-    },
-  });
-
   const handleUnlinkAccount = async () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
-    await unlinkAccount({ variables: { uid } });
-
-    onCleared();
+    try {
+      await adminApi.unlinkAccount(uid);
+      window.alert('The linked account has been removed.');
+      onCleared();
+    } catch {
+      window.alert('Error unlinking account');
+    }
   };
 
   return (
@@ -105,7 +99,6 @@ export const Account = ({
   const primaryEmail = emails!.find((email) => email.isPrimary)!;
   const secondaryEmails = emails!.filter((email) => !email.isPrimary);
 
-  const [editLocale] = useMutation(EDIT_LOCALE, {});
   const handleEditLocale = async () => {
     try {
       const newLocale = window.prompt('Enter a new locale.');
@@ -113,14 +106,9 @@ export const Account = ({
         return;
       }
 
-      const res = await editLocale({
-        variables: {
-          uid,
-          locale: newLocale,
-        },
-      });
+      const success = await adminApi.editLocale(uid, newLocale);
 
-      if (res.data?.editLocale) {
+      if (success) {
         onCleared();
       } else {
         window.alert(`Edit unsuccessful.`);
@@ -435,8 +423,8 @@ export const Account = ({
                 key={linkedAccount.uid}
                 {...{
                   uid,
-                  providerId: linkedAccount.providerId,
-                  authAt: linkedAccount.authAt,
+                  providerId: linkedAccount.providerId!,
+                  authAt: linkedAccount.authAt!,
                   onCleared: onCleared,
                 }}
               />
@@ -455,7 +443,6 @@ export const Account = ({
           disabledAt: disabledAt!,
           email: primaryEmail, // only the primary for now
           onCleared: onCleared,
-          unsubscribeToken: '<USER_TOKEN>',
           has2FA: totps && totps.some((x) => x.enabled),
           hasRecoveryPhone:
             recoveryPhone && recoveryPhone.some((x) => x.exists),

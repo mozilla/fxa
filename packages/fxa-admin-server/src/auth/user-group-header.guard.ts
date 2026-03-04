@@ -5,7 +5,6 @@
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { GqlExecutionContext } from '@nestjs/graphql';
 import {
   GuardEnv,
   AdminPanelFeature,
@@ -25,8 +24,6 @@ export class UserGroupGuard implements CanActivate {
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
-    // Reflect on the end point to determine if it has been tagged with admin panel feature.
-    // If it does, check to make sure the user's group has a permission level that permits access.
     const features =
       this.reflector?.getAllAndOverride<AdminPanelFeature[]>(FEATURE_KEY, [
         context.getHandler(),
@@ -37,14 +34,10 @@ export class UserGroupGuard implements CanActivate {
       return true;
     }
 
-    // Requires different setup depending on context type. Currently
-    // guards are only applied to GQL contexts.
     let userGroupHeader = '';
-    if (context.getType().toString() === 'graphql') {
+    if (context.getType() === 'http') {
       userGroupHeader =
-        GqlExecutionContext.create(context)
-          ?.getContext()
-          ?.req?.get(USER_GROUP_HEADER) || '';
+        context.switchToHttp().getRequest().get(USER_GROUP_HEADER) || '';
     }
     this.log?.info('userGroupHeader', { userGroupHeader });
 

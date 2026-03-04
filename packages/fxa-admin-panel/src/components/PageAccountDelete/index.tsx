@@ -2,38 +2,55 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useMutation, useQuery } from '@apollo/client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { adminApi } from '../../lib/api';
 import {
-  ACCOUNT_DELETE_MUTATION,
-  ACCOUNT_DELETE_TASK_STATUS_QUERY,
-  AccountDeleteResult,
-  TaskStatus,
-} from './index.gql';
+  AccountDeleteResponse,
+  AccountDeleteTaskStatus,
+} from 'fxa-admin-server/src/types';
+
+export type AccountDeleteResult = {
+  locator: string;
+  taskName: string;
+  status: string;
+};
+
+type TaskStatus = {
+  taskName: string;
+  status: string;
+};
 
 export const AccountDeleteResults = ({
   list,
 }: {
   list: Array<AccountDeleteResult>;
 }) => {
-  const statusResult = useQuery(ACCOUNT_DELETE_TASK_STATUS_QUERY, {
-    variables: {
-      taskNames: list.filter((x) => x.taskName).map((x) => x.taskName),
-    },
-    pollInterval: 5000,
-  });
+  const [taskStatuses, setTaskStatuses] = useState<AccountDeleteTaskStatus[]>(
+    []
+  );
 
-  if (statusResult.loading) {
-    return <>Loading...</>;
-  }
+  useEffect(() => {
+    const taskNames = list.filter((x) => x.taskName).map((x) => x.taskName);
+    if (taskNames.length === 0) return;
+
+    const poll = async () => {
+      try {
+        const statuses = await adminApi.getDeleteStatus(taskNames);
+        setTaskStatuses(statuses);
+      } catch {}
+    };
+
+    poll();
+    const interval = setInterval(poll, 5000);
+    return () => clearInterval(interval);
+  }, [list]);
 
   const rows = list.map((row) => (
-    <tr>
+    <tr key={row.locator}>
       <td>{row.locator}</td>
       <td>
-        {statusResult.data?.getDeleteStatus?.find(
-          (x: TaskStatus) => row.taskName === x.taskName
-        )?.status || row.status}
+        {taskStatuses.find((x: TaskStatus) => row.taskName === x.taskName)
+          ?.status || row.status}
       </td>
     </tr>
   ));
@@ -54,7 +71,6 @@ export const AccountDeleteResults = ({
 export const PageAccountDelete = () => {
   const [inProgress, setInProgress] = useState(false);
   const [results, setResults] = useState<Array<AccountDeleteResult>>([]);
-  const [deleteAccountMutation] = useMutation(ACCOUNT_DELETE_MUTATION);
 
   const saveButtonClass = () => {
     const base =
@@ -86,10 +102,15 @@ export const PageAccountDelete = () => {
         return;
       }
 
-      const result = await deleteAccountMutation({
-        variables: { locators: list },
-      });
-      setResults(result.data?.deleteAccounts || []);
+      const apiResults: AccountDeleteResponse[] =
+        await adminApi.deleteAccounts(list);
+      setResults(
+        apiResults.map((r) => ({
+          locator: r.locator,
+          taskName: r.taskName,
+          status: r.status,
+        }))
+      );
     } finally {
       setInProgress(false);
     }

@@ -52,7 +52,7 @@ import { ProfileClient } from '@fxa/profile/client';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
-import { AccountResolver } from './account.resolver';
+import { AccountController } from '../../rest/account/account.controller';
 import { CartManager } from '@fxa/payments/cart';
 import { EmailService } from '../../backend/email.service';
 
@@ -77,8 +77,8 @@ const EMAIL_2 = randomEmail({
   email: USER_2.email.replace('@', '+01@'),
 });
 
-describe('#integration - AccountResolver', () => {
-  let resolver: AccountResolver;
+describe('#integration - AccountController', () => {
+  let controller: AccountController;
   let logger: any;
   let notifier: any;
   let profileClient: any;
@@ -284,7 +284,7 @@ describe('#integration - AccountResolver', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        AccountResolver,
+        AccountController,
         EventLoggingService,
         MockCartManager,
         MockMozLogger,
@@ -302,7 +302,7 @@ describe('#integration - AccountResolver', () => {
       ],
     }).compile();
 
-    resolver = module.get<AccountResolver>(AccountResolver);
+    controller = module.get<AccountController>(AccountController);
   });
 
   afterEach(() => {
@@ -318,7 +318,10 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('locates the user by uid', async () => {
-    const result = (await resolver.accountByUid(USER_1.uid, 'joe')) as Account;
+    const result = (await controller.accountByUid(
+      USER_1.uid,
+      'joe'
+    )) as Account;
     expect(result).toBeDefined();
     expect(result.email).toBe(USER_1.email);
     expect(result.verifierSetAt).toBeGreaterThan(0);
@@ -326,9 +329,9 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('disables an account by uid', async () => {
-    const success = (await resolver.disableAccount(USER_1.uid)) as Boolean;
+    const success = (await controller.disableAccount(USER_1.uid)) as Boolean;
     expect(success).toBeTruthy();
-    const updatedResult = (await resolver.accountByUid(
+    const updatedResult = (await controller.accountByUid(
       USER_1.uid,
       'joe'
     )) as Account;
@@ -346,9 +349,9 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('enables an account by uid', async () => {
-    const success = (await resolver.enableAccount(USER_1.uid)) as Boolean;
+    const success = (await controller.enableAccount(USER_1.uid)) as Boolean;
     expect(success).toBeTruthy();
-    const updatedResult = (await resolver.accountByUid(
+    const updatedResult = (await controller.accountByUid(
       USER_1.uid,
       'joe'
     )) as Account;
@@ -366,13 +369,13 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('does not locate non-existent users by uid', async () => {
-    const result = await resolver.accountByUid(USER_2.uid, 'joe');
+    const result = await controller.accountByUid(USER_2.uid, 'joe');
     expect(result).toBeUndefined();
     expect(logger.info).toBeCalledTimes(2);
   });
 
   it('locates the user by email', async () => {
-    const result = (await resolver.accountByEmail(
+    const result = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
@@ -383,7 +386,7 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('does not locate non-existent users by email', async () => {
-    const result = await resolver.accountByEmail(
+    const result = await controller.accountByEmail(
       'non-existent@test.com',
       true,
       'joe'
@@ -393,19 +396,19 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('locate users by sign-up email', async () => {
-    const result = await resolver.accountByEmail(USER_2.email, true, 'joe');
+    const result = await controller.accountByEmail(USER_2.email, true, 'joe');
     expect(result).toBeUndefined();
     expect(logger.info).toBeCalledTimes(2);
   });
 
   it('locates users by secondary email', async () => {
-    const result = await resolver.accountByEmail(EMAIL_2.email, true, 'joe');
+    const result = await controller.accountByEmail(EMAIL_2.email, true, 'joe');
     expect(result).toBeUndefined();
     expect(logger.info).toBeCalledTimes(2);
   });
 
   it('loads emailBounces', async () => {
-    const user = (await resolver.accountByEmail(
+    const user = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
@@ -414,7 +417,7 @@ describe('#integration - AccountResolver', () => {
       (await db.emailTypes
         .query()
         .findOne({ id: EMAIL_BOUNCE_1.emailTypeId })) || {};
-    const result = await resolver.emailBounces(user);
+    const result = await controller.emailBounces(user);
     expect(result).toBeDefined();
     const bounce = result[0];
     const { emailTypeId, ...bounceValues } = EMAIL_BOUNCE_1;
@@ -424,71 +427,71 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('loads emails', async () => {
-    const user = (await resolver.accountByEmail(
+    const user = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
     )) as Account;
-    const result = await resolver.emails(user);
+    const result = await controller.emails(user);
     expect(result).toBeDefined();
     expect(result).toHaveLength(1);
   });
 
   it('loads totp', async () => {
-    const user = (await resolver.accountByEmail(
+    const user = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
     )) as Account;
-    const result = await resolver.totp(user);
+    const result = await controller.totp(user);
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
     expect(result[0].uid).toEqual(TOTP_1.uid);
   });
 
   it('loads backup code status', async () => {
-    const user = (await resolver.accountByEmail(
+    const user = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
     )) as Account;
-    const result = await resolver.backupCodes(user);
+    const result = await controller.backupCodes(user);
     expect(result).toBeDefined();
     expect(result[0].hasBackupCodes).toEqual(true);
     expect(result[0].count).toEqual(1);
   });
 
   it('loads recovery phone status', async () => {
-    const user = (await resolver.accountByEmail(
+    const user = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
     )) as Account;
-    const result = await resolver.recoveryPhone(user);
+    const result = await controller.recoveryPhone(user);
     expect(result).toBeDefined();
     expect(result[0].exists).toEqual(true);
     expect(result[0].lastFourDigits).toEqual('7890');
   });
 
   it('loads recoveryKeys', async () => {
-    const user = (await resolver.accountByEmail(
+    const user = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
     )) as Account;
-    const result = await resolver.recoveryKeys(user);
+    const result = await controller.recoveryKeys(user);
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
     expect(result[0].uid).toEqual(RECOVERY_KEY_1.uid);
   });
 
   it('loads attached clients', async () => {
-    const user = (await resolver.accountByEmail(
+    const user = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
     )) as Account;
-    const result = await resolver.attachedClients(user);
+    const result = await controller.attachedClients(user);
     expect(result).toBeDefined();
     expect(result.length).toBe(2);
 
@@ -508,20 +511,21 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('loads linkedAccounts', async () => {
-    const user = (await resolver.accountByEmail(
+    const user = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
     )) as Account;
-    const result = await resolver.linkedAccounts(user);
+    const result = await controller.linkedAccounts(user);
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
   });
 
   it('edits locale', async () => {
-    const result1 = await resolver.editLocale(USER_1.uid, 'en-CA');
+    const result1 = await controller.editLocale(USER_1.uid, 'en-CA');
     const result2 =
-      (await resolver.accountByEmail(USER_1.email, true, 'joe')) || ({} as any);
+      (await controller.accountByEmail(USER_1.email, true, 'joe')) ||
+      ({} as any);
     expect(result1).toBe(true);
     expect(result2.locale).toBe('en-CA');
     expect(profileClient.deleteCache).toBeCalledWith(USER_1.uid);
@@ -546,7 +550,7 @@ describe('#integration - AccountResolver', () => {
     });
 
     it('unsubscribes successfully', async () => {
-      const result = await resolver.unsubscribeFromMailingLists(uid);
+      const result = await controller.unsubscribeFromMailingLists(uid);
 
       expect(basketService.getUserToken).toBeCalledWith(email);
       expect(basketService.unsubscribeAll).toBeCalledWith(fakeToken);
@@ -556,7 +560,7 @@ describe('#integration - AccountResolver', () => {
     it('handles bad request - unsubscribe', async () => {
       basketService.unsubscribeAll = jest.fn().mockResolvedValue(undefined);
 
-      const result = await resolver.unsubscribeFromMailingLists(uid);
+      const result = await controller.unsubscribeFromMailingLists(uid);
 
       expect(basketService.getUserToken).toBeCalledWith(USER_1.email);
       expect(basketService.unsubscribeAll).toBeCalledWith(fakeToken);
@@ -566,7 +570,7 @@ describe('#integration - AccountResolver', () => {
     it('handles bad request - invalid basket user', async () => {
       basketService.getUserToken = jest.fn().mockResolvedValue(undefined);
 
-      const result = await resolver.unsubscribeFromMailingLists(uid);
+      const result = await controller.unsubscribeFromMailingLists(uid);
 
       expect(basketService.getUserToken).toBeCalledWith(email);
       expect(basketService.unsubscribeAll).toBeCalledTimes(0);
@@ -577,7 +581,7 @@ describe('#integration - AccountResolver', () => {
       basketService.getUserToken = jest.fn().mockResolvedValue(undefined);
       basketService.unsubscribeAll = jest.fn().mockResolvedValue(undefined);
 
-      const result = await resolver.unsubscribeFromMailingLists(badUid);
+      const result = await controller.unsubscribeFromMailingLists(badUid);
 
       expect(basketService.getUserToken).toBeCalledTimes(0);
       expect(basketService.unsubscribeAll).toBeCalledTimes(0);
@@ -586,12 +590,12 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('loads account events', async () => {
-    const user = (await resolver.accountByEmail(
+    const user = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
     )) as Account;
-    const result = await resolver.accountEvents(user);
+    const result = await controller.accountEvents(user);
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
   });
@@ -600,18 +604,16 @@ describe('#integration - AccountResolver', () => {
     it('records security event', async () => {
       const securityEventSpy = jest.spyOn(SecurityEvent, 'create');
 
-      await resolver.recordAdminSecurityEvent(
+      await controller.recordAdminSecurityEvent(
         USER_1.uid,
         'account.must_reset',
         {
-          req: {
-            ip: '0.0.0.0',
-            headers: {
-              'user-agent': 'Mozilla!',
-              'x-forward-for': '127.0.0.1',
-            },
-          } as unknown as Request,
-        }
+          ip: '0.0.0.0',
+          headers: {
+            'user-agent': 'Mozilla!',
+            'x-forward-for': '127.0.0.1',
+          },
+        } as unknown as Request
       );
 
       expect(securityEventSpy).toHaveBeenCalledWith({
@@ -629,18 +631,16 @@ describe('#integration - AccountResolver', () => {
     it('records security event and prefers x-fordwarded-for header', async () => {
       const securityEventSpy = jest.spyOn(SecurityEvent, 'create');
 
-      await resolver.recordAdminSecurityEvent(
+      await controller.recordAdminSecurityEvent(
         USER_1.uid,
         'account.must_reset',
         {
-          req: {
-            ip: '0.0.0.0',
-            headers: {
-              'user-agent': 'Mozilla!',
-              'x-forwarded-for': '127.0.0.1',
-            },
-          } as unknown as Request,
-        }
+          ip: '0.0.0.0',
+          headers: {
+            'user-agent': 'Mozilla!',
+            'x-forwarded-for': '127.0.0.1',
+          },
+        } as unknown as Request
       );
 
       expect(securityEventSpy).toHaveBeenCalledWith({
@@ -662,18 +662,16 @@ describe('#integration - AccountResolver', () => {
       const securityEventSpy = jest.spyOn(SecurityEvent, 'create');
 
       const notify = 'ops@example.com';
-      const result = await resolver.resetAccounts(
+      const result = await controller.resetAccounts(
         [USER_1.email, USER_1.uid, 'foo@mozilla.com'],
         notify,
         'sre joe',
         {
-          req: {
-            ip: '127.0.0.1',
-            headers: {
-              'user-agent': 'Mozilla!',
-            },
-          } as unknown as Request,
-        }
+          ip: '127.0.0.1',
+          headers: {
+            'user-agent': 'Mozilla!',
+          },
+        } as unknown as Request
       );
 
       expect(Array.isArray(result)).toBe(true);
@@ -719,18 +717,16 @@ describe('#integration - AccountResolver', () => {
       securityEventSpy.mockRejectedValueOnce('Boom');
       emailService.sendPasswordResetNotification.mockRejectedValueOnce('Boom');
 
-      const result = await resolver.resetAccounts(
+      const result = await controller.resetAccounts(
         [USER_1.email, USER_1.email, USER_1.email],
         '',
         'joe-sre',
         {
-          req: {
-            ip: '127.0.0.1',
-            headers: {
-              'user-agent': 'Mozilla!',
-            },
-          } as unknown as Request,
-        }
+          ip: '127.0.0.1',
+          headers: {
+            'user-agent': 'Mozilla!',
+          },
+        } as unknown as Request
       );
 
       expect(Array.isArray(result)).toBe(true);
@@ -741,7 +737,7 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('loads verifierSetAt', async () => {
-    const user = (await resolver.accountByEmail(
+    const user = (await controller.accountByEmail(
       USER_1.email,
       true,
       'joe'
@@ -752,13 +748,13 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('deletes accounts', async () => {
-    const result = await resolver.deleteAccounts([USER_1.email], 'joe');
+    const result = await controller.deleteAccounts([USER_1.email], 'joe');
 
     const user1 = result.find((x) => x.locator === USER_1.email);
     expect(user1?.status).toEqual('Success');
     expect(user1?.taskName).not.toEqual('');
 
-    const statusResult = await resolver.getDeleteStatus([user1!.taskName]);
+    const statusResult = await controller.getDeleteStatus([user1!.taskName]);
 
     expect(
       statusResult.find((x) => x.taskName === user1!.taskName)?.status
@@ -766,7 +762,7 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('attempts to delete invalid account and indicates failure', async () => {
-    const result = await resolver.deleteAccounts(
+    const result = await controller.deleteAccounts(
       ['foobazzzz@mozilla.com'],
       'joe'
     );
@@ -777,9 +773,9 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('removes 2FA', async () => {
-    const success = (await resolver.remove2FA(USER_1.uid)) as Boolean;
+    const success = (await controller.remove2FA(USER_1.uid)) as Boolean;
     expect(success).toBeTruthy();
-    const updatedResult = await resolver.totp({ uid: USER_1.uid } as Account);
+    const updatedResult = await controller.totp({ uid: USER_1.uid } as Account);
     expect(updatedResult).toEqual([]);
     expect(notifier.send).toBeCalledWith({
       event: 'profileDataChange',
@@ -791,7 +787,7 @@ describe('#integration - AccountResolver', () => {
   });
 
   it('fails to remove 2FA', async () => {
-    const success = (await resolver.remove2FA('0f0f0f00f00f')) as Boolean;
+    const success = (await controller.remove2FA('0f0f0f00f00f')) as Boolean;
     expect(success).toBeFalsy();
     expect(notifier.send).not.toBeCalledWith({
       event: 'profileDataChange',
@@ -813,12 +809,12 @@ describe('#integration - AccountResolver', () => {
         await db.recoveryPhones.query().insert(RECOVERY_PHONE_1);
       }
 
-      const success = await resolver.deleteRecoveryPhone(USER_1.uid);
+      const success = await controller.deleteRecoveryPhone(USER_1.uid);
       expect(success).toBeTruthy();
     });
 
     it('fails to delete recovery phone when none exists', async () => {
-      const success = await resolver.deleteRecoveryPhone(USER_2.uid);
+      const success = await controller.deleteRecoveryPhone(USER_2.uid);
       expect(success).toBeFalsy();
 
       expect(profileClient.deleteCache).not.toHaveBeenCalled();
@@ -827,7 +823,7 @@ describe('#integration - AccountResolver', () => {
 
     it('handles invalid uid format', async () => {
       const invalidUid = '00000000000000000000000000000000';
-      const success = await resolver.deleteRecoveryPhone(invalidUid);
+      const success = await controller.deleteRecoveryPhone(invalidUid);
       expect(success).toBeFalsy();
 
       expect(notifier.send).not.toHaveBeenCalled();
@@ -839,7 +835,7 @@ describe('#integration - AccountResolver', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(resolver.deleteRecoveryPhone(USER_1.uid)).rejects.toThrow(
+      await expect(controller.deleteRecoveryPhone(USER_1.uid)).rejects.toThrow(
         'Database connection failed'
       );
       expect(notifier.send).not.toHaveBeenCalled();
