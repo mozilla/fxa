@@ -1366,8 +1366,12 @@ export class AccountHandler {
       // For new logins that don't send some other sort of email,
       // send an after-the-fact notification email so that the user
       // is aware that something happened on their account.
+      // Only send immediately if the session is already verified (i.e. verification
+      // was skipped). When the session is unverified the user will be taken through
+      // the token-code flow, and session.js:verify_code sends this email after
+      // successful verification — sending it here too would result in a duplicate.
       if (accountRecord.primaryEmail.isVerified) {
-        if (sessionToken.tokenVerified || !sessionToken.mustVerify) {
+        if (sessionToken.tokenVerified) {
           const geoData = request.app.geo;
           const service =
             (request.payload as any).service || request.query.service;
