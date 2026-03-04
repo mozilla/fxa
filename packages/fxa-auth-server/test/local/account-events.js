@@ -136,12 +136,52 @@ describe('Account Events', () => {
       );
     });
 
+    it('can record security event with client_id', async () => {
+      const message = {
+        name: 'account.login',
+        uid: '000',
+        ipAddr: '123.123.123.123',
+        tokenId: '123',
+        additionalInfo: {
+          userAgent: 'Mozilla/5.0',
+          client_id: '5882386c6d801776',
+        },
+      };
+      await accountEventsManager.recordSecurityEvent(mockDb, message);
+
+      assert.calledOnce(mockDb.securityEvent);
+      assert.calledOnceWithExactly(
+        statsd.increment,
+        'accountEvents.recordSecurityEvent.write.account.login',
+        { client_id: '5882386c6d801776' }
+      );
+    });
+
+    it('does not include client_id tag when not present in additionalInfo', async () => {
+      const message = {
+        name: 'account.login',
+        uid: '000',
+        ipAddr: '123.123.123.123',
+        tokenId: '123',
+        additionalInfo: {
+          userAgent: 'Mozilla/5.0',
+        },
+      };
+      await accountEventsManager.recordSecurityEvent(mockDb, message);
+
+      assert.calledOnce(mockDb.securityEvent);
+      assert.calledOnceWithExactly(
+        statsd.increment,
+        'accountEvents.recordSecurityEvent.write.account.login'
+      );
+    });
+
     it('logs and does not throw on failure', async () => {
       mockDb.securityEvent = sinon.stub().throws();
       const message = {
         name: 'account.login',
         uid: '000',
-        ip: '123.123.123.123',
+        ipAddr: '123.123.123.123',
         tokenId: '123',
       };
       await accountEventsManager.recordSecurityEvent(mockDb, message);
@@ -149,6 +189,26 @@ describe('Account Events', () => {
       assert.calledOnceWithExactly(
         statsd.increment,
         'accountEvents.recordSecurityEvent.error.account.login'
+      );
+    });
+
+    it('includes client_id tag on error when present', async () => {
+      mockDb.securityEvent = sinon.stub().throws();
+      const message = {
+        name: 'account.login',
+        uid: '000',
+        ipAddr: '123.123.123.123',
+        tokenId: '123',
+        additionalInfo: {
+          client_id: 'sync',
+        },
+      };
+      await accountEventsManager.recordSecurityEvent(mockDb, message);
+      assert.isFalse(addMock.called);
+      assert.calledOnceWithExactly(
+        statsd.increment,
+        'accountEvents.recordSecurityEvent.error.account.login',
+        { client_id: 'sync' }
       );
     });
   });

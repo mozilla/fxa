@@ -33,6 +33,7 @@ interface SecurityEventAdditionalInfo {
   recoveryPhone?: {
     phoneNumber?: string;
   };
+  client_id?: string;
 }
 
 type SecurityEvent = BaseEvent & {
@@ -175,10 +176,26 @@ export class AccountEventsManager {
 
     try {
       await db.securityEvent(eventData);
-      this.statsd.increment(`accountEvents.recordSecurityEvent.write.${name}`);
+      if (additionalInfo?.client_id) {
+        this.statsd.increment(
+          `accountEvents.recordSecurityEvent.write.${name}`,
+          { client_id: additionalInfo.client_id }
+        );
+      } else {
+        this.statsd.increment(`accountEvents.recordSecurityEvent.write.${name}`);
+      }
     } catch (err) {
       // Failing to write to events shouldn't break anything
-      this.statsd.increment(`accountEvents.recordSecurityEvent.error.${name}`);
+      if (additionalInfo?.client_id) {
+        this.statsd.increment(
+          `accountEvents.recordSecurityEvent.error.${name}`,
+          { client_id: additionalInfo.client_id }
+        );
+      } else {
+        this.statsd.increment(
+          `accountEvents.recordSecurityEvent.error.${name}`
+        );
+      }
     }
   }
 }
