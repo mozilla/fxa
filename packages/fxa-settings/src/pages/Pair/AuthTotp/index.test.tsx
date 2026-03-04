@@ -17,6 +17,10 @@ jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
 }));
 
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => jest.fn(),
+}));
+
 describe('Sign in with TOTP code page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461

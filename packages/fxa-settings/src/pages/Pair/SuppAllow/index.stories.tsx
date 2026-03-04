@@ -39,12 +39,3 @@ export const WithDeviceName = () => (
     authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
   />
 );
-
-export const WithErrorMessage = () => (
-  <SuppAllow
-    email={MOCK_ACCOUNT.primaryEmail.email}
-    authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
-    bannerType="error"
-    bannerMessage="There was an error"
-  />
-);

@@ -31,6 +31,6 @@
       })
       .join('&');
   if (newSearch !== search) {
-    window.history.replaceState({}, '', newSearch);
+    window.history.replaceState({}, '', newSearch + window.location.hash);
   }
 })();

@@ -36,6 +36,7 @@ import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { isMobileDevice } from '../../lib/utilities';
 import AppLayout from '../../components/AppLayout';
+import { IntegrationType } from '../../models/integrations/integration';
 
 const IndexContainer = ({
   integration,
@@ -268,6 +269,13 @@ const IndexContainer = ({
   const shouldTrySuggestedEmail = suggestedEmail && !prefillEmail;
 
   useEffect(() => {
+    // Pairing authority flow: redirect to /pair/auth/allow
+    // (Backbone equivalent: app-start.js isDevicePairingAsAuthority() → 'pair/auth/allow')
+    if (integration.type === IntegrationType.PairingAuthority) {
+      navigateWithQuery('/pair/auth/allow');
+      return;
+    }
+
     if (isUnsupportedContext(integration.data.context)) {
       hardNavigate('/update_firefox', {}, true);
     } else if (shouldTrySuggestedEmail && !attemptedEmailAutoSubmit.current) {
@@ -293,6 +301,7 @@ const IndexContainer = ({
   }, [
     ftlMsgResolver,
     attemptedEmailAutoSubmit,
+    navigateWithQuery,
     processEmailSubmission,
     suggestedEmail,
     shouldTrySuggestedEmail,

@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
-// import { useAlertBar } from '../../models';
 import { TwoFactorAuthImage } from '../../../components/images';
 import CardHeader from '../../../components/CardHeader';
 import FormVerifyCode, {
@@ -15,12 +14,14 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
-
-// --serviceName-- is the relying party
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { Integration } from '../../../models';
 
 export type AuthTotpProps = {
-  email: string;
+  email?: string;
   serviceName?: MozServices;
+  onVerified?: () => void;
+  integration?: Integration;
 };
 
 export const viewName = 'pair.auth.totp';
@@ -28,11 +29,11 @@ export const viewName = 'pair.auth.totp';
 const AuthTotp = ({
   email,
   serviceName,
+  onVerified,
 }: AuthTotpProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-
+  const navigateWithQuery = useNavigateWithQuery();
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
-  // const ftlMsgResolver = useFtlMsgResolver();
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
@@ -40,7 +41,6 @@ const AuthTotp = ({
     'Authentication code required'
   );
 
-  // These ftlids match those in `SigninTotpCode`
   const formAttributes: FormAttributes = {
     inputFtlId: 'auth-totp-input-label',
     inputLabelText: 'Enter 6-digit code',
@@ -50,19 +50,22 @@ const AuthTotp = ({
     submitButtonText: 'Confirm',
   };
 
-  const onSubmit = async () => {
+  const onSubmit = useCallback(async () => {
     try {
-      // Check authentication code
-      // logViewEvent('flow', `${viewName}.submit`, ENTRYPOINT_REACT);
-      // redirect to /pair/auth/allow
-    } catch (e) {
-      // TODO: error handling, error message confirmation
-      // this should use auth-errors and place the errors in a tooltip or banner
+      // TODO: verify TOTP code against auth-server
+      // On success, navigate to pair/auth/allow
+      if (onVerified) {
+        onVerified();
+      } else {
+        navigateWithQuery('/pair/auth/allow');
+      }
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Invalid code';
+      setCodeErrorMessage(message);
     }
-  };
+  }, [navigateWithQuery, onVerified]);
 
   return (
-    // TODO: redirect to force_auth or signin if user has not initiated sign in
     <>
       <CardHeader
         headingWithDefaultServiceFtlId="auth-totp-heading-w-default-service"
