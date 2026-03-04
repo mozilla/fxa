@@ -179,7 +179,7 @@
     "jws": "4.0.1",
     "keypair": "1.0.4",
     "load-grunt-tasks": "^5.1.0",
-    "mailparser": "0.6.1",
+    "mailparser": "3.9.3",
     "mjml-browser": "^4.15.3",
     "mocha": "^10.4.0",
     "moment": "^2.30.1",
