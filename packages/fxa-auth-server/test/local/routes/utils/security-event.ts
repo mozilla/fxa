@@ -4,8 +4,225 @@
 
 import { assert } from 'chai';
 import sinon from 'sinon';
+import Container from 'typedi';
+import { AccountEventsManager } from '../../../../lib/account-events';
+import { AppConfig } from '../../../../lib/types';
 
-const { isRecognizedDevice } = require('../../../../lib/routes/utils/security-event');
+const {
+  isRecognizedDevice,
+  recordSecurityEvent,
+} = require('../../../../lib/routes/utils/security-event');
+
+describe('recordSecurityEvent', () => {
+  let sandbox: sinon.SinonSandbox;
+  let mockAccountEventsManager: any;
+  let mockConfig: any;
+
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+
+    mockAccountEventsManager = {
+      recordSecurityEvent: sandbox.stub().resolves(),
+    };
+
+    mockConfig = {
+      oauth: {
+        clientIds: {
+          '5882386c6d801776': 'Firefox Desktop',
+          dcdb5ae7add825d2: 'Firefox for Android',
+        },
+      },
+    };
+
+    Container.set(AccountEventsManager, mockAccountEventsManager);
+    Container.set(AppConfig, mockConfig);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+    Container.remove(AccountEventsManager);
+    Container.remove(AppConfig);
+  });
+
+  it('should include client_id when service is in oauth.clientIds allowlist', async () => {
+    const opts = {
+      db: {},
+      account: { uid: 'test-uid' },
+      request: {
+        app: {
+          clientAddress: '127.0.0.1',
+          geo: { location: { country: 'US' } },
+        },
+        headers: { 'user-agent': 'Mozilla/5.0' },
+        payload: { service: '5882386c6d801776' },
+        auth: { credentials: { id: 'token-id' } },
+      },
+    };
+
+    await recordSecurityEvent('account.login', opts);
+
+    assert.isTrue(mockAccountEventsManager.recordSecurityEvent.calledOnce);
+    const callArgs = mockAccountEventsManager.recordSecurityEvent.firstCall.args;
+    assert.equal(callArgs[1].additionalInfo.client_id, '5882386c6d801776');
+  });
+
+  it('should include client_id when service is "sync"', async () => {
+    const opts = {
+      db: {},
+      account: { uid: 'test-uid' },
+      request: {
+        app: {
+          clientAddress: '127.0.0.1',
+          geo: { location: { country: 'US' } },
+        },
+        headers: { 'user-agent': 'Mozilla/5.0' },
+        payload: { service: 'sync' },
+        auth: { credentials: { id: 'token-id' } },
+      },
+    };
+
+    await recordSecurityEvent('account.login', opts);
+
+    assert.isTrue(mockAccountEventsManager.recordSecurityEvent.calledOnce);
+    const callArgs = mockAccountEventsManager.recordSecurityEvent.firstCall.args;
+    assert.equal(callArgs[1].additionalInfo.client_id, 'sync');
+  });
+
+  it('should not include client_id when service is not in allowlist', async () => {
+    const opts = {
+      db: {},
+      account: { uid: 'test-uid' },
+      request: {
+        app: {
+          clientAddress: '127.0.0.1',
+          geo: { location: { country: 'US' } },
+        },
+        headers: { 'user-agent': 'Mozilla/5.0' },
+        payload: { service: 'unknown1234567890' },
+        auth: { credentials: { id: 'token-id' } },
+      },
+    };
+
+    await recordSecurityEvent('account.login', opts);
+
+    assert.isTrue(mockAccountEventsManager.recordSecurityEvent.calledOnce);
+    const callArgs = mockAccountEventsManager.recordSecurityEvent.firstCall.args;
+    assert.isUndefined(callArgs[1].additionalInfo.client_id);
+  });
+
+  it('should not include client_id when service is not a valid hex string', async () => {
+    const opts = {
+      db: {},
+      account: { uid: 'test-uid' },
+      request: {
+        app: {
+          clientAddress: '127.0.0.1',
+          geo: { location: { country: 'US' } },
+        },
+        headers: { 'user-agent': 'Mozilla/5.0' },
+        payload: { service: 'not-hex-value' },
+        auth: { credentials: { id: 'token-id' } },
+      },
+    };
+
+    await recordSecurityEvent('account.login', opts);
+
+    assert.isTrue(mockAccountEventsManager.recordSecurityEvent.calledOnce);
+    const callArgs = mockAccountEventsManager.recordSecurityEvent.firstCall.args;
+    assert.isUndefined(callArgs[1].additionalInfo.client_id);
+  });
+
+  it('should not include client_id when service is not provided', async () => {
+    const opts = {
+      db: {},
+      account: { uid: 'test-uid' },
+      request: {
+        app: {
+          clientAddress: '127.0.0.1',
+          geo: { location: { country: 'US' } },
+        },
+        headers: { 'user-agent': 'Mozilla/5.0' },
+        payload: {},
+        auth: { credentials: { id: 'token-id' } },
+      },
+    };
+
+    await recordSecurityEvent('account.login', opts);
+
+    assert.isTrue(mockAccountEventsManager.recordSecurityEvent.calledOnce);
+    const callArgs = mockAccountEventsManager.recordSecurityEvent.firstCall.args;
+    assert.isUndefined(callArgs[1].additionalInfo.client_id);
+  });
+
+  it('should get service from query when not in payload', async () => {
+    const opts = {
+      db: {},
+      account: { uid: 'test-uid' },
+      request: {
+        app: {
+          clientAddress: '127.0.0.1',
+          geo: { location: { country: 'US' } },
+        },
+        headers: { 'user-agent': 'Mozilla/5.0' },
+        payload: {},
+        query: { service: '5882386c6d801776' },
+        auth: { credentials: { id: 'token-id' } },
+      },
+    };
+
+    await recordSecurityEvent('account.login', opts);
+
+    assert.isTrue(mockAccountEventsManager.recordSecurityEvent.calledOnce);
+    const callArgs = mockAccountEventsManager.recordSecurityEvent.firstCall.args;
+    assert.equal(callArgs[1].additionalInfo.client_id, '5882386c6d801776');
+  });
+
+  it('should prefer service from payload over query', async () => {
+    const opts = {
+      db: {},
+      account: { uid: 'test-uid' },
+      request: {
+        app: {
+          clientAddress: '127.0.0.1',
+          geo: { location: { country: 'US' } },
+        },
+        headers: { 'user-agent': 'Mozilla/5.0' },
+        payload: { service: 'sync' },
+        query: { service: '5882386c6d801776' },
+        auth: { credentials: { id: 'token-id' } },
+      },
+    };
+
+    await recordSecurityEvent('account.login', opts);
+
+    assert.isTrue(mockAccountEventsManager.recordSecurityEvent.calledOnce);
+    const callArgs = mockAccountEventsManager.recordSecurityEvent.firstCall.args;
+    assert.equal(callArgs[1].additionalInfo.client_id, 'sync');
+  });
+
+  it('should not call manager when it is null', async () => {
+    Container.set(AccountEventsManager, null);
+
+    const opts = {
+      db: {},
+      account: { uid: 'test-uid' },
+      request: {
+        app: {
+          clientAddress: '127.0.0.1',
+          geo: { location: { country: 'US' } },
+        },
+        headers: { 'user-agent': 'Mozilla/5.0' },
+        payload: { service: 'sync' },
+        auth: { credentials: { id: 'token-id' } },
+      },
+    };
+
+    // Should not throw
+    await recordSecurityEvent('account.login', opts);
+
+    assert.isFalse(mockAccountEventsManager.recordSecurityEvent.called);
+  });
+});
 
 describe('isRecognizedDevice', () => {
   let sandbox: sinon.SinonSandbox;
