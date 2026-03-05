@@ -5,10 +5,14 @@
 /**
  * Jest global setup - runs before each test file.
  *
- * The OAuth keys exist in config/key.json but the config module's path
- * resolution can behave differently under Jest's module transformation.
- * This sets the env var to allow tests to run without requiring the
- * OAuth key validation (which is a runtime concern, not a unit test concern).
+ * Set NODE_ENV=dev so that the config module loads config/dev.json,
+ * which includes OAuth keys (config/key.json), authServerSecrets,
+ * and other values required by unit tests. This matches the CI test
+ * runner (scripts/test-ci.sh) which also exports NODE_ENV=dev.
+ *
+ * Jest defaults NODE_ENV to 'test', but there is no config/test.json
+ * in this package, so tests fail without the dev config overlay.
  */
-
-process.env.FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY = 'true';
+if (!process.env.NODE_ENV || process.env.NODE_ENV === 'test') {
+  process.env.NODE_ENV = 'dev';
+}

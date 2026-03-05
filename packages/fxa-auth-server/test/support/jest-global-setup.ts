@@ -28,33 +28,34 @@ const VERSION_JSON_PATH = path.join(AUTH_SERVER_ROOT, 'config', 'version.json');
 const VERSION_JSON_MARKER = path.join(TMP_DIR, 'version_json_created');
 
 function generateKeysIfNeeded(): void {
-  const genKeysScript = path.join(AUTH_SERVER_ROOT, 'scripts', 'gen_keys.js');
-  const oauthGenKeysScript = path.join(AUTH_SERVER_ROOT, 'scripts', 'oauth_gen_keys.js');
-
-  console.log('[Jest Global Setup] Checking/generating auth keys...');
-  try {
-    execSync(`node -r esbuild-register ${genKeysScript}`, {
-      cwd: AUTH_SERVER_ROOT,
+  const keyScripts = [
+    {
+      label: 'auth keys',
+      script: path.join(AUTH_SERVER_ROOT, 'scripts', 'gen_keys.js'),
       env: { ...process.env, NODE_ENV: 'dev' },
-      stdio: 'inherit',
-    });
-  } catch {
-    // Script exits with error if keys already exist
-  }
-
-  console.log('[Jest Global Setup] Checking/generating OAuth keys...');
-  try {
-    execSync(`node -r esbuild-register ${oauthGenKeysScript}`, {
-      cwd: AUTH_SERVER_ROOT,
+    },
+    {
+      label: 'OAuth keys',
+      script: path.join(AUTH_SERVER_ROOT, 'scripts', 'oauth_gen_keys.js'),
       env: {
         ...process.env,
         NODE_ENV: 'dev',
         FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY: 'true',
       },
-      stdio: 'inherit',
-    });
-  } catch {
-    // Script exits with error if keys already exist
+    },
+  ];
+
+  for (const { label, script, env } of keyScripts) {
+    console.log(`[Jest Global Setup] Checking/generating ${label}...`);
+    try {
+      execSync(`node -r esbuild-register ${script}`, {
+        cwd: AUTH_SERVER_ROOT,
+        env,
+        stdio: 'inherit',
+      });
+    } catch {
+      // Script exits with error if keys already exist
+    }
   }
 }
 
@@ -113,6 +114,9 @@ function generateVersionJsonIfNeeded(): void {
 }
 
 export default async function globalSetup(): Promise<void> {
+  if (!process.env.CORS_ORIGIN) {
+    process.env.CORS_ORIGIN = 'http://foo,http://bar';
+  }
   const printLogs = process.env.MAIL_HELPER_LOGS === 'true';
 
   generateKeysIfNeeded();
@@ -124,9 +128,8 @@ export default async function globalSetup(): Promise<void> {
 
   console.log('[Jest Global Setup] Starting mail_helper...');
 
-  const tmpDir = path.dirname(MAIL_HELPER_PID_FILE);
-  if (!fs.existsSync(tmpDir)) {
-    fs.mkdirSync(tmpDir, { recursive: true });
+  if (!fs.existsSync(TMP_DIR)) {
+    fs.mkdirSync(TMP_DIR, { recursive: true });
   }
 
   killExistingProcess(MAIL_HELPER_PID_FILE, 'mail_helper');
