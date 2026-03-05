@@ -27,12 +27,12 @@ const DEVICES_SUPPORT_URL =
 export function sortAndFilterConnectedClients(
   attachedClients: Array<AttachedClient>
 ) {
-  const groupedByName = groupBy(attachedClients, 'name');
+  const groupedByDevice = groupBy(attachedClients, (c) => c.deviceId || c.name);
 
-  // get a unique (by name) list and sort by time last accessed
-  const sortedAndUniqueClients = Object.keys(groupedByName)
+  // get a unique (by device or name) list and sort by time last accessed
+  const sortedAndUniqueClients = Object.keys(groupedByDevice)
     .map((key) => {
-      return groupedByName[key].sort(
+      return groupedByDevice[key].sort(
         (a: AttachedClient, b: AttachedClient) =>
           b.lastAccessTime - a.lastAccessTime
       )[0];
@@ -47,14 +47,14 @@ export function sortAndFilterConnectedClients(
     }
   });
 
-  return { groupedByName, sortedAndUniqueClients };
+  return { groupedByDevice, sortedAndUniqueClients };
 }
 
 export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const attachedClients = account.attachedClients;
-  const { groupedByName, sortedAndUniqueClients } =
+  const { groupedByDevice, sortedAndUniqueClients } =
     sortAndFilterConnectedClients([...attachedClients]);
 
   const showMobilePromo = !sortedAndUniqueClients.filter(isMobileDevice).length;
@@ -105,14 +105,12 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         // disconnect all clients/sessions with this name since only unique names
         // are displayed to the user. This is batched into one network request
         // via BatchHttpLink
-        const groupByKey = client.name ?? 'undefined';
-        const clientsWithMatchingName = groupedByName[groupByKey];
-        const hasMultipleSessions = clientsWithMatchingName.length > 1;
+        const groupByKey = (client.deviceId || client.name) ?? 'undefined';
+        const sessionsInGroup = groupedByDevice[groupByKey];
+        const hasMultipleSessions = sessionsInGroup.length > 1;
         if (hasMultipleSessions) {
           await Promise.all(
-            clientsWithMatchingName.map(
-              async (c) => await account.disconnectClient(c)
-            )
+            sessionsInGroup.map(async (c) => await account.disconnectClient(c))
           );
         } else {
           await account.disconnectClient(client);
@@ -123,7 +121,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         if (
           client.isCurrentSession ||
           (hasMultipleSessions &&
-            clientsWithMatchingName.find((c) => c.isCurrentSession))
+            sessionsInGroup.find((c) => c.isCurrentSession))
         ) {
           setSigningOut(true);
           clearSignedInAccountUid();
@@ -150,7 +148,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
     [
       account,
       hideConfirmDisconnectModal,
-      groupedByName,
+      groupedByDevice,
       revealAdviceModal,
       alertBar,
       l10n,
