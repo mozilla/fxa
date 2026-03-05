@@ -195,5 +195,8 @@ libs/shared/cms/src/__generated__/graphql.js
 # Sentry Config File
 .env.sentry-build-plugin
 
-# Anthropic's Claude AI
+# Anthropic's Claude AI — ignore everything except checked-in skills
 .claude
+!.claude/
+!.claude/skills/
+!.claude/skills/**
