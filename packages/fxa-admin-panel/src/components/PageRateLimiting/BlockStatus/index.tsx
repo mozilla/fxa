@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { BlockStatus as BlockStatusData } from 'fxa-admin-server/src/graphql';
+import { BlockStatus as BlockStatusData } from 'fxa-admin-server/src/dto';
 import { getFormattedDuration, getFormattedDate } from '../../../lib/utils';
 
 interface BlockStatusProps {

@@ -37,11 +37,6 @@ module.exports = {
       },
       filter_env: ['npm_'],
       watch: ['src'],
-      ignore_watch: [
-        'src/graphql.ts',
-        'src/schema.gql',
-        'src/config/gql/allowlist/*.json',
-      ],
       time: true,
     },
   ],

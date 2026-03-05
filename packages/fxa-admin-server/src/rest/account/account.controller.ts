@@ -52,7 +52,7 @@ import {
   EventLoggingService,
   EventNames,
 } from '../../event-logging/event-logging.service';
-import { AccountEvent as AccountEventType } from '../../gql/model/account-events.model';
+import { AccountEvent as AccountEventType } from '../model/account-events.model';
 import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import {
@@ -199,7 +199,7 @@ export class AccountController {
     try {
       uidBuffer = uuidTransformer.to(uid);
     } catch (err) {
-      return null;
+      return false;
     }
     this.log.info('accountByUid', { uid, user });
     const account = await this.db.account
@@ -207,7 +207,9 @@ export class AccountController {
       .select(ACCOUNT_COLUMNS)
       .findOne({ uid: uidBuffer });
 
-    if (!account) return null;
+    if (!account) {
+      return false;
+    }
     return this.resolveAccountData(account);
   }
 
@@ -237,7 +239,9 @@ export class AccountController {
         .first();
     }
 
-    if (!account) return null;
+    if (!account) {
+      return false;
+    }
     return this.resolveAccountData(account);
   }
 
@@ -535,12 +539,13 @@ export class AccountController {
   @AuditLog()
   @Post('delete')
   public async deleteAccounts(
-    @Body('locators') locators: string[],
+    @Body('locators') locators: string | string[],
     @CurrentUser() user: string
   ) {
     this.eventLogging.onEvent('deleteAccounts');
 
-    if (locators.length > 1000) {
+    const locatorList = Array.isArray(locators) ? locators : [locators];
+    if (locatorList.length > 1000) {
       throw new Error('Provide less than 1000 account locators.');
     }
 
@@ -606,7 +611,7 @@ export class AccountController {
     };
 
     const promises = [];
-    for (const locator of locators) {
+    for (const locator of locatorList) {
       promises.push(createTask(locator));
     }
 
@@ -617,19 +622,20 @@ export class AccountController {
   @AuditLog()
   @Post('reset')
   public async resetAccounts(
-    @Body('locators') locators: string[],
+    @Body('locators') locators: string | string[],
     @Body('notificationEmail') notificationEmail: string,
     @CurrentUser() user: string,
     @Req() req: Request
   ) {
     this.eventLogging.onEvent('deleteAccounts');
 
-    if (locators.length > 1000) {
+    const locatorList = Array.isArray(locators) ? locators : [locators];
+    if (locatorList.length > 1000) {
       throw new Error('Provide less than 1000 account locators.');
     }
 
     const status: AccountResetResponse[] = [];
-    for (const locator of locators) {
+    for (const locator of locatorList) {
       this.log.info('resetAccounts', { locator, user });
 
       let account: Account | undefined;
