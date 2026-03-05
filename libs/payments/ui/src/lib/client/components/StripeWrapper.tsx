@@ -194,7 +194,6 @@ export function StripeManagementWrapper({
     locale: isStripeElementLocale(locale) ? locale : 'auto',
     currency: currency.toLowerCase(),
     customerSessionClientSecret: sessionSecret,
-    setupFutureUsage: 'off_session',
   };
 
   return (
