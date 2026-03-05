@@ -20,6 +20,7 @@ module.exports = {
     '^fxa-shared/(.*)$': '<rootDir>/../fxa-shared/$1',
   },
   testTimeout: 10000,
+  maxWorkers: 4,
   clearMocks: true,
   workerIdleMemoryLimit: '512MB',
   setupFiles: ['<rootDir>/jest.setup.js', '<rootDir>/jest.setup-proxyquire.js'],
