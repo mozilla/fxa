@@ -76,6 +76,11 @@ import {
   CancelInterstitialOfferResult,
   CancelInterstitialOfferUtil,
 } from './queries/cancel-interstitial-offer';
+import {
+    freeTrialQuery,
+    FreeTrialResult,
+    FreeTrialUtil,
+} from './queries/free-trial';
 
 @Injectable()
 export class ProductConfigurationManager {
@@ -423,6 +428,19 @@ export class ProductConfigurationManager {
 
     return new CancelInterstitialOfferUtil(
       queryResult as DeepNonNullable<CancelInterstitialOfferResult>
+    );
+  }
+
+  async getFreeTrial(
+    apiIdentifier: string,
+  ) {
+    const queryResult = await this.strapiClient.query(
+      freeTrialQuery,
+      { apiIdentifier }
+    );
+
+    return new FreeTrialUtil(
+      queryResult as DeepNonNullable<FreeTrialResult>
     );
   }
 }
