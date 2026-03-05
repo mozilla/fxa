@@ -32,6 +32,10 @@ import {
   isClientAllowedForPasswordless,
   isPasswordlessEligible,
 } from './utils/passwordless';
+import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
+import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
+import { getOptionalCmsEmailConfig } from './utils/account';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 
 /**
  * Redis adapter for OTP storage
@@ -61,7 +65,9 @@ class OtpRedisAdapter implements OtpStorage {
 class PasswordlessHandler {
   private otpManager: OtpManager;
   private fxaMailer: FxaMailer;
+  private cmsManager?: RelyingPartyConfigurationManager;
   private otpUtils: any;
+  private oauthClientInfoService: any;
 
   constructor(
     private log: AuthLogger,
@@ -81,6 +87,10 @@ class PasswordlessHandler {
       otpRedisAdapter
     );
     this.fxaMailer = Container.get(FxaMailer);
+    this.oauthClientInfoService = Container.get(OAuthClientInfoServiceName);
+    this.cmsManager = Container.has(RelyingPartyConfigurationManager)
+      ? Container.get(RelyingPartyConfigurationManager)
+      : undefined;
     // For checking if account has TOTP enabled
     this.otpUtils = require('./utils/otp').default(db, statsd);
   }
@@ -346,7 +356,7 @@ class PasswordlessHandler {
         geoData.timeZone
       );
 
-    const commonArgs = {
+    const options = {
       code,
       deviceId,
       flowId,
@@ -361,25 +371,54 @@ class PasswordlessHandler {
       codeExpiryMinutes: this.config.passwordlessOtp.ttl / 60,
     };
 
+    const cmsConfig = await getOptionalCmsEmailConfig(options, {
+      request,
+      cmsManager: this.cmsManager,
+      log: this.log,
+      emailTemplate: isNewAccount
+        ? 'PasswordlessSignupOtpEmail'
+        : 'PasswordlessSigninOtpEmail',
+    });
+
+    const cmsEmailSubject = FxaMailerFormat.cmsEmailSubject(cmsConfig);
+    const target =
+      cmsEmailSubject.subject && cmsEmailSubject.description
+        ? 'strapi'
+        : 'index';
+
     if (isNewAccount) {
       const metricsEnabled =
         this.config.gleanMetrics.enabled &&
         (await request.app.isMetricsEnabled);
 
       await this.fxaMailer.sendPasswordlessSignupOtpEmail({
-        ...commonArgs,
         to: email,
         cc: [],
         metricsEnabled,
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.sync(false),
+        ...FxaMailerFormat.cmsLogo(cmsConfig),
+        ...cmsEmailSubject,
+        target,
+        code,
+        codeExpiryMinutes: this.config.passwordlessOtp.ttl / 60,
       });
     } else {
-      const emailAddresses = splitEmails(account.emails);
       await this.fxaMailer.sendPasswordlessSigninOtpEmail({
-        ...commonArgs,
-        to: emailAddresses.to,
-        cc: emailAddresses.cc,
-        uid: account.uid,
-        metricsEnabled: account.metricsEnabled,
+        ...FxaMailerFormat.account(account),
+        ...(await FxaMailerFormat.metricsContext(request)),
+        ...FxaMailerFormat.localTime(request),
+        ...FxaMailerFormat.location(request),
+        ...FxaMailerFormat.device(request),
+        ...FxaMailerFormat.sync(false),
+        ...FxaMailerFormat.cmsLogo(cmsConfig),
+        ...cmsEmailSubject,
+        target,
+        code,
+        codeExpiryMinutes: this.config.passwordlessOtp.ttl / 60,
       });
     }
 

@@ -14,9 +14,11 @@ import {
 } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
 
 const SigninPasswordlessCodeContainer = ({
   integration,
+  flowQueryParams,
   setCurrentSplitLayout,
 }: SigninPasswordlessCodeContainerProps & RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
@@ -54,7 +56,15 @@ const SigninPasswordlessCodeContainer = ({
     if (email && !codeSent) {
       const sendCode = async () => {
         try {
-          await authClient.passwordlessSendCode(email, { clientId: integration.getClientId() });
+          await authClient.passwordlessSendCode(email, {
+            clientId: integration.getClientId(),
+            metricsContext: {
+              ...queryParamsToMetricsContext(
+                flowQueryParams as unknown as Record<string, string>
+              ),
+              clientId: integration.getClientId(),
+            },
+          });
           setCodeSent(true);
         } catch (error: any) {
           setSendError(error.message || 'Failed to send code');

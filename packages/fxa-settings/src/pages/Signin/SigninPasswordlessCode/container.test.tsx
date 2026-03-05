@@ -84,6 +84,7 @@ async function render() {
         {...{
           integration,
           serviceName: 'sync',
+          flowQueryParams: {}
         }}
       />
     </LocationProvider>

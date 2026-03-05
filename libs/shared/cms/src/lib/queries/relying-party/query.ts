@@ -75,6 +75,17 @@ export const relyingPartyQuery = graphql(`
         }
         splitLayout
       }
+      SignupPasswordlessCodePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        primaryImage {
+          url
+          altText
+        }
+        splitLayout
+      }
       SigninPage {
         headline
         description
@@ -89,6 +100,17 @@ export const relyingPartyQuery = graphql(`
         description
         primaryButtonText
         pageTitle
+        splitLayout
+      }
+      SigninPasswordlessCodePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        primaryImage {
+          url
+          altText
+        }
         splitLayout
       }
       SigninTokenCodePage {
@@ -106,6 +128,16 @@ export const relyingPartyQuery = graphql(`
         splitLayout
       }
       NewDeviceLoginEmail {
+        subject
+        headline
+        description
+      }
+      PasswordlessSigninOtpEmail {
+        subject
+        headline
+        description
+      }
+      PasswordlessSignupOtpEmail {
         subject
         headline
         description

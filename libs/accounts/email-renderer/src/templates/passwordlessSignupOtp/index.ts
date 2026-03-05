@@ -11,6 +11,14 @@ export type TemplateData = AutomatedEmailNoActionTemplateData &
     codeExpiryMinutes: number;
     time: string;
     date: string;
+
+    cmsRpClientId?: string;
+    cmsRpFromName?: string;
+    entrypoint?: string;
+    subject?: string;
+    headline?: string;
+    description?: string;
+    target: 'index' | 'strapi';
   };
 
 export const template = 'passwordlessSignupOtp';

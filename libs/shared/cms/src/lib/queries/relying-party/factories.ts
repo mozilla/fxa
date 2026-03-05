@@ -64,6 +64,19 @@ export const RelyingPartyResultFactory = (
     },
     splitLayout: faker.datatype.boolean(),
   },
+  SignupPasswordlessCodePage: {
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.internet.url(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    primaryImage: {
+      url: faker.internet.url(),
+      altText: faker.string.sample(),
+    },
+    splitLayout: faker.datatype.boolean(),
+  },
   shared: {
     buttonColor: faker.color.rgb(),
     logoUrl: faker.internet.url(),
@@ -95,6 +108,22 @@ export const RelyingPartyResultFactory = (
     additionalAccessibilityInfo: faker.string.sample(),
   },
   NewDeviceLoginEmail: {
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.internet.url(),
+    subject: faker.string.sample(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
+  PasswordlessSigninOtpEmail: {
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.internet.url(),
+    subject: faker.string.sample(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
+  PasswordlessSignupOtpEmail: {
     logoUrl: faker.internet.url(),
     logoAltText: faker.internet.url(),
     subject: faker.string.sample(),
@@ -134,6 +163,19 @@ export const RelyingPartyResultFactory = (
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
     pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
+  SigninPasswordlessCodePage: {
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.internet.url(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    primaryImage: {
+      url: faker.internet.url(),
+      altText: faker.string.sample(),
+    },
     splitLayout: faker.datatype.boolean(),
   },
   SigninTokenCodePage: {
