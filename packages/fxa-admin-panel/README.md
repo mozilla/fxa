@@ -14,9 +14,9 @@ Outside of local development, this application is protected by SSO, a VPN connec
 
 This service will automatically spin up when `yarn start` is [ran from the root directory](https://github.com/mozilla/fxa#getting-started). A small Express server serves a React application and exposes the server config file for the client to consume via a meta tag.
 
-The React dev server runs at [localhost:8092](http://localhost:8092/) which can be useful when building components if you'd like an auto page refresh on file changes, however, the Express server that serves the React application and proxies its static resources runs at [localhost:8091](http://localhost:8091/). Develop on `:8091` if you need access to anything set in the server configuration file, including the URI for connecting to the `fxa-admin-server`.
+The the React application and proxies its static resources runs at [localhost:8091](http://localhost:8091/). Develop on `:8091` if you need access to anything set in the server configuration file, including the URI for connecting to the `fxa-admin-server`.
 
-API calls are done through [Apollo Client](https://www.apollographql.com/docs/react/) with [GraphQL](https://graphql.org/learn/) to communicate with the `fxa-admin-server`. See [its documentation](https://github.com/mozilla/fxa/tree/main/packages/fxa-admin-server) to connect to the playground, a place to view the API docs and schema, and to write and test queries and mutations before using them in a component.
+API calls are done through [Tan Stack](https://tanstack.com/query/latest) with REST to communicate with the `fxa-admin-server`. See [its documentation](https://github.com/mozilla/fxa/tree/main/packages/fxa-admin-server).
 
 With the addition of subscriptions, running the Admin Panel now requires secrets to be set up in fxa-admin-server.
 

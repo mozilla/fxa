@@ -7,7 +7,7 @@ import { PlayStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/google-pl
 import { PaymentState } from 'fxa-shared/payments/iap/google-play/types';
 import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
-import { MozSubscription } from '../gql/model/moz-subscription.model';
+import { MozSubscription } from '../rest/model/moz-subscription.model';
 
 /**
  * Responsible for converting a Stripe.Subscription to a MozSubscription

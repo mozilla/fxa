@@ -23,7 +23,7 @@ import {
   RateLimitRedisProvider,
 } from '@fxa/accounts/rate-limit';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
-import { CartModule } from '../gql/cart.module';
+import { CartModule } from './cart.module';
 
 @Module({
   imports: [

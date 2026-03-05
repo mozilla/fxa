@@ -52,7 +52,7 @@ import {
   EventLoggingService,
   EventNames,
 } from '../../event-logging/event-logging.service';
-import { AccountEvent as AccountEventType } from '../../gql/model/account-events.model';
+import { AccountEvent as AccountEventType } from '../model/account-events.model';
 import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import {
@@ -199,7 +199,7 @@ export class AccountController {
     try {
       uidBuffer = uuidTransformer.to(uid);
     } catch (err) {
-      return null;
+      return false;
     }
     this.log.info('accountByUid', { uid, user });
     const account = await this.db.account
@@ -207,7 +207,9 @@ export class AccountController {
       .select(ACCOUNT_COLUMNS)
       .findOne({ uid: uidBuffer });
 
-    if (!account) return null;
+    if (!account) {
+      return false;
+    }
     return this.resolveAccountData(account);
   }
 
@@ -237,7 +239,9 @@ export class AccountController {
         .first();
     }
 
-    if (!account) return null;
+    if (!account) {
+      return false;
+    }
     return this.resolveAccountData(account);
   }
 

@@ -1,7 +1,7 @@
 {
   "name": "fxa-admin-server",
   "version": "0.0.0",
-  "description": "FxA GraphQL Admin Server",
+  "description": "FxA Admin Server",
   "scripts": {
     "prebuild": "yarn clean",
     "gql-copy": "mkdir -p src/config/gql/allowlist/ && cp ../../configs/gql/allowlist/*.json src/config/gql/allowlist/.",
@@ -15,7 +15,7 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
-    "start-prod": "node dist/packages/fxa-graphql-api/src/main",
+    "start-prod": "node dist/packages/fxa-admin-server/src/main",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "test": "yarn gen-keys && yarn test-default && yarn test-e2e ",
