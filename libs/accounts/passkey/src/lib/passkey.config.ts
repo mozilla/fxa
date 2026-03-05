@@ -59,7 +59,7 @@ export class PasskeyConfig {
    * @example 300000 (5 minutes)
    */
   @IsNumber()
-  public challengeTimeout?: number;
+  public challengeTimeout!: number;
 
   /**
    * User verification requirement for WebAuthn.
