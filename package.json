@@ -275,7 +275,6 @@
     "mocha-multi": "^1.1.7",
     "nx": "21.2.4",
     "nx-cloud": "19.1.0",
-    "persistgraphql": "^0.3.11",
     "postcss": "8.5.0",
     "react-test-renderer": "^18.3.1",
     "reflect-metadata": "^0.2.1",

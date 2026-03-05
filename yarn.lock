@@ -36984,7 +36984,6 @@ __metadata:
     passport-http-bearer: "npm:^1.0.1"
     passport-jwt: "npm:^4.0.1"
     path-browserify: "npm:^1.0.1"
-    persistgraphql: "npm:^0.3.11"
     pm2: "npm:^6.0.14"
     postcss: "npm:8.5.0"
     prettier: "npm:^3.5.3"
