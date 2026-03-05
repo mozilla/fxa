@@ -25,4 +25,6 @@ export * from './lib/passkey.manager';
 export * from './lib/passkey.repository';
 export * from './lib/passkey.errors';
 export * from './lib/passkey.config';
+export * from './lib/passkey.challenge';
+export * from './lib/passkey.challenge.manager';
 export * from './lib/webauthn-adapter';
