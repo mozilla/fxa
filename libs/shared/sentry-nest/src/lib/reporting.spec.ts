@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ignoreError, isAuthServerError } from './reporting';
-import { GraphQLError } from 'graphql';
 import { HttpException } from '@nestjs/common';
 
 describe('detects auth server error', () => {
@@ -63,16 +62,6 @@ describe('error ignore policies', () => {
         },
       })
     ).toBeTruthy();
-  });
-
-  it('should ignore apollo errors', () => {
-    // Apollo errors should be sent to clients and we don't report them.
-    const err = new GraphQLError('BOOM', {
-      extensions: {
-        code: 'BAD_REQUEST',
-      },
-    });
-    expect(ignoreError(err)).toBeTruthy();
   });
 
   it('should ignore non 500 errors', () => {

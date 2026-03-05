@@ -4,7 +4,7 @@
 
 import { Test } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
-import { DocumentNode } from 'graphql';
+import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { relyingPartyQuery } from '../../src';
@@ -123,7 +123,7 @@ describe('RelyingPartyConfigurationManager', () => {
         elapsed: 1,
         cache: false,
         cacheType: 'method',
-        query: {} as DocumentNode,
+        query: {} as TypedDocumentNode,
         error: undefined,
       };
 
@@ -246,7 +246,10 @@ describe('RelyingPartyConfigurationManager', () => {
         text: () => Promise.resolve(ftlContent),
       });
 
-      const result = await relyingPartyConfigurationManager.getFtlContent(locale, config);
+      const result = await relyingPartyConfigurationManager.getFtlContent(
+        locale,
+        config
+      );
 
       expect(result).toBe(ftlContent);
       expect(mockFetch).toHaveBeenCalledWith(
@@ -269,7 +272,10 @@ describe('RelyingPartyConfigurationManager', () => {
         },
       };
 
-      const result = await relyingPartyConfigurationManager.getFtlContent(locale, config);
+      const result = await relyingPartyConfigurationManager.getFtlContent(
+        locale,
+        config
+      );
 
       expect(result).toBe('');
       expect(mockFetch).not.toHaveBeenCalled();
@@ -291,7 +297,10 @@ describe('RelyingPartyConfigurationManager', () => {
         status: 404,
       });
 
-      const result = await relyingPartyConfigurationManager.getFtlContent(locale, config);
+      const result = await relyingPartyConfigurationManager.getFtlContent(
+        locale,
+        config
+      );
 
       expect(result).toBe('');
     });

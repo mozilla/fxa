@@ -34,7 +34,6 @@ const nextConfig = {
       '@googleapis/androidpublisher',
       '@googlemaps/google-maps-services-js',
       '@grpc',
-      '@nestjs/apollo',
       '@nestjs/common',
       '@nestjs/config',
       '@nestjs/core',

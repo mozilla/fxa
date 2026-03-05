@@ -13,7 +13,6 @@ import { MozLoggerService } from '@fxa/shared/mozlog';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { localizeTimestamp } from '@fxa/shared/l10n';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
-import { GraphQLError } from 'graphql';
 
 type AnyObject = Record<string, any>;
 
@@ -32,6 +31,15 @@ type CheckResponse = {
   unblock?: boolean;
   retryAfter?: number;
 };
+
+export class CustomsError extends Error {
+  constructor(
+    message: string,
+    public readonly extras: Record<string, any>
+  ) {
+    super(message);
+  }
+}
 
 @Injectable()
 export class CustomsService {
@@ -113,7 +121,7 @@ export class CustomsService {
           extraData.verificationReason = 'login';
         }
 
-        throw new GraphQLError('Client has sent too many requests', {
+        throw new CustomsError('Client has sent too many requests', {
           extensions: {
             code: 429,
             error: 'Too Many Requests',

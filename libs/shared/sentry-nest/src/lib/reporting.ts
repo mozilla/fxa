@@ -1,9 +1,9 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import * as Sentry from '@sentry/nestjs';
 import { ExecutionContext, HttpException } from '@nestjs/common';
-import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
-import { ApolloServerErrorCode } from '@apollo/server/errors';
-
-import { GraphQLError } from 'graphql';
 import { Message } from '@aws-sdk/client-sqs';
 import { Request } from 'express';
 
@@ -27,26 +27,10 @@ export function captureSqsError(err: Error, message?: Message): void {
   });
 }
 
-/**
- * Determine if an error is an ApolloError.
- * Prior to GQL 16.8 and apollo-server 4.9.3, we used ApolloError from apollo-server.
- * Now, we populate fields on GraphQL error to mimic the previous state of ApolloError.
- */
-export function isApolloError(err: Error): boolean {
-  if (err instanceof GraphQLError) {
-    const code = err.extensions?.['code'];
-    if (typeof code === 'string') {
-      return Object.keys(ApolloServerErrorCode).includes(code);
-    }
-  }
-  return false;
-}
-
 /** Indicates if error should be sent to Sentry */
 export function ignoreError(err: any): boolean {
   return (
     isAuthServerError(err) ||
-    isApolloError(err) ||
     isOriginallyHttpError(err) ||
     (isHttpException(err) && !isInternalServerError(err))
   );
@@ -132,21 +116,9 @@ export function reportRequestException(
 export function processException(context: ExecutionContext, exception: Error) {
   // First determine what type of a request this is
   let request: Request | undefined;
-  let gqlExec: GqlExecutionContext | undefined;
   if (context.getType() === 'http') {
     request = context.switchToHttp().getRequest();
-  } else if (context.getType<GqlContextType>() === 'graphql') {
-    gqlExec = GqlExecutionContext.create(context);
-    request = gqlExec.getContext().req;
   }
   const excContexts: ExtraContext[] = [];
-  if (gqlExec) {
-    const info = gqlExec.getInfo();
-    excContexts.push({
-      name: 'graphql',
-      fieldData: { fieldName: info.fieldName, path: info.path },
-    });
-  }
-
   reportRequestException(exception, excContexts, request);
 }

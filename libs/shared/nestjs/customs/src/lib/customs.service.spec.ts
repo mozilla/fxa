@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { GraphQLError } from 'graphql';
 
 import { CustomsService } from './customs.service';
 import { MozLoggerService } from '@fxa/shared/mozlog';
@@ -92,7 +91,7 @@ describe('Customs Service', () => {
         };
       });
 
-      let error: GraphQLError | null = null;
+      let error: { message: string; extensions: unknown } | null = null;
       try {
         await service.check({
           action: 'test',
@@ -176,7 +175,7 @@ describe('Customs Service', () => {
         }),
       });
 
-      let error: GraphQLError | null = null;
+      let error: { message: string; extensions: unknown } | null = null;
       try {
         await service.check({
           action: 'test',
