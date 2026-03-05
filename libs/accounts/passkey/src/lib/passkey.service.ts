@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
-import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
+import { Inject, Service, Token } from 'typedi';
+import { ILogger, LOGGER_PROVIDER } from '@fxa/shared/log';
+import { StatsD } from '@fxa/shared/metrics/statsd';
 import { PasskeyManager } from './passkey.manager';
+
+export const StatsDToken = new Token<StatsD>('StatsD');
 
 /**
  * PasskeyService - High-level business logic for passkey (WebAuthn) operations.
@@ -36,12 +38,12 @@ import { PasskeyManager } from './passkey.manager';
  * - **backupEligible/backupState**: Extract from authenticator data flags (BE/BS bits)
  *
  */
-@Injectable()
+@Service()
 export class PasskeyService {
   constructor(
     private readonly passkeyManager: PasskeyManager,
-    @Inject(StatsDService) private readonly metrics: StatsD,
-    @Inject(LOGGER_PROVIDER) private readonly log?: LoggerService
+    @Inject(StatsDToken) private readonly metrics: StatsD,
+    @Inject(LOGGER_PROVIDER) private readonly log?: ILogger
   ) {}
 
   // TODO: Add methods for passkey operations such as:

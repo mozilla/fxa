@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Test, TestingModule } from '@nestjs/testing';
+import { Container } from 'typedi';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
-import { StatsDService } from '@fxa/shared/metrics/statsd';
-import { PasskeyService } from './passkey.service';
+import { PasskeyService, StatsDToken } from './passkey.service';
 import { PasskeyManager } from './passkey.manager';
 
 describe('PasskeyService', () => {
@@ -27,22 +26,19 @@ describe('PasskeyService', () => {
     warn: jest.fn(),
   };
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        PasskeyService,
-        { provide: PasskeyManager, useValue: mockManager },
-        { provide: StatsDService, useValue: mockMetrics },
-        { provide: LOGGER_PROVIDER, useValue: mockLogger },
-      ],
-    }).compile();
+  beforeEach(() => {
+    Container.reset();
+    Container.set(PasskeyManager, mockManager);
+    Container.set(StatsDToken, mockMetrics);
+    Container.set(LOGGER_PROVIDER, mockLogger);
 
-    service = module.get(PasskeyService);
-    manager = module.get(PasskeyManager);
+    service = Container.get(PasskeyService);
+    manager = Container.get(PasskeyManager);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    Container.reset();
   });
 
   it('should be defined', () => {

@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { PasskeyManager } from './passkey.manager';
+import { Container } from 'typedi';
+import { PasskeyManager, AccountDatabaseToken } from './passkey.manager';
 import {
   AccountDatabase,
-  AccountDbProvider,
   testAccountDatabaseSetup,
 } from '@fxa/shared/db/mysql/account';
-import { Test } from '@nestjs/testing';
 
 describe('PasskeyManager (Integration)', () => {
   let manager: PasskeyManager;
@@ -18,18 +17,8 @@ describe('PasskeyManager (Integration)', () => {
     // Set up real database connection for integration tests
     try {
       db = await testAccountDatabaseSetup(['accounts', 'passkeys']);
-
-      const moduleRef = await Test.createTestingModule({
-        providers: [
-          PasskeyManager,
-          {
-            provide: AccountDbProvider,
-            useValue: db,
-          },
-        ],
-      }).compile();
-
-      manager = moduleRef.get(PasskeyManager);
+      Container.set(AccountDatabaseToken, db);
+      manager = Container.get(PasskeyManager);
     } catch (error) {
       // Log helpful message before failing fast
       console.warn('\n⚠️  Integration tests require database infrastructure.');
@@ -45,6 +34,7 @@ describe('PasskeyManager (Integration)', () => {
     if (db) {
       await db.destroy();
     }
+    Container.reset();
   });
 
   // TODO: Add actual integration tests once PasskeyManager methods are implemented
