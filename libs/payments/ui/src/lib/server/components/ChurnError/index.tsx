@@ -8,18 +8,19 @@ import Link from 'next/link';
 
 import {
   getNextChargeChurnContent,
+  AlreadyCanceling,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/ui';
-import { LinkExternal } from '@fxa/shared/react';
 import { getApp } from '@fxa/payments/ui/server';
+import { LinkExternal } from '@fxa/shared/react';
 
 type ChurnErrorProps = {
-  cmsOfferingContent: {
+  cmsOfferingContent?: {
     productName: string;
     successActionButtonUrl: string;
     supportUrl: string;
     webIcon: string;
-  } | null | undefined;
+  } | null;
   locale: string;
   reason: string;
   pageContent:
@@ -87,7 +88,7 @@ export async function ChurnError({
                   </Link>
                   <LinkExternal
                     className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
-                    href={'https://support.mozilla.org/'}
+                    href={'https://support.mozilla.org'}
                   >
                     {l10n.getString(
                       'churn-error-page-button-contact-support',
@@ -108,6 +109,24 @@ export async function ChurnError({
       cmsOfferingContent;
 
     switch (reason) {
+      case 'already_canceling_at_period_end':
+        if (!pageContent || pageContent.flowType === 'not_found') {
+          break;
+        }
+        const { currentPeriodEnd } = pageContent;
+        return (
+          <section
+            className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
+            aria-labelledby="error-already-canceling-heading"
+          >
+            <AlreadyCanceling
+              currentPeriodEnd={currentPeriodEnd}
+              locale={locale}
+              productName={productName}
+              webIcon={webIcon}
+            />
+          </section>
+        );
       case 'discount_already_applied':
       case 'redemption_limit_exceeded':
         return (
@@ -293,7 +312,7 @@ export async function ChurnError({
           </div>
           <div className="flex flex-col gap-3 w-full">
             <LinkExternal
-              href={'https://support.mozilla.org/'}
+              href={'https://support.mozilla.org'}
               className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
             >
               {l10n.getString(

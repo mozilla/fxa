@@ -491,10 +491,10 @@ export class ChurnInterventionService {
       return {
         isEligible: false,
         reason: 'feature_disabled',
-        cmsOfferContent: null,
-        cmsOfferingContent: null,
+        cmsCancelInterstitialOfferResult: null,
         webIcon: null,
         productName: null,
+        supportUrl: 'https://support.mozilla.org',
       };
     }
 
@@ -515,6 +515,7 @@ export class ChurnInterventionService {
           cmsCancelInterstitialOfferResult: null,
           webIcon: null,
           productName: null,
+          supportUrl: 'https://support.mozilla.org',
         };
       }
 
@@ -529,6 +530,7 @@ export class ChurnInterventionService {
           cmsCancelInterstitialOfferResult: null,
           webIcon: null,
           productName: null,
+          supportUrl: 'https://support.mozilla.org',
         };
       }
 
@@ -545,6 +547,7 @@ export class ChurnInterventionService {
           cmsCancelInterstitialOfferResult: null,
           webIcon: null,
           productName: null,
+          supportUrl: 'https://support.mozilla.org',
         };
       }
 
@@ -555,7 +558,10 @@ export class ChurnInterventionService {
       const { offering, purchaseDetails } =
         result.purchaseForPriceId(stripePriceId);
       const offeringId = offering?.apiIdentifier;
-      const { webIcon, productName } = purchaseDetails;
+      const webIcon = purchaseDetails?.webIcon ?? null;
+      const productName = purchaseDetails?.productName ?? null;
+      const supportUrl =
+        offering?.commonContent?.supportUrl ?? 'https://support.mozilla.org';
 
       const subscriptionStatus =
         await this.subscriptionManager.getSubscriptionStatus(
@@ -574,6 +580,7 @@ export class ChurnInterventionService {
           cmsCancelInterstitialOfferResult: null,
           webIcon,
           productName,
+          supportUrl,
         };
       }
 
@@ -588,6 +595,7 @@ export class ChurnInterventionService {
           cmsCancelInterstitialOfferResult: null,
           webIcon,
           productName,
+          supportUrl,
         };
       }
 
@@ -610,6 +618,7 @@ export class ChurnInterventionService {
           cmsCancelInterstitialOfferResult: null,
           webIcon,
           productName,
+          supportUrl,
         };
       }
 
@@ -624,6 +633,7 @@ export class ChurnInterventionService {
           cmsCancelInterstitialOfferResult: null,
           webIcon,
           productName,
+          supportUrl,
         };
       }
 
@@ -649,6 +659,7 @@ export class ChurnInterventionService {
           cmsCancelInterstitialOfferResult: null,
           webIcon,
           productName,
+          supportUrl,
         };
       }
 
@@ -668,6 +679,7 @@ export class ChurnInterventionService {
           cmsCancelInterstitialOfferResult: null,
           webIcon,
           productName,
+          supportUrl,
         };
       }
 
@@ -691,6 +703,7 @@ export class ChurnInterventionService {
           cmsCancelInterstitialOfferResult: null,
           webIcon,
           productName,
+          supportUrl,
         };
       }
 
@@ -703,6 +716,7 @@ export class ChurnInterventionService {
         cmsCancelInterstitialOfferResult,
         webIcon,
         productName,
+        supportUrl,
       };
     } catch (error) {
       this.log.error(error);
@@ -712,6 +726,7 @@ export class ChurnInterventionService {
         cmsCancelInterstitialOfferResult: null,
         webIcon: null,
         productName: null,
+        supportUrl: 'https://support.mozilla.org',
       };
     }
   }

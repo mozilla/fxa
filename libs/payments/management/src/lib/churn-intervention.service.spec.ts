@@ -44,6 +44,7 @@ import {
   CancelInterstitialOfferTransformedFactory,
   CancelInterstitialOfferResultFactory,
   CancelInterstitialOfferUtil,
+  PageContentByPriceIdsOfferingResultFactory,
 } from '@fxa/shared/cms';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
@@ -871,6 +872,7 @@ describe('ChurnInterventionService', () => {
           cmsCancelInterstitialOfferResult: mockCancelInterstitialOffer,
           webIcon: mockPurchaseResult.purchaseDetails.webIcon,
           productName: mockPurchaseResult.purchaseDetails.productName,
+          supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
         });
 
       const result =
@@ -896,6 +898,7 @@ describe('ChurnInterventionService', () => {
           cmsCancelInterstitialOfferResult: null,
           webIcon: mockPurchaseResult.purchaseDetails.webIcon,
           productName: mockPurchaseResult.purchaseDetails.productName,
+          supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
         });
 
       const mockCmsOffer = ChurnInterventionByProductIdResultFactory();
@@ -934,6 +937,7 @@ describe('ChurnInterventionService', () => {
           cmsCancelInterstitialOfferResult: null,
           webIcon: mockPurchaseResult.purchaseDetails.webIcon,
           productName: mockPurchaseResult.purchaseDetails.productName,
+          supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
         });
 
       jest
@@ -1001,6 +1005,7 @@ describe('ChurnInterventionService', () => {
           cmsCancelInterstitialOfferResult: null,
           webIcon: mockPurchaseResult.purchaseDetails.webIcon,
           productName: mockPurchaseResult.purchaseDetails.productName,
+          supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
         });
       const result =
         await churnInterventionService.determineCancellationIntervention(args);
@@ -1036,6 +1041,7 @@ describe('ChurnInterventionService', () => {
           cmsCancelInterstitialOfferResult: null,
           webIcon: mockPurchaseResult.purchaseDetails.webIcon,
           productName: mockPurchaseResult.purchaseDetails.productName,
+          supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
         });
 
       const result =
@@ -1073,6 +1079,7 @@ describe('ChurnInterventionService', () => {
           cmsCancelInterstitialOfferResult: null,
           webIcon: mockPurchaseResult.purchaseDetails.webIcon,
           productName: mockPurchaseResult.purchaseDetails.productName,
+          supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
         });
 
       const result =
@@ -1098,6 +1105,7 @@ describe('ChurnInterventionService', () => {
           cmsCancelInterstitialOfferResult: null,
           webIcon: mockPurchaseResult.purchaseDetails.webIcon,
           productName: mockPurchaseResult.purchaseDetails.productName,
+          supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
         });
       jest
         .spyOn(
@@ -1155,6 +1163,7 @@ describe('ChurnInterventionService', () => {
         cmsCancelInterstitialOfferResult: null,
         webIcon: null,
         productName: null,
+        supportUrl: 'https://support.mozilla.org',
       });
     });
 
@@ -1220,6 +1229,7 @@ describe('ChurnInterventionService', () => {
         cmsCancelInterstitialOfferResult: null,
         webIcon: mockPurchaseResult.purchaseDetails.webIcon,
         productName: mockPurchaseResult.purchaseDetails.productName,
+        supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1292,6 +1302,7 @@ describe('ChurnInterventionService', () => {
         cmsCancelInterstitialOfferResult: null,
         webIcon: mockPurchaseResult.purchaseDetails.webIcon,
         productName: mockPurchaseResult.purchaseDetails.productName,
+        supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1367,6 +1378,7 @@ describe('ChurnInterventionService', () => {
         cmsCancelInterstitialOfferResult: null,
         webIcon: mockPurchaseResult.purchaseDetails.webIcon,
         productName: mockPurchaseResult.purchaseDetails.productName,
+        supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1432,6 +1444,7 @@ describe('ChurnInterventionService', () => {
         cmsCancelInterstitialOfferResult: null,
         webIcon: null,
         productName: null,
+        supportUrl: 'https://support.mozilla.org',
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1485,7 +1498,19 @@ describe('ChurnInterventionService', () => {
         .spyOn(productConfigurationManager, 'getSubplatIntervalBySubscription')
         .mockResolvedValue(SubplatInterval.Monthly);
       const mockPurchaseResult = PageContentByPriceIdsPurchaseResultFactory({
-        offering: undefined,
+        offering: PageContentByPriceIdsOfferingResultFactory({
+          apiIdentifier: undefined,
+          commonContent: {
+            emailIcon: faker.internet.url(),
+            supportUrl: faker.internet.url(),
+            localizations: [
+              {
+                emailIcon: faker.internet.url(),
+                supportUrl: faker.internet.url(),
+              },
+            ],
+          },
+        }),
       });
       jest
         .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
@@ -1510,6 +1535,7 @@ describe('ChurnInterventionService', () => {
         cmsCancelInterstitialOfferResult: null,
         webIcon: mockPurchaseResult.purchaseDetails.webIcon,
         productName: mockPurchaseResult.purchaseDetails.productName,
+        supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1591,6 +1617,7 @@ describe('ChurnInterventionService', () => {
         cmsCancelInterstitialOfferResult: null,
         webIcon: mockPurchaseResult.purchaseDetails.webIcon,
         productName: mockPurchaseResult.purchaseDetails.productName,
+        supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1675,6 +1702,7 @@ describe('ChurnInterventionService', () => {
         cmsCancelInterstitialOfferResult: null,
         webIcon: mockPurchaseResult.purchaseDetails.webIcon,
         productName: mockPurchaseResult.purchaseDetails.productName,
+        supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1762,6 +1790,7 @@ describe('ChurnInterventionService', () => {
         cmsCancelInterstitialOfferResult: null,
         webIcon: mockPurchaseResult.purchaseDetails.webIcon,
         productName: mockPurchaseResult.purchaseDetails.productName,
+        supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
       });
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cancel_intervention_decision',
@@ -1855,6 +1884,7 @@ describe('ChurnInterventionService', () => {
         cmsCancelInterstitialOfferResult: mockCancelInterstitialOffer,
         webIcon: mockPurchaseResult.purchaseDetails.webIcon,
         productName: mockPurchaseResult.purchaseDetails.productName,
+        supportUrl: mockPurchaseResult.offering.commonContent.supportUrl,
       });
     });
   });
@@ -2356,8 +2386,6 @@ describe('ChurnInterventionService', () => {
 
       expect(result.isEligible).toBe(false);
       expect(result.reason).toBe('feature_disabled');
-      expect(result.cmsOfferContent).toBeNull();
-      expect(result.cmsOfferingContent).toBeNull();
       expect(
         productConfigurationManager.getSubplatIntervalBySubscription
       ).not.toHaveBeenCalled();

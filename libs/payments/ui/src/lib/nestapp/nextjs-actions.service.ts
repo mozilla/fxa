@@ -807,7 +807,7 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    const result =
+    const offerEligibility =
       await this.churnInterventionService.determineCancelInterstitialOfferEligibility(
         {
           uid: args.uid,
@@ -817,41 +817,52 @@ export class NextJSActionsService {
         }
       );
 
+    const cancelContent =
+      await this.subscriptionManagementService.getCancelFlowContent(
+        args.uid,
+        args.subscriptionId,
+        args.acceptLanguage || undefined,
+        args.selectedLanguage
+      );
+
     if (
-      result.isEligible &&
-      result.cmsCancelInterstitialOfferResult &&
-      result.cmsCancelInterstitialOfferResult.offering.defaultPurchase
+      offerEligibility.isEligible &&
+      offerEligibility.cmsCancelInterstitialOfferResult &&
+      offerEligibility.cmsCancelInterstitialOfferResult.offering.defaultPurchase
         .purchaseDetails
     ) {
       return {
         isEligible: true,
+        reason: 'eligible',
         pageContent: {
           currentInterval:
-            result.cmsCancelInterstitialOfferResult.currentInterval,
-          modalHeading1: result.cmsCancelInterstitialOfferResult.modalHeading1,
-          modalMessage: result.cmsCancelInterstitialOfferResult.modalMessage,
+            offerEligibility.cmsCancelInterstitialOfferResult.currentInterval,
+          modalHeading1:
+            offerEligibility.cmsCancelInterstitialOfferResult.modalHeading1,
+          modalMessage:
+            offerEligibility.cmsCancelInterstitialOfferResult.modalMessage,
           upgradeButtonLabel:
-            result.cmsCancelInterstitialOfferResult.upgradeButtonLabel,
+            offerEligibility.cmsCancelInterstitialOfferResult
+              .upgradeButtonLabel,
           upgradeButtonUrl:
-            result.cmsCancelInterstitialOfferResult.upgradeButtonUrl,
+            offerEligibility.cmsCancelInterstitialOfferResult.upgradeButtonUrl,
           webIcon:
-            result.cmsCancelInterstitialOfferResult.offering.defaultPurchase
-              .purchaseDetails.webIcon,
+            offerEligibility.cmsCancelInterstitialOfferResult.offering
+              .defaultPurchase.purchaseDetails.webIcon,
           productName:
-            result.cmsCancelInterstitialOfferResult.offering.defaultPurchase
-              .purchaseDetails.productName,
+            offerEligibility.cmsCancelInterstitialOfferResult.offering
+              .defaultPurchase.purchaseDetails.productName,
+          supportUrl:
+            offerEligibility.supportUrl ?? 'https://support.mozilla.org',
         },
-        reason: result.reason,
-        webIcon: result.webIcon,
-        productName: result.productName,
+        cancelContent,
       };
     } else {
       return {
         isEligible: false,
+        reason: offerEligibility.reason,
         pageContent: null,
-        reason: result.reason,
-        webIcon: result.webIcon,
-        productName: result.productName,
+        cancelContent,
       };
     }
   }
