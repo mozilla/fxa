@@ -125,14 +125,9 @@ test.describe('severity-2 #smoke', () => {
       });
       await confirmButton.first().click();
 
-      await expect(async () => {
-        const url = page.url();
-        expect(url).not.toContain('pair/supp/allow');
-      }).toPass({ timeout: TIMEOUTS.AUTHORITY_COMPLETE });
-
-      const finalSuppUrl = page.url();
-      expect(finalSuppUrl).not.toContain('pair/failure');
-      expect(finalSuppUrl).toContain('oauth/success');
+      await page.waitForURL(/oauth\/success/, {
+        timeout: TIMEOUTS.AUTHORITY_COMPLETE,
+      });
 
       // Wait for authority to advance from wait_for_supp to complete
       await client.setContext('content');
@@ -208,10 +203,9 @@ test.describe('severity-2 #smoke', () => {
       });
       await confirmButton.first().click();
 
-      await expect(async () => {
-        expect(page.url()).not.toContain('pair/supp/allow');
-      }).toPass({ timeout: TIMEOUTS.AUTHORITY_COMPLETE });
-      expect(page.url()).toContain('oauth/success');
+      await page.waitForURL(/oauth\/success/, {
+        timeout: TIMEOUTS.AUTHORITY_COMPLETE,
+      });
 
       await client.setContext('content');
       const finalAuthUrl = await waitForUrlContaining(
