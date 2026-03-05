@@ -1,4 +1,7 @@
-import { PaymentsGleanProvider } from './glean.types';
+import {
+  PaymentsGleanClientProvider,
+  PaymentsGleanProvider,
+} from './glean.types';
 
 /**
  * Can be used to satisfy DI when unit testing things that should not need
@@ -15,5 +18,15 @@ export const MockPaymentsGleanFactory = {
       recordPaySetupSuccess: () => {},
       recordPaySetupFail: () => {},
       recordSubscriptionEnded: () => {},
+    }) as any,
+};
+
+export const MockPaymentsGleanClientFactory = {
+  provide: PaymentsGleanClientProvider,
+  useFactory: () =>
+    ({
+      recordPageView: () => {},
+      recordRetentionFlow: () => {},
+      recordInterstitialOffer: () => {},
     }) as any,
 };

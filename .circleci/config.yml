@@ -299,12 +299,34 @@ commands:
           name: Wait for Customs
           command: yarn workspace fxa-customs-server start
 
+  ensure-glean-venv:
+    steps:
+      - run:
+          name: Ensure Python venv has pip and glean_parser
+          command: |
+            set -euxo pipefail
+
+            unset PYTHONDONTWRITEBYTECODE
+            export PIP_NO_COMPILE=1
+
+            python3 --version
+            rm -rf .venv
+            python3 -m venv .venv --without-pip
+            . .venv/bin/activate
+
+            curl -sSL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+            python /tmp/get-pip.py --no-compile
+
+            python -m pip install --no-compile --upgrade 'glean_parser~=14.5'
+            python -m pip --version
+
   lint:
     parameters:
       nx_run:
         type: string
         default: run-many
     steps:
+      - ensure-glean-venv
       - run:
           name: Linting
           command: npx nx << parameters.nx_run >> --parallel=1 -t lint
@@ -315,6 +337,7 @@ commands:
         type: string
         default: run-many
     steps:
+      - ensure-glean-venv
       - run:
           name: Pre building shared libraries
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2 --verbose
@@ -428,6 +451,7 @@ commands:
         type: string
         default: run-many
     steps:
+      - ensure-glean-venv
       - run:
           name: Build
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> -t build --parallel=2 --all --verbose
@@ -712,6 +736,7 @@ jobs:
       - git-checkout
       - restore-workspace
       - gcp-cli/setup
+      - ensure-glean-venv
       - run:
           name: Build shared libs
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2

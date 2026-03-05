@@ -40,6 +40,7 @@ import {
   GenericGleanSubManageEventFactory,
   MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
+  MockPaymentsGleanClientFactory,
   PaymentsGleanManager,
   PaymentsGleanService,
 } from '@fxa/payments/metrics';
@@ -125,6 +126,7 @@ describe('PaymentsEmitterService', () => {
         MockPaymentsGleanConfigProvider,
         MockAccountDatabaseNestFactory,
         MockPaymentsGleanFactory,
+        MockPaymentsGleanClientFactory,
         MockStrapiClientConfigProvider,
         MockStripeConfigProvider,
         MockFirestoreProvider,

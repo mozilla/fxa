@@ -4,14 +4,22 @@
 
 import { Test } from '@nestjs/testing';
 import { PaymentsGleanManager } from './glean.manager';
+import { PaymentsGleanClientManager } from './glean-client.manager';
 import { PaymentsGleanService } from './glean.service';
 import { MockPaymentsGleanFactory } from './glean.test-provider';
-import { MockPaymentsGleanConfigProvider } from './glean.config';
+import {
+  MockPaymentsGleanConfigProvider,
+  MockPaymentsGleanClientConfigProvider,
+} from './glean.config';
+import { PaymentsGleanClientProvider } from './glean.types';
 import {
   AccountsMetricsDataFactory,
   CommonMetricsFactory,
   GenericGleanSubManageEventFactory,
   GleanMetricsDataFactory,
+  PageViewEventFactory,
+  RetentionFlowEventFactory,
+  SubManageMetricsArgsFactory,
 } from './glean.factory';
 import { AccountManager } from '@fxa/shared/account/account';
 import {
@@ -57,6 +65,7 @@ import { AsyncLocalStorageCartProvider } from '@fxa/payments/cart';
 describe('PaymentsGleanService', () => {
   let paymentsGleanService: PaymentsGleanService;
   let paymentsGleanManager: PaymentsGleanManager;
+  let paymentsGleanClientManager: PaymentsGleanClientManager;
   let subscriptionManager: SubscriptionManager;
   let productConfigurationManager: ProductConfigurationManager;
   let accountManager: AccountManager;
@@ -75,8 +84,13 @@ describe('PaymentsGleanService', () => {
         MockNimbusManagerConfigProvider,
         MockNimbusClientConfigProvider,
         MockAccountDatabaseNestFactory,
+        MockPaymentsGleanClientConfigProvider,
         MockPaymentsGleanConfigProvider,
         MockPaymentsGleanFactory,
+        {
+          provide: PaymentsGleanClientProvider,
+          useClass: PaymentsGleanClientManager,
+        },
         MockStatsDProvider,
         MockStrapiClientConfigProvider,
         MockStripeConfigProvider,
@@ -95,6 +109,7 @@ describe('PaymentsGleanService', () => {
 
     paymentsGleanService = moduleRef.get(PaymentsGleanService);
     paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
+    paymentsGleanClientManager = moduleRef.get(PaymentsGleanClientProvider);
     subscriptionManager = moduleRef.get(SubscriptionManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     accountManager = moduleRef.get(AccountManager);
@@ -151,6 +166,177 @@ describe('PaymentsGleanService', () => {
         mockEventData.subscriptionId
       );
       expect(paymentsGleanManager.recordGenericEvent).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('recordPageView', () => {
+    const mockEventData = SubManageMetricsArgsFactory();
+    const mockPageMetrics = PageViewEventFactory({ pageName: 'management' });
+
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanClientManager, 'recordPageView')
+        .mockReturnValue();
+      jest
+        .spyOn(paymentsGleanService, 'retrieveSubManageMetricsData')
+        .mockResolvedValue(
+          GleanMetricsDataFactory({
+            accounts: AccountsMetricsDataFactory({ metricsOptOut: false }),
+          })
+        );
+    });
+
+    it('successfully calls GleanClientManager', async () => {
+      await paymentsGleanService.recordPageView(mockEventData, mockPageMetrics);
+
+      expect(
+        paymentsGleanService.retrieveSubManageMetricsData
+      ).toHaveBeenCalledWith(
+        mockEventData.commonMetrics,
+        mockEventData.uid,
+        mockEventData.subscriptionId
+      );
+      expect(paymentsGleanClientManager.recordPageView).toHaveBeenCalledWith(
+        mockPageMetrics
+      );
+    });
+
+    it('does not call GleanClientManager if opted out', async () => {
+      jest
+        .spyOn(paymentsGleanService, 'retrieveSubManageMetricsData')
+        .mockResolvedValue(
+          GleanMetricsDataFactory({
+            accounts: AccountsMetricsDataFactory({ metricsOptOut: true }),
+          })
+        );
+      await paymentsGleanService.recordPageView(mockEventData, mockPageMetrics);
+
+      expect(
+        paymentsGleanService.retrieveSubManageMetricsData
+      ).toHaveBeenCalled();
+      expect(paymentsGleanClientManager.recordPageView).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('recordRetentionFlow', () => {
+    const mockEventData = SubManageMetricsArgsFactory();
+    const mockRetentionFlowMetrics = RetentionFlowEventFactory({
+      flowType: 'cancel',
+      step: 'engage',
+      outcome: 'success',
+    });
+
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanClientManager, 'recordRetentionFlow')
+        .mockReturnValue();
+      jest
+        .spyOn(paymentsGleanService, 'retrieveSubManageMetricsData')
+        .mockResolvedValue(
+          GleanMetricsDataFactory({
+            accounts: AccountsMetricsDataFactory({ metricsOptOut: false }),
+          })
+        );
+    });
+
+    it('successfully calls GleanClientManager', async () => {
+      await paymentsGleanService.recordRetentionFlow(
+        mockEventData,
+        mockRetentionFlowMetrics
+      );
+
+      expect(
+        paymentsGleanService.retrieveSubManageMetricsData
+      ).toHaveBeenCalledWith(
+        mockEventData.commonMetrics,
+        mockEventData.uid,
+        mockEventData.subscriptionId
+      );
+      expect(
+        paymentsGleanClientManager.recordRetentionFlow
+      ).toHaveBeenCalledWith(mockRetentionFlowMetrics);
+    });
+
+    it('does not call GleanClientManager if opted out', async () => {
+      jest
+        .spyOn(paymentsGleanService, 'retrieveSubManageMetricsData')
+        .mockResolvedValue(
+          GleanMetricsDataFactory({
+            accounts: AccountsMetricsDataFactory({ metricsOptOut: true }),
+          })
+        );
+      await paymentsGleanService.recordRetentionFlow(
+        mockEventData,
+        mockRetentionFlowMetrics
+      );
+
+      expect(
+        paymentsGleanService.retrieveSubManageMetricsData
+      ).toHaveBeenCalled();
+      expect(
+        paymentsGleanClientManager.recordRetentionFlow
+      ).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('recordInterstitialOffer', () => {
+    const mockEventData = SubManageMetricsArgsFactory();
+    const mockInterstitialOfferMetrics = RetentionFlowEventFactory({
+      flowType: 'cancel',
+      step: 'engage',
+      outcome: 'success',
+    });
+
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanClientManager, 'recordInterstitialOffer')
+        .mockReturnValue();
+      jest
+        .spyOn(paymentsGleanService, 'retrieveSubManageMetricsData')
+        .mockResolvedValue(
+          GleanMetricsDataFactory({
+            accounts: AccountsMetricsDataFactory({ metricsOptOut: false }),
+          })
+        );
+    });
+
+    it('successfully calls GleanClientManager', async () => {
+      await paymentsGleanService.recordInterstitialOffer(
+        mockEventData,
+        mockInterstitialOfferMetrics
+      );
+
+      expect(
+        paymentsGleanService.retrieveSubManageMetricsData
+      ).toHaveBeenCalledWith(
+        mockEventData.commonMetrics,
+        mockEventData.uid,
+        mockEventData.subscriptionId
+      );
+      expect(
+        paymentsGleanClientManager.recordInterstitialOffer
+      ).toHaveBeenCalledWith(mockInterstitialOfferMetrics);
+    });
+
+    it('does not call GleanClientManager if opted out', async () => {
+      jest
+        .spyOn(paymentsGleanService, 'retrieveSubManageMetricsData')
+        .mockResolvedValue(
+          GleanMetricsDataFactory({
+            accounts: AccountsMetricsDataFactory({ metricsOptOut: true }),
+          })
+        );
+      await paymentsGleanService.recordInterstitialOffer(
+        mockEventData,
+        mockInterstitialOfferMetrics
+      );
+
+      expect(
+        paymentsGleanService.retrieveSubManageMetricsData
+      ).toHaveBeenCalled();
+      expect(
+        paymentsGleanClientManager.recordInterstitialOffer
+      ).not.toHaveBeenCalled();
     });
   });
 
@@ -567,7 +753,7 @@ describe('PaymentsGleanService', () => {
           Enrollments: [{ nimbus_user_id: fetchedNimbusUserId }] as any,
         })
       );
-      jest.spyOn(logger, 'error');
+      jest.spyOn(logger, 'error').mockImplementation(() => {});
     });
 
     it('successfully returns data fetched from nimbus', async () => {

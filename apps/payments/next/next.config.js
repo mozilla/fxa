@@ -21,6 +21,7 @@ const nextConfig = {
   env: {
     version,
     GLEAN_CONFIG__VERSION: version,
+    GLEAN_CLIENT_CONFIG__VERSION: version,
   },
   distDir: 'build',
   experimental: {
@@ -96,11 +97,11 @@ const nextConfig = {
         headers: [
           {
             key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload'
-          }
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
         ],
       },
-    ]
+    ];
   },
 };
 
