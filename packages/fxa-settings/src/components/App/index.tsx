@@ -663,15 +663,15 @@ const AuthAndAccountSetupRoutes = ({
       <SigninPasskeyFallback path="/signin_passkey_fallback/*" />
       <SigninRecoveryChoiceContainer
         path="/signin_recovery_choice/*"
-        {...{ integration }}
+        {...{ integration, setCurrentSplitLayout }}
       />
       <SigninRecoveryPhoneContainer
         path="/signin_recovery_phone/*"
-        {...{ integration }}
+        {...{ integration, setCurrentSplitLayout }}
       />
       <SigninRecoveryCodeContainer
         path="/signin_recovery_code/*"
-        {...{ integration }}
+        {...{ integration, setCurrentSplitLayout }}
       />
       <SigninReported path="/signin_reported/*" />
       <SigninTokenCodeContainer

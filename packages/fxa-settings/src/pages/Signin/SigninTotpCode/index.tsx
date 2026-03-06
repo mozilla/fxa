@@ -165,30 +165,15 @@ export const SigninTotpCode = ({
   };
 
   const cmsInfo = integration.getCmsInfo();
-  const title = cmsInfo?.SigninTotpCodePage?.pageTitle;
-  const splitLayout = cmsInfo?.SigninTotpCodePage?.splitLayout;
+  const cmsPage = cmsInfo?.SigninTotpCodePage;
+  const title = cmsPage?.pageTitle;
+  const splitLayout = cmsPage?.splitLayout;
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
   return (
     <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
-      {cmsInfo ? (
-        <>
-          {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (
-            <img
-              src={cmsInfo.shared.logoUrl}
-              alt={cmsInfo.shared.logoAltText}
-              className="justify-start mb-4 max-h-[40px]"
-            />
-          )}
-        </>
-      ) : (
-        <FtlMsg id="signin-totp-code-header">
-          <HeadingPrimary>Sign in</HeadingPrimary>
-        </FtlMsg>
-      )}
-
-      <FtlMsg id="signin-totp-code-subheader-v2">
-        <h2 className="card-header">Enter two-step authentication code</h2>
+      <FtlMsg id="signin-totp-code-header">
+        <HeadingPrimary>Sign in</HeadingPrimary>
       </FtlMsg>
 
       {isSessionAALUpgrade && localizedBannerAALUpgrade && (
@@ -201,14 +186,26 @@ export const SigninTotpCode = ({
         />
       )}
 
+      {cmsPage?.headline ? (
+        <h2 className="card-header">{cmsPage.headline}</h2>
+      ) : (
+        <FtlMsg id="signin-totp-code-subheader-v2">
+          <h2 className="card-header">Enter two-step authentication code</h2>
+        </FtlMsg>
+      )}
+
       <div className="flex space-x-4">
         <img src={protectionShieldIcon} alt="" />
-        <FtlMsg id="signin-totp-code-instruction-v4">
-          <p className="mt-5 text-md">
-            Check your <strong>authenticator app</strong> to confirm your
-            sign-in.
-          </p>
-        </FtlMsg>
+        {cmsPage?.description ? (
+          <p className="mt-5 text-md">{cmsPage.description}</p>
+        ) : (
+          <FtlMsg id="signin-totp-code-instruction-v4">
+            <p className="mt-5 text-md">
+              Check your <strong>authenticator app</strong> to confirm your
+              sign-in.
+            </p>
+          </FtlMsg>
+        )}
       </div>
 
       {additionalAccessibilityInfo && (
@@ -227,10 +224,10 @@ export const SigninTotpCode = ({
           'signin-totp-code-input-label-v4',
           'Enter 6-digit code'
         )}
-        localizedSubmitButtonText={ftlMsgResolver.getMsg(
-          'signin-totp-code-confirm-button',
-          'Confirm'
-        )}
+        localizedSubmitButtonText={
+          cmsPage?.primaryButtonText ||
+          ftlMsgResolver.getMsg('signin-totp-code-confirm-button', 'Confirm')
+        }
         setErrorMessage={setBannerError}
         verifyCode={onSubmit}
         className="my-6"

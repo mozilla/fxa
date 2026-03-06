@@ -40,9 +40,9 @@ export interface RelierAccount {
 export type HeadlineFontSize = 'default' | 'medium' | 'large';
 
 export interface PageRelierCmsInfo {
-  headline: string;
+  headline?: string | undefined;
   description: string | undefined;
-  primaryButtonText: string;
+  primaryButtonText?: string | undefined;
   pageTitle?: string | undefined;
   primaryImage?: {
     url: string;
@@ -109,4 +109,7 @@ export interface RelierCmsInfo {
   SigninPasswordlessCodePage?: PageRelierCmsInfo;
   SigninTokenCodePage?: PageRelierCmsInfo;
   SigninUnblockCodePage?: PageRelierCmsInfo;
+  SigninRecoveryChoicePage?: PageRelierCmsInfo;
+  SigninRecoveryCodePage?: PageRelierCmsInfo;
+  SigninRecoveryPhonePage?: PageRelierCmsInfo;
 }
