@@ -497,6 +497,7 @@ export async function enableTotpOnAccount(
 
 /**
  * Enter a TOTP code on the /pair/auth/totp page via Marionette.
+ * Waits for the page to navigate away from the TOTP page after submission.
  */
 export async function enterTotpCodeViaMarionette(
   client: MarionetteClient,
@@ -505,11 +506,13 @@ export async function enterTotpCodeViaMarionette(
   const totpInput = await findElementBySelectors(client, SELECTORS.TOTP_INPUT);
   const code = await getTotpCode(secret);
   await client.sendKeys(totpInput, code);
+  const preSubmitUrl = await client.getUrl();
   const submitBtn = await findElementBySelectors(
     client,
     SELECTORS.SUBMIT_BUTTON
   );
   await client.clickElement(submitBtn);
+  await waitForUrlChange(client, preSubmitUrl);
 }
 
 export function sleep(ms: number): Promise<void> {

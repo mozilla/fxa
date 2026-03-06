@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import http from 'http';
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 
 const Client = require('../client')();
 const packageJson = require('../../package.json');
@@ -11,7 +14,11 @@ const packageJson = require('../../package.json');
 let server: TestServerInstance;
 
 beforeAll(async () => {
-  server = await createTestServer();
+  server = await createTestServer({
+    configOverrides: {
+      corsOrigin: ['http://foo', 'http://bar'],
+    },
+  });
 }, 120000);
 
 afterAll(async () => {
@@ -29,7 +36,12 @@ const testVersions = [
 function httpGet(
   url: string,
   options?: { headers?: Record<string, string> }
-): Promise<{ statusCode: number; headers: http.IncomingHttpHeaders; body: string; json: () => any }> {
+): Promise<{
+  statusCode: number;
+  headers: http.IncomingHttpHeaders;
+  body: string;
+  json: () => any;
+}> {
   return new Promise((resolve, reject) => {
     const parsed = new URL(url);
     const req = http.get(
@@ -41,7 +53,9 @@ function httpGet(
       },
       (res) => {
         let data = '';
-        res.on('data', (chunk) => { data += chunk; });
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
         res.on('end', () => {
           resolve({
             statusCode: res.statusCode ?? 0,
@@ -60,7 +74,11 @@ function httpPost(
   url: string,
   payload: any,
   headers?: Record<string, string>
-): Promise<{ statusCode: number; headers: http.IncomingHttpHeaders; body: string }> {
+): Promise<{
+  statusCode: number;
+  headers: http.IncomingHttpHeaders;
+  body: string;
+}> {
   return new Promise((resolve, reject) => {
     const parsed = new URL(url);
     const body = JSON.stringify(payload);
@@ -78,7 +96,9 @@ function httpPost(
       },
       (res) => {
         let data = '';
-        res.on('data', (chunk) => { data += chunk; });
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
         res.on('end', () => {
           resolve({
             statusCode: res.statusCode ?? 0,
@@ -144,7 +164,9 @@ describe.each(testVersions)(
       const res = await httpGet(`${server.publicUrl}/`, {
         headers: { Origin: randomAllowedOrigin },
       });
-      expect(res.headers['access-control-allow-origin']).toBe(randomAllowedOrigin);
+      expect(res.headers['access-control-allow-origin']).toBe(
+        randomAllowedOrigin
+      );
     });
 
     it('returns no Access-Control-Allow-Origin with not whitelisted Origin', async () => {
@@ -171,7 +193,11 @@ describe.each(testVersions)(
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const client = await Client.createAndVerify(
-        server.publicUrl, email, password, server.mailbox, testOptions
+        server.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
       );
 
       await client.login();
@@ -181,7 +207,7 @@ describe.each(testVersions)(
       );
 
       const res = await httpGet(url, {
-        headers: { 'Authorization': `Hawk id="${token.id}"` },
+        headers: { Authorization: `Hawk id="${token.id}"` },
       });
       const now = +new Date() / 1000;
       expect(Number(res.headers.timestamp)).toBeGreaterThan(now - 60);
@@ -226,11 +252,17 @@ describe.each(testVersions)(
         'GET',
         server.publicUrl + '/.well-known/browserid'
       );
-      expect(Object.prototype.hasOwnProperty.call(doc, 'public-key')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(doc, 'public-key')).toBe(
+        true
+      );
       expect(/^[0-9]+$/.test(doc['public-key'].n)).toBe(true);
       expect(/^[0-9]+$/.test(doc['public-key'].e)).toBe(true);
-      expect(Object.prototype.hasOwnProperty.call(doc, 'authentication')).toBe(true);
-      expect(Object.prototype.hasOwnProperty.call(doc, 'provisioning')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(doc, 'authentication')).toBe(
+        true
+      );
+      expect(Object.prototype.hasOwnProperty.call(doc, 'provisioning')).toBe(
+        true
+      );
       expect(doc.keys.length).toBe(1);
     });
 
@@ -238,10 +270,16 @@ describe.each(testVersions)(
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const client = await Client.createAndVerify(
-        server.publicUrl, email, password, server.mailbox, testOptions
+        server.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
       );
 
-      const token = await client.api.Token.SessionToken.fromHex(client.sessionToken);
+      const token = await client.api.Token.SessionToken.fromHex(
+        client.sessionToken
+      );
       const url = `${client.api.baseURL}/account/device`;
       const payload: any = {
         name: 'my cool device',
@@ -250,7 +288,7 @@ describe.each(testVersions)(
 
       payload.name = 'my stealthily-changed device name';
       const res = await httpPost(url, payload, {
-        'Authorization': `Hawk id="${token.id}"`,
+        Authorization: `Hawk id="${token.id}"`,
       });
       expect(res.statusCode).toBe(200);
     });
