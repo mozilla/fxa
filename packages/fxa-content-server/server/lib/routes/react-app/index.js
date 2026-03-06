@@ -97,6 +97,8 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'inline_recovery_key_setup',
         'signin_push_code',
         'signin_push_code_confirm',
+        'signin_passwordless_code',
+        'oauth/signin_passwordless_code',
       ]),
       fullProdRollout: true,
     },

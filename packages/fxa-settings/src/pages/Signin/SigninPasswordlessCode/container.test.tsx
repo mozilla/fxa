@@ -177,6 +177,23 @@ describe('SigninPasswordlessCode container', () => {
         // Even if component re-renders, should not send again
         expect(mockAuthClient.passwordlessSendCode).toHaveBeenCalledTimes(1);
       });
+
+      it('does not re-send code when codeSent is in location state (page refresh)', async () => {
+        // Simulate page refresh: location state persists via History API
+        // with codeSent: true from the previous render's history.replaceState
+        mockLocationState = {
+          ...createMockPasswordlessLocationState(),
+          codeSent: true,
+        };
+        await render();
+
+        await waitFor(() => {
+          expect(screen.getByText('signin passwordless code mock')).toBeInTheDocument();
+        });
+
+        // Should NOT send code because location state has codeSent: true
+        expect(mockAuthClient.passwordlessSendCode).not.toHaveBeenCalled();
+      });
     });
 
     describe('isSignup flag', () => {
