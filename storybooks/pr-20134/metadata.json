@@ -1,0 +1,11 @@
+{
+  "commit": "8ed04025aafb1a8b1581dfb9ac051162882232aa",
+  "summary": "feat(payments-next): Replace console logging calls with LoggerService",
+  "description": "Because:\n* LoggerService provides better metadata and consistent log levels across the application than the console logs permit\n\nThis commit:\n* Replaces console calls with LoggerService in NestJS services, Next.js route handlers, and server actions\n* Adds an optional logger parameter to type-cacheable cache strategies, defaulting to console to preserve existing behavior\n\nCloses #PAY-2131",
+  "timestamp": 1772567208000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

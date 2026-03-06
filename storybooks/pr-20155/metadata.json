@@ -1,0 +1,11 @@
+{
+  "commit": "50cefce31a93a467a9d40a332bee7e3e49a93c16",
+  "summary": "fix missed delete account procedure version change",
+  "description": "",
+  "timestamp": 1772833111000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

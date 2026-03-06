@@ -1,0 +1,12 @@
+{
+  "commit": "51925af37b1455e0322b4714fa2263d82146a6a7",
+  "summary": "chore(deps): bump jsonpath from 1.2.1 to 1.3.0",
+  "description": "Bumps [jsonpath](https://github.com/dchester/jsonpath) from 1.2.1 to 1.3.0.\n- [Commits](https://github.com/dchester/jsonpath/commits)\n\n---\nupdated-dependencies:\n- dependency-name: jsonpath\n  dependency-version: 1.3.0\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1772837410000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

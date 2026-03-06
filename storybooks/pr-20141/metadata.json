@@ -1,0 +1,11 @@
+{
+  "commit": "06a07daf9086293809316587022e87aeccf07b05",
+  "summary": "fix(settings): Top content hidden on mobile",
+  "description": "Because:\n\n- Without viewport-fit=cover, browsers do not expose env(safe-area-inset-*) values to the page, causing content to render under the status bar or notch in embedded webview contexts\n- The sticky header would pin beneath the native chrome on scroll without a matching safe area offset\n\nThis commit:\n\n- Adds viewport-fit=cover to the viewport meta tag to unlock safe area inset values on iOS and Android\n- Adds padding-top: env(safe-area-inset-top) to body to keep content below the status bar on page load\n- Updates the sticky header's top offset to env(safe-area-inset-top) so it remains visible below the notch when scrolling\n\nCloses #FXA-13203",
+  "timestamp": 1772664504000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

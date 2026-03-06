@@ -1,0 +1,10 @@
+{
+  "commit": "a99c0737cada651528490678a2a831d36fb5c7e4",
+  "summary": "feat(passkeys): Add passkey manager functions",
+  "description": "Because:\n- The passkey routes needs to enforce business rules before touching the database\n\nThis commit:\n- Implements PasskeyManager with the full passkey lifecycle: register, post-auth update, list, rename, delete, and bulk delete\n- Adds name validation (empty/whitespace/too long) with PasskeyInvalidNameError (errno 229)\n- Tightens updatePasskeyName to match on both uid and credentialId, preventing cross-user renames\n- Guards maxPasskeysPerUser config with @Min(1) to prevent accidentally disabling registration\n- Adds unit and integration tests for the manager\n\nCloses #FXA-13064",
+  "timestamp": 1772650537000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

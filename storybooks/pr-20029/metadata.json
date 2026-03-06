@@ -1,0 +1,10 @@
+{
+  "commit": "292fc86f91dcc794e2beab15f430f561f71ff81c",
+  "summary": "polish(emails): Do not include adminResetAccounts l10n strings for now",
+  "description": "",
+  "timestamp": 1770750007000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

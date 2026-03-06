@@ -1,0 +1,12 @@
+{
+  "commit": "67ee6f2d0a05c0b2faf7fe765e9edf83fe0ad8f5",
+  "summary": "Merge pull request #20128 from mozilla/PAY-3559",
+  "description": "fix(payments-next): Update copy and Cancel action\n\nBecause\n    Per legal feedback, we need to\n        add an After that sentence on our churn flows\n        cancel subscription instead of continue to cancel\n\nThis pull request\n    Standard Cancel\n        Updated \"Stay subscribed\" button label to \"Keep subscription\" as the button navigates the customer to Subscription Management and not Stay subscribed page.\n    Churn Cancel\n        Added \"After that...\" sentence\n        Updated \"Continue to cancel\" button to \"Cancel subscription\"\n        Added success message for when subscription is successfully canceled\n        Added \"You can turn your subscription back on...\" sentence\n        Added message for already_canceling_at_period_end upon refresh\n        Moved out error message for already_canceling_at_period_end and into its own component as it is reused three times (CancelChurn, Churn Error, InterstitialOffer)\n    Churn Stay\n        Add \"After that...\" sentence\n    Offer\n        Created InterstitialOffer component\n        Updated \"Continue to cancel\" button to \"Cancel subscription\"\n        Added success message for when subscription is successfully canceled\n        Added \"You can turn your subscription back on...\" sentence\n        Added message for already_canceling_at_period_end upon refresh",
+  "timestamp": 1772749207000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

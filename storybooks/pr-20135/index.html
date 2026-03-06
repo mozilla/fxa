@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit a99c0737cada651528490678a2a831d36fb5c7e4</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit a99c0737cada651528490678a2a831d36fb5c7e4</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>3/4/2026, 6:55:37 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(passkeys): Add passkey manager functions</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The passkey routes needs to enforce business rules before touching the database
+
+This commit:
+- Implements PasskeyManager with the full passkey lifecycle: register, post-auth update, list, rename, delete, and bulk delete
+- Adds name validation (empty/whitespace/too long) with PasskeyInvalidNameError (errno 229)
+- Tightens updatePasskeyName to match on both uid and credentialId, preventing cross-user renames
+- Guards maxPasskeysPerUser config with @Min(1) to prevent accidentally disabling registration
+- Adds unit and integration tests for the manager
+
+Closes #FXA-13064</pre></dd>
+  </dl>
+</body>
+</html>

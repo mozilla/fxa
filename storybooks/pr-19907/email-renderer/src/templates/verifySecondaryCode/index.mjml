@@ -1,0 +1,33 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="verifySecondaryCode-title-2">Confirm secondary email</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="verifySecondaryCode-explainer-2" data-l10n-args='<%= JSON.stringify({email}) %>'>A request to use <%= email %> as a secondary email address has been made from the following Mozilla account:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/userInfo/index.mjml') %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="verifySecondaryCode-prompt-2">Use this confirmation code:</span>
+    </mj-text>
+
+    <mj-text css-class="code-large"><%- code %></mj-text>
+
+    <mj-text css-class="text-body-no-margin">
+      <span data-l10n-id="verifySecondaryCode-expiry-notice-2">It expires in 5 minutes. Once confirmed, this address will begin receiving security notifications and confirmations.</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/automatedEmailNoAction/index.mjml') %>

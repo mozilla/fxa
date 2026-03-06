@@ -1,0 +1,10 @@
+{
+  "commit": "2c33c2aac48fe8c41e70bc30e6e52966998dcf27",
+  "summary": "feat(metrics): Set up Glean frontend metrics for Churn intervention",
+  "description": "",
+  "timestamp": 1772746696000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

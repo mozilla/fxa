@@ -1,0 +1,12 @@
+{
+  "commit": "694462dcdba316cc1100359c95440075b1a108b0",
+  "summary": "chore(deps): bump underscore from 1.13.7 to 1.13.8",
+  "description": "Bumps [underscore](https://github.com/jashkenas/underscore) from 1.13.7 to 1.13.8.\n- [Commits](https://github.com/jashkenas/underscore/compare/1.13.7...1.13.8)\n\n---\nupdated-dependencies:\n- dependency-name: underscore\n  dependency-version: 1.13.8\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1772587706000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

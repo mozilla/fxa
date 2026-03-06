@@ -1,0 +1,10 @@
+{
+  "commit": "2285520ebf8b515c796b5df5fb0b0a8c5cdd66c5",
+  "summary": "initial challenge manager design",
+  "description": "",
+  "timestamp": 1772756092000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

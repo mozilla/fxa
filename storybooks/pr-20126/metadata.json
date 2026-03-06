@@ -1,0 +1,12 @@
+{
+  "commit": "f401afe3aa975b1cd7330187f9d7993509601d9c",
+  "summary": "feat(fxa-settings): implement React pairing pages with Backbone parity",
+  "description": "Convert pairing flow from Backbone to React:\n- Authority pages: AuthAllow, AuthTotp, AuthComplete, AuthWaitForSupp\n- Supplicant pages: Supp, SuppAllow, SuppWaitForAuth\n- Pairing channel integration and state machine\n- Integration models for pairing authority and supplicant reliers\n- Fix webpack alias for @fxa/shared/l10n module resolution",
+  "timestamp": 1772595948000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 81855518bf412776d095833914e1d0690eb5a44e</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 81855518bf412776d095833914e1d0690eb5a44e</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>2/25/2026, 7:25:47 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>bug(auth): Fix polluted sentry captures</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- We would see context from other errors cross pollinate
+- In auth server error capture was particularly poor
+
+This Commit:
+- Removes old cruft that is no longer needed with sentry 10
+- Now that Sentry uses, OTEL under the hood makes necessary adjustments to our OTEL initialization
+- Adds handler for testing / validating this works
+- Updates logic to ensure proper initialization of both OTEL and Sentry.
+- Makes adjustments to libs/shared to keep things aligned
+- Stops writing requests to error object. This now happens via the integration.
+- Sets the user state on the error</pre></dd>
+  </dl>
+</body>
+</html>

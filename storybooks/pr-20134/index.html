@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 8ed04025aafb1a8b1581dfb9ac051162882232aa</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 8ed04025aafb1a8b1581dfb9ac051162882232aa</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>3/3/2026, 7:46:48 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(payments-next): Replace console logging calls with LoggerService</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* LoggerService provides better metadata and consistent log levels across the application than the console logs permit
+
+This commit:
+* Replaces console calls with LoggerService in NestJS services, Next.js route handlers, and server actions
+* Adds an optional logger parameter to type-cacheable cache strategies, defaulting to console to preserve existing behavior
+
+Closes #PAY-2131</pre></dd>
+  </dl>
+</body>
+</html>

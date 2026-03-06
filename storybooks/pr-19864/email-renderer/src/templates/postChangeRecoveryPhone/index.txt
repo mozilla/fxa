@@ -1,0 +1,10 @@
+postChangeRecoveryPhone-title = "You changed your recovery phone"
+
+postChangeRecoveryPhone-description = "You now have a new recovery phone. Your previous phone number was deleted."
+
+postChangeRecoveryPhone-requested-device = "You requested it from:"
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/automatedEmailResetPassword/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>

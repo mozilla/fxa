@@ -1,0 +1,11 @@
+{
+  "commit": "81855518bf412776d095833914e1d0690eb5a44e",
+  "summary": "bug(auth): Fix polluted sentry captures",
+  "description": "Because:\n- We would see context from other errors cross pollinate\n- In auth server error capture was particularly poor\n\nThis Commit:\n- Removes old cruft that is no longer needed with sentry 10\n- Now that Sentry uses, OTEL under the hood makes necessary adjustments to our OTEL initialization\n- Adds handler for testing / validating this works\n- Updates logic to ensure proper initialization of both OTEL and Sentry.\n- Makes adjustments to libs/shared to keep things aligned\n- Stops writing requests to error object. This now happens via the integration.\n- Sets the user state on the error",
+  "timestamp": 1772047547000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

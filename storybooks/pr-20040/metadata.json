@@ -1,0 +1,11 @@
+{
+  "commit": "0438349e309092bf2d70cdc4b7218a4ebd1958c8",
+  "summary": "chore(admin): Delete unused code from fxa-shared",
+  "description": "Because:\n- Cleaning up code duplication, in favor of code ported to libs\n\nThis Commit:\n- Deletes unreferenced code",
+  "timestamp": 1772749961000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

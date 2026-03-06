@@ -1,0 +1,11 @@
+{
+  "commit": "3dd8489725fc7c607f53625c886d46ce6621bd8e",
+  "summary": "feat(CMS): Add CMS to verification pages",
+  "description": "Because:\n* For split layout especially, the change from CMS to non-CMS styled layout is jarring and we want the full sign in flow to be customizable in the CMS\n\nThis commit:\n* Pulls in CMS info for all 2FA recovery pages and applies it\n* Makes headline and primaryButtonText optional for all pages\n* Updates tests and stories\n\ncloses FXA-13079",
+  "timestamp": 1772583575000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

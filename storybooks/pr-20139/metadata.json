@@ -1,0 +1,12 @@
+{
+  "commit": "cdc17259fa5a0f39929f388366e760920644582c",
+  "summary": "chore(admin): Convert gql to rest",
+  "description": "",
+  "timestamp": 1772744814000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
