@@ -139,7 +139,7 @@ jobs:
           password: ${{ steps.gcp-auth.outputs.access_token }}
 
       - id: build-and-push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: _dev/docker/mono/Dockerfile
