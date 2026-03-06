@@ -16,6 +16,8 @@
 
 body {
   @apply text-base font-body bg-grey-10 text-grey-900;
+  /* Prevent content from rendering under the status bar/notch on devices with display cutouts */
+  padding-top: env(safe-area-inset-top);
 }
 
 .nav-anchor {
