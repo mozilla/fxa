@@ -2531,6 +2531,54 @@ const convictConf = convict({
       env: 'PASSKEYS__ENABLED',
       format: Boolean,
     },
+    rpId: {
+      default: '',
+      doc: 'WebAuthn Relying Party ID. Must match the domain of the deployment (e.g. "accounts.firefox.com"). Required when passkeys are enabled.',
+      env: 'PASSKEYS__RP_ID',
+      format: String,
+    },
+    rpName: {
+      default: '',
+      doc: 'WebAuthn Relying Party Name. rpName is a deprecated field kept for backward compatibility, usually ignored by clients. Leave this field null to use the same value as rpId, which is recommended by the spec as a safe default.',
+      env: 'PASSKEYS__RP_NAME',
+      format: String,
+    },
+    allowedOrigins: {
+      default: [],
+      doc: 'List of allowed origins for WebAuthn registration and authentication ceremonies. Must be full origins (scheme + host + optional port), e.g. ["https://accounts.firefox.com"]. Must have at least one entry when passkeys are enabled.',
+      env: 'PASSKEYS__ALLOWED_ORIGINS',
+      format: Array,
+    },
+    challengeTimeout: {
+      default: 300000,
+      doc: 'Time in milliseconds before a WebAuthn challenge expires. Defaults to 300000 ms (5 minutes).',
+      env: 'PASSKEYS__CHALLENGE_TIMEOUT',
+      format: Number,
+    },
+    maxPasskeysPerUser: {
+      default: 10,
+      doc: 'Maximum number of passkeys a single user account may register.',
+      env: 'PASSKEYS__MAX_PASSKEYS_PER_USER',
+      format: Number,
+    },
+    userVerification: {
+      default: 'required',
+      doc: 'WebAuthn user-verification requirement for ceremonies. One of "required", "preferred", or "discouraged". May be relaxed to "preferred" depending on UX requirements.',
+      env: 'PASSKEYS__USER_VERIFICATION',
+      format: ['required', 'preferred', 'discouraged'],
+    },
+    residentKey: {
+      default: 'required',
+      doc: 'WebAuthn resident-key (discoverable credential) requirement. One of "required", "preferred", or "discouraged". Discoverable credential flow won\'t work if not set to "required".',
+      env: 'PASSKEYS__RESIDENT_KEY',
+      format: ['required', 'preferred', 'discouraged'],
+    },
+    authenticatorAttachment: {
+      default: null,
+      doc: 'Optional authenticator attachment preference. One of "platform" (device-bound) or "cross-platform" (roaming key)',
+      env: 'PASSKEYS__AUTHENTICATOR_ATTACHMENT',
+      format: ['platform', 'cross-platform', null],
+    },
   },
   twilio: {
     credentialMode: {

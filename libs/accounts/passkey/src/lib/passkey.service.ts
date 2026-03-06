@@ -5,6 +5,7 @@
 import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
+import { PasskeyConfig } from './passkey.config';
 import { PasskeyManager } from './passkey.manager';
 
 /**
@@ -40,6 +41,7 @@ import { PasskeyManager } from './passkey.manager';
 export class PasskeyService {
   constructor(
     private readonly passkeyManager: PasskeyManager,
+    private readonly config: PasskeyConfig,
     @Inject(StatsDService) private readonly metrics: StatsD,
     @Inject(LOGGER_PROVIDER) private readonly log?: LoggerService
   ) {}

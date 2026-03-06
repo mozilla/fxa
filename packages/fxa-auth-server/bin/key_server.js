@@ -53,6 +53,11 @@ const {
 } = require('@fxa/accounts/recovery-phone');
 const { parseConfigRules, RateLimit } = require('@fxa/accounts/rate-limit');
 const {
+  PasskeyService,
+  PasskeyManager,
+  buildPasskeyConfig,
+} = require('@fxa/accounts/passkey');
+const {
   RelyingPartyConfigurationManager,
   LegalTermsConfigurationManager,
 } = require('@fxa/shared/cms');
@@ -298,6 +303,16 @@ async function run(config) {
     log
   );
   Container.set(RecoveryPhoneService, recoveryPhoneService);
+
+  const passkeyConfig = buildPasskeyConfig(config.passkeys, log);
+  const passkeyManager = new PasskeyManager(accountDatabase);
+  const passkeyService = new PasskeyService(
+    passkeyManager,
+    passkeyConfig,
+    statsd,
+    log
+  );
+  Container.set(PasskeyService, passkeyService);
 
   const profile = new ProfileClient(log, statsd, {
     ...config.profileServer,
