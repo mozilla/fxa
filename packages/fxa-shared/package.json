@@ -273,7 +273,7 @@
     "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",
     "typescript": "5.5.3",
-    "underscore": "^1.13.1",
+    "underscore": "^1.13.8",
     "uuid": "^10.0.0"
   },
   "dependencies": {
