@@ -27,7 +27,7 @@ export enum Proc {
   CreateSigninCode = 'createSigninCode_2',
   CreateTotpToken = 'createTotpToken_1',
   CreateUnblockCode = 'createUnblockCode_1',
-  DeleteAccount = 'deleteAccount_21',
+  DeleteAccount = 'deleteAccount_22',
   DeleteAccountResetToken = 'deleteAccountResetToken_1',
   DeleteDevice = 'deleteDevice_4',
   DeleteEmail = 'deleteEmail_5',
