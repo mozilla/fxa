@@ -24,7 +24,7 @@ export class PasskeyError extends BaseError {
   /** WebAuthn credential ID (when applicable) */
   readonly credentialId?: string;
   /** Additional structured context */
-  readonly context: Record<string, any>;
+  readonly context: Record<string, unknown>;
 
   /**
    * Creates a PasskeyError.
@@ -42,7 +42,7 @@ export class PasskeyError extends BaseError {
     message: string,
     info: { errno?: number; uid?: string; credentialId?: string } & Record<
       string,
-      any
+      unknown
     >,
     cause?: Error
   ) {

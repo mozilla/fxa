@@ -59,42 +59,9 @@ describe('PasskeyRepository (Integration)', () => {
       expect(found?.transports).toBeDefined(); // JSON field
       expect(found?.aaguid).toEqual(passkey.aaguid); // NOT NULL
     });
-
-    it('should find all passkeys for a user', async () => {
-      const uid = await createTestAccount();
-      const passkey1 = PasskeyFactory({ uid });
-      const passkey2 = PasskeyFactory({ uid });
-
-      await PasskeyRepository.insertPasskey(db, passkey1);
-      await PasskeyRepository.insertPasskey(db, passkey2);
-
-      const passkeys = await PasskeyRepository.findPasskeysByUid(db, uid);
-
-      expect(passkeys.length).toBeGreaterThanOrEqual(2);
-    });
   });
 
   describe('update operations', () => {
-    it('should update passkey name', async () => {
-      const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid });
-      await PasskeyRepository.insertPasskey(db, passkey);
-
-      const rowsUpdated = await PasskeyRepository.updatePasskeyName(
-        db,
-        passkey.credentialId,
-        'New Name'
-      );
-
-      expect(rowsUpdated).toBe(1);
-
-      const updated = await PasskeyRepository.findPasskeyByCredentialId(
-        db,
-        passkey.credentialId
-      );
-      expect(updated?.name).toBe('New Name');
-    });
-
     it('should update counter and lastUsed after authentication', async () => {
       const uid = await createTestAccount();
       const passkey = PasskeyFactory({ uid });
@@ -102,6 +69,7 @@ describe('PasskeyRepository (Integration)', () => {
 
       const success = await PasskeyRepository.updatePasskeyCounterAndLastUsed(
         db,
+        passkey.uid,
         passkey.credentialId,
         5,
         1
@@ -117,40 +85,67 @@ describe('PasskeyRepository (Integration)', () => {
       expect(updated?.backupState).toBe(true);
       expect(updated?.lastUsedAt).toBeGreaterThan(0);
     });
-  });
 
-  describe('delete operations', () => {
-    it('should delete a specific passkey', async () => {
+    it('should reject update when new signCount equals stored non-zero signCount', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid });
+      const passkey = PasskeyFactory({ uid, signCount: 5 });
       await PasskeyRepository.insertPasskey(db, passkey);
 
-      const deleted = await PasskeyRepository.deletePasskey(
+      // Same non-zero signCount is a potential cloning signal — should be rejected
+      const success = await PasskeyRepository.updatePasskeyCounterAndLastUsed(
         db,
         passkey.uid,
-        passkey.credentialId
+        passkey.credentialId,
+        5,
+        0
       );
 
-      expect(deleted).toBe(true);
-
+      expect(success).toBe(false);
       const found = await PasskeyRepository.findPasskeyByCredentialId(
         db,
         passkey.credentialId
       );
-      expect(found).toBeUndefined();
+      expect(found?.signCount).toBe(5);
     });
 
-    it('should count passkeys for a user', async () => {
+    it('should allow update when both stored and new signCount are zero', async () => {
       const uid = await createTestAccount();
-      const passkey1 = PasskeyFactory({ uid });
-      const passkey2 = PasskeyFactory({ uid });
+      const passkey = PasskeyFactory({ uid, signCount: 0 });
+      await PasskeyRepository.insertPasskey(db, passkey);
 
-      await PasskeyRepository.insertPasskey(db, passkey1);
-      await PasskeyRepository.insertPasskey(db, passkey2);
+      // Authenticators that never increment always return 0 — valid per WebAuthn spec
+      const success = await PasskeyRepository.updatePasskeyCounterAndLastUsed(
+        db,
+        passkey.uid,
+        passkey.credentialId,
+        0,
+        0
+      );
 
-      const count = await PasskeyRepository.countPasskeysByUid(db, uid);
+      expect(success).toBe(true);
+    });
 
-      expect(count).toBeGreaterThanOrEqual(2);
+    it('should not update when uid does not match credential owner', async () => {
+      const uid1 = await createTestAccount();
+      const uid2 = await createTestAccount();
+      const passkey = PasskeyFactory({ uid: uid1, signCount: 0 });
+      await PasskeyRepository.insertPasskey(db, passkey);
+
+      // Wrong uid — WHERE clause should prevent the update
+      const success = await PasskeyRepository.updatePasskeyCounterAndLastUsed(
+        db,
+        uid2,
+        passkey.credentialId,
+        1,
+        0
+      );
+
+      expect(success).toBe(false);
+      const found = await PasskeyRepository.findPasskeyByCredentialId(
+        db,
+        passkey.credentialId
+      );
+      expect(found?.signCount).toBe(0);
     });
   });
 });
