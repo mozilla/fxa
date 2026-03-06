@@ -6,17 +6,14 @@ import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { MozLoggerModule } from '@fxa/shared/mozlog';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
-import { join } from 'path';
 import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import {
   LegacyNotifierServiceProvider,
   LegacyNotifierSnsFactory,
 } from '@fxa/shared/notifier';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
-import { GraphQLModule } from '@nestjs/graphql';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 
 import { UserGroupGuard } from './auth/user-group-header.guard';
@@ -25,7 +22,7 @@ import Config, { AppConfig } from './config';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
 import { EventLoggingModule } from './event-logging/event-logging.module';
-import { GqlModule } from './gql/gql.module';
+import { RestModule } from './rest/rest.module';
 import { NewslettersModule } from './newsletters/newsletters.module';
 import { SubscriptionModule } from './subscriptions/subscriptions.module';
 
@@ -43,23 +40,7 @@ const version = getVersionInfo(__dirname);
     EventLoggingModule,
     SubscriptionModule,
     NewslettersModule,
-    GqlModule,
-    GraphQLModule.forRootAsync<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        path: '/graphql',
-        useGlobalPrefix: true,
-        allowBatchedHttpRequests: true,
-        playground: configService.get<string>('env') !== 'production',
-        autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-        definitions: {
-          path: join(process.cwd(), 'src/graphql.ts'),
-        },
-        fieldResolverEnhancers: ['guards'],
-      }),
-    }),
+    RestModule,
     HealthModule.forRootAsync({
       imports: [DatabaseModule],
       inject: [DatabaseService],

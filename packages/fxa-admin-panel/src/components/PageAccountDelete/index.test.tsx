@@ -4,18 +4,14 @@
 
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
 import { PageAccountDelete } from './index';
 import { IClientConfig } from '../../../interfaces';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import {
-  mockGqlAccountDeleteMutation,
-  mockGqlAccountDeleteTaskStatusQuery,
-} from './mocks';
+import { mockDeleteResults, mockTaskStatuses } from './mocks';
+import { adminApi } from '../../lib/api';
 
-// Setup the current user hook. Required for Guards.
 const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
 const mockConfig: IClientConfig = mockConfigBuilder({
   user: {
@@ -25,22 +21,31 @@ const mockConfig: IClientConfig = mockConfigBuilder({
 });
 
 jest.mock('../../hooks/UserContext.ts', () => ({
-  useUserContext: () => {
-    const ctx = {
-      guard: mockGuard,
-      user: mockConfig.user,
-      setUser: () => {},
-    };
-    return ctx;
+  useUserContext: () => ({
+    guard: mockGuard,
+    user: mockConfig.user,
+    setUser: () => {},
+  }),
+}));
+
+jest.mock('../../lib/api', () => ({
+  adminApi: {
+    deleteAccounts: jest.fn(),
+    getDeleteStatus: jest.fn(),
   },
 }));
 
+beforeEach(() => {
+  (adminApi.deleteAccounts as jest.Mock).mockResolvedValue(mockDeleteResults);
+  (adminApi.getDeleteStatus as jest.Mock).mockResolvedValue(mockTaskStatuses);
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
 it('renders without imploding', () => {
-  renderWithLocalizationProvider(
-    <MockedProvider mocks={[]} addTypename={false}>
-      <PageAccountDelete />
-    </MockedProvider>
-  );
+  renderWithLocalizationProvider(<PageAccountDelete />);
 
   expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
     'Delete Accounts'
@@ -48,16 +53,7 @@ it('renders without imploding', () => {
 });
 
 it('deletes accounts', async () => {
-  renderWithLocalizationProvider(
-    <MockedProvider
-      mocks={[
-        mockGqlAccountDeleteMutation(),
-        mockGqlAccountDeleteTaskStatusQuery(),
-      ]}
-    >
-      <PageAccountDelete />
-    </MockedProvider>
-  );
+  renderWithLocalizationProvider(<PageAccountDelete />);
 
   expect(
     fireEvent.change(screen.getByTestId(`account-list-input`), {

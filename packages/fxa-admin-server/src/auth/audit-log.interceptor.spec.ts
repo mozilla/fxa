@@ -4,19 +4,12 @@
 
 import { CallHandler, ExecutionContext } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GqlExecutionContext } from '@nestjs/graphql';
 import { of, throwError } from 'rxjs';
 import { createMock } from '@golevelup/ts-jest';
 import { AuditLogInterceptor, sanitizeObject } from './audit-log.interceptor';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { AppConfig } from '../config';
 import * as Sentry from '@sentry/node';
-
-jest.mock('@nestjs/graphql', () => ({
-  GqlExecutionContext: {
-    create: jest.fn(),
-  },
-}));
 
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
@@ -28,7 +21,7 @@ describe('AuditLogInterceptor', () => {
   let configService: jest.Mocked<ConfigService<AppConfig>>;
   let mockContext: jest.Mocked<ExecutionContext>;
   let mockCallHandler: jest.Mocked<CallHandler>;
-  let mockGqlContext: any;
+  let mockRequest: any;
 
   beforeEach(() => {
     logger = {
@@ -52,21 +45,22 @@ describe('AuditLogInterceptor', () => {
       }),
     } as any;
 
-    mockGqlContext = {
-      getContext: jest.fn().mockReturnValue({
-        req: {
-          user: 'admin@example.com',
-        },
-      }),
-      getArgs: jest.fn().mockReturnValue({
+    mockRequest = {
+      user: 'admin@example.com',
+      body: {
         uid: 'test-uid-123',
         locale: 'en-US',
-      }),
+      },
+      query: {},
+      params: {},
     };
 
-    (GqlExecutionContext.create as jest.Mock).mockReturnValue(mockGqlContext);
-
     mockContext = createMock<ExecutionContext>();
+    mockContext.switchToHttp.mockReturnValue({
+      getRequest: jest.fn().mockReturnValue(mockRequest),
+      getResponse: jest.fn(),
+      getNext: jest.fn(),
+    } as any);
     mockContext.getHandler.mockReturnValue({
       name: 'testMutation',
     } as any);
@@ -167,12 +161,12 @@ describe('AuditLogInterceptor', () => {
   });
 
   it('should sanitize sensitive data in payload', (done) => {
-    mockGqlContext.getArgs.mockReturnValue({
+    mockRequest.body = {
       uid: 'test-uid-123',
       password: 'secret123',
       token: 'abc123',
       secretKey: 'my-secret',
-    });
+    };
 
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
       next: () => {
@@ -191,9 +185,7 @@ describe('AuditLogInterceptor', () => {
   });
 
   it('should handle unknown user when request.user is not set', (done) => {
-    mockGqlContext.getContext.mockReturnValue({
-      req: {},
-    });
+    mockRequest.user = undefined;
 
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
       next: () => {
@@ -366,13 +358,13 @@ describe('AuditLogInterceptor', () => {
 
       const customInterceptor = new AuditLogInterceptor(logger, configService);
 
-      mockGqlContext.getArgs.mockReturnValue({
+      mockRequest.body = {
         uid: 'test-uid-123',
         password: 'secret123',
         jedi: 'luke-skywalker',
         token: 'abc123',
         email: 'test@example.com', // Should not be redacted, it's not in the config mock above
-      });
+      };
 
       customInterceptor.intercept(mockContext, mockCallHandler).subscribe({
         next: () => {

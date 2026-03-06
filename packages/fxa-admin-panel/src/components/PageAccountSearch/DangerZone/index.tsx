@@ -2,21 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useMutation } from '@apollo/client';
-import { Email } from 'fxa-admin-server/src/graphql';
-import { RECORD_ADMIN_SECURITY_EVENT } from '../Account/index.gql';
+import { useState } from 'react';
+import { Email } from 'fxa-admin-server/src/types';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../../Guard';
 import { getFormattedDate } from '../../../lib/utils';
 import { ReactElement } from 'react';
-import {
-  DISABLE_ACCOUNT,
-  ENABLE_ACCOUNT,
-  REMOVE_2FA,
-  UNSUBSCRIBE_FROM_MAILING_LISTS,
-  UNVERIFY_EMAIL,
-  DELETE_RECOVERY_PHONE,
-} from './index.gql';
+import { adminApi } from '../../../lib/api';
 
 type DangerZoneProps = {
   uid: string;
@@ -74,120 +66,97 @@ export const DangerZone = ({
   has2FA,
   hasRecoveryPhone,
 }: DangerZoneProps) => {
-  const [unverify, { loading: unverifyLoading }] = useMutation(UNVERIFY_EMAIL, {
-    onCompleted: () => {
+  const [unverifyLoading, setUnverifyLoading] = useState(false);
+
+  const handleUnverify = async () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    setUnverifyLoading(true);
+    try {
+      await adminApi.unverifyEmail(email.email);
       window.alert("The user's email has been unconfirmed.");
       onCleared();
-    },
-    onError: () => {
+    } catch {
       window.alert('Error in unconfirming email');
-    },
-  });
+    } finally {
+      setUnverifyLoading(false);
+    }
+  };
 
-  const handleUnverify = () => {
+  const handleUnsubscribeFromMailingLists = async () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
-    unverify({ variables: { email: email.email } });
+    try {
+      const success = await adminApi.unsubscribeFromMailingLists(uid);
+      if (success) {
+        window.alert(
+          "The user's email has been unsubscribed from mozilla mailing lists."
+        );
+      } else {
+        window.alert('Unsubscribing was not successful.');
+      }
+    } catch {
+      window.alert('Unexpected error encountered!');
+    }
   };
 
-  const [unsubscribeFromMailingLists] = useMutation(
-    UNSUBSCRIBE_FROM_MAILING_LISTS,
-    {
-      onCompleted: (data) => {
-        if (data.unsubscribeFromMailingLists) {
-          window.alert(
-            "The user's email has been unsubscribed from mozilla mailing lists."
-          );
-        } else {
-          window.alert('Unsubscribing was not successful.');
-        }
-      },
-      onError: () => {
-        window.alert('Unexpected error encountered!');
-      },
-    }
-  );
-  const handleUnsubscribeFromMailingLists = () => {
-    if (!window.confirm('Are you sure? This cannot be undone.')) {
+  const handleDisable = async () => {
+    if (!window.confirm('Are you sure?')) {
       return;
     }
-    unsubscribeFromMailingLists({ variables: { uid } });
-  };
-
-  const [disableAccount] = useMutation(DISABLE_ACCOUNT, {
-    onCompleted: () => {
+    try {
+      await adminApi.disableAccount(uid);
+      adminApi.recordSecurityEvent(uid, 'account.disable').catch(() => {});
       window.alert('The account has been disabled.');
       onCleared();
-    },
-    onError: () => {
+    } catch {
       window.alert('Error disabling account');
-    },
-  });
+    }
+  };
 
-  const [enableAccount] = useMutation(ENABLE_ACCOUNT, {
-    onCompleted: () => {
+  const handleEnable = async () => {
+    if (!window.confirm('Are you sure?')) {
+      return;
+    }
+    try {
+      await adminApi.enableAccount(uid);
+      adminApi.recordSecurityEvent(uid, 'account.enable').catch(() => {});
       window.alert('The account has been enabled.');
       onCleared();
-    },
-    onError: () => {
+    } catch {
       window.alert('Error enabling account');
-    },
-  });
+    }
+  };
 
-  const [remove2FA] = useMutation(REMOVE_2FA, {
-    onCompleted: () => {
+  const handleRemove2FA = async () => {
+    if (!window.confirm('Are you sure?')) {
+      return;
+    }
+    try {
+      await adminApi.remove2FA(uid);
+      adminApi
+        .recordSecurityEvent(uid, 'account.two_factor_removed')
+        .catch(() => {});
       window.alert('2FA was removed from the account.');
       onCleared();
-    },
-    onError: () => {
+    } catch {
       window.alert('Error removing 2FA.');
-    },
-  });
-
-  const [deleteRecoveryPhone] = useMutation(DELETE_RECOVERY_PHONE, {
-    onCompleted: () => {
-      window.alert('Recovery phone has been deleted.');
-      onCleared();
-    },
-    onError: () => {
-      window.alert('Error deleting recovery phone.');
-    },
-  });
-
-  const [recordAdminSecurityEvent] = useMutation(RECORD_ADMIN_SECURITY_EVENT);
-
-  const handleDisable = () => {
-    if (!window.confirm('Are you sure?')) {
-      return;
     }
-    disableAccount({ variables: { uid } });
-    recordAdminSecurityEvent({ variables: { uid, name: 'account.disable' } });
   };
 
-  const handleEnable = () => {
-    if (!window.confirm('Are you sure?')) {
-      return;
-    }
-    enableAccount({ variables: { uid } });
-    recordAdminSecurityEvent({ variables: { uid, name: 'account.enable' } });
-  };
-
-  const handleRemove2FA = () => {
-    if (!window.confirm('Are you sure?')) {
-      return;
-    }
-    remove2FA({ variables: { uid } });
-    recordAdminSecurityEvent({
-      variables: { uid, name: 'account.two_factor_removed' },
-    });
-  };
-
-  const handleDeleteRecoveryPhone = () => {
+  const handleDeleteRecoveryPhone = async () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
-    deleteRecoveryPhone({ variables: { uid } });
+    try {
+      await adminApi.deleteRecoveryPhone(uid);
+      window.alert('Recovery phone has been deleted.');
+      onCleared();
+    } catch {
+      window.alert('Error deleting recovery phone.');
+    }
   };
 
   // define loading messages

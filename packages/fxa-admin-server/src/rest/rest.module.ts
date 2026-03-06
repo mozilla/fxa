@@ -14,10 +14,10 @@ import { DatabaseModule } from '../database/database.module';
 import { EventLoggingModule } from '../event-logging/event-logging.module';
 import { NewslettersModule } from '../newsletters/newsletters.module';
 import { SubscriptionModule } from '../subscriptions/subscriptions.module';
-import { AccountResolver } from './account/account.resolver';
-import { EmailBounceResolver } from './email-bounce/email-bounce.resolver';
-import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
-import { RateLimitingResolver } from './rate-limiting/rate-limiting.resolver';
+import { AccountController } from './account/account.controller';
+import { EmailBounceController } from './email-bounce/email-bounce.controller';
+import { RelyingPartyController } from './relying-party/relying-party.controller';
+import { RateLimitingController } from './rate-limiting/rate-limiting.controller';
 import {
   RateLimitProvider,
   RateLimitRedisProvider,
@@ -34,10 +34,13 @@ import { CartModule } from './cart.module';
     NewslettersModule,
     CartModule,
   ],
+  controllers: [
+    AccountController,
+    EmailBounceController,
+    RateLimitingController,
+    RelyingPartyController,
+  ],
   providers: [
-    AccountResolver,
-    EmailBounceResolver,
-    RateLimitingResolver,
     RateLimitProvider,
     RateLimitRedisProvider,
     LegacyStatsDProvider,
@@ -45,13 +48,9 @@ import { CartModule } from './cart.module';
     LegacyNotifierSnsFactory,
     MozLoggerService,
     {
-      // Note, the 'NotifierService, requires that 'LOGGER_PROVIDER' be injected.
-      //       At the time of writing, it takes any valid LoggerService, and the
-      //       MozLoggerService extends LoggerService, so this will suffice...
       provide: LOGGER_PROVIDER,
       useClass: MozLoggerService,
     },
-    RelyingPartyResolver,
   ],
 })
-export class GqlModule {}
+export class RestModule {}

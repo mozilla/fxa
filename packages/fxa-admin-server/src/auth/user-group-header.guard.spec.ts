@@ -15,7 +15,7 @@ import {
 } from '@fxa/shared/guards';
 import { UserGroupGuard } from './user-group-header.guard';
 
-describe('UserGroupGuard for graphql', () => {
+describe('UserGroupGuard for http', () => {
   let module: TestingModule;
   let guard: UserGroupGuard;
   let reflector: Reflector;
@@ -34,16 +34,13 @@ describe('UserGroupGuard for graphql', () => {
     // This fakes the set of features that would be provided by a UserGroupGuard.
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(features);
 
-    // GqlExecutionContext, expects the context to be arg 2 of the passed in context's
-    // getArgs() return value.
     const context = createMock<ExecutionContext>();
-    context.getArgs.mockImplementation(() => [
-      undefined,
-      undefined,
-      { req: buildRequest(group) },
-      undefined,
-    ]);
-    context.getType.mockImplementation(() => 'graphql');
+    context.getType.mockImplementation(() => 'http');
+    context.switchToHttp.mockReturnValue({
+      getRequest: jest.fn().mockReturnValue(buildRequest(group)),
+      getResponse: jest.fn(),
+      getNext: jest.fn(),
+    } as any);
     return context;
   }
 

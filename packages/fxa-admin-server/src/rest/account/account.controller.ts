@@ -6,18 +6,18 @@ import * as Sentry from '@sentry/node';
 
 import { NotifierService } from '@fxa/shared/notifier';
 import { Firestore } from '@google-cloud/firestore';
-import { Inject, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
-import {
-  Args,
-  Context,
-  Mutation,
-  Query,
-  ResolveField,
-  Resolver,
-  Root,
-} from '@nestjs/graphql';
 import { SentryTraced } from '@sentry/nestjs';
 import {
   ClientFormatter,
@@ -35,7 +35,7 @@ import { AdminPanelFeature } from '@fxa/shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { CurrentUser } from '../../auth/auth-header.decorator';
-import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
+import { AuthHeaderGuard } from '../../auth/auth-header.guard';
 import { Features } from '../../auth/user-group-header.decorator';
 import { AuditLog } from '../../auth/audit-log.decorator';
 import { EmailService } from '../../backend/email.service';
@@ -52,22 +52,16 @@ import {
   EventLoggingService,
   EventNames,
 } from '../../event-logging/event-logging.service';
-import { AccountEvent as AccountEventType } from '../../gql/model/account-events.model';
-import { Account as AccountType } from '../../gql/model/account.model';
-import { AttachedClient } from '../../gql/model/attached-clients.model';
-import { Email as EmailType } from '../../gql/model/emails.model';
-import { RecoveryPhone as RecoveryPhoneType } from '../model/recovery-phone.model';
+import { AccountEvent as AccountEventType } from '../model/account-events.model';
 import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import {
   AccountDeleteResponse,
   AccountDeleteStatus,
   AccountDeleteTaskStatus,
-} from '../model/account-delete-task.model';
-import {
   AccountResetResponse,
   AccountResetStatus,
-} from '../model/account-reset.model';
+} from '../../types';
 import { CartManager } from '@fxa/payments/cart';
 import { randomBytes } from 'node:crypto';
 
@@ -117,9 +111,9 @@ const RECOVERYKEY_COLUMNS = [
 const RECOVERYPHONES_COLUMNS = ['phoneNumber'];
 const LINKEDACCOUNT_COLUMNS = ['uid', 'authAt', 'providerId', 'enabled'];
 
-@UseGuards(GqlAuthHeaderGuard)
-@Resolver((of: any) => AccountType)
-export class AccountResolver {
+@UseGuards(AuthHeaderGuard)
+@Controller('/api/account')
+export class AccountController {
   private get clientFormatterConfig() {
     return this.configService.get(
       'clientFormatter'
@@ -145,10 +139,59 @@ export class AccountResolver {
     @Inject(ProfileClient) private profileClient: ProfileClient
   ) {}
 
+  /**
+   * Resolves all nested account data fields and returns a full account object.
+   */
+  private async resolveAccountData(account: Account) {
+    const [
+      emails,
+      emailBounces,
+      securityEvents,
+      accountEvents,
+      totp,
+      recoveryKeys,
+      subscriptions,
+      carts,
+      backupCodes,
+      recoveryPhone,
+      linkedAccounts,
+      attachedClients,
+    ] = await Promise.all([
+      this.emails(account),
+      this.emailBounces(account),
+      this.securityEvents(account),
+      this.accountEvents(account),
+      this.totp(account),
+      this.recoveryKeys(account),
+      this.subscriptions(account),
+      this.carts(account),
+      this.backupCodes(account),
+      this.recoveryPhone(account),
+      this.linkedAccounts(account),
+      this.attachedClients(account),
+    ]);
+
+    return {
+      ...account,
+      emails,
+      emailBounces,
+      securityEvents,
+      accountEvents,
+      totp,
+      recoveryKeys,
+      subscriptions,
+      carts,
+      backupCodes,
+      recoveryPhone,
+      linkedAccounts,
+      attachedClients,
+    };
+  }
+
   @Features(AdminPanelFeature.AccountSearch)
-  @Query((returns) => AccountType, { nullable: true })
+  @Get('by-uid')
   public async accountByUid(
-    @Args('uid', { nullable: false }) uid: string,
+    @Query('uid') uid: string,
     @CurrentUser() user: string
   ) {
     this.eventLogging.onAccountSearch('uid', false);
@@ -156,27 +199,31 @@ export class AccountResolver {
     try {
       uidBuffer = uuidTransformer.to(uid);
     } catch (err) {
-      return;
+      return false;
     }
     this.log.info('accountByUid', { uid, user });
-    return this.db.account
+    const account = await this.db.account
       .query()
       .select(ACCOUNT_COLUMNS)
       .findOne({ uid: uidBuffer });
+
+    if (!account) {
+      return false;
+    }
+    return this.resolveAccountData(account);
   }
 
   @Features(AdminPanelFeature.AccountSearch)
-  @Query((returns) => AccountType, { nullable: true })
+  @Get('by-email')
   @SentryTraced('accountByEmail')
   public async accountByEmail(
-    @Args('email', { nullable: false }) email: string,
-    @Args('autoCompleted', { nullable: false }) autoCompleted: boolean,
+    @Query('email') email: string,
+    @Query('autoCompleted') autoCompleted: string,
     @CurrentUser() user: string
   ) {
-    this.eventLogging.onAccountSearch('email', autoCompleted);
+    this.eventLogging.onAccountSearch('email', autoCompleted === 'true');
     this.log.info('accountByEmail', { email, user });
 
-    // Always prefer looks up using the known emails table
     let account = await this.db.account
       .query()
       .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
@@ -184,7 +231,6 @@ export class AccountResolver {
       .where('emails.normalizedEmail', email.toLocaleLowerCase())
       .first();
 
-    // fallback to the accounts.normalized email table
     if (!account) {
       account = await this.db.account
         .query()
@@ -193,33 +239,36 @@ export class AccountResolver {
         .first();
     }
 
-    return account;
+    if (!account) {
+      return false;
+    }
+    return this.resolveAccountData(account);
   }
 
   @Features(AdminPanelFeature.AccountSearch)
-  @Query((returns) => [AccountType], { nullable: true })
+  @Get('by-recovery-phone')
   @SentryTraced('accountByRecoveryPhone')
   public async accountByRecoveryPhone(
-    @Args('phoneNumber', { nullable: false }) phoneNumber: string,
-    @Args('autoCompleted', { nullable: false }) autoCompleted: boolean,
+    @Query('phoneNumber') phoneNumber: string,
+    @Query('autoCompleted') autoCompleted: string,
     @CurrentUser() user: string
   ) {
-    this.eventLogging.onAccountSearch('phoneNumber', autoCompleted);
+    this.eventLogging.onAccountSearch('phoneNumber', autoCompleted === 'true');
     this.log.info('accountByRecoveryPhone', { phoneNumber, user });
 
-    let accounts = await this.db.account
+    const accounts = await this.db.account
       .query()
       .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
       .innerJoin('recoveryPhones', 'recoveryPhones.uid', 'accounts.uid')
       .where('recoveryPhones.phoneNumber', phoneNumber)
       .limit(50);
 
-    return accounts;
+    return Promise.all(accounts.map((a) => this.resolveAccountData(a)));
   }
 
   @Features(AdminPanelFeature.AccountSearch)
-  @Query((returns) => [EmailType], { nullable: true })
-  public getEmailsLike(@Args('search', { nullable: false }) search: string) {
+  @Get('emails-like')
+  public getEmailsLike(@Query('search') search: string) {
     return this.db.emails
       .query()
       .select(EMAIL_COLUMNS)
@@ -228,10 +277,8 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.AccountSearch)
-  @Query((returns) => [RecoveryPhoneType], { nullable: true })
-  public getRecoveryPhonesLike(
-    @Args('search', { nullable: false }) search: string
-  ) {
+  @Get('recovery-phones-like')
+  public getRecoveryPhonesLike(@Query('search') search: string) {
     return this.db.recoveryPhones
       .query()
       .select(RECOVERYPHONES_COLUMNS)
@@ -240,10 +287,44 @@ export class AccountResolver {
       .limit(10);
   }
 
+  @Features(AdminPanelFeature.DeleteAccount)
+  @Get('delete-status')
+  public async getDeleteStatus(
+    @Query('taskNames') taskNames: string | string[]
+  ) {
+    const names = Array.isArray(taskNames) ? taskNames : [taskNames];
+    const results: AccountDeleteTaskStatus[] = [];
+    for (const taskName of names) {
+      try {
+        const [result] =
+          await this.cloudTask.accountTasks.getTaskStatus(taskName);
+        if (result == null) {
+          results.push({ taskName, status: 'Unknown task' });
+        } else {
+          results.push({
+            taskName,
+            status: result.lastAttempt?.responseStatus?.message || 'Pending',
+          });
+        }
+      } catch (error) {
+        this.log.warn('getDeleteStatus', { errorCode: error.code });
+        if (error.code === 9) {
+          results.push({ taskName, status: 'Task completed.' });
+        } else {
+          results.push({
+            taskName,
+            status: 'Task completed and no longer in queue.',
+          });
+        }
+      }
+    }
+    return results;
+  }
+
   @Features(AdminPanelFeature.Remove2FA)
   @AuditLog()
-  @Mutation((returns) => Boolean)
-  public async remove2FA(@Args('uid') uid: string) {
+  @Post('remove-2fa')
+  public async remove2FA(@Body('uid') uid: string) {
     this.eventLogging.onEvent(EventNames.Remove2FA);
     const rowsDeleted = await this.db.totp.transaction(async (trx) => {
       const recoveryPhoneRecordsDeleted = await this.db.recoveryPhones
@@ -281,26 +362,25 @@ export class AccountResolver {
     return deleted;
   }
 
-  // unverifies the user's email. will have to verify again on next login
   @Features(AdminPanelFeature.UnverifyEmail)
   @AuditLog()
-  @Mutation((returns) => Boolean)
-  public async unverifyEmail(@Args('email') email: string) {
+  @Post('unverify-email')
+  public async unverifyEmail(@Body('email') email: string) {
     this.eventLogging.onEvent(EventNames.UnverifyEmail);
     const result = await this.db.emails
       .query()
       .where('normalizedEmail', 'like', `${email.toLowerCase()}%`)
       .update({
         isVerified: false,
-        verifiedAt: null as any, // same as null
+        verifiedAt: null as any,
       });
     return !!result;
   }
 
   @Features(AdminPanelFeature.DisableAccount)
   @AuditLog()
-  @Mutation((returns) => Boolean)
-  public async disableAccount(@Args('uid') uid: string) {
+  @Post('disable')
+  public async disableAccount(@Body('uid') uid: string) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
     await this.profileClient.deleteCache(uid);
     await this.notifier.send({
@@ -318,12 +398,34 @@ export class AccountResolver {
     return !!result;
   }
 
+  @Features(AdminPanelFeature.EnableAccount)
+  @AuditLog()
+  @Post('enable')
+  public async enableAccount(@Body('uid') uid: string) {
+    const uidBuffer = uuidTransformer.to(uid);
+    const result = await this.db.account
+      .query()
+      .update({ disabledAt: null } as any)
+      .where('uid', uidBuffer);
+
+    await this.profileClient.deleteCache(uid);
+    await this.notifier.send({
+      event: 'profileDataChange',
+      data: {
+        ts: Date.now() / 1000,
+        uid,
+      },
+    });
+
+    return !!result;
+  }
+
   @Features(AdminPanelFeature.EditLocale)
   @AuditLog()
-  @Mutation((returns) => Boolean)
+  @Post('edit-locale')
   public async editLocale(
-    @Args('uid') uid: string,
-    @Args('locale') locale: string
+    @Body('uid') uid: string,
+    @Body('locale') locale: string
   ) {
     this.eventLogging.onEvent(EventNames.EditLocale);
     const uidBuffer = uuidTransformer.to(uid);
@@ -346,8 +448,8 @@ export class AccountResolver {
 
   @Features(AdminPanelFeature.DeleteRecoveryPhone)
   @AuditLog()
-  @Mutation((returns) => Boolean)
-  public async deleteRecoveryPhone(@Args('uid') uid: string): Promise<Boolean> {
+  @Post('delete-recovery-phone')
+  public async deleteRecoveryPhone(@Body('uid') uid: string): Promise<Boolean> {
     this.eventLogging.onEvent(EventNames.DeleteRecoveryPhone);
 
     const uidBuffer = uuidTransformer.to(uid);
@@ -368,242 +470,11 @@ export class AccountResolver {
     return !!result;
   }
 
-  @Features(AdminPanelFeature.EnableAccount)
-  @AuditLog()
-  @Mutation((returns) => Boolean)
-  public async enableAccount(@Args('uid') uid: string) {
-    const uidBuffer = uuidTransformer.to(uid);
-    const result = await this.db.account
-      .query()
-      .update({ disabledAt: null } as any)
-      .where('uid', uidBuffer);
-
-    await this.profileClient.deleteCache(uid);
-    await this.notifier.send({
-      event: 'profileDataChange',
-      data: {
-        ts: Date.now() / 1000,
-        uid,
-      },
-    });
-
-    return !!result;
-  }
-
-  @Features(AdminPanelFeature.AccountSearch)
-  @Mutation((returns) => Boolean)
-  public async recordAdminSecurityEvent(
-    @Args('uid') uid: string,
-    @Args('name', { type: () => String }) name: SecurityEventNames,
-    @Context() ctx: { req: Request }
-  ) {
-    // the ipAddr and ipHmacKey values here are required, but also have no bearing on this type of record.
-    // the securityEvents table is being repurposed to store a broader variety of events, hence the dummy values.
-    const result = await this.db.securityEvents.create({
-      uid,
-      name,
-      ipAddr:
-        (ctx.req.headers['x-forwarded-for'] as string) || ctx.req.ip || '',
-      ipHmacKey: this.ipHmacKey,
-      additionalInfo: {
-        userAgent: ctx.req.headers['user-agent'],
-        adminPanelAction: true,
-      },
-    });
-    return !!result;
-  }
-
-  @ResolveField()
-  public async emailBounces(@Root() account: Account) {
-    const uidBuffer = uuidTransformer.to(account.uid);
-    // MySQL Query optimizer does weird things, use separate queries to force index use
-    const emails = await this.db.emails
-      .query()
-      .select('emails.normalizedEmail')
-      .where('emails.uid', uidBuffer);
-    const result = await this.db.emailBounces
-      .query()
-      .select(...EMAIL_BOUNCE_COLUMNS, 'emailTypes.emailType as templateName')
-      .join('emailTypes', 'emailTypes.id', 'emailBounces.emailTypeId')
-      .where(
-        'emailBounces.email',
-        'in',
-        emails.map((x) => x.normalizedEmail)
-      );
-    return result;
-  }
-
-  @Features(AdminPanelFeature.AccountSearch)
-  @ResolveField()
-  public async emails(@Root() account: Account) {
-    const uidBuffer = uuidTransformer.to(account.uid);
-    return await this.db.emails
-      .query()
-      .select(EMAIL_COLUMNS)
-      .where('uid', uidBuffer);
-  }
-
-  @Features(AdminPanelFeature.AccountSearch)
-  @ResolveField()
-  public async securityEvents(@Root() account: Account) {
-    const uidBuffer = uuidTransformer.to(account.uid);
-    return await this.db.securityEvents
-      .query()
-      .select(...SECURITY_EVENTS_COLUMNS, 'securityEventNames.name as name')
-      .join(
-        'securityEventNames',
-        'securityEvents.nameId',
-        'securityEventNames.id'
-      )
-      .where('uid', uidBuffer)
-      .limit(10)
-      .orderBy('createdAt', 'DESC');
-  }
-
-  @Features(AdminPanelFeature.AccountSearch)
-  @ResolveField()
-  public async accountEvents(@Root() account: Account) {
-    // Not sure the best way for admin panel to get this config from event broker config
-    const eventsDbRef = this.firestore.collection('fxa-eb-users');
-    const queryResult = await eventsDbRef
-      .doc(account.uid)
-      .collection('events')
-      .orderBy('createdAt', 'desc')
-      .limit(100)
-      .get();
-
-    return queryResult.docs.map((doc) => doc.data() as AccountEventType);
-  }
-
-  @Features(AdminPanelFeature.AccountSearch)
-  @ResolveField()
-  public async totp(@Root() account: Account) {
-    const uidBuffer = uuidTransformer.to(account.uid);
-    return await this.db.totp
-      .query()
-      .select(TOTP_COLUMNS)
-      .where('uid', uidBuffer);
-  }
-
-  @Features(AdminPanelFeature.AccountSearch)
-  @ResolveField()
-  public async recoveryKeys(@Root() account: Account) {
-    const uidBuffer = uuidTransformer.to(account.uid);
-    return await this.db.recoveryKeys
-      .query()
-      .select(RECOVERYKEY_COLUMNS)
-      .where('uid', uidBuffer);
-  }
-
-  @Features(AdminPanelFeature.AccountSearch)
-  @ResolveField()
-  public async subscriptions(@Root() account: Account) {
-    return await this.subscriptionsService.getSubscriptions(account.uid);
-  }
-
-  @Features(AdminPanelFeature.AccountSearch)
-  @ResolveField()
-  public async carts(@Root() account: Account) {
-    return await this.cartManager.fetchCartsByUid(account.uid);
-  }
-
-  @Features(AdminPanelFeature.AccountSearch)
-  @ResolveField()
-  public async backupCodes(@Root() account: Account) {
-    const uidBuffer = uuidTransformer.to(account.uid);
-    const result = await this.db.recoveryCodes
-      .query()
-      .where('uid', uidBuffer)
-      .resultSize();
-
-    return [
-      {
-        hasBackupCodes: result > 0,
-        count: result,
-      },
-    ];
-  }
-
-  @Features(AdminPanelFeature.AccountSearch)
-  @ResolveField()
-  public async recoveryPhone(@Root() account: Account) {
-    const uidBuffer = uuidTransformer.to(account.uid);
-    const result = await this.db.recoveryPhones
-      .query()
-      .select(RECOVERYPHONES_COLUMNS)
-      .where('uid', uidBuffer);
-
-    return [
-      {
-        exists: result.length > 0,
-        lastFourDigits:
-          result[0] && result[0].phoneNumber
-            ? result[0].phoneNumber.slice(-4)
-            : undefined,
-      },
-    ];
-  }
-
-  @ResolveField()
-  public async linkedAccounts(@Root() account: Account) {
-    const uidBuffer = uuidTransformer.to(account.uid);
-    return await this.db.linkedAccounts
-      .query()
-      .select(LINKEDACCOUNT_COLUMNS)
-      .where('uid', uidBuffer);
-  }
-
-  @Features(AdminPanelFeature.ConnectedServices)
-  @ResolveField(() => [AttachedClient])
-  public async attachedClients(@Root() account: Account) {
-    const clientFormatter = new ClientFormatter(
-      this.clientFormatterConfig,
-      () => this.log
-    );
-
-    const factory = new ConnectedServicesFactory({
-      formatLocation: (...args) => {
-        clientFormatter.formatLocation(...args);
-      },
-      formatTimestamps: (...args) => {
-        clientFormatter.formatTimestamps(...args);
-      },
-      deviceList: async () => {
-        return this.db.attachedDevices(account.uid);
-      },
-      oauthClients: async () => {
-        return await this.db.authorizedClients(account.uid);
-      },
-      sessions: async () => {
-        return (await this.db.attachedSessions(account.uid)).map(
-          (x: SessionToken) => {
-            const token = x;
-
-            // Require id is defined
-            if (!x.id) {
-              x.id = 'Unknown';
-            }
-
-            return token as AttachedSession;
-          }
-        );
-      },
-    });
-
-    return (await factory.build('', 'en'))
-      .sort((a, b) => (b.lastAccessTime || 0) - (a.lastAccessTime || 0))
-      .map((x) => {
-        if (x.sessionTokenId) x.sessionTokenId = '[REDACTED]';
-        if (x.refreshTokenId) x.refreshTokenId = '[REDACTED]';
-        return x;
-      });
-  }
-
   @Features(AdminPanelFeature.UnlinkAccount)
   @AuditLog()
-  @Mutation((returns) => Boolean)
+  @Post('unlink')
   public async unlinkAccount(
-    @Args('uid') uid: string,
+    @Body('uid') uid: string,
     @CurrentUser() user: string
   ) {
     const result = await this.db.linkedAccounts
@@ -618,10 +489,8 @@ export class AccountResolver {
 
   @Features(AdminPanelFeature.UnsubscribeFromMailingLists)
   @AuditLog()
-  @Mutation((returns) => Boolean)
-  public async unsubscribeFromMailingLists(@Args('uid') uid: string) {
-    // Look up email. This end point is protected, but using a uid would makes it harder
-    // to abuse regardless.
+  @Post('unsubscribe-mailing-lists')
+  public async unsubscribeFromMailingLists(@Body('uid') uid: string) {
     const account = await this.db.account
       .query()
       .select('email')
@@ -632,16 +501,13 @@ export class AccountResolver {
       return false;
     }
 
-    // Look up user token
     const token = await this.basketService.getUserToken(account.email);
     if (!token) {
       return false;
     }
 
-    // Request that user is unsubscribed from mailing list
     const success = await this.basketService.unsubscribeAll(token);
 
-    // Record an event if action was successful
     if (success) {
       this.eventLogging.onEvent(EventNames.UnsubscribeFromMailingLists);
     }
@@ -649,64 +515,43 @@ export class AccountResolver {
     return success;
   }
 
-  @Features(AdminPanelFeature.DeleteAccount)
-  @Query((returns) => [AccountDeleteTaskStatus])
-  public async getDeleteStatus(
-    @Args('taskNames', { type: () => [String] }) taskNames: string[]
+  @Features(AdminPanelFeature.AccountSearch)
+  @Post('record-security-event')
+  public async recordAdminSecurityEvent(
+    @Body('uid') uid: string,
+    @Body('name') name: SecurityEventNames,
+    @Req() req: Request
   ) {
-    const results = [];
-    for (const taskName of taskNames) {
-      try {
-        const [result] =
-          await this.cloudTask.accountTasks.getTaskStatus(taskName);
-        if (result == null) {
-          results.push({
-            taskName,
-            status: 'Unknown task',
-          });
-        } else {
-          results.push({
-            taskName,
-            status: result.lastAttempt?.responseStatus?.message || 'Pending',
-          });
-        }
-      } catch (error) {
-        this.log.warn('getDeleteStatus', { errorCode: error.code });
-
-        if (error.code === 9) {
-          results.push({
-            taskName,
-            status: 'Task completed.',
-          });
-        } else {
-          results.push({
-            taskName,
-            status: 'Task completed and no longer in queue.',
-          });
-        }
-      }
-    }
-    return results;
+    const result = await this.db.securityEvents.create({
+      uid,
+      name,
+      ipAddr: (req.headers['x-forwarded-for'] as string) || req.ip || '',
+      ipHmacKey: this.ipHmacKey,
+      additionalInfo: {
+        userAgent: req.headers['user-agent'],
+        adminPanelAction: true,
+      },
+    });
+    return !!result;
   }
 
   @Features(AdminPanelFeature.DeleteAccount)
   @AuditLog()
-  @Mutation((returns) => [AccountDeleteResponse])
+  @Post('delete')
   public async deleteAccounts(
-    @Args('locators', { type: () => [String] }) locators: string[],
+    @Body('locators') locators: string | string[],
     @CurrentUser() user: string
   ) {
     this.eventLogging.onEvent('deleteAccounts');
 
-    if (locators.length > 1000) {
+    const locatorList = Array.isArray(locators) ? locators : [locators];
+    if (locatorList.length > 1000) {
       throw new Error('Provide less than 1000 account locators.');
     }
 
-    /** Helper function to query account and create cloud task */
     const createTask = async (
       locator: string
     ): Promise<AccountDeleteResponse> => {
-      // Important! Log this action for historical record
       this.log.info('deleteAccounts', { locator, user });
 
       let account: Account | undefined;
@@ -741,7 +586,6 @@ export class AccountResolver {
           status: AccountDeleteStatus.NoAccount,
         };
       }
-      // Locate stripe customer
       const { stripeCustomerId } =
         (await getAccountCustomerByUid(account.uid)) || {};
 
@@ -767,34 +611,31 @@ export class AccountResolver {
     };
 
     const promises = [];
-    for (const locator of locators) {
+    for (const locator of locatorList) {
       promises.push(createTask(locator));
     }
 
-    const result = await Promise.all(promises);
-    return result;
+    return Promise.all(promises);
   }
 
   @Features(AdminPanelFeature.AccountReset)
   @AuditLog()
-  @Mutation((returns) => [AccountResetResponse])
+  @Post('reset')
   public async resetAccounts(
-    @Args('locators', { type: () => [String] }) locators: string[],
-    @Args('notificationEmail', { type: () => String })
-    notificationEmail: string,
+    @Body('locators') locators: string | string[],
+    @Body('notificationEmail') notificationEmail: string,
     @CurrentUser() user: string,
-    @Context() ctx: { req: Request }
+    @Req() req: Request
   ) {
     this.eventLogging.onEvent('deleteAccounts');
 
-    // Limit batches to 1000 accounts at a time.
-    if (locators.length > 1000) {
+    const locatorList = Array.isArray(locators) ? locators : [locators];
+    if (locatorList.length > 1000) {
       throw new Error('Provide less than 1000 account locators.');
     }
 
-    const status = new Array<{ locator: string; status: AccountResetStatus }>();
-    for (const locator of locators) {
-      // Important! Log this action for historical record
+    const status: AccountResetResponse[] = [];
+    for (const locator of locatorList) {
       this.log.info('resetAccounts', { locator, user });
 
       let account: Account | undefined;
@@ -810,11 +651,7 @@ export class AccountResolver {
           try {
             return uuidTransformer.to(locator);
           } catch (err) {
-            Sentry.captureException(err, {
-              extra: {
-                locator,
-              },
-            });
+            Sentry.captureException(err, { extra: { locator } });
           }
           return null;
         })();
@@ -828,21 +665,14 @@ export class AccountResolver {
       }
 
       if (!account) {
-        status.push({
-          locator,
-          status: AccountResetStatus.NoAccount,
-        });
+        status.push({ locator, status: AccountResetStatus.NoAccount });
       } else {
-        // Reset Account
         try {
           const ONES = Buffer.from(
             'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
             'hex'
           );
 
-          // Reset the account. Note that due to how the underlying sproc is constructed
-          // the result will always say zero rows were effected, so we don't even bother
-          // checking it.
           await Account.reset({
             uid: account.uid,
             verifyHash: ONES.toString('hex'),
@@ -855,35 +685,23 @@ export class AccountResolver {
             verifierVersion: 1,
           });
 
-          // Look up emails... And send out noticies
           account.emails = await Email.findByUid(account.uid);
           await this.emailService.sendPasswordChangeRequired(account);
 
-          // Record a security event noting this transaction.
           await this.recordAdminSecurityEvent(
             account.uid,
-            'account.must_reset',
-            ctx
+            'account.must_reset' as SecurityEventNames,
+            req
           );
 
-          // Add account to status list
-          status.push({
-            locator,
-            status: AccountResetStatus.Success,
-          });
+          status.push({ locator, status: AccountResetStatus.Success });
         } catch (err) {
           Sentry.captureException(err);
-
-          status.push({
-            locator,
-            status: AccountResetStatus.Failure,
-          });
+          status.push({ locator, status: AccountResetStatus.Failure });
         }
       }
     }
 
-    // Finally, Send an email to the SRE or support agent that initiated this job.
-    // Don't let a failure here crash the request, since in practice it's not that important.
     if (notificationEmail) {
       try {
         await this.emailService.sendPasswordResetNotification(
@@ -896,5 +714,176 @@ export class AccountResolver {
     }
 
     return status;
+  }
+
+  // ─── Field resolver helpers (public so integration tests can call them) ───
+
+  public async emailBounces(account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    const emails = await this.db.emails
+      .query()
+      .select('emails.normalizedEmail')
+      .where('emails.uid', uidBuffer);
+    const result = await this.db.emailBounces
+      .query()
+      .select(...EMAIL_BOUNCE_COLUMNS, 'emailTypes.emailType as templateName')
+      .join('emailTypes', 'emailTypes.id', 'emailBounces.emailTypeId')
+      .where(
+        'emailBounces.email',
+        'in',
+        emails.map((x) => x.normalizedEmail)
+      );
+    return result;
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  public async emails(account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.emails
+      .query()
+      .select(EMAIL_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  public async securityEvents(account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.securityEvents
+      .query()
+      .select(...SECURITY_EVENTS_COLUMNS, 'securityEventNames.name as name')
+      .join(
+        'securityEventNames',
+        'securityEvents.nameId',
+        'securityEventNames.id'
+      )
+      .where('uid', uidBuffer)
+      .limit(10)
+      .orderBy('createdAt', 'DESC');
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  public async accountEvents(account: Account) {
+    const eventsDbRef = this.firestore.collection('fxa-eb-users');
+    const queryResult = await eventsDbRef
+      .doc(account.uid)
+      .collection('events')
+      .orderBy('createdAt', 'desc')
+      .limit(100)
+      .get();
+
+    return queryResult.docs.map((doc) => doc.data() as AccountEventType);
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  public async totp(account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.totp
+      .query()
+      .select(TOTP_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  public async recoveryKeys(account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.recoveryKeys
+      .query()
+      .select(RECOVERYKEY_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  public async subscriptions(account: Account) {
+    return await this.subscriptionsService.getSubscriptions(account.uid);
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  public async carts(account: Account) {
+    return await this.cartManager.fetchCartsByUid(account.uid);
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  public async backupCodes(account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    const result = await this.db.recoveryCodes
+      .query()
+      .where('uid', uidBuffer)
+      .resultSize();
+
+    return [
+      {
+        hasBackupCodes: result > 0,
+        count: result,
+      },
+    ];
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  public async recoveryPhone(account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    const result = await this.db.recoveryPhones
+      .query()
+      .select(RECOVERYPHONES_COLUMNS)
+      .where('uid', uidBuffer);
+
+    return [
+      {
+        exists: result.length > 0,
+        lastFourDigits:
+          result[0] && result[0].phoneNumber
+            ? result[0].phoneNumber.slice(-4)
+            : undefined,
+      },
+    ];
+  }
+
+  public async linkedAccounts(account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.linkedAccounts
+      .query()
+      .select(LINKEDACCOUNT_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @Features(AdminPanelFeature.ConnectedServices)
+  public async attachedClients(account: Account) {
+    const clientFormatter = new ClientFormatter(
+      this.clientFormatterConfig,
+      () => this.log
+    );
+
+    const factory = new ConnectedServicesFactory({
+      formatLocation: (...args) => {
+        clientFormatter.formatLocation(...args);
+      },
+      formatTimestamps: (...args) => {
+        clientFormatter.formatTimestamps(...args);
+      },
+      deviceList: async () => {
+        return this.db.attachedDevices(account.uid);
+      },
+      oauthClients: async () => {
+        return await this.db.authorizedClients(account.uid);
+      },
+      sessions: async () => {
+        return (await this.db.attachedSessions(account.uid)).map(
+          (x: SessionToken) => {
+            const token = x;
+            if (!x.id) {
+              x.id = 'Unknown';
+            }
+            return token as AttachedSession;
+          }
+        );
+      },
+    });
+
+    return (await factory.build('', 'en'))
+      .sort((a, b) => (b.lastAccessTime || 0) - (a.lastAccessTime || 0))
+      .map((x) => {
+        if (x.sessionTokenId) x.sessionTokenId = '[REDACTED]';
+        if (x.refreshTokenId) x.refreshTokenId = '[REDACTED]';
+        return x;
+      });
   }
 }

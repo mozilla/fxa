@@ -2,19 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import { useLazyQuery, ApolloError } from '@apollo/client';
+import React, { useState, useCallback } from 'react';
 import Account from './Account';
-import { Account as AccountType } from 'fxa-admin-server/src/graphql';
+import { Account as AccountType } from 'fxa-admin-server/src/types';
 import iconSearch from '../../images/icon-search.svg';
 import ErrorAlert from '../ErrorAlert';
-import {
-  GET_ACCOUNT_BY_EMAIL,
-  GET_ACCOUNT_BY_UID,
-  GET_EMAILS_LIKE,
-  GET_ACCOUNT_BY_RECOVERY_PHONE,
-  GET_RECOVERY_PHONES_LIKE,
-} from './index.gql';
+import { adminApi } from '../../lib/api';
 
 function validateUID(uid: string) {
   // checks if input string is in uid format (hex, 32 digit)
@@ -23,99 +16,132 @@ function validateUID(uid: string) {
 
 type SearchType = 'email' | 'uid' | 'recoveryPhone';
 
+type SearchData = {
+  accountByEmail?: AccountType | null;
+  accountByUid?: AccountType | null;
+  accountByRecoveryPhone?: AccountType[];
+};
+
 export const AccountSearch = () => {
   const [showResult, setShowResult] = useState<boolean>(false);
   const [showSuggestion, setShowSuggestion] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>('');
   const [selectedSuggestion, setSelectedSuggestion] = useState<string>('');
-
-  // define two queries to search by either email or uid.
-  const [getAccountByEmail, emailResults] = useLazyQuery(GET_ACCOUNT_BY_EMAIL);
-  const [getAccountByUID, uidResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
-  const [getAccountByRecoveryPhone, recoveryPhoneResults] = useLazyQuery(
-    GET_ACCOUNT_BY_RECOVERY_PHONE
-  );
-  // choose which query result to show based on type of query made
   const [searchType, setSearchType] = useState<SearchType | null>(null);
-  const queryResults =
-    searchType === 'email' && showResult
-      ? emailResults
-      : searchType === 'recoveryPhone' && showResult
-        ? recoveryPhoneResults
-        : uidResults;
-  const [getEmailLike, { data: returnedEmails }] =
-    useLazyQuery(GET_EMAILS_LIKE);
-  const [getRecoveryPhonesLike, { data: returnedPhones }] = useLazyQuery(
-    GET_RECOVERY_PHONES_LIKE
+  const [lastQuery, setLastQuery] = useState<string>('');
+
+  // Search result state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | undefined>();
+  const [searchData, setSearchData] = useState<SearchData | undefined>();
+
+  // Autocomplete state
+  const [returnedEmails, setReturnedEmails] = useState<{ email: string }[]>([]);
+  const [returnedPhones, setReturnedPhones] = useState<
+    { phoneNumber: string }[]
+  >([]);
+
+  const runSearch = useCallback(
+    async (query: string, type: SearchType, autoCompleted: boolean) => {
+      setLoading(true);
+      setError(undefined);
+      try {
+        if (type === 'uid') {
+          const account = await adminApi.getAccountByUid(query);
+          setSearchData({ accountByUid: account });
+        } else if (type === 'email') {
+          const account = await adminApi.getAccountByEmail(
+            query,
+            autoCompleted
+          );
+          setSearchData({ accountByEmail: account });
+        } else if (type === 'recoveryPhone') {
+          const accounts = await adminApi.getAccountByPhone(
+            query,
+            autoCompleted
+          );
+          setSearchData({ accountByRecoveryPhone: accounts });
+        }
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
   );
+
+  const onCleared = useCallback(() => {
+    if (searchType && lastQuery) {
+      runSearch(lastQuery, searchType, false);
+    }
+  }, [searchType, lastQuery, runSearch]);
 
   const handleSubmit = (event: React.FormEvent) => {
     const trimmedSearchInput = searchInput.trim();
     event.preventDefault();
     const isUID = validateUID(trimmedSearchInput);
 
-    // choose correct query if email or uid
+    let type: SearchType;
+    let query: string;
+    let autoCompleted: boolean;
+
     if (isUID) {
-      // uid and non-empty
-      getAccountByUID({
-        variables: { uid: trimmedSearchInput, autoCompleted: false },
-      });
-      setSearchType('uid');
-      setShowResult(true);
+      type = 'uid';
+      query = trimmedSearchInput;
+      autoCompleted = false;
     } else if (
       !isUID &&
       trimmedSearchInput.search('@') !== -1 &&
       trimmedSearchInput !== ''
     ) {
-      // assume email if not uid and non-empty; must at least have '@'
-      getAccountByEmail({
-        variables: {
-          email: trimmedSearchInput,
-          autoCompleted: selectedSuggestion === trimmedSearchInput,
-        },
-      });
-      setSearchType('email');
-      setShowResult(true);
+      type = 'email';
+      query = trimmedSearchInput;
+      autoCompleted = selectedSuggestion === trimmedSearchInput;
     } else if (/^\+?[1-9]\d{1,14}$/.test(trimmedSearchInput)) {
-      // Check if input is a valid phone number
-      getAccountByRecoveryPhone({
-        variables: {
-          phoneNumber: trimmedSearchInput,
-          autoCompleted: selectedSuggestion === trimmedSearchInput,
-        },
-      });
-      setSearchType('recoveryPhone');
-      setShowResult(true);
+      type = 'recoveryPhone';
+      query = trimmedSearchInput;
+      autoCompleted = selectedSuggestion === trimmedSearchInput;
     } else {
       window.alert('Invalid email, UID, or phone number format');
+      return;
     }
+
+    setSearchType(type);
+    setLastQuery(query);
+    setShowResult(true);
+    runSearch(query, type, autoCompleted);
   };
 
   const filteredEmailList: string[] =
     returnedEmails != null && showSuggestion
-      ? returnedEmails.getEmailsLike.map(
-          (item: { email: string }) => item.email
-        )
+      ? returnedEmails.map((item) => item.email)
       : [];
 
   const filteredPhoneList: string[] =
     returnedPhones && showSuggestion
-      ? returnedPhones.getRecoveryPhonesLike.map(
-          (item: { phoneNumber: string }) => item.phoneNumber
-        )
+      ? returnedPhones.map((item) => item.phoneNumber)
       : [];
 
   const suggestions = [...filteredEmailList, ...filteredPhoneList];
 
-  const onTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onTextChanged = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.trim();
 
     if (value.length < 5) {
       setShowSuggestion(false);
-    } else if (value.length >= 5) {
-      getEmailLike({ variables: { search: value.trim() } });
-      getRecoveryPhonesLike({ variables: { search: value.trim() } });
+      setReturnedEmails([]);
+      setReturnedPhones([]);
+    } else {
       setShowSuggestion(true);
+      try {
+        const [emails, phones] = await Promise.all([
+          adminApi.getEmailsLike(value),
+          adminApi.getPhonesLike(value),
+        ]);
+        setReturnedEmails(emails);
+        setReturnedPhones(phones);
+      } catch {}
     }
   };
 
@@ -216,13 +242,13 @@ export const AccountSearch = () => {
         </div>
       </form>
 
-      {showResult && queryResults.refetch ? (
+      {showResult ? (
         <AccountSearchResult
-          onCleared={queryResults.refetch}
+          onCleared={onCleared}
           {...{
-            loading: queryResults.loading,
-            error: queryResults.error,
-            data: queryResults.data,
+            loading,
+            error,
+            data: searchData,
             query: searchInput.trim(),
           }}
         />
@@ -240,12 +266,8 @@ const AccountSearchResult = ({
 }: {
   onCleared: () => void;
   loading: boolean;
-  error?: ApolloError;
-  data?: {
-    accountByEmail: AccountType;
-    accountByUid: AccountType;
-    accountByRecoveryPhone: AccountType[];
-  };
+  error?: Error;
+  data?: SearchData;
   query: string;
 }) => {
   if (loading)

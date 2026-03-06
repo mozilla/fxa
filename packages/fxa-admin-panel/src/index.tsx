@@ -4,35 +4,16 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { ApolloProvider } from '@apollo/client';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
-import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
 import sentryMetrics from 'fxa-shared/sentry/browser';
-import { config, readConfigFromMeta, getExtraHeaders } from './lib/config';
+import { config, readConfigFromMeta } from './lib/config';
 import App from './App';
 import './styles/tailwind.out.css';
 
 try {
   // Watch out! This mutates the config. Make sure it gets run first!
   readConfigFromMeta(headQuerySelector);
-
-  const httpLink = createHttpLink({
-    uri: `${config.servers.admin.url}/graphql`,
-  });
-
-  const authLink = setContext((_, { headers }) => ({
-    headers: {
-      ...headers,
-      ...getExtraHeaders(config),
-    },
-  }));
-
-  const client = new ApolloClient({
-    link: authLink.concat(httpLink),
-    cache: new InMemoryCache(),
-  });
 
   sentryMetrics.configure({
     release: config.version,
@@ -48,11 +29,9 @@ try {
     //        why strict mode now appears to be breaking queries.
     // <React.StrictMode>
     <AppErrorBoundary>
-      <ApolloProvider {...{ client }}>
-        <AppLocalizationProvider>
-          <App {...{ config }} />
-        </AppLocalizationProvider>
-      </ApolloProvider>
+      <AppLocalizationProvider>
+        <App {...{ config }} />
+      </AppLocalizationProvider>
     </AppErrorBoundary>
     // </React.StrictMode>
   );

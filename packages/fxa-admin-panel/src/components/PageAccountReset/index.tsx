@@ -3,8 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
-import { ACCOUNT_RESET_MUTATION, AccountResetResult } from './index.gql';
+import { adminApi } from '../../lib/api';
+import { AccountResetResponse } from 'fxa-admin-server/src/types';
+
+export type AccountResetResult = {
+  locator: string;
+  status: string;
+};
 
 export const AccountResetResults = ({
   list,
@@ -35,7 +40,6 @@ export const AccountResetResults = ({
 export const PageAccountReset = () => {
   const [inProgress, setInProgress] = useState(false);
   const [results, setResults] = useState<Array<AccountResetResult>>([]);
-  const [resetAccountMutation] = useMutation(ACCOUNT_RESET_MUTATION);
 
   const saveButtonClass = () => {
     const base =
@@ -68,14 +72,16 @@ export const PageAccountReset = () => {
         return;
       }
 
-      const result = await resetAccountMutation({
-        variables: {
-          locators: list,
-          notificationEmail,
-        },
-      });
-
-      setResults(result.data?.resetAccounts || []);
+      const apiResults: AccountResetResponse[] = await adminApi.resetAccounts(
+        list,
+        notificationEmail
+      );
+      setResults(
+        apiResults.map((r) => ({
+          locator: r.locator,
+          status: r.status,
+        }))
+      );
     } finally {
       setInProgress(false);
     }
