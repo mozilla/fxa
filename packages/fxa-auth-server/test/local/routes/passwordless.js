@@ -401,12 +401,20 @@ describe('/account/passwordless/confirm_code', () => {
     );
   });
 
-  it('should reject account with TOTP enabled', () => {
+  it('should return unverified session with verificationMethod for TOTP accounts', () => {
     mockDB.accountRecord = sinon.spy(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
         verifierSetAt: 0,
+      })
+    );
+    mockDB.createSessionToken = sinon.spy(() =>
+      Promise.resolve({
+        data: 'sessiontoken123',
+        emailVerified: true,
+        tokenVerified: false,
+        lastAuthAt: () => Date.now(),
       })
     );
 
@@ -428,14 +436,19 @@ describe('/account/passwordless/confirm_code', () => {
     });
     route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
 
-    return runTest(route, mockRequest).then(
-      () => assert.fail('should have thrown'),
-      (err) => {
-        assert.equal(hasTotpToken.callCount, 1);
-        assert.equal(mockOtpManagerIsValid.callCount, 0);
-        assert.equal(err.errno, 160);
-      }
-    );
+    return runTest(route, mockRequest).then((result) => {
+      assert.equal(hasTotpToken.callCount, 1);
+      assert.equal(mockOtpManagerIsValid.callCount, 1);
+      assert.equal(mockOtpManagerDelete.callCount, 1);
+      assert.equal(result.verified, false);
+      assert.equal(result.verificationMethod, 'totp-2fa');
+      assert.equal(result.verificationReason, 'login');
+      assert.equal(result.sessionToken, 'sessiontoken123');
+      // Session should be created with mustVerify=true
+      const sessionTokenArgs = mockDB.createSessionToken.args[0][0];
+      assert.equal(sessionTokenArgs.mustVerify, true);
+      assert.ok(sessionTokenArgs.tokenVerificationId);
+    });
   });
 
   it('should reject account with password set', () => {

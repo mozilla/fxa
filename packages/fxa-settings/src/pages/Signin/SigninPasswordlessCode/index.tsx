@@ -150,13 +150,14 @@ const SigninPasswordlessCode = ({
       try {
         const result = await authClient.passwordlessConfirmCode(email, code, { clientId: integration.getClientId() });
 
+        const isSessionVerified = result.verified && !result.verificationMethod;
         storeAccountData({
           sessionToken: result.sessionToken,
           email,
           uid: result.uid,
           // Update verification status of stored current account
-          verified: true,
-          sessionVerified: true,
+          verified: isSessionVerified,
+          sessionVerified: isSessionVerified,
         });
 
         // For flows that need encryption keys, redirect to set password page
@@ -258,8 +259,14 @@ const SigninPasswordlessCode = ({
             signinData: {
               uid: result.uid,
               sessionToken: result.sessionToken,
-              emailVerified: result.verified,
-              sessionVerified: result.verified,
+              emailVerified: true,
+              sessionVerified: isSessionVerified,
+              ...(result.verificationMethod && {
+                verificationMethod: result.verificationMethod as any,
+              }),
+              ...(result.verificationReason && {
+                verificationReason: result.verificationReason as any,
+              }),
             },
             integration,
             finishOAuthFlowHandler,
@@ -271,7 +278,7 @@ const SigninPasswordlessCode = ({
             handleFxaLogin: true,
             handleFxaOAuthLogin: true,
             performNavigation: !(
-              integration.isFirefoxMobileClient() && result.verified
+              integration.isFirefoxMobileClient() && isSessionVerified
             ),
           }
           const { error: navError } = await handleNavigation(navigationOptions);
@@ -282,30 +289,6 @@ const SigninPasswordlessCode = ({
           }
         };
       } catch (error: any) {
-        // If account has 2FA enabled, redirect to password signin flow
-        // User must use password + TOTP for security
-        if (error.errno === AuthUiErrors.TOTP_REQUIRED.errno) {
-          const signinRoute = location.pathname.startsWith('/oauth')
-            ? '/oauth/signin'
-            : '/signin';
-          navigateWithQuery(signinRoute, {
-            replace: true,
-            state: {
-              email,
-              // Show message explaining why they need to use password
-              // Note: key is localizedErrorMessage (aliased to localizedErrorFromLocationState in container)
-              localizedErrorMessage: ftlMsgResolver.getMsg(
-                'signin-passwordless-totp-required',
-                'Two-step authentication is enabled on your account. Please sign in with your password.'
-              ),
-              // Prevent signin container from redirecting back to passwordless
-              // even though account is passwordless-eligible (no password + TOTP)
-              skipPasswordlessRedirect: true,
-            },
-          });
-          return;
-        }
-
         const localizedErrorMessage = getLocalizedErrorMessage(
           ftlMsgResolver,
           error

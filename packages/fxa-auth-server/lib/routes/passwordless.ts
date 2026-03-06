@@ -198,18 +198,6 @@ class PasswordlessHandler {
       throw error.cannotCreatePassword();
     }
 
-    // Check if account has 2FA (TOTP) enabled
-    // Accounts with 2FA must use the password + TOTP flow for security
-    if (account) {
-      const hasTotpToken = await this.otpUtils.hasTotpToken(account);
-      if (hasTotpToken) {
-        this.log.info('passwordless.confirmCode.totpRequired', {
-          uid: account.uid,
-        });
-        throw error.totpRequired();
-      }
-    }
-
     // Verify OTP
     const otpKey = account ? account.uid : email;
     const isValidCode = await this.otpManager.isValid(otpKey, code);
@@ -227,6 +215,18 @@ class PasswordlessHandler {
     // Delete OTP (single use)
     await this.otpManager.delete(otpKey);
 
+    // Check if account has 2FA (TOTP) enabled
+    // If so, create an unverified session that requires TOTP verification
+    let hasTotpToken = false;
+    if (account) {
+      hasTotpToken = await this.otpUtils.hasTotpToken(account);
+      if (hasTotpToken) {
+        this.log.info('passwordless.confirmCode.totpRequired', {
+          uid: account.uid,
+        });
+      }
+    }
+
     // Create account if new
     if (isNewAccount) {
       account = await this.createPasswordlessAccount(email, request);
@@ -239,8 +239,16 @@ class PasswordlessHandler {
       });
     }
 
-    // Create session token
-    const sessionToken = await this.createSessionToken(account, request);
+    // Create session token - if TOTP is enabled, session requires TOTP verification
+    const tokenVerificationId = hasTotpToken
+      ? await random.hex(16)
+      : null;
+    const sessionToken = await this.createSessionToken(
+      account,
+      request,
+      hasTotpToken,
+      tokenVerificationId
+    );
 
     this.statsd.increment('passwordless.confirmCode.success');
 
@@ -250,13 +258,20 @@ class PasswordlessHandler {
       account: { uid: account.uid },
     });
 
-    return {
+    const response: Record<string, any> = {
       uid: account.uid,
       sessionToken: sessionToken.data,
       verified: sessionToken.emailVerified && sessionToken.tokenVerified,
       authAt: sessionToken.lastAuthAt(),
       isNewAccount,
     };
+
+    if (hasTotpToken) {
+      response.verificationMethod = 'totp-2fa';
+      response.verificationReason = 'login';
+    }
+
+    return response;
   }
 
   /**
@@ -432,7 +447,9 @@ class PasswordlessHandler {
    */
   private async createSessionToken(
     account: any,
-    request: AuthRequest
+    request: AuthRequest,
+    mustVerify: boolean = false,
+    tokenVerificationId: string | null = null
   ): Promise<any> {
     const sessionTokenOptions = {
       uid: account.uid,
@@ -440,8 +457,8 @@ class PasswordlessHandler {
       emailCode: account.emailCode,
       emailVerified: true,
       verifierSetAt: account.verifierSetAt,
-      mustVerify: false,
-      tokenVerificationId: null, // Already verified via OTP
+      mustVerify,
+      tokenVerificationId,
       uaBrowser: request.app.ua.browser,
       uaBrowserVersion: request.app.ua.browserVersion,
       uaOS: request.app.ua.os,
@@ -533,6 +550,14 @@ export function passwordlessRoutes(
             verified: isA.boolean().required(),
             authAt: isA.number().required(),
             isNewAccount: isA.boolean().required(),
+            verificationMethod: isA
+              .string()
+              .valid('totp-2fa')
+              .optional(),
+            verificationReason: isA
+              .string()
+              .valid('login')
+              .optional(),
           }),
         },
       },

@@ -443,8 +443,10 @@ export class TestAccountTracker {
    * Uses the passwordless API to get a session token, then creates a password.
    * If the password is already set (e.g., user set it during test via UI), this is a no-op.
    *
-   * For accounts with TOTP enabled, passwordless API returns TOTP_REQUIRED.
-   * In that case, we use the preserved session token if available.
+   * For accounts with TOTP enabled, the passwordless API returns an unverified
+   * session (verificationMethod: 'totp-2fa'). In that case, we verify TOTP
+   * to elevate to AAL2 before creating the password, or fall back to
+   * the preserved session token if available.
    */
   private async setupPasswordForPasswordlessAccount(
     account: AccountDetails
@@ -469,9 +471,27 @@ export class TestAccountTracker {
         }
       );
 
+      let sessionToken = result.sessionToken;
+
+      // If account has TOTP, session is unverified - need to verify TOTP first
+      if (result.verificationMethod === 'totp-2fa' && account.secret) {
+        const { getTotpCode } = require('./totp');
+        const totpCode = await getTotpCode(account.secret);
+        await this.target.authClient.verifyTotpCode(sessionToken, totpCode);
+        console.log(
+          `Verified TOTP for ${account.email} during cleanup`
+        );
+      } else if (result.verificationMethod === 'totp-2fa' && account.sessionToken) {
+        // Fall back to preserved session token if no TOTP secret available
+        console.log(
+          `Using preserved session token for ${account.email} (no TOTP secret)`
+        );
+        sessionToken = account.sessionToken;
+      }
+
       // Create password using the session token
       await this.target.authClient.createPassword(
-        result.sessionToken,
+        sessionToken,
         account.email,
         account.password
       );
@@ -485,37 +505,6 @@ export class TestAccountTracker {
         console.log(
           `Password already set for ${account.email}, proceeding with cleanup`
         );
-      } else if (error.errno === 160) {
-        // TOTP_REQUIRED - account has 2FA enabled, can't use passwordless
-        // Try to use preserved session token if available
-        if (account.sessionToken) {
-          console.log(
-            `TOTP_REQUIRED for ${account.email}, using preserved session token`
-          );
-          try {
-            await this.target.authClient.createPassword(
-              account.sessionToken,
-              account.email,
-              account.password
-            );
-          } catch (pwdError: any) {
-            if (
-              pwdError.message?.includes('password already set') ||
-              pwdError.errno === 148
-            ) {
-              console.log(
-                `Password already set for ${account.email}, proceeding with cleanup`
-              );
-            } else {
-              throw pwdError;
-            }
-          }
-        } else {
-          throw new Error(
-            `Cannot set password for ${account.email}: TOTP is enabled and no session token was preserved. ` +
-              `Store the sessionToken from signUpPasswordless in the account for cleanup.`
-          );
-        }
       } else {
         throw error;
       }

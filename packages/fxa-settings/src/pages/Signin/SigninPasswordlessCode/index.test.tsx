@@ -359,22 +359,30 @@ describe('SigninPasswordlessCode page', () => {
       );
     });
 
-    it('redirects to password signin if TOTP is required', async () => {
-      mockAuthClient.passwordlessConfirmCode = jest
-        .fn()
-        .mockRejectedValue(AuthUiErrors.TOTP_REQUIRED);
+    it('navigates to TOTP code page when account has 2FA', async () => {
+      const mockNavigateModule = jest.requireMock('@reach/router');
+      mockAuthClient.passwordlessConfirmCode = jest.fn().mockResolvedValue({
+        uid: MOCK_UID,
+        sessionToken: MOCK_SESSION_TOKEN,
+        verified: false,
+        authAt: Date.now(),
+        verificationMethod: 'totp-2fa',
+        verificationReason: 'login',
+      });
 
-      render();
+      render({ isSignup: false });
       await submitCode();
 
       await waitFor(() => {
-        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
-          '/signin',
+        expect(mockNavigateModule.navigate).toHaveBeenCalledWith(
+          '/signin_totp_code',
           expect.objectContaining({
-            replace: true,
             state: expect.objectContaining({
               email: MOCK_EMAIL,
-              skipPasswordlessRedirect: true,
+              sessionToken: MOCK_SESSION_TOKEN,
+              uid: MOCK_UID,
+              sessionVerified: false,
+              verificationMethod: 'totp-2fa',
             }),
           })
         );

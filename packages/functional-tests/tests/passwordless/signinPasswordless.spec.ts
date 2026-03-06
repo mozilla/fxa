@@ -130,16 +130,15 @@ test.describe('severity-1 #smoke', () => {
         await expect(page).not.toHaveURL(/signin_passwordless_code/);
       });
 
-      test('passwordless - account with 2FA redirected to password signin', async ({
+      test('passwordless - account with 2FA proceeds to TOTP verification', async ({
         target,
-        pages: { page, signin, relier, signinPasswordlessCode },
+        pages: { page, signin, relier, signinPasswordlessCode, signinTotpCode },
         testAccountTracker,
       }) => {
-        // This test verifies that accounts with 2FA enabled cannot use passwordless flow
-        // and are redirected to password signin with an appropriate error message.
+        // Passwordless users with 2FA should be able to sign in via OTP,
+        // then be prompted for their TOTP code (not told to use a password).
         //
-        // Setup creates an edge case: passwordless account (no password) + TOTP enabled
-        // This is possible if user signs up passwordless, then adds 2FA before setting a password
+        // Flow: enter email → OTP code → TOTP code → logged in
 
         // Create passwordless account via API - get session token for TOTP setup
         const { email, sessionToken } =
@@ -150,7 +149,6 @@ test.describe('severity-1 #smoke', () => {
         const password = account?.password || '';
 
         // Set up TOTP via API using the passwordless session token
-        // Note: MFA guard uses email verification, not password, so this works
         const { secret } = await target.authClient.createTotpToken(
           sessionToken,
           {}
@@ -162,8 +160,6 @@ test.describe('severity-1 #smoke', () => {
         await target.authClient.completeTotpSetup(sessionToken);
 
         // Store secret and sessionToken in account for cleanup
-        // - secret: for elevating to AAL2 and deleting TOTP
-        // - sessionToken: for setting password if test fails before explicit cleanup
         if (account) {
           (account as any).secret = secret;
           (account as any).sessionToken = sessionToken;
@@ -180,22 +176,45 @@ test.describe('severity-1 #smoke', () => {
         // Should redirect to passwordless code page
         await expect(page).toHaveURL(/signin_passwordless_code/);
 
-        // Get OTP code and enter it - this should trigger TOTP_REQUIRED error
+        // Get OTP code and enter it
         const passwordlessCode =
           await target.emailClient.getPasswordlessSigninCode(email);
         await signinPasswordlessCode.fillOutCodeForm(passwordlessCode);
 
-        // Should redirect to /signin with error message about 2FA
-        await expect(page).toHaveURL(/\/signin/);
+        // Should redirect to TOTP code entry page (not password signin)
+        await expect(page).toHaveURL(/signin_totp_code/);
 
-        // The error banner should show the 2FA message
-        await expect(
-          page.getByText(/Two-step authentication is enabled on your account/i)
-        ).toBeVisible();
+        // Enter the TOTP code
+        const newTotpCode = await getTotpCode(secret);
+        await signinTotpCode.fillOutCodeForm(newTotpCode);
+
+        // Should complete OAuth and redirect to RP
+        expect(await relier.isLoggedIn()).toBe(true);
 
         // Cleanup: Set password so testAccountTracker can sign in and destroy
-        // Use the preserved session token to create password before cleanup
-        await target.authClient.createPassword(sessionToken, email, password);
+        // Re-authenticate to get a fresh session since the old one may be stale
+        await target.authClient.passwordlessSendCode(email, {
+          clientId: 'dcdb5ae7add825d2',
+        });
+        const cleanupCode =
+          await target.emailClient.getPasswordlessSigninCode(email);
+        const cleanupResult =
+          await target.authClient.passwordlessConfirmCode(
+            email,
+            cleanupCode,
+            { clientId: 'dcdb5ae7add825d2' }
+          );
+        // Elevate to AAL2 for password creation
+        const cleanupTotpCode = await getTotpCode(secret);
+        await target.authClient.verifyTotpCode(
+          cleanupResult.sessionToken,
+          cleanupTotpCode
+        );
+        await target.authClient.createPassword(
+          cleanupResult.sessionToken,
+          email,
+          password
+        );
 
         // Mark account as no longer passwordless
         if (account) {
