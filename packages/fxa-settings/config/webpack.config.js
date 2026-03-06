@@ -359,6 +359,10 @@ module.exports = function (webpackEnv) {
           'scheduler/tracing': 'scheduler/tracing-profiling',
         }),
         fxaCryptoDeriver: require.resolve('@fxa/vendored/crypto-relier/esm'),
+        '@fxa/shared/l10n': path.resolve(
+          __dirname,
+          '../../../libs/shared/l10n/src'
+        ),
         ...(modules.webpackAliases || {}),
       },
       plugins: [

@@ -14,6 +14,7 @@ export const MOCK_DEFAULTS = {
 
 export const MOCK_BASIC_PROPS = {
   ...MOCK_DEFAULTS,
+  forceView: true,
   showSuccessMessage: true,
   isSignedIn: true,
   canSignIn: false,
@@ -22,6 +23,7 @@ export const MOCK_BASIC_PROPS = {
 export const MOCK_DEVICE_BASIC_PROPS = {
   email: MOCK_ACCOUNT.primaryEmail.email,
   entrypoint: ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT,
+  forceView: true,
   showSuccessMessage: true,
   isSignIn: false,
   isSignUp: true,

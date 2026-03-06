@@ -15,11 +15,13 @@ import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../../../src/constants';
 import { HeartsVerifiedImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
 import Banner from '../../../components/Banner';
+import { getBasicAccountData } from '../../../lib/account-storage';
+import { Constants } from '../../../lib/constants';
 
 type PairProps = {
   error?: string;
   entryPoint?: ENTRYPOINTS;
-  onSubmit: Function; // navigates to `about:preferences` whatever the given broker does that.
+  onSubmit?: Function; // navigates to `about:preferences` whatever the given broker does that.
 };
 export const viewName = 'pair';
 
@@ -38,29 +40,50 @@ const Pair = ({
   // TODO: Recreate the QR code logic which previously existed in the content-server.
   // Probably after that we can remove the fallback styles for the QR code div.
 
-  // TODO: check if we are either using Firefox Desktop ,or if the UA has the `supportPairing` capability
-  const isSupported = () => true;
+  const accountData = getBasicAccountData();
 
-  // TODO: get the account and check if it is the default account.
-  const isDefaultAccount = () => false;
+  // Check if we are using Firefox Desktop (pairing is only supported there).
+  // Matches Backbone's `uap.isFirefoxDesktop()` check.
+  const isSupported = () => {
+    const ua = navigator.userAgent;
+    return /Firefox/i.test(ua) && !/FxiOS/i.test(ua) && !/Android/i.test(ua);
+  };
 
-  // TODO: check if the account is either not verified, or has a falsy value for session token.
-  const accountIsNotVerifiedOrHasNoSessionToken = () => false;
+  // Check if the user has no signed-in account (equivalent to Backbone's `account.isDefault()`).
+  // A "default" account in Backbone means no real user is signed in.
+  const isDefaultAccount = () => !accountData;
+
+  // Check if the account exists but is not verified or is missing a session token.
+  const accountIsNotVerifiedOrHasNoSessionToken = () =>
+    !!accountData && (!accountData.verified || !accountData.sessionToken);
 
   useEffect(() => {
-    // This will just run at page load.
+    // Matches Backbone's beforeRender sequence. Only the first matching
+    // redirect should fire, so we return after each to prevent cascading.
     if (!isSupported()) {
       navigateWithQuery('/pair/unsupported');
+      return;
     }
     if (isDefaultAccount()) {
-      // we have historically needed the "forceView" option to prevent a loop of redirects.
+      // We are not logged into Sync — offer to connect.
+      // The forceView flag prevents a redirect loop between /pair and CAD.
       navigateWithQuery('/connect_another_device', {
         state: { forceView: true },
       });
+      return;
     }
     if (accountIsNotVerifiedOrHasNoSessionToken()) {
-      navigateWithQuery('/signin');
+      // Build a proper Sync-context signin URL matching Backbone's
+      // getEscapedSyncUrl('signin', 'fxa:pair').
+      const params = new URLSearchParams({
+        context: Constants.FX_DESKTOP_V3_CONTEXT,
+        entrypoint: 'fxa:pair',
+        service: Constants.SYNC_SERVICE,
+      });
+      navigateWithQuery(`/signin?${params}`);
+      return;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigateWithQuery]);
 
   const showQRCode =
@@ -102,7 +125,7 @@ const Pair = ({
                   className="cta-primary cta-xl"
                   type="button"
                   onClick={() => {
-                    onSubmit();
+                    onSubmit?.();
                   }}
                 >
                   Sync your device
@@ -167,7 +190,7 @@ const Pair = ({
               <FtlMsg id="pair-get-started-button">
                 <button
                   className="cta-primary cta-xl"
-                  onClick={() => onSubmit()}
+                  onClick={() => onSubmit?.()}
                   type="button"
                 >
                   Get started

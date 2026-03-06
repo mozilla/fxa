@@ -26,6 +26,13 @@ export enum FirefoxCommand {
   OAuthFlowIsActive = 'fxaccounts:oauth_flow_is_active',
   // Start new OAuth flow and get fresh params
   OAuthFlowBegin = 'fxaccounts:oauth_flow_begin',
+
+  // Pairing commands — sent between web page and Firefox browser
+  PairHeartbeat = 'fxaccounts:pair_heartbeat',
+  PairSupplicantMetadata = 'fxaccounts:pair_supplicant_metadata',
+  PairAuthorize = 'fxaccounts:pair_authorize',
+  PairDecline = 'fxaccounts:pair_decline',
+  PairComplete = 'fxaccounts:pair_complete',
 }
 
 export interface FirefoxMessageDetail {
@@ -154,6 +161,20 @@ type FxACanLinkAccountResponse = {
 
 export type FxAOAuthFlowIsActiveResponse = {
   isActive: boolean;
+};
+
+// Pairing types
+export type PairHeartbeatResponse = {
+  err?: { errno: number; message: string };
+  suppAuthorized?: boolean;
+};
+
+export type PairSupplicantMetadataResponse = {
+  ua: string;
+  city: string;
+  country: string;
+  region: string;
+  ipAddress: string;
 };
 
 export type FxAOAuthFlowBeginResponse = {
@@ -454,6 +475,90 @@ export class Firefox extends EventTarget {
         }, DEFAULT_SEND_TIMEOUT_LENGTH_MS);
       }),
     ]);
+  }
+
+  // Pairing methods
+
+  /** Poll for heartbeat — authority calls this every ~1000ms. */
+  async pairHeartbeat(channelId: string): Promise<PairHeartbeatResponse> {
+    let timeoutId: number;
+    let eventHandler: EventListener | null = null;
+    return Promise.race<PairHeartbeatResponse>([
+      new Promise<PairHeartbeatResponse>((resolve) => {
+        eventHandler = (firefoxEvent: Event) => {
+          clearTimeout(timeoutId);
+          this.removeEventListener(FirefoxCommand.PairHeartbeat, eventHandler!);
+          resolve(
+            (firefoxEvent as CustomEvent).detail as PairHeartbeatResponse
+          );
+        };
+        this.addEventListener(FirefoxCommand.PairHeartbeat, eventHandler);
+        requestAnimationFrame(() => {
+          this.send(FirefoxCommand.PairHeartbeat, { channel_id: channelId });
+        });
+      }),
+      new Promise<PairHeartbeatResponse>((resolve) => {
+        timeoutId = window.setTimeout(() => {
+          if (eventHandler) {
+            this.removeEventListener(
+              FirefoxCommand.PairHeartbeat,
+              eventHandler
+            );
+          }
+          resolve({});
+        }, DEFAULT_SEND_TIMEOUT_LENGTH_MS);
+      }),
+    ]);
+  }
+
+  /** Request supplicant device metadata from browser. */
+  async pairSupplicantMetadata(
+    channelId: string
+  ): Promise<PairSupplicantMetadataResponse> {
+    return new Promise((resolve, reject) => {
+      const timeoutId = window.setTimeout(() => {
+        this.removeEventListener(
+          FirefoxCommand.PairSupplicantMetadata,
+          eventHandler
+        );
+        reject(new Error('pairSupplicantMetadata timed out'));
+      }, 10000);
+
+      const eventHandler = (firefoxEvent: Event) => {
+        clearTimeout(timeoutId);
+        this.removeEventListener(
+          FirefoxCommand.PairSupplicantMetadata,
+          eventHandler
+        );
+        resolve(
+          (firefoxEvent as CustomEvent).detail as PairSupplicantMetadataResponse
+        );
+      };
+      this.addEventListener(
+        FirefoxCommand.PairSupplicantMetadata,
+        eventHandler
+      );
+      requestAnimationFrame(() => {
+        this.send(FirefoxCommand.PairSupplicantMetadata, {
+          channel_id: channelId,
+        });
+      });
+    });
+  }
+
+  /** Notify browser that authority approved the pairing request. */
+  pairAuthorize(channelId: string): void {
+    this.send(FirefoxCommand.PairAuthorize, { channel_id: channelId });
+  }
+
+  /** Notify browser that authority declined the pairing request. */
+  pairDecline(channelId: string): void {
+    this.send(FirefoxCommand.PairDecline, { channel_id: channelId });
+  }
+
+  /** Notify browser that pairing is complete. */
+  pairComplete(channelId: string): void {
+    this.send(FirefoxCommand.PairComplete, { channel_id: channelId });
   }
 
   /*

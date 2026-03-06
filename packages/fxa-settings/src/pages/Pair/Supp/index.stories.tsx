@@ -5,7 +5,6 @@
 import React from 'react';
 import Supp from '.';
 import { Meta } from '@storybook/react';
-import { MOCK_ERROR } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
@@ -15,5 +14,3 @@ export default {
 } as Meta;
 
 export const DefaultLoadingState = () => <Supp />;
-
-export const WithErrorMessage = () => <Supp error={MOCK_ERROR} />;

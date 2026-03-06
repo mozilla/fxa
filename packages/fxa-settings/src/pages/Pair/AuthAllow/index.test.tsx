@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import AuthAllow from '.';
 import {
@@ -14,6 +14,7 @@ import {
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { Integration } from '../../../models/integrations/integration';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -26,6 +27,25 @@ const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('../../../models/integrations/pairing-authority-integration', () => ({
+  PairingAuthorityIntegration: class {
+    validatePairingClient = jest.fn().mockReturnValue(true);
+    getSupplicantMetadata = jest.fn().mockResolvedValue(null);
+    authorize = jest.fn();
+    channelId = 'test-channel';
+  },
+}));
+
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { cadApproveDevice: { submit: jest.fn() } },
 }));
 
 const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
@@ -96,5 +116,65 @@ describe('Pair/AuthAllow page', () => {
       'pair.auth.allow',
       REACT_ENTRYPOINT
     );
+  });
+
+  describe('with PairingAuthorityIntegration', () => {
+    let mockIntegration: {
+      validatePairingClient: jest.Mock;
+      getSupplicantMetadata: jest.Mock;
+      authorize: jest.Mock;
+      channelId: string;
+    };
+
+    beforeEach(() => {
+      const { PairingAuthorityIntegration: PAI } = jest.requireMock(
+        '../../../models/integrations/pairing-authority-integration'
+      );
+      mockIntegration = new PAI();
+      mockNavigateWithQuery.mockClear();
+    });
+
+    it('calls authorize and navigates on submit', () => {
+      renderWithLocalizationProvider(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+          integration={mockIntegration as unknown as Integration}
+        />
+      );
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Yes, approve device' })
+      );
+      expect(mockIntegration.authorize).toHaveBeenCalled();
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+        '/pair/auth/wait_for_supp'
+      );
+    });
+
+    it('shows error when validatePairingClient fails', () => {
+      mockIntegration.validatePairingClient.mockReturnValue(false);
+      renderWithLocalizationProvider(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          integration={mockIntegration as unknown as Integration}
+        />
+      );
+      expect(screen.getByText('Invalid pairing client')).toBeInTheDocument();
+    });
+
+    it('fetches metadata from integration when not provided', async () => {
+      mockIntegration.getSupplicantMetadata.mockResolvedValue(
+        MOCK_METADATA_UNKNOWN_LOCATION
+      );
+      renderWithLocalizationProvider(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          integration={mockIntegration as unknown as Integration}
+        />
+      );
+      await waitFor(() => {
+        expect(screen.getByText('Firefox on macOS')).toBeInTheDocument();
+      });
+    });
   });
 });

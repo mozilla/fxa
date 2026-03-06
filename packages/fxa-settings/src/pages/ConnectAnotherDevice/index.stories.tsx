@@ -27,6 +27,7 @@ export const CanSignInNoSuccessMessage = () => (
       email={MOCK_ACCOUNT.primaryEmail.email}
       entrypoint={ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}
       device={Devices.FIREFOX_DESKTOP}
+      forceView
       showSuccessMessage={false}
       isSignIn={false}
       isSignUp={false}
@@ -49,6 +50,7 @@ export const WithSignupSuccessMessage = () => (
       showSuccessMessage
       isSignedIn={false}
       canSignIn
+      forceView
       {...MOCK_DEFAULTS}
     />
   </AppLayout>
@@ -62,6 +64,7 @@ export const WithSignInSuccessMessage = () => (
       showSuccessMessage
       isSignedIn={false}
       canSignIn
+      forceView
       {...MOCK_DEFAULTS}
     />
   </AppLayout>
