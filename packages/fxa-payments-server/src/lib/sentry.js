@@ -5,11 +5,7 @@
 import Logger from './logger';
 import * as Sentry from '@sentry/browser';
 
-import {
-  tagFxaName,
-  tagCriticalEvent,
-  buildSentryConfig,
-} from 'fxa-shared/sentry';
+import { tagFxaName, buildSentryConfig } from '@fxa/shared/sentry-utils';
 
 /**
  * function that gets called before data gets sent to error metrics
@@ -79,7 +75,6 @@ SentryMetrics.prototype = {
       Sentry.init({
         ...opts,
         beforeSend(event) {
-          event = tagCriticalEvent(event);
           event = tagFxaName(event, opts.clientName);
           return event;
         },

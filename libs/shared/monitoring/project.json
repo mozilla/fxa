@@ -1,29 +1,33 @@
 {
-  "name": "shared-otel",
+  "name": "shared-monitoring",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/otel/src",
+  "sourceRoot": "libs/shared/monitoring/src",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "main": "libs/shared/otel/src/index.ts",
-        "outputPath": "dist/libs/shared/otel",
+        "main": "libs/shared/monitoring/src/index.ts",
+        "outputPath": "dist/libs/shared/monitoring",
         "outputFileName": "main.js",
-        "tsConfig": "libs/shared/otel/tsconfig.lib.json",
+        "tsConfig": "libs/shared/monitoring/tsconfig.lib.json",
         "declaration": true,
+        "external": [
+          "@nestjs/websockets/socket-module",
+          "@nestjs/microservices/microservices-module",
+          "@nestjs/microservices"
+        ],
         "assets": [
           {
-            "glob": "libs/shared/otel/README.md",
+            "glob": "libs/shared/monitoring/README.md",
             "input": ".",
             "output": "."
           }
         ],
-        "platform": "node",
-        "format": ["cjs", "esm"]
+        "platform": "node"
       },
       "configurations": {
         "development": {
@@ -34,20 +38,18 @@
         }
       }
     },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/shared/monitoring/**/*.ts"]
+      }
+    },
     "test-unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/shared/otel/jest.config.ts",
-        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
-      }
-    },
-    "test-integration": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "libs/shared/otel/jest.config.ts",
-        "testPathPattern": ["\\.in\\.spec\\.ts$"]
+        "jestConfig": "libs/shared/monitoring/jest.config.ts"
       }
     }
   }

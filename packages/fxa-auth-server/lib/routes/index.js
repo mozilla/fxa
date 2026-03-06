@@ -5,7 +5,7 @@
 'use strict';
 
 const url = require('url');
-const tracing = require('fxa-shared/tracing/node-tracing');
+const tracing = require('@fxa/shared/otel');
 
 module.exports = function (
   log,

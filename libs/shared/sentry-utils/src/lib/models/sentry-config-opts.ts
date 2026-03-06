@@ -29,6 +29,15 @@ export type SentryConfigOpts = {
 
     /** The tracing sample rate. Setting this above 0 will aso result in performance metrics being captured. */
     tracesSampleRate?: number;
+
+    /** Flag indicating that otel should not be setup. */
+    skipOpenTelemetrySetup?: boolean;
+
+    /** A function that determines the sample rate for a given event. Setting this will override tracesSampleRate. */
+    tracesSampler?: (context: { name?: string }) => number;
+
+    /** A list of errors to ignore. Can be strings, regexes, or functions that take an error and return a boolean. */
+    ignoreErrors?: Array<string | RegExp>;
   };
 };
 
