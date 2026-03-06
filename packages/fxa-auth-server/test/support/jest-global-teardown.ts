@@ -42,8 +42,9 @@ function killProcessByPidFile(pidFile: string, label: string): void {
   } catch (err) {
     console.error(`[Jest Global Teardown] Error cleaning up ${label}:`, err);
   }
+}
 
-  // Clean up version.json if we created it
+function cleanupVersionJson(): void {
   if (fs.existsSync(VERSION_JSON_MARKER)) {
     try { fs.unlinkSync(VERSION_JSON_PATH); } catch { /* ignore */ }
     try { fs.unlinkSync(VERSION_JSON_MARKER); } catch { /* ignore */ }
@@ -72,4 +73,6 @@ export default async function globalTeardown(): Promise<void> {
 
   console.log('[Jest Global Teardown] Stopping mail_helper...');
   killProcessByPidFile(MAIL_HELPER_PID_FILE, 'mail_helper');
+
+  cleanupVersionJson();
 }
