@@ -7,6 +7,7 @@ import { config } from 'apps/payments/next/config';
 import { getMetricsFlowAction } from '@fxa/payments/ui/actions';
 import { ManageParams } from '@fxa/payments/ui';
 import { redirect } from 'next/navigation';
+import { getApp } from '@fxa/payments/ui/server';
 
 export const dynamic = 'force-dynamic'; // defaults to auto
 
@@ -15,6 +16,7 @@ export async function GET(
   { params }: { params: ManageParams }
 ) {
   const requestSearchParams = request.nextUrl.searchParams;
+  const logger = getApp().getLogger();
   const { locale } = params;
 
   const redirectToParam = requestSearchParams.get('redirect_to');
@@ -43,7 +45,7 @@ export async function GET(
       );
     } catch (error) {
       // Prevent error propagation on failed metrics flow fetch
-      console.error(error);
+      logger.error('Failed to fetch metrics flow', { error });
     }
   }
 
@@ -58,7 +60,7 @@ export async function GET(
       { prompt: 'none', return_on_error: 'false' }
     );
   } catch (error) {
-    console.error(error);
+    logger.error('Failed to sign in', { error });
   }
 
   redirect(redirectUrl ?? redirectToUrl.href);

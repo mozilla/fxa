@@ -6,7 +6,8 @@ import * as crypto from 'crypto';
 import type { OperationVariables } from '@apollo/client';
 import { Firestore } from '@google-cloud/firestore';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 import cacheManager, { Cacheable, CacheClear } from '@type-cacheable/core';
 import EventEmitter from 'events';
 import { GraphQLClient } from 'graphql-request';
@@ -61,7 +62,8 @@ export class StrapiClient {
 
   constructor(
     private strapiClientConfig: StrapiClientConfig,
-    @Inject(FirestoreService) private firestore: Firestore
+    @Inject(FirestoreService) private firestore: Firestore,
+    @Inject(Logger) private log: LoggerService
   ) {
     this.client = new GraphQLClient(this.strapiClientConfig.graphqlApiUri, {
       headers: {
@@ -100,7 +102,6 @@ export class StrapiClient {
     strategy: (args: any, context: StrapiClient) =>
       new CacheFirstStrategy(
         (err) => {
-          console.error(err);
           Sentry.captureException(err);
         },
         (startTime, endTime, result) => {
@@ -118,7 +119,8 @@ export class StrapiClient {
               cacheType: 'memory',
             });
           }
-        }
+        },
+        context.log
       ),
     ttlSeconds: (_, context: StrapiClient) =>
       context.strapiClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL_SECONDS,
@@ -131,7 +133,6 @@ export class StrapiClient {
         context.strapiClientConfig.firestoreCacheTTL ||
           DEFAULT_FIRESTORE_CACHE_TTL_SECONDS,
         (err) => {
-          console.error(err);
           Sentry.captureException(err);
         },
         (startTime, endTime, result) => {
@@ -146,7 +147,8 @@ export class StrapiClient {
             cache: result === 'stale' || result === 'fallback',
             cacheType: result,
           });
-        }
+        },
+        context.log
       ),
     ttlSeconds: (_, context: StrapiClient) =>
       context.strapiClientConfig.firestoreOfflineCacheTTL ||
