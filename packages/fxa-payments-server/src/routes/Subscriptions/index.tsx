@@ -4,8 +4,6 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { connect } from 'react-redux';
 import { Localized } from '@fluent/react';
 
-import * as Amplitude from '../../lib/amplitude';
-
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 
@@ -114,10 +112,6 @@ export const Subscriptions = ({
     return typeA > typeB ? -1 : typeA < typeB ? 1 : 0;
   });
 
-  useEffect(() => {
-    Amplitude.manageSubscriptionsMounted();
-  }, []);
-
   // Any button click is engagement
   const onAnyClick = useCallback(
     (evt: any) => {
@@ -126,7 +120,6 @@ export const Subscriptions = ({
         (evt.target.tagName === 'BUTTON' ||
           evt.target.parentNode.tagName === 'BUTTON')
       ) {
-        Amplitude.manageSubscriptionsEngaged();
         engaged.current = true;
       }
     },

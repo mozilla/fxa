@@ -47,7 +47,6 @@ function nock(it: any) {
 }
 
 jest.mock('../../lib/sentry');
-jest.mock('../../lib/flow-event');
 
 const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({

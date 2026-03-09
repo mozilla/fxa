@@ -10,13 +10,6 @@ import '@testing-library/jest-dom/extend-expect';
 import noc from 'nock';
 import waitForExpect from 'wait-for-expect';
 
-import {
-  manageSubscriptionsMounted,
-  manageSubscriptionsEngaged,
-  cancelSubscriptionMounted,
-  cancelSubscriptionEngaged,
-} from '../../lib/amplitude';
-
 import { ProductMetadata } from '../../store/types';
 
 import { AuthServerErrno } from '../../lib/errors';
@@ -68,8 +61,6 @@ function nock(it: any) {
 }
 
 jest.mock('../../lib/sentry');
-jest.mock('../../lib/amplitude');
-jest.mock('../../lib/flow-event');
 
 jest.mock('./PaymentUpdateForm', () => ({
   __esModule: true,
@@ -236,20 +227,6 @@ describe('routes/Subscriptions', () => {
     fireEvent.click(getByTestId('contact-support-button'));
     await waitForExpect(() => expect(navigateToUrl).toBeCalled());
     expect(navigateToUrl).toBeCalledWith(`${contentServer}/support`);
-  });
-
-  it('calls manageSubscriptionsMounted and manageSubscriptionsEngaged', async () => {
-    initApiMocks({
-      mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
-      mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
-    });
-    const { getAllByTestId, findByTestId } = renderWithLocalizationProvider(
-      <Subject />
-    );
-    await findByTestId('subscription-management-loaded');
-    fireEvent.click(getAllByTestId('reveal-cancel-subscription-button')[0]);
-    expect(manageSubscriptionsMounted).toBeCalledTimes(1);
-    expect(manageSubscriptionsEngaged).toBeCalledTimes(1);
   });
 
   it('displays profile displayName if available', async () => {
@@ -435,8 +412,6 @@ describe('routes/Subscriptions', () => {
 
     await findByTestId('cancel-subscription-button');
 
-    expect(cancelSubscriptionMounted).toBeCalledTimes(1);
-
     // Click the confirmation checkbox, wait for the button to be enabled
     const cancelButton = getByTestId('cancel-subscription-button');
     fireEvent.click(getByTestId('confirm-cancel-subscription-checkbox'));
@@ -444,8 +419,6 @@ describe('routes/Subscriptions', () => {
     await waitForExpect(() =>
       expect(cancelButton).not.toHaveAttribute('disabled')
     );
-
-    expect(cancelSubscriptionEngaged).toBeCalledTimes(1);
 
     fireEvent.click(cancelButton);
 
@@ -593,10 +566,6 @@ describe('routes/Subscriptions', () => {
       fireEvent.click(revealButton);
     }
 
-    await waitForExpect(() =>
-      expect(cancelSubscriptionMounted).toBeCalledTimes(2)
-    );
-
     const confirmBoxes = getAllByTestId('confirm-cancel-subscription-checkbox');
     for (const confirmBox of confirmBoxes) {
       fireEvent.click(confirmBox);
@@ -609,8 +578,6 @@ describe('routes/Subscriptions', () => {
     await waitForExpect(() =>
       expect(cancelButtons[1]).not.toHaveAttribute('disabled')
     );
-
-    expect(cancelSubscriptionEngaged).toBeCalledTimes(2);
 
     fireEvent.click(cancelButtons[0]);
 

@@ -6,7 +6,6 @@ import React from 'react';
 import { screen, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
-import * as Amplitude from '../../../lib/amplitude';
 import CancelSubscriptionPanel, {
   CancelSubscriptionPanelProps,
 } from './CancelSubscriptionPanel';
@@ -38,7 +37,6 @@ import {
 import { updateConfig } from '../../../lib/config';
 import AppContext, { defaultAppContext } from '../../../lib/AppContext';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
-jest.mock('../../../lib/amplitude');
 
 const { queryByTestId, queryByText, queryAllByText, getByTestId } = screen;
 
@@ -601,29 +599,4 @@ describe('CancelSubscriptionPanel', () => {
     });
   });
 
-  describe('Amplitude', () => {
-    it('logs metric events', async () => {
-      (Amplitude.cancelSubscriptionMounted as jest.Mock).mockClear();
-      (Amplitude.cancelSubscriptionEngaged as jest.Mock).mockClear();
-      const plan = findMockPlan('plan_daily');
-      renderWithLocalizationProvider(
-        <CancelSubscriptionPanel
-          {...baseProps}
-          plan={plan}
-          paymentProvider="stripe"
-          promotionCode="gogogo"
-        />
-      );
-      fireEvent.click(getByTestId('reveal-cancel-subscription-button'));
-      expect(Amplitude.cancelSubscriptionMounted).toHaveBeenCalledWith({
-        ...plan,
-        promotionCode: 'gogogo',
-      });
-      fireEvent.click(getByTestId('confirm-cancel-subscription-checkbox'));
-      expect(Amplitude.cancelSubscriptionEngaged).toHaveBeenCalledWith({
-        ...plan,
-        promotionCode: 'gogogo',
-      });
-    });
-  });
 });

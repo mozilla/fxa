@@ -114,9 +114,6 @@ export const Signup = ({
   };
 
   // TODO: Add metrics events to match parity with content-server in FXA-8302
-  // The legacy amplitude events will eventually be replaced by Glean,
-  // but until that is ready we must ensure the expected metrics continue to be emitted
-  // to avoid breaking dashboards.
   const onSubmit = useCallback(
     async ({ newPassword }: SignupFormData) => {
       GleanMetrics.registration.submit();

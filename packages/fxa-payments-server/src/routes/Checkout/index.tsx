@@ -49,7 +49,6 @@ import PaymentForm, {
 import PaymentErrorView from '../../components/PaymentErrorView';
 import SubscriptionSuccess from '../Product/SubscriptionSuccess';
 
-import * as Amplitude from '../../lib/amplitude';
 import {
   handlePasswordlessSubscription,
   PaymentError,
@@ -166,19 +165,9 @@ export const Checkout = ({
     customer?.subscriptions
   );
 
-  const onFormMounted = useCallbackOnce(() => {
-    Amplitude.createSubscriptionMounted({
-      ...selectedPlan,
-      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
-    });
-  }, [selectedPlan]);
+  const onFormMounted = useCallbackOnce(() => {}, [selectedPlan]);
 
-  const onFormEngaged = useCallbackOnce(() => {
-    Amplitude.createSubscriptionEngaged({
-      ...selectedPlan,
-      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
-    });
-  }, [selectedPlan]);
+  const onFormEngaged = useCallbackOnce(() => {}, [selectedPlan]);
 
   // clear any error rendered with `ErrorMessage` on form change
   const onChange = useCallback(() => {
@@ -348,9 +337,6 @@ export const Checkout = ({
 
       setProfile(profile);
       setCustomer(customer);
-      // Our stub accounts have a uid, append it to all future metric
-      // events
-      Amplitude.addGlobalEventProperties({ uid: profile.uid });
     } catch (e) {
       sentry.captureException(e);
       setSubscriptionError({ code: 'fxa_fetch_profile_customer_error' });

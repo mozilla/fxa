@@ -10,7 +10,6 @@ import {
   useValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
-import * as Amplitude from '../../lib/amplitude';
 import { useCallbackOnce } from '../../lib/hooks';
 import { apiFetchAccountStatus } from '../../lib/apiClient';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
@@ -92,38 +91,20 @@ export const NewUserEmailForm = ({
       metadataFromPlan(selectedPlan).newsletterLabelTextCode
     );
 
-  const onFormMounted = useCallback(
-    () =>
-      Amplitude.createAccountMounted({
-        ...selectedPlan,
-        checkoutType: CHECKOUT_TYPE,
-      }),
-    [selectedPlan]
-  );
+  const onFormMounted = useCallback(() => {}, [selectedPlan]);
   useEffect(() => {
     onFormMounted();
   }, [onFormMounted, selectedPlan]);
 
-  const onFormEngaged = useCallbackOnce(
-    () =>
-      Amplitude.createAccountEngaged({
-        ...selectedPlan,
-        checkoutType: CHECKOUT_TYPE,
-      }),
-    [selectedPlan]
-  );
+  const onFormEngaged = useCallbackOnce(() => {}, [selectedPlan]);
   const onChange = useCallback(() => {
     onFormEngaged();
   }, [onFormEngaged]);
 
   const onClickSignInButton = () => {
     // Clear any remaining access token from a previous session
-    localStorage.removeItem(ACCESS_TOKEN_KEY)
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
     selectedPlan.other = 'click-signnin';
-    Amplitude.createAccountSignIn({
-      ...selectedPlan,
-      checkoutType: CHECKOUT_TYPE,
-    });
   };
 
   return (

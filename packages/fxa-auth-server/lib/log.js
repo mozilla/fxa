@@ -9,13 +9,9 @@ const util = require('util');
 const mozlog = require('mozlog');
 const { config } = require('../config');
 const logConfig = config.get('log');
-const amplitudeConfig = config.get('amplitude');
-const validateAmplitudeEvent = require('fxa-shared').metrics.amplitude.validate;
 let statsd;
-const Sentry = require('@sentry/node');
 const notifier = require('./notifier');
 const validators = require('./oauth/validators');
-const { reportSentryMessage } = require('./sentry');
 
 const ISSUER = config.get('domain') || '';
 const CLIENT_ID_TO_SERVICE_NAMES = config.get('oauth.clientIds') || {};
@@ -239,39 +235,6 @@ Lug.prototype.flowEvent = function (data) {
   }
 
   this.logger.info('flowEvent', data);
-};
-
-Lug.prototype.amplitudeEvent = function (data) {
-  // @TODO We can remove this guard once we return early after a schema
-  // validation failure.
-  if (!data || !data.event_type || (!data.device_id && !data.user_id)) {
-    this.error('amplitude.missingData', { data });
-    return;
-  }
-
-  if (amplitudeConfig.schemaValidation) {
-    try {
-      validateAmplitudeEvent(data);
-    } catch (err) {
-      this.error('amplitude.validationError', { err, amplitudeEvent: data });
-
-      // Since we are adding a schema retroactively, let's be conservative:
-      // temporarily capture any validation "errors" with Sentry to ensure
-      // that the schema is not too strict against existing events.  We'll
-      // update the schema accordingly.  And allow the events in the
-      // meantime.
-      Sentry.withScope((scope) => {
-        scope.setContext('amplitude.validationError', {
-          event_type: data.event_type,
-          flow_id: data.user_properties.flow_id,
-          error: err.message,
-        });
-        reportSentryMessage('Amplitude event failed validation', 'error');
-      });
-    }
-  }
-
-  this.logger.info('amplitudeEvent', data);
 };
 
 module.exports = function (level, name, options = {}) {

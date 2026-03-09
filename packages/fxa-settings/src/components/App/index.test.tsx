@@ -122,7 +122,7 @@ jest.mock('../../lib/glean', () => ({
   },
 }));
 
-const mockMetricsQueryAccountAmplitude = {
+const mockMetricsQueryAccountPreferences = {
   recoveryKey: true,
   totpActive: true,
   hasSecondaryVerifiedEmail: false,
@@ -228,7 +228,7 @@ describe('metrics', () => {
       flowBeginTime: BEGIN_TIME,
     });
     expect(userPreferencesInit).toHaveBeenCalledWith(
-      mockMetricsQueryAccountAmplitude
+      mockMetricsQueryAccountPreferences
     );
     expect(window.location.replace).not.toHaveBeenCalled();
   });

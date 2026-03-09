@@ -7,7 +7,6 @@ import { createRoot } from 'react-dom/client';
 import { createAppStore } from './store';
 import { config, readConfigFromMeta } from './lib/config';
 import { updateAPIClientToken, updateAPIClientConfig } from './lib/apiClient';
-import * as Amplitude from './lib/amplitude';
 import App from './App';
 import ScreenInfo from './lib/screen-info';
 import sentryMetrics from './lib/sentry';
@@ -32,8 +31,6 @@ async function init() {
   const queryParams = parseParams(window.location.search);
   const hashParams = await getHashParams();
   const accessToken = await getVerifiedAccessToken(hashParams);
-  Amplitude.addGlobalEventProperties({ ...queryParams });
-  Amplitude.subscribeToReduxStore(store);
   updateAPIClientConfig(config);
 
   if (accessToken) {

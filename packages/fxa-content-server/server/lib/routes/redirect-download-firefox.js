@@ -11,7 +11,6 @@
  * allowing that page to use no JS.
  */
 
-const amplitude = require('../amplitude');
 const { logFlowEvent } = require('../flow-event');
 const validation = require('../validation');
 const {
@@ -69,16 +68,6 @@ module.exports = function (config) {
       metricsData.flowBeginTime = flowBeginTime;
 
       const time = Date.now();
-
-      amplitude(
-        {
-          flowTime: flowBeginTime,
-          time,
-          type: DOWNLOAD_FIREFOX_FLOW_EVENT_NAME,
-        },
-        req,
-        metricsData
-      );
 
       logFlowEvent(
         {

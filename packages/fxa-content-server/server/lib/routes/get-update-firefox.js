@@ -5,7 +5,6 @@
 
 'use strict';
 
-const amplitude = require('../amplitude');
 const flowMetrics = require('../flow-metrics');
 const { logFlowEvent } = require('../flow-event');
 const Url = require('url');
@@ -70,23 +69,9 @@ module.exports = function (config) {
       };
 
       metricsData.flowId = flowId;
-      // Amplitude-specific device id, like the client-side equivalent
-      // created in app/scripts/lib/app-start.js. Transient for now,
-      // but will become persistent in due course.
       metricsData.deviceId = uuid.v4().replace(/-/g, '');
 
-      amplitude(beginEvent, req, metricsData);
       logFlowEvent(beginEvent, metricsData, req);
-
-      amplitude(
-        {
-          flowTime: flowBeginTime,
-          time: flowBeginTime,
-          type: UPDATE_FIREFOX_FLOW_EVENT_NAME,
-        },
-        req,
-        metricsData
-      );
 
       logFlowEvent(
         {

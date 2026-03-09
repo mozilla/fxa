@@ -6,7 +6,6 @@
 'use strict';
 
 const config = require('../configuration');
-const amplitude = require('../amplitude');
 const flowMetrics = require('../flow-metrics');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
@@ -41,7 +40,6 @@ const {
 module.exports = function (config, glean) {
   const FLOW_ID_KEY = config.get('flow_id_key');
   const FLOW_EVENT_NAME = 'flow.begin';
-  const SERVICES = config.get('oauth_client_id_map');
   const ALLOWED_CORS_ORIGINS = config.get('allowed_metrics_flow_cors_origins');
   const CORS_OPTIONS = {
     methods: 'GET',
@@ -84,15 +82,12 @@ module.exports = function (config, glean) {
 
   const FORM_TYPES = {
     email: {
-      amplitude: 'screen.enter-email',
       logFlow: 'flow.enter-email.view',
     },
     button: {
-      amplitude: 'screen.rp-button',
       logFlow: 'flow.rp-button.view',
     },
     subscribe: {
-      amplitude: 'screen.subscribe',
       logFlow: 'flow.subscribe.view',
     },
   };
@@ -117,46 +112,21 @@ module.exports = function (config, glean) {
 
     metricsData.flowId = flowId;
     metricsData.location = geodbConfig.enabled ? geolocate(req) : {};
-    // Amplitude-specific device id, like the client-side equivalent
-    // created in app/scripts/lib/app-start.js. Transient for now,
-    // but will become persistent in due course.
     const deviceId = (metricsData.deviceId = uuid.v4().replace(/-/g, ''));
 
-    if (metricsData.event_type === 'engage') {
-      if (metricsData.service in SERVICES) {
-        amplitude(
-          {
-            flowTime: flowBeginTime,
-            time: flowBeginTime,
-            type: 'flow.rp.engage',
-          },
-          req,
-          metricsData
-        );
-      }
-    } else {
-      amplitude(beginEvent, req, metricsData);
+    if (metricsData.event_type !== 'engage') {
       logFlowEvent(beginEvent, metricsData, req);
 
       const metricTypes = FORM_TYPES[metricsData.form_type];
       if (metricTypes) {
-        switch (metricTypes.amplitude) {
-          case 'screen.enter-email':
+        switch (metricsData.form_type) {
+          case 'email':
             glean.rp.formView(req, { flowId, reason: 'email' });
             break;
-          case 'screen.rp-button':
+          case 'button':
             glean.rp.formView(req, { flowId, reason: 'button' });
             break;
         }
-        amplitude(
-          {
-            flowTime: flowBeginTime,
-            time: flowBeginTime,
-            type: metricTypes.amplitude,
-          },
-          req,
-          metricsData
-        );
         logFlowEvent(
           {
             flowTime: flowBeginTime,

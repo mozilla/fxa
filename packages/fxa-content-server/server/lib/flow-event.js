@@ -7,7 +7,6 @@ const assign = require('lodash/assign');
 const mapValues = require('lodash/mapValues');
 const pick = require('lodash/pick');
 const pickBy = require('lodash/pickBy');
-const amplitude = require('./amplitude');
 const config = require('./configuration');
 const flowMetrics = require('./flow-metrics');
 const log = require('./logging/log')('server.flow-event');
@@ -91,8 +90,6 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
         event.flowTime = event.time - metrics.flowBeginTime;
       }
     }
-
-    amplitude(event, req, metrics);
 
     if (event.type.substr(0, 7) === 'screen.') {
       event = Object.assign({}, event, {

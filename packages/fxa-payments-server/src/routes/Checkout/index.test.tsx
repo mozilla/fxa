@@ -60,7 +60,6 @@ import {
 } from '../../lib/apiClient';
 import { ButtonBaseProps } from '../../components/PayPalButton';
 import { ReactGALog } from '../../lib/reactga-event';
-import { createSubscriptionEngaged } from '../../lib/amplitude';
 
 jest.mock('../../lib/apiClient', () => {
   return {
@@ -96,8 +95,6 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('../../lib/reactga-event.ts');
-
-jest.mock('../../lib/amplitude');
 
 describe('routes/Checkout', () => {
   let authServer = '';
@@ -221,16 +218,6 @@ describe('routes/Checkout', () => {
 
     const couponEl = getByTestId('coupon-component');
     expect(couponEl).toBeInTheDocument();
-  });
-
-  it('records an "engage" funnel event when the consent checkbox is clicked', async () => {
-    renderWithLocalizationProvider(<Subject />);
-    const { findByTestId } = screen;
-    const checkbox = await findByTestId('confirm');
-    await act(async () => {
-      fireEvent.click(checkbox);
-    });
-    expect(createSubscriptionEngaged).toBeCalledTimes(1);
   });
 
   it('displays checkbox tooltip error when unchecking checkbox', async () => {

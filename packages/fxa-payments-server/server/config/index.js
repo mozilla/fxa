@@ -31,26 +31,6 @@ const conf = convict({
       env: 'FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT',
     },
   },
-  amplitude: {
-    enabled: {
-      default: true,
-      doc: 'Enable amplitude events',
-      env: 'AMPLITUDE_ENABLED',
-      format: Boolean,
-    },
-    schemaValidation: {
-      default: true,
-      doc: 'Validate events against a JSON schema',
-      env: 'AMPLITUDE_SCHEMA_VALIDATION',
-      format: Boolean,
-    },
-    rawEvents: {
-      default: false,
-      doc: 'Log raw Amplitude events',
-      env: 'AMPLITUDE_RAW_EVENTS',
-      format: Boolean,
-    },
-  },
   clientAddressDepth: {
     default: 3,
     doc: 'location of the client ip address in the remote address chain',
