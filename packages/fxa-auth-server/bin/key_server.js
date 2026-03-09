@@ -299,6 +299,19 @@ async function run(config) {
   );
   Container.set(RecoveryPhoneService, recoveryPhoneService);
 
+  // TODO: uncomment when we are ready to enable passkey APIs.
+  // const passkeyConfig = buildPasskeyConfig(config.passkeys, log);
+  // if (passkeyConfig) {
+  //   const passkeyManager = new PasskeyManager(accountDatabase);
+  //   const passkeyService = new PasskeyService(
+  //     passkeyManager,
+  //     passkeyConfig,
+  //     statsd,
+  //     log
+  //   );
+  //   Container.set(PasskeyService, passkeyService);
+  // }
+
   const profile = new ProfileClient(log, statsd, {
     ...config.profileServer,
     serviceName: 'subhub',

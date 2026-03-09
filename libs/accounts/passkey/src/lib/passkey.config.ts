@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  ArrayMinSize,
   IsArray,
-  IsBoolean,
   IsIn,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
 } from 'class-validator';
 import type {
   AuthenticatorAttachment,
@@ -24,24 +26,12 @@ import type {
  */
 export class PasskeyConfig {
   /**
-   * Feature flag to enable/disable passkey functionality.
-   */
-  @IsBoolean()
-  public enabled?: boolean;
-
-  /**
    * WebAuthn Relying Party ID (must match the domain).
    * @example 'accounts.firefox.com'
    */
   @IsString()
+  @IsNotEmpty()
   public rpId!: string;
-
-  /**
-   * WebAuthn Relying Party display name.
-   * @example 'Mozilla Accounts'
-   */
-  @IsString()
-  public rpName!: string;
 
   /**
    * Allowed origins for WebAuthn credential creation and authentication.
@@ -49,6 +39,13 @@ export class PasskeyConfig {
    * @example ['https://accounts.firefox.com', 'https://accounts.stage.mozaws.net']
    */
   @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  @Matches(/^https?:\/\/[^/]+$/, {
+    each: true,
+    message:
+      'Each allowedOrigins entry must be a full origin (e.g. "https://accounts.firefox.com")',
+  })
   public allowedOrigins!: Array<string>;
 
   /**
@@ -71,7 +68,6 @@ export class PasskeyConfig {
    * - 'discouraged': User verification should not occur
    * @example 'required'
    */
-  @IsOptional()
   @IsIn(['required', 'preferred', 'discouraged'])
   public userVerification?: UserVerificationRequirement;
 
@@ -85,7 +81,6 @@ export class PasskeyConfig {
    * - 'discouraged': Non-discoverable credential preferred
    * @example 'required'
    */
-  @IsOptional()
   @IsIn(['required', 'preferred', 'discouraged'])
   public residentKey?: ResidentKeyRequirement;
 
@@ -97,5 +92,5 @@ export class PasskeyConfig {
    */
   @IsOptional()
   @IsIn(['platform', 'cross-platform'])
-  public authenticatorAttachment?: AuthenticatorAttachment;
+  public authenticatorAttachment?: AuthenticatorAttachment | undefined;
 }
