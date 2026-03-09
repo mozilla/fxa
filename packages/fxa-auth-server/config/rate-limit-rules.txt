@@ -185,8 +185,8 @@ passkeyDelete                          : ip_uid            : 100         : 15 mi
 # Passwordless Authentication OTP Limits
 # Controls the rate at which passwordless OTP codes can be sent and verified
 #
-passwordlessSendOtp                    : email            : 2           : 15 minutes      : 15 minutes   : block
-passwordlessSendOtp                    : email            : 5           : 24 hours        : 12 hours     : block
+passwordlessSendOtp                    : email            : 5           : 15 minutes      : 15 minutes   : block
+passwordlessSendOtp                    : email            : 15          : 24 hours        : 15 minutes   : block
 passwordlessSendOtp                    : ip               : 50          : 24 hours        : 12 hours     : block
 passwordlessSendOtp                    : ip               : 20          : 15 minutes      : 30 minutes   : block
 passwordlessSendOtp                    : ip               : 100         : 24 hours        : 15 minutes   : ban
