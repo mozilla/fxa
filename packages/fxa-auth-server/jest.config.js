@@ -21,6 +21,7 @@ module.exports = {
   },
   testTimeout: 10000,
   clearMocks: true,
+  maxWorkers: 4,
   workerIdleMemoryLimit: '512MB',
   setupFiles: ['<rootDir>/jest.setup.js', '<rootDir>/jest.setup-proxyquire.js'],
   testPathIgnorePatterns: ['/node_modules/'],
