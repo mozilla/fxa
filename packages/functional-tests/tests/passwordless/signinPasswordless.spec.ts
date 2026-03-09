@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
+import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
 import { getTotpCode } from '../../lib/totp';
 
 test.describe('severity-1 #smoke', () => {
@@ -90,6 +91,470 @@ test.describe('severity-1 #smoke', () => {
       });
     });
 
+    test.describe('Session security', () => {
+      test('passwordless + 2FA: unverified session cannot be used for OAuth before TOTP', async ({
+        target,
+        pages: { page, signin, relier, signinPasswordlessCode },
+        testAccountTracker,
+      }) => {
+        // This test verifies that the session created after OTP verification
+        // (but before TOTP verification) cannot be used to obtain an OAuth code.
+        // This is critical: without this guard, a user who only completes OTP
+        // could bypass 2FA entirely.
+
+        // Create passwordless account with TOTP
+        const { email, sessionToken } =
+          await testAccountTracker.signUpPasswordless();
+        const account: any = testAccountTracker.accounts.find(
+          (a) => a.email === email
+        );
+        const password = account?.password || '';
+
+        const { secret } = await target.authClient.createTotpToken(
+          sessionToken,
+          {}
+        );
+        const totpCode = await getTotpCode(secret);
+        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
+        await target.authClient.completeTotpSetup(sessionToken);
+
+        if (account) {
+          account.secret = secret;
+          account.sessionToken = sessionToken;
+        }
+
+        // Use the API directly to get an unverified session token
+        // (bypasses browser UI so we can test the session before TOTP)
+        await target.authClient.passwordlessSendCode(email, {
+          clientId: 'dcdb5ae7add825d2',
+        });
+        const otpCode =
+          await target.emailClient.getPasswordlessSigninCode(email);
+        const confirmResult = await target.authClient.passwordlessConfirmCode(
+          email,
+          otpCode,
+          { clientId: 'dcdb5ae7add825d2' }
+        );
+
+        // The session should be unverified (TOTP pending)
+        expect(confirmResult.verified).toBe(false);
+        expect(confirmResult.verificationMethod).toBe('totp-2fa');
+
+        // Attempt OAuth authorization with the unverified session — must be rejected
+        try {
+          await target.authClient.createOAuthCode(
+            confirmResult.sessionToken,
+            'dcdb5ae7add825d2',
+            'teststate',
+            { scope: 'profile' }
+          );
+          // If we get here, the session was wrongly accepted
+          expect(
+            true,
+            'OAuth should have rejected the unverified session'
+          ).toBe(false);
+        } catch (err: any) {
+          // Expect errno 138 = UNVERIFIED_SESSION
+          expect(err.errno).toBe(138);
+        }
+
+        // Cleanup: set password so testAccountTracker can destroy the account
+        const cleanupTotpCode = await getTotpCode(secret);
+        await target.authClient.verifyTotpCode(
+          confirmResult.sessionToken,
+          cleanupTotpCode
+        );
+        await target.authClient.createPassword(
+          confirmResult.sessionToken,
+          email,
+          password
+        );
+
+        if (account) {
+          account.isPasswordless = false;
+        }
+      });
+    });
+
+    test.describe('Session verification state invariants', () => {
+      const CLIENT_ID = 'dcdb5ae7add825d2';
+
+      async function getPasswordlessSession(
+        target: any,
+        email: string,
+        isNew: boolean
+      ) {
+        await target.authClient.passwordlessSendCode(email, {
+          clientId: CLIENT_ID,
+        });
+        const code = isNew
+          ? await target.emailClient.getPasswordlessSignupCode(email)
+          : await target.emailClient.getPasswordlessSigninCode(email);
+        return target.authClient.passwordlessConfirmCode(email, code, {
+          clientId: CLIENT_ID,
+        });
+      }
+
+      async function setupPasswordlessTotpAccount(
+        target: any,
+        testAccountTracker: any
+      ) {
+        const { email, sessionToken } =
+          await testAccountTracker.signUpPasswordless();
+        const account: any = testAccountTracker.accounts.find(
+          (a: any) => a.email === email
+        );
+        const password = account?.password || '';
+
+        const { secret } = await target.authClient.createTotpToken(
+          sessionToken,
+          {}
+        );
+        const totpCode = await getTotpCode(secret);
+        await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
+        await target.authClient.completeTotpSetup(sessionToken);
+
+        account.secret = secret;
+        account.sessionToken = sessionToken;
+
+        return { email, password, sessionToken, secret, account };
+      }
+
+      async function cleanupPasswordlessAccount(
+        target: any,
+        sessionToken: string,
+        email: string,
+        password: string,
+        account: any,
+        secret?: string
+      ) {
+        const totpCode = secret ? await getTotpCode(secret) : null;
+        if (totpCode) {
+          await target.authClient.verifyTotpCode(sessionToken, totpCode);
+        }
+        await target.authClient.createPassword(sessionToken, email, password);
+        account.isPasswordless = false;
+      }
+
+      test.describe('Without TOTP', () => {
+        test('new account returns verified session with correct response shape', async ({
+          target,
+          testAccountTracker,
+        }) => {
+          const { email, password } =
+            testAccountTracker.generatePasswordlessAccountDetails();
+          const account: any = testAccountTracker.accounts.find(
+            (a) => a.email === email
+          );
+
+          const result = await getPasswordlessSession(target, email, true);
+
+          expect(result.verified).toBe(true);
+          expect(result.isNewAccount).toBe(true);
+          expect(result.verificationMethod).toBeUndefined();
+
+          const status = await target.authClient.sessionStatus(
+            result.sessionToken
+          );
+          expect(status.state).toBe('verified');
+          expect(status.details.sessionVerified).toBe(true);
+
+          // Cleanup
+          await target.authClient.createPassword(
+            result.sessionToken,
+            email,
+            password
+          );
+          account.isPasswordless = false;
+        });
+
+        test('existing account returns verified session with correct response shape', async ({
+          target,
+          testAccountTracker,
+        }) => {
+          const { email } = await testAccountTracker.signUpPasswordless();
+          const account: any = testAccountTracker.accounts.find(
+            (a) => a.email === email
+          );
+          const password = account.password || '';
+
+          const result = await getPasswordlessSession(target, email, false);
+
+          expect(result.verified).toBe(true);
+          expect(result.isNewAccount).toBe(false);
+          expect(result.verificationMethod).toBeUndefined();
+
+          const status = await target.authClient.sessionStatus(
+            result.sessionToken
+          );
+          expect(status.state).toBe('verified');
+          expect(status.details.sessionVerified).toBe(true);
+
+          // Cleanup
+          await target.authClient.createPassword(
+            result.sessionToken,
+            email,
+            password
+          );
+          account.isPasswordless = false;
+        });
+
+        test('verified session can obtain OAuth code', async ({
+          target,
+          testAccountTracker,
+        }) => {
+          const { email } = await testAccountTracker.signUpPasswordless();
+          const account: any = testAccountTracker.accounts.find(
+            (a) => a.email === email
+          );
+          const password = account.password || '';
+
+          const result = await getPasswordlessSession(target, email, false);
+
+          const oauthResult = await target.authClient.createOAuthCode(
+            result.sessionToken,
+            CLIENT_ID,
+            'teststate',
+            { scope: 'profile' }
+          );
+          expect(oauthResult).toBeDefined();
+
+          // Cleanup
+          await target.authClient.createPassword(
+            result.sessionToken,
+            email,
+            password
+          );
+          account.isPasswordless = false;
+        });
+
+        test('verified session can access verifiedSessionToken-gated routes', async ({
+          target,
+          testAccountTracker,
+        }) => {
+          const { email, sessionToken } =
+            await testAccountTracker.signUpPasswordless();
+          const account: any = testAccountTracker.accounts.find(
+            (a) => a.email === email
+          );
+          const password = account.password || '';
+
+          const events = await target.authClient.securityEvents(sessionToken);
+          expect(Array.isArray(events)).toBe(true);
+
+          // Cleanup
+          await target.authClient.createPassword(
+            sessionToken,
+            email,
+            password
+          );
+          account.isPasswordless = false;
+        });
+      });
+
+      test.describe('With TOTP', () => {
+        test('TOTP account returns unverified session with correct response shape', async ({
+          target,
+          testAccountTracker,
+        }) => {
+          const { email, password, secret, account } =
+            await setupPasswordlessTotpAccount(target, testAccountTracker);
+
+          const result = await getPasswordlessSession(target, email, false);
+
+          expect(result.verified).toBe(false);
+          expect(result.isNewAccount).toBe(false);
+          expect(result.verificationMethod).toBe('totp-2fa');
+          expect(result.verificationReason).toBe('login');
+
+          const status = await target.authClient.sessionStatus(
+            result.sessionToken
+          );
+          expect(status.state).toBe('unverified');
+          expect(status.details.sessionVerified).toBe(false);
+
+          // Cleanup
+          await cleanupPasswordlessAccount(
+            target,
+            result.sessionToken,
+            email,
+            password,
+            account,
+            secret
+          );
+        });
+
+        test('unverified session is blocked from verifiedSessionToken routes', async ({
+          target,
+          testAccountTracker,
+        }) => {
+          const { email, password, secret, account } =
+            await setupPasswordlessTotpAccount(target, testAccountTracker);
+
+          const result = await getPasswordlessSession(target, email, false);
+
+          // securityEvents requires verified session
+          try {
+            await target.authClient.securityEvents(result.sessionToken);
+            expect(true, 'securityEvents should have been rejected').toBe(
+              false
+            );
+          } catch (err: any) {
+            expect(err.errno).toBe(138);
+          }
+
+          // createPassword requires verified session
+          try {
+            await target.authClient.createPassword(
+              result.sessionToken,
+              email,
+              password
+            );
+            expect(true, 'createPassword should have been rejected').toBe(
+              false
+            );
+          } catch (err: any) {
+            expect(err.errno).toBe(138);
+          }
+
+          // Cleanup
+          await cleanupPasswordlessAccount(
+            target,
+            result.sessionToken,
+            email,
+            password,
+            account,
+            secret
+          );
+        });
+
+        test('unverified session allows non-gated routes', async ({
+          target,
+          testAccountTracker,
+        }) => {
+          const { email, password, secret, account } =
+            await setupPasswordlessTotpAccount(target, testAccountTracker);
+
+          const result = await getPasswordlessSession(target, email, false);
+
+          // sessionStatus should succeed
+          const status = await target.authClient.sessionStatus(
+            result.sessionToken
+          );
+          expect(status).toBeDefined();
+          expect(status.uid).toBeDefined();
+
+          // accountProfile should succeed
+          const profile = await target.authClient.accountProfile(
+            result.sessionToken
+          );
+          expect(profile).toBeDefined();
+
+          // Cleanup
+          await cleanupPasswordlessAccount(
+            target,
+            result.sessionToken,
+            email,
+            password,
+            account,
+            secret
+          );
+        });
+
+        test('session transitions to verified after TOTP verification', async ({
+          target,
+          testAccountTracker,
+        }) => {
+          const { email, password, secret, account } =
+            await setupPasswordlessTotpAccount(target, testAccountTracker);
+
+          const result = await getPasswordlessSession(target, email, false);
+
+          // Confirm unverified before TOTP
+          const statusBefore = await target.authClient.sessionStatus(
+            result.sessionToken
+          );
+          expect(statusBefore.state).toBe('unverified');
+          expect(statusBefore.details.sessionVerified).toBe(false);
+
+          // Verify TOTP
+          const totpCode = await getTotpCode(secret);
+          await target.authClient.verifyTotpCode(
+            result.sessionToken,
+            totpCode
+          );
+
+          // Confirm verified after TOTP
+          const statusAfter = await target.authClient.sessionStatus(
+            result.sessionToken
+          );
+          expect(statusAfter.state).toBe('verified');
+          expect(statusAfter.details.sessionVerified).toBe(true);
+
+          // OAuth should now succeed
+          const oauthResult = await target.authClient.createOAuthCode(
+            result.sessionToken,
+            CLIENT_ID,
+            'teststate',
+            { scope: 'profile' }
+          );
+          expect(oauthResult).toBeDefined();
+
+          // securityEvents should now succeed
+          const events = await target.authClient.securityEvents(
+            result.sessionToken
+          );
+          expect(Array.isArray(events)).toBe(true);
+
+          // Cleanup
+          await target.authClient.createPassword(
+            result.sessionToken,
+            email,
+            password
+          );
+          account.isPasswordless = false;
+        });
+      });
+
+      test.describe('Password creation gate', () => {
+        test('verified non-TOTP session can create password', async ({
+          target,
+          testAccountTracker,
+        }) => {
+          const { email } = await testAccountTracker.signUpPasswordless();
+          const account: any = testAccountTracker.accounts.find(
+            (a) => a.email === email
+          );
+          const password = account.password || '';
+
+          const result = await getPasswordlessSession(target, email, false);
+
+          // Create password should succeed
+          const createResult = await target.authClient.createPassword(
+            result.sessionToken,
+            email,
+            password
+          );
+          expect(createResult).toBeDefined();
+
+          account.isPasswordless = false;
+
+          // Account now has a password — passwordless send should be rejected
+          try {
+            await target.authClient.passwordlessSendCode(email, {
+              clientId: CLIENT_ID,
+            });
+            expect(
+              true,
+              'passwordlessSendCode should have been rejected for password account'
+            ).toBe(false);
+          } catch (err: any) {
+            expect(err.errno).toBeDefined();
+          }
+        });
+      });
+    });
+
     test.describe('Error cases', () => {
       test('passwordless - invalid code', async ({
         target,
@@ -130,27 +595,25 @@ test.describe('severity-1 #smoke', () => {
         await expect(page).not.toHaveURL(/signin_passwordless_code/);
       });
 
-      test('passwordless - account with 2FA redirected to password signin', async ({
+      test('passwordless - account with 2FA proceeds to TOTP verification', async ({
         target,
-        pages: { page, signin, relier, signinPasswordlessCode },
+        pages: { page, signin, relier, signinPasswordlessCode, signinTotpCode },
         testAccountTracker,
       }) => {
-        // This test verifies that accounts with 2FA enabled cannot use passwordless flow
-        // and are redirected to password signin with an appropriate error message.
+        // Passwordless users with 2FA should be able to sign in via OTP,
+        // then be prompted for their TOTP code (not told to use a password).
         //
-        // Setup creates an edge case: passwordless account (no password) + TOTP enabled
-        // This is possible if user signs up passwordless, then adds 2FA before setting a password
+        // Flow: enter email → OTP code → TOTP code → logged in
 
         // Create passwordless account via API - get session token for TOTP setup
         const { email, sessionToken } =
           await testAccountTracker.signUpPasswordless();
-        const account = testAccountTracker.accounts.find(
+        const account: any = testAccountTracker.accounts.find(
           (a) => a.email === email
         );
         const password = account?.password || '';
 
         // Set up TOTP via API using the passwordless session token
-        // Note: MFA guard uses email verification, not password, so this works
         const { secret } = await target.authClient.createTotpToken(
           sessionToken,
           {}
@@ -162,11 +625,9 @@ test.describe('severity-1 #smoke', () => {
         await target.authClient.completeTotpSetup(sessionToken);
 
         // Store secret and sessionToken in account for cleanup
-        // - secret: for elevating to AAL2 and deleting TOTP
-        // - sessionToken: for setting password if test fails before explicit cleanup
         if (account) {
-          (account as any).secret = secret;
-          (account as any).sessionToken = sessionToken;
+          account.secret = secret;
+          account.sessionToken = sessionToken;
         }
 
         // Clear browser cache
@@ -180,26 +641,49 @@ test.describe('severity-1 #smoke', () => {
         // Should redirect to passwordless code page
         await expect(page).toHaveURL(/signin_passwordless_code/);
 
-        // Get OTP code and enter it - this should trigger TOTP_REQUIRED error
+        // Get OTP code and enter it
         const passwordlessCode =
           await target.emailClient.getPasswordlessSigninCode(email);
         await signinPasswordlessCode.fillOutCodeForm(passwordlessCode);
 
-        // Should redirect to /signin with error message about 2FA
-        await expect(page).toHaveURL(/\/signin/);
+        // Should redirect to TOTP code entry page (not password signin)
+        await expect(page).toHaveURL(/signin_totp_code/);
 
-        // The error banner should show the 2FA message
-        await expect(
-          page.getByText(/Two-step authentication is enabled on your account/i)
-        ).toBeVisible();
+        // Enter the TOTP code
+        const newTotpCode = await getTotpCode(secret);
+        await signinTotpCode.fillOutCodeForm(newTotpCode);
+
+        // Should complete OAuth and redirect to RP
+        expect(await relier.isLoggedIn()).toBe(true);
 
         // Cleanup: Set password so testAccountTracker can sign in and destroy
-        // Use the preserved session token to create password before cleanup
-        await target.authClient.createPassword(sessionToken, email, password);
+        // Re-authenticate to get a fresh session since the old one may be stale
+        await target.authClient.passwordlessSendCode(email, {
+          clientId: 'dcdb5ae7add825d2',
+        });
+        const cleanupCode =
+          await target.emailClient.getPasswordlessSigninCode(email);
+        const cleanupResult =
+          await target.authClient.passwordlessConfirmCode(
+            email,
+            cleanupCode,
+            { clientId: 'dcdb5ae7add825d2' }
+          );
+        // Elevate to AAL2 for password creation
+        const cleanupTotpCode = await getTotpCode(secret);
+        await target.authClient.verifyTotpCode(
+          cleanupResult.sessionToken,
+          cleanupTotpCode
+        );
+        await target.authClient.createPassword(
+          cleanupResult.sessionToken,
+          email,
+          password
+        );
 
         // Mark account as no longer passwordless
         if (account) {
-          (account as any).isPasswordless = false;
+          account.isPasswordless = false;
         }
       });
     });
@@ -214,7 +698,7 @@ test.describe('severity-2', () => {
 
     test('passwordless signin - Sync with existing passwordless account', async ({
       target,
-      syncBrowserPages: {
+      syncOAuthBrowserPages: {
         page,
         signin,
         signinPasswordlessCode,
@@ -222,15 +706,14 @@ test.describe('severity-2', () => {
       },
       testAccountTracker,
     }) => {
-      test.fixme(true, 'to be unskipped as part of FXA-13017');
       // Create passwordless account via API first (no password)
       const { email } = await testAccountTracker.signUpPasswordless();
       const password = (testAccountTracker.accounts[0] as any).password;
 
-      // Navigate to Sync signin
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&force_passwordless=true`
-      );
+      // Navigate to Sync OAuth signin with passwordless enabled
+      const params = new URLSearchParams(syncDesktopOAuthQueryParams);
+      params.set('force_passwordless', 'true');
+      await signin.goto('/authorization', params);
       await signin.fillOutEmailFirstForm(email);
 
       // Should go to passwordless code page
