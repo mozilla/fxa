@@ -30,12 +30,16 @@ const SigninPasswordlessCodeContainer = ({
     integration
   );
 
-  const [codeSent, setCodeSent] = useState(false);
-  const [sendError, setSendError] = useState<string | null>(null);
-
   const email = location.state?.email;
   const service = location.state?.service;
   const isSignup = location.state?.isSignup;
+
+  const [codeSent, setCodeSent] = useState(
+    // If location state already has codeSent (persisted across page refresh
+    // via the History API), skip sending again.
+    () => location.state?.codeSent === true
+  );
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const cmsInfo = integration.getCmsInfo();
   // Use SigninTokenCodePage layout as fallback since SigninPasswordlessCodePage doesn't exist yet
@@ -49,20 +53,28 @@ const SigninPasswordlessCodeContainer = ({
     }
   }, [email, navigateWithQuery]);
 
-  // Send the initial code when component mounts
+  // Send the initial code when component mounts, but skip if already sent
+  // (e.g. after a page refresh). On success, replace the current history
+  // entry with codeSent: true so the browser-persisted location state
+  // prevents re-sending on refresh.
   useEffect(() => {
     if (email && !codeSent) {
       const sendCode = async () => {
         try {
           await authClient.passwordlessSendCode(email, { clientId: integration.getClientId() });
           setCodeSent(true);
+          // Persist codeSent in location state so it survives page refresh
+          navigateWithQuery(location.pathname + location.search, {
+            replace: true,
+            state: { ...location.state, codeSent: true },
+          });
         } catch (error: any) {
           setSendError(error.message || 'Failed to send code');
         }
       };
       sendCode();
     }
-  }, [email, service, codeSent, authClient, integration]);
+  }, [email, service, codeSent, authClient, integration, navigateWithQuery, location.pathname, location.search, location.state]);
 
   if (!email) {
     return (

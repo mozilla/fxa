@@ -555,6 +555,42 @@ test.describe('severity-1 #smoke', () => {
       });
     });
 
+    test.describe('Repeated sign-in does not trigger rate limit', () => {
+      test('navigating back and re-entering email does not cause too many requests error', async ({
+        target,
+        pages: { page, signin, relier, signinPasswordlessCode },
+        testAccountTracker,
+      }) => {
+        const { email } =
+          testAccountTracker.generatePasswordlessAccountDetails();
+
+        // First attempt: enter the passwordless flow (sends code #1)
+        await relier.goto('force_passwordless=true');
+        await relier.clickEmailFirst();
+        await signin.fillOutEmailFirstForm(email);
+
+        await expect(page).toHaveURL(/signin_passwordless_code/);
+        await expect(signinPasswordlessCode.heading).toBeVisible();
+
+        // Second attempt: go back to the RP and re-enter email (sends code #2)
+        await relier.goto('force_passwordless=true');
+        await relier.clickEmailFirst();
+        await signin.fillOutEmailFirstForm(email);
+
+        // Should reach the code page without a rate limit error
+        await expect(page).toHaveURL(/signin_passwordless_code/);
+        await expect(signinPasswordlessCode.heading).toBeVisible();
+
+        // Verify no error banner is displayed (e.g. "too many requests")
+        await expect(signinPasswordlessCode.errorBanner).not.toBeVisible();
+
+        // Complete the flow to confirm it works end-to-end
+        const code = await target.emailClient.getPasswordlessSignupCode(email);
+        await signinPasswordlessCode.fillOutCodeForm(code);
+        expect(await relier.isLoggedIn()).toBe(true);
+      });
+    });
+
     test.describe('Error cases', () => {
       test('passwordless - invalid code', async ({
         target,
