@@ -39,7 +39,9 @@ export async function generateRegistrationOptions(
   input: RegistrationOptionsInput
 ): Promise<PublicKeyCredentialCreationOptionsJSON> {
   return libGenerateRegistrationOptions({
-    rpName: config.rpName,
+    // rpName is deprecated field kept for backward compatibility;
+    // spec recommends using rpId as a safe default.
+    rpName: config.rpId,
     rpID: config.rpId,
     userName: input.email,
     userID: input.uid,

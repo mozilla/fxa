@@ -40,7 +40,6 @@ const libMocks = jest.requireMock('@simplewebauthn/server') as {
 function mockConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
   return Object.assign(new PasskeyConfig(), {
     rpId: 'accounts.firefox.com',
-    rpName: 'Mozilla Accounts',
     allowedOrigins: ['https://accounts.firefox.com'],
     userVerification: 'required',
     residentKey: 'preferred',
@@ -127,7 +126,7 @@ describe('generateRegistrationOptions', () => {
 
     expect(libMocks.generateRegistrationOptions).toHaveBeenCalledWith(
       expect.objectContaining({
-        rpName: 'Mozilla Accounts',
+        rpName: 'accounts.firefox.com',
         rpID: 'accounts.firefox.com',
         userName: 'alice@example.com',
         userID: uid,

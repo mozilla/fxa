@@ -464,5 +464,10 @@
   "subscriptionAccountReminders": {
     "firstInterval": "5s",
     "secondInterval": "10s"
+  },
+  "passkeys": {
+    "enabled": true,
+    "rpId": "localhost",
+    "allowedOrigins": ["http://localhost:3030"]
   }
 }
