@@ -16,7 +16,11 @@ export const Header = (props: HeaderProps) => {
     <header
       data-testid="header"
       role="banner"
-      className={props.className || 'sticky top-0 bg-grey-10 z-10'}
+      // top-[env(safe-area-inset-top)] keeps the sticky header below the notch/status bar on scroll
+      className={
+        props.className ||
+        'sticky top-[env(safe-area-inset-top)] bg-grey-10 z-10'
+      }
       style={props.styles}
     >
       <div className="px-6 tablet:px-8 py-4 flex justify-between">
