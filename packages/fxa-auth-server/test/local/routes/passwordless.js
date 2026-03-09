@@ -312,6 +312,11 @@ describe('/account/passwordless/confirm_code', () => {
     );
 
     return runTest(route, mockRequest, (result) => {
+      // mustVerify should always be true (defense-in-depth)
+      const sessionOpts = mockDB.createSessionToken.args[0][0];
+      assert.equal(sessionOpts.mustVerify, true);
+      assert.equal(sessionOpts.tokenVerificationId, null);
+
       assert.equal(
         mockCustoms.check.callCount,
         2,
@@ -376,6 +381,11 @@ describe('/account/passwordless/confirm_code', () => {
       assert.equal(mockDB.createAccount.callCount, 0);
       assert.equal(mockDB.createSessionToken.callCount, 1);
 
+      // mustVerify should always be true (defense-in-depth)
+      const sessionOpts = mockDB.createSessionToken.args[0][0];
+      assert.equal(sessionOpts.mustVerify, true);
+      assert.equal(sessionOpts.tokenVerificationId, null);
+
       assert.equal(result.uid, uid);
       assert.equal(result.isNewAccount, false);
     });
@@ -401,12 +411,20 @@ describe('/account/passwordless/confirm_code', () => {
     );
   });
 
-  it('should reject account with TOTP enabled', () => {
+  it('should return unverified session with verificationMethod for TOTP accounts', () => {
     mockDB.accountRecord = sinon.spy(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
         verifierSetAt: 0,
+      })
+    );
+    mockDB.createSessionToken = sinon.spy(() =>
+      Promise.resolve({
+        data: 'sessiontoken123',
+        emailVerified: true,
+        tokenVerified: false,
+        lastAuthAt: () => Date.now(),
       })
     );
 
@@ -428,14 +446,22 @@ describe('/account/passwordless/confirm_code', () => {
     });
     route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
 
-    return runTest(route, mockRequest).then(
-      () => assert.fail('should have thrown'),
-      (err) => {
-        assert.equal(hasTotpToken.callCount, 1);
-        assert.equal(mockOtpManagerIsValid.callCount, 0);
-        assert.equal(err.errno, 160);
-      }
-    );
+    return runTest(route, mockRequest).then((result) => {
+      assert.equal(hasTotpToken.callCount, 1);
+      assert.equal(mockOtpManagerIsValid.callCount, 1);
+      assert.equal(mockOtpManagerDelete.callCount, 1);
+      assert.equal(result.uid, uid);
+      assert.equal(result.sessionToken, 'sessiontoken123');
+      assert.equal(result.verified, false);
+      assert.ok(result.authAt);
+      assert.equal(result.isNewAccount, false);
+      assert.equal(result.verificationMethod, 'totp-2fa');
+      assert.equal(result.verificationReason, 'login');
+      // Session should be created with mustVerify=true
+      const sessionTokenArgs = mockDB.createSessionToken.args[0][0];
+      assert.equal(sessionTokenArgs.mustVerify, true);
+      assert.ok(sessionTokenArgs.tokenVerificationId);
+    });
   });
 
   it('should reject account with password set', () => {
@@ -491,7 +517,7 @@ describe('/account/passwordless/confirm_code', () => {
       assert.equal(sessionOpts.uaOSVersion, '5.15');
       assert.equal(sessionOpts.uaDeviceType, 'desktop');
       assert.equal(sessionOpts.uaFormFactor, 'desktop');
-      assert.equal(sessionOpts.mustVerify, false);
+      assert.equal(sessionOpts.mustVerify, true);
       assert.equal(sessionOpts.tokenVerificationId, null);
     });
   });

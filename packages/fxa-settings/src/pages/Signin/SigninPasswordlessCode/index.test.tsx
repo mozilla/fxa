@@ -59,6 +59,13 @@ jest.mock('../../../lib/hooks/useWebRedirect', () => ({
   useWebRedirect: () => ({ isValid: true }),
 }));
 
+const mockStoreAccountData = jest.fn();
+jest.mock('../../../lib/storage-utils', () => ({
+  ...jest.requireActual('../../../lib/storage-utils'),
+  storeAccountData: (...args: any[]) => mockStoreAccountData(...args),
+  setCurrentAccount: jest.fn(),
+}));
+
 let mockAuthClient: any;
 
 function resetMockAuthClient() {
@@ -359,22 +366,91 @@ describe('SigninPasswordlessCode page', () => {
       );
     });
 
-    it('redirects to password signin if TOTP is required', async () => {
-      mockAuthClient.passwordlessConfirmCode = jest
-        .fn()
-        .mockRejectedValue(AuthUiErrors.TOTP_REQUIRED);
+    it('navigates to TOTP code page when account has 2FA', async () => {
+      const mockNavigateModule = jest.requireMock('@reach/router');
+      mockAuthClient.passwordlessConfirmCode = jest.fn().mockResolvedValue({
+        uid: MOCK_UID,
+        sessionToken: MOCK_SESSION_TOKEN,
+        verified: false,
+        authAt: Date.now(),
+        verificationMethod: 'totp-2fa',
+        verificationReason: 'login',
+      });
 
-      render();
+      render({ isSignup: false });
       await submitCode();
 
       await waitFor(() => {
-        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
-          '/signin',
+        expect(mockNavigateModule.navigate).toHaveBeenCalledWith(
+          '/signin_totp_code',
           expect.objectContaining({
-            replace: true,
             state: expect.objectContaining({
               email: MOCK_EMAIL,
-              skipPasswordlessRedirect: true,
+              sessionToken: MOCK_SESSION_TOKEN,
+              uid: MOCK_UID,
+              sessionVerified: false,
+              verificationMethod: 'totp-2fa',
+              verificationReason: 'login',
+            }),
+          })
+        );
+      });
+    });
+
+    it('stores account data with verified=false when TOTP is required', async () => {
+      mockAuthClient.passwordlessConfirmCode = jest.fn().mockResolvedValue({
+        uid: MOCK_UID,
+        sessionToken: MOCK_SESSION_TOKEN,
+        verified: false,
+        authAt: Date.now(),
+        verificationMethod: 'totp-2fa',
+        verificationReason: 'login',
+      });
+
+      render({ isSignup: false });
+      await submitCode();
+
+      await waitFor(() => {
+        expect(mockStoreAccountData).toHaveBeenCalledWith(
+          expect.objectContaining({
+            uid: MOCK_UID,
+            sessionToken: MOCK_SESSION_TOKEN,
+            email: MOCK_EMAIL,
+            verified: false,
+            sessionVerified: false,
+          })
+        );
+      });
+    });
+
+    it('navigates to TOTP code page with OAuth integration when account has 2FA', async () => {
+      const mockNavigateModule = jest.requireMock('@reach/router');
+      mockAuthClient.passwordlessConfirmCode = jest.fn().mockResolvedValue({
+        uid: MOCK_UID,
+        sessionToken: MOCK_SESSION_TOKEN,
+        verified: false,
+        authAt: Date.now(),
+        verificationMethod: 'totp-2fa',
+        verificationReason: 'login',
+      });
+
+      const integration = createMockSigninOAuthIntegration();
+      integration.wantsKeys = jest.fn().mockReturnValue(false);
+
+      render({ integration, isSignup: false });
+      await submitCode();
+
+      await waitFor(() => {
+        expect(mockNavigateModule.navigate).toHaveBeenCalledWith(
+          '/signin_totp_code',
+          expect.objectContaining({
+            state: expect.objectContaining({
+              email: MOCK_EMAIL,
+              sessionToken: MOCK_SESSION_TOKEN,
+              uid: MOCK_UID,
+              sessionVerified: false,
+              verificationMethod: 'totp-2fa',
+              verificationReason: 'login',
             }),
           })
         );

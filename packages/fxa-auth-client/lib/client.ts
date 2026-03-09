@@ -1252,6 +1252,8 @@ export default class AuthClient {
     verified: boolean;
     authAt: number;
     isNewAccount: boolean;
+    verificationMethod?: string;
+    verificationReason?: string;
   }> {
     return this.request(
       'POST',
