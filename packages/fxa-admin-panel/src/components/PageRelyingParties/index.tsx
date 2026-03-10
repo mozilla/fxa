@@ -696,7 +696,7 @@ const RelyingPartyRow = ({
           <TableRowYHeader header="ID" children={id} />
           <TableRowYHeader
             header="Created At"
-            children={getFormattedDate(createdAt as unknown as number)}
+            children={getFormattedDate(createdAt)}
           />
           <TableRowYHeader
             header="Redirect URI"

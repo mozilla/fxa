@@ -46,11 +46,6 @@ jest.mock('fxa-react/components/AppErrorBoundary', () => ({
   default: mockComponent('AppErrorBoundary'),
 }));
 
-jest.mock('@apollo/client', () => ({
-  ...jest.requireActual('@apollo/client'),
-  ApolloProvider: mockComponent('ApolloProvider'),
-}));
-
 jest.mock('./App', () => ({
   __esModule: true,
   default: mockComponent('App'),

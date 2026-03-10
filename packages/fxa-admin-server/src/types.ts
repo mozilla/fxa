@@ -208,7 +208,7 @@ export interface RelyingPartyUpdateDto {
 
 export interface RelyingPartyDto {
   id: string;
-  createdAt: Date;
+  createdAt: number;
   name: string;
   imageUri: string;
   redirectUri: string;

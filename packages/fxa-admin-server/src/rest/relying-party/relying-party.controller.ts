@@ -56,7 +56,7 @@ export class RelyingPartyController {
 
     return relyingParties.map<RelyingPartyDto>((x) => ({
       id: uuidTransformer.from(x.id),
-      createdAt: x.createdAt,
+      createdAt: x.createdAt.getTime(),
       name: x.name,
       imageUri: x.imageUri,
       redirectUri: x.redirectUri,

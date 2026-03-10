@@ -181,10 +181,10 @@ describe('DangerZone Component', () => {
       });
     });
 
-    it('handles GraphQL error in deleteRecoveryPhone mutation', async () => {
+    it('handles error in deleteRecoveryPhone mutation', async () => {
       mockConfirm.mockReturnValue(true);
       (adminApi.deleteRecoveryPhone as jest.Mock).mockRejectedValue(
-        new Error('GraphQL error')
+        new Error('Error')
       );
 
       renderDangerZone();
