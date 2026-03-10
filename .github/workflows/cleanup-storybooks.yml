@@ -18,11 +18,12 @@ jobs:
 
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: gh-pages
           path: gh-pages
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Remove PR directory
         run: |
@@ -35,9 +36,10 @@ jobs:
           fi
 
       - name: Checkout main branch for scripts
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           path: main-repo
+          persist-credentials: false
 
       - name: Regenerate root index.html
         run: node main-repo/_scripts/generate-storybook-index.js
