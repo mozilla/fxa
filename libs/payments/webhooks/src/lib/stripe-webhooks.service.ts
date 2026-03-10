@@ -53,7 +53,13 @@ export class StripeWebhookService {
   ) {
     switch (webhookResponse.type) {
       case 'customer.subscription.deleted':
-        this.subscriptionEventsService.handleCustomerSubscriptionDeleted(
+        await this.subscriptionEventsService.handleCustomerSubscriptionDeleted(
+          webhookResponse.event,
+          webhookResponse.eventObjectData
+        );
+        break;
+      case 'customer.subscription.updated':
+        await this.subscriptionEventsService.handleCustomerSubscriptionUpdated(
           webhookResponse.event,
           webhookResponse.eventObjectData
         );

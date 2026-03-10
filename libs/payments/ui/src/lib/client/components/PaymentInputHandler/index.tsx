@@ -14,7 +14,13 @@ import { useEffect } from 'react';
 import { useStripe } from '@stripe/react-stripe-js';
 import { SupportedPages } from '@fxa/payments/ui';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-export function PaymentInputHandler({ cartId }: { cartId: string }) {
+export function PaymentInputHandler({
+  cartId,
+  isFreeTrial,
+}: {
+  cartId: string;
+  isFreeTrial?: boolean;
+}) {
   const stripe = useStripe();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -35,7 +41,7 @@ export function PaymentInputHandler({ cartId }: { cartId: string }) {
             await stripe.handleNextAction({
               clientSecret: inputRequest.data.clientSecret,
             });
-            await submitNeedsInputAndRedirectAction(cartId, params, searchParamsRecord);
+            await submitNeedsInputAndRedirectAction(cartId, params, searchParamsRecord, isFreeTrial);
             break;
           case 'notRequired':
             const redirectResponse = await validateCartStateAndRedirectAction(
@@ -49,7 +55,9 @@ export function PaymentInputHandler({ cartId }: { cartId: string }) {
                 await recordEmitterEventAction(
                   'checkoutSuccess',
                   { ...params },
-                  searchParamsRecord
+                  searchParamsRecord,
+                  undefined,
+                  isFreeTrial
                 );
               }
 
@@ -57,7 +65,9 @@ export function PaymentInputHandler({ cartId }: { cartId: string }) {
                 await recordEmitterEventAction(
                   'checkoutFail',
                   { ...params },
-                  searchParamsRecord
+                  searchParamsRecord,
+                  undefined,
+                  isFreeTrial
                 );
               }
 

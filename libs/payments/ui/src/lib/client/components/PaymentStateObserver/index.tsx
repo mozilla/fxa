@@ -12,7 +12,13 @@ import { recordEmitterEventAction } from '../../../actions';
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-export function PaymentStateObserver({ cartId }: { cartId: string }) {
+export function PaymentStateObserver({
+  cartId,
+  isFreeTrial,
+}: {
+  cartId: string;
+  isFreeTrial?: boolean;
+}) {
   const searchParams = useSearchParams();
   const params = useParams();
   const router = useRouter();
@@ -39,7 +45,9 @@ export function PaymentStateObserver({ cartId }: { cartId: string }) {
           await recordEmitterEventAction(
             'checkoutSuccess',
             { ...params },
-            searchParamsRecord
+            searchParamsRecord,
+            undefined,
+            isFreeTrial
           );
         }
 
@@ -47,7 +55,9 @@ export function PaymentStateObserver({ cartId }: { cartId: string }) {
           await recordEmitterEventAction(
             'checkoutFail',
             { ...params },
-            searchParamsRecord
+            searchParamsRecord,
+            undefined,
+            isFreeTrial
           );
         }
 

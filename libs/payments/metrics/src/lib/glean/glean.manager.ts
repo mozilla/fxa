@@ -9,6 +9,7 @@ import {
   CommonMetrics,
   PaymentsGleanProvider,
   SubscriptionCancellationData,
+  TrialConversionData,
   type AccountsMetricsData,
   type ExperimentationData,
   type SessionMetricsData,
@@ -154,6 +155,35 @@ export class PaymentsGleanManager {
     }
   }
 
+  recordFxaSubscriptionTrialConverted(
+    metrics: {
+      cmsMetricsData: CmsMetricsData;
+      trialConversionData: TrialConversionData;
+    },
+    paymentProvider?: PaymentProvidersType
+  ) {
+    const commonMetrics = this.populateCommonMetrics(metrics);
+
+    if (this.isEnabled) {
+      this.paymentsGleanServerEventsLogger.recordSubscriptionTrialConverted({
+        ...commonMetrics,
+        subscription_payment_provider:
+          normalizeGleanFalsyValues(paymentProvider),
+        subscription_product_id: normalizeGleanFalsyValues(
+          metrics.trialConversionData.productId
+        ),
+        subscription_provider_event_id: normalizeGleanFalsyValues(
+          metrics.trialConversionData.providerEventId
+        ),
+        trial_conversion_status:
+          metrics.trialConversionData.conversionStatus,
+        subscription_billing_country: normalizeGleanFalsyValues(
+          metrics.trialConversionData.billingCountry
+        ),
+      });
+    }
+  }
+
   recordGenericEvent(
     eventName: string,
     metrics: {
@@ -221,6 +251,11 @@ export class PaymentsGleanManager {
         subscriptionCancellationData?.cancellationReason ?? '',
       subscription_provider_event_id:
         subscriptionCancellationData?.providerEventId ?? '',
+      subscription_is_free_trial: commonMetricsData.isFreeTrial
+        ? 'true'
+        : '',
+      trial_conversion_status: '',
+      subscription_billing_country: '',
       utm_campaign: searchParams['utm_campaign'] ?? '',
       utm_content: searchParams['utm_content'] ?? '',
       utm_medium: searchParams['utm_medium'] ?? '',
@@ -243,6 +278,7 @@ export class PaymentsGleanManager {
       deviceType: '',
       userAgent: '',
       experimentationId: '',
+      isFreeTrial: false,
       params: {},
       searchParams: {},
     };
@@ -289,6 +325,7 @@ export class PaymentsGleanManager {
         cartMetricsData,
         cmsMetricsData,
         subscriptionCancellationData,
+        isFreeTrial: commonMetricsData.isFreeTrial,
       }),
       ...mapUtm(commonMetricsData.searchParams),
       nimbus_user_id: experimentationData.nimbusUserId,

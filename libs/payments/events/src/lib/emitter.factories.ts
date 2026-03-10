@@ -6,6 +6,7 @@ import {
   AdditionalMetricsData,
   SP3RolloutEvent,
   SubscriptionEndedEvents,
+  TrialConvertedEvents,
   type AuthEvents,
 } from './emitter.types';
 import {
@@ -46,6 +47,18 @@ export const SubscriptionEndedFactory = (
   providerEventId: faker.string.uuid(),
   cancellationReason: faker.helpers.enumValue(CancellationReason),
   uid: faker.string.uuid(),
+  ...override,
+});
+
+export const TrialConvertedFactory = (
+  override?: Partial<TrialConvertedEvents>
+): TrialConvertedEvents => ({
+  productId: `prod_${faker.string.alphanumeric({ length: 24 })}`,
+  priceId: `price_${faker.string.alphanumeric({ length: 24 })}`,
+  conversionStatus: faker.helpers.arrayElement(['successful', 'unsuccessful']),
+  providerEventId: `evt_${faker.string.alphanumeric({ length: 24 })}`,
+  uid: faker.string.uuid(),
+  billingCountry: faker.location.countryCode(),
   ...override,
 });
 
