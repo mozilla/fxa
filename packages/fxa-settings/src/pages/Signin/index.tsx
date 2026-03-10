@@ -84,6 +84,7 @@ const Signin = ({
 
   const isOAuth = isOAuthIntegration(integration);
   const isOAuthNative = isOAuthNativeIntegration(integration);
+  const isSync = integration.isSync();
   const clientId = integration.getClientId();
   const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
 
@@ -95,8 +96,8 @@ const Signin = ({
   const [hasCachedAccount, setHasCachedAccount] =
     useState<boolean>(!!sessionToken);
 
-  // A password is needed if:
-  // * There is no session token in local storage and the user has a password, OR
+  // A password is needed and password input rendered if the user has a password AND:
+  // * There is no session token in local storage, OR
   // * The integration wants keys (e.g. Sync always wants keys, and non-sync browser
   //   services like Smart Window also request keys if there's no cached sign-in
   //   to prevent a redirect to FxA to turn Sync on), OR
@@ -104,8 +105,13 @@ const Signin = ({
   // UNLESS the user has a cached account AND they are in an OAuth Native flow AND
   // the browser supports the "keys optional" capability for non-Sync browser signins.
   // These users will be redirected to FxA later to enter a password to turn Sync on.
+  //
+  // If the user has no password (e.g. third-party auth only), we show the cached
+  // sign-in view instead. After session verification, Sync users will be redirected
+  // to set a password via post_verify/third_party_auth/set_password.
   const isPasswordNeeded =
-    ((!hasCachedAccount && hasPassword) ||
+    hasPassword &&
+    (!hasCachedAccount ||
       integration.wantsKeys() ||
       (isOAuth && integration.wantsLogin())) &&
     !(hasCachedAccount && supportsKeysOptionalLogin);
@@ -136,9 +142,7 @@ const Signin = ({
   // Show for all other cases.
   const hideThirdPartyAuth =
     hasCachedAccount ||
-    (integration.isSync()
-      ? hasPassword
-      : isOAuthNative && !supportsKeysOptionalLogin);
+    (isSync ? hasPassword : isOAuthNative && !supportsKeysOptionalLogin);
 
   useEffect(() => {
     if (!isPasswordNeeded) {
@@ -181,8 +185,12 @@ const Signin = ({
           queryParams: location.search,
           performNavigation: !integration.isFirefoxMobileClient(),
           isServiceWithEmailVerification,
-          handleFxaLogin: true,
-          handleFxaOAuthLogin: true,
+          // Sync users in the cached path are passwordless (third-party auth);
+          // defer web channel messages until after password creation.
+          handleFxaLogin: !isSync,
+          handleFxaOAuthLogin: !isSync,
+          // Redirect passwordless Sync users to set_password after session verification.
+          isSignInWithThirdPartyAuth: isSync,
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -209,6 +217,7 @@ const Signin = ({
       setLocalizedBannerError,
       integration,
       finishOAuthFlowHandler,
+      isSync,
       location.search,
       webRedirectCheck,
       isServiceWithEmailVerification,

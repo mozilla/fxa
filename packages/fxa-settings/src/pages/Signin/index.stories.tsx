@@ -130,7 +130,17 @@ export const CachedSyncBrowserService = storyWithProps(
     sessionToken: MOCK_SESSION_TOKEN,
     integration: createMockSigninOAuthNativeSyncIntegration(),
   },
-  'Cached > Sync browser service'
+  'Cached > Sync browser service > Account has password'
+);
+export const CachedSyncBrowserServicePasswordlessAccount = storyWithProps(
+  {
+    sessionToken: MOCK_SESSION_TOKEN,
+    serviceName: MozServices.FirefoxSync,
+    hasLinkedAccount: true,
+    hasPassword: false,
+    integration: createMockSigninOAuthNativeSyncIntegration(),
+  },
+  'Cached > Sync browser service > Passwordless account (user will be taken to Set Password page)'
 );
 export const CachedNonSyncBrowserServiceWithoutPasswordlessCapability =
   storyWithProps(
