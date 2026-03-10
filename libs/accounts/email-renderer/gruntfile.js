@@ -98,6 +98,7 @@
         'src/templates/postVerify/en.ftl',
         'src/templates/postVerifySecondary/en.ftl',
         'src/templates/recovery/en.ftl',
+        // 'src/templates/freeTrialEndingReminder/en.ftl',
         // 'src/templates/subscriptionAccountDeletion/en.ftl',
         // 'src/templates/subscriptionAccountReminderFirst/en.ftl',
         // 'src/templates/subscriptionAccountReminderSecond/en.ftl',

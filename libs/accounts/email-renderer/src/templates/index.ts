@@ -46,6 +46,7 @@ export * as verificationReminderFinal from './verificationReminderFinal';
 export * as cadReminderFirst from './cadReminderFirst';
 export * as cadReminderSecond from './cadReminderSecond';
 export * as downloadSubscription from './downloadSubscription';
+export * as freeTrialEndingReminder from './freeTrialEndingReminder';
 export * as fraudulentAccountDeletion from './fraudulentAccountDeletion';
 export * as inactiveAccountFirstWarning from './inactiveAccountFirstWarning';
 export * as inactiveAccountSecondWarning from './inactiveAccountSecondWarning';

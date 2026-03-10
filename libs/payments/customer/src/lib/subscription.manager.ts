@@ -64,6 +64,13 @@ export class SubscriptionManager {
     }
   }
 
+  async *listTrialingGenerator(currentPeriodEnd: Stripe.RangeQueryParam) {
+    yield* this.stripeClient.subscriptionsListGenerator({
+      status: 'trialing',
+      current_period_end: currentPeriodEnd,
+    });
+  }
+
   async cancelIncompleteSubscriptionsToPrice(
     customerId: string,
     priceId: string

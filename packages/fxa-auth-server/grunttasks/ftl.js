@@ -100,6 +100,7 @@ module.exports = function (grunt) {
         // 'lib/senders/emails/templates/postVerify/en.ftl',
         // 'lib/senders/emails/templates/postVerifySecondary/en.ftl',
         // 'lib/senders/emails/templates/recovery/en.ftl',
+        'lib/senders/emails/templates/freeTrialEndingReminder/en.ftl',
         'lib/senders/emails/templates/subscriptionAccountDeletion/en.ftl',
         'lib/senders/emails/templates/subscriptionAccountReminderFirst/en.ftl',
         'lib/senders/emails/templates/subscriptionAccountReminderSecond/en.ftl',

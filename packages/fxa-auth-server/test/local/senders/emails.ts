@@ -4623,6 +4623,220 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ],
 
   [
+    'freeTrialEndingReminderEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `Your ${MESSAGE.subscription.productName} free trial ends soon`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue('freeTrialEndingReminder'),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'freeTrialEndingReminder' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.freeTrialEndingReminder,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          {
+            test: 'include',
+            expected: decodeUrl(
+              configHref(
+                'subscriptionTermsUrl',
+                'free-trial-ending-reminder',
+                'subscription-terms'
+              )
+            ),
+          },
+          {
+            test: 'include',
+            expected: decodeUrl(
+              configHref(
+                'subscriptionSettingsUrl',
+                'free-trial-ending-reminder',
+                'update-billing',
+                'plan_id',
+                'product_id',
+                'uid',
+                'email'
+              )
+            ),
+          },
+          {
+            test: 'include',
+            expected: decodeUrl(
+              configHref(
+                'subscriptionProductSupportUrl',
+                'free-trial-ending-reminder',
+                'subscription-product-support'
+              )
+            ),
+          },
+          {
+            test: 'notInclude',
+            expected: decodeUrl(
+              configHref(
+                'churnTermsUrl',
+                'free-trial-ending-reminder',
+                'subscription-product-support'
+              )
+            ),
+          },
+          {
+            test: 'notInclude',
+            expected: decodeUrl(
+              configHref(
+                'ctaButtonUrl',
+                'free-trial-ending-reminder',
+                'subscription-product-support'
+              )
+            ),
+          },
+          {
+            test: 'include',
+            expected: `Your ${MESSAGE.subscription.productName} free trial ends soon`,
+          },
+          {
+            test: 'include',
+            expected: `Dear ${MESSAGE.subscription.productName} customer,`,
+          },
+          {
+            test: 'include',
+            expected: `Your free trial is scheduled to end on <strong>${SUBSCRIPTION_ENDING_REMINDER_DATE}</strong>.`,
+          },
+          {
+            test: 'include',
+            expected: `your subscription will automatically begin and we`,
+          },
+          {
+            test: 'include',
+            expected: 'Charge details',
+          },
+          {
+            test: 'include',
+            expected: `${MESSAGE.subscription.productName} subscription`,
+          },
+          {
+            test: 'include',
+            expected: `${MESSAGE_FORMATTED.invoiceSubtotal}`,
+          },
+          {
+            test: 'include',
+            expected: `Discount`,
+          },
+          {
+            test: 'include',
+            expected: `Tax`,
+          },
+          {
+            test: 'include',
+            expected: `Total due on ${SUBSCRIPTION_ENDING_REMINDER_DATE}`,
+          },
+          {
+            test: 'include',
+            expected: `${MESSAGE_FORMATTED.invoiceTotal}`,
+          },
+          {
+            test: 'include',
+            expected: 'review or update your payment method',
+          },
+          {
+            test: 'include',
+            expected: 'To avoid being charged, cancel before',
+          },
+          {
+            test: 'include',
+            expected: 'Cancel subscription',
+          },
+          {
+            test: 'include',
+            expected: `Thank you for trying ${MESSAGE.subscription.productName}`,
+          },
+          {
+            test: 'include',
+            expected: 'Sincerely,',
+          },
+          {
+            test: 'include',
+            expected: `The ${MESSAGE.subscription.productName} team`,
+          },
+          { test: 'notInclude', expected: 'utm_source=email' },
+          { test: 'notInclude', expected: 'Want to keep access?' },
+        ],
+      ],
+      [
+        'text',
+        [
+          {
+            test: 'include',
+            expected: `Your ${MESSAGE.subscription.productName} free trial ends soon`,
+          },
+          {
+            test: 'include',
+            expected: `Dear ${MESSAGE.subscription.productName} customer,`,
+          },
+          {
+            test: 'include',
+            expected: `Your free trial is scheduled to end on ${SUBSCRIPTION_ENDING_REMINDER_DATE}.`,
+          },
+          {
+            test: 'include',
+            expected: 'your subscription will automatically begin',
+          },
+          {
+            test: 'include',
+            expected: 'Charge details',
+          },
+          {
+            test: 'include',
+            expected: 'To avoid being charged, cancel before',
+          },
+          {
+            test: 'include',
+            expected: `Thank you for trying ${MESSAGE.subscription.productName}`,
+          },
+          {
+            test: 'include',
+            expected: 'Sincerely,',
+          },
+          { test: 'notInclude', expected: 'utm_source=email' },
+          { test: 'notInclude', expected: 'Want to keep access?' },
+        ],
+      ],
+    ]),
+    {
+      updateTemplateValues: (x) => ({
+        ...x,
+        productName: MESSAGE.subscription.productName,
+        subscriptionSupportUrl: SUBSCRIPTION_PRODUCT_SUPPORT_URL,
+        invoiceDiscountAmountInCents: 200,
+        showTaxAmount: true,
+        showDiscount: true,
+      }),
+    },
+  ],
+
+  [
     'subscriptionEndingReminderEmail',
     new Map<string, Test | any>([
       [
