@@ -12,7 +12,6 @@ import { RelierCmsInfo } from '../../models/integrations';
 import { LocaleToggle } from '../LocaleToggle';
 import { useConfig } from '../../models/hooks';
 import { CardLoadingSpinner } from '../CardLoadingSpinner';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
 
 type AppLayoutProps = {
@@ -87,8 +86,9 @@ export const AppLayout = ({
       <div
         className={classNames(
           'flex min-h-screen flex-col items-center',
-          cmsBackgrounds?.defaultLayout && 'tablet:[background:var(--cms-bg)]',
-          showSplitLayout && 'tablet:relative'
+          cmsBackgrounds?.defaultLayout &&
+            'mobileLandscape:[background:var(--cms-bg)]',
+          showSplitLayout && 'mobileLandscape:relative'
         )}
         style={
           cmsBackgrounds?.defaultLayout
@@ -104,9 +104,9 @@ export const AppLayout = ({
           className={classNames(
             'w-full px-6 py-4 mobileLandscape:py-6',
             cmsBackgrounds?.header &&
-              'tablet:[background:var(--cms-header-bg)]',
+              'mobileLandscape:[background:var(--cms-header-bg)]',
             // Absolute position so the background-image can optionally show through.
-            showSplitLayout && 'tablet:absolute'
+            showSplitLayout && 'desktop:absolute'
           )}
           style={
             cmsBackgrounds?.header
@@ -169,12 +169,12 @@ export const AppLayout = ({
             )}
           </>
         ) : (
-          <div className="flex flex-col tablet:flex-row w-full flex-1">
+          <div className="flex flex-col desktop:flex-row w-full flex-1">
             <div
               className={classNames(
-                'hidden tablet:flex flex-1',
+                'hidden desktop:flex flex-1',
                 cmsBackgrounds?.splitLayout &&
-                  'tablet:[background:var(--cms-split-layout-bg)]'
+                  'desktop:[background:var(--cms-split-layout-bg)]'
               )}
               /* Some split layout backgrounds, such as an artsy galaxy fox, should have
               alt text for user delight. Others can be considered purely decorative. If
@@ -191,15 +191,15 @@ export const AppLayout = ({
                   : undefined
               }
             />
-            <div className="mobileLandscape:items-center tablet:flex-1 tablet:bg-white tablet:ml-auto flex flex-col flex-1">
-              <main className="flex justify-center items-center flex-1">
-                <section className="max-w-120 desktop:w-120 px-8 py-8">
-                  {loading ? (
-                    <LoadingSpinner className="h-full flex items-center" />
-                  ) : (
-                    children
-                  )}
-                </section>
+            <div className="mobileLandscape:items-center desktop:bg-white desktop:ml-auto flex flex-col flex-1">
+              <main className="flex justify-center mobileLandscape:items-center flex-1">
+                {loading ? (
+                  <section>
+                    <CardLoadingSpinner />
+                  </section>
+                ) : (
+                  <section className="card">{children}</section>
+                )}
               </main>
               {showLocaleToggle && (
                 <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400">

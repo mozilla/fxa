@@ -15,6 +15,7 @@ import {
   MOCK_CMS_INFO_HEADER_LOGO_NO_ALT,
   MOCK_CMS_INFO_DEFAULT_LOGO,
   MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS,
+  MOCK_CMS_INFO_SPLIT_LAYOUT_BG,
 } from './mocks';
 import { MOCK_CMS_INFO } from '../../pages/mocks';
 import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
@@ -401,14 +402,19 @@ describe('<AppLayout />', () => {
         isLoading: false,
       });
 
-      const { container } = renderWithLocalizationProvider(
-        <AppLayout splitLayout={true}>
+      renderWithLocalizationProvider(
+        <AppLayout splitLayout={true} cmsInfo={MOCK_CMS_INFO_SPLIT_LAYOUT_BG}>
           <p>Split layout content</p>
         </AppLayout>
       );
 
-      // Split layout does not render the card wrapper
-      expect(container.querySelector('.card')).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('img', {
+          name: MOCK_CMS_INFO_SPLIT_LAYOUT_BG.shared.backgrounds
+            ?.splitLayoutAltText as string,
+        })
+      ).toBeInTheDocument();
+
       screen.getByText('Split layout content');
     });
 
@@ -420,14 +426,19 @@ describe('<AppLayout />', () => {
         isLoading: false,
       });
 
-      const { container } = renderWithLocalizationProvider(
+      renderWithLocalizationProvider(
         <AppLayout splitLayout={true} cmsInfo={MOCK_CMS_INFO_HEADER_LOGO}>
           <p>Default layout content</p>
         </AppLayout>
       );
 
-      // Default layout renders with card wrapper
-      expect(container.querySelector('.card')).toBeInTheDocument();
+      expect(
+        screen.queryByRole('img', {
+          name: MOCK_CMS_INFO_SPLIT_LAYOUT_BG.shared.backgrounds
+            ?.splitLayoutAltText as string,
+        })
+      ).not.toBeInTheDocument();
+
       screen.getByText('Default layout content');
       // CMS info is still applied even when split layout is disabled
       expect(screen.getByAltText('CMS Custom Logo')).toBeInTheDocument();
