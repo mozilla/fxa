@@ -97,6 +97,10 @@ describe('determineRedirectToSp2', () => {
         mockReportError
       );
       expect(result).toBe(true);
+      expect(mockReportError).toHaveBeenCalledWith(
+        'Random percentage is too high',
+        { randomPercentage: 200 }
+      );
     });
 
     it('returns false even if randomPercentage is less than 1', () => {
@@ -116,6 +120,10 @@ describe('determineRedirectToSp2', () => {
         mockReportError
       );
       expect(result).toBe(false);
+      expect(mockReportError).toHaveBeenCalledWith(
+        'Random percentage is too low',
+        { randomPercentage: 0 }
+      );
     });
   });
 

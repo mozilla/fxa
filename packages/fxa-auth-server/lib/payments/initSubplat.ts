@@ -103,7 +103,7 @@ export async function initSubplat({
     },
     statsd
   );
-  const strapiClient = new StrapiClient(config.cms.strapiClient, firestore);
+  const strapiClient = new StrapiClient(config.cms.strapiClient, firestore, winstonLogger(loggerName));
   const paypalClient = new PayPalClient(
     config.subscriptions.paypalNvpSigCredentials,
     statsd

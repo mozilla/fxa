@@ -30,7 +30,7 @@ export const submitNeedsInputAndRedirectAction = async (
 
     redirectPath = 'success';
   } catch (error) {
-    console.error('Error submitting needs input', error);
+    getApp().getLogger().error('Error submitting needs input', { error });
 
     await recordEmitterEventAction(
       'checkoutFail',

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { CmsContentValidationManager } from './cms-content-validation.manager';
 import { StrapiClient } from './strapi.client';
@@ -20,6 +21,16 @@ describe('CmsContentValidationManager', () => {
         StrapiClient,
         MockStrapiClientConfigProvider,
         MockFirestoreProvider,
+        {
+          provide: Logger,
+          useValue: {
+            error: jest.fn(),
+            log: jest.fn(),
+            warn: jest.fn(),
+            debug: jest.fn(),
+            info: jest.fn(),
+          },
+        },
       ],
     }).compile();
 

@@ -104,7 +104,11 @@ export const {
   },
   logger: {
     error(error: Error) {
-      console.error(new AuthError(error.message, { cause: error }));
+      getApp()
+        .getLogger()
+        .error(error.message, {
+          error: new AuthError(error.message, { cause: error }),
+        });
     },
   },
 });
