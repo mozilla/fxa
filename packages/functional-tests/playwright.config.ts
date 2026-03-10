@@ -86,7 +86,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
             targetName: name,
             launchOptions: {
               args: DEBUG ? ['-start-debugger-server'] : undefined,
-              firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
+              firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG, name === 'sandbox' ? 'oauth_webchannel_v1' : 'fx_desktop_v3'),
               headless: !DEBUG,
               slowMo: SLOWMO,
             },
@@ -94,7 +94,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
           },
         }) as Project
     ),
-    ...(TargetNames.map((name) => ({
+    ...(TargetNames.filter((name) => name !== 'sandbox').map((name) => ({
       name: `${name}-chromium`,
       use: {
         browserName: 'chromium',

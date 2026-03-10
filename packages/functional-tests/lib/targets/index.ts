@@ -4,11 +4,13 @@
 
 import { BaseTarget } from './base';
 import { LocalTarget } from './local';
+import { SandboxTarget } from './sandbox';
 import { StageTarget } from './stage';
 import { ProductionTarget } from './production';
 
 export const TargetNames = [
   LocalTarget.target,
+  SandboxTarget.target,
   StageTarget.target,
   ProductionTarget.target,
 ] as const;
@@ -16,6 +18,7 @@ export type TargetName = (typeof TargetNames)[number];
 
 const targets = {
   [LocalTarget.target]: LocalTarget,
+  [SandboxTarget.target]: SandboxTarget,
   [StageTarget.target]: StageTarget,
   [ProductionTarget.target]: ProductionTarget,
 };
