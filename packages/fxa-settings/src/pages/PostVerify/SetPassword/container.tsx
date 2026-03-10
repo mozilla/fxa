@@ -5,6 +5,7 @@
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SetPassword from '.';
 import { currentAccount } from '../../../lib/cache';
+import { persistAccount } from '../../../lib/storage-utils';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Integration, useAuthClient } from '../../../models';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -44,7 +45,6 @@ const SetPasswordContainer = ({
   const email = storedLocalAccount?.email;
   const sessionToken = storedLocalAccount?.sessionToken;
   const uid = storedLocalAccount?.uid;
-
 
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SetPasswordLocationState;
@@ -122,14 +122,18 @@ const SetPasswordContainer = ({
     (uid: string, email: string, sessionToken: string): CreatePasswordHandler =>
       async (newPassword: string) => {
         try {
-          const { authPW, unwrapBKey } =
-            await authClient.createPassword(sessionToken, email, newPassword);
+          const { authPW, unwrapBKey } = await authClient.createPassword(
+            sessionToken,
+            email,
+            newPassword
+          );
 
           const keyFetchToken = await getKeyFetchToken(
             authPW,
             email,
             sessionToken
           );
+          persistAccount({ uid, hasPassword: true });
 
           GleanMetrics.thirdPartyAuthSetPassword.success();
 
