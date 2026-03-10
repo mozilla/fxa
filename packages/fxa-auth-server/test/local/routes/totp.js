@@ -216,6 +216,7 @@ describe('totp', () => {
                 state: 'California',
                 stateCode: 'CA',
               },
+              client_id: 'sync',
             },
           }
         );

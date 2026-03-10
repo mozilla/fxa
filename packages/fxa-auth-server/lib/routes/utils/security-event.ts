@@ -4,13 +4,54 @@
 
 import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
 import { AccountEventsManager } from '../../account-events';
+import { AppConfig } from '../../types';
 import { Container } from 'typedi';
+
+// Match any non-empty hex-encoded string (even number of hex chars)
+const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
+
+/**
+ * Validates and returns a client_id if it's allowed for tracking.
+ * Only returns the client_id if it's "sync" or exists in the oauth.clientIds allowlist.
+ */
+export function getValidatedClientId(
+  service: string | undefined,
+  oauthClientIds: Record<string, string>
+): string | undefined {
+  if (!service) {
+    return undefined;
+  }
+
+  // Allow "sync" as a special legacy case
+  if (service === 'sync') {
+    return service;
+  }
+
+  // Only allow hex client IDs that are in the allowlist
+  if (HEX_STRING.test(service) && oauthClientIds[service]) {
+    return service;
+  }
+
+  return undefined;
+}
 
 export async function recordSecurityEvent(name: SecurityEventNames, opts: any) {
   const mgr = Container.get(AccountEventsManager);
   if (mgr == null || typeof mgr.recordSecurityEvent !== 'function') {
     return;
   }
+
+  // Get oauth client IDs from config if available
+  let oauthClientIds: Record<string, string> = {};
+  if (Container.has(AppConfig)) {
+    const config = Container.get(AppConfig);
+    oauthClientIds = config.oauth?.clientIds || {};
+  }
+
+  // Extract service from request payload or query
+  const service =
+    opts?.request?.payload?.service || opts?.request?.query?.service;
+  const client_id = getValidatedClientId(service, oauthClientIds);
 
   await mgr.recordSecurityEvent(opts.db, {
     name,
@@ -20,6 +61,7 @@ export async function recordSecurityEvent(name: SecurityEventNames, opts: any) {
     additionalInfo: {
       userAgent: opts?.request.headers['user-agent'],
       location: opts?.request.app.geo.location,
+      ...(client_id && { client_id }),
     },
   });
 }

@@ -14,6 +14,7 @@ const { AccountEventsManager } = require('../../account-events');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 const otp = require('../utils/otp');
 const { fetchRpCmsData } = require('../utils/account');
+const { getValidatedClientId } = require('./security-event');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const requestHelper = require('./request_helper');
 const { FxaMailer } = require('../../senders/fxa-mailer');
@@ -44,6 +45,7 @@ module.exports = (
     (config.signinUnblock && config.signinUnblock.codeLength) || 8;
   const otpOptions = config.otp;
   const otpUtils = otp.default(db, statsd);
+  const oauthClientIds = config.oauth?.clientIds || {};
 
   const accountEventsManager = Container.has(AccountEventsManager)
     ? Container.get(AccountEventsManager)
@@ -642,6 +644,7 @@ module.exports = (
       }
 
       async function recordSecurityEvent() {
+        const client_id = getValidatedClientId(service, oauthClientIds);
         await accountEventsManager.recordSecurityEvent(db, {
           name: 'account.login',
           uid: accountRecord.uid,
@@ -650,6 +653,7 @@ module.exports = (
           additionalInfo: {
             userAgent: request.headers['user-agent'],
             location: request.app.geo.location,
+            ...(client_id && { client_id }),
           },
         });
       }
