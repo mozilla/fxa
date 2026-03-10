@@ -39,7 +39,6 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           path: main-repo
-          persist-credentials: false
 
       - name: Regenerate root index.html
         run: node main-repo/_scripts/generate-storybook-index.js
