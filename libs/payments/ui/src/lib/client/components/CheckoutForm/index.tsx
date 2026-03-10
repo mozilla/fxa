@@ -89,6 +89,7 @@ interface CheckoutFormProps {
   locale: string;
   sessionUid?: string;
   sessionEmail?: string;
+  isFreeTrial?: boolean;
 }
 
 export function CheckoutForm({
@@ -97,6 +98,7 @@ export function CheckoutForm({
   locale,
   sessionUid,
   sessionEmail,
+  isFreeTrial,
 }: CheckoutFormProps) {
   const elements = useElements();
   const router = useRouter();
@@ -126,7 +128,9 @@ export function CheckoutForm({
     recordEmitterEventAction(
       'checkoutEngage',
       { ...params },
-      Object.fromEntries(searchParams)
+      Object.fromEntries(searchParams),
+      undefined,
+      isFreeTrial
     );
   }, []);
 
@@ -184,7 +188,8 @@ export function CheckoutForm({
         'checkoutSubmit',
         { ...params },
         Object.fromEntries(searchParams),
-        'paypal'
+        'paypal',
+        isFreeTrial
       );
 
       await checkoutCartWithPaypal(
@@ -258,7 +263,8 @@ export function CheckoutForm({
       'checkoutSubmit',
       { ...params },
       Object.fromEntries(searchParams),
-      paymentProvider
+      paymentProvider,
+      isFreeTrial
     );
 
     await checkoutCartWithStripe(

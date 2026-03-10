@@ -24,6 +24,7 @@ export type CommonMetrics = {
   deviceType: string;
   userAgent: string;
   experimentationId: string;
+  isFreeTrial: boolean;
   params: Record<string, string>;
   searchParams: Record<string, string>;
 };
@@ -102,6 +103,13 @@ export type SubscriptionCancellationData = {
   providerEventId: string;
 };
 
+export type TrialConversionData = {
+  conversionStatus: 'successful' | 'unsuccessful';
+  providerEventId: string;
+  productId: string;
+  billingCountry?: string;
+};
+
 export const PaymentsGleanProvider = Symbol('GleanServerEventsProvider');
 
 export type PaymentsGleanServerEventsLoggerTester = {
@@ -111,4 +119,5 @@ export type PaymentsGleanServerEventsLoggerTester = {
   recordPaySetupSuccess: (data: any) => void;
   recordPaySetupFail: (data: any) => void;
   recordSubscriptionEnded: (data: any) => void;
+  recordSubscriptionTrialConverted: (data: any) => void;
 };

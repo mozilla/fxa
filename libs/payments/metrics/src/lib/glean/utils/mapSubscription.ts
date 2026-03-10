@@ -23,11 +23,13 @@ export function mapSubscription({
   cartMetricsData,
   cmsMetricsData,
   subscriptionCancellationData,
+  isFreeTrial,
 }: {
   commonMetricsData: CommonMetrics;
   cartMetricsData: CartMetrics;
   cmsMetricsData: CmsMetricsData;
   subscriptionCancellationData?: SubscriptionCancellationData;
+  isFreeTrial?: boolean;
 }) {
   const mappedParams = mapParams(commonMetricsData.params);
   return {
@@ -60,5 +62,6 @@ export function mapSubscription({
     subscription_provider_event_id: normalizeGleanFalsyValues(
       subscriptionCancellationData?.providerEventId
     ),
+    subscription_is_free_trial: isFreeTrial ? 'true' : '',
   };
 }

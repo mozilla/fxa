@@ -6,7 +6,10 @@ import Stripe from 'stripe';
 import { Timestamp } from '@google-cloud/firestore';
 
 export interface DefaultResponse {
-  type: Exclude<Stripe.Event.Type, 'customer.subscription.deleted'>;
+  type: Exclude<
+    Stripe.Event.Type,
+    'customer.subscription.deleted' | 'customer.subscription.updated'
+  >;
   event: Stripe.Event;
   eventObjectData: Stripe.Event.Data.Object;
 }
@@ -17,9 +20,16 @@ export interface CustomerSubscriptionDeletedResponse {
   eventObjectData: Stripe.Subscription;
 }
 
+export interface CustomerSubscriptionUpdatedResponse {
+  type: 'customer.subscription.updated';
+  event: Stripe.Event;
+  eventObjectData: Stripe.Subscription;
+}
+
 export type StripeWebhookEventResponse =
   | DefaultResponse
-  | CustomerSubscriptionDeletedResponse;
+  | CustomerSubscriptionDeletedResponse
+  | CustomerSubscriptionUpdatedResponse;
 
 export interface StripeEventStoreEntry {
   eventId: string;

@@ -339,6 +339,50 @@ subscription:
     expires: never
     data_sensitivity:
       - interaction
+  is_free_trial:
+    type: string
+    description: |
+      Whether the subscription checkout is for a free trial. Values are 'true' or 'false'.
+    lifetime: application
+    send_in_pings:
+      - events
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3544
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2022299
+    expires: never
+    data_sensitivity:
+      - interaction
+  trial_converted:
+    type: event
+    lifetime: ping
+    description: |
+      A free trial subscription has transitioned out of its trial period.
+    send_in_pings:
+      - events
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3544
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2022299
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      trial_conversion_status:
+        description: |
+          Whether the trial conversion was successful (trialing to active) or unsuccessful (trialing to other).
+        type: string
+        enum:
+          - successful
+          - unsuccessful
+      subscription_billing_country:
+        description: |
+          The billing country of the customer, as an ISO 3166-1 alpha-2 country code.
+        type: string
 
 utm:
   campaign:

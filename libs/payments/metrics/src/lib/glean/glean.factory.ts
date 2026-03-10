@@ -8,6 +8,7 @@ import {
   CmsMetricsData,
   CommonMetrics,
   SubscriptionCancellationData,
+  TrialConversionData,
   type AccountsMetricsData,
   type ExperimentationData,
   type GenericGleanSubManageEvent,
@@ -41,6 +42,7 @@ export const CommonMetricsFactory = (
   ipAddress: faker.internet.ip(),
   deviceType: faker.string.alphanumeric(),
   userAgent: faker.internet.userAgent(),
+  isFreeTrial: false,
   params: {},
   searchParams: {},
   experimentationId: faker.string.uuid(),
@@ -90,6 +92,19 @@ export const SubscriptionCancellationDataFactory = (
     ...override,
   };
 };
+
+export const TrialConversionDataFactory = (
+  override?: Partial<TrialConversionData>
+): TrialConversionData => ({
+  conversionStatus: faker.helpers.arrayElement([
+    'successful',
+    'unsuccessful',
+  ]),
+  providerEventId: `evt_${faker.string.alphanumeric({ length: 24 })}`,
+  productId: `prod_${faker.string.alphanumeric({ length: 14 })}`,
+  billingCountry: faker.location.countryCode(),
+  ...override,
+});
 
 export const ExperimentationDataFactory = (
   override?: Partial<ExperimentationData>
