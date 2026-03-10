@@ -22,7 +22,11 @@ export class CloudTaskHandler {
   private accountDeleteManager: AccountDeleteManager;
   private emailCloudTaskManager: EmailCloudTaskManager;
 
-  constructor(private log: AuthLogger, config: ConfigType, statsd: StatsD) {
+  constructor(
+    private log: AuthLogger,
+    config: ConfigType,
+    statsd: StatsD
+  ) {
     this.accountDeleteManager = Container.get(AccountDeleteManager);
     this.emailCloudTaskManager = Container.get(EmailCloudTaskManager);
   }
@@ -45,10 +49,6 @@ export class CloudTaskHandler {
   }
 }
 
-export const accountDeleteCloudTaskPath = '/cloud-tasks/accounts/delete';
-export const inactiveNotificationsCloudTaskPath =
-  '/cloud-tasks/emails/notify-inactive';
-
 export const cloudTaskRoutes = (
   log: AuthLogger,
   config: ConfigType,
@@ -58,7 +58,7 @@ export const cloudTaskRoutes = (
   const routes = [
     {
       method: 'POST',
-      path: accountDeleteCloudTaskPath,
+      path: '/cloud-tasks/accounts/delete',
       options: {
         auth: {
           mode: config.cloudTasks.useLocalEmulator ? 'try' : 'required',
@@ -90,7 +90,7 @@ export const cloudTaskRoutes = (
 
     {
       method: 'POST',
-      path: inactiveNotificationsCloudTaskPath,
+      path: '/cloud-tasks/emails/notify-inactive',
       options: {
         auth: {
           mode: config.cloudTasks.useLocalEmulator ? 'try' : 'required',
