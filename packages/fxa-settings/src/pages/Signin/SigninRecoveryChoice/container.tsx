@@ -16,8 +16,10 @@ import AppLayout from '../../../components/AppLayout';
 
 export const SigninRecoveryChoiceContainer = ({
   integration,
+  setCurrentSplitLayout,
 }: {
   integration: Integration;
+  setCurrentSplitLayout?: (value: boolean) => void;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const location = useLocation() as ReturnType<typeof useLocation> & {
@@ -216,8 +218,15 @@ export const SigninRecoveryChoiceContainer = ({
     autoSendPhoneCode,
   ]);
 
+  const cmsInfo = integration.getCmsInfo();
+  const splitLayout = cmsInfo?.SigninRecoveryChoicePage?.splitLayout;
+
   if (!signinState || !signinState.sessionToken) {
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
+    return (
+      <AppLayout
+        {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
+      />
+    );
   }
 
   const shouldLoadInCard = loading || !phoneData.phoneNumber || !numBackupCodes;
@@ -232,6 +241,7 @@ export const SigninRecoveryChoiceContainer = ({
         signinState,
         integration,
         loading: shouldLoadInCard,
+        setCurrentSplitLayout,
       }}
     />
   );

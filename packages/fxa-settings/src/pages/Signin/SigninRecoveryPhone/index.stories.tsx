@@ -39,6 +39,22 @@ export const BasicWithCms = () => (
   />
 );
 
+export const SplitLayoutWithCms = () => (
+  <Subject
+    verifyCode={(code: string) => {
+      action('verifyCode')(code);
+      return Promise.resolve();
+    }}
+    integration={createMockOAuthNativeIntegration(true, {
+      ...MOCK_CMS_INFO,
+      SigninRecoveryPhonePage: {
+        ...MOCK_CMS_INFO.SigninRecoveryPhonePage!,
+        splitLayout: true,
+      },
+    })}
+  />
+);
+
 export const WithCodeErrorOnSubmit = () => (
   <Subject
     verifyCode={(code: string) => {

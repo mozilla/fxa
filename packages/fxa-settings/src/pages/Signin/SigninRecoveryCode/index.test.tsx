@@ -154,6 +154,29 @@ describe('PageSigninRecoveryCode', () => {
     expect(additionalInfo).toBeInTheDocument();
   });
 
+  it('renders CMS headline and description when provided', () => {
+    const mockIntegrationWithCms = createMockSigninWebIntegration({
+      cmsInfo: MOCK_CMS_INFO,
+    });
+    renderWithLocalizationProvider(
+      <LocationProvider>
+        <SigninRecoveryCode
+          finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+          integration={mockIntegrationWithCms}
+          navigateToRecoveryPhone={jest.fn()}
+          signinState={mockSigninLocationState}
+          submitRecoveryCode={jest.fn()}
+        />
+      </LocationProvider>
+    );
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryCodePage!.headline!)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryCodePage!.description!)
+    ).toBeInTheDocument();
+  });
+
   describe('metrics', () => {
     it('emits a metrics event on render', () => {
       const mockSubmitRecoveryCode = jest.fn();

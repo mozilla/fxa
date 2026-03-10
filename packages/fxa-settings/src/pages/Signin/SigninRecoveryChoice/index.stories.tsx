@@ -46,6 +46,27 @@ export const DefaultWithCms = () => (
   </LocationProvider>
 );
 
+export const SplitLayoutWithCms = () => (
+  <LocationProvider>
+    <SigninRecoveryChoice
+      handlePhoneChoice={() => Promise.resolve()}
+      maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
+      lastFourPhoneDigits="1234"
+      numBackupCodes={4}
+      signinState={MOCK_SIGNIN_LOCATION_STATE}
+      integration={createMockSigninOAuthIntegration({
+        cmsInfo: {
+          ...MOCK_CMS_INFO,
+          SigninRecoveryChoicePage: {
+            ...MOCK_CMS_INFO.SigninRecoveryChoicePage!,
+            splitLayout: true,
+          },
+        },
+      })}
+    />
+  </LocationProvider>
+);
+
 export const WithSMSSendRateLimitExceeded = () => (
   <LocationProvider>
     <SigninRecoveryChoice

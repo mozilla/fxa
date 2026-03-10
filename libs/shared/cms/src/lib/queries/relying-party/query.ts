@@ -105,6 +105,42 @@ export const relyingPartyQuery = graphql(`
         pageTitle
         splitLayout
       }
+      SigninTotpCodePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        splitLayout
+      }
+      SigninRecoveryChoicePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        splitLayout
+      }
+      SigninRecoveryCodePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        primaryImage {
+          url
+          altText
+        }
+        splitLayout
+      }
+      SigninRecoveryPhonePage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+        primaryImage {
+          url
+          altText
+        }
+        splitLayout
+      }
       NewDeviceLoginEmail {
         subject
         headline

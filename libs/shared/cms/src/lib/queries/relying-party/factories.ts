@@ -154,5 +154,41 @@ export const RelyingPartyResultFactory = (
     pageTitle: faker.string.sample(),
     splitLayout: faker.datatype.boolean(),
   },
+  SigninTotpCodePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
+  SigninRecoveryChoicePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
+  SigninRecoveryCodePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    primaryImage: {
+      url: faker.internet.url(),
+      altText: faker.string.sample(),
+    },
+    splitLayout: faker.datatype.boolean(),
+  },
+  SigninRecoveryPhonePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    primaryImage: {
+      url: faker.internet.url(),
+      altText: faker.string.sample(),
+    },
+    splitLayout: faker.datatype.boolean(),
+  },
   ...override,
 });

@@ -9,7 +9,8 @@ import { userEvent } from '@testing-library/user-event';
 import SigninRecoveryPhone from './index';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { HandledError } from '../../../lib/error-utils';
-import { mockSigninLocationState } from '../mocks';
+import { createMockSigninWebIntegration, mockSigninLocationState } from '../mocks';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 describe('SigninRecoveryPhone', () => {
   const mockVerifyCode = jest.fn(() => Promise.resolve());
@@ -70,6 +71,21 @@ describe('SigninRecoveryPhone', () => {
       screen.getByRole('link', {
         name: 'Are you locked out? Opens in new window',
       })
+    ).toBeInTheDocument();
+  });
+
+  it('renders CMS headline when provided', () => {
+    const mockIntegrationWithCms = createMockSigninWebIntegration({
+      cmsInfo: MOCK_CMS_INFO,
+    });
+    renderWithLocalizationProvider(
+      <SigninRecoveryPhone
+        {...defaultProps}
+        integration={mockIntegrationWithCms}
+      />
+    );
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SigninRecoveryPhonePage!.headline!)
     ).toBeInTheDocument();
   });
 
