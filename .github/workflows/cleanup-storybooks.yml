@@ -23,7 +23,6 @@ jobs:
           ref: gh-pages
           path: gh-pages
           fetch-depth: 1
-          persist-credentials: false
 
       - name: Remove PR directory
         run: |
