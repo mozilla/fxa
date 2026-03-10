@@ -1,0 +1,186 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { Test, TestingModule } from '@nestjs/testing';
+import {
+  AccountDatabase,
+  AccountDbProvider,
+  PasskeyFactory,
+} from '@fxa/shared/db/mysql/account';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { PasskeyManager } from './passkey.manager';
+import { PasskeyConfig } from './passkey.config';
+import {
+  PasskeyAlreadyRegisteredError,
+  PasskeyLimitReachedError,
+} from './passkey.errors';
+import * as PasskeyRepository from './passkey.repository';
+
+// Mock the repository module, keeping isMysqlDupEntry as the real implementation
+// since it is a pure synchronous helper (no DB access) and the manager relies on
+// its actual logic to detect ER_DUP_ENTRY errors.
+jest.mock('./passkey.repository', () => ({
+  ...jest.requireActual('./passkey.repository'),
+  countPasskeysByUid: jest.fn(),
+  deleteAllPasskeysForUser: jest.fn(),
+  deletePasskey: jest.fn(),
+  findPasskeyByCredentialId: jest.fn(),
+  findPasskeysByUid: jest.fn(),
+  insertPasskey: jest.fn(),
+  updatePasskeyCounterAndLastUsed: jest.fn(),
+  updatePasskeyName: jest.fn(),
+}));
+
+const mockDb = {} as unknown as AccountDatabase;
+const MOCK_MAX_PASSKEYS_PER_USER = 3;
+
+const mockConfig: PasskeyConfig = Object.assign(new PasskeyConfig(), {
+  rpId: 'accounts.example.com',
+  rpName: 'Example',
+  allowedOrigins: ['https://accounts.example.com'],
+  maxPasskeysPerUser: MOCK_MAX_PASSKEYS_PER_USER,
+});
+
+const mockLogger = {
+  log: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+};
+
+describe('PasskeyManager', () => {
+  let manager: PasskeyManager;
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PasskeyManager,
+        { provide: AccountDbProvider, useValue: mockDb },
+        { provide: PasskeyConfig, useValue: mockConfig },
+        { provide: LOGGER_PROVIDER, useValue: mockLogger },
+      ],
+    }).compile();
+
+    manager = module.get(PasskeyManager);
+  });
+
+  describe('registerPasskey', () => {
+    it('checks the limit and inserts the passkey', async () => {
+      const newPasskey = PasskeyFactory();
+
+      (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(1);
+      (PasskeyRepository.insertPasskey as jest.Mock).mockResolvedValue(
+        undefined
+      );
+
+      await manager.registerPasskey(newPasskey);
+
+      expect(PasskeyRepository.countPasskeysByUid).toHaveBeenCalledWith(
+        mockDb,
+        newPasskey.uid
+      );
+      expect(PasskeyRepository.insertPasskey).toHaveBeenCalledWith(
+        mockDb,
+        newPasskey
+      );
+    });
+
+    it('throws PasskeyLimitReachedError when count equals the limit', async () => {
+      (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(
+        MOCK_MAX_PASSKEYS_PER_USER
+      );
+
+      await expect(manager.registerPasskey(PasskeyFactory())).rejects.toThrow(
+        PasskeyLimitReachedError
+      );
+      expect(PasskeyRepository.insertPasskey).not.toHaveBeenCalled();
+    });
+
+    it('throws PasskeyAlreadyRegisteredError on ER_DUP_ENTRY', async () => {
+      (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(1);
+      const dupError = Object.assign(new Error('Duplicate entry'), {
+        code: 'ER_DUP_ENTRY',
+      });
+      (PasskeyRepository.insertPasskey as jest.Mock).mockRejectedValue(
+        dupError
+      );
+
+      await expect(manager.registerPasskey(PasskeyFactory())).rejects.toThrow(
+        PasskeyAlreadyRegisteredError
+      );
+    });
+
+    it('re-throws unknown database errors', async () => {
+      (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(0);
+      const unknownError = new Error('connection timeout');
+      (PasskeyRepository.insertPasskey as jest.Mock).mockRejectedValue(
+        unknownError
+      );
+
+      await expect(manager.registerPasskey(PasskeyFactory())).rejects.toThrow(
+        'connection timeout'
+      );
+    });
+  });
+
+  describe('updatePasskeyAfterAuth', () => {
+    it('converts backupState=false to numeric 0', async () => {
+      (
+        PasskeyRepository.updatePasskeyCounterAndLastUsed as jest.Mock
+      ).mockResolvedValue(true);
+
+      const uid = Buffer.alloc(16, 1);
+      const credId = Buffer.alloc(32, 2);
+      const result = await manager.updatePasskeyAfterAuth(
+        uid,
+        credId,
+        0,
+        false
+      );
+
+      expect(
+        PasskeyRepository.updatePasskeyCounterAndLastUsed
+      ).toHaveBeenCalledWith(mockDb, uid, credId, 0, 0);
+      expect(result).toBe(true);
+    });
+
+    it('converts backupState=true to numeric 1', async () => {
+      (
+        PasskeyRepository.updatePasskeyCounterAndLastUsed as jest.Mock
+      ).mockResolvedValue(true);
+
+      const result = await manager.updatePasskeyAfterAuth(
+        Buffer.alloc(16),
+        Buffer.alloc(32),
+        1,
+        true
+      );
+
+      expect(
+        PasskeyRepository.updatePasskeyCounterAndLastUsed
+      ).toHaveBeenCalledWith(
+        mockDb,
+        expect.any(Buffer),
+        expect.any(Buffer),
+        1,
+        1
+      );
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('renamePasskey', () => {
+    it('returns false without calling repository when name exceeds 255 characters', async () => {
+      const result = await manager.renamePasskey(
+        Buffer.alloc(16, 1),
+        Buffer.alloc(32, 2),
+        'x'.repeat(256)
+      );
+
+      expect(result).toBe(false);
+      expect(PasskeyRepository.updatePasskeyName).not.toHaveBeenCalled();
+    });
+  });
+});
