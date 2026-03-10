@@ -68,10 +68,11 @@ Lug.prototype.getTraceId = function (data) {
 
   if (this.nodeTracer) {
     try {
-      result = { traceId: this.nodeTracer.getTraceId() };
-    } catch {
+      result = { traceId: this.nodeTracer.getTraceParentId() };
+    } catch (err) {
       // don't let a tracing issue break logging
-      this.debug('log', { msg: 'could not get trace id' });
+      console.warn('Could not get trace id');
+      console.error(err);
     }
   }
   return result;
