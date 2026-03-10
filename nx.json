@@ -43,12 +43,6 @@
       "outputs": ["{projectRoot}/src/config/gql/allowlist"],
       "cache": true
     },
-    "gql-extract": {
-      "dependsOn": [],
-      "inputs": ["typescript"],
-      "outputs": ["{workspaceRoot}/configs/gql/allowlist"],
-      "cache": true
-    },
     "lint": {
       "inputs": ["lint", "{workspaceRoot}/.eslintrc.json"],
       "outputs": ["{projectRoot}/.eslintcache"],

@@ -5,9 +5,12 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MockedProvider } from '@apollo/client/testing';
 import { PageRateLimiting } from './index';
-import { GetRateLimits, ClearRateLimits } from './mocks';
+import {
+  mockBlockStatusData1,
+  mockBlockStatusData2,
+  mockBanStatusData,
+} from './mocks';
 import {
   AdminPanelGuard,
   GuardEnv,
@@ -15,6 +18,7 @@ import {
 } from '../../../../../libs/shared/guards/src';
 import { IClientConfig } from '../../../interfaces';
 import { mockConfigBuilder } from '../../lib/config';
+import { adminApi } from '../../lib/api';
 
 const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
 const mockGroup = mockGuard.getGroup(AdminPanelGroup.SupportAgentProd);
@@ -27,25 +31,21 @@ export const mockConfig: IClientConfig = mockConfigBuilder({
 });
 
 jest.mock('../../hooks/UserContext.ts', () => ({
-  useUserContext: () => {
-    const ctx = {
-      guard: mockGuard,
-      user: mockConfig.user,
-      setUser: () => {},
-    };
-    return ctx;
+  useUserContext: () => ({
+    guard: mockGuard,
+    user: mockConfig.user,
+    setUser: () => {},
+  }),
+}));
+
+jest.mock('../../lib/api', () => ({
+  adminApi: {
+    getRateLimits: jest.fn(),
+    clearRateLimits: jest.fn(),
   },
 }));
 
 let alertSpy: jest.SpyInstance;
-
-function renderView(mocks?: any[]) {
-  render(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <PageRateLimiting />
-    </MockedProvider>
-  );
-}
 
 describe('PageRateLimiting', () => {
   let user: ReturnType<typeof userEvent.setup>;
@@ -53,6 +53,8 @@ describe('PageRateLimiting', () => {
   beforeEach(() => {
     user = userEvent.setup();
     alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => true);
+    (adminApi.getRateLimits as jest.Mock).mockReset();
+    (adminApi.clearRateLimits as jest.Mock).mockReset();
   });
 
   afterEach(() => {
@@ -60,7 +62,7 @@ describe('PageRateLimiting', () => {
   });
 
   it('renders correctly', () => {
-    renderView();
+    render(<PageRateLimiting />);
     expect(screen.getByText('Rate Limiting')).toBeInTheDocument();
     expect(screen.getByLabelText('IP Address')).toBeInTheDocument();
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
@@ -71,7 +73,7 @@ describe('PageRateLimiting', () => {
 
   describe('Search rate limits', () => {
     it('shows alert when searching without any input', async () => {
-      renderView();
+      render(<PageRateLimiting />);
       await user.click(screen.getByText('Search Rate Limits'));
       expect(alertSpy).toHaveBeenCalledWith(
         'Please enter at least one of: IP address, email, or UID'
@@ -80,8 +82,9 @@ describe('PageRateLimiting', () => {
 
     it('searches with IP address and shows empty results', async () => {
       const testIp = '192.168.1.1';
-      renderView([GetRateLimits.emptyMock(testIp)]);
+      (adminApi.getRateLimits as jest.Mock).mockResolvedValue([]);
 
+      render(<PageRateLimiting />);
       await user.type(screen.getByLabelText('IP Address'), testIp);
       await user.click(screen.getByText('Search Rate Limits'));
 
@@ -97,15 +100,18 @@ describe('PageRateLimiting', () => {
 
     it('searches with email and shows non-empty results', async () => {
       const testEmail = 'test@example.com';
-      renderView([GetRateLimits.nonEmptyMock(undefined, testEmail)]);
+      (adminApi.getRateLimits as jest.Mock).mockResolvedValue([
+        mockBlockStatusData1,
+        mockBlockStatusData2,
+        mockBanStatusData,
+      ]);
 
+      render(<PageRateLimiting />);
       await user.type(screen.getByLabelText('Email'), testEmail);
       await user.click(screen.getByText('Search Rate Limits'));
 
       expect(await screen.findByText('Active Blocks (2)')).toBeInTheDocument();
       expect(await screen.findByText('Active Bans (1)')).toBeInTheDocument();
-
-      // Check for items
       expect(await screen.findByText('login')).toBeInTheDocument();
       expect(await screen.findByText('passwordChange')).toBeInTheDocument();
       expect(await screen.findByText('accountLoginFailed')).toBeInTheDocument();
@@ -113,8 +119,11 @@ describe('PageRateLimiting', () => {
 
     it('shows error state when rate limits query fails', async () => {
       const testEmail = 'test@example.com';
-      renderView([GetRateLimits.errorMock(undefined, testEmail)]);
+      (adminApi.getRateLimits as jest.Mock).mockRejectedValue(
+        new Error('Failed to fetch rate limits')
+      );
 
+      render(<PageRateLimiting />);
       await user.type(screen.getByLabelText('Email'), testEmail);
       await user.click(screen.getByText('Search Rate Limits'));
 
@@ -128,7 +137,7 @@ describe('PageRateLimiting', () => {
 
   describe('Clear rate limits', () => {
     it('shows alert when trying to clear without any input', async () => {
-      renderView();
+      render(<PageRateLimiting />);
       await user.click(screen.getByText('Clear Rate Limits'));
       expect(alertSpy).toHaveBeenCalledWith(
         'Please enter at least one of: IP address, email, or UID'
@@ -138,13 +147,10 @@ describe('PageRateLimiting', () => {
     it('successfully clears rate limits with IP address', async () => {
       const testIp = '192.168.1.1';
       const clearedCount = 5;
+      (adminApi.clearRateLimits as jest.Mock).mockResolvedValue(clearedCount);
+      (adminApi.getRateLimits as jest.Mock).mockResolvedValue([]);
 
-      renderView([
-        GetRateLimits.nonEmptyMock(testIp), // Initial search results
-        ClearRateLimits.successMock(clearedCount, testIp), // Clear mutation
-        GetRateLimits.emptyMock(testIp), // Refetch after clear
-      ]);
-
+      render(<PageRateLimiting />);
       await user.type(screen.getByLabelText('IP Address'), testIp);
       await user.click(screen.getByText('Clear Rate Limits'));
 
@@ -159,17 +165,10 @@ describe('PageRateLimiting', () => {
       const testEmail = 'test@example.com';
       const testUid = 'user123';
       const clearedCount = 3;
+      (adminApi.clearRateLimits as jest.Mock).mockResolvedValue(clearedCount);
+      (adminApi.getRateLimits as jest.Mock).mockResolvedValue([]);
 
-      renderView([
-        ClearRateLimits.successMock(
-          clearedCount,
-          undefined,
-          testEmail,
-          testUid
-        ),
-        GetRateLimits.emptyMock(undefined, testEmail, testUid),
-      ]);
-
+      render(<PageRateLimiting />);
       await user.type(screen.getByLabelText('Email'), testEmail);
       await user.type(screen.getByLabelText('UID'), testUid);
       await user.click(screen.getByText('Clear Rate Limits'));
@@ -183,9 +182,11 @@ describe('PageRateLimiting', () => {
 
     it('shows error when clear mutation fails', async () => {
       const testIp = '192.168.1.1';
+      (adminApi.clearRateLimits as jest.Mock).mockRejectedValue(
+        new Error('Failed to clear rate limits')
+      );
 
-      renderView([ClearRateLimits.errorMock(testIp)]);
-
+      render(<PageRateLimiting />);
       await user.type(screen.getByLabelText('IP Address'), testIp);
       await user.click(screen.getByText('Clear Rate Limits'));
 

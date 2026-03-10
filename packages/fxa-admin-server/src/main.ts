@@ -9,7 +9,6 @@ import './monitoring';
 import { NestApplicationOptions } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 import helmet from 'helmet';
 import cors from 'cors';
 import * as Sentry from '@sentry/nestjs';
@@ -33,7 +32,7 @@ async function bootstrap() {
     cors({
       origin: appConfig.cors.origin,
       credentials: true,
-      methods: ['GET', 'POST', 'OPTIONS'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: [
         'Content-Type',
         'Authorization',
@@ -42,9 +41,6 @@ async function bootstrap() {
       ],
     })
   );
-
-  // This applies GQL query allowlisting
-  app.use(allowlistGqlQueries(appConfig.gql));
 
   if (appConfig.hstsEnabled) {
     const maxAge = appConfig.hstsMaxAge;

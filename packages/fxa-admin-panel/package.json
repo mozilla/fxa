@@ -12,7 +12,6 @@
     "compile": "tsc --noEmit",
     "eject": "react-scripts eject",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
-    "gql-extract": "persistgraphql src ../../configs/gql/allowlist/fxa-admin-panel.json  --js --extension=ts",
     "lint": "eslint .",
     "restart": "pm2 restart pm2.config.js",
     "start": "pm2 start pm2.config.js",

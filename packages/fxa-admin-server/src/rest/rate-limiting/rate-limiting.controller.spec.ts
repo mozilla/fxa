@@ -9,11 +9,11 @@ import { MozLoggerService } from '@fxa/shared/mozlog';
 import { RateLimitClient } from '@fxa/accounts/rate-limit';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { AuditLogInterceptor } from '../../auth/audit-log.interceptor';
-import { RateLimitingResolver } from './rate-limiting.resolver';
-import { BlockStatus } from '../model/block-status.model';
+import { RateLimitingController } from './rate-limiting.controller';
+import { BlockStatus } from '../../types';
 
-describe('RateLimitingResolver', () => {
-  let resolver: RateLimitingResolver;
+describe('RateLimitingController', () => {
+  let controller: RateLimitingController;
   let logger: any;
   let rateLimit: any;
 
@@ -59,7 +59,7 @@ describe('RateLimitingResolver', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        RateLimitingResolver,
+        RateLimitingController,
         EventLoggingService,
         AuditLogInterceptor,
         MockMozLoggerService,
@@ -69,7 +69,7 @@ describe('RateLimitingResolver', () => {
       ],
     }).compile();
 
-    resolver = module.get<RateLimitingResolver>(RateLimitingResolver);
+    controller = module.get<RateLimitingController>(RateLimitingController);
   });
 
   describe('rateLimits', () => {
@@ -77,7 +77,7 @@ describe('RateLimitingResolver', () => {
       const testIp = '192.168.1.1';
       rateLimit.search.mockResolvedValue([mockBlockStatus]);
 
-      const result = await resolver.rateLimits('testUser', testIp);
+      const result = await controller.rateLimits('testUser', testIp);
 
       expect(result).toEqual([mockBlockStatus]);
       expect(rateLimit.search).toHaveBeenCalledWith({
@@ -97,7 +97,7 @@ describe('RateLimitingResolver', () => {
       const testIp = '192.168.1.1';
       rateLimit.searchAndClear.mockResolvedValue(5);
 
-      const result = await resolver.clearRateLimits('testUser', testIp);
+      const result = await controller.clearRateLimits('testUser', testIp);
 
       expect(result).toBe(5);
       expect(rateLimit.searchAndClear).toHaveBeenCalledWith({
@@ -118,7 +118,7 @@ describe('RateLimitingResolver', () => {
       const testUid = 'user123';
       rateLimit.searchAndClear.mockResolvedValue(2);
 
-      const result = await resolver.clearRateLimits(
+      const result = await controller.clearRateLimits(
         'testUser',
         undefined,
         testEmail,
@@ -144,7 +144,7 @@ describe('RateLimitingResolver', () => {
       const testEmail = 'test@example.com';
       rateLimit.searchAndClear.mockResolvedValue(3);
 
-      const result = await resolver.clearRateLimits(
+      const result = await controller.clearRateLimits(
         'testUser',
         testIp,
         testEmail

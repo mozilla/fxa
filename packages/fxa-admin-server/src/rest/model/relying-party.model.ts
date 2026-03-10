@@ -36,7 +36,7 @@ export class RelyingPartyDto {
   id!: string;
 
   @Field()
-  createdAt!: Date;
+  createdAt!: number;
 
   @Field()
   name!: string;

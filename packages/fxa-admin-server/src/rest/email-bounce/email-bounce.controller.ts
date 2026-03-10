@@ -1,24 +1,22 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { CurrentUser } from '../../auth/auth-header.decorator';
-import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
+import { AuthHeaderGuard } from '../../auth/auth-header.guard';
 import { Features } from '../../auth/user-group-header.decorator';
 import { DatabaseService } from '../../database/database.service';
 import {
   EventLoggingService,
   EventNames,
 } from '../../event-logging/event-logging.service';
-import { EmailBounce as EmailBounceType } from '../../gql/model/email-bounces.model';
 
-@UseGuards(GqlAuthHeaderGuard)
-@Resolver((of: any) => EmailBounceType)
-export class EmailBounceResolver {
+@UseGuards(AuthHeaderGuard)
+@Controller('/api/email-bounce')
+export class EmailBounceController {
   constructor(
     private log: MozLoggerService,
     private db: DatabaseService,
@@ -26,9 +24,9 @@ export class EmailBounceResolver {
   ) {}
 
   @Features(AdminPanelFeature.ClearEmailBounces)
-  @Mutation((returns) => Boolean)
+  @Post('clear')
   public async clearEmailBounce(
-    @Args('email') email: string,
+    @Body('email') email: string,
     @CurrentUser() user: string
   ) {
     this.eventLogging.onEvent(EventNames.ClearBounces);
