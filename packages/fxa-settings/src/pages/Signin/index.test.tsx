@@ -1136,10 +1136,53 @@ describe('Signin component', () => {
           hardNavigateSpy.mockRestore();
         });
 
-        it('always renders password input when integration wants keys', () => {
+        it('renders password input when integration wants keys and user has a password', () => {
           const integration = createMockSigninOAuthNativeSyncIntegration();
           render({ integration, sessionToken: MOCK_SESSION_TOKEN });
           passwordInputRendered();
+        });
+
+        it('does not render password input when integration wants keys but user has no password', () => {
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: true,
+          });
+          passwordInputNotRendered();
+          // Should show cached sign-in button instead
+          screen.getByRole('button', { name: 'Sign in' });
+        });
+
+        it('passes isSignInWithThirdPartyAuth for cached Sync passwordless user', async () => {
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: true,
+            cachedSigninHandler,
+          });
+
+          await submit();
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                isSignInWithThirdPartyAuth: true,
+                handleFxaLogin: false,
+                handleFxaOAuthLogin: false,
+              })
+            );
+          });
+          handleNavigationSpy.mockRestore();
         });
 
         it('navigates to OAuth redirect', async () => {
@@ -1399,6 +1442,28 @@ describe('Signin component', () => {
           expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
           screen.getByText('Session expired. Sign in to continue.');
           passwordInputRendered();
+        });
+      });
+
+      it('shows third party auth instead of password when session expires for passwordless user', async () => {
+        const cachedSigninHandler = jest
+          .fn()
+          .mockReturnValueOnce(createCachedSigninResponseError());
+        renderWithLocalizationProvider(
+          <Subject
+            sessionToken={MOCK_SESSION_TOKEN}
+            hasPassword={false}
+            hasLinkedAccount={true}
+            {...{ cachedSigninHandler }}
+          />
+        );
+
+        await submit();
+        await waitFor(() => {
+          expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+          screen.getByText('Session expired. Sign in to continue.');
+          passwordInputNotRendered();
+          thirdPartyAuthRendered();
         });
       });
 
