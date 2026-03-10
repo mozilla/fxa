@@ -13,6 +13,7 @@ const { mockLog } = require('../../mocks');
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { SentEmail } = require('fxa-shared/db/models/auth/sent-email');
+const authDbModule = require('fxa-shared/db/models/auth');
 const {
   EMAIL_TYPE,
   SubscriptionReminders,
@@ -74,6 +75,7 @@ describe('SubscriptionReminders', () => {
     };
     mockSubscriptionManager = {
       listCancelOnDateGenerator: () => {},
+      listTrialingGenerator: () => {},
     };
     mockCustomerManager = {
       retrieve: () => {},
@@ -1386,15 +1388,9 @@ describe('SubscriptionReminders', () => {
     const mockUid = 'uid_12345';
     const mockSubCurrentPeriodStart = 1622073600;
     const mockSubCurrentPeriodEnd = 1624751600;
-    const mockCustomer = {
-      id: mockCustomerId,
-      metadata: {
-        userid: mockUid,
-      },
-    };
     const mockSubscription = {
       id: mockSubscriptionId,
-      customer: mockCustomer,
+      customer: mockCustomerId,
       current_period_start: mockSubCurrentPeriodStart,
       current_period_end: mockSubCurrentPeriodEnd,
       items: {
@@ -1432,14 +1428,17 @@ describe('SubscriptionReminders', () => {
       planConfig: mockPlanConfig,
     };
     let spyReportSentryError;
+    let stubGetUidAndEmail;
     beforeEach(() => {
       spyReportSentryError = sinon.spy(sentry, 'reportSentryError');
+      stubGetUidAndEmail = sinon
+        .stub(authDbModule, 'getUidAndEmailByStripeCustomerId')
+        .resolves({ uid: mockUid, email: mockAccount.email });
       reminder.db.account = sandbox.fake.resolves(mockAccount);
       reminder.alreadySentEmail = sandbox.fake.resolves(false);
       reminder.mailer.sendSubscriptionEndingReminderEmail =
         sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves();
-      mockCustomerManager.retrieve = sandbox.fake.resolves(mockCustomer);
       mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves(
         mockFormattedSubscription
       );
@@ -1488,12 +1487,12 @@ describe('SubscriptionReminders', () => {
 
       assert.isTrue(actual);
       sinon.assert.calledOnceWithExactly(
-        mockCustomerManager.retrieve,
-        mockCustomer
+        stubGetUidAndEmail,
+        mockCustomerId
       );
       sinon.assert.calledOnceWithExactly(
         reminder.alreadySentEmail,
-        mockCustomer.metadata.userid,
+        mockUid,
         mockSubCurrentPeriodStart * 1000,
         { subscriptionId: mockSubscriptionId },
         'subscriptionEndingReminder'
@@ -1527,14 +1526,12 @@ describe('SubscriptionReminders', () => {
     });
 
     it('should return false if customer uid is not provided', async () => {
-      mockCustomerManager.retrieve = sandbox.fake.resolves({
-        metadata: {},
-      });
+      stubGetUidAndEmail.resolves({ uid: null, email: null });
 
       const actual =
         await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
       assert.isFalse(actual);
-      sinon.assert.calledOnce(mockCustomerManager.retrieve);
+      sinon.assert.calledOnce(stubGetUidAndEmail);
       sinon.assert.notCalled(
         reminder.mailer.sendSubscriptionEndingReminderEmail
       );
@@ -1561,6 +1558,185 @@ describe('SubscriptionReminders', () => {
 
       const actual =
         await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
+      assert.isFalse(actual);
+      sinon.assert.calledOnceWithExactly(spyReportSentryError, mockError);
+    });
+  });
+
+  describe('sendFreeTrialEndingReminderEmail', () => {
+    const mockSubscriptionId = 'sub_12345';
+    const mockCustomerId = 'cus_12345';
+    const mockPlanId = 'plan_12345';
+    const mockUid = 'uid_12345';
+    const mockSubCurrentPeriodStart = 1622073600;
+    const mockSubCurrentPeriodEnd = 1624751600;
+    const mockSubscription = {
+      id: mockSubscriptionId,
+      customer: mockCustomerId,
+      current_period_start: mockSubCurrentPeriodStart,
+      current_period_end: mockSubCurrentPeriodEnd,
+      items: {
+        data: [
+          {
+            price: {
+              recurring: {
+                interval: 'month',
+                interval_count: 1,
+              },
+            },
+          },
+        ],
+      },
+    };
+    const mockSupportUrl = 'http://localhost:3035/support';
+    const mockWebIcon = 'http://localhost:3035/webicon';
+    const mockAccount = {
+      emails: [],
+      email: 'testo@test.test',
+      locale: 'NZ',
+    };
+    const mockPlanConfig = {
+      wibble: 'quux',
+    };
+    const mockFormattedSubscription = {
+      id: mockSubscriptionId,
+      planId: mockPlanId,
+      productMetadata: {
+        privacyUrl: 'http://privacy',
+        termsOfServiceUrl: 'http://tos',
+      },
+      planConfig: mockPlanConfig,
+    };
+    const mockInvoicePreview = {
+      total: 999,
+      subtotal: 1299,
+      tax: 120,
+      currency: 'usd',
+      total_discount_amounts: [{ amount: 300 }],
+    };
+    let spyReportSentryError;
+    let stubGetUidAndEmail;
+    beforeEach(() => {
+      spyReportSentryError = sinon.spy(sentry, 'reportSentryError');
+      stubGetUidAndEmail = sinon
+        .stub(authDbModule, 'getUidAndEmailByStripeCustomerId')
+        .resolves({ uid: mockUid, email: mockAccount.email });
+      reminder.db.account = sandbox.fake.resolves(mockAccount);
+      reminder.alreadySentEmail = sandbox.fake.resolves(false);
+      reminder.mailer.sendFreeTrialEndingReminderEmail =
+        sandbox.fake.resolves(true);
+      reminder.updateSentEmail = sandbox.fake.resolves();
+      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves(
+        mockFormattedSubscription
+      );
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(
+        mockInvoicePreview
+      );
+      mockPurchaseForPriceId = sandbox.fake.returns({
+        offering: {
+          commonContent: {
+            supportUrl: mockSupportUrl,
+            localizations: [
+              {
+                supportUrl: mockSupportUrl,
+              },
+            ],
+          },
+        },
+        purchaseDetails: {
+          webIcon: mockWebIcon,
+          localizations: [
+            {
+              webIcon: mockWebIcon,
+            },
+          ],
+        },
+      });
+      mockProductConfigurationManager.getPageContentByPriceIds =
+        sandbox.fake.resolves({
+          purchaseForPriceId: mockPurchaseForPriceId,
+        });
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should return true if the email was sent successfully', async () => {
+      const actual =
+        await reminder.sendFreeTrialEndingReminderEmail(mockSubscription);
+
+      assert.isTrue(actual);
+      sinon.assert.calledOnceWithExactly(
+        stubGetUidAndEmail,
+        mockCustomerId
+      );
+      sinon.assert.calledOnceWithExactly(
+        reminder.alreadySentEmail,
+        mockUid,
+        mockSubCurrentPeriodEnd * 1000,
+        { subscriptionId: mockSubscriptionId },
+        'freeTrialEndingReminder'
+      );
+      sinon.assert.calledOnceWithExactly(reminder.db.account, mockUid);
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.formatSubscriptionForEmail,
+        mockSubscription
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.previewInvoiceBySubscriptionId,
+        { subscriptionId: mockSubscriptionId }
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockProductConfigurationManager.getPageContentByPriceIds,
+        [mockPlanId],
+        mockAccount.locale
+      );
+      sinon.assert.calledOnceWithExactly(mockPurchaseForPriceId, mockPlanId);
+      sinon.assert.calledOnce(
+        reminder.mailer.sendFreeTrialEndingReminderEmail
+      );
+      sinon.assert.calledOnceWithExactly(
+        reminder.updateSentEmail,
+        mockUid,
+        { subscriptionId: mockSubscriptionId },
+        'freeTrialEndingReminder'
+      );
+    });
+
+    it('should return false if customer uid is not provided', async () => {
+      stubGetUidAndEmail.resolves({ uid: null, email: null });
+
+      const actual =
+        await reminder.sendFreeTrialEndingReminderEmail(mockSubscription);
+      assert.isFalse(actual);
+      sinon.assert.calledOnce(stubGetUidAndEmail);
+      sinon.assert.notCalled(
+        reminder.mailer.sendFreeTrialEndingReminderEmail
+      );
+      sinon.assert.calledOnce(spyReportSentryError);
+    });
+
+    it('should return false if email already sent', async () => {
+      reminder.alreadySentEmail = sandbox.fake.resolves(true);
+
+      const actual =
+        await reminder.sendFreeTrialEndingReminderEmail(mockSubscription);
+      assert.isFalse(actual);
+      sinon.assert.calledOnce(reminder.alreadySentEmail);
+      sinon.assert.notCalled(spyReportSentryError);
+      sinon.assert.notCalled(
+        reminder.mailer.sendFreeTrialEndingReminderEmail
+      );
+    });
+
+    it('should return false if an error occurs when sending the email', async () => {
+      const mockError = new Error('Failed to send email');
+      mockStripeHelper.formatSubscriptionForEmail =
+        sandbox.fake.rejects(mockError);
+
+      const actual =
+        await reminder.sendFreeTrialEndingReminderEmail(mockSubscription);
       assert.isFalse(actual);
       sinon.assert.calledOnceWithExactly(spyReportSentryError, mockError);
     });
@@ -1672,6 +1848,39 @@ describe('SubscriptionReminders', () => {
         Duration.fromObject({ days: mockYearlyReminderDuration }),
         'yearly'
       );
+    });
+
+    it('calls sendFreeTrialEndingReminders when ending reminders enabled and freeTrialEndingReminderDuration is set', async () => {
+      reminder.sendEndingReminders = sandbox.fake.resolves({});
+      reminder.sendFreeTrialEndingReminders = sandbox.fake.resolves({});
+      reminder.freeTrialEndingReminderEnabled = true;
+      reminder.freeTrialEndingReminderDuration = Duration.fromObject({ days: 3 });
+      await reminder.sendReminders();
+
+      assert.equal(reminder.sendFreeTrialEndingReminders.callCount, 1);
+      sinon.assert.calledWith(
+        reminder.sendFreeTrialEndingReminders,
+        Duration.fromObject({ days: 3 })
+      );
+    });
+
+    it('does not call sendFreeTrialEndingReminders when ending reminders disabled', async () => {
+      reminder.sendFreeTrialEndingReminders = sandbox.fake.resolves({});
+      reminder.freeTrialEndingReminderEnabled = false;
+      reminder.freeTrialEndingReminderDuration = Duration.fromObject({ days: 3 });
+      await reminder.sendReminders();
+
+      sinon.assert.notCalled(reminder.sendFreeTrialEndingReminders);
+    });
+
+    it('does not call sendFreeTrialEndingReminders when freeTrialEndingReminderDuration is not set', async () => {
+      reminder.sendEndingReminders = sandbox.fake.resolves({});
+      reminder.sendFreeTrialEndingReminders = sandbox.fake.resolves({});
+      reminder.freeTrialEndingReminderEnabled = true;
+      reminder.freeTrialEndingReminderDuration = undefined;
+      await reminder.sendReminders();
+
+      sinon.assert.notCalled(reminder.sendFreeTrialEndingReminders);
     });
 
     it('sends 15-day reminders only to yearly plans and 7-day reminders only to monthly plans', async () => {
@@ -1861,6 +2070,81 @@ describe('SubscriptionReminders', () => {
         assert.equal(error.info.priceId, mockPriceId);
         sinon.assert.notCalled(reminder.sendSubscriptionEndingReminderEmail);
       }
+    });
+  });
+
+  describe('sendFreeTrialEndingReminders', () => {
+    const mockDuration = Duration.fromObject({ days: 14 });
+
+    beforeEach(() => {
+      mockLog.info = sandbox.fake.returns({});
+      mockStatsD.increment = sandbox.fake.returns({});
+      reminder.sendFreeTrialEndingReminderEmail =
+        sandbox.fake.resolves(true);
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('skips subscriptions that have been canceled (cancel_at_period_end)', async () => {
+      const mockSubscription = {
+        cancel_at_period_end: true,
+        items: {
+          data: [
+            {
+              price: {
+                recurring: {
+                  interval: 'month',
+                  interval_count: 1,
+                },
+              },
+            },
+          ],
+        },
+      };
+      mockSubscriptionManager.listTrialingGenerator = sandbox
+        .stub()
+        .callsFake(function* () {
+          yield mockSubscription;
+        });
+
+      await reminder.sendFreeTrialEndingReminders(mockDuration);
+      sinon.assert.notCalled(reminder.sendFreeTrialEndingReminderEmail);
+    });
+
+    it('sends email for non-canceled trialing subscriptions', async () => {
+      const mockSubscription = {
+        cancel_at_period_end: false,
+        items: {
+          data: [
+            {
+              price: {
+                recurring: {
+                  interval: 'month',
+                  interval_count: 1,
+                },
+              },
+            },
+          ],
+        },
+      };
+      mockSubscriptionManager.listTrialingGenerator = sandbox
+        .stub()
+        .callsFake(function* () {
+          yield mockSubscription;
+        });
+
+      await reminder.sendFreeTrialEndingReminders(mockDuration);
+      sinon.assert.calledOnce(reminder.sendFreeTrialEndingReminderEmail);
+      sinon.assert.calledWithExactly(
+        reminder.sendFreeTrialEndingReminderEmail,
+        mockSubscription
+      );
+      sinon.assert.calledWith(
+        mockStatsD.increment,
+        'subscription-reminders.freeTrialEndingReminders'
+      );
     });
   });
 });

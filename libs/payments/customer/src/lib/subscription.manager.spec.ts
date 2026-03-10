@@ -139,6 +139,47 @@ describe('SubscriptionManager', () => {
     });
   });
 
+  describe('listTrialingGenerator', () => {
+    const mockCurrentPeriodEnd = StripeRangeQueryParamFactory();
+    it('returns generator that yields trialing subscriptions', async () => {
+      const mockSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+      });
+      const mockGenerator = StripeSubscriptionAsyncGeneratorFactory([
+        mockSubscription,
+      ]);
+      const expected = mockSubscription;
+
+      jest
+        .spyOn(stripeClient, 'subscriptionsListGenerator')
+        .mockReturnValue(mockGenerator);
+
+      const generator =
+        subscriptionManager.listTrialingGenerator(mockCurrentPeriodEnd);
+      const result = (await generator.next()).value;
+
+      expect(result).toEqual(expected);
+      expect(stripeClient.subscriptionsListGenerator).toHaveBeenCalledWith({
+        status: 'trialing',
+        current_period_end: mockCurrentPeriodEnd,
+      });
+    });
+
+    it('returns generator that yields no subscriptions when none are trialing', async () => {
+      const mockGenerator = StripeSubscriptionAsyncGeneratorFactory([]);
+
+      jest
+        .spyOn(stripeClient, 'subscriptionsListGenerator')
+        .mockReturnValue(mockGenerator);
+
+      const generator =
+        subscriptionManager.listTrialingGenerator(mockCurrentPeriodEnd);
+      const result = (await generator.next()).value;
+
+      expect(result).toEqual(undefined);
+    });
+  });
+
   describe('cancel', () => {
     it('calls stripeclient', async () => {
       const mockSubscription = StripeSubscriptionFactory();

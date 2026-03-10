@@ -12,6 +12,7 @@ const { mockLog } = require('../../test/mocks');
 const { CurrencyHelper } = require('./currencies');
 const { StripeHelper } = require('./stripe');
 const { SentEmail } = require('fxa-shared/db/models/auth/sent-email');
+const authDbModule = require('fxa-shared/db/models/auth');
 const { SubscriptionReminders } = require('./subscription-reminders');
 const invoicePreview = require('../../test/local/payments/fixtures/stripe/invoice_preview_tax.json');
 const longPlan1 = require('../../test/local/payments/fixtures/stripe/plan1.json');
@@ -1382,15 +1383,9 @@ describe('SubscriptionReminders', () => {
     const mockUid = 'uid_12345';
     const mockSubCurrentPeriodStart = 1622073600;
     const mockSubCurrentPeriodEnd = 1624751600;
-    const mockCustomer = {
-      id: mockCustomerId,
-      metadata: {
-        userid: mockUid,
-      },
-    };
     const mockSubscription = {
       id: mockSubscriptionId,
-      customer: mockCustomer,
+      customer: mockCustomerId,
       current_period_start: mockSubCurrentPeriodStart,
       current_period_end: mockSubCurrentPeriodEnd,
       items: {
@@ -1428,14 +1423,17 @@ describe('SubscriptionReminders', () => {
       planConfig: mockPlanConfig,
     };
     let spyReportSentryError: any;
+    let stubGetUidAndEmail: any;
     beforeEach(() => {
       spyReportSentryError = sinon.spy(sentry, 'reportSentryError');
+      stubGetUidAndEmail = sinon
+        .stub(authDbModule, 'getUidAndEmailByStripeCustomerId')
+        .resolves({ uid: mockUid, email: mockAccount.email });
       reminder.db.account = sandbox.fake.resolves(mockAccount);
       reminder.alreadySentEmail = sandbox.fake.resolves(false);
       reminder.mailer.sendSubscriptionEndingReminderEmail =
         sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves();
-      mockCustomerManager.retrieve = sandbox.fake.resolves(mockCustomer);
       mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves(
         mockFormattedSubscription
       );
@@ -1484,12 +1482,12 @@ describe('SubscriptionReminders', () => {
 
       expect(actual).toBe(true);
       sinon.assert.calledOnceWithExactly(
-        mockCustomerManager.retrieve,
-        mockCustomer
+        stubGetUidAndEmail,
+        mockCustomerId
       );
       sinon.assert.calledOnceWithExactly(
         reminder.alreadySentEmail,
-        mockCustomer.metadata.userid,
+        mockUid,
         mockSubCurrentPeriodStart * 1000,
         { subscriptionId: mockSubscriptionId },
         'subscriptionEndingReminder'
@@ -1523,14 +1521,12 @@ describe('SubscriptionReminders', () => {
     });
 
     it('should return false if customer uid is not provided', async () => {
-      mockCustomerManager.retrieve = sandbox.fake.resolves({
-        metadata: {},
-      });
+      stubGetUidAndEmail.resolves({ uid: null, email: null });
 
       const actual =
         await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
       expect(actual).toBe(false);
-      sinon.assert.calledOnce(mockCustomerManager.retrieve);
+      sinon.assert.calledOnce(stubGetUidAndEmail);
       sinon.assert.notCalled(
         reminder.mailer.sendSubscriptionEndingReminderEmail
       );

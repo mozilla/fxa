@@ -7,6 +7,7 @@ import * as SubscriptionAccountReminderFirst from '../templates/subscriptionAcco
 import * as SubscriptionAccountReminderSecond from '../templates/subscriptionAccountReminderSecond';
 import * as SubscriptionCancellation from '../templates/subscriptionCancellation';
 import * as SubscriptionDowngrade from '../templates/subscriptionDowngrade';
+import * as FreeTrialEndingReminder from '../templates/freeTrialEndingReminder';
 import * as SubscriptionEndingReminder from '../templates/subscriptionEndingReminder';
 import * as SubscriptionFailedPaymentsCancellation from '../templates/subscriptionFailedPaymentsCancellation';
 import * as SubscriptionFirstInvoice from '../templates/subscriptionFirstInvoice';
@@ -125,6 +126,20 @@ export class SubplatEmailRender extends EmailRenderer {
       version: SubscriptionDowngrade.version,
       layout: SubscriptionDowngrade.layout,
       includes: SubscriptionDowngrade.includes,
+      ...templateValues,
+      ...layoutTemplateValues,
+    });
+  }
+
+  async renderFreeTrialEndingReminder(
+    templateValues: FreeTrialEndingReminder.TemplateData,
+    layoutTemplateValues: SubscriptionLayouts.TemplateData
+  ) {
+    return this.renderEmail({
+      template: FreeTrialEndingReminder.template,
+      version: FreeTrialEndingReminder.version,
+      layout: FreeTrialEndingReminder.layout,
+      includes: FreeTrialEndingReminder.includes,
       ...templateValues,
       ...layoutTemplateValues,
     });
