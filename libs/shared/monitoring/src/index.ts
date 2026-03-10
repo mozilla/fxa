@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { initTracing } from '../tracing/node-tracing';
-import { InitSentryOpts, initSentry } from '../sentry/node';
-import { TracingOpts } from '../tracing/config';
-import { ILogger } from '../log';
+import { initTracing } from '@fxa/shared/otel';
+import { initSentry } from '@fxa/shared/sentry-node';
+import { TracingOpts } from '@fxa/shared/otel';
+import { ILogger } from '@fxa/shared/log';
+import { InitSentryOpts } from '@fxa/shared/sentry-utils';
 
 export type MonitoringConfig = {
   log?: ILogger;
-  config: InitSentryOpts & { tracing: TracingOpts };
+  config: InitSentryOpts & { tracing?: TracingOpts };
 };
 
 let initialized = false;

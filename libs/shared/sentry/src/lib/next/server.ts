@@ -4,7 +4,7 @@
 
 import * as Sentry from '@sentry/nextjs';
 import { ErrorEvent } from '@sentry/core';
-import { InitSentryOpts } from '../models/SentryConfigOpts';
+import { InitSentryOpts } from '@fxa/shared/sentry-utils';
 import { buildSentryConfig } from '../config-builder';
 import { Logger } from '../sentry.types';
 import { beforeSend } from '../utils/beforeSend.server';

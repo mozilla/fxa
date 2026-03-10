@@ -38,7 +38,7 @@ import {
 } from '../../models/contexts/SettingsContext';
 import { AccountStateProvider } from '../../models/contexts/AccountStateContext';
 
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import { disableSentry, enableSentry } from '@fxa/shared/sentry-utils';
 import { maybeRecordWebAuthnCapabilities } from '../../lib/webauthnCapabilitiesProbe';
 
 // Components
@@ -185,7 +185,7 @@ export const App = ({
   // - we can't send any identifying metrics to sentry
   // - we can't determine whether or not they have opted out
   if (isSignedInData === undefined || isSignedInData.isSignedIn === false) {
-    sentryMetrics.enable();
+    enableSentry();
   }
 
   const config = useConfig();
@@ -359,10 +359,10 @@ export const App = ({
 
   useEffect(() => {
     if (metricsEnabled || isSignedIn === false) {
-      sentryMetrics.enable();
+      enableSentry();
       maybeRecordWebAuthnCapabilities();
     } else {
-      sentryMetrics.disable();
+      disableSentry();
     }
   }, [
     data?.account?.metricsEnabled,
