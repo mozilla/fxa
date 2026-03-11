@@ -162,10 +162,10 @@ const SigninPasswordlessCode = ({
           sessionVerified: isSessionVerified,
         });
 
-        // For flows that need encryption keys, redirect to set password page
-        // The password is required to derive encryption keys (unwrapBKey)
+        // Sync flows need a password to derive encryption keys (unwrapBKey).
+        // TOTP accounts must verify first since /password/create requires
+        // a verifiedSessionToken.
         if (integration.wantsKeys()) {
-          // Store the session data so SetPassword page can use it
           const accountData = {
             uid: result.uid,
             sessionToken: result.sessionToken,
@@ -176,13 +176,28 @@ const SigninPasswordlessCode = ({
           currentAccount(accountData);
           setCurrentAccount(result.uid);
 
-          // Navigate to set password page to complete flow
-          navigateWithQuery('/post_verify/third_party_auth/set_password', {
-            replace: true,
-            state: {
-              isPasswordlessFlow: true,
-            },
-          });
+          if (result.verificationMethod === 'totp-2fa') {
+            navigateWithQuery('/signin_totp_code', {
+              replace: true,
+              state: {
+                email,
+                uid: result.uid,
+                sessionToken: result.sessionToken,
+                emailVerified: true,
+                sessionVerified: false,
+                verificationMethod: result.verificationMethod,
+                verificationReason: result.verificationReason || 'login',
+                isPasswordlessFlow: true,
+              },
+            });
+          } else {
+            navigateWithQuery('/post_verify/third_party_auth/set_password', {
+              replace: true,
+              state: {
+                isPasswordlessFlow: true,
+              },
+            });
+          }
           return;
         }
 

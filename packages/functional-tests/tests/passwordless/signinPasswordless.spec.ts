@@ -45,8 +45,9 @@ test.describe('severity-1 #smoke', () => {
         // Clear any cached sessions
         await signin.clearCache();
 
-        // Now sign in via UI
-        await relier.goto('force_passwordless=true');
+        // Sign in via UI WITHOUT force_passwordless — existing passwordless
+        // accounts are always redirected to OTP regardless of feature flag
+        await relier.goto();
         await relier.clickEmailFirst();
         await signin.fillOutEmailFirstForm(email);
 
@@ -669,8 +670,9 @@ test.describe('severity-1 #smoke', () => {
         // Clear browser cache
         await signin.clearCache();
 
-        // Now try passwordless flow via UI
-        await relier.goto('force_passwordless=true');
+        // Sign in via UI WITHOUT force_passwordless — existing passwordless
+        // accounts (even with TOTP) are always redirected to OTP
+        await relier.goto();
         await relier.clickEmailFirst();
         await signin.fillOutEmailFirstForm(email);
 
@@ -727,6 +729,144 @@ test.describe('severity-1 #smoke', () => {
 });
 
 test.describe('severity-2', () => {
+  test.describe('Passwordless authentication - Cached login', () => {
+    test('passwordless account navigating to content server redirects to OTP (not cached login)', async ({
+      target,
+      pages: { page, signin, relier, signinPasswordlessCode, settings },
+      testAccountTracker,
+    }) => {
+      // Create passwordless account via 123done
+      const { email } =
+        testAccountTracker.generatePasswordlessAccountDetails();
+
+      await relier.goto('force_passwordless=true');
+      await relier.clickEmailFirst();
+      await signin.fillOutEmailFirstForm(email);
+
+      // Should redirect to passwordless code page
+      await expect(page).toHaveURL(/signin_passwordless_code/);
+
+      // Get OTP code from email
+      const code = await target.emailClient.getPasswordlessSignupCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(code);
+
+      // Should complete OAuth and redirect to RP
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      // Navigate to content server — passwordless accounts are always
+      // redirected to OTP verification (container.tsx checks hasPassword=false
+      // && passwordlessSupported=true and redirects before cached UI renders)
+      await page.goto(target.contentServerUrl);
+
+      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await expect(signinPasswordlessCode.heading).toBeVisible();
+
+      // Complete OTP flow to reach settings
+      const signinCode = await target.emailClient.getPasswordlessSigninCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(signinCode);
+
+      await expect(settings.settingsHeading).toBeVisible();
+    });
+  });
+
+  test.describe('Passwordless authentication - Edge cases', () => {
+    test('direct /signin URL with email param redirects passwordless account to OTP', async ({
+      target,
+      pages: { page, signin, signinPasswordlessCode, settings },
+      testAccountTracker,
+    }) => {
+      // Existing passwordless account accessed via direct /signin?email=...
+      // should redirect to OTP page without needing force_passwordless flag.
+      // The auth server bypasses the client allowlist for existing passwordless
+      // accounts, so this works even with the Settings clientId.
+      const { email } = await testAccountTracker.signUpPasswordless();
+
+      await signin.clearCache();
+
+      // Direct /signin URL with email query param (no force_passwordless)
+      await page.goto(
+        `${target.contentServerUrl}/signin?email=${encodeURIComponent(email)}`
+      );
+      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await expect(signinPasswordlessCode.heading).toBeVisible();
+
+      // Complete OTP flow — non-OAuth path should land on settings
+      const code = await target.emailClient.getPasswordlessSigninCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(code);
+      await expect(settings.settingsHeading).toBeVisible();
+    });
+
+    test('passwordless account with invalidated cached session redirects to passwordless code (not password form)', async ({
+      target,
+      pages: { page, signin, relier, signinPasswordlessCode },
+      testAccountTracker,
+    }) => {
+      const { email, sessionToken } =
+        await testAccountTracker.signUpPasswordless();
+
+      // Destroy session server-side to simulate expiration/revocation
+      await target.authClient.sessionDestroy(sessionToken);
+
+      // Navigate WITHOUT force_passwordless — existing passwordless accounts
+      // are always redirected to OTP regardless of feature flag
+      await relier.goto();
+      await relier.clickEmailFirst();
+      await signin.fillOutEmailFirstForm(email);
+
+      // Should go to passwordless code page, NOT a password form
+      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await expect(signinPasswordlessCode.heading).toBeVisible();
+
+      const code = await target.emailClient.getPasswordlessSigninCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(code);
+      expect(await relier.isLoggedIn()).toBe(true);
+    });
+
+    test('password creation switches account to password flow; other passwordless accounts unaffected', async ({
+      target,
+      pages: { page, signin, relier, signinPasswordlessCode },
+      testAccountTracker,
+    }) => {
+      // Create two passwordless accounts — one will get a password, the other stays passwordless
+      const { email } = await testAccountTracker.signUpPasswordless();
+      const account: any = testAccountTracker.accounts.find(
+        (a) => a.email === email
+      );
+      const password = account?.password || '';
+      const { email: otherPasswordlessEmail } =
+        await testAccountTracker.signUpPasswordless();
+
+      // Create a password on the first account via API
+      await target.authClient.passwordlessSendCode(email, {
+        clientId: 'dcdb5ae7add825d2',
+      });
+      const otpCode =
+        await target.emailClient.getPasswordlessSigninCode(email);
+      const result = await target.authClient.passwordlessConfirmCode(
+        email,
+        otpCode,
+        { clientId: 'dcdb5ae7add825d2' }
+      );
+      await target.authClient.createPassword(result.sessionToken, email, password);
+      account.isPasswordless = false;
+
+      // First account now has a password — should show password form
+      await signin.clearCache();
+      await relier.goto('force_passwordless=true');
+      await relier.clickEmailFirst();
+      await signin.fillOutEmailFirstForm(email);
+      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(page).not.toHaveURL(/signin_passwordless_code/);
+
+      // Second account is still passwordless — should get passwordless flow
+      await relier.goto('force_passwordless=true');
+      await relier.clickEmailFirst();
+      await signin.fillOutEmailFirstForm(otherPasswordlessEmail);
+      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await expect(signinPasswordlessCode.heading).toBeVisible();
+    });
+  });
+
   test.describe('Passwordless authentication - Sync flows', () => {
     // Note: New Sync users are excluded from passwordless flow.
     // They go through traditional password-first signup.
@@ -738,7 +878,6 @@ test.describe('severity-2', () => {
         page,
         signin,
         signinPasswordlessCode,
-        connectAnotherDevice,
       },
       testAccountTracker,
     }) => {
@@ -746,9 +885,9 @@ test.describe('severity-2', () => {
       const { email } = await testAccountTracker.signUpPasswordless();
       const password = (testAccountTracker.accounts[0] as any).password;
 
-      // Navigate to Sync OAuth signin with passwordless enabled
+      // Navigate to Sync OAuth signin — existing passwordless accounts
+      // are redirected to OTP without needing force_passwordless flag
       const params = new URLSearchParams(syncDesktopOAuthQueryParams);
-      params.set('force_passwordless', 'true');
       await signin.goto('/authorization', params);
       await signin.fillOutEmailFirstForm(email);
 
@@ -770,15 +909,89 @@ test.describe('severity-2', () => {
       await page.getByLabel('Repeat password').fill(password);
       await page.getByRole('button', { name: 'Start syncing' }).click();
 
-      // Should show Sync connected page or pair page
+      // Should show Sync confirmed page with success banner
+      await expect(page).toHaveURL(/signup_confirmed_sync/);
       await expect(
-        connectAnotherDevice.fxaConnected.or(
-          page.getByText(/connected|syncing|pair/i)
-        )
-      ).toBeVisible({
-        timeout: 30000,
-      });
+        page.getByRole('heading', { name: 'Sync is turned on' })
+      ).toBeVisible();
+    });
+
+    test('passwordless signin - Sync with TOTP and set password', async ({
+      target,
+      syncOAuthBrowserPages: {
+        page,
+        signin,
+        signinPasswordlessCode,
+        signinTotpCode,
+      },
+      testAccountTracker,
+    }) => {
+      // Flow: Sync login → passwordless OTP → TOTP → set password → sync enabled
+      // TOTP must come before set_password because /password/create requires
+      // a verifiedSessionToken.
+
+      // Create passwordless account and set up TOTP
+      const { email, sessionToken } =
+        await testAccountTracker.signUpPasswordless();
+      const account: any = testAccountTracker.accounts.find(
+        (a) => a.email === email
+      );
+      const password = account?.password || '';
+
+      const { secret } = await target.authClient.createTotpToken(
+        sessionToken,
+        {}
+      );
+      const totpCode = await getTotpCode(secret);
+      await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
+      await target.authClient.completeTotpSetup(sessionToken);
+
+      if (account) {
+        account.secret = secret;
+        account.sessionToken = sessionToken;
+      }
+
+      await signin.clearCache();
+
+      // Navigate to Sync OAuth signin
+      const params = new URLSearchParams(syncDesktopOAuthQueryParams);
+      await signin.goto('/authorization', params);
+      await signin.fillOutEmailFirstForm(email);
+
+      // Should redirect to passwordless code page
+      await expect(page).toHaveURL(/signin_passwordless_code/);
+
+      const code = await target.emailClient.getPasswordlessSigninCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(code);
+
+      // TOTP verification comes before set_password
+      await expect(page).toHaveURL(/signin_totp_code/);
+
+      const newTotpCode = await getTotpCode(secret);
+      await signinTotpCode.fillOutCodeForm(newTotpCode);
+
+      // After TOTP, redirect to set password for Sync key derivation
+      await expect(page).toHaveURL(/set_password/);
+      await expect(
+        page.getByRole('heading', { name: 'Create password to sync' })
+      ).toBeVisible();
+
+      // Complete password creation for Sync
+      await page.getByLabel('Password', { exact: true }).fill(password);
+      await page.getByLabel('Repeat password').fill(password);
+      await page.getByRole('button', { name: 'Start syncing' }).click();
+
+      // Should show Sync confirmed page with success banner
+      await expect(page).toHaveURL(/signup_confirmed_sync/);
+      await expect(
+        page.getByRole('heading', { name: 'Sync is turned on' })
+      ).toBeVisible();
+
+      // TODO: FXA-XXXX - Verify re-login uses password flow (not OTP) after
+      // password creation. Requires fresh browser context for second Sync OAuth
+      // flow since webchannel state from first login is stale.
     });
   });
 });
+
 

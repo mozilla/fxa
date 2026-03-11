@@ -122,6 +122,7 @@ const settingsConfig = {
       'featureFlags.paymentsNextSubscriptionManagement'
     ),
     passkeysEnabled: config.get('featureFlags.passkeysEnabled'),
+    passwordlessEnabled: config.get('featureFlags.passwordlessEnabled'),
   },
   nimbus: {
     enabled: config.get('nimbus.enabled'),

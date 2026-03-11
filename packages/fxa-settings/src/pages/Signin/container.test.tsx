@@ -1232,6 +1232,100 @@ describe('signin container', () => {
     });
   });
 
+  describe('beginSigninHandler - passwordless guard', () => {
+    it('redirects to passwordless code page when hasPassword is false (no feature flag needed)', async () => {
+      // Existing passwordless accounts always redirect without checking feature flag.
+      // Use a never-resolving promise so the useEffect's accountStatusByEmail call
+      // doesn't overwrite the initial hasPassword=false from locationState.
+      mockAuthClient.accountStatusByEmail = jest
+        .fn()
+        .mockReturnValue(new Promise(() => {}));
+      mockLocationState = {
+        email: MOCK_ROUTER_STATE_EMAIL,
+        hasPassword: false,
+        hasLinkedAccount: false,
+      };
+      render();
+
+      await waitFor(() => {
+        expect(currentSigninProps).toBeDefined();
+      });
+
+      await waitFor(async () => {
+        const handlerResult = await currentSigninProps?.beginSigninHandler(
+          MOCK_EMAIL,
+          MOCK_PASSWORD
+        );
+        expect(handlerResult?.data).toBeUndefined();
+        // navigateWithQuery appends location.search to the path
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('/signin_passwordless_code'),
+          expect.objectContaining({
+            state: expect.objectContaining({ email: MOCK_EMAIL }),
+          })
+        );
+      });
+    });
+
+    it('returns without redirect when hasPassword is false and skipPasswordlessRedirect is set', async () => {
+      mockLocationState = {
+        email: MOCK_ROUTER_STATE_EMAIL,
+        hasPassword: false,
+        hasLinkedAccount: false,
+        skipPasswordlessRedirect: true,
+      };
+      render();
+
+      await waitFor(() => {
+        expect(currentSigninProps).toBeDefined();
+      });
+
+      await waitFor(async () => {
+        const handlerResult = await currentSigninProps?.beginSigninHandler(
+          MOCK_EMAIL,
+          MOCK_PASSWORD
+        );
+        expect(handlerResult?.data).toBeUndefined();
+        // Should NOT navigate to passwordless code
+        expect(mockNavigate).not.toHaveBeenCalledWith(
+          '/signin_passwordless_code',
+          expect.anything()
+        );
+      });
+    });
+  });
+
+  describe('useEffect - passwordless redirect', () => {
+    it('redirects existing passwordless account to passwordless code without feature flag', async () => {
+      // When accountStatusByEmail returns passwordlessSupported=true and hasPassword=false,
+      // the useEffect should redirect to passwordless code WITHOUT requiring the feature flag
+      mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
+        exists: true,
+        hasLinkedAccount: false,
+        hasPassword: false,
+        passwordlessSupported: true,
+      });
+      mockUseValidateModule({
+        queryParams: {
+          email: MOCK_QUERY_PARAM_EMAIL,
+          isV2: () => false,
+        },
+      });
+      render();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/signin_passwordless_code',
+          expect.objectContaining({
+            state: expect.objectContaining({
+              email: MOCK_QUERY_PARAM_EMAIL,
+            }),
+          })
+        );
+      });
+    });
+  });
+
   describe('cachedSigninHandler', () => {
     beforeEach(() => {
       mockCurrentAccount(MOCK_STORED_ACCOUNT);

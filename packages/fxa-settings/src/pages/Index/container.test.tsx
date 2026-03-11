@@ -868,6 +868,76 @@ describe('IndexContainer', () => {
       });
     });
 
+    describe('passwordless redirect', () => {
+      it('redirects existing passwordless account to passwordless code without feature flag', async () => {
+        // When passwordlessSupported=true and hasPassword=false, canUsePasswordlessExisting
+        // should be true WITHOUT requiring the passwordlessEnabled flag
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: false,
+            passwordlessSupported: true,
+          }),
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/signin_passwordless_code$/);
+      });
+
+      it('does not redirect password account to passwordless even when passwordlessSupported is false', async () => {
+        mockUseAuthClient.mockReturnValue({
+          accountStatusByEmail: jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: true,
+            passwordlessSupported: false,
+          }),
+        });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/\/signin$/);
+      });
+    });
+
     describe('fxaCanLinkAccount with OAuthNative integration', () => {
       beforeEach(() => {
         mockOAuthNativeIntegration();

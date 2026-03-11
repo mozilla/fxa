@@ -643,16 +643,22 @@ describe('/account/passwordless/resend_code', () => {
 });
 
 describe('passwordless routes feature flags', () => {
-  it('should return empty array when feature disabled', () => {
+  it('should always register routes even when feature disabled', () => {
     const routes = makeRoutes({
       config: {
         passwordlessOtp: {
           enabled: false,
+          ttl: 300,
+          digits: 6,
         },
       },
     });
 
-    assert.equal(routes.length, 0);
+    // Routes are always registered so existing passwordless users can sign in
+    assert.equal(routes.length, 3);
+    assert.equal(routes[0].path, '/account/passwordless/send_code');
+    assert.equal(routes[1].path, '/account/passwordless/confirm_code');
+    assert.equal(routes[2].path, '/account/passwordless/resend_code');
   });
 
   it('should return routes when feature enabled', () => {
@@ -731,7 +737,8 @@ describe('passwordless service validation', () => {
         () => assert.fail('should have thrown'),
         (err) => {
           assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
-          assert.equal(mockCustoms.check.callCount, 0);
+          // Rate limiting runs before allowlist check (which happens after account lookup)
+          assert.equal(mockCustoms.check.callCount, 1);
           assert.equal(mockOtpManagerCreate.callCount, 0);
         }
       );
@@ -743,7 +750,7 @@ describe('passwordless service validation', () => {
         () => assert.fail('should have thrown'),
         (err) => {
           assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
-          assert.equal(mockCustoms.check.callCount, 0);
+          assert.equal(mockCustoms.check.callCount, 1);
           assert.equal(mockOtpManagerCreate.callCount, 0);
         }
       );
@@ -776,7 +783,7 @@ describe('passwordless service validation', () => {
         () => assert.fail('should have thrown'),
         (err) => {
           assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
-          assert.equal(mockCustoms.check.callCount, 0);
+          assert.equal(mockCustoms.check.callCount, 1);
           assert.equal(mockOtpManagerCreate.callCount, 0);
         }
       );
@@ -788,7 +795,7 @@ describe('passwordless service validation', () => {
         () => assert.fail('should have thrown'),
         (err) => {
           assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
-          assert.equal(mockCustoms.check.callCount, 0);
+          assert.equal(mockCustoms.check.callCount, 1);
           assert.equal(mockOtpManagerCreate.callCount, 0);
         }
       );
@@ -828,39 +835,70 @@ describe('passwordless service validation', () => {
       });
       route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
       mockRequest.payload.code = '123456';
+    });
+
+    it('should reject confirm_code without clientId for new account', () => {
+      // Use new account (not existing passwordless) so allowlist is enforced
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(error.unknownAccount())
+      );
+      return route.handler(mockRequest).then(
+        () => assert.fail('should have thrown'),
+        (err) => {
+          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+          // Rate limiting runs before allowlist check (2 checks: verify + daily)
+          assert.equal(mockCustoms.check.callCount, 2);
+        }
+      );
+    });
+
+    it('should reject confirm_code with disallowed clientId for new account', () => {
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(error.unknownAccount())
+      );
+      mockRequest.payload.clientId = 'not-allowed-client';
+      return route.handler(mockRequest).then(
+        () => assert.fail('should have thrown'),
+        (err) => {
+          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+          assert.equal(mockCustoms.check.callCount, 2);
+        }
+      );
+    });
+
+    it('should allow confirm_code with allowed clientId', () => {
       mockDB.accountRecord = sinon.spy(() => ({
         uid,
         email: TEST_EMAIL,
         emailVerified: true,
         verifierSetAt: 0,
       }));
-    });
-
-    it('should reject confirm_code without clientId', () => {
-      return route.handler(mockRequest).then(
-        () => assert.fail('should have thrown'),
-        (err) => {
-          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
-          assert.equal(mockCustoms.check.callCount, 0);
-        }
-      );
-    });
-
-    it('should reject confirm_code with disallowed clientId', () => {
-      mockRequest.payload.clientId = 'not-allowed-client';
-      return route.handler(mockRequest).then(
-        () => assert.fail('should have thrown'),
-        (err) => {
-          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
-          assert.equal(mockCustoms.check.callCount, 0);
-        }
-      );
-    });
-
-    it('should allow confirm_code with allowed clientId', () => {
       mockRequest.payload.clientId = 'ea3ca969f8c6bb0d';
       return runTest(route, mockRequest, (result) => {
         assert.equal(mockCustoms.check.callCount, 2);
+        assert.isString(result.uid);
+        assert.isString(result.sessionToken);
+      });
+    });
+
+    it('should bypass allowlist for existing passwordless account on confirm_code', () => {
+      // Existing passwordless accounts bypass the allowlist
+      mockDB.accountRecord = sinon.spy(() => ({
+        uid,
+        email: TEST_EMAIL,
+        emailVerified: true,
+        verifierSetAt: 0,
+      }));
+      mockDB.createSessionToken = sinon.spy(() =>
+        Promise.resolve({
+          data: 'sessiontoken123',
+          emailVerified: true,
+          tokenVerified: true,
+          lastAuthAt: () => 1234567890,
+        })
+      );
+      // No clientId — would normally be rejected
+      return runTest(route, mockRequest, (result) => {
         assert.isString(result.uid);
         assert.isString(result.sessionToken);
       });
@@ -893,7 +931,8 @@ describe('passwordless service validation', () => {
         () => assert.fail('should have thrown'),
         (err) => {
           assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
-          assert.equal(mockCustoms.check.callCount, 0);
+          // Rate limiting runs before allowlist check
+          assert.equal(mockCustoms.check.callCount, 1);
         }
       );
     });
@@ -904,7 +943,7 @@ describe('passwordless service validation', () => {
         () => assert.fail('should have thrown'),
         (err) => {
           assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
-          assert.equal(mockCustoms.check.callCount, 0);
+          assert.equal(mockCustoms.check.callCount, 1);
         }
       );
     });
@@ -913,6 +952,215 @@ describe('passwordless service validation', () => {
       mockRequest.payload.clientId = 'ea3ca969f8c6bb0d';
       return runTest(route, mockRequest, () => {
         assert.equal(mockCustoms.check.callCount, 1);
+        assert.equal(mockOtpManagerDelete.callCount, 1);
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+      });
+    });
+  });
+});
+
+describe('existing passwordless accounts bypass flag and allowlist', () => {
+  let uid, mockLog, mockDB, mockCustoms, mockRequest;
+
+  beforeEach(() => {
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    mockLog = mocks.mockLog();
+    mockDB = mocks.mockDB({
+      uid,
+      email: TEST_EMAIL,
+      emailVerified: true,
+      verifierSetAt: 0,
+    });
+    mockCustoms = {
+      check: sinon.spy(() => Promise.resolve()),
+      v2Enabled: () => true,
+    };
+    mockRequest = mocks.mockRequest({
+      log: mockLog,
+      payload: {
+        email: TEST_EMAIL,
+        metricsContext: {
+          deviceId: 'device123',
+          flowId: 'flow123',
+          flowBeginTime: Date.now(),
+        },
+      },
+    });
+  });
+
+  afterEach(() => {
+    mockOtpManagerCreate.resetHistory();
+    mockOtpManagerIsValid.resetHistory();
+    mockOtpManagerDelete.resetHistory();
+  });
+
+  describe('send_code', () => {
+    it('should succeed for existing passwordless account with empty allowlist', () => {
+      const routes = makeRoutes({
+        log: mockLog,
+        db: mockDB,
+        customs: mockCustoms,
+        config: {
+          passwordlessOtp: {
+            enabled: true,
+            ttl: 300,
+            digits: 6,
+            allowedClientIds: [],
+          },
+        },
+      });
+      const route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.resolve({
+          uid,
+          email: TEST_EMAIL,
+          verifierSetAt: 0,
+          emails: [{ email: TEST_EMAIL, isPrimary: true }],
+        })
+      );
+
+      return runTest(route, mockRequest, (result) => {
+        assert.deepEqual(result, {});
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+      });
+    });
+
+    it('should succeed for existing passwordless account with feature flag OFF', () => {
+      const routes = makeRoutes({
+        log: mockLog,
+        db: mockDB,
+        customs: mockCustoms,
+        config: {
+          passwordlessOtp: {
+            enabled: false,
+            ttl: 300,
+            digits: 6,
+            allowedClientIds: [],
+          },
+        },
+      });
+      const route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.resolve({
+          uid,
+          email: TEST_EMAIL,
+          verifierSetAt: 0,
+          emails: [{ email: TEST_EMAIL, isPrimary: true }],
+        })
+      );
+
+      return runTest(route, mockRequest, (result) => {
+        assert.deepEqual(result, {});
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+      });
+    });
+
+    it('should still reject new account with empty allowlist even when flag ON', () => {
+      const routes = makeRoutes({
+        log: mockLog,
+        db: mockDB,
+        customs: mockCustoms,
+        config: {
+          passwordlessOtp: {
+            enabled: true,
+            ttl: 300,
+            digits: 6,
+            allowedClientIds: [],
+          },
+        },
+      });
+      const route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(error.unknownAccount())
+      );
+
+      return route.handler(mockRequest).then(
+        () => assert.fail('should have thrown'),
+        (err) => {
+          assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+          assert.equal(mockOtpManagerCreate.callCount, 0);
+        }
+      );
+    });
+  });
+
+  describe('confirm_code', () => {
+    it('should succeed for existing passwordless account with empty allowlist', () => {
+      const routes = makeRoutes({
+        log: mockLog,
+        db: mockDB,
+        customs: mockCustoms,
+        config: {
+          passwordlessOtp: {
+            enabled: true,
+            ttl: 300,
+            digits: 6,
+            allowedClientIds: [],
+          },
+        },
+      });
+      const route = getRoute(
+        routes,
+        '/account/passwordless/confirm_code',
+        'POST'
+      );
+      mockRequest.payload.code = '123456';
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.resolve({
+          uid,
+          email: TEST_EMAIL,
+          emailCode: hexString(16),
+          verifierSetAt: 0,
+        })
+      );
+      mockDB.createSessionToken = sinon.spy(() =>
+        Promise.resolve({
+          data: 'sessiontoken123',
+          emailVerified: true,
+          tokenVerified: true,
+          lastAuthAt: () => 1234567890,
+        })
+      );
+
+      return runTest(route, mockRequest, (result) => {
+        assert.equal(result.uid, uid);
+        assert.isString(result.sessionToken);
+        assert.equal(result.verified, true);
+      });
+    });
+  });
+
+  describe('resend_code', () => {
+    it('should succeed for existing passwordless account with empty allowlist', () => {
+      const routes = makeRoutes({
+        log: mockLog,
+        db: mockDB,
+        customs: mockCustoms,
+        config: {
+          passwordlessOtp: {
+            enabled: true,
+            ttl: 300,
+            digits: 6,
+            allowedClientIds: [],
+          },
+        },
+      });
+      const route = getRoute(
+        routes,
+        '/account/passwordless/resend_code',
+        'POST'
+      );
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.resolve({
+          uid,
+          email: TEST_EMAIL,
+          verifierSetAt: 0,
+          emails: [{ email: TEST_EMAIL, isPrimary: true }],
+        })
+      );
+
+      return runTest(route, mockRequest, (result) => {
+        assert.deepEqual(result, {});
         assert.equal(mockOtpManagerDelete.callCount, 1);
         assert.equal(mockOtpManagerCreate.callCount, 1);
       });

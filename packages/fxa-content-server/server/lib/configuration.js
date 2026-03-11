@@ -253,6 +253,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_PASSKEYS_ENABLED',
     },
+    passwordlessEnabled: {
+      default: false,
+      doc: 'Enables auto-redirect to passwordless OTP signup for new accounts on allowed RPs',
+      format: Boolean,
+      env: 'PASSWORDLESS_SIGNUP_ENABLED',
+    },
   },
   cms: {
     enabled: {

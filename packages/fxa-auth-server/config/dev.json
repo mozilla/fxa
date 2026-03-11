@@ -469,5 +469,13 @@
     "enabled": true,
     "rpId": "localhost",
     "allowedOrigins": ["http://localhost:3030"]
+  },
+  "passwordlessOtp": {
+    "enabled": true,
+    "allowedClientIds": [
+      "98e6508e88680e1a",
+      "5882386c6d801776",
+      "dcdb5ae7add825d2"
+    ]
   }
 }

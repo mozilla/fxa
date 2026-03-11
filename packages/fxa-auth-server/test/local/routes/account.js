@@ -1873,7 +1873,7 @@ describe('/account/status', () => {
     });
   });
 
-  it('returns passwordlessSupported true for existing account with no password when thirdPartyAuthStatus is requested', async () => {
+  it('returns passwordlessSupported false for third-party auth account (verifierSetAt=0 with linkedAccounts) when thirdPartyAuthStatus is requested', async () => {
     const { route, mockRequest, mockDB } = setup({
       dbOptions: {
         linkedAccounts: [{}],
@@ -1894,7 +1894,8 @@ describe('/account/status', () => {
       assert.equal(mockDB.accountRecord.callCount, 1);
       assert.equal(response.exists, true);
       assert.equal(response.hasPassword, false);
-      assert.equal(response.passwordlessSupported, true);
+      // Third-party auth accounts should use their linked provider, not passwordless OTP
+      assert.equal(response.passwordlessSupported, false);
     });
   });
 
@@ -1968,6 +1969,63 @@ describe('/account/status', () => {
     return runTest(route, mockRequest, (response) => {
       assert.equal(response.exists, false);
       assert.equal(response.passwordlessSupported, undefined);
+    });
+  });
+
+  it('returns passwordlessSupported true for existing passwordless account even when flag OFF', async () => {
+    const { route, mockRequest, mockDB } = setup({
+      dbOptions: {
+        linkedAccounts: [],
+        verifierSetAt: 0,
+      },
+      shouldError: false,
+      extraConfig: {
+        passwordlessOtp: {
+          enabled: false,
+          allowedClientIds: [],
+        },
+      },
+    });
+    mockRequest.payload.thirdPartyAuthStatus = true;
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(mockDB.accountRecord.callCount, 1);
+      assert.equal(response.exists, true);
+      assert.equal(response.hasPassword, false);
+      assert.equal(
+        response.passwordlessSupported,
+        true,
+        'existing passwordless accounts always get passwordlessSupported=true'
+      );
+    });
+  });
+
+  it('returns passwordlessSupported true for existing passwordless account with mismatched clientId', async () => {
+    const { route, mockRequest, mockDB } = setup({
+      dbOptions: {
+        linkedAccounts: [],
+        verifierSetAt: 0,
+      },
+      shouldError: false,
+      extraConfig: {
+        passwordlessOtp: {
+          enabled: true,
+          allowedClientIds: ['some-other-client'],
+        },
+      },
+    });
+    mockRequest.payload.thirdPartyAuthStatus = true;
+    mockRequest.payload.clientId = 'not-in-allowlist';
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(mockDB.accountRecord.callCount, 1);
+      assert.equal(response.exists, true);
+      assert.equal(response.hasPassword, false);
+      assert.equal(
+        response.passwordlessSupported,
+        true,
+        'existing passwordless accounts bypass the allowlist'
+      );
     });
   });
 });
