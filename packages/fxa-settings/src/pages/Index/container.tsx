@@ -119,8 +119,8 @@ const IndexContainer = ({
       const passwordlessEnabled =
         config.featureFlags?.passwordlessEnabled === true ||
         queryParamModel.forcePasswordless === true;
-      console.log({ passwordlessEnabled, queryParamModel })
-      const canUsePasswordlessExisting = passwordlessEnabled && passwordlessSupported && !hasPassword;
+      const canUsePasswordlessExisting =
+        passwordlessSupported && !hasPassword && !hasLinkedAccount;
       const canUsePasswordlessNew = passwordlessEnabled && passwordlessSupported && !wantsKeys;
 
       if (exists) {

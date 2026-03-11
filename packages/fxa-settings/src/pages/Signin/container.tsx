@@ -243,7 +243,15 @@ const SigninContainer = ({
         // (on this page or email-first) this means the account status hasn't been checked
         if (
           accountStatus.hasLinkedAccount === undefined ||
-          accountStatus.hasPassword === undefined
+          accountStatus.hasPassword === undefined ||
+          // When hasPassword is false (from locationState) but passwordlessSupported
+          // is still unknown, we need to fetch account status to determine whether
+          // to redirect to the passwordless flow. Without this, passwordless accounts
+          // arriving via email-first with locationState would skip the API call and
+          // fall through to the password-based signin path.
+          (accountStatus.hasPassword === false &&
+            accountStatus.passwordlessSupported === undefined &&
+            !skipPasswordlessRedirect)
         ) {
           try {
             const { exists, hasLinkedAccount, hasPassword, passwordlessSupported } =
@@ -251,16 +259,12 @@ const SigninContainer = ({
                 thirdPartyAuthStatus: true,
                 clientId: integration.getClientId(),
               });
-            // Passwordless is enabled via config or query param (for testing)
-            const passwordlessEnabled =
-              config.featureFlags?.passwordlessEnabled === true ||
-              queryParamModel.forcePasswordless === true;
             if (!exists) {
-              // Check if passwordless is supported for new accounts
-              // Only use passwordless for non-Sync RPs (!wantsKeys) AND when enabled
-              // Sync users should go through traditional password-first signup
+              // For new accounts, passwordless requires the feature flag + server support
+              const passwordlessEnabled =
+                config.featureFlags?.passwordlessEnabled === true ||
+                queryParamModel.forcePasswordless === true;
               if (passwordlessEnabled && passwordlessSupported && !wantsKeys) {
-                // Redirect to passwordless flow for new account registration (non-Sync only)
                 navigateWithQuery('/signin_passwordless_code', {
                   state: {
                     email,
@@ -281,14 +285,14 @@ const SigninContainer = ({
                 });
               }
             } else if (
-              passwordlessEnabled &&
               passwordlessSupported &&
               !hasPassword &&
+              !hasLinkedAccount &&
               !skipPasswordlessRedirect
             ) {
-              // Existing account supports passwordless and has no password set (when enabled)
-              // For Sync, SigninPasswordlessCode will redirect to SetPassword after OTP
-              // Skip redirect if we came from passwordless with TOTP_REQUIRED error
+              // Existing passwordless account — server returns
+              // passwordlessSupported=true regardless of flag/allowlist
+              // Third-party auth accounts (hasLinkedAccount) should use their provider
               navigateWithQuery('/signin_passwordless_code', {
                 state: {
                   email,
@@ -412,6 +416,25 @@ const SigninContainer = ({
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
+      // Guard: passwordless accounts should never hit password-based endpoints.
+      // If hasPassword is false, redirect to the passwordless OTP flow.
+      // The server always returns passwordlessSupported=true for existing
+      // passwordless accounts, so the useEffect redirect should normally
+      // handle this. This guard is a safety net.
+      // Third-party auth accounts also have hasPassword=false but should
+      // use their linked provider, not passwordless OTP.
+      if (hasPassword === false && !hasLinkedAccount) {
+        if (!skipPasswordlessRedirect) {
+          navigateWithQuery('/signin_passwordless_code', {
+            state: {
+              email,
+              clientId: integration.getClientId(),
+            },
+          });
+        }
+        return { data: undefined };
+      }
+
       // - If the user came from email-first WITHOUT a linked third‑party account, Index already showed
       //   the merge prompt for old firefox versions (supportsCanLinkAccountUid=false).
       // - If the user HAS a linked third‑party account, Index deferred the prompt to avoid duplicates,
@@ -584,6 +607,9 @@ const SigninContainer = ({
       ftlMsgResolver,
       navigateWithQuery,
       useFxAStatusResult,
+      hasPassword,
+      hasLinkedAccount,
+      skipPasswordlessRedirect,
     ]
   );
 

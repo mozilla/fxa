@@ -2,55 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Check if a clientId is allowed to use passwordless authentication
- * @param allowedClientIds - Array of allowed client IDs. Empty array means no clients are allowed.
- * @param clientId - The client ID to check (optional)
- * @returns true if the clientId is allowed, false otherwise
- */
 export function isClientAllowedForPasswordless(
   allowedClientIds: string[],
   clientId?: string
 ): boolean {
-  // If allowedClientIds is empty, no clients are allowed
-  if (!allowedClientIds || allowedClientIds.length === 0) {
-    return false;
-  }
-
-  // If no clientId specified, deny
-  if (!clientId) {
-    return false;
-  }
-
-  // Check if clientId is in the allowed list
-  return allowedClientIds.includes(clientId);
+  return !!clientId && allowedClientIds?.includes(clientId);
 }
 
 /**
- * Check if an account is eligible for passwordless authentication
- * An account is eligible if:
- * - It doesn't exist (new registration)
- * - It exists but has no password set (verifierSetAt === 0)
- *
- * @param account - The account object (null if account doesn't exist)
- * @param email - The email address
- * @param featureEnabled - Whether passwordless feature is enabled
- * @returns true if the account is eligible for passwordless, false otherwise
+ * Existing passwordless accounts (verifierSetAt === 0 and no linked accounts)
+ * are always eligible, regardless of the feature flag. The flag only gates new
+ * signups. Third-party auth accounts also have verifierSetAt === 0 but should
+ * use their linked provider, not passwordless OTP.
  */
 export function isPasswordlessEligible(
-  account: { verifierSetAt: number } | null,
+  account: { verifierSetAt: number; linkedAccounts?: unknown[] } | null,
   email: string,
   featureEnabled: boolean
 ): boolean {
+  // Existing passwordless accounts are always eligible, but not third-party
+  // auth accounts which also have verifierSetAt === 0
+  if (account?.verifierSetAt === 0 && !(account.linkedAccounts?.length)) {
+    return true;
+  }
+  // Flag gates new signups and is required for non-passwordless accounts
   if (!featureEnabled) {
     return false;
   }
-
-  // New account (doesn't exist) - eligible
-  if (!account) {
-    return true;
-  }
-
-  // Existing account must not have a password set
-  return account.verifierSetAt === 0;
+  // New account (doesn't exist yet) — eligible; existing with password — not
+  return !account;
 }

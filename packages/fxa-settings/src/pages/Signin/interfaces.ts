@@ -265,4 +265,5 @@ export interface SigninLocationState {
   showInlineRecoveryKeySetup?: boolean;
   isSessionAALUpgrade?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
+  isPasswordlessFlow?: boolean;
 }

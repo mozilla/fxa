@@ -1632,9 +1632,15 @@ export class AccountHandler {
         result.exists = true;
         result.hasLinkedAccount = (account.linkedAccounts?.length || 0) > 0;
         result.hasPassword = account.verifierSetAt > 0;
-        // Passwordless is supported if account is eligible AND clientId is allowed
-        result.passwordlessSupported =
-          isPasswordlessEligible(
+        // Existing passwordless accounts are always supported — the user must
+        // be able to sign in via OTP regardless of feature flag or RP allowlist.
+        // The flag + allowlist only gate *new* passwordless signups.
+        // Third-party auth accounts also have verifierSetAt === 0, but they
+        // should use their linked provider (Google/Apple), not passwordless OTP.
+        const hasLinkedAccount = (account.linkedAccounts?.length || 0) > 0;
+        const isExistingPasswordless = account.verifierSetAt === 0 && !hasLinkedAccount;
+        result.passwordlessSupported = isExistingPasswordless ||
+          (isPasswordlessEligible(
             account,
             email,
             this.config.passwordlessOtp.enabled
@@ -1642,7 +1648,7 @@ export class AccountHandler {
           isClientAllowedForPasswordless(
             this.config.passwordlessOtp.allowedClientIds as string[],
             clientId
-          );
+          ));
       } else {
         const exist = await this.db.accountExists(email);
         if (!exist) {

@@ -86,8 +86,50 @@ class PasswordlessHandler {
   }
 
   /**
-   * Send OTP code for passwordless authentication
+   * Look up an account by email. Returns null if the account doesn't exist.
    */
+  private async lookupAccount(email: string): Promise<{ account: any; isNewAccount: boolean }> {
+    try {
+      const account = await this.db.accountRecord(email, {
+        linkedAccounts: true,
+      });
+      return { account, isNewAccount: false };
+    } catch (err: any) {
+      if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
+        throw err;
+      }
+      return { account: null, isNewAccount: true };
+    }
+  }
+
+  /**
+   * Validate that the caller is allowed to use passwordless for this account.
+   * Existing passwordless accounts bypass the client allowlist and feature flag.
+   * Third-party auth accounts (with linked accounts) are not passwordless.
+   */
+  private validatePasswordlessAccess(
+    account: any,
+    email: string,
+    clientId: string | undefined,
+    logTag: string
+  ) {
+    const hasLinkedAccount = account && (account.linkedAccounts?.length || 0) > 0;
+    const isExistingPasswordless = account && account.verifierSetAt === 0 && !hasLinkedAccount;
+    if (
+      !isExistingPasswordless &&
+      !isClientAllowedForPasswordless(
+        this.config.passwordlessOtp.allowedClientIds as string[],
+        clientId
+      )
+    ) {
+      this.log.error(`passwordless.${logTag}.clientIdNotAllowed`, { clientId });
+      throw error.featureNotEnabled();
+    }
+    if (!isPasswordlessEligible(account, email, this.config.passwordlessOtp.enabled)) {
+      throw error.cannotCreatePassword();
+    }
+  }
+
   async sendCode(request: AuthRequest) {
     this.log.begin('Passwordless.sendCode', request);
 
@@ -96,53 +138,14 @@ class PasswordlessHandler {
       clientId?: string;
     };
 
-    // Check if clientId is allowed to use passwordless
-    if (
-      !isClientAllowedForPasswordless(
-        this.config.passwordlessOtp.allowedClientIds as string[],
-        clientId
-      )
-    ) {
-      this.log.error('passwordless.sendCode.clientIdNotAllowed', {
-        clientId,
-      });
-      throw error.featureNotEnabled();
-    }
-
-    // Rate limiting
     await this.customs.check(request, email, 'passwordlessSendOtp');
 
-    // Check if account exists and is eligible
-    let account: any = null;
-    let isNewAccount = true;
-
-    try {
-      account = await this.db.accountRecord(email);
-      isNewAccount = false;
-    } catch (err: any) {
-      if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
-        throw err;
-      }
-      // Account doesn't exist - this is a new registration
-    }
-
-    // Check eligibility
-    if (
-      !isPasswordlessEligible(
-        account,
-        email,
-        this.config.passwordlessOtp.enabled
-      )
-    ) {
-      throw error.cannotCreatePassword(); // Account has a password, use standard flow
-    }
+    const { account, isNewAccount } = await this.lookupAccount(email);
+    this.validatePasswordlessAccess(account, email, clientId, 'sendCode');
 
     return this.generateAndSendOtp(request, email, account, isNewAccount);
   }
 
-  /**
-   * Confirm OTP code and create session
-   */
   async confirmCode(request: AuthRequest) {
     this.log.begin('Passwordless.confirmCode', request);
 
@@ -152,51 +155,15 @@ class PasswordlessHandler {
       clientId?: string;
     };
 
-    // Check if clientId is allowed to use passwordless
-    if (
-      !isClientAllowedForPasswordless(
-        this.config.passwordlessOtp.allowedClientIds as string[],
-        clientId
-      )
-    ) {
-      this.log.error('passwordless.confirmCode.clientIdNotAllowed', {
-        clientId,
-      });
-      throw error.featureNotEnabled();
-    }
-
-    // Rate limiting
     await this.customs.check(request, email, 'passwordlessVerifyOtp');
-
-    // Daily limit
     if (this.customs.v2Enabled()) {
       await this.customs.check(request, email, 'passwordlessVerifyOtpPerDay');
     }
 
-    // Check if account exists
-    let account: any = null;
-    let isNewAccount = true;
-
-    try {
-      account = await this.db.accountRecord(email);
-      isNewAccount = false;
-    } catch (err: any) {
-      if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
-        throw err;
-      }
-    }
-
-    // Check eligibility
-    if (
-      account &&
-      !isPasswordlessEligible(
-        account,
-        email,
-        this.config.passwordlessOtp.enabled
-      )
-    ) {
-      throw error.cannotCreatePassword();
-    }
+    const lookupResult = await this.lookupAccount(email);
+    let account = lookupResult.account;
+    const { isNewAccount } = lookupResult;
+    this.validatePasswordlessAccess(account, email, clientId, 'confirmCode');
 
     // Verify OTP
     const otpKey = account ? account.uid : email;
@@ -288,9 +255,6 @@ class PasswordlessHandler {
     return response;
   }
 
-  /**
-   * Resend OTP code
-   */
   async resendCode(request: AuthRequest) {
     this.log.begin('Passwordless.resendCode', request);
 
@@ -299,48 +263,12 @@ class PasswordlessHandler {
       clientId?: string;
     };
 
-    // Check if clientId is allowed to use passwordless
-    if (
-      !isClientAllowedForPasswordless(
-        this.config.passwordlessOtp.allowedClientIds as string[],
-        clientId
-      )
-    ) {
-      this.log.error('passwordless.resendCode.clientIdNotAllowed', {
-        clientId,
-      });
-      throw error.featureNotEnabled();
-    }
-
-    // Rate limiting
     await this.customs.check(request, email, 'passwordlessSendOtp');
 
-    // Check if account exists and is eligible
-    let account: any = null;
-    let isNewAccount = true;
+    const { account, isNewAccount } = await this.lookupAccount(email);
+    this.validatePasswordlessAccess(account, email, clientId, 'resendCode');
 
-    try {
-      account = await this.db.accountRecord(email);
-      isNewAccount = false;
-    } catch (err: any) {
-      if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
-        throw err;
-      }
-      // Account doesn't exist - this is a new registration
-    }
-
-    // Check eligibility
-    if (
-      !isPasswordlessEligible(
-        account,
-        email,
-        this.config.passwordlessOtp.enabled
-      )
-    ) {
-      throw error.cannotCreatePassword(); // Account has a password, use standard flow
-    }
-
-    // Delete existing code first
+    // Delete existing code before sending a new one
     const otpKey = account ? account.uid : email;
     await this.otpManager.delete(otpKey);
 
@@ -358,12 +286,9 @@ class PasswordlessHandler {
     account: any,
     isNewAccount: boolean
   ) {
-    // Generate OTP code
-    // For new accounts, use email as the key; for existing accounts, use uid
     const otpKey = account ? account.uid : email;
     const code = await this.otpManager.create(otpKey);
 
-    // Send OTP email
     const geoData = request.app.geo;
     const { browser, os, osVersion } = request.app.ua;
     const { deviceId, flowId, flowBeginTime } =
@@ -497,13 +422,9 @@ export function passwordlessRoutes(
   statsd: StatsD,
   authServerCacheRedis: Redis
 ) {
-  // Feature flag check
-  // Routes are available if either:
-  // 1. The feature is globally enabled
-  if (!config.passwordlessOtp.enabled) {
-    return [];
-  }
-
+  // Routes are always registered so existing passwordless users can sign in
+  // regardless of the feature flag state. Eligibility checks inside each
+  // handler gate new signups when the flag is off.
   const handler = new PasswordlessHandler(
     log,
     db,

@@ -64,11 +64,13 @@ export const SigninTotpCodeContainer = ({
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
+  // Skip OAuth keys check for passwordless flows (keys will be derived
+  // after password creation on the set_password page) and third-party auth.
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
     keyFetchToken,
     unwrapBKey,
-    signinState?.isSignInWithThirdPartyAuth
+    signinState?.isSignInWithThirdPartyAuth || signinState?.isPasswordlessFlow
   );
 
   const redirectTo =

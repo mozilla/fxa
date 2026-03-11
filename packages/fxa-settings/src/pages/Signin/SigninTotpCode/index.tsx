@@ -134,6 +134,19 @@ export const SigninTotpCode = ({
         sessionVerified: true,
       });
 
+      // Passwordless Sync flow: after TOTP, redirect to set_password
+      // for key derivation. The session is now verified so
+      // /password/create (which requires verifiedSessionToken) will work.
+      if (signinState.isPasswordlessFlow) {
+        navigateWithQuery('/post_verify/third_party_auth/set_password', {
+          replace: true,
+          state: {
+            isPasswordlessFlow: true,
+          },
+        });
+        return;
+      }
+
       const navigationOptions = {
         email,
         signinData: {
