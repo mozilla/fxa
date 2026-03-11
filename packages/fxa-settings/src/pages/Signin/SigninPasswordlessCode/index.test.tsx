@@ -30,6 +30,7 @@ import { SigninOAuthIntegration } from '../interfaces';
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+  queryParamsToMetricsContext: jest.fn((params) => params || {}),
 }));
 
 function applyDefaultMocks() {
@@ -40,7 +41,7 @@ function applyDefaultMocks() {
 }
 
 let mockNavigate = jest.fn();
-let mockNavigateWithQuery = jest.fn();
+let mockNavigateWithQuery = jest.fn().mockResolvedValue(undefined);
 jest.mock('@reach/router', () => {
   return {
     __esModule: true,
@@ -105,7 +106,7 @@ describe('SigninPasswordlessCode page', () => {
     applyDefaultMocks();
     resetMockAuthClient();
     mockNavigate = jest.fn();
-    mockNavigateWithQuery = jest.fn();
+    mockNavigateWithQuery = jest.fn().mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -218,7 +219,12 @@ describe('SigninPasswordlessCode page', () => {
       const resendButton = screen.getByRole('button', { name: 'Email new code.' });
       fireEvent.click(resendButton);
       await waitFor(() => {
-        expect(mockAuthClient.passwordlessResendCode).toHaveBeenCalledWith(MOCK_EMAIL, { clientId: undefined });
+        expect(mockAuthClient.passwordlessResendCode).toHaveBeenCalledWith(MOCK_EMAIL, {
+          clientId: undefined,
+          metricsContext: {
+            clientId: undefined,
+          },
+        });
       });
     }
 
@@ -279,9 +285,10 @@ describe('SigninPasswordlessCode page', () => {
 
   describe('onSubmit code submission', () => {
     async function submit() {
+      const user = userEvent.setup();
       const button = screen.getByRole('button', { name: 'Confirm' });
       expect(button).toBeEnabled();
-      await userEvent.click(button);
+      await user.click(button);
     }
 
     async function submitCode(code = MOCK_PASSWORDLESS_CODE) {

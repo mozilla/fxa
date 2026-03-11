@@ -8,10 +8,7 @@
 
 import sinon from 'sinon';
 
-const {
-  fetchRpCmsData,
-  getOptionalCmsEmailConfig,
-} = require('./account');
+const { fetchRpCmsData, getOptionalCmsEmailConfig } = require('./account');
 
 describe('fetchRpCmsData', () => {
   const sandbox = sinon.createSandbox();
@@ -199,9 +196,9 @@ describe('getOptionalCmsEmailConfig', () => {
       cmsRpClientId: 'testclient123456',
       cmsRpFromName: 'Test App',
       entrypoint: 'entree',
-      logoUrl: 'https://example.com/logo.png',
-      logoAltText: 'Test App Logo',
-      logoWidth: '280px',
+      emailLogoUrl: 'https://example.com/logo.png',
+      emailLogoAltText: 'Test App Logo',
+      emailLogoWidth: '280px',
       subject: 'Custom Subject',
       template: 'custom-template',
     });
@@ -308,9 +305,9 @@ describe('getOptionalCmsEmailConfig', () => {
       cmsRpClientId: 'testclient123456',
       cmsRpFromName: 'Test App',
       entrypoint: 'entree',
-      logoUrl: 'https://example.com/logo.png',
-      logoAltText: 'Test App Logo',
-      logoWidth: '280px',
+      emailLogoUrl: 'https://example.com/logo.png',
+      emailLogoAltText: 'Test App Logo',
+      emailLogoWidth: '280px',
       subject: 'Short Code Subject',
       template: 'short-code-template',
     });

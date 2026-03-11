@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useAlertBar, useAuthClient, useFtlMsgResolver } from '../../../models';
-import { usePageViewEvent } from '../../../lib/metrics';
+import { queryParamsToMetricsContext, usePageViewEvent } from '../../../lib/metrics';
 import { EmailCodeImage } from '../../../components/images';
 import FormVerifyCode, {
   FormAttributes,
@@ -42,6 +42,7 @@ const SigninPasswordlessCode = ({
   expirationMinutes,
   integration,
   finishOAuthFlowHandler,
+  flowQueryParams,
   setCurrentSplitLayout,
   isSignup = false,
   resendCountdownSeconds = 0
@@ -112,7 +113,15 @@ const SigninPasswordlessCode = ({
   const handleResendCode = async () => {
     setResendCodeLoading(true);
     try {
-      await authClient.passwordlessResendCode(email, { clientId: integration.getClientId() });
+      await authClient.passwordlessResendCode(email, {
+        clientId: integration.getClientId(),
+        metricsContext: {
+          ...queryParamsToMetricsContext(
+            flowQueryParams as unknown as Record<string, string>
+          ),
+          clientId: integration.getClientId(),
+        },
+      });
 
       if (showResendSuccessBanner) {
         setAnimateBanner(true);
@@ -150,7 +159,15 @@ const SigninPasswordlessCode = ({
 
       // TODO: Add Glean metrics tracking post-MVP
       try {
-        const result = await authClient.passwordlessConfirmCode(email, code, { clientId: integration.getClientId() });
+        const result = await authClient.passwordlessConfirmCode(email, code, {
+          clientId: integration.getClientId(),
+          metricsContext: {
+            ...queryParamsToMetricsContext(
+              flowQueryParams as unknown as Record<string, string>
+            ),
+            clientId: integration.getClientId(),
+          },
+        });
 
         const isSessionVerified = result.verified && !result.verificationMethod;
         storeAccountData({
@@ -321,18 +338,15 @@ const SigninPasswordlessCode = ({
 
   const cmsInfo = integration?.getCmsInfo();
   //TODO: Signup/SigninPasswordlessCodePage to be added as part of FXA-13020
-  const title = isSignup
-    ? cmsInfo?.SignupPasswordlessCodePage?.pageTitle
-    : cmsInfo?.SigninPasswordlessCodePage?.pageTitle;
-  const splitLayout = isSignup
-    ? cmsInfo?.SignupPasswordlessCodePage?.splitLayout
-    : cmsInfo?.SigninPasswordlessCodePage?.splitLayout;
-  const cmsHeadline = isSignup
-    ? cmsInfo?.SignupPasswordlessCodePage?.headline
-    : cmsInfo?.SigninPasswordlessCodePage?.headline;
-  const cmsDescription = isSignup
-    ? cmsInfo?.SignupPasswordlessCodePage?.description
-    : cmsInfo?.SigninPasswordlessCodePage?.description;
+  const {
+    pageTitle: title,
+    splitLayout,
+    headline: cmsHeadline,
+    description: cmsDescription,
+    primaryButtonText: cmsButtonText,
+  } = (isSignup
+    ? cmsInfo?.SignupPasswordlessCodePage
+    : cmsInfo?.SigninPasswordlessCodePage) ?? {};
 
   // Heading and instruction text vary based on signup vs signin
   const subHeadingText = isSignup
@@ -424,6 +438,7 @@ const SigninPasswordlessCode = ({
           setCodeErrorMessage,
           cmsButton: {
             color: cmsInfo?.shared?.buttonColor,
+            text: cmsButtonText
           },
         }}
       />

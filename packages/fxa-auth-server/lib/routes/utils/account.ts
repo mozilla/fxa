@@ -97,9 +97,9 @@ export async function getOptionalCmsEmailConfig(
     cmsRpClientId: rpCmsConfig.clientId,
     cmsRpFromName: rpCmsConfig.shared?.emailFromName,
     entrypoint: metricsContext.entrypoint,
-    logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-    logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
-    logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
+    emailLogoUrl: rpCmsConfig?.shared?.emailLogoUrl,
+    emailLogoAltText: rpCmsConfig?.shared?.emailLogoAltText,
+    emailLogoWidth: rpCmsConfig?.shared?.emailLogoWidth,
     ...rpCmsConfig[emailTemplate],
   };
 }

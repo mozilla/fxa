@@ -14,9 +14,11 @@ import {
 } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
 
 const SigninPasswordlessCodeContainer = ({
   integration,
+  flowQueryParams,
   setCurrentSplitLayout,
 }: SigninPasswordlessCodeContainerProps & RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
@@ -42,9 +44,7 @@ const SigninPasswordlessCodeContainer = ({
   const [sendError, setSendError] = useState<string | null>(null);
 
   const cmsInfo = integration.getCmsInfo();
-  // Use SigninTokenCodePage layout as fallback since SigninPasswordlessCodePage doesn't exist yet
-  const splitLayout = (cmsInfo as any)?.SigninPasswordlessCodePage?.splitLayout ||
-    cmsInfo?.SigninTokenCodePage?.splitLayout;
+  const splitLayout = cmsInfo?.SigninPasswordlessCodePage?.splitLayout
 
   // If no email in state, redirect to signin
   useEffect(() => {
@@ -61,7 +61,15 @@ const SigninPasswordlessCodeContainer = ({
     if (email && !codeSent) {
       const sendCode = async () => {
         try {
-          await authClient.passwordlessSendCode(email, { clientId: integration.getClientId() });
+          await authClient.passwordlessSendCode(email, {
+            clientId: integration.getClientId(),
+            metricsContext: {
+              ...queryParamsToMetricsContext(
+                flowQueryParams as unknown as Record<string, string>
+              ),
+              clientId: integration.getClientId(),
+            },
+          });
           setCodeSent(true);
           // Persist codeSent in location state so it survives page refresh
           navigateWithQuery(location.pathname + location.search, {
@@ -74,7 +82,7 @@ const SigninPasswordlessCodeContainer = ({
       };
       sendCode();
     }
-  }, [email, service, codeSent, authClient, integration, navigateWithQuery, location.pathname, location.search, location.state]);
+  }, [email, service, codeSent, authClient, integration, navigateWithQuery, location.pathname, location.search, location.state, flowQueryParams]);
 
   if (!email) {
     return (
@@ -114,6 +122,7 @@ const SigninPasswordlessCodeContainer = ({
         expirationMinutes: 10,
         integration,
         finishOAuthFlowHandler,
+        flowQueryParams,
         setCurrentSplitLayout,
         isSignup,
         resendCountdownSeconds: 5,

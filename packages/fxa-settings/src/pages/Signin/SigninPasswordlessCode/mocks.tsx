@@ -97,6 +97,7 @@ export const Subject = ({
           email,
           expirationMinutes,
           finishOAuthFlowHandler,
+          flowQueryParams: {},
           integration,
           isSignup,
         }}
