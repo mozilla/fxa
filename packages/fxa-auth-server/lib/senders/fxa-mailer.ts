@@ -202,6 +202,7 @@ export class FxaMailer extends FxaEmailRenderer {
   async sendPasswordlessSigninOtpEmail(
     opts: EmailSenderOpts &
       EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
       OmitCommonLinks<WithFxaLayouts<passwordlessSigninOtp.TemplateData>>
   ) {
     const { template, version } = passwordlessSigninOtp;
@@ -230,6 +231,7 @@ export class FxaMailer extends FxaEmailRenderer {
   async sendPasswordlessSignupOtpEmail(
     opts: Omit<EmailSenderOpts, 'uid'> &
       EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
       OmitCommonLinks<WithFxaLayouts<passwordlessSignupOtp.TemplateData>>
   ) {
     const { template, version } = passwordlessSignupOtp;

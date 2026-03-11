@@ -237,7 +237,7 @@ export const App = ({
           if (isValidSession) {
             setIsSignedIntoFirefoxDesktop(
               !!userFromBrowser?.sessionToken &&
-                integration.isFirefoxDesktopClient()
+              integration.isFirefoxDesktopClient()
             );
             const cachedUser = getAccountByUid(userFromBrowser.uid);
             // Refresh the token without switching the "current" account.
@@ -626,11 +626,11 @@ const AuthAndAccountSetupRoutes = ({
       />
       <SigninPasswordlessCodeContainer
         path="/oauth/signin_passwordless_code/*"
-        {...{ integration, serviceName, setCurrentSplitLayout }}
+        {...{ integration, serviceName, flowQueryParams, setCurrentSplitLayout }}
       />
       <SigninPasswordlessCodeContainer
         path="/signin_passwordless_code/*"
-        {...{ integration, serviceName, setCurrentSplitLayout }}
+        {...{ integration, serviceName, flowQueryParams, setCurrentSplitLayout }}
       />
       <SigninContainer
         path="/oauth/signin/*"

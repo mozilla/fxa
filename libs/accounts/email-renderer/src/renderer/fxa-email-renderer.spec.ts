@@ -45,6 +45,12 @@ const defaultLayoutTemplateValues = {
   unsubscribeUrl: 'http://localhost:3030/unsubscribe',
 };
 
+const defaultCmsValues = {
+  subject: 'subject line',
+  headline: 'headline...line',
+  description: 'description line',
+};
+
 describe('FxA Email Renderer', () => {
   let renderer: FxaEmailRenderer;
 
@@ -206,7 +212,24 @@ describe('FxA Email Renderer', () => {
       time: '12:00 PM',
       device: mockDevice,
       location: mockLocation,
+      target: 'index',
       ...defaultLayoutTemplateValues,
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
+
+  it('should render renderPasswordlessSigninOtp strapi', async () => {
+    const email = await renderer.renderPasswordlessSigninOtp({
+      code: '96318398',
+      codeExpiryMinutes: 10,
+      date: 'Jan 1, 2024',
+      time: '12:00 PM',
+      device: mockDevice,
+      location: mockLocation,
+      target: 'strapi',
+      ...defaultLayoutTemplateValues,
+      ...defaultCmsValues,
     });
     expect(email).toBeDefined();
     expect(email.html).toMatchSnapshot('matches full email snapshot');
@@ -220,7 +243,24 @@ describe('FxA Email Renderer', () => {
       time: '12:00 PM',
       device: mockDevice,
       location: mockLocation,
+      target: 'index',
       ...defaultLayoutTemplateValues,
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
+
+  it('should render renderPasswordlessSignupOtp strapi', async () => {
+    const email = await renderer.renderPasswordlessSignupOtp({
+      code: '96318398',
+      codeExpiryMinutes: 10,
+      date: 'Jan 1, 2024',
+      time: '12:00 PM',
+      device: mockDevice,
+      location: mockLocation,
+      target: 'strapi',
+      ...defaultLayoutTemplateValues,
+      ...defaultCmsValues,
     });
     expect(email).toBeDefined();
     expect(email.html).toMatchSnapshot('matches full email snapshot');

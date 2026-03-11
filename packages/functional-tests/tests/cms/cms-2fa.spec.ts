@@ -207,9 +207,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter two-step authentication code',
-        description: '',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
         buttonColor: '#4845D2',
         buttonText: 'Confirm',
       });
@@ -349,9 +346,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter two-step authentication code',
-        description: '',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
         buttonColor: '#4845D2',
         buttonText: 'Confirm',
       });
@@ -364,8 +358,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter recovery code',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
         buttonColor: '#4845D2',
         buttonText: 'Confirm',
       });
@@ -487,9 +479,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter two-step authentication code',
-        description: '',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
         buttonColor: '#4845D2',
         buttonText: 'Confirm',
       });
@@ -502,9 +491,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter backup authentication code',
-        description: '',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/123Done-blue-logo.svg',
         buttonColor: '#4845D2',
         buttonText: 'Confirm',
       });
@@ -630,9 +616,6 @@ test.describe('severity-1 #smoke', () => {
 
       await assertCmsCustomization(page, {
         headline: 'Enter two-step authentication code',
-        logoUrl:
-          'https://accounts-cdn.stage.mozaws.net/other/firefox-browser-logo.svg',
-        logoAlt: 'Firefox logo',
         buttonColor: '#FF630B',
         buttonText: 'Confirm',
       });

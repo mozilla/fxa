@@ -523,6 +523,590 @@ describe('/account/passwordless/confirm_code', () => {
   });
 });
 
+describe('passwordless CMS customization', () => {
+  let uid, mockLog, mockRequest, mockDB, mockCustoms, route, routes;
+
+  beforeEach(() => {
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    mockLog = mocks.mockLog();
+    mockDB = mocks.mockDB({
+      uid,
+      email: TEST_EMAIL,
+      emailVerified: true,
+      verifierSetAt: 0,
+    });
+    mockCustoms = {
+      check: sinon.spy(() => Promise.resolve()),
+      v2Enabled: () => true,
+    };
+    mockRequest = mocks.mockRequest({
+      log: mockLog,
+      payload: {
+        email: TEST_EMAIL,
+        clientId: 'test-client-id',
+        metricsContext: {
+          deviceId: 'device123',
+          flowId: 'flow123',
+          flowBeginTime: Date.now(),
+        },
+      },
+    });
+  });
+
+  afterEach(() => {
+    mockOtpManagerCreate.resetHistory();
+    mockOtpManagerIsValid.resetHistory();
+    mockOtpManagerDelete.resetHistory();
+  });
+
+  describe('send_code with CMS configuration', () => {
+    beforeEach(() => {
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(error.unknownAccount())
+      );
+    });
+
+    it('should call getOptionalCmsEmailConfig for new account', () => {
+      const mockGetOptionalCmsEmailConfig = sinon.stub().resolves({});
+      const requireMocks = {
+        './utils/account': {
+          getOptionalCmsEmailConfig: mockGetOptionalCmsEmailConfig,
+        },
+      };
+
+      routes = makeRoutes(
+        {
+          log: mockLog,
+          db: mockDB,
+          customs: mockCustoms,
+          config: {
+            passwordlessOtp: {
+              enabled: true,
+              ttl: 300,
+              digits: 6,
+              allowedClientIds: ['test-client-id'],
+            },
+          },
+        },
+        requireMocks
+      );
+      route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+
+      return runTest(route, mockRequest, () => {
+        // Verify OTP was created
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+        assert.equal(mockOtpManagerCreate.args[0][0], TEST_EMAIL);
+
+        // Verify CMS config was fetched
+        assert.equal(mockGetOptionalCmsEmailConfig.callCount, 1);
+
+        // Check first argument (options object)
+        const options = mockGetOptionalCmsEmailConfig.args[0][0];
+        assert.isDefined(options.code, 'code should be in options');
+        assert.isDefined(options.deviceId, 'deviceId should be in options');
+        assert.isDefined(options.flowId, 'flowId should be in options');
+        assert.isDefined(
+          options.codeExpiryMinutes,
+          'codeExpiryMinutes should be in options'
+        );
+        assert.equal(options.codeExpiryMinutes, 5); // 300 seconds / 60
+
+        // Check second argument (config object)
+        const config = mockGetOptionalCmsEmailConfig.args[0][1];
+        assert.equal(config.emailTemplate, 'PasswordlessSignupOtpEmail');
+        assert.isDefined(config.request, 'request should be in config');
+        assert.isDefined(config.log, 'log should be in config');
+      });
+    });
+
+    it('should call getOptionalCmsEmailConfig for existing account', () => {
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.resolve({
+          uid,
+          email: TEST_EMAIL,
+          verifierSetAt: 0,
+          emails: [{ email: TEST_EMAIL, isPrimary: true }],
+        })
+      );
+
+      const mockGetOptionalCmsEmailConfig = sinon.stub().resolves({});
+      const requireMocks = {
+        './utils/account': {
+          getOptionalCmsEmailConfig: mockGetOptionalCmsEmailConfig,
+        },
+      };
+
+      routes = makeRoutes(
+        {
+          log: mockLog,
+          db: mockDB,
+          customs: mockCustoms,
+          config: {
+            passwordlessOtp: {
+              enabled: true,
+              ttl: 300,
+              digits: 6,
+              allowedClientIds: ['test-client-id'],
+            },
+          },
+        },
+        requireMocks
+      );
+      route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+
+      return runTest(route, mockRequest, () => {
+        // Verify OTP was created with uid (not email)
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+        assert.equal(mockOtpManagerCreate.args[0][0], uid);
+
+        // Verify CMS config was fetched with correct template
+        assert.equal(mockGetOptionalCmsEmailConfig.callCount, 1);
+
+        // Check first argument (options object)
+        const options = mockGetOptionalCmsEmailConfig.args[0][0];
+        assert.isDefined(options.code, 'code should be in options');
+        assert.isDefined(options.deviceId, 'deviceId should be in options');
+        assert.isDefined(options.flowId, 'flowId should be in options');
+        assert.isDefined(options.time, 'time should be in options');
+        assert.isDefined(options.date, 'date should be in options');
+
+        // Check second argument (config object)
+        const config = mockGetOptionalCmsEmailConfig.args[0][1];
+        assert.equal(config.emailTemplate, 'PasswordlessSigninOtpEmail');
+        assert.isDefined(config.request, 'request should be in config');
+        assert.isDefined(config.log, 'log should be in config');
+      });
+    });
+
+    it('should send email with CMS customization when available', () => {
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(error.unknownAccount())
+      );
+
+      const mockGetOptionalCmsEmailConfig = sinon.stub().resolves({
+        emailConfig: {
+          subject: 'Custom Verification Code',
+          description: 'Your custom OTP code',
+          logoUrl: 'https://example.com/logo.png',
+        },
+      });
+
+      const requireMocks = {
+        './utils/account': {
+          getOptionalCmsEmailConfig: mockGetOptionalCmsEmailConfig,
+        },
+      };
+
+      routes = makeRoutes(
+        {
+          log: mockLog,
+          db: mockDB,
+          customs: mockCustoms,
+          config: {
+            passwordlessOtp: {
+              enabled: true,
+              ttl: 300,
+              digits: 6,
+              allowedClientIds: ['test-client-id'],
+            },
+          },
+        },
+        requireMocks
+      );
+      route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+
+      return runTest(route, mockRequest, () => {
+        // Verify CMS config was fetched
+        assert.equal(mockGetOptionalCmsEmailConfig.callCount, 1);
+
+        // Verify the config includes CMS customization
+        const cmsConfig = mockGetOptionalCmsEmailConfig.args[0][0];
+        assert.isDefined(cmsConfig.code);
+        assert.equal(cmsConfig.codeExpiryMinutes, 5);
+      });
+    });
+
+    it('should handle CMS manager absence gracefully', () => {
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(error.unknownAccount())
+      );
+
+      const mockGetOptionalCmsEmailConfig = sinon.stub().resolves({});
+
+      const requireMocks = {
+        './utils/account': {
+          getOptionalCmsEmailConfig: mockGetOptionalCmsEmailConfig,
+        },
+      };
+
+      routes = makeRoutes(
+        {
+          log: mockLog,
+          db: mockDB,
+          customs: mockCustoms,
+          config: {
+            passwordlessOtp: {
+              enabled: true,
+              ttl: 300,
+              digits: 6,
+              allowedClientIds: ['test-client-id'],
+            },
+          },
+        },
+        requireMocks
+      );
+      route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+
+      return runTest(route, mockRequest, () => {
+        // Should still work without CMS manager
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+        assert.equal(mockGetOptionalCmsEmailConfig.callCount, 1);
+
+        // Verify cmsManager parameter can be undefined
+        const config = mockGetOptionalCmsEmailConfig.args[0][1];
+        // cmsManager is optional and may be undefined
+        assert.property(config, 'log');
+        assert.property(config, 'request');
+      });
+    });
+
+    it('should pass correct email template for resend_code', () => {
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.resolve({
+          uid,
+          email: TEST_EMAIL,
+          verifierSetAt: 0,
+          emails: [{ email: TEST_EMAIL, isPrimary: true }],
+        })
+      );
+
+      const mockGetOptionalCmsEmailConfig = sinon.stub().resolves({});
+
+      const requireMocks = {
+        './utils/account': {
+          getOptionalCmsEmailConfig: mockGetOptionalCmsEmailConfig,
+        },
+      };
+
+      routes = makeRoutes(
+        {
+          log: mockLog,
+          db: mockDB,
+          customs: mockCustoms,
+          config: {
+            passwordlessOtp: {
+              enabled: true,
+              ttl: 300,
+              digits: 6,
+              allowedClientIds: ['test-client-id'],
+            },
+          },
+        },
+        requireMocks
+      );
+      route = getRoute(routes, '/account/passwordless/resend_code', 'POST');
+
+      return runTest(route, mockRequest, () => {
+        // Verify OTP was deleted and recreated
+        assert.equal(mockOtpManagerDelete.callCount, 1);
+        assert.equal(mockOtpManagerCreate.callCount, 1);
+
+        // Verify CMS config was fetched
+        assert.equal(mockGetOptionalCmsEmailConfig.callCount, 1);
+
+        // Should use signin template for existing account
+        const config = mockGetOptionalCmsEmailConfig.args[0][1];
+        assert.equal(config.emailTemplate, 'PasswordlessSigninOtpEmail');
+      });
+    });
+  });
+});
+
+describe('passwordless security events', () => {
+  let uid,
+    mockLog,
+    mockRequest,
+    mockDB,
+    mockCustoms,
+    mockRecordSecurityEvent,
+    route,
+    routes;
+
+  beforeEach(() => {
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    mockLog = mocks.mockLog();
+    mockDB = mocks.mockDB({
+      uid,
+      email: TEST_EMAIL,
+      emailCode: hexString(16),
+      emailVerified: true,
+      verifierSetAt: 0,
+    });
+    mockCustoms = {
+      check: sinon.spy(() => Promise.resolve()),
+      v2Enabled: () => true,
+    };
+    mockRecordSecurityEvent = sinon.stub().resolves();
+    mockRequest = mocks.mockRequest({
+      log: mockLog,
+      payload: {
+        email: TEST_EMAIL,
+        clientId: 'test-client-id',
+        metricsContext: {
+          deviceId: 'device123',
+          flowId: 'flow123',
+          flowBeginTime: Date.now(),
+        },
+      },
+    });
+  });
+
+  afterEach(() => {
+    mockOtpManagerCreate.resetHistory();
+    mockOtpManagerIsValid.resetHistory();
+    mockOtpManagerDelete.resetHistory();
+  });
+
+  it('should record security event when OTP is sent for new account', () => {
+    mockDB.accountRecord = sinon.spy(() =>
+      Promise.reject(error.unknownAccount())
+    );
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      recordSecurityEvent: mockRecordSecurityEvent,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientIds: ['test-client-id'],
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      assert.equal(mockRecordSecurityEvent.callCount, 1);
+      assert.equal(
+        mockRecordSecurityEvent.args[0][0],
+        'account.passwordless_login_otp_sent'
+      );
+    });
+  });
+
+  it('should record security event when OTP is sent for existing account', () => {
+    mockDB.accountRecord = sinon.spy(() =>
+      Promise.resolve({
+        uid,
+        email: TEST_EMAIL,
+        verifierSetAt: 0,
+        emails: [{ email: TEST_EMAIL, isPrimary: true }],
+      })
+    );
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      recordSecurityEvent: mockRecordSecurityEvent,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientIds: ['test-client-id'],
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      assert.equal(mockRecordSecurityEvent.callCount, 1);
+      assert.equal(
+        mockRecordSecurityEvent.args[0][0],
+        'account.passwordless_login_otp_sent'
+      );
+      assert.isDefined(mockRecordSecurityEvent.args[0][1].account);
+      assert.equal(mockRecordSecurityEvent.args[0][1].account.uid, uid);
+    });
+  });
+
+  it('should record security event when valid OTP is confirmed for new account', () => {
+    mockDB.accountRecord = sinon.spy(() =>
+      Promise.reject(error.unknownAccount())
+    );
+    mockDB.createAccount = sinon.spy(() =>
+      Promise.resolve({
+        uid,
+        email: TEST_EMAIL,
+        emailCode: hexString(16),
+        verifierSetAt: 0,
+      })
+    );
+    mockDB.createSessionToken = sinon.spy(() =>
+      Promise.resolve({
+        data: 'sessiontoken123',
+        emailVerified: true,
+        tokenVerified: true,
+        lastAuthAt: () => 1234567890,
+      })
+    );
+
+    mockRequest.payload.code = '123456';
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      recordSecurityEvent: mockRecordSecurityEvent,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientIds: ['test-client-id'],
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      // Should record two events: registration_complete and otp_verified
+      assert.equal(mockRecordSecurityEvent.callCount, 2);
+      assert.equal(
+        mockRecordSecurityEvent.args[0][0],
+        'account.passwordless_registration_complete'
+      );
+      assert.equal(
+        mockRecordSecurityEvent.args[1][0],
+        'account.passwordless_login_otp_verified'
+      );
+    });
+  });
+});
+
+describe('passwordless statsd metrics', () => {
+  let uid, mockLog, mockRequest, mockDB, mockCustoms, mockStatsd, route, routes;
+
+  beforeEach(() => {
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    mockLog = mocks.mockLog();
+    mockDB = mocks.mockDB({
+      uid,
+      email: TEST_EMAIL,
+      emailCode: hexString(16),
+      emailVerified: true,
+      verifierSetAt: 0,
+    });
+    mockCustoms = {
+      check: sinon.spy(() => Promise.resolve()),
+      v2Enabled: () => true,
+    };
+    mockStatsd = mocks.mockStatsd();
+    mockRequest = mocks.mockRequest({
+      log: mockLog,
+      payload: {
+        email: TEST_EMAIL,
+        clientId: 'test-client-id',
+        metricsContext: {
+          deviceId: 'device123',
+          flowId: 'flow123',
+          flowBeginTime: Date.now(),
+        },
+      },
+    });
+  });
+
+  afterEach(() => {
+    mockOtpManagerCreate.resetHistory();
+    mockOtpManagerIsValid.resetHistory();
+    mockOtpManagerDelete.resetHistory();
+  });
+
+  it('should increment statsd counter when OTP is sent', () => {
+    mockDB.accountRecord = sinon.spy(() =>
+      Promise.reject(error.unknownAccount())
+    );
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      statsd: mockStatsd,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientIds: ['test-client-id'],
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      assert.equal(mockStatsd.increment.callCount, 1);
+      assert.equal(
+        mockStatsd.increment.args[0][0],
+        'passwordless.sendCode.success'
+      );
+    });
+  });
+
+  it('should increment statsd counter for successful registration', () => {
+    mockDB.accountRecord = sinon.spy(() =>
+      Promise.reject(error.unknownAccount())
+    );
+    mockDB.createAccount = sinon.spy(() =>
+      Promise.resolve({
+        uid,
+        email: TEST_EMAIL,
+        emailCode: hexString(16),
+        verifierSetAt: 0,
+      })
+    );
+    mockDB.createSessionToken = sinon.spy(() =>
+      Promise.resolve({
+        data: 'sessiontoken123',
+        emailVerified: true,
+        tokenVerified: true,
+        lastAuthAt: () => 1234567890,
+      })
+    );
+
+    mockRequest.payload.code = '123456';
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      statsd: mockStatsd,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientIds: ['test-client-id'],
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      // Should increment both registration.success and confirmCode.success
+      assert.isAtLeast(mockStatsd.increment.callCount, 2);
+      const incrementCalls = mockStatsd.increment
+        .getCalls()
+        .map((c) => c.args[0]);
+      assert.include(incrementCalls, 'passwordless.registration.success');
+      assert.include(incrementCalls, 'passwordless.confirmCode.success');
+    });
+  });
+});
+
 describe('/account/passwordless/resend_code', () => {
   let uid, mockLog, mockRequest, mockDB, mockCustoms, route, routes;
 
