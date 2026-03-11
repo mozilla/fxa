@@ -104,6 +104,9 @@ export interface Config {
     passkeysEnabled?: boolean;
     passwordlessEnabled?: boolean;
   };
+  darkMode?: {
+    enabled?: boolean;
+  };
   nimbus: {
     enabled: boolean;
     preview: boolean;
@@ -199,6 +202,9 @@ export function getDefault() {
       showLocaleToggle: false,
       paymentsNextSubscriptionManagement: false,
       passwordlessEnabled: false,
+    },
+    darkMode: {
+      enabled: false,
     },
     cms: {
       enabled: false,

@@ -260,6 +260,14 @@ const conf = (module.exports = convict({
       env: 'PASSWORDLESS_SIGNUP_ENABLED',
     },
   },
+  darkMode: {
+    enabled: {
+      default: false,
+      doc: 'Enables dark mode toggle',
+      format: Boolean,
+      env: 'DARK_MODE_ENABLED',
+    },
+  },
   cms: {
     enabled: {
       default: false,
