@@ -57,7 +57,7 @@ export default async function Location({
   try {
     const [cmsData, validateLocationResults] = await Promise.all([
       fetchCMSData(params.offeringId, acceptLanguage, params.locale),
-      validateLocationAction(params.offeringId, taxAddress, fxaUid),
+      validateLocationAction(params.offeringId, taxAddress, fxaUid, params.interval),
     ]);
     cms = cmsData;
     locationStatus = validateLocationResults.status;
@@ -117,7 +117,8 @@ export default async function Location({
             )}
           </Banner>
         ) : locationStatus === LocationStatus.ProductNotAvailable ||
-          locationStatus === TaxChangeAllowedStatus.CurrencyNotFound ? (
+          locationStatus === TaxChangeAllowedStatus.CurrencyNotFound ||
+          locationStatus === TaxChangeAllowedStatus.PriceCurrencyNotAvailable ? (
           <Banner variant={BannerVariant.Error} showCloseButton={true}>
             {l10n.getString(
               'select-tax-location-product-not-available',
@@ -160,20 +161,18 @@ export default async function Location({
             saveAction={async (countryCode: string, postalCode: string) => {
               'use server';
 
-              if (fxaUid) {
-                // call server Action here to validate if tax location change is allowed
-                const result = await validateLocationAction(
-                  params.offeringId,
-                  { countryCode, postalCode },
-                  fxaUid
-                );
+              const result = await validateLocationAction(
+                params.offeringId,
+                { countryCode, postalCode },
+                fxaUid,
+                params.interval
+              );
 
-                if (!result.isValid) {
-                  return {
-                    ok: false,
-                    error: result.status,
-                  };
-                }
+              if (!result.isValid) {
+                return {
+                  ok: false,
+                  error: result.status,
+                };
               }
 
               searchParams['countryCode'] = countryCode;

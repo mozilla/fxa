@@ -18,6 +18,7 @@ import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
 
 enum SaveActionErrors {
   CURRENCY_CHANGE_NOT_ALLOWED = 'currency_change', //TaxChangeAllowedStatus.CurrencyChange
+  PRICE_CURRENCY_NOT_AVAILABLE = 'price_currency_not_available', //TaxChangeAllowedStatus.PriceCurrencyNotAvailable
 }
 
 type SaveActionSignature = (
@@ -219,6 +220,13 @@ const Expanded = ({
               setServerErrors((prev) => ({
                 ...prev,
                 invalidCurrencyChange: true,
+              }));
+            } else if (
+              result.error === SaveActionErrors.PRICE_CURRENCY_NOT_AVAILABLE
+            ) {
+              setServerErrors((prev) => ({
+                ...prev,
+                productNotAvailable: true,
               }));
             } else {
               setServerErrors((prev) => ({

@@ -9,9 +9,10 @@ import { getApp } from '../nestapp/app';
 export const validateLocationAction = async (
   offeringId: string,
   taxAddress?: TaxAddress,
-  uid?: string
+  uid?: string,
+  interval?: string
 ) => {
   return await getApp()
     .getActionsService()
-    .validateLocation({ offeringId, taxAddress, uid });
+    .validateLocation({ offeringId, taxAddress, uid, interval });
 };
