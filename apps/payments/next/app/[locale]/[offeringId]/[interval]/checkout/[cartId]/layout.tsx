@@ -130,7 +130,8 @@ export default async function CheckoutLayout({
                         countryCode,
                         postalCode,
                       },
-                      session?.user?.id
+                      session?.user?.id,
+                      params.interval
                     );
 
                     if (result.ok) {

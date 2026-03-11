@@ -941,6 +941,7 @@ export class NextJSActionsService {
     offeringId: string;
     taxAddress: TaxAddress;
     uid?: string;
+    interval?: string;
   }): Promise<
     | {
         ok: true;
@@ -951,13 +952,14 @@ export class NextJSActionsService {
         error: string;
       }
   > {
-    const { cartId, version, offeringId, taxAddress, uid } = args;
+    const { cartId, version, offeringId, taxAddress, uid, interval } = args;
 
     // Validate Tax Address before updating
     const { isValid, status } = await this.validateLocation({
       offeringId,
       taxAddress,
       uid,
+      interval,
     });
     if (!isValid) {
       return {
@@ -1009,6 +1011,7 @@ export class NextJSActionsService {
     offeringId: string;
     taxAddress?: TaxAddress;
     uid?: string;
+    interval?: string;
   }) {
     const { status: locationStatus } =
       await this.eligibilityService.getProductAvailabilityForLocation(
@@ -1020,17 +1023,36 @@ export class NextJSActionsService {
       if (args.uid && args.taxAddress) {
         const { status: taxChangeStatus, currentCurrency } =
           await this.taxService.getTaxChangeStatus(args.uid, args.taxAddress);
-        return {
-          isValid: taxChangeStatus === TaxChangeAllowedStatus.Allowed,
-          status: taxChangeStatus,
-          currentCurrency,
-        };
-      } else {
+        if (taxChangeStatus !== TaxChangeAllowedStatus.Allowed) {
+          return {
+            isValid: false,
+            status: taxChangeStatus,
+            currentCurrency,
+          };
+        }
+      }
+      if (args.interval && args.taxAddress?.countryCode) {
+        const currency = this.currencyManager.getCurrencyForCountry(
+          args.taxAddress.countryCode
+        );
+        if (currency) {
+          const price =
+            await this.productConfigurationManager.retrieveStripePrice(
+              args.offeringId,
+              args.interval as SubplatInterval
+            );
+          if (price && !price.currency_options?.[currency]) {
+            return {
+              isValid: false,
+              status: TaxChangeAllowedStatus.PriceCurrencyNotAvailable,
+            };
+          }
+        }
+      }
         return {
           isValid: true,
           status: locationStatus,
         };
-      }
     } else {
       return {
         isValid: false,

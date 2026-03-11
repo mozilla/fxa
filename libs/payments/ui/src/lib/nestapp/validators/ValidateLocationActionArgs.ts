@@ -15,4 +15,8 @@ export class ValidateLocationActionArgs {
   @IsString()
   @IsOptional()
   uid?: string;
+
+  @IsString()
+  @IsOptional()
+  interval?: string;
 }
