@@ -313,6 +313,23 @@ async function run(config) {
   const senders = await require('../lib/senders')(log, config, bounces, statsd);
   const glean = gleanMetrics(config);
 
+  // Fxa Mailer Setup. Note, this should be done before anything that might
+  // issue Container.get(FxaMailer) in it's constructor! We've been bit by this
+  // service locator pattern before, so tread carefully.
+  const emailSender = new EmailSender(config.smtp, bounces, statsd, log);
+  const linkBuilderConfig = {
+    baseUri: config.contentServer.url,
+    ...config.smtp,
+  };
+  const linkBuilder = new EmailLinkBuilder(linkBuilderConfig);
+  const fxaMailer = new FxaMailer(
+    emailSender,
+    linkBuilder,
+    config.smtp,
+    new NodeRendererBindings()
+  );
+  Container.set(FxaMailer, fxaMailer);
+
   // The AccountDeleteManager is dependent on some of the object set into
   // Container above.
   const accountTasks = DeleteAccountTasksFactory(config, statsd);
@@ -365,20 +382,6 @@ async function run(config) {
   const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
     config
   );
-  // mailer lib setup
-  const emailSender = new EmailSender(config.smtp, bounces, statsd, log);
-  const linkBuilderConfig = {
-    baseUri: config.contentServer.url,
-    ...config.smtp,
-  };
-  const linkBuilder = new EmailLinkBuilder(linkBuilderConfig);
-  const fxaMailer = new FxaMailer(
-    emailSender,
-    linkBuilder,
-    config.smtp,
-    new NodeRendererBindings()
-  );
-  Container.set(FxaMailer, fxaMailer);
 
   const oauthClientInfo = require('../lib/senders/oauth_client_info');
   const { OAuthClientInfoServiceName } = oauthClientInfo;
