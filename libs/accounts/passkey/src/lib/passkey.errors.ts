@@ -133,6 +133,27 @@ export class PasskeyRegistrationFailedError extends PasskeyError {
 }
 
 /**
+ * Thrown when a passkey challenge cannot be found (already consumed, never created, or
+ * evicted by Redis TTL before it could be explicitly expired).
+ * This is distinct from PasskeyChallengeExpiredError: "not found" means the key does not
+ * exist in Redis at all, while "expired" means the challenge was found but the application-
+ * level expiresAt timestamp has passed.
+ * HTTP equivalent: AppError.passkeyChallengeNotFound() - 401 Unauthorized, errno 229
+ */
+export class PasskeyChallengeNotFoundError extends PasskeyError {
+  constructor(
+    info: { uid?: string; challengeId?: string },
+    cause?: Error
+  ) {
+    super(
+      'Passkey challenge not found',
+      { errno: ERRNO.PASSKEY_CHALLENGE_NOT_FOUND, ...info },
+      cause
+    );
+  }
+}
+
+/**
  * Thrown when a passkey challenge has expired.
  * HTTP equivalent: AppError.passkeyChallengeExpired() - 401 Unauthorized, errno 238
  */

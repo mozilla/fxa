@@ -8,7 +8,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { PasskeyConfig } from './passkey.config';
-import { PasskeyConfigProvider, RawPasskeyConfig } from './passkey.provider';
+import {
+  PASSKEY_CHALLENGE_REDIS,
+  PasskeyChallengeRedisProvider,
+  PasskeyConfigProvider,
+  RawPasskeyConfig,
+} from './passkey.provider';
+import Redis from 'ioredis';
 
 const VALID_RAW_CONFIG: RawPasskeyConfig = {
   enabled: true,
@@ -44,6 +50,44 @@ function buildModule(rawPasskeys: unknown) {
       logger: mockLogger,
     }));
 }
+
+jest.mock('ioredis');
+const MockRedis = Redis as jest.MockedClass<typeof Redis>;
+
+describe('PasskeyChallengeRedisProvider', () => {
+  const BASE_REDIS = { host: 'localhost', port: 6379 };
+  const PASSKEY_REDIS_OVERRIDE = { db: 2 };
+
+  async function buildRedisModule(baseRedis: unknown, passkeyRedis: unknown) {
+    const mockConfigService = {
+      get: jest.fn().mockImplementation((key: string) => {
+        if (key === 'redis') return baseRedis;
+        if (key === 'redis.passkey') return passkeyRedis;
+        return null;
+      }),
+    };
+    const m = await Test.createTestingModule({
+      providers: [
+        PasskeyChallengeRedisProvider,
+        { provide: ConfigService, useValue: mockConfigService },
+      ],
+    }).compile();
+    return m.get(PASSKEY_CHALLENGE_REDIS);
+  }
+
+  it('constructs Redis with base config merged with passkey overrides', async () => {
+    await buildRedisModule(BASE_REDIS, PASSKEY_REDIS_OVERRIDE);
+    expect(MockRedis).toHaveBeenCalledWith({
+      ...BASE_REDIS,
+      ...PASSKEY_REDIS_OVERRIDE,
+    });
+  });
+
+  it('constructs Redis with only base config when no passkey override present', async () => {
+    await buildRedisModule(BASE_REDIS, null);
+    expect(MockRedis).toHaveBeenCalledWith({ ...BASE_REDIS });
+  });
+});
 
 describe('PasskeyConfigProvider', () => {
   describe('when passkeys.enabled is false', () => {

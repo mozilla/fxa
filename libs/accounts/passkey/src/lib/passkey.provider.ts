@@ -5,6 +5,7 @@
 import { LoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import Redis from 'ioredis';
 import { PasskeyConfig } from './passkey.config';
 import { validateSync } from 'class-validator';
 import type {
@@ -50,6 +51,21 @@ export function buildPasskeyConfig(
   }
   return passkeyConfig;
 }
+
+export const PASSKEY_CHALLENGE_REDIS = 'PasskeyChallengeRedis';
+
+export const PasskeyChallengeRedisProvider = {
+  provide: PASSKEY_CHALLENGE_REDIS,
+  useFactory: (config: ConfigService) => {
+    const baseRedisConfig = config.get('redis');
+    const passkeyRedisConfig = config.get('redis.passkey');
+    return new Redis({
+      ...baseRedisConfig,
+      ...passkeyRedisConfig,
+    });
+  },
+  inject: [ConfigService],
+};
 
 export const PasskeyConfigProvider = {
   provide: PasskeyConfig,
