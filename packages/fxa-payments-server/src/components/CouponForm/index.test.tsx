@@ -18,15 +18,6 @@ import {
 import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
-import {
-  coupon_REJECTED,
-  coupon_FULFILLED,
-  coupon_PENDING,
-  couponMounted,
-  couponEngaged,
-} from '../../lib/amplitude';
-jest.mock('../../lib/amplitude');
-
 jest.mock('../../lib/apiClient', () => {
   return {
     ...jest.requireActual('../../lib/apiClient'),
@@ -38,11 +29,6 @@ beforeEach(() => {
   (apiRetrieveCouponDetails as jest.Mock)
     .mockClear()
     .mockResolvedValue(COUPON_DETAILS_VALID);
-  (coupon_REJECTED as jest.Mock).mockClear();
-  (coupon_FULFILLED as jest.Mock).mockClear();
-  (coupon_PENDING as jest.Mock).mockClear();
-  (couponMounted as jest.Mock).mockClear();
-  (couponEngaged as jest.Mock).mockClear();
 });
 
 afterEach(cleanup);
@@ -69,7 +55,6 @@ describe('CouponForm', () => {
       expect(couponButton).toBeInTheDocument();
       expect(couponButton).not.toBeDisabled();
       expect(couponInputField).not.toBeDisabled();
-      expect(couponMounted).toBeCalledTimes(1);
     });
 
     it('shows the coupon code and hides the input when a coupon is used', () => {
@@ -149,9 +134,6 @@ describe('CouponForm', () => {
         expect(queryByTestId('coupon-error')).toBeInTheDocument();
         expect(mockSetCoupon).toBeCalledWith(undefined);
       });
-
-      expect(couponMounted).toBeCalledTimes(1);
-      expect(couponEngaged).toBeCalledTimes(1);
     });
 
     it('hides the remove button when there is a coupon in readonly mode', () => {
@@ -307,7 +289,6 @@ describe('CouponForm', () => {
         expect(couponInputField).not.toBeDisabled();
         expect(couponButton).toBeInTheDocument();
         expect(couponButton).not.toBeDisabled();
-        expect(couponMounted).toBeCalledTimes(1);
       });
     });
   });
@@ -330,9 +311,6 @@ describe('CouponForm', () => {
       }
 
       expect(error?.message).toEqual(CouponErrorMessageType.Invalid);
-      expect(coupon_PENDING).toBeCalledTimes(1);
-      expect(coupon_REJECTED).toBeCalledTimes(1);
-      expect(coupon_FULFILLED).toBeCalledTimes(0);
     });
 
     it('throws with expired error message when expired coupon code is used', async () => {
@@ -346,9 +324,6 @@ describe('CouponForm', () => {
       }
 
       expect(error?.message).toEqual(CouponErrorMessageType.Expired);
-      expect(coupon_PENDING).toBeCalledTimes(1);
-      expect(coupon_REJECTED).toBeCalledTimes(1);
-      expect(coupon_FULFILLED).toBeCalledTimes(0);
     });
 
     it('throws with limit reached error message when maximally redeemed coupon code is used', async () => {
@@ -362,9 +337,6 @@ describe('CouponForm', () => {
       }
 
       expect(error?.message).toEqual(CouponErrorMessageType.LimitReached);
-      expect(coupon_PENDING).toBeCalledTimes(1);
-      expect(coupon_REJECTED).toBeCalledTimes(1);
-      expect(coupon_FULFILLED).toBeCalledTimes(0);
     });
 
     it('throws with a generic error message when apiRetrieveCouponDetails fails', async () => {
@@ -378,9 +350,6 @@ describe('CouponForm', () => {
       }
 
       expect(error?.message).toEqual(CouponErrorMessageType.Generic);
-      expect(coupon_PENDING).toBeCalledTimes(1);
-      expect(coupon_REJECTED).toBeCalledTimes(1);
-      expect(coupon_FULFILLED).toBeCalledTimes(0);
     });
 
     it('show success message when apiRetrieveCouponDetails succeeds', async () => {
@@ -394,9 +363,6 @@ describe('CouponForm', () => {
       }
 
       expect(error).toBeNull();
-      expect(coupon_PENDING).toBeCalledTimes(1);
-      expect(coupon_REJECTED).toBeCalledTimes(0);
-      expect(coupon_FULFILLED).toBeCalledTimes(1);
     });
   });
 });

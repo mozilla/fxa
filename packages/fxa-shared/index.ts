@@ -8,7 +8,6 @@ import popularDomains from './email/popularDomains.json';
 import BaseGroupingRule from './experiments/base';
 import express from './express';
 import featureFlags from './feature-flags';
-import amplitude from './metrics/amplitude';
 import flowPerformance from './metrics/flow-performance';
 import navigationTimingSchema from './metrics/navigation-timing-validation';
 import userAgent from './lib/user-agent';
@@ -33,7 +32,6 @@ module.exports = {
   express,
   featureFlags,
   metrics: {
-    amplitude,
     flowPerformance,
     navigationTimingSchema,
   },

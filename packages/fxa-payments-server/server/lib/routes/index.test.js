@@ -4,7 +4,6 @@
 
 const routes = require('./index');
 const mockNavTiming = jest.fn();
-jest.mock('./post-metrics', () => ({}));
 jest.mock('./navigation-timing', () => mockNavTiming);
 
 const statsd = {};

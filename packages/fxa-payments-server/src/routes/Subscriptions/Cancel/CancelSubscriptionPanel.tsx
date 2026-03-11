@@ -11,7 +11,6 @@ import { Plan } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
 import { SubscriptionsProps } from '../index';
 import { uiContentFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
-import * as Amplitude from '../../../lib/amplitude';
 import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import AppContext from '../../../lib/AppContext';
@@ -124,21 +123,19 @@ const CancelSubscriptionPanel = ({
     isMounted.current = true;
 
     if (!viewed.current && cancelRevealed) {
-      Amplitude.cancelSubscriptionMounted({ ...plan, promotionCode });
       viewed.current = true;
     }
 
     return () => {
       isMounted.current = false;
     };
-  }, [cancelRevealed, viewed, plan, promotionCode]);
+  }, [cancelRevealed, viewed]);
 
   const engage = useCallback(() => {
     if (!engaged.current) {
-      Amplitude.cancelSubscriptionEngaged({ ...plan, promotionCode });
       engaged.current = true;
     }
-  }, [engaged, plan, promotionCode]);
+  }, [engaged]);
 
   const engagedOnHideCancel = useCallback(
     (evt) => {

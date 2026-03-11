@@ -11,14 +11,6 @@ import React, {
   useContext,
 } from 'react';
 
-import {
-  coupon_FULFILLED,
-  coupon_PENDING,
-  coupon_REJECTED,
-  couponEngaged,
-  couponMounted,
-  EventProperties,
-} from '../../lib/amplitude';
 import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
 import { useCallbackOnce } from '../../lib/hooks';
 import AppContext from '../../lib/AppContext';
@@ -42,13 +34,7 @@ export const checkPromotionCode = async (
   planId: string,
   promotionCode: string
 ) => {
-  const metricsOptions: EventProperties = {
-    planId,
-    promotionCode,
-  };
-
   try {
-    coupon_PENDING(metricsOptions);
     const couponDetails = await apiRetrieveCouponDetails({
       priceId: planId,
       promotionCode,
@@ -66,14 +52,8 @@ export const checkPromotionCode = async (
       throw new CouponError(CouponErrorMessageType.Invalid);
     }
 
-    coupon_FULFILLED(metricsOptions);
     return couponDetails;
   } catch (err) {
-    coupon_REJECTED({
-      planId,
-      promotionCode,
-      error: err,
-    });
     if (!(err instanceof CouponError)) {
       if (err instanceof APIError) {
         if (err.errno === 199)
@@ -108,7 +88,7 @@ export const CouponForm = ({
   const [checkingCoupon, setCheckingCoupon] = useState(false);
   const { queryParams } = useContext(AppContext);
 
-  const onFormMounted = useCallback(() => couponMounted({ planId }), [planId]);
+  const onFormMounted = useCallback(() => {}, [planId]);
 
   // check if coupon code was included in URL
   // if true and valid, apply coupon code on page load
@@ -134,10 +114,7 @@ export const CouponForm = ({
     onFormMounted();
   }, [onFormMounted, planId]);
 
-  const onFormEngaged = useCallbackOnce(
-    () => couponEngaged({ planId }),
-    [planId]
-  );
+  const onFormEngaged = useCallbackOnce(() => {}, [planId]);
   const onChange = useCallback(() => {
     onFormEngaged();
   }, [onFormEngaged]);

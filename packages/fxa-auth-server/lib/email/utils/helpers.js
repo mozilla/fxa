@@ -4,12 +4,11 @@
 
 'use strict';
 
-const { config } = require('../../../config');
 const emailDomains = require('../../../config/popular-email-domains');
 const { default: Container } = require('typedi');
 const { AccountEventsManager } = require('../../account-events');
 
-let amplitude, accountEventsManager;
+let accountEventsManager;
 
 function getInsensitiveHeaderValueFromArray(headerName, headers) {
   let value = '';
@@ -103,54 +102,6 @@ function logEmailEventSent(log, message) {
     log.info('emailEvent', msg);
   });
 
-  logAmplitudeEvent(
-    log,
-    message,
-    Object.assign(
-      {
-        domain: getAnonymizedEmailDomain(message.email),
-      },
-      emailEventInfo
-    )
-  );
-}
-
-function logAmplitudeEvent(log, message, eventInfo) {
-  if (!amplitude) {
-    amplitude = require('../../metrics/amplitude')(log, config.getProperties());
-  }
-
-  amplitude(
-    `email.${eventInfo.template}.${eventInfo.type}`,
-    {
-      app: {
-        devices: Promise.resolve([]),
-        geo: {
-          location: {},
-        },
-        locale: eventInfo.locale,
-        ua: {},
-      },
-      auth: {},
-      query: {},
-      payload: {},
-    },
-    {
-      email_domain: eventInfo.domain,
-      service: message.service || getHeaderValue('X-Service-Id', message),
-      plan_id: eventInfo.planId,
-      product_id: eventInfo.productId,
-      templateVersion: eventInfo.templateVersion,
-      uid: message.uid || getHeaderValue('X-Uid', message),
-    },
-    {
-      device_id: message.deviceId || getHeaderValue('X-Device-Id', message),
-      flowBeginTime:
-        message.flowBeginTime || getHeaderValue('X-Flow-Begin-Time', message),
-      flow_id: eventInfo.flow_id,
-      time: Date.now(),
-    }
-  );
 }
 
 function logAccountEventFromMessage(message, type) {
@@ -210,8 +161,6 @@ function logEmailEventFromMessage(log, message, type, emailDomain) {
   }
 
   log.info('emailEvent', emailEventInfo);
-
-  logAmplitudeEvent(log, message, emailEventInfo);
 }
 
 function logFlowEventFromMessage(log, message, type) {

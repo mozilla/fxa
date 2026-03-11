@@ -108,7 +108,7 @@ describe('/verify POST', () => {
       assert.isTrue(mocks.token.verify.calledOnceWith(TOKEN));
     });
 
-    it('logs an amplitude event', () => {
+    it('emits a metrics event', () => {
       assert.isTrue(
         req.emitMetricsEvent.calledOnceWith('verify.success', {
           service: 'foo',

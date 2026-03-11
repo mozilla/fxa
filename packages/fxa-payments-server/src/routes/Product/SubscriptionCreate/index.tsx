@@ -38,7 +38,6 @@ import {
   SubscriptionCreateStripeAPIs,
 } from '../../../lib/stripe';
 
-import * as Amplitude from '../../../lib/amplitude';
 import { Localized } from '@fluent/react';
 import * as apiClient from '../../../lib/apiClient';
 
@@ -101,23 +100,9 @@ export const SubscriptionCreate = ({
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const onFormMounted = useCallbackOnce(
-    () =>
-      Amplitude.createSubscriptionMounted({
-        ...selectedPlan,
-        checkoutType: checkoutType,
-      }),
-    [checkoutType, selectedPlan]
-  );
+  const onFormMounted = useCallbackOnce(() => {}, [checkoutType, selectedPlan]);
 
-  const onFormEngaged = useCallbackOnce(
-    () =>
-      Amplitude.createSubscriptionEngaged({
-        ...selectedPlan,
-        checkoutType: checkoutType,
-      }),
-    [checkoutType, selectedPlan]
-  );
+  const onFormEngaged = useCallbackOnce(() => {}, [checkoutType, selectedPlan]);
 
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
 

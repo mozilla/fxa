@@ -24,7 +24,6 @@ import DialogMessage from './components/DialogMessage';
 import { SignInLayout, SettingsLayout } from './components/AppLayout';
 import ScreenInfo from './lib/screen-info';
 import { LoadingOverlay } from './components/LoadingOverlay';
-import * as FlowEvents from './lib/flow-event';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import selectors from './store/selectors';
 
@@ -105,7 +104,6 @@ export const App = ({
     navigatorLanguages,
     stripePromise,
   };
-  FlowEvents.init(queryParams);
   enableNavTiming(store);
 
   return (

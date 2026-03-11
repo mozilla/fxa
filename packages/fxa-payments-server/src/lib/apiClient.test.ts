@@ -7,22 +7,6 @@ import { CheckoutType } from 'fxa-shared/subscriptions/types';
 import noc from 'nock';
 
 import {
-  cancelSubscription_FULFILLED,
-  cancelSubscription_PENDING,
-  cancelSubscription_REJECTED,
-  createSubscriptionWithPaymentMethod_FULFILLED,
-  createSubscriptionWithPaymentMethod_PENDING,
-  createSubscriptionWithPaymentMethod_REJECTED,
-  EventProperties,
-  updateDefaultPaymentMethod_FULFILLED,
-  updateDefaultPaymentMethod_PENDING,
-  updateDefaultPaymentMethod_REJECTED,
-  updateSubscriptionPlan_FULFILLED,
-  updateSubscriptionPlan_PENDING,
-  updateSubscriptionPlan_REJECTED,
-  getErrorId,
-} from './amplitude';
-import {
   apiCancelSubscription,
   apiCapturePaypalPayment,
   apiCreateCustomer,
@@ -74,7 +58,6 @@ function nock(it: any) {
 }
 
 jest.mock('./sentry');
-jest.mock('./amplitude');
 
 const OAUTH_TOKEN = 'tok-8675309';
 const OAUTH_BASE_URL = 'http://oauth.example.com';
@@ -164,7 +147,6 @@ describe('apiFetch error', () => {
 
   it('throw APIError', async () => {
     let error: any;
-    (getErrorId as jest.Mock).mockReturnValue('error-id-123');
     nock(PROFILE_BASE_URL).get('/v1/profile').reply(500, {
       code: '999',
       statusCode: 500,
@@ -179,19 +161,6 @@ describe('apiFetch error', () => {
     }
     expect(error).toBeInstanceOf(APIError);
     expect(error.errno).toBe(999);
-    expect(sentryMetrics.captureException as jest.Mock).not.toBeCalled();
-  });
-
-  it('should throw and report to Sentry for unknown_error', async () => {
-    let error: any;
-    (getErrorId as jest.Mock).mockReturnValue('unknown_error');
-    nock(PROFILE_BASE_URL).get('/v1/profile').reply(500, {});
-    try {
-      await apiFetchProfile();
-    } catch (err) {
-      error = err;
-    }
-    expect(error).toBeInstanceOf(APIError);
     expect(sentryMetrics.captureException as jest.Mock).toBeCalledWith(error);
   });
 });
@@ -308,14 +277,6 @@ describe('API requests', () => {
       previousPlanId: 'plan_1234',
       previousProductId: 'prod_3456',
     };
-    const metricsOptions = {
-      planId: params.planId,
-      productId: params.productId,
-      paymentProvider: params.paymentProvider,
-      previousPlanId: params.previousPlanId,
-      previousProductId: params.previousProductId,
-      subscriptionId: params.subscriptionId,
-    };
 
     it('PUT {auth-server}/v1/oauth/subscriptions/active', async () => {
       const expectedResponse = { ok: true };
@@ -323,16 +284,10 @@ describe('API requests', () => {
         .put(path(params.subscriptionId), { planId: params.planId })
         .reply(200, expectedResponse);
       expect(await apiUpdateSubscriptionPlan(params)).toEqual(expectedResponse);
-      expect(updateSubscriptionPlan_PENDING as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
-      expect(updateSubscriptionPlan_FULFILLED as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
       requestMock.done();
     });
 
-    it('sends amplitude ping on error', async () => {
+    it('throws on error', async () => {
       const requestMock = nock(AUTH_BASE_URL)
         .put(path(params.subscriptionId), { planId: params.planId })
         .reply(400, { message: 'oops' });
@@ -343,13 +298,6 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(updateSubscriptionPlan_PENDING as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
-      expect(updateSubscriptionPlan_REJECTED as jest.Mock).toBeCalledWith({
-        ...metricsOptions,
-        error,
-      });
       requestMock.done();
     });
   });
@@ -364,12 +312,6 @@ describe('API requests', () => {
       paymentProvider: 'paypal' as PaymentProvider,
       promotionCode: 'freecats',
     };
-    const metricsOptions = {
-      planId: params.planId,
-      productId: params.productId,
-      paymentProvider: params.paymentProvider,
-      promotionCode: params.promotionCode,
-    };
 
     it('DELETE {auth-server}/v1/oauth/subscriptions/active/', async () => {
       const requestMock = nock(AUTH_BASE_URL)
@@ -378,16 +320,10 @@ describe('API requests', () => {
       expect(await apiCancelSubscription(params)).toEqual({
         subscriptionId: params.subscriptionId,
       });
-      expect(cancelSubscription_PENDING as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
-      expect(cancelSubscription_FULFILLED as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
       requestMock.done();
     });
 
-    it('sends amplitude ping on error', async () => {
+    it('throws on error', async () => {
       const requestMock = nock(AUTH_BASE_URL)
         .delete(path(params.subscriptionId))
         .reply(400, { message: 'oops' });
@@ -398,13 +334,6 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(cancelSubscription_PENDING as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
-      expect(cancelSubscription_REJECTED as jest.Mock).toBeCalledWith({
-        ...metricsOptions,
-        error,
-      });
       requestMock.done();
     });
   });
@@ -451,12 +380,6 @@ describe('API requests', () => {
       paymentMethodId: 'pm_test',
       checkoutType: CheckoutType.WITHOUT_ACCOUNT,
     };
-    const metricsOptions: EventProperties = {
-      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
-      planId: params.priceId,
-      productId: params.productId,
-      paymentProvider: 'stripe',
-    };
 
     it(`POST {auth-server}${path}`, async () => {
       const expected = { sourceCountry: 'US', subscription: { what: 'ever' } };
@@ -465,20 +388,10 @@ describe('API requests', () => {
       expect(await apiCreateSubscriptionWithPaymentMethod(params)).toEqual(
         expected.subscription
       );
-
-      expect(
-        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
-      ).toBeCalledWith(metricsOptions);
-      expect(
-        createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
-      ).toBeCalledWith({
-        ...metricsOptions,
-        country_code_source: expected.sourceCountry,
-      });
       requestMock.done();
     });
 
-    it('sends amplitude ping on error', async () => {
+    it('throws on error', async () => {
       const { priceId, paymentMethodId } = params;
       const requestMock = nock(AUTH_BASE_URL)
         .post(path, { priceId, paymentMethodId })
@@ -490,15 +403,6 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(
-        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
-      ).toBeCalledWith(metricsOptions);
-      expect(
-        createSubscriptionWithPaymentMethod_REJECTED as jest.Mock
-      ).toBeCalledWith({
-        ...metricsOptions,
-        error,
-      });
       requestMock.done();
     });
 
@@ -512,20 +416,6 @@ describe('API requests', () => {
       expect(
         await apiCreateSubscriptionWithPaymentMethod(paramsWithPromo)
       ).toEqual(expected.subscription);
-
-      expect(
-        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
-      ).toBeCalledWith({
-        ...metricsOptions,
-        promotionCode,
-      });
-      expect(
-        createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
-      ).toBeCalledWith({
-        ...metricsOptions,
-        country_code_source: expected.sourceCountry,
-        promotionCode,
-      });
       requestMock.done();
     });
   });
@@ -665,9 +555,6 @@ describe('API requests', () => {
     const params = {
       paymentMethodId: 'pm_test',
     };
-    const metricsOptions = {
-      paymentProvider: 'stripe',
-    };
 
     it(`POST {auth-server}${path}`, async () => {
       const requestMock = nock(AUTH_BASE_URL)
@@ -677,17 +564,10 @@ describe('API requests', () => {
       expect(await apiUpdateDefaultPaymentMethod(params)).toEqual(
         MOCK_CUSTOMER
       );
-
-      expect(updateDefaultPaymentMethod_PENDING as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
-      expect(updateDefaultPaymentMethod_FULFILLED as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
       requestMock.done();
     });
 
-    it('sends amplitude ping on error', async () => {
+    it('throws on error', async () => {
       const { paymentMethodId } = params;
       const requestMock = nock(AUTH_BASE_URL)
         .post(path, { paymentMethodId })
@@ -699,13 +579,6 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(updateDefaultPaymentMethod_PENDING as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
-      expect(updateDefaultPaymentMethod_REJECTED as jest.Mock).toBeCalledWith({
-        ...metricsOptions,
-        error,
-      });
       requestMock.done();
     });
   });
@@ -746,13 +619,6 @@ describe('API requests', () => {
       checkoutType: CheckoutType.WITHOUT_ACCOUNT,
       ...MOCK_CHECKOUT_TOKEN,
     };
-    const metricsOptions = {
-      planId: params.priceId,
-      productId: params.productId,
-      paymentProvider: 'paypal',
-      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
-      promotionCode: undefined,
-    };
 
     it('POST {auth-server}/v1/oauth/subscriptions/active/new-paypal', async () => {
       const requestMock = nock(AUTH_BASE_URL)
@@ -761,21 +627,10 @@ describe('API requests', () => {
       expect(await apiCapturePaypalPayment(params)).toEqual(
         MOCK_PAYPAL_SUBSCRIPTION_RESULT
       );
-
-      expect(
-        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
-      ).toBeCalledWith(metricsOptions);
-      expect(
-        createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
-      ).toBeCalledWith({
-        ...metricsOptions,
-        country_code_source: 'FR',
-      });
-
       requestMock.done();
     });
 
-    it('sends amplitude ping on error', async () => {
+    it('throws on error', async () => {
       const requestMock = nock(AUTH_BASE_URL)
         .post(path, params)
         .reply(400, { message: 'oops' });
@@ -786,15 +641,6 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(
-        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
-      ).toBeCalledWith(metricsOptions);
-      expect(
-        createSubscriptionWithPaymentMethod_REJECTED as jest.Mock
-      ).toBeCalledWith({
-        ...metricsOptions,
-        error,
-      });
       requestMock.done();
     });
 
@@ -808,21 +654,6 @@ describe('API requests', () => {
       expect(await apiCapturePaypalPayment(paramsWithPromo)).toEqual(
         MOCK_PAYPAL_SUBSCRIPTION_RESULT
       );
-
-      expect(
-        createSubscriptionWithPaymentMethod_PENDING as jest.Mock
-      ).toBeCalledWith({
-        ...metricsOptions,
-        promotionCode,
-      });
-      expect(
-        createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
-      ).toBeCalledWith({
-        ...metricsOptions,
-        country_code_source: 'FR',
-        promotionCode,
-      });
-
       requestMock.done();
     });
   });
@@ -832,9 +663,6 @@ describe('API requests', () => {
     const params = {
       token: MOCK_CHECKOUT_TOKEN.token,
     };
-    const metricsOptions = {
-      paymentProvider: 'paypal',
-    };
 
     it(`POST {auth-server}${path}`, async () => {
       const requestMock = nock(AUTH_BASE_URL)
@@ -842,17 +670,10 @@ describe('API requests', () => {
         .reply(200, MOCK_CUSTOMER);
 
       expect(await apiUpdateBillingAgreement(params)).toEqual(MOCK_CUSTOMER);
-
-      expect(updateDefaultPaymentMethod_PENDING as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
-      expect(updateDefaultPaymentMethod_FULFILLED as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
       requestMock.done();
     });
 
-    it('sends amplitude ping on error', async () => {
+    it('throws on error', async () => {
       const { token } = params;
       const requestMock = nock(AUTH_BASE_URL)
         .post(path, { token })
@@ -864,13 +685,6 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(updateDefaultPaymentMethod_PENDING as jest.Mock).toBeCalledWith(
-        metricsOptions
-      );
-      expect(updateDefaultPaymentMethod_REJECTED as jest.Mock).toBeCalledWith({
-        ...metricsOptions,
-        error,
-      });
       requestMock.done();
     });
   });

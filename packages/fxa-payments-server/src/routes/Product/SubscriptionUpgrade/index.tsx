@@ -4,8 +4,6 @@ import { Localized } from '@fluent/react';
 import { Plan, Customer, Profile } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
 
-import * as Amplitude from '../../../lib/amplitude';
-
 import { getLocalizedDate, getLocalizedDateString } from '../../../lib/formats';
 import { useCallbackOnce } from '../../../lib/hooks';
 import {
@@ -71,16 +69,7 @@ export const SubscriptionUpgrade = ({
   const paymentProvider: PaymentProvider | undefined =
     customer?.payment_provider;
 
-  useEffect(() => {
-    const metrics = {
-      paymentProvider: paymentProvider,
-      previousPlanId: upgradeFromSubscription.plan_id,
-      previousProductId: upgradeFromSubscription.product_id,
-      subscriptionId: upgradeFromSubscription.subscription_id,
-      ...selectedPlan,
-    };
-    Amplitude.updateSubscriptionPlanMounted(metrics);
-  }, [
+  useEffect(() => {}, [
     paymentProvider,
     selectedPlan,
     upgradeFromSubscription.plan_id,
@@ -88,16 +77,10 @@ export const SubscriptionUpgrade = ({
     upgradeFromSubscription.subscription_id,
   ]);
 
-  const engageOnce = useCallbackOnce(() => {
-    const metrics = {
-      paymentProvider: paymentProvider,
-      previousPlanId: upgradeFromSubscription.plan_id,
-      previousProductId: upgradeFromSubscription.product_id,
-      subscriptionId: upgradeFromSubscription.subscription_id,
-      ...selectedPlan,
-    };
-    Amplitude.updateSubscriptionPlanEngaged(metrics);
-  }, [selectedPlan, upgradeFromSubscription.subscription_id]);
+  const engageOnce = useCallbackOnce(() => {}, [
+    selectedPlan,
+    upgradeFromSubscription.subscription_id,
+  ]);
 
   const handleClick = () => {
     engageOnce();

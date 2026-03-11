@@ -14,7 +14,6 @@ import { getFallbackTextByFluentId, getErrorMessageId } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import { Customer, Plan, Profile } from '../../store/types';
 
-import * as Amplitude from '../../lib/amplitude';
 import * as apiClient from '../../lib/apiClient';
 import * as Provider from '../../lib/PaymentProvider';
 
@@ -212,8 +211,8 @@ export const PaymentUpdateForm = ({
     }
   }, [paymentError, setPaymentError]);
 
-  const onFormMounted = useCallback(() => Amplitude.updatePaymentMounted(), []);
-  const onFormEngaged = useCallback(() => Amplitude.updatePaymentEngaged(), []);
+  const onFormMounted = useCallback(() => {}, []);
+  const onFormEngaged = useCallback(() => {}, []);
 
   // https://github.com/iamkun/dayjs/issues/639
   const expirationDate =

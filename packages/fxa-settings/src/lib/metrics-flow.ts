@@ -63,8 +63,7 @@ export function init(flowData?: any) {
   return getMetricsFlow();
 }
 
-// The "deviceId" was created for Amplitude. It was never persisted. We can
-// generate it here if there isn't one.
+// The "deviceId" was never persisted. We can generate it here if there isn't one.
 function maybeSetDeviceId() {
   if (metricsFlow && !metricsFlow?.deviceId) {
     metricsFlow.deviceId = uuidv4().replace(/-/g, '');

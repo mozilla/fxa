@@ -8,11 +8,6 @@ import { Plan } from '../../../store/types';
 import { PlanDetailsCard } from './PlanUpgradeDetails';
 
 import {
-  updateSubscriptionPlanMounted,
-  updateSubscriptionPlanEngaged,
-} from '../../../lib/amplitude';
-
-import {
   MockApp,
   MOCK_PLANS,
   getLocalizedMessage,
@@ -48,7 +43,6 @@ import { updateConfig } from '../../../lib/config';
 import { deepCopy } from '../../../lib/test-utils';
 
 jest.mock('../../../lib/sentry');
-jest.mock('../../../lib/amplitude');
 jest.mock('../../../lib/reactga-event');
 
 const customerWebSubscription = CUSTOMER.subscriptions[0] as WebSubscription;
@@ -305,15 +299,6 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     expect(getByText(expectedMessage)).toBeInTheDocument();
   });
 
-  it('records an "engage" funnel event when the consent checkbox is clicked', async () => {
-    const { findByTestId, getByTestId } = renderWithLocalizationProvider(
-      <Subject />
-    );
-    await findByTestId('subscription-upgrade');
-    fireEvent.click(getByTestId('confirm'));
-    expect(updateSubscriptionPlanMounted).toBeCalledTimes(1);
-    expect(updateSubscriptionPlanEngaged).toBeCalledTimes(1);
-  });
 });
 
 describe('ReactGA4Log - SubscriptionUpgrade', () => {

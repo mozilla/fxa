@@ -306,7 +306,7 @@ export function logEvents(
     // have its own offset.
     const eventOffset = Math.ceil(now - configurableProperties.startTime);
     const duration = Math.ceil(now - configurableProperties.startTime);
-    // Amplitude events emitted from new Settings should have this property.
+    // Events emitted from new Settings should have this property.
     eventProperties['settingsVersion'] = 'new';
 
     postMetrics(

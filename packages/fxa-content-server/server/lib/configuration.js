@@ -37,26 +37,6 @@ const conf = (module.exports = convict({
     env: 'ALLOWED_PARENT_ORIGINS',
     format: Array,
   },
-  amplitude: {
-    disabled: {
-      default: false,
-      doc: 'Disable amplitude events',
-      env: 'AMPLITUDE_DISABLED',
-      format: Boolean,
-    },
-    schemaValidation: {
-      default: true,
-      doc: 'Validate events against a JSON schema',
-      env: 'AMPLITUDE_SCHEMA_VALIDATION',
-      format: Boolean,
-    },
-    rawEvents: {
-      default: false,
-      doc: 'Log raw Amplitude events',
-      env: 'AMPLITUDE_RAW_EVENTS',
-      format: Boolean,
-    },
-  },
   are_dist_resources: {
     default: false,
     doc: 'Check if the resources are under the /dist directory',

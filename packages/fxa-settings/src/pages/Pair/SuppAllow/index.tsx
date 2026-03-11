@@ -23,7 +23,6 @@ export type SuppAllowProps = {
 };
 
 // TODO: verify if this event exists or needs to be added
-// this event is not currently included in amplitude.js
 export const viewName = 'pair.supp.allow';
 
 const handleSubmit = () => {
