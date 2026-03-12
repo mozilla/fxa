@@ -20,6 +20,7 @@ const data = {
     'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
   showOutstandingBalance: true,
   cancelAtEnd: false,
+  isFreeTrialCancellation: false,
 };
 
 const createStory = subplatStoryWithProps<TemplateData>(
@@ -30,3 +31,19 @@ const createStory = subplatStoryWithProps<TemplateData>(
 );
 
 export const SubscriptionCancellation = createStory();
+
+const freeTrialData = {
+  ...data,
+  isFreeTrialCancellation: true,
+  showOutstandingBalance: false,
+  trialEndDateOnly: '12/13/2021',
+};
+
+const createFreeTrialStory = subplatStoryWithProps<TemplateData>(
+  'subscriptionCancellation',
+  'Sent when a user cancels their free trial.',
+  freeTrialData,
+  includes
+);
+
+export const FreeTrialCancellation = createFreeTrialStory();

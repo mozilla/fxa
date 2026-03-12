@@ -6882,6 +6882,42 @@ describe('#integration - StripeHelper', () => {
           ),
           productMetadata: expectedBaseUpdateDetails.productMetadata,
           showOutstandingBalance: false,
+          isFreeTrialCancellation: false,
+        });
+      });
+
+      it('extracts expected details for a free trial subscription cancellation with trialEnd', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        const subscription = event.data.object;
+        subscription.trial_start = 1582749566;
+        subscription.trial_end = 1585341566;
+        subscription.canceled_at = 1583000000;
+        const result =
+          await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
+            subscription,
+            expectedBaseUpdateDetails,
+            mockInvoice,
+            undefined
+          );
+        assert.deepEqual(result, {
+          updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
+          email,
+          uid,
+          productId,
+          planId,
+          planConfig: {},
+          planEmailIconURL: productIconURLNew,
+          productName,
+          invoiceDate: new Date(mockInvoice.created * 1000),
+          invoiceTotalInCents: mockInvoice.total,
+          invoiceTotalCurrency: mockInvoice.currency,
+          serviceLastActiveDate: new Date(
+            subscription.current_period_end * 1000
+          ),
+          productMetadata: expectedBaseUpdateDetails.productMetadata,
+          showOutstandingBalance: false,
+          isFreeTrialCancellation: true,
+          trialEnd: new Date(subscription.trial_end * 1000),
         });
       });
 
@@ -6917,6 +6953,7 @@ describe('#integration - StripeHelper', () => {
           ),
           productMetadata: expectedBaseUpdateDetails.productMetadata,
           showOutstandingBalance: true,
+          isFreeTrialCancellation: false,
         });
       });
     });

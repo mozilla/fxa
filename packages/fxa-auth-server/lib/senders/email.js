@@ -2945,6 +2945,8 @@ module.exports = function (log, config, bounces, statsd) {
       serviceLastActiveDate,
       showOutstandingBalance,
       cancelAtEnd = true,
+      isFreeTrialCancellation = false,
+      trialEnd,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2999,6 +3001,16 @@ module.exports = function (log, config, bounces, statsd) {
         ),
         showOutstandingBalance,
         cancelAtEnd,
+        isFreeTrialCancellation,
+        ...(trialEnd
+          ? {
+              trialEndDateOnly: this._constructLocalDateString(
+                message.timeZone,
+                message.acceptLanguage,
+                trialEnd
+              ),
+            }
+          : {}),
       },
     });
   };

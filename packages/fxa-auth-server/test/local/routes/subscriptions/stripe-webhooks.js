@@ -2374,6 +2374,7 @@ describe('StripeWebhookHandler', () => {
           involuntaryCancellation: false,
           immediateCancellation: false,
           hasOutstandingBalance: false,
+          freeTrialCancellation: false,
         }
       ) =>
       async () => {
@@ -2400,6 +2401,11 @@ describe('StripeWebhookHandler', () => {
           subscription.metadata = {
             cancelled_for_customer_at: moment().unix(),
           };
+        }
+        if (options.freeTrialCancellation) {
+          subscription.trial_start = 1582749566;
+          subscription.trial_end = 1585341566;
+          subscription.canceled_at = 1583000000;
         }
         StripeWebhookHandlerInstance.stripeHelper.checkSubscriptionPastDue.returns(
           options.involuntaryCancellation
@@ -2479,18 +2485,23 @@ describe('StripeWebhookHandler', () => {
         }
 
         if (shouldSendCancellationEmail()) {
+          const expectedArgs = {
+            acceptLanguage: mockAccount.locale,
+            ...mockInvoiceDetails,
+            showOutstandingBalance: options.hasOutstandingBalance,
+            cancelAtEnd: subscription.cancel_at_period_end,
+            isFreeTrialCancellation: !!options.freeTrialCancellation,
+            email: mockAccount.primaryEmail,
+          };
+          if (options.freeTrialCancellation) {
+            expectedArgs.trialEnd = new Date(subscription.trial_end * 1000);
+          }
           assert.calledWith(
             StripeWebhookHandlerInstance.mailer
               .sendSubscriptionCancellationEmail,
             mockAccount.emails,
             mockAccount,
-            {
-              acceptLanguage: mockAccount.locale,
-              ...mockInvoiceDetails,
-              showOutstandingBalance: options.hasOutstandingBalance,
-              cancelAtEnd: subscription.cancel_at_period_end,
-              email: mockAccount.primaryEmail,
-            }
+            expectedArgs
           );
         } else {
           assert.notCalled(
@@ -2555,6 +2566,18 @@ describe('StripeWebhookHandler', () => {
         involuntaryCancellation: false,
         immediateCancellation: true,
         hasOutstandingBalance: true,
+      })
+    );
+
+    it(
+      'sends a free trial cancellation email with trialEnd on immediate free trial cancellation',
+      commonSendSubscriptionDeletedEmailTest({
+        accountFound: true,
+        subscriptionAlreadyCancelled: false,
+        involuntaryCancellation: false,
+        immediateCancellation: true,
+        hasOutstandingBalance: false,
+        freeTrialCancellation: true,
       })
     );
   });
