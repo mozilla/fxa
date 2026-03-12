@@ -24,11 +24,13 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import type { Interval } from '@fxa/payments/metrics/client';
 import { BaseButton, ButtonVariant, CheckoutCheckbox } from '@fxa/payments/ui';
 import LockImage from '@fxa/shared/assets/images/lock.svg';
 import { useCallbackOnce } from '../../hooks/useCallbackOnce';
+import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 import {
   handleStripeErrorAction,
   recordEmitterEventAction,
@@ -89,6 +91,8 @@ interface CheckoutFormProps {
   locale: string;
   sessionUid?: string;
   sessionEmail?: string;
+  metricsEnabled?: boolean;
+  isCancelInterstitialOffer?: boolean;
 }
 
 export function CheckoutForm({
@@ -97,6 +101,8 @@ export function CheckoutForm({
   locale,
   sessionUid,
   sessionEmail,
+  metricsEnabled,
+  isCancelInterstitialOffer,
 }: CheckoutFormProps) {
   const elements = useElements();
   const router = useRouter();
@@ -122,12 +128,48 @@ export function CheckoutForm({
     ? { defaultValues: { email: sessionEmail } }
     : {};
 
+  const glean = useGleanMetrics(metricsEnabled ?? true);
+
+  const interstitialOfferBase = useMemo(
+    () =>
+      isCancelInterstitialOffer
+        ? {
+            flowType: 'cancel' as const,
+            eligibilityStatus: 'offer' as const,
+            interval: (params.interval as Interval) ?? undefined,
+            utmSource: searchParams.get('utm_source') ?? undefined,
+            utmMedium: searchParams.get('utm_medium') ?? undefined,
+            utmCampaign: searchParams.get('utm_campaign') ?? undefined,
+            nimbusUserId: searchParams.get('nimbus_user_id') ?? undefined,
+          }
+        : null,
+    [isCancelInterstitialOffer, params.interval, searchParams]
+  );
+
+  useEffect(() => {
+    if (interstitialOfferBase) {
+      glean.recordInterstitialOffer({
+        ...interstitialOfferBase,
+        step: 'view',
+        action: 'offer',
+      });
+    }
+  }, []); // eslint-disable-line
+
   const engageGlean = useCallbackOnce(() => {
     recordEmitterEventAction(
       'checkoutEngage',
       { ...params },
       Object.fromEntries(searchParams)
     );
+
+    if (interstitialOfferBase) {
+      glean.recordInterstitialOffer({
+        ...interstitialOfferBase,
+        step: 'engage',
+        action: 'offer',
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -186,6 +228,13 @@ export function CheckoutForm({
         Object.fromEntries(searchParams),
         'paypal'
       );
+      if (interstitialOfferBase) {
+        glean.recordInterstitialOffer({
+          ...interstitialOfferBase,
+          step: 'submit',
+          action: 'offer',
+        });
+      }
 
       await checkoutCartWithPaypal(
         cart.id,
@@ -260,6 +309,13 @@ export function CheckoutForm({
       Object.fromEntries(searchParams),
       paymentProvider
     );
+    if (interstitialOfferBase) {
+      glean.recordInterstitialOffer({
+        ...interstitialOfferBase,
+        step: 'submit',
+        action: 'offer',
+      });
+    }
 
     await checkoutCartWithStripe(
       cart.id,

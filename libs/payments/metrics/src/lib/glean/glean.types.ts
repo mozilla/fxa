@@ -137,8 +137,8 @@ export type Entrypoint = 'email' | 'internal_nav' | 'subscription-management';
 export type EligibilityStatus = 'cancel' | 'stay' | 'offer' | 'not_eligible';
 export type FlowType = 'cancel' | 'stay';
 export type Step = 'view' | 'engage' | 'submit' | 'result';
-export type Action = 'redeem_coupon' | 'cancel_subscription' | 'stay_subscribed' | 'upgrade' | 'keep_subscription';
-export type Outcome = 'redeem_success' | 'customer_canceled' | 'stay_subscribed_success' | 'error';
+export type Action = 'redeem_coupon' | 'cancel_subscription' | 'stay_subscribed' | 'offer' | 'keep_subscription';
+export type Outcome = 'redeem_success' | 'customer_canceled' | 'stay_subscribed_success' | 'offer_success' | 'error';
 
 export type ErrorReason =
   | 'customer_mismatch'

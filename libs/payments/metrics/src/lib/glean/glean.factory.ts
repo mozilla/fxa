@@ -212,6 +212,7 @@ export const RetentionFlowEventFactory = (
     'redeem_success',
     'customer_canceled',
     'stay_subscribed_success',
+    'offer_success',
     'error',
   ]),
   offeringId: faker.string.alphanumeric(8),

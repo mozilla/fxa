@@ -144,11 +144,6 @@ subscriptions:
     data_sensitivity:
       - interaction
     extra_keys:
-      entrypoint:
-        description: |
-          Where the flow was entered from. Allowed values: email, internal_nav, subscription-management.
-          Empty string when the source is unidentified.
-        type: string
       step:
         description: |
           Stage in the user journey lifecycle. Allowed values:
@@ -160,13 +155,13 @@ subscriptions:
       action:
         description: |
           The user action taken. Only present when step is engage, submit, or result.
-          Allowed values: upgrade, keep_subscription, cancel_subscription.
+          Allowed values: offer, keep_subscription, cancel_subscription.
         type: string
       outcome:
         description: |
           The result of the flow.
           Only present when step=result.
-          Allowed values: customer_canceled, error.
+          Allowed values: offer_success, customer_canceled, error.
         type: string
       error_reason:
         description: |

@@ -58,6 +58,8 @@ interface PaymentFormProps {
   paypalClientId: string;
   sessionUid?: string;
   sessionEmail?: string;
+  metricsEnabled?: boolean;
+  isCancelInterstitialOffer?: boolean;
 }
 
 export function PaymentSection({
@@ -69,6 +71,8 @@ export function PaymentSection({
   paypalClientId,
   sessionUid,
   sessionEmail,
+  metricsEnabled,
+  isCancelInterstitialOffer,
 }: PaymentFormProps) {
   return (
     <PayPalScriptProvider
@@ -90,6 +94,8 @@ export function PaymentSection({
           locale={locale}
           sessionUid={sessionUid}
           sessionEmail={sessionEmail}
+          metricsEnabled={metricsEnabled}
+          isCancelInterstitialOffer={isCancelInterstitialOffer}
         />
       </StripeWrapper>
     </PayPalScriptProvider>
