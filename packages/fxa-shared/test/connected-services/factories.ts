@@ -193,5 +193,23 @@ describe('connected-services/factories', () => {
       Sinon.assert.calledOnce(bStubbed.oauthClients);
       Sinon.assert.calledOnce(bStubbed.sessions);
     });
+
+    it('handles undefined client_name without validation errors', async () => {
+      oauthClients = [
+        {
+          refresh_token_id: 'test-oauth',
+          created_time: Date.now(),
+          last_access_time: Date.now(),
+          client_name: undefined as any, // Simulate undefined from database
+        } as AttachedOAuthClient,
+      ];
+      deviceList = [];
+      sessions = [];
+
+      const results = await factory.build('1234', 'en');
+
+      // Verify name is null, not undefined (required for validation)
+      assert.strictEqual(results[0].name, null);
+    });
   });
 });
