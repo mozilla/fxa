@@ -50,6 +50,9 @@
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
       "@fxa/payments/management": ["libs/payments/management/src/index.ts"],
       "@fxa/payments/metrics": ["libs/payments/metrics/src/index.ts"],
+      "@fxa/payments/metrics/client": [
+        "libs/payments/metrics/src/client.ts"
+      ],
       "@fxa/payments/metrics/provider": [
         "libs/payments/metrics/src/provider.ts"
       ],

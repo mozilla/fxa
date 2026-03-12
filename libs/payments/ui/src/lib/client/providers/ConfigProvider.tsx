@@ -9,6 +9,12 @@ import { createContext } from 'react';
 export interface ConfigContextValues {
   stripePublicApiKey: string;
   paypalClientId: string;
+  glean: {
+    enabled: boolean;
+    applicationId: string;
+    version: string;
+    channel: string;
+  };
   sentry: {
     dsn?: string;
     clientDsn?: string;
@@ -23,6 +29,12 @@ export interface ConfigContextValues {
 export const ConfigContext = createContext<ConfigContextValues>({
   stripePublicApiKey: '',
   paypalClientId: '',
+  glean: {
+    enabled: false,
+    applicationId: '',
+    version: '',
+    channel: '',
+  },
   sentry: {
     dsn: '',
     clientDsn: '',

@@ -44,6 +44,7 @@ export const {
           name: profile.displayName,
           email: profile.email,
           image: profile.avatar,
+          metricsEnabled: profile.metricsEnabled ?? true,
         };
       },
       userinfo: {
@@ -71,6 +72,7 @@ export const {
           name: profile.displayName,
           email: profile.email,
           image: profile.avatar,
+          metricsEnabled: profile.metricsEnabled ?? true,
         };
       }
       return {

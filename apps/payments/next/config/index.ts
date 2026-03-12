@@ -19,6 +19,7 @@ import {
   validate,
 } from '@fxa/payments/ui/server';
 import { SP2MapConfig, SP2RedirectConfig } from '@fxa/payments/legacy';
+import { PaymentsGleanClientConfig } from '@fxa/payments/metrics';
 
 class CspConfig {
   @IsUrl()
@@ -140,6 +141,11 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   @IsBoolean()
   featureFlagSubManage!: boolean;
 
+  @Type(() => PaymentsGleanClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  gleanClientConfig!: PaymentsGleanClientConfig;
+
   /**
    * Nextjs Public Environment Variables
    */
@@ -159,6 +165,7 @@ export const config = validate(
   {
     ...process.env,
     GLEAN_CONFIG__VERSION: process.env['GLEAN_CONFIG__VERSION'],
+    GLEAN_CLIENT_CONFIG__VERSION: process.env['GLEAN_CLIENT_CONFIG__VERSION'],
   },
   PaymentsNextConfig
 );

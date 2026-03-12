@@ -5,7 +5,7 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "dependsOn": ["l10n-bundle", "glean-generate"]
+      "dependsOn": ["l10n-bundle", "glean-generate", "payments-metrics:glean-generate-frontend"]
     },
     "dev": {
       "options": {
@@ -39,7 +39,7 @@
     },
     "start": {
       "command": "pm2 start apps/payments/next/pm2.config.js && yarn check:url localhost:3035/__heartbeat__",
-      "dependsOn": ["l10n-bundle", "glean-generate"]
+      "dependsOn": ["l10n-bundle", "glean-generate", "payments-metrics:glean-generate-frontend"]
     },
     "stop": {
       "command": "pm2 stop apps/payments/next/pm2.config.js"

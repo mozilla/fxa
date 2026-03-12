@@ -26,6 +26,12 @@ export default async function RootProviderLayout({
       config={{
         stripePublicApiKey: config.stripePublicApiKey,
         paypalClientId: config.paypal.clientId,
+        glean: {
+          enabled: config.gleanClientConfig.enabled,
+          applicationId: config.gleanClientConfig.applicationId,
+          version: config.gleanClientConfig.version,
+          channel: config.gleanClientConfig.channel,
+        },
         sentry: {
           ...config.sentry, //spread to make sure its a POJO
         },

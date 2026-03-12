@@ -1,17 +1,27 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { faker } from '@faker-js/faker';
 import {
   CancellationReason,
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
+  EligibilityStatus,
+  Entrypoint,
+  FlowType,
+  Outcome,
+  PageName,
+  Step,
   SubscriptionCancellationData,
   type AccountsMetricsData,
   type ExperimentationData,
   type GenericGleanSubManageEvent,
   type GleanMetricsData,
+  type SubManageMetricsArgs,
+  type PageMetricsData,
+  type RetentionFlowEventMetricsData,
   type SessionMetricsData,
   type StripeMetricsData,
   type SubPlatCmsMetricsData,
@@ -98,13 +108,20 @@ export const ExperimentationDataFactory = (
   ...override,
 });
 
+export const SubManageMetricsArgsFactory = (
+  override?: Partial<SubManageMetricsArgs>
+): SubManageMetricsArgs => ({
+  uid: faker.string.uuid(),
+  commonMetrics: CommonMetricsFactory(),
+  subscriptionId: `sub_${faker.string.alphanumeric({ length: 14 })}`,
+  ...override,
+});
+
 export const GenericGleanSubManageEventFactory = (
   override?: Partial<GenericGleanSubManageEvent>
 ): GenericGleanSubManageEvent => ({
   eventName: faker.string.alpha({ length: 10 }),
-  uid: faker.string.uuid(),
-  commonMetrics: CommonMetricsFactory(),
-  subscriptionId: `sub_${faker.string.alphanumeric({ length: 14 })}`,
+  ...SubManageMetricsArgsFactory(),
   ...override,
 });
 
@@ -156,5 +173,48 @@ export const GleanMetricsDataFactory = (
   cms: SubPlatCmsMetricsDataFactory(),
   session: SessionMetricsDataFactory(),
   experimentation: ExperimentationDataFactory(),
+  ...override,
+});
+
+export const PageViewEventFactory = (override?: Partial<PageMetricsData>) => ({
+  pageName: faker.helpers.arrayElement<PageName>([
+    'management',
+    'stay_standard',
+    'cancel_standard',
+  ]),
+  entrypoint: faker.helpers.arrayElement<Entrypoint>([
+    'email',
+    'internal_nav',
+    'subscription-management',
+  ]),
+  offeringId: faker.string.alphanumeric(8),
+  interval: faker.helpers.enumValue(SubplatInterval),
+  ...override,
+});
+
+export const RetentionFlowEventFactory = (
+  override?: Partial<RetentionFlowEventMetricsData>
+) => ({
+  flowType: faker.helpers.arrayElement<FlowType>(['cancel', 'stay']),
+  eligibilityStatus: faker.helpers.arrayElement<EligibilityStatus>([
+    'cancel',
+    'stay',
+    'offer',
+    'not_eligible',
+  ]),
+  step: faker.helpers.arrayElement<Step>([
+    'view',
+    'engage',
+    'submit',
+    'result',
+  ]),
+  outcome: faker.helpers.arrayElement<Outcome>([
+    'redeem_success',
+    'customer_canceled',
+    'stay_subscribed_success',
+    'error',
+  ]),
+  offeringId: faker.string.alphanumeric(8),
+  interval: faker.helpers.enumValue(SubplatInterval),
   ...override,
 });
