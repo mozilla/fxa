@@ -12,7 +12,8 @@ import { recordEmitterEventAction } from './recordEmitterEvent';
 export const submitNeedsInputAndRedirectAction = async (
   cartId: string,
   params: Record<string, string | string[]>,
-  searchParams?: Record<string, string | string[]>
+  searchParams?: Record<string, string | string[]>,
+  isFreeTrial?: boolean
 ) => {
   let redirectPath: string | undefined;
   const urlSearchParams = new URLSearchParams(searchParams);
@@ -25,7 +26,9 @@ export const submitNeedsInputAndRedirectAction = async (
     await recordEmitterEventAction(
       'checkoutSuccess',
       { ...params },
-      { ...searchParams }
+      { ...searchParams },
+      undefined,
+      isFreeTrial
     );
 
     redirectPath = 'success';
@@ -35,7 +38,9 @@ export const submitNeedsInputAndRedirectAction = async (
     await recordEmitterEventAction(
       'checkoutFail',
       { ...params },
-      { ...searchParams }
+      { ...searchParams },
+      undefined,
+      isFreeTrial
     );
 
     redirectPath = 'error';

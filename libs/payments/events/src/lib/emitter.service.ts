@@ -17,6 +17,7 @@ import {
   PaymentsEmitterEvents,
   SP3RolloutEvent,
   SubscriptionEndedEvents,
+  TrialConvertedEvents,
   type AuthEvents,
 } from './emitter.types';
 import { AccountManager } from '@fxa/shared/account/account';
@@ -59,6 +60,10 @@ export class PaymentsEmitterService {
     this.emitter.on(
       'subscriptionEnded',
       this.handleSubscriptionEnded.bind(this)
+    );
+    this.emitter.on(
+      'trialConverted',
+      this.handleTrialConverted.bind(this)
     );
     this.emitter.on('sp3Rollout', this.handleSP3Rollout.bind(this));
     this.emitter.on('locationView', this.handleLocationView.bind(this));
@@ -334,6 +339,34 @@ export class PaymentsEmitterService {
         },
         eventData.paymentProvider
       );
+    }
+  }
+
+  async handleTrialConverted(eventData: TrialConvertedEvents) {
+    const {
+      productId,
+      priceId,
+      conversionStatus,
+      providerEventId,
+      uid,
+      billingCountry,
+    } = eventData;
+
+    const metricsOptOut = await this.retrieveOptOut(uid);
+
+    if (!metricsOptOut) {
+      this.paymentsGleanManager.recordFxaSubscriptionTrialConverted({
+        cmsMetricsData: {
+          priceId,
+          productId,
+        },
+        trialConversionData: {
+          conversionStatus,
+          providerEventId,
+          productId,
+          billingCountry,
+        },
+      });
     }
   }
 

@@ -8,6 +8,7 @@ import {
   MockStripeConfigProvider,
   StripeClient,
   StripeCustomerFactory,
+  StripeEventCustomerSubscriptionUpdatedFactory,
   StripeInvoiceFactory,
   StripeResponseFactory,
   StripeSubscriptionFactory,
@@ -48,7 +49,8 @@ import {
 import { CartManager } from '@fxa/payments/cart';
 import { AccountManager } from '@fxa/shared/account/account';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
+import { StatsD } from 'hot-shots';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { CustomerSubscriptionDeletedResponseFactory } from './factories';
 import {
@@ -77,6 +79,7 @@ describe('SubscriptionEventsService', () => {
   let invoiceManager: InvoiceManager;
   let emitterService: PaymentsEmitterService;
   let paymentMethodManager: PaymentMethodManager;
+  let statsd: StatsD;
 
   const mockEmitter = {
     emit: jest.fn(),
@@ -138,6 +141,7 @@ describe('SubscriptionEventsService', () => {
     invoiceManager = module.get(InvoiceManager);
     emitterService = module.get(PaymentsEmitterService);
     paymentMethodManager = module.get(PaymentMethodManager);
+    statsd = module.get(StatsDService);
   });
 
   afterEach(() => {
@@ -282,6 +286,143 @@ describe('SubscriptionEventsService', () => {
             mockEventObjectData
           )
         ).rejects.toThrow();
+      });
+    });
+
+    describe('handleCustomerSubscriptionUpdated', () => {
+      const mockActiveSubscription = StripeSubscriptionFactory({
+        status: 'active',
+      });
+
+      const mockUpdatedEvent =
+        StripeEventCustomerSubscriptionUpdatedFactory(
+          undefined,
+          { status: 'active' },
+          { status: 'trialing' }
+        );
+
+      beforeEach(() => {
+        jest
+          .spyOn(customerManager, 'retrieve')
+          .mockResolvedValue(
+            StripeResponseFactory(
+              StripeCustomerFactory({
+                metadata: { userid: 'uid123' },
+                address: { country: 'US', city: '', line1: '', line2: '', postal_code: '', state: '' },
+              })
+            )
+          );
+      });
+
+      it('should emit trialConverted with successful status when trialing -> active', async () => {
+        jest.spyOn(statsd, 'increment');
+
+        await subscriptionEventsService.handleCustomerSubscriptionUpdated(
+          mockUpdatedEvent,
+          mockActiveSubscription
+        );
+
+        expect(mockEmitter.emit).toHaveBeenCalledTimes(1);
+        expect(mockEmitter.emit).toHaveBeenCalledWith(
+          'trialConverted',
+          expect.objectContaining({
+            conversionStatus: 'successful',
+          })
+        );
+        expect(statsd.increment).toHaveBeenCalledWith(
+          'subscription.trial_conversion',
+          expect.objectContaining({
+            status: 'successful',
+          })
+        );
+      });
+
+      it('should emit trialConverted with unsuccessful status when trialing -> canceled', async () => {
+        const mockCanceledSubscription = StripeSubscriptionFactory({
+          status: 'canceled',
+        });
+        jest.spyOn(statsd, 'increment');
+
+        await subscriptionEventsService.handleCustomerSubscriptionUpdated(
+          mockUpdatedEvent,
+          mockCanceledSubscription
+        );
+
+        expect(mockEmitter.emit).toHaveBeenCalledWith(
+          'trialConverted',
+          expect.objectContaining({
+            conversionStatus: 'unsuccessful',
+          })
+        );
+        expect(statsd.increment).toHaveBeenCalledWith(
+          'subscription.trial_conversion',
+          expect.objectContaining({
+            status: 'unsuccessful',
+          })
+        );
+      });
+
+      it('should not emit when previous status is not trialing', async () => {
+        const nonTrialEvent =
+          StripeEventCustomerSubscriptionUpdatedFactory(
+            undefined,
+            { status: 'active' },
+            { status: 'incomplete' }
+          );
+
+        await subscriptionEventsService.handleCustomerSubscriptionUpdated(
+          nonTrialEvent,
+          mockActiveSubscription
+        );
+
+        expect(mockEmitter.emit).not.toHaveBeenCalled();
+      });
+
+      it('should not emit when no previous_attributes', async () => {
+        const noAttrEvent =
+          StripeEventCustomerSubscriptionUpdatedFactory(
+            undefined,
+            { status: 'active' }
+          );
+
+        await subscriptionEventsService.handleCustomerSubscriptionUpdated(
+          noAttrEvent,
+          mockActiveSubscription
+        );
+
+        expect(mockEmitter.emit).not.toHaveBeenCalled();
+      });
+
+      it('should handle CustomerDeletedError gracefully', async () => {
+        jest
+          .spyOn(customerManager, 'retrieve')
+          .mockRejectedValue(new CustomerDeletedError('customerId'));
+
+        await subscriptionEventsService.handleCustomerSubscriptionUpdated(
+          mockUpdatedEvent,
+          mockActiveSubscription
+        );
+
+        expect(mockEmitter.emit).toHaveBeenCalledWith(
+          'trialConverted',
+          expect.objectContaining({
+            uid: undefined,
+            billingCountry: undefined,
+          })
+        );
+      });
+
+      it('should throw on non-CustomerDeletedError', async () => {
+        jest
+          .spyOn(customerManager, 'retrieve')
+          .mockRejectedValue(new Error('unexpected'));
+
+        await expect(
+          subscriptionEventsService.handleCustomerSubscriptionUpdated(
+            mockUpdatedEvent,
+            mockActiveSubscription
+          )
+        ).rejects.toThrow('unexpected');
       });
     });
   });

@@ -50,6 +50,7 @@ import {
   AuthEventsFactory,
   SP3RolloutEventFactory,
   SubscriptionEndedFactory,
+  TrialConvertedFactory,
 } from './emitter.factories';
 import {
   AccountFactory,
@@ -682,6 +683,59 @@ describe('PaymentsEmitterService', () => {
         },
         cancellationEventData.paymentProvider
       );
+    });
+  });
+
+  describe('handleTrialConverted', () => {
+    const trialConvertedEventData = TrialConvertedFactory();
+
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanManager, 'recordFxaSubscriptionTrialConverted')
+        .mockReturnValue();
+    });
+
+    it('should call manager record method', async () => {
+      await paymentsEmitterService.handleTrialConverted(
+        trialConvertedEventData
+      );
+      expect(
+        paymentsGleanManager.recordFxaSubscriptionTrialConverted
+      ).toHaveBeenCalledWith({
+        cmsMetricsData: {
+          priceId: trialConvertedEventData.priceId,
+          productId: trialConvertedEventData.productId,
+        },
+        trialConversionData: {
+          conversionStatus: trialConvertedEventData.conversionStatus,
+          providerEventId: trialConvertedEventData.providerEventId,
+          productId: trialConvertedEventData.productId,
+          billingCountry: trialConvertedEventData.billingCountry,
+        },
+      });
+    });
+
+    it('should not call manager record method if user has opted out', async () => {
+      retrieveOptOutMock.mockRestore();
+
+      const mockUid = 'f440f251e8af9b0cf4bb3037529eda40';
+      const mockOptOutAccount = AccountFactory({
+        metricsOptOutAt: 1,
+        uid: Buffer.from(mockUid, 'hex'),
+      });
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockOptOutAccount]);
+
+      const eventData = {
+        ...trialConvertedEventData,
+        uid: mockUid,
+      };
+      await paymentsEmitterService.handleTrialConverted(eventData);
+      expect(accountManager.getAccounts).toHaveBeenCalledWith([mockUid]);
+      expect(
+        paymentsGleanManager.recordFxaSubscriptionTrialConverted
+      ).not.toHaveBeenCalled();
     });
   });
 

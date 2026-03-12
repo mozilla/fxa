@@ -49,3 +49,26 @@ export const StripeEventCustomerSubscriptionDeletedFactory = (
     },
   },
 });
+
+export const StripeEventCustomerSubscriptionUpdatedFactory = (
+  override?: Partial<Stripe.Event>,
+  dataObjectOverride?: Partial<StripeSubscription>,
+  previousAttributes?: Partial<StripeSubscription>
+): Stripe.Event => ({
+  id: 'evt_123',
+  object: 'event',
+  api_version: '2019-02-19',
+  created: faker.date.past().getTime(),
+  livemode: false,
+  request: null,
+  pending_webhooks: 0,
+  ...override,
+  type: 'customer.subscription.updated',
+  data: {
+    object: {
+      ...StripeSubscriptionFactory(),
+      ...dataObjectOverride,
+    },
+    previous_attributes: previousAttributes,
+  },
+});

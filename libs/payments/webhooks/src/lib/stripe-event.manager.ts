@@ -48,6 +48,12 @@ export class StripeEventManager {
           event: stripeEvent,
           eventObjectData: stripeEvent.data.object as Stripe.Subscription,
         };
+      case 'customer.subscription.updated':
+        return {
+          type: 'customer.subscription.updated',
+          event: stripeEvent,
+          eventObjectData: stripeEvent.data.object as Stripe.Subscription,
+        };
       default:
         return {
           type: stripeEvent.type,

@@ -13,9 +13,11 @@ import { recordEmitterEventAction } from '../../actions/recordEmitterEvent';
 export function MetricsWrapper({
   cart,
   children,
+  isFreeTrial,
 }: {
   cart?: CartDTO;
   children: React.ReactNode;
+  isFreeTrial?: boolean;
 }) {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -30,7 +32,9 @@ export function MetricsWrapper({
       recordEmitterEventAction(
         'checkoutView',
         { ...params },
-        Object.fromEntries(searchParams)
+        Object.fromEntries(searchParams),
+        undefined,
+        isFreeTrial
       );
     }
   }, []);

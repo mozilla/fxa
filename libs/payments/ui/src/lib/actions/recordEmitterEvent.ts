@@ -13,7 +13,8 @@ async function recordEmitterEventAction(
   eventName: 'checkoutSubmit',
   params: Record<string, string | string[]>,
   searchParams: Record<string, string | string[]>,
-  paymentProvider: PaymentProvidersType
+  paymentProvider: PaymentProvidersType,
+  isFreeTrial?: boolean
 ): Promise<void>;
 async function recordEmitterEventAction(
   eventName:
@@ -22,16 +23,20 @@ async function recordEmitterEventAction(
     | 'checkoutSuccess'
     | 'checkoutFail',
   params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>
+  searchParams: Record<string, string | string[]>,
+  paymentProvider?: undefined,
+  isFreeTrial?: boolean
 ): Promise<void>;
 async function recordEmitterEventAction(
   eventName: PaymentsEmitterEventsKeysType,
   params: Record<string, string | string[]>,
   searchParams: Record<string, string | string[]>,
-  paymentProvider?: PaymentProvidersType
+  paymentProvider?: PaymentProvidersType,
+  isFreeTrial?: boolean
 ) {
   const requestArgs = {
     ...getAdditionalRequestArgs(),
+    isFreeTrial: isFreeTrial ?? false,
     params: flattenRouteParams(params),
     searchParams: flattenRouteParams(searchParams),
   };
