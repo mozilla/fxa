@@ -57,7 +57,7 @@ const storyWithContext = (
   return story;
 };
 
-export const Basic = () => <Nav />;
+export const Basic = storyWithContext(account);
 
 export const WithLinkToSubscriptions = storyWithContext(
   account,

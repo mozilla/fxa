@@ -6,7 +6,7 @@ import { Localized, useLocalization } from '@fluent/react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import groupBy from 'lodash.groupby';
-import { forwardRef, useCallback, useState } from 'react';
+import React, { forwardRef, useCallback, useState } from 'react';
 import { clearSignedInAccountUid, setSigningOut } from '../../../lib/cache';
 import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';

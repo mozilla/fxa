@@ -18,7 +18,7 @@ import { mockWebIntegration } from '../../../pages/Signin/SigninRecoveryCode/moc
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { Constants } from '../../../lib/constants';
 import {
-  accountAlmostEligibleForRecoveryKeyButHasNoPassword,
+  linkedAccountNoPassword,
   accountEligibleForRecoveryKey,
   accountEligibleForRecoveryPhoneAndKey,
   accountEligibleForRecoveryPhoneOnly,
@@ -270,7 +270,7 @@ describe('PageSettings', () => {
       renderWithRouter(
         <AppContext.Provider
           value={mockAppContext({
-            account: accountAlmostEligibleForRecoveryKeyButHasNoPassword,
+            account: linkedAccountNoPassword,
           })}
         >
           <PageSettings integration={mockWebIntegration} />

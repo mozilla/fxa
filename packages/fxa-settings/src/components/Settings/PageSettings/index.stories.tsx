@@ -20,6 +20,7 @@ import {
   coldStartAccount,
   completelyFilledOutAccount,
   partiallyFilledOutAccount,
+  linkedAccountNoPassword,
 } from './mocks';
 
 export default {
@@ -87,4 +88,9 @@ export const PartiallyFilledOutWithKeyPromo = storyWithContext(
 export const PartiallyFilledOutWithPhonePromo = storyWithContext(
   accountEligibleForRecoveryPhoneOnly,
   'with recovery phone promo'
+);
+
+export const LinkedAccountNoPassword = storyWithContext(
+  linkedAccountNoPassword,
+  'linked account, no password'
 );

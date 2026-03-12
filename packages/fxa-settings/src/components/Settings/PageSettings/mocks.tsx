@@ -5,7 +5,7 @@
 import { isMobileDevice } from '../../../lib/utilities';
 import { Account } from '../../../models';
 import { MOCK_ACCOUNT, mockEmail } from '../../../models/mocks';
-import { MOCK_SERVICES } from '../ConnectedServices/mocks';
+import { MOCK_SERVICES, OAUTH_SERVICE_MOCKS } from '../ConnectedServices/mocks';
 import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
@@ -37,12 +37,12 @@ export const accountEligibleForRecoveryKey = {
   hasPassword: true,
 } as unknown as Account;
 
-export const accountAlmostEligibleForRecoveryKeyButHasNoPassword = {
+export const linkedAccountNoPassword = {
   ...MOCK_ACCOUNT,
   displayName: null,
-  recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 },
+  recoveryKey: { exists: false, estimatedSyncDeviceCount: 0 },
   totp: { exists: false, verified: false },
-  attachedClients: MOCK_SERVICES,
+  attachedClients: OAUTH_SERVICE_MOCKS,
   linkedAccounts: MOCK_LINKED_ACCOUNTS,
   hasPassword: false,
 } as unknown as Account;
