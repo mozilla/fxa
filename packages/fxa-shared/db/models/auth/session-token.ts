@@ -11,12 +11,14 @@ import {
 } from '../../transformers';
 import { convertError, notFound } from '../../mysql';
 
-//TODO FIXME unhardcode the 28 day expiry
 function notExpired(token: SessionToken) {
-  return !!(token.deviceId || token.createdAt > Date.now() - 2419200000);
+  return !!(
+    token.deviceId ||
+    token.createdAt > Date.now() - SessionToken.sessionExpiryMs
+  );
 }
 
-const VERIFICATION_METHOD = {
+export const VERIFICATION_METHOD = {
   email: 0,
   'email-2fa': 1,
   'totp-2fa': 2,
@@ -54,10 +56,12 @@ export function verificationMethodToString(
 export class SessionToken extends BaseToken {
   public static tableName = 'sessionTokens';
   public static idColumn = 'tokenId';
+  public static sessionExpiryMs = 2419200000; // 28 days
 
   protected $uuidFields = [
     'tokenId',
     'uid',
+
     'tokenData',
     'deviceId',
     'tokenVerificationId',
