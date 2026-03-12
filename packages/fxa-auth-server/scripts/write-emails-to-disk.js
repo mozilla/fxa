@@ -130,6 +130,7 @@ function sendMail(mailer, messageToSend) {
     invoiceDate: new Date(),
     nextInvoiceDate: new Date(Date.now() + 1000 * 3600 * 24 * 30),
     serviceLastActiveDate: new Date(Date.now() + 1000 * 3600 * 24 * 60),
+    trialEnd: new Date(Date.now() + 1000 * 3600 * 24 * 14),
     productIconURLNew: 'http://placekitten.com/512/512?image=2',
     productIconURLOld: 'http://placekitten.com/512/512?image=1',
     productNameOld: 'Product A',
