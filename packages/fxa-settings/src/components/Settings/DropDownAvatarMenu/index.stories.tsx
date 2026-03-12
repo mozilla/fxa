@@ -48,4 +48,4 @@ const storyWithContext = (account: Partial<Account>) => {
 export const DefaultNoAvatarOrDisplayName =
   storyWithContext(accountWithoutAvatar);
 
-export const WithAvatarAndDisplayName = () => <DropDownAvatarMenu />;
+export const WithAvatarAndDisplayName = storyWithContext(MOCK_ACCOUNT);

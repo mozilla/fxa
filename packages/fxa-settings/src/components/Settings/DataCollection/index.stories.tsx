@@ -5,14 +5,14 @@
 import React from 'react';
 import { DataCollection } from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import { mockAppContext } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 
 export default {
   title: 'Components/Settings/DataCollection',
   component: DataCollection,
-  decorators: [withLocalization],
+  decorators: [withLocalization, withLocation()],
 } as Meta;
 
 const accountWithMetrics = {

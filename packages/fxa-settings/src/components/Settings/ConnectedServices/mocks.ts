@@ -84,7 +84,7 @@ export const DESKTOP_SYNC_MOCKS = [
   },
 ];
 
-const OAUTH_SERVICE_MOCKS = [
+export const OAUTH_SERVICE_MOCKS = [
   {
     clientId: 'a8c528140153d1c6',
     deviceId: null,
