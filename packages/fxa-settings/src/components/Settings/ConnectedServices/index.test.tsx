@@ -9,6 +9,7 @@ import {
   Account,
   AlertBarInfo,
   AppContext,
+  AttachedClient,
   OAuthNativeClients,
 } from '../../../models';
 import {
@@ -158,21 +159,55 @@ describe('Connected Services', () => {
       expect(result[result.length - 1]).toHaveTextContent('6 months ago');
     });
 
-    const { sortedAndUniqueClients, groupedByName } =
+    const { sortedAndUniqueClients } =
       sortAndFilterConnectedClients(MOCK_SERVICES);
 
-    expect(sortedAndUniqueClients.length).toEqual(14);
-
+    // Verify 'Mozilla Monitor' is grouped (since both have deviceId: null)
     expect(
       sortedAndUniqueClients.filter((item) => item.name === 'Mozilla Monitor')
         .length
     ).toEqual(1);
-    expect(
-      sortedAndUniqueClients.filter(
-        (item) => item.name === 'Mozilla Monitor'
-      )[0].lastAccessTime
-    ).toEqual(1570736983000);
-    expect(groupedByName['Mozilla Monitor'].length).toEqual(2);
+
+    // Test grouping by deviceId: two devices with same name but different deviceId
+    // should NOT be merged.
+    const sameNameDifferentDevice = [
+      {
+        ...MOCK_SERVICES[0],
+        name: 'Same Name',
+        deviceId: 'device-1',
+        lastAccessTime: 1000,
+      },
+      {
+        ...MOCK_SERVICES[0],
+        name: 'Same Name',
+        deviceId: 'device-2',
+        lastAccessTime: 2000,
+      },
+    ];
+    const { sortedAndUniqueClients: groupedByDeviceResult } =
+      sortAndFilterConnectedClients(sameNameDifferentDevice as any);
+    expect(groupedByDeviceResult.length).toEqual(2);
+
+    // Test grouping by name: two devices with same name and null deviceId
+    // SHOULD be merged.
+    const sameNameNoDevice = [
+      {
+        ...MOCK_SERVICES[0],
+        name: 'Same Name',
+        deviceId: null,
+        lastAccessTime: 1000,
+      },
+      {
+        ...MOCK_SERVICES[0],
+        name: 'Same Name',
+        deviceId: null,
+        lastAccessTime: 2000,
+      },
+    ];
+    const { sortedAndUniqueClients: groupedByNameResult } =
+      sortAndFilterConnectedClients(sameNameNoDevice as any);
+    expect(groupedByNameResult.length).toEqual(1);
+    expect(groupedByNameResult[0].lastAccessTime).toEqual(2000);
   });
 
   it('should show the monitor icon and link', async () => {
@@ -610,28 +645,14 @@ describe('Connected Services', () => {
   });
 
   describe('scope-based sub row', () => {
-    const baseMockClient = {
-      deviceId: null,
-      sessionTokenId: null,
-      refreshTokenId: 'abc123',
-      isCurrentSession: false,
-      deviceType: null,
-      createdTime: 1571412069000,
-      lastAccessTime: 1571412069000,
-      location: { city: null, country: null, state: null, stateCode: null },
-      userAgent: '',
-      os: null,
-      createdTimeFormatted: 'a month ago',
-      lastAccessTimeFormatted: 'a month ago',
-      approximateLastAccessTime: null,
-      approximateLastAccessTimeFormatted: null,
-    };
+    const baseMockClient = MOCK_SERVICES[0];
 
-    const renderWithClient = (client: Record<string, unknown>) => {
+    const renderWithClient = (client: AttachedClient) => {
       const account = {
         attachedClients: [client],
         disconnectClient: jest.fn().mockResolvedValue(true),
       } as unknown as Account;
+
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
           <ConnectedServices />
@@ -661,7 +682,7 @@ describe('Connected Services', () => {
       expect(screen.queryByTestId('scope-service')).not.toBeInTheDocument();
     });
 
-    it('renders Relay scope sub-entry when scope includes relay and client ID is OAuthNative', async () => {
+    it('renders scope sub-entry when scope includes relay and client ID is OAuthNative', async () => {
       renderWithClient({
         ...baseMockClient,
         clientId: OAuthNativeClients.FirefoxIOS,
