@@ -36779,7 +36779,6 @@ __metadata:
     knex: "npm:^3.1.0"
     lodash.clonedeep: "npm:^4.5.0"
     lodash.omitby: "npm:^4.6.0"
-    lodash.pick: "npm:^4.4.0"
     mocha: "npm:^10.4.0"
     moment: "npm:^2.30.1"
     mozlog: "npm:^3.0.2"
@@ -44085,13 +44084,6 @@ __metadata:
   version: 4.1.1
   resolution: "lodash.once@npm:4.1.1"
   checksum: 10c0/46a9a0a66c45dd812fcc016e46605d85ad599fe87d71a02f6736220554b52ffbe82e79a483ad40f52a8a95755b0d1077fba259da8bfb6694a7abbf4a48f1fc04
-  languageName: node
-  linkType: hard
-
-"lodash.pick@npm:^4.4.0":
-  version: 4.4.0
-  resolution: "lodash.pick@npm:4.4.0"
-  checksum: 10c0/a04c460b95d1aaa44e9513d1dacf72ea74d838da843e45831de9de64c303f13cdde1859702a6f4dcef417816898ffd47c6ae0614c957ac70245bed2809b8d2e2
   languageName: node
   linkType: hard
 

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Ajv from 'ajv';
-import pick from 'lodash.pick';
 import {
   ParsedUserAgentProperties,
   ParsedUa,
@@ -184,7 +183,11 @@ function mapSubscriptionEventProperties(
       'subscription_id',
       'voluntary_cancellation',
     ];
-    return pick(data, keys);
+    const result: EventData = {};
+    for (const k of keys) {
+      if (k in data) result[k] = data[k];
+    }
+    return result;
   }
 
   return;
