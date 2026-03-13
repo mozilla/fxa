@@ -9,28 +9,32 @@
  * to exercise the full two-device Firefox pairing flow:
  *
  *   Authority (Marionette)          Supplicant (Playwright)
- *   ─────────────────────           ────────────────────────
+ *   ---------------------           ------------------------
  *   1. Sign in to FxA via OAuth
  *   2. FxAccountsPairingFlow.start()
- *      → generates QR URL
- *                                   3. Open QR URL → /pair/supp
+ *      -> generates QR URL
+ *                                   3. Open QR URL -> /pair/supp
  *   4. Navigate to approval page
  *   5. Click "Yes, approve device"
  *                                   6. Click "Confirm pairing"
- *   7. → /pair/auth/complete        7. → /oauth/success
+ *   7. -> /pair/auth/complete       7. -> /oauth/success
  *
  * Prerequisites:
  *   - FXA stack running (auth :9000, content :3030)
  *   - Firefox binary (FIREFOX_BINARY env)
  *   - Internet access (uses production channel server by default;
  *     override with CHANNEL_SERVER_URI env for local testing)
+ *
+ * Set PAIRING_DEBUG=1 for verbose debug output.
+ *
+ * The test checks showReactApp.pairRoutes from the content server config to
+ * determine whether to run the React or Backbone variant. When pairRoutes is
+ * enabled, the Backbone /pair/* routes are deregistered and only React
+ * (fxa-settings) serves them. When disabled, only Backbone is available.
  */
 
 import { test, expect } from '../../lib/fixtures/pairing';
 import {
-  PAIRING_CLIENT_ID,
-  PAIRING_REDIRECT_URI,
-  PAIRING_SCOPE,
   SELECTORS,
   TIMEOUTS,
 } from '../../lib/pairing-constants';
@@ -39,181 +43,227 @@ import {
   getSignedInUser,
   startPairingFlow,
   buildSupplicantUrl,
+  buildAuthorityOAuthUrl,
   extractChannelId,
   findElementBySelectors,
-  waitForUrlContaining,
   enableTotpOnAccount,
   enterTotpCodeViaMarionette,
+  completeSupplicantApproval,
+  screenshotSupplicant,
+  screenshotAuthority,
+  isPairRoutesReact,
+  captureDiagnostics,
 } from '../../lib/pairing-helpers';
+
+const DEBUG = !!process.env.PAIRING_DEBUG;
+const debug = (msg: string) => DEBUG && console.log(`[PAIRING] ${msg}`);
 
 // Increase timeout — pairing involves launching a separate Firefox + channel negotiation
 test.setTimeout(120_000);
 
 test.describe('severity-2 #smoke', () => {
-  test.describe.serial('Firefox pairing flow', () => {
-    test.slow();
+  for (const useReact of [false, true]) {
+    const variant = useReact ? 'React' : 'Backbone';
 
-    test('authority generates QR URL and supplicant connects via channel', async ({
-      target,
-      syncOAuthBrowserPages: { page },
-      testAccountTracker,
-      marionetteAuthority,
-    }) => {
-      const client = marionetteAuthority.client;
+    test.describe.serial(`Firefox pairing flow (${variant})`, () => {
+      test.slow();
 
-      const credentials = await testAccountTracker.signUp();
-
-      await signInAuthorityViaMarionette(
-        client,
-        target.contentServerUrl,
-        credentials.email,
-        credentials.password
-      );
-
-      // Verify signed-in state in chrome context
-      const signedInUser = await getSignedInUser(client);
-      expect(signedInUser.signedIn).toBe(true);
-      expect(signedInUser.email).toBe(credentials.email);
-
-      const pairUrl = await startPairingFlow(client);
-      expect(pairUrl).toBeTruthy();
-      expect(pairUrl).toContain('/pair#');
-      expect(pairUrl).toContain('channel_id=');
-
-      const channelId = extractChannelId(pairUrl);
-      expect(channelId).toBeTruthy();
-
-      const suppUrl = buildSupplicantUrl(target.contentServerUrl, pairUrl);
-      await page.goto(suppUrl, { waitUntil: 'load' });
-
-      // Wait for supplicant to reach /pair/supp/allow — this means the channel
-      // handshake completed and the authority received pair:supp:request.
-      // The state machine must be in PendingConfirmations before we open the
-      // authority approval page.
-      await page.waitForURL(/pair\/supp\/allow/, {
-        timeout: TIMEOUTS.SUPPLICANT_ALLOW,
+      // Pairing tests use Marionette (Firefox-only) on a shared port and require
+      // a local FXA stack. Only run on the "local" project (Firefox browser).
+      // Skip the variant that doesn't match the server's pairRoutes config:
+      // when pairRoutes is enabled, Backbone routes 404 — run React only.
+      // When disabled, React routes aren't registered — run Backbone only.
+      test.beforeEach(async ({ target }, testInfo) => {
+        if (testInfo.project.name !== 'local') {
+          testInfo.skip(true, 'Pairing tests only run on the local (Firefox) project');
+        }
+        const reactEnabled = await isPairRoutesReact(target.contentServerUrl);
+        if (useReact !== reactEnabled) {
+          testInfo.skip(
+            true,
+            `pairRoutes=${reactEnabled}, skipping ${variant} variant`
+          );
+        }
       });
 
-      // Firefox normally loads this in the fxaPairDevice.xhtml dialog.
-      // The /oauth path with the pairing redirect_uri triggers AuthorityRelier.
-      expect(signedInUser.uid).toBeTruthy();
-      const authorityOAuthParams = new URLSearchParams({
-        client_id: PAIRING_CLIENT_ID,
-        scope: PAIRING_SCOPE,
-        email: credentials.email,
-        uid: signedInUser.uid as string,
-        channel_id: channelId,
-        redirect_uri: PAIRING_REDIRECT_URI,
+      test('authority generates QR URL and supplicant connects via channel', async ({
+        target,
+        syncOAuthBrowserPages: { page },
+        testAccountTracker,
+        marionetteAuthority,
+      }) => {
+        const client = marionetteAuthority.client;
+
+        const credentials = await test.step('Create test account', async () => {
+          const creds = await testAccountTracker.signUp();
+          debug(`Account created: ${creds.email}`);
+          return creds;
+        });
+
+        const signedInUser = await test.step('Sign in authority via Marionette', async () => {
+          await signInAuthorityViaMarionette(
+            client,
+            target.contentServerUrl,
+            credentials.email,
+            credentials.password,
+            undefined,
+            useReact
+          );
+
+          const user = await getSignedInUser(client);
+          expect(user.signedIn).toBe(true);
+          expect(user.email).toBe(credentials.email);
+          await screenshotAuthority(client, variant, '1-signed-in');
+          return user;
+        });
+
+        const { pairUrl, channelId } = await test.step('Start pairing flow on authority', async () => {
+          const url = await startPairingFlow(client);
+          debug(`Pair URL: ${url}`);
+          expect(url).toBeTruthy();
+          expect(url).toContain('/pair#');
+          expect(url).toContain('channel_id=');
+
+          const id = extractChannelId(url);
+          expect(id).toBeTruthy();
+          return { pairUrl: url, channelId: id };
+        });
+
+        await test.step('Supplicant opens QR URL', async () => {
+          const suppUrl = buildSupplicantUrl(target.contentServerUrl, pairUrl, useReact);
+          await page.goto(suppUrl, { waitUntil: 'load' });
+
+          // Wait for supplicant to reach /pair/supp/allow — this means the channel
+          // handshake completed and the authority received pair:supp:request.
+          await page.waitForURL(/pair\/supp\/allow/, {
+            timeout: TIMEOUTS.SUPPLICANT_ALLOW,
+          });
+          await screenshotSupplicant(page, variant, '2-supp-allow');
+        });
+
+        await test.step('Authority approves pairing', async () => {
+          expect(signedInUser.uid).toBeTruthy();
+          const authorityOAuthUrl = buildAuthorityOAuthUrl(
+            target.contentServerUrl,
+            {
+              email: credentials.email,
+              uid: signedInUser.uid as string,
+              channelId,
+            },
+            useReact
+          );
+
+          await client.setContext('content');
+          await client.navigate(authorityOAuthUrl);
+          await screenshotAuthority(client, variant, '3-auth-approve');
+
+          // Check we haven't landed on failure before attempting approve
+          const { url: preApproveUrl } = await captureDiagnostics(client);
+          if (preApproveUrl.includes('pair/failure')) {
+            throw new Error(
+              `Authority reached /pair/failure before approve. ` +
+              `Supplicant likely did not connect to channel in time.`
+            );
+          }
+
+          const authorityApproveBtn = await findElementBySelectors(
+            client,
+            SELECTORS.AUTHORITY_APPROVE
+          );
+          await client.clickElement(authorityApproveBtn);
+          await screenshotAuthority(client, variant, '4-auth-approved');
+        });
+
+        await test.step('Supplicant confirms and verify success', async () => {
+          await screenshotSupplicant(page, variant, '5-supp-confirm');
+          await completeSupplicantApproval(page, client);
+          await screenshotSupplicant(page, variant, '6-supp-success');
+          await screenshotAuthority(client, variant, '7-auth-complete');
+        });
       });
-      const authorityOAuthUrl = `${target.contentServerUrl}/oauth?${authorityOAuthParams}`;
 
-      await client.setContext('content');
-      await client.navigate(authorityOAuthUrl);
+      test('pairing with 2FA-enabled account requires TOTP on authority', async ({
+        target,
+        syncOAuthBrowserPages: { page },
+        testAccountTracker,
+        marionetteAuthority,
+      }) => {
+        const client = marionetteAuthority.client;
 
-      // Wait for the approve button to appear instead of a fixed sleep
-      const authorityApproveBtn = await findElementBySelectors(
-        client,
-        SELECTORS.AUTHORITY_APPROVE
-      );
-      await client.clickElement(authorityApproveBtn);
+        const { credentials, secret } = await test.step('Create test account with TOTP', async () => {
+          const creds = await testAccountTracker.signUp();
+          const totpSecret = await enableTotpOnAccount(
+            target.authClient,
+            creds.sessionToken
+          );
+          creds.secret = totpSecret;
+          return { credentials: creds, secret: totpSecret };
+        });
 
-      const confirmButton = page
-        .locator('#supp-approve-btn')
-        .or(page.getByRole('button', { name: /Confirm|Approve/i }));
-      await expect(confirmButton.first()).toBeVisible({
-        timeout: TIMEOUTS.AUTHORITY_COMPLETE,
+        const signedInUser = await test.step('Sign in authority via Marionette', async () => {
+          await signInAuthorityViaMarionette(
+            client,
+            target.contentServerUrl,
+            credentials.email,
+            credentials.password,
+            secret,
+            useReact
+          );
+          const user = await getSignedInUser(client);
+          expect(user.signedIn).toBe(true);
+          return user;
+        });
+
+        const channelId = await test.step('Start pairing flow on authority', async () => {
+          const pairUrl = await startPairingFlow(client);
+          const id = extractChannelId(pairUrl);
+
+          const suppUrl = buildSupplicantUrl(target.contentServerUrl, pairUrl, useReact);
+          await page.goto(suppUrl, { waitUntil: 'load' });
+          await page.waitForURL(/pair\/supp\/allow/, {
+            timeout: TIMEOUTS.SUPPLICANT_ALLOW,
+          });
+
+          return id;
+        });
+
+        await test.step('Authority approves pairing with TOTP', async () => {
+          expect(signedInUser.uid).toBeTruthy();
+          const authorityOAuthUrl = buildAuthorityOAuthUrl(
+            target.contentServerUrl,
+            {
+              email: credentials.email,
+              uid: signedInUser.uid as string,
+              channelId,
+            },
+            useReact
+          );
+
+          await client.setContext('content');
+          await client.navigate(authorityOAuthUrl);
+
+          await enterTotpCodeViaMarionette(client, secret);
+
+          // Check we haven't landed on failure before attempting approve
+          const { url: preApproveUrl } = await captureDiagnostics(client);
+          if (preApproveUrl.includes('pair/failure')) {
+            throw new Error(
+              `Authority reached /pair/failure before approve. ` +
+              `Supplicant likely did not connect to channel in time.`
+            );
+          }
+
+          const approveBtn = await findElementBySelectors(
+            client,
+            SELECTORS.AUTHORITY_APPROVE
+          );
+          await client.clickElement(approveBtn);
+        });
+
+        await test.step('Supplicant confirms and verify success', async () => {
+          await completeSupplicantApproval(page, client);
+        });
       });
-      await confirmButton.first().click();
-
-      await page.waitForURL(/oauth\/success/, {
-        timeout: TIMEOUTS.AUTHORITY_COMPLETE,
-      });
-
-      // Wait for authority to advance from wait_for_supp to complete
-      await client.setContext('content');
-      const finalAuthUrl = await waitForUrlContaining(
-        client,
-        'pair/auth/complete',
-        TIMEOUTS.AUTHORITY_COMPLETE
-      );
-      expect(finalAuthUrl).not.toContain('pair/failure');
     });
-
-    test('pairing with 2FA-enabled account requires TOTP on authority', async ({
-      target,
-      syncOAuthBrowserPages: { page },
-      testAccountTracker,
-      marionetteAuthority,
-    }) => {
-      const client = marionetteAuthority.client;
-
-      const credentials = await testAccountTracker.signUp();
-      const secret = await enableTotpOnAccount(
-        target.authClient,
-        credentials.sessionToken
-      );
-      credentials.secret = secret;
-
-      await signInAuthorityViaMarionette(
-        client,
-        target.contentServerUrl,
-        credentials.email,
-        credentials.password,
-        secret
-      );
-      const signedInUser = await getSignedInUser(client);
-      expect(signedInUser.signedIn).toBe(true);
-
-      const pairUrl = await startPairingFlow(client);
-      const channelId = extractChannelId(pairUrl);
-
-      const suppUrl = buildSupplicantUrl(target.contentServerUrl, pairUrl);
-      await page.goto(suppUrl, { waitUntil: 'load' });
-      await page.waitForURL(/pair\/supp\/allow/, {
-        timeout: TIMEOUTS.SUPPLICANT_ALLOW,
-      });
-
-      expect(signedInUser.uid).toBeTruthy();
-      const authorityOAuthParams = new URLSearchParams({
-        client_id: PAIRING_CLIENT_ID,
-        scope: PAIRING_SCOPE,
-        email: credentials.email,
-        uid: signedInUser.uid as string,
-        channel_id: channelId,
-        redirect_uri: PAIRING_REDIRECT_URI,
-      });
-      await client.setContext('content');
-      await client.navigate(
-        `${target.contentServerUrl}/oauth?${authorityOAuthParams}`
-      );
-
-      await enterTotpCodeViaMarionette(client, secret);
-
-      const approveBtn = await findElementBySelectors(
-        client,
-        SELECTORS.AUTHORITY_APPROVE
-      );
-      await client.clickElement(approveBtn);
-
-      const confirmButton = page
-        .locator('#supp-approve-btn')
-        .or(page.getByRole('button', { name: /Confirm|Approve/i }));
-      await expect(confirmButton.first()).toBeVisible({
-        timeout: TIMEOUTS.AUTHORITY_COMPLETE,
-      });
-      await confirmButton.first().click();
-
-      await page.waitForURL(/oauth\/success/, {
-        timeout: TIMEOUTS.AUTHORITY_COMPLETE,
-      });
-
-      await client.setContext('content');
-      const finalAuthUrl = await waitForUrlContaining(
-        client,
-        'pair/auth/complete',
-        TIMEOUTS.AUTHORITY_COMPLETE
-      );
-      expect(finalAuthUrl).not.toContain('pair/failure');
-    });
-  });
+  }
 });

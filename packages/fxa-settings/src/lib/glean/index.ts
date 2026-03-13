@@ -23,6 +23,7 @@ import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
 import * as passwordReset from 'fxa-shared/metrics/glean/web/passwordReset';
+import * as cad from 'fxa-shared/metrics/glean/web/cad';
 import * as cadFirefox from 'fxa-shared/metrics/glean/web/cadFirefox';
 import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice';
 import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
@@ -426,6 +427,15 @@ const recordEventMetric = (
       break;
     case 'third_party_auth_apple_login_start':
       thirdPartyAuth.appleLoginStart.record();
+      break;
+    case 'cad_view':
+      cad.view.record();
+      break;
+    case 'cad_submit':
+      cad.submit.record();
+      break;
+    case 'cad_startbrowsing_submit':
+      cad.startbrowsingSubmit.record();
       break;
     case 'cad_firefox_notnow_submit':
       cadFirefox.notnowSubmit.record();

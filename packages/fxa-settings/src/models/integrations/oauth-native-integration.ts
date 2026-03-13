@@ -22,14 +22,17 @@ export function isOAuthNativeIntegration(integration: {
 export type OAuthIntegration = OAuthWebIntegration | OAuthNativeIntegration;
 
 /**
- * Check if the integration is OAuthWeb or OAuthNative
+ * Check if the integration is OAuth-based (OAuthWeb, OAuthNative, or Pairing)
  */
 export function isOAuthIntegration(integration: {
   type: IntegrationType;
 }): integration is OAuthIntegration {
   return (
     (integration as OAuthWebIntegration).type === IntegrationType.OAuthWeb ||
-    (integration as OAuthNativeIntegration).type === IntegrationType.OAuthNative
+    (integration as OAuthNativeIntegration).type ===
+      IntegrationType.OAuthNative ||
+    integration.type === IntegrationType.PairingAuthority ||
+    integration.type === IntegrationType.PairingSupplicant
   );
 }
 

@@ -8,14 +8,27 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import AuthTotp, { viewName } from '.';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { AppContext } from '../../../models/contexts/AppContext';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
+
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => jest.fn(),
+}));
+
+// Helper to render with AppContext that includes authClient
+function renderWithAppContext(ui: React.ReactElement) {
+  const appCtx = mockAppContext();
+  return renderWithLocalizationProvider(
+    <AppContext.Provider value={appCtx}>{ui}</AppContext.Provider>
+  );
+}
 
 describe('Sign in with TOTP code page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
@@ -26,7 +39,7 @@ describe('Sign in with TOTP code page', () => {
   // });
 
   it('renders as expected', () => {
-    renderWithLocalizationProvider(
+    renderWithAppContext(
       <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} />
     );
     // testAllL10n(screen, bundle);
@@ -48,7 +61,7 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('shows the relying party in the header when a service name is provided', () => {
-    renderWithLocalizationProvider(
+    renderWithAppContext(
       <AuthTotp
         email={MOCK_ACCOUNT.primaryEmail.email}
         serviceName={MozServices.MozillaVPN}
@@ -61,7 +74,7 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('emits a metrics event on render', () => {
-    renderWithLocalizationProvider(
+    renderWithAppContext(
       <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} />
     );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);

@@ -18,6 +18,8 @@ import { MarionetteClient } from './marionette';
 import { getFirefoxUserPrefs } from './targets/firefoxUserPrefs';
 import { TargetName } from './targets';
 
+const DEBUG = !!process.env.PAIRING_DEBUG;
+
 export type FxaContext = 'fx_desktop_v3' | 'oauth_webchannel_v1';
 
 export interface MarionetteFirefoxOptions {
@@ -74,6 +76,8 @@ export class MarionetteFirefox {
       throw new Error(`Firefox binary not found at ${firefoxBinary}`);
     }
 
+    if (DEBUG) console.log(`[MARIONETTE] Binary: ${firefoxBinary}, port: ${marionettePort}`);
+
     // Kill any stale process on the Marionette port (leftover from failed tests)
     killProcessOnPort(marionettePort);
     // Give the OS time to release the port after killing a stale process
@@ -99,9 +103,23 @@ export class MarionetteFirefox {
     }
 
     const proc = spawn(firefoxBinary, args, {
-      stdio: 'ignore',
+      stdio: DEBUG ? 'pipe' : 'ignore',
       detached: false,
     });
+
+    if (DEBUG) {
+      proc.stdout?.on('data', (data: Buffer) => {
+        const msg = data.toString().trim();
+        if (msg) console.log(`[FIREFOX STDOUT] ${msg}`);
+      });
+      proc.stderr?.on('data', (data: Buffer) => {
+        const msg = data.toString().trim();
+        if (msg) console.log(`[FIREFOX STDERR] ${msg}`);
+      });
+      proc.on('exit', (code, signal) => {
+        console.log(`[MARIONETTE] Firefox exited: code=${code}, signal=${signal}`);
+      });
+    }
 
     try {
       // Wait for Marionette port to become available
@@ -115,6 +133,7 @@ export class MarionetteFirefox {
           await client.newSession();
           break;
         } catch (e) {
+          if (DEBUG) console.log(`[MARIONETTE] newSession attempt ${attempt} failed: ${e}`);
           if (attempt >= 5) throw e;
           // Clean up partial session before retrying
           try {

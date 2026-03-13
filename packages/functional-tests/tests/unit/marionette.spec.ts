@@ -277,4 +277,96 @@ test.describe('MarionetteClient', () => {
     await client.executeScript('3');
     // If msgId tracking were broken, one of these would throw
   });
+
+  test.describe('sendCommandWithRetry', () => {
+    test('read commands retry on transient errors then succeed', async () => {
+      let findAttempt = 0;
+      const mock = createMockServer((cmd) => {
+        if (cmd === 'WebDriver:FindElement') {
+          findAttempt++;
+          if (findAttempt <= 2) {
+            throw { errorType: 'no such window', message: 'Window not found' };
+          }
+          return { value: { [W3C_ELEMENT_KEY]: 'elem-retry' } };
+        }
+        return {};
+      });
+      await mock.ready;
+      serverPort = mock.port;
+      server = mock.server;
+
+      client = new MarionetteClient('127.0.0.1', serverPort);
+      await client.connect(1, 100);
+      await client.newSession();
+
+      const id = await client.findElement('css selector', '#btn');
+      expect(id).toBe('elem-retry');
+      expect(findAttempt).toBe(3); // 2 failures + 1 success
+    });
+
+    test('read commands give up after max retries', async () => {
+      const mock = createMockServer((cmd) => {
+        if (cmd === 'WebDriver:GetCurrentURL') {
+          throw { errorType: 'no such window', message: 'Window gone' };
+        }
+        return {};
+      });
+      await mock.ready;
+      serverPort = mock.port;
+      server = mock.server;
+
+      client = new MarionetteClient('127.0.0.1', serverPort);
+      await client.connect(1, 100);
+      await client.newSession();
+
+      await expect(client.getUrl()).rejects.toThrow(MarionetteError);
+    });
+
+    test('write commands do NOT retry on transient errors', async () => {
+      let clickAttempt = 0;
+      const mock = createMockServer((cmd) => {
+        if (cmd === 'WebDriver:ElementClick') {
+          clickAttempt++;
+          throw { errorType: 'no such window', message: 'Window not found' };
+        }
+        return {};
+      });
+      await mock.ready;
+      serverPort = mock.port;
+      server = mock.server;
+
+      client = new MarionetteClient('127.0.0.1', serverPort);
+      await client.connect(1, 100);
+      await client.newSession();
+
+      await expect(client.clickElement('elem-1')).rejects.toThrow(
+        MarionetteError
+      );
+      expect(clickAttempt).toBe(1); // No retries for write commands
+    });
+
+    test('non-transient errors are not retried even for read commands', async () => {
+      let getUrlAttempt = 0;
+      const mock = createMockServer((cmd) => {
+        if (cmd === 'WebDriver:GetCurrentURL') {
+          getUrlAttempt++;
+          throw {
+            errorType: 'invalid argument',
+            message: 'Bad argument',
+          };
+        }
+        return {};
+      });
+      await mock.ready;
+      serverPort = mock.port;
+      server = mock.server;
+
+      client = new MarionetteClient('127.0.0.1', serverPort);
+      await client.connect(1, 100);
+      await client.newSession();
+
+      await expect(client.getUrl()).rejects.toThrow(MarionetteError);
+      expect(getUrlAttempt).toBe(1); // Non-transient error, no retry
+    });
+  });
 });

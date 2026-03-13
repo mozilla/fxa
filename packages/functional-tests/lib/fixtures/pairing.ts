@@ -14,6 +14,8 @@ import { firefox } from 'playwright';
 import { MarionetteFirefox } from '../marionette-firefox';
 import { test as standardTest, TestOptions } from './standard';
 
+const DEBUG = !!process.env.PAIRING_DEBUG;
+
 export type PairingTestOptions = TestOptions & {
   marionetteAuthority: MarionetteFirefox;
 };
@@ -27,13 +29,19 @@ export const test = standardTest.extend<PairingTestOptions>({
     const channelServerUri =
       process.env.CHANNEL_SERVER_URI ||
       (await fetchChannelServerUri(target.contentServerUrl));
-    const marionettePort = parseInt(process.env.MARIONETTE_PORT || '2828', 10);
-    if (isNaN(marionettePort)) {
+    const basePort = parseInt(process.env.MARIONETTE_PORT || '2828', 10);
+    if (isNaN(basePort)) {
       throw new Error(
         `Invalid MARIONETTE_PORT: ${process.env.MARIONETTE_PORT}`
       );
     }
+    // Offset port by parallelIndex so parallel workers don't collide
+    const marionettePort = basePort + testInfo.parallelIndex;
     const headless = process.env.MARIONETTE_HEADLESS !== 'false';
+
+    if (DEBUG) {
+      console.log(`[PAIRING] Launching: target=${target.name}, port=${marionettePort}, headless=${headless}`);
+    }
 
     const authority = await MarionetteFirefox.launch({
       firefoxBinary,
@@ -63,6 +71,25 @@ export const test = standardTest.extend<PairingTestOptions>({
     }
 
     await use(authority);
+
+    // Capture Marionette screenshot on test failure for diagnostics
+    if (testInfo.status !== testInfo.expectedStatus) {
+      try {
+        await authority.client.setContext('content');
+        const screenshot = await authority.client.takeScreenshot();
+        await testInfo.attach('marionette-screenshot', {
+          body: Buffer.from(screenshot, 'base64'),
+          contentType: 'image/png',
+        });
+        const url = await authority.client.getUrl();
+        await testInfo.attach('marionette-url', {
+          body: url,
+          contentType: 'text/plain',
+        });
+      } catch {
+        // Best effort — browser may already be closed
+      }
+    }
 
     await authority.close();
   },

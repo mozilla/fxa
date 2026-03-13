@@ -14,6 +14,8 @@ function addAllReactRoutesConditionally(
   i18n,
   config
 ) {
+  const showReactApp = config.get('showReactApp');
+
   /** Check if the feature flag passed in is `true`, and either the request contains
    * `?showReactApp=true` or `fullProdRollout` is set to `true`. If true, use the
    * middleware passed ('createSettingsProxy' in dev, else 'modifySettingsStatic') for
@@ -43,10 +45,14 @@ function addAllReactRoutesConditionally(
               } else {
                 return next('route');
               }
-              // Allow '/oauth' to serve the React application, _but_ if the request URL includes
-              // a 'channel_id' query parameter, we know it's Fx Desktop trying to begin the pairing
-              // flow. Show Backbone in this case until the pair flow is converted to React.
-            } else if (req.path === '/oauth' && req.query.channel_id) {
+              // '/oauth?channel_id=...' is Fx Desktop initiating the pairing authority flow.
+              // Bypass to Backbone ONLY if pairRoutes is not enabled. When pairRoutes is
+              // enabled, React handles the full pairing flow including this entry point.
+            } else if (
+              req.path === '/oauth' &&
+              req.query.channel_id &&
+              !showReactApp.pairRoutes
+            ) {
               return next('route');
             }
             return middleware(req, res, next);
@@ -60,7 +66,7 @@ function addAllReactRoutesConditionally(
   }
 
   const reactRouteGroups = getServerReactRouteGroups(
-    config.get('showReactApp'),
+    showReactApp,
     i18n,
     config
   );

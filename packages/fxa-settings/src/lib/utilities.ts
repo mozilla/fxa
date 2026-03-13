@@ -237,3 +237,32 @@ export function navigateWithQuery(
     includeHash
   );
 }
+
+/**
+ * Simplifies user agent OS names to generic popular names.
+ * Ported from fxa-content-server/app/scripts/lib/user-agent.js:toGenericOSName
+ */
+export function toGenericOSName(os: string): string {
+  if (/^Windows/.test(os)) {
+    return 'Windows';
+  }
+  if (/^Android/.test(os)) {
+    return 'Android';
+  }
+  if (/^Mac OS/.test(os)) {
+    return 'macOS';
+  }
+  if (/^iOS/.test(os)) {
+    return 'iOS';
+  }
+  if (
+    /^Ubuntu/.test(os) ||
+    /^Linux/.test(os) ||
+    /^Fedora/.test(os) ||
+    /^Red Hat/.test(os) ||
+    /^Debian/.test(os)
+  ) {
+    return 'Linux';
+  }
+  return os || 'Unknown';
+}

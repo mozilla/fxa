@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactElement } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { RemoteMetadata } from '../../../lib/types';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -12,34 +16,109 @@ import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
 import Banner from '../../../components/Banner';
+import { Integration } from '../../../models';
+import {
+  PairingSupplicantIntegration,
+  SupplicantState,
+} from '../../../models/integrations/pairing-supplicant-integration';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 export type SuppAllowProps = {
-  authDeviceInfo: RemoteMetadata;
-  // TODO: In FXA-6638 - Listen to broken for error/success messages
-  // included in props temporarily for tests/storybook
-  bannerType?: 'success' | 'error';
-  bannerMessage?: string;
-  email: string;
+  authDeviceInfo?: RemoteMetadata;
+  email?: string;
+  integration?: Integration;
 };
 
-// TODO: verify if this event exists or needs to be added
-// this event is not currently included in amplitude.js
 export const viewName = 'pair.supp.allow';
 
-const handleSubmit = () => {
-  GleanMetrics.cadMobilePair.submit();
-  // TODO: handle pairing authorization and catch errors in FXA-6638
-};
-
 const SuppAllow = ({
-  authDeviceInfo,
-  bannerType,
-  bannerMessage,
-  email,
+  authDeviceInfo: authDeviceInfoProp,
+  email: emailProp,
+  integration,
 }: SuppAllowProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const navigateWithQuery = useNavigateWithQuery();
+  const [error, setError] = useState<string>();
+  const [authDeviceInfo, setAuthDeviceInfo] = useState<
+    RemoteMetadata | undefined
+  >(authDeviceInfoProp);
 
-  const spanElement: ReactElement = (
+  // Get supplicant integration if available
+  const suppIntegration =
+    integration instanceof PairingSupplicantIntegration
+      ? integration
+      : undefined;
+
+  // Read URL params once — stable across renders since search doesn't change
+  const urlParams = new URLSearchParams(window.location.search);
+  const email =
+    emailProp || suppIntegration?.email || urlParams.get('email') || '';
+  const clientId = urlParams.get('client_id') || '';
+
+  // Populate device info from integration's remote metadata
+  useEffect(() => {
+    if (authDeviceInfoProp) return;
+    if (suppIntegration?.remoteMetadata) {
+      setAuthDeviceInfo(suppIntegration.remoteMetadata);
+    }
+  }, [authDeviceInfoProp, suppIntegration]);
+
+  // Listen for state changes to navigate after approval
+  useEffect(() => {
+    if (!suppIntegration) return;
+
+    // Check if we already missed a state transition (timing gap between pages)
+    const currentState = suppIntegration.state;
+    if (currentState === SupplicantState.WaitingForSupplicant) {
+      // Authority already approved — stay on this page, user still needs to click Confirm
+    } else if (currentState === SupplicantState.Complete) {
+      navigateWithQuery(`/oauth/success/${clientId}`);
+      return;
+    }
+
+    suppIntegration.onStateChange = (state: SupplicantState) => {
+      if (state === SupplicantState.Complete) {
+        navigateWithQuery(`/oauth/success/${clientId}`);
+      } else if (state === SupplicantState.WaitingForAuthority) {
+        // Supplicant approved, waiting for authority
+        navigateWithQuery('/pair/supp/wait_for_auth');
+      } else if (state === SupplicantState.Failed) {
+        setError(
+          suppIntegration.error?.message || 'An error occurred during pairing'
+        );
+      }
+    };
+
+    suppIntegration.onError = (err: unknown) => {
+      const message =
+        err instanceof Error ? err.message : 'An error occurred during pairing';
+      setError(message);
+    };
+
+    return () => {
+      suppIntegration.onStateChange = null;
+      suppIntegration.onError = null;
+    };
+  }, [suppIntegration, navigateWithQuery, clientId]);
+
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      GleanMetrics.cadMobilePair.submit();
+      if (suppIntegration) {
+        suppIntegration.supplicantApprove().catch((err: unknown) => {
+          const message =
+            err instanceof Error
+              ? err.message
+              : 'An error occurred during pairing';
+          setError(message);
+        });
+      }
+    },
+    [suppIntegration]
+  );
+
+  const spanElement = (
     <span className="card-subheader">for {email}</span>
   );
 
@@ -53,22 +132,24 @@ const SuppAllow = ({
       >
         <h1 className="card-header">Confirm pairing {spanElement}</h1>
       </FtlMsg>
-      {bannerType && bannerMessage && (
-        <Banner
-          type={bannerType}
-          content={{ localizedHeading: bannerMessage }}
-        />
-      )}
+      {error && <Banner type="error" content={{ localizedHeading: error }} />}
       <form noValidate onSubmit={handleSubmit}>
-        <DeviceInfoBlock remoteMetadata={authDeviceInfo} />
+        {authDeviceInfo && <DeviceInfoBlock remoteMetadata={authDeviceInfo} />}
         <div className="flex flex-col justify-center">
           <FtlMsg id="pair-supp-allow-confirm-button">
-            <button type="submit" className="cta-primary cta-xl w-full">
+            <button
+              type="submit"
+              data-testid="pair-supp-approve-btn"
+              className="cta-primary cta-xl w-full"
+            >
               Confirm pairing
             </button>
           </FtlMsg>
           <FtlMsg id="pair-supp-allow-cancel-link">
-            <Link to="/pair/failure" className="link-grey mt-4 text-sm">
+            <Link
+              to="/pair/failure"
+              className="link-grey mt-4 text-sm text-center"
+            >
               Cancel
             </Link>
           </FtlMsg>

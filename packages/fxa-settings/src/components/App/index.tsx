@@ -160,6 +160,26 @@ const SigninRecoveryPhoneContainer = lazy(
   () => import('../../pages/Signin/SigninRecoveryPhone/container')
 );
 
+// Pairing pages
+const ConnectAnotherDevice = lazy(
+  () => import('../../pages/ConnectAnotherDevice')
+);
+const PairIndex = lazy(() => import('../../pages/Pair/Index'));
+const PairFailure = lazy(() => import('../../pages/Pair/Failure'));
+const PairSuccess = lazy(() => import('../../pages/Pair/Success'));
+const PairUnsupported = lazy(() => import('../../pages/Pair/Unsupported'));
+const PairAuthAllow = lazy(() => import('../../pages/Pair/AuthAllow'));
+const PairAuthComplete = lazy(() => import('../../pages/Pair/AuthComplete'));
+const PairAuthTotp = lazy(() => import('../../pages/Pair/AuthTotp'));
+const PairAuthWaitForSupp = lazy(
+  () => import('../../pages/Pair/AuthWaitForSupp')
+);
+const PairSupp = lazy(() => import('../../pages/Pair/Supp'));
+const PairSuppAllow = lazy(() => import('../../pages/Pair/SuppAllow'));
+const PairSuppWaitForAuth = lazy(
+  () => import('../../pages/Pair/SuppWaitForAuth')
+);
+
 const AuthorizationContainer = lazy(
   () => import('../../pages/Authorization/container')
 );
@@ -318,7 +338,7 @@ export const App = ({
       {
         ...config.glean,
         enabled: metricsEnabled,
-        appDisplayVersion: config.version,
+        appDisplayVersion: config.version || '',
         appChannel: config.glean.appChannel,
       },
       {
@@ -761,6 +781,30 @@ const AuthAndAccountSetupRoutes = ({
         integration={integration}
         {...{ isSignedIn, serviceName }}
       />
+
+      {/* Pairing */}
+      <ConnectAnotherDevice path="/connect_another_device/*" />
+      <PairIndex path="/pair/*" />
+      <PairSupp path="/pair/supp/*" integration={integration} />
+      <PairSuppAllow path="/pair/supp/allow/*" integration={integration} />
+      <PairSuppWaitForAuth
+        path="/pair/supp/wait_for_auth/*"
+        integration={integration}
+      />
+      <PairSuccess path="/pair/supp/complete/*" />
+      <PairAuthAllow path="/pair/auth/allow/*" integration={integration} />
+      <PairAuthWaitForSupp
+        path="/pair/auth/wait_for_supp/*"
+        integration={integration}
+      />
+      <PairAuthComplete
+        path="/pair/auth/complete/*"
+        integration={integration}
+      />
+      <PairAuthTotp path="/pair/auth/totp/*" integration={integration} />
+      <PairFailure path="/pair/failure/*" />
+      <PairUnsupported path="/pair/unsupported/*" />
+      <PairSuccess path="/oauth/success/:clientId/*" />
     </Router>
   );
 };
