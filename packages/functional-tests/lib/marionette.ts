@@ -180,6 +180,59 @@ export class MarionetteClient {
     return data[3];
   }
 
+  /**
+   * Commands that are safe to retry on transient errors (read-only operations).
+   */
+  private static readonly RETRYABLE_COMMANDS = new Set([
+    'WebDriver:GetCurrentURL',
+    'WebDriver:GetTitle',
+    'WebDriver:FindElement',
+    'WebDriver:FindElements',
+    'Marionette:SetContext',
+    'WebDriver:TakeScreenshot',
+  ]);
+
+  /**
+   * Transient error types that warrant a retry.
+   */
+  private static readonly TRANSIENT_ERRORS = new Set([
+    'no such window',
+    'unknown error',
+    'timeout',
+  ]);
+
+  /**
+   * Send a command with automatic retry for read-only commands on transient errors.
+   * Write commands (click, sendKeys) are never retried.
+   * 2 retries with linear backoff (500ms, 1000ms).
+   */
+  private async sendCommandWithRetry(
+    name: string,
+    params: Record<string, unknown> = {},
+    maxRetries = 2
+  ): Promise<unknown> {
+    if (!MarionetteClient.RETRYABLE_COMMANDS.has(name)) {
+      return this.sendCommand(name, params);
+    }
+
+    let lastError: Error | undefined;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await this.sendCommand(name, params);
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        const isTransient =
+          err instanceof MarionetteError &&
+          MarionetteClient.TRANSIENT_ERRORS.has(err.errorType);
+        if (!isTransient || attempt === maxRetries) {
+          throw lastError;
+        }
+        await this.sleep(500 * (attempt + 1));
+      }
+    }
+    throw lastError;
+  }
+
   async newSession(): Promise<unknown> {
     return this.sendCommand('WebDriver:NewSession', {
       capabilities: {
@@ -197,7 +250,7 @@ export class MarionetteClient {
   }
 
   async setContext(context: MarionetteContext): Promise<void> {
-    await this.sendCommand('Marionette:SetContext', { value: context });
+    await this.sendCommandWithRetry('Marionette:SetContext', { value: context });
   }
 
   async executeScript(
@@ -243,12 +296,12 @@ export class MarionetteClient {
   }
 
   async getUrl(): Promise<string> {
-    const result = await this.sendCommand('WebDriver:GetCurrentURL');
+    const result = await this.sendCommandWithRetry('WebDriver:GetCurrentURL');
     return this.extractValue(result) as string;
   }
 
   async getTitle(): Promise<string> {
-    const result = await this.sendCommand('WebDriver:GetTitle');
+    const result = await this.sendCommandWithRetry('WebDriver:GetTitle');
     return this.extractValue(result) as string;
   }
 
@@ -261,7 +314,7 @@ export class MarionetteClient {
   }
 
   async findElement(using: string, value: string): Promise<string> {
-    const result = await this.sendCommand('WebDriver:FindElement', {
+    const result = await this.sendCommandWithRetry('WebDriver:FindElement', {
       using,
       value,
     });
@@ -269,7 +322,7 @@ export class MarionetteClient {
   }
 
   async findElements(using: string, value: string): Promise<string[]> {
-    const result = await this.sendCommand('WebDriver:FindElements', {
+    const result = await this.sendCommandWithRetry('WebDriver:FindElements', {
       using,
       value,
     });
@@ -315,7 +368,7 @@ export class MarionetteClient {
    * Returns the screenshot as a base64-encoded PNG string.
    */
   async takeScreenshot(): Promise<string> {
-    const result = await this.sendCommand('WebDriver:TakeScreenshot', {
+    const result = await this.sendCommandWithRetry('WebDriver:TakeScreenshot', {
       full: true,
     });
     return this.extractValue(result) as string;

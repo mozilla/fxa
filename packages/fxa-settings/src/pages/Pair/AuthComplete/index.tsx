@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
@@ -12,36 +12,63 @@ import { RemoteMetadata } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import Banner from '../../../components/Banner';
+import { Integration } from '../../../models';
+import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
+import { firefox, FirefoxCommand } from '../../../lib/channels/firefox';
 
 export const viewName = 'pair.auth.complete';
 
 type AuthCompleteProps = {
-  suppDeviceInfo: RemoteMetadata;
+  suppDeviceInfo?: RemoteMetadata;
   supportsFirefoxView?: boolean;
   error?: string;
+  integration?: Integration;
 };
 
 const AuthComplete = ({
-  suppDeviceInfo,
+  suppDeviceInfo: suppDeviceInfoProp,
   // FF View currently only supported in FF Nightly
   // value to be obtained from user agent browser version
   supportsFirefoxView = false,
   error,
+  integration,
 }: AuthCompleteProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  const { deviceFamily, deviceOS } = suppDeviceInfo;
+  const [deviceInfo, setDeviceInfo] = useState<RemoteMetadata | undefined>(
+    suppDeviceInfoProp
+  );
 
-  const handleSeeTabsButtonClick = (e: React.MouseEvent) => {
+  const deviceFamily = deviceInfo?.deviceFamily || 'Unknown';
+  const deviceOS = deviceInfo?.deviceOS || 'Unknown';
+
+  // Fetch supplicant metadata if not provided via props
+  useEffect(() => {
+    if (suppDeviceInfoProp) return;
+    if (integration instanceof PairingAuthorityIntegration) {
+      integration
+        .getSupplicantMetadata()
+        .then(setDeviceInfo)
+        .catch(() => {});
+    }
+  }, [integration, suppDeviceInfoProp]);
+
+  // Signal pairing complete to Firefox on mount
+  useEffect(() => {
+    if (integration instanceof PairingAuthorityIntegration) {
+      integration.complete();
+    }
+    return () => {
+      if (integration instanceof PairingAuthorityIntegration) {
+        integration.destroy();
+      }
+    };
+  }, [integration]);
+
+  const handleSeeTabsButtonClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    /**
-     * TODO button functionality (below from auth_complete.js)
-     * - logViewEvent('screen.pair.auth.fx-view', REACT_ENTRYPOINT);
-     * - metrics.flush();
-     * - const channel = this._notificationChannel;
-     * - return channel.send(channel.COMMANDS.FIREFOX_VIEW, {entryPoint: 'preferences',});
-     *   (entrypoint TBD)
-     *  */
-  };
+    // Send Firefox View command to open synced tabs (matches Backbone's afterPairAuthComplete)
+    firefox.send(FirefoxCommand.SyncPreferences, { entryPoint: 'preferences' });
+  }, []);
 
   return (
     <AppLayout>
@@ -49,16 +76,11 @@ const AuthComplete = ({
         headingTextFtlId="pair-auth-complete-heading"
         headingText="Device connected"
       />
-      {/* TODO: Errors will need to be localized */}
       {error && <Banner type="error" content={{ localizedHeading: error }} />}
-      {/* HeartsVerifiedImage was previously only shown if user agent supports SVG Transform Origin
-         Current support is at 96.5% as of 02/2023: https://caniuse.com/mdn-css_properties_transform-origin_support_in_svg
-         Non-animated version likely no longer necessary.
-       */}
       <HeartsVerifiedImage className="w-3/5 mx-auto" />
       <FtlMsg
         id="pair-auth-complete-now-syncing-device-text"
-        vars={{ deviceFamily: deviceFamily, deviceOS: deviceOS }}
+        vars={{ deviceFamily, deviceOS }}
       >
         <h2 className="my-4">
           {`You are now syncing with: ${deviceFamily} on ${deviceOS}`}

@@ -20,6 +20,17 @@ jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    cad: {
+      view: jest.fn(),
+      submit: jest.fn(),
+      startbrowsingSubmit: jest.fn(),
+    },
+  },
+}));
+
 describe('ConnectAnotherDevice', () => {
   // let bundle: FluentBundle;
   beforeAll(async () => {

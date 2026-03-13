@@ -33,7 +33,6 @@ export const WithDeviceName = () => (
 export const WithErrorMessage = () => (
   <SuppWaitForAuth
     authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
-    bannerType="error"
-    bannerMessage="There was an error"
+    error="There was an error"
   />
 );

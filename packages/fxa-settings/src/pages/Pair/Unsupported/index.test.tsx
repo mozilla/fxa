@@ -15,6 +15,9 @@ jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+// In JSDOM the user agent is a desktop non-Firefox browser, so the component
+// renders the "download Firefox for desktop" variant rather than the system
+// camera message.
 describe('PairUnsupported', () => {
   // let bundle: FluentBundle;
   // beforeAll(async () => {
@@ -29,9 +32,12 @@ describe('PairUnsupported', () => {
     expect(headingEl).toHaveTextContent('Pair using an app');
     expect(
       screen.getByText(
-        'Did you use the system camera? You must pair from within a Firefox app.'
+        'To use device pairing, download Firefox for desktop.'
       )
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /Download Firefox/ })
+    ).toHaveAttribute('href', 'https://www.mozilla.org/firefox/new/');
   });
 
   it('renders errors as expected', () => {
@@ -43,7 +49,7 @@ describe('PairUnsupported', () => {
     expect(screen.getByText(MOCK_ERROR)).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Did you use the system camera? You must pair from within a Firefox app.'
+        'To use device pairing, download Firefox for desktop.'
       )
     ).toBeInTheDocument();
   });

@@ -157,6 +157,12 @@ export const eventsMap = {
     success: 'third_party_auth_set_password_success',
   },
 
+  cad: {
+    view: 'cad_view',
+    submit: 'cad_submit',
+    startbrowsingSubmit: 'cad_startbrowsing_submit',
+  },
+
   cadMobilePair: {
     view: 'cad_mobile_pair_view',
     submit: 'cad_mobile_pair_submit',

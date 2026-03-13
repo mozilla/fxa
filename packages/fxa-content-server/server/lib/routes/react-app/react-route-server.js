@@ -10,7 +10,6 @@ const {
 } = require('./content-server-routes');
 const {
   getFrontEndRouteDefinition,
-  getFrontEndPairingRouteDefinition,
   getOAuthSuccessRouteDefinition,
   getTermsPrivacyRouteDefinition,
 } = require('./route-definitions');
@@ -84,7 +83,11 @@ class ReactRouteServer {
 
   /** @private */
   getFrontEndPairing(name) {
-    return this.getRouteObject(name, getFrontEndPairingRouteDefinition([name]));
+    // When served by React, pairing routes should serve the SPA index.html
+    // (same as regular frontend routes) instead of redirecting to /pair/failure.
+    // The redirect-to-failure behavior is only for the Backbone fallback
+    // registered via get-frontend-pairing.js when pairRoutes flag is off.
+    return this.getRouteObject(name, getFrontEndRouteDefinition([name]));
   }
 
   /** @private */

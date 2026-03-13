@@ -119,15 +119,22 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
 
     pairRoutes: {
       featureFlagOn: showReactApp.pairRoutes,
-      // TODO: see comment above about the '/oauth' route in `emailFirstRoutes`. We cannot
-      // check React experiment status at the Express level, so adding pair routes here
-      // without accounting for the 'oauth' conditional would mean Backbone
-      // `/oauth?channel_id=...` would get 100% of traffic while all other pairing gets 15%.
-      // Are we OK with that and then rolling Fx Desktop pairing out at 100%, or, relying on
-      // a feature flag only for the '/pair' flow, meaning at the Express level we could add
-      // a check for this flag to conditionally show '/oauth' React/Backbone?
-      routes: [],
-      fullProdRollout: false,
+      // Note: The '/oauth?channel_id=...' route for Fx Desktop authority entry is handled
+      // separately in add-routes.js — it bypasses to Backbone unless pairRoutes is enabled.
+      routes: reactRoute.getRoutes([
+        'pair',
+        'pair/supp',
+        'pair/supp/allow',
+        'pair/supp/wait_for_auth',
+        'pair/success',
+        'pair/auth/allow',
+        'pair/auth/wait_for_supp',
+        'pair/auth/complete',
+        'pair/auth/totp',
+        'pair/failure',
+        'pair/unsupported',
+      ]),
+      fullProdRollout: true,
     },
 
     postVerifyOtherRoutes: {

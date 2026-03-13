@@ -9,11 +9,20 @@ import AuthComplete, { viewName } from '.';
 import { MOCK_METADATA_UNKNOWN_LOCATION } from '../../../components/DeviceInfoBlock/mocks';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { Integration } from '../../../models/integrations/integration';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../models/integrations/pairing-authority-integration', () => ({
+  PairingAuthorityIntegration: class {
+    getSupplicantMetadata = jest.fn().mockResolvedValue(null);
+    complete = jest.fn();
+    destroy = jest.fn();
+  },
 }));
 
 describe('AuthComplete page', () => {
@@ -61,5 +70,29 @@ describe('AuthComplete page', () => {
     );
 
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  describe('with PairingAuthorityIntegration', () => {
+    let mockIntegration: {
+      getSupplicantMetadata: jest.Mock;
+      complete: jest.Mock;
+      destroy: jest.Mock;
+    };
+
+    beforeEach(() => {
+      const { PairingAuthorityIntegration: PAI } = jest.requireMock(
+        '../../../models/integrations/pairing-authority-integration'
+      );
+      mockIntegration = new PAI();
+    });
+
+    it('calls complete() on mount and destroy() on unmount', () => {
+      const { unmount } = renderWithLocalizationProvider(
+        <AuthComplete integration={mockIntegration as unknown as Integration} />
+      );
+      expect(mockIntegration.complete).toHaveBeenCalled();
+      unmount();
+      expect(mockIntegration.destroy).toHaveBeenCalled();
+    });
   });
 });

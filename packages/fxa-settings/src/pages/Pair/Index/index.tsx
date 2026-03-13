@@ -3,23 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect } from 'react';
-import { Link } from '@reach/router';
+import { Link, RouteComponentProps } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useFtlMsgResolver } from '../../../models';
 import CardHeader from '../../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../../../src/constants';
+import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../../constants';
 import { HeartsVerifiedImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
 import Banner from '../../../components/Banner';
+import { getBasicAccountData } from '../../../lib/account-storage';
+import { Constants } from '../../../lib/constants';
 
 type PairProps = {
   error?: string;
   entryPoint?: ENTRYPOINTS;
-  onSubmit: Function; // navigates to `about:preferences` whatever the given broker does that.
+  onSubmit?: Function; // navigates to `about:preferences` whatever the given broker does that.
 };
 export const viewName = 'pair';
 
@@ -38,30 +39,39 @@ const Pair = ({
   // TODO: Recreate the QR code logic which previously existed in the content-server.
   // Probably after that we can remove the fallback styles for the QR code div.
 
-  // TODO: check if we are either using Firefox Desktop ,or if the UA has the `supportPairing` capability
-  const isSupported = () => true;
-
-  // TODO: get the account and check if it is the default account.
-  const isDefaultAccount = () => false;
-
-  // TODO: check if the account is either not verified, or has a falsy value for session token.
-  const accountIsNotVerifiedOrHasNoSessionToken = () => false;
+  const accountData = getBasicAccountData();
 
   useEffect(() => {
-    // This will just run at page load.
-    if (!isSupported()) {
+    // Matches Backbone's beforeRender sequence. Only the first matching
+    // redirect should fire, so we return after each to prevent cascading.
+    const ua = navigator.userAgent;
+    const isFirefoxDesktop =
+      /Firefox/i.test(ua) && !/FxiOS/i.test(ua) && !/Android/i.test(ua);
+
+    if (!isFirefoxDesktop) {
       navigateWithQuery('/pair/unsupported');
+      return;
     }
-    if (isDefaultAccount()) {
-      // we have historically needed the "forceView" option to prevent a loop of redirects.
+    if (!accountData) {
+      // Not logged into Sync — offer to connect.
+      // The forceView flag prevents a redirect loop between /pair and CAD.
       navigateWithQuery('/connect_another_device', {
         state: { forceView: true },
       });
+      return;
     }
-    if (accountIsNotVerifiedOrHasNoSessionToken()) {
-      navigateWithQuery('/signin');
+    if (!accountData.verified || !accountData.sessionToken) {
+      // Build a Sync-context signin URL matching Backbone's
+      // getEscapedSyncUrl('signin', 'fxa:pair').
+      const params = new URLSearchParams({
+        context: Constants.FX_DESKTOP_V3_CONTEXT,
+        entrypoint: 'fxa:pair',
+        service: Constants.SYNC_SERVICE,
+      });
+      navigateWithQuery(`/signin?${params}`);
+      return;
     }
-  }, [navigateWithQuery]);
+  }, [navigateWithQuery, accountData]);
 
   const showQRCode =
     entryPoint === ENTRYPOINTS.FIREFOX_MENU_ENTRYPOINT ||
@@ -73,17 +83,19 @@ const Pair = ({
 
   return (
     <>
-      {showQRCode ? (
-        <CardHeader
-          headingTextFtlId="pair-cad-header"
-          headingText="Connect Firefox on another device"
-        />
-      ) : (
-        <CardHeader
-          headingTextFtlId="pair-sync-header"
-          headingText="Sync Firefox on your phone or tablet"
-        />
-      )}
+      <div id="cad-header">
+        {showQRCode ? (
+          <CardHeader
+            headingTextFtlId="pair-cad-header"
+            headingText="Connect Firefox on another device"
+          />
+        ) : (
+          <CardHeader
+            headingTextFtlId="pair-sync-header"
+            headingText="Sync Firefox on your phone or tablet"
+          />
+        )}
+      </div>
 
       <section>
         {error && <Banner type="error" content={{ localizedHeading: error }} />}
@@ -101,9 +113,7 @@ const Pair = ({
                 <button
                   className="cta-primary cta-xl"
                   type="button"
-                  onClick={() => {
-                    onSubmit();
-                  }}
+                  onClick={() => onSubmit?.()}
                 >
                   Sync your device
                 </button>
@@ -167,7 +177,7 @@ const Pair = ({
               <FtlMsg id="pair-get-started-button">
                 <button
                   className="cta-primary cta-xl"
-                  onClick={() => onSubmit()}
+                  onClick={() => onSubmit?.()}
                   type="button"
                 >
                   Get started

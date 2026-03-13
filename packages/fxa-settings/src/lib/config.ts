@@ -62,7 +62,7 @@ export interface Config {
     count: number;
     length: number;
   };
-  version: string;
+  version?: string;
   googleAuthConfig: {
     enabled: boolean;
     clientId: string;
@@ -91,6 +91,11 @@ export interface Config {
     signUpRoutes: boolean;
     signInRoutes: boolean;
     emailFirstRoutes: boolean;
+    pairRoutes: boolean;
+  };
+  pairing: {
+    clients: string[];
+    serverBaseUri: string;
   };
   rolloutRates?: {
     keyStretchV2?: number;
@@ -137,6 +142,8 @@ export function getDefault() {
       serverName: 'fxa-settings-server',
       clientName: 'fxa-settings-client',
       sampleRate: 1.0,
+      tracesSampleRate: 0,
+      version: '',
     },
     servers: {
       auth: {
@@ -184,6 +191,7 @@ export function getDefault() {
       enabled: false,
       applicationId: 'accounts_frontend_dev',
       uploadEnabled: true,
+      appDisplayVersion: '',
       appChannel: 'development',
       serverEndpoint: 'https://incoming.telemetry.mozilla.org',
       logPings: false,
@@ -193,6 +201,12 @@ export function getDefault() {
     showReactApp: {
       signUpRoutes: false,
       signInRoutes: false,
+      emailFirstRoutes: false,
+      pairRoutes: false,
+    },
+    pairing: {
+      clients: [],
+      serverBaseUri: 'wss://channelserver.services.mozilla.com',
     },
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,

@@ -36663,6 +36663,7 @@ __metadata:
     fs-extra: "npm:^11.2.0"
     fxa-auth-client: "workspace:*"
     fxa-common-password-list: "npm:^0.0.4"
+    fxa-pairing-channel: "npm:1.0.2"
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     grunt: "npm:^1.6.1"

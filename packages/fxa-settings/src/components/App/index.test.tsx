@@ -274,7 +274,7 @@ describe('glean', () => {
       {
         ...config.glean,
         enabled: mockMetricsQueryAccountGlean.metricsEnabled,
-        appDisplayVersion: config.version,
+        appDisplayVersion: config.version || '',
         appChannel: config.glean.appChannel,
       },
       {
