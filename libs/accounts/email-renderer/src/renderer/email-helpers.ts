@@ -53,15 +53,11 @@ export const constructLocalTimeAndDateStrings = (
   time: string;
   timeZone: string;
 } => {
-  moment.tz.setDefault(DEFAULT_TIMEZONE);
-
   const locale = determineLocale(acceptLanguage) || DEFAULT_LOCALE;
-  moment.locale(locale);
 
-  let timeMoment = moment(date ? date : undefined);
-  if (timeZone) {
-    timeMoment = timeMoment.tz(timeZone);
-  }
+  const timeMoment = moment(date ? date : undefined)
+    .locale(locale)
+    .tz(timeZone || DEFAULT_TIMEZONE);
 
   const formattedTime = timeMoment.format('LTS (z)');
   const formattedDate = timeMoment.format('dddd, ll');
@@ -88,15 +84,11 @@ export const constructLocalDateString = (
   date?: Date | number,
   formatString = 'L'
 ): string => {
-  moment.tz.setDefault(DEFAULT_TIMEZONE);
-
   const locale = determineLocale(acceptLanguage) || DEFAULT_LOCALE;
-  moment.locale(locale);
 
-  let time = moment(date);
-  if (timeZone) {
-    time = time.tz(timeZone);
-  }
+  const time = moment(date)
+    .locale(locale)
+    .tz(timeZone || DEFAULT_TIMEZONE);
 
   return time.format(formatString);
 };
