@@ -23,7 +23,6 @@ const { ProductConfigurationManager } = require('@fxa/shared/cms');
 const { Container } = require('typedi');
 
 const DEFAULT_LOCALE = 'en';
-const DEFAULT_TIMEZONE = 'Etc/UTC';
 const UTM_PREFIX = 'fx-';
 
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
@@ -184,15 +183,11 @@ module.exports = function (log, config, bounces, statsd) {
   }
 
   function constructLocalTimeString(timeZone, locale) {
-    // if no timeZone is passed, use DEFAULT_TIMEZONE
-    moment.tz.setDefault(DEFAULT_TIMEZONE);
     // if no locale is passed, use DEFAULT_LOCALE
     locale = locale || DEFAULT_LOCALE;
-    moment.locale(locale);
-    let timeMoment = moment();
-    if (timeZone) {
-      timeMoment = timeMoment.tz(timeZone);
-    }
+    const timeMoment = moment()
+      .locale(locale)
+      .tz(timeZone || 'Etc/UTC');
     // return a locale-specific time
     // if date or time is passed, return it as the current date or time
     const timeNow = timeMoment.format('LTS (z)');
@@ -206,15 +201,11 @@ module.exports = function (log, config, bounces, statsd) {
     date,
     formatString = 'L'
   ) {
-    // if no timeZone is passed, use DEFAULT_TIMEZONE
-    moment.tz.setDefault(DEFAULT_TIMEZONE);
     // if no locale is passed, use DEFAULT_LOCALE
     locale = locale || DEFAULT_LOCALE;
-    moment.locale(locale);
-    let time = moment(date);
-    if (timeZone) {
-      time = time.tz(timeZone);
-    }
+    const time = moment(date)
+      .locale(locale)
+      .tz(timeZone || 'Etc/UTC');
     // return a locale-specific date
     return time.format(formatString);
   }

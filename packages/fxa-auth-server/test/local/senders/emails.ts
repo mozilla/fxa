@@ -6449,6 +6449,72 @@ describe('lib/senders/emails:', () => {
     });
   });
 
+  describe('constructLocalDateString - locale isolation', () => {
+    it('does not leak locale between concurrent calls', async () => {
+      const date = new Date('2025-03-13T12:00:00Z');
+
+      // Simulate concurrent calls with different locales
+      const [enResult, gbResult] = await Promise.all([
+        Promise.resolve(
+          mailer._constructLocalDateString(undefined, 'en', date)
+        ),
+        Promise.resolve(
+          mailer._constructLocalDateString(undefined, 'en-GB', date)
+        ),
+      ]);
+
+      // en formats as MM/DD/YYYY, en-GB formats as DD/MM/YYYY
+      assert.equal(enResult, '03/13/2025');
+      assert.equal(gbResult, '13/03/2025');
+    });
+
+    it('does not leak locale into subsequent calls', () => {
+      const date = new Date('2025-03-13T12:00:00Z');
+
+      // Call with en-GB first
+      mailer._constructLocalDateString(undefined, 'en-GB', date);
+      // Then call with en
+      const enResult = mailer._constructLocalDateString(undefined, 'en', date);
+
+      assert.equal(enResult, '03/13/2025');
+    });
+  });
+
+  describe('constructLocalTimeString - locale isolation', () => {
+    it('does not leak locale between concurrent calls', async () => {
+      const [enResult, esResult] = await Promise.all([
+        Promise.resolve(
+          mailer._constructLocalTimeString('America/Los_Angeles', 'en')
+        ),
+        Promise.resolve(
+          mailer._constructLocalTimeString('America/Los_Angeles', 'es')
+        ),
+      ]);
+
+      // en day names vs es day names
+      const enDays = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday',
+      ];
+      const esDays = [
+        'lunes',
+        'martes',
+        'miércoles',
+        'jueves',
+        'viernes',
+        'sábado',
+        'domingo',
+      ];
+      assert.include(enDays, enResult[1].split(',')[0]);
+      assert.include(esDays, esResult[1].split(',')[0]);
+    });
+  });
+
   describe('constructLocalTimeString - returns date/time', () => {
     // Moment expects a single locale identifier. This tests to ensure
     // we account for this in _constructLocalTimeString
