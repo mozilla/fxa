@@ -171,6 +171,35 @@ describe('PasskeyManager', () => {
     });
   });
 
+  describe('checkPasskeyCount', () => {
+    it('resolves without throwing when count is under the limit', async () => {
+      (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(
+        MOCK_MAX_PASSKEYS_PER_USER - 1
+      );
+      await expect(
+        manager.checkPasskeyCount(Buffer.alloc(16, 1))
+      ).resolves.toBeUndefined();
+    });
+
+    it('throws PasskeyLimitReachedError when count equals the limit', async () => {
+      (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(
+        MOCK_MAX_PASSKEYS_PER_USER
+      );
+      await expect(
+        manager.checkPasskeyCount(Buffer.alloc(16, 1))
+      ).rejects.toThrow(PasskeyLimitReachedError);
+    });
+
+    it('throws PasskeyLimitReachedError when count exceeds the limit', async () => {
+      (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(
+        MOCK_MAX_PASSKEYS_PER_USER + 1
+      );
+      await expect(
+        manager.checkPasskeyCount(Buffer.alloc(16, 1))
+      ).rejects.toThrow(PasskeyLimitReachedError);
+    });
+  });
+
   describe('renamePasskey', () => {
     it('returns false without calling repository when name exceeds 255 characters', async () => {
       const result = await manager.renamePasskey(

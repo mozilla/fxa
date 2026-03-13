@@ -21,11 +21,9 @@ import {
   updatePasskeyCounterAndLastUsed,
   updatePasskeyName,
 } from './passkey.repository';
-import {
-  PasskeyAlreadyRegisteredError,
-  PasskeyLimitReachedError,
-} from './passkey.errors';
+import { PasskeyAlreadyRegisteredError } from './passkey.errors';
 import { PasskeyConfig } from './passkey.config';
+import { AppError } from '@fxa/accounts/errors';
 
 /**
  * PasskeyManager - Application service for passkey operations.
@@ -55,24 +53,12 @@ export class PasskeyManager {
    * caught from the database unique constraint and converted to
    * PasskeyAlreadyRegisteredError.
    *
-   * @throws {PasskeyLimitReachedError} if the user has reached the maximum passkey count
    * @throws {PasskeyAlreadyRegisteredError} if credentialId is already registered
    */
   async registerPasskey(passkey: NewPasskey): Promise<void> {
     const uidHex = passkey.uid.toString('hex');
 
-    const count = await countPasskeysByUid(this.db, passkey.uid);
-    if (count >= this.maxPasskeysPerUser) {
-      this.log.warn('PasskeyManager.registerPasskey: limit reached', {
-        uid: uidHex,
-        count,
-        limit: this.maxPasskeysPerUser,
-      });
-      throw new PasskeyLimitReachedError({
-        uid: uidHex,
-        limit: this.maxPasskeysPerUser,
-      });
-    }
+    await this.checkPasskeyCount(passkey.uid);
 
     try {
       await insertPasskey(this.db, passkey);
@@ -211,5 +197,23 @@ export class PasskeyManager {
    */
   async countPasskeys(uid: Buffer): Promise<number> {
     return countPasskeysByUid(this.db, uid);
+  }
+
+  /**
+   * Checks if the user has exceeded the passkey limit and throws if so.
+   * @param uid - User ID (16-byte Buffer)
+   */
+  async checkPasskeyCount(uid: Buffer): Promise<void> {
+    const uidHex = uid.toString('hex');
+    const count = await this.countPasskeys(uid);
+
+    if (count >= this.maxPasskeysPerUser) {
+      this.log.warn('PasskeyManager.registerPasskey: limit reached', {
+        uid: uidHex,
+        count,
+        limit: this.maxPasskeysPerUser,
+      });
+      throw AppError.passkeyLimitReached();
+    }
   }
 }
