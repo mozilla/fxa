@@ -784,8 +784,12 @@ describe('/account/device/commands', () => {
       last: true,
       index: 4,
       messages: [
-        { index: 3, data: { command: 'three', payload: {} } },
-        { index: 4, data: { command: 'four', payload: {} } },
+        {
+          index: 2,
+          data: { command: 'two', payload: {}, sender: '1'.repeat(32) },
+        },
+        { index: 3, data: { command: 'three', payload: {}, sender: '' } },
+        { index: 4, data: { command: 'four', payload: {}, sender: null } },
       ],
     };
     const mockPushbox = mocks.mockPushbox();
@@ -809,7 +813,18 @@ describe('/account/device/commands', () => {
     return runTest(route, mockRequest).then((response) => {
       assert.equal(mockPushbox.retrieve.callCount, 1, 'pushbox was called');
       assert.calledWithExactly(mockPushbox.retrieve, uid, deviceId, 100, 2);
-      assert.deepEqual(response, mockResponse);
+      assert.deepEqual(response, {
+        last: true,
+        index: 4,
+        messages: [
+          {
+            index: 2,
+            data: { command: 'two', payload: {}, sender: '1'.repeat(32) },
+          },
+          { index: 3, data: { command: 'three', payload: {} } },
+          { index: 4, data: { command: 'four', payload: {} } },
+        ],
+      });
     });
   });
 
