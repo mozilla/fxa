@@ -26,6 +26,7 @@ const ConfirmResetPassword = ({
   resendStatus,
   resendErrorMessage,
   verifyCode,
+  integration,
 }: ConfirmResetPasswordProps & RouteComponentProps) => {
   useEffect(() => {
     GleanMetrics.passwordReset.emailConfirmationView();
@@ -33,6 +34,7 @@ const ConfirmResetPassword = ({
 
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
+  const cmsInfo = integration?.getCmsInfo();
 
   const spanElement = <span className="font-bold">{email}</span>;
 
@@ -61,7 +63,9 @@ const ConfirmResetPassword = ({
       {errorMessage && (
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
-      <EmailCodeImage />
+      <EmailCodeImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
       <FtlMsg id="confirm-reset-password-with-code-heading">
         <h2 className="card-header my-4">Check your email</h2>
       </FtlMsg>

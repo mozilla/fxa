@@ -34,6 +34,16 @@ export const relyingPartyQuery = graphql(`
           splitLayout
           splitLayoutAltText
         }
+        illustrationsTheme {
+          primary
+          primaryAlt
+          secondary
+          accentBg
+          accentFg
+          cloudPrimary
+          cloudShadow
+          hideClouds
+        }
         favicon
         headlineFontSize
         headlineTextColor

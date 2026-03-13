@@ -4,6 +4,7 @@
 
 import { MetricsContext } from '@fxa/shared/glean';
 import { ResendStatus } from '../../../lib/types';
+import { ResetPasswordIntegration } from '../interfaces';
 
 export interface ConfirmResetPasswordLocationState {
   email: string;
@@ -25,4 +26,5 @@ export type ConfirmResetPasswordProps = {
   resendStatus: ResendStatus;
   resendErrorMessage: string;
   verifyCode: (code: string) => Promise<void>;
+  integration: ResetPasswordIntegration;
 };

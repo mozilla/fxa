@@ -212,7 +212,9 @@ const SigninRecoveryPhone = ({
           className="mx-auto my-4"
         />
       ) : (
-        <BackupRecoveryPhoneCodeImage />
+        <BackupRecoveryPhoneCodeImage
+          illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+        />
       )}
       {cmsPage?.headline ? (
         <h2 className="card-header my-4">{cmsPage.headline}</h2>

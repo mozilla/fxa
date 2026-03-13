@@ -35,6 +35,7 @@ export interface Shared {
     splitLayout: string | null;
     splitLayoutAltText: string | null;
   };
+  illustrationsTheme: IllustrationsTheme | null;
   pageTitle: string | null;
   headerLogoUrl: string | null;
   headerLogoAltText: string | null;
@@ -43,6 +44,17 @@ export interface Shared {
   headlineFontSize: Enum_Componentaccountsshared_Headlinefontsize | null;
   headlineTextColor: string | null;
   additionalAccessibilityInfo: string | null;
+}
+
+export interface IllustrationsTheme {
+  primary: string | null;
+  primaryAlt: string | null;
+  secondary: string | null;
+  accentBg: string | null;
+  accentFg: string | null;
+  cloudPrimary: string | null;
+  cloudShadow: string | null;
+  hideClouds: boolean | null;
 }
 
 export interface FeatureFlags {

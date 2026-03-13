@@ -237,16 +237,16 @@ export const App = ({
           if (isValidSession) {
             setIsSignedIntoFirefoxDesktop(
               !!userFromBrowser?.sessionToken &&
-              integration.isFirefoxDesktopClient()
+                integration.isFirefoxDesktopClient()
             );
             const cachedUser = getAccountByUid(userFromBrowser.uid);
             // Refresh the token without switching the "current" account.
             persistAccount(
               cachedUser
                 ? {
-                  ...cachedUser,
-                  sessionToken: userFromBrowser.sessionToken,
-                }
+                    ...cachedUser,
+                    sessionToken: userFromBrowser.sessionToken,
+                  }
                 : userFromBrowser
             );
             if (!currentAccount()?.uid) {
@@ -568,14 +568,20 @@ const AuthAndAccountSetupRoutes = ({
         path="/reset_password/*"
         {...{ flowQueryParams, serviceName }}
       />
-      <ConfirmResetPasswordContainer path="/confirm_reset_password/*" />
+      <ConfirmResetPasswordContainer
+        path="/confirm_reset_password/*"
+        {...{ integration }}
+      />
       <ResetPasswordRecoveryChoiceContainer path="/reset_password_totp_recovery_choice/*" />
       <ResetPasswordRecoveryPhoneContainer
         path="/reset_password_recovery_phone/*"
         {...{ integration }}
       />
       <ConfirmTotpResetPasswordContainer path="/confirm_totp_reset_password/*" />
-      <ConfirmBackupCodeResetPasswordContainer path="/confirm_backup_code_reset_password/*" />
+      <ConfirmBackupCodeResetPasswordContainer
+        path="/confirm_backup_code_reset_password/*"
+        {...{ integration }}
+      />
       <CompleteResetPasswordContainer
         path="/complete_reset_password/*"
         {...{ integration }}
@@ -626,11 +632,21 @@ const AuthAndAccountSetupRoutes = ({
       />
       <SigninPasswordlessCodeContainer
         path="/oauth/signin_passwordless_code/*"
-        {...{ integration, serviceName, flowQueryParams, setCurrentSplitLayout }}
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          setCurrentSplitLayout,
+        }}
       />
       <SigninPasswordlessCodeContainer
         path="/signin_passwordless_code/*"
-        {...{ integration, serviceName, flowQueryParams, setCurrentSplitLayout }}
+        {...{
+          integration,
+          serviceName,
+          flowQueryParams,
+          setCurrentSplitLayout,
+        }}
       />
       <SigninContainer
         path="/oauth/signin/*"

@@ -9,6 +9,11 @@ import { userEvent } from '@testing-library/user-event';
 import ResetPasswordRecoveryPhone from './index';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { HandledError } from '../../../lib/error-utils';
+import { ResetPasswordIntegration } from '../interfaces';
+
+const mockIntegration: ResetPasswordIntegration = {
+  getCmsInfo: () => undefined,
+};
 
 describe('ResetPasswordRecoveryPhone', () => {
   const mockVerifyCode = jest.fn(() => Promise.resolve());
@@ -25,6 +30,7 @@ describe('ResetPasswordRecoveryPhone', () => {
     verifyCode: mockVerifyCode,
     resendCode: mockResendCode,
     numBackupCodes: 4,
+    integration: mockIntegration,
   };
 
   const propsWithError = {
@@ -32,6 +38,7 @@ describe('ResetPasswordRecoveryPhone', () => {
     verifyCode: mockVerifyCodeError,
     resendCode: mockResendCodeError,
     numBackupCodes: 4,
+    integration: mockIntegration,
   };
 
   const propsWithErrorNoBackupCodes = {
@@ -39,6 +46,7 @@ describe('ResetPasswordRecoveryPhone', () => {
     verifyCode: mockVerifyCodeError,
     resendCode: mockResendCodeError,
     numBackupCodes: 0,
+    integration: mockIntegration,
   };
 
   beforeEach(() => {

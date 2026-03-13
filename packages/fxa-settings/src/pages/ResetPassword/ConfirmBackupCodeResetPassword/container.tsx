@@ -5,12 +5,15 @@
 import React, { useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { ResetPasswordIntegration } from '../interfaces';
 import ConfirmBackupCodeResetPassword from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
-const ConfirmBackupCodeResetPasswordContainer = (_: RouteComponentProps) => {
+const ConfirmBackupCodeResetPasswordContainer = ({
+  integration,
+}: { integration: ResetPasswordIntegration } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const location = useLocation();
 
@@ -59,7 +62,12 @@ const ConfirmBackupCodeResetPasswordContainer = (_: RouteComponentProps) => {
 
   return (
     <ConfirmBackupCodeResetPassword
-      {...{ verifyBackupCode, codeErrorMessage, setCodeErrorMessage }}
+      {...{
+        verifyBackupCode,
+        codeErrorMessage,
+        setCodeErrorMessage,
+        integration,
+      }}
     />
   );
 };

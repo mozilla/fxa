@@ -8,6 +8,11 @@ import { MOCK_EMAIL } from '../../mocks';
 import { LocationProvider } from '@reach/router';
 import { ResendStatus } from '../../../lib/types';
 import { ConfirmResetPasswordProps } from './interfaces';
+import { ResetPasswordIntegration } from '../interfaces';
+
+const mockIntegration: ResetPasswordIntegration = {
+  getCmsInfo: () => undefined,
+};
 
 const mockVerifyCode = (code: string) => Promise.resolve();
 
@@ -59,6 +64,7 @@ export const Subject = ({
           errorMessage,
           setErrorMessage,
           verifyCode,
+          integration: mockIntegration,
         }}
       />
     </LocationProvider>

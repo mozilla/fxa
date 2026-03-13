@@ -53,6 +53,7 @@ const ResetPasswordRecoveryPhone = ({
   sendError,
   numBackupCodes,
   location,
+  integration,
 }: ResetPasswordRecoveryPhoneProps & RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorDescription, setErrorDescription] = useState('');
@@ -61,6 +62,7 @@ const ResetPasswordRecoveryPhone = ({
   const [initialSendErrorDismissed, setInitialSendErrorDismissed] =
     useState(false);
   const ftlMsgResolver = useFtlMsgResolver();
+  const cmsInfo = integration?.getCmsInfo();
 
   const spanElement = <span className="font-bold">{lastFourPhoneDigits}</span>;
 
@@ -204,7 +206,9 @@ const ResetPasswordRecoveryPhone = ({
           }}
         />
       )}
-      <BackupRecoveryPhoneCodeImage />
+      <BackupRecoveryPhoneCodeImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
       <FtlMsg id="reset-password-recovery-phone-heading">
         <h2 className="card-header my-4">Enter recovery code</h2>
       </FtlMsg>
