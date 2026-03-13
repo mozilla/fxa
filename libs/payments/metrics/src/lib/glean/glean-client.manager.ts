@@ -77,10 +77,7 @@ export class PaymentsGleanClientManager {
   private mapPageViewToGlean(pageMetrics: PageMetricsData) {
     return {
       page_name: pageMetrics.pageName,
-      page_variant: pageMetrics.pageVariant ?? '',
       entrypoint: pageMetrics.entrypoint ?? '',
-      offering_id: pageMetrics.offeringId ?? '',
-      interval: pageMetrics.interval ?? '',
     };
   }
 

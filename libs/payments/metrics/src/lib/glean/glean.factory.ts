@@ -177,18 +177,12 @@ export const GleanMetricsDataFactory = (
 });
 
 export const PageViewEventFactory = (override?: Partial<PageMetricsData>) => ({
-  pageName: faker.helpers.arrayElement<PageName>([
-    'management',
-    'stay_standard',
-    'cancel_standard',
-  ]),
+  pageName: faker.helpers.arrayElement<PageName>(['management']),
   entrypoint: faker.helpers.arrayElement<Entrypoint>([
     'email',
     'internal_nav',
     'subscription-management',
   ]),
-  offeringId: faker.string.alphanumeric(8),
-  interval: faker.helpers.enumValue(SubplatInterval),
   ...override,
 });
 

@@ -92,11 +92,10 @@ describe('PaymentsGleanClientManager', () => {
           channel: mockConfigValue.channel,
         }
       );
-      expect(mockSubscriptions.pageView.record).toHaveBeenCalledWith(
-        expect.objectContaining({
-          page_name: 'management',
-        })
-      );
+      expect(mockSubscriptions.pageView.record).toHaveBeenCalledWith({
+        page_name: 'management',
+        entrypoint: '',
+      });
       expect(mockSubscriptions.pageView.record).toHaveBeenCalledTimes(1);
     });
 
