@@ -17,3 +17,6 @@ export * from './lib/churn-intervention.config';
 export * from './lib/churn-intervention.manager';
 export * from './lib/churn-intervention.error';
 export * from './lib/churn-intervention.factories';
+export * from './lib/free-trial.config';
+export * from './lib/free-trial.manager';
+export * from './lib/free-trial.types';
