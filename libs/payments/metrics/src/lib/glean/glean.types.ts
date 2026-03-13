@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ResultCart } from '@fxa/payments/cart';
-import { SubplatInterval } from '@fxa/payments/customer';
+import type { ResultCart } from '@fxa/payments/cart';
+import type { SubplatInterval } from '@fxa/payments/customer';
 
 export const CheckoutTypes = [
   'new_account',
@@ -12,7 +12,7 @@ export const CheckoutTypes = [
   'unknown',
 ] as const;
 export type CheckoutTypesType = (typeof CheckoutTypes)[number];
-import { type TaxAddress } from '@fxa/payments/customer';
+import type { TaxAddress } from '@fxa/payments/customer';
 
 export const PaymentProvidersTypePartial = [
   'stripe',

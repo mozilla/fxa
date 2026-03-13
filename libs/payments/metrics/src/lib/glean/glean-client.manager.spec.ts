@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Test } from '@nestjs/testing';
 import { PaymentsGleanClientManager } from './glean-client.manager';
 import { PaymentsGleanClientConfig } from './glean.config';
 import {
@@ -30,14 +29,9 @@ describe('PaymentsGleanClientManager', () => {
     process.env = { ...originalEnv, CI: '' };
     (global as any).window = {};
 
-    const moduleRef = await Test.createTestingModule({
-      providers: [
-        { provide: PaymentsGleanClientConfig, useValue: mockConfigValue },
-        PaymentsGleanClientManager,
-      ],
-    }).compile();
-
-    paymentsGleanClientManager = moduleRef.get(PaymentsGleanClientManager);
+    paymentsGleanClientManager = new PaymentsGleanClientManager(
+      mockConfigValue
+    );
   });
 
   afterEach(() => {
@@ -76,13 +70,7 @@ describe('PaymentsGleanClientManager', () => {
         ...mockConfigValue,
         enabled: false,
       };
-      const moduleRef = await Test.createTestingModule({
-        providers: [
-          { provide: PaymentsGleanClientConfig, useValue: disabledConfigValue },
-          PaymentsGleanClientManager,
-        ],
-      }).compile();
-      const manager = moduleRef.get(PaymentsGleanClientManager);
+      const manager = new PaymentsGleanClientManager(disabledConfigValue);
 
       manager.initialize();
 
@@ -127,15 +115,7 @@ describe('PaymentsGleanClientManager', () => {
 
     it('does not record page_view when config.enabled=false', async () => {
       const disabledConfig = { ...mockConfigValue, enabled: false };
-
-      const moduleRef = await Test.createTestingModule({
-        providers: [
-          { provide: PaymentsGleanClientConfig, useValue: disabledConfig },
-          PaymentsGleanClientManager,
-        ],
-      }).compile();
-
-      const manager = moduleRef.get(PaymentsGleanClientManager);
+      const manager = new PaymentsGleanClientManager(disabledConfig);
 
       manager.recordPageView(PageViewEventFactory({ pageName: 'management' }));
 
@@ -169,7 +149,6 @@ describe('PaymentsGleanClientManager', () => {
         RetentionFlowEventFactory({
           flowType: 'cancel',
           step: 'engage',
-          outcome: 'success',
         })
       );
 
@@ -186,21 +165,12 @@ describe('PaymentsGleanClientManager', () => {
 
     it('does not recordRetentionFlow when disabled', async () => {
       const disabledConfigValue = { ...mockConfigValue, enabled: false };
-
-      const moduleRef = await Test.createTestingModule({
-        providers: [
-          { provide: PaymentsGleanClientConfig, useValue: disabledConfigValue },
-          PaymentsGleanClientManager,
-        ],
-      }).compile();
-
-      const manager = moduleRef.get(PaymentsGleanClientManager);
+      const manager = new PaymentsGleanClientManager(disabledConfigValue);
 
       manager.recordRetentionFlow(
         RetentionFlowEventFactory({
           flowType: 'cancel',
           step: 'engage',
-          outcome: 'success',
         })
       );
 
@@ -214,7 +184,6 @@ describe('PaymentsGleanClientManager', () => {
         RetentionFlowEventFactory({
           flowType: 'cancel',
           step: 'engage',
-          outcome: 'success',
         })
       );
 
@@ -232,7 +201,6 @@ describe('PaymentsGleanClientManager', () => {
           RetentionFlowEventFactory({
             flowType: 'cancel',
             step: 'engage',
-            outcome: 'success',
           })
         )
       ).not.toThrow();
@@ -248,14 +216,12 @@ describe('PaymentsGleanClientManager', () => {
         RetentionFlowEventFactory({
           flowType: 'cancel',
           step: 'engage',
-          outcome: 'success',
         })
       );
       paymentsGleanClientManager.recordRetentionFlow(
         RetentionFlowEventFactory({
           flowType: 'cancel',
           step: 'submit',
-          outcome: 'success',
         })
       );
 
@@ -270,7 +236,6 @@ describe('PaymentsGleanClientManager', () => {
         RetentionFlowEventFactory({
           flowType: 'cancel',
           step: 'engage',
-          outcome: 'success',
         })
       );
 
@@ -299,7 +264,6 @@ describe('PaymentsGleanClientManager', () => {
         RetentionFlowEventFactory({
           flowType: 'cancel',
           step: 'engage',
-          outcome: 'success',
         })
       );
 
@@ -314,7 +278,6 @@ describe('PaymentsGleanClientManager', () => {
         RetentionFlowEventFactory({
           flowType: 'cancel',
           step: 'engage',
-          outcome: 'success',
         })
       );
 
@@ -333,7 +296,6 @@ describe('PaymentsGleanClientManager', () => {
           RetentionFlowEventFactory({
             flowType: 'cancel',
             step: 'engage',
-            outcome: 'success',
           })
         )
       ).not.toThrow();
@@ -349,7 +311,6 @@ describe('PaymentsGleanClientManager', () => {
         RetentionFlowEventFactory({
           flowType: 'cancel',
           step: 'engage',
-          outcome: 'success',
         })
       );
 
@@ -357,7 +318,7 @@ describe('PaymentsGleanClientManager', () => {
         RetentionFlowEventFactory({
           flowType: 'cancel',
           step: 'result',
-          outcome: 'success',
+          outcome: 'redeem_success',
         })
       );
 
