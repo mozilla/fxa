@@ -13,6 +13,7 @@ import {
   type SubscriptionEligibilityResult,
   type SubscriptionEligibilityUpgradeDowngradeResult,
 } from '@fxa/payments/eligibility';
+import { NimbusManager } from '@fxa/payments/experiments';
 import {
   PaypalBillingAgreementManager,
   PaypalCustomerManager,
@@ -43,7 +44,7 @@ import {
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProfileClient } from '@fxa/profile/client';
-import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { ProductConfigurationManager, type FreeTrial } from '@fxa/shared/cms';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { NotifierService } from '@fxa/shared/notifier';
 import {
@@ -90,6 +91,7 @@ import {
   PaymentsGleanService,
 } from '@fxa/payments/metrics';
 import { isCancelInterstitialOffer } from './util/isCancelInterstitialOffer';
+import { FreeTrialManager } from './free-trial.manager';
 
 @Injectable()
 export class CheckoutService {
@@ -113,6 +115,8 @@ export class CheckoutService {
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
     private paymentMethodManager: PaymentMethodManager,
+    private freeTrialManager: FreeTrialManager,
+    private nimbusManager: NimbusManager,
     private gleanService: PaymentsGleanService,
     @Inject(StatsDService) private statsd: StatsD
   ) {}
@@ -864,5 +868,63 @@ export class CheckoutService {
       });
       return upcomingInvoice.subtotal;
     }
+  }
+
+  async getFreeTrialEligibility(args: {
+    uid: string;
+    offeringConfigId: string;
+    countryCode: string;
+    interval: SubplatInterval;
+    eligibilityStatus: EligibilityStatus;
+  }): Promise<FreeTrial | null> {
+    const { uid, offeringConfigId, countryCode, interval, eligibilityStatus } =
+      args;
+
+    if (eligibilityStatus !== EligibilityStatus.CREATE) {
+      return null;
+    }
+
+    const [nimbusResult, freeTrialUtil] = await Promise.all([
+      this.nimbusManager.fetchExperiments({
+        nimbusUserId: this.nimbusManager.generateNimbusId(uid),
+        preview: false,
+      }),
+      this.productConfigurationManager.getFreeTrial(offeringConfigId),
+    ]);
+
+    if (
+      !nimbusResult ||
+      !nimbusResult.Features['free-trial-feature'].enabled
+    ) {
+      return null;
+    }
+
+    const freeTrials = freeTrialUtil.getResult();
+    if (!freeTrials) {
+      return null;
+    }
+
+    const matchingTrial = freeTrials.find(
+      (trial) =>
+        trial.trialLengthDays > 0 &&
+        trial.countries.includes(countryCode) &&
+        trial.intervals.includes(interval)
+    );
+
+    if (!matchingTrial) {
+      return null;
+    }
+
+    const cooldownElapsed = await this.freeTrialManager.isCooldownElapsed(
+      uid,
+      matchingTrial.internalName,
+      matchingTrial.cooldownPeriodMonths
+    );
+
+    if (!cooldownElapsed) {
+      return null;
+    }
+
+    return matchingTrial;
   }
 }

@@ -45,6 +45,7 @@ import {
   SetupIntentManager,
   PromotionCodeNotFoundError,
   STRIPE_SUBSCRIPTION_METADATA,
+  SubplatInterval,
   SubscriptionManager,
   TaxAddressFactory,
   SubPlatPaymentMethodType,
@@ -137,6 +138,9 @@ import {
   MockNimbusClientConfigProvider,
   NimbusClient,
 } from '@fxa/shared/experiments';
+import { FreeTrialManager } from './free-trial.manager';
+import { MockFreeTrialConfigProvider } from './free-trial.config';
+import type { FreeTrial } from '@fxa/shared/cms';
 
 describe('CheckoutService', () => {
   let accountCustomerManager: AccountCustomerManager;
@@ -160,6 +164,8 @@ describe('CheckoutService', () => {
   let subscriptionManager: SubscriptionManager;
   let paymentMethodManager: PaymentMethodManager;
   let gleanService: PaymentsGleanService;
+  let freeTrialManager: FreeTrialManager;
+  let nimbusManager: NimbusManager;
 
   const mockLogger = {
     error: jest.fn(),
@@ -180,6 +186,8 @@ describe('CheckoutService', () => {
         CurrencyManager,
         EligibilityManager,
         EligibilityService,
+        FreeTrialManager,
+        MockFreeTrialConfigProvider,
         AppleIapPurchaseManager,
         AppleIapClient,
         MockAppleIapClientConfigProvider,
@@ -259,6 +267,8 @@ describe('CheckoutService', () => {
     subscriptionManager = moduleRef.get(SubscriptionManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
     gleanService = moduleRef.get(PaymentsGleanService);
+    freeTrialManager = moduleRef.get(FreeTrialManager);
+    nimbusManager = moduleRef.get(NimbusManager);
   });
 
   describe('prePaySteps', () => {
@@ -1638,6 +1648,199 @@ describe('CheckoutService', () => {
           taxAddress: mockTaxAddress,
         })
       ).rejects.toThrow(/DetermineCheckoutAmountSubscriptionRequiredError/);
+    });
+  });
+
+  describe('getFreeTrialEligibility', () => {
+    const mockUid = faker.string.uuid();
+    const mockOfferingConfigId = faker.string.alphanumeric(10);
+    const mockCountryCode = 'US';
+    const mockInterval = 'monthly' as SubplatInterval;
+
+    const mockFreeTrial: FreeTrial = {
+      internalName: 'test-free-trial',
+      intervals: ['monthly'],
+      trialLengthDays: 30,
+      countries: ['US', 'CA'],
+      cooldownPeriodMonths: 6,
+    };
+
+    const mockNimbusResult = {
+      Features: {
+        'welcome-feature': { enabled: false },
+        'free-trial-feature': { enabled: true },
+      },
+      Enrollments: [],
+    };
+
+    const mockFreeTrialUtil = {
+      getResult: jest.fn().mockReturnValue([mockFreeTrial]),
+      freeTrial: { freeTrials: [mockFreeTrial] },
+    };
+
+    const baseArgs = {
+      uid: mockUid,
+      offeringConfigId: mockOfferingConfigId,
+      countryCode: mockCountryCode,
+      interval: mockInterval,
+      eligibilityStatus: EligibilityStatus.CREATE,
+    };
+
+    it('returns null when eligibilityStatus is UPGRADE', async () => {
+      const result = await checkoutService.getFreeTrialEligibility({
+        ...baseArgs,
+        eligibilityStatus: EligibilityStatus.UPGRADE,
+      });
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when Nimbus returns null', async () => {
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(null);
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest
+        .spyOn(productConfigurationManager, 'getFreeTrial')
+        .mockResolvedValue(mockFreeTrialUtil as any);
+
+      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when Nimbus flag is disabled', async () => {
+      jest.spyOn(nimbusManager, 'fetchExperiments').mockResolvedValue({
+        ...mockNimbusResult,
+        Features: {
+          ...mockNimbusResult.Features,
+          'free-trial-feature': { enabled: false },
+        },
+      });
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest
+        .spyOn(productConfigurationManager, 'getFreeTrial')
+        .mockResolvedValue(mockFreeTrialUtil as any);
+
+      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when no Strapi free trial config exists', async () => {
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockNimbusResult);
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest.spyOn(productConfigurationManager, 'getFreeTrial').mockResolvedValue({
+        getResult: jest.fn().mockReturnValue(undefined),
+        freeTrial: { freeTrials: [] },
+      } as any);
+
+      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when country not in config countries', async () => {
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockNimbusResult);
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest
+        .spyOn(productConfigurationManager, 'getFreeTrial')
+        .mockResolvedValue(mockFreeTrialUtil as any);
+
+      const result = await checkoutService.getFreeTrialEligibility({
+        ...baseArgs,
+        countryCode: 'DE',
+      });
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when interval not in config intervals', async () => {
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockNimbusResult);
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest
+        .spyOn(productConfigurationManager, 'getFreeTrial')
+        .mockResolvedValue(mockFreeTrialUtil as any);
+
+      const result = await checkoutService.getFreeTrialEligibility({
+        ...baseArgs,
+        interval: 'yearly' as SubplatInterval,
+      });
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when trialLengthDays is 0', async () => {
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockNimbusResult);
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest.spyOn(productConfigurationManager, 'getFreeTrial').mockResolvedValue({
+        getResult: jest.fn().mockReturnValue([
+          { ...mockFreeTrial, trialLengthDays: 0 },
+        ]),
+        freeTrial: { freeTrials: [{ ...mockFreeTrial, trialLengthDays: 0 }] },
+      } as any);
+
+      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when cooldown has not elapsed', async () => {
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockNimbusResult);
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest
+        .spyOn(productConfigurationManager, 'getFreeTrial')
+        .mockResolvedValue(mockFreeTrialUtil as any);
+      jest
+        .spyOn(freeTrialManager, 'isCooldownElapsed')
+        .mockResolvedValue(false);
+
+      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(result).toBeNull();
+    });
+
+    it('returns the FreeTrial object when all criteria pass', async () => {
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockNimbusResult);
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest
+        .spyOn(productConfigurationManager, 'getFreeTrial')
+        .mockResolvedValue(mockFreeTrialUtil as any);
+      jest
+        .spyOn(freeTrialManager, 'isCooldownElapsed')
+        .mockResolvedValue(true);
+
+      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(result).toEqual(mockFreeTrial);
     });
   });
 });
