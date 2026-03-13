@@ -60,6 +60,7 @@ export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
   readonly id: string;
   readonly uid?: string;
   currency: string;
+  trialDays?: number;
 };
 
 export type FromPrice = {

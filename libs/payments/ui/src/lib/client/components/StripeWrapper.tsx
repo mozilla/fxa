@@ -119,6 +119,7 @@ interface StripeWrapperProps {
       walletType?: string;
     };
     hasActiveSubscriptions?: boolean;
+    trialDays?: number;
   };
   children: React.ReactNode;
   locale: string;
@@ -143,12 +144,15 @@ export function StripeWrapper({
   const minCharge = STRIPE_MINIMUM_CHARGE_AMOUNTS[normalizedCurrency];
   const isBelowMin = amount < minCharge;
 
+  const isTrial = cart.trialDays && cart.trialDays > 0;
+
   const options: StripeElementsOptions = {
     ...sharedOptions,
-    mode: isBelowMin ? 'setup' : 'subscription',
+    mode: isBelowMin || isTrial ? 'setup' : 'subscription',
     locale: isStripeElementLocale(locale) ? locale : 'auto',
-    amount: isBelowMin ? undefined : amount,
+    amount: isBelowMin || isTrial ? undefined : amount,
     currency: normalizedCurrency,
+    ...(isTrial && { setupFutureUsage: 'off_session' }),
     externalPaymentMethodTypes: ['external_paypal'],
     customerSessionClientSecret: initialSessionSecret,
   };
