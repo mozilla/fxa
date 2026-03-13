@@ -123,6 +123,7 @@ const MESSAGE = {
   reminderLength: 14,
   secondaryEmail: 'secondary@email.com',
   serviceLastActiveDate: new Date(1587339098816), // 04/19/2020
+  trialEnd: new Date(1587339098816), // 04/19/2020
   showChurn: false,
   subscription: {
     productName: 'Cooking with Foxkeh',
@@ -1259,6 +1260,98 @@ const TESTS: [string, any, Record<string, any>?][] = [
           'product:cancellationSurveyURL':
             SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM,
         },
+      }),
+    },
+  ],
+
+  [
+    'subscriptionCancellationEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `Your ${MESSAGE.productName} subscription has been canceled`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue('subscriptionCancellation'),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionCancellation' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionCancellation,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'include', expected: 'Sorry to see you go' },
+          {
+            test: 'include',
+            expected: `free trial of ${MESSAGE.productName} has been canceled`,
+          },
+          {
+            test: 'include',
+            expected: `Your access will end on 04/19/2020`,
+          },
+          { test: 'include', expected: 'You will not be charged' },
+          {
+            test: 'notInclude',
+            expected: `billing period`,
+          },
+          { test: 'notInclude', expected: 'utm_source=email' },
+        ],
+      ],
+      [
+        'text',
+        [
+          {
+            test: 'include',
+            expected: `Your ${MESSAGE.productName} free trial has been canceled`,
+          },
+          { test: 'include', expected: 'Sorry to see you go' },
+          {
+            test: 'include',
+            expected: `free trial of ${MESSAGE.productName} has been canceled`,
+          },
+          {
+            test: 'include',
+            expected: `Your access will end on 04/19/2020`,
+          },
+          { test: 'include', expected: 'You will not be charged' },
+          {
+            test: 'notInclude',
+            expected: `billing period`,
+          },
+          {
+            test: 'notInclude',
+            expected: `Your ${MESSAGE.productName} subscription has been canceled`,
+          },
+          { test: 'notInclude', expected: 'utm_source=email' },
+        ],
+      ],
+    ]),
+    {
+      updateTemplateValues: (x) => ({
+        ...x,
+        isFreeTrialCancellation: true,
+        showOutstandingBalance: false,
+        cancelAtEnd: false,
       }),
     },
   ],

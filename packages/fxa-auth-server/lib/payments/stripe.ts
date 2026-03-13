@@ -3301,6 +3301,13 @@ export class StripeHelper extends StripeHelperBase {
       created: invoiceDate,
     } = upcomingInvoiceWithInvoiceItem || invoice;
 
+    const isFreeTrialCancellation =
+      subscription.trial_start != null &&
+      subscription.trial_end != null &&
+      subscription.canceled_at != null &&
+      subscription.canceled_at >= subscription.trial_start &&
+      subscription.canceled_at <= subscription.trial_end;
+
     return {
       updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
       email,
@@ -3314,6 +3321,10 @@ export class StripeHelper extends StripeHelperBase {
       invoiceTotalCurrency,
       serviceLastActiveDate: new Date(serviceLastActiveDate * 1000),
       showOutstandingBalance: !!upcomingInvoiceWithInvoiceItem,
+      isFreeTrialCancellation,
+      ...(isFreeTrialCancellation && subscription.trial_end
+        ? { trialEnd: new Date(subscription.trial_end * 1000) }
+        : {}),
       productMetadata,
       planConfig,
     };

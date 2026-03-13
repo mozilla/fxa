@@ -1095,6 +1095,13 @@ export class StripeWebhookHandler extends StripeHandler {
         // If invoice is open or draft, assume there is an oustanding balance
         const showOutstandingBalance =
           invoiceStatus && ['open', 'draft'].includes(invoiceStatus);
+        const isFreeTrialCancellation =
+          subscription.trial_start != null &&
+          subscription.trial_end != null &&
+          subscription.canceled_at != null &&
+          subscription.canceled_at >= subscription.trial_start &&
+          subscription.canceled_at <= subscription.trial_end;
+
         await this.mailer.sendSubscriptionCancellationEmail(
           account.emails,
           account,
@@ -1103,6 +1110,10 @@ export class StripeWebhookHandler extends StripeHandler {
             ...invoiceDetails,
             showOutstandingBalance,
             cancelAtEnd: subscription.cancel_at_period_end,
+            isFreeTrialCancellation,
+            ...(isFreeTrialCancellation && subscription.trial_end
+              ? { trialEnd: new Date(subscription.trial_end * 1000) }
+              : {}),
             email: account.primaryEmail,
           }
         );

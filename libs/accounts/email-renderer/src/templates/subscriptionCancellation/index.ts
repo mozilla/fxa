@@ -13,10 +13,12 @@ export type TemplateData = CancellationSurveyTemplateData & {
   cancellationSurveryUrl?: string;
   showOutstandingBalance: boolean;
   cancelAtEnd: boolean;
+  isFreeTrialCancellation: boolean;
+  trialEndDateOnly?: string;
 };
 
 export const template = 'subscriptionCancellation';
-export const version = 3;
+export const version = 4;
 export const layout = 'subscription';
 export const includes = {
   subject: {
