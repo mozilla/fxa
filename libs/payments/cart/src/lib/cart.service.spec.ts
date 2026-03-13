@@ -94,6 +94,8 @@ import {
 import { CartManager } from './cart.manager';
 import { CartService } from './cart.service';
 import { CheckoutService } from './checkout.service';
+import { FreeTrialManager } from './free-trial.manager';
+import { MockFreeTrialConfigProvider } from './free-trial.config';
 import {
   CartError,
   CartCouldNotRetrievePriceForCurrencyWhenAttemptingToGetCartCartError,
@@ -199,6 +201,8 @@ describe('CartService', () => {
         CustomerSessionManager,
         EligibilityManager,
         EligibilityService,
+        FreeTrialManager,
+        MockFreeTrialConfigProvider,
         AppleIapPurchaseManager,
         AppleIapClient,
         MockAppleIapClientConfigProvider,
