@@ -5,7 +5,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import { SubscriptionParams } from '@fxa/payments/ui';
+import { GleanRetentionResult, SubscriptionParams } from '@fxa/payments/ui';
 import { determineStaySubscribedEligibilityAction } from '@fxa/payments/ui/actions';
 import { ChurnError } from '@fxa/payments/ui/server';
 import { auth } from 'apps/payments/next/auth';
@@ -74,12 +74,22 @@ export default async function LoyaltyDiscountStaySubscribedErrorPage({
   const { cmsOfferingContent, reason } = churnStaySubscribedEligibility;
 
   return (
-    <ChurnError
-      cmsOfferingContent={cmsOfferingContent}
-      locale={locale}
-      reason={reason ?? 'general_error'}
-      pageContent={pageContent.staySubscribedContent}
-      subscriptionId={subscriptionId}
-    />
+    <>
+      <GleanRetentionResult
+        metricsEnabled={session?.user?.metricsEnabled ?? true}
+        eventType="retention_flow"
+        flowType="stay"
+        eligibilityStatus="not_eligible"
+        outcome="error"
+        errorReason={reason ?? 'general_error'}
+      />
+      <ChurnError
+        cmsOfferingContent={cmsOfferingContent}
+        locale={locale}
+        reason={reason ?? 'general_error'}
+        pageContent={pageContent.staySubscribedContent}
+        subscriptionId={subscriptionId}
+      />
+    </>
   );
 }

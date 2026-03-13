@@ -9,9 +9,10 @@ import * as Form from '@radix-ui/react-form';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import type { ErrorReason, Interval } from '@fxa/payments/metrics/client';
 import {
   getNextChargeChurnContent,
   ButtonVariant,
@@ -24,9 +25,11 @@ import {
 import spinner from '@fxa/shared/assets/images/spinner.svg';
 import newWindowIcon from '@fxa/shared/assets/images/new-window.svg';
 import { LinkExternal } from '@fxa/shared/react';
+import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 
 interface ChurnStaySubscribedProps {
   uid: string;
+  metricsEnabled: boolean;
   subscriptionId: string;
   locale: string;
   reason: string;
@@ -67,6 +70,7 @@ interface ChurnStaySubscribedProps {
 
 export function ChurnStaySubscribed({
   uid,
+  metricsEnabled,
   subscriptionId,
   locale,
   reason,
@@ -79,6 +83,7 @@ export function ChurnStaySubscribed({
   const [showResubscribeActionError, setResubscribeActionError] =
     useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const glean = useGleanMetrics(metricsEnabled);
   const params = useParams();
   const searchParams = useSearchParams();
   const {
@@ -89,6 +94,28 @@ export function ChurnStaySubscribed({
     modalMessage,
     productPageUrl,
   } = cmsChurnInterventionEntry || {};
+
+  const retentionFlowBase = useMemo(
+    () => ({
+      flowType: 'stay' as const,
+      eligibilityStatus: 'stay' as const,
+      offeringId: apiIdentifier,
+      interval: interval as Interval,
+      entrypoint: searchParams.get('entrypoint') ?? undefined,
+      utmSource: searchParams.get('utm_source') ?? undefined,
+      utmMedium: searchParams.get('utm_medium') ?? undefined,
+      utmCampaign: searchParams.get('utm_campaign') ?? undefined,
+      nimbusUserId: searchParams.get('nimbus_user_id') ?? undefined,
+    }),
+    [apiIdentifier, interval, searchParams]
+  );
+
+  useEffect(() => {
+    glean.recordRetentionFlow({
+      ...retentionFlowBase,
+      step: 'view',
+    });
+  }, []); // eslint-disable-line
 
   const { successActionButtonUrl } = cmsOfferingContent || {};
   const goToProductUrl = productPageUrl ?? successActionButtonUrl;
@@ -110,8 +137,20 @@ export function ChurnStaySubscribed({
   async function churnStaySubscribed() {
     if (loading) return;
 
+    glean.recordRetentionFlow({
+      ...retentionFlowBase,
+      step: 'engage',
+      action: 'redeem_coupon',
+    });
+
     setLoading(true);
     setResubscribeActionError(false);
+
+    glean.recordRetentionFlow({
+      ...retentionFlowBase,
+      step: 'submit',
+      action: 'redeem_coupon',
+    });
 
     try {
       const result = await redeemChurnCouponAction(
@@ -124,14 +163,34 @@ export function ChurnStaySubscribed({
       );
 
       if (result.redeemed) {
+        glean.recordRetentionFlow({
+          ...retentionFlowBase,
+          step: 'result',
+          action: 'redeem_coupon',
+          outcome: 'redeem_success',
+        });
         // TODO: This is a workaround to match existing legacy behavior.
         // Fix as part of redesign
         setShowSuccess(true);
         await new Promise((resolve) => setTimeout(resolve, 500));
       } else {
+        glean.recordRetentionFlow({
+          ...retentionFlowBase,
+          step: 'result',
+          action: 'redeem_coupon',
+          outcome: 'error',
+          errorReason: result.reason as ErrorReason,
+        });
         setResubscribeActionError(true);
       }
     } catch {
+      glean.recordRetentionFlow({
+        ...retentionFlowBase,
+        step: 'result',
+        action: 'redeem_coupon',
+        outcome: 'error',
+        errorReason: 'unexpected_exception',
+      });
       setResubscribeActionError(true);
     } finally {
       setLoading(false);
@@ -143,16 +202,52 @@ export function ChurnStaySubscribed({
       return;
     }
 
+    glean.recordRetentionFlow({
+      ...retentionFlowBase,
+      step: 'engage',
+      action: 'stay_subscribed',
+    });
+
     setLoading(true);
     setResubscribeActionError(false);
 
-    const result = await resubscribeSubscriptionAction(uid, subscriptionId);
-    if (result.ok) {
-      // TODO: This is a workaround to match existing legacy behavior.
-      // Fix as part of redesign
-      setShowSuccess(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    } else {
+    glean.recordRetentionFlow({
+      ...retentionFlowBase,
+      step: 'submit',
+      action: 'stay_subscribed',
+    });
+
+    try {
+      const result = await resubscribeSubscriptionAction(uid, subscriptionId);
+      if (result.ok) {
+        glean.recordRetentionFlow({
+          ...retentionFlowBase,
+          step: 'result',
+          action: 'stay_subscribed',
+          outcome: 'stay_subscribed_success',
+        });
+        // TODO: This is a workaround to match existing legacy behavior.
+        // Fix as part of redesign
+        setShowSuccess(true);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      } else {
+        glean.recordRetentionFlow({
+          ...retentionFlowBase,
+          step: 'result',
+          action: 'stay_subscribed',
+          outcome: 'error',
+          errorReason: 'operation_denied',
+        });
+        setResubscribeActionError(true);
+      }
+    } catch {
+      glean.recordRetentionFlow({
+        ...retentionFlowBase,
+        step: 'result',
+        action: 'stay_subscribed',
+        outcome: 'error',
+        errorReason: 'unexpected_exception',
+      });
       setResubscribeActionError(true);
     }
     setLoading(false);

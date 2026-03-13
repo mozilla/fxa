@@ -17,7 +17,7 @@ import {
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { config } from 'apps/payments/next/config';
 import { Metadata } from 'next';
-import { buildRedirectUrl } from '@fxa/payments/ui';
+import { buildRedirectUrl, GleanRetentionResult } from '@fxa/payments/ui';
 import { redirect } from 'next/navigation';
 
 // forces dynamic rendering
@@ -86,8 +86,24 @@ export default async function UpgradeError({
     redirect(redirectTo);
   }
 
+  const isCancelInterstitialOffer =
+    searchParams?.['entrypoint'] === 'subscription-management';
+
   return (
     <>
+      {isCancelInterstitialOffer && (
+        <GleanRetentionResult
+          metricsEnabled={session?.user?.metricsEnabled ?? true}
+          eventType="interstitial_offer"
+          flowType="cancel"
+          eligibilityStatus="offer"
+          outcome="error"
+          action="offer"
+          errorReason={cart.errorReasonId ?? 'general_error'}
+          offeringId={params.offeringId}
+          interval={params.interval}
+        />
+      )}
       <section
         className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
         aria-labelledby="page-information-heading"

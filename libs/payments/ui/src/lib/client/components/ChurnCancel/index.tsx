@@ -9,9 +9,10 @@ import * as Form from '@radix-ui/react-form';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import type { ErrorReason, Interval } from '@fxa/payments/metrics/client';
 import {
   getNextChargeChurnContent,
   AlreadyCanceling,
@@ -26,9 +27,11 @@ import spinner from '@fxa/shared/assets/images/spinner.svg';
 import newWindowIcon from '@fxa/shared/assets/images/new-window.svg';
 import { getLocalizedDateString } from '@fxa/shared/l10n';
 import { LinkExternal } from '@fxa/shared/react';
+import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 
 interface ChurnCancelProps {
   uid: string;
+  metricsEnabled: boolean;
   subscriptionId: string;
   locale: string;
   reason: string;
@@ -70,6 +73,7 @@ interface ChurnCancelProps {
 
 export function ChurnCancel({
   uid,
+  metricsEnabled,
   subscriptionId,
   locale,
   reason,
@@ -83,7 +87,7 @@ export function ChurnCancel({
     useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCancelSuccess, setShowCancelSuccess] = useState(false);
-
+  const glean = useGleanMetrics(metricsEnabled);
   const params = useParams();
   const searchParams = useSearchParams();
   const {
@@ -94,6 +98,28 @@ export function ChurnCancel({
     modalMessage,
     productPageUrl,
   } = cmsChurnInterventionEntry || {};
+
+  const retentionFlowBase = useMemo(
+    () => ({
+      flowType: 'cancel' as const,
+      eligibilityStatus: 'cancel' as const,
+      offeringId: apiIdentifier,
+      interval: interval as Interval,
+      entrypoint: searchParams.get('entrypoint') ?? undefined,
+      utmSource: searchParams.get('utm_source') ?? undefined,
+      utmMedium: searchParams.get('utm_medium') ?? undefined,
+      utmCampaign: searchParams.get('utm_campaign') ?? undefined,
+      nimbusUserId: searchParams.get('nimbus_user_id') ?? undefined,
+    }),
+    [apiIdentifier, interval, searchParams]
+  );
+
+  useEffect(() => {
+    glean.recordRetentionFlow({
+      ...retentionFlowBase,
+      step: 'view',
+    });
+  }, []); // eslint-disable-line
 
   const { successActionButtonUrl } = cmsOfferingContent || {};
   const goToProductUrl = productPageUrl ?? successActionButtonUrl;
@@ -122,8 +148,20 @@ export function ChurnCancel({
     e.preventDefault();
     if (loading) return;
 
+    glean.recordRetentionFlow({
+      ...retentionFlowBase,
+      step: 'engage',
+      action: 'redeem_coupon',
+    });
+
     setLoading(true);
     setResubscribeActionError(false);
+
+    glean.recordRetentionFlow({
+      ...retentionFlowBase,
+      step: 'submit',
+      action: 'redeem_coupon',
+    });
 
     try {
       const result = await redeemChurnCouponAction(
@@ -136,14 +174,34 @@ export function ChurnCancel({
       );
 
       if (result.redeemed) {
+        glean.recordRetentionFlow({
+          ...retentionFlowBase,
+          step: 'result',
+          action: 'redeem_coupon',
+          outcome: 'redeem_success',
+        });
         // TODO: This is a workaround to match existing legacy behavior.
         // Fix as part of redesign
         setShowSuccess(true);
         await new Promise((resolve) => setTimeout(resolve, 500));
       } else {
+        glean.recordRetentionFlow({
+          ...retentionFlowBase,
+          step: 'result',
+          action: 'redeem_coupon',
+          outcome: 'error',
+          errorReason: result.reason as ErrorReason,
+        });
         setResubscribeActionError(true);
       }
     } catch {
+      glean.recordRetentionFlow({
+        ...retentionFlowBase,
+        step: 'result',
+        action: 'redeem_coupon',
+        outcome: 'error',
+        errorReason: 'unexpected_exception',
+      });
       setResubscribeActionError(true);
     } finally {
       setLoading(false);
@@ -153,8 +211,20 @@ export function ChurnCancel({
   async function cancelSubscriptionAtPeriodEnd() {
     if (cancelLoading) return;
 
+    glean.recordRetentionFlow({
+      ...retentionFlowBase,
+      step: 'engage',
+      action: 'cancel_subscription',
+    });
+
     setCancelLoading(true);
     setResubscribeActionError(false);
+
+    glean.recordRetentionFlow({
+      ...retentionFlowBase,
+      step: 'submit',
+      action: 'cancel_subscription',
+    });
 
     try {
       const result = await cancelSubscriptionAtPeriodEndAction(
@@ -163,14 +233,34 @@ export function ChurnCancel({
       );
 
       if (result.ok) {
+        glean.recordRetentionFlow({
+          ...retentionFlowBase,
+          step: 'result',
+          action: 'cancel_subscription',
+          outcome: 'customer_canceled',
+        });
         // TODO: This is a workaround to match existing legacy behavior.
         // Fix as part of redesign
         setShowCancelSuccess(true);
         await new Promise((resolve) => setTimeout(resolve, 500)); // optional: match legacy feel
       } else {
+        glean.recordRetentionFlow({
+          ...retentionFlowBase,
+          step: 'result',
+          action: 'cancel_subscription',
+          outcome: 'error',
+          errorReason: 'operation_denied',
+        });
         setResubscribeActionError(true);
       }
     } catch {
+      glean.recordRetentionFlow({
+        ...retentionFlowBase,
+        step: 'result',
+        action: 'cancel_subscription',
+        outcome: 'error',
+        errorReason: 'unexpected_exception',
+      });
       setResubscribeActionError(true);
     } finally {
       setCancelLoading(false);

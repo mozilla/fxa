@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ResultCart } from '@fxa/payments/cart';
-import { SubplatInterval } from '@fxa/payments/customer';
+import type { ResultCart } from '@fxa/payments/cart';
+import type { SubplatInterval } from '@fxa/payments/customer';
 
 export const CheckoutTypes = [
   'new_account',
@@ -12,7 +12,7 @@ export const CheckoutTypes = [
   'unknown',
 ] as const;
 export type CheckoutTypesType = (typeof CheckoutTypes)[number];
-import { type TaxAddress } from '@fxa/payments/customer';
+import type { TaxAddress } from '@fxa/payments/customer';
 
 export const PaymentProvidersTypePartial = [
   'stripe',
@@ -118,27 +118,24 @@ export type PaymentsGleanServerEventsLoggerTester = {
   recordSubscriptionEnded: (data: any) => void;
 };
 
-export type PageName =
-  | 'management'
-  | 'stay_standard'
-  | 'stay_retention'
-  | 'cancel_standard'
-  | 'cancel_retention'
-  | 'interstitial_offer';
-
-export type PageVariant =
-  | 'stay_standard_success'
-  | 'stay_retention_success'
-  | 'cancel_standard_success'
-  | 'cancel_retention_success'
-  | 'interstitial_offer_success';
+export type PageName = 'management' | 'payment_method';
 
 export type Entrypoint = 'email' | 'internal_nav' | 'subscription-management';
 export type EligibilityStatus = 'cancel' | 'stay' | 'offer' | 'not_eligible';
 export type FlowType = 'cancel' | 'stay';
 export type Step = 'view' | 'engage' | 'submit' | 'result';
-export type Action = 'redeem_coupon' | 'cancel_subscription' | 'stay_subscribed' | 'upgrade' | 'keep_subscription';
-export type Outcome = 'redeem_success' | 'customer_canceled' | 'stay_subscribed_success' | 'error';
+export type Action =
+  | 'redeem_coupon'
+  | 'cancel_subscription'
+  | 'stay_subscribed'
+  | 'offer'
+  | 'keep_subscription';
+export type Outcome =
+  | 'redeem_success'
+  | 'customer_canceled'
+  | 'stay_subscribed_success'
+  | 'offer_success'
+  | 'error';
 
 export type ErrorReason =
   | 'customer_mismatch'
@@ -156,10 +153,7 @@ export type Interval = SubplatInterval;
 
 export type PageMetricsData = {
   pageName: PageName;
-  pageVariant?: PageVariant;
   entrypoint?: Entrypoint;
-  offeringId?: string;
-  interval?: Interval;
 };
 
 export type RetentionFlowEventMetricsData = {

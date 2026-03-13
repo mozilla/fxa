@@ -3,15 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Glean from '@mozilla/glean/web';
-import { Injectable } from '@nestjs/common';
 import * as subscriptions from './__generated__/subscriptions';
-import { PaymentsGleanClientConfig } from './glean.config';
+import type { PaymentsGleanClientConfig } from './glean.config';
 import type {
   PageMetricsData,
   RetentionFlowEventMetricsData,
 } from './glean.types';
 
-@Injectable()
 export class PaymentsGleanClientManager {
   private initialized = false;
 
@@ -79,10 +77,7 @@ export class PaymentsGleanClientManager {
   private mapPageViewToGlean(pageMetrics: PageMetricsData) {
     return {
       page_name: pageMetrics.pageName,
-      page_variant: pageMetrics.pageVariant ?? '',
       entrypoint: pageMetrics.entrypoint ?? '',
-      offering_id: pageMetrics.offeringId ?? '',
-      interval: pageMetrics.interval ?? '',
     };
   }
 

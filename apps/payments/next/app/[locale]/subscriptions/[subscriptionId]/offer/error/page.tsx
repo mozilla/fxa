@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { GleanRetentionResult } from '@fxa/payments/ui';
 import { getApp } from '@fxa/payments/ui/server';
 import { getInterstitialOfferContentAction } from '@fxa/payments/ui/actions';
 import { LinkExternal } from '@fxa/shared/react';
@@ -169,57 +170,66 @@ export default async function InterstitialOfferErrorPage({
 
   const { heading, message, primaryButton, secondaryButton } =
     getErrorContent(reason);
-
   return (
-    <section
-      className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
-      aria-labelledby="error-heading"
-    >
-      <div className="w-full max-w-[480px] flex flex-col justify-center items-center p-10 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
-        <div className="w-full flex flex-col items-center gap-6 text-center">
-          {webIcon && (
-            <Image
-              src={webIcon}
-              alt={productName ?? ''}
-              height={64}
-              width={64}
-            />
-          )}
-          <h1
-            id="error-heading"
-            className="font-bold self-stretch text-center font-header text-xl leading-8"
-          >
-            {heading}
-          </h1>
-          <p className="w-full self-stretch leading-7 text-lg text-grey-900 text-center tablet:text-start">
-            {message}
-          </p>
+    <>
+      <GleanRetentionResult
+        metricsEnabled={session?.user?.metricsEnabled ?? true}
+        eventType="interstitial_offer"
+        flowType="cancel"
+        eligibilityStatus="not_eligible"
+        outcome="error"
+        errorReason={reason}
+      />
+      <section
+        className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
+        aria-labelledby="error-heading"
+      >
+        <div className="w-full max-w-[480px] flex flex-col justify-center items-center p-10 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+          <div className="w-full flex flex-col items-center gap-6 text-center">
+            {webIcon && (
+              <Image
+                src={webIcon}
+                alt={productName ?? ''}
+                height={64}
+                width={64}
+              />
+            )}
+            <h1
+              id="error-heading"
+              className="font-bold self-stretch text-center font-header text-xl leading-8"
+            >
+              {heading}
+            </h1>
+            <p className="w-full self-stretch leading-7 text-lg text-grey-900 text-center tablet:text-start">
+              {message}
+            </p>
+          </div>
+          <div className="w-full flex flex-col gap-3 mt-10">
+            <Link
+              className="border box-border font-header h-14 items-center justify-center rounded-md text-white text-center font-bold py-4 px-6 bg-blue-500 hover:bg-blue-700 flex w-full"
+              href={primaryButton.href}
+            >
+              {primaryButton.label}
+            </Link>
+            {secondaryButton &&
+              (secondaryButton.isExternal ? (
+                <LinkExternal
+                  className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
+                  href={secondaryButton.href}
+                >
+                  {secondaryButton.label}
+                </LinkExternal>
+              ) : (
+                <Link
+                  className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
+                  href={secondaryButton.href}
+                >
+                  <span>{secondaryButton.label}</span>
+                </Link>
+              ))}
+          </div>
         </div>
-        <div className="w-full flex flex-col gap-3 mt-10">
-          <Link
-            className="border box-border font-header h-14 items-center justify-center rounded-md text-white text-center font-bold py-4 px-6 bg-blue-500 hover:bg-blue-700 flex w-full"
-            href={primaryButton.href}
-          >
-            {primaryButton.label}
-          </Link>
-          {secondaryButton &&
-            (secondaryButton.isExternal ? (
-              <LinkExternal
-                className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
-                href={secondaryButton.href}
-              >
-                {secondaryButton.label}
-              </LinkExternal>
-            ) : (
-              <Link
-                className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
-                href={secondaryButton.href}
-              >
-                <span>{secondaryButton.label}</span>
-              </Link>
-            ))}
-        </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

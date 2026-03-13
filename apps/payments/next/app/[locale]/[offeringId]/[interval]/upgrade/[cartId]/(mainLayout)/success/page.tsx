@@ -8,7 +8,11 @@ import { Metadata } from 'next';
 import { auth } from 'apps/payments/next/auth';
 
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
-import { buildRedirectUrl, getCardIcon } from '@fxa/payments/ui';
+import {
+  buildRedirectUrl,
+  getCardIcon,
+  GleanRetentionResult,
+} from '@fxa/payments/ui';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
@@ -91,8 +95,23 @@ export default async function UpgradeSuccess({
   const { successActionButtonUrl, successActionButtonLabel } =
     cms.commonContent.localizations.at(0) || cms.commonContent;
 
+  const isCancelInterstitialOffer =
+    searchParams?.['entrypoint'] === 'subscription-management';
+
   return (
     <>
+      {isCancelInterstitialOffer && (
+        <GleanRetentionResult
+          metricsEnabled={session?.user?.metricsEnabled ?? true}
+          eventType="interstitial_offer"
+          flowType="cancel"
+          eligibilityStatus="offer"
+          outcome="offer_success"
+          action="offer"
+          offeringId={params.offeringId}
+          interval={params.interval}
+        />
+      )}
       <section
         className="h-[640px]"
         aria-labelledby="subscription-confirmation-heading"

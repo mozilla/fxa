@@ -72,6 +72,7 @@ export default async function InterstitialOfferPage({
   return (
     <InterstitialOffer
       uid={uid}
+      metricsEnabled={session?.user?.metricsEnabled ?? true}
       locale={locale}
       subscriptionId={subscriptionId}
       pageContent={interstitialOfferContent.pageContent}

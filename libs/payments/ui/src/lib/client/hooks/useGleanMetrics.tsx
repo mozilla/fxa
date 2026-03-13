@@ -7,32 +7,17 @@
 import { useContext, useMemo } from 'react';
 import {
   PaymentsGleanClientManager,
-  type PaymentsGleanClientConfig,
   type PageMetricsData,
   type RetentionFlowEventMetricsData,
 } from '@fxa/payments/metrics/client';
 import { ConfigContext } from '../providers/ConfigProvider';
-
-function toGleanClientConfig(config: {
-  enabled: boolean;
-  applicationId: string;
-  version: string;
-  channel: string;
-}): PaymentsGleanClientConfig {
-  return {
-    enabled: config.enabled,
-    applicationId: config.applicationId,
-    version: config.version,
-    channel: config.channel,
-  } as PaymentsGleanClientConfig;
-}
 
 export function useGleanMetrics(metricsEnabled: boolean) {
   const { glean } = useContext(ConfigContext);
 
   const manager = useMemo(() => {
     if (!metricsEnabled || !glean) return null;
-    return new PaymentsGleanClientManager(toGleanClientConfig(glean));
+    return new PaymentsGleanClientManager(glean);
   }, [metricsEnabled, glean]);
 
   return useMemo(
