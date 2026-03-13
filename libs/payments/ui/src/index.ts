@@ -17,6 +17,7 @@ export * from './lib/client/components/ChurnCancel';
 export * from './lib/client/components/ChurnStaySubscribed';
 export * from './lib/client/components/CouponForm';
 export * from './lib/client/components/GleanPageView';
+export * from './lib/client/components/GleanRetentionResult';
 export * from './lib/client/components/Header';
 export * from './lib/client/components/InterstitialOffer';
 export * from './lib/client/components/LoadingSpinner';
