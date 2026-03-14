@@ -239,3 +239,15 @@ export const CmsCachedCachedPage = storyWithProps(
   },
   'CMS > Regular layout > Cached'
 );
+export const CmsCachedNoCachedPageConfig = storyWithProps(
+  {
+    sessionToken: MOCK_SESSION_TOKEN,
+    integration: createMockSigninOAuthIntegration({
+      cmsInfo: {
+        ...MOCK_CMS_INFO,
+        SigninCachedPage: undefined,
+      },
+    }),
+  },
+  'CMS > Regular layout > Cached > No SigninCachedPage config'
+);

@@ -1784,17 +1784,22 @@ describe('Signin component', () => {
         ).toBeInTheDocument();
       });
 
-      it('falls back to SigninPage CMS config when SigninCachedPage is not set', () => {
+      it('falls back to headingText when SigninCachedPage is not set', () => {
         render({
           integration: createMockSigninWebIntegration(cmsProps),
           sessionToken: MOCK_SESSION_TOKEN,
           hasPassword: true,
         });
 
+        // Cached users should not see SigninPage CMS headline
         expect(
-          screen.getByRole('heading', {
+          screen.queryByRole('heading', {
             name: cmsProps.cmsInfo.SigninPage.headline,
           })
+        ).not.toBeInTheDocument();
+        // Should fall back to default headingText
+        expect(
+          screen.getByRole('heading', { name: 'Sign in' })
         ).toBeInTheDocument();
       });
 
