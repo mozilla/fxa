@@ -220,9 +220,11 @@ const CardHeader = (props: CardHeaderProps) => {
           className={getCmsHeadlineClassName(cmsHeadlineFontSize)}
           style={getCmsHeadlineStyle(cmsHeadlineTextColor)}
         >
-          {cmsHeadline}
+          {cmsHeadline || headingText}
         </h1>
-        <p className="card-subheader">{cmsDescription}</p>
+        {cmsDescription && (
+          <p className="card-subheader">{cmsDescription}</p>
+        )}
       </>
     );
   }

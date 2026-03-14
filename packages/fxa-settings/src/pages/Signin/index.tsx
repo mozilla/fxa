@@ -384,9 +384,7 @@ const Signin = ({
   const cmsInfo = integration.getCmsInfo();
   const cachedPageCms = cmsInfo?.SigninCachedPage;
   const signinPageCms = cmsInfo?.SigninPage;
-  // Use cached page config when available and user has cached account, else fall back to SigninPage
-  const activePageCms =
-    !isPasswordNeeded && cachedPageCms ? cachedPageCms : signinPageCms;
+  const activePageCms = hasCachedAccount ? cachedPageCms : signinPageCms;
   const title = activePageCms?.pageTitle;
   const splitLayout = activePageCms?.splitLayout;
   const additionalAccessibilityInfo =
@@ -410,8 +408,8 @@ const Signin = ({
           {...{
             cmsLogoUrl: cmsInfo?.shared.logoUrl,
             cmsLogoAltText: cmsInfo?.shared.logoAltText,
-            cmsHeadline: activePageCms?.headline,
-            cmsDescription: activePageCms?.description,
+            cmsHeadline: signinPageCms?.headline,
+            cmsDescription: signinPageCms?.description,
             cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
             cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
           }}
@@ -427,8 +425,10 @@ const Signin = ({
             serviceName,
             cmsLogoUrl: cmsInfo?.shared.logoUrl,
             cmsLogoAltText: cmsInfo?.shared.logoAltText,
-            cmsHeadline: activePageCms?.headline,
-            cmsDescription: activePageCms?.description,
+            cmsHeadline: (hasCachedAccount ? cachedPageCms : signinPageCms)
+              ?.headline,
+            cmsDescription: (hasCachedAccount ? cachedPageCms : signinPageCms)
+              ?.description,
             cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
             cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
           }}
