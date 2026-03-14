@@ -202,7 +202,14 @@ describe('#integration - Redis', () => {
     let accessToken2: any;
 
     beforeEach(async () => {
-      await redis.redis.flushall();
+      // Scoped cleanup: only delete keys under our prefix, not the entire keyspace.
+      // flushall() would wipe keys from other parallel test workers (e.g., TOTP setup keys).
+      // keys('*') returns fully-prefixed keys, so strip the prefix before del() to avoid
+      // double-prefixing.
+      const keys = await redis.redis.keys('*');
+      if (keys.length) {
+        await redis.redis.del(...keys.map((k: string) => k.replace(prefix, '')));
+      }
       accessToken2 = AccessToken.parse(
         JSON.stringify({
           clientId: '5678',
@@ -467,7 +474,11 @@ describe('#integration - Redis', () => {
     let oldMeta: any;
 
     beforeEach(async () => {
-      await redis.redis.flushall();
+      // Scoped cleanup: only delete keys under our prefix, not the entire keyspace.
+      const keys = await redis.redis.keys('*');
+      if (keys.length) {
+        await redis.redis.del(...keys.map((k: string) => k.replace(prefix, '')));
+      }
       oldMeta = new RefreshTokenMetadata(
         new Date(Date.now() - (maxttl + 1000))
       );
