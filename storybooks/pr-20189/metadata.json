@@ -1,0 +1,10 @@
+{
+  "commit": "1beeb011eb01082f01658fcd2113cbf902df941a",
+  "summary": "fix(settings,ci): Fix CMS page selection for cached signin and Playwright CI failures",
+  "description": "Use hasCachedAccount to select the correct CMS page config (SigninCachedPage\nvs SigninPage) and inline CMS props per CardHeader branch. Add CardHeader\nfallback to headingText when cmsHeadline is undefined. Add ensure-glean-venv\nto playwright-functional-tests CI job to prevent glean-lint failure from\nblocking service startup.",
+  "timestamp": 1773464125000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

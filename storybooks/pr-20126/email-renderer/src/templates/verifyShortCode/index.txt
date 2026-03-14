@@ -1,0 +1,13 @@
+verifyShortCode-title-3 = "Open the internet with Mozilla"
+
+verifyShortCode-title-subtext-2 = "Confirm your account and get the most out of Mozilla everywhere you sign in starting with:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+verifyShortCode-prompt-3 = "Use this confirmation code:"
+<%- code %>
+
+verifyShortCode-expiry-notice = "It expires in 5 minutes."
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+<%- include('/partials/support/index.txt') %>

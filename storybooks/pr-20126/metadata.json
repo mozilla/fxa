@@ -1,0 +1,12 @@
+{
+  "commit": "9766f31061e6f762668dbdada435f7ebda6c3a7a",
+  "summary": "feat(fxa-settings): implement React pairing pages with fullProdRollout and E2E tests",
+  "description": "- Convert all Pair/* pages to React (AuthAllow, AuthComplete, AuthTotp,\n  AuthWaitForSupp, Index, Supp, SuppAllow, Unsupported)\n- Add PairingAuthorityIntegration and PairingSupplicantIntegration models\n- Add pairing WebChannel commands to firefox.ts channel layer\n- Add PairingChannelClient for WebSocket communication\n- Set fullProdRollout: true for pairRoutes in content-server routing\n- Add parameterized desktop E2E tests (React + Backbone variants)\n- Add iOS Simulator E2E test (Marionette authority + XCUITest supplicant)\n- Add failure detection and authority completion verification in tests",
+  "timestamp": 1773426221000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

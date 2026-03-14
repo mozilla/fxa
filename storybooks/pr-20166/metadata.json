@@ -1,0 +1,10 @@
+{
+  "commit": "6b515a687a77a90e5d94941566c247c418bbef57",
+  "summary": "clean up",
+  "description": "",
+  "timestamp": 1773424656000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,13 @@
+<%- locals.headline %>
+
+<%- locals.description %>
+
+<%- include('/partials/userInfo/index.txt') %>
+
+passwordless-signup-otp-code = "Use this confirmation code:"
+
+<%- code %>
+
+passwordless-signup-otp-expiry-notice = "It expires in <%- codeExpiryMinutes %> minutes."
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>

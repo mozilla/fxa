@@ -1,0 +1,10 @@
+{
+  "commit": "10dcd1e1d1cb4a218c0737b10b2f6bc573dd19b4",
+  "summary": "feat(settings): add feature flag for dark mode",
+  "description": "Because:\n\n* dark mode needs to be feature flagged\n\nThis commit:\n\n* adds feature flag for dark mode\n\nCloses FXA-13025",
+  "timestamp": 1773262451000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

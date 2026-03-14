@@ -1,0 +1,10 @@
+{
+  "commit": "13604209e1856b87ece8e5c131fd4222ef3200ec",
+  "summary": "feat(payments-next): Add SubscriptionCancellation email variant with free trial language Because:",
+  "description": "* We need to add a SubscriptionCancellation email variant with free trial language\n\nThis commit:\n\n* Adds a new SubscriptionCancellation email variant stating that the user’s free trial will end. To be sent when a free trial has been cancelled, and is not expected to convert into a paid subscription.\n\nCloses #[PAY-3548](https://mozilla-hub.atlassian.net/browse/PAY-3548)",
+  "timestamp": 1773430145000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

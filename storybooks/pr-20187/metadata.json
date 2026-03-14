@@ -1,0 +1,12 @@
+{
+  "commit": "8b3aff2d4bb28604df012e6e6333147b61801ada",
+  "summary": "chore: update ajv",
+  "description": "",
+  "timestamp": 1773429234000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

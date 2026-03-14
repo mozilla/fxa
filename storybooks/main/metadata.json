@@ -1,0 +1,12 @@
+{
+  "commit": "807c636a4ae60a24f583d883fb61f50567cd145d",
+  "summary": "Merge pull request #20181 from mozilla/dependabot/github_actions/actions/download-artifact-8.0.1",
+  "description": "chore(deps): bump actions/download-artifact from 8.0.0 to 8.0.1",
+  "timestamp": 1773343254000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

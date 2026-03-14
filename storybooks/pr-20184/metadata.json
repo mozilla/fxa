@@ -1,0 +1,10 @@
+{
+  "commit": "5d3037ba3f59784b79a0aa7e00f6507316d30e66",
+  "summary": "fix(emails): Fix user's locale in emails from being overwritten by another user",
+  "description": "",
+  "timestamp": 1773415569000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

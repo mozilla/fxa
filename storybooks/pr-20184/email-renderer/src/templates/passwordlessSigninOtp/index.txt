@@ -1,0 +1,13 @@
+passwordless-signin-otp-title = "Finish your sign in"
+
+passwordless-signin-otp-request = "This email was used to sign in from:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+passwordless-signin-otp-code = "Use this confirmation code:"
+
+<%- code %>
+
+passwordless-signin-otp-expiry-notice = "It expires in <%- codeExpiryMinutes %> minutes."
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>

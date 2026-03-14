@@ -1,0 +1,12 @@
+{
+  "commit": "3b75fdb8a4baedae3fa9c6eceaeadc8f1f7c619b",
+  "summary": "chore(): replace lodash.pick with native code",
+  "description": "",
+  "timestamp": 1773436449000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
