@@ -1324,6 +1324,72 @@ describe('signin container', () => {
         );
       });
     });
+
+    it('passwordless user with valid sessionToken sees cached signin page, not OTP redirect', async () => {
+      // When a passwordless user has a valid cached session (sessionToken in localStorage),
+      // the useEffect should NOT redirect to /signin_passwordless_code.
+      // Instead, the Signin component should render with the cached session.
+      const storedAccount = {
+        ...MOCK_STORED_ACCOUNT,
+        email: MOCK_QUERY_PARAM_EMAIL,
+        sessionToken: MOCK_SESSION_TOKEN,
+      };
+      mockCurrentAccount(storedAccount);
+      mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
+        exists: true,
+        hasLinkedAccount: false,
+        hasPassword: false,
+        passwordlessSupported: true,
+      });
+      mockUseValidateModule({
+        queryParams: {
+          email: MOCK_QUERY_PARAM_EMAIL,
+          isV2: () => false,
+        },
+      });
+      render();
+
+      // The Signin component should render (not redirect to passwordless code)
+      await waitFor(() => {
+        expect(SigninModule.default).toHaveBeenCalled();
+        expect(currentSigninProps?.sessionToken).toBe(MOCK_SESSION_TOKEN);
+      });
+
+      // Should NOT have navigated to passwordless code page
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/signin_passwordless_code',
+        expect.anything()
+      );
+    });
+
+    it('passwordless user without sessionToken redirects to OTP', async () => {
+      const storedAccount = {
+        ...MOCK_STORED_ACCOUNT,
+        email: MOCK_QUERY_PARAM_EMAIL,
+        sessionToken: undefined,
+      };
+      mockCurrentAccount(storedAccount);
+      mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
+        exists: true,
+        hasLinkedAccount: false,
+        hasPassword: false,
+        passwordlessSupported: true,
+      });
+      mockUseValidateModule({
+        queryParams: {
+          email: MOCK_QUERY_PARAM_EMAIL,
+          isV2: () => false,
+        },
+      });
+      render();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/signin_passwordless_code',
+          expect.anything()
+        );
+      });
+    });
   });
 
   describe('cachedSigninHandler', () => {

@@ -868,6 +868,53 @@ describe('IndexContainer', () => {
       });
     });
 
+    it('should redirect cached passwordless account to signin (not OTP) when sessionToken exists', async () => {
+      // When a logged-in passwordless user navigates to `/`, currentAccount()
+      // returns their account with a sessionToken. The IndexContainer skips
+      // the passwordless OTP redirect and sends to /signin for cached login.
+      mockLocationState = {};
+
+      jest.spyOn(cache, 'currentAccount').mockReturnValue({
+        uid: 'abc123',
+        email: 'passwordless@example.com',
+        sessionToken: 'abc123def456',
+        lastLogin: Date.now(),
+      });
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+
+      mockUseValidatedQueryParams.mockReturnValue({
+        queryParamModel: {},
+        validationError: null,
+      });
+
+      mockUseAuthClient.mockReturnValue({
+        accountStatusByEmail: jest.fn().mockResolvedValue({
+          exists: true,
+          hasLinkedAccount: false,
+          hasPassword: false,
+          passwordlessSupported: true,
+        }),
+      });
+
+      renderWithLocalizationProvider(
+        <IndexContainer
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
+        />
+      );
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+      });
+
+      const [calledUrl, options] = mockNavigate.mock.calls[0];
+      expect(calledUrl).toMatch(/\/signin$/);
+      expect(options.state.email).toBe('passwordless@example.com');
+    });
+
     describe('passwordless redirect', () => {
       it('redirects existing passwordless account to passwordless code without feature flag', async () => {
         // When passwordlessSupported=true and hasPassword=false, canUsePasswordlessExisting
