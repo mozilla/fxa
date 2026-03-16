@@ -4,7 +4,7 @@
 import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEnum, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 
 enum GleanChannel {
   Development = 'development',
@@ -51,16 +51,34 @@ export class PaymentsGleanClientConfig {
   @IsString()
   applicationId!: string;
 
+  @Type(() => Boolean)
+  @IsBoolean()
+  uploadEnabled!: boolean;
+
   @IsString()
   version!: string;
 
   @IsEnum(GleanChannel)
   channel!: string;
+
+  @IsOptional()
+  @IsString()
+  serverEndpoint?: string;
+
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  logPings?: boolean;
+
+  @IsOptional()
+  @IsString()
+  debugViewTag?: string;
 }
 
 export const MockPaymentsGleanClientConfig = {
   enabled: true,
   applicationId: faker.string.uuid(),
+  uploadEnabled: true,
   version: '0.0.1',
   channel: GleanChannel.Development,
 } satisfies PaymentsGleanClientConfig;

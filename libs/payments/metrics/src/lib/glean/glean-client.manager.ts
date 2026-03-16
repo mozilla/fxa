@@ -3,15 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Glean from '@mozilla/glean/web';
-import { Injectable } from '@nestjs/common';
 import * as subscriptions from './__generated__/subscriptions';
-import { PaymentsGleanClientConfig } from './glean.config';
+import type { PaymentsGleanClientConfig } from './glean.config';
 import type {
   PageMetricsData,
-  RetentionFlowEventMetricsData,
+  RetentionFlowCommonData,
+  RetentionFlowEngageData,
+  RetentionFlowSubmitData,
+  RetentionFlowResultData,
+  InterstitialOfferCommonData,
+  InterstitialOfferViewData,
+  InterstitialOfferEngageData,
+  InterstitialOfferSubmitData,
+  InterstitialOfferResultData,
 } from './glean.types';
 
-@Injectable()
+function stripUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined)
+  ) as Partial<T>;
+}
+
 export class PaymentsGleanClientManager {
   private initialized = false;
 
@@ -25,12 +37,22 @@ export class PaymentsGleanClientManager {
     try {
       Glean.initialize(
         this.paymentsGleanClientConfig.applicationId,
-        this.isEnabled,
+        this.paymentsGleanClientConfig.uploadEnabled,
         {
           appDisplayVersion: this.paymentsGleanClientConfig.version,
           channel: this.paymentsGleanClientConfig.channel,
+          ...(this.paymentsGleanClientConfig.serverEndpoint && {
+            serverEndpoint: this.paymentsGleanClientConfig.serverEndpoint,
+          }),
         }
       );
+
+      if (this.paymentsGleanClientConfig.logPings) {
+        Glean.setLogPings(this.paymentsGleanClientConfig.logPings);
+      }
+      if (this.paymentsGleanClientConfig.debugViewTag) {
+        Glean.setDebugViewTag(this.paymentsGleanClientConfig.debugViewTag);
+      }
 
       this.initialized = true;
     } catch (err) {
@@ -39,21 +61,57 @@ export class PaymentsGleanClientManager {
   }
 
   recordPageView(args: PageMetricsData) {
-    this.recordWithGlean(() =>
-      subscriptions.pageView.record(this.mapPageViewToGlean(args))
-    );
+    const mapped = this.mapPageViewToGlean(args);
+    this.recordWithGlean(() => subscriptions.pageView.record(mapped));
   }
 
-  recordRetentionFlow(args: RetentionFlowEventMetricsData) {
-    this.recordWithGlean(() =>
-      subscriptions.retentionFlow.record(this.mapRetentionFlowToGlean(args))
-    );
+  recordRetentionFlowView(args: RetentionFlowCommonData) {
+    const mapped = this.mapRetentionFlowToGlean({ ...args, step: 'view' });
+    this.recordWithGlean(() => subscriptions.retentionFlow.record(mapped));
   }
 
-  recordInterstitialOffer(args: RetentionFlowEventMetricsData) {
-    this.recordWithGlean(() =>
-      subscriptions.interstitialOffer.record(this.mapRetentionFlowToGlean(args))
-    );
+  recordRetentionFlowEngage(args: RetentionFlowEngageData) {
+    const mapped = this.mapRetentionFlowToGlean({ ...args, step: 'engage' });
+    this.recordWithGlean(() => subscriptions.retentionFlow.record(mapped));
+  }
+
+  recordRetentionFlowSubmit(args: RetentionFlowSubmitData) {
+    const mapped = this.mapRetentionFlowToGlean({ ...args, step: 'submit' });
+    this.recordWithGlean(() => subscriptions.retentionFlow.record(mapped));
+  }
+
+  recordRetentionFlowResult(args: RetentionFlowResultData) {
+    const mapped = this.mapRetentionFlowToGlean({ ...args, step: 'result' });
+    this.recordWithGlean(() => subscriptions.retentionFlow.record(mapped));
+  }
+
+  recordInterstitialOfferView(args: InterstitialOfferViewData) {
+    const mapped = this.mapInterstitialOfferToGlean({ ...args, step: 'view' });
+    this.recordWithGlean(() => subscriptions.interstitialOffer.record(mapped));
+  }
+
+  recordInterstitialOfferEngage(args: InterstitialOfferEngageData) {
+    const mapped = this.mapInterstitialOfferToGlean({
+      ...args,
+      step: 'engage',
+    });
+    this.recordWithGlean(() => subscriptions.interstitialOffer.record(mapped));
+  }
+
+  recordInterstitialOfferSubmit(args: InterstitialOfferSubmitData) {
+    const mapped = this.mapInterstitialOfferToGlean({
+      ...args,
+      step: 'submit',
+    });
+    this.recordWithGlean(() => subscriptions.interstitialOffer.record(mapped));
+  }
+
+  recordInterstitialOfferResult(args: InterstitialOfferResultData) {
+    const mapped = this.mapInterstitialOfferToGlean({
+      ...args,
+      step: 'result',
+    });
+    this.recordWithGlean(() => subscriptions.interstitialOffer.record(mapped));
   }
 
   private get isEnabled() {
@@ -77,32 +135,57 @@ export class PaymentsGleanClientManager {
   }
 
   private mapPageViewToGlean(pageMetrics: PageMetricsData) {
-    return {
+    return stripUndefined({
       page_name: pageMetrics.pageName,
-      page_variant: pageMetrics.pageVariant ?? '',
-      entrypoint: pageMetrics.entrypoint ?? '',
-      offering_id: pageMetrics.offeringId ?? '',
-      interval: pageMetrics.interval ?? '',
-    };
+      entrypoint: pageMetrics.entrypoint,
+    });
   }
 
   private mapRetentionFlowToGlean(
-    retentionFlowMetrics: RetentionFlowEventMetricsData
+    metrics: RetentionFlowCommonData & {
+      step: string;
+      action?: string;
+      outcome?: string;
+      errorReason?: string;
+    }
   ) {
-    return {
-      flow_type: retentionFlowMetrics.flowType,
-      step: retentionFlowMetrics.step,
-      action: retentionFlowMetrics.action ?? '',
-      outcome: retentionFlowMetrics.outcome ?? '',
-      error_reason: retentionFlowMetrics.errorReason ?? '',
-      offering_id: retentionFlowMetrics.offeringId ?? '',
-      interval: retentionFlowMetrics.interval ?? '',
-      eligibility_status: retentionFlowMetrics.eligibilityStatus ?? '',
-      entrypoint: retentionFlowMetrics.entrypoint ?? '',
-      utm_source: retentionFlowMetrics.utmSource ?? '',
-      utm_medium: retentionFlowMetrics.utmMedium ?? '',
-      utm_campaign: retentionFlowMetrics.utmCampaign ?? '',
-      nimbus_user_id: retentionFlowMetrics.nimbusUserId ?? '',
-    };
+    return stripUndefined({
+      step: metrics.step,
+      flow_type: metrics.flowType,
+      eligibility_status: metrics.eligibilityStatus,
+      action: metrics.action,
+      outcome: metrics.outcome,
+      error_reason: metrics.errorReason,
+      offering_id: metrics.offeringId,
+      interval: metrics.interval,
+      entrypoint: metrics.entrypoint,
+      utm_source: metrics.utmSource,
+      utm_medium: metrics.utmMedium,
+      utm_campaign: metrics.utmCampaign,
+      nimbus_user_id: metrics.nimbusUserId,
+    });
+  }
+
+  private mapInterstitialOfferToGlean(
+    metrics: InterstitialOfferCommonData & {
+      step: string;
+      action?: string;
+      outcome?: string;
+      errorReason?: string;
+    }
+  ) {
+    return stripUndefined({
+      entrypoint: metrics.entrypoint,
+      step: metrics.step,
+      action: metrics.action,
+      outcome: metrics.outcome,
+      error_reason: metrics.errorReason,
+      offering_id: metrics.offeringId,
+      interval: metrics.interval,
+      nimbus_user_id: metrics.nimbusUserId,
+      utm_source: metrics.utmSource,
+      utm_medium: metrics.utmMedium,
+      utm_campaign: metrics.utmCampaign,
+    });
   }
 }

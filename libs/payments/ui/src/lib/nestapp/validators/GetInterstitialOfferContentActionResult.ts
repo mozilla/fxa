@@ -37,6 +37,10 @@ export class PageContent {
   @IsString()
   productName!: string;
 
+  @IsOptional()
+  @IsString()
+  offeringId?: string;
+
   @IsString()
   supportUrl!: string;
 }

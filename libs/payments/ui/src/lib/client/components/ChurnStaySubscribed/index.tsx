@@ -9,9 +9,10 @@ import * as Form from '@radix-ui/react-form';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import { mapErrorReason, type Interval } from '@fxa/payments/metrics/client';
 import {
   getNextChargeChurnContent,
   ButtonVariant,
@@ -24,9 +25,11 @@ import {
 import spinner from '@fxa/shared/assets/images/spinner.svg';
 import newWindowIcon from '@fxa/shared/assets/images/new-window.svg';
 import { LinkExternal } from '@fxa/shared/react';
+import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 
 interface ChurnStaySubscribedProps {
   uid: string;
+  metricsEnabled: boolean;
   subscriptionId: string;
   locale: string;
   reason: string;
@@ -67,6 +70,7 @@ interface ChurnStaySubscribedProps {
 
 export function ChurnStaySubscribed({
   uid,
+  metricsEnabled,
   subscriptionId,
   locale,
   reason,
@@ -79,6 +83,7 @@ export function ChurnStaySubscribed({
   const [showResubscribeActionError, setResubscribeActionError] =
     useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const glean = useGleanMetrics(metricsEnabled);
   const params = useParams();
   const searchParams = useSearchParams();
   const {
@@ -89,6 +94,31 @@ export function ChurnStaySubscribed({
     modalMessage,
     productPageUrl,
   } = cmsChurnInterventionEntry || {};
+
+  const retentionFlowBase = useMemo(
+    () => ({
+      flowType: 'stay' as const,
+      eligibilityStatus: 'stay' as const,
+      offeringId: apiIdentifier,
+      interval: interval as Interval,
+      entrypoint: searchParams.get('entrypoint') ?? undefined,
+      utmSource: searchParams.get('utm_source') ?? undefined,
+      utmMedium: searchParams.get('utm_medium') ?? undefined,
+      utmCampaign: searchParams.get('utm_campaign') ?? undefined,
+      nimbusUserId: searchParams.get('nimbus_user_id') ?? undefined,
+    }),
+    [apiIdentifier, interval, searchParams]
+  );
+
+  useEffect(() => {
+    if (
+      reason === 'eligible' &&
+      staySubscribedContent.cancelAtPeriodEnd &&
+      staySubscribedContent.active
+    ) {
+      glean.recordRetentionFlowView(retentionFlowBase);
+    }
+  }, []);
 
   const { successActionButtonUrl } = cmsOfferingContent || {};
   const goToProductUrl = productPageUrl ?? successActionButtonUrl;
@@ -110,8 +140,18 @@ export function ChurnStaySubscribed({
   async function churnStaySubscribed() {
     if (loading) return;
 
+    glean.recordRetentionFlowEngage({
+      ...retentionFlowBase,
+      action: 'redeem_coupon',
+    });
+
     setLoading(true);
     setResubscribeActionError(false);
+
+    glean.recordRetentionFlowSubmit({
+      ...retentionFlowBase,
+      action: 'redeem_coupon',
+    });
 
     try {
       const result = await redeemChurnCouponAction(
@@ -124,14 +164,31 @@ export function ChurnStaySubscribed({
       );
 
       if (result.redeemed) {
+        glean.recordRetentionFlowResult({
+          ...retentionFlowBase,
+          action: 'redeem_coupon',
+          outcome: 'redeem_success',
+        });
         // TODO: This is a workaround to match existing legacy behavior.
         // Fix as part of redesign
         setShowSuccess(true);
         await new Promise((resolve) => setTimeout(resolve, 500));
       } else {
+        glean.recordRetentionFlowResult({
+          ...retentionFlowBase,
+          action: 'redeem_coupon',
+          outcome: 'error',
+          errorReason: mapErrorReason(result.reason),
+        });
         setResubscribeActionError(true);
       }
     } catch {
+      glean.recordRetentionFlowResult({
+        ...retentionFlowBase,
+        action: 'redeem_coupon',
+        outcome: 'error',
+        errorReason: 'unexpected_exception',
+      });
       setResubscribeActionError(true);
     } finally {
       setLoading(false);
@@ -143,16 +200,47 @@ export function ChurnStaySubscribed({
       return;
     }
 
+    glean.recordRetentionFlowEngage({
+      ...retentionFlowBase,
+      action: 'stay_subscribed',
+    });
+
     setLoading(true);
     setResubscribeActionError(false);
 
-    const result = await resubscribeSubscriptionAction(uid, subscriptionId);
-    if (result.ok) {
-      // TODO: This is a workaround to match existing legacy behavior.
-      // Fix as part of redesign
-      setShowSuccess(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    } else {
+    glean.recordRetentionFlowSubmit({
+      ...retentionFlowBase,
+      action: 'stay_subscribed',
+    });
+
+    try {
+      const result = await resubscribeSubscriptionAction(uid, subscriptionId);
+      if (result.ok) {
+        glean.recordRetentionFlowResult({
+          ...retentionFlowBase,
+          action: 'stay_subscribed',
+          outcome: 'stay_subscribed_success',
+        });
+        // TODO: This is a workaround to match existing legacy behavior.
+        // Fix as part of redesign
+        setShowSuccess(true);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      } else {
+        glean.recordRetentionFlowResult({
+          ...retentionFlowBase,
+          action: 'stay_subscribed',
+          outcome: 'error',
+          errorReason: 'operation_denied',
+        });
+        setResubscribeActionError(true);
+      }
+    } catch {
+      glean.recordRetentionFlowResult({
+        ...retentionFlowBase,
+        action: 'stay_subscribed',
+        outcome: 'error',
+        errorReason: 'unexpected_exception',
+      });
       setResubscribeActionError(true);
     }
     setLoading(false);
@@ -309,6 +397,10 @@ export function ChurnStaySubscribed({
               href={`/${locale}/subscriptions/landing`}
               onClick={(e) => {
                 e.preventDefault();
+                glean.recordRetentionFlowEngage({
+                  ...retentionFlowBase,
+                  action: 'remain_canceled',
+                });
                 setLoading(true);
                 router.push(`/${locale}/subscriptions/landing`);
               }}

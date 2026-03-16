@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Test } from '@nestjs/testing';
 import { PaymentsGleanClientManager } from './glean-client.manager';
 import { PaymentsGleanClientConfig } from './glean.config';
 import {
   PageViewEventFactory,
-  RetentionFlowEventFactory,
+  RetentionFlowResultFactory,
 } from './glean.factory';
 
 const mockGlean = jest.requireMock('@mozilla/glean/web').default;
@@ -20,6 +19,7 @@ describe('PaymentsGleanClientManager', () => {
   const mockConfigValue: PaymentsGleanClientConfig = {
     enabled: true,
     applicationId: 'test.app',
+    uploadEnabled: true,
     version: '0.0.0-test',
     channel: 'development',
   };
@@ -30,14 +30,9 @@ describe('PaymentsGleanClientManager', () => {
     process.env = { ...originalEnv, CI: '' };
     (global as any).window = {};
 
-    const moduleRef = await Test.createTestingModule({
-      providers: [
-        { provide: PaymentsGleanClientConfig, useValue: mockConfigValue },
-        PaymentsGleanClientManager,
-      ],
-    }).compile();
-
-    paymentsGleanClientManager = moduleRef.get(PaymentsGleanClientManager);
+    paymentsGleanClientManager = new PaymentsGleanClientManager(
+      mockConfigValue
+    );
   });
 
   afterEach(() => {
@@ -71,18 +66,30 @@ describe('PaymentsGleanClientManager', () => {
       );
     });
 
+    it('initializes Glean with uploadEnabled false when config.uploadEnabled is false', () => {
+      const manager = new PaymentsGleanClientManager({
+        ...mockConfigValue,
+        uploadEnabled: false,
+      });
+
+      manager.initialize();
+
+      expect(mockGlean.initialize).toHaveBeenCalledWith(
+        mockConfigValue.applicationId,
+        false,
+        {
+          appDisplayVersion: mockConfigValue.version,
+          channel: mockConfigValue.channel,
+        }
+      );
+    });
+
     it('does not initialize Glean when disabled', async () => {
       const disabledConfigValue = {
         ...mockConfigValue,
         enabled: false,
       };
-      const moduleRef = await Test.createTestingModule({
-        providers: [
-          { provide: PaymentsGleanClientConfig, useValue: disabledConfigValue },
-          PaymentsGleanClientManager,
-        ],
-      }).compile();
-      const manager = moduleRef.get(PaymentsGleanClientManager);
+      const manager = new PaymentsGleanClientManager(disabledConfigValue);
 
       manager.initialize();
 
@@ -127,15 +134,7 @@ describe('PaymentsGleanClientManager', () => {
 
     it('does not record page_view when config.enabled=false', async () => {
       const disabledConfig = { ...mockConfigValue, enabled: false };
-
-      const moduleRef = await Test.createTestingModule({
-        providers: [
-          { provide: PaymentsGleanClientConfig, useValue: disabledConfig },
-          PaymentsGleanClientManager,
-        ],
-      }).compile();
-
-      const manager = moduleRef.get(PaymentsGleanClientManager);
+      const manager = new PaymentsGleanClientManager(disabledConfig);
 
       manager.recordPageView(PageViewEventFactory({ pageName: 'management' }));
 
@@ -164,77 +163,87 @@ describe('PaymentsGleanClientManager', () => {
   });
 
   describe('recordRetentionFlow', () => {
-    it('initializes and records retention flow when enabled', () => {
-      paymentsGleanClientManager.recordRetentionFlow(
-        RetentionFlowEventFactory({
-          flowType: 'cancel',
-          step: 'engage',
-          outcome: 'success',
+    const baseArgs = { flowType: 'cancel' as const };
+
+    it('records retention flow view', () => {
+      paymentsGleanClientManager.recordRetentionFlowView(baseArgs);
+
+      expect(mockSubscriptions.retentionFlow.record).toHaveBeenCalledWith(
+        expect.objectContaining({
+          flow_type: 'cancel',
+          step: 'view',
         })
       );
+      expect(mockGlean.initialize).toHaveBeenCalledTimes(1);
+    });
+
+    it('records retention flow engage with action', () => {
+      paymentsGleanClientManager.recordRetentionFlowEngage({
+        ...baseArgs,
+        action: 'redeem_coupon',
+      });
 
       expect(mockSubscriptions.retentionFlow.record).toHaveBeenCalledWith(
         expect.objectContaining({
           flow_type: 'cancel',
           step: 'engage',
-          outcome: 'success',
+          action: 'redeem_coupon',
         })
       );
-      expect(mockGlean.initialize).toHaveBeenCalledTimes(1);
-      expect(mockSubscriptions.retentionFlow.record).toHaveBeenCalledTimes(1);
     });
 
-    it('does not recordRetentionFlow when disabled', async () => {
-      const disabledConfigValue = { ...mockConfigValue, enabled: false };
+    it('records retention flow result with action and outcome', () => {
+      const resultData = RetentionFlowResultFactory({
+        flowType: 'cancel',
+      });
+      paymentsGleanClientManager.recordRetentionFlowResult(resultData);
 
-      const moduleRef = await Test.createTestingModule({
-        providers: [
-          { provide: PaymentsGleanClientConfig, useValue: disabledConfigValue },
-          PaymentsGleanClientManager,
-        ],
-      }).compile();
-
-      const manager = moduleRef.get(PaymentsGleanClientManager);
-
-      manager.recordRetentionFlow(
-        RetentionFlowEventFactory({
-          flowType: 'cancel',
-          step: 'engage',
-          outcome: 'success',
+      expect(mockSubscriptions.retentionFlow.record).toHaveBeenCalledWith(
+        expect.objectContaining({
+          flow_type: 'cancel',
+          step: 'result',
+          action: resultData.action,
+          outcome: resultData.outcome,
         })
       );
+    });
+
+    it('does not record when disabled', () => {
+      const manager = new PaymentsGleanClientManager({
+        ...mockConfigValue,
+        enabled: false,
+      });
+
+      manager.recordRetentionFlowEngage({
+        ...baseArgs,
+        action: 'redeem_coupon',
+      });
 
       expect(mockSubscriptions.retentionFlow.record).not.toHaveBeenCalled();
     });
 
-    it('does not recordRetentionFlow in non-browser environment', () => {
+    it('does not record in non-browser environment', () => {
       delete (global as any).window;
 
-      paymentsGleanClientManager.recordRetentionFlow(
-        RetentionFlowEventFactory({
-          flowType: 'cancel',
-          step: 'engage',
-          outcome: 'success',
-        })
-      );
+      paymentsGleanClientManager.recordRetentionFlowEngage({
+        ...baseArgs,
+        action: 'redeem_coupon',
+      });
 
       expect(mockSubscriptions.retentionFlow.record).not.toHaveBeenCalled();
     });
 
-    it('does not throw if recordRetentionFlow throws', () => {
+    it('does not throw if record throws', () => {
       jest.spyOn(console, 'warn').mockImplementation(() => {});
       mockSubscriptions.retentionFlow.record.mockImplementation(() => {
         throw new Error('boom');
       });
 
       expect(() =>
-        paymentsGleanClientManager.recordRetentionFlow(
-          RetentionFlowEventFactory({
-            flowType: 'cancel',
-            step: 'engage',
-            outcome: 'success',
-          })
-        )
+        paymentsGleanClientManager.recordRetentionFlowEngage({
+          ...baseArgs,
+          action: 'redeem_coupon',
+        })
       ).not.toThrow();
 
       expect(console.warn).toHaveBeenCalledWith(
@@ -243,21 +252,15 @@ describe('PaymentsGleanClientManager', () => {
       );
     });
 
-    it('initializes only once when recording retention flow multiple times', () => {
-      paymentsGleanClientManager.recordRetentionFlow(
-        RetentionFlowEventFactory({
-          flowType: 'cancel',
-          step: 'engage',
-          outcome: 'success',
-        })
-      );
-      paymentsGleanClientManager.recordRetentionFlow(
-        RetentionFlowEventFactory({
-          flowType: 'cancel',
-          step: 'submit',
-          outcome: 'success',
-        })
-      );
+    it('initializes only once across multiple calls', () => {
+      paymentsGleanClientManager.recordRetentionFlowEngage({
+        ...baseArgs,
+        action: 'redeem_coupon',
+      });
+      paymentsGleanClientManager.recordRetentionFlowSubmit({
+        ...baseArgs,
+        action: 'redeem_coupon',
+      });
 
       expect(mockGlean.initialize).toHaveBeenCalledTimes(1);
       expect(mockSubscriptions.retentionFlow.record).toHaveBeenCalledTimes(2);
@@ -265,77 +268,80 @@ describe('PaymentsGleanClientManager', () => {
   });
 
   describe('recordInterstitialOffer', () => {
-    it('initializes and records interstitial offer', () => {
-      paymentsGleanClientManager.recordInterstitialOffer(
-        RetentionFlowEventFactory({
-          flowType: 'cancel',
-          step: 'engage',
-          outcome: 'success',
-        })
-      );
+    const baseArgs = { offeringId: 'test-offering' };
 
-      expect(mockGlean.initialize).toHaveBeenCalledWith(
-        mockConfigValue.applicationId,
-        true,
-        {
-          appDisplayVersion: mockConfigValue.version,
-          channel: mockConfigValue.channel,
-        }
-      );
+    it('records interstitial offer view', () => {
+      paymentsGleanClientManager.recordInterstitialOfferView(baseArgs);
 
+      expect(mockGlean.initialize).toHaveBeenCalledTimes(1);
       expect(mockSubscriptions.interstitialOffer.record).toHaveBeenCalledWith(
         expect.objectContaining({
-          flow_type: 'cancel',
-          step: 'engage',
-          outcome: 'success',
+          step: 'view',
+          offering_id: 'test-offering',
         })
       );
     });
 
-    it('does not record interstitial offer in non-browser environment', () => {
-      delete (global as any).window;
+    it('records interstitial offer view with action', () => {
+      paymentsGleanClientManager.recordInterstitialOfferView({
+        ...baseArgs,
+        action: 'upgrade',
+      });
 
-      paymentsGleanClientManager.recordInterstitialOffer(
-        RetentionFlowEventFactory({
-          flowType: 'cancel',
-          step: 'engage',
-          outcome: 'success',
+      expect(mockSubscriptions.interstitialOffer.record).toHaveBeenCalledWith(
+        expect.objectContaining({
+          step: 'view',
+          action: 'upgrade',
+          offering_id: 'test-offering',
         })
       );
+    });
+
+    it('records interstitial offer engage with action', () => {
+      paymentsGleanClientManager.recordInterstitialOfferEngage({
+        ...baseArgs,
+        action: 'upgrade',
+      });
+
+      expect(mockSubscriptions.interstitialOffer.record).toHaveBeenCalledWith(
+        expect.objectContaining({
+          step: 'engage',
+          action: 'upgrade',
+        })
+      );
+    });
+
+    it('does not record in non-browser environment', () => {
+      delete (global as any).window;
+
+      paymentsGleanClientManager.recordInterstitialOfferEngage({
+        action: 'upgrade',
+      });
 
       expect(mockSubscriptions.interstitialOffer.record).not.toHaveBeenCalled();
       expect(mockGlean.initialize).not.toHaveBeenCalled();
     });
 
-    it('does not record interstitial offer when CI=true', () => {
+    it('does not record when CI=true', () => {
       process.env = { ...process.env, CI: 'true' };
 
-      paymentsGleanClientManager.recordInterstitialOffer(
-        RetentionFlowEventFactory({
-          flowType: 'cancel',
-          step: 'engage',
-          outcome: 'success',
-        })
-      );
+      paymentsGleanClientManager.recordInterstitialOfferEngage({
+        action: 'upgrade',
+      });
 
       expect(mockSubscriptions.interstitialOffer.record).not.toHaveBeenCalled();
     });
 
-    it('does not throw if interstitialOffer.record throws', () => {
+    it('does not throw if record throws', () => {
       jest.spyOn(console, 'warn').mockImplementation(() => {});
-
       mockSubscriptions.interstitialOffer.record.mockImplementation(() => {
         throw new Error('boom');
       });
 
       expect(() =>
-        paymentsGleanClientManager.recordInterstitialOffer(
-          RetentionFlowEventFactory({
-            flowType: 'cancel',
-            step: 'engage',
-            outcome: 'success',
-          })
-        )
+        paymentsGleanClientManager.recordInterstitialOfferEngage({
+          action: 'upgrade',
+        })
       ).not.toThrow();
 
       expect(console.warn).toHaveBeenCalledWith(
@@ -344,22 +350,14 @@ describe('PaymentsGleanClientManager', () => {
       );
     });
 
-    it('initializes Glean only once when recording interstitial offer multiple times', () => {
-      paymentsGleanClientManager.recordInterstitialOffer(
-        RetentionFlowEventFactory({
-          flowType: 'cancel',
-          step: 'engage',
-          outcome: 'success',
-        })
-      );
-
-      paymentsGleanClientManager.recordInterstitialOffer(
-        RetentionFlowEventFactory({
-          flowType: 'cancel',
-          step: 'result',
-          outcome: 'success',
-        })
-      );
+    it('initializes only once across multiple calls', () => {
+      paymentsGleanClientManager.recordInterstitialOfferEngage({
+        action: 'upgrade',
+      });
+      paymentsGleanClientManager.recordInterstitialOfferResult({
+        action: 'cancel_subscription',
+        outcome: 'customer_canceled',
+      });
 
       expect(mockGlean.initialize).toHaveBeenCalledTimes(1);
       expect(mockSubscriptions.interstitialOffer.record).toHaveBeenCalledTimes(

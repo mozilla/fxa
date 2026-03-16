@@ -59,7 +59,8 @@ export default async function LoyaltyDiscountStaySubscribedPage({
     );
   }
 
-  const { churnStaySubscribedEligibility, staySubscribedContent } = pageContent;
+  const { churnStaySubscribedEligibility, staySubscribedContent } =
+    pageContent;
   const { cmsOfferingContent, reason, cmsChurnInterventionEntry } =
     churnStaySubscribedEligibility;
   const reasonStr = typeof reason === 'string' ? reason : undefined;
@@ -87,6 +88,7 @@ export default async function LoyaltyDiscountStaySubscribedPage({
     return (
       <ChurnStaySubscribed
         uid={uid}
+        metricsEnabled={session?.user?.metricsEnabled ?? true}
         subscriptionId={subscriptionId}
         locale={locale}
         reason={reason}

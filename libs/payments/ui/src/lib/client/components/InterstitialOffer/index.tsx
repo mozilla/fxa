@@ -7,18 +7,21 @@
 import { Localized } from '@fluent/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
+import type { Interval } from '@fxa/payments/metrics/client';
 import { AlreadyCanceling } from '@fxa/payments/ui';
 import { cancelSubscriptionAtPeriodEndAction } from '@fxa/payments/ui/actions';
 import spinner from '@fxa/shared/assets/images/spinner.svg';
 import { getLocalizedDateString } from '@fxa/shared/l10n';
 import { LinkExternal } from '@fxa/shared/react';
 import { BaseButton } from '../BaseButton';
+import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 
 interface InterstitialOfferProps {
   uid: string;
+  metricsEnabled: boolean;
   locale: string;
   subscriptionId: string;
   pageContent: {
@@ -29,6 +32,7 @@ interface InterstitialOfferProps {
     upgradeButtonUrl: string;
     webIcon: string;
     productName: string;
+    offeringId?: string;
   } | null;
   cancelContent: {
     flowType: 'cancel';
@@ -44,11 +48,12 @@ interface InterstitialOfferProps {
     supportUrl: string;
     webIcon: string;
   };
-  searchParams?: URLSearchParams;
+  searchParams?: Record<string, string>;
 }
 
 export function InterstitialOffer({
   uid,
+  metricsEnabled,
   locale,
   subscriptionId,
   pageContent,
@@ -58,6 +63,7 @@ export function InterstitialOffer({
   const [cancelLoading, setCancelLoading] = useState(false);
   const [showCancelSuccess, setShowCancelSuccess] = useState(false);
   const [showCancelActionError, setShowCancelActionError] = useState(false);
+  const glean = useGleanMetrics(metricsEnabled);
 
   const {
     currentInterval,
@@ -68,17 +74,30 @@ export function InterstitialOffer({
   } = pageContent || {};
 
   const { cancelAtPeriodEnd, currentPeriodEnd } = cancelContent;
-
   const productName = pageContent?.productName ?? cancelContent.productName;
   const webIcon = pageContent?.webIcon ?? cancelContent.webIcon;
   const supportUrl = cancelContent.supportUrl;
+
+  const interstitialOfferBase = {
+    offeringId: pageContent?.offeringId,
+    interval: currentInterval as Interval,
+    utmSource: searchParams?.['utm_source'],
+    utmMedium: searchParams?.['utm_medium'],
+    utmCampaign: searchParams?.['utm_campaign'],
+    nimbusUserId: searchParams?.['nimbus_user_id'],
+  };
+
+  useEffect(() => {
+    if (pageContent && !cancelAtPeriodEnd) {
+      glean.recordInterstitialOfferView(interstitialOfferBase);
+    }
+  }, []);
 
   const upgradeHref = useMemo(() => {
     if (!upgradeButtonUrl) return '';
     const url = new URL(upgradeButtonUrl);
 
-    const newSearchParams = new URLSearchParams(searchParams?.toString() ?? '');
-    newSearchParams.set('entrypoint', 'subscription-management');
+    const newSearchParams = new URLSearchParams(searchParams);
 
     newSearchParams.forEach((value, key) => url.searchParams.set(key, value));
 
@@ -120,8 +139,18 @@ export function InterstitialOffer({
   async function cancelSubscriptionAtPeriodEnd() {
     if (cancelLoading) return;
 
+    glean.recordInterstitialOfferEngage({
+      ...interstitialOfferBase,
+      action: 'cancel_subscription',
+    });
+
     setCancelLoading(true);
     setShowCancelActionError(false);
+
+    glean.recordInterstitialOfferSubmit({
+      ...interstitialOfferBase,
+      action: 'cancel_subscription',
+    });
 
     try {
       const result = await cancelSubscriptionAtPeriodEndAction(
@@ -130,14 +159,31 @@ export function InterstitialOffer({
       );
 
       if (result.ok) {
+        glean.recordInterstitialOfferResult({
+          ...interstitialOfferBase,
+          action: 'cancel_subscription',
+          outcome: 'customer_canceled',
+        });
         // TODO: This is a workaround to match existing legacy behavior.
         // Fix as part of redesign
         setShowCancelSuccess(true);
         await new Promise((resolve) => setTimeout(resolve, 500));
       } else {
+        glean.recordInterstitialOfferResult({
+          ...interstitialOfferBase,
+          action: 'cancel_subscription',
+          outcome: 'error',
+          errorReason: 'operation_denied',
+        });
         setShowCancelActionError(true);
       }
     } catch {
+      glean.recordInterstitialOfferResult({
+        ...interstitialOfferBase,
+        action: 'cancel_subscription',
+        outcome: 'error',
+        errorReason: 'unexpected_exception',
+      });
       setShowCancelActionError(true);
     } finally {
       setCancelLoading(false);
@@ -266,6 +312,12 @@ export function InterstitialOffer({
             <Link
               className="border box-border font-header h-14 items-center justify-center rounded-md text-white text-center font-bold py-4 px-6 bg-blue-500 hover:bg-blue-700 flex w-full"
               href={upgradeHref}
+              onClick={() =>
+                glean.recordInterstitialOfferEngage({
+                  ...interstitialOfferBase,
+                  action: 'offer',
+                })
+              }
             >
               {upgradeButtonLabel}
             </Link>
@@ -273,6 +325,12 @@ export function InterstitialOffer({
             <Link
               className="border box-border font-header h-14 items-center justify-center rounded-md text-center font-bold py-4 px-6 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
               href={`/${locale}/subscriptions/landing`}
+              onClick={() =>
+                glean.recordInterstitialOfferEngage({
+                  ...interstitialOfferBase,
+                  action: 'keep_subscription',
+                })
+              }
             >
               <Localized id={ftlId}>
                 <span>{fallbackText}</span>

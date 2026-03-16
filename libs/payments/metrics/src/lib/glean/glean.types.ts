@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ResultCart } from '@fxa/payments/cart';
-import { SubplatInterval } from '@fxa/payments/customer';
+import type { ResultCart } from '@fxa/payments/cart';
+import type { SubplatInterval } from '@fxa/payments/customer';
 
 export const CheckoutTypes = [
   'new_account',
@@ -12,7 +12,7 @@ export const CheckoutTypes = [
   'unknown',
 ] as const;
 export type CheckoutTypesType = (typeof CheckoutTypes)[number];
-import { type TaxAddress } from '@fxa/payments/customer';
+import type { TaxAddress } from '@fxa/payments/customer';
 
 export const PaymentProvidersTypePartial = [
   'stripe',
@@ -127,59 +127,53 @@ export type PaymentsGleanServerEventsLoggerTester = {
   recordSubscriptionTrialConverted: (data: any) => void;
 };
 
-export type PageName =
-  | 'management'
-  | 'stay_standard'
-  | 'stay_retention'
-  | 'cancel_standard'
-  | 'cancel_retention'
-  | 'interstitial_offer';
-
-export type PageVariant =
-  | 'stay_standard_success'
-  | 'stay_retention_success'
-  | 'cancel_standard_success'
-  | 'cancel_retention_success'
-  | 'interstitial_offer_success';
+export type PageName = 'management' | 'payment_method';
 
 export type Entrypoint = 'email' | 'internal_nav' | 'subscription-management';
 export type EligibilityStatus = 'cancel' | 'stay' | 'offer' | 'not_eligible';
 export type FlowType = 'cancel' | 'stay';
-export type Step = 'view' | 'engage' | 'submit' | 'result';
-export type Action = 'redeem_coupon' | 'cancel_subscription' | 'stay_subscribed' | 'upgrade' | 'keep_subscription';
-export type Outcome = 'redeem_success' | 'customer_canceled' | 'stay_subscribed_success' | 'error';
+export type Action =
+  | 'redeem_coupon'
+  | 'cancel_subscription'
+  | 'stay_subscribed'
+  | 'keep_subscription'
+  | 'offer'
+  | 'upgrade'
+  | 'remain_canceled';
+export type Outcome =
+  | 'redeem_success'
+  | 'customer_canceled'
+  | 'stay_subscribed_success'
+  | 'upgrade_success'
+  | 'error';
 
-export type ErrorReason =
-  | 'customer_mismatch'
-  | 'discount_already_applied'
-  | 'general_error'
-  | 'no_churn_intervention_found'
-  | 'redemption_limit_exceeded'
-  | 'subscription_not_active'
-  | 'subscription_not_found'
-  | 'subscription_still_active'
-  | 'operation_denied'
-  | 'unexpected_exception';
+export const ErrorReasons = [
+  'customer_mismatch',
+  'discount_already_applied',
+  'general_error',
+  'no_churn_intervention_found',
+  'redemption_limit_exceeded',
+  'subscription_not_active',
+  'subscription_not_found',
+  'subscription_still_active',
+  'operation_denied',
+  'unexpected_exception',
+] as const;
+
+export type ErrorReason = (typeof ErrorReasons)[number];
 
 export type Interval = SubplatInterval;
 
 export type PageMetricsData = {
   pageName: PageName;
-  pageVariant?: PageVariant;
   entrypoint?: Entrypoint;
-  offeringId?: string;
-  interval?: Interval;
 };
 
-export type RetentionFlowEventMetricsData = {
+export type RetentionFlowCommonData = {
   flowType: FlowType;
-  step: Step;
-  action?: Action;
-  outcome?: Outcome;
-  errorReason?: ErrorReason;
+  eligibilityStatus?: EligibilityStatus;
   offeringId?: string;
   interval?: Interval;
-  eligibilityStatus?: EligibilityStatus;
   entrypoint?: string;
   utmSource?: string;
   utmMedium?: string;
@@ -187,13 +181,44 @@ export type RetentionFlowEventMetricsData = {
   nimbusUserId?: string;
 };
 
-export type FlowStatus =
-  | 'eligible_for_stay'
-  | 'eligible_for_cancel'
-  | 'eligible_for_offer';
+export type RetentionFlowEngageData = RetentionFlowCommonData & {
+  action: Action;
+};
 
-export type RetentionEligibilityMetricsData = {
-  product: string;
-  interval: 'monthly' | 'yearly';
-  eligibilityStatus: FlowStatus;
+export type RetentionFlowSubmitData = RetentionFlowCommonData & {
+  action: Action;
+};
+
+export type RetentionFlowResultData = RetentionFlowCommonData & {
+  action?: Action;
+  outcome: Outcome;
+  errorReason?: ErrorReason;
+};
+
+export type InterstitialOfferCommonData = {
+  entrypoint?: string;
+  offeringId?: string;
+  interval?: Interval;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  nimbusUserId?: string;
+};
+
+export type InterstitialOfferViewData = InterstitialOfferCommonData & {
+  action?: Action;
+};
+
+export type InterstitialOfferEngageData = InterstitialOfferCommonData & {
+  action: Action;
+};
+
+export type InterstitialOfferSubmitData = InterstitialOfferCommonData & {
+  action: Action;
+};
+
+export type InterstitialOfferResultData = InterstitialOfferCommonData & {
+  action?: Action;
+  outcome: Outcome;
+  errorReason?: ErrorReason;
 };

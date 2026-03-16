@@ -12,8 +12,12 @@ export interface ConfigContextValues {
   glean: {
     enabled: boolean;
     applicationId: string;
+    uploadEnabled: boolean;
     version: string;
     channel: string;
+    serverEndpoint?: string;
+    logPings?: boolean;
+    debugViewTag?: string;
   };
   sentry: {
     dsn?: string;
@@ -32,6 +36,7 @@ export const ConfigContext = createContext<ConfigContextValues>({
   glean: {
     enabled: false,
     applicationId: '',
+    uploadEnabled: false,
     version: '',
     channel: '',
   },

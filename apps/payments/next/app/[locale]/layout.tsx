@@ -29,8 +29,12 @@ export default async function RootProviderLayout({
         glean: {
           enabled: config.gleanClientConfig.enabled,
           applicationId: config.gleanClientConfig.applicationId,
+          uploadEnabled: config.gleanClientConfig.uploadEnabled,
           version: config.gleanClientConfig.version,
           channel: config.gleanClientConfig.channel,
+          serverEndpoint: config.gleanClientConfig.serverEndpoint,
+          logPings: config.gleanClientConfig.logPings,
+          debugViewTag: config.gleanClientConfig.debugViewTag,
         },
         sentry: {
           ...config.sentry, //spread to make sure its a POJO

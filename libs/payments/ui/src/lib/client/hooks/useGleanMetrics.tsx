@@ -7,32 +7,24 @@
 import { useContext, useMemo } from 'react';
 import {
   PaymentsGleanClientManager,
-  type PaymentsGleanClientConfig,
   type PageMetricsData,
-  type RetentionFlowEventMetricsData,
+  type RetentionFlowCommonData,
+  type RetentionFlowEngageData,
+  type RetentionFlowSubmitData,
+  type RetentionFlowResultData,
+  type InterstitialOfferViewData,
+  type InterstitialOfferEngageData,
+  type InterstitialOfferSubmitData,
+  type InterstitialOfferResultData,
 } from '@fxa/payments/metrics/client';
 import { ConfigContext } from '../providers/ConfigProvider';
-
-function toGleanClientConfig(config: {
-  enabled: boolean;
-  applicationId: string;
-  version: string;
-  channel: string;
-}): PaymentsGleanClientConfig {
-  return {
-    enabled: config.enabled,
-    applicationId: config.applicationId,
-    version: config.version,
-    channel: config.channel,
-  } as PaymentsGleanClientConfig;
-}
 
 export function useGleanMetrics(metricsEnabled: boolean) {
   const { glean } = useContext(ConfigContext);
 
   const manager = useMemo(() => {
     if (!metricsEnabled || !glean) return null;
-    return new PaymentsGleanClientManager(toGleanClientConfig(glean));
+    return new PaymentsGleanClientManager(glean);
   }, [metricsEnabled, glean]);
 
   return useMemo(
@@ -40,11 +32,29 @@ export function useGleanMetrics(metricsEnabled: boolean) {
       recordPageView(data: PageMetricsData) {
         manager?.recordPageView(data);
       },
-      recordRetentionFlow(data: RetentionFlowEventMetricsData) {
-        manager?.recordRetentionFlow(data);
+      recordRetentionFlowView(data: RetentionFlowCommonData) {
+        manager?.recordRetentionFlowView(data);
       },
-      recordInterstitialOffer(data: RetentionFlowEventMetricsData) {
-        manager?.recordInterstitialOffer(data);
+      recordRetentionFlowEngage(data: RetentionFlowEngageData) {
+        manager?.recordRetentionFlowEngage(data);
+      },
+      recordRetentionFlowSubmit(data: RetentionFlowSubmitData) {
+        manager?.recordRetentionFlowSubmit(data);
+      },
+      recordRetentionFlowResult(data: RetentionFlowResultData) {
+        manager?.recordRetentionFlowResult(data);
+      },
+      recordInterstitialOfferView(data: InterstitialOfferViewData) {
+        manager?.recordInterstitialOfferView(data);
+      },
+      recordInterstitialOfferEngage(data: InterstitialOfferEngageData) {
+        manager?.recordInterstitialOfferEngage(data);
+      },
+      recordInterstitialOfferSubmit(data: InterstitialOfferSubmitData) {
+        manager?.recordInterstitialOfferSubmit(data);
+      },
+      recordInterstitialOfferResult(data: InterstitialOfferResultData) {
+        manager?.recordInterstitialOfferResult(data);
       },
     }),
     [manager]

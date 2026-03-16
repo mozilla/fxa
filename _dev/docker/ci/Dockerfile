@@ -6,7 +6,8 @@
 # workspace will be restored into the project folder.
 FROM cimg/node:22.15.1 AS test-runner
 RUN sudo apt-get update && sudo apt-get install -y \
-    python3-venv
+    python3-venv \
+    python3-pip
 WORKDIR /home/circleci
 COPY --chown=circleci:circleci project project
 WORKDIR /home/circleci/project
@@ -24,7 +25,10 @@ WORKDIR /home/circleci/project
 ENV YARN_CHECKSUM_BEHAVIOR=throw
 ENV FXA_AUTO_INSTALL=0
 RUN _scripts/l10n/clone.sh
-RUN yarn install --immutable;
+RUN yarn install --immutable \
+    && rm -rf .venv \
+    && python3 -m venv .venv \
+    && .venv/bin/pip install 'glean_parser~=14.5'
 
 # Acts as an intermediate stage for adding the firefox install. Note,
 # that a yarn install must happen first to ensure the correct version
@@ -39,7 +43,8 @@ RUN npx playwright install --with-deps firefox chromium webkit;
 # workspace will be restored into the project folder.
 FROM cimg/node:22.15.1-browsers AS functional-test-runner
 RUN sudo apt-get update && sudo apt-get install -y \
-    python3-venv
+    python3-venv \
+    python3-pip
 WORKDIR /home/circleci
 COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/ms-playwright .cache/ms-playwright/
 COPY --chown=circleci:circleci project project

@@ -66,17 +66,18 @@ export default async function InterstitialOfferPage({
     redirect(`/${locale}/subscriptions/${subscriptionId}/offer/error`);
   }
 
-  const searchParamsObj = new URLSearchParams(searchParams);
-  searchParamsObj.set('entrypoint', 'subscription-management');
-
   return (
     <InterstitialOffer
       uid={uid}
+      metricsEnabled={session?.user?.metricsEnabled ?? true}
       locale={locale}
       subscriptionId={subscriptionId}
       pageContent={interstitialOfferContent.pageContent}
       cancelContent={interstitialOfferContent.cancelContent}
-      searchParams={searchParamsObj}
+      searchParams={{
+        ...searchParams,
+        entrypoint: 'subscription-management',
+      }}
     />
   );
 }
