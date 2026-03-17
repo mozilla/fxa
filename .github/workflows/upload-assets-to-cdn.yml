@@ -76,7 +76,7 @@ jobs:
           gcloud storage cp --cache-control='public,max-age=86400' --content-disposition=attachment -r assets/legal/* gs://fxa-content-cdn-prod-distbucket/legal/
 
       - name: "Post to fxa-team Slack channel"
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
         with:
           method: 'chat.postMessage'
           token: ${{ secrets.SLACK_BOT_TOKEN }}
