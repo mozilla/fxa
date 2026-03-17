@@ -57,6 +57,7 @@ export function PaymentInputHandler({
                   { ...params },
                   searchParamsRecord,
                   undefined,
+                  undefined,
                   isFreeTrial
                 );
               }
@@ -66,6 +67,7 @@ export function PaymentInputHandler({
                   'checkoutFail',
                   { ...params },
                   searchParamsRecord,
+                  undefined,
                   undefined,
                   isFreeTrial
                 );

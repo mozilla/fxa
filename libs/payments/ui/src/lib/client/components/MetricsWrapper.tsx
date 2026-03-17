@@ -34,6 +34,7 @@ export function MetricsWrapper({
         { ...params },
         Object.fromEntries(searchParams),
         undefined,
+        undefined,
         isFreeTrial
       );
     }

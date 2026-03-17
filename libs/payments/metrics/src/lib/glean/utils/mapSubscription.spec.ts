@@ -9,6 +9,7 @@ import {
   CheckoutParamsFactory,
 } from '../glean.factory';
 import { mapSubscription } from './mapSubscription';
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 
 describe('mapSubscription', () => {
   it('should map all values', () => {
@@ -24,6 +25,8 @@ describe('mapSubscription', () => {
       commonMetricsData: mockCommonData,
       cartMetricsData: mockCartData,
       cmsMetricsData: mockCmsMetricsData,
+      paymentProvider: 'stripe',
+      paymentMethod: SubPlatPaymentMethodType.Card,
     });
     expect(result).toEqual({
       subscription_cancellation_reason: '',
@@ -33,7 +36,8 @@ describe('mapSubscription', () => {
       subscription_is_free_trial: '',
       subscription_interval: mockCommonData.params['interval'],
       subscription_offering_id: mockCommonData.params['offeringId'],
-      subscription_payment_provider: '',
+      subscription_payment_method: 'card',
+      subscription_payment_provider: 'stripe',
       subscription_plan_id: mockCmsMetricsData.priceId,
       subscription_product_id: mockCmsMetricsData.productId,
       subscription_promotion_code: mockCartData.couponCode,
@@ -72,6 +76,35 @@ describe('mapSubscription', () => {
     expect(result.subscription_is_free_trial).toBe('');
   });
 
+  it('should map paymentMethod when provided', () => {
+    const mockCommonData = CommonMetricsFactory({
+      params: CheckoutParamsFactory(),
+    });
+    const mockCartData = CartMetricsFactory();
+    const mockCmsMetricsData = CmsMetricsDataFactory();
+    const result = mapSubscription({
+      commonMetricsData: mockCommonData,
+      cartMetricsData: mockCartData,
+      cmsMetricsData: mockCmsMetricsData,
+      paymentMethod: SubPlatPaymentMethodType.PayPal,
+    });
+    expect(result.subscription_payment_method).toBe('external_paypal');
+  });
+
+  it('should default paymentMethod to empty string when not provided', () => {
+    const mockCommonData = CommonMetricsFactory({
+      params: CheckoutParamsFactory(),
+    });
+    const mockCartData = CartMetricsFactory();
+    const mockCmsMetricsData = CmsMetricsDataFactory();
+    const result = mapSubscription({
+      commonMetricsData: mockCommonData,
+      cartMetricsData: mockCartData,
+      cmsMetricsData: mockCmsMetricsData,
+    });
+    expect(result.subscription_payment_method).toBe('');
+  });
+
   it('should return empty strings if values are not present', () => {
     const mockCommonData = CommonMetricsFactory({
       params: {},
@@ -98,6 +131,7 @@ describe('mapSubscription', () => {
       subscription_is_free_trial: '',
       subscription_interval: '',
       subscription_offering_id: '',
+      subscription_payment_method: '',
       subscription_payment_provider: '',
       subscription_plan_id: '',
       subscription_product_id: '',

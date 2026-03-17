@@ -31,6 +31,7 @@ import {
   SubscriptionManager,
   PaymentMethodManager,
   PaymentProvider,
+  SubPlatPaymentMethodType,
   StripePaymentMethodTypeResponseFactory,
 } from '@fxa/payments/customer';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
@@ -109,6 +110,7 @@ describe('PaymentsEmitterService', () => {
   const mockCheckoutPaymentEvents = {
     ...mockCommonMetricsData,
     paymentProvider: PaymentProvider.Stripe,
+    paymentMethod: SubPlatPaymentMethodType.Card,
   };
   let retrieveOptOutMock: jest.SpyInstance<any, unknown[], any>;
   const mockLogger = {
@@ -383,7 +385,8 @@ describe('PaymentsEmitterService', () => {
           experimentationData: { nimbusUserId },
           ...additionalMetricsData,
         },
-        mockCheckoutPaymentEvents.paymentProvider
+        mockCheckoutPaymentEvents.paymentProvider,
+        mockCheckoutPaymentEvents.paymentMethod
       );
     });
 
@@ -445,7 +448,8 @@ describe('PaymentsEmitterService', () => {
           experimentationData: { nimbusUserId },
           ...additionalMetricsData,
         },
-        mockPaymentMethod.provider
+        mockPaymentMethod.provider,
+        mockPaymentMethod.type
       );
     });
 

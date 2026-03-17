@@ -7,7 +7,10 @@ import { IsEnum, IsIn, IsOptional, ValidateNested } from 'class-validator';
 import { PaymentsEmitterEventsKeys } from '@fxa/payments/events';
 import type { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
 import { PaymentProvidersTypePartial } from '@fxa/payments/metrics';
-import type { PaymentProvidersType } from '@fxa/payments/customer';
+import {
+  SubPlatPaymentMethodType,
+  type PaymentProvidersType,
+} from '@fxa/payments/customer';
 import { RequestArgs } from './common/RequestArgs';
 
 export class RecordEmitterEventArgs {
@@ -21,4 +24,8 @@ export class RecordEmitterEventArgs {
   @IsOptional()
   @IsIn([...PaymentProvidersTypePartial])
   paymentProvider?: PaymentProvidersType;
+
+  @IsOptional()
+  @IsEnum(SubPlatPaymentMethodType)
+  paymentMethod?: SubPlatPaymentMethodType;
 }
