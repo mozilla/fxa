@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
+import { MockLoggerProvider } from '@fxa/shared/log';
 
 import { MockStripeConfigProvider, StripeClient } from '@fxa/payments/stripe';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
@@ -37,6 +38,7 @@ describe('PaypalBillingAgreementManager', () => {
         MockPaypalClientConfigProvider,
         StripeClient,
         MockStatsDProvider,
+        MockLoggerProvider,
       ],
     }).compile();
 

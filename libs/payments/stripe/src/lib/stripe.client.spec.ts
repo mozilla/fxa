@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
+import { MockLoggerProvider } from '@fxa/shared/log';
 import { Stripe } from 'stripe';
 
 import {
@@ -102,7 +103,12 @@ describe('StripeClient', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [MockStripeConfigProvider, StripeClient, MockStatsDProvider],
+      providers: [
+        MockStripeConfigProvider,
+        StripeClient,
+        MockStatsDProvider,
+        MockLoggerProvider,
+      ],
     }).compile();
 
     stripeClient = module.get(StripeClient);

@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 import { Stripe } from 'stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { PlanMapperUtil } from './plan-mapper.util';
@@ -22,7 +23,8 @@ export class StripeMapperService {
   private successfulIds = new Set();
   constructor(
     private productConfigurationManager: ProductConfigurationManager,
-    private config: StripeMapperConfig
+    private config: StripeMapperConfig,
+    @Inject(Logger) public log: LoggerService
   ) {}
 
   /**
@@ -72,7 +74,7 @@ export class StripeMapperService {
    */
   @Cacheable({
     cacheKey: (args) => cacheKeyForMap(args[0], args[1]),
-    strategy: new CacheFirstStrategy(),
+    strategy: (_: any, context: StripeMapperService) => new CacheFirstStrategy(undefined, undefined, context.log),
     ttlSeconds: (_, context: StripeMapperService) =>
       context.config.ttl || DEFAULT_TTL_SECONDS,
     client: new MemoryAdapter(),

@@ -8,7 +8,7 @@ import { Firestore } from '@google-cloud/firestore';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
-import cacheManager, { Cacheable, CacheClear } from '@type-cacheable/core';
+import { Cacheable, CacheClear } from '@type-cacheable/core';
 import EventEmitter from 'events';
 import { GraphQLClient } from 'graphql-request';
 import * as Sentry from '@sentry/node';
@@ -26,12 +26,6 @@ import { StrapiQueryError } from './cms.error';
 import { cacheKeyForQuery, CMS_QUERY_CACHE_KEY } from './util';
 import { StrapiClientConfig } from './strapi.client.config';
 import { localesQuery, LocalesResult } from './queries/locales';
-
-cacheManager.setOptions({
-  // Must be disabled globally per https://github.com/joshuaslate/type-cacheable?tab=readme-ov-file#change-global-options
-  // otherwise @Cacheable context will be undefined
-  excludeContext: false,
-});
 
 const DEFAULT_FIRESTORE_OFFLINE_CACHE_TTL_SECONDS = 604800; // 604800 seconds is 7 days.
 const DEFAULT_FIRESTORE_CACHE_TTL_SECONDS = 1800; // 1800 seconds is 30 minutes.

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test } from '@nestjs/testing';
+import { MockLoggerProvider } from '@fxa/shared/log';
 
 import { PaymentIntentManager } from './paymentIntent.manager';
 import {
@@ -24,6 +25,7 @@ describe('PaymentIntentManager', () => {
         PaymentIntentManager,
         StripeClient,
         MockStatsDProvider,
+        MockLoggerProvider,
       ],
     }).compile();
 

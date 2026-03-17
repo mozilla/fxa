@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
+import { MockLoggerProvider } from '@fxa/shared/log';
 import { PaymentMethodManager } from './paymentMethod.manager';
 import {
   MockPaypalClientConfigProvider,
@@ -44,6 +45,7 @@ describe('PaymentMethodManager', () => {
         PaypalCustomerManager,
         StripeClient,
         MockStatsDProvider,
+        MockLoggerProvider,
       ],
     }).compile();
 
