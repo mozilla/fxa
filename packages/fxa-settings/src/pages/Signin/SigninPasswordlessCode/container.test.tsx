@@ -149,7 +149,7 @@ describe('SigninPasswordlessCode container', () => {
         await waitFor(() => {
           expect(mockAuthClient.passwordlessSendCode).toHaveBeenCalledWith(
             MOCK_EMAIL,
-            { clientId: MOCK_CLIENT_ID, metricsContext: { clientId: MOCK_CLIENT_ID } }
+            { clientId: MOCK_CLIENT_ID, service: 'sync', metricsContext: { clientId: MOCK_CLIENT_ID } }
           );
         });
       });

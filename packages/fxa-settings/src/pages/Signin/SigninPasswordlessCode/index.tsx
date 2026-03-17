@@ -115,6 +115,7 @@ const SigninPasswordlessCode = ({
     try {
       await authClient.passwordlessResendCode(email, {
         clientId: integration.getClientId(),
+        service: integration.getService(),
         metricsContext: {
           ...queryParamsToMetricsContext(
             flowQueryParams as unknown as Record<string, string>
@@ -161,6 +162,7 @@ const SigninPasswordlessCode = ({
       try {
         const result = await authClient.passwordlessConfirmCode(email, code, {
           clientId: integration.getClientId(),
+          service: integration.getService(),
           metricsContext: {
             ...queryParamsToMetricsContext(
               flowQueryParams as unknown as Record<string, string>
@@ -182,7 +184,7 @@ const SigninPasswordlessCode = ({
         // Sync flows need a password to derive encryption keys (unwrapBKey).
         // TOTP accounts must verify first since /password/create requires
         // a verifiedSessionToken.
-        if (integration.wantsKeys()) {
+        if (integration.isSync()) {
           const accountData = {
             uid: result.uid,
             sessionToken: result.sessionToken,

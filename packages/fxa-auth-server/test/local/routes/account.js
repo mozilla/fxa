@@ -1841,8 +1841,7 @@ describe('/account/status', () => {
       shouldError: false,
       extraConfig: {
         passwordlessOtp: {
-          forcedEmailAddresses: /^$/,
-          allowedClientIds: [],
+          allowedClientServices: {},
         },
       },
     });
@@ -1883,7 +1882,9 @@ describe('/account/status', () => {
       extraConfig: {
         passwordlessOtp: {
           enabled: true,
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
     });
@@ -1908,8 +1909,7 @@ describe('/account/status', () => {
       shouldError: false,
       extraConfig: {
         passwordlessOtp: {
-          forcedEmailAddresses: /^$/,
-          allowedClientIds: [],
+          allowedClientServices: {},
         },
       },
     });
@@ -1928,7 +1928,9 @@ describe('/account/status', () => {
       extraConfig: {
         passwordlessOtp: {
           enabled: true,
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
       shouldError: true,
@@ -1982,7 +1984,7 @@ describe('/account/status', () => {
       extraConfig: {
         passwordlessOtp: {
           enabled: false,
-          allowedClientIds: [],
+          allowedClientServices: {},
         },
       },
     });
@@ -2010,7 +2012,9 @@ describe('/account/status', () => {
       extraConfig: {
         passwordlessOtp: {
           enabled: true,
-          allowedClientIds: ['some-other-client'],
+          allowedClientServices: {
+            'some-other-client': { allowedServices: ['*'] },
+          },
         },
       },
     });

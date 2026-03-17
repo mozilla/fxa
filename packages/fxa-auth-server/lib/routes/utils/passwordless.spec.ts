@@ -5,6 +5,7 @@
 import {
   isPasswordlessEligible,
   isClientAllowedForPasswordless,
+  AllowedClientServices,
 } from './passwordless';
 
 describe('isPasswordlessEligible', () => {
@@ -67,19 +68,111 @@ describe('isPasswordlessEligible', () => {
 });
 
 describe('isClientAllowedForPasswordless', () => {
-  it('returns true when clientId is in the allowed list', () => {
-    expect(isClientAllowedForPasswordless(['abc123'], 'abc123')).toBe(true);
+  const allowedClientServices: AllowedClientServices = {
+    abc123: { allowedServices: ['sync', 'profile'] },
+    xyz789: { allowedServices: ['*'] },
+    empty123: { allowedServices: [] },
+  };
+
+  describe('with valid clientId and service combinations', () => {
+    it('returns true when clientId and service are both allowed', () => {
+      expect(
+        isClientAllowedForPasswordless(allowedClientServices, 'abc123', 'sync')
+      ).toBe(true);
+      expect(
+        isClientAllowedForPasswordless(
+          allowedClientServices,
+          'abc123',
+          'profile'
+        )
+      ).toBe(true);
+    });
+
+    it('returns false when clientId is allowed but service is not', () => {
+      expect(
+        isClientAllowedForPasswordless(
+          allowedClientServices,
+          'abc123',
+          'monitor'
+        )
+      ).toBe(false);
+    });
+
+    it('returns false when clientId is in config but no service specified and no wildcard', () => {
+      expect(isClientAllowedForPasswordless(allowedClientServices, 'abc123')).toBe(
+        false
+      );
+    });
   });
 
-  it('returns false when clientId is not in the allowed list', () => {
-    expect(isClientAllowedForPasswordless(['abc123'], 'xyz789')).toBe(false);
+  describe('with wildcard support', () => {
+    it('returns true when allowedServices includes wildcard', () => {
+      expect(
+        isClientAllowedForPasswordless(
+          allowedClientServices,
+          'xyz789',
+          'any-service'
+        )
+      ).toBe(true);
+      expect(
+        isClientAllowedForPasswordless(
+          allowedClientServices,
+          'xyz789',
+          'another-service'
+        )
+      ).toBe(true);
+    });
+
+    it('returns true when allowedServices includes wildcard and no service specified', () => {
+      expect(
+        isClientAllowedForPasswordless(allowedClientServices, 'xyz789')
+      ).toBe(true);
+    });
   });
 
-  it('returns false when no clientId is provided', () => {
-    expect(isClientAllowedForPasswordless(['abc123'])).toBe(false);
+  describe('with empty allowedServices', () => {
+    it('returns false when allowedServices is empty array', () => {
+      expect(
+        isClientAllowedForPasswordless(
+          allowedClientServices,
+          'empty123',
+          'sync'
+        )
+      ).toBe(false);
+    });
+
+    it('returns false when allowedServices is empty and no service specified', () => {
+      expect(
+        isClientAllowedForPasswordless(allowedClientServices, 'empty123')
+      ).toBe(false);
+    });
   });
 
-  it('returns false when allowedClientIds is empty', () => {
-    expect(isClientAllowedForPasswordless([], 'abc123')).toBe(false);
+  describe('with invalid inputs', () => {
+    it('returns false when clientId is not in the config', () => {
+      expect(
+        isClientAllowedForPasswordless(
+          allowedClientServices,
+          'unknown',
+          'sync'
+        )
+      ).toBe(false);
+    });
+
+    it('returns false when no clientId is provided', () => {
+      expect(
+        isClientAllowedForPasswordless(allowedClientServices, undefined, 'sync')
+      ).toBe(false);
+    });
+
+    it('returns false when allowedClientServices is empty', () => {
+      expect(isClientAllowedForPasswordless({}, 'abc123', 'sync')).toBe(false);
+    });
+
+    it('returns false when allowedClientServices is undefined', () => {
+      expect(
+        isClientAllowedForPasswordless(undefined as any, 'abc123', 'sync')
+      ).toBe(false);
+    });
   });
 });

@@ -401,7 +401,7 @@ function mockSigninModule() {
 }
 
 function mockReactUtilsModule() {
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => { });
 }
 
 let mockGetCredentials: jest.SpyInstance;
@@ -584,7 +584,7 @@ describe('signin container', () => {
       await waitFor(() => {
         expect(mockAuthClient.accountStatusByEmail).toHaveBeenCalledWith(
           MOCK_QUERY_PARAM_EMAIL,
-          { thirdPartyAuthStatus: true }
+          { thirdPartyAuthStatus: true, service: MozServices.Default }
         );
       });
     });
@@ -597,7 +597,7 @@ describe('signin container', () => {
       await waitFor(() => {
         expect(mockAuthClient.accountStatusByEmail).toHaveBeenCalledWith(
           MOCK_ROUTER_STATE_EMAIL,
-          { thirdPartyAuthStatus: true }
+          { thirdPartyAuthStatus: true, service: MozServices.Default }
         );
       });
     });
@@ -1240,7 +1240,7 @@ describe('signin container', () => {
       // doesn't overwrite the initial hasPassword=false from locationState.
       mockAuthClient.accountStatusByEmail = jest
         .fn()
-        .mockReturnValue(new Promise(() => {}));
+        .mockReturnValue(new Promise(() => { }));
       mockLocationState = {
         email: MOCK_ROUTER_STATE_EMAIL,
         hasPassword: false,
@@ -1608,7 +1608,7 @@ describe('signin container', () => {
     });
 
     it('calls session.isValid and discards token when session is invalid', async () => {
-      const storedAccount: { sessionToken?: string; [key: string]: any } = {
+      const storedAccount: { sessionToken?: string;[key: string]: any } = {
         ...MOCK_STORED_ACCOUNT,
         email: MOCK_QUERY_PARAM_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,

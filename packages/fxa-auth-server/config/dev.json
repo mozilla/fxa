@@ -472,10 +472,16 @@
   },
   "passwordlessOtp": {
     "enabled": true,
-    "allowedClientIds": [
-      "98e6508e88680e1a",
-      "5882386c6d801776",
-      "dcdb5ae7add825d2"
-    ]
+    "allowedClientServices": {
+      "98e6508e88680e1a": {
+        "allowedServices": ["*"]
+      },
+      "5882386c6d801776": {
+        "allowedServices": ["relay"]
+      },
+      "dcdb5ae7add825d2": {
+        "allowedServices": ["*"]
+      }
+    }
   }
 }

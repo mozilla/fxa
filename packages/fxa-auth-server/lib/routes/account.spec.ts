@@ -1679,7 +1679,9 @@ describe('/account/status', () => {
       extraConfig: {
         passwordlessOtp: {
           enabled: true,
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
       shouldError: true,

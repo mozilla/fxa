@@ -26,6 +26,7 @@ import {
   createMockSigninWebIntegration,
 } from '../mocks';
 import { SigninOAuthIntegration } from '../interfaces';
+import { MozServices } from '../../../lib/types';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -221,6 +222,7 @@ describe('SigninPasswordlessCode page', () => {
       await waitFor(() => {
         expect(mockAuthClient.passwordlessResendCode).toHaveBeenCalledWith(MOCK_EMAIL, {
           clientId: undefined,
+          service: MozServices.Default,
           metricsContext: {
             clientId: undefined,
           },
@@ -479,7 +481,7 @@ describe('SigninPasswordlessCode page', () => {
 
       it('redirects to set password page when integration wantsKeys', async () => {
         const integration = createMockSigninWebIntegration();
-        integration.wantsKeys = jest.fn().mockReturnValue(true);
+        integration.isSync = jest.fn().mockReturnValue(true);
 
         render({ integration });
         await submitCode();

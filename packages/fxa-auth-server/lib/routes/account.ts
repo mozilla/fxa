@@ -1606,6 +1606,7 @@ export class AccountHandler {
     const thirdPartyAuthStatus = !!(request.payload as any)
       .thirdPartyAuthStatus;
     const clientId = (request.payload as any).clientId;
+    const service = (request.payload as any).service;
     let invalidDomain = false;
 
     if (checkDomain) {
@@ -1666,8 +1667,9 @@ export class AccountHandler {
             this.config.passwordlessOtp.enabled
           ) &&
             isClientAllowedForPasswordless(
-              this.config.passwordlessOtp.allowedClientIds as string[],
-              clientId
+              this.config.passwordlessOtp.allowedClientServices,
+              clientId,
+              service
             ));
       } else {
         const exist = await this.db.accountExists(email);
@@ -1690,19 +1692,18 @@ export class AccountHandler {
         }
         // For non-existent accounts, check if passwordless is supported
         if (thirdPartyAuthStatus) {
-          // Passwordless is supported if:
-          // 1. Account is eligible (doesn't exist OR enabled globally)
-          // 2. AND clientId is allowed
           const isEligible = isPasswordlessEligible(
             null, // null = account doesn't exist
             email,
             this.config.passwordlessOtp.enabled
           );
+
           result.passwordlessSupported =
             isEligible &&
             isClientAllowedForPasswordless(
-              this.config.passwordlessOtp.allowedClientIds as string[],
-              clientId
+              this.config.passwordlessOtp.allowedClientServices,
+              clientId,
+              service
             );
         }
         if (this.customs.v2Enabled()) {
@@ -2887,6 +2888,7 @@ export const accountRoutes = (
             thirdPartyAuthStatus: isA.boolean().optional().default(false),
             checkDomain: isA.optional(),
             clientId: isA.string().optional(),
+            service: validators.service.optional(),
           }),
         },
         response: {
