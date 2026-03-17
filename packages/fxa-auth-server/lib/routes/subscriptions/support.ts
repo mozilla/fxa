@@ -37,7 +37,7 @@ export const supportRoutes = (
 
     try {
       const account = await db.accountRecord(email);
-      return { uid: account.uid, email: account.email };
+      return { uid: account.uid, email: account.primaryEmail.email };
     } catch (err: any) {
       if (err.errno === AppError.ERRNO.ACCOUNT_UNKNOWN) {
         return { uid: null, email };
