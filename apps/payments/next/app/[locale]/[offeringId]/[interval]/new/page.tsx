@@ -79,7 +79,8 @@ export default async function New({
   const { isValid: locationIsValid } = await validateLocationAction(
     offeringId,
     taxAddress,
-    fxaUid
+    fxaUid,
+    interval
   );
 
   if (!taxAddress || !locationIsValid) {

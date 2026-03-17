@@ -14,7 +14,8 @@ export const updateTaxAddressAction = async (
   version: number,
   offeringId: string,
   taxAddress: TaxAddress,
-  uid?: string
+  uid?: string,
+  interval?: string
 ) => {
   const actionsService = getApp().getActionsService();
 
@@ -24,6 +25,7 @@ export const updateTaxAddressAction = async (
     offeringId,
     taxAddress,
     uid,
+    interval,
   });
 
   revalidatePath(
