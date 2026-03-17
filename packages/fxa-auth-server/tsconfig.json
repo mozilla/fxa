@@ -20,5 +20,8 @@
     "config/*",
     "lib/**/*",
     "scripts/**/*"
+  ],
+  "exclude": [
+    "lib/**/*.spec.ts"
   ]
 }

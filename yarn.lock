@@ -11081,6 +11081,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nx/nx-darwin-arm64@npm:^22.5.4":
+  version: 22.5.4
+  resolution: "@nx/nx-darwin-arm64@npm:22.5.4"
+  checksum: 10c0/c56509d6e19b1121f9a9be99027be51d6a583120df0fa6ed1f9f8dac60e8562a54a4532bd67e901ca658a6f6fbbd4b44edd91e3e92847a7e97f00fce68f14f16
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
 "@nx/nx-darwin-x64@npm:21.2.4":
   version: 21.2.4
   resolution: "@nx/nx-darwin-x64@npm:21.2.4"
@@ -36844,6 +36852,7 @@ __metadata:
     "@nx/nest": "npm:21.2.4"
     "@nx/next": "npm:21.2.4"
     "@nx/node": "npm:21.2.4"
+    "@nx/nx-darwin-arm64": "npm:^22.5.4"
     "@nx/react": "npm:21.2.4"
     "@nx/s3-cache": "npm:^5.0.0"
     "@nx/storybook": "npm:21.2.4"
