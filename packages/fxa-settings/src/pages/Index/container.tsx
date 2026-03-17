@@ -99,6 +99,10 @@ const IndexContainer = ({
   const { prefillEmail, deleteAccountSuccess, hasBounced } =
     location.state || {};
 
+  // Only used for suggestedEmail; handleSuccessNavigation reads fresh from
+  // localStorage to avoid stale closures when checking session state.
+  const cachedAccount = currentAccount() || lastStoredAccount();
+
   const handleSuccessNavigation = useCallback(
     (
       exists: boolean,
@@ -119,8 +123,11 @@ const IndexContainer = ({
       const passwordlessEnabled =
         config.featureFlags?.passwordlessEnabled === true ||
         queryParamModel.forcePasswordless === true;
+      // Skip passwordless redirect if the user has a cached session
+      const storedAccount = currentAccount() || lastStoredAccount();
+      const hasCachedSession = !!storedAccount?.sessionToken;
       const canUsePasswordlessExisting =
-        passwordlessSupported && !hasPassword && !hasLinkedAccount;
+        passwordlessSupported && !hasPassword && !hasLinkedAccount && !hasCachedSession;
       const canUsePasswordlessNew = passwordlessEnabled && passwordlessSupported && !wantsKeys;
 
       if (exists) {
@@ -308,8 +315,7 @@ const IndexContainer = ({
   const suggestedEmail =
     queryParamModel.email ||
     queryParamModel.loginHint ||
-    currentAccount()?.email ||
-    lastStoredAccount()?.email;
+    cachedAccount?.email;
 
   // If we just came from another Mozilla accounts page with a prefill email in location state,
   // ignore suggested email. Prefill email is used for clicks on "Use different account" or "Change email".

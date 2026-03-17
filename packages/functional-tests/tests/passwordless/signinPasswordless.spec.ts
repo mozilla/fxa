@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
+import { relayDesktopOAuthQueryParams, syncDesktopOAuthQueryParams } from '../../lib/query-params';
 import { getTotpCode } from '../../lib/totp';
 
 test.describe('severity-1 #smoke', () => {
@@ -730,12 +730,11 @@ test.describe('severity-1 #smoke', () => {
 
 test.describe('severity-2', () => {
   test.describe('Passwordless authentication - Cached login', () => {
-    test('passwordless account navigating to content server redirects to OTP (not cached login)', async ({
+    test('passwordless account with cached session navigating to content server sees cached signin', async ({
       target,
-      pages: { page, signin, relier, signinPasswordlessCode, settings },
+      pages: { page, signin, relier, signinPasswordlessCode },
       testAccountTracker,
     }) => {
-      // Create passwordless account via 123done
       const { email } =
         testAccountTracker.generatePasswordlessAccountDetails();
 
@@ -743,29 +742,76 @@ test.describe('severity-2', () => {
       await relier.clickEmailFirst();
       await signin.fillOutEmailFirstForm(email);
 
-      // Should redirect to passwordless code page
       await expect(page).toHaveURL(/signin_passwordless_code/);
 
-      // Get OTP code from email
       const code = await target.emailClient.getPasswordlessSignupCode(email);
       await signinPasswordlessCode.fillOutCodeForm(code);
 
-      // Should complete OAuth and redirect to RP
       expect(await relier.isLoggedIn()).toBe(true);
 
-      // Navigate to content server — passwordless accounts are always
-      // redirected to OTP verification (container.tsx checks hasPassword=false
-      // && passwordlessSupported=true and redirects before cached UI renders)
+      // Navigate to / — cached session should show signin, not OTP
       await page.goto(target.contentServerUrl);
 
-      await expect(page).toHaveURL(/signin_passwordless_code/);
-      await expect(signinPasswordlessCode.heading).toBeVisible();
+      await expect(page).not.toHaveURL(/signin_passwordless_code/);
+      await expect(signin.cachedSigninHeading).toBeVisible();
+    });
 
-      // Complete OTP flow to reach settings
-      const signinCode = await target.emailClient.getPasswordlessSigninCode(email);
-      await signinPasswordlessCode.fillOutCodeForm(signinCode);
+    test('passwordless account with cached session navigating to /signin sees cached signin page', async ({
+      target,
+      pages: { page, signin, relier, signinPasswordlessCode },
+      testAccountTracker,
+    }) => {
+      const { email } =
+        testAccountTracker.generatePasswordlessAccountDetails();
+
+      await relier.goto('force_passwordless=true');
+      await relier.clickEmailFirst();
+      await signin.fillOutEmailFirstForm(email);
+
+      await expect(page).toHaveURL(/signin_passwordless_code/);
+      const code = await target.emailClient.getPasswordlessSignupCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(code);
+
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      // Navigate to / — cached session should show signin, not OTP
+      await page.goto(target.contentServerUrl);
+
+      await expect(page).not.toHaveURL(/signin_passwordless_code/);
+      await expect(signin.cachedSigninHeading).toBeVisible();
+
+      // Navigate to /signin directly — same behavior
+      await page.goto(
+        `${target.contentServerUrl}/signin?email=${email}`
+      );
+      await expect(page).not.toHaveURL(/signin_passwordless_code/);
+      await expect(signin.cachedSigninHeading).toBeVisible();
+    });
+
+    test('passwordless signup via Settings then navigating to / shows cached signin (not OTP)', async ({
+      target,
+      pages: { page, signin, signinPasswordlessCode, settings },
+      testAccountTracker,
+    }) => {
+      const { email } =
+        testAccountTracker.generatePasswordlessAccountDetails();
+
+      await page.goto(
+        `${target.contentServerUrl}/?force_passwordless=true`
+      );
+      await signin.fillOutEmailFirstForm(email);
+
+      await expect(page).toHaveURL(/signin_passwordless_code/);
+
+      const code = await target.emailClient.getPasswordlessSignupCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(code);
 
       await expect(settings.settingsHeading).toBeVisible();
+
+      // Navigate to / — cached session should show signin, not OTP
+      await page.goto(target.contentServerUrl);
+      await expect(page).not.toHaveURL(/signin_passwordless_code/);
+      await expect(signin.cachedSigninHeading).toBeVisible();
     });
   });
 
@@ -992,6 +1038,29 @@ test.describe('severity-2', () => {
       // flow since webchannel state from first login is stale.
     });
   });
+
+test.describe('Passwordless authentication - Browser Service (Relay)', () => {
+    test('passwordless signin via Relay OAuth flow', async ({
+      target,
+      pages: { page, signin, signinPasswordlessCode },
+      testAccountTracker,
+    }) => {
+      const { email } = await testAccountTracker.signUpPasswordless();
+
+      const params = new URLSearchParams(relayDesktopOAuthQueryParams);
+      await signin.goto('/authorization', params);
+
+      await signin.fillOutEmailFirstForm(email);
+
+      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await expect(signinPasswordlessCode.heading).toBeVisible();
+
+      const code = await target.emailClient.getPasswordlessSigninCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(code);
+
+      // After OTP, the flow either redirects to set_password or
+      // completes the OAuth flow — verify we left the OTP page
+      await expect(page).not.toHaveURL(/signin_passwordless_code/);
+    });
 });
-
-
+});

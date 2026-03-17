@@ -288,7 +288,8 @@ const SigninContainer = ({
               passwordlessSupported &&
               !hasPassword &&
               !hasLinkedAccount &&
-              !skipPasswordlessRedirect
+              !skipPasswordlessRedirect &&
+              !sessionToken
             ) {
               // Existing passwordless account — server returns
               // passwordlessSupported=true regardless of flag/allowlist
