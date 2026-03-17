@@ -2281,12 +2281,6 @@ const convictConf = convict({
       format: String,
     },
   },
-  certificateSignDisableRolloutRate: {
-    default: 0,
-    doc: 'Rollout rate for disabling certificate signing, in the range 0 .. 1',
-    env: 'CERTIFICATE_SIGN_DISABLE_ROLLOUT_RATE',
-    format: Number,
-  },
   cms: {
     enabled: {
       default: false,
