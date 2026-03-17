@@ -876,6 +876,7 @@ jobs:
             sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
             sudo cat /etc/hosts
       - wait-for-infrastructure
+      - ensure-glean-venv
       - run:
           name: Start services for playwright tests
           command: ./packages/functional-tests/scripts/start-services.sh
