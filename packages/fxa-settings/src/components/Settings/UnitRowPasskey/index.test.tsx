@@ -77,9 +77,9 @@ describe('UnitRowPasskey', () => {
     expect(screen.getByText('Enabled')).toBeInTheDocument();
   });
 
-  it('displays "Not Set" when no passkeys exist', () => {
+  it('displays "Not set" when no passkeys exist', () => {
     renderUnitRowPasskey([]);
-    expect(screen.getByText('Not Set')).toBeInTheDocument();
+    expect(screen.getByText('Not set')).toBeInTheDocument();
   });
 
   it('renders all passkey sub-rows', () => {

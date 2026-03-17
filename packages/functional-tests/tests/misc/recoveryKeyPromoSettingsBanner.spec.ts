@@ -23,7 +23,7 @@ test.describe('recovery key promo', () => {
       await signin.fillOutPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not set');
 
       await inlineRecoveryKey.getBannerCreateLink().click();
 
@@ -55,7 +55,7 @@ test.describe('recovery key promo', () => {
       await signin.fillOutPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not set');
 
       await inlineRecoveryKey.getBannerCreateLink().click();
 

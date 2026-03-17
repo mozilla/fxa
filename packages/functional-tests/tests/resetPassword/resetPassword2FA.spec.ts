@@ -335,7 +335,7 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.settingsHeading).toBeVisible();
 
     // Recovery key has been removed
-    await expect(settings.recoveryKey.status).toHaveText('Not Set');
+    await expect(settings.recoveryKey.status).toHaveText('Not set');
   });
 
   test('provide invalid recovery key then reset with totp authenticator code', async ({

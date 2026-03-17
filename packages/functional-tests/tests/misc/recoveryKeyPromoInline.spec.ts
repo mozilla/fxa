@@ -234,7 +234,7 @@ test.describe('recovery key promo', () => {
       await page.waitForURL(/settings/);
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not set');
 
       await settings.signOut();
 

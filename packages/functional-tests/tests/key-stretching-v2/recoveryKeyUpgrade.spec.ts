@@ -26,7 +26,7 @@ test.describe('severity-2 #smoke', () => {
     await confirmSignupCode.fillOutCodeForm(code);
 
     await expect(page).toHaveURL(/settings/);
-    await expect(settings.recoveryKey.status).toHaveText('Not Set');
+    await expect(settings.recoveryKey.status).toHaveText('Not set');
 
     await settings.recoveryKey.createButton.click();
 

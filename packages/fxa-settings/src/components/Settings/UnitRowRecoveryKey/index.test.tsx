@@ -101,7 +101,7 @@ describe('UnitRowRecoveryKey', () => {
     screen.getByRole('heading', { name: 'Account recovery key' });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
-    ).toContain('Not Set');
+    ).toContain('Not set');
     const createRKLink = screen.getByRole('link', { name: 'Create' });
     expect(createRKLink).toHaveAttribute('href', '/settings/account_recovery');
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
@@ -112,7 +112,7 @@ describe('UnitRowRecoveryKey', () => {
     screen.getByRole('heading', { name: 'Account recovery key' });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
-    ).toContain('Not Set');
+    ).toContain('Not set');
     const createRKButton = screen.getByTestId('recovery-key-unit-row-disabled');
     expect(createRKButton).toBeDisabled();
     expect(createRKButton).toHaveAttribute(

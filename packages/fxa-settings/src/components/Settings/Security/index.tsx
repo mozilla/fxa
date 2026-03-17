@@ -40,7 +40,7 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
 export const Security = forwardRef<HTMLDivElement>((_, ref) => {
   const { passwordCreated, hasPassword } = useAccount();
   const { l10n } = useLocalization();
-  const localizedNotSet = l10n.getString('security-not-set', null, 'Not Set');
+  const localizedNotSet = l10n.getString('security-not-set', null, 'Not set');
 
   return (
     <section data-testid="settings-security" {...{ ref }} id="security-section">
