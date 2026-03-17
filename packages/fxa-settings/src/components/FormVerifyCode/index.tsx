@@ -69,6 +69,7 @@ const FormVerifyCode = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
+  const inputMode = formAttributes.inputMode || InputModeEnum.numeric;
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedLabel = ftlMsgResolver.getMsg(
     formAttributes.inputFtlId,
@@ -145,13 +146,18 @@ const FormVerifyCode = ({
       <InputText
         name="code"
         type="text"
-        inputMode={formAttributes.inputMode || InputModeEnum.numeric}
+        inputMode={inputMode}
         label={localizedLabel}
-        onChange={
-          setClearMessages
-            ? () => setClearMessages(true)
-            : () => setCodeErrorMessage('')
-        }
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          if (inputMode === InputModeEnum.numeric) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+          }
+          if (setClearMessages) {
+            setClearMessages(true);
+          } else {
+            setCodeErrorMessage('');
+          }
+        }}
         onFocusCb={viewName ? onFocus : undefined}
         onPaste={submitFormOnPaste ? onPaste : undefined}
         errorText={codeErrorMessage}

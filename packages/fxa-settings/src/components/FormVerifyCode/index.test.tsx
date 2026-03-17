@@ -7,6 +7,7 @@ import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { Subject } from './mocks';
+import { InputModeEnum } from '.';
 import userEvent from '@testing-library/user-event';
 
 jest.mock('../../lib/metrics', () => ({
@@ -197,6 +198,42 @@ describe('FormVerifyCode component', () => {
       // Type again to make it valid
       await user.type(input, '4');
       expect(submitButton).toBeEnabled();
+    });
+  });
+
+  describe('Numeric input filtering', () => {
+    it('strips non-numeric characters when inputMode is numeric (default)', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject />);
+      const input = screen.getByRole('textbox', {
+        name: 'Enter your 4-digit code',
+      });
+
+      await user.type(input, 'ab12cd34');
+      expect(input).toHaveValue('1234');
+    });
+
+    it('allows alphanumeric characters when inputMode is text', async () => {
+      const user = userEvent.setup();
+      const alphanumericFormAttributes = {
+        inputFtlId: 'demo-input-label-id',
+        inputLabelText: 'Enter backup code',
+        inputMode: InputModeEnum.text,
+        pattern: '[a-zA-Z0-9]',
+        maxLength: 10,
+        submitButtonFtlId: 'demo-submit-button-id',
+        submitButtonText: 'Check that code',
+      };
+
+      renderWithLocalizationProvider(
+        <Subject formAttributes={alphanumericFormAttributes} />
+      );
+      const input = screen.getByRole('textbox', {
+        name: 'Enter backup code',
+      });
+
+      await user.type(input, 'abc123');
+      expect(input).toHaveValue('abc123');
     });
   });
 
