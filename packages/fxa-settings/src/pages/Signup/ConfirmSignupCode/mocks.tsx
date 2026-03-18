@@ -5,11 +5,10 @@
 import React from 'react';
 import { LocationProvider } from '@reach/router';
 import ConfirmSignupCode from '.';
+import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
 import {
   IntegrationType,
-  OAuthNativeClients,
   OAuthNativeIntegration,
-  OAuthNativeServices,
   OAuthWebIntegration,
   RelierClientInfo,
   RelierCmsInfo,
@@ -169,7 +168,8 @@ export function createMockOAuthNativeIntegration(
   //   isFirefoxClientServiceRelay: () => !isSync,
   // };
 
-  const resolvedService = service ?? (isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay);
+  const resolvedService =
+    service ?? (isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay);
   const integration = new OAuthNativeIntegration(
     new GenericData({
       scope: 'profile:email',

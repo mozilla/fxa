@@ -3,11 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ModelDataStore, GenericData } from '../../lib/model-data';
-import {
-  OAuthNativeClients,
-  OAuthNativeIntegration,
-  OAuthNativeServices,
-} from './oauth-native-integration';
+import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
+import { OAuthNativeIntegration } from './oauth-native-integration';
 import { OAuthWebIntegration } from './oauth-web-integration';
 
 function mockClientInfo(clientId: string) {

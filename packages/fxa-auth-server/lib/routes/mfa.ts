@@ -16,6 +16,7 @@ import { OtpUtils } from './utils/otp';
 import { AppError } from '@fxa/accounts/errors';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
+import { getClientServiceTags } from '../metrics/client-tags';
 
 /** Customs interface for mfa specific operations. */
 interface Customs {
@@ -123,7 +124,10 @@ class MfaHandler {
     }
 
     if (success) {
-      this.statsd.increment('account.mfa.otp.sendCode.success');
+      this.statsd.increment(
+        'account.mfa.otp.sendCode.success',
+        getClientServiceTags(request)
+      );
 
       // TODO Create equivalent glean event
       // await this.glean.mfaOtpCode.sent(request);
@@ -198,7 +202,10 @@ class MfaHandler {
 
       const account = await this.db.account(uid);
 
-      this.statsd.increment('account.otp.verifyOtp.success');
+      this.statsd.increment(
+        'account.otp.verifyOtp.success',
+        getClientServiceTags(request)
+      );
 
       // TODO: At some point we might want to create a mapping between actions and scopes.
       // this would allow us to let multiple actions to all be sanctioned by a single jwt.

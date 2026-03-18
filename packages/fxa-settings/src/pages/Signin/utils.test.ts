@@ -21,7 +21,7 @@ import { handleNavigation, ensureCanLinkAcountOrRedirect } from './utils';
 import * as ReachRouter from '@reach/router';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
-import { OAuthNativeServices } from '../../models';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
 
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
@@ -335,10 +335,13 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(fxaOAuthLoginSpy).toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith('/post_verify/service_welcome', {
-          state: { origin: 'signin' },
-          replace: true,
-        });
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/post_verify/service_welcome',
+          {
+            state: { origin: 'signin' },
+            replace: true,
+          }
+        );
       });
     });
   });

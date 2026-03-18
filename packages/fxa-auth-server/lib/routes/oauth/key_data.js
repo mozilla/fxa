@@ -15,6 +15,7 @@ const DESCRIPTION =
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
+const { getClientServiceTags } = require('../../metrics/client-tags');
 
 /**
  * We don't yet support rotating individual scoped keys,
@@ -154,8 +155,10 @@ module.exports = ({ log, oauthDB, statsd }) => {
         checkDisabledClientId(req.payload);
         const sessionToken = req.auth.credentials;
         req.payload.assertion = await makeAssertionJWT(config, sessionToken);
+        const serviceTags = getClientServiceTags(req);
         statsd.increment('oauth.rp.scoped-keys-metadata', {
           clientId: req.payload.client_id,
+          ...(serviceTags.service && { service: serviceTags.service }),
         });
         try {
           return await keyDataHandler(req);

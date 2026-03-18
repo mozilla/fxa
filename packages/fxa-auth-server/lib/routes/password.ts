@@ -24,6 +24,7 @@ import * as requestHelper from '../routes/utils/request_helper';
 import { AuthLogger, AuthRequest } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
 import * as validators from './validators';
+import { getClientServiceTags } from '../metrics/client-tags';
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -114,7 +115,10 @@ module.exports = function (
           sessionToken.email,
           customs.v2Enabled() ? 'authenticatedPasswordChange' : 'passwordChange'
         );
-        statsd.increment('passwordChange.start.authenticated');
+        statsd.increment(
+          'passwordChange.start.authenticated',
+          getClientServiceTags(request)
+        );
 
         let keyFetchToken: any | undefined = undefined;
         let keyFetchToken2: any | undefined = undefined;
@@ -1110,7 +1114,10 @@ module.exports = function (
           account: { uid: account.uid },
         });
 
-        statsd.increment('otp.passwordForgot.sent');
+        statsd.increment(
+          'otp.passwordForgot.sent',
+          getClientServiceTags(request)
+        );
 
         return {};
       },
@@ -1137,7 +1144,10 @@ module.exports = function (
       handler: async function (request: any) {
         log.begin('Password.forgotOtpVerify', request);
         await request.emitMetricsEvent('password.forgot.verify_otp.start');
-        statsd.increment('otp.passwordForgot.attempt');
+        statsd.increment(
+          'otp.passwordForgot.attempt',
+          getClientServiceTags(request)
+        );
 
         const { email, code } = request.payload;
 
@@ -1171,7 +1181,10 @@ module.exports = function (
           account: { uid: account.uid },
         });
 
-        statsd.increment('otp.passwordForgot.verified');
+        statsd.increment(
+          'otp.passwordForgot.verified',
+          getClientServiceTags(request)
+        );
 
         return {
           code: passwordForgotToken.passCode,

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ModelsModule from '../../../models';
+import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
 import * as utils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../../lib/cache';
 
@@ -118,7 +119,7 @@ function mockOAuthNativeIntegration({ service }: { service?: string } = {}) {
     }
   );
   integration.clientInfo = {
-    clientId: ModelsModule.OAuthNativeClients.FirefoxDesktop,
+    clientId: OAuthNativeClients.FirefoxDesktop,
     serviceName: service,
     redirectUri: 'https://mock.com',
     trusted: true,
@@ -276,7 +277,7 @@ describe('ThirdPartyAuthCallback component', () => {
 
   it('sets handleFxaLogin and handleFxaOAuthLogin to true for non-Sync services', async () => {
     const integration = mockOAuthNativeIntegration({
-      service: ModelsModule.OAuthNativeServices.Relay,
+      service: OAuthNativeServices.Relay,
     });
     renderWith({ integration });
 
@@ -293,7 +294,7 @@ describe('ThirdPartyAuthCallback component', () => {
 
   it('sets handleFxaLogin and handleFxaOAuthLogin to false for Sync integrations', async () => {
     const integration = mockOAuthNativeIntegration({
-      service: ModelsModule.OAuthNativeServices.Sync,
+      service: OAuthNativeServices.Sync,
     });
     renderWith({ integration });
     await waitFor(() => {
@@ -318,7 +319,7 @@ describe('ThirdPartyAuthCallback component', () => {
     });
 
     const integration = mockOAuthNativeIntegration({
-      service: ModelsModule.OAuthNativeServices.Relay,
+      service: OAuthNativeServices.Relay,
     });
 
     renderWith({ integration });

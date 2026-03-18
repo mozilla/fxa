@@ -32,6 +32,7 @@ import {
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { getOptionalCmsEmailConfig } from './utils/account';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
+import { getClientServiceTags } from '../metrics/client-tags';
 
 /**
  * Redis adapter for OTP storage
@@ -92,7 +93,9 @@ class PasswordlessHandler {
   /**
    * Look up an account by email. Returns null if the account doesn't exist.
    */
-  private async lookupAccount(email: string): Promise<{ account: any; isNewAccount: boolean }> {
+  private async lookupAccount(
+    email: string
+  ): Promise<{ account: any; isNewAccount: boolean }> {
     try {
       const account = await this.db.accountRecord(email, {
         linkedAccounts: true,
@@ -117,8 +120,10 @@ class PasswordlessHandler {
     clientId: string | undefined,
     logTag: string
   ) {
-    const hasLinkedAccount = account && (account.linkedAccounts?.length || 0) > 0;
-    const isExistingPasswordless = account && account.verifierSetAt === 0 && !hasLinkedAccount;
+    const hasLinkedAccount =
+      account && (account.linkedAccounts?.length || 0) > 0;
+    const isExistingPasswordless =
+      account && account.verifierSetAt === 0 && !hasLinkedAccount;
     if (
       !isExistingPasswordless &&
       !isClientAllowedForPasswordless(
@@ -129,7 +134,13 @@ class PasswordlessHandler {
       this.log.error(`passwordless.${logTag}.clientIdNotAllowed`, { clientId });
       throw error.featureNotEnabled();
     }
-    if (!isPasswordlessEligible(account, email, this.config.passwordlessOtp.enabled)) {
+    if (
+      !isPasswordlessEligible(
+        account,
+        email,
+        this.config.passwordlessOtp.enabled
+      )
+    ) {
       throw error.cannotCreatePassword();
     }
   }
@@ -174,7 +185,10 @@ class PasswordlessHandler {
     const isValidCode = await this.otpManager.isValid(otpKey, code);
 
     if (!isValidCode) {
-      this.statsd.increment('passwordless.confirmCode.invalid');
+      this.statsd.increment(
+        'passwordless.confirmCode.invalid',
+        getClientServiceTags(request)
+      );
       await recordSecurityEvent('account.passwordless_login_otp_failed', {
         db: this.db,
         request,
@@ -201,7 +215,10 @@ class PasswordlessHandler {
     // Create account if new
     if (isNewAccount) {
       account = await this.createPasswordlessAccount(email, request);
-      this.statsd.increment('passwordless.registration.success');
+      this.statsd.increment(
+        'passwordless.registration.success',
+        getClientServiceTags(request)
+      );
 
       await recordSecurityEvent('account.passwordless_registration_complete', {
         db: this.db,
@@ -225,7 +242,10 @@ class PasswordlessHandler {
       tokenVerificationId
     );
 
-    this.statsd.increment('passwordless.confirmCode.success');
+    this.statsd.increment(
+      'passwordless.confirmCode.success',
+      getClientServiceTags(request)
+    );
 
     await recordSecurityEvent('account.passwordless_login_otp_verified', {
       db: this.db,
@@ -368,7 +388,10 @@ class PasswordlessHandler {
       });
     }
 
-    this.statsd.increment('passwordless.sendCode.success');
+    this.statsd.increment(
+      'passwordless.sendCode.success',
+      getClientServiceTags(request)
+    );
 
     // Record security event
     await recordSecurityEvent('account.passwordless_login_otp_sent', {

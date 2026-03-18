@@ -5,12 +5,8 @@
 import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
-import {
-  Account,
-  AlertBarInfo,
-  AppContext,
-  OAuthNativeClients,
-} from '../../../models';
+import { OAuthNativeClients } from '@fxa/accounts/oauth';
+import { Account, AlertBarInfo, AppContext } from '../../../models';
 import {
   renderWithRouter,
   mockAppContext,

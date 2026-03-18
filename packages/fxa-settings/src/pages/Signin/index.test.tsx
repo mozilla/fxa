@@ -42,11 +42,8 @@ import { SigninProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
-import {
-  IntegrationType,
-  OAuthNativeServices,
-  RelierCmsInfo,
-} from '../../models';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { IntegrationType, RelierCmsInfo } from '../../models';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import * as SigninUtils from './utils';

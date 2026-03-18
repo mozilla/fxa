@@ -330,6 +330,7 @@ describe('/token POST', function () {
 
     it('increments count on scope keys usage', async () => {
       const request = {
+        app: {},
         payload: {
           client_id: CLIENT_ID,
           grant_type: 'authorization_code',
@@ -366,6 +367,7 @@ describe('/token POST', function () {
 
     it('logs the token created event', async () => {
       const request = {
+        app: {},
         payload: {
           client_id: CLIENT_ID,
           grant_type: 'authorization_code',
