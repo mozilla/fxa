@@ -16,5 +16,6 @@ export function getAdditionalRequestArgs() {
     userAgent: userAgentString,
     deviceType: userAgent.device.type || 'desktop',
     experimentationId,
+    isFreeTrial: false,
   };
 }

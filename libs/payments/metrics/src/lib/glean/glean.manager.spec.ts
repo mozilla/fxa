@@ -9,6 +9,7 @@ import {
   CommonMetricsFactory,
   ExperimentationDataFactory,
   SubscriptionCancellationDataFactory,
+  TrialConversionDataFactory,
 } from './glean.factory';
 import { PaymentsGleanProvider } from './glean.types';
 import { MockPaymentsGleanFactory } from './glean.test-provider';
@@ -205,6 +206,44 @@ describe('PaymentsGleanManager', () => {
       ).toHaveBeenCalledWith({
         ...mockCommonMetrics,
         subscription_payment_provider: mockPaymentProvider,
+      });
+    });
+  });
+
+  describe('recordFxaSubscriptionTrialConverted', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(
+          paymentsGleanServerEventsLogger,
+          'recordSubscriptionTrialConverted'
+        )
+        .mockReturnValue({});
+      spyPopulateCommonMetrics = jest
+        .spyOn(paymentsGleanManager as any, 'populateCommonMetrics')
+        .mockReturnValue(mockCommonMetrics);
+    });
+
+    it('should record subscription trial converted', () => {
+      const mockTrialConversionData = TrialConversionDataFactory();
+      const metricsData = {
+        cmsMetricsData: mockCommonMetricsData.cmsMetricsData,
+        trialConversionData: mockTrialConversionData,
+      };
+      paymentsGleanManager.recordFxaSubscriptionTrialConverted(
+        metricsData,
+        mockPaymentProvider
+      );
+      expect(spyPopulateCommonMetrics).toHaveBeenCalledWith(metricsData);
+      expect(
+        paymentsGleanServerEventsLogger.recordSubscriptionTrialConverted
+      ).toHaveBeenCalledWith({
+        ...mockCommonMetrics,
+        subscription_payment_provider: mockPaymentProvider,
+        subscription_product_id: mockTrialConversionData.productId,
+        subscription_provider_event_id:
+          mockTrialConversionData.providerEventId,
+        trial_conversion_status: mockTrialConversionData.conversionStatus,
+        subscription_billing_country: mockTrialConversionData.billingCountry,
       });
     });
   });

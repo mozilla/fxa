@@ -8,6 +8,7 @@ import {
   MockStripeConfigProvider,
   StripeClient,
   StripeEventCustomerSubscriptionCreatedFactory,
+  StripeEventCustomerSubscriptionUpdatedFactory,
 } from '@fxa/payments/stripe';
 import { StripeEventManager } from './stripe-event.manager';
 import { StripeWebhookService } from './stripe-webhooks.service';
@@ -148,6 +149,14 @@ describe('StripeEventManager', () => {
           .mockReturnValue(StripeEventCustomerSubscriptionDeletedFactory());
         const result = stripeEventManager.constructWebhookEventResponse({}, '');
         expect(result.type).toBe('customer.subscription.deleted');
+      });
+
+      it('customer.subscription.updated - returns subscription object', () => {
+        jest
+          .spyOn(stripeClient, 'constructWebhookEvent')
+          .mockReturnValue(StripeEventCustomerSubscriptionUpdatedFactory());
+        const result = stripeEventManager.constructWebhookEventResponse({}, '');
+        expect(result.type).toBe('customer.subscription.updated');
       });
 
       it('customer.subscription.created - returns default', () => {

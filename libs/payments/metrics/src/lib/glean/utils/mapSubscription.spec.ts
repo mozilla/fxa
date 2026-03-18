@@ -30,6 +30,7 @@ describe('mapSubscription', () => {
       subscription_checkout_type: 'logged_out',
       subscription_currency: mockCartData.currency,
       subscription_error_id: mockCartData.errorReasonId,
+      subscription_is_free_trial: '',
       subscription_interval: mockCommonData.params['interval'],
       subscription_offering_id: mockCommonData.params['offeringId'],
       subscription_payment_provider: '',
@@ -39,6 +40,36 @@ describe('mapSubscription', () => {
       subscription_provider_event_id: '',
       subscription_subscribed_plan_ids: '',
     });
+  });
+
+  it('should map isFreeTrial true', () => {
+    const mockCommonData = CommonMetricsFactory({
+      params: CheckoutParamsFactory(),
+    });
+    const mockCartData = CartMetricsFactory();
+    const mockCmsMetricsData = CmsMetricsDataFactory();
+    const result = mapSubscription({
+      commonMetricsData: mockCommonData,
+      cartMetricsData: mockCartData,
+      cmsMetricsData: mockCmsMetricsData,
+      isFreeTrial: true,
+    });
+    expect(result.subscription_is_free_trial).toBe('true');
+  });
+
+  it('should map isFreeTrial false', () => {
+    const mockCommonData = CommonMetricsFactory({
+      params: CheckoutParamsFactory(),
+    });
+    const mockCartData = CartMetricsFactory();
+    const mockCmsMetricsData = CmsMetricsDataFactory();
+    const result = mapSubscription({
+      commonMetricsData: mockCommonData,
+      cartMetricsData: mockCartData,
+      cmsMetricsData: mockCmsMetricsData,
+      isFreeTrial: false,
+    });
+    expect(result.subscription_is_free_trial).toBe('');
   });
 
   it('should return empty strings if values are not present', () => {
@@ -64,6 +95,7 @@ describe('mapSubscription', () => {
       subscription_checkout_type: 'logged_out',
       subscription_currency: '',
       subscription_error_id: '',
+      subscription_is_free_trial: '',
       subscription_interval: '',
       subscription_offering_id: '',
       subscription_payment_provider: '',

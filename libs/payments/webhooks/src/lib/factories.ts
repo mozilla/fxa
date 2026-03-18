@@ -4,10 +4,12 @@
 
 import {
   StripeEventCustomerSubscriptionCreatedFactory,
+  StripeEventCustomerSubscriptionUpdatedFactory,
   StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
 import {
   CustomerSubscriptionDeletedResponse,
+  CustomerSubscriptionUpdatedResponse,
   type StripeEventStoreEntry,
   type StripeEventStoreEntryFirestoreRecord,
 } from './types';
@@ -24,6 +26,24 @@ export const CustomerSubscriptionDeletedResponseFactory = (
   eventObjectData: subscription,
   ...override,
 });
+
+export const CustomerSubscriptionUpdatedResponseFactory = (
+  override?: Partial<CustomerSubscriptionUpdatedResponse>,
+  subscriptionOverride?: Partial<ReturnType<typeof StripeSubscriptionFactory>>,
+  previousAttributes?: Partial<ReturnType<typeof StripeSubscriptionFactory>>
+): CustomerSubscriptionUpdatedResponse => {
+  const sub = StripeSubscriptionFactory(subscriptionOverride);
+  return {
+    type: 'customer.subscription.updated',
+    event: StripeEventCustomerSubscriptionUpdatedFactory(
+      undefined,
+      sub,
+      previousAttributes
+    ),
+    eventObjectData: sub,
+    ...override,
+  };
+};
 
 export const StripeEventStoreEntryFactory = (
   override?: Partial<StripeEventStoreEntry>

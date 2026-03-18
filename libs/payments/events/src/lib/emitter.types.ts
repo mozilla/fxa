@@ -42,6 +42,15 @@ export type SubscriptionEndedEvents = {
   uid?: string;
 };
 
+export type TrialConvertedEvents = {
+  productId: string;
+  priceId: string;
+  conversionStatus: 'successful' | 'unsuccessful';
+  providerEventId: string;
+  uid?: string;
+  billingCountry?: string;
+};
+
 export const PaymentsEmitterEventsKeys = [
   'checkoutView',
   'checkoutEngage',
@@ -78,6 +87,7 @@ export type PaymentsEmitterEvents = {
   genericGleanEvent: GenericGleanEvent;
   genericGleanSubManageEvent: GenericGleanSubManageEvent;
   subscriptionEnded: SubscriptionEndedEvents;
+  trialConverted: TrialConvertedEvents;
   sp3Rollout: SP3RolloutEvent;
   locationView: LocationStatus | TaxChangeAllowedStatus;
   auth: AuthEvents;
