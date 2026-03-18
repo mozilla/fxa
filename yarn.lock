@@ -344,9 +344,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/server@npm:^4.11.3":
-  version: 4.12.2
-  resolution: "@apollo/server@npm:4.12.2"
+"@apollo/server@npm:^4.13.0":
+  version: 4.13.0
+  resolution: "@apollo/server@npm:4.13.0"
   dependencies:
     "@apollo/cache-control-types": "npm:^1.0.3"
     "@apollo/server-gateway-interface": "npm:^1.1.1"
@@ -363,6 +363,7 @@ __metadata:
     "@types/express-serve-static-core": "npm:^4.17.30"
     "@types/node-fetch": "npm:^2.6.1"
     async-retry: "npm:^1.2.1"
+    content-type: "npm:^1.0.5"
     cors: "npm:^2.8.5"
     express: "npm:^4.21.1"
     loglevel: "npm:^1.6.8"
@@ -374,7 +375,7 @@ __metadata:
     whatwg-mimetype: "npm:^3.0.0"
   peerDependencies:
     graphql: ^16.6.0
-  checksum: 10c0/c5ac01490adcc1f36787f6be2e0c698a3d7ffe9846bd6f70c18d788c5c60b528fc0f2d037ed5ac4a2ddf4d24e72335371e3e1bfc16c094cbb3e034b883ebffd4
+  checksum: 10c0/c88d6a495580b77447a3f19e37b9cbd8cd131a6aab5a844aa05bef6228a26c0e095247006dbf5ed688ed0a9eb034e4c91a6b45ac081fdc77e367982c0e5867d2
   languageName: node
   linkType: hard
 
@@ -29999,7 +30000,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"content-type@npm:^1.0.4, content-type@npm:~1.0.4, content-type@npm:~1.0.5":
+"content-type@npm:^1.0.4, content-type@npm:^1.0.5, content-type@npm:~1.0.4, content-type@npm:~1.0.5":
   version: 1.0.5
   resolution: "content-type@npm:1.0.5"
   checksum: 10c0/b76ebed15c000aee4678c3707e0860cb6abd4e680a598c0a26e17f0bfae723ec9cc2802f0ff1bc6e4d80603719010431d2231018373d4dde10f9ccff9dadf5af
@@ -36818,7 +36819,7 @@ __metadata:
   resolution: "fxa@workspace:."
   dependencies:
     "@apollo/client": "npm:^3.11.1"
-    "@apollo/server": "npm:^4.11.3"
+    "@apollo/server": "npm:^4.13.0"
     "@aws-sdk/client-config-service": "npm:^3.879.0"
     "@aws-sdk/client-s3": "npm:^3.878.0"
     "@aws-sdk/client-sns": "npm:^3.876.0"
