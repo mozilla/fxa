@@ -23,7 +23,7 @@ test.describe('severity-1 #smoke', () => {
         await signin.fillOutEmailFirstForm(email);
 
         // Should redirect to passwordless code page
-        await expect(page).toHaveURL(/signin_passwordless_code/);
+        await page.waitForURL(/signin_passwordless_code/);
         await expect(signinPasswordlessCode.heading).toBeVisible();
 
         // Get OTP code from email
@@ -52,7 +52,7 @@ test.describe('severity-1 #smoke', () => {
         await signin.fillOutEmailFirstForm(email);
 
         // Should go to passwordless code page (not password page)
-        await expect(page).toHaveURL(/signin_passwordless_code/);
+        await page.waitForURL(/signin_passwordless_code/);
         await expect(signinPasswordlessCode.heading).toBeVisible();
 
         const code = await target.emailClient.getPasswordlessSigninCode(email);
@@ -73,7 +73,7 @@ test.describe('severity-1 #smoke', () => {
         await relier.clickEmailFirst();
         await signin.fillOutEmailFirstForm(email);
 
-        await expect(page).toHaveURL(/signin_passwordless_code/);
+        await page.waitForURL(/signin_passwordless_code/);
 
         // Wait a moment before clicking resend to avoid rate limiting
         await page.waitForTimeout(1000);
@@ -570,7 +570,7 @@ test.describe('severity-1 #smoke', () => {
         await relier.clickEmailFirst();
         await signin.fillOutEmailFirstForm(email);
 
-        await expect(page).toHaveURL(/signin_passwordless_code/);
+        await page.waitForURL(/signin_passwordless_code/);
         await expect(signinPasswordlessCode.heading).toBeVisible();
 
         // Second attempt: go back to the RP and re-enter email (sends code #2)
@@ -579,7 +579,7 @@ test.describe('severity-1 #smoke', () => {
         await signin.fillOutEmailFirstForm(email);
 
         // Should reach the code page without a rate limit error
-        await expect(page).toHaveURL(/signin_passwordless_code/);
+        await page.waitForURL(/signin_passwordless_code/);
         await expect(signinPasswordlessCode.heading).toBeVisible();
 
         // Verify no error banner is displayed (e.g. "too many requests")
@@ -605,7 +605,7 @@ test.describe('severity-1 #smoke', () => {
         await relier.clickEmailFirst();
         await signin.fillOutEmailFirstForm(email);
 
-        await expect(page).toHaveURL(/signin_passwordless_code/);
+        await page.waitForURL(/signin_passwordless_code/);
 
         // Enter an invalid 8-digit code
         await signinPasswordlessCode.fillOutCodeForm('12345678');
@@ -677,7 +677,7 @@ test.describe('severity-1 #smoke', () => {
         await signin.fillOutEmailFirstForm(email);
 
         // Should redirect to passwordless code page
-        await expect(page).toHaveURL(/signin_passwordless_code/);
+        await page.waitForURL(/signin_passwordless_code/);
 
         // Get OTP code and enter it
         const passwordlessCode =
@@ -685,7 +685,7 @@ test.describe('severity-1 #smoke', () => {
         await signinPasswordlessCode.fillOutCodeForm(passwordlessCode);
 
         // Should redirect to TOTP code entry page (not password signin)
-        await expect(page).toHaveURL(/signin_totp_code/);
+        await page.waitForURL(/signin_totp_code/);
 
         // Enter the TOTP code
         const newTotpCode = await getTotpCode(secret);
@@ -742,7 +742,7 @@ test.describe('severity-2', () => {
       await relier.clickEmailFirst();
       await signin.fillOutEmailFirstForm(email);
 
-      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await page.waitForURL(/signin_passwordless_code/);
 
       const code = await target.emailClient.getPasswordlessSignupCode(email);
       await signinPasswordlessCode.fillOutCodeForm(code);
@@ -833,7 +833,7 @@ test.describe('severity-2', () => {
       await page.goto(
         `${target.contentServerUrl}/signin?email=${encodeURIComponent(email)}`
       );
-      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await page.waitForURL(/signin_passwordless_code/);
       await expect(signinPasswordlessCode.heading).toBeVisible();
 
       // Complete OTP flow — non-OAuth path should land on settings
@@ -860,7 +860,7 @@ test.describe('severity-2', () => {
       await signin.fillOutEmailFirstForm(email);
 
       // Should go to passwordless code page, NOT a password form
-      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await page.waitForURL(/signin_passwordless_code/);
       await expect(signinPasswordlessCode.heading).toBeVisible();
 
       const code = await target.emailClient.getPasswordlessSigninCode(email);
@@ -908,7 +908,7 @@ test.describe('severity-2', () => {
       await relier.goto('force_passwordless=true');
       await relier.clickEmailFirst();
       await signin.fillOutEmailFirstForm(otherPasswordlessEmail);
-      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await page.waitForURL(/signin_passwordless_code/);
       await expect(signinPasswordlessCode.heading).toBeVisible();
     });
   });
@@ -938,14 +938,14 @@ test.describe('severity-2', () => {
       await signin.fillOutEmailFirstForm(email);
 
       // Should go to passwordless code page
-      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await page.waitForURL(/signin_passwordless_code/);
 
       const code = await target.emailClient.getPasswordlessSigninCode(email);
       await signinPasswordlessCode.fillOutCodeForm(code);
 
       // For Sync with existing passwordless account (no password),
       // should redirect to set password page
-      await expect(page).toHaveURL(/set_password/);
+      await page.waitForURL(/set_password/);
       await expect(
         page.getByRole('heading', { name: 'Create password to sync' })
       ).toBeVisible();
@@ -956,7 +956,7 @@ test.describe('severity-2', () => {
       await page.getByRole('button', { name: 'Start syncing' }).click();
 
       // Should show Sync confirmed page with success banner
-      await expect(page).toHaveURL(/signup_confirmed_sync/);
+      await page.waitForURL(/signup_confirmed_sync/);
       await expect(
         page.getByRole('heading', { name: 'Sync is turned on' })
       ).toBeVisible();
@@ -1005,19 +1005,19 @@ test.describe('severity-2', () => {
       await signin.fillOutEmailFirstForm(email);
 
       // Should redirect to passwordless code page
-      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await page.waitForURL(/signin_passwordless_code/);
 
       const code = await target.emailClient.getPasswordlessSigninCode(email);
       await signinPasswordlessCode.fillOutCodeForm(code);
 
       // TOTP verification comes before set_password
-      await expect(page).toHaveURL(/signin_totp_code/);
+      await page.waitForURL(/signin_totp_code/);
 
       const newTotpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(newTotpCode);
 
       // After TOTP, redirect to set password for Sync key derivation
-      await expect(page).toHaveURL(/set_password/);
+      await page.waitForURL(/set_password/);
       await expect(
         page.getByRole('heading', { name: 'Create password to sync' })
       ).toBeVisible();
@@ -1028,7 +1028,7 @@ test.describe('severity-2', () => {
       await page.getByRole('button', { name: 'Start syncing' }).click();
 
       // Should show Sync confirmed page with success banner
-      await expect(page).toHaveURL(/signup_confirmed_sync/);
+      await page.waitForURL(/signup_confirmed_sync/);
       await expect(
         page.getByRole('heading', { name: 'Sync is turned on' })
       ).toBeVisible();
