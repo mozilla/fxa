@@ -1,5 +1,4 @@
 import Stripe from 'stripe';
-import pick from 'lodash.pick';
 import omitBy from 'lodash.omitby';
 import {
   Plan,
@@ -11,6 +10,15 @@ import { productUpgradeFromProductConfig } from './configuration/utils';
 
 const isCapabilityKey = (value: string, key: string) =>
   key.startsWith('capabilities');
+
+const pick = (obj: any, ...keys: string[]): any => {
+  if (obj == null) return {};
+  const result: any = {};
+  for (const k of keys) {
+    if (k in obj) result[k] = obj[k];
+  }
+  return result;
+};
 
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
@@ -67,7 +75,7 @@ export function filterCustomer(
     'default_payment_method'
   ) as any;
   if (customer.sources?.data) {
-    customer.sources.data = customer.sources.data.map((s) =>
+    customer.sources.data = customer.sources.data.map((s: any) =>
       pick(s, 'id', 'object', 'brand', 'exp_month', 'exp_year', 'last4')
     ) as any;
     customer.sources = pick(customer.sources, 'data') as any;
