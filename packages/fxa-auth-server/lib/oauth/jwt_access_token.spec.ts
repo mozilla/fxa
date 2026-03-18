@@ -50,11 +50,15 @@ describe('lib/jwt_access_token', () => {
     });
 
     it('should return JWT format access token with the expected fields', async () => {
-      const nowSec = Math.floor(Date.now() / 1000);
+      // Set expiresAt right before calling create() to avoid clock drift
+      // between beforeEach and the test body under slow CI runners.
+      mockAccessToken.expiresAt = Date.now() + 1000;
+      const beforeSec = Math.floor(Date.now() / 1000);
       const result = await JWTAccessToken.create(
         mockAccessToken,
         requestedGrant
       );
+      const afterSec = Math.floor(Date.now() / 1000);
 
       expect(result.jwt_token).toBe('signed jwt access token');
       expect(mockJWT.sign.calledOnce).toBe(true);
@@ -63,8 +67,10 @@ describe('lib/jwt_access_token', () => {
       expect(Object.keys(signedClaims)).toHaveLength(7);
       expect(signedClaims.aud).toBe('deadbeef');
       expect(signedClaims.client_id).toBe('deadbeef');
-      expect(Math.abs(signedClaims.exp - (nowSec + 1))).toBeLessThanOrEqual(2);
-      expect(Math.abs(signedClaims.iat - nowSec)).toBeLessThanOrEqual(2);
+      expect(signedClaims.iat).toBeGreaterThanOrEqual(beforeSec);
+      expect(signedClaims.iat).toBeLessThanOrEqual(afterSec);
+      expect(signedClaims.exp).toBeGreaterThanOrEqual(beforeSec + 1);
+      expect(signedClaims.exp).toBeLessThanOrEqual(afterSec + 1);
       expect(signedClaims.scope).toBe(scope.toString());
       expect(signedClaims.sub).toBe('feedcafe');
     });

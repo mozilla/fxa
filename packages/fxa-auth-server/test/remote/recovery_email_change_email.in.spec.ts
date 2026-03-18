@@ -114,6 +114,11 @@ describe.each(testVersions)(
       await server.mailbox.waitForEmail(email);
     });
 
+    afterEach(async () => {
+      await server.mailbox.clear(email);
+      await server.mailbox.clear(secondEmail);
+    });
+
     describe('should change primary email', () => {
       it('fails to change email to an that is not owned by user', async () => {
         const userEmail2 = server.uniqueEmail();

@@ -31,6 +31,7 @@ export interface Mailbox {
   waitForCode: (email: string) => Promise<string>;
   waitForMfaCode: (email: string) => Promise<string>;
   waitForEmailByHeader: (email: string, headerName: string) => Promise<string>;
+  clear: (email: string) => Promise<void>;
   eventEmitter: EventEmitter;
 }
 
@@ -170,12 +171,18 @@ export function createMailbox(
     throw new Error(`Timeout waiting for email with header ${headerName}: ${email}`);
   }
 
+  async function clear(email: string): Promise<void> {
+    const username = email.split('@')[0];
+    await deleteMail(username);
+  }
+
   return {
     waitForEmail,
     waitForEmails,
     waitForCode,
     waitForMfaCode,
     waitForEmailByHeader,
+    clear,
     eventEmitter,
   };
 }

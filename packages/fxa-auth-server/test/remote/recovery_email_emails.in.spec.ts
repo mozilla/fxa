@@ -365,6 +365,11 @@ describe.each(testVersions)(
         expect(postVerifyEmailData['headers']['x-template-name']).toBe('postVerifySecondary');
       });
 
+      afterEach(async () => {
+        await server.mailbox.clear(email);
+        await server.mailbox.clear(secondEmail);
+      });
+
       it('can delete', async () => {
         let res = await client.deleteEmail(mfaJwt, secondEmail);
         expect(res).toBeTruthy();
@@ -482,6 +487,14 @@ describe.each(testVersions)(
         expect(res[2].email).toBe(thirdEmail);
         expect(res[2].isPrimary).toBe(false);
         expect(res[2].verified).toBe(false);
+      });
+
+      afterEach(async () => {
+        // Clear any remaining emails to prevent subsequent tests from
+        // picking up stale emails (e.g. postVerifySecondary) instead of
+        // the email they're actually waiting for.
+        await server.mailbox.clear(email);
+        await server.mailbox.clear(secondEmail);
       });
 
       it('receives sign-in confirmation email', async () => {
