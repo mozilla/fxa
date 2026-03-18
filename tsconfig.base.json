@@ -29,6 +29,7 @@
       ],
       "@fxa/accounts/email-sender": ["libs/accounts/email-sender/src/index.ts"],
       "@fxa/accounts/errors": ["libs/accounts/errors/src/index.ts"],
+      "@fxa/accounts/oauth": ["libs/accounts/oauth/src/index.ts"],
       "@fxa/accounts/passkey": ["libs/accounts/passkey/src/index.ts"],
       "@fxa/accounts/rate-limit": ["libs/accounts/rate-limit/src/index.ts"],
       "@fxa/accounts/recovery-phone": [
@@ -50,6 +51,7 @@
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
       "@fxa/payments/management": ["libs/payments/management/src/index.ts"],
       "@fxa/payments/metrics": ["libs/payments/metrics/src/index.ts"],
+      "@fxa/payments/metrics/client": ["libs/payments/metrics/src/client.ts"],
       "@fxa/payments/metrics/provider": [
         "libs/payments/metrics/src/provider.ts"
       ],

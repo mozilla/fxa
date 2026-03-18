@@ -5,7 +5,7 @@
 import React from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { DeviceLocation } from '../../../models/Account';
-import { OAuthNativeClients } from '../../../models';
+import { OAuthNativeClients } from '@fxa/accounts/oauth';
 import { ReactComponent as WebIcon } from './web.svg';
 import { ReactComponent as DesktopIcon } from './desktop.svg';
 import { ReactComponent as FPNIcon } from './fpn.svg';

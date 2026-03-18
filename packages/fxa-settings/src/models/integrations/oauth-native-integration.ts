@@ -10,6 +10,7 @@ import {
   OAuthIntegrationOptions,
   OAuthWebIntegration,
 } from './oauth-web-integration';
+import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
 
 export function isOAuthNativeIntegration(integration: {
   type: IntegrationType;
@@ -31,27 +32,6 @@ export function isOAuthIntegration(integration: {
     (integration as OAuthWebIntegration).type === IntegrationType.OAuthWeb ||
     (integration as OAuthNativeIntegration).type === IntegrationType.OAuthNative
   );
-}
-
-export enum OAuthNativeClients {
-  FirefoxIOS = '1b1a3e44c54fbb58',
-  FirefoxDesktop = '5882386c6d801776',
-  Fenix = 'a2270f727f45f648',
-  Fennec = '3332a18d142636cb',
-  // For Android testing
-  ReferenceBrowser = '3c49430b43dfba77',
-  // TODO: handle Thunderbird case better, FXA-10848
-  Thunderbird = '8269bacd7bbc7f80',
-}
-
-/**
- * These come through via data.service (a query parameter).
- */
-export enum OAuthNativeServices {
-  Sync = 'sync',
-  Relay = 'relay',
-  SmartWindow = 'smartwindow',
-  Vpn = 'vpn',
 }
 
 /**

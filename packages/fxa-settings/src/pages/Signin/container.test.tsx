@@ -5,6 +5,7 @@
 import * as UseValidateModule from '../../lib/hooks/useValidate';
 import * as SigninModule from './index';
 import * as ModelsModule from '../../models';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../lib/cache';
 import * as CryptoModule from 'fxa-auth-client/lib/crypto';
@@ -132,7 +133,7 @@ function mockOAuthNativeIntegration() {
 function mockFirefoxNonSyncIntegration() {
   integration = {
     type: IntegrationType.OAuthNative,
-    getService: () => ModelsModule.OAuthNativeServices.Relay,
+    getService: () => OAuthNativeServices.Relay,
     getClientId: () => MOCK_CLIENT_ID,
     isSync: () => false,
     wantsKeys: () => false,
@@ -141,7 +142,7 @@ function mockFirefoxNonSyncIntegration() {
     isFirefoxNonSync: () => true,
     getCmsInfo: () => undefined,
     data: {
-      service: ModelsModule.OAuthNativeServices.Relay,
+      service: OAuthNativeServices.Relay,
     },
   } as Integration;
 }

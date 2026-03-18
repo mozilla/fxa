@@ -40,6 +40,7 @@ import { PasswordForgotToken } from 'fxa-shared/db/models/auth';
 import { OtpUtils } from './utils/otp';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
+import { getClientServiceTags } from '../metrics/client-tags';
 
 enum RecoveryPhoneStatus {
   SUCCESS = 'success',
@@ -189,7 +190,10 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
-      this.statsd.increment('account.recoveryPhone.signinSendCode.success');
+      this.statsd.increment(
+        'account.recoveryPhone.signinSendCode.success',
+        getClientServiceTags(request)
+      );
       await this.glean.twoStepAuthPhoneCode.sent(request);
 
       await recordSecurityEvent('account.recovery_phone_send_code', {
@@ -265,7 +269,8 @@ class RecoveryPhoneHandler {
 
     if (success) {
       this.statsd.increment(
-        'account.recoveryPhone.resetPasswordSendCode.success'
+        'account.recoveryPhone.resetPasswordSendCode.success',
+        getClientServiceTags(request)
       );
 
       this.glean.resetPassword.recoveryPhoneCodeSent(request);
@@ -325,7 +330,10 @@ class RecoveryPhoneHandler {
         getFormattedMessages
       );
       if (success) {
-        this.statsd.increment('account.recoveryPhone.setupPhoneNumber.success');
+        this.statsd.increment(
+          'account.recoveryPhone.setupPhoneNumber.success',
+          getClientServiceTags(request)
+        );
         await recordSecurityEvent('account.recovery_phone_send_code', {
           db: this.db,
           request,
@@ -433,7 +441,10 @@ class RecoveryPhoneHandler {
       const account = await this.db.account(uid);
       const { acceptLanguage, geo, ua } = request.app;
 
-      this.statsd.increment('account.recoveryPhone.phoneSignin.success');
+      this.statsd.increment(
+        'account.recoveryPhone.phoneSignin.success',
+        getClientServiceTags(request)
+      );
 
       // this signals the end of the login flow
       await request.emitMetricsEvent('account.confirmed', { uid });
@@ -537,7 +548,10 @@ class RecoveryPhoneHandler {
       const account = await this.db.account(uid);
       const { acceptLanguage, geo, ua } = request.app;
 
-      this.statsd.increment('account.recoveryPhone.phoneAdded.success');
+      this.statsd.increment(
+        'account.recoveryPhone.phoneAdded.success',
+        getClientServiceTags(request)
+      );
 
       const { phoneNumber, nationalFormat } =
         // User has successfully set up a recovery phone. Give back the
@@ -665,7 +679,10 @@ class RecoveryPhoneHandler {
 
     if (!replacedSuccess) {
       await this.glean.twoStepAuthPhoneReplace.failure(request);
-      this.statsd.increment('account.recoveryPhone.changePhoneNumber.failure');
+      this.statsd.increment(
+        'account.recoveryPhone.changePhoneNumber.failure',
+        getClientServiceTags(request)
+      );
       await recordSecurityEvent('account.recovery_phone_replace_failure', {
         db: this.db,
         request,
@@ -676,7 +693,10 @@ class RecoveryPhoneHandler {
     }
 
     await this.glean.twoStepAuthPhoneReplace.success(request);
-    this.statsd.increment('account.recoveryPhone.changePhoneNumber.success');
+    this.statsd.increment(
+      'account.recoveryPhone.changePhoneNumber.success',
+      getClientServiceTags(request)
+    );
 
     const { phoneNumber, nationalFormat } =
       await this.recoveryPhoneService.hasConfirmed(uid);
@@ -773,7 +793,10 @@ class RecoveryPhoneHandler {
 
       await this.glean.resetPassword.recoveryPhoneCodeComplete(request);
 
-      this.statsd.increment('account.resetPassword.recoveryPhone.success');
+      this.statsd.increment(
+        'account.resetPassword.recoveryPhone.success',
+        getClientServiceTags(request)
+      );
 
       await recordSecurityEvent(
         'account.recovery_phone_reset_password_complete',
@@ -853,7 +876,10 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
-      this.statsd.increment('account.recoveryPhone.phoneRemoved.success');
+      this.statsd.increment(
+        'account.recoveryPhone.phoneRemoved.success',
+        getClientServiceTags(request)
+      );
       await this.glean.twoStepAuthPhoneRemove.success(request);
 
       const account = await this.db.account(uid);

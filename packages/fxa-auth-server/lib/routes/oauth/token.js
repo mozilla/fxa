@@ -56,6 +56,7 @@ const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
 const DESCRIPTION =
   require('../../../docs/swagger/shared/descriptions').default;
+const { getClientServiceTags } = require('../../metrics/client-tags');
 const updateLastAccessTime = config.get(
   'lastAccessTimeUpdates.onOAuthTokenCreation'
 );
@@ -535,7 +536,11 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     });
 
     if (tokens.keys_jwe) {
-      statsd.increment('oauth.rp.keys-jwe', { clientId: oauthClientId });
+      const serviceTags = getClientServiceTags(req);
+      statsd.increment('oauth.rp.keys-jwe', {
+        clientId: oauthClientId,
+        ...(serviceTags.service && { service: serviceTags.service }),
+      });
     }
 
     // Include grant properties needed by the /oauth/token handler for newTokenNotification.

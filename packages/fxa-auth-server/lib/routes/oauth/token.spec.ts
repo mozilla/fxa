@@ -26,14 +26,12 @@ const UID = 'eaf0';
 const CLIENT_SECRET =
   'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
 const CLIENT_ID = '98e6508e88680e1b';
-const CODE =
-  'df6dcfe7bf6b54a65db5742cbcdce5c0a84a5da81a0bb6bdf5fc793eef041fc6';
+const CODE = 'df6dcfe7bf6b54a65db5742cbcdce5c0a84a5da81a0bb6bdf5fc793eef041fc6';
 const REFRESH_TOKEN = CODE;
 const PKCE_CODE_VERIFIER = 'au3dqDz2dOB0_vSikXCUf4S8Gc-37dL-F7sGxtxpR3R';
 const CODE_WITH_KEYS = 'afafaf';
 const CODE_WITHOUT_KEYS = 'f0f0f0';
-const GRANT_TOKEN_EXCHANGE =
-  'urn:ietf:params:oauth:grant-type:token-exchange';
+const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
 const SUBJECT_TOKEN_TYPE_REFRESH =
   'urn:ietf:params:oauth:token-type:refresh_token';
 const FIREFOX_IOS_CLIENT_ID = '1b1a3e44c54fbb58';
@@ -60,10 +58,13 @@ const tokenRoutesDepMocks = {
         is: Joi.string().required(),
         then: Joi.forbidden(),
       }),
-      clientSecret: Joi.string().hex().required().when('$headers.authorization', {
-        is: Joi.string().required(),
-        then: Joi.forbidden(),
-      }),
+      clientSecret: Joi.string()
+        .hex()
+        .required()
+        .when('$headers.authorization', {
+          is: Joi.string().required(),
+          then: Joi.forbidden(),
+        }),
     },
   },
   '../../oauth/grant': {
@@ -291,6 +292,7 @@ describe('/token POST', () => {
 
     it('increments count on scope keys usage', async () => {
       const request = {
+        app: {},
         payload: {
           client_id: CLIENT_ID,
           grant_type: 'authorization_code',
@@ -327,6 +329,7 @@ describe('/token POST', () => {
 
     it('logs the token created event', async () => {
       const request = {
+        app: {},
         payload: {
           client_id: CLIENT_ID,
           grant_type: 'authorization_code',
@@ -540,7 +543,8 @@ describe('token exchange grant_type', () => {
           canGrant: true,
           publicClient: true,
         }),
-        clientAuthValidators: tokenRoutesDepMocks['../../oauth/client'].clientAuthValidators,
+        clientAuthValidators:
+          tokenRoutesDepMocks['../../oauth/client'].clientAuthValidators,
       }));
       jest.doMock('../../oauth/grant', () => ({
         generateTokens: (grant: any) => {
@@ -677,8 +681,9 @@ describe('/oauth/token POST', () => {
         .rejects(new Error('should not be called'));
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
-      jest.doMock('../../oauth/client', () =>
-        tokenRoutesDepMocks['../../oauth/client']
+      jest.doMock(
+        '../../oauth/client',
+        () => tokenRoutesDepMocks['../../oauth/client']
       );
       jest.doMock('../../oauth/grant', () => ({
         generateTokens: (grant: any) => ({
@@ -690,8 +695,9 @@ describe('/oauth/token POST', () => {
         }),
         validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
       }));
-      jest.doMock('../../oauth/util', () =>
-        tokenRoutesDepMocks['../../oauth/util']
+      jest.doMock(
+        '../../oauth/util',
+        () => tokenRoutesDepMocks['../../oauth/util']
       );
       jest.doMock('../utils/oauth', () => ({
         newTokenNotification: newTokenNotificationStub,
@@ -758,8 +764,9 @@ describe('/oauth/token POST', () => {
       const newTokenNotificationStub = sinon.stub().resolves();
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
-      jest.doMock('../../oauth/client', () =>
-        tokenRoutesDepMocks['../../oauth/client']
+      jest.doMock(
+        '../../oauth/client',
+        () => tokenRoutesDepMocks['../../oauth/client']
       );
       jest.doMock('../../oauth/grant', () => ({
         generateTokens: (grant: any) => ({
@@ -771,8 +778,9 @@ describe('/oauth/token POST', () => {
         }),
         validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
       }));
-      jest.doMock('../../oauth/util', () =>
-        tokenRoutesDepMocks['../../oauth/util']
+      jest.doMock(
+        '../../oauth/util',
+        () => tokenRoutesDepMocks['../../oauth/util']
       );
       jest.doMock('../utils/oauth', () => ({
         newTokenNotification: newTokenNotificationStub,
@@ -838,20 +846,21 @@ describe('/oauth/token POST', () => {
         .rejects(new Error('should not be called'));
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
-      jest.doMock('../../oauth/client', () =>
-        tokenRoutesDepMocks['../../oauth/client']
+      jest.doMock(
+        '../../oauth/client',
+        () => tokenRoutesDepMocks['../../oauth/client']
       );
       jest.doMock('../../oauth/grant', () => ({
-        generateTokens:
-          tokenRoutesDepMocks['../../oauth/grant'].generateTokens,
+        generateTokens: tokenRoutesDepMocks['../../oauth/grant'].generateTokens,
         validateRequestedGrant: () => ({
           offline: true,
           scope: OAUTH_SCOPE_SESSION_TOKEN,
           clientId: buf(CLIENT_ID),
         }),
       }));
-      jest.doMock('../../oauth/util', () =>
-        tokenRoutesDepMocks['../../oauth/util']
+      jest.doMock(
+        '../../oauth/util',
+        () => tokenRoutesDepMocks['../../oauth/util']
       );
       jest.doMock('../utils/oauth', () => ({
         newTokenNotification: newTokenNotificationStub,
@@ -892,20 +901,21 @@ describe('/oauth/token POST', () => {
       const newTokenNotificationStub = sinon.stub().resolves();
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
-      jest.doMock('../../oauth/client', () =>
-        tokenRoutesDepMocks['../../oauth/client']
+      jest.doMock(
+        '../../oauth/client',
+        () => tokenRoutesDepMocks['../../oauth/client']
       );
       jest.doMock('../../oauth/grant', () => ({
-        generateTokens:
-          tokenRoutesDepMocks['../../oauth/grant'].generateTokens,
+        generateTokens: tokenRoutesDepMocks['../../oauth/grant'].generateTokens,
         validateRequestedGrant: () => ({
           offline: true,
           scope: 'testo',
           clientId: buf(CLIENT_ID),
         }),
       }));
-      jest.doMock('../../oauth/util', () =>
-        tokenRoutesDepMocks['../../oauth/util']
+      jest.doMock(
+        '../../oauth/util',
+        () => tokenRoutesDepMocks['../../oauth/util']
       );
       jest.doMock('../utils/oauth', () => ({
         newTokenNotification: newTokenNotificationStub,

@@ -33,6 +33,8 @@ interface SecurityEventAdditionalInfo {
   recoveryPhone?: {
     phoneNumber?: string;
   };
+  client_id?: string;
+  service?: string;
 }
 
 type SecurityEvent = BaseEvent & {

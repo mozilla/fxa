@@ -16,7 +16,8 @@ import {
 import { SignupIntegration } from './interfaces';
 import { mockAppContext } from '../../models/mocks';
 import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
-import { AppContext, OAuthNativeServices } from '../../models';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { AppContext } from '../../models';
 import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
 import { getSyncEngineIds } from '../../lib/sync-engines';
