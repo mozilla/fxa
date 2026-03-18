@@ -107,7 +107,7 @@ export const UnitRowRecoveryKey = () => {
       headerValue={
         recoveryKey
           ? ftlMsgResolver.getMsg('rk-enabled', 'Enabled')
-          : ftlMsgResolver.getMsg('rk-not-set', 'Not Set')
+          : ftlMsgResolver.getMsg('rk-not-set', 'Not set')
       }
       route={`${SETTINGS_PATH}/account_recovery`}
       ctaText={

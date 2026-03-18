@@ -155,7 +155,7 @@ test.describe('severity-1 #smoke', () => {
         'Your password has been reset'
       );
 
-      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not set');
 
       // update password for cleanup function
       credentials.password = newPassword;
@@ -239,7 +239,7 @@ test.describe('severity-1 #smoke', () => {
     recoveryKey: RecoveryKeyPage,
     settings: SettingsPage
   ): Promise<string> {
-    await expect(settings.recoveryKey.status).toHaveText('Not Set');
+    await expect(settings.recoveryKey.status).toHaveText('Not set');
 
     await settings.recoveryKey.createButton.click();
 

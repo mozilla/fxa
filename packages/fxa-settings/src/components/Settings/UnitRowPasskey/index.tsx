@@ -35,7 +35,7 @@ export const UnitRowPasskey = ({ passkeys = [] }: UnitRowPasskeyProps) => {
         statusIcon: 'alert',
         defaultHeaderValueText: ftlMsgResolver.getMsg(
           'passkey-row-not-set',
-          'Not Set'
+          'Not set'
         ),
       };
 

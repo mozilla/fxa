@@ -35,7 +35,7 @@ describe('Security', () => {
     expect(await screen.findByText('Account recovery key')).toBeTruthy();
     expect(await screen.findByText('Two-step authentication')).toBeTruthy();
 
-    expect(await screen.findAllByText('Not Set')).toHaveLength(1);
+    expect(await screen.findAllByText('Not set')).toHaveLength(1);
     expect(await screen.findAllByText('Disabled')).toHaveLength(1);
   });
 
@@ -113,7 +113,7 @@ describe('Security', () => {
       const passwordRouteLink = screen.getByTestId('password-unit-row-route');
 
       await screen.findByText('Set a password', { exact: false });
-      expect(await screen.findAllByText('Not Set')).toHaveLength(2);
+      expect(await screen.findAllByText('Not set')).toHaveLength(2);
       expect(await screen.findAllByText('Disabled')).toHaveLength(1);
 
       expect(passwordRouteLink).toHaveTextContent('Create');
