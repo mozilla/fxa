@@ -20,6 +20,15 @@ module.exports = {
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
     prefix: '<rootDir>/../../../',
   }),
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(compilerOptions.paths, {
+      prefix: '<rootDir>/../../../',
+    }),
+    '^@opentelemetry/otlp-exporter-base/node-http$':
+      '@opentelemetry/otlp-exporter-base/build/src/index-node-http.js',
+    '^@opentelemetry/otlp-exporter-base/browser-http$':
+      '@opentelemetry/otlp-exporter-base/build/src/index-browser-http.js',
+  },
   coveragePathIgnorePatterns: ['<rootDir>'],
   coverageThreshold: {
     global: {

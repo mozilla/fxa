@@ -5,10 +5,10 @@
 import { ErrorEvent } from '@sentry/core';
 
 export type SentryConfigOpts = {
-  /** Name of release */
+  /** The release name/version string passed to Sentry (e.g. a semver tag or git SHA). */
   release?: string;
 
-  /** Fall back for name of release */
+  /** Fallback release identifier used when `release` is not provided. */
   version?: string;
 
   /** Sentry specific settings */
@@ -24,11 +24,14 @@ export type SentryConfigOpts = {
     /** The name of the active server. */
     serverName?: string;
 
-    /** When set to true, building a configuration will throw an error critical fields are missing. */
+    /** When true, `buildSentryConfig` will throw a `SentryConfigurationBuildError` if any required fields are missing, rather than emitting a warning. */
     strict?: boolean;
 
-    /** The tracing sample rate. Setting this above 0 will aso result in performance metrics being captured. */
+    /** The tracing sample rate (0–1). Setting this above 0 also enables performance metrics capture. */
     tracesSampleRate?: number;
+
+    /** Flag indicating that otel should not be setup. */
+    skipOpenTelemetrySetup?: boolean;
 
     /** A function that determines the sample rate for a given event. Setting this will override tracesSampleRate. */
     tracesSampler?: (context: { name?: string }) => number;
@@ -38,10 +41,25 @@ export type SentryConfigOpts = {
   };
 };
 
+/** Additional runtime options that extend the base Sentry configuration. */
 export type ExtraOpts = {
+  /**
+   * A predicate called with each captured error. Return `true` to suppress the
+   * error (prevent it from being sent to Sentry), or `undefined`/`false` to
+   * allow it through.
+   */
   ignoreErrors?: (error: any) => boolean | undefined;
+
+  /** Additional Sentry integrations to register beyond the defaults. */
   integrations?: any[];
+
+  /**
+   * An ordered list of event-filter functions applied in `beforeSend`. Each
+   * filter receives the current event and the Sentry hint, and must return the
+   * (possibly mutated) event.
+   */
   eventFilters?: Array<(event: ErrorEvent, hint: any) => ErrorEvent>;
 };
 
+/** Combined options accepted by `initSentry` functions across all platforms. */
 export type InitSentryOpts = SentryConfigOpts & ExtraOpts;

@@ -27,6 +27,8 @@ const argv = [
   '--reporter=lcov',
   '--reporter=text',
   '--report-dir=coverage',
+  '--require',
+  'module-alias/register',
   MOCHA_BIN,
   '--require',
   'module-alias/register',
