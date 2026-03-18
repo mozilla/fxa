@@ -100,8 +100,8 @@ export const PageAccountReset = () => {
       <br />
       <p>
         Provide a list of up to 1000 emails or UIDs separated by either a comma
-        or newline in the textarea below. Then press 'Delete Accounts'. This
-        will kick off the delete process and the status of each entry will be
+        or newline in the textarea below. Then press 'Reset Accounts'. This
+        will kick off the reset process and the status of each entry will be
         displayed in the table below.
       </p>
 
