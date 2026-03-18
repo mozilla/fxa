@@ -42,13 +42,11 @@ jest.mock('../../lib/hooks/useFxAStatus', () => ({
   default: jest.fn(),
 }));
 
-jest.mock('@fxa/shared/sentry/browser', () => ({
-  __esModule: true,
-  default: {
-    enable: jest.fn(),
-    disable: jest.fn(),
-    captureException: jest.fn(),
-  },
+jest.mock('@fxa/shared/sentry-browser', () => ({
+  ...jest.requireActual('@fxa/shared/sentry-browser'),
+  enable: jest.fn(),
+  disable: jest.fn(),
+  captureException: jest.fn(),
 }));
 
 jest.mock('../../models/contexts/SettingsContext', () => ({
@@ -659,6 +657,9 @@ describe('Integration serviceName error handling', () => {
     (useLocalSignedInQueryState as jest.Mock).mockRestore();
     (useSession as jest.Mock).mockRestore();
     (currentAccount as jest.Mock).mockRestore();
+
+    expect(sentryWrapper).toBeTruthy();
+    expect(sentryWrapper.captureException).toBeTruthy();
     (sentryWrapper.captureException as jest.Mock).mockClear();
   });
 

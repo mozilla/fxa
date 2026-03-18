@@ -57,6 +57,8 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
+jest.mock('@fxa/shared/sentry-browser');
+
 // Global instances
 let integration: Integration;
 let currentProps: any | undefined;
