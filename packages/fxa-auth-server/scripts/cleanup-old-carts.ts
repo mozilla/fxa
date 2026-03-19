@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import program from 'commander';
+import * as Sentry from '@sentry/node';
+import { initSentry } from 'fxa-shared/sentry/node';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { CartCleanup } from './cleanup-old-carts/cleanup-old-carts';
@@ -27,7 +29,10 @@ const parseDeleteBeforeDays = (deleteBeforeDays: string | number) => {
     return null;
   }
   const date = new Date();
-  const days = typeof deleteBeforeDays === "string" ? parseInt(deleteBeforeDays) : deleteBeforeDays;
+  const days =
+    typeof deleteBeforeDays === 'string'
+      ? parseInt(deleteBeforeDays)
+      : deleteBeforeDays;
 
   date.setDate(date.getDate() - days);
   if (!date.getTime()) {
@@ -52,7 +57,10 @@ const parseAnonymizeBeforeDays = (anonymizeBeforeDays: string | number) => {
     return null;
   }
   const date = new Date();
-  const days = typeof anonymizeBeforeDays === "string" ? parseInt(anonymizeBeforeDays) : anonymizeBeforeDays;
+  const days =
+    typeof anonymizeBeforeDays === 'string'
+      ? parseInt(anonymizeBeforeDays)
+      : anonymizeBeforeDays;
 
   date.setDate(date.getDate() - days);
   if (!date.getTime()) {
@@ -103,18 +111,29 @@ async function init() {
     )
     .parse(process.argv);
 
-  const { config } = await setupProcessingTaskObjects('cleanup-old-carts');
+  const { config, log } = await setupProcessingTaskObjects('cleanup-old-carts');
+
+  initSentry({ ...config, release: pckg.version }, log);
+  Sentry.captureMessage('Cleanup old carts started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server',
+      env: config.env,
+    },
+  });
 
   const database = await setupAccountDatabase(config.database.mysql.auth);
 
-  const deleteBefore = parseDeleteBefore(program.deleteBefore) || parseDeleteBeforeDays(program.deleteBeforeDays);
-  const anonymizeBefore = parseAnonymizeBefore(program.anonymizeBefore) || parseAnonymizeBeforeDays(program.anonymizeBeforeDays);
+  const deleteBefore =
+    parseDeleteBefore(program.deleteBefore) ||
+    parseDeleteBeforeDays(program.deleteBeforeDays);
+  const anonymizeBefore =
+    parseAnonymizeBefore(program.anonymizeBefore) ||
+    parseAnonymizeBeforeDays(program.anonymizeBeforeDays);
   const anonymizeFields = parseAnonymizeFields(program.anonymizeFields);
 
   if (!deleteBefore) {
-    throw new Error(
-      '--delete-before or --delete-before-days is required'
-    );
+    throw new Error('--delete-before or --delete-before-days is required');
   }
 
   if (anonymizeBefore && !anonymizeFields) {

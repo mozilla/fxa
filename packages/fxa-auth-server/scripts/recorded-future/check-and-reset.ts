@@ -24,6 +24,8 @@
 import crypto from 'crypto';
 import { promisify } from 'util';
 
+import * as Sentry from '@sentry/node';
+import { initSentry } from 'fxa-shared/sentry/node';
 import { Command } from 'commander';
 import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
@@ -80,6 +82,9 @@ const client = createClient<paths>({
 
 Container.set(AppConfig, config);
 Container.set(StatsD, statsd);
+
+const pckg = require('../../package.json');
+initSentry({ ...config, release: pckg.version }, log);
 
 let authDb: Awaited<ReturnType<typeof DB.connect>> | null;
 
@@ -419,6 +424,14 @@ async function getHasTotp2faFn() {
 }
 
 if (require.main === module) {
+  Sentry.captureMessage('Recorded Future check-and-reset started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server',
+      env: config.env,
+    },
+  });
+
   checkAndReset()
     .then(
       (exitCode) => {

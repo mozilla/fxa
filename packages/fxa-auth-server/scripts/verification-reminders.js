@@ -25,6 +25,8 @@ const verificationReminders = require('../lib/verification-reminders')(
   config
 );
 const Sentry = require('@sentry/node');
+const { initSentry } = require('fxa-shared/sentry/node');
+const pckg = require('../package.json');
 const cadReminders = require('../lib/cad-reminders')(config, log);
 const subscriptionAccountReminders =
   require('../lib/subscription-account-reminders')(log, config);
@@ -37,8 +39,14 @@ const { FxaMailer } = require('../lib/senders/fxa-mailer');
 const { FxaMailerFormat } = require('../lib/senders/fxa-mailer-format');
 const { StatsD } = require('hot-shots');
 
-
-Sentry.init({});
+initSentry({ ...config, release: pckg.version }, log);
+Sentry.captureMessage('Verification reminders started', {
+  level: 'info',
+  tags: {
+    service: 'fxa-auth-server',
+    env: config.env,
+  },
+});
 const checkInId = Sentry.captureCheckIn({
   monitorSlug: 'verification-reminders',
   status: 'in_progress',

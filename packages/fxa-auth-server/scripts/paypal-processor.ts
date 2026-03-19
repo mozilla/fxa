@@ -62,9 +62,8 @@ export async function init() {
   const lockDuration =
     parseInt(`${program.lockDuration}`) || DEFAULT_LOCK_DURATION_MS;
 
-  const { log, database, senders } = await setupProcessingTaskObjects(
-    'paypal-processor'
-  );
+  const { log, database, senders } =
+    await setupProcessingTaskObjects('paypal-processor');
 
   initSentry(
     {
@@ -73,6 +72,14 @@ export async function init() {
     },
     log
   );
+
+  Sentry.captureMessage('PayPal processor started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server',
+      env: config.env,
+    },
+  });
 
   const statsd = Container.get(StatsD);
   const paypalClient = new PayPalClient(

@@ -7,6 +7,7 @@ import { setupDatabase } from 'fxa-shared/db';
 import { BaseAuthModel } from 'fxa-shared/db/models/auth';
 import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
+import { initSentry } from 'fxa-shared/sentry/node';
 import moment from 'moment';
 import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
 const { PruneTokens } = require('fxa-shared/db/models/auth');
@@ -27,7 +28,7 @@ function parseDuration(duration: string | number) {
 const config = require('../config').default.getProperties();
 const statsd = new StatsD(config.statsd);
 const log = require('../lib/log')(config.log.level, 'prune-tokens', statsd);
-Sentry.init({});
+initSentry({ ...config, release: pckg.version }, log);
 
 export async function init() {
   // Setup utilities
@@ -270,9 +271,8 @@ Exit Codes:
         // don't exist in the sql database anymore.
         const orphanedTokens = new Array<string>();
         for (const redisSessionTokenId of redisSessionTokenIds) {
-          const dbSessionTokens = await SessionToken.findByTokenId(
-            redisSessionTokenId
-          );
+          const dbSessionTokens =
+            await SessionToken.findByTokenId(redisSessionTokenId);
           if (dbSessionTokens === null) {
             orphanedTokens.push(redisSessionTokenId);
           }
@@ -298,6 +298,14 @@ Exit Codes:
 if (require.main === module) {
   process.on('exit', (code) => {
     log.info('exit', { code });
+  });
+
+  Sentry.captureMessage('Prune tokens started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server',
+      env: config.env,
+    },
   });
 
   const checkInId = Sentry.captureCheckIn({

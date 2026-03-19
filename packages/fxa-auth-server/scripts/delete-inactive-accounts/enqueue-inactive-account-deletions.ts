@@ -32,6 +32,8 @@ import os from 'os';
 import path from 'path';
 import { promisify } from 'util';
 
+import * as Sentry from '@sentry/node';
+import { initSentry } from 'fxa-shared/sentry/node';
 import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
@@ -266,6 +268,17 @@ const init = async () => {
   const log = initLog({
     ...config.log,
   });
+
+  const pckg = require('../../package.json');
+  initSentry({ ...config, release: pckg.version }, log);
+  Sentry.captureMessage('Enqueue inactive account deletions started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server',
+      env: config.env,
+    },
+  });
+
   const glean = gleanMetrics(config);
 
   const redis = initRedis(
