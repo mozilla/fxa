@@ -1,5 +1,3 @@
-export {};
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -49,10 +47,7 @@ describe('db', () => {
       };
     }
 
-    it(
-      '2-byte encoding preserved',
-      makeTest(randomString(8), 'Düsseldorf')
-    );
+    it('2-byte encoding preserved', makeTest(randomString(8), 'Düsseldorf'));
     it('3-byte encoding preserved', makeTest(randomString(8), '北京'));
     it('4-byte encoding throws with mysql', async () => {
       const data = {
@@ -314,8 +309,7 @@ describe('db', () => {
 
   describe('scopes', () => {
     it('can register and fetch scopes', async () => {
-      const scopeName =
-        'https://some-scope.mozilla.org/apps/' + Math.random();
+      const scopeName = 'https://some-scope.mozilla.org/apps/' + Math.random();
       const notFoundScope = 'https://some-scope-404.mozilla.org';
       const newScope = {
         scope: scopeName,
@@ -523,9 +517,7 @@ describe('db', () => {
 
       expect(await db.getRefreshToken(refreshTokenIdHash)).toBeFalsy();
 
-      const tokenIdHash = hex(
-        encrypt.hash(accessToken.token.toString('hex'))
-      );
+      const tokenIdHash = hex(encrypt.hash(accessToken.token.toString('hex')));
       expect(await db.getAccessToken(tokenIdHash)).toBeFalsy();
     });
   });
@@ -574,9 +566,7 @@ describe('db', () => {
       }
       const token = await db.getUniqueRefreshTokensByUid(hex(userId));
       expect(token.length).toBe(1);
-      expect(token[0].lastUsedAt.getTime()).toBe(
-        lastUsedAtValues[2].getTime()
-      );
+      expect(token[0].lastUsedAt.getTime()).toBe(lastUsedAtValues[2].getTime());
     });
   });
 });

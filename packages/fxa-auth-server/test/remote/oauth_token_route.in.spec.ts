@@ -1,5 +1,3 @@
-export {};
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -11,8 +9,7 @@ const hex = (v: any) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 
 const UID = 'eaf0';
 const CLIENT_ID = '98e6508e88680e1b';
-const CODE =
-  'df6dcfe7bf6b54a65db5742cbcdce5c0a84a5da81a0bb6bdf5fc793eef041fc6';
+const CODE = 'df6dcfe7bf6b54a65db5742cbcdce5c0a84a5da81a0bb6bdf5fc793eef041fc6';
 const REFRESH_TOKEN = CODE;
 const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 const NON_DISABLED_CLIENT_ID = '98e6508e88680e1a';
@@ -100,13 +97,22 @@ beforeAll(() => {
   // Mock the modules at their resolved paths (relative to this test file).
   // token.js at lib/routes/oauth/token.js requires('../../oauth/...') which
   // resolves to lib/oauth/..., so from test/remote/ that's ../../lib/oauth/...
-  jest.doMock('../../lib/oauth/assertion', () => tokenRoutesDepMocks['../../oauth/assertion']);
+  jest.doMock(
+    '../../lib/oauth/assertion',
+    () => tokenRoutesDepMocks['../../oauth/assertion']
+  );
   jest.doMock('../../lib/oauth/client', () => ({
     ...tokenRoutesDepMocks['../../oauth/client'],
     clientAuthValidators: realClient.clientAuthValidators,
   }));
-  jest.doMock('../../lib/oauth/grant', () => tokenRoutesDepMocks['../../oauth/grant']);
-  jest.doMock('../../lib/oauth/util', () => tokenRoutesDepMocks['../../oauth/util']);
+  jest.doMock(
+    '../../lib/oauth/grant',
+    () => tokenRoutesDepMocks['../../oauth/grant']
+  );
+  jest.doMock(
+    '../../lib/oauth/util',
+    () => tokenRoutesDepMocks['../../oauth/util']
+  );
   const tokenRouteFactory = require('../../lib/routes/oauth/token');
   tokenRoutes = tokenRouteFactory(tokenRoutesArgMocks);
 });
