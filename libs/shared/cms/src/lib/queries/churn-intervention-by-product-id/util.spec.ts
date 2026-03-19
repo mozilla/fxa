@@ -42,6 +42,28 @@ describe('ChurnInterventionByProductIdResultUtil', () => {
       expect(transformed?.churnInterventionId).toBeDefined();
     });
 
+    it('should not capture sentry message if no offering is returned', () => {
+      const result = ChurnInterventionByProductIdRawResultFactory({
+        offerings: [],
+      });
+      const util = new ChurnInterventionByProductIdResultUtil(result);
+      util.getTransformedChurnInterventionByProductId();
+
+      expect(Sentry.captureMessage).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not capture sentry message if one offering is returned', () => {
+      const result = ChurnInterventionByProductIdRawResultFactory({
+        offerings: [
+          ChurnInterventionByProductIdRawResultFactory().offerings[0],
+        ],
+      });
+      const util = new ChurnInterventionByProductIdResultUtil(result);
+      util.getTransformedChurnInterventionByProductId();
+
+      expect(Sentry.captureMessage).toHaveBeenCalledTimes(0);
+    });
+
     it('should capture sentry message if more than one offering is returned', () => {
       const result = ChurnInterventionByProductIdRawResultFactory({
         offerings: [
