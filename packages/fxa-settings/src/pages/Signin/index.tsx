@@ -384,11 +384,13 @@ const Signin = ({
   const cmsInfo = integration.getCmsInfo();
   const cachedPageCms = cmsInfo?.SigninCachedPage;
   const signinPageCms = cmsInfo?.SigninPage;
-  // Use cached page config when available and user has cached account, else fall back to SigninPage
-  const activePageCms =
-    !isPasswordNeeded && cachedPageCms ? cachedPageCms : signinPageCms;
+  const activePageCms = isPasswordNeeded ? signinPageCms : cachedPageCms;
   const title = activePageCms?.pageTitle;
-  const splitLayout = activePageCms?.splitLayout;
+  // If cachedPageCms is the active page but does not have a CMS entry,
+  // we reference the splitLayout property from the signinPageCms.
+  const splitLayout = activePageCms
+    ? activePageCms.splitLayout
+    : signinPageCms?.splitLayout;
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
 
@@ -403,15 +405,15 @@ const Signin = ({
           }}
         />
       )}
-      {isPasswordNeeded && hasPassword ? (
+      {isPasswordNeeded ? (
         <CardHeader
           headingText="Enter your password"
           headingAndSubheadingFtlId="signin-password-needed-header-2"
           {...{
             cmsLogoUrl: cmsInfo?.shared.logoUrl,
             cmsLogoAltText: cmsInfo?.shared.logoAltText,
-            cmsHeadline: activePageCms?.headline,
-            cmsDescription: activePageCms?.description,
+            cmsHeadline: signinPageCms?.headline,
+            cmsDescription: signinPageCms?.description,
             cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
             cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
           }}
@@ -427,8 +429,8 @@ const Signin = ({
             serviceName,
             cmsLogoUrl: cmsInfo?.shared.logoUrl,
             cmsLogoAltText: cmsInfo?.shared.logoAltText,
-            cmsHeadline: activePageCms?.headline,
-            cmsDescription: activePageCms?.description,
+            cmsHeadline: cachedPageCms?.headline,
+            cmsDescription: cachedPageCms?.description,
             cmsHeadlineFontSize: cmsInfo?.shared.headlineFontSize,
             cmsHeadlineTextColor: cmsInfo?.shared.headlineTextColor,
           }}

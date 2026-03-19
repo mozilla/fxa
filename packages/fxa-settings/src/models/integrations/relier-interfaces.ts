@@ -103,7 +103,7 @@ export interface RelierCmsInfo {
   SignupPasswordlessCodePage?: PageRelierCmsInfo;
   SignupConfirmedSyncPage?: PageRelierCmsInfo;
 
-  SigninPage: PageRelierCmsInfo;
+  SigninPage?: PageRelierCmsInfo;
   SigninCachedPage?: PageRelierCmsInfo;
   SigninTotpCodePage?: PageRelierCmsInfo;
   SigninPasswordlessCodePage?: PageRelierCmsInfo;

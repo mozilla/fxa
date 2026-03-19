@@ -32,14 +32,6 @@ exports[`Signin component snapshots - CMS renders CardHeader with CMS content wh
 />
 `;
 
-exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is not needed 1`] = `
-<img
-  alt="logo"
-  class="justify-start mb-4 max-h-[40px]"
-  src="https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg"
-/>
-`;
-
 exports[`Signin component snapshots - CMS renders the CMS-styled submit button 1`] = `
 <button
   class="cta-primary-cms cta-xl"
