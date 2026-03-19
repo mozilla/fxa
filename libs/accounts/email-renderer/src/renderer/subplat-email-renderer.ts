@@ -96,11 +96,21 @@ export class SubplatEmailRender extends EmailRenderer {
     templateValues: SubscriptionCancellation.TemplateData,
     layoutTemplateValues: SubscriptionLayouts.TemplateData
   ) {
+    const includes = templateValues.isFreeTrialCancellation
+      ? {
+          ...SubscriptionCancellation.includes,
+          subject: {
+            id: 'subscriptionCancellation-freeTrial-subject',
+            message: 'Your <%- productName %> free trial has been canceled',
+          },
+        }
+      : SubscriptionCancellation.includes;
+
     return this.renderEmail({
       template: SubscriptionCancellation.template,
       version: SubscriptionCancellation.version,
       layout: SubscriptionCancellation.layout,
-      includes: SubscriptionCancellation.includes,
+      includes,
       ...templateValues,
       ...layoutTemplateValues,
     });

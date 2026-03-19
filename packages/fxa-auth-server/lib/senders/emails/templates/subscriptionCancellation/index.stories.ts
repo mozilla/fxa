@@ -22,7 +22,28 @@ const createStory = subplatStoryWithProps(
       'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
     showOutstandingBalance: true,
     cancelAtEnd: false,
+    isFreeTrialCancellation: false,
   }
 );
 
 export const SubscriptionCancellation = createStory();
+
+const createFreeTrialStory = subplatStoryWithProps(
+  'subscriptionCancellation',
+  'Sent when a user cancels their free trial.',
+  {
+    productName: '123Done Pro',
+    isCancellationEmail: true,
+    invoiceTotal: '$0.00',
+    invoiceDateOnly: '11/13/2021',
+    serviceLastActiveDateOnly: '12/13/2021',
+    cancellationSurveryUrl:
+      'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
+    showOutstandingBalance: false,
+    cancelAtEnd: false,
+    isFreeTrialCancellation: true,
+    trialEndDateOnly: '12/13/2021',
+  }
+);
+
+export const FreeTrialCancellation = createFreeTrialStory();

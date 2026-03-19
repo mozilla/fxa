@@ -166,6 +166,18 @@ class Renderer extends Localizer {
           await require(`../emails/templates/${context.template}/includes`)
         ).getIncludes(context.clientName);
       }
+      if (
+        context.template === 'subscriptionCancellation' &&
+        context.isFreeTrialCancellation
+      ) {
+        return {
+          subject: {
+            id: 'subscriptionCancellation-freeTrial-subject',
+            message:
+              'Your <%- productName %> free trial has been canceled',
+          },
+        };
+      }
       return require(`../emails/templates/${context.template}/includes.json`);
     } catch (e) {
       throw e;
