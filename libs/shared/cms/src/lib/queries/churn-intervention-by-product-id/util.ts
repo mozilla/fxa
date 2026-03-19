@@ -13,7 +13,10 @@ export class ChurnInterventionByProductIdResultUtil {
   constructor(private rawResult: ChurnInterventionByProductIdRawResult) {}
 
   getTransformedChurnInterventionByProductId() {
-    if (this.rawResult.offerings.length !== 1) {
+    if (this.rawResult.offerings.length === 0) {
+      return [];
+    }
+    if (this.rawResult.offerings.length > 1) {
       Sentry.captureMessage(
         'Unexpected number of offerings found for product and interval',
         { extra: { offeringsCount: this.rawResult.offerings.length } }
