@@ -13,6 +13,7 @@ import {
   CheckoutService,
   TaxService,
   ChurnInterventionManager,
+  FreeTrialManager,
 } from '@fxa/payments/cart';
 import {
   EligibilityManager,
@@ -113,6 +114,7 @@ import { NimbusManager } from '@fxa/payments/experiments';
     CheckoutTokenManager,
     ChurnInterventionManager,
     ChurnInterventionService,
+    FreeTrialManager,
     ContentServerManager,
     ContentServerClient,
     CustomerManager,
