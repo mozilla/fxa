@@ -18,6 +18,7 @@ _Put an `x` in the boxes that apply_
 - [ ] If applicable, I have modified or added tests which pass locally.
 - [ ] I have added necessary documentation (if appropriate).
 - [ ] I have verified that my changes render correctly in RTL (if appropriate).
+- [ ] I have manually reviewed all AI generated code.
 
 ## Screenshots (Optional)
 
