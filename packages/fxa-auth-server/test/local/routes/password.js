@@ -364,11 +364,13 @@ describe('/password', () => {
         sinon.assert.callCount(mockStatsd.increment, 2);
         sinon.assert.calledWithExactly(
           mockStatsd.increment,
-          'otp.passwordForgot.attempt'
+          'otp.passwordForgot.attempt',
+          {}
         );
         sinon.assert.calledWithExactly(
           mockStatsd.increment,
-          'otp.passwordForgot.verified'
+          'otp.passwordForgot.verified',
+          {}
         );
 
         assert.equal(

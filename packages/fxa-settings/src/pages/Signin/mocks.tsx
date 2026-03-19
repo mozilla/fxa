@@ -7,12 +7,12 @@ import Signin from '.';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { MozServices } from '../../lib/types';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import {
   AppContext,
   IntegrationData,
   IntegrationType,
   RelierCmsInfo,
-  OAuthNativeServices,
 } from '../../models';
 import {
   MOCK_AUTH_AT,

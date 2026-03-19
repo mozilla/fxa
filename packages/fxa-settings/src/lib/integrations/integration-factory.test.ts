@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import sinon, { createSandbox } from 'sinon';
+import { OAuthNativeClients } from '@fxa/accounts/oauth';
 import {
   Integration,
   IntegrationType,
   OAuthIntegration,
-  OAuthNativeClients,
   OAuthNativeIntegration,
   OAuthWebIntegration,
   PairingAuthorityIntegration,

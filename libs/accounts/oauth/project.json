@@ -1,0 +1,28 @@
+{
+  "name": "oauth",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/accounts/oauth/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/accounts/oauth",
+        "main": "libs/accounts/oauth/src/index.ts",
+        "tsConfig": "libs/accounts/oauth/tsconfig.lib.json",
+        "assets": ["libs/accounts/oauth/*.md"],
+        "format": ["cjs"],
+        "generatePackageJson": true
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/accounts/oauth/jest.config.ts"
+      }
+    }
+  }
+}

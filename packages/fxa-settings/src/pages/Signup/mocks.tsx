@@ -5,11 +5,8 @@
 import { LocationProvider } from '@reach/router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
-import {
-  IntegrationType,
-  RelierCmsInfo,
-  OAuthNativeServices,
-} from '../../models/integrations';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { IntegrationType, RelierCmsInfo } from '../../models/integrations';
 import {
   MOCK_REDIRECT_URI,
   MOCK_UID,

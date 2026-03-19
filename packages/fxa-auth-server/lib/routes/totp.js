@@ -24,6 +24,7 @@ const { recordSecurityEvent } = require('./utils/security-event');
 const { FxaMailer } = require('../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
+const { getClientServiceTags } = require('../metrics/client-tags');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
@@ -334,17 +335,29 @@ module.exports = (
     try {
       const success = await recoveryPhoneService.removePhoneNumber(uid);
       if (success) {
-        statsd.increment('totp.destroy.remove_phone_number.success');
+        statsd.increment(
+          'totp.destroy.remove_phone_number.success',
+          getClientServiceTags(request)
+        );
         await glean.twoStepAuthPhoneRemove.success(request);
       } else {
-        statsd.increment('totp.destroy.remove_phone_number.fail');
+        statsd.increment(
+          'totp.destroy.remove_phone_number.fail',
+          getClientServiceTags(request)
+        );
         log.error('totp.destroy.remove_phone_number.error');
       }
     } catch (error) {
       if (error instanceof RecoveryNumberNotExistsError) {
-        statsd.increment('totp.destroy.remove_phone_number.fail');
+        statsd.increment(
+          'totp.destroy.remove_phone_number.fail',
+          getClientServiceTags(request)
+        );
       } else {
-        statsd.increment('totp.destroy.remove_phone_number.error');
+        statsd.increment(
+          'totp.destroy.remove_phone_number.error',
+          getClientServiceTags(request)
+        );
         log.error('totp.destroy.remove_phone_number.error', error);
       }
     }
@@ -354,12 +367,21 @@ module.exports = (
     try {
       const success = await backupCodeManager.deleteRecoveryCodes(uid);
       if (success) {
-        statsd.increment('totp.destroy.delete_recovery_codes.success');
+        statsd.increment(
+          'totp.destroy.delete_recovery_codes.success',
+          getClientServiceTags(request)
+        );
       } else {
-        statsd.increment('totp.destroy.delete_recovery_codes.fail');
+        statsd.increment(
+          'totp.destroy.delete_recovery_codes.fail',
+          getClientServiceTags(request)
+        );
       }
     } catch (error) {
-      statsd.increment('totp.destroy.delete_recovery_codes.error');
+      statsd.increment(
+        'totp.destroy.delete_recovery_codes.error',
+        getClientServiceTags(request)
+      );
       log.error('totp.destroy.delete_recovery_codes.error', error);
     }
 

@@ -16,7 +16,9 @@ const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
 const pubsubAuth = require('./routes/auth-schemes/pubsub');
 const googleOIDC = require('./routes/auth-schemes/google-oidc');
 const { HEX_STRING } = require('./routes/validators');
+const Sentry = require('@sentry/node');
 const { configureSentry } = require('./sentry');
+const { resolveClientTags } = require('./metrics/client-tags');
 const { swaggerOptions } = require('../docs/swagger/swagger-options');
 const { Account } = require('fxa-shared/db/models/auth');
 const { determineLocale } = require('../../../libs/shared/l10n/src');
@@ -315,6 +317,21 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
       await customs.checkIpOnly(request, action);
     }
 
+    // Validate clientId/service against known enums (to prevent unbounded
+    // cardinality) and normalize onto request.app for use as StatsD/Sentry tags.
+    // clientId comes from metricsContext (async, may be stashed in Redis);
+    // service comes from query/payload but needs allowlist validation.
+    const tags = await resolveClientTags(request);
+    if (tags.clientId) {
+      request.app.clientIdTag = tags.clientId;
+      Sentry.setTag('clientId', tags.clientId);
+    }
+    if (tags.service) {
+      request.app.serviceTag = tags.service;
+      Sentry.setTag('service', tags.service);
+    }
+
+
     return h.continue;
   });
 
@@ -575,16 +592,23 @@ function metricFactory(statsdClient) {
       path = '/{cors*}';
     }
 
+    const tags = {
+      path: normalizePath(path),
+      method: request.method.toUpperCase(),
+      statusCode,
+      errno,
+    };
+    if (request.app.clientIdTag) {
+      tags.clientId = request.app.clientIdTag;
+    }
+    if (request.app.serviceTag) {
+      tags.service = request.app.serviceTag;
+    }
     statsdClient.timing(
       'url_request',
       request.info.completed - request.info.received,
       1,
-      {
-        path: normalizePath(path),
-        method: request.method.toUpperCase(),
-        statusCode,
-        errno,
-      }
+      tags
     );
   }
   return reportMetrics;

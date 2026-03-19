@@ -4,10 +4,9 @@
 
 import React from 'react';
 import { LocationProvider } from '@reach/router';
+import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
 import {
   OAuthNativeIntegration,
-  OAuthNativeServices,
-  OAuthNativeClients,
   RelierCmsInfo,
   RelierClientInfo,
   WebIntegration,
@@ -26,7 +25,9 @@ import { Constants } from '../../../lib/constants';
 
 export const MOCK_PASSWORDLESS_CODE = '12345678';
 
-export function createMockWebIntegration(cmsInfo?: RelierCmsInfo): WebIntegration {
+export function createMockWebIntegration(
+  cmsInfo?: RelierCmsInfo
+): WebIntegration {
   const integration = new WebIntegration(
     new GenericData({
       context: Constants.FX_DESKTOP_V3_CONTEXT,
@@ -45,7 +46,9 @@ export function createOAuthNativeIntegration(
   isSync = true,
   cmsInfo?: RelierCmsInfo
 ): OAuthNativeIntegration {
-  const resolvedService = isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay;
+  const resolvedService = isSync
+    ? OAuthNativeServices.Sync
+    : OAuthNativeServices.Relay;
 
   const integration = new OAuthNativeIntegration(
     new GenericData({

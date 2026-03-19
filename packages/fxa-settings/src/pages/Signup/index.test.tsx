@@ -31,7 +31,8 @@ import { getSyncEngineIds } from '../../lib/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
-import { OAuthNativeServices, useSensitiveDataClient } from '../../models';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
+import { useSensitiveDataClient } from '../../models';
 import { userEvent } from '@testing-library/user-event';
 
 jest.mock('../../lib/metrics', () => ({

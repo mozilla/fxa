@@ -23,6 +23,7 @@ const authMethods = require('../authMethods');
 const { FxaMailer } = require('../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
+const { getClientServiceTags } = require('../metrics/client-tags');
 
 module.exports = function (
   log,
@@ -188,10 +189,16 @@ module.exports = function (
 
         // Start temporary metrics section
         if (!account?.primaryEmail?.isVerified) {
-          statsd.increment('session_reauth.primary_email_not_verified');
+          statsd.increment(
+            'session_reauth.primary_email_not_verified',
+            getClientServiceTags(request)
+          );
         }
         if (!sessionToken.tokenVerified) {
-          statsd.increment('session_reauth.token_not_verified');
+          statsd.increment(
+            'session_reauth.token_not_verified',
+            getClientServiceTags(request)
+          );
         }
         const accountAmr = await authMethods.availableAuthenticationMethods(
           db,
@@ -200,7 +207,10 @@ module.exports = function (
         const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
         const sessionAal = sessionToken.authenticatorAssuranceLevel;
         if (sessionAal < accountAal) {
-          statsd.increment('session_reauth.all_not_met');
+          statsd.increment(
+            'session_reauth.all_not_met',
+            getClientServiceTags(request)
+          );
         }
         // End temporary metrics section
 
@@ -517,9 +527,11 @@ module.exports = function (
           await request.emitMetricsEvent('account.confirmed', { uid });
           glean.login.verifyCodeConfirmed(request, { uid });
           await signinUtils.cleanupReminders({ verified: true }, account);
-          push.notifyAccountUpdated(uid, devices, 'accountConfirm').catch((err) =>
-            log.error('push.accountConfirm.error', { uid, err })
-          );
+          push
+            .notifyAccountUpdated(uid, devices, 'accountConfirm')
+            .catch((err) =>
+              log.error('push.accountConfirm.error', { uid, err })
+            );
 
           // Send new device login notification email after successful verification
           const geoData = request.app.geo;
@@ -887,9 +899,9 @@ module.exports = function (
         glean.login.verifyCodeConfirmed(request, { uid });
         await signinUtils.cleanupReminders({ verified: true }, account);
         const devices = await db.devices(uid);
-        push.notifyAccountUpdated(uid, devices, 'accountConfirm').catch((err) =>
-          log.error('push.accountConfirm.error', { uid, err })
-        );
+        push
+          .notifyAccountUpdated(uid, devices, 'accountConfirm')
+          .catch((err) => log.error('push.accountConfirm.error', { uid, err }));
 
         // Send new device login notification email after successful verification
         if (account.primaryEmail.isVerified) {

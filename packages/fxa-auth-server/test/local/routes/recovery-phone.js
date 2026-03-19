@@ -170,7 +170,8 @@ describe('/recovery_phone', () => {
       );
       assert.calledOnceWithExactly(
         mockStatsd.increment,
-        'account.recoveryPhone.signinSendCode.success'
+        'account.recoveryPhone.signinSendCode.success',
+        {}
       );
     });
 
@@ -276,7 +277,8 @@ describe('/recovery_phone', () => {
       );
       assert.calledOnceWithExactly(
         mockStatsd.increment,
-        'account.recoveryPhone.resetPasswordSendCode.success'
+        'account.recoveryPhone.resetPasswordSendCode.success',
+        {}
       );
     });
 
@@ -382,7 +384,8 @@ describe('/recovery_phone', () => {
       );
       assert.calledOnceWithExactly(
         mockStatsd.increment,
-        'account.recoveryPhone.setupPhoneNumber.success'
+        'account.recoveryPhone.setupPhoneNumber.success',
+        {}
       );
     });
 
@@ -556,7 +559,8 @@ describe('/recovery_phone', () => {
 
       assert.calledOnceWithExactly(
         mockStatsd.increment,
-        'account.recoveryPhone.phoneAdded.success'
+        'account.recoveryPhone.phoneAdded.success',
+        {}
       );
     });
 
@@ -682,7 +686,8 @@ describe('/recovery_phone', () => {
       );
       assert.calledOnceWithExactly(
         mockStatsd.increment,
-        'account.recoveryPhone.phoneSignin.success'
+        'account.recoveryPhone.phoneSignin.success',
+        {}
       );
       assert.calledOnceWithExactly(
         request.emitMetricsEvent,
@@ -780,7 +785,8 @@ describe('/recovery_phone', () => {
       );
       assert.calledOnceWithExactly(
         mockStatsd.increment,
-        'account.resetPassword.recoveryPhone.success'
+        'account.resetPassword.recoveryPhone.success',
+        {}
       );
       assert.calledOnce(mockFxaMailer.sendPasswordResetRecoveryPhoneEmail);
     });
@@ -862,7 +868,8 @@ describe('/recovery_phone', () => {
       );
       assert.calledOnceWithExactly(
         mockStatsd.increment,
-        'account.recoveryPhone.phoneRemoved.success'
+        'account.recoveryPhone.phoneRemoved.success',
+        {}
       );
     });
 

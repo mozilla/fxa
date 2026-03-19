@@ -31,6 +31,8 @@ export interface AuthApp extends RequestApplicationState {
     deviceType: string;
     formFactor: string;
   };
+  clientIdTag?: string;
+  serviceTag?: string;
   isSuspiciousRequest: boolean;
   isMetricsEnabled: Promise<boolean>;
   geo: {

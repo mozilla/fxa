@@ -18,7 +18,7 @@ import { MOCK_SERVICE, MOCK_SESSION_TOKEN } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
 import { MozServices } from '../../lib/types';
-import { OAuthNativeServices } from '../../models';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
 
 export default {
   title: 'Pages/Signin',

@@ -69,6 +69,7 @@ import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 import { BOUNCE_TYPE_HARD } from '@fxa/accounts/email-sender';
+import { getClientServiceTags } from '../metrics/client-tags';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -1159,14 +1160,16 @@ export class AccountHandler {
               this.config.signinConfirmation.deviceFingerprinting.reportOnlyMode
             ) {
               this.statsd.increment(
-                'account.signin.confirm.bypass.knownDevice.reportOnly'
+                'account.signin.confirm.bypass.knownDevice.reportOnly',
+                getClientServiceTags(request)
               );
               this.log.info('account.signin.confirm.device.match.reportOnly', {
                 uid: account.uid,
               });
             } else {
               this.statsd.increment(
-                'account.signin.confirm.bypass.knownDevice'
+                'account.signin.confirm.bypass.knownDevice',
+                getClientServiceTags(request)
               );
               this.glean.loginConfirmSkipFor.knownDevice(request);
               this.log.info('account.signin.confirm.device.skip', {
@@ -1183,7 +1186,10 @@ export class AccountHandler {
               return true;
             }
           } else {
-            this.statsd.increment('account.signin.confirm.device.notfound');
+            this.statsd.increment(
+              'account.signin.confirm.device.notfound',
+              getClientServiceTags(request)
+            );
             this.log.info('account.signin.confirm.device.notfound', {
               uid: account.uid,
             });
@@ -1208,7 +1214,10 @@ export class AccountHandler {
           .allowedRecency as unknown as number) || 0;
       if (securityEventVerified && securityEventRecency < allowedRecency) {
         this.glean.loginConfirmSkipFor.knownIp(request);
-        this.statsd.increment('account.signin.confirm.bypass.ip');
+        this.statsd.increment(
+          'account.signin.confirm.bypass.ip',
+          getClientServiceTags(request)
+        );
         this.log.info('Account.ipprofiling.seenAddress', {
           uid: account.uid,
         });
@@ -1229,7 +1238,10 @@ export class AccountHandler {
         const accountAge = requestNow - account.createdAt;
         if (accountAge <= (skipForNewAccounts.maxAge as unknown as number)) {
           this.glean.loginConfirmSkipFor.newAccount(request);
-          this.statsd.increment('account.signin.confirm.bypass.newAccount');
+          this.statsd.increment(
+            'account.signin.confirm.bypass.newAccount',
+            getClientServiceTags(request)
+          );
           this.log.info('account.signin.confirm.bypass.age', {
             uid: account.uid,
           });
@@ -1252,11 +1264,17 @@ export class AccountHandler {
         this.log.info('account.signin.confirm.bypass.emailAlways', {
           uid: account.uid,
         });
-        this.statsd.increment('account.signin.confirm.bypass.emailAlways');
+        this.statsd.increment(
+          'account.signin.confirm.bypass.emailAlways',
+          getClientServiceTags(request)
+        );
         return true;
       }
 
-      this.statsd.increment('account.signin.confirm.bypass.noBypass');
+      this.statsd.increment(
+        'account.signin.confirm.bypass.noBypass',
+        getClientServiceTags(request)
+      );
       return false;
     };
 
@@ -1638,17 +1656,19 @@ export class AccountHandler {
         // Third-party auth accounts also have verifierSetAt === 0, but they
         // should use their linked provider (Google/Apple), not passwordless OTP.
         const hasLinkedAccount = (account.linkedAccounts?.length || 0) > 0;
-        const isExistingPasswordless = account.verifierSetAt === 0 && !hasLinkedAccount;
-        result.passwordlessSupported = isExistingPasswordless ||
+        const isExistingPasswordless =
+          account.verifierSetAt === 0 && !hasLinkedAccount;
+        result.passwordlessSupported =
+          isExistingPasswordless ||
           (isPasswordlessEligible(
             account,
             email,
             this.config.passwordlessOtp.enabled
           ) &&
-          isClientAllowedForPasswordless(
-            this.config.passwordlessOtp.allowedClientIds as string[],
-            clientId
-          ));
+            isClientAllowedForPasswordless(
+              this.config.passwordlessOtp.allowedClientIds as string[],
+              clientId
+            ));
       } else {
         const exist = await this.db.accountExists(email);
         if (!exist) {
