@@ -271,6 +271,13 @@ module.exports = (
         // command, which should match to an "invoked" event emitted when it was invoked.
         for (const msg of response.messages) {
           const data = msg.data || {}; // should always be present, but you never know...
+
+          // Response validation allows an optional sender, but empty or null values are
+          // not allowed. Delete empty/null/undefined data to adhere to validation schema.
+          if (!data.sender) {
+            delete data.sender;
+          }
+
           log.info('device.command.retrieved', {
             uid,
             target: deviceId,
