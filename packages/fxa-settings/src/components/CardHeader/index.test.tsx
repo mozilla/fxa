@@ -87,17 +87,21 @@ describe('CardHeader', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders CMS header with only description', () => {
+  it('falls back to default heading when only description is provided (no headline)', () => {
     renderWithLocalizationProvider(
       <CardHeader
         headingText={MOCK_HEADING}
         cmsDescription={MOCK_CMS_DESCRIPTION}
       />
     );
-    expect(screen.getByText(MOCK_CMS_DESCRIPTION)).toBeInTheDocument();
+    // Without cmsHeadline, the CMS path is not used
+    expect(
+      screen.getByRole('heading', { name: MOCK_HEADING })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(MOCK_CMS_DESCRIPTION)).not.toBeInTheDocument();
   });
 
-  it('renders CMS header with only logo', () => {
+  it('falls back to default heading when only logo is provided (no headline)', () => {
     renderWithLocalizationProvider(
       <CardHeader
         headingText={MOCK_HEADING}
@@ -105,7 +109,11 @@ describe('CardHeader', () => {
         cmsLogoAltText={MOCK_CMS_LOGO_ALT_TEXT}
       />
     );
-    expect(screen.getByAltText(MOCK_CMS_LOGO_ALT_TEXT)).toBeInTheDocument();
+    // Without cmsHeadline, the CMS path is not used
+    expect(
+      screen.getByRole('heading', { name: MOCK_HEADING })
+    ).toBeInTheDocument();
+    expect(screen.queryByAltText(MOCK_CMS_LOGO_ALT_TEXT)).not.toBeInTheDocument();
   });
 
   it('renders CMS header with default font size', () => {

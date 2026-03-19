@@ -1647,7 +1647,7 @@ describe('Signin component', () => {
     it('sets the shared page title from CMS', () => {
       // Ensure pageTitle is not available on SigninPage, cast to type
       // to allow undefined
-      (cmsProps.cmsInfo as RelierCmsInfo).SigninPage.pageTitle = undefined;
+      (cmsProps.cmsInfo as RelierCmsInfo).SigninPage!.pageTitle = undefined;
       render({ integration: createMockSigninWebIntegration(cmsProps) });
 
       expect(document.title).toBe(
@@ -1695,23 +1695,37 @@ describe('Signin component', () => {
     });
 
     it('renders CardHeader with CMS content when password is not needed', () => {
-      // This path: isPasswordNeededRef.current && hasPassword === false
-      // Renders CardHeader with different props but still uses CMS logo
+      const cmsProps = {
+        cmsInfo: {
+          ...MOCK_CMS_INFO,
+          SigninCachedPage: undefined,
+          SigninPage: {
+            headline: 'CMS override',
+            description: 'just for you!',
+            primaryButtonText: 'Click me',
+            pageTitle: 'I am a title',
+          },
+        },
+      };
+
+      // No SigninCachedPage and password not needed, so CMS headline
+      // is not available and the heading falls back to default
       render({
         integration: createMockSigninWebIntegration(cmsProps),
         hasPassword: false,
       });
 
-      const cmsLogo = screen.getByRole('img', {
-        name: cmsProps.cmsInfo.shared.logoAltText,
-      });
-      expect(cmsLogo).toMatchSnapshot();
+      // No CMS headline from SigninCachedPage, so no CMS logo rendered
+      expect(
+        screen.queryByRole('img', {
+          name: cmsProps.cmsInfo.shared.logoAltText,
+        })
+      ).not.toBeInTheDocument();
 
-      // When no SigninCachedPage is set, the non-password path falls back
-      // to SigninPage headline and description
+      // Falls back to the default "Sign in" text
       expect(
         screen.getByRole('heading', {
-          name: cmsProps.cmsInfo.SigninPage.headline,
+          name: 'Sign in',
         })
       ).toBeInTheDocument();
     });
@@ -1784,17 +1798,22 @@ describe('Signin component', () => {
         ).toBeInTheDocument();
       });
 
-      it('falls back to SigninPage CMS config when SigninCachedPage is not set', () => {
+      it('falls back to headingText when SigninCachedPage is not set', () => {
         render({
           integration: createMockSigninWebIntegration(cmsProps),
           sessionToken: MOCK_SESSION_TOKEN,
           hasPassword: true,
         });
 
+        // Cached users should not see SigninPage CMS headline
         expect(
-          screen.getByRole('heading', {
+          screen.queryByRole('heading', {
             name: cmsProps.cmsInfo.SigninPage.headline,
           })
+        ).not.toBeInTheDocument();
+        // Should fall back to default headingText
+        expect(
+          screen.getByRole('heading', { name: 'Sign in' })
         ).toBeInTheDocument();
       });
 

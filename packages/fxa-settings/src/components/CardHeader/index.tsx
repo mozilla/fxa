@@ -111,14 +111,7 @@ function isDefaultService(
 }
 
 function isCmsHeader(props: CardHeaderProps): props is CardHeaderCmsProps {
-  return (
-    (props as CardHeaderCmsProps).cmsLogoUrl !== undefined ||
-    (props as CardHeaderCmsProps).cmsLogoAltText !== undefined ||
-    (props as CardHeaderCmsProps).cmsHeadline !== undefined ||
-    (props as CardHeaderCmsProps).cmsDescription !== undefined ||
-    (props as CardHeaderCmsProps).cmsHeadlineFontSize !== undefined ||
-    (props as CardHeaderCmsProps).cmsHeadlineTextColor !== undefined
-  );
+  return (props as CardHeaderCmsProps).cmsHeadline !== undefined;
 }
 
 function isBasicWithCustomSubheading(
@@ -222,7 +215,9 @@ const CardHeader = (props: CardHeaderProps) => {
         >
           {cmsHeadline}
         </h1>
-        <p className="card-subheader">{cmsDescription}</p>
+        {cmsDescription && (
+          <p className="card-subheader">{cmsDescription}</p>
+        )}
       </>
     );
   }
