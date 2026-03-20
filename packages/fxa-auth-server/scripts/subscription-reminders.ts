@@ -6,6 +6,7 @@ import { StatsD } from 'hot-shots';
 import Container from 'typedi';
 import { promisify } from 'util';
 import * as Sentry from '@sentry/node';
+import { initSentry } from 'fxa-shared/sentry/node';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { SubscriptionReminders } from '../lib/payments/subscription-reminders';
@@ -24,8 +25,6 @@ const DEFAULT_YEARLY_RENEWAL_REMINDER_LENGTH = 15;
 const DEFAULT_ENDING_REMINDER_DAILY_LENGTH = 0;
 const DEFAULT_ENDING_REMINDER_MONTHLY_LENGTH = 7;
 const DEFAULT_ENDING_REMINDER_YEARLY_LENGTH = 14;
-
-Sentry.init({});
 
 async function init() {
   program
@@ -70,6 +69,16 @@ async function init() {
 
   const { log, database, senders, stripeHelper, config } =
     await setupProcessingTaskObjects('subscription-reminders');
+
+  initSentry({ ...config, release: pckg.version }, log);
+  Sentry.captureMessage('Subscription reminders started', {
+    level: 'info',
+    tags: {
+      service: 'fxa-auth-server',
+      env: config.env,
+    },
+  });
+
   await initSubplat({
     loggerName: 'subscription-reminders',
     legacyLog: log,

@@ -7,6 +7,7 @@
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
 
+const Sentry = require('@sentry/node');
 const config = require('../lib/config').getProperties();
 const log = require('../lib/log')(config.log.level, 'customs-server');
 
@@ -26,6 +27,13 @@ const init = async () => {
       op: 'listening',
       host: config.listen.host,
       port: config.listen.port,
+    });
+    Sentry.captureMessage('Customs server started', {
+      level: 'info',
+      tags: {
+        service: 'fxa-customs-server',
+        env: config.env,
+      },
     });
 
     const server_shutdown = async () => {

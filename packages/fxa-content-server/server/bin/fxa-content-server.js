@@ -8,6 +8,7 @@
 
 // Initializes sentry
 require('../lib/sentry');
+const Sentry = require('@sentry/node');
 
 // setup version first for the rest of the modules
 const loggerFactory = require('../lib/logging/log');
@@ -296,6 +297,13 @@ function listen(theApp) {
         config.get('scopedKeys.validation')
       )}`
     );
+    Sentry.captureMessage('Content server started', {
+      level: 'info',
+      tags: {
+        service: 'fxa-content-server',
+        env: config.get('env'),
+      },
+    });
   }
   return true;
 }

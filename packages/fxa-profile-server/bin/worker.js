@@ -5,6 +5,7 @@
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
 
+const Sentry = require('@sentry/node');
 const logger = require('../lib/logging')('bin.worker');
 const Server = require('../lib/server/worker');
 
@@ -14,6 +15,10 @@ async function start() {
   try {
     await server.start();
     logger.info('listening', server.info.uri);
+    Sentry.captureMessage('Profile worker started', {
+      level: 'info',
+      tags: { service: 'fxa-profile-server' },
+    });
   } catch (err) {
     logger.error('failed to start', err);
   }

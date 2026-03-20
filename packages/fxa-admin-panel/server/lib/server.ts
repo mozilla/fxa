@@ -155,5 +155,12 @@ export async function createServer() {
   logger.info('server.starting', { port });
   app.listen(port, host, () => {
     logger.info('server.started', { port });
+    Sentry.captureMessage('Admin panel server started', {
+      level: 'info',
+      tags: {
+        service: 'fxa-admin-panel',
+        env: config.get('env'),
+      },
+    });
   });
 }
