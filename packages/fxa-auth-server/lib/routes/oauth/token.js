@@ -909,7 +909,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           ) {
             // For desktop, the 'service' parameter for this event gets
             // special-cased to 'sync' so that it matches its pre-oauth
-            // `/certificate/sign` event.
+            // `/certificate/sign` event. (Note: `/certificate/sign` is now removed.)
             // ref: https://github.com/mozilla/fxa/pull/6581#issuecomment-702248031
             // Otherwise, for mobile browsers, just use the existing client ID
             // to service name mapping used in the metrics code (see the
