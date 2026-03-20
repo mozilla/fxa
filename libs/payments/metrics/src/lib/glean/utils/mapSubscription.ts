@@ -7,6 +7,7 @@ import {
   CommonMetrics,
   type SubscriptionCancellationData,
 } from '../glean.types';
+import { PaymentProvidersType, SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import { determineCheckoutType } from './determineCheckoutType';
 import { mapParams } from './mapParams';
 import { normalizeGleanFalsyValues } from './normalizeGleanFalsyValues';
@@ -23,12 +24,16 @@ export function mapSubscription({
   cartMetricsData,
   cmsMetricsData,
   subscriptionCancellationData,
+  paymentProvider,
+  paymentMethod,
   isFreeTrial,
 }: {
   commonMetricsData: CommonMetrics;
   cartMetricsData: CartMetrics;
   cmsMetricsData: CmsMetricsData;
   subscriptionCancellationData?: SubscriptionCancellationData;
+  paymentProvider?: PaymentProvidersType;
+  paymentMethod?: SubPlatPaymentMethodType;
   isFreeTrial?: boolean;
 }) {
   const mappedParams = mapParams(commonMetricsData.params);
@@ -47,7 +52,8 @@ export function mapSubscription({
     subscription_offering_id:
       normalizeGleanFalsyValues(subscriptionCancellationData?.offeringId) ||
       mappedParams.offeringId,
-    subscription_payment_provider: PLACEHOLDER_VALUE,
+    subscription_payment_provider: normalizeGleanFalsyValues(paymentProvider),
+    subscription_payment_method: normalizeGleanFalsyValues(paymentMethod),
     subscription_plan_id: normalizeGleanFalsyValues(cmsMetricsData.priceId),
     subscription_product_id: normalizeGleanFalsyValues(
       cmsMetricsData.productId

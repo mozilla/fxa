@@ -130,6 +130,7 @@ export function CheckoutForm({
       { ...params },
       Object.fromEntries(searchParams),
       undefined,
+      undefined,
       isFreeTrial
     );
   }, []);
@@ -189,6 +190,7 @@ export function CheckoutForm({
         { ...params },
         Object.fromEntries(searchParams),
         'paypal',
+        'external_paypal',
         isFreeTrial
       );
 
@@ -264,6 +266,7 @@ export function CheckoutForm({
       { ...params },
       Object.fromEntries(searchParams),
       paymentProvider,
+      selectedPaymentMethod,
       isFreeTrial
     );
 

@@ -17,7 +17,10 @@ import {
   type SubPlatCmsMetricsData,
 } from './glean.types';
 import { Inject, Injectable } from '@nestjs/common';
-import { PaymentProvidersType } from '@fxa/payments/customer';
+import {
+  PaymentProvidersType,
+  type SubPlatPaymentMethodType,
+} from '@fxa/payments/customer';
 import { type PaymentsGleanServerEventsLogger } from './glean.provider';
 import { mapSession } from './utils/mapSession';
 import { mapUtm } from './utils/mapUtm';
@@ -86,13 +89,16 @@ export class PaymentsGleanManager {
       cmsMetricsData: CmsMetricsData;
       experimentationData: ExperimentationData;
     },
-    paymentProvider?: PaymentProvidersType
+    paymentProvider?: PaymentProvidersType,
+    paymentMethod?: SubPlatPaymentMethodType
   ) {
     if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupSubmit({
-        ...this.populateCommonMetrics(metrics),
+        ...this.populateCommonMetrics(metrics, paymentProvider, paymentMethod),
         subscription_payment_provider:
           normalizeGleanFalsyValues(paymentProvider),
+        subscription_payment_method:
+          normalizeGleanFalsyValues(paymentMethod),
       });
     }
   }
@@ -104,15 +110,18 @@ export class PaymentsGleanManager {
       cmsMetricsData: CmsMetricsData;
       experimentationData: ExperimentationData;
     },
-    paymentProvider?: PaymentProvidersType
+    paymentProvider?: PaymentProvidersType,
+    paymentMethod?: SubPlatPaymentMethodType
   ) {
-    const commonMetrics = this.populateCommonMetrics(metrics);
+    const commonMetrics = this.populateCommonMetrics(metrics, paymentProvider, paymentMethod);
 
     if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupSuccess({
         ...commonMetrics,
         subscription_payment_provider:
           normalizeGleanFalsyValues(paymentProvider),
+        subscription_payment_method:
+          normalizeGleanFalsyValues(paymentMethod),
       });
     }
   }
@@ -144,7 +153,7 @@ export class PaymentsGleanManager {
     },
     paymentProvider?: PaymentProvidersType
   ) {
-    const commonMetrics = this.populateCommonMetrics(metrics);
+    const commonMetrics = this.populateCommonMetrics(metrics, paymentProvider);
 
     if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordSubscriptionEnded({
@@ -243,6 +252,7 @@ export class PaymentsGleanManager {
       subscription_interval: cms.interval ?? '',
       subscription_offering_id: cms.offeringId ?? '',
       subscription_payment_provider: PLACEHOLDER_FUTURE_USE,
+      subscription_payment_method: PLACEHOLDER_FUTURE_USE,
       subscription_plan_id: stripe.priceId ?? '',
       subscription_product_id: stripe.productId ?? '',
       subscription_promotion_code: stripe.couponCode ?? '',
@@ -266,13 +276,17 @@ export class PaymentsGleanManager {
     };
   }
 
-  private populateCommonMetrics(metrics: {
-    commonMetricsData?: CommonMetrics;
-    cartMetricsData?: CartMetrics;
-    cmsMetricsData?: CmsMetricsData;
-    experimentationData?: ExperimentationData;
-    subscriptionCancellationData?: SubscriptionCancellationData;
-  }) {
+  private populateCommonMetrics(
+    metrics: {
+      commonMetricsData?: CommonMetrics;
+      cartMetricsData?: CartMetrics;
+      cmsMetricsData?: CmsMetricsData;
+      experimentationData?: ExperimentationData;
+      subscriptionCancellationData?: SubscriptionCancellationData;
+    },
+    paymentProvider?: PaymentProvidersType,
+    paymentMethod?: SubPlatPaymentMethodType
+  ) {
     const emptyCommonMetricsData: CommonMetrics = {
       ipAddress: '',
       deviceType: '',
@@ -325,6 +339,8 @@ export class PaymentsGleanManager {
         cartMetricsData,
         cmsMetricsData,
         subscriptionCancellationData,
+        paymentProvider,
+        paymentMethod,
         isFreeTrial: commonMetricsData.isFreeTrial,
       }),
       ...mapUtm(commonMetricsData.searchParams),

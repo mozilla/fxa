@@ -6,14 +6,26 @@
 import { getApp } from '../nestapp/app';
 import { flattenRouteParams } from '../utils/flatParam';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
-import { PaymentProvidersType } from '@fxa/payments/customer';
+import {
+  PaymentProvidersType,
+  SubPlatPaymentMethodType,
+} from '@fxa/payments/customer';
 import { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
+
+const paymentMethodTypeMap: Record<string, SubPlatPaymentMethodType> = {
+  card: SubPlatPaymentMethodType.Card,
+  link: SubPlatPaymentMethodType.Link,
+  apple_pay: SubPlatPaymentMethodType.ApplePay,
+  google_pay: SubPlatPaymentMethodType.GooglePay,
+  external_paypal: SubPlatPaymentMethodType.PayPal,
+};
 
 async function recordEmitterEventAction(
   eventName: 'checkoutSubmit',
   params: Record<string, string | string[]>,
   searchParams: Record<string, string | string[]>,
   paymentProvider: PaymentProvidersType,
+  paymentMethod: string,
   isFreeTrial?: boolean
 ): Promise<void>;
 async function recordEmitterEventAction(
@@ -25,6 +37,7 @@ async function recordEmitterEventAction(
   params: Record<string, string | string[]>,
   searchParams: Record<string, string | string[]>,
   paymentProvider?: undefined,
+  paymentMethod?: undefined,
   isFreeTrial?: boolean
 ): Promise<void>;
 async function recordEmitterEventAction(
@@ -32,6 +45,7 @@ async function recordEmitterEventAction(
   params: Record<string, string | string[]>,
   searchParams: Record<string, string | string[]>,
   paymentProvider?: PaymentProvidersType,
+  paymentMethod?: string,
   isFreeTrial?: boolean
 ) {
   const requestArgs = {
@@ -45,6 +59,9 @@ async function recordEmitterEventAction(
     eventName,
     requestArgs,
     paymentProvider,
+    paymentMethod: paymentMethod
+      ? paymentMethodTypeMap[paymentMethod]
+      : undefined,
   });
 }
 

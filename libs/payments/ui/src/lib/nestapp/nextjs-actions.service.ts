@@ -78,6 +78,7 @@ import {
   PromotionCodeSanitizedError,
   TaxAddress,
   type PaymentProvidersType,
+  type SubPlatPaymentMethodType,
   type SubplatInterval,
 } from '@fxa/payments/customer';
 import { EligibilityService, LocationStatus } from '@fxa/payments/eligibility';
@@ -689,8 +690,9 @@ export class NextJSActionsService {
     eventName: string;
     requestArgs: CommonMetrics;
     paymentProvider?: PaymentProvidersType;
+    paymentMethod?: SubPlatPaymentMethodType;
   }) {
-    const { eventName, requestArgs, paymentProvider } = args;
+    const { eventName, requestArgs, paymentProvider, paymentMethod } = args;
 
     switch (eventName) {
       case 'checkoutView':
@@ -706,6 +708,7 @@ export class NextJSActionsService {
         this.emitterService.getEmitter().emit(eventName, {
           ...requestArgs,
           paymentProvider,
+          paymentMethod,
         });
         break;
       }

@@ -166,6 +166,22 @@ subscription:
     expires: never
     data_sensitivity:
       - interaction
+  payment_method:
+    type: string
+    description: |
+      The payment method selected by the customer during checkout (e.g. ‘card’, ‘apple_pay’)
+    lifetime: application
+    send_in_pings:
+      - events
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/PAY-3496
+    data_reviews:
+      - https://github.com/mozilla/fxa/pull/20211
+    expires: never
+    data_sensitivity:
+      - interaction
   product_id:
     type: string
     description: Stripe product ID of a subscription.
@@ -614,7 +630,7 @@ cancel_route:
         description: Nimbus user ID
         type: string
   interstitial_offer:
-    description: Subscription management churn cancel route determined customer is eligible for interstitial offer 
+    description: Subscription management churn cancel route determined customer is eligible for interstitial offer
     type: event
     notification_emails:
       - subplat-team@mozilla.com
@@ -743,7 +759,7 @@ churn:
         description: Nimbus user ID
         type: string
   stay_redeemed:
-    description: Subscription management stay subscribed churn promo successfully redeemed 
+    description: Subscription management stay subscribed churn promo successfully redeemed
     type: event
     notification_emails:
       - subplat-team@mozilla.com

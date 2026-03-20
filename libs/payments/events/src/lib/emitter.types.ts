@@ -11,7 +11,10 @@ import {
 } from '@fxa/payments/metrics';
 import { LocationStatus } from '@fxa/payments/eligibility';
 import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
-import { PaymentProvidersType } from '@fxa/payments/customer';
+import {
+  PaymentProvidersType,
+  type SubPlatPaymentMethodType,
+} from '@fxa/payments/customer';
 
 export enum GleanGenericEventNames {
   CancelRouteChurnContent = 'recordCancelRouteChurnContent',
@@ -29,6 +32,7 @@ export enum GleanGenericEventNames {
 export type CheckoutEvents = CommonMetrics;
 export type CheckoutPaymentEvents = CommonMetrics & {
   paymentProvider?: PaymentProvidersType;
+  paymentMethod?: SubPlatPaymentMethodType;
 };
 
 export type SubscriptionEndedEvents = {
