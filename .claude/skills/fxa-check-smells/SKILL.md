@@ -1,5 +1,5 @@
 ---
-name: check-smells
+name: fxa-check-smells
 description: Reviews changed code for code smells across design, implementation, tests, and dependencies. Reports findings with severity and concrete fix recommendations. Operates on files changed vs main.
 context: fork
 ---

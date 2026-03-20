@@ -1,5 +1,5 @@
 ---
-name: security-review
+name: fxa-security-review
 description: Comprehensive security review of changed code. Checks for OWASP vulnerabilities, secrets leakage, XSS, SQL/Redis injection, CORS issues, insecure crypto, OTP/TOTP misuse, insufficient logging, Docker/CI exposure, and more. Use when landing changes that touch auth, payments, user data, or any security-sensitive path.
 argument-hint: [file-or-diff]
 context: fork
