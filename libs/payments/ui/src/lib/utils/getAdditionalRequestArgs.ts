@@ -6,13 +6,14 @@ import { headers } from 'next/headers';
 import { userAgentFromString } from 'next/server';
 import { getIpAddress } from './getIpAddress';
 
-export function getAdditionalRequestArgs() {
-  const userAgentString = headers().get('user-agent') || '';
+export async function getAdditionalRequestArgs() {
+  const headersList = await headers();
+  const userAgentString = headersList.get('user-agent') || '';
   const userAgent = userAgentFromString(userAgentString);
-  const experimentationId = headers().get('x-experimentation-id') || '';
+  const experimentationId = headersList.get('x-experimentation-id') || '';
 
   return {
-    ipAddress: getIpAddress(),
+    ipAddress: await getIpAddress(),
     userAgent: userAgentString,
     deviceType: userAgent.device.type || 'desktop',
     experimentationId,

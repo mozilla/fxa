@@ -14,12 +14,12 @@ export const checkoutCartWithStripe = async (
   version: number,
   confirmationTokenId: string,
   attribution: SubscriptionAttributionParams,
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
+  searchParams: Record<string, string | string[] | undefined>,
   sessionUid?: string
 ) => {
   const requestArgs = {
-    ...getAdditionalRequestArgs(),
+    ...(await getAdditionalRequestArgs()),
     params: flattenRouteParams(params),
     searchParams: flattenRouteParams(searchParams),
   };

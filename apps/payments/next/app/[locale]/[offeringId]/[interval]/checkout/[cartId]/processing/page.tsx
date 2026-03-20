@@ -21,16 +21,18 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'processing',
     pageType: 'checkout',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -38,16 +40,18 @@ export default async function ProcessingPage({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
   await validateCartStateAndRedirectAction(
-    params.cartId,
+    resolvedParams.cartId,
     SupportedPages.PROCESSING,
-    searchParams
+    resolvedSearchParams
   );
   return (
     <section
@@ -56,7 +60,7 @@ export default async function ProcessingPage({
       aria-labelledby="processing-payment-heading"
     >
       <LoadingSpinner className="w-10 h-10" />
-      <PaymentStateObserver cartId={params.cartId} />
+      <PaymentStateObserver cartId={resolvedParams.cartId} />
       <h2 id="processing-payment-heading">
         {l10n.getString(
           'next-payment-processing-message',

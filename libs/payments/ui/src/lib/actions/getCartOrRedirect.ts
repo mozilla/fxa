@@ -26,34 +26,37 @@ import {
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.START,
-  searchParams?: Record<string, string | string[]>
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<StartCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.PROCESSING,
-  searchParams?: Record<string, string | string[]>
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<ProcessingCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.NEEDS_INPUT,
-  searchParams?: Record<string, string | string[]>
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<NeedsInputCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.ERROR,
-  searchParams?: Record<string, string | string[]>
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<FailCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.SUCCESS,
-  searchParams?: Record<string, string | string[]>
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<SuccessCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages,
-  searchParams?: Record<string, string | string[]>
+  searchParams?: Record<string, string | string[] | undefined>
 ): Promise<CartDTO> {
-  const urlSearchParams = new URLSearchParams(searchParams);
+  const filteredParams = searchParams
+    ? Object.fromEntries(Object.entries(searchParams).filter(([, v]) => v != null)) as Record<string, string | string[]>
+    : undefined;
+  const urlSearchParams = new URLSearchParams(filteredParams);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
   const cart = await getApp().getActionsService().getCart({
     cartId,

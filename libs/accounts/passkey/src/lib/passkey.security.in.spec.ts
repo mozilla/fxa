@@ -56,7 +56,7 @@ describe('Passkey Security Tests', () => {
             { provide: AccountDbProvider, useValue: db },
             {
               provide: PasskeyConfig,
-              useValue: Object.assign(new PasskeyConfig(), {
+              useValue: Object.assign(new PasskeyConfig({} as PasskeyConfig), {
                 rpId: 'accounts.example.com',
                 allowedOrigins: ['https://accounts.example.com'],
                 maxPasskeysPerUser: 10,
@@ -164,7 +164,7 @@ describe('Passkey Security Tests', () => {
     beforeAll(async () => {
       redis = new Redis({ host: 'localhost' });
 
-      const config = Object.assign(new PasskeyConfig(), {
+      const config = Object.assign(new PasskeyConfig({} as PasskeyConfig), {
         rpId: 'localhost',
         allowedOrigins: ['http://localhost'],
         challengeTimeout: 1000 * 60 * 5, // 5 minutes

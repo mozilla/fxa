@@ -10,8 +10,8 @@ export enum PaymentsPage {
   Subscriptions = 'subscriptions',
 }
 
-export default function NotFound() {
-  const acceptLanguage = headers().get('accept-language');
+export default async function NotFound() {
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage);
   return (
     <PageNotFound

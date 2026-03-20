@@ -36,16 +36,17 @@ export default async function CheckoutLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: CheckoutParams;
+  params: Promise<CheckoutParams>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
   const cmsDataPromise = fetchCMSData(
-    params.offeringId,
+    resolvedParams.offeringId,
     acceptLanguage,
     locale
   );
-  const cartDataPromise = getCartAction(params.cartId);
+  const cartDataPromise = getCartAction(resolvedParams.cartId);
   const sessionPromise = auth();
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const [cms, cart, session] = await Promise.all([
@@ -125,13 +126,13 @@ export default async function CheckoutLayout({
                     const result = await updateTaxAddressAction(
                       cart.id,
                       cart.version,
-                      params.offeringId,
+                      resolvedParams.offeringId,
                       {
                         countryCode,
                         postalCode,
                       },
                       session?.user?.id,
-                      params.interval
+                      resolvedParams.interval
                     );
 
                     if (result.ok) {

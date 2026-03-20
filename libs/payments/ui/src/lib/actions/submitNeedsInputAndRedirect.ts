@@ -8,15 +8,16 @@ import { getApp } from '../nestapp/app';
 import { redirect } from 'next/navigation';
 import { URLSearchParams } from 'url';
 import { recordEmitterEventAction } from './recordEmitterEvent';
+import { flattenRouteParams } from '../utils/flatParam';
 
 export const submitNeedsInputAndRedirectAction = async (
   cartId: string,
-  params: Record<string, string | string[]>,
-  searchParams?: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
+  searchParams?: Record<string, string | string[] | undefined>,
   isFreeTrial?: boolean
 ) => {
   let redirectPath: string | undefined;
-  const urlSearchParams = new URLSearchParams(searchParams);
+  const urlSearchParams = new URLSearchParams(searchParams ? flattenRouteParams(searchParams) : undefined);
   const searchParamsString = searchParams
     ? `?${urlSearchParams.toString()}`
     : '';

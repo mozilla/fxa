@@ -17,16 +17,17 @@ export default async function LoyaltyDiscountCancelErrorPage({
   params,
   searchParams,
 }: {
-  params: SubscriptionParams;
-  searchParams: Record<string, string> | undefined;
+  params: Promise<SubscriptionParams>;
+  searchParams: Promise<Record<string, string> | undefined>;
 }) {
-  const { locale, subscriptionId } = params;
+  const { locale, subscriptionId } = await params;
+  const resolvedSearchParams = await searchParams;
 
   if (!config.churnInterventionConfig.enabled) {
     redirect(`/${locale}/subscriptions/${subscriptionId}/cancel`);
   }
 
-  const acceptLanguage = headers().get('accept-language');
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
 
   const session = await auth();
@@ -34,7 +35,7 @@ export default async function LoyaltyDiscountCancelErrorPage({
     const redirectToUrl = new URL(
       `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
     );
-    redirectToUrl.search = new URLSearchParams(searchParams).toString();
+    redirectToUrl.search = new URLSearchParams(resolvedSearchParams).toString();
     redirectToUrl.searchParams.set(
       'redirect_to',
       `/${locale}/subscriptions/${subscriptionId}/loyalty-discount/cancel/error`

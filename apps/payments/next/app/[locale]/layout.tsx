@@ -10,15 +10,16 @@ export default async function RootProviderLayout({
   params,
   children,
 }: {
-  params: {
+  params: Promise<{
     locale: string;
-  };
+  }>;
   children: React.ReactNode;
 }) {
-  const acceptLanguage = headers().get('accept-language');
+  const { locale } = await params;
+  const acceptLanguage = (await headers()).get('accept-language');
   const fetchedMessages = getApp().getFetchedMessages(
     acceptLanguage,
-    params.locale
+    locale
   );
 
   return (

@@ -58,9 +58,9 @@ export default function Error({
     }
   }
 
-  function handleProductRetry() {
+  async function handleProductRetry() {
     if (cartId) {
-      redirectWithCart();
+      await redirectWithCart();
     } else {
       router.push(`/${locale}/${offeringId}/${interval}/landing` + (queryParams ? `?${queryParams}` : ''));
     }

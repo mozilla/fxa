@@ -9,14 +9,15 @@ import { getApp } from '../nestapp/app';
 import { redirect } from 'next/navigation';
 import { stripeErrorToErrorReasonId } from '@fxa/payments/cart';
 import { URLSearchParams } from 'url';
+import { flattenRouteParams } from '../utils/flatParam';
 
 export const handleStripeErrorAction = async (
   cartId: string,
   stripeError: StripeError,
-  searchParams?: Record<string, string | string[]>
+  searchParams?: Record<string, string | string[] | undefined>
 ) => {
   const errorReasonId = stripeErrorToErrorReasonId(stripeError);
-  const urlSearchParams = new URLSearchParams(searchParams);
+  const urlSearchParams = new URLSearchParams(searchParams ? flattenRouteParams(searchParams) : undefined);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
 
   await getApp().getActionsService().finalizeCartWithError({

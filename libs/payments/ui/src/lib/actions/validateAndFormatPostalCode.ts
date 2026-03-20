@@ -6,7 +6,7 @@
 
 import { getApp } from '../nestapp/app';
 
-export const validateAndFormatPostalCode = (
+export const validateAndFormatPostalCode = async (
   postalCode: string,
   countryCode: string
 ) => {

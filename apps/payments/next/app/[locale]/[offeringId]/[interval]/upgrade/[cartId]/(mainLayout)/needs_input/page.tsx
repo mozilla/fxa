@@ -25,16 +25,18 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'needs_input',
     pageType: 'upgrade',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -42,16 +44,18 @@ export default async function NeedsInputPage({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const cartPromise = getCartOrRedirectAction(
-    params.cartId,
+    resolvedParams.cartId,
     SupportedPages.NEEDS_INPUT,
-    searchParams
+    resolvedSearchParams
   );
   const sessionPromise = auth();
   const [session, cart] = await Promise.all([sessionPromise, cartPromise]);
@@ -61,12 +65,12 @@ export default async function NeedsInputPage({
 
   if (!session?.user?.id || cart.uid !== session.user.id) {
     const redirectSearchParams: Record<string, string | string[]> =
-      searchParams || {};
+      resolvedSearchParams || {};
     delete redirectSearchParams.cartId;
     delete redirectSearchParams.cartVersion;
     const redirectTo = buildRedirectUrl(
-      params.offeringId,
-      params.interval,
+      resolvedParams.offeringId,
+      resolvedParams.interval,
       'new',
       'checkout',
       {
@@ -91,7 +95,7 @@ export default async function NeedsInputPage({
         locale={locale}
         cart={cart}
       >
-        <PaymentInputHandler cartId={params.cartId} />
+        <PaymentInputHandler cartId={resolvedParams.cartId} />
       </StripeWrapper>
       <h2 id="processing-payment-heading">
         {l10n.getString(

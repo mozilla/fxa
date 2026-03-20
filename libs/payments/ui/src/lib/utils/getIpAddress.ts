@@ -4,6 +4,6 @@
 import 'server-only';
 import { headers } from 'next/headers';
 
-export function getIpAddress() {
-  return (headers().get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
+export async function getIpAddress() {
+  return ((await headers()).get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
 }

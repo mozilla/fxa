@@ -28,16 +28,18 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'start',
     pageType: 'upgrade',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -45,29 +47,32 @@ export default async function Upgrade({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
-  const nonce = headers().get('x-nonce') || undefined;
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const headersList = await headers();
+  const acceptLanguage = headersList.get('accept-language');
+  const nonce = headersList.get('x-nonce') || undefined;
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const session = await auth();
 
   const cartDataPromise = getCartOrRedirectAction(
-    params.cartId,
+    resolvedParams.cartId,
     SupportedPages.START,
-    searchParams
+    resolvedSearchParams
   );
   const cmsDataPromise = fetchCMSData(
-    params.offeringId,
+    resolvedParams.offeringId,
     acceptLanguage,
     locale
   );
   const [cart, cms] = await Promise.all([cartDataPromise, cmsDataPromise]);
 
   const isCancelInterstitialOffer =
-    searchParams?.['entrypoint'] === 'subscription-management';
+    resolvedSearchParams?.['entrypoint'] === 'subscription-management';
 
   return (
     <>
