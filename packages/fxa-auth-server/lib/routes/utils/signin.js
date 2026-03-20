@@ -642,6 +642,8 @@ module.exports = (
       }
 
       async function recordSecurityEvent() {
+        const clientId = request.app.clientIdTag;
+        const service = request.app.serviceTag;
         await accountEventsManager.recordSecurityEvent(db, {
           name: 'account.login',
           uid: accountRecord.uid,
@@ -650,6 +652,8 @@ module.exports = (
           additionalInfo: {
             userAgent: request.headers['user-agent'],
             location: request.app.geo.location,
+            ...(clientId && { client_id: clientId }),
+            ...(service && { service }),
           },
         });
       }

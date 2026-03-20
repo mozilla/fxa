@@ -133,7 +133,7 @@ describe('Account Events', () => {
   describe('security events', () => {
     it('can record security event', async () => {
       const message = {
-        name: 'account.login' as const,
+        name: 'account.login',
         uid: '000',
         ipAddr: '123.123.123.123',
         tokenId: '123',
@@ -144,14 +144,54 @@ describe('Account Events', () => {
 
       sinon.assert.calledOnceWithExactly(
         statsd.increment,
-        'accountEvents.recordSecurityEvent.write.account.login'
+        'accountEvents.recordSecurityEvent.write.account.login',
+        { clientId: 'none', service: 'none' }
+      );
+    });
+
+    it('includes clientId and service tags from additionalInfo', async () => {
+      const message = {
+        name: 'account.login',
+        uid: '000',
+        ipAddr: '123.123.123.123',
+        tokenId: '123',
+        additionalInfo: {
+          client_id: '5882386c6d801776',
+          service: 'sync',
+        },
+      };
+      await accountEventsManager.recordSecurityEvent(mockDb, message);
+
+      sinon.assert.calledOnceWithExactly(
+        statsd.increment,
+        'accountEvents.recordSecurityEvent.write.account.login',
+        { clientId: '5882386c6d801776', service: 'sync' }
+      );
+    });
+
+    it('uses none for missing service when clientId is present', async () => {
+      const message = {
+        name: 'account.login',
+        uid: '000',
+        ipAddr: '123.123.123.123',
+        tokenId: '123',
+        additionalInfo: {
+          client_id: 'deadbeefdeadbeef',
+        },
+      };
+      await accountEventsManager.recordSecurityEvent(mockDb, message);
+
+      sinon.assert.calledOnceWithExactly(
+        statsd.increment,
+        'accountEvents.recordSecurityEvent.write.account.login',
+        { clientId: 'deadbeefdeadbeef', service: 'none' }
       );
     });
 
     it('logs and does not throw on failure', async () => {
       mockDb.securityEvent = sinon.stub().throws();
       const message = {
-        name: 'account.login' as const,
+        name: 'account.login',
         uid: '000',
         ip: '123.123.123.123',
         tokenId: '123',
@@ -160,7 +200,29 @@ describe('Account Events', () => {
       expect(addMock.called).toBe(false);
       sinon.assert.calledOnceWithExactly(
         statsd.increment,
-        'accountEvents.recordSecurityEvent.error.account.login'
+        'accountEvents.recordSecurityEvent.error.account.login',
+        { clientId: 'none', service: 'none' }
+      );
+    });
+
+    it('includes tags on error path', async () => {
+      mockDb.securityEvent = sinon.stub().throws();
+      const message = {
+        name: 'account.login',
+        uid: '000',
+        ipAddr: '123.123.123.123',
+        tokenId: '123',
+        additionalInfo: {
+          client_id: '5882386c6d801776',
+          service: 'sync',
+        },
+      };
+      await accountEventsManager.recordSecurityEvent(mockDb, message as any);
+
+      sinon.assert.calledOnceWithExactly(
+        statsd.increment,
+        'accountEvents.recordSecurityEvent.error.account.login',
+        { clientId: '5882386c6d801776', service: 'sync' }
       );
     });
   });

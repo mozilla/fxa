@@ -6,7 +6,11 @@ import { Container } from 'typedi';
 
 import { AuthFirestore, AppConfig } from '../lib/types';
 import { StatsD } from 'hot-shots';
-import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
+import * as Sentry from '@sentry/node';
+import {
+  EVENT_NAMES,
+  SecurityEventNames,
+} from 'fxa-shared/db/models/auth/security-event';
 
 type BaseEvent = {
   // General metric properties
@@ -163,6 +167,11 @@ export class AccountEventsManager {
   public async recordSecurityEvent(db: AuthDatabase, message: SecurityEvent) {
     const { uid, name, ipAddr, tokenId, additionalInfo } = message;
 
+    if (!EVENT_NAMES[name]) {
+      Sentry.captureMessage(`Unknown security event name: ${name}`);
+      return;
+    }
+
     const eventData: SecurityEvent = {
       name,
       uid,
@@ -175,12 +184,23 @@ export class AccountEventsManager {
       }),
     };
 
+    const metricTags = {
+      clientId: additionalInfo?.client_id || 'none',
+      service: additionalInfo?.service || 'none',
+    };
+
     try {
       await db.securityEvent(eventData);
-      this.statsd.increment(`accountEvents.recordSecurityEvent.write.${name}`);
+      this.statsd.increment(
+        `accountEvents.recordSecurityEvent.write.${name}`,
+        metricTags
+      );
     } catch (err) {
       // Failing to write to events shouldn't break anything
-      this.statsd.increment(`accountEvents.recordSecurityEvent.error.${name}`);
+      this.statsd.increment(
+        `accountEvents.recordSecurityEvent.error.${name}`,
+        metricTags
+      );
     }
   }
 }

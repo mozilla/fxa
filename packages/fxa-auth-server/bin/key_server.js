@@ -432,7 +432,8 @@ async function run(config) {
     database,
     statsd,
     glean,
-    customs
+    customs,
+    oauthDb
   );
 
   try {

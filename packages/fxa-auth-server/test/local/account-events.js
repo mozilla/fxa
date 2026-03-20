@@ -132,7 +132,8 @@ describe('Account Events', () => {
 
       assert.calledOnceWithExactly(
         statsd.increment,
-        'accountEvents.recordSecurityEvent.write.account.login'
+        'accountEvents.recordSecurityEvent.write.account.login',
+        { clientId: 'none', service: 'none' }
       );
     });
 
@@ -148,7 +149,8 @@ describe('Account Events', () => {
       assert.isFalse(addMock.called);
       assert.calledOnceWithExactly(
         statsd.increment,
-        'accountEvents.recordSecurityEvent.error.account.login'
+        'accountEvents.recordSecurityEvent.error.account.login',
+        { clientId: 'none', service: 'none' }
       );
     });
   });
