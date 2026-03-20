@@ -13,7 +13,6 @@
         "main": "libs/shared/sentry-nest/src/index.ts",
         "tsConfig": "libs/shared/sentry-nest/tsconfig.lib.json",
         "assets": ["libs/shared/sentry-nest/*.md"],
-        "generatePackageJson": true,
         "format": ["cjs"]
       }
     },

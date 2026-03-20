@@ -13,7 +13,6 @@
         "main": "libs/shared/metrics/glean/src/index.ts",
         "tsConfig": "libs/shared/metrics/glean/tsconfig.lib.json",
         "assets": ["libs/shared/metrics/glean/*.md"],
-        "generatePackageJson": true,
         "declaration": true,
         "format": ["cjs"]
       }

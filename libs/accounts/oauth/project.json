@@ -13,8 +13,7 @@
         "main": "libs/accounts/oauth/src/index.ts",
         "tsConfig": "libs/accounts/oauth/tsconfig.lib.json",
         "assets": ["libs/accounts/oauth/*.md"],
-        "format": ["cjs"],
-        "generatePackageJson": true
+        "format": ["cjs"]
       }
     },
     "test": {

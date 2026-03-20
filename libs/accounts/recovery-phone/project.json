@@ -13,7 +13,6 @@
         "main": "libs/accounts/recovery-phone/src/index.ts",
         "tsConfig": "libs/accounts/recovery-phone/tsconfig.lib.json",
         "assets": ["libs/accounts/recovery-phone/*.md"],
-        "generatePackageJson": true,
         "format": ["cjs"]
       }
     },

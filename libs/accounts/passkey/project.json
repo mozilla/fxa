@@ -14,7 +14,6 @@
         "tsConfig": "libs/accounts/passkey/tsconfig.lib.json",
         "assets": ["libs/accounts/passkey/*.md"],
         "format": ["cjs"],
-        "generatePackageJson": true,
         "declaration": true
       }
     },

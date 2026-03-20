@@ -13,7 +13,6 @@
         "main": "libs/payments/events/src/index.ts",
         "tsConfig": "libs/payments/events/tsconfig.lib.json",
         "assets": ["libs/payments/events/*.md"],
-        "generatePackageJson": true,
         "declaration": true
       }
     },
