@@ -140,7 +140,7 @@ module.exports = (log, config, glean) => {
         await amplitude('flow.complete', request, data, metricsContext);
 
         if (metricsContext.flowType === 'login') {
-          glean.login.complete(request, { uid: data?.uid ?? '' });
+          glean.login.complete(request, { uid: data?.uid ?? '', reason: 'email' });
         }
 
         return request.clearMetricsContext();

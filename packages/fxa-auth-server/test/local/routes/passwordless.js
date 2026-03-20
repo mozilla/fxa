@@ -395,6 +395,101 @@ describe('/account/passwordless/confirm_code', () => {
     });
   });
 
+  it('should emit glean registration.complete with reason otp for new account', () => {
+    const mockGlean = mocks.mockGlean();
+    mockDB.accountRecord = sinon.spy(() =>
+      Promise.reject(error.unknownAccount())
+    );
+    mockDB.createAccount = sinon.spy(() =>
+      Promise.resolve({
+        uid,
+        email: TEST_EMAIL,
+        emailCode: hexString(16),
+        verifierSetAt: 0,
+      })
+    );
+    mockDB.createSessionToken = sinon.spy(() =>
+      Promise.resolve({
+        data: 'sessiontoken123',
+        emailVerified: true,
+        tokenVerified: true,
+        lastAuthAt: () => 1234567890,
+      })
+    );
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      glean: mockGlean,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      assert.calledOnce(mockGlean.registration.complete);
+      assert.calledWithMatch(mockGlean.registration.complete, mockRequest, {
+        uid,
+        reason: 'otp',
+      });
+    });
+  });
+
+  it('should emit glean login.complete with reason otp for existing account', () => {
+    const mockGlean = mocks.mockGlean();
+    mockDB.accountRecord = sinon.spy(() =>
+      Promise.resolve({
+        uid,
+        email: TEST_EMAIL,
+        emailCode: hexString(16),
+        verifierSetAt: 0,
+      })
+    );
+    mockDB.createSessionToken = sinon.spy(() =>
+      Promise.resolve({
+        data: 'sessiontoken123',
+        emailVerified: true,
+        tokenVerified: true,
+        lastAuthAt: () => 1234567890,
+      })
+    );
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      glean: mockGlean,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      assert.calledOnce(mockGlean.login.complete);
+      assert.calledWithMatch(mockGlean.login.complete, mockRequest, {
+        uid,
+        reason: 'otp',
+      });
+    });
+  });
+
   it('should reject invalid OTP code', () => {
     mockDB.accountRecord = sinon.spy(() =>
       Promise.resolve({

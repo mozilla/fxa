@@ -53,7 +53,7 @@ module.exports = (log, db, mailer, push, verificationReminders, glean) => {
         }),
 
         glean.registration.accountVerified(request, { uid }),
-        glean.registration.complete(request, { uid }),
+        glean.registration.complete(request, { uid, reason: 'email' }),
 
         // Verification reminders can *only* be used in email links. We currently don't
         // support them for email codes.

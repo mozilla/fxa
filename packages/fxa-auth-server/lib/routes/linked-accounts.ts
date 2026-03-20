@@ -499,7 +499,10 @@ export class LinkedAccountHandler {
           flowBeginTime,
           service,
         });
-        this.glean.registration.complete(request, { uid: accountRecord.uid });
+        this.glean.registration.complete(request, {
+          uid: accountRecord.uid,
+          reason: provider === 'google' ? 'google' : 'apple',
+        });
       }
     } else {
       // This is an existing user and existing FxA user
@@ -524,6 +527,10 @@ export class LinkedAccountHandler {
           await this.glean.thirdPartyAuth.appleLoginComplete(request);
           break;
       }
+      this.glean.login.complete(request, {
+        uid: accountRecord.uid,
+        reason: provider === 'google' ? 'google' : 'apple',
+      });
     }
 
     let verificationMethod,

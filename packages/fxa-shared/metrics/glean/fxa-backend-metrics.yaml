@@ -498,6 +498,11 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates how the user completed login. Values include "email" (traditional email/password), "otp" (passwordless OTP code), "google" (third-party login via Google), "apple" (third-party login via Apple).
+        type: string
   email_confirmation_sent:
     type: event
     description: |
@@ -881,6 +886,11 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates how the user completed registration. Values include "email" (traditional email verification), "otp" (passwordless OTP code), "google" (Google third-party auth), "apple" (Apple third-party auth).
+        type: string
   email_sent:
     type: event
     description: |

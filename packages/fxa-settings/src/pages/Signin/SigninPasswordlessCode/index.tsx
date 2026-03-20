@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useAlertBar, useAuthClient, useFtlMsgResolver } from '../../../models';
@@ -37,6 +37,7 @@ import firefox from '../../../lib/channels/firefox';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
+import GleanMetrics from '../../../lib/glean';
 
 export const viewName = 'signin-passwordless-code';
 
@@ -71,6 +72,19 @@ const SigninPasswordlessCode = ({
     resendCountdownSeconds
   );
 
+  const gleanOtp = isSignup
+    ? GleanMetrics.passwordlessReg
+    : GleanMetrics.passwordlessLogin;
+
+  const gleanViewTracked = useRef(false);
+
+  useEffect(() => {
+    if (!gleanViewTracked.current) {
+      gleanOtp.view();
+      gleanViewTracked.current = true;
+    }
+  }, [gleanOtp]);
+
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
     'signin-passwordless-code-required-error',
@@ -89,9 +103,6 @@ const SigninPasswordlessCode = ({
     submitButtonFtlId: 'signin-passwordless-code-confirm-button',
     submitButtonText: 'Confirm',
   };
-
-  // TODO: Add Glean metrics tracking post-MVP
-  // GleanMetrics.loginConfirmation.view() or GleanMetrics.registration.view()
 
   // Countdown timer for resend code
   useEffect(() => {
@@ -120,6 +131,7 @@ const SigninPasswordlessCode = ({
 
   const handleResendCode = async () => {
     setResendCodeLoading(true);
+    gleanOtp.resendCode();
     try {
       await authClient.passwordlessResendCode(email, {
         clientId: integration.getClientId(),
@@ -139,14 +151,20 @@ const SigninPasswordlessCode = ({
       }
     } catch (error: any) {
       setShowResendSuccessBanner(false);
-      setLocalizedErrorBannerMessage(
-        error.errno === AuthUiErrors.THROTTLED.errno
-          ? getLocalizedErrorMessage(ftlMsgResolver, error)
-          : ftlMsgResolver.getMsg(
-              'signin-passwordless-code-resend-error',
-              'Something went wrong. A new code could not be sent.'
-            )
-      );
+      if (error.errno === AuthUiErrors.THROTTLED.errno) {
+        gleanOtp.error({ event: { reason: 'too many times' } });
+        setLocalizedErrorBannerMessage(
+          getLocalizedErrorMessage(ftlMsgResolver, error)
+        );
+      } else {
+        gleanOtp.error({ event: { reason: 'try again later' } });
+        setLocalizedErrorBannerMessage(
+          ftlMsgResolver.getMsg(
+            'signin-passwordless-code-resend-error',
+            'Something went wrong. A new code could not be sent.'
+          )
+        );
+      }
     } finally {
       setResendCodeLoading(false);
       setResendCountdown(RESEND_CODE_COUNTDOWN);
@@ -165,7 +183,7 @@ const SigninPasswordlessCode = ({
       return;
     }
 
-    // TODO: Add Glean metrics tracking post-MVP
+    gleanOtp.submit();
     try {
       const result = await authClient.passwordlessConfirmCode(email, code, {
         clientId: integration.getClientId(),
@@ -177,6 +195,8 @@ const SigninPasswordlessCode = ({
           clientId: integration.getClientId(),
         },
       });
+
+      gleanOtp.submitSuccess();
 
       const isSessionVerified = result.verified && !result.verificationMethod;
       storeAccountData({
@@ -343,9 +363,18 @@ const SigninPasswordlessCode = ({
         error
       );
       if (error.errno === AuthUiErrors.THROTTLED.errno) {
+        gleanOtp.error({ event: { reason: 'too many times' } });
         setShowResendSuccessBanner(false);
         setLocalizedErrorBannerMessage(localizedErrorMessage);
       } else {
+        // Note: The backend OTP manager doesn't distinguish expired vs invalid
+        // codes — both return INVALID_VERIFICATION_CODE. An "expired" reason
+        // would require backend changes to return a distinct errno.
+        const reason =
+          error.errno === AuthUiErrors.INVALID_VERIFICATION_CODE.errno
+            ? 'invalid'
+            : 'try again later';
+        gleanOtp.error({ event: { reason } });
         setCodeErrorMessage(localizedErrorMessage);
       }
     }
@@ -375,8 +404,6 @@ const SigninPasswordlessCode = ({
     e: React.MouseEvent<HTMLAnchorElement>
   ) => {
     e.preventDefault();
-    // TODO: Add Glean metrics tracking post-MVP
-    // GleanMetrics.passwordlessLogin.diffAccountLinkClick();
 
     // Remove email from query params if present
     const searchParams = new URLSearchParams(window.location.search);
@@ -462,6 +489,7 @@ const SigninPasswordlessCode = ({
             color: cmsInfo?.shared?.buttonColor,
             text: cmsButtonText,
           },
+          onEngageCb: () => gleanOtp.engage(),
         }}
       />
 

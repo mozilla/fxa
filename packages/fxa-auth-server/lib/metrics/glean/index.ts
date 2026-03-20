@@ -195,7 +195,7 @@ const createEventFn =
   };
 
 const extraKeyReasonCb = (metrics: Record<string, any>) => ({
-  reason: metrics.reason,
+  reason: metrics.reason ?? '',
 });
 
 export function gleanMetrics(config: ConfigType) {
@@ -218,7 +218,9 @@ export function gleanMetrics(config: ConfigType) {
       accountCreated: createEventFn('reg_acc_created'),
       confirmationEmailSent: createEventFn('reg_email_sent'),
       accountVerified: createEventFn('reg_acc_verified'),
-      complete: createEventFn('reg_complete'),
+      complete: createEventFn('reg_complete', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
       error: createEventFn('reg_submit_error', {
         additionalMetrics: extraKeyReasonCb,
       }),
@@ -235,7 +237,9 @@ export function gleanMetrics(config: ConfigType) {
       recoveryPhoneSuccess: createEventFn('login_recovery_phone_success'),
       verifyCodeEmailSent: createEventFn('login_email_confirmation_sent'),
       verifyCodeConfirmed: createEventFn('login_email_confirmation_success'),
-      complete: createEventFn('login_complete'),
+      complete: createEventFn('login_complete', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
     },
 
     resetPassword: {

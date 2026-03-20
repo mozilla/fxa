@@ -241,6 +241,24 @@ export const eventsMap = {
     passwordSubmit: 'delete_account_password_submit',
   },
 
+  passwordlessReg: {
+    view: 'reg_otp_view',
+    engage: 'reg_otp_engage',
+    submit: 'reg_otp_submit',
+    submitSuccess: 'reg_otp_submit_success',
+    error: 'reg_otp_submit_frontend_error',
+    resendCode: 'reg_otp_email_confirmation_resend_code',
+  },
+
+  passwordlessLogin: {
+    view: 'login_otp_view',
+    engage: 'login_otp_engage',
+    submit: 'login_otp_submit',
+    submitSuccess: 'login_otp_submit_success',
+    error: 'login_otp_submit_frontend_error',
+    resendCode: 'login_otp_email_confirmation_resend_code',
+  },
+
   error: {
     view: 'error_view',
   },

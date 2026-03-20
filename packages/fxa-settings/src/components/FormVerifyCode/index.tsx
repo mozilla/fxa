@@ -47,6 +47,7 @@ export type FormVerifyCodeProps = {
   gleanDataAttrs?: GleanClickEventDataAttrs;
   submitFormOnPaste?: boolean;
   cmsButton?: CmsButtonType;
+  onEngageCb?: () => void;
 };
 
 type FormData = {
@@ -64,6 +65,7 @@ const FormVerifyCode = ({
   gleanDataAttrs,
   submitFormOnPaste,
   cmsButton,
+  onEngageCb,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -79,6 +81,7 @@ const FormVerifyCode = ({
   const onFocus = () => {
     if (!isFocused && viewName) {
       logViewEvent(`flow.${viewName}`, 'engage', REACT_ENTRYPOINT);
+      onEngageCb?.();
       setIsFocused(true);
     }
   };

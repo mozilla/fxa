@@ -622,6 +622,46 @@ const recordEventMetric = (
     case 'account_banner_reactivation_success_view':
       accountBanner.reactivationSuccessView.record();
       break;
+    case 'reg_otp_view':
+      reg.otpView.record();
+      break;
+    case 'reg_otp_engage':
+      reg.otpEngage.record();
+      break;
+    case 'reg_otp_submit':
+      reg.otpSubmit.record();
+      break;
+    case 'reg_otp_submit_success':
+      reg.otpSubmitSuccess.record();
+      break;
+    case 'reg_otp_submit_frontend_error':
+      reg.otpSubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'reg_otp_email_confirmation_resend_code':
+      reg.otpEmailConfirmationResendCode.record();
+      break;
+    case 'login_otp_view':
+      login.otpView.record();
+      break;
+    case 'login_otp_engage':
+      login.otpEngage.record();
+      break;
+    case 'login_otp_submit':
+      login.otpSubmit.record();
+      break;
+    case 'login_otp_submit_success':
+      login.otpSubmitSuccess.record();
+      break;
+    case 'login_otp_submit_frontend_error':
+      login.otpSubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'login_otp_email_confirmation_resend_code':
+      login.otpEmailConfirmationResendCode.record();
+      break;
     case 'error_view':
       error.view.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
