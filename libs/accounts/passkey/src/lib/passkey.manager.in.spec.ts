@@ -14,24 +14,27 @@ import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Test } from '@nestjs/testing';
 import { PasskeyManager } from './passkey.manager';
 import { PasskeyConfig } from './passkey.config';
-import {
-  PasskeyAlreadyRegisteredError,
-  PasskeyLimitReachedError,
-} from './passkey.errors';
 import { findPasskeyByCredentialId, insertPasskey } from './passkey.repository';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
+import { AppError } from '../../../errors/src';
 
 describe('PasskeyManager (Integration)', () => {
   let manager: PasskeyManager;
   let db: AccountDatabase;
   let accountManager: AccountManager;
 
-  // Use a small limit to make PasskeyLimitReachedError tests practical
+  // Use a small limit to make passkeyLimitReached error tests practical
   const testConfig: PasskeyConfig = Object.assign(new PasskeyConfig(), {
     rpId: 'accounts.example.com',
     rpName: 'Example',
     allowedOrigins: ['https://accounts.example.com'],
     maxPasskeysPerUser: 2,
   });
+
+  const mockMetrics = {
+    increment: jest.fn(),
+    timing: jest.fn(),
+  };
 
   const mockLogger = {
     log: jest.fn(),
@@ -59,6 +62,7 @@ describe('PasskeyManager (Integration)', () => {
             provide: LOGGER_PROVIDER,
             useValue: mockLogger,
           },
+          { provide: StatsDService, useValue: mockMetrics },
         ],
       }).compile();
 
@@ -111,7 +115,7 @@ describe('PasskeyManager (Integration)', () => {
       expect(found?.lastUsedAt).toBeNull();
     });
 
-    it('throws PasskeyLimitReachedError when user reaches the limit', async () => {
+    it('throws passkeyLimitReached AppError when user reaches the limit', async () => {
       const uid = await createTestAccount();
 
       // Fill up to the limit (maxPasskeysPerUser = 2)
@@ -120,19 +124,21 @@ describe('PasskeyManager (Integration)', () => {
 
       await expect(
         manager.registerPasskey(PasskeyFactory({ uid }))
-      ).rejects.toThrow(PasskeyLimitReachedError);
+      ).rejects.toMatchObject(
+        AppError.passkeyLimitReached(testConfig.maxPasskeysPerUser)
+      );
     });
 
-    it('throws PasskeyAlreadyRegisteredError on duplicate credentialId', async () => {
+    it('throws passkeyAlreadyRegistered AppError on duplicate credentialId', async () => {
       const uid = await createTestAccount();
       const passkey = PasskeyFactory({ uid });
 
       await manager.registerPasskey(passkey);
 
       // Attempt to register the same credentialId again
-      await expect(manager.registerPasskey({ ...passkey })).rejects.toThrow(
-        PasskeyAlreadyRegisteredError
-      );
+      await expect(
+        manager.registerPasskey({ ...passkey })
+      ).rejects.toMatchObject(AppError.passkeyAlreadyRegistered());
     });
   });
 

@@ -1741,13 +1741,18 @@ export class AppError extends Error {
     });
   }
 
-  static passkeyLimitReached() {
-    return new AppError({
-      code: 400,
-      error: 'Bad Request',
-      errno: ERRNO.PASSKEY_LIMIT_REACHED,
-      message: 'Maximum number of passkeys reached',
-    });
+  static passkeyLimitReached(limit: number) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.PASSKEY_LIMIT_REACHED,
+        message: 'Maximum number of passkeys reached',
+      },
+      {
+        limit,
+      }
+    );
   }
 
   static passkeyAuthenticationFailed() {
@@ -1774,6 +1779,15 @@ export class AppError extends Error {
       error: 'Unauthorized',
       errno: ERRNO.PASSKEY_CHALLENGE_EXPIRED,
       message: 'Passkey challenge expired',
+    });
+  }
+
+  static passkeyChallengeNotFound() {
+    return new AppError({
+      code: 404,
+      error: 'Not Found',
+      errno: ERRNO.PASSKEY_CHALLENGE_NOT_FOUND,
+      message: 'Passkey challenge not found',
     });
   }
 

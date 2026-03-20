@@ -9,13 +9,11 @@ import {
   PasskeyFactory,
 } from '@fxa/shared/db/mysql/account';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { PasskeyManager } from './passkey.manager';
 import { PasskeyConfig } from './passkey.config';
-import {
-  PasskeyAlreadyRegisteredError,
-  PasskeyLimitReachedError,
-} from './passkey.errors';
 import * as PasskeyRepository from './passkey.repository';
+import { AppError } from '../../../errors/src';
 
 // Mock the repository module, keeping isMysqlDupEntry as the real implementation
 // since it is a pure synchronous helper (no DB access) and the manager relies on
@@ -42,6 +40,11 @@ const mockConfig: PasskeyConfig = Object.assign(new PasskeyConfig(), {
   maxPasskeysPerUser: MOCK_MAX_PASSKEYS_PER_USER,
 });
 
+const mockMetrics = {
+  increment: jest.fn(),
+  timing: jest.fn(),
+};
+
 const mockLogger = {
   log: jest.fn(),
   warn: jest.fn(),
@@ -59,6 +62,7 @@ describe('PasskeyManager', () => {
         PasskeyManager,
         { provide: AccountDbProvider, useValue: mockDb },
         { provide: PasskeyConfig, useValue: mockConfig },
+        { provide: StatsDService, useValue: mockMetrics },
         { provide: LOGGER_PROVIDER, useValue: mockLogger },
       ],
     }).compile();
@@ -87,18 +91,20 @@ describe('PasskeyManager', () => {
       );
     });
 
-    it('throws PasskeyLimitReachedError when count equals the limit', async () => {
+    it('throws passkeyLimitReached AppError when count equals the limit', async () => {
       (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(
         MOCK_MAX_PASSKEYS_PER_USER
       );
 
-      await expect(manager.registerPasskey(PasskeyFactory())).rejects.toThrow(
-        PasskeyLimitReachedError
+      await expect(
+        manager.registerPasskey(PasskeyFactory())
+      ).rejects.toMatchObject(
+        AppError.passkeyLimitReached(MOCK_MAX_PASSKEYS_PER_USER)
       );
       expect(PasskeyRepository.insertPasskey).not.toHaveBeenCalled();
     });
 
-    it('throws PasskeyAlreadyRegisteredError on ER_DUP_ENTRY', async () => {
+    it('throws passkeyAlreadyRegistered AppError on ER_DUP_ENTRY', async () => {
       (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(1);
       const dupError = Object.assign(new Error('Duplicate entry'), {
         code: 'ER_DUP_ENTRY',
@@ -107,9 +113,9 @@ describe('PasskeyManager', () => {
         dupError
       );
 
-      await expect(manager.registerPasskey(PasskeyFactory())).rejects.toThrow(
-        PasskeyAlreadyRegisteredError
-      );
+      await expect(
+        manager.registerPasskey(PasskeyFactory())
+      ).rejects.toMatchObject(AppError.passkeyAlreadyRegistered());
     });
 
     it('re-throws unknown database errors', async () => {

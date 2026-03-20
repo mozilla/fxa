@@ -10,7 +10,6 @@
  * - PasskeyService: High-level business logic for passkey operations
  * - PasskeyManager: Database access layer for passkey storage
  * - Repository functions: Pure data access functions (findPasskeysByUid, etc.)
- * - PasskeyError: Base error class for passkey-specific errors
  * - PasskeyConfig: Configuration class
  *
  * Types (import directly from shared):
@@ -23,7 +22,6 @@
 export * from './lib/passkey.service';
 export * from './lib/passkey.manager';
 export * from './lib/passkey.repository';
-export * from './lib/passkey.errors';
 export * from './lib/passkey.config';
 export * from './lib/passkey.provider';
 export * from './lib/passkey.challenge.manager';

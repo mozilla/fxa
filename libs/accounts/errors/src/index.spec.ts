@@ -369,7 +369,7 @@ describe('AppErrors', () => {
     });
 
     it('creates passkeyLimitReached', () => {
-      const result = AppError.passkeyLimitReached();
+      const result = AppError.passkeyLimitReached(3);
       expect(result).toBeInstanceOf(AppError);
       expect(result).toMatchObject({
         errno: 226,
@@ -379,6 +379,7 @@ describe('AppErrors', () => {
           payload: {
             error: 'Bad Request',
             errno: 226,
+            limit: 3,
           },
         },
       });

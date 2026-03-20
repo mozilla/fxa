@@ -10,6 +10,7 @@ import {
   NewPasskey,
 } from '@fxa/shared/db/mysql/account';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   countPasskeysByUid,
   deleteAllPasskeysForUser as repositoryDeleteAllPasskeysForUser,
@@ -21,10 +22,7 @@ import {
   updatePasskeyCounterAndLastUsed,
   updatePasskeyName,
 } from './passkey.repository';
-import {
-  PasskeyAlreadyRegisteredError,
-  PasskeyLimitReachedError,
-} from './passkey.errors';
+import { AppError } from '@fxa/accounts/errors';
 import { PasskeyConfig } from './passkey.config';
 
 /**
@@ -43,6 +41,7 @@ export class PasskeyManager {
   constructor(
     @Inject(AccountDbProvider) private readonly db: AccountDatabase,
     @Inject(PasskeyConfig) config: PasskeyConfig,
+    @Inject(StatsDService) private readonly metrics: StatsD,
     @Inject(LOGGER_PROVIDER) private readonly log: LoggerService
   ) {
     this.maxPasskeysPerUser = config.maxPasskeysPerUser;
@@ -53,40 +52,38 @@ export class PasskeyManager {
    *
    * Checks the per-user limit before inserting. Duplicate credential IDs are
    * caught from the database unique constraint and converted to
-   * PasskeyAlreadyRegisteredError.
+   * AppError.passkeyAlreadyRegistered().
    *
-   * @throws {PasskeyLimitReachedError} if the user has reached the maximum passkey count
-   * @throws {PasskeyAlreadyRegisteredError} if credentialId is already registered
+   * @throws {AppError} (passkeyLimitReached) if the user has reached the maximum passkey count
+   * @throws {AppError} (passkeyAlreadyRegistered) if credentialId is already registered
    */
   async registerPasskey(passkey: NewPasskey): Promise<void> {
     const uidHex = passkey.uid.toString('hex');
 
     const count = await countPasskeysByUid(this.db, passkey.uid);
     if (count >= this.maxPasskeysPerUser) {
-      this.log.warn('PasskeyManager.registerPasskey: limit reached', {
-        uid: uidHex,
-        count,
-        limit: this.maxPasskeysPerUser,
+      this.metrics.increment('registerPasskey.fail', {
+        reason: 'limit_reached',
       });
-      throw new PasskeyLimitReachedError({
+      this.log.error('PasskeyManager.passkeyLimitReached', {
         uid: uidHex,
         limit: this.maxPasskeysPerUser,
       });
+      throw AppError.passkeyLimitReached(this.maxPasskeysPerUser);
     }
 
     try {
       await insertPasskey(this.db, passkey);
+      this.metrics.increment('registerPasskey.success');
     } catch (err: unknown) {
       if (isMysqlDupEntry(err)) {
         const credentialIdHex = passkey.credentialId.toString('hex');
-        this.log.warn(
+        this.metrics.increment('registerPasskey.fail', { reason: 'duplicate' });
+        this.log.error(
           'PasskeyManager.registerPasskey: duplicate credentialId',
           { uid: uidHex, credentialId: credentialIdHex }
         );
-        throw new PasskeyAlreadyRegisteredError({
-          uid: uidHex,
-          credentialId: credentialIdHex,
-        });
+        throw AppError.passkeyAlreadyRegistered();
       }
       throw err;
     }
