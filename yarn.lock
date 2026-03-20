@@ -11,7 +11,7 @@ __metadata:
   dependencies:
     "@types/cookie-session": "npm:^2"
     audit-filter: "npm:0.5.0"
-    convict: "npm:^6.2.4"
+    convict: "npm:^6.2.5"
     convict-format-with-validator: "npm:^6.2.0"
     cookie-session: "npm:^2.1.0"
     eslint: "npm:^7.32.0"
@@ -30053,13 +30053,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"convict@npm:^6.2.4":
-  version: 6.2.4
-  resolution: "convict@npm:6.2.4"
+"convict@npm:^6.2.5":
+  version: 6.2.5
+  resolution: "convict@npm:6.2.5"
   dependencies:
     lodash.clonedeep: "npm:^4.5.0"
     yargs-parser: "npm:^20.2.7"
-  checksum: 10c0/82d4cd93bfe028948f4b145562d4a1650881952d0e4b615b014bbcdf3e5caaad6f5dc12b647eeb82c135eba1ce1a0922f7823c34d17162646f7030dc002985ad
+  checksum: 10c0/4773180a3d02eb9d5cf6a3b6ec2b6bc94e6b8dd5073cbf6035cb55f615286835af1fe7f549aee085909a1130f6b461476f9b6a0d1fdbdee733402289e5196c1e
   languageName: node
   linkType: hard
 
@@ -31219,7 +31219,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "db-migrations@workspace:packages/db-migrations"
   dependencies:
-    convict: "npm:^6.2.4"
+    convict: "npm:^6.2.5"
     fxa-shared: "workspace:*"
     mysql: "npm:^2.18.1"
     mysql-patcher: "npm:0.7.0"
@@ -35877,7 +35877,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^7.1.1"
     body-parser: "npm:^1.20.3"
     chance: "npm:^1.1.8"
-    convict: "npm:^6.2.4"
+    convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
     dateformat: "npm:^4.6.3"
@@ -35927,7 +35927,7 @@ __metadata:
     "@types/yargs": "npm:^17.0.0"
     audit-filter: "npm:^0.5.0"
     chance: "npm:^1.1.8"
-    convict: "npm:^6.2.4"
+    convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
     copyfiles: "npm:^2.4.1"
@@ -36027,7 +36027,7 @@ __metadata:
     chai: "npm:^4.5.0"
     chai-as-promised: "npm:^7.1.1"
     commander: "npm:2.18.0"
-    convict: "npm:^6.2.4"
+    convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
     dedent: "npm:^1.5.1"
@@ -36152,7 +36152,7 @@ __metadata:
     chai: "npm:^4.5.0"
     chosen-js: "https://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
     consolidate: "npm:1.0.3"
-    convict: "npm:^6.2.4"
+    convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
     cookie-parser: "npm:1.4.6"
@@ -36276,7 +36276,7 @@ __metadata:
     bluebird: "npm:^3.7.2"
     bunyan: "npm:^1.8.15"
     chai: "npm:^4.5.0"
-    convict: "npm:^6.2.4"
+    convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
     dedent: "npm:^1.5.1"
@@ -36340,7 +36340,7 @@ __metadata:
     audit-filter: "npm:^0.5.0"
     axios: "npm:^1.13.5"
     chance: "npm:^1.1.8"
-    convict: "npm:^6.2.4"
+    convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
     esbuild: "npm:^0.17.15"
@@ -36449,7 +36449,7 @@ __metadata:
     babel-eslint: "npm:^10.1.0"
     babel-loader: "npm:^9.1.3"
     browserslist: "npm:^4.24.0"
-    convict: "npm:^6.2.4"
+    convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
     dayjs: "npm:^1.11.5"
@@ -36525,7 +36525,7 @@ __metadata:
     checksum: "npm:1.0.0"
     commander: "npm:9.3.0"
     compute-cluster: "npm:0.0.9"
-    convict: "npm:^6.2.4"
+    convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
     eslint: "npm:^8.18.0"
