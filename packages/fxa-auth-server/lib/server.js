@@ -85,7 +85,17 @@ function translateStripeErrors(response) {
   return response;
 }
 
-async function create(log, error, config, routes, db, statsd, glean, customs) {
+async function create(
+  log,
+  error,
+  config,
+  routes,
+  db,
+  statsd,
+  glean,
+  customs,
+  oauthDb
+) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config, glean);
@@ -317,11 +327,19 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
       await customs.checkIpOnly(request, action);
     }
 
-    // Validate clientId/service against known enums (to prevent unbounded
-    // cardinality) and normalize onto request.app for use as StatsD/Sentry tags.
-    // clientId comes from metricsContext (async, may be stashed in Redis);
-    // service comes from query/payload but needs allowlist validation.
-    const tags = await resolveClientTags(request);
+    // Validate clientId/service against registered OAuth clients to prevent
+    // unbounded cardinality and normalize onto request.app for StatsD/Sentry tags.
+    // Client IDs are loaded from the fxa_oauth.clients table on each request;
+    // the table is small and MySQL serves it from cache.
+    let registeredClientIds;
+    try {
+      const clients = await oauthDb.mysql.getAllClientIds();
+      registeredClientIds = new Set(clients.map((c) => c.id.toString('hex')));
+    } catch (err) {
+      Sentry.captureException(err);
+      registeredClientIds = new Set();
+    }
+    const tags = await resolveClientTags(request, registeredClientIds);
     if (tags.clientId) {
       request.app.clientIdTag = tags.clientId;
       Sentry.setTag('clientId', tags.clientId);

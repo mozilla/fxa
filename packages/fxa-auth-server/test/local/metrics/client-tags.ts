@@ -32,49 +32,69 @@ function mockRequest({
   };
 }
 
+// Simulates the set of client IDs loaded from the fxa_oauth.clients DB table,
+// which includes native clients plus other registered relying parties.
+const allConfiguredClientIds = new Set<string>([
+  ...(Object.values(OAuthNativeClients) as string[]),
+  'deadbeefdeadbeef',
+]);
+
 describe('client-tags', () => {
   describe('resolveClientTags', () => {
-    it('returns valid clientId from metricsContext', async () => {
+    it('returns valid native clientId from metricsContext', async () => {
       const request = mockRequest({
         clientId: OAuthNativeClients.FirefoxDesktop,
       });
-      const tags = await resolveClientTags(request);
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
       assert.equal(tags.clientId, OAuthNativeClients.FirefoxDesktop);
       assert.isUndefined(tags.service);
     });
 
-    it('returns valid service from payload', async () => {
+    it('returns valid service from payload for native client', async () => {
       const request = mockRequest({
+        clientId: OAuthNativeClients.FirefoxDesktop,
         payloadService: OAuthNativeServices.Sync,
       });
-      const tags = await resolveClientTags(request);
-      assert.isUndefined(tags.clientId);
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
+      assert.equal(tags.clientId, OAuthNativeClients.FirefoxDesktop);
       assert.equal(tags.service, OAuthNativeServices.Sync);
     });
 
-    it('returns valid service from query', async () => {
+    it('returns valid service from query for native client', async () => {
       const request = mockRequest({
+        clientId: OAuthNativeClients.FirefoxDesktop,
         queryService: OAuthNativeServices.Relay,
       });
-      const tags = await resolveClientTags(request);
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
       assert.equal(tags.service, OAuthNativeServices.Relay);
     });
 
     it('prefers payload service over query service', async () => {
       const request = mockRequest({
+        clientId: OAuthNativeClients.FirefoxDesktop,
         payloadService: OAuthNativeServices.Sync,
         queryService: OAuthNativeServices.Relay,
       });
-      const tags = await resolveClientTags(request);
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
       assert.equal(tags.service, OAuthNativeServices.Sync);
     });
 
-    it('falls back to metricsContext service', async () => {
+    it('falls back to metricsContext service for native client', async () => {
       const request = mockRequest({
+        clientId: OAuthNativeClients.FirefoxDesktop,
         service: OAuthNativeServices.Vpn,
       });
-      const tags = await resolveClientTags(request);
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
       assert.equal(tags.service, OAuthNativeServices.Vpn);
+    });
+
+    it('does not resolve service without a native clientId', async () => {
+      const request = mockRequest({
+        payloadService: OAuthNativeServices.Sync,
+      });
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
+      assert.isUndefined(tags.clientId);
+      assert.isUndefined(tags.service);
     });
 
     it('returns both clientId and service when both are valid', async () => {
@@ -82,30 +102,59 @@ describe('client-tags', () => {
         clientId: OAuthNativeClients.Fenix,
         payloadService: OAuthNativeServices.Sync,
       });
-      const tags = await resolveClientTags(request);
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
       assert.equal(tags.clientId, OAuthNativeClients.Fenix);
       assert.equal(tags.service, OAuthNativeServices.Sync);
     });
 
-    it('excludes invalid clientId', async () => {
+    it('excludes unknown clientId not in configuredClientIds', async () => {
       const request = mockRequest({
-        clientId: 'deadbeefdeadbeef',
+        clientId: 'aaaaaaaaaaaaaaaa',
       });
-      const tags = await resolveClientTags(request);
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
       assert.isUndefined(tags.clientId);
     });
 
-    it('excludes invalid service', async () => {
+    it('accepts non-native client from configuredClientIds', async () => {
       const request = mockRequest({
-        payloadService: 'unknown-svc',
+        clientId: 'deadbeefdeadbeef',
+      });
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
+      assert.equal(tags.clientId, 'deadbeefdeadbeef');
+      assert.isUndefined(tags.service);
+    });
+
+    it('does not resolve service for non-native configured client', async () => {
+      const request = mockRequest({
+        clientId: 'deadbeefdeadbeef',
+        payloadService: OAuthNativeServices.Sync,
+      });
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
+      assert.equal(tags.clientId, 'deadbeefdeadbeef');
+      assert.isUndefined(tags.service);
+    });
+
+    it('returns undefined for all clientIds when no configuredClientIds provided', async () => {
+      const request = mockRequest({
+        clientId: OAuthNativeClients.FirefoxDesktop,
       });
       const tags = await resolveClientTags(request);
+      assert.isUndefined(tags.clientId);
+      assert.isUndefined(tags.service);
+    });
+
+    it('excludes invalid service for native client', async () => {
+      const request = mockRequest({
+        clientId: OAuthNativeClients.FirefoxDesktop,
+        payloadService: 'unknown-svc',
+      });
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
       assert.isUndefined(tags.service);
     });
 
     it('returns both undefined when metricsContext is empty', async () => {
       const request = mockRequest();
-      const tags = await resolveClientTags(request);
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
       assert.isUndefined(tags.clientId);
       assert.isUndefined(tags.service);
     });
@@ -118,7 +167,7 @@ describe('client-tags', () => {
         payload: {},
         query: {},
       };
-      const tags = await resolveClientTags(request);
+      const tags = await resolveClientTags(request, allConfiguredClientIds);
       assert.isUndefined(tags.clientId);
       assert.isUndefined(tags.service);
     });
