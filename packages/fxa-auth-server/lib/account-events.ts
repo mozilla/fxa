@@ -175,12 +175,23 @@ export class AccountEventsManager {
       }),
     };
 
+    const metricTags = {
+      clientId: additionalInfo?.client_id || 'none',
+      service: additionalInfo?.service || 'none',
+    };
+
     try {
       await db.securityEvent(eventData);
-      this.statsd.increment(`accountEvents.recordSecurityEvent.write.${name}`);
+      this.statsd.increment(
+        `accountEvents.recordSecurityEvent.write.${name}`,
+        metricTags
+      );
     } catch (err) {
       // Failing to write to events shouldn't break anything
-      this.statsd.increment(`accountEvents.recordSecurityEvent.error.${name}`);
+      this.statsd.increment(
+        `accountEvents.recordSecurityEvent.error.${name}`,
+        metricTags
+      );
     }
   }
 }

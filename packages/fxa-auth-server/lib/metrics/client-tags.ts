@@ -15,15 +15,23 @@ export type ClientTagsRequest = {
   query: any;
 };
 
-const validClientIds = new Set<string>(Object.values(OAuthNativeClients));
+const nativeClientIds = new Set<string>(Object.values(OAuthNativeClients));
 const validServices = new Set<string>(Object.values(OAuthNativeServices));
 
 /**
  * Resolves and validates clientId and service from the request's metricsContext.
  * Only returns values that are in the known allowlists to prevent infinite
  * cardinality in StatsD metrics.
+ *
+ * clientId is accepted if it exists in configuredClientIds (which includes
+ * native clients). service is only resolved for native clients, as those are
+ * the only IDs where service applies (e.g. Firefox Desktop can be sync,
+ * relay, vpn, etc.).
  */
-export async function resolveClientTags(request: ClientTagsRequest): Promise<{
+export async function resolveClientTags(
+  request: ClientTagsRequest,
+  configuredClientIds?: Set<string>
+): Promise<{
   clientId: string | undefined;
   service: string | undefined;
 }> {
@@ -32,22 +40,23 @@ export async function resolveClientTags(request: ClientTagsRequest): Promise<{
 
   try {
     const metricsContext = await request.app.metricsContext;
+    const rawClientId = metricsContext?.clientId;
 
-    if (
-      metricsContext?.clientId &&
-      validClientIds.has(metricsContext.clientId)
-    ) {
-      clientId = metricsContext.clientId;
-    }
+    if (rawClientId && configuredClientIds?.has(rawClientId)) {
+      clientId = rawClientId;
 
-    // service can come from payload, query, or stashed metricsContext
-    const rawService =
-      (request.payload as any)?.service ||
-      (request.query as any)?.service ||
-      metricsContext?.service;
+      // service only applies to native clients and can come from payload,
+      // query, or stashed metricsContext
+      if (nativeClientIds.has(rawClientId)) {
+        const rawService =
+          (request.payload as any)?.service ||
+          (request.query as any)?.service ||
+          metricsContext?.service;
 
-    if (rawService && validServices.has(rawService)) {
-      service = rawService;
+        if (rawService && validServices.has(rawService)) {
+          service = rawService;
+        }
+      }
     }
   } catch {
     // If metricsContext resolution fails, just return undefined for both

@@ -89,6 +89,11 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config, glean);
+  const { OAuthNativeClients } = require('@fxa/accounts/oauth');
+  const configuredClientIds = new Set([
+    ...Object.values(OAuthNativeClients),
+    ...Object.keys(config.oauth?.clientIds || {}),
+  ]);
   const { sharedSecret: SUBSCRIPTIONS_SECRET } = config.subscriptions;
 
   function makeCredentialFn(dbGetFn) {
@@ -317,11 +322,11 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
       await customs.checkIpOnly(request, action);
     }
 
-    // Validate clientId/service against known enums (to prevent unbounded
-    // cardinality) and normalize onto request.app for use as StatsD/Sentry tags.
+    // Validate clientId/service against known allowlists to prevent unbounded
+    // cardinality and normalize onto request.app for use as StatsD/Sentry tags.
     // clientId comes from metricsContext (async, may be stashed in Redis);
     // service comes from query/payload but needs allowlist validation.
-    const tags = await resolveClientTags(request);
+    const tags = await resolveClientTags(request, configuredClientIds);
     if (tags.clientId) {
       request.app.clientIdTag = tags.clientId;
       Sentry.setTag('clientId', tags.clientId);
@@ -330,7 +335,6 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
       request.app.serviceTag = tags.service;
       Sentry.setTag('service', tags.service);
     }
-
 
     return h.continue;
   });

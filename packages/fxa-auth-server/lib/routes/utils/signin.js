@@ -10,7 +10,7 @@ const validators = require('../validators');
 const butil = require('../../crypto/butil');
 const { AppError: error } = require('@fxa/accounts/errors');
 const { Container } = require('typedi');
-const { AccountEventsManager } = require('../../account-events');
+const { recordSecurityEvent } = require('./security-event');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 const otp = require('../utils/otp');
 const { fetchRpCmsData } = require('../utils/account');
@@ -45,11 +45,6 @@ module.exports = (
   const otpOptions = config.otp;
   const otpUtils = otp.default(db, statsd);
 
-  const accountEventsManager = Container.has(AccountEventsManager)
-    ? Container.get(AccountEventsManager)
-    : {
-        recordSecurityEvent: async () => {},
-      };
   const cmsManager = Container.has(RelyingPartyConfigurationManager)
     ? Container.get(RelyingPartyConfigurationManager)
     : null;
@@ -336,7 +331,7 @@ module.exports = (
       await checkNumberOfActiveSessions();
       await emitLoginEvent();
       await sendEmail();
-      await recordSecurityEvent();
+      await recordLoginSecurityEvent();
       return;
 
       async function stashMetricsContext() {
@@ -641,16 +636,11 @@ module.exports = (
         }
       }
 
-      async function recordSecurityEvent() {
-        await accountEventsManager.recordSecurityEvent(db, {
-          name: 'account.login',
-          uid: accountRecord.uid,
-          ipAddr: request.app.clientAddress,
-          tokenId: sessionToken.id,
-          additionalInfo: {
-            userAgent: request.headers['user-agent'],
-            location: request.app.geo.location,
-          },
+      async function recordLoginSecurityEvent() {
+        await recordSecurityEvent('account.login', {
+          db,
+          request,
+          account: accountRecord,
         });
       }
     },
