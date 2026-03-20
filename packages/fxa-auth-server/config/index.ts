@@ -2173,11 +2173,11 @@ const convictConf = convict({
       format: Boolean,
       env: 'PASSWORDLESS_ENABLED',
     },
-    allowedClientIds: {
-      doc: 'Array of clients ids allowed to use passwordless authentication. Empty array means no service is allowed.',
-      format: Array,
-      default: [],
-      env: 'PASSWORDLESS_ALLOWED_SERVICES',
+    allowedClientServices: {
+      doc: 'Map of client IDs to their allowed services for passwordless authentication. Format: {"clientId": {"allowedServices": ["service1", "service2"]}}. Use "*" in allowedServices for all services. Empty array denies all services.',
+      format: Object,
+      default: {},
+      env: 'PASSWORDLESS_ALLOWED_CLIENT_SERVICES',
     },
     digits: {
       doc: 'Number of digits in passwordless OTP code',
@@ -2962,3 +2962,4 @@ export type ConfigType = ReturnType<conf['getProperties']>;
 
 export { convictConf as config };
 export default convictConf;
+

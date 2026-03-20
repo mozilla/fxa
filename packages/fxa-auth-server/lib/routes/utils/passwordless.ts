@@ -2,11 +2,69 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+export interface PasswordlessClientConfig {
+  allowedServices: string[];
+}
+
+export type AllowedClientServices = Record<string, PasswordlessClientConfig>;
+
+/**
+ * Checks if a client is allowed to use passwordless authentication for a specific service.
+ *
+ * @param allowedClientServices - Map of clientId to their allowed services configuration
+ * @param clientId - The OAuth client ID
+ * @param service - The service being requested (from metricsContext)
+ * @returns true if the client is allowed for the service, false otherwise
+ *
+ * Behavior:
+ * - If clientId is not in config: deny
+ * - If clientId is in config but no service specified: allow only if allowedServices includes "*"
+ * - If allowedServices is empty array: deny all services
+ * - If allowedServices includes "*": allow all services
+ * - Otherwise: check if service is in allowedServices array
+ */
 export function isClientAllowedForPasswordless(
-  allowedClientIds: string[],
-  clientId?: string
+  allowedClientServices: AllowedClientServices,
+  clientId?: string,
+  service?: string
 ): boolean {
-  return !!clientId && allowedClientIds?.includes(clientId);
+  if (!clientId) {
+    return false;
+  }
+
+  const clientConfig = allowedClientServices?.[clientId];
+
+  if (!clientConfig) {
+    return false; // Client not in allowlist
+  }
+
+  const allowedServices = clientConfig.allowedServices;
+
+  // Validate that allowedServices is an array of strings; otherwise deny by default
+  if (
+    !Array.isArray(allowedServices) ||
+    !allowedServices.every((s) => typeof s === 'string')
+  ) {
+    return false;
+  }
+
+  // Empty array denies all services
+  if (allowedServices.length === 0) {
+    return false;
+  }
+
+  // Support wildcard for "all services"
+  if (allowedServices.includes('*')) {
+    return true;
+  }
+
+  // If no service specified in request, deny (require explicit wildcard)
+  if (!service) {
+    return false;
+  }
+
+  // Check if service is in the allowed list
+  return allowedServices.includes(service);
 }
 
 /**
@@ -22,7 +80,7 @@ export function isPasswordlessEligible(
 ): boolean {
   // Existing passwordless accounts are always eligible, but not third-party
   // auth accounts which also have verifierSetAt === 0
-  if (account?.verifierSetAt === 0 && !(account.linkedAccounts?.length)) {
+  if (account?.verifierSetAt === 0 && !account.linkedAccounts?.length) {
     return true;
   }
   // Flag gates new signups and is required for non-passwordless accounts
@@ -32,3 +90,4 @@ export function isPasswordlessEligible(
   // New account (doesn't exist yet) — eligible; existing with password — not
   return !account;
 }
+

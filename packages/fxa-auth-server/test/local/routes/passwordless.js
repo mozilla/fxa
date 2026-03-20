@@ -30,7 +30,7 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     enabled: true,
     ttl: 300,
     digits: 6,
-    allowedClientIds: [],
+    allowedClientServices: {},
   };
   config.verifierVersion = config.verifierVersion || 0;
   config.gleanMetrics = config.gleanMetrics || {
@@ -134,7 +134,9 @@ describe('/account/passwordless/send_code', () => {
           enabled: true,
           ttl: 300,
           digits: 6,
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
     });
@@ -277,7 +279,9 @@ describe('/account/passwordless/confirm_code', () => {
           ttl: 300,
           digits: 6,
 
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
     });
@@ -440,7 +444,9 @@ describe('/account/passwordless/confirm_code', () => {
           ttl: 300,
           digits: 6,
 
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
     });
@@ -584,7 +590,9 @@ describe('passwordless CMS customization', () => {
               enabled: true,
               ttl: 300,
               digits: 6,
-              allowedClientIds: ['test-client-id'],
+              allowedClientServices: {
+                'test-client-id': { allowedServices: ['*'] },
+              },
             },
           },
         },
@@ -646,7 +654,9 @@ describe('passwordless CMS customization', () => {
               enabled: true,
               ttl: 300,
               digits: 6,
-              allowedClientIds: ['test-client-id'],
+              allowedClientServices: {
+                'test-client-id': { allowedServices: ['*'] },
+              },
             },
           },
         },
@@ -707,7 +717,9 @@ describe('passwordless CMS customization', () => {
               enabled: true,
               ttl: 300,
               digits: 6,
-              allowedClientIds: ['test-client-id'],
+              allowedClientServices: {
+                'test-client-id': { allowedServices: ['*'] },
+              },
             },
           },
         },
@@ -749,7 +761,9 @@ describe('passwordless CMS customization', () => {
               enabled: true,
               ttl: 300,
               digits: 6,
-              allowedClientIds: ['test-client-id'],
+              allowedClientServices: {
+                'test-client-id': { allowedServices: ['*'] },
+              },
             },
           },
         },
@@ -798,7 +812,9 @@ describe('passwordless CMS customization', () => {
               enabled: true,
               ttl: 300,
               digits: 6,
-              allowedClientIds: ['test-client-id'],
+              allowedClientServices: {
+                'test-client-id': { allowedServices: ['*'] },
+              },
             },
           },
         },
@@ -882,7 +898,9 @@ describe('passwordless security events', () => {
           enabled: true,
           ttl: 300,
           digits: 6,
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
     });
@@ -917,7 +935,9 @@ describe('passwordless security events', () => {
           enabled: true,
           ttl: 300,
           digits: 6,
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
     });
@@ -967,7 +987,9 @@ describe('passwordless security events', () => {
           enabled: true,
           ttl: 300,
           digits: 6,
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
     });
@@ -1041,7 +1063,9 @@ describe('passwordless statsd metrics', () => {
           enabled: true,
           ttl: 300,
           digits: 6,
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
     });
@@ -1089,7 +1113,9 @@ describe('passwordless statsd metrics', () => {
           enabled: true,
           ttl: 300,
           digits: 6,
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
     });
@@ -1146,7 +1172,9 @@ describe('/account/passwordless/resend_code', () => {
           ttl: 300,
           digits: 6,
 
-          allowedClientIds: ['test-client-id'],
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
         },
       },
     });
@@ -1295,7 +1323,7 @@ describe('passwordless service validation', () => {
     });
   });
 
-  describe('when allowedClientIds is empty', () => {
+  describe('when allowedClientServices is empty', () => {
     beforeEach(() => {
       routes = makeRoutes({
         log: mockLog,
@@ -1306,7 +1334,7 @@ describe('passwordless service validation', () => {
             enabled: true,
             ttl: 300,
             digits: 6,
-            allowedClientIds: [],
+            allowedClientServices: {},
           },
         },
       });
@@ -1341,7 +1369,7 @@ describe('passwordless service validation', () => {
     });
   });
 
-  describe('when allowedClientIds is configured', () => {
+  describe('when allowedClientServices is configured', () => {
     beforeEach(() => {
       routes = makeRoutes({
         log: mockLog,
@@ -1352,7 +1380,10 @@ describe('passwordless service validation', () => {
             enabled: true,
             ttl: 300,
             digits: 6,
-            allowedClientIds: ['ea3ca969f8c6bb0d', 'dcdb5ae7add825d2'],
+            allowedClientServices: {
+              ea3ca969f8c6bb0d: { allowedServices: ['*'] },
+              dcdb5ae7add825d2: { allowedServices: ['*'] },
+            },
           },
         },
       });
@@ -1413,7 +1444,9 @@ describe('passwordless service validation', () => {
             enabled: true,
             ttl: 300,
             digits: 6,
-            allowedClientIds: ['ea3ca969f8c6bb0d'],
+            allowedClientServices: {
+              ea3ca969f8c6bb0d: { allowedServices: ['*'] },
+            },
           },
         },
       });
@@ -1500,7 +1533,9 @@ describe('passwordless service validation', () => {
             enabled: true,
             ttl: 300,
             digits: 6,
-            allowedClientIds: ['ea3ca969f8c6bb0d'],
+            allowedClientServices: {
+              ea3ca969f8c6bb0d: { allowedServices: ['*'] },
+            },
           },
         },
       });
@@ -1589,7 +1624,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
             enabled: true,
             ttl: 300,
             digits: 6,
-            allowedClientIds: [],
+            allowedClientServices: {},
           },
         },
       });
@@ -1619,7 +1654,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
             enabled: false,
             ttl: 300,
             digits: 6,
-            allowedClientIds: [],
+            allowedClientServices: {},
           },
         },
       });
@@ -1649,7 +1684,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
             enabled: true,
             ttl: 300,
             digits: 6,
-            allowedClientIds: [],
+            allowedClientServices: {},
           },
         },
       });
@@ -1679,7 +1714,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
             enabled: true,
             ttl: 300,
             digits: 6,
-            allowedClientIds: [],
+            allowedClientServices: {},
           },
         },
       });
@@ -1725,7 +1760,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
             enabled: true,
             ttl: 300,
             digits: 6,
-            allowedClientIds: [],
+            allowedClientServices: {},
           },
         },
       });
@@ -1751,3 +1786,4 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
     });
   });
 });
+

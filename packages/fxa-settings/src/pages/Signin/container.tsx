@@ -258,13 +258,14 @@ const SigninContainer = ({
               await authClient.accountStatusByEmail(email, {
                 thirdPartyAuthStatus: true,
                 clientId: integration.getClientId(),
+                service: integration.getService(),
               });
             if (!exists) {
               // For new accounts, passwordless requires the feature flag + server support
               const passwordlessEnabled =
                 config.featureFlags?.passwordlessEnabled === true ||
                 queryParamModel.forcePasswordless === true;
-              if (passwordlessEnabled && passwordlessSupported && !wantsKeys) {
+              if (passwordlessEnabled && passwordlessSupported && integration.isFirefoxNonSync()) {
                 navigateWithQuery('/signin_passwordless_code', {
                   state: {
                     email,

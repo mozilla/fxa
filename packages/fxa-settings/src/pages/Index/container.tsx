@@ -112,14 +112,13 @@ const IndexContainer = ({
       canLinkAccountOk: boolean | undefined = undefined,
       passwordlessSupported: boolean | undefined = undefined
     ) => {
-      const wantsKeys = integration.wantsKeys();
       const isOAuth = isOAuthWebIntegration(integration);
 
       // Passwordless eligibility (enabled via config or query param for testing):
       // - For EXISTING accounts: use passwordless if passwordlessSupported && !hasPassword
       //   (Sync users with existing passwordless accounts will verify via OTP, then set password)
-      // - For NEW accounts: use passwordless if passwordlessSupported && !wantsKeys
-      //   (Sync users should go through traditional password-first signup)
+      // - For NEW accounts: use passwordless if passwordlessSupported && integration.isFirefoxNonSync()
+      //   (Firefox non-Sync flows can use passwordless OTP; Sync users should go through traditional password-first signup)
       const passwordlessEnabled =
         config.featureFlags?.passwordlessEnabled === true ||
         queryParamModel.forcePasswordless === true;
@@ -128,7 +127,7 @@ const IndexContainer = ({
       const hasCachedSession = !!storedAccount?.sessionToken;
       const canUsePasswordlessExisting =
         passwordlessSupported && !hasPassword && !hasLinkedAccount && !hasCachedSession;
-      const canUsePasswordlessNew = passwordlessEnabled && passwordlessSupported && !wantsKeys;
+      const canUsePasswordlessNew = passwordlessEnabled && passwordlessSupported && !integration.isSync();
 
       if (exists) {
         if (canUsePasswordlessExisting) {
@@ -221,6 +220,7 @@ const IndexContainer = ({
           await authClient.accountStatusByEmail(email, {
             thirdPartyAuthStatus: true,
             clientId: integration.getClientId(),
+            service: integration.getService(),
           });
 
         accountExists = exists;

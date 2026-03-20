@@ -63,6 +63,7 @@ const SigninPasswordlessCodeContainer = ({
         try {
           await authClient.passwordlessSendCode(email, {
             clientId: integration.getClientId(),
+            service: service || integration.getService(),
             metricsContext: {
               ...queryParamsToMetricsContext(
                 flowQueryParams as unknown as Record<string, string>

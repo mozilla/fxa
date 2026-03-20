@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-import { relayDesktopOAuthQueryParams, syncDesktopOAuthQueryParams } from '../../lib/query-params';
+import {
+  relayDesktopOAuthQueryParams,
+  syncDesktopOAuthQueryParams,
+} from '../../lib/query-params';
 import { getTotpCode } from '../../lib/totp';
 
 test.describe('severity-1 #smoke', () => {
@@ -344,11 +347,7 @@ test.describe('severity-1 #smoke', () => {
           expect(Array.isArray(events)).toBe(true);
 
           // Cleanup
-          await target.authClient.createPassword(
-            sessionToken,
-            email,
-            password
-          );
+          await target.authClient.createPassword(sessionToken, email, password);
           account.isPasswordless = false;
         });
       });
@@ -480,10 +479,7 @@ test.describe('severity-1 #smoke', () => {
 
           // Verify TOTP
           const totpCode = await getTotpCode(secret);
-          await target.authClient.verifyTotpCode(
-            result.sessionToken,
-            totpCode
-          );
+          await target.authClient.verifyTotpCode(result.sessionToken, totpCode);
 
           // Confirm verified after TOTP
           const statusAfter = await target.authClient.sessionStatus(
@@ -701,12 +697,11 @@ test.describe('severity-1 #smoke', () => {
         });
         const cleanupCode =
           await target.emailClient.getPasswordlessSigninCode(email);
-        const cleanupResult =
-          await target.authClient.passwordlessConfirmCode(
-            email,
-            cleanupCode,
-            { clientId: 'dcdb5ae7add825d2' }
-          );
+        const cleanupResult = await target.authClient.passwordlessConfirmCode(
+          email,
+          cleanupCode,
+          { clientId: 'dcdb5ae7add825d2' }
+        );
         // Elevate to AAL2 for password creation
         const cleanupTotpCode = await getTotpCode(secret);
         await target.authClient.verifyTotpCode(
@@ -735,8 +730,7 @@ test.describe('severity-2', () => {
       pages: { page, signin, relier, signinPasswordlessCode },
       testAccountTracker,
     }) => {
-      const { email } =
-        testAccountTracker.generatePasswordlessAccountDetails();
+      const { email } = testAccountTracker.generatePasswordlessAccountDetails();
 
       await relier.goto('force_passwordless=true');
       await relier.clickEmailFirst();
@@ -761,8 +755,7 @@ test.describe('severity-2', () => {
       pages: { page, signin, relier, signinPasswordlessCode },
       testAccountTracker,
     }) => {
-      const { email } =
-        testAccountTracker.generatePasswordlessAccountDetails();
+      const { email } = testAccountTracker.generatePasswordlessAccountDetails();
 
       await relier.goto('force_passwordless=true');
       await relier.clickEmailFirst();
@@ -781,9 +774,7 @@ test.describe('severity-2', () => {
       await expect(signin.cachedSigninHeading).toBeVisible();
 
       // Navigate to /signin directly — same behavior
-      await page.goto(
-        `${target.contentServerUrl}/signin?email=${email}`
-      );
+      await page.goto(`${target.contentServerUrl}/signin?email=${email}`);
       await expect(page).not.toHaveURL(/signin_passwordless_code/);
       await expect(signin.cachedSigninHeading).toBeVisible();
     });
@@ -793,12 +784,9 @@ test.describe('severity-2', () => {
       pages: { page, signin, signinPasswordlessCode, settings },
       testAccountTracker,
     }) => {
-      const { email } =
-        testAccountTracker.generatePasswordlessAccountDetails();
+      const { email } = testAccountTracker.generatePasswordlessAccountDetails();
 
-      await page.goto(
-        `${target.contentServerUrl}/?force_passwordless=true`
-      );
+      await page.goto(`${target.contentServerUrl}/?force_passwordless=true`);
       await signin.fillOutEmailFirstForm(email);
 
       await expect(page).toHaveURL(/signin_passwordless_code/);
@@ -886,14 +874,17 @@ test.describe('severity-2', () => {
       await target.authClient.passwordlessSendCode(email, {
         clientId: 'dcdb5ae7add825d2',
       });
-      const otpCode =
-        await target.emailClient.getPasswordlessSigninCode(email);
+      const otpCode = await target.emailClient.getPasswordlessSigninCode(email);
       const result = await target.authClient.passwordlessConfirmCode(
         email,
         otpCode,
         { clientId: 'dcdb5ae7add825d2' }
       );
-      await target.authClient.createPassword(result.sessionToken, email, password);
+      await target.authClient.createPassword(
+        result.sessionToken,
+        email,
+        password
+      );
       account.isPasswordless = false;
 
       // First account now has a password — should show password form
@@ -920,11 +911,7 @@ test.describe('severity-2', () => {
 
     test('passwordless signin - Sync with existing passwordless account', async ({
       target,
-      syncOAuthBrowserPages: {
-        page,
-        signin,
-        signinPasswordlessCode,
-      },
+      syncOAuthBrowserPages: { page, signin, signinPasswordlessCode },
       testAccountTracker,
     }) => {
       // Create passwordless account via API first (no password)
@@ -1039,7 +1026,7 @@ test.describe('severity-2', () => {
     });
   });
 
-test.describe('Passwordless authentication - Browser Service (Relay)', () => {
+  test.describe('Passwordless authentication - Browser Service (Relay)', () => {
     test('passwordless signin via Relay OAuth flow', async ({
       target,
       pages: { page, signin, signinPasswordlessCode },
@@ -1062,5 +1049,53 @@ test.describe('Passwordless authentication - Browser Service (Relay)', () => {
       // completes the OAuth flow — verify we left the OTP page
       await expect(page).not.toHaveURL(/signin_passwordless_code/);
     });
-});
+
+    test('passwordless signup via Relay OAuth flow - service allowed', async ({
+      target,
+      pages: { page, signin, signinPasswordlessCode },
+      testAccountTracker,
+    }) => {
+      // Test that Relay (which is in allowedClientServices) supports passwordless signup
+      const { email } = testAccountTracker.generatePasswordlessAccountDetails();
+
+      const params = new URLSearchParams(relayDesktopOAuthQueryParams);
+      // Add force_passwordless to enable passwordless for new account
+      params.set('force_passwordless', 'true');
+      await signin.goto('/authorization', params);
+
+      await signin.fillOutEmailFirstForm(email);
+
+      // Should redirect to passwordless code page (Relay service is allowed)
+      await expect(page).toHaveURL(/signin_passwordless_code/);
+      await expect(signinPasswordlessCode.heading).toBeVisible();
+
+      const code = await target.emailClient.getPasswordlessSignupCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(code);
+
+      // Should complete OAuth flow
+      await expect(page).not.toHaveURL(/signin_passwordless_code/);
+    });
+
+    test('passwordless signup blocked for service not in allowedClientServices', async ({
+      target,
+      pages: { page, signin },
+      testAccountTracker,
+    }) => {
+      // Test that services NOT in allowedClientServices are blocked from passwordless
+      const { email } = testAccountTracker.generatePasswordlessAccountDetails();
+
+      // Use a different OAuth client that is NOT in allowedClientServices
+      // (using Sync client as an example of a service that doesn't support passwordless signup)
+      const params = new URLSearchParams(syncDesktopOAuthQueryParams);
+      params.set('force_passwordless', 'true');
+      await signin.goto('/authorization', params);
+
+      await signin.fillOutEmailFirstForm(email);
+
+      // Should NOT redirect to passwordless code page
+      // Instead should go to traditional signup flow (password form)
+      await expect(page).not.toHaveURL(/signin_passwordless_code/);
+      await expect(page).toHaveURL(/signup/);
+    });
+  });
 });

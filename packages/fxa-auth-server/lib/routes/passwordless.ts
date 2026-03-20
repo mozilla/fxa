@@ -118,21 +118,27 @@ class PasswordlessHandler {
     account: any,
     email: string,
     clientId: string | undefined,
+    service: string | undefined,
     logTag: string
   ) {
     const hasLinkedAccount =
       account && (account.linkedAccounts?.length || 0) > 0;
     const isExistingPasswordless =
       account && account.verifierSetAt === 0 && !hasLinkedAccount;
-    if (
-      !isExistingPasswordless &&
-      !isClientAllowedForPasswordless(
-        this.config.passwordlessOtp.allowedClientIds as string[],
-        clientId
-      )
-    ) {
-      this.log.error(`passwordless.${logTag}.clientIdNotAllowed`, { clientId });
-      throw error.featureNotEnabled();
+    if (!isExistingPasswordless) {
+      if (
+        !isClientAllowedForPasswordless(
+          this.config.passwordlessOtp.allowedClientServices,
+          clientId,
+          service
+        )
+      ) {
+        this.log.error(`passwordless.${logTag}.clientIdOrServiceNotAllowed`, {
+          clientId,
+          service,
+        });
+        throw error.featureNotEnabled();
+      }
     }
     if (
       !isPasswordlessEligible(
@@ -148,15 +154,22 @@ class PasswordlessHandler {
   async sendCode(request: AuthRequest) {
     this.log.begin('Passwordless.sendCode', request);
 
-    const { email, clientId } = request.payload as {
+    const { email, clientId, service } = request.payload as {
       email: string;
       clientId?: string;
+      service?: string;
     };
 
     await this.customs.check(request, email, 'passwordlessSendOtp');
 
     const { account, isNewAccount } = await this.lookupAccount(email);
-    this.validatePasswordlessAccess(account, email, clientId, 'sendCode');
+    this.validatePasswordlessAccess(
+      account,
+      email,
+      clientId,
+      service,
+      'sendCode'
+    );
 
     return this.generateAndSendOtp(request, email, account, isNewAccount);
   }
@@ -164,10 +177,11 @@ class PasswordlessHandler {
   async confirmCode(request: AuthRequest) {
     this.log.begin('Passwordless.confirmCode', request);
 
-    const { email, code, clientId } = request.payload as {
+    const { email, code, clientId, service } = request.payload as {
       email: string;
       code: string;
       clientId?: string;
+      service?: string;
     };
 
     await this.customs.check(request, email, 'passwordlessVerifyOtp');
@@ -178,7 +192,13 @@ class PasswordlessHandler {
     const lookupResult = await this.lookupAccount(email);
     let account = lookupResult.account;
     const { isNewAccount } = lookupResult;
-    this.validatePasswordlessAccess(account, email, clientId, 'confirmCode');
+    this.validatePasswordlessAccess(
+      account,
+      email,
+      clientId,
+      service,
+      'confirmCode'
+    );
 
     // Verify OTP
     const otpKey = account ? account.uid : email;
@@ -280,15 +300,22 @@ class PasswordlessHandler {
   async resendCode(request: AuthRequest) {
     this.log.begin('Passwordless.resendCode', request);
 
-    const { email, clientId } = request.payload as {
+    const { email, clientId, service } = request.payload as {
       email: string;
       clientId?: string;
+      service?: string;
     };
 
     await this.customs.check(request, email, 'passwordlessSendOtp');
 
     const { account, isNewAccount } = await this.lookupAccount(email);
-    this.validatePasswordlessAccess(account, email, clientId, 'resendCode');
+    this.validatePasswordlessAccess(
+      account,
+      email,
+      clientId,
+      service,
+      'resendCode'
+    );
 
     // Delete existing code before sending a new one
     const otpKey = account ? account.uid : email;
@@ -502,6 +529,9 @@ export function passwordlessRoutes(
             clientId: validators.clientId
               .optional()
               .description(DESCRIPTION.clientId),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
@@ -529,6 +559,9 @@ export function passwordlessRoutes(
             clientId: validators.clientId
               .optional()
               .description(DESCRIPTION.clientId),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
@@ -558,6 +591,9 @@ export function passwordlessRoutes(
             clientId: validators.clientId
               .optional()
               .description(DESCRIPTION.clientId),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.service),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
@@ -569,3 +605,4 @@ export function passwordlessRoutes(
     },
   ];
 }
+
