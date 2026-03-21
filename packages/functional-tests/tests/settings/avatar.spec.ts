@@ -73,6 +73,12 @@ test.describe('severity-1 #smoke', () => {
       /avatar/
     );
 
+    // Refresh to simulate returning to the page later, which causes the
+    // avatar ID to be lost (the /v1/profile endpoint doesn't return it)
+    await page.reload();
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.avatar.photo).not.toHaveAttribute('src', /avatar/);
+
     await settings.avatar.changeButton.click();
 
     await expect(avatar.profilePictureHeading).toBeVisible();
@@ -80,6 +86,15 @@ test.describe('severity-1 #smoke', () => {
 
     await avatar.removePhotoButton.click();
 
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.avatar.photo).toHaveAttribute('src', /avatar/);
+    await expect(settings.avatarDropDownMenuPhoto).toHaveAttribute(
+      'src',
+      /avatar/
+    );
+
+    // Verify removal persists after refresh
+    await page.reload();
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.avatar.photo).toHaveAttribute('src', /avatar/);
     await expect(settings.avatarDropDownMenuPhoto).toHaveAttribute(
