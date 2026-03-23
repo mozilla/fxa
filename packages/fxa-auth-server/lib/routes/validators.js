@@ -183,8 +183,23 @@ const EMAIL_USER = /^[A-Z0-9.!#$%&'*+\/=?^_`{|}~-]{1,64}$/i;
 const EMAIL_DOMAIN =
   /^[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?)+$/i;
 
+// Unicode control/format characters that bypass punycode-based email validation.
+// Includes: C0 controls (U+0000-001F), DEL + C1 controls (U+007F-009F),
+// soft hyphen (U+00AD), combining grapheme joiner (U+034F),
+// Arabic letter mark (U+061C), zero-width/bidi marks (U+200B-200F),
+// line/paragraph separators and bidi embeddings (U+2028-202F),
+// invisible format chars and bidi isolates (U+2060-2069),
+// BOM (U+FEFF), interlinear annotations (U+FFF9-FFFB).
+const UNICODE_CONTROL_CHARS = /[\x00-\x1f\x7f-\x9f\u00ad\u034f\u061c\u200b-\u200f\u2028-\u202f\u2060-\u2069\ufeff\ufff9-\ufffb]/;
+
 module.exports.isValidEmailAddress = function (value) {
   if (!value) {
+    return false;
+  }
+
+  // Reject emails containing Unicode control/bidi characters that could
+  // pass punycode validation but cause SMTP 501 rejections (FXA-AUTH-2GE).
+  if (UNICODE_CONTROL_CHARS.test(value)) {
     return false;
   }
 

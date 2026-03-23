@@ -76,6 +76,39 @@ describe('lib/routes/validators:', () => {
     expect(validators.isValidEmailAddress('foo\x128@example.com')).toBe(false);
   });
 
+  it('isValidEmailAddress returns false if the email contains Unicode bidi/control characters', () => {
+    // U+2068 (First Strong Isolate) and U+2069 (Pop Directional Isolate)
+    // These bypass punycode validation but cause SMTP 501 rejections
+    expect(validators.isValidEmailAddress('\u2068foo@example.com\u2069')).toBe(false);
+    expect(validators.isValidEmailAddress('\u2068foo@example.com')).toBe(false);
+    expect(validators.isValidEmailAddress('foo@example.com\u2069')).toBe(false);
+    // U+200B (Zero Width Space)
+    expect(validators.isValidEmailAddress('foo\u200b@example.com')).toBe(false);
+    // U+200E (Left-to-Right Mark) and U+200F (Right-to-Left Mark)
+    expect(validators.isValidEmailAddress('foo@example\u200e.com')).toBe(false);
+    expect(validators.isValidEmailAddress('foo@example\u200f.com')).toBe(false);
+    // U+202A-202E (bidi embedding/override)
+    expect(validators.isValidEmailAddress('foo\u202a@example.com')).toBe(false);
+    expect(validators.isValidEmailAddress('foo@example\u202e.com')).toBe(false);
+    // U+FEFF (BOM / Zero Width No-Break Space)
+    expect(validators.isValidEmailAddress('\ufefffoo@example.com')).toBe(false);
+    // U+00AD (Soft Hyphen)
+    expect(validators.isValidEmailAddress('foo@example\u00ad.com')).toBe(false);
+    // U+034F (Combining Grapheme Joiner)
+    expect(validators.isValidEmailAddress('foo\u034f@example.com')).toBe(false);
+    // U+061C (Arabic Letter Mark)
+    expect(validators.isValidEmailAddress('foo\u061c@example.com')).toBe(false);
+    // U+2060 (Word Joiner)
+    expect(validators.isValidEmailAddress('foo\u2060@example.com')).toBe(false);
+    // U+2028 (Line Separator)
+    expect(validators.isValidEmailAddress('foo@example\u2028.com')).toBe(false);
+    // U+007F (DEL) and U+0080 (C1 control)
+    expect(validators.isValidEmailAddress('foo\u007f@example.com')).toBe(false);
+    expect(validators.isValidEmailAddress('foo\u0080@example.com')).toBe(false);
+    // U+FFF9 (Interlinear Annotation Anchor)
+    expect(validators.isValidEmailAddress('foo\ufff9@example.com')).toBe(false);
+  });
+
   it('isValidEmailAddress returns false if the user part contains other disallowed characters', () => {
     expect(validators.isValidEmailAddress('foo,@example.com')).toBe(false);
     expect(validators.isValidEmailAddress('foo;@example.com')).toBe(false);
