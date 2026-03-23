@@ -39,6 +39,7 @@ const QUERY_DEVELOPER_OWNS_CLIENT =
 const QUERY_DEVELOPER_INSERT =
   'INSERT INTO developers ' + '(developerId, email) ' + 'VALUES (?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
+const QUERY_CLIENT_IDS = 'SELECT id FROM clients';
 const QUERY_CLIENT_LIST =
   'SELECT id, name, redirectUri, imageUri, ' +
   'canGrant, publicClient, trusted ' +
@@ -341,6 +342,9 @@ class MysqlStore extends MysqlOAuthShared {
 
   getClient(id) {
     return this._readOne(QUERY_CLIENT_GET, [buf(id)]);
+  }
+  getAllClientIds() {
+    return this._read(QUERY_CLIENT_IDS);
   }
   getClients(email) {
     return this._read(QUERY_CLIENT_LIST, [email]);
