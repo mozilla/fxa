@@ -31,8 +31,7 @@
           "libs/accounts/email-renderer/src/**/*.txt",
           "libs/accounts/email-renderer/src/**/*.mjml"
         ],
-        "format": ["cjs"],
-        "generatePackageJson": true
+        "format": ["cjs"]
       }
     },
     "build-css": {

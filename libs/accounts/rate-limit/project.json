@@ -13,8 +13,7 @@
         "main": "libs/accounts/rate-limit/src/index.ts",
         "tsConfig": "libs/accounts/rate-limit/tsconfig.lib.json",
         "assets": ["libs/accounts/rate-limit/*.md"],
-        "format": ["cjs"],
-        "generatePackageJson": true
+        "format": ["cjs"]
       }
     },
     "test-unit": {

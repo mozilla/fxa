@@ -13,7 +13,6 @@
         "main": "libs/shared/sentry-browser/src/index.ts",
         "tsConfig": "libs/shared/sentry-browser/tsconfig.lib.json",
         "assets": ["libs/shared/sentry-browser/*.md"],
-        "generatePackageJson": true,
         "format": ["cjs"]
       }
     },

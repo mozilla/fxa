@@ -13,8 +13,7 @@
         "main": "libs/payments/experiments/src/index.ts",
         "tsConfig": "libs/payments/experiments/tsconfig.lib.json",
         "assets": ["libs/payments/experiments/*.md"],
-        "declaration": true,
-        "generatePackageJson": true
+        "declaration": true
       }
     },
     "test-unit": {

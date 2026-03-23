@@ -13,7 +13,6 @@
         "main": "libs/shared/otel/src/index.ts",
         "tsConfig": "libs/shared/otel/tsconfig.lib.json",
         "assets": ["libs/shared/otel/*.md"],
-        "generatePackageJson": true,
         "declaration": true,
         "platform": "node"
       }

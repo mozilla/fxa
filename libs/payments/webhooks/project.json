@@ -13,7 +13,6 @@
         "main": "libs/payments/webhooks/src/index.ts",
         "tsConfig": "libs/payments/webhooks/tsconfig.lib.json",
         "assets": ["libs/payments/webhooks/*.md"],
-        "generatePackageJson": true,
         "declaration": true
       }
     },

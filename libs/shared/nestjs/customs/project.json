@@ -18,8 +18,7 @@
           "@nestjs/microservices"
         ],
         "assets": ["libs/shared/nestjs/customs/*.md"],
-        "format": ["cjs"],
-        "generatePackageJson": true
+        "format": ["cjs"]
       }
     },
     "test-unit": {

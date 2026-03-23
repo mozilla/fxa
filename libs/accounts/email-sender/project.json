@@ -13,8 +13,7 @@
         "main": "libs/accounts/email-sender/src/index.ts",
         "tsConfig": "libs/accounts/email-sender/tsconfig.lib.json",
         "assets": ["libs/accounts/email-sender/*.md"],
-        "format": ["cjs"],
-        "generatePackageJson": true
+        "format": ["cjs"]
       }
     },
     "test-unit": {
