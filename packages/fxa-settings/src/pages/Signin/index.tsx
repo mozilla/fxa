@@ -28,7 +28,7 @@ import {
   useConfig,
 } from '../../models';
 import { SigninFormData, SigninProps } from './interfaces';
-import { handleNavigation } from './utils';
+import { handleNavigation, ensureCanLinkAcountOrRedirect } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
@@ -166,6 +166,22 @@ const Signin = ({
       if (data) {
         GleanMetrics.cachedLogin.success();
 
+        // Sync merge check for cached signin
+        // Pattern matches SigninPasswordlessCode (line 201-211)
+        if ((integration.isSync() || integration.isFirefoxNonSync()) && !hasPassword && !hasLinkedAccount) {
+          const canLink = await ensureCanLinkAcountOrRedirect({
+            email,
+            uid: data.uid,
+            ftlMsgResolver,
+            navigateWithQuery,
+          });
+          if (!canLink) {
+            // User cancelled the merge - abort signin
+            setSigninLoading(false);
+            return;
+          }
+        }
+
         const navigationOptions = {
           email,
           signinData: {
@@ -214,6 +230,7 @@ const Signin = ({
       cachedSigninHandler,
       email,
       ftlMsgResolver,
+      navigateWithQuery,
       setLocalizedBannerError,
       integration,
       finishOAuthFlowHandler,
@@ -221,6 +238,8 @@ const Signin = ({
       location.search,
       webRedirectCheck,
       isServiceWithEmailVerification,
+      hasLinkedAccount,
+      hasPassword,
     ]
   );
 
@@ -571,9 +590,8 @@ const Signin = ({
         {isPasswordNeeded && !hasLinkedAccountAndNoPassword && (
           <FtlMsg id="signin-forgot-password-link">
             <Link
-              to={`/reset_password${
-                location?.search ? `/${location?.search}` : ''
-              }`}
+              to={`/reset_password${location?.search ? `/${location?.search}` : ''
+                }`}
               className="text-sm link-blue mx-auto tablet:mx-0"
               onClick={() =>
                 !isPasswordNeeded
