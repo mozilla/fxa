@@ -5,22 +5,51 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
+import type {
+  PublicKeyCredentialCreationOptionsJSON,
+  RegistrationResponseJSON,
+} from '@simplewebauthn/server';
 import { PasskeyConfig } from './passkey.config';
 import { PasskeyService } from './passkey.service';
 import { PasskeyManager } from './passkey.manager';
+import { PasskeyChallengeManager } from './passkey.challenge.manager';
+import { AppError } from '@fxa/accounts/errors';
+
+jest.mock('./webauthn-adapter', () => ({
+  generateRegistrationOptions: jest.fn(),
+  verifyRegistrationResponse: jest.fn(),
+}));
+
+import * as webauthnAdapter from './webauthn-adapter';
+
+const mockGenerateRegistrationOptions =
+  webauthnAdapter.generateRegistrationOptions as jest.Mock;
+const mockVerifyRegistrationResponse =
+  webauthnAdapter.verifyRegistrationResponse as jest.Mock;
 
 describe('PasskeyService', () => {
   let service: PasskeyService;
-  let manager: PasskeyManager;
-  let config: PasskeyConfig;
+
+  const MOCK_UID = Buffer.alloc(16, 0xaa);
+  const MOCK_USER_NAME = 'user@example.com';
+  const MOCK_CHALLENGE = 'mock-challenge-base64url';
+  const MOCK_CREDENTIAL_ID = Buffer.alloc(32, 0xbb);
+  const MOCK_PUBLIC_KEY = Buffer.alloc(64, 0xcc);
+  const MOCK_AAGUID_ZEROS = Buffer.alloc(16, 0x00);
 
   const mockManager = {
-    // Mock methods will be added as manager grows
+    checkPasskeyCount: jest.fn(),
+    registerPasskey: jest.fn(),
+    listPasskeysForUser: jest.fn(),
+  };
+
+  const mockChallengeManager = {
+    generateRegistrationChallenge: jest.fn(),
+    consumeRegistrationChallenge: jest.fn(),
   };
 
   const mockMetrics = {
     increment: jest.fn(),
-    timing: jest.fn(),
   };
 
   const mockLogger = {
@@ -39,10 +68,13 @@ describe('PasskeyService', () => {
   });
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PasskeyService,
         { provide: PasskeyManager, useValue: mockManager },
+        { provide: PasskeyChallengeManager, useValue: mockChallengeManager },
         { provide: PasskeyConfig, useValue: mockConfig },
         { provide: StatsDService, useValue: mockMetrics },
         { provide: LOGGER_PROVIDER, useValue: mockLogger },
@@ -50,25 +82,328 @@ describe('PasskeyService', () => {
     }).compile();
 
     service = module.get(PasskeyService);
-    manager = module.get(PasskeyManager);
-    config = module.get(PasskeyConfig);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  describe('generateRegistrationChallenge', () => {
+    const mockWebAuthnOptions: PublicKeyCredentialCreationOptionsJSON = {
+      rp: { name: 'accounts.firefox.com', id: 'accounts.firefox.com' },
+      user: {
+        id: 'mock-user-id',
+        name: 'user@example.com',
+        displayName: 'user@example.com',
+      },
+      challenge: MOCK_CHALLENGE,
+      pubKeyCredParams: [],
+      timeout: 60000,
+      attestation: 'none',
+    } as unknown as PublicKeyCredentialCreationOptionsJSON;
+
+    beforeEach(() => {
+      mockManager.checkPasskeyCount.mockResolvedValue(undefined);
+      mockChallengeManager.generateRegistrationChallenge.mockResolvedValue(
+        MOCK_CHALLENGE
+      );
+      mockGenerateRegistrationOptions.mockResolvedValue(mockWebAuthnOptions);
+    });
+
+    it('returns PublicKeyCredentialCreationOptionsJSON from the adapter', async () => {
+      const result = await service.generateRegistrationChallenge(
+        MOCK_UID,
+        MOCK_USER_NAME
+      );
+      expect(result).toBe(mockWebAuthnOptions);
+    });
+
+    it('calls passkeyManager.checkPasskeyCount with uid before generating challenge', async () => {
+      await service.generateRegistrationChallenge(MOCK_UID, MOCK_USER_NAME);
+      expect(mockManager.checkPasskeyCount).toHaveBeenCalledWith(MOCK_UID);
+
+      const [checkCallOrder] =
+        mockManager.checkPasskeyCount.mock.invocationCallOrder;
+      const [generateChallengeCallOrder] =
+        mockChallengeManager.generateRegistrationChallenge.mock
+          .invocationCallOrder;
+      expect(checkCallOrder).toBeLessThan(generateChallengeCallOrder);
+    });
+
+    it('passes correct arguments to challengeManager and adapter', async () => {
+      await service.generateRegistrationChallenge(MOCK_UID, MOCK_USER_NAME);
+
+      expect(
+        mockChallengeManager.generateRegistrationChallenge
+      ).toHaveBeenCalledWith(MOCK_UID.toString('hex'));
+
+      expect(mockGenerateRegistrationOptions).toHaveBeenCalledWith(
+        mockConfig,
+        expect.objectContaining({
+          uid: MOCK_UID,
+          email: MOCK_USER_NAME,
+          challenge: MOCK_CHALLENGE,
+        })
+      );
+    });
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
+  describe('createPasskeyFromRegistrationResponse', () => {
+    const mockResponse = {} as unknown as RegistrationResponseJSON;
 
-  it('should inject PasskeyManager', () => {
-    expect(manager).toBeDefined();
-    expect(manager).toBe(mockManager);
-  });
+    const mockVerifiedData = {
+      credentialId: MOCK_CREDENTIAL_ID,
+      publicKey: MOCK_PUBLIC_KEY,
+      signCount: 0,
+      transports: ['internal'] as any,
+      aaguid: MOCK_AAGUID_ZEROS,
+      backupEligible: false,
+      backupState: false,
+    };
 
-  it('should inject PasskeyConfig', () => {
-    expect(config).toBeDefined();
-    expect(config).toBe(mockConfig);
+    beforeEach(() => {
+      mockChallengeManager.consumeRegistrationChallenge.mockResolvedValue({
+        challenge: MOCK_CHALLENGE,
+        type: 'registration',
+        uid: MOCK_UID.toString('hex'),
+        createdAt: Date.now() - 1000,
+        expiresAt: Date.now() + 299000,
+      });
+      mockVerifyRegistrationResponse.mockResolvedValue({
+        verified: true,
+        data: mockVerifiedData,
+      });
+      mockManager.registerPasskey.mockResolvedValue(undefined);
+      mockManager.listPasskeysForUser.mockResolvedValue([]);
+    });
+
+    it('throws passkeyChallengeNotFound AppError and does not call adapter when challenge is invalid', async () => {
+      mockChallengeManager.consumeRegistrationChallenge.mockResolvedValue(null);
+      await expect(
+        service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        )
+      ).rejects.toMatchObject({
+        errno: 229,
+        message: 'Passkey challenge not found',
+        code: 404,
+      });
+      expect(mockVerifyRegistrationResponse).not.toHaveBeenCalled();
+    });
+
+    it('throws passkeyRegistrationFailed AppError when adapter returns verified: false', async () => {
+      mockVerifyRegistrationResponse.mockResolvedValue({ verified: false });
+      await expect(
+        service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        )
+      ).rejects.toMatchObject({
+        errno: 228,
+        message: 'Passkey registration failed',
+        code: 500,
+      });
+    });
+
+    it('throws passkeyRegistrationFailed AppError when adapter throws', async () => {
+      mockVerifyRegistrationResponse.mockRejectedValue(
+        new Error('Invalid attestation format')
+      );
+      await expect(
+        service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        )
+      ).rejects.toMatchObject({
+        errno: 228,
+        message: 'Passkey registration failed',
+        code: 500,
+      });
+    });
+
+    it('calls challengeManager.consumeRegistrationChallenge with uid and challenge', async () => {
+      await service.createPasskeyFromRegistrationResponse(
+        MOCK_UID,
+        mockResponse,
+        MOCK_CHALLENGE
+      );
+      expect(
+        mockChallengeManager.consumeRegistrationChallenge
+      ).toHaveBeenCalledWith(MOCK_UID.toString('hex'), MOCK_CHALLENGE);
+    });
+
+    it('calls passkeyManager.registerPasskey with correct NewPasskey shape', async () => {
+      await service.createPasskeyFromRegistrationResponse(
+        MOCK_UID,
+        mockResponse,
+        MOCK_CHALLENGE
+      );
+
+      expect(mockManager.registerPasskey).toHaveBeenCalledWith(
+        expect.objectContaining({
+          uid: MOCK_UID,
+          credentialId: MOCK_CREDENTIAL_ID,
+          publicKey: MOCK_PUBLIC_KEY,
+          signCount: 0,
+          transports: JSON.stringify(['internal']),
+          aaguid: MOCK_AAGUID_ZEROS,
+          lastUsedAt: null,
+          backupEligible: 0,
+          backupState: 0,
+        })
+      );
+    });
+
+    it('sets backupEligible=1 and backupState=1 when flags are true', async () => {
+      mockVerifyRegistrationResponse.mockResolvedValue({
+        verified: true,
+        data: { ...mockVerifiedData, backupEligible: true, backupState: true },
+      });
+      await service.createPasskeyFromRegistrationResponse(
+        MOCK_UID,
+        mockResponse,
+        MOCK_CHALLENGE
+      );
+
+      expect(mockManager.registerPasskey).toHaveBeenCalledWith(
+        expect.objectContaining({ backupEligible: 1, backupState: 1 })
+      );
+    });
+
+    it('emits correct metrics and logs on success', async () => {
+      await service.createPasskeyFromRegistrationResponse(
+        MOCK_UID,
+        mockResponse,
+        MOCK_CHALLENGE
+      );
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.registration.success'
+      );
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'passkey.registered',
+        expect.objectContaining({ uid: MOCK_UID.toString('hex') })
+      );
+    });
+
+    it('propagates PasskeyAlreadyRegisteredError from registerPasskey without wrapping', async () => {
+      mockManager.registerPasskey.mockRejectedValue(
+        AppError.passkeyAlreadyRegistered()
+      );
+
+      await expect(
+        service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        )
+      ).rejects.toThrow(AppError.passkeyAlreadyRegistered());
+    });
+
+    it('propagates passkeyLimitReached AppError from registerPasskey without wrapping', async () => {
+      mockManager.registerPasskey.mockRejectedValue(
+        AppError.passkeyLimitReached(1)
+      );
+
+      await expect(
+        service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        )
+      ).rejects.toMatchObject(AppError.passkeyLimitReached(1));
+    });
+
+    describe('passkey name generation (via createPasskeyFromRegistrationResponse)', () => {
+      async function getRegisteredPasskeyName(
+        transports: string[],
+        aaguid: Buffer = MOCK_AAGUID_ZEROS
+      ): Promise<string> {
+        mockVerifyRegistrationResponse.mockResolvedValue({
+          verified: true,
+          data: { ...mockVerifiedData, transports, aaguid },
+        });
+        await service.createPasskeyFromRegistrationResponse(
+          MOCK_UID,
+          mockResponse,
+          MOCK_CHALLENGE
+        );
+        const call = mockManager.registerPasskey.mock.calls[0][0];
+        return call.name;
+      }
+
+      it('returns "Platform Passkey" for transport ["internal"]', async () => {
+        expect(await getRegisteredPasskeyName(['internal'])).toBe(
+          'Platform Passkey'
+        );
+      });
+
+      it('returns "Security Key" for transport ["usb"]', async () => {
+        expect(await getRegisteredPasskeyName(['usb'])).toBe('Security Key');
+      });
+
+      it('returns "NFC Security Key" for transport ["nfc"]', async () => {
+        expect(await getRegisteredPasskeyName(['nfc'])).toBe(
+          'NFC Security Key'
+        );
+      });
+
+      it.each([
+        { transports: ['hybrid'], label: 'hybrid' },
+        { transports: ['usb', 'nfc'], label: 'mixed/multiple transports' },
+        { transports: [] as string[], label: 'empty transports array' },
+        { transports: ['ble'], label: 'unknown single transport' },
+      ])('returns "Passkey" for $label', async ({ transports }) => {
+        expect(await getRegisteredPasskeyName(transports)).toBe('Passkey');
+      });
+
+      it('appends " 2" when a passkey with the same base name already exists', async () => {
+        mockManager.listPasskeysForUser.mockResolvedValue([
+          { name: 'Platform Passkey' },
+        ]);
+        expect(await getRegisteredPasskeyName(['internal'])).toBe(
+          'Platform Passkey 2'
+        );
+      });
+
+      it('appends " 3" when base name and " 2" both exist', async () => {
+        mockManager.listPasskeysForUser.mockResolvedValue([
+          { name: 'Platform Passkey' },
+          { name: 'Platform Passkey 2' },
+        ]);
+        expect(await getRegisteredPasskeyName(['internal'])).toBe(
+          'Platform Passkey 3'
+        );
+      });
+
+      it('does not enumerate when existing passkeys have a different base name', async () => {
+        mockManager.listPasskeysForUser.mockResolvedValue([
+          { name: 'Security Key' },
+          { name: 'Security Key 2' },
+        ]);
+        expect(await getRegisteredPasskeyName(['internal'])).toBe(
+          'Platform Passkey'
+        );
+      });
+
+      it('increments past the highest suffix, never reuses a gap left by a rename', async () => {
+        mockManager.listPasskeysForUser.mockResolvedValue([
+          { name: 'Platform Passkey' },
+          { name: 'Platform Passkey 3' },
+        ]);
+        expect(await getRegisteredPasskeyName(['internal'])).toBe(
+          'Platform Passkey 4'
+        );
+      });
+
+      it('ignores user-renamed passkeys when computing the next suffix', async () => {
+        mockManager.listPasskeysForUser.mockResolvedValue([
+          { name: 'Platform Passkey' },
+          { name: 'My Yubikey' },
+        ]);
+        expect(await getRegisteredPasskeyName(['internal'])).toBe(
+          'Platform Passkey 2'
+        );
+      });
+    });
   });
 });

@@ -54,28 +54,26 @@ describe('PasskeyChallengeManager', () => {
   describe('generateRegistrationChallenge', () => {
     it('returns a base64url-encoded challenge string', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      const result = await manager.generateRegistrationChallenge({
-        uid: 'deadbeef',
-      });
+      const result = await manager.generateRegistrationChallenge('deadbeef');
 
       expect(result).toBe(MOCK_CHALLENGE);
     });
 
     it('calls redis.set with the correct key and TTL', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateRegistrationChallenge({ uid: 'deadbeef' });
+      await manager.generateRegistrationChallenge('deadbeef');
 
       expect(mockRedis.set).toHaveBeenCalledWith(
-        `passkey:challenge:registration:${MOCK_CHALLENGE}`,
+        `passkey:challenge:deadbeef:registration:${MOCK_CHALLENGE}`,
         expect.any(String),
         'EX',
         CHALLENGE_TIMEOUT_MS / 1000
       );
     });
 
-    it('incriments statsd counter for generated challenges', async () => {
+    it('increments statsd counter for generated challenges', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateRegistrationChallenge({ uid: 'deadbeef' });
+      await manager.generateRegistrationChallenge('deadbeef');
 
       expect(mockStatsd.increment).toHaveBeenCalledWith(
         'passkey.challenge.generated',
@@ -88,7 +86,7 @@ describe('PasskeyChallengeManager', () => {
       const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(fakeNow);
 
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateRegistrationChallenge({ uid: 'deadbeef' });
+      await manager.generateRegistrationChallenge('deadbeef');
 
       dateNowSpy.mockRestore();
 
@@ -105,175 +103,145 @@ describe('PasskeyChallengeManager', () => {
     it('throws if redis.set rejects', async () => {
       mockRedis.set.mockRejectedValue(new Error('Redis connection lost'));
       await expect(
-        manager.generateRegistrationChallenge({ uid: 'deadbeef' })
+        manager.generateRegistrationChallenge('deadbeef')
       ).rejects.toThrow('Redis connection lost');
     });
   });
 
   describe('generateAuthenticationChallenge', () => {
-    it('stores the challenge with type=authentication and no uid', async () => {
+    it('stores the challenge with type=authentication and uid', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateAuthenticationChallenge();
+      await manager.generateAuthenticationChallenge('deadbeef');
 
-      const [key, rawJson, , ttl] = mockRedis.set.mock.calls[0];
+      const [key, rawJson] = mockRedis.set.mock.calls[0];
       const stored: StoredChallenge = JSON.parse(rawJson);
 
-      expect(key).toBe(`passkey:challenge:authentication:${MOCK_CHALLENGE}`);
+      expect(key).toBe(
+        `passkey:challenge:deadbeef:authentication:${MOCK_CHALLENGE}`
+      );
       expect(stored.type).toBe('authentication');
-      expect(stored.uid).toBeUndefined();
-      expect(ttl).toBe(CHALLENGE_TIMEOUT_MS / 1000);
+      expect(stored.uid).toBe('deadbeef');
+    });
+  });
+
+  describe('generateUpgradeChallenge', () => {
+    it('stores the challenge with type=upgrade and uid', async () => {
+      mockRedis.set.mockResolvedValue('OK');
+      await manager.generateUpgradeChallenge('cafebabe');
+
+      const [key, rawJson] = mockRedis.set.mock.calls[0];
+      const stored: StoredChallenge = JSON.parse(rawJson);
+
+      expect(key).toBe(
+        `passkey:challenge:cafebabe:upgrade:${MOCK_CHALLENGE}`
+      );
+      expect(stored.type).toBe('upgrade');
+      expect(stored.uid).toBe('cafebabe');
+    });
+  });
+
+  describe('consumeChallenge', () => {
+    const FAKE_NOW = 1_700_000_000_000;
+    let dateNowSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(FAKE_NOW);
     });
 
-    it('incriments statsd counter for generated challenges', async () => {
-      mockRedis.set.mockResolvedValue('OK');
-      await manager.generateAuthenticationChallenge();
+    afterEach(() => {
+      dateNowSpy.mockRestore();
+    });
 
+    function makeStored(
+      overrides: Partial<StoredChallenge> = {}
+    ): StoredChallenge {
+      return {
+        challenge: MOCK_CHALLENGE,
+        type: 'registration',
+        uid: 'deadbeef',
+        createdAt: FAKE_NOW - 1000,
+        expiresAt: FAKE_NOW + 299_000,
+        ...overrides,
+      };
+    }
+
+    it('returns StoredChallenge and increments statsd for a valid challenge', async () => {
+      const stored = makeStored();
+      mockRedis.getdel.mockResolvedValue(JSON.stringify(stored));
+
+      const result = await manager.consumeRegistrationChallenge(
+        'deadbeef',
+        MOCK_CHALLENGE
+      );
+
+      expect(result).toEqual(stored);
       expect(mockStatsd.increment).toHaveBeenCalledWith(
-        'passkey.challenge.generated',
-        { type: 'authentication' }
+        'passkey.challenge.validated',
+        { type: 'registration' }
       );
     });
 
-    describe('generateUpgradeChallenge', () => {
-      it('stores the challenge with type=upgrade and uid', async () => {
-        mockRedis.set.mockResolvedValue('OK');
-        await manager.generateUpgradeChallenge({ uid: 'cafebabe' });
+    it('returns null and increments statsd if challenge not found', async () => {
+      mockRedis.getdel.mockResolvedValue(null);
 
-        const [key, rawJson] = mockRedis.set.mock.calls[0];
-        const stored: StoredChallenge = JSON.parse(rawJson);
+      const result = await manager.consumeRegistrationChallenge(
+        'deadbeef',
+        MOCK_CHALLENGE
+      );
 
-        expect(key).toBe(`passkey:challenge:upgrade:${MOCK_CHALLENGE}`);
-        expect(stored.type).toBe('upgrade');
-        expect(stored.uid).toBe('cafebabe');
-      });
-
-      it('incriments statsd counter for generated challenges', async () => {
-        mockRedis.set.mockResolvedValue('OK');
-        await manager.generateUpgradeChallenge({ uid: 'cafebabe' });
-
-        expect(mockStatsd.increment).toHaveBeenCalledWith(
-          'passkey.challenge.generated',
-          { type: 'upgrade' }
-        );
-      });
+      expect(result).toBeNull();
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'passkey.challenge.notFound',
+        { type: 'registration' }
+      );
     });
 
-    describe('validateChallenge', () => {
-      const FAKE_NOW = 1_700_000_000_000;
-      let dateNowSpy: jest.SpyInstance;
+    it('returns null and increments statsd if challenge is bad json', async () => {
+      mockRedis.getdel.mockResolvedValue('not a valid json string');
 
-      beforeEach(() => {
-        dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(FAKE_NOW);
-      });
+      const result = await manager.consumeRegistrationChallenge(
+        'deadbeef',
+        MOCK_CHALLENGE
+      );
 
-      afterEach(() => {
-        dateNowSpy.mockRestore();
-      });
-
-      function makeStored(
-        overrides: Partial<StoredChallenge> = {}
-      ): StoredChallenge {
-        return {
-          challenge: MOCK_CHALLENGE,
-          type: 'registration',
-          uid: 'deadbeef',
-          createdAt: FAKE_NOW - 1000,
-          expiresAt: FAKE_NOW + 299_000,
-          ...overrides,
-        };
-      }
-
-      it('returns StoredChallenge for a valid, non-expired challenge', async () => {
-        const stored = makeStored();
-        mockRedis.getdel.mockResolvedValue(JSON.stringify(stored));
-
-        const result = await manager.validateChallenge(
-          MOCK_CHALLENGE,
-          'registration'
-        );
-
-        expect(result).toEqual(stored);
-      });
-
-      it('returns null if challenge not found', async () => {
-        mockRedis.getdel.mockResolvedValue(null);
-
-        const result = await manager.validateChallenge(
-          MOCK_CHALLENGE,
-          'registration'
-        );
-        expect(result).toBeNull();
-      });
-
-      it('returns null if challenge is bad json', async () => {
-        mockRedis.getdel.mockResolvedValue('not a valid json string');
-
-        const result = await manager.validateChallenge(
-          MOCK_CHALLENGE,
-          'registration'
-        );
-        expect(result).toBeNull();
-      });
-
-      it('calls GETDEL with the correct Redis key', async () => {
-        const stored = makeStored({ type: 'authentication', uid: undefined });
-        mockRedis.getdel.mockResolvedValue(JSON.stringify(stored));
-
-        await manager.validateChallenge(MOCK_CHALLENGE, 'authentication');
-
-        expect(mockRedis.getdel).toHaveBeenCalledWith(
-          `passkey:challenge:authentication:${MOCK_CHALLENGE}`
-        );
-      });
-      it('incriments statsd for validated challenges', async () => {
-        const stored = makeStored();
-        mockRedis.getdel.mockResolvedValue(JSON.stringify(stored));
-
-        await manager.validateChallenge(MOCK_CHALLENGE, 'registration');
-
-        expect(mockStatsd.increment).toHaveBeenCalledWith(
-          'passkey.challenge.validated',
-          { type: 'registration' }
-        );
-      });
-      it('incriments statsd if challenge not found', async () => {
-        mockRedis.getdel.mockResolvedValue(null);
-
-        await manager.validateChallenge(MOCK_CHALLENGE, 'registration');
-
-        expect(mockStatsd.increment).toHaveBeenCalledWith(
-          'passkey.challenge.notFound',
-          { type: 'registration' }
-        );
-      });
-      it('incriemnts statsd if challenge is bad json', async () => {
-        mockRedis.getdel.mockResolvedValue('not a valid json string');
-
-        await manager.validateChallenge(MOCK_CHALLENGE, 'registration');
-
-        expect(mockStatsd.increment).toHaveBeenCalledWith(
-          'passkey.challenge.invalidJson',
-          { type: 'registration' }
-        );
-      });
+      expect(result).toBeNull();
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'passkey.challenge.invalidJson',
+        { type: 'registration' }
+      );
     });
 
-    describe('deleteChallenge', () => {
-      it('calls redis.del with the correct key', async () => {
-        mockRedis.del.mockResolvedValue(1);
-        await manager.deleteChallenge(MOCK_CHALLENGE, 'registration');
+    it('calls GETDEL with the correct Redis key', async () => {
+      const stored = makeStored({ type: 'authentication' });
+      mockRedis.getdel.mockResolvedValue(JSON.stringify(stored));
 
-        expect(mockRedis.del).toHaveBeenCalledWith(
-          `passkey:challenge:registration:${MOCK_CHALLENGE}`
-        );
-      });
+      await manager.consumeAuthenticationChallenge('deadbeef', MOCK_CHALLENGE);
 
-      it('does not throw when the key does not exist (del returns 0)', async () => {
-        mockRedis.del.mockResolvedValue(0);
-        await expect(
-          manager.deleteChallenge(MOCK_CHALLENGE, 'authentication')
-        ).resolves.toBeUndefined();
-      });
+      expect(mockRedis.getdel).toHaveBeenCalledWith(
+        `passkey:challenge:deadbeef:authentication:${MOCK_CHALLENGE}`
+      );
+    });
+  });
+
+  describe('deleteChallenge', () => {
+    it('calls redis.del with the correct key', async () => {
+      mockRedis.del.mockResolvedValue(1);
+      await manager.deleteChallenge(
+        MOCK_CHALLENGE,
+        'registration',
+        'deadbeef'
+      );
+
+      expect(mockRedis.del).toHaveBeenCalledWith(
+        `passkey:challenge:deadbeef:registration:${MOCK_CHALLENGE}`
+      );
+    });
+
+    it('does not throw when the key does not exist (del returns 0)', async () => {
+      mockRedis.del.mockResolvedValue(0);
+      await expect(
+        manager.deleteChallenge(MOCK_CHALLENGE, 'authentication', 'deadbeef')
+      ).resolves.toBeUndefined();
     });
   });
 });

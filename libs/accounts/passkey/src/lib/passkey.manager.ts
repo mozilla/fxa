@@ -22,8 +22,8 @@ import {
   updatePasskeyCounterAndLastUsed,
   updatePasskeyName,
 } from './passkey.repository';
-import { AppError } from '@fxa/accounts/errors';
 import { PasskeyConfig } from './passkey.config';
+import { AppError } from '@fxa/accounts/errors';
 
 /**
  * PasskeyManager - Application service for passkey operations.
@@ -60,17 +60,7 @@ export class PasskeyManager {
   async registerPasskey(passkey: NewPasskey): Promise<void> {
     const uidHex = passkey.uid.toString('hex');
 
-    const count = await countPasskeysByUid(this.db, passkey.uid);
-    if (count >= this.maxPasskeysPerUser) {
-      this.metrics.increment('registerPasskey.fail', {
-        reason: 'limit_reached',
-      });
-      this.log.error('PasskeyManager.passkeyLimitReached', {
-        uid: uidHex,
-        limit: this.maxPasskeysPerUser,
-      });
-      throw AppError.passkeyLimitReached(this.maxPasskeysPerUser);
-    }
+    await this.checkPasskeyCount(passkey.uid);
 
     try {
       await insertPasskey(this.db, passkey);
@@ -208,5 +198,25 @@ export class PasskeyManager {
    */
   async countPasskeys(uid: Buffer): Promise<number> {
     return countPasskeysByUid(this.db, uid);
+  }
+
+  /**
+   * Checks if the user has exceeded the passkey limit and throws if so.
+   * @param uid - User ID (16-byte Buffer)
+   */
+  async checkPasskeyCount(uid: Buffer): Promise<void> {
+    const uidHex = uid.toString('hex');
+    const count = await this.countPasskeys(uid);
+
+    if (count >= this.maxPasskeysPerUser) {
+      this.metrics.increment('registerPasskey.fail', {
+        reason: 'limit_reached',
+      });
+      this.log.error('PasskeyManager.passkeyLimitReached', {
+        uid: uidHex,
+        limit: this.maxPasskeysPerUser,
+      });
+      throw AppError.passkeyLimitReached(this.maxPasskeysPerUser);
+    }
   }
 }

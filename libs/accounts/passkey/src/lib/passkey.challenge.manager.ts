@@ -117,10 +117,8 @@ export class PasskeyChallengeManager {
    * @param input - Must include the hex-encoded uid of the user.
    * @returns Base64url-encoded 32-byte challenge string.
    */
-  async generateRegistrationChallenge(
-    input: CreateRegistrationChallengeInput
-  ): Promise<string> {
-    return this.generateChallenge('registration', input.uid);
+  async generateRegistrationChallenge(uid: string): Promise<string> {
+    return this.generateChallenge('registration', uid);
   }
 
   /**
@@ -128,8 +126,8 @@ export class PasskeyChallengeManager {
    *
    * @returns Base64url-encoded 32-byte challenge string.
    */
-  async generateAuthenticationChallenge(): Promise<string> {
-    return this.generateChallenge('authentication');
+  async generateAuthenticationChallenge(uid: string): Promise<string> {
+    return this.generateChallenge('authentication', uid);
   }
 
   /**
@@ -138,14 +136,74 @@ export class PasskeyChallengeManager {
    * @param input - Must include the hex-encoded uid of the user.
    * @returns Base64url-encoded 32-byte challenge string.
    */
-  async generateUpgradeChallenge(
-    input: CreateUpgradeChallengeInput
-  ): Promise<string> {
-    return this.generateChallenge('upgrade', input.uid);
+  async generateUpgradeChallenge(uid: string): Promise<string> {
+    return this.generateChallenge('upgrade', uid);
   }
 
   /**
-   * Validates and atomically consumes a challenge from Redis.
+   * Fetches and deletes a registration challenge from Redis.
+   * @param uid The hex-encoded uid of the user.
+   * @param challenge The base64url-encoded challenge string.
+   * @returns The stored challenge metadata or null if not found or expired.
+   */
+  async consumeRegistrationChallenge(
+    uid: string,
+    challenge: string
+  ): Promise<StoredChallenge | null> {
+    return this.consumeChallenge(uid, 'registration', challenge);
+  }
+
+  /**
+   * Fetches and deletes an authentication challenge from Redis.
+   *
+   * @param uid The hex-encoded uid of the user.
+   * @param challenge The base64url-encoded challenge string.
+   * @returns The stored challenge metadata or null if not found or expired.
+   */
+  async consumeAuthenticationChallenge(
+    uid: string,
+    challenge: string
+  ): Promise<StoredChallenge | null> {
+    return this.consumeChallenge(uid, 'authentication', challenge);
+  }
+
+  /**
+   * Fetches and deletes an upgrade challenge from Redis.
+   * @param uid The hex-encoded uid of the user.
+   * @param challenge The base64url-encoded challenge string.
+   * @returns The stored challenge metadata or null if not found or expired.
+   */
+  async consumeUpgradeChallenge(
+    uid: string,
+    challenge: string
+  ): Promise<StoredChallenge | null> {
+    return this.consumeChallenge(uid, 'upgrade', challenge);
+  }
+
+  /**
+   * Explicitly deletes a challenge from Redis.
+   *
+   * Intended for error-path cleanup (e.g., when a ceremony fails after the challenge
+   * has already been consumed). GETDEL in validateChallenge handles the normal case.
+   * This method succeeds silently even if the key does not exist.
+   *
+   * @param challenge - The base64url-encoded challenge to delete.
+   * @param type - The challenge type (used to reconstruct the Redis key).
+   * @param uid - The hex-encoded uid of the user.
+   */
+  async deleteChallenge(
+    challenge: string,
+    type: ChallengeType,
+    uid: string
+  ): Promise<void> {
+    const key = this.buildKey(type, challenge, uid);
+    await this.redis.del(key);
+    this.log?.debug?.('passkey.challenge.deleted', { type });
+    this.statsd?.increment('passkey.challenge.deleted', { type });
+  }
+
+  /**
+   * Atomically consumes a challenge from Redis.
    *
    * Uses GETDEL to read and delete the challenge in a single atomic
    * operation, enforcing single-use semantics. Returns null if not found, expired,
@@ -155,11 +213,12 @@ export class PasskeyChallengeManager {
    * @param type - The expected challenge type (prevents cross-ceremony attacks).
    * @returns The stored challenge metadata (uid, type, timestamps) or null if not found expired.
    */
-  async validateChallenge(
-    challenge: string,
-    type: ChallengeType
+  private async consumeChallenge(
+    uid: string,
+    type: ChallengeType,
+    challenge: string
   ): Promise<StoredChallenge | null> {
-    const key = this.buildKey(type, challenge);
+    const key = this.buildKey(type, challenge, uid);
     const raw = await this.redis.getdel(key);
 
     if (raw === null) {
@@ -181,26 +240,9 @@ export class PasskeyChallengeManager {
     }
   }
 
-  /**
-   * Explicitly deletes a challenge from Redis.
-   *
-   * Intended for error-path cleanup (e.g., when a ceremony fails after the challenge
-   * has already been consumed). GETDEL in validateChallenge handles the normal case.
-   * This method succeeds silently even if the key does not exist.
-   *
-   * @param challenge - The base64url-encoded challenge to delete.
-   * @param type - The challenge type (used to reconstruct the Redis key).
-   */
-  async deleteChallenge(challenge: string, type: ChallengeType): Promise<void> {
-    const key = this.buildKey(type, challenge);
-    await this.redis.del(key);
-    this.log?.debug?.('passkey.challenge.deleted', { type });
-    this.statsd?.increment('passkey.challenge.deleted', { type });
-  }
-
   private async generateChallenge(
     type: ChallengeType,
-    uid?: string
+    uid: string
   ): Promise<string> {
     const challenge = randomBytes(32).toString('base64url');
     const now = Date.now();
@@ -210,12 +252,12 @@ export class PasskeyChallengeManager {
     const stored: StoredChallenge = {
       challenge,
       type,
-      ...(uid !== undefined ? { uid } : {}),
+      uid,
       createdAt: now,
       expiresAt: now + timeout,
     };
 
-    const key = this.buildKey(type, challenge);
+    const key = this.buildKey(type, challenge, uid);
     await this.redis.set(key, JSON.stringify(stored), 'EX', ttlSeconds);
 
     this.log?.debug?.('passkey.challenge.generated', { type, uid });
@@ -224,7 +266,11 @@ export class PasskeyChallengeManager {
     return challenge;
   }
 
-  private buildKey(type: ChallengeType, challenge: string): string {
-    return `passkey:challenge:${type}:${challenge}`;
+  private buildKey(
+    type: ChallengeType,
+    challenge: string,
+    uid: string
+  ): string {
+    return `passkey:challenge:${uid}:${type}:${challenge}`;
   }
 }
