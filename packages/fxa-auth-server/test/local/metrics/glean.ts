@@ -622,12 +622,13 @@ describe('Glean server side events', () => {
     });
 
     describe('reg_complete', () => {
-      it('logs a "reg_complete" event', async () => {
+      it('logs a "reg_complete" event with reason', async () => {
         const glean = gleanMetrics(config);
-        await glean.registration.complete(request);
+        await glean.registration.complete(request, { reason: 'otp' });
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'reg_complete');
+        assert.equal(metrics['event_reason'], 'otp');
         sinon.assert.calledOnce(recordRegCompleteStub);
       });
     });

@@ -27,12 +27,39 @@ import {
 } from '../mocks';
 import { SigninOAuthIntegration } from '../interfaces';
 import { MozServices } from '../../../lib/types';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
   queryParamsToMetricsContext: jest.fn((params) => params || {}),
 }));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    passwordlessLogin: {
+      view: jest.fn(),
+      engage: jest.fn(),
+      submit: jest.fn(),
+      submitSuccess: jest.fn(),
+      error: jest.fn(),
+      resendCode: jest.fn(),
+    },
+    passwordlessReg: {
+      view: jest.fn(),
+      engage: jest.fn(),
+      submit: jest.fn(),
+      submitSuccess: jest.fn(),
+      error: jest.fn(),
+      resendCode: jest.fn(),
+    },
+    isDone: jest.fn().mockResolvedValue(undefined),
+  },
+}));
+
+const mockGleanPasswordlessLogin = GleanMetrics.passwordlessLogin;
+const mockGleanPasswordlessReg = GleanMetrics.passwordlessReg;
 
 function applyDefaultMocks() {
   jest.resetAllMocks();
@@ -566,6 +593,119 @@ describe('SigninPasswordlessCode page', () => {
             { replace: true }
           );
         });
+      });
+    });
+  });
+
+  describe('Glean metrics', () => {
+    async function submitCode(code = MOCK_PASSWORDLESS_CODE) {
+      const user = userEvent.setup();
+      const input = screen.getByLabelText('Enter 8-digit code');
+      await user.type(input, code);
+      const button = screen.getByRole('button', { name: 'Confirm' });
+      await user.click(button);
+    }
+
+    it('emits login view event on mount for signin flow', () => {
+      render({ isSignup: false });
+      expect(mockGleanPasswordlessLogin.view).toHaveBeenCalledTimes(1);
+      expect(mockGleanPasswordlessReg.view).not.toHaveBeenCalled();
+    });
+
+    it('emits reg view event on mount for signup flow', () => {
+      render({ isSignup: true });
+      expect(mockGleanPasswordlessReg.view).toHaveBeenCalledTimes(1);
+      expect(mockGleanPasswordlessLogin.view).not.toHaveBeenCalled();
+    });
+
+    it('emits engage event on first focus of code input', async () => {
+      render({ isSignup: false });
+      const input = screen.getByLabelText('Enter 8-digit code');
+      fireEvent.focus(input);
+      expect(mockGleanPasswordlessLogin.engage).toHaveBeenCalledTimes(1);
+
+      // Subsequent focuses should not re-emit
+      fireEvent.focus(input);
+      expect(mockGleanPasswordlessLogin.engage).toHaveBeenCalledTimes(1);
+    });
+
+    it('emits submit and submitSuccess on successful code submission', async () => {
+      render({ isSignup: false });
+      await submitCode();
+
+      await waitFor(() => {
+        expect(mockGleanPasswordlessLogin.submit).toHaveBeenCalledTimes(1);
+        expect(mockGleanPasswordlessLogin.submitSuccess).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('emits submit and error on throttled code submission', async () => {
+      mockAuthClient.passwordlessConfirmCode = jest
+        .fn()
+        .mockRejectedValue(AuthUiErrors.THROTTLED);
+
+      render({ isSignup: false });
+      await submitCode();
+
+      await waitFor(() => {
+        expect(mockGleanPasswordlessLogin.submit).toHaveBeenCalledTimes(1);
+        expect(mockGleanPasswordlessLogin.error).toHaveBeenCalledWith({
+          event: { reason: 'too many times' },
+        });
+      });
+    });
+
+    it('emits submit and error on invalid code submission', async () => {
+      mockAuthClient.passwordlessConfirmCode = jest
+        .fn()
+        .mockRejectedValue(AuthUiErrors.INVALID_VERIFICATION_CODE);
+
+      render({ isSignup: false });
+      await submitCode();
+
+      await waitFor(() => {
+        expect(mockGleanPasswordlessLogin.submit).toHaveBeenCalledTimes(1);
+        expect(mockGleanPasswordlessLogin.error).toHaveBeenCalledWith({
+          event: { reason: 'invalid' },
+        });
+      });
+    });
+
+    it('emits resendCode event on resend click', async () => {
+      render({ isSignup: false });
+      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      fireEvent.click(resendButton);
+
+      await waitFor(() => {
+        expect(mockGleanPasswordlessLogin.resendCode).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('emits error event on throttled resend', async () => {
+      mockAuthClient.passwordlessResendCode = jest
+        .fn()
+        .mockRejectedValue(AuthUiErrors.THROTTLED);
+
+      render({ isSignup: false });
+      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      fireEvent.click(resendButton);
+
+      await waitFor(() => {
+        expect(mockGleanPasswordlessLogin.resendCode).toHaveBeenCalledTimes(1);
+        expect(mockGleanPasswordlessLogin.error).toHaveBeenCalledWith({
+          event: { reason: 'too many times' },
+        });
+      });
+    });
+
+    it('uses reg metrics for signup flow on submit', async () => {
+      render({ isSignup: true });
+      await submitCode();
+
+      await waitFor(() => {
+        expect(mockGleanPasswordlessReg.submit).toHaveBeenCalledTimes(1);
+        expect(mockGleanPasswordlessReg.submitSuccess).toHaveBeenCalledTimes(1);
+        expect(mockGleanPasswordlessLogin.submit).not.toHaveBeenCalled();
       });
     });
   });

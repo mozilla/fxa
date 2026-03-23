@@ -16,6 +16,7 @@ test.describe('severity-1 #smoke', () => {
         target,
         pages: { page, signin, relier, signinPasswordlessCode },
         testAccountTracker,
+        gleanEventsHelper,
       }) => {
         // Generate email with 'passwordless' prefix for readability
         const { email } =
@@ -35,12 +36,21 @@ test.describe('severity-1 #smoke', () => {
 
         // Should complete OAuth and redirect to RP
         expect(await relier.isLoggedIn()).toBe(true);
+
+        await gleanEventsHelper.waitForEvent('reg_otp_submit_success');
+        gleanEventsHelper.assertEventOrder([
+          'email_first_view',
+          'reg_otp_view',
+          'reg_otp_submit',
+          'reg_otp_submit_success',
+        ]);
       });
 
       test('passwordless signin - existing passwordless account', async ({
         target,
         pages: { page, signin, relier, signinPasswordlessCode },
         testAccountTracker,
+        gleanEventsHelper,
       }) => {
         // Create passwordless account via API first
         const { email } = await testAccountTracker.signUpPasswordless();
@@ -62,12 +72,21 @@ test.describe('severity-1 #smoke', () => {
         await signinPasswordlessCode.fillOutCodeForm(code);
 
         expect(await relier.isLoggedIn()).toBe(true);
+
+        await gleanEventsHelper.waitForEvent('login_otp_submit_success');
+        gleanEventsHelper.assertEventOrder([
+          'email_first_view',
+          'login_otp_view',
+          'login_otp_submit',
+          'login_otp_submit_success',
+        ]);
       });
 
       test('passwordless code resend', async ({
         target,
         pages: { page, signin, relier, signinPasswordlessCode },
         testAccountTracker,
+        gleanEventsHelper,
       }) => {
         const { email } =
           testAccountTracker.generatePasswordlessAccountDetails();
@@ -92,6 +111,14 @@ test.describe('severity-1 #smoke', () => {
         await signinPasswordlessCode.fillOutCodeForm(code);
 
         expect(await relier.isLoggedIn()).toBe(true);
+
+        await gleanEventsHelper.waitForEvent('reg_otp_submit_success');
+        gleanEventsHelper.assertEventOrder([
+          'reg_otp_view',
+          'reg_otp_email_confirmation_resend_code',
+          'reg_otp_submit',
+          'reg_otp_submit_success',
+        ]);
       });
     });
 
@@ -593,6 +620,7 @@ test.describe('severity-1 #smoke', () => {
         target,
         pages: { page, signin, relier, signinPasswordlessCode },
         testAccountTracker,
+        gleanEventsHelper,
       }) => {
         const { email } =
           testAccountTracker.generatePasswordlessAccountDetails();
@@ -610,6 +638,19 @@ test.describe('severity-1 #smoke', () => {
         await expect(
           page.getByTestId('tooltip').or(page.getByText(/invalid|incorrect/i))
         ).toBeVisible();
+
+        await gleanEventsHelper.waitForEvent('reg_otp_submit_frontend_error');
+        gleanEventsHelper.assertEventOrder([
+          'reg_otp_view',
+          'reg_otp_submit',
+          'reg_otp_submit_frontend_error',
+        ]);
+
+        const errorPings = gleanEventsHelper.getEventsByName(
+          'reg_otp_submit_frontend_error'
+        );
+        expect(errorPings.length).toBeGreaterThan(0);
+        expect(errorPings[0].extras.reason).toBe('invalid');
       });
 
       test('passwordless - account with password redirects to password flow', async ({
@@ -632,6 +673,7 @@ test.describe('severity-1 #smoke', () => {
         target,
         pages: { page, signin, relier, signinPasswordlessCode, signinTotpCode },
         testAccountTracker,
+        gleanEventsHelper,
       }) => {
         // Passwordless users with 2FA should be able to sign in via OTP,
         // then be prompted for their TOTP code (not told to use a password).
@@ -689,6 +731,17 @@ test.describe('severity-1 #smoke', () => {
 
         // Should complete OAuth and redirect to RP
         expect(await relier.isLoggedIn()).toBe(true);
+
+        await gleanEventsHelper.waitForEvent('login_totp_code_success_view');
+        gleanEventsHelper.assertEventOrder([
+          'email_first_view',
+          'login_otp_view',
+          'login_otp_submit',
+          'login_otp_submit_success',
+          'login_totp_form_view',
+          'login_totp_code_submit',
+          'login_totp_code_success_view',
+        ]);
 
         // Cleanup: Set password so testAccountTracker can sign in and destroy
         // Re-authenticate to get a fresh session since the old one may be stale

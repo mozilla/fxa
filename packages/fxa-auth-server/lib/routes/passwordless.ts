@@ -240,6 +240,11 @@ class PasswordlessHandler {
         getClientServiceTags(request)
       );
 
+      this.glean.registration.complete(request, {
+        uid: account.uid,
+        reason: 'otp',
+      });
+
       await recordSecurityEvent('account.passwordless_registration_complete', {
         db: this.db,
         request,
@@ -266,6 +271,13 @@ class PasswordlessHandler {
       'passwordless.confirmCode.success',
       getClientServiceTags(request)
     );
+
+    if (!isNewAccount) {
+      this.glean.login.complete(request, {
+        uid: account.uid,
+        reason: 'otp',
+      });
+    }
 
     await recordSecurityEvent('account.passwordless_login_otp_verified', {
       db: this.db,

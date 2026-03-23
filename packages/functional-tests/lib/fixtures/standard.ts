@@ -16,6 +16,7 @@ import { ServerTarget, TargetName, create } from '../targets';
 import { BaseTarget } from '../targets/base';
 import { TestAccountTracker } from '../testAccountTracker';
 import { PasskeyPage } from '../../pages/passkey';
+import { GleanEventsHelper } from '../glean';
 import { existsSync, readFileSync } from 'fs';
 import { join, dirname, basename } from 'path';
 
@@ -30,6 +31,7 @@ export type TestOptions = {
   syncBrowserPages: POMS;
   syncOAuthBrowserPages: POMS;
   testAccountTracker: TestAccountTracker;
+  gleanEventsHelper: GleanEventsHelper;
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
 
@@ -86,6 +88,13 @@ export const test = base.extend<TestOptions, WorkerOptions>({
 
     await target.clearRateLimits();
     await testAccountTracker.destroyAllAccounts();
+  },
+
+  gleanEventsHelper: async ({ page }, use) => {
+    const helper = new GleanEventsHelper(page);
+    await helper.start();
+    await use(helper);
+    await helper.stop();
   },
 
   storageState: async ({ target }, use, testInfo) => {

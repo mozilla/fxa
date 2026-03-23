@@ -61,6 +61,115 @@ export const engage = new EventMetricType<{
 );
 
 /**
+ * Passwordless OTP Email Confirmation Resend Code (Registration)
+ * Event that indicates the user requested a new OTP code during registration.
+ *
+ * Generated from `reg.otp_email_confirmation_resend_code`.
+ */
+export const otpEmailConfirmationResendCode = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'otp_email_confirmation_resend_code',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Passwordless OTP Code Page Engagement (Registration)
+ * Event that indicates user engagement with the OTP code input field during
+ * registration.
+ *
+ * Generated from `reg.otp_engage`.
+ */
+export const otpEngage = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'otp_engage',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Passwordless OTP Code Submit Attempt (Registration)
+ * Event that indicates a user attempted to submit the OTP code during
+ * registration.
+ *
+ * Generated from `reg.otp_submit`.
+ */
+export const otpSubmit = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'otp_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Passwordless OTP Code Submit Frontend Error (Registration)
+ * Emit any frontend errors that occur when a user attempts to submit the OTP code
+ * during registration.
+ *
+ * Generated from `reg.otp_submit_frontend_error`.
+ */
+export const otpSubmitFrontendError = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'reg',
+    name: 'otp_submit_frontend_error',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * Passwordless OTP Code Submit Success (Registration)
+ * Event that indicates the OTP code submission was successful during
+ * registration.
+ *
+ * Generated from `reg.otp_submit_success`.
+ */
+export const otpSubmitSuccess = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'otp_submit_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Passwordless OTP Code Page View (Registration)
+ * A successful view/load of the passwordless OTP code entry page during
+ * registration.
+ *
+ * Generated from `reg.otp_view`.
+ */
+export const otpView = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'otp_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Registration Email Confirm Attempt
  * Event that indicates a user attempted to confirm their email through clicking
  * "Confirm". See Registration Visuals/Steps in this document for more visual

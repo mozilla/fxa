@@ -2190,6 +2190,7 @@ class EventsServerEventLogger {
    * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
    * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
    * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} reason - Indicates how the user completed login. Values include "email" (traditional email/password), "otp" (passwordless OTP code), "google" (third-party login via Google), "apple" (third-party login via Apple)..
    */
   recordLoginComplete({
     user_agent,
@@ -2208,6 +2209,7 @@ class EventsServerEventLogger {
     utm_medium,
     utm_source,
     utm_term,
+    reason,
   }: {
     user_agent: string;
     ip_address: string;
@@ -2225,10 +2227,14 @@ class EventsServerEventLogger {
     utm_medium: string;
     utm_source: string;
     utm_term: string;
+    reason: string;
   }) {
     const event = {
       category: 'login',
       name: 'complete',
+      extra: {
+        reason: String(reason),
+      },
     };
     this.#record({
       user_agent,
@@ -4164,6 +4170,7 @@ class EventsServerEventLogger {
    * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
    * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
    * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} reason - Indicates how the user completed registration. Values include "email" (traditional email verification), "otp" (passwordless OTP code), "google" (Google third-party auth), "apple" (Apple third-party auth)..
    */
   recordRegComplete({
     user_agent,
@@ -4182,6 +4189,7 @@ class EventsServerEventLogger {
     utm_medium,
     utm_source,
     utm_term,
+    reason,
   }: {
     user_agent: string;
     ip_address: string;
@@ -4199,10 +4207,14 @@ class EventsServerEventLogger {
     utm_medium: string;
     utm_source: string;
     utm_term: string;
+    reason: string;
   }) {
     const event = {
       category: 'reg',
       name: 'complete',
+      extra: {
+        reason: String(reason),
+      },
     };
     this.#record({
       user_agent,

@@ -1278,6 +1278,7 @@ describe('metrics/events', () => {
       .then(() => {
         sinon.assert.calledOnceWithExactly(glean.login.complete, request, {
           uid: 'quux',
+          reason: 'email',
         });
       })
       .finally(() => {
