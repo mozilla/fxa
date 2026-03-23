@@ -11,6 +11,8 @@ RUN sudo apt-get update && sudo apt-get install -y \
 WORKDIR /home/circleci
 COPY --chown=circleci:circleci project project
 WORKDIR /home/circleci/project
+RUN python3 -m venv .venv \
+    && .venv/bin/pip install 'glean_parser~=14.5'
 RUN git rev-parse HEAD > base_ref;
 RUN cp yarn.lock yarn.lock.base;
 
@@ -25,10 +27,7 @@ WORKDIR /home/circleci/project
 ENV YARN_CHECKSUM_BEHAVIOR=throw
 ENV FXA_AUTO_INSTALL=0
 RUN _scripts/l10n/clone.sh
-RUN yarn install --immutable \
-    && rm -rf .venv \
-    && python3 -m venv .venv \
-    && .venv/bin/pip install 'glean_parser~=14.5'
+RUN yarn install --immutable
 
 # Acts as an intermediate stage for adding the firefox install. Note,
 # that a yarn install must happen first to ensure the correct version
@@ -49,4 +48,6 @@ WORKDIR /home/circleci
 COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/ms-playwright .cache/ms-playwright/
 COPY --chown=circleci:circleci project project
 WORKDIR /home/circleci/project
+RUN python3 -m venv .venv \
+    && .venv/bin/pip install 'glean_parser~=14.5'
 COPY --chown=circleci:circleci install /usr/local/bin/
