@@ -36978,7 +36978,7 @@ __metadata:
     json: "npm:^11.0.0"
     jsonc-eslint-parser: "npm:^2.1.0"
     knex: "npm:^3.1.0"
-    kysely: "npm:^0.28.11"
+    kysely: "npm:^0.28.14"
     lint-staged: "npm:^15.2.0"
     maxmind: "npm:^4.3.22"
     mjml-browser: "npm:^4.16.1"
@@ -43488,10 +43488,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kysely@npm:^0.28.11":
-  version: 0.28.12
-  resolution: "kysely@npm:0.28.12"
-  checksum: 10c0/93fa290209f80f7324581a66476bb951e35a9226eaceb64069fddaa31ef6f4712ae307448d32734b985c4d7d6e79e3ff92b985c1d8efae0159d06964bea3bb62
+"kysely@npm:^0.28.14":
+  version: 0.28.14
+  resolution: "kysely@npm:0.28.14"
+  checksum: 10c0/0d6aad119660ddf7dc12ecbfc0a33ab0333af53aea350aabf55a0b7978e6b69aba246727738f5462f4633aedbed2106f13e58acc2bdb490845f7b7c869871e97
   languageName: node
   linkType: hard
 
