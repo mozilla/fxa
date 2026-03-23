@@ -97,6 +97,7 @@ async function create(
   oauthDb
 ) {
   const getGeoData = require('./geodb')(log);
+  const { getRegisteredClientIds } = require('./registeredClients');
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config, glean);
   const { sharedSecret: SUBSCRIPTIONS_SECRET } = config.subscriptions;
@@ -327,19 +328,10 @@ async function create(
       await customs.checkIpOnly(request, action);
     }
 
-    // Validate clientId/service against registered OAuth clients to prevent
-    // unbounded cardinality and normalize onto request.app for StatsD/Sentry tags.
-    // Client IDs are loaded from the fxa_oauth.clients table on each request;
-    // the table is small and MySQL serves it from cache.
-    let registeredClientIds;
-    try {
-      const clients = await oauthDb.mysql.getAllClientIds();
-      registeredClientIds = new Set(clients.map((c) => c.id.toString('hex')));
-    } catch (err) {
-      Sentry.captureException(err);
-      registeredClientIds = new Set();
-    }
-    const tags = await resolveClientTags(request, registeredClientIds);
+    const tags = await resolveClientTags(
+      request,
+      await getRegisteredClientIds(oauthDb)
+    );
     if (tags.clientId) {
       request.app.clientIdTag = tags.clientId;
       Sentry.setTag('clientId', tags.clientId);
