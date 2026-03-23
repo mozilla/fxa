@@ -14,8 +14,10 @@
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "test": "scripts/test-local.sh",
-    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-unit-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' --invert",
+    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-unit-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' --invert && NODE_ENV=test npx jest --no-coverage --forceExit --testPathPattern='spec\\.ts$' --testPathIgnorePatterns='in\\.spec\\.ts$'",
     "test-integration": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-integration-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration'",
+    "test-jest-unit": "NODE_ENV=test npx jest --no-coverage --forceExit --testPathPattern='spec\\.ts$' --testPathIgnorePatterns='in\\.spec\\.ts$'",
+    "test-integration-jest": "NODE_ENV=test npx jest --no-coverage --forceExit --testPathPattern='in\\.spec\\.ts$'",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
@@ -42,6 +44,7 @@
   },
   "devDependencies": {
     "@types/sharp": "^0",
+    "@types/sinon": "^17.0.0",
     "audit-filter": "^0.5.0",
     "commander": "9.3.0",
     "eslint": "^8.18.0",
@@ -55,7 +58,8 @@
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
     "sinon": "^14.0.0",
-    "through": "2.3.8"
+    "through": "2.3.8",
+    "ts-jest": "^29.1.1"
   },
   "repository": {
     "type": "git",
