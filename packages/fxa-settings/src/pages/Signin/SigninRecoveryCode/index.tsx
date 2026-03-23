@@ -245,7 +245,9 @@ const SigninRecoveryCode = ({
           className="mx-auto my-4"
         />
       ) : (
-        <BackupCodesImage />
+        <BackupCodesImage
+          illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+        />
       )}
 
       {cmsPage?.headline ? (

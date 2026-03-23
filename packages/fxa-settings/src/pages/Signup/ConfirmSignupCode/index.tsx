@@ -388,7 +388,9 @@ const ConfirmSignupCode = ({
 
       {resendStatus === ResendStatus.sent && <ResendCodeSuccessBanner />}
 
-      <EmailCodeImage />
+      <EmailCodeImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
 
       <FtlMsg
         id="confirm-signup-code-instruction-v2"

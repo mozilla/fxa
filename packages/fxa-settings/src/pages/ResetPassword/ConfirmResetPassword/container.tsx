@@ -5,6 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { ResetPasswordIntegration } from '../interfaces';
 import ConfirmResetPassword from '.';
 import {
   ConfirmResetPasswordLocationState,
@@ -15,7 +16,9 @@ import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 
-const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
+const ConfirmResetPasswordContainer = ({
+  integration,
+}: { integration: ResetPasswordIntegration } & RouteComponentProps) => {
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus.none
   );
@@ -179,6 +182,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         setErrorMessage,
         setResendStatus,
         verifyCode,
+        integration,
       }}
     />
   );

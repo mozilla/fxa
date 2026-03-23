@@ -8,6 +8,7 @@ import { act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MOCK_EMAIL, MOCK_PASSWORD_CHANGE_TOKEN, MOCK_UID } from '../../mocks';
 import ConfirmBackupCodeResetPasswordContainer from './container';
+import { ResetPasswordIntegration } from '../interfaces';
 
 const mockConsume = jest.fn();
 jest.mock('../../../models', () => ({
@@ -53,10 +54,14 @@ jest.mock('.', () => (props: any) => {
   return null;
 });
 
+const mockIntegration: ResetPasswordIntegration = {
+  getCmsInfo: () => undefined,
+};
+
 async function render() {
   renderWithLocalizationProvider(
     <LocationProvider>
-      <ConfirmBackupCodeResetPasswordContainer />
+      <ConfirmBackupCodeResetPasswordContainer integration={mockIntegration} />
     </LocationProvider>
   );
 }

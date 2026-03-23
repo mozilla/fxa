@@ -237,7 +237,9 @@ export const SigninUnblock = ({
         />
       )}
       {resendStatus === ResendStatus.sent && <ResendCodeSuccessBanner />}
-      <EmailCodeImage />
+      <EmailCodeImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
       <FtlMsg id="signin-unblock-body" vars={{ email }}>
         <p className="text-sm">
           Check your email for the authorization code sent to {email}.

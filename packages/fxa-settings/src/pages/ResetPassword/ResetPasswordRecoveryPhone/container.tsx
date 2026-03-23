@@ -8,9 +8,12 @@ import ResetPasswordRecoveryPhone from '.';
 import { getHandledError } from '../../../lib/error-utils';
 import { ResetPasswordRecoveryPhoneLocationState } from './interfaces';
 import { useAuthClient } from '../../../models';
+import { ResetPasswordIntegration } from '../interfaces';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
-const ResetPasswordRecoveryPhoneContainer = (_: RouteComponentProps) => {
+const ResetPasswordRecoveryPhoneContainer = ({
+  integration,
+}: { integration: ResetPasswordIntegration } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const navigateWithQuery = useNavigateWithQuery();
 
@@ -71,6 +74,7 @@ const ResetPasswordRecoveryPhoneContainer = (_: RouteComponentProps) => {
         sendError,
         numBackupCodes,
         location: locationState,
+        integration,
       }}
     />
   );

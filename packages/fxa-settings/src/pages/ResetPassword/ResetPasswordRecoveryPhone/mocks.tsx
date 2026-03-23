@@ -6,9 +6,14 @@ import React from 'react';
 import { LocationProvider } from '@reach/router';
 import ResetPasswordRecoveryPhone from '.';
 import { ResetPasswordRecoveryPhoneProps } from './interfaces';
+import { ResetPasswordIntegration } from '../interfaces';
 
 const mockVerifyCodeSuccess = (code: string) => Promise.resolve();
 const mockResendCodeSuccess = () => Promise.resolve();
+
+const mockIntegration: ResetPasswordIntegration = {
+  getCmsInfo: () => undefined,
+};
 
 export const Subject = ({
   verifyCode = mockVerifyCodeSuccess,
@@ -28,6 +33,7 @@ export const Subject = ({
           sendError,
           numBackupCodes,
           locationState: {} as any,
+          integration: mockIntegration,
         }}
       />
     </LocationProvider>

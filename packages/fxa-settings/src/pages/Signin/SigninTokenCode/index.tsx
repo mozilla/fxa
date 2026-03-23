@@ -259,7 +259,9 @@ const SigninTokenCode = ({
         />
       )}
 
-      <EmailCodeImage />
+      <EmailCodeImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
 
       <FtlMsg
         id="signin-token-code-instruction-v2"

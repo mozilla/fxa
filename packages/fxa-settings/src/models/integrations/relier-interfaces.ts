@@ -63,8 +63,20 @@ export interface SharedBackgroundsRelierCmsInfo {
   splitLayoutAltText?: string | undefined;
 }
 
+export interface IllustrationsThemeRelierCmsInfo {
+  primary?: string | undefined;
+  primaryAlt?: string | undefined;
+  secondary?: string | undefined;
+  accentBg?: string | undefined;
+  accentFg?: string | undefined;
+  cloudPrimary?: string | undefined;
+  cloudShadow?: string | undefined;
+  hideClouds?: boolean | undefined;
+}
+
 export interface SharedRelierCmsInfo {
   buttonColor: string | undefined;
+  illustrationsTheme?: IllustrationsThemeRelierCmsInfo | undefined;
   logoUrl: string | undefined;
   logoAltText: string | undefined;
   backgrounds?: SharedBackgroundsRelierCmsInfo;

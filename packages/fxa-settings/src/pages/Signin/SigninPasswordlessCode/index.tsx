@@ -6,7 +6,10 @@ import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useAlertBar, useAuthClient, useFtlMsgResolver } from '../../../models';
-import { queryParamsToMetricsContext, usePageViewEvent } from '../../../lib/metrics';
+import {
+  queryParamsToMetricsContext,
+  usePageViewEvent,
+} from '../../../lib/metrics';
 import { EmailCodeImage } from '../../../components/images';
 import FormVerifyCode, {
   FormAttributes,
@@ -19,7 +22,10 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import { currentAccount } from '../../../lib/cache';
-import { setCurrentAccount, storeAccountData } from '../../../lib/storage-utils';
+import {
+  setCurrentAccount,
+  storeAccountData,
+} from '../../../lib/storage-utils';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import {
   isOAuthIntegration,
@@ -45,7 +51,7 @@ const SigninPasswordlessCode = ({
   flowQueryParams,
   setCurrentSplitLayout,
   isSignup = false,
-  resendCountdownSeconds = 0
+  resendCountdownSeconds = 0,
 }: SigninPasswordlessCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const authClient = useAuthClient();
@@ -61,7 +67,9 @@ const SigninPasswordlessCode = ({
   const [animateBanner, setAnimateBanner] = useState(false);
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
-  const [resendCountdown, setResendCountdown] = useState<number>(resendCountdownSeconds);
+  const [resendCountdown, setResendCountdown] = useState<number>(
+    resendCountdownSeconds
+  );
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
@@ -135,9 +143,9 @@ const SigninPasswordlessCode = ({
         error.errno === AuthUiErrors.THROTTLED.errno
           ? getLocalizedErrorMessage(ftlMsgResolver, error)
           : ftlMsgResolver.getMsg(
-            'signin-passwordless-code-resend-error',
-            'Something went wrong. A new code could not be sent.'
-          )
+              'signin-passwordless-code-resend-error',
+              'Something went wrong. A new code could not be sent.'
+            )
       );
     } finally {
       setResendCodeLoading(false);
@@ -150,193 +158,198 @@ const SigninPasswordlessCode = ({
     setCodeErrorMessage('');
   };
 
-  const onSubmit =
-    async (code: string) => {
-      clearErrorMessages();
-      if (!EIGHT_DIGIT_NUMBER_REGEX.test(code)) {
-        setCodeErrorMessage(localizedInvalidCode);
+  const onSubmit = async (code: string) => {
+    clearErrorMessages();
+    if (!EIGHT_DIGIT_NUMBER_REGEX.test(code)) {
+      setCodeErrorMessage(localizedInvalidCode);
+      return;
+    }
+
+    // TODO: Add Glean metrics tracking post-MVP
+    try {
+      const result = await authClient.passwordlessConfirmCode(email, code, {
+        clientId: integration.getClientId(),
+        service: integration.getService(),
+        metricsContext: {
+          ...queryParamsToMetricsContext(
+            flowQueryParams as unknown as Record<string, string>
+          ),
+          clientId: integration.getClientId(),
+        },
+      });
+
+      const isSessionVerified = result.verified && !result.verificationMethod;
+      storeAccountData({
+        sessionToken: result.sessionToken,
+        email,
+        uid: result.uid,
+        // Update verification status of stored current account
+        verified: isSessionVerified,
+        sessionVerified: isSessionVerified,
+      });
+
+      // Sync flows need a password to derive encryption keys (unwrapBKey).
+      // TOTP accounts must verify first since /password/create requires
+      // a verifiedSessionToken.
+      if (integration.isSync()) {
+        const accountData = {
+          uid: result.uid,
+          sessionToken: result.sessionToken,
+          email,
+          verified: result.verified,
+          lastLogin: Date.now(),
+        };
+        currentAccount(accountData);
+        setCurrentAccount(result.uid);
+
+        if (result.verificationMethod === 'totp-2fa') {
+          navigateWithQuery('/signin_totp_code', {
+            replace: true,
+            state: {
+              email,
+              uid: result.uid,
+              sessionToken: result.sessionToken,
+              emailVerified: true,
+              sessionVerified: false,
+              verificationMethod: result.verificationMethod,
+              verificationReason: result.verificationReason || 'login',
+              isPasswordlessFlow: true,
+            },
+          });
+        } else {
+          navigateWithQuery('/post_verify/third_party_auth/set_password', {
+            replace: true,
+            state: {
+              isPasswordlessFlow: true,
+            },
+          });
+        }
         return;
       }
 
-      // TODO: Add Glean metrics tracking post-MVP
-      try {
-        const result = await authClient.passwordlessConfirmCode(email, code, {
-          clientId: integration.getClientId(),
-          service: integration.getService(),
-          metricsContext: {
-            ...queryParamsToMetricsContext(
-              flowQueryParams as unknown as Record<string, string>
-            ),
-            clientId: integration.getClientId(),
-          },
-        });
-
-        const isSessionVerified = result.verified && !result.verificationMethod;
-        storeAccountData({
-          sessionToken: result.sessionToken,
-          email,
-          uid: result.uid,
-          // Update verification status of stored current account
-          verified: isSessionVerified,
-          sessionVerified: isSessionVerified,
-        });
-
-        // Sync flows need a password to derive encryption keys (unwrapBKey).
-        // TOTP accounts must verify first since /password/create requires
-        // a verifiedSessionToken.
-        if (integration.isSync()) {
-          const accountData = {
-            uid: result.uid,
-            sessionToken: result.sessionToken,
-            email,
-            verified: result.verified,
-            lastLogin: Date.now(),
-          };
-          currentAccount(accountData);
-          setCurrentAccount(result.uid);
-
-          if (result.verificationMethod === 'totp-2fa') {
-            navigateWithQuery('/signin_totp_code', {
-              replace: true,
+      if (isSignup) {
+        if (isSyncDesktopV3Integration(integration)) {
+          const { to } = getSyncNavigate(location.search, {
+            showSignupConfirmedSync: true,
+          });
+          navigate(to);
+        } else if (isOAuthIntegration(integration)) {
+          // Check to see if the relier wants TOTP
+          // Certain reliers (currently AMO only) may require users to set up 2FA / TOTP
+          // before they can be redirected back to the RP.
+          // Newly created accounts wouldn't have this so let's redirect them to inline_totp_setup.
+          if (integration.wantsTwoStepAuthentication()) {
+            navigateWithQuery('/inline_totp_setup', {
               state: {
                 email,
                 uid: result.uid,
                 sessionToken: result.sessionToken,
-                emailVerified: true,
-                sessionVerified: false,
-                verificationMethod: result.verificationMethod,
-                verificationReason: result.verificationReason || 'login',
-                isPasswordlessFlow: true,
+                verificationReason: 'signup',
+                verified: true,
               },
             });
+            return;
           } else {
-            navigateWithQuery('/post_verify/third_party_auth/set_password', {
-              replace: true,
-              state: {
-                isPasswordlessFlow: true,
-              },
-            });
-          }
-          return;
-        }
-
-        if (isSignup) {
-          if (isSyncDesktopV3Integration(integration)) {
-            const { to } = getSyncNavigate(location.search, {
-              showSignupConfirmedSync: true,
-            });
-            navigate(to);
-          } else if (isOAuthIntegration(integration)) {
-            // Check to see if the relier wants TOTP
-            // Certain reliers (currently AMO only) may require users to set up 2FA / TOTP
-            // before they can be redirected back to the RP.
-            // Newly created accounts wouldn't have this so let's redirect them to inline_totp_setup.
-            if (integration.wantsTwoStepAuthentication()) {
-              navigateWithQuery('/inline_totp_setup', {
-                state: {
-                  email,
-                  uid: result.uid,
-                  sessionToken: result.sessionToken,
-                  verificationReason: 'signup',
-                  verified: true,
-                },
-              });
-              return;
-            } else {
-              const { redirect, code, state, error } = await finishOAuthFlowHandler(
+            const { redirect, code, state, error } =
+              await finishOAuthFlowHandler(
                 result.uid,
                 result.sessionToken,
                 undefined,
                 undefined
               );
-              if (error) {
-                setLocalizedErrorBannerMessage(
-                  getLocalizedErrorMessage(ftlMsgResolver, error)
-                );
-                return;
-              }
+            if (error) {
+              setLocalizedErrorBannerMessage(
+                getLocalizedErrorMessage(ftlMsgResolver, error)
+              );
+              return;
+            }
 
-              if (integration.isFirefoxNonSync()) {
-                firefox.fxaOAuthLogin({
-                  action: 'signup',
-                  code,
-                  redirect,
-                  state,
-                });
-                goToSettingsWithAlertSuccess();
-              } else {
-                // Navigate to relying party
-                hardNavigate(redirect, {
-                  newAccountVerification: 'true',
-                });
-                return;
-              }
-            }
-          } else if (isWebIntegration(integration)) {
-            if (integration.data.redirectTo) {
-              if (webRedirectCheck.isValid) {
-                hardNavigate(integration.data.redirectTo);
-              } else if (webRedirectCheck?.localizedInvalidRedirectError) {
-                // Even if the code submission is successful, show the user this error
-                // message if the redirect is invalid to match parity with content-server.
-                // This may but may be revisited when we look at our signup flows as a whole.
-                console.error('webRedirectCheckError', webRedirectCheck.localizedInvalidRedirectError)
-                setLocalizedErrorBannerMessage(
-                  webRedirectCheck.localizedInvalidRedirectError
-                );
-              }
-            } else {
+            if (integration.isFirefoxNonSync()) {
+              firefox.fxaOAuthLogin({
+                action: 'signup',
+                code,
+                redirect,
+                state,
+              });
               goToSettingsWithAlertSuccess();
+            } else {
+              // Navigate to relying party
+              hardNavigate(redirect, {
+                newAccountVerification: 'true',
+              });
+              return;
             }
           }
-        } else {
-          const navigationOptions = {
-            email,
-            signinData: {
-              uid: result.uid,
-              sessionToken: result.sessionToken,
-              emailVerified: true,
-              sessionVerified: isSessionVerified,
-              ...(result.verificationMethod && {
-                verificationMethod: result.verificationMethod as VerificationMethods,
-              }),
-              ...(result.verificationReason && {
-                verificationReason: result.verificationReason as VerificationReasons,
-              }),
-            },
-            integration,
-            finishOAuthFlowHandler,
-            redirectTo:
-              isWebIntegration(integration) && webRedirectCheck?.isValid
-                ? integration.data.redirectTo
-                : '',
-            queryParams: location.search,
-            handleFxaLogin: true,
-            handleFxaOAuthLogin: true,
-            performNavigation: !(
-              integration.isFirefoxMobileClient() && isSessionVerified
-            ),
+        } else if (isWebIntegration(integration)) {
+          if (integration.data.redirectTo) {
+            if (webRedirectCheck.isValid) {
+              hardNavigate(integration.data.redirectTo);
+            } else if (webRedirectCheck?.localizedInvalidRedirectError) {
+              // Even if the code submission is successful, show the user this error
+              // message if the redirect is invalid to match parity with content-server.
+              // This may but may be revisited when we look at our signup flows as a whole.
+              console.error(
+                'webRedirectCheckError',
+                webRedirectCheck.localizedInvalidRedirectError
+              );
+              setLocalizedErrorBannerMessage(
+                webRedirectCheck.localizedInvalidRedirectError
+              );
+            }
+          } else {
+            goToSettingsWithAlertSuccess();
           }
-          const { error: navError } = await handleNavigation(navigationOptions);
-          if (navError) {
-            setLocalizedErrorBannerMessage(
-              getLocalizedErrorMessage(ftlMsgResolver, navError)
-            );
-          }
+        }
+      } else {
+        const navigationOptions = {
+          email,
+          signinData: {
+            uid: result.uid,
+            sessionToken: result.sessionToken,
+            emailVerified: true,
+            sessionVerified: isSessionVerified,
+            ...(result.verificationMethod && {
+              verificationMethod:
+                result.verificationMethod as VerificationMethods,
+            }),
+            ...(result.verificationReason && {
+              verificationReason:
+                result.verificationReason as VerificationReasons,
+            }),
+          },
+          integration,
+          finishOAuthFlowHandler,
+          redirectTo:
+            isWebIntegration(integration) && webRedirectCheck?.isValid
+              ? integration.data.redirectTo
+              : '',
+          queryParams: location.search,
+          handleFxaLogin: true,
+          handleFxaOAuthLogin: true,
+          performNavigation: !(
+            integration.isFirefoxMobileClient() && isSessionVerified
+          ),
         };
-      } catch (error: any) {
-        const localizedErrorMessage = getLocalizedErrorMessage(
-          ftlMsgResolver,
-          error
-        );
-        if (error.errno === AuthUiErrors.THROTTLED.errno) {
-          setShowResendSuccessBanner(false);
-          setLocalizedErrorBannerMessage(localizedErrorMessage);
-        } else {
-          setCodeErrorMessage(localizedErrorMessage);
+        const { error: navError } = await handleNavigation(navigationOptions);
+        if (navError) {
+          setLocalizedErrorBannerMessage(
+            getLocalizedErrorMessage(ftlMsgResolver, navError)
+          );
         }
       }
+    } catch (error: any) {
+      const localizedErrorMessage = getLocalizedErrorMessage(
+        ftlMsgResolver,
+        error
+      );
+      if (error.errno === AuthUiErrors.THROTTLED.errno) {
+        setShowResendSuccessBanner(false);
+        setLocalizedErrorBannerMessage(localizedErrorMessage);
+      } else {
+        setCodeErrorMessage(localizedErrorMessage);
+      }
     }
+  };
 
   const cmsInfo = integration?.getCmsInfo();
   //TODO: Signup/SigninPasswordlessCodePage to be added as part of FXA-13020
@@ -358,7 +371,9 @@ const SigninPasswordlessCode = ({
     ? 'signup-passwordless-code-subheading'
     : 'signin-passwordless-code-subheading';
 
-  const handleDifferentAccountClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleDifferentAccountClick = (
+    e: React.MouseEvent<HTMLAnchorElement>
+  ) => {
     e.preventDefault();
     // TODO: Add Glean metrics tracking post-MVP
     // GleanMetrics.passwordlessLogin.diffAccountLinkClick();
@@ -403,7 +418,9 @@ const SigninPasswordlessCode = ({
         />
       )}
 
-      <EmailCodeImage />
+      <EmailCodeImage
+        illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
+      />
 
       <p id="verification-email-message" className="my-4 text-sm">
         <FtlMsg
@@ -416,7 +433,10 @@ const SigninPasswordlessCode = ({
           <span>
             Enter the code that was sent to{' '}
             <span className="font-bold">{email}</span> within{' '}
-            {expirationMinutes === 1 ? '1 minute' : `${expirationMinutes} minutes`}.
+            {expirationMinutes === 1
+              ? '1 minute'
+              : `${expirationMinutes} minutes`}
+            .
           </span>
         </FtlMsg>{' '}
         <FtlMsg id="signin-passwordless-code-other-account-link">
@@ -440,7 +460,7 @@ const SigninPasswordlessCode = ({
           setCodeErrorMessage,
           cmsButton: {
             color: cmsInfo?.shared?.buttonColor,
-            text: cmsButtonText
+            text: cmsButtonText,
           },
         }}
       />
@@ -459,7 +479,10 @@ const SigninPasswordlessCode = ({
               disabled
             >
               Email new code in{' '}
-              {resendCountdown === 1 ? '1 second' : `${resendCountdown} seconds`}.
+              {resendCountdown === 1
+                ? '1 second'
+                : `${resendCountdown} seconds`}
+              .
             </button>
           </FtlMsg>
         ) : (
