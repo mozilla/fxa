@@ -11,7 +11,12 @@ import {
   RecoveryPhoneStatus,
   useAccountState,
 } from '../../models/contexts/AccountStateContext';
-import { Email, LinkedAccount, SecurityEvent, mapAttachedClient } from '../../models/Account';
+import {
+  Email,
+  LinkedAccount,
+  SecurityEvent,
+  mapAttachedClient,
+} from '../../models/Account';
 import { AccountTotp, AccountBackupCodes, AccountAvatar } from '../interfaces';
 import config from '../config';
 import { ERRNO } from '@fxa/accounts/errors';
@@ -60,13 +65,30 @@ interface AccountDataResult {
 /** Shape returned by the consolidated /account auth-server endpoint. */
 interface AccountResponse {
   emails?: Array<{ email: string; isPrimary: boolean; verified: boolean }>;
-  linkedAccounts?: Array<{ providerId: number; authAt: number; enabled: boolean }>;
-  subscriptions?: Array<{ created?: number; createdAt?: number; productName?: string; product_name?: string }>;
+  linkedAccounts?: Array<{
+    providerId: number;
+    authAt: number;
+    enabled: boolean;
+  }>;
+  subscriptions?: Array<{
+    created?: number;
+    createdAt?: number;
+    productName?: string;
+    product_name?: string;
+  }>;
   totp?: { exists?: boolean; verified?: boolean };
   backupCodes?: { hasBackupCodes?: boolean; count?: number };
   recoveryKey?: { exists?: boolean; estimatedSyncDeviceCount?: number };
-  recoveryPhone?: { exists?: boolean; phoneNumber?: string; available?: boolean };
-  securityEvents?: Array<{ name: string; createdAt: number; verified?: boolean }>;
+  recoveryPhone?: {
+    exists?: boolean;
+    phoneNumber?: string;
+    available?: boolean;
+  };
+  securityEvents?: Array<{
+    name: string;
+    createdAt: number;
+    verified?: boolean;
+  }>;
   metricsOptOutAt?: number | null;
   createdAt?: number;
   passwordCreatedAt?: number;
@@ -74,7 +96,9 @@ interface AccountResponse {
 }
 
 /** Transform the consolidated /account endpoint response to AccountState format. */
-function transformAccountResponse(response: AccountResponse): Partial<AccountState> {
+function transformAccountResponse(
+  response: AccountResponse
+): Partial<AccountState> {
   const emails: Email[] = (response.emails || []).map((e) => ({
     email: e.email,
     isPrimary: e.isPrimary,
@@ -152,19 +176,22 @@ async function fetchProfileData(
       { scope: 'profile', ttl: PROFILE_OAUTH_TOKEN_TTL_SECONDS }
     );
 
-    const response = await fetch(`${config.servers.profile.url}/v1/profile`, {
-      headers: { Authorization: `Bearer ${access_token}` },
-    });
+    const headers = { Authorization: `Bearer ${access_token}` };
+    const [profileResponse, avatarResponse] = await Promise.all([
+      fetch(`${config.servers.profile.url}/v1/profile`, { headers }),
+      fetch(`${config.servers.profile.url}/v1/avatar`, { headers }),
+    ]);
 
-    if (!response.ok) {
+    if (!profileResponse.ok) {
       return { displayName: null, avatar: null };
     }
 
-    const profile = await response.json();
+    const profile = await profileResponse.json();
+    const avatarData = avatarResponse.ok ? await avatarResponse.json() : null;
     return {
       displayName: profile.displayName || null,
       avatar: profile.avatar
-        ? { id: profile.avatarId || 'default', url: profile.avatar }
+        ? { id: avatarData?.id || null, url: profile.avatar }
         : null,
     };
   } catch (error) {
@@ -192,10 +219,7 @@ export function useAccountData({
   authClientRef.current = authClient;
 
   const accountState = useAccountState();
-  const {
-    setAccountData,
-    ...stateData
-  } = accountState;
+  const { setAccountData, ...stateData } = accountState;
 
   const [localLoading, setLocalLoading] = useState(true);
   const [localError, setLocalError] = useState<Error | null>(null);
@@ -222,8 +246,11 @@ export function useAccountData({
         ]);
 
       // Check for invalid token errors - user needs to sign in again
-      const rejectedResults = [accountResult, profileResult, attachedClientsResult]
-        .filter((r): r is PromiseRejectedResult => r.status === 'rejected');
+      const rejectedResults = [
+        accountResult,
+        profileResult,
+        attachedClientsResult,
+      ].filter((r): r is PromiseRejectedResult => r.status === 'rejected');
       if (rejectedResults.some((r) => isInvalidTokenError(r.reason))) {
         throw new InvalidTokenError();
       }
@@ -231,9 +258,14 @@ export function useAccountData({
       let accountData: Partial<AccountState> = {};
 
       if (accountResult.status === 'fulfilled') {
-        accountData = { ...accountData, ...transformAccountResponse(accountResult.value) };
+        accountData = {
+          ...accountData,
+          ...transformAccountResponse(accountResult.value),
+        };
       } else {
-        Sentry.captureMessage(`Failed to fetch account: ${accountResult.reason}`);
+        Sentry.captureMessage(
+          `Failed to fetch account: ${accountResult.reason}`
+        );
       }
 
       if (profileResult.status === 'fulfilled') {
@@ -241,13 +273,18 @@ export function useAccountData({
         if (displayName !== null) accountData.displayName = displayName;
         if (avatar !== null) accountData.avatar = avatar;
       } else {
-        Sentry.captureMessage(`Failed to fetch profile: ${profileResult.reason}`);
+        Sentry.captureMessage(
+          `Failed to fetch profile: ${profileResult.reason}`
+        );
       }
 
       if (attachedClientsResult.status === 'fulfilled') {
-        accountData.attachedClients = attachedClientsResult.value.map(mapAttachedClient);
+        accountData.attachedClients =
+          attachedClientsResult.value.map(mapAttachedClient);
       } else {
-        Sentry.captureMessage(`Failed to fetch attached clients: ${attachedClientsResult.reason}`);
+        Sentry.captureMessage(
+          `Failed to fetch attached clients: ${attachedClientsResult.reason}`
+        );
         accountData.attachedClients = [];
       }
 
@@ -278,7 +315,10 @@ export function useAccountData({
           }
           case 'displayName':
           case 'avatar': {
-            const { displayName, avatar } = await fetchProfileData(client, token);
+            const { displayName, avatar } = await fetchProfileData(
+              client,
+              token
+            );
             if (displayName !== null) fieldData.displayName = displayName;
             if (avatar !== null) fieldData.avatar = avatar;
             break;
@@ -303,7 +343,11 @@ export function useAccountData({
   }, [fetchAccountData]);
 
   return {
-    data: { ...stateData, isLoading: localLoading, error: localError } as AccountState,
+    data: {
+      ...stateData,
+      isLoading: localLoading,
+      error: localError,
+    } as AccountState,
     isLoading: localLoading,
     error: localError,
     refetch: fetchAccountData,
