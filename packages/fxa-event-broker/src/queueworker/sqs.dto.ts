@@ -71,6 +71,7 @@ export const PASSWORD_CHANGE_SCHEMA = joi
   .object()
   .keys({
     event: joi.string().valid(PASSWORD_CHANGE_EVENT, PASSWORD_RESET_EVENT),
+    generation: joi.number().optional(),
     timestamp: joi.number().optional(),
     ts: joi.number().required(),
     uid: joi.string().required(),
@@ -118,6 +119,7 @@ export type loginSchema = {
 
 export type passwordSchema = {
   event: typeof PASSWORD_CHANGE_EVENT | typeof PASSWORD_RESET_EVENT;
+  generation?: number;
   timestamp?: number;
   ts: number;
   uid: string;
