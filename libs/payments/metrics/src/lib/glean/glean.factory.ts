@@ -12,8 +12,8 @@ import {
   Entrypoint,
   FlowType,
   Outcome,
+  Action,
   PageName,
-  Step,
   SubscriptionCancellationData,
   TrialConversionData,
   type AccountsMetricsData,
@@ -22,7 +22,7 @@ import {
   type GleanMetricsData,
   type SubManageMetricsArgs,
   type PageMetricsData,
-  type RetentionFlowEventMetricsData,
+  type RetentionFlowResultData,
   type SessionMetricsData,
   type StripeMetricsData,
   type SubPlatCmsMetricsData,
@@ -192,42 +192,36 @@ export const GleanMetricsDataFactory = (
 });
 
 export const PageViewEventFactory = (override?: Partial<PageMetricsData>) => ({
-  pageName: faker.helpers.arrayElement<PageName>([
-    'management',
-    'stay_standard',
-    'cancel_standard',
-  ]),
+  pageName: faker.helpers.arrayElement<PageName>(['management']),
   entrypoint: faker.helpers.arrayElement<Entrypoint>([
     'email',
     'internal_nav',
     'subscription-management',
   ]),
-  offeringId: faker.string.alphanumeric(8),
-  interval: faker.helpers.enumValue(SubplatInterval),
   ...override,
 });
 
-export const RetentionFlowEventFactory = (
-  override?: Partial<RetentionFlowEventMetricsData>
-) => ({
+export const RetentionFlowResultFactory = (
+  override?: Partial<RetentionFlowResultData>
+): RetentionFlowResultData => ({
   flowType: faker.helpers.arrayElement<FlowType>(['cancel', 'stay']),
-  eligibilityStatus: faker.helpers.arrayElement<EligibilityStatus>([
-    'cancel',
-    'stay',
-    'offer',
-    'not_eligible',
-  ]),
-  step: faker.helpers.arrayElement<Step>([
-    'view',
-    'engage',
-    'submit',
-    'result',
+  action: faker.helpers.arrayElement<Action>([
+    'redeem_coupon',
+    'cancel_subscription',
+    'stay_subscribed',
+    'remain_canceled',
   ]),
   outcome: faker.helpers.arrayElement<Outcome>([
     'redeem_success',
     'customer_canceled',
     'stay_subscribed_success',
     'error',
+  ]),
+  eligibilityStatus: faker.helpers.arrayElement<EligibilityStatus>([
+    'cancel',
+    'stay',
+    'offer',
+    'not_eligible',
   ]),
   offeringId: faker.string.alphanumeric(8),
   interval: faker.helpers.enumValue(SubplatInterval),

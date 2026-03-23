@@ -66,6 +66,9 @@ export default async function Upgrade({
   );
   const [cart, cms] = await Promise.all([cartDataPromise, cmsDataPromise]);
 
+  const isCancelInterstitialOffer =
+    searchParams?.['entrypoint'] === 'subscription-management';
+
   return (
     <>
       {session?.user?.email && (
@@ -185,6 +188,8 @@ export default async function Upgrade({
               paypalClientId={config.paypal.clientId}
               sessionUid={session?.user?.id}
               sessionEmail={session?.user?.email ?? undefined}
+              metricsEnabled={session?.user?.metricsEnabled ?? true}
+              isCancelInterstitialOffer={isCancelInterstitialOffer}
             />
           )}
       </section>

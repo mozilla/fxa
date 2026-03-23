@@ -714,6 +714,7 @@ export class ChurnInterventionService {
         isEligible: true,
         reason: 'eligible',
         cmsCancelInterstitialOfferResult,
+        offeringId,
         webIcon,
         productName,
         supportUrl,

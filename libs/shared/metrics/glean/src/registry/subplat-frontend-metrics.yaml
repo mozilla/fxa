@@ -28,7 +28,7 @@ subscriptions:
         type: string
       entrypoint:
         description: |
-          Where the page was reached from. Allowed values: email, internal_nav.
+          Where the page was reached from. Allowed values: email, internal_nav, subscription-management.
           Empty string when the source is unidentified.
         type: string
 
@@ -78,7 +78,7 @@ subscriptions:
       action:
         description: |
           The user action taken. Only present when step is engage, submit, or result.
-          Allowed values: redeem_coupon, cancel_subscription, stay_subscribed.
+          Allowed values: redeem_coupon, cancel_subscription, stay_subscribed, remain_canceled.
         type: string
       outcome:
         description: |
@@ -126,7 +126,7 @@ subscriptions:
       This flow is normally entered from the subscription management cancellation journey.
       Direct URL access is possible and may result in an error outcome if required context is missing.
       Expected success lifecycle for upgrade:
-        view → engage (upgrade) → view (upgrade, on checkout page) → engage (upgrade) → submit (upgrade) → result (upgrade, server-side)
+        view → engage (offer) → view (upgrade, on checkout page) → engage (upgrade) → submit (upgrade) → result (upgrade, server-side)
       Expected success lifecycle for keep subscription:
         view → engage (keep_subscription)
       Expected success lifecycle for cancellation:
@@ -146,7 +146,7 @@ subscriptions:
     extra_keys:
       entrypoint:
         description: |
-          Where the flow was entered from. Allowed values: email, internal_nav, subscription-management.
+          Where the flow was entered from. Allowed values: internal_nav, subscription-management.
           Empty string when the source is unidentified.
         type: string
       step:
@@ -159,14 +159,14 @@ subscriptions:
         type: string
       action:
         description: |
-          The user action taken. Only present when step is engage, submit, or result.
-          Allowed values: upgrade, keep_subscription, cancel_subscription.
+          The user action taken. Present when step is view (to distinguish upgrade checkout view), engage, submit, or result.
+          Allowed values: offer, upgrade, keep_subscription, cancel_subscription.
         type: string
       outcome:
         description: |
           The result of the flow.
           Only present when step=result.
-          Allowed values: customer_canceled, error.
+          Allowed values: upgrade_success, customer_canceled, error.
         type: string
       error_reason:
         description: |

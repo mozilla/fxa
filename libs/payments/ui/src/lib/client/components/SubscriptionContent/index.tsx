@@ -277,7 +277,10 @@ export const SubscriptionContent = ({
             <Link
               href={
                 isEligibleForChurnStaySubscribed
-                  ? `/${locale}/subscriptions/${subscription.id}/loyalty-discount/stay-subscribed`
+                  ? {
+                      pathname: `/${locale}/subscriptions/${subscription.id}/loyalty-discount/stay-subscribed`,
+                      query: { entrypoint: 'subscription-management' },
+                    }
                   : `/${locale}/subscriptions/${subscription.id}/stay-subscribed`
               }
               className="border box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-blue-500 hover:bg-blue-700 text-white w-full tablet:w-auto"
@@ -294,9 +297,15 @@ export const SubscriptionContent = ({
             <Link
               href={
                 isEligibleForChurnCancel
-                  ? `/${locale}/subscriptions/${subscription.id}/loyalty-discount/cancel`
+                  ? {
+                      pathname: `/${locale}/subscriptions/${subscription.id}/loyalty-discount/cancel`,
+                      query: { entrypoint: 'subscription-management' },
+                    }
                   : isEligibleForOffer
-                    ? `/${locale}/subscriptions/${subscription.id}/offer`
+                    ? {
+                        pathname: `/${locale}/subscriptions/${subscription.id}/offer`,
+                        query: { entrypoint: 'subscription-management' },
+                      }
                     : `/${locale}/subscriptions/${subscription.id}/cancel`
               }
               className="border border-grey-200 box-border flex font-bold font-header h-10 items-center justify-center rounded-md py-2 px-5 bg-grey-10 hover:bg-grey-50 w-full tablet:w-auto"

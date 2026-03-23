@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { SubscriptionParams } from '@fxa/payments/ui';
+import { GleanRetentionResult, SubscriptionParams } from '@fxa/payments/ui';
 import { determineChurnCancelEligibilityAction } from '@fxa/payments/ui/actions';
 import { getApp, ChurnError } from '@fxa/payments/ui/server';
 import { auth } from 'apps/payments/next/auth';
@@ -79,6 +79,100 @@ export default async function LoyaltyDiscountCancelErrorPage({
 
   if (cancelContent.flowType !== 'cancel' || !cmsOfferingContent) {
     return (
+      <>
+        <GleanRetentionResult
+          metricsEnabled={session?.user?.metricsEnabled ?? true}
+          eventType="retention_flow"
+          flowType="cancel"
+          eligibilityStatus="not_eligible"
+          outcome="error"
+          errorReason={reason ?? 'general_error'}
+        />
+        <ChurnError
+          cmsOfferingContent={cmsOfferingContent}
+          locale={locale}
+          reason={reason ?? 'general_error'}
+          pageContent={cancelContent}
+          subscriptionId={subscriptionId}
+        />
+      </>
+    );
+  }
+
+  if (reason === 'no_churn_intervention_found') {
+    const { productName, webIcon } = cmsOfferingContent;
+    return (
+      <>
+        <GleanRetentionResult
+          metricsEnabled={session?.user?.metricsEnabled ?? true}
+          eventType="retention_flow"
+          flowType="cancel"
+          eligibilityStatus="not_eligible"
+          outcome="error"
+          errorReason="no_churn_intervention_found"
+        />
+        <section
+          className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
+          aria-labelledby="churn-cancel-flow-error-heading"
+        >
+          <div className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+            <div className="flex flex-col items-center justify-center gap-4 text-center">
+              <Image src={webIcon} alt={productName} height={64} width={64} />
+
+              <h1
+                id="churn-cancel-flow-error-heading"
+                className="font-bold leading-7 text-center text-xl"
+              >
+                {l10n.getString(
+                  'churn-cancel-flow-error-offer-expired-title',
+                  'This offer has expired'
+                )}
+              </h1>
+              <div className="leading-6">
+                <p className="my-2">
+                  {l10n.getString(
+                    'churn-cancel-flow-error-offer-expired-message',
+                    `There are currently no discounts available for this subscription. You can continue with cancellation if you’d like.`
+                  )}
+                </p>
+              </div>
+              <div className="flex flex-col gap-3 w-full">
+                <Link
+                  href={`/${locale}/subscriptions/${subscriptionId}/cancel`}
+                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {l10n.getString(
+                    'churn-cancel-flow-error-button-continue-to-cancel',
+                    'Continue to cancel'
+                  )}
+                </Link>
+                <Link
+                  href={`/${locale}/subscriptions/landing`}
+                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                >
+                  {l10n.getString(
+                    'churn-cancel-flow-error-page-button-back-to-subscriptions',
+                    'Back to subscriptions'
+                  )}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <GleanRetentionResult
+        metricsEnabled={session?.user?.metricsEnabled ?? true}
+        eventType="retention_flow"
+        flowType="cancel"
+        outcome="error"
+        eligibilityStatus="not_eligible"
+        errorReason={reason ?? 'general_error'}
+      />
       <ChurnError
         cmsOfferingContent={cmsOfferingContent}
         locale={locale}
@@ -86,70 +180,6 @@ export default async function LoyaltyDiscountCancelErrorPage({
         pageContent={cancelContent}
         subscriptionId={subscriptionId}
       />
-    );
-  }
-
-  if (reason === 'no_churn_intervention_found') {
-    const { productName, webIcon } = cmsOfferingContent;
-    return (
-      <section
-        className="flex justify-center min-h-[calc(100vh_-_4rem)] tablet:items-center tablet:min-h-[calc(100vh_-_5rem)]"
-        aria-labelledby="churn-cancel-flow-error-heading"
-      >
-        <div className="max-w-[480px] p-10 text-grey-600 tablet:bg-white tablet:rounded-xl tablet:border tablet:border-grey-200 tablet:shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
-          <div className="flex flex-col items-center justify-center gap-4 text-center">
-            <Image src={webIcon} alt={productName} height={64} width={64} />
-
-            <h1
-              id="churn-cancel-flow-error-heading"
-              className="font-bold leading-7 text-center text-xl"
-            >
-              {l10n.getString(
-                'churn-cancel-flow-error-offer-expired-title',
-                'This offer has expired'
-              )}
-            </h1>
-            <div className="leading-6">
-              <p className="my-2">
-                {l10n.getString(
-                  'churn-cancel-flow-error-offer-expired-message',
-                  `There are currently no discounts available for this subscription. You can continue with cancellation if you’d like.`
-                )}
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 w-full">
-              <Link
-                href={`/${locale}/subscriptions/${subscriptionId}/cancel`}
-                className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
-              >
-                {l10n.getString(
-                  'churn-cancel-flow-error-button-continue-to-cancel',
-                  'Continue to cancel'
-                )}
-              </Link>
-              <Link
-                href={`/${locale}/subscriptions/landing`}
-                className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
-              >
-                {l10n.getString(
-                  'churn-cancel-flow-error-page-button-back-to-subscriptions',
-                  'Back to subscriptions'
-                )}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <ChurnError
-      cmsOfferingContent={cmsOfferingContent}
-      locale={locale}
-      reason={reason ?? 'general_error'}
-      pageContent={cancelContent}
-      subscriptionId={subscriptionId}
-    />
+    </>
   );
 }

@@ -3,5 +3,5 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/glean/glean-client.manager';
-export * from './lib/glean/glean.config';
 export * from './lib/glean/glean.types';
+export * from './lib/glean/utils/mapErrorReason';

@@ -855,6 +855,7 @@ export class NextJSActionsService {
           productName:
             offerEligibility.cmsCancelInterstitialOfferResult.offering
               .defaultPurchase.purchaseDetails.productName,
+          offeringId: offerEligibility.offeringId,
           supportUrl:
             offerEligibility.supportUrl ?? 'https://support.mozilla.org',
         },

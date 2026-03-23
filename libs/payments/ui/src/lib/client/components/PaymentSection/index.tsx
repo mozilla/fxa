@@ -59,6 +59,8 @@ interface PaymentFormProps {
   sessionUid?: string;
   sessionEmail?: string;
   isFreeTrial?: boolean;
+  metricsEnabled?: boolean;
+  isCancelInterstitialOffer?: boolean;
 }
 
 export function PaymentSection({
@@ -71,6 +73,8 @@ export function PaymentSection({
   sessionUid,
   sessionEmail,
   isFreeTrial,
+  metricsEnabled,
+  isCancelInterstitialOffer,
 }: PaymentFormProps) {
   return (
     <PayPalScriptProvider
@@ -93,6 +97,8 @@ export function PaymentSection({
           sessionUid={sessionUid}
           sessionEmail={sessionEmail}
           isFreeTrial={isFreeTrial}
+          metricsEnabled={metricsEnabled}
+          isCancelInterstitialOffer={isCancelInterstitialOffer}
         />
       </StripeWrapper>
     </PayPalScriptProvider>

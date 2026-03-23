@@ -24,11 +24,13 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import type { Interval } from '@fxa/payments/metrics/client';
 import { BaseButton, ButtonVariant, CheckoutCheckbox } from '@fxa/payments/ui';
 import LockImage from '@fxa/shared/assets/images/lock.svg';
 import { useCallbackOnce } from '../../hooks/useCallbackOnce';
+import { useGleanMetrics } from '../../hooks/useGleanMetrics';
 import {
   handleStripeErrorAction,
   recordEmitterEventAction,
@@ -90,6 +92,8 @@ interface CheckoutFormProps {
   sessionUid?: string;
   sessionEmail?: string;
   isFreeTrial?: boolean;
+  metricsEnabled?: boolean;
+  isCancelInterstitialOffer?: boolean;
 }
 
 export function CheckoutForm({
@@ -99,6 +103,8 @@ export function CheckoutForm({
   sessionUid,
   sessionEmail,
   isFreeTrial,
+  metricsEnabled,
+  isCancelInterstitialOffer,
 }: CheckoutFormProps) {
   const elements = useElements();
   const router = useRouter();
@@ -124,6 +130,32 @@ export function CheckoutForm({
     ? { defaultValues: { email: sessionEmail } }
     : {};
 
+  const glean = useGleanMetrics(metricsEnabled ?? true);
+
+  const interstitialOfferBase = useMemo(
+    () =>
+      isCancelInterstitialOffer
+        ? {
+            offeringId: (params.offeringId as string) ?? undefined,
+            interval: (params.interval as Interval) ?? undefined,
+            utmSource: searchParams.get('utm_source') ?? undefined,
+            utmMedium: searchParams.get('utm_medium') ?? undefined,
+            utmCampaign: searchParams.get('utm_campaign') ?? undefined,
+            nimbusUserId: searchParams.get('nimbus_user_id') ?? undefined,
+          }
+        : null,
+    [isCancelInterstitialOffer, params.interval, searchParams]
+  );
+
+  useEffect(() => {
+    if (interstitialOfferBase) {
+      glean.recordInterstitialOfferView({
+        ...interstitialOfferBase,
+        action: 'upgrade',
+      });
+    }
+  }, []);
+
   const engageGlean = useCallbackOnce(() => {
     recordEmitterEventAction(
       'checkoutEngage',
@@ -133,6 +165,13 @@ export function CheckoutForm({
       undefined,
       isFreeTrial
     );
+
+    if (interstitialOfferBase) {
+      glean.recordInterstitialOfferEngage({
+        ...interstitialOfferBase,
+        action: 'upgrade',
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -193,6 +232,12 @@ export function CheckoutForm({
         'external_paypal',
         isFreeTrial
       );
+      if (interstitialOfferBase) {
+        glean.recordInterstitialOfferSubmit({
+          ...interstitialOfferBase,
+          action: 'upgrade',
+        });
+      }
 
       await checkoutCartWithPaypal(
         cart.id,
@@ -269,6 +314,12 @@ export function CheckoutForm({
       selectedPaymentMethod,
       isFreeTrial
     );
+    if (interstitialOfferBase) {
+      glean.recordInterstitialOfferSubmit({
+        ...interstitialOfferBase,
+        action: 'upgrade',
+      });
+    }
 
     await checkoutCartWithStripe(
       cart.id,
