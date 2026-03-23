@@ -22,7 +22,7 @@ import {
   updatePasskeyCounterAndLastUsed,
   updatePasskeyName,
 } from './passkey.repository';
-import { PasskeyConfig } from './passkey.config';
+import { PasskeyConfig, MAX_PASSKEY_NAME_LENGTH } from './passkey.config';
 import { AppError } from '@fxa/accounts/errors';
 
 /**
@@ -148,14 +148,14 @@ export class PasskeyManager {
    * Both uid and credentialId must match to prevent one user from renaming
    * another user's passkey.
    *
-   * @returns true if the passkey was found and renamed, false if not found, wrong user, or name exceeds 255 characters
+   * @returns true if the passkey was found and renamed, false if not found, wrong user, or name exceeds MAX_PASSKEY_NAME_LENGTH characters
    */
   async renamePasskey(
     uid: Buffer,
     credentialId: Buffer,
     newName: string
   ): Promise<boolean> {
-    if (newName.length > 255) {
+    if (newName.length > MAX_PASSKEY_NAME_LENGTH) {
       return false;
     }
     const rowsUpdated = await updatePasskeyName(

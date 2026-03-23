@@ -10,7 +10,7 @@ import type {
   PublicKeyCredentialCreationOptionsJSON,
   RegistrationResponseJSON,
 } from '@simplewebauthn/server';
-import { PasskeyConfig } from './passkey.config';
+import { PasskeyConfig, MAX_PASSKEY_NAME_LENGTH } from './passkey.config';
 import { PasskeyService } from './passkey.service';
 import { PasskeyManager } from './passkey.manager';
 import { PasskeyChallengeManager } from './passkey.challenge.manager';
@@ -80,6 +80,8 @@ describe('PasskeyService', () => {
     listPasskeysForUser: jest.fn(),
     findPasskeyByCredentialId: jest.fn(),
     updatePasskeyAfterAuth: jest.fn(),
+    renamePasskey: jest.fn(),
+    deletePasskey: jest.fn(),
   };
 
   const mockChallengeManager = {
@@ -722,6 +724,204 @@ describe('PasskeyService', () => {
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'passkey.authentication.failed',
         { reason: 'updateFailed' }
+      );
+    });
+  });
+
+  describe('listPasskeysForUser', () => {
+    const mockPasskeys = [
+      { uid: MOCK_UID, credentialId: MOCK_CREDENTIAL_ID, name: 'Passkey' },
+    ];
+
+    it('returns passkeys from manager', async () => {
+      mockManager.listPasskeysForUser.mockResolvedValue(mockPasskeys);
+      const result = await service.listPasskeysForUser(MOCK_UID);
+      expect(result).toBe(mockPasskeys);
+      expect(mockManager.listPasskeysForUser).toHaveBeenCalledWith(MOCK_UID);
+    });
+
+    it('increments passkey.list.success metric', async () => {
+      mockManager.listPasskeysForUser.mockResolvedValue(mockPasskeys);
+      await service.listPasskeysForUser(MOCK_UID);
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.list.success'
+      );
+    });
+  });
+
+  describe('renamePasskey', () => {
+    beforeEach(() => {
+      mockManager.renamePasskey.mockResolvedValue(true);
+    });
+
+    it('calls manager.renamePasskey and emits metrics and security log on success', async () => {
+      await service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, 'New Name');
+      expect(mockManager.renamePasskey).toHaveBeenCalledWith(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        'New Name'
+      );
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.rename.success'
+      );
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'passkey.renamed',
+        expect.objectContaining({ uid: MOCK_UID.toString('hex') })
+      );
+    });
+
+    it('trims whitespace from name before renaming', async () => {
+      await service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, '  My Key  ');
+      expect(mockManager.renamePasskey).toHaveBeenCalledWith(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        'My Key'
+      );
+    });
+
+    it('throws AppError passkeyNotFound when manager returns false', async () => {
+      mockManager.renamePasskey.mockResolvedValue(false);
+
+      await expect(
+        service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, 'New Name')
+      ).rejects.toMatchObject(AppError.passkeyNotFound());
+    });
+
+    it('throws AppError passkeyInvalidName when name is empty', async () => {
+      await expect(
+        service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, '')
+      ).rejects.toMatchObject(AppError.passkeyInvalidName());
+
+      expect(mockManager.renamePasskey).not.toHaveBeenCalled();
+    });
+
+    it('throws AppError passkeyInvalidName when name is whitespace-only', async () => {
+      await expect(
+        service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, '   ')
+      ).rejects.toMatchObject(AppError.passkeyInvalidName());
+
+      expect(mockManager.renamePasskey).not.toHaveBeenCalled();
+    });
+
+    it(`throws AppError passkeyInvalidName when name exceeds ${MAX_PASSKEY_NAME_LENGTH} characters`, async () => {
+      await expect(
+        service.renamePasskey(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID,
+          'a'.repeat(MAX_PASSKEY_NAME_LENGTH + 1)
+        )
+      ).rejects.toMatchObject(AppError.passkeyInvalidName());
+
+      expect(mockManager.renamePasskey).not.toHaveBeenCalled();
+    });
+
+    it('throws AppError passkeyInvalidName when name contains control characters', async () => {
+      await expect(
+        service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, 'My\x00Passkey')
+      ).rejects.toMatchObject(AppError.passkeyInvalidName());
+
+      await expect(
+        service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, 'Passkey\x1F')
+      ).rejects.toMatchObject(AppError.passkeyInvalidName());
+
+      expect(mockManager.renamePasskey).not.toHaveBeenCalled();
+    });
+
+    it('throws AppError passkeyInvalidName when name contains private-use-area characters', async () => {
+      await expect(
+        service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, 'Key\uE000')
+      ).rejects.toMatchObject(AppError.passkeyInvalidName());
+
+      expect(mockManager.renamePasskey).not.toHaveBeenCalled();
+    });
+
+    it('throws AppError passkeyInvalidName when name contains line separator', async () => {
+      await expect(
+        service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, 'Key\u2028Name')
+      ).rejects.toMatchObject(AppError.passkeyInvalidName());
+
+      expect(mockManager.renamePasskey).not.toHaveBeenCalled();
+    });
+
+    it('allows emoji in passkey name', async () => {
+      await service.renamePasskey(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        'My 🔑 Passkey'
+      );
+      expect(mockManager.renamePasskey).toHaveBeenCalledWith(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        'My 🔑 Passkey'
+      );
+    });
+
+    it('allows accented characters in passkey name', async () => {
+      await service.renamePasskey(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        'Clé de sécurité'
+      );
+      expect(mockManager.renamePasskey).toHaveBeenCalledWith(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        'Clé de sécurité'
+      );
+    });
+
+    it('throws AppError passkeyRenameFailed and increments failure metric when manager throws', async () => {
+      mockManager.renamePasskey.mockRejectedValue(new Error('DB gone'));
+
+      await expect(
+        service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, 'New Name')
+      ).rejects.toMatchObject(AppError.passkeyRenameFailed());
+
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.rename.failed',
+        { reason: 'dbError' }
+      );
+    });
+  });
+
+  describe('deletePasskey', () => {
+    beforeEach(() => {
+      mockManager.deletePasskey.mockResolvedValue(true);
+    });
+
+    it('calls manager.deletePasskey and emits metrics and security log on success', async () => {
+      await service.deletePasskey(MOCK_UID, MOCK_CREDENTIAL_ID);
+
+      expect(mockManager.deletePasskey).toHaveBeenCalledWith(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID
+      );
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.delete.success'
+      );
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'passkey.deleted',
+        expect.objectContaining({ uid: MOCK_UID.toString('hex') })
+      );
+    });
+
+    it('throws AppError passkeyNotFound when manager returns false', async () => {
+      mockManager.deletePasskey.mockResolvedValue(false);
+
+      await expect(
+        service.deletePasskey(MOCK_UID, MOCK_CREDENTIAL_ID)
+      ).rejects.toMatchObject(AppError.passkeyNotFound());
+    });
+
+    it('throws AppError passkeyDeleteFailed and increments failure metric when manager throws', async () => {
+      mockManager.deletePasskey.mockRejectedValue(new Error('DB gone'));
+
+      await expect(
+        service.deletePasskey(MOCK_UID, MOCK_CREDENTIAL_ID)
+      ).rejects.toMatchObject(AppError.passkeyDeleteFailed());
+
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.delete.failed',
+        { reason: 'dbError' }
       );
     });
   });

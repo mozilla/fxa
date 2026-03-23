@@ -449,5 +449,53 @@ describe('AppErrors', () => {
         },
       });
     });
+
+    it('creates passkeyInvalidName', () => {
+      const result = AppError.passkeyInvalidName();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 230,
+        message: 'Invalid passkey name',
+        output: {
+          statusCode: 400,
+          payload: {
+            error: 'Bad Request',
+            errno: 230,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyDeleteFailed', () => {
+      const result = AppError.passkeyDeleteFailed();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 231,
+        message: 'Failed to delete passkey',
+        output: {
+          statusCode: 500,
+          payload: {
+            error: 'Internal Server Error',
+            errno: 231,
+          },
+        },
+      });
+    });
+
+    it('creates passkeyRenameFailed', () => {
+      const result = AppError.passkeyRenameFailed();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 232,
+        message: 'Failed to rename passkey',
+        output: {
+          statusCode: 500,
+          payload: {
+            error: 'Internal Server Error',
+            errno: 232,
+          },
+        },
+      });
+    });
   });
 });
