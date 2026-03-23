@@ -23993,7 +23993,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:*, @types/sinon@npm:^17.0.3":
+"@types/sinon@npm:*, @types/sinon@npm:^17.0.0, @types/sinon@npm:^17.0.3":
   version: 17.0.4
   resolution: "@types/sinon@npm:17.0.4"
   dependencies:
@@ -36520,6 +36520,7 @@ __metadata:
     "@hapi/hapi": "npm:^20.2.1"
     "@hapi/inert": "npm:7.1.0"
     "@types/sharp": "npm:^0"
+    "@types/sinon": "npm:^17.0.0"
     audit-filter: "npm:^0.5.0"
     bluebird: "npm:^3.7.2"
     checksum: "npm:1.0.0"
@@ -36549,6 +36550,7 @@ __metadata:
     sinon: "npm:^14.0.0"
     stream-to-array: "npm:2.3.0"
     through: "npm:2.3.8"
+    ts-jest: "npm:^29.1.1"
   languageName: unknown
   linkType: soft
 
@@ -58055,7 +58057,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^29.1.2":
+"ts-jest@npm:^29.1.1, ts-jest@npm:^29.1.2":
   version: 29.4.6
   resolution: "ts-jest@npm:29.4.6"
   dependencies:
