@@ -124,6 +124,9 @@ const settingsConfig = {
     passkeysEnabled: config.get('featureFlags.passkeysEnabled'),
     passwordlessEnabled: config.get('featureFlags.passwordlessEnabled'),
   },
+  darkMode: {
+    enabled: config.get('darkMode.enabled'),
+  },
   nimbus: {
     enabled: config.get('nimbus.enabled'),
     preview: config.get('nimbus.preview'),
