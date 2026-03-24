@@ -59,11 +59,13 @@ const baseDeleteMessage = {
 const basePasswordResetMessage = {
   ...baseMessage,
   event: 'reset',
+  generation: now - 5000,
 };
 
 const basePasswordChangeMessage = {
   ...baseMessage,
   event: 'passwordChange',
+  generation: now - 5000,
 };
 
 const basePrimaryEmailMessage = {
@@ -312,6 +314,32 @@ describe('QueueworkerService', () => {
         await checkFetchesOnValid(value);
       });
     }
+
+    it('uses generation as changeTime for password change events', async () => {
+      const msg = updateStubMessage(basePasswordChangeMessage);
+      await (service as any).handleMessage(msg);
+      expect(topic.publishMessage).toHaveBeenCalledTimes(1);
+      const published = topic.publishMessage.mock.calls[0][0].json;
+      expect(published.changeTime).toBe(basePasswordChangeMessage.generation);
+    });
+
+    it('uses generation as changeTime for password reset events', async () => {
+      const msg = updateStubMessage(basePasswordResetMessage);
+      await (service as any).handleMessage(msg);
+      expect(topic.publishMessage).toHaveBeenCalledTimes(1);
+      const published = topic.publishMessage.mock.calls[0][0].json;
+      expect(published.changeTime).toBe(basePasswordResetMessage.generation);
+    });
+
+    it('falls back to timestamp when generation is absent for password events', async () => {
+      const { generation, ...messageWithoutGeneration } =
+        basePasswordChangeMessage;
+      const msg = updateStubMessage(messageWithoutGeneration);
+      await (service as any).handleMessage(msg);
+      expect(topic.publishMessage).toHaveBeenCalledTimes(1);
+      const published = topic.publishMessage.mock.calls[0][0].json;
+      expect(published.changeTime).toBe(messageWithoutGeneration.timestamp);
+    });
 
     const invalidMessages = {
       login: { ...baseLoginMessage, clientId: 'test1234' },

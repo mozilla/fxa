@@ -192,9 +192,16 @@ export class QueueworkerService
     const clientIds = await this.clientIdsForUserAndResourceServers(
       message.uid
     );
+
+    const changeTime =
+      (eventType === 'password' &&
+        (message as dto.passwordSchema).generation) ||
+      message.timestamp ||
+      message.ts * 1000;
+
     for (const clientId of clientIds) {
       const messageId = await this.publishMessage(clientId, {
-        changeTime: message.timestamp ? message.timestamp : message.ts * 1000,
+        changeTime,
         event: message.event,
         timestamp: Date.now(),
         uid: message.uid,
