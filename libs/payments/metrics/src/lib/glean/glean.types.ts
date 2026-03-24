@@ -148,15 +148,24 @@ export type Outcome =
   | 'error';
 
 export const ErrorReasons = [
+  'already_canceling_at_period_end',
+  'current_interval_not_found',
   'customer_mismatch',
   'discount_already_applied',
+  'failed_to_redeem_coupon',
   'general_error',
+  'no_cancel_interstitial_offer_found',
   'no_churn_intervention_found',
+  'no_upgrade_plan_found',
+  'not_eligible_for_upgrade_interval',
+  'offering_id_not_found',
+  'operation_denied',
   'redemption_limit_exceeded',
+  'stripe_price_id_not_found',
+  'stripe_subscription_update_failed',
   'subscription_not_active',
   'subscription_not_found',
   'subscription_still_active',
-  'operation_denied',
   'unexpected_exception',
 ] as const;
 

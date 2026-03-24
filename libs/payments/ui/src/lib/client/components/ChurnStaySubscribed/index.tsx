@@ -101,7 +101,9 @@ export function ChurnStaySubscribed({
       eligibilityStatus: 'stay' as const,
       offeringId: apiIdentifier,
       interval: interval as Interval,
-      entrypoint: searchParams.get('entrypoint') ?? undefined,
+      entrypoint:
+        searchParams.get('entrypoint') ??
+        (searchParams.get('utm_medium') === 'email' ? 'email' : undefined),
       utmSource: searchParams.get('utm_source') ?? undefined,
       utmMedium: searchParams.get('utm_medium') ?? undefined,
       utmCampaign: searchParams.get('utm_campaign') ?? undefined,

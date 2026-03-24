@@ -9,6 +9,10 @@ describe('mapErrorReason', () => {
     expect(mapErrorReason('customer_mismatch')).toEqual('customer_mismatch');
   });
 
+  it('should return the value for an interstitial offer ErrorReason', () => {
+    expect(mapErrorReason('no_upgrade_plan_found')).toEqual('no_upgrade_plan_found');
+  });
+
   it('should return general_error for an invalid value', () => {
     expect(mapErrorReason('not_a_real_reason')).toEqual('general_error');
   });
