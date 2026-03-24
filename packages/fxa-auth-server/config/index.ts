@@ -2795,6 +2795,14 @@ const convictConf = convict({
       },
     },
   },
+  registeredClients: {
+    refreshInterval: {
+      default: 60_000,
+      doc: 'The interval in ms at which we update the list of known registered client ids',
+      env: 'REGISTERED_CLIENTS__REFRESH_INTERVAL',
+      format: Number,
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration
@@ -2956,4 +2964,3 @@ export type ConfigType = ReturnType<conf['getProperties']>;
 
 export { convictConf as config };
 export default convictConf;
-
