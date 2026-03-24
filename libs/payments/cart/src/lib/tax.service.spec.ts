@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
+import { MockLoggerProvider } from '@fxa/shared/log';
 
 import {
   AccountCustomerManager,
@@ -50,6 +51,7 @@ describe('TaxService', () => {
         MockStatsDProvider,
         MockStripeConfigProvider,
         StripeClient,
+        MockLoggerProvider,
         MockAccountDatabaseNestFactory,
         AccountCustomerManager,
         CustomerManager,
@@ -139,7 +141,7 @@ describe('TaxService', () => {
 
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockRejectedValue(new AccountCustomerNotFoundError('not found'));
+        .mockRejectedValue(new AccountCustomerNotFoundError('not found', new Error()));
       jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(geoAddress);
 
       const result = await taxService.getTaxAddress(ip, uid);

@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
+import { MockLoggerProvider } from '@fxa/shared/log';
 import { Stripe } from 'stripe';
 
 import { ProductManager } from './product.manager';
@@ -71,6 +72,7 @@ describe('PromotionCodeManager', () => {
         PromotionCodeManager,
         StripeClient,
         SubscriptionManager,
+        MockLoggerProvider,
       ],
     }).compile();
 

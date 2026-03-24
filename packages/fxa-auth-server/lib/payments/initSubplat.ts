@@ -101,7 +101,8 @@ export async function initSubplat({
       webhookSecret: '',
       taxIds: {},
     },
-    statsd
+    statsd,
+    logger
   );
   const strapiClient = new StrapiClient(config.cms.strapiClient, firestore, winstonLogger(loggerName));
   const paypalClient = new PayPalClient(

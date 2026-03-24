@@ -7,6 +7,7 @@ import {
   CacheStrategy,
   CacheStrategyContext,
 } from '@type-cacheable/core';
+import { TypeCacheableLogger } from './type-cachable-async-local-storage-adapter';
 
 /**
  * Result meaning:
@@ -32,7 +33,7 @@ export class CacheFirstStrategy implements CacheStrategy {
       endTime: number,
       cacheResult: CacheResult
     ) => void,
-    private logger: { error: (msg: unknown) => void; warn: (msg: string) => void } = console
+    private logger: TypeCacheableLogger = console
   ) {}
 
   private findCachedValue = async (client: CacheClient, key: string) => {

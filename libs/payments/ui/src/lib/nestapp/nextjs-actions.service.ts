@@ -163,7 +163,7 @@ export class NextJSActionsService {
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private nimbusManager: NimbusManager,
     @Inject(StatsDService) public statsd: StatsD,
-    @Inject(Logger) private log: LoggerService
+    @Inject(Logger) public log: LoggerService
   ) {}
 
   @SanitizeExceptions()

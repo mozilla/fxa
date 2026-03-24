@@ -249,7 +249,8 @@ export class StripeHelper extends StripeHelperBase {
 
       this.stripeMapperService = new StripeMapperService(
         this.productConfigurationManager,
-        { ttl: this.config.cms.legacyMapper.mapperCacheTTL }
+        { ttl: this.config.cms.legacyMapper.mapperCacheTTL },
+        { ...this.log, log: (msg, fields) => this.log.info(msg, fields) } // StripeMapperService expects a log method, but the auth-server logger only has info, warn, and error
       );
     }
 
@@ -3513,7 +3514,10 @@ export class StripeHelper extends StripeHelperBase {
       return;
     }
 
-    return this.stripeFirestore.fetchAndInsertCustomer(customerId, event.created);
+    return this.stripeFirestore.fetchAndInsertCustomer(
+      customerId,
+      event.created
+    );
   }
 
   /**
