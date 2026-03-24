@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import type {
+  AuthenticationResponseJSON,
+  PublicKeyCredentialRequestOptionsJSON,
+} from '@simplewebauthn/server';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import * as Sentry from '@sentry/nestjs';
@@ -19,8 +23,15 @@ import {
   generateRegistrationOptions,
   verifyRegistrationResponse as adapterVerifyRegistrationResponse,
   RegistrationVerificationResult,
+  AuthenticationVerificationResult,
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
 } from './webauthn-adapter';
 import { AppError } from '@fxa/accounts/errors';
+
+export interface AuthenticationResult {
+  uid: Buffer;
+}
 
 /**
  * PasskeyService - High-level business logic for passkey (WebAuthn) operations.
@@ -110,8 +121,8 @@ export class PasskeyService {
 
     const storedChallenge =
       await this.challengeManager.consumeRegistrationChallenge(
-        uidHex,
-        challenge
+        challenge,
+        uidHex
       );
 
     if (!storedChallenge) {
@@ -254,17 +265,137 @@ export class PasskeyService {
     return `${baseName} ${maxSuffix + 1}`;
   }
 
-  // TODO: Add methods for passkey operations such as:
-  // - generateAuthenticationChallenge
-  // - verifyAuthenticationResponse (extract backup state, signCount, validate rollback)
-  // - listPasskeysForUser
-  // - renamePasskey
-  // - deletePasskey
-  //
-  // TODO: Add signCount rollback detection in verifyAuthenticationResponse():
-  //   - Fetch existing passkey with current signCount
-  //   - Compare new signCount from authenticator response
-  //   - If new < old AND old > 0: Log security warning (potential cloning attack)
-  //   - Allow authenticators that always return 0 (batch attestation per spec)
-  //   - Log event: 'passkey.signCount.rollback' with uid, credentialId, oldCount, newCount
+  /**
+   * Generate WebAuthn authentication (assertion) options.
+   *
+   * @param uid - Optional user ID. When provided, restricts authentication to
+   *   the user's registered credentials (known-user flow).
+   * @returns WebAuthn authentication options
+   */
+  async generateAuthenticationChallenge(
+    uid?: Buffer
+  ): Promise<PublicKeyCredentialRequestOptionsJSON> {
+    const challenge =
+      await this.challengeManager.generateAuthenticationChallenge();
+
+    let allowCredentials: Buffer[] = [];
+    if (uid) {
+      const passkeys = await this.passkeyManager.listPasskeysForUser(uid);
+      allowCredentials = passkeys.map((p) => p.credentialId);
+    }
+
+    return await generateAuthenticationOptions(this.config, {
+      challenge,
+      allowCredentials,
+    });
+  }
+
+  /**
+   * Verify a WebAuthn authentication response.
+   *
+   * @param response - The raw authentication response from the browser.
+   * @param challenge - The challenge that was issued for this authentication.
+   * @param expectedUid - Optional expected user ID. When provided, verifies that
+   * the authenticating passkey belongs to this user.
+   * @returns Authentication result containing the uid of the authenticated user.
+   * @throws {AppError} passkeyNotFound if the credential is not registered.
+   * @throws {AppError} passkeyChallengeExpired if the challenge is invalid or expired.
+   * @throws {AppError} passkeyAuthenticationFailed if assertion verification fails
+   * or `expectedUid` does not match the passkey owner.
+   */
+  async verifyAuthenticationResponse(
+    response: AuthenticationResponseJSON,
+    challenge: string,
+    expectedUid?: Buffer
+  ): Promise<AuthenticationResult> {
+    const credentialId = Buffer.from(response.id, 'base64url');
+
+    const passkey =
+      await this.passkeyManager.findPasskeyByCredentialId(credentialId);
+    if (!passkey) {
+      this.metrics.increment('passkey.authentication.failed', {
+        reason: 'passkeyNotFound',
+      });
+      throw AppError.passkeyNotFound();
+    }
+
+    if (expectedUid && !passkey.uid.equals(expectedUid)) {
+      this.metrics.increment('passkey.authentication.failed', {
+        reason: 'uidMismatch',
+      });
+      throw AppError.passkeyAuthenticationFailed();
+    }
+
+    const storedChallenge =
+      await this.challengeManager.consumeAuthenticationChallenge(challenge);
+    if (!storedChallenge) {
+      this.metrics.increment('passkey.authentication.failed', {
+        reason: 'challengeNotFound',
+      });
+      this.log?.warn('passkey.challengeNotFound', {
+        credentialId: credentialId.toString('hex'),
+      });
+      throw AppError.passkeyChallengeNotFound();
+    }
+
+    let result: AuthenticationVerificationResult;
+    try {
+      result = await verifyAuthenticationResponse(this.config, {
+        response,
+        challenge: storedChallenge.challenge,
+        credentialId: passkey.credentialId,
+        publicKey: passkey.publicKey,
+        signCount: passkey.signCount,
+      });
+    } catch (err) {
+      // simplewebauthn throws when signCount decrements
+      if (err instanceof Error && /^Response counter value/.test(err.message)) {
+        this.log?.warn('passkey.signCount.rollback', {
+          uid: passkey.uid.toString('hex'),
+          credentialId: credentialId.toString('hex'),
+          oldCount: passkey.signCount,
+          error: err.message,
+        });
+        this.metrics.increment('passkey.signCount.rollback');
+      }
+      this.metrics.increment('passkey.authentication.failed', {
+        reason: 'verificationError',
+      });
+      throw AppError.passkeyAuthenticationFailed();
+    }
+
+    if (!result.verified) {
+      this.metrics.increment('passkey.authentication.failed', {
+        reason: 'notVerified',
+      });
+      throw AppError.passkeyAuthenticationFailed();
+    }
+
+    const { newSignCount, backupState } = result.data;
+
+    const updated = await this.passkeyManager.updatePasskeyAfterAuth(
+      passkey.uid,
+      passkey.credentialId,
+      newSignCount,
+      backupState
+    );
+    if (!updated) {
+      this.log?.error('passkey.updateAfterAuth.failed', {
+        uid: passkey.uid.toString('hex'),
+        credentialId: credentialId.toString('hex'),
+        newSignCount,
+      });
+      this.metrics.increment('passkey.authentication.failed', {
+        reason: 'updateFailed',
+      });
+      throw AppError.passkeyAuthenticationFailed();
+    }
+
+    this.metrics.increment('passkey.authentication.success');
+    this.log?.log('passkey.authenticated', {
+      uid: passkey.uid.toString('hex'),
+    });
+
+    return { uid: passkey.uid };
+  }
 }

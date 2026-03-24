@@ -114,7 +114,7 @@ export class PasskeyChallengeManager {
   /**
    * Generates a registration challenge for the WebAuthn attestation ceremony.
    *
-   * @param input - Must include the hex-encoded uid of the user.
+   * @param uid - Hex-encoded uid of the user.
    * @returns Base64url-encoded 32-byte challenge string.
    */
   async generateRegistrationChallenge(uid: string): Promise<string> {
@@ -126,14 +126,14 @@ export class PasskeyChallengeManager {
    *
    * @returns Base64url-encoded 32-byte challenge string.
    */
-  async generateAuthenticationChallenge(uid: string): Promise<string> {
-    return this.generateChallenge('authentication', uid);
+  async generateAuthenticationChallenge(): Promise<string> {
+    return this.generateChallenge('authentication');
   }
 
   /**
    * Generates an upgrade challenge for the WebAuthn PRF key-wrapping ceremony.
    *
-   * @param input - Must include the hex-encoded uid of the user.
+   * @param uid - Hex-encoded uid of the user.
    * @returns Base64url-encoded 32-byte challenge string.
    */
   async generateUpgradeChallenge(uid: string): Promise<string> {
@@ -142,42 +142,42 @@ export class PasskeyChallengeManager {
 
   /**
    * Fetches and deletes a registration challenge from Redis.
-   * @param uid The hex-encoded uid of the user.
-   * @param challenge The base64url-encoded challenge string.
+   *
+   * @param challenge - The base64url-encoded challenge string.
+   * @param uid - Hex-encoded uid of the user.
    * @returns The stored challenge metadata or null if not found or expired.
    */
   async consumeRegistrationChallenge(
-    uid: string,
-    challenge: string
+    challenge: string,
+    uid: string
   ): Promise<StoredChallenge | null> {
-    return this.consumeChallenge(uid, 'registration', challenge);
+    return this.consumeChallenge('registration', challenge, uid);
   }
 
   /**
    * Fetches and deletes an authentication challenge from Redis.
    *
-   * @param uid The hex-encoded uid of the user.
    * @param challenge The base64url-encoded challenge string.
    * @returns The stored challenge metadata or null if not found or expired.
    */
   async consumeAuthenticationChallenge(
-    uid: string,
     challenge: string
   ): Promise<StoredChallenge | null> {
-    return this.consumeChallenge(uid, 'authentication', challenge);
+    return this.consumeChallenge('authentication', challenge);
   }
 
   /**
    * Fetches and deletes an upgrade challenge from Redis.
-   * @param uid The hex-encoded uid of the user.
-   * @param challenge The base64url-encoded challenge string.
+   *
+   * @param challenge - The base64url-encoded challenge string.
+   * @param uid - Hex-encoded uid of the user.
    * @returns The stored challenge metadata or null if not found or expired.
    */
   async consumeUpgradeChallenge(
-    uid: string,
-    challenge: string
+    challenge: string,
+    uid: string
   ): Promise<StoredChallenge | null> {
-    return this.consumeChallenge(uid, 'upgrade', challenge);
+    return this.consumeChallenge('upgrade', challenge, uid);
   }
 
   /**
@@ -187,13 +187,13 @@ export class PasskeyChallengeManager {
    * has already been consumed). GETDEL in validateChallenge handles the normal case.
    * This method succeeds silently even if the key does not exist.
    *
-   * @param challenge - The base64url-encoded challenge to delete.
    * @param type - The challenge type (used to reconstruct the Redis key).
+   * @param challenge - The base64url-encoded challenge to delete.
    * @param uid - The hex-encoded uid of the user.
    */
   async deleteChallenge(
-    challenge: string,
     type: ChallengeType,
+    challenge: string,
     uid: string
   ): Promise<void> {
     const key = this.buildKey(type, challenge, uid);
@@ -209,14 +209,15 @@ export class PasskeyChallengeManager {
    * operation, enforcing single-use semantics. Returns null if not found, expired,
    * or if the stored value is invalid JSON.
    *
-   * @param challenge - The base64url-encoded challenge from the WebAuthn ceremony.
    * @param type - The expected challenge type (prevents cross-ceremony attacks).
+   * @param challenge - The base64url-encoded challenge from the WebAuthn ceremony.
+   * @param uid - Optional hex-encoded uid
    * @returns The stored challenge metadata (uid, type, timestamps) or null if not found expired.
    */
   private async consumeChallenge(
-    uid: string,
     type: ChallengeType,
-    challenge: string
+    challenge: string,
+    uid?: string
   ): Promise<StoredChallenge | null> {
     const key = this.buildKey(type, challenge, uid);
     const raw = await this.redis.getdel(key);
@@ -242,7 +243,7 @@ export class PasskeyChallengeManager {
 
   private async generateChallenge(
     type: ChallengeType,
-    uid: string
+    uid?: string
   ): Promise<string> {
     const challenge = randomBytes(32).toString('base64url');
     const now = Date.now();
@@ -269,8 +270,10 @@ export class PasskeyChallengeManager {
   private buildKey(
     type: ChallengeType,
     challenge: string,
-    uid: string
+    uid?: string
   ): string {
-    return `passkey:challenge:${uid}:${type}:${challenge}`;
+    return uid
+      ? `passkey:challenge:${type}:${challenge}:${uid}`
+      : `passkey:challenge:${type}:${challenge}`;
   }
 }

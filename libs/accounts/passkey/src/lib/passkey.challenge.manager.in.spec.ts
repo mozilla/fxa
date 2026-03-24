@@ -72,12 +72,11 @@ afterAll(async () => {
 describe('PasskeyChallengeManager (integration)', () => {
   describe('generateRegistrationChallenge', () => {
     it('stores challenge with uid and type=registration', async () => {
-      const challenge =
-        await manager.generateRegistrationChallenge('deadbeef');
+      const challenge = await manager.generateRegistrationChallenge('deadbeef');
 
       const stored = await manager.consumeRegistrationChallenge(
-        'deadbeef',
-        challenge
+        challenge,
+        'deadbeef'
       );
 
       expect(stored?.challenge).toBe(challenge);
@@ -87,29 +86,24 @@ describe('PasskeyChallengeManager (integration)', () => {
   });
 
   describe('generateAuthenticationChallenge', () => {
-    it('stores challenge with uid and type=authentication', async () => {
-      const challenge =
-        await manager.generateAuthenticationChallenge('deadbeef');
+    it('stores challenge with no uid and type=authentication', async () => {
+      const challenge = await manager.generateAuthenticationChallenge();
 
-      const stored = await manager.consumeAuthenticationChallenge(
-        'deadbeef',
-        challenge
-      );
+      const stored = await manager.consumeAuthenticationChallenge(challenge);
 
       expect(stored?.challenge).toBe(challenge);
       expect(stored?.type).toBe('authentication');
-      expect(stored?.uid).toBe('deadbeef');
+      expect(stored?.uid).toBeUndefined();
     });
   });
 
   describe('generateUpgradeChallenge', () => {
     it('stores challenge with uid and type=upgrade', async () => {
-      const challenge =
-        await manager.generateUpgradeChallenge('cafebabe');
+      const challenge = await manager.generateUpgradeChallenge('cafebabe');
 
       const stored = await manager.consumeUpgradeChallenge(
-        'cafebabe',
-        challenge
+        challenge,
+        'cafebabe'
       );
 
       expect(stored?.challenge).toBe(challenge);
@@ -120,22 +114,21 @@ describe('PasskeyChallengeManager (integration)', () => {
 
   describe('consumeChallenge', () => {
     it('returns null on second consume (single-use enforcement)', async () => {
-      const challenge =
-        await manager.generateRegistrationChallenge('deadbeef');
+      const challenge = await manager.generateRegistrationChallenge('deadbeef');
 
-      await manager.consumeRegistrationChallenge('deadbeef', challenge);
+      await manager.consumeRegistrationChallenge(challenge, 'deadbeef');
 
       const secondAttempt = await manager.consumeRegistrationChallenge(
-        'deadbeef',
-        challenge
+        challenge,
+        'deadbeef'
       );
       expect(secondAttempt).toBeNull();
     });
 
     it('returns null for an unknown challenge', async () => {
       const result = await manager.consumeRegistrationChallenge(
-        'deadbeef',
-        'nonexistent-challenge'
+        'nonexistent-challenge',
+        'deadbeef'
       );
       expect(result).toBeNull();
     });
@@ -158,8 +151,8 @@ describe('PasskeyChallengeManager (integration)', () => {
       await new Promise((resolve) => setTimeout(resolve, 1100));
 
       const result = await shortManager.consumeRegistrationChallenge(
-        'deadbeef',
-        challenge
+        challenge,
+        'deadbeef'
       );
       expect(result).toBeNull();
     }, 5_000);
@@ -167,14 +160,13 @@ describe('PasskeyChallengeManager (integration)', () => {
 
   describe('deleteChallenge', () => {
     it('removes the key from Redis', async () => {
-      const challenge =
-        await manager.generateRegistrationChallenge('deadbeef');
+      const challenge = await manager.generateRegistrationChallenge('deadbeef');
 
-      await manager.deleteChallenge(challenge, 'registration', 'deadbeef');
+      await manager.deleteChallenge('registration', challenge, 'deadbeef');
 
       const result = await manager.consumeRegistrationChallenge(
-        'deadbeef',
-        challenge
+        challenge,
+        'deadbeef'
       );
 
       expect(result).toBeNull();
@@ -182,8 +174,8 @@ describe('PasskeyChallengeManager (integration)', () => {
 
     it('does not throw when the key does not exist', async () => {
       const result = await manager.deleteChallenge(
-        'nonexistent-challenge',
         'registration',
+        'nonexistent-challenge',
         'deadbeef'
       );
       expect(result).toBeUndefined();

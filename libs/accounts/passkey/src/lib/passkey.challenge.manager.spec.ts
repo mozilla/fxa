@@ -64,7 +64,7 @@ describe('PasskeyChallengeManager', () => {
       await manager.generateRegistrationChallenge('deadbeef');
 
       expect(mockRedis.set).toHaveBeenCalledWith(
-        `passkey:challenge:deadbeef:registration:${MOCK_CHALLENGE}`,
+        `passkey:challenge:registration:${MOCK_CHALLENGE}:deadbeef`,
         expect.any(String),
         'EX',
         CHALLENGE_TIMEOUT_MS / 1000
@@ -109,18 +109,16 @@ describe('PasskeyChallengeManager', () => {
   });
 
   describe('generateAuthenticationChallenge', () => {
-    it('stores the challenge with type=authentication and uid', async () => {
+    it('stores the challenge with type=authentication and no uid', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateAuthenticationChallenge('deadbeef');
+      await manager.generateAuthenticationChallenge();
 
       const [key, rawJson] = mockRedis.set.mock.calls[0];
       const stored: StoredChallenge = JSON.parse(rawJson);
 
-      expect(key).toBe(
-        `passkey:challenge:deadbeef:authentication:${MOCK_CHALLENGE}`
-      );
+      expect(key).toBe(`passkey:challenge:authentication:${MOCK_CHALLENGE}`);
       expect(stored.type).toBe('authentication');
-      expect(stored.uid).toBe('deadbeef');
+      expect(stored.uid).toBeUndefined();
     });
   });
 
@@ -132,9 +130,7 @@ describe('PasskeyChallengeManager', () => {
       const [key, rawJson] = mockRedis.set.mock.calls[0];
       const stored: StoredChallenge = JSON.parse(rawJson);
 
-      expect(key).toBe(
-        `passkey:challenge:cafebabe:upgrade:${MOCK_CHALLENGE}`
-      );
+      expect(key).toBe(`passkey:challenge:upgrade:${MOCK_CHALLENGE}:cafebabe`);
       expect(stored.type).toBe('upgrade');
       expect(stored.uid).toBe('cafebabe');
     });
@@ -170,8 +166,8 @@ describe('PasskeyChallengeManager', () => {
       mockRedis.getdel.mockResolvedValue(JSON.stringify(stored));
 
       const result = await manager.consumeRegistrationChallenge(
-        'deadbeef',
-        MOCK_CHALLENGE
+        MOCK_CHALLENGE,
+        'deadbeef'
       );
 
       expect(result).toEqual(stored);
@@ -185,8 +181,8 @@ describe('PasskeyChallengeManager', () => {
       mockRedis.getdel.mockResolvedValue(null);
 
       const result = await manager.consumeRegistrationChallenge(
-        'deadbeef',
-        MOCK_CHALLENGE
+        MOCK_CHALLENGE,
+        'deadbeef'
       );
 
       expect(result).toBeNull();
@@ -200,8 +196,8 @@ describe('PasskeyChallengeManager', () => {
       mockRedis.getdel.mockResolvedValue('not a valid json string');
 
       const result = await manager.consumeRegistrationChallenge(
-        'deadbeef',
-        MOCK_CHALLENGE
+        MOCK_CHALLENGE,
+        'deadbeef'
       );
 
       expect(result).toBeNull();
@@ -215,10 +211,10 @@ describe('PasskeyChallengeManager', () => {
       const stored = makeStored({ type: 'authentication' });
       mockRedis.getdel.mockResolvedValue(JSON.stringify(stored));
 
-      await manager.consumeAuthenticationChallenge('deadbeef', MOCK_CHALLENGE);
+      await manager.consumeAuthenticationChallenge(MOCK_CHALLENGE);
 
       expect(mockRedis.getdel).toHaveBeenCalledWith(
-        `passkey:challenge:deadbeef:authentication:${MOCK_CHALLENGE}`
+        `passkey:challenge:authentication:${MOCK_CHALLENGE}`
       );
     });
   });
@@ -226,21 +222,17 @@ describe('PasskeyChallengeManager', () => {
   describe('deleteChallenge', () => {
     it('calls redis.del with the correct key', async () => {
       mockRedis.del.mockResolvedValue(1);
-      await manager.deleteChallenge(
-        MOCK_CHALLENGE,
-        'registration',
-        'deadbeef'
-      );
+      await manager.deleteChallenge('registration', MOCK_CHALLENGE, 'deadbeef');
 
       expect(mockRedis.del).toHaveBeenCalledWith(
-        `passkey:challenge:deadbeef:registration:${MOCK_CHALLENGE}`
+        `passkey:challenge:registration:${MOCK_CHALLENGE}:deadbeef`
       );
     });
 
     it('does not throw when the key does not exist (del returns 0)', async () => {
       mockRedis.del.mockResolvedValue(0);
       await expect(
-        manager.deleteChallenge(MOCK_CHALLENGE, 'authentication', 'deadbeef')
+        manager.deleteChallenge('authentication', MOCK_CHALLENGE, 'deadbeef')
       ).resolves.toBeUndefined();
     });
   });
