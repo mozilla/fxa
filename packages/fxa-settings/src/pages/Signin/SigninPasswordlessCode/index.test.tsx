@@ -23,11 +23,13 @@ import {
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
   createMockSigninOAuthIntegration,
+  createMockSigninOAuthNativeIntegration,
   createMockSigninWebIntegration,
 } from '../mocks';
 import { SigninOAuthIntegration } from '../interfaces';
 import { MozServices } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
+import { OAuthNativeServices } from '@fxa/accounts/oauth';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -70,6 +72,8 @@ function applyDefaultMocks() {
 
 let mockNavigate = jest.fn();
 let mockNavigateWithQuery = jest.fn().mockResolvedValue(undefined);
+let mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(undefined);
+
 jest.mock('@reach/router', () => {
   return {
     __esModule: true,
@@ -82,6 +86,14 @@ jest.mock('@reach/router', () => {
 
 jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
   useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
+let mockHandleNavigation = jest.fn().mockResolvedValue({ error: undefined });
+
+jest.mock('../utils', () => ({
+  getSyncNavigate: jest.fn((search, options) => ({ to: '/connect_another_device' })),
+  handleNavigation: (...args: any[]) => mockHandleNavigation(...args),
+  ensureCanLinkAcountOrRedirect: (...args: any[]) => mockEnsureCanLinkAcountOrRedirect(...args),
 }));
 
 jest.mock('../../../lib/hooks/useWebRedirect', () => ({
@@ -135,6 +147,26 @@ describe('SigninPasswordlessCode page', () => {
     resetMockAuthClient();
     mockNavigate = jest.fn();
     mockNavigateWithQuery = jest.fn().mockResolvedValue(undefined);
+    mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(true);
+    mockHandleNavigation = jest.fn().mockImplementation(async (navigationOptions) => {
+      // Simulate handleNavigation behavior for unverified sessions with TOTP
+      const { signinData } = navigationOptions;
+      if (signinData.verificationMethod === 'totp-2fa' && !signinData.sessionVerified) {
+        const mockNavigateModule = jest.requireMock('@reach/router');
+        mockNavigateModule.navigate(`/signin_totp_code${navigationOptions.queryParams || ''}`, {
+          state: {
+            email: navigationOptions.email,
+            uid: signinData.uid,
+            sessionToken: signinData.sessionToken,
+            emailVerified: signinData.emailVerified,
+            sessionVerified: signinData.sessionVerified,
+            verificationMethod: signinData.verificationMethod,
+            verificationReason: signinData.verificationReason,
+          },
+        });
+      }
+      return { error: undefined };
+    });
   });
 
   afterEach(() => {
@@ -403,7 +435,6 @@ describe('SigninPasswordlessCode page', () => {
     });
 
     it('navigates to TOTP code page when account has 2FA', async () => {
-      const mockNavigateModule = jest.requireMock('@reach/router');
       mockAuthClient.passwordlessConfirmCode = jest.fn().mockResolvedValue({
         uid: MOCK_UID,
         sessionToken: MOCK_SESSION_TOKEN,
@@ -413,13 +444,17 @@ describe('SigninPasswordlessCode page', () => {
         verificationReason: 'login',
       });
 
-      render({ isSignup: false });
+      const integration = createMockSigninWebIntegration();
+      integration.isSync = jest.fn().mockReturnValue(true);
+
+      render({ integration, isSignup: false });
       await submitCode();
 
       await waitFor(() => {
-        expect(mockNavigateModule.navigate).toHaveBeenCalledWith(
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
           '/signin_totp_code',
           expect.objectContaining({
+            replace: true,
             state: expect.objectContaining({
               email: MOCK_EMAIL,
               sessionToken: MOCK_SESSION_TOKEN,
@@ -427,6 +462,7 @@ describe('SigninPasswordlessCode page', () => {
               sessionVerified: false,
               verificationMethod: 'totp-2fa',
               verificationReason: 'login',
+              isPasswordlessFlow: true,
             }),
           })
         );
@@ -443,7 +479,10 @@ describe('SigninPasswordlessCode page', () => {
         verificationReason: 'login',
       });
 
-      render({ isSignup: false });
+      const integration = createMockSigninWebIntegration();
+      integration.isSync = jest.fn().mockReturnValue(true);
+
+      render({ integration, isSignup: false });
       await submitCode();
 
       await waitFor(() => {
@@ -471,7 +510,6 @@ describe('SigninPasswordlessCode page', () => {
       });
 
       const integration = createMockSigninOAuthIntegration();
-      integration.wantsKeys = jest.fn().mockReturnValue(false);
 
       render({ integration, isSignup: false });
       await submitCode();
@@ -506,12 +544,25 @@ describe('SigninPasswordlessCode page', () => {
         hardNavigateSpy.mockRestore();
       });
 
-      it('redirects to set password page when integration wantsKeys', async () => {
+      it('redirects to set password page for Sync signin flow when user accepts merge', async () => {
+        // Mock ensureCanLinkAcountOrRedirect to return true (user can link account)
+        mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(true);
+
         const integration = createMockSigninWebIntegration();
         integration.isSync = jest.fn().mockReturnValue(true);
 
-        render({ integration });
+        render({ integration, isSignup: false });
         await submitCode();
+
+        await waitFor(() => {
+          expect(mockEnsureCanLinkAcountOrRedirect).toHaveBeenCalledWith(expect.objectContaining(
+            {
+              email: MOCK_EMAIL,
+              uid: MOCK_UID,
+              navigateWithQuery: mockNavigateWithQuery,
+            }
+          ))
+        });
 
         await waitFor(() => {
           expect(mockNavigateWithQuery).toHaveBeenCalledWith(
@@ -526,12 +577,82 @@ describe('SigninPasswordlessCode page', () => {
         });
       });
 
+      it('does not navigate to set password when user rejects Sync merge', async () => {
+        // Mock ensureCanLinkAcountOrRedirect to return false (user rejected merge)
+        mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(false);
+
+        const integration = createMockSigninWebIntegration();
+        integration.isSync = jest.fn().mockReturnValue(true);
+
+        render({ integration, isSignup: false });
+        await submitCode();
+
+        await waitFor(() => {
+          expect(mockEnsureCanLinkAcountOrRedirect).toHaveBeenCalled();
+        });
+
+        // Should not navigate to set password page when user rejects merge
+        expect(mockNavigateWithQuery).not.toHaveBeenCalledWith(
+          '/post_verify/third_party_auth/set_password',
+          expect.anything()
+        );
+      });
+
+      it('skips merge check for Sync signup flow', async () => {
+        mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(true);
+
+        const integration = createMockSigninWebIntegration();
+        integration.isSync = jest.fn().mockReturnValue(true);
+
+        render({ integration, isSignup: true });
+        await submitCode();
+
+        // ensureCanLinkAcountOrRedirect should NOT be called for signup flows
+        await waitFor(() => {
+          expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+            '/post_verify/third_party_auth/set_password',
+            expect.objectContaining({
+              replace: true,
+              state: {
+                isPasswordlessFlow: true,
+              },
+            })
+          );
+        });
+
+        expect(mockEnsureCanLinkAcountOrRedirect).not.toHaveBeenCalled();
+      });
+
+      it('redirects to set password page for Firefox non-Sync (Relay) signin flow when user accepts merge', async () => {
+        mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(true);
+
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.Relay,
+          isSync: false,
+        });
+
+        render({ integration, isSignup: false });
+        await submitCode();
+
+        await waitFor(() => {
+          expect(mockEnsureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
+            expect.objectContaining({
+              email: MOCK_EMAIL,
+              uid: MOCK_UID,
+              navigateWithQuery: mockNavigateWithQuery,
+            })
+          );
+        });
+        await waitFor(() => {
+          expect(mockHandleNavigation).toHaveBeenCalled();
+        });
+      });
+
       it('with OAuth integration', async () => {
         const finishOAuthFlowHandler = jest
           .fn()
           .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
         const integration = createMockSigninOAuthIntegration();
-        integration.wantsKeys = jest.fn().mockReturnValue(false);
 
         render({ finishOAuthFlowHandler, integration, isSignup: true });
         await submitCode();
@@ -546,7 +667,6 @@ describe('SigninPasswordlessCode page', () => {
 
       it('redirects to TOTP setup when integration wantsTwoStepAuthentication', async () => {
         const integration = createMockSigninOAuthIntegration();
-        integration.wantsKeys = jest.fn().mockReturnValue(false);
         integration.wantsTwoStepAuthentication = jest.fn().mockReturnValue(true);
 
         render({ integration, isSignup: true });
@@ -568,7 +688,6 @@ describe('SigninPasswordlessCode page', () => {
       it('with web integration and valid redirect', async () => {
         const integration = createMockSigninWebIntegration();
         integration.data.redirectTo = 'https://mozilla.org';
-        integration.wantsKeys = jest.fn().mockReturnValue(false);
 
         render({ integration, isSignup: true });
         await submitCode();
@@ -582,7 +701,6 @@ describe('SigninPasswordlessCode page', () => {
 
       it('navigates to settings when web integration without redirectTo', async () => {
         const integration = createMockSigninWebIntegration();
-        integration.wantsKeys = jest.fn().mockReturnValue(false);
 
         render({ integration, isSignup: true });
         await submitCode();

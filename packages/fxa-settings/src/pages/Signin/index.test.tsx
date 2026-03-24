@@ -253,7 +253,7 @@ describe('Signin component', () => {
       it('does not render third party auth for sync, emits expected Glean event', async () => {
         const hardNavigateSpy = jest
           .spyOn(utils, 'hardNavigate')
-          .mockImplementation(() => {});
+          .mockImplementation(() => { });
 
         const integration = createMockSigninOAuthNativeSyncIntegration();
         render({ integration });
@@ -622,7 +622,7 @@ describe('Signin component', () => {
               fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
-                .mockImplementation(() => {});
+                .mockImplementation(() => { });
             });
             it('is sent if Sync integration and navigates to CAD', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
@@ -688,7 +688,7 @@ describe('Signin component', () => {
               fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
-                .mockImplementation(() => {});
+                .mockImplementation(() => { });
               finishOAuthFlowHandler = jest
                 .fn()
                 .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
@@ -1126,7 +1126,7 @@ describe('Signin component', () => {
         beforeEach(() => {
           hardNavigateSpy = jest
             .spyOn(utils, 'hardNavigate')
-            .mockImplementation(() => {});
+            .mockImplementation(() => { });
         });
 
         afterEach(() => {
@@ -1179,6 +1179,232 @@ describe('Signin component', () => {
               })
             );
           });
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('shows merge warning for cached Sync passwordless signin when user accepts', async () => {
+          const ensureCanLinkSpy = jest.spyOn(
+            SigninUtils,
+            'ensureCanLinkAcountOrRedirect'
+          ).mockResolvedValue(true);
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: false,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(ensureCanLinkSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                email: MOCK_EMAIL,
+                uid: MOCK_UID,
+              })
+            );
+          });
+
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalled();
+          });
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('aborts cached Sync passwordless signin when user rejects merge', async () => {
+          const ensureCanLinkSpy = jest.spyOn(
+            SigninUtils,
+            'ensureCanLinkAcountOrRedirect'
+          ).mockResolvedValue(false);
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: false,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(ensureCanLinkSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                email: MOCK_EMAIL,
+                uid: MOCK_UID,
+              })
+            );
+          });
+
+          // Should NOT call handleNavigation when user rejects merge
+          expect(handleNavigationSpy).not.toHaveBeenCalled();
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('skips merge check for cached Sync signin with linked account', async () => {
+          const ensureCanLinkSpy = jest.spyOn(
+            SigninUtils,
+            'ensureCanLinkAcountOrRedirect'
+          );
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: true,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalled();
+          });
+
+          // Should NOT call ensureCanLinkAcountOrRedirect when hasLinkedAccount is true
+          expect(ensureCanLinkSpy).not.toHaveBeenCalled();
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('skips merge check for non-Sync cached passwordless signin', async () => {
+          const ensureCanLinkSpy = jest.spyOn(
+            SigninUtils,
+            'ensureCanLinkAcountOrRedirect'
+          );
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthIntegration(); // Non-Sync integration
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: false,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalled();
+          });
+
+          // Should NOT call ensureCanLinkAcountOrRedirect for non-Sync integrations
+          expect(ensureCanLinkSpy).not.toHaveBeenCalled();
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('shows merge warning for cached Firefox non-Sync (Relay) passwordless signin when user accepts', async () => {
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(true);
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Relay,
+          });
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: false,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(ensureCanLinkSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                email: MOCK_EMAIL,
+                uid: MOCK_UID,
+              })
+            );
+          });
+
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalled();
+          });
+
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('skips merge check for cached Firefox non-Sync signin with linked account', async () => {
+          const ensureCanLinkSpy = jest.spyOn(
+            SigninUtils,
+            'ensureCanLinkAcountOrRedirect'
+          );
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Relay,
+          });
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: true,
+            cachedSigninHandler,
+          });
+
+          await submit();
+
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalled();
+          });
+
+          // Should NOT call ensureCanLinkAcountOrRedirect when hasLinkedAccount is true
+          expect(ensureCanLinkSpy).not.toHaveBeenCalled();
+
+          ensureCanLinkSpy.mockRestore();
           handleNavigationSpy.mockRestore();
         });
 
@@ -1605,7 +1831,7 @@ describe('Signin component', () => {
     beforeEach(() => {
       hardNavigateSpy = jest
         .spyOn(utils, 'hardNavigate')
-        .mockImplementation(() => {});
+        .mockImplementation(() => { });
     });
     afterEach(() => {
       hardNavigateSpy.mockRestore();

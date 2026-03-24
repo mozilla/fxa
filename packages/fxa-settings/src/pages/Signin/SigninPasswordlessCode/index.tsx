@@ -32,7 +32,7 @@ import {
   isSyncDesktopV3Integration,
   isWebIntegration,
 } from '../../../models';
-import { getSyncNavigate, handleNavigation } from '../utils';
+import { getSyncNavigate, handleNavigation, ensureCanLinkAcountOrRedirect } from '../utils';
 import firefox from '../../../lib/channels/firefox';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import VerificationMethods from '../../../constants/verification-methods';
@@ -207,6 +207,21 @@ const SigninPasswordlessCode = ({
         verified: isSessionVerified,
         sessionVerified: isSessionVerified,
       });
+
+      // For existing users signing into Sync (signin flow), show merge warning
+      // before navigating to set password. For signup flows, the warning was
+      // already shown on the email-first page.
+      if ((integration.isSync() || integration.isFirefoxNonSync()) && !isSignup) {
+        const canLink = await ensureCanLinkAcountOrRedirect({
+          email,
+          uid: result.uid,
+          ftlMsgResolver,
+          navigateWithQuery,
+        });
+        if (!canLink) {
+          return;
+        }
+      }
 
       // Sync flows need a password to derive encryption keys (unwrapBKey).
       // TOTP accounts must verify first since /password/create requires
