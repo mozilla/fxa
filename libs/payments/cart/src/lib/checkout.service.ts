@@ -79,6 +79,7 @@ import {
   PayWithPaypalNullCurrencyError,
   PayWithStripeNullCurrencyError,
   UpgradeSubscriptionNullCurrencyError,
+  UnexpectedSubscriptionStatusForTrialError,
 } from './checkout.error';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
@@ -358,6 +359,18 @@ export class CheckoutService {
       new PayWithStripeNullCurrencyError(cart.id, price.id)
     );
 
+    const freeTrial =
+      eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
+        ? await this.getFreeTrialEligibility({
+            uid,
+            offeringConfigId: cart.offeringConfigId,
+            countryCode: cart.taxAddress?.countryCode || '',
+            interval: cart.interval as SubplatInterval,
+            eligibilityStatus:
+              eligibility.subscriptionEligibilityResult,
+          })
+        : null;
+
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
         ? await this.subscriptionManager.create(
@@ -372,7 +385,17 @@ export class CheckoutService {
                   price: price.id,
                 },
               ],
-              payment_behavior: 'default_incomplete',
+              ...(freeTrial
+                ? {
+                    trial_period_days: freeTrial.trialLengthDays,
+                    trial_settings: {
+                      end_behavior: {
+                        missing_payment_method:
+                          'cancel' as const,
+                      },
+                    },
+                  }
+                : { payment_behavior: 'default_incomplete' as const }),
               currency: cart.currency ?? undefined,
               metadata: {
                 // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
@@ -417,6 +440,20 @@ export class CheckoutService {
     const store = this.cartAsyncLocalStorage.getStore();
     if (store) {
       store.checkout.subscriptionId = subscription.id;
+    }
+
+    if (freeTrial) {
+      if (subscription.status !== 'trialing') {
+        throw new UnexpectedSubscriptionStatusForTrialError(
+          cart.id,
+          subscription.id,
+          subscription.status
+        );
+      }
+      await this.freeTrialManager.recordFreeTrial(
+        uid,
+        freeTrial.internalName
+      );
     }
 
     // Get payment/setup intent for subscription
@@ -572,6 +609,18 @@ export class CheckoutService {
       new PayWithPaypalNullCurrencyError(cart.id, price.id)
     );
 
+    const freeTrial =
+      eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
+        ? await this.getFreeTrialEligibility({
+            uid,
+            offeringConfigId: cart.offeringConfigId,
+            countryCode: cart.taxAddress?.countryCode || '',
+            interval: cart.interval as SubplatInterval,
+            eligibilityStatus:
+              eligibility.subscriptionEligibilityResult,
+          })
+        : null;
+
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'paypal',
     });
@@ -586,6 +635,9 @@ export class CheckoutService {
               },
               collection_method: 'send_invoice',
               days_until_due: 1,
+              ...(freeTrial
+                ? { trial_period_days: freeTrial.trialLengthDays }
+                : {}),
               promotion_code: promotionCode?.id,
               items: [
                 {
@@ -656,6 +708,20 @@ export class CheckoutService {
       }),
     ]);
 
+    if (freeTrial) {
+      if (subscription.status !== 'trialing') {
+        throw new UnexpectedSubscriptionStatusForTrialError(
+          cart.id,
+          subscription.id,
+          subscription.status
+        );
+      }
+      await this.freeTrialManager.recordFreeTrial(
+        uid,
+        freeTrial.internalName
+      );
+    }
+
     const updatedVersion = version + 1;
 
     if (!subscription.latest_invoice) {
@@ -667,29 +733,34 @@ export class CheckoutService {
     const latestInvoice = await this.invoiceManager.retrieve(
       subscription.latest_invoice
     );
-    const processedInvoice =
-      await this.invoiceManager.processPayPalInvoice(latestInvoice);
-    if (['paid', 'open'].includes(processedInvoice.status ?? '')) {
-      await this.postPaySteps({
-        cart,
-        version: updatedVersion,
-        subscription,
-        uid,
-        paymentProvider: 'paypal',
-        paymentForm: SubPlatPaymentMethodType.PayPal,
-        isCancelInterstitialOffer: isCancelInterstitialOffer(
-          eligibility.subscriptionEligibilityResult,
-          attribution.session_entrypoint
-        ),
-        requestArgs,
-      });
+
+    if (freeTrial) {
+      await this.invoiceManager.processPayPalZeroInvoice(latestInvoice.id);
     } else {
-      throw new InvalidInvoiceStateCheckoutError(
-        cart.id,
-        processedInvoice.id,
-        processedInvoice.status ?? undefined
-      );
+      const processedInvoice =
+        await this.invoiceManager.processPayPalInvoice(latestInvoice);
+      if (!['paid', 'open'].includes(processedInvoice.status ?? '')) {
+        throw new InvalidInvoiceStateCheckoutError(
+          cart.id,
+          processedInvoice.id,
+          processedInvoice.status ?? undefined
+        );
+      }
     }
+
+    await this.postPaySteps({
+      cart,
+      version: updatedVersion,
+      subscription,
+      uid,
+      paymentProvider: 'paypal',
+      paymentForm: SubPlatPaymentMethodType.PayPal,
+      isCancelInterstitialOffer: isCancelInterstitialOffer(
+        eligibility.subscriptionEligibilityResult,
+        attribution.session_entrypoint
+      ),
+      requestArgs,
+    });
   }
 
   async upgradeSubscription(
@@ -893,8 +964,7 @@ export class CheckoutService {
     ]);
 
     if (
-      !nimbusResult ||
-      !nimbusResult.Features['free-trial-feature'].enabled
+      !nimbusResult?.Features?.['free-trial-feature']?.enabled
     ) {
       return null;
     }
@@ -907,7 +977,7 @@ export class CheckoutService {
     const matchingTrial = freeTrials.find(
       (trial) =>
         trial.trialLengthDays > 0 &&
-        trial.countries.includes(countryCode) &&
+        trial.countries.some((country) => country.slice(0, 2) === countryCode) &&
         trial.intervals.includes(interval)
     );
 

@@ -2069,6 +2069,65 @@ describe('SubscriptionManagementService', () => {
 
       expect(result).toEqual({ flowType: 'not_found' });
     });
+
+    it('does not return not_found for trialing subscriptions', async () => {
+      const mockUid = faker.string.uuid();
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({ currency: 'usd' })
+      );
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockStripeCustomer.id,
+          status: 'trialing',
+        })
+      );
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({ customer: mockStripeCustomer.id })
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
+      const mockUpcomingInvoicePreview = InvoicePreviewFactory();
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoicePreview);
+
+      const result = await subscriptionManagementService.getCancelFlowContent(
+        mockUid,
+        mockSubscription.id
+      );
+
+      expect(result.flowType).toEqual('cancel');
+    });
   });
 
   describe('getStaySubscribedFlowContent', () => {
@@ -2204,6 +2263,61 @@ describe('SubscriptionManagementService', () => {
         );
 
       expect(result).toEqual({ flowType: 'not_found' });
+    });
+
+    it('does not return not_found for trialing subscriptions', async () => {
+      const mockUid = faker.string.uuid();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({ status: 'trialing' })
+      );
+      const mockStripeCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({})
+      );
+      const mockPaymentMethodInformation = {
+        type: SubPlatPaymentMethodType.Card,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
+      };
+      const mockProductNameByPriceIdsResultUtil = {
+        purchaseForPriceId: jest.fn(),
+      };
+      const mockUpcomingInvoicePreview = InvoicePreviewFactory();
+
+      jest
+        .spyOn(
+          subscriptionManagementService as any,
+          'validateAndRetrieveSubscription'
+        )
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockStripeCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethodInformation);
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingSubscription')
+        .mockResolvedValue(mockUpcomingInvoicePreview);
+
+      const result =
+        await subscriptionManagementService.getStaySubscribedFlowContent(
+          mockUid,
+          mockSubscription.id
+        );
+
+      expect(result.flowType).toEqual('stay_subscribed');
     });
 
     it('returns not_found when stripe customer is not found', async () => {
