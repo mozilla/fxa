@@ -13,7 +13,7 @@
       the same meaning. If the header text changes later, consider adding an aria-label/role=img. -->
       <div class="bg-no-ff-desktop bg-contain bg-center bg-no-repeat h-44"></div>
       <h2 id="pair-unsupported-header" class="card-header focus:outline-none mt-5" tabindex="-1">{{#t}}Oops! It looks like you’re not using Firefox.{{/t}}</h2>
-      <div class="flex bg-orange-50 px-4 py-3 mt-6 rounded-lg mb-4">
+      <div class="flex bg-orange-50 dark:bg-orange-900/30 px-4 py-3 mt-6 rounded-lg mb-4">
         <div class="bg-icon-warning bg-contain bg-center bg-no-repeat w-6" aria-label="{{#t}}Attention:{{/t}}" role="img"></div>
         <p class="ps-3">{{#t}}Switch to Firefox and open this page to connect another device.{{/t}}</p>
       </div>
@@ -30,7 +30,7 @@
       {{/isSystemCameraUrl}}
       {{^isSystemCameraUrl}}
         {{^isFirefox}}
-          <div class="flex bg-orange-50 px-4 py-3 rounded-lg mb-8">
+          <div class="flex bg-orange-50 dark:bg-orange-900/30 px-4 py-3 rounded-lg mb-8">
             <div class="bg-icon-warning bg-contain bg-center bg-no-repeat w-10" aria-label="{{#t}}Attention:{{/t}}" role="img"></div>
             <p class="ps-3 text-sm">{{#t}}Oops! It looks like you’re not using Firefox.{{/t}} <a href="{{{ escapedMobileDownloadLink }}}" target="_blank" class="link-blue" data-glean-id="cad_redirect_mobile_download">{{#t}}Download Firefox now{{/t}}</a></p>
           </div>

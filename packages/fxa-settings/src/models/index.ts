@@ -5,6 +5,7 @@
 export * from './contexts/AppContext';
 export * from './contexts/AuthStateContext';
 export * from './contexts/AccountStateContext';
+export * from './contexts/ThemeContext';
 export * from './AlertBarInfo';
 export * from './Account';
 export * from './Session';

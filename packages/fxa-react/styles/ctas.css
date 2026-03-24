@@ -16,19 +16,23 @@
 
   .cta-neutral {
     @apply bg-grey-10 border-grey-200;
+    @apply dark:bg-grey-700 dark:border-grey-500 dark:text-grey-100;
   }
 
   .cta-neutral:active {
     @apply border-grey-400 bg-grey-100 text-grey-400;
+    @apply dark:border-grey-400 dark:bg-grey-600 dark:text-grey-200;
   }
 
   .cta-neutral:focus,
   .cta-neutral:focus-visible {
     @apply bg-white outline outline-2 outline-offset-2 outline-blue-500;
+    @apply dark:bg-grey-600;
   }
 
   .cta-neutral:disabled {
     @apply bg-white text-grey-300 border-grey-200 cursor-not-allowed;
+    @apply dark:bg-grey-700 dark:text-grey-500 dark:border-grey-600;
   }
 
   .cta-primary {
@@ -82,6 +86,7 @@
   @media (hover: hover) {
     .cta-neutral:hover:not(:disabled):not(:active) {
       @apply border-grey-200 bg-grey-100 text-grey-400;
+      @apply dark:border-grey-500 dark:bg-grey-600 dark:text-grey-200;
     }
 
     .cta-primary:hover:not(:disabled):not(:active):not([aria-disabled='true']) {

@@ -16,6 +16,7 @@ module.exports = {
   addons: [
     '@storybook/addon-actions',
     '@storybook/addon-links',
+    '@storybook/addon-toolbars',
     'storybook-addon-rtl',
     '@storybook/addon-styling',
     '@storybook/preset-create-react-app',

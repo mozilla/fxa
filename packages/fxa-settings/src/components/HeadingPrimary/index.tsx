@@ -10,4 +10,8 @@ export const HeadingPrimary = ({
 }: {
   children: React.ReactNode;
   marginClass?: string;
-}) => <h1 className={`${marginClass} text-grey-400 text-base`}>{children}</h1>;
+}) => (
+  <h1 className={`${marginClass} text-grey-400 dark:text-grey-200 text-base`}>
+    {children}
+  </h1>
+);

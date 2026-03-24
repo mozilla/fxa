@@ -10,6 +10,7 @@ import Head from 'fxa-react/components/Head';
 import classNames from 'classnames';
 import { RelierCmsInfo } from '../../models/integrations';
 import { LocaleToggle } from '../LocaleToggle';
+import { DarkModeToggle } from '../DarkModeToggle';
 import { useConfig } from '../../models/hooks';
 import { CardLoadingSpinner } from '../CardLoadingSpinner';
 import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
@@ -79,13 +80,14 @@ export const AppLayout = ({
   const favicon = cmsInfo?.shared?.favicon;
 
   const showLocaleToggle = config.featureFlags?.showLocaleToggle;
+  const showDarkModeToggle = config.darkMode?.enabled;
 
   return (
     <>
       <Head {...{ title: overrideTitle, favicon }} />
       <div
         className={classNames(
-          'flex min-h-screen flex-col items-center',
+          'flex min-h-screen flex-col items-center dark:bg-grey-900',
           cmsBackgrounds?.defaultLayout &&
             'mobileLandscape:[background:var(--cms-bg)]',
           showSplitLayout && 'mobileLandscape:relative'
@@ -135,7 +137,7 @@ export const AppLayout = ({
                   null,
                   'Mozilla logo'
                 )}
-                className="h-auto w-[140px] mx-0"
+                className="h-auto w-[140px] mx-0 dark:invert"
               />
             )}
           </LinkExternal>
@@ -160,11 +162,18 @@ export const AppLayout = ({
                 )}
               </section>
             </main>
-            {showLocaleToggle && (
-              <footer className="w-full py-2 px-4 mobileLandscape:mx-8 mobileLandscape:pb-4 flex text-grey-400">
-                <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
-                  <LocaleToggle />
-                </div>
+            {(showLocaleToggle || showDarkModeToggle) && (
+              <footer className="w-full py-2 px-4 mobileLandscape:mx-8 mobileLandscape:pb-4 flex text-grey-400 dark:text-grey-300">
+                {showLocaleToggle && (
+                  <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
+                    <LocaleToggle />
+                  </div>
+                )}
+                {showDarkModeToggle && (
+                  <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
+                    <DarkModeToggle />
+                  </div>
+                )}
               </footer>
             )}
           </>
@@ -191,7 +200,7 @@ export const AppLayout = ({
                   : undefined
               }
             />
-            <div className="mobileLandscape:items-center desktop:bg-white desktop:ml-auto flex flex-col flex-1">
+            <div className="mobileLandscape:items-center desktop:bg-white desktop:dark:bg-grey-800 desktop:ml-auto flex flex-col flex-1">
               <main className="flex justify-center mobileLandscape:items-center flex-1">
                 {loading ? (
                   <section>
@@ -201,13 +210,18 @@ export const AppLayout = ({
                   <section className="card">{children}</section>
                 )}
               </main>
-              {showLocaleToggle && (
-                <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400">
+              <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400 dark:text-grey-300">
+                {showLocaleToggle && (
                   <div className="w-full mobileLandscape:w-auto flex items-center">
                     <LocaleToggle />
                   </div>
-                </footer>
-              )}
+                )}
+                {showDarkModeToggle && (
+                  <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
+                    <DarkModeToggle />
+                  </div>
+                )}
+              </footer>
             </div>
           </div>
         )}

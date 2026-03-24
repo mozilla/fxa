@@ -20,7 +20,7 @@ export const Profile = forwardRef<HTMLDivElement>((_, ref) => {
         <FtlMsg id="profile-heading">Profile</FtlMsg>
       </h2>
 
-      <div className="bg-white tablet:rounded-xl shadow">
+      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow">
         <FtlMsg id="profile-picture" attrs={{ header: true }}>
           <UnitRow
             header="Picture"

@@ -273,7 +273,7 @@ export const UnitRowSecondaryEmail = () => {
                   ),
                 }}
               >
-                <p className="text-xs mt-3 text-grey-400">
+                <p className="text-xs mt-3 text-grey-400 dark:text-grey-200">
                   Confirmation needed.{' '}
                   <button
                     className="link-blue"
@@ -424,7 +424,7 @@ const SecondaryEmailDefaultContent = () => (
         ),
       }}
     >
-      <p className="text-grey-400 text-xs mt-2">
+      <p className="text-grey-400 dark:text-grey-200 text-xs mt-2">
         Note: a secondary email won’t restore your information — you’ll need an{' '}
         <a
           className="link-blue"

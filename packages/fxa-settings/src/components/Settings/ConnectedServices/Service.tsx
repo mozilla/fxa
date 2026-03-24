@@ -49,7 +49,8 @@ function getScopeServices(scope: string[] | null): ScopeService[] {
   return services;
 }
 
-const iconClasses = 'flex w-10 justify-center items-center flex-0';
+const iconClasses =
+  'flex w-10 justify-center items-center flex-0 text-grey-700 dark:text-grey-100';
 
 export function Service({
   name,
@@ -139,7 +140,7 @@ export function Service({
       data-testid="settings-connected-service"
       data-name={name}
     >
-      <div className="border-2 border-solid border-grey-100 rounded">
+      <div className="border-2 border-solid border-grey-100 dark:border-grey-700 rounded">
         <div className="p-4 flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
           <div className="flex flex-grow w-full mobileLandscape:flex-2">
             <span className={classNames(iconClasses, 'px-2')}>{Icon}</span>
@@ -160,7 +161,7 @@ export function Service({
                 )}
                 {locationProvided && (
                   <p
-                    className="text-xs text-grey-400"
+                    className="text-xs text-grey-400 dark:text-grey-200"
                     data-testid="service-location"
                   >
                     {city}, {stateCode}, {country}
@@ -190,13 +191,15 @@ export function Service({
         {scopeServices.map((scopeService) => (
           <div
             key={scopeService.name}
-            className="px-4 py-2 bg-grey-50 flex items-center"
+            className="px-4 py-2 bg-grey-50 dark:bg-grey-600 flex items-center"
             data-testid="scope-service"
           >
             <span className={classNames(iconClasses, 'px-3')}>
               {scopeService.icon}
             </span>
-            <p className="text-sm text-grey-600">{scopeService.name}</p>
+            <p className="text-sm text-grey-600 dark:text-grey-200">
+              {scopeService.name}
+            </p>
           </div>
         ))}
       </div>

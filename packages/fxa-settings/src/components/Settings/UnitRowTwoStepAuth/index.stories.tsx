@@ -18,7 +18,7 @@ export default {
     (Story) => (
       <LocationProvider>
         {/* Added to represent the section in which rows are nested */}
-        <div className="bg-white tablet:rounded-xl shadow">
+        <div className="bg-white dark:bg-grey-900 tablet:rounded-xl shadow">
           <Story />
         </div>
       </LocationProvider>

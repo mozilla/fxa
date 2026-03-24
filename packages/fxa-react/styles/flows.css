@@ -7,7 +7,7 @@
 /* Transparent border around card is for Windows HCM mode */
 
 .card {
-  @apply w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-6 py-8 mobileLandscape:px-8 mobileLandscape:py-9 mobileLandscape:shadow-card-grey-drop mobileLandscape:mb-6;
+  @apply w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white mobileLandscape:dark:bg-grey-700 rounded-xl px-6 py-8 mobileLandscape:px-8 mobileLandscape:py-9 mobileLandscape:shadow-card-grey-drop mobileLandscape:mb-6;
 
   /* HACK until content-server no longer needs .card, otherwise component classes take precedence */
   &.card-xl {

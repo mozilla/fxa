@@ -101,8 +101,9 @@ const SubRow = ({
       className={classNames(
         'flex flex-col w-full max-w-full mt-8 p-4 @mobileLandscape/unitRow:mt-4 @mobileLandscape/unitRow:rounded-lg border items-start text-sm gap-2',
         {
-          'bg-grey-10 border-transparent': !border,
-          'bg-white border-grey-100': border,
+          'bg-grey-10 dark:bg-grey-700 border-transparent': !border,
+          'bg-white dark:bg-grey-700 border-grey-100 dark:border-grey-500':
+            border,
         }
       )}
     >

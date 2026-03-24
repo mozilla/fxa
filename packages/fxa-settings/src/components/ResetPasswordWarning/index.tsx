@@ -102,7 +102,7 @@ const ResetPasswordWarning = ({
               </p>
             </FtlMsg>
             <FtlMsg id="password-reset-data-may-be-saved-locally-2">
-              <p className="text-grey-500">
+              <p className="text-grey-500 dark:text-grey-200">
                 Your browser data might be saved on that device. Reset your
                 password, then sign in there to restore and sync your data.
               </p>
@@ -123,7 +123,7 @@ const ResetPasswordWarning = ({
               </p>
             </FtlMsg>
             <FtlMsg id="password-reset-encrypted-data-cannot-be-recovered-2">
-              <p className="text-grey-500">
+              <p className="text-grey-500 dark:text-grey-200">
                 We’re sorry, but your encrypted browser data on Firefox servers
                 can’t be recovered.
               </p>

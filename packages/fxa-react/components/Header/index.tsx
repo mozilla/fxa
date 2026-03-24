@@ -19,7 +19,7 @@ export const Header = (props: HeaderProps) => {
       // top-[env(safe-area-inset-top)] keeps the sticky header below the notch/status bar on scroll
       className={
         props.className ||
-        'sticky top-[env(safe-area-inset-top)] bg-grey-10 z-10'
+        'sticky top-[env(safe-area-inset-top)] bg-grey-10 dark:bg-grey-900 z-10'
       }
       style={props.styles}
     >
