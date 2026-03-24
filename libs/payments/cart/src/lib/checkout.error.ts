@@ -253,3 +253,17 @@ export class IntentInsufficientFundsError extends IntentFailedHandledError {
     this.name = 'IntentInsufficientFundsError';
   }
 }
+
+export class UnexpectedSubscriptionStatusForTrialError extends CheckoutError {
+  constructor(cartId: string, subscriptionId: string, actualStatus: string) {
+    super(
+      'Expected subscription status to be trialing for free trial checkout',
+      {
+        cartId,
+        subscriptionId,
+        actualStatus,
+      }
+    );
+    this.name = 'UnexpectedSubscriptionStatusForTrialError';
+  }
+}

@@ -497,7 +497,8 @@ export class SubscriptionManagementService {
       supportUrl,
       webIcon,
       canResubscribe:
-        subscription.status === 'active' && subscription.cancel_at_period_end,
+        ['active', 'trialing'].includes(subscription.status) &&
+        subscription.cancel_at_period_end,
       creditApplied,
       currency: subscription.currency,
       interval: subplatInterval,
@@ -589,7 +590,10 @@ export class SubscriptionManagementService {
       subscriptionId
     );
 
-    if (!subscription || subscription.status !== 'active') {
+    if (
+      !subscription ||
+      !['active', 'trialing'].includes(subscription.status)
+    ) {
       return {
         flowType: 'not_found',
       };
@@ -666,7 +670,7 @@ export class SubscriptionManagementService {
 
       return {
         flowType: 'cancel',
-        active: subscription.status === 'active',
+        active: ['active', 'trialing'].includes(subscription.status),
         cancelAtPeriodEnd: subscription.cancel_at_period_end,
         currency: subscription.currency,
         currentPeriodEnd,
@@ -708,7 +712,10 @@ export class SubscriptionManagementService {
       subscriptionId
     );
 
-    if (!subscription || subscription.status !== 'active') {
+    if (
+      !subscription ||
+      !['active', 'trialing'].includes(subscription.status)
+    ) {
       return {
         flowType: 'not_found',
       };
@@ -784,7 +791,7 @@ export class SubscriptionManagementService {
 
       return {
         flowType: 'stay_subscribed',
-        active: subscription.status === 'active',
+        active: ['active', 'trialing'].includes(subscription.status),
         cancelAtPeriodEnd: subscription.cancel_at_period_end,
         currency: subscription.currency,
         currentPeriodEnd,
