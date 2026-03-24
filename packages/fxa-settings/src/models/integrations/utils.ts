@@ -4,12 +4,10 @@
 
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 
+const oauthNativeServices = new Set<string>(Object.values(OAuthNativeServices));
+
 export function isFirefoxService(service?: string) {
-  return (
-    service === OAuthNativeServices.Sync ||
-    service === OAuthNativeServices.Relay ||
-    service === OAuthNativeServices.SmartWindow
-  );
+  return !!service && oauthNativeServices.has(service);
 }
 
 const NO_LONGER_SUPPORTED_CONTEXTS = new Set([
