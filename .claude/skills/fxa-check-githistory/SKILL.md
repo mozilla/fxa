@@ -1,5 +1,5 @@
 ---
-name: check-githistory
+name: fxa-check-githistory
 description: Examines the git history of files changed in the current branch to identify potential regressions, re-introduced bugs, or changes that conflict with past fixes. Cross-references current changes against prior commits on the same code paths.
 context: fork
 ---

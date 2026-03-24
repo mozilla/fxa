@@ -1,5 +1,5 @@
 ---
-name: explain-code
+name: fxa-explain-code
 description: Explains code for experienced engineers. Covers what changed, why it works, non-obvious decisions, gotchas, and data/control flow. Defaults to git diff vs main; accepts an optional file or path argument.
 argument-hint: [file-or-path]
 context: fork

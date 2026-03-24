@@ -1,5 +1,5 @@
 ---
-name: check-react
+name: fxa-check-react
 description: Reviews changed React/TSX code for component design, hooks misuse, performance, accessibility, and state management issues. Reports findings with severity and concrete fix recommendations. Operates on files changed vs main.
 context: fork
 ---

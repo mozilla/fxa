@@ -1,5 +1,5 @@
 ---
-name: check-docs
+name: fxa-check-docs
 description: Improves documentation in changed files. Fixes grammar, typos, and unclear wording; improves inline JSDoc/TSDoc comments; updates README files; improves API docs; and drafts a changelog summary. Operates on files changed vs main.
 context: fork
 ---
