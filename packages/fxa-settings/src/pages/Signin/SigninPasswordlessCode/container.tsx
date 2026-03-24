@@ -83,7 +83,9 @@ const SigninPasswordlessCodeContainer = ({
       };
       sendCode();
     }
-  }, [email, service, codeSent, authClient, integration, navigateWithQuery, location.pathname, location.search, location.state, flowQueryParams]);
+    // Only run this on initial render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!email) {
     return (
