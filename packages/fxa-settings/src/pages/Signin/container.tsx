@@ -262,9 +262,11 @@ const SigninContainer = ({
               });
             if (!exists) {
               // For new accounts, passwordless requires the feature flag + server support
+              // The forcePasswordless query param will be respected if it's provided
               const passwordlessEnabled =
-                config.featureFlags?.passwordlessEnabled === true ||
+                (config.featureFlags?.passwordlessEnabled === true && queryParamModel.forcePasswordless !== false) ||
                 queryParamModel.forcePasswordless === true;
+
               if (passwordlessEnabled && passwordlessSupported && integration.isFirefoxNonSync()) {
                 navigateWithQuery('/signin_passwordless_code', {
                   state: {

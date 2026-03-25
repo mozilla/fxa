@@ -130,7 +130,9 @@ test.describe('severity-1 #smoke', () => {
         const credentials = testAccountTracker.generateAccountDetails();
 
         // Navigate to the CMS entrypoint
-        await relier.goto(`entrypoint=${ENTRYPOINT_123Done}`);
+        await relier.goto(
+          `entrypoint=${ENTRYPOINT_123Done}&force_passwordless=false`
+        );
         await relier.clickEmailFirst();
 
         await assertCmsCustomization(page, {

@@ -129,6 +129,9 @@ export class SigninPage extends PasskeyPage {
   goto(route = '/', params = new URLSearchParams()) {
     params.set('forceExperiment', 'generalizedReactApp');
     params.set('forceExperimentGroup', 'react');
+    if (!params.get('force_passwordless')) {
+      params.set('force_passwordless', 'false');
+    }
     return this.page.goto(
       getReactFeatureFlagUrl(this.target, route, params.toString())
     );

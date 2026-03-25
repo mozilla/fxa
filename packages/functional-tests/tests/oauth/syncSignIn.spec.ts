@@ -27,7 +27,7 @@ test.describe('severity-1 #smoke', () => {
       const syncCredentials = await testAccountTracker.signUpSync();
 
       await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&force_passwordless=false`
       );
       await signin.fillOutEmailFirstForm(syncCredentials.email);
       await signin.fillOutPasswordForm(syncCredentials.password);
@@ -40,7 +40,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
       // Sign up for a new account via OAuth
-      await relier.goto();
+      await relier.goto('force_passwordless=false');
       await relier.clickEmailFirst();
       await signin.useDifferentAccountLink.click();
       await signup.fillOutEmailForm(email);
@@ -69,7 +69,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Start sign-into-sync flow
       await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&force_passwordless=false`
       );
       await signin.fillOutEmailFirstForm(syncCredentials.email);
       await signin.fillOutPasswordForm(syncCredentials.password);
@@ -115,7 +115,7 @@ test.describe('severity-1 #smoke', () => {
       const { email, password } =
         testAccountTracker.generateSyncAccountDetails();
 
-      await relier.goto();
+      await relier.goto('force_passwordless=false');
       await relier.clickEmailFirst();
       await signup.fillOutEmailForm(email);
       await signup.fillOutSignupForm(password);
