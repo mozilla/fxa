@@ -2,7 +2,7 @@
 
 exports[`<AppLayout /> snapshots renders correctly with CMS: background wrapper 1`] = `
 <div
-  class="flex min-h-screen flex-col items-center mobileLandscape:[background:var(--cms-bg)]"
+  class="flex min-h-screen flex-col items-center dark:bg-grey-900 mobileLandscape:[background:var(--cms-bg)]"
   data-testid="app"
   style="--cms-bg: linear-gradient(135deg, #F5E9FF 0%, #E8D7FF 40%, #DCC2FF 70%, #C4A5FF 100%);"
 />
@@ -33,7 +33,7 @@ exports[`<AppLayout /> snapshots renders correctly with CMS: title 1`] = `"MOCK 
 
 exports[`<AppLayout /> snapshots renders correctly without CMS: background wrapper 1`] = `
 <div
-  class="flex min-h-screen flex-col items-center"
+  class="flex min-h-screen flex-col items-center dark:bg-grey-900"
   data-testid="app"
 />
 `;
@@ -47,7 +47,7 @@ exports[`<AppLayout /> snapshots renders correctly without CMS: header backgroun
 exports[`<AppLayout /> snapshots renders correctly without CMS: header logo 1`] = `
 <img
   alt="Mozilla logo"
-  class="h-auto w-[140px] mx-0"
+  class="h-auto w-[140px] mx-0 dark:invert"
   src="moz-logo-bw-rgb.svg"
 />
 `;

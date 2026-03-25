@@ -295,11 +295,11 @@ export function SecurityEvent({
   return (
     <li className="mt-5 ms-4" data-testid={l10nName.ftlId}>
       <div className="absolute w-3 h-3 bg-green-600 rounded-full mt-1.5 -start-1.5 border border-green-700"></div>
-      <div className="text-grey-900 text-sm mobileLandscape:mt-3 text-start">
+      <div className="text-grey-900 dark:text-grey-10 text-sm mobileLandscape:mt-3 text-start">
         {localizedDate}
       </div>
       <FtlMsg id={l10nName.ftlId}>
-        <p className="text-grey-400 text-xs mobileLandscape:mt-3">
+        <p className="text-grey-400 dark:text-grey-200 text-xs mobileLandscape:mt-3">
           {l10nName.fallbackText}
         </p>
       </FtlMsg>

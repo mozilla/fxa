@@ -35,7 +35,7 @@ export const Banner = ({
     <div
       id={bannerId || ''}
       className={classNames(
-        'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-sm',
+        'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-sm text-grey-700',
         textAlignClassName,
         textAlignClassName === 'text-center' && 'justify-center',
         type === 'error' && 'bg-red-100',

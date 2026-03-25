@@ -66,7 +66,7 @@ export const Modal = ({
         <div
           data-testid="modal-content-container"
           className={classNames(
-            'max-w-120 bg-white m-auto rounded-xl border border-transparent',
+            'max-w-120 bg-white dark:bg-grey-700 m-auto rounded-xl border border-transparent',
             className
           )}
           ref={modalInsideRef}

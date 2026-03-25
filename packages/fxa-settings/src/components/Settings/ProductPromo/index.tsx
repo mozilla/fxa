@@ -4,7 +4,7 @@
 
 import React from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import monitorTextLogo from './monitor-text-logo.svg';
+import { ReactComponent as MonitorTextLogo } from './monitor-text-logo.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
 import { MozServices } from '../../../lib/types';
@@ -90,7 +90,7 @@ export const ProductPromo = ({
   return (
     <aside
       className={classNames(
-        'bg-white rounded-lg desktop:w-11/12 desktop:max-w-56 desktop:p-4 desktop:pb-6 text-grey-600 text-md desktop:text-sm text-start',
+        'bg-white dark:bg-grey-700 rounded-lg desktop:w-11/12 desktop:max-w-56 desktop:p-4 desktop:pb-6 text-grey-600 dark:text-grey-300 text-md desktop:text-sm text-start',
         type === 'sidebar' &&
           'hidden desktop:block px-6 mt-4 desktop:mt-20 desktop:max-w-80 desktop:w-11/12',
         type === 'settings' && 'desktop:hidden px-5 py-3 mb-16'
@@ -99,15 +99,15 @@ export const ProductPromo = ({
       <div
         className={classNames(
           type === 'sidebar' &&
-            'border-2 border-grey-100 desktop:border-0 rounded-lg px-5 py-3 desktop:px-0 desktop:py-0'
+            'border-2 border-grey-100 dark:border-grey-600 desktop:border-0 rounded-lg px-5 py-3 desktop:px-0 desktop:py-0'
         )}
       >
         <h2>
           <FtlMsg id="product-promo-monitor">
-            <img
-              src={monitorTextLogo}
-              alt="Mozilla Monitor"
-              className="w-52 desktop:w-40 h-auto"
+            <MonitorTextLogo
+              role="img"
+              aria-label="Mozilla Monitor"
+              className="w-52 desktop:w-40 h-auto text-black dark:text-white"
             />
           </FtlMsg>
         </h2>

@@ -15,6 +15,8 @@ const screenSizes = {
 };
 
 module.exports = {
+  // Enable class-based dark mode (toggle via 'dark' class on <html>)
+  darkMode: 'class',
   // This targets a standard CRA setup, but can be overridden as needed
   content: ['./src/**/*.tsx', './public/index.html'],
   theme: {

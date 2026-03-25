@@ -18,7 +18,7 @@
   }
 
   &-hr {
-    @apply mx-5 border-grey-100;
+    @apply mx-5 border-grey-100 dark:border-grey-600;
   }
 }
 

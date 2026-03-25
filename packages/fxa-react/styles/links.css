@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .link-blue {
-  @apply underline text-blue-500 rounded-sm
+  @apply underline text-blue-500 dark:text-blue-400 rounded-sm
     focus:shadow-input-blue-focus
     focus-visible:shadow-input-blue-focus
     focus-visible:outline-none
@@ -11,7 +11,7 @@
 }
 
 .link-grey {
-  @apply underline text-grey-500 rounded-sm
+  @apply underline text-grey-500 dark:text-grey-200 rounded-sm
     focus:shadow-input-grey-focus
     focus-visible:shadow-input-grey-focus
     focus-visible:outline-none
@@ -24,10 +24,10 @@
 
 @media (hover: hover) {
   .link-blue:hover {
-    @apply text-blue-600;
+    @apply text-blue-600 dark:text-blue-300;
   }
   .link-grey:hover {
-    @apply text-grey-600;
+    @apply text-grey-600 dark:text-grey-100;
   }
   .link-white:hover {
     @apply text-grey-100;

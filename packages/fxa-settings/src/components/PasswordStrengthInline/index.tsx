@@ -63,7 +63,7 @@ export const PasswordStrengthInline = ({
       aria-live="polite"
     >
       {passwordInstruction}
-      <ul className="mt-2 mb-2 text-grey-400">
+      <ul className="mt-2 mb-2 text-grey-400 dark:text-grey-200">
         <li data-testid="password-min-char-req" className="flex -mb-1">
           <span className="w-7 h-7 text-center">
             {isPasswordEmpty && '•'}

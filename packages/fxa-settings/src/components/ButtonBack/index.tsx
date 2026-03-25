@@ -61,7 +61,7 @@ const ButtonBack = ({
       data-testid={dataTestId}
       title={localizedButtonTitle}
       aria-label={localizedButtonAriaLabel}
-      className={`me-4 tablet:me-0 p-2 tablet:absolute tablet:-start-24 rounded focus-visible-default text-grey-400 ${getTabletArrowColor()}`}
+      className={`me-4 tablet:me-0 p-2 tablet:absolute tablet:-start-24 rounded focus-visible-default text-grey-400 dark:text-grey-200 ${getTabletArrowColor()}`}
     >
       <BackArrow className="w-6 h-auto rtl:transform rtl:-scale-x-100" />
     </button>

@@ -31,6 +31,7 @@ import {
   useLocalSignedInQueryState,
   useSession,
   isProbablyFirefox,
+  ThemeProvider,
 } from '../../models';
 import {
   initializeSettingsContext,
@@ -380,38 +381,48 @@ export const App = ({
     isSignedIn === undefined ||
     metricsEnabled === undefined
   ) {
-    return window.location.pathname?.includes('/settings') ? (
-      <LoadingSpinner fullScreen />
-    ) : (
-      <AppLayout cmsInfo={integration?.getCmsInfo()} loading />
+    return (
+      <ThemeProvider enabled={config.darkMode?.enabled}>
+        {window.location.pathname?.includes('/settings') ? (
+          <LoadingSpinner fullScreen />
+        ) : (
+          <AppLayout cmsInfo={integration?.getCmsInfo()} loading />
+        )}
+      </ThemeProvider>
     );
   }
 
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <Suspense
-      fallback={
-        <AppLayout cmsInfo={cmsInfo} loading splitLayout={currentSplitLayout} />
-      }
-    >
-      <Router basepath="/">
-        <AuthAndAccountSetupRoutes
-          {...{
-            isSignedIn,
-            integration,
-            flowQueryParams: updatedFlowQueryParams,
-            isSignedIntoFirefoxDesktop,
-            setCurrentSplitLayout,
-          }}
-          path="/*"
-        />
-        <SettingsRoutes
-          {...{ isSignedIn, integration, setCurrentSplitLayout }}
-          path="/settings/*"
-        />
-      </Router>
-    </Suspense>
+    <ThemeProvider enabled={config.darkMode?.enabled}>
+      <Suspense
+        fallback={
+          <AppLayout
+            cmsInfo={cmsInfo}
+            loading
+            splitLayout={currentSplitLayout}
+          />
+        }
+      >
+        <Router basepath="/">
+          <AuthAndAccountSetupRoutes
+            {...{
+              isSignedIn,
+              integration,
+              flowQueryParams: updatedFlowQueryParams,
+              isSignedIntoFirefoxDesktop,
+              setCurrentSplitLayout,
+            }}
+            path="/*"
+          />
+          <SettingsRoutes
+            {...{ isSignedIn, integration, setCurrentSplitLayout }}
+            path="/settings/*"
+          />
+        </Router>
+      </Suspense>
+    </ThemeProvider>
   );
 };
 

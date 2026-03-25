@@ -19,7 +19,7 @@ export interface NavRefProps {
 
 const navActiveClass = 'nav-active';
 const navItemClasses =
-  'inline-block py-1 px-2 hover:bg-grey-100 rounded-sm focus-visible-default';
+  'inline-block py-1 px-2 hover:bg-grey-100 dark:hover:bg-grey-600 rounded-sm focus-visible-default';
 
 // Update the active nav class when this percentage of a section is shown on screen
 const STANDARD_SECTION_THRESHOLD = 0.8;

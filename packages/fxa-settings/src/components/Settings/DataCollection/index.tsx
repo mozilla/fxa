@@ -60,7 +60,7 @@ export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
         <span id="data-collection" className="nav-anchor" />
         {localizedHeader}
       </h2>
-      <div className="bg-white tablet:rounded-xl shadow">
+      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow">
         <UnitRow
           header={ftlMsgResolver.getMsg(
             'dc-subheader-moz-accounts',

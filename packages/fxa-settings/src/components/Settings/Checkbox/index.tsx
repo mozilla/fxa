@@ -76,7 +76,7 @@ export const Checkbox = ({
                     ? `border-blue-500 text-blue-500 ${
                         focused ? 'shadow-input-blue-focus' : ''
                       }`
-                    : `border-grey-400 text-grey-400 ${
+                    : `border-grey-400 text-grey-400 dark:border-grey-200 dark:text-grey-200 ${
                         focused ? 'shadow-input-grey-focus' : ''
                       }`
                 }`
@@ -90,8 +90,8 @@ export const Checkbox = ({
               checked
                 ? ''
                 : hovered && !disabled
-                ? 'opacity-50 scale-75'
-                : 'opacity-0'
+                  ? 'opacity-50 scale-75'
+                  : 'opacity-0'
             }`}
           />
         </span>

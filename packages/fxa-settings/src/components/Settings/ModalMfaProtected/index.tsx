@@ -161,7 +161,7 @@ export const ModalMfaProtected = ({
           </FtlMsg>
         </div>
       </form>
-      <div className="mt-7 text-grey-500 text-sm inline-flex gap-1">
+      <div className="mt-7 text-grey-500 dark:text-grey-200 text-sm inline-flex gap-1">
         <FtlMsg id="modal-mfa-protected-code-expired">
           <p>Code expired?</p>
         </FtlMsg>

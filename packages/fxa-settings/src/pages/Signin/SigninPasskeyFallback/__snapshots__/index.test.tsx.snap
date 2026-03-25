@@ -3,7 +3,7 @@
 exports[`SigninPasskeyFallback renders as expected 1`] = `
 <div>
   <div
-    class="flex min-h-screen flex-col items-center"
+    class="flex min-h-screen flex-col items-center dark:bg-grey-900"
     data-testid="app"
   >
     <div
@@ -22,7 +22,7 @@ exports[`SigninPasskeyFallback renders as expected 1`] = `
       >
         <img
           alt="Mozilla logo"
-          class="h-auto w-[140px] mx-0"
+          class="h-auto w-[140px] mx-0 dark:invert"
           src="moz-logo-bw-rgb.svg"
         />
         <span
@@ -78,21 +78,21 @@ exports[`SigninPasskeyFallback renders as expected 1`] = `
                 class="relative"
               >
                 <label
-                  class="flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none border-grey-200 bg-white mb-6"
+                  class="flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none border-grey-200 dark:border-grey-600 bg-white dark:bg-grey-700 mb-6"
                   data-testid="password-input-container"
                 >
                   <span
                     class="block flex-auto"
                   >
                     <span
-                      class="px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body text-grey-900 mt-3 pt-px"
+                      class="px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body text-grey-900 dark:text-grey-100 mt-3 pt-px"
                       data-testid="password-input-label"
                     >
                       Password
                     </span>
                     <input
                       autocomplete="off"
-                      class="pb-1 pt-5 px-3 font-body rounded text-start w-[90%]"
+                      class="pb-1 pt-5 px-3 font-body rounded text-start bg-transparent dark:text-grey-10 w-[90%]"
                       data-testid="password-input-field"
                       name="password"
                       spellcheck="false"
@@ -104,7 +104,7 @@ exports[`SigninPasskeyFallback renders as expected 1`] = `
                 <button
                   aria-label="Your password is currently hidden."
                   aria-pressed="false"
-                  class="absolute end-0 inset-y-0 my-auto mx-2 px-2 text-grey-500 box-content focus-visible-default rounded"
+                  class="absolute end-0 inset-y-0 my-auto mx-2 px-2 text-grey-500 dark:text-grey-200 box-content focus-visible-default rounded"
                   data-testid="password-visibility-toggle"
                   title="Show password"
                   type="button"
