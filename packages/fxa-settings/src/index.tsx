@@ -11,6 +11,7 @@ import { NimbusProvider } from './models/contexts/NimbusContext';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
+import { ThemeProvider } from './models/contexts/ThemeContext';
 import Storage from './lib/storage';
 import './styles/tailwind.out.css';
 import CookiesDisabled from './pages/CookiesDisabled';
@@ -83,7 +84,9 @@ try {
         <AppErrorBoundary>
           <AppContext.Provider value={appContext}>
             <NimbusProvider>
-              <View />
+              <ThemeProvider enabled={config.darkMode?.enabled}>
+                <View />
+              </ThemeProvider>
             </NimbusProvider>
           </AppContext.Provider>
         </AppErrorBoundary>
