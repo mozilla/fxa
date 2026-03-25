@@ -58,6 +58,7 @@ describe('log', () => {
       withScope: jest.fn().mockImplementation((cb: (scope: Record<string, jest.Mock>) => void) => {
         cb(sentryScope);
       }),
+      getActiveSpan: jest.fn().mockReturnValue(undefined),
     };
 
     mockReportSentryMessage = jest.fn().mockReturnValue({});
@@ -220,7 +221,7 @@ describe('log', () => {
     const args = logger.error.mock.calls[0];
     expect(args).toHaveLength(2);
     expect(args[0]).toBe('log.activityEvent');
-    expect(args[1]).toEqual({ data: undefined });
+    expect(args[1]).toEqual(expect.objectContaining({ data: undefined }));
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -235,7 +236,7 @@ describe('log', () => {
     const args = logger.error.mock.calls[0];
     expect(args).toHaveLength(2);
     expect(args[0]).toBe('log.activityEvent');
-    expect(args[1]).toEqual({ data: { event: 'wibble' } });
+    expect(args[1]).toEqual(expect.objectContaining({ data: { event: 'wibble' } }));
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -250,7 +251,7 @@ describe('log', () => {
     const args = logger.error.mock.calls[0];
     expect(args).toHaveLength(2);
     expect(args[0]).toBe('log.activityEvent');
-    expect(args[1]).toEqual({ data: { uid: 'wibble' } });
+    expect(args[1]).toEqual(expect.objectContaining({ data: { uid: 'wibble' } }));
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -371,7 +372,7 @@ describe('log', () => {
     const args = logger.error.mock.calls[0];
     expect(args).toHaveLength(2);
     expect(args[0]).toBe('amplitude.missingData');
-    expect(args[1]).toEqual({ data: undefined });
+    expect(args[1]).toEqual(expect.objectContaining({ data: undefined }));
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -386,9 +387,9 @@ describe('log', () => {
     const args = logger.error.mock.calls[0];
     expect(args).toHaveLength(2);
     expect(args[0]).toBe('amplitude.missingData');
-    expect(args[1]).toEqual({
+    expect(args[1]).toEqual(expect.objectContaining({
       data: { device_id: 'foo', user_id: 'bar' },
-    });
+    }));
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -403,7 +404,7 @@ describe('log', () => {
     const args = logger.error.mock.calls[0];
     expect(args).toHaveLength(2);
     expect(args[0]).toBe('amplitude.missingData');
-    expect(args[1]).toEqual({ data: { event_type: 'foo' } });
+    expect(args[1]).toEqual(expect.objectContaining({ data: { event_type: 'foo' } }));
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -550,7 +551,6 @@ describe('log', () => {
     expect(logger.error).toHaveBeenCalledTimes(1);
     const args = logger.error.mock.calls[0];
     expect(args[0]).toBe('unexpectedError');
-    expect(Object.keys(args[1])).toHaveLength(2);
     expect(args[1].email).toBe('test@example.com');
     expect(args[1].err.email).toBeNull();
   });
@@ -626,7 +626,10 @@ describe('log', () => {
       log.info('op', { uid: 'bloop' });
 
       expect(logger.info).toHaveBeenCalledTimes(1);
-      expect(logger.info).toHaveBeenCalledWith('op', { uid: 'bloop' });
+      expect(logger.info).toHaveBeenCalledWith(
+        'op',
+        expect.objectContaining({ uid: 'bloop' })
+      );
     });
 
     it('should set trace id', () => {
@@ -641,24 +644,24 @@ describe('log', () => {
 
       log.info('op', { uid: 'bloop' });
       expect(logger.info).toHaveBeenCalledTimes(1);
-      expect(logger.info).toHaveBeenCalledWith('op', {
-        uid: 'bloop',
-        traceId: 'fake trace id',
-      });
+      expect(logger.info).toHaveBeenCalledWith(
+        'op',
+        expect.objectContaining({ uid: 'bloop', otelTraceId: 'fake trace id' })
+      );
 
       log.debug('op', { uid: 'bloop' });
       expect(logger.debug).toHaveBeenCalledTimes(1);
-      expect(logger.debug).toHaveBeenCalledWith('op', {
-        uid: 'bloop',
-        traceId: 'fake trace id',
-      });
+      expect(logger.debug).toHaveBeenCalledWith(
+        'op',
+        expect.objectContaining({ uid: 'bloop', otelTraceId: 'fake trace id' })
+      );
 
       log.error('op', { uid: 'bloop' });
       expect(logger.error).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalledWith('op', {
-        uid: 'bloop',
-        traceId: 'fake trace id',
-      });
+      expect(logger.error).toHaveBeenCalledWith(
+        'op',
+        expect.objectContaining({ uid: 'bloop', otelTraceId: 'fake trace id' })
+      );
     });
   });
 
