@@ -96,6 +96,21 @@ export interface RecoveryPhone {
   lastFourDigits?: string;
 }
 
+export interface Passkey {
+  name: string;
+  createdAt: number;
+  lastUsedAt: number | null;
+  aaguid: string;
+  /**
+   * Human-readable authenticator name resolved from the FIDO MDS by AAGUID.
+   * Undefined when the AAGUID is all-zeros (privacy-preserving authenticator)
+   * or the MDS has no entry for the given AAGUID.
+   */
+  authenticatorName?: string;
+  backupState: boolean;
+  prfEnabled: boolean;
+}
+
 export interface LinkedAccount {
   uid?: string;
   authAt?: number;
@@ -193,6 +208,7 @@ export interface Account {
   carts: Cart[];
   backupCodes: BackupCodes[];
   recoveryPhone: RecoveryPhone[];
+  passkeys: Passkey[];
 }
 
 export interface RelyingPartyUpdateDto {

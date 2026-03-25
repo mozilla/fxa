@@ -54,6 +54,7 @@ import {
 } from '../../event-logging/event-logging.service';
 import { AccountEvent as AccountEventType } from '../model/account-events.model';
 import { BasketService } from '../../newsletters/basket.service';
+import { FidoMdsService } from '../../backend/fido-mds.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import {
   AccountDeleteResponse,
@@ -111,6 +112,33 @@ const RECOVERYKEY_COLUMNS = [
 const RECOVERYPHONES_COLUMNS = ['phoneNumber'];
 const LINKEDACCOUNT_COLUMNS = ['uid', 'authAt', 'providerId', 'enabled'];
 
+// credentialId, publicKey, signCount, and backupEligible are intentionally
+// excluded from the admin view because they expose sensitive cryptographic
+// material.
+const PASSKEY_COLUMNS = [
+  'name',
+  'createdAt',
+  'lastUsedAt',
+  'aaguid',
+  'backupState',
+  'prfEnabled',
+];
+
+/**
+ * Converts a 16-byte Buffer to a lowercase UUID string
+ * in the standard 8-4-4-4-12 hyphenated format.
+ */
+function bufferToUuidString(buf: Buffer): string {
+  const hex = buf.toString('hex');
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20),
+  ].join('-');
+}
+
 @UseGuards(AuthHeaderGuard)
 @Controller('/api/account')
 export class AccountController {
@@ -136,7 +164,8 @@ export class AccountController {
     @Inject(EmailService) private emailService: EmailService,
     @Inject(FirestoreService) private firestore: Firestore,
     @Inject(CloudTasksService) private cloudTask: CloudTasks,
-    @Inject(ProfileClient) private profileClient: ProfileClient
+    @Inject(ProfileClient) private profileClient: ProfileClient,
+    private mds: FidoMdsService
   ) {}
 
   /**
@@ -156,6 +185,7 @@ export class AccountController {
       recoveryPhone,
       linkedAccounts,
       attachedClients,
+      passkeys,
     ] = await Promise.all([
       this.emails(account),
       this.emailBounces(account),
@@ -169,6 +199,7 @@ export class AccountController {
       this.recoveryPhone(account),
       this.linkedAccounts(account),
       this.attachedClients(account),
+      this.passkeys(account),
     ]);
 
     return {
@@ -185,6 +216,7 @@ export class AccountController {
       recoveryPhone,
       linkedAccounts,
       attachedClients,
+      passkeys,
     };
   }
 
@@ -843,6 +875,38 @@ export class AccountController {
       .query()
       .select(LINKEDACCOUNT_COLUMNS)
       .where('uid', uidBuffer);
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  public async passkeys(account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    const rows = await this.db
+      .knex('passkeys')
+      .select(PASSKEY_COLUMNS)
+      .where('uid', uidBuffer)
+      .orderBy('createdAt', 'desc');
+    return Promise.all(
+      rows.map(
+        async (row: {
+          name: string;
+          createdAt: number;
+          lastUsedAt: number | null;
+          aaguid: Buffer;
+          backupState: boolean;
+          prfEnabled: boolean;
+        }) => {
+          const aaguid = bufferToUuidString(row.aaguid);
+          const isZeroOrInvalidAaguid =
+            row.aaguid.every((b) => b === 0) || row.aaguid.length !== 16;
+          const authenticatorName = isZeroOrInvalidAaguid
+            ? undefined
+            : await this.mds.getAuthenticatorName(
+                bufferToUuidString(row.aaguid)
+              );
+          return { ...row, aaguid, authenticatorName };
+        }
+      )
+    );
   }
 
   @Features(AdminPanelFeature.ConnectedServices)

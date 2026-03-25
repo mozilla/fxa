@@ -10,6 +10,7 @@ import {
   AccountEvent as AccountEventType,
   BackupCodes as BackupCodesType,
   RecoveryPhone as RecoveryPhoneType,
+  Passkey as PasskeyType,
 } from 'fxa-admin-server/src/types';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../../Guard';
@@ -92,6 +93,7 @@ export const Account = ({
   clientSalt,
   backupCodes,
   recoveryPhone,
+  passkeys,
 }: AccountProps) => {
   const createdAtDate = getFormattedDate(createdAt);
   const disabledAtDate = getFormattedDate(disabledAt);
@@ -313,11 +315,52 @@ export const Account = ({
           </p>
         )}
 
+        <h3 className="header-lg">Passkeys</h3>
+        {passkeys && passkeys.length > 0 ? (
+          <TableXHeaders
+            rowHeaders={[
+              'Name',
+              'Created',
+              'Last Used',
+              'Backup State',
+              'PRF Enabled',
+              'Authenticator',
+            ]}
+          >
+            {passkeys.map((passkey: PasskeyType) => (
+              <TableRowXHeader key={`${passkey.name}-${passkey.createdAt}`}>
+                <td data-testid="passkey-name">{passkey.name}</td>
+                <td data-testid="passkey-created-at">
+                  {getFormattedDate(passkey.createdAt)}
+                </td>
+                <td data-testid="passkey-last-used-at">
+                  {passkey.lastUsedAt == null
+                    ? 'Never'
+                    : getFormattedDate(passkey.lastUsedAt)}
+                </td>
+                <td data-testid="passkey-backup-state">
+                  <ResultBoolean isTruthy={passkey.backupState} />
+                </td>
+                <td data-testid="passkey-prf-enabled">
+                  <ResultBoolean isTruthy={passkey.prfEnabled} />
+                </td>
+                <td data-testid="passkey-authenticator-name">
+                  {passkey.authenticatorName || 'Unknown'}
+                </td>
+              </TableRowXHeader>
+            ))}
+          </TableXHeaders>
+        ) : (
+          <p className="result-none" data-testid="passkeys-none">
+            This account doesn't have any passkeys.
+          </p>
+        )}
+
         <h3 className="header-lg">Account Recovery Key</h3>
         {recoveryKeys && recoveryKeys.length > 0 ? (
           <>
             {recoveryKeys.map((recoveryKey: RecoveryKeysType) => (
-              <TableYHeaders key={createdAt}>
+              <TableYHeaders key={recoveryKey.createdAt}>
                 <TableRowYHeader
                   header="Created At"
                   children={getFormattedDate(recoveryKey.createdAt)}

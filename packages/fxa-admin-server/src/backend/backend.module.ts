@@ -17,6 +17,7 @@ import {
   BouncesFactory,
 } from './email.service';
 import { DatabaseService } from '../database/database.service';
+import { FidoMdsService } from './fido-mds.service';
 
 @Module({
   providers: [
@@ -31,6 +32,7 @@ import { DatabaseService } from '../database/database.service';
     BouncesFactory,
     EmailSenderFactory,
     EmailService,
+    FidoMdsService,
   ],
   exports: [
     AuthClientService,
@@ -39,6 +41,7 @@ import { DatabaseService } from '../database/database.service';
     DatabaseService,
     ProfileClient,
     EmailService,
+    FidoMdsService,
   ],
 })
 export class BackendModule {}

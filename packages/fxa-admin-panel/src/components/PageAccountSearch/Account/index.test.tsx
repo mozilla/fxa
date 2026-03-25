@@ -99,6 +99,7 @@ let accountResponse: AccountProps = {
   subscriptions: [],
   linkedAccounts: [],
   accountEvents: [],
+  passkeys: [],
 };
 
 it('renders without imploding', () => {
@@ -217,6 +218,82 @@ it('displays the account recovery key status', async () => {
   expect(getByTestId('recovery-keys-created-at')).toBeInTheDocument();
   expect(getByTestId('recovery-keys-verified')).toBeInTheDocument();
   expect(getByTestId('recovery-keys-enabled')).toBeInTheDocument();
+});
+
+it('shows "no passkeys" message when passkeys list is empty', () => {
+  const { getByTestId } = render(<Account {...accountResponse} />);
+  expect(getByTestId('passkeys-none')).toBeInTheDocument();
+});
+
+it('displays passkeys with authenticator name', () => {
+  const withPasskeys = {
+    ...accountResponse,
+    passkeys: [
+      {
+        name: 'iPhone Face ID',
+        createdAt: 1589467100316,
+        lastUsedAt: null,
+        aaguid: '00000000-0000-0000-0000-000000000000',
+        authenticatorName: undefined,
+        backupState: true,
+        prfEnabled: false,
+      },
+      {
+        name: 'YubiKey 5',
+        createdAt: 1589467200000,
+        lastUsedAt: 1700000000000,
+        aaguid: 'fa2b99dc-9e39-4257-8f92-4a30d23c4118',
+        authenticatorName: 'YubiKey 5 Series with NFC',
+        backupState: false,
+        prfEnabled: true,
+      },
+    ],
+  };
+  const { getAllByTestId } = render(<Account {...withPasskeys} />);
+
+  const authenticators = getAllByTestId('passkey-authenticator-name');
+  expect(authenticators[0]).toHaveTextContent('Unknown');
+  expect(authenticators[1]).toHaveTextContent('YubiKey 5 Series with NFC');
+});
+
+it('displays passkeys with never-used date', () => {
+  const withPasskey = {
+    ...accountResponse,
+    passkeys: [
+      {
+        name: 'iPhone Face ID',
+        createdAt: 1589467100316,
+        lastUsedAt: null,
+        aaguid: '00000000-0000-0000-0000-000000000000',
+        authenticatorName: undefined,
+        backupState: true,
+        prfEnabled: false,
+      },
+    ],
+  };
+  const { getByTestId } = render(<Account {...withPasskey} />);
+
+  expect(getByTestId('passkey-last-used-at')).toHaveTextContent('Never');
+});
+
+it('displays passkeys with last-used date', () => {
+  const withPasskey = {
+    ...accountResponse,
+    passkeys: [
+      {
+        name: 'YubiKey 5',
+        createdAt: 1589467200000,
+        lastUsedAt: 1700000000000,
+        aaguid: 'fa2b99dc-9e39-4257-8f92-4a30d23c4118',
+        authenticatorName: 'YubiKey 5 Series with NFC',
+        backupState: false,
+        prfEnabled: true,
+      },
+    ],
+  };
+  const { getByTestId } = render(<Account {...withPasskey} />);
+
+  expect(getByTestId('passkey-last-used-at')).toHaveTextContent('2023-11');
 });
 
 it('displays secondary emails', async () => {
