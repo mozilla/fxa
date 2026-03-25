@@ -19,6 +19,12 @@ import type {
 } from '@simplewebauthn/server';
 
 /**
+ * Maximum length for a passkey's user-facing name.
+ * Derived from the DB schema constraint: `name varchar(255)`.
+ */
+export const MAX_PASSKEY_NAME_LENGTH = 255;
+
+/**
  * Configuration for passkey (WebAuthn) functionality.
  *
  * This configuration is loaded from Convict in auth-server's config/index.ts

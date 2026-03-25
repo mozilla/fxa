@@ -13,7 +13,7 @@ import { AccountManager } from '@fxa/shared/account/account';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Test } from '@nestjs/testing';
 import { PasskeyManager } from './passkey.manager';
-import { PasskeyConfig } from './passkey.config';
+import { PasskeyConfig, MAX_PASSKEY_NAME_LENGTH } from './passkey.config';
 import { findPasskeyByCredentialId, insertPasskey } from './passkey.repository';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { AppError } from '../../../errors/src';
@@ -338,12 +338,12 @@ describe('PasskeyManager (Integration)', () => {
       expect(found?.name).toBe(passkey.name);
     });
 
-    it('accepts a name at exactly 255 characters', async () => {
+    it(`accepts a name at exactly ${MAX_PASSKEY_NAME_LENGTH} characters`, async () => {
       const uid = await createTestAccount();
       const passkey = PasskeyFactory({ uid });
       await manager.registerPasskey(passkey);
 
-      const exactName = 'x'.repeat(255);
+      const exactName = 'x'.repeat(MAX_PASSKEY_NAME_LENGTH);
       const renamed = await manager.renamePasskey(
         uid,
         passkey.credentialId,

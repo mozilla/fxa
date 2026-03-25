@@ -11,7 +11,7 @@ import {
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { PasskeyManager } from './passkey.manager';
-import { PasskeyConfig } from './passkey.config';
+import { PasskeyConfig, MAX_PASSKEY_NAME_LENGTH } from './passkey.config';
 import * as PasskeyRepository from './passkey.repository';
 import { AppError } from '../../../errors/src';
 
@@ -208,11 +208,11 @@ describe('PasskeyManager', () => {
   });
 
   describe('renamePasskey', () => {
-    it('returns false without calling repository when name exceeds 255 characters', async () => {
+    it(`returns false without calling repository when name exceeds ${MAX_PASSKEY_NAME_LENGTH} characters`, async () => {
       const result = await manager.renamePasskey(
         Buffer.alloc(16, 1),
         Buffer.alloc(32, 2),
-        'x'.repeat(256)
+        'x'.repeat(MAX_PASSKEY_NAME_LENGTH + 1)
       );
 
       expect(result).toBe(false);

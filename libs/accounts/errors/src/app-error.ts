@@ -1791,6 +1791,33 @@ export class AppError extends Error {
     });
   }
 
+  static passkeyInvalidName() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.PASSKEY_INVALID_NAME,
+      message: 'Invalid passkey name',
+    });
+  }
+
+  static passkeyDeleteFailed() {
+    return new AppError({
+      code: 500,
+      error: 'Internal Server Error',
+      errno: ERRNO.PASSKEY_DELETE_FAILED,
+      message: 'Failed to delete passkey',
+    });
+  }
+
+  static passkeyRenameFailed() {
+    return new AppError({
+      code: 500,
+      error: 'Internal Server Error',
+      errno: ERRNO.PASSKEY_RENAME_FAILED,
+      message: 'Failed to rename passkey',
+    });
+  }
+
   private static decorateErrorWithRequest(error: AppError, request?: Request) {
     if (request) {
       error.output.payload.request = {
