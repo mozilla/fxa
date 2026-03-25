@@ -21,6 +21,8 @@ module.exports = {
   },
 
   testMatch: ['<rootDir>/test/remote/oauth_api.in.spec.ts'],
+  // Override base config's .in.spec.ts ignore since this targets one
+  testPathIgnorePatterns: [],
 
   testTimeout: 120000,
   maxWorkers: 1,

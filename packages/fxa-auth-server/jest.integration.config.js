@@ -18,10 +18,7 @@ module.exports = {
     '^fxa-shared$': '<rootDir>/../fxa-shared/index',
   },
 
-  testMatch: [
-    '<rootDir>/test/remote/**/*.spec.ts',
-    '<rootDir>/test/integration/**/*.spec.ts',
-  ],
+  testMatch: ['<rootDir>/**/*.in.spec.ts'],
 
   // oauth_api.in.spec.ts uses its own in-process server (server.inject)
   // and must run separately to avoid client-config DB race conditions

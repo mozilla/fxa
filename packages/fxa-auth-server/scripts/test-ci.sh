@@ -34,24 +34,15 @@ if [ "$TEST_TYPE" == 'integration' ]; then
 fi;
 
 # Run Jest tests
-# Integration tests are in files matching *.integration.spec.ts or verification-reminders.spec.ts
+# Unit tests: lib/**/*.spec.ts (excludes .in.spec.ts)
+# Integration tests: lib/**/*.in.spec.ts + test/remote/**/*.in.spec.ts
 if [ "$TEST_TYPE" == 'unit' ]; then
   echo -e "\n\nRunning Jest unit tests"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-unit-results.xml" \
-  npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit --testPathIgnorePatterns='verification-reminders'
-elif [ "$TEST_TYPE" == 'integration' ]; then
-  echo -e "\n\nRunning Jest integration tests"
-  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
-  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-results.xml" \
-  npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit --testPathPattern='verification-reminders'
+  npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit
 elif [ "$TEST_TYPE" == 'integration-jest' ]; then
-  echo -e "\n\nRunning Jest verification-reminders tests"
-  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
-  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-verification-reminders-results.xml" \
-  npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit --testPathPattern='verification-reminders'
-
-  echo -e "\n\nRunning Jest migrated integration tests"
+  echo -e "\n\nRunning Jest integration tests (lib/*.in.spec.ts + test/remote/*.in.spec.ts)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-jest-results.xml" \
   npx jest --config jest.integration.config.js --forceExit --ci --reporters=default --reporters=jest-junit

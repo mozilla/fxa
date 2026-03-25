@@ -987,7 +987,7 @@ workflows:
       - integration-test:
           name: Integration Test Jest - Servers - Auth (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:server:auth,!fxa-profile-server'
+          projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
           target: -t test-integration-jest
           test_suite: servers-auth-jest-integration
@@ -1208,7 +1208,7 @@ workflows:
             - Build
       - integration-test:
           name: Integration Test Jest - Servers - Auth
-          projects: --exclude '*,!tag:scope:server:auth,!fxa-profile-server'
+          projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
           target: -t test-integration-jest
           test_suite: servers-auth-jest-integration
@@ -1327,7 +1327,7 @@ workflows:
             - Build (nightly)
       - integration-test:
           name: Integration Test Jest - Servers - Auth (nightly)
-          projects: --exclude '*,!tag:scope:server:auth,!fxa-profile-server'
+          projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
           target: -t test-integration-jest
           test_suite: servers-auth-jest-integration

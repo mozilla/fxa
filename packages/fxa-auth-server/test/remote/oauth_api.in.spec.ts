@@ -2,6 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Firestore BulkWriter crashes on CI clock jitter. Tolerate backward time jumps.
+const RateLimiter =
+  require('@google-cloud/firestore/build/src/rate-limiter').RateLimiter;
+const _origRefill = RateLimiter.prototype.refillTokens;
+RateLimiter.prototype.refillTokens = function (requestTimeMillis: number) {
+  if (requestTimeMillis < this.lastRefillTimeMillis) {
+    return;
+  }
+  return _origRefill.call(this, requestTimeMillis);
+};
+
 // Mock ESM-only packages to avoid Jest parse errors when loading server in-process
 jest.mock('@octokit/rest', () => ({ Octokit: jest.fn() }));
 jest.mock('p-queue', () => ({

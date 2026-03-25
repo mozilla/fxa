@@ -2723,7 +2723,7 @@ describe('StripeHelper', () => {
   });
 
   describe('updateCustomerBillingAddress', () => {
-    it('updates Customer with billing address', async () => {
+    it('updates Customer with empty PayPal billing address', async () => {
       sandbox
         .stub(stripeHelper.stripe.customers, 'update')
         .resolves({ metadata: {}, tax: {} });
@@ -2827,7 +2827,7 @@ describe('StripeHelper', () => {
   });
 
   describe('fetchOpenInvoices', () => {
-    it('returns open invoices with active subscriptions', async () => {
+    it('returns customer paypal agreement id', async () => {
       const invoice = deepCopy(invoicePaidSubscriptionCreate);
       invoice.subscription = { status: 'active' };
       const invoice2 = deepCopy(invoicePaidSubscriptionCreate);
@@ -3631,7 +3631,7 @@ describe('StripeHelper', () => {
     });
 
     describe('when customer is found', () => {
-      it('deletes customer in Stripe, removes AccountCustomer and cached records', async () => {
+      it('deletes customer in Stripe, removes AccountCustomer and cached records, detach payment method', async () => {
         const uid = chance.guid({ version: 4 }).replace(/-/g, '');
         const customerId = 'cus_1234456sdf';
         sandbox.stub(stripeHelper, 'fetchCustomer').resolves({
@@ -4654,7 +4654,7 @@ describe('StripeHelper', () => {
     });
 
     describe('when there are multiple subscriptions', () => {
-      it('returns a formatted version of all not incomplete subscriptions', async () => {
+      it('returns a formatted version of all not incomplete or incomplete_expired subscriptions', async () => {
         const incompleteSubscription = deepCopy(subscription1);
         incompleteSubscription.status = 'incomplete';
         incompleteSubscription.id = 'sub_incomplete';
