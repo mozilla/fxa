@@ -356,6 +356,26 @@ const conf = convict({
       format: Boolean,
     },
   },
+  fidoMds: {
+    url: {
+      doc: 'URL of the FIDO Metadata Service (MDS3) JWT blob',
+      env: 'FIDO_MDS_URL',
+      format: String,
+      default: 'https://mds.fidoalliance.org/',
+    },
+    cacheTtlSeconds: {
+      doc: 'How long (in seconds) to cache the FIDO MDS response before re-fetching',
+      env: 'FIDO_MDS_CACHE_TTL_SECONDS',
+      format: Number,
+      default: 7 * 24 * 60 * 60, // 7 days
+    },
+    fetchTimeoutSeconds: {
+      doc: 'Timeout (in seconds) for the FIDO MDS fetch request',
+      env: 'FIDO_MDS_FETCH_TIMEOUT_SECONDS',
+      format: Number,
+      default: 10,
+    },
+  },
   hstsEnabled: {
     default: true,
     doc: 'Send a Strict-Transport-Security header',
