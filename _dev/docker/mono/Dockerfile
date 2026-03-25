@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     git-core \
     python3-setuptools \
     python3-dev \
+    python3-pip \
     python3-venv \
     build-essential \
     zip \
@@ -39,6 +40,9 @@ FROM fxa-build-utils AS fxa-build
 COPY --chown=app:app . /fxa
 USER app
 WORKDIR /fxa
+RUN rm -rf .venv \
+    && python3 -m venv .venv \
+    && .venv/bin/pip install 'glean_parser~=14.5'
 RUN _dev/docker/mono/build.sh $(cat packages/version.json | jq -r '.version.version')
 
 # Final image
