@@ -24,6 +24,14 @@ async function getPasswordlessSession(
 }
 
 test.describe('severity-2', () => {
+  // TODO: Remove when passwordless is enabled in production
+  test.beforeEach(({}, { project }) => {
+    test.skip(
+      ['production', 'stage'].includes(project.name),
+      'Skip passwordless tests until feature is enabled.'
+    );
+  });
+
   test.describe.configure({ mode: 'parallel' });
   test.describe('Passwordless API', () => {
     test.describe('POST /passwordless/send_code', () => {
@@ -38,8 +46,7 @@ test.describe('severity-2', () => {
           clientId: CLIENT_ID,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSignupCode(email);
+        const code = await target.emailClient.getPasswordlessSignupCode(email);
         expect(code).toBeTruthy();
       });
 
@@ -53,8 +60,7 @@ test.describe('severity-2', () => {
           clientId: CLIENT_ID,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSigninCode(email);
+        const code = await target.emailClient.getPasswordlessSigninCode(email);
         expect(code).toBeTruthy();
       });
 
@@ -113,8 +119,7 @@ test.describe('severity-2', () => {
           clientId: CLIENT_ID,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSignupCode(email);
+        const code = await target.emailClient.getPasswordlessSignupCode(email);
         const result = await target.authClient.passwordlessConfirmCode(
           email,
           code,
@@ -148,8 +153,7 @@ test.describe('severity-2', () => {
           clientId: CLIENT_ID,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSigninCode(email);
+        const code = await target.emailClient.getPasswordlessSigninCode(email);
         const result = await target.authClient.passwordlessConfirmCode(
           email,
           code,
@@ -184,11 +188,9 @@ test.describe('severity-2', () => {
         await target.emailClient.getPasswordlessSignupCode(email);
 
         try {
-          await target.authClient.passwordlessConfirmCode(
-            email,
-            '00000000',
-            { clientId: CLIENT_ID }
-          );
+          await target.authClient.passwordlessConfirmCode(email, '00000000', {
+            clientId: CLIENT_ID,
+          });
           expect(
             true,
             'passwordlessConfirmCode should have rejected invalid OTP'
@@ -226,8 +228,7 @@ test.describe('severity-2', () => {
           clientId: CLIENT_ID,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSigninCode(email);
+        const code = await target.emailClient.getPasswordlessSigninCode(email);
         const result = await target.authClient.passwordlessConfirmCode(
           email,
           code,
@@ -274,8 +275,7 @@ test.describe('severity-2', () => {
           clientId: CLIENT_ID,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSignupCode(email);
+        const code = await target.emailClient.getPasswordlessSignupCode(email);
 
         const result = await target.authClient.passwordlessConfirmCode(
           email,
@@ -296,10 +296,7 @@ test.describe('severity-2', () => {
     });
 
     test.describe('End-to-end flows', () => {
-      test('full signup flow', async ({
-        target,
-        testAccountTracker,
-      }) => {
+      test('full signup flow', async ({ target, testAccountTracker }) => {
         const { email, password } =
           testAccountTracker.generatePasswordlessAccountDetails();
         const account: any = testAccountTracker.accounts.find(
@@ -326,10 +323,7 @@ test.describe('severity-2', () => {
         }
       });
 
-      test('full signin flow', async ({
-        target,
-        testAccountTracker,
-      }) => {
+      test('full signin flow', async ({ target, testAccountTracker }) => {
         const { email } = await testAccountTracker.signUpPasswordless();
         const account: any = testAccountTracker.accounts.find(
           (a) => a.email === email
@@ -438,5 +432,5 @@ test.describe('severity-2', () => {
         }
       });
     });
-});
+  });
 });

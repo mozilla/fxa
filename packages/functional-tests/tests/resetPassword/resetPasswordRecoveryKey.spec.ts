@@ -239,7 +239,9 @@ test.describe('severity-1 #smoke', () => {
     recoveryKey: RecoveryKeyPage,
     settings: SettingsPage
   ): Promise<string> {
-    await expect(settings.recoveryKey.status).toHaveText('Not set');
+    await expect(settings.recoveryKey.status).toHaveText('Not set', {
+      ignoreCase: true,
+    });
 
     await settings.recoveryKey.createButton.click();
 
