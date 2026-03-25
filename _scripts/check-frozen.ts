@@ -16,6 +16,21 @@ const frozen: Array<{ pattern: string; reason: string }> = [
     pattern: 'packages/fxa-auth-server/lib/senders/(emails|renderer)/.*',
     reason: 'Files moved to libs/accounts/email-renderer',
   },
+  {
+    pattern: 'packages/fxa-auth-server/test/local/.*\\.(js|ts)$',
+    reason:
+      'Mocha unit tests are frozen. Add new tests as co-located Jest specs (lib/**/*.spec.ts)',
+  },
+  {
+    pattern: 'packages/fxa-auth-server/test/remote/.*_tests\\.js$',
+    reason:
+      'Mocha integration tests are frozen. Add new tests as Jest specs (test/remote/*.in.spec.ts)',
+  },
+  {
+    pattern: 'packages/fxa-auth-server/test/oauth/.*\\.(js|ts)$',
+    reason:
+      'Mocha OAuth tests are frozen. Add new tests as Jest specs (lib/oauth/*.spec.ts)',
+  },
 ];
 
 export const getChangedFiles = () => {
