@@ -37,11 +37,10 @@ const wrapper =
   );
 
 describe('useTheme', () => {
-  it('throws when used outside ThemeProvider', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => renderHook(() => useTheme())).toThrow(
-      'useTheme must be used within a ThemeProvider'
-    );
+  it('returns default light theme when used outside ThemeProvider', () => {
+    const { result } = renderHook(() => useTheme());
+    expect(result.current.themePreference).toBe('light');
+    expect(result.current.effectiveTheme).toBe('light');
   });
 });
 

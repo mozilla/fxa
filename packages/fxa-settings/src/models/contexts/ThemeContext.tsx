@@ -28,12 +28,15 @@ export const ThemeContext = createContext<ThemeContextValue | undefined>(
   undefined
 );
 
+const defaultThemeContext: ThemeContextValue = {
+  themePreference: 'light',
+  effectiveTheme: 'light',
+  setThemePreference: () => {},
+};
+
 export function useTheme(): ThemeContextValue {
   const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
+  return context ?? defaultThemeContext;
 }
 
 interface ThemeProviderProps {
