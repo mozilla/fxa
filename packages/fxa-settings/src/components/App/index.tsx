@@ -31,7 +31,6 @@ import {
   useLocalSignedInQueryState,
   useSession,
   isProbablyFirefox,
-  ThemeProvider,
 } from '../../models';
 import {
   initializeSettingsContext,
@@ -381,48 +380,38 @@ export const App = ({
     isSignedIn === undefined ||
     metricsEnabled === undefined
   ) {
-    return (
-      <ThemeProvider enabled={config.darkMode?.enabled}>
-        {window.location.pathname?.includes('/settings') ? (
-          <LoadingSpinner fullScreen />
-        ) : (
-          <AppLayout cmsInfo={integration?.getCmsInfo()} loading />
-        )}
-      </ThemeProvider>
+    return window.location.pathname?.includes('/settings') ? (
+      <LoadingSpinner fullScreen />
+    ) : (
+      <AppLayout cmsInfo={integration?.getCmsInfo()} loading />
     );
   }
 
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <ThemeProvider enabled={config.darkMode?.enabled}>
-      <Suspense
-        fallback={
-          <AppLayout
-            cmsInfo={cmsInfo}
-            loading
-            splitLayout={currentSplitLayout}
-          />
-        }
-      >
-        <Router basepath="/">
-          <AuthAndAccountSetupRoutes
-            {...{
-              isSignedIn,
-              integration,
-              flowQueryParams: updatedFlowQueryParams,
-              isSignedIntoFirefoxDesktop,
-              setCurrentSplitLayout,
-            }}
-            path="/*"
-          />
-          <SettingsRoutes
-            {...{ isSignedIn, integration, setCurrentSplitLayout }}
-            path="/settings/*"
-          />
-        </Router>
-      </Suspense>
-    </ThemeProvider>
+    <Suspense
+      fallback={
+        <AppLayout cmsInfo={cmsInfo} loading splitLayout={currentSplitLayout} />
+      }
+    >
+      <Router basepath="/">
+        <AuthAndAccountSetupRoutes
+          {...{
+            isSignedIn,
+            integration,
+            flowQueryParams: updatedFlowQueryParams,
+            isSignedIntoFirefoxDesktop,
+            setCurrentSplitLayout,
+          }}
+          path="/*"
+        />
+        <SettingsRoutes
+          {...{ isSignedIn, integration, setCurrentSplitLayout }}
+          path="/settings/*"
+        />
+      </Router>
+    </Suspense>
   );
 };
 
