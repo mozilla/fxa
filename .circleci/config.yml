@@ -177,6 +177,7 @@ executors:
       # passwordless otp feature
       PASSWORDLESS_ENABLED: true
       PASSWORDLESS_ALLOWED_CLIENT_SERVICES: '{"98e6508e88680e1a":{"allowedServices":["*"]},"5882386c6d801776":{"allowedServices":["relay"]},"dcdb5ae7add825d2":{"allowedServices":["*"]}}'
+      PASSWORDLESS_SIGNUP_ENABLED: true
       # Seeing if clear customs approach works! RATE_LIMIT__RULES: ""
       # RATE_LIMIT__IGNORE_EMAILS: .*@restmail.net$
 

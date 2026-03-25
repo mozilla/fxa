@@ -70,7 +70,7 @@ test.describe('severity-2 #smoke', () => {
         testAccountTracker.generateBouncedAliasAccountDetails('mozilla.com');
 
       // Start the sign up process
-      await page.goto(target.contentServerUrl);
+      await page.goto(`${target.contentServerUrl}?force_passwordless=false`);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signup.fillOutSignupForm(credentials.password);
 

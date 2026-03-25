@@ -6,6 +6,7 @@ import { expect, test } from '../../lib/fixtures/standard';
 import { getTotpCode } from '../../lib/totp';
 
 const CLIENT_ID = 'dcdb5ae7add825d2';
+const SUPPORTED_SERVICE = 'smoketests';
 
 async function getPasswordlessSession(
   target: any,
@@ -14,12 +15,14 @@ async function getPasswordlessSession(
 ) {
   await target.authClient.passwordlessSendCode(email, {
     clientId: CLIENT_ID,
+    service: SUPPORTED_SERVICE,
   });
   const code = isNew
     ? await target.emailClient.getPasswordlessSignupCode(email)
     : await target.emailClient.getPasswordlessSigninCode(email);
   return target.authClient.passwordlessConfirmCode(email, code, {
     clientId: CLIENT_ID,
+    service: SUPPORTED_SERVICE,
   });
 }
 
@@ -36,10 +39,10 @@ test.describe('severity-2', () => {
 
         await target.authClient.passwordlessSendCode(email, {
           clientId: CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSignupCode(email);
+        const code = await target.emailClient.getPasswordlessSignupCode(email);
         expect(code).toBeTruthy();
       });
 
@@ -51,10 +54,10 @@ test.describe('severity-2', () => {
 
         await target.authClient.passwordlessSendCode(email, {
           clientId: CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSigninCode(email);
+        const code = await target.emailClient.getPasswordlessSigninCode(email);
         expect(code).toBeTruthy();
       });
 
@@ -67,6 +70,7 @@ test.describe('severity-2', () => {
         try {
           await target.authClient.passwordlessSendCode(credentials.email, {
             clientId: CLIENT_ID,
+            service: SUPPORTED_SERVICE,
           });
           expect(
             true,
@@ -111,14 +115,17 @@ test.describe('severity-2', () => {
 
         await target.authClient.passwordlessSendCode(email, {
           clientId: CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSignupCode(email);
+        const code = await target.emailClient.getPasswordlessSignupCode(email);
         const result = await target.authClient.passwordlessConfirmCode(
           email,
           code,
-          { clientId: CLIENT_ID }
+          {
+            clientId: CLIENT_ID,
+            service: SUPPORTED_SERVICE,
+          }
         );
 
         expect(result.verified).toBe(true);
@@ -146,14 +153,17 @@ test.describe('severity-2', () => {
 
         await target.authClient.passwordlessSendCode(email, {
           clientId: CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSigninCode(email);
+        const code = await target.emailClient.getPasswordlessSigninCode(email);
         const result = await target.authClient.passwordlessConfirmCode(
           email,
           code,
-          { clientId: CLIENT_ID }
+          {
+            clientId: CLIENT_ID,
+            service: SUPPORTED_SERVICE,
+          }
         );
 
         expect(result.verified).toBe(true);
@@ -178,17 +188,17 @@ test.describe('severity-2', () => {
 
         await target.authClient.passwordlessSendCode(email, {
           clientId: CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         });
 
         // Consume the real code so we can test with a bogus one
         await target.emailClient.getPasswordlessSignupCode(email);
 
         try {
-          await target.authClient.passwordlessConfirmCode(
-            email,
-            '00000000',
-            { clientId: CLIENT_ID }
-          );
+          await target.authClient.passwordlessConfirmCode(email, '00000000', {
+            clientId: CLIENT_ID,
+            service: SUPPORTED_SERVICE,
+          });
           expect(
             true,
             'passwordlessConfirmCode should have rejected invalid OTP'
@@ -224,14 +234,14 @@ test.describe('severity-2', () => {
 
         await target.authClient.passwordlessSendCode(email, {
           clientId: CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSigninCode(email);
+        const code = await target.emailClient.getPasswordlessSigninCode(email);
         const result = await target.authClient.passwordlessConfirmCode(
           email,
           code,
-          { clientId: CLIENT_ID }
+          { clientId: CLIENT_ID, service: SUPPORTED_SERVICE }
         );
 
         expect(result.verified).toBe(false);
@@ -266,21 +276,22 @@ test.describe('severity-2', () => {
 
         await target.authClient.passwordlessSendCode(email, {
           clientId: CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         });
 
         await target.emailClient.getPasswordlessSignupCode(email);
 
         await target.authClient.passwordlessResendCode(email, {
           clientId: CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         });
 
-        const code =
-          await target.emailClient.getPasswordlessSignupCode(email);
+        const code = await target.emailClient.getPasswordlessSignupCode(email);
 
         const result = await target.authClient.passwordlessConfirmCode(
           email,
           code,
-          { clientId: CLIENT_ID }
+          { clientId: CLIENT_ID, service: SUPPORTED_SERVICE }
         );
         expect(result.verified).toBe(true);
 
@@ -296,10 +307,7 @@ test.describe('severity-2', () => {
     });
 
     test.describe('End-to-end flows', () => {
-      test('full signup flow', async ({
-        target,
-        testAccountTracker,
-      }) => {
+      test('full signup flow', async ({ target, testAccountTracker }) => {
         const { email, password } =
           testAccountTracker.generatePasswordlessAccountDetails();
         const account: any = testAccountTracker.accounts.find(
@@ -326,10 +334,7 @@ test.describe('severity-2', () => {
         }
       });
 
-      test('full signin flow', async ({
-        target,
-        testAccountTracker,
-      }) => {
+      test('full signin flow', async ({ target, testAccountTracker }) => {
         const { email } = await testAccountTracker.signUpPasswordless();
         const account: any = testAccountTracker.accounts.find(
           (a) => a.email === email
@@ -428,6 +433,7 @@ test.describe('severity-2', () => {
         try {
           await target.authClient.passwordlessSendCode(email, {
             clientId: CLIENT_ID,
+            service: SUPPORTED_SERVICE,
           });
           expect(
             true,
@@ -438,5 +444,5 @@ test.describe('severity-2', () => {
         }
       });
     });
-});
+  });
 });
