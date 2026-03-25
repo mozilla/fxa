@@ -19,6 +19,13 @@ _Put an `x` in the boxes that apply_
 - [ ] I have added necessary documentation (if appropriate).
 - [ ] I have verified that my changes render correctly in RTL (if appropriate).
 - [ ] I have manually reviewed all AI generated code.
+- [ ] I have self-reviewed this PR.
+
+## How to review (Optional)
+
+- Key files/areas to focus on:
+- Suggested review order:
+- Risky or complex parts:
 
 ## Screenshots (Optional)
 
