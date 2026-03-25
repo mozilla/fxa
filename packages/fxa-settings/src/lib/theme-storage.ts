@@ -11,15 +11,23 @@ export type ThemePreference = 'light' | 'dark' | 'system';
 const storage = Storage.factory('localStorage');
 
 export function getStoredTheme(): ThemePreference {
-  const stored = storage.get(THEME_KEY);
-  if (stored === 'light' || stored === 'dark' || stored === 'system') {
-    return stored;
+  try {
+    const stored = storage.get(THEME_KEY);
+    if (stored === 'light' || stored === 'dark' || stored === 'system') {
+      return stored;
+    }
+  } catch {
+    // localStorage may be unavailable (disabled, private browsing, etc.)
   }
   return 'light';
 }
 
 export function setStoredTheme(theme: ThemePreference): void {
-  storage.set(THEME_KEY, theme);
+  try {
+    storage.set(THEME_KEY, theme);
+  } catch {
+    // localStorage may be unavailable
+  }
 }
 
 export function getSystemTheme(): 'light' | 'dark' {
