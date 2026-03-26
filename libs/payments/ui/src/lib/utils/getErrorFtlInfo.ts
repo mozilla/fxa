@@ -5,6 +5,7 @@
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { CheckoutParams } from './types';
 import { URLSearchParams } from 'url';
+import { flattenRouteParams } from './flatParam';
 
 export function getErrorFtlInfo(
   reason: CartErrorReasonId | string | null,
@@ -13,10 +14,10 @@ export function getErrorFtlInfo(
     contentServerUrl: string;
     supportUrl: string;
   },
-  searchParams?: Record<string, string | string[]>
+  searchParams?: Record<string, string | string[] | undefined>
 ) {
 
-  const urlSearchParams = new URLSearchParams(searchParams);
+  const urlSearchParams = new URLSearchParams(searchParams ? flattenRouteParams(searchParams) : undefined);
   const queryParamString = searchParams ? `?${urlSearchParams.toString()}` : '';
 
   switch (reason) {

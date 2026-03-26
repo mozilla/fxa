@@ -15,18 +15,19 @@ export default async function ChurnTerms({
   params,
   searchParams,
 }: {
-  params: ChurnParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<ChurnParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }) {
   if (!config.churnInterventionConfig.enabled) {
     notFound();
   }
 
-  const { locale, interval, churnType, offeringId } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const { locale, interval, churnType, offeringId } = await params;
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
 
-  const urlSearchParams = new URLSearchParams(searchParams);
+  const resolvedSearchParams = await searchParams;
+  const urlSearchParams = new URLSearchParams(resolvedSearchParams);
   const searchParamsString = urlSearchParams.toString()
     ? `?${urlSearchParams.toString()}`
     : '';

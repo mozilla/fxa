@@ -13,11 +13,12 @@ export const dynamic = 'force-dynamic'; // defaults to auto
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: ManageParams }
+  { params }: { params: Promise<ManageParams> }
 ) {
+  const resolvedParams = await params;
   const requestSearchParams = request.nextUrl.searchParams;
   const logger = getApp().getLogger();
-  const { locale } = params;
+  const { locale } = resolvedParams;
 
   const redirectToParam = requestSearchParams.get('redirect_to');
   requestSearchParams.delete('redirect_to');

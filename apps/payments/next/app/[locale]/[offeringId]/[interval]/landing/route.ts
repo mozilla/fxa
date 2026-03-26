@@ -41,12 +41,13 @@ export const dynamic = 'force-dynamic'; // defaults to auto
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: BaseParams }
+  { params }: { params: Promise<BaseParams> }
 ) {
+  const resolvedParams = await params;
   const requestSearchParams = request.nextUrl.searchParams;
   const logger = getApp().getLogger();
   const emitterService = getApp().getEmitterService();
-  const ipAddress = getIpAddress();
+  const ipAddress = await getIpAddress();
 
   const reportError = (message: string, details?: any) => {
     if (details) {
@@ -63,7 +64,7 @@ export async function GET(
     const querySpVersion = requestSearchParams.get('spVersion');
     const shouldRedirectToSp2 = determineRedirectToSp2(
       config.sp2redirect,
-      params.offeringId,
+      resolvedParams.offeringId,
       crypto.randomInt(1, 100),
       reportError,
       querySpVersion
@@ -78,8 +79,8 @@ export async function GET(
         const { productId, priceId } = getSP2Params(
           config.sp2map,
           reportError,
-          params.offeringId,
-          params.interval,
+          resolvedParams.offeringId,
+          resolvedParams.interval,
           currency
         );
 
@@ -92,8 +93,8 @@ export async function GET(
 
         emitterService.emit('sp3Rollout', {
           version: '2',
-          offeringId: params.offeringId,
-          interval: params.interval,
+          offeringId: resolvedParams.offeringId,
+          interval: resolvedParams.interval,
           shadowMode: config.sp2redirect.shadowMode,
         });
 
@@ -107,12 +108,12 @@ export async function GET(
           if (!sp2RedirectUrl) {
             const pageNotFoundUrl = new URL(
               buildRedirectUrl(
-                params.offeringId,
-                params.interval,
+                resolvedParams.offeringId,
+                resolvedParams.interval,
                 'page-not-found',
                 'checkout',
                 {
-                  locale: params.locale,
+                  locale: resolvedParams.locale,
                   baseUrl: config.paymentsNextHostedUrl,
                 }
               )
@@ -125,8 +126,8 @@ export async function GET(
     } else {
       emitterService.emit('sp3Rollout', {
         version: '3',
-        offeringId: params.offeringId,
-        interval: params.interval,
+        offeringId: resolvedParams.offeringId,
+        interval: resolvedParams.interval,
         shadowMode: config.sp2redirect.shadowMode,
       });
     }
@@ -139,8 +140,8 @@ export async function GET(
   }
 
   const redirectToUrl = new URL(
-    buildRedirectUrl(params.offeringId, params.interval, 'new', 'checkout', {
-      locale: params.locale,
+    buildRedirectUrl(resolvedParams.offeringId, resolvedParams.interval, 'new', 'checkout', {
+      locale: resolvedParams.locale,
       baseUrl: config.paymentsNextHostedUrl,
       searchParams,
     })

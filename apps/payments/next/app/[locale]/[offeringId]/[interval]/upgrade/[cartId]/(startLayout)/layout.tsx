@@ -22,14 +22,15 @@ export default async function UpgradeLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: CheckoutParams;
+  params: Promise<CheckoutParams>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
 
-  const cartDataPromise = getCartAction(params.cartId);
-  const cmsDataPromise = fetchCMSData(params.offeringId, locale);
+  const cartDataPromise = getCartAction(resolvedParams.cartId);
+  const cmsDataPromise = fetchCMSData(resolvedParams.offeringId, locale);
   const sessionPromise = auth();
   const [cms, cart, session] = await Promise.all([
     cmsDataPromise,

@@ -22,8 +22,8 @@ const paymentMethodTypeMap: Record<string, SubPlatPaymentMethodType> = {
 
 async function recordEmitterEventAction(
   eventName: 'checkoutSubmit',
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
+  searchParams: Record<string, string | string[] | undefined>,
   paymentProvider: PaymentProvidersType,
   paymentMethod: string,
   isFreeTrial?: boolean
@@ -34,22 +34,22 @@ async function recordEmitterEventAction(
     | 'checkoutEngage'
     | 'checkoutSuccess'
     | 'checkoutFail',
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
+  searchParams: Record<string, string | string[] | undefined>,
   paymentProvider?: undefined,
   paymentMethod?: undefined,
   isFreeTrial?: boolean
 ): Promise<void>;
 async function recordEmitterEventAction(
   eventName: PaymentsEmitterEventsKeysType,
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
+  searchParams: Record<string, string | string[] | undefined>,
   paymentProvider?: PaymentProvidersType,
   paymentMethod?: string,
   isFreeTrial?: boolean
 ) {
   const requestArgs = {
-    ...getAdditionalRequestArgs(),
+    ...(await getAdditionalRequestArgs()),
     isFreeTrial: isFreeTrial ?? false,
     params: flattenRouteParams(params),
     searchParams: flattenRouteParams(searchParams),

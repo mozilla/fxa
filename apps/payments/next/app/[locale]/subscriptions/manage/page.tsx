@@ -38,32 +38,35 @@ export default async function Manage({
   params,
   searchParams,
 }: {
-  params: ManageParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<ManageParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const session = await auth();
   if (!session?.user?.id) {
     const redirectToUrl = new URL(
       `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
     );
-    redirectToUrl.search = new URLSearchParams(searchParams).toString();
+    redirectToUrl.search = new URLSearchParams(resolvedSearchParams).toString();
     redirect(redirectToUrl.href);
   }
 
   const userId = session.user.id;
   const entrypoint =
-    searchParams?.utm_medium === 'email'
+    resolvedSearchParams?.utm_medium === 'email'
       ? 'email'
-      : searchParams?.entrypoint === 'internal_nav'
+      : resolvedSearchParams?.entrypoint === 'internal_nav'
         ? 'internal_nav'
         : undefined;
   const experiments = await getExperimentsAction({
     fxaUid: userId,
     language: locale,
-    experimentationPreview: searchParams?.experimentationPreview === 'true',
+    experimentationPreview:
+      resolvedSearchParams?.experimentationPreview === 'true',
   });
 
   const {
@@ -75,8 +78,8 @@ export default async function Manage({
     googleIapSubscriptions,
   } = await getSubManPageContentAction(
     session.user?.id,
-    { ...params },
-    { ...searchParams },
+    { ...resolvedParams },
+    { ...resolvedSearchParams },
     acceptLanguage,
     locale
   );

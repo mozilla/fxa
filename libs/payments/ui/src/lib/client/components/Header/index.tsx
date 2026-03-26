@@ -33,7 +33,7 @@ import {
 import { signOut } from 'next-auth/react';
 
 function buildSignOutRedirectPath(
-  params: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
   searchParams: ReadonlyURLSearchParams,
   countryCode: string,
   postalCode: string

@@ -5,7 +5,7 @@
 import type { ReadonlyURLSearchParams } from 'next/navigation';
 
 export function buildManagementSignoutRedirectUrl(
-  params: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
   searchParams: ReadonlyURLSearchParams,
 ) {
   const { locale } = params;

@@ -48,7 +48,7 @@ export async function ChurnError({
   pageContent,
   subscriptionId,
 }: ChurnErrorProps) {
-  const acceptLanguage = headers().get('accept-language');
+  const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage);
 
   if (reason === 'customer_mismatch') {

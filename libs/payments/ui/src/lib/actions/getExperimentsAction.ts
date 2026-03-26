@@ -13,8 +13,8 @@ export const getExperimentsAction = async (args: {
   language: string;
   fxaUid?: string;
 }) => {
-  const ip = getIpAddress();
-  const experimentationId = headers().get('x-experimentation-id') || '';
+  const ip = await getIpAddress();
+  const experimentationId = (await headers()).get('x-experimentation-id') || '';
 
   try {
     const experiments = await getApp()

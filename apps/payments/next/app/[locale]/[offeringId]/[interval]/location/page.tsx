@@ -28,15 +28,17 @@ export default async function Location({
   params,
   searchParams,
 }: {
-  params: BaseParams;
-  searchParams: Record<string, string | string[]>;
+  params: Promise<BaseParams>;
+  searchParams: Promise<Record<string, string | string[]>>;
 }) {
-  const acceptLanguage = headers().get('accept-language');
-  const l10n = getApp().getL10n(acceptLanguage, params.locale);
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const acceptLanguage = (await headers()).get('accept-language');
+  const l10n = getApp().getL10n(acceptLanguage, resolvedParams.locale);
   const emitterService = getApp().getEmitterService();
   const session = await auth();
-  const providedCountryCode = searchParams['countryCode'];
-  const providedPostalCode = searchParams['postalCode'];
+  const providedCountryCode = resolvedSearchParams['countryCode'];
+  const providedPostalCode = resolvedSearchParams['postalCode'];
   const taxAddress =
     providedCountryCode && providedPostalCode
       ? {
@@ -56,8 +58,8 @@ export default async function Location({
   let customerCurrency: string | undefined;
   try {
     const [cmsData, validateLocationResults] = await Promise.all([
-      fetchCMSData(params.offeringId, acceptLanguage, params.locale),
-      validateLocationAction(params.offeringId, taxAddress, fxaUid, params.interval),
+      fetchCMSData(resolvedParams.offeringId, acceptLanguage, resolvedParams.locale),
+      validateLocationAction(resolvedParams.offeringId, taxAddress, fxaUid, resolvedParams.interval),
     ]);
     cms = cmsData;
     locationStatus = validateLocationResults.status;
@@ -151,7 +153,7 @@ export default async function Location({
           />
           <IsolatedSelectTaxLocation
             cmsCountries={cms.countries}
-            locale={params.locale.substring(0, 2)}
+            locale={resolvedParams.locale.substring(0, 2)}
             productName={purchaseDetails.productName}
             showNewTaxRateInfoMessage={false}
             unsupportedLocations={
@@ -162,10 +164,10 @@ export default async function Location({
               'use server';
 
               const result = await validateLocationAction(
-                params.offeringId,
+                resolvedParams.offeringId,
                 { countryCode, postalCode },
                 fxaUid,
-                params.interval
+                resolvedParams.interval
               );
 
               if (!result.isValid) {
@@ -175,18 +177,18 @@ export default async function Location({
                 };
               }
 
-              searchParams['countryCode'] = countryCode;
-              searchParams['postalCode'] = postalCode;
+              resolvedSearchParams['countryCode'] = countryCode;
+              resolvedSearchParams['postalCode'] = postalCode;
               const redirectUrl = new URL(
                 buildRedirectUrl(
-                  params.offeringId,
-                  params.interval,
+                  resolvedParams.offeringId,
+                  resolvedParams.interval,
                   'new',
                   'checkout',
                   {
-                    locale: params.locale,
+                    locale: resolvedParams.locale,
                     baseUrl: config.paymentsNextHostedUrl,
-                    searchParams,
+                    searchParams: resolvedSearchParams,
                   }
                 )
               );

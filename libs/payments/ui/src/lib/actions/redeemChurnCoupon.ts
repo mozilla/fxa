@@ -12,13 +12,13 @@ export const redeemChurnCouponAction = async (
   uid: string,
   subscriptionId: string,
   churnType: 'cancel' | 'stay_subscribed',
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
+  searchParams: Record<string, string | string[] | undefined>,
   acceptLanguage?: string | null,
   selectedLanguage?: string
 ) => {
   const requestArgs = {
-    ...getAdditionalRequestArgs(),
+    ...(await getAdditionalRequestArgs()),
     params: flattenRouteParams(params),
     searchParams: flattenRouteParams(searchParams),
   };

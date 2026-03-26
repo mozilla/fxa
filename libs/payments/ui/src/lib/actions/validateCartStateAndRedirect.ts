@@ -9,6 +9,7 @@ import { getApp } from '../nestapp/app';
 import { getRedirect, validateCartState } from '../utils/get-cart';
 import { SupportedPages } from '../utils/types';
 import { URLSearchParams } from 'url';
+import { flattenRouteParams } from '../utils/flatParam';
 
 /**
  * Redirect if cart state does not match supported page
@@ -18,10 +19,10 @@ import { URLSearchParams } from 'url';
 async function validateCartStateAndRedirectAction(
   cartId: string,
   page: SupportedPages,
-  searchParams?: Record<string, string | string[]>,
+  searchParams?: Record<string, string | string[] | undefined>,
   redirectNow = true
 ) {
-  const urlSearchParams = new URLSearchParams(searchParams);
+  const urlSearchParams = new URLSearchParams(searchParams ? flattenRouteParams(searchParams) : undefined);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
   const { state } = await getApp().getActionsService().getCartState({
     cartId,

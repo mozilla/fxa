@@ -32,16 +32,18 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'success',
     pageType: 'upgrade',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -49,21 +51,23 @@ export default async function UpgradeSuccess({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]>;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]>>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
 
   const cmsDataPromise = fetchCMSData(
-    params.offeringId,
+    resolvedParams.offeringId,
     acceptLanguage,
     locale
   );
   const cartDataPromise = getCartOrRedirectAction(
-    params.cartId,
+    resolvedParams.cartId,
     SupportedPages.SUCCESS,
-    searchParams
+    resolvedSearchParams
   );
   const sessionPromise = auth();
   const l10n = getApp().getL10n(locale);
@@ -75,12 +79,12 @@ export default async function UpgradeSuccess({
 
   if (!session?.user?.id || cart.uid !== session.user.id) {
     const redirectSearchParams: Record<string, string | string[]> =
-      searchParams || {};
+      resolvedSearchParams || {};
     delete redirectSearchParams.cartId;
     delete redirectSearchParams.cartVersion;
     const redirectTo = buildRedirectUrl(
-      params.offeringId,
-      params.interval,
+      resolvedParams.offeringId,
+      resolvedParams.interval,
       'new',
       'checkout',
       {
@@ -96,7 +100,7 @@ export default async function UpgradeSuccess({
     cms.commonContent.localizations.at(0) || cms.commonContent;
 
   const isCancelInterstitialOffer =
-    searchParams?.['entrypoint'] === 'subscription-management';
+    resolvedSearchParams?.['entrypoint'] === 'subscription-management';
 
   return (
     <>
@@ -108,8 +112,8 @@ export default async function UpgradeSuccess({
           eligibilityStatus="offer"
           outcome="upgrade_success"
           action="upgrade"
-          offeringId={params.offeringId}
-          interval={params.interval}
+          offeringId={resolvedParams.offeringId}
+          interval={resolvedParams.interval}
         />
       )}
       <section

@@ -30,16 +30,18 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'error',
     pageType: 'checkout',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -47,36 +49,38 @@ export default async function CheckoutError({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]>;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]>>;
 }) {
-  const { locale } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
+  const acceptLanguage = (await headers()).get('accept-language');
 
   const sessionPromise = auth();
   const cartPromise = getCartOrRedirectAction(
-    params.cartId,
+    resolvedParams.cartId,
     SupportedPages.ERROR,
-    searchParams
+    resolvedSearchParams
   );
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const [cart, session] = await Promise.all([cartPromise, sessionPromise]);
 
   const errorReason = getErrorFtlInfo(
     cart.errorReasonId,
-    params,
+    resolvedParams,
     config,
-    searchParams
+    resolvedSearchParams
   );
 
   if (cart.id && cart.uid !== session?.user?.id) {
     const redirectSearchParams: Record<string, string | string[]> =
-      searchParams || {};
+      resolvedSearchParams || {};
     delete redirectSearchParams.cartId;
     delete redirectSearchParams.cartVersion;
     const redirectTo = buildRedirectUrl(
-      params.offeringId,
-      params.interval,
+      resolvedParams.offeringId,
+      resolvedParams.interval,
       'new',
       'checkout',
       {

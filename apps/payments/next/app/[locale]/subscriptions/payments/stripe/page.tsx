@@ -18,10 +18,10 @@ import { getStripeClientSession } from '@fxa/payments/ui/actions';
 export default async function StripePaymentManagementPage({
   params,
 }: {
-  params: ManageParams;
+  params: Promise<ManageParams>;
 }) {
   const session = await auth();
-  const { locale } = params;
+  const { locale } = await params;
   if (!session?.user?.id) {
     redirect(`${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`);
   }

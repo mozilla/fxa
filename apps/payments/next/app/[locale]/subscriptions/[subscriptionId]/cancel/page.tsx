@@ -14,17 +14,18 @@ export default async function CancelSubscriptionPage({
   params,
   searchParams,
 }: {
-  params: SubscriptionParams;
-  searchParams: Record<string, string> | undefined;
+  params: Promise<SubscriptionParams>;
+  searchParams: Promise<Record<string, string> | undefined>;
 }) {
-  const { locale, subscriptionId } = params;
-  const acceptLanguage = headers().get('accept-language');
+  const { locale, subscriptionId } = await params;
+  const resolvedSearchParams = await searchParams;
+  const acceptLanguage = (await headers()).get('accept-language');
   const session = await auth();
   if (!session?.user?.id) {
     const redirectToUrl = new URL(
       `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
     );
-    redirectToUrl.search = new URLSearchParams(searchParams).toString();
+    redirectToUrl.search = new URLSearchParams(resolvedSearchParams).toString();
     redirect(redirectToUrl.href);
   }
 

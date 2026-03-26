@@ -13,13 +13,13 @@ export const checkoutCartWithPaypal = async (
   cartId: string,
   version: number,
   attribution: SubscriptionAttributionParams,
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
+  searchParams: Record<string, string | string[] | undefined>,
   sessionUid?: string,
   token?: string
 ) => {
   const requestArgs = {
-    ...getAdditionalRequestArgs(),
+    ...(await getAdditionalRequestArgs()),
     params: flattenRouteParams(params),
     searchParams: flattenRouteParams(searchParams),
   };

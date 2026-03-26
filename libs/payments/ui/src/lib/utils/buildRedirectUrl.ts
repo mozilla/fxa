@@ -4,12 +4,13 @@
 
 import type { Page, PageType } from './types';
 import { URLSearchParams } from 'url';
+import { flattenRouteParams } from './flatParam';
 
 interface Optional {
   baseUrl?: string;
   locale?: string;
   cartId?: string;
-  searchParams?: Record<string, string | string[]>;
+  searchParams?: Record<string, string | string[] | undefined>;
 }
 
 export function buildRedirectUrl(
@@ -30,7 +31,7 @@ export function buildRedirectUrl(
   const endUrl = optional?.cartId ? `${optional?.cartId}/${page}` : page;
 
   const searchParamsString = optional?.searchParams
-    ? `?${new URLSearchParams(optional?.searchParams).toString()}`
+    ? `?${new URLSearchParams(flattenRouteParams(optional.searchParams)).toString()}`
     : '';
   const localeString = optional?.locale ? `${optional.locale}/` : '';
 

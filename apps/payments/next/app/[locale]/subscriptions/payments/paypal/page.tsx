@@ -21,14 +21,15 @@ import errorIcon from '@fxa/shared/assets/images/error.svg';
 export default async function PaypalPaymentManagementPage({
   params,
 }: {
-  params: ManageParams;
+  params: Promise<ManageParams>;
 }) {
-  const acceptLanguage = headers().get('accept-language');
+  const headersList = await headers();
+  const acceptLanguage = headersList.get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage);
   const session = await auth();
-  const { locale } = params;
+  const { locale } = await params;
 
-  const nonce = headers().get('x-nonce') || undefined;
+  const nonce = headersList.get('x-nonce') || undefined;
   if (!session?.user?.id) {
     redirect(`${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`);
   }

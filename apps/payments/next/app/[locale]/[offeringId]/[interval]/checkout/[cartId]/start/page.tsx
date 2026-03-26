@@ -36,16 +36,18 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   return buildPageMetadata({
-    params,
+    params: resolvedParams,
     page: 'start',
     pageType: 'checkout',
-    acceptLanguage: headers().get('accept-language'),
+    acceptLanguage: (await headers()).get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams,
+    searchParams: resolvedSearchParams,
   });
 }
 
@@ -53,24 +55,27 @@ export default async function Checkout({
   params,
   searchParams,
 }: {
-  params: CheckoutParams;
-  searchParams: Record<string, string | string[]> | undefined;
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string | string[]> | undefined>;
 }) {
-  const { locale } = params;
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { locale } = resolvedParams;
 
-  const acceptLanguage = headers().get('accept-language');
-  const nonce = headers().get('x-nonce') || undefined;
+  const headersList = await headers();
+  const acceptLanguage = headersList.get('accept-language');
+  const nonce = headersList.get('x-nonce') || undefined;
   const sessionPromise = auth();
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const cmsDataPromise = fetchCMSData(
-    params.offeringId,
+    resolvedParams.offeringId,
     acceptLanguage,
     locale
   );
   const cartPromise = getCartOrRedirectAction(
-    params.cartId,
+    resolvedParams.cartId,
     SupportedPages.START,
-    searchParams
+    resolvedSearchParams
   );
   //TODO - Replace with cartPromise as part of FXA-8903
   const [session, cart, cms] = await Promise.all([
@@ -82,12 +87,12 @@ export default async function Checkout({
   // prevent cart and session user mismatch
   if (cart.uid !== session?.user?.id) {
     const redirectSearchParams: Record<string, string | string[]> =
-      searchParams || {};
+      resolvedSearchParams || {};
     delete redirectSearchParams.cartId;
     delete redirectSearchParams.cartVersion;
     const redirectTo = buildRedirectUrl(
-      params.offeringId,
-      params.interval,
+      resolvedParams.offeringId,
+      resolvedParams.interval,
       'new',
       'checkout',
       {
@@ -100,13 +105,13 @@ export default async function Checkout({
   }
 
   const redirectSearchParams: Record<string, string | string[]> =
-    searchParams || {};
+    resolvedSearchParams || {};
   redirectSearchParams.cartId = cart.id;
   redirectSearchParams.cartVersion = cart.version.toString();
 
   const redirectTo = buildRedirectUrl(
-    params.offeringId,
-    params.interval,
+    resolvedParams.offeringId,
+    resolvedParams.interval,
     'new',
     'checkout',
     {

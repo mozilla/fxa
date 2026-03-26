@@ -14,25 +14,26 @@ export default async function InterstitialOfferPage({
   params,
   searchParams,
 }: {
-  params: {
+  params: Promise<{
     locale: string;
     subscriptionId: string;
-  };
-  searchParams: Record<string, string> | undefined;
+  }>;
+  searchParams: Promise<Record<string, string> | undefined>;
 }) {
-  const { locale, subscriptionId } = params;
+  const { locale, subscriptionId } = await params;
+  const resolvedSearchParams = await searchParams;
 
   if (!config.churnInterventionConfig.enabled) {
     redirect(`/${locale}/subscriptions/landing`);
   }
 
-  const acceptLanguage = headers().get('accept-language');
+  const acceptLanguage = (await headers()).get('accept-language');
   const session = await auth();
   if (!session?.user?.id) {
     const redirectToUrl = new URL(
       `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
     );
-    redirectToUrl.search = new URLSearchParams(searchParams).toString();
+    redirectToUrl.search = new URLSearchParams(resolvedSearchParams).toString();
     redirectToUrl.searchParams.set(
       'redirect_to',
       `/${locale}/subscriptions/${subscriptionId}/offer`
@@ -66,6 +67,11 @@ export default async function InterstitialOfferPage({
     redirect(`/${locale}/subscriptions/${subscriptionId}/offer/error`);
   }
 
+  const searchParamsObj = {
+    ...resolvedSearchParams,
+    entrypoint: 'subscription-management',
+  };
+
   return (
     <InterstitialOffer
       uid={uid}
@@ -74,10 +80,7 @@ export default async function InterstitialOfferPage({
       subscriptionId={subscriptionId}
       pageContent={interstitialOfferContent.pageContent}
       cancelContent={interstitialOfferContent.cancelContent}
-      searchParams={{
-        ...searchParams,
-        entrypoint: 'subscription-management',
-      }}
+      searchParams={searchParamsObj}
     />
   );
 }

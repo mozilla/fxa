@@ -57,7 +57,7 @@ export function PaypalManagement({
       <div className="flex justify-center items-center max-w-md w-full h-12">
         <ManagementPayPalButton
           currency={currency}
-          locale={Array.isArray(locale) ? locale[0] : locale}
+          locale={Array.isArray(locale) ? locale[0] : locale || ''}
           sessionUid={sessionUid}
           searchParams={searchParams}
         />
