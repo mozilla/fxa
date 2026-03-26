@@ -51,6 +51,7 @@ Tell this agent it is a senior security engineer. It should:
 - Check CORS configuration — no `*` on credentialed endpoints
 - Verify OTP/TOTP handling: constant-time comparison, immediate invalidation, rate limiting
 - Check that secrets are accessed via Convict config, not hardcoded or read from env directly
+- Check StatsD metric tags for unbounded cardinality: user-controlled values (clientId, email, service) used as metric tags must be validated against a known allowlist (e.g. `getRegisteredClientIds()` or `getClientServiceTags(request)`). Free-form strings as tags allow attackers to blow up Prometheus storage.
 
 Output JSON array with fields: severity, category ("Security"), subcategory, file, line, issue, recommendation.
 
