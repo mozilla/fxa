@@ -19,6 +19,7 @@ import { accountsEvents } from 'fxa-shared/metrics/glean/web/pings';
 import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as email from 'fxa-shared/metrics/glean/web/email';
 import * as error from 'fxa-shared/metrics/glean/web/error';
+import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
@@ -696,6 +697,9 @@ const recordEventMetric = (
       webauthn.capabilities.record(extras as any);
       break;
     }
+    case 'promo_qr_mobile_view':
+      promoQrMobile.view.record();
+      break;
   }
 };
 
