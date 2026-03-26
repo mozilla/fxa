@@ -45,6 +45,7 @@ ALL_PORTS=(
   8091   # Admin panel
   9000   # Auth server
   9001   # Mail helper
+  9999   # MailDev SMTP
   1111   # Profile server
   1112   # Profile static
   1113   # Profile worker
@@ -64,8 +65,9 @@ err()   { echo -e "${RED}[clean]${NC} $*"; }
 # ------------------------------------------------------------------ #
 info "Stopping PM2 daemon..."
 if command -v pm2 &>/dev/null; then
+  pm2 flush 2>/dev/null || true
   pm2 kill 2>/dev/null || true
-  info "PM2 killed."
+  info "PM2 logs flushed and daemon killed."
 else
   warn "pm2 not found, skipping."
 fi
