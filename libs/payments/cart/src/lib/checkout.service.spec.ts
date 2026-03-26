@@ -2235,6 +2235,16 @@ describe('CheckoutService', () => {
       );
       expect(subscriptionManager.update).toHaveBeenCalledTimes(2);
       expect(subscriptionManager.update).toHaveBeenNthCalledWith(
+        1,
+        subscription.id,
+        expect.objectContaining({
+          cancel_at_period_end: false,
+          metadata: expect.objectContaining({
+            cancelled_for_customer_at: '',
+          }),
+        })
+      );
+      expect(subscriptionManager.update).toHaveBeenNthCalledWith(
         2,
         redundantSubscription.id,
         {
