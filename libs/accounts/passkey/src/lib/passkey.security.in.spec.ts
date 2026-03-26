@@ -56,10 +56,14 @@ describe('Passkey Security Tests', () => {
             { provide: AccountDbProvider, useValue: db },
             {
               provide: PasskeyConfig,
-              useValue: Object.assign(new PasskeyConfig(), {
+              useValue: new PasskeyConfig({
                 rpId: 'accounts.example.com',
                 allowedOrigins: ['https://accounts.example.com'],
                 maxPasskeysPerUser: 10,
+                enabled: true,
+                challengeTimeout: 1000 * 60 * 5,
+                residentKey: 'required',
+                userVerification: 'required',
               }),
             },
             { provide: LOGGER_PROVIDER, useValue: mockLogger },
@@ -164,10 +168,14 @@ describe('Passkey Security Tests', () => {
     beforeAll(async () => {
       redis = new Redis({ host: 'localhost' });
 
-      const config = Object.assign(new PasskeyConfig(), {
+      const config = new PasskeyConfig({
         rpId: 'localhost',
         allowedOrigins: ['http://localhost'],
-        challengeTimeout: 1000 * 60 * 5, // 5 minutes
+        challengeTimeout: 1000 * 60 * 5,
+        enabled: true,
+        maxPasskeysPerUser: 10,
+        residentKey: 'required',
+        userVerification: 'required',
       });
 
       const moduleRef = await Test.createTestingModule({
