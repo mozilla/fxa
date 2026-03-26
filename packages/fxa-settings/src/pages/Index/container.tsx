@@ -119,9 +119,11 @@ const IndexContainer = ({
       //   (Sync users with existing passwordless accounts will verify via OTP, then set password)
       // - For NEW accounts: use passwordless if passwordlessSupported && integration.isFirefoxNonSync()
       //   (Firefox non-Sync flows can use passwordless OTP; Sync users should go through traditional password-first signup)
+      // Query param takes precedence over feature flag when explicitly set
       const passwordlessEnabled =
-        config.featureFlags?.passwordlessEnabled === true ||
-        queryParamModel.forcePasswordless === true;
+        queryParamModel.forcePasswordless !== undefined
+          ? queryParamModel.forcePasswordless === true
+          : config.featureFlags?.passwordlessEnabled === true;
       // Skip passwordless redirect if the user has a cached session
       const storedAccount = currentAccount() || lastStoredAccount();
       const hasCachedSession = !!storedAccount?.sessionToken;

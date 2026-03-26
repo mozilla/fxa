@@ -16,9 +16,13 @@ export class RelierPage extends BaseLayout {
   }
 
   async goto(query?: string) {
-    const url = query
-      ? `${this.target.relierUrl}?${query}`
-      : this.target.relierUrl;
+    const params = new URLSearchParams(query || '');
+    // Disable passwordless by default so non-passwordless tests are unaffected
+    // when the feature flag is enabled. Passwordless tests explicitly set true.
+    if (!params.has('force_passwordless')) {
+      params.set('force_passwordless', 'false');
+    }
+    const url = `${this.target.relierUrl}?${params.toString()}`;
     return this.page.goto(url);
   }
 
