@@ -137,6 +137,11 @@ class PasswordlessHandler {
           clientId,
           service,
         });
+        this.statsd.increment('passwordless.blocked', {
+          reason: 'clientNotAllowed',
+          ...(clientId ? { clientId } : {}),
+          ...(service ? { service } : {}),
+        });
         throw error.featureNotEnabled();
       }
     }
@@ -147,6 +152,11 @@ class PasswordlessHandler {
         this.config.passwordlessOtp.enabled
       )
     ) {
+      this.statsd.increment('passwordless.blocked', {
+        reason: 'notEligible',
+        ...(clientId ? { clientId } : {}),
+        ...(service ? { service } : {}),
+      });
       throw error.cannotCreatePassword();
     }
   }
@@ -229,6 +239,10 @@ class PasswordlessHandler {
         this.log.info('passwordless.confirmCode.totpRequired', {
           uid: account.uid,
         });
+        this.statsd.increment(
+          'passwordless.confirmCode.totpRequired',
+          getClientServiceTags(request)
+        );
       }
     }
 
@@ -273,6 +287,10 @@ class PasswordlessHandler {
     );
 
     if (!isNewAccount) {
+      this.statsd.increment(
+        'passwordless.signin.success',
+        getClientServiceTags(request)
+      );
       this.glean.login.complete(request, {
         uid: account.uid,
         reason: 'otp',

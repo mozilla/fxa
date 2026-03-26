@@ -1615,6 +1615,12 @@ export class AccountHandler {
 
     await this.customs.check(request, email, 'accountStatusCheck');
 
+    const statusTags = {
+      ...(clientId ? { clientId } : {}),
+      ...(service ? { service } : {}),
+    };
+    this.statsd.increment('account.statusCheck', statusTags);
+
     // Block creation if email is reserved for secondary email registration
     const normalizedEmail = normalizeEmail(email);
     const existingSecondaryEmailRecord = await getExistingSecondaryEmailRecord(
@@ -1683,6 +1689,15 @@ export class AccountHandler {
         result.invalidDomain = invalidDomain;
       }
 
+      if (thirdPartyAuthStatus) {
+        this.statsd.increment('account.statusCheck.result', {
+          exists: String(result.exists),
+          passwordlessSupported: String(!!result.passwordlessSupported),
+          hasPassword: String(!!result.hasPassword),
+          ...statusTags,
+        });
+      }
+
       return result;
     } catch (err) {
       if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -1706,6 +1721,13 @@ export class AccountHandler {
               service
             );
         }
+        this.statsd.increment('account.statusCheck.result', {
+          exists: 'false',
+          passwordlessSupported: String(!!result.passwordlessSupported),
+          hasPassword: 'false',
+          ...statusTags,
+        });
+
         if (this.customs.v2Enabled()) {
           await this.customs.check(request, email, 'accountStatusCheckFailed');
         }
