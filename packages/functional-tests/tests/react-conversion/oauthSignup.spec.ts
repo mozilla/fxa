@@ -17,7 +17,7 @@ test.describe('severity-1 #smoke', () => {
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
 
-      await relier.goto();
+      await relier.goto('force_passwordless=false');
 
       await relier.clickEmailFirst();
 
@@ -43,7 +43,7 @@ test.describe('severity-1 #smoke', () => {
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
 
-      await relier.goto();
+      await relier.goto('force_passwordless=false');
 
       await relier.clickEmailFirst();
 

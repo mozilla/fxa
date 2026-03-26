@@ -26,6 +26,7 @@ enum EmailPrefix {
 }
 
 const RELIER_CLIENT_ID = 'dcdb5ae7add825d2';
+const SUPPORTED_SERVICE = 'smoketests';
 
 type AccountDetails = {
   email: string;
@@ -263,6 +264,7 @@ export class TestAccountTracker {
     // Send passwordless code
     await this.target.authClient.passwordlessSendCode(email, {
       clientId: RELIER_CLIENT_ID,
+      service: SUPPORTED_SERVICE,
     });
 
     // Get OTP from email
@@ -274,6 +276,7 @@ export class TestAccountTracker {
       code,
       {
         clientId: RELIER_CLIENT_ID,
+        service: SUPPORTED_SERVICE,
       }
     );
 
@@ -457,6 +460,7 @@ export class TestAccountTracker {
       // Send passwordless code
       await this.target.authClient.passwordlessSendCode(account.email, {
         clientId: RELIER_CLIENT_ID,
+        service: SUPPORTED_SERVICE,
       });
 
       // Get OTP from email
@@ -470,6 +474,7 @@ export class TestAccountTracker {
         code,
         {
           clientId: RELIER_CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         }
       );
 
@@ -480,10 +485,11 @@ export class TestAccountTracker {
         const { getTotpCode } = require('./totp');
         const totpCode = await getTotpCode(account.secret);
         await this.target.authClient.verifyTotpCode(sessionToken, totpCode);
-        console.log(
-          `Verified TOTP for ${account.email} during cleanup`
-        );
-      } else if (result.verificationMethod === 'totp-2fa' && account.sessionToken) {
+        console.log(`Verified TOTP for ${account.email} during cleanup`);
+      } else if (
+        result.verificationMethod === 'totp-2fa' &&
+        account.sessionToken
+      ) {
         // Fall back to preserved session token if no TOTP secret available
         console.log(
           `Using preserved session token for ${account.email} (no TOTP secret)`

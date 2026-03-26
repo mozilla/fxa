@@ -113,7 +113,7 @@ test.describe('severity-1 #smoke', () => {
       // Create unverified account
       const { email, password } = testAccountTracker.generateAccountDetails();
 
-      await relier.goto();
+      await relier.goto('force_passwordless=false');
       await relier.clickEmailFirst();
       await signup.fillOutEmailForm(email);
       await signup.fillOutSignupForm(password);
@@ -145,7 +145,7 @@ test.describe('severity-1 #smoke', () => {
       // Create unverified account
       const { email, password } = testAccountTracker.generateAccountDetails();
 
-      await relier.goto();
+      await relier.goto('force_passwordless=false');
       await relier.clickChooseFlow();
       // Don't verify account and attempt to login via relier
       await signup.fillOutEmailForm(email);

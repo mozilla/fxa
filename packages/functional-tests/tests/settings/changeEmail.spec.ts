@@ -181,9 +181,12 @@ test.describe('severity-1 #smoke', () => {
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);
 
-      await expect(page.getByText('Account deleted successfully')).toBeVisible();
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
 
       // Try creating a new account with the same secondary email as previous account and new password
+      await signup.goto();
       await signup.fillOutEmailForm(newEmail);
       await signup.fillOutSignupForm(newPassword);
       await expect(page).toHaveURL(/confirm_signup_code/);

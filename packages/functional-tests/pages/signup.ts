@@ -70,6 +70,9 @@ export class SignupPage extends BaseLayout {
   goto(route = '/', params = new URLSearchParams()) {
     params.set('forceExperiment', 'generalizedReactApp');
     params.set('forceExperimentGroup', 'react');
+    if (!params.has('force_passwordless')) {
+      params.set('force_passwordless', 'false');
+    }
     return this.page.goto(
       getReactFeatureFlagUrl(this.target, route, params.toString())
     );

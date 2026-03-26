@@ -18,8 +18,9 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('allows empty login_hint', async ({
-                                                        pages: { page, relier, signup }, target
-                                                      }) => {
+      pages: { page, relier, signup },
+      target,
+    }) => {
       await relier.goto(`login_hint=`);
       await relier.clickEmailFirst();
 
@@ -37,7 +38,7 @@ test.describe('severity-2 #smoke', () => {
       const { email } = testAccountTracker.generateAccountDetails();
 
       await relier.goto(
-        `login_hint=${email}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+        `login_hint=${email}&force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
       await relier.clickEmailFirst();
 

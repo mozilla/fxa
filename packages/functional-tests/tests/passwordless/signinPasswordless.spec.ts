@@ -209,6 +209,7 @@ test.describe('severity-1 #smoke', () => {
 
     test.describe('Session verification state invariants', () => {
       const CLIENT_ID = 'dcdb5ae7add825d2';
+      const SUPPORTED_SERVICE = 'smoketests';
 
       async function getPasswordlessSession(
         target: any,
@@ -217,12 +218,14 @@ test.describe('severity-1 #smoke', () => {
       ) {
         await target.authClient.passwordlessSendCode(email, {
           clientId: CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         });
         const code = isNew
           ? await target.emailClient.getPasswordlessSignupCode(email)
           : await target.emailClient.getPasswordlessSigninCode(email);
         return target.authClient.passwordlessConfirmCode(email, code, {
           clientId: CLIENT_ID,
+          service: SUPPORTED_SERVICE,
         });
       }
 
@@ -1088,6 +1091,7 @@ test.describe('severity-2', () => {
       const { email } = await testAccountTracker.signUpPasswordless();
 
       const params = new URLSearchParams(relayDesktopOAuthQueryParams);
+      params.set('force_passwordless', 'true');
       await signin.goto('/authorization', params);
 
       await signin.fillOutEmailFirstForm(email);
@@ -1107,7 +1111,11 @@ test.describe('severity-2', () => {
       target,
       pages: { page, signin, signinPasswordlessCode },
       testAccountTracker,
-    }) => {
+    }, { project }) => {
+      test.skip(
+        project.name !== 'local',
+        'No services enabled yet in Stage/Production. This can be removed once Relay service is enabled.'
+      );
       // Test that Relay (which is in allowedClientServices) supports passwordless signup
       const { email } = testAccountTracker.generatePasswordlessAccountDetails();
 
