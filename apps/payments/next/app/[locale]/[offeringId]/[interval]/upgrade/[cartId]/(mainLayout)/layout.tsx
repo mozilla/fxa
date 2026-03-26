@@ -56,7 +56,9 @@ export default async function UpgradeSuccessLayout({
             <SignedIn email={session.user.email} />
           </section>
         )}
-        <div className="mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
+        <div
+          className={`mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr] ${session?.user?.email ? 'mt-12 tablet:mt-0' : ''}`}
+        >
           <SubscriptionTitle cart={cart} l10n={l10n} />
           <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
             <PurchaseDetails

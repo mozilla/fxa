@@ -60,6 +60,7 @@ import {
   ProfileClient,
 } from '@fxa/profile/client';
 import {
+  FreeTrialFactory,
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
@@ -383,9 +384,7 @@ describe('CartService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'cancel')
-        .mockRejectedValue(stripeError);
+      jest.spyOn(subscriptionManager, 'cancel').mockRejectedValue(stripeError);
       jest
         .spyOn(paymentIntentManager, 'retrieve')
         .mockResolvedValue(mockPaymentIntent);
@@ -1722,6 +1721,9 @@ describe('CartService', () => {
       jest
         .spyOn(invoiceManager, 'preview')
         .mockResolvedValue(mockLatestInvoicePreview);
+      jest
+        .spyOn(checkoutService, 'getFreeTrialEligibility')
+        .mockResolvedValue(null);
     });
 
     it('returns cart and upcomingInvoicePreview', async () => {
@@ -1754,6 +1756,7 @@ describe('CartService', () => {
         },
         metricsOptedOut: false,
         hasActiveSubscriptions: true,
+        freeTrialEligibility: null,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -1816,6 +1819,7 @@ describe('CartService', () => {
           customerSessionClientSecret: mockCustomerSession.client_secret,
         },
         hasActiveSubscriptions: true,
+        freeTrialEligibility: null,
       });
       expect(
         'latestInvoicePreview' in result && result.latestInvoicePreview
@@ -1884,6 +1888,7 @@ describe('CartService', () => {
           customerSessionClientSecret: mockCustomerSession.client_secret,
         },
         hasActiveSubscriptions: true,
+        freeTrialEligibility: null,
       });
       expect(
         'latestInvoicePreview' in result && result.latestInvoicePreview
@@ -1934,6 +1939,7 @@ describe('CartService', () => {
         upcomingInvoicePreview: mockInvoicePreview,
         metricsOptedOut: false,
         hasActiveSubscriptions: false,
+        freeTrialEligibility: null,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -2006,6 +2012,7 @@ describe('CartService', () => {
           unitAmount: mockFromPrice.unit_amount,
         },
         hasActiveSubscriptions: true,
+        freeTrialEligibility: null,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -2311,6 +2318,60 @@ describe('CartService', () => {
           /GetCartPaymentInfoMissingError/
         );
       });
+    });
+
+    it('includes freeTrialEligibility when cart has uid and eligibility is CREATE', async () => {
+      const mockFreeTrial = FreeTrialFactory({ trialLengthDays: 7 });
+      const mockCart = ResultCartFactory({
+        uid: faker.string.uuid(),
+        state: CartState.START,
+        stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+      });
+      const mockInvoicePreview = InvoicePreviewFactory();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+      jest
+        .spyOn(invoiceManager, 'previewUpcoming')
+        .mockResolvedValue(mockInvoicePreview);
+      jest
+        .spyOn(checkoutService, 'getFreeTrialEligibility')
+        .mockResolvedValue(mockFreeTrial);
+
+      const result = await cartService.getCart(mockCart.id);
+      expect(result.freeTrialEligibility).toEqual(mockFreeTrial);
+      expect(checkoutService.getFreeTrialEligibility).toHaveBeenCalledWith({
+        uid: mockCart.uid,
+        offeringConfigId: mockCart.offeringConfigId,
+        countryCode: mockCart.taxAddress?.countryCode,
+        interval: mockCart.interval,
+        eligibilityStatus: EligibilityStatus.CREATE,
+      });
+    });
+
+    it('sets freeTrialEligibility to null when cart has no uid', async () => {
+      const mockCart = ResultCartFactory({
+        uid: undefined,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+      });
+      const mockInvoicePreview = InvoicePreviewFactory();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+      jest
+        .spyOn(invoiceManager, 'previewUpcoming')
+        .mockResolvedValue(mockInvoicePreview);
+
+      const result = await cartService.getCart(mockCart.id);
+      expect(result.freeTrialEligibility).toBeNull();
+      expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
     });
   });
 
