@@ -50,10 +50,13 @@ async function clearChallengeKeys() {
 beforeAll(async () => {
   redis = new Redis({ host: 'localhost' });
 
-  config = new PasskeyConfig();
-  config.rpId = 'localhost';
-  config.allowedOrigins = ['http://localhost'];
-  config.challengeTimeout = 1000 * 60 * 5; // 5 minutes
+  config = new PasskeyConfig({
+    enabled: true,
+    rpId: 'localhost',
+    allowedOrigins: ['http://localhost'],
+    maxPasskeysPerUser: 10,
+    challengeTimeout: 1000 * 60 * 5,
+  });
 
   const moduleRef = await buildTestModule(redis, config, mockLogger);
 
@@ -136,10 +139,13 @@ describe('PasskeyChallengeManager (integration)', () => {
 
   describe('TTL expiry', () => {
     it('challenge is gone from Redis after the TTL elapses', async () => {
-      const shortConfig = new PasskeyConfig();
-      shortConfig.rpId = 'localhost';
-      shortConfig.allowedOrigins = ['http://localhost'];
-      shortConfig.challengeTimeout = 1000;
+      const shortConfig = new PasskeyConfig({
+        enabled: true,
+        rpId: 'localhost',
+        allowedOrigins: ['http://localhost'],
+        maxPasskeysPerUser: 10,
+        challengeTimeout: 1000,
+      });
 
       const moduleRef = await buildTestModule(redis, shortConfig, mockLogger);
 

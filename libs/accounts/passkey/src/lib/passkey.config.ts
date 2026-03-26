@@ -5,6 +5,7 @@
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsIn,
   IsNotEmpty,
   IsNumber,
@@ -31,6 +32,9 @@ export const MAX_PASSKEY_NAME_LENGTH = 255;
  * and passed to PasskeyService constructor.
  */
 export class PasskeyConfig {
+  @IsBoolean()
+  public enabled!: boolean;
+
   /**
    * WebAuthn Relying Party ID (must match the domain).
    * @example 'accounts.firefox.com'
@@ -99,4 +103,21 @@ export class PasskeyConfig {
   @IsOptional()
   @IsIn(['platform', 'cross-platform'])
   public authenticatorAttachment?: AuthenticatorAttachment | undefined;
+
+  /**
+   * Creates a new PasskeyConfig instance by copying all fields from the
+   * provided options object.
+   *
+   * @param opts - Source object whose properties are copied into this instance.
+   */
+  constructor(opts: PasskeyConfig) {
+    this.allowedOrigins = opts.allowedOrigins;
+    this.authenticatorAttachment = opts.authenticatorAttachment;
+    this.challengeTimeout = opts.challengeTimeout;
+    this.enabled = opts.enabled;
+    this.maxPasskeysPerUser = opts.maxPasskeysPerUser;
+    this.residentKey = opts.residentKey;
+    this.rpId = opts.rpId;
+    this.userVerification = opts.userVerification;
+  }
 }

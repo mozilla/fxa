@@ -6,14 +6,10 @@ import { ConfigType } from '../config';
 import { AppError } from '@fxa/accounts/errors';
 
 /**
- * FIXME: This function needs to be reworked to check for the existence of
- * PasskeyService instead, since it is possible for the passkey feature to be
- * disabled due to invalid configuration, even if the "enabled" flag is set to
- * true. (See FXA-13069)
- * Checks if the passkey feature is enabled in the configuration
+ * Checks if the passkey feature is enabled.
  * @param config - The application configuration object
- * @returns true if the passkey feature is enabled
- * @throws AppError.featureNotEnabled if the feature is disabled
+ * @returns true if the passkey feature is enabled and the service is available
+ * @throws AppError.featureNotEnabled if the feature flag is disabled
  */
 export function isPasskeyFeatureEnabled(config: ConfigType): boolean {
   if (!config.passkeys.enabled) {

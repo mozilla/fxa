@@ -51,6 +51,12 @@ const {
   RecoveryPhoneService,
   TwilioFactory,
 } = require('@fxa/accounts/recovery-phone');
+const {
+  buildPasskeyConfig,
+  PasskeyService,
+  PasskeyManager,
+  PasskeyChallengeManager,
+} = require('@fxa/accounts/passkey');
 const { parseConfigRules, RateLimit } = require('@fxa/accounts/rate-limit');
 const {
   RelyingPartyConfigurationManager,
@@ -299,18 +305,32 @@ async function run(config) {
   );
   Container.set(RecoveryPhoneService, recoveryPhoneService);
 
-  // TODO: uncomment when we are ready to enable passkey APIs.
-  // const passkeyConfig = buildPasskeyConfig(config.passkeys, log);
-  // if (passkeyConfig) {
-  //   const passkeyManager = new PasskeyManager(accountDatabase);
-  //   const passkeyService = new PasskeyService(
-  //     passkeyManager,
-  //     passkeyConfig,
-  //     statsd,
-  //     log
-  //   );
-  //   Container.set(PasskeyService, passkeyService);
-  // }
+  // Create the PasskeyService and register it with the DI
+  const passkeyRedis = new Redis({
+    ...config.redis,
+    ...config.redis.passkey,
+  });
+  const passkeyConfig = buildPasskeyConfig(config.passkeys, log);
+  const passkeyManager = new PasskeyManager(
+    accountDatabase,
+    passkeyConfig,
+    statsd,
+    log
+  );
+  const challengeManager = new PasskeyChallengeManager(
+    passkeyRedis,
+    passkeyConfig,
+    log,
+    statsd
+  );
+  const passkeyService = new PasskeyService(
+    passkeyManager,
+    challengeManager,
+    passkeyConfig,
+    statsd,
+    log
+  );
+  Container.set(PasskeyService, passkeyService);
 
   const profile = new ProfileClient(log, statsd, {
     ...config.profileServer,

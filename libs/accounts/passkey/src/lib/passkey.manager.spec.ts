@@ -32,11 +32,13 @@ jest.mock('./passkey.repository', () => ({
 
 const mockDb = {} as unknown as AccountDatabase;
 const MOCK_MAX_PASSKEYS_PER_USER = 3;
+const CHALLENGE_TIMEOUT_MS = 1000 * 60 * 5;
 
-const mockConfig: PasskeyConfig = Object.assign(new PasskeyConfig(), {
-  rpId: 'accounts.example.com',
-  rpName: 'Example',
+const mockConfig = new PasskeyConfig({
   allowedOrigins: ['https://accounts.example.com'],
+  enabled: true,
+  rpId: 'accounts.example.com',
+  challengeTimeout: CHALLENGE_TIMEOUT_MS,
   maxPasskeysPerUser: MOCK_MAX_PASSKEYS_PER_USER,
 });
 

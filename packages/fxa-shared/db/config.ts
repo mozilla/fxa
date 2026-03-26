@@ -442,5 +442,37 @@ export function makeRedisConfig() {
         doc: 'Key prefix for Redis',
       },
     },
+    passkey: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for recovery phone library',
+        format: Boolean,
+        env: 'PASSKEY_REDIS_ENABLED',
+      },
+      host: {
+        default: 'localhost',
+        env: 'PASSKEY_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'PASSKEY_REDIS_PORT',
+        format: 'port',
+      },
+      password: {
+        default: '',
+        env: 'PASSKEY_REDIS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to Redis`,
+      },
+      prefix: {
+        // Do not set a prefix! This is just here as an override.
+        // The recovery phone library prefixes its entries already!
+        default: '',
+        format: String,
+        doc: 'Key prefix for Redis',
+      },
+    },
   };
 }

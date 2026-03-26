@@ -1,0 +1,354 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import * as isA from 'joi';
+import { Container } from 'typedi';
+import { PasskeyService } from '@fxa/accounts/passkey';
+import { AuthRequest } from '../types';
+import { recordSecurityEvent } from './utils/security-event';
+import { ConfigType } from '../../config';
+import { isPasskeyFeatureEnabled } from '../passkey-utils';
+import { GleanMetricsType } from '../metrics/glean';
+import PASSKEYS_API_DOCS from '../../docs/swagger/passkeys-api';
+import { RegistrationResponseJSON } from '@simplewebauthn/server';
+import { AppError } from '@fxa/accounts/errors';
+
+/** Subset of the Customs service used by passkey routes. */
+interface Customs {
+  /**
+   * Enforces rate-limiting for an authenticated action.
+   * Throws an AppError if the user or IP is throttled.
+   */
+  checkAuthenticated: (
+    req: AuthRequest,
+    uid: string,
+    email: string,
+    action: string
+  ) => Promise<void>;
+}
+
+/** Subset of the database used by passkey routes. */
+interface DB {
+  /** Fetches the account record for the given UID. */
+  account(uid: string): Promise<{ email: string }>;
+  /** Records a security event in the audit log. */
+  securityEvent: (arg: any) => Promise<void>;
+}
+
+/**
+ * Route handler class that encapsulates the WebAuthn registration flow.
+ *
+ * Each method corresponds to one HTTP endpoint and is responsible for:
+ * - Feature-flag gating
+ * - Rate-limit enforcement via Customs
+ * - Delegating business logic to {@link PasskeyService}
+ * - Recording security audit events
+ */
+class PasskeyHandler {
+  constructor(
+    private readonly service: PasskeyService,
+    private readonly db: DB,
+    private readonly customs: Customs
+    // TODO: FXA-12914 - Require glean be passed in.
+  ) {}
+
+  /**
+   * Handles `POST /passkey/registration/start`.
+   *
+   * Verifies the service is enabled, enforces rate-limiting, and delegates to
+   * {@link PasskeyService.generateRegistrationChallenge} to produce
+   * `PublicKeyCredentialCreationOptions` for the browser.
+   *
+   * @param request - Authenticated Hapi request with a valid MFA JWT.
+   * @returns WebAuthn registration options to pass to `navigator.credentials.create`.
+   */
+  async registrationStart(request: AuthRequest) {
+    if (!this.service.enabled) {
+      throw AppError.backendServiceFailure('passkey', 'registrationStart', {
+        reason: 'Service disabled',
+      });
+    }
+
+    const { uid } = request.auth.credentials as {
+      uid: string;
+    };
+
+    const account = await this.db.account(uid);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      account.email,
+      'passkeyRegisterStart'
+    );
+
+    const options = await this.service.generateRegistrationChallenge(
+      Buffer.from(uid),
+      account.email
+    );
+
+    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
+    // await this.glean.passkey.registrationStarted(request);
+
+    return options;
+  }
+
+  /**
+   * Handles `POST /passkey/registration/finish`.
+   *
+   * Verifies the service is enabled, enforces rate-limiting, and delegates to
+   * {@link PasskeyService.createPasskeyFromRegistrationResponse} to verify the
+   * attestation and persist the new credential. Records a security event for
+   * both success and failure outcomes.
+   *
+   * @param request - Authenticated Hapi request containing `response` and
+   *   `challenge` in the payload.
+   * @returns A subset of the new passkey record: `credentialId`, `name`,
+   *   `createdAt`, `lastUsedAt`, and `transports`.
+   */
+  async registrationFinish(request: AuthRequest) {
+    if (!this.service.enabled) {
+      throw AppError.backendServiceFailure('passkey', 'registrationFinished', {
+        reason: 'Service disabled',
+      });
+    }
+
+    const { uid } = request.auth.credentials as {
+      uid: string;
+    };
+
+    const account = await this.db.account(uid);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      account.email,
+      'passkeyRegisterFinish'
+    );
+
+    const { response, challenge } = request.payload as {
+      response: RegistrationResponseJSON;
+      challenge: string;
+    };
+
+    try {
+      const passkey = await this.service.createPasskeyFromRegistrationResponse(
+        Buffer.from(uid),
+        response,
+        challenge
+      );
+
+      await recordSecurityEvent('account.passkey.registration_success', {
+        db: this.db,
+        request,
+      });
+
+      // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
+      // await this.glean.passkey.registrationComplete(request);
+
+      const { credentialId, name, createdAt, lastUsedAt, transports } = passkey;
+      return { credentialId, name, createdAt, lastUsedAt, transports };
+    } catch (err) {
+      await recordSecurityEvent('account.passkey.registration_failure', {
+        db: this.db,
+        request,
+      });
+
+      // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
+      // await this.glean.passkey.registrationFailed(request);
+
+      throw err;
+    }
+  }
+}
+
+/**
+ * Registers all passkey-related Hapi routes.
+ *
+ * Retrieves the {@link PasskeyService} from the TypeDI container and wires it
+ * into a {@link PasskeyHandler}.  Throws at startup if the service is not
+ * registered, rather than failing silently at request time.
+ *
+ * @param customs - Customs service for rate-limiting.
+ * @param db - Database client (minimal interface used by these routes).
+ * @param config - Full application configuration.
+ * @param statsd - StatsD client for metrics.
+ * @param glean - Glean metrics instance.
+ * @param log - Logger instance.
+ * @returns An array of Hapi route configuration objects.
+ */
+export const passkeyRoutes = (
+  customs: Customs,
+  db: any,
+  config: ConfigType,
+  statsd: any,
+  glean: GleanMetricsType,
+  log: any
+) => {
+  const featureEnabledCheck = () => isPasskeyFeatureEnabled(config);
+
+  const service = Container.get(PasskeyService);
+  if (!service) {
+    throw new Error(
+      'Could not register passkey routes. PasskeyService not registered with DI.'
+    );
+  }
+  const handler = new PasskeyHandler(service, db, customs);
+
+  return [
+    {
+      method: 'POST',
+      path: '/passkey/registration/start',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_REGISTRATION_START_POST,
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:passkey'],
+          payload: false,
+        },
+        response: {
+          schema: isA.object({
+            rp: isA
+              .object({
+                id: isA.string().optional(),
+                name: isA.string().required(),
+              })
+              .required(),
+            user: isA
+              .object({
+                id: isA.string().required(),
+                name: isA.string().required(),
+                displayName: isA.string().required(),
+              })
+              .required(),
+            challenge: isA.string().required(),
+            pubKeyCredParams: isA
+              .array()
+              .items(
+                isA.object({
+                  alg: isA.number().required(),
+                  type: isA.string().valid('public-key').required(),
+                })
+              )
+              .required(),
+            timeout: isA.number().optional(),
+            excludeCredentials: isA
+              .array()
+              .items(
+                isA.object({
+                  id: isA.string().required(),
+                  type: isA.string().valid('public-key').required(),
+                  transports: isA
+                    .array()
+                    .items(
+                      isA
+                        .string()
+                        .valid(
+                          'ble',
+                          'cable',
+                          'hybrid',
+                          'internal',
+                          'nfc',
+                          'smart-card',
+                          'usb'
+                        )
+                    )
+                    .optional(),
+                })
+              )
+              .optional(),
+            authenticatorSelection: isA
+              .object({
+                authenticatorAttachment: isA
+                  .string()
+                  .valid('cross-platform', 'platform')
+                  .optional(),
+                requireResidentKey: isA.boolean().optional(),
+                residentKey: isA
+                  .string()
+                  .valid('discouraged', 'preferred', 'required')
+                  .optional(),
+                userVerification: isA
+                  .string()
+                  .valid('discouraged', 'preferred', 'required')
+                  .optional(),
+              })
+              .optional(),
+            hints: isA
+              .array()
+              .items(
+                isA.string().valid('hybrid', 'security-key', 'client-device')
+              )
+              .optional(),
+            attestation: isA
+              .string()
+              .valid('direct', 'enterprise', 'indirect', 'none')
+              .optional(),
+            attestationFormats: isA
+              .array()
+              .items(
+                isA
+                  .string()
+                  .valid(
+                    'fido-u2f',
+                    'packed',
+                    'android-safetynet',
+                    'android-key',
+                    'tpm',
+                    'apple',
+                    'none'
+                  )
+              )
+              .optional(),
+            extensions: isA
+              .object({
+                appid: isA.string().optional(),
+                credProps: isA.boolean().optional(),
+                hmacCreateSecret: isA.boolean().optional(),
+                minPinLength: isA.boolean().optional(),
+              })
+              .optional(),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('passkey.registration.start', request);
+        return handler.registrationStart(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/passkey/registration/finish',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_REGISTRATION_FINISH_POST,
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:passkey'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            response: isA.object().required(),
+            challenge: isA.string().required(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            credentialId: isA.string().required(),
+            name: isA.string().required(),
+            createdAt: isA.number().required(),
+            lastUsedAt: isA.number().required(),
+            transports: isA.array().items(isA.string()).required(),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('passkey.registration.finish', request);
+        return handler.registrationFinish(request);
+      },
+    },
+  ];
+};
+
+export default passkeyRoutes;

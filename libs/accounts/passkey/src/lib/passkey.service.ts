@@ -75,6 +75,21 @@ const DISPLAY_SAFE_UNICODE_WITH_NON_BMP =
  */
 @Injectable()
 export class PasskeyService {
+  /**
+   * Indicates service is enabled.
+   */
+  get enabled(): boolean {
+    return this.config.enabled;
+  }
+
+  /**
+   * Creates new PasskeyService
+   * @param passkeyManager current passkey manager
+   * @param challengeManager current pass key challenge manager
+   * @param config config for passkeys
+   * @param metrics metrics for emitting raw metrics
+   * @param log logger for logging errors / warnings
+   */
   constructor(
     private readonly passkeyManager: PasskeyManager,
     private readonly challengeManager: PasskeyChallengeManager,
@@ -122,6 +137,11 @@ export class PasskeyService {
    * @param uid - User ID (16-byte Buffer)
    * @param response - Raw registration response from the browser
    * @param challenge - Challenge that was issued for this registration
+   * @returns The newly created passkey record as stored in the database.
+   * @throws {AppError} passkeyChallengeNotFound if the challenge has expired,
+   *   was already consumed, or never existed.
+   * @throws {AppError} passkeyRegistrationFailed if attestation verification
+   *   fails or the verified flag is false.
    */
   async createPasskeyFromRegistrationResponse(
     uid: Buffer,
