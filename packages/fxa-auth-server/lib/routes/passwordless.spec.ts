@@ -1152,11 +1152,16 @@ describe('passwordless statsd metrics', () => {
       payload: {
         email: TEST_EMAIL,
         clientId: 'test-client-id',
+        service: 'test-service',
         metricsContext: {
           deviceId: 'device123',
           flowId: 'flow123',
           flowBeginTime: Date.now(),
         },
+      },
+      app: {
+        clientIdTag: 'test-client-id',
+        serviceTag: 'test-service',
       },
     });
   });
@@ -1247,7 +1252,57 @@ describe('passwordless statsd metrics', () => {
         .map((c: any) => c.args[0]);
       expect(incrementCalls).toContain('passwordless.registration.success');
       expect(incrementCalls).toContain('passwordless.confirmCode.success');
+
+      // confirmCode.success should include isNewAccount tag
+      const confirmCall = mockStatsd.increment
+        .getCalls()
+        .find((c: any) => c.args[0] === 'passwordless.confirmCode.success');
+      expect(confirmCall).toBeDefined();
+      expect(confirmCall.args[1]).toEqual(
+        expect.objectContaining({ isNewAccount: 'true' })
+      );
     });
+  });
+
+  it('should increment passwordless.blocked when client is not allowed', () => {
+    mockDB.accountRecord = sinon.spy(() =>
+      Promise.reject(error.unknownAccount())
+    );
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      statsd: mockStatsd,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientServices: {},
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/send_code', 'POST');
+
+    return runTest(route, mockRequest).then(
+      () => {
+        throw new Error('should have failed');
+      },
+      () => {
+        const blockedCall = mockStatsd.increment
+          .getCalls()
+          .find((c: any) => c.args[0] === 'passwordless.blocked');
+        expect(blockedCall).toBeDefined();
+        expect(blockedCall.args[1]).toEqual(
+          expect.objectContaining({
+            reason: 'clientNotAllowed',
+            clientId: 'test-client-id',
+            service: 'test-service',
+          })
+        );
+      }
+    );
   });
 });
 

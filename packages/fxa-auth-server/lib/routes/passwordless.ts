@@ -119,7 +119,8 @@ class PasswordlessHandler {
     email: string,
     clientId: string | undefined,
     service: string | undefined,
-    logTag: string
+    logTag: string,
+    request: AuthRequest
   ) {
     const hasLinkedAccount =
       account && (account.linkedAccounts?.length || 0) > 0;
@@ -137,6 +138,10 @@ class PasswordlessHandler {
           clientId,
           service,
         });
+        this.statsd.increment('passwordless.blocked', {
+          reason: 'clientNotAllowed',
+          ...getClientServiceTags(request),
+        });
         throw error.featureNotEnabled();
       }
     }
@@ -147,6 +152,10 @@ class PasswordlessHandler {
         this.config.passwordlessOtp.enabled
       )
     ) {
+      this.statsd.increment('passwordless.blocked', {
+        reason: 'notEligible',
+        ...getClientServiceTags(request),
+      });
       throw error.cannotCreatePassword();
     }
   }
@@ -168,7 +177,8 @@ class PasswordlessHandler {
       email,
       clientId,
       service,
-      'sendCode'
+      'sendCode',
+      request
     );
 
     return this.generateAndSendOtp(request, email, account, isNewAccount);
@@ -197,7 +207,8 @@ class PasswordlessHandler {
       email,
       clientId,
       service,
-      'confirmCode'
+      'confirmCode',
+      request
     );
 
     // Verify OTP
@@ -229,6 +240,10 @@ class PasswordlessHandler {
         this.log.info('passwordless.confirmCode.totpRequired', {
           uid: account.uid,
         });
+        this.statsd.increment(
+          'passwordless.confirmCode.totpRequired',
+          getClientServiceTags(request)
+        );
       }
     }
 
@@ -267,10 +282,10 @@ class PasswordlessHandler {
       tokenVerificationId
     );
 
-    this.statsd.increment(
-      'passwordless.confirmCode.success',
-      getClientServiceTags(request)
-    );
+    this.statsd.increment('passwordless.confirmCode.success', {
+      ...getClientServiceTags(request),
+      isNewAccount: String(isNewAccount),
+    });
 
     if (!isNewAccount) {
       this.glean.login.complete(request, {
@@ -326,7 +341,8 @@ class PasswordlessHandler {
       email,
       clientId,
       service,
-      'resendCode'
+      'resendCode',
+      request
     );
 
     // Delete existing code before sending a new one
