@@ -14,6 +14,14 @@ import type {
   UserVerificationRequirement,
 } from '@simplewebauthn/server';
 
+/**
+ * Raw passkey configuration.
+ *
+ * Mirrors the passkeys section of the for general configurations.
+ * An empty string for `authenticatorAttachment` is normalized to `undefined`
+ * by {@link buildPasskeyConfig} because Convict cannot represent `undefined`
+ * in JSON config files.
+ */
 export type RawPasskeyConfig = {
   enabled: boolean;
   rpId: string;
@@ -22,38 +30,46 @@ export type RawPasskeyConfig = {
   maxPasskeysPerUser: number;
   userVerification: UserVerificationRequirement;
   residentKey: ResidentKeyRequirement;
+  /** Empty string is treated as "no preference" and normalized to `undefined`. */
   authenticatorAttachment: AuthenticatorAttachment | '';
 };
 
-export function buildPasskeyConfig(
-  raw: RawPasskeyConfig,
-  log: LoggerService
-): PasskeyConfig | null {
-  if (!raw.enabled) {
-    return null;
-  }
-
-  const mapped = {
+/**
+ * Builds and validates a {@link PasskeyConfig} from raw Convict values.
+ *
+ * Normalizes `authenticatorAttachment`: an empty string (the Convict
+ * no-preference sentinel) is converted to `undefined` so that the
+ * WebAuthn library omits the field from registration options entirely.
+ *
+ * @param raw - Raw config values read from Convict.
+ * @returns A fully validated {@link PasskeyConfig} instance.
+ * @throws {Error} If any field fails class-validator constraints, with a
+ *   human-readable list of all validation errors.
+ */
+export function buildPasskeyConfig(raw: RawPasskeyConfig): PasskeyConfig {
+  const passkeyConfig = new PasskeyConfig({
     ...raw,
     authenticatorAttachment: raw.authenticatorAttachment || undefined,
-  };
+  });
 
-  const passkeyConfig = Object.assign(new PasskeyConfig(), mapped);
   const errors = validateSync(passkeyConfig, {
     skipMissingProperties: false,
   });
   if (errors.length > 0) {
     const message = errors.map((e) => e.toString()).join('\n');
-    log.error('passkey.config.invalid', {
-      message: `Passkeys disabled due to malformed config:\n${message}`,
-    });
-    return null;
+    throw new Error(`Malformed passkey config:\n${message}`);
   }
   return passkeyConfig;
 }
 
+/** NestJS injection token for the passkey-specific Redis client. */
 export const PASSKEY_CHALLENGE_REDIS = 'PasskeyChallengeRedis';
 
+/**
+ * NestJS provider that creates a dedicated Redis client for passkey challenge
+ * storage. The client is configured by merging the base `redis` config with
+ * the `redis.passkey` override, allowing a separate DB index or host.
+ */
 export const PasskeyChallengeRedisProvider = {
   provide: PASSKEY_CHALLENGE_REDIS,
   useFactory: (config: ConfigService) => {
@@ -67,6 +83,14 @@ export const PasskeyChallengeRedisProvider = {
   inject: [ConfigService],
 };
 
+/**
+ * NestJS provider that reads, validates, and exposes the {@link PasskeyConfig}
+ * for injection throughout the passkey module.
+ *
+ * Returns `null` (and logs an error) when the `passkeys` config key is absent,
+ * allowing dependent services to treat passkeys as disabled rather than
+ * throwing at startup.
+ */
 export const PasskeyConfigProvider = {
   provide: PasskeyConfig,
   useFactory: (config: ConfigService, log: LoggerService) => {
@@ -77,7 +101,7 @@ export const PasskeyConfigProvider = {
       });
       return null;
     }
-    return buildPasskeyConfig(rawConfig as RawPasskeyConfig, log);
+    return buildPasskeyConfig(rawConfig as RawPasskeyConfig);
   },
   inject: [ConfigService, LOGGER_PROVIDER],
 };

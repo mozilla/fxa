@@ -24,11 +24,12 @@ describe('PasskeyManager (Integration)', () => {
   let accountManager: AccountManager;
 
   // Use a small limit to make passkeyLimitReached error tests practical
-  const testConfig: PasskeyConfig = Object.assign(new PasskeyConfig(), {
+  const testConfig: PasskeyConfig = new PasskeyConfig({
+    enabled: true,
     rpId: 'accounts.example.com',
-    rpName: 'Example',
     allowedOrigins: ['https://accounts.example.com'],
     maxPasskeysPerUser: 2,
+    challengeTimeout: 30_000,
   });
 
   const mockMetrics = {

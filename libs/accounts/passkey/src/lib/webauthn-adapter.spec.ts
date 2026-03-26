@@ -38,11 +38,14 @@ const libMocks = jest.requireMock('@simplewebauthn/server') as {
 };
 
 function mockConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
-  return Object.assign(new PasskeyConfig(), {
+  return new PasskeyConfig({
+    enabled: true,
     rpId: 'accounts.firefox.com',
     allowedOrigins: ['https://accounts.firefox.com'],
     userVerification: 'required',
     residentKey: 'preferred',
+    maxPasskeysPerUser: 10,
+    challengeTimeout: 30_000,
     ...overrides,
   });
 }

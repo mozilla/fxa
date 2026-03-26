@@ -28,11 +28,16 @@ const MOCK_CHALLENGE = Buffer.alloc(32, 0xab).toString('base64url');
 const CHALLENGE_TIMEOUT_MS = 1000 * 60 * 5;
 
 function makeConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
-  const config = new PasskeyConfig();
-  config.rpId = 'accounts.firefox.com';
-  config.allowedOrigins = ['https://accounts.firefox.com'];
-  config.challengeTimeout = CHALLENGE_TIMEOUT_MS;
-  Object.assign(config, overrides);
+  const config = new PasskeyConfig({
+    allowedOrigins: ['https://accounts.firefox.com'],
+    challengeTimeout: CHALLENGE_TIMEOUT_MS,
+    enabled: true,
+    maxPasskeysPerUser: 6,
+    residentKey: 'required',
+    rpId: 'accounts.firefox.com',
+    ...overrides,
+  });
+
   return config;
 }
 

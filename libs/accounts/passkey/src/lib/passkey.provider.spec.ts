@@ -20,8 +20,8 @@ const VALID_RAW_CONFIG: RawPasskeyConfig = {
   enabled: true,
   rpId: 'accounts.firefox.com',
   allowedOrigins: ['https://accounts.firefox.com'],
-  challengeTimeout: 60000,
   maxPasskeysPerUser: 10,
+  challengeTimeout: 30_000,
   userVerification: 'required',
   residentKey: 'required',
   authenticatorAttachment: '',
@@ -90,13 +90,6 @@ describe('PasskeyChallengeRedisProvider', () => {
 });
 
 describe('PasskeyConfigProvider', () => {
-  describe('when passkeys.enabled is false', () => {
-    it('returns null without validation', async () => {
-      const { config } = await buildModule({ enabled: false });
-      expect(config).toBeNull();
-    });
-  });
-
   describe('when config is valid', () => {
     it('returns a PasskeyConfig instance', async () => {
       const { config } = await buildModule(VALID_RAW_CONFIG);
@@ -107,7 +100,7 @@ describe('PasskeyConfigProvider', () => {
       const { config } = await buildModule(VALID_RAW_CONFIG);
       expect(config!.rpId).toBe('accounts.firefox.com');
       expect(config!.allowedOrigins).toEqual(['https://accounts.firefox.com']);
-      expect(config!.challengeTimeout).toBe(60000);
+      expect(config!.challengeTimeout).toBe(30_000);
       expect(config!.maxPasskeysPerUser).toBe(10);
       expect(config!.userVerification).toBe('required');
       expect(config!.residentKey).toBe('required');
@@ -125,46 +118,46 @@ describe('PasskeyConfigProvider', () => {
   });
 
   describe('when config is invalid', () => {
-    it('returns null', async () => {
-      const { config } = await buildModule({
-        ...VALID_RAW_CONFIG,
-        rpId: '',
-        allowedOrigins: ['not-a-valid-origin'],
-      });
-      expect(config).toBeNull();
+    it('throws', async () => {
+      await expect(() =>
+        buildModule({
+          ...VALID_RAW_CONFIG,
+          rpId: '',
+        })
+      ).rejects.toThrow('property rpId has failed the following constraints');
     });
 
-    it('logs an error with the validation message', async () => {
-      const { logger } = await buildModule({
-        ...VALID_RAW_CONFIG,
-        allowedOrigins: ['not-a-valid-origin'],
-      });
-      expect(logger.error).toHaveBeenCalledWith(
-        'passkey.config.invalid',
-        expect.objectContaining({
-          message: expect.stringContaining(
-            'Passkeys disabled due to malformed config'
-          ),
+    it('rejects allowedOrigins with trailing path', async () => {
+      await expect(() =>
+        buildModule({
+          ...VALID_RAW_CONFIG,
+          allowedOrigins: 'not-a-valid-origin',
         })
+      ).rejects.toThrow(
+        'property allowedOrigins has failed the following constraints'
       );
     });
 
     it('rejects allowedOrigins with trailing path', async () => {
-      const { config, logger } = await buildModule({
-        ...VALID_RAW_CONFIG,
-        allowedOrigins: ['https://accounts.firefox.com/path'],
-      });
-      expect(config).toBeNull();
-      expect(logger.error).toHaveBeenCalled();
+      await expect(() =>
+        buildModule({
+          ...VALID_RAW_CONFIG,
+          allowedOrigins: ['https://accounts.firefox.com/path'],
+        })
+      ).rejects.toThrow(
+        'property allowedOrigins has failed the following constraints'
+      );
     });
 
     it('rejects empty allowedOrigins array', async () => {
-      const { config, logger } = await buildModule({
-        ...VALID_RAW_CONFIG,
-        allowedOrigins: [],
-      });
-      expect(config).toBeNull();
-      expect(logger.error).toHaveBeenCalled();
+      await expect(() =>
+        buildModule({
+          ...VALID_RAW_CONFIG,
+          allowedOrigins: [],
+        })
+      ).rejects.toThrow(
+        'property allowedOrigins has failed the following constraints'
+      );
     });
   });
 });

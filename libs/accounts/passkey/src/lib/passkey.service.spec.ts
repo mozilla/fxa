@@ -99,11 +99,12 @@ describe('PasskeyService', () => {
     warn: jest.fn(),
   };
 
-  const mockConfig = Object.assign(new PasskeyConfig(), {
+  const mockConfig = new PasskeyConfig({
+    enabled: true,
     rpId: 'accounts.firefox.com',
     allowedOrigins: ['https://accounts.firefox.com'],
-    challengeTimeout: 60000,
     maxPasskeysPerUser: 10,
+    challengeTimeout: 30_000,
     userVerification: 'required',
     residentKey: 'required',
   });

@@ -20,6 +20,7 @@ const TAGS = {
   SIGN: ['api', 'Sign'],
   SUBSCRIPTIONS: ['api', 'Subscriptions'],
   THIRD_PARTY_AUTH: ['api', 'Third Party Authentication'],
+  PASSKEYS: ['api', 'Passkeys'],
   TOTP: ['api', 'totp'],
   UNBLOCK_CODES: ['api', 'Unblock codes'],
   UTIL: ['api', 'Util'],

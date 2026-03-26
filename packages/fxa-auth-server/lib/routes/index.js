@@ -241,6 +241,9 @@ module.exports = function (
   const { mfaRoutes } = require('./mfa');
   const mfa = mfaRoutes(customs, db, log, mailer, statsd, config);
 
+  const { passkeyRoutes } = require('./passkeys');
+  const passkeys = passkeyRoutes(customs, db, config, statsd, glean, log);
+
   const { passwordlessRoutes } = require('./passwordless');
   const passwordless = passwordlessRoutes(
     log,
@@ -280,7 +283,8 @@ module.exports = function (
     cloudScheduler,
     cms,
     geo,
-    mfa
+    mfa,
+    passkeys
   );
 
   function optionallyIgnoreTrace(fn) {
