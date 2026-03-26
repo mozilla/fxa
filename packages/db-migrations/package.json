@@ -5,10 +5,13 @@
   "type": "module",
   "license": "MPL-2.0",
   "bin": "./bin/patcher.mjs",
+  "scripts": {
+    "lint": "eslint . --ext .js,.mjs",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+  },
   "dependencies": {
     "convict": "^6.2.5",
     "fxa-shared": "workspace:*",
-    "mysql": "^2.18.1",
-    "mysql-patcher": "0.7.0"
+    "mysql": "^2.18.1"
   }
 }
