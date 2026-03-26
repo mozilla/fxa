@@ -262,4 +262,8 @@ export const eventsMap = {
   error: {
     view: 'error_view',
   },
+
+  promoQrMobile: {
+    view: 'promo_qr_mobile_view',
+  },
 } as const;
