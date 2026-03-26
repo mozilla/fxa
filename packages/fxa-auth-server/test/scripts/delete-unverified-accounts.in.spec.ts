@@ -21,7 +21,8 @@ const execOptions = {
 
 const command = [
   'node',
-  '-r esbuild-register',
+  '-r ts-node/register/transpile-only',
+  '-r tsconfig-paths/register',
   'scripts/delete-unverified-accounts.ts',
 ];
 

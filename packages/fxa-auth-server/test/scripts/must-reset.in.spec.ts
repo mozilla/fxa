@@ -104,7 +104,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if -i is not specified', async () => {
     try {
       await cp.execAsync(
-        `node --require esbuild-register scripts/must-reset ${oneEmailFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset ${oneEmailFilename}`,
         {
           cwd,
         }
@@ -118,7 +118,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if neither --emails nor --uids is specified', async () => {
     try {
       await cp.execAsync(
-        `node --require esbuild-register scripts/must-reset -i ${oneEmailFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset -i ${oneEmailFilename}`,
         {
           cwd,
         }
@@ -132,7 +132,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if both --emails and --uids are specified', async () => {
     try {
       await cp.execAsync(
-        `node --require esbuild-register scripts/must-reset --emails --uids -i ${oneEmailFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails --uids -i ${oneEmailFilename}`,
         {
           cwd,
         }
@@ -146,7 +146,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if --emails specified w/o --input', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --emails',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails',
         {
           cwd,
         }
@@ -160,7 +160,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if --uids specified w/o --input', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --uids',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --uids',
         {
           cwd,
         }
@@ -174,7 +174,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if --uids and --input specified w/ file missing', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --uids -input does_not_exist',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --uids -input does_not_exist',
         {
           cwd,
         }
@@ -188,7 +188,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if --emails and --input specified w/ file missing', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --emails --input does_not_exist',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails --input does_not_exist',
         {
           cwd,
         }
@@ -202,7 +202,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if --uids and -i specified w/ invalid uid', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --uids -i ./test/scripts/fixtures/invalid_uid.txt',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --uids -i ./test/scripts/fixtures/invalid_uid.txt',
         {
           cwd,
         }
@@ -216,7 +216,7 @@ describe('#integration - scripts/must-reset', () => {
   it('fails if --emails and -i specified w/ invalid email', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --emails -i ./test/scripts/fixtures/invalid_email.txt',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails -i ./test/scripts/fixtures/invalid_email.txt',
         {
           cwd,
         }
@@ -230,7 +230,7 @@ describe('#integration - scripts/must-reset', () => {
   it('succeeds with --uids and --input containing 1 uid', async () => {
     try {
       await cp.execAsync(
-        `node --require esbuild-register scripts/must-reset --uids --input ${oneUidFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --uids --input ${oneUidFilename}`,
         {
           cwd,
         }
@@ -247,7 +247,7 @@ describe('#integration - scripts/must-reset', () => {
   it('succeeds with --emails and --input containing 1 email', async () => {
     try {
       await cp.execAsync(
-        `node --require esbuild-register scripts/must-reset --emails --input ${oneEmailFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails --input ${oneEmailFilename}`,
         {
           cwd,
         }
@@ -264,7 +264,7 @@ describe('#integration - scripts/must-reset', () => {
   it('succeeds with --uids and --input containing 2 uids', async () => {
     try {
       await cp.execAsync(
-        `node --require esbuild-register scripts/must-reset --uids --input ${twoUidsFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --uids --input ${twoUidsFilename}`,
         {
           cwd,
         }
@@ -287,7 +287,7 @@ describe('#integration - scripts/must-reset', () => {
   it('succeeds with --emails and --input containing 2 emails', async () => {
     try {
       await cp.execAsync(
-        `node --require esbuild-register scripts/must-reset --emails --input ${twoEmailsFilename}`,
+        `node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/must-reset --emails --input ${twoEmailsFilename}`,
         {
           cwd,
         }

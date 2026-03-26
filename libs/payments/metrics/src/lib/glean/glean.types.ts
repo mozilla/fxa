@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import type { ResultCart } from '@fxa/payments/cart';
 import type { SubplatInterval } from '@fxa/payments/customer';
 
 export const CheckoutTypes = [
@@ -31,15 +30,14 @@ export type CommonMetrics = {
   searchParams: Record<string, string>;
 };
 
-export type CartMetrics = Pick<
-  ResultCart,
-  | 'uid'
-  | 'errorReasonId'
-  | 'couponCode'
-  | 'currency'
-  | 'stripeCustomerId'
-  | 'taxAddress'
->;
+export type CartMetrics = {
+  uid?: string;
+  errorReasonId?: string | null;
+  couponCode?: string | null;
+  currency?: string | null;
+  stripeCustomerId?: string | null;
+  taxAddress?: TaxAddress | null;
+};
 
 export type ExperimentationData = {
   nimbusUserId: string;

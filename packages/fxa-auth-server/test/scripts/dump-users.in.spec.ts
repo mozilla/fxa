@@ -115,7 +115,7 @@ describe('#integration - scripts/dump-users', () => {
   it('fails if neither --emails nor --uids is specified', async () => {
     try {
       await cp.execAsync(
-        'node -r esbuild-register scripts/dump-users',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users',
         execOptions
       );
       throw new Error('script should have failed');
@@ -127,7 +127,7 @@ describe('#integration - scripts/dump-users', () => {
   it('fails if both --emails nor --uids are specified', async () => {
     try {
       await cp.execAsync(
-        'node -r esbuild-register scripts/dump-users --emails --uids',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails --uids',
         execOptions
       );
       throw new Error('script should have failed');
@@ -139,7 +139,7 @@ describe('#integration - scripts/dump-users', () => {
   it('fails if --emails specified w/o list of emails or --input', async () => {
     try {
       await cp.execAsync(
-        'node -r esbuild-register scripts/dump-users --emails',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails',
         execOptions
       );
       throw new Error('script should have failed');
@@ -151,7 +151,7 @@ describe('#integration - scripts/dump-users', () => {
   it('fails if --uids specified w/o list of uids or --input', async () => {
     try {
       await cp.execAsync(
-        'node -r esbuild-register scripts/dump-users --uids',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --uids',
         execOptions
       );
       throw new Error('script should have failed');
@@ -163,7 +163,7 @@ describe('#integration - scripts/dump-users', () => {
   it('fails if --uids w/ invalid uid', async () => {
     try {
       await cp.execAsync(
-        'node -r esbuild-register scripts/dump-users --uids deadbeef',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --uids deadbeef',
         execOptions
       );
       throw new Error('script should have failed');
@@ -174,7 +174,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --uids and 1 valid uid1', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r esbuild-register scripts/dump-users --uids ${account1Mock.uid}`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --uids ${account1Mock.uid}`,
       execOptions
     );
     const result = JSON.parse(output);
@@ -186,7 +186,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --uids and 2 valid uids', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r esbuild-register scripts/dump-users --uids ${account1Mock.uid},${account2Mock.uid}`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --uids ${account1Mock.uid},${account2Mock.uid}`,
       execOptions
     );
     const result = JSON.parse(output);
@@ -201,7 +201,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --uids and --input containing 1 uid', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r esbuild-register scripts/dump-users --uids --input ${
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --uids --input ${
         '../' + oneUidFilename
       }`,
       execOptions
@@ -215,7 +215,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --uids and --input containing 2 uids', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r esbuild-register scripts/dump-users --uids --input ${
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --uids --input ${
         '../' + twoUidsFilename
       }`,
       execOptions
@@ -233,7 +233,7 @@ describe('#integration - scripts/dump-users', () => {
   it('fails if --emails w/ invalid emails', async () => {
     try {
       await cp.execAsync(
-        'node -r esbuild-register scripts/dump-users --emails user3@test.com',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails user3@test.com',
         execOptions
       );
       throw new Error('script should have failed');
@@ -244,7 +244,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --emails and 1 valid email', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r esbuild-register scripts/dump-users --emails ${account1Mock.email}`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails ${account1Mock.email}`,
       execOptions
     );
     const result = JSON.parse(output);
@@ -256,7 +256,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --emails and 2 valid emails', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r esbuild-register scripts/dump-users --emails ${account1Mock.email},${account2Mock.email}`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails ${account1Mock.email},${account2Mock.email}`,
       execOptions
     );
     const result = JSON.parse(output);
@@ -271,7 +271,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --emails and --input containing 1 email', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r esbuild-register scripts/dump-users --emails --input ${
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails --input ${
         '../' + oneEmailFilename
       }`,
       execOptions
@@ -285,7 +285,7 @@ describe('#integration - scripts/dump-users', () => {
 
   it('succeeds with --emails and --input containing 2 email', async () => {
     const { stdout: output } = await cp.execAsync(
-      `node -r esbuild-register scripts/dump-users --emails --input ${
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/dump-users --emails --input ${
         '../' + twoEmailsFilename
       }`,
       execOptions

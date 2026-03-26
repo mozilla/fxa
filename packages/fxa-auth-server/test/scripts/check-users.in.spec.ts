@@ -68,7 +68,7 @@ describe('#integration - scripts/check-users:', () => {
   it('fails if no input file', async () => {
     try {
       await execAsync(
-        'node -r esbuild-register scripts/check-users',
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/check-users',
         execOptions
       );
       throw new Error('script should have failed');
@@ -80,7 +80,7 @@ describe('#integration - scripts/check-users:', () => {
   it('creates csv file with user stats', async () => {
     const outfile = `./test/scripts/fixtures/${Math.random()}_stats.csv`;
     await execAsync(
-      `node -r esbuild-register scripts/check-users -i ${filename} -o ${outfile}`,
+      `node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/check-users -i ${filename} -o ${outfile}`,
       execOptions
     );
 

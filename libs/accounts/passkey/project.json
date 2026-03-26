@@ -6,15 +6,20 @@
   "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/accounts/passkey",
         "main": "libs/accounts/passkey/src/index.ts",
         "tsConfig": "libs/accounts/passkey/tsconfig.lib.json",
-        "assets": ["libs/accounts/passkey/*.md"],
-        "format": ["cjs"],
-        "declaration": true
+        "assets": ["libs/accounts/passkey/*.md"]
       }
     },
     "test-unit": {

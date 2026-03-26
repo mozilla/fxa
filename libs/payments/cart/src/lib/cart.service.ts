@@ -112,7 +112,7 @@ import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
 import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { SubscriptionAttributionParams } from './checkout.types';
-import { handleException } from 'libs/shared/error/src/lib/sanitizeExceptionsDecorator';
+import { handleException } from '@fxa/shared/error';
 import type { AsyncLocalStorage } from 'async_hooks';
 import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
