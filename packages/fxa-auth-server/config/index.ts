@@ -1693,6 +1693,12 @@ const convictConf = convict({
       default: [],
       env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_ADDRESS',
     },
+    skipForEmailRegex: {
+      doc: 'Regex pattern for email addresses that will always skip any non-TOTP sign-in confirmation. Checked in addition to skipForEmailAddresses.',
+      format: RegExp,
+      default: /^$/,
+      env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_REGEX',
+    },
     skipForNewAccounts: {
       enabled: {
         doc: 'Skip all sign-in email confirmations for newly-created accounts',
