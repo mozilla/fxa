@@ -102,6 +102,26 @@ export interface SubscriptionContent {
   isEligibleForOffer: boolean;
 }
 
+export interface TrialSubscriptionContent {
+  id: string;
+  productName: string;
+  offeringApiIdentifier: string;
+  supportUrl: string;
+  webIcon: string;
+  currency: string;
+  interval?: SubplatInterval;
+  cancelAtPeriodEnd: boolean;
+  trialEnd: number | null;
+  trialStart: number | null;
+  nextInvoiceTotal?: number;
+  nextInvoiceTax?: number;
+  conversionStatus: 'active' | 'past_due';
+  failedInvoiceDate?: number;
+  failedInvoiceTotal?: number;
+  failedInvoiceTax?: number;
+  failedInvoiceUrl?: string | null;
+}
+
 export enum ChurnErrorReason {
   OfferExpired = 'no_churn_intervention_found',
   DiscountAlreadyApplied = 'discount_already_applied',

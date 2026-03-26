@@ -78,6 +78,7 @@ import {
   GoogleIapSubscriptionContent,
   StaySubscribedFlowResult,
   SubscriptionContent,
+  TrialSubscriptionContent,
 } from './types';
 import {
   PaypalBillingAgreementManager,
@@ -172,6 +173,7 @@ export class SubscriptionManagementService {
     const subscriptions: SubscriptionContent[] = [];
     const appleIapSubscriptions: AppleIapSubscriptionContent[] = [];
     const googleIapSubscriptions: GoogleIapSubscriptionContent[] = [];
+    const trialSubscriptions: TrialSubscriptionContent[] = [];
     let defaultPaymentMethod: DefaultPaymentMethod | undefined;
     let accountCreditBalance: AccountCreditBalance = {
       balance: 0,
@@ -232,6 +234,7 @@ export class SubscriptionManagementService {
         defaultPaymentMethod,
         isStripeCustomer: stripeCustomer ? true : false,
         subscriptions: [],
+        trialSubscriptions: [],
         appleIapSubscriptions: [],
         googleIapSubscriptions: [],
       };
@@ -265,21 +268,44 @@ export class SubscriptionManagementService {
         const apiIdentifier = cmsPurchase.offering.apiIdentifier;
         const webIcon = cmsPurchase.purchaseDetails.webIcon;
         const supportUrl = cmsPurchase.offering.commonContent.supportUrl;
-        const content = await this.getSubscriptionContent(
-          sub,
-          stripeCustomer,
-          price,
-          productName,
-          webIcon,
-          supportUrl,
-          apiIdentifier,
-          uid,
-          acceptLanguage,
-          selectedLanguage
-        );
 
-        if (content) {
-          subscriptions.push(content);
+        const isFailedTrialConversion =
+          sub.status === 'past_due' &&
+          sub.trial_end !== null &&
+          sub.current_period_start === sub.trial_end;
+
+        const isTrial = sub.status === 'trialing' || isFailedTrialConversion;
+        if (isTrial) {
+          const trialContent = await this.getTrialSubscriptionContent(
+            sub,
+            stripeCustomer,
+            price,
+            productName,
+            webIcon,
+            supportUrl,
+            apiIdentifier
+          );
+
+          if (trialContent) {
+            trialSubscriptions.push(trialContent);
+          }
+        } else {
+          const content = await this.getSubscriptionContent(
+            sub,
+            stripeCustomer,
+            price,
+            productName,
+            webIcon,
+            supportUrl,
+            apiIdentifier,
+            uid,
+            acceptLanguage,
+            selectedLanguage
+          );
+
+          if (content) {
+            subscriptions.push(content);
+          }
         }
       }
     }
@@ -346,6 +372,7 @@ export class SubscriptionManagementService {
       defaultPaymentMethod,
       isStripeCustomer: stripeCustomer ? true : false,
       subscriptions,
+      trialSubscriptions,
       appleIapSubscriptions,
       googleIapSubscriptions,
     };
@@ -532,6 +559,120 @@ export class SubscriptionManagementService {
           'cancel_interstitial_offer',
       churnStaySubscribedCtaMessage:
         staySubscribedResult.cmsChurnInterventionEntry?.ctaMessage,
+    };
+  }
+
+  private async getTrialSubscriptionContent(
+    subscription: StripeSubscription,
+    customer: StripeCustomer,
+    price: StripePrice,
+    productName: string,
+    webIcon: string,
+    supportUrl: string,
+    offeringApiIdentifier: string
+  ): Promise<TrialSubscriptionContent | null> {
+    if (
+      subscription.trial_end === null &&
+      subscription.trial_start === null
+    ) {
+      return null;
+    }
+
+    const interval = price.recurring?.interval;
+    const intervalCount = price.recurring?.interval_count;
+
+    if (!interval || !intervalCount) {
+      throw new SubscriptionContentMissingIntervalInformationError(
+        subscription.id,
+        price.id
+      );
+    }
+
+    const subplatInterval = getSubplatInterval(interval, intervalCount);
+
+    const isPastDue = subscription.status === 'past_due';
+    const latestInvoiceId = subscription.latest_invoice;
+
+    const hasPaymentMethod =
+      !!subscription.default_payment_method ||
+      !!customer.invoice_settings?.default_payment_method;
+
+    const willCancelAtTrialEnd =
+      subscription.status === 'trialing' &&
+      subscription.trial_settings?.end_behavior?.missing_payment_method ===
+        'cancel' &&
+      !hasPaymentMethod;
+
+    const upcomingInvoice = willCancelAtTrialEnd
+      ? undefined
+      : await this.invoiceManager.previewUpcomingSubscription({
+          customer,
+          subscription,
+        });
+
+    const latestInvoice =
+      isPastDue && latestInvoiceId
+        ? await this.invoiceManager.preview(latestInvoiceId)
+        : undefined;
+
+    const subsequentAmount = upcomingInvoice?.subsequentAmount;
+    const subsequentAmountExcludingTax =
+      upcomingInvoice?.subsequentAmountExcludingTax;
+    const subsequentTax = upcomingInvoice?.subsequentTax;
+
+    const nextInvoiceTotalExclusiveTax =
+      subsequentTax &&
+      subsequentTax
+        .filter((tax) => !tax.inclusive)
+        .reduce((sum, tax) => sum + tax.amount, 0);
+
+    let failedInvoiceDate: number | undefined;
+    let failedInvoiceTotal: number | undefined;
+    let failedInvoiceTax: number | undefined;
+    let failedInvoiceUrl: string | null | undefined;
+
+    if (isPastDue && latestInvoice) {
+      const {
+        invoiceDate,
+        invoiceUrl,
+        taxAmounts,
+        totalAmount,
+        totalExcludingTax,
+      } = latestInvoice;
+
+      const totalExclusiveTax = taxAmounts
+      .filter((tax) => !tax.inclusive)
+      .reduce((sum, tax) => sum + tax.amount, 0);
+
+      failedInvoiceDate = invoiceDate;
+      failedInvoiceTax = Math.max(0, totalExclusiveTax);
+      failedInvoiceTotal = totalExclusiveTax
+        ? (totalExcludingTax ?? totalAmount)
+        : totalAmount;
+      failedInvoiceUrl = invoiceUrl;
+    }
+
+    return {
+      id: subscription.id,
+      productName,
+      offeringApiIdentifier,
+      supportUrl,
+      webIcon,
+      currency: subscription.currency,
+      interval: subplatInterval,
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      trialEnd: subscription.trial_end ?? null,
+      trialStart: subscription.trial_start ?? null,
+      nextInvoiceTax: nextInvoiceTotalExclusiveTax,
+      nextInvoiceTotal:
+        nextInvoiceTotalExclusiveTax && nextInvoiceTotalExclusiveTax > 0
+          ? (subsequentAmountExcludingTax ?? subsequentAmount)
+          : subsequentAmount,
+      conversionStatus: isPastDue ? 'past_due' : 'active',
+      failedInvoiceDate,
+      failedInvoiceTotal,
+      failedInvoiceTax,
+      failedInvoiceUrl,
     };
   }
 
