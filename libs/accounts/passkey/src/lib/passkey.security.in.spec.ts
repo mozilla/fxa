@@ -11,6 +11,9 @@
  */
 
 import { faker } from '@faker-js/faker';
+import Redis from 'ioredis';
+import { Test } from '@nestjs/testing';
+import { AppError } from '@fxa/accounts/errors';
 import {
   AccountDatabase,
   AccountDbProvider,
@@ -20,14 +23,16 @@ import {
 import { AccountManager } from '@fxa/shared/account/account';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-import { Test } from '@nestjs/testing';
-import Redis from 'ioredis';
 import { PasskeyManager } from './passkey.manager';
 import { PasskeyChallengeManager } from './passkey.challenge.manager';
 import { PasskeyConfig } from './passkey.config';
-import { AppError } from '@fxa/accounts/errors';
 import { PASSKEY_CHALLENGE_REDIS } from './passkey.provider';
 import { findPasskeyByCredentialId, insertPasskey } from './passkey.repository';
+import { generateRandomChallenge } from './webauthn-adapter';
+import { PasskeyService } from './passkey.service';
+import type { RegistrationResponseJSON } from '@simplewebauthn/server';
+import { encodeCBOR, type CBORType } from '@levischuck/tiny-cbor';
+import { createHash, generateKeyPairSync, randomBytes } from 'node:crypto';
 
 const mockLogger = {
   log: jest.fn(),
@@ -56,10 +61,12 @@ describe('Passkey Security Tests', () => {
             { provide: AccountDbProvider, useValue: db },
             {
               provide: PasskeyConfig,
-              useValue: Object.assign(new PasskeyConfig(), {
+              useValue: new PasskeyConfig({
                 rpId: 'accounts.example.com',
                 allowedOrigins: ['https://accounts.example.com'],
                 maxPasskeysPerUser: 10,
+                enabled: true,
+                challengeTimeout: 30_000,
               }),
             },
             { provide: LOGGER_PROVIDER, useValue: mockLogger },
@@ -164,10 +171,12 @@ describe('Passkey Security Tests', () => {
     beforeAll(async () => {
       redis = new Redis({ host: 'localhost' });
 
-      const config = Object.assign(new PasskeyConfig(), {
+      const config = new PasskeyConfig({
+        enabled: true,
         rpId: 'localhost',
         allowedOrigins: ['http://localhost'],
         challengeTimeout: 1000 * 60 * 5, // 5 minutes
+        maxPasskeysPerUser: 2,
       });
 
       const moduleRef = await Test.createTestingModule({
@@ -199,8 +208,8 @@ describe('Passkey Security Tests', () => {
       const challenges: string[] = [];
 
       for (let i = 0; i < 100; i++) {
-        const challenge =
-          await challengeManager.generateRegistrationChallenge(fakeUid());
+        const challenge = generateRandomChallenge();
+        await challengeManager.storeRegistrationChallenge(challenge, fakeUid());
         challenges.push(challenge);
       }
 
@@ -216,8 +225,8 @@ describe('Passkey Security Tests', () => {
     // https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
     it('consumeRegistrationChallenge physically deletes the Redis key on first use', async () => {
       const uid = fakeUid();
-      const challenge =
-        await challengeManager.generateRegistrationChallenge(uid);
+      const challenge = generateRandomChallenge();
+      await challengeManager.storeRegistrationChallenge(challenge, uid);
 
       await challengeManager.consumeRegistrationChallenge(challenge, uid);
 
@@ -230,8 +239,8 @@ describe('Passkey Security Tests', () => {
     // https://www.w3.org/TR/webauthn-3/#sctn-cryptographic-challenges
     it('a registration challenge is rejected when presented as an authentication challenge and remains unconsumed', async () => {
       const uid = fakeUid();
-      const challenge =
-        await challengeManager.generateRegistrationChallenge(uid);
+      const challenge = generateRandomChallenge();
+      await challengeManager.storeRegistrationChallenge(challenge, uid);
 
       expect(
         await challengeManager.consumeAuthenticationChallenge(challenge)
@@ -243,6 +252,206 @@ describe('Passkey Security Tests', () => {
       );
       expect(correct).not.toBeNull();
       expect(correct?.type).toBe('registration');
+    });
+  });
+
+  describe('PasskeyService Registration Flow', () => {
+    const serviceConfig = new PasskeyConfig({
+      rpId: 'localhost',
+      allowedOrigins: ['http://localhost'],
+      maxPasskeysPerUser: 10,
+      enabled: true,
+      challengeTimeout: 30_000,
+    });
+
+    let serviceDb: AccountDatabase;
+    let serviceRedis: Redis.Redis;
+    let serviceAccountManager: AccountManager;
+    let passkeyService: PasskeyService;
+
+    /**
+     * Builds a cryptographically valid WebAuthn "none"-attestation registration response
+     * for the given challenge. Generates a fresh EC P-256 key pair each call.
+     *
+     * Uses the same CBOR library (@levischuck/tiny-cbor) that @simplewebauthn/server uses
+     * internally, so the encoded structures are accepted without modification.
+     */
+    function buildValidRegistrationResponse(
+      challenge: string
+    ): RegistrationResponseJSON {
+      const { publicKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+      const jwk = publicKey.export({ format: 'jwk' }) as {
+        x: string;
+        y: string;
+      };
+      const x = Buffer.from(jwk.x, 'base64url');
+      const y = Buffer.from(jwk.y, 'base64url');
+
+      // COSE EC2 public key (RFC 9052 §7.1)
+      const coseKeyMap = new Map<number, CBORType>([
+        [1, 2],
+        [3, -7],
+        [-1, 1],
+        [-2, x],
+        [-3, y],
+      ]);
+      const coseKey = Buffer.from(encodeCBOR(coseKeyMap));
+
+      const credentialId = randomBytes(32);
+
+      // Authenticator data layout (WebAuthn §6.1)
+      const rpIdHash = createHash('sha256').update(serviceConfig.rpId).digest();
+      const flags = Buffer.from([0x45]); // UP | UV | AT
+      const signCount = Buffer.alloc(4);
+      const aaguid = Buffer.alloc(16);
+      const credIdLen = Buffer.alloc(2);
+      credIdLen.writeUInt16BE(credentialId.length);
+
+      const authenticatorData = Buffer.concat([
+        rpIdHash,
+        flags,
+        signCount,
+        aaguid,
+        credIdLen,
+        credentialId,
+        coseKey,
+      ]);
+
+      const clientDataJSON = Buffer.from(
+        JSON.stringify({
+          type: 'webauthn.create',
+          challenge,
+          origin: 'http://localhost',
+          crossOrigin: false,
+        })
+      ).toString('base64url');
+
+      const attestObjMap = new Map<string, CBORType>([
+        ['fmt', 'none'],
+        ['attStmt', new Map<string, CBORType>()],
+        ['authData', new Uint8Array(authenticatorData)],
+      ]);
+      const attestationObject = Buffer.from(encodeCBOR(attestObjMap)).toString(
+        'base64url'
+      );
+
+      return {
+        id: credentialId.toString('base64url'),
+        rawId: credentialId.toString('base64url'),
+        response: { clientDataJSON, attestationObject },
+        type: 'public-key',
+        clientExtensionResults: {},
+      };
+    }
+
+    beforeAll(async () => {
+      try {
+        serviceDb = await testAccountDatabaseSetup([
+          'accounts',
+          'emails',
+          'passkeys',
+        ]);
+        serviceAccountManager = new AccountManager(serviceDb);
+        serviceRedis = new Redis({ host: 'localhost' });
+
+        const moduleRef = await Test.createTestingModule({
+          providers: [
+            PasskeyService,
+            PasskeyManager,
+            PasskeyChallengeManager,
+            { provide: AccountDbProvider, useValue: serviceDb },
+            { provide: PasskeyConfig, useValue: serviceConfig },
+            { provide: PASSKEY_CHALLENGE_REDIS, useValue: serviceRedis },
+            { provide: LOGGER_PROVIDER, useValue: mockLogger },
+            { provide: StatsDService, useValue: { increment: jest.fn() } },
+          ],
+        }).compile();
+
+        passkeyService = moduleRef.get(PasskeyService);
+      } catch (error) {
+        console.warn('⚠️  Integration tests require database infrastructure.');
+        console.warn(
+          '⚠️  Run "yarn start infrastructure" to enable these tests.'
+        );
+        throw error;
+      }
+    });
+
+    afterAll(async () => {
+      if (serviceDb) await serviceDb.destroy();
+      if (serviceRedis) await serviceRedis.quit();
+    });
+
+    // WebAuthn §7.1: a valid attestation response with a matching challenge must
+    // be accepted and the credential stored in the database.
+    // https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
+    it('accepts a valid registration response paired with its challenge', async () => {
+      const email = faker.internet.email();
+      const uidHex = await serviceAccountManager.createAccountStub(
+        email,
+        1,
+        'en-US'
+      );
+      const uid = Buffer.from(uidHex, 'hex');
+
+      const options = await passkeyService.generateRegistrationChallenge(
+        uid,
+        email
+      );
+      const challenge = options.challenge;
+
+      const response = buildValidRegistrationResponse(challenge);
+
+      const passkey =
+        await passkeyService.createPasskeyFromRegistrationResponse(
+          uid,
+          response,
+          challenge
+        );
+
+      expect(passkey).toMatchObject({
+        uid,
+        credentialId: expect.any(Buffer),
+        publicKey: expect.any(Buffer),
+      });
+    });
+
+    // WebAuthn §7.1 step 11: a tampered or structurally invalid attestation must
+    // be rejected even when the challenge is genuine.
+    // https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
+    it('rejects a bogus registration response paired with a valid challenge', async () => {
+      const email = faker.internet.email();
+      const uidHex = await serviceAccountManager.createAccountStub(
+        email,
+        1,
+        'en-US'
+      );
+      const uid = Buffer.from(uidHex, 'hex');
+
+      const options = await passkeyService.generateRegistrationChallenge(
+        uid,
+        email
+      );
+      const challenge = options.challenge;
+
+      const bogusResponse: RegistrationResponseJSON = {
+        id: 'bogus-credential-id',
+        rawId: 'bogus-credential-id',
+        response: {
+          clientDataJSON: Buffer.from('not-valid-json').toString('base64url'),
+          attestationObject: Buffer.from('not-cbor-data').toString('base64url'),
+        },
+        type: 'public-key',
+        clientExtensionResults: {},
+      };
+
+      await expect(
+        passkeyService.createPasskeyFromRegistrationResponse(
+          uid,
+          bogusResponse,
+          challenge
+        )
+      ).rejects.toMatchObject(AppError.passkeyRegistrationFailed());
     });
   });
 });

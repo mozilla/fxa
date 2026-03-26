@@ -123,7 +123,6 @@ describe('generateRegistrationOptions', () => {
       {
         uid,
         email: 'alice@example.com',
-        challenge: 'test-challenge',
       }
     );
 
@@ -133,7 +132,7 @@ describe('generateRegistrationOptions', () => {
         rpID: 'accounts.firefox.com',
         userName: 'alice@example.com',
         userID: uid,
-        challenge: 'test-challenge',
+        challenge: expect.stringMatching(/.{0,44}/),
         authenticatorSelection: expect.objectContaining({
           userVerification: 'required',
           residentKey: 'required',
@@ -150,7 +149,6 @@ describe('generateRegistrationOptions', () => {
     const result = await generateRegistrationOptions(mockConfig(), {
       uid: Buffer.alloc(16),
       email: 'user@example.com',
-      challenge: 'xyz',
     });
 
     expect(result).toBe(fakeResult);
@@ -247,7 +245,6 @@ describe('generateAuthenticationOptions', () => {
     await generateAuthenticationOptions(
       mockConfig({ userVerification: 'discouraged' }),
       {
-        challenge: 'random-challenge-abc',
         allowCredentials: [],
       }
     );
@@ -255,7 +252,7 @@ describe('generateAuthenticationOptions', () => {
     expect(libMocks.generateAuthenticationOptions).toHaveBeenCalledWith(
       expect.objectContaining({
         rpID: 'accounts.firefox.com',
-        challenge: 'random-challenge-abc',
+        challenge: expect.stringMatching(/[A-Za-z-_0-9]{32}/),
         userVerification: 'discouraged',
       })
     );
@@ -265,7 +262,6 @@ describe('generateAuthenticationOptions', () => {
     libMocks.generateAuthenticationOptions.mockResolvedValue({});
 
     await generateAuthenticationOptions(mockConfig(), {
-      challenge: 'ch',
       allowCredentials: [],
     });
 
@@ -279,7 +275,6 @@ describe('generateAuthenticationOptions', () => {
     const credId = Buffer.from('helloworld');
 
     await generateAuthenticationOptions(mockConfig(), {
-      challenge: 'ch',
       allowCredentials: [credId],
     });
 
@@ -297,7 +292,6 @@ describe('generateAuthenticationOptions', () => {
     libMocks.generateAuthenticationOptions.mockResolvedValue(fakeResult);
 
     const result = await generateAuthenticationOptions(mockConfig(), {
-      challenge: 'q1w2e3',
       allowCredentials: [],
     });
 

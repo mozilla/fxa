@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(head -5 grep -r \"require\\\\|import\" /Users/dschomburg/Code/fxa/node_modules/@simplewebauthn/server/esm/registration/verifyRegistrationResponse.js)"
+    ]
+  }
+}

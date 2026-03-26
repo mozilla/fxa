@@ -7,6 +7,7 @@ import {
   StoredChallenge,
 } from './passkey.challenge.manager';
 import { PasskeyConfig } from './passkey.config';
+import { generateRandomChallenge } from './webauthn-adapter';
 
 const mockRedis = {
   set: jest.fn(),
@@ -56,20 +57,14 @@ describe('PasskeyChallengeManager', () => {
     );
   });
 
-  describe('generateRegistrationChallenge', () => {
-    it('returns a base64url-encoded challenge string', async () => {
-      mockRedis.set.mockResolvedValue('OK');
-      const result = await manager.generateRegistrationChallenge('deadbeef');
-
-      expect(result).toBe(MOCK_CHALLENGE);
-    });
-
+  describe('storeRegistrationChallenge', () => {
     it('calls redis.set with the correct key and TTL', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateRegistrationChallenge('deadbeef');
+      const challenge = generateRandomChallenge();
+      await manager.storeRegistrationChallenge(challenge, 'deadbeef');
 
       expect(mockRedis.set).toHaveBeenCalledWith(
-        `passkey:challenge:registration:${MOCK_CHALLENGE}:deadbeef`,
+        `passkey:challenge:registration:${challenge}:deadbeef`,
         expect.any(String),
         'EX',
         CHALLENGE_TIMEOUT_MS / 1000
@@ -78,7 +73,8 @@ describe('PasskeyChallengeManager', () => {
 
     it('increments statsd counter for generated challenges', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateRegistrationChallenge('deadbeef');
+      const challenge = generateRandomChallenge();
+      await manager.storeRegistrationChallenge(challenge, 'deadbeef');
 
       expect(mockStatsd.increment).toHaveBeenCalledWith(
         'passkey.challenge.generated',
@@ -91,14 +87,15 @@ describe('PasskeyChallengeManager', () => {
       const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(fakeNow);
 
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateRegistrationChallenge('deadbeef');
+      const challenge = generateRandomChallenge();
+      await manager.storeRegistrationChallenge(challenge, 'deadbeef');
 
       dateNowSpy.mockRestore();
 
       const [, rawJson] = mockRedis.set.mock.calls[0];
       const stored: StoredChallenge = JSON.parse(rawJson);
 
-      expect(stored.challenge).toBe(MOCK_CHALLENGE);
+      expect(stored.challenge).toBe(challenge);
       expect(stored.type).toBe('registration');
       expect(stored.uid).toBe('deadbeef');
       expect(stored.createdAt).toBe(fakeNow);
@@ -107,8 +104,9 @@ describe('PasskeyChallengeManager', () => {
 
     it('throws if redis.set rejects', async () => {
       mockRedis.set.mockRejectedValue(new Error('Redis connection lost'));
+      const challenge = generateRandomChallenge();
       await expect(
-        manager.generateRegistrationChallenge('deadbeef')
+        manager.storeRegistrationChallenge(challenge, 'deadbeef')
       ).rejects.toThrow('Redis connection lost');
     });
   });
@@ -116,12 +114,13 @@ describe('PasskeyChallengeManager', () => {
   describe('generateAuthenticationChallenge', () => {
     it('stores the challenge with type=authentication and no uid', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateAuthenticationChallenge();
+      const challenge = generateRandomChallenge();
+      await manager.storeAuthenticationChallenge(challenge);
 
       const [key, rawJson] = mockRedis.set.mock.calls[0];
       const stored: StoredChallenge = JSON.parse(rawJson);
 
-      expect(key).toBe(`passkey:challenge:authentication:${MOCK_CHALLENGE}`);
+      expect(key).toBe(`passkey:challenge:authentication:${challenge}`);
       expect(stored.type).toBe('authentication');
       expect(stored.uid).toBeUndefined();
     });
@@ -130,12 +129,13 @@ describe('PasskeyChallengeManager', () => {
   describe('generateUpgradeChallenge', () => {
     it('stores the challenge with type=upgrade and uid', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateUpgradeChallenge('cafebabe');
+      const challenge = generateRandomChallenge();
+      await manager.storeUpgradeChallenge(challenge, 'cafebabe');
 
       const [key, rawJson] = mockRedis.set.mock.calls[0];
       const stored: StoredChallenge = JSON.parse(rawJson);
 
-      expect(key).toBe(`passkey:challenge:upgrade:${MOCK_CHALLENGE}:cafebabe`);
+      expect(key).toBe(`passkey:challenge:upgrade:${challenge}:cafebabe`);
       expect(stored.type).toBe('upgrade');
       expect(stored.uid).toBe('cafebabe');
     });

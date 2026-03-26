@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { randomBytes } from 'crypto';
 import { Injectable, Inject, LoggerService } from '@nestjs/common';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
@@ -117,8 +116,11 @@ export class PasskeyChallengeManager {
    * @param uid - Hex-encoded uid of the user.
    * @returns Base64url-encoded 32-byte challenge string.
    */
-  async generateRegistrationChallenge(uid: string): Promise<string> {
-    return this.generateChallenge('registration', uid);
+  async storeRegistrationChallenge(
+    challenge: string,
+    uid: string
+  ): Promise<void> {
+    await this.storeChallenge('registration', challenge, uid);
   }
 
   /**
@@ -126,8 +128,8 @@ export class PasskeyChallengeManager {
    *
    * @returns Base64url-encoded 32-byte challenge string.
    */
-  async generateAuthenticationChallenge(): Promise<string> {
-    return this.generateChallenge('authentication');
+  async storeAuthenticationChallenge(challenge: string): Promise<void> {
+    await this.storeChallenge('authentication', challenge);
   }
 
   /**
@@ -136,8 +138,8 @@ export class PasskeyChallengeManager {
    * @param uid - Hex-encoded uid of the user.
    * @returns Base64url-encoded 32-byte challenge string.
    */
-  async generateUpgradeChallenge(uid: string): Promise<string> {
-    return this.generateChallenge('upgrade', uid);
+  async storeUpgradeChallenge(challenge: string, uid: string): Promise<void> {
+    await this.storeChallenge('upgrade', challenge, uid);
   }
 
   /**
@@ -241,11 +243,11 @@ export class PasskeyChallengeManager {
     }
   }
 
-  private async generateChallenge(
+  private async storeChallenge(
     type: ChallengeType,
+    challenge: string,
     uid?: string
-  ): Promise<string> {
-    const challenge = randomBytes(32).toString('base64url');
+  ): Promise<void> {
     const now = Date.now();
     const timeout = this.config.challengeTimeout;
     const ttlSeconds = Math.ceil(timeout / 1000);
@@ -263,8 +265,6 @@ export class PasskeyChallengeManager {
 
     this.log?.debug?.('passkey.challenge.generated', { type, uid });
     this.statsd?.increment('passkey.challenge.generated', { type });
-
-    return challenge;
   }
 
   private buildKey(

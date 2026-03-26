@@ -18,14 +18,21 @@ import type {
 } from '@simplewebauthn/server';
 
 import { PasskeyConfig } from './passkey.config';
+import { randomBytes } from 'node:crypto';
 
 export interface RegistrationOptionsInput {
   /** User's uid as a Buffer, used as the WebAuthn userID. */
   uid: Buffer;
   /** User's email address, used as the WebAuthn userName. */
   email: string;
-  /** Challenge from ChallengeManager. */
-  challenge: string;
+}
+
+/**
+ * Creates a random 32 byte value that is base64url encoded.
+ * @returns
+ */
+export function generateRandomChallenge() {
+  return randomBytes(32).toString('base64url');
 }
 
 /**
@@ -38,6 +45,7 @@ export async function generateRegistrationOptions(
   config: PasskeyConfig,
   input: RegistrationOptionsInput
 ): Promise<PublicKeyCredentialCreationOptionsJSON> {
+  const challenge = generateRandomChallenge();
   return libGenerateRegistrationOptions({
     // rpName is deprecated field kept for backward compatibility;
     // spec recommends using rpId as a safe default.
@@ -45,7 +53,7 @@ export async function generateRegistrationOptions(
     rpID: config.rpId,
     userName: input.email,
     userID: input.uid,
-    challenge: input.challenge,
+    challenge,
     authenticatorSelection: {
       residentKey: config.residentKey,
       userVerification: config.userVerification,
@@ -122,8 +130,6 @@ export async function verifyRegistrationResponse(
  * `rpID` and `userVerification` are supplied by PasskeyConfig.
  */
 export interface AuthenticationOptionsInput {
-  /** Challenge from ChallengeManager. */
-  challenge: string;
   /**
    * Credential IDs to restrict authentication to.
    * Pass the user's stored credential IDs for known-user flows.
@@ -142,10 +148,11 @@ export async function generateAuthenticationOptions(
   config: PasskeyConfig,
   input: AuthenticationOptionsInput
 ): Promise<PublicKeyCredentialRequestOptionsJSON> {
+  const challenge = generateRandomChallenge();
   return libGenerateAuthenticationOptions({
     rpID: config.rpId,
     userVerification: config.userVerification,
-    challenge: input.challenge,
+    challenge,
     allowCredentials:
       input.allowCredentials.length > 0
         ? input.allowCredentials.map((id) => ({ id: id.toString('base64url') }))

@@ -15,20 +15,14 @@ import { PasskeyService } from './passkey.service';
 import { PasskeyManager } from './passkey.manager';
 import { PasskeyChallengeManager } from './passkey.challenge.manager';
 import { AppError } from '@fxa/accounts/errors';
-
-jest.mock('./webauthn-adapter', () => ({
-  generateRegistrationOptions: jest.fn(),
-  verifyRegistrationResponse: jest.fn(),
-  generateAuthenticationOptions: jest.fn(),
-  verifyAuthenticationResponse: jest.fn(),
-}));
-
 import * as webauthnAdapter from './webauthn-adapter';
 
-const mockGenerateRegistrationOptions =
-  webauthnAdapter.generateRegistrationOptions as jest.Mock;
-const mockVerifyRegistrationResponse =
-  webauthnAdapter.verifyRegistrationResponse as jest.Mock;
+jest.mock('./webauthn-adapter');
+
+// const mockGenerateRegistrationOptions =
+//   webauthnAdapter.generateRegistrationOptions as jest.Mock;
+// const mockVerifyRegistrationResponse =
+//   webauthnAdapter.verifyRegistrationResponse as jest.Mock;
 
 describe('PasskeyService', () => {
   let service: PasskeyService;
@@ -85,9 +79,9 @@ describe('PasskeyService', () => {
   };
 
   const mockChallengeManager = {
-    generateRegistrationChallenge: jest.fn(),
+    storeRegistrationChallenge: jest.fn(),
     consumeRegistrationChallenge: jest.fn(),
-    generateAuthenticationChallenge: jest.fn(),
+    storeAuthenticationChallenge: jest.fn(),
     consumeAuthenticationChallenge: jest.fn(),
   };
 
@@ -144,10 +138,12 @@ describe('PasskeyService', () => {
 
     beforeEach(() => {
       mockManager.checkPasskeyCount.mockResolvedValue(undefined);
-      mockChallengeManager.generateRegistrationChallenge.mockResolvedValue(
+      mockChallengeManager.storeRegistrationChallenge.mockResolvedValue(
         MOCK_CHALLENGE
       );
-      mockGenerateRegistrationOptions.mockResolvedValue(mockWebAuthnOptions);
+      (
+        webauthnAdapter.generateRegistrationOptions as jest.Mock
+      ).mockResolvedValue(mockWebAuthnOptions);
     });
 
     it('returns PublicKeyCredentialCreationOptionsJSON from the adapter', async () => {
@@ -165,7 +161,7 @@ describe('PasskeyService', () => {
       const [checkCallOrder] =
         mockManager.checkPasskeyCount.mock.invocationCallOrder;
       const [generateChallengeCallOrder] =
-        mockChallengeManager.generateRegistrationChallenge.mock
+        mockChallengeManager.storeRegistrationChallenge.mock
           .invocationCallOrder;
       expect(checkCallOrder).toBeLessThan(generateChallengeCallOrder);
     });
@@ -174,15 +170,14 @@ describe('PasskeyService', () => {
       await service.generateRegistrationChallenge(MOCK_UID, MOCK_USER_NAME);
 
       expect(
-        mockChallengeManager.generateRegistrationChallenge
-      ).toHaveBeenCalledWith(MOCK_UID.toString('hex'));
+        mockChallengeManager.storeRegistrationChallenge
+      ).toHaveBeenCalledWith(MOCK_CHALLENGE, MOCK_UID.toString('hex'));
 
-      expect(mockGenerateRegistrationOptions).toHaveBeenCalledWith(
+      expect(webauthnAdapter.generateRegistrationOptions).toHaveBeenCalledWith(
         mockConfig,
         expect.objectContaining({
           uid: MOCK_UID,
           email: MOCK_USER_NAME,
-          challenge: MOCK_CHALLENGE,
         })
       );
     });
@@ -209,7 +204,9 @@ describe('PasskeyService', () => {
         createdAt: Date.now() - 1000,
         expiresAt: Date.now() + 299000,
       });
-      mockVerifyRegistrationResponse.mockResolvedValue({
+      (
+        webauthnAdapter.verifyRegistrationResponse as jest.Mock
+      ).mockResolvedValue({
         verified: true,
         data: mockVerifiedData,
       });
@@ -230,11 +227,13 @@ describe('PasskeyService', () => {
         message: 'Passkey challenge not found',
         code: 404,
       });
-      expect(mockVerifyRegistrationResponse).not.toHaveBeenCalled();
+      expect(webauthnAdapter.verifyRegistrationResponse).not.toHaveBeenCalled();
     });
 
     it('throws passkeyRegistrationFailed AppError when adapter returns verified: false', async () => {
-      mockVerifyRegistrationResponse.mockResolvedValue({ verified: false });
+      (
+        webauthnAdapter.verifyRegistrationResponse as jest.Mock
+      ).mockResolvedValue({ verified: false });
       await expect(
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
@@ -249,9 +248,9 @@ describe('PasskeyService', () => {
     });
 
     it('throws passkeyRegistrationFailed AppError when adapter throws', async () => {
-      mockVerifyRegistrationResponse.mockRejectedValue(
-        new Error('Invalid attestation format')
-      );
+      (
+        webauthnAdapter.verifyRegistrationResponse as jest.Mock
+      ).mockRejectedValue(new Error('Invalid attestation format'));
       await expect(
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
@@ -299,7 +298,9 @@ describe('PasskeyService', () => {
     });
 
     it('sets backupEligible=1 and backupState=1 when flags are true', async () => {
-      mockVerifyRegistrationResponse.mockResolvedValue({
+      (
+        webauthnAdapter.verifyRegistrationResponse as jest.Mock
+      ).mockResolvedValue({
         verified: true,
         data: { ...mockVerifiedData, backupEligible: true, backupState: true },
       });
@@ -362,7 +363,9 @@ describe('PasskeyService', () => {
         transports: string[],
         aaguid: Buffer = MOCK_AAGUID_ZEROS
       ): Promise<string> {
-        mockVerifyRegistrationResponse.mockResolvedValue({
+        (
+          webauthnAdapter.verifyRegistrationResponse as jest.Mock
+        ).mockResolvedValue({
           verified: true,
           data: { ...mockVerifiedData, transports, aaguid },
         });
@@ -461,7 +464,7 @@ describe('PasskeyService', () => {
     };
 
     beforeEach(() => {
-      mockChallengeManager.generateAuthenticationChallenge.mockResolvedValue(
+      mockChallengeManager.storeAuthenticationChallenge.mockResolvedValue(
         MOCK_CHALLENGE
       );
       (
@@ -477,7 +480,7 @@ describe('PasskeyService', () => {
     it('generates a challenge via ChallengeManager', async () => {
       await service.generateAuthenticationChallenge();
       expect(
-        mockChallengeManager.generateAuthenticationChallenge
+        mockChallengeManager.storeAuthenticationChallenge
       ).toHaveBeenCalledTimes(1);
     });
 
@@ -486,7 +489,6 @@ describe('PasskeyService', () => {
       expect(
         webauthnAdapter.generateAuthenticationOptions
       ).toHaveBeenCalledWith(mockConfig, {
-        challenge: MOCK_CHALLENGE,
         allowCredentials: [],
       });
     });
@@ -505,7 +507,6 @@ describe('PasskeyService', () => {
       expect(
         webauthnAdapter.generateAuthenticationOptions
       ).toHaveBeenCalledWith(mockConfig, {
-        challenge: MOCK_CHALLENGE,
         allowCredentials: [MOCK_CREDENTIAL_ID],
       });
     });
@@ -518,7 +519,6 @@ describe('PasskeyService', () => {
       expect(
         webauthnAdapter.generateAuthenticationOptions
       ).toHaveBeenCalledWith(mockConfig, {
-        challenge: MOCK_CHALLENGE,
         allowCredentials: [],
       });
     });

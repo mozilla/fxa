@@ -10,6 +10,7 @@ import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { PasskeyChallengeManager } from './passkey.challenge.manager';
 import { PasskeyConfig } from './passkey.config';
 import { PASSKEY_CHALLENGE_REDIS } from './passkey.provider';
+import { generateRandomChallenge } from './webauthn-adapter';
 
 const mockLogger = {
   log: jest.fn(),
@@ -73,9 +74,10 @@ afterAll(async () => {
 });
 
 describe('PasskeyChallengeManager (integration)', () => {
-  describe('generateRegistrationChallenge', () => {
+  describe('storeRegistrationChallenge', () => {
     it('stores challenge with uid and type=registration', async () => {
-      const challenge = await manager.generateRegistrationChallenge('deadbeef');
+      const challenge = generateRandomChallenge();
+      await manager.storeRegistrationChallenge(challenge, 'deadbeef');
 
       const stored = await manager.consumeRegistrationChallenge(
         challenge,
@@ -90,7 +92,8 @@ describe('PasskeyChallengeManager (integration)', () => {
 
   describe('generateAuthenticationChallenge', () => {
     it('stores challenge with no uid and type=authentication', async () => {
-      const challenge = await manager.generateAuthenticationChallenge();
+      const challenge = generateRandomChallenge();
+      await manager.storeAuthenticationChallenge(challenge);
 
       const stored = await manager.consumeAuthenticationChallenge(challenge);
 
@@ -102,7 +105,8 @@ describe('PasskeyChallengeManager (integration)', () => {
 
   describe('generateUpgradeChallenge', () => {
     it('stores challenge with uid and type=upgrade', async () => {
-      const challenge = await manager.generateUpgradeChallenge('cafebabe');
+      const challenge = generateRandomChallenge();
+      await manager.storeUpgradeChallenge(challenge, 'cafebabe');
 
       const stored = await manager.consumeUpgradeChallenge(
         challenge,
@@ -117,7 +121,8 @@ describe('PasskeyChallengeManager (integration)', () => {
 
   describe('consumeChallenge', () => {
     it('returns null on second consume (single-use enforcement)', async () => {
-      const challenge = await manager.generateRegistrationChallenge('deadbeef');
+      const challenge = generateRandomChallenge();
+      await manager.storeRegistrationChallenge(challenge, 'deadbeef');
 
       await manager.consumeRegistrationChallenge(challenge, 'deadbeef');
 
@@ -150,8 +155,8 @@ describe('PasskeyChallengeManager (integration)', () => {
       const moduleRef = await buildTestModule(redis, shortConfig, mockLogger);
 
       const shortManager = moduleRef.get(PasskeyChallengeManager);
-      const challenge =
-        await shortManager.generateRegistrationChallenge('deadbeef');
+      const challenge = generateRandomChallenge();
+      await shortManager.storeRegistrationChallenge(challenge, 'deadbeef');
 
       // Wait longer than the TTL to ensure the challenge expires
       await new Promise((resolve) => setTimeout(resolve, 1100));
@@ -166,7 +171,8 @@ describe('PasskeyChallengeManager (integration)', () => {
 
   describe('deleteChallenge', () => {
     it('removes the key from Redis', async () => {
-      const challenge = await manager.generateRegistrationChallenge('deadbeef');
+      const challenge = generateRandomChallenge();
+      await manager.storeRegistrationChallenge(challenge, 'deadbeef');
 
       await manager.deleteChallenge('registration', challenge, 'deadbeef');
 

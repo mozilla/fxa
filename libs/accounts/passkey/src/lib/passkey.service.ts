@@ -116,14 +116,15 @@ export class PasskeyService {
 
     await this.passkeyManager.checkPasskeyCount(uid);
 
-    const challenge =
-      await this.challengeManager.generateRegistrationChallenge(uidHex);
-
     const options = await generateRegistrationOptions(this.config, {
       uid,
       email,
-      challenge,
     });
+
+    await this.challengeManager.storeRegistrationChallenge(
+      options.challenge,
+      uidHex
+    );
 
     return options;
   }
@@ -396,19 +397,18 @@ export class PasskeyService {
   async generateAuthenticationChallenge(
     uid?: Buffer
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
-    const challenge =
-      await this.challengeManager.generateAuthenticationChallenge();
-
     let allowCredentials: Buffer[] = [];
     if (uid) {
       const passkeys = await this.passkeyManager.listPasskeysForUser(uid);
       allowCredentials = passkeys.map((p) => p.credentialId);
     }
-
-    return await generateAuthenticationOptions(this.config, {
-      challenge,
+    const options = await generateAuthenticationOptions(this.config, {
       allowCredentials,
     });
+
+    await this.challengeManager.storeAuthenticationChallenge(options.challenge);
+
+    return options;
   }
 
   /**
