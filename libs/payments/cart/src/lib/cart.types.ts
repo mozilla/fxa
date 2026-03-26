@@ -9,6 +9,7 @@ import {
   CartErrorReasonId,
   CartState,
 } from '@fxa/shared/db/mysql/account';
+import type { FreeTrial } from '@fxa/shared/cms';
 import Stripe from 'stripe';
 
 export type FinishCart = {
@@ -78,6 +79,7 @@ export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   fromPrice?: FromPrice;
   taxAddress: TaxAddress;
   currency: string;
+  freeTrialEligibility?: FreeTrial | null;
 };
 
 export type StartCartDTO = BaseCartDTO & {

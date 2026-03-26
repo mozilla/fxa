@@ -288,7 +288,7 @@ export class CartService {
             } catch (e) {
               if (
                 e.code === 'resource_missing' ||
-                  e.message?.startsWith('No such subscription')
+                e.message?.startsWith('No such subscription')
               ) {
                 this.log.log(
                   'cartService.wrapWithCartCatch.subscriptionNotFound',
@@ -299,9 +299,7 @@ export class CartService {
                     interval: cart.interval,
                   }
                 );
-                this.statsd.increment(
-                  'subscription_deletion_failed_not_found'
-                );
+                this.statsd.increment('subscription_deletion_failed_not_found');
               } else {
                 throw new CartSubscriptionDeletionFailedError(
                   cartId,
@@ -888,6 +886,17 @@ export class CartService {
     ]);
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
+
+    const freeTrialEligibility = cart.uid
+      ? await this.checkoutService.getFreeTrialEligibility({
+          uid: cart.uid,
+          offeringConfigId: cart.offeringConfigId,
+          countryCode: cart.taxAddress.countryCode || '',
+          interval: cart.interval as SubplatInterval,
+          eligibilityStatus: eligibility.subscriptionEligibilityResult,
+        })
+      : null;
+
     const { unitAmountForCurrency: offeringPrice } =
       await this.priceManager.retrievePricingForCurrency(
         price.id,
@@ -1008,6 +1017,7 @@ export class CartService {
         latestInvoicePreview,
         paymentInfo,
         hasActiveSubscriptions: !!subscriptions?.length,
+        freeTrialEligibility,
       };
     }
 
@@ -1059,6 +1069,7 @@ export class CartService {
           : undefined,
       fromPrice: 'fromPrice' in eligibility ? fromPrice : undefined,
       hasActiveSubscriptions: !!subscriptions?.length,
+      freeTrialEligibility,
     };
   }
 
