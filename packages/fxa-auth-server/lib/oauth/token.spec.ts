@@ -21,7 +21,7 @@ describe('token', () => {
           ),
           userId: Buffer.from('00110011', 'hex'),
           generation: 9,
-          profileChangedAt: 8,
+          profileChangedAt: 9,
         }
       );
       const t = await token.verify(accessToken.jwt_token);
