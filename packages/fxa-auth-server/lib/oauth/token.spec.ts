@@ -17,7 +17,7 @@ describe('token', () => {
         {
           clientId: Buffer.from('5882386c6d801776', 'hex'),
           scope: ScopeSet.fromString(
-            'https://identity.mozilla.com/apps/oldsync'
+            'https://identity.mozilla.com/apps/oldsyncc'
           ),
           userId: Buffer.from('00110011', 'hex'),
           generation: 9,
