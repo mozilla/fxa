@@ -409,6 +409,7 @@ class EventsServerEventLogger {
    * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
    * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
    * @param {string} reason - additional context-dependent info, e.g. the cause of an error.
+   * @param {string} scopes - The OAuth scopes granted for the access token, in a comma-separated list.
    */
   recordAccessTokenCreated({
     user_agent,
@@ -428,6 +429,7 @@ class EventsServerEventLogger {
     utm_source,
     utm_term,
     reason,
+    scopes,
   }: {
     user_agent: string;
     ip_address: string;
@@ -446,12 +448,14 @@ class EventsServerEventLogger {
     utm_source: string;
     utm_term: string;
     reason: string;
+    scopes: string;
   }) {
     const event = {
       category: 'access_token',
       name: 'created',
       extra: {
         reason: String(reason),
+        scopes: String(scopes),
       },
     };
     this.#record({
