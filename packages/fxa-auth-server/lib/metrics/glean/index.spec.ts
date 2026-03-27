@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 import { AppError } from '@fxa/accounts/errors';
 import { AuthRequest } from '../../types';
 
@@ -691,6 +690,40 @@ describe('Glean server side events', () => {
   });
 
   describe('oauth', () => {
+    describe('tokenCreated', () => {
+      it('normalizes space-separated scopes to sorted comma-separated', async () => {
+        const glean = gleanMetrics(config);
+        await glean.oauth.tokenCreated(request, {
+          scopes: 'https://identity.mozilla.com/apps/smartwindow profile:uid',
+        });
+        expect(gleanMocks['recordAccessTokenCreated']).toHaveBeenCalledTimes(1);
+        const metrics = gleanMocks['recordAccessTokenCreated'].mock.calls[0][0];
+        expect(metrics['scopes']).toBe(
+          'https://identity.mozilla.com/apps/smartwindow,profile:uid'
+        );
+      });
+
+      it('handles undefined scopes', async () => {
+        const glean = gleanMetrics(config);
+        await glean.oauth.tokenCreated(request, {
+          scopes: undefined,
+        });
+        expect(gleanMocks['recordAccessTokenCreated']).toHaveBeenCalledTimes(1);
+        const metrics = gleanMocks['recordAccessTokenCreated'].mock.calls[0][0];
+        expect(metrics['scopes']).toBe('');
+      });
+
+      it('handles scopes passed as an array', async () => {
+        const glean = gleanMetrics(config);
+        await glean.oauth.tokenCreated(request, {
+          scopes: ['profile', 'openid'],
+        });
+        expect(gleanMocks['recordAccessTokenCreated']).toHaveBeenCalledTimes(1);
+        const metrics = gleanMocks['recordAccessTokenCreated'].mock.calls[0][0];
+        expect(metrics['scopes']).toBe('openid,profile');
+      });
+    });
+
     describe('tokenChecked', () => {
       it('sends an empty ip address', async () => {
         const glean = gleanMetrics(config);
@@ -706,8 +739,7 @@ describe('Glean server side events', () => {
           scopes: undefined,
         });
         expect(gleanMocks['recordAccessTokenChecked']).toHaveBeenCalledTimes(1);
-        const metrics =
-          gleanMocks['recordAccessTokenChecked'].mock.calls[0][0];
+        const metrics = gleanMocks['recordAccessTokenChecked'].mock.calls[0][0];
         expect(metrics['scopes']).toBe('');
       });
 
@@ -717,8 +749,7 @@ describe('Glean server side events', () => {
           scopes: '',
         });
         expect(gleanMocks['recordAccessTokenChecked']).toHaveBeenCalledTimes(1);
-        const metrics =
-          gleanMocks['recordAccessTokenChecked'].mock.calls[0][0];
+        const metrics = gleanMocks['recordAccessTokenChecked'].mock.calls[0][0];
         expect(metrics['scopes']).toBe('');
       });
 
@@ -728,8 +759,7 @@ describe('Glean server side events', () => {
           scopes: ['profile', 'openid'],
         });
         expect(gleanMocks['recordAccessTokenChecked']).toHaveBeenCalledTimes(1);
-        const metrics =
-          gleanMocks['recordAccessTokenChecked'].mock.calls[0][0];
+        const metrics = gleanMocks['recordAccessTokenChecked'].mock.calls[0][0];
         expect(metrics['scopes']).toBe('openid,profile');
       });
 
@@ -739,8 +769,7 @@ describe('Glean server side events', () => {
           scopes: 'profile,openid',
         });
         expect(gleanMocks['recordAccessTokenChecked']).toHaveBeenCalledTimes(1);
-        const metrics =
-          gleanMocks['recordAccessTokenChecked'].mock.calls[0][0];
+        const metrics = gleanMocks['recordAccessTokenChecked'].mock.calls[0][0];
         expect(metrics['scopes']).toBe('openid,profile');
       });
     });
@@ -893,11 +922,12 @@ describe('Glean server side events', () => {
           request: req as any,
           error,
         });
-        expect(mockGleanObj.registration.error as jest.Mock).toHaveBeenCalledTimes(1);
-        expect(mockGleanObj.registration.error as jest.Mock).toHaveBeenCalledWith(
-          req,
-          { reason: 'REQUEST_BLOCKED' }
-        );
+        expect(
+          mockGleanObj.registration.error as jest.Mock
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          mockGleanObj.registration.error as jest.Mock
+        ).toHaveBeenCalledWith(req, { reason: 'REQUEST_BLOCKED' });
       });
     });
 

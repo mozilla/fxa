@@ -273,7 +273,20 @@ export function gleanMetrics(config: ConfigType) {
 
     oauth: {
       tokenCreated: createEventFn('access_token_created', {
-        additionalMetrics: extraKeyReasonCb,
+        additionalMetrics: (metrics) => ({
+          reason: metrics.reason ?? '',
+          scopes: metrics.scopes
+            ? // Array: in at least verify.js, getScopeValues() returns string[]
+              Array.isArray(metrics.scopes)
+              ? metrics.scopes.sort().join(',')
+              : // String: in at least token.js, ScopeSet.toString() returns space-separated scopes
+                metrics.scopes
+                  .split(/[,\s]+/)
+                  .filter(Boolean)
+                  .sort()
+                  .join(',')
+            : '',
+        }),
       }),
       tokenChecked: createEventFn('access_token_checked', {
         skipClientIp: true,

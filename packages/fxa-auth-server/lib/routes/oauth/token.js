@@ -533,6 +533,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       reason: params.reason
         ? `${params.grant_type}:${params.reason}`
         : params.grant_type,
+      scopes: grant.scope?.toString() || '',
     });
 
     if (tokens.keys_jwe) {
