@@ -461,6 +461,9 @@ access_token:
       reason:
         description: additional context-dependent info, e.g. the cause of an error
         type: string
+      scopes:
+        description: The OAuth scopes granted for the access token, in a comma-separated list
+        type: string
 login:
   backup_code_success:
     type: event
