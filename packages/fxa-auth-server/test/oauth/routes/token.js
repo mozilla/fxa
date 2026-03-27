@@ -379,7 +379,12 @@ describe('/token POST', function () {
       sinon.assert.calledOnceWithExactly(
         mockGlean.oauth.tokenCreated,
         request,
-        { uid: UID, oauthClientId: CLIENT_ID, reason: 'authorization_code' }
+        {
+          uid: UID,
+          oauthClientId: CLIENT_ID,
+          reason: 'authorization_code',
+          scopes: '',
+        }
       );
     });
   });
