@@ -243,6 +243,11 @@ describe('db', () => {
 
       beforeEach(async () => {
         tokenFirstUsage = {};
+        const mysql = await db.mysql;
+        const mysqlToken = await mysql._getRefreshToken(tokenId);
+        expect(hex(mysqlToken.tokenId)).toBe(hex(tokenId));
+        tokenFirstUsage.mysqlLastUsedAt = new Date(mysqlToken.lastUsedAt);
+
         const t = await db.getRefreshToken(tokenId);
         expect(hex(t.tokenId)).toBe(hex(tokenId));
         tokenFirstUsage.createdAt = new Date(t.createdAt);
@@ -284,7 +289,7 @@ describe('db', () => {
         expect(hex(t.tokenId)).toBe(hex(tokenId));
         expect(
           Math.abs(
-            t.lastUsedAt.getTime() - tokenFirstUsage.lastUsedAt.getTime()
+            t.lastUsedAt.getTime() - tokenFirstUsage.mysqlLastUsedAt.getTime()
           )
         ).toBeLessThanOrEqual(2000);
       });

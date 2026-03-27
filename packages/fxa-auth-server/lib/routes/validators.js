@@ -193,7 +193,14 @@ module.exports.isValidEmailAddress = function (value) {
     return false;
   }
 
-  if (!EMAIL_USER.test(punycode.toASCII(parts[0]))) {
+  // Reject non-ASCII characters in the local part.
+  // AWS SES does not support SMTPUTF8 (RFC 6531), so we cannot
+  // deliver email to addresses with non-ASCII local parts.
+  // See: https://docs.aws.amazon.com/ses/latest/APIReference/API_Destination.html
+  // Note: punycode.toASCII() is intentionally NOT used here because
+  // it would encode non-ASCII chars (e.g. 'andrée' → 'xn--andre-9ua'),
+  // masking the problem.
+  if (!EMAIL_USER.test(parts[0])) {
     return false;
   }
 

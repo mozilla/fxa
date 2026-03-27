@@ -130,16 +130,15 @@ describe.each(testVersions)(
       }
     });
 
-    it('account status by email works with unicode email address', async () => {
+    it('account status rejects unicode email address', async () => {
       const email = server.uniqueUnicodeEmail();
-      const c = await Client.create(
-        server.publicUrl,
-        email,
-        'password',
-        testOptions
-      );
-      const response = await c.api.accountStatusByEmail(email);
-      expect(response.exists).toBeTruthy();
+
+      try {
+        await Client.create(server.publicUrl, email, 'password', testOptions);
+        throw new Error('should have failed');
+      } catch (err: any) {
+        expect(err.errno).toBe(107);
+      }
     });
   }
 );

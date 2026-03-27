@@ -125,24 +125,15 @@ describe.each(testVersions)(
       expect(c.keyFetchToken).toBeNull();
     });
 
-    it('login works with unicode email address', async () => {
+    it('login rejects unicode email address', async () => {
       const email = server.uniqueUnicodeEmail();
-      const password = 'wibble';
-      await Client.createAndVerify(
-        server.publicUrl,
-        email,
-        password,
-        server.mailbox,
-        testOptions
-      );
 
-      const client = await Client.login(
-        server.publicUrl,
-        email,
-        password,
-        testOptions
-      );
-      expect(client).toBeTruthy();
+      try {
+        await Client.login(server.publicUrl, email, 'wibble', testOptions);
+        throw new Error('should have failed');
+      } catch (err: any) {
+        expect(err.errno).toBe(107);
+      }
     });
 
     it('account login works with minimal metricsContext metadata', async () => {

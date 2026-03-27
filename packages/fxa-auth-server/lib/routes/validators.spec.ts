@@ -17,8 +17,9 @@ describe('lib/routes/validators:', () => {
     expect(
       validators.isValidEmailAddress('.+#$!%&|*/+-=?^_{}~`@example.com')
     ).toBe(true);
-    expect(validators.isValidEmailAddress('Δ٢@example.com')).toBe(true);
-    expect(validators.isValidEmailAddress('🦀🧙@example.com')).toBe(true);
+    // Non-ASCII local parts are rejected (SES doesn't support SMTPUTF8)
+    expect(validators.isValidEmailAddress('Δ٢@example.com')).toBe(false);
+    expect(validators.isValidEmailAddress('🦀🧙@example.com')).toBe(false);
     expect(
       validators.isValidEmailAddress(
         `${new Array(64).fill('a').join('')}@example.com`
@@ -1051,5 +1052,15 @@ describe('lib/routes/validators:', () => {
         validators.reasonForAccountDeletion.validate('blah').error
       ).toBeTruthy();
     });
+  });
+
+  it('isValidEmailAddress rejects non-ASCII local parts', () => {
+    // Accented letters
+    expect(validators.isValidEmailAddress('café@restmail.net')).toBe(false);
+    expect(validators.isValidEmailAddress('naïve@restmail.net')).toBe(false);
+    expect(validators.isValidEmailAddress('über@restmail.net')).toBe(false);
+    // Invisible unicode (zero-width space, RTL mark)
+    expect(validators.isValidEmailAddress('foo\u200b@example.com')).toBe(false);
+    expect(validators.isValidEmailAddress('foo\u200f@example.com')).toBe(false);
   });
 });

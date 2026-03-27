@@ -180,16 +180,20 @@ describe.each(testVersions)(
 
     describe('when the profile data is not default', () => {
       describe('when the email address is unicode', () => {
-        it('returns the email address correctly with the profile data', async () => {
+        it('rejects unicode email address', async () => {
           const email = server.uniqueUnicodeEmail();
-          const client = await Client.create(
-            server.publicUrl,
-            email,
-            'password',
-            testOptions
-          );
-          const response = await client.accountProfile();
-          expect(response.email).toBe(email);
+
+          try {
+            await Client.create(
+              server.publicUrl,
+              email,
+              'password',
+              testOptions
+            );
+            throw new Error('should have failed');
+          } catch (err: any) {
+            expect(err.errno).toBe(107);
+          }
         });
       });
 
