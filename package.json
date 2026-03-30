@@ -305,10 +305,14 @@
     "form-data": "^4.0.4",
     "gobbledygook": "https://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2",
     "minimist": "^1.2.6",
+    "multer": "^2.1.1",
     "nest-typed-config/class-validator": "0.14.1",
     "plist": "^3.0.6",
     "sha.js": "^2.4.12",
     "underscore": ">=1.13.2"
+  },
+  "resolutionComments": {
+    "multer": "^2.1.1 — remove when @nestjs/platform-express is upgraded to 11.x (ships multer 2.1.1 natively)"
   },
   "packageManager": "yarn@4.9.2",
   "_moduleAliases": {
