@@ -32,24 +32,13 @@
       "outputs": ["{projectRoot}/build", "{projectRoot}/dist"],
       "cache": true
     },
-    "gql-copy": {
-      "dependsOn": [
-        {
-          "projects": ["fxa-admin-panel"],
-          "target": "gql-extract"
-        }
-      ],
-      "inputs": ["typescript", "^typescript"],
-      "outputs": ["{projectRoot}/src/config/gql/allowlist"],
-      "cache": true
-    },
     "lint": {
       "inputs": ["lint", "{workspaceRoot}/.eslintrc.json"],
       "outputs": ["{projectRoot}/.eslintcache"],
       "cache": true
     },
     "prebuild": {
-      "dependsOn": ["gql-copy"],
+      "dependsOn": [],
       "inputs": [],
       "outputs": [
         "{projectRoot}/public/locales",
