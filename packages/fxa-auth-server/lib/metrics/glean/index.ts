@@ -448,6 +448,8 @@ export function gleanMetrics(config: ConfigType) {
     //   registrationStarted: createEventFn('passkey_registration_started'),
     //   registrationComplete: createEventFn('passkey_registration_complete'),
     //   registrationFailed: createEventFn('passkey_registration_failed'),
+    //   deleteSuccess: createEventFn('passkey_delete_success'),
+    //   renameSuccess: createEventFn('passkey_rename_success'),
     // },
   };
 }

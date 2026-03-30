@@ -63,6 +63,65 @@ const PASSKEY_REGISTRATION_FINISH_POST = {
 const PASSKEYS_API_DOCS = {
   PASSKEY_REGISTRATION_START_POST,
   PASSKEY_REGISTRATION_FINISH_POST,
+  PASSKEYS_GET: {
+    ...TAGS_PASSKEYS,
+    description: '/passkeys',
+    notes: [
+      dedent`
+        🔒 Authenticated with session token (verified)
+
+        Returns the list of passkeys registered for the authenticated user.
+        The \`publicKey\` and \`signCount\` fields are intentionally excluded
+        from the response as they are internal implementation details.
+
+        **Response:** Array of passkey metadata objects, each containing
+        \`credentialId\`, \`name\`, \`createdAt\`, \`lastUsedAt\`, \`transports\`, and \`prfEnabled\`.
+      `,
+    ],
+  },
+  PASSKEY_CREDENTIAL_DELETE: {
+    ...TAGS_PASSKEYS,
+    description: '/passkey/{credentialId}',
+    notes: [
+      dedent`
+        🔒 Authenticated with MFA JWT (scope: mfa:passkey)
+
+        Deletes the passkey identified by \`credentialId\` (base64url-encoded).
+        The service validates that the passkey exists and belongs to the
+        authenticated user. Returns 404 if the passkey is not found or is
+        not owned by the user.
+
+        **Params:**
+        - \`credentialId\` (string, required) — base64url-encoded credential ID
+
+        **Security event:** \`account.passkey.removed\` is recorded on success.
+      `,
+    ],
+  },
+  PASSKEY_CREDENTIAL_PATCH: {
+    ...TAGS_PASSKEYS,
+    description: '/passkey/{credentialId}',
+    notes: [
+      dedent`
+        🔒 Authenticated with MFA JWT (scope: mfa:passkey)
+
+        Renames the passkey identified by \`credentialId\` (base64url-encoded).
+        The new name must be 1–255 characters and non-empty after trimming.
+        The service validates that the passkey exists and belongs to the
+        authenticated user. Returns 404 if the passkey is not found or is
+        not owned by the user.
+
+        **Params:**
+        - \`credentialId\` (string, required) — base64url-encoded credential ID
+
+        **Request body:**
+        - \`name\` (string, required) — new display name (1–255 chars)
+
+        **Response:** Updated passkey metadata including \`credentialId\`, \`name\`,
+        \`createdAt\`, \`lastUsedAt\`, \`transports\`, and \`prfEnabled\`.
+      `,
+    ],
+  },
 };
 
 export default PASSKEYS_API_DOCS;

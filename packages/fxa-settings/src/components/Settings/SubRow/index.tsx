@@ -464,7 +464,7 @@ export const PasskeySubRow = ({
       />
       {deleteModalRevealed && (
         <MfaGuard
-          requiredScope="passkeys"
+          requiredScope="passkey"
           onDismissCallback={async () => {
             hideDeleteModal();
           }}

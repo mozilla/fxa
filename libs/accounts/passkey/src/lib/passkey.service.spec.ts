@@ -753,15 +753,24 @@ describe('PasskeyService', () => {
   describe('renamePasskey', () => {
     beforeEach(() => {
       mockManager.renamePasskey.mockResolvedValue(true);
+      mockManager.findPasskeyByCredentialId.mockResolvedValue(mockPasskey);
     });
 
     it('calls manager.renamePasskey and emits metrics and security log on success', async () => {
-      await service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, 'New Name');
+      const result = await service.renamePasskey(
+        MOCK_UID,
+        MOCK_CREDENTIAL_ID,
+        'New Name'
+      );
       expect(mockManager.renamePasskey).toHaveBeenCalledWith(
         MOCK_UID,
         MOCK_CREDENTIAL_ID,
         'New Name'
       );
+      expect(mockManager.findPasskeyByCredentialId).toHaveBeenCalledWith(
+        MOCK_CREDENTIAL_ID
+      );
+      expect(result).toBe(mockPasskey);
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'passkey.rename.success'
       );
@@ -782,6 +791,14 @@ describe('PasskeyService', () => {
 
     it('throws AppError passkeyNotFound when manager returns false', async () => {
       mockManager.renamePasskey.mockResolvedValue(false);
+
+      await expect(
+        service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, 'New Name')
+      ).rejects.toMatchObject(AppError.passkeyNotFound());
+    });
+
+    it('throws passkeyNotFound if the passkey cannot be fetched after rename', async () => {
+      mockManager.findPasskeyByCredentialId.mockResolvedValue(undefined);
 
       await expect(
         service.renamePasskey(MOCK_UID, MOCK_CREDENTIAL_ID, 'New Name')

@@ -28,16 +28,12 @@ const {
 const {
   AppStoreSubscriptions,
 } = require('../payments/iap/apple-app-store/subscriptions');
-const {
-  deleteAccountIfUnverified,
-} = require('./utils/account');
+const { deleteAccountIfUnverified } = require('./utils/account');
 const { AppConfig, AuthLogger } = require('../types');
 const defaultConfig = require('../../config').default.getProperties();
 const { ProfileClient } = require('@fxa/profile/client');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
-const {
-  OAuthClientInfoServiceName,
-} = require('../senders/oauth_client_info');
+const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
 
 const { FxaMailer } = require('../senders/fxa-mailer');
 const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
@@ -185,7 +181,16 @@ const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
 
   const signinUtils =
     options.signinUtils ||
-    require('./utils/signin')(log, config, customs, db, mailer, cadReminders, glean, statsd);
+    require('./utils/signin')(
+      log,
+      config,
+      customs,
+      db,
+      mailer,
+      cadReminders,
+      glean,
+      statsd
+    );
   if (options.checkPassword) {
     signinUtils.checkPassword = options.checkPassword;
   }
@@ -205,7 +210,9 @@ const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
       verificationReminders,
       glean
     );
-  const pushbox = options.pushbox || { deleteAccount: jest.fn().mockResolvedValue(undefined) };
+  const pushbox = options.pushbox || {
+    deleteAccount: jest.fn().mockResolvedValue(undefined),
+  };
   const oauthDb = {
     removeTokensAndCodes: () => {},
     removePublicAndCanGrantTokens: () => {},
@@ -395,9 +402,7 @@ describe('/account/reset', () => {
     });
 
     it('called mailer.sendPasswordResetAccountRecoveryEmail correctly', () => {
-      expect(
-        fxaMailer.sendPasswordResetAccountRecoveryEmail.callCount
-      ).toBe(1);
+      expect(fxaMailer.sendPasswordResetAccountRecoveryEmail.callCount).toBe(1);
       const args = fxaMailer.sendPasswordResetAccountRecoveryEmail.args[0];
       expect(args[0].to).toBe(TEST_EMAIL);
     });
@@ -782,7 +787,11 @@ describe('/account/create', () => {
     glean.registration.confirmationEmailSent.reset();
   });
 
-  function setup(extraConfig?: any, mockRequestOptsCb?: any, makeRoutesOptions: any = {}) {
+  function setup(
+    extraConfig?: any,
+    mockRequestOptsCb?: any,
+    makeRoutesOptions: any = {}
+  ) {
     const config = {
       securityHistory: {
         enabled: true,
@@ -2302,10 +2311,7 @@ describe('/account/login', () => {
   beforeEach(() => {
     Container.set(AppConfig, config);
     Container.set(AuthLogger, mockLog);
-    Container.set(
-      AccountEventsManager,
-      new AccountEventsManager()
-    );
+    Container.set(AccountEventsManager, new AccountEventsManager());
     Container.set(CapabilityService, jest.fn().mockResolvedValue(undefined));
     Container.set(OAuthClientInfoServiceName, mockOAuthClientInfo);
     Container.set(FxaMailer, mockFxaMailer);
@@ -2614,9 +2620,9 @@ describe('/account/login', () => {
         expect(mockFxaMailer.sendVerifyLoginEmail.callCount).toBe(1);
 
         expect(mockMetricsContext.setFlowCompleteSignal.callCount).toBe(1);
-        expect(
-          mockMetricsContext.setFlowCompleteSignal.args[0][0]
-        ).toEqual('account.confirmed');
+        expect(mockMetricsContext.setFlowCompleteSignal.args[0][0]).toEqual(
+          'account.confirmed'
+        );
 
         expect(response.verified).toBeFalsy();
         expect(response.verificationMethod).toBe('email');
@@ -2869,7 +2875,11 @@ describe('/account/login', () => {
     });
 
     describe('skip for new accounts', () => {
-      function setupSkipNewAccounts(enabled: any, accountCreatedSince: any, makeRoutesOptions: any = {}) {
+      function setupSkipNewAccounts(
+        enabled: any,
+        accountCreatedSince: any,
+        makeRoutesOptions: any = {}
+      ) {
         config.signinConfirmation.skipForNewAccounts = {
           enabled: enabled,
           maxAge: 5,
@@ -2938,9 +2948,7 @@ describe('/account/login', () => {
           expect(sendVerifyLoginEmailArgs.location.country).toBe(
             'United States'
           );
-          expect(sendVerifyLoginEmailArgs.timeZone).toBe(
-            'America/Los_Angeles'
-          );
+          expect(sendVerifyLoginEmailArgs.timeZone).toBe('America/Los_Angeles');
         });
       });
 
@@ -2990,18 +2998,18 @@ describe('/account/login', () => {
           expect(
             mockFxaMailer.sendNewDeviceLoginEmail.args[0][0].deviceId
           ).toBe(mockRequest.payload.metricsContext.deviceId);
-          expect(
-            mockFxaMailer.sendNewDeviceLoginEmail.args[0][0].flowId
-          ).toBe(mockRequest.payload.metricsContext.flowId);
+          expect(mockFxaMailer.sendNewDeviceLoginEmail.args[0][0].flowId).toBe(
+            mockRequest.payload.metricsContext.flowId
+          );
           expect(
             mockFxaMailer.sendNewDeviceLoginEmail.args[0][0].flowBeginTime
           ).toBe(mockRequest.payload.metricsContext.flowBeginTime);
-          expect(
-            mockFxaMailer.sendNewDeviceLoginEmail.args[0][0].sync
-          ).toBe(true);
-          expect(
-            mockFxaMailer.sendNewDeviceLoginEmail.args[0][0].uid
-          ).toBe(uid);
+          expect(mockFxaMailer.sendNewDeviceLoginEmail.args[0][0].sync).toBe(
+            true
+          );
+          expect(mockFxaMailer.sendNewDeviceLoginEmail.args[0][0].uid).toBe(
+            uid
+          );
           expect(response.emailVerified).toBeTruthy();
         });
       });
@@ -3386,17 +3394,21 @@ describe('/account/login', () => {
           },
         };
 
-        return runTest(route, requestWithDifferentUserAgent, (response: any) => {
-          expect(mockDB.createSessionToken.callCount).toBe(1);
-          const tokenData = mockDB.createSessionToken.getCall(0).args[0];
-          expect(tokenData.mustVerify).toBeTruthy();
-          expect(response.verified).toBeFalsy();
+        return runTest(
+          route,
+          requestWithDifferentUserAgent,
+          (response: any) => {
+            expect(mockDB.createSessionToken.callCount).toBe(1);
+            const tokenData = mockDB.createSessionToken.getCall(0).args[0];
+            expect(tokenData.mustVerify).toBeTruthy();
+            expect(response.verified).toBeFalsy();
 
-          sinon.assert.calledWith(
-            statsd.increment,
-            'account.signin.confirm.device.notfound'
-          );
-        });
+            sinon.assert.calledWith(
+              statsd.increment,
+              'account.signin.confirm.device.notfound'
+            );
+          }
+        );
       });
 
       it('should not skip verification when in report-only mode', () => {
@@ -3635,7 +3647,9 @@ describe('/account/login', () => {
           it('invalid code', async () => {
             mockDB.consumeUnblockCode = () =>
               Promise.reject(error.invalidUnblockCode());
-            await expect(runTest(route, mockRequestWithUnblockCode)).rejects.toMatchObject({
+            await expect(
+              runTest(route, mockRequestWithUnblockCode)
+            ).rejects.toMatchObject({
               errno: error.ERRNO.INVALID_UNBLOCK_CODE,
               output: { statusCode: 400 },
             });
@@ -3653,7 +3667,9 @@ describe('/account/login', () => {
                 createdAt:
                   Date.now() - (config.signinUnblock.codeLifetime + 5000),
               });
-            await expect(runTest(route, mockRequestWithUnblockCode)).rejects.toMatchObject({
+            await expect(
+              runTest(route, mockRequestWithUnblockCode)
+            ).rejects.toMatchObject({
               errno: error.ERRNO.INVALID_UNBLOCK_CODE,
               output: { statusCode: 400 },
             });
@@ -3668,7 +3684,9 @@ describe('/account/login', () => {
           it('unknown account', async () => {
             mockDB.accountRecord = () => Promise.reject(error.unknownAccount());
             mockDB.emailRecord = () => Promise.reject(error.unknownAccount());
-            await expect(runTest(route, mockRequestWithUnblockCode)).rejects.toMatchObject({
+            await expect(
+              runTest(route, mockRequestWithUnblockCode)
+            ).rejects.toMatchObject({
               errno: error.ERRNO.REQUEST_BLOCKED,
               output: { statusCode: 400 },
             });
@@ -3685,12 +3703,8 @@ describe('/account/login', () => {
               expect(mockLog.flowEvent.args[1][0].event).toBe(
                 'account.login.confirmedUnblockCode'
               );
-              expect(mockLog.flowEvent.args[2][0].event).toBe(
-                'account.login'
-              );
-              expect(mockLog.flowEvent.args[3][0].event).toBe(
-                'flow.complete'
-              );
+              expect(mockLog.flowEvent.args[2][0].event).toBe('account.login');
+              expect(mockLog.flowEvent.args[3][0].event).toBe('flow.complete');
             });
           });
         });
@@ -3746,7 +3760,9 @@ describe('/account/login', () => {
       });
     });
     return runTest(route, mockRequest).then(
-      () => { throw new Error('should have thrown'); },
+      () => {
+        throw new Error('should have thrown');
+      },
       (err: any) => {
         expect(mockDB.accountRecord.callCount).toBe(1);
         expect(err.errno).toBe(142);
@@ -3763,7 +3779,9 @@ describe('/account/login', () => {
     });
     mockRequest.payload.verificationMethod = 'totp-2fa';
     return runTest(route, mockRequest).then(
-      () => { throw new Error('should have thrown'); },
+      () => {
+        throw new Error('should have thrown');
+      },
       (err: any) => {
         expect(mockDB.totpToken.callCount).toBe(1);
         expect(err.errno).toBe(160);
@@ -3839,8 +3857,12 @@ describe('/account/login', () => {
       expect(emailMessage.cmsRpFromName).toBe('Testo Inc.');
       expect(emailMessage.entrypoint).toBe('testo');
       expect(emailMessage.logoUrl).toBe('http://img.exmpl.gg/logo.svg');
-      expect(emailMessage.subject).toBe(rpCmsConfig.NewDeviceLoginEmail.subject);
-      expect(emailMessage.headline).toBe(rpCmsConfig.NewDeviceLoginEmail.headline);
+      expect(emailMessage.subject).toBe(
+        rpCmsConfig.NewDeviceLoginEmail.subject
+      );
+      expect(emailMessage.headline).toBe(
+        rpCmsConfig.NewDeviceLoginEmail.headline
+      );
       expect(emailMessage.description).toBe(
         rpCmsConfig.NewDeviceLoginEmail.description
       );
@@ -3905,7 +3927,9 @@ describe('/account/keys', () => {
     mockRequest.auth.credentials.tokenVerified = false;
     return runTest(route, mockRequest)
       .then(
-        () => { throw new Error('should have thrown'); },
+        () => {
+          throw new Error('should have thrown');
+        },
         (response: any) => {
           expect(response.errno).toBe(104);
           expect(response.message).toBe('Unconfirmed account');
@@ -3922,7 +3946,12 @@ describe('/account/destroy', () => {
   const tokenVerified = true;
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
-  let mockDB: any, mockLog: any, mockRequest: any, mockPush: any, mockPushbox: any, mockCustoms: any;
+  let mockDB: any,
+    mockLog: any,
+    mockRequest: any,
+    mockPush: any,
+    mockPushbox: any,
+    mockCustoms: any;
 
   beforeEach(async () => {
     mockDB = {
@@ -3990,9 +4019,13 @@ describe('/account/destroy', () => {
         customerId: 'customer123',
         reason: ReasonForDeletion.UserRequested,
       });
-      sinon.assert.calledOnceWithExactly(glean.account.deleteComplete, mockRequest, {
-        uid,
-      });
+      sinon.assert.calledOnceWithExactly(
+        glean.account.deleteComplete,
+        mockRequest,
+        {
+          uid,
+        }
+      );
       sinon.assert.calledOnceWithExactly(
         mockLog.info,
         'accountDeleted.ByRequest',
@@ -4005,7 +4038,9 @@ describe('/account/destroy', () => {
     const route = buildRoute();
 
     // Here we act like there's an error when calling accountDeleteManager.quickDelete(...)
-    mockAccountQuickDelete = jest.fn().mockRejectedValue(new Error('quickDelete failed'));
+    mockAccountQuickDelete = jest
+      .fn()
+      .mockRejectedValue(new Error('quickDelete failed'));
 
     return runTest(route, mockRequest, () => {
       sinon.assert.calledOnceWithExactly(mockDB.accountRecord, email);
@@ -4014,9 +4049,13 @@ describe('/account/destroy', () => {
         customerId: 'customer123',
         reason: ReasonForDeletion.UserRequested,
       });
-      sinon.assert.calledOnceWithExactly(glean.account.deleteComplete, mockRequest, {
-        uid,
-      });
+      sinon.assert.calledOnceWithExactly(
+        glean.account.deleteComplete,
+        mockRequest,
+        {
+          uid,
+        }
+      );
     });
   });
 
@@ -4043,9 +4082,13 @@ describe('/account/destroy', () => {
         customerId: 'customer123',
         reason: ReasonForDeletion.UserRequested,
       });
-      sinon.assert.calledOnceWithExactly(glean.account.deleteComplete, mockRequest, {
-        uid,
-      });
+      sinon.assert.calledOnceWithExactly(
+        glean.account.deleteComplete,
+        mockRequest,
+        {
+          uid,
+        }
+      );
     });
   });
 
@@ -4149,7 +4192,9 @@ describe('/account', () => {
     mockStripeHelper.subscriptionsToResponse = sinon.spy(
       async (subscriptions: any) => mockWebSubscriptionsResponse
     );
-    mockStripeHelper.removeFirestoreCustomer = jest.fn().mockResolvedValue(undefined);
+    mockStripeHelper.removeFirestoreCustomer = jest
+      .fn()
+      .mockResolvedValue(undefined);
     Container.set(CapabilityService, jest.fn());
   });
 
@@ -4343,7 +4388,9 @@ describe('/account', () => {
     });
 
     it('should return an empty list when no active Google Play or web subscriptions are found', () => {
-      mockPlaySubscriptions.getSubscriptions = sinon.spy(async (uid: any) => []);
+      mockPlaySubscriptions.getSubscriptions = sinon.spy(
+        async (uid: any) => []
+      );
 
       return runTest(
         buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
@@ -4434,9 +4481,9 @@ describe('/account', () => {
         'getSubscriptions',
       ]);
       Container.set(AppStoreSubscriptions, mockAppStoreSubscriptions);
-      mockAppStoreSubscriptions.getSubscriptions = sinon.spy(async (uid: any) => [
-        mockAppendedAppStoreSubscriptionPurchase,
-      ]);
+      mockAppStoreSubscriptions.getSubscriptions = sinon.spy(
+        async (uid: any) => [mockAppendedAppStoreSubscriptionPurchase]
+      );
     });
 
     it('should return formatted Apple App Store subscriptions when App Store subscriptions are enabled', () => {
@@ -4487,7 +4534,9 @@ describe('/account', () => {
     });
 
     it('should return an empty list when no active Apple App Store or web subscriptions are found', () => {
-      mockAppStoreSubscriptions.getSubscriptions = sinon.spy(async (uid: any) => []);
+      mockAppStoreSubscriptions.getSubscriptions = sinon.spy(
+        async (uid: any) => []
+      );
 
       return runTest(
         buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
@@ -4531,15 +4580,27 @@ describe('/account', () => {
   describe('expanded account data fields', () => {
     it('should return account metadata and 2FA status', () => {
       return runTest(buildRoute(), request, (result: any) => {
-        expect(Object.prototype.hasOwnProperty.call(result, 'createdAt')).toBeTruthy();
+        expect(
+          Object.prototype.hasOwnProperty.call(result, 'createdAt')
+        ).toBeTruthy();
         expect(
           Object.prototype.hasOwnProperty.call(result, 'passwordCreatedAt')
         ).toBeTruthy();
-        expect(Object.prototype.hasOwnProperty.call(result, 'hasPassword')).toBeTruthy();
-        expect(Object.prototype.hasOwnProperty.call(result, 'emails')).toBeTruthy();
-        expect(Object.prototype.hasOwnProperty.call(result, 'totp')).toBeTruthy();
-        expect(Object.prototype.hasOwnProperty.call(result, 'backupCodes')).toBeTruthy();
-        expect(Object.prototype.hasOwnProperty.call(result, 'recoveryKey')).toBeTruthy();
+        expect(
+          Object.prototype.hasOwnProperty.call(result, 'hasPassword')
+        ).toBeTruthy();
+        expect(
+          Object.prototype.hasOwnProperty.call(result, 'emails')
+        ).toBeTruthy();
+        expect(
+          Object.prototype.hasOwnProperty.call(result, 'totp')
+        ).toBeTruthy();
+        expect(
+          Object.prototype.hasOwnProperty.call(result, 'backupCodes')
+        ).toBeTruthy();
+        expect(
+          Object.prototype.hasOwnProperty.call(result, 'recoveryKey')
+        ).toBeTruthy();
         expect(
           Object.prototype.hasOwnProperty.call(result, 'recoveryPhone')
         ).toBeTruthy();
@@ -4593,7 +4654,9 @@ describe('/account', () => {
         allowedRegions: ['US'],
       });
       Container.set(RecoveryPhoneService, {
-        hasConfirmed: jest.fn().mockResolvedValue({ exists: false, phoneNumber: null }),
+        hasConfirmed: jest
+          .fn()
+          .mockResolvedValue({ exists: false, phoneNumber: null }),
         available: jest.fn().mockResolvedValue(false),
       });
       return runTest(route, request, (result: any) => {
@@ -4607,7 +4670,9 @@ describe('/account', () => {
         allowedRegions: ['US'],
       });
       Container.set(RecoveryPhoneService, {
-        hasConfirmed: jest.fn().mockResolvedValue({ exists: false, phoneNumber: null }),
+        hasConfirmed: jest
+          .fn()
+          .mockResolvedValue({ exists: false, phoneNumber: null }),
         available: jest.fn().mockRejectedValue(new Error('service error')),
       });
       return runTest(route, request, (result: any) => {
@@ -4626,12 +4691,91 @@ describe('/account', () => {
         allowedRegions: ['US'],
       });
       Container.set(RecoveryPhoneService, {
-        hasConfirmed: jest.fn().mockResolvedValue({ exists: false, phoneNumber: null }),
+        hasConfirmed: jest
+          .fn()
+          .mockResolvedValue({ exists: false, phoneNumber: null }),
         available: jest.fn().mockResolvedValue(false),
       });
       return runTest(route, noGeoRequest, (result: any) => {
         expect(result.recoveryPhone.available).toBe(false);
       });
+    });
+  });
+
+  describe('passkeys', () => {
+    const { PasskeyService } = require('@fxa/accounts/passkey');
+
+    const mockPasskey = {
+      credentialId: Buffer.from('cred-id'),
+      name: 'My Passkey',
+      createdAt: 1000000,
+      lastUsedAt: 2000000,
+      transports: ['internal'],
+      aaguid: Buffer.from('aaguid12345678ab'),
+      backupEligible: true,
+      backupState: false,
+      prfEnabled: true,
+    };
+
+    function buildPasskeysRoute(
+      passkeyServiceMock: any,
+      passkeysEnabled = true
+    ) {
+      Container.set(PasskeyService, passkeyServiceMock);
+      const accountRoutes = makeRoutes({
+        config: {
+          subscriptions: { enabled: false },
+          passkeys: { enabled: passkeysEnabled },
+        },
+        log: log,
+        db: mocks.mockDB({ email, uid }),
+      });
+      return getRoute(accountRoutes, '/account');
+    }
+
+    it('includes passkeys with prfEnabled when feature flag is enabled', async () => {
+      const mockService = {
+        listPasskeysForUser: jest.fn().mockResolvedValue([mockPasskey]),
+      };
+      const route = buildPasskeysRoute(mockService);
+      const result: any = await runTest(route, request);
+
+      expect(mockService.listPasskeysForUser).toHaveBeenCalledWith(
+        Buffer.from(uid)
+      );
+      expect(result.passkeys).toHaveLength(1);
+      expect(result.passkeys[0]).toEqual({
+        credentialId: mockPasskey.credentialId.toString('base64url'),
+        name: mockPasskey.name,
+        createdAt: mockPasskey.createdAt,
+        lastUsedAt: mockPasskey.lastUsedAt,
+        transports: mockPasskey.transports,
+        aaguid: mockPasskey.aaguid.toString('base64url'),
+        backupEligible: mockPasskey.backupEligible,
+        backupState: mockPasskey.backupState,
+        prfEnabled: mockPasskey.prfEnabled,
+      });
+    });
+
+    it('returns empty passkeys array when feature flag is disabled', async () => {
+      const mockService = {
+        listPasskeysForUser: jest.fn().mockResolvedValue([mockPasskey]),
+      };
+      const route = buildPasskeysRoute(mockService, false);
+      const result: any = await runTest(route, request);
+
+      expect(mockService.listPasskeysForUser).not.toHaveBeenCalled();
+      expect(result.passkeys).toEqual([]);
+    });
+
+    it('returns empty passkeys array when PasskeyService rejects', async () => {
+      const mockService = {
+        listPasskeysForUser: jest.fn().mockRejectedValue(new Error('db error')),
+      };
+      const route = buildPasskeysRoute(mockService);
+      const result: any = await runTest(route, request);
+
+      expect(result.passkeys).toEqual([]);
     });
   });
 });
