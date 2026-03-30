@@ -353,6 +353,40 @@ describe('support', () => {
           })
         ).rejects.toEqual(AppError.missingRequestParameter('email'));
       });
+
+      it('should submit a ticket with a valid brand_id', async () => {
+        config.subscriptions.enabled = true;
+        nock(`https://${SUBDOMAIN}.zendesk.com`)
+          .post('/api/v2/requests.json')
+          .reply(201, MOCK_CREATE_REPLY);
+        nock(`https://${SUBDOMAIN}.zendesk.com`)
+          .get(`/api/v2/users/${REQUESTER_ID}.json`)
+          .reply(200, MOCK_EXISTING_SHOW_REPLY);
+        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const res = await runTest('/support/ticket', {
+          ...requestOptions,
+          payload: { ...requestOptions.payload, brand_id: 12345 },
+        });
+        const zendeskReq = spy.firstCall.args[0].request;
+        expect(zendeskReq.brand_id).toBe(12345);
+        expect(res).toEqual({ success: true, ticket: 91 });
+        nock.isDone();
+        spy.restore();
+      });
+
+      it('should reject a ticket with a non-integer brand_id', async () => {
+        config.subscriptions.enabled = true;
+        const route = getRoute(
+          supportRoutes(log, db, config, customs, zendeskClient),
+          '/support/ticket',
+          'POST'
+        );
+        const result = route.options.validate.payload.validate({
+          ...requestOptions.payload,
+          brand_id: 12.5,
+        });
+        expect(result.error).toBeTruthy();
+      });
     });
   });
 });
