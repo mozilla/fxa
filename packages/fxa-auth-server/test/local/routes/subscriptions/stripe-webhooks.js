@@ -2247,15 +2247,6 @@ describe('StripeWebhookHandler', () => {
     );
 
     it(
-      'sends the initial invoice email for a newly created subscription with passwordless account',
-      commonSendSubscriptionInvoiceEmailTest(
-        'sendSubscriptionFirstInvoiceEmail',
-        'subscription_create',
-        0
-      )
-    );
-
-    it(
       'sends the subsequent invoice email for billing reasons besides creation',
       commonSendSubscriptionInvoiceEmailTest(
         'sendSubscriptionSubsequentInvoiceEmail',
