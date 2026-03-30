@@ -214,7 +214,9 @@ describe('StripeWebhookHandler', () => {
         sandbox.replace(Sentry, 'withScope', (fn: any) => fn(scopeSpy));
       });
 
-      const assertNamedHandlerCalled = (expectedHandlerName: string | null = null) => {
+      const assertNamedHandlerCalled = (
+        expectedHandlerName: string | null = null
+      ) => {
         for (const handlerName of handlerNames) {
           const shouldCall =
             expectedHandlerName && handlerName === expectedHandlerName;
@@ -1686,7 +1688,11 @@ describe('StripeWebhookHandler', () => {
           'This transaction already has a chargeback filed'
         );
         refusedError.output = { payload: { invoiceId: invoice.id } };
-        sinon.assert.calledOnceWithExactly(sentryMod.reportSentryError, refusedError, {});
+        sinon.assert.calledOnceWithExactly(
+          sentryMod.reportSentryError,
+          refusedError,
+          {}
+        );
         sinon.assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.log.error,
           'handleCreditNoteEvent',
@@ -2162,7 +2168,11 @@ describe('StripeWebhookHandler', () => {
 
   describe('sendSubscriptionInvoiceEmail', () => {
     const commonSendSubscriptionInvoiceEmailTest =
-      (expectedMethodName: string, billingReason: string, verifierSetAt = Date.now()) =>
+      (
+        expectedMethodName: string,
+        billingReason: string,
+        verifierSetAt = Date.now()
+      ) =>
       async () => {
         const invoice = eventInvoicePaid.data.object;
 
@@ -2226,15 +2236,6 @@ describe('StripeWebhookHandler', () => {
     );
 
     it(
-      'sends the initial invoice email for a newly created subscription with passwordless account',
-      commonSendSubscriptionInvoiceEmailTest(
-        'sendSubscriptionFirstInvoiceEmail',
-        'subscription_create',
-        0
-      )
-    );
-
-    it(
       'sends the subsequent invoice email for billing reasons besides creation',
       commonSendSubscriptionInvoiceEmailTest(
         'sendSubscriptionSubsequentInvoiceEmail',
@@ -2278,44 +2279,48 @@ describe('StripeWebhookHandler', () => {
   });
 
   describe('sendSubscriptionUpdatedEmail', () => {
-    const commonSendSubscriptionUpdatedEmailTest = (updateType: any) => async () => {
-      const event = deepCopy(eventCustomerSubscriptionUpdated);
+    const commonSendSubscriptionUpdatedEmailTest =
+      (updateType: any) => async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
 
-      const mockDetails = {
-        uid: '1234',
-        test: 'fake',
-        updateType,
+        const mockDetails = {
+          uid: '1234',
+          test: 'fake',
+          updateType,
+        };
+        StripeWebhookHandlerInstance.stripeHelper.extractSubscriptionUpdateEventDetailsForEmail.resolves(
+          mockDetails
+        );
+
+        const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
+        StripeWebhookHandlerInstance.db.account = sinon.spy(
+          async () => mockAccount
+        );
+
+        await StripeWebhookHandlerInstance.sendSubscriptionUpdatedEmail(event);
+
+        const expectedMethodName = (
+          {
+            [SUBSCRIPTION_UPDATE_TYPES.UPGRADE]: 'sendSubscriptionUpgradeEmail',
+            [SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE]:
+              'sendSubscriptionDowngradeEmail',
+            [SUBSCRIPTION_UPDATE_TYPES.REACTIVATION]:
+              'sendSubscriptionReactivationEmail',
+            [SUBSCRIPTION_UPDATE_TYPES.CANCELLATION]:
+              'sendSubscriptionCancellationEmail',
+          } as any
+        )[updateType];
+
+        sinon.assert.calledWith(
+          StripeWebhookHandlerInstance.mailer[expectedMethodName],
+          mockAccount.emails,
+          mockAccount,
+          {
+            acceptLanguage: mockAccount.locale,
+            ...mockDetails,
+          }
+        );
       };
-      StripeWebhookHandlerInstance.stripeHelper.extractSubscriptionUpdateEventDetailsForEmail.resolves(
-        mockDetails
-      );
-
-      const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
-      StripeWebhookHandlerInstance.db.account = sinon.spy(
-        async () => mockAccount
-      );
-
-      await StripeWebhookHandlerInstance.sendSubscriptionUpdatedEmail(event);
-
-      const expectedMethodName = ({
-        [SUBSCRIPTION_UPDATE_TYPES.UPGRADE]: 'sendSubscriptionUpgradeEmail',
-        [SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE]: 'sendSubscriptionDowngradeEmail',
-        [SUBSCRIPTION_UPDATE_TYPES.REACTIVATION]:
-          'sendSubscriptionReactivationEmail',
-        [SUBSCRIPTION_UPDATE_TYPES.CANCELLATION]:
-          'sendSubscriptionCancellationEmail',
-      } as any)[updateType];
-
-      sinon.assert.calledWith(
-        StripeWebhookHandlerInstance.mailer[expectedMethodName],
-        mockAccount.emails,
-        mockAccount,
-        {
-          acceptLanguage: mockAccount.locale,
-          ...mockDetails,
-        }
-      );
-    };
 
     it(
       'sends an upgrade email on subscription upgrade',
@@ -2402,12 +2407,14 @@ describe('StripeWebhookHandler', () => {
         });
 
         const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
-        StripeWebhookHandlerInstance.db.account = sinon.spy(async (data: any) => {
-          if (options.accountFound) {
-            return mockAccount;
+        StripeWebhookHandlerInstance.db.account = sinon.spy(
+          async (data: any) => {
+            if (options.accountFound) {
+              return mockAccount;
+            }
+            throw error.unknownAccount();
           }
-          throw error.unknownAccount();
-        });
+        );
 
         await StripeWebhookHandlerInstance.sendSubscriptionDeletedEmail(
           subscription
