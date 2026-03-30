@@ -310,7 +310,7 @@ async function run(config) {
     ...config.redis,
     ...config.redis.passkey,
   });
-  const passkeyConfig = buildPasskeyConfig(config.passkeys, log);
+  const passkeyConfig = buildPasskeyConfig(config.passkeys);
   const passkeyManager = new PasskeyManager(
     accountDatabase,
     passkeyConfig,

@@ -68,6 +68,8 @@ import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
+import { PasskeyService } from '@fxa/accounts/passkey';
+import type { Passkey } from '@fxa/shared/db/mysql/account';
 import { BOUNCE_TYPE_HARD } from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
 
@@ -2420,6 +2422,7 @@ export class AccountHandler {
       securityEventsResult,
       devicesResult,
       authorizedClientsResult,
+      passkeysResult,
     ] = await Promise.allSettled([
       this.db.account(uid),
       this.db.accountEmails(uid),
@@ -2437,6 +2440,9 @@ export class AccountHandler {
       this.db.securityEventsByUid({ uid }),
       this.db.devices(uid),
       listAuthorizedClients(uid),
+      this.config.passkeys?.enabled
+        ? Container.get(PasskeyService).listPasskeysForUser(Buffer.from(uid))
+        : Promise.resolve([]),
     ]);
 
     const recoveryPhoneAvailable =
@@ -2534,6 +2540,33 @@ export class AccountHandler {
           )
         : [];
 
+    const passkeys =
+      passkeysResult.status === 'fulfilled'
+        ? (passkeysResult.value as Passkey[]).map(
+            ({
+              credentialId,
+              name,
+              createdAt,
+              lastUsedAt,
+              transports,
+              aaguid,
+              backupEligible,
+              backupState,
+              prfEnabled,
+            }) => ({
+              credentialId: credentialId.toString('base64url'),
+              name,
+              createdAt,
+              lastUsedAt,
+              transports,
+              aaguid: aaguid.toString('base64url'),
+              backupEligible,
+              backupState,
+              prfEnabled,
+            })
+          )
+        : [];
+
     // Fetch subscriptions (separate block due to complexity)
     let webSubscriptions: Awaited<WebSubscription[]> = [];
     let iapGooglePlaySubscriptions: Awaited<PlayStoreSubscription[]> = [];
@@ -2571,23 +2604,18 @@ export class AccountHandler {
     }
 
     return {
-      // Account metadata
       createdAt: account.createdAt,
       passwordCreatedAt: account.verifierSetAt,
       metricsOptOutAt: account.metricsOptOutAt,
       hasPassword: account.verifierSetAt > 0,
-      // Emails
       emails: formattedEmails,
-      // Linked accounts
       linkedAccounts,
-      // 2FA status
       totp,
       backupCodes,
       recoveryKey,
       recoveryPhone,
-      // Security events
       securityEvents,
-      // Subscriptions
+      passkeys,
       subscriptions: [
         ...iapGooglePlaySubscriptions,
         ...iapAppStoreSubscriptions,
@@ -3221,6 +3249,22 @@ export const accountRoutes = (
                   name: isA.string().required(),
                   createdAt: isA.number().required(),
                   verified: isA.boolean().required(),
+                })
+              )
+              .optional(),
+            passkeys: isA
+              .array()
+              .items(
+                isA.object({
+                  credentialId: isA.string().required(),
+                  name: isA.string().required(),
+                  createdAt: isA.number().required(),
+                  lastUsedAt: isA.number().allow(null).required(),
+                  transports: isA.array().items(isA.string()).required(),
+                  aaguid: isA.string().required(),
+                  backupEligible: isA.boolean().required(),
+                  backupState: isA.boolean().required(),
+                  prfEnabled: isA.boolean().required(),
                 })
               )
               .optional(),

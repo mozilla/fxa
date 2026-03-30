@@ -248,7 +248,7 @@ export class PasskeyService {
     uid: Buffer,
     credentialId: Buffer,
     newName: string
-  ): Promise<void> {
+  ): Promise<Passkey> {
     const trimmed = newName.trim();
     if (
       !trimmed ||
@@ -278,8 +278,19 @@ export class PasskeyService {
       throw AppError.passkeyNotFound();
     }
 
+    const passkey =
+      await this.passkeyManager.findPasskeyByCredentialId(credentialId);
+    if (!passkey) {
+      this.metrics.increment('passkey.rename.failed', {
+        reason: 'notFound',
+      });
+      throw AppError.passkeyNotFound();
+    }
+
     this.metrics.increment('passkey.rename.success');
     this.log?.log('passkey.renamed', { uid: uid.toString('hex') });
+
+    return passkey;
   }
 
   /**
