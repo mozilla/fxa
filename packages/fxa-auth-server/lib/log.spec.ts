@@ -3,39 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-const validEvent = {
-  op: 'amplitudeEvent',
-  event_type: 'fxa_activity - access_token_checked',
-  time: 1585240759486,
-  device_id: '49e7b88cb0e04dc584952e3c500daa53',
-  user_id: 'a3333daf1de440b3bcb46745db613bbc',
-  app_version: '163.1',
-  event_properties: {
-    service: 'fxa-settings',
-    oauth_client_id: '98e6508e88680e1a',
-  },
-  user_properties: {
-    flow_id:
-      '1ce137da67f8d5a2e5e55fafaca0a14088f015f1d6cdf25400f9fe22226ad5a6',
-    ua_browser: 'Firefox',
-    ua_version: '76.0',
-    $append: {
-      account_recovery: false,
-      two_step_authentication: false,
-      emails: false,
-    },
-  },
-};
-
 describe('log', () => {
   let logger: Record<string, jest.Mock>;
   let mockMozlog: jest.Mock;
   let mockMozlogInstance: jest.Mock;
   let mockSentry: Record<string, jest.Mock>;
   let mockReportSentryMessage: jest.Mock;
-  let mockValidate: jest.Mock;
   let mockNotifierSend: jest.Mock;
-  let mockAmplitudeConfig: { schemaValidation: boolean };
   let sentryScope: { setContext: jest.Mock };
   let log: any;
 
@@ -62,9 +36,7 @@ describe('log', () => {
     };
 
     mockReportSentryMessage = jest.fn().mockReturnValue({});
-    mockValidate = jest.fn();
     mockNotifierSend = jest.fn();
-    mockAmplitudeConfig = { schemaValidation: true };
 
     jest.doMock('mozlog', () => mockMozlog);
     jest.doMock('@sentry/node', () => mockSentry);
@@ -74,8 +46,6 @@ describe('log', () => {
           switch (name) {
             case 'log':
               return { fmt: 'mozlog' };
-            case 'amplitude':
-              return mockAmplitudeConfig;
             case 'domain':
               return 'example.com';
             case 'oauth.clientIds':
@@ -94,9 +64,6 @@ describe('log', () => {
     }));
     jest.doMock('./oauth/validators', () => ({
       HEX_STRING: /^(?:[0-9a-f]{2})+$/,
-    }));
-    jest.doMock('fxa-shared', () => ({
-      metrics: { amplitude: { validate: mockValidate } },
     }));
 
     log = require('./log')({
@@ -144,8 +111,6 @@ describe('log', () => {
     expect(log.activityEvent.length).toBe(1);
     expect(typeof log.flowEvent).toBe('function');
     expect(log.flowEvent.length).toBe(1);
-    expect(typeof log.amplitudeEvent).toBe('function');
-    expect(log.amplitudeEvent.length).toBe(1);
     expect(typeof log.summary).toBe('function');
   });
 
@@ -348,199 +313,6 @@ describe('log', () => {
     expect(logger.error).not.toHaveBeenCalled();
     expect(logger.critical).not.toHaveBeenCalled();
     expect(logger.warn).not.toHaveBeenCalled();
-  });
-
-  it('.amplitudeEvent', () => {
-    log.amplitudeEvent(validEvent);
-
-    expect(logger.info).toHaveBeenCalledTimes(1);
-    const args = logger.info.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitudeEvent');
-    expect(args[1]).toEqual(validEvent);
-
-    expect(logger.debug).not.toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
-    expect(logger.critical).not.toHaveBeenCalled();
-    expect(logger.warn).not.toHaveBeenCalled();
-  });
-
-  it('.amplitudeEvent with missing data', () => {
-    log.amplitudeEvent();
-
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    const args = logger.error.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitude.missingData');
-    expect(args[1]).toEqual(expect.objectContaining({ data: undefined }));
-
-    expect(logger.info).not.toHaveBeenCalled();
-    expect(logger.debug).not.toHaveBeenCalled();
-    expect(logger.critical).not.toHaveBeenCalled();
-    expect(logger.warn).not.toHaveBeenCalled();
-  });
-
-  it('.amplitudeEvent with missing event_type', () => {
-    log.amplitudeEvent({ device_id: 'foo', user_id: 'bar' });
-
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    const args = logger.error.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitude.missingData');
-    expect(args[1]).toEqual(expect.objectContaining({
-      data: { device_id: 'foo', user_id: 'bar' },
-    }));
-
-    expect(logger.info).not.toHaveBeenCalled();
-    expect(logger.debug).not.toHaveBeenCalled();
-    expect(logger.critical).not.toHaveBeenCalled();
-    expect(logger.warn).not.toHaveBeenCalled();
-  });
-
-  it('.amplitudeEvent with missing device_id and user_id', () => {
-    log.amplitudeEvent({ event_type: 'foo' });
-
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    const args = logger.error.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitude.missingData');
-    expect(args[1]).toEqual(expect.objectContaining({ data: { event_type: 'foo' } }));
-
-    expect(logger.info).not.toHaveBeenCalled();
-    expect(logger.debug).not.toHaveBeenCalled();
-    expect(logger.critical).not.toHaveBeenCalled();
-    expect(logger.warn).not.toHaveBeenCalled();
-  });
-
-  it('.amplitudeEvent with missing device_id', () => {
-    const event = { ...validEvent, device_id: undefined };
-    log.amplitudeEvent(event);
-
-    expect(logger.info).toHaveBeenCalledTimes(1);
-    const args = logger.info.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitudeEvent');
-    expect(args[1]).toEqual(event);
-
-    expect(logger.debug).not.toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
-    expect(logger.critical).not.toHaveBeenCalled();
-    expect(logger.warn).not.toHaveBeenCalled();
-  });
-
-  it('.amplitudeEvent with missing user_id', () => {
-    const event = { ...validEvent, user_id: undefined };
-    log.amplitudeEvent(event);
-
-    expect(logger.info).toHaveBeenCalledTimes(1);
-    const args = logger.info.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitudeEvent');
-    expect(args[1]).toEqual(event);
-
-    expect(logger.debug).not.toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
-    expect(logger.critical).not.toHaveBeenCalled();
-    expect(logger.warn).not.toHaveBeenCalled();
-  });
-
-  it('.amplitudeEvent does not perform schema validation per configuration', () => {
-    mockAmplitudeConfig.schemaValidation = false;
-    const event = { ...validEvent, event_type: 'INVALID EVENT TYPE' };
-    log.amplitudeEvent(event);
-
-    expect(logger.error).not.toHaveBeenCalled();
-    expect(mockSentry.withScope).not.toHaveBeenCalled();
-    expect(logger.info).toHaveBeenCalledTimes(1);
-    expect(logger.info.mock.calls[0][0]).toBe('amplitudeEvent');
-    expect(logger.info.mock.calls[0][1]).toEqual(event);
-  });
-
-  it('.amplitudeEvent with invalid data is logged', () => {
-    const validationError = new Error(
-      'Invalid data: event/event_type must match pattern "^\\w+ - \\w+$"'
-    );
-    mockValidate.mockImplementation(() => {
-      throw validationError;
-    });
-
-    const event = { ...validEvent, event_type: 'INVALID EVENT TYPE' };
-    log.amplitudeEvent(event);
-
-    // logger.error was called with validation error
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error.mock.calls[0][0]).toBe('amplitude.validationError');
-    expect(logger.error.mock.calls[0][1].err.message).toBe(
-      'Invalid data: event/event_type must match pattern "^\\w+ - \\w+$"'
-    );
-    expect(logger.error.mock.calls[0][1].amplitudeEvent).toEqual(event);
-
-    // Sentry withScope was called
-    expect(mockSentry.withScope).toHaveBeenCalledTimes(1);
-    expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
-    expect(sentryScope.setContext.mock.calls[0][0]).toBe(
-      'amplitude.validationError'
-    );
-    expect(sentryScope.setContext.mock.calls[0][1].event_type).toBe(
-      'INVALID EVENT TYPE'
-    );
-    expect(sentryScope.setContext.mock.calls[0][1].flow_id).toBe(
-      '1ce137da67f8d5a2e5e55fafaca0a14088f015f1d6cdf25400f9fe22226ad5a6'
-    );
-    expect(sentryScope.setContext.mock.calls[0][1].error).toBe(
-      'Invalid data: event/event_type must match pattern "^\\w+ - \\w+$"'
-    );
-    expect(mockReportSentryMessage).toHaveBeenCalledTimes(1);
-    expect(mockReportSentryMessage).toHaveBeenCalledWith(
-      'Amplitude event failed validation',
-      'error'
-    );
-
-    // Event is still logged despite validation error
-    expect(logger.info).toHaveBeenCalledTimes(1);
-    expect(logger.info.mock.calls[0][0]).toBe('amplitudeEvent');
-    expect(logger.info.mock.calls[0][1]).toEqual(event);
-  });
-
-  it('.amplitudeEvent with multiple validation errors', () => {
-    const validationError = new Error(
-      "Invalid data: event must have required property 'time', event must have required property 'event_properties'"
-    );
-    mockValidate.mockImplementation(() => {
-      throw validationError;
-    });
-
-    const event = { ...validEvent };
-    delete (event as any).event_properties;
-    delete (event as any).time;
-
-    log.amplitudeEvent(event);
-
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error.mock.calls[0][0]).toBe('amplitude.validationError');
-    expect(logger.error.mock.calls[0][1].err.message).toBe(
-      "Invalid data: event must have required property 'time', event must have required property 'event_properties'"
-    );
-    expect(logger.error.mock.calls[0][1].amplitudeEvent).toEqual(event);
-
-    expect(mockSentry.withScope).toHaveBeenCalledTimes(1);
-    expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
-    expect(sentryScope.setContext.mock.calls[0][0]).toBe(
-      'amplitude.validationError'
-    );
-    expect(sentryScope.setContext.mock.calls[0][1].error).toBe(
-      "Invalid data: event must have required property 'time', event must have required property 'event_properties'"
-    );
-    expect(mockReportSentryMessage).toHaveBeenCalledTimes(1);
-    expect(mockReportSentryMessage).toHaveBeenCalledWith(
-      'Amplitude event failed validation',
-      'error'
-    );
-
-    // Event is still logged
-    expect(logger.info).toHaveBeenCalledTimes(1);
-    expect(logger.info.mock.calls[0][0]).toBe('amplitudeEvent');
-    expect(logger.info.mock.calls[0][1]).toEqual(event);
   });
 
   it('.error removes PII from error objects', () => {

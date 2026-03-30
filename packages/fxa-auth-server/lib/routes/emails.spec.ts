@@ -824,10 +824,6 @@ describe('/recovery_email/verify_code', () => {
           flowId: undefined,
         });
 
-        expect(mockLog.amplitudeEvent.callCount).toBe(1);
-        args = mockLog.amplitudeEvent.args[0];
-        expect(args[0].event_type).toBe('fxa_reg - email_confirmed');
-
         expect(mockLog.flowEvent.callCount).toBe(2);
         expect(mockLog.flowEvent.args[0][0].event).toBe(
           'email.verify_code.clicked'
@@ -862,14 +858,6 @@ describe('/recovery_email/verify_code', () => {
           'firefox-pilot',
         ]);
         expect(args[2].service).toBe('sync');
-
-        expect(mockLog.amplitudeEvent.callCount).toBe(2);
-        args = mockLog.amplitudeEvent.args[1];
-        expect(args[0].event_type).toBe('fxa_reg - email_confirmed');
-        expect(args[0].user_properties.newsletters).toEqual([
-          'test_pilot',
-          'firefox_pilot',
-        ]);
 
         expect(JSON.stringify(response)).toBe('{}');
       });

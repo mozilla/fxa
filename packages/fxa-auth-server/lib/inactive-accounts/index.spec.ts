@@ -11,21 +11,7 @@ import {
 } from '@fxa/shared/cloud-tasks';
 import { AppConfig } from '../types';
 
-// Fix proxyquire path resolution for test/mocks.js when loaded from a subdirectory.
-// proxyquire uses callsite detection which resolves relative to the spec file under Jest,
-// not relative to the file that calls proxyquire. From lib/inactive-accounts/, the path
-// '../lib/metrics/amplitude' incorrectly resolves to lib/lib/metrics/amplitude.
-jest.mock('proxyquire', () => {
-  const path = require('path');
-  const testDir = path.resolve(__dirname, '../../test');
-  return (id: string, _stubs: any) => {
-    const resolvedPath = path.resolve(testDir, id);
-    return require(resolvedPath);
-  };
-});
-
-// Mock fxa-shared/db/models/auth with EmailBounce (chainable query builder),
-// Account.metricsEnabled (needed by amplitude loaded via test/mocks.js),
+// Mock fxa-shared/db/models/auth with EmailBounce (chainable query builder)
 // and getAccountCustomerByUid.
 jest.mock('fxa-shared/db/models/auth', () => {
   const emailBounceInstance: any = {};

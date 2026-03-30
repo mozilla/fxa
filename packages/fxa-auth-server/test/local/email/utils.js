@@ -6,18 +6,13 @@
 
 const { assert } = require('chai');
 const { mockLog } = require('../../mocks');
-const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const { default: Container } = require('typedi');
 const { AccountEventsManager } = require('../../../lib/account-events');
 
-const amplitude = sinon.spy();
-const emailHelpers = proxyquire('../../../lib/email/utils/helpers', {
-  '../../metrics/amplitude': () => amplitude,
-});
+const emailHelpers = require('../../../lib/email/utils/helpers');
 
 describe('email utils helpers', () => {
-  afterEach(() => amplitude.resetHistory());
 
   describe('getHeaderValue', () => {
     it('works with message.mail.headers', () => {
@@ -79,106 +74,6 @@ describe('email utils helpers', () => {
       assert.equal(log.info.args[1][1].domain, 'gmail.com');
       assert.equal(log.info.args[2][1].domain, 'yahoo.com');
     });
-  });
-
-  it('logEmailEventSent should call amplitude correctly', async () => {
-    emailHelpers.logEmailEventSent(mockLog(), {
-      email: 'foo@example.com',
-      ccEmails: ['bar@example.com', 'baz@example.com'],
-      template: 'verifyEmail',
-      headers: [{ name: 'Content-Language', value: 'aaa' }],
-      deviceId: 'bbb',
-      flowBeginTime: 42,
-      flowId: 'ccc',
-      service: 'ddd',
-      templateVersion: 'eee',
-      uid: 'fff',
-      planId: 'planId',
-      productId: 'productId',
-    });
-    assert.equal(amplitude.callCount, 1);
-    const args = amplitude.args[0];
-    assert.equal(args.length, 4);
-    assert.equal(args[0], 'email.verifyEmail.sent');
-    args[1].app.devices = await args[1].app.devices;
-    assert.deepEqual(args[1], {
-      app: {
-        devices: [],
-        geo: {
-          location: {},
-        },
-        locale: 'aaa',
-        ua: {},
-      },
-      auth: {},
-      query: {},
-      payload: {},
-    });
-    assert.deepEqual(args[2], {
-      email_domain: 'other',
-      plan_id: 'planId',
-      product_id: 'productId',
-      service: 'ddd',
-      templateVersion: 'eee',
-      uid: 'fff',
-    });
-    assert.equal(args[3].device_id, 'bbb');
-    assert.equal(args[3].flow_id, 'ccc');
-    assert.equal(args[3].flowBeginTime, 42);
-    assert.ok(args[3].time > Date.now() - 1000);
-  });
-
-  it('logEmailEventFromMessage should call amplitude correctly', async () => {
-    emailHelpers.logEmailEventFromMessage(
-      mockLog(),
-      {
-        email: 'foo@example.com',
-        ccEmails: ['bar@example.com', 'baz@example.com'],
-        headers: [
-          { name: 'Content-Language', value: 'a' },
-          { name: 'X-Device-Id', value: 'b' },
-          { name: 'X-Flow-Begin-Time', value: 1 },
-          { name: 'X-Flow-Id', value: 'c' },
-          { name: 'X-Service-Id', value: 'd' },
-          { name: 'X-Template-Name', value: 'verifyLoginEmail' },
-          { name: 'X-Template-Version', value: 42 },
-          { name: 'X-Uid', value: 'e' },
-        ],
-        planId: 'planId',
-        productId: 'productId',
-      },
-      'bounced',
-      'gmail'
-    );
-    assert.equal(amplitude.callCount, 1);
-    const args = amplitude.args[0];
-    assert.equal(args.length, 4);
-    assert.equal(args[0], 'email.verifyLoginEmail.bounced');
-    args[1].app.devices = await args[1].app.devices;
-    assert.deepEqual(args[1], {
-      app: {
-        devices: [],
-        geo: {
-          location: {},
-        },
-        locale: 'a',
-        ua: {},
-      },
-      auth: {},
-      query: {},
-      payload: {},
-    });
-    assert.deepEqual(args[2], {
-      email_domain: 'gmail',
-      service: 'd',
-      templateVersion: 42,
-      uid: 'e',
-      plan_id: 'planId',
-      product_id: 'productId',
-    });
-    assert.equal(args[3].device_id, 'b');
-    assert.equal(args[3].flow_id, 'c');
-    assert.equal(args[3].flowBeginTime, 1);
   });
 
   describe('logErrorIfHeadersAreWeirdOrMissing', () => {

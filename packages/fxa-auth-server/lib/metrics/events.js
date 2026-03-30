@@ -82,8 +82,6 @@ function shouldLogFlowEvent(event, service) {
 }
 
 module.exports = (log, config, glean) => {
-  const amplitude = require('./amplitude')(log, config);
-
   return {
     /**
      * Asynchronously emit a flow event and/or an activity event.
@@ -131,13 +129,11 @@ module.exports = (log, config, glean) => {
         metricsContext = request.gatherMetricsContext({});
       }
 
-      await amplitude(event, request, data, metricsContext);
       if (isFlowCompleteSignal) {
         log.flowEvent({
           ...metricsContext,
           event: 'flow.complete',
         });
-        await amplitude('flow.complete', request, data, metricsContext);
 
         if (metricsContext.flowType === 'login') {
           glean.login.complete(request, { uid: data?.uid ?? '', reason: 'email' });

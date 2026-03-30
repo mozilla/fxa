@@ -891,14 +891,10 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
             service: req.payload.client_id,
           });
 
-          // We emit the `account.signed`
-          // event to signal to the flow it has been completed (see flowCompleteSignal).
-          // A "fxa_activity - cert_signed" event will be emitted since
-          // "account.signed" is mapped to it.  And cert_signed is used in a
-          // rollup to generate the "fxa_activity - active" event in Amplitude
-          // (ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1632635), where
-          // we need the 'service' event property to distinguish between sync
-          // and browser.
+          // We emit the `account.signed` event to signal to the flow it has
+          // been completed (see flowCompleteSignal). This emits an activityEvent
+          // used to track sync activity, where we need the 'service' event
+          // property to distinguish between sync and browser.
           if (
             scopeSet.contains(OAUTH_SCOPE_OLD_SYNC) &&
             // Desktop requests a profile scope token before adding the device

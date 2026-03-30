@@ -22,17 +22,9 @@ const { PriceManager } = require('@fxa/payments/customer');
 const { ProductConfigurationManager } = require('@fxa/shared/cms');
 const { FxaMailer } = require('../lib/senders/fxa-mailer');
 
-const proxyquire = require('proxyquire');
 const {
   OAuthClientInfoServiceName,
 } = require('../lib/senders/oauth_client_info');
-const amplitudeModule = proxyquire('../lib/metrics/amplitude', {
-  'fxa-shared/db/models/auth': {
-    Account: {
-      metricsEnabled: sinon.stub().resolves(true),
-    },
-  },
-});
 
 const CUSTOMS_METHOD_NAMES = [
   'check',
@@ -132,7 +124,6 @@ const DB_METHOD_NAMES = [
 
 const LOG_METHOD_NAMES = [
   'activityEvent',
-  'amplitudeEvent',
   'begin',
   'error',
   'flowEvent',
@@ -908,10 +899,7 @@ function generateMetricsContext() {
 }
 
 function mockRequest(data, errors) {
-  const events = proxyquire('../lib/metrics/events', {
-    './amplitude': amplitudeModule,
-  })(data.log || module.exports.mockLog(), {
-    amplitude: { rawEvents: false },
+  const events = require('../lib/metrics/events')(data.log || module.exports.mockLog(), {
     oauth: {
       clientIds: data.clientIds || {},
     },

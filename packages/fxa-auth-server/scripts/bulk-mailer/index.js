@@ -39,7 +39,6 @@ module.exports = async function (
   useVerboseLogging
 ) {
   const logMock = {
-    amplitudeEvent: () => {},
     error: console.error,
     info(msg) {
       if (useVerboseLogging) {

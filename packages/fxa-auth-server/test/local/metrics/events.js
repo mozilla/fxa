@@ -8,7 +8,6 @@ const { assert } = require('chai');
 const sinon = require('sinon');
 const log = {
   activityEvent: sinon.spy(),
-  amplitudeEvent: sinon.spy(),
   error: sinon.spy(),
   flowEvent: sinon.spy(),
   info: sinon.spy(),
@@ -16,20 +15,9 @@ const log = {
 };
 const mocks = require('../../mocks');
 const glean = mocks.mockGlean();
-const proxyquire = require('proxyquire');
-const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
-  'fxa-shared/db/models/auth': {
-    Account: {
-      metricsEnabled: sinon.stub().resolves(true),
-    },
-  },
-});
-const events = proxyquire('../../../lib/metrics/events', {
-  './amplitude': amplitudeModule,
-})(
+const events = require('../../../lib/metrics/events')(
   log,
   {
-    amplitude: { rawEvents: false },
     oauth: {
       clientIds: {},
     },
@@ -45,7 +33,6 @@ describe('metrics/events', () => {
 
   afterEach(() => {
     log.activityEvent.resetHistory();
-    log.amplitudeEvent.resetHistory();
     log.error.resetHistory();
     log.flowEvent.resetHistory();
   });
@@ -97,11 +84,6 @@ describe('metrics/events', () => {
         log.activityEvent.callCount,
         0,
         'log.activityEvent was not called'
-      );
-      assert.equal(
-        log.amplitudeEvent.callCount,
-        0,
-        'log.amplitudeEvent was not called'
       );
       assert.equal(
         metricsContext.gather.callCount,
@@ -173,11 +155,6 @@ describe('metrics/events', () => {
         'metricsContext.gather was passed an empty object'
       );
 
-      assert.equal(
-        log.amplitudeEvent.callCount,
-        0,
-        'log.amplitudeEvent was not called'
-      );
       assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
       assert.equal(
         metricsContext.clear.callCount,
@@ -224,11 +201,6 @@ describe('metrics/events', () => {
         'metricsContext.gather was called once'
       );
 
-      assert.equal(
-        log.amplitudeEvent.callCount,
-        0,
-        'log.amplitudeEvent was not called'
-      );
       assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
       assert.equal(
         metricsContext.clear.callCount,
@@ -270,11 +242,6 @@ describe('metrics/events', () => {
         'metricsContext.gather was called once'
       );
 
-      assert.equal(
-        log.amplitudeEvent.callCount,
-        0,
-        'log.amplitudeEvent was not called'
-      );
       assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
       assert.equal(
         metricsContext.clear.callCount,
@@ -387,11 +354,6 @@ describe('metrics/events', () => {
           'log.activityEvent was not called'
         );
         assert.equal(
-          log.amplitudeEvent.callCount,
-          0,
-          'log.amplitudeEvent was not called'
-        );
-        assert.equal(
           metricsContext.clear.callCount,
           0,
           'metricsContext.clear was not called'
@@ -479,11 +441,6 @@ describe('metrics/events', () => {
           'log.activityEvent was not called'
         );
         assert.equal(
-          log.amplitudeEvent.callCount,
-          0,
-          'log.amplitudeEvent was not called'
-        );
-        assert.equal(
           metricsContext.clear.callCount,
           0,
           'metricsContext.clear was not called'
@@ -556,11 +513,6 @@ describe('metrics/events', () => {
           log.activityEvent.callCount,
           0,
           'log.activityEvent was not called'
-        );
-        assert.equal(
-          log.amplitudeEvent.callCount,
-          0,
-          'log.amplitudeEvent was not called'
         );
         assert.equal(
           metricsContext.clear.callCount,
@@ -637,11 +589,6 @@ describe('metrics/events', () => {
           'log.activityEvent was not called'
         );
         assert.equal(
-          log.amplitudeEvent.callCount,
-          0,
-          'log.amplitudeEvent was not called'
-        );
-        assert.equal(
           metricsContext.clear.callCount,
           0,
           'metricsContext.clear was not called'
@@ -713,11 +660,6 @@ describe('metrics/events', () => {
           log.activityEvent.callCount,
           0,
           'log.activityEvent was not called'
-        );
-        assert.equal(
-          log.amplitudeEvent.callCount,
-          0,
-          'log.amplitudeEvent was not called'
         );
         assert.equal(
           metricsContext.clear.callCount,
@@ -808,21 +750,6 @@ describe('metrics/events', () => {
           'argument was complete event data second time'
         );
 
-        assert.equal(
-          log.amplitudeEvent.callCount,
-          1,
-          'log.amplitudeEvent was called once'
-        );
-        assert.equal(
-          log.amplitudeEvent.args[0].length,
-          1,
-          'log.amplitudeEvent was passed one argument'
-        );
-        assert.equal(
-          log.amplitudeEvent.args[0][0].event_type,
-          'fxa_reg - complete',
-          'log.amplitudeEvent was passed correct event_type'
-        );
 
         assert.equal(
           metricsContext.clear.callCount,
@@ -890,11 +817,6 @@ describe('metrics/events', () => {
         0,
         'log.activityEvent was not called'
       );
-      assert.equal(
-        log.amplitudeEvent.callCount,
-        0,
-        'log.amplitudeEvent was not called'
-      );
       assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
       assert.equal(
         metricsContext.clear.callCount,
@@ -936,11 +858,6 @@ describe('metrics/events', () => {
         log.activityEvent.callCount,
         0,
         'log.activityEvent was not called'
-      );
-      assert.equal(
-        log.amplitudeEvent.callCount,
-        0,
-        'log.amplitudeEvent was not called'
       );
       assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
       assert.equal(
@@ -1029,11 +946,6 @@ describe('metrics/events', () => {
         );
 
         assert.equal(
-          log.amplitudeEvent.callCount,
-          0,
-          'log.amplitudeEvent was not called'
-        );
-        assert.equal(
           metricsContext.clear.callCount,
           0,
           'metricsContext.clear was not called'
@@ -1070,11 +982,6 @@ describe('metrics/events', () => {
         'metricsContext.gather was called once'
       );
 
-      assert.equal(
-        log.amplitudeEvent.callCount,
-        0,
-        'log.amplitudeEvent was not called'
-      );
       assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
       assert.equal(
         metricsContext.clear.callCount,
@@ -1108,46 +1015,6 @@ describe('metrics/events', () => {
         log.activityEvent.callCount,
         1,
         'log.activityEvent was called once'
-      );
-
-      assert.equal(
-        log.amplitudeEvent.callCount,
-        1,
-        'log.amplitudeEvent was called once'
-      );
-      assert.equal(
-        log.amplitudeEvent.args[0].length,
-        1,
-        'log.amplitudeEvent was passed one argument'
-      );
-      assert.equal(
-        log.amplitudeEvent.args[0][0].event_type,
-        'fxa_activity - cert_signed',
-        'log.amplitudeEvent was passed correct event_type'
-      );
-      assert.equal(
-        log.amplitudeEvent.args[0][0].device_id,
-        'foo',
-        'log.amplitudeEvent was passed correct device_id'
-      );
-      assert.equal(
-        log.amplitudeEvent.args[0][0].session_id,
-        flowBeginTime,
-        'log.amplitudeEvent was passed correct session_id'
-      );
-      assert.deepEqual(
-        log.amplitudeEvent.args[0][0].event_properties,
-        {},
-        'log.amplitudeEvent was passed correct event properties'
-      );
-      assert.deepEqual(
-        log.amplitudeEvent.args[0][0].user_properties,
-        {
-          flow_id: 'bar',
-          ua_browser: request.app.ua.browser,
-          ua_version: request.app.ua.browserVersion,
-        },
-        'log.amplitudeEvent was passed correct user properties'
       );
 
       assert.equal(
@@ -1185,17 +1052,6 @@ describe('metrics/events', () => {
     };
     return events.emit.call(request, 'account.signed', data).then(() => {
       assert.equal(
-        log.amplitudeEvent.callCount,
-        1,
-        'log.amplitudeEvent was called once'
-      );
-      assert.equal(
-        log.amplitudeEvent.args[0][0].event_properties.service,
-        'sync',
-        'log.amplitudeEvent was passed correct service'
-      );
-
-      assert.equal(
         log.activityEvent.callCount,
         1,
         'log.activityEvent was called once'
@@ -1225,11 +1081,6 @@ describe('metrics/events', () => {
     assert.equal(request.app.metricsEventUid, undefined);
     return events.emit.call(request, 'account.signed', data).then(() => {
       assert.equal(request.app.metricsEventUid, data.uid);
-      assert.equal(
-        log.amplitudeEvent.callCount,
-        0,
-        'log.amplitudeEvent was not called'
-      );
     });
   });
 

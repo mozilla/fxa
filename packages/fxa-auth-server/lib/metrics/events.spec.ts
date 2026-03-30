@@ -9,7 +9,6 @@ jest.mock('fxa-shared/db/models/auth', () => ({
 
 const log = {
   activityEvent: jest.fn(),
-  amplitudeEvent: jest.fn(),
   error: jest.fn(),
   flowEvent: jest.fn(),
   info: jest.fn(),
@@ -19,14 +18,11 @@ const log = {
 const mocks = require('../../test/mocks');
 const glean = mocks.mockGlean();
 
-// The jest.mock above ensures amplitude.js gets the mocked
-// fxa-shared/db/models/auth when events.js requires it.
 const eventsModule = require('./events');
 
 const events = eventsModule(
   log,
   {
-    amplitude: { rawEvents: false },
     oauth: {
       clientIds: {},
     },
@@ -43,7 +39,6 @@ describe('metrics/events', () => {
   afterEach(() => {
     jest.restoreAllMocks();
     log.activityEvent.mockClear();
-    log.amplitudeEvent.mockClear();
     log.error.mockClear();
     log.flowEvent.mockClear();
     log.trace.mockClear();
@@ -76,7 +71,7 @@ describe('metrics/events', () => {
     expect(args[1]).toEqual({ missingEvent: true });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(metricsContext.gather.callCount).toBe(0);
     expect(log.flowEvent).not.toHaveBeenCalled();
     expect(metricsContext.clear.callCount).toBe(0);
@@ -119,7 +114,7 @@ describe('metrics/events', () => {
     expect(args).toHaveLength(1);
     expect(args[0]).toEqual({});
 
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(log.flowEvent).not.toHaveBeenCalled();
     expect(metricsContext.clear.callCount).toBe(0);
     expect(log.error).not.toHaveBeenCalled();
@@ -150,7 +145,7 @@ describe('metrics/events', () => {
 
     expect(metricsContext.gather.callCount).toBe(1);
 
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(log.flowEvent).not.toHaveBeenCalled();
     expect(metricsContext.clear.callCount).toBe(0);
     expect(log.error).not.toHaveBeenCalled();
@@ -176,7 +171,7 @@ describe('metrics/events', () => {
 
     expect(metricsContext.gather.callCount).toBe(1);
 
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(log.flowEvent).not.toHaveBeenCalled();
     expect(metricsContext.clear.callCount).toBe(0);
     expect(log.error).not.toHaveBeenCalled();
@@ -250,7 +245,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(metricsContext.clear.callCount).toBe(0);
     expect(log.error).not.toHaveBeenCalled();
   });
@@ -313,7 +308,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(metricsContext.clear.callCount).toBe(0);
     expect(log.error).not.toHaveBeenCalled();
   });
@@ -365,7 +360,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(metricsContext.clear.callCount).toBe(0);
     expect(log.error).not.toHaveBeenCalled();
   });
@@ -417,7 +412,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(metricsContext.clear.callCount).toBe(0);
     expect(log.error).not.toHaveBeenCalled();
   });
@@ -466,7 +461,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(metricsContext.clear.callCount).toBe(0);
     expect(log.error).not.toHaveBeenCalled();
   });
@@ -534,12 +529,6 @@ describe('metrics/events', () => {
       clientJa4: 'test-ja4',
     });
 
-    expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
-    expect(log.amplitudeEvent.mock.calls[0]).toHaveLength(1);
-    expect(log.amplitudeEvent.mock.calls[0][0].event_type).toBe(
-      'fxa_reg - complete'
-    );
-
     expect(metricsContext.clear.callCount).toBe(1);
     expect(metricsContext.clear.args[0]).toHaveLength(0);
 
@@ -579,7 +568,7 @@ describe('metrics/events', () => {
     expect(metricsContext.gather.callCount).toBe(1);
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(log.flowEvent).not.toHaveBeenCalled();
     expect(metricsContext.clear.callCount).toBe(0);
   });
@@ -606,7 +595,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(log.flowEvent).not.toHaveBeenCalled();
     expect(metricsContext.clear.callCount).toBe(0);
   });
@@ -667,7 +656,7 @@ describe('metrics/events', () => {
       clientJa4: 'test-ja4',
     });
 
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(metricsContext.clear.callCount).toBe(0);
     expect(log.error).not.toHaveBeenCalled();
   });
@@ -690,7 +679,7 @@ describe('metrics/events', () => {
     expect(log.activityEvent).toHaveBeenCalledTimes(1);
     expect(metricsContext.gather.callCount).toBe(1);
 
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
     expect(log.flowEvent).not.toHaveBeenCalled();
     expect(metricsContext.clear.callCount).toBe(0);
     expect(log.error).not.toHaveBeenCalled();
@@ -719,19 +708,6 @@ describe('metrics/events', () => {
 
     expect(log.activityEvent).toHaveBeenCalledTimes(1);
 
-    expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
-    expect(log.amplitudeEvent.mock.calls[0]).toHaveLength(1);
-    expect(log.amplitudeEvent.mock.calls[0][0].event_type).toBe(
-      'fxa_activity - cert_signed'
-    );
-    expect(log.amplitudeEvent.mock.calls[0][0].device_id).toBe('foo');
-    expect(log.amplitudeEvent.mock.calls[0][0].session_id).toBe(flowBeginTime);
-    expect(log.amplitudeEvent.mock.calls[0][0].event_properties).toEqual({});
-    expect(log.amplitudeEvent.mock.calls[0][0].user_properties).toEqual({
-      flow_id: 'bar',
-      ua_browser: request.app.ua.browser,
-      ua_version: request.app.ua.browserVersion,
-    });
 
     expect(metricsContext.gather.callCount).toBe(1);
 
@@ -759,11 +735,6 @@ describe('metrics/events', () => {
     };
     await events.emit.call(request, 'account.signed', data);
 
-    expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
-    expect(log.amplitudeEvent.mock.calls[0][0].event_properties.service).toBe(
-      'sync'
-    );
-
     expect(log.activityEvent).toHaveBeenCalledTimes(1);
     expect(metricsContext.gather.callCount).toBe(1);
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
@@ -782,7 +753,7 @@ describe('metrics/events', () => {
     await events.emit.call(request, 'account.signed', data);
 
     expect(request.app.metricsEventUid).toBe(data.uid);
-    expect(log.amplitudeEvent).not.toHaveBeenCalled();
+
   });
 
   it('.emit sets metricsEventUid if provided in data', async () => {

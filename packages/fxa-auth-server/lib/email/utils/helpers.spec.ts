@@ -6,15 +6,10 @@ import sinon from 'sinon';
 import Container from 'typedi';
 import { AccountEventsManager } from '../../account-events';
 
-const amplitude = sinon.spy();
-
-jest.mock('../../../lib/metrics/amplitude', () => () => amplitude);
-
 const { mockLog } = require('../../../test/mocks');
 const emailHelpers = require('./helpers');
 
 describe('email utils helpers', () => {
-  afterEach(() => amplitude.resetHistory());
 
   describe('getHeaderValue', () => {
     it('works with message.mail.headers', () => {
@@ -76,106 +71,6 @@ describe('email utils helpers', () => {
       expect(log.info.args[1][1].domain).toBe('gmail.com');
       expect(log.info.args[2][1].domain).toBe('yahoo.com');
     });
-  });
-
-  it('logEmailEventSent should call amplitude correctly', async () => {
-    emailHelpers.logEmailEventSent(mockLog(), {
-      email: 'foo@example.com',
-      ccEmails: ['bar@example.com', 'baz@example.com'],
-      template: 'verifyEmail',
-      headers: [{ name: 'Content-Language', value: 'aaa' }],
-      deviceId: 'bbb',
-      flowBeginTime: 42,
-      flowId: 'ccc',
-      service: 'ddd',
-      templateVersion: 'eee',
-      uid: 'fff',
-      planId: 'planId',
-      productId: 'productId',
-    });
-    expect(amplitude.callCount).toBe(1);
-    const args = amplitude.args[0];
-    expect(args).toHaveLength(4);
-    expect(args[0]).toBe('email.verifyEmail.sent');
-    args[1].app.devices = await args[1].app.devices;
-    expect(args[1]).toEqual({
-      app: {
-        devices: [],
-        geo: {
-          location: {},
-        },
-        locale: 'aaa',
-        ua: {},
-      },
-      auth: {},
-      query: {},
-      payload: {},
-    });
-    expect(args[2]).toEqual({
-      email_domain: 'other',
-      plan_id: 'planId',
-      product_id: 'productId',
-      service: 'ddd',
-      templateVersion: 'eee',
-      uid: 'fff',
-    });
-    expect(args[3].device_id).toBe('bbb');
-    expect(args[3].flow_id).toBe('ccc');
-    expect(args[3].flowBeginTime).toBe(42);
-    expect(args[3].time).toBeGreaterThan(Date.now() - 1000);
-  });
-
-  it('logEmailEventFromMessage should call amplitude correctly', async () => {
-    emailHelpers.logEmailEventFromMessage(
-      mockLog(),
-      {
-        email: 'foo@example.com',
-        ccEmails: ['bar@example.com', 'baz@example.com'],
-        headers: [
-          { name: 'Content-Language', value: 'a' },
-          { name: 'X-Device-Id', value: 'b' },
-          { name: 'X-Flow-Begin-Time', value: 1 },
-          { name: 'X-Flow-Id', value: 'c' },
-          { name: 'X-Service-Id', value: 'd' },
-          { name: 'X-Template-Name', value: 'verifyLoginEmail' },
-          { name: 'X-Template-Version', value: 42 },
-          { name: 'X-Uid', value: 'e' },
-        ],
-        planId: 'planId',
-        productId: 'productId',
-      },
-      'bounced',
-      'gmail'
-    );
-    expect(amplitude.callCount).toBe(1);
-    const args = amplitude.args[0];
-    expect(args).toHaveLength(4);
-    expect(args[0]).toBe('email.verifyLoginEmail.bounced');
-    args[1].app.devices = await args[1].app.devices;
-    expect(args[1]).toEqual({
-      app: {
-        devices: [],
-        geo: {
-          location: {},
-        },
-        locale: 'a',
-        ua: {},
-      },
-      auth: {},
-      query: {},
-      payload: {},
-    });
-    expect(args[2]).toEqual({
-      email_domain: 'gmail',
-      service: 'd',
-      templateVersion: 42,
-      uid: 'e',
-      plan_id: 'planId',
-      product_id: 'productId',
-    });
-    expect(args[3].device_id).toBe('b');
-    expect(args[3].flow_id).toBe('c');
-    expect(args[3].flowBeginTime).toBe(1);
   });
 
   describe('logErrorIfHeadersAreWeirdOrMissing', () => {
