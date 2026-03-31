@@ -195,11 +195,12 @@ export const FormPassword = ({
                   return !passwordValidator.isSameAsEmail(value.toLowerCase());
                 },
                 uncommon: async (value: string) => {
-                  // @ts-ignore
-                  const list = await import('fxa-common-password-list');
+                  const { test: isCommon } = await import(
+                    '@fxa/vendored/common-password-list'
+                  );
                   const input = value.toLowerCase();
                   return (
-                    !list.test(input) && !passwordValidator.isBanned(input)
+                    !isCommon(input) && !passwordValidator.isBanned(input)
                   );
                 },
               },

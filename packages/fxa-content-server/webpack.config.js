@@ -82,6 +82,14 @@ const webpackConfig = {
       uuid: require.resolve('node-uuid/uuid'),
       vat: require.resolve('node-vat/vat'),
       'fxa-auth-client/browser': require.resolve('fxa-auth-client/browser'),
+      '@fxa/vendored/common-password-list': path.resolve(
+        __dirname,
+        '../../libs/vendored/common-password-list/src/index.ts'
+      ),
+      '@fxa/vendored/incremental-encoder': path.resolve(
+        __dirname,
+        '../../libs/vendored/incremental-encoder/src/index.ts'
+      ),
     },
   },
 
