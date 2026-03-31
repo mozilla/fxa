@@ -1,6 +1,7 @@
 ---
 name: fxa-simplify
 description: Simplifies and refines code in the FXA monorepo using project-specific conventions. Use when asked to simplify, clean up, or refine recently written code. Focuses on recently modified code unless instructed otherwise.
+argument-hint: Optional file paths to scope the review (e.g. "packages/fxa-auth-server/lib/foo.ts")
 context: fork
 ---
 
@@ -103,16 +104,22 @@ Avoid over-simplification that could:
 
 ## 7. Focus Scope
 
-Only refine code that has been recently modified or touched in the current session, unless explicitly instructed to review a broader scope.
+**Only refine lines that were actually changed in the diff.** Do not refine unchanged surrounding code, even if it could be improved. The goal is to keep the diff minimal and focused.
+
+- If file paths are provided via `$ARGUMENTS`, scope to those files only
+- Otherwise, run `git diff HEAD~1..HEAD --name-only` to find changed files, then `git diff HEAD~1..HEAD` to see the line-level changes
+- Within each file, only refine the lines that appear in the diff (added or modified lines), not the entire file
+- Exception: if a changed line introduces an obvious bug or inconsistency with adjacent unchanged code, note it but do not fix the unchanged code without asking
 
 ## Refinement Process
 
-1. Identify the recently modified code sections
-2. Determine which package/domain the code belongs to (auth-server, settings, libs, etc.)
-3. Apply the appropriate conventions for that domain
-4. Analyze for opportunities to improve elegance and consistency
-5. Ensure all functionality remains unchanged
-6. Verify the refined code is simpler and more maintainable
-7. Document only significant changes that affect understanding
+1. If `$ARGUMENTS` contains file paths, use those. Otherwise run `git diff HEAD~1..HEAD --name-only` to find changed files.
+2. Run `git diff HEAD~1..HEAD` to see the actual line-level changes
+3. For each changed file, only analyze and refine the lines that were added or modified in the diff
+4. Determine which package/domain the code belongs to (auth-server, settings, libs, etc.)
+5. Apply the appropriate conventions for that domain to the changed lines only
+6. Ensure all functionality remains unchanged
+7. Verify the refined code is simpler and more maintainable
+8. Document only significant changes that affect understanding
 
 Your goal is to ensure all code meets the highest standards of elegance and maintainability while preserving its complete functionality.
