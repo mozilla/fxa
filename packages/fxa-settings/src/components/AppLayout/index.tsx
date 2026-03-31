@@ -108,7 +108,7 @@ export const AppLayout = ({
             cmsBackgrounds?.header &&
               'mobileLandscape:[background:var(--cms-header-bg)]',
             // Absolute position so the background-image can optionally show through.
-            showSplitLayout && 'desktop:absolute'
+            showSplitLayout && !cmsBackgrounds?.header && 'desktop:absolute'
           )}
           style={
             cmsBackgrounds?.header
@@ -153,7 +153,12 @@ export const AppLayout = ({
                   </>
                 ) : wrapInCard ? (
                   <>
-                    <div className={classNames('card', widthClass)}>
+                    <div
+                      className={classNames(
+                        'card mobileLandscape:my-4',
+                        widthClass
+                      )}
+                    >
                       {children}
                     </div>
                   </>
@@ -207,7 +212,9 @@ export const AppLayout = ({
                     <CardLoadingSpinner />
                   </section>
                 ) : (
-                  <section className="card">{children}</section>
+                  <section className="card mobileLandscape:my-4">
+                    {children}
+                  </section>
                 )}
               </main>
               <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400 dark:text-grey-300">
