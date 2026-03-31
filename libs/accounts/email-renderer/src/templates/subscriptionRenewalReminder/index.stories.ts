@@ -98,3 +98,13 @@ export const MonthlyPlanNoTax = createStory(
   },
   'Monthly Plan - No Tax'
 );
+
+export const MonthlyPlanInclusiveTax = createStory(
+  {
+    showTax: false,
+    invoiceTotalExcludingTax: undefined,
+    invoiceTax: undefined,
+    invoiceTotal: '€4,99',
+  },
+  'Monthly Plan - Inclusive Tax (non-US)'
+);
