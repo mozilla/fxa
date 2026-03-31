@@ -1,0 +1,30 @@
+{
+  "name": "db-migrations",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/db-migrations",
+  "projectType": "library",
+  "tags": ["scope:shared:lib"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/db-migrations/**/*.js", "packages/db-migrations/**/*.mjs"]
+      }
+    },
+    "test-unit": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/db-migrations",
+        "command": "NODE_OPTIONS='--experimental-vm-modules' npx jest --no-coverage --forceExit --testPathPattern='^(?!.*\\.in\\.spec\\.js$).*\\.spec\\.js$'"
+      }
+    },
+    "test-integration": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/db-migrations",
+        "command": "NODE_OPTIONS='--experimental-vm-modules' npx jest --no-coverage --forceExit --testPathPattern='\\.in\\.spec\\.js$'"
+      }
+    }
+  }
+}
