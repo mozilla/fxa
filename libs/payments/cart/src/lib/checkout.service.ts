@@ -812,6 +812,7 @@ export class CheckoutService {
         proration_behavior: 'always_invoice',
         payment_behavior: 'default_incomplete',
         metadata: {
+          [STRIPE_SUBSCRIPTION_METADATA.CancelledForCustomerAt]: '',
           // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
           [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
           [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
