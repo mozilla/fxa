@@ -208,6 +208,36 @@ const SigninPasswordlessCode = ({
         sessionVerified: isSessionVerified,
       });
 
+      const navigationOptions = {
+        email,
+        signinData: {
+          uid: result.uid,
+          sessionToken: result.sessionToken,
+          emailVerified: true,
+          sessionVerified: isSessionVerified,
+          ...(result.verificationMethod && {
+            verificationMethod:
+              result.verificationMethod as VerificationMethods,
+          }),
+          ...(result.verificationReason && {
+            verificationReason:
+              result.verificationReason as VerificationReasons,
+          }),
+        },
+        integration,
+        finishOAuthFlowHandler,
+        redirectTo:
+          isWebIntegration(integration) && webRedirectCheck?.isValid
+            ? integration.data.redirectTo
+            : '',
+        queryParams: location.search,
+        handleFxaLogin: true,
+        handleFxaOAuthLogin: true,
+        performNavigation: !(
+          integration.isFirefoxMobileClient() && isSessionVerified
+        ),
+      };
+
       // For existing users signing into Sync (signin flow), show merge warning
       // before navigating to set password. For signup flows, the warning was
       // already shown on the email-first page.
@@ -306,7 +336,12 @@ const SigninPasswordlessCode = ({
                 redirect,
                 state,
               });
-              goToSettingsWithAlertSuccess();
+              const { error: navError } = await handleNavigation(navigationOptions);
+              if (navError) {
+                setLocalizedErrorBannerMessage(
+                  getLocalizedErrorMessage(ftlMsgResolver, navError)
+                );
+              }
             } else {
               // Navigate to relying party
               hardNavigate(redirect, {
@@ -336,35 +371,6 @@ const SigninPasswordlessCode = ({
           }
         }
       } else {
-        const navigationOptions = {
-          email,
-          signinData: {
-            uid: result.uid,
-            sessionToken: result.sessionToken,
-            emailVerified: true,
-            sessionVerified: isSessionVerified,
-            ...(result.verificationMethod && {
-              verificationMethod:
-                result.verificationMethod as VerificationMethods,
-            }),
-            ...(result.verificationReason && {
-              verificationReason:
-                result.verificationReason as VerificationReasons,
-            }),
-          },
-          integration,
-          finishOAuthFlowHandler,
-          redirectTo:
-            isWebIntegration(integration) && webRedirectCheck?.isValid
-              ? integration.data.redirectTo
-              : '',
-          queryParams: location.search,
-          handleFxaLogin: true,
-          handleFxaOAuthLogin: true,
-          performNavigation: !(
-            integration.isFirefoxMobileClient() && isSessionVerified
-          ),
-        };
         const { error: navError } = await handleNavigation(navigationOptions);
         if (navError) {
           setLocalizedErrorBannerMessage(
