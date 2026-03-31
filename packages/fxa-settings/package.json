@@ -81,7 +81,9 @@
       "@fxa/shared/metrics/glean": "<rootDir>/../../libs/shared/metrics/glean/src/index.ts",
       "^@fxa/shared/assets(.*)$": "<rootDir>/../../libs/shared/assets/src$1",
       "@fxa/accounts/errors": "<rootDir>/../../libs/accounts/errors/src/index.ts",
-      "@fxa/accounts/oauth": "<rootDir>/../../libs/accounts/oauth/src/index.ts"
+      "@fxa/accounts/oauth": "<rootDir>/../../libs/accounts/oauth/src/index.ts",
+      "@fxa/vendored/common-password-list": "<rootDir>/../../libs/vendored/common-password-list/src/index.ts",
+      "@fxa/vendored/incremental-encoder": "<rootDir>/../../libs/vendored/incremental-encoder/src/index.ts"
     },
     "moduleFileExtensions": [
       "web.js",
@@ -155,7 +157,6 @@
     "file-saver": "^2.0.5",
     "fs-extra": "^11.2.0",
     "fxa-auth-client": "workspace:*",
-    "fxa-common-password-list": "^0.0.4",
     "fxa-react": "workspace:*",
     "html-webpack-plugin": "^5.6.0",
     "identity-obj-proxy": "^3.0.0",

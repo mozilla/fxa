@@ -57,7 +57,6 @@
     "fast-text-encoding": "^1.0.4",
     "fxa-auth-client": "workspace:*",
     "fxa-auth-server": "workspace:*",
-    "fxa-common-password-list": "0.0.4",
     "fxa-geodb": "workspace:*",
     "fxa-mustache-loader": "0.0.2",
     "fxa-pairing-channel": "1.0.2",
