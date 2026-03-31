@@ -9,7 +9,10 @@ import { DateTime, Duration, Interval } from 'luxon';
 import { reportSentryError } from '../sentry';
 import { SentEmailParams, Plan } from 'fxa-shared/subscriptions/types';
 import { StripeHelper } from './stripe';
-import { SentEmail } from 'fxa-shared/db/models/auth';
+import {
+  getUidAndEmailByStripeCustomerId,
+  SentEmail,
+} from 'fxa-shared/db/models/auth';
 import {
   getSubplatIntervalFromSubscription,
   SubplatInterval,
@@ -21,7 +24,10 @@ import type { ChurnInterventionService } from '@fxa/payments/management';
 import type { ProductConfigurationManager } from '@fxa/shared/cms';
 import type { StatsD } from 'hot-shots';
 
-type EmailType = 'subscriptionRenewalReminder' | 'subscriptionEndingReminder';
+type EmailType =
+  | 'subscriptionRenewalReminder'
+  | 'subscriptionEndingReminder'
+  | 'freeTrialEndingReminder';
 
 // Translate dict from Stripe.Plan.interval to corresponding Duration properties
 const planIntervalsToDuration = {
@@ -37,6 +43,8 @@ interface EndingRemindersOptions {
   dailyReminderDays?: number;
   monthlyReminderDays: number;
   yearlyReminderDays: number;
+  freeTrialReminderDays?: number;
+  freeTrialEndRemindersEnabled: boolean;
 }
 
 interface RenewalRemindersOptions {
@@ -55,6 +63,8 @@ export class SubscriptionReminders {
   private dailyEndingReminderDuration: Duration | undefined;
   private monthlyEndingReminderDuration: Duration;
   private yearlyEndingReminderDuration: Duration;
+  private freeTrialEndingReminderDuration: Duration | undefined;
+  private freeTrialEndingReminderEnabled: boolean;
   private paymentsNextUrl: string;
   private stripeHelper: StripeHelper;
   private subscriptionManager: SubscriptionManager;
@@ -104,6 +114,12 @@ export class SubscriptionReminders {
     this.yearlyEndingReminderDuration = Duration.fromObject({
       days: endingReminderOptions.yearlyReminderDays,
     });
+    if (endingReminderOptions.freeTrialReminderDays) {
+      this.freeTrialEndingReminderDuration = Duration.fromObject({
+        days: endingReminderOptions.freeTrialReminderDays,
+      });
+    }
+    this.freeTrialEndingReminderEnabled = endingReminderOptions.freeTrialEndRemindersEnabled;
     this.paymentsNextUrl = endingReminderOptions.paymentsNextUrl;
     this.stripeHelper = stripeHelper;
     this.subscriptionManager = subscriptionManager;
@@ -171,11 +187,12 @@ export class SubscriptionReminders {
   async sendSubscriptionEndingReminderEmail(
     subscription: StripeSubscription
   ): Promise<boolean> {
-    const customer = await this.customerManager.retrieve(subscription.customer);
-    const uid = customer.metadata?.userid;
+    const { uid } = await getUidAndEmailByStripeCustomerId(
+      subscription.customer
+    );
     if (!uid) {
       this.log.error('sendSubscriptionEndingReminderEmail', {
-        customer,
+        customerId: subscription.customer,
         subscriptionId: subscription.id,
       });
       reportSentryError(
@@ -272,12 +289,112 @@ export class SubscriptionReminders {
   }
 
   /**
+   * Send out a free trial ending reminder email if we haven't already sent one.
+   */
+  async sendFreeTrialEndingReminderEmail(
+    subscription: StripeSubscription
+  ): Promise<boolean> {
+    const { uid } = await getUidAndEmailByStripeCustomerId(
+      subscription.customer
+    );
+    if (!uid) {
+      this.log.error('sendFreeTrialEndingReminderEmail', {
+        customerId: subscription.customer,
+        subscriptionId: subscription.id,
+      });
+      reportSentryError(
+        new Error(
+          `No uid found for the customer for subscription: ${subscription.id}.`
+        )
+      );
+      return false;
+    }
+    const emailParams = { subscriptionId: subscription.id };
+    if (
+      await this.alreadySentEmail(
+        uid,
+        Math.floor(subscription.current_period_end * 1000),
+        emailParams,
+        'freeTrialEndingReminder'
+      )
+    ) {
+      return false;
+    }
+    try {
+      const account = await this.db.account(uid);
+      this.log.info('sendFreeTrialEndingReminderEmail', {
+        message: 'Sending a free trial ending reminder email.',
+        subscriptionId: subscription.id,
+        currentPeriodStart: subscription.current_period_start,
+        currentPeriodEnd: subscription.current_period_end,
+        currentDateMs: Date.now(),
+      });
+      const { email } = account;
+      const formattedSubscription =
+        await this.stripeHelper.formatSubscriptionForEmail(subscription);
+      const invoicePreview =
+        await this.stripeHelper.previewInvoiceBySubscriptionId({
+          subscriptionId: subscription.id,
+        });
+      const invoiceDiscountAmountInCents = (
+        invoicePreview.total_discount_amounts ?? []
+      ).reduce((sum, discountAmount) => sum + (discountAmount.amount ?? 0), 0);
+      const cmsPageContent =
+        await this.productConfigurationManager.getPageContentByPriceIds(
+          [formattedSubscription.planId],
+          account.locale
+        );
+      const purchase = cmsPageContent.purchaseForPriceId(
+        formattedSubscription.planId
+      );
+      await this.mailer.sendFreeTrialEndingReminderEmail(
+        account.emails,
+        account,
+        {
+          uid,
+          email,
+          icon:
+            purchase.offering.commonContent.localizations.at(0)?.emailIcon ||
+            purchase.offering.commonContent.emailIcon ||
+            purchase.purchaseDetails?.webIcon,
+          acceptLanguage: account.locale,
+          subscription: formattedSubscription,
+          productMetadata: formattedSubscription.productMetadata,
+          planConfig: formattedSubscription.planConfig,
+          serviceLastActiveDate: new Date(
+            subscription.current_period_end * 1000
+          ),
+          invoiceTotalInCents: invoicePreview.total,
+          invoiceSubtotalInCents: invoicePreview.subtotal,
+          invoiceDiscountAmountInCents,
+          invoiceTaxAmountInCents: invoicePreview.tax ?? 0,
+          invoiceTotalCurrency: invoicePreview.currency,
+          showTaxAmount: (invoicePreview.tax ?? 0) > 0,
+          showDiscount: invoiceDiscountAmountInCents > 0,
+          subscriptionSupportUrl:
+            purchase.offering.commonContent.localizations.at(0)?.supportUrl ||
+            purchase.offering.commonContent.supportUrl,
+        }
+      );
+      await this.updateSentEmail(uid, emailParams, 'freeTrialEndingReminder');
+      return true;
+    } catch (err) {
+      this.log.error('sendFreeTrialEndingReminderEmail', {
+        err,
+        subscriptionId: subscription.id,
+      });
+      reportSentryError(err);
+      return false;
+    }
+  }
+
+  /**
    * Determine if a discount is ending by checking that a discount currently exists
    * but will not be present on the upcoming invoice does not.
    */
   private hasDiscountEnding(
     currentDiscountId: string | null,
-    upcomingDiscountId: string | null,
+    upcomingDiscountId: string | null
   ): boolean {
     return !!currentDiscountId && !upcomingDiscountId;
   }
@@ -288,9 +405,13 @@ export class SubscriptionReminders {
    */
   private hasDifferentDiscount(
     currentDiscountId: string | null,
-    upcomingDiscountId: string | null,
+    upcomingDiscountId: string | null
   ): boolean {
-    return !!currentDiscountId && !!upcomingDiscountId && currentDiscountId !== upcomingDiscountId;
+    return (
+      !!currentDiscountId &&
+      !!upcomingDiscountId &&
+      currentDiscountId !== upcomingDiscountId
+    );
   }
 
   /**
@@ -352,13 +473,16 @@ export class SubscriptionReminders {
       if (typeof latestInvoice === 'string') {
         latestInvoice = await this.stripeHelper.getInvoice(latestInvoice);
       }
-      const currentDiscount = latestInvoice?.discount || latestInvoice?.discounts?.[0];
-      const currentDiscountId = typeof currentDiscount === 'string'
-        ? currentDiscount
-        : currentDiscount?.id ?? null;
+      const currentDiscount =
+        latestInvoice?.discount || latestInvoice?.discounts?.[0];
+      const currentDiscountId =
+        typeof currentDiscount === 'string'
+          ? currentDiscount
+          : (currentDiscount?.id ?? null);
 
       // Check upcoming invoice for upcoming discount
-      const upcomingDiscount = invoicePreview.discount || invoicePreview.discounts?.[0];
+      const upcomingDiscount =
+        invoicePreview.discount || invoicePreview.discounts?.[0];
       const upcomingDiscountId = upcomingDiscount
         ? typeof upcomingDiscount === 'string'
           ? upcomingDiscount
@@ -366,17 +490,26 @@ export class SubscriptionReminders {
         : null;
 
       // Detect if discount is ending
-      const discountEnding = this.hasDiscountEnding(currentDiscountId, upcomingDiscountId);
+      const discountEnding = this.hasDiscountEnding(
+        currentDiscountId,
+        upcomingDiscountId
+      );
       // Detect if renewal has a different discount
-      const hasDifferentDiscount = this.hasDifferentDiscount(currentDiscountId, upcomingDiscountId);
+      const hasDifferentDiscount = this.hasDifferentDiscount(
+        currentDiscountId,
+        upcomingDiscountId
+      );
 
       // Business rule: Monthly subscriptions only receive renewal reminders when a discount is ending,
       // to avoid notification fatigue for standard monthly renewals.
       if (interval === 'month' && !discountEnding) {
-        this.log.info('sendSubscriptionRenewalReminderEmail.skippingMonthlyNoDiscount', {
-          subscriptionId: subscription.id,
-          planId,
-        });
+        this.log.info(
+          'sendSubscriptionRenewalReminderEmail.skippingMonthlyNoDiscount',
+          {
+            subscriptionId: subscription.id,
+            planId,
+          }
+        );
         return false;
       }
 
@@ -472,6 +605,37 @@ export class SubscriptionReminders {
     );
   }
 
+  async sendFreeTrialEndingReminders(duration: Duration) {
+    this.log.info(
+      'sendFreeTrialEndingReminderEmail.sendFreeTrialEndingReminders.start',
+      { reminderLengthDays: duration.days }
+    );
+    this.statsd.increment('subscription-reminders.freeTrialEndingReminders');
+    let sendCount = 0;
+    const timePeriod = this.getStartAndEndTimes(duration);
+    for await (const subscription of this.subscriptionManager.listTrialingGenerator(
+      {
+        gte: timePeriod.start.toSeconds(),
+        lt: timePeriod.end.toSeconds(),
+      }
+    )) {
+      // Skip trialing subscriptions that have already been canceled
+      if (subscription.cancel_at_period_end) {
+        continue;
+      }
+
+      const emailSent =
+        await this.sendFreeTrialEndingReminderEmail(subscription);
+      if (emailSent) {
+        sendCount++;
+      }
+    }
+    this.log.info(
+      'sendFreeTrialEndingReminderEmail.sendFreeTrialEndingReminders.end',
+      { reminderLengthDays: duration.days, sendCount }
+    );
+  }
+
   /**
    * Send renewal reminders for a specific time period and reminder duration.
    */
@@ -550,7 +714,7 @@ export class SubscriptionReminders {
     );
     success = success && monthlySuccess;
 
-    // 4
+    // 4 - Send subscription ending reminders
     if (this.endingReminderEnabled) {
       // Daily
       if (this.dailyEndingReminderDuration) {
@@ -568,6 +732,16 @@ export class SubscriptionReminders {
       await this.sendEndingReminders(
         this.yearlyEndingReminderDuration,
         SubplatInterval.Yearly
+      );
+    }
+
+    // 5 - Send free trial ending reminders
+    if (
+      this.freeTrialEndingReminderEnabled &&
+      this.freeTrialEndingReminderDuration
+    ) {
+      await this.sendFreeTrialEndingReminders(
+        this.freeTrialEndingReminderDuration
       );
     }
 

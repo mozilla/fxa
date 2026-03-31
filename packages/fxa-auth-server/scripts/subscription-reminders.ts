@@ -25,6 +25,7 @@ const DEFAULT_YEARLY_RENEWAL_REMINDER_LENGTH = 15;
 const DEFAULT_ENDING_REMINDER_DAILY_LENGTH = 0;
 const DEFAULT_ENDING_REMINDER_MONTHLY_LENGTH = 7;
 const DEFAULT_ENDING_REMINDER_YEARLY_LENGTH = 14;
+const DEFAULT_FREE_TRIAL_ENDING_REMINDER_LENGTH = 1;
 
 async function init() {
   program
@@ -65,6 +66,16 @@ async function init() {
       'Reminder length in days before the yearly subscription ending date to send the reminder email. Defaults to 14.',
       DEFAULT_ENDING_REMINDER_YEARLY_LENGTH.toString()
     )
+    .option(
+      '--free-trial-ending-reminder-length [days]',
+      'Reminder length in days before the free trial ends to send the reminder email. Defaults to 1.',
+      DEFAULT_FREE_TRIAL_ENDING_REMINDER_LENGTH.toString()
+    )
+    .option(
+      '-t, --enable-free-trial-ending-reminders [boolean]',
+      'Enable the sending of free trial ending reminder emails. Defaults to false.',
+      false
+    )
     .parse(process.argv);
 
   const { log, database, senders, stripeHelper, config } =
@@ -103,6 +114,8 @@ async function init() {
       dailyReminderDays: parseInt(program.endingReminderDailyLength),
       monthlyReminderDays: parseInt(program.endingReminderMonthlyLength),
       yearlyReminderDays: parseInt(program.endingReminderYearlyLength),
+      freeTrialReminderDays: parseInt(program.freeTrialEndingReminderLength),
+      freeTrialEndRemindersEnabled: parseBooleanArg(program.enableFreeTrialEndingReminders),
     },
     {
       monthlyReminderDays: parseInt(program.monthlyRenewalReminderLength),

@@ -1,0 +1,125 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<%- include ('/partials/icon/index.mjml') %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="freeTrialEndingReminder-subject" data-l10n-args="<%= JSON.stringify({ productName }) %>">Your <%- productName %> free trial ends soon</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="freeTrialEndingReminder-content-greeting" data-l10n-args="<%= JSON.stringify({ productName }) %>">
+        Dear <%- productName %> customer,
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="freeTrialEndingReminder-content-trial-ending" data-l10n-args="<%= JSON.stringify({ serviceLastActiveDateOnly }) %>">
+        Your free trial is scheduled to end on <strong><%- serviceLastActiveDateOnly %></strong>.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="freeTrialEndingReminder-content-auto-charge" data-l10n-args="<%= JSON.stringify({ invoiceTotal, serviceLastActiveDateOnly }) %>">
+        Unless you cancel before then, your subscription will automatically begin and we'll charge <strong><%- invoiceTotal %></strong> to the payment method on your account on <strong><%- serviceLastActiveDateOnly %></strong>.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-title-table">
+      <span data-l10n-id="freeTrialEndingReminder-content-charge-heading">Charge details</span>
+    </mj-text>
+
+    <mj-text css-class="text-body-top-margin">
+      <table width="100%">
+        <tr style="line-height: 24px;">
+          <td style="text-align: start;">
+            <span data-l10n-id="freeTrialEndingReminder-content-charge-subscription" data-l10n-args="<%= JSON.stringify({ productName, invoiceSubtotal }) %>">
+              <%- productName %> subscription
+            </span>
+          </td>
+          <td style="text-align: end;">
+            <%- invoiceSubtotal %>
+          </td>
+        </tr>
+      </table>
+    </mj-text>
+
+    <% if (locals.showDiscount && locals.invoiceDiscountAmount) { %>
+    <mj-text css-class="text-body-table-no-bottom-margin">
+      <table width="100%">
+        <tr style="line-height: 24px; border-top: 1px solid #E0E0E6;">
+          <td style="text-align: start;">
+            <span data-l10n-id="freeTrialEndingReminder-content-charge-discount" data-l10n-args="<%= JSON.stringify({ invoiceDiscountAmount }) %>">
+              Discount
+            </span>
+          </td>
+          <td style="text-align: end;">
+            <%- invoiceDiscountAmount %>
+          </td>
+        </tr>
+      </table>
+    </mj-text>
+    <% } %>
+
+    <% if (locals.showTaxAmount && locals.invoiceTaxAmount) { %>
+    <mj-text css-class="text-body-table-no-bottom-margin">
+      <table width="100%">
+        <tr style="line-height: 24px; border-top: 1px solid #E0E0E6;">
+          <td style="text-align: start;">
+            <span data-l10n-id="freeTrialEndingReminder-content-charge-tax" data-l10n-args="<%= JSON.stringify({ invoiceTaxAmount }) %>">
+              Tax
+            </span>
+          </td>
+          <td style="text-align: end;">
+            <%- invoiceTaxAmount %>
+          </td>
+        </tr>
+      </table>
+    </mj-text>
+    <% } %>
+
+    <mj-text css-class="text-body">
+      <table width="100%">
+        <tr style="line-height: 24px; border-top: 1px solid grey;">
+          <td style="text-align: start; padding: 4px 0;">
+            <span data-l10n-id="freeTrialEndingReminder-content-charge-total" data-l10n-args="<%= JSON.stringify({ serviceLastActiveDateOnly, invoiceTotal }) %>">
+              <b>Total due on <%- serviceLastActiveDateOnly %></b>
+            </span>
+          </td>
+          <td style="text-align: end; padding: 4px 0;">
+            <b><%- invoiceTotal %></b>
+          </td>
+        </tr>
+      </table>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="freeTrialEndingReminder-content-account-link" data-l10n-args="<%= JSON.stringify({ updateBillingUrl }) %>">
+        You can review or update your payment method and account information <a href="<%- updateBillingUrl %>" class="link-blue" data-l10n-name="freeTrialEndingReminder-update-billing">here</a>.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="freeTrialEndingReminder-content-cancel-link" data-l10n-args="<%= JSON.stringify({ serviceLastActiveDateOnly, cancelSubscriptionUrl }) %>">
+        To avoid being charged, cancel before <strong><%- serviceLastActiveDateOnly %></strong>: <a href="<%- cancelSubscriptionUrl %>" class="link-blue" data-l10n-name="freeTrialEndingReminder-cancel-subscription">Cancel subscription</a>
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="freeTrialEndingReminder-content-thanks" data-l10n-args="<%= JSON.stringify({ productName, subscriptionSupportUrlWithUtm }) %>">
+        Thank you for trying <%- productName %>. If you have any questions about your trial or subscription, please <a href="<%- subscriptionSupportUrlWithUtm %>" class="link-blue" data-l10n-name="freeTrialEndingReminder-contact-support">contact us</a>.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body-no-bottom-margin">
+      <span data-l10n-id="freeTrialEndingReminder-content-closing">Sincerely,</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="freeTrialEndingReminder-content-signature" data-l10n-args="<%= JSON.stringify({ productName }) %>">The <%- productName %> team</span>
+    </mj-text>
+  </mj-column>
+</mj-section>

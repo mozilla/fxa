@@ -189,6 +189,12 @@ function sendMail(mailer, messageToSend) {
       },
     ],
     planConfig,
+    subscriptionSupportUrl: 'https://support.mozilla.org/products/vpn',
+    invoiceSubtotalInCents: 1299,
+    invoiceDiscountAmountInCents: 300,
+    invoiceTaxAmountInCents: 120,
+    showTaxAmount: true,
+    showDiscount: true,
   };
 
   return mailer[messageType](message);
