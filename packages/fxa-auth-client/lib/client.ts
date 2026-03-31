@@ -308,6 +308,9 @@ export default class AuthClient {
     const includeCredentials = [
       '/account/create',
       '/password/forgot/send_otp',
+      '/account/passwordless/send_code',
+      '/account/passwordless/confirm_code',
+      '/account/passwordless/resend_code',
     ].some((endpoint) => path.startsWith(endpoint));
 
     if (includeCredentials && new URL(this.uri).protocol === 'https:') {
@@ -1231,7 +1234,11 @@ export default class AuthClient {
    */
   async passwordlessSendCode(
     email: string,
-    options: { clientId?: string; service?: string; metricsContext?: MetricsContext } = {},
+    options: {
+      clientId?: string;
+      service?: string;
+      metricsContext?: MetricsContext;
+    } = {},
     headers?: Headers
   ): Promise<{}> {
     return this.request(
@@ -1248,7 +1255,11 @@ export default class AuthClient {
   async passwordlessConfirmCode(
     email: string,
     code: string,
-    options: { clientId?: string; service?: string; metricsContext?: MetricsContext } = {},
+    options: {
+      clientId?: string;
+      service?: string;
+      metricsContext?: MetricsContext;
+    } = {},
     headers?: Headers
   ): Promise<{
     uid: string;
@@ -1272,7 +1283,11 @@ export default class AuthClient {
    */
   async passwordlessResendCode(
     email: string,
-    options: { clientId?: string; service?: string; metricsContext?: MetricsContext } = {},
+    options: {
+      clientId?: string;
+      service?: string;
+      metricsContext?: MetricsContext;
+    } = {},
     headers?: Headers
   ): Promise<{}> {
     return this.request(
