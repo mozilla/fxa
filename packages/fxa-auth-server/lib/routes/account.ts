@@ -87,7 +87,6 @@ export class AccountHandler {
 
   private otpUtils: OtpUtils;
   private otpOptions: ConfigType['otp'];
-  private skipConfirmationForEmailAddresses: string[];
   private skipConfirmationForEmailRegex: RegExp;
   private capabilityService: CapabilityService;
   private accountEventsManager: AccountEventsManager;
@@ -117,8 +116,6 @@ export class AccountHandler {
     private authServerCacheRedis: Redis
   ) {
     this.otpUtils = require('./utils/otp').default(db, statsd);
-    this.skipConfirmationForEmailAddresses = config.signinConfirmation
-      .skipForEmailAddresses as string[];
     this.skipConfirmationForEmailRegex =
       config.signinConfirmation.skipForEmailRegex;
 
@@ -1264,9 +1261,6 @@ export class AccountHandler {
       // to guarantee the login experience.
       const lowerCaseEmail = account.primaryEmail.normalizedEmail.toLowerCase();
       const alwaysSkip =
-        this.skipConfirmationForEmailAddresses?.includes(lowerCaseEmail) ||
-        // use both as a backward compatibility and eventually remove
-        // the array of emails in favor of just a regex which is more flexible
         this.skipConfirmationForEmailRegex?.test(lowerCaseEmail);
       if (alwaysSkip) {
         this.log.info('account.signin.confirm.bypass.emailAlways', {
