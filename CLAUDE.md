@@ -6,6 +6,7 @@ Security takes **absolute precedence**. This repository handles Mozilla authenti
 
 - Operate strictly under `<FXA_REPO_ROOT>`; normalize paths; do not follow symlinks outside the repo.
 - **Writes allowed** to working tree; always present a diff for review **before** any staging/commit.
+- Do not modify files adjacent to the requested change; mention issues found but do not fix them.
 - **Ask first** for any command (build/test/install, DB ops, git, services). Do **not** run `git add/commit/push/rebase` unless explicitly told to.
 
 ## 2) Non-Negotiables
@@ -76,3 +77,27 @@ _Note:_ This is a general overview and may vary per library/package. For authori
   **Never edit existing published migration files.**
 
 > When asked, show the exact minimal command block you intend to run; wait for approval.
+
+## 6) Git Commit Messages
+
+Follow the commit message format defined in [CONTRIBUTING.md — Git Commit Guidelines](https://github.com/mozilla/fxa/blob/main/CONTRIBUTING.md#git-commit-guidelines) and the `~/.gitmessage` template configured globally.
+
+Key points: `type(scope): subject` format; imperative present tense subject; `Because:` / `This commit:` body sections; `Fixes #N` footer for issues.
+
+## 7) Available Skills
+
+Suggest these proactively when the task matches — do not wait to be asked.
+
+| Skill                           | Use when                                                                                    |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| `/fxa-review`                   | Before merging — thorough parallel review covering security, TS, logic, tests, architecture |
+| `/fxa-review-quick`             | Quick pre-merge check, single pass, no subagents                                            |
+| `/fxa-security-review`          | Landing auth, session, crypto, or payment changes                                           |
+| `/fxa-jira-feature-description` | Writing a Jira description for a new feature or enhancement                                 |
+| `/fxa-jira-bug-description`     | Filing a bug report                                                                         |
+| `/fxa-check-smells`             | Suspecting code quality issues in changed files                                             |
+| `/fxa-check-react`              | Reviewing React/TSX component changes                                                       |
+| `/fxa-check-docs`               | Improving docs, JSDoc, or README in changed files                                           |
+| `/fxa-explain-code`             | Understanding what changed and why                                                          |
+| `/fxa-simplify`                 | Cleaning up recently written code                                                           |
+| `/fxa-check-githistory`         | Checking for regressions or conflicts with past fixes                                       |
