@@ -6,6 +6,8 @@ import { RootConfig } from '../config';
 import {
   CmsWebhooksController,
   CmsWebhookService,
+  FxaWebhooksController,
+  FxaWebhookService,
   StripeEventManager,
   StripeWebhooksController,
   StripeWebhookService,
@@ -56,7 +58,7 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
       }),
     }),
   ],
-  controllers: [AppController, CmsWebhooksController, StripeWebhooksController],
+  controllers: [AppController, CmsWebhooksController, FxaWebhooksController, StripeWebhooksController],
   providers: [
     Logger,
     AccountDatabaseNestFactory,
@@ -87,6 +89,7 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
     StrapiClient,
     CmsContentValidationManager,
     CmsWebhookService,
+    FxaWebhookService,
     NimbusManager,
     NimbusManagerConfig,
     NimbusClient,
