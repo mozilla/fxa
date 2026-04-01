@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
 
@@ -24,6 +23,7 @@ const amplitudeModule = require('./amplitude');
 const mockAmplitudeConfig = {
   schemaValidation: true,
   rawEvents: false,
+  enabled: true,
 };
 
 const DAY = 1000 * 60 * 60 * 24;
@@ -69,9 +69,40 @@ describe('metrics/amplitude', () => {
       });
     });
 
+    afterEach(() => {
+      mockAmplitudeConfig.enabled = true;
+    });
+
     it('interface is correct', () => {
       expect(typeof amplitude).toBe('function');
       expect(amplitude.length).toBe(2);
+    });
+
+    describe('disabling', () => {
+      it('does not log events when disabled', async () => {
+        // disable config and re-instantiate amplitude for just this test
+        mockAmplitudeConfig.enabled = false;
+        amplitude = amplitudeModule(log, {
+          amplitude: mockAmplitudeConfig,
+          oauth: {
+            clientIds: {
+              0: 'amo',
+              1: 'pocket',
+            },
+          },
+          verificationReminders: {
+            firstInterval: 1000,
+            secondInterval: 2000,
+            thirdInterval: 3000,
+          },
+        });
+
+        return amplitude('account.created', mocks.mockRequest({})).then(() => {
+          // could check other things, but this is the important one that
+          // we want to disable when config.enabled is false
+          expect(log.amplitudeEvent.callCount).toBe(0);
+        });
+      });
     });
 
     // -----------------------------------------------------------------------
@@ -198,10 +229,7 @@ describe('metrics/amplitude', () => {
           1,
           'amplitude.event.raw'
         );
-        expect(statsd.increment).toHaveBeenNthCalledWith(
-          2,
-          'amplitude.event'
-        );
+        expect(statsd.increment).toHaveBeenNthCalledWith(2, 'amplitude.event');
       });
     });
 
@@ -401,9 +429,7 @@ describe('metrics/amplitude', () => {
         expect(args[0].user_properties['$append']).toEqual({
           fxa_services_used: 'undefined_oauth',
         });
-        expect(args[0].user_properties.sync_active_devices_day).toBe(
-          undefined
-        );
+        expect(args[0].user_properties.sync_active_devices_day).toBe(undefined);
         expect(args[0].user_properties.sync_active_devices_week).toBe(
           undefined
         );
@@ -834,10 +860,7 @@ describe('metrics/amplitude', () => {
 
         describe(`email.${template}.sent`, () => {
           beforeEach(() => {
-            return amplitude(
-              `email.${template}.sent`,
-              mocks.mockRequest({})
-            );
+            return amplitude(`email.${template}.sent`, mocks.mockRequest({}));
           });
 
           it('did not call log.error', () => {
@@ -898,10 +921,7 @@ describe('metrics/amplitude', () => {
       it('incremented amplitude dropped', () => {
         const statsd = Container.get(StatsD) as { increment: jest.Mock };
         expect(statsd.increment).toHaveBeenCalledTimes(2);
-        expect(statsd.increment).toHaveBeenNthCalledWith(
-          1,
-          'amplitude.event'
-        );
+        expect(statsd.increment).toHaveBeenNthCalledWith(1, 'amplitude.event');
         expect(statsd.increment).toHaveBeenNthCalledWith(
           2,
           'amplitude.event.dropped'
