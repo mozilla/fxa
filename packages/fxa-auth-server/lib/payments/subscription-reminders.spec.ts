@@ -400,7 +400,7 @@ describe('SubscriptionReminders', () => {
           subscription: formattedSubscription,
           reminderLength: 7,
           planInterval: 'month',
-          showTax: true,
+          showTax: false,
           invoiceTotalExcludingTaxInCents: invoicePreview.total_excluding_tax,
           invoiceTaxInCents: invoicePreview.tax,
           invoiceTotalInCents: invoicePreview.total,
@@ -1206,6 +1206,9 @@ describe('SubscriptionReminders', () => {
         currency: 'usd',
         discount: null,
         discounts: [],
+        total_tax_amounts: [
+          { amount: 200, inclusive: false, tax_rate: { display_name: 'Sales Tax' } },
+        ],
       };
 
       reminder.alreadySentEmail = sandbox.fake.resolves(false);
@@ -1373,6 +1376,75 @@ describe('SubscriptionReminders', () => {
       expect(emailData.invoiceTaxInCents).toBeNull();
       expect(emailData.invoiceTotalInCents).toBe(1000);
       expect(emailData.invoiceTotalCurrency).toBe('usd');
+    });
+
+    it('handles invoice with inclusive tax (non-US)', async () => {
+      const subscription = deepCopy(longSubscription1);
+      subscription.customer = {
+        email: 'abc@123.com',
+        metadata: {
+          userid: 'uid',
+        },
+      };
+      subscription.latest_invoice = 'in_test123';
+
+      const account = {
+        emails: [],
+        email: 'testo@test.test',
+        locale: 'DE',
+      };
+
+      const mockInvoice = {
+        id: 'in_test123',
+        discount: { id: 'discount_ending' },
+        discounts: [],
+      };
+
+      const mockUpcomingInvoiceWithInclusiveTax = {
+        total_excluding_tax: 887,
+        tax: 113,
+        total: 1000,
+        currency: 'eur',
+        discount: null,
+        discounts: [],
+        total_tax_amounts: [
+          { amount: 113, inclusive: true, tax_rate: { display_name: 'VAT' } },
+        ],
+      };
+
+      reminder.alreadySentEmail = sandbox.fake.resolves(false);
+      reminder.db.account = sandbox.fake.resolves(account);
+      mockLog.info = sandbox.fake.returns({});
+      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
+        id: 'subscriptionId',
+        productMetadata: {},
+        planConfig: {},
+      });
+      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+        amount: longPlan1.amount,
+        currency: longPlan1.currency,
+        interval_count: longPlan1.interval_count,
+        interval: longPlan1.interval,
+      });
+      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoiceWithInclusiveTax);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      reminder.updateSentEmail = sandbox.fake.resolves({});
+      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+
+      const result = await reminder.sendSubscriptionRenewalReminderEmail(
+        subscription,
+        longPlan1.id
+      );
+
+      expect(result).toBe(true);
+      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const emailData = mailerCall.args[2];
+      expect(emailData.showTax).toBe(false);
+      expect(emailData.invoiceTotalExcludingTaxInCents).toBe(887);
+      expect(emailData.invoiceTaxInCents).toBe(113);
+      expect(emailData.invoiceTotalInCents).toBe(1000);
+      expect(emailData.invoiceTotalCurrency).toBe('eur');
     });
   });
 

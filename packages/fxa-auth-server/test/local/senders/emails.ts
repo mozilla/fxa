@@ -4623,6 +4623,107 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ],
 
   [
+    'subscriptionRenewalReminderEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${MESSAGE.subscription.productName} automatic renewal notice`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue(
+                'subscriptionRenewalReminder'
+              ),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionRenewalReminder' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionRenewalReminder,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          {
+            test: 'include',
+            expected: `Dear ${MESSAGE.subscription.productName} customer`,
+          },
+          {
+            test: 'include',
+            expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days.`,
+          },
+          {
+            test: 'include',
+            expected: `At that time, Mozilla will renew your daily subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.`,
+          },
+          {
+            test: 'notInclude',
+            expected: `${MESSAGE_FORMATTED.invoiceTotalExcludingTax} + ${MESSAGE_FORMATTED.invoiceTaxAmount} tax`,
+          },
+          { test: 'include', expected: 'Sincerely,' },
+          {
+            test: 'include',
+            expected: `The ${MESSAGE.subscription.productName} team`,
+          },
+          { test: 'notInclude', expected: 'utm_source=email' },
+        ],
+      ],
+      [
+        'text',
+        [
+          {
+            test: 'include',
+            expected: `${MESSAGE.subscription.productName} automatic renewal notice`,
+          },
+          {
+            test: 'include',
+            expected: `Dear ${MESSAGE.subscription.productName} customer`,
+          },
+          {
+            test: 'include',
+            expected: `At that time, Mozilla will renew your daily subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.`,
+          },
+          {
+            test: 'notInclude',
+            expected: `${MESSAGE_FORMATTED.invoiceTotalExcludingTax} + ${MESSAGE_FORMATTED.invoiceTaxAmount} tax`,
+          },
+          { test: 'include', expected: 'Sincerely,' },
+          {
+            test: 'include',
+            expected: `The ${MESSAGE.subscription.productName} team`,
+          },
+          { test: 'notInclude', expected: 'utm_source=email' },
+        ],
+      ],
+    ]),
+    {
+      updateTemplateValues: (x) => ({
+        ...x,
+        productName: MESSAGE.subscription.productName,
+        showTax: false,
+        invoiceTaxInCents: undefined,
+        invoiceTotalExcludingTaxInCents: undefined,
+      }),
+    },
+  ],
+
+  [
     'freeTrialEndingReminderEmail',
     new Map<string, Test | any>([
       [

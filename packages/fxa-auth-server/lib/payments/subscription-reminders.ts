@@ -541,7 +541,9 @@ export class SubscriptionReminders {
           reminderLength: effectiveReminderDuration.as('days'),
           planInterval,
           // Using invoice prefix instead of plan to accommodate `yarn write-emails`.
-          showTax: (invoicePreview.tax ?? 0) > 0,
+          showTax: (invoicePreview.total_tax_amounts ?? []).some(
+            (tax: { inclusive: boolean }) => !tax.inclusive
+          ),
           invoiceTotalExcludingTaxInCents: invoicePreview.total_excluding_tax,
           invoiceTaxInCents: invoicePreview.tax,
           invoiceTotalInCents: invoicePreview.total,

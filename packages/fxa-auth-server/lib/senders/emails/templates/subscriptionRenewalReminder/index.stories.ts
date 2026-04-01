@@ -87,5 +87,15 @@ export const MonthlyPlanWithTax = createStory(
     invoiceTax: '$2.60',
     invoiceTotal: '$22.60',
   },
-  'Monthly Plan - With Tax'
+  'Monthly Plan - Exclusive Tax, With Tax'
+);
+
+export const MonthlyPlanInclusiveTax = createStory(
+  {
+    showTax: false,
+    invoiceTotalExcludingTax: undefined,
+    invoiceTax: undefined,
+    invoiceTotal: '€4,99',
+  },
+  'Monthly Plan - Inclusive Tax'
 );
