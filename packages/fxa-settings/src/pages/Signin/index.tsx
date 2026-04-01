@@ -199,9 +199,13 @@ const Signin = ({
               : '',
           finishOAuthFlowHandler,
           queryParams: location.search,
-          performNavigation: !integration.isFirefoxMobileClient(),
+          // Passwordless Sync accounts (OTP or third-party auth) need to navigate
+          // to set_password within the webview, even on mobile clients. No webchannel
+          // messages are sent (deferred until after password creation), so the webview
+          // must handle navigation internally.
+          performNavigation: (isSync && !hasPassword) || !integration.isFirefoxMobileClient(),
           isServiceWithEmailVerification,
-          // Sync users in the cached path are passwordless (third-party auth);
+          // Sync users in the cached path are passwordless (third-party auth or OTP);
           // defer web channel messages until after password creation.
           handleFxaLogin: !isSync,
           handleFxaOAuthLogin: !isSync,
