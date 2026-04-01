@@ -102,4 +102,4 @@ export type MfaScope =
   | 'email'
   | 'recovery_key'
   | 'password'
-  | 'passkeys';
+  | 'passkey';

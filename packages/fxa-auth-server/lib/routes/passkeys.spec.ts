@@ -27,6 +27,8 @@ describe('passkeys routes', () => {
   const UID = 'uid-123';
   const SESSION_TOKEN_ID = 'session-token-456';
   const TEST_EMAIL = 'test@example.com';
+  const CREDENTIAL_ID_B64 =
+    Buffer.from('credential-id-xyz').toString('base64url');
 
   const config = {
     passkeys: {
@@ -43,12 +45,18 @@ describe('passkeys routes', () => {
     attestation: 'none',
   };
 
-  const mockPasskey = {
-    credentialId: 'credential-id-xyz',
+  const mockPasskeyRecord = {
+    credentialId: Buffer.from('credential-id-xyz'),
     name: 'My Passkey',
     createdAt: Date.now(),
     lastUsedAt: Date.now(),
     transports: ['internal'],
+    publicKey: Buffer.from('public-key'),
+    signCount: 42,
+    aaguid: Buffer.from('aaguid12345678ab'),
+    backupEligible: true,
+    backupState: false,
+    prfEnabled: true,
   };
 
   async function runTest(
@@ -91,7 +99,10 @@ describe('passkeys routes', () => {
         .mockResolvedValue(mockRegistrationOptions),
       createPasskeyFromRegistrationResponse: jest
         .fn()
-        .mockResolvedValue(mockPasskey),
+        .mockResolvedValue(mockPasskeyRecord),
+      listPasskeysForUser: jest.fn().mockResolvedValue([mockPasskeyRecord]),
+      deletePasskey: jest.fn().mockResolvedValue(undefined),
+      renamePasskey: jest.fn().mockResolvedValue(mockPasskeyRecord),
     };
 
     Container.set(PasskeyService, mockPasskeyService);
@@ -172,21 +183,6 @@ describe('passkeys routes', () => {
         })
       ).rejects.toThrow('Client has sent too many requests');
     });
-
-    it('can be disabled', async () => {
-      config.passkeys.enabled = false;
-      await expect(() =>
-        runTest('/passkey/registration/start', {
-          auth: {
-            credentials: {
-              uid: UID,
-              id: SESSION_TOKEN_ID,
-              email: TEST_EMAIL,
-            },
-          },
-        })
-      ).rejects.toThrow('System unavailable, try again soon');
-    });
   });
 
   describe('POST /passkey/registration/finish', () => {
@@ -209,9 +205,9 @@ describe('passkeys routes', () => {
 
       expect(result).toEqual(
         expect.objectContaining({
-          credentialId: mockPasskey.credentialId,
-          name: mockPasskey.name,
-          transports: mockPasskey.transports,
+          credentialId: mockPasskeyRecord.credentialId.toString('base64url'),
+          name: mockPasskeyRecord.name,
+          transports: mockPasskeyRecord.transports,
           lastUsedAt: expect.any(Number),
           createdAt: expect.any(Number),
         })
@@ -292,12 +288,13 @@ describe('passkeys routes', () => {
         'passkeyRegisterFinish'
       );
     });
+  });
 
-    it('can be disabled', async () => {
-      config.passkeys.enabled = false;
-
-      await expect(() =>
-        runTest('/passkey/registration/finish', {
+  describe('GET /passkeys', () => {
+    it('returns mapped passkeys', async () => {
+      const result = await runTest(
+        '/passkeys',
+        {
           auth: {
             credentials: {
               uid: UID,
@@ -305,9 +302,287 @@ describe('passkeys routes', () => {
               email: TEST_EMAIL,
             },
           },
-          payload,
-        })
-      ).rejects.toThrow('System unavailable, try again soon');
+        },
+        'GET'
+      );
+
+      expect(mockPasskeyService.listPasskeysForUser).toHaveBeenCalledWith(
+        Buffer.from(UID)
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        credentialId: mockPasskeyRecord.credentialId.toString('base64url'),
+        name: mockPasskeyRecord.name,
+        createdAt: mockPasskeyRecord.createdAt,
+        lastUsedAt: mockPasskeyRecord.lastUsedAt,
+        transports: mockPasskeyRecord.transports,
+        aaguid: mockPasskeyRecord.aaguid.toString('base64url'),
+        backupEligible: mockPasskeyRecord.backupEligible,
+        backupState: mockPasskeyRecord.backupState,
+        prfEnabled: mockPasskeyRecord.prfEnabled,
+      });
+      expect(result[0]).not.toHaveProperty('publicKey');
+      expect(result[0]).not.toHaveProperty('signCount');
+    });
+
+    it('returns an empty array when user has no passkeys', async () => {
+      mockPasskeyService.listPasskeysForUser.mockResolvedValueOnce([]);
+
+      const result = await runTest(
+        '/passkeys',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+        },
+        'GET'
+      );
+
+      expect(result).toEqual([]);
+    });
+
+    it('enforces rate limiting via customs.checkAuthenticated', async () => {
+      await runTest(
+        '/passkeys',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+        },
+        'GET'
+      );
+
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.anything(),
+        UID,
+        TEST_EMAIL,
+        'passkeysList'
+      );
+    });
+  });
+
+  describe('DELETE /passkey/{credentialId}', () => {
+    it('decodes credentialId and calls deletePasskey', async () => {
+      await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+        },
+        'DELETE'
+      );
+
+      expect(mockPasskeyService.deletePasskey).toHaveBeenCalledWith(
+        Buffer.from(UID),
+        Buffer.from(CREDENTIAL_ID_B64, 'base64url')
+      );
+    });
+
+    it('records a security event on success', async () => {
+      await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+        },
+        'DELETE'
+      );
+
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.removed',
+        expect.anything()
+      );
+    });
+
+    it('throws passkeyNotFound when service throws passkeyNotFound', async () => {
+      mockPasskeyService.deletePasskey.mockRejectedValue(
+        AppError.passkeyNotFound()
+      );
+
+      await expect(() =>
+        runTest(
+          '/passkey/{credentialId}',
+          {
+            auth: {
+              credentials: {
+                uid: UID,
+                id: SESSION_TOKEN_ID,
+                email: TEST_EMAIL,
+              },
+            },
+            params: { credentialId: CREDENTIAL_ID_B64 },
+          },
+          'DELETE'
+        )
+      ).rejects.toThrow();
+    });
+
+    it('returns empty object on success', async () => {
+      const result = await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+        },
+        'DELETE'
+      );
+
+      expect(result).toEqual({});
+    });
+
+    it('enforces rate limiting via customs.checkAuthenticated', async () => {
+      await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+        },
+        'DELETE'
+      );
+
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.anything(),
+        UID,
+        TEST_EMAIL,
+        'passkeyDelete'
+      );
+    });
+  });
+
+  describe('PATCH /passkey/{credentialId}', () => {
+    it('decodes credentialId and calls renamePasskey', async () => {
+      await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+          payload: { name: 'Renamed Key' },
+        },
+        'PATCH'
+      );
+
+      expect(mockPasskeyService.renamePasskey).toHaveBeenCalledWith(
+        Buffer.from(UID),
+        Buffer.from(CREDENTIAL_ID_B64, 'base64url'),
+        'Renamed Key'
+      );
+    });
+
+    it('returns updated passkey data on success', async () => {
+      const result = await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+          payload: { name: 'Renamed Key' },
+        },
+        'PATCH'
+      );
+
+      expect(result).toEqual({
+        credentialId: mockPasskeyRecord.credentialId.toString('base64url'),
+        name: mockPasskeyRecord.name,
+        createdAt: mockPasskeyRecord.createdAt,
+        lastUsedAt: mockPasskeyRecord.lastUsedAt,
+        transports: mockPasskeyRecord.transports,
+        aaguid: mockPasskeyRecord.aaguid.toString('base64url'),
+        backupEligible: mockPasskeyRecord.backupEligible,
+        backupState: mockPasskeyRecord.backupState,
+        prfEnabled: mockPasskeyRecord.prfEnabled,
+      });
+    });
+
+    it('throws passkeyNotFound when service throws passkeyNotFound', async () => {
+      mockPasskeyService.renamePasskey.mockRejectedValue(
+        AppError.passkeyNotFound()
+      );
+
+      await expect(() =>
+        runTest(
+          '/passkey/{credentialId}',
+          {
+            auth: {
+              credentials: {
+                uid: UID,
+                id: SESSION_TOKEN_ID,
+                email: TEST_EMAIL,
+              },
+            },
+            params: { credentialId: CREDENTIAL_ID_B64 },
+            payload: { name: 'New Name' },
+          },
+          'PATCH'
+        )
+      ).rejects.toThrow();
+    });
+
+    it('enforces rate limiting via customs.checkAuthenticated', async () => {
+      await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+          payload: { name: 'Renamed Key' },
+        },
+        'PATCH'
+      );
+
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.anything(),
+        UID,
+        TEST_EMAIL,
+        'passkeysRename'
+      );
     });
   });
 });

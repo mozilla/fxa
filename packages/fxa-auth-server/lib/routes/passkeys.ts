@@ -12,7 +12,6 @@ import { isPasskeyFeatureEnabled } from '../passkey-utils';
 import { GleanMetricsType } from '../metrics/glean';
 import PASSKEYS_API_DOCS from '../../docs/swagger/passkeys-api';
 import { RegistrationResponseJSON } from '@simplewebauthn/server';
-import { AppError } from '@fxa/accounts/errors';
 
 /** Subset of the Customs service used by passkey routes. */
 interface Customs {
@@ -37,7 +36,8 @@ interface DB {
 }
 
 /**
- * Route handler class that encapsulates the WebAuthn registration flow.
+ * Route handler class that encapsulates the WebAuthn registration flow
+ * and passkey management operations.
  *
  * Each method corresponds to one HTTP endpoint and is responsible for:
  * - Feature-flag gating
@@ -64,12 +64,6 @@ class PasskeyHandler {
    * @returns WebAuthn registration options to pass to `navigator.credentials.create`.
    */
   async registrationStart(request: AuthRequest) {
-    if (!this.service.enabled) {
-      throw AppError.backendServiceFailure('passkey', 'registrationStart', {
-        reason: 'Service disabled',
-      });
-    }
-
     const { uid } = request.auth.credentials as {
       uid: string;
     };
@@ -107,12 +101,6 @@ class PasskeyHandler {
    *   `createdAt`, `lastUsedAt`, and `transports`.
    */
   async registrationFinish(request: AuthRequest) {
-    if (!this.service.enabled) {
-      throw AppError.backendServiceFailure('passkey', 'registrationFinished', {
-        reason: 'Service disabled',
-      });
-    }
-
     const { uid } = request.auth.credentials as {
       uid: string;
     };
@@ -146,7 +134,13 @@ class PasskeyHandler {
       // await this.glean.passkey.registrationComplete(request);
 
       const { credentialId, name, createdAt, lastUsedAt, transports } = passkey;
-      return { credentialId, name, createdAt, lastUsedAt, transports };
+      return {
+        credentialId: credentialId.toString('base64url'),
+        name,
+        createdAt,
+        lastUsedAt,
+        transports,
+      };
     } catch (err) {
       await recordSecurityEvent('account.passkey.registration_failure', {
         db: this.db,
@@ -158,6 +152,134 @@ class PasskeyHandler {
 
       throw err;
     }
+  }
+
+  /**
+   * Handles `GET /passkeys`.
+   *
+   * Lists all passkeys registered for the authenticated user.
+   *
+   * @param request - Authenticated Hapi request with a valid session token.
+   * @returns Array of passkey metadata objects.
+   */
+  async listPasskeys(request: AuthRequest) {
+    const { uid } = request.auth.credentials as { uid: string };
+
+    const account = await this.db.account(uid);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      account.email,
+      'passkeysList'
+    );
+
+    const passkeys = await this.service.listPasskeysForUser(Buffer.from(uid));
+
+    // omit publicKey and signCount
+    return passkeys.map(
+      ({
+        credentialId,
+        name,
+        createdAt,
+        lastUsedAt,
+        transports,
+        aaguid,
+        backupEligible,
+        backupState,
+        prfEnabled,
+      }) => ({
+        credentialId: credentialId.toString('base64url'),
+        name,
+        createdAt,
+        lastUsedAt,
+        transports,
+        aaguid: aaguid.toString('base64url'),
+        backupEligible,
+        backupState,
+        prfEnabled,
+      })
+    );
+  }
+
+  /**
+   * Handles `DELETE /passkey/:credentialId`.
+   *
+   * Deletes the passkey with `credentialId`.
+   *
+   * @param request - Authenticated Hapi request with a valid MFA JWT.
+   */
+  async deletePasskey(request: AuthRequest) {
+    const { uid } = request.auth.credentials as { uid: string };
+    const { credentialId: credentialIdParam } = request.params as {
+      credentialId: string;
+    };
+
+    const account = await this.db.account(uid);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      account.email,
+      'passkeyDelete'
+    );
+
+    const credentialId = Buffer.from(credentialIdParam, 'base64url');
+
+    await this.service.deletePasskey(Buffer.from(uid), credentialId);
+
+    await recordSecurityEvent('account.passkey.removed', {
+      db: this.db,
+      request,
+    });
+
+    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
+    // await this.glean.passkey.deleteSuccess(request, { uid });
+
+    return {};
+  }
+
+  /**
+   * Handles `PATCH /passkey/:credentialId`.
+   *
+   * @param request - Authenticated Hapi request with a valid MFA JWT.
+   * @returns Updated passkey metadata object.
+   */
+  async renamePasskey(request: AuthRequest) {
+    const { uid } = request.auth.credentials as { uid: string };
+    const { credentialId: credentialIdParam } = request.params as {
+      credentialId: string;
+    };
+    const { name } = request.payload as { name: string };
+
+    const account = await this.db.account(uid);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      account.email,
+      'passkeysRename'
+    );
+
+    const credentialId = Buffer.from(credentialIdParam, 'base64url');
+
+    const passkey = await this.service.renamePasskey(
+      Buffer.from(uid),
+      credentialId,
+      name
+    );
+
+    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
+    // await this.glean.passkey.renameSuccess(request, { uid });
+
+    return {
+      credentialId: passkey.credentialId.toString('base64url'),
+      name: passkey.name,
+      createdAt: passkey.createdAt,
+      lastUsedAt: passkey.lastUsedAt,
+      transports: passkey.transports,
+      aaguid: passkey.aaguid.toString('base64url'),
+      backupEligible: passkey.backupEligible,
+      backupState: passkey.backupState,
+      prfEnabled: passkey.prfEnabled,
+    };
   }
 }
 
@@ -340,12 +462,110 @@ export const passkeyRoutes = (
             createdAt: isA.number().required(),
             lastUsedAt: isA.number().required(),
             transports: isA.array().items(isA.string()).required(),
+            aaguid: isA.string().required(),
+            backupEligible: isA.boolean().required(),
+            backupState: isA.boolean().required(),
+            prfEnabled: isA.boolean().required(),
           }),
         },
       },
       handler: function (request: AuthRequest) {
         log.begin('passkey.registration.finish', request);
         return handler.registrationFinish(request);
+      },
+    },
+    {
+      method: 'GET',
+      path: '/passkeys',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEYS_GET,
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'verifiedSessionToken',
+          payload: false,
+        },
+        response: {
+          schema: isA.array().items(
+            isA.object({
+              credentialId: isA.string().required(),
+              name: isA.string().required(),
+              createdAt: isA.number().required(),
+              lastUsedAt: isA.number().allow(null).required(),
+              transports: isA.array().items(isA.string()).required(),
+              aaguid: isA.string().required(),
+              backupEligible: isA.boolean().required(),
+              backupState: isA.boolean().required(),
+              prfEnabled: isA.boolean().required(),
+            })
+          ),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('passkey.list', request);
+        return handler.listPasskeys(request);
+      },
+    },
+    {
+      method: 'DELETE',
+      path: '/passkey/{credentialId}',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_CREDENTIAL_DELETE,
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:passkey'],
+          payload: false,
+        },
+        validate: {
+          params: isA.object({
+            credentialId: isA.string().required(),
+          }),
+        },
+        response: {
+          schema: isA.object({}),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('passkey.delete', request);
+        return handler.deletePasskey(request);
+      },
+    },
+    {
+      method: 'PATCH',
+      path: '/passkey/{credentialId}',
+      options: {
+        ...PASSKEYS_API_DOCS.PASSKEY_CREDENTIAL_PATCH,
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:passkey'],
+          payload: false,
+        },
+        validate: {
+          params: isA.object({
+            credentialId: isA.string().required(),
+          }),
+          payload: isA.object({
+            name: isA.string().min(1).max(255).required(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            credentialId: isA.string().required(),
+            name: isA.string().required(),
+            createdAt: isA.number().required(),
+            lastUsedAt: isA.number().allow(null).required(),
+            transports: isA.array().items(isA.string()).required(),
+            aaguid: isA.string().required(),
+            backupEligible: isA.boolean().required(),
+            backupState: isA.boolean().required(),
+            prfEnabled: isA.boolean().required(),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('passkey.rename', request);
+        return handler.renamePasskey(request);
       },
     },
   ];
