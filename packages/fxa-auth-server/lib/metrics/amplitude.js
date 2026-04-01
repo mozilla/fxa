@@ -211,6 +211,9 @@ module.exports = (log, config) => {
     data = {},
     metricsContext = {}
   ) {
+    if (config.amplitude && config.amplitude.enabled === false) {
+      return;
+    }
     const statsd = Container.get(StatsD);
     if (!eventType || !request) {
       log.error('amplitude.badArgument', {
