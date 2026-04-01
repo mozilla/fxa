@@ -37,7 +37,7 @@ exports[`SigninPasskeyFallback renders as expected 1`] = `
     >
       <section>
         <div
-          class="card"
+          class="card mobileLandscape:my-4"
         >
           <span
             data-testid="ftlmsg-mock"
