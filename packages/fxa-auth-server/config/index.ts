@@ -297,6 +297,12 @@ const convictConf = convict({
     },
   },
   amplitude: {
+    enabled: {
+      default: true,
+      doc: 'Enable Amplitude event logging',
+      env: 'AMPLITUDE_ENABLED',
+      format: Boolean,
+    },
     schemaValidation: {
       default: true,
       doc: 'Validate events against a JSON schema',
