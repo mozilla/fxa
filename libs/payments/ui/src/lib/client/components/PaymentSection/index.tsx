@@ -52,13 +52,15 @@ interface PaymentFormProps {
       walletType?: string;
     };
     hasActiveSubscriptions: boolean;
+    freeTrialEligibility?: {
+      trialLengthDays: number;
+    } | null;
   };
   locale: string;
   nonce?: string;
   paypalClientId: string;
   sessionUid?: string;
   sessionEmail?: string;
-  isFreeTrial?: boolean;
   metricsEnabled?: boolean;
   isCancelInterstitialOffer?: boolean;
 }
@@ -72,10 +74,12 @@ export function PaymentSection({
   paypalClientId,
   sessionUid,
   sessionEmail,
-  isFreeTrial,
   metricsEnabled,
   isCancelInterstitialOffer,
 }: PaymentFormProps) {
+  const isFreeTrial = !!cart.freeTrialEligibility;
+  const trialLengthDays = cart.freeTrialEligibility?.trialLengthDays;
+
   return (
     <PayPalScriptProvider
       options={{
@@ -97,6 +101,7 @@ export function PaymentSection({
           sessionUid={sessionUid}
           sessionEmail={sessionEmail}
           isFreeTrial={isFreeTrial}
+          trialLengthDays={trialLengthDays}
           metricsEnabled={metricsEnabled}
           isCancelInterstitialOffer={isCancelInterstitialOffer}
         />

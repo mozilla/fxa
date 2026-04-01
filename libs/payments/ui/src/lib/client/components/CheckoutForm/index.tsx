@@ -92,6 +92,7 @@ interface CheckoutFormProps {
   sessionUid?: string;
   sessionEmail?: string;
   isFreeTrial?: boolean;
+  trialLengthDays?: number;
   metricsEnabled?: boolean;
   isCancelInterstitialOffer?: boolean;
 }
@@ -103,13 +104,20 @@ export function CheckoutForm({
   sessionUid,
   sessionEmail,
   isFreeTrial,
+  trialLengthDays,
   metricsEnabled,
   isCancelInterstitialOffer,
 }: CheckoutFormProps) {
   const elements = useElements();
   const router = useRouter();
   const stripe = useStripe();
-  const params = useParams();
+  const rawParams = useParams();
+  const params: Record<string, string | string[]> = {};
+  for (const [key, value] of Object.entries(rawParams)) {
+    if (value !== undefined) {
+      params[key] = value;
+    }
+  }
   const searchParams = useSearchParams();
   const searchParamsRecord: Record<string, string> = {};
   for (const [key, value] of searchParams.entries()) {
@@ -354,6 +362,9 @@ export function CheckoutForm({
           setFormEnabled(consentCheckbox);
           setShowConsentError(true);
         }}
+        isFreeTrial={isFreeTrial}
+        trialLengthDays={trialLengthDays}
+        locale={locale}
       />
       <div
         className={
@@ -470,7 +481,13 @@ function CheckoutPayPalButton({
   disabled,
 }: CheckoutPayPalButtonProps) {
   const router = useRouter();
-  const params = useParams();
+  const rawParams = useParams();
+  const params: Record<string, string | string[]> = {};
+  for (const [key, value] of Object.entries(rawParams)) {
+    if (value !== undefined) {
+      params[key] = value;
+    }
+  }
   const [{ isPending, isRejected }] = usePayPalScriptReducer();
 
   if (isPending) {
