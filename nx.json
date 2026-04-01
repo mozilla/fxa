@@ -22,7 +22,7 @@
     },
     "build-storybook": {
       "dependsOn": ["prebuild", "^build"],
-      "inputs": ["production", "^production"],
+      "inputs": ["production", "^production", "{projectRoot}/.storybook/**/*"],
       "outputs": ["{projectRoot}/storybook-static"],
       "cache": true
     },
