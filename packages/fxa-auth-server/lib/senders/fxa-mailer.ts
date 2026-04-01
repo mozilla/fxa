@@ -14,6 +14,7 @@ import {
   postVerifySecondary,
   postChangePrimary,
   postAddLinkedAccount,
+  postAddPasskey,
   newDeviceLogin,
   postAddTwoStepAuthentication,
   postChangeTwoStepAuthentication,
@@ -101,6 +102,9 @@ type OmitCommonLinks<T, K extends keyof T = never> = Omit<
   | 'twoFactorSupportLink'
   | 'twoFactorSettingsLink'
   | 'resetLink'
+  | 'passkeySupportUrl'
+  | 'reviewActivitySupportUrl'
+  | 'securitySettingsLink'
   | 'desktopLink'
   | 'reportSignInLink'
   | 'unsubscribeUrl'
@@ -383,6 +387,43 @@ export class FxaMailer extends FxaEmailRenderer {
       opts
     );
     const rendered = await this.renderPostAddLinkedAccount({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendPostAddPasskeyEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<postAddPasskey.TemplateData>
+  ) {
+    const { template, version } = postAddPasskey;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      passkeySupportUrl: this.linkBuilder.buildPasskeySupportLink(),
+      reviewActivitySupportUrl:
+        this.linkBuilder.buildReviewActivitySupportLink(),
+      link: this.linkBuilder.buildAccountSettingsLink(
+        template,
+        metricsEnabled,
+        { email: opts.to, uid: opts.uid }
+      ),
+      securitySettingsLink: this.linkBuilder.buildSecuritySettingsLink(
+        template,
+        metricsEnabled,
+        { email: opts.to, uid: opts.uid }
+      ),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'X-Link': links.link },
+      opts
+    );
+    const rendered = await this.renderPostAddPasskey({
       ...opts,
       ...links,
     });

@@ -24,6 +24,7 @@ import * as PasswordResetRecoveryPhone from '../templates/passwordResetRecoveryP
 import * as PasswordResetWithRecoveryKeyPrompt from '../templates/passwordResetWithRecoveryKeyPrompt';
 import * as PostAddAccountRecovery from '../templates/postAddAccountRecovery';
 import * as PostAddLinkedAccount from '../templates/postAddLinkedAccount';
+import * as PostAddPasskey from '../templates/postAddPasskey';
 import * as PostAddRecoveryPhone from '../templates/postAddRecoveryPhone';
 import * as PostAddTwoStepAuthentication from '../templates/postAddTwoStepAuthentication';
 import * as PostChangeAccountRecovery from '../templates/postChangeAccountRecovery';
@@ -291,6 +292,18 @@ export class FxaEmailRenderer extends EmailRenderer {
       version: PostAddLinkedAccount.version,
       layout: PostAddLinkedAccount.layout,
       includes: PostAddLinkedAccount.includes,
+      ...opts,
+    });
+  }
+
+  async renderPostAddPasskey(
+    opts: WithFxaLayouts<PostAddPasskey.TemplateData>
+  ) {
+    return this.renderEmail({
+      template: PostAddPasskey.template,
+      version: PostAddPasskey.version,
+      layout: PostAddPasskey.layout,
+      includes: PostAddPasskey.includes,
       ...opts,
     });
   }

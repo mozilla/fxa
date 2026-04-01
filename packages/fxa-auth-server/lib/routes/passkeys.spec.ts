@@ -8,9 +8,25 @@ import { AppError } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
 import { isPasskeyRegistrationEnabled } from '../passkey-utils';
 import { passkeyRoutes } from './passkeys';
+import { FxaMailer } from '../senders/fxa-mailer';
 
 jest.mock('./utils/security-event', () => ({
   recordSecurityEvent: jest.fn(),
+}));
+
+jest.mock('../senders/fxa-mailer-format', () => ({
+  FxaMailerFormat: {
+    account: jest.fn().mockReturnValue({
+      to: 'test@example.com',
+      uid: 'uid-123',
+      metricsEnabled: true,
+    }),
+    metricsContext: jest.fn().mockResolvedValue({}),
+    localTime: jest.fn().mockReturnValue({}),
+    location: jest.fn().mockReturnValue({}),
+    device: jest.fn().mockReturnValue({}),
+    sync: jest.fn().mockReturnValue({}),
+  },
 }));
 
 describe('passkeys routes', () => {
@@ -22,7 +38,8 @@ describe('passkeys routes', () => {
     routes: any,
     route: any,
     request: any,
-    mockPasskeyService: any;
+    mockPasskeyService: any,
+    mockFxaMailer: any;
 
   const UID = 'uid-123';
   const SESSION_TOKEN_ID = 'session-token-456';
@@ -77,6 +94,7 @@ describe('passkeys routes', () => {
   beforeEach(() => {
     log = {
       begin: jest.fn(),
+      error: jest.fn(),
     };
     customs = {
       checkAuthenticated: jest.fn(),
@@ -88,6 +106,7 @@ describe('passkeys routes', () => {
     db = {
       account: jest.fn().mockResolvedValue({
         email: TEST_EMAIL,
+        verifierSetAt: 1234567890,
       }),
     };
 
@@ -106,7 +125,13 @@ describe('passkeys routes', () => {
       renamePasskey: jest.fn().mockResolvedValue(mockPasskeyRecord),
     };
 
+    mockFxaMailer = {
+      canSend: jest.fn().mockReturnValue(true),
+      sendPostAddPasskeyEmail: jest.fn().mockResolvedValue(undefined),
+    };
+
     Container.set(PasskeyService, mockPasskeyService);
+    Container.set(FxaMailer, mockFxaMailer);
   });
 
   afterEach(() => {
@@ -273,6 +298,27 @@ describe('passkeys routes', () => {
       );
     });
 
+    it('does not send email when registration fails', async () => {
+      mockPasskeyService.createPasskeyFromRegistrationResponse = jest
+        .fn()
+        .mockRejectedValue(new Error('attestation verification failed'));
+
+      await expect(() =>
+        runTest('/passkey/registration/finish', {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          payload,
+        })
+      ).rejects.toThrow();
+
+      expect(mockFxaMailer.sendPostAddPasskeyEmail).not.toHaveBeenCalled();
+    });
+
     it('enforces rate limiting via customs.checkAuthenticated', async () => {
       await runTest('/passkey/registration/finish', {
         auth: {
@@ -290,6 +336,88 @@ describe('passkeys routes', () => {
         UID,
         TEST_EMAIL,
         'passkeyRegisterFinish'
+      );
+    });
+
+    it('sends postAddPasskey email on successful registration', async () => {
+      await runTest('/passkey/registration/finish', {
+        auth: {
+          credentials: {
+            uid: UID,
+            id: SESSION_TOKEN_ID,
+            email: TEST_EMAIL,
+          },
+        },
+        payload,
+      });
+
+      expect(mockFxaMailer.canSend).toHaveBeenCalledWith('postAddPasskey');
+      expect(mockFxaMailer.sendPostAddPasskeyEmail).toHaveBeenCalledTimes(1);
+      expect(mockFxaMailer.sendPostAddPasskeyEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ showSyncPasswordNote: true })
+      );
+    });
+
+    it('sets showSyncPasswordNote to false for passwordless accounts', async () => {
+      db.account.mockResolvedValueOnce({ email: TEST_EMAIL, verifierSetAt: 0 });
+
+      await runTest('/passkey/registration/finish', {
+        auth: {
+          credentials: {
+            uid: UID,
+            id: SESSION_TOKEN_ID,
+            email: TEST_EMAIL,
+          },
+        },
+        payload,
+      });
+
+      expect(mockFxaMailer.sendPostAddPasskeyEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ showSyncPasswordNote: false })
+      );
+    });
+
+    it('skips email when canSend returns false', async () => {
+      mockFxaMailer.canSend.mockReturnValue(false);
+
+      await runTest('/passkey/registration/finish', {
+        auth: {
+          credentials: {
+            uid: UID,
+            id: SESSION_TOKEN_ID,
+            email: TEST_EMAIL,
+          },
+        },
+        payload,
+      });
+
+      expect(mockFxaMailer.sendPostAddPasskeyEmail).not.toHaveBeenCalled();
+    });
+
+    it('swallows email send errors and still returns passkey data', async () => {
+      mockFxaMailer.sendPostAddPasskeyEmail.mockRejectedValue(
+        new Error('email send failed')
+      );
+
+      const result = await runTest('/passkey/registration/finish', {
+        auth: {
+          credentials: {
+            uid: UID,
+            id: SESSION_TOKEN_ID,
+            email: TEST_EMAIL,
+          },
+        },
+        payload,
+      });
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          credentialId: mockPasskeyRecord.credentialId.toString('base64url'),
+        })
+      );
+      expect(log.error).toHaveBeenCalledWith(
+        'passkeys.registrationFinish.sendEmail',
+        expect.objectContaining({ err: expect.any(Error) })
       );
     });
   });

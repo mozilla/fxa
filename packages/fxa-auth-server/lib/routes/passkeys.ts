@@ -15,6 +15,9 @@ import {
 import { GleanMetricsType } from '../metrics/glean';
 import PASSKEYS_API_DOCS from '../../docs/swagger/passkeys-api';
 import { RegistrationResponseJSON } from '@simplewebauthn/server';
+import { FxaMailer } from '../senders/fxa-mailer';
+import { FxaMailerFormat } from '../senders/fxa-mailer-format';
+import { reportSentryError } from '../sentry';
 
 /** Subset of the Customs service used by passkey routes. */
 interface Customs {
@@ -33,7 +36,7 @@ interface Customs {
 /** Subset of the database used by passkey routes. */
 interface DB {
   /** Fetches the account record for the given UID. */
-  account(uid: string): Promise<{ email: string }>;
+  account(uid: string): Promise<{ email: string; verifierSetAt: number }>;
   /** Records a security event in the audit log. */
   securityEvent: (arg: any) => Promise<void>;
 }
@@ -52,7 +55,9 @@ class PasskeyHandler {
   constructor(
     private readonly service: PasskeyService,
     private readonly db: DB,
-    private readonly customs: Customs
+    private readonly customs: Customs,
+    private readonly log: any,
+    private readonly fxaMailer: FxaMailer
     // TODO: FXA-12914 - Require glean be passed in.
   ) {}
 
@@ -136,6 +141,23 @@ class PasskeyHandler {
       // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
       // await this.glean.passkey.registrationComplete(request);
 
+      try {
+        if (this.fxaMailer.canSend('postAddPasskey')) {
+          await this.fxaMailer.sendPostAddPasskeyEmail({
+            ...FxaMailerFormat.account({ ...account, uid }),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+            showSyncPasswordNote: account.verifierSetAt > 0,
+          });
+        }
+      } catch (err) {
+        this.log.error('passkeys.registrationFinish.sendEmail', { err });
+        reportSentryError(err, request);
+      }
+
       const {
         credentialId,
         name,
@@ -147,6 +169,7 @@ class PasskeyHandler {
         backupState,
         prfEnabled,
       } = passkey;
+
       return {
         credentialId: credentialId.toString('base64url'),
         name,
@@ -336,7 +359,8 @@ export const passkeyRoutes = (
       'Could not register passkey routes. PasskeyService not registered with DI.'
     );
   }
-  const handler = new PasskeyHandler(service, db, customs);
+  const fxaMailer = Container.get(FxaMailer);
+  const handler = new PasskeyHandler(service, db, customs, log, fxaMailer);
 
   return [
     {

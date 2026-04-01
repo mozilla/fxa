@@ -25,6 +25,7 @@ const TEMPLATE_NAME_TO_CAMPAIGN_MAP: Record<string, string> = {
   postVerify: 'account-verified',
   postVerifySecondary: 'account-email-verified',
   postAddLinkedAccount: 'account-linked',
+  postAddPasskey: 'passkey-registered',
   postAddAccountRecoveryConfirm: 'confirm-account-recovery',
   verifyEmail: 'welcome',
   verifyLoginCode: 'new-device-signin',
@@ -62,6 +63,7 @@ const TEMPLATE_NAME_TO_CONTENT_MAP: Record<string, string> = {
   postVerify: 'account-verified',
   postVerifySecondary: 'account-email-verified',
   postAddLinkedAccount: 'account-linked',
+  postAddPasskey: 'passkey-registered',
   postAddAccountRecoveryConfirm: 'confirm-account-recovery',
   verifyEmail: 'welcome',
   verifyLoginCode: 'new-device-signin',
@@ -99,6 +101,8 @@ export interface EmailLinkBuilderConfig {
   twoFactorSupportUrl: string;
   mozillaSupportUrl: string;
   firefoxDesktopUrl: string;
+  passkeySupportUrl: string;
+  reviewActivitySupportUrl: string;
 }
 
 export type RecoveryLinkQueryParams =
@@ -269,6 +273,14 @@ export class EmailLinkBuilder {
     return this.config.twoFactorSupportUrl;
   }
 
+  buildPasskeySupportLink(): string {
+    return this.config.passkeySupportUrl;
+  }
+
+  buildReviewActivitySupportLink(): string {
+    return this.config.reviewActivitySupportUrl;
+  }
+
   buildAndroidLink(): string {
     return this.config.androidUrl;
   }
@@ -319,6 +331,17 @@ export class EmailLinkBuilder {
     query: { email?: string; uid?: string }
   ) {
     const url = new URL(`${this.baseUri}/settings`);
+    this.addUTMParams(url, templateName, metricsEnabled);
+    this.addQueryParams(url, query);
+    return url.toString();
+  }
+
+  buildSecuritySettingsLink(
+    templateName: string,
+    metricsEnabled: boolean,
+    query: { email?: string; uid?: string }
+  ) {
+    const url = new URL(`${this.baseUri}/settings#security`);
     this.addUTMParams(url, templateName, metricsEnabled);
     this.addQueryParams(url, query);
     return url.toString();

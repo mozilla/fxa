@@ -34,6 +34,9 @@ describe('EmailLinkBuilder', () => {
       'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
     firefoxDesktopUrl:
       'https://firefox.com?utm_content=registration-confirmation&utm_medium=email&utm_source=fxa',
+    passkeySupportUrl: 'https://support.mozilla.org',
+    reviewActivitySupportUrl:
+      'https://support.mozilla.org/kb/review-mozilla-account-activity-and-protect-data',
     unsubscribeUrl:
       'https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0',
   };
@@ -88,6 +91,39 @@ describe('EmailLinkBuilder', () => {
       });
       expect(link).toEqual(
         'http://localhost:30303/settings/change_password?email=foo%40mozilla.com'
+      );
+    });
+  });
+
+  describe('buildSecuritySettingsLink', () => {
+    it('can build link with utm params', () => {
+      const link = linkBuilder.buildSecuritySettingsLink(
+        'postAddPasskey',
+        true,
+        { email: 'foo@mozilla.com', uid: '123' }
+      );
+      expect(link).toEqual(
+        'http://localhost:30303/settings?utm_medium=email&utm_campaign=fx-passkey-registered&utm_content=fx-passkey-registered&email=foo%40mozilla.com&uid=123#security'
+      );
+    });
+
+    it('can build without utm params', () => {
+      const link = linkBuilder.buildSecuritySettingsLink(
+        'postAddPasskey',
+        false,
+        { email: 'foo@mozilla.com', uid: '123' }
+      );
+      expect(link).toEqual(
+        'http://localhost:30303/settings?email=foo%40mozilla.com&uid=123#security'
+      );
+    });
+  });
+
+  describe('buildReviewActivitySupportLink', () => {
+    it('returns the configured review activity support URL', () => {
+      const link = linkBuilder.buildReviewActivitySupportLink();
+      expect(link).toEqual(
+        'https://support.mozilla.org/kb/review-mozilla-account-activity-and-protect-data'
       );
     });
   });

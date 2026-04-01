@@ -732,11 +732,25 @@ const conf = convict({
         'https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0',
     },
     twoFactorSupportUrl: {
-      doc: 'URL to unsubscribe from MoCo and MoFo emails',
+      doc: 'url to support page about two factor auth',
       format: String,
       env: 'TWO_FACTOR_SUPPORT_URL',
       default:
-        'https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0',
+        'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
+    },
+    // TODO: Replace with dedicated passkeys support article URL when available
+    passkeySupportUrl: {
+      doc: 'url to support article about passkeys and Firefox Sync',
+      format: String,
+      env: 'PASSKEY_SUPPORT_URL',
+      default: 'https://support.mozilla.org',
+    },
+    reviewActivitySupportUrl: {
+      doc: 'url to support article about reviewing Mozilla account activity',
+      format: String,
+      env: 'REVIEW_ACTIVITY_SUPPORT_URL',
+      default:
+        'https://support.mozilla.org/kb/review-mozilla-account-activity-and-protect-data',
     },
     mozillaSupportUrl: {
       doc: 'URL to unsubscribe from MoCo and MoFo emails',
