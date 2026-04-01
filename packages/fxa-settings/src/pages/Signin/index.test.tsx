@@ -1182,6 +1182,41 @@ describe('Signin component', () => {
           handleNavigationSpy.mockRestore();
         });
 
+        it('allows navigation for cached Sync passwordless user on mobile', async () => {
+          const ensureCanLinkSpy = jest.spyOn(
+            SigninUtils,
+            'ensureCanLinkAcountOrRedirect'
+          ).mockResolvedValue(true);
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeSyncIntegration({
+            isMobile: true,
+          });
+          render({
+            integration,
+            sessionToken: MOCK_SESSION_TOKEN,
+            hasPassword: false,
+            hasLinkedAccount: false,
+            cachedSigninHandler,
+          });
+
+          await submit();
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                performNavigation: true,
+              })
+            );
+          });
+          ensureCanLinkSpy.mockRestore();
+          handleNavigationSpy.mockRestore();
+        });
+
         it('shows merge warning for cached Sync passwordless signin when user accepts', async () => {
           const ensureCanLinkSpy = jest.spyOn(
             SigninUtils,
