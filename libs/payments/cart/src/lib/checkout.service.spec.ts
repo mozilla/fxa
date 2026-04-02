@@ -2315,6 +2315,60 @@ describe('CheckoutService', () => {
         )
       ).rejects.toThrow(/UpgradeSubscriptionNullCurrencyError/);
     });
+
+    it('passes trial_end now and trial_settings create_invoice when subscription is trialing', async () => {
+      const trialingSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+      });
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockReset()
+        .mockResolvedValueOnce(trialingSubscription);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockReset()
+        .mockResolvedValueOnce(
+          StripeResponseFactory(trialingSubscription)
+        );
+
+      await checkoutService.upgradeSubscription(
+        customerId,
+        toPriceId,
+        fromPriceId,
+        cart,
+        [],
+        mockAttributionData
+      );
+      expect(subscriptionManager.update).toHaveBeenCalledWith(
+        trialingSubscription.id,
+        expect.objectContaining({
+          trial_end: 'now',
+          trial_settings: {
+            end_behavior: {
+              missing_payment_method: 'create_invoice',
+            },
+          },
+        })
+      );
+    });
+
+    it('does not pass trial_end or trial_settings when subscription is active', async () => {
+      await checkoutService.upgradeSubscription(
+        customerId,
+        toPriceId,
+        fromPriceId,
+        cart,
+        [],
+        mockAttributionData
+      );
+      expect(subscriptionManager.update).toHaveBeenCalledWith(
+        subscription.id,
+        expect.not.objectContaining({
+          trial_end: expect.anything(),
+          trial_settings: expect.anything(),
+        })
+      );
+    });
   });
 
   describe('determineCheckoutAmount', () => {
@@ -2364,6 +2418,58 @@ describe('CheckoutService', () => {
       });
       expect(invoiceManager.previewUpcoming).not.toHaveBeenCalled();
       expect(invoiceManager.previewUpcomingForUpgrade).toHaveBeenCalled();
+      expect(result).toEqual(mockInvoicePreviewForUpgrade.subtotal);
+    });
+
+    it('uses previewUpcoming for trialing upgrade with no payment method', async () => {
+      const trialingSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+      });
+      const customerNoPaymentMethod = StripeCustomerFactory({
+        invoice_settings: {
+          custom_fields: null,
+          default_payment_method: null,
+          footer: null,
+          rendering_options: null,
+        },
+      });
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValue(trialingSubscription);
+
+      const result = await checkoutService.determineCheckoutAmount({
+        eligibility: mockEligibilityUpgrade,
+        customer: customerNoPaymentMethod,
+        priceId: mockPrice.id,
+        currency: mockCurrency,
+        taxAddress: mockTaxAddress,
+      });
+      expect(invoiceManager.previewUpcoming).toHaveBeenCalled();
+      expect(invoiceManager.previewUpcomingForUpgrade).not.toHaveBeenCalled();
+      expect(result).toEqual(mockInvoicePreview.subtotal);
+    });
+
+    it('uses previewUpcomingForUpgrade with trialEnd for trialing upgrade with payment method', async () => {
+      const trialingSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+      });
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValue(trialingSubscription);
+
+      const result = await checkoutService.determineCheckoutAmount({
+        eligibility: mockEligibilityUpgrade,
+        customer: mockCustomer,
+        priceId: mockPrice.id,
+        currency: mockCurrency,
+        taxAddress: mockTaxAddress,
+      });
+      expect(invoiceManager.previewUpcomingForUpgrade).toHaveBeenCalledWith(
+        expect.objectContaining({
+          trialEnd: expect.any(Number),
+        })
+      );
+      expect(invoiceManager.previewUpcoming).not.toHaveBeenCalled();
       expect(result).toEqual(mockInvoicePreviewForUpgrade.subtotal);
     });
 

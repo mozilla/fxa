@@ -2013,6 +2013,7 @@ describe('CartService', () => {
         },
         hasActiveSubscriptions: true,
         freeTrialEligibility: null,
+        isUpgradeFromTrial: false,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -2027,6 +2028,123 @@ describe('CartService', () => {
         customer: mockCustomer,
         fromSubscriptionItem: mockSubscription.items.data[0],
       });
+    });
+
+    it('returns cart with isUpgradeFromTrial true and uses previewUpcomingForUpgrade with trialEnd when subscription is trialing with payment method', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.START,
+        stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.UPGRADE,
+      });
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPrice = StripePriceFactory({ currency: mockCart.currency });
+      const mockInvoicePreviewForUpgrade = InvoicePreviewFactory();
+      const mockFromOfferingId = faker.string.uuid();
+      const mockFromPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({ interval: 'month' }),
+      });
+      const mockPricingForCurrency = PricingForCurrencyFactory({
+        price: mockFromPrice,
+      });
+      const mockTrialingSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+      });
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
+        .mockResolvedValue(mockInvoicePreviewForUpgrade);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+        fromOfferingConfigId: mockFromOfferingId,
+        fromPrice: mockFromPrice,
+      });
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValue(mockTrialingSubscription);
+      jest
+        .spyOn(priceManager, 'retrievePricingForCurrency')
+        .mockResolvedValue(mockPricingForCurrency);
+
+      const result = await cartService.getCart(mockCart.id);
+      expect(invoiceManager.previewUpcomingForUpgrade).toHaveBeenCalledWith(
+        expect.objectContaining({
+          trialEnd: expect.any(Number),
+        })
+      );
+      expect(result).toEqual(
+        expect.objectContaining({
+          isUpgradeFromTrial: true,
+        })
+      );
+    });
+
+    it('uses previewUpcoming for trialing upgrade with no payment method', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.START,
+        stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.UPGRADE,
+      });
+      const mockCustomerNoPaymentMethod = StripeResponseFactory(
+        StripeCustomerFactory({
+          invoice_settings: {
+            custom_fields: null,
+            default_payment_method: null,
+            footer: null,
+            rendering_options: null,
+          },
+        })
+      );
+      const mockPrice = StripePriceFactory({ currency: mockCart.currency });
+      const mockInvoicePreview = InvoicePreviewFactory();
+      const mockFromOfferingId = faker.string.uuid();
+      const mockFromPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({ interval: 'month' }),
+      });
+      const mockPricingForCurrency = PricingForCurrencyFactory({
+        price: mockFromPrice,
+      });
+      const mockTrialingSubscription = StripeSubscriptionFactory({
+        status: 'trialing',
+      });
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockCustomerNoPaymentMethod);
+      const previewUpcomingSpy = jest
+        .spyOn(invoiceManager, 'previewUpcoming')
+        .mockResolvedValue(mockInvoicePreview);
+      const previewUpgradespy = jest
+        .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
+        .mockResolvedValue(mockInvoicePreview);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+        fromOfferingConfigId: mockFromOfferingId,
+        fromPrice: mockFromPrice,
+      });
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValue(mockTrialingSubscription);
+      jest
+        .spyOn(priceManager, 'retrievePricingForCurrency')
+        .mockResolvedValue(mockPricingForCurrency);
+
+      const result = await cartService.getCart(mockCart.id);
+      expect(previewUpcomingSpy).toHaveBeenCalled();
+      expect(previewUpgradespy).not.toHaveBeenCalled();
+      expect(result).toEqual(
+        expect.objectContaining({
+          isUpgradeFromTrial: true,
+        })
+      );
     });
 
     it('throws error if offeringPrice could not be retrieved', async () => {
