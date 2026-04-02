@@ -246,6 +246,7 @@ export interface NavigationOptions {
   // If false, skip actually navigating. Still sends web channel messages etc.
   performNavigation?: boolean;
   isServiceWithEmailVerification?: boolean;
+  isPasswordlessFlow?: boolean;
 }
 
 export interface OAuthSigninResult {

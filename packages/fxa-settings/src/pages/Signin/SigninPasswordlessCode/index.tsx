@@ -236,6 +236,7 @@ const SigninPasswordlessCode = ({
         performNavigation: !(
           integration.isFirefoxMobileClient() && isSessionVerified
         ),
+        isPasswordlessFlow: true,
       };
 
       // For existing users signing into Sync (signin flow), show merge warning

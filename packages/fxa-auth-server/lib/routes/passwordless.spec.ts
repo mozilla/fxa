@@ -1200,6 +1200,48 @@ describe('passwordless statsd metrics', () => {
       expect(mockStatsd.increment.args[0][0]).toBe(
         'passwordless.sendCode.success'
       );
+      expect(mockStatsd.increment.args[0][1]).toMatchObject({
+        isResend: 'false',
+      });
+    });
+  });
+
+  it('should increment statsd counter when OTP is resent', () => {
+    mockDB.accountRecord = sinon.spy(() =>
+      Promise.resolve({
+        uid,
+        email: TEST_EMAIL,
+        verifierSetAt: 0,
+        emails: [{ email: TEST_EMAIL, isPrimary: true }],
+      })
+    );
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      statsd: mockStatsd,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/resend_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      expect(mockStatsd.increment.callCount).toBe(1);
+      expect(mockStatsd.increment.args[0][0]).toBe(
+        'passwordless.sendCode.success'
+      );
+      expect(mockStatsd.increment.args[0][1]).toMatchObject({
+        isResend: 'true',
+      });
     });
   });
 
