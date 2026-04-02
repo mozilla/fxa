@@ -137,7 +137,9 @@ export const SigninTotpCode = ({
       // Passwordless Sync flow: after TOTP, redirect to set_password
       // for key derivation. The session is now verified so
       // /password/create (which requires verifiedSessionToken) will work.
-      if (signinState.isPasswordlessFlow) {
+      // Only redirect to set_password for Sync integrations, non-Sync
+      // OAuth flows (e.g. Relay) should continue through handleNavigation.
+      if (signinState.isPasswordlessFlow && integration.isSync()) {
         navigateWithQuery('/post_verify/third_party_auth/set_password', {
           replace: true,
           state: {
