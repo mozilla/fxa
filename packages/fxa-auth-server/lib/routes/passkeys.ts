@@ -274,6 +274,22 @@ class PasskeyHandler {
     // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
     // await this.glean.passkey.deleteSuccess(request, { uid });
 
+    try {
+      if (this.fxaMailer.canSend('postRemovePasskey')) {
+        await this.fxaMailer.sendPostRemovePasskeyEmail({
+          ...FxaMailerFormat.account({ ...account, uid }),
+          ...(await FxaMailerFormat.metricsContext(request)),
+          ...FxaMailerFormat.localTime(request),
+          ...FxaMailerFormat.location(request),
+          ...FxaMailerFormat.device(request),
+          ...FxaMailerFormat.sync(false),
+        });
+      }
+    } catch (err) {
+      this.log.error('passkeys.deletePasskey.sendEmail', { err });
+      reportSentryError(err, request);
+    }
+
     return {};
   }
 

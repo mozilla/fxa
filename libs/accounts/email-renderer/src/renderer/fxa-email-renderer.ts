@@ -34,6 +34,7 @@ import * as PostChangeTwoStepAuthentication from '../templates/postChangeTwoStep
 import * as PostConsumeRecoveryCode from '../templates/postConsumeRecoveryCode';
 import * as PostNewRecoveryCodes from '../templates/postNewRecoveryCodes';
 import * as PostRemoveAccountRecovery from '../templates/postRemoveAccountRecovery';
+import * as PostRemovePasskey from '../templates/postRemovePasskey';
 import * as PostRemoveRecoveryPhone from '../templates/postRemoveRecoveryPhone';
 import * as PostRemoveSecondary from '../templates/postRemoveSecondary';
 import * as PostRemoveTwoStepAuthentication from '../templates/postRemoveTwoStepAuthentication';
@@ -304,6 +305,18 @@ export class FxaEmailRenderer extends EmailRenderer {
       version: PostAddPasskey.version,
       layout: PostAddPasskey.layout,
       includes: PostAddPasskey.includes,
+      ...opts,
+    });
+  }
+
+  async renderPostRemovePasskey(
+    opts: WithFxaLayouts<PostRemovePasskey.TemplateData>
+  ) {
+    return this.renderEmail({
+      template: PostRemovePasskey.template,
+      version: PostRemovePasskey.version,
+      layout: PostRemovePasskey.layout,
+      includes: PostRemovePasskey.includes,
       ...opts,
     });
   }

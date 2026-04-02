@@ -15,6 +15,7 @@ import {
   postChangePrimary,
   postAddLinkedAccount,
   postAddPasskey,
+  postRemovePasskey,
   newDeviceLogin,
   postAddTwoStepAuthentication,
   postChangeTwoStepAuthentication,
@@ -424,6 +425,40 @@ export class FxaMailer extends FxaEmailRenderer {
       opts
     );
     const rendered = await this.renderPostAddPasskey({
+      ...opts,
+      ...links,
+    });
+    return this.sendEmail(opts, headers, rendered);
+  }
+
+  async sendPostRemovePasskeyEmail(
+    opts: EmailSenderOpts &
+      EmailFlowParams &
+      OmitCommonLinks<TemplateData> &
+      OmitCommonLinks<postRemovePasskey.TemplateData>
+  ) {
+    const { template, version } = postRemovePasskey;
+    const { metricsEnabled } = opts;
+    const links = {
+      privacyUrl: this.linkBuilder.buildPrivacyLink(template, metricsEnabled),
+      supportUrl: this.linkBuilder.buildSupportLink(template, metricsEnabled),
+      passwordChangeLink: this.linkBuilder.buildPasswordChangeLink(
+        template,
+        metricsEnabled,
+        { email: opts.to }
+      ),
+      link: this.linkBuilder.buildAccountSettingsLink(
+        template,
+        metricsEnabled,
+        { email: opts.to, uid: opts.uid }
+      ),
+    };
+    const headers = this.buildHeaders(
+      { template, version },
+      { 'X-Link': links.link },
+      opts
+    );
+    const rendered = await this.renderPostRemovePasskey({
       ...opts,
       ...links,
     });
