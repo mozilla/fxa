@@ -134,7 +134,7 @@ export class SubscriptionsService {
               invoiceId: invoice,
               err,
             });
-            return;
+            invoice = null;
           } else {
             throw err;
           }
