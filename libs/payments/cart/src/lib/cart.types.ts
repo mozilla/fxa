@@ -83,6 +83,7 @@ export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   freeTrialEligibility?: FreeTrial | null;
   trialStartDate?: number;
   trialEndDate?: number;
+  isUpgradeFromTrial?: boolean;
 };
 
 export type StartCartDTO = BaseCartDTO & {

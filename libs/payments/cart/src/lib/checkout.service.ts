@@ -789,6 +789,8 @@ export class CheckoutService {
     const upgradeSubscriptionItem =
       retrieveSubscriptionItem(upgradeSubscription);
 
+    const isTrialing = upgradeSubscription.status === 'trialing';
+
     const { unitAmountForCurrency } =
       await this.priceManager.retrievePricingForCurrency(
         toPriceId,
@@ -802,6 +804,14 @@ export class CheckoutService {
     const upgradedSubscription = await this.subscriptionManager.update(
       upgradeSubscription.id,
       {
+        ...(isTrialing && {
+          trial_end: 'now' as const,
+          trial_settings: {
+            end_behavior: {
+              missing_payment_method: 'create_invoice' as const,
+            },
+          },
+        }),
         cancel_at_period_end: false,
         items: [
           {
@@ -923,13 +933,29 @@ export class CheckoutService {
           eligibility.fromPrice.id
         )
       );
+      const isTrialing = fromSubscription.status === 'trialing';
+      const hasPaymentMethod =
+        !!customer.invoice_settings.default_payment_method;
       const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
-      const upcomingInvoice =
-        await this.invoiceManager.previewUpcomingForUpgrade({
+      let upcomingInvoice;
+      if (isTrialing && !hasPaymentMethod) {
+        upcomingInvoice = await this.invoiceManager.previewUpcoming({
           priceId,
+          currency,
           customer,
-          fromSubscriptionItem,
+          taxAddress,
         });
+      } else {
+        upcomingInvoice =
+          await this.invoiceManager.previewUpcomingForUpgrade({
+            priceId,
+            customer,
+            fromSubscriptionItem,
+            ...(isTrialing && {
+              trialEnd: Math.floor(Date.now() / 1000),
+            }),
+          });
+      }
       return upcomingInvoice.subtotal;
     } else {
       const upcomingInvoice = await this.invoiceManager.previewUpcoming({
