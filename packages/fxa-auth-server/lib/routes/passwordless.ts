@@ -181,7 +181,7 @@ class PasswordlessHandler {
       request
     );
 
-    return this.generateAndSendOtp(request, email, account, isNewAccount);
+    return this.generateAndSendOtp(request, email, account, isNewAccount, false);
   }
 
   async confirmCode(request: AuthRequest) {
@@ -349,7 +349,7 @@ class PasswordlessHandler {
     const otpKey = account ? account.uid : email;
     await this.otpManager.delete(otpKey);
 
-    return this.generateAndSendOtp(request, email, account, isNewAccount);
+    return this.generateAndSendOtp(request, email, account, isNewAccount, true);
   }
 
   /**
@@ -361,7 +361,8 @@ class PasswordlessHandler {
     request: AuthRequest,
     email: string,
     account: any,
-    isNewAccount: boolean
+    isNewAccount: boolean,
+    isResend: boolean
   ) {
     const otpKey = account ? account.uid : email;
     const code = await this.otpManager.create(otpKey);
@@ -443,10 +444,10 @@ class PasswordlessHandler {
       });
     }
 
-    this.statsd.increment(
-      'passwordless.sendCode.success',
-      getClientServiceTags(request)
-    );
+    this.statsd.increment('passwordless.sendCode.success', {
+      ...getClientServiceTags(request),
+      isResend: String(isResend),
+    });
 
     // Record security event
     await recordSecurityEvent('account.passwordless_login_otp_sent', {

@@ -1085,7 +1085,7 @@ test.describe('severity-2', () => {
   test.describe('Passwordless authentication - Browser Service (Relay)', () => {
     test('passwordless signin via Relay OAuth flow', async ({
       target,
-      pages: { page, signin, signinPasswordlessCode },
+      syncOAuthBrowserPages: { page, signin, signinPasswordlessCode },
       testAccountTracker,
     }) => {
       const { email } = await testAccountTracker.signUpPasswordless();
@@ -1109,7 +1109,7 @@ test.describe('severity-2', () => {
 
     test('passwordless signup via Relay OAuth flow - service allowed', async ({
       target,
-      pages: { page, signin, signinPasswordlessCode },
+      syncOAuthBrowserPages: { page, signin, signinPasswordlessCode },
       testAccountTracker,
     }, { project }) => {
       test.skip(
@@ -1135,6 +1135,89 @@ test.describe('severity-2', () => {
 
       // Should complete OAuth flow
       await expect(page).not.toHaveURL(/signin_passwordless_code/);
+    });
+
+    test('passwordless signin via Relay OAuth flow - account with 2FA proceeds to TOTP verification', async ({
+      target,
+      syncOAuthBrowserPages: { page, signin, signinPasswordlessCode, signinTotpCode },
+      testAccountTracker,
+    }) => {
+      // Create passwordless account and set up TOTP via API
+      const { email, sessionToken } =
+        await testAccountTracker.signUpPasswordless();
+      const account: any = testAccountTracker.accounts.find(
+        (a) => a.email === email
+      );
+      if (!account) {
+        throw new Error(
+          `Account for email ${email} not found in testAccountTracker.accounts`
+        );
+      }
+      const password = account.password;
+
+      const { secret } = await target.authClient.createTotpToken(
+        sessionToken,
+        {}
+      );
+      const totpCode = await getTotpCode(secret);
+      await target.authClient.verifyTotpSetupCode(sessionToken, totpCode);
+      await target.authClient.completeTotpSetup(sessionToken);
+
+      if (account) {
+        account.secret = secret;
+        account.sessionToken = sessionToken;
+      }
+
+      await signin.clearCache();
+
+      // Sign in via Relay OAuth flow
+      const params = new URLSearchParams(relayDesktopOAuthQueryParams);
+      params.set('force_passwordless', 'true');
+      await signin.goto('/authorization', params);
+
+      await signin.fillOutEmailFirstForm(email);
+
+      // Should redirect to passwordless code page
+      await page.waitForURL(/signin_passwordless_code/);
+
+      const passwordlessCode =
+        await target.emailClient.getPasswordlessSigninCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(passwordlessCode);
+
+      // Should redirect to TOTP code entry page
+      await page.waitForURL(/signin_totp_code/);
+
+      const newTotpCode = await getTotpCode(secret);
+      await signinTotpCode.fillOutCodeForm(newTotpCode);
+
+      // Should complete OAuth flow and land on settings
+      await page.waitForURL(/\/settings/);
+
+      // Cleanup: set password so testAccountTracker can destroy the account
+      await target.authClient.passwordlessSendCode(email, {
+        clientId: 'dcdb5ae7add825d2',
+      });
+      const cleanupCode =
+        await target.emailClient.getPasswordlessSigninCode(email);
+      const cleanupResult = await target.authClient.passwordlessConfirmCode(
+        email,
+        cleanupCode,
+        { clientId: 'dcdb5ae7add825d2' }
+      );
+      const cleanupTotpCode = await getTotpCode(secret);
+      await target.authClient.verifyTotpCode(
+        cleanupResult.sessionToken,
+        cleanupTotpCode
+      );
+      await target.authClient.createPassword(
+        cleanupResult.sessionToken,
+        email,
+        password
+      );
+
+      if (account) {
+        account.isPasswordless = false;
+      }
     });
 
     test('passwordless signup blocked for service not in allowedClientServices', async ({
