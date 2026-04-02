@@ -181,7 +181,13 @@ class PasswordlessHandler {
       request
     );
 
-    return this.generateAndSendOtp(request, email, account, isNewAccount, false);
+    return this.generateAndSendOtp(
+      request,
+      email,
+      account,
+      isNewAccount,
+      false
+    );
   }
 
   async confirmCode(request: AuthRequest) {
@@ -545,12 +551,20 @@ export function passwordlessRoutes(
     authServerCacheRedis
   );
 
+  // Enable CORS credentials only when using explicit origins (not wildcard, per CORS spec)
+  const enableCredentials = config.corsOrigin && config.corsOrigin[0] !== '*';
+
   return [
     {
       method: 'POST',
       path: '/account/passwordless/send_code',
       options: {
         ...PASSWORDLESS_DOCS.PASSWORDLESS_SEND_CODE_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         auth: false,
         validate: {
           payload: isA.object({
@@ -575,6 +589,11 @@ export function passwordlessRoutes(
       path: '/account/passwordless/confirm_code',
       options: {
         ...PASSWORDLESS_DOCS.PASSWORDLESS_CONFIRM_CODE_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         auth: false,
         validate: {
           payload: isA.object({
@@ -613,6 +632,11 @@ export function passwordlessRoutes(
       path: '/account/passwordless/resend_code',
       options: {
         ...PASSWORDLESS_DOCS.PASSWORDLESS_RESEND_CODE_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         auth: false,
         validate: {
           payload: isA.object({
@@ -634,4 +658,3 @@ export function passwordlessRoutes(
     },
   ];
 }
-
