@@ -781,7 +781,6 @@ describe('deleteAccountIfUnverified', () => {
   const mockConfig = {};
   mockConfig.oauth = {};
   mockConfig.signinConfirmation = {};
-  mockConfig.signinConfirmation.skipForEmailAddresses = [];
   const emailRecord = {
     isPrimary: true,
     isVerified: false,
@@ -3780,116 +3779,14 @@ describe('/account/login', () => {
           );
         });
       });
-    });
 
-    describe('skip for emails', () => {
-      function setup(email) {
-        config.securityHistory.ipProfiling.allowedRecency = 0;
-        config.signinConfirmation.skipForNewAccounts = { enabled: false };
-        config.signinConfirmation.skipForEmailAddresses = [
-          'skip@confirmation.com',
-          'other@email.com',
-        ];
-
-        // Reset the spy to avoid leaking state between tests
-        // Previously, "should not skip sign-in confirmation for specified email" test
-        // was failing intermittently because the spy was not reset between tests.
+      afterEach(() => {
+        config.signinConfirmation.skipForNewAccounts = undefined;
+        config.securityHistory.ipProfiling.allowedRecency =
+          defaultConfig.securityHistory.ipProfiling.allowedRecency;
         mockDB.verifiedLoginSecurityEvents = sinon.spy(() =>
           Promise.resolve([])
         );
-
-        mockRequest.payload.email = email;
-
-        mockDB.accountRecord = () => {
-          return Promise.resolve({
-            authSalt: hexString(32),
-            data: hexString(32),
-            email,
-            emailVerified: true,
-            primaryEmail: {
-              normalizedEmail: normalizeEmail(email),
-              email,
-              isVerified: true,
-              isPrimary: true,
-            },
-            kA: hexString(32),
-            lastAuthAt: () => Date.now(),
-            uid,
-            wrapWrapKb: hexString(32),
-          });
-        };
-
-        const accountRoutes = makeRoutes({
-          checkPassword: () => Promise.resolve(true),
-          config,
-          customs: mockCustoms,
-          db: mockDB,
-          log: mockLog,
-          mailer: mockMailer,
-          push: mockPush,
-        });
-
-        route = getRoute(accountRoutes, '/account/login');
-      }
-
-      afterEach(() => {
-        // Restore config to default to avoid leaking into subsequent tests
-        config.securityHistory.ipProfiling.allowedRecency =
-          defaultConfig.securityHistory.ipProfiling.allowedRecency;
-      });
-
-      it('should not skip sign-in confirmation for specified email', () => {
-        setup('not@skip.com');
-
-        return runTest(route, mockRequest, (response) => {
-          assert.equal(
-            mockDB.createSessionToken.callCount,
-            1,
-            'db.createSessionToken was called'
-          );
-          const tokenData = mockDB.createSessionToken.getCall(0).args[0];
-          assert.ok(
-            tokenData.tokenVerificationId,
-            'sessionToken was created unverified'
-          );
-          assert.equal(
-            mockFxaMailer.sendVerifyLoginEmail.callCount,
-            1,
-            'mailer.sendVerifyLoginEmail was called'
-          );
-          assert.equal(mockFxaMailer.sendNewDeviceLoginEmail.callCount, 0);
-          assert.ok(
-            !response.verified,
-            'response indicates account is unverified'
-          );
-        });
-      });
-
-      it('should skip sign-in confirmation for specified email', () => {
-        setup('skip@confirmation.com');
-
-        return runTest(route, mockRequest, (response) => {
-          assert.equal(
-            mockDB.createSessionToken.callCount,
-            1,
-            'db.createSessionToken was called'
-          );
-          const tokenData = mockDB.createSessionToken.getCall(0).args[0];
-          assert.ok(
-            !tokenData.tokenVerificationId,
-            'sessionToken was created verified'
-          );
-          assert.equal(
-            mockMailer.sendVerifyLoginEmail.callCount,
-            0,
-            'mailer.sendVerifyLoginEmail was not called'
-          );
-          assert.equal(mockFxaMailer.sendNewDeviceLoginEmail.callCount, 1);
-          assert.ok(
-            response.emailVerified,
-            'response indicates account is verified'
-          );
-        });
       });
     });
 

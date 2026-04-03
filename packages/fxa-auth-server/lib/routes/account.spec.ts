@@ -3080,86 +3080,14 @@ describe('/account/login', () => {
           );
         });
       });
-    });
 
-    describe('skip for emails', () => {
-      function setupSkipForEmails(email: string) {
-        config.securityHistory.ipProfiling.allowedRecency = 0;
-        config.signinConfirmation.skipForNewAccounts = { enabled: false };
-        config.signinConfirmation.skipForEmailAddresses = [
-          'skip@confirmation.com',
-          'other@email.com',
-        ];
-
-        // Reset the spy to avoid leaking state between tests
+      afterEach(() => {
+        config.signinConfirmation.skipForNewAccounts = undefined;
+        config.securityHistory.ipProfiling.allowedRecency =
+          defaultConfig.securityHistory.ipProfiling.allowedRecency;
         mockDB.verifiedLoginSecurityEvents = sinon.spy(() =>
           Promise.resolve([])
         );
-
-        mockRequest.payload.email = email;
-
-        mockDB.accountRecord = () => {
-          return Promise.resolve({
-            authSalt: hexString(32),
-            data: hexString(32),
-            email,
-            emailVerified: true,
-            primaryEmail: {
-              normalizedEmail: normalizeEmail(email),
-              email,
-              isVerified: true,
-              isPrimary: true,
-            },
-            kA: hexString(32),
-            lastAuthAt: () => Date.now(),
-            uid,
-            wrapWrapKb: hexString(32),
-          });
-        };
-
-        const innerAccountRoutes = makeRoutes({
-          checkPassword: () => Promise.resolve(true),
-          config,
-          customs: mockCustoms,
-          db: mockDB,
-          log: mockLog,
-          mailer: mockMailer,
-          push: mockPush,
-        });
-
-        route = getRoute(innerAccountRoutes, '/account/login');
-      }
-
-      afterEach(() => {
-        // Restore config to default to avoid leaking into subsequent tests
-        config.securityHistory.ipProfiling.allowedRecency =
-          defaultConfig.securityHistory.ipProfiling.allowedRecency;
-      });
-
-      it('should not skip sign-in confirmation for specified email', () => {
-        setupSkipForEmails('not@skip.com');
-
-        return runTest(route, mockRequest, (response: any) => {
-          expect(mockDB.createSessionToken.callCount).toBe(1);
-          const tokenData = mockDB.createSessionToken.getCall(0).args[0];
-          expect(tokenData.tokenVerificationId).toBeTruthy();
-          expect(mockFxaMailer.sendVerifyLoginEmail.callCount).toBe(1);
-          expect(mockFxaMailer.sendNewDeviceLoginEmail.callCount).toBe(0);
-          expect(response.verified).toBeFalsy();
-        });
-      });
-
-      it('should skip sign-in confirmation for specified email', () => {
-        setupSkipForEmails('skip@confirmation.com');
-
-        return runTest(route, mockRequest, (response: any) => {
-          expect(mockDB.createSessionToken.callCount).toBe(1);
-          const tokenData = mockDB.createSessionToken.getCall(0).args[0];
-          expect(tokenData.tokenVerificationId).toBeFalsy();
-          expect(mockMailer.sendVerifyLoginEmail.callCount).toBe(0);
-          expect(mockFxaMailer.sendNewDeviceLoginEmail.callCount).toBe(1);
-          expect(response.emailVerified).toBeTruthy();
-        });
       });
     });
 
@@ -3184,7 +3112,6 @@ describe('/account/login', () => {
       function setupSkipForEmailRegex(email: string, regex: RegExp) {
         config.securityHistory.ipProfiling.allowedRecency = 0;
         config.signinConfirmation.skipForNewAccounts = { enabled: false };
-        config.signinConfirmation.skipForEmailAddresses = [];
         config.signinConfirmation.skipForEmailRegex = regex;
 
         mockDB.verifiedLoginSecurityEvents = sinon.spy(() =>
@@ -3224,11 +3151,18 @@ describe('/account/login', () => {
 
         route = getRoute(innerAccountRoutes, '/account/login');
       }
-
+      beforeEach(() => {
+        // one test is checking the statsd, and this is included in it.
+        // We set it here, and reset in the afterEach to avoid having the
+        // config state leak to other tests if these fail
+        mockRequest.app.clientIdTag = 'test-client-id';
+        statsd.increment.resetHistory();
+      });
       afterEach(() => {
         config.securityHistory.ipProfiling.allowedRecency =
           defaultConfig.securityHistory.ipProfiling.allowedRecency;
         config.signinConfirmation.skipForEmailRegex = /^$/;
+        mockRequest.app.clientIdTag = undefined;
       });
 
       it('should skip sign-in confirmation for email matching regex', () => {
@@ -3250,6 +3184,19 @@ describe('/account/login', () => {
           const tokenData = mockDB.createSessionToken.getCall(0).args[0];
           expect(tokenData.tokenVerificationId).toBeTruthy();
           expect(response.verified).toBeFalsy();
+        });
+      });
+
+      it('should increment statsd metric for emailAlways', () => {
+        setupSkipForEmailRegex('qa-test@example.com', /.+@example\.com$/);
+
+        return runTest(route, mockRequest, () => {
+          sinon.assert.calledWith(
+            statsd.increment,
+            'account.signin.confirm.bypass.emailAlways',
+            { clientId: 'test-client-id' }
+          );
+          mockRequest.app.clientIdTag = undefined;
         });
       });
     });

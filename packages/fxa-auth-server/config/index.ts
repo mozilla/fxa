@@ -1693,14 +1693,8 @@ const convictConf = convict({
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX',
     },
-    skipForEmailAddresses: {
-      doc: 'Comma separated list of email addresses that will always skip any non TOTP sign-in confirmation',
-      format: Array,
-      default: [],
-      env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_ADDRESS',
-    },
     skipForEmailRegex: {
-      doc: 'Regex pattern for email addresses that will always skip any non-TOTP sign-in confirmation. Checked in addition to skipForEmailAddresses.',
+      doc: 'Regex pattern for email addresses that will always skip any non-TOTP sign-in confirmation.',
       format: RegExp,
       default: /^$/,
       env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_REGEX',
