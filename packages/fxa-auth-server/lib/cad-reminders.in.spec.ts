@@ -30,7 +30,7 @@ describe('#integration - lib/cad-reminders', () => {
         redis: {
           maxConnections: 1,
           minConnections: 1,
-          prefix: 'test-cad-reminders:',
+          prefix: 'test-cad-reminders-lib:',
         },
       },
     };
@@ -98,13 +98,10 @@ describe('#integration - lib/cad-reminders', () => {
         expect(deleteResult).toEqual(EXPECTED_CREATE_DELETE_RESULT);
       });
 
-      it.each(REMINDERS)(
-        'removed %s reminder from redis',
-        async (reminder) => {
-          const reminders = await redis.zrange(reminder, 0, -1);
-          expect(reminders).toHaveLength(0);
-        }
-      );
+      it.each(REMINDERS)('removed %s reminder from redis', async (reminder) => {
+        const reminders = await redis.zrange(reminder, 0, -1);
+        expect(reminders).toHaveLength(0);
+      });
 
       it('did not call log.error', () => {
         expect(log.error.callCount).toBe(0);
@@ -147,13 +144,11 @@ describe('#integration - lib/cad-reminders', () => {
         expect(parseInt(processResult.first[0].timestamp)).toBeGreaterThan(
           before - 1000
         );
-        expect(parseInt(processResult.first[0].timestamp)).toBeLessThan(
-          before
-        );
+        expect(parseInt(processResult.first[0].timestamp)).toBeLessThan(before);
         expect(processResult.first[1].uid).toBe('blee');
-        expect(parseInt(processResult.first[1].timestamp)).toBeGreaterThanOrEqual(
-          before
-        );
+        expect(
+          parseInt(processResult.first[1].timestamp)
+        ).toBeGreaterThanOrEqual(before);
         expect(parseInt(processResult.first[1].timestamp)).toBeLessThan(
           before + 1000
         );

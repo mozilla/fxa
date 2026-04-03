@@ -7,8 +7,6 @@
  * Runs AFTER the test environment is set up (after jest-setup-env.ts).
  */
 
-jest.setTimeout(60000);
-
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Rejection:', reason);
 });

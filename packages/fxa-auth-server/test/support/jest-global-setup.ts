@@ -15,10 +15,14 @@ import {
   SHARED_SERVER_PORT,
   SHARED_PROFILE_PORT,
   createTempConfig,
+  getAvailablePort,
   spawnAuthServer,
   waitForServer,
 } from './helpers/test-server';
-import { createProfileHelper } from './helpers/profile-helper';
+import {
+  createProfileHelper,
+  PROFILE_HELPER_HOST,
+} from './helpers/profile-helper';
 
 const AUTH_SERVER_ROOT = path.resolve(__dirname, '../..');
 const TMP_DIR = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp');
@@ -26,6 +30,9 @@ const MAIL_HELPER_PID_FILE = path.join(TMP_DIR, 'mail_helper.pid');
 const SHARED_SERVER_PID_FILE = path.join(TMP_DIR, 'shared_server.pid');
 const VERSION_JSON_PATH = path.join(AUTH_SERVER_ROOT, 'config', 'version.json');
 const VERSION_JSON_MARKER = path.join(TMP_DIR, 'version_json_created');
+const MAIL_HELPER_HOST = '127.0.0.1';
+const MAIL_HELPER_API_START_PORT = 39001;
+const MAIL_HELPER_SMTP_START_PORT = 39101;
 
 function generateKeysIfNeeded(): void {
   const keyScripts = [
@@ -59,20 +66,29 @@ function generateKeysIfNeeded(): void {
   }
 }
 
-async function waitForMailHelper(port = 9001, maxAttempts = 30, delayMs = 500): Promise<void> {
+async function waitForMailHelper(
+  port = Number(process.env.MAILER_PORT || 9001),
+  maxAttempts = 30,
+  delayMs = 500
+): Promise<void> {
   // Use DELETE endpoint — GET /mail/{email} blocks until an email arrives
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      const response = await fetch(`http://localhost:${port}/mail/__healthcheck__`, { method: 'DELETE' });
+      const response = await fetch(
+        `http://${process.env.MAILER_HOST || MAIL_HELPER_HOST}:${port}/mail/__healthcheck__`,
+        { method: 'DELETE' }
+      );
       if (response.ok || response.status === 404) {
         return;
       }
     } catch {
       // Not ready yet
     }
-    await new Promise(resolve => setTimeout(resolve, delayMs));
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
-  throw new Error(`mail_helper did not become ready after ${maxAttempts} attempts`);
+  throw new Error(
+    `mail_helper did not become ready after ${maxAttempts} attempts`
+  );
 }
 
 function killExistingProcess(pidFile: string, label: string): void {
@@ -81,7 +97,11 @@ function killExistingProcess(pidFile: string, label: string): void {
     if (oldPid) {
       try {
         process.kill(oldPid, 'SIGTERM');
-        console.log(`[Jest Global Setup] Killed leftover ${label} (PID:`, oldPid, ')');
+        console.log(
+          `[Jest Global Setup] Killed leftover ${label} (PID:`,
+          oldPid,
+          ')'
+        );
       } catch {
         // Process already dead
       }
@@ -101,7 +121,9 @@ function generateVersionJsonIfNeeded(): void {
     let source = 'unknown';
     try {
       source = execSync('git config --get remote.origin.url').toString().trim();
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     fs.writeFileSync(
       VERSION_JSON_PATH,
       JSON.stringify({ version: { hash, source } })
@@ -117,6 +139,20 @@ export default async function globalSetup(): Promise<void> {
   if (!process.env.CORS_ORIGIN) {
     process.env.CORS_ORIGIN = 'http://foo,http://bar';
   }
+
+  const mailHelperApiPort = await getAvailablePort(
+    MAIL_HELPER_API_START_PORT,
+    MAIL_HELPER_HOST
+  );
+  const mailHelperSmtpPort = await getAvailablePort(
+    MAIL_HELPER_SMTP_START_PORT,
+    MAIL_HELPER_HOST
+  );
+  process.env.MAILER_HOST = MAIL_HELPER_HOST;
+  process.env.MAILER_PORT = String(mailHelperApiPort);
+  process.env.SMTP_HOST = MAIL_HELPER_HOST;
+  process.env.SMTP_PORT = String(mailHelperSmtpPort);
+
   const printLogs = process.env.MAIL_HELPER_LOGS === 'true';
 
   generateKeysIfNeeded();
@@ -126,7 +162,10 @@ export default async function globalSetup(): Promise<void> {
   console.log('[Jest Global Setup] Cleaning up stale auth server processes...');
   killAllTrackedAuthServers();
 
-  console.log('[Jest Global Setup] Starting mail_helper...');
+  console.log(
+    '[Jest Global Setup] Starting mail_helper...',
+    `(api ${process.env.MAILER_HOST}:${process.env.MAILER_PORT}, smtp ${process.env.SMTP_HOST}:${process.env.SMTP_PORT})`
+  );
 
   if (!fs.existsSync(TMP_DIR)) {
     fs.mkdirSync(TMP_DIR, { recursive: true });
@@ -136,13 +175,16 @@ export default async function globalSetup(): Promise<void> {
 
   const mailHelperProcess = spawn(
     'node',
-    ['-r', 'esbuild-register', path.join(AUTH_SERVER_ROOT, 'test', 'mail_helper.js')],
+    [
+      '-r',
+      'esbuild-register',
+      path.join(AUTH_SERVER_ROOT, 'test', 'mail_helper.js'),
+    ],
     {
       cwd: AUTH_SERVER_ROOT,
       env: {
         ...process.env,
         NODE_ENV: 'dev',
-        MAILER_HOST: '0.0.0.0',
         MAIL_HELPER_LOGS: printLogs ? 'true' : '',
       },
       stdio: printLogs ? 'inherit' : 'ignore',
@@ -155,7 +197,11 @@ export default async function globalSetup(): Promise<void> {
 
   try {
     await waitForMailHelper();
-    console.log('[Jest Global Setup] mail_helper started (PID:', mailHelperProcess.pid, ')');
+    console.log(
+      '[Jest Global Setup] mail_helper started (PID:',
+      mailHelperProcess.pid,
+      ')'
+    );
   } catch (err) {
     console.error('[Jest Global Setup] Failed to start mail_helper:', err);
     mailHelperProcess.kill();
@@ -163,18 +209,29 @@ export default async function globalSetup(): Promise<void> {
   }
 
   // Start the shared profile helper for the shared auth server
-  console.log('[Jest Global Setup] Starting shared profile helper on port', SHARED_PROFILE_PORT, '...');
+  console.log(
+    '[Jest Global Setup] Starting shared profile helper on port',
+    SHARED_PROFILE_PORT,
+    '...'
+  );
   const sharedProfileHelper = await createProfileHelper(SHARED_PROFILE_PORT);
   (global as any).__sharedProfileHelper = sharedProfileHelper;
-  console.log('[Jest Global Setup] Shared profile helper started on port', SHARED_PROFILE_PORT);
+  console.log(
+    '[Jest Global Setup] Shared profile helper started on port',
+    SHARED_PROFILE_PORT
+  );
 
   // Start the shared auth server for test suites that don't need config overrides
-  console.log('[Jest Global Setup] Starting shared auth server on port', SHARED_SERVER_PORT, '...');
+  console.log(
+    '[Jest Global Setup] Starting shared auth server on port',
+    SHARED_SERVER_PORT,
+    '...'
+  );
 
   killExistingProcess(SHARED_SERVER_PID_FILE, 'shared_server');
 
   const sharedPublicUrl = `http://localhost:${SHARED_SERVER_PORT}`;
-  const sharedProfileUrl = `http://localhost:${SHARED_PROFILE_PORT}`;
+  const sharedProfileUrl = `http://${PROFILE_HELPER_HOST}:${SHARED_PROFILE_PORT}`;
   const sharedPrintLogs = process.env.REMOTE_TEST_LOGS === 'true';
   // Only specify overrides — convict deep-merges these on top of defaults,
   // so we don't need to load the full base config here (which has deps
@@ -197,8 +254,15 @@ export default async function globalSetup(): Promise<void> {
     },
     profileServer: { url: sharedProfileUrl },
   };
-  const sharedConfigPath = createTempConfig(sharedOverrides, SHARED_SERVER_PORT);
-  const sharedSpawned = spawnAuthServer(SHARED_SERVER_PORT, sharedConfigPath, sharedPrintLogs);
+  const sharedConfigPath = createTempConfig(
+    sharedOverrides,
+    SHARED_SERVER_PORT
+  );
+  const sharedSpawned = spawnAuthServer(
+    SHARED_SERVER_PORT,
+    sharedConfigPath,
+    sharedPrintLogs
+  );
 
   if (sharedSpawned.process.pid) {
     fs.writeFileSync(SHARED_SERVER_PID_FILE, String(sharedSpawned.process.pid));
@@ -207,19 +271,31 @@ export default async function globalSetup(): Promise<void> {
 
   try {
     await waitForServer(sharedPublicUrl);
-    console.log('[Jest Global Setup] Shared auth server started (PID:', sharedSpawned.process.pid, ')');
+    console.log(
+      '[Jest Global Setup] Shared auth server started (PID:',
+      sharedSpawned.process.pid,
+      ')'
+    );
   } catch (err) {
     const stderr = sharedSpawned.stderrChunks.join('');
     sharedSpawned.process.kill();
     if (stderr) {
-      console.error(`[Jest Global Setup] Shared server stderr:\n${stderr.slice(-2000)}`);
+      console.error(
+        `[Jest Global Setup] Shared server stderr:\n${stderr.slice(-2000)}`
+      );
     }
     throw err;
   }
 
   // Install signal handlers so Ctrl+C / SIGTERM cleans up all child processes
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  const cleanup = (signal: 'SIGINT' | 'SIGTERM') => {
+  let cleaningUp = false;
+
+  function cleanup(signal: 'SIGINT' | 'SIGTERM') {
+    if (cleaningUp) {
+      return;
+    }
+    cleaningUp = true;
     console.log(`[Jest Global Setup] ${signal} received, cleaning up...`);
     killAllTrackedAuthServers();
     try {
@@ -234,9 +310,19 @@ export default async function globalSetup(): Promise<void> {
     }
     sharedProfileHelper.close().catch(() => {});
     // Re-raise so the process exits with the correct signal code
-    process.removeListener(signal, cleanup);
+    process.off('SIGINT', handleSigInt);
+    process.off('SIGTERM', handleSigTerm);
     process.kill(process.pid, signal);
-  };
-  process.on('SIGINT', () => cleanup('SIGINT'));
-  process.on('SIGTERM', () => cleanup('SIGTERM'));
+  }
+
+  function handleSigInt() {
+    cleanup('SIGINT');
+  }
+
+  function handleSigTerm() {
+    cleanup('SIGTERM');
+  }
+
+  process.on('SIGINT', handleSigInt);
+  process.on('SIGTERM', handleSigTerm);
 }

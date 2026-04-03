@@ -204,7 +204,17 @@ describe('#integration - Redis', () => {
     let accessToken2: any;
 
     beforeEach(async () => {
-      await redis.redis.flushall();
+      // Scoped cleanup: only delete keys under our prefix, not the entire keyspace.
+      // flushall() would wipe keys from other parallel test workers (e.g. pending
+      // secondary-email verification reservations) and cause unrelated flakes.
+      // keys() returns fully-prefixed keys, so strip the prefix before del() to avoid
+      // double-prefixing.
+      const keys = await redis.redis.keys(prefix + '*');
+      if (keys.length) {
+        await redis.redis.del(
+          ...keys.map((k: string) => k.replace(prefix, ''))
+        );
+      }
       accessToken2 = AccessToken.parse(
         JSON.stringify({
           clientId: '5678',
@@ -243,9 +253,7 @@ describe('#integration - Redis', () => {
         const index = await redis.redis.smembers(
           accessToken1.userId.toString('hex')
         );
-        expect(index).toEqual([
-          prefix + accessToken1.tokenId.toString('hex'),
-        ]);
+        expect(index).toEqual([prefix + accessToken1.tokenId.toString('hex')]);
       });
 
       it('appends to the index', async () => {
@@ -310,9 +318,7 @@ describe('#integration - Redis', () => {
 
       it('sets expiry on the index', async () => {
         await redis.setAccessToken(accessToken1);
-        const ttl = await redis.redis.pttl(
-          accessToken1.userId.toString('hex')
-        );
+        const ttl = await redis.redis.pttl(accessToken1.userId.toString('hex'));
         expect(ttl).toBeLessThanOrEqual(maxttl);
         expect(ttl).toBeGreaterThanOrEqual(maxttl - 10);
       });
@@ -357,9 +363,7 @@ describe('#integration - Redis', () => {
         const index = await redis.redis.smembers(
           accessToken2.userId.toString('hex')
         );
-        expect(index).toEqual([
-          prefix + accessToken2.tokenId.toString('hex'),
-        ]);
+        expect(index).toEqual([prefix + accessToken2.tokenId.toString('hex')]);
       });
     });
 
@@ -367,9 +371,7 @@ describe('#integration - Redis', () => {
       it('deletes the token', async () => {
         await redis.setAccessToken(accessToken1);
         await redis.removeAccessToken(accessToken1.tokenId);
-        const rawValue = await redis.get(
-          accessToken1.tokenId.toString('hex')
-        );
+        const rawValue = await redis.get(accessToken1.tokenId.toString('hex'));
         expect(rawValue).toBeNull();
       });
 
@@ -388,9 +390,7 @@ describe('#integration - Redis', () => {
     describe('removeAccessTokensForPublicClients', () => {
       it('does not remove non-public or non-grant tokens', async () => {
         await redis.setAccessToken(accessToken1);
-        await redis.removeAccessTokensForPublicClients(
-          accessToken1.userId
-        );
+        await redis.removeAccessTokensForPublicClients(accessToken1.userId);
         const tokens = await redis.getAccessTokens(accessToken1.userId);
         expect(tokens).toEqual([accessToken1]);
       });
@@ -399,9 +399,7 @@ describe('#integration - Redis', () => {
         accessToken1.publicClient = true;
         await redis.setAccessToken(accessToken1);
         await redis.setAccessToken(accessToken2);
-        await redis.removeAccessTokensForPublicClients(
-          accessToken1.userId
-        );
+        await redis.removeAccessTokensForPublicClients(accessToken1.userId);
         const tokens = await redis.getAccessTokens(accessToken1.userId);
         expect(tokens).toEqual([accessToken2]);
       });
@@ -410,17 +408,13 @@ describe('#integration - Redis', () => {
         accessToken1.canGrant = true;
         await redis.setAccessToken(accessToken1);
         await redis.setAccessToken(accessToken2);
-        await redis.removeAccessTokensForPublicClients(
-          accessToken1.userId
-        );
+        await redis.removeAccessTokensForPublicClients(accessToken1.userId);
         const tokens = await redis.getAccessTokens(accessToken1.userId);
         expect(tokens).toEqual([accessToken2]);
       });
 
       it('does nothing for nonexistent tokens', async () => {
-        await redis.removeAccessTokensForPublicClients(
-          accessToken1.userId
-        );
+        await redis.removeAccessTokensForPublicClients(accessToken1.userId);
       });
     });
 
@@ -478,7 +472,13 @@ describe('#integration - Redis', () => {
     let oldMeta: any;
 
     beforeEach(async () => {
-      await redis.redis.flushall();
+      // Scoped cleanup: only delete keys under our prefix, not the entire keyspace.
+      const keys = await redis.redis.keys(prefix + '*');
+      if (keys.length) {
+        await redis.redis.del(
+          ...keys.map((k: string) => k.replace(prefix, ''))
+        );
+      }
       oldMeta = new RefreshTokenMetadata(
         new Date(Date.now() - (maxttl + 1000))
       );
@@ -534,9 +534,7 @@ describe('Redis down', () => {
 
   describe('touchSessionToken', () => {
     it('returns without error', async () => {
-      await expect(
-        downRedis.touchSessionToken(uid, {})
-      ).resolves.not.toThrow();
+      await expect(downRedis.touchSessionToken(uid, {})).resolves.not.toThrow();
     });
   });
 

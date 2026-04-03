@@ -4,12 +4,14 @@
 
 import {
   createTestServer,
+  getMailHelperConfig,
   TestServerInstance,
 } from '../support/helpers/test-server';
 import { createMailbox, Mailbox } from '../support/helpers/mailbox';
 import {
   createProfileHelper,
   ProfileHelper,
+  PROFILE_HELPER_HOST,
 } from '../support/helpers/profile-helper';
 import net from 'net';
 
@@ -68,7 +70,7 @@ const PRODUCT_ID = 'megaProductHooray';
 const PRODUCT_NAME = 'All Done Pro';
 
 /** Find an available TCP port starting from `startPort`. */
-function findFreePort(startPort: number): Promise<number> {
+function findFreePort(startPort: number, host = '127.0.0.1'): Promise<number> {
   return new Promise((resolve, reject) => {
     let port = startPort;
     const maxPort = startPort + 99;
@@ -78,7 +80,7 @@ function findFreePort(startPort: number): Promise<number> {
         return;
       }
       const srv = net.createServer();
-      srv.listen(port, '0.0.0.0', () => {
+      srv.listen(port, host, () => {
         const bound = (srv.address() as net.AddressInfo).port;
         srv.close(() => resolve(bound));
       });
@@ -172,6 +174,12 @@ describe('#integration - remote subscriptions (enabled)', () => {
       config.gleanMetrics.enabled = false;
     }
 
+    const mailHelperConfig = getMailHelperConfig(config);
+    config.smtp.host = mailHelperConfig.smtpHost;
+    config.smtp.port = mailHelperConfig.smtpPort;
+    config.smtp.api.host = mailHelperConfig.apiHost;
+    config.smtp.api.port = mailHelperConfig.apiPort;
+
     // Dynamically allocate ports to avoid conflicts with parallel Jest workers.
     // Workers use 9200-9599 (via allocatePorts in test-server.ts), so start at 9700.
     const port = await findFreePort(9700);
@@ -185,9 +193,9 @@ describe('#integration - remote subscriptions (enabled)', () => {
     };
 
     // Profile server
-    const profilePort = await findFreePort(port + 1);
+    const profilePort = await findFreePort(port + 1, PROFILE_HELPER_HOST);
     profileServer = await createProfileHelper(profilePort);
-    config.profileServer.url = `http://localhost:${profilePort}`;
+    config.profileServer.url = `http://${PROFILE_HELPER_HOST}:${profilePort}`;
 
     // Set up mock plan data
     mockStripeHelper.allAbbrevPlans = async () => [
@@ -281,11 +289,8 @@ describe('#integration - remote subscriptions (enabled)', () => {
     const createAuthServer = require('../../bin/key_server');
     server = await createAuthServer(config);
 
-    // Set up mailbox (connects to the shared mail_helper on port 9001)
-    mailbox = createMailbox(
-      config.smtp.api.host || 'localhost',
-      config.smtp.api.port || 9001
-    );
+    // Set up mailbox against the repo-local mail_helper started in globalSetup.
+    mailbox = createMailbox(mailHelperConfig.apiHost, mailHelperConfig.apiPort);
   }, 120000);
 
   afterAll(async () => {

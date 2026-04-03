@@ -31,16 +31,9 @@ const log = require('../lib/log')(config.log.level, 'prune-tokens', statsd);
 initSentry({ ...config, release: pckg.version }, log);
 
 export async function init() {
-  // Setup utilities
-  const redis = require('../lib/redis')(
-    {
-      ...config.redis,
-      ...config.redis.sessionTokens,
-    },
-    log
-  );
-
   // Parse args
+  const shouldPrintHelp =
+    process.argv.includes('--help') || process.argv.includes('-h');
   program
     .version(pckg.version)
     .option(
@@ -96,6 +89,10 @@ Exit Codes:
   3 - error during pruning operation`);
     })
     .parse(process.argv);
+
+  if (shouldPrintHelp) {
+    return 0;
+  }
 
   const tokenMaxAge = parseDuration(program.maxTokenAge);
   const maxTokenAgeWindowSize = program.maxTokenAgeWindowSize;
@@ -245,6 +242,13 @@ Exit Codes:
 
   // Clean up redis cache
   if (accountsImpacted.size > 0) {
+    const redis = require('../lib/redis')(
+      {
+        ...config.redis,
+        ...config.redis.sessionTokens,
+      },
+      log
+    );
     for (const uid of accountsImpacted) {
       try {
         // Pull session tokens from redis, sanity check sizes
@@ -288,6 +292,7 @@ Exit Codes:
         log.err(`error while pruning redis cache for account ${uid}`, err);
       }
     }
+    await redis.close();
   } else {
     log.info('no accounts impacted. skipping redis cache clean up.');
   }
