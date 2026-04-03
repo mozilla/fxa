@@ -41,6 +41,7 @@ export interface Invoice {
   remainingAmountTotal?: number;
   startingBalance: number;
   unusedAmountTotal?: number;
+  subsequentTax?: TaxAmount[];
 }
 
 export type PaymentProvidersType =
@@ -80,6 +81,8 @@ export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   taxAddress: TaxAddress;
   currency: string;
   freeTrialEligibility?: FreeTrial | null;
+  trialStartDate?: number;
+  trialEndDate?: number;
 };
 
 export type StartCartDTO = BaseCartDTO & {
