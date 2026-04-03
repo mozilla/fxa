@@ -15,6 +15,7 @@ import {
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
+import { getHandledError, type HandledError } from '../../../lib/error-utils';
 
 const SigninPasswordlessCodeContainer = ({
   integration,
@@ -41,7 +42,7 @@ const SigninPasswordlessCodeContainer = ({
     // via the History API), skip sending again.
     () => location.state?.codeSent === true
   );
-  const [sendError, setSendError] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<HandledError | null>(null);
 
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.SigninPasswordlessCodePage?.splitLayout
@@ -78,7 +79,8 @@ const SigninPasswordlessCodeContainer = ({
             state: { ...location.state, codeSent: true },
           });
         } catch (error: any) {
-          setSendError(error.message || 'Failed to send code');
+          const { error: handledError } = getHandledError(error);
+          setSendError(handledError);
         }
       };
       sendCode();
@@ -99,18 +101,7 @@ const SigninPasswordlessCodeContainer = ({
     return <OAuthDataError error={oAuthDataError} />;
   }
 
-  if (sendError) {
-    // TODO: Better error handling - for now show in AppLayout
-    return (
-      <AppLayout
-        {...{ cmsInfo, splitLayout, setCurrentSplitLayout }}
-      >
-        <div className="text-red-600">Error: {sendError}</div>
-      </AppLayout>
-    );
-  }
-
-  if (!codeSent) {
+  if (!codeSent && !sendError) {
     return (
       <AppLayout
         {...{ cmsInfo, loading: true, splitLayout, setCurrentSplitLayout }}
@@ -126,6 +117,7 @@ const SigninPasswordlessCodeContainer = ({
         integration,
         finishOAuthFlowHandler,
         flowQueryParams,
+        sendError,
         setCurrentSplitLayout,
         isSignup,
         resendCountdownSeconds: 5,
