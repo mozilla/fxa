@@ -50,6 +50,7 @@ const SigninPasswordlessCode = ({
   integration,
   finishOAuthFlowHandler,
   flowQueryParams,
+  sendError,
   setCurrentSplitLayout,
   isSignup = false,
   resendCountdownSeconds = 0,
@@ -61,6 +62,7 @@ const SigninPasswordlessCode = ({
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const location = useLocation();
   const alertBar = useAlertBar();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
     useState('');
@@ -77,6 +79,7 @@ const SigninPasswordlessCode = ({
     : GleanMetrics.passwordlessLogin;
 
   const gleanViewTracked = useRef(false);
+  const sendErrorProcessed = useRef(false);
 
   useEffect(() => {
     if (!gleanViewTracked.current) {
@@ -85,7 +88,25 @@ const SigninPasswordlessCode = ({
     }
   }, [gleanOtp]);
 
-  const ftlMsgResolver = useFtlMsgResolver();
+  // Countdown timer for resend code
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(resendCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [resendCountdown]);
+
+  // Process sendError prop only once when it's first set
+  useEffect(() => {
+    if (sendError && !sendErrorProcessed.current) {
+      setLocalizedErrorBannerMessage(getLocalizedErrorMessage(ftlMsgResolver, sendError));
+      sendErrorProcessed.current = true;
+    }
+  }, [sendError, ftlMsgResolver]);
+
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
     'signin-passwordless-code-required-error',
     'Confirmation code required'
@@ -104,17 +125,6 @@ const SigninPasswordlessCode = ({
     submitButtonText: 'Confirm',
   };
 
-  // Countdown timer for resend code
-  useEffect(() => {
-    if (resendCountdown > 0) {
-      const timer = setTimeout(() => {
-        setResendCountdown(resendCountdown - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-    return undefined;
-  }, [resendCountdown]);
-
   function goToSettingsWithAlertSuccess() {
     alertBar.success(
       ftlMsgResolver.getMsg(
@@ -131,6 +141,7 @@ const SigninPasswordlessCode = ({
 
   const handleResendCode = async () => {
     setResendCodeLoading(true);
+    setLocalizedErrorBannerMessage('');
     gleanOtp.resendCode();
     try {
       await authClient.passwordlessResendCode(email, {

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { QueryParams } from '../../..';
+import type { HandledError } from '../../../lib/error-utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { SigninIntegration } from '../interfaces';
 
@@ -29,6 +30,7 @@ export interface SigninPasswordlessCodeProps {
   integration: SigninIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   flowQueryParams: QueryParams;
+  sendError?: HandledError | null;
   setCurrentSplitLayout?: (value: boolean) => void;
   // True if user is signing up (new account)
   isSignup?: boolean;
