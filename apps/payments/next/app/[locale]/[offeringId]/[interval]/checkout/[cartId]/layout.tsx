@@ -110,6 +110,16 @@ export default async function CheckoutLayout({
                 cart.state === CartState.START ||
                 cart.state === CartState.SUCCESS
               }
+              freeTrialEligibility={cart.freeTrialEligibility}
+              firstChargeTax={
+                (cart.upcomingInvoicePreview.subsequentTax ?? cart.upcomingInvoicePreview.taxAmounts)
+                  .filter((tax) => !tax.inclusive)
+                  .reduce((sum, tax) => sum + tax.amount, 0)
+              }
+              interval={cart.interval}
+              cartState={cart.state}
+              trialStartDate={cart.trialStartDate}
+              trialEndDate={cart.trialEndDate}
             />
             {cart.state === CartState.START && (
               <section

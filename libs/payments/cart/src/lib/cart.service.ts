@@ -37,6 +37,7 @@ import {
   AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
 import {
+  FreeTrial,
   ProductConfigError,
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
@@ -887,15 +888,26 @@ export class CartService {
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
-    const freeTrialEligibility = cart.uid
-      ? await this.checkoutService.getFreeTrialEligibility({
+    // Use Stripe's trial dates as the source of truth if applicable
+    const trialSubscription =
+      cart.stripeSubscriptionId && subscriptions
+        ? subscriptions.find((s) => s.id === cart.stripeSubscriptionId)
+        : undefined;
+    const trialStartDate = trialSubscription?.trial_start ?? undefined;
+    const trialEndDate = trialSubscription?.trial_end ?? undefined;
+
+    let freeTrialEligibility: FreeTrial | null = null;
+    if (cart.uid && cart.state === CartState.START) {
+      freeTrialEligibility = await this.checkoutService.getFreeTrialEligibility(
+        {
           uid: cart.uid,
           offeringConfigId: cart.offeringConfigId,
           countryCode: cart.taxAddress.countryCode || '',
           interval: cart.interval as SubplatInterval,
           eligibilityStatus: eligibility.subscriptionEligibilityResult,
-        })
-      : null;
+        }
+      );
+    }
 
     const { unitAmountForCurrency: offeringPrice } =
       await this.priceManager.retrievePricingForCurrency(
@@ -1018,6 +1030,8 @@ export class CartService {
         paymentInfo,
         hasActiveSubscriptions: !!subscriptions?.length,
         freeTrialEligibility,
+        trialStartDate,
+        trialEndDate,
       };
     }
 
@@ -1070,6 +1084,8 @@ export class CartService {
       fromPrice: 'fromPrice' in eligibility ? fromPrice : undefined,
       hasActiveSubscriptions: !!subscriptions?.length,
       freeTrialEligibility,
+      trialStartDate,
+      trialEndDate,
     };
   }
 
