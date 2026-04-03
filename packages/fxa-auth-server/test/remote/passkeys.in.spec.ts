@@ -18,9 +18,11 @@ import {
 
 const Client = require('../client')();
 let server: TestServerInstance;
+let redis: Redis | undefined;
+let db: Awaited<ReturnType<typeof setupAccountDatabase>> | undefined;
 
 beforeAll(async () => {
-  const redis = new Redis({ host: 'localhost' });
+  redis = new Redis({ host: 'localhost' });
   const mockStatsD = { increment: jest.fn() };
   const mockLog = {
     error: jest.fn(),
@@ -29,7 +31,7 @@ beforeAll(async () => {
     log: jest.fn(),
   };
   const config = Config.getProperties();
-  const db = setupAccountDatabase(config.database.mysql.auth);
+  db = await setupAccountDatabase(config.database.mysql.auth);
   const passkeyManager = new PasskeyManager(db, config, mockStatsD, mockLog);
   const passkeyChallengeManager = new PasskeyChallengeManager(
     redis,
@@ -65,6 +67,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.stop();
+  await redis?.quit();
+  await db?.destroy();
+  Container.remove(PasskeyService);
 });
 
 beforeEach(() => {

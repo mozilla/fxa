@@ -23,9 +23,7 @@ const { ProductConfigurationManager } = require('@fxa/shared/cms');
 const { FxaMailer } = require('../lib/senders/fxa-mailer');
 
 const proxyquire = require('proxyquire');
-const {
-  OAuthClientInfoServiceName,
-} = require('../lib/senders/oauth_client_info');
+const OAuthClientInfoServiceName = 'OAuthClientInfo';
 const amplitudeModule = proxyquire('../lib/metrics/amplitude', {
   'fxa-shared/db/models/auth': {
     Account: {

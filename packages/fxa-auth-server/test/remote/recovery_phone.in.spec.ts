@@ -2,8 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import crypto from 'crypto';
+import { uuidTransformer } from 'fxa-shared/db/transformers';
+import {
+  Account,
+  Device,
+  Email,
+  RecoveryCodes,
+  RecoveryPhones,
+  SessionToken,
+  TotpToken,
+} from 'fxa-shared/db/models/auth';
 
 const Client = require('../client')();
 const otplib = require('otplib');
@@ -32,8 +45,8 @@ const redisUtil = {
       const parts = result[0].split(':');
       return parts[parts.length - 1];
     },
-    async clearAll() {
-      await redisUtil.clearAllKey('recovery-phone:*');
+    async clear(uid: string) {
+      await redisUtil.clearAllKey(`${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:*`);
     },
   },
   customs: {
@@ -51,6 +64,10 @@ const isTwilioConfiguredForTest =
 
 const phoneNumber = '+14159929960';
 const password = 'password';
+
+afterAll(async () => {
+  await redis.quit();
+});
 
 describe('#integration - recovery phone', () => {
   let server: TestServerInstance;
@@ -72,12 +89,18 @@ describe('#integration - recovery phone', () => {
   }, 120000);
 
   async function cleanUp() {
-    if (!db) return;
-    await redisUtil.recoveryPhone.clearAll();
-    await db.deleteFrom('accounts').execute();
-    await db.deleteFrom('recoveryPhones').execute();
-    await db.deleteFrom('sessionTokens').execute();
-    await db.deleteFrom('recoveryCodes').execute();
+    if (!db || !client?.uid) return;
+
+    const uid = uuidTransformer.to(client.uid);
+
+    await redisUtil.recoveryPhone.clear(client.uid);
+    await Device.knexQuery().where({ uid }).del();
+    await SessionToken.knexQuery().where({ uid }).del();
+    await RecoveryCodes.knexQuery().where({ uid }).del();
+    await RecoveryPhones.knexQuery().where({ uid }).del();
+    await TotpToken.knexQuery().where({ uid }).del();
+    await Email.knexQuery().where({ uid }).del();
+    await Account.knexQuery().where({ uid }).del();
   }
 
   beforeEach(async () => {
@@ -331,7 +354,9 @@ describe('#integration - recovery phone - customs checks', () => {
   });
 
   afterEach(async () => {
-    await redisUtil.recoveryPhone.clearAll();
+    if (client?.uid) {
+      await redisUtil.recoveryPhone.clear(client.uid);
+    }
     await redisUtil.customs.clearAll();
   });
 

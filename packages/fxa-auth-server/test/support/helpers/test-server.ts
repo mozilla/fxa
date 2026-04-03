@@ -12,8 +12,15 @@ import path from 'path';
 import fs from 'fs';
 import net from 'net';
 import { createMailbox, Mailbox } from './mailbox';
-import { createProfileHelper, ProfileHelper } from './profile-helper';
-import { registerAuthServerPid, unregisterAuthServerPid } from './test-process-registry';
+import {
+  createProfileHelper,
+  ProfileHelper,
+  PROFILE_HELPER_HOST,
+} from './profile-helper';
+import {
+  registerAuthServerPid,
+  unregisterAuthServerPid,
+} from './test-process-registry';
 
 export interface TestServerConfig {
   printLogs?: boolean;
@@ -35,23 +42,35 @@ interface AllocatedPorts {
   profileServerPort: number;
 }
 
+interface MailHelperConfig {
+  smtpHost: string;
+  smtpPort: number;
+  apiHost: string;
+  apiPort: number;
+}
+
 const AUTH_SERVER_ROOT = path.resolve(__dirname, '../../..');
 
 export const SHARED_SERVER_PORT = 9100;
 export const SHARED_PROFILE_PORT = 9101;
 
-function getAvailablePort(startPort: number): Promise<number> {
+export function getAvailablePort(
+  startPort: number,
+  host: string
+): Promise<number> {
   return new Promise((resolve, reject) => {
     let port = startPort;
     const maxPort = startPort + 99;
 
     function tryPort() {
       if (port > maxPort) {
-        reject(new Error(`No available port found in range ${startPort}-${maxPort}`));
+        reject(
+          new Error(`No available port found in range ${startPort}-${maxPort}`)
+        );
         return;
       }
       const srv = net.createServer();
-      srv.listen(port, '0.0.0.0', () => {
+      srv.listen(port, host, () => {
         const bound = (srv.address() as net.AddressInfo).port;
         srv.close(() => resolve(bound));
       });
@@ -73,29 +92,55 @@ async function allocatePorts(): Promise<AllocatedPorts> {
   // (9000 = auth-server, 9001 = mail_helper, etc.)
   // Port 9100 is reserved for the shared server (see SHARED_SERVER_PORT).
   const basePort = 9200 + (workerId - 1) * 100;
-  const authServerPort = await getAvailablePort(basePort);
-  const profileServerPort = await getAvailablePort(authServerPort + 1);
+  const authServerPort = await getAvailablePort(basePort, '127.0.0.1');
+  const profileServerPort = await getAvailablePort(
+    authServerPort + 1,
+    PROFILE_HELPER_HOST
+  );
   return { authServerPort, profileServerPort };
 }
 
-export async function waitForServer(url: string, maxAttempts = 60, delayMs = 1000): Promise<void> {
+export function getMailHelperConfig(
+  baseConfig: Record<string, any>
+): MailHelperConfig {
+  return {
+    smtpHost: process.env.SMTP_HOST || baseConfig.smtp?.host || 'localhost',
+    smtpPort: Number(process.env.SMTP_PORT || baseConfig.smtp?.port || 25),
+    apiHost:
+      process.env.MAILER_HOST || baseConfig.smtp?.api?.host || 'localhost',
+    apiPort: Number(
+      process.env.MAILER_PORT || baseConfig.smtp?.api?.port || 9001
+    ),
+  };
+}
+
+export async function waitForServer(
+  url: string,
+  maxAttempts = 60,
+  delayMs = 1000
+): Promise<void> {
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const response = await fetch(`${url}/__heartbeat__`);
       if (response.ok) {
         // Allow async initialization to settle after heartbeat passes
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
         return;
       }
     } catch {
       // Server not ready yet
     }
-    await new Promise(resolve => setTimeout(resolve, delayMs));
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
-  throw new Error(`Server at ${url} did not become ready after ${maxAttempts} attempts`);
+  throw new Error(
+    `Server at ${url} did not become ready after ${maxAttempts} attempts`
+  );
 }
 
-export function createTempConfig(overrides: Record<string, unknown>, port: number): string {
+export function createTempConfig(
+  overrides: Record<string, unknown>,
+  port: number
+): string {
   const config = {
     ...overrides,
     listen: { host: '127.0.0.1', port },
@@ -136,7 +181,11 @@ export function spawnAuthServer(
 
   const serverProcess = spawn(
     'node',
-    ['-r', 'esbuild-register', path.join(AUTH_SERVER_ROOT, 'bin', 'key_server.js')],
+    [
+      '-r',
+      'esbuild-register',
+      path.join(AUTH_SERVER_ROOT, 'bin', 'key_server.js'),
+    ],
     {
       cwd: AUTH_SERVER_ROOT,
       env,
@@ -181,9 +230,10 @@ export async function createTestServer(
   const baseConfigPath = require.resolve('../../../config');
   delete require.cache[baseConfigPath];
   const baseConfig = require('../../../config').default.getProperties();
+  const mailHelperConfig = getMailHelperConfig(baseConfig);
 
   let profileServer: ProfileHelper | null = null;
-  const profileServerUrl = `http://localhost:${ports.profileServerPort}`;
+  const profileServerUrl = `http://${PROFILE_HELPER_HOST}:${ports.profileServerPort}`;
   if (baseConfig.profileServer?.url) {
     profileServer = await createProfileHelper(ports.profileServerPort);
   }
@@ -205,6 +255,16 @@ export async function createTestServer(
       checkAllEndpoints: false,
       ignoreIPs: ['127.0.0.1', '::1', 'localhost'],
     },
+    smtp: {
+      ...baseConfig.smtp,
+      host: mailHelperConfig.smtpHost,
+      port: mailHelperConfig.smtpPort,
+      api: {
+        ...baseConfig.smtp?.api,
+        host: mailHelperConfig.apiHost,
+        port: mailHelperConfig.apiPort,
+      },
+    },
     oauth: {
       ...baseConfig.oauth,
       url: publicUrl,
@@ -223,8 +283,8 @@ export async function createTestServer(
   const configPath = createTempConfig(fullOverrides, ports.authServerPort);
 
   const mailbox = createMailbox(
-    baseConfig.smtp?.api?.host || 'localhost',
-    baseConfig.smtp?.api?.port || 9001,
+    mailHelperConfig.apiHost,
+    mailHelperConfig.apiPort,
     printLogs
   );
 
@@ -272,15 +332,28 @@ export async function createTestServer(
 
       if (serverProcess && !serverProcess.killed) {
         const exitPromise = new Promise<void>((resolve) => {
-          serverProcess.on('exit', () => resolve());
+          serverProcess.once('exit', () => resolve());
+        });
+        let timeoutId: ReturnType<typeof setTimeout> | undefined;
+        const timeout = new Promise<boolean>((resolve) => {
+          timeoutId = setTimeout(() => resolve(false), 5000);
+          timeoutId.unref?.();
         });
         serverProcess.kill('SIGTERM');
-        const timeout = new Promise<void>((resolve) =>
-          setTimeout(resolve, 5000)
-        );
-        await Promise.race([exitPromise, timeout]);
-        if (!serverProcess.killed) {
+        const exited = await Promise.race([
+          exitPromise.then(() => true),
+          timeout,
+        ]);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        if (
+          !exited &&
+          serverProcess.exitCode === null &&
+          serverProcess.signalCode === null
+        ) {
           serverProcess.kill('SIGKILL');
+          await exitPromise;
         }
       }
 
@@ -314,10 +387,11 @@ export async function getSharedTestServer(): Promise<TestServerInstance> {
   const baseConfigPath = require.resolve('../../../config');
   delete require.cache[baseConfigPath];
   const baseConfig = require('../../../config').default.getProperties();
+  const mailHelperConfig = getMailHelperConfig(baseConfig);
 
   const mailbox = createMailbox(
-    baseConfig.smtp?.api?.host || 'localhost',
-    baseConfig.smtp?.api?.port || 9001,
+    mailHelperConfig.apiHost,
+    mailHelperConfig.apiPort,
     process.env.REMOTE_TEST_LOGS === 'true'
   );
 
