@@ -20,15 +20,17 @@ jest.mock('@sentry/node', () => ({
 const TEST_TOKEN =
   'eyJhbGciOiJSUzI1NiIsImtpZCI6IjdkNjgwZDhjNzBkNDRlOTQ3MTMzY2JkNDk5ZWJjMWE2MWMzZDVhYmMiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tIiwiYXpwIjoiMTEzNzc0MjY0NDYzMDM4MzIxOTY0IiwiZW1haWwiOiJnYWUtZ2NwQGFwcHNwb3QuZ3NlcnZpY2VhY2NvdW50LmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjE1NTAxODU5MzUsImlhdCI6MTU1MDE4MjMzNSwiaXNzIjoiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tIiwic3ViIjoiMTEzNzc0MjY0NDYzMDM4MzIxOTY0In0.QVjyqpmadTyDZmlX2u3jWd1kJ68YkdwsRZDo-QxSPbxjug4ucLBwAs2QePrcgZ6hhkvdc4UHY4YF3fz9g7XHULNVIzX5xh02qXEH8dK6PgGndIWcZQzjSYfgO-q-R2oo2hNM5HBBsQN4ARtGK_acG-NGGWM3CQfahbEjZPAJe_B8M7HfIu_G5jOLZCw2EUcGo8BvEwGcLWB2WqEgRM0-xt5-UPzoa3-FpSPG7DHk7z9zRUeq6eB__ldb-2o4RciJmjVwHgnYqn3VvlX9oVKEgXpNFhKuYA-mWh5o7BCwhujSMmFoBOh6mbIXFcyf5UiVqKjpqEbqPGo_AvKvIQ9VTQ';
 const TEST_CLIENT_ID = 'abc1234';
-const CHANGE_TIME = Date.now();
+// Fixed epoch so assertions are deterministic
+const FIXED_NOW = 1743657600000;
 
 const createValidSubscriptionMessage = (): string => {
   return Buffer.from(
     JSON.stringify({
       capabilities: ['cap1', 'cap2'],
-      changeTime: Math.trunc(Date.now() / 1000),
+      changeTime: Date.now(),
       event: dto.SUBSCRIPTION_UPDATE_EVENT,
       isActive: true,
+      timestamp: Date.now(),
       uid: 'uid1234',
     })
   ).toString('base64');
@@ -38,6 +40,7 @@ const createValidUpdateMessage = (): string => {
   return Buffer.from(
     JSON.stringify({
       event: dto.SUBSCRIPTION_UPDATE_EVENT,
+      timestamp: Date.now(),
       uid: 'uid1234',
     })
   ).toString('base64');
@@ -47,6 +50,7 @@ const createValidDeleteMessage = (): string => {
   return Buffer.from(
     JSON.stringify({
       event: dto.DELETE_EVENT,
+      timestamp: Date.now(),
       uid: 'uid1234',
     })
   ).toString('base64');
@@ -56,6 +60,7 @@ const createValidProfileMessage = (): string => {
   return Buffer.from(
     JSON.stringify({
       event: dto.PROFILE_CHANGE_EVENT,
+      timestamp: Date.now(),
       uid: 'uid1234',
       locale: 'en-us',
       totpEnabled: false,
@@ -69,8 +74,9 @@ const createValidProfileMessage = (): string => {
 const createValidPasswordMessage = (): string => {
   return Buffer.from(
     JSON.stringify({
-      changeTime: CHANGE_TIME,
+      changeTime: FIXED_NOW,
       event: dto.PASSWORD_CHANGE_EVENT,
+      timestamp: Date.now(),
       uid: 'uid1234',
     })
   ).toString('base64');
@@ -93,6 +99,10 @@ describe('PubsubProxy Controller', () => {
   };
 
   beforeEach(async () => {
+    // we can't use fakeTimers here because it causes issues with
+    // axios/nock, but for other tests this gets us what we need
+    jest.spyOn(Date, 'now').mockReturnValue(FIXED_NOW);
+
     jwtset = {
       generateDeleteSET: jest.fn().mockResolvedValue(TEST_TOKEN),
       generatePasswordSET: jest.fn().mockResolvedValue(TEST_TOKEN),
@@ -144,6 +154,10 @@ describe('PubsubProxy Controller', () => {
     }).compile();
 
     controller = module.get<PubsubProxyController>(PubsubProxyController);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('should be defined', () => {
@@ -223,6 +237,39 @@ describe('PubsubProxy Controller', () => {
         await notifiesSuccessfully(creatFunc, generateFunc);
       });
     }
+  });
+
+  it('records proxy.success timing using message.timestamp, not changeTime', async () => {
+    // Simulate a password event where changeTime is years-old (the credential
+    // generation timestamp) but timestamp reflects when the event was queued.
+    const MESSAGE_TIMESTAMP = FIXED_NOW - 150;
+    const STALE_CHANGE_TIME = FIXED_NOW - 7 * 365 * 24 * 60 * 60 * 1000;
+
+    const message = Buffer.from(
+      JSON.stringify({
+        changeTime: STALE_CHANGE_TIME,
+        event: dto.PASSWORD_CHANGE_EVENT,
+        timestamp: MESSAGE_TIMESTAMP,
+        uid: 'uid1234',
+      })
+    ).toString('base64');
+
+    mockWebhook();
+    try {
+      await controller.proxy(
+        {
+          message: { data: message, messageId: 'test-message' },
+          subscription: 'test-sub',
+        },
+        TEST_CLIENT_ID
+      );
+    } catch (_) {}
+
+    expect(mockMetricValue.timing).toHaveBeenCalledWith('proxy.success', 150, {
+      clientId: TEST_CLIENT_ID,
+      statusCode: '200',
+      type: dto.PASSWORD_CHANGE_EVENT,
+    });
   });
 
   it('logs an error on invalid message payloads', async () => {
