@@ -14,8 +14,8 @@ freeTrialEndingReminder-content-trial-ending-plaintext = Your free trial is sche
 # Variables:
 #   $invoiceTotal (String) - The total amount that will be charged, e.g. $9.99
 #   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
-freeTrialEndingReminder-content-auto-charge = Unless you cancel before then, your subscription will automatically begin and we'll charge <strong>{ $invoiceTotal }</strong> to the payment method on your account on <strong>{ $serviceLastActiveDateOnly }</strong>.
-freeTrialEndingReminder-content-auto-charge-plaintext = Unless you cancel before then, your subscription will automatically begin and we'll charge { $invoiceTotal } to the payment method on your account on { $serviceLastActiveDateOnly }.
+freeTrialEndingReminder-content-auto-charge = Unless you cancel before then, your subscription will automatically begin and we’ll charge <strong>{ $invoiceTotal }</strong> to the payment method on your account on <strong>{ $serviceLastActiveDateOnly }</strong>.
+freeTrialEndingReminder-content-auto-charge-plaintext = Unless you cancel before then, your subscription will automatically begin and we’ll charge { $invoiceTotal } to the payment method on your account on { $serviceLastActiveDateOnly }.
 
 freeTrialEndingReminder-content-charge-heading = Charge details
 

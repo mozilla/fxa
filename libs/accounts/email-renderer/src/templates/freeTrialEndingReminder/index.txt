@@ -4,7 +4,7 @@ freeTrialEndingReminder-content-greeting = "Dear <%- productName %> customer,"
 
 freeTrialEndingReminder-content-trial-ending-plaintext = "Your free trial is scheduled to end on <%- serviceLastActiveDateOnly %>."
 
-freeTrialEndingReminder-content-auto-charge-plaintext = "Unless you cancel before then, your subscription will automatically begin and we'll charge <%- invoiceTotal %> to the payment method on your account on <%- serviceLastActiveDateOnly %>."
+freeTrialEndingReminder-content-auto-charge-plaintext = "Unless you cancel before then, your subscription will automatically begin and we’ll charge <%- invoiceTotal %> to the payment method on your account on <%- serviceLastActiveDateOnly %>."
 
 freeTrialEndingReminder-content-charge-heading = "Charge details"
 
