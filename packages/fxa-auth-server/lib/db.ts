@@ -27,6 +27,7 @@ import {
   TotpToken,
 } from 'fxa-shared/db/models/auth';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { Knex } from 'knex';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 import random, { base32 } from './crypto/random';
@@ -82,15 +83,17 @@ export const createDB = (
 
   class DB {
     redis: any;
+    knex: Knex | null;
     metrics?: StatsD;
 
-    constructor(options: { redis?: any; metrics?: StatsD }) {
+    constructor(options: { redis?: any; knex?: Knex; metrics?: StatsD }) {
       this.redis =
         options.redis ||
         require('./redis')(
           { ...config.redis, ...config.redis.sessionTokens },
           log
         );
+      this.knex = options.knex ?? null;
       this.metrics = options.metrics || resolveMetrics();
     }
 
@@ -107,12 +110,17 @@ export const createDB = (
           console.dir(data);
         });
       }
-      return new DB({ redis, metrics });
+      return new DB({ redis, knex, metrics });
     }
 
     async close() {
       if (this.redis) {
         await this.redis.close();
+        this.redis = null;
+      }
+      if (this.knex) {
+        await this.knex.destroy();
+        this.knex = null;
       }
     }
 

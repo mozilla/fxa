@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 
 const Client = require('../client')();
 
@@ -10,7 +13,12 @@ function delay(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
 
-async function resetPassword(client: any, otpCode: string, newPassword: string, options?: any) {
+async function resetPassword(
+  client: any,
+  otpCode: string,
+  newPassword: string,
+  options?: any
+) {
   const result = await client.verifyPasswordForgotOtp(otpCode);
   await client.verifyPasswordResetCode(result.code);
   return client.resetPassword(newPassword, {}, options);
@@ -57,7 +65,10 @@ describe.each(testVersions)(
       await client.login();
 
       // Verify the login session to be able to call securityEvents endpoint
-      const code = await server.mailbox.waitForCode(email);
+      const code = await server.mailbox.waitForEmailByHeader(
+        email,
+        'x-verify-code'
+      );
       await client.verifyEmail(code);
 
       await delay(1);

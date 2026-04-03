@@ -87,7 +87,9 @@ export function createMailbox(
 
       if (mail && mail.length > 0) {
         await deleteMail(username);
-        const result = mail[0];
+        // Newer emails are appended last in mail_helper; prefer the latest
+        // message so stale OTPs don't win when multiple messages are present.
+        const result = mail[mail.length - 1];
         eventEmitter.emit('email:message', email, result);
         return result;
       }
@@ -100,7 +102,10 @@ export function createMailbox(
     throw error;
   }
 
-  async function waitForEmails(email: string, count: number): Promise<EmailData[]> {
+  async function waitForEmails(
+    email: string,
+    count: number
+  ): Promise<EmailData[]> {
     const username = email.split('@')[0];
 
     for (let tries = MAX_RETRIES; tries > 0; tries--) {
@@ -147,7 +152,10 @@ export function createMailbox(
     return code;
   }
 
-  async function waitForEmailByHeader(email: string, headerName: string): Promise<string> {
+  async function waitForEmailByHeader(
+    email: string,
+    headerName: string
+  ): Promise<string> {
     const username = email.split('@')[0];
 
     for (let tries = MAX_RETRIES; tries > 0; tries--) {
@@ -156,7 +164,8 @@ export function createMailbox(
       const mail = await fetchMail(username);
 
       if (mail && mail.length > 0) {
-        for (const m of mail) {
+        for (let i = mail.length - 1; i >= 0; i--) {
+          const m = mail[i];
           const headerValue = m.headers[headerName];
           if (headerValue) {
             await deleteMail(username);
@@ -168,7 +177,9 @@ export function createMailbox(
       await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
     }
 
-    throw new Error(`Timeout waiting for email with header ${headerName}: ${email}`);
+    throw new Error(
+      `Timeout waiting for email with header ${headerName}: ${email}`
+    );
   }
 
   async function clear(email: string): Promise<void> {

@@ -10,9 +10,13 @@ export interface ProfileHelper {
   close: () => Promise<void>;
 }
 
-export async function createProfileHelper(port: number): Promise<ProfileHelper> {
+export const PROFILE_HELPER_HOST = '127.0.0.1';
+
+export async function createProfileHelper(
+  port: number
+): Promise<ProfileHelper> {
   const server = new Hapi.Server({
-    host: 'localhost',
+    host: PROFILE_HELPER_HOST,
     port,
   });
 
@@ -33,7 +37,7 @@ export async function createProfileHelper(port: number): Promise<ProfileHelper> 
 
   return {
     port,
-    url: `http://localhost:${port}`,
+    url: `http://${PROFILE_HELPER_HOST}:${port}`,
     close: async () => {
       await server.stop();
     },

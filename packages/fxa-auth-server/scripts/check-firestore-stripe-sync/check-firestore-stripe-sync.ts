@@ -11,12 +11,12 @@ import { ConfigType } from '../../config';
 import { StripeHelper } from '../../lib/payments/stripe';
 
 /**
-  * For RAM-preserving pruposes only
-  */
+ * For RAM-preserving pruposes only
+ */
 const QUEUE_SIZE_LIMIT = 1000;
 /**
-  * For RAM-preserving pruposes only
-  */
+ * For RAM-preserving pruposes only
+ */
 const QUEUE_CONCURRENCY_LIMIT = 3;
 
 export class FirestoreStripeSyncChecker {
@@ -37,7 +37,7 @@ export class FirestoreStripeSyncChecker {
   constructor(
     private stripeHelper: StripeHelper,
     rateLimit: number,
-    private log: any,
+    private log: any
   ) {
     this.stripe = this.stripeHelper.stripe;
 
@@ -47,7 +47,9 @@ export class FirestoreStripeSyncChecker {
     const firestore = Container.get<Firestore>(AuthFirestore);
     this.firestore = firestore;
 
-    this.customerCollectionDbRef = this.firestore.collection(`${this.config.authFirestore.prefix}stripe-customers`);
+    this.customerCollectionDbRef = this.firestore.collection(
+      `${this.config.authFirestore.prefix}stripe-customers`
+    );
     this.subscriptionCollection = `${this.config.authFirestore.prefix}stripe-subscriptions`;
 
     this.stripeQueue = new PQueue({
@@ -65,17 +67,21 @@ export class FirestoreStripeSyncChecker {
 
     const queue = new PQueue({ concurrency: QUEUE_CONCURRENCY_LIMIT });
 
-    await this.stripe.customers.list({
-      limit: 25,
-    }).autoPagingEach(async (customer) => {
-      if (queue.size + queue.pending >= QUEUE_SIZE_LIMIT) {
-        await queue.onSizeLessThan(QUEUE_SIZE_LIMIT - QUEUE_CONCURRENCY_LIMIT);
-      }
+    await this.stripe.customers
+      .list({
+        limit: 25,
+      })
+      .autoPagingEach(async (customer) => {
+        if (queue.size + queue.pending >= QUEUE_SIZE_LIMIT) {
+          await queue.onSizeLessThan(
+            QUEUE_SIZE_LIMIT - QUEUE_CONCURRENCY_LIMIT
+          );
+        }
 
-      queue.add(() => {
-        return this.checkCustomerSync(customer);
+        queue.add(() => {
+          return this.checkCustomerSync(customer);
+        });
       });
-    });
 
     await queue.onIdle();
 
@@ -90,7 +96,9 @@ export class FirestoreStripeSyncChecker {
     });
   }
 
-  async checkCustomerSync(stripeCustomer: Stripe.Customer | Stripe.DeletedCustomer): Promise<void> {
+  async checkCustomerSync(
+    stripeCustomer: Stripe.Customer | Stripe.DeletedCustomer
+  ): Promise<void> {
     try {
       if (stripeCustomer.deleted) {
         return;
@@ -99,7 +107,9 @@ export class FirestoreStripeSyncChecker {
       this.customersCheckedCount++;
 
       if (!stripeCustomer.metadata.userid) {
-        throw new Error(`Stripe customer ${stripeCustomer.id} is missing a userid`);
+        throw new Error(
+          `Stripe customer ${stripeCustomer.id} is missing a userid`
+        );
       }
 
       const firestoreCustomerDoc = await this.customerCollectionDbRef
@@ -107,14 +117,22 @@ export class FirestoreStripeSyncChecker {
         .get();
 
       if (!firestoreCustomerDoc.exists) {
-        this.handleOutOfSync(stripeCustomer.id, 'Customer exists in Stripe but not in Firestore', 'customer_missing');
+        this.handleOutOfSync(
+          stripeCustomer.id,
+          'Customer exists in Stripe but not in Firestore',
+          'customer_missing'
+        );
         return;
       }
 
       const firestoreCustomer = firestoreCustomerDoc.data();
 
       if (!this.isCustomerInSync(firestoreCustomer, stripeCustomer)) {
-        this.handleOutOfSync(stripeCustomer.id, 'Customer mismatch', 'customer_mismatch');
+        this.handleOutOfSync(
+          stripeCustomer.id,
+          'Customer mismatch',
+          'customer_mismatch'
+        );
         return;
       }
 
@@ -122,11 +140,15 @@ export class FirestoreStripeSyncChecker {
         this.stripe.subscriptions.list({
           customer: stripeCustomer.id,
           limit: 100,
-          status: "all",
+          status: 'all',
         })
       );
       for (const stripeSubscription of subscriptions.data) {
-        await this.checkSubscriptionSync(stripeCustomer.id, stripeCustomer.metadata.userid, stripeSubscription);
+        await this.checkSubscriptionSync(
+          stripeCustomer.id,
+          stripeCustomer.metadata.userid,
+          stripeSubscription
+        );
       }
     } catch (e) {
       this.log.error('error-checking-customer', {
@@ -136,7 +158,11 @@ export class FirestoreStripeSyncChecker {
     }
   }
 
-  async checkSubscriptionSync(customerId: string, uid: string, stripeSubscription: Stripe.Subscription): Promise<void> {
+  async checkSubscriptionSync(
+    customerId: string,
+    uid: string,
+    stripeSubscription: Stripe.Subscription
+  ): Promise<void> {
     try {
       this.subscriptionsCheckedCount++;
 
@@ -147,14 +173,26 @@ export class FirestoreStripeSyncChecker {
         .get();
 
       if (!subscriptionDoc.exists) {
-        this.handleOutOfSync(customerId, 'Subscription exists in Stripe but not in Firestore', 'subscription_missing', stripeSubscription.id);
+        this.handleOutOfSync(
+          customerId,
+          'Subscription exists in Stripe but not in Firestore',
+          'subscription_missing',
+          stripeSubscription.id
+        );
         return;
       }
 
       const firestoreSubscription = subscriptionDoc.data();
 
-      if (!this.isSubscriptionInSync(firestoreSubscription, stripeSubscription)) {
-        this.handleOutOfSync(customerId, 'Subscription data mismatch', 'subscription_mismatch', stripeSubscription.id);
+      if (
+        !this.isSubscriptionInSync(firestoreSubscription, stripeSubscription)
+      ) {
+        this.handleOutOfSync(
+          customerId,
+          'Subscription data mismatch',
+          'subscription_mismatch',
+          stripeSubscription.id
+        );
         return;
       }
     } catch (e) {
@@ -166,13 +204,17 @@ export class FirestoreStripeSyncChecker {
     }
   }
 
-  isCustomerInSync(firestoreCustomer: any, stripeCustomer: Stripe.Customer): boolean {
+  isCustomerInSync(
+    firestoreCustomer: any,
+    stripeCustomer: Stripe.Customer
+  ): boolean {
     for (const key of Object.keys(stripeCustomer)) {
       if (
-        stripeCustomer[key] !== null
-        && stripeCustomer[key] !== undefined
-        && !["string", "number"].includes(typeof stripeCustomer[key])
-      ) continue;
+        stripeCustomer[key] !== null &&
+        stripeCustomer[key] !== undefined &&
+        !['string', 'number'].includes(typeof stripeCustomer[key])
+      )
+        continue;
 
       if (firestoreCustomer[key] !== stripeCustomer[key]) {
         return false;
@@ -182,13 +224,17 @@ export class FirestoreStripeSyncChecker {
     return true;
   }
 
-  isSubscriptionInSync(firestoreSubscription: any, stripeSubscription: Stripe.Subscription): boolean {
+  isSubscriptionInSync(
+    firestoreSubscription: any,
+    stripeSubscription: Stripe.Subscription
+  ): boolean {
     for (const key of Object.keys(stripeSubscription)) {
       if (
-        stripeSubscription[key] !== null
-        && stripeSubscription[key] !== undefined
-        && !["string", "number"].includes(typeof stripeSubscription[key])
-      ) continue;
+        stripeSubscription[key] !== null &&
+        stripeSubscription[key] !== undefined &&
+        !['string', 'number'].includes(typeof stripeSubscription[key])
+      )
+        continue;
 
       if (firestoreSubscription[key] !== stripeSubscription[key]) {
         return false;
@@ -198,7 +244,12 @@ export class FirestoreStripeSyncChecker {
     return true;
   }
 
-  handleOutOfSync(customerId: string, reason: string, type: string, subscriptionId: string | null = null): void {
+  handleOutOfSync(
+    customerId: string,
+    reason: string,
+    type: string,
+    subscriptionId: string | null = null
+  ): void {
     this.outOfSyncCount++;
 
     if (type === 'customer_missing') {

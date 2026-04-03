@@ -15,12 +15,9 @@ const config = require('../config').default.getProperties();
 const mocks = require('../test/mocks');
 
 describe('#integration - lib/subscription-account-reminders', () => {
-  let log: any,
-    mockConfig: any,
-    redis: any,
-    subscriptionAccountReminders: any;
+  let log: any, mockConfig: any, redis: any, subscriptionAccountReminders: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetModules();
     log = mocks.mockLog();
     mockConfig = {
@@ -33,7 +30,7 @@ describe('#integration - lib/subscription-account-reminders', () => {
         redis: {
           maxConnections: 1,
           minConnections: 1,
-          prefix: 'test-subscription-account-reminders:',
+          prefix: 'test-subscription-account-reminders-lib:',
         },
       },
     };
@@ -45,6 +42,13 @@ describe('#integration - lib/subscription-account-reminders', () => {
       },
       mocks.mockLog()
     );
+    await Promise.all([
+      redis.del('first'),
+      redis.del('second'),
+      redis.del('third'),
+      redis.del('metadata_sub_flow:wibble'),
+      redis.del('metadata_sub_flow:blee'),
+    ]);
     subscriptionAccountReminders = require('./subscription-account-reminders')(
       log,
       mockConfig
@@ -122,13 +126,10 @@ describe('#integration - lib/subscription-account-reminders', () => {
         expect(deleteResult).toEqual(EXPECTED_CREATE_DELETE_RESULT);
       });
 
-      it.each(REMINDERS)(
-        'removed %s reminder from redis',
-        async (reminder) => {
-          const reminders = await redis.zrange(reminder, 0, -1);
-          expect(reminders).toHaveLength(0);
-        }
-      );
+      it.each(REMINDERS)('removed %s reminder from redis', async (reminder) => {
+        const reminders = await redis.zrange(reminder, 0, -1);
+        expect(reminders).toHaveLength(0);
+      });
 
       it('did not call log.error', () => {
         expect(log.error.callCount).toBe(0);
@@ -148,9 +149,7 @@ describe('#integration - lib/subscription-account-reminders', () => {
           undefined,
           before
         );
-        processResult = await subscriptionAccountReminders.process(
-          before + 2
-        );
+        processResult = await subscriptionAccountReminders.process(before + 2);
       });
 
       afterEach(() => {
@@ -167,13 +166,11 @@ describe('#integration - lib/subscription-account-reminders', () => {
         expect(parseInt(processResult.first[0].timestamp)).toBeGreaterThan(
           before - 1000
         );
-        expect(parseInt(processResult.first[0].timestamp)).toBeLessThan(
-          before
-        );
+        expect(parseInt(processResult.first[0].timestamp)).toBeLessThan(before);
         expect(processResult.first[1].uid).toBe('blee');
-        expect(parseInt(processResult.first[1].timestamp)).toBeGreaterThanOrEqual(
-          before
-        );
+        expect(
+          parseInt(processResult.first[1].timestamp)
+        ).toBeGreaterThanOrEqual(before);
         expect(parseInt(processResult.first[1].timestamp)).toBeLessThan(
           before + 1000
         );
@@ -241,20 +238,13 @@ describe('#integration - lib/subscription-account-reminders', () => {
         });
 
         it('reinstated records to the second reminder', async () => {
-          const reminders = await redis.zrange(
-            'second',
-            0,
-            -1,
-            'WITHSCORES'
-          );
+          const reminders = await redis.zrange('second', 0, -1, 'WITHSCORES');
           expect(reminders).toEqual(['wibble', '2', 'blee', '3']);
         });
 
         it('left the third reminders in redis', async () => {
           const reminders = await redis.zrange('third', 0, -1);
-          expect(new Set(reminders)).toEqual(
-            new Set(['wibble', 'blee'])
-          );
+          expect(new Set(reminders)).toEqual(new Set(['wibble', 'blee']));
         });
       });
     });
@@ -305,13 +295,10 @@ describe('#integration - lib/subscription-account-reminders', () => {
         expect(deleteResult).toEqual(EXPECTED_CREATE_DELETE_RESULT);
       });
 
-      it.each(REMINDERS)(
-        'removed %s reminder from redis',
-        async (reminder) => {
-          const reminders = await redis.zrange(reminder, 0, -1);
-          expect(reminders).toHaveLength(0);
-        }
-      );
+      it.each(REMINDERS)('removed %s reminder from redis', async (reminder) => {
+        const reminders = await redis.zrange(reminder, 0, -1);
+        expect(reminders).toHaveLength(0);
+      });
 
       it('removed metadata from redis', async () => {
         const metadata = await redis.get('metadata_sub_flow:wibble');
@@ -327,9 +314,7 @@ describe('#integration - lib/subscription-account-reminders', () => {
       let processResult: any;
 
       beforeEach(async () => {
-        processResult = await subscriptionAccountReminders.process(
-          before + 2
-        );
+        processResult = await subscriptionAccountReminders.process(before + 2);
       });
 
       it('returned the correct result', () => {
@@ -403,12 +388,7 @@ describe('#integration - lib/subscription-account-reminders', () => {
         });
 
         it('reinstated record to the second reminder', async () => {
-          const reminders = await redis.zrange(
-            'second',
-            0,
-            -1,
-            'WITHSCORES'
-          );
+          const reminders = await redis.zrange('second', 0, -1, 'WITHSCORES');
           expect(reminders).toEqual(['wibble', '2']);
         });
 
@@ -433,8 +413,9 @@ describe('#integration - lib/subscription-account-reminders', () => {
         let secondProcessResult: any;
 
         beforeEach(async () => {
-          secondProcessResult =
-            await subscriptionAccountReminders.process(before + 1000);
+          secondProcessResult = await subscriptionAccountReminders.process(
+            before + 1000
+          );
         });
 
         it('returned the correct result and cleared everything from redis', async () => {
