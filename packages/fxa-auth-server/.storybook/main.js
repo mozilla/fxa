@@ -10,19 +10,11 @@ module.exports = {
     '../lib/senders/emails/**/*.stories.ts',
   ],
   staticDirs: process.env.STORYBOOK_BUILD !== 'true' ? ['..'] : undefined,
-  addons: [
-    '@storybook/addon-docs',
-    '@storybook/addon-controls',
-    '@storybook/addon-toolbars',
-  ],
-  core: {
-    builder: 'webpack5',
-  },
+  addons: ['@storybook/addon-essentials'],
   framework: {
     name: '@storybook/html-webpack5',
     options: {},
   },
-  features: { storyStoreV7: false },
   // Added to resolve path aliases set in <projectRoot>/tsconfig.base.json
   // tsconfig.storybook.json is necessary to replace the *.ts extension in tsconfig.base.json
   // with a *.js extension. Other than that it should remain the same.

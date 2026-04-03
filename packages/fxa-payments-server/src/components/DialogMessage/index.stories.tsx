@@ -3,62 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from 'react';
-import { storiesOf } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
 import LoremIpsum from '../../../.storybook/components/LoremIpsum';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { SignInLayout } from '../AppLayout';
 import { DialogMessage } from './index';
-
-storiesOf('components/DialogMessage', module)
-  .add('basic', () => (
-    <MockPage>
-      <DialogToggle>
-        {({ dialogShown, hideDialog }) =>
-          dialogShown && (
-            <DialogMessage
-              onDismiss={hideDialog}
-              headerId="basic-header"
-              descId="basic-description"
-            >
-              <h4 id="basic-header">This is a basic dialog</h4>
-              <p id="basic-description">Content goes in here.</p>
-            </DialogMessage>
-          )
-        }
-      </DialogToggle>
-    </MockPage>
-  ))
-  .add('error', () => (
-    <MockPage>
-      <DialogToggle>
-        {({ dialogShown, hideDialog }) =>
-          dialogShown && (
-            <DialogMessage
-              className="dialog-error"
-              onDismiss={hideDialog}
-              headerId="error-header"
-              descId="error-description"
-            >
-              <h4 id="error-header">This is an error dialog</h4>
-              <p id="error-description">Content goes in here.</p>
-            </DialogMessage>
-          )
-        }
-      </DialogToggle>
-    </MockPage>
-  ))
-  .add('without onDismiss', () => (
-    <MockPage>
-      <DialogMessage
-        headerId="basic-no-dismiss-header"
-        descId="basic-no-dismiss-description"
-      >
-        <h4 id="basic-no-dismiss-header">This is a basic dialog</h4>
-        <p id="basic-no-dismiss-description">Content goes in here.</p>
-      </DialogMessage>
-    </MockPage>
-  ));
 
 type MockPageProps = {
   children: React.ReactNode;
@@ -100,4 +50,71 @@ const DialogToggle = ({ children }: DialogToggleProps) => {
       {children({ dialogShown, showDialog, hideDialog })}
     </div>
   );
+};
+
+const meta: Meta = {
+  title: 'components/DialogMessage',
+};
+export default meta;
+
+type Story = StoryObj;
+
+export const Basic: Story = {
+  name: 'basic',
+  render: () => (
+    <MockPage>
+      <DialogToggle>
+        {({ dialogShown, hideDialog }) =>
+          dialogShown && (
+            <DialogMessage
+              onDismiss={hideDialog}
+              headerId="basic-header"
+              descId="basic-description"
+            >
+              <h4 id="basic-header">This is a basic dialog</h4>
+              <p id="basic-description">Content goes in here.</p>
+            </DialogMessage>
+          )
+        }
+      </DialogToggle>
+    </MockPage>
+  ),
+};
+
+export const Error: Story = {
+  name: 'error',
+  render: () => (
+    <MockPage>
+      <DialogToggle>
+        {({ dialogShown, hideDialog }) =>
+          dialogShown && (
+            <DialogMessage
+              className="dialog-error"
+              onDismiss={hideDialog}
+              headerId="error-header"
+              descId="error-description"
+            >
+              <h4 id="error-header">This is an error dialog</h4>
+              <p id="error-description">Content goes in here.</p>
+            </DialogMessage>
+          )
+        }
+      </DialogToggle>
+    </MockPage>
+  ),
+};
+
+export const WithoutOnDismiss: Story = {
+  name: 'without onDismiss',
+  render: () => (
+    <MockPage>
+      <DialogMessage
+        headerId="basic-no-dismiss-header"
+        descId="basic-no-dismiss-description"
+      >
+        <h4 id="basic-no-dismiss-header">This is a basic dialog</h4>
+        <p id="basic-no-dismiss-description">Content goes in here.</p>
+      </DialogMessage>
+    </MockPage>
+  ),
 };

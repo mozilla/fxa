@@ -3,33 +3,55 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { CardLoadingSpinner } from './';
 import { SpinnerType } from 'fxa-react/components/LoadingSpinner';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
-storiesOf('Components/CardLoadingSpinner', module)
-  .addDecorator((story) => (
-    <AppLocalizationProvider baseDir="." userLocales={navigator.languages}>
-      {story()}
-    </AppLocalizationProvider>
-  ))
-  .add('default', () => (
+const meta: Meta<typeof CardLoadingSpinner> = {
+  title: 'Components/CardLoadingSpinner',
+  component: CardLoadingSpinner,
+  decorators: [
+    (Story) => (
+      <AppLocalizationProvider baseDir="." userLocales={navigator.languages}>
+        <Story />
+      </AppLocalizationProvider>
+    ),
+  ],
+};
+
+export default meta;
+type Story = StoryObj<typeof CardLoadingSpinner>;
+
+export const Default: Story = {
+  render: () => (
     <div className="min-h-screen bg-grey-20 flex items-center justify-center">
       <CardLoadingSpinner />
     </div>
-  ))
-  .add('white spinner on dark background', () => (
+  ),
+};
+
+export const WhiteSpinnerOnDarkBackground: Story = {
+  name: 'white spinner on dark background',
+  render: () => (
     <div className="min-h-screen bg-grey-700 flex items-center justify-center">
       <CardLoadingSpinner spinnerType={SpinnerType.White} />
     </div>
-  ))
-  .add('large spinner', () => (
+  ),
+};
+
+export const LargeSpinner: Story = {
+  name: 'large spinner',
+  render: () => (
     <div className="min-h-screen bg-grey-20 flex items-center justify-center">
       <CardLoadingSpinner spinnerSize="w-16 h-16" />
     </div>
-  ))
-  .add('with CMS background simulation', () => (
+  ),
+};
+
+export const WithCmsBackgroundSimulation: Story = {
+  name: 'with CMS background simulation',
+  render: () => (
     <div
       className="min-h-screen flex items-center justify-center"
       style={{
@@ -38,4 +60,5 @@ storiesOf('Components/CardLoadingSpinner', module)
     >
       <CardLoadingSpinner />
     </div>
-  ));
+  ),
+};
