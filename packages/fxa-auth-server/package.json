@@ -51,7 +51,7 @@
     "subscription-reminders": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/subscription-reminders.ts",
     "audit-orphaned-stripe-accounts": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/audit-orphaned-customers.ts",
     "remove-unverified-accounts": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/remove-unverified-accounts.ts",
-    "storybook": "NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6010 --no-version-updates ./",
+    "storybook": "storybook dev -p 6010 --no-version-updates ./",
     "merge-ftl": "nx l10n-merge",
     "merge-ftl-test": "nx l10n-merge",
     "watch-ftl": "nx l10n-watch"
@@ -125,11 +125,6 @@
     "web-push": "3.4.4"
   },
   "devDependencies": {
-    "@storybook/addon-controls": "7.4.6",
-    "@storybook/addon-docs": "7.6.12",
-    "@storybook/addon-toolbars": "7.0.23",
-    "@storybook/html": "7.6.17",
-    "@storybook/html-webpack5": "7.5.3",
     "@types/async-retry": "^1",
     "@types/chai": "^4.3.17",
     "@types/chai-as-promised": "^7",
@@ -193,7 +188,7 @@
     "sass": "^1.80.4",
     "simplesmtp": "0.3.35",
     "sinon": "^9.0.3",
-    "storybook": "^7.6.21",
+    "storybook": "^8.0.0",
     "through": "2.3.8",
     "ts-jest": "^29.1.2",
     "tsc-alias": "^1.8.8",

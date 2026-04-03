@@ -3,34 +3,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import tailwindConfig from '../../../fxa-react/configs/tailwind';
 import resolveConfig from 'tailwindcss/resolveConfig';
-import Introduction from './pages/Introduction';
-import Colors from './pages/Colors';
-import Typography from './pages/Typography';
-import Spacing from './pages/Spacing';
-import Breakpoints from './pages/Breakpoints';
+import IntroductionPage from './pages/Introduction';
+import ColorsPage from './pages/Colors';
+import TypographyPage from './pages/Typography';
+import SpacingPage from './pages/Spacing';
+import BreakpointsPage from './pages/Breakpoints';
 
 const fullConfig = resolveConfig(tailwindConfig);
 
 // these have an emoji in front so they appear at the top of the alphabetical sort
-storiesOf('✩Design Guide/Introduction', module).add('Introduction', () => (
-  <Introduction />
-));
+const meta: Meta = {
+  title: '✩Design Guide',
+};
 
-storiesOf('✩Design Guide/Colors', module).add('Colors', () => (
-  <Colors config={fullConfig} />
-));
+export default meta;
+type Story = StoryObj;
 
-storiesOf('✩Design Guide/Typography', module).add('Typography', () => (
-  <Typography config={fullConfig} />
-));
+export const Introduction: Story = {
+  render: () => <IntroductionPage />,
+};
 
-storiesOf('✩Design Guide/Spacing', module).add('Spacing', () => (
-  <Spacing config={fullConfig} />
-));
+export const Colors: Story = {
+  render: () => <ColorsPage config={fullConfig} />,
+};
 
-storiesOf('✩Design Guide/Breakpoints', module).add('Breakpoints', () => (
-  <Breakpoints config={fullConfig} />
-));
+export const Typography: Story = {
+  render: () => <TypographyPage config={fullConfig} />,
+};
+
+export const Spacing: Story = {
+  render: () => <SpacingPage config={fullConfig} />,
+};
+
+export const Breakpoints: Story = {
+  render: () => <BreakpointsPage config={fullConfig} />,
+};

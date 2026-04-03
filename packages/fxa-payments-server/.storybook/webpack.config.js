@@ -21,27 +21,16 @@ const includeSrcForSvgs = ({ config }) => {
     ...customizedConfig,
     resolve: {
       ...customizedConfig.resolve,
+      alias: {
+        ...(customizedConfig.resolve.alias || {}),
+        // nock is Node.js-only; test-utils.tsx imports it at the top level
+        // but stories only use pure utilities (deepCopy, wait) from that file.
+        nock: path.resolve(__dirname, 'nock-stub.js'),
+      },
       fallback: {
         ...(customizedConfig.resolve.fallback || {}),
         ...webpack5Fallbacks,
       },
-    },
-    module: {
-      ...customizedConfig.module,
-      rules: [
-        {
-          oneOf: customizedConfig.module.rules[0]['oneOf'].map((x) => {
-            if (x.test && x.test.test && x.test.test('.scss')) {
-              return {
-                ...x,
-                include: [path.resolve('../src')],
-              };
-            }
-
-            return x;
-          }),
-        },
-      ],
     },
   };
 };

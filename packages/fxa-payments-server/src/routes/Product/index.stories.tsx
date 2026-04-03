@@ -1,5 +1,5 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import MockApp, {
   defaultAppContextValue,
@@ -20,174 +20,6 @@ const invoice: LatestInvoiceItems = {
   total: 735,
   total_excluding_tax: null,
 };
-
-function init() {
-  storiesOf('routes/Product', module)
-    .add('subscribing with new account', () => <ProductRoute />)
-    .add('subscribing with existing Stripe account', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          customer: {
-            loading: false,
-            error: null,
-            result: CUSTOMER,
-          },
-        }}
-      />
-    ))
-    .add('subscribing with existing PayPal account', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          customer: {
-            loading: false,
-            error: null,
-            result: PAYPAL_CUSTOMER,
-          },
-        }}
-      />
-    ))
-    .add('success with Stripe', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          customer: {
-            loading: false,
-            error: null,
-            result: CUSTOMER,
-          },
-          customerSubscriptions: [
-            {
-              _subscription_type: MozillaSubscriptionTypes.WEB,
-              created: Date.now(),
-              current_period_end: Date.now() / 1000 + 86400,
-              current_period_start: Date.now() / 1000 - 86400,
-              cancel_at_period_end: false,
-              end_at: null,
-              product_name: 'Example Product',
-              product_id: 'prod_123',
-              latest_invoice: '628031D-0002',
-              latest_invoice_items: invoice,
-              plan_id: 'plan_123',
-              status: 'active',
-              subscription_id: 'sk_78987',
-              promotion_duration: null,
-              promotion_end: null,
-            },
-          ],
-        }}
-      />
-    ))
-    .add('success with PayPal', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          customer: {
-            loading: false,
-            error: null,
-            result: PAYPAL_CUSTOMER,
-          },
-          customerSubscriptions: PAYPAL_CUSTOMER.subscriptions,
-        }}
-      />
-    ));
-
-  storiesOf('routes/Product/page load', module)
-    .add('profile loading', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          profile: { loading: true, error: null, result: null },
-        }}
-      />
-    ))
-    .add('profile error', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          profile: {
-            loading: false,
-            result: null,
-            error: new APIError({
-              statusCode: 500,
-              message: 'Internal Server Error',
-            }),
-          },
-        }}
-      />
-    ))
-    .add('customer loading', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          customer: { loading: true, error: null, result: null },
-        }}
-      />
-    ))
-    .add('customer error', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          customer: {
-            loading: false,
-            result: null,
-            error: new APIError({
-              statusCode: 500,
-              message: 'Internal Server Error',
-            }),
-          },
-        }}
-      />
-    ))
-    .add('plans loading', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          plans: { loading: true, error: null, result: null },
-        }}
-      />
-    ))
-    .add('plans error', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          plans: {
-            loading: false,
-            result: null,
-            error: new APIError({
-              statusCode: 500,
-              message: 'Internal Server Error',
-            }),
-          },
-        }}
-      />
-    ))
-    .add('plan change eligibility loading', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          subscriptionChangeEligibility: {
-            loading: true,
-            error: null,
-            result: null,
-          },
-        }}
-      />
-    ))
-    .add('unsupported location', () => (
-      <ProductRoute
-        routeProps={{
-          ...MOCK_PROPS,
-          plans: {
-            loading: false,
-            error: new APIError({ errno: 213 }),
-            result: null,
-          },
-        }}
-      />
-    ));
-}
 
 type ProductRouteProps = {
   routeProps?: ProductProps;
@@ -317,4 +149,223 @@ const MOCK_PROPS: ProductProps = {
   },
 };
 
-init();
+const meta: Meta = {
+  title: 'routes/Product',
+};
+export default meta;
+
+type Story = StoryObj;
+
+export const SubscribingWithNewAccount: Story = {
+  name: 'subscribing with new account',
+  render: () => <ProductRoute />,
+};
+
+export const SubscribingWithExistingStripeAccount: Story = {
+  name: 'subscribing with existing Stripe account',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        customer: {
+          loading: false,
+          error: null,
+          result: CUSTOMER,
+        },
+      }}
+    />
+  ),
+};
+
+export const SubscribingWithExistingPayPalAccount: Story = {
+  name: 'subscribing with existing PayPal account',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        customer: {
+          loading: false,
+          error: null,
+          result: PAYPAL_CUSTOMER,
+        },
+      }}
+    />
+  ),
+};
+
+export const SuccessWithStripe: Story = {
+  name: 'success with Stripe',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        customer: {
+          loading: false,
+          error: null,
+          result: CUSTOMER,
+        },
+        customerSubscriptions: [
+          {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
+            created: Date.now(),
+            current_period_end: Date.now() / 1000 + 86400,
+            current_period_start: Date.now() / 1000 - 86400,
+            cancel_at_period_end: false,
+            end_at: null,
+            product_name: 'Example Product',
+            product_id: 'prod_123',
+            latest_invoice: '628031D-0002',
+            latest_invoice_items: invoice,
+            plan_id: 'plan_123',
+            status: 'active',
+            subscription_id: 'sk_78987',
+            promotion_duration: null,
+            promotion_end: null,
+          },
+        ],
+      }}
+    />
+  ),
+};
+
+export const SuccessWithPayPal: Story = {
+  name: 'success with PayPal',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        customer: {
+          loading: false,
+          error: null,
+          result: PAYPAL_CUSTOMER,
+        },
+        customerSubscriptions: PAYPAL_CUSTOMER.subscriptions,
+      }}
+    />
+  ),
+};
+
+export const ProfileLoading: Story = {
+  name: 'page load - profile loading',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        profile: { loading: true, error: null, result: null },
+      }}
+    />
+  ),
+};
+
+export const ProfileError: Story = {
+  name: 'page load - profile error',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        profile: {
+          loading: false,
+          result: null,
+          error: new APIError({
+            statusCode: 500,
+            message: 'Internal Server Error',
+          }),
+        },
+      }}
+    />
+  ),
+};
+
+export const CustomerLoading: Story = {
+  name: 'page load - customer loading',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        customer: { loading: true, error: null, result: null },
+      }}
+    />
+  ),
+};
+
+export const CustomerError: Story = {
+  name: 'page load - customer error',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        customer: {
+          loading: false,
+          result: null,
+          error: new APIError({
+            statusCode: 500,
+            message: 'Internal Server Error',
+          }),
+        },
+      }}
+    />
+  ),
+};
+
+export const PlansLoading: Story = {
+  name: 'page load - plans loading',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        plans: { loading: true, error: null, result: null },
+      }}
+    />
+  ),
+};
+
+export const PlansError: Story = {
+  name: 'page load - plans error',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        plans: {
+          loading: false,
+          result: null,
+          error: new APIError({
+            statusCode: 500,
+            message: 'Internal Server Error',
+          }),
+        },
+      }}
+    />
+  ),
+};
+
+export const PlanChangeEligibilityLoading: Story = {
+  name: 'page load - plan change eligibility loading',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        subscriptionChangeEligibility: {
+          loading: true,
+          error: null,
+          result: null,
+        },
+      }}
+    />
+  ),
+};
+
+export const UnsupportedLocation: Story = {
+  name: 'page load - unsupported location',
+  render: () => (
+    <ProductRoute
+      routeProps={{
+        ...MOCK_PROPS,
+        plans: {
+          loading: false,
+          error: new APIError({ errno: 213 }),
+          result: null,
+        },
+      }}
+    />
+  ),
+};

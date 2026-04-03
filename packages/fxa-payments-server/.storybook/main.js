@@ -5,12 +5,9 @@
 module.exports = {
   stories: ['../src/**/*.stories.tsx'],
   staticDirs: ['../public'],
-  core: {
-    builder: 'webpack5',
-  },
   addons: [
-    '@storybook/preset-create-react-app',
-    '@storybook/addon-styling',
+    '@storybook/addon-essentials',
+    '@storybook/addon-links',
     {
       name: 'storybook-addon-mock',
     },
@@ -19,5 +16,4 @@ module.exports = {
     name: '@storybook/react-webpack5',
     options: {},
   },
-  features: { storyStoreV7: false },
 };

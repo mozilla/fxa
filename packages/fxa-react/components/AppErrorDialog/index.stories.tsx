@@ -3,23 +3,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import AppErrorDialog from './index';
 import AppLocalizationProvider from '../../lib/AppLocalizationProvider';
 
-storiesOf('Components/AppErrorDialog', module)
-  .add('basic', () => (
-    <AppLocalizationProvider baseDir="." userLocales={navigator.languages}>
-      <AppErrorDialog />
-    </AppLocalizationProvider>
-  ))
-  .add('general with errors', () => (
-    <AppLocalizationProvider baseDir="." userLocales={navigator.languages}>
-      <AppErrorDialog errorType="general" />
-    </AppLocalizationProvider>
-  ))
-  .add('invalid query parameters', () => (
-    <AppLocalizationProvider baseDir="." userLocales={navigator.languages}>
-      <AppErrorDialog errorType="query-parameter-violation" />
-    </AppLocalizationProvider>
-  ));
+const meta: Meta<typeof AppErrorDialog> = {
+  title: 'Components/AppErrorDialog',
+  component: AppErrorDialog,
+  decorators: [
+    (Story) => (
+      <AppLocalizationProvider baseDir="." userLocales={navigator.languages}>
+        <Story />
+      </AppLocalizationProvider>
+    ),
+  ],
+};
+
+export default meta;
+type Story = StoryObj<typeof AppErrorDialog>;
+
+export const Basic: Story = {};
+
+export const GeneralWithErrors: Story = {
+  name: 'general with errors',
+  args: {
+    errorType: 'general',
+  },
+};
+
+export const InvalidQueryParameters: Story = {
+  name: 'invalid query parameters',
+  args: {
+    errorType: 'query-parameter-violation',
+  },
+};
