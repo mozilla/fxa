@@ -154,20 +154,6 @@ describe('SigninPasswordlessCode container', () => {
         });
       });
 
-      it('renders error state if code sending fails', async () => {
-        mockAuthClient.passwordlessSendCode = jest
-          .fn()
-          .mockRejectedValue(new Error('Failed to send'));
-
-        await render();
-
-        await waitFor(() => {
-          expect(screen.getByText(/Error:/)).toBeInTheDocument();
-        });
-
-        expect(SigninPasswordlessCodeModule.default).not.toHaveBeenCalled();
-      });
-
       it('does not send code multiple times', async () => {
         await render();
 
@@ -233,6 +219,66 @@ describe('SigninPasswordlessCode container', () => {
 
       // The OAuthDataError component should be rendered instead
       // This would need the actual component rendering logic to verify
+    });
+  });
+
+  describe('sendError', () => {
+    beforeEach(() => {
+      mockLocationState = createMockPasswordlessLocationState();
+    });
+
+    it('passes null sendError when code sends successfully', async () => {
+      mockAuthClient.passwordlessSendCode = jest.fn().mockResolvedValue(true);
+
+      await render();
+
+      await waitFor(() => {
+        expect(screen.getByText('signin passwordless code mock')).toBeInTheDocument();
+      });
+
+      expect(currentSigninPasswordlessCodeProps?.sendError).toBeNull();
+    });
+
+    it('passes sendError when code send fails', async () => {
+      const mockError = new Error('Network error');
+      (mockError as any).errno = 999;
+      mockAuthClient.passwordlessSendCode = jest.fn().mockRejectedValue(mockError);
+
+      await render();
+
+      await waitFor(() => {
+        expect(screen.getByText('signin passwordless code mock')).toBeInTheDocument();
+      });
+
+      expect(currentSigninPasswordlessCodeProps?.sendError).toBeDefined();
+      expect(currentSigninPasswordlessCodeProps?.sendError).not.toBeNull();
+    });
+
+    it('does not render SigninPasswordlessCode component while code is sending', async () => {
+      mockAuthClient.passwordlessSendCode = jest.fn().mockImplementation(
+        () => new Promise((resolve) => setTimeout(resolve, 100))
+      );
+
+      await render();
+
+      // Should not render the component while loading
+      expect(screen.queryByText('signin passwordless code mock')).not.toBeInTheDocument();
+      expect(SigninPasswordlessCodeModule.default).not.toHaveBeenCalled();
+    });
+
+    it('renders SigninPasswordlessCode component after sendError is set', async () => {
+      const mockError = new Error('Throttled');
+      (mockError as any).errno = 114;
+      mockAuthClient.passwordlessSendCode = jest.fn().mockRejectedValue(mockError);
+
+      await render();
+
+      await waitFor(() => {
+        expect(screen.getByText('signin passwordless code mock')).toBeInTheDocument();
+      });
+
+      expect(SigninPasswordlessCodeModule.default).toHaveBeenCalled();
+      expect(currentSigninPasswordlessCodeProps?.sendError).toBeDefined();
     });
   });
 });

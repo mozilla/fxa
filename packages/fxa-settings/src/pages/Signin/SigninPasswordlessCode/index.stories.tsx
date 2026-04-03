@@ -5,7 +5,7 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { Subject, createMockWebIntegration, createOAuthNativeIntegration } from './mocks';
+import { Subject, createMockWebIntegration } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
 import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
@@ -32,39 +32,6 @@ export const DefaultSignup = () => (
       email="newuser@example.com"
       expirationMinutes={5}
       isSignup={true}
-    />
-  </AppContext.Provider>
-);
-
-export const WithSyncIntegration = () => (
-  <AppContext.Provider value={mockAppContext()}>
-    <Subject
-      email="syncuser@example.com"
-      expirationMinutes={5}
-      integration={createOAuthNativeIntegration(true)}
-      isSignup={false}
-    />
-  </AppContext.Provider>
-);
-
-export const WithSyncAndCms = () => (
-  <AppContext.Provider value={mockAppContext()}>
-    <Subject
-      email="syncuser@example.com"
-      expirationMinutes={5}
-      integration={createOAuthNativeIntegration(true, MOCK_CMS_INFO)}
-      isSignup={false}
-    />
-  </AppContext.Provider>
-);
-
-export const WithWebIntegration = () => (
-  <AppContext.Provider value={mockAppContext()}>
-    <Subject
-      email="webuser@example.com"
-      expirationMinutes={5}
-      integration={createMockWebIntegration()}
-      isSignup={false}
     />
   </AppContext.Provider>
 );
@@ -109,3 +76,18 @@ export const LongEmailAddress = () => (
     />
   </AppContext.Provider>
 );
+
+export const WithSendError = () => (
+  <AppContext.Provider value={mockAppContext()}>
+    <Subject
+      email="user@example.com"
+      expirationMinutes={5}
+      isSignup={false}
+      sendError={{
+        errno: 999,
+        message: 'Something went wrong sending the code',
+      }}
+    />
+  </AppContext.Provider>
+);
+

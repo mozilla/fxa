@@ -715,6 +715,111 @@ describe('SigninPasswordlessCode page', () => {
     });
   });
 
+  describe('sendError prop', () => {
+    it('displays error banner when sendError is provided', async () => {
+      const mockError = {
+        errno: 999,
+        message: 'Network error',
+      };
+
+      render({ sendError: mockError });
+
+      // The error banner should be visible with the "Unexpected error" message
+      await screen.findByText(/Unexpected error/);
+    });
+
+    it('does not display error banner when sendError is null', () => {
+      render({ sendError: null });
+
+      // Should not have an error banner with "Unexpected error"
+      expect(screen.queryByText(/Unexpected error/)).not.toBeInTheDocument();
+    });
+
+    it('clears sendError banner when resend code is clicked', async () => {
+      const mockError = {
+        errno: 999,
+        message: 'Network error',
+      };
+
+      render({ sendError: mockError });
+
+      // Error banner should be visible initially
+      await screen.findByText(/Unexpected error/);
+
+      // Click resend code button
+      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      fireEvent.click(resendButton);
+
+      await waitFor(() => {
+        expect(mockAuthClient.passwordlessResendCode).toHaveBeenCalled();
+      });
+
+      // Error banner should be cleared after clicking resend
+      await waitFor(() => {
+        expect(screen.queryByText(/Unexpected error/)).not.toBeInTheDocument();
+      });
+    });
+
+    it('displays throttled error from sendError', async () => {
+      const throttledError = {
+        errno: AuthUiErrors.THROTTLED.errno!,
+        message: 'Throttled',
+      };
+
+      render({ sendError: throttledError });
+
+      await screen.findByText(/tried too many times/);
+    });
+
+    it('shows resend success banner even if sendError was initially present', async () => {
+      const mockError = {
+        errno: 999,
+        message: 'Network error',
+      };
+
+      render({ sendError: mockError });
+
+      // Click resend code button
+      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      fireEvent.click(resendButton);
+
+      await waitFor(() => {
+        expect(mockAuthClient.passwordlessResendCode).toHaveBeenCalled();
+      });
+
+      // Success banner should appear
+      await screen.findByText(/A new code was sent to your email./);
+    });
+
+    it('clears sendError banner when code is submitted', async () => {
+      const mockError = {
+        errno: 999,
+        message: 'Network error',
+      };
+
+      render({ sendError: mockError });
+
+      // Error banner should be visible initially
+      await screen.findByText(/Unexpected error/);
+
+      // Submit a code
+      const user = userEvent.setup();
+      const input = screen.getByLabelText('Enter 8-digit code');
+      await user.type(input, MOCK_PASSWORDLESS_CODE);
+      const button = screen.getByRole('button', { name: 'Confirm' });
+      await user.click(button);
+
+      await waitFor(() => {
+        expect(mockAuthClient.passwordlessConfirmCode).toHaveBeenCalled();
+      });
+
+      // Error banner should be cleared after submission
+      await waitFor(() => {
+        expect(screen.queryByText(/Unexpected error/)).not.toBeInTheDocument();
+      });
+    });
+  });
+
   describe('Glean metrics', () => {
     async function submitCode(code = MOCK_PASSWORDLESS_CODE) {
       const user = userEvent.setup();

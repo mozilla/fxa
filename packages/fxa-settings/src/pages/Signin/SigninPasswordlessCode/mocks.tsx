@@ -92,6 +92,7 @@ export const Subject = ({
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   integration = createMockWebIntegration(),
   isSignup = false,
+  sendError = null,
 }: Partial<SigninPasswordlessCodeProps>) => {
   return (
     <LocationProvider>
@@ -103,6 +104,7 @@ export const Subject = ({
           flowQueryParams: {},
           integration,
           isSignup,
+          sendError,
         }}
       />
     </LocationProvider>
