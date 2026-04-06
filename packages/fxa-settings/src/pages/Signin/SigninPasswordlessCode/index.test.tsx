@@ -47,6 +47,7 @@ jest.mock('../../../lib/glean', () => ({
       submitSuccess: jest.fn(),
       error: jest.fn(),
       resendCode: jest.fn(),
+      changeEmail: jest.fn(),
     },
     passwordlessReg: {
       view: jest.fn(),
@@ -55,6 +56,7 @@ jest.mock('../../../lib/glean', () => ({
       submitSuccess: jest.fn(),
       error: jest.fn(),
       resendCode: jest.fn(),
+      changeEmail: jest.fn(),
     },
     isDone: jest.fn().mockResolvedValue(undefined),
   },
@@ -736,14 +738,20 @@ describe('SigninPasswordlessCode page', () => {
       expect(mockGleanPasswordlessLogin.view).not.toHaveBeenCalled();
     });
 
-    it('emits engage event on first focus of code input', async () => {
+    it('does not emit engage on mount', () => {
       render({ isSignup: false });
+      expect(mockGleanPasswordlessLogin.engage).not.toHaveBeenCalled();
+    });
+
+    it('emits engage event on first keystroke', async () => {
+      render({ isSignup: false });
+      const user = userEvent.setup();
       const input = screen.getByLabelText('Enter 8-digit code');
-      fireEvent.focus(input);
+      await user.type(input, '1');
       expect(mockGleanPasswordlessLogin.engage).toHaveBeenCalledTimes(1);
 
-      // Subsequent focuses should not re-emit
-      fireEvent.focus(input);
+      // Subsequent keystrokes should not re-emit
+      await user.type(input, '2');
       expect(mockGleanPasswordlessLogin.engage).toHaveBeenCalledTimes(1);
     });
 
@@ -814,6 +822,22 @@ describe('SigninPasswordlessCode page', () => {
           event: { reason: 'too many times' },
         });
       });
+    });
+
+    it('emits changeEmail event on "Use a different account" click for signin', () => {
+      render({ isSignup: false });
+      const link = screen.getByText('Use a different account');
+      fireEvent.click(link);
+      expect(mockGleanPasswordlessLogin.changeEmail).toHaveBeenCalledTimes(1);
+      expect(mockGleanPasswordlessReg.changeEmail).not.toHaveBeenCalled();
+    });
+
+    it('emits changeEmail event on "Use a different account" click for signup', () => {
+      render({ isSignup: true });
+      const link = screen.getByText('Use a different account');
+      fireEvent.click(link);
+      expect(mockGleanPasswordlessReg.changeEmail).toHaveBeenCalledTimes(1);
+      expect(mockGleanPasswordlessLogin.changeEmail).not.toHaveBeenCalled();
     });
 
     it('uses reg metrics for signup flow on submit', async () => {

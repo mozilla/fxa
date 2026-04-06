@@ -1126,6 +1126,24 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+  otp_change_email:
+    type: event
+    description: |
+      Passwordless OTP Change Email (Login)
+      Event that indicates the user clicked "Use a different account" on the passwordless OTP code page during login.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13393
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 password_reset:
   create_new_recovery_key_message_click:
     type: event
@@ -1819,6 +1837,24 @@ reg:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-13019
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  otp_change_email:
+    type: event
+    description: |
+      Passwordless OTP Change Email (Registration)
+      Event that indicates the user clicked "Use a different account" on the passwordless OTP code page during registration.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13393
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121

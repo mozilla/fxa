@@ -453,6 +453,7 @@ class PasswordlessHandler {
     this.statsd.increment('passwordless.sendCode.success', {
       ...getClientServiceTags(request),
       isResend: String(isResend),
+      isNewAccount: String(isNewAccount),
     });
 
     // Record security event

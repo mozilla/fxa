@@ -76,6 +76,7 @@ const SigninPasswordlessCode = ({
     ? GleanMetrics.passwordlessReg
     : GleanMetrics.passwordlessLogin;
 
+  const [hasEngaged, setHasEngaged] = useState(false);
   const gleanViewTracked = useRef(false);
 
   useEffect(() => {
@@ -426,6 +427,7 @@ const SigninPasswordlessCode = ({
     e: React.MouseEvent<HTMLAnchorElement>
   ) => {
     e.preventDefault();
+    gleanOtp.changeEmail();
 
     // Remove email from query params if present
     const searchParams = new URLSearchParams(window.location.search);
@@ -511,7 +513,12 @@ const SigninPasswordlessCode = ({
             color: cmsInfo?.shared?.buttonColor,
             text: cmsButtonText,
           },
-          onEngageCb: () => gleanOtp.engage(),
+          onChangeCb: () => {
+            if (hasEngaged === false) {
+              setHasEngaged(true);
+              gleanOtp.engage();
+            }
+          },
         }}
       />
 
