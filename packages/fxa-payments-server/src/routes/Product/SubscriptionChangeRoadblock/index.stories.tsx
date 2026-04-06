@@ -1,5 +1,5 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import MockApp from '../../../../.storybook/components/MockApp';
 import { defaultAppContext, AppContextType } from '../../../lib/AppContext';
 
@@ -31,17 +31,20 @@ const SubscriptionUpgradeRoadlbockView = ({
   </MockApp>
 );
 
-function init() {
-  storiesOf('routes/Product/SubscriptionUpgradeRoadblock', module).add(
-    'blocks subscription upgrade',
-    () => (
-      <SubscriptionUpgradeRoadlbockView
-        props={{
-          ...MOCK_PROPS,
-        }}
-      />
-    )
-  );
-}
+const meta: Meta = {
+  title: 'routes/Product/SubscriptionUpgradeRoadblock',
+};
+export default meta;
 
-init();
+type Story = StoryObj;
+
+export const BlocksSubscriptionUpgrade: Story = {
+  name: 'blocks subscription upgrade',
+  render: () => (
+    <SubscriptionUpgradeRoadlbockView
+      props={{
+        ...MOCK_PROPS,
+      }}
+    />
+  ),
+};

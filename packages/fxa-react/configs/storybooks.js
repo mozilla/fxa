@@ -21,7 +21,7 @@ const additionalJSImports = {
 const customizeWebpackConfig = ({ config }) => ({
   ...config,
   plugins: [
-    ...config.plugins,
+    ...(config.plugins || []),
     new webpack.ProvidePlugin({
       process: 'process/browser',
     }),
@@ -33,7 +33,7 @@ const customizeWebpackConfig = ({ config }) => ({
   resolve: {
     ...config.resolve,
     plugins: [
-      ...(config.resolve.plugins || []),
+      ...((config.resolve && config.resolve.plugins) || []),
       new TsconfigPathsPlugin({ configFile: './tsconfig.json' }),
     ].map((plugin) => {
       // Rebuild ModuleScopePlugin with some additional allowed paths
@@ -46,11 +46,20 @@ const customizeWebpackConfig = ({ config }) => ({
       return plugin;
     }),
     // Register a few more extensions to resolve
-    extensions: [...config.resolve.extensions, '.svg', '.scss', '.css', '.png'],
+    extensions: [
+      ...((config.resolve && config.resolve.extensions) || []),
+      '.svg',
+      '.scss',
+      '.css',
+      '.png',
+    ],
     // Add aliases to some packages shared across the project
-    alias: { ...config.resolve.alias, ...additionalJSImports },
+    alias: {
+      ...((config.resolve && config.resolve.alias) || {}),
+      ...additionalJSImports,
+    },
     fallback: {
-      ...config.fallback,
+      ...((config.resolve && config.resolve.fallback) || {}),
       fs: false,
       path: false,
       crypto: require.resolve('crypto-browserify'),
@@ -67,7 +76,34 @@ const customizeWebpackConfig = ({ config }) => ({
           // Add support for our .scss stylesheets
           {
             test: /\.s[ac]ss$/i,
-            use: ['style-loader', 'css-loader', 'sass-loader'],
+            use: [
+              'style-loader',
+              {
+                loader: 'css-loader',
+                options: {
+                  // Don't try to resolve url() references through webpack.
+                  // Server-relative paths like /images/foo.png come from
+                  // fxa-content-server SCSS and are served from the web root
+                  // at runtime — not webpack assets.
+                  url: false,
+                },
+              },
+              {
+                loader: 'sass-loader',
+                options: {
+                  sassOptions: {
+                    // Silence Dart Sass deprecation warnings from legacy
+                    // fxa-content-server SCSS (not owned by this codebase).
+                    silenceDeprecations: [
+                      'import',
+                      'global-builtin',
+                      'mixed-decls',
+                      'function-units',
+                    ],
+                  },
+                },
+              },
+            ],
           },
           // Support using SVGs as React components
           // fxa-react stories need this since that package does not have the
@@ -108,31 +144,29 @@ const customizeWebpackConfig = ({ config }) => ({
               },
             ],
           },
-          // Include the rest of the existing rules with some tweaks...
-          ...config.module.rules.map((rule) => {
-            // Replace Storybook built-in Typescript support.
-            if (rule.test && rule.test.test && rule.test.test('.tsx')) {
-              return {
-                test: /\.(ts|tsx)$/,
-                loader: require.resolve('babel-loader'),
-                options: {
-                  presets: [
-                    [
-                      'react-app',
-                      { flow: false, typescript: true, runtime: 'automatic' },
-                    ],
-                  ],
-                  plugins: [
-                    [
-                      '@babel/plugin-transform-typescript',
-                      { allowDeclareFields: true },
-                    ],
-                  ],
-                },
-              };
-            }
-            return rule;
-          }),
+          // Explicit TypeScript/TSX rule — must come before the spread of
+          // config.module.rules so that this loader wins over any built-in
+          // SB8 TS handling (SB8 no longer injects a CRA-style TS rule).
+          {
+            test: /\.(ts|tsx)$/,
+            loader: require.resolve('babel-loader'),
+            options: {
+              presets: [
+                [
+                  'react-app',
+                  { flow: false, typescript: true, runtime: 'automatic' },
+                ],
+              ],
+              plugins: [
+                [
+                  '@babel/plugin-transform-typescript',
+                  { allowDeclareFields: true },
+                ],
+              ],
+            },
+          },
+          // Include the rest of the existing rules unchanged.
+          ...((config.module && config.module.rules) || []),
         ],
       },
     ],

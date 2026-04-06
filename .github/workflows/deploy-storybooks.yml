@@ -67,11 +67,11 @@ jobs:
 
       - name: Build Storybooks for affected packages (PR)
         if: github.event_name == 'pull_request' && steps.check-affected.outputs.has_storybooks == 'true'
-        run: npx nx affected -t build-storybook
+        run: npx nx affected -t build-storybook --output-style=stream
 
       - name: Build all Storybooks (main branch)
         if: github.event_name == 'push'
-        run: npx nx run-many -t build-storybook
+        run: npx nx run-many -t build-storybook --output-style=stream
 
       - name: Organize Storybooks for deployment
         if: github.event_name == 'push' || steps.check-affected.outputs.has_storybooks == 'true'

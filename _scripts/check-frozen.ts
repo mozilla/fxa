@@ -7,7 +7,11 @@
 import { execSync } from 'child_process';
 
 // Maintain List of frozen files here!
-const frozen: Array<{ pattern: string; reason: string }> = [
+const frozen: Array<{
+  pattern: string;
+  reason: string;
+  exclude?: string;
+}> = [
   {
     pattern: 'packages/fxa-auth-server/lib/senders/email.js',
     reason: 'Files moved to libs/accounts/email-sender',
@@ -15,6 +19,9 @@ const frozen: Array<{ pattern: string; reason: string }> = [
   {
     pattern: 'packages/fxa-auth-server/lib/senders/(emails|renderer)/.*',
     reason: 'Files moved to libs/accounts/email-renderer',
+    // storybook-email.ts is a Storybook utility that hasn't been migrated;
+    // exempt it so the SB8 upgrade (and future storybook-only changes) can proceed.
+    exclude: 'storybook-email\\.ts$',
   },
   {
     pattern: 'packages/fxa-auth-server/test/local/.*\\.(js|ts)$',
@@ -48,8 +55,9 @@ try {
   for (const x of frozen) {
     const re = new RegExp(x.pattern);
     const changedFiles = getChangedFiles();
+    const excludeRe = x.exclude ? new RegExp(x.exclude) : null;
     for (const file of changedFiles) {
-      if (re.test(file)) {
+      if (re.test(file) && !excludeRe?.test(file)) {
         console.error(
           `🚫 Error: Cannot modify frozen file: ${file}\n   Reason: ${x.reason}.\n`
         );

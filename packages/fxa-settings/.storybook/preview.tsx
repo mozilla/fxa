@@ -4,13 +4,17 @@
 
 import '../src/styles/tailwind.out.css';
 import './design-guide/design-guide.css';
-import { initializeRTL } from 'storybook-addon-rtl';
 import React, { useEffect } from 'react';
+import type { Decorator } from '@storybook/react';
 import { ThemeProvider, useTheme } from '../src/models/contexts/ThemeContext';
 
-initializeRTL();
-
-const ThemeSync = ({ theme, children }) => {
+const ThemeSync = ({
+  theme,
+  children,
+}: {
+  theme: string;
+  children: React.ReactNode;
+}) => {
   const { setThemePreference } = useTheme();
   useEffect(() => {
     setThemePreference(theme || 'light');
@@ -34,16 +38,35 @@ export const globalTypes = {
       dynamicTitle: true,
     },
   },
+  direction: {
+    name: 'Direction',
+    description: 'Text direction',
+    defaultValue: 'ltr',
+    toolbar: {
+      icon: 'transfer',
+      items: [
+        { value: 'ltr', title: 'LTR' },
+        { value: 'rtl', title: 'RTL' },
+      ],
+    },
+  },
 };
 
-export const decorators = [
+export const decorators: Decorator[] = [
   (Story, context) => (
     <ThemeProvider>
-      <ThemeSync theme={context.globals.theme}>
+      <ThemeSync theme={context.globals['theme']}>
         <Story />
       </ThemeSync>
     </ThemeProvider>
   ),
+  (Story, context) => {
+    const direction = (context.globals['direction'] as string) || 'ltr';
+    useEffect(() => {
+      document.documentElement.setAttribute('dir', direction);
+    }, [direction]);
+    return <Story />;
+  },
 ];
 
 export const parameters = {

@@ -6,7 +6,7 @@
 // instead of NodeJS for DOM typings support
 /* eslint-env browser */
 
-import { Story } from '@storybook/html';
+import { StoryFn as Story } from '@storybook/html';
 import Renderer from '../renderer';
 import { BrowserRendererBindings } from '../renderer/bindings-browser';
 import { ComponentTarget } from '../renderer/bindings';
