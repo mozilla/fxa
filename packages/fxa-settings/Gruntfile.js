@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const crypto = require('crypto');
+
 module.exports = function (grunt) {
   const srcPaths = ['.license.header', 'src/**/*.ftl'];
   const testPaths = [
@@ -42,6 +44,12 @@ module.exports = function (grunt) {
         mapping: 'public/static/static-asset-manifest.json', // The file where the hashed file names will be stored
         srcBasePath: 'public/', // the base Path you want to remove from the `key` string in the mapping file
         destBasePath: 'public/static',
+        hashFunction: function (source, encoding) {
+          return crypto
+            .createHash('md5')
+            .update(source, encoding)
+            .digest('hex');
+        },
       },
       locales: {
         expand: true,
