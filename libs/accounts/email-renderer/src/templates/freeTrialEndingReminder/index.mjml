@@ -24,7 +24,7 @@
 
     <mj-text css-class="text-body">
       <span data-l10n-id="freeTrialEndingReminder-content-auto-charge" data-l10n-args="<%= JSON.stringify({ invoiceTotal, serviceLastActiveDateOnly }) %>">
-        Unless you cancel before then, your subscription will automatically begin and we'll charge <strong><%- invoiceTotal %></strong> to the payment method on your account on <strong><%- serviceLastActiveDateOnly %></strong>.
+        Unless you cancel before then, your subscription will automatically begin and we’ll charge <strong><%- invoiceTotal %></strong> to the payment method on your account on <strong><%- serviceLastActiveDateOnly %></strong>.
       </span>
     </mj-text>
 
