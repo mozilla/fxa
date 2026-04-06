@@ -198,7 +198,64 @@ describe('featureFlags', () => {
     expect(config.featureFlags?.passkeysEnabled).toBe(false);
   });
 
-  it('handles undefined passkeysEnabled flag', () => {
+  it('can parse passkeyRegistrationEnabled feature flag', () => {
+    const data = {
+      featureFlags: {
+        passkeyRegistrationEnabled: true,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeyRegistrationEnabled).toBe(true);
+  });
+
+  it('handles passkeyRegistrationEnabled as false', () => {
+    const data = {
+      featureFlags: {
+        passkeyRegistrationEnabled: false,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeyRegistrationEnabled).toBe(false);
+  });
+
+  it('can parse passkeyAuthenticationEnabled feature flag', () => {
+    const data = {
+      featureFlags: {
+        passkeyAuthenticationEnabled: true,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.featureFlags).toBeDefined();
+    expect(config.featureFlags?.passkeyAuthenticationEnabled).toBe(true);
+  });
+
+  it('handles undefined passkey flags', () => {
     const data = {
       featureFlags: {
         keyStretchV2: true,
@@ -215,5 +272,7 @@ describe('featureFlags', () => {
 
     expect(config.featureFlags).toBeDefined();
     expect(config.featureFlags?.passkeysEnabled).toBeUndefined();
+    expect(config.featureFlags?.passkeyRegistrationEnabled).toBeUndefined();
+    expect(config.featureFlags?.passkeyAuthenticationEnabled).toBeUndefined();
   });
 });

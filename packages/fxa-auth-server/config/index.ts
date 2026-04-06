@@ -2527,8 +2527,20 @@ const convictConf = convict({
   passkeys: {
     enabled: {
       default: false,
-      doc: 'Enable passkeys authentication feature',
+      doc: 'Master switch for passkeys. Must be true for registrationEnabled or authenticationEnabled to take effect.',
       env: 'PASSKEYS__ENABLED',
+      format: Boolean,
+    },
+    registrationEnabled: {
+      default: false,
+      doc: 'Enable passkey registration and management (add/view/delete/rename). Requires passkeys.enabled.',
+      env: 'PASSKEYS__REGISTRATION_ENABLED',
+      format: Boolean,
+    },
+    authenticationEnabled: {
+      default: false,
+      doc: 'Enable passkey authentication (sign in with passkey). Requires passkeys.enabled.',
+      env: 'PASSKEYS__AUTHENTICATION_ENABLED',
       format: Boolean,
     },
     rpId: {

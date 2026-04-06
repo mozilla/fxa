@@ -8,7 +8,10 @@ import { PasskeyService } from '@fxa/accounts/passkey';
 import { AuthRequest } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
 import { ConfigType } from '../../config';
-import { isPasskeyFeatureEnabled } from '../passkey-utils';
+import {
+  isPasskeyFeatureEnabled,
+  isPasskeyRegistrationEnabled,
+} from '../passkey-utils';
 import { GleanMetricsType } from '../metrics/glean';
 import PASSKEYS_API_DOCS from '../../docs/swagger/passkeys-api';
 import { RegistrationResponseJSON } from '@simplewebauthn/server';
@@ -320,7 +323,12 @@ export const passkeyRoutes = (
   glean: GleanMetricsType,
   log: any
 ) => {
-  const featureEnabledCheck = () => isPasskeyFeatureEnabled(config);
+  // Passkey route flag hierarchy:
+  //   passkeys.enabled (master switch) — gates management routes (list/delete/rename)
+  //   + registrationEnabled            — gates registration routes
+  //   + authenticationEnabled          — gates auth routes (TODO FXA-13095)
+  const passkeysEnabledCheck = () => isPasskeyFeatureEnabled(config);
+  const registrationEnabledCheck = () => isPasskeyRegistrationEnabled(config);
 
   const service = Container.get(PasskeyService);
   if (!service) {
@@ -336,7 +344,7 @@ export const passkeyRoutes = (
       path: '/passkey/registration/start',
       options: {
         ...PASSKEYS_API_DOCS.PASSKEY_REGISTRATION_START_POST,
-        pre: [{ method: featureEnabledCheck }],
+        pre: [{ method: registrationEnabledCheck }],
         auth: {
           strategy: 'mfa',
           scope: ['mfa:passkey'],
@@ -457,7 +465,7 @@ export const passkeyRoutes = (
       path: '/passkey/registration/finish',
       options: {
         ...PASSKEYS_API_DOCS.PASSKEY_REGISTRATION_FINISH_POST,
-        pre: [{ method: featureEnabledCheck }],
+        pre: [{ method: registrationEnabledCheck }],
         auth: {
           strategy: 'mfa',
           scope: ['mfa:passkey'],
@@ -493,7 +501,7 @@ export const passkeyRoutes = (
       path: '/passkeys',
       options: {
         ...PASSKEYS_API_DOCS.PASSKEYS_GET,
-        pre: [{ method: featureEnabledCheck }],
+        pre: [{ method: passkeysEnabledCheck }],
         auth: {
           strategy: 'verifiedSessionToken',
           payload: false,
@@ -524,7 +532,7 @@ export const passkeyRoutes = (
       path: '/passkey/{credentialId}',
       options: {
         ...PASSKEYS_API_DOCS.PASSKEY_CREDENTIAL_DELETE,
-        pre: [{ method: featureEnabledCheck }],
+        pre: [{ method: passkeysEnabledCheck }],
         auth: {
           strategy: 'mfa',
           scope: ['mfa:passkey'],
@@ -549,7 +557,7 @@ export const passkeyRoutes = (
       path: '/passkey/{credentialId}',
       options: {
         ...PASSKEYS_API_DOCS.PASSKEY_CREDENTIAL_PATCH,
-        pre: [{ method: featureEnabledCheck }],
+        pre: [{ method: passkeysEnabledCheck }],
         auth: {
           strategy: 'mfa',
           scope: ['mfa:passkey'],
