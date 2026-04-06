@@ -66,6 +66,7 @@ test-results.xml
 
 # Local configuration
 /_dev/firebase/.config
+/_dev/firebase/.cache
 
 # System files
 *~
