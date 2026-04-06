@@ -61,6 +61,24 @@ export const engage = new EventMetricType<{
 );
 
 /**
+ * Passwordless OTP Change Email (Registration)
+ * Event that indicates the user clicked "Use a different account" on the
+ * passwordless OTP code page during registration.
+ *
+ * Generated from `reg.otp_change_email`.
+ */
+export const otpChangeEmail = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'otp_change_email',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Passwordless OTP Email Confirmation Resend Code (Registration)
  * Event that indicates the user requested a new OTP code during registration.
  *

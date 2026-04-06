@@ -30,7 +30,15 @@ test.describe('severity-1 #smoke', () => {
         await page.waitForURL(/signin_passwordless_code/);
         await expect(signinPasswordlessCode.heading).toBeVisible();
 
-        // Get OTP code from email
+        // Click "Use a different account" to verify change email glean event,
+        // then re-enter same email to complete the flow
+        await signinPasswordlessCode.useDifferentAccountLink.click();
+        await expect(page).not.toHaveURL(/signin_passwordless_code/);
+        await target.emailClient.clear(email);
+        await signin.fillOutEmailFirstForm(email);
+        await page.waitForURL(/signin_passwordless_code/);
+
+        // Get the fresh OTP code (previous codes were cleared)
         const code = await target.emailClient.getPasswordlessSignupCode(email);
         await signinPasswordlessCode.fillOutCodeForm(code);
 
@@ -41,6 +49,7 @@ test.describe('severity-1 #smoke', () => {
         gleanEventsHelper.assertEventOrder([
           'email_first_view',
           'reg_otp_view',
+          'reg_otp_change_email',
           'reg_otp_submit',
           'reg_otp_submit_success',
         ]);
