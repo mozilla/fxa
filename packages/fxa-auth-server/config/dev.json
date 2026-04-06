@@ -467,6 +467,8 @@
   },
   "passkeys": {
     "enabled": true,
+    "registrationEnabled": true,
+    "authenticationEnabled": true,
     "rpId": "localhost",
     "allowedOrigins": ["http://localhost:3030"]
   },

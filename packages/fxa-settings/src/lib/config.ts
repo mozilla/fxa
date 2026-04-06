@@ -102,6 +102,8 @@ export interface Config {
     showLocaleToggle?: boolean;
     paymentsNextSubscriptionManagement?: boolean;
     passkeysEnabled?: boolean;
+    passkeyRegistrationEnabled?: boolean;
+    passkeyAuthenticationEnabled?: boolean;
     passwordlessEnabled?: boolean;
   };
   darkMode?: {

@@ -60,6 +60,8 @@ beforeAll(async () => {
       },
       passkeys: {
         enabled: true,
+        registrationEnabled: true,
+        authenticationEnabled: true,
       },
     },
   });
