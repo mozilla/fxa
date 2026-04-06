@@ -248,6 +248,7 @@ export const eventsMap = {
     submitSuccess: 'reg_otp_submit_success',
     error: 'reg_otp_submit_frontend_error',
     resendCode: 'reg_otp_email_confirmation_resend_code',
+    changeEmail: 'reg_otp_change_email',
   },
 
   passwordlessLogin: {
@@ -257,6 +258,7 @@ export const eventsMap = {
     submitSuccess: 'login_otp_submit_success',
     error: 'login_otp_submit_frontend_error',
     resendCode: 'login_otp_email_confirmation_resend_code',
+    changeEmail: 'login_otp_change_email',
   },
 
   error: {

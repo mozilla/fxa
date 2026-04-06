@@ -42,4 +42,9 @@ export class SigninPasswordlessCodePage extends BaseTokenCodePage {
   get resendSuccessBanner() {
     return this.page.getByText(/A new code was sent/);
   }
+
+  get useDifferentAccountLink() {
+    this.checkPath();
+    return this.page.getByRole('link', { name: 'Use a different account' });
+  }
 }

@@ -218,6 +218,24 @@ export const lockedAccountBannerView = new EventMetricType(
 );
 
 /**
+ * Passwordless OTP Change Email (Login)
+ * Event that indicates the user clicked "Use a different account" on the
+ * passwordless OTP code page during login.
+ *
+ * Generated from `login.otp_change_email`.
+ */
+export const otpChangeEmail = new EventMetricType(
+  {
+    category: 'login',
+    name: 'otp_change_email',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Passwordless OTP Email Confirmation Resend Code (Login)
  * Event that indicates the user requested a new OTP code during login.
  *

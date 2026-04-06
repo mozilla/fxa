@@ -643,6 +643,9 @@ const recordEventMetric = (
     case 'reg_otp_email_confirmation_resend_code':
       reg.otpEmailConfirmationResendCode.record();
       break;
+    case 'reg_otp_change_email':
+      reg.otpChangeEmail.record();
+      break;
     case 'login_otp_view':
       login.otpView.record();
       break;
@@ -662,6 +665,9 @@ const recordEventMetric = (
       break;
     case 'login_otp_email_confirmation_resend_code':
       login.otpEmailConfirmationResendCode.record();
+      break;
+    case 'login_otp_change_email':
+      login.otpChangeEmail.record();
       break;
     case 'error_view':
       error.view.record({

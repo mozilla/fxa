@@ -48,6 +48,7 @@ export type FormVerifyCodeProps = {
   submitFormOnPaste?: boolean;
   cmsButton?: CmsButtonType;
   onEngageCb?: () => void;
+  onChangeCb?: () => void;
 };
 
 type FormData = {
@@ -66,6 +67,7 @@ const FormVerifyCode = ({
   submitFormOnPaste,
   cmsButton,
   onEngageCb,
+  onChangeCb,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -160,6 +162,7 @@ const FormVerifyCode = ({
           } else {
             setCodeErrorMessage('');
           }
+          onChangeCb?.();
         }}
         onFocusCb={viewName ? onFocus : undefined}
         onPaste={submitFormOnPaste ? onPaste : undefined}
