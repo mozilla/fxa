@@ -25,7 +25,6 @@ enum EmailPrefix {
   SYNC = 'sync',
 }
 
-const RELIER_CLIENT_ID = 'dcdb5ae7add825d2';
 const SUPPORTED_SERVICE = 'smoketests';
 
 type AccountDetails = {
@@ -263,7 +262,7 @@ export class TestAccountTracker {
 
     // Send passwordless code
     await this.target.authClient.passwordlessSendCode(email, {
-      clientId: RELIER_CLIENT_ID,
+      clientId: this.target.relierClientID,
       service: SUPPORTED_SERVICE,
     });
 
@@ -275,7 +274,7 @@ export class TestAccountTracker {
       email,
       code,
       {
-        clientId: RELIER_CLIENT_ID,
+        clientId: this.target.relierClientID,
         service: SUPPORTED_SERVICE,
       }
     );
@@ -459,7 +458,7 @@ export class TestAccountTracker {
     try {
       // Send passwordless code
       await this.target.authClient.passwordlessSendCode(account.email, {
-        clientId: RELIER_CLIENT_ID,
+        clientId: this.target.relierClientID,
         service: SUPPORTED_SERVICE,
       });
 
@@ -473,7 +472,7 @@ export class TestAccountTracker {
         account.email,
         code,
         {
-          clientId: RELIER_CLIENT_ID,
+          clientId: this.target.relierClientID,
           service: SUPPORTED_SERVICE,
         }
       );
