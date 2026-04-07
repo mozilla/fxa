@@ -58,6 +58,12 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_PASSKEYS_ENABLED = config.get(
     'featureFlags.passkeysEnabled'
   );
+  const FEATURE_FLAGS_PASSKEY_REGISTRATION_ENABLED = config.get(
+    'featureFlags.passkeyRegistrationEnabled'
+  );
+  const FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED = config.get(
+    'featureFlags.passkeyAuthenticationEnabled'
+  );
   const DARK_MODE_ENABLED = config.get('darkMode.enabled');
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
@@ -126,6 +132,9 @@ function getIndexRouteDefinition(config) {
         FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
       showLocaleToggle: FEATURE_FLAGS_SHOW_LOCALE_TOGGLE,
       passkeysEnabled: FEATURE_FLAGS_PASSKEYS_ENABLED,
+      passkeyRegistrationEnabled: FEATURE_FLAGS_PASSKEY_REGISTRATION_ENABLED,
+      passkeyAuthenticationEnabled:
+        FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED,
     },
     darkMode: {
       enabled: DARK_MODE_ENABLED,

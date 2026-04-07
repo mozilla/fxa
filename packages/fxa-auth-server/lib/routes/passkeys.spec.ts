@@ -6,7 +6,7 @@ import { Container } from 'typedi';
 import { PasskeyService } from '@fxa/accounts/passkey';
 import { AppError } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
-import { isPasskeyFeatureEnabled } from '../passkey-utils';
+import { isPasskeyRegistrationEnabled } from '../passkey-utils';
 import { passkeyRoutes } from './passkeys';
 
 jest.mock('./utils/security-event', () => ({
@@ -33,6 +33,7 @@ describe('passkeys routes', () => {
   const config = {
     passkeys: {
       enabled: true,
+      registrationEnabled: true,
     },
   };
 
@@ -110,16 +111,17 @@ describe('passkeys routes', () => {
 
   afterEach(() => {
     config.passkeys.enabled = true;
-    jest.clearAllMocks();
+    config.passkeys.registrationEnabled = true;
     Container.reset();
   });
 
-  describe('isPasskeyFeatureEnabled', () => {
-    it('throws featureNotEnabled when passkeys.enabled is false', () => {
+  describe('isPasskeyRegistrationEnabled', () => {
+    it('throws featureNotEnabled when registrationEnabled is false', () => {
       expect(() =>
-        isPasskeyFeatureEnabled({
+        isPasskeyRegistrationEnabled({
           passkeys: {
-            enabled: false,
+            enabled: true,
+            registrationEnabled: false,
           },
         })
       ).toThrow('Feature not enabled');

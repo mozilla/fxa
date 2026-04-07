@@ -122,6 +122,12 @@ const settingsConfig = {
       'featureFlags.paymentsNextSubscriptionManagement'
     ),
     passkeysEnabled: config.get('featureFlags.passkeysEnabled'),
+    passkeyRegistrationEnabled: config.get(
+      'featureFlags.passkeyRegistrationEnabled'
+    ),
+    passkeyAuthenticationEnabled: config.get(
+      'featureFlags.passkeyAuthenticationEnabled'
+    ),
     passwordlessEnabled: config.get('featureFlags.passwordlessEnabled'),
   },
   darkMode: {
