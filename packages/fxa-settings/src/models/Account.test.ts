@@ -213,4 +213,155 @@ describe('Account', () => {
       );
     });
   });
+
+  describe('refresh account', () => {
+    let account: Account;
+    let mockAuthClient: jest.Mocked<AuthClient>;
+
+    const baseAccountResponse = {
+      emails: [{ email: 'a@b.com', isPrimary: true, verified: true }],
+      createdAt: 1000000,
+      passwordCreatedAt: 2000000,
+      hasPassword: true,
+      totp: { exists: true, verified: true },
+      backupCodes: { hasBackupCodes: true, count: 3 },
+      recoveryKey: { exists: true, estimatedSyncDeviceCount: 2 },
+      recoveryPhone: {
+        exists: true,
+        phoneNumber: '+15550001234',
+        nationalFormat: '(555) 000-1234',
+        available: true,
+      },
+      linkedAccounts: [{ providerId: 1, authAt: 999, enabled: true }],
+      securityEvents: [{ name: 'login', createdAt: 111, verified: true }],
+    };
+
+    const baseClientResponse = [
+      {
+        clientId: 'abc',
+        isCurrentSession: true,
+        userAgent: 'Firefox',
+        deviceType: null,
+        deviceId: null,
+        name: 'My Device',
+        lastAccessTime: 123,
+        lastAccessTimeFormatted: 'just now',
+        approximateLastAccessTime: null,
+        approximateLastAccessTimeFormatted: null,
+        location: {},
+        os: null,
+        sessionTokenId: 'sid',
+        refreshTokenId: null,
+        scope: null,
+      },
+    ];
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      mockAuthClient = {
+        account: jest.fn().mockResolvedValue(baseAccountResponse),
+        attachedClients: jest.fn().mockResolvedValue(baseClientResponse),
+      } as unknown as jest.Mocked<AuthClient>;
+      (sessionToken as jest.Mock).mockReturnValue('test-token');
+      account = new Account(mockAuthClient);
+    });
+
+    it('calls account and attachedClients', async () => {
+      await account.refresh('account');
+      expect(mockAuthClient.account).toHaveBeenCalledWith('test-token');
+      expect(mockAuthClient.attachedClients).toHaveBeenCalledWith('test-token');
+    });
+
+    it('updates state with all fields from account response', async () => {
+      await account.refresh('account');
+      expect(updateExtendedAccountState).toHaveBeenCalledWith(
+        expect.objectContaining({
+          emails: [{ email: 'a@b.com', isPrimary: true, verified: true }],
+          accountCreated: 1000000,
+          passwordCreated: 2000000,
+          hasPassword: true,
+          totp: { exists: true, verified: true },
+          backupCodes: { hasBackupCodes: true, count: 3 },
+          recoveryKey: { exists: true, estimatedSyncDeviceCount: 2 },
+          recoveryPhone: {
+            exists: true,
+            phoneNumber: '+15550001234',
+            nationalFormat: '(555) 000-1234',
+            available: true,
+          },
+          linkedAccounts: [{ providerId: 1, authAt: 999, enabled: true }],
+          securityEvents: [{ name: 'login', createdAt: 111, verified: true }],
+        })
+      );
+    });
+
+    it('updates attachedClients from clients response', async () => {
+      await account.refresh('account');
+      expect(updateExtendedAccountState).toHaveBeenCalledWith(
+        expect.objectContaining({
+          attachedClients: expect.arrayContaining([
+            expect.objectContaining({ clientId: 'abc', name: 'My Device' }),
+          ]),
+        })
+      );
+    });
+
+    it('defaults missing optional fields to safe values when account response is sparse', async () => {
+      mockAuthClient.account.mockResolvedValue({
+        emails: [],
+        createdAt: 0,
+        passwordCreatedAt: 0,
+        hasPassword: false,
+      });
+
+      await account.refresh('account');
+
+      expect(updateExtendedAccountState).toHaveBeenCalledWith(
+        expect.objectContaining({
+          totp: { exists: false, verified: false },
+          backupCodes: { hasBackupCodes: false, count: 0 },
+          recoveryKey: { exists: false, estimatedSyncDeviceCount: undefined },
+          recoveryPhone: {
+            exists: false,
+            phoneNumber: null,
+            nationalFormat: null,
+            available: false,
+          },
+          linkedAccounts: [],
+          securityEvents: [],
+        })
+      );
+    });
+
+    it('still updates attachedClients when account call fails', async () => {
+      mockAuthClient.account.mockRejectedValue(new Error('network error'));
+
+      await account.refresh('account');
+
+      const call = (updateExtendedAccountState as jest.Mock).mock.calls[0][0];
+      expect(call.attachedClients).toBeDefined();
+      expect(call.emails).toBeUndefined();
+    });
+
+    it('still updates account data when attachedClients call fails', async () => {
+      mockAuthClient.attachedClients.mockRejectedValue(
+        new Error('network error')
+      );
+
+      await account.refresh('account');
+
+      const call = (updateExtendedAccountState as jest.Mock).mock.calls[0][0];
+      expect(call.emails).toBeDefined();
+      expect(call.attachedClients).toBeUndefined();
+    });
+
+    it('does nothing when there is no session token', async () => {
+      (sessionToken as jest.Mock).mockReturnValue(null);
+
+      await account.refresh('account');
+
+      expect(mockAuthClient.account).not.toHaveBeenCalled();
+      expect(updateExtendedAccountState).not.toHaveBeenCalled();
+    });
+  });
 });

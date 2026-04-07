@@ -82,6 +82,7 @@ interface AccountResponse {
   recoveryPhone?: {
     exists?: boolean;
     phoneNumber?: string;
+    nationalFormat?: string;
     available?: boolean;
   };
   securityEvents?: Array<{
@@ -136,7 +137,7 @@ function transformAccountResponse(
   const recoveryPhone: RecoveryPhoneStatus = {
     exists: response.recoveryPhone?.exists ?? false,
     phoneNumber: response.recoveryPhone?.phoneNumber ?? null,
-    nationalFormat: null, // Not returned by consolidated endpoint
+    nationalFormat: response.recoveryPhone?.nationalFormat ?? null,
     available: response.recoveryPhone?.available ?? false,
   };
 
