@@ -116,7 +116,7 @@ export class PubsubProxyController {
     try {
       const response = await axios(requestOptions);
       const now = Date.now();
-      this.metrics.timing('proxy.success', now - message.changeTime, {
+      this.metrics.timing('proxy.success', now - message.timestamp, {
         clientId,
         statusCode: response.status.toString(),
         type: message.event,
