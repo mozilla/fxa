@@ -5,7 +5,6 @@
 import { expect, test } from '../../lib/fixtures/standard';
 import { getTotpCode } from '../../lib/totp';
 
-const CLIENT_ID = 'dcdb5ae7add825d2';
 const SUPPORTED_SERVICE = 'smoketests';
 
 async function getPasswordlessSession(
@@ -14,14 +13,14 @@ async function getPasswordlessSession(
   isNew: boolean
 ) {
   await target.authClient.passwordlessSendCode(email, {
-    clientId: CLIENT_ID,
+    clientId: target.relierClientID,
     service: SUPPORTED_SERVICE,
   });
   const code = isNew
     ? await target.emailClient.getPasswordlessSignupCode(email)
     : await target.emailClient.getPasswordlessSigninCode(email);
   return target.authClient.passwordlessConfirmCode(email, code, {
-    clientId: CLIENT_ID,
+    clientId: target.relierClientID,
     service: SUPPORTED_SERVICE,
   });
 }
@@ -38,7 +37,7 @@ test.describe('severity-2', () => {
           testAccountTracker.generatePasswordlessAccountDetails();
 
         await target.authClient.passwordlessSendCode(email, {
-          clientId: CLIENT_ID,
+          clientId: target.relierClientID,
           service: SUPPORTED_SERVICE,
         });
 
@@ -53,7 +52,7 @@ test.describe('severity-2', () => {
         const { email } = await testAccountTracker.signUpPasswordless();
 
         await target.authClient.passwordlessSendCode(email, {
-          clientId: CLIENT_ID,
+          clientId: target.relierClientID,
           service: SUPPORTED_SERVICE,
         });
 
@@ -69,7 +68,7 @@ test.describe('severity-2', () => {
 
         try {
           await target.authClient.passwordlessSendCode(credentials.email, {
-            clientId: CLIENT_ID,
+            clientId: target.relierClientID,
             service: SUPPORTED_SERVICE,
           });
           expect(
@@ -114,7 +113,7 @@ test.describe('severity-2', () => {
         );
 
         await target.authClient.passwordlessSendCode(email, {
-          clientId: CLIENT_ID,
+          clientId: target.relierClientID,
           service: SUPPORTED_SERVICE,
         });
 
@@ -123,7 +122,7 @@ test.describe('severity-2', () => {
           email,
           code,
           {
-            clientId: CLIENT_ID,
+            clientId: target.relierClientID,
             service: SUPPORTED_SERVICE,
           }
         );
@@ -152,7 +151,7 @@ test.describe('severity-2', () => {
         const password = account?.password || '';
 
         await target.authClient.passwordlessSendCode(email, {
-          clientId: CLIENT_ID,
+          clientId: target.relierClientID,
           service: SUPPORTED_SERVICE,
         });
 
@@ -161,7 +160,7 @@ test.describe('severity-2', () => {
           email,
           code,
           {
-            clientId: CLIENT_ID,
+            clientId: target.relierClientID,
             service: SUPPORTED_SERVICE,
           }
         );
@@ -187,7 +186,7 @@ test.describe('severity-2', () => {
           testAccountTracker.generatePasswordlessAccountDetails();
 
         await target.authClient.passwordlessSendCode(email, {
-          clientId: CLIENT_ID,
+          clientId: target.relierClientID,
           service: SUPPORTED_SERVICE,
         });
 
@@ -196,7 +195,7 @@ test.describe('severity-2', () => {
 
         try {
           await target.authClient.passwordlessConfirmCode(email, '00000000', {
-            clientId: CLIENT_ID,
+            clientId: target.relierClientID,
             service: SUPPORTED_SERVICE,
           });
           expect(
@@ -233,7 +232,7 @@ test.describe('severity-2', () => {
         }
 
         await target.authClient.passwordlessSendCode(email, {
-          clientId: CLIENT_ID,
+          clientId: target.relierClientID,
           service: SUPPORTED_SERVICE,
         });
 
@@ -241,7 +240,7 @@ test.describe('severity-2', () => {
         const result = await target.authClient.passwordlessConfirmCode(
           email,
           code,
-          { clientId: CLIENT_ID, service: SUPPORTED_SERVICE }
+          { clientId: target.relierClientID, service: SUPPORTED_SERVICE }
         );
 
         expect(result.verified).toBe(false);
@@ -275,14 +274,14 @@ test.describe('severity-2', () => {
         );
 
         await target.authClient.passwordlessSendCode(email, {
-          clientId: CLIENT_ID,
+          clientId: target.relierClientID,
           service: SUPPORTED_SERVICE,
         });
 
         await target.emailClient.getPasswordlessSignupCode(email);
 
         await target.authClient.passwordlessResendCode(email, {
-          clientId: CLIENT_ID,
+          clientId: target.relierClientID,
           service: SUPPORTED_SERVICE,
         });
 
@@ -291,7 +290,7 @@ test.describe('severity-2', () => {
         const result = await target.authClient.passwordlessConfirmCode(
           email,
           code,
-          { clientId: CLIENT_ID, service: SUPPORTED_SERVICE }
+          { clientId: target.relierClientID, service: SUPPORTED_SERVICE }
         );
         expect(result.verified).toBe(true);
 
@@ -432,7 +431,7 @@ test.describe('severity-2', () => {
         // Passwordless send should be rejected after password creation
         try {
           await target.authClient.passwordlessSendCode(email, {
-            clientId: CLIENT_ID,
+            clientId: target.relierClientID,
             service: SUPPORTED_SERVICE,
           });
           expect(

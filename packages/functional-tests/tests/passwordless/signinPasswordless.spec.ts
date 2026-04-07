@@ -166,14 +166,14 @@ test.describe('severity-1 #smoke', () => {
         // Use the API directly to get an unverified session token
         // (bypasses browser UI so we can test the session before TOTP)
         await target.authClient.passwordlessSendCode(email, {
-          clientId: 'dcdb5ae7add825d2',
+          clientId: target.relierClientID,
         });
         const otpCode =
           await target.emailClient.getPasswordlessSigninCode(email);
         const confirmResult = await target.authClient.passwordlessConfirmCode(
           email,
           otpCode,
-          { clientId: 'dcdb5ae7add825d2' }
+          { clientId: target.relierClientID }
         );
 
         // The session should be unverified (TOTP pending)
@@ -184,7 +184,7 @@ test.describe('severity-1 #smoke', () => {
         try {
           await target.authClient.createOAuthCode(
             confirmResult.sessionToken,
-            'dcdb5ae7add825d2',
+            target.relierClientID,
             'teststate',
             { scope: 'profile' }
           );
@@ -217,7 +217,6 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test.describe('Session verification state invariants', () => {
-      const CLIENT_ID = 'dcdb5ae7add825d2';
       const SUPPORTED_SERVICE = 'smoketests';
 
       async function getPasswordlessSession(
@@ -226,14 +225,14 @@ test.describe('severity-1 #smoke', () => {
         isNew: boolean
       ) {
         await target.authClient.passwordlessSendCode(email, {
-          clientId: CLIENT_ID,
+          clientId: target.relierClientID,
           service: SUPPORTED_SERVICE,
         });
         const code = isNew
           ? await target.emailClient.getPasswordlessSignupCode(email)
           : await target.emailClient.getPasswordlessSigninCode(email);
         return target.authClient.passwordlessConfirmCode(email, code, {
-          clientId: CLIENT_ID,
+          clientId: target.relierClientID,
           service: SUPPORTED_SERVICE,
         });
       }
@@ -356,7 +355,7 @@ test.describe('severity-1 #smoke', () => {
 
           const oauthResult = await target.authClient.createOAuthCode(
             result.sessionToken,
-            CLIENT_ID,
+            target.relierClientID,
             'teststate',
             { scope: 'profile' }
           );
@@ -530,7 +529,7 @@ test.describe('severity-1 #smoke', () => {
           // OAuth should now succeed
           const oauthResult = await target.authClient.createOAuthCode(
             result.sessionToken,
-            CLIENT_ID,
+            target.relierClientID,
             'teststate',
             { scope: 'profile' }
           );
@@ -578,7 +577,7 @@ test.describe('severity-1 #smoke', () => {
           // Account now has a password — passwordless send should be rejected
           try {
             await target.authClient.passwordlessSendCode(email, {
-              clientId: CLIENT_ID,
+              clientId: target.relierClientID,
             });
             expect(
               true,
@@ -758,14 +757,14 @@ test.describe('severity-1 #smoke', () => {
         // Cleanup: Set password so testAccountTracker can sign in and destroy
         // Re-authenticate to get a fresh session since the old one may be stale
         await target.authClient.passwordlessSendCode(email, {
-          clientId: 'dcdb5ae7add825d2',
+          clientId: target.relierClientID,
         });
         const cleanupCode =
           await target.emailClient.getPasswordlessSigninCode(email);
         const cleanupResult = await target.authClient.passwordlessConfirmCode(
           email,
           cleanupCode,
-          { clientId: 'dcdb5ae7add825d2' }
+          { clientId: target.relierClientID }
         );
         // Elevate to AAL2 for password creation
         const cleanupTotpCode = await getTotpCode(secret);
@@ -937,13 +936,13 @@ test.describe('severity-2', () => {
 
       // Create a password on the first account via API
       await target.authClient.passwordlessSendCode(email, {
-        clientId: 'dcdb5ae7add825d2',
+        clientId: target.relierClientID,
       });
       const otpCode = await target.emailClient.getPasswordlessSigninCode(email);
       const result = await target.authClient.passwordlessConfirmCode(
         email,
         otpCode,
-        { clientId: 'dcdb5ae7add825d2' }
+        { clientId: target.relierClientID }
       );
       await target.authClient.createPassword(
         result.sessionToken,
@@ -1148,7 +1147,12 @@ test.describe('severity-2', () => {
 
     test('passwordless signin via Relay OAuth flow - account with 2FA proceeds to TOTP verification', async ({
       target,
-      syncOAuthBrowserPages: { page, signin, signinPasswordlessCode, signinTotpCode },
+      syncOAuthBrowserPages: {
+        page,
+        signin,
+        signinPasswordlessCode,
+        signinTotpCode,
+      },
       testAccountTracker,
     }) => {
       // Create passwordless account and set up TOTP via API
@@ -1204,14 +1208,14 @@ test.describe('severity-2', () => {
 
       // Cleanup: set password so testAccountTracker can destroy the account
       await target.authClient.passwordlessSendCode(email, {
-        clientId: 'dcdb5ae7add825d2',
+        clientId: target.relierClientID,
       });
       const cleanupCode =
         await target.emailClient.getPasswordlessSigninCode(email);
       const cleanupResult = await target.authClient.passwordlessConfirmCode(
         email,
         cleanupCode,
-        { clientId: 'dcdb5ae7add825d2' }
+        { clientId: target.relierClientID }
       );
       const cleanupTotpCode = await getTotpCode(secret);
       await target.authClient.verifyTotpCode(
