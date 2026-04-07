@@ -49,7 +49,7 @@ describe('passkeys routes', () => {
     credentialId: Buffer.from('credential-id-xyz'),
     name: 'My Passkey',
     createdAt: Date.now(),
-    lastUsedAt: Date.now(),
+    lastUsedAt: null,
     transports: ['internal'],
     publicKey: Buffer.from('public-key'),
     signCount: 42,
@@ -203,15 +203,17 @@ describe('passkeys routes', () => {
         payload,
       });
 
-      expect(result).toEqual(
-        expect.objectContaining({
-          credentialId: mockPasskeyRecord.credentialId.toString('base64url'),
-          name: mockPasskeyRecord.name,
-          transports: mockPasskeyRecord.transports,
-          lastUsedAt: expect.any(Number),
-          createdAt: expect.any(Number),
-        })
-      );
+      expect(result).toEqual({
+        credentialId: mockPasskeyRecord.credentialId.toString('base64url'),
+        name: mockPasskeyRecord.name,
+        createdAt: mockPasskeyRecord.createdAt,
+        lastUsedAt: mockPasskeyRecord.lastUsedAt,
+        transports: mockPasskeyRecord.transports,
+        aaguid: mockPasskeyRecord.aaguid.toString('base64url'),
+        backupEligible: mockPasskeyRecord.backupEligible,
+        backupState: mockPasskeyRecord.backupState,
+        prfEnabled: mockPasskeyRecord.prfEnabled,
+      });
 
       expect(
         mockPasskeyService.createPasskeyFromRegistrationResponse

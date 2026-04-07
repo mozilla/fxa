@@ -133,13 +133,27 @@ class PasskeyHandler {
       // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
       // await this.glean.passkey.registrationComplete(request);
 
-      const { credentialId, name, createdAt, lastUsedAt, transports } = passkey;
+      const {
+        credentialId,
+        name,
+        createdAt,
+        lastUsedAt,
+        transports,
+        aaguid,
+        backupEligible,
+        backupState,
+        prfEnabled,
+      } = passkey;
       return {
         credentialId: credentialId.toString('base64url'),
         name,
         createdAt,
         lastUsedAt,
         transports,
+        aaguid: aaguid.toString('base64url'),
+        backupEligible,
+        backupState,
+        prfEnabled,
       };
     } catch (err) {
       await recordSecurityEvent('account.passkey.registration_failure', {
@@ -460,7 +474,7 @@ export const passkeyRoutes = (
             credentialId: isA.string().required(),
             name: isA.string().required(),
             createdAt: isA.number().required(),
-            lastUsedAt: isA.number().required(),
+            lastUsedAt: isA.number().allow(null).required(),
             transports: isA.array().items(isA.string()).required(),
             aaguid: isA.string().required(),
             backupEligible: isA.boolean().required(),
