@@ -17,7 +17,13 @@ import {
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthIntegration,
 } from './mocks';
-import { handleNavigation, ensureCanLinkAcountOrRedirect } from './utils';
+import {
+  handleNavigation,
+  ensureCanLinkAcountOrRedirect,
+  getSyncNavigate,
+  isSendTabEntrypoint,
+} from './utils';
+import { SEND_TAB_ENTRYPOINTS } from '../../constants';
 import * as ReachRouter from '@reach/router';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
@@ -344,6 +350,65 @@ describe('Signin utils', () => {
         );
       });
     });
+
+    describe('handleNavigation with send-tab entrypoints', () => {
+      const createSendTabNavigationOptions = (
+        overrides: Partial<NavigationOptions> = {}
+      ): NavigationOptions =>
+        ({
+          email: MOCK_EMAIL,
+          signinData: {
+            uid: MOCK_UID,
+            sessionToken: MOCK_SESSION_TOKEN,
+            emailVerified: true,
+            sessionVerified: true,
+            verificationMethod: VerificationMethods.EMAIL,
+            verificationReason: VerificationReasons.SIGN_IN,
+            keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+          },
+          redirectTo: '',
+          finishOAuthFlowHandler: jest
+            .fn()
+            .mockReturnValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
+          queryParams: '',
+          ...overrides,
+        }) as NavigationOptions;
+
+      it('clears showInlineRecoveryKeySetup for send-tab sign-in and navigates to /pair', async () => {
+        const navigationOptions = createSendTabNavigationOptions({
+          integration: createMockSigninOAuthNativeSyncIntegration(),
+          queryParams: '?service=sync&entrypoint=send-tab-toolbar-icon',
+          showInlineRecoveryKeySetup: true,
+          handleFxaLogin: true,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(hardNavigateSpy).toHaveBeenCalled();
+        const navigatedUrl = hardNavigateSpy.mock.calls[0][0] as string;
+        expect(navigatedUrl).toContain('/pair?');
+        expect(navigatedUrl).toContain('showSuccessMessage=true');
+        expect(navigatedUrl).not.toContain('inline_recovery_key');
+      });
+
+      it('clears showSignupConfirmedSync for send-tab post-verify and navigates to /pair with passwordCreated', async () => {
+        const navigationOptions = createSendTabNavigationOptions({
+          integration: createMockSigninOAuthNativeSyncIntegration(),
+          queryParams: '?service=sync&entrypoint=send-tab-app-menu',
+          showSignupConfirmedSync: true,
+          origin: 'post-verify-set-password',
+          handleFxaLogin: true,
+        });
+
+        await handleNavigation(navigationOptions);
+
+        expect(hardNavigateSpy).toHaveBeenCalled();
+        const navigatedUrl = hardNavigateSpy.mock.calls[0][0] as string;
+        expect(navigatedUrl).toContain('/pair?');
+        expect(navigatedUrl).toContain('showSuccessMessage=true');
+        expect(navigatedUrl).toContain('passwordCreated=true');
+      });
+    });
   });
 
   describe('ensureCanLinkAcountOrRedirect', () => {
@@ -397,6 +462,71 @@ describe('Signin utils', () => {
           localizedErrorFromLocationState: 'Login attempt cancelled',
           prefillEmail: linkedAccountEmail,
         },
+      });
+    });
+  });
+
+  describe('isSendTabEntrypoint', () => {
+    it('returns true for all send-tab entrypoints', () => {
+      for (const entrypoint of SEND_TAB_ENTRYPOINTS) {
+        expect(isSendTabEntrypoint(`?entrypoint=${entrypoint}`)).toBe(true);
+      }
+    });
+
+    it('returns false for non-send-tab entrypoints', () => {
+      expect(isSendTabEntrypoint('?entrypoint=preferences')).toBe(false);
+      expect(isSendTabEntrypoint('?entrypoint=fxa_app_menu')).toBe(false);
+      expect(isSendTabEntrypoint('')).toBe(false);
+      expect(isSendTabEntrypoint('?service=sync')).toBe(false);
+    });
+  });
+
+  describe('getSyncNavigate', () => {
+    it('returns /inline_recovery_key_setup when showInlineRecoveryKeySetup is true', () => {
+      const result = getSyncNavigate('?service=sync', {
+        showInlineRecoveryKeySetup: true,
+      });
+      expect(result.to).toContain('/inline_recovery_key_setup?');
+    });
+
+    it('returns /signup_confirmed_sync when showSignupConfirmedSync is true', () => {
+      const result = getSyncNavigate('?service=sync', {
+        showSignupConfirmedSync: true,
+      });
+      expect(result.to).toContain('/signup_confirmed_sync?');
+    });
+
+    describe('/pair redirect', () => {
+      it('returns /pair with showSuccessMessage by default', () => {
+        const result = getSyncNavigate('?service=sync');
+        expect(result.to).toContain('/pair?');
+        expect(result.to).toContain('showSuccessMessage=true');
+        expect(result.shouldHardNavigate).toBe(true);
+      });
+
+      it('includes signupSuccess param when signupSuccess is true', () => {
+        const result = getSyncNavigate('?service=sync', {
+          signupSuccess: true,
+        });
+        expect(result.to).toContain('/pair?');
+        expect(result.to).toContain('signupSuccess=true');
+        expect(result.to).toContain('showSuccessMessage=true');
+      });
+
+      it('includes passwordCreated param when origin is post-verify-set-password', () => {
+        const result = getSyncNavigate('?service=sync', {
+          origin: 'post-verify-set-password',
+        });
+        expect(result.to).toContain('/pair?');
+        expect(result.to).toContain('passwordCreated=true');
+        expect(result.to).toContain('showSuccessMessage=true');
+      });
+
+      it('does not include passwordCreated for other origins', () => {
+        const result = getSyncNavigate('?service=sync', {
+          origin: 'signup',
+        });
+        expect(result.to).not.toContain('passwordCreated');
       });
     });
   });

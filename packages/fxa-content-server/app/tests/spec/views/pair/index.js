@@ -424,4 +424,37 @@ describe('views/pair/index', () => {
       });
     });
   });
+
+  describe('success message variants', () => {
+    it('showSuccessMessage returns true when showSuccessMessage query param is present', () => {
+      windowMock.location.search = '?showSuccessMessage=true';
+      assert.isTrue(view.showSuccessMessage());
+    });
+
+    it('showSuccessMessage returns false when needsMobileConfirmed is set', () => {
+      windowMock.location.search = '?showSuccessMessage=true';
+      view.model.set('needsMobileConfirmed', true);
+      assert.isFalse(view.showSuccessMessage());
+    });
+
+    it('showSignupSuccessMessage returns true when signupSuccess query param is present', () => {
+      windowMock.location.search = '?signupSuccess=true';
+      assert.isTrue(view.showSignupSuccessMessage());
+    });
+
+    it('showSignupSuccessMessage returns false when signupSuccess query param is absent', () => {
+      windowMock.location.search = '?showSuccessMessage=true';
+      assert.isFalse(view.showSignupSuccessMessage());
+    });
+
+    it('showPasswordCreatedMessage returns true when passwordCreated query param is present', () => {
+      windowMock.location.search = '?passwordCreated=true';
+      assert.isTrue(view.showPasswordCreatedMessage());
+    });
+
+    it('showPasswordCreatedMessage returns false when passwordCreated query param is absent', () => {
+      windowMock.location.search = '?showSuccessMessage=true';
+      assert.isFalse(view.showPasswordCreatedMessage());
+    });
+  });
 });
