@@ -12,6 +12,7 @@ import {
   GoogleIapPurchaseResult,
   GoogleIapSubscriptionContent,
   SubscriptionContent,
+  TrialSubscriptionContent,
 } from '../types';
 
 export const AppleIapPurchaseFactory = (
@@ -93,5 +94,28 @@ export const SubscriptionContentFactory = (
   isEligibleForChurnStaySubscribed: faker.datatype.boolean(),
   isEligibleForOffer: faker.datatype.boolean(),
   churnStaySubscribedCtaMessage: faker.string.sample(),
+  ...override,
+});
+
+export const TrialSubscriptionContentFactory = (
+  override?: Partial<TrialSubscriptionContent>
+): TrialSubscriptionContent => ({
+  id: `sub_${faker.string.alphanumeric({ length: 24 })}`,
+  productName: faker.string.sample(),
+  offeringApiIdentifier: faker.string.sample(),
+  supportUrl: faker.internet.url(),
+  webIcon: faker.internet.url(),
+  currency: faker.finance.currencyCode().toLowerCase(),
+  interval: faker.helpers.enumValue(SubplatInterval),
+  cancelAtPeriodEnd: false,
+  trialEnd: Math.floor(faker.date.future().getTime() / 1000),
+  trialStart: Math.floor(faker.date.past().getTime() / 1000),
+  nextInvoiceTotal: faker.number.int({ min: 1, max: 1000 }),
+  nextInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
+  conversionStatus: 'active',
+  failedInvoiceDate: undefined,
+  failedInvoiceTotal: undefined,
+  failedInvoiceTax: undefined,
+  failedInvoiceUrl: undefined,
   ...override,
 });

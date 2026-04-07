@@ -96,6 +96,68 @@ class SubscriptionContent {
   churnStaySubscribedCtaMessage?: string | null;
 }
 
+class TrialSubscriptionContent {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  productName!: string;
+
+  @IsString()
+  offeringApiIdentifier!: string;
+
+  @IsString()
+  supportUrl!: string;
+
+  @IsString()
+  webIcon!: string;
+
+  @IsString()
+  currency!: string;
+
+  @IsOptional()
+  @IsEnum(SubplatInterval)
+  interval?: SubplatInterval;
+
+  @IsBoolean()
+  cancelAtPeriodEnd!: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  trialEnd!: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  trialStart!: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  nextInvoiceTotal?: number;
+
+  @IsOptional()
+  @IsNumber()
+  nextInvoiceTax?: number;
+
+  @IsString()
+  conversionStatus!: string;
+
+  @IsOptional()
+  @IsNumber()
+  failedInvoiceDate?: number;
+
+  @IsOptional()
+  @IsNumber()
+  failedInvoiceTotal?: number;
+
+  @IsOptional()
+  @IsNumber()
+  failedInvoiceTax?: number;
+
+  @IsOptional()
+  @IsString()
+  failedInvoiceUrl?: string | null;
+}
+
 class AppleIapSubscriptionContent {
   @IsOptional()
   @IsNumber()
@@ -144,6 +206,10 @@ export class GetSubManPageContentActionResult {
   @ValidateNested()
   @Type(() => SubscriptionContent)
   subscriptions!: SubscriptionContent[];
+
+  @ValidateNested()
+  @Type(() => TrialSubscriptionContent)
+  trialSubscriptions!: TrialSubscriptionContent[];
 
   @ValidateNested()
   @Type(() => AppleIapSubscriptionContent)
