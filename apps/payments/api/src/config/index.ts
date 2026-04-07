@@ -7,7 +7,7 @@ import { PaypalClientConfig } from '@fxa/payments/paypal';
 import { StripeConfig } from '@fxa/payments/stripe';
 import { StrapiClientConfig } from '@fxa/shared/cms';
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
-import { StripeEventConfig } from '@fxa/payments/webhooks';
+import { FxaWebhookConfig, StripeEventConfig } from '@fxa/payments/webhooks';
 import { StatsDConfig } from '@fxa/shared/metrics/statsd';
 import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
 
@@ -56,4 +56,9 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly stripeEventsConfig!: Partial<StripeEventConfig>;
+
+  @Type(() => FxaWebhookConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly fxaWebhookConfig!: Partial<FxaWebhookConfig>;
 }
