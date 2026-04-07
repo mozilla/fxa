@@ -4,7 +4,17 @@
     {{#showSuccessMessage}}
       <div id="fxa-connected-heading"
           class="w-full text-md font-bold p-3 mb-5 rounded bg-green-500 text-grey-900 dark:text-grey-900 flex items-center justify-center before:content-icon-circle-check-outline before:flex">
-        <span class="ps-3 align-middle">{{#t}}Signed in successfully!{{/t}}</span>
+        {{#showPasswordCreatedMessage}}
+          <span class="ps-3 align-middle">{{#t}}Password created. You’re now syncing.{{/t}}</span>
+        {{/showPasswordCreatedMessage}}
+        {{^showPasswordCreatedMessage}}
+          {{#showSignupSuccessMessage}}
+            <span class="ps-3 align-middle">{{#t}}Account created. You’re now syncing.{{/t}}</span>
+          {{/showSignupSuccessMessage}}
+          {{^showSignupSuccessMessage}}
+            <span class="ps-3 align-middle">{{#t}}Signed in successfully!{{/t}}</span>
+          {{/showSignupSuccessMessage}}
+        {{/showPasswordCreatedMessage}}
       </div>
     {{/showSuccessMessage}}
 

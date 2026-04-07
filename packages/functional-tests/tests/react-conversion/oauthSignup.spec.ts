@@ -104,5 +104,35 @@ test.describe('severity-1 #smoke', () => {
       await expect(page).toHaveURL(/pair/);
       await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
+
+    test('signup oauth webchannel with Sync desktop and send-tab entrypoint skips signup_confirmed_sync', async ({
+      target,
+      syncOAuthBrowserPages: { confirmSignupCode, page, signup },
+      testAccountTracker,
+    }) => {
+      const { email, password } =
+        testAccountTracker.generateSignupAccountDetails();
+
+      const sendTabParams = new URLSearchParams(syncDesktopOAuthQueryParams);
+      sendTabParams.set('entrypoint', 'send-tab-toolbar-icon');
+
+      await signup.goto('/', sendTabParams);
+
+      await signup.fillOutEmailForm(email);
+
+      await expect(signup.signupFormHeading).toBeVisible();
+
+      await signup.fillOutSyncSignupForm(password);
+
+      await expect(page).toHaveURL(/confirm_signup_code/);
+
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await confirmSignupCode.fillOutCodeForm(code);
+
+      await expect(page).toHaveURL(/pair/);
+      await expect(page).toHaveURL(/signupSuccess=true/);
+      await expect(page).toHaveURL(/showSuccessMessage=true/);
+      await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+    });
   });
 });

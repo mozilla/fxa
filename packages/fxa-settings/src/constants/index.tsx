@@ -20,7 +20,24 @@ export enum ENTRYPOINTS {
   FIREFOX_SYNCED_TABS_ENTRYPOINT = 'synced-tabs',
   FIREFOX_TABS_SIDEBAR_ENTRYPOINT = 'tabs-sidebar',
   FIREFOX_FX_VIEW_ENTRYPOINT = 'fx-view',
+  SEND_TAB_TAB_CONTEXT_MENU = 'send-tab-tab-context-menu',
+  SEND_TAB_ACCOUNT_MENU = 'send-tab-account-menu',
+  SEND_TAB_APP_MENU = 'send-tab-app-menu',
+  SEND_TAB_FIREFOX_VIEW_THREE_DOTS = 'send-tab-firefox-view-three-dots',
+  SEND_TAB_LINK_CONTEXT_MENU = 'send-tab-link-context-menu',
+  SEND_TAB_PAGE_CONTEXT_MENU = 'send-tab-page-context-menu',
+  SEND_TAB_TOOLBAR_ICON = 'send-tab-toolbar-icon',
 }
+
+export const SEND_TAB_ENTRYPOINTS = new Set<string>([
+  ENTRYPOINTS.SEND_TAB_TAB_CONTEXT_MENU,
+  ENTRYPOINTS.SEND_TAB_ACCOUNT_MENU,
+  ENTRYPOINTS.SEND_TAB_APP_MENU,
+  ENTRYPOINTS.SEND_TAB_FIREFOX_VIEW_THREE_DOTS,
+  ENTRYPOINTS.SEND_TAB_LINK_CONTEXT_MENU,
+  ENTRYPOINTS.SEND_TAB_PAGE_CONTEXT_MENU,
+  ENTRYPOINTS.SEND_TAB_TOOLBAR_ICON,
+]);
 
 export const LINK = {
   AMO: 'https://addons.mozilla.org/',

@@ -6,6 +6,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { isSendTabEntrypoint } from '../../Signin/utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { ERRNO } from '@fxa/accounts/errors';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
@@ -255,11 +256,20 @@ const ConfirmSignupCode = ({
               state,
             });
             // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
-            if (!integration.isFirefoxMobileClient()) {
-              const { to } = getSyncNavigate(location.search, {
-                showSignupConfirmedSync: true,
-              });
-              navigate(to);
+            if (integration.isFirefoxDesktopClient()) {
+              const isSendTab = isSendTabEntrypoint(location.search);
+              const { to, shouldHardNavigate } = getSyncNavigate(
+                location.search,
+                {
+                  showSignupConfirmedSync: !isSendTab,
+                  signupSuccess: isSendTab,
+                }
+              );
+              if (shouldHardNavigate) {
+                hardNavigate(to);
+              } else {
+                navigate(to);
+              }
             }
             return;
           } else if (integration.isFirefoxNonSync()) {
