@@ -147,4 +147,52 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(resetPassword.confirmResetPasswordHeading).toBeVisible();
   });
+
+  test('can reset password then add ARK', async ({
+    target,
+    pages: { resetPassword, settings, recoveryKey, page },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    const newPassword = testAccountTracker.generatePassword();
+
+    await resetPassword.goto();
+
+    await resetPassword.page.waitForURL(/reset_password/);
+
+    await resetPassword.fillOutEmailForm(credentials.email);
+
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    // Create and submit new password
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+
+    await expect(settings.settingsHeading).toBeVisible();
+
+    // Cleanup requires setting this value to correct password
+    credentials.password = newPassword;
+
+    // now add an ARK to make sure the browser has the correct verified state
+    await expect(settings.recoveryKey.status).toHaveText('Not set');
+
+    await settings.recoveryKey.createButton.click();
+
+    await settings.confirmMfaGuard(credentials.email);
+
+    await recoveryKey.createRecoveryKey(
+      credentials.password,
+      'secret key location'
+    );
+    await expect(page.getByRole('alert')).toHaveText(
+      'Account recovery key created'
+    );
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
+    await expect(settings.recoveryKey.deleteButton).toBeVisible();
+  });
 });

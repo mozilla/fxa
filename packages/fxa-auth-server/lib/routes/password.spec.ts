@@ -448,9 +448,7 @@ describe('/password', () => {
       mockRequest
     ).then((response: any) => {
       expect(Object.keys(response)).toEqual(['accountResetToken']);
-      expect(response.accountResetToken).toBe(
-        accountResetToken.data
-      );
+      expect(response.accountResetToken).toBe(accountResetToken.data);
 
       expect(mockCustoms.check.callCount).toBe(1);
 
@@ -1229,6 +1227,57 @@ describe('/password', () => {
 
       expect(response.sessionToken).toBeTruthy();
       expect(response.keyFetchToken).toBeFalsy();
+    });
+
+    it('should include sessionVerified in the response reflecting token verification status', async () => {
+      const oldAuthPW = crypto.randomBytes(32).toString('hex');
+      const authPW = crypto.randomBytes(32).toString('hex');
+      const wrapKb = crypto.randomBytes(32).toString('hex');
+
+      const mockRequest = mocks.mockRequest({
+        log: mockLog,
+        auth: {
+          credentials: {
+            uid,
+            email: TEST_EMAIL,
+            emailVerified: true,
+            tokenVerified: true,
+            deviceId: crypto.randomBytes(16).toString('hex'),
+            authenticatorAssuranceLevel: 2,
+            lastAuthAt: () => Date.now(),
+            data: crypto.randomBytes(32).toString('hex'),
+          },
+        },
+        payload: {
+          email: TEST_EMAIL,
+          oldAuthPW,
+          authPW,
+          wrapKb,
+        },
+        query: {},
+      });
+
+      const passwordRoutes = makeRoutes({
+        db: mockDB,
+        mailer: mockMailer,
+        push: mockPush,
+        log: mockLog,
+        statsd: mockStatsd,
+        customs: mockCustoms,
+      });
+
+      const response = await runRoute(
+        passwordRoutes,
+        '/mfa/password/change',
+        mockRequest
+      );
+
+      // sessionVerified must be present so that client-side storage correctly
+      // reflects the verified session after a password change.
+      expect(response.sessionVerified).toBe(true);
+
+      // verified (deprecated compat field) should remain present and consistent
+      expect(response.verified).toBe(true);
     });
   });
 });

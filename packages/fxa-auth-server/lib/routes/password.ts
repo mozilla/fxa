@@ -976,6 +976,7 @@ module.exports = function (
           const response: any = {
             uid: newSessionToken.uid,
             sessionToken: newSessionToken.data,
+            sessionVerified: newSessionToken.tokenVerified,
             verified:
               newSessionToken.emailVerified && newSessionToken.tokenVerified,
             authAt: newSessionToken.lastAuthAt(),
