@@ -27,6 +27,10 @@ class CspConfig {
 
   @IsUrl()
   paypalApi!: string;
+
+  @IsOptional()
+  @IsString()
+  sentryReportUri?: string;
 }
 
 class PaypalConfig {

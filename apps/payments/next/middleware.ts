@@ -21,11 +21,14 @@ export function middleware(request: NextRequest) {
   const accountsStaticCdn = process.env.CSP__ACCOUNTS_STATIC_CDN;
   const PAYPAL_SCRIPT_URL = '*.paypal.com';
   const PAYPAL_OBJECTS = '*.paypalobjects.com';
+  const AUTH_SERVER_URL = process.env.AUTH__ISSUER_URL;
   const PROFILE_CLIENT_URL = process.env.PROFILE_CLIENT_CONFIG__URL;
   const PROFILE_DEFAULT_IMAGES_URL = process.env.PROFILE_DEFAULT_IMAGES_URL;
   const PROFILE_UPLOADED_IMAGES_URL = process.env.PROFILE_UPLOADED_IMAGES_URL;
   const FEATURE_FLAG_SUB_MANAGE = process.env.FEATURE_FLAG_SUB_MANAGE;
   const CONTENT_SERVER_URL = process.env.CONTENT_SERVER_CLIENT_CONFIG__URL;
+  const SENTRY_SERVER = 'https://*.sentry.io';
+  const SENTRY_CSP_ENDPOINT = process.env.CSP__SENTRY_REPORT_URI ?? '';
 
   if (!FEATURE_FLAG_SUB_MANAGE) {
     const pathSections = request.nextUrl.pathname.split('/').filter(Boolean);
@@ -43,8 +46,8 @@ export function middleware(request: NextRequest) {
   const cspHeader = `
     base-uri 'self';
     child-src 'self' ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS};
-    connect-src 'self' https://api.stripe.com ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS};
-    default-src 'self';
+    connect-src 'self' ${AUTH_SERVER_URL} ${PROFILE_CLIENT_URL} https://api.stripe.com ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS} ${SENTRY_SERVER};
+    default-src 'self' ${SENTRY_SERVER};
     font-src 'self';
     frame-ancestors 'none';
     frame-src https://*.js.stripe.com https://js.stripe.com https://hooks.stripe.com ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS};
@@ -55,6 +58,8 @@ export function middleware(request: NextRequest) {
     } https://*.js.stripe.com https://js.stripe.com ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS};
     style-src 'self' 'unsafe-hashes' 'sha256-0hAheEzaMe6uXIKV4EehS9pu1am1lj/KnnzrOYqckXk=' 'sha256-GsQC5AaXpdCaKTyWbxBzn7nitfp0Otwn7I/zu0rUKOs=' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS} 'nonce-${nonce}';
     upgrade-insecure-requests;
+    ${SENTRY_CSP_ENDPOINT ? `report-uri ${SENTRY_CSP_ENDPOINT};` : ''}
+    ${SENTRY_CSP_ENDPOINT ? 'report-to csp-endpoint;' : ''}
 `;
   // Replace newline characters and spaces
   const contentSecurityPolicyHeaderValue = cspHeader
@@ -94,6 +99,21 @@ export function middleware(request: NextRequest) {
     value: experimentationId,
     path: '/',
   });
+
+  if (SENTRY_CSP_ENDPOINT) {
+    response.headers.set(
+      'Report-To',
+      JSON.stringify({
+        group: 'csp-endpoint',
+        max_age: 10886400,
+        endpoints: [{ url: SENTRY_CSP_ENDPOINT }],
+      })
+    );
+    response.headers.set(
+      'Reporting-Endpoints',
+      `csp-endpoint=${SENTRY_CSP_ENDPOINT}`
+    );
+  }
 
   return response;
 }
