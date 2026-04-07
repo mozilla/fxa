@@ -89,7 +89,6 @@ interface RecoveryPhoneAvailableResponse {
   available: boolean;
 }
 
-
 /** Response shape for auth-client email entries */
 interface RawEmail {
   email: string;
@@ -265,7 +264,9 @@ export function getNextAvatar(
 // "default" account model with a set of undefined properties.  But there is an
 // interface that calls for an isDefault impl so here it is.
 export const isDefault = (account: object) =>
-  !Object.keys(DEFAULTS).some((x) => (account as Record<string, unknown>)[x] !== undefined);
+  !Object.keys(DEFAULTS).some(
+    (x) => (account as Record<string, unknown>)[x] !== undefined
+  );
 
 export class Account implements AccountData {
   private readonly authClient: AuthClient;
@@ -305,7 +306,12 @@ export class Account implements AccountData {
           linkedAccounts: [],
           totp: { exists: false, verified: false },
           backupCodes: { hasBackupCodes: false, count: 0 },
-          recoveryPhone: { exists: false, phoneNumber: null, nationalFormat: null, available: false },
+          recoveryPhone: {
+            exists: false,
+            phoneNumber: null,
+            nationalFormat: null,
+            available: false,
+          },
           subscriptions: [],
           securityEvents: [],
         } as AccountData;
@@ -318,7 +324,9 @@ export class Account implements AccountData {
           hasAccountsKey: !!localStorage.getItem('__fxa_storage.accounts'),
           pathname: window.location.pathname,
           search: window.location.search,
-          entrypoint: new URLSearchParams(window.location.search).get('entrypoint'),
+          entrypoint: new URLSearchParams(window.location.search).get(
+            'entrypoint'
+          ),
         },
       });
       throw error;
@@ -330,10 +338,22 @@ export class Account implements AccountData {
       accountCreated: accountData.accountCreated || 0,
       passwordCreated: accountData.passwordCreated || 0,
       recoveryKey: accountData.recoveryKey || { exists: false },
-      primaryEmail: accountData.primaryEmail || { email: accountData.email || '', isPrimary: true, verified: accountData.verified },
+      primaryEmail: accountData.primaryEmail || {
+        email: accountData.email || '',
+        isPrimary: true,
+        verified: accountData.verified,
+      },
       totp: accountData.totp || { exists: false, verified: false },
-      backupCodes: accountData.backupCodes || { hasBackupCodes: false, count: 0 },
-      recoveryPhone: accountData.recoveryPhone || { exists: false, phoneNumber: null, nationalFormat: null, available: false },
+      backupCodes: accountData.backupCodes || {
+        hasBackupCodes: false,
+        count: 0,
+      },
+      recoveryPhone: accountData.recoveryPhone || {
+        exists: false,
+        phoneNumber: null,
+        nationalFormat: null,
+        available: false,
+      },
     } as AccountData;
   }
 
@@ -456,7 +476,10 @@ export class Account implements AccountData {
             });
             break;
           case 'recovery':
-            const recoveryKey = await this.authClient.recoveryKeyExists(token, undefined);
+            const recoveryKey = await this.authClient.recoveryKeyExists(
+              token,
+              undefined
+            );
             updateExtendedAccountState({
               recoveryKey: {
                 exists: recoveryKey.exists ?? false,
@@ -467,20 +490,32 @@ export class Account implements AccountData {
           case 'totp':
             const totp = await this.authClient.checkTotpTokenExists(token);
             updateExtendedAccountState({
-              totp: { exists: totp.exists ?? false, verified: totp.verified ?? false },
+              totp: {
+                exists: totp.exists ?? false,
+                verified: totp.verified ?? false,
+              },
             });
             break;
           case 'backupCodes':
             const codes = await this.authClient.getRecoveryCodesExist(token);
             updateExtendedAccountState({
-              backupCodes: { hasBackupCodes: codes.hasBackupCodes ?? false, count: codes.count ?? 0 },
+              backupCodes: {
+                hasBackupCodes: codes.hasBackupCodes ?? false,
+                count: codes.count ?? 0,
+              },
             });
             break;
           case 'recoveryPhone':
             try {
               const [phoneResult, availableResult] = await Promise.all([
-                this.authClient.recoveryPhoneGet(token).catch((): RecoveryPhoneGetResponse => ({ exists: false })),
-                this.authClient.recoveryPhoneAvailable(token).catch((): RecoveryPhoneAvailableResponse => ({ available: false })),
+                this.authClient
+                  .recoveryPhoneGet(token)
+                  .catch((): RecoveryPhoneGetResponse => ({ exists: false })),
+                this.authClient
+                  .recoveryPhoneAvailable(token)
+                  .catch(
+                    (): RecoveryPhoneAvailableResponse => ({ available: false })
+                  ),
               ]);
               updateExtendedAccountState({
                 recoveryPhone: {
@@ -492,7 +527,12 @@ export class Account implements AccountData {
               });
             } catch {
               updateExtendedAccountState({
-                recoveryPhone: { exists: false, phoneNumber: null, nationalFormat: null, available: false },
+                recoveryPhone: {
+                  exists: false,
+                  phoneNumber: null,
+                  nationalFormat: null,
+                  available: false,
+                },
               });
             }
             break;
@@ -518,60 +558,54 @@ export class Account implements AccountData {
             break;
           case 'account':
           default:
-
-            const [accountData, clientsData, totpData, codesData, keyData, phoneData, phoneAvailable] =
-              await Promise.allSettled([
-                this.authClient.account(token),
-                this.authClient.attachedClients(token),
-                this.authClient.checkTotpTokenExists(token),
-                this.authClient.getRecoveryCodesExist(token),
-                this.authClient.recoveryKeyExists(token, undefined),
-                this.authClient.recoveryPhoneGet(token),
-                this.authClient.recoveryPhoneAvailable(token),
-              ]);
+            const [accountData, clientsData] = await Promise.allSettled([
+              this.authClient.account(token),
+              this.authClient.attachedClients(token),
+            ]);
 
             const updates: Partial<ExtendedAccountState> = {};
 
             if (accountData.status === 'fulfilled') {
-              updates.emails = ((accountData.value.emails || []) as RawEmail[]).map((e) => ({
+              updates.emails = (
+                (accountData.value.emails || []) as RawEmail[]
+              ).map((e) => ({
                 email: e.email,
                 isPrimary: e.isPrimary,
                 verified: e.verified,
               }));
               updates.accountCreated = accountData.value.createdAt || null;
-              updates.passwordCreated = accountData.value.passwordCreatedAt || null;
+              updates.passwordCreated =
+                accountData.value.passwordCreatedAt || null;
+              updates.hasPassword = accountData.value.hasPassword ?? true;
+              updates.totp = {
+                exists: accountData.value.totp?.exists ?? false,
+                verified: accountData.value.totp?.verified ?? false,
+              };
+              updates.backupCodes = {
+                hasBackupCodes:
+                  accountData.value.backupCodes?.hasBackupCodes ?? false,
+                count: accountData.value.backupCodes?.count ?? 0,
+              };
+              updates.recoveryKey = {
+                exists: accountData.value.recoveryKey?.exists ?? false,
+                estimatedSyncDeviceCount:
+                  accountData.value.recoveryKey?.estimatedSyncDeviceCount,
+              };
+              updates.recoveryPhone = {
+                exists: accountData.value.recoveryPhone?.exists ?? false,
+                phoneNumber:
+                  accountData.value.recoveryPhone?.phoneNumber ?? null,
+                nationalFormat:
+                  accountData.value.recoveryPhone?.nationalFormat ?? null,
+                available: accountData.value.recoveryPhone?.available ?? false,
+              };
+              updates.linkedAccounts = accountData.value.linkedAccounts || [];
+              updates.securityEvents = accountData.value.securityEvents || [];
             }
 
             if (clientsData.status === 'fulfilled') {
-              updates.attachedClients = clientsData.value.map(mapAttachedClient);
-            }
-
-            if (totpData.status === 'fulfilled') {
-              updates.totp = { exists: totpData.value.exists ?? false, verified: totpData.value.verified ?? false };
-            }
-
-            if (codesData.status === 'fulfilled') {
-              updates.backupCodes = { hasBackupCodes: codesData.value.hasBackupCodes ?? false, count: codesData.value.count ?? 0 };
-            }
-
-            if (keyData.status === 'fulfilled') {
-              updates.recoveryKey = {
-                exists: keyData.value.exists ?? false,
-                estimatedSyncDeviceCount: keyData.value.estimatedSyncDeviceCount,
-              };
-            }
-
-            const isPhoneAvailable = phoneAvailable.status === 'fulfilled' ? (phoneAvailable.value as RecoveryPhoneAvailableResponse).available ?? false : false;
-            if (phoneData.status === 'fulfilled') {
-              const phoneResult = phoneData.value as RecoveryPhoneGetResponse;
-              updates.recoveryPhone = {
-                exists: phoneResult.exists ?? false,
-                phoneNumber: phoneResult.phoneNumber || null,
-                nationalFormat: phoneResult.nationalFormat || null,
-                available: isPhoneAvailable,
-              };
-            } else {
-              updates.recoveryPhone = { exists: false, phoneNumber: null, nationalFormat: null, available: isPhoneAvailable };
+              updates.attachedClients =
+                clientsData.value.map(mapAttachedClient);
             }
 
             updateExtendedAccountState(updates);
@@ -800,7 +834,10 @@ export class Account implements AccountData {
    */
   async verifyPasswordForgotToken(token: string, code: string) {
     try {
-      const result = await this.authClient.passwordForgotVerifyCode(code, token);
+      const result = await this.authClient.passwordForgotVerifyCode(
+        code,
+        token
+      );
       return { accountResetToken: result.accountResetToken };
     } catch (err: unknown) {
       const errno = getErrno(err);
@@ -900,14 +937,12 @@ export class Account implements AccountData {
     const token = sessionToken();
     if (!token) throw AuthUiErrors.INVALID_TOKEN;
 
-
     const { access_token } = await this.withLoadingStatus(
       this.authClient.createOAuthToken(token, config.oauth.clientId, {
         scope: 'profile:write',
         ttl: PROFILE_OAUTH_TOKEN_TTL_SECONDS,
       })
     );
-
 
     const response = await this.withLoadingStatus(
       fetch(`${config.servers.profile.url}/v1/display_name`, {
@@ -934,7 +969,9 @@ export class Account implements AccountData {
     );
     updateExtendedAccountState({
       displayName,
-      avatar: { ...currentAvatar, ...newAvatar } as AccountAvatar & { isDefault?: boolean },
+      avatar: { ...currentAvatar, ...newAvatar } as AccountAvatar & {
+        isDefault?: boolean;
+      },
     });
 
     const legacyLocalStorageAccount = currentAccount()!;
@@ -1148,7 +1185,9 @@ export class Account implements AccountData {
       this.displayName
     );
     updateExtendedAccountState({
-      avatar: { ...currentAvatar, ...newAvatar } as AccountAvatar & { isDefault?: boolean },
+      avatar: { ...currentAvatar, ...newAvatar } as AccountAvatar & {
+        isDefault?: boolean;
+      },
     });
     updateBasicAccountData({ email });
 
@@ -1174,7 +1213,9 @@ export class Account implements AccountData {
       this.displayName
     );
     updateExtendedAccountState({
-      avatar: { ...currentAvatar, ...newAvatar } as AccountAvatar & { isDefault?: boolean },
+      avatar: { ...currentAvatar, ...newAvatar } as AccountAvatar & {
+        isDefault?: boolean;
+      },
     });
     updateBasicAccountData({ email });
 
@@ -1334,9 +1375,7 @@ export class Account implements AccountData {
     const token = sessionToken();
     if (!token) throw AuthUiErrors.INVALID_TOKEN;
 
-    await this.withLoadingStatus(
-      this.authClient.metricsOpt(token, state)
-    );
+    await this.withLoadingStatus(this.authClient.metricsOpt(token, state));
 
     updateBasicAccountData({ metricsEnabled: state === 'in' });
 
