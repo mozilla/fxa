@@ -8,6 +8,7 @@ import { Localized } from '@fluent/react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { InvoicePreview } from '@fxa/payments/customer';
+import alertCircle from '@fxa/shared/assets/images/alert-black-circle.svg';
 import infoLogo from '@fxa/shared/assets/images/info.svg';
 import {
   getLocalizedCurrencyString,
@@ -28,6 +29,14 @@ type PurchaseDetailsProps = {
   totalPrice: React.ReactNode;
   locale: string;
   showPrices: boolean;
+  freeTrialEligibility?: {
+    trialLengthDays: number;
+  } | null;
+  firstChargeTax?: number;
+  interval?: string;
+  cartState?: string;
+  trialStartDate?: number;
+  trialEndDate?: number;
 };
 
 export function PurchaseDetails(props: PurchaseDetailsProps) {
@@ -39,6 +48,12 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
     totalPrice,
     locale,
     showPrices,
+    freeTrialEligibility,
+    firstChargeTax,
+    interval,
+    cartState,
+    trialStartDate,
+    trialEndDate,
   } = props;
   const { details, productName, subtitle, webIcon } = purchaseDetails;
   const {
@@ -58,6 +73,54 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
   const exclusiveTaxRates = taxAmounts.filter(
     (taxAmount) => !taxAmount.inclusive
   );
+  const freeTrial =
+    !!trialEndDate ||
+    (!!freeTrialEligibility && freeTrialEligibility.trialLengthDays > 0);
+  const trialDayLength =
+    trialStartDate && trialEndDate
+      ? Math.round((trialEndDate - trialStartDate) / 86400)
+      : freeTrialEligibility?.trialLengthDays;
+  const formattedTrialEndDate = freeTrial
+    ? getLocalizedDateString(
+        trialEndDate ??
+          Math.floor((Date.now() + (trialDayLength ?? 0) * 86400000) / 1000),
+        false,
+        locale
+      )
+    : '';
+  const formattedFirstCharge = getLocalizedCurrencyString(
+    offeringPrice + (firstChargeTax ?? 0),
+    currency,
+    locale
+  );
+  const intervalLabelMap: Record<string, string> = {
+    daily: 'day',
+    weekly: 'week',
+    monthly: 'month',
+    halfyearly: '6 months',
+    yearly: 'year',
+  };
+  const intervalLabel = intervalLabelMap[interval ?? ''] ?? interval;
+  const startIdMap: Record<string, string> = {
+    daily: 'free-trial-start-message-daily',
+    weekly: 'free-trial-start-message-weekly',
+    monthly: 'free-trial-start-message-monthly',
+    halfyearly: 'free-trial-start-message-halfyearly',
+    yearly: 'free-trial-start-message-yearly',
+  };
+  const firstChargeIdMap: Record<string, string> = {
+    daily: 'free-trial-first-charge-message-daily',
+    weekly: 'free-trial-first-charge-message-weekly',
+    monthly: 'free-trial-first-charge-message-monthly',
+    halfyearly: 'free-trial-first-charge-message-halfyearly',
+    yearly: 'free-trial-first-charge-message-yearly',
+  };
+  const freeTrialStartMessageId = interval
+    ? startIdMap[interval]
+    : 'free-trial-start-message-monthly';
+  const firstChargeMessageId = interval
+    ? firstChargeIdMap[interval]
+    : 'free-trial-first-charge-message-monthly';
   const [detailsHidden, setDetailsState] = useState(true);
 
   return (
@@ -95,13 +158,54 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
         </div>
       </div>
 
-      <div
-        className="border-b border-grey-200"
-        role="separator"
-        aria-hidden="true"
-      ></div>
-
       <div className={detailsHidden ? 'hidden tablet:block' : 'block'}>
+        {showPrices && freeTrial && (
+          <div className="bg-[#D5F9FF] mb-4 p-4 rounded-lg">
+            <div className="flex gap-2 items-center">
+              <Image src={alertCircle} alt="" width={20} height={20} />
+              {cartState === 'success' ? (
+                <Localized
+                  id="free-trial-success-title"
+                  vars={{ trialDayLength: trialDayLength ?? 0 }}
+                >
+                  <h3 className="text-grey-600 font-semibold my-0">
+                    Your {trialDayLength}-day free trial has started
+                  </h3>
+                </Localized>
+              ) : (
+                <Localized
+                  id="free-trial-start-title"
+                  vars={{ trialDayLength: trialDayLength ?? 0 }}
+                >
+                  <h3 className="text-grey-600 font-semibold my-0">
+                    Start your {trialDayLength}-day free trial
+                  </h3>
+                </Localized>
+              )}
+            </div>
+
+            <Localized
+              id={freeTrialStartMessageId}
+              vars={{
+                endDate: formattedTrialEndDate,
+                firstPrice: formattedFirstCharge,
+              }}
+            >
+              <p className="leading-5 mt-1 mb-0 text-grey-600 text-sm">
+                No payment required today. You will be charged{' '}
+                {formattedFirstCharge}/{intervalLabel} after the free trial ends
+                on {formattedTrialEndDate}.
+              </p>
+            </Localized>
+          </div>
+        )}
+
+        <div
+          className="border-b border-grey-200"
+          role="separator"
+          aria-hidden="true"
+        ></div>
+
         <Localized id="next-plan-details-header">
           <h3 className="text-grey-600 font-semibold my-4">Product details</h3>
         </Localized>
@@ -238,7 +342,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
               </li>
 
               {!!creditApplied && startingBalance < 0 && (
-                <div className="flex items-center justify-between gap-2 leading-5 text-grey-600 pt-4">
+                <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 pt-4">
                   <Localized id="purchase-details-credit-applied-label">
                     <p>Credit applied</p>
                   </Localized>
@@ -249,7 +353,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
                       locale
                     )}
                   </p>
-                </div>
+                </li>
               )}
             </ul>
 
@@ -261,11 +365,41 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
                 className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
                 data-testid="total-price"
               >
-                {!!unusedAmountTotal
-                  ? getLocalizedCurrencyString(amountDue, currency, locale)
-                  : totalPrice}
+                {freeTrial
+                  ? getLocalizedCurrencyString(0, currency, locale)
+                  : !!unusedAmountTotal
+                    ? getLocalizedCurrencyString(amountDue, currency, locale)
+                    : totalPrice}
               </p>
             </div>
+
+            {freeTrial && (
+              <div className="bg-grey-50 mb-6 p-4 rounded-lg">
+                <Localized
+                  id="free-trial-first-charge-title"
+                  vars={{ endDate: formattedTrialEndDate }}
+                >
+                  <h3 className="text-grey-600 font-semibold my-0">
+                    First charge: {formattedTrialEndDate}
+                  </h3>
+                </Localized>
+
+                <Localized
+                  id={firstChargeMessageId}
+                  vars={{
+                    endDate: formattedTrialEndDate,
+                    firstPrice: formattedFirstCharge,
+                  }}
+                >
+                  <p className="leading-5 mt-1 mb-0 text-grey-600 text-sm">
+                    You will be billed {formattedFirstCharge} on{' '}
+                    {formattedTrialEndDate}, then{' '}
+                    {interval === 'halfyearly' ? 'every 6 months' : interval}{' '}
+                    thereafter until you cancel.
+                  </p>
+                </Localized>
+              </div>
+            )}
 
             {!discountType ||
             discountType === 'forever' ? null : discountEnd ? (
@@ -279,14 +413,15 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
                   vars={{
                     couponDurationDate: getLocalizedDateString(
                       discountEnd,
-                      true
+                      false,
+                      locale
                     ),
                   }}
                 >
                   <p>
                     Your plan will automatically renew after
-                    {getLocalizedDateString(discountEnd, true)} at the list
-                    price.
+                    {getLocalizedDateString(discountEnd, false, locale)} at the
+                    list price.
                   </p>
                 </Localized>
               </div>
@@ -304,6 +439,14 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
           </>
         )}
       </div>
+
+      {detailsHidden && (
+        <div
+          className="border-b border-grey-200 tablet:hidden"
+          role="separator"
+          aria-hidden="true"
+        ></div>
+      )}
 
       <div
         className="flex items-center justify-center tablet:hidden"
