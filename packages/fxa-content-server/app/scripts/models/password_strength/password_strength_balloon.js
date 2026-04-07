@@ -59,7 +59,7 @@ export default class PasswordStrengthBalloonModel extends Model {
 
   _getCommonPasswordList() {
     return import(
-      /* webpackChunkName: "fxa-common-password-list" */ 'fxa-common-password-list'
+      /* webpackChunkName: "common-password-list" */ '@fxa/vendored/common-password-list'
     );
   }
 

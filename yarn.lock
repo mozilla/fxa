@@ -32060,15 +32060,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"fxa-common-password-list@npm:0.0.4, fxa-common-password-list@npm:^0.0.4":
-  version: 0.0.4
-  resolution: "fxa-common-password-list@npm:0.0.4"
-  dependencies:
-    incremental-encoder: "npm:0.0.1"
-  checksum: 10c0/ec639effd2d14e5394fbaee29ccec032eab2bf43b15cea33732a0b158ea49733288c26a6dcaa9b7d028ff2c8cf17f48baa4e35e0a77dbf8d27551f0ec7c8b348
-  languageName: node
-  linkType: hard
-
 "fxa-content-server@workspace:*, fxa-content-server@workspace:packages/fxa-content-server":
   version: 0.0.0-use.local
   resolution: "fxa-content-server@workspace:packages/fxa-content-server"
@@ -32113,7 +32104,6 @@ __metadata:
     firefox-profile: "npm:4.7.0"
     fxa-auth-client: "workspace:*"
     fxa-auth-server: "workspace:*"
-    fxa-common-password-list: "npm:0.0.4"
     fxa-geodb: "workspace:*"
     fxa-mustache-loader: "npm:0.0.2"
     fxa-pairing-channel: "npm:1.0.2"
@@ -32604,7 +32594,6 @@ __metadata:
     file-saver: "npm:^2.0.5"
     fs-extra: "npm:^11.2.0"
     fxa-auth-client: "workspace:*"
-    fxa-common-password-list: "npm:^0.0.4"
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     grunt: "npm:^1.6.1"
@@ -35504,13 +35493,6 @@ __metadata:
   version: 0.1.4
   resolution: "imurmurhash@npm:0.1.4"
   checksum: 10c0/8b51313850dd33605c6c9d3fd9638b714f4c4c40250cff658209f30d40da60f78992fb2df5dabee4acf589a6a82bbc79ad5486550754bd9ec4e3fc0d4a57d6a6
-  languageName: node
-  linkType: hard
-
-"incremental-encoder@npm:0.0.1":
-  version: 0.0.1
-  resolution: "incremental-encoder@npm:0.0.1"
-  checksum: 10c0/646032c1ff35ee8556e55d6fbf817fcb172147f4442f5ed786f6b8845cb05e7cc0633ef3c22e57cbf758ac328aac69215d4126f093118e206047ef2a98a4fc66
   languageName: node
   linkType: hard
 
