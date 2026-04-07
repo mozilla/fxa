@@ -29,7 +29,7 @@ export class StripeFormatter {
       endedAt: !!subscription.ended_at
         ? subscription.ended_at * 1e3
         : subscription.ended_at,
-      latestInvoice: invoice?.hosted_invoice_url || 'NA',
+      latestInvoice: invoice?.hosted_invoice_url || '',
       manageSubscriptionLink: manageSubscriptionLink || '',
       planId: plan?.plan_id || 'NA',
       productName: plan?.product_name || 'NA',
