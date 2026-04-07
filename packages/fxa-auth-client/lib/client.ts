@@ -171,6 +171,89 @@ export type VerificationMethod =
   | 'email-captcha'
   | 'totp-2fa';
 
+// NOTE: These passkey/webauthn related types are duplicated from fxa-settings.
+// We cannot import them because it will cause circular dependencies, which nx
+// does not allow.
+// TODO: We should consider moving these types to a shared package
+export interface Passkey {
+  credentialId: string;
+  name: string;
+  createdAt: number;
+  lastUsedAt: number | null;
+  transports: string[];
+  aaguid: string;
+  backupEligible: boolean;
+  backupState: boolean;
+  prfEnabled: boolean;
+}
+
+type Base64URLString = string;
+
+interface AuthenticatorAttestationResponseJSON {
+  clientDataJSON: Base64URLString;
+  attestationObject: Base64URLString;
+  transports?: string[];
+}
+
+interface AuthenticatorAssertionResponseJSON {
+  clientDataJSON: Base64URLString;
+  authenticatorData: Base64URLString;
+  signature: Base64URLString;
+  userHandle?: Base64URLString;
+}
+
+type AuthenticatorResponseJSON =
+  | AuthenticatorAttestationResponseJSON
+  | AuthenticatorAssertionResponseJSON;
+
+interface PrfEvalInput {
+  first: Base64URLString;
+  second?: Base64URLString;
+}
+interface AuthenticationExtensionsJSON {
+  prf?: {
+    eval?: PrfEvalInput;
+    evalByCredential?: Record<string, PrfEvalInput>;
+  };
+  [key: string]: unknown;
+}
+
+interface PublicKeyCredentialDescriptorJSON {
+  id: Base64URLString;
+  type: 'public-key';
+  transports?: (AuthenticatorTransport | 'smart-card')[];
+}
+
+export interface PublicKeyCredentialCreationOptionsJSON {
+  rp: { id?: string; name: string };
+  user: {
+    id: Base64URLString;
+    name: string;
+    displayName: string;
+  };
+  challenge: Base64URLString;
+  pubKeyCredParams: PublicKeyCredentialParameters[];
+  timeout?: number;
+  excludeCredentials?: PublicKeyCredentialDescriptorJSON[];
+  authenticatorSelection?: {
+    authenticatorAttachment?: AuthenticatorAttachment;
+    requireResidentKey?: boolean;
+    residentKey?: ResidentKeyRequirement;
+    userVerification?: UserVerificationRequirement;
+  };
+  attestation?: AttestationConveyancePreference;
+  extensions?: AuthenticationExtensionsJSON;
+}
+
+export interface PublicKeyCredentialJSON {
+  id: Base64URLString;
+  rawId: Base64URLString;
+  type: 'public-key';
+  authenticatorAttachment?: string;
+  response: AuthenticatorResponseJSON;
+  clientExtensionResults: Record<string, unknown>;
+}
+
 function createHeaders(
   headers?: Headers | undefined,
   options?: Record<string, any> & { lang?: string }
@@ -451,6 +534,21 @@ export default class AuthClient {
       headers.set('authorization', authorization);
     }
     return this.request('PUT', path, payload, headers);
+  }
+
+  private async jwtPatch(
+    path: string,
+    jwt: string,
+    payload: any,
+    headers?: Headers
+  ) {
+    const authorization = 'Bearer ' + jwt;
+    if (!headers) {
+      headers = new Headers({ authorization });
+    } else {
+      headers.set('authorization', authorization);
+    }
+    return this.request('PATCH', path, payload, headers);
   }
 
   private async sessionPost(
@@ -3344,6 +3442,98 @@ export default class AuthClient {
       `/cms/config?clientId=${clientId}&entrypoint=${entrypoint}`,
       null,
       undefined
+    );
+  }
+
+  /**
+   * Starts a passkey registration flow, returning WebAuthn credential creation
+   * options for the browser.
+   *
+   * @param jwt MFA JWT with scope `mfa:passkey`
+   * @param headers Optional additional headers
+   */
+  async beginPasskeyRegistration(
+    jwt: string,
+    headers?: Headers
+  ): Promise<PublicKeyCredentialCreationOptionsJSON> {
+    return this.jwtPost('/passkey/registration/start', jwt, {}, headers);
+  }
+
+  /**
+   * Completes a passkey registration flow by submitting the browser's
+   * attestation response together with the original challenge.
+   *
+   * @param jwt MFA JWT with scope `mfa:passkey`
+   * @param response `PublicKeyCredentialJSON` created by the browser
+   * @param challenge The challenge string returned by `beginPasskeyRegistration`
+   * @param headers Optional additional headers
+   */
+  async completePasskeyRegistration(
+    jwt: string,
+    response: PublicKeyCredentialJSON,
+    challenge: string,
+    headers?: Headers
+  ): Promise<Passkey> {
+    return this.jwtPost(
+      '/passkey/registration/finish',
+      jwt,
+      { response, challenge },
+      headers
+    );
+  }
+
+  /**
+   * Lists all passkeys registered for the authenticated user.
+   *
+   * @param sessionToken The user's current verified session token
+   * @param headers Optional additional headers
+   */
+  async listPasskeys(
+    sessionToken: hexstring,
+    headers?: Headers
+  ): Promise<Passkey[]> {
+    return this.sessionGet('/passkeys', sessionToken, headers);
+  }
+
+  /**
+   * Deletes the passkey identified by `credentialId`.
+   *
+   * @param jwt MFA JWT with scope `mfa:passkey`
+   * @param credentialId The base64url-encoded credential ID of the passkey to delete
+   * @param headers Optional additional headers
+   */
+  async deletePasskey(
+    jwt: string,
+    credentialId: string,
+    headers?: Headers
+  ): Promise<{}> {
+    return this.jwtDelete(
+      `/passkey/${encodeURIComponent(credentialId)}`,
+      jwt,
+      {},
+      headers
+    );
+  }
+
+  /**
+   * Renames the passkey identified by `credentialId`.
+   *
+   * @param jwt MFA JWT with scope `mfa:passkey`
+   * @param credentialId The base64url-encoded credential ID of the passkey to rename
+   * @param name The new display name for the passkey
+   * @param headers Optional additional headers
+   */
+  async renamePasskey(
+    jwt: string,
+    credentialId: string,
+    name: string,
+    headers?: Headers
+  ): Promise<Passkey> {
+    return this.jwtPatch(
+      `/passkey/${encodeURIComponent(credentialId)}`,
+      jwt,
+      { name },
+      headers
     );
   }
 

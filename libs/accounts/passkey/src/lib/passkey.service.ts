@@ -147,7 +147,7 @@ export class PasskeyService {
     uid: Buffer,
     response: RegistrationResponseJSON,
     challenge: string
-  ): Promise<NewPasskey> {
+  ): Promise<Passkey> {
     const uidHex = uid.toString('hex');
 
     const storedChallenge =
@@ -200,21 +200,33 @@ export class PasskeyService {
 
     const name = this.generatePasskeyName(aaguid, transports, existingPasskeys);
 
-    const passkey: NewPasskey = {
+    const passkey: Passkey = {
       uid,
       credentialId,
       publicKey,
       signCount,
-      transports: JSON.stringify(transports ?? []),
+      transports: transports ?? [],
       aaguid,
       name,
       createdAt: Date.now(),
       lastUsedAt: null,
-      backupEligible: backupEligible ? 1 : 0,
-      backupState: backupState ? 1 : 0,
+      backupEligible,
+      backupState,
+      // FIXME: prfEnabled needs to be exposed by webauthn-adapter. See FXA-13403.
+      prfEnabled: false,
     };
 
-    await this.passkeyManager.registerPasskey(passkey);
+    // TODO: update repository, manager, and service layers to accept/return a
+    // Passkey object directly instead of mapping to NewPasskey. See FXA-13402.
+    const newPasskey: NewPasskey = {
+      ...passkey,
+      transports: JSON.stringify(transports ?? []),
+      backupEligible: backupEligible ? 1 : 0,
+      backupState: backupState ? 1 : 0,
+      prfEnabled: 0,
+    };
+
+    await this.passkeyManager.registerPasskey(newPasskey);
 
     this.metrics.increment('passkey.registration.success');
     this.log?.log('passkey.registered', { uid: uidHex });
