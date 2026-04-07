@@ -1,11 +1,13 @@
 name: Cleanup Storybooks
 
 on:
-  pull_request:
-    types: [closed]
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
+  pull-requests: read
 
 concurrency:
   group: gh-pages-deploy
@@ -24,15 +26,27 @@ jobs:
           path: gh-pages
           fetch-depth: 1
 
-      - name: Remove PR directory
+      - name: Remove storybooks for closed/merged PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
         run: |
-          PR_DIR="storybooks/pr-${{ github.event.pull_request.number }}"
-          if [ -d "gh-pages/$PR_DIR" ]; then
-            rm -rf "gh-pages/$PR_DIR"
-            echo "Removed $PR_DIR"
-          else
-            echo "Directory $PR_DIR not found, nothing to clean up"
-          fi
+          set -euo pipefail
+          REMOVED=0
+          for dir in gh-pages/storybooks/pr-*/; do
+            [ -d "$dir" ] || continue
+            PR_NUMBER=$(basename "$dir" | sed 's/^pr-//')
+            STATE=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '.state')
+            if [ "$STATE" = "closed" ]; then
+              rm -rf "$dir"
+              echo "Removed storybook for PR #${PR_NUMBER} (state: ${STATE})"
+              REMOVED=$((REMOVED + 1))
+            else
+              echo "Keeping storybook for PR #${PR_NUMBER} (state: ${STATE})"
+            fi
+          done
+          echo "Total removed: ${REMOVED}"
+          echo "REMOVED=${REMOVED}" >> "$GITHUB_ENV"
 
       - name: Checkout main branch for scripts
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -43,7 +57,7 @@ jobs:
       - name: Regenerate root index.html
         run: node main-repo/_scripts/generate-storybook-index.js
         env:
-          GH_PAGES_DIR: gh-pages
+          STORYBOOKS_DIR: gh-pages/storybooks
           REPO_NAME: ${{ github.event.repository.name }}
           REPO_OWNER: ${{ github.repository_owner }}
 
@@ -53,10 +67,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Nothing changed, skipping push"
+            exit 0
+          fi
+
           # Create orphan branch (no history) with current content
           git checkout --orphan gh-pages-new
           git add -A
-          git commit -m "Remove storybooks for closed PR ${{ github.event.pull_request.number }}"
+          git commit -m "chore: remove storybooks for ${REMOVED} closed PR(s)"
 
           # Replace gh-pages with the new orphan branch
           git push --force origin gh-pages-new:gh-pages
