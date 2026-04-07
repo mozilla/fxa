@@ -314,6 +314,30 @@ describe('PasskeyService', () => {
       );
     });
 
+    it('returns a Passkey object with correct shape', async () => {
+      const result = await service.createPasskeyFromRegistrationResponse(
+        MOCK_UID,
+        mockResponse,
+        MOCK_CHALLENGE
+      );
+      expect(result).toEqual(
+        expect.objectContaining({
+          uid: MOCK_UID,
+          name: expect.any(String),
+          credentialId: MOCK_CREDENTIAL_ID,
+          publicKey: MOCK_PUBLIC_KEY,
+          signCount: 0,
+          transports: ['internal'],
+          aaguid: MOCK_AAGUID_ZEROS,
+          createdAt: expect.any(Number),
+          lastUsedAt: null,
+          backupEligible: false,
+          backupState: false,
+          prfEnabled: false,
+        })
+      );
+    });
+
     it('emits correct metrics and logs on success', async () => {
       await service.createPasskeyFromRegistrationResponse(
         MOCK_UID,
