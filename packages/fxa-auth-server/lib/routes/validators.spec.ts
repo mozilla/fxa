@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Migrated from test/local/routes/validators.js (Mocha → Jest).
- */
-
 const validators = require('./validators');
 const plan1 = require('../../test/local/payments/fixtures/stripe/plan1.json');
 const validProductMetadata = plan1.product.metadata;
@@ -959,9 +955,7 @@ describe('lib/routes/validators:', () => {
       expect(
         validators.recoveryCodes(2, 10).validate({ recoveryCodes: [] }).error
       ).toBeTruthy();
-      expect(
-        validators.recoveryCodes(2, 10).validate({}).error
-      ).toBeTruthy();
+      expect(validators.recoveryCodes(2, 10).validate({}).error).toBeTruthy();
     });
 
     it('detects improper count', () => {
@@ -1010,12 +1004,8 @@ describe('lib/routes/validators:', () => {
     });
 
     it('requires proper length', () => {
-      expect(
-        validators.recoveryCode(5).validate('1234').error
-      ).toBeTruthy();
-      expect(
-        validators.recoveryCode(11).validate('123456').error
-      ).toBeTruthy();
+      expect(validators.recoveryCode(5).validate('1234').error).toBeTruthy();
+      expect(validators.recoveryCode(11).validate('123456').error).toBeTruthy();
     });
   });
 

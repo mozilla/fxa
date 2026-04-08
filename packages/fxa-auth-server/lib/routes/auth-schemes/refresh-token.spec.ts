@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Migrated from test/local/routes/auth-schemes/refresh-token.js (Mocha → Jest).
- * Replaced proxyquire with jest.mock for oauth/db and oauth/client.
- */
-
 import sinon from 'sinon';
 import { AppError as error } from '@fxa/accounts/errors';
 

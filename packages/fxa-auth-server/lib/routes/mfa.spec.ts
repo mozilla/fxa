@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Migrated from test/local/routes/mfa.js (Mocha → Jest).
- * Split sinon.assert + chai assert spread into sinon.assert + expect.
- */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 import { AppError } from '@fxa/accounts/errors';
@@ -56,7 +51,11 @@ describe('mfa', () => {
     },
   };
 
-  async function runTest(routePath: string, requestOptions: any, method: string) {
+  async function runTest(
+    routePath: string,
+    requestOptions: any,
+    method: string
+  ) {
     routes = require('./mfa').default(
       customs,
       db,
@@ -126,11 +125,9 @@ describe('mfa', () => {
         code = data.code;
       }
     );
-    fxaMailer.sendVerifyAccountChangeEmail = sandbox.spy(
-      (data: any) => {
-        code = data.code;
-      }
-    );
+    fxaMailer.sendVerifyAccountChangeEmail = sandbox.spy((data: any) => {
+      code = data.code;
+    });
   });
 
   afterEach(() => {

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/payments/paypal-processor.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 
@@ -62,7 +60,15 @@ describe('PaypalProcessor', () => {
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(PayPalHelper, mockPaypalHelper);
     Container.set(CapabilityService, {});
-    processor = new PaypalProcessor(mockLog, mockConfig, 1, 1, undefined as any, {} as any, {} as any);
+    processor = new PaypalProcessor(
+      mockLog,
+      mockConfig,
+      1,
+      1,
+      undefined as any,
+      {} as any,
+      {} as any
+    );
     processor.webhookHandler = mockHandler;
   });
 
@@ -73,7 +79,15 @@ describe('PaypalProcessor', () => {
 
   describe('constructor', () => {
     it('sets log, graceDays, retryAttemps, stripe and paypalHelpers', () => {
-      const paypalProcessor = new PaypalProcessor(mockLog, mockConfig, 1, 1, undefined as any, {} as any, {} as any);
+      const paypalProcessor = new PaypalProcessor(
+        mockLog,
+        mockConfig,
+        1,
+        1,
+        undefined as any,
+        {} as any,
+        {} as any
+      );
       expect((paypalProcessor as any).log).toBe(mockLog);
       expect((paypalProcessor as any).graceDays).toEqual(1);
       expect((paypalProcessor as any).maxRetryAttempts).toEqual(1);
@@ -447,9 +461,7 @@ describe('PaypalProcessor', () => {
     it('errors with no customer loaded', async () => {
       invoice.customer = 'cust_1232142';
       mockLog.error = sandbox.fake.returns({});
-      await expect(
-        processor.attemptInvoiceProcessing(invoice)
-      ).rejects.toEqual(
+      await expect(processor.attemptInvoiceProcessing(invoice)).rejects.toEqual(
         error.internalValidationError('customerNotLoad', {
           customer: 'cust_1232142',
           invoiceId: invoice.id,

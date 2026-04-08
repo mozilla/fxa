@@ -2,12 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Migrated from test/local/routes/utils/signin.js (Mocha → Jest).
- * Split sinon.assert + chai assert spread into sinon.assert + expect.
- * Uses mocks.mockRequest (works from co-located tests).
- */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 
@@ -798,15 +792,20 @@ describe('sendSigninNotifications', () => {
       });
 
       sinon.assert.calledOnce(log.notifyAttachedServices);
-      sinon.assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
-        deviceCount: 0,
-        email: TEST_EMAIL,
-        service: undefined,
-        uid: TEST_UID,
-        userAgent: 'test user-agent',
-        country: 'United States',
-        countryCode: 'US',
-      });
+      sinon.assert.calledWithExactly(
+        log.notifyAttachedServices,
+        'login',
+        request,
+        {
+          deviceCount: 0,
+          email: TEST_EMAIL,
+          service: undefined,
+          uid: TEST_UID,
+          userAgent: 'test user-agent',
+          country: 'United States',
+          countryCode: 'US',
+        }
+      );
 
       sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
       sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
@@ -917,7 +916,10 @@ describe('sendSigninNotifications', () => {
         );
 
         sinon.assert.calledTwice(metricsContext.stash);
-        sinon.assert.calledWithExactly(metricsContext.stash.getCall(0), sessionToken);
+        sinon.assert.calledWithExactly(
+          metricsContext.stash.getCall(0),
+          sessionToken
+        );
         sinon.assert.calledWithExactly(metricsContext.stash.getCall(1), {
           uid: TEST_UID,
           id: 'tokenVerifyCode',
@@ -964,15 +966,20 @@ describe('sendSigninNotifications', () => {
         });
 
         sinon.assert.calledOnce(log.notifyAttachedServices);
-        sinon.assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
-          deviceCount: 0,
-          email: TEST_EMAIL,
-          service: undefined,
-          uid: TEST_UID,
-          userAgent: 'test user-agent',
-          country: 'United States',
-          countryCode: 'US',
-        });
+        sinon.assert.calledWithExactly(
+          log.notifyAttachedServices,
+          'login',
+          request,
+          {
+            deviceCount: 0,
+            email: TEST_EMAIL,
+            service: undefined,
+            uid: TEST_UID,
+            userAgent: 'test user-agent',
+            country: 'United States',
+            countryCode: 'US',
+          }
+        );
       });
     });
 
@@ -1008,15 +1015,20 @@ describe('sendSigninNotifications', () => {
         sinon.assert.calledOnce(db.sessions);
         sinon.assert.calledOnce(log.activityEvent);
         sinon.assert.calledOnce(log.notifyAttachedServices);
-        sinon.assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
-          deviceCount: 0,
-          email: TEST_EMAIL,
-          service: undefined,
-          uid: TEST_UID,
-          userAgent: 'test user-agent',
-          country: 'United States',
-          countryCode: 'US',
-        });
+        sinon.assert.calledWithExactly(
+          log.notifyAttachedServices,
+          'login',
+          request,
+          {
+            deviceCount: 0,
+            email: TEST_EMAIL,
+            service: undefined,
+            uid: TEST_UID,
+            userAgent: 'test user-agent',
+            country: 'United States',
+            countryCode: 'US',
+          }
+        );
 
         sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
         sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
@@ -1187,7 +1199,10 @@ describe('sendSigninNotifications', () => {
       );
 
       sinon.assert.calledTwice(metricsContext.stash);
-      sinon.assert.calledWithExactly(metricsContext.stash.getCall(0), sessionToken);
+      sinon.assert.calledWithExactly(
+        metricsContext.stash.getCall(0),
+        sessionToken
+      );
       sinon.assert.calledWithExactly(metricsContext.stash.getCall(1), {
         uid: TEST_UID,
         id: 'tokenVerifyCode',
@@ -1196,15 +1211,20 @@ describe('sendSigninNotifications', () => {
       sinon.assert.calledOnce(db.sessions);
       sinon.assert.calledOnce(log.activityEvent);
       sinon.assert.calledOnce(log.notifyAttachedServices);
-      sinon.assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
-        deviceCount: 0,
-        email: TEST_EMAIL,
-        service: undefined,
-        uid: TEST_UID,
-        userAgent: 'test user-agent',
-        country: 'United States',
-        countryCode: 'US',
-      });
+      sinon.assert.calledWithExactly(
+        log.notifyAttachedServices,
+        'login',
+        request,
+        {
+          deviceCount: 0,
+          email: TEST_EMAIL,
+          service: undefined,
+          uid: TEST_UID,
+          userAgent: 'test user-agent',
+          country: 'United States',
+          countryCode: 'US',
+        }
+      );
       sinon.assert.calledOnce(db.securityEvent);
     });
   });
@@ -1420,15 +1440,20 @@ describe('sendSigninNotifications', () => {
         undefined
       ).then(() => {
         sinon.assert.calledOnce(log.notifyAttachedServices);
-        sinon.assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
-          service: 'sync',
-          uid: TEST_UID,
-          email: TEST_EMAIL,
-          deviceCount: 1,
-          userAgent: 'test user-agent',
-          country: 'United States',
-          countryCode: 'US',
-        });
+        sinon.assert.calledWithExactly(
+          log.notifyAttachedServices,
+          'login',
+          request,
+          {
+            service: 'sync',
+            uid: TEST_UID,
+            email: TEST_EMAIL,
+            deviceCount: 1,
+            userAgent: 'test user-agent',
+            country: 'United States',
+            countryCode: 'US',
+          }
+        );
       });
     });
 
@@ -1443,15 +1468,20 @@ describe('sendSigninNotifications', () => {
         undefined
       ).then(() => {
         sinon.assert.calledOnce(log.notifyAttachedServices);
-        sinon.assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
-          service: 'sync',
-          uid: TEST_UID,
-          email: TEST_EMAIL,
-          deviceCount: 4,
-          userAgent: 'test user-agent',
-          country: 'United States',
-          countryCode: 'US',
-        });
+        sinon.assert.calledWithExactly(
+          log.notifyAttachedServices,
+          'login',
+          request,
+          {
+            service: 'sync',
+            uid: TEST_UID,
+            email: TEST_EMAIL,
+            deviceCount: 4,
+            userAgent: 'test user-agent',
+            country: 'United States',
+            countryCode: 'US',
+          }
+        );
       });
     });
 
@@ -1544,7 +1574,9 @@ describe('createKeyFetchToken', () => {
     ).then(() => {
       sinon.assert.calledOnce(metricsContext.stash);
       sinon.assert.calledOn(metricsContext.stash, request);
-      sinon.assert.calledWithExactly(metricsContext.stash, { id: 'KEY_FETCH_TOKEN' });
+      sinon.assert.calledWithExactly(metricsContext.stash, {
+        id: 'KEY_FETCH_TOKEN',
+      });
     });
   });
 });

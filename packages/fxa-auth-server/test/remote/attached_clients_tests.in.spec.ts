@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
 
 const Client = require('../client')();
 const ScopeSet = require('fxa-shared').oauth.scopes;
@@ -16,7 +16,7 @@ let oauthServerDb: any;
 let tokens: any;
 
 beforeAll(async () => {
-  server = await createTestServer();
+  server = await getSharedTestServer();
 
   const config = require('../../config').default.getProperties();
   tokens = require('../../lib/tokens')({ trace: () => {} }, config);

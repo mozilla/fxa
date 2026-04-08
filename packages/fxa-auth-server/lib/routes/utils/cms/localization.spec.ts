@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Migrated from test/local/routes/utils/cms/localization.js (Mocha → Jest).
- * Converted chai assert to Jest expect. assert.isRejected → expect.rejects.toThrow.
- */
-
 import sinon from 'sinon';
 
 // @octokit/rest is ESM-only; mock to avoid parse errors in Jest
@@ -292,26 +287,26 @@ describe('CMSLocalization', () => {
       it('throws error when GitHub token is missing', async () => {
         mockConfig.cmsl10n.github.token = '';
 
-        await expect(
-          localization.validateGitHubConfig()
-        ).rejects.toThrow(/GitHub token is required/);
+        await expect(localization.validateGitHubConfig()).rejects.toThrow(
+          /GitHub token is required/
+        );
       });
 
       it('throws error when GitHub owner or repo is missing', async () => {
         mockConfig.cmsl10n.github.owner = '';
 
-        await expect(
-          localization.validateGitHubConfig()
-        ).rejects.toThrow(/GitHub owner and repo are required/);
+        await expect(localization.validateGitHubConfig()).rejects.toThrow(
+          /GitHub owner and repo are required/
+        );
       });
 
       it('throws error when GitHub API call fails', async () => {
         const error = new Error('API Error');
         localization.octokit.repos.get.rejects(error);
 
-        await expect(
-          localization.validateGitHubConfig()
-        ).rejects.toThrow(/API Error/);
+        await expect(localization.validateGitHubConfig()).rejects.toThrow(
+          /API Error/
+        );
 
         sinon.assert.calledWith(
           mockLog.error,
@@ -589,10 +584,7 @@ describe('CMSLocalization', () => {
           }
         );
 
-        expect(result).toEqual([
-          ...relyingPartyEntries,
-          ...legalNoticeEntries,
-        ]);
+        expect(result).toEqual([...relyingPartyEntries, ...legalNoticeEntries]);
 
         sinon.assert.calledWith(
           mockLog.info,

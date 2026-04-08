@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/routes/recovery-codes.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 import { AppError as error } from '@fxa/accounts/errors';

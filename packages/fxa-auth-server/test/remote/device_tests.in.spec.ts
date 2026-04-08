@@ -4,7 +4,7 @@
 
 import crypto from 'crypto';
 import base64url from 'base64url';
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
 
 const Client = require('../client')();
 const mocks = require('../mocks');
@@ -12,7 +12,7 @@ const mocks = require('../mocks');
 let server: TestServerInstance;
 
 beforeAll(async () => {
-  server = await createTestServer();
+  server = await getSharedTestServer();
 }, 120000);
 
 afterAll(async () => {

@@ -12,21 +12,15 @@ module.exports = {
   moduleNameMapper: {
     ...baseConfig.moduleNameMapper,
     '^@fxa/vendored/(.*)$': '<rootDir>/../../libs/vendored/$1/src',
-    // Map bare 'fxa-shared' to source to avoid class identity mismatches
-    // between dist/cjs and source modules (e.g., ScopeSet loaded via
-    // require('fxa-shared').oauth.scopes vs fxa-shared/oauth/scopes).
     '^fxa-shared$': '<rootDir>/../fxa-shared/index',
   },
 
-  testMatch: ['<rootDir>/**/*.in.spec.ts'],
+  testMatch: ['<rootDir>/test/scripts/**/*.in.spec.ts'],
 
-  // oauth_api.in.spec.ts uses its own in-process server (server.inject)
-  // and must run separately to avoid client-config DB race conditions
-  // with the shared server started by globalSetup.
-  testPathIgnorePatterns: ['/node_modules/', 'oauth_api\\.in\\.spec\\.ts', 'test/scripts'],
+  testPathIgnorePatterns: ['/node_modules/'],
 
   testTimeout: 120000,
-  maxWorkers: 4,
+  maxWorkers: 8,
 
   globalSetup: '<rootDir>/test/support/jest-global-setup.ts',
   globalTeardown: '<rootDir>/test/support/jest-global-teardown.ts',
@@ -38,5 +32,5 @@ module.exports = {
     'lib/**/*.{ts,js}',
     '!lib/**/*.spec.{ts,js}',
   ],
-  coverageDirectory: '../../artifacts/coverage/fxa-auth-server-jest-integration',
+  coverageDirectory: '../../artifacts/coverage/fxa-auth-server-jest-scripts',
 };

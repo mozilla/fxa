@@ -3,7 +3,6 @@ plugins:
 extends: ../.eslintrc
 
 env:
-  mocha: true
   jest: true
 
 globals:

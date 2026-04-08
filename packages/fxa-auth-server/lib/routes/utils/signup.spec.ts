@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Migrated from test/local/routes/utils/signup.js (Mocha → Jest).
- * Split sinon.assert + chai assert spread into sinon.assert + expect.
- */
-
 import sinon from 'sinon';
 
 const mocks = require('../../../test/mocks');
@@ -30,7 +25,14 @@ async function setup(options: any) {
   const verificationReminders =
     options.verificationReminders || mocks.mockVerificationReminders();
   const push = options.push || mocks.mockPush();
-  return require('./signup')(log, db, mailer, push, verificationReminders, glean);
+  return require('./signup')(
+    log,
+    db,
+    mailer,
+    push,
+    verificationReminders,
+    glean
+  );
 }
 
 describe('verifyAccount', () => {

@@ -91,7 +91,7 @@ Exit Codes:
     .parse(process.argv);
 
   if (shouldPrintHelp) {
-    return 0;
+    return;
   }
 
   const tokenMaxAge = parseDuration(program.maxTokenAge);
