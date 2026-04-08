@@ -27,6 +27,9 @@ export function middleware(request: NextRequest) {
   const PROFILE_UPLOADED_IMAGES_URL = process.env.PROFILE_UPLOADED_IMAGES_URL;
   const FEATURE_FLAG_SUB_MANAGE = process.env.FEATURE_FLAG_SUB_MANAGE;
   const CONTENT_SERVER_URL = process.env.CONTENT_SERVER_CLIENT_CONFIG__URL;
+  const GLEAN_CLIENT_SERVER_ENDPOINT =
+    process.env.GLEAN_CLIENT_CONFIG__SERVER_ENDPOINT ||
+    'https://incoming.telemetry.mozilla.org';
   const SENTRY_SERVER = 'https://*.sentry.io';
   const SENTRY_CSP_ENDPOINT = process.env.CSP__SENTRY_REPORT_URI ?? '';
 
@@ -46,7 +49,7 @@ export function middleware(request: NextRequest) {
   const cspHeader = `
     base-uri 'self';
     child-src 'self' ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS};
-    connect-src 'self' ${AUTH_SERVER_URL} ${PROFILE_CLIENT_URL} https://api.stripe.com ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS} ${SENTRY_SERVER};
+    connect-src 'self' ${AUTH_SERVER_URL} ${PROFILE_CLIENT_URL} https://api.stripe.com ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS} ${GLEAN_CLIENT_SERVER_ENDPOINT} ${SENTRY_SERVER};
     default-src 'self' ${SENTRY_SERVER};
     font-src 'self';
     frame-ancestors 'none';
