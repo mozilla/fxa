@@ -31909,7 +31909,7 @@ __metadata:
     mysql: "npm:^2.18.1"
     nock: "npm:^13.5.1"
     node-zendesk: "npm:^2.2.0"
-    nodemailer: "npm:^7.0.7"
+    nodemailer: "npm:^8.0.5"
     nodemon: "npm:^3.1.0"
     nx: "npm:21.2.4"
     openapi-fetch: "npm:^0.13.5"
@@ -32795,7 +32795,7 @@ __metadata:
     node-fetch: "npm:^2.6.7"
     node-hkdf: "npm:^0.0.2"
     node-jose: "npm:^2.2.0"
-    nodemailer: "npm:^7.0.7"
+    nodemailer: "npm:^8.0.5"
     nps: "npm:^5.10.0"
     nx: "npm:21.2.4"
     nx-cloud: "npm:19.1.0"
@@ -42404,10 +42404,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:^7.0.7":
-  version: 7.0.11
-  resolution: "nodemailer@npm:7.0.11"
-  checksum: 10c0/208f108fdb4c5dd0e3a2f013578d53dad505cf1b9c7a084f6d22fc9d6f3912daafb4a23793ca568ff848afc35f15f4eb24382d3f6f9fb8ede4a8410d4ca63618
+"nodemailer@npm:^8.0.5":
+  version: 8.0.5
+  resolution: "nodemailer@npm:8.0.5"
+  checksum: 10c0/5e8450499bd059c56d74ba96fa5f9928de2ecdae0d53c083dba5661d797114c1f9524d30f992d0263cc5a7dcf5a54b9c1d92dc1f766da150c9d0bde7d3798431
   languageName: node
   linkType: hard
 
