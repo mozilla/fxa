@@ -14,23 +14,6 @@ convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
-  gql: {
-    allowlist: {
-      doc: 'A list of json files holding allowed gql queries',
-      env: 'GQL_ALLOWLIST',
-      default: [
-        'src/config/gql/allowlist/fxa-admin-panel.json',
-        'src/config/gql/allowlist/gql-playground.json',
-      ],
-      format: Array,
-    },
-    enabled: {
-      doc: 'Toggles whether or not gql queries are checked against the allowlist.',
-      env: 'GQL_ALLOWLIST_ENABLED',
-      default: true,
-      format: Boolean,
-    },
-  },
   authHeader: {
     default: USER_EMAIL_HEADER,
     doc: 'Authentication header that should be logged for the user',

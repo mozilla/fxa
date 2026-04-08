@@ -4,8 +4,7 @@
   "description": "FxA Admin Server",
   "scripts": {
     "prebuild": "yarn clean",
-    "gql-copy": "mkdir -p src/config/gql/allowlist/ && cp ../../configs/gql/allowlist/*.json src/config/gql/allowlist/.",
-    "build": "nest build && yarn copy-config && yarn gql-copy && yarn copy-email-assets && yarn copy-email-l10n-assets",
+    "build": "nest build && yarn copy-config && yarn copy-email-assets && yarn copy-email-l10n-assets",
     "copy-config": "cp ./src/config/*.json ./dist/packages/fxa-admin-server/src/config",
     "copy-email-assets": "copyfiles --up 1 '../../libs/accounts/email-renderer/**/*.{mjml,ftl,txt,css}' dist/libs/ ",
     "copy-email-l10n-assets": "copyfiles --up 1 '../../libs/accounts/email-renderer/public/locales' dist/libs/accounts/email-render/public/locales ",
