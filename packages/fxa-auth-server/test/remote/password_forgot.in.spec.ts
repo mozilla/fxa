@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import url from 'url';
 import crypto from 'crypto';
 
@@ -159,9 +162,6 @@ describe.each(testVersions)(
       expect(otpCode).toBeTruthy();
       expect(otpCode).toMatch(/^\d{8}$/);
     });
-
-    it.skip('password forgot status with valid token', async () => {});
-    it.skip('password forgot status with invalid token', () => {});
 
     it('OTP flow rejects unverified accounts', async () => {
       const email = server.uniqueEmail();

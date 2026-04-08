@@ -2,12 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Migrated from test/local/routes/utils/oauth.js (Mocha → Jest).
- * Replaced proxyquire with jest.mock for oauth/token and oauth/client.
- * Inlined mockRequest (shared version uses proxyquire internally).
- */
-
 import sinon from 'sinon';
 
 const TEST_EMAIL = 'foo@gmail.com';
@@ -80,7 +74,9 @@ function mockRequest(data: any) {
     clearMetricsContext: sinon.stub(),
     emitMetricsEvent: sinon.stub().resolves(),
     emitRouteFlowEvent: sinon.stub().resolves(),
-    gatherMetricsContext: sinon.stub().callsFake((d: any) => Promise.resolve(d)),
+    gatherMetricsContext: sinon
+      .stub()
+      .callsFake((d: any) => Promise.resolve(d)),
     headers: {
       'user-agent': 'test user-agent',
     },

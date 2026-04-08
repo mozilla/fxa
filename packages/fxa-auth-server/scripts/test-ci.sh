@@ -6,54 +6,34 @@ cd "$DIR/.."
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 
-DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 20000 --exit --parallel=1 "
-if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; fi;
-if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep /#integration\s-/"; fi;
-if [ "$TEST_TYPE" == 'integration-v2' ]; then GREP_TESTS="--grep /#integrationV2\s-/"; fi;
-
-
-# Skip mocha tests for integration-jest — only run Jest tests
-if [ "$TEST_TYPE" != 'integration-jest' ]; then
-  TESTS=(local oauth remote scripts)
-  if [ -z "$1" ]; then
-    TESTS=(local oauth remote scripts)
-  else
-    TESTS=($1)
-  fi
-
-  for t in "${TESTS[@]}"; do
-    echo -e "\n\nTesting: $t"
-
-    #./scripts/mocha-coverage.js $DEFAULT_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
-    MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-auth-server-mocha-$TEST_TYPE-$t-results.xml mocha $DEFAULT_ARGS $GREP_TESTS test/$t
-  done
-fi
-
-if [ "$TEST_TYPE" == 'integration' ]; then
-  yarn run clean-up-old-ci-stripe-customers;
-fi;
-
-# Run Jest tests
-# Unit tests: lib/**/*.spec.ts (excludes .in.spec.ts)
-# Integration tests: lib/**/*.in.spec.ts + test/remote/**/*.in.spec.ts
 if [ "$TEST_TYPE" == 'unit' ]; then
   echo -e "\n\nRunning Jest unit tests"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-unit-results.xml" \
-  npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit
-elif [ "$TEST_TYPE" == 'integration-jest' ]; then
-  echo -e "\n\nRunning Jest integration tests (lib/*.in.spec.ts + test/remote/*.in.spec.ts)"
+  npx jest --coverage --forceExit --ci --silent --reporters=default --reporters=jest-junit
+
+elif [ "$TEST_TYPE" == 'scripts' ]; then
+  echo -e "\n\nRunning Jest script integration tests (test/scripts/**/*.in.spec.ts)"
+  JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server-scripts" \
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-scripts-results.xml" \
+  npx jest --config jest.scripts.config.js --forceExit --ci --silent --reporters=default --reporters=jest-junit
+
+elif [ "$TEST_TYPE" == 'integration' ]; then
+  echo -e "\n\nRunning Jest integration tests (excluding test/scripts)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
-  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-jest-results.xml" \
-  npx jest --config jest.integration.config.js --forceExit --ci --reporters=default --reporters=jest-junit
+  JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-results.xml" \
+  npx jest --config jest.integration.config.js --forceExit --ci --silent --reporters=default --reporters=jest-junit
 
   echo -e "\n\nRunning Jest OAuth API integration tests (in-process server)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-oauth-api-results.xml" \
-  npx jest --config jest.oauth-api.config.js --forceExit --ci --reporters=default --reporters=jest-junit
-elif [ -z "$TEST_TYPE" ]; then
+  npx jest --config jest.oauth-api.config.js --forceExit --ci --silent --reporters=default --reporters=jest-junit
+
+  yarn run clean-up-old-ci-stripe-customers
+
+else
   echo -e "\n\nRunning all Jest tests"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-results.xml" \
-  npx jest --coverage --forceExit --ci --reporters=default --reporters=jest-junit
+  npx jest --coverage --forceExit --ci --silent --reporters=default --reporters=jest-junit
 fi

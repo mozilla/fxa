@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  createTestServer,
+  getSharedTestServer,
   TestServerInstance,
 } from '../support/helpers/test-server';
 import { AuthServerError } from '../support/helpers/test-utils';
@@ -14,7 +14,7 @@ const Client = require('../client')();
 let server: TestServerInstance;
 
 beforeAll(async () => {
-  server = await createTestServer();
+  server = await getSharedTestServer();
 }, 120000);
 
 afterAll(async () => {

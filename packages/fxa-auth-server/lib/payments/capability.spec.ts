@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/payments/capability.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 
@@ -373,17 +371,15 @@ describe('CapabilityService', () => {
     it('returns [] if Apple IAP is disabled', async () => {
       capabilityService.appleIap = undefined;
       const expected: any[] = [];
-      const actual = await capabilityService.fetchSubscribedPricesFromAppStore(
-        UID
-      );
+      const actual =
+        await capabilityService.fetchSubscribedPricesFromAppStore(UID);
       expect(actual).toEqual(expected);
     });
 
     it('returns a subscribed price if found', async () => {
       const expected = ['plan_APPLE'];
-      const actual = await capabilityService.fetchSubscribedPricesFromAppStore(
-        UID
-      );
+      const actual =
+        await capabilityService.fetchSubscribedPricesFromAppStore(UID);
       sinon.assert.calledWith(
         mockAppleIAP.purchaseManager.queryCurrentSubscriptionPurchases,
         UID
@@ -402,9 +398,8 @@ describe('CapabilityService', () => {
         .stub()
         .rejects(error);
       const expected: any[] = [];
-      const actual = await capabilityService.fetchSubscribedPricesFromAppStore(
-        UID
-      );
+      const actual =
+        await capabilityService.fetchSubscribedPricesFromAppStore(UID);
       expect(actual).toEqual(expected);
       sinon.assert.calledOnceWithExactly(
         log.error,
@@ -1058,9 +1053,8 @@ describe('CapabilityService', () => {
       clientId: any,
       expectedCapabilities: any
     ) {
-      const allCapabilities = await capabilityService.subscriptionCapabilities(
-        UID
-      );
+      const allCapabilities =
+        await capabilityService.subscriptionCapabilities(UID);
       const resultCapabilities =
         await capabilityService.determineClientVisibleSubscriptionCapabilities(
           // null client represents sessionToken auth from content-server, unfiltered by client
@@ -1076,9 +1070,8 @@ describe('CapabilityService', () => {
       mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
         .stub()
         .rejects(error);
-      const allCapabilities = await capabilityService.subscriptionCapabilities(
-        UID
-      );
+      const allCapabilities =
+        await capabilityService.subscriptionCapabilities(UID);
       expect(allCapabilities).toEqual({
         '*': ['capAll'],
         c1: ['capZZ', 'cap4', 'cap5', 'capAlpha'],
@@ -1163,9 +1156,8 @@ describe('CapabilityService', () => {
       let mockCapabilityService: any = {};
       mockCapabilityService = new CapabilityService();
 
-      const subscribedPrices = await mockCapabilityService.subscribedPriceIds(
-        UID
-      );
+      const subscribedPrices =
+        await mockCapabilityService.subscribedPriceIds(UID);
 
       const mockStripeCapabilities =
         await mockCapabilityService.planIdsToClientCapabilitiesFromStripe(

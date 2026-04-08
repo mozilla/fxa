@@ -98,6 +98,15 @@
         "{projectRoot}/test-results.xml"
       ]
     },
+    "test-scripts": {
+      "dependsOn": ["build", "gen-keys"],
+      "inputs": ["test", "^test"],
+      "outputs": [
+        "{workspaceRoot}/artifacts/tests/{projectName}-scripts",
+        "{projectRoot}/test/scripts/test_output"
+      ],
+      "cache": true
+    },
     "test-integration": {
       "dependsOn": ["build", "gen-keys"],
       "inputs": ["test", "^test"],
@@ -107,29 +116,6 @@
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml",
         "{projectRoot}/test/scripts/test_output"
-      ],
-      "cache": true
-    },
-    "test-integration-v2": {
-      "dependsOn": ["build", "gen-keys"],
-      "inputs": ["test", "^test"],
-      "outputs": [
-        "{workspaceRoot}/artifacts/tests/{projectName}",
-        "{projectRoot}/coverage",
-        "{projectRoot}/.nyc_output",
-        "{projectRoot}/test-results.xml",
-        "{projectRoot}/test/scripts/test_output"
-      ],
-      "cache": true
-    },
-    "test-integration-jest": {
-      "dependsOn": ["build", "gen-keys"],
-      "inputs": ["test", "^test"],
-      "outputs": [
-        "{workspaceRoot}/artifacts/tests/{projectName}",
-        "{projectRoot}/coverage",
-        "{projectRoot}/.nyc_output",
-        "{projectRoot}/test-results.xml"
       ],
       "cache": true
     },

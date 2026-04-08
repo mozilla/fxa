@@ -904,18 +904,6 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.passwordForgotStatus = function (passwordForgotTokenHex) {
-    return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex).then(
-      (token) => {
-        return this.doRequest(
-          'GET',
-          `${this.baseURL}/password/forgot/status`,
-          token
-        );
-      }
-    );
-  };
-
   ClientApi.prototype.accountLock = function (email, authPW) {
     return this.doRequest('POST', `${this.baseURL}/account/lock`, null, {
       email: email,

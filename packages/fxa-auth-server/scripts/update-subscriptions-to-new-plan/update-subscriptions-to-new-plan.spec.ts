@@ -46,7 +46,7 @@ const mockConfig = {
   },
 } as unknown as ConfigType;
 
-describe('SubscriptionUpdater', () => {
+describe('CustomerPlanMover', () => {
   let subscriptionUpdater: SubscriptionUpdater;
   let stripeStub: Stripe;
   let stripeHelperStub: StripeHelper;

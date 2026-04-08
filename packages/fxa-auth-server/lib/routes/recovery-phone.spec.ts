@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/routes/recovery-phone.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 import { AppError } from '@fxa/accounts/errors';
@@ -245,9 +243,9 @@ describe('/recovery_phone', () => {
       expect(mockRecoveryPhoneService.sendCode.getCall(0).args[0]).toBe(uid);
 
       expect(mockGlean.resetPassword.recoveryPhoneCodeSent.callCount).toBe(1);
-      expect(
-        mockGlean.resetPassword.recoveryPhoneCodeSendError.callCount
-      ).toBe(0);
+      expect(mockGlean.resetPassword.recoveryPhoneCodeSendError.callCount).toBe(
+        0
+      );
 
       expect(mockCustoms.checkAuthenticated.callCount).toBe(1);
       expect(mockCustoms.checkAuthenticated.getCall(0).args[1]).toBe(uid);
@@ -302,9 +300,9 @@ describe('/recovery_phone', () => {
       expect(mockRecoveryPhoneService.sendCode.getCall(0).args[0]).toBe(uid);
 
       expect(mockGlean.resetPassword.recoveryPhoneCodeSent.callCount).toBe(0);
-      expect(
-        mockGlean.resetPassword.recoveryPhoneCodeSendError.callCount
-      ).toBe(1);
+      expect(mockGlean.resetPassword.recoveryPhoneCodeSendError.callCount).toBe(
+        1
+      );
     });
 
     it('handles unexpected backend error', async () => {
@@ -329,9 +327,9 @@ describe('/recovery_phone', () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockGlean.resetPassword.recoveryPhoneCodeSent.callCount).toBe(0);
-      expect(
-        mockGlean.resetPassword.recoveryPhoneCodeSendError.callCount
-      ).toBe(0);
+      expect(mockGlean.resetPassword.recoveryPhoneCodeSendError.callCount).toBe(
+        0
+      );
     });
 
     it('requires a passwordForgotToken', () => {
@@ -360,12 +358,12 @@ describe('/recovery_phone', () => {
       expect(resp).toBeDefined();
       expect(resp.status).toBe('success');
       expect(mockRecoveryPhoneService.setupPhoneNumber.callCount).toBe(1);
-      expect(
-        mockRecoveryPhoneService.setupPhoneNumber.getCall(0).args[0]
-      ).toBe(uid);
-      expect(
-        mockRecoveryPhoneService.setupPhoneNumber.getCall(0).args[1]
-      ).toBe(phoneNumber);
+      expect(mockRecoveryPhoneService.setupPhoneNumber.getCall(0).args[0]).toBe(
+        uid
+      );
+      expect(mockRecoveryPhoneService.setupPhoneNumber.getCall(0).args[1]).toBe(
+        phoneNumber
+      );
       expect(mockRecoveryPhoneService.getNationalFormat.callCount).toBe(1);
       expect(
         mockRecoveryPhoneService.getNationalFormat.getCall(0).args[0]
@@ -440,7 +438,9 @@ describe('/recovery_phone', () => {
 
     it('rejects a phone number that has been set up for too many accounts', async () => {
       mockRecoveryPhoneService.setupPhoneNumber = sinon.fake.returns(
-        Promise.reject(new RecoveryPhoneRegistrationLimitReached('+495550005555'))
+        Promise.reject(
+          new RecoveryPhoneRegistrationLimitReached('+495550005555')
+        )
       );
 
       const promise = makeRequest({
@@ -523,12 +523,12 @@ describe('/recovery_phone', () => {
       // confirmed the code
       expect(resp.nationalFormat).toBe(nationalFormat);
       expect(mockRecoveryPhoneService.confirmSetupCode.callCount).toBe(1);
-      expect(
-        mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[0]
-      ).toBe(uid);
-      expect(
-        mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[1]
-      ).toBe(code);
+      expect(mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[0]).toBe(
+        uid
+      );
+      expect(mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[1]).toBe(
+        code
+      );
       expect(mockGlean.twoStepAuthPhoneCode.complete.callCount).toBe(1);
       sinon.assert.calledOnce(mockFxaMailer.sendPostAddRecoveryPhoneEmail);
       sinon.assert.calledOnceWithExactly(
@@ -582,12 +582,12 @@ describe('/recovery_phone', () => {
       expect(resp.status).toBe('success');
       expect(resp.nationalFormat).toBe(nationalFormat);
       expect(mockRecoveryPhoneService.confirmSetupCode.callCount).toBe(1);
-      expect(
-        mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[0]
-      ).toBe(uid);
-      expect(
-        mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[1]
-      ).toBe(code);
+      expect(mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[0]).toBe(
+        uid
+      );
+      expect(mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[1]).toBe(
+        code
+      );
       expect(mockGlean.twoStepAuthPhoneCode.complete.callCount).toBe(1);
       sinon.assert.notCalled(mockMailer.sendPostAddRecoveryPhoneEmail);
       sinon.assert.notCalled(mockFxaMailer.sendPostAddRecoveryPhoneEmail);
@@ -650,9 +650,7 @@ describe('/recovery_phone', () => {
       expect(resp).toBeDefined();
       expect(resp.status).toBe('success');
       expect(mockRecoveryPhoneService.confirmCode.callCount).toBe(1);
-      expect(mockRecoveryPhoneService.confirmCode.getCall(0).args[0]).toBe(
-        uid
-      );
+      expect(mockRecoveryPhoneService.confirmCode.getCall(0).args[0]).toBe(uid);
       expect(mockRecoveryPhoneService.confirmCode.getCall(0).args[1]).toBe(
         code
       );
@@ -746,15 +744,13 @@ describe('/recovery_phone', () => {
       expect(resp).toBeDefined();
       expect(resp.status).toBe('success');
       expect(mockRecoveryPhoneService.confirmCode.callCount).toBe(1);
-      expect(mockRecoveryPhoneService.confirmCode.getCall(0).args[0]).toBe(
-        uid
-      );
+      expect(mockRecoveryPhoneService.confirmCode.getCall(0).args[0]).toBe(uid);
       expect(mockRecoveryPhoneService.confirmCode.getCall(0).args[1]).toBe(
         code
       );
-      expect(
-        mockGlean.resetPassword.recoveryPhoneCodeComplete.callCount
-      ).toBe(1);
+      expect(mockGlean.resetPassword.recoveryPhoneCodeComplete.callCount).toBe(
+        1
+      );
       sinon.assert.calledOnceWithExactly(
         mockAccountEventsManager.recordSecurityEvent,
         mockDb,

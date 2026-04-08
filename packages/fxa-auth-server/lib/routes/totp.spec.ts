@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/routes/totp.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 import { AppError as authErrors } from '@fxa/accounts/errors';
@@ -268,17 +266,15 @@ describe('totp', () => {
           'totpToken.verified',
           { uid: 'uid' }
         );
-        sinon.assert.calledWith(
-          request.emitMetricsEvent,
-          'account.confirmed',
-          { uid: 'uid' }
-        );
+        sinon.assert.calledWith(request.emitMetricsEvent, 'account.confirmed', {
+          uid: 'uid',
+        });
 
         // correct emails sent
         expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(1);
-        expect(
-          fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount
-        ).toBe(0);
+        expect(fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount).toBe(
+          0
+        );
 
         sinon.assert.calledOnceWithExactly(
           accountEventsManager.recordSecurityEvent,
@@ -343,17 +339,15 @@ describe('totp', () => {
           'totpToken.verified',
           { uid: 'uid' }
         );
-        sinon.assert.calledWith(
-          request.emitMetricsEvent,
-          'account.confirmed',
-          { uid: 'uid' }
-        );
+        sinon.assert.calledWith(request.emitMetricsEvent, 'account.confirmed', {
+          uid: 'uid',
+        });
 
         // correct emails sent
         expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(1);
-        expect(
-          fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount
-        ).toBe(0);
+        expect(fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount).toBe(
+          0
+        );
       });
     });
 
@@ -382,9 +376,9 @@ describe('totp', () => {
 
         // correct emails sent
         expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(0);
-        expect(
-          fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount
-        ).toBe(0);
+        expect(fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount).toBe(
+          0
+        );
 
         sinon.assert.calledOnceWithExactly(
           accountEventsManager.recordSecurityEvent,

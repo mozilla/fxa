@@ -51,28 +51,21 @@ Now integration tests can be executed:
 - `nx test-integration fxa-auth-server`
   _Note this matches how auth server unit tests jobs in CI._
 
-For general development based testing, specific tests can be targeted using the test script or use mocha directly:
+For general development based testing, specific tests can be targeted using Jest:
 
 _From packages/fxa-auth-server:_
 
-- `yarn test -- test/local/account_routes.js`
-- `yarn test -- test/local/account* test/local/password_*`
-- `NODE_ENV=dev npx mocha -r esbuild-register test/*/** -g "SQSReceiver"`
+- `npx jest --forceExit lib/routes/account.spec.ts`
+- `npx jest --forceExit --testPathPattern 'lib/routes/.*spec'`
+- `npx jest --forceExit -t "SQSReceiver"`
 
 Notes / Tips:
 
 - For quick environment config, consider running tests with a .env file and the dotenv command. For example: `dotenv -- yarn workspace fxa-auth-server:test-integration remote`
-- you can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
-- recovery-phone tests require twilio testing credentials!
-- recovery-phone-customs tests require that customs server is running. So run `nx start fxa-customs-server` prior to executing tests.
-- The test/remote folder contains mostly integration tests that were not designed to be run in parallel. As a result the `yarn test -- remote/test` command may result in errors. For these tests run `yarn test-integration remote` instead.
-
-_Other Stuff_
-This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will run a series of NPM test scripts and then lint the code:
-
-Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
-
-We also use [Chai](https://www.chaijs.com/) for making assertions in tests. As of version 4.3.6, Chai truncates error messages by default. To disable truncation for tests in a given file, import chai from the local file `/test/chaiWithoutTruncation.js` as demonstrated in `test/local/senders/emails.ts`. If you want more truncation than you get by default (but you do want to put some kind of limit on how much the error message prints out) you can change the `truncateThreshold` value in `chaiWithoutTruncation.js` to be the desired number of characters. Setting it to `0` (as we have) disables truncation entirely.
+- You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
+- Recovery-phone tests require twilio testing credentials!
+- Recovery-phone-customs tests require that customs server is running. So run `nx start fxa-customs-server` prior to executing tests.
+- The test/remote folder contains integration tests that are not designed to be run in parallel. Use `yarn test-integration` instead of running them directly.
 
 ### Testing with non-local databases
 

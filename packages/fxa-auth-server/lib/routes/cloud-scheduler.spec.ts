@@ -2,12 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Migrated from test/local/routes/cloud-scheduler.js (Mocha → Jest).
- * Replaced proxyquire with jest.mock for @fxa/shared/cloud-tasks.
- * Converted Date.now stubbing to jest.spyOn.
- */
-
 import sinon from 'sinon';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 

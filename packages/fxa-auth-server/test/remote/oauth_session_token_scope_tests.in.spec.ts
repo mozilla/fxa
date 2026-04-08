@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
 
 const Client = require('../client')();
 const {
@@ -19,7 +19,7 @@ const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 let server: TestServerInstance;
 
 beforeAll(async () => {
-  server = await createTestServer();
+  server = await getSharedTestServer();
 }, 120000);
 
 afterAll(async () => {

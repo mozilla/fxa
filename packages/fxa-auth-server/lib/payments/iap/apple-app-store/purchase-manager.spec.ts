@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/payments/iap/apple-app-store/purchase-manager.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 import {
@@ -581,15 +579,14 @@ describe('PurchaseManager', () => {
     });
 
     it('returns the current subscriptions', async () => {
-      const subscriptionPurchase =
-        AppStoreSubscriptionPurchase.fromApiResponse(
-          mockApiResult,
-          mockStatus,
-          {},
-          {},
-          mockOriginalTransactionId,
-          mockVerifiedAt
-        );
+      const subscriptionPurchase = AppStoreSubscriptionPurchase.fromApiResponse(
+        mockApiResult,
+        mockStatus,
+        {},
+        {},
+        mockOriginalTransactionId,
+        mockVerifiedAt
+      );
       const subscriptionSnapshot = {
         data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
       };
@@ -617,15 +614,14 @@ describe('PurchaseManager', () => {
         ],
       };
       mockStatus = SubscriptionStatus.Expired;
-      const subscriptionPurchase =
-        AppStoreSubscriptionPurchase.fromApiResponse(
-          mockApiExpiredResult,
-          mockStatus,
-          {},
-          {},
-          mockOriginalTransactionId,
-          mockVerifiedAt
-        );
+      const subscriptionPurchase = AppStoreSubscriptionPurchase.fromApiResponse(
+        mockApiExpiredResult,
+        mockStatus,
+        {},
+        {},
+        mockOriginalTransactionId,
+        mockVerifiedAt
+      );
       const subscriptionSnapshot = {
         data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
       };
@@ -655,15 +651,14 @@ describe('PurchaseManager', () => {
         ],
       };
       mockStatus = SubscriptionStatus.Expired;
-      const subscriptionPurchase =
-        AppStoreSubscriptionPurchase.fromApiResponse(
-          mockApiExpiredResult,
-          mockStatus,
-          {},
-          {},
-          mockOriginalTransactionId,
-          mockVerifiedAt
-        );
+      const subscriptionPurchase = AppStoreSubscriptionPurchase.fromApiResponse(
+        mockApiExpiredResult,
+        mockStatus,
+        {},
+        {},
+        mockOriginalTransactionId,
+        mockVerifiedAt
+      );
       const subscriptionSnapshot = {
         data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
       };
@@ -697,15 +692,14 @@ describe('PurchaseManager', () => {
         ],
       };
       mockStatus = SubscriptionStatus.Expired;
-      const subscriptionPurchase =
-        AppStoreSubscriptionPurchase.fromApiResponse(
-          mockApiExpiredResult,
-          mockStatus,
-          {},
-          {},
-          mockOriginalTransactionId,
-          mockVerifiedAt
-        );
+      const subscriptionPurchase = AppStoreSubscriptionPurchase.fromApiResponse(
+        mockApiExpiredResult,
+        mockStatus,
+        {},
+        {},
+        mockOriginalTransactionId,
+        mockVerifiedAt
+      );
       const subscriptionSnapshot = {
         data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
       };
