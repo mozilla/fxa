@@ -261,10 +261,14 @@ export class TestAccountTracker {
     const password = this.generatePassword();
 
     // Send passwordless code
-    await this.target.authClient.passwordlessSendCode(email, {
-      clientId: this.target.relierClientID,
-      service: SUPPORTED_SERVICE,
-    });
+    await this.target.authClient.passwordlessSendCode(
+      email,
+      {
+        clientId: this.target.relierClientID,
+        service: SUPPORTED_SERVICE,
+      },
+      this.target.ciHeader
+    );
 
     // Get OTP from email
     const code = await this.target.emailClient.getPasswordlessSignupCode(email);
@@ -276,7 +280,8 @@ export class TestAccountTracker {
       {
         clientId: this.target.relierClientID,
         service: SUPPORTED_SERVICE,
-      }
+      },
+      this.target.ciHeader
     );
 
     // Track for cleanup - mark as passwordless so cleanup knows to handle specially
@@ -457,10 +462,14 @@ export class TestAccountTracker {
   ): Promise<void> {
     try {
       // Send passwordless code
-      await this.target.authClient.passwordlessSendCode(account.email, {
-        clientId: this.target.relierClientID,
-        service: SUPPORTED_SERVICE,
-      });
+      await this.target.authClient.passwordlessSendCode(
+        account.email,
+        {
+          clientId: this.target.relierClientID,
+          service: SUPPORTED_SERVICE,
+        },
+        this.target.ciHeader
+      );
 
       // Get OTP from email
       const code = await this.target.emailClient.getPasswordlessSigninCode(
@@ -474,7 +483,8 @@ export class TestAccountTracker {
         {
           clientId: this.target.relierClientID,
           service: SUPPORTED_SERVICE,
-        }
+        },
+        this.target.ciHeader
       );
 
       let sessionToken = result.sessionToken;
