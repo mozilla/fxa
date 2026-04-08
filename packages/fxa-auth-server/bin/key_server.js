@@ -310,7 +310,13 @@ async function run(config) {
     ...config.redis,
     ...config.redis.passkey,
   });
-  const passkeyConfig = buildPasskeyConfig(config.passkeys);
+  let passkeyConfig;
+  try {
+    passkeyConfig = buildPasskeyConfig(config.passkeys);
+  } catch (err) {
+    log.error('startup.passkey.configInvalid', { err });
+    process.exit(8);
+  }
   const passkeyManager = new PasskeyManager(
     accountDatabase,
     passkeyConfig,

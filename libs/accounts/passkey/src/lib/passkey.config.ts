@@ -12,6 +12,7 @@ import {
   IsOptional,
   IsString,
   Matches,
+  ValidateIf,
 } from 'class-validator';
 import type {
   AuthenticatorAttachment,
@@ -39,6 +40,7 @@ export class PasskeyConfig {
    * WebAuthn Relying Party ID (must match the domain).
    * @example 'accounts.firefox.com'
    */
+  @ValidateIf((o) => o.enabled)
   @IsString()
   @IsNotEmpty()
   public rpId!: string;
@@ -48,6 +50,7 @@ export class PasskeyConfig {
    * Must include protocol and domain.
    * @example ['https://accounts.firefox.com', 'https://accounts.stage.mozaws.net']
    */
+  @ValidateIf((o) => o.enabled)
   @IsArray()
   @ArrayMinSize(1)
   @IsString({ each: true })

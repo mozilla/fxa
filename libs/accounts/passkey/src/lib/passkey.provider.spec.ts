@@ -117,6 +117,21 @@ describe('PasskeyConfigProvider', () => {
     });
   });
 
+  describe('when passkeys is disabled', () => {
+    it('allows empty rpId and allowedOrigins without throwing', async () => {
+      const { config } = await buildModule({
+        ...VALID_RAW_CONFIG,
+        enabled: false,
+        rpId: '',
+        allowedOrigins: [],
+      });
+      expect(config).toBeInstanceOf(PasskeyConfig);
+      expect(config!.enabled).toBe(false);
+      expect(config!.rpId).toBe('');
+      expect(config!.allowedOrigins).toEqual([]);
+    });
+  });
+
   describe('when config is invalid', () => {
     it('throws', async () => {
       await expect(() =>
@@ -138,7 +153,7 @@ describe('PasskeyConfigProvider', () => {
       );
     });
 
-    it('rejects allowedOrigins with trailing path', async () => {
+    it('rejects allowedOrigins URL with a path suffix', async () => {
       await expect(() =>
         buildModule({
           ...VALID_RAW_CONFIG,
