@@ -925,6 +925,7 @@ export class CartService {
     }
 
     let upcomingInvoicePreview: InvoicePreview | undefined;
+    let isUpgradeFromTrial: boolean | undefined;
     if (
       cartEligibilityStatus === CartEligibilityStatus.UPGRADE &&
       cart.state !== CartState.FAIL
@@ -940,13 +941,29 @@ export class CartService {
           eligibility.fromPrice.id
         );
       assert(fromSubscription, new GetCartSubscriptionMissingError(cartId));
+      isUpgradeFromTrial = fromSubscription.status === 'trialing';
       const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
-      upcomingInvoicePreview =
-        await this.invoiceManager.previewUpcomingForUpgrade({
+      const hasPaymentMethod =
+        !!customer.invoice_settings.default_payment_method;
+      if (isUpgradeFromTrial && !hasPaymentMethod) {
+        upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
           priceId: price.id,
+          currency: cart.currency,
           customer,
-          fromSubscriptionItem,
+          taxAddress: cart.taxAddress,
+          couponCode: cart.couponCode || undefined,
         });
+      } else {
+        upcomingInvoicePreview =
+          await this.invoiceManager.previewUpcomingForUpgrade({
+            priceId: price.id,
+            customer,
+            fromSubscriptionItem,
+            ...(isUpgradeFromTrial && {
+              trialEnd: Math.floor(Date.now() / 1000),
+            }),
+          });
+      }
     } else {
       upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
         priceId: price.id,
@@ -1032,6 +1049,7 @@ export class CartService {
         freeTrialEligibility,
         trialStartDate,
         trialEndDate,
+        isUpgradeFromTrial,
       };
     }
 
@@ -1086,6 +1104,7 @@ export class CartService {
       freeTrialEligibility,
       trialStartDate,
       trialEndDate,
+      isUpgradeFromTrial,
     };
   }
 

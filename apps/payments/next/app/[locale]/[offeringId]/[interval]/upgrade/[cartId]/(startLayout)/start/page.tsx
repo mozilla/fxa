@@ -150,20 +150,26 @@ export default async function Upgrade({
           className="leading-5 text-sm"
           data-testid="sub-update-acknowledgment"
         >
-          {l10n.getString(
-            'upgrade-page-acknowledgment',
-            {
-              nextInvoiceDate: l10n.getLocalizedDate(
-                cart.upcomingInvoicePreview.nextInvoiceDate
-              ),
-            },
-            `Your plan will change immediately, and you’ll be charged a prorated
+          {cart.isUpgradeFromTrial
+            ? l10n.getString(
+                'upgrade-page-acknowledgment-from-trial',
+                {},
+                `By upgrading, your active free trial will end immediately and you will be charged for your new plan today.`
+              )
+            : l10n.getString(
+                'upgrade-page-acknowledgment',
+                {
+                  nextInvoiceDate: l10n.getLocalizedDate(
+                    cart.upcomingInvoicePreview.nextInvoiceDate
+                  ),
+                },
+                `Your plan will change immediately, and you’ll be charged a prorated
           amount today for the rest of this billing cycle. Starting
           ${l10n.getLocalizedDateString(
             cart.upcomingInvoicePreview.nextInvoiceDate
           )}
           you’ll be charged the full amount.`
-          )}
+              )}
         </p>
 
         <div
