@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/payments/currencies.js (Mocha → Jest). */
-
 import { CurrencyHelper } from './currencies';
 
 const payPalEnabledSubscriptionsConfig = {
@@ -104,15 +102,15 @@ describe('isCurrencyCompatibleWithCountry', () => {
   });
 
   it('returns false if country not in values', () => {
-    expect(
-      ch.isCurrencyCompatibleWithCountry('EUR', 'Not a country')
-    ).toBe(false);
+    expect(ch.isCurrencyCompatibleWithCountry('EUR', 'Not a country')).toBe(
+      false
+    );
   });
 
   it('returns false if currency not in keys', () => {
-    expect(
-      ch.isCurrencyCompatibleWithCountry('Not a currency', 'FR')
-    ).toBe(false);
+    expect(ch.isCurrencyCompatibleWithCountry('Not a currency', 'FR')).toBe(
+      false
+    );
   });
 });
 

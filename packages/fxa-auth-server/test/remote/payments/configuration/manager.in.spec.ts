@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/payments/configuration/manager.js (Mocha → Jest). */
-
 const sinon = require('sinon');
 const { default: Container } = require('typedi');
 const cloneDeep = require('lodash/cloneDeep');
@@ -89,7 +87,12 @@ const planConfig = {
 
 jest.setTimeout(60000);
 
-const noopLogger = { error: () => {}, info: () => {}, debug: () => {}, warn: () => {} };
+const noopLogger = {
+  error: () => {},
+  info: () => {},
+  debug: () => {},
+  warn: () => {},
+};
 
 describe('#integration - PaymentConfigManager', () => {
   let paymentConfigManager: any;

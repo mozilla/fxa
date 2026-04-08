@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Migrated from test/local/routes/cloud-tasks.js (Mocha → Jest).
- * Uses Container (typedi) with afterAll cleanup.
- */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 import { ReasonForDeletion, EmailTypes } from '@fxa/shared/cloud-tasks';

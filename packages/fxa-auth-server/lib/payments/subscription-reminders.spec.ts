@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/payments/subscription-reminders.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 import { DateTime, Duration, Interval } from 'luxon';
@@ -196,7 +194,12 @@ describe('SubscriptionReminders', () => {
   });
 
   describe('alreadySentEmail', () => {
-    const args: any[] = ['uid', 12345, { subscriptionId: 'sub_123' }, EMAIL_TYPE];
+    const args: any[] = [
+      'uid',
+      12345,
+      { subscriptionId: 'sub_123' },
+      EMAIL_TYPE,
+    ];
     const sentEmailArgs = ['uid', EMAIL_TYPE, { subscriptionId: 'sub_123' }];
     it('returns true for email already sent for this cycle', async () => {
       SentEmail.findLatestSentEmailByType = sandbox.fake.resolves({
@@ -479,7 +482,9 @@ describe('SubscriptionReminders', () => {
           planId: longPlan1.id,
         }
       );
-      sinon.assert.notCalled(reminder.mailer.sendSubscriptionRenewalReminderEmail);
+      sinon.assert.notCalled(
+        reminder.mailer.sendSubscriptionRenewalReminderEmail
+      );
       sinon.assert.notCalled(reminder.updateSentEmail);
     });
 
@@ -542,7 +547,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      sinon.assert.calledOnce(reminder.mailer.sendSubscriptionRenewalReminderEmail);
+      sinon.assert.calledOnce(
+        reminder.mailer.sendSubscriptionRenewalReminderEmail
+      );
       sinon.assert.calledOnce(reminder.updateSentEmail);
     });
 
@@ -664,8 +671,10 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId =
+        sandbox.fake.resolves(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -678,7 +687,8 @@ describe('SubscriptionReminders', () => {
       sinon.assert.calledOnce(mockStripeHelper.getInvoice);
       sinon.assert.calledWithExactly(mockStripeHelper.getInvoice, 'in_test123');
 
-      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const mailerCall =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
       expect(mailerCall.args[2].discountEnding).toBe(true);
       expect(mailerCall.args[2].hasDifferentDiscount).toBe(false);
     });
@@ -730,8 +740,10 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId =
+        sandbox.fake.resolves(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -741,7 +753,8 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const mailerCall =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
       expect(mailerCall.args[2].discountEnding).toBe(true);
       expect(mailerCall.args[2].hasDifferentDiscount).toBe(false);
     });
@@ -793,8 +806,10 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId =
+        sandbox.fake.resolves(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -804,7 +819,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.notCalled(reminder.mailer.sendSubscriptionRenewalReminderEmail);
+      sinon.assert.notCalled(
+        reminder.mailer.sendSubscriptionRenewalReminderEmail
+      );
     });
 
     it('skips monthly plan reminders when discount remains the same', async () => {
@@ -854,8 +871,10 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId =
+        sandbox.fake.resolves(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -865,7 +884,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.notCalled(reminder.mailer.sendSubscriptionRenewalReminderEmail);
+      sinon.assert.notCalled(
+        reminder.mailer.sendSubscriptionRenewalReminderEmail
+      );
     });
 
     it('handles when latest_invoice is an expanded object with discount ending', async () => {
@@ -913,8 +934,10 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves({});
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId =
+        sandbox.fake.resolves(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -926,7 +949,8 @@ describe('SubscriptionReminders', () => {
       expect(result).toBe(true);
       sinon.assert.notCalled(mockStripeHelper.getInvoice);
 
-      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const mailerCall =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
       expect(mailerCall.args[2].discountEnding).toBe(true);
       expect(mailerCall.args[2].hasDifferentDiscount).toBe(false);
     });
@@ -978,8 +1002,10 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId =
+        sandbox.fake.resolves(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -989,7 +1015,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.notCalled(reminder.mailer.sendSubscriptionRenewalReminderEmail);
+      sinon.assert.notCalled(
+        reminder.mailer.sendSubscriptionRenewalReminderEmail
+      );
     });
 
     it('skips monthly plan reminders when adding a discount to a full-price plan', async () => {
@@ -1039,8 +1067,10 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId =
+        sandbox.fake.resolves(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -1050,7 +1080,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.notCalled(reminder.mailer.sendSubscriptionRenewalReminderEmail);
+      sinon.assert.notCalled(
+        reminder.mailer.sendSubscriptionRenewalReminderEmail
+      );
     });
 
     it('handles discount as string in discounts array', async () => {
@@ -1100,8 +1132,10 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId =
+        sandbox.fake.resolves(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -1111,7 +1145,8 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const mailerCall =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
       expect(mailerCall.args[2].discountEnding).toBe(true);
       expect(mailerCall.args[2].hasDifferentDiscount).toBe(false);
     });
@@ -1163,8 +1198,10 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId =
+        sandbox.fake.resolves(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -1174,7 +1211,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.notCalled(reminder.mailer.sendSubscriptionRenewalReminderEmail);
+      sinon.assert.notCalled(
+        reminder.mailer.sendSubscriptionRenewalReminderEmail
+      );
     });
 
     it('includes tax information when invoice has tax', async () => {
@@ -1207,7 +1246,11 @@ describe('SubscriptionReminders', () => {
         discount: null,
         discounts: [],
         total_tax_amounts: [
-          { amount: 200, inclusive: false, tax_rate: { display_name: 'Sales Tax' } },
+          {
+            amount: 200,
+            inclusive: false,
+            tax_rate: { display_name: 'Sales Tax' },
+          },
         ],
       };
 
@@ -1226,8 +1269,11 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoiceWithTax);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(
+        mockUpcomingInvoiceWithTax
+      );
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -1237,7 +1283,8 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const mailerCall =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
       const emailData = mailerCall.args[2];
       expect(emailData.showTax).toBe(true);
       expect(emailData.invoiceTotalExcludingTaxInCents).toBe(1000);
@@ -1292,8 +1339,11 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoiceNoTax);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(
+        mockUpcomingInvoiceNoTax
+      );
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -1303,7 +1353,8 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const mailerCall =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
       const emailData = mailerCall.args[2];
       expect(emailData.showTax).toBe(false);
       expect(emailData.invoiceTotalExcludingTaxInCents).toBe(1000);
@@ -1358,8 +1409,11 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoiceNullTax);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(
+        mockUpcomingInvoiceNullTax
+      );
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -1369,7 +1423,8 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const mailerCall =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
       const emailData = mailerCall.args[2];
       expect(emailData.showTax).toBe(false);
       expect(emailData.invoiceTotalExcludingTaxInCents).toBe(1000);
@@ -1427,8 +1482,11 @@ describe('SubscriptionReminders', () => {
         interval: longPlan1.interval,
       });
       mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(mockUpcomingInvoiceWithInclusiveTax);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(true);
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(
+        mockUpcomingInvoiceWithInclusiveTax
+      );
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves(true);
       reminder.updateSentEmail = sandbox.fake.resolves({});
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
 
@@ -1438,7 +1496,8 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall = reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
+      const mailerCall =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
       const emailData = mailerCall.args[2];
       expect(emailData.showTax).toBe(false);
       expect(emailData.invoiceTotalExcludingTaxInCents).toBe(887);
@@ -1553,10 +1612,7 @@ describe('SubscriptionReminders', () => {
         await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
 
       expect(actual).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        stubGetUidAndEmail,
-        mockCustomerId
-      );
+      sinon.assert.calledOnceWithExactly(stubGetUidAndEmail, mockCustomerId);
       sinon.assert.calledOnceWithExactly(
         reminder.alreadySentEmail,
         mockUid,
@@ -1747,7 +1803,10 @@ describe('SubscriptionReminders', () => {
       ]);
       reminder.getStartAndEndTimes = sandbox.fake.returns(MOCK_INTERVAL);
 
-      const sendRenewalStub = sandbox.stub(reminder, 'sendRenewalRemindersForDuration');
+      const sendRenewalStub = sandbox.stub(
+        reminder,
+        'sendRenewalRemindersForDuration'
+      );
       sendRenewalStub.resolves(true);
 
       await reminder.sendReminders();

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/payments/stripe.js (Mocha → Jest). */
 /* eslint-disable no-undef */
 
 const sinon = require('sinon');
@@ -57,18 +56,26 @@ jest.mock('../redis', () => {
 // are backed by the in-memory Map above.
 jest.mock('fxa-shared/db/models/auth', () => {
   const real = jest.requireActual('fxa-shared/db/models/auth');
-  const store = () => (globalThis as any).__accountCustomerStore as Map<string, any>;
+  const store = () =>
+    (globalThis as any).__accountCustomerStore as Map<string, any>;
   return {
     ...real,
     getUidAndEmailByStripeCustomerId: jest.fn(),
     updatePayPalBA: jest.fn(),
-    createAccountCustomer: jest.fn(async (uid: string, stripeCustomerId: string) => {
-      if (store().has(uid)) return store().get(uid);
-      const now = Date.now();
-      const record = { uid, stripeCustomerId, createdAt: now, updatedAt: now };
-      store().set(uid, record);
-      return record;
-    }),
+    createAccountCustomer: jest.fn(
+      async (uid: string, stripeCustomerId: string) => {
+        if (store().has(uid)) return store().get(uid);
+        const now = Date.now();
+        const record = {
+          uid,
+          stripeCustomerId,
+          createdAt: now,
+          updatedAt: now,
+        };
+        store().set(uid, record);
+        return record;
+      }
+    ),
     getAccountCustomerByUid: jest.fn(async (uid: string) => {
       return store().get(uid);
     }),
@@ -130,41 +137,95 @@ const product2 = require(`${STRIPE_FIXTURES}/product2.json`);
 const product3 = require(`${STRIPE_FIXTURES}/product3.json`);
 const subscription1 = require(`${STRIPE_FIXTURES}/subscription1.json`);
 const subscription2 = require(`${STRIPE_FIXTURES}/subscription2.json`);
-const multiPlanSubscription = require(`${STRIPE_FIXTURES}/subscription_multiplan.json`);
-const subscriptionPMIExpanded = require(`${STRIPE_FIXTURES}/subscription_pmi_expanded.json`);
-const subscriptionPMIExpandedIncompleteCVCFail = require(`${STRIPE_FIXTURES}/subscription_pmi_expanded_incomplete_cvc_fail.json`);
-const cancelledSubscription = require(`${STRIPE_FIXTURES}/subscription_cancelled.json`);
-const pastDueSubscription = require(`${STRIPE_FIXTURES}/subscription_past_due.json`);
-const subscriptionCouponOnce = require(`${STRIPE_FIXTURES}/subscription_coupon_once.json`);
-const subscriptionCouponForever = require(`${STRIPE_FIXTURES}/subscription_coupon_forever.json`);
-const subscriptionCouponRepeating = require(`${STRIPE_FIXTURES}/subscription_coupon_repeating.json`);
+const multiPlanSubscription = require(
+  `${STRIPE_FIXTURES}/subscription_multiplan.json`
+);
+const subscriptionPMIExpanded = require(
+  `${STRIPE_FIXTURES}/subscription_pmi_expanded.json`
+);
+const subscriptionPMIExpandedIncompleteCVCFail = require(
+  `${STRIPE_FIXTURES}/subscription_pmi_expanded_incomplete_cvc_fail.json`
+);
+const cancelledSubscription = require(
+  `${STRIPE_FIXTURES}/subscription_cancelled.json`
+);
+const pastDueSubscription = require(
+  `${STRIPE_FIXTURES}/subscription_past_due.json`
+);
+const subscriptionCouponOnce = require(
+  `${STRIPE_FIXTURES}/subscription_coupon_once.json`
+);
+const subscriptionCouponForever = require(
+  `${STRIPE_FIXTURES}/subscription_coupon_forever.json`
+);
+const subscriptionCouponRepeating = require(
+  `${STRIPE_FIXTURES}/subscription_coupon_repeating.json`
+);
 const paidInvoice = require(`${STRIPE_FIXTURES}/invoice_paid.json`);
 const unpaidInvoice = require(`${STRIPE_FIXTURES}/invoice_open.json`);
 const invoiceRetry = require(`${STRIPE_FIXTURES}/invoice_retry.json`);
-const successfulPaymentIntent = require(`${STRIPE_FIXTURES}/paymentIntent_succeeded.json`);
-const unsuccessfulPaymentIntent = require(`${STRIPE_FIXTURES}/paymentIntent_requires_payment_method.json`);
-const paymentMethodAttach = require(`${STRIPE_FIXTURES}/payment_method_attach.json`);
+const successfulPaymentIntent = require(
+  `${STRIPE_FIXTURES}/paymentIntent_succeeded.json`
+);
+const unsuccessfulPaymentIntent = require(
+  `${STRIPE_FIXTURES}/paymentIntent_requires_payment_method.json`
+);
+const paymentMethodAttach = require(
+  `${STRIPE_FIXTURES}/payment_method_attach.json`
+);
 const failedCharge = require(`${STRIPE_FIXTURES}/charge_failed.json`);
-const invoicePaidSubscriptionCreate = require(`${STRIPE_FIXTURES}/invoice_paid_subscription_create.json`);
-const invoicePaidSubscriptionCreateDiscount = require(`${STRIPE_FIXTURES}/invoice_paid_subscription_create_discount.json`);
-const invoicePaidSubscriptionCreateTaxDiscount = require(`${STRIPE_FIXTURES}/invoice_paid_subscription_create_tax_discount.json`);
-const invoiceDraftProrationRefund = require(`${STRIPE_FIXTURES}/invoice_draft_proration_refund.json`);
-const invoicePaidSubscriptionCreateTax = require(`${STRIPE_FIXTURES}/invoice_paid_subscription_create_tax.json`);
-const eventCustomerSourceExpiring = require(`${STRIPE_FIXTURES}/event_customer_source_expiring.json`);
-const eventCustomerSubscriptionUpdated = require(`${STRIPE_FIXTURES}/event_customer_subscription_updated.json`);
-const subscriptionCreatedInvoice = require(`${STRIPE_FIXTURES}/invoice_paid_subscription_create.json`);
-const eventInvoiceCreated = require(`${STRIPE_FIXTURES}/event_invoice_created.json`);
-const eventSubscriptionUpdated = require(`${STRIPE_FIXTURES}/event_customer_subscription_updated.json`);
-const eventCustomerUpdated = require(`${STRIPE_FIXTURES}/event_customer_updated.json`);
-const eventPaymentMethodAttached = require(`${STRIPE_FIXTURES}/event_payment_method_attached.json`);
-const eventPaymentMethodDetached = require(`${STRIPE_FIXTURES}/event_payment_method_detached.json`);
-const closedPaymementIntent = require(`${STRIPE_FIXTURES}/paymentIntent_succeeded.json`);
+const invoicePaidSubscriptionCreate = require(
+  `${STRIPE_FIXTURES}/invoice_paid_subscription_create.json`
+);
+const invoicePaidSubscriptionCreateDiscount = require(
+  `${STRIPE_FIXTURES}/invoice_paid_subscription_create_discount.json`
+);
+const invoicePaidSubscriptionCreateTaxDiscount = require(
+  `${STRIPE_FIXTURES}/invoice_paid_subscription_create_tax_discount.json`
+);
+const invoiceDraftProrationRefund = require(
+  `${STRIPE_FIXTURES}/invoice_draft_proration_refund.json`
+);
+const invoicePaidSubscriptionCreateTax = require(
+  `${STRIPE_FIXTURES}/invoice_paid_subscription_create_tax.json`
+);
+const eventCustomerSourceExpiring = require(
+  `${STRIPE_FIXTURES}/event_customer_source_expiring.json`
+);
+const eventCustomerSubscriptionUpdated = require(
+  `${STRIPE_FIXTURES}/event_customer_subscription_updated.json`
+);
+const subscriptionCreatedInvoice = require(
+  `${STRIPE_FIXTURES}/invoice_paid_subscription_create.json`
+);
+const eventInvoiceCreated = require(
+  `${STRIPE_FIXTURES}/event_invoice_created.json`
+);
+const eventSubscriptionUpdated = require(
+  `${STRIPE_FIXTURES}/event_customer_subscription_updated.json`
+);
+const eventCustomerUpdated = require(
+  `${STRIPE_FIXTURES}/event_customer_updated.json`
+);
+const eventPaymentMethodAttached = require(
+  `${STRIPE_FIXTURES}/event_payment_method_attached.json`
+);
+const eventPaymentMethodDetached = require(
+  `${STRIPE_FIXTURES}/event_payment_method_detached.json`
+);
+const closedPaymementIntent = require(
+  `${STRIPE_FIXTURES}/paymentIntent_succeeded.json`
+);
 const newSetupIntent = require(`${STRIPE_FIXTURES}/setup_intent_new.json`);
 
 // App Store Server API response fixtures
-const appStoreApiResponse = require(`${APPLE_FIXTURES}/api_response_subscription_status.json`);
+const appStoreApiResponse = require(
+  `${APPLE_FIXTURES}/api_response_subscription_status.json`
+);
 const renewalInfo = require(`${APPLE_FIXTURES}/decoded_renewal_info.json`);
-const transactionInfo = require(`${APPLE_FIXTURES}/decoded_transaction_info.json`);
+const transactionInfo = require(
+  `${APPLE_FIXTURES}/decoded_transaction_info.json`
+);
 
 const {
   createAccountCustomer,
@@ -557,27 +618,27 @@ describe('StripeHelper', () => {
         it('payment_provider is "paypal"', async () => {
           subscription2.collection_method = 'send_invoice';
           customerExpanded.subscriptions.data[0] = subscription2;
-          expect(
-            await stripeHelper.getPaymentProvider(customerExpanded)
-          ).toBe('paypal');
+          expect(await stripeHelper.getPaymentProvider(customerExpanded)).toBe(
+            'paypal'
+          );
         });
       });
 
       describe('when the customer has a canceled subscription', () => {
         it('payment_provider is "not_chosen"', async () => {
           customerExpanded.subscriptions.data[0] = cancelledSubscription;
-          expect(
-            await stripeHelper.getPaymentProvider(customerExpanded)
-          ).toBe('not_chosen');
+          expect(await stripeHelper.getPaymentProvider(customerExpanded)).toBe(
+            'not_chosen'
+          );
         });
       });
 
       describe('when the customer has no subscriptions', () => {
         it('payment_provider is "not_chosen"', async () => {
           customerExpanded.subscriptions.data = [];
-          expect(
-            await stripeHelper.getPaymentProvider(customerExpanded)
-          ).toBe('not_chosen');
+          expect(await stripeHelper.getPaymentProvider(customerExpanded)).toBe(
+            'not_chosen'
+          );
         });
       });
 
@@ -618,9 +679,9 @@ describe('StripeHelper', () => {
             .stub(stripeHelper, 'getPaymentMethod')
             .resolves({ type: 'card', card: {} });
 
-          expect(
-            await stripeHelper.getPaymentProvider(customerExpanded)
-          ).toBe('card');
+          expect(await stripeHelper.getPaymentProvider(customerExpanded)).toBe(
+            'card'
+          );
         });
       });
 
@@ -1192,9 +1253,7 @@ describe('StripeHelper', () => {
         });
         sinon.assert.fail();
       } catch (err: any) {
-        expect(err.errno).toBe(
-          error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
-        );
+        expect(err.errno).toBe(error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN);
       }
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.subscriptions.create,
@@ -3069,7 +3128,9 @@ describe('StripeHelper', () => {
           expect(p.configuration).not.toBeNull();
         }
       });
-      expect((stripeHelper.allPlans as sinon.SinonStub).calledOnce).toBeTruthy();
+      expect(
+        (stripeHelper.allPlans as sinon.SinonStub).calledOnce
+      ).toBeTruthy();
       expect(
         // one of the plans does not have a matching ProductConfig
         stripeHelper.paymentConfigManager.getMergedConfig.calledTwice
@@ -3249,7 +3310,9 @@ describe('StripeHelper', () => {
         ];
 
         listStripePlans.restore();
-        sandbox.stub(stripeHelper.stripe.plans, 'list').returns(planList as any);
+        sandbox
+          .stub(stripeHelper.stripe.plans, 'list')
+          .returns(planList as any);
 
         const actual = await stripeHelper.fetchAllPlans();
 
@@ -3406,9 +3469,7 @@ describe('StripeHelper', () => {
           throw new Error('Method expected to reject');
         } catch (err: any) {
           expect(err.errno).toBe(error.ERRNO.UNKNOWN_SUBSCRIPTION);
-          sinon.assert.notCalled(
-            stripeHelper.updateSubscriptionAndBackfill
-          );
+          sinon.assert.notCalled(stripeHelper.updateSubscriptionAndBackfill);
         }
       });
     });
@@ -3476,9 +3537,7 @@ describe('StripeHelper', () => {
             throw new Error('Method expected to reject');
           } catch (err: any) {
             expect(err.errno).toBe(error.ERRNO.BACKEND_SERVICE_FAILURE);
-            sinon.assert.notCalled(
-              stripeHelper.updateSubscriptionAndBackfill
-            );
+            sinon.assert.notCalled(stripeHelper.updateSubscriptionAndBackfill);
           }
         });
       });
@@ -3487,9 +3546,7 @@ describe('StripeHelper', () => {
     describe('customer does not own the subscription', () => {
       it('throws an error', async () => {
         sandbox.stub(stripeHelper, 'subscriptionForCustomer').resolves();
-        sandbox
-          .stub(stripeHelper, 'updateSubscriptionAndBackfill')
-          .resolves();
+        sandbox.stub(stripeHelper, 'updateSubscriptionAndBackfill').resolves();
         try {
           await stripeHelper.reactivateSubscriptionForCustomer(
             '123',
@@ -3499,9 +3556,7 @@ describe('StripeHelper', () => {
           throw new Error('Method expected to reject');
         } catch (err: any) {
           expect(err.errno).toBe(error.ERRNO.UNKNOWN_SUBSCRIPTION);
-          sinon.assert.notCalled(
-            stripeHelper.updateSubscriptionAndBackfill
-          );
+          sinon.assert.notCalled(stripeHelper.updateSubscriptionAndBackfill);
         }
       });
     });
@@ -3579,17 +3634,10 @@ describe('StripeHelper', () => {
         subscription: 'idSub',
       };
       sandbox.stub(stripeHelper.stripe.subscriptions, 'list').resolves({
-        data: [
-          { id: 'idNull' },
-          { id: 'subIdExpanded' },
-          { id: 'idSub' },
-        ],
+        data: [{ id: 'idNull' }, { id: 'subIdExpanded' }, { id: 'idSub' }],
       });
       sandbox.stub(stripeHelper.stripe.invoices, 'list').resolves({
-        data: [
-          { id: 'idNull', subscription: null },
-          { ...expectedString },
-        ],
+        data: [{ id: 'idNull', subscription: null }, { ...expectedString }],
       });
       const result = await stripeHelper.fetchInvoicesForActiveSubscriptions(
         existingUid,
@@ -3665,9 +3713,7 @@ describe('StripeHelper', () => {
           },
         });
         sandbox.stub(stripeHelper.stripe.paymentMethods, 'detach').resolves();
-        sandbox
-          .stub(stripeHelper.stripe.subscriptions, 'update')
-          .resolves();
+        sandbox.stub(stripeHelper.stripe.subscriptions, 'update').resolves();
         const testAccount = await createAccountCustomer(uid, customerId);
         await stripeHelper.removeCustomer(testAccount.uid, {
           cancellation_reason: 'test',
@@ -3721,11 +3767,7 @@ describe('StripeHelper', () => {
   });
 
   describe('findActiveSubscriptionsByPlanId', () => {
-    const argsHelper = [
-      'plan_123',
-      { gte: 123, lt: 456 },
-      25,
-    ];
+    const argsHelper = ['plan_123', { gte: 123, lt: 456 }, 25];
     const argsStripe = {
       price: 'plan_123',
       current_period_end: { gte: 123, lt: 456 },
@@ -3952,9 +3994,7 @@ describe('StripeHelper', () => {
 
   describe('fetchCustomer', () => {
     it('fetches an existing customer', async () => {
-      sandbox
-        .stub(stripeHelper, 'expandResource')
-        .returns(deepCopy(customer1));
+      sandbox.stub(stripeHelper, 'expandResource').returns(deepCopy(customer1));
       const result = await stripeHelper.fetchCustomer(existingCustomer.uid);
       expect(result).toEqual(customer1);
     });
@@ -3970,9 +4010,7 @@ describe('StripeHelper', () => {
 
     it('returns void if the stripe customer is deleted and updates db', async () => {
       sandbox.stub(stripeHelper, 'expandResource').returns(deletedCustomer);
-      expect(
-        await getAccountCustomerByUid(existingCustomer.uid)
-      ).toBeDefined();
+      expect(await getAccountCustomerByUid(existingCustomer.uid)).toBeDefined();
       await stripeHelper.fetchCustomer(
         existingCustomer.uid,
         'test@example.com'
@@ -4066,9 +4104,7 @@ describe('StripeHelper', () => {
       // Note that top level will mismatch because subscriptions is copied
       // without the object type.
       expect(result.subscriptions.data).toEqual(customer.subscriptions.data);
-      expect(Object.keys(result).sort()).toEqual(
-        Object.keys(customer).sort()
-      );
+      expect(Object.keys(result).sort()).toEqual(Object.keys(customer).sort());
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
         customer.id,
@@ -4339,9 +4375,9 @@ describe('StripeHelper', () => {
         const actual =
           await stripeHelper.fetchPaymentIntentFromInvoice(invoice);
         expect(actual).toEqual(invoice.payment_intent);
-        expect(
-          stripeHelper.stripe.paymentIntents.retrieve.notCalled
-        ).toBe(true);
+        expect(stripeHelper.stripe.paymentIntents.retrieve.notCalled).toBe(
+          true
+        );
       });
     });
 
@@ -4351,9 +4387,9 @@ describe('StripeHelper', () => {
         const actual =
           await stripeHelper.fetchPaymentIntentFromInvoice(invoice);
         expect(actual).toEqual(unsuccessfulPaymentIntent);
-        expect(
-          stripeHelper.stripe.paymentIntents.retrieve.calledOnce
-        ).toBe(true);
+        expect(stripeHelper.stripe.paymentIntents.retrieve.calledOnce).toBe(
+          true
+        );
       });
     });
   });
@@ -4394,9 +4430,7 @@ describe('StripeHelper', () => {
               .resolves(paidInvoice);
             const callback = sandbox.stub(stripeHelper, 'expandResource');
             callback.onCall(0).resolves(paidInvoice);
-            callback
-              .onCall(1)
-              .resolves({ id: productId, name: productName });
+            callback.onCall(1).resolves({ id: productId, name: productName });
             const actual = await stripeHelper.subscriptionsToResponse(input);
             expect(actual).toHaveLength(1);
             expect(actual[0].subscription_id).toBe(subscription1.id);
@@ -4407,9 +4441,10 @@ describe('StripeHelper', () => {
             const missingExcludingTaxPaidInvoice = deepCopy(paidInvoice);
             delete missingExcludingTaxPaidInvoice.total_excluding_tax;
             delete missingExcludingTaxPaidInvoice.subtotal_excluding_tax;
-            const latestInvoiceItemsLocal = stripeInvoiceToLatestInvoiceItemsDTO(
-              missingExcludingTaxPaidInvoice
-            );
+            const latestInvoiceItemsLocal =
+              stripeInvoiceToLatestInvoiceItemsDTO(
+                missingExcludingTaxPaidInvoice
+              );
             const input = { data: [subscription1] };
             sandbox
               .stub(stripeHelper.stripe.invoices, 'retrieve')
@@ -4499,7 +4534,8 @@ describe('StripeHelper', () => {
             const actual = await stripeHelper.subscriptionsToResponse(input);
             expect(actual).toEqual(expectedPastDue);
             expect(
-              (stripeHelper.stripe.charges.retrieve as sinon.SinonStub).notCalled
+              (stripeHelper.stripe.charges.retrieve as sinon.SinonStub)
+                .notCalled
             ).toBe(true);
             expect(actual[0].failure_code).toBeDefined();
             expect(actual[0].failure_message).toBeDefined();
@@ -4517,7 +4553,8 @@ describe('StripeHelper', () => {
             const actual = await stripeHelper.subscriptionsToResponse(input);
             expect(actual).toEqual(expectedPastDue);
             expect(
-              (stripeHelper.stripe.charges.retrieve as sinon.SinonStub).calledOnce
+              (stripeHelper.stripe.charges.retrieve as sinon.SinonStub)
+                .calledOnce
             ).toBe(true);
             expect(actual[0].failure_code).toBeDefined();
             expect(actual[0].failure_message).toBeDefined();
@@ -4583,8 +4620,7 @@ describe('StripeHelper', () => {
               _subscription_type: MozillaSubscriptionTypes.WEB,
               created: cancelledSubscription.created,
               current_period_end: cancelledSubscription.current_period_end,
-              current_period_start:
-                cancelledSubscription.current_period_start,
+              current_period_start: cancelledSubscription.current_period_start,
               cancel_at_period_end: false,
               end_at: cancelledSubscription.ended_at,
               plan_id: cancelledSubscription.plan.id,
@@ -4658,9 +4694,7 @@ describe('StripeHelper', () => {
         const incompleteSubscription = deepCopy(subscription1);
         incompleteSubscription.status = 'incomplete';
         incompleteSubscription.id = 'sub_incomplete';
-        sandbox
-          .stub(stripeHelper, 'expandResource')
-          .resolves(paidInvoice);
+        sandbox.stub(stripeHelper, 'expandResource').resolves(paidInvoice);
         const input = {
           data: [subscription1, incompleteSubscription, subscription2],
         };
@@ -4837,7 +4871,6 @@ describe('StripeHelper', () => {
         expect(response).toHaveLength(3);
       });
     });
-
   });
 
   describe('processWebhookEventToFirestore', () => {
@@ -4856,11 +4889,8 @@ describe('StripeHelper', () => {
         .stub()
         .resolves(invoicePaidSubscriptionCreate);
       localStripeFirestore.retrieveInvoice = sandbox.stub().resolves({});
-      localStripeFirestore.fetchAndInsertInvoice = sandbox
-        .stub()
-        .resolves({});
-      const result =
-        await stripeHelper.processWebhookEventToFirestore(event);
+      localStripeFirestore.fetchAndInsertInvoice = sandbox.stub().resolves({});
+      const result = await stripeHelper.processWebhookEventToFirestore(event);
       expect(result).toBe(true);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.fetchAndInsertInvoice,
@@ -5008,11 +5038,8 @@ describe('StripeHelper', () => {
           )
         );
       insertStub.onCall(1).resolves({});
-      localStripeFirestore.fetchAndInsertCustomer = sandbox
-        .stub()
-        .resolves({});
-      const result =
-        await stripeHelper.processWebhookEventToFirestore(event);
+      localStripeFirestore.fetchAndInsertCustomer = sandbox.stub().resolves({});
+      const result = await stripeHelper.processWebhookEventToFirestore(event);
       expect(result).toBe(true);
       sinon.assert.calledTwice(
         stripeHelper.stripeFirestore.fetchAndInsertInvoice
@@ -5075,8 +5102,7 @@ describe('StripeHelper', () => {
     it('does not handle wibble events', async () => {
       const event = deepCopy(eventSubscriptionUpdated);
       event.type = 'wibble';
-      const result =
-        await stripeHelper.processWebhookEventToFirestore(event);
+      const result = await stripeHelper.processWebhookEventToFirestore(event);
       expect(result).toBe(false);
     });
   });
@@ -5136,9 +5162,7 @@ describe('StripeHelper', () => {
     });
 
     it('fails when an error is thrown while updating the customer address', async () => {
-      sandbox
-        .stub(stripeHelper, 'updateCustomerBillingAddress')
-        .rejects(err);
+      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').rejects(err);
       const result = await stripeHelper.setCustomerLocation({
         customerId: customer1.id,
         postalCode: expectedAddressArg.postalCode,
@@ -5184,9 +5208,7 @@ describe('StripeHelper', () => {
           product_metadata: {},
         },
       ];
-      sandbox
-        .stub(stripeHelper, 'allAbbrevPlans')
-        .resolves(mockAllAbbrevPlans);
+      sandbox.stub(stripeHelper, 'allAbbrevPlans').resolves(mockAllAbbrevPlans);
     });
 
     describe('priceToIapIdentifiers', () => {
@@ -5465,9 +5487,7 @@ describe('StripeHelper', () => {
 
     it('includes the missing billing agreement error state', async () => {
       stripeHelper.getCustomerPaypalAgreement.restore();
-      sandbox
-        .stub(stripeHelper, 'getCustomerPaypalAgreement')
-        .returns(null);
+      sandbox.stub(stripeHelper, 'getCustomerPaypalAgreement').returns(null);
       const actual =
         await stripeHelper.getBillingDetailsAndSubscriptions('uid');
       expect(actual).toEqual({
@@ -5892,7 +5912,9 @@ describe('StripeHelper', () => {
       it('extracts expected details from an invoice that requires requests to expand', async () => {
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual(expected);
@@ -5902,7 +5924,9 @@ describe('StripeHelper', () => {
         mockAllAbbrevProducts[0].product_id = 'nope';
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(true);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual(expected);
@@ -5920,7 +5944,9 @@ describe('StripeHelper', () => {
         expandedFixture.charge = mockCharge;
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(expandedFixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual(expected);
@@ -5939,7 +5965,9 @@ describe('StripeHelper', () => {
         expandMock.onCall(1).resolves(null);
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(noChargeFixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual({
@@ -5958,7 +5986,9 @@ describe('StripeHelper', () => {
         upgradeFixture.lines.data[1].period.end = subscriptionPeriodEnd;
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(upgradeFixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual({
@@ -5970,7 +6000,9 @@ describe('StripeHelper', () => {
       it('extracts expected details from an invoice with invoiceitem for a previous subscription', async () => {
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureProrated);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual(expected);
@@ -5979,7 +6011,9 @@ describe('StripeHelper', () => {
       it('extracts expected details from an invoice with discount', async () => {
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureDiscount);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual(expectedDiscount_foreverCoupon);
@@ -5996,7 +6030,9 @@ describe('StripeHelper', () => {
         };
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureDiscount100);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual(expectedDiscount100);
@@ -6019,7 +6055,9 @@ describe('StripeHelper', () => {
         const customFixture = deepCopy(invoicePaidSubscriptionCreate);
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(customFixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual({
@@ -6034,7 +6072,9 @@ describe('StripeHelper', () => {
       it('extracts expected details for an invoice with tax', async () => {
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureTax);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual({
@@ -6046,7 +6086,9 @@ describe('StripeHelper', () => {
       it('extracts expected details from an invoice with discount and tax', async () => {
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureTaxDiscount);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledThrice(expandMock);
         expect(result).toEqual({
@@ -6059,7 +6101,9 @@ describe('StripeHelper', () => {
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixtureProrationRefund
         );
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledTwice(expandMock);
         expect(result).toEqual({
@@ -6083,7 +6127,9 @@ describe('StripeHelper', () => {
         expect(thrownError.errno).toBe(
           error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER
         );
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(false);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          false
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         sinon.assert.calledOnce(expandMock);
       });
@@ -6102,7 +6148,9 @@ describe('StripeHelper', () => {
         expect(thrownError).not.toBeNull();
         expect(thrownError.errno).toBe(error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
         expect(mockStripe.products.retrieve.calledWith(productId)).toBe(true);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         sinon.assert.calledTwice(expandMock);
       });
 
@@ -6255,7 +6303,9 @@ describe('StripeHelper', () => {
       it('extracts expected details from a source that requires requests to expand', async () => {
         const result =
           await stripeHelper.extractSourceDetailsForEmail(sourceFixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(true);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          true
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
         expect(result).toEqual(expectedSource);
         sinon.assert.calledTwice(expandMock);
@@ -6274,7 +6324,9 @@ describe('StripeHelper', () => {
           error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER
         );
         sinon.assert.calledOnce(expandMock);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(false);
+        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
+          false
+        );
         expect(mockStripe.products.retrieve.called).toBe(false);
       });
 
@@ -6304,9 +6356,7 @@ describe('StripeHelper', () => {
           thrownError = err;
         }
         expect(thrownError).not.toBeNull();
-        expect(thrownError.errno).toBe(
-          error.ERRNO.INTERNAL_VALIDATION_ERROR
-        );
+        expect(thrownError.errno).toBe(error.ERRNO.INTERNAL_VALIDATION_ERROR);
       });
     });
 
@@ -6394,9 +6444,7 @@ describe('StripeHelper', () => {
           thrownError = err;
         }
         expect(thrownError).not.toBeNull();
-        expect(thrownError.errno).toBe(
-          error.ERRNO.INTERNAL_VALIDATION_ERROR
-        );
+        expect(thrownError.errno).toBe(error.ERRNO.INTERNAL_VALIDATION_ERROR);
       });
     });
 
@@ -6445,13 +6493,9 @@ describe('StripeHelper', () => {
         ];
         for (const helperName of allHelperNames) {
           if (helperName !== expectedHelperName) {
-            expect(
-              (stripeHelper as any)[helperName].notCalled
-            ).toBe(true);
+            expect((stripeHelper as any)[helperName].notCalled).toBe(true);
           } else {
-            expect(
-              (stripeHelper as any)[helperName].called
-            ).toBe(true);
+            expect((stripeHelper as any)[helperName].called).toBe(true);
             expect((stripeHelper as any)[helperName].args[0]).toEqual(args);
           }
         }
@@ -6461,9 +6505,7 @@ describe('StripeHelper', () => {
         const stripeErr: any = new Error('Stripe error');
         stripeErr.type = 'StripeInvalidRequestError';
         stripeErr.code = 'invoice_upcoming_none';
-        mockStripe.invoices.retrieveUpcoming = sinon
-          .stub()
-          .rejects(stripeErr);
+        mockStripe.invoices.retrieveUpcoming = sinon.stub().rejects(stripeErr);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
         event.data.previous_attributes = {
@@ -6487,9 +6529,7 @@ describe('StripeHelper', () => {
       it('rejects if invoices.retrieveUpcoming errors with unexpected error', async () => {
         const stripeErr: any = new Error('Stripe error');
         stripeErr.type = 'unexpected';
-        mockStripe.invoices.retrieveUpcoming = sinon
-          .stub()
-          .rejects(stripeErr);
+        mockStripe.invoices.retrieveUpcoming = sinon.stub().rejects(stripeErr);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
         event.data.previous_attributes = {
@@ -6504,9 +6544,8 @@ describe('StripeHelper', () => {
           expect(err.type).toBe('unexpected');
         }
         expect(
-          (
-            stripeHelper as any
-          ).extractSubscriptionUpdateCancellationDetailsForEmail.notCalled
+          (stripeHelper as any)
+            .extractSubscriptionUpdateCancellationDetailsForEmail.notCalled
         ).toBe(true);
       });
 
@@ -6668,7 +6707,10 @@ describe('StripeHelper', () => {
 
     describe('extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail', () => {
       const commonTest =
-        (upcomingInvoice: any = undefined, _expectedPaymentProratedInCents = 0) =>
+        (
+          upcomingInvoice: any = undefined,
+          _expectedPaymentProratedInCents = 0
+        ) =>
         async () => {
           const event = deepCopy(eventCustomerSubscriptionUpdated);
           const productIdOld = event.data.previous_attributes.plan.product;
@@ -6869,9 +6911,7 @@ describe('StripeHelper', () => {
         invoiceTotalCurrency: mockInvoice.currency,
         cardType: card.brand,
         lastFour: card.last4,
-        nextInvoiceDate: new Date(
-          mockInvoice.lines.data[0].period.end * 1000
-        ),
+        nextInvoiceDate: new Date(mockInvoice.lines.data[0].period.end * 1000),
       };
 
       const { lastFour, cardType } = defaultExpected;
@@ -6964,9 +7004,7 @@ describe('StripeHelper', () => {
       });
 
       it('throws for a deleted customer', async () => {
-        billingEmailSandbox
-          .stub(stripeHelper, 'fetchCustomer')
-          .resolves(null);
+        billingEmailSandbox.stub(stripeHelper, 'fetchCustomer').resolves(null);
         let thrown: any;
         try {
           await stripeHelper.extractCustomerDefaultPaymentDetailsByUid(uid);
@@ -7021,8 +7059,7 @@ describe('StripeHelper', () => {
           lastFour: mockPaymentMethod.card.last4,
           cardType: mockPaymentMethod.card.brand,
           country: mockPaymentMethod.card.country,
-          postalCode:
-            mockPaymentMethod.billing_details.address.postal_code,
+          postalCode: mockPaymentMethod.billing_details.address.postal_code,
         });
       });
 
@@ -7050,8 +7087,7 @@ describe('StripeHelper', () => {
           lastFour: mockPaymentMethod.card.last4,
           cardType: mockPaymentMethod.card.brand,
           country: mockPaymentMethod.card.country,
-          postalCode:
-            mockPaymentMethod.billing_details.address.postal_code,
+          postalCode: mockPaymentMethod.billing_details.address.postal_code,
         });
       });
 

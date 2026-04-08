@@ -63,7 +63,7 @@ describe('getLanguageTagFromPlanMetadata', () => {
     }
   });
 
-  it('returns undefined when the plan language is en and detail is identical to the product', async () => {
+  it('returns undefined when the plan language is en and detail is indentical to the product', async () => {
     const actual = await getLanguageTagFromPlanMetadata(
       plan,
       supportedLanguages

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/serverJWT.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 
 const noop = () => {};
@@ -29,12 +27,7 @@ describe('lib/serverJWT', () => {
 
       const serverJWT = loadWithMock({ sign: signSpy });
 
-      const jwt = await serverJWT.signJWT(
-        { foo: 'bar' },
-        'biz',
-        'buz',
-        'zoom'
-      );
+      const jwt = await serverJWT.signJWT({ foo: 'bar' }, 'biz', 'buz', 'zoom');
       expect(jwt).toBe('j.w.t');
 
       sinon.assert.calledOnce(signSpy);

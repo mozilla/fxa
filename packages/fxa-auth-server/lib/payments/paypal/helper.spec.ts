@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/payments/paypal.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
@@ -176,17 +174,16 @@ describe('PayPalHelper', () => {
     });
 
     it('if doRequest unsuccessful, throws an error', async () => {
-      const nvpError = new PayPalNVPError(
-        'Fake',
-        {} as NVPErrorResponse,
-        { message: 'oh no', errorCode: 123 }
-      );
+      const nvpError = new PayPalNVPError('Fake', {} as NVPErrorResponse, {
+        message: 'oh no',
+        errorCode: 123,
+      });
       paypalHelper.client.doRequest = sinon.fake.throws(
         new PayPalClientError([nvpError], 'hi', {} as NVPErrorResponse)
       );
-      await expect(
-        paypalHelper.getCheckoutToken(validOptions)
-      ).rejects.toThrow(PayPalClientError);
+      await expect(paypalHelper.getCheckoutToken(validOptions)).rejects.toThrow(
+        PayPalClientError
+      );
     });
 
     it('calls setExpressCheckout with passed options', async () => {
@@ -308,17 +305,16 @@ describe('PayPalHelper', () => {
     });
 
     it('if doRequest unsuccessful, throws an error', async () => {
-      const nvpError = new PayPalNVPError(
-        'Fake',
-        {} as NVPErrorResponse,
-        { message: 'oh no', errorCode: 123 }
-      );
+      const nvpError = new PayPalNVPError('Fake', {} as NVPErrorResponse, {
+        message: 'oh no',
+        errorCode: 123,
+      });
       paypalHelper.client.doRequest = sinon.fake.throws(
         new PayPalClientError([nvpError], 'hi', {} as NVPErrorResponse)
       );
-      await expect(
-        paypalHelper.chargeCustomer(validOptions)
-      ).rejects.toThrow(PayPalClientError);
+      await expect(paypalHelper.chargeCustomer(validOptions)).rejects.toThrow(
+        PayPalClientError
+      );
     });
   });
 
@@ -558,9 +554,9 @@ describe('PayPalHelper', () => {
       const expectedErrorMessage = 'Missing transactionId';
       mockStripeHelper.getInvoicePaypalTransactionId =
         sinon.fake.returns(undefined);
-      await expect(
-        paypalHelper.refundInvoice(validInvoice)
-      ).rejects.toThrow(expectedErrorMessage);
+      await expect(paypalHelper.refundInvoice(validInvoice)).rejects.toThrow(
+        expectedErrorMessage
+      );
       sinon.assert.notCalled(paypalHelper.issueRefund);
       sinon.assert.calledWithExactly(
         paypalHelper.log.error,
@@ -579,9 +575,9 @@ describe('PayPalHelper', () => {
       mockStripeHelper.getInvoicePaypalTransactionId = sinon.fake.returns(123);
       mockStripeHelper.getInvoicePaypalRefundTransactionId =
         sinon.fake.returns(123);
-      await expect(
-        paypalHelper.refundInvoice(validInvoice)
-      ).rejects.toThrow(expectedErrorMessage);
+      await expect(paypalHelper.refundInvoice(validInvoice)).rejects.toThrow(
+        expectedErrorMessage
+      );
       sinon.assert.calledOnce(mockStripeHelper.getInvoicePaypalTransactionId);
       sinon.assert.calledOnce(
         mockStripeHelper.getInvoicePaypalRefundTransactionId
@@ -600,14 +596,18 @@ describe('PayPalHelper', () => {
     });
 
     it('throws error from issueRefund', async () => {
-      const expectedError = new RefusedError('Helper error', 'Helper error details', '10009');
+      const expectedError = new RefusedError(
+        'Helper error',
+        'Helper error details',
+        '10009'
+      );
       mockStripeHelper.getInvoicePaypalTransactionId = sinon.fake.returns(123);
       mockStripeHelper.getInvoicePaypalRefundTransactionId =
         sinon.fake.returns(undefined);
       paypalHelper.issueRefund = sinon.fake.rejects(expectedError);
-      await expect(
-        paypalHelper.refundInvoice(validInvoice)
-      ).rejects.toThrow('Helper error');
+      await expect(paypalHelper.refundInvoice(validInvoice)).rejects.toThrow(
+        'Helper error'
+      );
       sinon.assert.calledWithExactly(
         paypalHelper.log.error,
         'PayPalHelper.refundInvoice',
@@ -714,11 +714,10 @@ describe('PayPalHelper', () => {
     });
 
     it('ignores paypal client errors', async () => {
-      const nvpError = new PayPalNVPError(
-        'Fake',
-        {} as NVPErrorResponse,
-        { message: 'oh no', errorCode: 123 }
-      );
+      const nvpError = new PayPalNVPError('Fake', {} as NVPErrorResponse, {
+        message: 'oh no',
+        errorCode: 123,
+      });
       paypalHelper.client.doRequest = sinon.fake.throws(
         new PayPalClientError([nvpError], 'hi', {} as NVPErrorResponse)
       );

@@ -311,15 +311,17 @@ describe('#integration - scripts/prune-tokens', () => {
       devices = [];
 
       // Add tokens. The first token will be the oldest, and the last token
-      // will be the newest.
+      // will be the newest. Use explicit timestamps to guarantee ordering
+      // without needing sleeps.
+      const baseTime = Date.now();
       for (let i = 0; i < size; i++) {
         const curToken = sessionToken();
         const curDevice = device(account.uid, curToken.id);
-        curToken.createdAt = Date.now();
+        curToken.createdAt = baseTime + i;
+        curToken.lastAccessTime = baseTime + i;
 
         await SessionToken.create(curToken);
         await Device.create(curDevice);
-        await new Promise((r) => setTimeout(r, 10));
 
         await redis.touchSessionToken(
           curToken.uid.toString('hex'),

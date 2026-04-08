@@ -23,21 +23,6 @@ const frozen: Array<{
     // exempt it so the SB8 upgrade (and future storybook-only changes) can proceed.
     exclude: 'storybook-email\\.ts$',
   },
-  {
-    pattern: 'packages/fxa-auth-server/test/local/.*\\.(js|ts)$',
-    reason:
-      'Mocha unit tests are frozen. Add new tests as co-located Jest specs (lib/**/*.spec.ts)',
-  },
-  {
-    pattern: 'packages/fxa-auth-server/test/remote/.*_tests\\.js$',
-    reason:
-      'Mocha integration tests are frozen. Add new tests as Jest specs (test/remote/*.in.spec.ts)',
-  },
-  {
-    pattern: 'packages/fxa-auth-server/test/oauth/.*\\.(js|ts)$',
-    reason:
-      'Mocha OAuth tests are frozen. Add new tests as Jest specs (lib/oauth/*.spec.ts)',
-  },
 ];
 
 export const getChangedFiles = () => {

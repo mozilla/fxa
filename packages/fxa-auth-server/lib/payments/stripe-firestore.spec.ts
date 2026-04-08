@@ -1,8 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-/** Migrated from test/local/payments/stripe-firestore.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 
 import {
@@ -139,8 +137,7 @@ describe('StripeFirestore', () => {
     });
 
     it('fetches a subscription that was already retrieved', async () => {
-      stripeFirestore.retrieveSubscription =
-        sinon.fake.resolves(subscription);
+      stripeFirestore.retrieveSubscription = sinon.fake.resolves(subscription);
       stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
       const result = await stripeFirestore.retrieveAndFetchSubscription(
         subscription.id
@@ -397,9 +394,7 @@ describe('StripeFirestore', () => {
         await stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
         throw new Error('should have thrown');
       } catch (err: any) {
-        expect(err.name).toBe(
-          FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID
-        );
+        expect(err.name).toBe(FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID);
       }
     });
   });
@@ -464,9 +459,7 @@ describe('StripeFirestore', () => {
         get: sinon.fake.resolves({ empty: true }),
       });
       try {
-        await stripeFirestore.insertSubscriptionRecord(
-          deepCopy(subscription1)
-        );
+        await stripeFirestore.insertSubscriptionRecord(deepCopy(subscription1));
         throw new Error('should have thrown');
       } catch (err: any) {
         expect(err.name).toBe(
@@ -480,10 +473,9 @@ describe('StripeFirestore', () => {
   describe('insertSubscriptionRecordWithBackfill', () => {
     it('inserts a record', async () => {
       stripeFirestore.insertSubscriptionRecord = sinon.fake.resolves({});
-      const result =
-        await stripeFirestore.insertSubscriptionRecordWithBackfill(
-          deepCopy(subscription1)
-        );
+      const result = await stripeFirestore.insertSubscriptionRecordWithBackfill(
+        deepCopy(subscription1)
+      );
       expect(result).toBeUndefined();
       sinon.assert.calledOnce(stripeFirestore.insertSubscriptionRecord);
     });
@@ -496,10 +488,9 @@ describe('StripeFirestore', () => {
         )
       );
       stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
-      const result =
-        await stripeFirestore.insertSubscriptionRecordWithBackfill(
-          deepCopy(subscription1)
-        );
+      const result = await stripeFirestore.insertSubscriptionRecordWithBackfill(
+        deepCopy(subscription1)
+      );
       expect(result).toBeUndefined();
       sinon.assert.calledOnce(stripeFirestore.insertSubscriptionRecord);
       sinon.assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
@@ -628,9 +619,7 @@ describe('StripeFirestore', () => {
         stripe.invoices.retrieve.firstCall,
         invoiceId
       );
-      sinon.assert.calledOnce(
-        stripeFirestore.customerCollectionDbRef.where
-      );
+      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
       sinon.assert.callCount(tx.get, 1);
       sinon.assert.callCount(tx.set, 1);
     });
@@ -650,9 +639,7 @@ describe('StripeFirestore', () => {
           FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
         );
         sinon.assert.calledOnce(stripe.invoices.retrieve);
-        sinon.assert.calledOnce(
-          stripeFirestore.customerCollectionDbRef.where
-        );
+        sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
         expect(tx.get.callCount).toBe(0);
         expect(tx.set.callCount).toBe(0);
       }
@@ -672,13 +659,8 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(mockInvoice);
-      sinon.assert.calledOnceWithExactly(
-        stripe.invoices.retrieve,
-        invoiceId
-      );
-      sinon.assert.calledOnce(
-        stripeFirestore.customerCollectionDbRef.where
-      );
+      sinon.assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
+      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
       expect(tx.get.callCount).toBe(0);
       expect(tx.set.callCount).toBe(0);
     });
@@ -696,13 +678,8 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(mockInvoiceWithoutSubscription);
-      sinon.assert.calledOnceWithExactly(
-        stripe.invoices.retrieve,
-        invoiceId
-      );
-      expect(
-        stripeFirestore.customerCollectionDbRef.where.callCount
-      ).toBe(0);
+      sinon.assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
+      expect(stripeFirestore.customerCollectionDbRef.where.callCount).toBe(0);
       expect(tx.get.callCount).toBe(0);
       expect(tx.set.callCount).toBe(0);
     });
@@ -726,13 +703,9 @@ describe('StripeFirestore', () => {
         await stripeFirestore.fetchAndInsertInvoice(invoiceId, eventTime);
         throw new Error('should have thrown');
       } catch (err: any) {
-        expect(err.name).toBe(
-          FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID
-        );
+        expect(err.name).toBe(FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID);
         sinon.assert.calledOnce(stripe.invoices.retrieve);
-        sinon.assert.calledOnce(
-          stripeFirestore.customerCollectionDbRef.where
-        );
+        sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
         expect(tx.get.callCount).toBe(0);
         expect(tx.set.callCount).toBe(0);
       }
@@ -760,13 +733,8 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(mockInvoice);
-      sinon.assert.calledOnceWithExactly(
-        stripe.invoices.retrieve,
-        invoiceId
-      );
-      sinon.assert.calledOnce(
-        stripeFirestore.customerCollectionDbRef.where
-      );
+      sinon.assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
+      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
       expect(tx.get.callCount).toBe(0);
       expect(tx.set.callCount).toBe(0);
     });
@@ -893,9 +861,7 @@ describe('StripeFirestore', () => {
         stripe.paymentMethods.retrieve.firstCall,
         paymentMethodId
       );
-      sinon.assert.calledOnce(
-        stripeFirestore.customerCollectionDbRef.where
-      );
+      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
       sinon.assert.callCount(tx.get, 1);
       sinon.assert.callCount(tx.set, 1);
     });
@@ -905,9 +871,7 @@ describe('StripeFirestore', () => {
         ...mockPaymentMethod,
         customer: null,
       };
-      stripe.paymentMethods.retrieve.resolves(
-        mockPaymentMethodWithoutCustomer
-      );
+      stripe.paymentMethods.retrieve.resolves(mockPaymentMethodWithoutCustomer);
 
       const result = await stripeFirestore.fetchAndInsertPaymentMethod(
         paymentMethodId,
@@ -919,9 +883,7 @@ describe('StripeFirestore', () => {
         stripe.paymentMethods.retrieve,
         paymentMethodId
       );
-      expect(
-        stripeFirestore.customerCollectionDbRef.where.callCount
-      ).toBe(0);
+      expect(stripeFirestore.customerCollectionDbRef.where.callCount).toBe(0);
       expect(tx.get.callCount).toBe(0);
       expect(tx.set.callCount).toBe(0);
     });
@@ -947,9 +909,7 @@ describe('StripeFirestore', () => {
           stripe.paymentMethods.retrieve,
           paymentMethodId
         );
-        sinon.assert.calledOnce(
-          stripeFirestore.customerCollectionDbRef.where
-        );
+        sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
         expect(tx.get.callCount).toBe(0);
         expect(tx.set.callCount).toBe(0);
       }
@@ -973,9 +933,7 @@ describe('StripeFirestore', () => {
         stripe.paymentMethods.retrieve,
         paymentMethodId
       );
-      sinon.assert.calledOnce(
-        stripeFirestore.customerCollectionDbRef.where
-      );
+      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
       expect(tx.get.callCount).toBe(0);
       expect(tx.set.callCount).toBe(0);
     });
@@ -1002,16 +960,12 @@ describe('StripeFirestore', () => {
         );
         throw new Error('should have thrown');
       } catch (err: any) {
-        expect(err.name).toBe(
-          FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID
-        );
+        expect(err.name).toBe(FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID);
         sinon.assert.calledOnceWithExactly(
           stripe.paymentMethods.retrieve,
           paymentMethodId
         );
-        sinon.assert.calledOnce(
-          stripeFirestore.customerCollectionDbRef.where
-        );
+        sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
         expect(tx.get.callCount).toBe(0);
         expect(tx.set.callCount).toBe(0);
       }
@@ -1043,9 +997,7 @@ describe('StripeFirestore', () => {
         stripe.paymentMethods.retrieve,
         paymentMethodId
       );
-      sinon.assert.calledOnce(
-        stripeFirestore.customerCollectionDbRef.where
-      );
+      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
       expect(tx.get.callCount).toBe(0);
       expect(tx.set.callCount).toBe(0);
     });
@@ -1102,9 +1054,7 @@ describe('StripeFirestore', () => {
           get: sinon.fake.resolves(paymentMethodSnap),
         }),
       });
-      await stripeFirestore.removePaymentMethodRecord(
-        deepCopy(paymentMethod)
-      );
+      await stripeFirestore.removePaymentMethodRecord(deepCopy(paymentMethod));
       sinon.assert.calledOnce(firestore.collectionGroup);
       sinon.assert.calledOnce(paymentMethodSnap.docs[0].ref.delete);
     });
@@ -1198,10 +1148,7 @@ describe('StripeFirestore', () => {
 
       it('with empty status filter', async () => {
         const subscriptions =
-          await stripeFirestore.retrieveCustomerSubscriptions(
-            customer.id,
-            []
-          );
+          await stripeFirestore.retrieveCustomerSubscriptions(customer.id, []);
         expect(subscriptions).toEqual([]);
       });
     });
@@ -1227,8 +1174,9 @@ describe('StripeFirestore', () => {
           ],
         }),
       });
-      const subscriptions =
-        await stripeFirestore.retrieveCustomerSubscriptions(customer.id);
+      const subscriptions = await stripeFirestore.retrieveCustomerSubscriptions(
+        customer.id
+      );
       expect(subscriptions).toEqual([sub1]);
     });
 
@@ -1322,9 +1270,7 @@ describe('StripeFirestore', () => {
         await stripeFirestore.retrieveInvoice(invoice.id);
         throw new Error('should have thrown');
       } catch (err: any) {
-        expect(err.name).toBe(
-          FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
-        );
+        expect(err.name).toBe(FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND);
       }
     });
   });

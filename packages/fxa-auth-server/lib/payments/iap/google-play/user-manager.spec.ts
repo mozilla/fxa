@@ -2,16 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Migrated from test/local/payments/iap/google-play/user-manager.js (Mocha → Jest). */
-
 import sinon from 'sinon';
 import { Container } from 'typedi';
 
 import { AuthLogger } from '../../../types';
 import { UserManager } from './user-manager';
-import {
-  PlayStoreSubscriptionPurchase,
-} from './subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from './subscription-purchase';
 import { PurchaseQueryError } from './types';
 
 const { mockLog } = require('../../../../test/mocks');

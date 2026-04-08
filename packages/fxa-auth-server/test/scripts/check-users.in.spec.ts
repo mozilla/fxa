@@ -7,7 +7,7 @@ import util from 'util';
 import path from 'path';
 import fs from 'fs';
 import {
-  createTestServer,
+  getSharedTestServer,
   TestServerInstance,
 } from '../support/helpers/test-server';
 
@@ -38,7 +38,7 @@ describe('#integration - scripts/check-users:', () => {
   let filename: string;
 
   beforeAll(async () => {
-    server = await createTestServer();
+    server = await getSharedTestServer();
 
     validClient = await Client.create(
       server.publicUrl,
@@ -63,9 +63,6 @@ describe('#integration - scripts/check-users:', () => {
 
   afterAll(async () => {
     await server.stop();
-    if (filename && fs.existsSync(filename)) {
-      fs.unlinkSync(filename);
-    }
   });
 
   it('fails if no input file', async () => {

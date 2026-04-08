@@ -971,27 +971,18 @@ workflows:
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          resource_class: large
+          target: -t test-integration
           test_suite: servers-auth-integration
           workflow: test_pull_request
           requires:
             - Build (PR)
       - integration-test:
-          name: Integration Test - Servers - Auth V2 (PR)
+          name: Integration Test - Servers - Auth Scripts (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
-          target: -t test-integration-v2
-          test_suite: servers-auth-v2-integration
-          workflow: test_pull_request
-          requires:
-            - Build (PR)
-      - integration-test:
-          name: Integration Test Jest - Servers - Auth (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
-          target: -t test-integration-jest
-          test_suite: servers-auth-jest-integration
+          target: -t test-scripts
+          test_suite: servers-auth-scripts
           workflow: test_pull_request
           requires:
             - Build (PR)
@@ -1019,8 +1010,7 @@ workflows:
             - Integration Test - Frontends (PR)
             - Integration Test - Servers (PR)
             - Integration Test - Servers - Auth (PR)
-            - Integration Test - Servers - Auth V2 (PR)
-            - Integration Test Jest - Servers - Auth (PR)
+            - Integration Test - Servers - Auth Scripts (PR)
             - Integration Test - Libraries (PR)
             - Firefox Functional Tests - Playwright (PR)
 
@@ -1182,6 +1172,7 @@ workflows:
           name: Integration Test - Servers - Auth
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          target: -t test-integration
           test_suite: servers-auth-integration
           workflow: test_and_deploy_tag
           filters:
@@ -1193,26 +1184,10 @@ workflows:
           requires:
             - Build
       - integration-test:
-          name: Integration Test - Servers - Auth V2
+          name: Integration Test - Servers - Auth Scripts
           projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
-          target: -t test-integration-v2
-          test_suite: servers-auth-v2-integration
-          workflow: test_and_deploy_tag
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-          nx_run: run-many --no-cloud
-          requires:
-            - Build
-      - integration-test:
-          name: Integration Test Jest - Servers - Auth
-          projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
-          target: -t test-integration-jest
-          test_suite: servers-auth-jest-integration
+          target: -t test-scripts
+          test_suite: servers-auth-scripts
           workflow: test_and_deploy_tag
           filters:
             branches:
@@ -1311,28 +1286,18 @@ workflows:
           name: Integration Test - Servers - Auth (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          target: -t test-integration
           test_suite: servers-auth-integration
           workflow: nightly
           nx_run: run-many --skipRemoteCache
           requires:
             - Build (nightly)
       - integration-test:
-          name: Integration Test - Servers - Auth V2 (nightly)
+          name: Integration Test - Servers - Auth Scripts (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
-          target: -t test-integration-v2
-          test_suite: servers-auth-v2-integration
+          target: -t test-scripts
+          test_suite: servers-auth-scripts
           workflow: nightly
-          nx_run: run-many --skipRemoteCache
-          requires:
-            - Build (nightly)
-      - integration-test:
-          name: Integration Test Jest - Servers - Auth (nightly)
-          projects: --exclude '*,!tag:scope:server:auth'
-          start_customs: true
-          target: -t test-integration-jest
-          test_suite: servers-auth-jest-integration
-          workflow: test_pull_request
           nx_run: run-many --skipRemoteCache
           requires:
             - Build (nightly)
@@ -1361,8 +1326,7 @@ workflows:
             - Integration Test - Frontends (nightly)
             - Integration Test - Servers (nightly)
             - Integration Test - Servers - Auth (nightly)
-            - Integration Test - Servers - Auth V2 (nightly)
-            - Integration Test Jest - Servers - Auth (nightly)
+            - Integration Test - Servers - Auth Scripts (nightly)
             - Integration Test - Libraries (nightly)
             - Firefox Functional Tests - Playwright (nightly)
       - create-fxa-image:
