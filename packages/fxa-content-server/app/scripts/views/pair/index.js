@@ -191,6 +191,8 @@ class PairIndexView extends FormView {
       graphicId,
       needsMobileConfirmed,
       showSuccessMessage: this.showSuccessMessage(),
+      showSignupSuccessMessage: this.showSignupSuccessMessage(),
+      showPasswordCreatedMessage: this.showPasswordCreatedMessage(),
       buttonTextShadowClass,
       tabletBackArrowColor,
     });
@@ -274,6 +276,14 @@ class PairIndexView extends FormView {
       (!!this.model.get('showSuccessMessage') ||
         !!this.getSearchParam('showSuccessMessage'))
     );
+  }
+
+  showSignupSuccessMessage() {
+    return !!this.getSearchParam('signupSuccess');
+  }
+
+  showPasswordCreatedMessage() {
+    return !!this.getSearchParam('passwordCreated');
   }
 }
 

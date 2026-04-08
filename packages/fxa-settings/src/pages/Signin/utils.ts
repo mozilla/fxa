@@ -13,6 +13,7 @@ import {
   useAuthClient,
   isOAuthWebIntegration,
 } from '../../models';
+import { SEND_TAB_ENTRYPOINTS } from '../../constants';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { navigate } from '@reach/router';
@@ -45,6 +46,8 @@ interface SyncNavigateOptions {
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
   syncHidePromoAfterLogin?: boolean;
+  signupSuccess?: boolean;
+  origin?: string;
 }
 
 export function getSyncNavigate(
@@ -54,6 +57,8 @@ export function getSyncNavigate(
     isSignInWithThirdPartyAuth,
     showSignupConfirmedSync,
     syncHidePromoAfterLogin,
+    signupSuccess,
+    origin,
   }: SyncNavigateOptions = {}
 ) {
   const searchParams = new URLSearchParams(queryParams);
@@ -87,6 +92,12 @@ export function getSyncNavigate(
   }
 
   searchParams.set('showSuccessMessage', 'true');
+  if (signupSuccess) {
+    searchParams.set('signupSuccess', 'true');
+  }
+  if (origin === 'post-verify-set-password') {
+    searchParams.set('passwordCreated', 'true');
+  }
   return {
     to: `/pair?${searchParams}`,
     // TODO: don't hard navigate once Pair is converted to React
@@ -205,6 +216,16 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     navigationOptions.showInlineRecoveryKeySetup = false;
     navigationOptions.showSignupConfirmedSync = false;
     navigationOptions.syncHidePromoAfterLogin = true;
+  }
+
+  // Send Tab entrypoints skip intermediate pages (inline recovery key, signup
+  // confirmed sync) and go directly to the /pair choice screen.
+  if (
+    isSendTabEntrypoint(navigationOptions.queryParams) &&
+    integration.isSync()
+  ) {
+    navigationOptions.showInlineRecoveryKeySetup = false;
+    navigationOptions.showSignupConfirmedSync = false;
   }
 
   // When a session is unverified, we need to redirect to the appropriate page depending on status of
@@ -467,6 +488,7 @@ const getNonOAuthNavigationTarget = async (
     redirectTo,
     isSignInWithThirdPartyAuth,
     showSignupConfirmedSync,
+    origin,
   } = navigationOptions;
   if (integration.isSync()) {
     return {
@@ -474,6 +496,7 @@ const getNonOAuthNavigationTarget = async (
         showInlineRecoveryKeySetup,
         isSignInWithThirdPartyAuth,
         showSignupConfirmedSync,
+        origin,
       }),
     };
   }
@@ -501,6 +524,7 @@ const getOAuthNavigationTarget = async (
           navigationOptions.isSignInWithThirdPartyAuth,
         showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
         syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
+        origin: navigationOptions.origin,
       }),
       locationState,
     };
@@ -556,6 +580,7 @@ const getOAuthNavigationTarget = async (
           navigationOptions.isSignInWithThirdPartyAuth,
         showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
         syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
+        origin: navigationOptions.origin,
       }),
       oauthData: {
         code,
@@ -643,4 +668,9 @@ export async function ensureCanLinkAcountOrRedirect({
     });
   }
   return ok;
+}
+
+export function isSendTabEntrypoint(queryParams: string): boolean {
+  const entrypoint = new URLSearchParams(queryParams).get('entrypoint');
+  return entrypoint !== null && SEND_TAB_ENTRYPOINTS.has(entrypoint);
 }
