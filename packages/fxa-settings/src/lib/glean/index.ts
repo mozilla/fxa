@@ -49,7 +49,6 @@ import {
 } from 'fxa-shared/metrics/glean/web/session';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
-import * as webauthn from 'fxa-shared/metrics/glean/web/webauthn';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../../lib/cache';
@@ -677,32 +676,6 @@ const recordEventMetric = (
     case 'third_party_auth_set_password_success':
       thirdPartyAuthSetPassword.success.record();
       break;
-    case 'webauthn_capabilities': {
-      const e = (gleanPingMetrics as any).event || {};
-      // Always coerce expected extras to strings to ensure they appear in Looker "Events Extras"
-      const extras: Record<string, string> = {};
-      const allKeys = [
-        'supported',
-        'ppa',
-        'cg',
-        'rel',
-        'hyb',
-        'uvpa',
-        'prf',
-        'error_reason',
-        'os_family',
-        'os_major',
-        'browser_family',
-        'browser_major',
-      ] as const;
-      for (const key of allKeys) {
-        if (e[key] !== undefined) {
-          extras[key] = String(e[key]);
-        }
-      }
-      webauthn.capabilities.record(extras as any);
-      break;
-    }
     case 'promo_qr_mobile_view':
       promoQrMobile.view.record();
       break;

@@ -39,8 +39,6 @@ import {
 import { AccountStateProvider } from '../../models/contexts/AccountStateContext';
 
 import sentryMetrics from 'fxa-shared/sentry/browser';
-import { maybeRecordWebAuthnCapabilities } from '../../lib/webauthnCapabilitiesProbe';
-
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
@@ -361,7 +359,6 @@ export const App = ({
   useEffect(() => {
     if (metricsEnabled || isSignedIn === false) {
       sentryMetrics.enable();
-      maybeRecordWebAuthnCapabilities();
     } else {
       sentryMetrics.disable();
     }
