@@ -7,10 +7,10 @@ import type {
   AuthenticationResponseJSON,
 } from '@simplewebauthn/server';
 import {
-  generateRegistrationOptions,
-  verifyRegistrationResponse,
-  generateAuthenticationOptions,
-  verifyAuthenticationResponse,
+  generateWebauthnRegistrationOptions,
+  verifyWebauthnRegistrationResponse,
+  generateWebauthnAuthenticationOptions,
+  verifyWebauthnAuthenticationResponse,
   uuidToBuffer,
 } from './webauthn-adapter';
 import { PasskeyConfig } from './passkey.config';
@@ -108,14 +108,16 @@ describe('uuidToBuffer', () => {
   });
 });
 
-describe('generateRegistrationOptions', () => {
+describe('generateWebauthnRegistrationOptions', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('maps config and input fields to the correct library options', async () => {
-    libMocks.generateRegistrationOptions.mockResolvedValue({ challenge: 'c' });
+    libMocks.generateRegistrationOptions.mockResolvedValue({
+      challenge: 'c',
+    });
     const uid = Buffer.from([0xde, 0xad, 0xbe, 0xef]);
 
-    await generateRegistrationOptions(
+    await generateWebauthnRegistrationOptions(
       mockConfig({
         residentKey: 'required',
         authenticatorAttachment: 'platform',
@@ -147,7 +149,7 @@ describe('generateRegistrationOptions', () => {
     const fakeResult = { challenge: 'xyz' };
     libMocks.generateRegistrationOptions.mockResolvedValue(fakeResult);
 
-    const result = await generateRegistrationOptions(mockConfig(), {
+    const result = await generateWebauthnRegistrationOptions(mockConfig(), {
       uid: Buffer.alloc(16),
       email: 'user@example.com',
       challenge: 'xyz',
@@ -157,7 +159,7 @@ describe('generateRegistrationOptions', () => {
   });
 });
 
-describe('verifyRegistrationResponse', () => {
+describe('verifyWebauthnRegistrationResponse', () => {
   beforeEach(() => jest.clearAllMocks());
 
   const baseInput = {
@@ -177,13 +179,17 @@ describe('verifyRegistrationResponse', () => {
       aaguid: 'adce0002-35bc-c60a-648b-0b25f1f05503',
       credentialDeviceType: 'multiDevice',
       credentialBackedUp: true,
+      authenticatorExtensionResults: { prf: { enabled: true } },
     },
   };
 
   it('returns { verified: true, data } when the library succeeds', async () => {
     libMocks.verifyRegistrationResponse.mockResolvedValue(successLibResult);
 
-    const result = await verifyRegistrationResponse(mockConfig(), baseInput);
+    const result = await verifyWebauthnRegistrationResponse(
+      mockConfig(),
+      baseInput
+    );
 
     expect(result.verified).toBe(true);
     if (!result.verified) throw new Error('narrowing');
@@ -196,12 +202,73 @@ describe('verifyRegistrationResponse', () => {
     expect(result.data.aaguid.length).toBe(16);
     expect(result.data.backupEligible).toBe(true);
     expect(result.data.backupState).toBe(true);
+    expect(result.data.prfEnabled).toBe(true);
+  });
+
+  it('sets prfEnabled=false when authenticatorExtensionResults is absent', async () => {
+    libMocks.verifyRegistrationResponse.mockResolvedValue({
+      ...successLibResult,
+      registrationInfo: {
+        ...successLibResult.registrationInfo,
+        authenticatorExtensionResults: undefined,
+      },
+    });
+
+    const result = await verifyWebauthnRegistrationResponse(
+      mockConfig(),
+      baseInput
+    );
+
+    expect(result.verified).toBe(true);
+    if (!result.verified) throw new Error('narrowing');
+    expect(result.data.prfEnabled).toBe(false);
+  });
+
+  it('sets prfEnabled=false when prf extension is present but enabled=false', async () => {
+    libMocks.verifyRegistrationResponse.mockResolvedValue({
+      ...successLibResult,
+      registrationInfo: {
+        ...successLibResult.registrationInfo,
+        authenticatorExtensionResults: { prf: { enabled: false } },
+      },
+    });
+
+    const result = await verifyWebauthnRegistrationResponse(
+      mockConfig(),
+      baseInput
+    );
+
+    expect(result.verified).toBe(true);
+    if (!result.verified) throw new Error('narrowing');
+    expect(result.data.prfEnabled).toBe(false);
+  });
+
+  it('sets prfEnabled=false when prf key is missing from extension results', async () => {
+    libMocks.verifyRegistrationResponse.mockResolvedValue({
+      ...successLibResult,
+      registrationInfo: {
+        ...successLibResult.registrationInfo,
+        authenticatorExtensionResults: {},
+      },
+    });
+
+    const result = await verifyWebauthnRegistrationResponse(
+      mockConfig(),
+      baseInput
+    );
+
+    expect(result.verified).toBe(true);
+    if (!result.verified) throw new Error('narrowing');
+    expect(result.data.prfEnabled).toBe(false);
   });
 
   it('returns { verified: false } when the library returns verified=false', async () => {
     libMocks.verifyRegistrationResponse.mockResolvedValue({ verified: false });
 
-    const result = await verifyRegistrationResponse(mockConfig(), baseInput);
+    const result = await verifyWebauthnRegistrationResponse(
+      mockConfig(),
+      baseInput
+    );
 
     expect(result.verified).toBe(false);
     expect((result as { data?: unknown }).data).toBeUndefined();
@@ -213,7 +280,7 @@ describe('verifyRegistrationResponse', () => {
       allowedOrigins: ['https://accounts.firefox.com', 'https://other.example'],
     });
 
-    await verifyRegistrationResponse(config, {
+    await verifyWebauthnRegistrationResponse(config, {
       response: mockRegistrationResponse(),
       challenge: 'expected-challenge-xyz',
     });
@@ -232,19 +299,22 @@ describe('verifyRegistrationResponse', () => {
   it('decodes the aaguid UUID into a 16-byte Buffer', async () => {
     libMocks.verifyRegistrationResponse.mockResolvedValue(successLibResult);
 
-    const result = await verifyRegistrationResponse(mockConfig(), baseInput);
+    const result = await verifyWebauthnRegistrationResponse(
+      mockConfig(),
+      baseInput
+    );
 
     expect(result.data?.aaguid[0]).toBe(0xad);
   });
 });
 
-describe('generateAuthenticationOptions', () => {
+describe('generateWebauthnAuthenticationOptions', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('passes config and input options to the library', async () => {
     libMocks.generateAuthenticationOptions.mockResolvedValue({});
 
-    await generateAuthenticationOptions(
+    await generateWebauthnAuthenticationOptions(
       mockConfig({ userVerification: 'discouraged' }),
       {
         challenge: 'random-challenge-abc',
@@ -264,7 +334,7 @@ describe('generateAuthenticationOptions', () => {
   it('passes undefined for allowCredentials when the array is empty (discoverable flow)', async () => {
     libMocks.generateAuthenticationOptions.mockResolvedValue({});
 
-    await generateAuthenticationOptions(mockConfig(), {
+    await generateWebauthnAuthenticationOptions(mockConfig(), {
       challenge: 'ch',
       allowCredentials: [],
     });
@@ -278,7 +348,7 @@ describe('generateAuthenticationOptions', () => {
     libMocks.generateAuthenticationOptions.mockResolvedValue({});
     const credId = Buffer.from('helloworld');
 
-    await generateAuthenticationOptions(mockConfig(), {
+    await generateWebauthnAuthenticationOptions(mockConfig(), {
       challenge: 'ch',
       allowCredentials: [credId],
     });
@@ -296,7 +366,7 @@ describe('generateAuthenticationOptions', () => {
     const fakeResult = { challenge: 'q1w2e3' };
     libMocks.generateAuthenticationOptions.mockResolvedValue(fakeResult);
 
-    const result = await generateAuthenticationOptions(mockConfig(), {
+    const result = await generateWebauthnAuthenticationOptions(mockConfig(), {
       challenge: 'q1w2e3',
       allowCredentials: [],
     });
@@ -305,7 +375,7 @@ describe('generateAuthenticationOptions', () => {
   });
 });
 
-describe('verifyAuthenticationResponse', () => {
+describe('verifyWebauthnAuthenticationResponse', () => {
   beforeEach(() => jest.clearAllMocks());
 
   function makeInput() {
@@ -334,7 +404,7 @@ describe('verifyAuthenticationResponse', () => {
   it('returns { verified: true, data } when the library succeeds', async () => {
     libMocks.verifyAuthenticationResponse.mockResolvedValue(successLibResult);
 
-    const result = await verifyAuthenticationResponse(
+    const result = await verifyWebauthnAuthenticationResponse(
       mockConfig(),
       makeInput()
     );
@@ -354,7 +424,7 @@ describe('verifyAuthenticationResponse', () => {
       },
     });
 
-    const result = await verifyAuthenticationResponse(
+    const result = await verifyWebauthnAuthenticationResponse(
       mockConfig(),
       makeInput()
     );
@@ -372,7 +442,7 @@ describe('verifyAuthenticationResponse', () => {
       },
     });
 
-    const result = await verifyAuthenticationResponse(
+    const result = await verifyWebauthnAuthenticationResponse(
       mockConfig(),
       makeInput()
     );
@@ -384,7 +454,7 @@ describe('verifyAuthenticationResponse', () => {
     libMocks.verifyAuthenticationResponse.mockResolvedValue(successLibResult);
     const credPublicKey = Buffer.from([0xde, 0xad, 0xbe, 0xef]);
 
-    await verifyAuthenticationResponse(mockConfig(), {
+    await verifyWebauthnAuthenticationResponse(mockConfig(), {
       response: mockAuthenticationResponse(),
       challenge: 'specific-challenge-999',
       credentialId: Buffer.from('dGVzdA', 'base64url'),

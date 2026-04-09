@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  generateRegistrationOptions as libGenerateRegistrationOptions,
-  verifyRegistrationResponse as libVerifyRegistrationResponse,
-  generateAuthenticationOptions as libGenerateAuthenticationOptions,
-  verifyAuthenticationResponse as libVerifyAuthenticationResponse,
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
 import type {
   RegistrationResponseJSON,
@@ -34,11 +34,11 @@ export interface RegistrationOptionsInput {
  * @param config - PasskeyConfig instance
  * @param input  - Per-request inputs
  */
-export async function generateRegistrationOptions(
+export async function generateWebauthnRegistrationOptions(
   config: PasskeyConfig,
   input: RegistrationOptionsInput
 ): Promise<PublicKeyCredentialCreationOptionsJSON> {
-  return libGenerateRegistrationOptions({
+  return generateRegistrationOptions({
     // rpName is deprecated field kept for backward compatibility;
     // spec recommends using rpId as a safe default.
     rpName: config.rpId,
@@ -69,11 +69,21 @@ export interface VerifiedRegistrationData {
   aaguid: Buffer;
   backupEligible: boolean;
   backupState: boolean;
+  prfEnabled: boolean;
 }
 
 export type RegistrationVerificationResult =
   | { verified: false; data?: never }
   | { verified: true; data: VerifiedRegistrationData };
+
+/**
+ * Extract the PRF `enabled` flag from authenticator extension results.
+ */
+function extractPrfEnabled(extensions: unknown): boolean {
+  return Boolean(
+    (extensions as { prf?: { enabled?: unknown } } | undefined)?.prf?.enabled
+  );
+}
 
 /**
  * Verify a WebAuthn registration (attestation) response.
@@ -85,11 +95,11 @@ export type RegistrationVerificationResult =
  * @throws wrapped library function throws `Error` on invalid input.
  * See source code for possible errors: https://github.com/MasterKale/SimpleWebAuthn/blob/320757144749c742e58ab3bb181087f9fbcac074/packages/server/src/registration/verifyRegistrationResponse.ts
  */
-export async function verifyRegistrationResponse(
+export async function verifyWebauthnRegistrationResponse(
   config: PasskeyConfig,
   input: VerifyRegistrationInput
 ): Promise<RegistrationVerificationResult> {
-  const { verified, registrationInfo } = await libVerifyRegistrationResponse({
+  const { verified, registrationInfo } = await verifyRegistrationResponse({
     response: input.response,
     expectedChallenge: input.challenge,
     expectedOrigin: config.allowedOrigins,
@@ -100,8 +110,13 @@ export async function verifyRegistrationResponse(
     return { verified: false };
   }
 
-  const { credential, aaguid, credentialDeviceType, credentialBackedUp } =
-    registrationInfo;
+  const {
+    credential,
+    aaguid,
+    credentialDeviceType,
+    credentialBackedUp,
+    authenticatorExtensionResults,
+  } = registrationInfo;
 
   return {
     verified: true,
@@ -113,6 +128,7 @@ export async function verifyRegistrationResponse(
       aaguid: uuidToBuffer(aaguid),
       backupEligible: credentialDeviceType === 'multiDevice',
       backupState: credentialBackedUp,
+      prfEnabled: extractPrfEnabled(authenticatorExtensionResults),
     },
   };
 }
@@ -138,11 +154,11 @@ export interface AuthenticationOptionsInput {
  * @param config - PasskeyConfig instance
  * @param input  - Per-request inputs
  */
-export async function generateAuthenticationOptions(
+export async function generateWebauthnAuthenticationOptions(
   config: PasskeyConfig,
   input: AuthenticationOptionsInput
 ): Promise<PublicKeyCredentialRequestOptionsJSON> {
-  return libGenerateAuthenticationOptions({
+  return generateAuthenticationOptions({
     rpID: config.rpId,
     userVerification: config.userVerification,
     challenge: input.challenge,
@@ -197,7 +213,7 @@ export type AuthenticationVerificationResult =
  * @throws wrapped library function throws `Error` on invalid input.
  * See source code for possible errors: https://github.com/MasterKale/SimpleWebAuthn/blob/320757144749c742e58ab3bb181087f9fbcac074/packages/server/src/authentication/verifyAuthenticationResponse.ts
  */
-export async function verifyAuthenticationResponse(
+export async function verifyWebauthnAuthenticationResponse(
   config: PasskeyConfig,
   input: VerifyAuthenticationInput
 ): Promise<AuthenticationVerificationResult> {
@@ -207,14 +223,13 @@ export async function verifyAuthenticationResponse(
     counter: input.signCount,
   };
 
-  const { verified, authenticationInfo } =
-    await libVerifyAuthenticationResponse({
-      response: input.response,
-      expectedChallenge: input.challenge,
-      expectedOrigin: config.allowedOrigins,
-      expectedRPID: config.rpId,
-      credential,
-    });
+  const { verified, authenticationInfo } = await verifyAuthenticationResponse({
+    response: input.response,
+    expectedChallenge: input.challenge,
+    expectedOrigin: config.allowedOrigins,
+    expectedRPID: config.rpId,
+    credential,
+  });
 
   if (!verified) {
     return { verified: false };

@@ -17,18 +17,18 @@ import { PasskeyChallengeManager } from './passkey.challenge.manager';
 import { AppError } from '@fxa/accounts/errors';
 
 jest.mock('./webauthn-adapter', () => ({
-  generateRegistrationOptions: jest.fn(),
-  verifyRegistrationResponse: jest.fn(),
-  generateAuthenticationOptions: jest.fn(),
-  verifyAuthenticationResponse: jest.fn(),
+  generateWebauthnRegistrationOptions: jest.fn(),
+  verifyWebauthnRegistrationResponse: jest.fn(),
+  generateWebauthnAuthenticationOptions: jest.fn(),
+  verifyWebauthnAuthenticationResponse: jest.fn(),
 }));
 
 import * as webauthnAdapter from './webauthn-adapter';
 
-const mockGenerateRegistrationOptions =
-  webauthnAdapter.generateRegistrationOptions as jest.Mock;
-const mockVerifyRegistrationResponse =
-  webauthnAdapter.verifyRegistrationResponse as jest.Mock;
+const mockGenerateWebauthnRegistrationOptions =
+  webauthnAdapter.generateWebauthnRegistrationOptions as jest.Mock;
+const mockVerifyWebauthnRegistrationResponse =
+  webauthnAdapter.verifyWebauthnRegistrationResponse as jest.Mock;
 
 describe('PasskeyService', () => {
   let service: PasskeyService;
@@ -147,7 +147,9 @@ describe('PasskeyService', () => {
       mockChallengeManager.generateRegistrationChallenge.mockResolvedValue(
         MOCK_CHALLENGE
       );
-      mockGenerateRegistrationOptions.mockResolvedValue(mockWebAuthnOptions);
+      mockGenerateWebauthnRegistrationOptions.mockResolvedValue(
+        mockWebAuthnOptions
+      );
     });
 
     it('returns PublicKeyCredentialCreationOptionsJSON from the adapter', async () => {
@@ -177,7 +179,9 @@ describe('PasskeyService', () => {
         mockChallengeManager.generateRegistrationChallenge
       ).toHaveBeenCalledWith(MOCK_UID.toString('hex'));
 
-      expect(mockGenerateRegistrationOptions).toHaveBeenCalledWith(
+      expect(
+        webauthnAdapter.generateWebauthnRegistrationOptions
+      ).toHaveBeenCalledWith(
         mockConfig,
         expect.objectContaining({
           uid: MOCK_UID,
@@ -195,10 +199,11 @@ describe('PasskeyService', () => {
       credentialId: MOCK_CREDENTIAL_ID,
       publicKey: MOCK_PUBLIC_KEY,
       signCount: 0,
-      transports: ['internal'] as any,
+      transports: ['internal'],
       aaguid: MOCK_AAGUID_ZEROS,
       backupEligible: false,
       backupState: false,
+      prfEnabled: false,
     };
 
     beforeEach(() => {
@@ -209,7 +214,7 @@ describe('PasskeyService', () => {
         createdAt: Date.now() - 1000,
         expiresAt: Date.now() + 299000,
       });
-      mockVerifyRegistrationResponse.mockResolvedValue({
+      mockVerifyWebauthnRegistrationResponse.mockResolvedValue({
         verified: true,
         data: mockVerifiedData,
       });
@@ -230,11 +235,13 @@ describe('PasskeyService', () => {
         message: 'Passkey challenge not found',
         code: 404,
       });
-      expect(mockVerifyRegistrationResponse).not.toHaveBeenCalled();
+      expect(mockVerifyWebauthnRegistrationResponse).not.toHaveBeenCalled();
     });
 
     it('throws passkeyRegistrationFailed AppError when adapter returns verified: false', async () => {
-      mockVerifyRegistrationResponse.mockResolvedValue({ verified: false });
+      mockVerifyWebauthnRegistrationResponse.mockResolvedValue({
+        verified: false,
+      });
       await expect(
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
@@ -249,7 +256,7 @@ describe('PasskeyService', () => {
     });
 
     it('throws passkeyRegistrationFailed AppError when adapter throws', async () => {
-      mockVerifyRegistrationResponse.mockRejectedValue(
+      mockVerifyWebauthnRegistrationResponse.mockRejectedValue(
         new Error('Invalid attestation format')
       );
       await expect(
@@ -294,14 +301,20 @@ describe('PasskeyService', () => {
           lastUsedAt: null,
           backupEligible: 0,
           backupState: 0,
+          prfEnabled: 0,
         })
       );
     });
 
-    it('sets backupEligible=1 and backupState=1 when flags are true', async () => {
-      mockVerifyRegistrationResponse.mockResolvedValue({
+    it('sets backupEligible=1, backupState=1 and prfEnabled=1 when flags are true', async () => {
+      mockVerifyWebauthnRegistrationResponse.mockResolvedValue({
         verified: true,
-        data: { ...mockVerifiedData, backupEligible: true, backupState: true },
+        data: {
+          ...mockVerifiedData,
+          backupEligible: true,
+          backupState: true,
+          prfEnabled: true,
+        },
       });
       await service.createPasskeyFromRegistrationResponse(
         MOCK_UID,
@@ -310,7 +323,11 @@ describe('PasskeyService', () => {
       );
 
       expect(mockManager.registerPasskey).toHaveBeenCalledWith(
-        expect.objectContaining({ backupEligible: 1, backupState: 1 })
+        expect.objectContaining({
+          backupEligible: 1,
+          backupState: 1,
+          prfEnabled: 1,
+        })
       );
     });
 
@@ -386,7 +403,7 @@ describe('PasskeyService', () => {
         transports: string[],
         aaguid: Buffer = MOCK_AAGUID_ZEROS
       ): Promise<string> {
-        mockVerifyRegistrationResponse.mockResolvedValue({
+        mockVerifyWebauthnRegistrationResponse.mockResolvedValue({
           verified: true,
           data: { ...mockVerifiedData, transports, aaguid },
         });
@@ -489,7 +506,7 @@ describe('PasskeyService', () => {
         MOCK_CHALLENGE
       );
       (
-        webauthnAdapter.generateAuthenticationOptions as jest.Mock
+        webauthnAdapter.generateWebauthnAuthenticationOptions as jest.Mock
       ).mockResolvedValue(mockOptions);
     });
 
@@ -508,7 +525,7 @@ describe('PasskeyService', () => {
     it('calls generateAuthenticationOptions with empty allowCredentials when no uid', async () => {
       await service.generateAuthenticationChallenge();
       expect(
-        webauthnAdapter.generateAuthenticationOptions
+        webauthnAdapter.generateWebauthnAuthenticationOptions
       ).toHaveBeenCalledWith(mockConfig, {
         challenge: MOCK_CHALLENGE,
         allowCredentials: [],
@@ -527,7 +544,7 @@ describe('PasskeyService', () => {
 
       expect(mockManager.listPasskeysForUser).toHaveBeenCalledWith(MOCK_UID);
       expect(
-        webauthnAdapter.generateAuthenticationOptions
+        webauthnAdapter.generateWebauthnAuthenticationOptions
       ).toHaveBeenCalledWith(mockConfig, {
         challenge: MOCK_CHALLENGE,
         allowCredentials: [MOCK_CREDENTIAL_ID],
@@ -540,7 +557,7 @@ describe('PasskeyService', () => {
       await service.generateAuthenticationChallenge(MOCK_UID);
 
       expect(
-        webauthnAdapter.generateAuthenticationOptions
+        webauthnAdapter.generateWebauthnAuthenticationOptions
       ).toHaveBeenCalledWith(mockConfig, {
         challenge: MOCK_CHALLENGE,
         allowCredentials: [],
@@ -548,7 +565,7 @@ describe('PasskeyService', () => {
     });
   });
 
-  describe('verifyAuthenticationResponse', () => {
+  describe('verifyWebauthnAuthenticationResponse', () => {
     beforeEach(() => {
       mockManager.findPasskeyByCredentialId.mockResolvedValue(mockPasskey);
       mockChallengeManager.consumeAuthenticationChallenge.mockResolvedValue(
@@ -556,7 +573,7 @@ describe('PasskeyService', () => {
       );
       mockManager.updatePasskeyAfterAuth.mockResolvedValue(true);
       (
-        webauthnAdapter.verifyAuthenticationResponse as jest.Mock
+        webauthnAdapter.verifyWebauthnAuthenticationResponse as jest.Mock
       ).mockResolvedValue({
         verified: true,
         data: { newSignCount: 6, backupState: false },
@@ -585,18 +602,17 @@ describe('PasskeyService', () => {
       ).toHaveBeenCalledWith(MOCK_CHALLENGE);
     });
 
-    it('calls verifyAuthenticationResponse adapter with correct passkey data', async () => {
+    it('calls verifyWebauthnAuthenticationResponse adapter with correct passkey data', async () => {
       await service.verifyAuthenticationResponse(mockResponse, MOCK_CHALLENGE);
-      expect(webauthnAdapter.verifyAuthenticationResponse).toHaveBeenCalledWith(
-        mockConfig,
-        {
-          response: mockResponse,
-          challenge: MOCK_CHALLENGE,
-          credentialId: mockPasskey.credentialId,
-          publicKey: mockPasskey.publicKey,
-          signCount: mockPasskey.signCount,
-        }
-      );
+      expect(
+        webauthnAdapter.verifyWebauthnAuthenticationResponse
+      ).toHaveBeenCalledWith(mockConfig, {
+        response: mockResponse,
+        challenge: MOCK_CHALLENGE,
+        credentialId: mockPasskey.credentialId,
+        publicKey: mockPasskey.publicKey,
+        signCount: mockPasskey.signCount,
+      });
     });
 
     it('updates passkey with new signCount and backupState after verification', async () => {
@@ -653,7 +669,7 @@ describe('PasskeyService', () => {
 
     it('throws a passkeyAuthenticationFailed AppError when the assertion is not verified', async () => {
       (
-        webauthnAdapter.verifyAuthenticationResponse as jest.Mock
+        webauthnAdapter.verifyWebauthnAuthenticationResponse as jest.Mock
       ).mockResolvedValue({ verified: false });
 
       await expect(
@@ -663,7 +679,7 @@ describe('PasskeyService', () => {
 
     it('throws a passkeyAuthenticationFailed AppError when the adapter throws', async () => {
       (
-        webauthnAdapter.verifyAuthenticationResponse as jest.Mock
+        webauthnAdapter.verifyWebauthnAuthenticationResponse as jest.Mock
       ).mockRejectedValue(new Error('crypto error'));
 
       await expect(
@@ -690,7 +706,7 @@ describe('PasskeyService', () => {
 
     it('logs a signCount rollback warning when simplewebauthn throws a counter error', async () => {
       (
-        webauthnAdapter.verifyAuthenticationResponse as jest.Mock
+        webauthnAdapter.verifyWebauthnAuthenticationResponse as jest.Mock
       ).mockRejectedValue(
         // Exact message thrown by @simplewebauthn/server
         new Error('Response counter value 2 was lower than expected 5')
@@ -715,7 +731,7 @@ describe('PasskeyService', () => {
 
     it('does not log a rollback warning for non-counter adapter errors', async () => {
       (
-        webauthnAdapter.verifyAuthenticationResponse as jest.Mock
+        webauthnAdapter.verifyWebauthnAuthenticationResponse as jest.Mock
       ).mockRejectedValue(new Error('Invalid signature'));
 
       await expect(
