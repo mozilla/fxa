@@ -20,12 +20,12 @@ import { PasskeyConfig } from './passkey.config';
 import { PasskeyManager } from './passkey.manager';
 import { PasskeyChallengeManager } from './passkey.challenge.manager';
 import {
-  generateRegistrationOptions,
-  verifyRegistrationResponse as adapterVerifyRegistrationResponse,
+  generateWebauthnRegistrationOptions,
+  verifyWebauthnRegistrationResponse,
   RegistrationVerificationResult,
   AuthenticationVerificationResult,
-  generateAuthenticationOptions,
-  verifyAuthenticationResponse,
+  generateWebauthnAuthenticationOptions,
+  verifyWebauthnAuthenticationResponse,
 } from './webauthn-adapter';
 import { AppError } from '@fxa/accounts/errors';
 
@@ -119,7 +119,7 @@ export class PasskeyService {
     const challenge =
       await this.challengeManager.generateRegistrationChallenge(uidHex);
 
-    const options = await generateRegistrationOptions(this.config, {
+    const options = await generateWebauthnRegistrationOptions(this.config, {
       uid,
       email,
       challenge,
@@ -167,7 +167,7 @@ export class PasskeyService {
 
     let result: RegistrationVerificationResult;
     try {
-      result = await adapterVerifyRegistrationResponse(this.config, {
+      result = await verifyWebauthnRegistrationResponse(this.config, {
         response,
         challenge: storedChallenge.challenge,
       });
@@ -186,15 +186,7 @@ export class PasskeyService {
       throw AppError.passkeyRegistrationFailed();
     }
 
-    const {
-      credentialId,
-      publicKey,
-      signCount,
-      transports,
-      aaguid,
-      backupEligible,
-      backupState,
-    } = result.data;
+    const { transports, aaguid } = result.data;
 
     const existingPasskeys = await this.passkeyManager.listPasskeysForUser(uid);
 
@@ -202,28 +194,20 @@ export class PasskeyService {
 
     const passkey: Passkey = {
       uid,
-      credentialId,
-      publicKey,
-      signCount,
-      transports: transports ?? [],
-      aaguid,
       name,
       createdAt: Date.now(),
       lastUsedAt: null,
-      backupEligible,
-      backupState,
-      // FIXME: prfEnabled needs to be exposed by webauthn-adapter. See FXA-13403.
-      prfEnabled: false,
+      ...result.data,
     };
 
     // TODO: update repository, manager, and service layers to accept/return a
     // Passkey object directly instead of mapping to NewPasskey. See FXA-13402.
     const newPasskey: NewPasskey = {
       ...passkey,
-      transports: JSON.stringify(transports ?? []),
-      backupEligible: backupEligible ? 1 : 0,
-      backupState: backupState ? 1 : 0,
-      prfEnabled: 0,
+      transports: JSON.stringify(passkey.transports),
+      backupEligible: passkey.backupEligible ? 1 : 0,
+      backupState: passkey.backupState ? 1 : 0,
+      prfEnabled: passkey.prfEnabled ? 1 : 0,
     };
 
     await this.passkeyManager.registerPasskey(newPasskey);
@@ -428,7 +412,7 @@ export class PasskeyService {
       allowCredentials = passkeys.map((p) => p.credentialId);
     }
 
-    return await generateAuthenticationOptions(this.config, {
+    return await generateWebauthnAuthenticationOptions(this.config, {
       challenge,
       allowCredentials,
     });
@@ -484,7 +468,7 @@ export class PasskeyService {
 
     let result: AuthenticationVerificationResult;
     try {
-      result = await verifyAuthenticationResponse(this.config, {
+      result = await verifyWebauthnAuthenticationResponse(this.config, {
         response,
         challenge: storedChallenge.challenge,
         credentialId: passkey.credentialId,
