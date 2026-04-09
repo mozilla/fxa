@@ -3,6 +3,7 @@ import { TypedConfigModule, dotenvLoader } from 'nest-typed-config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RootConfig } from '../config';
+import { AuthModule } from '@fxa/payments/auth';
 import {
   CmsWebhooksController,
   CmsWebhookService,
@@ -46,6 +47,7 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
 
 @Module({
   imports: [
+    AuthModule,
     TypedConfigModule.forRoot({
       schema: RootConfig,
       load: dotenvLoader({

@@ -1,0 +1,27 @@
+{
+  "name": "payments-auth",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/payments/auth/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/payments/auth",
+        "main": "libs/payments/auth/src/index.ts",
+        "tsConfig": "libs/payments/auth/tsconfig.lib.json",
+        "assets": ["libs/payments/auth/*.md"],
+        "format": ["cjs"]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/payments/auth/jest.config.ts"
+      }
+    }
+  }
+}
