@@ -31,7 +31,6 @@
     "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-payments-server-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false --ci --reporters=default --reporters=jest-junit",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "NODE_ENV=production yarn build-css && storybook build",
     "watch-ftl": "yarn l10n-watch"
   },
   "eslintConfig": {
