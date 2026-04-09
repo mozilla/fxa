@@ -8,7 +8,7 @@ import {
   Account,
   AccountCustomer,
   NewCart,
-  NewPasskey,
+  Passkey,
   PaypalCustomer,
   SessionToken,
   UnverifiedToken,
@@ -184,16 +184,16 @@ export const RecoveryPhoneFactory = (override?: Partial<RecoveryPhone>) => ({
   ...override,
 });
 
-export const PasskeyFactory = (override?: Partial<NewPasskey>): NewPasskey => ({
+export const PasskeyFactory = (override?: Partial<Passkey>): Passkey => ({
   uid: getHexBuffer(32),
   credentialId: getHexBuffer(faker.number.int({ min: 32, max: 128 })),
   publicKey: getHexBuffer(128),
   signCount: 0,
   transports: faker.helpers.arrayElement([
-    JSON.stringify(['internal']),
-    JSON.stringify(['usb']),
-    JSON.stringify(['internal', 'hybrid']),
-    JSON.stringify([]),
+    ['internal'],
+    ['usb'],
+    ['internal', 'hybrid'],
+    [],
   ]),
   aaguid: faker.datatype.boolean()
     ? getHexBuffer(32) // Real AAGUID (32 hex chars = 16 bytes)
@@ -207,8 +207,8 @@ export const PasskeyFactory = (override?: Partial<NewPasskey>): NewPasskey => ({
   ]),
   createdAt: faker.date.recent().getTime(),
   lastUsedAt: faker.datatype.boolean() ? faker.date.recent().getTime() : null,
-  backupEligible: faker.helpers.arrayElement([0, 1]),
-  backupState: faker.helpers.arrayElement([0, 1]),
-  prfEnabled: faker.helpers.arrayElement([0, 1]),
+  backupEligible: faker.datatype.boolean(),
+  backupState: faker.datatype.boolean(),
+  prfEnabled: faker.datatype.boolean(),
   ...override,
 });

@@ -3,7 +3,7 @@ CREATE TABLE `passkeys` (
   `credentialId` varbinary(1023) NOT NULL,
   `publicKey` blob NOT NULL,
   `signCount` int unsigned NOT NULL DEFAULT '0',
-  `transports` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
+  `transports` JSON NOT NULL,
   `aaguid` binary(16) DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `createdAt` bigint(20) unsigned NOT NULL,
