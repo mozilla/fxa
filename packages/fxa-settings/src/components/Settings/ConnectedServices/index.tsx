@@ -325,7 +325,9 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
               </Localized>
               <form
                 onChange={(event) => {
-                  setReason((event.target as HTMLInputElement).value);
+                  setReason(
+                    ((event.target as unknown) as HTMLInputElement).value
+                  );
                 }}
               >
                 <ul className="my-4 text-start">

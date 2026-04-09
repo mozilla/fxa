@@ -129,7 +129,7 @@ export function useAwait<
     initialState || resetPromiseState()
   );
 
-  const promise = useRef<Promise<TResult | undefined> | undefined>();
+  const promise = useRef<Promise<TResult | undefined> | undefined>(undefined);
 
   const reset = useCallback(() => {
     setState(resetPromiseState());

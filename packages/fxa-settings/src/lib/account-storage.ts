@@ -11,8 +11,17 @@ import {
   LinkedAccount,
   SecurityEvent,
 } from '../models/Account';
-import { lazy } from './test-utils';
 import Storage from './storage';
+
+function lazy<T>(factory: () => T): () => T {
+  let value: T | undefined;
+  return () => {
+    if (value === undefined) {
+      value = factory();
+    }
+    return value;
+  };
+}
 
 const storage = lazy<Storage>(() => Storage.factory('localStorage'));
 

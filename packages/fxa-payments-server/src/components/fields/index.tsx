@@ -318,7 +318,7 @@ export const StripeElement = (props: WrappedStripeElementProps) => {
     ...childProps
   } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
-  const elementValue = useRef<stripe.elements.ElementChangeResponse>();
+  const elementValue = useRef<stripe.elements.ElementChangeResponse>(undefined);
   const onChange = useCallback(
     (value: stripe.elements.ElementChangeResponse) => {
       elementValue.current = value;

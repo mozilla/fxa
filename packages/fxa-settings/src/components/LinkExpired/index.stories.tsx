@@ -14,11 +14,14 @@ const meta = {
   component: LinkExpired,
   decorators: [
     withLocalization,
-    (Story: StoryFn) => (
-      <LocationProvider>
-        <Story />
-      </LocationProvider>
-    ),
+    (Story: StoryFn) => {
+      const StoryComponent = Story as React.ComponentType;
+      return (
+        <LocationProvider>
+          <StoryComponent />
+        </LocationProvider>
+      );
+    },
   ],
 };
 

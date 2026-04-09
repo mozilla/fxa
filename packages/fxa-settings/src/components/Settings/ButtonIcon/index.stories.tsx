@@ -13,11 +13,14 @@ const meta = {
   subcomponents: { ButtonIconTrash, ButtonIconReload },
   decorators: [
     withLocalization,
-    (Story: StoryFn) => (
-      <div className="p-10 max-w-lg">
-        <Story />
-      </div>
-    ),
+    (Story: StoryFn) => {
+      const StoryComponent = Story as React.ComponentType;
+      return (
+        <div className="p-10 max-w-lg">
+          <StoryComponent />
+        </div>
+      );
+    },
   ],
 };
 

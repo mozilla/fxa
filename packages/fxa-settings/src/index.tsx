@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
@@ -78,7 +78,7 @@ try {
         return <CookiesDisabled />;
       };
 
-  render(
+  createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
       <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
         <AppErrorBoundary>
@@ -91,8 +91,7 @@ try {
           </AppContext.Provider>
         </AppErrorBoundary>
       </DynamicLocalizationProvider>
-    </React.StrictMode>,
-    document.getElementById('root')
+    </React.StrictMode>
   );
 } catch (error) {
   console.error('Error initializing FXA Settings', error);

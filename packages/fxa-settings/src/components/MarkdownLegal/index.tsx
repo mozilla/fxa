@@ -22,30 +22,32 @@ export const MarkdownLegal = ({ markdown }: MarkdownLegalProps) => (
     // `rehypeRaw` allows HTML like `<i>whatever</i>` from MD to be rendered
     rehypePlugins={[rehypeRaw]}
     components={{
-      h1: ({ node, ...props }) => (
+      h1: ({ node, ...props }: any) => (
         <h1 className={`${commonHeadingClasses} text-xl mb-4`} {...props} />
       ),
-      h2: ({ node, ...props }) => (
+      h2: ({ node, ...props }: any) => (
         <h2 className={`${commonHeadingClasses} text-lg my-5`} {...props} />
       ),
-      h3: ({ node, ...props }) => (
+      h3: ({ node, ...props }: any) => (
         <h3 className={`${commonHeadingClasses} my-5`} {...props} />
       ),
-      h4: ({ node, ...props }) => (
+      h4: ({ node, ...props }: any) => (
         <h4 className={`${commonHeadingClasses} my-3 text-sm`} {...props} />
       ),
-      p: ({ node, ...props }) => <p className="mb-5 text-sm" {...props} />,
-      ol: ({ node, ...props }) => (
+      p: ({ node, ...props }: any) => (
+        <p className="mb-5 text-sm" {...props} />
+      ),
+      ol: ({ node, ...props }: any) => (
         <ol className={`${commonListClasses} list-decimal`} {...props} />
       ),
-      ul: ({ node, ...props }) => (
+      ul: ({ node, ...props }: any) => (
         <ul
           className={`${commonListClasses} list-disc [&>ul]:list-circle`}
           {...props}
         />
       ),
-      li: ({ node, ...props }) => <li className="text-sm" {...props} />,
-      a: ({ node, children, ...props }) => {
+      li: ({ node, ...props }: any) => <li className="text-sm" {...props} />,
+      a: ({ node, children, ...props }: any) => {
         if (!props.href) {
           console.error('Bad link provided from the legal-docs repo');
           return <></>;

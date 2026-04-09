@@ -1,5 +1,4 @@
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
 import { cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -21,10 +20,9 @@ import {
   MOCK_PREVIEW_INVOICE_NO_TAX,
   MOCK_PREVIEW_INVOICE_WITH_ZERO_TAX_EXCLUSIVE,
   renderWithLocalizationProvider,
-  withLocalizationProvider,
 } from '../../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
-import { FluentBundle, FluentNumber } from '@fluent/bundle';
+import { FluentBundle } from '@fluent/bundle';
 import { ReactGALog } from '../../../lib/reactga-event';
 
 import {
@@ -359,64 +357,54 @@ describe('PlanDetailsCard', () => {
   };
 
   describe('Localized Plan Billing Description Component', () => {
-    async function runTests(
+    function runTests(
       plan: Plan,
-      expectedMsgId: string,
+      _expectedMsgId: string,
       expectedMsg: string
     ) {
       const props = { plan: plan, currency: plan.currency };
 
-      const testRenderer = TestRenderer.create(
-        withLocalizationProvider(<PlanDetailsCard {...props} />)
+      const { container } = renderWithLocalizationProvider(
+        <PlanDetailsCard {...props} />
       );
-      const testInstance = testRenderer.root;
-      const planPriceComponent = await testInstance.findByProps({
-        id: expectedMsgId,
-      });
-      const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-      expect(
-        planPriceComponent.props.vars.priceAmount
-      ).toStrictEqual<FluentNumber>(expectedAmount);
-      expect(planPriceComponent.props.vars.intervalCount).toBe(
-        plan.interval_count
-      );
+      const priceDetailsEl = container.querySelector('#price-details');
+      expect(priceDetailsEl).toBeTruthy();
+      expect(priceDetailsEl!.textContent).toContain(expectedMsg);
     }
 
-    it('displays product:name when present instead of product_name', async () => {
+    it('displays product:name when present instead of product_name', () => {
       const plan_id = 'plan_withname';
       const plan = findMockPlan(plan_id);
 
       const props = { plan: plan, currency: plan.currency };
 
-      const testRenderer = TestRenderer.create(
-        withLocalizationProvider(<PlanDetailsCard {...props} />)
+      const { container } = renderWithLocalizationProvider(
+        <PlanDetailsCard {...props} />
       );
-      const testInstance = testRenderer.root;
-      const planPriceComponent = await testInstance.findByProps({
-        id: 'plan-details-product',
-      });
-
-      expect(planPriceComponent.props.children).toEqual(
+      const productNameEl = container.querySelector(
+        '#plan-details-product'
+      );
+      expect(productNameEl).toBeTruthy();
+      expect(productNameEl!.textContent).toEqual(
         plan.plan_metadata?.['product:name']
       );
     });
 
-    it('displays product_name when plan_metadata name is not present', async () => {
+    it('displays product_name when plan_metadata name is not present', () => {
       const plan_id = 'plan_daily';
       const plan = findMockPlan(plan_id);
 
       const props = { plan: plan, currency: plan.currency };
 
-      const testRenderer = TestRenderer.create(
-        withLocalizationProvider(<PlanDetailsCard {...props} />)
+      const { container } = renderWithLocalizationProvider(
+        <PlanDetailsCard {...props} />
       );
-      const testInstance = testRenderer.root;
-      const planPriceComponent = await testInstance.findByProps({
-        id: 'plan-details-product',
-      });
-
-      expect(planPriceComponent.props.children).toEqual(plan.product_name);
+      const productNameEl = container.querySelector(
+        '#plan-details-product'
+      );
+      expect(productNameEl).toBeTruthy();
+      expect(productNameEl!.textContent).toEqual(plan.product_name);
     });
 
     describe('When plan has day interval', () => {

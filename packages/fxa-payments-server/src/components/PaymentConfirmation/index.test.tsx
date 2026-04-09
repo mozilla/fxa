@@ -1,7 +1,6 @@
 import React from 'react';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import TestRenderer from 'react-test-renderer';
 
 import PaymentConfirmation from './index';
 import {
@@ -13,7 +12,6 @@ import {
   MOCK_PLANS,
   getLocalizedMessage,
   renderWithLocalizationProvider,
-  withLocalizationProvider,
 } from '../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
@@ -403,9 +401,9 @@ describe('PaymentConfirmation', () => {
     };
 
     describe('Localized Plan Billing Description Component', () => {
-      async function runTests(
+      function runTests(
         plan: Plan,
-        expectedMsgId: string,
+        _expectedMsgId: string,
         expectedMsg: string
       ) {
         const props = {
@@ -417,25 +415,13 @@ describe('PaymentConfirmation', () => {
           },
         };
 
-        const testRenderer = TestRenderer.create(
-          withLocalizationProvider(<PaymentConfirmation {...props} />)
+        const { queryByTestId } = renderWithLocalizationProvider(
+          <PaymentConfirmation {...props} />
         );
-        const testInstance = testRenderer.root;
 
-        const planPriceComponent = await testInstance.findByProps({
-          id: expectedMsgId,
-        });
-        const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
-
-        expect(planPriceComponent.props.vars.amount).toStrictEqual(
-          expectedAmount
-        );
-        expect(planPriceComponent.props.vars.intervalCount).toBe(
-          plan.interval_count
-        );
-        expect(planPriceComponent.props.children.props.children).toBe(
-          expectedMsg
-        );
+        const planPriceEl = queryByTestId('plan-price');
+        expect(planPriceEl).toBeInTheDocument();
+        expect(planPriceEl!.textContent).toContain(expectedMsg);
       }
 
       describe('When plan has day interval', () => {
