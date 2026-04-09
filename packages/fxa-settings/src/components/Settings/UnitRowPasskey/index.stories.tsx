@@ -6,10 +6,10 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
-import UnitRowPasskey, { Passkey } from '.';
+import UnitRowPasskey from '.';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
-import { initLocalAccount, mockAuthClient } from '../SubRow/mock';
+import { Passkey } from 'fxa-auth-client/browser';
 
 export default {
   title: 'Components/Settings/UnitRowPasskey',
@@ -17,52 +17,49 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const mockPasskeys = [
+const mockPasskeys: Passkey[] = [
   {
-    id: 'passkey-1',
+    credentialId: 'passkey-1',
     name: 'MacBook Pro',
     createdAt: new Date('2026-01-01').getTime(),
-    lastUsed: new Date('2026-02-01').getTime(),
-    canSync: false,
+    lastUsedAt: new Date('2026-02-01').getTime(),
+    transports: ['internal'],
+    aaguid: 'aaguid-1',
+    backupEligible: false,
+    backupState: false,
+    prfEnabled: false,
   },
   {
-    id: 'passkey-2',
+    credentialId: 'passkey-2',
     name: 'iPhone 15',
     createdAt: new Date('2025-12-01').getTime(),
-    lastUsed: new Date('2026-01-31').getTime(),
-    canSync: true,
-  },
-  {
-    id: 'passkey-3',
-    name: 'Work Laptop',
-    createdAt: new Date('2025-11-01').getTime(),
-    lastUsed: undefined,
-    canSync: false,
+    lastUsedAt: new Date('2026-01-31').getTime(),
+    transports: ['internal', 'hybrid'],
+    aaguid: 'aaguid-2',
+    backupEligible: true,
+    backupState: true,
+    prfEnabled: false,
   },
 ];
 
-const storyWithPasskeys = (passkeys: Passkey[]) => {
-  const story = () => {
-    initLocalAccount();
-    return (
-      <LocationProvider>
-        <AppContext.Provider
-          value={mockAppContext({ authClient: mockAuthClient } as any)}
-        >
-          <UnitRowPasskey passkeys={passkeys} />
-        </AppContext.Provider>
-      </LocationProvider>
-    );
+const storyWithMockPasskeys = (passkeys: Passkey[]) => {
+  const authClient = {
+    listPasskeys: () => Promise.resolve(passkeys),
   };
+  const story = () => (
+    <LocationProvider>
+      <AppContext.Provider
+        value={mockAppContext({ authClient: authClient as any })}
+      >
+        <UnitRowPasskey />
+      </AppContext.Provider>
+    </LocationProvider>
+  );
   return story;
 };
 
-export const NoPasskeys = storyWithPasskeys([]);
+export const NoPasskeys = storyWithMockPasskeys([]);
 
-export const WithPasskeys = storyWithPasskeys(mockPasskeys);
+export const WithPasskeys = storyWithMockPasskeys(mockPasskeys);
 
-export const SinglePasskey = storyWithPasskeys([mockPasskeys[0]]);
-
-export const WithNeverUsedPasskey = storyWithPasskeys([mockPasskeys[2]]);
-
-export const MultiplePasskeys = storyWithPasskeys(mockPasskeys);
+export const SinglePasskey = storyWithMockPasskeys([mockPasskeys[0]]);

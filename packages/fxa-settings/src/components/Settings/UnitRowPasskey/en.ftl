@@ -8,4 +8,9 @@ passkey-row-description = Make sign in easier and more secure by using your phon
 # External link to a support article. "This" refers to passkeys.
 passkey-row-info-link = How this protects your account
 
+## Error / limit messages
+
+passkey-row-webauthn-not-supported = Your browser or device doesn't support passkeys.
+passkey-row-limit-reached = You've used all 10 passkeys. Delete a passkey to create a new one.
+
 ##

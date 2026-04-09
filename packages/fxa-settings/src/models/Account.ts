@@ -12,6 +12,8 @@ import AuthClient, {
   getCredentialsV2,
   getKeysV2,
   AttachedClient as RawAttachedClient,
+  PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialJSON,
 } from 'fxa-auth-client/browser';
 import { MetricsContext } from '@fxa/shared/glean';
 import {
@@ -1496,6 +1498,23 @@ export class Account implements AccountData {
         available: true,
       },
     });
+  }
+
+  async beginPasskeyRegistrationWithJwt(): Promise<PublicKeyCredentialCreationOptionsJSON> {
+    const jwt = this.getCachedJwtByScope('passkey');
+    return this.withLoadingStatus(
+      this.authClient.beginPasskeyRegistration(jwt)
+    );
+  }
+
+  async completePasskeyRegistrationWithJwt(
+    credential: PublicKeyCredentialJSON,
+    challenge: string
+  ) {
+    const jwt = this.getCachedJwtByScope('passkey');
+    return this.withLoadingStatus(
+      this.authClient.completePasskeyRegistration(jwt, credential, challenge)
+    );
   }
 
   /**
