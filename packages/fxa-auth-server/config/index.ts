@@ -546,6 +546,20 @@ const convictConf = convict({
       default:
         'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
     },
+    // TODO: Replace with dedicated passkeys support article URL when available
+    passkeySupportUrl: {
+      doc: 'url to support article about passkeys and Firefox Sync',
+      format: String,
+      default: 'https://support.mozilla.org',
+      env: 'PASSKEY_SUPPORT_URL',
+    },
+    reviewActivitySupportUrl: {
+      doc: 'url to support article about reviewing Mozilla account activity',
+      format: String,
+      default:
+        'https://support.mozilla.org/kb/review-mozilla-account-activity-and-protect-data',
+      env: 'REVIEW_ACTIVITY_SUPPORT_URL',
+    },
     passwordManagerInfoUrl: {
       doc: 'url to Firefox password manager information',
       format: String,
@@ -2844,7 +2858,7 @@ convictConf.set(
   `${baseUri}/settings/two_step_authentication/replace_codes`
 );
 convictConf.set(
-  'smpt.twoFactorSupportUrl',
+  'smtp.twoFactorSupportUrl',
   'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication'
 );
 convictConf.set('smtp.verificationUrl', `${baseUri}/verify_email`);

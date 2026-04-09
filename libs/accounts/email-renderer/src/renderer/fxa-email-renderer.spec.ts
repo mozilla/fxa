@@ -356,6 +356,40 @@ describe('FxA Email Renderer', () => {
     expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
+  it('should render renderPostAddPasskey with Sync note', async () => {
+    const email = await renderer.renderPostAddPasskey({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      securitySettingsLink: mockLink,
+      reviewActivitySupportUrl: mockLinkSupport,
+      time: '12:00 PM',
+      passkeySupportUrl: mockLinkSupport,
+      showSyncPasswordNote: true,
+      ...defaultLayoutTemplateValues,
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
+
+  it('should render renderPostAddPasskey without Sync note', async () => {
+    const email = await renderer.renderPostAddPasskey({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      securitySettingsLink: mockLink,
+      reviewActivitySupportUrl: mockLinkSupport,
+      time: '12:00 PM',
+      passkeySupportUrl: mockLinkSupport,
+      showSyncPasswordNote: false,
+      ...defaultLayoutTemplateValues,
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
+
   it('should render renderPostAddRecoveryPhone', async () => {
     const email = await renderer.renderPostAddRecoveryPhone({
       date: 'Jan 1, 2024',

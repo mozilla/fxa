@@ -7,5 +7,3 @@ postRemoveRecoveryPhone-requested-device = "You requested it from:"
 <%- include('/partials/userInfo/index.txt') %>
 
 <%- include('/partials/automatedEmailResetPassword/index.txt') %>
-
-<%- include('/partials/support/index.txt') %>
