@@ -171,10 +171,7 @@ export function ChurnStaySubscribed({
           action: 'redeem_coupon',
           outcome: 'redeem_success',
         });
-        // TODO: This is a workaround to match existing legacy behavior.
-        // Fix as part of redesign
         setShowSuccess(true);
-        await new Promise((resolve) => setTimeout(resolve, 500));
       } else {
         glean.recordRetentionFlowResult({
           ...retentionFlowBase,
@@ -223,10 +220,7 @@ export function ChurnStaySubscribed({
           action: 'stay_subscribed',
           outcome: 'stay_subscribed_success',
         });
-        // TODO: This is a workaround to match existing legacy behavior.
-        // Fix as part of redesign
         setShowSuccess(true);
-        await new Promise((resolve) => setTimeout(resolve, 500));
       } else {
         glean.recordRetentionFlowResult({
           ...retentionFlowBase,
