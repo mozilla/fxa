@@ -356,6 +356,20 @@ describe('FxA Email Renderer', () => {
     expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
 
+  it('should render renderPostRemovePasskey', async () => {
+    const email = await renderer.renderPostRemovePasskey({
+      date: 'Jan 1, 2024',
+      device: mockDevice,
+      location: mockLocation,
+      link: mockLink,
+      passwordChangeLink: mockLinkPasswordChange,
+      time: '12:00 PM',
+      ...defaultLayoutTemplateValues,
+    });
+    expect(email).toBeDefined();
+    expect(email.html).toMatchSnapshot('matches full email snapshot');
+  });
+
   it('should render renderPostAddPasskey with Sync note', async () => {
     const email = await renderer.renderPostAddPasskey({
       date: 'Jan 1, 2024',

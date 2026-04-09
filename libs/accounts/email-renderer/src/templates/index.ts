@@ -27,6 +27,7 @@ export * as postChangePrimary from './postChangePrimary';
 export * as postRemoveSecondary from './postRemoveSecondary';
 export * as postAddLinkedAccount from './postAddLinkedAccount';
 export * as postAddPasskey from './postAddPasskey';
+export * as postRemovePasskey from './postRemovePasskey';
 export * as postAddTwoStepAuthentication from './postAddTwoStepAuthentication';
 export * as postChangeTwoStepAuthentication from './postChangeTwoStepAuthentication';
 export * as postRemoveTwoStepAuthentication from './postRemoveTwoStepAuthentication';

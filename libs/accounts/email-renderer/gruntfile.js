@@ -92,6 +92,7 @@
         'src/templates/postConsumeRecoveryCode/en.ftl',
         'src/templates/postNewRecoveryCodes/en.ftl',
         'src/templates/postRemoveAccountRecovery/en.ftl',
+        'src/templates/postRemovePasskey/en.ftl',
         'src/templates/postRemoveRecoveryPhone/en.ftl',
         'src/templates/postRemoveSecondary/en.ftl',
         'src/templates/postRemoveTwoStepAuthentication/en.ftl',

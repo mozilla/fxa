@@ -128,6 +128,7 @@ describe('passkeys routes', () => {
     mockFxaMailer = {
       canSend: jest.fn().mockReturnValue(true),
       sendPostAddPasskeyEmail: jest.fn().mockResolvedValue(undefined),
+      sendPostRemovePasskeyEmail: jest.fn().mockResolvedValue(undefined),
     };
 
     Container.set(PasskeyService, mockPasskeyService);
@@ -609,6 +610,77 @@ describe('passkeys routes', () => {
         UID,
         TEST_EMAIL,
         'passkeyDelete'
+      );
+    });
+
+    it('sends postRemovePasskey email on successful deletion', async () => {
+      await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+        },
+        'DELETE'
+      );
+
+      expect(mockFxaMailer.canSend).toHaveBeenCalledWith('postRemovePasskey');
+      expect(mockFxaMailer.sendPostRemovePasskeyEmail).toHaveBeenCalledTimes(1);
+      expect(mockFxaMailer.sendPostRemovePasskeyEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ to: TEST_EMAIL })
+      );
+    });
+
+    it('skips email when canSend returns false', async () => {
+      mockFxaMailer.canSend.mockReturnValue(false);
+
+      await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+        },
+        'DELETE'
+      );
+
+      expect(mockFxaMailer.sendPostRemovePasskeyEmail).not.toHaveBeenCalled();
+    });
+
+    it('swallows email send errors and still returns empty object', async () => {
+      mockFxaMailer.sendPostRemovePasskeyEmail.mockRejectedValue(
+        new Error('email send failed')
+      );
+
+      const result = await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+        },
+        'DELETE'
+      );
+
+      expect(result).toEqual({});
+      expect(log.error).toHaveBeenCalledWith(
+        'passkeys.deletePasskey.sendEmail',
+        expect.objectContaining({ err: expect.any(Error) })
       );
     });
   });
