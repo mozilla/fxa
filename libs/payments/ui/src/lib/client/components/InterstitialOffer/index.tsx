@@ -164,10 +164,7 @@ export function InterstitialOffer({
           action: 'cancel_subscription',
           outcome: 'customer_canceled',
         });
-        // TODO: This is a workaround to match existing legacy behavior.
-        // Fix as part of redesign
         setShowCancelSuccess(true);
-        await new Promise((resolve) => setTimeout(resolve, 500));
       } else {
         glean.recordInterstitialOfferResult({
           ...interstitialOfferBase,

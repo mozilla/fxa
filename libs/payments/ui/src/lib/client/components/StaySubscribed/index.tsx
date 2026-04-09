@@ -68,11 +68,7 @@ export function StaySubscribed({
     setResubscribeActionError(false);
 
     const result = await resubscribeSubscriptionAction(userId, subscriptionId);
-    if (result.ok) {
-      // TODO: This is a workaround to match existing legacy behavior.
-      // Fix as part of redesign
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    } else {
+    if (!result.ok) {
       setResubscribeActionError(true);
     }
     setLoading(false);

@@ -180,10 +180,7 @@ export function ChurnCancel({
           action: 'redeem_coupon',
           outcome: 'redeem_success',
         });
-        // TODO: This is a workaround to match existing legacy behavior.
-        // Fix as part of redesign
         setShowSuccess(true);
-        await new Promise((resolve) => setTimeout(resolve, 500));
       } else {
         glean.recordRetentionFlowResult({
           ...retentionFlowBase,
@@ -234,10 +231,7 @@ export function ChurnCancel({
           action: 'cancel_subscription',
           outcome: 'customer_canceled',
         });
-        // TODO: This is a workaround to match existing legacy behavior.
-        // Fix as part of redesign
         setShowCancelSuccess(true);
-        await new Promise((resolve) => setTimeout(resolve, 500)); // optional: match legacy feel
       } else {
         glean.recordRetentionFlowResult({
           ...retentionFlowBase,
