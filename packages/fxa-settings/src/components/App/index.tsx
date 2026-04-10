@@ -568,7 +568,7 @@ const AuthAndAccountSetupRoutes = ({
         {/* Reset password */}
         <ResetPasswordContainer
           path="/reset_password/*"
-          {...{ flowQueryParams, serviceName }}
+          {...{ flowQueryParams, serviceName, setCurrentSplitLayout }}
         />
         <ConfirmResetPasswordContainer
           path="/confirm_reset_password/*"

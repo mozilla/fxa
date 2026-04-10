@@ -15,6 +15,7 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 const ResetPasswordContainer = ({
   flowQueryParams = {},
   serviceName,
+  setCurrentSplitLayout,
 }: ResetPasswordContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -49,6 +50,7 @@ const ResetPasswordContainer = ({
         requestResetPasswordCode,
         serviceName,
         setErrorMessage,
+        setCurrentSplitLayout,
       }}
     />
   );
