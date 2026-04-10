@@ -745,6 +745,9 @@ describe('/oauth/token POST', () => {
       jest.doMock('../utils/oauth', () => ({
         newTokenNotification: newTokenNotificationStub,
       }));
+      jest.doMock('../../oauth/token', () => ({
+        verify: sinon.stub().resolves({ user: UID }),
+      }));
       const routes = require('./token')({
         ...tokenRoutesArgMocks,
         db: {
@@ -827,6 +830,9 @@ describe('/oauth/token POST', () => {
       );
       jest.doMock('../utils/oauth', () => ({
         newTokenNotification: newTokenNotificationStub,
+      }));
+      jest.doMock('../../oauth/token', () => ({
+        verify: sinon.stub().resolves({ user: UID }),
       }));
       const routes = require('./token')({
         ...tokenRoutesArgMocks,
