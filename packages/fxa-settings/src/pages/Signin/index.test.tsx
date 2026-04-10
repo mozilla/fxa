@@ -253,7 +253,7 @@ describe('Signin component', () => {
       it('does not render third party auth for sync, emits expected Glean event', async () => {
         const hardNavigateSpy = jest
           .spyOn(utils, 'hardNavigate')
-          .mockImplementation(() => { });
+          .mockImplementation(() => {});
 
         const integration = createMockSigninOAuthNativeSyncIntegration();
         render({ integration });
@@ -622,7 +622,7 @@ describe('Signin component', () => {
               fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
-                .mockImplementation(() => { });
+                .mockImplementation(() => {});
             });
             it('is sent if Sync integration and navigates to CAD', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
@@ -688,7 +688,7 @@ describe('Signin component', () => {
               fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
-                .mockImplementation(() => { });
+                .mockImplementation(() => {});
               finishOAuthFlowHandler = jest
                 .fn()
                 .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
@@ -1077,6 +1077,30 @@ describe('Signin component', () => {
       });
     });
 
+    it('renders "Authorize" button when user is signed into Firefox', () => {
+      render({
+        sessionToken: MOCK_SESSION_TOKEN,
+        isSignedIntoFirefox: true,
+        supportsKeysOptionalLogin: true,
+      });
+
+      screen.getByRole('button', { name: 'Authorize' });
+      expect(
+        screen.queryByRole('button', { name: 'Sign in' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('renders "Sign in" button when user is not signed into Firefox', () => {
+      render({
+        sessionToken: MOCK_SESSION_TOKEN,
+      });
+
+      screen.getByRole('button', { name: 'Sign in' });
+      expect(
+        screen.queryByRole('button', { name: 'Authorize' })
+      ).not.toBeInTheDocument();
+    });
+
     it('sends webchannel message if cached signin for service=relay when supportsKeysOptionalLogin is true', async () => {
       const fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
 
@@ -1126,7 +1150,7 @@ describe('Signin component', () => {
         beforeEach(() => {
           hardNavigateSpy = jest
             .spyOn(utils, 'hardNavigate')
-            .mockImplementation(() => { });
+            .mockImplementation(() => {});
         });
 
         afterEach(() => {
@@ -1183,10 +1207,9 @@ describe('Signin component', () => {
         });
 
         it('allows navigation for cached Sync passwordless user on mobile', async () => {
-          const ensureCanLinkSpy = jest.spyOn(
-            SigninUtils,
-            'ensureCanLinkAcountOrRedirect'
-          ).mockResolvedValue(true);
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(true);
           const handleNavigationSpy = jest.spyOn(
             SigninUtils,
             'handleNavigation'
@@ -1218,10 +1241,9 @@ describe('Signin component', () => {
         });
 
         it('shows merge warning for cached Sync passwordless signin when user accepts', async () => {
-          const ensureCanLinkSpy = jest.spyOn(
-            SigninUtils,
-            'ensureCanLinkAcountOrRedirect'
-          ).mockResolvedValue(true);
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(true);
           const handleNavigationSpy = jest.spyOn(
             SigninUtils,
             'handleNavigation'
@@ -1258,10 +1280,9 @@ describe('Signin component', () => {
         });
 
         it('aborts cached Sync passwordless signin when user rejects merge', async () => {
-          const ensureCanLinkSpy = jest.spyOn(
-            SigninUtils,
-            'ensureCanLinkAcountOrRedirect'
-          ).mockResolvedValue(false);
+          const ensureCanLinkSpy = jest
+            .spyOn(SigninUtils, 'ensureCanLinkAcountOrRedirect')
+            .mockResolvedValue(false);
           const handleNavigationSpy = jest.spyOn(
             SigninUtils,
             'handleNavigation'
@@ -1811,10 +1832,12 @@ describe('Signin component', () => {
       });
 
       it('hides "use a different account" link for Firefox Desktop users', () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
         renderWithLocalizationProvider(
           <Subject
+            integration={integration}
             sessionToken={MOCK_SESSION_TOKEN}
-            isSignedIntoFirefoxDesktop={true}
+            isSignedIntoFirefox={true}
           />
         );
 
@@ -1866,7 +1889,7 @@ describe('Signin component', () => {
     beforeEach(() => {
       hardNavigateSpy = jest
         .spyOn(utils, 'hardNavigate')
-        .mockImplementation(() => { });
+        .mockImplementation(() => {});
     });
     afterEach(() => {
       hardNavigateSpy.mockRestore();

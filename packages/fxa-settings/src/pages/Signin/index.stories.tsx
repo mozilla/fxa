@@ -165,7 +165,7 @@ export const CachedNonSyncBrowserServiceWithPasswordlessCapabilitySignedIntoDesk
         isSync: false,
       }),
       supportsKeysOptionalLogin: true,
-      isSignedIntoFirefoxDesktop: true,
+      isSignedIntoFirefox: true,
     },
     'Cached > Non-Sync browser service > Browser has Sync keys optional capability > Account is signed into Firefox Desktop'
   );

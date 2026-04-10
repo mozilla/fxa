@@ -58,6 +58,7 @@ export type SigninIntegration =
       | 'getWebChannelServices'
       | 'getCmsInfo'
       | 'isFirefoxMobileClient'
+      | 'isFirefoxDesktopClient'
       | 'getLegalTerms'
     >
   | SigninOAuthIntegration;
@@ -80,6 +81,7 @@ export type SigninOAuthIntegration = Pick<
   | 'getWebChannelServices'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
+  | 'isFirefoxDesktopClient'
   | 'getLegalTerms'
 >;
 
@@ -115,7 +117,7 @@ export interface SigninProps {
   localizedSuccessBannerDescription?: string;
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
-  isSignedIntoFirefoxDesktop?: boolean;
+  isSignedIntoFirefox?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
 }
 
