@@ -51,7 +51,7 @@ describe('PasskeyService', () => {
     name: 'Test Passkey',
     createdAt: Date.now(),
     lastUsedAt: null,
-    transports: '[]',
+    transports: [],
     aaguid: Buffer.alloc(16),
   };
 
@@ -203,7 +203,7 @@ describe('PasskeyService', () => {
       aaguid: MOCK_AAGUID_ZEROS,
       backupEligible: false,
       backupState: false,
-      prfEnabled: false,
+      prfEnabled: true,
     };
 
     beforeEach(() => {
@@ -283,7 +283,7 @@ describe('PasskeyService', () => {
       ).toHaveBeenCalledWith(MOCK_CHALLENGE, MOCK_UID.toString('hex'));
     });
 
-    it('calls passkeyManager.registerPasskey with correct NewPasskey shape', async () => {
+    it('calls passkeyManager.registerPasskey with correct Passkey shape', async () => {
       await service.createPasskeyFromRegistrationResponse(
         MOCK_UID,
         mockResponse,
@@ -293,40 +293,9 @@ describe('PasskeyService', () => {
       expect(mockManager.registerPasskey).toHaveBeenCalledWith(
         expect.objectContaining({
           uid: MOCK_UID,
-          credentialId: MOCK_CREDENTIAL_ID,
-          publicKey: MOCK_PUBLIC_KEY,
-          signCount: 0,
-          transports: JSON.stringify(['internal']),
-          aaguid: MOCK_AAGUID_ZEROS,
+          createdAt: expect.any(Number),
           lastUsedAt: null,
-          backupEligible: 0,
-          backupState: 0,
-          prfEnabled: 0,
-        })
-      );
-    });
-
-    it('sets backupEligible=1, backupState=1 and prfEnabled=1 when flags are true', async () => {
-      mockVerifyWebauthnRegistrationResponse.mockResolvedValue({
-        verified: true,
-        data: {
           ...mockVerifiedData,
-          backupEligible: true,
-          backupState: true,
-          prfEnabled: true,
-        },
-      });
-      await service.createPasskeyFromRegistrationResponse(
-        MOCK_UID,
-        mockResponse,
-        MOCK_CHALLENGE
-      );
-
-      expect(mockManager.registerPasskey).toHaveBeenCalledWith(
-        expect.objectContaining({
-          backupEligible: 1,
-          backupState: 1,
-          prfEnabled: 1,
         })
       );
     });
@@ -350,7 +319,7 @@ describe('PasskeyService', () => {
           lastUsedAt: null,
           backupEligible: false,
           backupState: false,
-          prfEnabled: false,
+          prfEnabled: true,
         })
       );
     });

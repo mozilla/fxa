@@ -10,7 +10,7 @@ import type {
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import * as Sentry from '@sentry/nestjs';
-import type { NewPasskey, Passkey } from '@fxa/shared/db/mysql/account';
+import type { Passkey } from '@fxa/shared/db/mysql/account';
 import type {
   AuthenticatorTransportFuture,
   PublicKeyCredentialCreationOptionsJSON,
@@ -200,17 +200,7 @@ export class PasskeyService {
       ...result.data,
     };
 
-    // TODO: update repository, manager, and service layers to accept/return a
-    // Passkey object directly instead of mapping to NewPasskey. See FXA-13402.
-    const newPasskey: NewPasskey = {
-      ...passkey,
-      transports: JSON.stringify(passkey.transports),
-      backupEligible: passkey.backupEligible ? 1 : 0,
-      backupState: passkey.backupState ? 1 : 0,
-      prfEnabled: passkey.prfEnabled ? 1 : 0,
-    };
-
-    await this.passkeyManager.registerPasskey(newPasskey);
+    await this.passkeyManager.registerPasskey(passkey);
 
     this.metrics.increment('passkey.registration.success');
     this.log?.log('passkey.registered', { uid: uidHex });

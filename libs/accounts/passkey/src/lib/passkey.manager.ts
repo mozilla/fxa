@@ -7,7 +7,6 @@ import {
   AccountDatabase,
   AccountDbProvider,
   Passkey,
-  NewPasskey,
 } from '@fxa/shared/db/mysql/account';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
@@ -57,7 +56,7 @@ export class PasskeyManager {
    * @throws {AppError} (passkeyLimitReached) if the user has reached the maximum passkey count
    * @throws {AppError} (passkeyAlreadyRegistered) if credentialId is already registered
    */
-  async registerPasskey(passkey: NewPasskey): Promise<void> {
+  async registerPasskey(passkey: Passkey): Promise<void> {
     const uidHex = passkey.uid.toString('hex');
 
     await this.checkPasskeyCount(passkey.uid);

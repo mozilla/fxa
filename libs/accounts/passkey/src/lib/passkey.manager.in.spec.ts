@@ -93,23 +93,20 @@ describe('PasskeyManager (Integration)', () => {
     it('persists the passkey with correct field values', async () => {
       const uid = await createTestAccount();
       // Pass lastUsedAt: null explicitly — PasskeyFactory may randomise it
-      const newPasskey = PasskeyFactory({
+      const passkey = PasskeyFactory({
         uid,
-        backupEligible: 1,
-        backupState: 0,
-        prfEnabled: 0,
+        backupEligible: true,
+        backupState: false,
+        prfEnabled: false,
         lastUsedAt: null,
       });
 
-      await manager.registerPasskey(newPasskey);
+      await manager.registerPasskey(passkey);
 
-      const found = await findPasskeyByCredentialId(
-        db,
-        newPasskey.credentialId
-      );
+      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
       expect(found?.uid).toEqual(uid);
-      expect(found?.credentialId).toEqual(newPasskey.credentialId);
-      expect(found?.name).toBe(newPasskey.name);
+      expect(found?.credentialId).toEqual(passkey.credentialId);
+      expect(found?.name).toBe(passkey.name);
       expect(found?.backupEligible).toBe(true);
       expect(found?.backupState).toBe(false);
       expect(found?.prfEnabled).toBe(false);
@@ -146,7 +143,7 @@ describe('PasskeyManager (Integration)', () => {
   describe('updatePasskeyAfterAuth', () => {
     it('updates signCount, backupState, and lastUsedAt', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid, signCount: 0, backupState: 0 });
+      const passkey = PasskeyFactory({ uid, signCount: 0, backupState: false });
       await manager.registerPasskey(passkey);
 
       const updated = await manager.updatePasskeyAfterAuth(
@@ -166,7 +163,7 @@ describe('PasskeyManager (Integration)', () => {
 
     it('sets backupState to false when passed false', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid, backupState: 1 });
+      const passkey = PasskeyFactory({ uid, backupState: true });
       await manager.registerPasskey(passkey);
 
       await manager.updatePasskeyAfterAuth(
@@ -228,7 +225,7 @@ describe('PasskeyManager (Integration)', () => {
 
     it('succeeds when both stored and new signCount are zero', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid, signCount: 0, backupState: 0 });
+      const passkey = PasskeyFactory({ uid, signCount: 0, backupState: false });
       await manager.registerPasskey(passkey);
 
       // Authenticators that never increment always return 0 — this is valid per WebAuthn spec

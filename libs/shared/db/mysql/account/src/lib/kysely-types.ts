@@ -248,7 +248,7 @@ export interface Passkeys {
   credentialId: Buffer;
   publicKey: Buffer;
   signCount: number;
-  transports: Json;
+  transports: JSONColumnType<string[]>;
   aaguid: Buffer;
   name: string;
   createdAt: number;

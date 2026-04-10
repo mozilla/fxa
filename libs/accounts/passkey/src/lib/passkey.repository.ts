@@ -88,13 +88,20 @@ export async function findPasskeyByCredentialId(
  * Insert a new passkey record.
  *
  * @param db - Database instance
- * @param passkey - New passkey data to insert
+ * @param passkey - Passkey data to insert
  */
 export async function insertPasskey(
   db: AccountDatabase,
-  passkey: NewPasskey
+  passkey: Passkey
 ): Promise<void> {
-  await db.insertInto('passkeys').values(passkey).execute();
+  const newPasskey: NewPasskey = {
+    ...passkey,
+    transports: JSON.stringify(passkey.transports),
+    backupEligible: passkey.backupEligible ? 1 : 0,
+    backupState: passkey.backupState ? 1 : 0,
+    prfEnabled: passkey.prfEnabled ? 1 : 0,
+  };
+  await db.insertInto('passkeys').values(newPasskey).execute();
 }
 
 /**

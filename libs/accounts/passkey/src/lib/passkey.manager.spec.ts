@@ -74,22 +74,22 @@ describe('PasskeyManager', () => {
 
   describe('registerPasskey', () => {
     it('checks the limit and inserts the passkey', async () => {
-      const newPasskey = PasskeyFactory();
+      const passkey = PasskeyFactory();
 
       (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(1);
       (PasskeyRepository.insertPasskey as jest.Mock).mockResolvedValue(
         undefined
       );
 
-      await manager.registerPasskey(newPasskey);
+      await manager.registerPasskey(passkey);
 
       expect(PasskeyRepository.countPasskeysByUid).toHaveBeenCalledWith(
         mockDb,
-        newPasskey.uid
+        passkey.uid
       );
       expect(PasskeyRepository.insertPasskey).toHaveBeenCalledWith(
         mockDb,
-        newPasskey
+        passkey
       );
     });
 
