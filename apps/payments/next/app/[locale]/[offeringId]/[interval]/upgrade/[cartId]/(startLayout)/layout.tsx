@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import assert from 'assert';
 import { headers } from 'next/headers';
 import { Header, MetricsWrapper } from '@fxa/payments/ui';
 import { fetchCMSData, getCartAction } from '@fxa/payments/ui/actions';
@@ -16,6 +15,10 @@ import {
 } from '@fxa/payments/ui/server';
 import { config } from 'apps/payments/next/config';
 import { auth } from 'apps/payments/next/auth';
+import {
+  UpgradeCartFromOfferingConfigIdMissingError,
+  UpgradeCartFromPriceMissingError,
+} from './errors';
 
 export default async function UpgradeLayout({
   children,
@@ -41,8 +44,12 @@ export default async function UpgradeLayout({
     cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
     cms.defaultPurchase.purchaseDetails;
 
-  assert(cart.fromOfferingConfigId, 'fromOfferingConfigId is missing in cart');
-  assert(cart.fromPrice, 'fromPrice is missing in cart');
+  if (!cart.fromOfferingConfigId) {
+    throw new UpgradeCartFromOfferingConfigIdMissingError(resolvedParams.cartId);
+  }
+  if (!cart.fromPrice) {
+    throw new UpgradeCartFromPriceMissingError(resolvedParams.cartId);
+  }
   const currentCmsDataPromise = fetchCMSData(cart.fromOfferingConfigId, locale);
   const currentCms = await currentCmsDataPromise;
   const currentPurchaseDetails =
