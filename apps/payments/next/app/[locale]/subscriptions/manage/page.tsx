@@ -155,7 +155,7 @@ export default async function Manage({
 
       {isStripeCustomer &&
         !defaultPaymentMethod &&
-        subscriptions.length > 0 && (
+        (subscriptions.length > 0 || trialSubscriptions.length > 0) && (
           <Banner variant={BannerVariant.Warning}>
             <div className="leading-6 text-base">
               <p className="font-bold">
@@ -418,7 +418,7 @@ export default async function Manage({
               )}
 
             {isStripeCustomer &&
-              (defaultPaymentMethod || subscriptions.length > 0) && (
+              (defaultPaymentMethod || subscriptions.length > 0 || trialSubscriptions.length > 0) && (
                 <>
                   <div
                     className="border-none h-px bg-grey-100 my-5 tablet:my-8"
