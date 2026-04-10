@@ -272,6 +272,14 @@ const conf = (module.exports = convict({
       env: 'PASSWORDLESS_SIGNUP_ENABLED',
     },
   },
+  passkeys: {
+    maxPerUser: {
+      default: 10,
+      doc: 'Maximum number of passkeys a single user account may register. Must stay in sync with auth-server PASSKEYS__MAX_PASSKEYS_PER_USER.',
+      format: Number,
+      env: 'PASSKEYS__MAX_PASSKEYS_PER_USER',
+    },
+  },
   darkMode: {
     enabled: {
       default: false,

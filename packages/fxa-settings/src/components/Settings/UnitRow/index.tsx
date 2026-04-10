@@ -209,7 +209,7 @@ export const UnitRow = ({
             secondaryCtaRoute ||
             revealSecondaryModal) && (
             <div className="unit-row-actions @mobileLandscape/unitRow:flex-1 @mobileLandscape/unitRow:flex @mobileLandscape/unitRow:justify-end ">
-              <div className="flex items-center h-8 gap-2 mt-2 @mobileLandscape/unitRow:mt-0 ">
+              <div className="flex items-center h-8 gap-2 mt-4 @mobileLandscape/unitRow:mt-0 ">
                 {/* Primary Action */}
                 {!hideCtaText &&
                   ctaText &&

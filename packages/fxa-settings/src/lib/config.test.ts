@@ -159,6 +159,31 @@ describe('reset', () => {
   });
 });
 
+describe('passkeys', () => {
+  it('can parse passkeys.maxPerUser from server config', () => {
+    const data = {
+      passkeys: {
+        maxPerUser: 5,
+      },
+    };
+
+    readConfigMeta(() => {
+      return {
+        getAttribute() {
+          return encodeURIComponent(JSON.stringify(data));
+        },
+      };
+    });
+
+    expect(config.passkeys).toBeDefined();
+    expect(config.passkeys.maxPerUser).toBe(5);
+  });
+
+  it('defaults passkeys.maxPerUser to 10', () => {
+    expect(config.passkeys.maxPerUser).toBe(10);
+  });
+});
+
 describe('featureFlags', () => {
   it('can parse passkeysEnabled feature flag', () => {
     const data = {

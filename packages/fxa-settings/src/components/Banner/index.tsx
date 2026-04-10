@@ -27,6 +27,7 @@ export const Banner = ({
   link,
   isFancy,
   bannerId,
+  className,
   textAlignClassName = 'text-start',
   iconAlignClassName = 'self-center',
 }: BannerProps) => {
@@ -36,6 +37,7 @@ export const Banner = ({
       id={bannerId || ''}
       className={classNames(
         'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-sm text-grey-700',
+        className,
         textAlignClassName,
         textAlignClassName === 'text-center' && 'justify-center',
         type === 'error' && 'bg-red-100',

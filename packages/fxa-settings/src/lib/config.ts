@@ -62,6 +62,9 @@ export interface Config {
     count: number;
     length: number;
   };
+  passkeys: {
+    maxPerUser: number;
+  };
   version: string;
   googleAuthConfig: {
     enabled: boolean;
@@ -171,6 +174,9 @@ export function getDefault() {
     recoveryCodes: {
       count: 8,
       length: 10,
+    },
+    passkeys: {
+      maxPerUser: 10,
     },
     googleAuthConfig: {
       enabled: false,

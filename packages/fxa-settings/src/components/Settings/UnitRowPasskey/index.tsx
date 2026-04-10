@@ -4,27 +4,22 @@
 
 import React from 'react';
 import UnitRow, { UnitRowProps } from '../UnitRow';
-import { useFtlMsgResolver } from '../../../models';
+import { useFtlMsgResolver, useConfig } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { PasskeySubRow } from '../SubRow';
-
-// TODO: Update with actual passkey data types when available
-export type Passkey = {
-  id: string;
-  name: string;
-  createdAt: number;
-  lastUsed?: number;
-  canSync: boolean;
-};
+import { PasskeySubRow, PasskeyRowData } from '../SubRow';
+import { Banner } from '../../Banner';
 
 export type UnitRowPasskeyProps = {
-  passkeys?: Passkey[];
+  passkeys?: PasskeyRowData[];
 };
 
 export const UnitRowPasskey = ({ passkeys = [] }: UnitRowPasskeyProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const config = useConfig();
+  const maxPasskeys = config.passkeys.maxPerUser;
   const hasPasskeys = passkeys.length > 0;
+  const isAtLimit = passkeys.length >= maxPasskeys;
 
   const conditionalUnitRowProps: Partial<UnitRowProps> = hasPasskeys
     ? {
@@ -39,19 +34,34 @@ export const UnitRowPasskey = ({ passkeys = [] }: UnitRowPasskeyProps) => {
         ),
       };
 
-  const getSubRows = () => {
-    return passkeys.map((passkey) => (
-      <PasskeySubRow key={passkey.id} passkey={passkey} />
-    ));
-  };
+  const getSubRows = () => (
+    <>
+      {isAtLimit && (
+        <Banner
+          type="warning"
+          className="mb-2"
+          content={{
+            localizedDescription: ftlMsgResolver.getMsg(
+              'passkey-row-max-limit-banner',
+              `You’ve used all ${maxPasskeys} passkeys. Delete a passkey to create a new one.`,
+              { count: maxPasskeys }
+            ),
+          }}
+        />
+      )}
+      {passkeys.map((passkey) => (
+        <PasskeySubRow key={passkey.id} passkey={passkey} />
+      ))}
+    </>
+  );
 
   const learnMoreLink = (
-    <FtlMsg id="passkey-row-info-link">
+    <FtlMsg id="passkey-row-info-link-2">
       <LinkExternal
         href="https://support.mozilla.org/kb/placeholder-article" // TODO: Update with actual support article link
         className="link-blue text-sm"
       >
-        How this protects your account
+        Learn more
       </LinkExternal>
     </FtlMsg>
   );
@@ -64,6 +74,11 @@ export const UnitRowPasskey = ({ passkeys = [] }: UnitRowPasskeyProps) => {
         prefixDataTestId="passkey"
         ctaText={ftlMsgResolver.getMsg('passkey-row-action-create', 'Create')}
         route="/settings/passkeys/add"
+        disabled={isAtLimit}
+        disabledReason={ftlMsgResolver.getMsg(
+          'passkey-row-max-limit-disabled-reason',
+          "You've reached the maximum number of passkeys."
+        )}
         {...conditionalUnitRowProps}
         subRows={getSubRows()}
       >

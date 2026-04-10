@@ -64,6 +64,7 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_PASSKEY_AUTHENTICATION_ENABLED = config.get(
     'featureFlags.passkeyAuthenticationEnabled'
   );
+  const PASSKEYS_MAX_PER_USER = config.get('passkeys.maxPerUser');
   const DARK_MODE_ENABLED = config.get('darkMode.enabled');
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
@@ -142,6 +143,9 @@ function getIndexRouteDefinition(config) {
     cms: {
       enabled: CMS_ENABLED,
       l10nEnabled: CMS_L10N_ENABLED,
+    },
+    passkeys: {
+      maxPerUser: PASSKEYS_MAX_PER_USER,
     },
     nimbus: {
       enabled: NIMBUS_ENABLED,
