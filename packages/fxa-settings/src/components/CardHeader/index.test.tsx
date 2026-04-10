@@ -87,6 +87,15 @@ describe('CardHeader', () => {
     ).toBeInTheDocument();
   });
 
+  it('falls back to default heading when cmsHeadline is null (Strapi unset field)', () => {
+    renderWithLocalizationProvider(
+      <CardHeader headingText={MOCK_HEADING} cmsHeadline={null} />
+    );
+    expect(
+      screen.getByRole('heading', { name: MOCK_HEADING })
+    ).toBeInTheDocument();
+  });
+
   it('falls back to default heading when only description is provided (no headline)', () => {
     renderWithLocalizationProvider(
       <CardHeader
@@ -113,7 +122,9 @@ describe('CardHeader', () => {
     expect(
       screen.getByRole('heading', { name: MOCK_HEADING })
     ).toBeInTheDocument();
-    expect(screen.queryByAltText(MOCK_CMS_LOGO_ALT_TEXT)).not.toBeInTheDocument();
+    expect(
+      screen.queryByAltText(MOCK_CMS_LOGO_ALT_TEXT)
+    ).not.toBeInTheDocument();
   });
 
   it('renders CMS header with default font size', () => {
