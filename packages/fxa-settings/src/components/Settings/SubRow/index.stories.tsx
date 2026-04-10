@@ -139,7 +139,7 @@ export const PasskeyWithSync: StoryFn = () => (
       name: 'MacBook Pro',
       createdAt: new Date('2026-01-01').getTime(),
       lastUsed: new Date('2026-02-01').getTime(),
-      canSync: true,
+      prfEnabled: true,
     }}
   />
 );
@@ -151,7 +151,7 @@ export const PasskeyWithoutSync: StoryFn = () => (
       name: 'iPhone 14 Pro',
       createdAt: new Date('2025-12-01').getTime(),
       lastUsed: new Date('2026-01-31').getTime(),
-      canSync: false,
+      prfEnabled: false,
     }}
   />
 );
@@ -162,7 +162,7 @@ export const PasskeyNeverUsed: StoryFn = () => (
       id: '3',
       name: 'Windows PC',
       createdAt: new Date('2025-11-01').getTime(),
-      canSync: true,
+      prfEnabled: true,
     }}
   />
 );

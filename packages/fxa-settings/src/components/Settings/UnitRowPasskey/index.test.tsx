@@ -5,7 +5,8 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
-import UnitRowPasskey, { Passkey } from './index';
+import UnitRowPasskey from './index';
+import { PasskeyRowData } from '../SubRow';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const mockJwtState = {};
@@ -23,20 +24,20 @@ jest.mock('../../../lib/cache', () => ({
 }));
 
 describe('UnitRowPasskey', () => {
-  const mockPasskeys: Passkey[] = [
+  const mockPasskeys: PasskeyRowData[] = [
     {
       id: 'passkey-1',
       name: 'MacBook Pro',
       createdAt: new Date('2026-01-01').getTime(),
       lastUsed: new Date('2026-02-01').getTime(),
-      canSync: true,
+      prfEnabled: true,
     },
     {
       id: 'passkey-2',
       name: 'iPhone 15',
       createdAt: new Date('2025-12-01').getTime(),
       lastUsed: new Date('2026-01-31').getTime(),
-      canSync: false,
+      prfEnabled: false,
     },
   ];
 
@@ -44,7 +45,7 @@ describe('UnitRowPasskey', () => {
     jest.clearAllMocks();
   });
 
-  const renderUnitRowPasskey = (passkeys: Passkey[] = mockPasskeys) => {
+  const renderUnitRowPasskey = (passkeys: PasskeyRowData[] = mockPasskeys) => {
     return renderWithLocalizationProvider(
       <LocationProvider>
         <UnitRowPasskey passkeys={passkeys} />
@@ -60,9 +61,7 @@ describe('UnitRowPasskey', () => {
         'Make sign in easier and more secure by using your phone or other supported device to get into your account.'
       )
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: /How this protects your account/ })
-    ).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Learn more/ })).toHaveAttribute(
       'href',
       'https://support.mozilla.org/kb/placeholder-article'
     );
@@ -86,5 +85,26 @@ describe('UnitRowPasskey', () => {
     renderUnitRowPasskey();
     expect(screen.getByText('MacBook Pro')).toBeInTheDocument();
     expect(screen.getByText('iPhone 15')).toBeInTheDocument();
+  });
+
+  it('does not show banner and Create is a link when below max', () => {
+    renderUnitRowPasskey(mockPasskeys);
+    expect(screen.queryByText(/You’ve used all/)).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Create' })).toBeInTheDocument();
+  });
+
+  it('shows warning banner and disabled Create button when at max passkeys', () => {
+    const atMaxPasskeys: PasskeyRowData[] = Array.from(
+      { length: 10 },
+      (_, i) => ({
+        id: `passkey-${i}`,
+        name: `Passkey ${i}`,
+        createdAt: new Date('2026-01-01').getTime(),
+        prfEnabled: false,
+      })
+    );
+    renderUnitRowPasskey(atMaxPasskeys);
+    expect(screen.getByText(/You’ve used all 10 passkeys/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
   });
 });

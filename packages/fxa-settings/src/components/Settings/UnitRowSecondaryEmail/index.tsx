@@ -162,7 +162,7 @@ export const UnitRowSecondaryEmail = () => {
               l10n.getString(
                 'se-verify-session-3',
                 null,
-                "You'll need to confirm your current session to perform this action"
+                'You’ll need to confirm your current session to perform this action'
               )
             );
           }}

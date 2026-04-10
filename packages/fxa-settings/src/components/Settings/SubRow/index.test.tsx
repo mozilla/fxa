@@ -15,7 +15,7 @@ import {
   MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER,
   MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
 } from '../../../pages/mocks';
-import { Passkey } from '../UnitRowPasskey';
+import { PasskeyRowData } from '.';
 import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { mockAuthClient } from './mock';
@@ -273,7 +273,7 @@ describe('PasskeySubRow', () => {
     name: 'MacBook Pro',
     createdAt: new Date('2026-01-01').getTime(),
     lastUsed: new Date('2026-02-01').getTime(),
-    canSync: true,
+    prfEnabled: true,
   };
 
   const mockDeletePasskey = jest.fn();
@@ -285,7 +285,7 @@ describe('PasskeySubRow', () => {
   });
 
   const renderPasskeySubRow = (
-    passkey: Passkey = mockPasskey,
+    passkey: PasskeyRowData = mockPasskey,
     deletePasskey = mockDeletePasskey
   ) => {
     return render(
@@ -310,21 +310,6 @@ describe('PasskeySubRow', () => {
     const passkeyWithoutLastUsed = { ...mockPasskey, lastUsed: undefined };
     renderPasskeySubRow(passkeyWithoutLastUsed);
     expect(screen.queryByText(/Last used:/)).not.toBeInTheDocument();
-  });
-
-  it('renders message when canSync is false', () => {
-    const passkeyWithoutSync = { ...mockPasskey, canSync: false };
-    renderPasskeySubRow(passkeyWithoutSync);
-    expect(
-      screen.queryByText('Sign in only. Can’t be used to sync.')
-    ).toBeInTheDocument();
-  });
-
-  it('does not render message when canSync is true', () => {
-    renderPasskeySubRow();
-    expect(
-      screen.queryByText('Sign in only. Can’t be used to sync.')
-    ).not.toBeInTheDocument();
   });
 
   it('opens modal when delete button is clicked', async () => {

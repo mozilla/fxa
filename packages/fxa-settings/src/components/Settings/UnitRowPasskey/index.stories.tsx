@@ -6,7 +6,8 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
-import UnitRowPasskey, { Passkey } from '.';
+import UnitRowPasskey from '.';
+import { PasskeyRowData } from '../SubRow';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
 import { initLocalAccount, mockAuthClient } from '../SubRow/mock';
@@ -23,25 +24,25 @@ const mockPasskeys = [
     name: 'MacBook Pro',
     createdAt: new Date('2026-01-01').getTime(),
     lastUsed: new Date('2026-02-01').getTime(),
-    canSync: false,
+    prfEnabled: false,
   },
   {
     id: 'passkey-2',
     name: 'iPhone 15',
     createdAt: new Date('2025-12-01').getTime(),
     lastUsed: new Date('2026-01-31').getTime(),
-    canSync: true,
+    prfEnabled: true,
   },
   {
     id: 'passkey-3',
     name: 'Work Laptop',
     createdAt: new Date('2025-11-01').getTime(),
     lastUsed: undefined,
-    canSync: false,
+    prfEnabled: false,
   },
 ];
 
-const storyWithPasskeys = (passkeys: Passkey[]) => {
+const storyWithPasskeys = (passkeys: PasskeyRowData[]) => {
   const story = () => {
     initLocalAccount();
     return (
@@ -59,10 +60,18 @@ const storyWithPasskeys = (passkeys: Passkey[]) => {
 
 export const NoPasskeys = storyWithPasskeys([]);
 
-export const WithPasskeys = storyWithPasskeys(mockPasskeys);
-
 export const SinglePasskey = storyWithPasskeys([mockPasskeys[0]]);
 
 export const WithNeverUsedPasskey = storyWithPasskeys([mockPasskeys[2]]);
 
 export const MultiplePasskeys = storyWithPasskeys(mockPasskeys);
+
+export const AtMaxPasskeys = storyWithPasskeys(
+  Array.from({ length: 10 }, (_, i) => ({
+    id: `passkey-${i + 1}`,
+    name: `Passkey ${i + 1}`,
+    createdAt: new Date('2026-01-01').getTime(),
+    lastUsed: new Date('2026-02-01').getTime(),
+    prfEnabled: i % 2 === 0,
+  }))
+);

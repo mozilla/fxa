@@ -99,7 +99,7 @@ const SubRow = ({
   return (
     <div
       className={classNames(
-        'flex flex-col w-full max-w-full mt-8 p-4 @mobileLandscape/unitRow:mt-4 @mobileLandscape/unitRow:rounded-lg border items-start text-sm gap-2',
+        'flex flex-col w-full max-w-full mt-4 px-4 py-3 @mobileLandscape/unitRow:rounded-lg border items-start text-sm gap-2',
         {
           'bg-grey-10 dark:bg-grey-700 border-transparent': !border,
           'bg-white dark:bg-grey-700 border-grey-100 dark:border-grey-500':
@@ -131,7 +131,7 @@ const SubRow = ({
               linkExternalProps && <ExtraInfoLink />}
           </div>
           {localizedDescription && (
-            <p className="text-sm w-full mx-2 mt-2">
+            <p className="text-sm w-full mt-1">
               {localizedDescription}{' '}
               {!localizedInfoMessage && linkExternalProps && <ExtraInfoLink />}
             </p>
@@ -342,17 +342,16 @@ export const BackupPhoneSubRow = ({
   );
 };
 
-// TODO: replace with actual Passkey type when available
-type Passkey = {
+export type PasskeyRowData = {
   id: string;
   name: string;
   createdAt: number;
   lastUsed?: number;
-  canSync: boolean;
+  prfEnabled: boolean;
 };
 
 export type PasskeySubRowProps = {
-  passkey: Passkey;
+  passkey: PasskeyRowData;
   // passing in as a prop for the sake of mocking.
   // TODO: replace with actual auth client API call
   deletePasskey?: (passkeyId: string) => Promise<void>;
@@ -440,19 +439,10 @@ export const PasskeySubRow = ({
     <>
       <SubRow
         idPrefix="passkey"
-        icon={
-          <PasskeyIcon ariaHidden className="h-8 w-5 ms-2 text-purple-600" />
-        }
+        icon={<PasskeyIcon ariaHidden className="h-8 w-5 text-purple-600" />}
         localizedRowTitle={passkey.name}
         localizedDescription={localizedDescription}
-        {...(!passkey.canSync && {
-          statusIcon: 'alert',
-          message: (
-            <FtlMsg id="passkey-sub-row-sign-in-only">
-              <p>Sign in only. Can’t be used to sync.</p>
-            </FtlMsg>
-          ),
-        })}
+        // TODO (passkeys phase 2): show upgrade prompt when passkey.prfEnabled
         onDeleteClick={(event) => {
           event.stopPropagation();
           revealDeleteModal();
