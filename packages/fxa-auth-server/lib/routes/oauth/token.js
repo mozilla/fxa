@@ -278,14 +278,13 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     // Does the code actually exist?
     const codeObj = await oauthDB.getCode(buf(code));
     if (!codeObj) {
-      log.debug('code.notFound', { code: code });
+      log.debug('code.notFound', {});
       throw OauthError.unknownCode(code);
     }
     // Does it belong to this client?
     if (!crypto.timingSafeEqual(codeObj.clientId, client.id)) {
       log.debug('code.mismatch', {
         client: hex(client.id),
-        code: hex(codeObj.code),
       });
       throw OauthError.mismatchCode(code, client.id);
     }
@@ -294,7 +293,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     const expiresAt =
       +codeObj.createdAt + config.get('oauthServer.expiration.code');
     if (Date.now() > expiresAt) {
-      log.debug('code.expired', { code: code });
+      log.debug('code.expired', {});
       throw OauthError.expiredCode(code, expiresAt);
     }
     // If it used PKCE...

@@ -1067,7 +1067,7 @@ module.exports = (
 
             if (!isAccountVerification) {
               // Don't log sign-in confirmation success for the account verification case
-              log.info('account.signin.confirm.success', { uid, code });
+              log.info('account.signin.confirm.success', { uid });
 
               request.emitMetricsEvent('account.confirmed', { uid });
               const devices = await request.app.devices;
@@ -1083,9 +1083,8 @@ module.exports = (
             }
 
             log.error('account.signin.confirm.invalid', {
-              err,
+              error: err,
               uid,
-              code,
             });
             throw err;
           }
