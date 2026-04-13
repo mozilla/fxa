@@ -9,7 +9,7 @@ import { Signup } from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
 import { BeginSignupHandler, SignupIntegration } from './interfaces';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { handleAuthClientError } from './utils';
 import {
   getCredentials,
@@ -87,13 +87,21 @@ const SignupContainer = ({
 
   const wantsKeys = integration.wantsKeys();
 
+  const attemptedEmailStatusCheck = useRef(false);
+
   useEffect(() => {
     (async () => {
-      if (!validationError && !emailStatusChecked) {
+      if (
+        !validationError &&
+        !emailStatusChecked &&
+        !attemptedEmailStatusCheck.current
+      ) {
+        attemptedEmailStatusCheck.current = true;
         const { exists, hasLinkedAccount, hasPassword, passwordlessSupported } =
           await authClient.accountStatusByEmail(queryParamModel.email, {
             thirdPartyAuthStatus: true,
             clientId: integration.getClientId(),
+            service: integration.getService(),
           });
         if (exists) {
           const signInPath = location.pathname.startsWith('/oauth')
@@ -120,7 +128,8 @@ const SignupContainer = ({
         }
       }
     })();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const beginSignupHandler: BeginSignupHandler = useCallback(
     async (email, password) => {
@@ -145,11 +154,11 @@ const SignupContainer = ({
         let credentialsV2 = undefined;
         let v2Payload:
           | {
-            wrapKb: string;
-            authPWVersion2: string;
-            wrapKbVersion2: string;
-            clientSalt: string;
-          }
+              wrapKb: string;
+              authPWVersion2: string;
+              wrapKbVersion2: string;
+              clientSalt: string;
+            }
           | {} = {};
 
         if (keyStretchExp.queryParamModel.isV2(config)) {

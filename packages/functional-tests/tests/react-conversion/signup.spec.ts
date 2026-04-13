@@ -4,7 +4,10 @@
 
 import { FirefoxCommand, LinkAccountResponse } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
-import { syncDesktopV3QueryParams } from '../../lib/query-params';
+import {
+  syncDesktopOAuthQueryParams,
+  syncDesktopV3QueryParams,
+} from '../../lib/query-params';
 
 const eventDetailLinkAccount: LinkAccountResponse = {
   id: 'account_updates',
@@ -39,6 +42,38 @@ test.describe('severity-1 #smoke', () => {
       await expect(page).toHaveURL(/settings/);
 
       await settings.signOut();
+    });
+
+    test('signup with email query param navigates to confirm page', async ({
+      target,
+      syncOAuthBrowserPages: {
+        confirmSignupCode,
+        page,
+        signup,
+        signupConfirmedSync,
+      },
+      testAccountTracker,
+    }) => {
+      const { email, password } =
+        testAccountTracker.generateSignupAccountDetails();
+
+      // Navigate directly to /signup with email in query params using Sync OAuth RP,
+      // bypassing the email-first page (no emailStatusChecked flag).
+      // Sync requires keys, so passwordless never applies.
+      const params = new URLSearchParams(syncDesktopOAuthQueryParams);
+      params.set('email', email);
+      await signup.goto('/signup', params);
+
+      await signup.fillOutSyncSignupForm(password);
+
+      // Should navigate to confirm_signup_code, not redirect to signin
+      await page.waitForURL(/confirm_signup_code/);
+
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await confirmSignupCode.fillOutCodeForm(code);
+
+      await page.waitForURL(/signup_confirmed_sync/);
+      await expect(signupConfirmedSync.bannerConfirmed).toBeVisible();
     });
 
     test('signup sync desktop v3, verify account', async ({
