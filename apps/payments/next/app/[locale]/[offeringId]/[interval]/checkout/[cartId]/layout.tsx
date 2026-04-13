@@ -81,7 +81,11 @@ export default async function CheckoutLayout({
 
           <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
             <PurchaseDetails
-              invoice={cart.latestInvoicePreview ?? cart.upcomingInvoicePreview}
+              invoice={
+                cart.trialEndDate || cart.freeTrialEligibility
+                  ? cart.upcomingInvoicePreview
+                  : (cart.latestInvoicePreview ?? cart.upcomingInvoicePreview)
+              }
               offeringPrice={cart.offeringPrice}
               purchaseDetails={purchaseDetails}
               priceInterval={
@@ -108,14 +112,11 @@ export default async function CheckoutLayout({
               locale={locale}
               showPrices={
                 cart.state === CartState.START ||
+                cart.state === CartState.PROCESSING ||
                 cart.state === CartState.SUCCESS
               }
               freeTrialEligibility={cart.freeTrialEligibility}
-              firstChargeTax={
-                (cart.upcomingInvoicePreview.subsequentTax ?? cart.upcomingInvoicePreview.taxAmounts)
-                  .filter((tax) => !tax.inclusive)
-                  .reduce((sum, tax) => sum + tax.amount, 0)
-              }
+              firstChargeAmount={cart.upcomingInvoicePreview.totalAmount}
               interval={cart.interval}
               cartState={cart.state}
               trialStartDate={cart.trialStartDate}

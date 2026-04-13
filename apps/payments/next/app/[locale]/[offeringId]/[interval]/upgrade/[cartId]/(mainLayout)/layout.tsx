@@ -89,6 +89,7 @@ export default async function UpgradeSuccessLayout({
               locale={locale}
               showPrices={
                 cart.state === CartState.START ||
+                cart.state === CartState.PROCESSING ||
                 cart.state === CartState.SUCCESS
               }
             />

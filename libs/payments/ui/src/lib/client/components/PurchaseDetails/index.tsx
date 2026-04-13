@@ -6,7 +6,7 @@
 
 import { Localized } from '@fluent/react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { InvoicePreview } from '@fxa/payments/customer';
 import alertCircle from '@fxa/shared/assets/images/alert-black-circle.svg';
 import infoLogo from '@fxa/shared/assets/images/info.svg';
@@ -32,7 +32,7 @@ type PurchaseDetailsProps = {
   freeTrialEligibility?: {
     trialLengthDays: number;
   } | null;
-  firstChargeTax?: number;
+  firstChargeAmount?: number;
   interval?: string;
   cartState?: string;
   trialStartDate?: number;
@@ -49,13 +49,44 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
     locale,
     showPrices,
     freeTrialEligibility,
-    firstChargeTax,
+    firstChargeAmount,
     interval,
     cartState,
     trialStartDate,
     trialEndDate,
   } = props;
   const { details, productName, subtitle, webIcon } = purchaseDetails;
+
+  // Cache props from START as server re-renders during PROCESSING which
+  // may return different data as Stripe state changes
+  const [stableInvoice, setStableInvoice] = useState(invoice);
+  const [stableTotalPrice, setStableTotalPrice] = useState(totalPrice);
+  const [stableFreeTrialEligibility, setStableFreeTrialEligibility] =
+    useState(freeTrialEligibility);
+  const [stableTrialStartDate, setStableTrialStartDate] =
+    useState(trialStartDate);
+  const [stableTrialEndDate, setStableTrialEndDate] = useState(trialEndDate);
+  useEffect(() => {
+    const isFreeTrial =
+      !!stableTrialEndDate ||
+      (!!stableFreeTrialEligibility &&
+        stableFreeTrialEligibility.trialLengthDays > 0);
+    if (cartState === 'start' || (cartState === 'success' && !isFreeTrial)) {
+      setStableInvoice(invoice);
+      setStableTotalPrice(totalPrice);
+      setStableFreeTrialEligibility(freeTrialEligibility);
+      setStableTrialStartDate(trialStartDate);
+      setStableTrialEndDate(trialEndDate);
+    }
+  }, [
+    cartState,
+    invoice,
+    totalPrice,
+    freeTrialEligibility,
+    trialStartDate,
+    trialEndDate,
+  ]);
+
   const {
     amountDue,
     creditApplied,
@@ -69,27 +100,28 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
     taxAmounts,
     totalAmount,
     unusedAmountTotal,
-  } = invoice;
+  } = stableInvoice;
   const exclusiveTaxRates = taxAmounts.filter(
     (taxAmount) => !taxAmount.inclusive
   );
   const freeTrial =
-    !!trialEndDate ||
-    (!!freeTrialEligibility && freeTrialEligibility.trialLengthDays > 0);
+    !!stableTrialEndDate ||
+    (!!stableFreeTrialEligibility &&
+      stableFreeTrialEligibility.trialLengthDays > 0);
   const trialDayLength =
-    trialStartDate && trialEndDate
-      ? Math.round((trialEndDate - trialStartDate) / 86400)
-      : freeTrialEligibility?.trialLengthDays;
+    stableTrialStartDate && stableTrialEndDate
+      ? Math.round((stableTrialEndDate - stableTrialStartDate) / 86400)
+      : stableFreeTrialEligibility?.trialLengthDays;
   const formattedTrialEndDate = freeTrial
     ? getLocalizedDateString(
-        trialEndDate ??
+        stableTrialEndDate ??
           Math.floor((Date.now() + (trialDayLength ?? 0) * 86400000) / 1000),
         false,
         locale
       )
     : '';
   const formattedFirstCharge = getLocalizedCurrencyString(
-    offeringPrice + (firstChargeTax ?? 0),
+    firstChargeAmount ?? offeringPrice,
     currency,
     locale
   );
@@ -367,9 +399,9 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
               >
                 {freeTrial
                   ? getLocalizedCurrencyString(0, currency, locale)
-                  : !!unusedAmountTotal
+                  : !!unusedAmountTotal || !!creditApplied
                     ? getLocalizedCurrencyString(amountDue, currency, locale)
-                    : totalPrice}
+                    : stableTotalPrice}
               </p>
             </div>
 
