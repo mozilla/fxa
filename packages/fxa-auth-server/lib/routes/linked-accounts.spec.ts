@@ -285,6 +285,25 @@ describe('/linked_account', () => {
           glean.thirdPartyAuth.googleRegComplete,
           mockRequest
         );
+
+        // Should emit SNS verified + login + profileDataChange events so
+        // Basket/Braze learn about the new account.
+        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+          (call: any[]) => call[0]
+        );
+        expect(notifyEvents).toContain('verified');
+        expect(notifyEvents).toContain('login');
+        expect(notifyEvents).toContain('profileDataChange');
+        sinon.assert.calledWithMatch(
+          mockLog.notifyAttachedServices,
+          'verified',
+          mockRequest,
+          sinon.match({
+            email: mockGoogleUser.email,
+            uid: UID,
+            service: 'sync',
+          })
+        );
       });
 
       it('should link existing fxa account and new google account and return session', async () => {
@@ -315,6 +334,15 @@ describe('/linked_account', () => {
           mockRequest,
           { reason: 'linking' }
         );
+
+        // Should emit SNS login + profileDataChange but NOT verified
+        // (the account already existed).
+        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+          (call: any[]) => call[0]
+        );
+        expect(notifyEvents).not.toContain('verified');
+        expect(notifyEvents).toContain('login');
+        expect(notifyEvents).toContain('profileDataChange');
       });
 
       it('should return session with valid google id token', async () => {
@@ -338,6 +366,12 @@ describe('/linked_account', () => {
         expect(mockDB.createSessionToken.calledOnce).toBe(true);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
+
+        // Re-login: login event only, no verified, no profileDataChange.
+        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+          (call: any[]) => call[0]
+        );
+        expect(notifyEvents).toEqual(['login']);
         sinon.assert.calledOnceWithExactly(
           glean.thirdPartyAuth.googleLoginComplete,
           mockRequest
@@ -516,6 +550,14 @@ describe('/linked_account', () => {
           glean.thirdPartyAuth.appleRegComplete,
           mockRequest
         );
+
+        // Should emit SNS verified + login + profileDataChange events.
+        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+          (call: any[]) => call[0]
+        );
+        expect(notifyEvents).toContain('verified');
+        expect(notifyEvents).toContain('login');
+        expect(notifyEvents).toContain('profileDataChange');
       });
 
       it('should link existing fxa account and new apple account and return session', async () => {
@@ -544,6 +586,14 @@ describe('/linked_account', () => {
           mockRequest,
           { reason: 'linking' }
         );
+
+        // New link on existing account: login + profileDataChange, no verified.
+        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+          (call: any[]) => call[0]
+        );
+        expect(notifyEvents).not.toContain('verified');
+        expect(notifyEvents).toContain('login');
+        expect(notifyEvents).toContain('profileDataChange');
       });
 
       it('should return session with valid apple id token', async () => {
@@ -571,6 +621,12 @@ describe('/linked_account', () => {
           glean.thirdPartyAuth.appleLoginComplete,
           mockRequest
         );
+
+        // Re-login: login event only.
+        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+          (call: any[]) => call[0]
+        );
+        expect(notifyEvents).toEqual(['login']);
       });
     });
   });
@@ -912,11 +968,7 @@ describe('/linked_account', () => {
         mockLog.debug,
         'Revoked 1 third party sessions for user fxauid'
       );
-      sinon.assert.calledWithExactly(
-        mockDB.deleteLinkedAccount,
-        UID,
-        'google'
-      );
+      sinon.assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'google');
     });
 
     it('handles credentials changed event', async () => {
@@ -967,11 +1019,7 @@ describe('/linked_account', () => {
         mockLog.debug,
         'Revoked 1 third party sessions for user fxauid'
       );
-      sinon.assert.calledWithExactly(
-        mockDB.deleteLinkedAccount,
-        UID,
-        'google'
-      );
+      sinon.assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'google');
     });
 
     it('handles account enabled event', async () => {
@@ -1204,9 +1252,7 @@ describe('/linked_account', () => {
           },
         ],
       });
-      mockDB.getLinkedAccount = sinon.spy(() =>
-        Promise.resolve({ uid: UID })
-      );
+      mockDB.getLinkedAccount = sinon.spy(() => Promise.resolve({ uid: UID }));
       const mockConfig = {
         appleAuthConfig: { clientId: 'OooOoo', teamId: 'teamId' },
       };
@@ -1288,11 +1334,7 @@ describe('/linked_account', () => {
         mockLog.debug,
         'Revoked 1 third party sessions for user fxauid'
       );
-      sinon.assert.calledWithExactly(
-        mockDB.deleteLinkedAccount,
-        UID,
-        'apple'
-      );
+      sinon.assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'apple');
       sinon.assert.calledWithExactly(
         statsd.increment,
         'handleAppleSET.processed.consent-revoked'
@@ -1319,11 +1361,7 @@ describe('/linked_account', () => {
         mockLog.debug,
         'Revoked 1 third party sessions for user fxauid'
       );
-      sinon.assert.calledWithExactly(
-        mockDB.deleteLinkedAccount,
-        UID,
-        'apple'
-      );
+      sinon.assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'apple');
       sinon.assert.calledWithExactly(
         statsd.increment,
         'handleAppleSET.processed.account-delete'

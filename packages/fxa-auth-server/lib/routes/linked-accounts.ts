@@ -19,6 +19,7 @@ import isA from 'joi';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import { AppError as error } from '@fxa/accounts/errors';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
+import { notifyAttachedServicesForAccountSession } from './utils/account';
 import {
   getGooglePublicKey,
   getApplePublicKey,
@@ -351,6 +352,13 @@ export class LinkedAccountHandler {
     const name = idToken.name;
 
     let accountRecord;
+    // Tracks which of the three third-party auth paths we took so the
+    // SNS notification block after the if/else can emit the right events.
+    let linkedAccountFlow:
+      | 'new-link-existing-account'
+      | 'new-account'
+      | 'existing-linked-account'
+      | undefined;
     const linkedAccountRecord = await this.db.getLinkedAccount(
       userid,
       provider
@@ -433,6 +441,7 @@ export class LinkedAccountHandler {
           flowBeginTime,
           service,
         });
+        linkedAccountFlow = 'new-link-existing-account';
       } catch (err) {
         this.log.trace(
           'Account.login.sendPostAddLinkedAccountNotification.error',
@@ -503,6 +512,7 @@ export class LinkedAccountHandler {
           uid: accountRecord.uid,
           reason: provider === 'google' ? 'google' : 'apple',
         });
+        linkedAccountFlow = 'new-account';
       }
     } else {
       // This is an existing user and existing FxA user
@@ -531,6 +541,7 @@ export class LinkedAccountHandler {
         uid: accountRecord.uid,
         reason: provider === 'google' ? 'google' : 'apple',
       });
+      linkedAccountFlow = 'existing-linked-account';
     }
 
     let verificationMethod,
@@ -561,6 +572,29 @@ export class LinkedAccountHandler {
     };
 
     const sessionToken = await this.db.createSessionToken(sessionTokenOptions);
+
+    // Mirror the SNS notifications that AccountHandler.createAccount
+    // fires. Placed after createSessionToken so db.sessions already
+    // includes the new session. A new third-party link on an existing
+    // account counts as a profile change (the link was added).
+    const isNewAccount = linkedAccountFlow === 'new-account';
+    const deviceCount = isNewAccount
+      ? 1
+      : (await this.db.sessions(accountRecord.uid)).length;
+    await notifyAttachedServicesForAccountSession({
+      log: this.log,
+      request,
+      account: {
+        uid: accountRecord.uid,
+        email: accountRecord.primaryEmail.email,
+        locale: accountRecord.locale,
+      },
+      service,
+      deviceCount,
+      isNewAccount,
+      emailVerified: true,
+      profileChanged: linkedAccountFlow === 'new-link-existing-account',
+    });
 
     return {
       uid: sessionToken.uid,

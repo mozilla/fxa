@@ -79,10 +79,14 @@ jest.mock('./utils/security-event', () => ({
 // we simply reassign the stub per-test.
 let getOptionalCmsEmailConfigStub: sinon.SinonStub;
 
-jest.mock('./utils/account', () => ({
-  getOptionalCmsEmailConfig: (...args: any[]) =>
-    getOptionalCmsEmailConfigStub(...args),
-}));
+jest.mock('./utils/account', () => {
+  const actual = jest.requireActual('./utils/account');
+  return {
+    ...actual,
+    getOptionalCmsEmailConfig: (...args: any[]) =>
+      getOptionalCmsEmailConfigStub(...args),
+  };
+});
 
 // ---------------------------------------------------------------------------
 // Route factory (mirrors the Mocha `makeRoutes`)
@@ -142,11 +146,7 @@ function makeRoutes(options: any = {}) {
   return passwordlessRoutes(log, db, config, customs, glean, statsd, redis);
 }
 
-function runTest(
-  route: any,
-  request: any,
-  assertions?: (result: any) => void
-) {
+function runTest(route: any, request: any, assertions?: (result: any) => void) {
   return new Promise((resolve, reject) => {
     try {
       return route.handler(request).then(resolve, reject);
@@ -382,9 +382,7 @@ describe('/account/passwordless/confirm_code', () => {
 
       expect(mockCustoms.check.callCount).toBe(2);
       expect(mockCustoms.check.args[0][2]).toBe('passwordlessVerifyOtp');
-      expect(mockCustoms.check.args[1][2]).toBe(
-        'passwordlessVerifyOtpPerDay'
-      );
+      expect(mockCustoms.check.args[1][2]).toBe('passwordlessVerifyOtpPerDay');
 
       expect(mockOtpManagerIsValid.callCount).toBe(1);
       expect(mockOtpManagerIsValid.args[0][0]).toBe(TEST_EMAIL);
@@ -406,6 +404,22 @@ describe('/account/passwordless/confirm_code', () => {
       expect(result.verified).toBe(true);
       expect(result.authAt).toBe(1234567890);
       expect(result.isNewAccount).toBe(true);
+
+      // Should emit SNS verified + login + profileDataChange events so
+      // Basket/Braze learn about the new passwordless account. Missing
+      // these calls was the root cause of the basket regression (FXA-13416).
+      const notifyEvents = mockLog.notifyAttachedServices.args.map(
+        (call: any[]) => call[0]
+      );
+      expect(notifyEvents).toContain('verified');
+      expect(notifyEvents).toContain('login');
+      expect(notifyEvents).toContain('profileDataChange');
+      sinon.assert.calledWithMatch(
+        mockLog.notifyAttachedServices,
+        'verified',
+        mockRequest,
+        sinon.match({ email: TEST_EMAIL, uid })
+      );
     });
   });
 
@@ -426,6 +440,7 @@ describe('/account/passwordless/confirm_code', () => {
         lastAuthAt: () => 1234567890,
       })
     );
+    mockDB.sessions = sinon.spy(() => Promise.resolve([{}, {}, {}]));
 
     return runTest(route, mockRequest, (result) => {
       expect(mockOtpManagerIsValid.callCount).toBe(1);
@@ -441,6 +456,19 @@ describe('/account/passwordless/confirm_code', () => {
 
       expect(result.uid).toBe(uid);
       expect(result.isNewAccount).toBe(false);
+
+      // Existing account: login event only, no verified, no
+      // profileDataChange. deviceCount should come from db.sessions.
+      const notifyEvents = mockLog.notifyAttachedServices.args.map(
+        (call: any[]) => call[0]
+      );
+      expect(notifyEvents).toEqual(['login']);
+      sinon.assert.calledWithMatch(
+        mockLog.notifyAttachedServices,
+        'login',
+        mockRequest,
+        sinon.match({ email: TEST_EMAIL, uid, deviceCount: 3 })
+      );
     });
   });
 
@@ -1876,11 +1904,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
           },
         },
       });
-      const route = getRoute(
-        routes,
-        '/account/passwordless/send_code',
-        'POST'
-      );
+      const route = getRoute(routes, '/account/passwordless/send_code', 'POST');
       mockDB.accountRecord = sinon.spy(() =>
         Promise.resolve({
           uid,
@@ -1910,11 +1934,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
           },
         },
       });
-      const route = getRoute(
-        routes,
-        '/account/passwordless/send_code',
-        'POST'
-      );
+      const route = getRoute(routes, '/account/passwordless/send_code', 'POST');
       mockDB.accountRecord = sinon.spy(() =>
         Promise.resolve({
           uid,
@@ -1944,11 +1964,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
           },
         },
       });
-      const route = getRoute(
-        routes,
-        '/account/passwordless/send_code',
-        'POST'
-      );
+      const route = getRoute(routes, '/account/passwordless/send_code', 'POST');
       mockDB.accountRecord = sinon.spy(() =>
         Promise.reject(error.unknownAccount())
       );

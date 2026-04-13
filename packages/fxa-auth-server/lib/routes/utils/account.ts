@@ -80,6 +80,91 @@ export const fetchRpCmsData = async (
   return null;
 };
 
+/**
+ * Emit SNS notifications to attached services (Basket, etc.) for
+ * account creation / login events.
+ *
+ * Mirrors the set of notifications `AccountHandler.createAccount` in
+ * `routes/account.ts` fires, so that flows that bypass that handler
+ * (passwordless OTP, Google/Apple third-party auth) deliver the same
+ * events to downstream subscribers.
+ *
+ * - `isNewAccount && emailVerified`      → fires `verified` (Basket creates the user)
+ * - always                               → fires `login`    (session/device tracking)
+ * - `isNewAccount` or `profileChanged`   → fires `profileDataChange`
+ *
+ * `emailVerified` is independent of `isNewAccount` to match the gate in
+ * `AccountHandler.createAccount`, which only fires `verified` when the
+ * account is email-verified at creation time. Password-based signups
+ * create unverified accounts and fire `verified` later from
+ * `signupUtils.verifyAccount`; passwordless and third-party auth create
+ * already-verified accounts and should fire it immediately.
+ */
+export async function notifyAttachedServicesForAccountSession(options: {
+  log: AuthLogger;
+  request: AuthRequest;
+  account: { uid: string; email: string; locale?: string };
+  service: string | undefined;
+  deviceCount: number;
+  isNewAccount: boolean;
+  emailVerified: boolean;
+  profileChanged: boolean;
+}): Promise<void> {
+  const {
+    log,
+    request,
+    account,
+    service,
+    deviceCount,
+    isNewAccount,
+    emailVerified,
+    profileChanged,
+  } = options;
+
+  const geoData = request.app.geo;
+  const country = geoData.location && geoData.location.country;
+  const countryCode = geoData.location && geoData.location.countryCode;
+  const userAgent = request.headers['user-agent'];
+
+  const notifications: Promise<void>[] = [];
+
+  if (isNewAccount && emailVerified) {
+    notifications.push(
+      log.notifyAttachedServices('verified', request, {
+        country,
+        countryCode,
+        email: account.email,
+        locale: account.locale,
+        service,
+        uid: account.uid,
+        userAgent,
+      })
+    );
+  }
+
+  notifications.push(
+    log.notifyAttachedServices('login', request, {
+      country,
+      countryCode,
+      deviceCount,
+      email: account.email,
+      service,
+      uid: account.uid,
+      userAgent,
+    })
+  );
+
+  if (isNewAccount || profileChanged) {
+    notifications.push(
+      log.notifyAttachedServices('profileDataChange', request, {
+        uid: account.uid,
+      })
+    );
+  }
+
+  await Promise.all(notifications);
+}
+
 export async function getOptionalCmsEmailConfig(
   emailOptions,
   { request, cmsManager, log, emailTemplate }
