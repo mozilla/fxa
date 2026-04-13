@@ -73,7 +73,6 @@ describe.each(testVersions)(
         'tim@tim-example.net',
         'a+b+c@example.com',
         '#!?-@t-e-s-assert.c-o-m',
-        `${String.fromCharCode(1234)}@example.com`,
         `test@${String.fromCharCode(5678)}.com`,
       ];
 
@@ -89,6 +88,23 @@ describe.each(testVersions)(
           )
         )
       );
+    });
+
+    it('/account/create rejects non-ASCII local parts but accepts unicode domains', async () => {
+      const pwd = '123456';
+
+      // Unicode local part should be rejected
+      try {
+        await Client.create(
+          server.publicUrl,
+          `${String.fromCharCode(1234)}@example.com`,
+          pwd,
+          testOptions
+        );
+        throw new Error('should have rejected unicode local part');
+      } catch (err: any) {
+        expect(err.errno).toBe(107);
+      }
     });
   }
 );

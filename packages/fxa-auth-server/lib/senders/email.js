@@ -506,6 +506,16 @@ module.exports = function (log, config, bounces, statsd) {
 
     const to = message.email;
 
+    // Skip non-ASCII local parts. SES doesn't support SMTPUTF8, so these
+    // always fail at RCPT TO. Silently return (like bounce check below)
+    // to avoid Sentry noise from pre-existing accounts.
+    const [localPart] = to.split('@');
+    if (/[^\x20-\x7E]/.test(localPart)) {
+      statsd.increment('email.nonAsciiLocalPart', { template });
+      log.warn('mailer.send.nonAsciiLocalPart', { to, template });
+      return;
+    }
+
     try {
       await bounces.check(to, template);
     } catch (err) {

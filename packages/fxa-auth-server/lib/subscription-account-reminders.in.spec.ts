@@ -13,6 +13,9 @@ const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce(
 
 const config = require('../config').default.getProperties();
 const mocks = require('../test/mocks');
+const TEST_PREFIX = `test-lib-subscription-account-reminders:${
+  process.env.JEST_WORKER_ID || '1'
+}:`;
 
 describe('#integration - lib/subscription-account-reminders', () => {
   let log: any, mockConfig: any, redis: any, subscriptionAccountReminders: any;
@@ -30,7 +33,7 @@ describe('#integration - lib/subscription-account-reminders', () => {
         redis: {
           maxConnections: 1,
           minConnections: 1,
-          prefix: 'test-subscription-account-reminders-lib:',
+          prefix: TEST_PREFIX,
         },
       },
     };

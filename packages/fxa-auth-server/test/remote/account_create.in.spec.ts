@@ -627,19 +627,15 @@ describe.each(testVersions)(
       expect(emailData.headers['x-service-id']).toBe('bar');
     });
 
-    it('account creation works with unicode email address', async () => {
+    it('account creation rejects unicode email address', async () => {
       const email = server.uniqueUnicodeEmail();
 
-      const client = await Client.create(
-        server.publicUrl,
-        email,
-        'foo',
-        testOptions
-      );
-      expect(client).toBeTruthy();
-
-      const emailData = await server.mailbox.waitForEmail(email);
-      expect(emailData).toBeTruthy();
+      try {
+        await Client.create(server.publicUrl, email, 'foo', testOptions);
+        throw new Error('should have failed');
+      } catch (err: any) {
+        expect(err.errno).toBe(107);
+      }
     });
 
     it('account creation fails with invalid metricsContext flowId', async () => {
