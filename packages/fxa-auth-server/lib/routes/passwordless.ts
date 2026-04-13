@@ -30,7 +30,10 @@ import {
   isPasswordlessEligible,
 } from './utils/passwordless';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
-import { getOptionalCmsEmailConfig } from './utils/account';
+import {
+  getOptionalCmsEmailConfig,
+  notifyAttachedServicesForAccountSession,
+} from './utils/account';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 import { getClientServiceTags } from '../metrics/client-tags';
 
@@ -304,6 +307,27 @@ class PasswordlessHandler {
       db: this.db,
       request,
       account: { uid: account.uid },
+    });
+
+    // Mirror the SNS notifications that AccountHandler.createAccount
+    // fires, since passwordless bypasses that path. This runs after
+    // createSessionToken so db.sessions already includes the new session.
+    const deviceCount = isNewAccount
+      ? 1
+      : (await this.db.sessions(account.uid)).length;
+    await notifyAttachedServicesForAccountSession({
+      log: this.log,
+      request,
+      account: {
+        uid: account.uid,
+        email: account.email,
+        locale: account.locale,
+      },
+      service,
+      deviceCount,
+      isNewAccount,
+      emailVerified: true,
+      profileChanged: false,
     });
 
     const response: {
