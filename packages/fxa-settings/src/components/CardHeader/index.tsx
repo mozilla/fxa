@@ -51,7 +51,7 @@ interface CardHeaderBasicWithDefaultSubheadingProps
 interface CardHeaderCmsProps extends CardHeaderRequiredProps {
   cmsLogoUrl?: string;
   cmsLogoAltText?: string;
-  cmsHeadline?: string;
+  cmsHeadline?: string | null;
   cmsDescription?: string;
   cmsHeadlineFontSize?: HeadlineFontSize | string | null;
   cmsHeadlineTextColor?: string | null;
@@ -111,7 +111,7 @@ function isDefaultService(
 }
 
 function isCmsHeader(props: CardHeaderProps): props is CardHeaderCmsProps {
-  return (props as CardHeaderCmsProps).cmsHeadline !== undefined;
+  return !!(props as CardHeaderCmsProps).cmsHeadline;
 }
 
 function isBasicWithCustomSubheading(
@@ -215,9 +215,7 @@ const CardHeader = (props: CardHeaderProps) => {
         >
           {cmsHeadline}
         </h1>
-        {cmsDescription && (
-          <p className="card-subheader">{cmsDescription}</p>
-        )}
+        {cmsDescription && <p className="card-subheader">{cmsDescription}</p>}
       </>
     );
   }
