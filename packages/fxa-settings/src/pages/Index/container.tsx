@@ -120,14 +120,19 @@ const IndexContainer = ({
       // - For NEW accounts: use passwordless if passwordlessSupported && integration.isFirefoxNonSync()
       //   (Firefox non-Sync flows can use passwordless OTP; Sync users should go through traditional password-first signup)
       const passwordlessEnabled =
-        (config.featureFlags?.passwordlessEnabled === true && queryParamModel.forcePasswordless !== false) ||
+        (config.featureFlags?.passwordlessEnabled === true &&
+          queryParamModel.forcePasswordless !== false) ||
         queryParamModel.forcePasswordless === true;
       // Skip passwordless redirect if the user has a cached session
       const storedAccount = currentAccount() || lastStoredAccount();
       const hasCachedSession = !!storedAccount?.sessionToken;
       const canUsePasswordlessExisting =
-        passwordlessSupported && !hasPassword && !hasLinkedAccount && !hasCachedSession;
-      const canUsePasswordlessNew = passwordlessEnabled && passwordlessSupported && !integration.isSync();
+        passwordlessSupported &&
+        !hasPassword &&
+        !hasLinkedAccount &&
+        !hasCachedSession;
+      const canUsePasswordlessNew =
+        passwordlessEnabled && passwordlessSupported && !integration.isSync();
 
       if (exists) {
         if (canUsePasswordlessExisting) {
@@ -182,7 +187,12 @@ const IndexContainer = ({
         }
       }
     },
-    [integration, navigateWithQuery, queryParamModel, config.featureFlags?.passwordlessEnabled]
+    [
+      integration,
+      navigateWithQuery,
+      queryParamModel,
+      config.featureFlags?.passwordlessEnabled,
+    ]
   );
 
   const handleEmailSubmissionError = useCallback(
@@ -313,9 +323,7 @@ const IndexContainer = ({
   );
 
   const suggestedEmail =
-    queryParamModel.email ||
-    queryParamModel.loginHint ||
-    cachedAccount?.email;
+    queryParamModel.email || queryParamModel.loginHint || cachedAccount?.email;
 
   // If we just came from another Mozilla accounts page with a prefill email in location state,
   // ignore suggested email. Prefill email is used for clicks on "Use different account" or "Change email".
@@ -382,8 +390,6 @@ const IndexContainer = ({
 
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.EmailFirstPage?.splitLayout;
-
-  // WebAuthn capability probe is fired at app-level (components/App/index.tsx)
 
   return isLoading ? (
     <AppLayout
