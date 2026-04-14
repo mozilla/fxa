@@ -118,15 +118,14 @@ describe('update', () => {
     expect(config.sentry.dsn).toStrictEqual(newData.sentry.dsn);
   });
 
-  it('can add new items', () => {
-    expect(config.version).toBeUndefined();
+  it('can update existing items', () => {
+    expect(config.version).toStrictEqual('');
 
     const newData = {
       version: '0.1.0',
     };
     update(newData);
 
-    expect(config.version).toBeDefined();
     expect(config.version).toStrictEqual(newData.version);
   });
 });
@@ -146,16 +145,16 @@ describe('reset', () => {
   });
 
   it('removes any keys that are not in the default config', () => {
-    expect(config.version).toBeUndefined();
+    expect(config.version).toStrictEqual('');
 
     const newData = {
       version: '0.1.0',
     };
     update(newData);
-    expect(config.version).toBeDefined();
+    expect(config.version).toStrictEqual('0.1.0');
 
     reset();
-    expect(config.version).toBeUndefined();
+    expect(config.version).toStrictEqual('');
   });
 });
 

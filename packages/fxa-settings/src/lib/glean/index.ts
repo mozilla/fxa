@@ -24,10 +24,13 @@ import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
 import * as passwordReset from 'fxa-shared/metrics/glean/web/passwordReset';
+import * as cad from 'fxa-shared/metrics/glean/web/cad';
 import * as cadFirefox from 'fxa-shared/metrics/glean/web/cadFirefox';
 import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice';
 import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
 import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
+import * as cadRedirectDesktop from 'fxa-shared/metrics/glean/web/cadRedirectDesktop';
+import * as cadRedirectMobile from 'fxa-shared/metrics/glean/web/cadRedirectMobile';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
@@ -428,8 +431,42 @@ const recordEventMetric = (
     case 'third_party_auth_apple_login_start':
       thirdPartyAuth.appleLoginStart.record();
       break;
+    case 'cad_view':
+      cad.view.record();
+      break;
+    case 'cad_submit':
+      cad.submit.record();
+      break;
+    case 'cad_startbrowsing_submit':
+      cad.startbrowsingSubmit.record();
+      break;
+    case 'cad_firefox_view':
+      cadFirefox.view.record();
+      break;
+    case 'cad_firefox_choice_view':
+      cadFirefox.choiceView.record();
+      break;
+    case 'cad_firefox_choice_engage':
+      cadFirefox.choiceEngage.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'cad_firefox_choice_submit':
+      cadFirefox.choiceSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'cad_firefox_choice_notnow_submit':
+      cadFirefox.choiceNotnowSubmit.record();
+      break;
+    case 'cad_firefox_sync_device_submit':
+      cadFirefox.syncDeviceSubmit.record();
+      break;
     case 'cad_firefox_notnow_submit':
       cadFirefox.notnowSubmit.record();
+      break;
+    case 'cad_approve_device_view':
+      cadApproveDevice.view.record();
       break;
     case 'cad_approve_device_submit':
       cadApproveDevice.submit.record();
@@ -439,6 +476,18 @@ const recordEventMetric = (
       break;
     case 'cad_mobile_pair_use_app_view':
       cadMobilePairUseApp.view.record();
+      break;
+    case 'cad_redirect_desktop_view':
+      cadRedirectDesktop.view.record();
+      break;
+    case 'cad_redirect_desktop_default_view':
+      cadRedirectDesktop.defaultView.record();
+      break;
+    case 'cad_redirect_desktop_download':
+      cadRedirectDesktop.download.record();
+      break;
+    case 'cad_redirect_mobile_view':
+      cadRedirectMobile.view.record();
       break;
     case 'account_pref_view':
       accountPref.view.record();

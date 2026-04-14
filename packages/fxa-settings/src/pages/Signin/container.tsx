@@ -254,20 +254,29 @@ const SigninContainer = ({
             !skipPasswordlessRedirect)
         ) {
           try {
-            const { exists, hasLinkedAccount, hasPassword, passwordlessSupported } =
-              await authClient.accountStatusByEmail(email, {
-                thirdPartyAuthStatus: true,
-                clientId: integration.getClientId(),
-                service: integration.getService(),
-              });
+            const {
+              exists,
+              hasLinkedAccount,
+              hasPassword,
+              passwordlessSupported,
+            } = await authClient.accountStatusByEmail(email, {
+              thirdPartyAuthStatus: true,
+              clientId: integration.getClientId(),
+              service: integration.getService(),
+            });
             if (!exists) {
               // For new accounts, passwordless requires the feature flag + server support
               // The forcePasswordless query param will be respected if it's provided
               const passwordlessEnabled =
-                (config.featureFlags?.passwordlessEnabled === true && queryParamModel.forcePasswordless !== false) ||
+                (config.featureFlags?.passwordlessEnabled === true &&
+                  queryParamModel.forcePasswordless !== false) ||
                 queryParamModel.forcePasswordless === true;
 
-              if (passwordlessEnabled && passwordlessSupported && integration.isFirefoxNonSync()) {
+              if (
+                passwordlessEnabled &&
+                passwordlessSupported &&
+                integration.isFirefoxNonSync()
+              ) {
                 navigateWithQuery('/signin_passwordless_code', {
                   state: {
                     email,
@@ -650,7 +659,8 @@ const SigninContainer = ({
   const cmsInfo = integration.getCmsInfo();
   // sessionToken is a necessary precondition for showing the cached page
   const splitLayout = sessionToken
-    ? (cmsInfo?.SigninCachedPage?.splitLayout ?? cmsInfo?.SigninPage?.splitLayout)
+    ? (cmsInfo?.SigninCachedPage?.splitLayout ??
+      cmsInfo?.SigninPage?.splitLayout)
     : cmsInfo?.SigninPage?.splitLayout;
 
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
@@ -750,8 +760,8 @@ export async function trySignIn(
   onRetryCorrectedEmail?: (correctedEmail: string) => Promise<{
     v1Credentials: { authPW: string; unwrapBKey: string };
     v2Credentials:
-    | { authPW: string; unwrapBKey: string; clientSalt: string }
-    | undefined;
+      | { authPW: string; unwrapBKey: string; clientSalt: string }
+      | undefined;
   }>
 ) {
   try {

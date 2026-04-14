@@ -27,9 +27,11 @@ describe('PairFailure', () => {
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent('Pairing not successful');
+    expect(headingEl).toHaveTextContent('Device pairing failed');
     expect(
-      screen.getByText('The setup process was terminated.')
+      screen.getByText(
+        'The setup couldn’t be completed. Please sign in with your email.'
+      )
     ).toBeInTheDocument();
   });
 
@@ -38,10 +40,12 @@ describe('PairFailure', () => {
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent('Pairing not successful');
+    expect(headingEl).toHaveTextContent('Device pairing failed');
     expect(screen.getByText(MOCK_ERROR)).toBeInTheDocument();
     expect(
-      screen.getByText('The setup process was terminated.')
+      screen.getByText(
+        'The setup couldn’t be completed. Please sign in with your email.'
+      )
     ).toBeInTheDocument();
   });
 

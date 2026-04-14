@@ -3,27 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * End-to-end pairing flow test.
+ * Backbone pairing flow E2E test.
  *
- * Uses Marionette (authority / desktop Firefox) + Playwright (supplicant)
- * to exercise the full two-device Firefox pairing flow:
+ * Mirrors pairingFlow.spec.ts but exercises the legacy Backbone `/pair/*`
+ * templates served by fxa-content-server. Runs only when
+ * showReactApp.pairRoutes=false; otherwise skips cleanly.
  *
- *   Authority (Marionette)          Supplicant (Playwright)
- *   ---------------------           ------------------------
- *   1. Sign in to FxA via OAuth
- *   2. FxAccountsPairingFlow.start()
- *      -> generates QR URL
- *                                   3. Open QR URL -> /pair/supp
- *   4. Navigate to approval page
- *   5. Click "Yes, approve device"
- *                                   6. Click "Confirm pairing"
- *   7. -> /pair/auth/complete       7. -> /oauth/success
+ * To run this spec locally:
+ *   1. Edit packages/fxa-content-server/server/config/local.json
+ *      → set "showReactApp.pairRoutes" to false
+ *   2. npx pm2 restart content
+ *   3. Wait ~10s for the dev server to recompile, then:
+ *      cd packages/functional-tests && yarn test-local tests/pairing/
+ *   4. Restore by flipping the flag back to true + pm2 restart content
  *
- * Prerequisites:
- *   - FXA stack running (auth :9000, content :3030)
- *   - Firefox binary (FIREFOX_BINARY env)
- *   - Internet access (uses production channel server by default;
- *     override with CHANNEL_SERVER_URI env for local testing)
+ * The helper functions come from ../../lib/pairing-helpers. Most are
+ * stack-agnostic because the sign-in flow, Marionette FxAccounts APIs, and
+ * WebSocket channel client are identical between Backbone and React — only
+ * the visible pair templates differ. We thread `useReact = false` through
+ * the URL builders so no `?showReactApp=true` suffix is appended, which is
+ * a no-op under fullProdRollout but keeps intent explicit.
  */
 
 import { test, expect } from '../../lib/fixtures/pairing';
@@ -39,9 +38,7 @@ import {
   findElementBySelectors,
   enableTotpOnAccount,
   enterTotpCodeViaMarionette,
-  completeSupplicantApproval,
   captureDiagnostics,
-  verifyPairChoiceScreen,
   isPairRoutesReact,
 } from '../../lib/pairing-helpers';
 
@@ -78,30 +75,64 @@ async function approveAuthorityPairing(
   await client.clickElement(approveBtn);
 }
 
-// Increase timeout — pairing involves launching a separate Firefox + channel negotiation
+/**
+ * Complete the Backbone supplicant approval flow.
+ *
+ * Mirrors the React `completeSupplicantApproval` helper but finds the
+ * confirm button via the Backbone-only id `#supp-approve-btn` without the
+ * React `data-testid`. The button id is actually identical between the
+ * stacks, so this function could be shared — kept here for symmetry and
+ * to avoid touching the React helper.
+ */
+async function completeBackboneSupplicantApproval(
+  page: import('@playwright/test').Page,
+  client: MarionetteClient
+): Promise<void> {
+  const confirmButton = page.locator('#supp-approve-btn');
+  await expect(confirmButton).toBeVisible({
+    timeout: TIMEOUTS.AUTHORITY_COMPLETE,
+  });
+  await confirmButton.click();
+
+  await expect(async () => {
+    expect(page.url()).not.toContain('pair/supp/allow');
+  }).toPass({ timeout: TIMEOUTS.AUTHORITY_COMPLETE });
+
+  const finalSuppUrl = page.url();
+  expect(finalSuppUrl).not.toContain('pair/failure');
+
+  await client.setContext('content');
+  // Poll the authority URL until it reaches pair/auth/complete
+  const start = Date.now();
+  let lastAuthUrl = '';
+  while (Date.now() - start < TIMEOUTS.AUTHORITY_COMPLETE) {
+    lastAuthUrl = await client.getUrl();
+    if (lastAuthUrl.includes('pair/auth/complete')) {
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  expect(lastAuthUrl).toContain('pair/auth/complete');
+  expect(lastAuthUrl).not.toContain('pair/failure');
+}
+
 test.setTimeout(120_000);
 
 test.describe('severity-2 #smoke', () => {
-  test.describe.serial('Firefox pairing flow', () => {
-    // Pairing tests use Marionette (Firefox-only) on a shared port. This spec
-    // covers the React pair flow — the Backbone equivalent lives in
-    // pairingFlowBackbone.spec.ts. The two are mutually exclusive at runtime
-    // because content-server reads showReactApp.pairRoutes at startup (see
-    // add-routes.js) and pair routes have fullProdRollout: true, so a single
-    // server instance only serves one stack.
+  test.describe.serial('Backbone pairing flow', () => {
+    // Mutually exclusive with pairingFlow.spec.ts — only one of these suites
+    // runs at a time, gated by the server's showReactApp.pairRoutes config.
     test.beforeEach(async ({ target }, testInfo) => {
-      // Marionette launches a local Firefox binary configured to talk to
-      // the target environment via about:config prefs.
       const isReact = await isPairRoutesReact(target.contentServerUrl);
-      if (!isReact) {
+      if (isReact) {
         testInfo.skip(
           true,
-          'React pair specs require showReactApp.pairRoutes=true'
+          'Backbone pair specs require showReactApp.pairRoutes=false'
         );
       }
     });
 
-    test('authority generates QR URL and supplicant connects via channel', async ({
+    test('authority generates QR URL and supplicant connects via Backbone templates', async ({
       target,
       syncOAuthBrowserPages: { page },
       testAccountTracker,
@@ -128,10 +159,6 @@ test.describe('severity-2 #smoke', () => {
           return user;
         });
 
-      await test.step('Verify /pair choice screen', async () => {
-        await verifyPairChoiceScreen(client, target.contentServerUrl);
-      });
-
       const { pairUrl, channelId } =
         await test.step('Start pairing flow on authority', async () => {
           const url = await startPairingFlow(client);
@@ -148,12 +175,12 @@ test.describe('severity-2 #smoke', () => {
         const suppUrl = buildSupplicantUrl(target.contentServerUrl, pairUrl);
         await page.goto(suppUrl, { waitUntil: 'load' });
 
-        // #supp-approve-btn is the supplicant Confirm button rendered by both
-        // React and Backbone /pair/supp/allow templates with the same id. It
-        // only exists once the channel handshake completes and the authority
-        // has sent pair:supp:request, so this single check proves both that
-        // the supplicant reached /pair/supp/allow and that the form is
-        // interactive.
+        // Backbone's supplicant-state-machine.js navigates to /pair/supp/allow
+        // once the channel handshake completes (same URL as React). The
+        // `#supp-approve-btn` Confirm button is rendered by both stacks with
+        // the same id and only appears once /pair/supp/allow has rendered the
+        // form, so this single check proves both that the channel handshake
+        // succeeded and that the page is interactive.
         await expect(page.locator('#supp-approve-btn')).toBeVisible({
           timeout: TIMEOUTS.SUPPLICANT_ALLOW,
         });
@@ -169,11 +196,11 @@ test.describe('severity-2 #smoke', () => {
       });
 
       await test.step('Supplicant confirms and verify success', async () => {
-        await completeSupplicantApproval(page, client);
+        await completeBackboneSupplicantApproval(page, client);
       });
     });
 
-    test('pairing with 2FA-enabled account requires TOTP on authority', async ({
+    test('Backbone pairing with 2FA-enabled account requires TOTP on authority', async ({
       target,
       syncOAuthBrowserPages: { page },
       testAccountTracker,
@@ -206,10 +233,6 @@ test.describe('severity-2 #smoke', () => {
           return user;
         });
 
-      await test.step('Verify /pair choice screen', async () => {
-        await verifyPairChoiceScreen(client, target.contentServerUrl);
-      });
-
       const channelId =
         await test.step('Start pairing flow on authority', async () => {
           const pairUrl = await startPairingFlow(client);
@@ -236,7 +259,7 @@ test.describe('severity-2 #smoke', () => {
       });
 
       await test.step('Supplicant confirms and verify success', async () => {
-        await completeSupplicantApproval(page, client);
+        await completeBackboneSupplicantApproval(page, client);
       });
     });
   });

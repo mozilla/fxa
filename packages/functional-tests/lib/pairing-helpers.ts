@@ -6,12 +6,19 @@
  * Helper functions for pairing E2E tests.
  *
  * Extracted from pairingFlow.spec.ts for reuse and maintainability.
+ *
+ * WARNING: All inline JavaScript strings passed to executeScript /
+ * executeAsyncScript MUST use ASCII-only characters. Marionette's
+ * length-prefixed JSON protocol can miscount bytes for multi-byte
+ * characters (e.g. em dashes), causing parse failures.
  */
 
 import crypto from 'crypto';
+import { expect, Page } from '@playwright/test';
 import { MarionetteClient } from './marionette';
 import {
   PAIRING_CLIENT_ID,
+  PAIRING_REDIRECT_URI,
   PAIRING_SCOPE,
   SELECTORS,
   TIMEOUTS,
@@ -19,22 +26,71 @@ import {
 import { getTotpCode } from './totp';
 
 /**
+ * Fetch the content server's fxa-config and check whether React pairing
+ * routes are enabled (showReactApp.pairRoutes). When enabled, the Backbone
+ * /pair/* routes are deregistered and only React (fxa-settings) serves them.
+ */
+export async function isPairRoutesReact(
+  contentServerUrl: string
+): Promise<boolean> {
+  try {
+    const resp = await fetch(contentServerUrl);
+    const html = await resp.text();
+    const match = html.match(/name="fxa-config" content="([^"]+)"/);
+    if (!match) return false;
+    const config = JSON.parse(decodeURIComponent(match[1]));
+    return config.showReactApp?.pairRoutes === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Generic polling helper with exponential backoff.
+ *
+ * Starts at POLL_INTERVAL (500ms), grows by 1.5x each iteration,
+ * caps at POLL_INTERVAL_MAX (2s). Includes the last error in the
+ * timeout message for easier debugging.
+ */
+async function pollUntil<T>(
+  check: () => Promise<T | undefined>,
+  timeoutMs: number,
+  label: string
+): Promise<T> {
+  const start = Date.now();
+  let interval: number = TIMEOUTS.POLL_INTERVAL;
+  let lastError: Error | undefined;
+
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const result = await check();
+      if (result !== undefined) return result;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+    }
+    await sleep(interval);
+    interval = Math.min(interval * 1.5, TIMEOUTS.POLL_INTERVAL_MAX);
+  }
+
+  const suffix = lastError ? ` Last error: ${lastError.message}` : '';
+  throw new Error(`${label} after ${timeoutMs}ms.${suffix}`);
+}
+
+/**
  * Poll `client.getUrl()` until the URL contains the given substring.
  */
 export async function waitForUrlContaining(
   client: MarionetteClient,
   substring: string,
-  timeoutMs = TIMEOUTS.AUTHORITY_COMPLETE
+  timeoutMs: number = TIMEOUTS.AUTHORITY_COMPLETE
 ): Promise<string> {
-  const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
-    const url = await client.getUrl();
-    if (url.includes(substring)) return url;
-    await sleep(TIMEOUTS.POLL_INTERVAL);
-  }
-  const finalUrl = await client.getUrl();
-  throw new Error(
-    `URL did not contain "${substring}" after ${timeoutMs}ms. Current URL: ${finalUrl}`
+  return pollUntil(
+    async () => {
+      const url = await client.getUrl();
+      return url.includes(substring) ? url : undefined;
+    },
+    timeoutMs,
+    `URL did not contain "${substring}"`
   );
 }
 
@@ -46,14 +102,13 @@ export async function waitForUrlChange(
   previousUrl: string,
   timeoutMs = TIMEOUTS.AUTHORITY_COMPLETE
 ): Promise<string> {
-  const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
-    const url = await client.getUrl();
-    if (url !== previousUrl) return url;
-    await sleep(TIMEOUTS.POLL_INTERVAL);
-  }
-  throw new Error(
-    `URL did not change from "${previousUrl}" after ${timeoutMs}ms`
+  return pollUntil(
+    async () => {
+      const url = await client.getUrl();
+      return url !== previousUrl ? url : undefined;
+    },
+    timeoutMs,
+    `URL did not change from "${previousUrl}"`
   );
 }
 
@@ -64,13 +119,14 @@ export async function waitForSignedInState(
   client: MarionetteClient,
   timeoutMs = TIMEOUTS.SIGNED_IN_CHECK
 ): Promise<{ signedIn: boolean; email?: string; uid?: string }> {
-  const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
-    const user = await getSignedInUser(client);
-    if (user.signedIn) return user;
-    await sleep(TIMEOUTS.POLL_INTERVAL);
-  }
-  throw new Error(`Firefox did not reach signed-in state after ${timeoutMs}ms`);
+  return pollUntil(
+    async () => {
+      const user = await getSignedInUser(client);
+      return user.signedIn ? user : undefined;
+    },
+    timeoutMs,
+    'Firefox did not reach signed-in state'
+  );
 }
 
 /**
@@ -86,7 +142,8 @@ export async function signInAuthorityViaMarionette(
   contentServerUrl: string,
   email: string,
   password: string,
-  totpSecret?: string
+  totpSecret?: string,
+  useReact = false
 ): Promise<void> {
   // Use Firefox's internal beginOAuthFlow() to generate PKCE + keys_jwk
   // and register the OAuth flow so Firefox can complete the key exchange
@@ -142,7 +199,7 @@ export async function signInAuthorityViaMarionette(
     access_type: 'offline',
     response_type: 'code',
   });
-  const signinUrl = `${contentServerUrl}/?${params}`;
+  const signinUrl = `${contentServerUrl}/?${params}${useReact ? '&showReactApp=true' : ''}`;
 
   try {
     await client.setContext('content');
@@ -173,6 +230,9 @@ export async function signInAuthorityViaMarionette(
       client,
       SELECTORS.SUBMIT_BUTTON
     );
+    // Capture the current URL (password page) so we wait for THIS to change,
+    // not the original signinUrl which already changed after email submit.
+    const passwordPageUrl = await client.getUrl();
     await client.clickElement(signInBtn);
 
     // After password submit, the URL goes through intermediate states:
@@ -194,7 +254,7 @@ export async function signInAuthorityViaMarionette(
       const totpUrl = await client.getUrl();
       await waitForUrlChange(client, totpUrl);
     } else {
-      await waitForUrlChange(client, signinUrl);
+      await waitForUrlChange(client, passwordPageUrl);
     }
 
     // Dismiss any unexpected dialogs (e.g. "save password?")
@@ -204,13 +264,19 @@ export async function signInAuthorityViaMarionette(
       /* no alert */
     }
 
-    // Handle intermediary pages (e.g. inline_recovery_key_setup)
+    // Handle intermediary pages (e.g. inline_recovery_key_setup).
+    // The "Do it later" button calls hardNavigate('/pair', {}, true) which
+    // navigates after a 200ms setTimeout. Use the data-glean-id selector
+    // for reliability, then fall back to direct navigation if the click
+    // doesn't trigger the React handler.
     const postTotpUrl = await client.getUrl();
     if (postTotpUrl.includes('inline_recovery_key_setup')) {
       await client.executeScript(`
-        const links = Array.from(document.querySelectorAll('a, button'));
-        for (const el of links) {
-          if (/later|skip|not now|do it later/i.test(el.textContent)) { el.click(); break; }
+        var btn = document.querySelector('[data-glean-id="inline_recovery_key_setup_create_do_it_later"]');
+        if (btn) {
+          btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        } else {
+          window.location.href = '/pair' + window.location.search;
         }
       `);
       await waitForUrlChange(client, postTotpUrl);
@@ -320,7 +386,8 @@ export async function startPairingFlow(
  */
 export function buildSupplicantUrl(
   contentServerUrl: string,
-  pairUrl: string
+  pairUrl: string,
+  useReact = false
 ): string {
   // Parse and validate channel params from the QR URL fragment first
   const fragment = pairUrl.split('#')[1];
@@ -367,7 +434,8 @@ export function buildSupplicantUrl(
     channel_key: channelKey,
   });
 
-  return `${contentServerUrl}/pair/supp?${queryParams}#${hashParams}`;
+  const reactSuffix = useReact ? '&showReactApp=true' : '';
+  return `${contentServerUrl}/pair/supp?${queryParams}${reactSuffix}#${hashParams}`;
 }
 
 /**
@@ -386,6 +454,34 @@ export function extractChannelId(pairUrl: string): string {
 }
 
 /**
+ * Build the authority OAuth URL that navigates the authority to the
+ * pairing approval page.
+ *
+ * Centralises construction that was previously duplicated in both test
+ * cases and adds optional React query params.
+ */
+export function buildAuthorityOAuthUrl(
+  contentServerUrl: string,
+  params: {
+    email: string;
+    uid: string;
+    channelId: string;
+  },
+  useReact = false
+): string {
+  const oauthParams = new URLSearchParams({
+    client_id: PAIRING_CLIENT_ID,
+    scope: PAIRING_SCOPE,
+    email: params.email,
+    uid: params.uid,
+    channel_id: params.channelId,
+    redirect_uri: PAIRING_REDIRECT_URI,
+  });
+  const reactSuffix = useReact ? '&showReactApp=true' : '';
+  return `${contentServerUrl}/oauth?${oauthParams}${reactSuffix}`;
+}
+
+/**
  * Find an element by trying multiple CSS selectors with retry.
  *
  * On failure, captures current URL and page title for diagnostics.
@@ -393,35 +489,46 @@ export function extractChannelId(pairUrl: string): string {
 export async function findElementBySelectors(
   client: MarionetteClient,
   selectors: readonly string[],
-  timeoutMs = TIMEOUTS.ELEMENT_FIND
+  timeoutMs: number = TIMEOUTS.ELEMENT_FIND
 ): Promise<string> {
-  const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
-    for (const sel of selectors) {
-      try {
-        const el = await client.findElement('css selector', sel);
-        if (el) return el;
-      } catch {
-        // try next selector
-      }
-    }
-    await sleep(TIMEOUTS.POLL_INTERVAL);
+  try {
+    return await pollUntil(
+      async () => {
+        for (const sel of selectors) {
+          try {
+            const el = await client.findElement('css selector', sel);
+            if (el) return el;
+          } catch {
+            /* retry */
+          }
+        }
+        return undefined;
+      },
+      timeoutMs,
+      `Element not found with selectors [${selectors.join(', ')}]`
+    );
+  } catch (err) {
+    return await rethrowWithDiagnostics(client, err);
   }
-
-  const { url, title } = await captureDiagnostics(client);
-  throw new Error(
-    `Element not found with selectors [${selectors.join(', ')}] after ${timeoutMs}ms. ` +
-      `URL: ${url}, title: "${title}"`
-  );
 }
 
 /**
- * Set input value via script with React-compatible event dispatch.
+ * Set an input field's value via injected script, with polling and retry.
  *
- * Marionette's sendKeys doesn't always trigger React's synthetic onChange
- * (React uses a native input event setter override). This function uses
- * the React-friendly approach of overriding the native value setter and
- * dispatching an 'input' event with bubbles: true.
+ * Why not just `sendKeys`?  Marionette's sendKeys doesn't reliably trigger
+ * React's synthetic onChange.  React overrides the native `value` property
+ * setter on HTMLInputElement, so a plain `el.value = x` assignment doesn't
+ * notify React that the value changed.
+ *
+ * How it works:
+ *  1. Polls with `pollUntil` because the input may not exist yet (page loading).
+ *  2. Tries each CSS selector in turn (Backbone and React pages use different IDs).
+ *  3. Injects JS into the browser via `executeScript` that:
+ *     - Strategy 1 (React): calls the native HTMLInputElement.prototype.value
+ *       setter via `.call(el, val)`, then dispatches `input` + `change` events.
+ *     - Strategy 2 (fallback): direct `el.value` assignment + blur event.
+ *     - Verifies the value stuck; returns 'mismatch' if not.
+ *  4. Retries on mismatch or exception until timeout.
  *
  * On failure, captures current URL and page title for diagnostics.
  */
@@ -431,40 +538,54 @@ export async function setInputValueByScript(
   value: string,
   timeoutMs = TIMEOUTS.ELEMENT_FIND
 ): Promise<void> {
-  const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
-    for (const sel of selectors) {
-      try {
-        const result = await client.executeScript(
-          `
-          const sel = arguments[0];
-          const val = arguments[1];
-          const el = document.querySelector(sel);
-          if (!el) return 'not_found';
-          // Use React-compatible value setter
-          const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-            window.HTMLInputElement.prototype, 'value'
-          ).set;
-          nativeInputValueSetter.call(el, val);
-          el.dispatchEvent(new Event('input', { bubbles: true }));
-          el.dispatchEvent(new Event('change', { bubbles: true }));
-          return 'ok';
-          `,
-          { args: [sel, value] }
-        );
-        if (result === 'ok') return;
-      } catch {
-        // try next selector
-      }
-    }
-    await sleep(TIMEOUTS.POLL_INTERVAL);
+  try {
+    await pollUntil(
+      async () => {
+        for (const sel of selectors) {
+          try {
+            const result = await client.executeScript(
+              `
+              var sel = arguments[0];
+              var val = arguments[1];
+              var el = document.querySelector(sel);
+              if (!el) return 'not_found';
+              // Strategy 1: React-compatible prototype setter
+              var desc = Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype, 'value'
+              );
+              if (desc && desc.set) {
+                desc.set.call(el, val);
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+              } else {
+                // Strategy 2: direct assignment + blur fallback
+                el.value = val;
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                el.dispatchEvent(new Event('blur', { bubbles: true }));
+              }
+              // Verify the value was set
+              if (el.value !== val) return 'mismatch:' + el.value;
+              return 'ok';
+              `,
+              { args: [sel, value] }
+            );
+            if (result === 'ok') return 'ok';
+            if (typeof result === 'string' && result.startsWith('mismatch:')) {
+              // value mismatch -- retry
+            }
+          } catch {
+            /* retry */
+          }
+        }
+        return undefined;
+      },
+      timeoutMs,
+      `Input not found with selectors [${selectors.join(', ')}]`
+    );
+  } catch (err) {
+    await rethrowWithDiagnostics(client, err);
   }
-
-  const { url, title } = await captureDiagnostics(client);
-  throw new Error(
-    `Input not found with selectors [${selectors.join(', ')}] after ${timeoutMs}ms. ` +
-      `URL: ${url}, title: "${title}"`
-  );
 }
 
 /**
@@ -520,17 +641,162 @@ export function sleep(ms: number): Promise<void> {
 }
 
 /**
+ * Take a screenshot of the authority browser via Marionette and write it
+ * to the artifacts directory for debugging. Only writes when PAIRING_DEBUG=1.
+ */
+export async function screenshotAuthority(
+  client: MarionetteClient,
+  prefix: string,
+  step: string
+): Promise<void> {
+  if (!process.env.PAIRING_DEBUG) {
+    return;
+  }
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const base64 = await client.takeScreenshot();
+    const dir = path.join(process.cwd(), '..', '..', 'artifacts', 'functional');
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, `${prefix}-${step}.png`),
+      Buffer.from(base64, 'base64')
+    );
+  } catch {
+    // best-effort
+  }
+}
+
+/**
+ * Verify the /pair index choice screen renders correctly after sign-in.
+ *
+ * The authority should already be on /pair after signInAuthorityViaMarionette.
+ * This step validates the choice screen UI: header, radio buttons, and that
+ * the Continue button enables after selecting a radio option.
+ *
+ * Does NOT click Continue -- the actual pairing channel is created via
+ * startPairingFlow() which calls FxAccountsPairingFlow.start() directly.
+ */
+export async function verifyPairChoiceScreen(
+  client: MarionetteClient,
+  contentServerUrl: string,
+  useReact = false
+): Promise<void> {
+  await client.setContext('content');
+
+  // Ensure we are on /pair
+  const url = await client.getUrl();
+  if (!url.includes('/pair')) {
+    const reactSuffix = useReact ? '?showReactApp=true' : '';
+    await client.navigate(`${contentServerUrl}/pair${reactSuffix}`);
+  }
+
+  // Verify the choice screen header
+  await findElementBySelectors(client, SELECTORS.PAIR_CHOICE_HEADER);
+
+  // Verify both radio buttons are present
+  await findElementBySelectors(client, SELECTORS.PAIR_RADIO_HAS_MOBILE);
+  await findElementBySelectors(client, SELECTORS.PAIR_RADIO_NEEDS_MOBILE);
+
+  // Verify Continue button exists and is disabled
+  await findElementBySelectors(client, SELECTORS.PAIR_CONTINUE_BUTTON);
+  await client.executeScript(`
+    var btn = document.querySelector('#set-needs-mobile');
+    return btn ? btn.disabled : null;
+  `);
+
+  // Click "I already have Firefox for mobile" via its label.
+  // The radio input is visually hidden with CSS; clicking it directly
+  // fails because the label element obscures it.
+  const hasMobileLabel = await findElementBySelectors(client, [
+    'label[for="has-mobile"]',
+  ]);
+  await client.clickElement(hasMobileLabel);
+
+  // Verify Continue button is now enabled
+  const isEnabledAfter = await client.executeScript(`
+    var btn = document.querySelector('#set-needs-mobile');
+    return btn ? !btn.disabled : null;
+  `);
+  if (isEnabledAfter !== true) {
+    throw new Error(
+      'Continue button did not enable after selecting "has mobile" radio'
+    );
+  }
+}
+
+/**
  * Capture current URL and page title for diagnostic error messages.
  * Returns best-effort values; never throws.
  */
-async function captureDiagnostics(
+export async function captureDiagnostics(
   client: MarionetteClient
 ): Promise<{ url: string; title: string }> {
+  let url = 'unknown';
+  let title = 'unknown';
   try {
-    const url = await client.getUrl();
-    const title = await client.getTitle();
-    return { url, title };
+    url = await client.getUrl();
   } catch {
-    return { url: 'unknown', title: 'unknown' };
+    /* best-effort */
   }
+  try {
+    title = await client.getTitle();
+  } catch {
+    /* best-effort */
+  }
+  return { url, title };
+}
+
+/**
+ * Re-throw an error with URL and page title diagnostics appended.
+ * Used in catch blocks where Marionette element lookups fail.
+ */
+async function rethrowWithDiagnostics(
+  client: MarionetteClient,
+  err: unknown
+): Promise<never> {
+  const { url, title } = await captureDiagnostics(client);
+  const message = err instanceof Error ? err.message : String(err);
+  throw new Error(`${message} URL: ${url}, title: "${title}"`);
+}
+
+/**
+ * Complete the supplicant approval flow (shared between both pairing tests).
+ *
+ * Finds the confirm button, clicks it, waits for the supplicant to navigate
+ * away from /pair/supp/allow to /oauth/success, then waits for the authority
+ * to reach /pair/auth/complete.
+ */
+export async function completeSupplicantApproval(
+  page: Page,
+  client: MarionetteClient
+): Promise<void> {
+  // Find confirm button: id (both stacks) > data-testid (React) > role.
+  const confirmButton = page
+    .locator('#supp-approve-btn')
+    .or(page.locator('[data-testid="pair-supp-approve-btn"]'))
+    .or(page.getByRole('button', { name: /Confirm|Approve/i }));
+  await expect(confirmButton.first()).toBeVisible({
+    timeout: TIMEOUTS.AUTHORITY_COMPLETE,
+  });
+  await confirmButton.first().click();
+
+  // Wait for the supplicant to land on /oauth/success directly. After Confirm
+  // the supplicant goes through /pair/supp/wait_for_auth → /oauth/success, so
+  // polling for "not /pair/supp/allow" can catch the intermediate state and
+  // fail the success assertion. `waitForURL` on the final target avoids that
+  // race and also proves the flow did not divert to /pair/failure.
+  await page.waitForURL(/oauth\/success/, {
+    timeout: TIMEOUTS.AUTHORITY_COMPLETE,
+  });
+  expect(page.url()).not.toContain('pair/failure');
+
+  // Wait for authority to reach pair/auth/complete
+  await client.setContext('content');
+  const finalAuthUrl = await waitForUrlContaining(
+    client,
+    'pair/auth/complete',
+    TIMEOUTS.AUTHORITY_COMPLETE
+  );
+  expect(finalAuthUrl).not.toContain('pair/failure');
 }

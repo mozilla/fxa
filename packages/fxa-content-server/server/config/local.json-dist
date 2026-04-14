@@ -69,7 +69,8 @@
     "signUpRoutes": true,
     "signInRoutes": true,
     "emailFirstRoutes": true,
-    "postVerifyThirdPartyAuthRoutes": true
+    "postVerifyThirdPartyAuthRoutes": true,
+    "pairRoutes": true
   },
   "featureFlags": {
     "recoveryCodeSetupOnSyncSignIn": true,

@@ -107,6 +107,11 @@ const settingsConfig = {
     signUpRoutes: config.get('showReactApp.signUpRoutes'),
     signInRoutes: config.get('showReactApp.signInRoutes'),
     emailFirstRoutes: config.get('showReactApp.emailFirstRoutes'),
+    pairRoutes: config.get('showReactApp.pairRoutes'),
+  },
+  pairing: {
+    clients: config.get('pairing.clients'),
+    serverBaseUri: config.get('pairing.server_base_uri'),
   },
   rolloutRates: {
     keyStretchV2: config.get('rolloutRates.keyStretchV2'),

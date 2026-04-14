@@ -5,7 +5,6 @@
 import React from 'react';
 import PairFailure from '.';
 import { Meta } from '@storybook/react';
-import AppLayout from '../../../components/AppLayout';
 import { MOCK_ERROR } from './mock';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
@@ -15,14 +14,6 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => (
-  <AppLayout>
-    <PairFailure />
-  </AppLayout>
-);
+export const Default = () => <PairFailure />;
 
-export const WithError = () => (
-  <AppLayout>
-    <PairFailure error={MOCK_ERROR} />
-  </AppLayout>
-);
+export const WithError = () => <PairFailure error={MOCK_ERROR} />;

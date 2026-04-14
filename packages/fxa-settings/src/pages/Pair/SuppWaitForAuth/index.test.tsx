@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SuppWaitForAuth, { viewName } from '.';
 import {
@@ -13,9 +13,32 @@ import {
 } from '../../../components/DeviceInfoBlock/mocks';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { Integration } from '../../../models/integrations/integration';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../models/integrations/pairing-supplicant-integration', () => {
+  const { MOCK_SUPPLICANT_STATE: SupplicantState } = jest.requireActual(
+    '../__mocks__/pairing-test-helpers'
+  );
+  return {
+    SupplicantState,
+    PairingSupplicantIntegration: class {
+      getClientId = jest.fn().mockReturnValue('mock-client-id');
+      onStateChange: ((state: string) => void) | null = null;
+      onError: ((err: unknown) => void) | null = null;
+      state = SupplicantState.WaitingForAuthority;
+      remoteMetadata = null;
+      error = null;
+    },
+  };
+});
+
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
 }));
 
 describe('SuppWaitForAuth page', () => {
@@ -56,5 +79,49 @@ describe('SuppWaitForAuth page', () => {
     );
 
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  describe('with PairingSupplicantIntegration', () => {
+    let mockIntegration: {
+      onStateChange: ((state: string) => void) | null;
+      onError: ((err: unknown) => void) | null;
+      state: string;
+      remoteMetadata: unknown;
+      error: { message: string } | null;
+    };
+
+    beforeEach(() => {
+      const { PairingSupplicantIntegration: PSI } = jest.requireMock(
+        '../../../models/integrations/pairing-supplicant-integration'
+      );
+      mockIntegration = new PSI();
+      mockNavigateWithQuery.mockClear();
+    });
+
+    it('navigates on Complete state change', () => {
+      renderWithLocalizationProvider(
+        <SuppWaitForAuth
+          integration={mockIntegration as unknown as Integration}
+        />
+      );
+      act(() => {
+        mockIntegration.onStateChange?.('complete');
+      });
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+        '/oauth/success/mock-client-id'
+      );
+    });
+
+    it('displays error on Failed state change', () => {
+      renderWithLocalizationProvider(
+        <SuppWaitForAuth
+          integration={mockIntegration as unknown as Integration}
+        />
+      );
+      act(() => {
+        mockIntegration.onStateChange?.('failed');
+      });
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/failure');
+    });
   });
 });
