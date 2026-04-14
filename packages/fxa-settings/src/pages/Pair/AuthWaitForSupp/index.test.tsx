@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import AuthWaitForSupp, { viewName } from '.';
 import {
@@ -13,9 +13,25 @@ import {
 } from '../../../components/DeviceInfoBlock/mocks';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { Integration } from '../../../models/integrations/integration';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../models/integrations/pairing-authority-integration', () => ({
+  PairingAuthorityIntegration: class {
+    getSupplicantMetadata = jest.fn().mockResolvedValue(null);
+    startHeartbeat = jest.fn();
+    stopHeartbeat = jest.fn();
+    onSuppAuthorized: (() => void) | null = null;
+    onHeartbeatError: ((err: unknown) => void) | null = null;
+  },
+}));
+
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
 }));
 
 describe('AuthWaitForSupp page', () => {
@@ -56,5 +72,58 @@ describe('AuthWaitForSupp page', () => {
     );
 
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  describe('with PairingAuthorityIntegration', () => {
+    let mockIntegration: {
+      getSupplicantMetadata: jest.Mock;
+      startHeartbeat: jest.Mock;
+      stopHeartbeat: jest.Mock;
+      onSuppAuthorized: (() => void) | null;
+      onHeartbeatError: ((err: unknown) => void) | null;
+    };
+
+    beforeEach(() => {
+      const { PairingAuthorityIntegration: PAI } = jest.requireMock(
+        '../../../models/integrations/pairing-authority-integration'
+      );
+      mockIntegration = new PAI();
+      mockNavigateWithQuery.mockClear();
+    });
+
+    it('starts heartbeat on mount and stops on unmount', () => {
+      const { unmount } = renderWithLocalizationProvider(
+        <AuthWaitForSupp
+          integration={mockIntegration as unknown as Integration}
+        />
+      );
+      expect(mockIntegration.startHeartbeat).toHaveBeenCalled();
+      unmount();
+      expect(mockIntegration.stopHeartbeat).toHaveBeenCalled();
+    });
+
+    it('navigates to /pair/auth/complete on suppAuthorized', () => {
+      renderWithLocalizationProvider(
+        <AuthWaitForSupp
+          integration={mockIntegration as unknown as Integration}
+        />
+      );
+      act(() => {
+        mockIntegration.onSuppAuthorized?.();
+      });
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/auth/complete');
+    });
+
+    it('navigates to failure page on heartbeatError', () => {
+      renderWithLocalizationProvider(
+        <AuthWaitForSupp
+          integration={mockIntegration as unknown as Integration}
+        />
+      );
+      act(() => {
+        mockIntegration.onHeartbeatError?.(new Error('Connection lost'));
+      });
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/failure');
+    });
   });
 });

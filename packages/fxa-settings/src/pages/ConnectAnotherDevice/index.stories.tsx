@@ -5,6 +5,7 @@
 import React from 'react';
 import ConnectAnotherDevice, { Devices } from '.';
 import AppLayout from '../../components/AppLayout';
+import { LocationProvider } from '@reach/router';
 import { ENTRYPOINTS } from '../../constants';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../models/mocks';
@@ -18,7 +19,14 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 export default {
   title: 'Pages/ConnectAnotherDevice',
   component: ConnectAnotherDevice,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <LocationProvider>
+        <Story />
+      </LocationProvider>
+    ),
+  ],
 } as Meta;
 
 export const CanSignInNoSuccessMessage = () => (
@@ -27,6 +35,7 @@ export const CanSignInNoSuccessMessage = () => (
       email={MOCK_ACCOUNT.primaryEmail.email}
       entrypoint={ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}
       device={Devices.FIREFOX_DESKTOP}
+      forceView
       showSuccessMessage={false}
       isSignIn={false}
       isSignUp={false}
@@ -49,6 +58,7 @@ export const WithSignupSuccessMessage = () => (
       showSuccessMessage
       isSignedIn={false}
       canSignIn
+      forceView
       {...MOCK_DEFAULTS}
     />
   </AppLayout>
@@ -62,6 +72,7 @@ export const WithSignInSuccessMessage = () => (
       showSuccessMessage
       isSignedIn={false}
       canSignIn
+      forceView
       {...MOCK_DEFAULTS}
     />
   </AppLayout>

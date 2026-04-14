@@ -27,12 +27,14 @@ export const test = standardTest.extend<PairingTestOptions>({
     const channelServerUri =
       process.env.CHANNEL_SERVER_URI ||
       (await fetchChannelServerUri(target.contentServerUrl));
-    const marionettePort = parseInt(process.env.MARIONETTE_PORT || '2828', 10);
-    if (isNaN(marionettePort)) {
+    const basePort = parseInt(process.env.MARIONETTE_PORT || '2828', 10);
+    if (isNaN(basePort)) {
       throw new Error(
         `Invalid MARIONETTE_PORT: ${process.env.MARIONETTE_PORT}`
       );
     }
+    // Offset port by parallelIndex so parallel workers don't collide
+    const marionettePort = basePort + testInfo.parallelIndex;
     const headless = process.env.MARIONETTE_HEADLESS !== 'false';
 
     const authority = await MarionetteFirefox.launch({

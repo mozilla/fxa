@@ -115,7 +115,11 @@ export class IntegrationFactory {
     if (flags.isThirdPartyAuthCallback()) {
       return this.createThirdPartyAuthCallbackIntegration(data);
     } else if (flags.isDevicePairingAsAuthority()) {
-      return this.createPairingAuthorityIntegration(channelData, storageData);
+      return this.createPairingAuthorityIntegration(
+        data,
+        channelData,
+        storageData
+      );
     } else if (flags.isDevicePairingAsSupplicant()) {
       return this.createPairingSupplicationIntegration(data, storageData);
     } else if (flags.isOAuth()) {
@@ -142,10 +146,12 @@ export class IntegrationFactory {
 
   private createPairingAuthorityIntegration(
     data: ModelDataStore,
+    channelData: ModelDataStore,
     storageData: ModelDataStore
   ) {
     const integration = new PairingAuthorityIntegration(
       data,
+      channelData,
       storageData,
       config.oauth
     );

@@ -5,10 +5,13 @@
 import React from 'react';
 import Pair from '.';
 import { Meta } from '@storybook/react';
-import AppLayout from '../../../components/AppLayout';
-import { LocationProvider } from '@reach/router';
-import { ENTRYPOINTS } from '../../../constants';
-import { MOCK_ERROR, MOCK_CALLBACK } from './mocks';
+import {
+  LocationProvider,
+  createHistory,
+  createMemorySource,
+} from '@reach/router';
+import { MOCK_ERROR } from './mocks';
+import { MOCK_CMS_INFO } from '../../mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
@@ -17,33 +20,39 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => (
+export const ChoiceScreen = () => (
   <LocationProvider>
-    <AppLayout>
-      <Pair
-        entryPoint={ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}
-        onSubmit={MOCK_CALLBACK}
-      />
-    </AppLayout>
+    <Pair />
   </LocationProvider>
 );
 
-export const WithoutQRCode = () => (
-  <LocationProvider>
-    <AppLayout>
-      <Pair onSubmit={MOCK_CALLBACK} />
-    </AppLayout>
-  </LocationProvider>
-);
+export const ChoiceScreenWithSuccessMessage = () => {
+  // Simulate ?showSuccessMessage=true in the URL
+  const source = `/?showSuccessMessage=true`;
+  return (
+    <LocationProvider history={createHistory(createMemorySource(source))}>
+      <Pair />
+    </LocationProvider>
+  );
+};
 
 export const WithError = () => (
   <LocationProvider>
-    <AppLayout>
-      <Pair
-        entryPoint={ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}
-        error={MOCK_ERROR}
-        onSubmit={MOCK_CALLBACK}
-      />
-    </AppLayout>
+    <Pair error={MOCK_ERROR} />
+  </LocationProvider>
+);
+
+export const WithErrorOnChoiceScreen = () => (
+  <LocationProvider>
+    <Pair error={MOCK_ERROR} />
+  </LocationProvider>
+);
+
+// CMS-themed variant: passes a mock relier CMS config so the choice screen
+// renders with the relier's button color, background, and header logo.
+// Mirrors the parity Backbone has via fetchCmsConfig() in pair/index.js.
+export const ChoiceScreenWithCmsTheming = () => (
+  <LocationProvider>
+    <Pair cmsInfo={MOCK_CMS_INFO} />
   </LocationProvider>
 );

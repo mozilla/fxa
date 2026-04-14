@@ -16,3 +16,37 @@ pair-take-your-data-message = Take your tabs, bookmarks, and passwords anywhere 
 pair-get-started-button = Get started
 # This is the aria label on the QR code image
 pair-qr-code-aria-label = QR code
+
+## Choice screen — "Do you have Firefox for mobile?"
+
+# Subheader shown on the choice screen
+pair-choice-subheader = Sync your { -brand-firefox } experience
+# Description shown on the choice screen
+pair-choice-description = View your saved passwords, tabs, browsing history and more — across all your devices.
+# Legend for the radio button fieldset
+pair-choice-legend = Select an option to continue:
+# Radio option: user already has Firefox for mobile — title
+pair-choice-has-mobile-title = I already have { -brand-firefox } for mobile
+# Radio option: user already has Firefox for mobile — description
+pair-choice-has-mobile-description = Start your sync now if you already have { -brand-firefox } on your mobile device.
+# Radio option: user does not have Firefox for mobile — title
+pair-choice-needs-mobile-title = I don’t have { -brand-firefox } for mobile
+# Radio option: user does not have Firefox for mobile — description
+pair-choice-needs-mobile-description = Download { -brand-firefox } on your mobile device, then start your sync.
+# Continue button on choice screen (disabled until a radio option is selected)
+pair-choice-continue-button = Continue
+# Success banner shown after signing in
+pair-signed-in-successfully = Signed in successfully!
+
+## Download screen — shown after selecting "I don’t have Firefox for mobile"
+
+# Subheader for the download screen
+pair-download-subheader = Download { -brand-firefox } for mobile
+# Description for the download screen
+pair-download-description = To sync { -brand-firefox } on your phone or tablet, you first need to download { -brand-firefox } for mobile. Here's how:
+# Step 1: scan QR code. $stepNumber is the step number (1)
+pair-download-step-scan-qr = <b>Step { $stepNumber }</b>: Download { -brand-firefox } by scanning this QR code with the camera on your mobile device:
+# Step 2: continue to sync. $stepNumber is the step number (2)
+pair-download-step-continue-sync = <b>Step { $stepNumber }</b>: Select "Continue to sync" to sync your { -brand-firefox } experience on your mobile device.
+# Button on the download screen that opens about:preferences for pairing
+pair-continue-to-sync-button = Continue to sync

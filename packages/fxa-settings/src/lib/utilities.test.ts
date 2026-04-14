@@ -13,6 +13,7 @@ import {
   resetOnce,
   searchParam,
   searchParams,
+  toGenericOSName,
 } from './utilities';
 
 describe('deepMerge', () => {
@@ -215,6 +216,37 @@ describe('format authenticator secret', () => {
   it('formats a secret into a human-readable format', () => {
     const secret = 'qwerty123456';
     expect(formatSecret(secret)).toBe('QWER TY12 3456');
+  });
+});
+
+describe('toGenericOSName', () => {
+  it('normalizes Windows variants', () => {
+    expect(toGenericOSName('Windows 10')).toBe('Windows');
+    expect(toGenericOSName('Windows 7')).toBe('Windows');
+  });
+
+  it('normalizes Mac OS to macOS', () => {
+    expect(toGenericOSName('Mac OS X')).toBe('macOS');
+    expect(toGenericOSName('Mac OS')).toBe('macOS');
+  });
+
+  it('normalizes Linux variants', () => {
+    expect(toGenericOSName('Ubuntu')).toBe('Linux');
+    expect(toGenericOSName('Linux x86_64')).toBe('Linux');
+    expect(toGenericOSName('Fedora')).toBe('Linux');
+  });
+
+  it('passes through known names unchanged', () => {
+    expect(toGenericOSName('Android')).toBe('Android');
+    expect(toGenericOSName('iOS')).toBe('iOS');
+  });
+
+  it('returns Unknown for empty string', () => {
+    expect(toGenericOSName('')).toBe('Unknown');
+  });
+
+  it('returns unrecognized names as-is', () => {
+    expect(toGenericOSName('ChromeOS')).toBe('ChromeOS');
   });
 });
 

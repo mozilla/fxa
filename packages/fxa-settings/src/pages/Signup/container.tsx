@@ -145,11 +145,11 @@ const SignupContainer = ({
         let credentialsV2 = undefined;
         let v2Payload:
           | {
-            wrapKb: string;
-            authPWVersion2: string;
-            wrapKbVersion2: string;
-            clientSalt: string;
-          }
+              wrapKb: string;
+              authPWVersion2: string;
+              wrapKbVersion2: string;
+              clientSalt: string;
+            }
           | {} = {};
 
         if (keyStretchExp.queryParamModel.isV2(config)) {
