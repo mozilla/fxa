@@ -12,7 +12,7 @@ jest.mock('../oauth/client', () => ({
       case '0000000000000000':
         throw new Error();
       default:
-        return { name: 'Firefox' };
+        return { name: 'NotFirefox' };
     }
   },
 }));
@@ -57,6 +57,16 @@ describe('lib/senders/oauth_client_info:', () => {
 
     it('returns Firefox if service=relay', async () => {
       const res = await fetch('relay');
+      expect(res.name).toBe('Firefox');
+    });
+
+    it('returns Firefox if service=smartwindow', async () => {
+      const res = await fetch('smartwindow');
+      expect(res.name).toBe('Firefox');
+    });
+
+    it('returns Firefox if service=vpn', async () => {
+      const res = await fetch('vpn');
       expect(res.name).toBe('Firefox');
     });
 
