@@ -32,10 +32,10 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
   }
 
   isDevicePairingAsSupplicant() {
-    return (
-      this.isOAuthWebChannelContext() &&
-      DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP.test(this.pathname)
-    );
+    // Match Backbone behavior (app-start.js): only check pathname.
+    // Do NOT require isOAuthWebChannelContext() — Firefox iOS uses
+    // OAuth redirect (not WebChannel) for the supplicant flow.
+    return DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP.test(this.pathname);
   }
 
   isOAuth() {

@@ -31,6 +31,11 @@
       })
       .join('&');
   if (newSearch !== search) {
-    window.history.replaceState({}, '', newSearch);
+    // IMPORTANT: preserve `window.location.hash`. The pairing supplicant
+    // flow encodes `channel_id` and `channel_key` in the URL fragment
+    // (e.g. `/pair/supp?client_id=...#channel_id=...&channel_key=...`),
+    // and stripping the hash here would break the supplicant before the
+    // React app has a chance to read it.
+    window.history.replaceState({}, '', newSearch + window.location.hash);
   }
 })();

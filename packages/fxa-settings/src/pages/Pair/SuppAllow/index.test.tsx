@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SuppAllow from '.';
 import {
@@ -14,12 +14,43 @@ import {
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { Integration } from '../../../models/integrations/integration';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../models/integrations/pairing-supplicant-integration', () => {
+  const { MOCK_SUPPLICANT_STATE: SupplicantState } = jest.requireActual(
+    '../__mocks__/pairing-test-helpers'
+  );
+  return {
+    SupplicantState,
+    PairingSupplicantIntegration: class {
+      supplicantApprove = jest.fn().mockResolvedValue(undefined);
+      destroy = jest.fn().mockResolvedValue(undefined);
+      getClientId = jest.fn().mockReturnValue('mock-client-id');
+      onStateChange: ((state: string) => void) | null = null;
+      onError: ((err: unknown) => void) | null = null;
+      state = SupplicantState.WaitingForAuthorizations;
+      remoteMetadata = null;
+      email = 'test@example.com';
+      error = null;
+    },
+  };
+});
+
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { cadMobilePair: { view: jest.fn(), submit: jest.fn() } },
 }));
 
 const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
@@ -83,5 +114,75 @@ describe('Pair/SuppAllow page', () => {
       'pair.supp.allow',
       REACT_ENTRYPOINT
     );
+  });
+
+  describe('with PairingSupplicantIntegration', () => {
+    let mockIntegration: {
+      supplicantApprove: jest.Mock;
+      destroy: jest.Mock;
+      onStateChange: ((state: string) => void) | null;
+      onError: ((err: unknown) => void) | null;
+      state: string;
+      remoteMetadata: unknown;
+      email: string;
+      error: { message: string } | null;
+    };
+
+    beforeEach(() => {
+      const { PairingSupplicantIntegration: PSI } = jest.requireMock(
+        '../../../models/integrations/pairing-supplicant-integration'
+      );
+      mockIntegration = new PSI();
+      mockNavigateWithQuery.mockClear();
+    });
+
+    it('calls supplicantApprove on submit', () => {
+      renderWithLocalizationProvider(
+        <SuppAllow
+          email={MOCK_EMAIL}
+          authDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+          integration={mockIntegration as unknown as Integration}
+        />
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm pairing' }));
+      expect(mockIntegration.supplicantApprove).toHaveBeenCalled();
+    });
+
+    it('navigates on WaitingForAuthority state change', () => {
+      renderWithLocalizationProvider(
+        <SuppAllow integration={mockIntegration as unknown as Integration} />
+      );
+      act(() => {
+        mockIntegration.onStateChange?.('waiting_for_authority');
+      });
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+        '/pair/supp/wait_for_auth'
+      );
+    });
+
+    it('destroys channel and navigates to failure on cancel', async () => {
+      renderWithLocalizationProvider(
+        <SuppAllow
+          email={MOCK_EMAIL}
+          authDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+          integration={mockIntegration as unknown as Integration}
+        />
+      );
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      });
+      expect(mockIntegration.destroy).toHaveBeenCalled();
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/failure');
+    });
+
+    it('navigates to failure page on Failed state change', () => {
+      renderWithLocalizationProvider(
+        <SuppAllow integration={mockIntegration as unknown as Integration} />
+      );
+      act(() => {
+        mockIntegration.onStateChange?.('failed');
+      });
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/failure');
+    });
   });
 });

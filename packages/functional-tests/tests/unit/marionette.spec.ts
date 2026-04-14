@@ -82,10 +82,25 @@ function createMockServer(
   };
 }
 
+/** Set up a mock server + connected client. Caller must call cleanup() in afterEach. */
+async function setupTest(
+  handler: (cmd: string, params: Record<string, unknown>) => unknown
+) {
+  const mock = createMockServer(handler);
+  await mock.ready;
+  const client = new MarionetteClient('127.0.0.1', mock.port);
+  return { client, server: mock.server };
+}
+
+/** Connect and create a new session on the client. */
+async function connectAndSession(client: MarionetteClient) {
+  await client.connect(1, 100);
+  await client.newSession();
+}
+
 test.describe('MarionetteClient', () => {
   let server: net.Server;
   let client: MarionetteClient;
-  let serverPort: number;
 
   test.afterEach(async () => {
     client?.close();
@@ -99,12 +114,7 @@ test.describe('MarionetteClient', () => {
   });
 
   test('connects and receives hello', async () => {
-    const mock = createMockServer(() => ({}));
-    await mock.ready;
-    serverPort = mock.port;
-    server = mock.server;
-
-    client = new MarionetteClient('127.0.0.1', serverPort);
+    ({ client, server } = await setupTest(() => ({})));
     const hello = await client.connect(1, 100);
     expect(hello).toHaveProperty('applicationType', 'gecko');
     expect(hello).toHaveProperty('marionetteProtocol', 3);
@@ -112,18 +122,13 @@ test.describe('MarionetteClient', () => {
 
   test('sendCommand sends correct protocol format and parses response', async () => {
     const commands: Array<{ cmd: string; params: unknown }> = [];
-    const mock = createMockServer((cmd, params) => {
+    ({ client, server } = await setupTest((cmd, params) => {
       commands.push({ cmd, params });
       if (cmd === 'WebDriver:NewSession') {
         return { value: { sessionId: 'test-session' } };
       }
       return {};
-    });
-    await mock.ready;
-    serverPort = mock.port;
-    server = mock.server;
-
-    client = new MarionetteClient('127.0.0.1', serverPort);
+    }));
     await client.connect(1, 100);
     const result = await client.newSession();
 
@@ -133,19 +138,13 @@ test.describe('MarionetteClient', () => {
   });
 
   test('throws MarionetteError on server error response', async () => {
-    const mock = createMockServer((cmd) => {
+    ({ client, server } = await setupTest((cmd) => {
       if (cmd === 'WebDriver:Navigate') {
         throw { errorType: 'no such window', message: 'Window not found' };
       }
       return {};
-    });
-    await mock.ready;
-    serverPort = mock.port;
-    server = mock.server;
-
-    client = new MarionetteClient('127.0.0.1', serverPort);
-    await client.connect(1, 100);
-    await client.newSession();
+    }));
+    await connectAndSession(client);
 
     await expect(client.navigate('http://example.com')).rejects.toThrow(
       MarionetteError
@@ -159,64 +158,46 @@ test.describe('MarionetteClient', () => {
   });
 
   test('findElement extracts W3C element ID', async () => {
-    const mock = createMockServer((cmd) => {
+    ({ client, server } = await setupTest((cmd) => {
       if (cmd === 'WebDriver:FindElement') {
         return { value: { [W3C_ELEMENT_KEY]: 'elem-123' } };
       }
       return {};
-    });
-    await mock.ready;
-    serverPort = mock.port;
-    server = mock.server;
-
-    client = new MarionetteClient('127.0.0.1', serverPort);
-    await client.connect(1, 100);
-    await client.newSession();
+    }));
+    await connectAndSession(client);
 
     const id = await client.findElement('css selector', '#my-btn');
     expect(id).toBe('elem-123');
   });
 
   test('findElements returns array of element IDs', async () => {
-    const mock = createMockServer((cmd) => {
+    ({ client, server } = await setupTest((cmd) => {
       if (cmd === 'WebDriver:FindElements') {
         return [{ [W3C_ELEMENT_KEY]: 'a' }, { [W3C_ELEMENT_KEY]: 'b' }];
       }
       return {};
-    });
-    await mock.ready;
-    serverPort = mock.port;
-    server = mock.server;
-
-    client = new MarionetteClient('127.0.0.1', serverPort);
-    await client.connect(1, 100);
-    await client.newSession();
+    }));
+    await connectAndSession(client);
 
     const ids = await client.findElements('css selector', 'div');
     expect(ids).toEqual(['a', 'b']);
   });
 
   test('executeScript unwraps value from result', async () => {
-    const mock = createMockServer((cmd) => {
+    ({ client, server } = await setupTest((cmd) => {
       if (cmd === 'WebDriver:ExecuteScript') {
         return { value: 42 };
       }
       return {};
-    });
-    await mock.ready;
-    serverPort = mock.port;
-    server = mock.server;
-
-    client = new MarionetteClient('127.0.0.1', serverPort);
-    await client.connect(1, 100);
-    await client.newSession();
+    }));
+    await connectAndSession(client);
 
     const result = await client.executeScript('return 42');
     expect(result).toBe(42);
   });
 
   test('getUrl and getTitle unwrap string values', async () => {
-    const mock = createMockServer((cmd) => {
+    ({ client, server } = await setupTest((cmd) => {
       if (cmd === 'WebDriver:GetCurrentURL') {
         return { value: 'http://localhost/test' };
       }
@@ -224,14 +205,8 @@ test.describe('MarionetteClient', () => {
         return { value: 'Test Page' };
       }
       return {};
-    });
-    await mock.ready;
-    serverPort = mock.port;
-    server = mock.server;
-
-    client = new MarionetteClient('127.0.0.1', serverPort);
-    await client.connect(1, 100);
-    await client.newSession();
+    }));
+    await connectAndSession(client);
 
     expect(await client.getUrl()).toBe('http://localhost/test');
     expect(await client.getTitle()).toBe('Test Page');
@@ -252,29 +227,88 @@ test.describe('MarionetteClient', () => {
 
     // Now connect to a real server
     await mock.ready;
-    serverPort = mock.port;
     server = mock.server;
-    client = new MarionetteClient('127.0.0.1', serverPort);
+    client = new MarionetteClient('127.0.0.1', mock.port);
     const hello = await client.connect(1, 100);
     expect(hello).toHaveProperty('applicationType');
   });
 
   test('message ID increments across commands', async () => {
-    const mock = createMockServer(() => {
-      return { value: 'ok' };
-    });
-    await mock.ready;
-    serverPort = mock.port;
-    server = mock.server;
-
-    client = new MarionetteClient('127.0.0.1', serverPort);
-    await client.connect(1, 100);
-    await client.newSession();
+    ({ client, server } = await setupTest(() => ({ value: 'ok' })));
+    await connectAndSession(client);
 
     // Fire several commands sequentially
     await client.executeScript('1');
     await client.executeScript('2');
     await client.executeScript('3');
     // If msgId tracking were broken, one of these would throw
+  });
+
+  test.describe('sendCommandWithRetry', () => {
+    test('read commands retry on transient errors then succeed', async () => {
+      let findAttempt = 0;
+      ({ client, server } = await setupTest((cmd) => {
+        if (cmd === 'WebDriver:FindElement') {
+          findAttempt++;
+          if (findAttempt <= 2) {
+            throw { errorType: 'no such window', message: 'Window not found' };
+          }
+          return { value: { [W3C_ELEMENT_KEY]: 'elem-retry' } };
+        }
+        return {};
+      }));
+      await connectAndSession(client);
+
+      const id = await client.findElement('css selector', '#btn');
+      expect(id).toBe('elem-retry');
+      expect(findAttempt).toBe(3); // 2 failures + 1 success
+    });
+
+    test('read commands give up after max retries', async () => {
+      ({ client, server } = await setupTest((cmd) => {
+        if (cmd === 'WebDriver:GetCurrentURL') {
+          throw { errorType: 'no such window', message: 'Window gone' };
+        }
+        return {};
+      }));
+      await connectAndSession(client);
+
+      await expect(client.getUrl()).rejects.toThrow(MarionetteError);
+    });
+
+    test('write commands do NOT retry on transient errors', async () => {
+      let clickAttempt = 0;
+      ({ client, server } = await setupTest((cmd) => {
+        if (cmd === 'WebDriver:ElementClick') {
+          clickAttempt++;
+          throw { errorType: 'no such window', message: 'Window not found' };
+        }
+        return {};
+      }));
+      await connectAndSession(client);
+
+      await expect(client.clickElement('elem-1')).rejects.toThrow(
+        MarionetteError
+      );
+      expect(clickAttempt).toBe(1); // No retries for write commands
+    });
+
+    test('non-transient errors are not retried even for read commands', async () => {
+      let getUrlAttempt = 0;
+      ({ client, server } = await setupTest((cmd) => {
+        if (cmd === 'WebDriver:GetCurrentURL') {
+          getUrlAttempt++;
+          throw {
+            errorType: 'invalid argument',
+            message: 'Bad argument',
+          };
+        }
+        return {};
+      }));
+      await connectAndSession(client);
+
+      await expect(client.getUrl()).rejects.toThrow(MarionetteError);
+      expect(getUrlAttempt).toBe(1); // Non-transient error, no retry
+    });
   });
 });

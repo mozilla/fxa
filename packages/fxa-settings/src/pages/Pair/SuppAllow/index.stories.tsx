@@ -4,6 +4,7 @@
 
 import React from 'react';
 import SuppAllow from '.';
+import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,
@@ -16,7 +17,14 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 export default {
   title: 'Pages/Pair/SuppAllow',
   component: SuppAllow,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <LocationProvider>
+        <Story />
+      </LocationProvider>
+    ),
+  ],
 } as Meta;
 
 export const WithLocation = () => (
@@ -40,11 +48,14 @@ export const WithDeviceName = () => (
   />
 );
 
-export const WithErrorMessage = () => (
+export const WithoutDeviceInfo = () => (
+  <SuppAllow email={MOCK_ACCOUNT.primaryEmail.email} />
+);
+
+export const WithError = () => (
   <SuppAllow
     email={MOCK_ACCOUNT.primaryEmail.email}
     authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
-    bannerType="error"
-    bannerMessage="There was an error"
+    error="An error occurred during pairing"
   />
 );

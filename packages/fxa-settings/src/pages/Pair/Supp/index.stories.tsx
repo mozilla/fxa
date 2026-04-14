@@ -4,6 +4,7 @@
 
 import React from 'react';
 import Supp from '.';
+import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_ERROR } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -11,9 +12,16 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 export default {
   title: 'Pages/Pair/Supp',
   component: Supp,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <LocationProvider>
+        <Story />
+      </LocationProvider>
+    ),
+  ],
 } as Meta;
 
 export const DefaultLoadingState = () => <Supp />;
 
-export const WithErrorMessage = () => <Supp error={MOCK_ERROR} />;
+export const WithError = () => <Supp error={MOCK_ERROR} />;

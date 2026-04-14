@@ -237,3 +237,34 @@ export function navigateWithQuery(
     includeHash
   );
 }
+
+/**
+ * Simplifies user agent OS names to generic popular names.
+ * Ported from fxa-content-server/app/scripts/lib/user-agent.js:toGenericOSName
+ */
+export function toGenericOSName(os: string): string {
+  if (/^Windows/.test(os)) {
+    return 'Windows';
+  }
+  if (/^Android/.test(os)) {
+    return 'Android';
+  }
+  if (/^Mac OS/.test(os)) {
+    return 'macOS';
+  }
+  if (/^iOS/.test(os)) {
+    return 'iOS';
+  }
+  if (/^(Ubuntu|Linux|Fedora|Red Hat|Debian)/.test(os)) {
+    return 'Linux';
+  }
+  return os || 'Unknown';
+}
+
+/** Default fallback message used across pairing pages when the error is not an Error instance. */
+export const DEFAULT_PAIRING_ERROR = 'An error occurred during pairing';
+
+/** Extract a human-readable error message from an unknown thrown value. */
+export function getPairingErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : DEFAULT_PAIRING_ERROR;
+}

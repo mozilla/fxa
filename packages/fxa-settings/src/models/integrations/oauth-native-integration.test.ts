@@ -4,7 +4,11 @@
 
 import { ModelDataStore, GenericData } from '../../lib/model-data';
 import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
-import { OAuthNativeIntegration } from './oauth-native-integration';
+import {
+  isOAuthIntegration,
+  OAuthNativeIntegration,
+} from './oauth-native-integration';
+import { IntegrationType } from './integration';
 import { OAuthWebIntegration } from './oauth-web-integration';
 
 function mockClientInfo(clientId: string) {
@@ -220,6 +224,26 @@ describe('OAuthNativeIntegration', function () {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
       model.data.service = OAuthNativeServices.Relay;
       expect(model.isFirefoxClientServiceVpn()).toBe(false);
+    });
+  });
+
+  describe('isOAuthIntegration', () => {
+    it('returns true for PairingAuthority', () => {
+      expect(
+        isOAuthIntegration({ type: IntegrationType.PairingAuthority })
+      ).toBe(true);
+    });
+
+    it('returns true for PairingSupplicant', () => {
+      expect(
+        isOAuthIntegration({ type: IntegrationType.PairingSupplicant })
+      ).toBe(true);
+    });
+
+    it('returns false for SyncBasic', () => {
+      expect(isOAuthIntegration({ type: IntegrationType.SyncBasic })).toBe(
+        false
+      );
     });
   });
 
