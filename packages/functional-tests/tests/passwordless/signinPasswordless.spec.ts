@@ -994,6 +994,32 @@ test.describe('severity-2', () => {
       await page.waitForURL(/signin_passwordless_code/);
       await expect(signinPasswordlessCode.heading).toBeVisible();
     });
+
+    test('direct /signup URL with email param redirects to passwordless code when enabled', async ({
+      target,
+      page,
+      pages: { settings, signinPasswordlessCode },
+      testAccountTracker,
+    }) => {
+      const { email } = testAccountTracker.generatePasswordlessAccountDetails();
+
+      // Navigate directly to /signup with email, without force_passwordless=false
+      // so the passwordlessEnabled config flag takes effect
+      await page.goto(
+        `${target.contentServerUrl}/signup?showReactApp=true&email=${encodeURIComponent(email)}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      );
+
+      // Should redirect to passwordless code page
+      await page.waitForURL(/signin_passwordless_code/);
+      await expect(signinPasswordlessCode.heading).toBeVisible();
+
+      const code = await target.emailClient.getPasswordlessSignupCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(code);
+
+      await page.waitForURL(/settings/);
+
+      await settings.signOut();
+    });
   });
 
   test.describe('Passwordless authentication - Sync flows', () => {
