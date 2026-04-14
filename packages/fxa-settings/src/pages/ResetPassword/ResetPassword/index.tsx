@@ -25,6 +25,7 @@ const ResetPassword = ({
   requestResetPasswordCode,
   serviceName,
   setErrorMessage,
+  setCurrentSplitLayout,
 }: ResetPasswordProps & RouteComponentProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -81,7 +82,7 @@ const ResetPassword = ({
   };
 
   return (
-    <AppLayout>
+    <AppLayout {...{ setCurrentSplitLayout }}>
       <FtlMsg id="password-reset-flow-heading">
         <h1 className="card-header">Reset your password</h1>
       </FtlMsg>

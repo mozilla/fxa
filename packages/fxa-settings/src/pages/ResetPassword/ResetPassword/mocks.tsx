@@ -24,6 +24,7 @@ export const Subject = ({
           serviceName,
           requestResetPasswordCode,
           setErrorMessage,
+          setCurrentSplitLayout: () => {},
         }}
       />
     </LocationProvider>
