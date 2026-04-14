@@ -32767,6 +32767,7 @@ __metadata:
     json: "npm:^11.0.0"
     jsonc-eslint-parser: "npm:^2.1.0"
     jsonwebtoken: "npm:^9.0.3"
+    jwks-rsa: "npm:^3.1.0"
     knex: "npm:^3.1.0"
     kysely: "npm:^0.28.14"
     lint-staged: "npm:^15.2.0"
@@ -32792,6 +32793,7 @@ __metadata:
     objection: "npm:^3.1.3"
     os-browserify: "npm:^0.3.0"
     passport: "npm:^0.7.0"
+    passport-custom: "npm:^1.1.1"
     passport-http-bearer: "npm:^1.0.1"
     passport-jwt: "npm:^4.0.1"
     path-browserify: "npm:^1.0.1"
@@ -43886,6 +43888,15 @@ __metadata:
   version: 0.1.1
   resolution: "pascalcase@npm:0.1.1"
   checksum: 10c0/48dfe90618e33810bf58211d8f39ad2c0262f19ad6354da1ba563935b5f429f36409a1fb9187c220328f7a4dc5969917f8e3e01ee089b5f1627b02aefe39567b
+  languageName: node
+  linkType: hard
+
+"passport-custom@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "passport-custom@npm:1.1.1"
+  dependencies:
+    passport-strategy: "npm:1.x.x"
+  checksum: 10c0/49b6fcd125dcd60272d4f02c27acb3b61b2659f3148bc10b31b7c439314054ce32c83a12f422215bdfa83d0463668a1f38ca6e8d68ccd32c922f73ccaa5ac9b3
   languageName: node
   linkType: hard
 
