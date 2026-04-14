@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { AppError as error } from '@fxa/accounts/errors';
 import * as authMethods from './authMethods';
 
@@ -10,70 +9,57 @@ const MOCK_ACCOUNT = {
   uid: 'abcdef123456',
 };
 
-function mockDB() {
-  return {
-    totpToken: sinon.stub(),
-    // Add other DB methods as needed
-  };
-}
-
 describe('availableAuthenticationMethods', () => {
-  let mockDbInstance: ReturnType<typeof mockDB>;
+  let db: { totpToken: jest.Mock };
 
   beforeEach(() => {
-    mockDbInstance = mockDB();
+    db = { totpToken: jest.fn() };
   });
 
   it('returns [`pwd`,`email`] for non-TOTP-enabled accounts', async () => {
-    mockDbInstance.totpToken = sinon.stub().rejects(error.totpTokenNotFound());
+    db.totpToken.mockRejectedValue(error.totpTokenNotFound());
     const amr = await authMethods.availableAuthenticationMethods(
-      mockDbInstance as any,
+      db as any,
       MOCK_ACCOUNT as any
     );
-    expect(mockDbInstance.totpToken.calledWithExactly(MOCK_ACCOUNT.uid)).toBe(true);
+    expect(db.totpToken).toHaveBeenCalledWith(MOCK_ACCOUNT.uid);
     expect(Array.from(amr).sort()).toEqual(['email', 'pwd']);
   });
 
   it('returns [`pwd`,`email`,`otp`] for TOTP-enabled accounts', async () => {
-    mockDbInstance.totpToken = sinon.stub().resolves({
+    db.totpToken.mockResolvedValue({
       verified: true,
       enabled: true,
       sharedSecret: 'secret!',
     });
     const amr = await authMethods.availableAuthenticationMethods(
-      mockDbInstance as any,
+      db as any,
       MOCK_ACCOUNT as any
     );
-    expect(mockDbInstance.totpToken.calledWithExactly(MOCK_ACCOUNT.uid)).toBe(true);
+    expect(db.totpToken).toHaveBeenCalledWith(MOCK_ACCOUNT.uid);
     expect(Array.from(amr).sort()).toEqual(['email', 'otp', 'pwd']);
   });
 
   it('returns [`pwd`,`email`] when TOTP token is not yet enabled', async () => {
-    mockDbInstance.totpToken = sinon.stub().resolves({
+    db.totpToken.mockResolvedValue({
       verified: true,
       enabled: false,
       sharedSecret: 'secret!',
     });
     const amr = await authMethods.availableAuthenticationMethods(
-      mockDbInstance as any,
+      db as any,
       MOCK_ACCOUNT as any
     );
-    expect(mockDbInstance.totpToken.calledWithExactly(MOCK_ACCOUNT.uid)).toBe(true);
+    expect(db.totpToken).toHaveBeenCalledWith(MOCK_ACCOUNT.uid);
     expect(Array.from(amr).sort()).toEqual(['email', 'pwd']);
   });
 
   it('rethrows unexpected DB errors', async () => {
-    mockDbInstance.totpToken = sinon.stub().rejects(error.serviceUnavailable());
-    try {
-      await authMethods.availableAuthenticationMethods(
-        mockDbInstance as any,
-        MOCK_ACCOUNT as any
-      );
-      throw new Error('error should have been re-thrown');
-    } catch (err: any) {
-      expect(mockDbInstance.totpToken.calledWithExactly(MOCK_ACCOUNT.uid)).toBe(true);
-      expect(err.errno).toBe(error.ERRNO.SERVER_BUSY);
-    }
+    db.totpToken.mockRejectedValue(error.serviceUnavailable());
+    await expect(
+      authMethods.availableAuthenticationMethods(db as any, MOCK_ACCOUNT as any)
+    ).rejects.toMatchObject({ errno: error.ERRNO.SERVER_BUSY });
+    expect(db.totpToken).toHaveBeenCalledWith(MOCK_ACCOUNT.uid);
   });
 });
 
@@ -96,6 +82,10 @@ describe('verificationMethodToAMR', () => {
 
   it('maps `recovery-code` to `otp`', () => {
     expect(authMethods.verificationMethodToAMR('recovery-code')).toBe('otp');
+  });
+
+  it('maps `passkey` to `webauthn`', () => {
+    expect(authMethods.verificationMethodToAMR('passkey')).toBe('webauthn');
   });
 
   it('throws when given an unknown verification method', () => {
@@ -129,5 +119,64 @@ describe('maximumAssuranceLevel', () => {
 
   it('returns 2 when both `pwd` and `otp` methods are used', () => {
     expect(authMethods.maximumAssuranceLevel(['pwd', 'otp'])).toBe(2);
+  });
+
+  it('returns 2 when both `pwd` and `webauthn` methods are used (passkey session)', () => {
+    expect(authMethods.maximumAssuranceLevel(['pwd', 'webauthn'])).toBe(2);
+  });
+});
+
+describe('accountRequiresAAL2', () => {
+  let db: { totpToken: jest.Mock };
+
+  beforeEach(() => {
+    db = { totpToken: jest.fn() };
+  });
+
+  it('returns false when account has no TOTP token', async () => {
+    db.totpToken.mockRejectedValue(error.totpTokenNotFound());
+    const result = await authMethods.accountRequiresAAL2(
+      db as any,
+      MOCK_ACCOUNT as any
+    );
+    expect(result).toBe(false);
+  });
+
+  // The current TOTP setup flow writes to the DB only at setup-complete via
+  // replaceTotpToken, always with both flags true — partial states cannot be
+  // produced by any current code path. These tests are defensive guards against
+  // legacy data or future regressions.
+  it('returns false when TOTP token exists but is not verified', async () => {
+    db.totpToken.mockResolvedValue({ verified: false, enabled: true });
+    const result = await authMethods.accountRequiresAAL2(
+      db as any,
+      MOCK_ACCOUNT as any
+    );
+    expect(result).toBe(false);
+  });
+
+  it('returns false when TOTP token exists but is not enabled', async () => {
+    db.totpToken.mockResolvedValue({ verified: true, enabled: false });
+    const result = await authMethods.accountRequiresAAL2(
+      db as any,
+      MOCK_ACCOUNT as any
+    );
+    expect(result).toBe(false);
+  });
+
+  it('returns true when TOTP token is both verified and enabled', async () => {
+    db.totpToken.mockResolvedValue({ verified: true, enabled: true });
+    const result = await authMethods.accountRequiresAAL2(
+      db as any,
+      MOCK_ACCOUNT as any
+    );
+    expect(result).toBe(true);
+  });
+
+  it('rethrows unexpected DB errors', async () => {
+    db.totpToken.mockRejectedValue(error.serviceUnavailable());
+    await expect(
+      authMethods.accountRequiresAAL2(db as any, MOCK_ACCOUNT as any)
+    ).rejects.toMatchObject({ errno: error.ERRNO.SERVER_BUSY });
   });
 });

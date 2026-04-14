@@ -19,6 +19,7 @@ module.exports = (log, Token, config) => {
     [2, 'totp-2fa'],
     [3, 'recovery-code'],
     [4, 'sms-2fa'],
+    [5, 'passkey'],
   ]);
 
   class SessionToken extends Token {
@@ -100,7 +101,16 @@ module.exports = (log, Token, config) => {
 
     get authenticationMethods() {
       const amrValues = new Set();
-      // All sessionTokens require password authentication.
+      // 'pwd' is added to every session regardless of how the user authenticated.
+      // This pre-dates passwordless flows (linked accounts, email OTP, passkeys)
+      // and is factually wrong for all of them. For linked accounts and email OTP
+      // the error is inconsequential — {pwd, email} → {know, know} → AAL1 whether
+      // or not pwd is present. For passkey sessions the 'pwd' entry incidentally
+      // produces the correct AAL2 result, but only because AMR_TO_TYPE maps
+      // 'webauthn' to 'have' alone. A passkey with user verification is
+      // intrinsically multi-factor ('have' + 'know'/'are') and should yield AAL2
+      // without needing 'pwd'. Fixing both the mapping and this invariant is
+      // deferred (FXA-13432).
       amrValues.add('pwd');
       // Verified sessionTokens imply some additional authentication method(s).
       if (this.verificationMethodValue) {
@@ -113,6 +123,12 @@ module.exports = (log, Token, config) => {
       return amrValues;
     }
 
+    // The AAL of this specific session, derived from the methods used to
+    // establish it. This is distinct from the account-level AAL reported
+    // to RPs via profile:amr — that reflects mandatory second factors
+    // configured on the account; this reflects what actually happened
+    // during authentication. The fxa-aal JWT claim in OAuth assertions
+    // and the acr_values enforcement in grant.js both use this value.
     get authenticatorAssuranceLevel() {
       return authMethods.maximumAssuranceLevel(this.authenticationMethods);
     }

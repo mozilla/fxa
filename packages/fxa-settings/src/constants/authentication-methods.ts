@@ -8,6 +8,7 @@ enum AuthenticationMethods {
   EMAIL = 'email',
   // TOTP / 2FA token
   OTP = 'otp',
+  WEBAUTHN = 'webauthn',
 }
 
 export default AuthenticationMethods;

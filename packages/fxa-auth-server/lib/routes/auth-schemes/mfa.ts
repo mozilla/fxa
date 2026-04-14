@@ -178,15 +178,14 @@ export const strategy = (
         }
       }
 
-      // 3) account AAL and session AAL match
-      const accountAmr = await authMethods.availableAuthenticationMethods(
+      // 3) session AAL satisfies account requirements
+      const accountRequiresAal2 = await authMethods.accountRequiresAAL2(
         db,
         account
       );
-      const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
       const sessionAal = sessionToken.authenticatorAssuranceLevel;
 
-      if (sessionAal < accountAal) {
+      if (accountRequiresAal2 && sessionAal < 2) {
         if (skipAalCheckForRoutes?.test(req.route.path)) {
           statsd?.increment('verified_session_token.aal.skipped', [
             `path:${req.route.path}`,

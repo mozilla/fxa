@@ -200,13 +200,9 @@ module.exports = function (
             getClientServiceTags(request)
           );
         }
-        const accountAmr = await authMethods.availableAuthenticationMethods(
-          db,
-          account
-        );
-        const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
+        const requiresAal2 = await authMethods.accountRequiresAAL2(db, account);
         const sessionAal = sessionToken.authenticatorAssuranceLevel;
-        if (sessionAal < accountAal) {
+        if (requiresAal2 && sessionAal < 2) {
           statsd.increment(
             'session_reauth.all_not_met',
             getClientServiceTags(request)
@@ -339,11 +335,7 @@ module.exports = function (
         }
 
         // Check account assurance level
-        const accountAmr = await authMethods.availableAuthenticationMethods(
-          db,
-          account
-        );
-        const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
+        const requiresAal2 = await authMethods.accountRequiresAAL2(db, account);
         const sessionAal = sessionToken.authenticatorAssuranceLevel;
 
         // Build response
@@ -356,7 +348,8 @@ module.exports = function (
         const sessionVerified = sessionToken.tokenVerified;
 
         // Account Assurance Level
-        const sessionVerificationMeetsMinimumAAL = sessionAal >= accountAal;
+        const sessionVerificationMeetsMinimumAAL =
+          !requiresAal2 || sessionAal >= 2;
 
         // Legacy verified flag. Keep for backwards compatibility.
         const verified = accountEmailVerified && sessionVerified;

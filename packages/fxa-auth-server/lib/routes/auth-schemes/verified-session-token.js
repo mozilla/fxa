@@ -12,7 +12,7 @@ const { parseAuthorizationHeader } = require('./hawk-fxa-token');
  * Authentication strategy that validates a Hawk session token and ensures:
  * 1) account email is verified
  * 2) session token is verified (no tokenVerificationId)
- * 3) account AAL and session AAL match
+ * 3) session AAL satisfies account requirements
  *
  * @param {Function} getCredentialsFunc - function to fetch a session token by id
  * @param {Object} db - database interface to fetch account and factors
@@ -99,15 +99,14 @@ function strategy(getCredentialsFunc, db, config, statsd) {
           }
         }
 
-        // 3) account AAL and session AAL match
-        const accountAmr = await authMethods.availableAuthenticationMethods(
+        // 3) session AAL satisfies account requirements
+        const accountRequiresAal2 = await authMethods.accountRequiresAAL2(
           db,
           account
         );
-        const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
         const sessionAal = token.authenticatorAssuranceLevel;
 
-        if (sessionAal < accountAal) {
+        if (accountRequiresAal2 && sessionAal < 2) {
           if (skipAalCheckForRoutes?.test(req.route.path)) {
             statsd?.increment('verified_session_token.aal.skipped', [
               `path:${req.route.path}`,

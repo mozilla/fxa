@@ -75,9 +75,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
     expect(typeof token.lastAuthAt).toBe('function');
     expect(typeof token.setUserAgentInfo).toBe('function');
     expect(typeof token.copyTokenState).toBe('function');
-    expect(
-      Object.getOwnPropertyDescriptor(token, 'state')
-    ).toBeUndefined();
+    expect(Object.getOwnPropertyDescriptor(token, 'state')).toBeUndefined();
     const descriptor = Object.getOwnPropertyDescriptor(
       Object.getPrototypeOf(token),
       'state'
@@ -89,7 +87,10 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
 
   it('re-creation from tokenData works', async () => {
     const token: SessionTokenLike = await SessionToken.create(TOKEN);
-    const token2: SessionTokenLike = await SessionToken.fromHex(token.data, token);
+    const token2: SessionTokenLike = await SessionToken.fromHex(
+      token.data,
+      token
+    );
     expect(token.data).toEqual(token2.data);
     expect(token.id).toEqual(token2.id);
     expect(token.authKey).toEqual(token2.authKey);
@@ -108,9 +109,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
     expect(token.verificationMethod).toBe(token2.verificationMethod);
     expect(token.verificationMethodValue).toBe('totp-2fa');
     expect(token.verifiedAt).toBe(token2.verifiedAt);
-    expect(token.authenticationMethods).toEqual(
-      token2.authenticationMethods
-    );
+    expect(token.authenticationMethods).toEqual(token2.authenticationMethods);
     expect(token.authenticatorAssuranceLevel).toEqual(
       token2.authenticatorAssuranceLevel
     );
@@ -170,7 +169,10 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
   it('sessionToken key derivations are test-vector compliant', async () => {
     const tokenData =
       'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf';
-    const token: SessionTokenLike = await SessionToken.fromHex(tokenData, TOKEN);
+    const token: SessionTokenLike = await SessionToken.fromHex(
+      tokenData,
+      TOKEN
+    );
     expect(token.data.toString('hex')).toBe(tokenData);
     expect(token.id).toBe(
       'c0a29dcf46174973da1378696e4c82ae10f723cf4f4d9f75e39f4ae3851595ab'
@@ -260,9 +262,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
         verificationMethod: null,
         verifiedAt: null,
       });
-      expect(Array.from(token.authenticationMethods).sort()).toEqual([
-        'pwd',
-      ]);
+      expect(Array.from(token.authenticationMethods).sort()).toEqual(['pwd']);
     });
 
     it('should be [`pwd`, `email`] for verified tokens', async () => {
@@ -299,6 +299,20 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
         'otp',
         'pwd',
       ]);
+    });
+
+    it('should be [`pwd`, `webauthn`] for tokens verified via passkey', async () => {
+      const token: SessionTokenLike = await SessionToken.create({
+        ...TOKEN,
+        tokenVerificationId: null,
+        verificationMethod: 5,
+      });
+      expect(Array.from(token.authenticationMethods).sort()).toEqual([
+        'pwd',
+        'webauthn',
+      ]);
+      // {pwd → know, webauthn → have} → two distinct types → AAL2
+      expect(token.authenticatorAssuranceLevel).toBe(2);
     });
   });
 });

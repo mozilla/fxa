@@ -22,6 +22,7 @@ const VERIFICATION_METHOD = {
   'totp-2fa': 2,
   'recovery-code': 3,
   'sms-2fa': 4,
+  passkey: 5,
 } as const;
 
 export type VerificationMethod = keyof typeof VERIFICATION_METHOD;
