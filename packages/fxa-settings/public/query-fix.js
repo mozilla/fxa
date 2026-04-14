@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* This script re-encodes the current URL’s query parameters to ensure that any special
+/* This script re-encodes the current URL's query parameters to ensure that any special
  * characters (such as '+') are properly encoded. This re-encoding is necessary due to
  * backwards compatibility requirements for clients (e.g., the VPN client) that send
  * unencoded query components, which can cause issues with parameter validation in the app.
@@ -31,11 +31,15 @@
       })
       .join('&');
   if (newSearch !== search) {
-    // IMPORTANT: preserve `window.location.hash`. The pairing supplicant
-    // flow encodes `channel_id` and `channel_key` in the URL fragment
-    // (e.g. `/pair/supp?client_id=...#channel_id=...&channel_key=...`),
-    // and stripping the hash here would break the supplicant before the
-    // React app has a chance to read it.
-    window.history.replaceState({}, '', newSearch + window.location.hash);
+    // IMPORTANT: preserve the URL hash fragment. The pairing supplicant
+    // flow encodes channel_id and channel_key in the fragment. On iOS
+    // WKWebView, window.location.hash may be empty when inline scripts
+    // run early, so fall back to parsing the hash from the full href.
+    const hash =
+      window.location.hash ||
+      (window.location.href.includes('#')
+        ? window.location.href.substring(window.location.href.indexOf('#'))
+        : '');
+    window.history.replaceState({}, '', newSearch + hash);
   }
 })();
