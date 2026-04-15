@@ -8,6 +8,7 @@ import {
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
+
 import type {
   RegistrationResponseJSON,
   AuthenticationResponseJSON,
@@ -44,8 +45,13 @@ export async function generateWebauthnRegistrationOptions(
     rpName: config.rpId,
     rpID: config.rpId,
     userName: input.email,
+    userDisplayName: input.email,
     userID: input.uid,
-    challenge: input.challenge,
+    // Challenge must be passed as a Buffer (Uint8Array) so that simplewebauthn
+    // base64url-encodes the raw bytes. Passing a string causes the library to
+    // UTF-8-encode the text first, producing a different base64url value than
+    // what was stored in Redis — breaking challenge lookup on finish.
+    challenge: Buffer.from(input.challenge, 'base64url'),
     authenticatorSelection: {
       residentKey: config.residentKey,
       userVerification: config.userVerification,
@@ -161,7 +167,8 @@ export async function generateWebauthnAuthenticationOptions(
   return generateAuthenticationOptions({
     rpID: config.rpId,
     userVerification: config.userVerification,
-    challenge: input.challenge,
+    // See comment in generateRegistrationOptions — same base64url roundtrip fix.
+    challenge: Buffer.from(input.challenge, 'base64url'),
     allowCredentials:
       input.allowCredentials.length > 0
         ? input.allowCredentials.map((id) => ({ id: id.toString('base64url') }))

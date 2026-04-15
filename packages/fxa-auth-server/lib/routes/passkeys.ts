@@ -85,7 +85,7 @@ class PasskeyHandler {
     );
 
     const options = await this.service.generateRegistrationChallenge(
-      Buffer.from(uid),
+      Buffer.from(uid, 'hex'),
       account.email
     );
 
@@ -128,7 +128,7 @@ class PasskeyHandler {
 
     try {
       const passkey = await this.service.createPasskeyFromRegistrationResponse(
-        Buffer.from(uid),
+        Buffer.from(uid, 'hex'),
         response,
         challenge
       );
@@ -213,7 +213,9 @@ class PasskeyHandler {
       'passkeysList'
     );
 
-    const passkeys = await this.service.listPasskeysForUser(Buffer.from(uid));
+    const passkeys = await this.service.listPasskeysForUser(
+      Buffer.from(uid, 'hex')
+    );
 
     // omit publicKey and signCount
     return passkeys.map(
@@ -264,7 +266,7 @@ class PasskeyHandler {
 
     const credentialId = Buffer.from(credentialIdParam, 'base64url');
 
-    await this.service.deletePasskey(Buffer.from(uid), credentialId);
+    await this.service.deletePasskey(Buffer.from(uid, 'hex'), credentialId);
 
     await recordSecurityEvent('account.passkey.removed', {
       db: this.db,
@@ -317,7 +319,7 @@ class PasskeyHandler {
     const credentialId = Buffer.from(credentialIdParam, 'base64url');
 
     const passkey = await this.service.renamePasskey(
-      Buffer.from(uid),
+      Buffer.from(uid, 'hex'),
       credentialId,
       name
     );
@@ -495,9 +497,10 @@ export const passkeyRoutes = (
           }),
         },
       },
-      handler: function (request: AuthRequest) {
+      handler: async function (request: AuthRequest) {
         log.begin('passkey.registration.start', request);
-        return handler.registrationStart(request);
+        const result = await handler.registrationStart(request);
+        return result;
       },
     },
     {
@@ -531,9 +534,10 @@ export const passkeyRoutes = (
           }),
         },
       },
-      handler: function (request: AuthRequest) {
+      handler: async function (request: AuthRequest) {
         log.begin('passkey.registration.finish', request);
-        return handler.registrationFinish(request);
+        const result = await handler.registrationFinish(request);
+        return result;
       },
     },
     {

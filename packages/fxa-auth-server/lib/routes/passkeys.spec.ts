@@ -172,7 +172,7 @@ describe('passkeys routes', () => {
       ).toHaveBeenCalledTimes(1);
       expect(
         mockPasskeyService.generateRegistrationChallenge
-      ).toHaveBeenCalledWith(Buffer.from(UID), TEST_EMAIL);
+      ).toHaveBeenCalledWith(Buffer.from(UID, 'hex'), TEST_EMAIL);
     });
 
     it('enforces rate limiting via customs.checkAuthenticated', async () => {
@@ -249,7 +249,7 @@ describe('passkeys routes', () => {
       expect(
         mockPasskeyService.createPasskeyFromRegistrationResponse
       ).toHaveBeenCalledWith(
-        Buffer.from(UID),
+        Buffer.from(UID, 'hex'),
         payload.response,
         payload.challenge
       );
@@ -440,7 +440,7 @@ describe('passkeys routes', () => {
       );
 
       expect(mockPasskeyService.listPasskeysForUser).toHaveBeenCalledWith(
-        Buffer.from(UID)
+        Buffer.from(UID, 'hex')
       );
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
@@ -520,7 +520,7 @@ describe('passkeys routes', () => {
       );
 
       expect(mockPasskeyService.deletePasskey).toHaveBeenCalledWith(
-        Buffer.from(UID),
+        Buffer.from(UID, 'hex'),
         Buffer.from(CREDENTIAL_ID_B64, 'base64url')
       );
     });
@@ -704,7 +704,7 @@ describe('passkeys routes', () => {
       );
 
       expect(mockPasskeyService.renamePasskey).toHaveBeenCalledWith(
-        Buffer.from(UID),
+        Buffer.from(UID, 'hex'),
         Buffer.from(CREDENTIAL_ID_B64, 'base64url'),
         'Renamed Key'
       );
