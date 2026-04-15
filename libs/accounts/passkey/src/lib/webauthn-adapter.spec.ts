@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import type {
-  RegistrationResponseJSON,
-  AuthenticationResponseJSON,
-} from '@simplewebauthn/server';
+import { randomBytes } from 'crypto';
 import {
   generateWebauthnRegistrationOptions,
   verifyWebauthnRegistrationResponse,
@@ -14,34 +11,16 @@ import {
   uuidToBuffer,
 } from './webauthn-adapter';
 import { PasskeyConfig } from './passkey.config';
+import { VirtualAuthenticator } from './virtual-authenticator';
 
-jest.mock('@simplewebauthn/server', () => ({
-  generateRegistrationOptions: jest.fn(),
-  verifyRegistrationResponse: jest.fn(),
-  generateAuthenticationOptions: jest.fn(),
-  verifyAuthenticationResponse: jest.fn(),
-}));
+const TEST_RP_ID = 'accounts.firefox.com';
+const TEST_ORIGIN = 'https://accounts.firefox.com';
 
-const libMocks = jest.requireMock('@simplewebauthn/server') as {
-  generateRegistrationOptions: jest.MockedFunction<
-    (...args: unknown[]) => Promise<unknown>
-  >;
-  verifyRegistrationResponse: jest.MockedFunction<
-    (...args: unknown[]) => Promise<unknown>
-  >;
-  generateAuthenticationOptions: jest.MockedFunction<
-    (...args: unknown[]) => Promise<unknown>
-  >;
-  verifyAuthenticationResponse: jest.MockedFunction<
-    (...args: unknown[]) => Promise<unknown>
-  >;
-};
-
-function mockConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
+function testConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
   return new PasskeyConfig({
     enabled: true,
-    rpId: 'accounts.firefox.com',
-    allowedOrigins: ['https://accounts.firefox.com'],
+    rpId: TEST_RP_ID,
+    allowedOrigins: [TEST_ORIGIN],
     userVerification: 'required',
     residentKey: 'preferred',
     maxPasskeysPerUser: 10,
@@ -50,31 +29,34 @@ function mockConfig(overrides: Partial<PasskeyConfig> = {}): PasskeyConfig {
   });
 }
 
-function mockRegistrationResponse(): RegistrationResponseJSON {
-  return {
-    id: 'aGVsbG93b3JsZA',
-    rawId: 'aGVsbG93b3JsZA',
-    response: {
-      clientDataJSON: 'e30',
-      attestationObject: 'e30',
-    },
-    type: 'public-key',
-    clientExtensionResults: {},
-  };
-}
+/**
+ * Full registration roundtrip returning the virtual credential (retains
+ * the private key for subsequent assertions) and the stored data from
+ * verifyWebauthnRegistrationResponse.
+ */
+async function registerCredential(config: PasskeyConfig) {
+  const cred = VirtualAuthenticator.createCredential();
+  const challenge = randomBytes(32).toString('base64url');
 
-function mockAuthenticationResponse(): AuthenticationResponseJSON {
-  return {
-    id: 'aGVsbG93b3JsZA',
-    rawId: 'aGVsbG93b3JsZA',
-    response: {
-      clientDataJSON: 'e30',
-      authenticatorData: 'e30',
-      signature: 'e30',
-    },
-    type: 'public-key',
-    clientExtensionResults: {},
-  };
+  const options = await generateWebauthnRegistrationOptions(config, {
+    uid: Buffer.alloc(16, 0xaa),
+    email: 'test@example.com',
+    challenge,
+  });
+
+  const attestation = VirtualAuthenticator.createAttestationResponse(cred, {
+    challenge: options.challenge,
+    origin: config.allowedOrigins[0],
+    rpId: config.rpId,
+  });
+
+  const result = await verifyWebauthnRegistrationResponse(config, {
+    response: attestation,
+    challenge,
+  });
+
+  if (!result.verified) throw new Error('registration setup failed');
+  return { cred, stored: result.data };
 }
 
 describe('uuidToBuffer', () => {
@@ -109,369 +91,368 @@ describe('uuidToBuffer', () => {
 });
 
 describe('generateWebauthnRegistrationOptions', () => {
-  beforeEach(() => jest.clearAllMocks());
+  it('returns the original base64url challenge unchanged', async () => {
+    const challenge = randomBytes(32).toString('base64url');
 
-  it('maps config and input fields to the correct library options', async () => {
-    libMocks.generateRegistrationOptions.mockResolvedValue({
-      challenge: 'c',
+    const options = await generateWebauthnRegistrationOptions(testConfig(), {
+      uid: Buffer.alloc(16, 0xaa),
+      email: 'test@example.com',
+      challenge,
     });
-    const uid = Buffer.from([0xde, 0xad, 0xbe, 0xef]);
 
-    await generateWebauthnRegistrationOptions(
-      mockConfig({
-        residentKey: 'required',
-        authenticatorAttachment: 'platform',
-      }),
+    expect(options.challenge).toBe(challenge);
+  });
+
+  it('sets rp info from config', async () => {
+    const options = await generateWebauthnRegistrationOptions(
+      testConfig({ rpId: 'example.com' }),
       {
-        uid,
+        uid: Buffer.alloc(16),
         email: 'alice@example.com',
-        challenge: 'test-challenge',
+        challenge: randomBytes(32).toString('base64url'),
       }
     );
 
-    expect(libMocks.generateRegistrationOptions).toHaveBeenCalledWith(
+    expect(options.rp.id).toBe('example.com');
+    expect(options.rp.name).toBe('example.com');
+  });
+
+  it('maps authenticatorSelection from config', async () => {
+    const options = await generateWebauthnRegistrationOptions(
+      testConfig({
+        residentKey: 'required',
+        userVerification: 'required',
+        authenticatorAttachment: 'platform',
+      }),
+      {
+        uid: Buffer.alloc(16),
+        email: 'alice@example.com',
+        challenge: randomBytes(32).toString('base64url'),
+      }
+    );
+
+    expect(options.authenticatorSelection).toEqual(
       expect.objectContaining({
-        rpName: 'accounts.firefox.com',
-        rpID: 'accounts.firefox.com',
-        userName: 'alice@example.com',
-        userID: uid,
-        challenge: 'test-challenge',
-        authenticatorSelection: expect.objectContaining({
-          userVerification: 'required',
-          residentKey: 'required',
-          authenticatorAttachment: 'platform',
-        }),
+        residentKey: 'required',
+        userVerification: 'required',
+        authenticatorAttachment: 'platform',
       })
     );
   });
 
-  it('returns the library result unchanged', async () => {
-    const fakeResult = { challenge: 'xyz' };
-    libMocks.generateRegistrationOptions.mockResolvedValue(fakeResult);
-
-    const result = await generateWebauthnRegistrationOptions(mockConfig(), {
-      uid: Buffer.alloc(16),
-      email: 'user@example.com',
-      challenge: 'xyz',
+  it('sets user name from email', async () => {
+    const options = await generateWebauthnRegistrationOptions(testConfig(), {
+      uid: Buffer.alloc(16, 0xbb),
+      email: 'bob@example.com',
+      challenge: randomBytes(32).toString('base64url'),
     });
 
-    expect(result).toBe(fakeResult);
+    expect(options.user.name).toBe('bob@example.com');
   });
 });
 
 describe('verifyWebauthnRegistrationResponse', () => {
-  beforeEach(() => jest.clearAllMocks());
+  const config = testConfig();
 
-  const baseInput = {
-    response: mockRegistrationResponse(),
-    challenge: 'test-challenge',
-  };
+  it('succeeds with a valid attestation and extracts credential data', async () => {
+    const cred = VirtualAuthenticator.createCredential();
+    const challenge = randomBytes(32).toString('base64url');
 
-  const successLibResult = {
-    verified: true,
-    registrationInfo: {
-      credential: {
-        id: 'aGVsbG93b3JsZA',
-        publicKey: new Uint8Array([0x04, 0xab, 0xcd, 0xef]),
-        counter: 0,
-        transports: ['internal'],
-      },
-      aaguid: 'adce0002-35bc-c60a-648b-0b25f1f05503',
-      credentialDeviceType: 'multiDevice',
-      credentialBackedUp: true,
-      authenticatorExtensionResults: { prf: { enabled: true } },
-    },
-  };
+    const options = await generateWebauthnRegistrationOptions(config, {
+      uid: Buffer.alloc(16, 0xaa),
+      email: 'test@example.com',
+      challenge,
+    });
 
-  it('returns { verified: true, data } when the library succeeds', async () => {
-    libMocks.verifyRegistrationResponse.mockResolvedValue(successLibResult);
+    const attestation = VirtualAuthenticator.createAttestationResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: TEST_RP_ID,
+    });
 
-    const result = await verifyWebauthnRegistrationResponse(
-      mockConfig(),
-      baseInput
-    );
+    const result = await verifyWebauthnRegistrationResponse(config, {
+      response: attestation,
+      challenge,
+    });
 
     expect(result.verified).toBe(true);
     if (!result.verified) throw new Error('narrowing');
 
     expect(result.data.credentialId).toBeInstanceOf(Buffer);
+    expect(result.data.credentialId.equals(cred.id)).toBe(true);
     expect(result.data.publicKey).toBeInstanceOf(Buffer);
     expect(result.data.signCount).toBe(0);
     expect(result.data.transports).toEqual(['internal']);
     expect(result.data.aaguid).toBeInstanceOf(Buffer);
     expect(result.data.aaguid.length).toBe(16);
-    expect(result.data.backupEligible).toBe(true);
-    expect(result.data.backupState).toBe(true);
-    expect(result.data.prfEnabled).toBe(true);
-  });
-
-  it('sets prfEnabled=false when authenticatorExtensionResults is absent', async () => {
-    libMocks.verifyRegistrationResponse.mockResolvedValue({
-      ...successLibResult,
-      registrationInfo: {
-        ...successLibResult.registrationInfo,
-        authenticatorExtensionResults: undefined,
-      },
-    });
-
-    const result = await verifyWebauthnRegistrationResponse(
-      mockConfig(),
-      baseInput
-    );
-
-    expect(result.verified).toBe(true);
-    if (!result.verified) throw new Error('narrowing');
+    expect(result.data.aaguid.equals(Buffer.alloc(16, 0))).toBe(true);
+    expect(result.data.backupEligible).toBe(false);
+    expect(result.data.backupState).toBe(false);
     expect(result.data.prfEnabled).toBe(false);
   });
 
-  it('sets prfEnabled=false when prf extension is present but enabled=false', async () => {
-    libMocks.verifyRegistrationResponse.mockResolvedValue({
-      ...successLibResult,
-      registrationInfo: {
-        ...successLibResult.registrationInfo,
-        authenticatorExtensionResults: { prf: { enabled: false } },
-      },
+  it('rejects a mismatched challenge', async () => {
+    const cred = VirtualAuthenticator.createCredential();
+    const realChallenge = randomBytes(32).toString('base64url');
+    const wrongChallenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnRegistrationOptions(config, {
+      uid: Buffer.alloc(16, 0xaa),
+      email: 'test@example.com',
+      challenge: realChallenge,
     });
 
-    const result = await verifyWebauthnRegistrationResponse(
-      mockConfig(),
-      baseInput
-    );
-
-    expect(result.verified).toBe(true);
-    if (!result.verified) throw new Error('narrowing');
-    expect(result.data.prfEnabled).toBe(false);
-  });
-
-  it('sets prfEnabled=false when prf key is missing from extension results', async () => {
-    libMocks.verifyRegistrationResponse.mockResolvedValue({
-      ...successLibResult,
-      registrationInfo: {
-        ...successLibResult.registrationInfo,
-        authenticatorExtensionResults: {},
-      },
+    const attestation = VirtualAuthenticator.createAttestationResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: TEST_RP_ID,
     });
 
-    const result = await verifyWebauthnRegistrationResponse(
-      mockConfig(),
-      baseInput
-    );
-
-    expect(result.verified).toBe(true);
-    if (!result.verified) throw new Error('narrowing');
-    expect(result.data.prfEnabled).toBe(false);
-  });
-
-  it('returns { verified: false } when the library returns verified=false', async () => {
-    libMocks.verifyRegistrationResponse.mockResolvedValue({ verified: false });
-
-    const result = await verifyWebauthnRegistrationResponse(
-      mockConfig(),
-      baseInput
-    );
-
-    expect(result.verified).toBe(false);
-    expect((result as { data?: unknown }).data).toBeUndefined();
-  });
-
-  it('passes config and input options to the library', async () => {
-    libMocks.verifyRegistrationResponse.mockResolvedValue(successLibResult);
-    const config = mockConfig({
-      allowedOrigins: ['https://accounts.firefox.com', 'https://other.example'],
-    });
-
-    await verifyWebauthnRegistrationResponse(config, {
-      response: mockRegistrationResponse(),
-      challenge: 'expected-challenge-xyz',
-    });
-
-    expect(libMocks.verifyRegistrationResponse).toHaveBeenCalledWith(
-      expect.objectContaining({
-        expectedChallenge: 'expected-challenge-xyz',
-        expectedOrigin: [
-          'https://accounts.firefox.com',
-          'https://other.example',
-        ],
+    await expect(
+      verifyWebauthnRegistrationResponse(config, {
+        response: attestation,
+        challenge: wrongChallenge,
       })
-    );
+    ).rejects.toThrow();
   });
 
-  it('decodes the aaguid UUID into a 16-byte Buffer', async () => {
-    libMocks.verifyRegistrationResponse.mockResolvedValue(successLibResult);
+  it('rejects a wrong origin', async () => {
+    const cred = VirtualAuthenticator.createCredential();
+    const challenge = randomBytes(32).toString('base64url');
 
-    const result = await verifyWebauthnRegistrationResponse(
-      mockConfig(),
-      baseInput
-    );
+    const options = await generateWebauthnRegistrationOptions(config, {
+      uid: Buffer.alloc(16, 0xaa),
+      email: 'test@example.com',
+      challenge,
+    });
 
-    expect(result.data?.aaguid[0]).toBe(0xad);
+    const attestation = VirtualAuthenticator.createAttestationResponse(cred, {
+      challenge: options.challenge,
+      origin: 'https://evil.example.com',
+      rpId: TEST_RP_ID,
+    });
+
+    await expect(
+      verifyWebauthnRegistrationResponse(config, {
+        response: attestation,
+        challenge,
+      })
+    ).rejects.toThrow();
+  });
+
+  it('rejects a wrong rpId', async () => {
+    const cred = VirtualAuthenticator.createCredential();
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnRegistrationOptions(config, {
+      uid: Buffer.alloc(16, 0xaa),
+      email: 'test@example.com',
+      challenge,
+    });
+
+    const attestation = VirtualAuthenticator.createAttestationResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: 'evil.example.com',
+    });
+
+    await expect(
+      verifyWebauthnRegistrationResponse(config, {
+        response: attestation,
+        challenge,
+      })
+    ).rejects.toThrow();
   });
 });
 
 describe('generateWebauthnAuthenticationOptions', () => {
-  beforeEach(() => jest.clearAllMocks());
+  const config = testConfig();
 
-  it('passes config and input options to the library', async () => {
-    libMocks.generateAuthenticationOptions.mockResolvedValue({});
+  it('returns the original base64url challenge unchanged', async () => {
+    const challenge = randomBytes(32).toString('base64url');
 
-    await generateWebauthnAuthenticationOptions(
-      mockConfig({ userVerification: 'discouraged' }),
+    const options = await generateWebauthnAuthenticationOptions(config, {
+      challenge,
+      allowCredentials: [],
+    });
+
+    expect(options.challenge).toBe(challenge);
+  });
+
+  it('sets rpId and userVerification from config', async () => {
+    const options = await generateWebauthnAuthenticationOptions(
+      testConfig({ userVerification: 'discouraged' }),
       {
-        challenge: 'random-challenge-abc',
+        challenge: randomBytes(32).toString('base64url'),
         allowCredentials: [],
       }
     );
 
-    expect(libMocks.generateAuthenticationOptions).toHaveBeenCalledWith(
-      expect.objectContaining({
-        rpID: 'accounts.firefox.com',
-        challenge: 'random-challenge-abc',
-        userVerification: 'discouraged',
-      })
-    );
+    expect(options.rpId).toBe(TEST_RP_ID);
+    expect(options.userVerification).toBe('discouraged');
   });
 
-  it('passes undefined for allowCredentials when the array is empty (discoverable flow)', async () => {
-    libMocks.generateAuthenticationOptions.mockResolvedValue({});
-
-    await generateWebauthnAuthenticationOptions(mockConfig(), {
-      challenge: 'ch',
+  it('omits allowCredentials for discoverable flow (empty input)', async () => {
+    const options = await generateWebauthnAuthenticationOptions(config, {
+      challenge: randomBytes(32).toString('base64url'),
       allowCredentials: [],
     });
 
-    expect(libMocks.generateAuthenticationOptions).toHaveBeenCalledWith(
-      expect.objectContaining({ allowCredentials: undefined })
-    );
+    expect(options.allowCredentials).toBeUndefined();
   });
 
-  it('converts Buffer credential IDs to base64url ids', async () => {
-    libMocks.generateAuthenticationOptions.mockResolvedValue({});
+  it('converts Buffer credential IDs to base64url allow-list entries', async () => {
     const credId = Buffer.from('helloworld');
 
-    await generateWebauthnAuthenticationOptions(mockConfig(), {
-      challenge: 'ch',
+    const options = await generateWebauthnAuthenticationOptions(config, {
+      challenge: randomBytes(32).toString('base64url'),
       allowCredentials: [credId],
     });
 
-    expect(libMocks.generateAuthenticationOptions).toHaveBeenCalledWith(
-      expect.objectContaining({
-        allowCredentials: [
-          expect.objectContaining({ id: credId.toString('base64url') }),
-        ],
-      })
-    );
-  });
-
-  it('returns the library result unchanged', async () => {
-    const fakeResult = { challenge: 'q1w2e3' };
-    libMocks.generateAuthenticationOptions.mockResolvedValue(fakeResult);
-
-    const result = await generateWebauthnAuthenticationOptions(mockConfig(), {
-      challenge: 'q1w2e3',
-      allowCredentials: [],
-    });
-
-    expect(result).toBe(fakeResult);
+    expect(options.allowCredentials).toEqual([
+      expect.objectContaining({ id: credId.toString('base64url') }),
+    ]);
   });
 });
 
 describe('verifyWebauthnAuthenticationResponse', () => {
-  beforeEach(() => jest.clearAllMocks());
+  const config = testConfig();
 
-  function makeInput() {
-    return {
-      response: mockAuthenticationResponse(),
-      challenge: 'auth-challenge',
-      credentialId: Buffer.from('aGVsbG93b3JsZA', 'base64url'),
-      publicKey: Buffer.from([0x04, 0xab, 0xcd, 0xef]),
-      signCount: 5,
-    };
-  }
+  it('succeeds with a valid assertion after registration', async () => {
+    const { cred, stored } = await registerCredential(config);
+    const challenge = randomBytes(32).toString('base64url');
 
-  const successLibResult = {
-    verified: true,
-    authenticationInfo: {
-      credentialID: 'aGVsbG93b3JsZA',
-      newCounter: 42,
-      credentialBackedUp: true,
-      credentialDeviceType: 'multiDevice',
-      userVerified: true,
-      rpID: 'accounts.firefox.com',
-      origin: 'https://accounts.firefox.com',
-    },
-  };
+    const options = await generateWebauthnAuthenticationOptions(config, {
+      challenge,
+      allowCredentials: [stored.credentialId],
+    });
 
-  it('returns { verified: true, data } when the library succeeds', async () => {
-    libMocks.verifyAuthenticationResponse.mockResolvedValue(successLibResult);
+    const assertion = VirtualAuthenticator.createAssertionResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: TEST_RP_ID,
+    });
 
-    const result = await verifyWebauthnAuthenticationResponse(
-      mockConfig(),
-      makeInput()
-    );
+    const result = await verifyWebauthnAuthenticationResponse(config, {
+      response: assertion,
+      challenge,
+      credentialId: stored.credentialId,
+      publicKey: stored.publicKey,
+      signCount: stored.signCount,
+    });
 
     expect(result.verified).toBe(true);
-    expect(result.data?.newSignCount).toBe(42);
-    expect(result.data?.backupState).toBe(true);
+    if (!result.verified) throw new Error('narrowing');
+    expect(result.data.newSignCount).toBe(1);
+    expect(result.data.backupState).toBe(false);
   });
 
-  it('returns { verified: false } with no data when library returns verified=false', async () => {
-    libMocks.verifyAuthenticationResponse.mockResolvedValue({
-      verified: false,
-      authenticationInfo: {
-        ...successLibResult.authenticationInfo,
-        newCounter: 0,
-        credentialBackedUp: false,
-      },
-    });
+  it('tracks incrementing sign counts across assertions', async () => {
+    const { cred, stored } = await registerCredential(config);
+    let currentSignCount = stored.signCount;
 
-    const result = await verifyWebauthnAuthenticationResponse(
-      mockConfig(),
-      makeInput()
-    );
+    for (const expectedCount of [1, 2, 3]) {
+      const challenge = randomBytes(32).toString('base64url');
+      const options = await generateWebauthnAuthenticationOptions(config, {
+        challenge,
+        allowCredentials: [stored.credentialId],
+      });
+      const assertion = VirtualAuthenticator.createAssertionResponse(cred, {
+        challenge: options.challenge,
+        origin: TEST_ORIGIN,
+        rpId: TEST_RP_ID,
+      });
+      const result = await verifyWebauthnAuthenticationResponse(config, {
+        response: assertion,
+        challenge,
+        credentialId: stored.credentialId,
+        publicKey: stored.publicKey,
+        signCount: currentSignCount,
+      });
 
-    expect(result.verified).toBe(false);
-    expect(result.data).toBeUndefined();
+      expect(result.verified).toBe(true);
+      expect(result.data?.newSignCount).toBe(expectedCount);
+      if (!result.data) throw Error('narrowing');
+      currentSignCount = result.data.newSignCount;
+    }
   });
 
-  it('reflects credentialBackedUp=false in data.backupState', async () => {
-    libMocks.verifyAuthenticationResponse.mockResolvedValue({
-      ...successLibResult,
-      authenticationInfo: {
-        ...successLibResult.authenticationInfo,
-        credentialBackedUp: false,
-      },
+  it('rejects a mismatched challenge', async () => {
+    const { cred, stored } = await registerCredential(config);
+    const realChallenge = randomBytes(32).toString('base64url');
+    const wrongChallenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnAuthenticationOptions(config, {
+      challenge: realChallenge,
+      allowCredentials: [stored.credentialId],
     });
 
-    const result = await verifyWebauthnAuthenticationResponse(
-      mockConfig(),
-      makeInput()
-    );
-
-    expect(result.data?.backupState).toBe(false);
-  });
-
-  it('passes config and input options to the library', async () => {
-    libMocks.verifyAuthenticationResponse.mockResolvedValue(successLibResult);
-    const credPublicKey = Buffer.from([0xde, 0xad, 0xbe, 0xef]);
-
-    await verifyWebauthnAuthenticationResponse(mockConfig(), {
-      response: mockAuthenticationResponse(),
-      challenge: 'specific-challenge-999',
-      credentialId: Buffer.from('dGVzdA', 'base64url'),
-      publicKey: credPublicKey,
-      signCount: 10,
+    const assertion = VirtualAuthenticator.createAssertionResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: TEST_RP_ID,
     });
 
-    expect(libMocks.verifyAuthenticationResponse).toHaveBeenCalledWith(
-      expect.objectContaining({
-        expectedChallenge: 'specific-challenge-999',
-        expectedOrigin: ['https://accounts.firefox.com'],
-        credential: expect.objectContaining({
-          id: Buffer.from('dGVzdA', 'base64url').toString('base64url'),
-          publicKey: credPublicKey,
-          counter: 10,
-        }),
+    await expect(
+      verifyWebauthnAuthenticationResponse(config, {
+        response: assertion,
+        challenge: wrongChallenge,
+        credentialId: stored.credentialId,
+        publicKey: stored.publicKey,
+        signCount: stored.signCount,
       })
-    );
+    ).rejects.toThrow();
+  });
+
+  it('rejects a wrong origin', async () => {
+    const { cred, stored } = await registerCredential(config);
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnAuthenticationOptions(config, {
+      challenge,
+      allowCredentials: [stored.credentialId],
+    });
+
+    const assertion = VirtualAuthenticator.createAssertionResponse(cred, {
+      challenge: options.challenge,
+      origin: 'https://evil.example.com',
+      rpId: TEST_RP_ID,
+    });
+
+    await expect(
+      verifyWebauthnAuthenticationResponse(config, {
+        response: assertion,
+        challenge,
+        credentialId: stored.credentialId,
+        publicKey: stored.publicKey,
+        signCount: stored.signCount,
+      })
+    ).rejects.toThrow();
+  });
+
+  it('rejects a wrong rpId', async () => {
+    const { cred, stored } = await registerCredential(config);
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnAuthenticationOptions(config, {
+      challenge,
+      allowCredentials: [stored.credentialId],
+    });
+
+    const assertion = VirtualAuthenticator.createAssertionResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: 'evil.example.com',
+    });
+
+    await expect(
+      verifyWebauthnAuthenticationResponse(config, {
+        response: assertion,
+        challenge,
+        credentialId: stored.credentialId,
+        publicKey: stored.publicKey,
+        signCount: stored.signCount,
+      })
+    ).rejects.toThrow();
   });
 });

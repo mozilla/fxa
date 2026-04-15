@@ -6,9 +6,11 @@ import { Container } from 'typedi';
 import Redis from 'ioredis';
 import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 import {
+  PasskeyConfig,
   PasskeyService,
   PasskeyChallengeManager,
   PasskeyManager,
+  VirtualAuthenticator,
 } from '@fxa/accounts/passkey';
 import Config from '../../config';
 import {
@@ -20,6 +22,8 @@ const Client = require('../client')();
 let server: TestServerInstance;
 let redis: Redis | undefined;
 let db: Awaited<ReturnType<typeof setupAccountDatabase>> | undefined;
+let passkeyRpId: string;
+let passkeyOrigin: string;
 
 beforeAll(async () => {
   redis = new Redis({ host: 'localhost' });
@@ -32,18 +36,29 @@ beforeAll(async () => {
   };
   const config = Config.getProperties();
   db = await setupAccountDatabase(config.database.mysql.auth);
-  const passkeyManager = new PasskeyManager(db, config, mockStatsD, mockLog);
+
+  const passkeyConfig = new PasskeyConfig(config.passkeys as PasskeyConfig);
+  passkeyRpId = passkeyConfig.rpId;
+  passkeyOrigin = passkeyConfig.allowedOrigins[0];
+
+  const passkeyManager = new PasskeyManager(
+    db,
+    passkeyConfig,
+    mockStatsD as any,
+    mockLog as any
+  );
   const passkeyChallengeManager = new PasskeyChallengeManager(
     redis,
-    config,
-    mockLog,
-    mockStatsD
+    passkeyConfig,
+    mockLog as any,
+    mockStatsD as any
   );
   const passkeyService = new PasskeyService(
     passkeyManager,
     passkeyChallengeManager,
-    mockStatsD,
-    mockLog
+    passkeyConfig,
+    mockStatsD as any,
+    mockLog as any
   );
 
   // Register the PasskeyService instance before the server starts so that the
@@ -167,5 +182,38 @@ describe('#integration - remote passkey registration', () => {
     }).rejects.toMatchObject({
       code: 400,
     });
+  });
+
+  it('happy path: /passkey/registration/start then /passkey/registration/finish', async () => {
+    const accessToken = await getMfaAccessTokenForPasskey(passkeyClient);
+
+    const options = await passkeyClient.api.doRequestWithBearerToken(
+      'POST',
+      `${passkeyClient.api.baseURL}/passkey/registration/start`,
+      accessToken,
+      {}
+    );
+    expect(options.challenge).toBeDefined();
+    expect(options.rp).toBeDefined();
+
+    // Step 2: simulate authenticator
+    const cred = VirtualAuthenticator.createCredential();
+    const response = VirtualAuthenticator.createAttestationResponse(cred, {
+      challenge: options.challenge,
+      origin: passkeyOrigin,
+      rpId: passkeyRpId,
+    });
+
+    // Step 3: finish registration
+    const result = await passkeyClient.api.doRequestWithBearerToken(
+      'POST',
+      `${passkeyClient.api.baseURL}/passkey/registration/finish`,
+      accessToken,
+      { response, challenge: options.challenge }
+    );
+
+    expect(result.credentialId).toBeDefined();
+    expect(result.name).toBeDefined();
+    expect(result.createdAt).toEqual(expect.any(Number));
   });
 });

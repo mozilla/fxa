@@ -26,3 +26,4 @@ export * from './lib/passkey.config';
 export * from './lib/passkey.provider';
 export * from './lib/passkey.challenge.manager';
 export * from './lib/webauthn-adapter';
+export * from './lib/virtual-authenticator';
