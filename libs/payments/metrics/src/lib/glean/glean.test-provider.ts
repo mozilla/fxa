@@ -1,3 +1,4 @@
+import { PaymentsGleanService } from './glean.service';
 import { PaymentsGleanProvider } from './glean.types';
 
 /**
@@ -16,5 +17,20 @@ export const MockPaymentsGleanFactory = {
       recordPaySetupFail: () => {},
       recordSubscriptionEnded: () => {},
       recordSubscriptionTrialConverted: () => {},
+    }) as any,
+};
+
+export const MockPaymentsGleanServiceFactory = {
+  provide: PaymentsGleanService,
+  useFactory: () =>
+    ({
+      handleUserDelete: () => {},
+      recordGenericSubManageEvent: () => {},
+      retrieveSubManageMetricsData: () => {},
+      mapStripeMetricsData: () => {},
+      mapAccountsMetricsData: () => {},
+      mapSubPlatCmsMetricsData: () => {},
+      mapSessionMetricsData: () => {},
+      mapExperimentationMetricsData: () => {},
     }) as any,
 };
