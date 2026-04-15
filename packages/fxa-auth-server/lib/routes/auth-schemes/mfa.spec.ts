@@ -8,9 +8,6 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { strategy } from './mfa';
 
-// Use CJS require so the returned object is mutable (ES import makes exports read-only)
-const authMethods = require('../../authMethods');
-
 function makeJwt(account: any, sessionToken: any, config: any) {
   const now = Math.floor(Date.now() / 1000);
   const claims = {
@@ -41,16 +38,8 @@ describe('lib/routes/auth-schemes/mfa', () => {
     jwtToken: string,
     getCredentialsFunc: any;
 
-  beforeAll(() => {
-    sinon.stub(authMethods, 'availableAuthenticationMethods');
-  });
-
   beforeEach(() => {
     sinon.reset();
-
-    authMethods.availableAuthenticationMethods = sinon.fake.resolves(
-      new Set(['pwd', 'email'])
-    );
 
     sessionToken = {
       uid: 'account-123',
@@ -103,7 +92,7 @@ describe('lib/routes/auth-schemes/mfa', () => {
     getCredentialsFunc = sinon.fake.resolves(sessionToken);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     sinon.restore();
   });
 
@@ -259,9 +248,7 @@ describe('lib/routes/auth-schemes/mfa', () => {
   });
 
   it('fails when AAL mismatch', async () => {
-    authMethods.availableAuthenticationMethods = sinon.fake.resolves(
-      new Set(['pwd', 'email', 'otp'])
-    );
+    db.totpToken = sinon.fake.resolves({ verified: true, enabled: true });
     sessionToken.authenticatorAssuranceLevel = 1;
 
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
@@ -281,10 +268,24 @@ describe('lib/routes/auth-schemes/mfa', () => {
     }
   });
 
-  it('succeeds when account AAL is lower than session AAL', async () => {
-    authMethods.availableAuthenticationMethods = sinon.fake.resolves(
-      new Set(['pwd', 'email'])
-    );
+  it('succeeds when account does not require AAL2 (no TOTP) and session is AAL1', async () => {
+    db.totpToken = sinon.fake.resolves({ verified: false, enabled: false });
+    sessionToken.authenticatorAssuranceLevel = 1;
+
+    const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
+    await authStrategy.authenticate(request, h);
+
+    expect(
+      h.authenticated.calledOnceWithExactly({
+        credentials: sinon.match.same(sessionToken),
+      })
+    ).toBe(true);
+
+    expect(sessionToken.scope[0]).toBe('mfa:test');
+  });
+
+  it('succeeds when account requires AAL2 (TOTP enabled) and session is AAL2', async () => {
+    db.totpToken = sinon.fake.resolves({ verified: true, enabled: true });
     sessionToken.authenticatorAssuranceLevel = 2;
 
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
@@ -299,10 +300,8 @@ describe('lib/routes/auth-schemes/mfa', () => {
     expect(sessionToken.scope[0]).toBe('mfa:test');
   });
 
-  it('succeeds when account AAL is equal t session AAL', async () => {
-    authMethods.availableAuthenticationMethods = sinon.fake.resolves(
-      new Set(['pwd', 'email', 'otp'])
-    );
+  it('succeeds when session is AAL2 via passkey and account has no TOTP', async () => {
+    db.totpToken = sinon.fake.rejects(AppError.totpTokenNotFound());
     sessionToken.authenticatorAssuranceLevel = 2;
 
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
@@ -318,9 +317,7 @@ describe('lib/routes/auth-schemes/mfa', () => {
   });
 
   it('skips AAL check when configured', async () => {
-    authMethods.availableAuthenticationMethods = sinon.fake.resolves(
-      new Set(['pwd', 'email', 'otp'])
-    );
+    db.totpToken = sinon.fake.resolves({ verified: true, enabled: true });
     sessionToken.authenticatorAssuranceLevel = 1;
 
     config.authStrategies.verifiedSessionToken.skipAalCheckForRoutes = '/foo.*';

@@ -209,10 +209,25 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     }
   });
 
-  it('passes when session AAL is greater than required AAL', async () => {
+  it('passes when account does not require AAL2 (no TOTP) and session is AAL1', async () => {
     db.totpToken = sinon.fake.resolves({
       verified: false,
       enabled: false,
+    });
+
+    const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
+    await authStrategy.authenticate(request, h);
+    expect(
+      h.authenticated.calledOnceWithExactly({
+        credentials: token,
+      })
+    ).toBe(true);
+  });
+
+  it('passes when account requires AAL2 (TOTP enabled) and session is AAL2', async () => {
+    db.totpToken = sinon.fake.resolves({
+      verified: true,
+      enabled: true,
     });
 
     token.authenticatorAssuranceLevel = 2;

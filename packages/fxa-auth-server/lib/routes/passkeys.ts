@@ -36,7 +36,35 @@ interface Customs {
 /** Subset of the database used by passkey routes. */
 interface DB {
   /** Fetches the account record for the given UID. */
-  account(uid: string): Promise<{ email: string; verifierSetAt: number }>;
+  account(uid: string): Promise<{
+    email: string;
+    emailCode: string;
+    emailVerified: boolean;
+    verifierSetAt: number;
+  }>;
+  /** Creates a new session token and persists it. */
+  createSessionToken(options: {
+    uid: string;
+    email: string;
+    emailCode: string;
+    emailVerified: boolean;
+    verifierSetAt: number;
+    mustVerify: boolean;
+    tokenVerificationId: string | null;
+    uaBrowser?: string;
+    uaBrowserVersion?: string;
+    uaOS?: string;
+    uaOSVersion?: string;
+    uaDeviceType?: string;
+    uaFormFactor?: string;
+  }): Promise<{ id: string }>;
+  /** Sets the verification method on a session token. */
+  verifyTokensWithMethod(
+    tokenId: string,
+    method: string | number
+  ): Promise<void>;
+  /** Deletes a session token. Used for cleanup on partial failure. */
+  deleteSessionToken(token: { id: string; uid: string }): Promise<void>;
   /** Records a security event in the audit log. */
   securityEvent: (arg: any) => Promise<void>;
 }
@@ -51,13 +79,14 @@ interface DB {
  * - Delegating business logic to {@link PasskeyService}
  * - Recording security audit events
  */
-class PasskeyHandler {
+export class PasskeyHandler {
   constructor(
     private readonly service: PasskeyService,
     private readonly db: DB,
     private readonly customs: Customs,
     private readonly log: any,
-    private readonly fxaMailer: FxaMailer
+    private readonly fxaMailer: FxaMailer,
+    private readonly statsd: any
     // TODO: FXA-12914 - Require glean be passed in.
   ) {}
 
@@ -337,6 +366,70 @@ class PasskeyHandler {
       prfEnabled: passkey.prfEnabled,
     };
   }
+
+  /**
+   * Creates a passkey-verified session token for the authenticated account.
+   *
+   * No `tokenVerificationId` is set — the passkey assertion is itself AAL2, so
+   * no follow-up email challenge is needed. After creation,
+   * `verifyTokensWithMethod` stamps `verificationMethod = 5` (passkey) on the
+   * row; the token's AMR becomes `{pwd, webauthn}` → AAL2.
+   *
+   * TODO(FXA-13444): this is a temporary two-step implementation. The create
+   * and stamp will be replaced by a single atomic stored procedure.
+   */
+  async createPasskeySessionToken(
+    account: {
+      uid: string;
+      email: string;
+      emailCode: string;
+      emailVerified: boolean;
+      verifierSetAt: number;
+    },
+    request: AuthRequest
+  ) {
+    const sessionToken = await this.db.createSessionToken({
+      uid: account.uid,
+      email: account.email,
+      emailCode: account.emailCode,
+      emailVerified: account.emailVerified,
+      verifierSetAt: account.verifierSetAt,
+      mustVerify: false,
+      tokenVerificationId: null,
+      uaBrowser: request.app.ua.browser,
+      uaBrowserVersion: request.app.ua.browserVersion,
+      uaOS: request.app.ua.os,
+      uaOSVersion: request.app.ua.osVersion,
+      uaDeviceType: request.app.ua.deviceType,
+      uaFormFactor: request.app.ua.formFactor,
+    });
+
+    try {
+      await this.db.verifyTokensWithMethod(sessionToken.id, 'passkey');
+    } catch (err) {
+      // If stamping the verification method fails, delete the token rather than
+      // leaving an orphan session at AAL1. If cleanup also fails, log and report
+      // it but always re-throw the original error.
+      // TODO(FXA-13444): remove this entire catch block once the atomic procedure lands.
+      try {
+        await this.db.deleteSessionToken({
+          id: sessionToken.id,
+          uid: account.uid,
+        });
+      } catch (cleanupErr) {
+        this.log.error('passkeys.createPasskeySessionToken.deleteOrphan', {
+          err: cleanupErr,
+          tokenId: sessionToken.id,
+        });
+        reportSentryError(cleanupErr, request);
+      }
+      this.statsd.increment('passkeys.createSessionToken.failure');
+      throw err;
+    }
+
+    this.statsd.increment('passkeys.createSessionToken.success');
+    return sessionToken;
+  }
 }
 
 /**
@@ -376,7 +469,14 @@ export const passkeyRoutes = (
     );
   }
   const fxaMailer = Container.get(FxaMailer);
-  const handler = new PasskeyHandler(service, db, customs, log, fxaMailer);
+  const handler = new PasskeyHandler(
+    service,
+    db,
+    customs,
+    log,
+    fxaMailer,
+    statsd
+  );
 
   return [
     {

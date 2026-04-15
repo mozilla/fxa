@@ -1813,6 +1813,12 @@ export class AccountHandler {
       res.locale = account.locale;
     }
     if (scope.contains('profile:amr')) {
+      // authenticatorAssuranceLevel here is account-level: it tells the RP
+      // what AAL this account *requires* (based on mandatory second factors
+      // like TOTP), so the RP can decide whether to prompt for step-up.
+      // It is NOT the AAL of the current session. Passkeys are excluded from
+      // this computation — a passkey-only account reports AAL1 even though
+      // AAL2 is achievable. See FXA-13432.
       const amrValues = await authMethods.availableAuthenticationMethods(
         this.db,
         account

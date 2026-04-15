@@ -196,6 +196,7 @@ describe('/session/status', () => {
         verified: false,
         tokenVerified: false,
         tokenVerificationId: 'token-123',
+        authenticatorAssuranceLevel: 1,
         uid: 'foo',
       },
     });
@@ -205,7 +206,7 @@ describe('/session/status', () => {
         state: 'unverified',
         details: {
           accountEmailVerified: false,
-          sessionVerificationMeetsMinimumAAL: false,
+          sessionVerificationMeetsMinimumAAL: true,
           sessionVerificationMethod: 'totp-2fa',
           sessionVerified: false,
           verified: false,
@@ -323,7 +324,7 @@ describe('/session/status', () => {
     });
   });
 
-  it('has unverified AAL 2', async () => {
+  it('session is AAL1 but account requires AAL2 (TOTP enabled)', async () => {
     db.account = jest.fn().mockResolvedValue({
       uid: 'account-123',
       primaryEmail: {
@@ -340,7 +341,7 @@ describe('/session/status', () => {
         uid: 'account-123',
         state: 'verified',
         tokenVerified: true,
-        verificationMethodValue: 'totp-2fa',
+        verificationMethodValue: 'email',
         authenticatorAssuranceLevel: 1,
       },
     });
@@ -351,7 +352,7 @@ describe('/session/status', () => {
       state: 'verified',
       details: {
         accountEmailVerified: true,
-        sessionVerificationMethod: 'totp-2fa',
+        sessionVerificationMethod: 'email',
         sessionVerified: true,
         verified: true,
         sessionVerificationMeetsMinimumAAL: false,
@@ -462,17 +463,8 @@ describe('/session/reauth', () => {
     mailer = mocks.mockMailer();
     mocks.mockFxaMailer();
     mocks.mockOAuthClientInfo();
-    signinUtils = require('./utils/signin')(
-      log,
-      config,
-      customs,
-      db,
-      mailer
-    );
-    SessionToken = require('../tokens/index')(
-      log,
-      config
-    ).SessionToken;
+    signinUtils = require('./utils/signin')(log, config, customs, db, mailer);
+    SessionToken = require('../tokens/index')(log, config).SessionToken;
     routes = makeRoutes({ log, config, customs, db, mailer, signinUtils });
     route = getRoute(routes, '/session/reauth');
     request = mocks.mockRequest({
@@ -869,15 +861,11 @@ describe('/session/duplicate', () => {
     route = getRoute(routes, '/session/duplicate');
 
     const Token = require(`../tokens/token`)(log);
-    const SessionToken = require(`../tokens/session_token`)(
-      log,
-      Token,
-      {
-        tokenLifetimes: {
-          sessionTokenWithoutDevice: 2419200000,
-        },
-      }
-    );
+    const SessionToken = require(`../tokens/session_token`)(log, Token, {
+      tokenLifetimes: {
+        sessionTokenWithoutDevice: 2419200000,
+      },
+    });
 
     const sessionToken = await SessionToken.create({
       uid: 'foo',
@@ -1323,7 +1311,13 @@ describe('/session/verify/send_push', () => {
 });
 
 describe('/session/verify/verify_push', () => {
-  let route: any, request: any, log: any, db: any, mailer: any, push: any, customs: any;
+  let route: any,
+    request: any,
+    log: any,
+    db: any,
+    mailer: any,
+    push: any,
+    customs: any;
 
   beforeEach(() => {
     db = mocks.mockDB({ ...signupCodeAccount, devices: MOCK_DEVICES });

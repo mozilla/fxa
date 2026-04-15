@@ -7,7 +7,7 @@ import { PasskeyService } from '@fxa/accounts/passkey';
 import { AppError } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
 import { isPasskeyRegistrationEnabled } from '../passkey-utils';
-import { passkeyRoutes } from './passkeys';
+import { passkeyRoutes, PasskeyHandler } from './passkeys';
 import { FxaMailer } from '../senders/fxa-mailer';
 
 jest.mock('./utils/security-event', () => ({
@@ -106,8 +106,16 @@ describe('passkeys routes', () => {
     db = {
       account: jest.fn().mockResolvedValue({
         email: TEST_EMAIL,
+        emailCode: 'emailcode123',
+        emailVerified: true,
         verifierSetAt: 1234567890,
       }),
+      createSessionToken: jest
+        .fn()
+        .mockResolvedValue({ id: 'new-session-token-id' }),
+      verifyTokensWithMethod: jest.fn().mockResolvedValue(undefined),
+      deleteSessionToken: jest.fn().mockResolvedValue(undefined),
+      securityEvent: jest.fn().mockResolvedValue(undefined),
     };
 
     mockPasskeyService = {
@@ -786,6 +794,112 @@ describe('passkeys routes', () => {
         UID,
         TEST_EMAIL,
         'passkeysRename'
+      );
+    });
+  });
+
+  describe('PasskeyHandler.createPasskeySessionToken', () => {
+    const mockAccount = {
+      uid: UID,
+      email: TEST_EMAIL,
+      emailCode: 'emailcode123',
+      emailVerified: true,
+      verifierSetAt: 1234567890,
+    };
+
+    const mockRequest = {
+      app: {
+        ua: {
+          browser: 'Firefox',
+          browserVersion: '124.0',
+          os: 'macOS',
+          osVersion: '14.0',
+          deviceType: null,
+          formFactor: null,
+        },
+      },
+    };
+
+    let handler: PasskeyHandler;
+
+    beforeEach(() => {
+      handler = new PasskeyHandler(
+        mockPasskeyService,
+        db,
+        customs,
+        log,
+        mockFxaMailer,
+        statsd
+      );
+    });
+
+    it('creates a pre-verified session token with correct options', async () => {
+      await handler.createPasskeySessionToken(mockAccount, mockRequest as any);
+
+      expect(db.createSessionToken).toHaveBeenCalledWith(
+        expect.objectContaining({
+          uid: UID,
+          email: TEST_EMAIL,
+          emailCode: 'emailcode123',
+          emailVerified: true,
+          verifierSetAt: 1234567890,
+          mustVerify: false,
+          tokenVerificationId: null,
+          uaBrowser: 'Firefox',
+          uaBrowserVersion: '124.0',
+          uaOS: 'macOS',
+          uaOSVersion: '14.0',
+        })
+      );
+    });
+
+    // TODO(FXA-13444): once the atomic stored procedure lands, this test
+    // should be updated to assert the single new DB call instead.
+    it('stamps the token with the passkey verification method', async () => {
+      await handler.createPasskeySessionToken(mockAccount, mockRequest as any);
+
+      expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
+        'new-session-token-id',
+        'passkey'
+      );
+    });
+
+    it('returns the created session token and emits success metric', async () => {
+      const result = await handler.createPasskeySessionToken(
+        mockAccount,
+        mockRequest as any
+      );
+
+      expect(result).toEqual({ id: 'new-session-token-id' });
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'passkeys.createSessionToken.success'
+      );
+    });
+
+    it('propagates errors from createSessionToken', async () => {
+      const dbError = new Error('DB unavailable');
+      db.createSessionToken.mockRejectedValue(dbError);
+
+      await expect(
+        handler.createPasskeySessionToken(mockAccount, mockRequest as any)
+      ).rejects.toThrow('DB unavailable');
+    });
+
+    // TODO(FXA-13444): remove this test once the atomic stored procedure lands.
+    it('deletes the token, emits failure metric, and rethrows if verifyTokensWithMethod fails', async () => {
+      const dbError = new Error('DB unavailable');
+      db.verifyTokensWithMethod.mockRejectedValue(dbError);
+
+      await expect(
+        handler.createPasskeySessionToken(mockAccount, mockRequest as any)
+      ).rejects.toThrow('DB unavailable');
+
+      expect(db.deleteSessionToken).toHaveBeenCalledWith({
+        id: 'new-session-token-id',
+        uid: UID,
+      });
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'passkeys.createSessionToken.failure'
       );
     });
   });
