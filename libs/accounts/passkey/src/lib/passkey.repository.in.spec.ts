@@ -62,7 +62,7 @@ describe('PasskeyRepository (Integration)', () => {
   });
 
   describe('update operations', () => {
-    it('should update counter and lastUsed after authentication', async () => {
+    it('should update counter and lastUsedAt after authentication', async () => {
       const uid = await createTestAccount();
       const passkey = PasskeyFactory({ uid });
       await PasskeyRepository.insertPasskey(db, passkey);

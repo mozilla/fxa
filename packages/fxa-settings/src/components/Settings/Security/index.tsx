@@ -5,9 +5,10 @@
 import { Localized, useLocalization } from '@fluent/react';
 import React, { forwardRef } from 'react';
 import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
+import { UnitRowPasskey } from '../UnitRowPasskey';
 import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 import { UnitRow } from '../UnitRow';
-import { useAccount } from '../../../models';
+import { useAccount, useConfig } from '../../../models';
 import {
   FtlMsg,
   getLocalizedDate,
@@ -40,6 +41,9 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
 export const Security = forwardRef<HTMLDivElement>((_, ref) => {
   const { passwordCreated, hasPassword } = useAccount();
   const { l10n } = useLocalization();
+  const config = useConfig();
+  const passkeyRegistrationEnabled =
+    config.featureFlags?.passkeyRegistrationEnabled;
   const localizedNotSet = l10n.getString('security-not-set', null, 'Not set');
 
   return (
@@ -84,6 +88,13 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
           </UnitRow>
         </Localized>
         <hr className="unit-row-hr" />
+
+        {passkeyRegistrationEnabled && (
+          <>
+            <UnitRowPasskey />
+            <hr className="unit-row-hr" />
+          </>
+        )}
 
         <UnitRowRecoveryKey />
         <hr className="unit-row-hr" />

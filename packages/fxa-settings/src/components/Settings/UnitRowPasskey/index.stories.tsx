@@ -9,7 +9,7 @@ import { LocationProvider } from '@reach/router';
 import UnitRowPasskey from '.';
 import { PasskeyRowData } from '../SubRow';
 import { AppContext } from 'fxa-settings/src/models';
-import { mockAppContext } from 'fxa-settings/src/models/mocks';
+import { MOCK_ACCOUNT, mockAppContext } from 'fxa-settings/src/models/mocks';
 import { initLocalAccount, mockAuthClient } from '../SubRow/mock';
 
 export default {
@@ -18,26 +18,26 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const mockPasskeys = [
+const mockPasskeys: PasskeyRowData[] = [
   {
-    id: 'passkey-1',
+    credentialId: 'passkey-1',
     name: 'MacBook Pro',
     createdAt: new Date('2026-01-01').getTime(),
-    lastUsed: new Date('2026-02-01').getTime(),
+    lastUsedAt: new Date('2026-02-01').getTime(),
     prfEnabled: false,
   },
   {
-    id: 'passkey-2',
+    credentialId: 'passkey-2',
     name: 'iPhone 15',
     createdAt: new Date('2025-12-01').getTime(),
-    lastUsed: new Date('2026-01-31').getTime(),
+    lastUsedAt: new Date('2026-01-31').getTime(),
     prfEnabled: true,
   },
   {
-    id: 'passkey-3',
+    credentialId: 'passkey-3',
     name: 'Work Laptop',
     createdAt: new Date('2025-11-01').getTime(),
-    lastUsed: undefined,
+    lastUsedAt: null,
     prfEnabled: false,
   },
 ];
@@ -45,12 +45,20 @@ const mockPasskeys = [
 const storyWithPasskeys = (passkeys: PasskeyRowData[]) => {
   const story = () => {
     initLocalAccount();
+    const mockAccount = {
+      ...MOCK_ACCOUNT,
+      passkeys,
+      deletePasskey: async () => {},
+    };
     return (
       <LocationProvider>
         <AppContext.Provider
-          value={mockAppContext({ authClient: mockAuthClient } as any)}
+          value={mockAppContext({
+            authClient: mockAuthClient,
+            account: mockAccount,
+          } as any)}
         >
-          <UnitRowPasskey passkeys={passkeys} />
+          <UnitRowPasskey />
         </AppContext.Provider>
       </LocationProvider>
     );
@@ -68,10 +76,10 @@ export const MultiplePasskeys = storyWithPasskeys(mockPasskeys);
 
 export const AtMaxPasskeys = storyWithPasskeys(
   Array.from({ length: 10 }, (_, i) => ({
-    id: `passkey-${i + 1}`,
+    credentialId: `passkey-${i + 1}`,
     name: `Passkey ${i + 1}`,
     createdAt: new Date('2026-01-01').getTime(),
-    lastUsed: new Date('2026-02-01').getTime(),
+    lastUsedAt: new Date('2026-02-01').getTime(),
     prfEnabled: i % 2 === 0,
   }))
 );

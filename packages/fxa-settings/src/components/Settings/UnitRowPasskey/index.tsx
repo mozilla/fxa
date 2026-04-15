@@ -4,20 +4,18 @@
 
 import React from 'react';
 import UnitRow, { UnitRowProps } from '../UnitRow';
-import { useFtlMsgResolver, useConfig } from '../../../models';
+import { useAccount, useFtlMsgResolver, useConfig } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { PasskeySubRow, PasskeyRowData } from '../SubRow';
+import { PasskeySubRow } from '../SubRow';
 import { Banner } from '../../Banner';
 
-export type UnitRowPasskeyProps = {
-  passkeys?: PasskeyRowData[];
-};
-
-export const UnitRowPasskey = ({ passkeys = [] }: UnitRowPasskeyProps) => {
+export const UnitRowPasskey = () => {
+  const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const config = useConfig();
   const maxPasskeys = config.passkeys.maxPerUser;
+  const passkeys = account.passkeys;
   const hasPasskeys = passkeys.length > 0;
   const isAtLimit = passkeys.length >= maxPasskeys;
 
@@ -50,7 +48,7 @@ export const UnitRowPasskey = ({ passkeys = [] }: UnitRowPasskeyProps) => {
         />
       )}
       {passkeys.map((passkey) => (
-        <PasskeySubRow key={passkey.id} passkey={passkey} />
+        <PasskeySubRow key={passkey.credentialId} passkey={passkey} />
       ))}
     </>
   );
