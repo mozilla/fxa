@@ -53,6 +53,7 @@ import {
   EventNames,
 } from '../../event-logging/event-logging.service';
 import { AccountEvent as AccountEventType } from '../model/account-events.model';
+import { BounceType, BounceSubType } from '../model/email-bounces.model';
 import { BasketService } from '../../newsletters/basket.service';
 import { FidoMdsService } from '../../backend/fido-mds.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
@@ -750,6 +751,7 @@ export class AccountController {
 
   // ─── Field resolver helpers (public so integration tests can call them) ───
 
+  @Features(AdminPanelFeature.AccountSearch)
   public async emailBounces(account: Account) {
     const uidBuffer = uuidTransformer.to(account.uid);
     const emails = await this.db.emails
@@ -765,7 +767,14 @@ export class AccountController {
         'in',
         emails.map((x) => x.normalizedEmail)
       );
-    return result;
+    return result.map((bounce) => ({
+      ...bounce,
+      bounceType:
+        BounceType[bounce.bounceType] ?? BounceType[BounceType.unmapped],
+      bounceSubType:
+        BounceSubType[bounce.bounceSubType] ??
+        BounceSubType[BounceSubType.unmapped],
+    }));
   }
 
   @Features(AdminPanelFeature.AccountSearch)
@@ -869,6 +878,7 @@ export class AccountController {
     ];
   }
 
+  @Features(AdminPanelFeature.AccountSearch)
   public async linkedAccounts(account: Account) {
     const uidBuffer = uuidTransformer.to(account.uid);
     return await this.db.linkedAccounts
