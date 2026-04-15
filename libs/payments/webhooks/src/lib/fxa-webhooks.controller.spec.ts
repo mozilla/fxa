@@ -4,6 +4,7 @@
 
 import { Test } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
+import { PaymentsGleanService } from '@fxa/payments/metrics';
 import { FxaWebhooksController } from './fxa-webhooks.controller';
 import { FxaWebhookService } from './fxa-webhooks.service';
 import { MockFxaWebhookConfigProvider } from './fxa-webhooks.config';
@@ -21,6 +22,10 @@ describe('FxaWebhooksController', () => {
         FxaWebhookService,
         MockFxaWebhookConfigProvider,
         MockStatsDProvider,
+        {
+          provide: PaymentsGleanService,
+          useValue: { handleUserDelete: jest.fn() },
+        },
       ],
     }).compile();
 

@@ -8,6 +8,7 @@ import * as Sentry from '@sentry/nestjs';
 import { JWTool, PrivateJWK } from '@fxa/vendored/jwtool';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import type { StatsD } from 'hot-shots';
+import { PaymentsGleanService } from '@fxa/payments/metrics';
 import { FxaWebhookService } from './fxa-webhooks.service';
 import { FxaWebhookConfig } from './fxa-webhooks.config';
 import {
@@ -43,6 +44,7 @@ jest.mock('@type-cacheable/core', () => {
       descriptor;
 
   const Cacheable = jest.fn(() => noopDecorator);
+  const CacheClear = jest.fn(() => noopDecorator);
 
   const defaultExport = {
     setOptions: jest.fn(),
@@ -52,6 +54,7 @@ jest.mock('@type-cacheable/core', () => {
     __esModule: true,
     default: defaultExport,
     Cacheable,
+    CacheClear,
   };
 });
 
@@ -121,6 +124,7 @@ describe('FxaWebhookService', () => {
   let service: FxaWebhookService;
   let statsd: { increment: jest.Mock; timing: jest.Mock };
   let logger: { error: jest.Mock; log: jest.Mock };
+  let paymentsGleanService: { handleUserDelete: jest.Mock };
   let originalFetch: typeof global.fetch;
 
   beforeEach(async () => {
@@ -129,6 +133,7 @@ describe('FxaWebhookService', () => {
 
     logger = { error: jest.fn(), log: jest.fn() };
     statsd = { increment: jest.fn(), timing: jest.fn() };
+    paymentsGleanService = { handleUserDelete: jest.fn() };
 
     const module = await Test.createTestingModule({
       providers: [
@@ -143,6 +148,10 @@ describe('FxaWebhookService', () => {
           } satisfies FxaWebhookConfig,
         },
         { provide: StatsDService, useValue: statsd as unknown as StatsD },
+        {
+          provide: PaymentsGleanService,
+          useValue: paymentsGleanService,
+        },
       ],
     }).compile();
 
@@ -223,6 +232,9 @@ describe('FxaWebhookService', () => {
       expect(logger.log).toHaveBeenCalledWith(
         'handleDeleteUser',
         expect.objectContaining({ sub: TEST_UID })
+      );
+      expect(paymentsGleanService.handleUserDelete).toHaveBeenCalledWith(
+        TEST_UID
       );
     });
 

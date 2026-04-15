@@ -8,6 +8,7 @@ import { PaymentsGleanService } from './glean.service';
 import { MockPaymentsGleanFactory } from './glean.test-provider';
 import {
   MockPaymentsGleanConfigProvider,
+  PaymentsGleanConfig,
 } from './glean.config';
 import {
   AccountsMetricsDataFactory,
@@ -64,6 +65,7 @@ describe('PaymentsGleanService', () => {
   let accountManager: AccountManager;
   let customerManager: CustomerManager;
   let nimbusManager: NimbusManager;
+  let gleanConfig: PaymentsGleanConfig;
   let logger: Logger;
 
   beforeEach(async () => {
@@ -102,7 +104,68 @@ describe('PaymentsGleanService', () => {
     accountManager = moduleRef.get(AccountManager);
     customerManager = moduleRef.get(CustomerManager);
     nimbusManager = moduleRef.get(NimbusManager);
+    gleanConfig = moduleRef.get(PaymentsGleanConfig);
     logger = moduleRef.get(Logger);
+  });
+
+  describe('handleUserDelete', () => {
+    const mockUid = 'test-uid-123';
+    const mockNimbusIds = ['nimbus-id-1', 'nimbus-id-2'];
+
+    beforeEach(() => {
+      jest
+        .spyOn(nimbusManager, 'generateAllNimbusIdsForDeletion')
+        .mockReturnValue(mockNimbusIds);
+      jest.spyOn(logger, 'log').mockImplementation(() => {});
+    });
+
+    it('logs one entry per nimbus user id', () => {
+      paymentsGleanService.handleUserDelete(mockUid);
+
+      expect(
+        nimbusManager.generateAllNimbusIdsForDeletion
+      ).toHaveBeenCalledWith(mockUid);
+      expect(logger.log).toHaveBeenCalledTimes(mockNimbusIds.length);
+      for (const nimbusUserId of mockNimbusIds) {
+        expect(logger.log).toHaveBeenCalledWith('glean.user.delete', {
+          uid: mockUid,
+          nimbus_user_id: nimbusUserId,
+        });
+      }
+    });
+
+    it('still logs deletion even when glean is disabled', () => {
+      gleanConfig.enabled = false;
+
+      paymentsGleanService.handleUserDelete(mockUid);
+
+      expect(
+        nimbusManager.generateAllNimbusIdsForDeletion
+      ).toHaveBeenCalledWith(mockUid);
+      expect(logger.log).toHaveBeenCalledTimes(mockNimbusIds.length);
+      for (const nimbusUserId of mockNimbusIds) {
+        expect(logger.log).toHaveBeenCalledWith('glean.user.delete', {
+          uid: mockUid,
+          nimbus_user_id: nimbusUserId,
+        });
+      }
+
+      gleanConfig.enabled = true;
+    });
+
+    it('logs a single entry when one namespace is configured', () => {
+      jest
+        .spyOn(nimbusManager, 'generateAllNimbusIdsForDeletion')
+        .mockReturnValue(['single-nimbus-id']);
+
+      paymentsGleanService.handleUserDelete(mockUid);
+
+      expect(logger.log).toHaveBeenCalledTimes(1);
+      expect(logger.log).toHaveBeenCalledWith('glean.user.delete', {
+        uid: mockUid,
+        nimbus_user_id: 'single-nimbus-id',
+      });
+    });
   });
 
   describe('recordGenericSubManageEvent', () => {

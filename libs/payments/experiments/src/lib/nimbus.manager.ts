@@ -60,4 +60,12 @@ export class NimbusManager {
       return generateNimbusId(this.nimbusManagerConfig.namespace);
     }
   }
+
+  generateAllNimbusIdsForDeletion(fxaUid: string): string[] {
+    const namespaceSet = new Set([
+      this.nimbusManagerConfig.namespace,
+      ...(this.nimbusManagerConfig.deletionNamespaces ?? []),
+    ]);
+    return Array.from(namespaceSet).map((ns) => generateNimbusId(ns, fxaUid));
+  }
 }
