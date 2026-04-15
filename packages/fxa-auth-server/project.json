@@ -1,0 +1,16 @@
+{
+  "name": "fxa-auth-server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/fxa-auth-server",
+  "projectType": "application",
+  "tags": ["scope:server:auth", "type:core"],
+  "targets": {
+    "test-unit-jest": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "packages/fxa-auth-server/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  }
+}
