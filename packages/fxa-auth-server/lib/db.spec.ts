@@ -12,13 +12,16 @@ jest.mock('fxa-shared/db', () => ({
 // Mock fxa-shared/db/models/auth - defined inline to avoid TDZ issues with jest.mock hoisting
 jest.mock('fxa-shared/db/models/auth', () => ({
   Device: {
-    delete: jest.fn().mockResolvedValue({ sessionTokenId: 'fakeSessionTokenId' }),
+    delete: jest
+      .fn()
+      .mockResolvedValue({ sessionTokenId: 'fakeSessionTokenId' }),
     findByPrimaryKey: jest.fn().mockResolvedValue({ id: 'fakeDeviceId' }),
     findByUid: jest.fn().mockResolvedValue([]),
     findByUidAndRefreshTokenId: jest.fn(),
   },
   SessionToken: {
     create: jest.fn().mockResolvedValue(null),
+    createVerified: jest.fn().mockResolvedValue(null),
     delete: jest.fn().mockResolvedValue(null),
     findByUid: jest.fn().mockResolvedValue([]),
   },
@@ -378,6 +381,21 @@ describe('redis enabled, token-pruning enabled:', () => {
     expect(redis.pruneSessionTokens.callCount).toBe(1);
     expect(redis.pruneSessionTokens.args[0]).toHaveLength(2);
     expect(redis.pruneSessionTokens.args[0][0]).toBe('wibble');
+  });
+
+  it('should call RawSessionToken.createVerified (not create) and set verificationMethod/verifiedAt in db.createPasskeyVerifiedSessionToken', async () => {
+    const result = await db.createPasskeyVerifiedSessionToken({
+      uid: 'wibble',
+    });
+    expect(redis.pruneSessionTokens.callCount).toBe(1);
+    expect(redis.pruneSessionTokens.args[0]).toHaveLength(2);
+    expect(redis.pruneSessionTokens.args[0][0]).toBe('wibble');
+    // Uses the verified proc, not the plain create
+    expect(models.SessionToken.createVerified.mock.calls.length).toBe(1);
+    expect(models.SessionToken.create.mock.calls.length).toBe(0);
+    // verificationMethod 'passkey' = 5; verifiedAt is stamped
+    expect(result.verificationMethod).toBe(5);
+    expect(typeof result.verifiedAt).toBe('number');
   });
 
   describe('mock db.pruneSessionTokens:', () => {

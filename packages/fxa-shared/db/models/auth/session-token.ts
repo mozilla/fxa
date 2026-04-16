@@ -172,6 +172,58 @@ export class SessionToken extends BaseToken {
     );
   }
 
+  static async createVerified({
+    id,
+    data,
+    uid,
+    createdAt,
+    uaBrowser,
+    uaBrowserVersion,
+    uaOS,
+    uaOSVersion,
+    uaDeviceType,
+    uaFormFactor,
+    mustVerify,
+    providerId,
+    verificationMethod,
+    verifiedAt,
+  }: Pick<
+    SessionToken,
+    | 'uid'
+    | 'createdAt'
+    | 'uaBrowser'
+    | 'uaBrowserVersion'
+    | 'uaOS'
+    | 'uaOSVersion'
+    | 'uaDeviceType'
+    | 'uaFormFactor'
+    | 'mustVerify'
+    | 'providerId'
+  > & {
+    id: string;
+    data: string;
+    verificationMethod: VerificationMethod | number;
+    verifiedAt: number;
+  }) {
+    return this.callProcedure(
+      Proc.CreateVerifiedSessionToken,
+      uuidTransformer.to(id),
+      uuidTransformer.to(data),
+      uuidTransformer.to(uid),
+      createdAt,
+      uaBrowser ?? null,
+      uaBrowserVersion ?? null,
+      uaOS ?? null,
+      uaOSVersion ?? null,
+      uaDeviceType ?? null,
+      uaFormFactor ?? null,
+      !!mustVerify,
+      providerId ?? null,
+      verificationMethodToNumber(verificationMethod),
+      verifiedAt
+    );
+  }
+
   static async update({
     id,
     uaBrowser,

@@ -42,8 +42,8 @@ interface DB {
     emailVerified: boolean;
     verifierSetAt: number;
   }>;
-  /** Creates a new session token and persists it. */
-  createSessionToken(options: {
+  /** Creates a passkey session token, pre-verified as AAL2 at creation time. */
+  createPasskeyVerifiedSessionToken(options: {
     uid: string;
     email: string;
     emailCode: string;
@@ -58,13 +58,6 @@ interface DB {
     uaDeviceType?: string;
     uaFormFactor?: string;
   }): Promise<{ id: string }>;
-  /** Sets the verification method on a session token. */
-  verifyTokensWithMethod(
-    tokenId: string,
-    method: string | number
-  ): Promise<void>;
-  /** Deletes a session token. Used for cleanup on partial failure. */
-  deleteSessionToken(token: { id: string; uid: string }): Promise<void>;
   /** Records a security event in the audit log. */
   securityEvent: (arg: any) => Promise<void>;
 }
@@ -373,12 +366,10 @@ export class PasskeyHandler {
    * Creates a passkey-verified session token for the authenticated account.
    *
    * No `tokenVerificationId` is set — the passkey assertion is itself AAL2, so
-   * no follow-up email challenge is needed. After creation,
-   * `verifyTokensWithMethod` stamps `verificationMethod = 5` (passkey) on the
-   * row; the token's AMR becomes `{pwd, webauthn}` → AAL2.
-   *
-   * TODO(FXA-13444): this is a temporary two-step implementation. The create
-   * and stamp will be replaced by a single atomic stored procedure.
+   * no follow-up email challenge is needed. The token is written in a single
+   * MySQL INSERT with `verificationMethod = 5` (passkey) and `verifiedAt`
+   * pre-stamped, so no AAL1 window exists. The token's AMR becomes
+   * `{pwd, webauthn}` → AAL2.
    */
   async createPasskeySessionToken(
     account: {
@@ -390,7 +381,7 @@ export class PasskeyHandler {
     },
     request: AuthRequest
   ) {
-    const sessionToken = await this.db.createSessionToken({
+    const sessionToken = await this.db.createPasskeyVerifiedSessionToken({
       uid: account.uid,
       email: account.email,
       emailCode: account.emailCode,
@@ -405,29 +396,6 @@ export class PasskeyHandler {
       uaDeviceType: request.app.ua.deviceType,
       uaFormFactor: request.app.ua.formFactor,
     });
-
-    try {
-      await this.db.verifyTokensWithMethod(sessionToken.id, 'passkey');
-    } catch (err) {
-      // If stamping the verification method fails, delete the token rather than
-      // leaving an orphan session at AAL1. If cleanup also fails, log and report
-      // it but always re-throw the original error.
-      // TODO(FXA-13444): remove this entire catch block once the atomic procedure lands.
-      try {
-        await this.db.deleteSessionToken({
-          id: sessionToken.id,
-          uid: account.uid,
-        });
-      } catch (cleanupErr) {
-        this.log.error('passkeys.createPasskeySessionToken.deleteOrphan', {
-          err: cleanupErr,
-          tokenId: sessionToken.id,
-        });
-        reportSentryError(cleanupErr, request);
-      }
-      this.statsd.increment('passkeys.createSessionToken.failure');
-      throw err;
-    }
 
     this.statsd.increment('passkeys.createSessionToken.success');
     return sessionToken;

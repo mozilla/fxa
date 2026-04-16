@@ -110,11 +110,9 @@ describe('passkeys routes', () => {
         emailVerified: true,
         verifierSetAt: 1234567890,
       }),
-      createSessionToken: jest
+      createPasskeyVerifiedSessionToken: jest
         .fn()
         .mockResolvedValue({ id: 'new-session-token-id' }),
-      verifyTokensWithMethod: jest.fn().mockResolvedValue(undefined),
-      deleteSessionToken: jest.fn().mockResolvedValue(undefined),
       securityEvent: jest.fn().mockResolvedValue(undefined),
     };
 
@@ -833,35 +831,24 @@ describe('passkeys routes', () => {
       );
     });
 
-    it('creates a pre-verified session token with correct options', async () => {
+    it('creates a verified session token with correct options', async () => {
       await handler.createPasskeySessionToken(mockAccount, mockRequest as any);
 
-      expect(db.createSessionToken).toHaveBeenCalledWith(
-        expect.objectContaining({
-          uid: UID,
-          email: TEST_EMAIL,
-          emailCode: 'emailcode123',
-          emailVerified: true,
-          verifierSetAt: 1234567890,
-          mustVerify: false,
-          tokenVerificationId: null,
-          uaBrowser: 'Firefox',
-          uaBrowserVersion: '124.0',
-          uaOS: 'macOS',
-          uaOSVersion: '14.0',
-        })
-      );
-    });
-
-    // TODO(FXA-13444): once the atomic stored procedure lands, this test
-    // should be updated to assert the single new DB call instead.
-    it('stamps the token with the passkey verification method', async () => {
-      await handler.createPasskeySessionToken(mockAccount, mockRequest as any);
-
-      expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
-        'new-session-token-id',
-        'passkey'
-      );
+      expect(db.createPasskeyVerifiedSessionToken).toHaveBeenCalledWith({
+        uid: UID,
+        email: TEST_EMAIL,
+        emailCode: 'emailcode123',
+        emailVerified: true,
+        verifierSetAt: 1234567890,
+        mustVerify: false,
+        tokenVerificationId: null,
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '124.0',
+        uaOS: 'macOS',
+        uaOSVersion: '14.0',
+        uaDeviceType: null,
+        uaFormFactor: null,
+      });
     });
 
     it('returns the created session token and emits success metric', async () => {
@@ -876,31 +863,13 @@ describe('passkeys routes', () => {
       );
     });
 
-    it('propagates errors from createSessionToken', async () => {
+    it('propagates errors from createPasskeyVerifiedSessionToken', async () => {
       const dbError = new Error('DB unavailable');
-      db.createSessionToken.mockRejectedValue(dbError);
+      db.createPasskeyVerifiedSessionToken.mockRejectedValue(dbError);
 
       await expect(
         handler.createPasskeySessionToken(mockAccount, mockRequest as any)
       ).rejects.toThrow('DB unavailable');
-    });
-
-    // TODO(FXA-13444): remove this test once the atomic stored procedure lands.
-    it('deletes the token, emits failure metric, and rethrows if verifyTokensWithMethod fails', async () => {
-      const dbError = new Error('DB unavailable');
-      db.verifyTokensWithMethod.mockRejectedValue(dbError);
-
-      await expect(
-        handler.createPasskeySessionToken(mockAccount, mockRequest as any)
-      ).rejects.toThrow('DB unavailable');
-
-      expect(db.deleteSessionToken).toHaveBeenCalledWith({
-        id: 'new-session-token-id',
-        uid: UID,
-      });
-      expect(statsd.increment).toHaveBeenCalledWith(
-        'passkeys.createSessionToken.failure'
-      );
     });
   });
 });
