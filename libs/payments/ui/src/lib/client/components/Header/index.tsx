@@ -27,7 +27,6 @@ import { OFFERING_LINKS } from '../../../constants';
 import {
   ReadonlyURLSearchParams,
   useParams,
-  useRouter,
   useSearchParams,
 } from 'next/navigation';
 import { signOut } from 'next-auth/react';
@@ -68,7 +67,6 @@ type HeaderProps = {
 };
 
 export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
-  const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
 
@@ -389,9 +387,8 @@ export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
                     <div className="bg-gradient-to-r from-blue-500 via-pink-700 to-yellow-500 h-px" />
                     <div className="px-4 py-5">
                       <button
-                        onClick={async () => {
-                          const signOutRedirect = await signOut({ redirectTo: signOutRedirectPath, redirect: false })
-                          router.replace(signOutRedirect.url);
+                        onClick={() => {
+                          signOut({ redirectTo: signOutRedirectPath })
                         }}
                         className="pl-3 group"
                       >
