@@ -153,4 +153,43 @@ describe('NimbusClient', () => {
       );
     });
   });
+
+  describe('generateAllNimbusIdsForDeletion', () => {
+    const mockFxaUid = faker.string.uuid();
+    const mockNimbusUserId = faker.string.uuid();
+
+    beforeEach(() => {
+      mockedGenerateNimbusId.mockReturnValue(mockNimbusUserId);
+    });
+
+    it('returns one nimbus id per deletion namespace', () => {
+      const result = nimbusManager.generateAllNimbusIdsForDeletion(mockFxaUid);
+
+      expect(result).toHaveLength(
+        mockNimbusManagerConfig.deletionNamespaces.length
+      );
+      for (const ns of mockNimbusManagerConfig.deletionNamespaces) {
+        expect(mockedGenerateNimbusId).toHaveBeenCalledWith(ns, mockFxaUid);
+      }
+    });
+
+    it('falls back to namespace when deletionNamespaces is undefined', () => {
+      const originalDeletionNamespaces =
+        mockNimbusManagerConfig.deletionNamespaces;
+      Object.defineProperty(mockNimbusManagerConfig, 'deletionNamespaces', {
+        value: undefined,
+        writable: true,
+      });
+
+      const result = nimbusManager.generateAllNimbusIdsForDeletion(mockFxaUid);
+
+      expect(result).toHaveLength(1);
+      expect(mockedGenerateNimbusId).toHaveBeenCalledWith(
+        mockNimbusManagerConfig.namespace,
+        mockFxaUid
+      );
+
+      mockNimbusManagerConfig.deletionNamespaces = originalDeletionNamespaces;
+    });
+  });
 });

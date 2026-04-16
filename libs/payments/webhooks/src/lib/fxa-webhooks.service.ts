@@ -15,6 +15,7 @@ import {
   StaleWhileRevalidateWithFallbackStrategy,
 } from '@fxa/shared/db/type-cacheable';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
+import { PaymentsGleanService } from '@fxa/payments/metrics';
 import { FxaWebhookConfig } from './fxa-webhooks.config';
 import {
   FxaWebhookAuthError,
@@ -60,7 +61,8 @@ export class FxaWebhookService {
   constructor(
     private fxaWebhookConfig: FxaWebhookConfig,
     @Inject(StatsDService) private statsd: StatsD,
-    @Inject(Logger) private log: LoggerService
+    @Inject(Logger) private log: LoggerService,
+    private paymentsGleanService: PaymentsGleanService
   ) {
     this.memoryCacheAdapter = new MemoryAdapter();
     this.fallbackCacheAdapter = new MemoryAdapter();
@@ -295,6 +297,7 @@ export class FxaWebhookService {
     this.statsd.increment('fxa.webhook.event', {
       eventType: 'delete-user',
     });
+    this.paymentsGleanService.handleUserDelete(sub);
   }
 
   private async handleMetricsOptOut(

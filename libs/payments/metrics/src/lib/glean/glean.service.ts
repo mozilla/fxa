@@ -201,6 +201,26 @@ export class PaymentsGleanService {
     };
   }
 
+  handleUserDelete(uid: string): void {
+    try {
+      const nimbusUserIds =
+        this.nimbusManager.generateAllNimbusIdsForDeletion(uid);
+      for (const nimbusUserId of nimbusUserIds) {
+        // PAY-3438: Log format consumed by BigQuery ETL for Glean Shredder.
+        // Do not change jsonPayload.type or field names without updating the ETL query.
+        this.log.log('glean.user.delete', {
+          uid,
+          nimbus_user_id: nimbusUserId,
+        });
+      }
+    } catch (error) {
+      this.log.error(
+        `Failed to generate Nimbus deletion ids for uid ${uid}`,
+        error instanceof Error ? error.stack : undefined
+      );
+    }
+  }
+
   async recordGenericSubManageEvent({
     eventName,
     uid,
