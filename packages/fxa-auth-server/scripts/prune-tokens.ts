@@ -7,7 +7,7 @@ import { setupDatabase } from 'fxa-shared/db';
 import { BaseAuthModel } from 'fxa-shared/db/models/auth';
 import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
-import { initSentry } from 'fxa-shared/sentry/node';
+import { initSentry } from '@fxa/shared/sentry-node';
 import moment from 'moment';
 import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
 const { PruneTokens } = require('fxa-shared/db/models/auth');

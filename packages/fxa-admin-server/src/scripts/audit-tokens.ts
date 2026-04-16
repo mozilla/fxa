@@ -5,7 +5,7 @@
 import program from 'commander';
 import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
-import { initSentry } from 'fxa-shared/sentry/node';
+import { initSentry } from '@fxa/shared/sentry-node';
 import {
   setupAuthDatabase,
   setupDatabase,

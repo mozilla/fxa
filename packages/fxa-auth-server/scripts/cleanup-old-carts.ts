@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import program from 'commander';
 import * as Sentry from '@sentry/node';
-import { initSentry } from 'fxa-shared/sentry/node';
+import { initSentry } from '@fxa/shared/sentry-node';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { CartCleanup } from './cleanup-old-carts/cleanup-old-carts';

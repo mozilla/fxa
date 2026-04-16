@@ -11,7 +11,7 @@
  * Ported from: fxa-content-server/app/scripts/lib/pairing-channel-client.js
  */
 
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import { captureException } from '@fxa/shared/sentry-browser';
 
 // Types
 
@@ -154,7 +154,7 @@ export class PairingChannelClient extends EventTarget {
       channel.addEventListener('error', this.handleError);
       channel.addEventListener('close', this.handleClose);
     } catch (err) {
-      sentryMetrics.captureException(err);
+      captureException(err);
       this.dispatchEvent(new CustomEvent('error', { detail: err }));
     } finally {
       this._opening = false;
@@ -184,7 +184,7 @@ export class PairingChannelClient extends EventTarget {
     try {
       await ch.close();
     } catch (err) {
-      sentryMetrics.captureException(err);
+      captureException(err);
     }
   }
 
@@ -224,13 +224,13 @@ export class PairingChannelClient extends EventTarget {
         new CustomEvent(`remote:${message}`, { detail: data })
       );
     } catch (err) {
-      sentryMetrics.captureException(err);
+      captureException(err);
       this.dispatchEvent(new CustomEvent('error', { detail: err }));
     }
   };
 
   private handleError = (event: Event) => {
-    sentryMetrics.captureException((event as CustomEvent).detail);
+    captureException((event as CustomEvent).detail);
     this.dispatchEvent(
       new CustomEvent('error', {
         detail: new PairingChannelError('UNEXPECTED_ERROR'),
