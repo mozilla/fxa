@@ -1,6 +1,8 @@
-// This file was created by react-scripts' (create-react-app) eject script.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
+// This file was created by react-scripts' (create-react-app) eject script.
 
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = 'development';
@@ -13,10 +15,24 @@ process.on('unhandledRejection', (err) => {
   throw err;
 });
 
+// Cache-bust public/ scripts (same as build.js). In dev the hash is stable
+// so the browser won't refetch on every reload, but it keeps the URL shape
+// consistent with production. Must run before require('../config/env') so
+// getClientEnvironment picks up the REACT_APP_ vars.
+const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
+const publicDir = path.join(__dirname, '../public');
+const hashFile = (name) =>
+  crypto
+    .createHash('md5')
+    .update(fs.readFileSync(path.join(publicDir, name)))
+    .digest('hex');
+process.env.REACT_APP_QUERY_FIX_HASH = hashFile('query-fix.js');
+process.env.REACT_APP_LANG_FIX_HASH = hashFile('lang-fix.js');
+
 // Ensure environment variables are read.
 require('../config/env');
-
-const fs = require('fs');
 const chalk = require('react-dev-utils/chalk');
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
