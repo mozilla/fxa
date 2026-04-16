@@ -25,7 +25,7 @@ import crypto from 'crypto';
 import { promisify } from 'util';
 
 import * as Sentry from '@sentry/node';
-import { initSentry } from 'fxa-shared/sentry/node';
+import { initSentry } from '@fxa/shared/sentry-node';
 import { Command } from 'commander';
 import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
