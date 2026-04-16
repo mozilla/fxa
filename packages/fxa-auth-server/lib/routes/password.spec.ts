@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import crypto from 'crypto';
 import { Container } from 'typedi';
 
@@ -73,7 +72,7 @@ describe('/password', () => {
     mocks.mockOAuthClientInfo();
     mockFxaMailer = mocks.mockFxaMailer();
     mockAccountEventsManager = mocks.mockAccountEventsManager();
-    glean.resetPassword.emailSent.reset();
+    glean.resetPassword.emailSent.mockClear();
   });
 
   afterEach(() => {
@@ -99,23 +98,23 @@ describe('/password', () => {
     const mockMetricsContext = mocks.mockMetricsContext();
     const mockLog = mocks.mockLog('ERROR', 'test', {
       stdout: {
-        on: sinon.spy(),
-        write: sinon.spy(),
+        on: jest.fn(),
+        write: jest.fn(),
       },
       stderr: {
-        on: sinon.spy(),
-        write: sinon.spy(),
+        on: jest.fn(),
+        write: jest.fn(),
       },
     });
-    mockLog.flowEvent = sinon.spy(() => {
+    mockLog.flowEvent = jest.fn(() => {
       return Promise.resolve();
     });
     const mockRedis = {
-      set: sinon.stub(),
-      get: sinon.stub(),
-      del: sinon.stub(),
+      set: jest.fn(),
+      get: jest.fn(),
+      del: jest.fn(),
     };
-    const mockStatsd = { increment: sinon.stub() };
+    const mockStatsd = { increment: jest.fn() };
 
     it('sends an OTP when enabled', () => {
       const passwordRoutes = makeRoutes({
@@ -148,46 +147,53 @@ describe('/password', () => {
         '/password/forgot/send_otp',
         mockRequest
       ).then((response: any) => {
-        sinon.assert.calledOnce(mockFxaMailer.sendPasswordForgotOtpEmail);
-        expect(mockDB.accountRecord.callCount).toBe(1);
-        sinon.assert.calledOnce(mockRedis.set);
+        expect(mockFxaMailer.sendPasswordForgotOtpEmail).toHaveBeenCalledTimes(
+          1
+        );
+        expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
+        expect(mockRedis.set).toHaveBeenCalledTimes(1);
 
         // an eight digit code was set
         // TODO FXA-7852 check that the same code was pass to the email
-        expect(mockRedis.set.args[0][1]).toMatch(/^\d{8}$/);
+        expect(mockRedis.set.mock.calls[0][1]).toMatch(/^\d{8}$/);
 
-        expect(mockRequest.validateMetricsContext.callCount).toBe(1);
-        sinon.assert.calledOnceWithExactly(
-          mockCustoms.check,
+        expect(mockRequest.validateMetricsContext).toHaveBeenCalledTimes(1);
+        expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+        expect(mockCustoms.check).toHaveBeenCalledWith(
           mockRequest,
           TEST_EMAIL,
           'passwordForgotSendOtp'
         );
 
-        sinon.assert.calledOnce(mockFxaMailer.sendPasswordForgotOtpEmail);
+        expect(mockFxaMailer.sendPasswordForgotOtpEmail).toHaveBeenCalledTimes(
+          1
+        );
 
-        expect(mockMetricsContext.setFlowCompleteSignal.callCount).toBe(1);
-        const args = mockMetricsContext.setFlowCompleteSignal.args[0];
+        expect(mockMetricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(
+          1
+        );
+        const args = mockMetricsContext.setFlowCompleteSignal.mock.calls[0];
         expect(args).toHaveLength(1);
         expect(args[0]).toBe('account.reset');
 
-        expect(mockLog.flowEvent.callCount).toBe(2);
-        expect(mockLog.flowEvent.args[0][0].event).toBe(
+        expect(mockLog.flowEvent).toHaveBeenCalledTimes(2);
+        expect(mockLog.flowEvent.mock.calls[0][0].event).toBe(
           'password.forgot.send_otp.start'
         );
-        expect(mockLog.flowEvent.args[1][0].event).toBe(
+        expect(mockLog.flowEvent.mock.calls[1][0].event).toBe(
           'password.forgot.send_otp.completed'
         );
 
-        sinon.assert.calledOnceWithExactly(
-          glean.resetPassword.otpEmailSent,
+        expect(glean.resetPassword.otpEmailSent).toHaveBeenCalledTimes(1);
+        expect(glean.resetPassword.otpEmailSent).toHaveBeenCalledWith(
           mockRequest
         );
 
-        sinon.assert.calledWith(
-          mockAccountEventsManager.recordSecurityEvent,
-          sinon.match.defined,
-          sinon.match({
+        expect(
+          mockAccountEventsManager.recordSecurityEvent
+        ).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
             name: 'account.password_reset_otp_sent',
             ipAddr: '63.245.221.32',
             uid,
@@ -260,24 +266,24 @@ describe('/password', () => {
     const mockMetricsContext = mocks.mockMetricsContext();
     const mockLog = mocks.mockLog('ERROR', 'test', {
       stdout: {
-        on: sinon.spy(),
-        write: sinon.spy(),
+        on: jest.fn(),
+        write: jest.fn(),
       },
       stderr: {
-        on: sinon.spy(),
-        write: sinon.spy(),
+        on: jest.fn(),
+        write: jest.fn(),
       },
     });
-    mockLog.flowEvent = sinon.spy(() => {
+    mockLog.flowEvent = jest.fn(() => {
       return Promise.resolve();
     });
     const code = '97236000';
     const mockRedis = {
-      set: sinon.stub(),
-      get: sinon.stub().returns(code),
-      del: sinon.stub(),
+      set: jest.fn(),
+      get: jest.fn().mockReturnValue(code),
+      del: jest.fn(),
     };
-    const mockStatsd = { increment: sinon.stub() };
+    const mockStatsd = { increment: jest.fn() };
 
     const mockRequest = mocks.mockRequest({
       log: mockLog,
@@ -312,65 +318,62 @@ describe('/password', () => {
         '/password/forgot/verify_otp',
         mockRequest
       ).then((response: any) => {
-        expect(mockDB.accountRecord.callCount).toBe(1);
+        expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
 
-        sinon.assert.calledOnce(mockRedis.get);
-        sinon.assert.calledOnce(mockRedis.del);
-        expect(mockRedis.get.args[0][0]).toMatch(new RegExp(uid));
+        expect(mockRedis.get).toHaveBeenCalledTimes(1);
+        expect(mockRedis.del).toHaveBeenCalledTimes(1);
+        expect(mockRedis.get.mock.calls[0][0]).toMatch(new RegExp(uid));
 
-        expect(mockRequest.validateMetricsContext.callCount).toBe(1);
+        expect(mockRequest.validateMetricsContext).toHaveBeenCalledTimes(1);
 
-        sinon.assert.calledWithExactly(
-          mockCustoms.check,
+        expect(mockCustoms.check).toHaveBeenCalledWith(
           mockRequest,
           TEST_EMAIL,
           'passwordForgotVerifyOtp'
         );
 
-        sinon.assert.calledWithExactly(
-          mockCustoms.check,
+        expect(mockCustoms.check).toHaveBeenCalledWith(
           mockRequest,
           TEST_EMAIL,
           'passwordForgotVerifyOtpPerDay'
         );
 
-        sinon.assert.callCount(mockStatsd.increment, 2);
-        sinon.assert.calledWithExactly(
-          mockStatsd.increment,
+        expect(mockStatsd.increment).toHaveBeenCalledTimes(2);
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
           'otp.passwordForgot.attempt',
           {}
         );
-        sinon.assert.calledWithExactly(
-          mockStatsd.increment,
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
           'otp.passwordForgot.verified',
           {}
         );
 
-        expect(mockLog.flowEvent.callCount).toBe(2);
-        expect(mockLog.flowEvent.args[0][0].event).toBe(
+        expect(mockLog.flowEvent).toHaveBeenCalledTimes(2);
+        expect(mockLog.flowEvent.mock.calls[0][0].event).toBe(
           'password.forgot.verify_otp.start'
         );
-        expect(mockLog.flowEvent.args[1][0].event).toBe(
+        expect(mockLog.flowEvent.mock.calls[1][0].event).toBe(
           'password.forgot.verify_otp.completed'
         );
 
-        expect(mockDB.createPasswordForgotToken.callCount).toBe(1);
-        const args = mockDB.createPasswordForgotToken.args[0];
+        expect(mockDB.createPasswordForgotToken).toHaveBeenCalledTimes(1);
+        const args = mockDB.createPasswordForgotToken.mock.calls[0];
         expect(args.length).toBe(1);
         expect(args[0].uid).toEqual(uid);
 
         expect(response.token).toMatch(/^(?:[a-fA-F0-9]{2}){32}$/);
         expect(response.code).toBe('486008');
 
-        sinon.assert.calledOnceWithExactly(
-          glean.resetPassword.otpVerified,
+        expect(glean.resetPassword.otpVerified).toHaveBeenCalledTimes(1);
+        expect(glean.resetPassword.otpVerified).toHaveBeenCalledWith(
           mockRequest
         );
 
-        sinon.assert.calledWith(
-          mockAccountEventsManager.recordSecurityEvent,
-          sinon.match.defined,
-          sinon.match({
+        expect(
+          mockAccountEventsManager.recordSecurityEvent
+        ).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
             name: 'account.password_reset_otp_verified',
             ipAddr: '63.245.221.32',
             uid,
@@ -401,15 +404,15 @@ describe('/password', () => {
     const mockMetricsContext = mocks.mockMetricsContext();
     const mockLog = log('ERROR', 'test', {
       stdout: {
-        on: sinon.spy(),
-        write: sinon.spy(),
+        on: jest.fn(),
+        write: jest.fn(),
       },
       stderr: {
-        on: sinon.spy(),
-        write: sinon.spy(),
+        on: jest.fn(),
+        write: jest.fn(),
       },
     });
-    mockLog.flowEvent = sinon.spy(() => {
+    mockLog.flowEvent = jest.fn(() => {
       return Promise.resolve();
     });
     const passwordRoutes = makeRoutes({
@@ -450,32 +453,33 @@ describe('/password', () => {
       expect(Object.keys(response)).toEqual(['accountResetToken']);
       expect(response.accountResetToken).toBe(accountResetToken.data);
 
-      expect(mockCustoms.check.callCount).toBe(1);
+      expect(mockCustoms.check).toHaveBeenCalledTimes(1);
 
-      expect(mockDB.forgotPasswordVerified.callCount).toBe(1);
-      let args = mockDB.forgotPasswordVerified.args[0];
+      expect(mockDB.forgotPasswordVerified).toHaveBeenCalledTimes(1);
+      let args = mockDB.forgotPasswordVerified.mock.calls[0];
       expect(args.length).toBe(1);
       expect(args[0].uid).toEqual(uid);
 
-      expect(mockRequest.validateMetricsContext.callCount).toBe(0);
-      expect(mockLog.flowEvent.callCount).toBe(2);
-      expect(mockLog.flowEvent.args[0][0].event).toBe(
+      expect(mockRequest.validateMetricsContext).toHaveBeenCalledTimes(0);
+      expect(mockLog.flowEvent).toHaveBeenCalledTimes(2);
+      expect(mockLog.flowEvent.mock.calls[0][0].event).toBe(
         'password.forgot.verify_code.start'
       );
-      expect(mockLog.flowEvent.args[1][0].event).toBe(
+      expect(mockLog.flowEvent.mock.calls[1][0].event).toBe(
         'password.forgot.verify_code.completed'
       );
 
-      expect(mockMetricsContext.propagate.callCount).toBe(1);
-      args = mockMetricsContext.propagate.args[0];
+      expect(mockMetricsContext.propagate).toHaveBeenCalledTimes(1);
+      args = mockMetricsContext.propagate.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0].id).toBe(passwordForgotTokenId);
       expect(args[0].uid).toBe(uid);
       expect(args[1].id).toBe(accountResetToken.id);
       expect(args[1].uid).toBe(uid);
 
-      expect(mockFxaMailer.sendPasswordResetEmail.callCount).toBe(1);
-      const passwordResetArgs = mockFxaMailer.sendPasswordResetEmail.args[0];
+      expect(mockFxaMailer.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
+      const passwordResetArgs =
+        mockFxaMailer.sendPasswordResetEmail.mock.calls[0];
       expect(passwordResetArgs[0].uid).toBe(uid);
       expect(passwordResetArgs[0].deviceId).toBe('wibble');
     });
@@ -521,7 +525,7 @@ describe('/password', () => {
         statsd: mockStatsd,
       });
 
-      mockDB.checkPassword = sinon.spy(() =>
+      mockDB.checkPassword = jest.fn(() =>
         Promise.resolve({
           v1: true,
           v2: false,
@@ -534,16 +538,15 @@ describe('/password', () => {
         mockRequest
       );
 
-      sinon.assert.calledWith(
-        mockCustoms.checkAuthenticated,
+      expect(mockCustoms.checkAuthenticated).toHaveBeenCalledWith(
         mockRequest,
         uid,
         TEST_EMAIL,
         'authenticatedPasswordChange'
       );
-      sinon.assert.calledWith(mockDB.accountRecord, TEST_EMAIL);
-      sinon.assert.calledOnce(mockDB.createKeyFetchToken);
-      sinon.assert.calledWith(mockDB.createPasswordChangeToken, { uid });
+      expect(mockDB.accountRecord).toHaveBeenCalledWith(TEST_EMAIL);
+      expect(mockDB.createKeyFetchToken).toHaveBeenCalledTimes(1);
+      expect(mockDB.createPasswordChangeToken).toHaveBeenCalledWith({ uid });
 
       expect(response.keyFetchToken).toBeTruthy();
       expect(response.passwordChangeToken).toBeTruthy();
@@ -586,7 +589,7 @@ describe('/password', () => {
         statsd: mockStatsd,
       });
 
-      mockDB.checkPassword = sinon.spy(() =>
+      mockDB.checkPassword = jest.fn(() =>
         Promise.resolve({
           v1: true,
           v2: false,
@@ -599,16 +602,15 @@ describe('/password', () => {
         mockRequest
       );
 
-      sinon.assert.calledWith(
-        mockCustoms.checkAuthenticated,
+      expect(mockCustoms.checkAuthenticated).toHaveBeenCalledWith(
         mockRequest,
         uid,
         TEST_EMAIL,
         'authenticatedPasswordChange'
       );
-      sinon.assert.calledWith(mockDB.accountRecord, TEST_EMAIL);
-      sinon.assert.calledOnce(mockDB.createKeyFetchToken);
-      sinon.assert.calledWith(mockDB.createPasswordChangeToken, { uid });
+      expect(mockDB.accountRecord).toHaveBeenCalledWith(TEST_EMAIL);
+      expect(mockDB.createKeyFetchToken).toHaveBeenCalledTimes(1);
+      expect(mockDB.createPasswordChangeToken).toHaveBeenCalledWith({ uid });
 
       expect(response.keyFetchToken).toBeTruthy();
       expect(response.passwordChangeToken).toBeTruthy();
@@ -661,27 +663,27 @@ describe('/password', () => {
         '/password/change/finish',
         mockRequest
       ).then((response: any) => {
-        expect(mockDB.deletePasswordChangeToken.callCount).toBe(1);
-        expect(mockDB.resetAccount.callCount).toBe(1);
-        expect(mockDB.resetAccount.firstCall.args[2]).toBe(undefined);
+        expect(mockDB.deletePasswordChangeToken).toHaveBeenCalledTimes(1);
+        expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.resetAccount.mock.calls[0][2]).toBe(undefined);
 
-        expect(mockPush.notifyPasswordChanged.callCount).toBe(1);
-        expect(mockPush.notifyPasswordChanged.firstCall.args[0]).toEqual(uid);
-        expect(mockPush.notifyPasswordChanged.firstCall.args[1]).toEqual([
+        expect(mockPush.notifyPasswordChanged).toHaveBeenCalledTimes(1);
+        expect(mockPush.notifyPasswordChanged.mock.calls[0][0]).toEqual(uid);
+        expect(mockPush.notifyPasswordChanged.mock.calls[0][1]).toEqual([
           devices[1],
         ]);
 
-        expect(mockDB.account.callCount).toBe(1);
-        expect(mockFxaMailer.sendPasswordChangedEmail.callCount).toBe(1);
-        let args = mockFxaMailer.sendPasswordChangedEmail.args[0];
+        expect(mockDB.account).toHaveBeenCalledTimes(1);
+        expect(mockFxaMailer.sendPasswordChangedEmail).toHaveBeenCalledTimes(1);
+        let args = mockFxaMailer.sendPasswordChangedEmail.mock.calls[0];
         expect(args[0].to).toBe(TEST_EMAIL);
         expect(args[0].location.city).toBe('Mountain View');
         expect(args[0].location.country).toBe('United States');
         expect(args[0].timeZone).toBe('America/Los_Angeles');
         expect(args[0].uid).toBe(uid);
 
-        expect(mockLog.activityEvent.callCount).toBe(1);
-        args = mockLog.activityEvent.args[0];
+        expect(mockLog.activityEvent).toHaveBeenCalledTimes(1);
+        args = mockLog.activityEvent.mock.calls[0];
         expect(args.length).toBe(1);
         expect(args[0]).toEqual({
           country: 'United States',
@@ -694,8 +696,8 @@ describe('/password', () => {
           clientJa4: 'test-ja4',
         });
 
-        expect(mockDB.createSessionToken.callCount).toBe(1);
-        args = mockDB.createSessionToken.args[0];
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
+        args = mockDB.createSessionToken.mock.calls[0];
         expect(args.length).toBe(1);
         expect(args[0].uaBrowser).toBe('Firefox');
         expect(args[0].uaBrowserVersion).toBe('57');
@@ -704,10 +706,11 @@ describe('/password', () => {
         expect(args[0].uaDeviceType).toBe(null);
         expect(args[0].uaFormFactor).toBe(null);
 
-        sinon.assert.calledWith(
-          mockAccountEventsManager.recordSecurityEvent,
-          sinon.match.defined,
-          sinon.match({
+        expect(
+          mockAccountEventsManager.recordSecurityEvent
+        ).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
             name: 'account.password_changed',
             ipAddr: '63.245.221.32',
             uid: mockRequest.auth.credentials.uid,
@@ -715,10 +718,11 @@ describe('/password', () => {
           })
         );
 
-        sinon.assert.calledWith(
-          mockAccountEventsManager.recordSecurityEvent,
-          sinon.match.defined,
-          sinon.match({
+        expect(
+          mockAccountEventsManager.recordSecurityEvent
+        ).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
             name: 'account.password_reset_success',
             ipAddr: '63.245.221.32',
             uid: mockRequest.auth.credentials.uid,
@@ -736,14 +740,16 @@ describe('/password', () => {
       });
       const mockPush = mocks.mockPush();
       const mockMailer = {
-        sendPasswordChangedEmail: sinon.spy(() => {
+        sendPasswordChangedEmail: jest.fn(() => {
           return Promise.reject(error.emailBouncedHard());
         }),
       };
       const mockLog = mocks.mockLog();
 
       // Configure mockFxaMailer to reject for this test
-      mockFxaMailer.sendPasswordChangedEmail.rejects(error.emailBouncedHard());
+      mockFxaMailer.sendPasswordChangedEmail.mockRejectedValue(
+        error.emailBouncedHard()
+      );
 
       const mockRequest = mocks.mockRequest({
         credentials: {
@@ -776,24 +782,24 @@ describe('/password', () => {
         '/password/change/finish',
         mockRequest
       ).then((response: any) => {
-        expect(mockDB.deletePasswordChangeToken.callCount).toBe(1);
-        expect(mockDB.resetAccount.callCount).toBe(1);
-        expect(mockDB.resetAccount.firstCall.args[2]).toBe(undefined);
+        expect(mockDB.deletePasswordChangeToken).toHaveBeenCalledTimes(1);
+        expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.resetAccount.mock.calls[0][2]).toBe(undefined);
 
-        expect(mockPush.notifyPasswordChanged.callCount).toBe(1);
-        expect(mockPush.notifyPasswordChanged.firstCall.args[0]).toEqual(uid);
+        expect(mockPush.notifyPasswordChanged).toHaveBeenCalledTimes(1);
+        expect(mockPush.notifyPasswordChanged.mock.calls[0][0]).toEqual(uid);
 
-        const notifyArgs = mockLog.notifyAttachedServices.args[0];
+        const notifyArgs = mockLog.notifyAttachedServices.mock.calls[0];
         expect(notifyArgs.length).toBe(3);
         expect(notifyArgs[0]).toBe('passwordChange');
         expect(notifyArgs[1]).toBe(mockRequest);
         expect(notifyArgs[2].uid).toBe(uid);
 
-        expect(mockDB.account.callCount).toBe(1);
-        expect(mockFxaMailer.sendPasswordChangedEmail.callCount).toBe(1);
+        expect(mockDB.account).toHaveBeenCalledTimes(1);
+        expect(mockFxaMailer.sendPasswordChangedEmail).toHaveBeenCalledTimes(1);
 
-        expect(mockLog.activityEvent.callCount).toBe(1);
-        const args = mockLog.activityEvent.args[0];
+        expect(mockLog.activityEvent).toHaveBeenCalledTimes(1);
+        const args = mockLog.activityEvent.mock.calls[0];
         expect(args.length).toBe(1);
         expect(args[0]).toEqual({
           country: 'United States',
@@ -819,7 +825,7 @@ describe('/password', () => {
       });
       const mockPush = mocks.mockPush();
       const mockMailer = {
-        sendPasswordChangedEmail: sinon.spy(() => {
+        sendPasswordChangedEmail: jest.fn(() => {
           return Promise.resolve();
         }),
       };
@@ -860,16 +866,16 @@ describe('/password', () => {
         '/password/change/finish',
         mockRequest
       ).then((response: any) => {
-        expect(mockDB.deletePasswordChangeToken.callCount).toBe(1);
-        expect(mockDB.resetAccount.callCount).toBe(1);
-        expect(mockDB.resetAccount.firstCall.args[2]).toBe(true);
+        expect(mockDB.deletePasswordChangeToken).toHaveBeenCalledTimes(1);
+        expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.resetAccount.mock.calls[0][2]).toBe(true);
 
         // Notifications should not go out since we are just upgrading the account.
         // In this case, the raw password value would still be the same.
-        expect(mockPush.notifyPasswordChanged.callCount).toBe(0);
-        expect(mockLog.notifyAttachedServices.callCount).toBe(0);
-        expect(mockMailer.sendPasswordChangedEmail.callCount).toBe(0);
-        expect(mockLog.activityEvent.callCount).toBe(0);
+        expect(mockPush.notifyPasswordChanged).toHaveBeenCalledTimes(0);
+        expect(mockLog.notifyAttachedServices).toHaveBeenCalledTimes(0);
+        expect(mockMailer.sendPasswordChangedEmail).toHaveBeenCalledTimes(0);
+        expect(mockLog.activityEvent).toHaveBeenCalledTimes(0);
       });
     });
   });
@@ -914,14 +920,13 @@ describe('/password', () => {
         '/password/create',
         mockRequest
       );
-      expect(mockDB.account.callCount).toBe(1);
-      expect(mockDB.createPassword.callCount).toBe(1);
+      expect(mockDB.account).toHaveBeenCalledTimes(1);
+      expect(mockDB.createPassword).toHaveBeenCalledTimes(1);
       expect(res).toEqual(1584397692000);
 
-      sinon.assert.calledWith(
-        mockAccountEventsManager.recordSecurityEvent,
-        sinon.match.defined,
-        sinon.match({
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
           name: 'account.password_added',
           ipAddr: '63.245.221.32',
           uid: mockRequest.auth.credentials.uid,
@@ -950,13 +955,13 @@ describe('/password', () => {
     });
 
     it('should succeed if in totp verified session', async () => {
-      mockDB.totpToken = sinon.spy(() => {
+      mockDB.totpToken = jest.fn(() => {
         return {
           verified: true,
           enabled: true,
         };
       });
-      mockDB.getLinkedAccounts = sinon.spy(() => {
+      mockDB.getLinkedAccounts = jest.fn(() => {
         return Promise.resolve([{ enabled: true }]);
       });
       passwordRoutes = makeRoutes({
@@ -969,10 +974,10 @@ describe('/password', () => {
         '/password/create',
         mockRequest
       );
-      expect(mockDB.account.callCount).toBe(1);
-      expect(mockDB.createPassword.callCount).toBe(1);
-      expect(mockDB.getLinkedAccounts.callCount).toBe(1);
-      expect(glean.thirdPartyAuth.setPasswordComplete.callCount).toBe(1);
+      expect(mockDB.account).toHaveBeenCalledTimes(1);
+      expect(mockDB.createPassword).toHaveBeenCalledTimes(1);
+      expect(mockDB.getLinkedAccounts).toHaveBeenCalledTimes(1);
+      expect(glean.thirdPartyAuth.setPasswordComplete).toHaveBeenCalledTimes(1);
       expect(res).toEqual(1584397692000);
     });
   });
@@ -1059,35 +1064,36 @@ describe('/password', () => {
       expect(response.keyFetchToken).toBeTruthy();
 
       // Verify database calls
-      sinon.assert.calledOnce(mockDB.account);
-      sinon.assert.calledOnce(mockDB.resetAccount);
-      sinon.assert.calledWith(mockDB.resetAccount, { uid });
+      expect(mockDB.account).toHaveBeenCalledTimes(1);
+      expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
+      expect(mockDB.resetAccount).toHaveBeenCalledWith(
+        expect.objectContaining({ uid }),
+        expect.anything()
+      );
 
       // Verify key fetch tokens are created and returned
-      sinon.assert.calledOnce(mockDB.createKeyFetchToken);
+      expect(mockDB.createKeyFetchToken).toHaveBeenCalledTimes(1);
 
       // Verify session token creation
-      sinon.assert.calledOnce(mockDB.createSessionToken);
+      expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
 
       // Verify notifications
-      sinon.assert.calledOnce(mockPush.notifyPasswordChanged);
-      sinon.assert.calledOnce(mockFxaMailer.sendPasswordChangedEmail);
+      expect(mockPush.notifyPasswordChanged).toHaveBeenCalledTimes(1);
+      expect(mockFxaMailer.sendPasswordChangedEmail).toHaveBeenCalledTimes(1);
 
       // Verify security events
-      sinon.assert.calledWith(
-        mockAccountEventsManager.recordSecurityEvent,
-        sinon.match.defined,
-        sinon.match({
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
           name: 'account.password_changed',
           ipAddr: '63.245.221.32',
           uid,
         })
       );
 
-      sinon.assert.calledWith(
-        mockAccountEventsManager.recordSecurityEvent,
-        sinon.match.defined,
-        sinon.match({
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
           name: 'account.password_reset_success',
           ipAddr: '63.245.221.32',
           uid,
@@ -1145,7 +1151,7 @@ describe('/password', () => {
       );
 
       // Verify V2 credentials are handled
-      const resetAccountCall = mockDB.resetAccount.firstCall.args[1];
+      const resetAccountCall = mockDB.resetAccount.mock.calls[0][1];
       expect(resetAccountCall.verifyHashVersion2).toBeTruthy();
       expect(resetAccountCall.wrapWrapKbVersion2).toBeTruthy();
       expect(resetAccountCall.clientSalt).toBe(clientSalt);
@@ -1163,7 +1169,7 @@ describe('/password', () => {
       const clientSalt =
         'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
 
-      mockDB.account = sinon.spy(() => ({
+      mockDB.account = jest.fn(() => ({
         uid,
         email: TEST_EMAIL,
         authSalt: crypto.randomBytes(32).toString('hex'),
@@ -1173,7 +1179,7 @@ describe('/password', () => {
       }));
 
       // Mock signinUtils.checkPassword to return true for upgrade scenario
-      mockDB.checkPassword = sinon.spy(() =>
+      mockDB.checkPassword = jest.fn(() =>
         Promise.resolve({ v1: true, v2: false })
       );
 
@@ -1218,12 +1224,11 @@ describe('/password', () => {
       );
 
       // Verify upgrade scenario is handled
-      const resetAccountCall = mockDB.resetAccount.firstCall;
-      expect(resetAccountCall.args[2]).toBe(true); // isPasswordUpgrade flag
+      expect(mockDB.resetAccount.mock.calls[0][2]).toBe(true); // isPasswordUpgrade flag
 
       // Notifications should be skipped during password upgrade
-      sinon.assert.notCalled(mockPush.notifyPasswordChanged);
-      sinon.assert.notCalled(mockMailer.sendPasswordChangedEmail);
+      expect(mockPush.notifyPasswordChanged).not.toHaveBeenCalled();
+      expect(mockMailer.sendPasswordChangedEmail).not.toHaveBeenCalled();
 
       expect(response.sessionToken).toBeTruthy();
       expect(response.keyFetchToken).toBeFalsy();

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { AppError as errors } from '@fxa/accounts/errors';
 
 const uuid = require('uuid');
@@ -26,7 +25,7 @@ const recoveryData = '11111111111';
 const hint = 'super secret location';
 const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
-let mockAuthorizedClientsList: any = sinon.stub().resolves([]);
+let mockAuthorizedClientsList: any = jest.fn().mockResolvedValue([]);
 
 jest.mock('../oauth/authorized_clients', () => ({
   list: (...args: any[]) => mockAuthorizedClientsList(...args),
@@ -45,7 +44,7 @@ function setup(results: any, _errors: any, path: string, requestOptions: any) {
   glean = mocks.mockGlean();
   mockAuthorizedClientsList = results.mockAuthorizedClients
     ? results.mockAuthorizedClients.list
-    : sinon.stub().resolves([]);
+    : jest.fn().mockResolvedValue([]);
   routes = makeRoutes({
     log,
     db,
@@ -55,7 +54,7 @@ function setup(results: any, _errors: any, path: string, requestOptions: any) {
   });
   route = getRoute(routes, path, requestOptions.method);
   request = mocks.mockRequest(requestOptions);
-  request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
+  request.emitMetricsEvent = jest.fn(() => Promise.resolve({}));
   return route.handler(request);
 }
 
@@ -113,10 +112,9 @@ describe('POST /recoveryKey', () => {
     });
 
     it('recorded security event', () => {
-      sinon.assert.calledWith(
-        mockAccountEventsManager.recordSecurityEvent,
-        sinon.match.defined,
-        sinon.match({
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
           name: 'account.recovery_key_added',
           ipAddr: '63.245.221.32',
           uid: requestOptions.credentials.uid,
@@ -126,16 +124,16 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called log.begin correctly', () => {
-      expect(log.begin.callCount).toBe(1);
-      const args = log.begin.args[0];
+      expect(log.begin).toHaveBeenCalledTimes(1);
+      const args = log.begin.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0]).toBe('createRecoveryKey');
       expect(args[1]).toBe(request);
     });
 
     it('called db.createRecoveryKey correctly', () => {
-      expect(db.createRecoveryKey.callCount).toBe(1);
-      const args = db.createRecoveryKey.args[0];
+      expect(db.createRecoveryKey).toHaveBeenCalledTimes(1);
+      const args = db.createRecoveryKey.mock.calls[0];
       expect(args).toHaveLength(4);
       expect(args[0]).toBe(uid);
       expect(args[1]).toBe(recoveryKeyId);
@@ -144,26 +142,28 @@ describe('POST /recoveryKey', () => {
     });
 
     it('did not call db.deleteRecoveryKey', () => {
-      expect(db.deleteRecoveryKey.callCount).toBe(0);
+      expect(db.deleteRecoveryKey).toHaveBeenCalledTimes(0);
     });
 
     it('called log.info correctly', () => {
-      expect(log.info.callCount).toBe(1);
-      const args = log.info.args[0];
+      expect(log.info).toHaveBeenCalledTimes(1);
+      const args = log.info.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0]).toBe('account.recoveryKey.created');
     });
 
     it('called request.emitMetricsEvent correctly', () => {
-      expect(request.emitMetricsEvent.callCount).toBe(1);
-      const args = request.emitMetricsEvent.args[0];
+      expect(request.emitMetricsEvent).toHaveBeenCalledTimes(1);
+      const args = request.emitMetricsEvent.mock.calls[0];
       expect(args[0]).toBe('recoveryKey.created');
       expect(args[1]['uid']).toBe(uid);
     });
 
     it('called mailer.sendPostAddAccountRecoveryEmail correctly', () => {
-      expect(fxaMailer.sendPostAddAccountRecoveryEmail.callCount).toBe(1);
-      const args = fxaMailer.sendPostAddAccountRecoveryEmail.args[0];
+      expect(fxaMailer.sendPostAddAccountRecoveryEmail).toHaveBeenCalledTimes(
+        1
+      );
+      const args = fxaMailer.sendPostAddAccountRecoveryEmail.mock.calls[0];
       expect(args).toHaveLength(1);
       expect(args[0].to).toBe(email);
     });
@@ -202,10 +202,9 @@ describe('POST /recoveryKey', () => {
     });
 
     it('recorded security event for the key deletion', () => {
-      sinon.assert.calledWith(
-        mockAccountEventsManager.recordSecurityEvent,
-        sinon.match.defined,
-        sinon.match({
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
           name: 'account.recovery_key_removed',
           ipAddr: '63.245.221.32',
           uid: requestOptions.credentials.uid,
@@ -215,10 +214,9 @@ describe('POST /recoveryKey', () => {
     });
 
     it('recorded security event for the key creation', () => {
-      sinon.assert.calledWith(
-        mockAccountEventsManager.recordSecurityEvent,
-        sinon.match.defined,
-        sinon.match({
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
           name: 'account.recovery_key_added',
           ipAddr: '63.245.221.32',
           uid: requestOptions.credentials.uid,
@@ -228,16 +226,16 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called log.begin correctly', () => {
-      expect(log.begin.callCount).toBe(1);
-      const args = log.begin.args[0];
+      expect(log.begin).toHaveBeenCalledTimes(1);
+      const args = log.begin.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0]).toBe('createRecoveryKey');
       expect(args[1]).toBe(request);
     });
 
     it('called db.createRecoveryKey correctly', () => {
-      expect(db.createRecoveryKey.callCount).toBe(1);
-      const args = db.createRecoveryKey.args[0];
+      expect(db.createRecoveryKey).toHaveBeenCalledTimes(1);
+      const args = db.createRecoveryKey.mock.calls[0];
       expect(args).toHaveLength(4);
       expect(args[0]).toBe(uid);
       expect(args[1]).toBe(recoveryKeyId);
@@ -246,29 +244,31 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called db.deleteRecoveryKey correctly', () => {
-      expect(db.deleteRecoveryKey.callCount).toBe(1);
-      const args = db.deleteRecoveryKey.args[0];
+      expect(db.deleteRecoveryKey).toHaveBeenCalledTimes(1);
+      const args = db.deleteRecoveryKey.mock.calls[0];
       expect(args).toHaveLength(1);
       expect(args[0]).toBe(uid);
     });
 
     it('called log.info correctly', () => {
-      expect(log.info.callCount).toBe(1);
-      const args = log.info.args[0];
+      expect(log.info).toHaveBeenCalledTimes(1);
+      const args = log.info.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0]).toBe('account.recoveryKey.changed');
     });
 
     it('called request.emitMetricsEvent correctly', () => {
-      expect(request.emitMetricsEvent.callCount).toBe(1);
-      const args = request.emitMetricsEvent.args[0];
+      expect(request.emitMetricsEvent).toHaveBeenCalledTimes(1);
+      const args = request.emitMetricsEvent.mock.calls[0];
       expect(args[0]).toBe('recoveryKey.changed');
       expect(args[1]['uid']).toBe(uid);
     });
 
     it('called mailer.sendPostChangeAccountRecoveryEmail correctly', () => {
-      expect(fxaMailer.sendPostChangeAccountRecoveryEmail.callCount).toBe(1);
-      const args = fxaMailer.sendPostChangeAccountRecoveryEmail.args[0];
+      expect(
+        fxaMailer.sendPostChangeAccountRecoveryEmail
+      ).toHaveBeenCalledTimes(1);
+      const args = fxaMailer.sendPostChangeAccountRecoveryEmail.mock.calls[0];
       expect(args).toHaveLength(1);
       expect(args[0].to).toBe(email);
     });
@@ -308,35 +308,39 @@ describe('POST /recoveryKey', () => {
     });
 
     it('recorded a security event', () => {
-      expect(mockAccountEventsManager.recordSecurityEvent.callCount).toBe(0);
+      expect(
+        mockAccountEventsManager.recordSecurityEvent
+      ).toHaveBeenCalledTimes(0);
     });
 
     it('called log.begin correctly', () => {
-      expect(log.begin.callCount).toBe(1);
-      const args = log.begin.args[0];
+      expect(log.begin).toHaveBeenCalledTimes(1);
+      const args = log.begin.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0]).toBe('createRecoveryKey');
       expect(args[1]).toBe(request);
     });
 
     it('db.createRecoveryKey is not called', () => {
-      expect(db.createRecoveryKey.callCount).toBe(0);
+      expect(db.createRecoveryKey).toHaveBeenCalledTimes(0);
     });
 
     it('did not call db.deleteRecoveryKey', () => {
-      expect(db.deleteRecoveryKey.callCount).toBe(0);
+      expect(db.deleteRecoveryKey).toHaveBeenCalledTimes(0);
     });
 
     it('did not call log.info', () => {
-      expect(log.info.callCount).toBe(0);
+      expect(log.info).toHaveBeenCalledTimes(0);
     });
 
     it('did not call request.emitMetricsEvent', () => {
-      expect(request.emitMetricsEvent.callCount).toBe(0);
+      expect(request.emitMetricsEvent).toHaveBeenCalledTimes(0);
     });
 
     it('did not call fxaMailer.sendPostAddAccountRecoveryEmail', () => {
-      expect(fxaMailer.sendPostAddAccountRecoveryEmail.callCount).toBe(0);
+      expect(fxaMailer.sendPostAddAccountRecoveryEmail).toHaveBeenCalledTimes(
+        0
+      );
     });
   });
 
@@ -360,8 +364,8 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called db.createRecoveryKey correctly', () => {
-      expect(db.createRecoveryKey.callCount).toBe(1);
-      const args = db.createRecoveryKey.args[0];
+      expect(db.createRecoveryKey).toHaveBeenCalledTimes(1);
+      const args = db.createRecoveryKey.mock.calls[0];
       expect(args).toHaveLength(4);
       expect(args[0]).toBe(uid);
       expect(args[1]).toBe(recoveryKeyId);
@@ -394,8 +398,8 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called customs.checkAuthenticated correctly', () => {
-      expect(customs.checkAuthenticated.callCount).toBe(1);
-      const args = customs.checkAuthenticated.args[0];
+      expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
+      const args = customs.checkAuthenticated.mock.calls[0];
       expect(args).toHaveLength(4);
       expect(args[0]).toEqual(request);
       expect(args[1]).toBe(uid);
@@ -404,8 +408,8 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called db.updateRecoveryKey correctly', () => {
-      expect(db.updateRecoveryKey.callCount).toBe(1);
-      const args = db.updateRecoveryKey.args[0];
+      expect(db.updateRecoveryKey).toHaveBeenCalledTimes(1);
+      const args = db.updateRecoveryKey.mock.calls[0];
       expect(args).toHaveLength(3);
       expect(args[0]).toBe(uid);
       expect(args[1]).toBe(recoveryKeyId);
@@ -413,24 +417,25 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called request.emitMetricsEvent correctly', () => {
-      expect(request.emitMetricsEvent.callCount).toBe(1);
-      const args = request.emitMetricsEvent.args[0];
+      expect(request.emitMetricsEvent).toHaveBeenCalledTimes(1);
+      const args = request.emitMetricsEvent.mock.calls[0];
       expect(args[0]).toBe('recoveryKey.created');
       expect(args[1]['uid']).toBe(uid);
     });
 
     it('called mailer.sendPostAddAccountRecoveryEmail correctly', () => {
-      expect(fxaMailer.sendPostAddAccountRecoveryEmail.callCount).toBe(1);
-      const args = fxaMailer.sendPostAddAccountRecoveryEmail.args[0];
+      expect(fxaMailer.sendPostAddAccountRecoveryEmail).toHaveBeenCalledTimes(
+        1
+      );
+      const args = fxaMailer.sendPostAddAccountRecoveryEmail.mock.calls[0];
       expect(args).toHaveLength(1);
       expect(args[0].to).toBe(email);
     });
 
     it('records security event', () => {
-      sinon.assert.calledWith(
-        mockAccountEventsManager.recordSecurityEvent,
-        sinon.match.defined,
-        sinon.match({
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
           name: 'account.recovery_key_challenge_success',
           ipAddr: '63.245.221.32',
           uid: uid,
@@ -462,16 +467,16 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
     });
 
     it('called log.begin correctly', () => {
-      expect(log.begin.callCount).toBe(1);
-      const args = log.begin.args[0];
+      expect(log.begin).toHaveBeenCalledTimes(1);
+      const args = log.begin.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0]).toBe('getRecoveryKey');
       expect(args[1]).toBe(request);
     });
 
     it('called customs.checkAuthenticated correctly', () => {
-      expect(customs.checkAuthenticated.callCount).toBe(1);
-      const args = customs.checkAuthenticated.args[0];
+      expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
+      const args = customs.checkAuthenticated.mock.calls[0];
       expect(args).toHaveLength(4);
       expect(args[0]).toEqual(request);
       expect(args[1]).toBe(uid);
@@ -480,16 +485,16 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
     });
 
     it('called db.getRecoveryKey correctly', () => {
-      expect(db.getRecoveryKey.callCount).toBe(1);
-      const args = db.getRecoveryKey.args[0];
+      expect(db.getRecoveryKey).toHaveBeenCalledTimes(1);
+      const args = db.getRecoveryKey.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0]).toBe(uid);
       expect(args[1]).toBe(recoveryKeyId);
     });
 
     it('logged a Glean event', () => {
-      sinon.assert.calledOnceWithExactly(
-        glean.resetPassword.recoveryKeySuccess,
+      expect(glean.resetPassword.recoveryKeySuccess).toHaveBeenCalledTimes(1);
+      expect(glean.resetPassword.recoveryKeySuccess).toHaveBeenCalledWith(
         request,
         { uid }
       );
@@ -543,16 +548,16 @@ describe('POST /recoveryKey/exists', () => {
     });
 
     it('called log.begin correctly', () => {
-      expect(log.begin.callCount).toBe(1);
-      const args = log.begin.args[0];
+      expect(log.begin).toHaveBeenCalledTimes(1);
+      const args = log.begin.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0]).toBe('recoveryKeyExists');
       expect(args[1]).toBe(request);
     });
 
     it('called db.getRecoveryKeyRecordWithHint correctly', () => {
-      expect(db.getRecoveryKeyRecordWithHint.callCount).toBe(1);
-      const args = db.getRecoveryKeyRecordWithHint.args[0];
+      expect(db.getRecoveryKeyRecordWithHint).toHaveBeenCalledTimes(1);
+      const args = db.getRecoveryKeyRecordWithHint.mock.calls[0];
       expect(args).toHaveLength(1);
       expect(args[0]).toBe(uid);
     });
@@ -624,7 +629,7 @@ describe('POST /recoveryKey/exists', () => {
       response = await setup(
         {
           mockAuthorizedClients: {
-            list: sinon.stub().resolves([
+            list: jest.fn().mockResolvedValue([
               {
                 client_id: 'desktop1',
                 client_name: 'Desktop',
@@ -682,32 +687,33 @@ describe('DELETE /recoveryKey', () => {
     });
 
     it('called log.begin correctly', () => {
-      expect(log.begin.callCount).toBe(1);
-      const args = log.begin.args[0];
+      expect(log.begin).toHaveBeenCalledTimes(1);
+      const args = log.begin.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0]).toBe('recoveryKeyDelete');
       expect(args[1]).toBe(request);
     });
 
     it('called db.deleteRecoveryKey correctly', () => {
-      expect(db.deleteRecoveryKey.callCount).toBe(1);
-      const args = db.deleteRecoveryKey.args[0];
+      expect(db.deleteRecoveryKey).toHaveBeenCalledTimes(1);
+      const args = db.deleteRecoveryKey.mock.calls[0];
       expect(args).toHaveLength(1);
       expect(args[0]).toBe(uid);
     });
 
     it('called mailer.sendPostRemoveAccountRecoveryEmail correctly', () => {
-      expect(fxaMailer.sendPostRemoveAccountRecoveryEmail.callCount).toBe(1);
-      const args = fxaMailer.sendPostRemoveAccountRecoveryEmail.args[0];
+      expect(
+        fxaMailer.sendPostRemoveAccountRecoveryEmail
+      ).toHaveBeenCalledTimes(1);
+      const args = fxaMailer.sendPostRemoveAccountRecoveryEmail.mock.calls[0];
       expect(args).toHaveLength(1);
       expect(args[0].to).toBe(email);
     });
 
     it('recorded security event', () => {
-      sinon.assert.calledWith(
-        mockAccountEventsManager.recordSecurityEvent,
-        sinon.match.defined,
-        sinon.match({
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
           name: 'account.recovery_key_removed',
           ipAddr: '63.245.221.32',
           uid: uid,
@@ -757,7 +763,8 @@ describe('POST /recoveryKey/hint', () => {
 
     it('returned the correct response', () => {
       expect(response).toEqual({});
-      sinon.assert.calledOnceWithExactly(db.updateRecoveryKeyHint, uid, hint);
+      expect(db.updateRecoveryKeyHint).toHaveBeenCalledTimes(1);
+      expect(db.updateRecoveryKeyHint).toHaveBeenCalledWith(uid, hint);
     });
   });
 });

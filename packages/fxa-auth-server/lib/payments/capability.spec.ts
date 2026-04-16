@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 const mockAuthEvents: any = {};
@@ -86,7 +85,7 @@ describe('CapabilityService', () => {
   let mockConfig: any;
 
   beforeEach(async () => {
-    mockAuthEvents.on = sinon.fake.returns({});
+    mockAuthEvents.on = jest.fn().mockReturnValue({});
     mockStripeHelper = {};
     mockPlayBilling = {
       userManager: {},
@@ -96,7 +95,7 @@ describe('CapabilityService', () => {
       purchaseManager: {},
     };
     mockProfileClient = {
-      deleteCache: sinon.fake.resolves({}),
+      deleteCache: jest.fn().mockResolvedValue({}),
     };
     mockConfigPlans = [
       {
@@ -107,10 +106,10 @@ describe('CapabilityService', () => {
       },
     ];
     mockPaymentConfigManager = {
-      allPlans: sinon.fake.resolves(mockConfigPlans),
+      allPlans: jest.fn().mockResolvedValue(mockConfigPlans),
       getMergedConfig: (price: any) => price,
     };
-    mockStripeHelper.allAbbrevPlans = sinon.spy(async () => [
+    mockStripeHelper.allAbbrevPlans = jest.fn(async () => [
       {
         plan_id: 'plan_123456',
         product_id: 'prod_123456',
@@ -153,12 +152,12 @@ describe('CapabilityService', () => {
         },
       },
     ]);
-    mockStripeHelper.allMergedPlanConfigs = sinon.spy(async () => {});
+    mockStripeHelper.allMergedPlanConfigs = jest.fn(async () => {});
     mockCapabilityManager = {
-      getClients: sinon.fake.resolves(mockCMSClients),
-      priceIdsToClientCapabilities: sinon.fake.resolves(
-        mockCMSPlanIdsToClientCapabilities
-      ),
+      getClients: jest.fn().mockResolvedValue(mockCMSClients),
+      priceIdsToClientCapabilities: jest
+        .fn()
+        .mockResolvedValue(mockCMSPlanIdsToClientCapabilities),
     };
     mockConfig = { ...config, cms: { enabled: false } };
     log = mockLog();
@@ -176,29 +175,33 @@ describe('CapabilityService', () => {
 
   afterEach(() => {
     Container.reset();
-    sinon.restore();
+    jest.restoreAllMocks();
   });
 
   describe('stripeUpdate', () => {
     beforeEach(() => {
-      const fake = sinon.fake.resolves({
+      const fake = jest.fn().mockResolvedValue({
         uid: UID,
         email: EMAIL,
       });
-      sinon.replace(authDbModule, 'getUidAndEmailByStripeCustomerId', fake);
-      capabilityService.subscribedPriceIds = sinon.fake.resolves([
-        'price_GWScEDK6LT8cSV',
-      ]);
-      capabilityService.processPriceIdDiff = sinon.fake.resolves();
+      jest
+        .spyOn(authDbModule, 'getUidAndEmailByStripeCustomerId')
+        .mockImplementation(fake);
+      capabilityService.subscribedPriceIds = jest
+        .fn()
+        .mockResolvedValue(['price_GWScEDK6LT8cSV']);
+      capabilityService.processPriceIdDiff = jest.fn().mockResolvedValue();
     });
 
     it('handles a stripe price update with new prices', async () => {
       const sub = deepCopy(subscriptionCreated);
       await capabilityService.stripeUpdate({ sub, uid: UID, email: EMAIL });
-      sinon.assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
-      sinon.assert.calledWith(mockProfileClient.deleteCache, UID);
-      sinon.assert.calledWith(capabilityService.subscribedPriceIds, UID);
-      sinon.assert.calledWith(capabilityService.processPriceIdDiff, {
+      expect(
+        authDbModule.getUidAndEmailByStripeCustomerId
+      ).not.toHaveBeenCalled();
+      expect(mockProfileClient.deleteCache).toHaveBeenCalledWith(UID);
+      expect(capabilityService.subscribedPriceIds).toHaveBeenCalledWith(UID);
+      expect(capabilityService.processPriceIdDiff).toHaveBeenCalledWith({
         uid: UID,
         priorPriceIds: [],
         currentPriceIds: ['price_GWScEDK6LT8cSV'],
@@ -207,12 +210,14 @@ describe('CapabilityService', () => {
 
     it('handles a stripe price update with removed prices', async () => {
       const sub = deepCopy(subscriptionCreated);
-      capabilityService.subscribedPriceIds = sinon.fake.resolves([]);
+      capabilityService.subscribedPriceIds = jest.fn().mockResolvedValue([]);
       await capabilityService.stripeUpdate({ sub, uid: UID, email: EMAIL });
-      sinon.assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
-      sinon.assert.calledWith(mockProfileClient.deleteCache, UID);
-      sinon.assert.calledWith(capabilityService.subscribedPriceIds, UID);
-      sinon.assert.calledWith(capabilityService.processPriceIdDiff, {
+      expect(
+        authDbModule.getUidAndEmailByStripeCustomerId
+      ).not.toHaveBeenCalled();
+      expect(mockProfileClient.deleteCache).toHaveBeenCalledWith(UID);
+      expect(capabilityService.subscribedPriceIds).toHaveBeenCalledWith(UID);
+      expect(capabilityService.processPriceIdDiff).toHaveBeenCalledWith({
         uid: UID,
         priorPriceIds: ['price_GWScEDK6LT8cSV'],
         currentPriceIds: [],
@@ -222,13 +227,12 @@ describe('CapabilityService', () => {
     it('handles a stripe price update without uid/email', async () => {
       const sub = deepCopy(subscriptionCreated);
       await capabilityService.stripeUpdate({ sub });
-      sinon.assert.calledWith(
-        authDbModule.getUidAndEmailByStripeCustomerId,
-        sub.customer
-      );
-      sinon.assert.calledWith(mockProfileClient.deleteCache, UID);
-      sinon.assert.calledWith(capabilityService.subscribedPriceIds, UID);
-      sinon.assert.calledWith(capabilityService.processPriceIdDiff, {
+      expect(
+        authDbModule.getUidAndEmailByStripeCustomerId
+      ).toHaveBeenCalledWith(sub.customer);
+      expect(mockProfileClient.deleteCache).toHaveBeenCalledWith(UID);
+      expect(capabilityService.subscribedPriceIds).toHaveBeenCalledWith(UID);
+      expect(capabilityService.processPriceIdDiff).toHaveBeenCalledWith({
         uid: UID,
         priorPriceIds: [],
         currentPriceIds: ['price_GWScEDK6LT8cSV'],
@@ -240,15 +244,17 @@ describe('CapabilityService', () => {
     let subscriptionPurchase: any;
 
     beforeEach(() => {
-      const fake = sinon.fake.resolves({
+      const fake = jest.fn().mockResolvedValue({
         uid: UID,
         email: EMAIL,
       });
-      sinon.replace(authDbModule, 'getUidAndEmailByStripeCustomerId', fake);
-      capabilityService.subscribedPriceIds = sinon.fake.resolves([
-        'prod_FUUNYnlDso7FeB',
-      ]);
-      capabilityService.processPriceIdDiff = sinon.fake.resolves();
+      jest
+        .spyOn(authDbModule, 'getUidAndEmailByStripeCustomerId')
+        .mockImplementation(fake);
+      capabilityService.subscribedPriceIds = jest
+        .fn()
+        .mockResolvedValue(['prod_FUUNYnlDso7FeB']);
+      capabilityService.processPriceIdDiff = jest.fn().mockResolvedValue();
       subscriptionPurchase = PlayStoreSubscriptionPurchase.fromApiResponse(
         VALID_SUB_API_RESPONSE,
         'testPackage',
@@ -256,16 +262,16 @@ describe('CapabilityService', () => {
         'testSku',
         Date.now()
       );
-      mockStripeHelper.iapPurchasesToPriceIds = sinon.fake.resolves([
-        'prod_FUUNYnlDso7FeB',
-      ]);
+      mockStripeHelper.iapPurchasesToPriceIds = jest
+        .fn()
+        .mockResolvedValue(['prod_FUUNYnlDso7FeB']);
     });
 
     it('handles an IAP purchase with new product', async () => {
       await capabilityService.iapUpdate(UID, EMAIL, subscriptionPurchase);
-      sinon.assert.calledWith(mockProfileClient.deleteCache, UID);
-      sinon.assert.calledWith(capabilityService.subscribedPriceIds, UID);
-      sinon.assert.calledWith(capabilityService.processPriceIdDiff, {
+      expect(mockProfileClient.deleteCache).toHaveBeenCalledWith(UID);
+      expect(capabilityService.subscribedPriceIds).toHaveBeenCalledWith(UID);
+      expect(capabilityService.processPriceIdDiff).toHaveBeenCalledWith({
         uid: UID,
         priorPriceIds: [],
         currentPriceIds: ['prod_FUUNYnlDso7FeB'],
@@ -273,11 +279,11 @@ describe('CapabilityService', () => {
     });
 
     it('handles an IAP purchase with a removed product', async () => {
-      capabilityService.subscribedPriceIds = sinon.fake.resolves([]);
+      capabilityService.subscribedPriceIds = jest.fn().mockResolvedValue([]);
       await capabilityService.iapUpdate(UID, EMAIL, subscriptionPurchase);
-      sinon.assert.calledWith(mockProfileClient.deleteCache, UID);
-      sinon.assert.calledWith(capabilityService.subscribedPriceIds, UID);
-      sinon.assert.calledWith(capabilityService.processPriceIdDiff, {
+      expect(mockProfileClient.deleteCache).toHaveBeenCalledWith(UID);
+      expect(capabilityService.subscribedPriceIds).toHaveBeenCalledWith(UID);
+      expect(capabilityService.processPriceIdDiff).toHaveBeenCalledWith({
         uid: UID,
         priorPriceIds: ['prod_FUUNYnlDso7FeB'],
         currentPriceIds: [],
@@ -294,12 +300,12 @@ describe('CapabilityService', () => {
         isEntitlementActive: () => true,
       };
       mockQueryResponse = [mockSubPurchase];
-      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
-        .stub()
-        .resolves(mockQueryResponse);
-      mockStripeHelper.iapPurchasesToPriceIds = sinon.fake.returns([
-        'plan_GOOGLE',
-      ]);
+      mockPlayBilling.userManager.queryCurrentSubscriptions = jest
+        .fn()
+        .mockResolvedValue(mockQueryResponse);
+      mockStripeHelper.iapPurchasesToPriceIds = jest
+        .fn()
+        .mockReturnValue(['plan_GOOGLE']);
     });
 
     afterEach(() => {
@@ -316,12 +322,10 @@ describe('CapabilityService', () => {
     it('returns a subscribed price if found', async () => {
       const expected = ['plan_GOOGLE'];
       const actual = await capabilityService.fetchSubscribedPricesFromPlay(UID);
-      sinon.assert.calledWith(
-        mockPlayBilling.userManager.queryCurrentSubscriptions,
-        UID
-      );
-      sinon.assert.calledWith(
-        mockStripeHelper.iapPurchasesToPriceIds,
+      expect(
+        mockPlayBilling.userManager.queryCurrentSubscriptions
+      ).toHaveBeenCalledWith(UID);
+      expect(mockStripeHelper.iapPurchasesToPriceIds).toHaveBeenCalledWith(
         mockQueryResponse
       );
       expect(actual).toEqual(expected);
@@ -330,14 +334,14 @@ describe('CapabilityService', () => {
     it('logs a query error and returns [] if the query fails', async () => {
       const error = new Error('Bleh');
       error.name = PurchaseQueryError.OTHER_ERROR;
-      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
-        .stub()
-        .rejects(error);
+      mockPlayBilling.userManager.queryCurrentSubscriptions = jest
+        .fn()
+        .mockRejectedValue(error);
       const expected: any[] = [];
       const actual = await capabilityService.fetchSubscribedPricesFromPlay(UID);
       expect(actual).toEqual(expected);
-      sinon.assert.calledOnceWithExactly(
-        log.error,
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledWith(
         'Failed to query purchases from Google Play',
         {
           uid: UID,
@@ -356,12 +360,12 @@ describe('CapabilityService', () => {
         isEntitlementActive: () => true,
       };
       mockQueryResponse = [mockSubPurchase];
-      mockAppleIAP.purchaseManager.queryCurrentSubscriptionPurchases = sinon
-        .stub()
-        .resolves(mockQueryResponse);
-      mockStripeHelper.iapPurchasesToPriceIds = sinon.fake.returns([
-        'plan_APPLE',
-      ]);
+      mockAppleIAP.purchaseManager.queryCurrentSubscriptionPurchases = jest
+        .fn()
+        .mockResolvedValue(mockQueryResponse);
+      mockStripeHelper.iapPurchasesToPriceIds = jest
+        .fn()
+        .mockReturnValue(['plan_APPLE']);
     });
 
     afterEach(() => {
@@ -380,12 +384,10 @@ describe('CapabilityService', () => {
       const expected = ['plan_APPLE'];
       const actual =
         await capabilityService.fetchSubscribedPricesFromAppStore(UID);
-      sinon.assert.calledWith(
-        mockAppleIAP.purchaseManager.queryCurrentSubscriptionPurchases,
-        UID
-      );
-      sinon.assert.calledWith(
-        mockStripeHelper.iapPurchasesToPriceIds,
+      expect(
+        mockAppleIAP.purchaseManager.queryCurrentSubscriptionPurchases
+      ).toHaveBeenCalledWith(UID);
+      expect(mockStripeHelper.iapPurchasesToPriceIds).toHaveBeenCalledWith(
         mockQueryResponse
       );
       expect(actual).toEqual(expected);
@@ -394,15 +396,15 @@ describe('CapabilityService', () => {
     it('logs a query error and returns [] if the query fails', async () => {
       const error = new Error('Bleh');
       error.name = PurchaseQueryError.OTHER_ERROR;
-      mockAppleIAP.purchaseManager.queryCurrentSubscriptionPurchases = sinon
-        .stub()
-        .rejects(error);
+      mockAppleIAP.purchaseManager.queryCurrentSubscriptionPurchases = jest
+        .fn()
+        .mockRejectedValue(error);
       const expected: any[] = [];
       const actual =
         await capabilityService.fetchSubscribedPricesFromAppStore(UID);
       expect(actual).toEqual(expected);
-      sinon.assert.calledOnceWithExactly(
-        log.error,
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledWith(
         'Failed to query purchases from Apple App Store',
         {
           uid: UID,
@@ -416,7 +418,7 @@ describe('CapabilityService', () => {
     it('should broadcast the capabilities added', async () => {
       const capabilities = ['cap2'];
       capabilityService.broadcastCapabilitiesAdded({ uid: UID, capabilities });
-      sinon.assert.calledOnce(log.notifyAttachedServices);
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -427,7 +429,7 @@ describe('CapabilityService', () => {
         uid: UID,
         capabilities,
       });
-      sinon.assert.calledOnce(log.notifyAttachedServices);
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -460,18 +462,22 @@ describe('CapabilityService', () => {
     ];
 
     beforeEach(() => {
-      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
-        []
-      );
-      capabilityService.fetchSubscribedPricesFromAppStore = sinon.fake.resolves(
-        []
-      );
-      capabilityService.fetchSubscribedPricesFromPlay = sinon.fake.resolves([]);
+      capabilityService.fetchSubscribedPricesFromStripe = jest
+        .fn()
+        .mockResolvedValue([]);
+      capabilityService.fetchSubscribedPricesFromAppStore = jest
+        .fn()
+        .mockResolvedValue([]);
+      capabilityService.fetchSubscribedPricesFromPlay = jest
+        .fn()
+        .mockResolvedValue([]);
     });
 
     it('throws an error for an invalid targetPlanId', async () => {
       let error: any;
-      capabilityService.allAbbrevPlansByPlanId = sinon.fake.resolves([]);
+      capabilityService.allAbbrevPlansByPlanId = jest
+        .fn()
+        .mockResolvedValue([]);
       try {
         await capabilityService.getPlanEligibility(UID, 'invalid-id');
       } catch (e) {
@@ -481,12 +487,12 @@ describe('CapabilityService', () => {
     });
 
     it('returns the eligibility from Stripe if eligibilityManager is not found', async () => {
-      capabilityService.allAbbrevPlansByPlanId = sinon.fake.resolves({
+      capabilityService.allAbbrevPlansByPlanId = jest.fn().mockResolvedValue({
         plan_123456: mockAbbrevPlans[0],
       });
-      capabilityService.eligibilityFromStripeMetadata = sinon.fake.resolves([
-        SubscriptionEligibilityResult.CREATE,
-      ]);
+      capabilityService.eligibilityFromStripeMetadata = jest
+        .fn()
+        .mockResolvedValue([SubscriptionEligibilityResult.CREATE]);
       const expected = [SubscriptionEligibilityResult.CREATE];
       const actual = await capabilityService.getPlanEligibility(
         UID,
@@ -496,26 +502,27 @@ describe('CapabilityService', () => {
     });
 
     it('returns results from Stripe and logs to Sentry when results do not match', async () => {
-      const sentryScope = { setContext: sinon.stub() };
-      sinon.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
+      const sentryScope = { setContext: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(sentryModule, 'reportSentryMessage').mockReturnValue({});
 
       Container.set(EligibilityManager, {});
       capabilityService = new CapabilityService();
 
-      capabilityService.allAbbrevPlansByPlanId = sinon.fake.resolves({
+      capabilityService.allAbbrevPlansByPlanId = jest.fn().mockResolvedValue({
         plan_123456: mockAbbrevPlans[0],
       });
-      capabilityService.eligibilityFromStripeMetadata = sinon.fake.resolves([
-        SubscriptionEligibilityResult.UPGRADE,
-      ]);
-      capabilityService.getAllSubscribedAbbrevPlans = sinon.fake.resolves([
-        [mockAbbrevPlans[1]],
-        [],
-      ]);
-      capabilityService.eligibilityFromEligibilityManager = sinon.fake.resolves(
-        [SubscriptionEligibilityResult.CREATE]
-      );
+      capabilityService.eligibilityFromStripeMetadata = jest
+        .fn()
+        .mockResolvedValue([SubscriptionEligibilityResult.UPGRADE]);
+      capabilityService.getAllSubscribedAbbrevPlans = jest
+        .fn()
+        .mockResolvedValue([[mockAbbrevPlans[1]], []]);
+      capabilityService.eligibilityFromEligibilityManager = jest
+        .fn()
+        .mockResolvedValue([SubscriptionEligibilityResult.CREATE]);
 
       const actual = await capabilityService.getPlanEligibility(
         UID,
@@ -523,8 +530,8 @@ describe('CapabilityService', () => {
       );
       expect(actual).toEqual([SubscriptionEligibilityResult.UPGRADE]);
 
-      sinon.assert.calledOnceWithExactly(
-        sentryScope.setContext,
+      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
+      expect(sentryScope.setContext).toHaveBeenCalledWith(
         'getPlanEligibility',
         {
           stripeSubscribedPlans: [mockAbbrevPlans[1]],
@@ -535,8 +542,8 @@ describe('CapabilityService', () => {
           targetPlanId: 'plan_123456',
         }
       );
-      sinon.assert.calledOnceWithExactly(
-        sentryModule.reportSentryMessage,
+      expect(sentryModule.reportSentryMessage).toHaveBeenCalledTimes(1);
+      expect(sentryModule.reportSentryMessage).toHaveBeenCalledWith(
         `Eligibility mismatch for uid8675309 on plan_123456`,
         'error'
       );
@@ -607,12 +614,10 @@ describe('CapabilityService', () => {
       });
 
       it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon
-          .stub()
-          .onCall(0)
-          .resolves([])
-          .onCall(1)
-          .resolves([
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValueOnce([])
+          .mockResolvedValueOnce([
             {
               comparison: 'same',
               priceId: mockPlanTier1ShortInterval.plan_id,
@@ -629,14 +634,16 @@ describe('CapabilityService', () => {
             SubscriptionEligibilityResult.BLOCKED_IAP,
           eligibleSourcePlan: mockPlanTier1ShortInterval,
         });
-        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+        expect(mockEligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
           priceIds: [mockPlanTier1ShortInterval.plan_id],
           targetPriceId: mockPlanTier1LongInterval.plan_id,
         });
       });
 
       it('returns create for targetPlan with offering user is not subscribed to', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.stub().resolves([]);
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValue([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [],
@@ -646,24 +653,22 @@ describe('CapabilityService', () => {
         expect(actual).toEqual({
           subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
         });
-        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+        expect(mockEligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
           priceIds: [],
           targetPriceId: mockPlanTier1ShortInterval.plan_id,
         });
       });
 
       it('returns upgrade for targetPlan with offering user is subscribed to a lower tier of', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon
-          .stub()
-          .onCall(0)
-          .resolves([
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValueOnce([
             {
               comparison: 'upgrade',
               priceId: mockPlanTier1ShortInterval.plan_id,
             },
           ])
-          .onCall(1)
-          .resolves([]);
+          .mockResolvedValueOnce([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier1ShortInterval],
@@ -674,24 +679,22 @@ describe('CapabilityService', () => {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
           eligibleSourcePlan: mockPlanTier1ShortInterval,
         });
-        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+        expect(mockEligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
           priceIds: [mockPlanTier1ShortInterval.plan_id],
           targetPriceId: mockPlanTier2LongInterval.plan_id,
         });
       });
 
       it('returns downgrade for targetPlan with offering user is subscribed to a higher tier of', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon
-          .stub()
-          .onCall(0)
-          .resolves([
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValueOnce([
             {
               comparison: 'downgrade',
               priceId: mockPlanTier1ShortInterval.plan_id,
             },
           ])
-          .onCall(1)
-          .resolves([]);
+          .mockResolvedValueOnce([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier2LongInterval],
@@ -703,24 +706,22 @@ describe('CapabilityService', () => {
             SubscriptionEligibilityResult.DOWNGRADE,
           eligibleSourcePlan: undefined,
         });
-        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+        expect(mockEligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
           priceIds: [mockPlanTier2LongInterval.plan_id],
           targetPriceId: mockPlanTier1ShortInterval.plan_id,
         });
       });
 
       it('returns upgrade for targetPlan with offering user is subscribed to a higher interval of', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon
-          .stub()
-          .onCall(0)
-          .resolves([
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValueOnce([
             {
               comparison: 'upgrade',
               priceId: mockPlanTier1ShortInterval.plan_id,
             },
           ])
-          .onCall(1)
-          .resolves([]);
+          .mockResolvedValueOnce([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier1ShortInterval],
@@ -731,24 +732,22 @@ describe('CapabilityService', () => {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
           eligibleSourcePlan: mockPlanTier1ShortInterval,
         });
-        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+        expect(mockEligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
           priceIds: [mockPlanTier1ShortInterval.plan_id],
           targetPriceId: mockPlanTier1LongInterval.plan_id,
         });
       });
 
       it('returns upgrade for targetPlan with offering user is subscribed and interval is not shorter', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon
-          .stub()
-          .onCall(0)
-          .resolves([
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValueOnce([
             {
               comparison: 'upgrade',
               priceId: mockPlanTier1ShortInterval.plan_id,
             },
           ])
-          .onCall(1)
-          .resolves([]);
+          .mockResolvedValueOnce([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier1ShortInterval],
@@ -759,24 +758,22 @@ describe('CapabilityService', () => {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
           eligibleSourcePlan: mockPlanTier1ShortInterval,
         });
-        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+        expect(mockEligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
           priceIds: [mockPlanTier1ShortInterval.plan_id],
           targetPriceId: mockPlanTier2ShortInterval.plan_id,
         });
       });
 
       it('returns upgrade for targetPlan with same offering and longer interval', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon
-          .stub()
-          .onCall(0)
-          .resolves([
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValueOnce([
             {
               comparison: 'same',
               priceId: mockPlanTier1ShortInterval.plan_id,
             },
           ])
-          .onCall(1)
-          .resolves([]);
+          .mockResolvedValueOnce([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier1ShortInterval],
@@ -787,24 +784,22 @@ describe('CapabilityService', () => {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
           eligibleSourcePlan: mockPlanTier1ShortInterval,
         });
-        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+        expect(mockEligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
           priceIds: [mockPlanTier1ShortInterval.plan_id],
           targetPriceId: mockPlanTier1LongInterval.plan_id,
         });
       });
 
       it('returns downgrade for targetPlan with shorter interval but higher tier than user is subscribed to', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon
-          .stub()
-          .onCall(0)
-          .resolves([
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValueOnce([
             {
               comparison: 'upgrade',
               priceId: mockPlanTier1LongInterval.plan_id,
             },
           ])
-          .onCall(1)
-          .resolves([]);
+          .mockResolvedValueOnce([]);
         Container.set(EligibilityManager, mockEligibilityManager);
         capabilityService = new CapabilityService();
         const actual =
@@ -818,24 +813,22 @@ describe('CapabilityService', () => {
             SubscriptionEligibilityResult.DOWNGRADE,
           eligibleSourcePlan: mockPlanTier1LongInterval,
         });
-        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+        expect(mockEligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
           priceIds: [mockPlanTier1LongInterval.plan_id],
           targetPriceId: mockPlanTier2ShortInterval.plan_id,
         });
       });
 
       it('returns invalid for targetPlan with same offering user is subscribed to', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon
-          .stub()
-          .onCall(0)
-          .resolves([
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValueOnce([
             {
               comparison: 'upgrade',
               priceId: mockPlanTier1ShortInterval.plan_id,
             },
           ])
-          .onCall(1)
-          .resolves([]);
+          .mockResolvedValueOnce([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier1ShortInterval],
@@ -845,24 +838,22 @@ describe('CapabilityService', () => {
         expect(actual).toEqual({
           subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
         });
-        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+        expect(mockEligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
           priceIds: [mockPlanTier1ShortInterval.plan_id],
           targetPriceId: mockPlanTier1ShortInterval.plan_id,
         });
       });
 
       it('returns invalid for targetPlan with same offering user is subscribed to but different currency', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon
-          .stub()
-          .onCall(0)
-          .resolves([
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValueOnce([
             {
               comparison: 'same',
               priceId: mockPlanTier2LongInterval.plan_id,
             },
           ])
-          .onCall(1)
-          .resolves([]);
+          .mockResolvedValueOnce([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier2LongInterval],
@@ -872,7 +863,7 @@ describe('CapabilityService', () => {
         expect(actual).toEqual({
           subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
         });
-        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+        expect(mockEligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
           priceIds: [mockPlanTier2LongInterval.plan_id],
           targetPriceId: mockPlanTier2LongIntervalDiffCurr.plan_id,
         });
@@ -881,8 +872,9 @@ describe('CapabilityService', () => {
 
     describe('FromStripeMetadata', () => {
       it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
-        capabilityService.fetchSubscribedPricesFromAppStore =
-          sinon.fake.resolves(['plan_123456']);
+        capabilityService.fetchSubscribedPricesFromAppStore = jest
+          .fn()
+          .mockResolvedValue(['plan_123456']);
         const actual = await capabilityService.eligibilityFromStripeMetadata(
           [],
           [mockPlanTier2LongInterval],
@@ -907,9 +899,9 @@ describe('CapabilityService', () => {
       });
 
       it('returns upgrade for targetPlan with productSet user is subscribed to a lower tier of', async () => {
-        capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
-          [mockPlanTier1ShortInterval.plan_id]
-        );
+        capabilityService.fetchSubscribedPricesFromStripe = jest
+          .fn()
+          .mockResolvedValue([mockPlanTier1ShortInterval.plan_id]);
         const actual = await capabilityService.eligibilityFromStripeMetadata(
           [mockPlanTier1ShortInterval],
           [],
@@ -922,9 +914,9 @@ describe('CapabilityService', () => {
       });
 
       it('returns downgrade for targetPlan with productSet user is subscribed to a higher tier of', async () => {
-        capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
-          [mockPlanTier2LongInterval.plan_id]
-        );
+        capabilityService.fetchSubscribedPricesFromStripe = jest
+          .fn()
+          .mockResolvedValue([mockPlanTier2LongInterval.plan_id]);
         const actual = await capabilityService.eligibilityFromStripeMetadata(
           [mockPlanTier2LongInterval],
           [],
@@ -938,9 +930,9 @@ describe('CapabilityService', () => {
       });
 
       it('returns invalid for targetPlan with no product order', async () => {
-        capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
-          [mockPlanTier2LongInterval.plan_id]
-        );
+        capabilityService.fetchSubscribedPricesFromStripe = jest
+          .fn()
+          .mockResolvedValue([mockPlanTier2LongInterval.plan_id]);
         const actual = await capabilityService.eligibilityFromStripeMetadata(
           [mockPlanTier2LongInterval],
           [],
@@ -962,20 +954,19 @@ describe('CapabilityService', () => {
       });
 
       it('returns blocked_iap result from both', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon
-          .stub()
-          .onCall(0)
-          .resolves([])
-          .onCall(1)
-          .resolves([
+        mockEligibilityManager.getOfferingOverlap = jest
+          .fn()
+          .mockResolvedValueOnce([])
+          .mockResolvedValueOnce([
             {
               comparison: 'same',
               priceId: mockPlanTier1ShortInterval.plan_id,
             },
           ]);
 
-        capabilityService.fetchSubscribedPricesFromAppStore =
-          sinon.fake.resolves(['plan_123456']);
+        capabilityService.fetchSubscribedPricesFromAppStore = jest
+          .fn()
+          .mockResolvedValue(['plan_123456']);
 
         const eligiblityActual =
           await capabilityService.eligibilityFromEligibilityManager(
@@ -1000,19 +991,19 @@ describe('CapabilityService', () => {
 
   describe('processPriceIdDiff', () => {
     it('should process the product diff', async () => {
-      mockAuthEvents.emit = sinon.fake.returns({});
+      mockAuthEvents.emit = jest.fn().mockReturnValue({});
       await capabilityService.processPriceIdDiff({
         uid: UID,
         priorPriceIds: ['plan_123456', 'plan_876543'],
         currentPriceIds: ['plan_876543', 'plan_ABCDEF'],
       });
-      sinon.assert.calledTwice(log.notifyAttachedServices);
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('determineClientVisibleSubscriptionCapabilities', () => {
     beforeEach(() => {
-      mockStripeHelper.fetchCustomer = sinon.spy(async () => ({
+      mockStripeHelper.fetchCustomer = jest.fn(async () => ({
         subscriptions: {
           data: [
             {
@@ -1036,17 +1027,17 @@ describe('CapabilityService', () => {
           ],
         },
       }));
-      mockStripeHelper.iapPurchasesToPriceIds = sinon.fake.returns([
-        'plan_PLAY',
-      ]);
+      mockStripeHelper.iapPurchasesToPriceIds = jest
+        .fn()
+        .mockReturnValue(['plan_PLAY']);
       mockSubscriptionPurchase = {
         sku: 'play_1234',
-        isEntitlementActive: sinon.fake.returns(true),
+        isEntitlementActive: jest.fn().mockReturnValue(true),
       };
 
-      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
-        .stub()
-        .resolves([mockSubscriptionPurchase]);
+      mockPlayBilling.userManager.queryCurrentSubscriptions = jest
+        .fn()
+        .mockResolvedValue([mockSubscriptionPurchase]);
     });
 
     async function assertExpectedCapabilities(
@@ -1067,9 +1058,9 @@ describe('CapabilityService', () => {
     it('handles a firestore fetch error', async () => {
       const error = new Error('test error');
       error.name = PurchaseQueryError.OTHER_ERROR;
-      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
-        .stub()
-        .rejects(error);
+      mockPlayBilling.userManager.queryCurrentSubscriptions = jest
+        .fn()
+        .mockRejectedValue(error);
       const allCapabilities =
         await capabilityService.subscriptionCapabilities(UID);
       expect(allCapabilities).toEqual({
@@ -1078,10 +1069,12 @@ describe('CapabilityService', () => {
         c2: ['cap5', 'cap6', 'capC', 'capD'],
         c3: ['capD', 'capE'],
       });
-      sinon.assert.calledOnceWithExactly(
-        mockPlayBilling.userManager.queryCurrentSubscriptions,
-        UID
-      );
+      expect(
+        mockPlayBilling.userManager.queryCurrentSubscriptions
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockPlayBilling.userManager.queryCurrentSubscriptions
+      ).toHaveBeenCalledWith(UID);
     });
 
     it('only reveals capabilities relevant to the client', async () => {
@@ -1109,7 +1102,7 @@ describe('CapabilityService', () => {
     });
 
     it('supports capabilities visible to all clients', async () => {
-      mockStripeHelper.allAbbrevPlans = sinon.spy(async () => [
+      mockStripeHelper.allAbbrevPlans = jest.fn(async () => [
         {
           plan_id: 'plan_123456',
           product_id: 'prod_123456',
@@ -1173,16 +1166,20 @@ describe('CapabilityService', () => {
     });
 
     it('returns results from Stripe and logs to Sentry when results do not match', async () => {
-      const sentryScope = { setContext: sinon.stub() };
-      sinon.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
+      const sentryScope = { setContext: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(sentryModule, 'reportSentryMessage').mockReturnValue({});
 
-      mockCapabilityManager.priceIdsToClientCapabilities = sinon.fake.resolves({
-        c1: ['capAlpha'],
-        c4: ['capBeta', 'capDelta', 'capEpsilon'],
-        c6: ['capGamma', 'capZeta'],
-        c8: ['capOmega'],
-      });
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({
+          c1: ['capAlpha'],
+          c4: ['capBeta', 'capDelta', 'capEpsilon'],
+          c6: ['capGamma', 'capZeta'],
+          c8: ['capOmega'],
+        });
 
       const expected: any = {
         c0: ['capAll'],
@@ -1207,9 +1204,8 @@ describe('CapabilityService', () => {
         await assertExpectedCapabilities(clientId, expected[clientId]);
       }
 
-      sinon.assert.callCount(sentryScope.setContext, 5);
-      sinon.assert.calledWithExactly(
-        sentryScope.setContext,
+      expect(sentryScope.setContext).toHaveBeenCalledTimes(5);
+      expect(sentryScope.setContext).toHaveBeenCalledWith(
         'planIdsToClientCapabilities',
         {
           subscribedPrices: ['plan_123456', 'plan_876543', 'plan_PLAY'],
@@ -1228,9 +1224,8 @@ describe('CapabilityService', () => {
         }
       );
 
-      sinon.assert.callCount(sentryModule.reportSentryMessage, 5);
-      sinon.assert.calledWithExactly(
-        sentryModule.reportSentryMessage,
+      expect(sentryModule.reportSentryMessage).toHaveBeenCalledTimes(5);
+      expect(sentryModule.reportSentryMessage).toHaveBeenCalledWith(
         `CapabilityService.planIdsToClientCapabilities - Returned Stripe as plan ids to client capabilities did not match.`,
         'error'
       );
@@ -1239,7 +1234,7 @@ describe('CapabilityService', () => {
 
   describe('getClients', () => {
     beforeEach(() => {
-      mockStripeHelper.allAbbrevPlans = sinon.spy(async () => mockPlans);
+      mockStripeHelper.allAbbrevPlans = jest.fn(async () => mockPlans);
     });
 
     describe('getClientsFromStripe', () => {
@@ -1274,7 +1269,7 @@ describe('CapabilityService', () => {
             },
           },
         };
-        mockStripeHelper.allMergedPlanConfigs = sinon.spy(
+        mockStripeHelper.allMergedPlanConfigs = jest.fn(
           async () => mockPlanConfigs
         );
         const expected = [
@@ -1322,9 +1317,11 @@ describe('CapabilityService', () => {
     });
 
     it('returns results from CMS when it matches Stripe', async () => {
-      const sentryScope = { setContext: sinon.stub() };
-      sinon.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
+      const sentryScope = { setContext: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(sentryModule, 'reportSentryMessage').mockReturnValue({});
 
       const mockClientsFromCMS = await mockCapabilityManager.getClients();
 
@@ -1336,17 +1333,19 @@ describe('CapabilityService', () => {
       const clients = await capabilityService.getClients();
       expect(clients).toEqual(mockClientsFromCMS);
 
-      sinon.assert.notCalled(Sentry.withScope);
-      sinon.assert.notCalled(sentryScope.setContext);
-      sinon.assert.notCalled(sentryModule.reportSentryMessage);
+      expect(Sentry.withScope).not.toHaveBeenCalled();
+      expect(sentryScope.setContext).not.toHaveBeenCalled();
+      expect(sentryModule.reportSentryMessage).not.toHaveBeenCalled();
     });
 
     it('returns results from Stripe and logs to Sentry when results do not match', async () => {
-      const sentryScope = { setContext: sinon.stub() };
-      sinon.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
+      const sentryScope = { setContext: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(sentryModule, 'reportSentryMessage').mockReturnValue({});
 
-      mockCapabilityManager.getClients = sinon.fake.resolves([
+      mockCapabilityManager.getClients = jest.fn().mockResolvedValue([
         {
           capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
           clientId: 'client1',
@@ -1363,17 +1362,19 @@ describe('CapabilityService', () => {
       const clients = await capabilityService.getClients();
       expect(clients).toEqual(mockClientsFromStripe);
 
-      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
+      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
+      expect(sentryScope.setContext).toHaveBeenCalledWith('getClients', {
         cms: mockClientsFromCMS,
         stripe: mockClientsFromStripe,
       });
-      sinon.assert.calledOnceWithExactly(
-        sentryModule.reportSentryMessage,
+      expect(sentryModule.reportSentryMessage).toHaveBeenCalledTimes(1);
+      expect(sentryModule.reportSentryMessage).toHaveBeenCalledWith(
         `CapabilityService.getClients - Returned Stripe as clients did not match.`,
         'error'
       );
 
-      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
+      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
+      expect(sentryScope.setContext).toHaveBeenCalledWith('getClients', {
         cms: mockClientsFromCMS,
         stripe: mockClientsFromStripe,
       });
@@ -1384,7 +1385,7 @@ describe('CapabilityService', () => {
     it('returns planIdsToClientCapabilities from CMS', async () => {
       mockConfig.cms.enabled = true;
 
-      capabilityService.subscribedPriceIds = sinon.fake.resolves([UID]);
+      capabilityService.subscribedPriceIds = jest.fn().mockResolvedValue([UID]);
 
       const mockCMSCapabilities =
         await mockCapabilityManager.priceIdsToClientCapabilities(

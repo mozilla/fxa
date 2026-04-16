@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 // Mock fxa-shared/db to prevent real DB connections
 jest.mock('fxa-shared/db', () => ({
   setupAuthDatabase: jest.fn(),
@@ -12,7 +10,9 @@ jest.mock('fxa-shared/db', () => ({
 // Mock fxa-shared/db/models/auth - defined inline to avoid TDZ issues with jest.mock hoisting
 jest.mock('fxa-shared/db/models/auth', () => ({
   Device: {
-    delete: jest.fn().mockResolvedValue({ sessionTokenId: 'fakeSessionTokenId' }),
+    delete: jest
+      .fn()
+      .mockResolvedValue({ sessionTokenId: 'fakeSessionTokenId' }),
     findByPrimaryKey: jest.fn().mockResolvedValue({ id: 'fakeDeviceId' }),
     findByUid: jest.fn().mockResolvedValue([]),
     findByUidAndRefreshTokenId: jest.fn(),
@@ -92,7 +92,7 @@ describe('db, session tokens expire:', () => {
 
     beforeEach(async () => {
       const now = Date.now();
-      models.SessionToken.findByUid = sinon.stub().resolves([
+      models.SessionToken.findByUid = jest.fn().mockResolvedValue([
         { createdAt: now, tokenId: 'foo' },
         {
           createdAt: now - tokenLifetimes.sessionTokenWithoutDevice - 1,
@@ -150,7 +150,7 @@ describe('db, session tokens do not expire:', () => {
 
     beforeEach(async () => {
       const now = Date.now();
-      models.SessionToken.findByUid = sinon.stub().resolves([
+      models.SessionToken.findByUid = jest.fn().mockResolvedValue([
         { createdAt: now, tokenId: 'foo' },
         {
           createdAt: now - tokenLifetimes.sessionTokenWithoutDevice - 1,
@@ -200,7 +200,7 @@ describe('db with redis disabled:', () => {
   });
 
   it('db.sessions succeeds without a redis instance', async () => {
-    models.SessionToken.findByUid = sinon.stub().resolves([]);
+    models.SessionToken.findByUid = jest.fn().mockResolvedValue([]);
     const result = await db.sessions('fakeUid');
     expect(result).toEqual([]);
   });
@@ -233,12 +233,12 @@ describe('redis enabled, token-pruning enabled:', () => {
 
   beforeEach(async () => {
     redis = {
-      get: sinon.spy(() => Promise.resolve('{}')),
-      set: sinon.spy(() => Promise.resolve()),
-      del: sinon.spy(() => Promise.resolve()),
-      getSessionTokens: sinon.spy(() => Promise.resolve()),
-      pruneSessionTokens: sinon.spy(() => Promise.resolve()),
-      touchSessionToken: sinon.spy(() => Promise.resolve()),
+      get: jest.fn(() => Promise.resolve('{}')),
+      set: jest.fn(() => Promise.resolve()),
+      del: jest.fn(() => Promise.resolve()),
+      getSessionTokens: jest.fn(() => Promise.resolve()),
+      pruneSessionTokens: jest.fn(() => Promise.resolve()),
+      touchSessionToken: jest.fn(() => Promise.resolve()),
     };
     redisMockFactory = (...args: any[]) => {
       expect(args).toHaveLength(2);
@@ -290,53 +290,53 @@ describe('redis enabled, token-pruning enabled:', () => {
   });
 
   it('should call redis and the db in db.devices if uid is not falsey', async () => {
-    models.Device.findByUid = sinon.stub().resolves([]);
+    models.Device.findByUid = jest.fn().mockResolvedValue([]);
     await db.devices('wibble');
-    expect(models.Device.findByUid.callCount).toBe(1);
-    expect(redis.getSessionTokens.callCount).toBe(1);
-    expect(redis.getSessionTokens.args[0]).toHaveLength(1);
-    expect(redis.getSessionTokens.args[0][0]).toBe('wibble');
+    expect(models.Device.findByUid).toHaveBeenCalledTimes(1);
+    expect(redis.getSessionTokens).toHaveBeenCalledTimes(1);
+    expect(redis.getSessionTokens.mock.calls[0]).toHaveLength(1);
+    expect(redis.getSessionTokens.mock.calls[0][0]).toBe('wibble');
   });
 
   it('should call redis and the db in db.device if uid is not falsey', async () => {
-    models.Device.findByPrimaryKey = sinon.stub().resolves({});
+    models.Device.findByPrimaryKey = jest.fn().mockResolvedValue({});
     await db.device('wibble', 'wobble');
-    expect(models.Device.findByPrimaryKey.callCount).toBe(1);
-    expect(redis.getSessionTokens.callCount).toBe(1);
-    expect(redis.getSessionTokens.args[0]).toHaveLength(1);
-    expect(redis.getSessionTokens.args[0][0]).toBe('wibble');
+    expect(models.Device.findByPrimaryKey).toHaveBeenCalledTimes(1);
+    expect(redis.getSessionTokens).toHaveBeenCalledTimes(1);
+    expect(redis.getSessionTokens.mock.calls[0]).toHaveLength(1);
+    expect(redis.getSessionTokens.mock.calls[0][0]).toBe('wibble');
   });
 
   it('should call redis.getSessionTokens in db.sessions', async () => {
-    models.SessionToken.findByUid = sinon.stub().resolves([]);
+    models.SessionToken.findByUid = jest.fn().mockResolvedValue([]);
     await db.sessions('wibble');
-    expect(models.SessionToken.findByUid.callCount).toBe(1);
-    expect(redis.getSessionTokens.callCount).toBe(1);
-    expect(redis.getSessionTokens.args[0]).toHaveLength(1);
-    expect(redis.getSessionTokens.args[0][0]).toBe('wibble');
+    expect(models.SessionToken.findByUid).toHaveBeenCalledTimes(1);
+    expect(redis.getSessionTokens).toHaveBeenCalledTimes(1);
+    expect(redis.getSessionTokens.mock.calls[0]).toHaveLength(1);
+    expect(redis.getSessionTokens.mock.calls[0][0]).toBe('wibble');
 
-    expect(log.error.callCount).toBe(0);
+    expect(log.error).toHaveBeenCalledTimes(0);
   });
 
   it('should call redis.del in db.deleteAccount', async () => {
     await db.deleteAccount({ uid: 'wibble' });
-    expect(redis.del.callCount).toBe(1);
-    expect(redis.del.args[0]).toHaveLength(1);
-    expect(redis.del.args[0][0]).toBe('wibble');
+    expect(redis.del).toHaveBeenCalledTimes(1);
+    expect(redis.del.mock.calls[0]).toHaveLength(1);
+    expect(redis.del.mock.calls[0][0]).toBe('wibble');
   });
 
   it('should call redis.del in db.resetAccount', async () => {
     await db.resetAccount({ uid: 'wibble' }, {});
-    expect(redis.del.callCount).toBe(1);
-    expect(redis.del.args[0]).toHaveLength(1);
-    expect(redis.del.args[0][0]).toBe('wibble');
+    expect(redis.del).toHaveBeenCalledTimes(1);
+    expect(redis.del.mock.calls[0]).toHaveLength(1);
+    expect(redis.del.mock.calls[0][0]).toBe('wibble');
   });
 
   it('should call redis.touchSessionToken in db.touchSessionToken', async () => {
     await db.touchSessionToken({ id: 'wibble', uid: 'blee' });
-    expect(redis.touchSessionToken.callCount).toBe(1);
-    expect(redis.touchSessionToken.args[0]).toHaveLength(2);
-    expect(redis.touchSessionToken.args[0][0]).toBe('blee');
+    expect(redis.touchSessionToken).toHaveBeenCalledTimes(1);
+    expect(redis.touchSessionToken.mock.calls[0]).toHaveLength(2);
+    expect(redis.touchSessionToken.mock.calls[0][0]).toBe('blee');
   });
 
   it('should call redis.pruneSessionTokens in db.pruneSessionTokens', async () => {
@@ -345,9 +345,9 @@ describe('redis enabled, token-pruning enabled:', () => {
       { id: 'bar', createdAt },
       { id: 'baz', createdAt },
     ]);
-    expect(redis.pruneSessionTokens.callCount).toBe(1);
-    expect(redis.pruneSessionTokens.args[0]).toHaveLength(2);
-    expect(redis.pruneSessionTokens.args[0][0]).toBe('foo');
+    expect(redis.pruneSessionTokens).toHaveBeenCalledTimes(1);
+    expect(redis.pruneSessionTokens.mock.calls[0]).toHaveLength(2);
+    expect(redis.pruneSessionTokens.mock.calls[0][0]).toBe('foo');
   });
 
   it('should not call redis.pruneSessionTokens for unexpired tokens in db.pruneSessionTokens', async () => {
@@ -356,40 +356,40 @@ describe('redis enabled, token-pruning enabled:', () => {
       { id: 'bar', createdAt },
       { id: 'baz', createdAt },
     ]);
-    expect(redis.pruneSessionTokens.callCount).toBe(0);
+    expect(redis.pruneSessionTokens).toHaveBeenCalledTimes(0);
   });
 
   it('should call redis.pruneSessionTokens in db.deleteSessionToken', async () => {
     await db.deleteSessionToken({ id: 'wibble', uid: 'blee' });
-    expect(redis.pruneSessionTokens.callCount).toBe(1);
-    expect(redis.pruneSessionTokens.args[0]).toHaveLength(2);
-    expect(redis.pruneSessionTokens.args[0][0]).toBe('blee');
+    expect(redis.pruneSessionTokens).toHaveBeenCalledTimes(1);
+    expect(redis.pruneSessionTokens.mock.calls[0]).toHaveLength(2);
+    expect(redis.pruneSessionTokens.mock.calls[0][0]).toBe('blee');
   });
 
   it('should call redis.pruneSessionTokens in db.deleteDevice', async () => {
     await db.deleteDevice('wibble', 'blee');
-    expect(redis.pruneSessionTokens.callCount).toBe(1);
-    expect(redis.pruneSessionTokens.args[0]).toHaveLength(2);
-    expect(redis.pruneSessionTokens.args[0][0]).toBe('wibble');
+    expect(redis.pruneSessionTokens).toHaveBeenCalledTimes(1);
+    expect(redis.pruneSessionTokens.mock.calls[0]).toHaveLength(2);
+    expect(redis.pruneSessionTokens.mock.calls[0][0]).toBe('wibble');
   });
 
   it('should call redis.pruneSessionTokens in db.createSessionToken', async () => {
     await db.createSessionToken({ uid: 'wibble' });
-    expect(redis.pruneSessionTokens.callCount).toBe(1);
-    expect(redis.pruneSessionTokens.args[0]).toHaveLength(2);
-    expect(redis.pruneSessionTokens.args[0][0]).toBe('wibble');
+    expect(redis.pruneSessionTokens).toHaveBeenCalledTimes(1);
+    expect(redis.pruneSessionTokens.mock.calls[0]).toHaveLength(2);
+    expect(redis.pruneSessionTokens.mock.calls[0][0]).toBe('wibble');
   });
 
   describe('mock db.pruneSessionTokens:', () => {
     beforeEach(() => {
-      db.pruneSessionTokens = sinon.spy(() => Promise.resolve());
+      db.pruneSessionTokens = jest.fn(() => Promise.resolve());
     });
 
     describe('with expired tokens from SessionToken.findByUid:', () => {
       beforeEach(() => {
         const expiryPoint =
           Date.now() - tokenLifetimes.sessionTokenWithoutDevice;
-        models.SessionToken.findByUid = sinon.stub().resolves([
+        models.SessionToken.findByUid = jest.fn().mockResolvedValue([
           { tokenId: 'unexpired', createdAt: expiryPoint + 1000 },
           { tokenId: 'expired1', createdAt: expiryPoint - 1 },
           { tokenId: 'expired2', createdAt: 1 },
@@ -401,8 +401,8 @@ describe('redis enabled, token-pruning enabled:', () => {
         expect(result).toHaveLength(1);
         expect(result[0].id).toBe('unexpired');
 
-        expect(db.pruneSessionTokens.callCount).toBe(1);
-        const args = db.pruneSessionTokens.args[0];
+        expect(db.pruneSessionTokens).toHaveBeenCalledTimes(1);
+        const args = db.pruneSessionTokens.mock.calls[0];
         expect(args).toHaveLength(2);
         expect(args[0]).toBe('foo');
         expect(Array.isArray(args[1])).toBe(true);
@@ -416,7 +416,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       beforeEach(() => {
         const expiryPoint =
           Date.now() - tokenLifetimes.sessionTokenWithoutDevice;
-        models.SessionToken.findByUid = sinon.stub().resolves([
+        models.SessionToken.findByUid = jest.fn().mockResolvedValue([
           { tokenId: 'unexpired1', createdAt: expiryPoint + 1000 },
           { tokenId: 'unexpired2', createdAt: expiryPoint + 100000 },
           { tokenId: 'unexpired3', createdAt: expiryPoint + 10000000 },
@@ -426,7 +426,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       it('should not call pruneSessionTokens in db.sessions', async () => {
         const result = await db.sessions('foo');
         expect(result).toHaveLength(3);
-        expect(db.pruneSessionTokens.callCount).toBe(0);
+        expect(db.pruneSessionTokens).toHaveBeenCalledTimes(0);
       });
     });
   });
@@ -441,10 +441,10 @@ describe('redis enabled, token-pruning disabled:', () => {
 
   beforeEach(async () => {
     redis = {
-      get: sinon.spy(() => Promise.resolve('{}')),
-      set: sinon.spy(() => Promise.resolve()),
-      del: sinon.spy(() => Promise.resolve()),
-      pruneSessionTokens: sinon.spy(() => Promise.resolve()),
+      get: jest.fn(() => Promise.resolve('{}')),
+      set: jest.fn(() => Promise.resolve()),
+      del: jest.fn(() => Promise.resolve()),
+      pruneSessionTokens: jest.fn(() => Promise.resolve()),
     };
     redisMockFactory = (...args: any[]) => {
       expect(args).toHaveLength(2);
@@ -488,7 +488,7 @@ describe('redis enabled, token-pruning disabled:', () => {
 
   it('should not call redis.pruneSessionTokens in db.pruneSessionTokens', async () => {
     await db.pruneSessionTokens('wibble', [{ id: 'blee', createdAt: 1 }]);
-    expect(redis.pruneSessionTokens.callCount).toBe(0);
+    expect(redis.pruneSessionTokens).toHaveBeenCalledTimes(0);
   });
 });
 
@@ -501,20 +501,20 @@ describe('db.deviceFromRefreshTokenId:', () => {
     tokens: any,
     db: any,
     features: any,
-    mergeDevicesAndSessionTokens: sinon.SinonStub;
+    mergeDevicesAndSessionTokens: jest.Mock;
 
   beforeEach(async () => {
     log = mocks.mockLog();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
 
-    models.Device.findByUidAndRefreshTokenId = sinon.stub();
+    models.Device.findByUidAndRefreshTokenId = jest.fn();
 
     features = {
-      isLastAccessTimeEnabledForUser: sinon.stub().returns(false),
+      isLastAccessTimeEnabledForUser: jest.fn().mockReturnValue(false),
     };
     featuresMockFactory = () => features;
 
-    mergeDevicesAndSessionTokens = sinon.stub();
+    mergeDevicesAndSessionTokens = jest.fn();
     connectedServicesMock = {
       mergeDevicesAndSessionTokens,
       filterExpiredTokens: () => [],
@@ -562,34 +562,34 @@ describe('db.deviceFromRefreshTokenId:', () => {
       availableCommands: {},
     };
     const metrics = {
-      increment: sinon.spy(),
+      increment: jest.fn(),
     };
     db.metrics = metrics;
 
-    models.Device.findByUidAndRefreshTokenId.resolves(mockDevice);
-    features.isLastAccessTimeEnabledForUser.returns(false);
-    mergeDevicesAndSessionTokens.returns([mockNormalizedDevice]);
+    models.Device.findByUidAndRefreshTokenId.mockResolvedValue(mockDevice);
+    features.isLastAccessTimeEnabledForUser.mockReturnValue(false);
+    mergeDevicesAndSessionTokens.mockReturnValue([mockNormalizedDevice]);
 
     const result = await db.deviceFromRefreshTokenId(uid, refreshTokenId);
 
-    expect(models.Device.findByUidAndRefreshTokenId.callCount).toBe(1);
-    expect(models.Device.findByUidAndRefreshTokenId.args[0][0]).toBe(uid);
-    expect(models.Device.findByUidAndRefreshTokenId.args[0][1]).toBe(
+    expect(models.Device.findByUidAndRefreshTokenId).toHaveBeenCalledTimes(1);
+    expect(models.Device.findByUidAndRefreshTokenId.mock.calls[0][0]).toBe(uid);
+    expect(models.Device.findByUidAndRefreshTokenId.mock.calls[0][1]).toBe(
       refreshTokenId
     );
-    expect(features.isLastAccessTimeEnabledForUser.callCount).toBe(1);
-    expect(features.isLastAccessTimeEnabledForUser.args[0][0]).toBe(uid);
-    expect(mergeDevicesAndSessionTokens.callCount).toBe(1);
-    expect(mergeDevicesAndSessionTokens.args[0][0]).toEqual([mockDevice]);
-    expect(mergeDevicesAndSessionTokens.args[0][1]).toEqual({});
-    expect(mergeDevicesAndSessionTokens.args[0][2]).toBe(false);
+    expect(features.isLastAccessTimeEnabledForUser).toHaveBeenCalledTimes(1);
+    expect(features.isLastAccessTimeEnabledForUser.mock.calls[0][0]).toBe(uid);
+    expect(mergeDevicesAndSessionTokens).toHaveBeenCalledTimes(1);
+    expect(mergeDevicesAndSessionTokens.mock.calls[0][0]).toEqual([mockDevice]);
+    expect(mergeDevicesAndSessionTokens.mock.calls[0][1]).toEqual({});
+    expect(mergeDevicesAndSessionTokens.mock.calls[0][2]).toBe(false);
     expect(result).toEqual(mockNormalizedDevice);
     // metrics
-    expect(metrics.increment.callCount).toBe(1);
-    expect(metrics.increment.args[0][0]).toBe(
+    expect(metrics.increment).toHaveBeenCalledTimes(1);
+    expect(metrics.increment.mock.calls[0][0]).toBe(
       'db.deviceFromRefreshTokenId.retrieve'
     );
-    expect(metrics.increment.args[0][1]).toEqual({ result: 'success' });
+    expect(metrics.increment.mock.calls[0][1]).toEqual({ result: 'success' });
   });
 
   it('should return normalized device with lastAccessTime when feature is enabled', async () => {
@@ -613,16 +613,16 @@ describe('db.deviceFromRefreshTokenId:', () => {
       availableCommands: {},
     };
 
-    models.Device.findByUidAndRefreshTokenId.resolves(mockDevice);
-    features.isLastAccessTimeEnabledForUser.returns(true);
-    mergeDevicesAndSessionTokens.returns([mockNormalizedDevice]);
+    models.Device.findByUidAndRefreshTokenId.mockResolvedValue(mockDevice);
+    features.isLastAccessTimeEnabledForUser.mockReturnValue(true);
+    mergeDevicesAndSessionTokens.mockReturnValue([mockNormalizedDevice]);
 
     const result = await db.deviceFromRefreshTokenId(uid, refreshTokenId);
 
-    expect(mergeDevicesAndSessionTokens.callCount).toBe(1);
-    expect(mergeDevicesAndSessionTokens.args[0][0]).toEqual([mockDevice]);
-    expect(mergeDevicesAndSessionTokens.args[0][1]).toEqual({});
-    expect(mergeDevicesAndSessionTokens.args[0][2]).toBe(true);
+    expect(mergeDevicesAndSessionTokens).toHaveBeenCalledTimes(1);
+    expect(mergeDevicesAndSessionTokens.mock.calls[0][0]).toEqual([mockDevice]);
+    expect(mergeDevicesAndSessionTokens.mock.calls[0][1]).toEqual({});
+    expect(mergeDevicesAndSessionTokens.mock.calls[0][2]).toBe(true);
     expect(result).toEqual(mockNormalizedDevice);
   });
 
@@ -630,19 +630,19 @@ describe('db.deviceFromRefreshTokenId:', () => {
     const uid = 'test-uid';
     const refreshTokenId = 'test-refresh-token-id';
     const metrics = {
-      increment: sinon.spy(),
+      increment: jest.fn(),
     };
     db.metrics = metrics;
 
-    models.Device.findByUidAndRefreshTokenId.resolves(null);
+    models.Device.findByUidAndRefreshTokenId.mockResolvedValue(null);
 
     const result = await db.deviceFromRefreshTokenId(uid, refreshTokenId);
     expect(result).toBeNull();
-    expect(metrics.increment.callCount).toBe(1);
-    expect(metrics.increment.args[0][0]).toBe(
+    expect(metrics.increment).toHaveBeenCalledTimes(1);
+    expect(metrics.increment.mock.calls[0][0]).toBe(
       'db.deviceFromRefreshTokenId.retrieve'
     );
-    expect(metrics.increment.args[0][1]).toEqual({ result: 'notFound' });
+    expect(metrics.increment.mock.calls[0][1]).toEqual({ result: 'notFound' });
   });
 
   it('should not increment metrics when metrics is not available', async () => {
@@ -650,7 +650,7 @@ describe('db.deviceFromRefreshTokenId:', () => {
     const refreshTokenId = 'test-refresh-token-id';
 
     db.metrics = undefined;
-    models.Device.findByUidAndRefreshTokenId.resolves(null);
+    models.Device.findByUidAndRefreshTokenId.mockResolvedValue(null);
 
     const result = await db.deviceFromRefreshTokenId(uid, refreshTokenId);
     // basically, just make sure it doesn't blow up without metrics

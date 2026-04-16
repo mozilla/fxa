@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { default as Container } from 'typedi';
 
 const uuid = require('uuid');
@@ -79,14 +78,11 @@ function deepCopy(object: any) {
 }
 
 describe('StripeWebhookHandler', () => {
-  let sandbox: sinon.SinonSandbox;
   let StripeWebhookHandlerInstance: any;
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
-
     mockCapabilityService = {
-      stripeUpdate: sandbox.stub().resolves({}),
+      stripeUpdate: jest.fn().mockResolvedValue({}),
     };
 
     config = {
@@ -109,7 +105,7 @@ describe('StripeWebhookHandler', () => {
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
     profile = mocks.mockProfile({
-      deleteCache: sinon.spy(async (uid: any) => ({})),
+      deleteCache: jest.fn(async (uid: any) => ({})),
     });
     mailer = mocks.mockMailer();
 
@@ -118,8 +114,28 @@ describe('StripeWebhookHandler', () => {
       email: TEST_EMAIL,
       locale: ACCOUNT_LOCALE,
     });
-    const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
-    const paypalHelperMock = sandbox.createStubInstance(PayPalHelper);
+    const stripeHelperMock: any = {};
+    for (
+      let p = StripeHelper.prototype;
+      p && p !== Object.prototype;
+      p = Object.getPrototypeOf(p)
+    ) {
+      Object.getOwnPropertyNames(p).forEach((m) => {
+        if (m !== 'constructor' && !stripeHelperMock[m])
+          stripeHelperMock[m] = jest.fn();
+      });
+    }
+    const paypalHelperMock: any = {};
+    for (
+      let p = PayPalHelper.prototype;
+      p && p !== Object.prototype;
+      p = Object.getPrototypeOf(p)
+    ) {
+      Object.getOwnPropertyNames(p).forEach((m) => {
+        if (m !== 'constructor' && !paypalHelperMock[m])
+          paypalHelperMock[m] = jest.fn();
+      });
+    }
     Container.set(CurrencyHelper, {});
     Container.set(PayPalHelper, paypalHelperMock);
     Container.set(StripeHelper, stripeHelperMock);
@@ -136,15 +152,17 @@ describe('StripeWebhookHandler', () => {
       stripeHelperMock
     );
 
-    sandbox.stub(authDbModule, 'getUidAndEmailByStripeCustomerId').resolves({
-      uid: UID,
-      email: TEST_EMAIL,
-    });
+    jest
+      .spyOn(authDbModule, 'getUidAndEmailByStripeCustomerId')
+      .mockResolvedValue({
+        uid: UID,
+        email: TEST_EMAIL,
+      });
   });
 
   afterEach(() => {
     Container.reset();
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   describe('stripe webhooks', () => {
@@ -159,16 +177,20 @@ describe('StripeWebhookHandler', () => {
     const validProduct = deepCopy(eventProductUpdated);
 
     beforeEach(() => {
-      StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.returns(
+      StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.mockReturnValue(
         asyncIterable(deepCopy(validPlanList))
       );
-      StripeWebhookHandlerInstance.stripeHelper.fetchProductById.returns({
-        product_id: validProduct.data.object.id,
-        product_name: validProduct.data.object.name,
-        product_metadata: validProduct.data.object.metadata,
-      });
-      StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves({});
-      StripeWebhookHandlerInstance.stripeHelper.getCard.resolves({});
+      StripeWebhookHandlerInstance.stripeHelper.fetchProductById.mockReturnValue(
+        {
+          product_id: validProduct.data.object.id,
+          product_name: validProduct.data.object.name,
+          product_metadata: validProduct.data.object.metadata,
+        }
+      );
+      StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+        {}
+      );
+      StripeWebhookHandlerInstance.stripeHelper.getCard.mockResolvedValue({});
     });
 
     describe('handleWebhookEvent', () => {
@@ -201,17 +223,19 @@ describe('StripeWebhookHandler', () => {
 
       beforeEach(() => {
         for (const handlerName of handlerNames) {
-          handlerStubs[handlerName] = sandbox
-            .stub(StripeWebhookHandlerInstance, handlerName)
-            .resolves();
+          handlerStubs[handlerName] = jest
+            .spyOn(StripeWebhookHandlerInstance, handlerName)
+            .mockResolvedValue(undefined);
         }
-        scopeContextSpy = sinon.fake();
-        scopeExtraSpy = sinon.fake();
+        scopeContextSpy = jest.fn();
+        scopeExtraSpy = jest.fn();
         scopeSpy = {
           setContext: scopeContextSpy,
           setExtra: scopeExtraSpy,
         };
-        sandbox.replace(Sentry, 'withScope', (fn: any) => fn(scopeSpy));
+        jest
+          .spyOn(Sentry, 'withScope')
+          .mockImplementation((fn: any) => fn(scopeSpy));
       });
 
       const assertNamedHandlerCalled = (
@@ -220,9 +244,11 @@ describe('StripeWebhookHandler', () => {
         for (const handlerName of handlerNames) {
           const shouldCall =
             expectedHandlerName && handlerName === expectedHandlerName;
-          expect(
-            handlerStubs[handlerName][shouldCall ? 'called' : 'notCalled']
-          ).toBe(true);
+          if (shouldCall) {
+            expect(handlerStubs[handlerName]).toHaveBeenCalled();
+          } else {
+            expect(handlerStubs[handlerName]).not.toHaveBeenCalled();
+          }
         }
       };
 
@@ -234,40 +260,48 @@ describe('StripeWebhookHandler', () => {
       ) =>
         it(`only calls ${expectedHandlerName}`, async () => {
           const createdEvent = deepCopy(event);
-          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.mockReturnValue(
             createdEvent
           );
           await StripeWebhookHandlerInstance.handleWebhookEvent(request);
           assertNamedHandlerCalled(expectedHandlerName);
           if (expectSentry) {
-            expect(scopeContextSpy.notCalled).toBe(false);
+            expect(scopeContextSpy).toHaveBeenCalled();
           } else {
-            expect(scopeContextSpy.notCalled).toBe(true);
+            expect(scopeContextSpy).not.toHaveBeenCalled();
           }
           if (expectedHandlerName === 'handleCustomerSourceExpiringEvent') {
-            sinon.assert.calledOnce(
-              StripeWebhookHandlerInstance.stripeHelper.getCard
-            );
-          } else {
             expect(
-              StripeWebhookHandlerInstance.stripeHelper.expandResource
-                .calledOnce
-            ).toBe(expectExpandResource);
+              StripeWebhookHandlerInstance.stripeHelper.getCard
+            ).toHaveBeenCalledTimes(1);
+          } else {
+            if (expectExpandResource) {
+              expect(
+                StripeWebhookHandlerInstance.stripeHelper.expandResource
+              ).toHaveBeenCalledTimes(1);
+            } else {
+              expect(
+                StripeWebhookHandlerInstance.stripeHelper.expandResource
+              ).not.toHaveBeenCalled();
+            }
           }
         });
 
       describe('ignorable errors', () => {
         const commonIgnorableErrorTest = (expectedError: any) => async () => {
           const fixture = deepCopy(eventCustomerSourceExpiring);
-          handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
-          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
+          handlerStubs.handleCustomerSourceExpiringEvent.mockImplementation(
+            () => {
+              throw expectedError;
+            }
+          );
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.mockReturnValue(
             fixture
           );
           let errorThrown: any = null;
           try {
             await StripeWebhookHandlerInstance.handleWebhookEvent(request);
-            sinon.assert.calledWith(
-              StripeWebhookHandlerInstance.log.error,
+            expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledWith(
               'subscriptions.handleWebhookEvent.failure',
               { error: expectedError }
             );
@@ -300,7 +334,7 @@ describe('StripeWebhookHandler', () => {
       describe('FirestoreStripeErrorBuilder errors', () => {
         beforeEach(() => {
           const fixture = deepCopy(eventCustomerSourceExpiring);
-          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.mockReturnValue(
             fixture
           );
         });
@@ -310,7 +344,11 @@ describe('StripeWebhookHandler', () => {
             'testError',
             FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND
           );
-          handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
+          handlerStubs.handleCustomerSourceExpiringEvent.mockImplementation(
+            () => {
+              throw expectedError;
+            }
+          );
           try {
             await StripeWebhookHandlerInstance.handleWebhookEvent(request);
             throw new Error('handleWebhookEvent should throw an error');
@@ -326,10 +364,14 @@ describe('StripeWebhookHandler', () => {
             'cus_123'
           );
           const expectedError = new Error('UnknownError');
-          handlerStubs.handleCustomerSourceExpiringEvent.throws(handlerError);
-          sandbox
-            .stub(StripeWebhookHandlerInstance, 'checkIfAccountExists')
-            .rejects(expectedError);
+          handlerStubs.handleCustomerSourceExpiringEvent.mockImplementation(
+            () => {
+              throw handlerError;
+            }
+          );
+          jest
+            .spyOn(StripeWebhookHandlerInstance, 'checkIfAccountExists')
+            .mockRejectedValue(expectedError);
 
           try {
             await StripeWebhookHandlerInstance.handleWebhookEvent(request);
@@ -345,10 +387,14 @@ describe('StripeWebhookHandler', () => {
             FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND,
             'cus_123'
           );
-          handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
-          sandbox
-            .stub(StripeWebhookHandlerInstance, 'checkIfAccountExists')
-            .resolves(true);
+          handlerStubs.handleCustomerSourceExpiringEvent.mockImplementation(
+            () => {
+              throw expectedError;
+            }
+          );
+          jest
+            .spyOn(StripeWebhookHandlerInstance, 'checkIfAccountExists')
+            .mockResolvedValue(true);
           try {
             await StripeWebhookHandlerInstance.handleWebhookEvent(request);
             throw new Error('handleWebhookEvent should throw an error');
@@ -364,17 +410,20 @@ describe('StripeWebhookHandler', () => {
             FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND,
             'cus_123'
           );
-          handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
-          sandbox
-            .stub(StripeWebhookHandlerInstance, 'checkIfAccountExists')
-            .resolves(false);
+          handlerStubs.handleCustomerSourceExpiringEvent.mockImplementation(
+            () => {
+              throw expectedError;
+            }
+          );
+          jest
+            .spyOn(StripeWebhookHandlerInstance, 'checkIfAccountExists')
+            .mockResolvedValue(false);
           try {
             await StripeWebhookHandlerInstance.handleWebhookEvent(request);
           } catch (err) {
             errorThrown = err;
           }
-          sinon.assert.calledWith(
-            StripeWebhookHandlerInstance.log.error,
+          expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledWith(
             'subscriptions.handleWebhookEvent.failure',
             { error: expectedError }
           );
@@ -515,41 +564,41 @@ describe('StripeWebhookHandler', () => {
         it('only calls sentry', async () => {
           const event = deepCopy(subscriptionCreated);
           event.type = 'application_fee.refunded';
-          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.mockReturnValue(
             event
           );
           await StripeWebhookHandlerInstance.handleWebhookEvent(request);
           assertNamedHandlerCalled();
-          expect(scopeContextSpy.calledOnce).toBe(true);
+          expect(scopeContextSpy).toHaveBeenCalledTimes(1);
         });
 
         it('does not call sentry or expand resource for event payment_method.detached', async () => {
           const event = deepCopy(subscriptionCreated);
           event.type = 'payment_method.detached';
-          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.mockReturnValue(
             event
           );
           StripeWebhookHandlerInstance.stripeHelper.processWebhookEventToFirestore =
-            sinon.stub().resolves(true);
+            jest.fn().mockResolvedValue(true);
           await StripeWebhookHandlerInstance.handleWebhookEvent(request);
           assertNamedHandlerCalled();
           expect(
-            StripeWebhookHandlerInstance.stripeHelper.expandResource.calledOnce
-          ).toBe(false);
-          sinon.assert.notCalled(scopeContextSpy);
+            StripeWebhookHandlerInstance.stripeHelper.expandResource
+          ).not.toHaveBeenCalled();
+          expect(scopeContextSpy).not.toHaveBeenCalled();
         });
 
         it('does not call sentry if handled by firestore', async () => {
           const event = deepCopy(subscriptionCreated);
           event.type = 'firestore.document.created';
-          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.mockReturnValue(
             event
           );
           StripeWebhookHandlerInstance.stripeHelper.processWebhookEventToFirestore =
-            sinon.stub().resolves(true);
+            jest.fn().mockResolvedValue(true);
           await StripeWebhookHandlerInstance.handleWebhookEvent(request);
           assertNamedHandlerCalled();
-          sinon.assert.notCalled(scopeContextSpy);
+          expect(scopeContextSpy).not.toHaveBeenCalled();
         });
       });
     });
@@ -562,10 +611,12 @@ describe('StripeWebhookHandler', () => {
           const coupon = deepCopy(event.data.object);
           const sentryMod = require('../../sentry');
           coupon.applies_to = { products: [] };
-          sandbox.stub(sentryMod, 'reportSentryError').returns({});
-          StripeWebhookHandlerInstance.stripeHelper.getCoupon.resolves(coupon);
+          jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+          StripeWebhookHandlerInstance.stripeHelper.getCoupon.mockResolvedValue(
+            coupon
+          );
           await StripeWebhookHandlerInstance.handleCouponEvent({}, event);
-          sinon.assert.notCalled(sentryMod.reportSentryError);
+          expect(sentryMod.reportSentryError).not.toHaveBeenCalled();
         });
 
         it(`reports an error for invalid coupon on ${eventType}`, async () => {
@@ -574,10 +625,12 @@ describe('StripeWebhookHandler', () => {
           const coupon = deepCopy(event.data.object);
           const sentryMod = require('../../sentry');
           coupon.applies_to = { products: ['productOhNo'] };
-          sandbox.stub(sentryMod, 'reportSentryError').returns({});
-          StripeWebhookHandlerInstance.stripeHelper.getCoupon.resolves(coupon);
+          jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+          StripeWebhookHandlerInstance.stripeHelper.getCoupon.mockResolvedValue(
+            coupon
+          );
           await StripeWebhookHandlerInstance.handleCouponEvent({}, event);
-          sinon.assert.calledOnce(sentryMod.reportSentryError);
+          expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
         });
       }
     });
@@ -592,15 +645,18 @@ describe('StripeWebhookHandler', () => {
           }
         );
 
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.db.accountRecord,
-          customerFixture.email
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.createLocalCustomer,
-          UID,
-          customerFixture
-        );
+        expect(
+          StripeWebhookHandlerInstance.db.accountRecord
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.db.accountRecord
+        ).toHaveBeenCalledWith(customerFixture.email);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.createLocalCustomer
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.createLocalCustomer
+        ).toHaveBeenCalledWith(UID, customerFixture);
       });
     });
 
@@ -608,7 +664,7 @@ describe('StripeWebhookHandler', () => {
       it('removes the customer if the account exists', async () => {
         const authDb = require('fxa-shared/db/models/auth');
         const account = { email: customerFixture.email };
-        sandbox.stub(authDb.Account, 'findByUid').resolves(account);
+        jest.spyOn(authDb.Account, 'findByUid').mockResolvedValue(account);
         await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
           {},
           {
@@ -616,8 +672,8 @@ describe('StripeWebhookHandler', () => {
             type: 'customer.updated',
           }
         );
-        sinon.assert.calledOnceWithExactly(
-          authDb.Account.findByUid,
+        expect(authDb.Account.findByUid).toHaveBeenCalledTimes(1);
+        expect(authDb.Account.findByUid).toHaveBeenCalledWith(
           customerFixture.metadata.userid,
           { include: ['emails'] }
         );
@@ -626,8 +682,8 @@ describe('StripeWebhookHandler', () => {
       it('reports sentry error with no customer found', async () => {
         const authDb = require('fxa-shared/db/models/auth');
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
-        sandbox.stub(authDb.Account, 'findByUid').resolves(null);
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+        jest.spyOn(authDb.Account, 'findByUid').mockResolvedValue(null);
         await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
           {},
           {
@@ -636,14 +692,14 @@ describe('StripeWebhookHandler', () => {
             request: {},
           }
         );
-        sinon.assert.calledOnce(sentryMod.reportSentryError);
+        expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
       });
 
       it('does not report error with no customer if the customer was deleted', async () => {
         const authDb = require('fxa-shared/db/models/auth');
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
-        sandbox.stub(authDb.Account, 'findByUid').resolves(null);
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+        jest.spyOn(authDb.Account, 'findByUid').mockResolvedValue(null);
         const customer = deepCopy(customerFixture);
         customer.deleted = true;
         await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
@@ -653,13 +709,13 @@ describe('StripeWebhookHandler', () => {
             type: 'customer.updated',
           }
         );
-        sinon.assert.notCalled(sentryMod.reportSentryError);
+        expect(sentryMod.reportSentryError).not.toHaveBeenCalled();
       });
 
       it('does not report error with no customer if the account does not exist but it was an api call', async () => {
         const authDb = require('fxa-shared/db/models/auth');
-        sandbox.stub(sentryModule, 'reportSentryError').returns({});
-        sandbox.stub(authDb.Account, 'findByUid').resolves(null);
+        jest.spyOn(sentryModule, 'reportSentryError').mockReturnValue({});
+        jest.spyOn(authDb.Account, 'findByUid').mockResolvedValue(null);
         const customer = deepCopy(customerFixture);
         await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
           {},
@@ -671,21 +727,27 @@ describe('StripeWebhookHandler', () => {
             },
           }
         );
-        sinon.assert.notCalled(sentryModule.reportSentryError);
+        expect(sentryModule.reportSentryError).not.toHaveBeenCalled();
       });
     });
 
     describe('handleProductWebhookEvent', () => {
       let scopeContextSpy: any, scopeSpy: any, captureMessageSpy: any;
       beforeEach(() => {
-        captureMessageSpy = sinon.fake();
-        scopeContextSpy = sinon.fake();
+        captureMessageSpy = jest.fn();
+        scopeContextSpy = jest.fn();
         scopeSpy = {
           setContext: scopeContextSpy,
         };
-        sandbox.replace(Sentry, 'withScope', (fn: any) => fn(scopeSpy));
-        sandbox.replace(Sentry, 'captureMessage', captureMessageSpy);
-        StripeWebhookHandlerInstance.stripeHelper.allProducts.resolves([]);
+        jest
+          .spyOn(Sentry, 'withScope')
+          .mockImplementation((fn: any) => fn(scopeSpy));
+        jest
+          .spyOn(Sentry, 'captureMessage')
+          .mockImplementation(captureMessageSpy);
+        StripeWebhookHandlerInstance.stripeHelper.allProducts.mockResolvedValue(
+          []
+        );
       });
 
       it('throws a sentry error if the update event data is invalid', async () => {
@@ -699,10 +761,10 @@ describe('StripeWebhookHandler', () => {
           product: updatedEvent.data.object,
         };
         const allPlans = [...validPlanList, invalidPlan];
-        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.mockResolvedValue(
           allPlans
         );
-        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.mockResolvedValue(
           [invalidPlan]
         );
         await StripeWebhookHandlerInstance.handleProductWebhookEvent(
@@ -710,32 +772,38 @@ describe('StripeWebhookHandler', () => {
           updatedEvent
         );
 
-        sinon.assert.calledOnce(scopeContextSpy);
-        sinon.assert.calledOnce(captureMessageSpy);
+        expect(scopeContextSpy).toHaveBeenCalledTimes(1);
+        expect(captureMessageSpy).toHaveBeenCalledTimes(1);
 
-        sinon.assert.calledOnce(
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId,
-          updatedEvent.data.object.id
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts,
-          [updatedEvent.data.object]
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
-          validPlanList
-        );
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId
+        ).toHaveBeenCalledWith(updatedEvent.data.object.id);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts
+        ).toHaveBeenCalledWith([updatedEvent.data.object]);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledWith(validPlanList);
       });
 
       it('does not throw a sentry error if the update event data is valid', async () => {
         const updatedEvent = deepCopy(eventProductUpdated);
-        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.mockResolvedValue(
           validPlanList
         );
-        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.mockResolvedValue(
           validPlanList
         );
         await StripeWebhookHandlerInstance.handleProductWebhookEvent(
@@ -743,7 +811,7 @@ describe('StripeWebhookHandler', () => {
           updatedEvent
         );
 
-        expect(scopeContextSpy.notCalled).toBe(true);
+        expect(scopeContextSpy).not.toHaveBeenCalled();
       });
 
       it('updates the cached products and remove the plans on a product.deleted', async () => {
@@ -751,24 +819,28 @@ describe('StripeWebhookHandler', () => {
           ...deepCopy(eventProductUpdated),
           type: 'product.deleted',
         };
-        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.mockResolvedValue(
           validPlanList
         );
-        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.mockResolvedValue(
           validPlanList
         );
         await StripeWebhookHandlerInstance.handleProductWebhookEvent(
           {},
           deletedEvent
         );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts,
-          [deletedEvent.data.object]
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
-          []
-        );
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts
+        ).toHaveBeenCalledWith([deletedEvent.data.object]);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledWith([]);
       });
 
       it('update all plans when Firestore product config feature flag is set to true', async () => {
@@ -780,32 +852,33 @@ describe('StripeWebhookHandler', () => {
           product: updatedEvent.data.object,
         };
         const allPlans = [...validPlanList, invalidPlan];
-        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.mockResolvedValue(
           allPlans
         );
-        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
-          allPlans
-        );
-        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.mockResolvedValue(
           allPlans
         );
         await StripeWebhookHandlerInstance.handleProductWebhookEvent(
           {},
           updatedEvent
         );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
-          allPlans
-        );
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledWith(allPlans);
       });
 
       it('updates the cached plans to include any valid plans missing from the cache', async () => {
         const updatedEvent = deepCopy(eventProductUpdated);
-        StripeWebhookHandlerInstance.stripeHelper.updateAllPlans.resolves();
-        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.updateAllPlans.mockResolvedValue(
+          undefined
+        );
+        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.mockResolvedValue(
           validPlanList
         );
-        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.mockResolvedValue(
           []
         );
         await StripeWebhookHandlerInstance.handleProductWebhookEvent(
@@ -813,12 +886,14 @@ describe('StripeWebhookHandler', () => {
           updatedEvent
         );
 
-        expect(scopeContextSpy.notCalled).toBe(true);
+        expect(scopeContextSpy).not.toHaveBeenCalled();
 
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
-          validPlanList
-        );
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledWith(validPlanList);
       });
     });
 
@@ -833,16 +908,22 @@ describe('StripeWebhookHandler', () => {
       };
 
       beforeEach(() => {
-        captureMessageSpy = sinon.fake();
-        scopeContextSpy = sinon.fake();
-        scopeExtraSpy = sinon.fake();
+        captureMessageSpy = jest.fn();
+        scopeContextSpy = jest.fn();
+        scopeExtraSpy = jest.fn();
         scopeSpy = {
           setContext: scopeContextSpy,
           setExtra: scopeExtraSpy,
         };
-        sandbox.replace(Sentry, 'withScope', (fn: any) => fn(scopeSpy));
-        sandbox.replace(Sentry, 'captureMessage', captureMessageSpy);
-        StripeWebhookHandlerInstance.stripeHelper.allPlans.resolves([plan]);
+        jest
+          .spyOn(Sentry, 'withScope')
+          .mockImplementation((fn: any) => fn(scopeSpy));
+        jest
+          .spyOn(Sentry, 'captureMessage')
+          .mockImplementation(captureMessageSpy);
+        StripeWebhookHandlerInstance.stripeHelper.allPlans.mockResolvedValue([
+          plan,
+        ]);
       });
 
       it('throws a sentry error if the update event data is invalid', async () => {
@@ -851,30 +932,36 @@ describe('StripeWebhookHandler', () => {
           'product:termsOfServiceDownloadURL':
             'https://FAIL.net/legal/mozilla_vpn_tos',
         };
-        StripeWebhookHandlerInstance.stripeHelper.fetchProductById.resolves({
-          ...validProduct.data.object,
-        });
+        StripeWebhookHandlerInstance.stripeHelper.fetchProductById.mockResolvedValue(
+          {
+            ...validProduct.data.object,
+          }
+        );
 
         await StripeWebhookHandlerInstance.handlePlanCreatedOrUpdatedEvent(
           {},
           updatedEvent
         );
 
-        expect(scopeContextSpy.called).toBe(true);
-        expect(captureMessageSpy.called).toBe(true);
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.fetchProductById,
-          validProduct.data.object.id
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
-          []
-        );
+        expect(scopeContextSpy).toHaveBeenCalled();
+        expect(captureMessageSpy).toHaveBeenCalled();
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.fetchProductById
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.fetchProductById
+        ).toHaveBeenCalledWith(validProduct.data.object.id);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledWith([]);
       });
 
       it('does not throw a sentry error if the update event data is valid', async () => {
         const updatedEvent = deepCopy(eventPlanUpdated);
-        StripeWebhookHandlerInstance.stripeHelper.fetchProductById.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchProductById.mockResolvedValue(
           validProduct.data.object
         );
         await StripeWebhookHandlerInstance.handlePlanCreatedOrUpdatedEvent(
@@ -882,19 +969,21 @@ describe('StripeWebhookHandler', () => {
           updatedEvent
         );
 
-        expect(scopeContextSpy.notCalled).toBe(true);
-        expect(captureMessageSpy.notCalled).toBe(true);
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
-          [plan]
-        );
+        expect(scopeContextSpy).not.toHaveBeenCalled();
+        expect(captureMessageSpy).not.toHaveBeenCalled();
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledWith([plan]);
       });
 
       it('logs and throws sentry error if product is not found', async () => {
         const productId = 'nonExistantProduct';
         const updatedEvent = deepCopy(eventPlanUpdated);
         updatedEvent.data.object.product = productId;
-        StripeWebhookHandlerInstance.stripeHelper.fetchProductById.returns(
+        StripeWebhookHandlerInstance.stripeHelper.fetchProductById.mockReturnValue(
           undefined
         );
         await StripeWebhookHandlerInstance.handlePlanCreatedOrUpdatedEvent(
@@ -902,23 +991,27 @@ describe('StripeWebhookHandler', () => {
           updatedEvent
         );
 
-        sinon.assert.calledOnce(StripeWebhookHandlerInstance.log.error);
-        expect(scopeContextSpy.called).toBe(true);
-        expect(captureMessageSpy.called).toBe(true);
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.fetchProductById,
-          productId
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
-          []
-        );
+        expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledTimes(1);
+        expect(scopeContextSpy).toHaveBeenCalled();
+        expect(captureMessageSpy).toHaveBeenCalled();
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.fetchProductById
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.fetchProductById
+        ).toHaveBeenCalledWith(productId);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledWith([]);
       });
     });
 
     describe('handlePlanDeletedEvent', () => {
       it('deletes the plan from the cache', async () => {
-        StripeWebhookHandlerInstance.stripeHelper.allPlans.resolves([
+        StripeWebhookHandlerInstance.stripeHelper.allPlans.mockResolvedValue([
           validPlan.data.object,
         ]);
         const planDeletedEvent = { ...eventPlanUpdated, type: 'plan.deleted' };
@@ -926,10 +1019,12 @@ describe('StripeWebhookHandler', () => {
           {},
           planDeletedEvent
         );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
-          []
-        );
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans
+        ).toHaveBeenCalledWith([]);
       });
     });
 
@@ -937,27 +1032,33 @@ describe('StripeWebhookHandler', () => {
       const taxRate = deepCopy(eventTaxRateCreated.data.object);
 
       beforeEach(() => {
-        StripeWebhookHandlerInstance.stripeHelper.allTaxRates.resolves([
-          taxRate,
-        ]);
-        StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates.resolves();
+        StripeWebhookHandlerInstance.stripeHelper.allTaxRates.mockResolvedValue(
+          [taxRate]
+        );
+        StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates.mockResolvedValue(
+          undefined
+        );
       });
 
       it('adds a new tax rate on tax_rate.created', async () => {
         const createdEvent = deepCopy(eventTaxRateCreated);
-        StripeWebhookHandlerInstance.stripeHelper.allTaxRates.resolves([]);
+        StripeWebhookHandlerInstance.stripeHelper.allTaxRates.mockResolvedValue(
+          []
+        );
         await StripeWebhookHandlerInstance.handleTaxRateCreatedOrUpdatedEvent(
           {},
           createdEvent
         );
 
-        sinon.assert.calledOnce(
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.allTaxRates
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates,
-          [taxRate]
-        );
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates
+        ).toHaveBeenCalledWith([taxRate]);
       });
 
       it('updates an existing tax rate on tax_rate.updated', async () => {
@@ -969,13 +1070,15 @@ describe('StripeWebhookHandler', () => {
           updatedEvent
         );
 
-        sinon.assert.calledOnce(
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.allTaxRates
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates,
-          [updatedTaxRate]
-        );
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates
+        ).toHaveBeenCalledWith([updatedTaxRate]);
       });
     });
 
@@ -983,13 +1086,13 @@ describe('StripeWebhookHandler', () => {
       let sendSubscriptionUpdatedEmailStub: any;
 
       beforeEach(() => {
-        sendSubscriptionUpdatedEmailStub = sandbox
-          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionUpdatedEmail')
-          .resolves({ uid: UID, email: TEST_EMAIL });
+        sendSubscriptionUpdatedEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionUpdatedEmail')
+          .mockResolvedValue({ uid: UID, email: TEST_EMAIL });
       });
 
       afterEach(() => {
-        StripeWebhookHandlerInstance.sendSubscriptionUpdatedEmail.restore();
+        StripeWebhookHandlerInstance.sendSubscriptionUpdatedEmail.mockRestore();
       });
 
       it('emits a notification when transitioning from "incomplete" to "active/trialing"', async () => {
@@ -998,11 +1101,13 @@ describe('StripeWebhookHandler', () => {
           {},
           updatedEvent
         );
-        sinon.assert.calledWithExactly(mockCapabilityService.stripeUpdate, {
+        expect(mockCapabilityService.stripeUpdate).toHaveBeenCalledWith({
           sub: updatedEvent.data.object,
           uid: UID,
         });
-        sinon.assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
+        expect(sendSubscriptionUpdatedEmailStub).toHaveBeenCalledWith(
+          updatedEvent
+        );
       });
 
       it('emits a notification for any subscription state change', async () => {
@@ -1011,35 +1116,30 @@ describe('StripeWebhookHandler', () => {
           {},
           updatedEvent
         );
-        sinon.assert.calledWithExactly(mockCapabilityService.stripeUpdate, {
+        expect(mockCapabilityService.stripeUpdate).toHaveBeenCalledWith({
           sub: updatedEvent.data.object,
           uid: UID,
         });
-        sinon.assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
+        expect(sendSubscriptionUpdatedEmailStub).toHaveBeenCalledWith(
+          updatedEvent
+        );
       });
 
       it('reports a sentry error with an eventId if sendSubscriptionUpdatedEmail fails', async () => {
         const updatedEvent = deepCopy(subscriptionUpdated);
         const fakeAppError = { output: { payload: {} } };
-        const fakeAppErrorWithEventId = {
-          output: {
-            payload: {
-              eventId: updatedEvent.id,
-            },
-          },
-        };
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
-        sendSubscriptionUpdatedEmailStub.rejects(fakeAppError);
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+        sendSubscriptionUpdatedEmailStub.mockRejectedValue(fakeAppError);
         await StripeWebhookHandlerInstance.handleSubscriptionUpdatedEvent(
           {},
           updatedEvent
         );
-        sinon.assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
-        sinon.assert.calledWith(
-          sentryMod.reportSentryError,
-          fakeAppErrorWithEventId
+        expect(sendSubscriptionUpdatedEmailStub).toHaveBeenCalledWith(
+          updatedEvent
         );
+        const sentryCall = sentryMod.reportSentryError.mock.calls[0];
+        expect(sentryCall[0].output.payload.eventId).toBe(updatedEvent.id);
       });
 
       it('ignores errors from email sending if the customer was deleted', async () => {
@@ -1049,56 +1149,68 @@ describe('StripeWebhookHandler', () => {
           errno: error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER,
         };
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
-        sendSubscriptionUpdatedEmailStub.rejects(fakeAppError);
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+        sendSubscriptionUpdatedEmailStub.mockRejectedValue(fakeAppError);
         await StripeWebhookHandlerInstance.handleSubscriptionUpdatedEvent(
           {},
           updatedEvent
         );
-        sinon.assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
-        sinon.assert.notCalled(sentryMod.reportSentryError);
+        expect(sendSubscriptionUpdatedEmailStub).toHaveBeenCalledWith(
+          updatedEvent
+        );
+        expect(sentryMod.reportSentryError).not.toHaveBeenCalled();
       });
     });
 
     describe('handleSubscriptionDeletedEvent', () => {
       it('sends email and emits a notification when a subscription is deleted', async () => {
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
           customerFixture
         );
         const deletedEvent = deepCopy(subscriptionDeleted);
-        const sendSubscriptionDeletedEmailStub = sandbox
-          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
-          .resolves({ uid: UID, email: TEST_EMAIL });
+        const sendSubscriptionDeletedEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
+          .mockResolvedValue({ uid: UID, email: TEST_EMAIL });
         const account = { email: customerFixture.email };
-        sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
+        jest
+          .spyOn(authDbModule.Account, 'findByUid')
+          .mockResolvedValue(account);
         await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
           {},
           deletedEvent
         );
-        sinon.assert.calledWith(mockCapabilityService.stripeUpdate, {
+        expect(mockCapabilityService.stripeUpdate).toHaveBeenCalledWith({
           sub: deletedEvent.data.object,
           uid: customerFixture.metadata.userid,
         });
-        sinon.assert.calledWith(
-          sendSubscriptionDeletedEmailStub,
+        expect(sendSubscriptionDeletedEmailStub).toHaveBeenCalledWith(
           deletedEvent.data.object
         );
-        sinon.assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+        expect(
+          authDbModule.getUidAndEmailByStripeCustomerId
+        ).not.toHaveBeenCalled();
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledWith(
           deletedEvent.data.object.customer,
           CUSTOMER_RESOURCE
         );
-        sinon.assert.calledOnceWithExactly(
+        expect(
           StripeWebhookHandlerInstance.paypalHelper
-            .conditionallyRemoveBillingAgreement,
-          customerFixture
-        );
+            .conditionallyRemoveBillingAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper
+            .conditionallyRemoveBillingAgreement
+        ).toHaveBeenCalledWith(customerFixture);
       });
 
       it('sends subscriptionReplaced email if metadata includes redundantCancellation', async () => {
         const mockCustomer = deepCopy(customerFixture);
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
           mockCustomer
         );
         const deletedEvent = deepCopy(subscriptionReplaced);
@@ -1107,122 +1219,147 @@ describe('StripeWebhookHandler', () => {
           emails: customerFixture.email,
           locale: 'en',
         };
-        sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
+        jest
+          .spyOn(authDbModule.Account, 'findByUid')
+          .mockResolvedValue(account);
         const mockInvoice = deepCopy(invoiceFixture);
-        StripeWebhookHandlerInstance.stripeHelper.extractSubscriptionDeletedEventDetailsForEmail.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.extractSubscriptionDeletedEventDetailsForEmail.mockResolvedValue(
           mockInvoice
         );
         StripeWebhookHandlerInstance.mailer.sendSubscriptionReplacedEmail =
-          sandbox.stub();
+          jest.fn();
         await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
           {},
           deletedEvent
         );
-        sinon.assert.calledWith(mockCapabilityService.stripeUpdate, {
+        expect(mockCapabilityService.stripeUpdate).toHaveBeenCalledWith({
           sub: deletedEvent.data.object,
           uid: customerFixture.metadata.userid,
         });
-        sinon.assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
-        sinon.assert.calledOnceWithExactly(
+        expect(
+          authDbModule.getUidAndEmailByStripeCustomerId
+        ).not.toHaveBeenCalled();
+        expect(
           StripeWebhookHandlerInstance.paypalHelper
-            .conditionallyRemoveBillingAgreement,
-          customerFixture
-        );
-        sinon.assert.calledOnceWithExactly(
+            .conditionallyRemoveBillingAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper
+            .conditionallyRemoveBillingAgreement
+        ).toHaveBeenCalledWith(customerFixture);
+        expect(
           StripeWebhookHandlerInstance.stripeHelper
-            .extractSubscriptionDeletedEventDetailsForEmail,
-          deletedEvent.data.object
-        );
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.mailer.sendSubscriptionReplacedEmail,
-          account.emails,
-          account,
-          {
-            acceptLanguage: account.locale,
-            ...mockInvoice,
-          }
-        );
+            .extractSubscriptionDeletedEventDetailsForEmail
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper
+            .extractSubscriptionDeletedEventDetailsForEmail
+        ).toHaveBeenCalledWith(deletedEvent.data.object);
+        expect(
+          StripeWebhookHandlerInstance.mailer.sendSubscriptionReplacedEmail
+        ).toHaveBeenCalledWith(account.emails, account, {
+          acceptLanguage: account.locale,
+          ...mockInvoice,
+        });
       });
 
       it('does not conditionally delete without customer record', async () => {
         const deletedEvent = deepCopy(subscriptionDeleted);
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves();
-        const sendSubscriptionDeletedEmailStub = sandbox
-          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
-          .resolves({ uid: UID, email: TEST_EMAIL });
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+          undefined
+        );
+        const sendSubscriptionDeletedEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
+          .mockResolvedValue({ uid: UID, email: TEST_EMAIL });
         await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
           {},
           deletedEvent
         );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledWith(
           deletedEvent.data.object.customer,
           CUSTOMER_RESOURCE
         );
-        sinon.assert.notCalled(sendSubscriptionDeletedEmailStub);
-        sinon.assert.notCalled(
+        expect(sendSubscriptionDeletedEmailStub).not.toHaveBeenCalled();
+        expect(
           StripeWebhookHandlerInstance.paypalHelper
             .conditionallyRemoveBillingAgreement
-        );
+        ).not.toHaveBeenCalled();
       });
 
       it('does not send an email to an unverified PayPal user', async () => {
         const deletedEvent = deepCopy(subscriptionDeleted);
         deletedEvent.data.object.collection_method = 'send_invoice';
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
           customerFixture
         );
-        StripeWebhookHandlerInstance.db.account = sandbox.stub().resolves({
+        StripeWebhookHandlerInstance.db.account = jest.fn().mockResolvedValue({
           email: customerFixture.email,
           verifierSetAt: 0,
         });
-        const sendSubscriptionDeletedEmailStub = sandbox
-          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
-          .resolves({ uid: UID, email: TEST_EMAIL });
+        const sendSubscriptionDeletedEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
+          .mockResolvedValue({ uid: UID, email: TEST_EMAIL });
         await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
           {},
           deletedEvent
         );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledWith(
           deletedEvent.data.object.customer,
           CUSTOMER_RESOURCE
         );
-        sinon.assert.notCalled(sendSubscriptionDeletedEmailStub);
+        expect(sendSubscriptionDeletedEmailStub).not.toHaveBeenCalled();
       });
 
       it('does send an email when it cannot find the account because it was deleted', async () => {
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
           customerFixture
         );
         const deletedEvent = deepCopy(subscriptionDeleted);
-        const sendSubscriptionDeletedEmailStub = sandbox
-          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
-          .resolves({ uid: UID, email: TEST_EMAIL });
-        sandbox.stub(authDbModule.Account, 'findByUid').resolves(null);
+        const sendSubscriptionDeletedEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
+          .mockResolvedValue({ uid: UID, email: TEST_EMAIL });
+        jest.spyOn(authDbModule.Account, 'findByUid').mockResolvedValue(null);
         await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
           {},
           deletedEvent
         );
-        sinon.assert.calledWith(mockCapabilityService.stripeUpdate, {
+        expect(mockCapabilityService.stripeUpdate).toHaveBeenCalledWith({
           sub: deletedEvent.data.object,
           uid: customerFixture.metadata.userid,
         });
-        sinon.assert.calledWith(
-          sendSubscriptionDeletedEmailStub,
+        expect(sendSubscriptionDeletedEmailStub).toHaveBeenCalledWith(
           deletedEvent.data.object
         );
-        sinon.assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+        expect(
+          authDbModule.getUidAndEmailByStripeCustomerId
+        ).not.toHaveBeenCalled();
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledWith(
           deletedEvent.data.object.customer,
           CUSTOMER_RESOURCE
         );
-        sinon.assert.calledOnceWithExactly(
+        expect(
           StripeWebhookHandlerInstance.paypalHelper
-            .conditionallyRemoveBillingAgreement,
-          customerFixture
-        );
+            .conditionallyRemoveBillingAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper
+            .conditionallyRemoveBillingAgreement
+        ).toHaveBeenCalledWith(customerFixture);
       });
 
       it('emits metrics event - records expected subscription ended event', async () => {
@@ -1247,48 +1384,49 @@ describe('StripeWebhookHandler', () => {
         const req = {
           auth: { credentials: mockCustomerFixture.uid },
           payload: mockSubscriptionEndedEventDetails,
-          emitMetricsEvent: sandbox
-            .stub()
-            .resolves(mockSubscriptionEndedEventDetails),
+          emitMetricsEvent: jest
+            .fn()
+            .mockResolvedValue(mockSubscriptionEndedEventDetails),
         };
         const subscriptionEndedEvent = deepCopy(subscriptionDeleted);
 
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
           mockCustomerFixture
         );
 
-        sandbox
-          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
-          .resolves({ uid: UID, email: TEST_EMAIL });
+        jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
+          .mockResolvedValue({ uid: UID, email: TEST_EMAIL });
 
-        sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
+        jest
+          .spyOn(authDbModule.Account, 'findByUid')
+          .mockResolvedValue(account);
 
-        const getSubscriptionEndedEventDetailsStub = sandbox
-          .stub(
+        const getSubscriptionEndedEventDetailsStub = jest
+          .spyOn(
             StripeWebhookHandlerInstance,
             'getSubscriptionEndedEventDetails'
           )
-          .resolves(mockSubscriptionEndedEventDetails);
+          .mockResolvedValue(mockSubscriptionEndedEventDetails);
 
         await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
           req,
           subscriptionEndedEvent
         );
 
-        sinon.assert.calledOnceWithExactly(
-          getSubscriptionEndedEventDetailsStub,
+        expect(getSubscriptionEndedEventDetailsStub).toHaveBeenCalledTimes(1);
+        expect(getSubscriptionEndedEventDetailsStub).toHaveBeenCalledWith(
           mockSubscriptionEndedEventDetails.uid,
           mockSubscriptionEndedEventDetails.provider_event_id,
           mockCustomerFixture,
           subscriptionEnded
         );
 
-        expect(
-          req.emitMetricsEvent.calledOnceWithExactly(
-            'subscription.ended',
-            mockSubscriptionEndedEventDetails
-          )
-        ).toBe(true);
+        expect(req.emitMetricsEvent).toHaveBeenCalledTimes(1);
+        expect(req.emitMetricsEvent).toHaveBeenCalledWith(
+          'subscription.ended',
+          mockSubscriptionEndedEventDetails
+        );
       });
     });
 
@@ -1305,112 +1443,115 @@ describe('StripeWebhookHandler', () => {
             invoiceCreatedEvent
           );
         expect(result).toBeUndefined();
-        sinon.assert.notCalled(
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.expandResource
-        );
+        ).not.toHaveBeenCalled();
       });
 
       it('stops if the invoice is not paypal payable', async () => {
         const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
         invoiceCreatedEvent.data.object.status = 'draft';
-        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.mockResolvedValue(
           false
         );
-        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
+        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.mockResolvedValue(
+          {}
+        );
         const result =
           await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
             {},
             invoiceCreatedEvent
           );
         expect(result).toBeUndefined();
-        sinon.assert.notCalled(
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.expandResource
-        );
-        sinon.assert.notCalled(
+        ).not.toHaveBeenCalled();
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice
-        );
+        ).not.toHaveBeenCalled();
       });
 
       it('stops if the invoice is not in draft', async () => {
         const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
-        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.mockResolvedValue(
           true
         );
-        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
+        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.mockResolvedValue(
+          {}
+        );
         const result =
           await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
             {},
             invoiceCreatedEvent
           );
         expect(result).toBeUndefined();
-        sinon.assert.notCalled(
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.expandResource
-        );
-        sinon.assert.notCalled(
+        ).not.toHaveBeenCalled();
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice
-        );
+        ).not.toHaveBeenCalled();
       });
 
       it('logs if the billing agreement was cancelled', async () => {
         const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
         invoiceCreatedEvent.data.object.status = 'draft';
-        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.mockResolvedValue(
           true
         );
-        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
-        StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement.returns(
+        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.mockResolvedValue(
+          {}
+        );
+        StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement.mockReturnValue(
           'test-ba'
         );
-        StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA.rejects(
+        StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA.mockRejectedValue(
           {
             errno: 998,
           }
         );
-        StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
+        StripeWebhookHandlerInstance.log.error = jest.fn().mockReturnValue({});
         const result =
           await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
             {},
             invoiceCreatedEvent
           );
         expect(result).toEqual({});
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.log.error,
+        expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledTimes(1);
+        expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledWith(
           `handleInvoiceCreatedEvent - Billing agreement (id: test-ba) was cancelled.`,
           {
             request: {},
             customer: {},
           }
         );
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
-          invoiceCreatedEvent.data.object
-        );
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice,
-          invoiceCreatedEvent.data.object
-        );
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA,
-          {},
-          'test-ba'
-        );
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement,
-          {}
-        );
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal
+        ).toHaveBeenCalledWith(invoiceCreatedEvent.data.object);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice
+        ).toHaveBeenCalledWith(invoiceCreatedEvent.data.object);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA
+        ).toHaveBeenCalledWith({}, 'test-ba');
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledWith({});
       });
 
       it('finalizes invoices for invoice subscriptions', async () => {
         const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
         invoiceCreatedEvent.data.object.status = 'draft';
-        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.mockResolvedValue(
           true
         );
-        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
-        StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement.returns(
+        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.mockResolvedValue(
+          {}
+        );
+        StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement.mockReturnValue(
           'test-ba'
         );
-        StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA.resolves(
+        StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA.mockResolvedValue(
           {}
         );
         const result =
@@ -1419,23 +1560,18 @@ describe('StripeWebhookHandler', () => {
             invoiceCreatedEvent
           );
         expect(result).toEqual({});
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
-          invoiceCreatedEvent.data.object
-        );
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice,
-          invoiceCreatedEvent.data.object
-        );
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA,
-          {},
-          'test-ba'
-        );
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement,
-          {}
-        );
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal
+        ).toHaveBeenCalledWith(invoiceCreatedEvent.data.object);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice
+        ).toHaveBeenCalledWith(invoiceCreatedEvent.data.object);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.updateStripeNameFromBA
+        ).toHaveBeenCalledWith({}, 'test-ba');
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledWith({});
       });
     });
 
@@ -1450,96 +1586,108 @@ describe('StripeWebhookHandler', () => {
 
       it('doesnt run if paypalHelper is not present', async () => {
         StripeWebhookHandlerInstance.paypalHelper = undefined;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource =
-          sinon.fake.resolves({});
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockResolvedValue({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
         );
         expect(result).toBeUndefined();
-        sinon.assert.notCalled(
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.expandResource
-        );
+        ).not.toHaveBeenCalled();
       });
 
       it('doesnt run if its not manual invoice or out of band credit note', async () => {
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
         StripeWebhookHandlerInstance.paypalHelper = {};
         invoice.collection_method = 'charge_automatically';
-        StripeWebhookHandlerInstance.stripeHelper.expandResource =
-          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockResolvedValue(invoice);
         StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
-          sinon.fake.resolves({});
+          jest.fn().mockResolvedValue({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
         );
         expect(result).toBeUndefined();
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledWith(
           invoiceCreditNoteEvent.data.object.invoice,
           'invoices'
         );
-        sinon.assert.notCalled(
+        expect(
           StripeWebhookHandlerInstance.stripeHelper
             .getInvoicePaypalTransactionId
-        );
-        sinon.assert.calledOnce(sentryMod.reportSentryError);
+        ).not.toHaveBeenCalled();
+        expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
       });
 
       it('doesnt run or error report if its not manual invoice and not out of band', async () => {
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
         StripeWebhookHandlerInstance.paypalHelper = {};
         invoice.collection_method = 'charge_automatically';
-        StripeWebhookHandlerInstance.stripeHelper.expandResource =
-          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockResolvedValue(invoice);
         StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
-          sinon.fake.resolves({});
+          jest.fn().mockResolvedValue({});
         invoiceCreditNoteEvent.data.object.out_of_band_amount = null;
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
         );
         expect(result).toBeUndefined();
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledWith(
           invoiceCreditNoteEvent.data.object.invoice,
           'invoices'
         );
-        sinon.assert.notCalled(
+        expect(
           StripeWebhookHandlerInstance.stripeHelper
             .getInvoicePaypalTransactionId
-        );
-        sinon.assert.notCalled(sentryMod.reportSentryError);
+        ).not.toHaveBeenCalled();
+        expect(sentryMod.reportSentryError).not.toHaveBeenCalled();
       });
 
       it('doesnt issue refund without a paypal transaction to refund', async () => {
         StripeWebhookHandlerInstance.paypalHelper = {};
         invoice.collection_method = 'send_invoice';
         invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource =
-          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockResolvedValue(invoice);
         StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
-          sinon.fake.returns(null);
-        StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
+          jest.fn().mockReturnValue(null);
+        StripeWebhookHandlerInstance.log.error = jest.fn().mockReturnValue({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
         );
         expect(result).toBeUndefined();
-        sinon.assert.calledWithMatch(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledWith(
           invoiceCreditNoteEvent.data.object.invoice,
           'invoices'
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          1
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.log.error,
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledTimes(1);
+        expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledWith(
           'handleCreditNoteEvent',
           {
             invoiceId: invoice.id,
@@ -1547,51 +1695,57 @@ describe('StripeWebhookHandler', () => {
               'Credit note issued on invoice without a PayPal transaction id.',
           }
         );
-        sinon.assert.calledOnceWithExactly(
+        expect(
           StripeWebhookHandlerInstance.stripeHelper
-            .getInvoicePaypalTransactionId,
-          invoice
-        );
+            .getInvoicePaypalTransactionId
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper
+            .getInvoicePaypalTransactionId
+        ).toHaveBeenCalledWith(invoice);
       });
 
       it('logs an error if the amount doesnt match the invoice amount', async () => {
         StripeWebhookHandlerInstance.paypalHelper = {
-          issueRefund: sinon.fake.resolves(undefined),
+          issueRefund: jest.fn().mockResolvedValue(undefined),
         };
         invoice.collection_method = 'send_invoice';
         invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
         invoice.amount_due = 900;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource =
-          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockResolvedValue(invoice);
         StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
-          sinon.fake.returns('tx-1234');
-        StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
+          jest.fn().mockReturnValue('tx-1234');
+        StripeWebhookHandlerInstance.log.error = jest.fn().mockReturnValue({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
         );
         expect(result).toBeUndefined();
-        sinon.assert.calledWithMatch(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledWith(
           invoiceCreditNoteEvent.data.object.invoice,
           'invoices'
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          1
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.paypalHelper.issueRefund,
-          invoice,
-          'tx-1234',
-          RefundType.Partial,
-          500
-        );
-        sinon.assert.calledOnceWithExactly(
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund
+        ).toHaveBeenCalledWith(invoice, 'tx-1234', RefundType.Partial, 500);
+        expect(
           StripeWebhookHandlerInstance.stripeHelper
-            .getInvoicePaypalTransactionId,
-          invoice
-        );
+            .getInvoicePaypalTransactionId
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper
+            .getInvoicePaypalTransactionId
+        ).toHaveBeenCalledWith(invoice);
       });
 
       it('issues refund when all checks are successful', async () => {
@@ -1599,102 +1753,115 @@ describe('StripeWebhookHandler', () => {
         invoice.collection_method = 'send_invoice';
         invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
         invoice.amount_due = 500;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource =
-          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockResolvedValue(invoice);
         StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
-          sinon.fake.returns('tx-1234');
-        StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
-        StripeWebhookHandlerInstance.paypalHelper.issueRefund =
-          sinon.fake.resolves({});
+          jest.fn().mockReturnValue('tx-1234');
+        StripeWebhookHandlerInstance.log.error = jest.fn().mockReturnValue({});
+        StripeWebhookHandlerInstance.paypalHelper.issueRefund = jest
+          .fn()
+          .mockResolvedValue({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
         );
         expect(result).toBeUndefined();
-        sinon.assert.calledWithMatch(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledWith(
           invoiceCreditNoteEvent.data.object.invoice,
           'invoices'
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          1
-        );
-        sinon.assert.calledOnceWithExactly(
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(
           StripeWebhookHandlerInstance.stripeHelper
-            .getInvoicePaypalTransactionId,
-          invoice
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.paypalHelper.issueRefund,
-          invoice,
-          'tx-1234',
-          RefundType.Full,
-          undefined
-        );
+            .getInvoicePaypalTransactionId
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper
+            .getInvoicePaypalTransactionId
+        ).toHaveBeenCalledWith(invoice);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund
+        ).toHaveBeenCalledWith(invoice, 'tx-1234', RefundType.Full, undefined);
       });
 
       it('updates the invoice to report refused refund if paypal refuses to refund', async () => {
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
         StripeWebhookHandlerInstance.paypalHelper = {};
         invoice.collection_method = 'send_invoice';
         invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
         invoice.amount_due = 500;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource =
-          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = jest
+          .fn()
+          .mockResolvedValue(invoice);
         StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
-          sinon.fake.returns('tx-1234');
+          jest.fn().mockReturnValue('tx-1234');
         StripeWebhookHandlerInstance.stripeHelper.updateInvoiceWithPaypalRefundReason =
-          sinon.fake.resolves({});
-        StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
+          jest.fn().mockResolvedValue({});
+        StripeWebhookHandlerInstance.log.error = jest.fn().mockReturnValue({});
         const refusedError = new RefusedError(
           'Transaction refused',
           'This transaction already has a chargeback filed',
           '10009'
         );
-        StripeWebhookHandlerInstance.paypalHelper.issueRefund =
-          sinon.fake.rejects(refusedError);
+        StripeWebhookHandlerInstance.paypalHelper.issueRefund = jest
+          .fn()
+          .mockRejectedValue(refusedError);
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
         );
         expect(result).toBeUndefined();
-        sinon.assert.calledWithMatch(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledWith(
           invoiceCreditNoteEvent.data.object.invoice,
           'invoices'
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          1
-        );
-        sinon.assert.calledOnceWithExactly(
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(
           StripeWebhookHandlerInstance.stripeHelper
-            .getInvoicePaypalTransactionId,
-          invoice
-        );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.paypalHelper.issueRefund,
-          invoice,
-          'tx-1234',
-          RefundType.Full,
-          undefined
-        );
-        sinon.assert.calledOnceWithExactly(
+            .getInvoicePaypalTransactionId
+        ).toHaveBeenCalledTimes(1);
+        expect(
           StripeWebhookHandlerInstance.stripeHelper
-            .updateInvoiceWithPaypalRefundReason,
+            .getInvoicePaypalTransactionId
+        ).toHaveBeenCalledWith(invoice);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund
+        ).toHaveBeenCalledWith(invoice, 'tx-1234', RefundType.Full, undefined);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper
+            .updateInvoiceWithPaypalRefundReason
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper
+            .updateInvoiceWithPaypalRefundReason
+        ).toHaveBeenCalledWith(
           invoice,
           'This transaction already has a chargeback filed'
         );
         refusedError.output = { payload: { invoiceId: invoice.id } };
-        sinon.assert.calledOnceWithExactly(
-          sentryMod.reportSentryError,
+        expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
+        expect(sentryMod.reportSentryError).toHaveBeenCalledWith(
           refusedError,
           {}
         );
-        sinon.assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.log.error,
+        expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledTimes(1);
+        expect(StripeWebhookHandlerInstance.log.error).toHaveBeenCalledWith(
           'handleCreditNoteEvent',
           {
             invoiceId: invoice.id,
@@ -1708,20 +1875,21 @@ describe('StripeWebhookHandler', () => {
       it('sends email and emits a notification when an invoice payment succeeds', async () => {
         const paidEvent = deepCopy(eventInvoicePaid);
         const customer = deepCopy(customerFixture);
-        const sendSubscriptionInvoiceEmailStub = sandbox
-          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
-          .resolves(true);
+        const sendSubscriptionInvoiceEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
+          .mockResolvedValue(true);
         const account = { email: customerFixture.email };
-        sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+        jest
+          .spyOn(authDbModule.Account, 'findByUid')
+          .mockResolvedValue(account);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
           customer
         );
         await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
           {},
           paidEvent
         );
-        sinon.assert.calledWith(
-          sendSubscriptionInvoiceEmailStub,
+        expect(sendSubscriptionInvoiceEmailStub).toHaveBeenCalledWith(
           paidEvent.data.object
         );
       });
@@ -1731,20 +1899,20 @@ describe('StripeWebhookHandler', () => {
         const customer = deepCopy(customerFixture);
         customer.deleted = true;
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
-        const sendSubscriptionInvoiceEmailStub = sandbox
-          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
-          .resolves(true);
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+        const sendSubscriptionInvoiceEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
+          .mockResolvedValue(true);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
           customer
         );
         await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
           {},
           paidEvent
         );
-        sinon.assert.notCalled(sendSubscriptionInvoiceEmailStub);
-        sinon.assert.calledOnce(sentryMod.reportSentryError);
-        const thrownErr = sentryMod.reportSentryError.getCalls()[0].args[0];
+        expect(sendSubscriptionInvoiceEmailStub).not.toHaveBeenCalled();
+        expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
+        const thrownErr = sentryMod.reportSentryError.mock.calls[0][0];
         expect(thrownErr).toEqual(
           expect.objectContaining({
             customerId: paidEvent.data.object.customer,
@@ -1758,20 +1926,20 @@ describe('StripeWebhookHandler', () => {
         const customer = deepCopy(customerFixture);
         customer.metadata = {};
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
-        const sendSubscriptionInvoiceEmailStub = sandbox
-          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
-          .resolves(true);
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+        const sendSubscriptionInvoiceEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
+          .mockResolvedValue(true);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
           customer
         );
         await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
           {},
           paidEvent
         );
-        sinon.assert.notCalled(sendSubscriptionInvoiceEmailStub);
-        sinon.assert.calledOnce(sentryMod.reportSentryError);
-        const thrownErr = sentryMod.reportSentryError.getCalls()[0].args[0];
+        expect(sendSubscriptionInvoiceEmailStub).not.toHaveBeenCalled();
+        expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
+        const thrownErr = sentryMod.reportSentryError.mock.calls[0][0];
         expect(thrownErr).toEqual(
           expect.objectContaining({
             customerId: paidEvent.data.object.customer,
@@ -1784,21 +1952,21 @@ describe('StripeWebhookHandler', () => {
         const paidEvent = deepCopy(eventInvoicePaid);
         const customer = deepCopy(customerFixture);
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
-        const sendSubscriptionInvoiceEmailStub = sandbox
-          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
-          .resolves(true);
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+        const sendSubscriptionInvoiceEmailStub = jest
+          .spyOn(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
+          .mockResolvedValue(true);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
           customer
         );
-        sandbox.stub(authDbModule.Account, 'findByUid').resolves(null);
+        jest.spyOn(authDbModule.Account, 'findByUid').mockResolvedValue(null);
         await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
           {},
           paidEvent
         );
-        sinon.assert.notCalled(sendSubscriptionInvoiceEmailStub);
-        sinon.assert.calledOnce(sentryMod.reportSentryError);
-        const thrownErr = sentryMod.reportSentryError.getCalls()[0].args[0];
+        expect(sendSubscriptionInvoiceEmailStub).not.toHaveBeenCalled();
+        expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
+        const thrownErr = sentryMod.reportSentryError.mock.calls[0][0];
         expect(thrownErr).toEqual(
           expect.objectContaining({
             customerId: paidEvent.data.object.customer,
@@ -1817,13 +1985,13 @@ describe('StripeWebhookHandler', () => {
       let sendSubscriptionPaymentFailedEmailStub: any;
 
       beforeEach(() => {
-        sendSubscriptionPaymentFailedEmailStub = sandbox
-          .stub(
+        sendSubscriptionPaymentFailedEmailStub = jest
+          .spyOn(
             StripeWebhookHandlerInstance,
             'sendSubscriptionPaymentFailedEmail'
           )
-          .resolves(true);
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          .mockResolvedValue(true);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
           mockSubscription
         );
       });
@@ -1835,8 +2003,7 @@ describe('StripeWebhookHandler', () => {
           {},
           paymentFailedEvent
         );
-        sinon.assert.calledWith(
-          sendSubscriptionPaymentFailedEmailStub,
+        expect(sendSubscriptionPaymentFailedEmailStub).toHaveBeenCalledWith(
           paymentFailedEvent.data.object
         );
       });
@@ -1848,7 +2015,7 @@ describe('StripeWebhookHandler', () => {
           {},
           paymentFailedEvent
         );
-        sinon.assert.notCalled(sendSubscriptionPaymentFailedEmailStub);
+        expect(sendSubscriptionPaymentFailedEmailStub).not.toHaveBeenCalled();
       });
     });
 
@@ -1868,72 +2035,69 @@ describe('StripeWebhookHandler', () => {
       let sendSubscriptionPaymentExpiredEmailStub: any;
 
       beforeEach(() => {
-        sendSubscriptionPaymentExpiredEmailStub = sandbox
-          .stub(
+        sendSubscriptionPaymentExpiredEmailStub = jest
+          .spyOn(
             StripeWebhookHandlerInstance,
             'sendSubscriptionPaymentExpiredEmail'
           )
-          .resolves(true);
+          .mockResolvedValue(true);
         StripeWebhookHandlerInstance.stripeHelper.expandResource
-          .onCall(0)
-          .resolves(mockCustomer);
-        StripeWebhookHandlerInstance.stripeHelper.expandResource
-          .onCall(1)
-          .resolves(mockPaymentMethod);
+          .mockResolvedValueOnce(mockCustomer)
+          .mockResolvedValueOnce(mockPaymentMethod);
       });
 
       it('does nothing, when customer is deleted', async () => {
-        StripeWebhookHandlerInstance.stripeHelper.expandResource
-          .onCall(0)
-          .resolves({ ...mockCustomer, deleted: true });
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockReset();
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValueOnce(
+          { ...mockCustomer, deleted: true }
+        );
         await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
           {},
           eventInvoiceUpcoming
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          1
-        );
-        sinon.assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(sendSubscriptionPaymentExpiredEmailStub).not.toHaveBeenCalled();
       });
 
       it('does nothing, invoice settings doesnt exist because payment method is Paypal', async () => {
-        StripeWebhookHandlerInstance.stripeHelper.expandResource
-          .onCall(0)
-          .resolves({ ...mockCustomer, invoice_settings: null });
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockReset();
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValueOnce(
+          { ...mockCustomer, invoice_settings: null }
+        );
         await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
           {},
           eventInvoiceUpcoming
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          1
-        );
-        sinon.assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(1);
+        expect(sendSubscriptionPaymentExpiredEmailStub).not.toHaveBeenCalled();
       });
 
       it('reports Sentry Error and return, when payment method doesnt have a card', async () => {
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
         await StripeWebhookHandlerInstance.handleInvoiceUpcomingEvent(
           {},
           eventInvoiceUpcoming
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          2
-        );
-        sinon.assert.notCalled(
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(2);
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
-        );
-        sinon.assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
-        sinon.assert.calledOnce(sentryMod.reportSentryError);
+        ).not.toHaveBeenCalled();
+        expect(sendSubscriptionPaymentExpiredEmailStub).not.toHaveBeenCalled();
+        expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
       });
 
       it('does nothing, when credit card is expiring in the future', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockReset();
         StripeWebhookHandlerInstance.stripeHelper.expandResource
-          .onCall(1)
-          .resolves({
+          .mockResolvedValueOnce(mockCustomer)
+          .mockResolvedValueOnce({
             card: {
               exp_month: new Date().getMonth() + 1,
               exp_year: new Date().getFullYear() + 1,
@@ -1943,25 +2107,25 @@ describe('StripeWebhookHandler', () => {
           {},
           eventInvoiceUpcoming
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          2
-        );
-        sinon.assert.notCalled(
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(2);
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
-        );
-        sinon.assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
+        ).not.toHaveBeenCalled();
+        expect(sendSubscriptionPaymentExpiredEmailStub).not.toHaveBeenCalled();
       });
 
       it('reports Sentry Error and return, when customer doesnt have active subscriptions', async () => {
         const sentryMod = require('../../sentry');
-        sandbox.stub(sentryMod, 'reportSentryError').returns({});
-        StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.resolves(
+        jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
+        StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.mockResolvedValue(
           []
         );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockReset();
         StripeWebhookHandlerInstance.stripeHelper.expandResource
-          .onCall(1)
-          .resolves({
+          .mockResolvedValueOnce(mockCustomer)
+          .mockResolvedValueOnce({
             card: {
               exp_month: new Date().getMonth() + 1,
               exp_year: new Date().getFullYear(),
@@ -1971,27 +2135,27 @@ describe('StripeWebhookHandler', () => {
           {},
           eventInvoiceUpcoming
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          2
-        );
-        sinon.assert.called(
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(2);
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
-        );
-        sinon.assert.notCalled(sendSubscriptionPaymentExpiredEmailStub);
-        sinon.assert.calledOnce(sentryMod.reportSentryError);
+        ).toHaveBeenCalled();
+        expect(sendSubscriptionPaymentExpiredEmailStub).not.toHaveBeenCalled();
+        expect(sentryMod.reportSentryError).toHaveBeenCalledTimes(1);
       });
 
       it('sends an email when default payment credit card expires the current month', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockReset();
         StripeWebhookHandlerInstance.stripeHelper.expandResource
-          .onCall(1)
-          .resolves({
+          .mockResolvedValueOnce(mockCustomer)
+          .mockResolvedValueOnce({
             card: {
               exp_month: new Date().getMonth() + 1,
               exp_year: new Date().getFullYear(),
             },
           });
-        StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.mockResolvedValue(
           [
             {
               id: 'sub1',
@@ -2002,26 +2166,26 @@ describe('StripeWebhookHandler', () => {
           {},
           eventInvoiceUpcoming
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          2
-        );
-        sinon.assert.called(
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(2);
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
-        );
-        sinon.assert.called(sendSubscriptionPaymentExpiredEmailStub);
+        ).toHaveBeenCalled();
+        expect(sendSubscriptionPaymentExpiredEmailStub).toHaveBeenCalled();
       });
 
       it('sends an email when default payment credit card expires before the current month', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockReset();
         StripeWebhookHandlerInstance.stripeHelper.expandResource
-          .onCall(1)
-          .resolves({
+          .mockResolvedValueOnce(mockCustomer)
+          .mockResolvedValueOnce({
             card: {
               exp_month: new Date().getMonth() + 1,
               exp_year: new Date().getFullYear() - 1,
             },
           });
-        StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails.mockResolvedValue(
           [
             {
               id: 'sub1',
@@ -2032,14 +2196,13 @@ describe('StripeWebhookHandler', () => {
           {},
           eventInvoiceUpcoming
         );
-        sinon.assert.callCount(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          2
-        );
-        sinon.assert.called(
+        expect(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        ).toHaveBeenCalledTimes(2);
+        expect(
           StripeWebhookHandlerInstance.stripeHelper.formatSubscriptionsForEmails
-        );
-        sinon.assert.called(sendSubscriptionPaymentExpiredEmailStub);
+        ).toHaveBeenCalled();
+        expect(sendSubscriptionPaymentExpiredEmailStub).toHaveBeenCalled();
       });
     });
 
@@ -2050,7 +2213,7 @@ describe('StripeWebhookHandler', () => {
           {},
           createdEvent
         );
-        sinon.assert.calledWith(mockCapabilityService.stripeUpdate, {
+        expect(mockCapabilityService.stripeUpdate).toHaveBeenCalledWith({
           sub: createdEvent.data.object,
         });
       });
@@ -2061,8 +2224,10 @@ describe('StripeWebhookHandler', () => {
           {},
           createdEvent
         );
-        sinon.assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
-        sinon.assert.notCalled(mockCapabilityService.stripeUpdate);
+        expect(
+          authDbModule.getUidAndEmailByStripeCustomerId
+        ).not.toHaveBeenCalled();
+        expect(mockCapabilityService.stripeUpdate).not.toHaveBeenCalled();
       });
     });
   });
@@ -2080,29 +2245,27 @@ describe('StripeWebhookHandler', () => {
     };
 
     it('sends the email with a list of subscriptions', async () => {
-      StripeWebhookHandlerInstance.db.account = sandbox
-        .stub()
-        .resolves(mockAccount);
+      StripeWebhookHandlerInstance.db.account = jest
+        .fn()
+        .mockResolvedValue(mockAccount);
       StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail =
-        sandbox.stub();
+        jest.fn();
 
       await StripeWebhookHandlerInstance.sendSubscriptionPaymentExpiredEmail(
         mockSourceDetails
       );
 
-      sinon.assert.calledOnceWithExactly(
-        StripeWebhookHandlerInstance.db.account,
-        UID
-      );
-      sinon.assert.calledOnceWithExactly(
-        StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail,
-        [TEST_EMAIL],
-        mockAccount,
-        {
-          acceptLanguage: ACCOUNT_LOCALE,
-          ...mockSourceDetails,
-        }
-      );
+      expect(StripeWebhookHandlerInstance.db.account).toHaveBeenCalledTimes(1);
+      expect(StripeWebhookHandlerInstance.db.account).toHaveBeenCalledWith(UID);
+      expect(
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail
+      ).toHaveBeenCalledWith([TEST_EMAIL], mockAccount, {
+        acceptLanguage: ACCOUNT_LOCALE,
+        ...mockSourceDetails,
+      });
     });
 
     it('send email using email on account', async () => {
@@ -2110,29 +2273,27 @@ describe('StripeWebhookHandler', () => {
         ...mockSourceDetails,
         email: null,
       };
-      StripeWebhookHandlerInstance.db.account = sandbox
-        .stub()
-        .resolves(mockAccount);
+      StripeWebhookHandlerInstance.db.account = jest
+        .fn()
+        .mockResolvedValue(mockAccount);
       StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail =
-        sandbox.stub();
+        jest.fn();
 
       await StripeWebhookHandlerInstance.sendSubscriptionPaymentExpiredEmail(
         mockSourceDetailsNullEmail
       );
 
-      sinon.assert.calledOnceWithExactly(
-        StripeWebhookHandlerInstance.db.account,
-        UID
-      );
-      sinon.assert.calledOnceWithExactly(
-        StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail,
-        [TEST_EMAIL],
-        mockAccount,
-        {
-          acceptLanguage: ACCOUNT_LOCALE,
-          ...mockSourceDetails,
-        }
-      );
+      expect(StripeWebhookHandlerInstance.db.account).toHaveBeenCalledTimes(1);
+      expect(StripeWebhookHandlerInstance.db.account).toHaveBeenCalledWith(UID);
+      expect(
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail
+      ).toHaveBeenCalledWith([TEST_EMAIL], mockAccount, {
+        acceptLanguage: ACCOUNT_LOCALE,
+        ...mockSourceDetails,
+      });
     });
   });
 
@@ -2141,28 +2302,25 @@ describe('StripeWebhookHandler', () => {
       const invoice = deepCopy(eventInvoicePaymentFailed.data.object);
 
       const mockInvoiceDetails = { uid: '1234', test: 'fake' };
-      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
+      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.mockResolvedValue(
         mockInvoiceDetails
       );
 
       const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
-      StripeWebhookHandlerInstance.db.account = sinon.spy(
+      StripeWebhookHandlerInstance.db.account = jest.fn(
         async () => mockAccount
       );
 
       await StripeWebhookHandlerInstance.sendSubscriptionPaymentFailedEmail(
         invoice
       );
-      sinon.assert.calledWith(
-        StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentFailedEmail,
-        mockAccount.emails,
-        mockAccount,
-        {
-          acceptLanguage: mockAccount.locale,
-          ...mockInvoiceDetails,
-          email: (mockAccount as any).primaryEmail,
-        }
-      );
+      expect(
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentFailedEmail
+      ).toHaveBeenCalledWith(mockAccount.emails, mockAccount, {
+        acceptLanguage: mockAccount.locale,
+        ...mockInvoiceDetails,
+        email: (mockAccount as any).primaryEmail,
+      });
     });
   });
 
@@ -2179,7 +2337,7 @@ describe('StripeWebhookHandler', () => {
         invoice.billing_reason = billingReason;
 
         const mockInvoiceDetails = { uid: '1234', test: 'fake' };
-        StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.mockResolvedValue(
           mockInvoiceDetails
         );
 
@@ -2188,40 +2346,33 @@ describe('StripeWebhookHandler', () => {
           locale: 'fakelocale',
           verifierSetAt,
         };
-        StripeWebhookHandlerInstance.db.account = sinon.spy(
+        StripeWebhookHandlerInstance.db.account = jest.fn(
           async () => mockAccount
         );
 
         await StripeWebhookHandlerInstance.sendSubscriptionInvoiceEmail(
           invoice
         );
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.mailer[expectedMethodName],
-          mockAccount.emails,
-          mockAccount,
-          {
-            acceptLanguage: mockAccount.locale,
-            ...mockInvoiceDetails,
-            email: mockAccount.primaryEmail,
-          }
-        );
+        expect(
+          StripeWebhookHandlerInstance.mailer[expectedMethodName]
+        ).toHaveBeenCalledWith(mockAccount.emails, mockAccount, {
+          acceptLanguage: mockAccount.locale,
+          ...mockInvoiceDetails,
+          email: mockAccount.primaryEmail,
+        });
         if (expectedMethodName === 'sendSubscriptionFirstInvoiceEmail') {
           if (verifierSetAt) {
-            sinon.assert.calledWith(
-              StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail,
-              mockAccount.emails,
-              mockAccount,
-              {
-                acceptLanguage: mockAccount.locale,
-                ...mockInvoiceDetails,
-                email: mockAccount.primaryEmail,
-              }
-            );
+            expect(
+              StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail
+            ).toHaveBeenCalledWith(mockAccount.emails, mockAccount, {
+              acceptLanguage: mockAccount.locale,
+              ...mockInvoiceDetails,
+              email: mockAccount.primaryEmail,
+            });
           } else {
             expect(
               StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail
-                .notCalled
-            ).toBe(true);
+            ).not.toHaveBeenCalled();
           }
         }
       };
@@ -2248,7 +2399,7 @@ describe('StripeWebhookHandler', () => {
       invoice.billing_reason = 'subscription_update';
 
       const mockInvoiceDetails = { uid: '1234', test: 'fake' };
-      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
+      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.mockResolvedValue(
         mockInvoiceDetails
       );
 
@@ -2257,7 +2408,7 @@ describe('StripeWebhookHandler', () => {
         locale: 'fakelocale',
         verifierSetAt: Date.now(),
       };
-      StripeWebhookHandlerInstance.db.account = sinon.spy(
+      StripeWebhookHandlerInstance.db.account = jest.fn(
         async () => mockAccount
       );
 
@@ -2265,16 +2416,14 @@ describe('StripeWebhookHandler', () => {
 
       expect(
         StripeWebhookHandlerInstance.mailer.sendSubscriptionFirstInvoiceEmail
-          .notCalled
-      ).toBe(true);
+      ).not.toHaveBeenCalled();
       expect(
         StripeWebhookHandlerInstance.mailer
-          .sendSubscriptionSubsequentInvoiceEmail.notCalled
-      ).toBe(true);
+          .sendSubscriptionSubsequentInvoiceEmail
+      ).not.toHaveBeenCalled();
       expect(
         StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail
-          .notCalled
-      ).toBe(true);
+      ).not.toHaveBeenCalled();
     });
   });
 
@@ -2288,12 +2437,12 @@ describe('StripeWebhookHandler', () => {
           test: 'fake',
           updateType,
         };
-        StripeWebhookHandlerInstance.stripeHelper.extractSubscriptionUpdateEventDetailsForEmail.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.extractSubscriptionUpdateEventDetailsForEmail.mockResolvedValue(
           mockDetails
         );
 
         const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
-        StripeWebhookHandlerInstance.db.account = sinon.spy(
+        StripeWebhookHandlerInstance.db.account = jest.fn(
           async () => mockAccount
         );
 
@@ -2311,15 +2460,12 @@ describe('StripeWebhookHandler', () => {
           } as any
         )[updateType];
 
-        sinon.assert.calledWith(
-          StripeWebhookHandlerInstance.mailer[expectedMethodName],
-          mockAccount.emails,
-          mockAccount,
-          {
-            acceptLanguage: mockAccount.locale,
-            ...mockDetails,
-          }
-        );
+        expect(
+          StripeWebhookHandlerInstance.mailer[expectedMethodName]
+        ).toHaveBeenCalledWith(mockAccount.emails, mockAccount, {
+          acceptLanguage: mockAccount.locale,
+          ...mockDetails,
+        });
       };
 
     it(
@@ -2385,7 +2531,7 @@ describe('StripeWebhookHandler', () => {
             cancelled_for_customer_at: moment().unix(),
           };
         }
-        StripeWebhookHandlerInstance.stripeHelper.checkSubscriptionPastDue.returns(
+        StripeWebhookHandlerInstance.stripeHelper.checkSubscriptionPastDue.mockReturnValue(
           options.involuntaryCancellation
         );
 
@@ -2399,49 +2545,45 @@ describe('StripeWebhookHandler', () => {
         } else {
           mockInvoiceDetails.invoiceStatus = 'paid';
         }
-        StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.mockResolvedValue(
           mockInvoiceDetails
         );
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves({
-          id: 'in_1GB4aHKb9q6OnNsLC9pbVY5a',
-        });
-
-        const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
-        StripeWebhookHandlerInstance.db.account = sinon.spy(
-          async (data: any) => {
-            if (options.accountFound) {
-              return mockAccount;
-            }
-            throw error.unknownAccount();
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+          {
+            id: 'in_1GB4aHKb9q6OnNsLC9pbVY5a',
           }
         );
+
+        const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
+        StripeWebhookHandlerInstance.db.account = jest.fn(async (data: any) => {
+          if (options.accountFound) {
+            return mockAccount;
+          }
+          throw error.unknownAccount();
+        });
 
         await StripeWebhookHandlerInstance.sendSubscriptionDeletedEmail(
           subscription
         );
 
         if (shouldSendSubscriptionFailedPaymentsCancellationEmail()) {
-          sinon.assert.calledWith(
+          expect(
             StripeWebhookHandlerInstance.stripeHelper
-              .extractInvoiceDetailsForEmail,
-            { id: subscription.latest_invoice }
-          );
-          sinon.assert.calledWith(
-            StripeWebhookHandlerInstance.mailer
-              .sendSubscriptionFailedPaymentsCancellationEmail,
-            mockAccount.emails,
-            mockAccount,
-            {
-              acceptLanguage: mockAccount.locale,
-              ...mockInvoiceDetails,
-              email: (mockAccount as any).primaryEmail,
-            }
-          );
-        } else {
-          sinon.assert.notCalled(
+              .extractInvoiceDetailsForEmail
+          ).toHaveBeenCalledWith({ id: subscription.latest_invoice });
+          expect(
             StripeWebhookHandlerInstance.mailer
               .sendSubscriptionFailedPaymentsCancellationEmail
-          );
+          ).toHaveBeenCalledWith(mockAccount.emails, mockAccount, {
+            acceptLanguage: mockAccount.locale,
+            ...mockInvoiceDetails,
+            email: (mockAccount as any).primaryEmail,
+          });
+        } else {
+          expect(
+            StripeWebhookHandlerInstance.mailer
+              .sendSubscriptionFailedPaymentsCancellationEmail
+          ).not.toHaveBeenCalled();
         }
 
         if (shouldSendAccountDeletedEmail()) {
@@ -2450,40 +2592,38 @@ describe('StripeWebhookHandler', () => {
             uid: mockInvoiceDetails.uid,
             emails: [{ email: mockInvoiceDetails.email, isPrimary: true }],
           };
-          sinon.assert.calledWith(
+          expect(
             StripeWebhookHandlerInstance.mailer
-              .sendSubscriptionAccountDeletionEmail,
+              .sendSubscriptionAccountDeletionEmail
+          ).toHaveBeenCalledWith(
             fakeAccount.emails,
             fakeAccount,
             mockInvoiceDetails
           );
         } else {
-          sinon.assert.notCalled(
+          expect(
             StripeWebhookHandlerInstance.mailer
               .sendSubscriptionAccountDeletionEmail
-          );
+          ).not.toHaveBeenCalled();
         }
 
         if (shouldSendCancellationEmail()) {
-          sinon.assert.calledWith(
-            StripeWebhookHandlerInstance.mailer
-              .sendSubscriptionCancellationEmail,
-            mockAccount.emails,
-            mockAccount,
-            {
-              acceptLanguage: mockAccount.locale,
-              ...mockInvoiceDetails,
-              showOutstandingBalance: options.hasOutstandingBalance,
-              cancelAtEnd: subscription.cancel_at_period_end,
-              isFreeTrialCancellation: false,
-              email: (mockAccount as any).primaryEmail,
-            }
-          );
-        } else {
-          sinon.assert.notCalled(
+          expect(
             StripeWebhookHandlerInstance.mailer
               .sendSubscriptionCancellationEmail
-          );
+          ).toHaveBeenCalledWith(mockAccount.emails, mockAccount, {
+            acceptLanguage: mockAccount.locale,
+            ...mockInvoiceDetails,
+            showOutstandingBalance: options.hasOutstandingBalance,
+            cancelAtEnd: subscription.cancel_at_period_end,
+            isFreeTrialCancellation: false,
+            email: (mockAccount as any).primaryEmail,
+          });
+        } else {
+          expect(
+            StripeWebhookHandlerInstance.mailer
+              .sendSubscriptionCancellationEmail
+          ).not.toHaveBeenCalled();
         }
       };
 
@@ -2580,7 +2720,7 @@ describe('StripeWebhookHandler', () => {
     };
 
     beforeEach(() => {
-      StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+      StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
         mockInvoice
       );
     });

@@ -6,6 +6,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   rootDir: '.',
+  modulePathIgnorePatterns: ['<rootDir>/dist/'],
   testMatch: [
     '<rootDir>/lib/**/*.spec.ts',
     '<rootDir>/config/**/*.spec.ts',
@@ -29,7 +30,7 @@ module.exports = {
   maxWorkers: 4,
   clearMocks: true,
   workerIdleMemoryLimit: '512MB',
-  setupFiles: ['<rootDir>/jest.setup.js', '<rootDir>/jest.setup-proxyquire.js'],
+  setupFiles: ['<rootDir>/jest.setup.js', '<rootDir>/jest.setup-resolve.js'],
   testPathIgnorePatterns: ['\\.in\\.spec\\.ts$'],
   // Coverage configuration (enabled via --coverage flag)
   collectCoverageFrom: [

@@ -130,7 +130,6 @@ describe('#integration - remote subscriptions (enabled)', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const EventEmitter = require('events');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const sinon = require('sinon');
 
   let server: any;
   let serverUrl: string;
@@ -252,11 +251,11 @@ describe('#integration - remote subscriptions (enabled)', () => {
     Container.set(RecoveryPhoneService, {
       hasConfirmed: async () => ({ exists: false, phoneNumber: null }),
     });
-    Container.set(PriceManager, { retrieve: sinon.stub() });
+    Container.set(PriceManager, { retrieve: jest.fn() });
     Container.set(ProductConfigurationManager, {
-      getIapOfferings: sinon.stub(),
-      getPurchaseWithDetailsOfferingContentByPlanIds: sinon.spy(async () => ({
-        transformedPurchaseWithCommonContentForPlanId: sinon.spy(() => ({
+      getIapOfferings: jest.fn(),
+      getPurchaseWithDetailsOfferingContentByPlanIds: jest.fn(async () => ({
+        transformedPurchaseWithCommonContentForPlanId: jest.fn(() => ({
           offering: {
             commonContent: {
               privacyNoticeDownloadUrl:

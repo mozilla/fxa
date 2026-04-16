@@ -13,7 +13,6 @@ const config = require('../config').default.getProperties();
 const crypto = require('crypto');
 const { AppError: error } = require('@fxa/accounts/errors');
 const knownIpLocation = require('./known-ip-location');
-const sinon = require('sinon');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../lib/account-events');
@@ -22,15 +21,23 @@ const { PriceManager } = require('@fxa/payments/customer');
 const { ProductConfigurationManager } = require('@fxa/shared/cms');
 const { FxaMailer } = require('../lib/senders/fxa-mailer');
 
-const proxyquire = require('proxyquire');
+// Patch Account.metricsEnabled before loading amplitude (replicates what
+// proxyquire used to do without replacing the entire auth models module).
+// Guard: some test files mock 'fxa-shared/db/models/auth' as {} before this runs.
+const _authModels = require('fxa-shared/db/models/auth');
+const _Account = _authModels.Account;
+let _origMetricsEnabled;
+if (_Account) {
+  _origMetricsEnabled = _Account.metricsEnabled;
+  _Account.metricsEnabled = jest.fn().mockResolvedValue(true);
+}
 const OAuthClientInfoServiceName = 'OAuthClientInfo';
-const amplitudeModule = proxyquire('../lib/metrics/amplitude', {
-  'fxa-shared/db/models/auth': {
-    Account: {
-      metricsEnabled: sinon.stub().resolves(true),
-    },
-  },
-});
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const amplitudeModule = require('../lib/metrics/amplitude');
+// Restore so other tests see the real function (or their own mock)
+if (_Account && _origMetricsEnabled) {
+  _Account.metricsEnabled = _origMetricsEnabled;
+}
 
 const CUSTOMS_METHOD_NAMES = [
   'check',
@@ -367,13 +374,13 @@ function mockCustoms(errors) {
   return mockObject(CUSTOMS_METHOD_NAMES)({
     checkAuthenticated: optionallyThrow(errors, 'checkAuthenticated'),
     checkIpOnly: optionallyThrow(errors, 'checkIpOnly'),
-    v2Enabled: sinon.spy(() => true),
-    resetV2: sinon.spy(() => Promise.resolve()),
+    v2Enabled: jest.fn(() => true),
+    resetV2: jest.fn(() => Promise.resolve()),
   });
 }
 
 function optionallyThrow(errors, methodName) {
-  return sinon.spy(() => {
+  return jest.fn(() => {
     if (errors[methodName]) {
       return Promise.reject(errors[methodName]);
     }
@@ -386,7 +393,7 @@ function mockDB(data, errors) {
   errors = errors || {};
 
   return mockObject(DB_METHOD_NAMES)({
-    account: sinon.spy((uid) => {
+    account: jest.fn((uid) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve({
         createdAt: data.createdAt,
@@ -417,7 +424,7 @@ function mockDB(data, errors) {
         metricsOptOutAt: data.metricsOptOutAt || null,
       });
     }),
-    accountEmails: sinon.spy((uid) => {
+    accountEmails: jest.fn((uid) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve([
         {
@@ -439,10 +446,10 @@ function mockDB(data, errors) {
         },
       ]);
     }),
-    accountExists: sinon.spy(() => {
+    accountExists: jest.fn(() => {
       return Promise.resolve(data.exists ?? true);
     }),
-    accountRecord: sinon.spy(() => {
+    accountRecord: jest.fn(() => {
       if (errors.emailRecord) {
         return Promise.reject(errors.emailRecord);
       }
@@ -478,7 +485,7 @@ function mockDB(data, errors) {
         linkedAccounts: data.linkedAccounts,
       });
     }),
-    consumeSigninCode: sinon.spy(() => {
+    consumeSigninCode: jest.fn(() => {
       if (errors.consumeSigninCode) {
         return Promise.reject(errors.consumeSigninCode);
       }
@@ -487,7 +494,7 @@ function mockDB(data, errors) {
         flowId: data.flowId,
       });
     }),
-    createAccount: sinon.spy(() => {
+    createAccount: jest.fn(() => {
       return Promise.resolve({
         uid: data.uid,
         email: data.email,
@@ -500,7 +507,7 @@ function mockDB(data, errors) {
         },
       });
     }),
-    createDevice: sinon.spy((uid) => {
+    createDevice: jest.fn((uid) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve(
         Object.keys(data.device).reduce(
@@ -515,19 +522,19 @@ function mockDB(data, errors) {
         )
       );
     }),
-    createKeyFetchToken: sinon.spy(() => {
+    createKeyFetchToken: jest.fn(() => {
       return Promise.resolve({
         data: crypto.randomBytes(32).toString('hex'),
         id: data.keyFetchTokenId,
         uid: data.uid,
       });
     }),
-    createPasswordChangeToken: sinon.spy(() => {
+    createPasswordChangeToken: jest.fn(() => {
       return Promise.resolve({
         data: crypto.randomBytes(32).toString('hex'),
       });
     }),
-    createPasswordForgotToken: sinon.spy(() => {
+    createPasswordForgotToken: jest.fn(() => {
       return Promise.resolve({
         data: data.data || crypto.randomBytes(32).toString('hex'),
         passCode: data.passCode,
@@ -539,7 +546,7 @@ function mockDB(data, errors) {
         email: data.emailToHashWith || 'emailToHashWith@email.com',
       });
     }),
-    createSessionToken: sinon.spy((opts) => {
+    createSessionToken: jest.fn((opts) => {
       return Promise.resolve({
         createdAt: opts.createdAt || Date.now(),
         data: crypto.randomBytes(32).toString('hex'),
@@ -568,30 +575,30 @@ function mockDB(data, errors) {
         uid: opts.uid || data.uid,
       });
     }),
-    createSigninCode: sinon.spy((uid, flowId) => {
+    createSigninCode: jest.fn((uid, flowId) => {
       assert.ok(typeof uid === 'string');
       assert.ok(typeof flowId === 'string');
       return Promise.resolve(data.signinCode || []);
     }),
-    devices: sinon.spy((uid) => {
+    devices: jest.fn((uid) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve(data.devices || []);
     }),
-    device: sinon.spy((uid, deviceId) => {
+    device: jest.fn((uid, deviceId) => {
       assert.ok(typeof uid === 'string');
       assert.ok(typeof deviceId === 'string');
       const device = data.devices.find((d) => d.id === deviceId);
       assert.ok(device);
       return Promise.resolve(device);
     }),
-    deviceFromRefreshTokenId: sinon.spy(() => {
+    deviceFromRefreshTokenId: jest.fn(() => {
       return Promise.resolve(null);
     }),
-    deleteSessionToken: sinon.spy(() => {
+    deleteSessionToken: jest.fn(() => {
       return Promise.resolve();
     }),
-    deleteAccountSubscription: sinon.spy(async (uid, subscriptionId) => true),
-    emailRecord: sinon.spy(() => {
+    deleteAccountSubscription: jest.fn(async (uid, subscriptionId) => true),
+    emailRecord: jest.fn(() => {
       if (errors.emailRecord) {
         return Promise.reject(errors.emailRecord);
       }
@@ -623,13 +630,13 @@ function mockDB(data, errors) {
         wrapWrapKb: crypto.randomBytes(32).toString('hex'),
       });
     }),
-    forgotPasswordVerified: sinon.spy(() => {
+    forgotPasswordVerified: jest.fn(() => {
       return Promise.resolve(data.accountResetToken);
     }),
-    getSecondaryEmail: sinon.spy(() => {
+    getSecondaryEmail: jest.fn(() => {
       return Promise.reject(error.unknownSecondaryEmail());
     }),
-    getRecoveryKey: sinon.spy(() => {
+    getRecoveryKey: jest.fn(() => {
       if (data.recoveryKeyIdInvalid) {
         return Promise.reject(error.recoveryKeyInvalid());
       }
@@ -638,18 +645,18 @@ function mockDB(data, errors) {
         recoveryData: data.recoveryData,
       });
     }),
-    getRecoveryKeyRecordWithHint: sinon.spy(() => {
+    getRecoveryKeyRecordWithHint: jest.fn(() => {
       return Promise.resolve({ hint: data.hint });
     }),
-    recoveryKeyExists: sinon.spy(() => {
+    recoveryKeyExists: jest.fn(() => {
       return Promise.resolve({
         exists: !!data.recoveryData,
       });
     }),
-    securityEvents: sinon.spy(() => {
+    securityEvents: jest.fn(() => {
       return Promise.resolve([]);
     }),
-    securityEventsByUid: sinon.spy(() => {
+    securityEventsByUid: jest.fn(() => {
       return Promise.resolve([
         {
           name: 'account.create',
@@ -668,21 +675,21 @@ function mockDB(data, errors) {
         },
       ]);
     }),
-    sessions: sinon.spy((uid) => {
+    sessions: jest.fn((uid) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve(data.sessions || []);
     }),
-    updateDevice: sinon.spy((uid, device) => {
+    updateDevice: jest.fn((uid, device) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve(device);
     }),
-    verifiedLoginSecurityEvents: sinon.spy(() => {
+    verifiedLoginSecurityEvents: jest.fn(() => {
       return Promise.resolve([]);
     }),
-    verifiedLoginSecurityEventsByUid: sinon.spy(() => {
+    verifiedLoginSecurityEventsByUid: jest.fn(() => {
       return Promise.resolve([]);
     }),
-    sessionToken: sinon.spy(() => {
+    sessionToken: jest.fn(() => {
       const res = {
         id: data.sessionTokenId || 'fake session token id',
         uid: data.uid || 'fake uid',
@@ -693,7 +700,7 @@ function mockDB(data, errors) {
         uaOSVersion: data.uaOSVersion,
         uaDeviceType: data.uaDeviceType,
         expired: () => data.expired || false,
-        setUserAgentInfo: sinon.spy(() => {}),
+        setUserAgentInfo: jest.fn(() => {}),
       };
       // SessionToken is a class, and tokenTypeID is a class attribute. Fake that.
       res.constructor.tokenTypeID = 'sessionToken';
@@ -708,41 +715,41 @@ function mockDB(data, errors) {
       return Promise.resolve(res);
     }),
     verifyTokens: optionallyThrow(errors, 'verifyTokens'),
-    replaceRecoveryCodes: sinon.spy(() => {
+    replaceRecoveryCodes: jest.fn(() => {
       return Promise.resolve(['12312312', '12312312']);
     }),
-    setRecoveryCodes: sinon.spy(() => {
+    setRecoveryCodes: jest.fn(() => {
       return Promise.resolve({ success: true });
     }),
-    createRecoveryCodes: sinon.spy(() => {
+    createRecoveryCodes: jest.fn(() => {
       return Promise.resolve(['12312312', '12312312']);
     }),
-    updateRecoveryCodes: sinon.spy(() => {
+    updateRecoveryCodes: jest.fn(() => {
       return Promise.resolve({ success: true });
     }),
-    createPassword: sinon.spy(() => {
+    createPassword: jest.fn(() => {
       return Promise.resolve(1584397692000);
     }),
-    checkPassword: sinon.spy(() => {
+    checkPassword: jest.fn(() => {
       return Promise.resolve({
         v1: data.isPasswordMatchV1 === true,
         v2: data.isPasswordMatchV2 === true,
       });
     }),
-    resetAccount: sinon.spy(() => {
+    resetAccount: jest.fn(() => {
       return Promise.resolve({
         uid: data.uid,
         verifierSetAt: Date.now(),
         email: data.email,
       });
     }),
-    totpToken: sinon.spy((uid) => {
+    totpToken: jest.fn((uid) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve({
         enabled: false,
       });
     }),
-    getLinkedAccounts: sinon.spy((uid) => {
+    getLinkedAccounts: jest.fn((uid) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve(data.linkedAccounts || []);
     }),
@@ -753,7 +760,7 @@ function mockObject(methodNames, baseObj) {
   return (methods) => {
     methods = methods || {};
     return methodNames.reduce((object, name) => {
-      object[name] = methods[name] || sinon.spy(() => Promise.resolve());
+      object[name] = methods[name] || jest.fn(() => Promise.resolve());
       return object;
     }, baseObj || {});
   };
@@ -763,7 +770,7 @@ function mockPush(methods) {
   const push = Object.assign({}, methods);
   PUSH_METHOD_NAMES.forEach((name) => {
     if (!push[name]) {
-      push[name] = sinon.spy(() => Promise.resolve());
+      push[name] = jest.fn(() => Promise.resolve());
     }
   });
   return push;
@@ -773,7 +780,7 @@ function mockPushbox(methods) {
   const pushbox = Object.assign({}, methods);
   if (!pushbox.retrieve) {
     // Route code expects the `retrieve` method to return a properly-structured object.
-    pushbox.retrieve = sinon.spy(() =>
+    pushbox.retrieve = jest.fn(() =>
       Promise.resolve({
         last: true,
         index: 0,
@@ -783,7 +790,7 @@ function mockPushbox(methods) {
   }
   PUSHBOX_METHOD_NAMES.forEach((name) => {
     if (!pushbox[name]) {
-      pushbox[name] = sinon.spy(() => Promise.resolve());
+      pushbox[name] = jest.fn(() => Promise.resolve());
     }
   });
   return pushbox;
@@ -793,7 +800,7 @@ function mockSubHub(methods) {
   const subscriptionsBackend = Object.assign({}, methods);
   SUBHUB_METHOD_NAMES.forEach((name) => {
     if (!subscriptionsBackend[name]) {
-      subscriptionsBackend[name] = sinon.spy(() => Promise.resolve());
+      subscriptionsBackend[name] = jest.fn(() => Promise.resolve());
     }
   });
   return subscriptionsBackend;
@@ -803,7 +810,7 @@ function mockProfile(methods) {
   const profileBackend = Object.assign({}, methods);
   PROFILE_METHOD_NAMES.forEach((name) => {
     if (!profileBackend[name]) {
-      profileBackend[name] = sinon.spy(() => Promise.resolve());
+      profileBackend[name] = jest.fn(() => Promise.resolve());
     }
   });
   return profileBackend;
@@ -814,8 +821,8 @@ function mockDevices(data, errors) {
   errors = errors || {};
 
   return {
-    isSpuriousUpdate: sinon.spy(() => data.spurious || false),
-    upsert: sinon.spy(() => {
+    isSpuriousUpdate: jest.fn(() => data.spurious || false),
+    upsert: jest.fn(() => {
       if (errors.upsert) {
         return Promise.reject(errors.upsert);
       }
@@ -825,10 +832,10 @@ function mockDevices(data, errors) {
         type: data.deviceType || 'desktop',
       });
     }),
-    destroy: sinon.spy(async () => {
+    destroy: jest.fn(async () => {
       return data;
     }),
-    synthesizeName: sinon.spy(() => {
+    synthesizeName: jest.fn(() => {
       return data.deviceName || '';
     }),
   };
@@ -839,7 +846,7 @@ function mockMetricsContext(methods) {
   return mockObject(METRICS_CONTEXT_METHOD_NAMES)({
     gather:
       methods.gather ||
-      sinon.spy(function (data) {
+      jest.fn(function (data) {
         const time = Date.now();
         return Promise.resolve().then(() => {
           if (this.payload && this.payload.metricsContext) {
@@ -880,13 +887,13 @@ function mockMetricsContext(methods) {
         });
       }),
 
-    setFlowCompleteSignal: sinon.spy(function (flowCompleteSignal) {
+    setFlowCompleteSignal: jest.fn(function (flowCompleteSignal) {
       if (this.payload && this.payload.metricsContext) {
         this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal;
       }
     }),
 
-    validate: methods.validate || sinon.spy(() => true),
+    validate: methods.validate || jest.fn(() => true),
   });
 }
 
@@ -906,15 +913,16 @@ function generateMetricsContext() {
 }
 
 function mockRequest(data, errors) {
-  const events = proxyquire('../lib/metrics/events', {
-    './amplitude': amplitudeModule,
-  })(data.log || module.exports.mockLog(), {
-    amplitude: { rawEvents: false },
-    oauth: {
-      clientIds: data.clientIds || {},
-    },
-    verificationReminders: {},
-  });
+  const events = require('../lib/metrics/events')(
+    data.log || module.exports.mockLog(),
+    {
+      amplitude: { rawEvents: false },
+      oauth: {
+        clientIds: data.clientIds || {},
+      },
+      verificationReminders: {},
+    }
+  );
   const metricsContext =
     data.metricsContext || module.exports.mockMetricsContext();
 
@@ -998,13 +1006,13 @@ function mockRequest(data, errors) {
 function mockVerificationReminders(data = {}) {
   return {
     keys: ['first', 'second', 'third', 'final'],
-    create: sinon.spy(
+    create: jest.fn(
       () => data.create || { first: 1, second: 1, third: 1, final: 1 }
     ),
-    delete: sinon.spy(
+    delete: jest.fn(
       () => data.delete || { first: 1, second: 1, third: 1, final: 1 }
     ),
-    process: sinon.spy(
+    process: jest.fn(
       () => data.process || { first: [], second: [], third: [], final: [] }
     ),
   };
@@ -1028,12 +1036,10 @@ function asyncIterable(lst) {
 function mockCadReminders(data = {}) {
   return {
     keys: ['first', 'second', 'third'],
-    create: sinon.spy(() => data.create || { first: 1, second: 1, third: 1 }),
-    delete: sinon.spy(() => data.delete || { first: 1, second: 1, third: 1 }),
-    get: sinon.spy(
-      () => data.get || { first: null, second: null, third: null }
-    ),
-    process: sinon.spy(
+    create: jest.fn(() => data.create || { first: 1, second: 1, third: 1 }),
+    delete: jest.fn(() => data.delete || { first: 1, second: 1, third: 1 }),
+    get: jest.fn(() => data.get || { first: null, second: null, third: null }),
+    process: jest.fn(
       () => data.process || { first: [], second: [], third: [] }
     ),
   };
@@ -1067,8 +1073,8 @@ function mockAppStoreSubscriptions(methods) {
 
 function mockAccountEventsManager() {
   const mgr = {
-    recordSecurityEvent: sinon.stub().resolves({}),
-    recordEmailEvent: sinon.stub().resolves({}),
+    recordSecurityEvent: jest.fn().mockResolvedValue({}),
+    recordEmailEvent: jest.fn().mockResolvedValue({}),
   };
   Container.set(AccountEventsManager, mgr);
   return mgr;
@@ -1090,7 +1096,7 @@ function mockGlean() {
 
   for (const i in glean) {
     for (const j in glean[i]) {
-      glean[i][j] = sinon.stub();
+      glean[i][j] = jest.fn();
     }
   }
 
@@ -1099,7 +1105,7 @@ function mockGlean() {
 
 function mockPriceManager() {
   const priceManager = {
-    retrieve: sinon.stub(),
+    retrieve: jest.fn(),
   };
   Container.set(PriceManager, priceManager);
   return priceManager;
@@ -1107,10 +1113,10 @@ function mockPriceManager() {
 
 function mockProductConfigurationManager() {
   const productConfigurationManager = {
-    getIapOfferings: sinon.stub(),
-    getPurchaseWithDetailsOfferingContentByPlanIds: sinon.spy(async () => {
+    getIapOfferings: jest.fn(),
+    getPurchaseWithDetailsOfferingContentByPlanIds: jest.fn(async () => {
       return {
-        transformedPurchaseWithCommonContentForPlanId: sinon.spy(() => {
+        transformedPurchaseWithCommonContentForPlanId: jest.fn(() => {
           return {
             offering: {
               commonContent: {
@@ -1146,7 +1152,7 @@ function mockProductConfigurationManager() {
  * sending is disabled by default in tests. Call mock setup with an override to enable
  * sending for specific tests.
  * ```
- * const mockFxaMailer = mocks.mockFxaMailer({ canSend: sinon.stub().resolves(true) });
+ * const mockFxaMailer = mocks.mockFxaMailer({ canSend: jest.fn().mockResolvedValue(true) });
  * // or, if you don't need to spy on the method:
  * const mockFxaMailer = mocks.mockFxaMailer({ canSend: true });
  * ```
@@ -1157,56 +1163,56 @@ function mockProductConfigurationManager() {
  * ``` ts
  * const mockFxaMailer = mocks.mockFxaMailer();
  * // arrange, act, assert
- * sinon.assert.calledOnce(mockFxaMailer.sendRecoveryEmail);
+ * expect(mockFxaMailer.sendRecoveryEmail).toHaveBeenCalledTimes(1);
  * ```
  */
 function mockFxaMailer(overrides) {
   const mockFxaMailer = {
     // add new email methods here!
-    canSend: sinon.stub().returns(true),
-    sendRecoveryEmail: sinon.stub().resolves(),
-    sendPasswordForgotOtpEmail: sinon.stub().resolves(),
-    sendPasswordlessSigninOtpEmail: sinon.stub().resolves(),
-    sendPasswordlessSignupOtpEmail: sinon.stub().resolves(),
-    sendPostVerifySecondaryEmail: sinon.stub().resolves(),
-    sendPostChangePrimaryEmail: sinon.stub().resolves(),
-    sendPostRemoveSecondaryEmail: sinon.stub().resolves(),
-    sendPostAddLinkedAccountEmail: sinon.stub().resolves(),
-    sendNewDeviceLoginEmail: sinon.stub().resolves(),
-    sendPostAddTwoStepAuthenticationEmail: sinon.stub().resolves(),
-    sendPostChangeTwoStepAuthenticationEmail: sinon.stub().resolves(),
-    sendPostNewRecoveryCodesEmail: sinon.stub().resolves(),
-    sendPostConsumeRecoveryCodeEmail: sinon.stub().resolves(),
-    sendLowRecoveryCodesEmail: sinon.stub().resolves(),
-    sendPostSigninRecoveryCodeEmail: sinon.stub().resolves(),
-    sendPostAddRecoveryPhoneEmail: sinon.stub().resolves(),
-    sendPostChangeRecoveryPhoneEmail: sinon.stub().resolves(),
-    sendPostRemoveRecoveryPhoneEmail: sinon.stub().resolves(),
-    sendPasswordResetRecoveryPhoneEmail: sinon.stub().resolves(),
-    sendPostSigninRecoveryPhoneEmail: sinon.stub().resolves(),
-    sendPostAddAccountRecoveryEmail: sinon.stub().resolves(),
-    sendPostChangeAccountRecoveryEmail: sinon.stub().resolves(),
-    sendPostRemoveAccountRecoveryEmail: sinon.stub().resolves(),
-    sendPasswordResetAccountRecoveryEmail: sinon.stub().resolves(),
-    sendPasswordResetWithRecoveryKeyPromptEmail: sinon.stub().resolves(),
-    sendPostVerifyEmail: sinon.stub().resolves(),
-    sendVerifyLoginCodeEmail: sinon.stub().resolves(),
-    sendVerifyShortCodeEmail: sinon.stub().resolves(),
-    sendVerifySecondaryCodeEmail: sinon.stub().resolves(),
-    sendVerifyLoginEmail: sinon.stub().resolves(),
-    sendVerifyEmail: sinon.stub().resolves(),
-    sendVerifyAccountChangeEmail: sinon.stub().resolves(),
-    sendUnblockCodeEmail: sinon.stub().resolves(),
-    sendPasswordResetEmail: sinon.stub().resolves(),
-    sendPasswordChangedEmail: sinon.stub().resolves(),
-    sendInactiveAccountFirstWarningEmail: sinon.stub().resolves(),
-    sendInactiveAccountSecondWarningEmail: sinon.stub().resolves(),
-    sendInactiveAccountFinalWarningEmail: sinon.stub().resolves(),
-    sendVerificationReminderFirstEmail: sinon.stub().resolves(),
-    sendVerificationReminderSecondEmail: sinon.stub().resolves(),
-    sendVerificationReminderFinalEmail: sinon.stub().resolves(),
-    sendCadReminderFirstEmail: sinon.stub().resolves(),
-    sendCadReminderSecondEmail: sinon.stub().resolves(),
+    canSend: jest.fn().mockReturnValue(true),
+    sendRecoveryEmail: jest.fn().mockResolvedValue(),
+    sendPasswordForgotOtpEmail: jest.fn().mockResolvedValue(),
+    sendPasswordlessSigninOtpEmail: jest.fn().mockResolvedValue(),
+    sendPasswordlessSignupOtpEmail: jest.fn().mockResolvedValue(),
+    sendPostVerifySecondaryEmail: jest.fn().mockResolvedValue(),
+    sendPostChangePrimaryEmail: jest.fn().mockResolvedValue(),
+    sendPostRemoveSecondaryEmail: jest.fn().mockResolvedValue(),
+    sendPostAddLinkedAccountEmail: jest.fn().mockResolvedValue(),
+    sendNewDeviceLoginEmail: jest.fn().mockResolvedValue(),
+    sendPostAddTwoStepAuthenticationEmail: jest.fn().mockResolvedValue(),
+    sendPostChangeTwoStepAuthenticationEmail: jest.fn().mockResolvedValue(),
+    sendPostNewRecoveryCodesEmail: jest.fn().mockResolvedValue(),
+    sendPostConsumeRecoveryCodeEmail: jest.fn().mockResolvedValue(),
+    sendLowRecoveryCodesEmail: jest.fn().mockResolvedValue(),
+    sendPostSigninRecoveryCodeEmail: jest.fn().mockResolvedValue(),
+    sendPostAddRecoveryPhoneEmail: jest.fn().mockResolvedValue(),
+    sendPostChangeRecoveryPhoneEmail: jest.fn().mockResolvedValue(),
+    sendPostRemoveRecoveryPhoneEmail: jest.fn().mockResolvedValue(),
+    sendPasswordResetRecoveryPhoneEmail: jest.fn().mockResolvedValue(),
+    sendPostSigninRecoveryPhoneEmail: jest.fn().mockResolvedValue(),
+    sendPostAddAccountRecoveryEmail: jest.fn().mockResolvedValue(),
+    sendPostChangeAccountRecoveryEmail: jest.fn().mockResolvedValue(),
+    sendPostRemoveAccountRecoveryEmail: jest.fn().mockResolvedValue(),
+    sendPasswordResetAccountRecoveryEmail: jest.fn().mockResolvedValue(),
+    sendPasswordResetWithRecoveryKeyPromptEmail: jest.fn().mockResolvedValue(),
+    sendPostVerifyEmail: jest.fn().mockResolvedValue(),
+    sendVerifyLoginCodeEmail: jest.fn().mockResolvedValue(),
+    sendVerifyShortCodeEmail: jest.fn().mockResolvedValue(),
+    sendVerifySecondaryCodeEmail: jest.fn().mockResolvedValue(),
+    sendVerifyLoginEmail: jest.fn().mockResolvedValue(),
+    sendVerifyEmail: jest.fn().mockResolvedValue(),
+    sendVerifyAccountChangeEmail: jest.fn().mockResolvedValue(),
+    sendUnblockCodeEmail: jest.fn().mockResolvedValue(),
+    sendPasswordResetEmail: jest.fn().mockResolvedValue(),
+    sendPasswordChangedEmail: jest.fn().mockResolvedValue(),
+    sendInactiveAccountFirstWarningEmail: jest.fn().mockResolvedValue(),
+    sendInactiveAccountSecondWarningEmail: jest.fn().mockResolvedValue(),
+    sendInactiveAccountFinalWarningEmail: jest.fn().mockResolvedValue(),
+    sendVerificationReminderFirstEmail: jest.fn().mockResolvedValue(),
+    sendVerificationReminderSecondEmail: jest.fn().mockResolvedValue(),
+    sendVerificationReminderFinalEmail: jest.fn().mockResolvedValue(),
+    sendCadReminderFirstEmail: jest.fn().mockResolvedValue(),
+    sendCadReminderSecondEmail: jest.fn().mockResolvedValue(),
     ...overrides,
   };
   Container.set(FxaMailer, mockFxaMailer);
@@ -1215,7 +1221,7 @@ function mockFxaMailer(overrides) {
 
 function mockOAuthClientInfo(overrides) {
   const mock = {
-    fetch: sinon.stub().resolves({ name: 'sync' }),
+    fetch: jest.fn().mockResolvedValue({ name: 'sync' }),
     ...overrides,
   };
   Container.set(OAuthClientInfoServiceName, mock);

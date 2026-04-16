@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 // Mutable mock implementations — changed per-test via makeRoutes(options, requireMocks)
@@ -54,8 +53,8 @@ const { AppError: error } = require('@fxa/accounts/errors');
 
 // Set up mock FxaMailer in Container before loading linked-accounts
 const mockFxaMailer: any = {
-  canSend: sinon.stub().returns(true),
-  sendPostAddLinkedAccountEmail: sinon.stub().resolves(),
+  canSend: jest.fn().mockReturnValue(true),
+  sendPostAddLinkedAccountEmail: jest.fn().mockResolvedValue(undefined),
 };
 const { FxaMailer } = require('../senders/fxa-mailer');
 Container.set(FxaMailer, mockFxaMailer);
@@ -75,7 +74,7 @@ const makeRoutes = function (options: any = {}, requireMocks?: any) {
   const db = options.db || mocks.mockDB();
   const mailer = options.mailer || mocks.mockMailer();
   const profile = options.profile || mocks.mockProfile();
-  const statsd = options.statsd || { increment: sinon.spy() };
+  const statsd = options.statsd || { increment: jest.fn() };
 
   // Apply per-test mock implementations
   if (requireMocks) {
@@ -94,11 +93,11 @@ const makeRoutes = function (options: any = {}, requireMocks?: any) {
     axiosDefaultOverride = null;
   }
 
-  // Reset FxaMailer stubs
-  mockFxaMailer.canSend.resetHistory();
-  mockFxaMailer.canSend.returns(true);
-  mockFxaMailer.sendPostAddLinkedAccountEmail.resetHistory();
-  mockFxaMailer.sendPostAddLinkedAccountEmail.resolves();
+  // Reset FxaMailer mocks
+  mockFxaMailer.canSend.mockClear();
+  mockFxaMailer.canSend.mockReturnValue(true);
+  mockFxaMailer.sendPostAddLinkedAccountEmail.mockClear();
+  mockFxaMailer.sendPostAddLinkedAccountEmail.mockResolvedValue(undefined);
 
   return linkedAccountRoutes(log, db, config, mailer, profile, statsd, glean);
 };
@@ -152,7 +151,7 @@ describe('/linked_account', () => {
             service: 'sync',
           },
         });
-        statsd = { increment: sinon.spy() };
+        statsd = { increment: jest.fn() };
 
         const OAuth2ClientMock = class OAuth2Client {
           verifyIdToken() {
@@ -168,7 +167,7 @@ describe('/linked_account', () => {
           data: { id_token: 'somedata' },
         };
         axiosMock = {
-          post: sinon.spy(() => mockGoogleAuthResponse),
+          post: jest.fn(() => mockGoogleAuthResponse),
         };
 
         route = getRoute(
@@ -189,9 +188,9 @@ describe('/linked_account', () => {
           ),
           '/linked_account/login'
         );
-        glean.registration.complete.reset();
-        glean.thirdPartyAuth.googleLoginComplete.reset();
-        glean.thirdPartyAuth.googleRegComplete.reset();
+        glean.registration.complete.mockClear();
+        glean.thirdPartyAuth.googleLoginComplete.mockClear();
+        glean.thirdPartyAuth.googleRegComplete.mockClear();
       });
 
       it('fails if no google config', async () => {
@@ -215,90 +214,88 @@ describe('/linked_account', () => {
       });
 
       it('should exchange oauth code for `id_token` and create account', async () => {
-        mockDB.accountRecord = sinon.spy(() =>
+        mockDB.accountRecord = jest.fn(() =>
           Promise.reject(error.unknownAccount(mockGoogleUser.email))
         );
 
         mockRequest.payload.code = 'oauth code';
         const result: any = await runTest(route, mockRequest);
 
-        expect(axiosMock.post.calledOnce).toBe(true);
-        expect(axiosMock.post.args[0][1].code).toBe('oauth code');
+        expect(axiosMock.post).toHaveBeenCalledTimes(1);
+        expect(axiosMock.post.mock.calls[0][1].code).toBe('oauth code');
 
-        expect(
-          mockDB.getLinkedAccount.calledOnceWith(
-            mockGoogleUser.sub,
-            GOOGLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockDB.createAccount.calledOnce).toBe(true);
-        expect(
-          mockDB.createLinkedAccount.calledOnceWith(UID, mockGoogleUser.sub)
-        ).toBe(true);
-        expect(mockDB.createSessionToken.calledOnce).toBe(true);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(
+          mockGoogleUser.sub,
+          GOOGLE_PROVIDER
+        );
+        expect(mockDB.createAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledWith(
+          UID,
+          mockGoogleUser.sub,
+          'google'
+        );
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
       });
 
       it('should create new fxa account from new google account, return session, emit Glean events', async () => {
-        mockDB.accountRecord = sinon.spy(() =>
+        mockDB.accountRecord = jest.fn(() =>
           Promise.reject(error.unknownAccount(mockGoogleUser.email))
         );
 
         const result: any = await runTest(route, mockRequest);
 
-        expect(
-          mockDB.getLinkedAccount.calledOnceWith(
-            mockGoogleUser.sub,
-            GOOGLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockDB.createAccount.calledOnce).toBe(true);
-        expect(
-          mockDB.createLinkedAccount.calledOnceWith(
-            UID,
-            mockGoogleUser.sub,
-            GOOGLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(
-          mockDB.createSessionToken.calledOnceWith(
-            sinon.match({
-              uid: 'fxauid',
-              email: mockGoogleUser.email,
-              mustVerify: false,
-              uaBrowser: 'Firefox',
-              uaBrowserVersion: '57.0',
-              uaOS: 'Mac OS X',
-              uaOSVersion: '10.13',
-              uaDeviceType: null,
-              uaFormFactor: null,
-              providerId: 1,
-            })
-          )
-        ).toBe(true);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(
+          mockGoogleUser.sub,
+          GOOGLE_PROVIDER
+        );
+        expect(mockDB.createAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledWith(
+          UID,
+          mockGoogleUser.sub,
+          GOOGLE_PROVIDER
+        );
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
+        expect(mockDB.createSessionToken).toHaveBeenCalledWith(
+          expect.objectContaining({
+            uid: 'fxauid',
+            email: mockGoogleUser.email,
+            mustVerify: false,
+            uaBrowser: 'Firefox',
+            uaBrowserVersion: '57.0',
+            uaOS: 'Mac OS X',
+            uaOSVersion: '10.13',
+            uaDeviceType: null,
+            uaFormFactor: null,
+            providerId: 1,
+          })
+        );
 
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
-        sinon.assert.calledOnce(glean.registration.complete);
-        sinon.assert.calledOnceWithExactly(
-          glean.thirdPartyAuth.googleRegComplete,
+        expect(glean.registration.complete).toHaveBeenCalledTimes(1);
+        expect(glean.thirdPartyAuth.googleRegComplete).toHaveBeenCalledTimes(1);
+        expect(glean.thirdPartyAuth.googleRegComplete).toHaveBeenCalledWith(
           mockRequest
         );
 
         // Should emit SNS verified + login + profileDataChange events so
         // Basket/Braze learn about the new account.
-        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+        const notifyEvents = mockLog.notifyAttachedServices.mock.calls.map(
           (call: any[]) => call[0]
         );
         expect(notifyEvents).toContain('verified');
         expect(notifyEvents).toContain('login');
         expect(notifyEvents).toContain('profileDataChange');
-        sinon.assert.calledWithMatch(
-          mockLog.notifyAttachedServices,
+        expect(mockLog.notifyAttachedServices).toHaveBeenCalledWith(
           'verified',
           mockRequest,
-          sinon.match({
+          expect.objectContaining({
             email: mockGoogleUser.email,
             uid: UID,
             service: 'sync',
@@ -309,35 +306,37 @@ describe('/linked_account', () => {
       it('should link existing fxa account and new google account and return session', async () => {
         const result: any = await runTest(route, mockRequest);
 
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(
+          mockGoogleUser.sub,
+          GOOGLE_PROVIDER
+        );
+        expect(mockDB.createAccount).not.toHaveBeenCalled();
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledWith(
+          UID,
+          mockGoogleUser.sub,
+          GOOGLE_PROVIDER
+        );
         expect(
-          mockDB.getLinkedAccount.calledOnceWith(
-            mockGoogleUser.sub,
-            GOOGLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockDB.createAccount.notCalled).toBe(true);
-        expect(
-          mockDB.createLinkedAccount.calledOnceWith(
-            UID,
-            mockGoogleUser.sub,
-            GOOGLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockFxaMailer.sendPostAddLinkedAccountEmail.callCount).toBe(1);
-        expect(mockDB.createSessionToken.calledOnce).toBe(true);
+          mockFxaMailer.sendPostAddLinkedAccountEmail
+        ).toHaveBeenCalledTimes(1);
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
         // should not be called for existing account
-        sinon.assert.notCalled(glean.registration.complete);
-        sinon.assert.calledOnceWithExactly(
-          glean.thirdPartyAuth.googleLoginComplete,
+        expect(glean.registration.complete).not.toHaveBeenCalled();
+        expect(glean.thirdPartyAuth.googleLoginComplete).toHaveBeenCalledTimes(
+          1
+        );
+        expect(glean.thirdPartyAuth.googleLoginComplete).toHaveBeenCalledWith(
           mockRequest,
           { reason: 'linking' }
         );
 
         // Should emit SNS login + profileDataChange but NOT verified
         // (the account already existed).
-        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+        const notifyEvents = mockLog.notifyAttachedServices.mock.calls.map(
           (call: any[]) => call[0]
         );
         expect(notifyEvents).not.toContain('verified');
@@ -346,7 +345,7 @@ describe('/linked_account', () => {
       });
 
       it('should return session with valid google id token', async () => {
-        mockDB.getLinkedAccount = sinon.spy(() =>
+        mockDB.getLinkedAccount = jest.fn(() =>
           Promise.resolve({
             id: mockGoogleUser.sub,
             uid: UID,
@@ -355,38 +354,40 @@ describe('/linked_account', () => {
 
         const result: any = await runTest(route, mockRequest);
 
-        expect(
-          mockDB.getLinkedAccount.calledOnceWith(
-            mockGoogleUser.sub,
-            GOOGLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockDB.account.calledOnceWith(UID)).toBe(true);
-        expect(mockDB.createLinkedAccount.notCalled).toBe(true);
-        expect(mockDB.createSessionToken.calledOnce).toBe(true);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(
+          mockGoogleUser.sub,
+          GOOGLE_PROVIDER
+        );
+        expect(mockDB.account).toHaveBeenCalledTimes(1);
+        expect(mockDB.account).toHaveBeenCalledWith(UID);
+        expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
 
         // Re-login: login event only, no verified, no profileDataChange.
-        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+        const notifyEvents = mockLog.notifyAttachedServices.mock.calls.map(
           (call: any[]) => call[0]
         );
         expect(notifyEvents).toEqual(['login']);
-        sinon.assert.calledOnceWithExactly(
-          glean.thirdPartyAuth.googleLoginComplete,
+        expect(glean.thirdPartyAuth.googleLoginComplete).toHaveBeenCalledTimes(
+          1
+        );
+        expect(glean.thirdPartyAuth.googleLoginComplete).toHaveBeenCalledWith(
           mockRequest
         );
       });
 
       it('with 2fa enabled', async () => {
-        mockDB.getLinkedAccount = sinon.spy(() =>
+        mockDB.getLinkedAccount = jest.fn(() =>
           Promise.resolve({
             id: mockGoogleUser.sub,
             uid: UID,
           })
         );
 
-        mockDB.totpToken = sinon.spy(() =>
+        mockDB.totpToken = jest.fn(() =>
           Promise.resolve({
             verified: true,
             enabled: true,
@@ -395,10 +396,10 @@ describe('/linked_account', () => {
 
         const result: any = await runTest(route, mockRequest);
 
-        expect(mockDB.totpToken.calledOnce).toBe(true);
-        expect(mockDB.createSessionToken.calledOnce).toBe(true);
+        expect(mockDB.totpToken).toHaveBeenCalledTimes(1);
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(
-          mockDB.createSessionToken.args[0][0].tokenVerificationId
+          mockDB.createSessionToken.mock.calls[0][0].tokenVerificationId
         ).toBeTruthy();
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
@@ -450,7 +451,7 @@ describe('/linked_account', () => {
           },
         };
         axiosMock = {
-          post: sinon.spy(() => mockAppleAuthResponse),
+          post: jest.fn(() => mockAppleAuthResponse),
         };
 
         route = getRoute(
@@ -467,9 +468,9 @@ describe('/linked_account', () => {
           ),
           '/linked_account/login'
         );
-        glean.registration.complete.reset();
-        glean.thirdPartyAuth.appleLoginComplete.reset();
-        glean.thirdPartyAuth.appleRegComplete.reset();
+        glean.registration.complete.mockClear();
+        glean.thirdPartyAuth.appleLoginComplete.mockClear();
+        glean.thirdPartyAuth.appleRegComplete.mockClear();
       });
 
       it('fails if no apple config', async () => {
@@ -493,66 +494,68 @@ describe('/linked_account', () => {
       });
 
       it('should exchange oauth code for `id_token` and create account', async () => {
-        mockDB.accountRecord = sinon.spy(() =>
+        mockDB.accountRecord = jest.fn(() =>
           Promise.reject(error.unknownAccount(mockAppleUser.email))
         );
 
         mockRequest.payload.code = 'oauth code';
         const result: any = await runTest(route, mockRequest);
 
-        expect(axiosMock.post.calledOnce).toBe(true);
-        const urlSearchParams = new URLSearchParams(axiosMock.post.args[0][1]);
+        expect(axiosMock.post).toHaveBeenCalledTimes(1);
+        const urlSearchParams = new URLSearchParams(
+          axiosMock.post.mock.calls[0][1]
+        );
         const params = Object.fromEntries(urlSearchParams.entries());
 
         expect(params.client_secret).toBeDefined();
 
-        expect(
-          mockDB.getLinkedAccount.calledOnceWith(
-            mockAppleUser.sub,
-            APPLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockDB.createAccount.calledOnce).toBe(true);
-        expect(
-          mockDB.createLinkedAccount.calledOnceWith(UID, mockAppleUser.sub)
-        ).toBe(true);
-        expect(mockDB.createSessionToken.calledOnce).toBe(true);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(
+          mockAppleUser.sub,
+          APPLE_PROVIDER
+        );
+        expect(mockDB.createAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledWith(
+          UID,
+          mockAppleUser.sub,
+          'apple'
+        );
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
       });
 
       it('should create new fxa account from new apple account, return session, emit Glean events', async () => {
-        mockDB.accountRecord = sinon.spy(() =>
+        mockDB.accountRecord = jest.fn(() =>
           Promise.reject(error.unknownAccount(mockAppleUser.email))
         );
 
         const result: any = await runTest(route, mockRequest);
 
-        expect(
-          mockDB.getLinkedAccount.calledOnceWith(
-            mockAppleUser.sub,
-            APPLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockDB.createAccount.calledOnce).toBe(true);
-        expect(
-          mockDB.createLinkedAccount.calledOnceWith(
-            UID,
-            mockAppleUser.sub,
-            APPLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockDB.createSessionToken.calledOnce).toBe(true);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(
+          mockAppleUser.sub,
+          APPLE_PROVIDER
+        );
+        expect(mockDB.createAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledWith(
+          UID,
+          mockAppleUser.sub,
+          APPLE_PROVIDER
+        );
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
-        sinon.assert.calledOnce(glean.registration.complete);
-        sinon.assert.calledOnceWithExactly(
-          glean.thirdPartyAuth.appleRegComplete,
+        expect(glean.registration.complete).toHaveBeenCalledTimes(1);
+        expect(glean.thirdPartyAuth.appleRegComplete).toHaveBeenCalledTimes(1);
+        expect(glean.thirdPartyAuth.appleRegComplete).toHaveBeenCalledWith(
           mockRequest
         );
 
         // Should emit SNS verified + login + profileDataChange events.
-        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+        const notifyEvents = mockLog.notifyAttachedServices.mock.calls.map(
           (call: any[]) => call[0]
         );
         expect(notifyEvents).toContain('verified');
@@ -563,32 +566,34 @@ describe('/linked_account', () => {
       it('should link existing fxa account and new apple account and return session', async () => {
         const result: any = await runTest(route, mockRequest);
 
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(
+          mockAppleUser.sub,
+          APPLE_PROVIDER
+        );
+        expect(mockDB.createAccount).not.toHaveBeenCalled();
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.createLinkedAccount).toHaveBeenCalledWith(
+          UID,
+          mockAppleUser.sub,
+          APPLE_PROVIDER
+        );
         expect(
-          mockDB.getLinkedAccount.calledOnceWith(
-            mockAppleUser.sub,
-            APPLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockDB.createAccount.notCalled).toBe(true);
-        expect(
-          mockDB.createLinkedAccount.calledOnceWith(
-            UID,
-            mockAppleUser.sub,
-            APPLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockFxaMailer.sendPostAddLinkedAccountEmail.callCount).toBe(1);
-        expect(mockDB.createSessionToken.calledOnce).toBe(true);
+          mockFxaMailer.sendPostAddLinkedAccountEmail
+        ).toHaveBeenCalledTimes(1);
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
-        sinon.assert.calledOnceWithExactly(
-          glean.thirdPartyAuth.appleLoginComplete,
+        expect(glean.thirdPartyAuth.appleLoginComplete).toHaveBeenCalledTimes(
+          1
+        );
+        expect(glean.thirdPartyAuth.appleLoginComplete).toHaveBeenCalledWith(
           mockRequest,
           { reason: 'linking' }
         );
 
         // New link on existing account: login + profileDataChange, no verified.
-        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+        const notifyEvents = mockLog.notifyAttachedServices.mock.calls.map(
           (call: any[]) => call[0]
         );
         expect(notifyEvents).not.toContain('verified');
@@ -597,7 +602,7 @@ describe('/linked_account', () => {
       });
 
       it('should return session with valid apple id token', async () => {
-        mockDB.getLinkedAccount = sinon.spy(() =>
+        mockDB.getLinkedAccount = jest.fn(() =>
           Promise.resolve({
             id: mockAppleUser.sub,
             uid: UID,
@@ -606,24 +611,23 @@ describe('/linked_account', () => {
 
         const result: any = await runTest(route, mockRequest);
 
-        expect(
-          mockDB.getLinkedAccount.calledOnceWith(
-            mockAppleUser.sub,
-            APPLE_PROVIDER
-          )
-        ).toBe(true);
-        expect(mockDB.account.calledOnceWith(UID)).toBe(true);
-        expect(mockDB.createLinkedAccount.notCalled).toBe(true);
-        expect(mockDB.createSessionToken.calledOnce).toBe(true);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+        expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(
+          mockAppleUser.sub,
+          APPLE_PROVIDER
+        );
+        expect(mockDB.account).toHaveBeenCalledTimes(1);
+        expect(mockDB.account).toHaveBeenCalledWith(UID);
+        expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
+        expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
-        sinon.assert.calledWithExactly(
-          glean.thirdPartyAuth.appleLoginComplete,
+        expect(glean.thirdPartyAuth.appleLoginComplete).toHaveBeenCalledWith(
           mockRequest
         );
 
         // Re-login: login event only.
-        const notifyEvents = mockLog.notifyAttachedServices.args.map(
+        const notifyEvents = mockLog.notifyAttachedServices.mock.calls.map(
           (call: any[]) => call[0]
         );
         expect(notifyEvents).toEqual(['login']);
@@ -689,13 +693,14 @@ describe('/linked_account', () => {
 
     it('calls deleteLinkedAccount', async () => {
       const result: any = await runTest(route, mockRequest);
-      expect(mockDB.deleteLinkedAccount.calledOnceWith(UID)).toBe(true);
+      expect(mockDB.deleteLinkedAccount).toHaveBeenCalledTimes(1);
+      expect(mockDB.deleteLinkedAccount).toHaveBeenCalledWith(UID, 'google');
       expect(result.success).toBe(true);
     });
 
     it('fails to unlink with incorrect assurance level', async () => {
       mockRequest.auth.credentials.authenticatorAssuranceLevel = 1;
-      mockDB.totpToken = sinon.spy(() =>
+      mockDB.totpToken = jest.fn(() =>
         Promise.resolve({
           verified: true,
           enabled: true,
@@ -705,7 +710,7 @@ describe('/linked_account', () => {
       await expect(runTest(route, mockRequest)).rejects.toMatchObject({
         errno: 138,
       });
-      expect(mockDB.deleteLinkedAccount.notCalled).toBe(true);
+      expect(mockDB.deleteLinkedAccount).not.toHaveBeenCalled();
     });
   });
 
@@ -807,7 +812,7 @@ describe('/linked_account', () => {
       });
 
       const linkedAccount = { uid: UID };
-      mockDB.getLinkedAccount = sinon.spy(() =>
+      mockDB.getLinkedAccount = jest.fn(() =>
         Promise.resolve(options.unknownAccount ? undefined : linkedAccount)
       );
       const mockConfig = {
@@ -816,7 +821,7 @@ describe('/linked_account', () => {
       mockRequest = mocks.mockRequest({
         payload: [],
       });
-      statsd = { increment: sinon.spy() };
+      statsd = { increment: jest.fn() };
 
       route = getRoute(
         makeRoutes(
@@ -850,16 +855,9 @@ describe('/linked_account', () => {
     it('handles test event', async () => {
       setupTest({ validateSecurityToken: makeJWT() });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledWithExactly(
-        mockLog.debug,
-        'Received test event: Celo'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(mockLog.debug).toHaveBeenCalledWith('Received test event: Celo');
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.verification'
       );
     });
@@ -867,27 +865,21 @@ describe('/linked_account', () => {
     it('handles session revoked event', async () => {
       setupTest({ validateSecurityToken: makeJWT('sessionRevoked') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockDB.getLinkedAccount,
-        SUB,
-        'google'
-      );
-      sinon.assert.calledOnceWithExactly(mockDB.sessions, UID);
-      sinon.assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+      expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(SUB, 'google');
+      expect(mockDB.sessions).toHaveBeenCalledTimes(1);
+      expect(mockDB.sessions).toHaveBeenCalledWith(UID);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledTimes(1);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledWith({
         id: 'sessionTokenId1',
         uid: 'fxauid',
         providerId: 1,
       });
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.sessions_revoked'
       );
-      sinon.assert.calledWithExactly(
-        mockLog.debug,
+      expect(mockLog.debug).toHaveBeenCalledWith(
         'Revoked 1 third party sessions for user fxauid'
       );
     });
@@ -895,27 +887,21 @@ describe('/linked_account', () => {
     it('handles tokens revoked event', async () => {
       setupTest({ validateSecurityToken: makeJWT('tokensRevoked') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockDB.getLinkedAccount,
-        SUB,
-        'google'
-      );
-      sinon.assert.calledOnceWithExactly(mockDB.sessions, UID);
-      sinon.assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+      expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(SUB, 'google');
+      expect(mockDB.sessions).toHaveBeenCalledTimes(1);
+      expect(mockDB.sessions).toHaveBeenCalledWith(UID);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledTimes(1);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledWith({
         id: 'sessionTokenId1',
         uid: 'fxauid',
         providerId: 1,
       });
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.tokens_revoked'
       );
-      sinon.assert.calledWithExactly(
-        mockLog.debug,
+      expect(mockLog.debug).toHaveBeenCalledWith(
         'Revoked 1 third party sessions for user fxauid'
       );
     });
@@ -923,27 +909,21 @@ describe('/linked_account', () => {
     it('handles token revoked event', async () => {
       setupTest({ validateSecurityToken: makeJWT('tokenRevoked') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockDB.getLinkedAccount,
-        SUB,
-        'google'
-      );
-      sinon.assert.calledOnceWithExactly(mockDB.sessions, UID);
-      sinon.assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+      expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(SUB, 'google');
+      expect(mockDB.sessions).toHaveBeenCalledTimes(1);
+      expect(mockDB.sessions).toHaveBeenCalledWith(UID);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledTimes(1);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledWith({
         id: 'sessionTokenId1',
         uid: 'fxauid',
         providerId: 1,
       });
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.token_revoked'
       );
-      sinon.assert.calledWithExactly(
-        mockLog.debug,
+      expect(mockLog.debug).toHaveBeenCalledWith(
         'Revoked 1 third party sessions for user fxauid'
       );
     });
@@ -951,44 +931,36 @@ describe('/linked_account', () => {
     it('handles account purged event', async () => {
       setupTest({ validateSecurityToken: makeJWT('accountPurged') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledTimes(1);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledWith({
         id: 'sessionTokenId1',
         uid: UID,
         providerId: 1,
       });
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.account_purged'
       );
-      sinon.assert.calledWithExactly(
-        mockLog.debug,
+      expect(mockLog.debug).toHaveBeenCalledWith(
         'Revoked 1 third party sessions for user fxauid'
       );
-      sinon.assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'google');
+      expect(mockDB.deleteLinkedAccount).toHaveBeenCalledWith(UID, 'google');
     });
 
     it('handles credentials changed event', async () => {
       setupTest({ validateSecurityToken: makeJWT('passwordChanged') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledTimes(1);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledWith({
         id: 'sessionTokenId1',
         uid: 'fxauid',
         providerId: 1,
       });
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.credential_change_required'
       );
-      sinon.assert.calledWithExactly(
-        mockLog.debug,
+      expect(mockLog.debug).toHaveBeenCalledWith(
         'Revoked 1 third party sessions for user fxauid'
       );
     });
@@ -996,42 +968,32 @@ describe('/linked_account', () => {
     it('handles account disabled event', async () => {
       setupTest({ validateSecurityToken: makeJWT('accountDisabled') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockDB.getLinkedAccount,
-        SUB,
-        'google'
-      );
-      sinon.assert.calledOnceWithExactly(mockDB.sessions, UID);
-      sinon.assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(mockDB.getLinkedAccount).toHaveBeenCalledTimes(1);
+      expect(mockDB.getLinkedAccount).toHaveBeenCalledWith(SUB, 'google');
+      expect(mockDB.sessions).toHaveBeenCalledTimes(1);
+      expect(mockDB.sessions).toHaveBeenCalledWith(UID);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledTimes(1);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledWith({
         id: 'sessionTokenId1',
         uid: UID,
         providerId: 1,
       });
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.account_disabled'
       );
-      sinon.assert.calledWithExactly(
-        mockLog.debug,
+      expect(mockLog.debug).toHaveBeenCalledWith(
         'Revoked 1 third party sessions for user fxauid'
       );
-      sinon.assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'google');
+      expect(mockDB.deleteLinkedAccount).toHaveBeenCalledWith(UID, 'google');
     });
 
     it('handles account enabled event', async () => {
       setupTest({ validateSecurityToken: makeJWT('accountEnabled') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.notCalled(mockDB.getLinkedAccount);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(mockDB.getLinkedAccount).not.toHaveBeenCalled();
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.account_enabled'
       );
     });
@@ -1039,16 +1001,11 @@ describe('/linked_account', () => {
     it('handles unknown event', async () => {
       setupTest({ validateSecurityToken: makeJWT('unknown event') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledWithExactly(
-        mockLog.debug,
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(mockLog.debug).toHaveBeenCalledWith(
         'Received unknown event: https://schemas.openid.net/secevent/risc/event-type/unknown'
       );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.unknownEventType.unknown'
       );
     });
@@ -1057,75 +1014,59 @@ describe('/linked_account', () => {
       const jwt = makeJWT('accountDisabled');
       setupTest({ validateSecurityToken: jwt, unknownAccount: true });
       await runTest(route, mockRequest);
-      sinon.assert.notCalled(mockDB.deleteLinkedAccount);
-      sinon.assert.notCalled(mockDB.deleteSessionToken);
+      expect(mockDB.deleteLinkedAccount).not.toHaveBeenCalled();
+      expect(mockDB.deleteSessionToken).not.toHaveBeenCalled();
     });
 
     it('handles database errors gracefully without unhandled promise rejection', async () => {
       setupTest({ validateSecurityToken: makeJWT('sessionRevoked') });
 
       // Mock database to throw an error
-      mockDB.getLinkedAccount = sinon
-        .stub()
-        .rejects(new Error('Database connection failed'));
+      mockDB.getLinkedAccount = jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection failed'));
 
       // This should not throw an unhandled promise rejection
       await runTest(route, mockRequest);
 
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.decoded'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.decoded');
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processing.sessions_revoked'
       );
       // Should not call processed because the event handler failed
-      sinon.assert.notCalled(mockDB.sessions);
-      sinon.assert.notCalled(mockDB.deleteSessionToken);
+      expect(mockDB.sessions).not.toHaveBeenCalled();
+      expect(mockDB.deleteSessionToken).not.toHaveBeenCalled();
     });
 
     it('handles session deletion errors gracefully', async () => {
       setupTest({ validateSecurityToken: makeJWT('sessionRevoked') });
 
       // Mock database to throw an error during session deletion
-      mockDB.getLinkedAccount = sinon.stub().resolves({ uid: UID });
-      mockDB.sessions = sinon.stub().resolves([
+      mockDB.getLinkedAccount = jest.fn().mockResolvedValue({ uid: UID });
+      mockDB.sessions = jest.fn().mockResolvedValue([
         { id: 'sessionTokenId1', uid: UID, providerId: 1 },
         { id: 'sessionTokenId2', uid: UID, providerId: 1 },
       ]);
-      mockDB.deleteSessionToken = sinon
-        .stub()
-        .onFirstCall()
-        .resolves()
-        .onSecondCall()
-        .rejects(new Error('Session deletion failed'));
+      mockDB.deleteSessionToken = jest
+        .fn()
+        .mockResolvedValueOnce(undefined)
+        .mockRejectedValueOnce(new Error('Session deletion failed'));
 
       await runTest(route, mockRequest);
 
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.decoded'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.decoded');
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.sessions_revoked'
       );
       // Should still process the first session successfully
-      sinon.assert.calledWithExactly(mockDB.deleteSessionToken, {
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledWith({
         id: 'sessionTokenId1',
         uid: UID,
         providerId: 1,
       });
-      sinon.assert.calledWithExactly(mockDB.deleteSessionToken, {
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledWith({
         id: 'sessionTokenId2',
         uid: UID,
         providerId: 1,
@@ -1139,45 +1080,29 @@ describe('/linked_account', () => {
       await runTest(route, mockRequest);
 
       // Verify that the expected statsd metrics are called for first call
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.decoded'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.decoded');
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processing.sessions_revoked'
       );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.sessions_revoked'
       );
 
-      // Reset the statsd spy to clear previous calls
-      statsd.increment.resetHistory();
+      // Reset the statsd mock to clear previous calls
+      statsd.increment.mockClear();
 
       // Second call - should fail because sessions were already revoked
       await runTest(route, mockRequest);
 
       // Verify that the expected statsd metrics are called for second call
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleGoogleSET.decoded'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.received');
+      expect(statsd.increment).toHaveBeenCalledWith('handleGoogleSET.decoded');
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processing.sessions_revoked'
       );
       // The processed metric should still be called even if no sessions were found to revoke
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleGoogleSET.processed.sessions_revoked'
       );
     });
@@ -1189,26 +1114,21 @@ describe('/linked_account', () => {
 
       // Debug: print all calls to statsd.increment
       // eslint-disable-next-line no-console
-      console.log(
-        'statsd.increment calls:',
-        statsd.increment.getCalls().map((call: any) => call.args)
-      );
+      console.log('statsd.increment calls:', statsd.increment.mock.calls);
 
       // Only these two metrics should be called, in order
-      sinon.assert.callCount(statsd.increment, 2);
-      sinon.assert.calledWithExactly(
-        statsd.increment.getCall(0),
-        'handleGoogleSET.received'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment.getCall(1),
-        'handleGoogleSET.validationError'
-      );
+      expect(statsd.increment).toHaveBeenCalledTimes(2);
+      expect(statsd.increment.mock.calls[0]).toEqual([
+        'handleGoogleSET.received',
+      ]);
+      expect(statsd.increment.mock.calls[1]).toEqual([
+        'handleGoogleSET.validationError',
+      ]);
 
       // Should not call decoded or processing metrics since validation failed
-      sinon.assert.notCalled(mockDB.getLinkedAccount);
-      sinon.assert.notCalled(mockDB.sessions);
-      sinon.assert.notCalled(mockDB.deleteSessionToken);
+      expect(mockDB.getLinkedAccount).not.toHaveBeenCalled();
+      expect(mockDB.sessions).not.toHaveBeenCalled();
+      expect(mockDB.deleteSessionToken).not.toHaveBeenCalled();
     });
   });
 
@@ -1252,14 +1172,14 @@ describe('/linked_account', () => {
           },
         ],
       });
-      mockDB.getLinkedAccount = sinon.spy(() => Promise.resolve({ uid: UID }));
+      mockDB.getLinkedAccount = jest.fn(() => Promise.resolve({ uid: UID }));
       const mockConfig = {
         appleAuthConfig: { clientId: 'OooOoo', teamId: 'teamId' },
       };
       mockRequest = mocks.mockRequest({
         payload: [],
       });
-      statsd = { increment: sinon.spy() };
+      statsd = { increment: jest.fn() };
 
       route = getRoute(
         makeRoutes(
@@ -1289,13 +1209,9 @@ describe('/linked_account', () => {
     it('handles email disabled event', async () => {
       setupTest({ validateSecurityToken: makeJWT('email-disabled') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleAppleSET.received'
-      );
-      sinon.assert.notCalled(mockDB.getLinkedAccount);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith('handleAppleSET.received');
+      expect(mockDB.getLinkedAccount).not.toHaveBeenCalled();
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleAppleSET.processed.email-disabled'
       );
     });
@@ -1303,13 +1219,9 @@ describe('/linked_account', () => {
     it('handles email enabled event', async () => {
       setupTest({ validateSecurityToken: makeJWT('email-enabled') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleAppleSET.received'
-      );
-      sinon.assert.notCalled(mockDB.getLinkedAccount);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith('handleAppleSET.received');
+      expect(mockDB.getLinkedAccount).not.toHaveBeenCalled();
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleAppleSET.processed.email-enabled'
       );
     });
@@ -1317,26 +1229,21 @@ describe('/linked_account', () => {
     it('handles consent revoked event', async () => {
       setupTest({ validateSecurityToken: makeJWT('consent-revoked') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleAppleSET.received'
-      );
-      sinon.assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+      expect(statsd.increment).toHaveBeenCalledWith('handleAppleSET.received');
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledTimes(1);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledWith({
         id: 'sessionTokenId1',
         uid: UID,
         providerId: 2,
       });
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleAppleSET.processed.consent-revoked'
       );
-      sinon.assert.calledWithExactly(
-        mockLog.debug,
+      expect(mockLog.debug).toHaveBeenCalledWith(
         'Revoked 1 third party sessions for user fxauid'
       );
-      sinon.assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'apple');
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(mockDB.deleteLinkedAccount).toHaveBeenCalledWith(UID, 'apple');
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleAppleSET.processed.consent-revoked'
       );
     });
@@ -1344,26 +1251,21 @@ describe('/linked_account', () => {
     it('handles account delete event', async () => {
       setupTest({ validateSecurityToken: makeJWT('account-delete') });
       await runTest(route, mockRequest);
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleAppleSET.received'
-      );
-      sinon.assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+      expect(statsd.increment).toHaveBeenCalledWith('handleAppleSET.received');
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledTimes(1);
+      expect(mockDB.deleteSessionToken).toHaveBeenCalledWith({
         id: 'sessionTokenId1',
         uid: UID,
         providerId: 2,
       });
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleAppleSET.processed.account-delete'
       );
-      sinon.assert.calledWithExactly(
-        mockLog.debug,
+      expect(mockLog.debug).toHaveBeenCalledWith(
         'Revoked 1 third party sessions for user fxauid'
       );
-      sinon.assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'apple');
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(mockDB.deleteLinkedAccount).toHaveBeenCalledWith(UID, 'apple');
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleAppleSET.processed.account-delete'
       );
     });
@@ -1372,36 +1274,29 @@ describe('/linked_account', () => {
       const jwt = makeJWT();
       setupTest({ validateSecurityToken: jwt, unknownAccount: true });
       await runTest(route, mockRequest);
-      sinon.assert.notCalled(mockDB.deleteLinkedAccount);
-      sinon.assert.notCalled(mockDB.deleteSessionToken);
+      expect(mockDB.deleteLinkedAccount).not.toHaveBeenCalled();
+      expect(mockDB.deleteSessionToken).not.toHaveBeenCalled();
     });
 
     it('handles database errors gracefully without unhandled promise rejection', async () => {
       setupTest({ validateSecurityToken: makeJWT('consent-revoked') });
 
       // Mock database to throw an error
-      mockDB.getLinkedAccount = sinon
-        .stub()
-        .rejects(new Error('Database connection failed'));
+      mockDB.getLinkedAccount = jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection failed'));
 
       // This should not throw an unhandled promise rejection
       await runTest(route, mockRequest);
 
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleAppleSET.received'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleAppleSET.decoded'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith('handleAppleSET.received');
+      expect(statsd.increment).toHaveBeenCalledWith('handleAppleSET.decoded');
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleAppleSET.processing.consent-revoked'
       );
       // Should not call processed because the event handler failed
-      sinon.assert.notCalled(mockDB.sessions);
-      sinon.assert.notCalled(mockDB.deleteLinkedAccount);
+      expect(mockDB.sessions).not.toHaveBeenCalled();
+      expect(mockDB.deleteLinkedAccount).not.toHaveBeenCalled();
     });
 
     it('verifies statsd metrics are incremented for successful operations', async () => {
@@ -1410,20 +1305,12 @@ describe('/linked_account', () => {
       await runTest(route, mockRequest);
 
       // Verify that the expected statsd metrics are called
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleAppleSET.received'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
-        'handleAppleSET.decoded'
-      );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith('handleAppleSET.received');
+      expect(statsd.increment).toHaveBeenCalledWith('handleAppleSET.decoded');
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleAppleSET.processing.consent-revoked'
       );
-      sinon.assert.calledWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledWith(
         'handleAppleSET.processed.consent-revoked'
       );
     });

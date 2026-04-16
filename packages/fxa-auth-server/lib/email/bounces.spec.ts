@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { EventEmitter } from 'events';
-import sinon from 'sinon';
 import Container from 'typedi';
 
 const bounces = require('./bounces');
@@ -25,7 +24,7 @@ describe('bounce messages', () => {
     statsd: any;
 
   function mockMessage(msg: any) {
-    msg.del = sinon.spy();
+    msg.del = jest.fn();
     msg.headers = {};
     return msg;
   }
@@ -45,8 +44,8 @@ describe('bounce messages', () => {
       },
     };
     mockDB = {
-      createEmailBounce: sinon.spy(() => Promise.resolve({})),
-      accountRecord: sinon.spy((email: string) => {
+      createEmailBounce: jest.fn(() => Promise.resolve({})),
+      accountRecord: jest.fn((email: string) => {
         return Promise.resolve({
           createdAt: Date.now(),
           email: email,
@@ -54,7 +53,7 @@ describe('bounce messages', () => {
           uid: '123456',
         });
       }),
-      deleteAccount: sinon.spy(() => Promise.resolve({})),
+      deleteAccount: jest.fn(() => Promise.resolve({})),
     };
     mockStripeHelper = {
       hasActiveSubscription: async () => Promise.resolve(false),
@@ -68,27 +67,23 @@ describe('bounce messages', () => {
   });
 
   it('should not log an error for headers', async () => {
-    await mockedBounces(log, {}).handleBounce(
-      mockMessage({ junk: 'message' })
-    );
-    expect(log.error.callCount).toBe(0);
+    await mockedBounces(log, {}).handleBounce(mockMessage({ junk: 'message' }));
+    expect(log.error).toHaveBeenCalledTimes(0);
   });
 
   it('should log an error for missing headers', async () => {
     const message = mockMessage({ junk: 'message' });
     message.headers = undefined;
     await mockedBounces(log, {}).handleBounce(message);
-    expect(log.error.callCount).toBe(1);
+    expect(log.error).toHaveBeenCalledTimes(1);
   });
 
   it('should ignore unknown message types', async () => {
-    await mockedBounces(log, {}).handleBounce(
-      mockMessage({ junk: 'message' })
-    );
-    expect(log.info.callCount).toBe(0);
-    expect(log.error.callCount).toBe(0);
-    expect(log.warn.callCount).toBe(1);
-    expect(log.warn.args[0][0]).toBe('emailHeaders.keys');
+    await mockedBounces(log, {}).handleBounce(mockMessage({ junk: 'message' }));
+    expect(log.info).toHaveBeenCalledTimes(0);
+    expect(log.error).toHaveBeenCalledTimes(0);
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.warn.mock.calls[0][0]).toBe('emailHeaders.keys');
   });
 
   it('should record metrics about bounce type', async () => {
@@ -104,8 +99,8 @@ describe('bounce messages', () => {
         },
       })
     );
-    expect(statsd.increment.callCount).toBe(1);
-    sinon.assert.calledWith(statsd.increment, 'email.bounce.message', {
+    expect(statsd.increment).toHaveBeenCalledTimes(1);
+    expect(statsd.increment).toHaveBeenCalledWith('email.bounce.message', {
       bounceType,
       bounceSubType: 'none',
       hasDiagnosticCode: false,
@@ -125,12 +120,12 @@ describe('bounce messages', () => {
       },
     });
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.createEmailBounce.callCount).toBe(2);
-    expect(mockDB.accountRecord.callCount).toBe(2);
-    expect(mockDB.deleteAccount.callCount).toBe(2);
-    expect(mockDB.accountRecord.args[0][0]).toBe('test@example.com');
-    expect(mockDB.accountRecord.args[1][0]).toBe('foobar@example.com');
-    expect(mockMsg.del.callCount).toBe(1);
+    expect(mockDB.createEmailBounce).toHaveBeenCalledTimes(2);
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(2);
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(2);
+    expect(mockDB.accountRecord.mock.calls[0][0]).toBe('test@example.com');
+    expect(mockDB.accountRecord.mock.calls[1][0]).toBe('foobar@example.com');
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
   });
 
   it('should not delete account when account delete is disabled', async () => {
@@ -145,9 +140,9 @@ describe('bounce messages', () => {
       },
     });
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.deleteAccount.callCount).toBe(0);
-    expect(mockMsg.del.callCount).toBe(1);
-    sinon.assert.calledWith(log.debug, 'accountNotDeleted', {
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(0);
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
+    expect(log.debug).toHaveBeenCalledWith('accountNotDeleted', {
       uid: '123456',
       email: 'test@example.com',
       accountDeleteEnabled: false,
@@ -170,13 +165,13 @@ describe('bounce messages', () => {
       },
     });
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.deleteAccount.callCount).toBe(1);
-    expect(mockMsg.del.callCount).toBe(1);
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
   });
 
   it('should not delete account that bounces and is older than 6 hours', async () => {
     const SEVEN_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 7;
-    mockDB.accountRecord = sinon.spy((email: string) => {
+    mockDB.accountRecord = jest.fn((email: string) => {
       return Promise.resolve({
         createdAt: SEVEN_HOURS_AGO,
         uid: '123456',
@@ -195,13 +190,13 @@ describe('bounce messages', () => {
       },
     });
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.deleteAccount.callCount).toBe(0);
-    expect(mockMsg.del.callCount).toBe(1);
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(0);
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
   });
 
   it('should delete account that bounces and is younger than 6 hours', async () => {
     const FOUR_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 5;
-    mockDB.accountRecord = sinon.spy((email: string) => {
+    mockDB.accountRecord = jest.fn((email: string) => {
       return Promise.resolve({
         createdAt: FOUR_HOURS_AGO,
         uid: '123456',
@@ -220,8 +215,8 @@ describe('bounce messages', () => {
       },
     });
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.deleteAccount.callCount).toBe(1);
-    expect(mockMsg.del.callCount).toBe(1);
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
   });
 
   it('should delete accounts on login verification with a Transient bounce', async () => {
@@ -235,8 +230,8 @@ describe('bounce messages', () => {
       },
     });
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.deleteAccount.callCount).toBe(1);
-    expect(mockMsg.del.callCount).toBe(1);
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
   });
 
   it('should treat complaints like bounces', async () => {
@@ -253,28 +248,30 @@ describe('bounce messages', () => {
         },
       })
     );
-    expect(mockDB.createEmailBounce.callCount).toBe(2);
-    expect(mockDB.createEmailBounce.args[0][0].bounceType).toBe('Complaint');
-    expect(mockDB.createEmailBounce.args[0][0].bounceSubType).toBe(
+    expect(mockDB.createEmailBounce).toHaveBeenCalledTimes(2);
+    expect(mockDB.createEmailBounce.mock.calls[0][0].bounceType).toBe(
+      'Complaint'
+    );
+    expect(mockDB.createEmailBounce.mock.calls[0][0].bounceSubType).toBe(
       complaintType
     );
-    expect(mockDB.accountRecord.callCount).toBe(2);
-    expect(mockDB.deleteAccount.callCount).toBe(2);
-    expect(mockDB.accountRecord.args[0][0]).toBe('test@example.com');
-    expect(mockDB.accountRecord.args[1][0]).toBe('foobar@example.com');
-    expect(log.info.callCount).toBe(6);
-    expect(log.info.args[0][0]).toBe('emailEvent');
-    expect(log.info.args[0][1].domain).toBe('other');
-    expect(log.info.args[0][1].type).toBe('bounced');
-    expect(log.info.args[4][1].complaint).toBe(true);
-    expect(log.info.args[4][1].complaintFeedbackType).toBe(complaintType);
-    expect(log.info.args[4][1].complaintUserAgent).toBe(
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(2);
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(2);
+    expect(mockDB.accountRecord.mock.calls[0][0]).toBe('test@example.com');
+    expect(mockDB.accountRecord.mock.calls[1][0]).toBe('foobar@example.com');
+    expect(log.info).toHaveBeenCalledTimes(6);
+    expect(log.info.mock.calls[0][0]).toBe('emailEvent');
+    expect(log.info.mock.calls[0][1].domain).toBe('other');
+    expect(log.info.mock.calls[0][1].type).toBe('bounced');
+    expect(log.info.mock.calls[4][1].complaint).toBe(true);
+    expect(log.info.mock.calls[4][1].complaintFeedbackType).toBe(complaintType);
+    expect(log.info.mock.calls[4][1].complaintUserAgent).toBe(
       'AnyCompany Feedback Loop (V0.01)'
     );
   });
 
   it('should not delete verified accounts on bounce', async () => {
-    mockDB.accountRecord = sinon.spy((email: string) => {
+    mockDB.accountRecord = jest.fn((email: string) => {
       return Promise.resolve({
         createdAt: Date.now(),
         uid: '123456',
@@ -299,32 +296,33 @@ describe('bounce messages', () => {
         },
       })
     );
-    expect(mockDB.accountRecord.callCount).toBe(2);
-    expect(mockDB.accountRecord.args[0][0]).toBe('test@example.com');
-    expect(mockDB.accountRecord.args[1][0]).toBe('verified@example.com');
-    expect(mockDB.deleteAccount.callCount).toBe(1);
-    expect(mockDB.deleteAccount.args[0][0].email).toBe('test@example.com');
-    expect(log.info.callCount).toBe(5);
-    expect(log.info.args[1][0]).toBe('handleBounce');
-    expect(log.info.args[1][1].email).toBe('test@example.com');
-    expect(log.info.args[1][1].domain).toBe('other');
-    expect(log.info.args[1][1].mailStatus).toBe('5.0.0');
-    expect(log.info.args[1][1].action).toBe('failed');
-    expect(log.info.args[1][1].diagnosticCode).toBe(
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(2);
+    expect(mockDB.accountRecord.mock.calls[0][0]).toBe('test@example.com');
+    expect(mockDB.accountRecord.mock.calls[1][0]).toBe('verified@example.com');
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
+    expect(mockDB.deleteAccount.mock.calls[0][0].email).toBe(
+      'test@example.com'
+    );
+    expect(log.info).toHaveBeenCalledTimes(5);
+    expect(log.info.mock.calls[1][0]).toBe('handleBounce');
+    expect(log.info.mock.calls[1][1].email).toBe('test@example.com');
+    expect(log.info.mock.calls[1][1].domain).toBe('other');
+    expect(log.info.mock.calls[1][1].mailStatus).toBe('5.0.0');
+    expect(log.info.mock.calls[1][1].action).toBe('failed');
+    expect(log.info.mock.calls[1][1].diagnosticCode).toBe(
       'smtp; 550 user unknown'
     );
-    expect(log.info.args[2][0]).toBe('accountDeleted');
-    expect(log.info.args[2][1].email).toBe('test@example.com');
-    expect(log.info.args[4][0]).toBe('handleBounce');
-    expect(log.info.args[4][1].email).toBe('verified@example.com');
-    expect(log.info.args[4][1].mailStatus).toBe('4.0.0');
+    expect(log.info.mock.calls[2][0]).toBe('accountDeleted');
+    expect(log.info.mock.calls[2][1].email).toBe('test@example.com');
+    expect(log.info.mock.calls[4][0]).toBe('handleBounce');
+    expect(log.info.mock.calls[4][1].email).toBe('verified@example.com');
+    expect(log.info.mock.calls[4][1].mailStatus).toBe('4.0.0');
   });
 
   it('should not delete an unverified account that bounces, is older than 6 hours but has an active subscription', async () => {
-    mockStripeHelper.hasActiveSubscription = async () =>
-      Promise.resolve(true);
+    mockStripeHelper.hasActiveSubscription = async () => Promise.resolve(true);
     const SEVEN_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 7;
-    mockDB.accountRecord = sinon.spy((email: string) => {
+    mockDB.accountRecord = jest.fn((email: string) => {
       return Promise.resolve({
         createdAt: SEVEN_HOURS_AGO,
         uid: '123456',
@@ -343,12 +341,12 @@ describe('bounce messages', () => {
       },
     });
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.deleteAccount.callCount).toBe(0);
-    expect(mockMsg.del.callCount).toBe(1);
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(0);
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
   });
 
   it('should log errors when looking up the email record', async () => {
-    mockDB.accountRecord = sinon.spy(() => Promise.reject(new error({})));
+    mockDB.accountRecord = jest.fn(() => Promise.reject(new error({})));
     const mockMsg = mockMessage({
       bounce: {
         bounceType: 'Permanent',
@@ -356,19 +354,19 @@ describe('bounce messages', () => {
       },
     });
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.accountRecord.callCount).toBe(1);
-    expect(mockDB.accountRecord.args[0][0]).toBe('test@example.com');
-    expect(log.info.callCount).toBe(2);
-    expect(log.info.args[1][0]).toBe('handleBounce');
-    expect(log.info.args[1][1].email).toBe('test@example.com');
-    expect(log.error.callCount).toBe(2);
-    expect(log.error.args[1][0]).toBe('databaseError');
-    expect(log.error.args[1][1].email).toBe('test@example.com');
-    expect(mockMsg.del.callCount).toBe(1);
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
+    expect(mockDB.accountRecord.mock.calls[0][0]).toBe('test@example.com');
+    expect(log.info).toHaveBeenCalledTimes(2);
+    expect(log.info.mock.calls[1][0]).toBe('handleBounce');
+    expect(log.info.mock.calls[1][1].email).toBe('test@example.com');
+    expect(log.error).toHaveBeenCalledTimes(2);
+    expect(log.error.mock.calls[1][0]).toBe('databaseError');
+    expect(log.error.mock.calls[1][1].email).toBe('test@example.com');
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
   });
 
   it('should log errors when deleting the email record', async () => {
-    mockDB.deleteAccount = sinon.spy(() =>
+    mockDB.deleteAccount = jest.fn(() =>
       Promise.reject(error.unknownAccount('test@example.com'))
     );
     const mockMsg = mockMessage({
@@ -378,22 +376,26 @@ describe('bounce messages', () => {
       },
     });
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.accountRecord.callCount).toBe(1);
-    expect(mockDB.accountRecord.args[0][0]).toBe('test@example.com');
-    expect(mockDB.deleteAccount.callCount).toBe(1);
-    expect(mockDB.deleteAccount.args[0][0].email).toBe('test@example.com');
-    expect(log.info.callCount).toBe(2);
-    expect(log.info.args[1][0]).toBe('handleBounce');
-    expect(log.info.args[1][1].email).toBe('test@example.com');
-    expect(log.error.callCount).toBe(2);
-    expect(log.error.args[1][0]).toBe('databaseError');
-    expect(log.error.args[1][1].email).toBe('test@example.com');
-    expect(log.error.args[1][1].err.errno).toBe(error.ERRNO.ACCOUNT_UNKNOWN);
-    expect(mockMsg.del.callCount).toBe(1);
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
+    expect(mockDB.accountRecord.mock.calls[0][0]).toBe('test@example.com');
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
+    expect(mockDB.deleteAccount.mock.calls[0][0].email).toBe(
+      'test@example.com'
+    );
+    expect(log.info).toHaveBeenCalledTimes(2);
+    expect(log.info.mock.calls[1][0]).toBe('handleBounce');
+    expect(log.info.mock.calls[1][1].email).toBe('test@example.com');
+    expect(log.error).toHaveBeenCalledTimes(2);
+    expect(log.error.mock.calls[1][0]).toBe('databaseError');
+    expect(log.error.mock.calls[1][1].email).toBe('test@example.com');
+    expect(log.error.mock.calls[1][1].err.errno).toBe(
+      error.ERRNO.ACCOUNT_UNKNOWN
+    );
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
   });
 
   it('should normalize quoted email addresses for lookup', async () => {
-    mockDB.accountRecord = sinon.spy((email: string) => {
+    mockDB.accountRecord = jest.fn((email: string) => {
       if (email !== 'test.@example.com') {
         return Promise.reject(error.unknownAccount(email));
       }
@@ -412,20 +414,20 @@ describe('bounce messages', () => {
         },
       })
     );
-    expect(mockDB.createEmailBounce.callCount).toBe(1);
-    expect(mockDB.createEmailBounce.args[0][0].email).toBe(
+    expect(mockDB.createEmailBounce).toHaveBeenCalledTimes(1);
+    expect(mockDB.createEmailBounce.mock.calls[0][0].email).toBe(
       'test.@example.com'
     );
-    expect(mockDB.accountRecord.callCount).toBe(1);
-    expect(mockDB.accountRecord.args[0][0]).toBe('test.@example.com');
-    expect(mockDB.deleteAccount.callCount).toBe(1);
-    expect(mockDB.deleteAccount.args[0][0].email).toBe(
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
+    expect(mockDB.accountRecord.mock.calls[0][0]).toBe('test.@example.com');
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
+    expect(mockDB.deleteAccount.mock.calls[0][0].email).toBe(
       'test.@example.com'
     );
   });
 
   it('should handle multiple consecutive dots even if not quoted', async () => {
-    mockDB.accountRecord = sinon.spy((email: string) => {
+    mockDB.accountRecord = jest.fn((email: string) => {
       if (email !== 'test..me@example.com') {
         return Promise.reject(error.unknownAccount(email));
       }
@@ -445,37 +447,35 @@ describe('bounce messages', () => {
         },
       })
     );
-    expect(mockDB.createEmailBounce.callCount).toBe(1);
-    expect(mockDB.createEmailBounce.args[0][0].email).toBe(
+    expect(mockDB.createEmailBounce).toHaveBeenCalledTimes(1);
+    expect(mockDB.createEmailBounce.mock.calls[0][0].email).toBe(
       'test..me@example.com'
     );
-    expect(mockDB.accountRecord.callCount).toBe(1);
-    expect(mockDB.accountRecord.args[0][0]).toBe('test..me@example.com');
-    expect(mockDB.deleteAccount.callCount).toBe(1);
-    expect(mockDB.deleteAccount.args[0][0].email).toBe(
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
+    expect(mockDB.accountRecord.mock.calls[0][0]).toBe('test..me@example.com');
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
+    expect(mockDB.deleteAccount.mock.calls[0][0].email).toBe(
       'test..me@example.com'
     );
   });
 
   it('should log a warning if it receives an unparseable email address', async () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
     await mockedBounces(log, mockDB).handleBounce(
       mockMessage({
         bounce: {
           bounceType: 'Permanent',
-          bouncedRecipients: [
-            { emailAddress: 'how did this even happen?' },
-          ],
+          bouncedRecipients: [{ emailAddress: 'how did this even happen?' }],
         },
       })
     );
-    expect(mockDB.createEmailBounce.callCount).toBe(0);
-    expect(mockDB.accountRecord.callCount).toBe(0);
-    expect(mockDB.deleteAccount.callCount).toBe(0);
-    expect(log.warn.callCount).toBe(2);
-    expect(log.warn.args[1][0]).toBe('handleBounce.addressParseFailure');
+    expect(mockDB.createEmailBounce).toHaveBeenCalledTimes(0);
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(0);
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(0);
+    expect(log.warn).toHaveBeenCalledTimes(2);
+    expect(log.warn.mock.calls[1][0]).toBe('handleBounce.addressParseFailure');
   });
 
   it('should log email template name, language, and bounceType', async () => {
@@ -494,17 +494,19 @@ describe('bounce messages', () => {
     });
 
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.accountRecord.callCount).toBe(1);
-    expect(mockDB.accountRecord.args[0][0]).toBe('test@example.com');
-    expect(mockDB.deleteAccount.callCount).toBe(1);
-    expect(mockDB.deleteAccount.args[0][0].email).toBe('test@example.com');
-    expect(log.info.callCount).toBe(3);
-    expect(log.info.args[1][0]).toBe('handleBounce');
-    expect(log.info.args[1][1].email).toBe('test@example.com');
-    expect(log.info.args[1][1].template).toBe('verifyLoginEmail');
-    expect(log.info.args[1][1].bounceType).toBe('Permanent');
-    expect(log.info.args[1][1].bounceSubType).toBe('General');
-    expect(log.info.args[1][1].lang).toBe('db-LB');
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
+    expect(mockDB.accountRecord.mock.calls[0][0]).toBe('test@example.com');
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
+    expect(mockDB.deleteAccount.mock.calls[0][0].email).toBe(
+      'test@example.com'
+    );
+    expect(log.info).toHaveBeenCalledTimes(3);
+    expect(log.info.mock.calls[1][0]).toBe('handleBounce');
+    expect(log.info.mock.calls[1][1].email).toBe('test@example.com');
+    expect(log.info.mock.calls[1][1].template).toBe('verifyLoginEmail');
+    expect(log.info.mock.calls[1][1].bounceType).toBe('Permanent');
+    expect(log.info.mock.calls[1][1].bounceSubType).toBe('General');
+    expect(log.info.mock.calls[1][1].lang).toBe('db-LB');
   });
 
   it('should emit flow metrics', async () => {
@@ -525,22 +527,24 @@ describe('bounce messages', () => {
     });
 
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(mockDB.accountRecord.callCount).toBe(1);
-    expect(mockDB.accountRecord.args[0][0]).toBe('test@example.com');
-    expect(mockDB.deleteAccount.callCount).toBe(1);
-    expect(mockDB.deleteAccount.args[0][0].email).toBe('test@example.com');
-    expect(log.flowEvent.callCount).toBe(1);
-    expect(log.flowEvent.args[0][0].event).toBe(
+    expect(mockDB.accountRecord).toHaveBeenCalledTimes(1);
+    expect(mockDB.accountRecord.mock.calls[0][0]).toBe('test@example.com');
+    expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
+    expect(mockDB.deleteAccount.mock.calls[0][0].email).toBe(
+      'test@example.com'
+    );
+    expect(log.flowEvent).toHaveBeenCalledTimes(1);
+    expect(log.flowEvent.mock.calls[0][0].event).toBe(
       'email.verifyLoginEmail.bounced'
     );
-    expect(log.flowEvent.args[0][0].flow_id).toBe('someFlowId');
-    expect(log.flowEvent.args[0][0].flow_time > 0).toBe(true);
-    expect(log.flowEvent.args[0][0].time > 0).toBe(true);
-    expect(log.info.callCount).toBe(3);
-    expect(log.info.args[0][0]).toBe('emailEvent');
-    expect(log.info.args[0][1].type).toBe('bounced');
-    expect(log.info.args[0][1].template).toBe('verifyLoginEmail');
-    expect(log.info.args[0][1].flow_id).toBe('someFlowId');
+    expect(log.flowEvent.mock.calls[0][0].flow_id).toBe('someFlowId');
+    expect(log.flowEvent.mock.calls[0][0].flow_time > 0).toBe(true);
+    expect(log.flowEvent.mock.calls[0][0].time > 0).toBe(true);
+    expect(log.info).toHaveBeenCalledTimes(3);
+    expect(log.info.mock.calls[0][0]).toBe('emailEvent');
+    expect(log.info.mock.calls[0][1].type).toBe('bounced');
+    expect(log.info.mock.calls[0][1].template).toBe('verifyLoginEmail');
+    expect(log.info.mock.calls[0][1].flow_id).toBe('someFlowId');
   });
 
   it('should log email domain if popular one', async () => {
@@ -561,28 +565,28 @@ describe('bounce messages', () => {
     });
 
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    expect(log.flowEvent.callCount).toBe(1);
-    expect(log.flowEvent.args[0][0].event).toBe(
+    expect(log.flowEvent).toHaveBeenCalledTimes(1);
+    expect(log.flowEvent.mock.calls[0][0].event).toBe(
       'email.verifyLoginEmail.bounced'
     );
-    expect(log.flowEvent.args[0][0].flow_id).toBe('someFlowId');
-    expect(log.flowEvent.args[0][0].flow_time > 0).toBe(true);
-    expect(log.flowEvent.args[0][0].time > 0).toBe(true);
-    expect(log.info.callCount).toBe(3);
-    expect(log.info.args[0][0]).toBe('emailEvent');
-    expect(log.info.args[0][1].domain).toBe('aol.com');
-    expect(log.info.args[0][1].type).toBe('bounced');
-    expect(log.info.args[0][1].template).toBe('verifyLoginEmail');
-    expect(log.info.args[0][1].locale).toBe('en');
-    expect(log.info.args[0][1].flow_id).toBe('someFlowId');
-    expect(log.info.args[1][1].email).toBe('test@aol.com');
-    expect(log.info.args[1][1].domain).toBe('aol.com');
+    expect(log.flowEvent.mock.calls[0][0].flow_id).toBe('someFlowId');
+    expect(log.flowEvent.mock.calls[0][0].flow_time > 0).toBe(true);
+    expect(log.flowEvent.mock.calls[0][0].time > 0).toBe(true);
+    expect(log.info).toHaveBeenCalledTimes(3);
+    expect(log.info.mock.calls[0][0]).toBe('emailEvent');
+    expect(log.info.mock.calls[0][1].domain).toBe('aol.com');
+    expect(log.info.mock.calls[0][1].type).toBe('bounced');
+    expect(log.info.mock.calls[0][1].template).toBe('verifyLoginEmail');
+    expect(log.info.mock.calls[0][1].locale).toBe('en');
+    expect(log.info.mock.calls[0][1].flow_id).toBe('someFlowId');
+    expect(log.info.mock.calls[1][1].email).toBe('test@aol.com');
+    expect(log.info.mock.calls[1][1].domain).toBe('aol.com');
   });
 
   it('should log account email event (emailBounced)', async () => {
-    const stub = sinon
-      .stub(emailHelpers, 'logAccountEventFromMessage')
-      .returns(Promise.resolve());
+    const stub = jest
+      .spyOn(emailHelpers, 'logAccountEventFromMessage')
+      .mockReturnValue(Promise.resolve());
     const mockMsg = mockMessage({
       bounce: {
         bounceType: 'Permanent',
@@ -600,11 +604,11 @@ describe('bounce messages', () => {
     });
 
     await mockedBounces(log, mockDB).handleBounce(mockMsg);
-    sinon.assert.calledOnceWithExactly(
-      emailHelpers.logAccountEventFromMessage,
+    expect(emailHelpers.logAccountEventFromMessage).toHaveBeenCalledTimes(1);
+    expect(emailHelpers.logAccountEventFromMessage).toHaveBeenCalledWith(
       mockMsg,
       'emailBounced'
     );
-    stub.restore();
+    stub.mockRestore();
   });
 });

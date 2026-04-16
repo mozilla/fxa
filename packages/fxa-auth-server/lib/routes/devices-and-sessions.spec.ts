@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import crypto from 'crypto';
 
 const Joi = require('joi');
@@ -34,7 +33,7 @@ function makeRoutes(options: any = {}) {
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
   const oauth = options.oauth || {
-    getRefreshTokensByUid: sinon.spy(async () => []),
+    getRefreshTokensByUid: jest.fn(async () => []),
   };
   const customs = options.customs || {
     check: function () {
@@ -44,8 +43,7 @@ function makeRoutes(options: any = {}) {
   const push = options.push || require('../push')(log, db, {});
   const pushbox = options.pushbox || mocks.mockPushbox();
   const clientUtils =
-    options.clientUtils ||
-    require('./utils/clients')(log, config);
+    options.clientUtils || require('./utils/clients')(log, config);
   const redis = options.redis || {};
   return require('./devices-and-sessions')(
     log,
@@ -135,14 +133,14 @@ describe('/account/device', () => {
   it('identical data', () => {
     devicesData.spurious = true;
     return runTest(route, mockRequest, (response) => {
-      expect(mockDevices.isSpuriousUpdate.callCount).toBe(1);
-      const args = mockDevices.isSpuriousUpdate.args[0];
+      expect(mockDevices.isSpuriousUpdate).toHaveBeenCalledTimes(1);
+      const args = mockDevices.isSpuriousUpdate.mock.calls[0];
       expect(args.length).toBe(2);
       expect(args[0]).toBe(mockRequest.payload);
       const creds = mockRequest.auth.credentials;
       expect(args[1]).toBe(creds);
 
-      expect(mockDevices.upsert.callCount).toBe(0);
+      expect(mockDevices.upsert).toHaveBeenCalledTimes(0);
       // Make sure the shape of the response is the same as if
       // the update wasn't spurious.
       expect(response).toEqual({
@@ -170,9 +168,9 @@ describe('/account/device', () => {
     payload.pushPublicKey = mocks.MOCK_PUSH_KEY;
 
     return runTest(route, mockRequest, (response) => {
-      expect(mockDevices.isSpuriousUpdate.callCount).toBe(1);
-      expect(mockDevices.upsert.callCount).toBe(1);
-      const args = mockDevices.upsert.args[0];
+      expect(mockDevices.isSpuriousUpdate).toHaveBeenCalledTimes(1);
+      expect(mockDevices.upsert).toHaveBeenCalledTimes(1);
+      const args = mockDevices.upsert.mock.calls[0];
       expect(args.length).toBe(3);
       expect(args[0]).toBe(mockRequest);
       expect(args[1].id).toEqual(mockRequest.auth.credentials.id);
@@ -186,11 +184,9 @@ describe('/account/device', () => {
     mockRequest.payload.id = undefined;
 
     return runTest(route, mockRequest, (response) => {
-      expect(mockDevices.upsert.callCount).toBe(1);
-      const args = mockDevices.upsert.args[0];
-      expect(args[2].id).toBe(
-        mockRequest.auth.credentials.deviceId
-      );
+      expect(mockDevices.upsert).toHaveBeenCalledTimes(1);
+      const args = mockDevices.upsert.mock.calls[0];
+      expect(args[2].id).toBe(mockRequest.auth.credentials.deviceId);
     });
   });
 
@@ -200,7 +196,7 @@ describe('/account/device', () => {
     mockRequest.auth.credentials.deviceType = undefined;
 
     return runTest(route, mockRequest, (response) => {
-      expect(mockDevices.upsert.callCount).toBe(0);
+      expect(mockDevices.upsert).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -210,7 +206,9 @@ describe('/account/device', () => {
     return runTest(route, mockRequest, () => {
       throw new Error('should have thrown');
     }).then(
-      () => { throw new Error('should have thrown'); },
+      () => {
+        throw new Error('should have thrown');
+      },
       (err: any) => {
         expect(err.output.statusCode).toBe(503);
         expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
@@ -225,8 +223,8 @@ describe('/account/device', () => {
     };
 
     return runTest(route, mockRequest, () => {
-      expect(mockDevices.upsert.callCount).toBe(1);
-      const args = mockDevices.upsert.args[0];
+      expect(mockDevices.upsert).toHaveBeenCalledTimes(1);
+      const args = mockDevices.upsert.mock.calls[0];
       expect(args[2].availableCommands).toEqual({});
     });
   });
@@ -253,8 +251,10 @@ describe('/account/device', () => {
     });
 
     return runTest(route, mockRequest, (response) => {
-      expect(mockDevices.upsert.callCount).toBe(1);
-      expect(mockDevices.upsert.args[0][2].pushEndpointExpired).toBe(false);
+      expect(mockDevices.upsert).toHaveBeenCalledTimes(1);
+      expect(mockDevices.upsert.mock.calls[0][2].pushEndpointExpired).toBe(
+        false
+      );
     });
   });
 
@@ -279,8 +279,10 @@ describe('/account/device', () => {
     });
 
     return runTest(route, mockRequest, (response) => {
-      expect(mockDevices.upsert.callCount).toBe(1);
-      expect(mockDevices.upsert.args[0][2].pushEndpointExpired).toBeUndefined();
+      expect(mockDevices.upsert).toHaveBeenCalledTimes(1);
+      expect(
+        mockDevices.upsert.mock.calls[0][2].pushEndpointExpired
+      ).toBeUndefined();
     });
   });
 });
@@ -333,9 +335,11 @@ describe('/account/devices/notify', () => {
     return runTest(route, mockRequest, () => {
       throw new Error('should have thrown');
     }).then(
-      () => { throw new Error('should have thrown'); },
+      () => {
+        throw new Error('should have thrown');
+      },
       (err: any) => {
-        expect(mockPush.sendPush.callCount).toBe(0);
+        expect(mockPush.sendPush).toHaveBeenCalledTimes(0);
         expect(err.errno).toBe(107);
       }
     );
@@ -351,16 +355,16 @@ describe('/account/devices/notify', () => {
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
     const sendPushPromise = new Promise<void>((resolve) => {
-      mockPush.sendPush = sinon.spy(() => {
+      mockPush.sendPush = jest.fn(() => {
         resolve();
         return Promise.resolve();
       });
     });
     return runTest(route, mockRequest, (response) => {
       return sendPushPromise.then(() => {
-        expect(mockCustoms.checkAuthenticated.callCount).toBe(1);
-        expect(mockPush.sendPush.callCount).toBe(1);
-        const args = mockPush.sendPush.args[0];
+        expect(mockCustoms.checkAuthenticated).toHaveBeenCalledTimes(1);
+        expect(mockPush.sendPush).toHaveBeenCalledTimes(1);
+        const args = mockPush.sendPush.mock.calls[0];
         expect(args.length).toBe(4);
         expect(args[0]).toBe(uid);
         expect(Array.isArray(args[1])).toBeTruthy();
@@ -385,13 +389,15 @@ describe('/account/devices/notify', () => {
     };
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
-    mockPush.sendPush = sinon.spy(() => {
+    mockPush.sendPush = jest.fn(() => {
       return Promise.resolve();
     });
     return runTest(route, mockRequest, () => {
       throw new Error('should have thrown');
     }).then(
-      () => { throw new Error('should have thrown'); },
+      () => {
+        throw new Error('should have thrown');
+      },
       (err: any) => {
         expect(err.output.statusCode).toBe(400);
         expect(err.errno).toBe(error.ERRNO.INVALID_PARAMETER);
@@ -400,9 +406,9 @@ describe('/account/devices/notify', () => {
   });
 
   it('specific devices', () => {
-    mockCustoms.checkAuthenticated.resetHistory();
-    mockLog.activityEvent.resetHistory();
-    mockLog.error.resetHistory();
+    mockCustoms.checkAuthenticated.mockClear();
+    mockLog.activityEvent.mockClear();
+    mockLog.error.mockClear();
     mockRequest.payload = {
       to: ['bogusid1', 'bogusid2'],
       TTL: 60,
@@ -411,16 +417,16 @@ describe('/account/devices/notify', () => {
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
     const sendPushPromise = new Promise<void>((resolve) => {
-      mockPush.sendPush = sinon.spy(() => {
+      mockPush.sendPush = jest.fn(() => {
         resolve();
         return Promise.resolve();
       });
     });
     return runTest(route, mockRequest, (response) => {
       return sendPushPromise.then(() => {
-        expect(mockCustoms.checkAuthenticated.callCount).toBe(1);
-        expect(mockPush.sendPush.callCount).toBe(1);
-        let args = mockPush.sendPush.args[0];
+        expect(mockCustoms.checkAuthenticated).toHaveBeenCalledTimes(1);
+        expect(mockPush.sendPush).toHaveBeenCalledTimes(1);
+        let args = mockPush.sendPush.mock.calls[0];
         expect(args.length).toBe(4);
         expect(args[0]).toBe(uid);
         expect(Array.isArray(args[1])).toBeTruthy();
@@ -429,8 +435,8 @@ describe('/account/devices/notify', () => {
           data: pushPayload,
           TTL: 60,
         });
-        expect(mockLog.activityEvent.callCount).toBe(1);
-        args = mockLog.activityEvent.args[0];
+        expect(mockLog.activityEvent).toHaveBeenCalledTimes(1);
+        args = mockLog.activityEvent.mock.calls[0];
         expect(args.length).toBe(1);
         expect(args[0]).toEqual({
           country: 'United States',
@@ -443,15 +449,15 @@ describe('/account/devices/notify', () => {
           uid: uid,
           device_id: deviceId,
         });
-        expect(mockLog.error.callCount).toBe(0);
+        expect(mockLog.error).toHaveBeenCalledTimes(0);
       });
     });
   });
 
   it('does not log activity event for non-send-tab-related notifications', () => {
-    mockPush.sendPush.resetHistory();
-    mockLog.activityEvent.resetHistory();
-    mockLog.error.resetHistory();
+    mockPush.sendPush.mockClear();
+    mockLog.activityEvent.mockClear();
+    mockLog.error.mockClear();
     mockRequest.payload = {
       to: ['bogusid1', 'bogusid2'],
       TTL: 60,
@@ -461,9 +467,9 @@ describe('/account/devices/notify', () => {
       },
     };
     return runTest(route, mockRequest, (response) => {
-      expect(mockPush.sendPush.callCount).toBe(1);
-      expect(mockLog.activityEvent.callCount).toBe(0);
-      expect(mockLog.error.callCount).toBe(0);
+      expect(mockPush.sendPush).toHaveBeenCalledTimes(1);
+      expect(mockLog.activityEvent).toHaveBeenCalledTimes(0);
+      expect(mockLog.error).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -478,7 +484,9 @@ describe('/account/devices/notify', () => {
     return runTest(route, mockRequest, () => {
       throw new Error('should have thrown');
     }).then(
-      () => { throw new Error('should have thrown'); },
+      () => {
+        throw new Error('should have thrown');
+      },
       (err: any) => {
         expect(err.output.statusCode).toBe(503);
         expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
@@ -506,9 +514,11 @@ describe('/account/devices/notify', () => {
     return runTest(route, mockRequest, (response) => {
       throw new Error('should have thrown');
     }).then(
-      () => { throw new Error('should have thrown'); },
+      () => {
+        throw new Error('should have thrown');
+      },
       (err: any) => {
-        expect(mockCustoms.checkAuthenticated.callCount).toBe(1);
+        expect(mockCustoms.checkAuthenticated).toHaveBeenCalledTimes(1);
         expect(err.message).toBe('Client has sent too many requests');
       }
     );
@@ -550,7 +560,7 @@ describe('/account/devices/notify', () => {
       payload: {},
     };
     const sendPushPromise = new Promise<void>((resolve) => {
-      mockPush.sendPush = sinon.spy(() => {
+      mockPush.sendPush = jest.fn(() => {
         resolve();
         return Promise.resolve();
       });
@@ -569,8 +579,8 @@ describe('/account/devices/notify', () => {
 
     return runTest(route, mockRequest, () => {
       return sendPushPromise.then(() => {
-        expect(mockPush.sendPush.callCount).toBe(1);
-        const args = mockPush.sendPush.args[0];
+        expect(mockPush.sendPush).toHaveBeenCalledTimes(1);
+        const args = mockPush.sendPush.mock.calls[0];
         expect(args.length).toBe(4);
         expect(args[0]).toBe(uid);
         expect(Array.isArray(args[1])).toBeTruthy();
@@ -635,7 +645,7 @@ describe('/account/device/commands', () => {
       ],
     };
     const mockPushbox = mocks.mockPushbox();
-    mockPushbox.retrieve = sinon.spy(() => Promise.resolve(mockResponse));
+    mockPushbox.retrieve = jest.fn(() => Promise.resolve(mockResponse));
 
     mockRequest.query = {
       index: 2,
@@ -653,8 +663,8 @@ describe('/account/device/commands', () => {
     mockRequest.query = validationSchema.validate(mockRequest.query).value;
     expect(mockRequest.query).toBeTruthy();
     return runTest(route, mockRequest).then((response: any) => {
-      expect(mockPushbox.retrieve.callCount).toBe(1);
-      sinon.assert.calledWithExactly(mockPushbox.retrieve, uid, deviceId, 100, 2);
+      expect(mockPushbox.retrieve).toHaveBeenCalledTimes(1);
+      expect(mockPushbox.retrieve).toHaveBeenCalledWith(uid, deviceId, 100, 2);
       expect(response).toEqual(mockResponse);
     });
   });
@@ -675,8 +685,8 @@ describe('/account/device/commands', () => {
     );
 
     return runTest(route, mockRequest).then(() => {
-      expect(mockPushbox.retrieve.callCount).toBe(1);
-      sinon.assert.calledWithExactly(mockPushbox.retrieve, uid, deviceId, 12, 2);
+      expect(mockPushbox.retrieve).toHaveBeenCalledTimes(1);
+      expect(mockPushbox.retrieve).toHaveBeenCalledWith(uid, deviceId, 12, 2);
     });
   });
 
@@ -736,7 +746,7 @@ describe('/account/device/commands', () => {
       ],
     };
     const mockPushbox = mocks.mockPushbox();
-    mockPushbox.retrieve = sinon.spy(() => Promise.resolve(mockResponse));
+    mockPushbox.retrieve = jest.fn(() => Promise.resolve(mockResponse));
 
     mockRequest.query = {
       index: 2,
@@ -754,9 +764,9 @@ describe('/account/device/commands', () => {
     mockRequest.query = validationSchema.validate(mockRequest.query).value;
     expect(mockRequest.query).toBeTruthy();
     return runTest(route, mockRequest).then((response: any) => {
-      sinon.assert.callCount(mockLog.info, 2);
-      sinon.assert.calledWithExactly(
-        mockLog.info.getCall(0),
+      expect(mockLog.info).toHaveBeenCalledTimes(2);
+      expect(mockLog.info).toHaveBeenNthCalledWith(
+        1,
         'device.command.retrieved',
         {
           uid,
@@ -766,8 +776,8 @@ describe('/account/device/commands', () => {
           command: 'three',
         }
       );
-      sinon.assert.calledWithExactly(
-        mockLog.info.getCall(1),
+      expect(mockLog.info).toHaveBeenNthCalledWith(
+        2,
         'device.command.retrieved',
         {
           uid,
@@ -797,7 +807,7 @@ describe('/account/device/commands', () => {
       output: { statusCode: 503 },
       errno: error.ERRNO.FEATURE_NOT_ENABLED,
     });
-    expect(mockPushbox.retrieve.notCalled).toBeTruthy();
+    expect(mockPushbox.retrieve).not.toHaveBeenCalled();
   });
 
   it('throws when a device id is not found', async () => {
@@ -820,8 +830,8 @@ describe('/account/device/commands', () => {
       output: { statusCode: 400 },
       errno: error.ERRNO.DEVICE_UNKNOWN,
     });
-    sinon.assert.calledOnceWithExactly(
-      mockLog.error,
+    expect(mockLog.error).toHaveBeenCalledTimes(1);
+    expect(mockLog.error).toHaveBeenCalledWith(
       'device.command.deviceIdMissing',
       {
         clientId: '',
@@ -832,7 +842,7 @@ describe('/account/device/commands', () => {
         uaOSVersion: undefined,
       }
     );
-    expect(mockPushbox.retrieve.notCalled).toBeTruthy();
+    expect(mockPushbox.retrieve).not.toHaveBeenCalled();
   });
 });
 
@@ -853,7 +863,11 @@ describe('/account/devices/invoke_command', () => {
       type: 'desktop',
     },
   ];
-  let mockLog: any, mockDB: any, mockRequest: any, mockPush: any, mockCustoms: any;
+  let mockLog: any,
+    mockDB: any,
+    mockRequest: any,
+    mockPush: any,
+    mockCustoms: any;
 
   beforeEach(() => {
     mockLog = mocks.mockLog();
@@ -873,7 +887,7 @@ describe('/account/devices/invoke_command', () => {
 
   it('stores commands using the pushbox service and sends a notification', () => {
     const mockPushbox = mocks.mockPushbox({
-      store: sinon.spy(async () => ({ index: 15 })),
+      store: jest.fn(async () => ({ index: 15 })),
     });
     const target = 'bogusid1';
     const sender = 'bogusid2';
@@ -895,12 +909,11 @@ describe('/account/devices/invoke_command', () => {
     );
 
     return runTest(route, mockRequest).then(() => {
-      expect(mockDB.device.callCount).toBe(1);
-      sinon.assert.calledWithExactly(mockDB.device, uid, target);
+      expect(mockDB.device).toHaveBeenCalledTimes(1);
+      expect(mockDB.device).toHaveBeenCalledWith(uid, target);
 
-      expect(mockPushbox.store.callCount).toBe(1);
-      sinon.assert.calledWithExactly(
-        mockPushbox.store,
+      expect(mockPushbox.store).toHaveBeenCalledTimes(1);
+      expect(mockPushbox.store).toHaveBeenCalledWith(
         uid,
         target,
         {
@@ -911,9 +924,8 @@ describe('/account/devices/invoke_command', () => {
         undefined
       );
 
-      expect(mockPush.notifyCommandReceived.callCount).toBe(1);
-      sinon.assert.calledWithExactly(
-        mockPush.notifyCommandReceived,
+      expect(mockPush.notifyCommandReceived).toHaveBeenCalledTimes(1);
+      expect(mockPush.notifyCommandReceived).toHaveBeenCalledWith(
         uid,
         mockDevices[0],
         command,
@@ -929,7 +941,7 @@ describe('/account/devices/invoke_command', () => {
     const THIRTY_DAYS_IN_SECS = 30 * 24 * 3600;
     const commandSendTab = 'https://identity.mozilla.com/cmd/open-uri';
     const mockPushbox = mocks.mockPushbox({
-      store: sinon.spy(async () => ({ index: 15 })),
+      store: jest.fn(async () => ({ index: 15 })),
     });
     const target = 'bogusid1';
     const sender = 'bogusid2';
@@ -951,9 +963,8 @@ describe('/account/devices/invoke_command', () => {
     );
 
     return runTest(route, mockRequest).then(() => {
-      expect(mockPushbox.store.callCount).toBe(1);
-      sinon.assert.calledWithExactly(
-        mockPushbox.store,
+      expect(mockPushbox.store).toHaveBeenCalledTimes(1);
+      expect(mockPushbox.store).toHaveBeenCalledWith(
         uid,
         target,
         {
@@ -964,9 +975,8 @@ describe('/account/devices/invoke_command', () => {
         THIRTY_DAYS_IN_SECS
       );
 
-      expect(mockPush.notifyCommandReceived.callCount).toBe(1);
-      sinon.assert.calledWithExactly(
-        mockPush.notifyCommandReceived,
+      expect(mockPush.notifyCommandReceived).toHaveBeenCalledTimes(1);
+      expect(mockPush.notifyCommandReceived).toHaveBeenCalledWith(
         uid,
         mockDevices[0],
         commandSendTab,
@@ -987,7 +997,7 @@ describe('/account/devices/invoke_command', () => {
       command,
       payload,
     };
-    mockDB.device = sinon.spy(() => Promise.reject(error.unknownDevice()));
+    mockDB.device = jest.fn(() => Promise.reject(error.unknownDevice()));
     const route = getRoute(
       makeRoutes({
         customs: mockCustoms,
@@ -1007,8 +1017,8 @@ describe('/account/devices/invoke_command', () => {
       },
       (err: any) => {
         expect(err.errno).toBe(123);
-        expect(mockPushbox.store.callCount).toBe(0);
-        expect(mockPush.notifyCommandReceived.callCount).toBe(0);
+        expect(mockPushbox.store).toHaveBeenCalledTimes(0);
+        expect(mockPush.notifyCommandReceived).toHaveBeenCalledTimes(0);
       }
     );
   });
@@ -1041,15 +1051,15 @@ describe('/account/devices/invoke_command', () => {
       },
       (err: any) => {
         expect(err.errno).toBe(157);
-        expect(mockPushbox.store.callCount).toBe(0);
-        expect(mockPush.notifyCommandReceived.callCount).toBe(0);
+        expect(mockPushbox.store).toHaveBeenCalledTimes(0);
+        expect(mockPush.notifyCommandReceived).toHaveBeenCalledTimes(0);
       }
     );
   });
 
   it('relays errors from the pushbox service', () => {
     const mockPushbox = mocks.mockPushbox({
-      store: sinon.spy(() => {
+      store: jest.fn(() => {
         const err = new Error() as any;
         err.message = 'Boom!';
         err.statusCode = 500;
@@ -1081,10 +1091,10 @@ describe('/account/devices/invoke_command', () => {
         throw new Error('should have thrown');
       },
       (err: any) => {
-        expect(mockPushbox.store.callCount).toBe(1);
+        expect(mockPushbox.store).toHaveBeenCalledTimes(1);
         expect(err.message).toBe('Boom!');
         expect(err.statusCode).toBe(500);
-        expect(mockPush.notifyCommandReceived.callCount).toBe(0);
+        expect(mockPush.notifyCommandReceived).toHaveBeenCalledTimes(0);
       }
     );
   });
@@ -1092,7 +1102,7 @@ describe('/account/devices/invoke_command', () => {
   it('emits `invoked` and `notified` events when successfully accepting a command', () => {
     const commandSendTab = 'https://identity.mozilla.com/cmd/open-uri';
     const mockPushbox = mocks.mockPushbox({
-      store: sinon.spy(async () => ({ index: 15 })),
+      store: jest.fn(async () => ({ index: 15 })),
     });
     const target = 'bogusid1';
     const sender = 'bogusid2';
@@ -1117,7 +1127,7 @@ describe('/account/devices/invoke_command', () => {
       expect(response.enqueued).toBeTruthy();
       expect(response.notified).toBeTruthy();
       expect(response.notifyError).toBeUndefined();
-      sinon.assert.callCount(mockLog.info, 2);
+      expect(mockLog.info).toHaveBeenCalledTimes(2);
       const expectedMetricsTags = {
         uid,
         target,
@@ -1129,13 +1139,13 @@ describe('/account/devices/invoke_command', () => {
         targetOS: undefined,
         targetType: 'mobile',
       };
-      sinon.assert.calledWithExactly(
-        mockLog.info.getCall(0),
+      expect(mockLog.info).toHaveBeenNthCalledWith(
+        1,
         'device.command.invoked',
         expectedMetricsTags
       );
-      sinon.assert.calledWithExactly(
-        mockLog.info.getCall(1),
+      expect(mockLog.info).toHaveBeenNthCalledWith(
+        2,
         'device.command.notified',
         expectedMetricsTags
       );
@@ -1145,7 +1155,7 @@ describe('/account/devices/invoke_command', () => {
   it('emits `invoked` and `notifyError` events when push fails', () => {
     const commandSendTab = 'https://identity.mozilla.com/cmd/open-uri';
     const mockPushbox = mocks.mockPushbox({
-      store: sinon.spy(async () => ({ index: 15 })),
+      store: jest.fn(async () => ({ index: 15 })),
     });
     const target = 'bogusid1';
     const sender = 'bogusid2';
@@ -1157,7 +1167,7 @@ describe('/account/devices/invoke_command', () => {
     };
     const mockPushError = new Error('a push failure') as any;
     mockPushError.errCode = 'expiredCallback';
-    mockPush.notifyCommandReceived = sinon.spy(async () => {
+    mockPush.notifyCommandReceived = jest.fn(async () => {
       throw mockPushError;
     });
     const route = getRoute(
@@ -1175,8 +1185,8 @@ describe('/account/devices/invoke_command', () => {
       expect(response.enqueued).toBeTruthy();
       expect(response.notified).toBeFalsy();
       expect(response.notifyError).toBe('expiredCallback');
-      sinon.assert.callCount(mockPush.notifyCommandReceived, 1);
-      sinon.assert.callCount(mockLog.info, 2);
+      expect(mockPush.notifyCommandReceived).toHaveBeenCalledTimes(1);
+      expect(mockLog.info).toHaveBeenCalledTimes(2);
       const expectedMetricsTags = {
         uid,
         target,
@@ -1188,13 +1198,13 @@ describe('/account/devices/invoke_command', () => {
         targetOS: undefined,
         targetType: 'mobile',
       };
-      sinon.assert.calledWithExactly(
-        mockLog.info.getCall(0),
+      expect(mockLog.info).toHaveBeenNthCalledWith(
+        1,
         'device.command.invoked',
         expectedMetricsTags
       );
-      sinon.assert.calledWithExactly(
-        mockLog.info.getCall(1),
+      expect(mockLog.info).toHaveBeenNthCalledWith(
+        2,
         'device.command.notifyError',
         { err: mockPushError, ...expectedMetricsTags }
       );
@@ -1203,7 +1213,7 @@ describe('/account/devices/invoke_command', () => {
 
   it('omits sender field when deviceId is null/undefined', () => {
     const mockPushbox = mocks.mockPushbox({
-      store: sinon.spy(async () => ({ index: 15 })),
+      store: jest.fn(async () => ({ index: 15 })),
     });
     const target = 'bogusid1';
     const payload = { bogus: 'payload' };
@@ -1234,18 +1244,19 @@ describe('/account/devices/invoke_command', () => {
 
     return runTest(route, mockRequest).then(() => {
       // Verify diagnostic warning was logged
-      expect(mockLog.warn.callCount).toBe(1);
-      sinon.assert.calledWith(mockLog.warn, 'device.command.senderDeviceIdMissing');
-      const warningArgs = mockLog.warn.getCall(0).args[1];
+      expect(mockLog.warn).toHaveBeenCalledTimes(1);
+      expect(mockLog.warn.mock.calls[0][0]).toBe(
+        'device.command.senderDeviceIdMissing'
+      );
+      const warningArgs = mockLog.warn.mock.calls[0][1];
       expect(warningArgs.uid).toBe(uid);
       expect(warningArgs.command).toBe(command);
       expect(warningArgs.clientName).toBe('Test Client');
       expect(warningArgs.uaBrowser).toBe('Firefox');
 
       // Verify pushbox.store was called WITHOUT sender field
-      expect(mockPushbox.store.callCount).toBe(1);
-      sinon.assert.calledWithExactly(
-        mockPushbox.store,
+      expect(mockPushbox.store).toHaveBeenCalledTimes(1);
+      expect(mockPushbox.store).toHaveBeenCalledWith(
         uid,
         target,
         {
@@ -1257,8 +1268,8 @@ describe('/account/devices/invoke_command', () => {
       );
 
       // Verify metrics logging has sender as null
-      sinon.assert.callCount(mockLog.info, 2);
-      const invokedMetrics = mockLog.info.getCall(0).args[1];
+      expect(mockLog.info).toHaveBeenCalledTimes(2);
+      const invokedMetrics = mockLog.info.mock.calls[0][1];
       expect(invokedMetrics.sender).toBeNull();
     });
   });
@@ -1280,7 +1291,7 @@ describe('/account/devices/invoke_command', () => {
       output: { statusCode: 503 },
       errno: error.ERRNO.FEATURE_NOT_ENABLED,
     });
-    expect(mockPushbox.store.notCalled).toBeTruthy();
+    expect(mockPushbox.store).not.toHaveBeenCalled();
   });
 });
 
@@ -1323,9 +1334,9 @@ describe('/account/device/destroy', () => {
     const route = getRoute(accountRoutes, '/account/device/destroy');
 
     return runTest(route, mockRequest, () => {
-      expect(mockDevices.destroy.callCount).toBe(1);
-      expect(mockDevices.destroy.firstCall.args[0]).toBe(mockRequest);
-      expect(mockDevices.destroy.firstCall.args[1]).toBe(deviceId);
+      expect(mockDevices.destroy).toHaveBeenCalledTimes(1);
+      expect(mockDevices.destroy.mock.calls[0][0]).toBe(mockRequest);
+      expect(mockDevices.destroy.mock.calls[0][1]).toBe(deviceId);
     });
   });
 });
@@ -1450,13 +1461,13 @@ describe('/account/devices', () => {
       expect(response[3].approximateLastAccessTime).toBeUndefined();
       expect(response[3].approximateLastAccessTimeFormatted).toBeUndefined();
 
-      expect(log.error.callCount).toBe(0);
+      expect(log.error).toHaveBeenCalledTimes(0);
 
-      expect(mockDB.devices.callCount).toBe(0);
+      expect(mockDB.devices).toHaveBeenCalledTimes(0);
 
-      expect(mockDevices.synthesizeName.callCount).toBe(1);
-      expect(mockDevices.synthesizeName.args[0].length).toBe(1);
-      expect(mockDevices.synthesizeName.args[0][0]).toBe(unnamedDevice);
+      expect(mockDevices.synthesizeName).toHaveBeenCalledTimes(1);
+      expect(mockDevices.synthesizeName.mock.calls[0].length).toBe(1);
+      expect(mockDevices.synthesizeName.mock.calls[0][0]).toBe(unnamedDevice);
     });
   });
 
@@ -1500,7 +1511,7 @@ describe('/account/devices', () => {
         state: 'England',
         stateCode: 'EN',
       });
-      expect(log.error.callCount).toBe(0);
+      expect(log.error).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -1586,7 +1597,7 @@ describe('/account/devices', () => {
     const db = mocks.mockDB();
     const log = mocks.mockLog();
     const oauth = {
-      getRefreshTokensByUid: sinon.spy(async () => {
+      getRefreshTokensByUid: jest.fn(async () => {
         return [
           {
             tokenId: Buffer.from(refreshTokenId, 'hex'),
@@ -1660,7 +1671,7 @@ describe('/account/devices', () => {
     const route = getRoute(accountRoutes, '/account/devices');
 
     return runTest(route, mockRequest, () => {
-      sinon.assert.notCalled(mockDB.touchSessionToken);
+      expect(mockDB.touchSessionToken).not.toHaveBeenCalled();
     });
   });
 
@@ -1715,7 +1726,11 @@ describe('/account/devices', () => {
       expect(response[0].sessionToken).toBeUndefined();
       expect(response[0].isCurrentDevice).toBe(true);
       expect(response[0].lastAccessTime > ONE_DAY_AGO).toBeTruthy();
-      sinon.assert.calledWithExactly(mockDB.touchSessionToken, credentials, {}, true);
+      expect(mockDB.touchSessionToken).toHaveBeenCalledWith(
+        credentials,
+        {},
+        true
+      );
     });
   });
 });

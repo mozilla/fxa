@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { default as Container } from 'typedi';
-import sinon from 'sinon';
 
 process.env.CONFIG_FILES = require.resolve('./oauth-test.json');
 const { config } = require('../../config');
@@ -71,8 +70,10 @@ function wrapServer(server: any, close: () => Promise<void>) {
 export async function start() {
   if (!Container.has(CapabilityService)) {
     Container.set(CapabilityService, {
-      subscriptionCapabilities: sinon.fake.resolves([]),
-      determineClientVisibleSubscriptionCapabilities: sinon.fake.resolves(''),
+      subscriptionCapabilities: jest.fn().mockResolvedValue([]),
+      determineClientVisibleSubscriptionCapabilities: jest
+        .fn()
+        .mockResolvedValue(''),
     });
   }
   const { server, close } = await createServer(testConfig);

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import Container from 'typedi';
 import fs from 'fs';
 
@@ -55,14 +54,14 @@ const mockConfig = {
 
 describe('StripeAutomaticTaxConverter', () => {
   let stripeAutomaticTaxConverter: StripeAutomaticTaxConverter;
-  let helperStub: sinon.SinonStubbedInstance<StripeAutomaticTaxConverterHelpers>;
+  let helperStub: any;
   let stripeStub: Stripe;
   let stripeHelperStub: StripeHelper;
   let dbStub: any;
-  let geodbStub: sinon.SinonStub;
-  let firestoreGetStub: sinon.SinonStub;
+  let geodbStub: jest.Mock;
+  let firestoreGetStub: jest.Mock;
   let mockIpAddressMapping: IpAddressMapFileEntry[];
-  let readFileSyncStub: sinon.SinonStub;
+  let readFileSyncStub: jest.SpyInstance;
 
   beforeEach(() => {
     mockIpAddressMapping = [
@@ -71,35 +70,40 @@ describe('StripeAutomaticTaxConverter', () => {
         remote_address_chain: '1.1.1.1',
       },
     ];
-    readFileSyncStub = sinon
-      .stub(fs, 'readFileSync')
-      .returns(JSON.stringify(mockIpAddressMapping));
+    readFileSyncStub = jest
+      .spyOn(fs, 'readFileSync')
+      .mockReturnValue(JSON.stringify(mockIpAddressMapping));
 
-    firestoreGetStub = sinon.stub();
+    firestoreGetStub = jest.fn();
     Container.set(AuthFirestore, {
-      collectionGroup: sinon.stub().returns({
-        where: sinon.stub().returnsThis(),
-        orderBy: sinon.stub().returnsThis(),
-        startAfter: sinon.stub().returnsThis(),
-        limit: sinon.stub().returnsThis(),
+      collectionGroup: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        startAfter: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
         get: firestoreGetStub,
       }),
     });
 
     Container.set(AppConfig, mockConfig);
 
-    helperStub = sinon.createStubInstance(StripeAutomaticTaxConverterHelpers);
+    helperStub = {
+      processIPAddressList: jest.fn(),
+      filterEligibleSubscriptions: jest.fn(),
+      isTaxEligible: jest.fn(),
+      getSpecialTaxAmounts: jest.fn(),
+    };
     Container.set(StripeAutomaticTaxConverterHelpers, helperStub);
 
-    helperStub.processIPAddressList.returns({
+    helperStub.processIPAddressList.mockReturnValue({
       [mockIpAddressMapping[0].uid]:
         mockIpAddressMapping[0].remote_address_chain,
     });
 
-    geodbStub = sinon.stub();
+    geodbStub = jest.fn();
 
     stripeStub = {
-      on: sinon.stub(),
+      on: jest.fn(),
       products: {},
       customers: {},
       subscriptions: {},
@@ -109,12 +113,12 @@ describe('StripeAutomaticTaxConverter', () => {
     stripeHelperStub = {
       stripe: stripeStub,
       currencyHelper: {
-        isCurrencyCompatibleWithCountry: sinon.stub(),
+        isCurrencyCompatibleWithCountry: jest.fn(),
       },
     } as unknown as StripeHelper;
 
     dbStub = {
-      account: sinon.stub(),
+      account: jest.fn(),
     };
 
     stripeAutomaticTaxConverter = new StripeAutomaticTaxConverter(
@@ -129,29 +133,27 @@ describe('StripeAutomaticTaxConverter', () => {
   });
 
   afterEach(() => {
-    readFileSyncStub.restore();
+    readFileSyncStub.mockRestore();
     Container.reset();
   });
 
   describe('convert', () => {
-    let fetchSubsBatchStub: sinon.SinonStub;
-    let generateReportForSubscriptionStub: sinon.SinonStub;
+    let fetchSubsBatchStub: jest.Mock;
+    let generateReportForSubscriptionStub: jest.Mock;
     const mockSubs = [mockSubscription];
 
     beforeEach(async () => {
-      fetchSubsBatchStub = sinon
-        .stub()
-        .onFirstCall()
-        .returns(mockSubs)
-        .onSecondCall()
-        .returns([]);
+      fetchSubsBatchStub = jest
+        .fn()
+        .mockReturnValueOnce(mockSubs)
+        .mockReturnValueOnce([]);
       stripeAutomaticTaxConverter.fetchSubsBatch = fetchSubsBatchStub as any;
 
-      generateReportForSubscriptionStub = sinon.stub();
+      generateReportForSubscriptionStub = jest.fn();
       stripeAutomaticTaxConverter.generateReportForSubscription =
         generateReportForSubscriptionStub as any;
 
-      helperStub.filterEligibleSubscriptions.callsFake(
+      helperStub.filterEligibleSubscriptions.mockImplementation(
         (subscriptions) => subscriptions
       );
 
@@ -159,18 +161,18 @@ describe('StripeAutomaticTaxConverter', () => {
     });
 
     it('fetches subscriptions until no results', () => {
-      expect(fetchSubsBatchStub.callCount).toBe(2);
+      expect(fetchSubsBatchStub).toHaveBeenCalledTimes(2);
     });
 
     it('filters ineligible subscriptions', () => {
-      expect(helperStub.filterEligibleSubscriptions.callCount).toBe(2);
-      expect(helperStub.filterEligibleSubscriptions.calledWith(mockSubs)).toBe(
-        true
+      expect(helperStub.filterEligibleSubscriptions).toHaveBeenCalledTimes(2);
+      expect(helperStub.filterEligibleSubscriptions).toHaveBeenCalledWith(
+        mockSubs
       );
     });
 
     it('generates a report for each applicable subscription', () => {
-      expect(generateReportForSubscriptionStub.callCount).toBe(1);
+      expect(generateReportForSubscriptionStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -179,10 +181,10 @@ describe('StripeAutomaticTaxConverter', () => {
     let result: FirestoreSubscription[];
 
     beforeEach(async () => {
-      firestoreGetStub.resolves({
+      firestoreGetStub.mockResolvedValue({
         docs: [
           {
-            data: sinon.stub().returns(mockSubscription),
+            data: jest.fn().mockReturnValue(mockSubscription),
           },
         ],
       });
@@ -192,7 +194,7 @@ describe('StripeAutomaticTaxConverter', () => {
     });
 
     it('returns a list of subscriptions from Firestore', () => {
-      sinon.assert.match(result, [mockSubscription]);
+      expect(result).toEqual([mockSubscription]);
     });
   });
 
@@ -205,55 +207,53 @@ describe('StripeAutomaticTaxConverter', () => {
       },
     } as FirestoreSubscription;
     const mockReport = ['mock-report'];
-    let logStub: sinon.SinonStub;
-    let enableTaxForCustomer: sinon.SinonStub;
-    let enableTaxForSubscription: sinon.SinonStub;
-    let fetchInvoicePreview: sinon.SinonStub;
-    let buildReport: sinon.SinonStub;
-    let writeReportStub: sinon.SinonStub;
+    let logStub: jest.SpyInstance;
+    let enableTaxForCustomer: jest.Mock;
+    let enableTaxForSubscription: jest.Mock;
+    let fetchInvoicePreview: jest.Mock;
+    let buildReport: jest.Mock;
+    let writeReportStub: jest.Mock;
 
     beforeEach(async () => {
-      (stripeStub.products as any).retrieve = sinon
-        .stub()
-        .resolves(mockProduct);
-      fetchInvoicePreview = sinon.stub();
+      (stripeStub.products as any).retrieve = jest
+        .fn()
+        .mockResolvedValue(mockProduct);
+      fetchInvoicePreview = jest.fn();
       stripeAutomaticTaxConverter.fetchInvoicePreview =
         fetchInvoicePreview as any;
-      stripeAutomaticTaxConverter.fetchCustomer = sinon
-        .stub()
-        .resolves(mockCustomer) as any;
-      dbStub.account.resolves({
+      stripeAutomaticTaxConverter.fetchCustomer = jest
+        .fn()
+        .mockResolvedValue(mockCustomer) as any;
+      dbStub.account.mockResolvedValue({
         locale: 'en-US',
       });
-      enableTaxForCustomer = sinon.stub().resolves(true);
+      enableTaxForCustomer = jest.fn().mockResolvedValue(true);
       stripeAutomaticTaxConverter.enableTaxForCustomer =
         enableTaxForCustomer as any;
-      stripeAutomaticTaxConverter.isExcludedSubscriptionProduct = sinon
-        .stub()
-        .returns(false) as any;
-      enableTaxForSubscription = sinon.stub().resolves();
+      stripeAutomaticTaxConverter.isExcludedSubscriptionProduct = jest
+        .fn()
+        .mockReturnValue(false) as any;
+      enableTaxForSubscription = jest.fn().mockResolvedValue(undefined);
       stripeAutomaticTaxConverter.enableTaxForSubscription =
         enableTaxForSubscription as any;
-      fetchInvoicePreview = sinon
-        .stub()
-        .onFirstCall()
-        .resolves({
+      fetchInvoicePreview = jest
+        .fn()
+        .mockResolvedValueOnce({
           ...mockInvoicePreview,
           total: (mockInvoicePreview as any).total - 1,
         })
-        .onSecondCall()
-        .resolves(mockInvoicePreview);
+        .mockResolvedValueOnce(mockInvoicePreview);
       stripeAutomaticTaxConverter.fetchInvoicePreview =
         fetchInvoicePreview as any;
-      buildReport = sinon.stub().returns(mockReport);
+      buildReport = jest.fn().mockReturnValue(mockReport);
       stripeAutomaticTaxConverter.buildReport = buildReport as any;
-      writeReportStub = sinon.stub().resolves();
+      writeReportStub = jest.fn().mockResolvedValue(undefined);
       stripeAutomaticTaxConverter.writeReport = writeReportStub as any;
-      logStub = sinon.stub(console, 'log');
+      logStub = jest.spyOn(console, 'log');
     });
 
     afterEach(() => {
-      logStub.restore();
+      logStub.mockRestore();
     });
 
     describe('success', () => {
@@ -264,97 +264,97 @@ describe('StripeAutomaticTaxConverter', () => {
       });
 
       it('enables stripe tax for customer', () => {
-        expect(enableTaxForCustomer.calledWith(mockCustomer)).toBe(true);
+        expect(enableTaxForCustomer).toHaveBeenCalledWith(mockCustomer);
       });
 
       it('enables stripe tax for subscription', () => {
-        expect(enableTaxForSubscription.calledWith(mockFirestoreSub.id)).toBe(
-          true
+        expect(enableTaxForSubscription).toHaveBeenCalledWith(
+          mockFirestoreSub.id
         );
       });
 
       it('fetches an invoice preview', () => {
-        expect(fetchInvoicePreview.calledWith(mockFirestoreSub.id)).toBe(true);
+        expect(fetchInvoicePreview).toHaveBeenCalledWith(mockFirestoreSub.id);
       });
 
       it('writes the report to disk', () => {
-        expect(writeReportStub.calledWith(mockReport)).toBe(true);
+        expect(writeReportStub).toHaveBeenCalledWith(mockReport);
       });
     });
 
     describe('invalid', () => {
       it('aborts if customer does not exist', async () => {
-        stripeAutomaticTaxConverter.fetchCustomer = sinon
-          .stub()
-          .resolves(null) as any;
+        stripeAutomaticTaxConverter.fetchCustomer = jest
+          .fn()
+          .mockResolvedValue(null) as any;
         await stripeAutomaticTaxConverter.generateReportForSubscription(
           mockFirestoreSub
         );
 
-        expect(enableTaxForCustomer.notCalled).toBe(true);
-        expect(enableTaxForSubscription.notCalled).toBe(true);
-        expect(writeReportStub.notCalled).toBe(true);
+        expect(enableTaxForCustomer).not.toHaveBeenCalled();
+        expect(enableTaxForSubscription).not.toHaveBeenCalled();
+        expect(writeReportStub).not.toHaveBeenCalled();
       });
 
       it('aborts if account for customer does not exist', async () => {
-        dbStub.account.resolves(null);
+        dbStub.account.mockResolvedValue(null);
         await stripeAutomaticTaxConverter.generateReportForSubscription(
           mockFirestoreSub
         );
 
-        expect(enableTaxForCustomer.notCalled).toBe(true);
-        expect(enableTaxForSubscription.notCalled).toBe(true);
-        expect(writeReportStub.notCalled).toBe(true);
+        expect(enableTaxForCustomer).not.toHaveBeenCalled();
+        expect(enableTaxForSubscription).not.toHaveBeenCalled();
+        expect(writeReportStub).not.toHaveBeenCalled();
       });
 
       it('aborts if customer is not taxable', async () => {
-        stripeAutomaticTaxConverter.enableTaxForCustomer = sinon
-          .stub()
-          .resolves(false) as any;
+        stripeAutomaticTaxConverter.enableTaxForCustomer = jest
+          .fn()
+          .mockResolvedValue(false) as any;
         await stripeAutomaticTaxConverter.generateReportForSubscription(
           mockFirestoreSub
         );
 
-        expect(enableTaxForCustomer.notCalled).toBe(true);
-        expect(enableTaxForSubscription.notCalled).toBe(true);
-        expect(writeReportStub.notCalled).toBe(true);
+        expect(enableTaxForCustomer).not.toHaveBeenCalled();
+        expect(enableTaxForSubscription).not.toHaveBeenCalled();
+        expect(writeReportStub).not.toHaveBeenCalled();
       });
 
       it('does not save report to CSV if total has not changed', async () => {
-        stripeAutomaticTaxConverter.fetchInvoicePreview = sinon
-          .stub()
-          .resolves(mockInvoicePreview) as any;
+        stripeAutomaticTaxConverter.fetchInvoicePreview = jest
+          .fn()
+          .mockResolvedValue(mockInvoicePreview) as any;
         await stripeAutomaticTaxConverter.generateReportForSubscription(
           mockFirestoreSub
         );
 
-        expect(enableTaxForCustomer.called).toBe(true);
-        expect(enableTaxForSubscription.called).toBe(true);
-        expect(writeReportStub.notCalled).toBe(true);
+        expect(enableTaxForCustomer).toHaveBeenCalled();
+        expect(enableTaxForSubscription).toHaveBeenCalled();
+        expect(writeReportStub).not.toHaveBeenCalled();
       });
 
       it('does not update subscription for ineligible product', async () => {
-        stripeAutomaticTaxConverter.isExcludedSubscriptionProduct = sinon
-          .stub()
-          .returns(true) as any;
+        stripeAutomaticTaxConverter.isExcludedSubscriptionProduct = jest
+          .fn()
+          .mockReturnValue(true) as any;
         await stripeAutomaticTaxConverter.generateReportForSubscription(
           mockFirestoreSub
         );
 
-        expect(enableTaxForCustomer.notCalled).toBe(true);
-        expect(enableTaxForSubscription.notCalled).toBe(true);
-        expect(writeReportStub.notCalled).toBe(true);
+        expect(enableTaxForCustomer).not.toHaveBeenCalled();
+        expect(enableTaxForSubscription).not.toHaveBeenCalled();
+        expect(writeReportStub).not.toHaveBeenCalled();
       });
     });
   });
 
   describe('fetchCustomer', () => {
-    let customerRetrieveStub: sinon.SinonStub;
+    let customerRetrieveStub: jest.Mock;
     let result: Stripe.Customer | null;
 
     describe('customer exists', () => {
       beforeEach(async () => {
-        customerRetrieveStub = sinon.stub().resolves(mockCustomer);
+        customerRetrieveStub = jest.fn().mockResolvedValue(mockCustomer);
         stripeStub.customers.retrieve = customerRetrieveStub as any;
 
         result = await stripeAutomaticTaxConverter.fetchCustomer(
@@ -363,15 +363,13 @@ describe('StripeAutomaticTaxConverter', () => {
       });
 
       it('fetches customer from Stripe', () => {
-        expect(
-          customerRetrieveStub.calledWith(mockCustomer.id, {
-            expand: ['tax'],
-          })
-        ).toBe(true);
+        expect(customerRetrieveStub).toHaveBeenCalledWith(mockCustomer.id, {
+          expand: ['tax'],
+        });
       });
 
       it('returns customer', () => {
-        sinon.assert.match(result, mockCustomer);
+        expect(result).toEqual(mockCustomer);
       });
     });
 
@@ -381,7 +379,7 @@ describe('StripeAutomaticTaxConverter', () => {
           ...mockCustomer,
           deleted: true,
         };
-        customerRetrieveStub = sinon.stub().resolves(deletedCustomer);
+        customerRetrieveStub = jest.fn().mockResolvedValue(deletedCustomer);
         stripeStub.customers.retrieve = customerRetrieveStub as any;
 
         result = await stripeAutomaticTaxConverter.fetchCustomer(
@@ -390,19 +388,19 @@ describe('StripeAutomaticTaxConverter', () => {
       });
 
       it('returns null', () => {
-        sinon.assert.match(result, null);
+        expect(result).toEqual(null);
       });
     });
   });
 
   describe('enableTaxForCustomer', () => {
-    let updateStub: sinon.SinonStub;
+    let updateStub: jest.Mock;
     let result: boolean;
 
     describe('tax already enabled', () => {
       beforeEach(async () => {
-        helperStub.isTaxEligible.returns(true);
-        updateStub = sinon.stub().resolves(mockCustomer);
+        helperStub.isTaxEligible.mockReturnValue(true);
+        updateStub = jest.fn().mockResolvedValue(mockCustomer);
         stripeStub.customers.update = updateStub as any;
 
         result =
@@ -410,7 +408,7 @@ describe('StripeAutomaticTaxConverter', () => {
       });
 
       it('does not update customer', () => {
-        expect(updateStub.notCalled).toBe(true);
+        expect(updateStub).not.toHaveBeenCalled();
       });
 
       it('returns true', () => {
@@ -421,20 +419,18 @@ describe('StripeAutomaticTaxConverter', () => {
     describe('tax not enabled', () => {
       beforeEach(async () => {
         helperStub.isTaxEligible
-          .onFirstCall()
-          .returns(false)
-          .onSecondCall()
-          .returns(true);
-        updateStub = sinon.stub().resolves(mockCustomer);
+          .mockReturnValueOnce(false)
+          .mockReturnValueOnce(true);
+        updateStub = jest.fn().mockResolvedValue(mockCustomer);
         stripeStub.customers.update = updateStub as any;
-        stripeAutomaticTaxConverter.fetchCustomer = sinon
-          .stub()
-          .resolves(mockCustomer) as any;
+        stripeAutomaticTaxConverter.fetchCustomer = jest
+          .fn()
+          .mockResolvedValue(mockCustomer) as any;
       });
 
       describe("invalid IP address, can't resolve geolocation", () => {
         beforeEach(async () => {
-          geodbStub.returns({});
+          geodbStub.mockReturnValue({});
 
           result = await stripeAutomaticTaxConverter.enableTaxForCustomer({
             ...mockCustomer,
@@ -445,7 +441,7 @@ describe('StripeAutomaticTaxConverter', () => {
         });
 
         it('does not update customer', () => {
-          expect(updateStub.notCalled).toBe(true);
+          expect(updateStub).not.toHaveBeenCalled();
         });
 
         it('returns false', () => {
@@ -455,14 +451,14 @@ describe('StripeAutomaticTaxConverter', () => {
 
       describe("invalid IP address, isn't in same country", () => {
         beforeEach(async () => {
-          geodbStub.returns({
+          geodbStub.mockReturnValue({
             postalCode: 'ABC',
             countryCode: 'ZZZ',
           });
 
           (
             stripeHelperStub.currencyHelper as any
-          ).isCurrencyCompatibleWithCountry = sinon.stub().returns(false);
+          ).isCurrencyCompatibleWithCountry = jest.fn().mockReturnValue(false);
 
           result = await stripeAutomaticTaxConverter.enableTaxForCustomer({
             ...mockCustomer,
@@ -473,7 +469,7 @@ describe('StripeAutomaticTaxConverter', () => {
         });
 
         it('does not update customer', () => {
-          expect(updateStub.notCalled).toBe(true);
+          expect(updateStub).not.toHaveBeenCalled();
         });
 
         it('returns false', () => {
@@ -483,14 +479,14 @@ describe('StripeAutomaticTaxConverter', () => {
 
       describe('valid IP address', () => {
         beforeEach(async () => {
-          geodbStub.returns({
+          geodbStub.mockReturnValue({
             countryCode: 'US',
             postalCode: 92841,
           });
 
           (
             stripeHelperStub.currencyHelper as any
-          ).isCurrencyCompatibleWithCountry = sinon.stub().returns(true);
+          ).isCurrencyCompatibleWithCountry = jest.fn().mockReturnValue(true);
 
           result = await stripeAutomaticTaxConverter.enableTaxForCustomer({
             ...mockCustomer,
@@ -501,17 +497,15 @@ describe('StripeAutomaticTaxConverter', () => {
         });
 
         it('updates customer', () => {
-          expect(
-            updateStub.calledWith(mockCustomer.id, {
-              shipping: {
-                name: mockCustomer.email,
-                address: {
-                  country: 'US',
-                  postal_code: 92841,
-                },
+          expect(updateStub).toHaveBeenCalledWith(mockCustomer.id, {
+            shipping: {
+              name: mockCustomer.email,
+              address: {
+                country: 'US',
+                postal_code: 92841,
               },
-            })
-          ).toBe(true);
+            },
+          });
         });
 
         it('returns true', () => {
@@ -544,13 +538,13 @@ describe('StripeAutomaticTaxConverter', () => {
   });
 
   describe('enableTaxForSubscription', () => {
-    let updateStub: sinon.SinonStub;
-    let retrieveStub: sinon.SinonStub;
+    let updateStub: jest.Mock;
+    let retrieveStub: jest.Mock;
 
     beforeEach(async () => {
-      updateStub = sinon.stub().resolves(mockSubscription);
+      updateStub = jest.fn().mockResolvedValue(mockSubscription);
       stripeStub.subscriptions.update = updateStub as any;
-      retrieveStub = sinon.stub().resolves(mockSubscription);
+      retrieveStub = jest.fn().mockResolvedValue(mockSubscription);
       stripeStub.subscriptions.retrieve = retrieveStub as any;
 
       await stripeAutomaticTaxConverter.enableTaxForSubscription(
@@ -559,30 +553,28 @@ describe('StripeAutomaticTaxConverter', () => {
     });
 
     it('updates the subscription', () => {
-      expect(
-        updateStub.calledWith(mockSubscription.id, {
-          automatic_tax: {
-            enabled: true,
+      expect(updateStub).toHaveBeenCalledWith(mockSubscription.id, {
+        automatic_tax: {
+          enabled: true,
+        },
+        proration_behavior: 'none',
+        items: [
+          {
+            id: mockSubscription.items.data[0].id,
+            tax_rates: '',
           },
-          proration_behavior: 'none',
-          items: [
-            {
-              id: mockSubscription.items.data[0].id,
-              tax_rates: '',
-            },
-          ],
-          default_tax_rates: '',
-        })
-      ).toBe(true);
+        ],
+        default_tax_rates: '',
+      });
     });
   });
 
   describe('fetchInvoicePreview', () => {
     let result: Stripe.Response<Stripe.UpcomingInvoice>;
-    let stub: sinon.SinonStub;
+    let stub: jest.Mock;
 
     beforeEach(async () => {
-      stub = sinon.stub().resolves(mockInvoicePreview);
+      stub = jest.fn().mockResolvedValue(mockInvoicePreview);
       stripeStub.invoices.retrieveUpcoming = stub as any;
 
       result = await stripeAutomaticTaxConverter.fetchInvoicePreview(
@@ -591,16 +583,14 @@ describe('StripeAutomaticTaxConverter', () => {
     });
 
     it('calls stripe for the invoice preview', () => {
-      expect(
-        stub.calledWith({
-          subscription: mockSubscription.id,
-          expand: ['total_tax_amounts.tax_rate'],
-        })
-      ).toBe(true);
+      expect(stub).toHaveBeenCalledWith({
+        subscription: mockSubscription.id,
+        expand: ['total_tax_amounts.tax_rate'],
+      });
     });
 
     it('returns invoice preview', () => {
-      sinon.assert.match(result, mockInvoicePreview);
+      expect(result).toEqual(mockInvoicePreview);
     });
   });
 
@@ -613,7 +603,7 @@ describe('StripeAutomaticTaxConverter', () => {
         qst: 13,
         rst: 14,
       };
-      helperStub.getSpecialTaxAmounts.returns(mockSpecialTaxAmounts);
+      helperStub.getSpecialTaxAmounts.mockReturnValue(mockSpecialTaxAmounts);
 
       // Invoice preview with tax doesn't include total_excluding_tax which we need
       const _mockInvoicePreview = {
@@ -630,7 +620,7 @@ describe('StripeAutomaticTaxConverter', () => {
         _mockInvoicePreview as any
       );
 
-      sinon.assert.match(result, [
+      expect(result).toEqual([
         mockCustomer.metadata.userid,
         `"${mockCustomer.email}"`,
         mockProduct.id,

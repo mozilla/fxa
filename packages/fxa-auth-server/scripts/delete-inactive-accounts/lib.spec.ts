@@ -2,18 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import * as lib from './lib';
 
 describe('delete inactive accounts script lib', () => {
-  let sandbox: sinon.SinonSandbox;
-
-  beforeEach(() => {
-    sandbox = sinon.createSandbox();
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   describe('setDateToUTC', () => {
@@ -29,14 +24,15 @@ describe('delete inactive accounts script lib', () => {
       const ts = Date.now();
 
       it('should be true when there is one recent enough session token', async () => {
-        const tokensFn = sandbox.stub().resolves([{ lastAccessTime: ts }]);
+        const tokensFn = jest.fn().mockResolvedValue([{ lastAccessTime: ts }]);
         const newerTsActual = await lib.hasActiveSessionToken(
           tokensFn,
           '9001',
           ts - 1000
         );
         expect(newerTsActual).toBe(true);
-        sinon.assert.calledOnceWithExactly(tokensFn, '9001');
+        expect(tokensFn).toHaveBeenCalledTimes(1);
+        expect(tokensFn).toHaveBeenCalledWith('9001');
 
         const equallyNewActual = await lib.hasActiveSessionToken(
           tokensFn,
@@ -46,9 +42,9 @@ describe('delete inactive accounts script lib', () => {
         expect(equallyNewActual).toBe(true);
       });
       it('should be true when there are multiple recent enough session tokens', async () => {
-        const tokensFn = sandbox
-          .stub()
-          .resolves([
+        const tokensFn = jest
+          .fn()
+          .mockResolvedValue([
             { lastAccessTime: ts - 9000 },
             { lastAccessTime: ts },
             { lastAccessTime: ts + 9000 },
@@ -61,7 +57,7 @@ describe('delete inactive accounts script lib', () => {
         expect(actual).toBe(true);
       });
       it('should be false when there are no recent enough session tokens', async () => {
-        const noTokensFn = sandbox.stub().resolves([]);
+        const noTokensFn = jest.fn().mockResolvedValue([]);
         const noTokensActual = await lib.hasActiveSessionToken(
           noTokensFn,
           '9001',
@@ -69,7 +65,9 @@ describe('delete inactive accounts script lib', () => {
         );
         expect(noTokensActual).toBe(false);
 
-        const noTimestampTokensFn = sandbox.stub().resolves([{ uid: '9001' }]);
+        const noTimestampTokensFn = jest
+          .fn()
+          .mockResolvedValue([{ uid: '9001' }]);
         const noTimestampTokensActual = await lib.hasActiveSessionToken(
           noTimestampTokensFn,
           '9001',
@@ -77,9 +75,9 @@ describe('delete inactive accounts script lib', () => {
         );
         expect(noTimestampTokensActual).toBe(false);
 
-        const noRecentEnoughTokensFn = sandbox
-          .stub()
-          .resolves([{ lastAccessTime: ts }]);
+        const noRecentEnoughTokensFn = jest
+          .fn()
+          .mockResolvedValue([{ lastAccessTime: ts }]);
         const noRecentEnoughTokensActual = await lib.hasActiveSessionToken(
           noRecentEnoughTokensFn,
           '9001',
@@ -93,14 +91,15 @@ describe('delete inactive accounts script lib', () => {
       const ts = Date.now();
 
       it('should be true when there is a recent enough refresh token', async () => {
-        const tokensFn = sandbox.stub().resolves([{ lastUsedAt: ts }]);
+        const tokensFn = jest.fn().mockResolvedValue([{ lastUsedAt: ts }]);
         const newerTsActual = await lib.hasActiveRefreshToken(
           tokensFn,
           '9001',
           ts - 1000
         );
         expect(newerTsActual).toBe(true);
-        sinon.assert.calledOnceWithExactly(tokensFn, '9001');
+        expect(tokensFn).toHaveBeenCalledTimes(1);
+        expect(tokensFn).toHaveBeenCalledWith('9001');
 
         const equallyNewActual = await lib.hasActiveRefreshToken(
           tokensFn,
@@ -110,9 +109,9 @@ describe('delete inactive accounts script lib', () => {
         expect(equallyNewActual).toBe(true);
       });
       it('should be true when there are multiple recent enough refresh tokens', async () => {
-        const tokensFn = sandbox
-          .stub()
-          .resolves([
+        const tokensFn = jest
+          .fn()
+          .mockResolvedValue([
             { lastUsedAt: ts - 9000 },
             { lastUsedAt: ts },
             { lastUsedAt: ts + 9000 },
@@ -125,7 +124,7 @@ describe('delete inactive accounts script lib', () => {
         expect(actual).toBe(true);
       });
       it('should be false when there are no recent enough refresh tokens', async () => {
-        const noTokensFn = sandbox.stub().resolves([]);
+        const noTokensFn = jest.fn().mockResolvedValue([]);
         const noTokensActual = await lib.hasActiveRefreshToken(
           noTokensFn,
           '9001',
@@ -133,7 +132,9 @@ describe('delete inactive accounts script lib', () => {
         );
         expect(noTokensActual).toBe(false);
 
-        const noTimestampTokensFn = sandbox.stub().resolves([{ uid: '9001' }]);
+        const noTimestampTokensFn = jest
+          .fn()
+          .mockResolvedValue([{ uid: '9001' }]);
         const noTimestampTokensActual = await lib.hasActiveRefreshToken(
           noTimestampTokensFn,
           '9001',
@@ -141,9 +142,9 @@ describe('delete inactive accounts script lib', () => {
         );
         expect(noTimestampTokensActual).toBe(false);
 
-        const noRecentEnoughTokensFn = sandbox
-          .stub()
-          .resolves([{ lastUsedAt: ts }]);
+        const noRecentEnoughTokensFn = jest
+          .fn()
+          .mockResolvedValue([{ lastUsedAt: ts }]);
         const noRecentEnoughTokensActual = await lib.hasActiveRefreshToken(
           noRecentEnoughTokensFn,
           '9001',
@@ -154,13 +155,14 @@ describe('delete inactive accounts script lib', () => {
     });
     describe('access token', () => {
       it('should be true when there is an access token', async () => {
-        const tokensFn = sandbox.stub().resolves([{}, {}]);
+        const tokensFn = jest.fn().mockResolvedValue([{}, {}]);
         const actual = await lib.hasAccessToken(tokensFn, '9001');
-        sinon.assert.calledOnceWithExactly(tokensFn, '9001');
+        expect(tokensFn).toHaveBeenCalledTimes(1);
+        expect(tokensFn).toHaveBeenCalledWith('9001');
         expect(actual).toBe(true);
       });
       it('should be false when there are no access tokens', async () => {
-        const tokensFn = sandbox.stub().resolves([]);
+        const tokensFn = jest.fn().mockResolvedValue([]);
         const actual = await lib.hasAccessToken(tokensFn, '9001');
         expect(actual).toBe(false);
       });
@@ -168,16 +170,16 @@ describe('delete inactive accounts script lib', () => {
   });
 
   describe('inActive function builder', () => {
-    let sessionTokensFn: sinon.SinonStub;
-    let refreshTokensFn: sinon.SinonStub;
-    let accessTokensFn: sinon.SinonStub;
-    let iapSubscriptionFn: sinon.SinonStub;
+    let sessionTokensFn: jest.Mock;
+    let refreshTokensFn: jest.Mock;
+    let accessTokensFn: jest.Mock;
+    let iapSubscriptionFn: jest.Mock;
 
     beforeEach(() => {
-      sessionTokensFn = sandbox.stub();
-      refreshTokensFn = sandbox.stub();
-      accessTokensFn = sandbox.stub();
-      iapSubscriptionFn = sandbox.stub();
+      sessionTokensFn = jest.fn();
+      refreshTokensFn = jest.fn();
+      accessTokensFn = jest.fn();
+      iapSubscriptionFn = jest.fn();
     });
 
     it('should throw an error if the active session token function is missing', async () => {
@@ -251,36 +253,42 @@ describe('delete inactive accounts script lib', () => {
       });
 
       it('should short-circuit with session token check', async () => {
-        sessionTokensFn.resolves(true);
+        sessionTokensFn.mockResolvedValue(true);
         const actual = await isActive('9001');
         expect(actual).toBe(true);
-        sinon.assert.calledOnceWithExactly(sessionTokensFn, '9001');
-        sinon.assert.notCalled(refreshTokensFn);
-        sinon.assert.notCalled(accessTokensFn);
-        sinon.assert.notCalled(iapSubscriptionFn);
+        expect(sessionTokensFn).toHaveBeenCalledTimes(1);
+        expect(sessionTokensFn).toHaveBeenCalledWith('9001');
+        expect(refreshTokensFn).not.toHaveBeenCalled();
+        expect(accessTokensFn).not.toHaveBeenCalled();
+        expect(iapSubscriptionFn).not.toHaveBeenCalled();
       });
 
       it('should short-circuit with refresh token check', async () => {
-        sessionTokensFn.resolves(false);
-        refreshTokensFn.resolves(true);
+        sessionTokensFn.mockResolvedValue(false);
+        refreshTokensFn.mockResolvedValue(true);
         const actual = await isActive('9001');
         expect(actual).toBe(true);
-        sinon.assert.calledOnceWithExactly(sessionTokensFn, '9001');
-        sinon.assert.calledOnceWithExactly(refreshTokensFn, '9001');
-        sinon.assert.notCalled(accessTokensFn);
-        sinon.assert.notCalled(iapSubscriptionFn);
+        expect(sessionTokensFn).toHaveBeenCalledTimes(1);
+        expect(sessionTokensFn).toHaveBeenCalledWith('9001');
+        expect(refreshTokensFn).toHaveBeenCalledTimes(1);
+        expect(refreshTokensFn).toHaveBeenCalledWith('9001');
+        expect(accessTokensFn).not.toHaveBeenCalled();
+        expect(iapSubscriptionFn).not.toHaveBeenCalled();
       });
 
       it('should short-circuit with access token check', async () => {
-        sessionTokensFn.resolves(false);
-        refreshTokensFn.resolves(false);
-        accessTokensFn.resolves(true);
+        sessionTokensFn.mockResolvedValue(false);
+        refreshTokensFn.mockResolvedValue(false);
+        accessTokensFn.mockResolvedValue(true);
         const actual = await isActive('9001');
         expect(actual).toBe(true);
-        sinon.assert.calledOnceWithExactly(sessionTokensFn, '9001');
-        sinon.assert.calledOnceWithExactly(refreshTokensFn, '9001');
-        sinon.assert.calledOnceWithExactly(accessTokensFn, '9001');
-        sinon.assert.notCalled(iapSubscriptionFn);
+        expect(sessionTokensFn).toHaveBeenCalledTimes(1);
+        expect(sessionTokensFn).toHaveBeenCalledWith('9001');
+        expect(refreshTokensFn).toHaveBeenCalledTimes(1);
+        expect(refreshTokensFn).toHaveBeenCalledWith('9001');
+        expect(accessTokensFn).toHaveBeenCalledTimes(1);
+        expect(accessTokensFn).toHaveBeenCalledWith('9001');
+        expect(iapSubscriptionFn).not.toHaveBeenCalled();
       });
     });
 
@@ -291,16 +299,19 @@ describe('delete inactive accounts script lib', () => {
         .setRefreshTokenFn(refreshTokensFn)
         .setAccessTokenFn(accessTokensFn)
         .build();
-      sessionTokensFn.resolves(false);
-      refreshTokensFn.resolves(false);
-      accessTokensFn.resolves(false);
-      iapSubscriptionFn.resolves(false);
+      sessionTokensFn.mockResolvedValue(false);
+      refreshTokensFn.mockResolvedValue(false);
+      accessTokensFn.mockResolvedValue(false);
+      iapSubscriptionFn.mockResolvedValue(false);
 
       const actual = await isActive('9001');
       expect(actual).toBe(false);
-      sinon.assert.calledOnceWithExactly(sessionTokensFn, '9001');
-      sinon.assert.calledOnceWithExactly(refreshTokensFn, '9001');
-      sinon.assert.calledOnceWithExactly(accessTokensFn, '9001');
+      expect(sessionTokensFn).toHaveBeenCalledTimes(1);
+      expect(sessionTokensFn).toHaveBeenCalledWith('9001');
+      expect(refreshTokensFn).toHaveBeenCalledTimes(1);
+      expect(refreshTokensFn).toHaveBeenCalledWith('9001');
+      expect(accessTokensFn).toHaveBeenCalledTimes(1);
+      expect(accessTokensFn).toHaveBeenCalledWith('9001');
     });
   });
 });

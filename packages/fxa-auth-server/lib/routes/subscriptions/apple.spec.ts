@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 const mocks = require('../../../test/mocks');
@@ -46,14 +45,14 @@ describe('AppleIapHandler', () => {
     Container.set(IAPConfig, iapConfig);
     Container.set(AppleIAP, appleIap);
     mockCapabilityService = {};
-    mockCapabilityService.iapUpdate = sinon.fake.resolves({});
+    mockCapabilityService.iapUpdate = jest.fn().mockResolvedValue({});
     Container.set(CapabilityService, mockCapabilityService);
     appleIapHandler = new AppleIapHandler();
   });
 
   afterEach(() => {
     Container.reset();
-    sinon.restore();
+    jest.restoreAllMocks();
   });
 
   describe('registerOriginalTransactionId', () => {
@@ -65,27 +64,29 @@ describe('AppleIapHandler', () => {
 
     it('returns valid with new products', async () => {
       appleIap.purchaseManager = {
-        registerToUserAccount: sinon.fake.resolves({}),
+        registerToUserAccount: jest.fn().mockResolvedValue({}),
       };
-      iapConfig.getBundleId = sinon.fake.resolves('testPackage');
+      iapConfig.getBundleId = jest.fn().mockResolvedValue('testPackage');
       const result =
         await appleIapHandler.registerOriginalTransactionId(request);
-      sinon.assert.calledOnce(appleIap.purchaseManager.registerToUserAccount);
-      sinon.assert.calledOnce(iapConfig.getBundleId);
-      sinon.assert.calledOnce(mockCapabilityService.iapUpdate);
+      expect(
+        appleIap.purchaseManager.registerToUserAccount
+      ).toHaveBeenCalledTimes(1);
+      expect(iapConfig.getBundleId).toHaveBeenCalledTimes(1);
+      expect(mockCapabilityService.iapUpdate).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ transactionIdValid: true });
     });
 
     it('throws on invalid package', async () => {
       appleIap.purchaseManager = {
-        registerToUserAccount: sinon.fake.resolves({}),
+        registerToUserAccount: jest.fn().mockResolvedValue({}),
       };
-      iapConfig.getBundleId = sinon.fake.resolves(undefined);
+      iapConfig.getBundleId = jest.fn().mockResolvedValue(undefined);
       try {
         await appleIapHandler.registerOriginalTransactionId(request);
         throw new Error('Expected failure');
       } catch (err: any) {
-        sinon.assert.calledOnce(iapConfig.getBundleId);
+        expect(iapConfig.getBundleId).toHaveBeenCalledTimes(1);
         expect(err.errno).toBe(error.ERRNO.IAP_UNKNOWN_APPNAME);
       }
     });
@@ -95,18 +96,18 @@ describe('AppleIapHandler', () => {
       libraryError.name = PurchaseUpdateError.INVALID_ORIGINAL_TRANSACTION_ID;
 
       appleIap.purchaseManager = {
-        registerToUserAccount: sinon.fake.rejects(libraryError),
+        registerToUserAccount: jest.fn().mockRejectedValue(libraryError),
       };
-      iapConfig.getBundleId = sinon.fake.resolves('testPackage');
+      iapConfig.getBundleId = jest.fn().mockResolvedValue('testPackage');
       try {
         await appleIapHandler.registerOriginalTransactionId(request);
         throw new Error('Expected failure');
       } catch (err: any) {
         expect(err.errno).toBe(error.ERRNO.IAP_INVALID_TOKEN);
-        sinon.assert.calledOnce(
+        expect(
           appleIap.purchaseManager.registerToUserAccount
-        );
-        sinon.assert.calledOnce(iapConfig.getBundleId);
+        ).toHaveBeenCalledTimes(1);
+        expect(iapConfig.getBundleId).toHaveBeenCalledTimes(1);
       }
     });
 
@@ -115,35 +116,37 @@ describe('AppleIapHandler', () => {
       libraryError.name = PurchaseUpdateError.CONFLICT;
 
       appleIap.purchaseManager = {
-        registerToUserAccount: sinon.fake.rejects(libraryError),
+        registerToUserAccount: jest.fn().mockRejectedValue(libraryError),
       };
-      iapConfig.getBundleId = sinon.fake.resolves('testPackage');
+      iapConfig.getBundleId = jest.fn().mockResolvedValue('testPackage');
       try {
         await appleIapHandler.registerOriginalTransactionId(request);
         throw new Error('Expected failure');
       } catch (err: any) {
         expect(err.errno).toBe(error.ERRNO.IAP_PURCHASE_ALREADY_REGISTERED);
-        sinon.assert.calledOnce(
+        expect(
           appleIap.purchaseManager.registerToUserAccount
-        );
-        sinon.assert.calledOnce(iapConfig.getBundleId);
+        ).toHaveBeenCalledTimes(1);
+        expect(iapConfig.getBundleId).toHaveBeenCalledTimes(1);
       }
     });
 
     it('throws on unknown errors', async () => {
       appleIap.purchaseManager = {
-        registerToUserAccount: sinon.fake.rejects(new Error('Unknown error')),
+        registerToUserAccount: jest
+          .fn()
+          .mockRejectedValue(new Error('Unknown error')),
       };
-      iapConfig.getBundleId = sinon.fake.resolves('testPackage');
+      iapConfig.getBundleId = jest.fn().mockResolvedValue('testPackage');
       try {
         await appleIapHandler.registerOriginalTransactionId(request);
         throw new Error('Expected failure');
       } catch (err: any) {
         expect(err.errno).toBe(error.ERRNO.BACKEND_SERVICE_FAILURE);
-        sinon.assert.calledOnce(
+        expect(
           appleIap.purchaseManager.registerToUserAccount
-        );
-        sinon.assert.calledOnce(iapConfig.getBundleId);
+        ).toHaveBeenCalledTimes(1);
+        expect(iapConfig.getBundleId).toHaveBeenCalledTimes(1);
       }
     });
   });
@@ -170,30 +173,34 @@ describe('AppleIapHandler', () => {
         },
       };
       appleIap.purchaseManager = {
-        decodeNotificationPayload: sinon.fake.resolves({
+        decodeNotificationPayload: jest.fn().mockResolvedValue({
           bundleId: mockBundleId,
           originalTransactionId: mockOriginalTransactionId,
           decodedPayload: mockDecodedNotificationPayload,
         }),
-        getSubscriptionPurchase: sinon.fake.resolves(mockPurchase),
-        processNotification: sinon.fake.resolves({}),
+        getSubscriptionPurchase: jest.fn().mockResolvedValue(mockPurchase),
+        processNotification: jest.fn().mockResolvedValue({}),
       };
     });
 
     it('handles a notification that requires profile updating', async () => {
       const result = await appleIapHandler.processNotification(mockRequest);
       expect(result).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        appleIap.purchaseManager.decodeNotificationPayload,
-        mockRequest.payload.signedPayload
-      );
-      sinon.assert.calledOnce(
+      expect(
+        appleIap.purchaseManager.decodeNotificationPayload
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        appleIap.purchaseManager.decodeNotificationPayload
+      ).toHaveBeenCalledWith(mockRequest.payload.signedPayload);
+      expect(
         appleIap.purchaseManager.getSubscriptionPurchase
-      );
-      sinon.assert.calledOnce(appleIap.purchaseManager.processNotification);
-      sinon.assert.calledOnce(mockCapabilityService.iapUpdate);
-      sinon.assert.calledOnceWithExactly(
-        log.debug,
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        appleIap.purchaseManager.processNotification
+      ).toHaveBeenCalledTimes(1);
+      expect(mockCapabilityService.iapUpdate).toHaveBeenCalledTimes(1);
+      expect(log.debug).toHaveBeenCalledTimes(1);
+      expect(log.debug).toHaveBeenCalledWith(
         'appleIap.processNotification.decodedPayload',
         {
           bundleId: mockBundleId,
@@ -208,8 +215,8 @@ describe('AppleIapHandler', () => {
       delete mockDecodedNotificationPayload.subtype;
       const result = await appleIapHandler.processNotification(mockRequest);
       expect(result).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        log.debug,
+      expect(log.debug).toHaveBeenCalledTimes(1);
+      expect(log.debug).toHaveBeenCalledWith(
         'appleIap.processNotification.decodedPayload',
         {
           bundleId: mockBundleId,
@@ -220,9 +227,9 @@ describe('AppleIapHandler', () => {
     });
 
     it('throws an unauthorized error on certificate validation failure', async () => {
-      appleIap.purchaseManager.decodeNotificationPayload = sinon.fake.rejects(
-        new CertificateValidationError()
-      );
+      appleIap.purchaseManager.decodeNotificationPayload = jest
+        .fn()
+        .mockRejectedValue(new CertificateValidationError());
       try {
         await appleIapHandler.processNotification(mockRequest);
         throw new Error('Should have thrown.');
@@ -233,9 +240,9 @@ describe('AppleIapHandler', () => {
     });
 
     it('rethrows any other type of error if decoding the notification fails', async () => {
-      appleIap.purchaseManager.decodeNotificationPayload = sinon.fake.rejects(
-        new Error('Yikes')
-      );
+      appleIap.purchaseManager.decodeNotificationPayload = jest
+        .fn()
+        .mockRejectedValue(new Error('Yikes'));
       try {
         await appleIapHandler.processNotification(mockRequest);
         throw new Error('Should have thrown.');
@@ -245,19 +252,24 @@ describe('AppleIapHandler', () => {
     });
 
     it('Still processes the notification if the purchase is not found in Firestore', async () => {
-      appleIap.purchaseManager.getSubscriptionPurchase =
-        sinon.fake.resolves(null);
+      appleIap.purchaseManager.getSubscriptionPurchase = jest
+        .fn()
+        .mockResolvedValue(null);
       const result = await appleIapHandler.processNotification(mockRequest);
       expect(result).toEqual({});
-      sinon.assert.calledOnce(appleIap.purchaseManager.processNotification);
+      expect(
+        appleIap.purchaseManager.processNotification
+      ).toHaveBeenCalledTimes(1);
     });
 
     it('Still processes the notification if there is no user id but does not broadcast', async () => {
       mockPurchase.userId = null;
       const result = await appleIapHandler.processNotification(mockRequest);
       expect(result).toEqual({});
-      sinon.assert.calledOnce(appleIap.purchaseManager.processNotification);
-      sinon.assert.notCalled(mockCapabilityService.iapUpdate);
+      expect(
+        appleIap.purchaseManager.processNotification
+      ).toHaveBeenCalledTimes(1);
+      expect(mockCapabilityService.iapUpdate).not.toHaveBeenCalled();
     });
   });
 });

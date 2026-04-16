@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const TOKEN_SERVER_URL =
@@ -39,7 +38,7 @@ describe('lib/jwt_access_token', () => {
       };
 
       mockJWT = {
-        sign: sinon.spy(async () => {
+        sign: jest.fn(async () => {
           return 'signed jwt access token';
         }),
       };
@@ -61,9 +60,9 @@ describe('lib/jwt_access_token', () => {
       const afterSec = Math.floor(Date.now() / 1000);
 
       expect(result.jwt_token).toBe('signed jwt access token');
-      expect(mockJWT.sign.calledOnce).toBe(true);
+      expect(mockJWT.sign).toHaveBeenCalledTimes(1);
 
-      const signedClaims = mockJWT.sign.args[0][0];
+      const signedClaims = mockJWT.sign.mock.calls[0][0];
       expect(Object.keys(signedClaims)).toHaveLength(7);
       expect(signedClaims.aud).toBe('deadbeef');
       expect(signedClaims.client_id).toBe('deadbeef');
@@ -78,7 +77,7 @@ describe('lib/jwt_access_token', () => {
     it('should propagate `resource` and `clientId` in the `aud` claim', async () => {
       requestedGrant.resource = 'https://resource.server1.com';
       await JWTAccessToken.create(mockAccessToken, requestedGrant);
-      const signedClaims = mockJWT.sign.args[0][0];
+      const signedClaims = mockJWT.sign.mock.calls[0][0];
       expect(signedClaims.aud).toEqual([
         'deadbeef',
         'https://resource.server1.com',
@@ -88,7 +87,7 @@ describe('lib/jwt_access_token', () => {
     it('should propagate `fxa-subscriptions`', async () => {
       requestedGrant['fxa-subscriptions'] = ['subscription1', 'subscription2'];
       await JWTAccessToken.create(mockAccessToken, requestedGrant);
-      const signedClaims = mockJWT.sign.args[0][0];
+      const signedClaims = mockJWT.sign.mock.calls[0][0];
       expect(Object.keys(signedClaims)).toHaveLength(8);
 
       expect(signedClaims['fxa-subscriptions']).toBe(
@@ -99,7 +98,7 @@ describe('lib/jwt_access_token', () => {
     it('should propagate `fxa-generation`', async () => {
       requestedGrant.generation = 12345;
       await JWTAccessToken.create(mockAccessToken, requestedGrant);
-      const signedClaims = mockJWT.sign.args[0][0];
+      const signedClaims = mockJWT.sign.mock.calls[0][0];
 
       expect(signedClaims['fxa-generation']).toBe(requestedGrant.generation);
     });
@@ -107,7 +106,7 @@ describe('lib/jwt_access_token', () => {
     it('should propagate `fxa-profileChangedAt`', async () => {
       requestedGrant.profileChangedAt = 12345;
       await JWTAccessToken.create(mockAccessToken, requestedGrant);
-      const signedClaims = mockJWT.sign.args[0][0];
+      const signedClaims = mockJWT.sign.mock.calls[0][0];
 
       expect(signedClaims['fxa-profileChangedAt']).toBe(
         requestedGrant.profileChangedAt
@@ -117,7 +116,7 @@ describe('lib/jwt_access_token', () => {
     it('defaults oldsync scope to tokenserver audience', async () => {
       requestedGrant.scope = ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC);
       await JWTAccessToken.create(mockAccessToken, requestedGrant);
-      const signedClaims = mockJWT.sign.args[0][0];
+      const signedClaims = mockJWT.sign.mock.calls[0][0];
 
       expect(signedClaims.aud).toBe(TOKEN_SERVER_URL);
     });

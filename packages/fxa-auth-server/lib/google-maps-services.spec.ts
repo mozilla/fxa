@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import Sentry from '@sentry/node';
 import { default as Container } from 'typedi';
 
@@ -119,7 +118,7 @@ describe('GoogleMapsServices', () => {
   });
 
   afterEach(() => {
-    sinon.restore();
+    jest.restoreAllMocks();
     Container.reset();
   });
 
@@ -127,17 +126,17 @@ describe('GoogleMapsServices', () => {
     it('returns location for zip code and country', async () => {
       const expectedResult = 'SA';
       const expectedAddress = '06369, Germany';
-      googleClient.geocode = sinon.stub().resolves(geocodeResultDEZip);
+      googleClient.geocode = jest.fn().mockResolvedValue(geocodeResultDEZip);
 
       const actualResult = await googleMapsServices.getStateFromZip(
         '06369',
         'DE'
       );
       expect(actualResult).toBe(expectedResult);
-      expect(googleClient.geocode.calledOnce).toBe(true);
-      expect(
-        googleClient.geocode.getCall(0).args[0].params.address
-      ).toBe(expectedAddress);
+      expect(googleClient.geocode).toHaveBeenCalledTimes(1);
+      expect(googleClient.geocode.mock.calls[0][0].params.address).toBe(
+        expectedAddress
+      );
     });
 
     it('returns location for zip code and country if more than 1 result is returned with matching states', async () => {
@@ -146,31 +145,31 @@ describe('GoogleMapsServices', () => {
         'MD';
       const expectedResult = 'MD';
       const expectedAddress = '11111, United States of America';
-      googleClient.geocode = sinon
-        .stub()
-        .resolves(geocodeResultManyMatchingStates);
+      googleClient.geocode = jest
+        .fn()
+        .mockResolvedValue(geocodeResultManyMatchingStates);
 
       const actualResult = await googleMapsServices.getStateFromZip(
         '11111',
         'US'
       );
       expect(actualResult).toBe(expectedResult);
-      expect(googleClient.geocode.calledOnce).toBe(true);
-      expect(
-        googleClient.geocode.getCall(0).args[0].params.address
-      ).toBe(expectedAddress);
+      expect(googleClient.geocode).toHaveBeenCalledTimes(1);
+      expect(googleClient.geocode.mock.calls[0][0].params.address).toBe(
+        expectedAddress
+      );
     });
 
     it('Throws error if more than 1 result is returned with mismatching states', async () => {
       const expectedMessage = 'Could not find unique results. (22222, Germany)';
-      googleClient.geocode = sinon.stub().resolves(geocodeResultMany);
+      googleClient.geocode = jest.fn().mockResolvedValue(geocodeResultMany);
 
       try {
         await googleMapsServices.getStateFromZip('22222', 'DE');
         throw new Error('Expected error to be thrown');
       } catch (err) {
         expect(
-          googleMapsServices.log.error.getCall(0).args[1].error.message
+          googleMapsServices.log.error.mock.calls[0][1].error.message
         ).toBe(expectedMessage);
       }
     });
@@ -184,21 +183,23 @@ describe('GoogleMapsServices', () => {
         throw new Error('Expected error to be thrown');
       } catch (err) {
         expect(
-          googleMapsServices.log.error.getCall(0).args[1].error.message
+          googleMapsServices.log.error.mock.calls[0][1].error.message
         ).toBe(expectedMessage);
       }
     });
 
     it('Throws error for zip code without state', async () => {
       const expectedMessage = 'State could not be found. (11111, Germany)';
-      googleClient.geocode = sinon.stub().resolves(geocodeResultWithoutState);
+      googleClient.geocode = jest
+        .fn()
+        .mockResolvedValue(geocodeResultWithoutState);
 
       try {
         await googleMapsServices.getStateFromZip('11111', 'DE');
         throw new Error('Expected error to be thrown');
       } catch (err) {
         expect(
-          googleMapsServices.log.error.getCall(0).args[1].error.message
+          googleMapsServices.log.error.mock.calls[0][1].error.message
         ).toBe(expectedMessage);
       }
     });
@@ -206,14 +207,14 @@ describe('GoogleMapsServices', () => {
     it('Throws error if no results were found', async () => {
       const expectedMessage =
         'Could not find any results for address. (11111, Germany)';
-      googleClient.geocode = sinon.stub().resolves(noResult);
+      googleClient.geocode = jest.fn().mockResolvedValue(noResult);
 
       try {
         await googleMapsServices.getStateFromZip('11111', 'DE');
         throw new Error('Expected error to be thrown');
       } catch (err) {
         expect(
-          googleMapsServices.log.error.getCall(0).args[1].error.message
+          googleMapsServices.log.error.mock.calls[0][1].error.message
         ).toBe(expectedMessage);
       }
     });
@@ -221,47 +222,53 @@ describe('GoogleMapsServices', () => {
     it('Throws error for bad status code', async () => {
       const expectedMessage =
         'UNKNOWN_ERROR - An unknown error has occurred. (11111, Germany)';
-      googleClient.geocode = sinon.stub().resolves(noResultWithError);
+      googleClient.geocode = jest.fn().mockResolvedValue(noResultWithError);
 
-      const scopeContextSpy = sinon.fake();
+      const scopeContextSpy = jest.fn();
       const scopeSpy = {
         setContext: scopeContextSpy,
       };
-      sinon.replace(Sentry, 'withScope', ((fn: any) => fn(scopeSpy)) as any);
-      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation(((fn: any) => fn(scopeSpy)) as any);
+      jest.spyOn(sentryModule, 'reportSentryMessage').mockReturnValue({});
 
       try {
         await googleMapsServices.getStateFromZip('11111', 'DE');
         throw new Error('Expected error to be thrown');
       } catch (err) {
         expect(
-          googleMapsServices.log.error.getCall(0).args[1].error.message
+          googleMapsServices.log.error.mock.calls[0][1].error.message
         ).toBe(expectedMessage);
-        expect(scopeContextSpy.calledOnce).toBe(true);
-        expect(sentryModule.reportSentryMessage.calledOnce).toBe(true);
+        expect(scopeContextSpy).toHaveBeenCalledTimes(1);
+        expect(sentryModule.reportSentryMessage).toHaveBeenCalledTimes(1);
       }
     });
 
     it('Throws error when GeocodeData fails', async () => {
       const expectedMessage = 'Geocode is not available';
-      googleClient.geocode = sinon.stub().rejects(new Error(expectedMessage));
+      googleClient.geocode = jest
+        .fn()
+        .mockRejectedValue(new Error(expectedMessage));
 
-      const scopeContextSpy = sinon.fake();
+      const scopeContextSpy = jest.fn();
       const scopeSpy = {
         setContext: scopeContextSpy,
       };
-      sinon.replace(Sentry, 'withScope', ((fn: any) => fn(scopeSpy)) as any);
-      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation(((fn: any) => fn(scopeSpy)) as any);
+      jest.spyOn(sentryModule, 'reportSentryMessage').mockReturnValue({});
 
       try {
         await googleMapsServices.getStateFromZip('11111', 'DE');
         throw new Error('Expected error to be thrown');
       } catch (err) {
         expect(
-          googleMapsServices.log.error.getCall(0).args[1].error.message
+          googleMapsServices.log.error.mock.calls[0][1].error.message
         ).toBe(expectedMessage);
-        expect(scopeContextSpy.calledOnce).toBe(true);
-        expect(sentryModule.reportSentryMessage.calledOnce).toBe(true);
+        expect(scopeContextSpy).toHaveBeenCalledTimes(1);
+        expect(sentryModule.reportSentryMessage).toHaveBeenCalledTimes(1);
       }
     });
   });

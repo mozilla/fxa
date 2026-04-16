@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { AppError as error } from '@fxa/accounts/errors';
 
 const OAUTH_CLIENT_ID = '3c49430b43dfba77';
@@ -48,7 +47,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
     config = { oauth: {} };
 
     db = {
-      deviceFromRefreshTokenId: sinon.spy(() =>
+      deviceFromRefreshTokenId: jest.fn(() =>
         Promise.resolve({
           id: '5eb89097bab6551de3614facaea59cab',
           refreshTokenId:
@@ -68,8 +67,8 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
     };
 
     response = {
-      unauthenticated: sinon.spy(() => {}),
-      authenticated: sinon.spy(() => {}),
+      unauthenticated: jest.fn(() => {}),
+      authenticated: jest.fn(() => {}),
     };
 
     // Reset the mock to default (token not found)
@@ -120,8 +119,8 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
       response
     );
 
-    expect(response.unauthenticated.calledOnce).toBe(true);
-    expect(response.authenticated.calledOnce).toBe(false);
+    expect(response.unauthenticated).toHaveBeenCalledTimes(1);
+    expect(response.authenticated).not.toHaveBeenCalled();
   });
 
   it('authenticates with devices', async () => {
@@ -142,9 +141,9 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
       response
     );
 
-    expect(response.unauthenticated.called).toBe(false);
-    expect(response.authenticated.calledOnce).toBe(true);
-    expect(response.authenticated.args[0][0].credentials).toEqual({
+    expect(response.unauthenticated).not.toHaveBeenCalled();
+    expect(response.authenticated).toHaveBeenCalledTimes(1);
+    expect(response.authenticated.mock.calls[0][0].credentials).toEqual({
       uid: '620203b5773b4c1d968e1fd4505a6885',
       tokenVerified: true,
       emailVerified: true,
@@ -193,12 +192,12 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
       response
     );
 
-    expect(response.unauthenticated.calledOnce).toBe(true);
-    const args = response.unauthenticated.args[0][0];
+    expect(response.unauthenticated).toHaveBeenCalledTimes(1);
+    const args = response.unauthenticated.mock.calls[0][0];
     expect(args.output.statusCode).toBe(400);
     expect(args.output.payload.errno).toBe(error.ERRNO.INVALID_SCOPES);
 
-    expect(response.authenticated.calledOnce).toBe(false);
+    expect(response.authenticated).not.toHaveBeenCalled();
   });
 
   it('requires an known refresh token to authenticate', async () => {
@@ -214,12 +213,12 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
       response
     );
 
-    expect(response.unauthenticated.calledOnce).toBe(true);
-    const args = response.unauthenticated.args[0][0];
+    expect(response.unauthenticated).toHaveBeenCalledTimes(1);
+    const args = response.unauthenticated.mock.calls[0][0];
     expect(args.output.statusCode).toBe(401);
     expect(args.output.payload.errno).toBe(error.ERRNO.INVALID_TOKEN);
 
-    expect(response.authenticated.calledOnce).toBe(false);
+    expect(response.authenticated).not.toHaveBeenCalled();
   });
 
   it('requires an active refresh token to authenticate', async () => {
@@ -235,12 +234,12 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
       response
     );
 
-    expect(response.unauthenticated.calledOnce).toBe(true);
-    const args = response.unauthenticated.args[0][0];
+    expect(response.unauthenticated).toHaveBeenCalledTimes(1);
+    const args = response.unauthenticated.mock.calls[0][0];
     expect(args.output.statusCode).toBe(401);
     expect(args.output.payload.errno).toBe(error.ERRNO.INVALID_TOKEN);
 
-    expect(response.authenticated.calledOnce).toBe(false);
+    expect(response.authenticated).not.toHaveBeenCalled();
   });
 
   it('can be preffed off via feature-flag', async () => {
@@ -261,7 +260,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
     } catch (err: any) {
       expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
     }
-    expect(response.unauthenticated.notCalled).toBe(true);
+    expect(response.unauthenticated).not.toHaveBeenCalled();
 
     oauthDB.getRefreshToken.mockResolvedValue(undefined);
     config.oauth.deviceAccessEnabled = true;
@@ -276,11 +275,11 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
       response
     );
 
-    expect(response.unauthenticated.calledOnce).toBe(true);
-    const args = response.unauthenticated.args[0][0];
+    expect(response.unauthenticated).toHaveBeenCalledTimes(1);
+    const args = response.unauthenticated.mock.calls[0][0];
     expect(args.output.statusCode).toBe(401);
     expect(args.output.payload.errno).toBe(error.ERRNO.INVALID_TOKEN);
 
-    expect(response.authenticated.calledOnce).toBe(false);
+    expect(response.authenticated).not.toHaveBeenCalled();
   });
 });

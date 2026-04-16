@@ -3,23 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import base64url from 'base64url';
-import sinon from 'sinon';
 import { StatsD } from 'hot-shots';
 
 import PushboxDB from '../../lib/pushbox/db';
 
-const sandbox = sinon.createSandbox();
 const config = require('../../config').default.getProperties();
 const statsd = {
-  increment: sandbox.stub(),
-  timing: sandbox.stub(),
+  increment: jest.fn(),
+  timing: jest.fn(),
 } as unknown as StatsD;
 const log = {
-  info: sandbox.stub(),
-  trace: sandbox.stub(),
-  warn: sandbox.stub(),
-  error: sandbox.stub(),
-  debug: sandbox.stub(),
+  info: jest.fn(),
+  trace: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
 };
 
 const pushboxDb = new PushboxDB({
@@ -39,7 +37,7 @@ let insertIdx: number;
 
 describe('#integration - pushbox db', () => {
   afterEach(() => {
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   describe('store', () => {
@@ -65,7 +63,7 @@ describe('#integration - pushbox db', () => {
     });
 
     it('fetches up to max index', async () => {
-      sandbox.stub(Date, 'now').returns(111111000);
+      jest.spyOn(Date, 'now').mockReturnValue(111111000);
       const currentClientSideIdx = insertIdx;
       const insertUpTo = insertIdx + 3;
       while (insertIdx < insertUpTo) {
@@ -90,7 +88,7 @@ describe('#integration - pushbox db', () => {
     });
 
     it('fetches up to less than max', async () => {
-      sandbox.stub(Date, 'now').returns(111111000);
+      jest.spyOn(Date, 'now').mockReturnValue(111111000);
       const insertUpTo = insertIdx + 3;
       while (insertIdx < insertUpTo) {
         const record = await pushboxDb.store(r);

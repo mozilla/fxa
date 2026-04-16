@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const TEST_EMAIL = 'foo@gmail.com';
 const MOCK_UID = '23d4847823f24b0f95e1524987cb0391';
 const MOCK_REFRESH_TOKEN =
@@ -36,7 +34,6 @@ const mocks = require('../../../test/mocks');
 const oauthUtils = require('./oauth');
 
 /**
- * Simplified mockRequest — the shared mocks.mockRequest() uses proxyquire
  * with relative paths that don't resolve from lib/routes/.
  */
 function mockRequest(data: any) {
@@ -71,12 +68,12 @@ function mockRequest(data: any) {
     auth: {
       credentials: data.credentials,
     },
-    clearMetricsContext: sinon.stub(),
-    emitMetricsEvent: sinon.stub().resolves(),
-    emitRouteFlowEvent: sinon.stub().resolves(),
-    gatherMetricsContext: sinon
-      .stub()
-      .callsFake((d: any) => Promise.resolve(d)),
+    clearMetricsContext: jest.fn(),
+    emitMetricsEvent: jest.fn().mockResolvedValue(),
+    emitRouteFlowEvent: jest.fn().mockResolvedValue(),
+    gatherMetricsContext: jest
+      .fn()
+      .mockImplementation((d: any) => Promise.resolve(d)),
     headers: {
       'user-agent': 'test user-agent',
     },
@@ -122,9 +119,9 @@ describe('newTokenNotification', () => {
   it('creates a device and sends an email with credentials uid', async () => {
     await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
-    expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(1);
-    expect(devices.upsert.callCount).toBe(1);
-    const args = devices.upsert.args[0];
+    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+    expect(devices.upsert).toHaveBeenCalledTimes(1);
+    const args = devices.upsert.mock.calls[0];
     expect(args[1].refreshTokenId).toBe(
       request.auth.credentials.refreshTokenId
     );
@@ -139,8 +136,8 @@ describe('newTokenNotification', () => {
     });
     await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
-    expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(0);
-    expect(devices.upsert.callCount).toBe(1);
+    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(0);
+    expect(devices.upsert).toHaveBeenCalledTimes(1);
   });
 
   it('creates a device and sends an email with token uid', async () => {
@@ -148,16 +145,16 @@ describe('newTokenNotification', () => {
     request = mockRequest({ credentials });
     await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
-    expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(1);
-    expect(devices.upsert.callCount).toBe(1);
+    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+    expect(devices.upsert).toHaveBeenCalledTimes(1);
   });
 
   it('does nothing for non-NOTIFICATION_SCOPES', async () => {
     grant.scope = 'profile';
     await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
-    expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(0);
-    expect(devices.upsert.callCount).toBe(0);
+    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(0);
+    expect(devices.upsert).toHaveBeenCalledTimes(0);
   });
 
   it('uses refreshTokenId from grant if not provided', async () => {
@@ -167,9 +164,9 @@ describe('newTokenNotification', () => {
     request = mockRequest({ credentials });
     await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
-    expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(1);
-    expect(devices.upsert.callCount).toBe(1);
-    const args = devices.upsert.args[0];
+    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+    expect(devices.upsert).toHaveBeenCalledTimes(1);
+    const args = devices.upsert.mock.calls[0];
     expect(args[1].refreshTokenId).toBe(MOCK_REFRESH_TOKEN_ID_2);
     expect(args[2].id).toBeUndefined();
   });
@@ -182,9 +179,9 @@ describe('newTokenNotification', () => {
     request = mockRequest({ credentials });
     await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
-    expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(0);
-    expect(devices.upsert.callCount).toBe(1);
-    const args = devices.upsert.args[0];
+    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(0);
+    expect(devices.upsert).toHaveBeenCalledTimes(1);
+    const args = devices.upsert.mock.calls[0];
     expect(args[1].refreshTokenId).toBe(MOCK_REFRESH_TOKEN_ID_2);
     expect(args[2].id).toBe(MOCK_DEVICE_ID);
   });
@@ -194,9 +191,9 @@ describe('newTokenNotification', () => {
       skipEmail: true,
     });
 
-    expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(0);
-    expect(devices.upsert.callCount).toBe(1);
-    const args = devices.upsert.args[0];
+    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(0);
+    expect(devices.upsert).toHaveBeenCalledTimes(1);
+    const args = devices.upsert.mock.calls[0];
     expect(args[1].refreshTokenId).toBe(
       request.auth.credentials.refreshTokenId
     );
@@ -214,9 +211,9 @@ describe('newTokenNotification', () => {
       existingDeviceId: EXISTING_DEVICE_ID,
     });
 
-    expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(0);
-    expect(devices.upsert.callCount).toBe(1);
-    const args = devices.upsert.args[0];
+    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(0);
+    expect(devices.upsert).toHaveBeenCalledTimes(1);
+    const args = devices.upsert.mock.calls[0];
     expect(args[2].id).toBe(EXISTING_DEVICE_ID);
     expect(args[1].deviceId).toBe(EXISTING_DEVICE_ID);
   });

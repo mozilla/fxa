@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import crypto from 'crypto';
 
 const mocks = require('../../test/mocks');
@@ -13,9 +12,9 @@ const uuid = require('uuid');
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
 const mockAuthorizedClients: any = {
-  destroy: sinon.spy(() => Promise.resolve()),
-  list: sinon.spy(() => Promise.resolve()),
-  listUnique: sinon.spy(() => Promise.resolve()),
+  destroy: jest.fn(() => Promise.resolve()),
+  list: jest.fn(() => Promise.resolve()),
+  listUnique: jest.fn(() => Promise.resolve()),
 };
 
 jest.mock('../oauth/authorized_clients', () => mockAuthorizedClients);
@@ -39,11 +38,9 @@ function makeRoutes(options: any = {}) {
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
   const push = options.push || require('../push')(log, db, {});
-  const devices =
-    options.devices || require('../devices')(log, db, push);
+  const devices = options.devices || require('../devices')(log, db, push);
   const clientUtils =
-    options.clientUtils ||
-    require('./utils/clients')(log, config);
+    options.clientUtils || require('./utils/clients')(log, config);
   return require('./attached-clients')(log, db, devices, clientUtils);
 }
 
@@ -75,7 +72,7 @@ describe('/account/attached_clients', () => {
       credentials: {
         id: crypto.randomBytes(16).toString('hex'),
         uid: uid,
-        setUserAgentInfo: sinon.spy(() => {}),
+        setUserAgentInfo: jest.fn(() => {}),
       },
       headers: {
         'user-agent': 'fake agent',
@@ -173,10 +170,10 @@ describe('/account/attached_clients', () => {
     request.app.devices = (async () => {
       return DEVICES;
     })();
-    mockAuthorizedClients.list = sinon.spy(async () => {
+    mockAuthorizedClients.list = jest.fn(async () => {
       return OAUTH_CLIENTS;
     });
-    db.sessions = sinon.spy(async () => {
+    db.sessions = jest.fn(async () => {
       return SESSIONS;
     });
 
@@ -185,8 +182,8 @@ describe('/account/attached_clients', () => {
 
     expect(result).toHaveLength(6);
 
-    expect(db.touchSessionToken.callCount).toBe(1);
-    const args = db.touchSessionToken.args[0];
+    expect(db.touchSessionToken).toHaveBeenCalledTimes(1);
+    const args = db.touchSessionToken.mock.calls[0];
     expect(args).toHaveLength(3);
     const laterDate = Date.now() - 60 * 1000;
     expect(laterDate < args[0].lastAccessTime).toBe(true);
@@ -318,10 +315,10 @@ describe('/account/attached_clients', () => {
     request.app.devices = (async () => {
       return DEVICES;
     })();
-    mockAuthorizedClients.list = sinon.spy(async () => {
+    mockAuthorizedClients.list = jest.fn(async () => {
       return OAUTH_CLIENTS;
     });
-    db.sessions = sinon.spy(async () => {
+    db.sessions = jest.fn(async () => {
       return SESSIONS;
     });
 
@@ -381,10 +378,10 @@ describe('/account/attached_clients', () => {
     request.app.devices = (async () => {
       return DEVICES;
     })();
-    mockAuthorizedClients.list = sinon.spy(async () => {
+    mockAuthorizedClients.list = jest.fn(async () => {
       return OAUTH_CLIENTS;
     });
-    db.sessions = sinon.spy(async () => {
+    db.sessions = jest.fn(async () => {
       return SESSIONS;
     });
 
@@ -396,7 +393,14 @@ describe('/account/attached_clients', () => {
 });
 
 describe('/account/attached_client/destroy', () => {
-  let config: any, uid: string, log: any, db: any, devices: any, request: any, route: any, accountRoutes: any;
+  let config: any,
+    uid: string,
+    log: any,
+    db: any,
+    devices: any,
+    request: any,
+    route: any,
+    accountRoutes: any;
 
   beforeEach(() => {
     config = {};
@@ -437,9 +441,9 @@ describe('/account/attached_client/destroy', () => {
     const res = await route(request);
     expect(res).toEqual({});
 
-    expect(devices.destroy.callCount).toBe(1);
-    expect(devices.destroy.calledOnceWith(request, deviceId)).toBe(true);
-    expect(db.deleteSessionToken.callCount).toBe(0);
+    expect(devices.destroy).toHaveBeenCalledTimes(1);
+    expect(devices.destroy).toHaveBeenCalledWith(request, deviceId);
+    expect(db.deleteSessionToken).toHaveBeenCalledTimes(0);
   });
 
   it('checks that sessionTokenId matches device record, if given', async () => {
@@ -448,7 +452,7 @@ describe('/account/attached_client/destroy', () => {
       deviceId,
       sessionTokenId: newId(),
     };
-    devices.destroy = sinon.spy(async () => {
+    devices.destroy = jest.fn(async () => {
       return {
         sessionTokenId: newId(),
         refreshTokenId: null,
@@ -459,8 +463,9 @@ describe('/account/attached_client/destroy', () => {
       errno: error.ERRNO.INVALID_PARAMETER,
     });
 
-    expect(devices.destroy.calledOnceWith(request, deviceId)).toBe(true);
-    expect(db.deleteSessionToken.notCalled).toBe(true);
+    expect(devices.destroy).toHaveBeenCalledTimes(1);
+    expect(devices.destroy).toHaveBeenCalledWith(request, deviceId);
+    expect(db.deleteSessionToken).not.toHaveBeenCalled();
   });
 
   it('checks that refreshTokenId matches device record, if given', async () => {
@@ -470,7 +475,7 @@ describe('/account/attached_client/destroy', () => {
       sessionTokenId: newId(),
       refreshTokenId: newId(),
     };
-    devices.destroy = sinon.spy(async () => {
+    devices.destroy = jest.fn(async () => {
       return {
         sessionTokenId: request.payload.sessionTokenId,
         refreshTokenId: newId(),
@@ -481,8 +486,9 @@ describe('/account/attached_client/destroy', () => {
       errno: error.ERRNO.INVALID_PARAMETER,
     });
 
-    expect(devices.destroy.calledOnceWith(request, deviceId)).toBe(true);
-    expect(db.deleteSessionToken.notCalled).toBe(true);
+    expect(devices.destroy).toHaveBeenCalledTimes(1);
+    expect(devices.destroy).toHaveBeenCalledWith(request, deviceId);
+    expect(db.deleteSessionToken).not.toHaveBeenCalled();
   });
 
   it('can destroy by refreshTokenId', async () => {
@@ -496,8 +502,8 @@ describe('/account/attached_client/destroy', () => {
     const res = await route(request);
     expect(res).toEqual({});
 
-    expect(devices.destroy.notCalled).toBe(true);
-    expect(db.deleteSessionToken.notCalled).toBe(true);
+    expect(devices.destroy).not.toHaveBeenCalled();
+    expect(db.deleteSessionToken).not.toHaveBeenCalled();
   });
 
   it('wont accept refreshTokenId and sessionTokenId without deviceId', async () => {
@@ -513,8 +519,8 @@ describe('/account/attached_client/destroy', () => {
       errno: error.ERRNO.INVALID_PARAMETER,
     });
 
-    expect(devices.destroy.notCalled).toBe(true);
-    expect(db.deleteSessionToken.notCalled).toBe(true);
+    expect(devices.destroy).not.toHaveBeenCalled();
+    expect(db.deleteSessionToken).not.toHaveBeenCalled();
   });
 
   it('can destroy by just clientId', async () => {
@@ -526,8 +532,8 @@ describe('/account/attached_client/destroy', () => {
     const res = await route(request);
     expect(res).toEqual({});
 
-    expect(devices.destroy.notCalled).toBe(true);
-    expect(db.deleteSessionToken.notCalled).toBe(true);
+    expect(devices.destroy).not.toHaveBeenCalled();
+    expect(db.deleteSessionToken).not.toHaveBeenCalled();
   });
 
   it('wont accept clientId and sessionTokenId without deviceId', async () => {
@@ -541,8 +547,8 @@ describe('/account/attached_client/destroy', () => {
       errno: error.ERRNO.INVALID_PARAMETER,
     });
 
-    expect(devices.destroy.notCalled).toBe(true);
-    expect(db.deleteSessionToken.notCalled).toBe(true);
+    expect(devices.destroy).not.toHaveBeenCalled();
+    expect(db.deleteSessionToken).not.toHaveBeenCalled();
   });
 
   it('can destroy by sessionTokenId when given the current session', async () => {
@@ -555,9 +561,12 @@ describe('/account/attached_client/destroy', () => {
     const res = await route(request);
     expect(res).toEqual({});
 
-    expect(devices.destroy.notCalled).toBe(true);
-    expect(db.sessionToken.notCalled).toBe(true);
-    expect(db.deleteSessionToken.calledOnceWith(request.auth.credentials)).toBe(true);
+    expect(devices.destroy).not.toHaveBeenCalled();
+    expect(db.sessionToken).not.toHaveBeenCalled();
+    expect(db.deleteSessionToken).toHaveBeenCalledTimes(1);
+    expect(db.deleteSessionToken).toHaveBeenCalledWith(
+      request.auth.credentials
+    );
   });
 
   it('can destroy by sessionTokenId when given a different session', async () => {
@@ -565,18 +574,21 @@ describe('/account/attached_client/destroy', () => {
     request.payload = {
       sessionTokenId,
     };
-    db.sessionToken = sinon.spy(async () => {
+    db.sessionToken = jest.fn(async () => {
       return { id: sessionTokenId, uid };
     });
 
     const res = await route(request);
     expect(res).toEqual({});
 
-    expect(devices.destroy.notCalled).toBe(true);
-    expect(db.sessionToken.calledOnceWith(sessionTokenId)).toBe(true);
-    expect(
-      db.deleteSessionToken.calledOnceWith({ id: sessionTokenId, uid })
-    ).toBe(true);
+    expect(devices.destroy).not.toHaveBeenCalled();
+    expect(db.sessionToken).toHaveBeenCalledTimes(1);
+    expect(db.sessionToken).toHaveBeenCalledWith(sessionTokenId);
+    expect(db.deleteSessionToken).toHaveBeenCalledTimes(1);
+    expect(db.deleteSessionToken).toHaveBeenCalledWith({
+      id: sessionTokenId,
+      uid,
+    });
   });
 
   it('errors if the sessionToken does not belong to the current user', async () => {
@@ -584,7 +596,7 @@ describe('/account/attached_client/destroy', () => {
     request.payload = {
       sessionTokenId,
     };
-    db.sessionToken = sinon.spy(async () => {
+    db.sessionToken = jest.fn(async () => {
       return { uid: newId() };
     });
 
@@ -592,9 +604,10 @@ describe('/account/attached_client/destroy', () => {
       errno: error.ERRNO.INVALID_PARAMETER,
     });
 
-    expect(devices.destroy.notCalled).toBe(true);
-    expect(db.sessionToken.calledOnceWith(sessionTokenId)).toBe(true);
-    expect(db.deleteSessionToken.notCalled).toBe(true);
+    expect(devices.destroy).not.toHaveBeenCalled();
+    expect(db.sessionToken).toHaveBeenCalledTimes(1);
+    expect(db.sessionToken).toHaveBeenCalledWith(sessionTokenId);
+    expect(db.deleteSessionToken).not.toHaveBeenCalled();
   });
 });
 
@@ -610,7 +623,7 @@ describe('/account/attached_oauth_clients', () => {
       credentials: {
         id: crypto.randomBytes(16).toString('hex'),
         uid: uid,
-        setUserAgentInfo: sinon.spy(() => {}),
+        setUserAgentInfo: jest.fn(() => {}),
       },
       headers: {
         'user-agent': 'fake agent',
@@ -653,17 +666,17 @@ describe('/account/attached_oauth_clients', () => {
       },
     ];
 
-    mockAuthorizedClients.listUnique = sinon.spy(async () => {
+    mockAuthorizedClients.listUnique = jest.fn(async () => {
       return OAUTH_CLIENTS;
     });
 
     const result = await route(request);
 
-    expect(mockAuthorizedClients.listUnique.callCount).toBe(1);
-    expect(mockAuthorizedClients.listUnique.args[0][0]).toBe(uid);
+    expect(mockAuthorizedClients.listUnique).toHaveBeenCalledTimes(1);
+    expect(mockAuthorizedClients.listUnique.mock.calls[0][0]).toBe(uid);
 
-    expect(db.touchSessionToken.callCount).toBe(1);
-    const args = db.touchSessionToken.args[0];
+    expect(db.touchSessionToken).toHaveBeenCalledTimes(1);
+    const args = db.touchSessionToken.mock.calls[0];
     expect(args).toHaveLength(3);
     const laterDate = Date.now() - 60 * 1000;
     expect(laterDate < args[0].lastAccessTime).toBe(true);
@@ -686,13 +699,13 @@ describe('/account/attached_oauth_clients', () => {
   });
 
   it('returns an empty array when user has no OAuth clients', async () => {
-    mockAuthorizedClients.listUnique = sinon.spy(async () => {
+    mockAuthorizedClients.listUnique = jest.fn(async () => {
       return [];
     });
 
     const result = await route(request);
 
-    expect(mockAuthorizedClients.listUnique.callCount).toBe(1);
+    expect(mockAuthorizedClients.listUnique).toHaveBeenCalledTimes(1);
     expect(result).toHaveLength(0);
     expect(result).toEqual([]);
   });

@@ -104,7 +104,7 @@ describe('#integration - lib/cad-reminders', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -120,7 +120,7 @@ describe('#integration - lib/cad-reminders', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -180,7 +180,7 @@ describe('#integration - lib/cad-reminders', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
     });
   });

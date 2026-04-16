@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
-import { filterCustomer, filterSubscription } from 'fxa-shared/subscriptions/stripe';
+import {
+  filterCustomer,
+  filterSubscription,
+} from 'fxa-shared/subscriptions/stripe';
 import { AppError as error } from '@fxa/accounts/errors';
 import { PayPalHelper } from '../../payments/paypal/helper';
 import * as uuid from 'uuid';
@@ -129,13 +131,43 @@ describe('subscriptions payPalRoutes', () => {
     Container.set(AppConfig, config);
     Container.set(AuthLogger, log);
     Container.set(PlayBilling, {});
-    stripeHelper = sinon.createStubInstance(StripeHelper);
+    stripeHelper = {} as any;
+    for (
+      let p = StripeHelper.prototype;
+      p && p !== Object.prototype;
+      p = Object.getPrototypeOf(p)
+    ) {
+      Object.getOwnPropertyNames(p).forEach((m) => {
+        if (m !== 'constructor' && !stripeHelper[m])
+          stripeHelper[m] = jest.fn();
+      });
+    }
     Container.set(StripeHelper, stripeHelper);
-    payPalHelper = sinon.createStubInstance(PayPalHelper);
+    payPalHelper = {} as any;
+    for (
+      let p = PayPalHelper.prototype;
+      p && p !== Object.prototype;
+      p = Object.getPrototypeOf(p)
+    ) {
+      Object.getOwnPropertyNames(p).forEach((m) => {
+        if (m !== 'constructor' && !payPalHelper[m])
+          payPalHelper[m] = jest.fn();
+      });
+    }
     payPalHelper.currencyHelper = currencyHelper;
     Container.set(PayPalHelper, payPalHelper);
     profile = {};
-    capabilityService = sinon.createStubInstance(CapabilityService);
+    capabilityService = {} as any;
+    for (
+      let p = CapabilityService.prototype;
+      p && p !== Object.prototype;
+      p = Object.getPrototypeOf(p)
+    ) {
+      Object.getOwnPropertyNames(p).forEach((m) => {
+        if (m !== 'constructor' && !capabilityService[m])
+          capabilityService[m] = jest.fn();
+      });
+    }
     Container.set(CapabilityService, capabilityService);
     push = {};
     Container.set(PlaySubscriptions, {});
@@ -150,7 +182,7 @@ describe('subscriptions payPalRoutes', () => {
 
   describe('POST /oauth/subscriptions/paypal-checkout', () => {
     beforeEach(() => {
-      payPalHelper.getCheckoutToken = sinon.fake.resolves(token);
+      payPalHelper.getCheckoutToken = jest.fn().mockResolvedValue(token);
     });
 
     it('should call PayPalHelper.getCheckoutToken and return token in an object', async () => {
@@ -158,7 +190,7 @@ describe('subscriptions payPalRoutes', () => {
         '/oauth/subscriptions/paypal-checkout',
         defaultRequestOptions
       );
-      sinon.assert.calledOnce(payPalHelper.getCheckoutToken);
+      expect(payPalHelper.getCheckoutToken).toHaveBeenCalledTimes(1);
       expect(response).toEqual({ token });
     });
 
@@ -167,13 +199,13 @@ describe('subscriptions payPalRoutes', () => {
         '/oauth/subscriptions/paypal-checkout',
         defaultRequestOptions
       );
-      sinon.assert.calledOnceWithExactly(
-        log.begin,
+      expect(log.begin).toHaveBeenCalledTimes(1);
+      expect(log.begin).toHaveBeenCalledWith(
         'subscriptions.getCheckoutToken',
         request
       );
-      sinon.assert.calledOnceWithExactly(
-        log.info,
+      expect(log.info).toHaveBeenCalledTimes(1);
+      expect(log.info).toHaveBeenCalledWith(
         'subscriptions.getCheckoutToken.success',
         { token: token }
       );
@@ -184,8 +216,8 @@ describe('subscriptions payPalRoutes', () => {
         '/oauth/subscriptions/paypal-checkout',
         defaultRequestOptions
       );
-      sinon.assert.calledOnceWithExactly(
-        customs.checkAuthenticated,
+      expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
         request,
         UID,
         TEST_EMAIL,
@@ -198,36 +230,46 @@ describe('subscriptions payPalRoutes', () => {
     let plan: any, customer: any, subscription: any, promotionCode: any;
 
     beforeEach(() => {
-      stripeHelper.findCustomerSubscriptionByPlanId =
-        sinon.fake.returns(undefined);
-      capabilityService.getPlanEligibility = sinon.fake.resolves({
+      stripeHelper.findCustomerSubscriptionByPlanId = jest
+        .fn()
+        .mockReturnValue(undefined);
+      capabilityService.getPlanEligibility = jest.fn().mockResolvedValue({
         subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
       });
-      stripeHelper.cancelSubscription = sinon.fake.resolves({});
-      payPalHelper.cancelBillingAgreement = sinon.fake.resolves({});
-      profile.deleteCache = sinon.fake.resolves({});
-      push.notifyProfileUpdated = sinon.fake.resolves({});
+      stripeHelper.cancelSubscription = jest.fn().mockResolvedValue({});
+      payPalHelper.cancelBillingAgreement = jest.fn().mockResolvedValue({});
+      profile.deleteCache = jest.fn().mockResolvedValue({});
+      push.notifyProfileUpdated = jest.fn().mockResolvedValue({});
       plan = deepCopy(planFixture);
       customer = deepCopy(customerFixture);
       subscription = deepCopy(subscription2);
       subscription.latest_invoice = deepCopy(openInvoice);
-      stripeHelper.fetchCustomer = sinon.fake.resolves(customer);
-      stripeHelper.findAbbrevPlanById = sinon.fake.resolves(plan);
-      payPalHelper.createBillingAgreement = sinon.fake.resolves('B-test');
-      payPalHelper.agreementDetails = sinon.fake.resolves({
+      stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(customer);
+      stripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue(plan);
+      payPalHelper.createBillingAgreement = jest
+        .fn()
+        .mockResolvedValue('B-test');
+      payPalHelper.agreementDetails = jest.fn().mockResolvedValue({
         firstName: 'Test',
         lastName: 'User',
         countryCode: 'CA',
       });
-      stripeHelper.customerTaxId = sinon.fake.returns(undefined);
-      stripeHelper.addTaxIdToCustomer = sinon.fake.resolves({});
-      stripeHelper.createSubscriptionWithPaypal =
-        sinon.fake.resolves(subscription);
-      stripeHelper.updateCustomerPaypalAgreement =
-        sinon.fake.resolves(customer);
+      stripeHelper.customerTaxId = jest.fn().mockReturnValue(undefined);
+      stripeHelper.addTaxIdToCustomer = jest.fn().mockResolvedValue({});
+      stripeHelper.createSubscriptionWithPaypal = jest
+        .fn()
+        .mockResolvedValue(subscription);
+      stripeHelper.updateCustomerPaypalAgreement = jest
+        .fn()
+        .mockResolvedValue(customer);
       promotionCode = { coupon: { id: 'test-coupon' } };
-      stripeHelper.findValidPromoCode = sinon.fake.resolves(promotionCode);
-      buildTaxAddressStub.mockReturnValue({ countryCode: 'US', postalCode: '92841' });
+      stripeHelper.findValidPromoCode = jest
+        .fn()
+        .mockResolvedValue(promotionCode);
+      buildTaxAddressStub.mockReturnValue({
+        countryCode: 'US',
+        postalCode: '92841',
+      });
     });
 
     afterEach(() => {
@@ -239,8 +281,10 @@ describe('subscriptions payPalRoutes', () => {
       it('throws a missing PayPal billing agreement error', async () => {
         const c = deepCopy(customer);
         c.subscriptions.data[0].collection_method = 'send_invoice';
-        stripeHelper.fetchCustomer = sinon.fake.resolves(c);
-        stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
+        stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(c);
+        stripeHelper.getCustomerPaypalAgreement = jest
+          .fn()
+          .mockReturnValue(undefined);
 
         try {
           await runTest(
@@ -256,9 +300,12 @@ describe('subscriptions payPalRoutes', () => {
 
     describe('new customer with no PayPal token', () => {
       it('throws a missing PayPal payment token error', async () => {
-        authDbModule.getAccountCustomerByUid =
-          sinon.fake.resolves(accountCustomer);
-        stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
+        authDbModule.getAccountCustomerByUid = jest
+          .fn()
+          .mockResolvedValue(accountCustomer);
+        stripeHelper.getCustomerPaypalAgreement = jest
+          .fn()
+          .mockReturnValue(undefined);
 
         try {
           await runTest(
@@ -272,21 +319,12 @@ describe('subscriptions payPalRoutes', () => {
       });
 
       describe('deleteAccountIfUnverified', () => {
-        let sandbox: sinon.SinonSandbox;
-        beforeEach(() => {
-          sandbox = sinon.createSandbox();
-        });
-
-        afterEach(() => {
-          sandbox.restore();
-        });
-
         it('calls deleteAccountIfUnverified', async () => {
           const requestOptions = deepCopy(defaultRequestOptions);
           requestOptions.verifierSetAt = 0;
-          stripeHelper.fetchCustomer = sinon.fake.throws(
-            error.backendServiceFailure()
-          );
+          stripeHelper.fetchCustomer = jest.fn().mockImplementation(() => {
+            throw error.backendServiceFailure();
+          });
           deleteAccountIfUnverifiedStub.mockReturnValue(null);
 
           try {
@@ -306,9 +344,9 @@ describe('subscriptions payPalRoutes', () => {
         it('ignores account exists error from deleteAccountIfUnverified', async () => {
           const requestOptions = deepCopy(defaultRequestOptions);
           requestOptions.verifierSetAt = 0;
-          stripeHelper.fetchCustomer = sinon.fake.throws(
-            error.backendServiceFailure()
-          );
+          stripeHelper.fetchCustomer = jest.fn().mockImplementation(() => {
+            throw error.backendServiceFailure();
+          });
           deleteAccountIfUnverifiedStub.mockImplementation(() => {
             throw error.accountExists(undefined);
           });
@@ -330,9 +368,9 @@ describe('subscriptions payPalRoutes', () => {
         it('ignores verified email error from deleteAccountIfUnverified', async () => {
           const requestOptions = deepCopy(defaultRequestOptions);
           requestOptions.verifierSetAt = 0;
-          stripeHelper.fetchCustomer = sinon.fake.throws(
-            error.backendServiceFailure()
-          );
+          stripeHelper.fetchCustomer = jest.fn().mockImplementation(() => {
+            throw error.backendServiceFailure();
+          });
           deleteAccountIfUnverifiedStub.mockImplementation(() => {
             throw error.verifiedSecondaryEmailAlreadyExists();
           });
@@ -355,9 +393,9 @@ describe('subscriptions payPalRoutes', () => {
 
     describe('customer that is has an incomplete subscription', () => {
       it('throws a user is already subscribed to product error', async () => {
-        capabilityService.getPlanEligibility = sinon.fake.resolves(
-          SubscriptionEligibilityResult.UPGRADE
-        );
+        capabilityService.getPlanEligibility = jest
+          .fn()
+          .mockResolvedValue(SubscriptionEligibilityResult.UPGRADE);
 
         try {
           await runTest('/oauth/subscriptions/active/new-paypal', {
@@ -373,9 +411,9 @@ describe('subscriptions payPalRoutes', () => {
 
     describe('customer that is ineligible for product', () => {
       it('throws a user is already subscribed to product error', async () => {
-        capabilityService.getPlanEligibility = sinon.fake.resolves(
-          SubscriptionEligibilityResult.UPGRADE
-        );
+        capabilityService.getPlanEligibility = jest
+          .fn()
+          .mockResolvedValue(SubscriptionEligibilityResult.UPGRADE);
 
         try {
           await runTest('/oauth/subscriptions/active/new-paypal', {
@@ -389,12 +427,14 @@ describe('subscriptions payPalRoutes', () => {
       });
 
       it('should cleanup incomplete subscriptions', async () => {
-        stripeHelper.findCustomerSubscriptionByPlanId = sinon.fake.returns({
-          status: 'incomplete',
-        });
-        capabilityService.getPlanEligibility = sinon.fake.resolves(
-          SubscriptionEligibilityResult.UPGRADE
-        );
+        stripeHelper.findCustomerSubscriptionByPlanId = jest
+          .fn()
+          .mockReturnValue({
+            status: 'incomplete',
+          });
+        capabilityService.getPlanEligibility = jest
+          .fn()
+          .mockResolvedValue(SubscriptionEligibilityResult.UPGRADE);
 
         try {
           await runTest('/oauth/subscriptions/active/new-paypal', {
@@ -402,7 +442,7 @@ describe('subscriptions payPalRoutes', () => {
             payload: { token },
           });
         } catch (err: any) {
-          sinon.assert.calledOnce(stripeHelper.cancelSubscription);
+          expect(stripeHelper.cancelSubscription).toHaveBeenCalledTimes(1);
         }
       });
     });
@@ -411,11 +451,13 @@ describe('subscriptions payPalRoutes', () => {
       it('throws a billing agreement already exists error', async () => {
         const c = deepCopy(customer);
         c.subscriptions.data[0].collection_method = 'send_invoice';
-        stripeHelper.fetchCustomer = sinon.fake.resolves(c);
-        authDbModule.getAccountCustomerByUid =
-          sinon.fake.resolves(accountCustomer);
-        stripeHelper.getCustomerPaypalAgreement =
-          sinon.fake.returns(paypalAgreementId);
+        stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(c);
+        authDbModule.getAccountCustomerByUid = jest
+          .fn()
+          .mockResolvedValue(accountCustomer);
+        stripeHelper.getCustomerPaypalAgreement = jest
+          .fn()
+          .mockReturnValue(paypalAgreementId);
 
         try {
           await runTest('/oauth/subscriptions/active/new-paypal', {
@@ -431,13 +473,17 @@ describe('subscriptions payPalRoutes', () => {
 
     describe('new subscription with a PayPal payment token', () => {
       beforeEach(() => {
-        authDbModule.getAccountCustomerByUid =
-          sinon.fake.resolves(accountCustomer);
-        stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
-        stripeHelper.isCustomerTaxableWithSubscriptionCurrency =
-          sinon.fake.returns(true);
-        payPalHelper.processInvoice = sinon.fake.resolves({});
-        payPalHelper.processZeroInvoice = sinon.fake.resolves({});
+        authDbModule.getAccountCustomerByUid = jest
+          .fn()
+          .mockResolvedValue(accountCustomer);
+        stripeHelper.updateCustomerPaypalAgreement = jest
+          .fn()
+          .mockResolvedValue({});
+        stripeHelper.isCustomerTaxableWithSubscriptionCurrency = jest
+          .fn()
+          .mockReturnValue(true);
+        payPalHelper.processInvoice = jest.fn().mockResolvedValue({});
+        payPalHelper.processZeroInvoice = jest.fn().mockResolvedValue({});
       });
 
       function assertChargedSuccessfully(actual: any) {
@@ -445,12 +491,16 @@ describe('subscriptions payPalRoutes', () => {
           sourceCountry: 'CA',
           subscription: filterSubscription(subscription),
         });
-        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
-        sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
-        sinon.assert.calledOnce(payPalHelper.agreementDetails);
-        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
-        sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
-        sinon.assert.calledOnce(payPalHelper.processInvoice);
+        expect(stripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
+        expect(payPalHelper.createBillingAgreement).toHaveBeenCalledTimes(1);
+        expect(payPalHelper.agreementDetails).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.createSubscriptionWithPaypal).toHaveBeenCalledTimes(
+          1
+        );
+        expect(
+          stripeHelper.updateCustomerPaypalAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(payPalHelper.processInvoice).toHaveBeenCalledTimes(1);
       }
 
       it('should run a charge successfully', async () => {
@@ -466,17 +516,14 @@ describe('subscriptions payPalRoutes', () => {
           payload: { token },
         });
         assertChargedSuccessfully(actual);
-        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
-        sinon.assert.calledWithExactly(
-          stripeHelper.createSubscriptionWithPaypal,
-          {
-            customer,
-            priceId: undefined,
-            promotionCode: undefined,
-            subIdempotencyKey: undefined,
-            automaticTax: true,
-          }
-        );
+        expect(stripeHelper.findValidPromoCode).not.toHaveBeenCalled();
+        expect(stripeHelper.createSubscriptionWithPaypal).toHaveBeenCalledWith({
+          customer,
+          priceId: undefined,
+          promotionCode: undefined,
+          subIdempotencyKey: undefined,
+          automaticTax: true,
+        });
       });
 
       it('should run a charge successfully with coupon', async () => {
@@ -492,21 +539,17 @@ describe('subscriptions payPalRoutes', () => {
           payload: { token, promotionCode: 'test-promo' },
         });
         assertChargedSuccessfully(actual);
-        sinon.assert.calledWithExactly(
-          stripeHelper.findValidPromoCode,
+        expect(stripeHelper.findValidPromoCode).toHaveBeenCalledWith(
           'test-promo',
           undefined
         );
-        sinon.assert.calledWithExactly(
-          stripeHelper.createSubscriptionWithPaypal,
-          {
-            customer,
-            priceId: undefined,
-            promotionCode,
-            subIdempotencyKey: undefined,
-            automaticTax: true,
-          }
-        );
+        expect(stripeHelper.createSubscriptionWithPaypal).toHaveBeenCalledWith({
+          customer,
+          priceId: undefined,
+          promotionCode,
+          subIdempotencyKey: undefined,
+          automaticTax: true,
+        });
       });
 
       it('should run a charge with automatic tax in unsupported region successfully', async () => {
@@ -517,24 +560,22 @@ describe('subscriptions payPalRoutes', () => {
             state: 'Ontario',
           },
         };
-        stripeHelper.isCustomerTaxableWithSubscriptionCurrency =
-          sinon.fake.returns(false);
+        stripeHelper.isCustomerTaxableWithSubscriptionCurrency = jest
+          .fn()
+          .mockReturnValue(false);
         const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
           ...requestOptions,
           payload: { token },
         });
         assertChargedSuccessfully(actual);
-        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
-        sinon.assert.calledWithExactly(
-          stripeHelper.createSubscriptionWithPaypal,
-          {
-            customer,
-            priceId: undefined,
-            promotionCode: undefined,
-            subIdempotencyKey: undefined,
-            automaticTax: false,
-          }
-        );
+        expect(stripeHelper.findValidPromoCode).not.toHaveBeenCalled();
+        expect(stripeHelper.createSubscriptionWithPaypal).toHaveBeenCalledWith({
+          customer,
+          priceId: undefined,
+          promotionCode: undefined,
+          subIdempotencyKey: undefined,
+          automaticTax: false,
+        });
       });
 
       it('should skip a zero charge successfully', async () => {
@@ -547,12 +588,16 @@ describe('subscriptions payPalRoutes', () => {
           sourceCountry: 'CA',
           subscription: filterSubscription(subscription),
         });
-        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
-        sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
-        sinon.assert.calledOnce(payPalHelper.agreementDetails);
-        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
-        sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
-        sinon.assert.calledOnce(payPalHelper.processZeroInvoice);
+        expect(stripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
+        expect(payPalHelper.createBillingAgreement).toHaveBeenCalledTimes(1);
+        expect(payPalHelper.agreementDetails).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.createSubscriptionWithPaypal).toHaveBeenCalledTimes(
+          1
+        );
+        expect(
+          stripeHelper.updateCustomerPaypalAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(payPalHelper.processZeroInvoice).toHaveBeenCalledTimes(1);
       });
 
       it('throws an error if customer is in unsupported location', async () => {
@@ -579,9 +624,9 @@ describe('subscriptions payPalRoutes', () => {
       });
 
       it('should throw an error if invalid promotion code', async () => {
-        stripeHelper.findValidPromoCode = sinon.fake.rejects(
-          error.invalidPromoCode('invalid-promo')
-        );
+        stripeHelper.findValidPromoCode = jest
+          .fn()
+          .mockRejectedValue(error.invalidPromoCode('invalid-promo'));
         try {
           await runTest('/oauth/subscriptions/active/new-paypal', {
             ...defaultRequestOptions,
@@ -591,15 +636,14 @@ describe('subscriptions payPalRoutes', () => {
         } catch (err: any) {
           expect(err.message).toBe('Invalid promotion code');
         }
-        sinon.assert.calledWithExactly(
-          stripeHelper.findValidPromoCode,
+        expect(stripeHelper.findValidPromoCode).toHaveBeenCalledWith(
           'invalid-promo',
           undefined
         );
       });
 
       it('should throw an error if planCurrency does not match billingAgreement country', async () => {
-        payPalHelper.agreementDetails = sinon.fake.resolves({
+        payPalHelper.agreementDetails = jest.fn().mockResolvedValue({
           firstName: 'Test',
           lastName: 'User',
           countryCode: 'AS',
@@ -619,7 +663,7 @@ describe('subscriptions payPalRoutes', () => {
 
       it('should throw an error if billingAgreement country does not match planCurrency', async () => {
         plan.currency = 'eur';
-        stripeHelper.findAbbrevPlanById = sinon.fake.resolves(plan);
+        stripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue(plan);
         try {
           await runTest('/oauth/subscriptions/active/new-paypal', {
             ...defaultRequestOptions,
@@ -634,7 +678,9 @@ describe('subscriptions payPalRoutes', () => {
       });
 
       it('should throw an error if the invoice processing fails', async () => {
-        payPalHelper.processInvoice = sinon.fake.rejects(error.paymentFailed());
+        payPalHelper.processInvoice = jest
+          .fn()
+          .mockRejectedValue(error.paymentFailed());
         try {
           await runTest('/oauth/subscriptions/active/new-paypal', {
             ...defaultRequestOptions,
@@ -643,8 +689,8 @@ describe('subscriptions payPalRoutes', () => {
           throw new Error('Should have thrown an error');
         } catch (err: any) {
           expect(err).toEqual(error.paymentFailed());
-          sinon.assert.calledOnce(stripeHelper.cancelSubscription);
-          sinon.assert.calledOnce(payPalHelper.cancelBillingAgreement);
+          expect(stripeHelper.cancelSubscription).toHaveBeenCalledTimes(1);
+          expect(payPalHelper.cancelBillingAgreement).toHaveBeenCalledTimes(1);
         }
       });
     });
@@ -662,13 +708,17 @@ describe('subscriptions payPalRoutes', () => {
           },
         };
         c.subscriptions.data[0].collection_method = 'send_invoice';
-        stripeHelper.fetchCustomer = sinon.fake.resolves(c);
-        stripeHelper.isCustomerTaxableWithSubscriptionCurrency =
-          sinon.fake.returns(true);
-        stripeHelper.getCustomerPaypalAgreement =
-          sinon.fake.returns(paypalAgreementId);
-        payPalHelper.processInvoice = sinon.fake.resolves({});
-        stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
+        stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(c);
+        stripeHelper.isCustomerTaxableWithSubscriptionCurrency = jest
+          .fn()
+          .mockReturnValue(true);
+        stripeHelper.getCustomerPaypalAgreement = jest
+          .fn()
+          .mockReturnValue(paypalAgreementId);
+        payPalHelper.processInvoice = jest.fn().mockResolvedValue({});
+        stripeHelper.updateCustomerPaypalAgreement = jest
+          .fn()
+          .mockResolvedValue({});
       });
 
       it('should run a charge successfully', async () => {
@@ -677,39 +727,40 @@ describe('subscriptions payPalRoutes', () => {
           defaultRequestOptions
         );
 
-        sinon.assert.notCalled(payPalHelper.createBillingAgreement);
-        sinon.assert.notCalled(payPalHelper.agreementDetails);
-        sinon.assert.notCalled(stripeHelper.updateCustomerPaypalAgreement);
-        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
-        sinon.assert.calledOnce(stripeHelper.customerTaxId);
-        sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
-        sinon.assert.calledWithExactly(
-          stripeHelper.createSubscriptionWithPaypal,
-          {
-            customer: {
-              ...customer,
-              address: {
-                country: 'GD',
-              },
-              metadata: {
-                ...customer.metadata,
-                paypalAgreementId,
-              },
+        expect(payPalHelper.createBillingAgreement).not.toHaveBeenCalled();
+        expect(payPalHelper.agreementDetails).not.toHaveBeenCalled();
+        expect(
+          stripeHelper.updateCustomerPaypalAgreement
+        ).not.toHaveBeenCalled();
+        expect(stripeHelper.findValidPromoCode).not.toHaveBeenCalled();
+        expect(stripeHelper.customerTaxId).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.addTaxIdToCustomer).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.createSubscriptionWithPaypal).toHaveBeenCalledWith({
+          customer: {
+            ...customer,
+            address: {
+              country: 'GD',
             },
-            priceId: undefined,
-            promotionCode: undefined,
-            subIdempotencyKey: undefined,
-            automaticTax: true,
-          }
-        );
+            metadata: {
+              ...customer.metadata,
+              paypalAgreementId,
+            },
+          },
+          priceId: undefined,
+          promotionCode: undefined,
+          subIdempotencyKey: undefined,
+          automaticTax: true,
+        });
 
         expect(actual).toEqual({
           sourceCountry: 'GD',
           subscription: filterSubscription(subscription),
         });
-        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
-        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
-        sinon.assert.calledOnce(payPalHelper.processInvoice);
+        expect(stripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.createSubscriptionWithPaypal).toHaveBeenCalledTimes(
+          1
+        );
+        expect(payPalHelper.processInvoice).toHaveBeenCalledTimes(1);
       });
 
       it('should run a charge successfully with a coupon', async () => {
@@ -720,48 +771,48 @@ describe('subscriptions payPalRoutes', () => {
           requestOptions
         );
 
-        sinon.assert.notCalled(payPalHelper.createBillingAgreement);
-        sinon.assert.notCalled(payPalHelper.agreementDetails);
-        sinon.assert.notCalled(stripeHelper.updateCustomerPaypalAgreement);
-        sinon.assert.calledWithExactly(
-          stripeHelper.findValidPromoCode,
+        expect(payPalHelper.createBillingAgreement).not.toHaveBeenCalled();
+        expect(payPalHelper.agreementDetails).not.toHaveBeenCalled();
+        expect(
+          stripeHelper.updateCustomerPaypalAgreement
+        ).not.toHaveBeenCalled();
+        expect(stripeHelper.findValidPromoCode).toHaveBeenCalledWith(
           'test-promo',
           undefined
         );
-        sinon.assert.calledOnce(stripeHelper.customerTaxId);
-        sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
-        sinon.assert.calledWithExactly(
-          stripeHelper.createSubscriptionWithPaypal,
-          {
-            customer: {
-              ...customer,
-              address: {
-                country: 'GD',
-              },
-              metadata: {
-                ...customer.metadata,
-                paypalAgreementId,
-              },
+        expect(stripeHelper.customerTaxId).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.addTaxIdToCustomer).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.createSubscriptionWithPaypal).toHaveBeenCalledWith({
+          customer: {
+            ...customer,
+            address: {
+              country: 'GD',
             },
-            priceId: undefined,
-            promotionCode,
-            subIdempotencyKey: undefined,
-            automaticTax: true,
-          }
-        );
+            metadata: {
+              ...customer.metadata,
+              paypalAgreementId,
+            },
+          },
+          priceId: undefined,
+          promotionCode,
+          subIdempotencyKey: undefined,
+          automaticTax: true,
+        });
 
         expect(actual).toEqual({
           sourceCountry: 'GD',
           subscription: filterSubscription(subscription),
         });
-        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
-        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
-        sinon.assert.calledOnce(payPalHelper.processInvoice);
+        expect(stripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.createSubscriptionWithPaypal).toHaveBeenCalledTimes(
+          1
+        );
+        expect(payPalHelper.processInvoice).toHaveBeenCalledTimes(1);
       });
 
       it('should skip a zero charge successfully', async () => {
         subscription.latest_invoice.amount_due = 0;
-        payPalHelper.processZeroInvoice = sinon.fake.resolves({});
+        payPalHelper.processZeroInvoice = jest.fn().mockResolvedValue({});
         const actual = await runTest(
           '/oauth/subscriptions/active/new-paypal',
           defaultRequestOptions
@@ -770,11 +821,13 @@ describe('subscriptions payPalRoutes', () => {
           sourceCountry: 'GD',
           subscription: filterSubscription(subscription),
         });
-        sinon.assert.calledOnce(payPalHelper.processZeroInvoice);
+        expect(payPalHelper.processZeroInvoice).toHaveBeenCalledTimes(1);
       });
 
       it('should throw an error if the invoice processing fails', async () => {
-        payPalHelper.processInvoice = sinon.fake.rejects(error.paymentFailed());
+        payPalHelper.processInvoice = jest
+          .fn()
+          .mockRejectedValue(error.paymentFailed());
         try {
           await runTest(
             '/oauth/subscriptions/active/new-paypal',
@@ -783,8 +836,8 @@ describe('subscriptions payPalRoutes', () => {
           throw new Error('Should have thrown an error');
         } catch (err: any) {
           expect(err).toEqual(error.paymentFailed());
-          sinon.assert.calledOnce(stripeHelper.cancelSubscription);
-          sinon.assert.notCalled(payPalHelper.cancelBillingAgreement);
+          expect(stripeHelper.cancelSubscription).toHaveBeenCalledTimes(1);
+          expect(payPalHelper.cancelBillingAgreement).not.toHaveBeenCalled();
         }
       });
     });
@@ -802,28 +855,34 @@ describe('subscriptions payPalRoutes', () => {
         }
       }
 
-      authDbModule.getAccountCustomerByUid =
-        sinon.fake.resolves(accountCustomer);
-      stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
-      stripeHelper.fetchOpenInvoices.returns(genInvoice());
-      profile.deleteCache = sinon.fake.resolves({});
-      push.notifyProfileUpdated = sinon.fake.resolves({});
+      authDbModule.getAccountCustomerByUid = jest
+        .fn()
+        .mockResolvedValue(accountCustomer);
+      stripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue(undefined);
+      stripeHelper.fetchOpenInvoices.mockReturnValue(genInvoice());
+      profile.deleteCache = jest.fn().mockResolvedValue({});
+      push.notifyProfileUpdated = jest.fn().mockResolvedValue({});
       plan = deepCopy(planFixture);
       customer = deepCopy(customerFixture);
       subscription = deepCopy(subscription2);
       subscription.collection_method = 'send_invoice';
       subscription.latest_invoice = deepCopy(openInvoice);
       customer.subscriptions.data = [subscription];
-      stripeHelper.fetchCustomer = sinon.fake.resolves(customer);
-      stripeHelper.findAbbrevPlanById = sinon.fake.resolves(plan);
-      payPalHelper.createBillingAgreement = sinon.fake.resolves('B-test');
-      payPalHelper.agreementDetails = sinon.fake.resolves({
+      stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(customer);
+      stripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue(plan);
+      payPalHelper.createBillingAgreement = jest
+        .fn()
+        .mockResolvedValue('B-test');
+      payPalHelper.agreementDetails = jest.fn().mockResolvedValue({
         firstName: 'Test',
         lastName: 'User',
         countryCode: 'CA',
       });
-      stripeHelper.updateCustomerPaypalAgreement =
-        sinon.fake.resolves(customer);
+      stripeHelper.updateCustomerPaypalAgreement = jest
+        .fn()
+        .mockResolvedValue(customer);
     });
 
     it('should update the billing agreement and process invoice', async () => {
@@ -841,33 +900,37 @@ describe('subscriptions payPalRoutes', () => {
         requestOptions
       );
       expect(actual).toEqual(filterCustomer(customer));
-      sinon.assert.calledOnce(stripeHelper.fetchCustomer);
-      sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
-      sinon.assert.calledOnce(payPalHelper.agreementDetails);
-      sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
-      sinon.assert.calledOnce(stripeHelper.fetchOpenInvoices);
-      sinon.assert.calledOnce(stripeHelper.getCustomerPaypalAgreement);
-      sinon.assert.calledOnce(payPalHelper.processInvoice);
+      expect(stripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
+      expect(payPalHelper.createBillingAgreement).toHaveBeenCalledTimes(1);
+      expect(payPalHelper.agreementDetails).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.updateCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(stripeHelper.fetchOpenInvoices).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(1);
+      expect(payPalHelper.processInvoice).toHaveBeenCalledTimes(1);
     });
 
     it('should update the billing agreement and process zero invoice', async () => {
       subscription.latest_invoice.amount_due = 0;
       invoices.push(subscription.latest_invoice);
       subscription.latest_invoice.subscription = subscription;
-      payPalHelper.processZeroInvoice = sinon.fake.resolves({});
+      payPalHelper.processZeroInvoice = jest.fn().mockResolvedValue({});
       const actual = await runTest(
         '/oauth/subscriptions/paymentmethod/billing-agreement',
         defaultRequestOptions
       );
       expect(actual).toEqual(filterCustomer(customer));
-      sinon.assert.calledOnce(stripeHelper.fetchCustomer);
-      sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
-      sinon.assert.calledOnce(payPalHelper.agreementDetails);
-      sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
-      sinon.assert.calledOnce(stripeHelper.fetchOpenInvoices);
-      sinon.assert.calledOnce(stripeHelper.getCustomerPaypalAgreement);
-      sinon.assert.calledOnce(payPalHelper.processZeroInvoice);
-      sinon.assert.notCalled(payPalHelper.processInvoice);
+      expect(stripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
+      expect(payPalHelper.createBillingAgreement).toHaveBeenCalledTimes(1);
+      expect(payPalHelper.agreementDetails).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.updateCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(stripeHelper.fetchOpenInvoices).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(1);
+      expect(payPalHelper.processZeroInvoice).toHaveBeenCalledTimes(1);
+      expect(payPalHelper.processInvoice).not.toHaveBeenCalled();
     });
 
     it('should update the billing agreement', async () => {
@@ -876,18 +939,20 @@ describe('subscriptions payPalRoutes', () => {
         defaultRequestOptions
       );
       expect(actual).toEqual(filterCustomer(customer));
-      sinon.assert.calledOnce(stripeHelper.fetchCustomer);
-      sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
-      sinon.assert.calledOnce(payPalHelper.agreementDetails);
-      sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
-      sinon.assert.calledOnce(stripeHelper.fetchOpenInvoices);
-      sinon.assert.calledOnce(stripeHelper.getCustomerPaypalAgreement);
-      sinon.assert.notCalled(payPalHelper.processInvoice);
+      expect(stripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
+      expect(payPalHelper.createBillingAgreement).toHaveBeenCalledTimes(1);
+      expect(payPalHelper.agreementDetails).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.updateCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(stripeHelper.fetchOpenInvoices).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(1);
+      expect(payPalHelper.processInvoice).not.toHaveBeenCalled();
     });
 
     it('should throw an error if billingAgreement country does not match planCurrency', async () => {
       customer.currency = 'eur';
-      stripeHelper.findAbbrevPlanById = sinon.fake.resolves(plan);
+      stripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue(plan);
       try {
         await runTest(
           '/oauth/subscriptions/paymentmethod/billing-agreement',

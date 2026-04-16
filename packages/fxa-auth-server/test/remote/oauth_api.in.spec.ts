@@ -32,7 +32,6 @@ const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 const testServer = require('../lib/server');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const { decodeJWT } = require('../lib/util');
-import sinon from 'sinon';
 
 const db = require('../../lib/oauth/db');
 const encrypt = require('fxa-shared/auth/encrypt');
@@ -169,7 +168,6 @@ function basicAuthHeader(clientId, secret) {
 }
 
 describe('#integration - /v1', function () {
-  let sandbox;
   let Server;
 
   function newToken(payload: any = {}, options: any = {}) {
@@ -220,13 +218,10 @@ describe('#integration - /v1', function () {
     await Server.close();
   });
 
-  beforeEach(() => {
-    sandbox = sinon.createSandbox();
-  });
-
   afterEach(function () {
     nock.cleanAll();
-    sandbox.restore();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
   describe('/authorization', function () {
@@ -2818,10 +2813,8 @@ describe('#integration - /v1', function () {
       assertSecurityHeaders(res);
       expect(res.result.expires_in).toBe(1);
 
-      sandbox.useFakeTimers({
-        now: Date.now() + 1000 * 60 * 60, // 1 hr in future
-        shouldAdvanceTime: true,
-      });
+      const futureTime = Date.now() + 1000 * 60 * 60; // 1 hr in future
+      jest.spyOn(Date, 'now').mockReturnValue(futureTime);
 
       res = await Server.api.post({
         url: '/verify',

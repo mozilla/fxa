@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import {
   EmailTypes,
@@ -11,34 +10,26 @@ import {
 } from '@fxa/shared/cloud-tasks';
 import { AppConfig } from '../types';
 
-// Fix proxyquire path resolution for test/mocks.js when loaded from a subdirectory.
-// proxyquire uses callsite detection which resolves relative to the spec file under Jest,
-// not relative to the file that calls proxyquire. From lib/inactive-accounts/, the path
-// '../lib/metrics/amplitude' incorrectly resolves to lib/lib/metrics/amplitude.
-jest.mock('proxyquire', () => {
-  const path = require('path');
-  const testDir = path.resolve(__dirname, '../../test');
-  return (id: string, _stubs: any) => {
-    const resolvedPath = path.resolve(testDir, id);
-    return require(resolvedPath);
-  };
-});
-
-// Mock fxa-shared/db/models/auth with EmailBounce (chainable query builder),
-// Account.metricsEnabled (needed by amplitude loaded via test/mocks.js),
-// and getAccountCustomerByUid.
+// Mock fxa-shared/db/models/auth with real exports plus mock EmailBounce for chaining.
+// Must be before any require() that pulls this module (including test/mocks.js).
+const _mockEmailBounce: any = {};
+function resetEmailBounceMock() {
+  for (const method of ['query', 'where', 'whereIn', 'whereNull', 'join']) {
+    _mockEmailBounce[method] = jest.fn().mockReturnValue(_mockEmailBounce);
+  }
+  _mockEmailBounce.distinct = jest.fn().mockResolvedValue([]);
+}
+resetEmailBounceMock();
 jest.mock('fxa-shared/db/models/auth', () => {
-  const emailBounceInstance: any = {};
-  emailBounceInstance.query = jest.fn().mockReturnValue(emailBounceInstance);
-  emailBounceInstance.where = jest.fn().mockReturnValue(emailBounceInstance);
-  emailBounceInstance.whereIn = jest.fn().mockReturnValue(emailBounceInstance);
-  emailBounceInstance.whereNull = jest.fn().mockReturnValue(emailBounceInstance);
-  emailBounceInstance.join = jest.fn().mockReturnValue(emailBounceInstance);
-  emailBounceInstance.distinct = jest.fn().mockResolvedValue([]);
+  const actual = jest.requireActual('fxa-shared/db/models/auth');
   return {
-    Account: { metricsEnabled: jest.fn().mockResolvedValue(true) },
-    EmailBounce: emailBounceInstance,
-    getAccountCustomerByUid: jest.fn(),
+    ...actual,
+    Account: {
+      ...actual.Account,
+      metricsEnabled: jest.fn().mockResolvedValue(true),
+    },
+    EmailBounce: _mockEmailBounce,
+    getAccountCustomerByUid: jest.fn().mockResolvedValue(null),
   };
 });
 
@@ -55,39 +46,38 @@ const mocks = require('../../test/mocks');
 
 const now = 1736500000000;
 const aDayInMs = 24 * 60 * 60 * 1000;
-const sandbox = sinon.createSandbox();
 const mockAccount = {
   email: 'a@example.gg',
   locale: 'en',
 };
-const mockFxaDb = mocks.mockDB(mockAccount, sandbox);
-const mockMailer = mocks.mockMailer(sandbox);
+const mockFxaDb = mocks.mockDB(mockAccount);
+const mockMailer = mocks.mockMailer();
 const mockFxaMailer = mocks.mockFxaMailer();
-const mockStatsd = { increment: sandbox.stub() };
+const mockStatsd = { increment: jest.fn() };
 const mockGlean = {
   inactiveAccountDeletion: {
-    firstEmailSkipped: sandbox.stub(),
-    firstEmailTaskEnqueued: sandbox.stub(),
-    firstEmailTaskRejected: sandbox.stub(),
-    firstEmailTaskRequest: sandbox.stub(),
+    firstEmailSkipped: jest.fn(),
+    firstEmailTaskEnqueued: jest.fn(),
+    firstEmailTaskRejected: jest.fn(),
+    firstEmailTaskRequest: jest.fn(),
 
-    secondEmailSkipped: sandbox.stub(),
-    secondEmailTaskEnqueued: sandbox.stub(),
-    secondEmailTaskRejected: sandbox.stub(),
-    secondEmailTaskRequest: sandbox.stub(),
+    secondEmailSkipped: jest.fn(),
+    secondEmailTaskEnqueued: jest.fn(),
+    secondEmailTaskRejected: jest.fn(),
+    secondEmailTaskRequest: jest.fn(),
 
-    finalEmailSkipped: sandbox.stub(),
-    finalEmailTaskEnqueued: sandbox.stub(),
-    finalEmailTaskRejected: sandbox.stub(),
-    finalEmailTaskRequest: sandbox.stub(),
+    finalEmailSkipped: jest.fn(),
+    finalEmailTaskEnqueued: jest.fn(),
+    finalEmailTaskRejected: jest.fn(),
+    finalEmailTaskRequest: jest.fn(),
 
-    deletionScheduled: sandbox.stub(),
+    deletionScheduled: jest.fn(),
   },
 };
-const mockLog = mocks.mockLog(sandbox);
+const mockLog = mocks.mockLog();
 const mockOAuthDb = {
-  getRefreshTokensByUid: sandbox.stub().resolves([]),
-  getAccessTokensByUid: sandbox.stub().resolves([]),
+  getRefreshTokensByUid: jest.fn().mockResolvedValue([]),
+  getAccessTokensByUid: jest.fn().mockResolvedValue([]),
 };
 const mockConfig = {
   authFirestore: {},
@@ -101,13 +91,13 @@ const { AccountEventsManager } = require('../account-events');
 const accountEventsManager = new AccountEventsManager();
 Container.set(AccountEventsManager, accountEventsManager);
 
-const mockDeleteAccountTasks = { deleteAccount: sandbox.stub() };
+const mockDeleteAccountTasks = { deleteAccount: jest.fn() };
 Container.set(DeleteAccountTasks, mockDeleteAccountTasks);
 
 const mockEmailTasks = {
-  scheduleFirstEmail: sandbox.stub(),
-  scheduleSecondEmail: sandbox.stub(),
-  scheduleFinalEmail: sandbox.stub(),
+  scheduleFirstEmail: jest.fn(),
+  scheduleSecondEmail: jest.fn(),
+  scheduleFinalEmail: jest.fn(),
 };
 mockEmailTasksRef.current = mockEmailTasks;
 
@@ -132,114 +122,107 @@ describe('InactiveAccountsManager', () => {
   };
 
   beforeEach(() => {
-    mockFxaDb.account.resetHistory();
-    mockOAuthDb.getRefreshTokensByUid.resetHistory();
-    mockStatsd.increment.resetHistory();
-    mockGlean.inactiveAccountDeletion.firstEmailSkipped.resetHistory();
-    mockGlean.inactiveAccountDeletion.secondEmailSkipped.resetHistory();
-    mockGlean.inactiveAccountDeletion.finalEmailSkipped.resetHistory();
-    Object.values(mockEmailTasks).forEach((stub: any) => stub.resetHistory());
-    (EmailBounce.distinct as jest.Mock).mockClear();
-    (EmailBounce.distinct as jest.Mock).mockResolvedValue([]);
-    mockDeleteAccountTasks.deleteAccount.resetHistory();
-    mockFxaMailer.sendInactiveAccountFirstWarningEmail.resetHistory();
-    mockFxaMailer.sendInactiveAccountSecondWarningEmail.resetHistory();
-    mockFxaMailer.sendInactiveAccountFinalWarningEmail.resetHistory();
-    sandbox.resetHistory();
-    sinon.resetHistory();
+    jest.clearAllMocks();
+    resetEmailBounceMock();
   });
 
   afterEach(() => {
-    sandbox.restore();
-    sinon.restore();
+    jest.restoreAllMocks();
   });
 
   describe('first email notification', () => {
     beforeEach(() => {
-      sinon.stub(Date, 'now').returns(now);
+      jest.spyOn(Date, 'now').mockReturnValue(now);
     });
     afterEach(() => {
-      sinon.restore();
+      jest.restoreAllMocks();
     });
 
     it('should skip when account is active', async () => {
-      const isActiveSpy = sandbox.spy(inactiveAccountManager, 'isActive');
-      mockOAuthDb.getRefreshTokensByUid.resolves([
+      const isActiveSpy = jest.spyOn(inactiveAccountManager, 'isActive');
+      mockOAuthDb.getRefreshTokensByUid.mockResolvedValue([
         { lastUsedAt: Date.now() },
       ]);
       await inactiveAccountManager.handleNotificationTask(mockPayload);
 
-      sinon.assert.calledOnce(isActiveSpy);
-      sinon.assert.calledOnceWithExactly(
-        mockOAuthDb.getRefreshTokensByUid,
+      expect(isActiveSpy).toHaveBeenCalledTimes(1);
+      expect(mockOAuthDb.getRefreshTokensByUid).toHaveBeenCalledTimes(1);
+      expect(mockOAuthDb.getRefreshTokensByUid).toHaveBeenCalledWith(
         mockPayload.uid
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStatsd.increment,
+      expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.inactive.first-email.skipped.active'
       );
-      sinon.assert.calledOnce(
-        mockGlean.inactiveAccountDeletion.firstEmailSkipped
-      );
       expect(
-        mockGlean.inactiveAccountDeletion.firstEmailSkipped.args[0][1]
+        mockGlean.inactiveAccountDeletion.firstEmailSkipped
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockGlean.inactiveAccountDeletion.firstEmailSkipped.mock.calls[0][1]
       ).toEqual({ uid: mockPayload.uid, reason: 'active_account' });
     });
 
     it('should skip when email has been sent', async () => {
-      sinon.stub(accountEventsManager, 'findEmailEvents').resolves([{}]);
+      jest
+        .spyOn(accountEventsManager, 'findEmailEvents')
+        .mockResolvedValue([{}]);
 
-      sinon.stub(inactiveAccountManager, 'isActive').resolves(false);
+      jest.spyOn(inactiveAccountManager, 'isActive').mockResolvedValue(false);
 
-      sinon.stub(inactiveAccountManager, 'scheduleNextEmail').resolves();
+      jest
+        .spyOn(inactiveAccountManager, 'scheduleNextEmail')
+        .mockResolvedValue(undefined);
 
       await inactiveAccountManager.handleNotificationTask(mockPayload);
-      sinon.assert.calledWithExactly(
-        mockStatsd.increment,
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.inactive.first-email.skipped.duplicate'
       );
-      sinon.assert.calledOnce(
-        mockGlean.inactiveAccountDeletion.firstEmailSkipped
-      );
       expect(
-        mockGlean.inactiveAccountDeletion.firstEmailSkipped.args[0][1]
+        mockGlean.inactiveAccountDeletion.firstEmailSkipped
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockGlean.inactiveAccountDeletion.firstEmailSkipped.mock.calls[0][1]
       ).toEqual({ uid: mockPayload.uid, reason: 'already_sent' });
-      sinon.assert.calledOnce(inactiveAccountManager.scheduleNextEmail);
+      expect(inactiveAccountManager.scheduleNextEmail).toHaveBeenCalledTimes(1);
     });
 
     it('should send the first email and enqueue the second', async () => {
-      sinon.stub(accountEventsManager, 'findEmailEvents').resolves([]);
-      sinon.stub(inactiveAccountManager, 'isActive').resolves(false);
+      jest.spyOn(accountEventsManager, 'findEmailEvents').mockResolvedValue([]);
+      jest.spyOn(inactiveAccountManager, 'isActive').mockResolvedValue(false);
 
       await inactiveAccountManager.handleNotificationTask(mockPayload);
 
-      sinon.assert.calledOnceWithExactly(mockFxaDb.account, mockPayload.uid);
-      sinon.assert.calledOnce(
+      expect(mockFxaDb.account).toHaveBeenCalledTimes(1);
+      expect(mockFxaDb.account).toHaveBeenCalledWith(mockPayload.uid);
+      expect(
         mockFxaMailer.sendInactiveAccountFirstWarningEmail
-      );
+      ).toHaveBeenCalledTimes(1);
       const fxaMailerCallArgs =
-        mockFxaMailer.sendInactiveAccountFirstWarningEmail.getCall(0).args[0];
+        mockFxaMailer.sendInactiveAccountFirstWarningEmail.mock.calls[0][0];
       expect(fxaMailerCallArgs.to).toBe(mockAccount.email);
       expect(fxaMailerCallArgs.acceptLanguage).toBe(mockAccount.locale);
       expect(fxaMailerCallArgs.deletionDate).toBeDefined();
-      sinon.assert.calledOnceWithExactly(mockEmailTasks.scheduleSecondEmail, {
+      expect(mockEmailTasks.scheduleSecondEmail).toHaveBeenCalledTimes(1);
+      expect(mockEmailTasks.scheduleSecondEmail).toHaveBeenCalledWith({
         payload: {
           uid: mockPayload.uid,
           emailType: EmailTypes.INACTIVE_DELETE_SECOND_NOTIFICATION,
         },
         taskOptions: { taskId: '0987654321-inactive-delete-second-email' },
       });
-      sinon.assert.calledOnce(
+      expect(
         mockGlean.inactiveAccountDeletion.secondEmailTaskRequest
-      );
+      ).toHaveBeenCalledTimes(1);
       expect(
-        mockGlean.inactiveAccountDeletion.secondEmailTaskRequest.args[0][1]
+        mockGlean.inactiveAccountDeletion.secondEmailTaskRequest.mock
+          .calls[0][1]
       ).toEqual({ uid: mockPayload.uid });
-      sinon.assert.calledOnce(
-        mockGlean.inactiveAccountDeletion.secondEmailTaskEnqueued
-      );
       expect(
-        mockGlean.inactiveAccountDeletion.secondEmailTaskEnqueued.args[0][1]
+        mockGlean.inactiveAccountDeletion.secondEmailTaskEnqueued
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockGlean.inactiveAccountDeletion.secondEmailTaskEnqueued.mock
+          .calls[0][1]
       ).toEqual({ uid: mockPayload.uid });
     });
   });
@@ -251,35 +234,35 @@ describe('InactiveAccountsManager', () => {
     };
 
     beforeEach(() => {
-      sinon.stub(Date, 'now').returns(now + 53 * aDayInMs);
+      jest.spyOn(Date, 'now').mockReturnValue(now + 53 * aDayInMs);
     });
     afterEach(() => {
-      sinon.restore();
+      jest.restoreAllMocks();
     });
 
     it('should skip when account is active', async () => {
-      const isActiveSpy = sandbox.spy(inactiveAccountManager, 'isActive');
-      mockOAuthDb.getRefreshTokensByUid.resolves([
+      const isActiveSpy = jest.spyOn(inactiveAccountManager, 'isActive');
+      mockOAuthDb.getRefreshTokensByUid.mockResolvedValue([
         { lastUsedAt: Date.now() },
       ]);
       await inactiveAccountManager.handleNotificationTask(
         mockSecondTaskPayload
       );
 
-      sandbox.assert.calledOnce(isActiveSpy);
-      sandbox.assert.calledOnceWithExactly(
-        mockOAuthDb.getRefreshTokensByUid,
+      expect(isActiveSpy).toHaveBeenCalledTimes(1);
+      expect(mockOAuthDb.getRefreshTokensByUid).toHaveBeenCalledTimes(1);
+      expect(mockOAuthDb.getRefreshTokensByUid).toHaveBeenCalledWith(
         mockSecondTaskPayload.uid
       );
-      sandbox.assert.calledOnceWithExactly(
-        mockStatsd.increment,
+      expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.inactive.second-email.skipped.active'
       );
-      sandbox.assert.calledOnce(
-        mockGlean.inactiveAccountDeletion.secondEmailSkipped
-      );
       expect(
-        mockGlean.inactiveAccountDeletion.secondEmailSkipped.args[0][1]
+        mockGlean.inactiveAccountDeletion.secondEmailSkipped
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockGlean.inactiveAccountDeletion.secondEmailSkipped.mock.calls[0][1]
       ).toEqual({
         uid: mockSecondTaskPayload.uid,
         reason: 'active_account',
@@ -287,32 +270,37 @@ describe('InactiveAccountsManager', () => {
     });
 
     it('should skip when second email has been sent already', async () => {
-      sandbox.stub(accountEventsManager, 'findEmailEvents').resolves([{}]);
-      sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
-      sandbox.stub(inactiveAccountManager, 'scheduleNextEmail').resolves();
+      jest
+        .spyOn(accountEventsManager, 'findEmailEvents')
+        .mockResolvedValue([{}]);
+      jest.spyOn(inactiveAccountManager, 'isActive').mockResolvedValue(false);
+      jest
+        .spyOn(inactiveAccountManager, 'scheduleNextEmail')
+        .mockResolvedValue(undefined);
       await inactiveAccountManager.handleNotificationTask(
         mockSecondTaskPayload
       );
-      sandbox.assert.calledWithExactly(
-        mockStatsd.increment,
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.inactive.second-email.skipped.duplicate'
       );
-      sandbox.assert.calledOnce(
-        mockGlean.inactiveAccountDeletion.secondEmailSkipped
-      );
       expect(
-        mockGlean.inactiveAccountDeletion.secondEmailSkipped.args[0][1]
+        mockGlean.inactiveAccountDeletion.secondEmailSkipped
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockGlean.inactiveAccountDeletion.secondEmailSkipped.mock.calls[0][1]
       ).toEqual({
         uid: mockSecondTaskPayload.uid,
         reason: 'already_sent',
       });
-      sandbox.assert.calledOnce(inactiveAccountManager.scheduleNextEmail);
+      expect(inactiveAccountManager.scheduleNextEmail).toHaveBeenCalledTimes(1);
     });
 
     it('should delete the account if the first email bounced', async () => {
-      sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
+      jest.spyOn(inactiveAccountManager, 'isActive').mockResolvedValue(false);
       (EmailBounce.distinct as jest.Mock).mockResolvedValue([mockAccount]);
-      sandbox.stub(inactiveAccountManager, 'scheduleNextEmail').resolves();
+      jest
+        .spyOn(inactiveAccountManager, 'scheduleNextEmail')
+        .mockResolvedValue(undefined);
 
       await inactiveAccountManager.handleNotificationTask(
         mockSecondTaskPayload
@@ -320,69 +308,66 @@ describe('InactiveAccountsManager', () => {
 
       expect(EmailBounce.distinct).toHaveBeenCalledTimes(1);
       expect(EmailBounce.distinct).toHaveBeenCalledWith('email');
-      sinon.assert.calledWithExactly(
-        mockStatsd.increment,
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.inactive.second-email.skipped.bounce'
       );
-      sinon.assert.calledOnce(
-        mockGlean.inactiveAccountDeletion.secondEmailSkipped
-      );
       expect(
-        mockGlean.inactiveAccountDeletion.secondEmailSkipped.args[0][1]
+        mockGlean.inactiveAccountDeletion.secondEmailSkipped
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockGlean.inactiveAccountDeletion.secondEmailSkipped.mock.calls[0][1]
       ).toEqual({
         uid: mockSecondTaskPayload.uid,
         reason: 'first_email_bounced',
       });
-      sinon.assert.calledOnceWithExactly(
-        mockDeleteAccountTasks.deleteAccount,
-        {
-          uid: mockSecondTaskPayload.uid,
-          customerId: undefined,
-          reason: ReasonForDeletion.InactiveAccountEmailBounced,
-        }
-      );
+      expect(mockDeleteAccountTasks.deleteAccount).toHaveBeenCalledTimes(1);
+      expect(mockDeleteAccountTasks.deleteAccount).toHaveBeenCalledWith({
+        uid: mockSecondTaskPayload.uid,
+        customerId: undefined,
+        reason: ReasonForDeletion.InactiveAccountEmailBounced,
+      });
 
-      sinon.assert.notCalled(inactiveAccountManager.scheduleNextEmail);
+      expect(inactiveAccountManager.scheduleNextEmail).not.toHaveBeenCalled();
     });
 
     it('should send the second email and enqueue the final', async () => {
-      sandbox.stub(accountEventsManager, 'findEmailEvents').resolves([]);
-      sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
+      jest.spyOn(accountEventsManager, 'findEmailEvents').mockResolvedValue([]);
+      jest.spyOn(inactiveAccountManager, 'isActive').mockResolvedValue(false);
       (EmailBounce.distinct as jest.Mock).mockResolvedValue([]);
 
       await inactiveAccountManager.handleNotificationTask(
         mockSecondTaskPayload
       );
-      sandbox.assert.calledOnceWithExactly(
-        mockFxaDb.account,
-        mockSecondTaskPayload.uid
-      );
-      sandbox.assert.calledOnce(
+      expect(mockFxaDb.account).toHaveBeenCalledTimes(1);
+      expect(mockFxaDb.account).toHaveBeenCalledWith(mockSecondTaskPayload.uid);
+      expect(
         mockFxaMailer.sendInactiveAccountSecondWarningEmail
-      );
+      ).toHaveBeenCalledTimes(1);
       const fxaMailerCallArgs =
-        mockFxaMailer.sendInactiveAccountSecondWarningEmail.getCall(0).args[0];
+        mockFxaMailer.sendInactiveAccountSecondWarningEmail.mock.calls[0][0];
       expect(fxaMailerCallArgs.to).toBe(mockAccount.email);
       expect(fxaMailerCallArgs.acceptLanguage).toBe(mockAccount.locale);
       expect(fxaMailerCallArgs.deletionDate).toBeDefined();
-      sandbox.assert.calledOnceWithExactly(mockEmailTasks.scheduleFinalEmail, {
+      expect(mockEmailTasks.scheduleFinalEmail).toHaveBeenCalledTimes(1);
+      expect(mockEmailTasks.scheduleFinalEmail).toHaveBeenCalledWith({
         payload: {
           uid: mockSecondTaskPayload.uid,
           emailType: EmailTypes.INACTIVE_DELETE_FINAL_NOTIFICATION,
         },
         taskOptions: { taskId: '0987654321-inactive-delete-final-email' },
       });
-      sandbox.assert.calledOnce(
+      expect(
         mockGlean.inactiveAccountDeletion.finalEmailTaskRequest
-      );
+      ).toHaveBeenCalledTimes(1);
       expect(
-        mockGlean.inactiveAccountDeletion.finalEmailTaskRequest.args[0][1]
+        mockGlean.inactiveAccountDeletion.finalEmailTaskRequest.mock.calls[0][1]
       ).toEqual({ uid: mockSecondTaskPayload.uid });
-      sandbox.assert.calledOnce(
-        mockGlean.inactiveAccountDeletion.finalEmailTaskEnqueued
-      );
       expect(
-        mockGlean.inactiveAccountDeletion.finalEmailTaskEnqueued.args[0][1]
+        mockGlean.inactiveAccountDeletion.finalEmailTaskEnqueued
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockGlean.inactiveAccountDeletion.finalEmailTaskEnqueued.mock
+          .calls[0][1]
       ).toEqual({ uid: mockPayload.uid });
     });
   });
@@ -394,83 +379,81 @@ describe('InactiveAccountsManager', () => {
     };
 
     beforeEach(() => {
-      sinon.stub(Date, 'now').returns(now + 59 * aDayInMs);
+      jest.spyOn(Date, 'now').mockReturnValue(now + 59 * aDayInMs);
     });
     afterEach(() => {
-      sinon.restore();
+      jest.restoreAllMocks();
     });
 
     it('should skip when account is active', async () => {
-      const isActiveSpy = sandbox.spy(inactiveAccountManager, 'isActive');
-      mockOAuthDb.getRefreshTokensByUid.resolves([
+      const isActiveSpy = jest.spyOn(inactiveAccountManager, 'isActive');
+      mockOAuthDb.getRefreshTokensByUid.mockResolvedValue([
         { lastUsedAt: Date.now() },
       ]);
-      await inactiveAccountManager.handleNotificationTask(
-        mockFinalTaskPayload
-      );
+      await inactiveAccountManager.handleNotificationTask(mockFinalTaskPayload);
 
-      sandbox.assert.calledOnce(isActiveSpy);
-      sandbox.assert.calledOnceWithExactly(
-        mockOAuthDb.getRefreshTokensByUid,
+      expect(isActiveSpy).toHaveBeenCalledTimes(1);
+      expect(mockOAuthDb.getRefreshTokensByUid).toHaveBeenCalledTimes(1);
+      expect(mockOAuthDb.getRefreshTokensByUid).toHaveBeenCalledWith(
         mockPayload.uid
       );
-      sandbox.assert.calledOnceWithExactly(
-        mockStatsd.increment,
+      expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.inactive.final-email.skipped.active'
       );
-      sandbox.assert.calledOnce(
-        mockGlean.inactiveAccountDeletion.finalEmailSkipped
-      );
       expect(
-        mockGlean.inactiveAccountDeletion.finalEmailSkipped.args[0][1]
+        mockGlean.inactiveAccountDeletion.finalEmailSkipped
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockGlean.inactiveAccountDeletion.finalEmailSkipped.mock.calls[0][1]
       ).toEqual({ uid: mockPayload.uid, reason: 'active_account' });
     });
 
     it('should skip when final email has been sent already', async () => {
-      sandbox.stub(accountEventsManager, 'findEmailEvents').resolves([{}]);
+      jest
+        .spyOn(accountEventsManager, 'findEmailEvents')
+        .mockResolvedValue([{}]);
 
-      sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
+      jest.spyOn(inactiveAccountManager, 'isActive').mockResolvedValue(false);
 
-      sandbox.stub(inactiveAccountManager, 'scheduleNextEmail').resolves();
+      jest
+        .spyOn(inactiveAccountManager, 'scheduleNextEmail')
+        .mockResolvedValue(undefined);
 
-      await inactiveAccountManager.handleNotificationTask(
-        mockFinalTaskPayload
-      );
-      sandbox.assert.calledWithExactly(
-        mockStatsd.increment,
+      await inactiveAccountManager.handleNotificationTask(mockFinalTaskPayload);
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.inactive.final-email.skipped.duplicate'
       );
-      sandbox.assert.calledOnce(
-        mockGlean.inactiveAccountDeletion.finalEmailSkipped
-      );
       expect(
-        mockGlean.inactiveAccountDeletion.finalEmailSkipped.args[0][1]
+        mockGlean.inactiveAccountDeletion.finalEmailSkipped
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockGlean.inactiveAccountDeletion.finalEmailSkipped.mock.calls[0][1]
       ).toEqual({ uid: mockPayload.uid, reason: 'already_sent' });
-      sandbox.assert.calledOnce(inactiveAccountManager.scheduleNextEmail);
+      expect(inactiveAccountManager.scheduleNextEmail).toHaveBeenCalledTimes(1);
     });
 
     it('should send the final email and schedule deletion', async () => {
-      sandbox.stub(accountEventsManager, 'findEmailEvents').resolves([]);
-      sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
+      jest.spyOn(accountEventsManager, 'findEmailEvents').mockResolvedValue([]);
+      jest.spyOn(inactiveAccountManager, 'isActive').mockResolvedValue(false);
 
-      await inactiveAccountManager.handleNotificationTask(
-        mockFinalTaskPayload
-      );
+      await inactiveAccountManager.handleNotificationTask(mockFinalTaskPayload);
 
-      sandbox.assert.calledOnceWithExactly(mockFxaDb.account, mockPayload.uid);
-      sandbox.assert.calledOnce(
+      expect(mockFxaDb.account).toHaveBeenCalledTimes(1);
+      expect(mockFxaDb.account).toHaveBeenCalledWith(mockPayload.uid);
+      expect(
         mockFxaMailer.sendInactiveAccountFinalWarningEmail
-      );
+      ).toHaveBeenCalledTimes(1);
       const fxaMailerCallArgs =
-        mockFxaMailer.sendInactiveAccountFinalWarningEmail.getCall(0).args[0];
+        mockFxaMailer.sendInactiveAccountFinalWarningEmail.mock.calls[0][0];
       expect(fxaMailerCallArgs.to).toBe(mockAccount.email);
       expect(fxaMailerCallArgs.acceptLanguage).toBe(mockAccount.locale);
       expect(fxaMailerCallArgs.deletionDate).toBeDefined();
       // No email cloud task should be run. There are no more emails to schedule.
-      sandbox.assert.notCalled(mockEmailTasks.scheduleFinalEmail);
+      expect(mockEmailTasks.scheduleFinalEmail).not.toHaveBeenCalled();
 
-      sandbox.assert.calledOnceWithExactly(
-        mockDeleteAccountTasks.deleteAccount,
+      expect(mockDeleteAccountTasks.deleteAccount).toHaveBeenCalledTimes(1);
+      expect(mockDeleteAccountTasks.deleteAccount).toHaveBeenCalledWith(
         {
           uid: mockPayload.uid,
           customerId: undefined,
@@ -483,11 +466,10 @@ describe('InactiveAccountsManager', () => {
           },
         }
       );
-      sandbox.assert.calledOnce(
+      expect(
         mockGlean.inactiveAccountDeletion.deletionScheduled
-      );
-      sandbox.assert.calledWithExactly(
-        mockStatsd.increment,
+      ).toHaveBeenCalledTimes(1);
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.inactive.deletion.scheduled'
       );
     });

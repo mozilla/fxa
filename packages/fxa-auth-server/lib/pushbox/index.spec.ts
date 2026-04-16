@@ -2,15 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
-const sandbox = sinon.createSandbox();
-
 const { pushboxApi } = require('./index');
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const pushboxDbModule = require('./db');
 const { AppError: error } = require('@fxa/accounts/errors');
 const { mockLog } = require('../../test/mocks');
-let mockStatsD: { increment: sinon.SinonStub; timing: sinon.SinonStub };
+let mockStatsD: { increment: jest.Mock; timing: jest.Mock };
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -44,24 +41,28 @@ interface RetrieveResult {
 
 describe('pushbox', () => {
   describe('using direct Pushbox database access', () => {
-    let stubDbModule: sinon.SinonStubbedInstance<typeof pushboxDbModule.PushboxDB>;
-    let stubConstructor: sinon.SinonStub;
+    let stubDbModule: any;
+    let stubConstructor: jest.Mock;
 
     beforeEach(() => {
-      mockStatsD = { increment: sandbox.stub(), timing: sandbox.stub() };
-      stubDbModule = sandbox.createStubInstance(pushboxDbModule.PushboxDB);
-      stubConstructor = sandbox
-        .stub(pushboxDbModule, 'PushboxDB')
-        .returns(stubDbModule);
+      mockStatsD = { increment: jest.fn(), timing: jest.fn() };
+      // Create a mock instance with the methods we need
+      stubDbModule = {
+        store: jest.fn(),
+        retrieve: jest.fn(),
+        deleteDevice: jest.fn(),
+        deleteAccount: jest.fn(),
+      };
+      stubConstructor = jest.fn().mockReturnValue(stubDbModule);
     });
 
     afterEach(() => {
-      sandbox.restore();
+      jest.restoreAllMocks();
     });
 
     it('store', () => {
-      sandbox.stub(Date, 'now').returns(1000534);
-      stubDbModule.store.resolves({ idx: 12 });
+      jest.spyOn(Date, 'now').mockReturnValue(1000534);
+      stubDbModule.store.mockResolvedValue({ idx: 12 });
       const pushbox = pushboxApi(
         mockLog(),
         mockConfig,
@@ -71,27 +72,26 @@ describe('pushbox', () => {
       return pushbox
         .store(mockUid, mockDeviceIds[0], { test: 'data' })
         .then(({ index }: { index: number }) => {
-          sinon.assert.calledOnceWithExactly(stubDbModule.store, {
+          expect(stubDbModule.store).toHaveBeenCalledTimes(1);
+          expect(stubDbModule.store).toHaveBeenCalledWith({
             uid: mockUid,
             deviceId: mockDeviceIds[0],
             data: 'eyJ0ZXN0IjoiZGF0YSJ9',
             ttl: 124457,
           });
-          sinon.assert.calledOnce(mockStatsD.timing);
-          expect(mockStatsD.timing.args[0][0]).toBe(
+          expect(mockStatsD.timing).toHaveBeenCalledTimes(1);
+          expect(mockStatsD.timing.mock.calls[0][0]).toBe(
             'pushbox.db.store.success'
           );
-          sinon.assert.calledOnceWithExactly(
-            mockStatsD.increment,
-            'pushbox.db.store'
-          );
+          expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+          expect(mockStatsD.increment).toHaveBeenCalledWith('pushbox.db.store');
           expect(index).toBe(12);
         });
     });
 
     it('store with custom ttl', () => {
-      sandbox.stub(Date, 'now').returns(1000534);
-      stubDbModule.store.resolves({ idx: 12 });
+      jest.spyOn(Date, 'now').mockReturnValue(1000534);
+      stubDbModule.store.mockResolvedValue({ idx: 12 });
       const pushbox = pushboxApi(
         mockLog(),
         mockConfig,
@@ -101,7 +101,8 @@ describe('pushbox', () => {
       return pushbox
         .store(mockUid, mockDeviceIds[0], { test: 'data' }, 42)
         .then(({ index }: { index: number }) => {
-          sinon.assert.calledOnceWithExactly(stubDbModule.store, {
+          expect(stubDbModule.store).toHaveBeenCalledTimes(1);
+          expect(stubDbModule.store).toHaveBeenCalledWith({
             uid: mockUid,
             deviceId: mockDeviceIds[0],
             data: 'eyJ0ZXN0IjoiZGF0YSJ9',
@@ -112,8 +113,8 @@ describe('pushbox', () => {
     });
 
     it('store caps ttl at configured maximum', () => {
-      sandbox.stub(Date, 'now').returns(1000432);
-      stubDbModule.store.resolves({ idx: 12 });
+      jest.spyOn(Date, 'now').mockReturnValue(1000432);
+      stubDbModule.store.mockResolvedValue({ idx: 12 });
       const pushbox = pushboxApi(
         mockLog(),
         mockConfig,
@@ -123,7 +124,8 @@ describe('pushbox', () => {
       return pushbox
         .store(mockUid, mockDeviceIds[0], { test: 'data' }, 999999999)
         .then(({ index }: { index: number }) => {
-          sinon.assert.calledOnceWithExactly(stubDbModule.store, {
+          expect(stubDbModule.store).toHaveBeenCalledTimes(1);
+          expect(stubDbModule.store).toHaveBeenCalledWith({
             uid: mockUid,
             deviceId: mockDeviceIds[0],
             data: 'eyJ0ZXN0IjoiZGF0YSJ9',
@@ -134,25 +136,30 @@ describe('pushbox', () => {
     });
 
     it('logs an error when failed to store', async () => {
-      stubDbModule.store.rejects(new Error('db is a mess right now'));
+      stubDbModule.store.mockRejectedValue(new Error('db is a mess right now'));
       const log = mockLog();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       try {
-        await pushbox.store(mockUid, mockDeviceIds[0], { test: 'data' }, 999999999);
+        await pushbox.store(
+          mockUid,
+          mockDeviceIds[0],
+          { test: 'data' },
+          999999999
+        );
         throw new Error('should not happen');
       } catch (err) {
         expect(err).toBeTruthy();
         expect((err as PushboxError).errno).toBe(error.ERRNO.UNEXPECTED_ERROR);
-        sinon.assert.calledOnce(log.error);
-        expect(log.error.args[0][0]).toBe('pushbox.db.store');
-        expect(log.error.args[0][1]['error']['message']).toBe(
+        expect(log.error).toHaveBeenCalledTimes(1);
+        expect(log.error.mock.calls[0][0]).toBe('pushbox.db.store');
+        expect(log.error.mock.calls[0][1]['error']['message']).toBe(
           'db is a mess right now'
         );
       }
     });
 
     it('retrieve', async () => {
-      stubDbModule.retrieve.resolves({
+      stubDbModule.retrieve.mockResolvedValue({
         last: true,
         index: 15,
         messages: [
@@ -168,7 +175,12 @@ describe('pushbox', () => {
         mockStatsD,
         stubConstructor
       );
-      const result: RetrieveResult = await pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10);
+      const result: RetrieveResult = await pushbox.retrieve(
+        mockUid,
+        mockDeviceIds[0],
+        50,
+        10
+      );
       expect(result).toEqual({
         last: true,
         index: 15,
@@ -182,7 +194,9 @@ describe('pushbox', () => {
     });
 
     it('retrieve throws on error response', async () => {
-      stubDbModule.retrieve.rejects(new Error('db is a mess right now'));
+      stubDbModule.retrieve.mockRejectedValue(
+        new Error('db is a mess right now')
+      );
       const log = mockLog();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       try {
@@ -191,31 +205,33 @@ describe('pushbox', () => {
       } catch (err) {
         expect(err).toBeTruthy();
         expect((err as PushboxError).errno).toBe(error.ERRNO.UNEXPECTED_ERROR);
-        sinon.assert.calledOnce(log.error);
-        expect(log.error.args[0][0]).toBe('pushbox.db.retrieve');
-        expect(log.error.args[0][1]['error']['message']).toBe(
+        expect(log.error).toHaveBeenCalledTimes(1);
+        expect(log.error.mock.calls[0][0]).toBe('pushbox.db.retrieve');
+        expect(log.error.mock.calls[0][1]['error']['message']).toBe(
           'db is a mess right now'
         );
       }
     });
 
     it('deletes records of a device', async () => {
-      stubDbModule.deleteDevice.resolves();
+      stubDbModule.deleteDevice.mockResolvedValue(undefined);
       const log = mockLog();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       const res = await pushbox.deleteDevice(mockUid, mockDeviceIds[0]);
       expect(res).toBeUndefined();
-      expect(mockStatsD.timing.args[0][0]).toBe(
+      expect(mockStatsD.timing.mock.calls[0][0]).toBe(
         'pushbox.db.delete.device.success'
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStatsD.increment,
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
         'pushbox.db.delete.device'
       );
     });
 
     it('throws error when delete device fails', async () => {
-      stubDbModule.deleteDevice.rejects(new Error('db is a mess right now'));
+      stubDbModule.deleteDevice.mockRejectedValue(
+        new Error('db is a mess right now')
+      );
       const log = mockLog();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       try {
@@ -224,31 +240,31 @@ describe('pushbox', () => {
       } catch (err) {
         expect(err).toBeTruthy();
         expect((err as PushboxError).errno).toBe(error.ERRNO.UNEXPECTED_ERROR);
-        sinon.assert.calledOnce(log.error);
-        expect(log.error.args[0][0]).toBe('pushbox.db.delete.device');
-        expect(log.error.args[0][1]['error']['message']).toBe(
+        expect(log.error).toHaveBeenCalledTimes(1);
+        expect(log.error.mock.calls[0][0]).toBe('pushbox.db.delete.device');
+        expect(log.error.mock.calls[0][1]['error']['message']).toBe(
           'db is a mess right now'
         );
       }
     });
 
     it('deletes all records for an account', async () => {
-      stubDbModule.deleteAccount.resolves();
+      stubDbModule.deleteAccount.mockResolvedValue(undefined);
       const log = mockLog();
       const pushbox = pushboxApi(log, mockConfig, mockStatsD, stubConstructor);
       const res = await pushbox.deleteAccount(mockUid);
       expect(res).toBeUndefined();
-      expect(mockStatsD.timing.args[0][0]).toBe(
+      expect(mockStatsD.timing.mock.calls[0][0]).toBe(
         'pushbox.db.delete.account.success'
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStatsD.increment,
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
         'pushbox.db.delete.account'
       );
     });
 
     it('throws error when delete account fails', async () => {
-      stubDbModule.deleteAccount.rejects(
+      stubDbModule.deleteAccount.mockRejectedValue(
         new Error('someone deleted the pushboxv1 table')
       );
       const log = mockLog();
@@ -259,9 +275,9 @@ describe('pushbox', () => {
       } catch (err) {
         expect(err).toBeTruthy();
         expect((err as PushboxError).errno).toBe(error.ERRNO.UNEXPECTED_ERROR);
-        sinon.assert.calledOnce(log.error);
-        expect(log.error.args[0][0]).toBe('pushbox.db.delete.account');
-        expect(log.error.args[0][1]['error']['message']).toBe(
+        expect(log.error).toHaveBeenCalledTimes(1);
+        expect(log.error.mock.calls[0][0]).toBe('pushbox.db.delete.account');
+        expect(log.error.mock.calls[0][1]['error']['message']).toBe(
           'someone deleted the pushboxv1 table'
         );
       }

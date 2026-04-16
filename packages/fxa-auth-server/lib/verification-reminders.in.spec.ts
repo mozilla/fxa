@@ -6,8 +6,6 @@
  * @jest-environment node
  */
 
-import sinon from 'sinon';
-
 const REMINDERS = ['first', 'second', 'third'];
 const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce(
   (expected: Record<string, number>, reminder) => {
@@ -19,11 +17,11 @@ const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce(
 
 function mockLog() {
   return {
-    info: sinon.stub(),
-    trace: sinon.stub(),
-    error: sinon.stub(),
-    warn: sinon.stub(),
-    debug: sinon.stub(),
+    info: jest.fn(),
+    trace: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
   };
 }
 
@@ -59,7 +57,10 @@ describe('#integration - lib/verification-reminders', () => {
       },
       mockLog()
     );
-    verificationReminders = require('./verification-reminders')(log, mockConfig);
+    verificationReminders = require('./verification-reminders')(
+      log,
+      mockConfig
+    );
   });
 
   afterEach(async () => {
@@ -144,7 +145,7 @@ describe('#integration - lib/verification-reminders', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -152,7 +153,12 @@ describe('#integration - lib/verification-reminders', () => {
       let processResult: any;
 
       beforeEach(async () => {
-        await verificationReminders.create('blee', undefined, undefined, before);
+        await verificationReminders.create(
+          'blee',
+          undefined,
+          undefined,
+          before
+        );
         processResult = await verificationReminders.process(before + 2);
       });
 
@@ -174,9 +180,9 @@ describe('#integration - lib/verification-reminders', () => {
         );
         expect(parseInt(processResult.first[0].timestamp)).toBeLessThan(before);
         expect(processResult.first[1].uid).toBe('blee');
-        expect(parseInt(processResult.first[1].timestamp)).toBeGreaterThanOrEqual(
-          before
-        );
+        expect(
+          parseInt(processResult.first[1].timestamp)
+        ).toBeGreaterThanOrEqual(before);
         expect(parseInt(processResult.first[1].timestamp)).toBeLessThan(
           before + 1000
         );
@@ -216,7 +222,7 @@ describe('#integration - lib/verification-reminders', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       describe('reinstate:', () => {
@@ -261,7 +267,12 @@ describe('#integration - lib/verification-reminders', () => {
 
     beforeEach(async () => {
       before = Date.now();
-      createResult = await verificationReminders.create('wibble', 'blee', 42, before);
+      createResult = await verificationReminders.create(
+        'wibble',
+        'blee',
+        42,
+        before
+      );
     });
 
     afterEach(() => {
@@ -308,7 +319,7 @@ describe('#integration - lib/verification-reminders', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -355,7 +366,7 @@ describe('#integration - lib/verification-reminders', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       describe('reinstate:', () => {
@@ -406,7 +417,9 @@ describe('#integration - lib/verification-reminders', () => {
         let secondProcessResult: any;
 
         beforeEach(async () => {
-          secondProcessResult = await verificationReminders.process(before + 1000);
+          secondProcessResult = await verificationReminders.process(
+            before + 1000
+          );
         });
 
         it('returned the correct result and cleared everything from redis', async () => {

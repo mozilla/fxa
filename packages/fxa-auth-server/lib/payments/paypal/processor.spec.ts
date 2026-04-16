@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 import { PayPalHelper } from './helper';
@@ -29,8 +28,6 @@ const paidInvoice = require('../../../test/local/payments/fixtures/stripe/invoic
 const unpaidInvoice = require('../../../test/local/payments/fixtures/stripe/invoice_open.json');
 const customer1 = require('../../../test/local/payments/fixtures/stripe/customer1.json');
 const failedDoReferenceTransactionResponse = require('../../../test/local/payments/fixtures/paypal/do_reference_transaction_failure.json');
-
-const sandbox = sinon.createSandbox();
 
 function deepCopy(object: any) {
   return JSON.parse(JSON.stringify(object));
@@ -74,7 +71,7 @@ describe('PaypalProcessor', () => {
 
   afterEach(() => {
     Container.reset();
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   describe('constructor', () => {
@@ -118,16 +115,16 @@ describe('PaypalProcessor', () => {
 
   describe('cancelInvoiceSubscription', () => {
     it('marks invoice and cancels subscription', async () => {
-      mockStripeHelper.markUncollectible = sandbox.fake.resolves({});
-      mockStripeHelper.cancelSubscription = sandbox.fake.resolves({});
+      mockStripeHelper.markUncollectible = jest.fn().mockResolvedValue({});
+      mockStripeHelper.cancelSubscription = jest.fn().mockResolvedValue({});
       const result = await processor.cancelInvoiceSubscription(paidInvoice);
       expect(result).toEqual([{}, {}]);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.markUncollectible,
+      expect(mockStripeHelper.markUncollectible).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.markUncollectible).toHaveBeenCalledWith(
         paidInvoice
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.cancelSubscription,
+      expect(mockStripeHelper.cancelSubscription).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.cancelSubscription).toHaveBeenCalledWith(
         paidInvoice.subscription.id
       );
     });
@@ -135,26 +132,26 @@ describe('PaypalProcessor', () => {
 
   describe('ensureAccurateAttemptCount', () => {
     it('does nothing if the attempts match', async () => {
-      mockStripeHelper.getPaymentAttempts = sandbox.fake.returns(1);
-      mockStripeHelper.updatePaymentAttempts = sandbox.fake.resolves({});
+      mockStripeHelper.getPaymentAttempts = jest.fn().mockReturnValue(1);
+      mockStripeHelper.updatePaymentAttempts = jest.fn().mockResolvedValue({});
       await processor.ensureAccurateAttemptCount(unpaidInvoice, [{}]);
-      sinon.assert.notCalled(mockStripeHelper.updatePaymentAttempts);
+      expect(mockStripeHelper.updatePaymentAttempts).not.toHaveBeenCalled();
     });
 
     it('updates the attempts if they do not match', async () => {
       const invoice = deepCopy(unpaidInvoice);
-      mockStripeHelper.getPaymentAttempts = sandbox.fake.returns(2);
-      mockStripeHelper.updatePaymentAttempts = sandbox.fake.resolves({});
+      mockStripeHelper.getPaymentAttempts = jest.fn().mockReturnValue(2);
+      mockStripeHelper.updatePaymentAttempts = jest.fn().mockResolvedValue({});
       await processor.ensureAccurateAttemptCount(invoice, [{}]);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.updatePaymentAttempts,
+      expect(mockStripeHelper.updatePaymentAttempts).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.updatePaymentAttempts).toHaveBeenCalledWith(
         invoice,
         1
       );
-      sandbox.reset();
+      jest.clearAllMocks();
       await processor.ensureAccurateAttemptCount(invoice, [{}, {}, {}]);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.updatePaymentAttempts,
+      expect(mockStripeHelper.updatePaymentAttempts).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.updatePaymentAttempts).toHaveBeenCalledWith(
         invoice,
         3
       );
@@ -172,37 +169,41 @@ describe('PaypalProcessor', () => {
     });
 
     it('returns true if success', async () => {
-      mockStripeHelper.updateInvoiceWithPaypalTransactionId =
-        sandbox.fake.resolves({});
-      mockStripeHelper.payInvoiceOutOfBand = sandbox.fake.resolves({});
+      mockStripeHelper.updateInvoiceWithPaypalTransactionId = jest
+        .fn()
+        .mockResolvedValue({});
+      mockStripeHelper.payInvoiceOutOfBand = jest.fn().mockResolvedValue({});
       const result = await processor.handlePaidTransaction(unpaidInvoice, [
         { status: 'Completed', transactionId: 'test1234' },
       ]);
       expect(result).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.updateInvoiceWithPaypalTransactionId,
-        unpaidInvoice,
-        'test1234'
-      );
+      expect(
+        mockStripeHelper.updateInvoiceWithPaypalTransactionId
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockStripeHelper.updateInvoiceWithPaypalTransactionId
+      ).toHaveBeenCalledWith(unpaidInvoice, 'test1234');
     });
 
     it('returns true and logs if > 1 success', async () => {
-      mockStripeHelper.updateInvoiceWithPaypalTransactionId =
-        sandbox.fake.resolves({});
-      mockStripeHelper.payInvoiceOutOfBand = sandbox.fake.resolves({});
-      mockLog.error = sandbox.fake.returns({});
+      mockStripeHelper.updateInvoiceWithPaypalTransactionId = jest
+        .fn()
+        .mockResolvedValue({});
+      mockStripeHelper.payInvoiceOutOfBand = jest.fn().mockResolvedValue({});
+      mockLog.error = jest.fn().mockReturnValue({});
       const result = await processor.handlePaidTransaction(unpaidInvoice, [
         { status: 'Completed', transactionId: 'test1234' },
         { status: 'Completed', transactionId: 'test12345' },
       ]);
       expect(result).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.updateInvoiceWithPaypalTransactionId,
-        unpaidInvoice,
-        'test1234'
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockLog.error,
+      expect(
+        mockStripeHelper.updateInvoiceWithPaypalTransactionId
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockStripeHelper.updateInvoiceWithPaypalTransactionId
+      ).toHaveBeenCalledWith(unpaidInvoice, 'test1234');
+      expect(mockLog.error).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith(
         'multipleCompletedTransactions',
         {
           customer: unpaidInvoice.customer,
@@ -216,58 +217,50 @@ describe('PaypalProcessor', () => {
 
   describe('handlePendingTransaction', () => {
     it('returns true if a pending within grace period exists', async () => {
-      processor.inGracePeriod = sandbox.fake.returns(true);
+      processor.inGracePeriod = jest.fn().mockReturnValue(true);
       const result = await processor.handlePendingTransaction(unpaidInvoice, [
         { status: 'Pending' },
       ]);
       expect(result).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        processor.inGracePeriod,
-        unpaidInvoice
-      );
+      expect(processor.inGracePeriod).toHaveBeenCalledTimes(1);
+      expect(processor.inGracePeriod).toHaveBeenCalledWith(unpaidInvoice);
     });
 
     it('returns true and logs if multiple pending within grace exist', async () => {
-      processor.inGracePeriod = sandbox.fake.returns(true);
-      mockLog.error = sandbox.fake.returns({});
+      processor.inGracePeriod = jest.fn().mockReturnValue(true);
+      mockLog.error = jest.fn().mockReturnValue({});
       const result = await processor.handlePendingTransaction(unpaidInvoice, [
         { status: 'Pending' },
         { status: 'Pending' },
       ]);
       expect(result).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        processor.inGracePeriod,
-        unpaidInvoice
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockLog.error,
+      expect(processor.inGracePeriod).toHaveBeenCalledTimes(1);
+      expect(processor.inGracePeriod).toHaveBeenCalledWith(unpaidInvoice);
+      expect(mockLog.error).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith(
         'multiplePendingTransactions',
         { customer: unpaidInvoice.customer, invoiceId: unpaidInvoice.id }
       );
     });
 
     it('returns false if no pending exist', async () => {
-      processor.inGracePeriod = sandbox.fake.returns(true);
+      processor.inGracePeriod = jest.fn().mockReturnValue(true);
       const result = await processor.handlePendingTransaction(unpaidInvoice, [
         { status: 'Completed' },
       ]);
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        processor.inGracePeriod,
-        unpaidInvoice
-      );
+      expect(processor.inGracePeriod).toHaveBeenCalledTimes(1);
+      expect(processor.inGracePeriod).toHaveBeenCalledWith(unpaidInvoice);
     });
 
     it('returns false if no pending within grace period exist', async () => {
-      processor.inGracePeriod = sandbox.fake.returns(false);
+      processor.inGracePeriod = jest.fn().mockReturnValue(false);
       const result = await processor.handlePendingTransaction(unpaidInvoice, [
         { status: 'Pending' },
       ]);
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        processor.inGracePeriod,
-        unpaidInvoice
-      );
+      expect(processor.inGracePeriod).toHaveBeenCalledTimes(1);
+      expect(processor.inGracePeriod).toHaveBeenCalledWith(unpaidInvoice);
     });
   });
 
@@ -275,22 +268,24 @@ describe('PaypalProcessor', () => {
     it('processes zero invoice if its 0', async () => {
       const invoice = deepCopy(unpaidInvoice);
       invoice.amount_due = 0;
-      mockPaypalHelper.processZeroInvoice = sandbox.fake.resolves({});
+      mockPaypalHelper.processZeroInvoice = jest.fn().mockResolvedValue({});
       const result = await processor.makePaymentAttempt(invoice);
       expect(result).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        mockPaypalHelper.processZeroInvoice,
-        invoice
-      );
+      expect(mockPaypalHelper.processZeroInvoice).toHaveBeenCalledTimes(1);
+      expect(mockPaypalHelper.processZeroInvoice).toHaveBeenCalledWith(invoice);
     });
 
     it('processes an invoice successfully', async () => {
       const invoice = deepCopy(unpaidInvoice);
-      mockPaypalHelper.processInvoice = sandbox.fake.resolves({});
-      mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.resolves({});
+      mockPaypalHelper.processInvoice = jest.fn().mockResolvedValue({});
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await processor.makePaymentAttempt(invoice);
       expect(result).toBe(true);
-      sinon.assert.notCalled(mockStripeHelper.getCustomerPaypalAgreement);
+      expect(
+        mockStripeHelper.getCustomerPaypalAgreement
+      ).not.toHaveBeenCalled();
     });
 
     it('handles a paypal source error', async () => {
@@ -311,25 +306,32 @@ describe('PaypalProcessor', () => {
         rawString,
         parsedNvpObject
       );
-      mockPaypalHelper.processInvoice = sandbox.fake.rejects(throwErr);
-      mockStripeHelper.removeCustomerPaypalAgreement = sandbox.fake.resolves(
-        {}
-      );
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sandbox.fake.returns('testba');
-      mockStripeHelper.getEmailTypes = sandbox.fake.returns([]);
-      mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
-        {}
-      );
+      mockPaypalHelper.processInvoice = jest.fn().mockRejectedValue(throwErr);
+      mockStripeHelper.removeCustomerPaypalAgreement = jest
+        .fn()
+        .mockResolvedValue({});
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue('testba');
+      mockStripeHelper.getEmailTypes = jest.fn().mockReturnValue([]);
+      mockHandler.sendSubscriptionPaymentFailedEmail = jest
+        .fn()
+        .mockResolvedValue({});
 
       const result = await processor.makePaymentAttempt(invoice);
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        mockHandler.sendSubscriptionPaymentFailedEmail,
-        invoice
-      );
-      sinon.assert.notCalled(mockStripeHelper.getCustomerPaypalAgreement);
-      sinon.assert.notCalled(mockStripeHelper.removeCustomerPaypalAgreement);
+      expect(
+        mockHandler.sendSubscriptionPaymentFailedEmail
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockHandler.sendSubscriptionPaymentFailedEmail
+      ).toHaveBeenCalledWith(invoice);
+      expect(
+        mockStripeHelper.getCustomerPaypalAgreement
+      ).not.toHaveBeenCalled();
+      expect(
+        mockStripeHelper.removeCustomerPaypalAgreement
+      ).not.toHaveBeenCalled();
     });
 
     it('handles an invalid billing agreement', async () => {
@@ -350,33 +352,38 @@ describe('PaypalProcessor', () => {
         rawString,
         parsedNvpObject
       );
-      mockPaypalHelper.processInvoice = sandbox.fake.rejects(throwErr);
-      mockStripeHelper.removeCustomerPaypalAgreement = sandbox.fake.resolves(
-        {}
-      );
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sandbox.fake.returns('testba');
-      mockStripeHelper.getEmailTypes = sandbox.fake.returns([]);
-      mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
-        {}
-      );
+      mockPaypalHelper.processInvoice = jest.fn().mockRejectedValue(throwErr);
+      mockStripeHelper.removeCustomerPaypalAgreement = jest
+        .fn()
+        .mockResolvedValue({});
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue('testba');
+      mockStripeHelper.getEmailTypes = jest.fn().mockReturnValue([]);
+      mockHandler.sendSubscriptionPaymentFailedEmail = jest
+        .fn()
+        .mockResolvedValue({});
 
       const result = await processor.makePaymentAttempt(invoice);
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         testCustomer
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.removeCustomerPaypalAgreement,
-        'testuser',
-        testCustomer.id,
-        'testba'
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockHandler.sendSubscriptionPaymentFailedEmail,
-        invoice
-      );
+      expect(
+        mockStripeHelper.removeCustomerPaypalAgreement
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockStripeHelper.removeCustomerPaypalAgreement
+      ).toHaveBeenCalledWith('testuser', testCustomer.id, 'testba');
+      expect(
+        mockHandler.sendSubscriptionPaymentFailedEmail
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockHandler.sendSubscriptionPaymentFailedEmail
+      ).toHaveBeenCalledWith(invoice);
     });
 
     it('handles an unexpected error', async () => {
@@ -385,22 +392,28 @@ describe('PaypalProcessor', () => {
       invoice.customer = testCustomer;
 
       const throwErr = new Error('test');
-      mockLog.error = sandbox.fake.returns({});
-      mockPaypalHelper.processInvoice = sandbox.fake.rejects(throwErr);
-      mockStripeHelper.removeCustomerPaypalAgreement = sandbox.fake.resolves(
-        {}
-      );
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sandbox.fake.returns('testba');
+      mockLog.error = jest.fn().mockReturnValue({});
+      mockPaypalHelper.processInvoice = jest.fn().mockRejectedValue(throwErr);
+      mockStripeHelper.removeCustomerPaypalAgreement = jest
+        .fn()
+        .mockResolvedValue({});
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue('testba');
 
       const result = await processor.makePaymentAttempt(invoice);
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(mockLog.error, 'processInvoice', {
+      expect(mockLog.error).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith('processInvoice', {
         err: throwErr,
         invoiceId: invoice.id,
       });
-      sinon.assert.notCalled(mockStripeHelper.getCustomerPaypalAgreement);
-      sinon.assert.notCalled(mockStripeHelper.removeCustomerPaypalAgreement);
+      expect(
+        mockStripeHelper.getCustomerPaypalAgreement
+      ).not.toHaveBeenCalled();
+      expect(
+        mockStripeHelper.removeCustomerPaypalAgreement
+      ).not.toHaveBeenCalled();
     });
   });
 
@@ -428,204 +441,233 @@ describe('PaypalProcessor', () => {
     });
 
     it('makes an attempt', async () => {
-      mockPaypalHelper.searchTransactions = sandbox.fake.resolves([]);
-      processor.ensureAccurateAttemptCount = sandbox.fake.resolves({});
-      processor.handlePaidTransaction = sandbox.fake.resolves(false);
-      processor.handlePendingTransaction = sandbox.fake.resolves(false);
-      processor.inGracePeriod = sandbox.fake.returns(true);
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sandbox.fake.returns('b-1234');
-      processor.attemptsToday = sandbox.fake.returns(0);
-      processor.makePaymentAttempt = sandbox.fake.resolves({});
+      mockPaypalHelper.searchTransactions = jest.fn().mockResolvedValue([]);
+      processor.ensureAccurateAttemptCount = jest.fn().mockResolvedValue({});
+      processor.handlePaidTransaction = jest.fn().mockResolvedValue(false);
+      processor.handlePendingTransaction = jest.fn().mockResolvedValue(false);
+      processor.inGracePeriod = jest.fn().mockReturnValue(true);
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue('b-1234');
+      processor.attemptsToday = jest.fn().mockReturnValue(0);
+      processor.makePaymentAttempt = jest.fn().mockResolvedValue({});
 
       const result = await processor.attemptInvoiceProcessing(invoice);
       expect(result).toBeUndefined();
-      sinon.assert.callCount(mockPaypalHelper.searchTransactions, 1);
+      expect(mockPaypalHelper.searchTransactions).toHaveBeenCalledTimes(1);
 
       for (const spy of [
         processor.ensureAccurateAttemptCount,
         processor.handlePaidTransaction,
         processor.handlePendingTransaction,
       ]) {
-        sinon.assert.calledOnceWithExactly(spy, invoice, []);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(invoice, []);
       }
-      sinon.assert.calledOnceWithExactly(processor.inGracePeriod, invoice);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(processor.inGracePeriod).toHaveBeenCalledTimes(1);
+      expect(processor.inGracePeriod).toHaveBeenCalledWith(invoice);
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         invoice.customer
       );
-      sinon.assert.calledOnceWithExactly(processor.attemptsToday, []);
-      sinon.assert.calledOnceWithExactly(processor.makePaymentAttempt, invoice);
+      expect(processor.attemptsToday).toHaveBeenCalledTimes(1);
+      expect(processor.attemptsToday).toHaveBeenCalledWith([]);
+      expect(processor.makePaymentAttempt).toHaveBeenCalledTimes(1);
+      expect(processor.makePaymentAttempt).toHaveBeenCalledWith(invoice);
     });
 
     it('errors with no customer loaded', async () => {
       invoice.customer = 'cust_1232142';
-      mockLog.error = sandbox.fake.returns({});
+      mockLog.error = jest.fn().mockReturnValue({});
       await expect(processor.attemptInvoiceProcessing(invoice)).rejects.toEqual(
         error.internalValidationError('customerNotLoad', {
           customer: 'cust_1232142',
           invoiceId: invoice.id,
         })
       );
-      sinon.assert.calledOnceWithExactly(mockLog.error, 'customerNotLoaded', {
+      expect(mockLog.error).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith('customerNotLoaded', {
         customer: 'cust_1232142',
       });
     });
 
     it('stops with a pending transaction', async () => {
-      mockPaypalHelper.searchTransactions = sandbox.fake.resolves([]);
-      processor.ensureAccurateAttemptCount = sandbox.fake.resolves({});
-      processor.handlePaidTransaction = sandbox.fake.resolves(false);
-      processor.handlePendingTransaction = sandbox.fake.resolves(true);
-      processor.inGracePeriod = sandbox.fake.returns(true);
+      mockPaypalHelper.searchTransactions = jest.fn().mockResolvedValue([]);
+      processor.ensureAccurateAttemptCount = jest.fn().mockResolvedValue({});
+      processor.handlePaidTransaction = jest.fn().mockResolvedValue(false);
+      processor.handlePendingTransaction = jest.fn().mockResolvedValue(true);
+      processor.inGracePeriod = jest.fn().mockReturnValue(true);
 
       const result = await processor.attemptInvoiceProcessing(invoice);
       expect(result).toBeUndefined();
-      sinon.assert.callCount(mockPaypalHelper.searchTransactions, 1);
+      expect(mockPaypalHelper.searchTransactions).toHaveBeenCalledTimes(1);
 
       for (const spy of [
         processor.ensureAccurateAttemptCount,
         processor.handlePaidTransaction,
         processor.handlePendingTransaction,
       ]) {
-        sinon.assert.calledOnceWithExactly(spy, invoice, []);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(invoice, []);
       }
-      sinon.assert.notCalled(processor.inGracePeriod);
+      expect(processor.inGracePeriod).not.toHaveBeenCalled();
     });
 
     it('stops with a completed transaction', async () => {
-      mockPaypalHelper.searchTransactions = sandbox.fake.resolves([]);
-      processor.ensureAccurateAttemptCount = sandbox.fake.resolves({});
-      processor.handlePaidTransaction = sandbox.fake.resolves(true);
-      processor.handlePendingTransaction = sandbox.fake.resolves(false);
+      mockPaypalHelper.searchTransactions = jest.fn().mockResolvedValue([]);
+      processor.ensureAccurateAttemptCount = jest.fn().mockResolvedValue({});
+      processor.handlePaidTransaction = jest.fn().mockResolvedValue(true);
+      processor.handlePendingTransaction = jest.fn().mockResolvedValue(false);
 
       const result = await processor.attemptInvoiceProcessing(invoice);
       expect(result).toBeUndefined();
-      sinon.assert.callCount(mockPaypalHelper.searchTransactions, 1);
+      expect(mockPaypalHelper.searchTransactions).toHaveBeenCalledTimes(1);
 
       for (const spy of [
         processor.ensureAccurateAttemptCount,
         processor.handlePaidTransaction,
       ]) {
-        sinon.assert.calledOnceWithExactly(spy, invoice, []);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(invoice, []);
       }
-      sinon.assert.notCalled(processor.handlePendingTransaction);
+      expect(processor.handlePendingTransaction).not.toHaveBeenCalled();
     });
 
     it('stops if no billing agreement', async () => {
-      mockPaypalHelper.searchTransactions = sandbox.fake.resolves([]);
-      processor.ensureAccurateAttemptCount = sandbox.fake.resolves({});
-      processor.handlePaidTransaction = sandbox.fake.resolves(false);
-      processor.handlePendingTransaction = sandbox.fake.resolves(false);
-      processor.inGracePeriod = sandbox.fake.returns(true);
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sandbox.fake.returns(undefined);
-      processor.attemptsToday = sandbox.fake.returns(0);
-      mockStripeHelper.getEmailTypes = sandbox.fake.returns(['paymentFailed']);
-      mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
-        {}
-      );
+      mockPaypalHelper.searchTransactions = jest.fn().mockResolvedValue([]);
+      processor.ensureAccurateAttemptCount = jest.fn().mockResolvedValue({});
+      processor.handlePaidTransaction = jest.fn().mockResolvedValue(false);
+      processor.handlePendingTransaction = jest.fn().mockResolvedValue(false);
+      processor.inGracePeriod = jest.fn().mockReturnValue(true);
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue(undefined);
+      processor.attemptsToday = jest.fn().mockReturnValue(0);
+      mockStripeHelper.getEmailTypes = jest
+        .fn()
+        .mockReturnValue(['paymentFailed']);
+      mockHandler.sendSubscriptionPaymentFailedEmail = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await processor.attemptInvoiceProcessing(invoice);
       expect(result).toBeUndefined();
-      sinon.assert.callCount(mockPaypalHelper.searchTransactions, 1);
+      expect(mockPaypalHelper.searchTransactions).toHaveBeenCalledTimes(1);
 
       for (const spy of [
         processor.ensureAccurateAttemptCount,
         processor.handlePaidTransaction,
         processor.handlePendingTransaction,
       ]) {
-        sinon.assert.calledOnceWithExactly(spy, invoice, []);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(invoice, []);
       }
-      sinon.assert.calledOnceWithExactly(processor.inGracePeriod, invoice);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(processor.inGracePeriod).toHaveBeenCalledTimes(1);
+      expect(processor.inGracePeriod).toHaveBeenCalledWith(invoice);
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         invoice.customer
       );
       // We do not send an email since `getEmailTypes` is returning a list with
       // 'paymentFailed'.
-      sinon.assert.notCalled(mockHandler.sendSubscriptionPaymentFailedEmail);
-      sinon.assert.notCalled(processor.attemptsToday);
+      expect(
+        mockHandler.sendSubscriptionPaymentFailedEmail
+      ).not.toHaveBeenCalled();
+      expect(processor.attemptsToday).not.toHaveBeenCalled();
     });
 
     it('voids invoices for deleted customers', async () => {
-      mockStripeHelper.markUncollectible = sandbox.fake.resolves({});
-      mockLog.info = sandbox.fake.returns({});
+      mockStripeHelper.markUncollectible = jest.fn().mockResolvedValue({});
+      mockLog.info = jest.fn().mockReturnValue({});
       customer.deleted = true;
       const result = await processor.attemptInvoiceProcessing(invoice);
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(mockLog.info, 'customerDeletedVoid', {
+      expect(mockLog.info).toHaveBeenCalledTimes(1);
+      expect(mockLog.info).toHaveBeenCalledWith('customerDeletedVoid', {
         customerId: customer.id,
       });
     });
 
     it('cancels if outside the grace period', async () => {
-      mockPaypalHelper.searchTransactions = sandbox.fake.resolves([]);
-      processor.ensureAccurateAttemptCount = sandbox.fake.resolves({});
-      processor.handlePaidTransaction = sandbox.fake.resolves(false);
-      processor.handlePendingTransaction = sandbox.fake.resolves(false);
-      processor.inGracePeriod = sandbox.fake.returns(false);
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sandbox.fake.returns('b-1234');
-      processor.cancelInvoiceSubscription = sandbox.fake.resolves({});
+      mockPaypalHelper.searchTransactions = jest.fn().mockResolvedValue([]);
+      processor.ensureAccurateAttemptCount = jest.fn().mockResolvedValue({});
+      processor.handlePaidTransaction = jest.fn().mockResolvedValue(false);
+      processor.handlePendingTransaction = jest.fn().mockResolvedValue(false);
+      processor.inGracePeriod = jest.fn().mockReturnValue(false);
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue('b-1234');
+      processor.cancelInvoiceSubscription = jest.fn().mockResolvedValue({});
 
       const result = await processor.attemptInvoiceProcessing(invoice);
       expect(result).toEqual({});
-      sinon.assert.callCount(mockPaypalHelper.searchTransactions, 1);
+      expect(mockPaypalHelper.searchTransactions).toHaveBeenCalledTimes(1);
 
       for (const spy of [
         processor.ensureAccurateAttemptCount,
         processor.handlePaidTransaction,
         processor.handlePendingTransaction,
       ]) {
-        sinon.assert.calledOnceWithExactly(spy, invoice, []);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(invoice, []);
       }
-      sinon.assert.calledOnceWithExactly(processor.inGracePeriod, invoice);
-      sinon.assert.notCalled(mockStripeHelper.getCustomerPaypalAgreement);
-      sinon.assert.calledOnceWithExactly(
-        processor.cancelInvoiceSubscription,
-        invoice
-      );
+      expect(processor.inGracePeriod).toHaveBeenCalledTimes(1);
+      expect(processor.inGracePeriod).toHaveBeenCalledWith(invoice);
+      expect(
+        mockStripeHelper.getCustomerPaypalAgreement
+      ).not.toHaveBeenCalled();
+      expect(processor.cancelInvoiceSubscription).toHaveBeenCalledTimes(1);
+      expect(processor.cancelInvoiceSubscription).toHaveBeenCalledWith(invoice);
     });
 
     it('does not attempt payment after too many attempts', async () => {
-      mockPaypalHelper.searchTransactions = sandbox.fake.resolves([]);
-      processor.ensureAccurateAttemptCount = sandbox.fake.resolves({});
-      processor.handlePaidTransaction = sandbox.fake.resolves(false);
-      processor.handlePendingTransaction = sandbox.fake.resolves(false);
-      processor.inGracePeriod = sandbox.fake.returns(true);
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sandbox.fake.returns('b-1234');
-      processor.attemptsToday = sandbox.fake.returns(20);
-      processor.makePaymentAttempt = sandbox.fake.resolves({});
+      mockPaypalHelper.searchTransactions = jest.fn().mockResolvedValue([]);
+      processor.ensureAccurateAttemptCount = jest.fn().mockResolvedValue({});
+      processor.handlePaidTransaction = jest.fn().mockResolvedValue(false);
+      processor.handlePendingTransaction = jest.fn().mockResolvedValue(false);
+      processor.inGracePeriod = jest.fn().mockReturnValue(true);
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue('b-1234');
+      processor.attemptsToday = jest.fn().mockReturnValue(20);
+      processor.makePaymentAttempt = jest.fn().mockResolvedValue({});
 
       const result = await processor.attemptInvoiceProcessing(invoice);
       expect(result).toBeUndefined();
-      sinon.assert.callCount(mockPaypalHelper.searchTransactions, 1);
+      expect(mockPaypalHelper.searchTransactions).toHaveBeenCalledTimes(1);
 
       for (const spy of [
         processor.ensureAccurateAttemptCount,
         processor.handlePaidTransaction,
         processor.handlePendingTransaction,
       ]) {
-        sinon.assert.calledOnceWithExactly(spy, invoice, []);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(invoice, []);
       }
-      sinon.assert.calledOnceWithExactly(processor.inGracePeriod, invoice);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(processor.inGracePeriod).toHaveBeenCalledTimes(1);
+      expect(processor.inGracePeriod).toHaveBeenCalledWith(invoice);
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         invoice.customer
       );
-      sinon.assert.calledOnceWithExactly(processor.attemptsToday, []);
-      sinon.assert.notCalled(processor.makePaymentAttempt);
+      expect(processor.attemptsToday).toHaveBeenCalledTimes(1);
+      expect(processor.attemptsToday).toHaveBeenCalledWith([]);
+      expect(processor.makePaymentAttempt).not.toHaveBeenCalled();
     });
   });
 
   describe('processInvoices', () => {
     it('processes an invoice', async () => {
       const invoice = deepCopy(unpaidInvoice);
-      mockLog.error = sandbox.fake.returns({});
-      mockLog.info = sandbox.fake.returns({});
-      processor.attemptInvoiceProcessing = sandbox.fake.resolves({});
-      mockStripeHelper.fetchOpenInvoices = sandbox.fake.returns({
+      mockLog.error = jest.fn().mockReturnValue({});
+      mockLog.info = jest.fn().mockReturnValue({});
+      processor.attemptInvoiceProcessing = jest.fn().mockResolvedValue({});
+      mockStripeHelper.fetchOpenInvoices = jest.fn().mockReturnValue({
         *[Symbol.asyncIterator]() {
           yield invoice;
         },
@@ -635,23 +677,22 @@ describe('PaypalProcessor', () => {
         // No value yield'd; yielding control for potential distributed lock
         // extension in actual use case
       }
-      sinon.assert.calledOnceWithExactly(
-        mockLog.info,
-        'processInvoice.processing',
-        {
-          invoiceId: invoice.id,
-        }
-      );
-      sinon.assert.notCalled(mockLog.error);
+      expect(mockLog.info).toHaveBeenCalledTimes(1);
+      expect(mockLog.info).toHaveBeenCalledWith('processInvoice.processing', {
+        invoiceId: invoice.id,
+      });
+      expect(mockLog.error).not.toHaveBeenCalled();
     });
 
     it('logs an error on invoice exception', async () => {
       const invoice = deepCopy(unpaidInvoice);
-      mockLog.error = sandbox.fake.returns({});
-      mockLog.info = sandbox.fake.returns({});
+      mockLog.error = jest.fn().mockReturnValue({});
+      mockLog.info = jest.fn().mockReturnValue({});
       const throwErr = new Error('Test');
-      processor.attemptInvoiceProcessing = sandbox.fake.rejects(throwErr);
-      mockStripeHelper.fetchOpenInvoices = sandbox.fake.returns({
+      processor.attemptInvoiceProcessing = jest
+        .fn()
+        .mockRejectedValue(throwErr);
+      mockStripeHelper.fetchOpenInvoices = jest.fn().mockReturnValue({
         *[Symbol.asyncIterator]() {
           yield invoice;
         },
@@ -662,14 +703,12 @@ describe('PaypalProcessor', () => {
       for await (const _ of processor.processInvoices()) {
         // No value yield'd
       }
-      sinon.assert.calledOnceWithExactly(
-        mockLog.info,
-        'processInvoice.processing',
-        {
-          invoiceId: invoice.id,
-        }
-      );
-      sinon.assert.calledOnceWithExactly(mockLog.error, 'processInvoice', {
+      expect(mockLog.info).toHaveBeenCalledTimes(1);
+      expect(mockLog.info).toHaveBeenCalledWith('processInvoice.processing', {
+        invoiceId: invoice.id,
+      });
+      expect(mockLog.error).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith('processInvoice', {
         err: throwErr,
         nvpData: undefined,
         invoiceId: invoice.id,
@@ -679,25 +718,27 @@ describe('PaypalProcessor', () => {
 
   describe('sendFailedPaymentEmail', () => {
     it('sends an email when paymentFailed is not in the list of sent emails', async () => {
-      mockStripeHelper.getEmailTypes = sandbox.fake.returns([]);
-      mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
-        {}
-      );
+      mockStripeHelper.getEmailTypes = jest.fn().mockReturnValue([]);
+      mockHandler.sendSubscriptionPaymentFailedEmail = jest
+        .fn()
+        .mockResolvedValue({});
       await processor.sendFailedPaymentEmail(unpaidInvoice);
-      sinon.assert.calledOnce(mockHandler.sendSubscriptionPaymentFailedEmail);
+      expect(
+        mockHandler.sendSubscriptionPaymentFailedEmail
+      ).toHaveBeenCalledTimes(1);
     });
 
     it('does not send an email when paymentFailed is in the list of sent emails', async () => {
-      mockStripeHelper.getEmailTypes = sandbox.fake.returns([
-        'a',
-        'b',
-        'paymentFailed',
-      ]);
-      mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
-        {}
-      );
+      mockStripeHelper.getEmailTypes = jest
+        .fn()
+        .mockReturnValue(['a', 'b', 'paymentFailed']);
+      mockHandler.sendSubscriptionPaymentFailedEmail = jest
+        .fn()
+        .mockResolvedValue({});
       await processor.sendFailedPaymentEmail(unpaidInvoice);
-      sinon.assert.notCalled(mockHandler.sendSubscriptionPaymentFailedEmail);
+      expect(
+        mockHandler.sendSubscriptionPaymentFailedEmail
+      ).not.toHaveBeenCalled();
     });
   });
 });

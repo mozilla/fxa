@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { AppError } from '@fxa/accounts/errors';
 
-let verifyIdTokenStub: sinon.SinonStub = sinon.stub().resolves({});
+let verifyIdTokenStub: jest.Mock = jest.fn().mockResolvedValue({});
 
 jest.mock('google-auth-library', () => ({
   OAuth2Client: class OAuth2Client {
@@ -25,7 +24,7 @@ const googleOIDCStrategy = GoogleOIDCScheme.strategy({
 
 describe('lib/routes/auth-schemes/google-oidc', () => {
   beforeEach(() => {
-    verifyIdTokenStub = sinon.stub().resolves({});
+    verifyIdTokenStub = jest.fn().mockResolvedValue({});
   });
 
   it('throws when the bearer token is missing', async () => {
@@ -41,7 +40,9 @@ describe('lib/routes/auth-schemes/google-oidc', () => {
 
   it('throws when the id token is invalid', async () => {
     const request = { headers: { authorization: 'Bearer eeff.00.00' } };
-    verifyIdTokenStub = sinon.stub().rejects(new Error('invalid id token'));
+    verifyIdTokenStub = jest
+      .fn()
+      .mockRejectedValue(new Error('invalid id token'));
 
     try {
       await googleOIDCStrategy.authenticate(request, {});
@@ -55,9 +56,9 @@ describe('lib/routes/auth-schemes/google-oidc', () => {
 
   it('throws when the service account email does not match', async () => {
     const request = { headers: { authorization: 'Bearer eeff.00.00' } };
-    verifyIdTokenStub = sinon
-      .stub()
-      .resolves({ getPayload: () => ({ email: 'failing' }) });
+    verifyIdTokenStub = jest
+      .fn()
+      .mockResolvedValue({ getPayload: () => ({ email: 'failing' }) });
 
     try {
       await googleOIDCStrategy.authenticate(request, {});
@@ -73,16 +74,18 @@ describe('lib/routes/auth-schemes/google-oidc', () => {
 
   it('authenticates successfully', async () => {
     const request = { headers: { authorization: 'Bearer eeff.00.00' } };
-    const h = { authenticated: sinon.stub() };
-    verifyIdTokenStub = sinon
-      .stub()
-      .resolves({ getPayload: () => ({ email: 'testo@iam.gcp.g.co' }) });
+    const h = { authenticated: jest.fn() };
+    verifyIdTokenStub = jest.fn().mockResolvedValue({
+      getPayload: () => ({ email: 'testo@iam.gcp.g.co' }),
+    });
 
     await googleOIDCStrategy.authenticate(request, h);
-    sinon.assert.calledOnceWithExactly(h.authenticated, {
+    expect(h.authenticated).toHaveBeenCalledTimes(1);
+    expect(h.authenticated).toHaveBeenCalledWith({
       credentials: { email: 'testo@iam.gcp.g.co' },
     });
-    sinon.assert.calledOnceWithExactly(verifyIdTokenStub, {
+    expect(verifyIdTokenStub).toHaveBeenCalledTimes(1);
+    expect(verifyIdTokenStub).toHaveBeenCalledWith({
       idToken: 'eeff.00.00',
       audience: 'cloud-tasks',
     });

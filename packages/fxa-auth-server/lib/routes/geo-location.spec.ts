@@ -55,15 +55,15 @@ describe('GET /geo/eligibility/{feature}', () => {
     });
 
     it('called log.begin correctly', () => {
-      expect(log.begin.callCount).toBe(1);
-      const [name, req] = log.begin.args[0];
+      expect(log.begin).toHaveBeenCalledTimes(1);
+      const [name, req] = log.begin.mock.calls[0];
       expect(name).toBe('geo.eligibility.check');
       expect(req).toBe(request);
     });
 
     it('logged the eligibility check', () => {
-      expect(log.info.callCount).toBe(1);
-      const [msg, details] = log.info.args[0];
+      expect(log.info).toHaveBeenCalledTimes(1);
+      const [msg, details] = log.info.mock.calls[0];
       expect(msg).toBe('geo.eligibility.checked');
       expect(details.feature).toBe('TEST_FEATURE');
       expect(details.country).toBe('US');
@@ -101,8 +101,8 @@ describe('GET /geo/eligibility/{feature}', () => {
     });
 
     it('logs error and returns false', () => {
-      expect(log.error.callCount).toBe(1);
-      const [msg, details] = log.error.args[0];
+      expect(log.error).toHaveBeenCalledTimes(1);
+      const [msg, details] = log.error.mock.calls[0];
       expect(msg).toBe('geo.eligibility.checkfailure');
       expect(details.feature).toBe('UNKNOWN');
       expect(response).toEqual({ eligible: false });
