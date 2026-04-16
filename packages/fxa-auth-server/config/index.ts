@@ -2201,7 +2201,7 @@ const convictConf = convict({
     },
     digits: {
       doc: 'Number of digits in passwordless OTP code',
-      default: 8,
+      default: 6,
       format: 'nat',
       env: 'OTP_PASSWORDLESS_DIGITS',
     },

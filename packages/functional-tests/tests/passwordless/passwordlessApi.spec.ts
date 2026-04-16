@@ -229,13 +229,15 @@ test.describe('severity-2', () => {
           target.ciHeader
         );
 
-        // Consume the real code so we can test with a bogus one
-        await target.emailClient.getPasswordlessSignupCode(email);
+        // Get the real code, then derive an invalid one by mutating a digit
+        const realCode =
+          await target.emailClient.getPasswordlessSignupCode(email);
+        const invalidCode = `${(Number(realCode[0]) + 1) % 10}${realCode.slice(1)}`;
 
         try {
           await target.authClient.passwordlessConfirmCode(
             email,
-            '00000000',
+            invalidCode,
             {
               clientId: target.relierClientID,
               service: SUPPORTED_SERVICE,

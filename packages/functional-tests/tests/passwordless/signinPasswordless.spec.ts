@@ -660,8 +660,8 @@ test.describe('severity-1 #smoke', () => {
 
         await page.waitForURL(/signin_passwordless_code/);
 
-        // Enter an invalid 8-digit code
-        await signinPasswordlessCode.fillOutCodeForm('12345678');
+        // Enter an invalid 6-digit code
+        await signinPasswordlessCode.fillOutCodeForm('123456');
 
         // Should show error message (tooltip or error text)
         await expect(

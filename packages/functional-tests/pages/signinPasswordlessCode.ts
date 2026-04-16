@@ -16,7 +16,7 @@ export class SigninPasswordlessCodePage extends BaseTokenCodePage {
 
   get codeInput() {
     this.checkPath();
-    return this.page.getByLabel('Enter 8-digit code');
+    return this.page.getByLabel('Enter 6-digit code');
   }
 
   get submitButton() {

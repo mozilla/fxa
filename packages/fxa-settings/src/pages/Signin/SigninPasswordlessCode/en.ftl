@@ -20,7 +20,7 @@ signin-passwordless-code-instruction = { $expirationMinutes ->
     *[other] Enter the code that was sent to <email>{ $email }</email> within { $expirationMinutes } minutes.
   }
 
-signin-passwordless-code-input-label = Enter 8-digit code
+signin-passwordless-code-input-label-v2 = Enter 6-digit code
 
 signin-passwordless-code-confirm-button = Confirm
 

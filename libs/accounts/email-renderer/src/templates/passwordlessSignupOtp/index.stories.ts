@@ -13,7 +13,7 @@ export default {
 
 const data: TemplateData = {
   ...MOCK_USER_INFO,
-  code: '96318398',
+  code: '963183',
   codeExpiryMinutes: 10,
   supportUrl: 'https://support.mozilla.org',
   target: 'index',
