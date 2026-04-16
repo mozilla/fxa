@@ -18,7 +18,6 @@ import {
   MOCK_CMS_INFO_SPLIT_LAYOUT_BG,
 } from './mocks';
 import { MOCK_CMS_INFO } from '../../pages/mocks';
-import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
 
 // Mock the useConfig hook
 jest.mock('../../models/hooks', () => ({
@@ -31,17 +30,6 @@ jest.mock('../../models/hooks', () => ({
     getMsg: (id: string, fallback: string) => fallback,
   }),
 }));
-
-jest.mock('../../contexts/DynamicLocalizationContext', () => ({
-  useDynamicLocalization: jest.fn(() => ({
-    currentLocale: 'en',
-    switchLanguage: jest.fn(),
-    clearLanguagePreference: jest.fn(),
-    isLoading: false,
-  })),
-}));
-
-const mockUseDynamicLocalization = useDynamicLocalization as jest.Mock;
 
 describe('<AppLayout />', () => {
   it('renders as expected with children', async () => {
@@ -393,15 +381,8 @@ describe('<AppLayout />', () => {
     });
   });
 
-  describe('splitLayout with locale restrictions (temp hack)', () => {
-    it('renders split layout when splitLayout is true and locale is English', () => {
-      mockUseDynamicLocalization.mockReturnValue({
-        currentLocale: 'en-US',
-        switchLanguage: jest.fn(),
-        clearLanguagePreference: jest.fn(),
-        isLoading: false,
-      });
-
+  describe('splitLayout', () => {
+    it('renders split layout when splitLayout is true', () => {
       renderWithLocalizationProvider(
         <AppLayout splitLayout={true} cmsInfo={MOCK_CMS_INFO_SPLIT_LAYOUT_BG}>
           <p>Split layout content</p>
@@ -416,32 +397,6 @@ describe('<AppLayout />', () => {
       ).toBeInTheDocument();
 
       screen.getByText('Split layout content');
-    });
-
-    it('renders default layout when splitLayout is true but locale is not English', () => {
-      mockUseDynamicLocalization.mockReturnValue({
-        currentLocale: 'fr',
-        switchLanguage: jest.fn(),
-        clearLanguagePreference: jest.fn(),
-        isLoading: false,
-      });
-
-      renderWithLocalizationProvider(
-        <AppLayout splitLayout={true} cmsInfo={MOCK_CMS_INFO_HEADER_LOGO}>
-          <p>Default layout content</p>
-        </AppLayout>
-      );
-
-      expect(
-        screen.queryByRole('img', {
-          name: MOCK_CMS_INFO_SPLIT_LAYOUT_BG.shared.backgrounds
-            ?.splitLayoutAltText as string,
-        })
-      ).not.toBeInTheDocument();
-
-      screen.getByText('Default layout content');
-      // CMS info is still applied even when split layout is disabled
-      expect(screen.getByAltText('CMS Custom Logo')).toBeInTheDocument();
     });
   });
 });
