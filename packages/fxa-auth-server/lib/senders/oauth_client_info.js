@@ -6,6 +6,9 @@
 
 const { Keyv } = require('keyv');
 const client = require('../oauth/client');
+const { OAuthNativeServices } = require('@fxa/accounts/oauth');
+
+const NATIVE_SERVICES = new Set(Object.values(OAuthNativeServices));
 
 module.exports = (log, config) => {
   const OAUTH_CLIENT_INFO_CACHE_TTL = config.oauth.clientInfoCacheTTL;
@@ -43,7 +46,7 @@ module.exports = (log, config) => {
     }
 
     // Set the client name to 'Firefox' if the service is browser-based
-    if (service === 'sync' || service === 'relay') {
+    if (NATIVE_SERVICES.has(service)) {
       log.trace('fetch.firefoxClient');
       return FIREFOX_CLIENT;
     }
