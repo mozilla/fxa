@@ -12,9 +12,10 @@ import { RemoteMetadata } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import Banner from '../../../components/Banner';
-import { Integration } from '../../../models';
+import { Integration, useFtlMsgResolver } from '../../../models';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
 import { firefox, FirefoxCommand } from '../../../lib/channels/firefox';
+import { isSendTabEntrypoint } from '../../Signin/utils';
 
 export const viewName = 'pair.auth.complete';
 
@@ -34,6 +35,7 @@ const AuthComplete = ({
   integration,
 }: AuthCompleteProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const ftlMsgResolver = useFtlMsgResolver();
   const [deviceInfo, setDeviceInfo] = useState<RemoteMetadata | undefined>(
     suppDeviceInfoProp
   );
@@ -45,6 +47,7 @@ const AuthComplete = ({
 
   const deviceFamily = deviceInfo?.deviceFamily || 'Unknown';
   const deviceOS = deviceInfo?.deviceOS || 'Unknown';
+  const isSendTab = isSendTabEntrypoint(integration?.data.entrypoint);
 
   // Fetch supplicant metadata if not provided via props
   useEffect(() => {
@@ -70,6 +73,31 @@ const AuthComplete = ({
     // Send Firefox View command to open synced tabs (matches Backbone's afterPairAuthComplete)
     firefox.send(FirefoxCommand.SyncPreferences, { entryPoint: 'preferences' });
   }, []);
+
+  if (isSendTab) {
+    const deviceConnectedText = ftlMsgResolver.getMsg(
+      'pair-auth-complete-send-tab-device-connected',
+      `${deviceFamily} for ${deviceOS} is connected.`,
+      { deviceFamily, deviceOS }
+    );
+    return (
+      <AppLayout>
+        <CardHeader
+          headingTextFtlId="pair-auth-complete-send-tab-heading"
+          headingText="You’re ready to send some tabs"
+        />
+        {error && <Banner type="error" content={{ localizedHeading: error }} />}
+        <HeartsVerifiedImage className="w-3/5 mx-auto" />
+        <p className="text-sm mt-4">{deviceConnectedText}</p>
+        <FtlMsg id="pair-auth-complete-send-tab-benefits">
+          <p className="text-sm mt-2">
+            You’re free to instantly send open tabs, passwords, and bookmarks
+            between devices.
+          </p>
+        </FtlMsg>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>

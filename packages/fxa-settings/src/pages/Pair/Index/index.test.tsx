@@ -17,6 +17,16 @@ jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+let mockLocationState: unknown = null;
+jest.mock('@reach/router', () => ({
+  ...jest.requireActual('@reach/router'),
+  useLocation: () => ({
+    pathname: '/pair',
+    search: '',
+    state: mockLocationState,
+  }),
+}));
+
 jest.mock('../../../lib/channels/firefox', () => ({
   __esModule: true,
   default: {
@@ -45,6 +55,7 @@ jest.mock('../../../lib/glean', () => ({
 describe('Pair', () => {
   afterEach(() => {
     jest.clearAllMocks();
+    mockLocationState = null;
   });
 
   describe('choice screen', () => {
@@ -60,7 +71,7 @@ describe('Pair', () => {
         screen.getByLabelText(/I already have Firefox for mobile/)
       ).toBeInTheDocument();
       expect(
-        screen.getByLabelText(/I don.t have Firefox for mobile/)
+        screen.getByLabelText(/I don’t have Firefox for mobile/)
       ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
       expect(
@@ -98,7 +109,7 @@ describe('Pair', () => {
 
     it('fires choiceEngage with "does not have mobile" reason', () => {
       renderWithRouter(<Pair />);
-      fireEvent.click(screen.getByLabelText(/I don.t have Firefox for mobile/));
+      fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
       expect(GleanMetrics.cadFireFox.choiceEngage).toHaveBeenCalledWith({
         event: { reason: 'does not have mobile' },
       });
@@ -121,7 +132,7 @@ describe('Pair', () => {
 
     it('transitions to download screen when "needs mobile" is selected and Continue is clicked', () => {
       renderWithRouter(<Pair />);
-      fireEvent.click(screen.getByLabelText(/I don.t have Firefox for mobile/));
+      fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
       fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
       expect(GleanMetrics.cadFireFox.choiceSubmit).toHaveBeenCalledWith({
         event: { reason: 'does not have mobile' },
@@ -144,7 +155,7 @@ describe('Pair', () => {
   describe('download screen', () => {
     function renderAndNavigateToDownload() {
       renderWithRouter(<Pair />);
-      fireEvent.click(screen.getByLabelText(/I don.t have Firefox for mobile/));
+      fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
       fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     }
 
@@ -207,6 +218,77 @@ describe('Pair', () => {
     });
   });
 
+  describe('success banner from location state', () => {
+    it('renders the signed-in banner for origin=signin', () => {
+      mockLocationState = { origin: 'signin' };
+      renderWithRouter(<Pair />);
+      expect(screen.getByText('Signed in successfully!')).toBeInTheDocument();
+    });
+
+    it('renders the signup banner for origin=signup', () => {
+      mockLocationState = { origin: 'signup' };
+      renderWithRouter(<Pair />);
+      expect(
+        screen.getByText('Account created. You’re now syncing.')
+      ).toBeInTheDocument();
+    });
+
+    it('renders the password-created banner for origin=post-verify-set-password', () => {
+      mockLocationState = { origin: 'post-verify-set-password' };
+      renderWithRouter(<Pair />);
+      expect(
+        screen.getByText('Password created. You’re now syncing.')
+      ).toBeInTheDocument();
+    });
+
+    it('does not render a banner when origin is absent', () => {
+      mockLocationState = null;
+      renderWithRouter(<Pair />);
+      expect(
+        screen.queryByText('Signed in successfully!')
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not render the banner on the download screen', () => {
+      mockLocationState = { origin: 'signin' };
+      renderWithRouter(<Pair />);
+      fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(
+        screen.queryByText('Signed in successfully!')
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Send Tab variant', () => {
+    const sendTabIntegration = {
+      data: { entrypoint: 'send-tab-toolbar-icon' },
+    } as unknown as import('../../../models').Integration;
+
+    it('renders the send-tab heading without the grey "Connect another device" text', () => {
+      renderWithRouter(<Pair integration={sendTabIntegration} />);
+      expect(
+        screen.getByRole('heading', {
+          level: 1,
+          name: /Download or open Firefox on the device where you want to send tabs/,
+        })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('Connect another device')
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Sync your Firefox experience')
+      ).not.toBeInTheDocument();
+    });
+
+    it('omits the "View your saved passwords…" description', () => {
+      renderWithRouter(<Pair integration={sendTabIntegration} />);
+      expect(
+        screen.queryByText(/View your saved passwords/)
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('CMS theming', () => {
     it('renders the choice screen Continue button with CMS button color', () => {
       renderWithRouter(<Pair cmsInfo={MOCK_CMS_INFO} />);
@@ -221,7 +303,7 @@ describe('Pair', () => {
     it('renders the download screen Continue to sync button with CMS button color', () => {
       renderWithRouter(<Pair cmsInfo={MOCK_CMS_INFO} />);
       // Navigate from choice → download by selecting "needs mobile" + Continue
-      fireEvent.click(screen.getByLabelText(/I don.t have Firefox for mobile/));
+      fireEvent.click(screen.getByLabelText(/I don’t have Firefox for mobile/));
       fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
       const continueToSyncBtn = screen.getByRole('button', {
         name: 'Continue to sync',

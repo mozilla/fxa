@@ -799,7 +799,7 @@ const AuthAndAccountSetupRoutes = ({
 
         {/* Pairing */}
         <ConnectAnotherDevice path="/connect_another_device/*" />
-        <PairIndex path="/pair/*" />
+        <PairIndex path="/pair/*" integration={integration} />
         <PairSupp path="/pair/supp/*" integration={integration} />
         <PairSuppAllow path="/pair/supp/allow/*" integration={integration} />
         <PairSuppWaitForAuth
