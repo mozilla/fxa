@@ -24,6 +24,7 @@ export enum Proc {
   CreateRecoveryKey = 'createRecoveryKey_4',
   CreateSecurityEvent = 'createSecurityEvent_5',
   CreateSessionToken = 'createSessionToken_10',
+  CreateVerifiedSessionToken = 'createVerifiedSessionToken_1',
   CreateSigninCode = 'createSigninCode_2',
   CreateTotpToken = 'createTotpToken_1',
   CreateUnblockCode = 'createUnblockCode_1',

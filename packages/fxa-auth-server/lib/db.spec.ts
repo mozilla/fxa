@@ -19,6 +19,7 @@ jest.mock('fxa-shared/db/models/auth', () => ({
   },
   SessionToken: {
     create: jest.fn().mockResolvedValue(null),
+    createVerified: jest.fn().mockResolvedValue(null),
     delete: jest.fn().mockResolvedValue(null),
     findByUid: jest.fn().mockResolvedValue([]),
   },
@@ -383,6 +384,35 @@ describe('redis enabled, token-pruning enabled:', () => {
       'wibble',
       expect.anything()
     );
+  });
+
+  it('should call RawSessionToken.createVerified (not create) and set verificationMethod/verifiedAt in db.createPasskeyVerifiedSessionToken', async () => {
+    const metrics = {
+      increment: jest.fn(),
+    };
+    db.metrics = metrics;
+
+    const result = await db.createPasskeyVerifiedSessionToken({
+      uid: 'wibble',
+    });
+    expect(redis.pruneSessionTokens).toHaveBeenCalledTimes(1);
+    expect(redis.pruneSessionTokens).toHaveBeenCalledWith(
+      'wibble',
+      expect.anything()
+    );
+    // Uses createVerified (the passkey proc), not the plain create
+    expect(models.SessionToken.createVerified.mock.calls.length).toBe(1);
+    // Proc receives verificationMethod=5 (passkey) and a numeric verifiedAt
+    const procArg = models.SessionToken.createVerified.mock.calls[0][0];
+    expect(procArg.verificationMethod).toBe(5);
+    expect(typeof procArg.verifiedAt).toBe('number');
+    // Returned token reflects the same values
+    expect(result.verificationMethod).toBe(5);
+    expect(typeof result.verifiedAt).toBe('number');
+    // Metrics tagged with method: passkey
+    expect(metrics.increment).toHaveBeenCalledWith('db.sessionToken.created', {
+      method: 'passkey',
+    });
   });
 
   describe('mock db.pruneSessionTokens:', () => {
