@@ -46,7 +46,7 @@ export class GoogleIapUnknownError extends GoogleIapError {
 export class GoogleIapGetFromPlayStoreUnknownError extends GoogleIapUnknownError {
   constructor(packageName: string, sku: string, cause: Error) {
     super(
-      'An unknown error occured while retrieving a Google Play Store subscription purchase',
+      'An unknown error occurred while retrieving a Google Play Store subscription purchase',
       cause,
       { packageName, sku }
     );
@@ -62,7 +62,7 @@ export class GoogleIapClientUnknownError extends GoogleIapUnknownError {
 
 export class GoogleIapClientUnexpectedTypeError extends GoogleIapUnknownError {
   constructor(cause: Error) {
-    super('An unknown Google IAP error occured of an unknown type', cause);
+    super('An unknown Google IAP error occurred of an unknown type', cause);
     this.name = 'GoogleIapClientUnexpectedTypeError';
   }
 }
