@@ -4,6 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
+import { Passkey } from 'fxa-auth-client/browser';
 import { useAlertBar, useFtlMsgResolver } from '../../../models';
 import { MfaGuard } from '../MfaGuard';
 import { MfaReason } from '../../../lib/types';
@@ -342,19 +343,9 @@ export const BackupPhoneSubRow = ({
   );
 };
 
-export type PasskeyRowData = {
-  id: string;
-  name: string;
-  createdAt: number;
-  lastUsed?: number;
-  prfEnabled: boolean;
-};
-
 export type PasskeySubRowProps = {
-  passkey: PasskeyRowData;
-  // passing in as a prop for the sake of mocking.
-  // TODO: replace with actual auth client API call
-  deletePasskey?: (passkeyId: string) => Promise<void>;
+  passkey: Passkey;
+  deletePasskey?: (credentialId: string) => Promise<void>;
 };
 
 const formatDateText = (timestamp: number): string => {
@@ -378,7 +369,7 @@ export const PasskeySubRow = ({
   const handleConfirmDelete = useCallback(async () => {
     setIsDeleting(true);
     try {
-      await deletePasskey(passkey.id);
+      await deletePasskey(passkey.credentialId);
       // a hack to avoid alert bar being immediately removed
       setTimeout(() => {
         alertBar.success(
@@ -399,7 +390,13 @@ export const PasskeySubRow = ({
       setIsDeleting(false);
       hideDeleteModal();
     }
-  }, [passkey.id, deletePasskey, alertBar, ftlMsgResolver, hideDeleteModal]);
+  }, [
+    passkey.credentialId,
+    deletePasskey,
+    alertBar,
+    ftlMsgResolver,
+    hideDeleteModal,
+  ]);
 
   const createdDateFluent = getLocalizedDate(
     passkey.createdAt,
@@ -408,12 +405,12 @@ export const PasskeySubRow = ({
 
   const createdDateText = formatDateText(passkey.createdAt);
 
-  const lastUsedDateFluent = passkey.lastUsed
-    ? getLocalizedDate(passkey.lastUsed, LocalizedDateOptions.NumericDate)
+  const lastUsedDateFluent = passkey.lastUsedAt
+    ? getLocalizedDate(passkey.lastUsedAt, LocalizedDateOptions.NumericDate)
     : undefined;
 
-  const lastUsedText = passkey.lastUsed
-    ? formatDateText(passkey.lastUsed)
+  const lastUsedText = passkey.lastUsedAt
+    ? formatDateText(passkey.lastUsedAt)
     : undefined;
 
   const localizedDescription = (
@@ -442,7 +439,14 @@ export const PasskeySubRow = ({
         icon={<PasskeyIcon ariaHidden className="h-8 w-5 text-purple-600" />}
         localizedRowTitle={passkey.name}
         localizedDescription={localizedDescription}
-        // TODO (passkeys phase 2): show upgrade prompt when passkey.prfEnabled
+        {...(!passkey.backupEligible && {
+          statusIcon: 'alert',
+          message: (
+            <FtlMsg id="passkey-sub-row-sign-in-only">
+              <p>Sign in only. Can’t be used to sync.</p>
+            </FtlMsg>
+          ),
+        })}
         onDeleteClick={(event) => {
           event.stopPropagation();
           revealDeleteModal();

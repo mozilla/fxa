@@ -17,4 +17,9 @@ passkey-row-max-limit-banner =
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = You’ve reached the maximum number of passkeys.
 
+## Error / limit messages
+
+passkey-row-webauthn-not-supported = Your browser or device doesn't support passkeys.
+passkey-row-limit-reached = You've used all 10 passkeys. Delete a passkey to create a new one.
+
 ##
