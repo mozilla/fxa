@@ -23,7 +23,7 @@ import { MozServices } from '../../../lib/types';
 import { GenericData } from '../../../lib/model-data';
 import { Constants } from '../../../lib/constants';
 
-export const MOCK_PASSWORDLESS_CODE = '12345678';
+export const MOCK_PASSWORDLESS_CODE = '123456';
 
 export function createMockWebIntegration(
   cmsInfo?: RelierCmsInfo

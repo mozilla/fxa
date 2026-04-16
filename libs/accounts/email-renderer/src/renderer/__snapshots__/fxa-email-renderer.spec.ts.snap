@@ -6701,8 +6701,8 @@ exports[`FxA Email Renderer should render renderPasswordlessSigninOtp strapi: ma
               <tr>
                 <td align="left" class="text-body" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="passwordless-signin-otp-code">
-        Use this confirmation code:
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="passwordless-signin-otp-code-v2">
+        Your verification code is
       </span></div>
     
                 </td>
@@ -7110,8 +7110,8 @@ exports[`FxA Email Renderer should render renderPasswordlessSigninOtp: matches f
               <tr>
                 <td align="left" class="text-body" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="passwordless-signin-otp-code">
-        Use this confirmation code:
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="passwordless-signin-otp-code-v2">
+        Your verification code is
       </span></div>
     
                 </td>
@@ -7515,8 +7515,8 @@ exports[`FxA Email Renderer should render renderPasswordlessSignupOtp strapi: ma
               <tr>
                 <td align="left" class="text-body" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="passwordless-signup-otp-code">
-        Use this confirmation code:
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="passwordless-signup-otp-code-v2">
+        Your verification code is
       </span></div>
     
                 </td>
@@ -7924,8 +7924,8 @@ exports[`FxA Email Renderer should render renderPasswordlessSignupOtp: matches f
               <tr>
                 <td align="left" class="text-body" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                   
-      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="passwordless-signup-otp-code">
-        Use this confirmation code:
+      <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;"><span data-l10n-id="passwordless-signup-otp-code-v2">
+        Your verification code is
       </span></div>
     
                 </td>

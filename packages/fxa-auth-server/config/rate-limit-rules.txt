@@ -193,8 +193,8 @@ passwordlessSendOtp                    : ip               : 100         : 24 hou
 
 # Passwordless OTP Verification Limits
 passwordlessVerifyOtp                  : ip_email         : 5           : 10 minutes      : 15 minutes   : block
-passwordlessVerifyOtp                  : email            : 10          : 10 minutes      : 30 minutes   : report
+passwordlessVerifyOtp                  : email            : 10          : 10 minutes      : 30 minutes   : block
 passwordlessVerifyOtp                  : ip               : 100         : 24 hours        : 15 minutes   : ban
 passwordlessVerifyOtpPerDay            : ip_email         : 10          : 24 hours        : 24 hours     : block
-passwordlessVerifyOtpPerDay            : email            : 20          : 24 hours        : 24 hours     : report
+passwordlessVerifyOtpPerDay            : email            : 20          : 24 hours        : 24 hours     : block
 passwordlessVerifyOtpPerDay            : ip               : 100         : 24 hours        : 15 minutes   : ban

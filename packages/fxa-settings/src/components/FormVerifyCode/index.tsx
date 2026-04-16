@@ -31,6 +31,7 @@ export type FormAttributes = {
   inputMode?: InputModeEnum;
   pattern: string;
   maxLength: number;
+  autoComplete?: 'off' | 'one-time-code';
   submitButtonText: string;
   submitButtonFtlId: string;
 };
@@ -172,7 +173,7 @@ const FormVerifyCode = ({
         maxLength={formAttributes.maxLength}
         className="text-start"
         anchorPosition="start"
-        autoComplete="off"
+        autoComplete={formAttributes.autoComplete ?? 'off'}
         spellCheck={false}
         prefixDataTestId={viewName}
         tooltipPosition="bottom"

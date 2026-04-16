@@ -4,7 +4,7 @@
 
 <%- include('/partials/userInfo/index.txt') %>
 
-passwordless-signin-otp-code = "Use this confirmation code:"
+passwordless-signin-otp-code-v2 = "Your verification code is"
 
 <%- code %>
 

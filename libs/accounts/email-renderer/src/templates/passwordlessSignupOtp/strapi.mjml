@@ -20,8 +20,8 @@
   <mj-column>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="passwordless-signup-otp-code">
-        Use this confirmation code:
+      <span data-l10n-id="passwordless-signup-otp-code-v2">
+        Your verification code is
       </span>
     </mj-text>
 

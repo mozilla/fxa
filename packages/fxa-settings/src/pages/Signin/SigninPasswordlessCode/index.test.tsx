@@ -93,9 +93,12 @@ jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
 let mockHandleNavigation = jest.fn().mockResolvedValue({ error: undefined });
 
 jest.mock('../utils', () => ({
-  getSyncNavigate: jest.fn((search, options) => ({ to: '/connect_another_device' })),
+  getSyncNavigate: jest.fn((search, options) => ({
+    to: '/connect_another_device',
+  })),
   handleNavigation: (...args: any[]) => mockHandleNavigation(...args),
-  ensureCanLinkAcountOrRedirect: (...args: any[]) => mockEnsureCanLinkAcountOrRedirect(...args),
+  ensureCanLinkAcountOrRedirect: (...args: any[]) =>
+    mockEnsureCanLinkAcountOrRedirect(...args),
 }));
 
 jest.mock('../../../lib/hooks/useWebRedirect', () => ({
@@ -129,7 +132,8 @@ function render(
   } = {}
 ) {
   if (!props.integration) {
-    props.integration = createMockSigninWebIntegration() as SigninOAuthIntegration;
+    props.integration =
+      createMockSigninWebIntegration() as SigninOAuthIntegration;
   }
 
   renderWithLocalizationProvider(
@@ -140,7 +144,7 @@ function render(
 }
 
 function mockReactUtilsModule() {
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => { });
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
 describe('SigninPasswordlessCode page', () => {
@@ -150,25 +154,33 @@ describe('SigninPasswordlessCode page', () => {
     mockNavigate = jest.fn();
     mockNavigateWithQuery = jest.fn().mockResolvedValue(undefined);
     mockEnsureCanLinkAcountOrRedirect = jest.fn().mockResolvedValue(true);
-    mockHandleNavigation = jest.fn().mockImplementation(async (navigationOptions) => {
-      // Simulate handleNavigation behavior for unverified sessions with TOTP
-      const { signinData } = navigationOptions;
-      if (signinData.verificationMethod === 'totp-2fa' && !signinData.sessionVerified) {
-        const mockNavigateModule = jest.requireMock('@reach/router');
-        mockNavigateModule.navigate(`/signin_totp_code${navigationOptions.queryParams || ''}`, {
-          state: {
-            email: navigationOptions.email,
-            uid: signinData.uid,
-            sessionToken: signinData.sessionToken,
-            emailVerified: signinData.emailVerified,
-            sessionVerified: signinData.sessionVerified,
-            verificationMethod: signinData.verificationMethod,
-            verificationReason: signinData.verificationReason,
-          },
-        });
-      }
-      return { error: undefined };
-    });
+    mockHandleNavigation = jest
+      .fn()
+      .mockImplementation(async (navigationOptions) => {
+        // Simulate handleNavigation behavior for unverified sessions with TOTP
+        const { signinData } = navigationOptions;
+        if (
+          signinData.verificationMethod === 'totp-2fa' &&
+          !signinData.sessionVerified
+        ) {
+          const mockNavigateModule = jest.requireMock('@reach/router');
+          mockNavigateModule.navigate(
+            `/signin_totp_code${navigationOptions.queryParams || ''}`,
+            {
+              state: {
+                email: navigationOptions.email,
+                uid: signinData.uid,
+                sessionToken: signinData.sessionToken,
+                emailVerified: signinData.emailVerified,
+                sessionVerified: signinData.sessionVerified,
+                verificationMethod: signinData.verificationMethod,
+                verificationReason: signinData.verificationReason,
+              },
+            }
+          );
+        }
+        return { error: undefined };
+      });
   });
 
   afterEach(() => {
@@ -185,12 +197,16 @@ describe('SigninPasswordlessCode page', () => {
       // Check for the instruction text including "Use a different account"
       screen.getByText(
         (_, element) =>
-          !!(element?.tagName === 'P' &&
-            element?.textContent?.includes(`Enter the code that was sent to ${MOCK_EMAIL}`) &&
-            element?.textContent?.includes('Use a different account'))
+          !!(
+            element?.tagName === 'P' &&
+            element?.textContent?.includes(
+              `Enter the code that was sent to ${MOCK_EMAIL}`
+            ) &&
+            element?.textContent?.includes('Use a different account')
+          )
       );
 
-      screen.getByLabelText('Enter 8-digit code');
+      screen.getByLabelText('Enter 6-digit code');
       screen.getByRole('button', { name: 'Confirm' });
       screen.getByText('Code expired?');
     });
@@ -204,9 +220,13 @@ describe('SigninPasswordlessCode page', () => {
       // Check for signup-specific instruction text including "Use a different account"
       screen.getByText(
         (_, element) =>
-          !!(element?.tagName === 'P' &&
-            element?.textContent?.includes(`Enter the code that was sent to ${MOCK_EMAIL}`) &&
-            element?.textContent?.includes('Use a different account'))
+          !!(
+            element?.tagName === 'P' &&
+            element?.textContent?.includes(
+              `Enter the code that was sent to ${MOCK_EMAIL}`
+            ) &&
+            element?.textContent?.includes('Use a different account')
+          )
       );
     });
 
@@ -226,16 +246,15 @@ describe('SigninPasswordlessCode page', () => {
     it('clicking navigates to root and removes email from query params', async () => {
       render({ isSignup: false });
 
-      const link = screen.getByRole('link', { name: 'Use a different account' });
+      const link = screen.getByRole('link', {
+        name: 'Use a different account',
+      });
       fireEvent.click(link);
 
       await waitFor(() => {
-        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
-          '/?',
-          {
-            state: { prefillEmail: MOCK_EMAIL },
-          }
-        );
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/?', {
+          state: { prefillEmail: MOCK_EMAIL },
+        });
       });
     });
 
@@ -252,16 +271,15 @@ describe('SigninPasswordlessCode page', () => {
 
       render({ isSignup: false });
 
-      const link = screen.getByRole('link', { name: 'Use a different account' });
+      const link = screen.getByRole('link', {
+        name: 'Use a different account',
+      });
       fireEvent.click(link);
 
       await waitFor(() => {
-        expect(mockNavigateWithQuery).toHaveBeenCalledWith(
-          '/?other=param',
-          {
-            state: { prefillEmail: MOCK_EMAIL },
-          }
-        );
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/?other=param', {
+          state: { prefillEmail: MOCK_EMAIL },
+        });
       });
 
       // Restore original
@@ -278,16 +296,21 @@ describe('SigninPasswordlessCode page', () => {
   describe('handleResendCode submission', () => {
     async function renderAndResend() {
       render();
-      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      const resendButton = screen.getByRole('button', {
+        name: 'Email new code.',
+      });
       fireEvent.click(resendButton);
       await waitFor(() => {
-        expect(mockAuthClient.passwordlessResendCode).toHaveBeenCalledWith(MOCK_EMAIL, {
-          clientId: undefined,
-          service: MozServices.Default,
-          metricsContext: {
+        expect(mockAuthClient.passwordlessResendCode).toHaveBeenCalledWith(
+          MOCK_EMAIL,
+          {
             clientId: undefined,
-          },
-        });
+            service: MozServices.Default,
+            metricsContext: {
+              clientId: undefined,
+            },
+          }
+        );
       });
     }
 
@@ -302,17 +325,23 @@ describe('SigninPasswordlessCode page', () => {
         .mockRejectedValue(AuthUiErrors.THROTTLED);
 
       render();
-      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      const resendButton = screen.getByRole('button', {
+        name: 'Email new code.',
+      });
       fireEvent.click(resendButton);
 
       await screen.findByText(/tried too many times/);
     });
 
     it('on other error, renders banner with expected default error message', async () => {
-      mockAuthClient.passwordlessResendCode = jest.fn().mockRejectedValue(new Error());
+      mockAuthClient.passwordlessResendCode = jest
+        .fn()
+        .mockRejectedValue(new Error());
 
       render();
-      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      const resendButton = screen.getByRole('button', {
+        name: 'Email new code.',
+      });
       fireEvent.click(resendButton);
 
       await screen.findByText(/Something went wrong/);
@@ -356,7 +385,7 @@ describe('SigninPasswordlessCode page', () => {
 
     async function submitCode(code = MOCK_PASSWORDLESS_CODE) {
       const user = userEvent.setup();
-      const input = screen.getByLabelText('Enter 8-digit code');
+      const input = screen.getByLabelText('Enter 6-digit code');
       await user.type(input, code);
       await submit();
     }
@@ -375,10 +404,10 @@ describe('SigninPasswordlessCode page', () => {
         expect(mockAuthClient.passwordlessConfirmCode).not.toHaveBeenCalled();
       });
 
-      it('if input length is less than 8', async () => {
+      it('if input length is less than 6', async () => {
         const user = userEvent.setup();
-        const input = screen.getByLabelText('Enter 8-digit code');
-        await user.type(input, '1234567');
+        const input = screen.getByLabelText('Enter 6-digit code');
+        await user.type(input, '12345');
 
         const button = screen.getByRole('button', { name: 'Confirm' });
         expect(button).toBeDisabled();
@@ -389,8 +418,8 @@ describe('SigninPasswordlessCode page', () => {
 
       it('if input is not numeric', async () => {
         const user = userEvent.setup();
-        const input = screen.getByLabelText('Enter 8-digit code');
-        await user.type(input, '1234567a');
+        const input = screen.getByLabelText('Enter 6-digit code');
+        await user.type(input, '12345a');
 
         const button = screen.getByRole('button', { name: 'Confirm' });
         expect(button).toBeDisabled();
@@ -401,8 +430,8 @@ describe('SigninPasswordlessCode page', () => {
 
       it('if input is scientific notation', async () => {
         const user = userEvent.setup();
-        const input = screen.getByLabelText('Enter 8-digit code');
-        await user.type(input, '1000e100');
+        const input = screen.getByLabelText('Enter 6-digit code');
+        await user.type(input, '100e10');
 
         const button = screen.getByRole('button', { name: 'Confirm' });
         expect(button).toBeDisabled();
@@ -539,7 +568,7 @@ describe('SigninPasswordlessCode page', () => {
       beforeEach(() => {
         hardNavigateSpy = jest
           .spyOn(ReactUtils, 'hardNavigate')
-          .mockImplementation(() => { });
+          .mockImplementation(() => {});
       });
 
       afterEach(() => {
@@ -557,13 +586,13 @@ describe('SigninPasswordlessCode page', () => {
         await submitCode();
 
         await waitFor(() => {
-          expect(mockEnsureCanLinkAcountOrRedirect).toHaveBeenCalledWith(expect.objectContaining(
-            {
+          expect(mockEnsureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
+            expect.objectContaining({
               email: MOCK_EMAIL,
               uid: MOCK_UID,
               navigateWithQuery: mockNavigateWithQuery,
-            }
-          ))
+            })
+          );
         });
 
         await waitFor(() => {
@@ -660,16 +689,17 @@ describe('SigninPasswordlessCode page', () => {
         await submitCode();
 
         await waitFor(() => {
-          expect(hardNavigateSpy).toHaveBeenCalledWith(
-            'someUri',
-            { newAccountVerification: 'true' }
-          );
+          expect(hardNavigateSpy).toHaveBeenCalledWith('someUri', {
+            newAccountVerification: 'true',
+          });
         });
       });
 
       it('redirects to TOTP setup when integration wantsTwoStepAuthentication', async () => {
         const integration = createMockSigninOAuthIntegration();
-        integration.wantsTwoStepAuthentication = jest.fn().mockReturnValue(true);
+        integration.wantsTwoStepAuthentication = jest
+          .fn()
+          .mockReturnValue(true);
 
         render({ integration, isSignup: true });
         await submitCode();
@@ -695,9 +725,7 @@ describe('SigninPasswordlessCode page', () => {
         await submitCode();
 
         await waitFor(() => {
-          expect(hardNavigateSpy).toHaveBeenCalledWith(
-            'https://mozilla.org'
-          );
+          expect(hardNavigateSpy).toHaveBeenCalledWith('https://mozilla.org');
         });
       });
 
@@ -708,10 +736,9 @@ describe('SigninPasswordlessCode page', () => {
         await submitCode();
 
         await waitFor(() => {
-          expect(mockNavigateWithQuery).toHaveBeenCalledWith(
-            '/settings',
-            { replace: true }
-          );
+          expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings', {
+            replace: true,
+          });
         });
       });
     });
@@ -749,7 +776,9 @@ describe('SigninPasswordlessCode page', () => {
       await screen.findByText(/Unexpected error/);
 
       // Click resend code button
-      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      const resendButton = screen.getByRole('button', {
+        name: 'Email new code.',
+      });
       fireEvent.click(resendButton);
 
       await waitFor(() => {
@@ -782,7 +811,9 @@ describe('SigninPasswordlessCode page', () => {
       render({ sendError: mockError });
 
       // Click resend code button
-      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      const resendButton = screen.getByRole('button', {
+        name: 'Email new code.',
+      });
       fireEvent.click(resendButton);
 
       await waitFor(() => {
@@ -806,7 +837,7 @@ describe('SigninPasswordlessCode page', () => {
 
       // Submit a code
       const user = userEvent.setup();
-      const input = screen.getByLabelText('Enter 8-digit code');
+      const input = screen.getByLabelText('Enter 6-digit code');
       await user.type(input, MOCK_PASSWORDLESS_CODE);
       const button = screen.getByRole('button', { name: 'Confirm' });
       await user.click(button);
@@ -825,7 +856,7 @@ describe('SigninPasswordlessCode page', () => {
   describe('Glean metrics', () => {
     async function submitCode(code = MOCK_PASSWORDLESS_CODE) {
       const user = userEvent.setup();
-      const input = screen.getByLabelText('Enter 8-digit code');
+      const input = screen.getByLabelText('Enter 6-digit code');
       await user.type(input, code);
       const button = screen.getByRole('button', { name: 'Confirm' });
       await user.click(button);
@@ -851,7 +882,7 @@ describe('SigninPasswordlessCode page', () => {
     it('emits engage event on first keystroke', async () => {
       render({ isSignup: false });
       const user = userEvent.setup();
-      const input = screen.getByLabelText('Enter 8-digit code');
+      const input = screen.getByLabelText('Enter 6-digit code');
       await user.type(input, '1');
       expect(mockGleanPasswordlessLogin.engage).toHaveBeenCalledTimes(1);
 
@@ -866,7 +897,9 @@ describe('SigninPasswordlessCode page', () => {
 
       await waitFor(() => {
         expect(mockGleanPasswordlessLogin.submit).toHaveBeenCalledTimes(1);
-        expect(mockGleanPasswordlessLogin.submitSuccess).toHaveBeenCalledTimes(1);
+        expect(mockGleanPasswordlessLogin.submitSuccess).toHaveBeenCalledTimes(
+          1
+        );
       });
     });
 
@@ -904,7 +937,9 @@ describe('SigninPasswordlessCode page', () => {
 
     it('emits resendCode event on resend click', async () => {
       render({ isSignup: false });
-      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      const resendButton = screen.getByRole('button', {
+        name: 'Email new code.',
+      });
       fireEvent.click(resendButton);
 
       await waitFor(() => {
@@ -918,7 +953,9 @@ describe('SigninPasswordlessCode page', () => {
         .mockRejectedValue(AuthUiErrors.THROTTLED);
 
       render({ isSignup: false });
-      const resendButton = screen.getByRole('button', { name: 'Email new code.' });
+      const resendButton = screen.getByRole('button', {
+        name: 'Email new code.',
+      });
       fireEvent.click(resendButton);
 
       await waitFor(() => {

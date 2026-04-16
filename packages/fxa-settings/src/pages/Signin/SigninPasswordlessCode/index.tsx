@@ -32,7 +32,11 @@ import {
   isSyncDesktopV3Integration,
   isWebIntegration,
 } from '../../../models';
-import { getSyncNavigate, handleNavigation, ensureCanLinkAcountOrRedirect } from '../utils';
+import {
+  getSyncNavigate,
+  handleNavigation,
+  ensureCanLinkAcountOrRedirect,
+} from '../utils';
 import firefox from '../../../lib/channels/firefox';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import VerificationMethods from '../../../constants/verification-methods';
@@ -41,7 +45,7 @@ import GleanMetrics from '../../../lib/glean';
 
 export const viewName = 'signin-passwordless-code';
 
-const EIGHT_DIGIT_NUMBER_REGEX = /^\d{8}$/;
+const SIX_DIGIT_NUMBER_REGEX = /^\d{6}$/;
 const RESEND_CODE_COUNTDOWN = 30;
 
 const SigninPasswordlessCode = ({
@@ -103,7 +107,9 @@ const SigninPasswordlessCode = ({
   // Process sendError prop only once when it's first set
   useEffect(() => {
     if (sendError && !sendErrorProcessed.current) {
-      setLocalizedErrorBannerMessage(getLocalizedErrorMessage(ftlMsgResolver, sendError));
+      setLocalizedErrorBannerMessage(
+        getLocalizedErrorMessage(ftlMsgResolver, sendError)
+      );
       sendErrorProcessed.current = true;
     }
   }, [sendError, ftlMsgResolver]);
@@ -118,10 +124,11 @@ const SigninPasswordlessCode = ({
   );
 
   const formAttributes: FormAttributes = {
-    inputFtlId: 'signin-passwordless-code-input-label',
-    inputLabelText: 'Enter 8-digit code',
-    pattern: '[0-9]{8}',
-    maxLength: 8,
+    inputFtlId: 'signin-passwordless-code-input-label-v2',
+    inputLabelText: 'Enter 6-digit code',
+    pattern: '[0-9]{6}',
+    maxLength: 6,
+    autoComplete: 'one-time-code',
     submitButtonFtlId: 'signin-passwordless-code-confirm-button',
     submitButtonText: 'Confirm',
   };
@@ -190,7 +197,7 @@ const SigninPasswordlessCode = ({
 
   const onSubmit = async (code: string) => {
     clearErrorMessages();
-    if (!EIGHT_DIGIT_NUMBER_REGEX.test(code)) {
+    if (!SIX_DIGIT_NUMBER_REGEX.test(code)) {
       setCodeErrorMessage(localizedInvalidCode);
       return;
     }
@@ -254,7 +261,10 @@ const SigninPasswordlessCode = ({
       // For existing users signing into Sync (signin flow), show merge warning
       // before navigating to set password. For signup flows, the warning was
       // already shown on the email-first page.
-      if ((integration.isSync() || integration.isFirefoxNonSync()) && !isSignup) {
+      if (
+        (integration.isSync() || integration.isFirefoxNonSync()) &&
+        !isSignup
+      ) {
         const canLink = await ensureCanLinkAcountOrRedirect({
           email,
           uid: result.uid,
@@ -349,7 +359,8 @@ const SigninPasswordlessCode = ({
                 redirect,
                 state,
               });
-              const { error: navError } = await handleNavigation(navigationOptions);
+              const { error: navError } =
+                await handleNavigation(navigationOptions);
               if (navError) {
                 setLocalizedErrorBannerMessage(
                   getLocalizedErrorMessage(ftlMsgResolver, navError)
