@@ -65,6 +65,7 @@ import {
   ResultAccountCustomerFactory,
   MockStripeConfigProvider,
   AccountCustomerManager,
+  AccountCustomerNotFoundError,
   StripeConfirmationTokenFactory,
   StripeSetupIntentFactory,
 } from '@fxa/payments/stripe';
@@ -99,6 +100,7 @@ import {
   CartNoTaxAddressError,
   CartUidMismatchError,
 } from './cart.error';
+import { AccountCustomerAlreadyExistsError } from './checkout.error';
 import { CheckoutService } from './checkout.service';
 import { PrePayStepsResultFactory } from './checkout.factories';
 import { AccountManager } from '@fxa/shared/account/account';
@@ -503,6 +505,11 @@ describe('CheckoutService', () => {
         );
 
         jest
+          .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+          .mockRejectedValue(
+            new AccountCustomerNotFoundError(uid, new Error('not found'))
+          );
+        jest
           .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
           .mockRejectedValue(
             new PromotionCodeNotFoundError(
@@ -528,9 +535,35 @@ describe('CheckoutService', () => {
           })
         );
 
+        jest
+          .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+          .mockRejectedValue(
+            new AccountCustomerNotFoundError(uid, new Error('not found'))
+          );
+
         await expect(
           checkoutService.prePaySteps(mockCart, mockCart.uid)
         ).rejects.toBeInstanceOf(CartTotalMismatchError);
+      });
+
+      it('throws account customer already exists error', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            uid: uid,
+            couponCode: faker.string.uuid(),
+            stripeCustomerId: null,
+            eligibilityStatus: CartEligibilityStatus.CREATE,
+            amount: mockInvoicePreview.subtotal,
+          })
+        );
+
+        jest
+          .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+          .mockResolvedValue(mockAccountCustomer);
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, mockCart.uid)
+        ).rejects.toBeInstanceOf(AccountCustomerAlreadyExistsError);
       });
     });
   });
