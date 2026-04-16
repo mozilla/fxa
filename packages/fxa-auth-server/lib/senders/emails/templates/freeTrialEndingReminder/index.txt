@@ -8,17 +8,17 @@ freeTrialEndingReminder-content-auto-charge-plaintext = "Unless you cancel befor
 
 freeTrialEndingReminder-content-charge-heading = "Charge details"
 
-freeTrialEndingReminder-content-charge-subscription = "<%- productName %> subscription: <%- invoiceSubtotal %>"
+freeTrialEndingReminder-content-charge-subscription-plaintext = "<%- productName %> subscription: <%- invoiceSubtotal %>"
 
 <% if (showDiscount && invoiceDiscountAmount) { %>
-freeTrialEndingReminder-content-charge-discount = "Discount: <%- invoiceDiscountAmount %>"
+freeTrialEndingReminder-content-charge-discount-plaintext = "Discount: <%- invoiceDiscountAmount %>"
 <% } %>
 
 <% if (showTaxAmount && invoiceTaxAmount) { %>
-freeTrialEndingReminder-content-charge-tax = "Tax: <%- invoiceTaxAmount %>"
+freeTrialEndingReminder-content-charge-tax-plaintext = "Tax: <%- invoiceTaxAmount %>"
 <% } %>
 
-freeTrialEndingReminder-content-charge-total = "Total due on <%- serviceLastActiveDateOnly %>: <%- invoiceTotal %>"
+freeTrialEndingReminder-content-charge-total-plaintext = "Total due on <%- serviceLastActiveDateOnly %>: <%- invoiceTotal %>"
 
 freeTrialEndingReminder-content-account-link-plaintext = "You can review or update your payment method and account information here:"
 <%- updateBillingUrl %>
