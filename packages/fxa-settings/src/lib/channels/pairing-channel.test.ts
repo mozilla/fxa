@@ -26,7 +26,7 @@ jest.mock(
   })
 );
 
-jest.mock('fxa-shared/sentry/browser', () => ({
+jest.mock('@fxa/shared/sentry-browser', () => ({
   captureException: jest.fn(),
 }));
 

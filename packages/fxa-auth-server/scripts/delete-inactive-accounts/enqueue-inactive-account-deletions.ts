@@ -33,7 +33,7 @@ import path from 'path';
 import { promisify } from 'util';
 
 import * as Sentry from '@sentry/node';
-import { initSentry } from 'fxa-shared/sentry/node';
+import { initSentry } from '@fxa/shared/sentry-node';
 import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
