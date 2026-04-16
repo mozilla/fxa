@@ -51,6 +51,7 @@ process.on('unhandledRejection', (err) => {
 require('../config/env');
 
 const path = require('path');
+const crypto = require('crypto');
 const chalk = require('react-dev-utils/chalk');
 const fs = require('fs-extra');
 const bfj = require('bfj');
@@ -67,6 +68,18 @@ const measureFileSizesBeforeBuild =
   FileSizeReporter.measureFileSizesBeforeBuild;
 const printFileSizesAfterBuild = FileSizeReporter.printFileSizesAfterBuild;
 const useYarn = fs.existsSync(paths.yarnLockFile);
+
+// Cache-bust public/ scripts that bypass webpack's [contenthash] naming.
+// Sets REACT_APP_ env vars so InterpolateHtmlPlugin can inject them into
+// index.html as query strings (e.g. query-fix.js?v=a1b2c3d4).
+const publicDir = path.join(__dirname, '../public');
+const hashFile = (name) =>
+  crypto
+    .createHash('md5')
+    .update(fs.readFileSync(path.join(publicDir, name)))
+    .digest('hex');
+process.env.REACT_APP_QUERY_FIX_HASH = hashFile('query-fix.js');
+process.env.REACT_APP_LANG_FIX_HASH = hashFile('lang-fix.js');
 
 // These sizes are pretty large. We'll warn for bundles exceeding them.
 const WARN_AFTER_BUNDLE_GZIP_SIZE = 512 * 1024;
