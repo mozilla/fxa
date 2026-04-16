@@ -135,7 +135,9 @@ const SetPasswordContainer = ({
           );
           persistAccount({ uid, hasPassword: true });
 
-          GleanMetrics.thirdPartyAuthSetPassword.success();
+          GleanMetrics.thirdPartyAuthSetPassword.success({
+            event: { reason: isPasswordlessFlow ? 'otp' : 'third_party_auth' },
+          });
 
           const navigationOptions: NavigationOptions = {
             email,
@@ -180,6 +182,7 @@ const SetPasswordContainer = ({
       integration,
       finishOAuthFlowHandler,
       getKeyFetchToken,
+      isPasswordlessFlow,
       offeredSyncEngines,
       location.search,
     ]

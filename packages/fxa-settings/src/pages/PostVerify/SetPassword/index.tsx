@@ -8,10 +8,11 @@ import AppLayout from '../../../components/AppLayout';
 import { FormSetupAccount } from '../../../components/FormSetupAccount';
 import { SetPasswordFormData, SetPasswordProps } from './interfaces';
 import { useForm } from 'react-hook-form';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useFtlMsgResolver } from '../../../models';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import Banner from '../../../components/Banner';
+import GleanMetrics from '../../../lib/glean';
 
 export const SetPassword = ({
   email,
@@ -25,8 +26,19 @@ export const SetPassword = ({
     useState<boolean>(false);
   const [bannerErrorText, setBannerErrorText] = useState<string>('');
 
+  const gleanReason = isPasswordlessFlow ? 'otp' : 'third_party_auth';
+
+  useEffect(() => {
+    GleanMetrics.thirdPartyAuthSetPassword.view({
+      event: { reason: gleanReason },
+    });
+  }, [gleanReason]);
+
   const onSubmit = useCallback(
     async ({ newPassword }: SetPasswordFormData) => {
+      GleanMetrics.thirdPartyAuthSetPassword.submit({
+        event: { reason: gleanReason },
+      });
       setCreatePasswordLoading(true);
       setBannerErrorText('');
 
@@ -43,7 +55,7 @@ export const SetPassword = ({
         return;
       }
     },
-    [createPasswordHandler, ftlMsgResolver]
+    [createPasswordHandler, ftlMsgResolver, gleanReason]
   );
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
@@ -79,8 +91,8 @@ export const SetPassword = ({
       ) : (
         <FtlMsg id="set-password-info-v2">
           <p className="text-sm mt-6 mb-5">
-            This encrypts your data. It needs to be different from your Google or
-            Apple account password.
+            This encrypts your data. It needs to be different from your Google
+            or Apple account password.
           </p>
         </FtlMsg>
       )}
@@ -100,7 +112,11 @@ export const SetPassword = ({
         onSubmit={handleSubmit(onSubmit)}
         // This page is only shown during the Sync flow
         isSync={true}
-        submitButtonGleanId="third-party-auth-set-password-submit"
+        onFocusMetricsEvent={() => {
+          GleanMetrics.thirdPartyAuthSetPassword.engage({
+            event: { reason: gleanReason },
+          });
+        }}
         passwordFormType="post-verify-set-password"
       />
     </AppLayout>

@@ -22,7 +22,10 @@ import { typeByTestIdFn } from '../../../lib/test-utils';
 import { Account, AppContext } from '../../../models';
 import { MOCK_EMAIL } from '../../../pages/mocks';
 import GleanMetrics from '../../../lib/glean';
-import { discardSessionToken, clearSignedInAccountUid } from '../../../lib/cache';
+import {
+  discardSessionToken,
+  clearSignedInAccountUid,
+} from '../../../lib/cache';
 
 jest.mock('../../../lib/cache', () => ({
   ...jest.requireActual('../../../lib/cache'),
@@ -117,6 +120,32 @@ describe('PageDeleteAccount', () => {
         "Mozilla Hubs",
       ]
     `);
+  });
+
+  it('renders continue button with primary styling for account with password', () => {
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account, session })}>
+        <PageDeleteAccount />
+      </AppContext.Provider>
+    );
+
+    const continueBtn = screen.getByTestId('continue-button');
+    expect(continueBtn).toHaveTextContent('Continue');
+    expect(continueBtn).toHaveClass('cta-primary');
+  });
+
+  it('renders delete button with caution styling for passwordless account', () => {
+    renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({ account: pwdlessAccount, session })}
+      >
+        <PageDeleteAccount />
+      </AppContext.Provider>
+    );
+
+    const continueBtn = screen.getByTestId('continue-button');
+    expect(continueBtn).toHaveTextContent('Delete account');
+    expect(continueBtn).toHaveClass('cta-caution');
   });
 
   it('Enables "continue" button once all 4 inputs are valid', async () => {
@@ -266,7 +295,9 @@ describe('PageDeleteAccount', () => {
           })
         );
         expect(GleanMetrics.deleteAccount.engage).toHaveBeenCalled();
-        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Delete account' })
+        );
         expect(GleanMetrics.deleteAccount.submit).toHaveBeenCalled();
         expect(GleanMetrics.deleteAccount.passwordView).not.toHaveBeenCalled();
       });

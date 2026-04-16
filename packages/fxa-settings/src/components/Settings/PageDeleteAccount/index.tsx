@@ -19,7 +19,11 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { useFtlMsgResolver } from '../../../models/hooks';
-import { clearSignedInAccountUid, discardSessionToken, setSigningOut } from '../../../lib/cache';
+import {
+  clearSignedInAccountUid,
+  discardSessionToken,
+  setSigningOut,
+} from '../../../lib/cache';
 
 type FormData = {
   password: string;
@@ -253,16 +257,29 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                   Cancel
                 </button>
               </Localized>
-              <Localized id="delete-account-continue-button">
-                <button
-                  className="cta-primary mx-2 px-10 py-2"
-                  disabled={!allBoxesChecked}
-                  onClick={() => advanceStep()}
-                  data-testid="continue-button"
-                >
-                  Continue
-                </button>
-              </Localized>
+              {account.hasPassword ? (
+                <Localized id="delete-account-continue-button">
+                  <button
+                    className="cta-primary mx-2 px-10 py-2"
+                    disabled={!allBoxesChecked}
+                    onClick={() => advanceStep()}
+                    data-testid="continue-button"
+                  >
+                    Continue
+                  </button>
+                </Localized>
+              ) : (
+                <Localized id="delete-account-delete-button-passwordless">
+                  <button
+                    className="cta-caution mx-2 px-10 py-2"
+                    disabled={!allBoxesChecked}
+                    onClick={() => advanceStep()}
+                    data-testid="continue-button"
+                  >
+                    Delete account
+                  </button>
+                </Localized>
+              )}
             </div>
           </div>
         )}

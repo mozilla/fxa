@@ -8,10 +8,13 @@ import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
  * User engaged the set password form after authenticating with third party auth
+ * or OTP
  *
  * Generated from `third_party_auth_set_password.engage`.
  */
-export const engage = new EventMetricType(
+export const engage = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'third_party_auth_set_password',
     name: 'engage',
@@ -19,15 +22,18 @@ export const engage = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**
  * User submitted the set password form after authenticating with third party auth
+ * or OTP
  *
  * Generated from `third_party_auth_set_password.submit`.
  */
-export const submit = new EventMetricType(
+export const submit = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'third_party_auth_set_password',
     name: 'submit',
@@ -35,16 +41,18 @@ export const submit = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**
- * User was able to successfully the set password form after authenticating with
- * third party auth
+ * User successfully set password after authenticating with third party auth or
+ * OTP
  *
  * Generated from `third_party_auth_set_password.success`.
  */
-export const success = new EventMetricType(
+export const success = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'third_party_auth_set_password',
     name: 'success',
@@ -52,15 +60,18 @@ export const success = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**
  * User viewed the set password screen after authenticating with third party auth
+ * or OTP
  *
  * Generated from `third_party_auth_set_password.view`.
  */
-export const view = new EventMetricType(
+export const view = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'third_party_auth_set_password',
     name: 'view',
@@ -68,5 +79,5 @@ export const view = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );

@@ -533,7 +533,9 @@ const recordEventMetric = (
       });
       break;
     case 'account_pref_change_password_submit':
-      accountPref.changePasswordSubmit.record();
+      accountPref.changePasswordSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'account_pref_google_unlink_submit':
       accountPref.googleUnlinkSubmit.record({
@@ -722,8 +724,25 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'third_party_auth_set_password_view':
+      thirdPartyAuthSetPassword.view.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'third_party_auth_set_password_engage':
+      thirdPartyAuthSetPassword.engage.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'third_party_auth_set_password_submit':
+      thirdPartyAuthSetPassword.submit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'third_party_auth_set_password_success':
-      thirdPartyAuthSetPassword.success.record();
+      thirdPartyAuthSetPassword.success.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'promo_qr_mobile_view':
       promoQrMobile.view.record();
