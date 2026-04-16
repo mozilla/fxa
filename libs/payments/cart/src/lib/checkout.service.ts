@@ -41,6 +41,7 @@ import {
   StripePromotionCode,
   type StripePaymentIntent,
   type StripeSetupIntent,
+  AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProfileClient } from '@fxa/profile/client';
@@ -80,6 +81,7 @@ import {
   PayWithStripeNullCurrencyError,
   UpgradeSubscriptionNullCurrencyError,
   UnexpectedSubscriptionStatusForTrialError,
+  AccountCustomerAlreadyExistsError,
 } from './checkout.error';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
@@ -175,6 +177,16 @@ export class CheckoutService {
     let stripeCustomerId = cart.stripeCustomerId;
     let customer: StripeCustomer;
     if (!stripeCustomerId) {
+      try {
+        await this.accountCustomerManager.getAccountCustomerByUid(uid);
+
+        throw new AccountCustomerAlreadyExistsError(uid);
+      } catch(error) {
+        if (!(error instanceof AccountCustomerNotFoundError)) {
+          throw error;
+        }
+      }
+
       customer = await this.customerManager.create({
         uid,
         email,
@@ -196,15 +208,12 @@ export class CheckoutService {
       });
     }
 
-    if (uid && !cart.stripeCustomerId) {
+    if (!cart.stripeCustomerId) {
       await this.accountCustomerManager.createAccountCustomer({
         uid,
         stripeCustomerId,
       });
-    }
 
-    // Cart only needs to be updated if we created a customer
-    if (!cart.uid || !cart.stripeCustomerId) {
       await this.cartManager.updateFreshCart(cart.id, cart.version, {
         uid,
         stripeCustomerId,

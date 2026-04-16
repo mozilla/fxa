@@ -47,6 +47,13 @@ export class InvalidIntentStateError extends CheckoutError {
   }
 }
 
+export class AccountCustomerAlreadyExistsError extends CheckoutError {
+  constructor(uid: string) {
+    super('account customer already exists for uid', { uid });
+    this.name = 'AccountCustomerAlreadyExistsError';
+  }
+}
+
 export class SubmitNeedsInputFailedError extends CheckoutError {
   constructor(cartId: string) {
     super('payment failed while submitting user needs_input', { cartId });
