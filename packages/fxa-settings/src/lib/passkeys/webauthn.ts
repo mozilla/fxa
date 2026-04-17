@@ -174,6 +174,40 @@ export function isWebAuthnLevel3Supported(): boolean {
   );
 }
 
+// ─── Credential extraction ──────────────────────────────────────────────────
+
+/** Minimal duck-type interface for objects that can serialize to credential JSON. */
+interface CredentialWithToJSON {
+  toJSON?: () => PublicKeyCredentialJSON;
+}
+
+/**
+ * Extracts `PublicKeyCredentialJSON` from a browser credential result.
+ *
+ * Prefers duck-typing (`toJSON()`) over `instanceof PublicKeyCredential`
+ * because password managers (e.g. 1Password) may return a plain object
+ * that has all the right fields but is not a real `PublicKeyCredential`.
+ *
+ * No client-side shape validation of the `toJSON()` return value —
+ * `@simplewebauthn/server:verifyRegistrationResponse` performs strict
+ * WebAuthn spec validation server-side and rejects malformed data.
+ */
+function toCredentialJSON(
+  rawCredential: Credential | null,
+  operation: string
+): PublicKeyCredentialJSON {
+  if (!rawCredential) {
+    throw new DOMException(`${operation} returned null`, 'UnknownError');
+  }
+  if (typeof (rawCredential as CredentialWithToJSON).toJSON === 'function') {
+    return (rawCredential as CredentialWithToJSON).toJSON!();
+  }
+  throw new DOMException(
+    `${operation} returned a credential without toJSON()`,
+    'UnknownError'
+  );
+}
+
 // ─── Wrapper functions ────────────────────────────────────────────────────────
 
 const DEFAULT_TIMEOUT_MS = 60_000;
@@ -217,27 +251,7 @@ export async function createCredential(
       signal: controller.signal,
     });
 
-    if (!rawCredential) {
-      throw new DOMException(
-        'navigator.credentials.create returned null',
-        'UnknownError'
-      );
-    }
-    if (rawCredential instanceof PublicKeyCredential) {
-      return rawCredential.toJSON();
-    }
-    const actualType =
-      (rawCredential as Credential).constructor?.name ?? typeof rawCredential;
-    const keyInfo = Object.entries(rawCredential as object)
-      .map(
-        ([k, v]) =>
-          `${k}: ${v instanceof ArrayBuffer ? 'ArrayBuffer' : typeof v}`
-      )
-      .join(', ');
-    throw new DOMException(
-      `navigator.credentials.create returned unexpected credential type: ${actualType} — fields: {${keyInfo}}`,
-      'UnknownError'
-    );
+    return toCredentialJSON(rawCredential, 'navigator.credentials.create');
   } catch (e) {
     if (timedOut) {
       throw new DOMException('WebAuthn operation timed out', 'TimeoutError');
@@ -287,27 +301,7 @@ export async function getCredential(
       signal: controller.signal,
     });
 
-    if (!rawCredential) {
-      throw new DOMException(
-        'navigator.credentials.get returned null',
-        'UnknownError'
-      );
-    }
-    if (rawCredential instanceof PublicKeyCredential) {
-      return rawCredential.toJSON();
-    }
-    const actualType =
-      (rawCredential as Credential).constructor?.name ?? typeof rawCredential;
-    const keyInfo = Object.entries(rawCredential as object)
-      .map(
-        ([k, v]) =>
-          `${k}: ${v instanceof ArrayBuffer ? 'ArrayBuffer' : typeof v}`
-      )
-      .join(', ');
-    throw new DOMException(
-      `navigator.credentials.get returned unexpected credential type: ${actualType} — fields: {${keyInfo}}`,
-      'UnknownError'
-    );
+    return toCredentialJSON(rawCredential, 'navigator.credentials.get');
   } catch (e) {
     if (timedOut) {
       throw new DOMException('WebAuthn operation timed out', 'TimeoutError');
