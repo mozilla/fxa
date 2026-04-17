@@ -8,6 +8,8 @@ import { LocationProvider } from '@reach/router';
 import UnitRowPasskey from './index';
 import { PasskeyRowData } from '../SubRow';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { AppContext } from '../../../models';
+import { mockAppContext } from '../../../models/mocks';
 
 const mockJwtState = {};
 
@@ -26,20 +28,27 @@ jest.mock('../../../lib/cache', () => ({
 describe('UnitRowPasskey', () => {
   const mockPasskeys: PasskeyRowData[] = [
     {
-      id: 'passkey-1',
+      credentialId: 'passkey-1',
       name: 'MacBook Pro',
       createdAt: new Date('2026-01-01').getTime(),
-      lastUsed: new Date('2026-02-01').getTime(),
+      lastUsedAt: new Date('2026-02-01').getTime(),
       prfEnabled: true,
     },
     {
-      id: 'passkey-2',
+      credentialId: 'passkey-2',
       name: 'iPhone 15',
       createdAt: new Date('2025-12-01').getTime(),
-      lastUsed: new Date('2026-01-31').getTime(),
+      lastUsedAt: new Date('2026-01-31').getTime(),
       prfEnabled: false,
     },
   ];
+  const mockDeletePasskey = jest.fn().mockResolvedValue(undefined);
+
+  const mockAccount = {
+    ...mockAppContext().account,
+    passkeys: mockPasskeys,
+    deletePasskey: mockDeletePasskey,
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -48,7 +57,13 @@ describe('UnitRowPasskey', () => {
   const renderUnitRowPasskey = (passkeys: PasskeyRowData[] = mockPasskeys) => {
     return renderWithLocalizationProvider(
       <LocationProvider>
-        <UnitRowPasskey passkeys={passkeys} />
+        <AppContext.Provider
+          value={mockAppContext({
+            account: { ...mockAccount, passkeys } as any,
+          })}
+        >
+          <UnitRowPasskey />
+        </AppContext.Provider>
       </LocationProvider>
     );
   };
@@ -97,9 +112,10 @@ describe('UnitRowPasskey', () => {
     const atMaxPasskeys: PasskeyRowData[] = Array.from(
       { length: 10 },
       (_, i) => ({
-        id: `passkey-${i}`,
+        credentialId: `passkey-${i}`,
         name: `Passkey ${i}`,
         createdAt: new Date('2026-01-01').getTime(),
+        lastUsedAt: new Date('2026-02-01').getTime(),
         prfEnabled: false,
       })
     );

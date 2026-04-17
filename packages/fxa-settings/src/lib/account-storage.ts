@@ -11,6 +11,7 @@ import {
   LinkedAccount,
   SecurityEvent,
 } from '../models/Account';
+import type { Passkey } from 'fxa-auth-client';
 import { lazy } from './test-utils';
 import Storage from './storage';
 
@@ -52,6 +53,7 @@ export interface UnifiedAccountData {
     nationalFormat?: string | null;
     available: boolean;
   } | null;
+  passkeys: Passkey[];
 
   // Connected services
   attachedClients: AttachedClient[];
@@ -91,6 +93,7 @@ export type ExtendedAccountState = Pick<
   | 'linkedAccounts'
   | 'subscriptions'
   | 'securityEvents'
+  | 'passkeys'
   | 'isLoading'
   | 'loadingFields'
   | 'error'
@@ -111,6 +114,7 @@ const defaultExtendedState: ExtendedAccountState = {
   linkedAccounts: [],
   subscriptions: [],
   securityEvents: [],
+  passkeys: [],
   isLoading: false,
   loadingFields: [],
   error: null,
@@ -262,6 +266,7 @@ export function getExtendedAccountState(uid?: string): ExtendedAccountState {
     linkedAccounts: account.linkedAccounts,
     subscriptions: account.subscriptions,
     securityEvents: account.securityEvents,
+    passkeys: account.passkeys,
     isLoading: account.isLoading,
     loadingFields: account.loadingFields,
     error: account.error,
@@ -346,6 +351,7 @@ export function getFullAccountData(uid?: string): {
   linkedAccounts: LinkedAccount[];
   subscriptions: { created: number; productName: string }[];
   securityEvents: SecurityEvent[];
+  passkeys: Passkey[];
 } | null {
   const account = getAccountData(uid);
   if (!account) return null;
@@ -372,6 +378,7 @@ export function getFullAccountData(uid?: string): {
     linkedAccounts: account.linkedAccounts,
     subscriptions: account.subscriptions,
     securityEvents: account.securityEvents,
+    passkeys: account.passkeys,
   };
 }
 

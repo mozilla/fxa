@@ -2441,7 +2441,9 @@ export class AccountHandler {
       this.db.devices(uid),
       listAuthorizedClients(uid),
       this.config.passkeys?.enabled
-        ? Container.get(PasskeyService).listPasskeysForUser(Buffer.from(uid))
+        ? Container.get(PasskeyService).listPasskeysForUser(
+            Buffer.from(uid, 'hex')
+          )
         : Promise.resolve([]),
     ]);
 

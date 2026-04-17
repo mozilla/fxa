@@ -4,7 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
-import { useAlertBar, useFtlMsgResolver } from '../../../models';
+import { useAlertBar, useAccount, useFtlMsgResolver } from '../../../models';
 import { MfaGuard } from '../MfaGuard';
 import { MfaReason } from '../../../lib/types';
 import {
@@ -343,18 +343,15 @@ export const BackupPhoneSubRow = ({
 };
 
 export type PasskeyRowData = {
-  id: string;
+  credentialId: string;
   name: string;
   createdAt: number;
-  lastUsed?: number;
+  lastUsedAt: number | null;
   prfEnabled: boolean;
 };
 
 export type PasskeySubRowProps = {
   passkey: PasskeyRowData;
-  // passing in as a prop for the sake of mocking.
-  // TODO: replace with actual auth client API call
-  deletePasskey?: (passkeyId: string) => Promise<void>;
 };
 
 const formatDateText = (timestamp: number): string => {
@@ -365,10 +362,8 @@ const formatDateText = (timestamp: number): string => {
   }).format(new Date(timestamp));
 };
 
-export const PasskeySubRow = ({
-  passkey,
-  deletePasskey = async (passkeyId: string) => {},
-}: PasskeySubRowProps) => {
+export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
+  const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
   const [deleteModalRevealed, revealDeleteModal, hideDeleteModal] =
@@ -378,7 +373,7 @@ export const PasskeySubRow = ({
   const handleConfirmDelete = useCallback(async () => {
     setIsDeleting(true);
     try {
-      await deletePasskey(passkey.id);
+      await account.deletePasskey(passkey.credentialId);
       // a hack to avoid alert bar being immediately removed
       setTimeout(() => {
         alertBar.success(
@@ -399,7 +394,13 @@ export const PasskeySubRow = ({
       setIsDeleting(false);
       hideDeleteModal();
     }
-  }, [passkey.id, deletePasskey, alertBar, ftlMsgResolver, hideDeleteModal]);
+  }, [
+    account,
+    passkey.credentialId,
+    alertBar,
+    ftlMsgResolver,
+    hideDeleteModal,
+  ]);
 
   const createdDateFluent = getLocalizedDate(
     passkey.createdAt,
@@ -408,13 +409,12 @@ export const PasskeySubRow = ({
 
   const createdDateText = formatDateText(passkey.createdAt);
 
-  const lastUsedDateFluent = passkey.lastUsed
-    ? getLocalizedDate(passkey.lastUsed, LocalizedDateOptions.NumericDate)
+  const lastUsedDateFluent = passkey.lastUsedAt
+    ? getLocalizedDate(passkey.lastUsedAt, LocalizedDateOptions.NumericDate)
     : undefined;
 
-  const lastUsedText = passkey.lastUsed
-    ? formatDateText(passkey.lastUsed)
-    : undefined;
+  const lastUsedText =
+    passkey.lastUsedAt != null ? formatDateText(passkey.lastUsedAt) : undefined;
 
   const localizedDescription = (
     <span className="flex flex-col gap-1 mobileLandscape:flex-row mobileLandscape:gap-12">

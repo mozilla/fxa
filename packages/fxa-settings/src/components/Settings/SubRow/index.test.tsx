@@ -28,6 +28,10 @@ const mockAlertBar = {
   info: jest.fn(),
 };
 
+let mockAccount = {
+  deletePasskey: jest.fn(),
+};
+
 jest.mock('../../../lib/cache', () => ({
   ...jest.requireActual('../../../lib/cache'),
   JwtTokenCache: {
@@ -42,6 +46,7 @@ jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
   useAuthClient: () => mockAuthClient,
   useAlertBar: () => mockAlertBar,
+  useAccount: () => mockAccount,
 }));
 
 describe('SubRow', () => {
@@ -269,29 +274,24 @@ describe('BackupPhoneSubRow', () => {
 
 describe('PasskeySubRow', () => {
   const mockPasskey = {
-    id: 'passkey-1',
+    credentialId: 'passkey-1',
     name: 'MacBook Pro',
     createdAt: new Date('2026-01-01').getTime(),
-    lastUsed: new Date('2026-02-01').getTime(),
+    lastUsedAt: new Date('2026-02-01').getTime(),
     prfEnabled: true,
   };
 
-  const mockDeletePasskey = jest.fn();
-
   beforeEach(() => {
-    mockDeletePasskey.mockClear();
+    mockAccount.deletePasskey.mockClear();
     mockAlertBar.success.mockClear();
     mockAlertBar.error.mockClear();
   });
 
-  const renderPasskeySubRow = (
-    passkey: PasskeyRowData = mockPasskey,
-    deletePasskey = mockDeletePasskey
-  ) => {
+  const renderPasskeySubRow = (passkey: PasskeyRowData = mockPasskey) => {
     return render(
       <LocationProvider>
         <AppContext.Provider value={mockAppContext()}>
-          <PasskeySubRow passkey={passkey} deletePasskey={deletePasskey} />
+          <PasskeySubRow passkey={passkey} />
         </AppContext.Provider>
       </LocationProvider>
     );
@@ -307,7 +307,7 @@ describe('PasskeySubRow', () => {
   });
 
   it('does not render last used date when not available', () => {
-    const passkeyWithoutLastUsed = { ...mockPasskey, lastUsed: undefined };
+    const passkeyWithoutLastUsed = { ...mockPasskey, lastUsedAt: null };
     renderPasskeySubRow(passkeyWithoutLastUsed);
     expect(screen.queryByText(/Last used:/)).not.toBeInTheDocument();
   });
@@ -346,7 +346,7 @@ describe('PasskeySubRow', () => {
   });
 
   it('calls deletePasskey when confirm button is clicked', async () => {
-    mockDeletePasskey.mockResolvedValue(undefined);
+    mockAccount.deletePasskey.mockResolvedValue(undefined);
     renderPasskeySubRow();
 
     const deleteButtons = screen.getAllByTitle(/Delete passkey/);
@@ -357,13 +357,11 @@ describe('PasskeySubRow', () => {
     const confirmButton = screen.getByTestId('confirm-delete-passkey-button');
     await userEvent.click(confirmButton);
 
-    await waitFor(() => {
-      expect(mockDeletePasskey).toHaveBeenCalledWith('passkey-1');
-    });
+    expect(mockAccount.deletePasskey).toHaveBeenCalledWith('passkey-1');
   });
 
   it('shows success banner when deletion succeeds', async () => {
-    mockDeletePasskey.mockResolvedValue(undefined);
+    mockAccount.deletePasskey.mockResolvedValue(undefined);
     renderPasskeySubRow();
 
     const deleteButtons = screen.getAllByTitle(/Delete passkey/);
@@ -386,7 +384,7 @@ describe('PasskeySubRow', () => {
   });
 
   it('shows error banner when deletion fails', async () => {
-    mockDeletePasskey.mockRejectedValue(new Error('Some error'));
+    mockAccount.deletePasskey.mockRejectedValue(new Error('Some error'));
     renderPasskeySubRow();
 
     const deleteButtons = screen.getAllByTitle(/Delete passkey/);

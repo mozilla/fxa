@@ -4688,7 +4688,7 @@ describe('/account', () => {
       const result: any = await runTest(route, request);
 
       expect(mockService.listPasskeysForUser).toHaveBeenCalledWith(
-        Buffer.from(uid)
+        Buffer.from(uid, 'hex')
       );
       expect(result.passkeys).toHaveLength(1);
       expect(result.passkeys[0]).toEqual({
