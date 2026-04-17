@@ -101,3 +101,19 @@ Suggest these proactively when the task matches — do not wait to be asked.
 | `/fxa-explain-code`             | Understanding what changed and why                                                          |
 | `/fxa-simplify`                 | Cleaning up recently written code                                                           |
 | `/fxa-check-githistory`         | Checking for regressions or conflicts with past fixes                                       |
+| `/fxa-test-draft`              | Drafting Jest tests for staged/unstaged changes or recent commits                           |
+| `/fxa-test-independence`        | Validating tests pass both as a full suite and individually in isolation                    |
+| `/fxa-test-repair`              | Auditing a test file for guideline violations and producing a prioritized repair plan       |
+
+## 8) Testing Guidelines
+
+- **Name tests for what they assert.** Test names should make the assertion self-evident; don't assert behavior outside the scope of the name.
+- **Cover all paths.** All happy paths and error cases require tests. Call out when testing is difficult due to code complexity or anti-patterns rather than skipping coverage.
+- **Tests are first-class.** A reader should be able to infer the intent and expected behavior of code from its tests alone, without reading the implementation.
+- **Trust, but verify.** Use tests to verify changes. When tests and implementation disagree, investigate — never assume one is automatically correct over the other.
+- **Mock at system boundaries, not internals.** Mock external dependencies (DB, network, external APIs); use real implementations for internal functions within the same package. Over-mocking produces tests that only verify mock wiring.
+- **Tests must be independent and order-agnostic.** No shared mutable state between tests. Each test owns its setup; use `beforeEach` for resets.
+- **Assert explicitly.** Prefer exact values and shapes over `toBeTruthy()`, `toBeDefined()`, etc. Vague assertions hide regressions.
+- **Test behavior, not implementation.** Test through public interfaces; avoid asserting on private state or calling private methods.
+- **Test async code correctly.** Always `await` async operations; use `jest.useFakeTimers()` + `jest.setSystemTime()` over real timers or `setTimeout` hacks.
+- **Prefer deterministic test values.** Use hardcoded or factory-generated constants for UIDs, tokens, timestamps, and identifiers. Avoid `Math.random()`, `uuid()`, `Date.now()` in test setup — reserve randomness for tests that explicitly exercise randomness-dependent behavior.
