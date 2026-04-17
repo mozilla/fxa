@@ -173,6 +173,12 @@ export const relyingPartyQuery = graphql(`
         }
         splitLayout
       }
+      PostVerifySetPasswordPage {
+        headline
+        description
+        primaryButtonText
+        pageTitle
+      }
       NewDeviceLoginEmail {
         subject
         headline

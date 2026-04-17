@@ -8,6 +8,7 @@ import {
   formatSecret,
   isBase32Crockford,
   isMobileDevice,
+  isValidCmsUrl,
   navigateWithQueryHelper,
   once,
   resetOnce,
@@ -322,5 +323,29 @@ describe('navigateWithQueryHelper', () => {
       options
     );
     expect(mockNavigate).toHaveBeenCalledWith('/signin', options);
+  });
+});
+
+describe('isValidCmsUrl', () => {
+  it.each([
+    'https://example.com',
+    'https://example.com/path/to/resource.svg',
+    'https://cdn.example.com/image.png?v=1',
+  ])('returns true for %s', (value) => {
+    expect(isValidCmsUrl(value)).toBe(true);
+  });
+
+  it.each([
+    'http://example.com',
+    'http://localhost:3000',
+    'javascript:alert(1)',
+    'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=',
+    'ftp://example.com/file',
+    'not-a-url',
+    '',
+    null,
+    undefined,
+  ])('returns false for %s', (value) => {
+    expect(isValidCmsUrl(value as string | null | undefined)).toBe(false);
   });
 });

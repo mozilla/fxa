@@ -61,6 +61,7 @@ const { parseConfigRules, RateLimit } = require('@fxa/accounts/rate-limit');
 const {
   RelyingPartyConfigurationManager,
   LegalTermsConfigurationManager,
+  DefaultCmsConfigurationManager,
 } = require('@fxa/shared/cms');
 const { AccountManager } = require('@fxa/shared/account/account');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
@@ -223,6 +224,13 @@ async function run(config) {
         statsd
       );
       Container.set(LegalTermsConfigurationManager, legalTermsManager);
+
+      const defaultCmsManager = new DefaultCmsConfigurationManager(
+        strapiClient,
+        statsd,
+        log
+      );
+      Container.set(DefaultCmsConfigurationManager, defaultCmsManager);
     }
 
     const { createStripeHelper } = require('../lib/payments/stripe');

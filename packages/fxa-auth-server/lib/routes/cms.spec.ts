@@ -9,8 +9,16 @@ import { Container } from 'typedi';
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 
-let log: any, mockConfig: any, mockStatsD: any, routes: any, route: any, request: any;
-let mockCmsManager: any, mockLegalTermsManager: any, mockLocalization: any;
+let log: any,
+  mockConfig: any,
+  mockStatsD: any,
+  routes: any,
+  route: any,
+  request: any;
+let mockCmsManager: any,
+  mockLegalTermsManager: any,
+  mockDefaultCmsManager: any,
+  mockLocalization: any;
 
 function createStrapiTestData() {
   return [
@@ -45,7 +53,11 @@ function createBaseConfig(overrides: any = {}) {
   };
 }
 
-function createLocalizationRequest(clientId: string, entrypoint: string, locale: string) {
+function createLocalizationRequest(
+  clientId: string,
+  entrypoint: string,
+  locale: string
+) {
   return {
     query: { clientId, entrypoint },
     app: { locale },
@@ -58,6 +70,7 @@ function createLocalizationRequest(clientId: string, entrypoint: string, locale:
 jest.mock('@fxa/shared/cms', () => ({
   RelyingPartyConfigurationManager: function () {},
   LegalTermsConfigurationManager: function () {},
+  DefaultCmsConfigurationManager: function () {},
 }));
 
 // Use a global-scoped variable for the mock localization instance
@@ -120,6 +133,11 @@ describe('cms', () => {
       getLegalTermsByService: sinon.stub(),
     };
 
+    mockDefaultCmsManager = {
+      fetchDefault: sinon.stub(),
+      invalidateCache: sinon.stub(),
+    };
+
     mockLocalization = {
       fetchAllStrapiEntries: sinon.stub(),
       validateGitHubConfig: sinon.stub(),
@@ -139,15 +157,21 @@ describe('cms', () => {
 
     // Use callsFake to always return the right mock based on argument
     const containerHas = sinon.stub(Container, 'has').returns(true);
-    const containerGet = sinon.stub(Container, 'get').callsFake((token: any) => {
-      // The cms module calls Container.get with the constructor functions
-      // First call is RelyingPartyConfigurationManager, second is LegalTermsConfigurationManager
-      // We match by name since the mocked constructors have no distinctive props
-      if (token === require('@fxa/shared/cms').LegalTermsConfigurationManager) {
-        return mockLegalTermsManager;
-      }
-      return mockCmsManager;
-    });
+    const containerGet = sinon
+      .stub(Container, 'get')
+      .callsFake((token: any) => {
+        // The cms module calls Container.get with the constructor functions
+        // First call is RelyingPartyConfigurationManager, second is LegalTermsConfigurationManager
+        // We match by name since the mocked constructors have no distinctive props
+        const shared = require('@fxa/shared/cms');
+        if (token === shared.LegalTermsConfigurationManager) {
+          return mockLegalTermsManager;
+        }
+        if (token === shared.DefaultCmsConfigurationManager) {
+          return mockDefaultCmsManager;
+        }
+        return mockCmsManager;
+      });
 
     const cmsModule = require('./cms');
     routes = cmsModule.default(log, mockConfig, mockStatsD);
@@ -231,8 +255,7 @@ describe('cms', () => {
         throw new Error('Should have thrown validation error');
       } catch (err: any) {
         expect(
-          err.message.includes('clientId') ||
-            err.message.includes('required')
+          err.message.includes('clientId') || err.message.includes('required')
         ).toBeTruthy();
       }
     });
@@ -272,7 +295,10 @@ describe('cms', () => {
 
       expect(response).toEqual({ success: true });
       sinon.assert.calledOnce(mockStatsD.increment);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.strapiWebhook.processed');
+      sinon.assert.calledWith(
+        mockStatsD.increment,
+        'cms.strapiWebhook.processed'
+      );
     });
 
     it('should return early when webhook is disabled', async () => {
@@ -353,10 +379,14 @@ describe('cms', () => {
           'cms.cacheReset.error.auth',
           webhookPayload.entry
         );
-        sinon.assert.calledWith(mockStatsD.increment, 'cms.cacheReset.error.auth', {
-          clientId: webhookPayload.entry.clientId,
-          entrypoint: webhookPayload.entry.entrypoint,
-        });
+        sinon.assert.calledWith(
+          mockStatsD.increment,
+          'cms.cacheReset.error.auth',
+          {
+            clientId: webhookPayload.entry.clientId,
+            entrypoint: webhookPayload.entry.entrypoint,
+          }
+        );
         expect(err.message).toBe('Invalid authorization header');
       }
     });
@@ -413,12 +443,16 @@ describe('cms', () => {
       sinon.assert.calledOnce(mockCmsManager.fetchCMSData);
       sinon.assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
       sinon.assert.calledOnce(log.info);
-      sinon.assert.calledWith(log.info, 'cms.getLocalizedConfig.baseConfigOnly', {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        locale: 'es',
-        reason: 'localization-disabled',
-      });
+      sinon.assert.calledWith(
+        log.info,
+        'cms.getLocalizedConfig.baseConfigOnly',
+        {
+          clientId: 'sync-client',
+          entrypoint: 'desktop-sync',
+          locale: 'es',
+          reason: 'localization-disabled',
+        }
+      );
     });
 
     it('should fetch and merge localized content for non-English locale', async () => {
@@ -457,7 +491,10 @@ describe('cms', () => {
       const response = await route.handler(request);
 
       sinon.assert.calledOnce(mockLocalization.fetchLocalizedFtlWithFallback);
-      sinon.assert.calledWith(mockLocalization.fetchLocalizedFtlWithFallback, 'es');
+      sinon.assert.calledWith(
+        mockLocalization.fetchLocalizedFtlWithFallback,
+        'es'
+      );
       sinon.assert.calledOnce(mockLocalization.mergeConfigs);
       sinon.assert.calledWith(
         mockLocalization.mergeConfigs,
@@ -474,7 +511,10 @@ describe('cms', () => {
       expect(response.name).toBe('Firefox Desktop Sync');
 
       sinon.assert.calledOnce(mockStatsD.increment);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLocalizedConfig.success');
+      sinon.assert.calledWith(
+        mockStatsD.increment,
+        'cms.getLocalizedConfig.success'
+      );
     });
 
     it('should fallback to base config when FTL content is empty', async () => {
@@ -490,11 +530,15 @@ describe('cms', () => {
 
       expect(response).toEqual(baseConfig);
       sinon.assert.calledOnce(log.info);
-      sinon.assert.calledWith(log.info, 'cms.getLocalizedConfig.fallbackToBase', {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        locale: 'fr',
-      });
+      sinon.assert.calledWith(
+        log.info,
+        'cms.getLocalizedConfig.fallbackToBase',
+        {
+          clientId: 'sync-client',
+          entrypoint: 'desktop-sync',
+          locale: 'fr',
+        }
+      );
       sinon.assert.calledOnce(mockStatsD.increment);
       sinon.assert.calledWith(
         mockStatsD.increment,
@@ -540,6 +584,51 @@ describe('cms', () => {
     });
   });
 
+  describe('GET /cms/default', () => {
+    beforeEach(() => {
+      route = getRoute(routes, '/cms/default', 'GET');
+      mockDefaultCmsManager.fetchDefault.reset();
+      mockStatsD.increment.resetHistory();
+    });
+
+    it('returns the default payload when present', async () => {
+      mockDefaultCmsManager.fetchDefault.resolves({
+        default: {
+          promoQrImageUrl: 'https://cdn.example/qr.svg',
+        },
+      });
+      request = { log };
+
+      const response = await route.handler(request);
+
+      expect(response).toEqual({
+        promoQrImageUrl: 'https://cdn.example/qr.svg',
+      });
+      sinon.assert.calledOnce(mockDefaultCmsManager.fetchDefault);
+      sinon.assert.calledWith(mockStatsD.increment, 'cms.getDefault.success');
+    });
+
+    it('returns {} when no entry exists', async () => {
+      mockDefaultCmsManager.fetchDefault.resolves({ default: null });
+      request = { log };
+
+      const response = await route.handler(request);
+
+      expect(response).toEqual({});
+      sinon.assert.calledWith(mockStatsD.increment, 'cms.getDefault.empty');
+    });
+
+    it('returns {} and logs on manager error', async () => {
+      mockDefaultCmsManager.fetchDefault.rejects(new Error('boom'));
+      request = { log };
+
+      const response = await route.handler(request);
+
+      expect(response).toEqual({});
+      sinon.assert.calledWith(mockStatsD.increment, 'cms.getDefault.error');
+    });
+  });
+
   describe('GET /cms/legal-terms', () => {
     beforeEach(() => {
       route = getRoute(routes, '/cms/legal-terms', 'GET');
@@ -577,7 +666,10 @@ describe('cms', () => {
         clientId
       );
       expect(response).toEqual(mockLegalTermsResult);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+      sinon.assert.calledWith(
+        mockStatsD.increment,
+        'cms.getLegalTerms.success'
+      );
     });
 
     it('should return legal terms when found by service', async () => {
@@ -595,9 +687,15 @@ describe('cms', () => {
       const response = await route.handler(request);
 
       sinon.assert.calledOnce(mockLegalTermsManager.getLegalTermsByService);
-      sinon.assert.calledWith(mockLegalTermsManager.getLegalTermsByService, service);
+      sinon.assert.calledWith(
+        mockLegalTermsManager.getLegalTermsByService,
+        service
+      );
       expect(response).toEqual(mockLegalTermsResult);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+      sinon.assert.calledWith(
+        mockStatsD.increment,
+        'cms.getLegalTerms.success'
+      );
     });
 
     it('should return null when no legal terms found', async () => {
@@ -676,10 +774,19 @@ describe('cms', () => {
       const response = await route.handler(request);
 
       sinon.assert.calledOnce(mockLocalization.fetchLocalizedFtlWithFallback);
-      sinon.assert.calledWith(mockLocalization.fetchLocalizedFtlWithFallback, locale);
+      sinon.assert.calledWith(
+        mockLocalization.fetchLocalizedFtlWithFallback,
+        locale
+      );
       sinon.assert.calledOnce(mockLocalization.mergeConfigs);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.localized');
+      sinon.assert.calledWith(
+        mockStatsD.increment,
+        'cms.getLegalTerms.success'
+      );
+      sinon.assert.calledWith(
+        mockStatsD.increment,
+        'cms.getLegalTerms.localized'
+      );
       expect(response.label).toBe('Conditions générales');
     });
 
@@ -702,8 +809,14 @@ describe('cms', () => {
       const response = await route.handler(request);
 
       expect(response).toEqual(mockLegalTermsResult);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.fallback');
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+      sinon.assert.calledWith(
+        mockStatsD.increment,
+        'cms.getLegalTerms.fallback'
+      );
+      sinon.assert.calledWith(
+        mockStatsD.increment,
+        'cms.getLegalTerms.success'
+      );
     });
 
     it('should return base legal terms when localization is disabled', async () => {
@@ -726,7 +839,10 @@ describe('cms', () => {
 
       expect(response).toEqual(mockLegalTermsResult);
       sinon.assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+      sinon.assert.calledWith(
+        mockStatsD.increment,
+        'cms.getLegalTerms.success'
+      );
 
       mockConfig.cmsl10n.enabled = true;
     });

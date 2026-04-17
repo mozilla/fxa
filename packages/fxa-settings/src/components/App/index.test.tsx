@@ -86,6 +86,11 @@ jest.mock('../../models', () => ({
   useAuthClient: jest.fn(() => ({
     sessionStatus: mockSessionStatus,
   })),
+  useDefaultCmsState: jest.fn(() => ({
+    loading: false,
+    error: undefined,
+    data: undefined,
+  })),
 }));
 
 jest.mock('react-markdown', () => {});

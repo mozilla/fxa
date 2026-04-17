@@ -102,6 +102,16 @@ export interface RelierLegalTerms {
   fontSize: 'default' | 'medium' | 'large';
 }
 
+/**
+ * CMS content for the catch-all "default" context — shown on pages without a
+ * relying party clientId/entrypoint (e.g. the mobile QR promo on top-level
+ * sign-in/sign-up going to Settings). Fetched from `/v1/cms/default`. Add
+ * fields here as more non-RP overrides are introduced.
+ */
+export interface DefaultCmsContent {
+  promoQrImageUrl?: string | null;
+}
+
 export interface RelierCmsInfo {
   name: string;
   clientId: string;
@@ -124,4 +134,6 @@ export interface RelierCmsInfo {
   SigninRecoveryChoicePage?: PageRelierCmsInfo;
   SigninRecoveryCodePage?: PageRelierCmsInfo;
   SigninRecoveryPhonePage?: PageRelierCmsInfo;
+
+  PostVerifySetPasswordPage?: PageRelierCmsInfo;
 }

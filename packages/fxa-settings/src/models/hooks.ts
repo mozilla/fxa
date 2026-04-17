@@ -26,6 +26,7 @@ import {
   RelierSubscriptionInfo,
   RelierCmsInfo,
   RelierLegalTerms,
+  DefaultCmsContent,
 } from './integrations';
 import * as Sentry from '@sentry/browser';
 import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
@@ -475,6 +476,94 @@ export function useCmsInfoState() {
     config.cms?.l10nEnabled,
     currentLocale,
   ]);
+
+  return state;
+}
+
+export function useDefaultCmsState({
+  enabled = true,
+}: { enabled?: boolean } = {}) {
+  const { config } = useContext(AppContext);
+  if (!config) {
+    throw new Error('Are you forgetting an AppContext.Provider?');
+  }
+
+  const authUrl = config?.servers.auth.url;
+  const { currentLocale } = useDynamicLocalization();
+
+  const [state, setState] = useState<
+    FetchState<{ defaultCms: DefaultCmsContent | undefined }>
+  >({
+    loading: false,
+    error: undefined,
+    data: undefined,
+  });
+
+  useEffect(() => {
+    if (!enabled || !config.cms.enabled) {
+      setState({ loading: false, error: undefined, data: undefined });
+      return;
+    }
+
+    let mounted = true;
+    setState((prev) => ({ ...prev, loading: true }));
+
+    const fetchDefaultCms = async () => {
+      try {
+        const response = await fetch(`${authUrl}/v1/cms/default`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept-Language': currentLocale,
+          },
+        });
+
+        if (!response.ok) {
+          Sentry.captureMessage('Non-OK response from CMS fetchDefault.', {
+            tags: { area: 'useDefaultCmsState' },
+            extra: { status: response.status },
+          });
+          if (mounted) {
+            setState({
+              loading: false,
+              error: new Error(
+                `CMS default fetch failed (status ${response.status})`
+              ),
+              data: undefined,
+            });
+          }
+          return;
+        }
+
+        const defaultCms: DefaultCmsContent | undefined = await response.json();
+
+        if (mounted) {
+          setState({
+            loading: false,
+            error: undefined,
+            data: { defaultCms },
+          });
+        }
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { area: 'useDefaultCmsState' },
+        });
+        if (mounted) {
+          setState({
+            loading: false,
+            error: error instanceof Error ? error : new Error('Unknown error'),
+            data: undefined,
+          });
+        }
+      }
+    };
+
+    fetchDefaultCms();
+
+    return () => {
+      mounted = false;
+    };
+  }, [authUrl, enabled, config.cms.enabled, currentLocale]);
 
   return state;
 }

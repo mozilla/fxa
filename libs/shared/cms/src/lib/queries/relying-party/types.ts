@@ -79,6 +79,7 @@ export interface RelyingPartyResult {
   SigninRecoveryChoicePage?: Page;
   SigninRecoveryCodePage?: Page;
   SigninRecoveryPhonePage?: Page;
+  PostVerifySetPasswordPage?: Page;
   shared: Shared;
   NewDeviceLoginEmail?: Email;
   VerifyLoginCodeEmail?: Email;
