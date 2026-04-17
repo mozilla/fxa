@@ -81,6 +81,11 @@ export const createDB = (
   const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } =
     config.tokenPruning;
 
+  // Configure the shared model's expiry from the server's config
+  if (MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
+    RawSessionToken.sessionExpiryMs = MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE;
+  }
+
   class DB {
     redis: any;
     knex: Knex | null;
