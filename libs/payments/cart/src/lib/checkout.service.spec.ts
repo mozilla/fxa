@@ -2802,5 +2802,22 @@ describe('CheckoutService', () => {
 
       expect(result).toEqual(mockFreeTrial);
     });
+
+    it('returns null when an error is thrown', async () => {
+      const mockError = new Error('CMS fetch failed');
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockNimbusResult);
+      jest
+        .spyOn(productConfigurationManager, 'getFreeTrial')
+        .mockRejectedValue(mockError);
+
+      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(result).toBeNull();
+    });
   });
 });

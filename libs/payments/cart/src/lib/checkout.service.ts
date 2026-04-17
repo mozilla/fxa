@@ -991,46 +991,59 @@ export class CheckoutService {
       return null;
     }
 
-    const [nimbusResult, freeTrialUtil] = await Promise.all([
-      this.nimbusManager.fetchExperiments({
-        nimbusUserId: this.nimbusManager.generateNimbusId(uid),
-        preview: false,
-      }),
-      this.productConfigurationManager.getFreeTrial(offeringConfigId),
-    ]);
+    try {
+      const [nimbusResult, freeTrialUtil] = await Promise.all([
+        this.nimbusManager.fetchExperiments({
+          nimbusUserId: this.nimbusManager.generateNimbusId(uid),
+          preview: false,
+        }),
+        this.productConfigurationManager.getFreeTrial(offeringConfigId),
+      ]);
 
-    if (
-      !nimbusResult?.Features?.['free-trial-feature']?.enabled
-    ) {
+      if (
+        !nimbusResult?.Features?.['free-trial-feature']?.enabled
+      ) {
+        return null;
+      }
+
+      const freeTrials = freeTrialUtil.getResult();
+      if (!freeTrials) {
+        return null;
+      }
+
+      const matchingTrial = freeTrials.find(
+        (trial) =>
+          trial.trialLengthDays > 0 &&
+          trial.countries.some((country) => country.slice(0, 2) === countryCode) &&
+          trial.intervals.includes(interval)
+      );
+
+      if (!matchingTrial) {
+        return null;
+      }
+
+      const isBlockedByCooldown = await this.freeTrialManager.isBlockedByCooldown(
+          uid,
+          matchingTrial.internalName,
+          matchingTrial.cooldownPeriodMonths
+        );
+
+      if (isBlockedByCooldown) {
+        return null;
+      }
+
+      return matchingTrial;
+    } catch (error) {
+      Sentry.captureException(error, {
+        extra: {
+          uid: uid,
+          offeringConfigId: offeringConfigId,
+          countryCode: countryCode,
+          interval: interval,
+          eligibilityStatus: eligibilityStatus,
+        },
+      });
       return null;
     }
-
-    const freeTrials = freeTrialUtil.getResult();
-    if (!freeTrials) {
-      return null;
-    }
-
-    const matchingTrial = freeTrials.find(
-      (trial) =>
-        trial.trialLengthDays > 0 &&
-        trial.countries.some((country) => country.slice(0, 2) === countryCode) &&
-        trial.intervals.includes(interval)
-    );
-
-    if (!matchingTrial) {
-      return null;
-    }
-
-    const isBlockedByCooldown = await this.freeTrialManager.isBlockedByCooldown(
-      uid,
-      matchingTrial.internalName,
-      matchingTrial.cooldownPeriodMonths
-    );
-
-    if (isBlockedByCooldown) {
-      return null;
-    }
-
-    return matchingTrial;
   }
 }
