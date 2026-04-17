@@ -105,20 +105,28 @@ Output JSON array with fields: severity, category ("Logic/Bugs"), subcategory, f
 - model: opus
 - description: FXA test quality review
 
-Tell this agent it is a QA engineer who understands FXA's testing patterns and common flakiness causes. It should:
+Tell this agent it is a QA engineer who understands FXA's testing patterns and common flakiness causes. Tell it to read `.claude/skills/fxa-testing-shared/GUIDELINES.md` before reviewing — that file is the authoritative rule set; the bullets below are the FXA-specific triggers to apply on top of it.
 
 - Check new auth-server source files have co-located `*.spec.ts`; fxa-settings uses `*.test.tsx` convention
 - Flag new Mocha tests — all new tests must be Jest
 - Flag `proxyquire` in new code — should use `jest.mock()`
-- Check mock quality: tests that only assert output matches what the mock returns (tautological)
+- Check mock quality: tests that only assert output matches what the mock returns (tautological — mock returns `X`, assertion checks for `X`, no real logic in between)
 - Verify interaction assertions: `.toHaveBeenCalledWith()` on mocked dependencies, not just checking return values
-- Flag `jest.clearAllMocks()` in `beforeEach` — unnecessary, `clearMocks: true` is global
+- Flag `jest.clearAllMocks()` in `beforeEach` only when the package's `jest.config.*` sets `clearMocks: true` (currently `fxa-auth-server` and `fxa-profile-server`). In other packages it is required to reset mock state between tests — do not recommend removing it without verifying the project config.
+- Flag `mockClear`/`mockReset`/`jest.clearAllMocks`/`jest.resetAllMocks` calls **inside** an `it()` body — these are usually band-aids covering up state leaking from prior tests or shared setup; the fix is proper isolation, not inline clearing
 - Check for shared mutable state between tests, missing `await`, `setTimeout` in tests
 - Prefer `jest.useFakeTimers()` and `jest.setSystemTime()` over `setTimeout` or mocking `Date.now` directly
+- Flag manually bumped per-test timeouts (`it('...', async () => {...}, 30_000)`, `jest.setTimeout(30_000)` for a single file) — usually masks a real timer or unmocked I/O dependency
 - Flag patterns likely to cause open handle warnings (unclosed connections, uncleared timers)
 - Flag missing `act()` wrapping in React test state updates
-- Flag over-mocking: mocking internal functions in the same package instead of at system boundaries
+- Flag over-mocking: mocking internal functions in the same package instead of at system boundaries; mocking too aggressively obscures the behavior under test
+- Flag untyped mocks (`const mockFoo = { bar: jest.fn() }`) where the real interface could be used — typed mocks (`jest.Mocked<T>`) catch contract drift on the unit under test
+- Flag soft matchers used to make tests pass: `expect.anything()`, `expect.any(Object)`, broad `expect.objectContaining({})` with one trivial key. `expect.any(<Type>)` is fine for genuinely non-deterministic fields (timestamps, random IDs)
+- Flag `forEach` / `for` loops with `expect` calls inside a single `it()` body — use `it.each` so each case is named and independently reported
+- Flag committed `it.only`, `describe.only`, `fit`, `fdescribe` (silently skips the rest of the suite — CRITICAL/HIGH if it lands in CI). For `it.skip`, `xit`, `xdescribe`, `it.todo`: only flag when there is no adjacent comment explaining the skip — a justified skip with a Jira/issue reference is acceptable per the guidelines
 - Flag when there is a jira ticket number in a test name. We do not put tickets in test names.
+- For `*.test.tsx` files in `fxa-settings` and other React packages: also apply the React testing patterns in `.claude/skills/fxa-check-react/SKILL.md` Section 5 (queries by role, `userEvent` over `fireEvent`, no asserting on instances/refs, snapshot scope).
+- **Layer / shift-left:** flag route handler tests or React component tests that branch-cover business logic via repeated fixtures (more than ~3 tests differing only in input shape). The right fix is to extract the rule into a pure function/service and unit-test it directly; route/component tests should cover wiring (auth, request/response shape, error propagation, rendering), not internal business branching. See "Test layers and shift-left" in `.claude/skills/fxa-testing-shared/GUIDELINES.md`.
 
 Output JSON array with fields: severity, category ("Test Quality"), subcategory, file, line, issue, recommendation.
 
