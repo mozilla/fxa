@@ -110,8 +110,6 @@ describe('isWebAuthnLevel3Supported', () => {
   });
 });
 
-// ─── createCredential ─────────────────────────────────────────────────────────
-
 describe('createCredential', () => {
   let mockPKC: Record<string, jest.Mock>;
   let mockCreate: jest.Mock;
@@ -183,9 +181,34 @@ describe('createCredential', () => {
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
-});
 
-// ─── getCredential ────────────────────────────────────────────────────────────
+  it('resolves via duck-typed toJSON() when credential is a plain object (e.g. 1Password)', async () => {
+    // 1Password returns a plain object that mimics PublicKeyCredential
+    // but is not an actual instance of the class.
+    const proxyCredential = {
+      id: mockCredentialJSON.id,
+      rawId: new ArrayBuffer(8),
+      type: 'public-key',
+      authenticatorAttachment: 'platform',
+      response: {},
+      getClientExtensionResults: jest.fn().mockReturnValue({}),
+      toJSON: jest.fn().mockReturnValue(mockCredentialJSON),
+    };
+    mockCreate.mockResolvedValue(proxyCredential);
+
+    const result = await createCredential(mockCreationOptions);
+    expect(result).toEqual(mockCredentialJSON);
+    expect(proxyCredential.toJSON).toHaveBeenCalled();
+  });
+
+  it('throws when credential lacks toJSON()', async () => {
+    mockCreate.mockResolvedValue({ id: 'no-toJSON', type: 'public-key' });
+    await expect(createCredential(mockCreationOptions)).rejects.toMatchObject({
+      name: 'UnknownError',
+      message: expect.stringContaining('without toJSON()'),
+    });
+  });
+});
 
 describe('getCredential', () => {
   let mockPKC: Record<string, jest.Mock>;
@@ -257,5 +280,30 @@ describe('getCredential', () => {
     await expect(getCredential(mockRequestOptions)).rejects.toBeDefined();
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
+  });
+
+  it('resolves via duck-typed toJSON() when credential is a plain object (e.g. 1Password)', async () => {
+    const proxyCredential = {
+      id: mockCredentialJSON.id,
+      rawId: new ArrayBuffer(8),
+      type: 'public-key',
+      authenticatorAttachment: 'platform',
+      response: {},
+      getClientExtensionResults: jest.fn().mockReturnValue({}),
+      toJSON: jest.fn().mockReturnValue(mockCredentialJSON),
+    };
+    mockGet.mockResolvedValue(proxyCredential);
+
+    const result = await getCredential(mockRequestOptions);
+    expect(result).toEqual(mockCredentialJSON);
+    expect(proxyCredential.toJSON).toHaveBeenCalled();
+  });
+
+  it('throws when credential lacks toJSON()', async () => {
+    mockGet.mockResolvedValue({ id: 'no-toJSON', type: 'public-key' });
+    await expect(getCredential(mockRequestOptions)).rejects.toMatchObject({
+      name: 'UnknownError',
+      message: expect.stringContaining('without toJSON()'),
+    });
   });
 });
