@@ -46,7 +46,7 @@ export async function generateWebauthnRegistrationOptions(
     rpID: config.rpId,
     userName: input.email,
     userDisplayName: input.email,
-    userID: input.uid,
+    userID: new Uint8Array(input.uid),
     // Challenge must be passed as a Buffer (Uint8Array) so that simplewebauthn
     // base64url-encodes the raw bytes. Passing a string causes the library to
     // UTF-8-encode the text first, producing a different base64url value than
@@ -226,7 +226,7 @@ export async function verifyWebauthnAuthenticationResponse(
 ): Promise<AuthenticationVerificationResult> {
   const credential: WebAuthnCredential = {
     id: input.credentialId.toString('base64url'),
-    publicKey: input.publicKey,
+    publicKey: new Uint8Array(input.publicKey),
     counter: input.signCount,
   };
 
