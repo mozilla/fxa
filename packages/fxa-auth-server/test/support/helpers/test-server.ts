@@ -116,7 +116,7 @@ export function getMailHelperConfig(
 
 export async function waitForServer(
   url: string,
-  maxAttempts = 60,
+  maxAttempts = 6,
   delayMs = 1000
 ): Promise<void> {
   for (let i = 0; i < maxAttempts; i++) {
@@ -191,17 +191,31 @@ export function spawnAuthServer(
       env,
       stdio: printLogs ? 'inherit' : ['ignore', 'pipe', 'pipe'],
     }
-  );
+  ) as unknown as import('child_process').ChildProcess;
 
   // Capture last 50KB of stderr for diagnostics when the server fails to start.
   const MAX_STDERR_BYTES = 50 * 1024;
   const stderrChunks: string[] = [];
   let stderrBytes = 0;
   if (!printLogs) {
-    // Consume stdout to prevent backpressure from stalling the server.
-    // stdout must be piped (not ignored) to avoid EPIPE → log error → shutdown
-    // in key_server.js.
-    serverProcess.stdout?.resume();
+    // Forward stdout to parent stderr filtered to error-level lines.
+    // Auth server uses mozlog JSON; forwarding lets us see SMTP/mailer errors
+    // that would otherwise be silently discarded. The resume() below is kept
+    // to consume any buffered data that doesn't match the filter.
+    serverProcess.stdout?.on('data', (chunk: Buffer) => {
+      const lines = chunk.toString().split('\n');
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const parsed = JSON.parse(line);
+          if (parsed.level === 'error' || parsed.severity === 'ERROR') {
+            process.stderr.write('[auth-server] ' + line + '\n');
+          }
+        } catch {
+          // not JSON, ignore
+        }
+      }
+    });
     serverProcess.stderr?.on('data', (chunk: Buffer) => {
       const str = chunk.toString();
       stderrChunks.push(str);

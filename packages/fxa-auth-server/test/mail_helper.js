@@ -111,9 +111,17 @@ module.exports = (printLogs) => {
           } else if (mfa) {
             console.log('\x1B[36mMfa code:', mfa, '\x1B[39m');
           } else if (plSignup) {
-            console.log('\x1B[35mPasswordless signup code:', plSignup, '\x1B[39m');
+            console.log(
+              '\x1B[35mPasswordless signup code:',
+              plSignup,
+              '\x1B[39m'
+            );
           } else if (plSignin) {
-            console.log('\x1B[35mPasswordless signin code:', plSignin, '\x1B[39m');
+            console.log(
+              '\x1B[35mPasswordless signin code:',
+              plSignin,
+              '\x1B[39m'
+            );
           } else if (TEMPLATES_WITH_NO_CODE.has(template)) {
             console.log(`Notification email: ${template}`);
           } else {
@@ -192,6 +200,14 @@ module.exports = (printLogs) => {
         handler: async function (request) {
           delete users[decodeURIComponent(request.params.email)];
           return {};
+        },
+      },
+      {
+        // Debug endpoint: returns all email keys currently stored (non-blocking)
+        method: 'GET',
+        path: '/mail',
+        handler: async function () {
+          return Object.keys(users);
         },
       },
     ]);

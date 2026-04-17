@@ -8,6 +8,7 @@ process.env.NODE_ENV = 'dev';
 
 module.exports = {
   ...baseConfig,
+  displayName: 'fxa-auth-server-integration',
 
   moduleNameMapper: {
     ...baseConfig.moduleNameMapper,
@@ -23,7 +24,11 @@ module.exports = {
   // oauth_api.in.spec.ts uses its own in-process server (server.inject)
   // and must run separately to avoid client-config DB race conditions
   // with the shared server started by globalSetup.
-  testPathIgnorePatterns: ['/node_modules/', 'oauth_api\\.in\\.spec\\.ts', 'test/scripts'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    'oauth_api\\.in\\.spec\\.ts',
+    'test/scripts',
+  ],
 
   testTimeout: 120000,
   maxWorkers: 4,
@@ -34,9 +39,7 @@ module.exports = {
   setupFiles: ['<rootDir>/test/support/jest-setup-env.ts'],
   setupFilesAfterEnv: ['<rootDir>/test/support/jest-setup-integration.ts'],
 
-  collectCoverageFrom: [
-    'lib/**/*.{ts,js}',
-    '!lib/**/*.spec.{ts,js}',
-  ],
-  coverageDirectory: '../../artifacts/coverage/fxa-auth-server-jest-integration',
+  collectCoverageFrom: ['lib/**/*.{ts,js}', '!lib/**/*.spec.{ts,js}'],
+  coverageDirectory:
+    '../../artifacts/coverage/fxa-auth-server-jest-integration',
 };

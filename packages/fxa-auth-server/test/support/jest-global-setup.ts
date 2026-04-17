@@ -28,6 +28,7 @@ const AUTH_SERVER_ROOT = path.resolve(__dirname, '../..');
 const TMP_DIR = path.join(AUTH_SERVER_ROOT, 'test', 'support', '.tmp');
 const MAIL_HELPER_PID_FILE = path.join(TMP_DIR, 'mail_helper.pid');
 const SHARED_SERVER_PID_FILE = path.join(TMP_DIR, 'shared_server.pid');
+export const MAIL_HELPER_ENV_FILE = path.join(TMP_DIR, 'mail_helper_env.json');
 const VERSION_JSON_PATH = path.join(AUTH_SERVER_ROOT, 'config', 'version.json');
 const VERSION_JSON_MARKER = path.join(TMP_DIR, 'version_json_created');
 const MAIL_HELPER_HOST = '127.0.0.1';
@@ -171,6 +172,19 @@ export default async function globalSetup(): Promise<void> {
     fs.mkdirSync(TMP_DIR, { recursive: true });
   }
 
+  // Write dynamically allocated ports to a file so test worker processes
+  // (which don't inherit globalSetup's process.env) can pick them up via
+  // jest-setup-env.ts.
+  fs.writeFileSync(
+    MAIL_HELPER_ENV_FILE,
+    JSON.stringify({
+      MAILER_HOST: process.env.MAILER_HOST,
+      MAILER_PORT: process.env.MAILER_PORT,
+      SMTP_HOST: process.env.SMTP_HOST,
+      SMTP_PORT: process.env.SMTP_PORT,
+    })
+  );
+
   killExistingProcess(MAIL_HELPER_PID_FILE, 'mail_helper');
 
   const mailHelperProcess = spawn(
@@ -253,6 +267,10 @@ export default async function globalSetup(): Promise<void> {
       },
     },
     profileServer: { url: sharedProfileUrl },
+    // dev.json sets smtp.user/password to 'local', which causes nodemailer to
+    // attempt SMTP AUTH against the test mail_helper (simplesmtp), which does
+    // not advertise AUTH capabilities. Clear them so nodemailer sends without auth.
+    smtp: { user: '', password: '' },
   };
   const sharedConfigPath = createTempConfig(
     sharedOverrides,
@@ -269,14 +287,24 @@ export default async function globalSetup(): Promise<void> {
   }
   sharedSpawned.process.unref();
 
+  let elapsed = 0;
+  const progressInterval = setInterval(() => {
+    elapsed += 5;
+    console.log(
+      `[Jest Global Setup] Still waiting for auth server on port ${SHARED_SERVER_PORT}... (${elapsed}s elapsed)`
+    );
+  }, 5000);
+
   try {
     await waitForServer(sharedPublicUrl);
+    clearInterval(progressInterval);
     console.log(
       '[Jest Global Setup] Shared auth server started (PID:',
       sharedSpawned.process.pid,
       ')'
     );
   } catch (err) {
+    clearInterval(progressInterval);
     const stderr = sharedSpawned.stderrChunks.join('');
     sharedSpawned.process.kill();
     if (stderr) {
@@ -284,7 +312,14 @@ export default async function globalSetup(): Promise<void> {
         `[Jest Global Setup] Shared server stderr:\n${stderr.slice(-2000)}`
       );
     }
-    throw err;
+    const needsInfra =
+      /ECONNREFUSED|ER_ACCESS_DENIED|ETIMEDOUT|redis|mysql/i.test(stderr);
+    const hint = needsInfra
+      ? '\n\nRequired infrastructure (MySQL, Redis) does not appear to be running. Run: yarn start infrastructure'
+      : '\n\nIf infrastructure is not running, start it with: yarn start infrastructure';
+    throw new Error(
+      `[Jest Global Setup] Auth server on port ${SHARED_SERVER_PORT} failed to become ready.${hint}`
+    );
   }
 
   // Install signal handlers so Ctrl+C / SIGTERM cleans up all child processes

@@ -178,6 +178,14 @@ async function run(config) {
     const promotionCodeManager = new PromotionCodeManager(stripeClient);
     Container.set(PromotionCodeManager, promotionCodeManager);
 
+    console.error('[startup.cms]', {
+      cmsEnabled: config.cms.enabled,
+      graphqlApiUri: config.cms.strapiClient?.graphqlApiUri || '(empty)',
+      apiKeySet: !!config.cms.strapiClient?.apiKey,
+      firestoreCacheCollectionName:
+        config.cms.strapiClient?.firestoreCacheCollectionName || '(empty)',
+    });
+
     if (
       config.cms.enabled ||
       (config.cms.strapiClient &&
@@ -189,7 +197,12 @@ async function run(config) {
       const { graphqlApiUri, apiKey, firestoreCacheCollectionName } =
         strapiClientConfig;
       if (!(graphqlApiUri && apiKey && firestoreCacheCollectionName)) {
-        throw new Error('Missing required configuration for CMS Strapi Client');
+        throw new Error(
+          `Missing required configuration for CMS Strapi Client. ` +
+            `graphqlApiUri=${graphqlApiUri ? '(set)' : '(empty)'}, ` +
+            `apiKey=${apiKey ? '(set)' : '(empty)'}, ` +
+            `firestoreCacheCollectionName=${firestoreCacheCollectionName ? '(set)' : '(empty)'}`
+        );
       }
       const firestore = Container.get(AuthFirestore);
       const strapiClient = new StrapiClient(strapiClientConfig, firestore);
