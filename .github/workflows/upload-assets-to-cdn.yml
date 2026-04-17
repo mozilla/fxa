@@ -26,7 +26,7 @@ jobs:
           persist-credentials: false
 
       - name: Configure Stage AWS credentials
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::142069644989:role/fxa-content-cdn-stage-asset-upload
@@ -39,7 +39,7 @@ jobs:
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.pdf" --content-disposition attachment  assets/legal s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/legal
 
       - name: Configure Production AWS credentials
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::361527076523:role/fxa-content-cdn-prod-asset-upload
