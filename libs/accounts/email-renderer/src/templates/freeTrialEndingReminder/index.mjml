@@ -36,7 +36,7 @@
       <table width="100%">
         <tr style="line-height: 24px;">
           <td style="text-align: start;">
-            <span data-l10n-id="freeTrialEndingReminder-content-charge-subscription" data-l10n-args="<%= JSON.stringify({ productName, invoiceSubtotal }) %>">
+            <span data-l10n-id="freeTrialEndingReminder-content-charge-subscription-2" data-l10n-args="<%= JSON.stringify({ productName }) %>">
               <%- productName %> subscription
             </span>
           </td>
@@ -52,7 +52,7 @@
       <table width="100%">
         <tr style="line-height: 24px; border-top: 1px solid #E0E0E6;">
           <td style="text-align: start;">
-            <span data-l10n-id="freeTrialEndingReminder-content-charge-discount" data-l10n-args="<%= JSON.stringify({ invoiceDiscountAmount }) %>">
+            <span data-l10n-id="freeTrialEndingReminder-content-charge-discount-2">
               Discount
             </span>
           </td>
@@ -69,7 +69,7 @@
       <table width="100%">
         <tr style="line-height: 24px; border-top: 1px solid #E0E0E6;">
           <td style="text-align: start;">
-            <span data-l10n-id="freeTrialEndingReminder-content-charge-tax" data-l10n-args="<%= JSON.stringify({ invoiceTaxAmount }) %>">
+            <span data-l10n-id="freeTrialEndingReminder-content-charge-tax-2">
               Tax
             </span>
           </td>
@@ -85,7 +85,7 @@
       <table width="100%">
         <tr style="line-height: 24px; border-top: 1px solid grey;">
           <td style="text-align: start; padding: 4px 0;">
-            <span data-l10n-id="freeTrialEndingReminder-content-charge-total" data-l10n-args="<%= JSON.stringify({ serviceLastActiveDateOnly, invoiceTotal }) %>">
+            <span data-l10n-id="freeTrialEndingReminder-content-charge-total-2" data-l10n-args="<%= JSON.stringify({ serviceLastActiveDateOnly }) %>">
               <b>Total due on <%- serviceLastActiveDateOnly %></b>
             </span>
           </td>
