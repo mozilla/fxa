@@ -1,5 +1,6 @@
 import { ErrorEvent, EventHint } from '@sentry/core';
-import { SentryConfigOpts, tagFxaName } from '@fxa/shared/sentry-utils';
+import { SentryConfigOpts } from './models/sentry-config-opts';
+import { tagFxaName } from './utils';
 
 // Internal flag to keep track of whether or not sentry is initialized
 let sentryEnabled = false;
