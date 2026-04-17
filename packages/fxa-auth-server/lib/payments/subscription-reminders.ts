@@ -119,7 +119,8 @@ export class SubscriptionReminders {
         days: endingReminderOptions.freeTrialReminderDays,
       });
     }
-    this.freeTrialEndingReminderEnabled = endingReminderOptions.freeTrialEndRemindersEnabled;
+    this.freeTrialEndingReminderEnabled =
+      endingReminderOptions.freeTrialEndRemindersEnabled;
     this.paymentsNextUrl = endingReminderOptions.paymentsNextUrl;
     this.stripeHelper = stripeHelper;
     this.subscriptionManager = subscriptionManager;
@@ -313,7 +314,7 @@ export class SubscriptionReminders {
     if (
       await this.alreadySentEmail(
         uid,
-        Math.floor(subscription.current_period_end * 1000),
+        Math.floor(subscription.current_period_start * 1000),
         emailParams,
         'freeTrialEndingReminder'
       )
