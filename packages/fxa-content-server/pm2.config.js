@@ -25,6 +25,7 @@ apps.push({
     SENTRY_DSN: process.env.SENTRY_DSN_CONTENT,
     TRACING_SERVICE_NAME: 'fxa-content-server',
     TRACING_CLIENT_NAME: 'fxa-content-client',
+    TS_NODE_BASEURL: '../../',
   },
 });
 
