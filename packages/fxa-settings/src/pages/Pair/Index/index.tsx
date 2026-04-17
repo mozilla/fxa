@@ -22,6 +22,27 @@ import firefox, { FirefoxCommand } from '../../../lib/channels/firefox';
 import qrCodeFirefoxMobile from '../../../components/images/qr_code_firefox_mobile.svg';
 import mobileFirefoxIcon from './mobile-ff.svg';
 import mobileDownloadIcon from './mobile-download.svg';
+import { isSendTabEntrypoint } from '../../Signin/utils';
+import type { PairOrigin } from '../../Signin/utils';
+import type { SigninLocationState } from '../../Signin/interfaces';
+import type { Integration } from '../../../models';
+
+// Maps the reach-router location.state `origin` set by getSyncNavigate to the
+// banner copy shown at the top of the choice screen.
+const PAIR_BANNER_FTL: Record<PairOrigin, { id: string; fallback: string }> = {
+  signin: {
+    id: 'pair-signed-in-successfully',
+    fallback: 'Signed in successfully!',
+  },
+  signup: {
+    id: 'pair-account-created-now-syncing',
+    fallback: 'Account created. You’re now syncing.',
+  },
+  'post-verify-set-password': {
+    id: 'pair-password-created-now-syncing',
+    fallback: 'Password created. You’re now syncing.',
+  },
+};
 
 type MobileChoice = 'has-mobile' | 'needs-mobile';
 
@@ -35,12 +56,14 @@ type PairView = 'choice' | 'download';
 type PairProps = {
   error?: string;
   cmsInfo?: RelierCmsInfo;
+  integration?: Integration;
 };
 export const viewName = 'pair';
 
 const Pair = ({
   error,
   cmsInfo: cmsInfoProp,
+  integration,
 }: PairProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
@@ -111,10 +134,17 @@ const Pair = ({
     GleanMetrics.cadFireFox.view();
   }, [currentView]);
 
-  // Show success message only on choice screen (matches Backbone)
-  const showSuccessMessage =
-    currentView === 'choice' &&
-    new URLSearchParams(location.search).get('showSuccessMessage') === 'true';
+  // Show success banner only on the choice screen (matches Backbone). Drive
+  // the banner variant from reach-router location state set by getSyncNavigate
+  // — the Backbone-era query params are only read by Backbone /pair now.
+  const { origin: pairOrigin } = (location.state ?? {}) as Pick<
+    SigninLocationState,
+    'origin'
+  >;
+  const bannerCopy =
+    currentView === 'choice' && pairOrigin ? PAIR_BANNER_FTL[pairOrigin] : null;
+
+  const isSendTab = isSendTabEntrypoint(integration?.data.entrypoint);
 
   // Send the pair_preferences WebChannel command to Firefox.
   // This tells Firefox to open about:preferences#sync and start the pairing flow.
@@ -165,7 +195,7 @@ const Pair = ({
             id="cad-header"
             className="text-grey-400 mb-0 tablet:mb-5 text-base inline-block align-top tablet:mt-0"
           >
-            <FtlMsg id="pair-cad-header">Connect another device</FtlMsg>
+            <FtlMsg id="pair-cad-header-v2">Connect another device</FtlMsg>
           </h1>
         </header>
         <FtlMsg id="pair-download-subheader">
@@ -254,48 +284,63 @@ const Pair = ({
 
   return (
     <AppLayout cmsInfo={cmsInfo}>
-      <div id="cad-header">
-        <h1 className="mb-5 text-grey-400 text-base">
-          <FtlMsg id="pair-cad-header">Connect another device</FtlMsg>
-        </h1>
-        <FtlMsg id="pair-choice-subheader">
-          <h2
+      {bannerCopy && (
+        <Banner
+          type="success"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              bannerCopy.id,
+              bannerCopy.fallback
+            ),
+          }}
+        />
+      )}
+      {error && <Banner type="error" content={{ localizedHeading: error }} />}
+      {isSendTab ? (
+        <FtlMsg id="pair-choice-header-send-tab">
+          <h1
             ref={choiceHeaderRef}
             id="pair-header"
             data-testid="pair-header"
             className="card-header focus:outline-none"
             tabIndex={-1}
           >
-            Sync your Firefox experience
-          </h2>
+            Download or open Firefox on the device where you want to send tabs
+          </h1>
         </FtlMsg>
-      </div>
+      ) : (
+        <div id="cad-header">
+          <h1 className="mb-5 text-grey-400 text-base">
+            <FtlMsg id="pair-cad-header-v2">Connect another device</FtlMsg>
+          </h1>
+          <FtlMsg id="pair-choice-subheader">
+            <h2
+              ref={choiceHeaderRef}
+              id="pair-header"
+              data-testid="pair-header"
+              className="card-header focus:outline-none"
+              tabIndex={-1}
+            >
+              Sync your Firefox experience
+            </h2>
+          </FtlMsg>
+        </div>
+      )}
 
       <section>
-        {showSuccessMessage && (
-          <Banner
-            type="success"
-            content={{
-              localizedHeading: ftlMsgResolver.getMsg(
-                'pair-signed-in-successfully',
-                'Signed in successfully!'
-              ),
-            }}
-          />
+        {!isSendTab && (
+          <FtlMsg id="pair-choice-description">
+            <p className="my-3 text-base">
+              View your saved passwords, tabs, browsing history and more —
+              across all your devices.
+            </p>
+          </FtlMsg>
         )}
-        {error && <Banner type="error" content={{ localizedHeading: error }} />}
-
-        <FtlMsg id="pair-choice-description">
-          <p className="my-3 text-base">
-            View your saved passwords, tabs, browsing history and more — across
-            all your devices.
-          </p>
-        </FtlMsg>
 
         <form noValidate id="form-ask-mobile-status">
           <fieldset>
             <FtlMsg id="pair-choice-legend">
-              <legend className="mb-4 text-base font-semibold">
+              <legend className="mb-4 mt-3 text-base font-semibold">
                 Select an option to continue:
               </legend>
             </FtlMsg>

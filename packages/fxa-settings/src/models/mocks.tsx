@@ -31,8 +31,17 @@ export const MOCK_ACCOUNT: AccountData =
 export const MOCK_SESSION: Session =
   DEFAULT_APP_CONTEXT.session as unknown as Session;
 
-export function createHistoryWithQuery(path: string, queryParams?: string) {
+export function createHistoryWithQuery(
+  path: string,
+  queryParams?: string,
+  state?: object
+) {
   const history = createHistory(createMemorySource(path));
+  // navigate first (it resets search), then apply queryParams last so both
+  // state and search co-exist on the final location.
+  if (state !== undefined) {
+    history.navigate(path, { state });
+  }
   if (queryParams != null) {
     history.location.search = queryParams;
   }

@@ -24,6 +24,7 @@ import { AuthError } from '../../lib/oauth';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
 import AuthenticationMethods from '../../constants/authentication-methods';
+import config from '../../lib/config';
 
 interface NavigationTarget {
   to: string;
@@ -50,6 +51,8 @@ interface SyncNavigateOptions {
   origin?: string;
 }
 
+export type PairOrigin = NonNullable<SigninLocationState['origin']>;
+
 export function getSyncNavigate(
   queryParams: string,
   {
@@ -60,7 +63,11 @@ export function getSyncNavigate(
     signupSuccess,
     origin,
   }: SyncNavigateOptions = {}
-) {
+): {
+  to: string;
+  shouldHardNavigate: boolean;
+  locationState?: Pick<SigninLocationState, 'origin'>;
+} {
   const searchParams = new URLSearchParams(queryParams);
 
   if (isSignInWithThirdPartyAuth) {
@@ -91,6 +98,26 @@ export function getSyncNavigate(
     };
   }
 
+  // Narrow `origin` to the values /pair cares about. Backbone-era callers may
+  // pass `signupSuccess: true` instead of `origin: 'signup'` — honor both.
+  const pairOrigin: PairOrigin = signupSuccess
+    ? 'signup'
+    : origin === 'post-verify-set-password'
+      ? 'post-verify-set-password'
+      : 'signin';
+
+  // TODO: adjust this once `pairRoutes` rollout is 100% and Backbone /pair is retired.
+  // At that point /pair is always React and we can always soft-nav with
+  // location state — no config check, no query params needed.
+  if (config.showReactApp?.pairRoutes) {
+    const to = searchParams.toString() ? `/pair?${searchParams}` : '/pair';
+    return {
+      to,
+      shouldHardNavigate: false,
+      locationState: { origin: pairOrigin },
+    };
+  }
+
   searchParams.set('showSuccessMessage', 'true');
   if (signupSuccess) {
     searchParams.set('signupSuccess', 'true');
@@ -100,7 +127,6 @@ export function getSyncNavigate(
   }
   return {
     to: `/pair?${searchParams}`,
-    // TODO: don't hard navigate once Pair is converted to React
     shouldHardNavigate: true,
   };
 }
@@ -221,7 +247,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   // Send Tab entrypoints skip intermediate pages (inline recovery key, signup
   // confirmed sync) and go directly to the /pair choice screen.
   if (
-    isSendTabEntrypoint(navigationOptions.queryParams) &&
+    isSendTabEntrypoint(integration.data?.entrypoint) &&
     integration.isSync()
   ) {
     navigationOptions.showInlineRecoveryKeySetup = false;
@@ -491,13 +517,16 @@ const getNonOAuthNavigationTarget = async (
     origin,
   } = navigationOptions;
   if (integration.isSync()) {
+    const syncNav = getSyncNavigate(queryParams, {
+      showInlineRecoveryKeySetup,
+      isSignInWithThirdPartyAuth,
+      showSignupConfirmedSync,
+      origin,
+    });
+    const locationState = createSigninLocationState(navigationOptions);
     return {
-      ...getSyncNavigate(queryParams, {
-        showInlineRecoveryKeySetup,
-        isSignInWithThirdPartyAuth,
-        showSignupConfirmedSync,
-        origin,
-      }),
+      ...syncNav,
+      locationState: { ...locationState, ...(syncNav.locationState ?? {}) },
     };
   }
   // We don't want a hard navigate to `/settings` as it
@@ -517,16 +546,16 @@ const getOAuthNavigationTarget = async (
     navigationOptions.isSignInWithThirdPartyAuth &&
     navigationOptions.integration.isSync()
   ) {
+    const syncNav = getSyncNavigate(navigationOptions.queryParams, {
+      showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
+      isSignInWithThirdPartyAuth: navigationOptions.isSignInWithThirdPartyAuth,
+      showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
+      syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
+      origin: navigationOptions.origin,
+    });
     return {
-      ...getSyncNavigate(navigationOptions.queryParams, {
-        showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
-        isSignInWithThirdPartyAuth:
-          navigationOptions.isSignInWithThirdPartyAuth,
-        showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
-        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
-        origin: navigationOptions.origin,
-      }),
-      locationState,
+      ...syncNav,
+      locationState: { ...locationState, ...(syncNav.locationState ?? {}) },
     };
   }
 
@@ -573,21 +602,21 @@ const getOAuthNavigationTarget = async (
   }
 
   if (navigationOptions.integration.isSync()) {
+    const syncNav = getSyncNavigate(navigationOptions.queryParams, {
+      showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
+      isSignInWithThirdPartyAuth: navigationOptions.isSignInWithThirdPartyAuth,
+      showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
+      syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
+      origin: navigationOptions.origin,
+    });
     return {
-      ...getSyncNavigate(navigationOptions.queryParams, {
-        showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
-        isSignInWithThirdPartyAuth:
-          navigationOptions.isSignInWithThirdPartyAuth,
-        showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
-        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
-        origin: navigationOptions.origin,
-      }),
+      ...syncNav,
       oauthData: {
         code,
         redirect,
         state,
       },
-      locationState,
+      locationState: { ...locationState, ...(syncNav.locationState ?? {}) },
     };
   } else if (navigationOptions.integration.isFirefoxNonSync()) {
     return {
@@ -670,7 +699,6 @@ export async function ensureCanLinkAcountOrRedirect({
   return ok;
 }
 
-export function isSendTabEntrypoint(queryParams: string): boolean {
-  const entrypoint = new URLSearchParams(queryParams).get('entrypoint');
-  return entrypoint !== null && SEND_TAB_ENTRYPOINTS.has(entrypoint);
+export function isSendTabEntrypoint(entrypoint: string | null | undefined) {
+  return !!entrypoint && SEND_TAB_ENTRYPOINTS.has(entrypoint);
 }

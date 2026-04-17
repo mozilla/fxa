@@ -28,8 +28,13 @@
     {{/needsMobileConfirmed}}
 
     {{^needsMobileConfirmed}}
-      <h1 class="mb-5 text-grey-400 text-base" id="cad-header">{{#t}}Connect another device{{/t}}</h1>
-      <h2 id="pair-header" class="card-header focus:outline-none" tabindex="-1">{{#t}}Sync your Firefox experience{{/t}}</h2>
+      {{#isSendTab}}
+        <h1 id="pair-header" class="card-header focus:outline-none" tabindex="-1">{{#t}}Download or open Firefox on the device where you want to send tabs{{/t}}</h1>
+      {{/isSendTab}}
+      {{^isSendTab}}
+        <h1 class="mb-5 text-grey-400 text-base" id="cad-header">{{#t}}Connect another device{{/t}}</h1>
+        <h2 id="pair-header" class="card-header focus:outline-none" tabindex="-1">{{#t}}Sync your Firefox experience{{/t}}</h2>
+      {{/isSendTab}}
     {{/needsMobileConfirmed}}
 
     {{#needsMobileConfirmed}}
@@ -41,7 +46,9 @@
     <div class="error"></div>
 
     {{^needsMobileConfirmed}}
-      <p class="my-3 text-base">{{#t}}View your saved passwords, tabs, browsing history and more — across all your devices.{{/t}}</p>
+      {{^isSendTab}}
+        <p class="my-3 text-base">{{#t}}View your saved passwords, tabs, browsing history and more — across all your devices.{{/t}}</p>
+      {{/isSendTab}}
 
       <form novalidate id="form-ask-mobile-status">
         <fieldset>

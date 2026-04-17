@@ -77,6 +77,7 @@ describe('AuthComplete page', () => {
       getSupplicantMetadata: jest.Mock;
       complete: jest.Mock;
       destroy: jest.Mock;
+      data: { entrypoint?: string };
     };
 
     beforeEach(() => {
@@ -84,6 +85,7 @@ describe('AuthComplete page', () => {
         '../../../models/integrations/pairing-authority-integration'
       );
       mockIntegration = new PAI();
+      mockIntegration.data = { entrypoint: undefined };
     });
 
     it('calls complete() on mount and destroy() on unmount', () => {
@@ -93,6 +95,59 @@ describe('AuthComplete page', () => {
       expect(mockIntegration.complete).toHaveBeenCalled();
       unmount();
       expect(mockIntegration.destroy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Send Tab variant', () => {
+    it('renders the send-tab layout when entrypoint is a Send Tab entrypoint', () => {
+      const mockIntegration = {
+        getSupplicantMetadata: jest.fn().mockResolvedValue(null),
+        complete: jest.fn(),
+        destroy: jest.fn(),
+        data: { entrypoint: 'send-tab-toolbar-icon' },
+      };
+      renderWithLocalizationProvider(
+        <AuthComplete
+          integration={mockIntegration as unknown as Integration}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        />
+      );
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+        'You’re ready to send some tabs'
+      );
+      expect(
+        screen.getByText(/Firefox for macOS is connected\./)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'You’re free to instantly send open tabs, passwords, and bookmarks between devices.'
+        )
+      ).toBeInTheDocument();
+      // No CTA buttons or links in the Send Tab variant
+      expect(
+        screen.queryByRole('button', { name: 'See tabs from synced devices' })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('link', { name: 'Manage devices' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('renders the default layout for non-Send Tab entrypoints', () => {
+      const mockIntegration = {
+        getSupplicantMetadata: jest.fn().mockResolvedValue(null),
+        complete: jest.fn(),
+        destroy: jest.fn(),
+        data: { entrypoint: 'preferences' },
+      };
+      renderWithLocalizationProvider(
+        <AuthComplete
+          integration={mockIntegration as unknown as Integration}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        />
+      );
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+        'Device connected'
+      );
     });
   });
 });
