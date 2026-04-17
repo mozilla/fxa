@@ -96,6 +96,10 @@ const webpackConfig = {
         __dirname,
         '../../libs/vendored/incremental-encoder/src/index.ts'
       ),
+      '@fxa/shared/sentry-utils': path.resolve(
+        __dirname,
+        '../../libs/shared/sentry-utils/src/index.ts'
+      ),
     },
   },
 
