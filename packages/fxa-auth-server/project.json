@@ -3,9 +3,9 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/fxa-auth-server",
   "projectType": "application",
-  "tags": ["scope:server:auth"],
+  "tags": ["scope:server:auth", "type:core"],
   "targets": {
-    "test-unit": {
+    "test-unit-jest": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/artifacts/tests/fxa-auth-server"],
       "options": {
@@ -13,18 +13,14 @@
         "passWithNoTests": true
       }
     },
-    "test-integration": {
-      "executor": "nx:run-commands",
+    "test-integration-jest": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/artifacts/tests/fxa-auth-server-integration"
+      ],
       "options": {
-        "cwd": "packages/fxa-auth-server",
-        "command": "VERIFIER_VERSION=0 TEST_TYPE=integration scripts/test-ci.sh"
-      }
-    },
-    "test-scripts": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "packages/fxa-auth-server",
-        "command": "VERIFIER_VERSION=0 TEST_TYPE=scripts scripts/test-ci.sh"
+        "jestConfig": "packages/fxa-auth-server/jest.integration.config.js",
+        "passWithNoTests": true
       }
     }
   }
