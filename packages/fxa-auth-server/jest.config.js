@@ -25,6 +25,7 @@ module.exports = {
     ...pathsToModuleNameMapper(compilerOptions.paths, {
       prefix: '<rootDir>/../../',
     }),
+    '^fxa-shared/(.*)$': '<rootDir>/../fxa-shared/$1',
   },
   testTimeout: 10000,
   maxWorkers: 4,
