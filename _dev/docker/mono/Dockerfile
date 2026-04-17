@@ -42,7 +42,7 @@ USER app
 WORKDIR /fxa
 RUN rm -rf .venv \
     && python3 -m venv .venv \
-    && .venv/bin/pip install 'glean_parser~=14.5'
+    && .venv/bin/pip install 'glean_parser~=19.0'
 RUN _dev/docker/mono/build.sh $(cat packages/version.json | jq -r '.version.version')
 
 # Final image

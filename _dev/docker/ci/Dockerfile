@@ -12,7 +12,7 @@ WORKDIR /home/circleci
 COPY --chown=circleci:circleci project project
 WORKDIR /home/circleci/project
 RUN python3 -m venv .venv \
-    && .venv/bin/pip install 'glean_parser~=14.5'
+    && .venv/bin/pip install 'glean_parser~=19.0'
 RUN git rev-parse HEAD > base_ref;
 RUN cp yarn.lock yarn.lock.base;
 
@@ -49,5 +49,5 @@ COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/m
 COPY --chown=circleci:circleci project project
 WORKDIR /home/circleci/project
 RUN python3 -m venv .venv \
-    && .venv/bin/pip install 'glean_parser~=14.5'
+    && .venv/bin/pip install 'glean_parser~=19.0'
 COPY --chown=circleci:circleci install /usr/local/bin/
