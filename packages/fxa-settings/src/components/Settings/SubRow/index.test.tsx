@@ -15,7 +15,7 @@ import {
   MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER,
   MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
 } from '../../../pages/mocks';
-import { PasskeyRowData } from '.';
+import { Passkey } from 'fxa-auth-client/browser';
 import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { mockAuthClient } from './mock';
@@ -268,11 +268,15 @@ describe('BackupPhoneSubRow', () => {
 });
 
 describe('PasskeySubRow', () => {
-  const mockPasskey = {
-    id: 'passkey-1',
+  const mockPasskey: Passkey = {
+    credentialId: 'passkey-1',
     name: 'MacBook Pro',
     createdAt: new Date('2026-01-01').getTime(),
-    lastUsed: new Date('2026-02-01').getTime(),
+    lastUsedAt: new Date('2026-02-01').getTime(),
+    transports: ['internal'],
+    aaguid: 'aaguid-1',
+    backupEligible: true,
+    backupState: true,
     prfEnabled: true,
   };
 
@@ -285,7 +289,7 @@ describe('PasskeySubRow', () => {
   });
 
   const renderPasskeySubRow = (
-    passkey: PasskeyRowData = mockPasskey,
+    passkey: Passkey = mockPasskey,
     deletePasskey = mockDeletePasskey
   ) => {
     return render(
@@ -307,7 +311,7 @@ describe('PasskeySubRow', () => {
   });
 
   it('does not render last used date when not available', () => {
-    const passkeyWithoutLastUsed = { ...mockPasskey, lastUsed: undefined };
+    const passkeyWithoutLastUsed = { ...mockPasskey, lastUsedAt: null };
     renderPasskeySubRow(passkeyWithoutLastUsed);
     expect(screen.queryByText(/Last used:/)).not.toBeInTheDocument();
   });
