@@ -1228,13 +1228,6 @@ export class SubscriptionManagementService {
         token
       );
 
-      const billingAgreement =
-        await this.paypalBillingAgreementManager.retrieve(billingAgreementId);
-      this.currencyManager.assertCurrencyCompatibleWithCountry(
-        currency,
-        billingAgreement.countryCode
-      );
-
       await this.customerManager.update(accountCustomer.stripeCustomerId, {
         metadata: {
           [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
