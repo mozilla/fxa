@@ -8,6 +8,7 @@ signin-password-needed-header-2 = Enter your password <span>for your { -product-
 signin-subheader-without-logo-with-servicename = Continue to { $serviceName }
 signin-subheader-without-logo-default = Continue to account settings
 signin-button = Sign in
+signin-authorize-button = Authorize
 signin-header = Sign in
 signin-use-a-different-account-link = Use a different account
 signin-forgot-password-link = Forgot password?

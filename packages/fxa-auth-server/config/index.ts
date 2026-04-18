@@ -1439,7 +1439,10 @@ const convictConf = convict({
       allowedScopes: {
         doc: 'Scopes that can be requested via token exchange grant type',
         format: Array,
-        default: ['https://identity.mozilla.com/apps/relay'],
+        default: [
+          'https://identity.mozilla.com/apps/relay',
+          'https://identity.mozilla.com/apps/vpn',
+        ],
         env: 'OAUTH_TOKEN_EXCHANGE_ALLOWED_SCOPES',
       },
     },

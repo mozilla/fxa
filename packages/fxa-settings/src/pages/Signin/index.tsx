@@ -58,7 +58,7 @@ const Signin = ({
   localizedSuccessBannerDescription,
   flowQueryParams,
   useFxAStatusResult: { supportsKeysOptionalLogin },
-  isSignedIntoFirefoxDesktop = false,
+  isSignedIntoFirefox = false,
   setCurrentSplitLayout,
 }: SigninProps & RouteComponentProps) => {
   const config = useConfig();
@@ -168,7 +168,11 @@ const Signin = ({
 
         // Sync merge check for cached signin
         // Pattern matches SigninPasswordlessCode (line 201-211)
-        if ((integration.isSync() || integration.isFirefoxNonSync()) && !hasPassword && !hasLinkedAccount) {
+        if (
+          (integration.isSync() || integration.isFirefoxNonSync()) &&
+          !hasPassword &&
+          !hasLinkedAccount
+        ) {
           const canLink = await ensureCanLinkAcountOrRedirect({
             email,
             uid: data.uid,
@@ -203,7 +207,8 @@ const Signin = ({
           // to set_password within the webview, even on mobile clients. No webchannel
           // messages are sent (deferred until after password creation), so the webview
           // must handle navigation internally.
-          performNavigation: (isSync && !hasPassword) || !integration.isFirefoxMobileClient(),
+          performNavigation:
+            (isSync && !hasPassword) || !integration.isFirefoxMobileClient(),
           isServiceWithEmailVerification,
           // Sync users in the cached path are passwordless (third-party auth or OTP);
           // defer web channel messages until after password creation.
@@ -537,14 +542,20 @@ const Signin = ({
           {/* <input className="hidden" required /> */}
 
           <div className="flex">
-            <FtlMsg id="signin-button">
+            <FtlMsg
+              id={
+                isSignedIntoFirefox
+                  ? 'signin-authorize-button'
+                  : 'signin-button'
+              }
+            >
               <CmsButtonWithFallback
                 type="submit"
                 disabled={signinLoading}
                 buttonColor={cmsInfo?.shared.buttonColor}
                 buttonText={activePageCms?.primaryButtonText}
               >
-                Sign in
+                {isSignedIntoFirefox ? 'Authorize' : 'Sign in'}
               </CmsButtonWithFallback>
             </FtlMsg>
           </div>
@@ -564,7 +575,9 @@ const Signin = ({
       <TermsPrivacyAgreement legalTerms={legalTerms} />
 
       <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">
-        {!isSignedIntoFirefoxDesktop && (
+        {/* Hide the account change button for signed-in Desktop users because
+         * they can't sign into another account due to no longer allowing merged Sync data */}
+        {!(isSignedIntoFirefox && integration.isFirefoxDesktopClient()) && (
           <FtlMsg id="signin-use-a-different-account-link">
             <a
               href="/"
@@ -594,8 +607,9 @@ const Signin = ({
         {isPasswordNeeded && !hasLinkedAccountAndNoPassword && (
           <FtlMsg id="signin-forgot-password-link">
             <Link
-              to={`/reset_password${location?.search ? `/${location?.search}` : ''
-                }`}
+              to={`/reset_password${
+                location?.search ? `/${location?.search}` : ''
+              }`}
               className="text-sm link-blue mx-auto tablet:mx-0"
               onClick={() =>
                 !isPasswordNeeded
