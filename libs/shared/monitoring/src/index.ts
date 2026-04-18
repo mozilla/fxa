@@ -2,26 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { initTracing } from '../tracing/node-tracing';
-import { InitSentryOpts, initSentry } from '../sentry/node';
-import { TracingOpts } from '../tracing/config';
-import { ILogger } from '../log';
+import { initTracing } from '@fxa/shared/otel';
+import { initSentry } from '@fxa/shared/sentry-node';
+import { TracingOpts } from '@fxa/shared/otel';
+import { ILogger } from '@fxa/shared/log';
+import { InitSentryOpts } from '@fxa/shared/sentry-utils';
 
 export type MonitoringConfig = {
   log?: ILogger;
-  config: InitSentryOpts & { tracing: TracingOpts };
+  config: InitSentryOpts & { tracing?: TracingOpts };
 };
 
 let initialized = false;
 
 /**
- *  IMPORTANT! This initialization function must be called first thing when a server starts. If it's called after server
- *  frameworks initialized instrumentation might not work properly.
- */
-
-/**
  * Initializes modules related to error monitoring, performance monitoring, and tracing.
- * @param opts - Initialization options. See underlying implementations for more details.
+ *
+ * IMPORTANT: This function must be called as early as possible during server startup, before
+ * any server framework (e.g. Hapi, Express) registers its own instrumentation. Calling it
+ * after framework initialization may result in incomplete or broken tracing.
+ *
+ * Initialization is guarded so that calling this function more than once is a no-op (a
+ * warning is emitted on subsequent calls).
+ *
+ * @param opts - Monitoring initialization options, including an optional logger and a config
+ *   object that may contain both Sentry and tracing settings.
  */
 export function initMonitoring(opts: MonitoringConfig) {
   const { log: logger, config } = opts;
@@ -62,7 +67,7 @@ export function initMonitoring(opts: MonitoringConfig) {
     nodeTracingInitialized = !!initTracing(config.tracing, log);
   }
 
-  // Important! Order matters here. If otel is configured, this shoudl be done after OTEL initialization!
+  // Important! Order matters here. If OTEL is configured, Sentry must be initialized after OTEL.
   if (config && config.sentry) {
     if (nodeTracingInitialized) {
       config.sentry.skipOpenTelemetrySetup = true;

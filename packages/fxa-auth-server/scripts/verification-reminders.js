@@ -25,7 +25,7 @@ const verificationReminders = require('../lib/verification-reminders')(
   config
 );
 const Sentry = require('@sentry/node');
-const { initSentry } = require('fxa-shared/sentry/node');
+const { initSentry } = require('@fxa/shared/sentry-node');
 const pckg = require('../package.json');
 const cadReminders = require('../lib/cad-reminders')(config, log);
 const subscriptionAccountReminders =

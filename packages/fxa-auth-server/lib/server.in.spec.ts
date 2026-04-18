@@ -6,7 +6,7 @@ import sinon from 'sinon';
 import { Account } from 'fxa-shared/db/models/auth/account';
 
 const mockReportValidationError = jest.fn();
-jest.mock('fxa-shared/sentry/report-validation-error', () => ({
+jest.mock('@fxa/shared/sentry-node', () => ({
   reportValidationError: mockReportValidationError,
 }));
 
