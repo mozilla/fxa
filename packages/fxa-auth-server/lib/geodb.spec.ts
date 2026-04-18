@@ -45,9 +45,13 @@ describe('geodb', () => {
     expect(geoData.location.countryCode).toBe(
       knownIpLocation.location.countryCode
     );
-    expect(geoData.timeZone).toBe(knownIpLocation.location.tz);
-    expect(geoData.location.state).toBe(knownIpLocation.location.state);
-    expect(geoData.location.stateCode).toBe(knownIpLocation.location.stateCode);
+    expect(knownIpLocation.location.tz.has(geoData.timeZone)).toBe(true);
+    expect(knownIpLocation.location.state.has(geoData.location.state)).toBe(
+      true
+    );
+    expect(
+      knownIpLocation.location.stateCode.has(geoData.location.stateCode)
+    ).toBe(true);
   });
 
   it('returns empty object data when disabled', () => {

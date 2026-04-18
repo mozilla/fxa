@@ -6,32 +6,31 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/shared/l10n/src/index.ts",
         "outputPath": "dist/libs/shared/l10n",
-        "outputFileName": "main.js",
         "tsConfig": "libs/shared/l10n/tsconfig.lib.json",
-        "declaration": true,
         "assets": [
           {
             "glob": "libs/shared/l10n/README.md",
             "input": ".",
             "output": "."
+          },
+          {
+            "glob": "src/**/*.json",
+            "input": "libs/shared/l10n",
+            "output": "."
           }
-        ],
-        "platform": "node",
-        "format": ["cjs", "esm"]
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        ]
       }
     },
     "lint": {

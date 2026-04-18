@@ -27,7 +27,6 @@ import {
   type StripeMetricsData,
   type SubPlatCmsMetricsData,
 } from './glean.types';
-import { ResultCartFactory } from '@fxa/payments/cart';
 import { SubplatInterval, TaxAddressFactory } from '@fxa/payments/customer';
 
 export const CheckoutParamsFactory = (
@@ -61,21 +60,15 @@ export const CommonMetricsFactory = (
 
 export const CartMetricsFactory = (
   override?: Partial<CartMetrics>
-): CartMetrics => {
-  const resultCart = ResultCartFactory({
-    ...override,
-  });
-
-  return {
-    uid: resultCart.uid,
-    errorReasonId: resultCart.errorReasonId,
-    couponCode: resultCart.couponCode,
-    currency: faker.finance.currencyCode().toLowerCase(),
-    stripeCustomerId: `cus_${faker.string.alphanumeric({ length: 14 })}`,
-    taxAddress: resultCart.taxAddress,
-    ...override,
-  };
-};
+): CartMetrics => ({
+  uid: undefined,
+  errorReasonId: null,
+  couponCode: undefined,
+  currency: faker.finance.currencyCode().toLowerCase(),
+  stripeCustomerId: `cus_${faker.string.alphanumeric({ length: 14 })}`,
+  taxAddress: undefined,
+  ...override,
+});
 
 export const CmsMetricsDataFactory = (
   override?: Partial<CmsMetricsData>
@@ -106,10 +99,7 @@ export const SubscriptionCancellationDataFactory = (
 export const TrialConversionDataFactory = (
   override?: Partial<TrialConversionData>
 ): TrialConversionData => ({
-  conversionStatus: faker.helpers.arrayElement([
-    'successful',
-    'unsuccessful',
-  ]),
+  conversionStatus: faker.helpers.arrayElement(['successful', 'unsuccessful']),
   providerEventId: `evt_${faker.string.alphanumeric({ length: 24 })}`,
   productId: `prod_${faker.string.alphanumeric({ length: 14 })}`,
   billingCountry: faker.location.countryCode(),

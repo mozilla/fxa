@@ -136,7 +136,7 @@ import {
   MockPaymentsGleanFactory,
   PaymentsGleanManager,
   PaymentsGleanService,
-} from '@fxa/payments/metrics';
+} from '@fxa/payments/metrics'; // Circular!
 import {
   MockNimbusManagerConfigProvider,
   NimbusManager,

@@ -6,7 +6,7 @@ import {
   BannerVariant,
   PaymentMethodErrorType,
   SubPlatPaymentMethodType,
-} from '@fxa/payments/customer';
+} from '../..';
 
 export function getPaymentMethodErrorContent(
   error: PaymentMethodErrorType,

@@ -919,13 +919,13 @@ function mockRequest(data, errors) {
     data.metricsContext || module.exports.mockMetricsContext();
 
   const geo = data.geo || {
-    timeZone: knownIpLocation.location.tz,
+    timeZone: knownIpLocation.location.tz.values().next().value,
     location: {
       city: knownIpLocation.location.city.values().next().value,
       country: knownIpLocation.location.country,
       countryCode: knownIpLocation.location.countryCode,
-      state: knownIpLocation.location.state,
-      stateCode: knownIpLocation.location.stateCode,
+      state: knownIpLocation.location.state.values().next().value,
+      stateCode: knownIpLocation.location.stateCode.values().next().value,
     },
   };
 

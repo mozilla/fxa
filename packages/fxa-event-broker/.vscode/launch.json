@@ -14,7 +14,9 @@
         "999999",
         "--colors",
         "-r",
-        "esbuild-register",
+        "ts-node/register/transpile-only",
+        "-r",
+        "tsconfig-paths/register",
         "${workspaceFolder}/test/**/*.spec.ts",
         "${workspaceFolder}/test/**/**/*.spec.ts"
       ],
@@ -35,7 +37,9 @@
         "999999",
         "--colors",
         "-r",
-        "esbuild-register",
+        "ts-node/register/transpile-only",
+        "-r",
+        "tsconfig-paths/register",
         "${workspaceFolder}/${relativeFile}"
       ],
       "env": {

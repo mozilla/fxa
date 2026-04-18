@@ -6,31 +6,26 @@
   "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/shared/metrics/statsd/src/index.ts",
         "outputPath": "dist/libs/shared/metrics/statsd",
-        "outputFileName": "main.js",
         "tsConfig": "libs/shared/metrics/statsd/tsconfig.lib.json",
-        "declaration": true,
         "assets": [
           {
             "glob": "libs/shared/metrics/statsd/README.md",
             "input": ".",
             "output": "."
           }
-        ],
-        "platform": "node"
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        ]
       }
     },
     "lint": {

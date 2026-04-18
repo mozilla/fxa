@@ -18,7 +18,9 @@
     // ts aliases (ie imports for @fxa/...) work.
     "bin/*",
     "config/*",
+    "lib/*",
     "lib/**/*",
+    "scripts/*",
     "scripts/**/*"
   ],
   "exclude": [
