@@ -187,9 +187,11 @@ export class InvoiceManager {
   async previewUpcomingSubscription({
     customer,
     subscription,
+    excludeDiscounts,
   }: {
     customer: StripeCustomer;
     subscription: StripeSubscription;
+    excludeDiscounts?: boolean;
   }): Promise<InvoicePreview> {
     const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming({
       customer: customer.id,
@@ -197,6 +199,7 @@ export class InvoiceManager {
       subscription_details: {
         cancel_at_period_end: false,
       },
+      ...(excludeDiscounts ? { discounts: '' } : {}),
     });
 
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);

@@ -307,7 +307,7 @@ describe('InvoiceManager', () => {
       );
       const mockPreviewUpcomingInvoice = InvoicePreviewFactory();
 
-      jest
+      const spy = jest
         .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
         .mockResolvedValue(mockUpcomingInvoice);
 
@@ -320,6 +320,45 @@ describe('InvoiceManager', () => {
         subscription: mockSubscription,
       });
       expect(result).toEqual(mockPreviewUpcomingInvoice);
+      expect(spy).toHaveBeenCalledWith({
+        customer: mockCustomer.id,
+        subscription: mockSubscription.id,
+        subscription_details: {
+          cancel_at_period_end: false,
+        },
+      });
+    });
+
+    it('passes empty string discounts when excludeDiscounts is true', async () => {
+      const mockCustomer = StripeCustomerFactory({ currency: 'usd' });
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockUpcomingInvoice = StripeResponseFactory(
+        StripeUpcomingInvoiceFactory()
+      );
+      const mockPreviewUpcomingInvoice = InvoicePreviewFactory();
+
+      const spy = jest
+        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .mockResolvedValue(mockUpcomingInvoice);
+
+      mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
+        mockPreviewUpcomingInvoice
+      );
+
+      const result = await invoiceManager.previewUpcomingSubscription({
+        customer: mockCustomer,
+        subscription: mockSubscription,
+        excludeDiscounts: true,
+      });
+      expect(result).toEqual(mockPreviewUpcomingInvoice);
+      expect(spy).toHaveBeenCalledWith({
+        customer: mockCustomer.id,
+        subscription: mockSubscription.id,
+        subscription_details: {
+          cancel_at_period_end: false,
+        },
+        discounts: '',
+      });
     });
   });
 
