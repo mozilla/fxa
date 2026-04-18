@@ -1,0 +1,12 @@
+{
+  "commit": "9b2b68658a09842a086ad83dfdccf3b3c5a99bd1",
+  "summary": "chore(deps): bump @nestjs/core from 10.4.19 to 11.1.18",
+  "description": "Bumps [@nestjs/core](https://github.com/nestjs/nest/tree/HEAD/packages/core) from 10.4.19 to 11.1.18.\n- [Release notes](https://github.com/nestjs/nest/releases)\n- [Commits](https://github.com/nestjs/nest/commits/v11.1.18/packages/core)\n\n---\nupdated-dependencies:\n- dependency-name: \"@nestjs/core\"\n  dependency-version: 11.1.18\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1776382479000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

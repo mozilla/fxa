@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 338b6ce2f9d8831b309449839718591578aebeb8</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 338b6ce2f9d8831b309449839718591578aebeb8</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>4/17/2026, 10:17:35 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(pair): Send Tab variant and origin-driven messaging on /pair, Backbone &amp; React</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Send Tab entrypoints need a &quot;send some tabs&quot; layout on /pair and /pair/auth/complete
+- PR #20333 added three /pair success banners via query params, but the React conversion only renders one
+
+This commit:
+- getSyncNavigate branches on config.showReactApp.pairRoutes: React soft-navs with locationState.origin; Backbone keeps the hard-nav + query params
+- Pair/Index renders all three banner variants above the headings; fixes pair-cad-header to &quot;Connect another device&quot;
+- Adds a Send Tab variant to /pair (both apps) with a single H1 &quot;Download or open Firefox on the device where you want to send tabs&quot;
+- Adds a Send Tab variant to /pair/auth/complete (both apps) with &quot;You&#039;re ready to send some tabs&quot; + dynamic device copy, no CTA
+- Adds SEND_TAB_ENTRYPOINTS to fxa-content-server constants
+
+closes FXA-13397
+closes FXA-13414</pre></dd>
+  </dl>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 314dfad7012feaf1281b433c02080ee6ebf02a7e</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 314dfad7012feaf1281b433c02080ee6ebf02a7e</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>4/17/2026, 1:56:35 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(content-server): Add explicit webpack alias for @fxa/shared/sentry-utils</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Even with TsconfigPathsPlugin configured against tsconfig.base.json,
+  webpack in content-server was emitting webpackMissingModule for
+  @fxa/shared/sentry-utils — the one new path import from app-side code
+  (app/scripts/lib/sentry.js). This surfaced as a pageError at runtime
+  (&quot;Cannot find module &#039;@fxa/shared/sentry-utils&#039;&quot;) and broke the
+  app.bundle.js initialization path, causing the cookiesDisabled
+  Playwright test to hang waiting for the redirect to /cookies_disabled.
+
+This commit:
+- Adds a direct resolve.alias entry for @fxa/shared/sentry-utils pointing
+  at libs/shared/sentry-utils/src/index.ts, mirroring the existing
+  @fxa/vendored aliases.</pre></dd>
+  </dl>
+</body>
+</html>

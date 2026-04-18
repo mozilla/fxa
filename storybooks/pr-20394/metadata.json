@@ -1,0 +1,10 @@
+{
+  "commit": "e81aed19f2b98f6237b98d3d23fe03d1058e39d4",
+  "summary": "fix(payments-next): Free trial ending email displays duplicated amount Because:",
+  "description": "* Free trial ending email displays duplicated amount\n\nThis commit:\n\n* Removes the duplication\n\nCloses #[PAY-3650](https://mozilla-hub.atlassian.net/browse/PAY-3650)",
+  "timestamp": 1776373166000,
+  "storybooks": [
+    "email-renderer"
+  ],
+  "deployDir": "deploy/"
+}

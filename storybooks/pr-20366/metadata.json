@@ -1,0 +1,12 @@
+{
+  "commit": "171cb118117a4de32c6c36a2f85fc347bfa244b1",
+  "summary": "refactor(auth): migrate fxa-auth-server tests from sinon/proxyquire to jest",
+  "description": "",
+  "timestamp": 1776366803000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

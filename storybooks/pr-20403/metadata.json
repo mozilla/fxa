@@ -1,0 +1,10 @@
+{
+  "commit": "338b6ce2f9d8831b309449839718591578aebeb8",
+  "summary": "feat(pair): Send Tab variant and origin-driven messaging on /pair, Backbone & React",
+  "description": "Because:\n- Send Tab entrypoints need a \"send some tabs\" layout on /pair and /pair/auth/complete\n- PR #20333 added three /pair success banners via query params, but the React conversion only renders one\n\nThis commit:\n- getSyncNavigate branches on config.showReactApp.pairRoutes: React soft-navs with locationState.origin; Backbone keeps the hard-nav + query params\n- Pair/Index renders all three banner variants above the headings; fixes pair-cad-header to \"Connect another device\"\n- Adds a Send Tab variant to /pair (both apps) with a single H1 \"Download or open Firefox on the device where you want to send tabs\"\n- Adds a Send Tab variant to /pair/auth/complete (both apps) with \"You're ready to send some tabs\" + dynamic device copy, no CTA\n- Adds SEND_TAB_ENTRYPOINTS to fxa-content-server constants\n\ncloses FXA-13397\ncloses FXA-13414",
+  "timestamp": 1776464255000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

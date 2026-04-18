@@ -1,0 +1,11 @@
+{
+  "commit": "89e98a144a1c1db2a6d860e459b4cfd57ece1e81",
+  "summary": "fix(payments-next): Show pre-discount tax",
+  "description": "",
+  "timestamp": 1775836024000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

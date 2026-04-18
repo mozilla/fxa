@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit ec0c049821c1c045d64ae33e4626ba055c7819b7</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit ec0c049821c1c045d64ae33e4626ba055c7819b7</h1>
+  <ul>
+    <li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>4/17/2026, 1:21:31 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(passkeys): atomic passkey session token creation with verificationMethod pre-stamped</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Passkey authentication is a single-gesture ceremony that inherently proves
+  both possession and user presence, so the resulting session token should be
+  fully verified (AAL2) from the moment of creation — unlike email/TOTP flows
+  that require a separate verification step after the session exists.
+
+This commit:
+
+* Adds DB migration patch 188→189 introducing createVerifiedSessionToken_1, a stored procedure that INSERTs the session token with verificationMethod and verifiedAt already set in one operation, eliminating any AAL1 window
+* Adds revert patch 189→188 (all statements commented per convention)
+* Wires up RawSessionToken.createVerified (fxa-shared) and db.createPasskeyVerifiedSessionToken (fxa-auth-server) backed by the new procedure; the auth-server method name makes the passkey-specific use explicit, while RawSessionToken.createVerified stays generic for future pre-verified flows
+* Replaces the two-step createSessionToken + verifyTokensWithMethod call in PasskeyHandler with a single db.createPasskeyVerifiedSessionToken call, removing the orphan-cleanup try/catch
+* Updates passkey session token tests to reflect the atomic operation
+
+Closes #FXA-13444</pre></dd>
+  </dl>
+</body>
+</html>

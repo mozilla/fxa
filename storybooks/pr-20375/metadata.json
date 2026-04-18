@@ -1,0 +1,11 @@
+{
+  "commit": "f1711c74bd3c469e9e757a167843a4e4b22ae794",
+  "summary": "feat(payments-next): [PayPal] Do not restrict payments with mismatched currency + billing countries Because:",
+  "description": "* On PayPal, there are some inconsistencies noted by QA where at times (PAY-3481) invoices are unable to be processed due to a mismatch of currency + billing country, where others (PAY-3486) are successful in the same endeavor, with different countries and currencies at play.\n\nThis commit:\n\n* Does not block in cases of mismatch for supported markets & currencies.\n\nCloses #[PAY-3587](https://mozilla-hub.atlassian.net/browse/PAY-3587)",
+  "timestamp": 1776275710000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

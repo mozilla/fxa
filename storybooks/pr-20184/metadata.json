@@ -1,0 +1,11 @@
+{
+  "commit": "cb4064ce8420e9f0f80184853a5c40e57a703953",
+  "summary": "fix(emails): Fix user's locale in emails from being overwritten by another user",
+  "description": "",
+  "timestamp": 1775659713000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-payments-server"
+  ],
+  "deployDir": "deploy/"
+}

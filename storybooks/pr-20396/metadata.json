@@ -1,0 +1,11 @@
+{
+  "commit": "ec0c049821c1c045d64ae33e4626ba055c7819b7",
+  "summary": "feat(passkeys): atomic passkey session token creation with verificationMethod pre-stamped",
+  "description": "Because:\n\n* Passkey authentication is a single-gesture ceremony that inherently proves\n  both possession and user presence, so the resulting session token should be\n  fully verified (AAL2) from the moment of creation — unlike email/TOTP flows\n  that require a separate verification step after the session exists.\n\nThis commit:\n\n* Adds DB migration patch 188→189 introducing createVerifiedSessionToken_1, a stored procedure that INSERTs the session token with verificationMethod and verifiedAt already set in one operation, eliminating any AAL1 window\n* Adds revert patch 189→188 (all statements commented per convention)\n* Wires up RawSessionToken.createVerified (fxa-shared) and db.createPasskeyVerifiedSessionToken (fxa-auth-server) backed by the new procedure; the auth-server method name makes the passkey-specific use explicit, while RawSessionToken.createVerified stays generic for future pre-verified flows\n* Replaces the two-step createSessionToken + verifyTokensWithMethod call in PasskeyHandler with a single db.createPasskeyVerifiedSessionToken call, removing the orphan-cleanup try/catch\n* Updates passkey session token tests to reflect the atomic operation\n\nCloses #FXA-13444",
+  "timestamp": 1776388891000,
+  "storybooks": [
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

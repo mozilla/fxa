@@ -1,0 +1,10 @@
+{
+  "commit": "6a5fea26902397f515e37a38e6897ec1ed38e013",
+  "summary": "fix(passkeys): duck-type WebAuthn credential to support 1Password proxy objects",
+  "description": "",
+  "timestamp": 1776460183000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

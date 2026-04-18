@@ -1,0 +1,10 @@
+{
+  "commit": "f296a7bcf7b806c86554d1b1e4b9d2617ec2f12b",
+  "summary": "task(settings): passkey registration UI flow",
+  "description": "",
+  "timestamp": 1776443838000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

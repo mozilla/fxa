@@ -1,0 +1,12 @@
+{
+  "commit": "aee7411f14a850856f684cedf5a1d135617999af",
+  "summary": "Merge pull request #20393 from mozilla/FXA-13465",
+  "description": "fix(splitLayout): Remove temp 'en-only' splitLayout guard",
+  "timestamp": 1776457448000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

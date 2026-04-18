@@ -1,0 +1,35 @@
+freeTrialEndingReminder-subject = "Your <%- productName %> free trial ends soon"
+
+freeTrialEndingReminder-content-greeting = "Dear <%- productName %> customer,"
+
+freeTrialEndingReminder-content-trial-ending-plaintext = "Your free trial is scheduled to end on <%- serviceLastActiveDateOnly %>."
+
+freeTrialEndingReminder-content-auto-charge-plaintext = "Unless you cancel before then, your subscription will automatically begin and we’ll charge <%- invoiceTotal %> to the payment method on your account on <%- serviceLastActiveDateOnly %>."
+
+freeTrialEndingReminder-content-charge-heading = "Charge details"
+
+freeTrialEndingReminder-content-charge-subscription-plaintext = "<%- productName %> subscription: <%- invoiceSubtotal %>"
+
+<% if (locals.showDiscount && locals.invoiceDiscountAmount) { %>
+freeTrialEndingReminder-content-charge-discount-plaintext = "Discount: <%- invoiceDiscountAmount %>"
+<% } %>
+
+<% if (locals.showTaxAmount && locals.invoiceTaxAmount) { %>
+freeTrialEndingReminder-content-charge-tax-plaintext = "Tax: <%- invoiceTaxAmount %>"
+<% } %>
+
+freeTrialEndingReminder-content-charge-total-plaintext = "Total due on <%- serviceLastActiveDateOnly %>: <%- invoiceTotal %>"
+
+freeTrialEndingReminder-content-account-link-plaintext = "You can review or update your payment method and account information here:"
+<%- updateBillingUrl %>
+
+freeTrialEndingReminder-content-cancel-link-plaintext = "To avoid being charged, cancel before <%- serviceLastActiveDateOnly %>:"
+<%- cancelSubscriptionUrl %>
+
+freeTrialEndingReminder-content-thanks-plaintext = "Thank you for trying <%- productName %>. If you have any questions about your trial or subscription, please contact us."
+
+freeTrialEndingReminder-content-closing = "Sincerely,"
+
+freeTrialEndingReminder-content-signature = "The <%- productName %> team"
+
+freeTrialEndingReminder-content-support-plaintext = "Contact us: <%- subscriptionSupportUrlWithUtm %>"

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit c6c7be4bb158e767ffd27447552bcdb4d15810aa</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit c6c7be4bb158e767ffd27447552bcdb4d15810aa</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>4/16/2026, 9:04:06 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(glean): upgrade @mozilla/glean to 5.0.8 and glean_parser to v19</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- glean_parser &lt;v19 / glean.js &lt;v5.0.8 caused server-side Glean events
+  to have wildly incorrect timestamps (DENG-10432)
+
+This commit:
+- Bumps @mozilla/glean from 5.0.4 to 5.0.8
+- Updates glean_parser from ~=14.5 to ~=19.0 in CI and mono Dockerfiles
+- Recreates venv with glean_parser 19 in CI provision step and
+  persists .venv to the workspace to avoid pip uninstall bug that
+  hits when cached Docker images still have 14.5.2
+- Regenerates all Glean code with glean_parser v19.0.0
+- Removes orphaned generated files (standard.js, sync.js, webauthn.js)
+  whose metrics were previously removed from YAML definitions
+- Fixes timestamp bug for accounts_backend and
+  subscription_platform_backend server events
+
+Fixes FXA-13435</pre></dd>
+  </dl>
+</body>
+</html>

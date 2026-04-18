@@ -1,0 +1,12 @@
+{
+  "commit": "c6c7be4bb158e767ffd27447552bcdb4d15810aa",
+  "summary": "chore(glean): upgrade @mozilla/glean to 5.0.8 and glean_parser to v19",
+  "description": "Because:\n- glean_parser <v19 / glean.js <v5.0.8 caused server-side Glean events\n  to have wildly incorrect timestamps (DENG-10432)\n\nThis commit:\n- Bumps @mozilla/glean from 5.0.4 to 5.0.8\n- Updates glean_parser from ~=14.5 to ~=19.0 in CI and mono Dockerfiles\n- Recreates venv with glean_parser 19 in CI provision step and\n  persists .venv to the workspace to avoid pip uninstall bug that\n  hits when cached Docker images still have 14.5.2\n- Regenerates all Glean code with glean_parser v19.0.0\n- Removes orphaned generated files (standard.js, sync.js, webauthn.js)\n  whose metrics were previously removed from YAML definitions\n- Fixes timestamp bug for accounts_backend and\n  subscription_platform_backend server events\n\nFixes FXA-13435",
+  "timestamp": 1776373446000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

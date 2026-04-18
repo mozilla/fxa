@@ -1,0 +1,10 @@
+{
+  "commit": "bdfe514936c95a7f5660030c12990e1074ddd1d0",
+  "summary": "feat(settings): wire passkey management UI to backend",
+  "description": "Because:\n\n* we want passkey management UI to actually work\n\nThis commit:\n\n* wires passkey management UI to backend\n\nCloses FXA-13073",
+  "timestamp": 1776285080000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
