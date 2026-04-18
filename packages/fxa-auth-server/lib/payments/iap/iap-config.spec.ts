@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 import { AuthFirestore, AuthLogger, AppConfig } from '../../types';
@@ -17,17 +16,15 @@ const mockConfig = {
 };
 
 describe('IAPConfig', () => {
-  let sandbox: sinon.SinonSandbox;
   let firestore: any;
   let log: any;
   let iapConfig: any;
   let planDbRefMock: any;
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
     planDbRefMock = {};
-    const collectionMock = sinon.stub();
-    collectionMock.returns(planDbRefMock);
+    const collectionMock = jest.fn();
+    collectionMock.mockReturnValue(planDbRefMock);
     firestore = {
       collection: collectionMock,
     };
@@ -40,7 +37,7 @@ describe('IAPConfig', () => {
 
   afterEach(() => {
     Container.reset();
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   it('can be instantiated', () => {
@@ -58,10 +55,10 @@ describe('IAPConfig', () => {
     });
 
     it('returns successfully', async () => {
-      planDbRefMock.doc = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      planDbRefMock.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           exists: true,
-          data: sinon.fake.returns({ plans: 'testObject' }),
+          data: jest.fn().mockReturnValue({ plans: 'testObject' }),
         }),
       });
       const result = await iapConfig.plans();
@@ -69,8 +66,8 @@ describe('IAPConfig', () => {
     });
 
     it('throws error with no document found', async () => {
-      planDbRefMock.doc = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      planDbRefMock.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           exists: false,
         }),
       });
@@ -88,10 +85,10 @@ describe('IAPConfig', () => {
     });
 
     it('returns successfully', async () => {
-      planDbRefMock.doc = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      planDbRefMock.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           exists: true,
-          data: sinon.fake.returns({
+          data: jest.fn().mockReturnValue({
             packageName: 'org.mozilla.testApp',
             plans: 'testObject',
           }),
@@ -102,8 +99,8 @@ describe('IAPConfig', () => {
     });
 
     it('throws error with no document found', async () => {
-      planDbRefMock.doc = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      planDbRefMock.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           exists: false,
         }),
       });
@@ -121,10 +118,10 @@ describe('IAPConfig', () => {
     });
 
     it('returns successfully', async () => {
-      planDbRefMock.doc = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      planDbRefMock.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           exists: true,
-          data: sinon.fake.returns({
+          data: jest.fn().mockReturnValue({
             bundleId: 'org.mozilla.testApp',
             plans: 'testObject',
           }),
@@ -135,8 +132,8 @@ describe('IAPConfig', () => {
     });
 
     it('throws error with no document found', async () => {
-      planDbRefMock.doc = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      planDbRefMock.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           exists: false,
         }),
       });

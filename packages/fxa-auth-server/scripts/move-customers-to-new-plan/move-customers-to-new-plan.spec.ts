@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import Container from 'typedi';
 
 import { ConfigType } from '../../config';
@@ -51,16 +50,16 @@ describe('CustomerPlanMover', () => {
   let stripeStub: Stripe;
   let stripeHelperStub: StripeHelper;
   let dbStub: any;
-  let firestoreGetStub: sinon.SinonStub;
+  let firestoreGetStub: jest.Mock;
 
   beforeEach(() => {
-    firestoreGetStub = sinon.stub();
+    firestoreGetStub = jest.fn();
     Container.set(AuthFirestore, {
-      collectionGroup: sinon.stub().returns({
-        where: sinon.stub().returnsThis(),
-        orderBy: sinon.stub().returnsThis(),
-        startAfter: sinon.stub().returnsThis(),
-        limit: sinon.stub().returnsThis(),
+      collectionGroup: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        startAfter: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
         get: firestoreGetStub,
       }),
     });
@@ -68,7 +67,7 @@ describe('CustomerPlanMover', () => {
     Container.set(AppConfig, mockConfig);
 
     stripeStub = {
-      on: sinon.stub(),
+      on: jest.fn(),
       products: {},
       customers: {},
       subscriptions: {},
@@ -78,12 +77,12 @@ describe('CustomerPlanMover', () => {
     stripeHelperStub = {
       stripe: stripeStub,
       currencyHelper: {
-        isCurrencyCompatibleWithCountry: sinon.stub(),
+        isCurrencyCompatibleWithCountry: jest.fn(),
       },
     } as unknown as StripeHelper;
 
     dbStub = {
-      account: sinon.stub(),
+      account: jest.fn(),
     };
 
     customerPlanMover = new CustomerPlanMover(
@@ -104,31 +103,29 @@ describe('CustomerPlanMover', () => {
   });
 
   describe('convert', () => {
-    let fetchSubsBatchStub: sinon.SinonStub;
-    let convertSubscriptionStub: sinon.SinonStub;
+    let fetchSubsBatchStub: jest.Mock;
+    let convertSubscriptionStub: jest.Mock;
     const mockSubs = [mockSubscription];
 
     beforeEach(async () => {
-      fetchSubsBatchStub = sinon
-        .stub()
-        .onFirstCall()
-        .returns(mockSubs)
-        .onSecondCall()
-        .returns([]);
+      fetchSubsBatchStub = jest
+        .fn()
+        .mockReturnValueOnce(mockSubs)
+        .mockReturnValueOnce([]);
       customerPlanMover.fetchSubsBatch = fetchSubsBatchStub;
 
-      convertSubscriptionStub = sinon.stub();
+      convertSubscriptionStub = jest.fn();
       customerPlanMover.convertSubscription = convertSubscriptionStub;
 
       await customerPlanMover.convert();
     });
 
     it('fetches subscriptions until no results', () => {
-      expect(fetchSubsBatchStub.callCount).toBe(2);
+      expect(fetchSubsBatchStub).toHaveBeenCalledTimes(2);
     });
 
     it('generates a report for each applicable subscription', () => {
-      expect(convertSubscriptionStub.callCount).toBe(1);
+      expect(convertSubscriptionStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -137,10 +134,10 @@ describe('CustomerPlanMover', () => {
     let result: FirestoreSubscription[];
 
     beforeEach(async () => {
-      firestoreGetStub.resolves({
+      firestoreGetStub.mockResolvedValue({
         docs: [
           {
-            data: sinon.stub().returns(mockSubscription),
+            data: jest.fn().mockReturnValue(mockSubscription),
           },
         ],
       });
@@ -149,7 +146,7 @@ describe('CustomerPlanMover', () => {
     });
 
     it('returns a list of subscriptions from Firestore', () => {
-      sinon.assert.match(result, [mockSubscription]);
+      expect(result).toEqual([mockSubscription]);
     });
   });
 
@@ -163,34 +160,36 @@ describe('CustomerPlanMover', () => {
       status: 'active',
     } as FirestoreSubscription;
     const mockReport = ['mock-report'];
-    let logStub: sinon.SinonStub;
-    let cancelSubscriptionStub: sinon.SinonStub;
-    let createSubscriptionStub: sinon.SinonStub;
-    let isCustomerExcludedStub: sinon.SinonStub;
-    let buildReport: sinon.SinonStub;
-    let writeReportStub: sinon.SinonStub;
+    let logStub: jest.SpyInstance;
+    let cancelSubscriptionStub: jest.Mock;
+    let createSubscriptionStub: jest.Mock;
+    let isCustomerExcludedStub: jest.Mock;
+    let buildReport: jest.Mock;
+    let writeReportStub: jest.Mock;
 
     beforeEach(async () => {
-      stripeStub.products.retrieve = sinon.stub().resolves(mockProduct);
-      customerPlanMover.fetchCustomer = sinon.stub().resolves(mockCustomer);
-      dbStub.account.resolves({
+      stripeStub.products.retrieve = jest.fn().mockResolvedValue(mockProduct);
+      customerPlanMover.fetchCustomer = jest
+        .fn()
+        .mockResolvedValue(mockCustomer);
+      dbStub.account.mockResolvedValue({
         locale: 'en-US',
       });
-      cancelSubscriptionStub = sinon.stub().resolves();
+      cancelSubscriptionStub = jest.fn().mockResolvedValue(undefined);
       customerPlanMover.cancelSubscription = cancelSubscriptionStub;
-      createSubscriptionStub = sinon.stub().resolves();
+      createSubscriptionStub = jest.fn().mockResolvedValue(undefined);
       customerPlanMover.createSubscription = createSubscriptionStub;
-      isCustomerExcludedStub = sinon.stub().returns(false);
+      isCustomerExcludedStub = jest.fn().mockReturnValue(false);
       customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
-      buildReport = sinon.stub().returns(mockReport);
+      buildReport = jest.fn().mockReturnValue(mockReport);
       customerPlanMover.buildReport = buildReport;
-      writeReportStub = sinon.stub().resolves();
+      writeReportStub = jest.fn().mockResolvedValue(undefined);
       customerPlanMover.writeReport = writeReportStub;
-      logStub = sinon.stub(console, 'log');
+      logStub = jest.spyOn(console, 'log');
     });
 
     afterEach(() => {
-      logStub.restore();
+      logStub.mockRestore();
     });
 
     describe('success', () => {
@@ -199,15 +198,15 @@ describe('CustomerPlanMover', () => {
       });
 
       it('cancels old subscription', () => {
-        expect(cancelSubscriptionStub.calledWith(mockFirestoreSub)).toBe(true);
+        expect(cancelSubscriptionStub).toHaveBeenCalledWith(mockFirestoreSub);
       });
 
       it('creates new subscription', () => {
-        expect(createSubscriptionStub.calledWith(mockCustomer.id)).toBe(true);
+        expect(createSubscriptionStub).toHaveBeenCalledWith(mockCustomer.id);
       });
 
       it('writes the report to disk', () => {
-        expect(writeReportStub.calledWith(mockReport)).toBe(true);
+        expect(writeReportStub).toHaveBeenCalledWith(mockReport);
       });
     });
 
@@ -218,45 +217,53 @@ describe('CustomerPlanMover', () => {
       });
 
       it('does not cancel old subscription', () => {
-        expect(cancelSubscriptionStub.calledWith(mockFirestoreSub)).toBe(false);
+        expect(cancelSubscriptionStub).not.toHaveBeenCalledWith(
+          mockFirestoreSub
+        );
       });
 
       it('does not create new subscription', () => {
-        expect(createSubscriptionStub.calledWith(mockCustomer.id)).toBe(false);
+        expect(createSubscriptionStub).not.toHaveBeenCalledWith(
+          mockCustomer.id
+        );
       });
 
       it('writes the report to disk', () => {
-        expect(writeReportStub.calledWith(mockReport)).toBe(true);
+        expect(writeReportStub).toHaveBeenCalledWith(mockReport);
       });
     });
 
     describe('invalid', () => {
       it('aborts if customer does not exist', async () => {
-        customerPlanMover.fetchCustomer = sinon.stub().resolves(null);
+        customerPlanMover.fetchCustomer = jest.fn().mockResolvedValue(null);
         await customerPlanMover.convertSubscription(mockFirestoreSub);
 
-        expect(writeReportStub.notCalled).toBe(true);
+        expect(writeReportStub).not.toHaveBeenCalled();
       });
 
       it('aborts if account for customer does not exist', async () => {
-        dbStub.account.resolves(null);
+        dbStub.account.mockResolvedValue(null);
         await customerPlanMover.convertSubscription(mockFirestoreSub);
 
-        expect(writeReportStub.notCalled).toBe(true);
+        expect(writeReportStub).not.toHaveBeenCalled();
       });
 
       it('does not create subscription if customer is excluded', async () => {
-        customerPlanMover.isCustomerExcluded = sinon.stub().resolves(true);
+        customerPlanMover.isCustomerExcluded = jest
+          .fn()
+          .mockResolvedValue(true);
         await customerPlanMover.convertSubscription(mockFirestoreSub);
 
-        expect(createSubscriptionStub.notCalled).toBe(true);
+        expect(createSubscriptionStub).not.toHaveBeenCalled();
       });
 
       it('does not cancel subscription if customer is excluded', async () => {
-        customerPlanMover.isCustomerExcluded = sinon.stub().resolves(true);
+        customerPlanMover.isCustomerExcluded = jest
+          .fn()
+          .mockResolvedValue(true);
         await customerPlanMover.convertSubscription(mockFirestoreSub);
 
-        expect(cancelSubscriptionStub.notCalled).toBe(true);
+        expect(cancelSubscriptionStub).not.toHaveBeenCalled();
       });
 
       it('does not move subscription if subscription is not in active state', async () => {
@@ -265,35 +272,33 @@ describe('CustomerPlanMover', () => {
           status: 'canceled',
         });
 
-        expect(cancelSubscriptionStub.notCalled).toBe(true);
-        expect(createSubscriptionStub.notCalled).toBe(true);
-        expect(writeReportStub.notCalled).toBe(true);
+        expect(cancelSubscriptionStub).not.toHaveBeenCalled();
+        expect(createSubscriptionStub).not.toHaveBeenCalled();
+        expect(writeReportStub).not.toHaveBeenCalled();
       });
     });
   });
 
   describe('fetchCustomer', () => {
-    let customerRetrieveStub: sinon.SinonStub;
+    let customerRetrieveStub: jest.Mock;
     let result: Stripe.Customer | Stripe.DeletedCustomer | null;
 
     describe('customer exists', () => {
       beforeEach(async () => {
-        customerRetrieveStub = sinon.stub().resolves(mockCustomer);
+        customerRetrieveStub = jest.fn().mockResolvedValue(mockCustomer);
         stripeStub.customers.retrieve = customerRetrieveStub;
 
         result = await customerPlanMover.fetchCustomer(mockCustomer.id);
       });
 
       it('fetches customer from Stripe', () => {
-        expect(
-          customerRetrieveStub.calledWith(mockCustomer.id, {
-            expand: ['subscriptions'],
-          })
-        ).toBe(true);
+        expect(customerRetrieveStub).toHaveBeenCalledWith(mockCustomer.id, {
+          expand: ['subscriptions'],
+        });
       });
 
       it('returns customer', () => {
-        sinon.assert.match(result, mockCustomer);
+        expect(result).toEqual(mockCustomer);
       });
     });
 
@@ -303,14 +308,14 @@ describe('CustomerPlanMover', () => {
           ...mockCustomer,
           deleted: true,
         };
-        customerRetrieveStub = sinon.stub().resolves(deletedCustomer);
+        customerRetrieveStub = jest.fn().mockResolvedValue(deletedCustomer);
         stripeStub.customers.retrieve = customerRetrieveStub;
 
         result = await customerPlanMover.fetchCustomer(mockCustomer.id);
       });
 
       it('returns null', () => {
-        sinon.assert.match(result, null);
+        expect(result).toEqual(null);
       });
     });
   });
@@ -349,26 +354,24 @@ describe('CustomerPlanMover', () => {
   });
 
   describe('createSubscription', () => {
-    let createStub: sinon.SinonStub;
+    let createStub: jest.Mock;
 
     beforeEach(async () => {
-      createStub = sinon.stub().resolves(mockSubscription);
+      createStub = jest.fn().mockResolvedValue(mockSubscription);
       stripeStub.subscriptions.create = createStub;
 
       await customerPlanMover.createSubscription(mockCustomer.id);
     });
 
     it('creates a subscription', () => {
-      expect(
-        createStub.calledWith({
-          customer: mockCustomer.id,
-          items: [
-            {
-              price: 'destination',
-            },
-          ],
-        })
-      ).toBe(true);
+      expect(createStub).toHaveBeenCalledWith({
+        customer: mockCustomer.id,
+        items: [
+          {
+            price: 'destination',
+          },
+        ],
+      });
     });
   });
 
@@ -380,7 +383,7 @@ describe('CustomerPlanMover', () => {
         true
       );
 
-      sinon.assert.match(result, [
+      expect(result).toEqual([
         mockCustomer.metadata.userid,
         `"${mockCustomer.email}"`,
         'true',

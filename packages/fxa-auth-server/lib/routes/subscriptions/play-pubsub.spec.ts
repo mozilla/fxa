@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 const uuid = require('uuid');
 
@@ -17,7 +16,6 @@ const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
 describe('PlayPubsubHandler', () => {
-  let sandbox: sinon.SinonSandbox;
   let playPubsubHandlerInstance: any;
   let mockRequest: any;
   let mockPlayBilling: any;
@@ -28,8 +26,6 @@ describe('PlayPubsubHandler', () => {
   let mockPurchase: any;
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
-
     log = mocks.mockLog();
     db = mocks.mockDB({
       uid: UID,
@@ -48,85 +44,95 @@ describe('PlayPubsubHandler', () => {
     mockDeveloperNotification.subscriptionNotification = {
       purchaseToken: 'test',
     };
-    db.account = sinon.fake.resolves({ primaryEmail: { email: TEST_EMAIL } });
-    mockCapabilityService.iapUpdate = sinon.fake.resolves({});
+    db.account = jest
+      .fn()
+      .mockResolvedValue({ primaryEmail: { email: TEST_EMAIL } });
+    mockCapabilityService.iapUpdate = jest.fn().mockResolvedValue({});
 
     Container.set(AuthLogger, log);
     Container.set(PlayBilling, mockPlayBilling);
     Container.set(CapabilityService, mockCapabilityService);
 
     playPubsubHandlerInstance = new PlayPubsubHandler(db);
-    playPubsubHandlerInstance.extractMessage = sinon.fake.returns(
-      mockDeveloperNotification
-    );
+    playPubsubHandlerInstance.extractMessage = jest
+      .fn()
+      .mockReturnValue(mockDeveloperNotification);
     mockRequest.payload = {
       message: { data: 'BASE64DATA' },
     };
     mockPlayBilling.purchaseManager = {
-      getPurchase: sinon.fake.resolves(mockPurchase),
-      processDeveloperNotification: sinon.fake.resolves({}),
+      getPurchase: jest.fn().mockResolvedValue(mockPurchase),
+      processDeveloperNotification: jest.fn().mockResolvedValue({}),
     };
   });
 
   afterEach(() => {
     Container.reset();
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   describe('rtdn', () => {
     it('notification that requires profile updating', async () => {
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
       expect(result).toEqual({});
-      sinon.assert.calledOnce(playPubsubHandlerInstance.extractMessage);
-      sinon.assert.calledOnce(mockPlayBilling.purchaseManager.getPurchase);
-      sinon.assert.calledOnce(
-        mockPlayBilling.purchaseManager.processDeveloperNotification
+      expect(playPubsubHandlerInstance.extractMessage).toHaveBeenCalledTimes(1);
+      expect(mockPlayBilling.purchaseManager.getPurchase).toHaveBeenCalledTimes(
+        1
       );
-      sinon.assert.calledOnce(mockCapabilityService.iapUpdate);
+      expect(
+        mockPlayBilling.purchaseManager.processDeveloperNotification
+      ).toHaveBeenCalledTimes(1);
+      expect(mockCapabilityService.iapUpdate).toHaveBeenCalledTimes(1);
     });
 
     it('test notification', async () => {
       mockDeveloperNotification.testNotification = true;
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
       expect(result).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        log.info,
+      expect(log.info).toHaveBeenCalledTimes(1);
+      expect(log.info).toHaveBeenCalledWith(
         'play-test-notification',
         mockDeveloperNotification
       );
-      sinon.assert.notCalled(mockPlayBilling.purchaseManager.getPurchase);
+      expect(
+        mockPlayBilling.purchaseManager.getPurchase
+      ).not.toHaveBeenCalled();
     });
 
     it('missing subscription notification', async () => {
       mockDeveloperNotification.subscriptionNotification = null;
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
       expect(result).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        log.info,
+      expect(log.info).toHaveBeenCalledTimes(1);
+      expect(log.info).toHaveBeenCalledWith(
         'play-other-notification',
         mockDeveloperNotification
       );
-      sinon.assert.notCalled(mockPlayBilling.purchaseManager.getPurchase);
+      expect(
+        mockPlayBilling.purchaseManager.getPurchase
+      ).not.toHaveBeenCalled();
     });
 
     it('non-existing purchase', async () => {
-      mockPlayBilling.purchaseManager.getPurchase = sinon.fake.resolves(null);
+      mockPlayBilling.purchaseManager.getPurchase = jest
+        .fn()
+        .mockResolvedValue(null);
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
       expect(result).toEqual({});
-      sinon.assert.calledOnce(
+      expect(
         mockPlayBilling.purchaseManager.processDeveloperNotification
-      );
-      sinon.assert.notCalled(db.account);
+      ).toHaveBeenCalledTimes(1);
+      expect(db.account).not.toHaveBeenCalled();
     });
 
     it('no userId', async () => {
       mockPurchase.userId = null;
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
       expect(result).toEqual({});
-      sinon.assert.notCalled(
+      expect(
         mockPlayBilling.purchaseManager.processDeveloperNotification
-      );
-      sinon.assert.notCalled(db.account);
+      ).not.toHaveBeenCalled();
+      expect(db.account).not.toHaveBeenCalled();
     });
 
     it('replaced purchase', async () => {
@@ -134,10 +140,10 @@ describe('PlayPubsubHandler', () => {
       mockPurchase.replacedByAnotherPurchase = true;
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
       expect(result).toEqual({});
-      sinon.assert.notCalled(
+      expect(
         mockPlayBilling.purchaseManager.processDeveloperNotification
-      );
-      sinon.assert.notCalled(db.account);
+      ).not.toHaveBeenCalled();
+      expect(db.account).not.toHaveBeenCalled();
     });
   });
 });

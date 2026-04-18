@@ -2,11 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 interface NotifierInstance {
   send(event: Record<string, unknown>, cb?: () => void): void;
-  __sns: { publish: sinon.SinonSpy };
+  __sns: { publish: jest.Mock };
 }
 
 type SnsPublishCallback = (err: null, data: Record<string, unknown>) => void;
@@ -25,7 +23,7 @@ function mockConfigWithArn(arn: string): void {
 }
 
 function stubSnsPublish(notifier: NotifierInstance): void {
-  notifier.__sns.publish = sinon.spy(
+  notifier.__sns.publish = jest.fn(
     (event: Record<string, unknown>, cb: SnsPublishCallback) => {
       cb(null, event);
     }
@@ -34,13 +32,13 @@ function stubSnsPublish(notifier: NotifierInstance): void {
 
 describe('notifier', () => {
   const log = {
-    error: sinon.spy(),
-    trace: sinon.spy(),
+    error: jest.fn(),
+    trace: jest.fn(),
   };
 
   beforeEach(() => {
-    log.error.resetHistory();
-    log.trace.resetHistory();
+    log.error.mockClear();
+    log.trace.mockClear();
     jest.resetModules();
   });
 
@@ -59,8 +57,8 @@ describe('notifier', () => {
         event: 'stuff',
       });
 
-      expect(log.trace.args[0][0]).toBe('Notifier.publish');
-      expect(log.trace.args[0][1]).toEqual({
+      expect(log.trace.mock.calls[0][0]).toBe('Notifier.publish');
+      expect(log.trace.mock.calls[0][1]).toEqual({
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
           Message: '{"event":"stuff"}',
@@ -73,7 +71,7 @@ describe('notifier', () => {
         },
         success: true,
       });
-      expect(log.error.called).toBe(false);
+      expect(log.error).not.toHaveBeenCalled();
     });
 
     it('flattens additional data into the message body', () => {
@@ -85,8 +83,8 @@ describe('notifier', () => {
         },
       });
 
-      expect(log.trace.args[0][0]).toBe('Notifier.publish');
-      expect(log.trace.args[0][1]).toEqual({
+      expect(log.trace.mock.calls[0][0]).toBe('Notifier.publish');
+      expect(log.trace.mock.calls[0][1]).toEqual({
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
           Message: '{"cool":"stuff","more":"stuff","event":"stuff-with-data"}',
@@ -99,7 +97,7 @@ describe('notifier', () => {
         },
         success: true,
       });
-      expect(log.error.called).toBe(false);
+      expect(log.error).not.toHaveBeenCalled();
     });
 
     it('includes email domain in message attributes', () => {
@@ -110,8 +108,8 @@ describe('notifier', () => {
         },
       });
 
-      expect(log.trace.args[0][0]).toBe('Notifier.publish');
-      expect(log.trace.args[0][1]).toEqual({
+      expect(log.trace.mock.calls[0][0]).toBe('Notifier.publish');
+      expect(log.trace.mock.calls[0][1]).toEqual({
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
           Message: '{"email":"testme@example.com","event":"email-change"}',
@@ -128,11 +126,11 @@ describe('notifier', () => {
         },
         success: true,
       });
-      expect(log.error.called).toBe(false);
+      expect(log.error).not.toHaveBeenCalled();
     });
 
     it('captures perf stats with statsd when it is present', () => {
-      const statsd = { timing: sinon.stub() };
+      const statsd = { timing: jest.fn() };
 
       mockConfigWithArn('arn:aws:sns:us-west-2:927034868275:foo');
       jest.resetModules();
@@ -142,9 +140,9 @@ describe('notifier', () => {
       notifier.send({
         event: 'testo',
       });
-      expect(statsd.timing.calledOnce).toBe(true);
-      expect(statsd.timing.args[0][0]).toBe('notifier.publish');
-      expect(typeof statsd.timing.args[0][1]).toBe('number');
+      expect(statsd.timing).toHaveBeenCalledTimes(1);
+      expect(statsd.timing.mock.calls[0][0]).toBe('notifier.publish');
+      expect(typeof statsd.timing.mock.calls[0][1]).toBe('number');
     });
   });
 
@@ -158,15 +156,15 @@ describe('notifier', () => {
         event: 'stuff',
       },
       () => {
-        expect(log.trace.args[0][0]).toBe('Notifier.publish');
-        expect(log.trace.args[0][1]).toEqual({
+        expect(log.trace.mock.calls[0][0]).toBe('Notifier.publish');
+        expect(log.trace.mock.calls[0][1]).toEqual({
           data: {
             disabled: true,
           },
           success: true,
         });
-        expect(log.trace.args[0][1].data.disabled).toBe(true);
-        expect(log.error.called).toBe(false);
+        expect(log.trace.mock.calls[0][1].data.disabled).toBe(true);
+        expect(log.error).not.toHaveBeenCalled();
       }
     );
   });

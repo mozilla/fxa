@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const { fetchRpCmsData, getOptionalCmsEmailConfig } = require('./account');
 
 describe('fetchRpCmsData', () => {
-  const sandbox = sinon.createSandbox();
   const mockRequest = {
     app: {
       metricsContext: {
@@ -19,7 +16,7 @@ describe('fetchRpCmsData', () => {
   };
 
   beforeEach(() => {
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   it('returns an RP CMS config', async () => {
@@ -27,14 +24,14 @@ describe('fetchRpCmsData', () => {
       shared: {},
     };
     const mockCmsManager = {
-      fetchCMSData: sandbox.stub().resolves({
+      fetchCMSData: jest.fn().mockResolvedValue({
         relyingParties: [rpCmsConfig],
       }),
     };
 
     const actual = await fetchRpCmsData(mockRequest, mockCmsManager);
-    sinon.assert.calledOnceWithExactly(
-      mockCmsManager.fetchCMSData,
+    expect(mockCmsManager.fetchCMSData).toHaveBeenCalledTimes(1);
+    expect(mockCmsManager.fetchCMSData).toHaveBeenCalledWith(
       mockRequest.app.metricsContext.clientId,
       mockRequest.app.metricsContext.entrypoint
     );
@@ -43,7 +40,7 @@ describe('fetchRpCmsData', () => {
 
   it('returns null when no matching RP found in CMS', async () => {
     const mockCmsManager = {
-      fetchCMSData: sandbox.stub().resolves({
+      fetchCMSData: jest.fn().mockResolvedValue({
         relyingParties: [],
       }),
     };
@@ -76,14 +73,14 @@ describe('fetchRpCmsData', () => {
       shared: {},
     };
     const mockCmsManager = {
-      fetchCMSData: sandbox.stub().resolves({
+      fetchCMSData: jest.fn().mockResolvedValue({
         relyingParties: [rpCmsConfig],
       }),
     };
 
     const actual = await fetchRpCmsData(mockRequest, mockCmsManager);
-    sinon.assert.calledOnceWithExactly(
-      mockCmsManager.fetchCMSData,
+    expect(mockCmsManager.fetchCMSData).toHaveBeenCalledTimes(1);
+    expect(mockCmsManager.fetchCMSData).toHaveBeenCalledWith(
       mockRequest.app.metricsContext.clientId,
       'default'
     );
@@ -93,25 +90,23 @@ describe('fetchRpCmsData', () => {
   it('logs an error', async () => {
     const err = new Error('No can do');
     const mockCmsManager = {
-      fetchCMSData: sandbox.stub().rejects(err),
+      fetchCMSData: jest.fn().mockRejectedValue(err),
     };
-    const mockLogger = { error: sandbox.stub() };
+    const mockLogger = { error: jest.fn() };
     const actual = await fetchRpCmsData(
       mockRequest,
       mockCmsManager,
       mockLogger
     );
-    sinon.assert.calledOnceWithExactly(
-      mockLogger.error,
-      'cms.getConfig.error',
-      { error: err }
-    );
+    expect(mockLogger.error).toHaveBeenCalledTimes(1);
+    expect(mockLogger.error).toHaveBeenCalledWith('cms.getConfig.error', {
+      error: err,
+    });
     expect(actual).toBeNull();
   });
 });
 
 describe('getOptionalCmsEmailConfig', () => {
-  const sandbox = sinon.createSandbox();
   const mockRequest = {
     app: {
       metricsContext: {
@@ -122,7 +117,7 @@ describe('getOptionalCmsEmailConfig', () => {
   };
 
   beforeEach(() => {
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   it('returns original email options when no CMS config is available', async () => {
@@ -133,12 +128,12 @@ describe('getOptionalCmsEmailConfig', () => {
     };
 
     const mockCmsManager = {
-      fetchCMSData: sandbox.stub().resolves({
+      fetchCMSData: jest.fn().mockResolvedValue({
         relyingParties: [],
       }),
     };
 
-    const mockLog = { error: sandbox.stub() };
+    const mockLog = { error: jest.fn() };
 
     const result = await getOptionalCmsEmailConfig(emailOptions, {
       request: mockRequest,
@@ -172,12 +167,12 @@ describe('getOptionalCmsEmailConfig', () => {
     };
 
     const mockCmsManager = {
-      fetchCMSData: sandbox.stub().resolves({
+      fetchCMSData: jest.fn().mockResolvedValue({
         relyingParties: [rpCmsConfig],
       }),
     };
 
-    const mockLog = { error: sandbox.stub() };
+    const mockLog = { error: jest.fn() };
 
     const result = await getOptionalCmsEmailConfig(emailOptions, {
       request: mockRequest,
@@ -218,12 +213,12 @@ describe('getOptionalCmsEmailConfig', () => {
     };
 
     const mockCmsManager = {
-      fetchCMSData: sandbox.stub().resolves({
+      fetchCMSData: jest.fn().mockResolvedValue({
         relyingParties: [rpCmsConfig],
       }),
     };
 
-    const mockLog = { error: sandbox.stub() };
+    const mockLog = { error: jest.fn() };
 
     const result = await getOptionalCmsEmailConfig(emailOptions, {
       request: mockRequest,
@@ -243,10 +238,10 @@ describe('getOptionalCmsEmailConfig', () => {
     };
 
     const mockCmsManager = {
-      fetchCMSData: sandbox.stub().rejects(new Error('CMS Error')),
+      fetchCMSData: jest.fn().mockRejectedValue(new Error('CMS Error')),
     };
 
-    const mockLog = { error: sandbox.stub() };
+    const mockLog = { error: jest.fn() };
 
     const result = await getOptionalCmsEmailConfig(emailOptions, {
       request: mockRequest,
@@ -256,7 +251,7 @@ describe('getOptionalCmsEmailConfig', () => {
     });
 
     expect(result).toEqual(emailOptions);
-    sinon.assert.calledOnce(mockLog.error);
+    expect(mockLog.error).toHaveBeenCalledTimes(1);
   });
 
   it('works with different email templates', async () => {
@@ -281,12 +276,12 @@ describe('getOptionalCmsEmailConfig', () => {
     };
 
     const mockCmsManager = {
-      fetchCMSData: sandbox.stub().resolves({
+      fetchCMSData: jest.fn().mockResolvedValue({
         relyingParties: [rpCmsConfig],
       }),
     };
 
-    const mockLog = { error: sandbox.stub() };
+    const mockLog = { error: jest.fn() };
 
     const result = await getOptionalCmsEmailConfig(emailOptions, {
       request: mockRequest,

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import crypto from 'crypto';
 import * as uuid from 'uuid';
 import { AppError as error } from '@fxa/accounts/errors';
@@ -28,13 +27,13 @@ afterAll(() => {
 
 // --- Module-level stubs for mocked dependencies ---
 
-let mockOtpManagerCreate: sinon.SinonStub;
-let mockOtpManagerIsValid: sinon.SinonStub;
-let mockOtpManagerDelete: sinon.SinonStub;
+let mockOtpManagerCreate: jest.Mock;
+let mockOtpManagerIsValid: jest.Mock;
+let mockOtpManagerDelete: jest.Mock;
 let mockOtpManager: {
-  create: sinon.SinonStub;
-  isValid: sinon.SinonStub;
-  delete: sinon.SinonStub;
+  create: jest.Mock;
+  isValid: jest.Mock;
+  delete: jest.Mock;
 };
 
 // Top-level mocks for modules that are always mocked the same way.
@@ -57,7 +56,7 @@ jest.mock('@fxa/shared/otp', () => {
 
 // `./utils/otp` default export is a factory `(db, statsd) => OtpUtils`.
 // The route only calls `otpUtils.hasTotpToken(uid)`.
-let hasTotpTokenStub: sinon.SinonStub;
+let hasTotpTokenStub: jest.Mock;
 
 jest.mock('./utils/otp', () => ({
   __esModule: true,
@@ -67,7 +66,7 @@ jest.mock('./utils/otp', () => ({
 }));
 
 // `./utils/security-event` named export `recordSecurityEvent`.
-let recordSecurityEventStub: sinon.SinonStub;
+let recordSecurityEventStub: jest.Mock;
 
 jest.mock('./utils/security-event', () => ({
   recordSecurityEvent: (...args: any[]) => recordSecurityEventStub(...args),
@@ -77,7 +76,7 @@ jest.mock('./utils/security-event', () => ({
 // We default to a stub that returns `{}`. Individual tests that care about
 // CMS behaviour will override via `jest.doMock` + `jest.resetModules`, or
 // we simply reassign the stub per-test.
-let getOptionalCmsEmailConfigStub: sinon.SinonStub;
+let getOptionalCmsEmailConfigStub: jest.Mock;
 
 jest.mock('./utils/account', () => {
   const actual = jest.requireActual('./utils/account');
@@ -120,9 +119,9 @@ function makeRoutes(options: any = {}) {
   };
 
   // Refresh per-test OtpManager stubs
-  mockOtpManagerCreate = sinon.stub().resolves('123456');
-  mockOtpManagerIsValid = sinon.stub().resolves(true);
-  mockOtpManagerDelete = sinon.stub().resolves();
+  mockOtpManagerCreate = jest.fn().mockResolvedValue('123456');
+  mockOtpManagerIsValid = jest.fn().mockResolvedValue(true);
+  mockOtpManagerDelete = jest.fn().mockResolvedValue(undefined);
 
   mockOtpManager = {
     create: mockOtpManagerCreate,
@@ -131,11 +130,11 @@ function makeRoutes(options: any = {}) {
   };
 
   // Wire up option-driven stubs
-  hasTotpTokenStub = options.hasTotpToken || sinon.stub().resolves(false);
+  hasTotpTokenStub = options.hasTotpToken || jest.fn().mockResolvedValue(false);
   recordSecurityEventStub =
-    options.recordSecurityEvent || sinon.stub().resolves();
+    options.recordSecurityEvent || jest.fn().mockResolvedValue(undefined);
   getOptionalCmsEmailConfigStub =
-    options.getOptionalCmsEmailConfig || sinon.stub().resolves({});
+    options.getOptionalCmsEmailConfig || jest.fn().mockResolvedValue({});
 
   mocks.mockFxaMailer();
 
@@ -179,7 +178,7 @@ describe('/account/passwordless/send_code', () => {
       verifierSetAt: 0,
     });
     mockCustoms = {
-      check: sinon.spy(() => Promise.resolve()),
+      check: jest.fn(() => Promise.resolve()),
       v2Enabled: () => true,
     };
     mockRequest = mocks.mockRequest({
@@ -214,30 +213,30 @@ describe('/account/passwordless/send_code', () => {
   });
 
   afterEach(() => {
-    mockOtpManagerCreate.resetHistory();
-    mockOtpManagerIsValid.resetHistory();
-    mockOtpManagerDelete.resetHistory();
+    mockOtpManagerCreate.mockClear();
+    mockOtpManagerIsValid.mockClear();
+    mockOtpManagerDelete.mockClear();
   });
 
   it('should send OTP for new account', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
 
     return runTest(route, mockRequest, (result) => {
-      expect(mockCustoms.check.callCount).toBe(1);
-      expect(mockCustoms.check.args[0][1]).toBe(TEST_EMAIL);
-      expect(mockCustoms.check.args[0][2]).toBe('passwordlessSendOtp');
+      expect(mockCustoms.check.mock.calls.length).toBe(1);
+      expect(mockCustoms.check.mock.calls[0][1]).toBe(TEST_EMAIL);
+      expect(mockCustoms.check.mock.calls[0][2]).toBe('passwordlessSendOtp');
 
-      expect(mockOtpManagerCreate.callCount).toBe(1);
-      expect(mockOtpManagerCreate.args[0][0]).toBe(TEST_EMAIL);
+      expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
+      expect(mockOtpManagerCreate.mock.calls[0][0]).toBe(TEST_EMAIL);
 
       expect(result).toEqual({});
     });
   });
 
   it('should send OTP for existing passwordless account', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -247,15 +246,15 @@ describe('/account/passwordless/send_code', () => {
     );
 
     return runTest(route, mockRequest, (result) => {
-      expect(mockDB.accountRecord.callCount).toBe(1);
-      expect(mockOtpManagerCreate.callCount).toBe(1);
-      expect(mockOtpManagerCreate.args[0][0]).toBe(uid);
+      expect(mockDB.accountRecord.mock.calls.length).toBe(1);
+      expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
+      expect(mockOtpManagerCreate.mock.calls[0][0]).toBe(uid);
       expect(result).toEqual({});
     });
   });
 
   it('should reject account with password', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -268,24 +267,22 @@ describe('/account/passwordless/send_code', () => {
         throw new Error('should have thrown');
       },
       (err) => {
-        expect(mockDB.accountRecord.callCount).toBe(1);
-        expect(mockOtpManagerCreate.callCount).toBe(0);
+        expect(mockDB.accountRecord.mock.calls.length).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(0);
         expect(err.errno).toBe(206);
       }
     );
   });
 
   it('should apply rate limiting', () => {
-    mockCustoms.check = sinon.spy(() =>
-      Promise.reject(error.tooManyRequests())
-    );
+    mockCustoms.check = jest.fn(() => Promise.reject(error.tooManyRequests()));
 
     return runTest(route, mockRequest).then(
       () => {
         throw new Error('should have thrown');
       },
       (err) => {
-        expect(mockCustoms.check.callCount).toBe(1);
+        expect(mockCustoms.check.mock.calls.length).toBe(1);
         expect(err.errno).toBe(error.ERRNO.THROTTLED);
       }
     );
@@ -312,7 +309,7 @@ describe('/account/passwordless/confirm_code', () => {
       verifierSetAt: 0,
     });
     mockCustoms = {
-      check: sinon.spy(() => Promise.resolve()),
+      check: jest.fn(() => Promise.resolve()),
       v2Enabled: () => true,
     };
     mockRequest = mocks.mockRequest({
@@ -348,16 +345,16 @@ describe('/account/passwordless/confirm_code', () => {
   });
 
   afterEach(() => {
-    mockOtpManagerCreate.resetHistory();
-    mockOtpManagerIsValid.resetHistory();
-    mockOtpManagerDelete.resetHistory();
+    mockOtpManagerCreate.mockClear();
+    mockOtpManagerIsValid.mockClear();
+    mockOtpManagerDelete.mockClear();
   });
 
   it('should create new account and session for valid code', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
-    mockDB.createAccount = sinon.spy(() =>
+    mockDB.createAccount = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -365,7 +362,7 @@ describe('/account/passwordless/confirm_code', () => {
         verifierSetAt: 0,
       })
     );
-    mockDB.createSessionToken = sinon.spy(() =>
+    mockDB.createSessionToken = jest.fn(() =>
       Promise.resolve({
         data: 'sessiontoken123',
         emailVerified: true,
@@ -376,28 +373,30 @@ describe('/account/passwordless/confirm_code', () => {
 
     return runTest(route, mockRequest, (result) => {
       // mustVerify should always be true (defense-in-depth)
-      const sessionOpts = mockDB.createSessionToken.args[0][0];
+      const sessionOpts = mockDB.createSessionToken.mock.calls[0][0];
       expect(sessionOpts.mustVerify).toBe(true);
       expect(sessionOpts.tokenVerificationId).toBe(null);
 
-      expect(mockCustoms.check.callCount).toBe(2);
-      expect(mockCustoms.check.args[0][2]).toBe('passwordlessVerifyOtp');
-      expect(mockCustoms.check.args[1][2]).toBe('passwordlessVerifyOtpPerDay');
+      expect(mockCustoms.check.mock.calls.length).toBe(2);
+      expect(mockCustoms.check.mock.calls[0][2]).toBe('passwordlessVerifyOtp');
+      expect(mockCustoms.check.mock.calls[1][2]).toBe(
+        'passwordlessVerifyOtpPerDay'
+      );
 
-      expect(mockOtpManagerIsValid.callCount).toBe(1);
-      expect(mockOtpManagerIsValid.args[0][0]).toBe(TEST_EMAIL);
-      expect(mockOtpManagerIsValid.args[0][1]).toBe('123456');
+      expect(mockOtpManagerIsValid.mock.calls.length).toBe(1);
+      expect(mockOtpManagerIsValid.mock.calls[0][0]).toBe(TEST_EMAIL);
+      expect(mockOtpManagerIsValid.mock.calls[0][1]).toBe('123456');
 
-      expect(mockOtpManagerDelete.callCount).toBe(1);
-      expect(mockOtpManagerDelete.args[0][0]).toBe(TEST_EMAIL);
+      expect(mockOtpManagerDelete.mock.calls.length).toBe(1);
+      expect(mockOtpManagerDelete.mock.calls[0][0]).toBe(TEST_EMAIL);
 
-      expect(mockDB.createAccount.callCount).toBe(1);
-      const accountArgs = mockDB.createAccount.args[0][0];
+      expect(mockDB.createAccount.mock.calls.length).toBe(1);
+      const accountArgs = mockDB.createAccount.mock.calls[0][0];
       expect(accountArgs.email).toBe(TEST_EMAIL);
       expect(accountArgs.emailVerified).toBe(true);
       expect(accountArgs.verifierSetAt).toBe(0);
 
-      expect(mockDB.createSessionToken.callCount).toBe(1);
+      expect(mockDB.createSessionToken.mock.calls.length).toBe(1);
 
       expect(result.uid).toBe(uid);
       expect(result.sessionToken).toBe('sessiontoken123');
@@ -408,23 +407,22 @@ describe('/account/passwordless/confirm_code', () => {
       // Should emit SNS verified + login + profileDataChange events so
       // Basket/Braze learn about the new passwordless account. Missing
       // these calls was the root cause of the basket regression (FXA-13416).
-      const notifyEvents = mockLog.notifyAttachedServices.args.map(
+      const notifyEvents = mockLog.notifyAttachedServices.mock.calls.map(
         (call: any[]) => call[0]
       );
       expect(notifyEvents).toContain('verified');
       expect(notifyEvents).toContain('login');
       expect(notifyEvents).toContain('profileDataChange');
-      sinon.assert.calledWithMatch(
-        mockLog.notifyAttachedServices,
+      expect(mockLog.notifyAttachedServices).toHaveBeenCalledWith(
         'verified',
         mockRequest,
-        sinon.match({ email: TEST_EMAIL, uid })
+        expect.objectContaining({ email: TEST_EMAIL, uid })
       );
     });
   });
 
   it('should create session for existing account with valid code', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -432,7 +430,7 @@ describe('/account/passwordless/confirm_code', () => {
         verifierSetAt: 0,
       })
     );
-    mockDB.createSessionToken = sinon.spy(() =>
+    mockDB.createSessionToken = jest.fn(() =>
       Promise.resolve({
         data: 'sessiontoken123',
         emailVerified: true,
@@ -440,17 +438,17 @@ describe('/account/passwordless/confirm_code', () => {
         lastAuthAt: () => 1234567890,
       })
     );
-    mockDB.sessions = sinon.spy(() => Promise.resolve([{}, {}, {}]));
+    mockDB.sessions = jest.fn(() => Promise.resolve([{}, {}, {}]));
 
     return runTest(route, mockRequest, (result) => {
-      expect(mockOtpManagerIsValid.callCount).toBe(1);
-      expect(mockOtpManagerIsValid.args[0][0]).toBe(uid);
+      expect(mockOtpManagerIsValid.mock.calls.length).toBe(1);
+      expect(mockOtpManagerIsValid.mock.calls[0][0]).toBe(uid);
 
-      expect(mockDB.createAccount.callCount).toBe(0);
-      expect(mockDB.createSessionToken.callCount).toBe(1);
+      expect(mockDB.createAccount.mock.calls.length).toBe(0);
+      expect(mockDB.createSessionToken.mock.calls.length).toBe(1);
 
       // mustVerify should always be true (defense-in-depth)
-      const sessionOpts = mockDB.createSessionToken.args[0][0];
+      const sessionOpts = mockDB.createSessionToken.mock.calls[0][0];
       expect(sessionOpts.mustVerify).toBe(true);
       expect(sessionOpts.tokenVerificationId).toBe(null);
 
@@ -459,25 +457,24 @@ describe('/account/passwordless/confirm_code', () => {
 
       // Existing account: login event only, no verified, no
       // profileDataChange. deviceCount should come from db.sessions.
-      const notifyEvents = mockLog.notifyAttachedServices.args.map(
+      const notifyEvents = mockLog.notifyAttachedServices.mock.calls.map(
         (call: any[]) => call[0]
       );
       expect(notifyEvents).toEqual(['login']);
-      sinon.assert.calledWithMatch(
-        mockLog.notifyAttachedServices,
+      expect(mockLog.notifyAttachedServices).toHaveBeenCalledWith(
         'login',
         mockRequest,
-        sinon.match({ email: TEST_EMAIL, uid, deviceCount: 3 })
+        expect.objectContaining({ email: TEST_EMAIL, uid, deviceCount: 3 })
       );
     });
   });
 
   it('should emit glean registration.complete with reason otp for new account', () => {
     const mockGlean = mocks.mockGlean();
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
-    mockDB.createAccount = sinon.spy(() =>
+    mockDB.createAccount = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -485,7 +482,7 @@ describe('/account/passwordless/confirm_code', () => {
         verifierSetAt: 0,
       })
     );
-    mockDB.createSessionToken = sinon.spy(() =>
+    mockDB.createSessionToken = jest.fn(() =>
       Promise.resolve({
         data: 'sessiontoken123',
         emailVerified: true,
@@ -513,21 +510,20 @@ describe('/account/passwordless/confirm_code', () => {
     route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
 
     return runTest(route, mockRequest, () => {
-      sinon.assert.calledOnce(mockGlean.registration.complete);
-      sinon.assert.calledWithMatch(
-        mockGlean.registration.complete,
+      expect(mockGlean.registration.complete).toHaveBeenCalledTimes(1);
+      expect(mockGlean.registration.complete).toHaveBeenCalledWith(
         mockRequest,
-        {
+        expect.objectContaining({
           uid,
           reason: 'otp',
-        }
+        })
       );
     });
   });
 
   it('should emit glean login.complete with reason otp for existing account', () => {
     const mockGlean = mocks.mockGlean();
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -535,7 +531,7 @@ describe('/account/passwordless/confirm_code', () => {
         verifierSetAt: 0,
       })
     );
-    mockDB.createSessionToken = sinon.spy(() =>
+    mockDB.createSessionToken = jest.fn(() =>
       Promise.resolve({
         data: 'sessiontoken123',
         emailVerified: true,
@@ -563,45 +559,48 @@ describe('/account/passwordless/confirm_code', () => {
     route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
 
     return runTest(route, mockRequest, () => {
-      sinon.assert.calledOnce(mockGlean.login.complete);
-      sinon.assert.calledWithMatch(mockGlean.login.complete, mockRequest, {
-        uid,
-        reason: 'otp',
-      });
+      expect(mockGlean.login.complete).toHaveBeenCalledTimes(1);
+      expect(mockGlean.login.complete).toHaveBeenCalledWith(
+        mockRequest,
+        expect.objectContaining({
+          uid,
+          reason: 'otp',
+        })
+      );
     });
   });
 
   it('should reject invalid OTP code', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
         verifierSetAt: 0,
       })
     );
-    mockOtpManagerIsValid.resolves(false);
+    mockOtpManagerIsValid.mockResolvedValue(false);
 
     return runTest(route, mockRequest).then(
       () => {
         throw new Error('should have thrown');
       },
       (err) => {
-        expect(mockOtpManagerIsValid.callCount).toBe(1);
-        expect(mockOtpManagerDelete.callCount).toBe(0);
+        expect(mockOtpManagerIsValid.mock.calls.length).toBe(1);
+        expect(mockOtpManagerDelete.mock.calls.length).toBe(0);
         expect(err.errno).toBe(105);
       }
     );
   });
 
   it('should return unverified session with verificationMethod for TOTP accounts', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
         verifierSetAt: 0,
       })
     );
-    mockDB.createSessionToken = sinon.spy(() =>
+    mockDB.createSessionToken = jest.fn(() =>
       Promise.resolve({
         data: 'sessiontoken123',
         emailVerified: true,
@@ -610,7 +609,7 @@ describe('/account/passwordless/confirm_code', () => {
       })
     );
 
-    const hasTotpToken = sinon.stub().resolves(true);
+    const hasTotpToken = jest.fn().mockResolvedValue(true);
     routes = makeRoutes({
       log: mockLog,
       db: mockDB,
@@ -630,9 +629,9 @@ describe('/account/passwordless/confirm_code', () => {
     route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
 
     return runTest(route, mockRequest).then((result: any) => {
-      expect(hasTotpToken.callCount).toBe(1);
-      expect(mockOtpManagerIsValid.callCount).toBe(1);
-      expect(mockOtpManagerDelete.callCount).toBe(1);
+      expect(hasTotpToken.mock.calls.length).toBe(1);
+      expect(mockOtpManagerIsValid.mock.calls.length).toBe(1);
+      expect(mockOtpManagerDelete.mock.calls.length).toBe(1);
       expect(result.uid).toBe(uid);
       expect(result.sessionToken).toBe('sessiontoken123');
       expect(result.verified).toBe(false);
@@ -641,14 +640,14 @@ describe('/account/passwordless/confirm_code', () => {
       expect(result.verificationMethod).toBe('totp-2fa');
       expect(result.verificationReason).toBe('login');
       // Session should be created with mustVerify=true
-      const sessionTokenArgs = mockDB.createSessionToken.args[0][0];
+      const sessionTokenArgs = mockDB.createSessionToken.mock.calls[0][0];
       expect(sessionTokenArgs.mustVerify).toBe(true);
       expect(sessionTokenArgs.tokenVerificationId).toBeTruthy();
     });
   });
 
   it('should reject account with password set', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -661,14 +660,14 @@ describe('/account/passwordless/confirm_code', () => {
         throw new Error('should have thrown');
       },
       (err) => {
-        expect(mockDB.accountRecord.callCount).toBe(1);
+        expect(mockDB.accountRecord.mock.calls.length).toBe(1);
         expect(err.errno).toBe(206);
       }
     );
   });
 
   it('should include user agent info in session token', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -676,7 +675,7 @@ describe('/account/passwordless/confirm_code', () => {
         verifierSetAt: 0,
       })
     );
-    mockDB.createSessionToken = sinon.spy(() =>
+    mockDB.createSessionToken = jest.fn(() =>
       Promise.resolve({
         data: 'sessiontoken123',
         emailVerified: true,
@@ -694,8 +693,8 @@ describe('/account/passwordless/confirm_code', () => {
     };
 
     return runTest(route, mockRequest, () => {
-      expect(mockDB.createSessionToken.callCount).toBe(1);
-      const sessionOpts = mockDB.createSessionToken.args[0][0];
+      expect(mockDB.createSessionToken.mock.calls.length).toBe(1);
+      const sessionOpts = mockDB.createSessionToken.mock.calls[0][0];
       expect(sessionOpts.uaBrowser).toBe('Firefox');
       expect(sessionOpts.uaBrowserVersion).toBe('100');
       expect(sessionOpts.uaOS).toBe('Linux');
@@ -727,7 +726,7 @@ describe('passwordless CMS customization', () => {
       verifierSetAt: 0,
     });
     mockCustoms = {
-      check: sinon.spy(() => Promise.resolve()),
+      check: jest.fn(() => Promise.resolve()),
       v2Enabled: () => true,
     };
     mockRequest = mocks.mockRequest({
@@ -745,20 +744,20 @@ describe('passwordless CMS customization', () => {
   });
 
   afterEach(() => {
-    mockOtpManagerCreate.resetHistory();
-    mockOtpManagerIsValid.resetHistory();
-    mockOtpManagerDelete.resetHistory();
+    mockOtpManagerCreate.mockClear();
+    mockOtpManagerIsValid.mockClear();
+    mockOtpManagerDelete.mockClear();
   });
 
   describe('send_code with CMS configuration', () => {
     beforeEach(() => {
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.reject(error.unknownAccount())
       );
     });
 
     it('should call getOptionalCmsEmailConfig for new account', () => {
-      const mockGetOptionalCmsEmailConfig = sinon.stub().resolves({});
+      const mockGetOptionalCmsEmailConfig = jest.fn().mockResolvedValue({});
 
       routes = makeRoutes({
         log: mockLog,
@@ -780,14 +779,14 @@ describe('passwordless CMS customization', () => {
 
       return runTest(route, mockRequest, () => {
         // Verify OTP was created
-        expect(mockOtpManagerCreate.callCount).toBe(1);
-        expect(mockOtpManagerCreate.args[0][0]).toBe(TEST_EMAIL);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls[0][0]).toBe(TEST_EMAIL);
 
         // Verify CMS config was fetched
-        expect(mockGetOptionalCmsEmailConfig.callCount).toBe(1);
+        expect(mockGetOptionalCmsEmailConfig.mock.calls.length).toBe(1);
 
         // Check first argument (options object)
-        const options = mockGetOptionalCmsEmailConfig.args[0][0];
+        const options = mockGetOptionalCmsEmailConfig.mock.calls[0][0];
         expect(options.code).toBeDefined();
         expect(options.deviceId).toBeDefined();
         expect(options.flowId).toBeDefined();
@@ -795,7 +794,7 @@ describe('passwordless CMS customization', () => {
         expect(options.codeExpiryMinutes).toBe(5); // 300 seconds / 60
 
         // Check second argument (config object)
-        const config = mockGetOptionalCmsEmailConfig.args[0][1];
+        const config = mockGetOptionalCmsEmailConfig.mock.calls[0][1];
         expect(config.emailTemplate).toBe('PasswordlessSignupOtpEmail');
         expect(config.request).toBeDefined();
         expect(config.log).toBeDefined();
@@ -803,7 +802,7 @@ describe('passwordless CMS customization', () => {
     });
 
     it('should call getOptionalCmsEmailConfig for existing account', () => {
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
@@ -812,7 +811,7 @@ describe('passwordless CMS customization', () => {
         })
       );
 
-      const mockGetOptionalCmsEmailConfig = sinon.stub().resolves({});
+      const mockGetOptionalCmsEmailConfig = jest.fn().mockResolvedValue({});
 
       routes = makeRoutes({
         log: mockLog,
@@ -834,14 +833,14 @@ describe('passwordless CMS customization', () => {
 
       return runTest(route, mockRequest, () => {
         // Verify OTP was created with uid (not email)
-        expect(mockOtpManagerCreate.callCount).toBe(1);
-        expect(mockOtpManagerCreate.args[0][0]).toBe(uid);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls[0][0]).toBe(uid);
 
         // Verify CMS config was fetched with correct template
-        expect(mockGetOptionalCmsEmailConfig.callCount).toBe(1);
+        expect(mockGetOptionalCmsEmailConfig.mock.calls.length).toBe(1);
 
         // Check first argument (options object)
-        const options = mockGetOptionalCmsEmailConfig.args[0][0];
+        const options = mockGetOptionalCmsEmailConfig.mock.calls[0][0];
         expect(options.code).toBeDefined();
         expect(options.deviceId).toBeDefined();
         expect(options.flowId).toBeDefined();
@@ -849,7 +848,7 @@ describe('passwordless CMS customization', () => {
         expect(options.date).toBeDefined();
 
         // Check second argument (config object)
-        const config = mockGetOptionalCmsEmailConfig.args[0][1];
+        const config = mockGetOptionalCmsEmailConfig.mock.calls[0][1];
         expect(config.emailTemplate).toBe('PasswordlessSigninOtpEmail');
         expect(config.request).toBeDefined();
         expect(config.log).toBeDefined();
@@ -857,11 +856,11 @@ describe('passwordless CMS customization', () => {
     });
 
     it('should send email with CMS customization when available', () => {
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.reject(error.unknownAccount())
       );
 
-      const mockGetOptionalCmsEmailConfig = sinon.stub().resolves({
+      const mockGetOptionalCmsEmailConfig = jest.fn().mockResolvedValue({
         emailConfig: {
           subject: 'Custom Verification Code',
           description: 'Your custom OTP code',
@@ -889,21 +888,21 @@ describe('passwordless CMS customization', () => {
 
       return runTest(route, mockRequest, () => {
         // Verify CMS config was fetched
-        expect(mockGetOptionalCmsEmailConfig.callCount).toBe(1);
+        expect(mockGetOptionalCmsEmailConfig.mock.calls.length).toBe(1);
 
         // Verify the config includes CMS customization
-        const cmsConfig = mockGetOptionalCmsEmailConfig.args[0][0];
+        const cmsConfig = mockGetOptionalCmsEmailConfig.mock.calls[0][0];
         expect(cmsConfig.code).toBeDefined();
         expect(cmsConfig.codeExpiryMinutes).toBe(5);
       });
     });
 
     it('should handle CMS manager absence gracefully', () => {
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.reject(error.unknownAccount())
       );
 
-      const mockGetOptionalCmsEmailConfig = sinon.stub().resolves({});
+      const mockGetOptionalCmsEmailConfig = jest.fn().mockResolvedValue({});
 
       routes = makeRoutes({
         log: mockLog,
@@ -925,11 +924,11 @@ describe('passwordless CMS customization', () => {
 
       return runTest(route, mockRequest, () => {
         // Should still work without CMS manager
-        expect(mockOtpManagerCreate.callCount).toBe(1);
-        expect(mockGetOptionalCmsEmailConfig.callCount).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
+        expect(mockGetOptionalCmsEmailConfig.mock.calls.length).toBe(1);
 
         // Verify cmsManager parameter can be undefined
-        const config = mockGetOptionalCmsEmailConfig.args[0][1];
+        const config = mockGetOptionalCmsEmailConfig.mock.calls[0][1];
         // cmsManager is optional and may be undefined
         expect(config).toHaveProperty('log');
         expect(config).toHaveProperty('request');
@@ -937,7 +936,7 @@ describe('passwordless CMS customization', () => {
     });
 
     it('should pass correct email template for resend_code', () => {
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
@@ -946,7 +945,7 @@ describe('passwordless CMS customization', () => {
         })
       );
 
-      const mockGetOptionalCmsEmailConfig = sinon.stub().resolves({});
+      const mockGetOptionalCmsEmailConfig = jest.fn().mockResolvedValue({});
 
       routes = makeRoutes({
         log: mockLog,
@@ -968,14 +967,14 @@ describe('passwordless CMS customization', () => {
 
       return runTest(route, mockRequest, () => {
         // Verify OTP was deleted and recreated
-        expect(mockOtpManagerDelete.callCount).toBe(1);
-        expect(mockOtpManagerCreate.callCount).toBe(1);
+        expect(mockOtpManagerDelete.mock.calls.length).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
 
         // Verify CMS config was fetched
-        expect(mockGetOptionalCmsEmailConfig.callCount).toBe(1);
+        expect(mockGetOptionalCmsEmailConfig.mock.calls.length).toBe(1);
 
         // Should use signin template for existing account
-        const config = mockGetOptionalCmsEmailConfig.args[0][1];
+        const config = mockGetOptionalCmsEmailConfig.mock.calls[0][1];
         expect(config.emailTemplate).toBe('PasswordlessSigninOtpEmail');
       });
     });
@@ -988,7 +987,7 @@ describe('passwordless security events', () => {
     mockRequest: any,
     mockDB: any,
     mockCustoms: any,
-    mockRecordSecurityEvent: sinon.SinonStub,
+    mockRecordSecurityEvent: jest.Mock,
     route: any,
     routes: any;
 
@@ -1003,10 +1002,10 @@ describe('passwordless security events', () => {
       verifierSetAt: 0,
     });
     mockCustoms = {
-      check: sinon.spy(() => Promise.resolve()),
+      check: jest.fn(() => Promise.resolve()),
       v2Enabled: () => true,
     };
-    mockRecordSecurityEvent = sinon.stub().resolves();
+    mockRecordSecurityEvent = jest.fn().mockResolvedValue(undefined);
     mockRequest = mocks.mockRequest({
       log: mockLog,
       payload: {
@@ -1022,13 +1021,13 @@ describe('passwordless security events', () => {
   });
 
   afterEach(() => {
-    mockOtpManagerCreate.resetHistory();
-    mockOtpManagerIsValid.resetHistory();
-    mockOtpManagerDelete.resetHistory();
+    mockOtpManagerCreate.mockClear();
+    mockOtpManagerIsValid.mockClear();
+    mockOtpManagerDelete.mockClear();
   });
 
   it('should record security event when OTP is sent for new account', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
 
@@ -1051,15 +1050,15 @@ describe('passwordless security events', () => {
     route = getRoute(routes, '/account/passwordless/send_code', 'POST');
 
     return runTest(route, mockRequest, () => {
-      expect(mockRecordSecurityEvent.callCount).toBe(1);
-      expect(mockRecordSecurityEvent.args[0][0]).toBe(
+      expect(mockRecordSecurityEvent.mock.calls.length).toBe(1);
+      expect(mockRecordSecurityEvent.mock.calls[0][0]).toBe(
         'account.passwordless_login_otp_sent'
       );
     });
   });
 
   it('should record security event when OTP is sent for existing account', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -1087,20 +1086,20 @@ describe('passwordless security events', () => {
     route = getRoute(routes, '/account/passwordless/send_code', 'POST');
 
     return runTest(route, mockRequest, () => {
-      expect(mockRecordSecurityEvent.callCount).toBe(1);
-      expect(mockRecordSecurityEvent.args[0][0]).toBe(
+      expect(mockRecordSecurityEvent.mock.calls.length).toBe(1);
+      expect(mockRecordSecurityEvent.mock.calls[0][0]).toBe(
         'account.passwordless_login_otp_sent'
       );
-      expect(mockRecordSecurityEvent.args[0][1].account).toBeDefined();
-      expect(mockRecordSecurityEvent.args[0][1].account.uid).toBe(uid);
+      expect(mockRecordSecurityEvent.mock.calls[0][1].account).toBeDefined();
+      expect(mockRecordSecurityEvent.mock.calls[0][1].account.uid).toBe(uid);
     });
   });
 
   it('should record security event when valid OTP is confirmed for new account', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
-    mockDB.createAccount = sinon.spy(() =>
+    mockDB.createAccount = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -1108,7 +1107,7 @@ describe('passwordless security events', () => {
         verifierSetAt: 0,
       })
     );
-    mockDB.createSessionToken = sinon.spy(() =>
+    mockDB.createSessionToken = jest.fn(() =>
       Promise.resolve({
         data: 'sessiontoken123',
         emailVerified: true,
@@ -1139,11 +1138,11 @@ describe('passwordless security events', () => {
 
     return runTest(route, mockRequest, () => {
       // Should record two events: registration_complete and otp_verified
-      expect(mockRecordSecurityEvent.callCount).toBe(2);
-      expect(mockRecordSecurityEvent.args[0][0]).toBe(
+      expect(mockRecordSecurityEvent.mock.calls.length).toBe(2);
+      expect(mockRecordSecurityEvent.mock.calls[0][0]).toBe(
         'account.passwordless_registration_complete'
       );
-      expect(mockRecordSecurityEvent.args[1][0]).toBe(
+      expect(mockRecordSecurityEvent.mock.calls[1][0]).toBe(
         'account.passwordless_login_otp_verified'
       );
     });
@@ -1171,7 +1170,7 @@ describe('passwordless statsd metrics', () => {
       verifierSetAt: 0,
     });
     mockCustoms = {
-      check: sinon.spy(() => Promise.resolve()),
+      check: jest.fn(() => Promise.resolve()),
       v2Enabled: () => true,
     };
     mockStatsd = mocks.mockStatsd();
@@ -1195,13 +1194,13 @@ describe('passwordless statsd metrics', () => {
   });
 
   afterEach(() => {
-    mockOtpManagerCreate.resetHistory();
-    mockOtpManagerIsValid.resetHistory();
-    mockOtpManagerDelete.resetHistory();
+    mockOtpManagerCreate.mockClear();
+    mockOtpManagerIsValid.mockClear();
+    mockOtpManagerDelete.mockClear();
   });
 
   it('should increment statsd counter when OTP is sent', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
 
@@ -1224,18 +1223,18 @@ describe('passwordless statsd metrics', () => {
     route = getRoute(routes, '/account/passwordless/send_code', 'POST');
 
     return runTest(route, mockRequest, () => {
-      expect(mockStatsd.increment.callCount).toBe(1);
-      expect(mockStatsd.increment.args[0][0]).toBe(
+      expect(mockStatsd.increment.mock.calls.length).toBe(1);
+      expect(mockStatsd.increment.mock.calls[0][0]).toBe(
         'passwordless.sendCode.success'
       );
-      expect(mockStatsd.increment.args[0][1]).toMatchObject({
+      expect(mockStatsd.increment.mock.calls[0][1]).toMatchObject({
         isResend: 'false',
       });
     });
   });
 
   it('should increment statsd counter when OTP is resent', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -1263,21 +1262,21 @@ describe('passwordless statsd metrics', () => {
     route = getRoute(routes, '/account/passwordless/resend_code', 'POST');
 
     return runTest(route, mockRequest, () => {
-      expect(mockStatsd.increment.callCount).toBe(1);
-      expect(mockStatsd.increment.args[0][0]).toBe(
+      expect(mockStatsd.increment.mock.calls.length).toBe(1);
+      expect(mockStatsd.increment.mock.calls[0][0]).toBe(
         'passwordless.sendCode.success'
       );
-      expect(mockStatsd.increment.args[0][1]).toMatchObject({
+      expect(mockStatsd.increment.mock.calls[0][1]).toMatchObject({
         isResend: 'true',
       });
     });
   });
 
   it('should increment statsd counter for successful registration', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
-    mockDB.createAccount = sinon.spy(() =>
+    mockDB.createAccount = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -1285,7 +1284,7 @@ describe('passwordless statsd metrics', () => {
         verifierSetAt: 0,
       })
     );
-    mockDB.createSessionToken = sinon.spy(() =>
+    mockDB.createSessionToken = jest.fn(() =>
       Promise.resolve({
         data: 'sessiontoken123',
         emailVerified: true,
@@ -1316,26 +1315,26 @@ describe('passwordless statsd metrics', () => {
 
     return runTest(route, mockRequest, () => {
       // Should increment both registration.success and confirmCode.success
-      expect(mockStatsd.increment.callCount).toBeGreaterThanOrEqual(2);
-      const incrementCalls = mockStatsd.increment
-        .getCalls()
-        .map((c: any) => c.args[0]);
+      expect(mockStatsd.increment.mock.calls.length).toBeGreaterThanOrEqual(2);
+      const incrementCalls = mockStatsd.increment.mock.calls.map(
+        (c: any) => c[0]
+      );
       expect(incrementCalls).toContain('passwordless.registration.success');
       expect(incrementCalls).toContain('passwordless.confirmCode.success');
 
       // confirmCode.success should include isNewAccount tag
-      const confirmCall = mockStatsd.increment
-        .getCalls()
-        .find((c: any) => c.args[0] === 'passwordless.confirmCode.success');
+      const confirmCall = mockStatsd.increment.mock.calls.find(
+        (c: any) => c[0] === 'passwordless.confirmCode.success'
+      );
       expect(confirmCall).toBeDefined();
-      expect(confirmCall.args[1]).toEqual(
+      expect(confirmCall[1]).toEqual(
         expect.objectContaining({ isNewAccount: 'true' })
       );
     });
   });
 
   it('should increment passwordless.blocked when client is not allowed', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
 
@@ -1360,11 +1359,11 @@ describe('passwordless statsd metrics', () => {
         throw new Error('should have failed');
       },
       () => {
-        const blockedCall = mockStatsd.increment
-          .getCalls()
-          .find((c: any) => c.args[0] === 'passwordless.blocked');
+        const blockedCall = mockStatsd.increment.mock.calls.find(
+          (c: any) => c[0] === 'passwordless.blocked'
+        );
         expect(blockedCall).toBeDefined();
-        expect(blockedCall.args[1]).toEqual(
+        expect(blockedCall[1]).toEqual(
           expect.objectContaining({
             reason: 'clientNotAllowed',
             clientId: 'test-client-id',
@@ -1395,7 +1394,7 @@ describe('/account/passwordless/resend_code', () => {
       verifierSetAt: 0,
     });
     mockCustoms = {
-      check: sinon.spy(() => Promise.resolve()),
+      check: jest.fn(() => Promise.resolve()),
       v2Enabled: () => true,
     };
     mockRequest = mocks.mockRequest({
@@ -1430,33 +1429,33 @@ describe('/account/passwordless/resend_code', () => {
   });
 
   afterEach(() => {
-    mockOtpManagerCreate.resetHistory();
-    mockOtpManagerDelete.resetHistory();
+    mockOtpManagerCreate.mockClear();
+    mockOtpManagerDelete.mockClear();
   });
 
   it('should delete old code and send new one for new account', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
 
     return runTest(route, mockRequest, (result) => {
       // Verify rate limiting was called
-      expect(mockCustoms.check.callCount).toBe(1);
-      expect(mockCustoms.check.args[0][1]).toBe(TEST_EMAIL);
-      expect(mockCustoms.check.args[0][2]).toBe('passwordlessSendOtp');
+      expect(mockCustoms.check.mock.calls.length).toBe(1);
+      expect(mockCustoms.check.mock.calls[0][1]).toBe(TEST_EMAIL);
+      expect(mockCustoms.check.mock.calls[0][2]).toBe('passwordlessSendOtp');
 
-      expect(mockOtpManagerDelete.callCount).toBe(1);
-      expect(mockOtpManagerDelete.args[0][0]).toBe(TEST_EMAIL);
+      expect(mockOtpManagerDelete.mock.calls.length).toBe(1);
+      expect(mockOtpManagerDelete.mock.calls[0][0]).toBe(TEST_EMAIL);
 
-      expect(mockOtpManagerCreate.callCount).toBe(1);
-      expect(mockOtpManagerCreate.args[0][0]).toBe(TEST_EMAIL);
+      expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
+      expect(mockOtpManagerCreate.mock.calls[0][0]).toBe(TEST_EMAIL);
 
       expect(result).toEqual({});
     });
   });
 
   it('should delete old code and send new one for existing account', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -1467,22 +1466,22 @@ describe('/account/passwordless/resend_code', () => {
 
     return runTest(route, mockRequest, (result) => {
       // Verify rate limiting was called
-      expect(mockCustoms.check.callCount).toBe(1);
-      expect(mockCustoms.check.args[0][1]).toBe(TEST_EMAIL);
-      expect(mockCustoms.check.args[0][2]).toBe('passwordlessSendOtp');
+      expect(mockCustoms.check.mock.calls.length).toBe(1);
+      expect(mockCustoms.check.mock.calls[0][1]).toBe(TEST_EMAIL);
+      expect(mockCustoms.check.mock.calls[0][2]).toBe('passwordlessSendOtp');
 
-      expect(mockOtpManagerDelete.callCount).toBe(1);
-      expect(mockOtpManagerDelete.args[0][0]).toBe(uid);
+      expect(mockOtpManagerDelete.mock.calls.length).toBe(1);
+      expect(mockOtpManagerDelete.mock.calls[0][0]).toBe(uid);
 
-      expect(mockOtpManagerCreate.callCount).toBe(1);
-      expect(mockOtpManagerCreate.args[0][0]).toBe(uid);
+      expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
+      expect(mockOtpManagerCreate.mock.calls[0][0]).toBe(uid);
 
       expect(result).toEqual({});
     });
   });
 
   it('should reject account with password', () => {
-    mockDB.accountRecord = sinon.spy(() =>
+    mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,
         email: TEST_EMAIL,
@@ -1495,9 +1494,9 @@ describe('/account/passwordless/resend_code', () => {
         throw new Error('should have thrown');
       },
       (err) => {
-        expect(mockDB.accountRecord.callCount).toBe(1);
-        expect(mockOtpManagerDelete.callCount).toBe(0);
-        expect(mockOtpManagerCreate.callCount).toBe(0);
+        expect(mockDB.accountRecord.mock.calls.length).toBe(1);
+        expect(mockOtpManagerDelete.mock.calls.length).toBe(0);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(0);
         expect(err.errno).toBe(206);
       }
     );
@@ -1563,7 +1562,7 @@ describe('passwordless service validation', () => {
       verifierSetAt: 0,
     });
     mockCustoms = {
-      check: sinon.spy(() => Promise.resolve()),
+      check: jest.fn(() => Promise.resolve()),
       v2Enabled: () => true,
     };
     mockRequest = mocks.mockRequest({
@@ -1595,7 +1594,7 @@ describe('passwordless service validation', () => {
         },
       });
       route = getRoute(routes, '/account/passwordless/send_code', 'POST');
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.reject(error.unknownAccount())
       );
     });
@@ -1608,8 +1607,8 @@ describe('passwordless service validation', () => {
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
           // Rate limiting runs before allowlist check (which happens after account lookup)
-          expect(mockCustoms.check.callCount).toBe(1);
-          expect(mockOtpManagerCreate.callCount).toBe(0);
+          expect(mockCustoms.check.mock.calls.length).toBe(1);
+          expect(mockOtpManagerCreate.mock.calls.length).toBe(0);
         }
       );
     });
@@ -1622,8 +1621,8 @@ describe('passwordless service validation', () => {
         },
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
-          expect(mockCustoms.check.callCount).toBe(1);
-          expect(mockOtpManagerCreate.callCount).toBe(0);
+          expect(mockCustoms.check.mock.calls.length).toBe(1);
+          expect(mockOtpManagerCreate.mock.calls.length).toBe(0);
         }
       );
     });
@@ -1648,7 +1647,7 @@ describe('passwordless service validation', () => {
         },
       });
       route = getRoute(routes, '/account/passwordless/send_code', 'POST');
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.reject(error.unknownAccount())
       );
     });
@@ -1660,8 +1659,8 @@ describe('passwordless service validation', () => {
         },
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
-          expect(mockCustoms.check.callCount).toBe(1);
-          expect(mockOtpManagerCreate.callCount).toBe(0);
+          expect(mockCustoms.check.mock.calls.length).toBe(1);
+          expect(mockOtpManagerCreate.mock.calls.length).toBe(0);
         }
       );
     });
@@ -1674,8 +1673,8 @@ describe('passwordless service validation', () => {
         },
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
-          expect(mockCustoms.check.callCount).toBe(1);
-          expect(mockOtpManagerCreate.callCount).toBe(0);
+          expect(mockCustoms.check.mock.calls.length).toBe(1);
+          expect(mockOtpManagerCreate.mock.calls.length).toBe(0);
         }
       );
     });
@@ -1683,16 +1682,16 @@ describe('passwordless service validation', () => {
     it('should allow requests with allowed clientId (ea3ca969f8c6bb0d)', () => {
       mockRequest.payload.clientId = 'ea3ca969f8c6bb0d';
       return runTest(route, mockRequest, () => {
-        expect(mockCustoms.check.callCount).toBe(1);
-        expect(mockOtpManagerCreate.callCount).toBe(1);
+        expect(mockCustoms.check.mock.calls.length).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
       });
     });
 
     it('should allow requests with allowed clientId (dcdb5ae7add825d2)', () => {
       mockRequest.payload.clientId = 'dcdb5ae7add825d2';
       return runTest(route, mockRequest, () => {
-        expect(mockCustoms.check.callCount).toBe(1);
-        expect(mockOtpManagerCreate.callCount).toBe(1);
+        expect(mockCustoms.check.mock.calls.length).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
       });
     });
   });
@@ -1720,7 +1719,7 @@ describe('passwordless service validation', () => {
 
     it('should reject confirm_code without clientId for new account', () => {
       // Use new account (not existing passwordless) so allowlist is enforced
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.reject(error.unknownAccount())
       );
       return route.handler(mockRequest).then(
@@ -1730,13 +1729,13 @@ describe('passwordless service validation', () => {
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
           // Rate limiting runs before allowlist check (2 checks: verify + daily)
-          expect(mockCustoms.check.callCount).toBe(2);
+          expect(mockCustoms.check.mock.calls.length).toBe(2);
         }
       );
     });
 
     it('should reject confirm_code with disallowed clientId for new account', () => {
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.reject(error.unknownAccount())
       );
       mockRequest.payload.clientId = 'not-allowed-client';
@@ -1746,13 +1745,13 @@ describe('passwordless service validation', () => {
         },
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
-          expect(mockCustoms.check.callCount).toBe(2);
+          expect(mockCustoms.check.mock.calls.length).toBe(2);
         }
       );
     });
 
     it('should allow confirm_code with allowed clientId', () => {
-      mockDB.accountRecord = sinon.spy(() => ({
+      mockDB.accountRecord = jest.fn(() => ({
         uid,
         email: TEST_EMAIL,
         emailVerified: true,
@@ -1760,7 +1759,7 @@ describe('passwordless service validation', () => {
       }));
       mockRequest.payload.clientId = 'ea3ca969f8c6bb0d';
       return runTest(route, mockRequest, (result: any) => {
-        expect(mockCustoms.check.callCount).toBe(2);
+        expect(mockCustoms.check.mock.calls.length).toBe(2);
         expect(typeof result.uid).toBe('string');
         expect(typeof result.sessionToken).toBe('string');
       });
@@ -1768,13 +1767,13 @@ describe('passwordless service validation', () => {
 
     it('should bypass allowlist for existing passwordless account on confirm_code', () => {
       // Existing passwordless accounts bypass the allowlist
-      mockDB.accountRecord = sinon.spy(() => ({
+      mockDB.accountRecord = jest.fn(() => ({
         uid,
         email: TEST_EMAIL,
         emailVerified: true,
         verifierSetAt: 0,
       }));
-      mockDB.createSessionToken = sinon.spy(() =>
+      mockDB.createSessionToken = jest.fn(() =>
         Promise.resolve({
           data: 'sessiontoken123',
           emailVerified: true,
@@ -1808,7 +1807,7 @@ describe('passwordless service validation', () => {
         },
       });
       route = getRoute(routes, '/account/passwordless/resend_code', 'POST');
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.reject(error.unknownAccount())
       );
     });
@@ -1821,7 +1820,7 @@ describe('passwordless service validation', () => {
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
           // Rate limiting runs before allowlist check
-          expect(mockCustoms.check.callCount).toBe(1);
+          expect(mockCustoms.check.mock.calls.length).toBe(1);
         }
       );
     });
@@ -1834,7 +1833,7 @@ describe('passwordless service validation', () => {
         },
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
-          expect(mockCustoms.check.callCount).toBe(1);
+          expect(mockCustoms.check.mock.calls.length).toBe(1);
         }
       );
     });
@@ -1842,9 +1841,9 @@ describe('passwordless service validation', () => {
     it('should allow resend_code with allowed clientId', () => {
       mockRequest.payload.clientId = 'ea3ca969f8c6bb0d';
       return runTest(route, mockRequest, () => {
-        expect(mockCustoms.check.callCount).toBe(1);
-        expect(mockOtpManagerDelete.callCount).toBe(1);
-        expect(mockOtpManagerCreate.callCount).toBe(1);
+        expect(mockCustoms.check.mock.calls.length).toBe(1);
+        expect(mockOtpManagerDelete.mock.calls.length).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
       });
     });
   });
@@ -1867,7 +1866,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
       verifierSetAt: 0,
     });
     mockCustoms = {
-      check: sinon.spy(() => Promise.resolve()),
+      check: jest.fn(() => Promise.resolve()),
       v2Enabled: () => true,
     };
     mockRequest = mocks.mockRequest({
@@ -1884,9 +1883,9 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
   });
 
   afterEach(() => {
-    mockOtpManagerCreate.resetHistory();
-    mockOtpManagerIsValid.resetHistory();
-    mockOtpManagerDelete.resetHistory();
+    mockOtpManagerCreate.mockClear();
+    mockOtpManagerIsValid.mockClear();
+    mockOtpManagerDelete.mockClear();
   });
 
   describe('send_code', () => {
@@ -1905,7 +1904,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         },
       });
       const route = getRoute(routes, '/account/passwordless/send_code', 'POST');
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
@@ -1916,7 +1915,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
 
       return runTest(route, mockRequest, (result) => {
         expect(result).toEqual({});
-        expect(mockOtpManagerCreate.callCount).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
       });
     });
 
@@ -1935,7 +1934,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         },
       });
       const route = getRoute(routes, '/account/passwordless/send_code', 'POST');
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
@@ -1946,7 +1945,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
 
       return runTest(route, mockRequest, (result) => {
         expect(result).toEqual({});
-        expect(mockOtpManagerCreate.callCount).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
       });
     });
 
@@ -1965,7 +1964,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         },
       });
       const route = getRoute(routes, '/account/passwordless/send_code', 'POST');
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.reject(error.unknownAccount())
       );
 
@@ -1975,7 +1974,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         },
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.FEATURE_NOT_ENABLED);
-          expect(mockOtpManagerCreate.callCount).toBe(0);
+          expect(mockOtpManagerCreate.mock.calls.length).toBe(0);
         }
       );
     });
@@ -2002,7 +2001,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         'POST'
       );
       mockRequest.payload.code = '123456';
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
@@ -2010,7 +2009,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
           verifierSetAt: 0,
         })
       );
-      mockDB.createSessionToken = sinon.spy(() =>
+      mockDB.createSessionToken = jest.fn(() =>
         Promise.resolve({
           data: 'sessiontoken123',
           emailVerified: true,
@@ -2047,7 +2046,7 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
         '/account/passwordless/resend_code',
         'POST'
       );
-      mockDB.accountRecord = sinon.spy(() =>
+      mockDB.accountRecord = jest.fn(() =>
         Promise.resolve({
           uid,
           email: TEST_EMAIL,
@@ -2058,8 +2057,8 @@ describe('existing passwordless accounts bypass flag and allowlist', () => {
 
       return runTest(route, mockRequest, (result) => {
         expect(result).toEqual({});
-        expect(mockOtpManagerDelete.callCount).toBe(1);
-        expect(mockOtpManagerCreate.callCount).toBe(1);
+        expect(mockOtpManagerDelete.mock.calls.length).toBe(1);
+        expect(mockOtpManagerCreate.mock.calls.length).toBe(1);
       });
     });
   });

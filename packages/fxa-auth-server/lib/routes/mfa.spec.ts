@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import { AppError } from '@fxa/accounts/errors';
 import { strategy } from './auth-schemes/mfa';
@@ -30,8 +29,6 @@ describe('mfa', () => {
   const SESSION_TOKEN_ID = 'session-123';
   const UA_BROWSER = 'Firefox';
   const action = 'test';
-  const sandbox = sinon.createSandbox();
-
   const config = {
     mfa: {
       enabled: true,
@@ -66,7 +63,7 @@ describe('mfa', () => {
     );
     route = getRoute(routes, routePath, method);
     request = mocks.mockRequest(requestOptions);
-    request.emitMetricsEvent = sandbox.spy(() => Promise.resolve({}));
+    request.emitMetricsEvent = jest.fn(() => Promise.resolve({}));
     return await route.handler(request);
   }
 
@@ -95,7 +92,7 @@ describe('mfa', () => {
 
   beforeEach(() => {
     const mockAccountEventsManager = {
-      recordSecurityEvent: sandbox.fake(),
+      recordSecurityEvent: jest.fn(),
     };
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
@@ -108,7 +105,7 @@ describe('mfa', () => {
       emailVerified: true,
     });
     otpUtils = new OtpUtils(db, statsd);
-    mockGetCredentialsFunc = sandbox.fake.returns({
+    mockGetCredentialsFunc = jest.fn().mockReturnValue({
       id: SESSION_TOKEN_ID,
       uid: UID,
       uaBrowser: UA_BROWSER,
@@ -120,18 +117,18 @@ describe('mfa', () => {
     Container.set(AccountEventsManager, mockAccountEventsManager);
 
     code = '';
-    mailer.sendVerifyAccountChangeEmail = sandbox.spy(
+    mailer.sendVerifyAccountChangeEmail = jest.fn(
       (_emails: any, _account: any, data: any) => {
         code = data.code;
       }
     );
-    fxaMailer.sendVerifyAccountChangeEmail = sandbox.spy((data: any) => {
+    fxaMailer.sendVerifyAccountChangeEmail = jest.fn((data: any) => {
       code = data.code;
     });
   });
 
   afterEach(() => {
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   afterAll(() => {
@@ -191,16 +188,14 @@ describe('mfa', () => {
     expect(authResult.credentials.uaBrowser).toBe(UA_BROWSER);
 
     // Make sure customs was invoked
-    sinon.assert.calledWith(
-      customs.checkAuthenticated,
-      sinon.match.any,
+    expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+      expect.anything(),
       UID,
       TEST_EMAIL,
       'mfaOtpCodeRequestForTest'
     );
-    sinon.assert.calledWith(
-      customs.checkAuthenticated,
-      sinon.match.any,
+    expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+      expect.anything(),
       UID,
       TEST_EMAIL,
       'mfaOtpCodeVerifyForTest'

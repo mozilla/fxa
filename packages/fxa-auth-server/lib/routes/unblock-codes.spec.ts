@@ -66,9 +66,9 @@ describe('/account/login/send_unblock_code', () => {
   const route = getRoute(accountRoutes, '/account/login/send_unblock_code');
 
   afterEach(() => {
-    mockDb.accountRecord.resetHistory();
-    mockDb.createUnblockCode.resetHistory();
-    mockFxaMailer.sendUnblockCodeEmail.resetHistory();
+    mockDb.accountRecord.mockClear();
+    mockDb.createUnblockCode.mockClear();
+    mockFxaMailer.sendUnblockCodeEmail.mockClear();
   });
 
   it('signin unblock enabled', () => {
@@ -76,23 +76,23 @@ describe('/account/login/send_unblock_code', () => {
       expect(response).not.toBeInstanceOf(Error);
       expect(response).toEqual({});
 
-      expect(mockDb.accountRecord.callCount).toBe(1);
-      expect(mockDb.accountRecord.args[0][0]).toBe(email);
+      expect(mockDb.accountRecord).toHaveBeenCalledTimes(1);
+      expect(mockDb.accountRecord.mock.calls[0][0]).toBe(email);
 
-      expect(mockDb.createUnblockCode.callCount).toBe(1);
-      const dbArgs = mockDb.createUnblockCode.args[0];
+      expect(mockDb.createUnblockCode).toHaveBeenCalledTimes(1);
+      const dbArgs = mockDb.createUnblockCode.mock.calls[0];
       expect(dbArgs).toHaveLength(1);
       expect(dbArgs[0]).toBe(uid);
 
-      expect(mockFxaMailer.sendUnblockCodeEmail.callCount).toBe(1);
-      const args = mockFxaMailer.sendUnblockCodeEmail.args[0];
+      expect(mockFxaMailer.sendUnblockCodeEmail).toHaveBeenCalledTimes(1);
+      const args = mockFxaMailer.sendUnblockCodeEmail.mock.calls[0];
       expect(args).toHaveLength(1);
 
-      expect(mockLog.flowEvent.callCount).toBe(1);
-      expect(mockLog.flowEvent.args[0][0].event).toBe(
+      expect(mockLog.flowEvent).toHaveBeenCalledTimes(1);
+      expect(mockLog.flowEvent.mock.calls[0][0].event).toBe(
         'account.login.sentUnblockCode'
       );
-      mockLog.flowEvent.resetHistory();
+      mockLog.flowEvent.mockClear();
     });
   });
 
@@ -103,10 +103,12 @@ describe('/account/login/send_unblock_code', () => {
       expect(response).not.toBeInstanceOf(Error);
       expect(response).toEqual({});
 
-      expect(mockDb.accountRecord.callCount).toBe(1);
-      expect(mockDb.accountRecord.args[0][0]).toBe(mockRequest.payload.email);
-      expect(mockDb.createUnblockCode.callCount).toBe(1);
-      expect(mockFxaMailer.sendUnblockCodeEmail.callCount).toBe(1);
+      expect(mockDb.accountRecord).toHaveBeenCalledTimes(1);
+      expect(mockDb.accountRecord.mock.calls[0][0]).toBe(
+        mockRequest.payload.email
+      );
+      expect(mockDb.createUnblockCode).toHaveBeenCalledTimes(1);
+      expect(mockFxaMailer.sendUnblockCodeEmail).toHaveBeenCalledTimes(1);
     });
   });
 });
@@ -131,8 +133,8 @@ describe('/account/login/reject_unblock_code', () => {
       expect(response).not.toBeInstanceOf(Error);
       expect(response).toEqual({});
 
-      expect(mockDb.consumeUnblockCode.callCount).toBe(1);
-      const args = mockDb.consumeUnblockCode.args[0];
+      expect(mockDb.consumeUnblockCode).toHaveBeenCalledTimes(1);
+      const args = mockDb.consumeUnblockCode.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0].toString('hex')).toBe(uid);
       expect(args[1]).toBe(unblockCode);

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { EventEmitter } from 'events';
 
 const { mockDB, mockLog } = require('../../test/mocks');
@@ -12,13 +11,13 @@ const mockDeliveryQueue = new EventEmitter();
 (mockDeliveryQueue as any).start = function start() {};
 
 function mockMessage(msg: any) {
-  msg.del = sinon.spy();
+  msg.del = jest.fn();
   return msg;
 }
 
 let pushShouldThrow = false;
 const mockPush = {
-  notifyProfileUpdated: sinon.spy((uid: string) => {
+  notifyProfileUpdated: jest.fn((uid: string) => {
     expect(typeof uid).toBe('string');
     if (pushShouldThrow) {
       throw new Error('oops');
@@ -33,7 +32,7 @@ function mockProfileUpdates(log: any) {
 
 describe('profile updates', () => {
   beforeEach(() => {
-    mockPush.notifyProfileUpdated.resetHistory();
+    mockPush.notifyProfileUpdated.mockClear();
     pushShouldThrow = false;
   });
 
@@ -45,8 +44,8 @@ describe('profile updates', () => {
         uid: 'bogusuid',
       })
     );
-    expect(mockPush.notifyProfileUpdated.callCount).toBe(1);
-    expect(log.error.callCount).toBe(1);
+    expect(mockPush.notifyProfileUpdated).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledTimes(1);
   });
 
   it('should send notifications', async () => {
@@ -71,17 +70,15 @@ describe('profile updates', () => {
       })
     );
 
-    expect(log.error.callCount).toBe(0);
-    expect(mockPush.notifyProfileUpdated.callCount).toBe(1);
-    const args = mockPush.notifyProfileUpdated.getCall(0).args;
+    expect(log.error).toHaveBeenCalledTimes(0);
+    expect(mockPush.notifyProfileUpdated).toHaveBeenCalledTimes(1);
+    const args = mockPush.notifyProfileUpdated.mock.calls[0];
     expect(args[0]).toBe(uid);
 
-    expect(
-      log.notifyAttachedServices.calledWithExactly(
-        'profileDataChange',
-        {},
-        { uid }
-      )
-    ).toBe(true);
+    expect(log.notifyAttachedServices).toHaveBeenCalledWith(
+      'profileDataChange',
+      {},
+      { uid }
+    );
   });
 });

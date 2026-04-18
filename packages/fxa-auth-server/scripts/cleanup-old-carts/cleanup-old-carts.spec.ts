@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { CartCleanup } from './cleanup-old-carts';
 
 describe('CartCleanup', () => {
   let cartCleanup: CartCleanup;
   let dbStub: {
-    deleteFrom: sinon.SinonSpy;
-    where: sinon.SinonSpy;
-    execute: sinon.SinonSpy;
-    updateTable: sinon.SinonSpy;
-    set: sinon.SinonSpy;
+    deleteFrom: jest.Mock;
+    where: jest.Mock;
+    execute: jest.Mock;
+    updateTable: jest.Mock;
+    set: jest.Mock;
   };
 
   const deleteBefore = new Date('2024-01-01T00:00:00Z');
@@ -21,11 +20,11 @@ describe('CartCleanup', () => {
 
   beforeEach(() => {
     dbStub = {
-      deleteFrom: sinon.stub().returnsThis(),
-      where: sinon.stub().returnsThis(),
-      execute: sinon.stub().resolves(),
-      updateTable: sinon.stub().returnsThis(),
-      set: sinon.stub().returnsThis(),
+      deleteFrom: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      execute: jest.fn().mockResolvedValue(undefined),
+      updateTable: jest.fn().mockReturnThis(),
+      set: jest.fn().mockReturnThis(),
     };
 
     cartCleanup = new CartCleanup(
@@ -37,29 +36,33 @@ describe('CartCleanup', () => {
   });
 
   afterEach(() => {
-    sinon.restore();
+    jest.restoreAllMocks();
   });
 
   describe('run', () => {
     it('deletes old carts', async () => {
       await cartCleanup.run();
 
-      expect(dbStub.deleteFrom.calledWith('carts')).toBe(true);
-      expect(
-        dbStub.where.calledWith('updatedAt', '<', deleteBefore.getTime())
-      ).toBe(true);
-      expect(dbStub.execute.called).toBe(true);
+      expect(dbStub.deleteFrom).toHaveBeenCalledWith('carts');
+      expect(dbStub.where).toHaveBeenCalledWith(
+        'updatedAt',
+        '<',
+        deleteBefore.getTime()
+      );
+      expect(dbStub.execute).toHaveBeenCalled();
     });
 
     it('anonymizes fields within carts', async () => {
       await cartCleanup.run();
 
-      expect(dbStub.updateTable.calledWith('carts')).toBe(true);
-      expect(
-        dbStub.where.calledWith('updatedAt', '<', anonymizeBefore.getTime())
-      ).toBe(true);
-      expect(dbStub.set.calledWith('taxAddress', null)).toBe(true);
-      expect(dbStub.execute.calledTwice).toBe(true);
+      expect(dbStub.updateTable).toHaveBeenCalledWith('carts');
+      expect(dbStub.where).toHaveBeenCalledWith(
+        'updatedAt',
+        '<',
+        anonymizeBefore.getTime()
+      );
+      expect(dbStub.set).toHaveBeenCalledWith('taxAddress', null);
+      expect(dbStub.execute).toHaveBeenCalledTimes(2);
     });
 
     it('does not anonymize if no fields are provided', async () => {
@@ -71,7 +74,7 @@ describe('CartCleanup', () => {
       );
       await cartCleanup.run();
 
-      expect(dbStub.updateTable.called).toBe(false);
+      expect(dbStub.updateTable).not.toHaveBeenCalled();
     });
 
     it('does not anonymize if anonymizeBefore is null', async () => {
@@ -83,7 +86,7 @@ describe('CartCleanup', () => {
       );
       await cartCleanup.run();
 
-      expect(dbStub.updateTable.called).toBe(false);
+      expect(dbStub.updateTable).not.toHaveBeenCalled();
     });
   });
 });

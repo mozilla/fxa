@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import fs from 'fs';
 import { Container } from 'typedi';
 
@@ -31,25 +30,26 @@ const mockGoogleTranslateShapedError = {
 };
 
 jest.mock('./plan-language-tags-guesser', () => {
-  const sinon = require('sinon');
   const actual = jest.requireActual('./plan-language-tags-guesser');
   return {
     ...actual,
-    getLanguageTagFromPlanMetadata: sinon.stub().callsFake((plan: any) => {
-      if (plan.nickname.includes('es-ES')) {
-        return 'es-ES';
-      }
-      if (plan.nickname.includes('fr')) {
-        return 'fr';
-      }
-      if (plan.nickname === 'localised en plan') {
-        throw new Error(actual.PLAN_EN_LANG_ERROR);
-      }
-      if (plan.nickname === 'you cannot translate this') {
-        throw mockGoogleTranslateShapedError;
-      }
-      return 'en';
-    }),
+    getLanguageTagFromPlanMetadata: jest
+      .fn()
+      .mockImplementation((plan: any) => {
+        if (plan.nickname.includes('es-ES')) {
+          return 'es-ES';
+        }
+        if (plan.nickname.includes('fr')) {
+          return 'fr';
+        }
+        if (plan.nickname === 'localised en plan') {
+          throw new Error(actual.PLAN_EN_LANG_ERROR);
+        }
+        if (plan.nickname === 'you cannot translate this') {
+          throw mockGoogleTranslateShapedError;
+        }
+        return 'en';
+      }),
   };
 });
 
@@ -57,10 +57,8 @@ const {
   StripeProductsAndPlansConverter,
 } = require('./stripe-products-and-plans-converter');
 
-const sandbox = sinon.createSandbox();
-
 const mockPaymentConfigManager = {
-  startListeners: sandbox.stub(),
+  startListeners: jest.fn(),
 };
 const mockSupportedLanguages = ['es-ES', 'fr'];
 
@@ -68,9 +66,9 @@ describe('StripeProductsAndPlansConverter', () => {
   let converter: any;
 
   beforeEach(() => {
-    mockLog.error = sandbox.fake.returns({});
-    mockLog.info = sandbox.fake.returns({});
-    mockLog.debug = sandbox.fake.returns({});
+    mockLog.error = jest.fn().mockReturnValue({});
+    mockLog.info = jest.fn().mockReturnValue({});
+    mockLog.debug = jest.fn().mockReturnValue({});
     Container.set(PaymentConfigManager, mockPaymentConfigManager);
     converter = new StripeProductsAndPlansConverter({
       log: mockLog,
@@ -80,7 +78,7 @@ describe('StripeProductsAndPlansConverter', () => {
   });
 
   afterEach(() => {
-    sandbox.reset();
+    jest.clearAllMocks();
     Container.reset();
   });
 
@@ -391,7 +389,7 @@ describe('StripeProductsAndPlansConverter', () => {
 
     afterEach(() => {
       Container.reset();
-      sandbox.restore();
+      jest.restoreAllMocks();
     });
 
     it('Should write the file', async () => {
@@ -407,8 +405,12 @@ describe('StripeProductsAndPlansConverter', () => {
         2
       );
 
-      paymentConfigManager.validateProductConfig = sandbox.stub().resolves();
-      const spyWriteFile = sandbox.stub(fs.promises, 'writeFile').resolves();
+      paymentConfigManager.validateProductConfig = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      const spyWriteFile = jest
+        .spyOn(fs.promises, 'writeFile')
+        .mockResolvedValue();
 
       await converter.writeToFileProductConfig(
         productConfig,
@@ -416,19 +418,27 @@ describe('StripeProductsAndPlansConverter', () => {
         testPath
       );
 
-      sinon.assert.calledOnce(paymentConfigManager.validateProductConfig);
-      sinon.assert.calledWithExactly(spyWriteFile, testPath, expectedJSON);
+      expect(paymentConfigManager.validateProductConfig).toHaveBeenCalledTimes(
+        1
+      );
+      expect(spyWriteFile).toHaveBeenCalledWith(testPath, expectedJSON);
     });
 
     it('Throws an error when validation fails', async () => {
-      paymentConfigManager.validateProductConfig = sandbox.stub().rejects();
-      const spyWriteFile = sandbox.stub(fs.promises, 'writeFile').resolves();
+      paymentConfigManager.validateProductConfig = jest
+        .fn()
+        .mockRejectedValue(undefined);
+      const spyWriteFile = jest
+        .spyOn(fs.promises, 'writeFile')
+        .mockResolvedValue();
       try {
         await converter.writeToFileProductConfig();
-        sinon.assert.fail('An exception is expected to be thrown');
+        throw new Error('An exception is expected to be thrown');
       } catch (err) {
-        sinon.assert.calledOnce(paymentConfigManager.validateProductConfig);
-        sinon.assert.notCalled(spyWriteFile);
+        expect(
+          paymentConfigManager.validateProductConfig
+        ).toHaveBeenCalledTimes(1);
+        expect(spyWriteFile).not.toHaveBeenCalled();
       }
     });
   });
@@ -472,7 +482,7 @@ describe('StripeProductsAndPlansConverter', () => {
 
     afterEach(() => {
       Container.reset();
-      sandbox.restore();
+      jest.restoreAllMocks();
     });
 
     it('Should write the file', async () => {
@@ -488,8 +498,12 @@ describe('StripeProductsAndPlansConverter', () => {
         2
       );
 
-      paymentConfigManager.validatePlanConfig = sandbox.stub().resolves();
-      const spyWriteFile = sandbox.stub(fs.promises, 'writeFile').resolves();
+      paymentConfigManager.validatePlanConfig = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      const spyWriteFile = jest
+        .spyOn(fs.promises, 'writeFile')
+        .mockResolvedValue();
 
       await converter.writeToFilePlanConfig(
         planConfig,
@@ -498,20 +512,26 @@ describe('StripeProductsAndPlansConverter', () => {
         testPath
       );
 
-      sinon.assert.calledOnce(paymentConfigManager.validatePlanConfig);
-      sinon.assert.calledWithExactly(spyWriteFile, testPath, expectedJSON);
+      expect(paymentConfigManager.validatePlanConfig).toHaveBeenCalledTimes(1);
+      expect(spyWriteFile).toHaveBeenCalledWith(testPath, expectedJSON);
     });
 
     it('Throws an error when validation fails', async () => {
-      paymentConfigManager.validatePlanConfig = sandbox.stub().rejects();
-      const spyWriteFile = sandbox.stub(fs.promises, 'writeFile').resolves();
+      paymentConfigManager.validatePlanConfig = jest
+        .fn()
+        .mockRejectedValue(undefined);
+      const spyWriteFile = jest
+        .spyOn(fs.promises, 'writeFile')
+        .mockResolvedValue();
 
       try {
         await converter.writeToFilePlanConfig();
-        sinon.assert.fail('An exception is expected to be thrown');
+        throw new Error('An exception is expected to be thrown');
       } catch (err) {
-        sinon.assert.calledOnce(paymentConfigManager.validatePlanConfig);
-        sinon.assert.notCalled(spyWriteFile);
+        expect(paymentConfigManager.validatePlanConfig).toHaveBeenCalledTimes(
+          1
+        );
+        expect(spyWriteFile).not.toHaveBeenCalled();
       }
     });
   });

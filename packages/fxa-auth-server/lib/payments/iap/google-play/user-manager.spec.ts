@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 import { AuthLogger } from '../../../types';
@@ -40,7 +39,7 @@ describe('UserManager', () => {
     };
     mockCollRef = {
       where: () => mockCollRef,
-      get: sinon.fake.resolves(queryResult),
+      get: jest.fn().mockResolvedValue(queryResult),
     };
     mockPurchaseManager = {};
     Container.set(AuthLogger, log);
@@ -62,12 +61,14 @@ describe('UserManager', () => {
           Date.now()
         );
       const subscriptionSnapshot = {
-        data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
+        data: jest
+          .fn()
+          .mockReturnValue(subscriptionPurchase.toFirestoreObject()),
       };
       queryResult.docs.push(subscriptionSnapshot);
       const result = await userManager.queryCurrentSubscriptions(USER_ID);
       expect(result).toEqual([subscriptionPurchase]);
-      sinon.assert.calledOnce(mockCollRef.get);
+      expect(mockCollRef.get).toHaveBeenCalledTimes(1);
     });
 
     it('queries expired subscription purchases', async () => {
@@ -82,14 +83,19 @@ describe('UserManager', () => {
       subscriptionPurchase.expiryTimeMillis = Date.now() - 10000;
       subscriptionPurchase.autoRenewing = false;
       const subscriptionSnapshot = {
-        data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
+        data: jest
+          .fn()
+          .mockReturnValue(subscriptionPurchase.toFirestoreObject()),
       };
       queryResult.docs.push(subscriptionSnapshot);
-      mockPurchaseManager.querySubscriptionPurchase =
-        sinon.fake.resolves(subscriptionPurchase);
+      mockPurchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockResolvedValue(subscriptionPurchase);
       const result = await userManager.queryCurrentSubscriptions(USER_ID);
       expect(result).toEqual([]);
-      sinon.assert.calledOnce(mockPurchaseManager.querySubscriptionPurchase);
+      expect(
+        mockPurchaseManager.querySubscriptionPurchase
+      ).toHaveBeenCalledTimes(1);
     });
 
     it('throws library error on failure', async () => {
@@ -104,12 +110,14 @@ describe('UserManager', () => {
       subscriptionPurchase.expiryTimeMillis = Date.now() - 10000;
       subscriptionPurchase.autoRenewing = false;
       const subscriptionSnapshot = {
-        data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
+        data: jest
+          .fn()
+          .mockReturnValue(subscriptionPurchase.toFirestoreObject()),
       };
       queryResult.docs.push(subscriptionSnapshot);
-      mockPurchaseManager.querySubscriptionPurchase = sinon.fake.rejects(
-        new Error('oops')
-      );
+      mockPurchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockRejectedValue(new Error('oops'));
       await expect(
         userManager.queryCurrentSubscriptions(USER_ID)
       ).rejects.toMatchObject({ name: PurchaseQueryError.OTHER_ERROR });

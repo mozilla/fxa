@@ -33,8 +33,6 @@ const MONTH = DAY * 28;
 // ---------------------------------------------------------------------------
 // Tests
 //
-// NOTE: mocks.mockLog() returns sinon spies, so we access call data via the
-// sinon API (.callCount, .args) rather than the jest mock API (.mock.calls).
 // StatsD instances created with jest.fn() use the jest API.
 // ---------------------------------------------------------------------------
 
@@ -100,7 +98,7 @@ describe('metrics/amplitude', () => {
         return amplitude('account.created', mocks.mockRequest({})).then(() => {
           // could check other things, but this is the important one that
           // we want to disable when config.enabled is false
-          expect(log.amplitudeEvent.callCount).toBe(0);
+          expect(log.amplitudeEvent).toHaveBeenCalledTimes(0);
         });
       });
     });
@@ -114,10 +112,10 @@ describe('metrics/amplitude', () => {
       });
 
       it('called log.error correctly', () => {
-        expect(log.error.callCount).toBe(1);
-        expect(log.error.args[0].length).toBe(2);
-        expect(log.error.args[0][0]).toBe('amplitude.badArgument');
-        expect(log.error.args[0][1]).toEqual({
+        expect(log.error).toHaveBeenCalledTimes(1);
+        expect(log.error.mock.calls[0].length).toBe(2);
+        expect(log.error.mock.calls[0][0]).toBe('amplitude.badArgument');
+        expect(log.error.mock.calls[0][1]).toEqual({
           err: 'Bad argument',
           event: '',
           hasRequest: true,
@@ -125,7 +123,7 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.amplitudeEvent', () => {
-        expect(log.amplitudeEvent.callCount).toBe(0);
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -138,10 +136,10 @@ describe('metrics/amplitude', () => {
       });
 
       it('called log.error correctly', () => {
-        expect(log.error.callCount).toBe(1);
-        expect(log.error.args[0].length).toBe(2);
-        expect(log.error.args[0][0]).toBe('amplitude.badArgument');
-        expect(log.error.args[0][1]).toEqual({
+        expect(log.error).toHaveBeenCalledTimes(1);
+        expect(log.error.mock.calls[0].length).toBe(2);
+        expect(log.error.mock.calls[0][0]).toBe('amplitude.badArgument');
+        expect(log.error.mock.calls[0][1]).toEqual({
           err: 'Bad argument',
           event: 'foo',
           hasRequest: false,
@@ -149,7 +147,7 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.amplitudeEvent', () => {
-        expect(log.amplitudeEvent.callCount).toBe(0);
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -220,10 +218,10 @@ describe('metrics/amplitude', () => {
           utm_source: 'quuz',
           version,
         };
-        expect(log.info.args[0][1]['event']).toEqual(expectedEvent);
-        expect(log.info.args[0][1]['context']).toEqual(expectedContext);
-        expect(log.info.calledOnce).toBe(true);
-        expect(log.info.args[0][0]).toBe('rawAmplitudeData');
+        expect(log.info.mock.calls[0][1]['event']).toEqual(expectedEvent);
+        expect(log.info.mock.calls[0][1]['context']).toEqual(expectedContext);
+        expect(log.info).toHaveBeenCalledTimes(1);
+        expect(log.info.mock.calls[0][0]).toBe('rawAmplitudeData');
         expect(statsd.increment).toHaveBeenCalledTimes(2);
         expect(statsd.increment).toHaveBeenNthCalledWith(
           1,
@@ -298,12 +296,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args.length).toBe(1);
         expect(args[0].device_id).toBe('juff');
         expect(args[0].user_id).toBe('blee');
@@ -363,12 +361,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].device_id).toBe(undefined);
         expect(args[0].user_id).toBe('blee');
         expect(args[0].event_type).toBe('fxa_reg - created');
@@ -417,12 +415,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_login - success');
         expect(args[0].event_properties.service).toBe('undefined_oauth');
         expect(args[0].event_properties.oauth_client_id).toBe('2');
@@ -456,12 +454,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_login - blocked');
         expect(args[0].event_properties.service).toBe('sync');
         expect(args[0].event_properties.oauth_client_id).toBe(undefined);
@@ -483,12 +481,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_login - unblock_success');
       });
     });
@@ -502,17 +500,17 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(2);
-        let args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(2);
+        let args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_login - forgot_complete');
-        args = log.amplitudeEvent.args[1];
+        args = log.amplitudeEvent.mock.calls[1];
         expect(args[0].event_type).toBe('fxa_login - complete');
         expect(args[0].time).toBeGreaterThan(
-          log.amplitudeEvent.args[0][0].time
+          log.amplitudeEvent.mock.calls[0][0].time
         );
       });
     });
@@ -533,12 +531,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_activity - cert_signed');
         expect(args[0].event_properties.service).toBe(undefined);
         expect(args[0].event_properties.oauth_client_id).toBe(undefined);
@@ -555,12 +553,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_reg - email_confirmed');
         expect(args[0].user_properties.newsletter_state).toBe(undefined);
       });
@@ -577,12 +575,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_reg - email_confirmed');
         expect(args[0].user_properties.newsletters).toEqual([]);
       });
@@ -599,12 +597,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_reg - email_confirmed');
         expect(args[0].user_properties.newsletters).toEqual(['test_pilot']);
       });
@@ -619,12 +617,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_subscribe - subscription_ended');
       });
     });
@@ -645,12 +643,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_reg - complete');
       });
     });
@@ -671,12 +669,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_login - complete');
       });
     });
@@ -690,11 +688,11 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('did not call log.amplitudeEvent', () => {
-        expect(log.amplitudeEvent.callCount).toBe(0);
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -745,12 +743,12 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('called log.amplitudeEvent correctly', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].user_properties).toEqual({
           flow_id: 'udge',
           ua_browser: 'foo',
@@ -771,11 +769,11 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('did not call log.amplitudeEvent', () => {
-        expect(log.amplitudeEvent.callCount).toBe(0);
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -806,8 +804,8 @@ describe('metrics/amplitude', () => {
       });
 
       it('only includes minimal data', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args.length).toBe(1);
         expect(args[0].user_id).toBe('blee');
         expect(args[0].country).toBe(undefined);
@@ -845,12 +843,12 @@ describe('metrics/amplitude', () => {
           });
 
           it('did not call log.error', () => {
-            expect(log.error.callCount).toBe(0);
+            expect(log.error).toHaveBeenCalledTimes(0);
           });
 
           it('called log.amplitudeEvent correctly', () => {
-            expect(log.amplitudeEvent.callCount).toBe(1);
-            const args = log.amplitudeEvent.args[0];
+            expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+            const args = log.amplitudeEvent.mock.calls[0];
             expect(args[0].event_type).toBe('fxa_email - bounced');
             expect(args[0].event_properties.email_type).toBe(
               emailTypes[template]
@@ -864,12 +862,12 @@ describe('metrics/amplitude', () => {
           });
 
           it('did not call log.error', () => {
-            expect(log.error.callCount).toBe(0);
+            expect(log.error).toHaveBeenCalledTimes(0);
           });
 
           it('called log.amplitudeEvent correctly', () => {
-            expect(log.amplitudeEvent.callCount).toBe(1);
-            const args = log.amplitudeEvent.args[0];
+            expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+            const args = log.amplitudeEvent.mock.calls[0];
             expect(args[0].event_type).toBe('fxa_email - sent');
             expect(args[0].event_properties.email_type).toBe(
               emailTypes[template]
@@ -886,12 +884,12 @@ describe('metrics/amplitude', () => {
           });
 
           it('did not call log.error', () => {
-            expect(log.error.callCount).toBe(0);
+            expect(log.error).toHaveBeenCalledTimes(0);
           });
 
           it('called log.amplitudeEvent correctly', () => {
-            expect(log.amplitudeEvent.callCount).toBe(1);
-            const args = log.amplitudeEvent.args[0];
+            expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+            const args = log.amplitudeEvent.mock.calls[0];
             expect(args[0].event_type).toBe('fxa_email - bounced');
             expect(args[0].event_properties.email_type).toBe(
               emailTypes[template]
@@ -911,11 +909,11 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('did not call log.amplitudeEvent', () => {
-        expect(log.amplitudeEvent.callCount).toBe(0);
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(0);
       });
 
       it('incremented amplitude dropped', () => {
@@ -938,11 +936,11 @@ describe('metrics/amplitude', () => {
       });
 
       it('did not call log.error', () => {
-        expect(log.error.callCount).toBe(0);
+        expect(log.error).toHaveBeenCalledTimes(0);
       });
 
       it('did not call log.amplitudeEvent', () => {
-        expect(log.amplitudeEvent.callCount).toBe(0);
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -972,8 +970,8 @@ describe('metrics/amplitude', () => {
       });
 
       it('data properties were set', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].user_id).toBe('blee');
         expect(args[0].event_properties.service).toBe('undefined_oauth');
         expect(args[0].event_properties.oauth_client_id).toBe('zang');
@@ -1008,8 +1006,8 @@ describe('metrics/amplitude', () => {
       });
 
       it('metricsContext properties were set', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].device_id).toBe('plin');
         expect(args[0].event_properties.service).toBe('amo');
         expect(args[0].user_properties.flow_id).toBe('gorb');
@@ -1042,8 +1040,8 @@ describe('metrics/amplitude', () => {
       });
 
       it('subscription properties were set', () => {
-        expect(log.amplitudeEvent.callCount).toBe(1);
-        const args = log.amplitudeEvent.args[0];
+        expect(log.amplitudeEvent).toHaveBeenCalledTimes(1);
+        const args = log.amplitudeEvent.mock.calls[0];
         expect(args[0].event_properties.plan_id).toBe('bar');
         expect(args[0].event_properties.product_id).toBe('foo');
       });

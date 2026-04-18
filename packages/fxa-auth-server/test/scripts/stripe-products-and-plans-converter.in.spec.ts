@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import fs from 'fs';
 import { Container } from 'typedi';
 import { deleteCollection, deepCopy } from '../local/payments/util';
@@ -26,7 +25,7 @@ const googleTranslateShapedError = {
   },
 };
 
-const langFromMetadataStub = sinon.stub().callsFake((plan: any) => {
+const langFromMetadataStub = jest.fn().mockImplementation((plan: any) => {
   if (plan.nickname.includes('es-ES')) {
     return 'es-ES';
   }
@@ -55,7 +54,6 @@ const {
   StripeProductsAndPlansConverter,
 } = require('../../scripts/stripe-products-and-plans-to-firestore-documents/stripe-products-and-plans-converter');
 
-const sandbox = sinon.createSandbox();
 const mockSupportedLanguages = ['es-ES', 'fr'];
 
 describe('#integration - convert', () => {
@@ -179,9 +177,9 @@ describe('#integration - convert', () => {
   });
 
   beforeEach(() => {
-    mockLog.error = sandbox.fake.returns({});
-    mockLog.info = sandbox.fake.returns({});
-    mockLog.debug = sandbox.fake.returns({});
+    mockLog.error = jest.fn().mockReturnValue({});
+    mockLog.info = jest.fn().mockReturnValue({});
+    mockLog.debug = jest.fn().mockReturnValue({});
     const firestore = setupFirestore(mockConfig);
     Container.set(AuthFirestore, firestore);
     Container.set(AuthLogger, {});
@@ -214,14 +212,12 @@ describe('#integration - convert', () => {
       yield plan3;
     }
     converter.stripeHelper.stripe = {
-      products: { list: sandbox.stub().returns(productGenerator()) },
+      products: { list: jest.fn().mockReturnValue(productGenerator()) },
       plans: {
-        list: sandbox
-          .stub()
-          .onFirstCall()
-          .returns(planGenerator1())
-          .onSecondCall()
-          .returns(planGenerator2()),
+        list: jest
+          .fn()
+          .mockReturnValueOnce(planGenerator1())
+          .mockReturnValueOnce(planGenerator2()),
       },
     };
   });
@@ -238,7 +234,7 @@ describe('#integration - convert', () => {
       100
     );
     Container.reset();
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   it('processes new products and plans', async () => {
@@ -331,8 +327,8 @@ describe('#integration - convert', () => {
       yield updatedPlan;
     }
     converter.stripeHelper.stripe = {
-      products: { list: sandbox.stub().returns(productGeneratorUpdated()) },
-      plans: { list: sandbox.stub().returns(planGeneratorUpdated()) },
+      products: { list: jest.fn().mockReturnValue(productGeneratorUpdated()) },
+      plans: { list: jest.fn().mockReturnValue(planGeneratorUpdated()) },
     };
     await converter.convert(args);
     products = await paymentConfigManager.allProducts();
@@ -350,42 +346,44 @@ describe('#integration - convert', () => {
 
   it('processes only the product with productId when passed', async () => {
     await converter.convert({ ...args, productId: product1.id });
-    sinon.assert.calledOnceWithExactly(
-      converter.stripeHelper.stripe.products.list,
-      { ids: [product1.id] }
+    expect(converter.stripeHelper.stripe.products.list).toHaveBeenCalledTimes(
+      1
     );
+    expect(converter.stripeHelper.stripe.products.list).toHaveBeenCalledWith({
+      ids: [product1.id],
+    });
   });
 
   it('processes successfully and writes to file', async () => {
-    const stubFsAccess = sandbox.stub(fs.promises, 'access').resolves();
-    paymentConfigManager.storeProductConfig = sandbox.stub();
-    paymentConfigManager.storePlanConfig = sandbox.stub();
-    converter.writeToFileProductConfig = sandbox.stub().resolves();
-    converter.writeToFilePlanConfig = sandbox.stub().resolves();
+    const stubFsAccess = jest.spyOn(fs.promises, 'access').mockResolvedValue();
+    paymentConfigManager.storeProductConfig = jest.fn();
+    paymentConfigManager.storePlanConfig = jest.fn();
+    converter.writeToFileProductConfig = jest.fn().mockResolvedValue();
+    converter.writeToFilePlanConfig = jest.fn().mockResolvedValue();
 
     const argsLocal = { ...args, target: 'local' };
     await converter.convert(argsLocal);
 
-    sinon.assert.called(stubFsAccess);
-    sinon.assert.called(converter.writeToFileProductConfig);
-    sinon.assert.called(converter.writeToFilePlanConfig);
-    sinon.assert.notCalled(paymentConfigManager.storeProductConfig);
-    sinon.assert.notCalled(paymentConfigManager.storePlanConfig);
+    expect(stubFsAccess).toHaveBeenCalled();
+    expect(converter.writeToFileProductConfig).toHaveBeenCalled();
+    expect(converter.writeToFilePlanConfig).toHaveBeenCalled();
+    expect(paymentConfigManager.storeProductConfig).not.toHaveBeenCalled();
+    expect(paymentConfigManager.storePlanConfig).not.toHaveBeenCalled();
 
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   it('does not update Firestore if dryRun = true', async () => {
-    paymentConfigManager.storeProductConfig = sandbox.stub();
-    paymentConfigManager.storePlanConfig = sandbox.stub();
-    converter.writeToFileProductConfig = sandbox.stub();
-    converter.writeToFilePlanConfig = sandbox.stub();
+    paymentConfigManager.storeProductConfig = jest.fn();
+    paymentConfigManager.storePlanConfig = jest.fn();
+    converter.writeToFileProductConfig = jest.fn();
+    converter.writeToFilePlanConfig = jest.fn();
     const argsDryRun = { ...args, isDryRun: true };
     await converter.convert(argsDryRun);
-    sinon.assert.notCalled(paymentConfigManager.storeProductConfig);
-    sinon.assert.notCalled(paymentConfigManager.storePlanConfig);
-    sinon.assert.notCalled(converter.writeToFileProductConfig);
-    sinon.assert.notCalled(converter.writeToFilePlanConfig);
+    expect(paymentConfigManager.storeProductConfig).not.toHaveBeenCalled();
+    expect(paymentConfigManager.storePlanConfig).not.toHaveBeenCalled();
+    expect(converter.writeToFileProductConfig).not.toHaveBeenCalled();
+    expect(converter.writeToFilePlanConfig).not.toHaveBeenCalled();
   });
 
   it('moves localized data from plans into the productConfig', async () => {
@@ -420,9 +418,9 @@ describe('#integration - convert', () => {
       yield planWithLocalizedData2;
     }
     converter.stripeHelper.stripe = {
-      products: { list: sandbox.stub().returns(productGenerator()) },
+      products: { list: jest.fn().mockReturnValue(productGenerator()) },
       plans: {
-        list: sandbox.stub().returns(planGenerator()),
+        list: jest.fn().mockReturnValue(planGenerator()),
       },
     };
     await converter.convert(args);
@@ -450,45 +448,43 @@ describe('#integration - convert', () => {
   it('logs an error and keeps processing if a product fails', async () => {
     const productConfigId = 'test-product-id';
     const planConfigId = 'test-plan-id';
-    paymentConfigManager.storeProductConfig = sandbox
-      .stub()
-      .resolves(productConfigId);
-    paymentConfigManager.storePlanConfig = sandbox
-      .stub()
-      .resolves(planConfigId);
-    converter.stripeProductToProductConfig = sandbox
-      .stub()
-      .onFirstCall()
-      .throws({ message: 'Something broke!' })
-      .onSecondCall()
-      .returns(productConfig2);
+    paymentConfigManager.storeProductConfig = jest
+      .fn()
+      .mockResolvedValue(productConfigId);
+    paymentConfigManager.storePlanConfig = jest
+      .fn()
+      .mockResolvedValue(planConfigId);
+    converter.stripeProductToProductConfig = jest
+      .fn()
+      .mockImplementationOnce(() => {
+        throw { message: 'Something broke!' };
+      })
+      .mockReturnValueOnce(productConfig2);
     async function* planGenerator() {
       yield plan2;
     }
     converter.stripeHelper.stripe = {
       ...converter.stripeHelper.stripe,
-      plans: { list: sandbox.stub().returns(planGenerator()) },
+      plans: { list: jest.fn().mockReturnValue(planGenerator()) },
     };
 
     await converter.convert(args);
-    sinon.assert.calledWithExactly(
-      paymentConfigManager.storeProductConfig.firstCall,
+    expect(paymentConfigManager.storeProductConfig.mock.calls[0]).toEqual([
       productConfig2,
-      null
-    );
-    sinon.assert.calledWithExactly(
-      paymentConfigManager.storeProductConfig.secondCall,
+      null,
+    ]);
+    expect(paymentConfigManager.storeProductConfig.mock.calls[1]).toEqual([
       productConfig2,
-      productConfigId
-    );
-    sinon.assert.calledOnceWithExactly(
-      paymentConfigManager.storePlanConfig,
+      productConfigId,
+    ]);
+    expect(paymentConfigManager.storePlanConfig).toHaveBeenCalledTimes(1);
+    expect(paymentConfigManager.storePlanConfig).toHaveBeenCalledWith(
       planConfig2,
       productConfigId,
       null
     );
-    sinon.assert.calledOnceWithExactly(
-      mockLog.error,
+    expect(mockLog.error).toHaveBeenCalledTimes(1);
+    expect(mockLog.error).toHaveBeenCalledWith(
       'StripeProductsAndPlansConverter.convertProductError',
       {
         error: 'Something broke!',
@@ -500,18 +496,18 @@ describe('#integration - convert', () => {
   it('logs an error and keeps processing if a plan fails', async () => {
     const productConfigId = 'test-product-id';
     const planConfigId = 'test-plan-id';
-    paymentConfigManager.storeProductConfig = sandbox
-      .stub()
-      .resolves(productConfigId);
-    paymentConfigManager.storePlanConfig = sandbox
-      .stub()
-      .resolves(planConfigId);
-    converter.stripePlanToPlanConfig = sandbox
-      .stub()
-      .onFirstCall()
-      .throws({ message: 'Something else broke!' })
-      .onSecondCall()
-      .returns(planConfig2);
+    paymentConfigManager.storeProductConfig = jest
+      .fn()
+      .mockResolvedValue(productConfigId);
+    paymentConfigManager.storePlanConfig = jest
+      .fn()
+      .mockResolvedValue(planConfigId);
+    converter.stripePlanToPlanConfig = jest
+      .fn()
+      .mockImplementationOnce(() => {
+        throw { message: 'Something else broke!' };
+      })
+      .mockReturnValueOnce(planConfig2);
     async function* productGenerator() {
       yield product1;
     }
@@ -520,29 +516,26 @@ describe('#integration - convert', () => {
       yield plan2;
     }
     converter.stripeHelper.stripe = {
-      products: { list: sandbox.stub().returns(productGenerator()) },
-      plans: { list: sandbox.stub().returns(planGenerator()) },
+      products: { list: jest.fn().mockReturnValue(productGenerator()) },
+      plans: { list: jest.fn().mockReturnValue(planGenerator()) },
     };
 
     await converter.convert(args);
-    sinon.assert.calledWithExactly(
-      paymentConfigManager.storeProductConfig.firstCall,
+    expect(paymentConfigManager.storeProductConfig.mock.calls[0]).toEqual([
       productConfig1,
-      null
-    );
-    sinon.assert.calledWithExactly(
-      paymentConfigManager.storeProductConfig.secondCall,
+      null,
+    ]);
+    expect(paymentConfigManager.storeProductConfig.mock.calls[1]).toEqual([
       productConfig1,
-      productConfigId
-    );
-    sinon.assert.calledWithExactly(
-      paymentConfigManager.storePlanConfig.firstCall,
+      productConfigId,
+    ]);
+    expect(paymentConfigManager.storePlanConfig.mock.calls[0]).toEqual([
       planConfig2,
       productConfigId,
-      null
-    );
-    sinon.assert.calledOnceWithExactly(
-      mockLog.error,
+      null,
+    ]);
+    expect(mockLog.error).toHaveBeenCalledTimes(1);
+    expect(mockLog.error).toHaveBeenCalledWith(
       'StripeProductsAndPlansConverter.convertPlanError',
       {
         error: 'Something else broke!',
@@ -561,9 +554,9 @@ describe('#integration - convert', () => {
     }
     try {
       converter.stripeHelper.stripe = {
-        products: { list: sandbox.stub().returns(productGenerator()) },
+        products: { list: jest.fn().mockReturnValue(productGenerator()) },
         plans: {
-          list: sandbox.stub().returns(planGenerator()),
+          list: jest.fn().mockReturnValue(planGenerator()),
         },
       };
       await converter.convert(args);

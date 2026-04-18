@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const crypto = require('crypto');
 const { getRoute } = require('../../test/routes_helpers');
 const knownIpLocation = require('../../test/known-ip-location');
@@ -144,7 +142,7 @@ describe('/session/status', () => {
   let log: any, db: any, config: any, routes: any, route: any;
 
   beforeEach(() => {
-    sinon.reset();
+    jest.clearAllMocks();
     log = mocks.mockLog();
     mocks.mockFxaMailer();
     mocks.mockOAuthClientInfo();
@@ -158,7 +156,7 @@ describe('/session/status', () => {
   });
 
   afterAll(() => {
-    sinon.reset();
+    jest.clearAllMocks();
   });
 
   it('returns unknown account error', async () => {
@@ -506,70 +504,70 @@ describe('/session/reauth', () => {
   });
 
   it('emits the correct series of calls', () => {
-    signinUtils.checkEmailAddress = sinon.spy(() => Promise.resolve(true));
-    signinUtils.checkPassword = sinon.spy(() => Promise.resolve(true));
-    signinUtils.checkCustomsAndLoadAccount = sinon.spy(async () => {
+    signinUtils.checkEmailAddress = jest.fn(() => Promise.resolve(true));
+    signinUtils.checkPassword = jest.fn(() => Promise.resolve(true));
+    signinUtils.checkCustomsAndLoadAccount = jest.fn(async () => {
       const accountRecord = await db.accountRecord(TEST_EMAIL);
       return { accountRecord };
     });
-    signinUtils.sendSigninNotifications = sinon.spy(() => Promise.resolve());
-    signinUtils.createKeyFetchToken = sinon.spy(() =>
+    signinUtils.sendSigninNotifications = jest.fn(() => Promise.resolve());
+    signinUtils.createKeyFetchToken = jest.fn(() =>
       Promise.resolve({ data: 'KEYFETCHTOKEN' })
     );
-    signinUtils.getSessionVerificationStatus = sinon.spy(() => ({
+    signinUtils.getSessionVerificationStatus = jest.fn(() => ({
       sessionVerified: true,
       verified: true,
     }));
     const testNow = Math.floor(Date.now() / 1000);
     return runTest(route, request).then((res: any) => {
-      expect(signinUtils.checkCustomsAndLoadAccount.callCount).toBe(1);
-      let args = signinUtils.checkCustomsAndLoadAccount.args[0];
+      expect(signinUtils.checkCustomsAndLoadAccount).toHaveBeenCalledTimes(1);
+      let args = signinUtils.checkCustomsAndLoadAccount.mock.calls[0];
       expect(args.length).toBe(3);
       expect(args[0]).toBe(request);
       expect(args[1]).toBe(TEST_EMAIL);
 
-      expect(db.accountRecord.callCount).toBe(2);
-      args = db.accountRecord.args[0];
+      expect(db.accountRecord).toHaveBeenCalledTimes(2);
+      args = db.accountRecord.mock.calls[0];
       expect(args.length).toBe(1);
       expect(args[0]).toBe(TEST_EMAIL);
 
-      expect(signinUtils.checkEmailAddress.callCount).toBe(1);
-      args = signinUtils.checkEmailAddress.args[0];
+      expect(signinUtils.checkEmailAddress).toHaveBeenCalledTimes(1);
+      args = signinUtils.checkEmailAddress.mock.calls[0];
       expect(args.length).toBe(3);
       expect(args[0].uid).toBe(TEST_UID);
       expect(args[1]).toBe(TEST_EMAIL);
       expect(args[2]).toBeUndefined();
 
-      expect(signinUtils.checkPassword.callCount).toBe(1);
-      args = signinUtils.checkPassword.args[0];
+      expect(signinUtils.checkPassword).toHaveBeenCalledTimes(1);
+      args = signinUtils.checkPassword.mock.calls[0];
       expect(args.length).toBe(3);
       expect(args[0].uid).toBe(TEST_UID);
       expect(args[1].authPW.toString('hex')).toBe(TEST_AUTHPW);
       expect(args[2].app.clientAddress).toBe(knownIpLocation.ip);
 
-      expect(db.updateSessionToken.callCount).toBe(1);
-      args = db.updateSessionToken.args[0];
+      expect(db.updateSessionToken).toHaveBeenCalledTimes(1);
+      args = db.updateSessionToken.mock.calls[0];
       expect(args.length).toBe(1);
       expect(args[0]).toBe(request.auth.credentials);
 
-      expect(signinUtils.sendSigninNotifications.callCount).toBe(1);
-      args = signinUtils.sendSigninNotifications.args[0];
+      expect(signinUtils.sendSigninNotifications).toHaveBeenCalledTimes(1);
+      args = signinUtils.sendSigninNotifications.mock.calls[0];
       expect(args.length).toBe(4);
       expect(args[0]).toBe(request);
       expect(args[1].uid).toBe(TEST_UID);
       expect(args[2]).toBe(request.auth.credentials);
       expect(args[3]).toBeUndefined();
 
-      expect(signinUtils.createKeyFetchToken.callCount).toBe(1);
-      args = signinUtils.createKeyFetchToken.args[0];
+      expect(signinUtils.createKeyFetchToken).toHaveBeenCalledTimes(1);
+      args = signinUtils.createKeyFetchToken.mock.calls[0];
       expect(args.length).toBe(4);
       expect(args[0]).toBe(request);
       expect(args[1].uid).toBe(TEST_UID);
       expect(args[2].authPW.toString('hex')).toBe(TEST_AUTHPW);
       expect(args[3]).toBe(request.auth.credentials);
 
-      expect(signinUtils.getSessionVerificationStatus.callCount).toBe(1);
-      args = signinUtils.getSessionVerificationStatus.args[0];
+      expect(signinUtils.getSessionVerificationStatus).toHaveBeenCalledTimes(1);
+      args = signinUtils.getSessionVerificationStatus.mock.calls[0];
       expect(args.length).toBe(2);
       expect(args[0]).toBe(request.auth.credentials);
       expect(args[1]).toBeUndefined();
@@ -607,14 +605,14 @@ describe('/session/reauth', () => {
         throw new Error('request should have been rejected');
       },
       (err: any) => {
-        expect(db.accountRecord.callCount).toBe(1);
+        expect(db.accountRecord).toHaveBeenCalledTimes(1);
         expect(err.errno).toBe(error.ERRNO.ACCOUNT_UNKNOWN);
       }
     );
   });
 
   it('correctly updates sessionToken details', () => {
-    signinUtils.checkPassword = sinon.spy(() => {
+    signinUtils.checkPassword = jest.fn(() => {
       return Promise.resolve(true);
     });
     const testNow = Date.now();
@@ -630,8 +628,8 @@ describe('/session/reauth', () => {
     expect(!request.auth.credentials.uaFormFactor).toBeTruthy();
 
     return runTest(route, request).then((res: any) => {
-      expect(db.updateSessionToken.callCount).toBe(1);
-      const sessionToken = db.updateSessionToken.args[0][0];
+      expect(db.updateSessionToken).toHaveBeenCalledTimes(1);
+      const sessionToken = db.updateSessionToken.mock.calls[0][0];
       expect(sessionToken.authAt).toBeGreaterThanOrEqual(testNow);
       expect(sessionToken.lastAuthAt()).toBeGreaterThanOrEqual(testNowSeconds);
       expect(sessionToken.uaBrowser).toBe('Firefox');
@@ -644,21 +642,21 @@ describe('/session/reauth', () => {
   });
 
   it('correctly updates to mustVerify=true when requesting keys', () => {
-    signinUtils.checkPassword = sinon.spy(() => {
+    signinUtils.checkPassword = jest.fn(() => {
       return Promise.resolve(true);
     });
 
     expect(!request.auth.credentials.mustVerify).toBeTruthy();
 
     return runTest(route, request).then((res: any) => {
-      expect(db.updateSessionToken.callCount).toBe(1);
-      const sessionToken = db.updateSessionToken.args[0][0];
+      expect(db.updateSessionToken).toHaveBeenCalledTimes(1);
+      const sessionToken = db.updateSessionToken.mock.calls[0][0];
       expect(sessionToken.mustVerify).toBeTruthy();
     });
   });
 
   it('correctly updates to mustVerify=true when explicit verificationMethod is requested in payload', () => {
-    signinUtils.checkPassword = sinon.spy(() => {
+    signinUtils.checkPassword = jest.fn(() => {
       return Promise.resolve(true);
     });
 
@@ -666,14 +664,14 @@ describe('/session/reauth', () => {
 
     request.payload.verificationMethod = 'email-2fa';
     return runTest(route, request).then((res: any) => {
-      expect(db.updateSessionToken.callCount).toBe(1);
-      const sessionToken = db.updateSessionToken.args[0][0];
+      expect(db.updateSessionToken).toHaveBeenCalledTimes(1);
+      const sessionToken = db.updateSessionToken.mock.calls[0][0];
       expect(sessionToken.mustVerify).toBeTruthy();
     });
   });
 
   it('leaves mustVerify=false when not requesting keys', () => {
-    signinUtils.checkPassword = sinon.spy(() => {
+    signinUtils.checkPassword = jest.fn(() => {
       return Promise.resolve(true);
     });
     request.query.keys = false;
@@ -681,29 +679,29 @@ describe('/session/reauth', () => {
     expect(!request.auth.credentials.mustVerify).toBeTruthy();
 
     return runTest(route, request).then((res: any) => {
-      expect(db.updateSessionToken.callCount).toBe(1);
-      const sessionToken = db.updateSessionToken.args[0][0];
+      expect(db.updateSessionToken).toHaveBeenCalledTimes(1);
+      const sessionToken = db.updateSessionToken.mock.calls[0][0];
       expect(!sessionToken.mustVerify).toBeTruthy();
     });
   });
 
   it('does not return a keyFetchToken when not requesting keys', () => {
-    signinUtils.checkPassword = sinon.spy(() => {
+    signinUtils.checkPassword = jest.fn(() => {
       return Promise.resolve(true);
     });
-    signinUtils.createKeyFetchToken = sinon.spy(() => {
+    signinUtils.createKeyFetchToken = jest.fn(() => {
       throw new Error('should not be called');
     });
     request.query.keys = false;
 
     return runTest(route, request).then((res: any) => {
-      expect(signinUtils.createKeyFetchToken.callCount).toBe(0);
+      expect(signinUtils.createKeyFetchToken).toHaveBeenCalledTimes(0);
       expect(!res.keyFetchToken).toBeTruthy();
     });
   });
 
   it('correctly rejects incorrect passwords', () => {
-    signinUtils.checkPassword = sinon.spy(() => {
+    signinUtils.checkPassword = jest.fn(() => {
       return Promise.resolve(false);
     });
 
@@ -712,7 +710,7 @@ describe('/session/reauth', () => {
         throw new Error('request should have been rejected');
       },
       (err: any) => {
-        expect(signinUtils.checkPassword.callCount).toBe(1);
+        expect(signinUtils.checkPassword).toHaveBeenCalledTimes(1);
         expect(err.errno).toBe(error.ERRNO.INCORRECT_PASSWORD);
       }
     );
@@ -756,7 +754,7 @@ describe('/session/destroy', () => {
     db = mocks.mockDB();
     log = mocks.mockLog();
     const config = {};
-    securityEventStub = sinon.stub();
+    securityEventStub = jest.fn();
     const routes = makeRoutes({
       log,
       config,
@@ -776,7 +774,8 @@ describe('/session/destroy', () => {
   it('responds correctly when session is destroyed', () => {
     return runTest(route, request).then((res: any) => {
       expect(Object.keys(res).length).toBe(0);
-      sinon.assert.calledOnceWithExactly(securityEventStub, db, {
+      expect(securityEventStub).toHaveBeenCalledTimes(1);
+      expect(securityEventStub).toHaveBeenCalledWith(db, {
         name: 'session.destroy',
         uid: 'foo',
         ipAddr: '63.245.221.32',
@@ -796,7 +795,7 @@ describe('/session/destroy', () => {
   });
 
   it('responds correctly when custom session is destroyed', () => {
-    db.sessionToken = sinon.spy(() => {
+    db.sessionToken = jest.fn(() => {
       return Promise.resolve({
         uid: 'foo',
       });
@@ -818,7 +817,7 @@ describe('/session/destroy', () => {
   });
 
   it('throws on invalid session token', () => {
-    db.sessionToken = sinon.spy(() => {
+    db.sessionToken = jest.fn(() => {
       return Promise.resolve({
         uid: 'diff-user',
       });
@@ -906,8 +905,8 @@ describe('/session/duplicate', () => {
       expect(res.sessionVerified).toBe(true);
       expect(res.verified).toBe(true);
 
-      expect(db.createSessionToken.callCount).toBe(1);
-      const sessionTokenOptions = db.createSessionToken.args[0][0];
+      expect(db.createSessionToken).toHaveBeenCalledTimes(1);
+      const sessionTokenOptions = db.createSessionToken.mock.calls[0][0];
       expect(Object.keys(sessionTokenOptions).length).toBe(37);
       expect(sessionTokenOptions.uid).toBe('foo');
       expect(sessionTokenOptions.createdAt).toBeTruthy();
@@ -941,8 +940,8 @@ describe('/session/duplicate', () => {
       expect(res.verificationMethod).toBe('email');
       expect(res.verificationReason).toBe('login');
 
-      expect(db.createSessionToken.callCount).toBe(1);
-      const sessionTokenOptions = db.createSessionToken.args[0][0];
+      expect(db.createSessionToken).toHaveBeenCalledTimes(1);
+      const sessionTokenOptions = db.createSessionToken.mock.calls[0][0];
       expect(Object.keys(sessionTokenOptions).length).toBe(37);
       expect(sessionTokenOptions.uid).toBe('foo');
       expect(sessionTokenOptions.createdAt).toBeTruthy();
@@ -999,7 +998,7 @@ describe('/session/verify_code', () => {
     mocks.mockOAuthClientInfo();
     push = mocks.mockPush();
     customs = mocks.mockCustoms();
-    customs.check = sinon.spy(() => Promise.resolve(true));
+    customs.check = jest.fn(() => Promise.resolve(true));
     cadReminders = mocks.mockCadReminders();
     const statsd = mocks.mockStatsd();
     const config = {};
@@ -1033,7 +1032,7 @@ describe('/session/verify_code', () => {
       log,
       uaBrowser: 'Firefox',
     });
-    request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
+    request.emitMetricsEvent = jest.fn(() => Promise.resolve({}));
   }
 
   beforeEach(() => {
@@ -1041,57 +1040,54 @@ describe('/session/verify_code', () => {
   });
 
   it('should verify the account and session with a valid code', async () => {
-    gleanMock.registration.accountVerified.reset();
-    gleanMock.registration.complete.reset();
+    gleanMock.registration.accountVerified.mockClear();
+    gleanMock.registration.complete.mockClear();
     const response = await runTest(route, request);
     expect(response).toEqual({});
-    sinon.assert.calledOnce(customs.checkAuthenticated);
-    sinon.assert.calledWithExactly(
-      customs.checkAuthenticated,
+    expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
+    expect(customs.checkAuthenticated).toHaveBeenCalledWith(
       request,
       signupCodeAccount.uid,
       signupCodeAccount.email,
       'verifySessionCode'
     );
-    sinon.assert.calledOnce(db.account);
-    sinon.assert.calledWithExactly(db.account, signupCodeAccount.uid);
-    sinon.assert.calledOnce(db.verifyEmail);
-    sinon.assert.calledOnce(db.verifyTokensWithMethod);
-    sinon.assert.calledWithExactly(
-      db.verifyTokensWithMethod,
+    expect(db.account).toHaveBeenCalledTimes(1);
+    expect(db.account).toHaveBeenCalledWith(signupCodeAccount.uid);
+    expect(db.verifyEmail).toHaveBeenCalledTimes(1);
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledTimes(1);
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
       'sessionTokenId',
       'email-2fa'
     );
-    sinon.assert.calledOnce(fxaMailer.sendPostVerifyEmail);
-    sinon.assert.calledOnce(gleanMock.registration.accountVerified);
-    sinon.assert.calledOnce(gleanMock.registration.complete);
+    expect(fxaMailer.sendPostVerifyEmail).toHaveBeenCalledTimes(1);
+    expect(gleanMock.registration.accountVerified).toHaveBeenCalledTimes(1);
+    expect(gleanMock.registration.complete).toHaveBeenCalledTimes(1);
   });
 
   it('should skip verify account and but still verify session with a valid code', async () => {
     setup({ emailVerified: true });
     const response = await runTest(route, request);
     expect(response).toEqual({});
-    sinon.assert.calledOnce(db.account);
-    sinon.assert.calledWithExactly(db.account, signupCodeAccount.uid);
-    sinon.assert.notCalled(db.verifyEmail);
-    sinon.assert.calledOnce(db.verifyTokensWithMethod);
-    sinon.assert.calledWithExactly(
-      db.verifyTokensWithMethod,
+    expect(db.account).toHaveBeenCalledTimes(1);
+    expect(db.account).toHaveBeenCalledWith(signupCodeAccount.uid);
+    expect(db.verifyEmail).not.toHaveBeenCalled();
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledTimes(1);
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledWith(
       'sessionTokenId',
       'email-2fa'
     );
-    sinon.assert.calledOnce(push.notifyAccountUpdated);
+    expect(push.notifyAccountUpdated).toHaveBeenCalledTimes(1);
 
-    const args = request.emitMetricsEvent.args[1];
+    const args = request.emitMetricsEvent.mock.calls[1];
     expect(args[0]).toBe('account.confirmed');
     expect(args[1].uid).toBe(signupCodeAccount.uid);
-    sinon.assert.calledOnce(gleanMock.login.verifyCodeConfirmed);
-    sinon.assert.calledOnce(fxaMailer.sendNewDeviceLoginEmail);
+    expect(gleanMock.login.verifyCodeConfirmed).toHaveBeenCalledTimes(1);
+    expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
   });
 
   it('should succeed even if push notification fails', async () => {
     setup({ emailVerified: true });
-    push.notifyAccountUpdated = sinon.spy(() =>
+    push.notifyAccountUpdated = jest.fn(() =>
       Promise.reject(new Error('push timeout'))
     );
     const routes = makeRoutes({
@@ -1108,7 +1104,7 @@ describe('/session/verify_code', () => {
 
     const response = await runTest(route, request);
     expect(response).toEqual({});
-    sinon.assert.calledOnce(push.notifyAccountUpdated);
+    expect(push.notifyAccountUpdated).toHaveBeenCalledTimes(1);
   });
 
   it('should fail for invalid code', async () => {
@@ -1126,9 +1122,9 @@ describe('/session/verify_code', () => {
       scopes: ['https://identity.mozilla.com/apps/oldsync'],
     };
     await runTest(route, request);
-    sinon.assert.calledOnce(db.verifyEmail);
-    sinon.assert.calledOnce(db.verifyTokensWithMethod);
-    sinon.assert.calledOnce(fxaMailer.sendPostVerifyEmail);
+    expect(db.verifyEmail).toHaveBeenCalledTimes(1);
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledTimes(1);
+    expect(fxaMailer.sendPostVerifyEmail).toHaveBeenCalledTimes(1);
   });
 
   it('should verify the account and not send post verify email', async () => {
@@ -1137,10 +1133,10 @@ describe('/session/verify_code', () => {
       scopes: [],
     };
     await runTest(route, request);
-    sinon.assert.calledOnce(db.verifyEmail);
-    sinon.assert.calledOnce(db.verifyTokensWithMethod);
-    sinon.assert.notCalled(fxaMailer.sendPostVerifyEmail);
-    sinon.assert.notCalled(mailer.sendPostVerifyEmail);
+    expect(db.verifyEmail).toHaveBeenCalledTimes(1);
+    expect(db.verifyTokensWithMethod).toHaveBeenCalledTimes(1);
+    expect(fxaMailer.sendPostVerifyEmail).not.toHaveBeenCalled();
+    expect(mailer.sendPostVerifyEmail).not.toHaveBeenCalled();
   });
 });
 
@@ -1163,8 +1159,8 @@ describe('/session/resend_code', () => {
     oauthClientInfo = mocks.mockOAuthClientInfo();
     push = mocks.mockPush();
     customs = {
-      check: sinon.stub(),
-      checkAuthenticated: sinon.stub(),
+      check: jest.fn(),
+      checkAuthenticated: jest.fn(),
     };
     const config = {};
     const routes = makeRoutes({ log, config, db, mailer, push, customs });
@@ -1193,11 +1189,11 @@ describe('/session/resend_code', () => {
   it('should resend the verification code email with unverified account', async () => {
     const response = await runTest(route, request);
     expect(response).toEqual({});
-    sinon.assert.calledOnce(db.account);
-    sinon.assert.calledOnce(fxaMailer.sendVerifyShortCodeEmail);
+    expect(db.account).toHaveBeenCalledTimes(1);
+    expect(fxaMailer.sendVerifyShortCodeEmail).toHaveBeenCalledTimes(1);
 
     const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
-    const args = fxaMailer.sendVerifyShortCodeEmail.args[0][0];
+    const args = fxaMailer.sendVerifyShortCodeEmail.mock.calls[0][0];
     expect(args.acceptLanguage).toBe('en-US');
     expect(args.code).toBe(expectedCode);
     expect(args.location.city).toBe('Mountain View');
@@ -1205,8 +1201,7 @@ describe('/session/resend_code', () => {
     expect(args.location.stateCode).toBe('CA');
     expect(args.timeZone).toBe('America/Los_Angeles');
 
-    sinon.assert.calledWithExactly(
-      customs.checkAuthenticated,
+    expect(customs.checkAuthenticated).toHaveBeenCalledWith(
       request,
       signupCodeAccount.uid,
       signupCodeAccount.email,
@@ -1225,18 +1220,18 @@ describe('/session/resend_code', () => {
       },
     };
 
-    db.account = sinon.spy(() => verifiedAccount);
+    db.account = jest.fn(() => verifiedAccount);
     const response = await runTest(route, request);
     expect(response).toEqual({});
-    sinon.assert.calledOnce(db.account);
-    sinon.assert.calledOnce(oauthClientInfo.fetch);
-    sinon.assert.calledOnce(fxaMailer.sendVerifyLoginCodeEmail);
+    expect(db.account).toHaveBeenCalledTimes(1);
+    expect(oauthClientInfo.fetch).toHaveBeenCalledTimes(1);
+    expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
 
     const expectedCode = getExpectedOtpCode(
       {},
       verifiedAccount.primaryEmail.emailCode
     );
-    const args = fxaMailer.sendVerifyLoginCodeEmail.args[0];
+    const args = fxaMailer.sendVerifyLoginCodeEmail.mock.calls[0];
     expect(args[0].code).toBe(expectedCode);
   });
 });
@@ -1246,7 +1241,7 @@ describe('/session/verify/send_push', () => {
 
   beforeEach(() => {
     db = mocks.mockDB({ ...signupCodeAccount, devices: MOCK_DEVICES });
-    db.totpToken = sinon.spy(() => Promise.resolve({ enabled: false }));
+    db.totpToken = jest.fn(() => Promise.resolve({ enabled: false }));
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
     push = mocks.mockPush();
@@ -1270,11 +1265,11 @@ describe('/session/verify/send_push', () => {
   it('should send a push notification with verification code', async () => {
     const response = await runTest(route, request);
     expect(response).toEqual({});
-    sinon.assert.calledOnce(db.devices);
-    sinon.assert.calledOnce(db.totpToken);
-    sinon.assert.calledOnce(db.account);
+    expect(db.devices).toHaveBeenCalledTimes(1);
+    expect(db.totpToken).toHaveBeenCalledTimes(1);
+    expect(db.account).toHaveBeenCalledTimes(1);
 
-    const args = push.notifyVerifyLoginRequest.args[0];
+    const args = push.notifyVerifyLoginRequest.mock.calls[0];
     expect(args[0]).toBe('foo');
     expect(args[1]).toEqual([
       {
@@ -1300,13 +1295,13 @@ describe('/session/verify/send_push', () => {
   });
 
   it('should not send a push notification if TOTP token is verified and enabled', async () => {
-    db.totpToken = sinon.spy(() =>
+    db.totpToken = jest.fn(() =>
       Promise.resolve({ verified: true, enabled: true })
     );
     const response = await runTest(route, request);
     expect(response).toEqual({});
-    sinon.assert.calledOnce(db.totpToken);
-    sinon.assert.notCalled(push.notifyVerifyLoginRequest);
+    expect(db.totpToken).toHaveBeenCalledTimes(1);
+    expect(push.notifyVerifyLoginRequest).not.toHaveBeenCalled();
   });
 });
 
@@ -1321,13 +1316,14 @@ describe('/session/verify/verify_push', () => {
 
   beforeEach(() => {
     db = mocks.mockDB({ ...signupCodeAccount, devices: MOCK_DEVICES });
-    db.deviceFromTokenVerificationId = sinon.spy(() =>
+    db.deviceFromTokenVerificationId = jest.fn(() =>
       Promise.resolve(MOCK_DEVICES[1])
     );
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
     push = mocks.mockPush();
     customs = mocks.mockCustoms();
+    mocks.mockOAuthClientInfo();
     const config = {};
     const routes = makeRoutes({ log, config, db, mailer, push, customs });
     route = getRoute(routes, '/session/verify/verify_push');
@@ -1352,24 +1348,27 @@ describe('/session/verify/verify_push', () => {
     const response = await runTest(route, request);
     expect(response).toEqual({});
 
-    sinon.assert.calledOnceWithExactly(
-      customs.checkAuthenticated,
+    expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
+    expect(customs.checkAuthenticated).toHaveBeenCalledWith(
       request,
       'foo',
       signupCodeAccount.email,
       'verifySessionCode'
     );
-    sinon.assert.calledOnceWithExactly(db.devices, 'foo');
-    sinon.assert.calledOnceWithExactly(
-      db.deviceFromTokenVerificationId,
+    expect(db.devices).toHaveBeenCalledTimes(1);
+    expect(db.devices).toHaveBeenCalledWith('foo');
+    expect(db.deviceFromTokenVerificationId).toHaveBeenCalledTimes(1);
+    expect(db.deviceFromTokenVerificationId).toHaveBeenCalledWith(
       'foo',
       'sometoken'
     );
-    sinon.assert.calledOnceWithExactly(db.account, 'foo');
-    sinon.assert.calledOnceWithMatch(db.verifyTokens, 'sometoken');
+    expect(db.account).toHaveBeenCalledTimes(1);
+    expect(db.account.mock.calls[0][0]).toBe('foo');
+    expect(db.verifyTokens).toHaveBeenCalledTimes(1);
+    expect(db.verifyTokens.mock.calls[0][0]).toBe('sometoken');
 
-    sinon.assert.calledOnceWithExactly(
-      push.notifyAccountUpdated,
+    expect(push.notifyAccountUpdated).toHaveBeenCalledTimes(1);
+    expect(push.notifyAccountUpdated).toHaveBeenCalledWith(
       'foo',
       MOCK_DEVICES,
       'accountConfirm'
@@ -1377,7 +1376,7 @@ describe('/session/verify/verify_push', () => {
   });
 
   it('should return if session is already verified', async () => {
-    db.deviceFromTokenVerificationId = sinon.spy(() =>
+    db.deviceFromTokenVerificationId = jest.fn(() =>
       Promise.resolve(undefined)
     );
     request = mocks.mockRequest({
@@ -1396,7 +1395,7 @@ describe('/session/verify/verify_push', () => {
     });
     const response = await runTest(route, request);
     expect(response).toEqual({});
-    sinon.assert.notCalled(db.verifyTokens);
+    expect(db.verifyTokens).not.toHaveBeenCalled();
   });
 
   it('should fail if invalid code', async () => {
@@ -1419,17 +1418,15 @@ describe('/session/verify/verify_push', () => {
       message: 'Invalid or expired confirmation code',
     });
 
-    sinon.assert.calledTwice(customs.checkAuthenticated);
-    sinon.assert.calledWith(
-      customs.checkAuthenticated,
+    expect(customs.checkAuthenticated).toHaveBeenCalledTimes(2);
+    expect(customs.checkAuthenticated).toHaveBeenCalledWith(
       request,
       'foo',
       'foo@example.org',
       'verifySessionCode'
     );
 
-    sinon.assert.calledWith(
-      customs.checkAuthenticated,
+    expect(customs.checkAuthenticated).toHaveBeenCalledWith(
       request,
       'foo',
       'foo@example.org',

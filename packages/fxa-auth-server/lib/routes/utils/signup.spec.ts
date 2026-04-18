@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const mocks = require('../../../test/mocks');
 const { gleanMetrics } = require('../../metrics/glean');
 
@@ -88,18 +86,17 @@ describe('verifyAccount', () => {
     });
 
     it('should verify the account', () => {
-      sinon.assert.calledOnce(db.verifyEmail);
-      sinon.assert.calledWithExactly(
-        db.verifyEmail,
+      expect(db.verifyEmail).toHaveBeenCalledTimes(1);
+      expect(db.verifyEmail).toHaveBeenCalledWith(
         account,
         account.primaryEmail.emailCode
       );
     });
 
     it('should notify attached services', () => {
-      sinon.assert.calledOnce(log.notifyAttachedServices);
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
 
-      args = log.notifyAttachedServices.args[0];
+      args = log.notifyAttachedServices.mock.calls[0];
       expect(args[0]).toBe('verified');
       expect(args[2].uid).toBe(TEST_UID);
       expect(args[2].service).toBe('sync');
@@ -109,24 +106,23 @@ describe('verifyAccount', () => {
     });
 
     it('should emit metrics', () => {
-      sinon.assert.calledOnce(log.activityEvent);
-      args = log.activityEvent.args[0];
+      expect(log.activityEvent).toHaveBeenCalledTimes(1);
+      args = log.activityEvent.mock.calls[0];
       expect(args.length).toBe(1);
-      sinon.assert.calledOnce(log.flowEvent);
-      expect(log.flowEvent.args[0][0].event).toBe('account.verified');
+      expect(log.flowEvent).toHaveBeenCalledTimes(1);
+      expect(log.flowEvent.mock.calls[0][0].event).toBe('account.verified');
       expect(args[0].planId).toBe('planId');
       expect(args[0].productId).toBe('productId');
     });
 
     it('should delete verification reminders', () => {
-      sinon.assert.calledOnce(verificationReminders.delete);
-      sinon.assert.calledWithExactly(verificationReminders.delete, TEST_UID);
+      expect(verificationReminders.delete).toHaveBeenCalledTimes(1);
+      expect(verificationReminders.delete).toHaveBeenCalledWith(TEST_UID);
     });
 
     it('should send push notifications', () => {
-      sinon.assert.calledOnce(push.notifyAccountUpdated);
-      sinon.assert.calledWithExactly(
-        push.notifyAccountUpdated,
+      expect(push.notifyAccountUpdated).toHaveBeenCalledTimes(1);
+      expect(push.notifyAccountUpdated).toHaveBeenCalledWith(
         TEST_UID,
         [],
         'accountVerify'
@@ -134,11 +130,11 @@ describe('verifyAccount', () => {
     });
 
     it('should send post account verification email', () => {
-      sinon.assert.calledOnce(fxaMailer.sendPostVerifyEmail);
-      expect(fxaMailer.sendPostVerifyEmail.args[0][0].sync).toBe(
+      expect(fxaMailer.sendPostVerifyEmail).toHaveBeenCalledTimes(1);
+      expect(fxaMailer.sendPostVerifyEmail.mock.calls[0][0].sync).toBe(
         options.service === 'sync'
       );
-      expect(fxaMailer.sendPostVerifyEmail.args[0][0].uid).toBe(TEST_UID);
+      expect(fxaMailer.sendPostVerifyEmail.mock.calls[0][0].uid).toBe(TEST_UID);
     });
   });
 });

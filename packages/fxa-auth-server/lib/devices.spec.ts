@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const crypto = require('crypto');
 const mocks = require('../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
@@ -91,19 +89,13 @@ describe('lib/devices:', () => {
 
       it('returns false when token has different device id', () => {
         expect(
-          devices.isSpuriousUpdate(
-            { id: 'foo' },
-            { deviceId: 'bar' }
-          )
+          devices.isSpuriousUpdate({ id: 'foo' }, { deviceId: 'bar' })
         ).toBe(false);
       });
 
       it('returns true when ids match', () => {
         expect(
-          devices.isSpuriousUpdate(
-            { id: 'foo' },
-            { deviceId: 'foo' }
-          )
+          devices.isSpuriousUpdate({ id: 'foo' }, { deviceId: 'foo' })
         ).toBe(true);
       });
 
@@ -278,16 +270,16 @@ describe('lib/devices:', () => {
             createdAt: deviceCreatedAt,
           });
 
-          expect(db.updateDevice.callCount).toBe(0);
+          expect(db.updateDevice).toHaveBeenCalledTimes(0);
 
-          expect(db.createDevice.callCount).toBe(1);
-          let args = db.createDevice.args[0];
+          expect(db.createDevice).toHaveBeenCalledTimes(1);
+          let args = db.createDevice.mock.calls[0];
           expect(args.length).toBe(2);
           expect(args[0]).toEqual(credentials.uid);
           expect(args[1]).toBe(device);
 
-          expect(log.activityEvent.callCount).toBe(1);
-          args = log.activityEvent.args[0];
+          expect(log.activityEvent).toHaveBeenCalledTimes(1);
+          args = log.activityEvent.mock.calls[0];
           expect(args.length).toBe(1);
           expect(args[0]).toEqual({
             country: 'United States',
@@ -302,8 +294,8 @@ describe('lib/devices:', () => {
             is_placeholder: false,
           });
 
-          expect(log.notifyAttachedServices.callCount).toBe(1);
-          args = log.notifyAttachedServices.args[0];
+          expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+          args = log.notifyAttachedServices.mock.calls[0];
           expect(args.length).toBe(3);
           expect(args[0]).toBe('device:create');
           expect(args[1]).toBe(request);
@@ -315,8 +307,8 @@ describe('lib/devices:', () => {
             isPlaceholder: false,
           });
 
-          expect(push.notifyDeviceConnected.callCount).toBe(1);
-          args = push.notifyDeviceConnected.args[0];
+          expect(push.notifyDeviceConnected).toHaveBeenCalledTimes(1);
+          args = push.notifyDeviceConnected.mock.calls[0];
           expect(args.length).toBe(3);
           expect(args[0]).toBe(credentials.uid);
           expect(Array.isArray(args[1])).toBeTruthy();
@@ -328,7 +320,7 @@ describe('lib/devices:', () => {
         credentials.tokenVerified = false;
         device.name = 'device with an unverified sessionToken';
         return devices.upsert(request, credentials, device).then(() => {
-          expect(push.notifyDeviceConnected.callCount).toBe(0);
+          expect(push.notifyDeviceConnected).toHaveBeenCalledTimes(0);
           credentials.tokenVerified = true;
         });
       });
@@ -338,18 +330,24 @@ describe('lib/devices:', () => {
         return devices
           .upsert(request, credentials, { uaBrowser: 'Firefox' })
           .then(() => {
-            expect(db.updateDevice.callCount).toBe(0);
-            expect(db.createDevice.callCount).toBe(1);
+            expect(db.updateDevice).toHaveBeenCalledTimes(0);
+            expect(db.createDevice).toHaveBeenCalledTimes(1);
 
-            expect(log.activityEvent.callCount).toBe(1);
-            expect(log.activityEvent.args[0][0].is_placeholder).toBe(true);
+            expect(log.activityEvent).toHaveBeenCalledTimes(1);
+            expect(log.activityEvent.mock.calls[0][0].is_placeholder).toBe(
+              true
+            );
 
-            expect(log.notifyAttachedServices.callCount).toBe(1);
-            expect(log.notifyAttachedServices.args[0][2].isPlaceholder).toBe(true);
+            expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+            expect(
+              log.notifyAttachedServices.mock.calls[0][2].isPlaceholder
+            ).toBe(true);
 
-            expect(push.notifyDeviceConnected.callCount).toBe(1);
-            expect(push.notifyDeviceConnected.args[0][0]).toBe(credentials.uid);
-            expect(push.notifyDeviceConnected.args[0][2]).toBe('Firefox');
+            expect(push.notifyDeviceConnected).toHaveBeenCalledTimes(1);
+            expect(push.notifyDeviceConnected.mock.calls[0][0]).toBe(
+              credentials.uid
+            );
+            expect(push.notifyDeviceConnected.mock.calls[0][2]).toBe('Firefox');
           });
       });
 
@@ -364,10 +362,10 @@ describe('lib/devices:', () => {
           .then((result) => {
             expect(result).toBe(deviceInfo);
 
-            expect(db.createDevice.callCount).toBe(0);
+            expect(db.createDevice).toHaveBeenCalledTimes(0);
 
-            expect(db.updateDevice.callCount).toBe(1);
-            let args = db.updateDevice.args[0];
+            expect(db.updateDevice).toHaveBeenCalledTimes(1);
+            let args = db.updateDevice.mock.calls[0];
             expect(args.length).toBe(2);
             expect(args[0]).toEqual(credentials.uid);
             expect(args[1]).toEqual({
@@ -376,8 +374,8 @@ describe('lib/devices:', () => {
               type: device.type,
             });
 
-            expect(log.activityEvent.callCount).toBe(1);
-            args = log.activityEvent.args[0];
+            expect(log.activityEvent).toHaveBeenCalledTimes(1);
+            args = log.activityEvent.mock.calls[0];
             expect(args.length).toBe(1);
             expect(args[0]).toEqual({
               country: 'United States',
@@ -392,15 +390,19 @@ describe('lib/devices:', () => {
               is_placeholder: false,
             });
 
-            expect(log.notifyAttachedServices.callCount).toBe(0);
-            expect(push.notifyDeviceConnected.callCount).toBe(0);
+            expect(log.notifyAttachedServices).toHaveBeenCalledTimes(0);
+            expect(push.notifyDeviceConnected).toHaveBeenCalledTimes(0);
           });
       });
     });
 
     describe('upsert with refreshToken:', () => {
       let request: ReturnType<typeof mocks.mockRequest>;
-      let credentials: { refreshTokenId: string; uid: string; tokenVerified: boolean };
+      let credentials: {
+        refreshTokenId: string;
+        uid: string;
+        tokenVerified: boolean;
+      };
 
       beforeEach(() => {
         request = mocks.mockRequest({
@@ -422,16 +424,16 @@ describe('lib/devices:', () => {
             createdAt: deviceCreatedAt,
           });
 
-          expect(db.updateDevice.callCount).toBe(0);
+          expect(db.updateDevice).toHaveBeenCalledTimes(0);
 
-          expect(db.createDevice.callCount).toBe(1);
-          let args = db.createDevice.args[0];
+          expect(db.createDevice).toHaveBeenCalledTimes(1);
+          let args = db.createDevice.mock.calls[0];
           expect(args.length).toBe(2);
           expect(args[0]).toEqual(credentials.uid);
           expect(args[1]).toBe(device);
 
-          expect(log.activityEvent.callCount).toBe(1);
-          args = log.activityEvent.args[0];
+          expect(log.activityEvent).toHaveBeenCalledTimes(1);
+          args = log.activityEvent.mock.calls[0];
           expect(args.length).toBe(1);
           expect(args[0]).toEqual({
             country: 'United States',
@@ -446,8 +448,8 @@ describe('lib/devices:', () => {
             is_placeholder: false,
           });
 
-          expect(log.notifyAttachedServices.callCount).toBe(1);
-          args = log.notifyAttachedServices.args[0];
+          expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+          args = log.notifyAttachedServices.mock.calls[0];
           expect(args.length).toBe(3);
           expect(args[0]).toBe('device:create');
           expect(args[1]).toBe(request);
@@ -459,8 +461,8 @@ describe('lib/devices:', () => {
             isPlaceholder: false,
           });
 
-          expect(push.notifyDeviceConnected.callCount).toBe(1);
-          args = push.notifyDeviceConnected.args[0];
+          expect(push.notifyDeviceConnected).toHaveBeenCalledTimes(1);
+          args = push.notifyDeviceConnected.mock.calls[0];
           expect(args.length).toBe(3);
           expect(args[0]).toBe(credentials.uid);
           expect(Array.isArray(args[1])).toBeTruthy();
@@ -473,18 +475,24 @@ describe('lib/devices:', () => {
         return devices
           .upsert(request, credentials, { uaBrowser: 'Firefox' })
           .then(() => {
-            expect(db.updateDevice.callCount).toBe(0);
-            expect(db.createDevice.callCount).toBe(1);
+            expect(db.updateDevice).toHaveBeenCalledTimes(0);
+            expect(db.createDevice).toHaveBeenCalledTimes(1);
 
-            expect(log.activityEvent.callCount).toBe(1);
-            expect(log.activityEvent.args[0][0].is_placeholder).toBe(true);
+            expect(log.activityEvent).toHaveBeenCalledTimes(1);
+            expect(log.activityEvent.mock.calls[0][0].is_placeholder).toBe(
+              true
+            );
 
-            expect(log.notifyAttachedServices.callCount).toBe(1);
-            expect(log.notifyAttachedServices.args[0][2].isPlaceholder).toBe(true);
+            expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+            expect(
+              log.notifyAttachedServices.mock.calls[0][2].isPlaceholder
+            ).toBe(true);
 
-            expect(push.notifyDeviceConnected.callCount).toBe(1);
-            expect(push.notifyDeviceConnected.args[0][0]).toBe(credentials.uid);
-            expect(push.notifyDeviceConnected.args[0][2]).toBe('Firefox');
+            expect(push.notifyDeviceConnected).toHaveBeenCalledTimes(1);
+            expect(push.notifyDeviceConnected.mock.calls[0][0]).toBe(
+              credentials.uid
+            );
+            expect(push.notifyDeviceConnected.mock.calls[0][2]).toBe('Firefox');
           });
       });
 
@@ -499,10 +507,10 @@ describe('lib/devices:', () => {
           .then((result) => {
             expect(result).toBe(deviceInfo);
 
-            expect(db.createDevice.callCount).toBe(0);
+            expect(db.createDevice).toHaveBeenCalledTimes(0);
 
-            expect(db.updateDevice.callCount).toBe(1);
-            let args = db.updateDevice.args[0];
+            expect(db.updateDevice).toHaveBeenCalledTimes(1);
+            let args = db.updateDevice.mock.calls[0];
             expect(args.length).toBe(2);
             expect(args[0]).toEqual(credentials.uid);
             expect(args[1]).toEqual({
@@ -511,8 +519,8 @@ describe('lib/devices:', () => {
               type: device.type,
             });
 
-            expect(log.activityEvent.callCount).toBe(1);
-            args = log.activityEvent.args[0];
+            expect(log.activityEvent).toHaveBeenCalledTimes(1);
+            args = log.activityEvent.mock.calls[0];
             expect(args.length).toBe(1);
             expect(args[0]).toEqual({
               country: 'United States',
@@ -527,8 +535,8 @@ describe('lib/devices:', () => {
               is_placeholder: false,
             });
 
-            expect(log.notifyAttachedServices.callCount).toBe(0);
-            expect(push.notifyDeviceConnected.callCount).toBe(0);
+            expect(log.notifyAttachedServices).toHaveBeenCalledTimes(0);
+            expect(push.notifyDeviceConnected).toHaveBeenCalledTimes(0);
           });
       });
     });
@@ -554,13 +562,13 @@ describe('lib/devices:', () => {
           devices: [deviceId, deviceId2],
           credentials,
         });
-        db.deleteDevice = sinon.spy(async () => {
+        db.deleteDevice = jest.fn(async () => {
           return device;
         });
       });
 
       it('should destroy the device record', async () => {
-        db.deleteDevice = sinon.spy(async () => {
+        db.deleteDevice = jest.fn(async () => {
           return { sessionTokenId, refreshTokenId: null };
         });
         device.sessionTokenId = sessionTokenId;
@@ -569,29 +577,26 @@ describe('lib/devices:', () => {
         expect(result.sessionTokenId).toBe(sessionTokenId);
         expect(result.refreshTokenId).toBeNull();
 
-        expect(db.deleteDevice.callCount).toBe(1);
-        expect(
-          db.deleteDevice.calledBefore(push.notifyDeviceDisconnected)
-        ).toBeTruthy();
-        expect(pushbox.deleteDevice.callCount).toBe(1);
-        expect(pushbox.deleteDevice.firstCall.args).toEqual([
+        expect(db.deleteDevice).toHaveBeenCalledTimes(1);
+        expect(pushbox.deleteDevice).toHaveBeenCalledTimes(1);
+        expect(pushbox.deleteDevice.mock.calls[0]).toEqual([
           request.auth.credentials.uid,
           deviceId,
         ]);
-        expect(push.notifyDeviceDisconnected.callCount).toBe(1);
-        expect(push.notifyDeviceDisconnected.firstCall.args[0]).toBe(
+        expect(push.notifyDeviceDisconnected).toHaveBeenCalledTimes(1);
+        expect(push.notifyDeviceDisconnected.mock.calls[0][0]).toBe(
           request.auth.credentials.uid
         );
-        expect(push.notifyDeviceDisconnected.firstCall.args[1]).toEqual([
+        expect(push.notifyDeviceDisconnected.mock.calls[0][1]).toEqual([
           deviceId,
           deviceId2,
         ]);
-        expect(push.notifyDeviceDisconnected.firstCall.args[2]).toBe(deviceId);
+        expect(push.notifyDeviceDisconnected.mock.calls[0][2]).toBe(deviceId);
 
         expect(oauthDB.removeRefreshToken).not.toHaveBeenCalled();
 
-        expect(log.activityEvent.callCount).toBe(1);
-        let args = log.activityEvent.args[0];
+        expect(log.activityEvent).toHaveBeenCalledTimes(1);
+        let args = log.activityEvent.mock.calls[0];
         expect(args.length).toBe(1);
         expect(args[0]).toEqual({
           country: 'United States',
@@ -605,8 +610,8 @@ describe('lib/devices:', () => {
           device_id: deviceId,
         });
 
-        expect(log.notifyAttachedServices.callCount).toBe(1);
-        args = log.notifyAttachedServices.args[0];
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+        args = log.notifyAttachedServices.mock.calls[0];
         expect(args.length).toBe(3);
         expect(args[0]).toBe('device:delete');
         expect(args[1]).toBe(request);
@@ -624,10 +629,10 @@ describe('lib/devices:', () => {
         expect(result.sessionTokenId).toBeFalsy();
         expect(result.refreshTokenId).toBe(refreshTokenId);
 
-        expect(db.deleteDevice.callCount).toBe(1);
+        expect(db.deleteDevice).toHaveBeenCalledTimes(1);
         expect(oauthDB.getRefreshToken).toHaveBeenCalledWith(refreshTokenId);
-        expect(log.error.callCount).toBe(0);
-        expect(log.notifyAttachedServices.callCount).toBe(1);
+        expect(log.error).toHaveBeenCalledTimes(0);
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
       });
 
       it('should ignore missing tokens when deleting the refreshToken', async () => {
@@ -638,10 +643,10 @@ describe('lib/devices:', () => {
         expect(result.sessionTokenId).toBeFalsy();
         expect(result.refreshTokenId).toBe(refreshTokenId);
 
-        expect(db.deleteDevice.callCount).toBe(1);
+        expect(db.deleteDevice).toHaveBeenCalledTimes(1);
         expect(oauthDB.getRefreshToken).toHaveBeenCalledWith(refreshTokenId);
-        expect(log.error.callCount).toBe(0);
-        expect(log.notifyAttachedServices.callCount).toBe(1);
+        expect(log.error).toHaveBeenCalledTimes(0);
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
       });
 
       it('should log other errors when deleting the refreshToken, without failing', async () => {
@@ -652,12 +657,13 @@ describe('lib/devices:', () => {
         expect(result.sessionTokenId).toBeFalsy();
         expect(result.refreshTokenId).toBe(refreshTokenId);
 
-        expect(db.deleteDevice.callCount).toBe(1);
+        expect(db.deleteDevice).toHaveBeenCalledTimes(1);
         expect(oauthDB.getRefreshToken).toHaveBeenCalledWith(refreshTokenId);
-        expect(log.notifyAttachedServices.callCount).toBe(1);
-        expect(
-          log.error.calledOnceWith('deviceDestroy.revokeRefreshTokenById.error')
-        ).toBe(true);
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+        expect(log.error).toHaveBeenCalledTimes(1);
+        expect(log.error.mock.calls[0][0]).toBe(
+          'deviceDestroy.revokeRefreshTokenById.error'
+        );
       });
     });
 

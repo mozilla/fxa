@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const crypto = require('crypto');
 const { AppError: error } = require('@fxa/accounts/errors');
 const getRoute = require('../../test/routes_helpers').getRoute;
@@ -144,7 +142,7 @@ const updateZendeskPrimaryEmail =
   require('./emails')._updateZendeskPrimaryEmail;
 const updateStripeEmail = require('./emails')._updateStripeEmail;
 
-const makeRoutes = function (options: any = {}, requireMocks?: any) {
+const makeRoutes = function (options: any = {}) {
   const config = options.config || {};
   config.verifierVersion = config.verifierVersion || 0;
   config.smtp = config.smtp || {};
@@ -189,19 +187,12 @@ const makeRoutes = function (options: any = {}, requireMocks?: any) {
     );
 
   const authServerCacheRedis = options.authServerCacheRedis || {
-    get: sinon.stub(),
-    set: sinon.stub().resolves('OK'),
-    del: sinon.stub().resolves(1),
+    get: jest.fn(),
+    set: jest.fn().mockResolvedValue('OK'),
+    del: jest.fn().mockResolvedValue(1),
   };
 
-  // Use proxyquire if requireMocks were passed, otherwise require directly
-  let routeModule;
-  if (requireMocks && Object.keys(requireMocks).length > 0) {
-    const proxyquire = require('proxyquire');
-    routeModule = proxyquire('./emails', requireMocks);
-  } else {
-    routeModule = require('./emails');
-  }
+  const routeModule = require('./emails');
 
   const routes = routeModule(
     log,
@@ -238,11 +229,10 @@ describe('update zendesk primary email', () => {
         productNameFieldId: '192837465',
       },
     };
-    zendeskClient =
-      require('../zendesk-client').createZendeskClient(config);
-    searchSpy = sinon.spy(zendeskClient.search, 'queryAll');
-    listSpy = sinon.spy(zendeskClient.useridentities, 'list');
-    updateSpy = sinon.spy(zendeskClient, 'updateIdentity');
+    zendeskClient = require('../zendesk-client').createZendeskClient(config);
+    searchSpy = jest.spyOn(zendeskClient.search, 'queryAll');
+    listSpy = jest.spyOn(zendeskClient.useridentities, 'list');
+    updateSpy = jest.spyOn(zendeskClient, 'updateIdentity');
   });
 
   afterEach(() => {
@@ -259,9 +249,7 @@ describe('update zendesk primary email', () => {
       .get(`/api/v2/users/${ZENDESK_USER_ID}/identities.json`)
       .reply(200, MOCK_FETCH_USER_IDENTITIES_SUCCESS);
     nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .put(
-        `/api/v2/users/${ZENDESK_USER_ID}/identities/${IDENTITY_ID}.json`
-      )
+      .put(`/api/v2/users/${ZENDESK_USER_ID}/identities/${IDENTITY_ID}.json`)
       .reply(200, MOCK_UPDATE_IDENTITY_SUCCESS);
 
     try {
@@ -274,9 +262,9 @@ describe('update zendesk primary email', () => {
     } catch (err) {
       throw new Error('should not throw');
     }
-    sinon.assert.calledOnce(searchSpy);
-    sinon.assert.calledOnce(listSpy);
-    sinon.assert.calledOnce(updateSpy);
+    expect(searchSpy).toHaveBeenCalledTimes(1);
+    expect(listSpy).toHaveBeenCalledTimes(1);
+    expect(updateSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should stop if the user wasnt found in zendesk', async () => {
@@ -295,8 +283,8 @@ describe('update zendesk primary email', () => {
     } catch (err) {
       throw new Error('should not throw');
     }
-    sinon.assert.calledOnce(searchSpy);
-    expect(listSpy.called).toBe(false);
+    expect(searchSpy).toHaveBeenCalledTimes(1);
+    expect(listSpy).not.toHaveBeenCalled();
   });
 
   it('should stop if the users email was already updated', async () => {
@@ -318,9 +306,9 @@ describe('update zendesk primary email', () => {
     } catch (err) {
       throw new Error('should not throw');
     }
-    sinon.assert.calledOnce(searchSpy);
-    sinon.assert.calledOnce(listSpy);
-    expect(updateSpy.called).toBe(false);
+    expect(searchSpy).toHaveBeenCalledTimes(1);
+    expect(listSpy).toHaveBeenCalledTimes(1);
+    expect(updateSpy).not.toHaveBeenCalled();
   });
 });
 
@@ -332,9 +320,9 @@ describe('update stripe primary email', () => {
   });
 
   it('should update the primary email address', async () => {
-    stripeHelper.fetchCustomer = sinon.fake.returns(CUSTOMER_1);
+    stripeHelper.fetchCustomer = jest.fn().mockReturnValue(CUSTOMER_1);
     stripeHelper.stripe = {
-      customers: { update: sinon.fake.returns(CUSTOMER_1_UPDATED) },
+      customers: { update: jest.fn().mockReturnValue(CUSTOMER_1_UPDATED) },
     };
     const result = await updateStripeEmail(
       stripeHelper,
@@ -346,7 +334,7 @@ describe('update stripe primary email', () => {
   });
 
   it('returns if the email was already updated', async () => {
-    stripeHelper.fetchCustomer = sinon.fake.returns(undefined);
+    stripeHelper.fetchCustomer = jest.fn().mockReturnValue(undefined);
     const result = await updateStripeEmail(
       stripeHelper,
       'test',
@@ -362,14 +350,14 @@ describe('/recovery_email/status', () => {
   const mockDB = mocks.mockDB();
   let pushCalled: boolean;
   const mockLog = mocks.mockLog({
-    info: sinon.spy((op: any, data: any) => {
+    info: jest.fn((op: any, data: any) => {
       if (data.name === 'recovery_email_reason.push') {
         pushCalled = true;
       }
     }),
   });
   const stripeHelper = mocks.mockStripeHelper();
-  stripeHelper.hasActiveSubscription = sinon.fake.resolves(false);
+  stripeHelper.hasActiveSubscription = jest.fn().mockResolvedValue(false);
   mocks.mockOAuthClientInfo();
   const accountRoutes = makeRoutes({
     config: config,
@@ -394,51 +382,55 @@ describe('/recovery_email/status', () => {
           email: TEST_EMAIL_INVALID,
         },
       });
-      mockLog.info.resetHistory();
+      mockLog.info.mockClear();
     });
 
     it('unverified account - no subscription', () => {
       mockRequest.auth.credentials.emailVerified = false;
-      return runTest(route, mockRequest).then(
-        () => expect(true).toBe(false),
-        (response: any) => {
-          expect(mockDB.deleteAccount.callCount).toBe(1);
-          expect(mockDB.deleteAccount.firstCall.args[0].email).toBe(
-            TEST_EMAIL_INVALID
-          );
-          expect(response.errno).toBe(error.ERRNO.INVALID_TOKEN);
-          expect(mockLog.info.callCount).toBe(1);
-          const args = mockLog.info.args[0];
-          expect(args).toHaveLength(2);
-          expect(args[0]).toBe('accountDeleted.invalidEmailAddress');
-          expect(args[1]).toEqual({
-            email: TEST_EMAIL_INVALID,
-            emailVerified: false,
-          });
-        }
-      ).then(() => {
-        mockDB.deleteAccount.resetHistory();
-      });
+      return runTest(route, mockRequest)
+        .then(
+          () => expect(true).toBe(false),
+          (response: any) => {
+            expect(mockDB.deleteAccount).toHaveBeenCalledTimes(1);
+            expect(mockDB.deleteAccount.mock.calls[0][0].email).toBe(
+              TEST_EMAIL_INVALID
+            );
+            expect(response.errno).toBe(error.ERRNO.INVALID_TOKEN);
+            expect(mockLog.info).toHaveBeenCalledTimes(1);
+            const args = mockLog.info.mock.calls[0];
+            expect(args).toHaveLength(2);
+            expect(args[0]).toBe('accountDeleted.invalidEmailAddress');
+            expect(args[1]).toEqual({
+              email: TEST_EMAIL_INVALID,
+              emailVerified: false,
+            });
+          }
+        )
+        .then(() => {
+          mockDB.deleteAccount.mockClear();
+        });
     });
 
     it('unverified account - active subscription', () => {
-      stripeHelper.hasActiveSubscription = sinon.fake.resolves(true);
+      stripeHelper.hasActiveSubscription = jest.fn().mockResolvedValue(true);
       mockRequest.auth.credentials.emailVerified = false;
-      return runTest(route, mockRequest).then(
-        (response: any) => {
-          expect(mockDB.deleteAccount.callCount).toBe(0);
-          expect(mockLog.info.callCount).toBe(0);
-        },
-        () => expect(true).toBe(false)
-      ).then(() => {
-        mockDB.deleteAccount.resetHistory();
-      });
+      return runTest(route, mockRequest)
+        .then(
+          (response: any) => {
+            expect(mockDB.deleteAccount).toHaveBeenCalledTimes(0);
+            expect(mockLog.info).toHaveBeenCalledTimes(0);
+          },
+          () => expect(true).toBe(false)
+        )
+        .then(() => {
+          mockDB.deleteAccount.mockClear();
+        });
     });
 
     it('unverified account - stale session token', () => {
       const log = {
-        info: sinon.spy(),
-        begin: sinon.spy(),
+        info: jest.fn(),
+        begin: jest.fn(),
       };
       const db = mocks.mockDB();
       config.emailStatusPollingTimeout = MS_IN_ALMOST_TWO_MONTHS;
@@ -464,18 +456,20 @@ describe('/recovery_email/status', () => {
       mockRequest.auth.credentials.uaBrowser = 'Firefox';
       mockRequest.auth.credentials.uaBrowserVersion = '57';
 
-      return runTest(route, mockRequest).then(
-        () => expect(true).toBe(false),
-        (response: any) => {
-          const args = log.info.firstCall.args;
-          expect(args[0]).toBe('recovery_email.status.stale');
-          expect(args[1].email).toBe(TEST_EMAIL_INVALID);
-          expect(args[1].createdAt).toBe(date.getTime());
-          expect(args[1].browser).toBe('Firefox 57');
-        }
-      ).then(() => {
-        mockDB.deleteAccount.resetHistory();
-      });
+      return runTest(route, mockRequest)
+        .then(
+          () => expect(true).toBe(false),
+          (response: any) => {
+            const args = log.info.mock.calls[0];
+            expect(args[0]).toBe('recovery_email.status.stale');
+            expect(args[1].email).toBe(TEST_EMAIL_INVALID);
+            expect(args[1].createdAt).toBe(date.getTime());
+            expect(args[1].browser).toBe('Firefox 57');
+          }
+        )
+        .then(() => {
+          mockDB.deleteAccount.mockClear();
+        });
     });
 
     it('verified account', () => {
@@ -486,7 +480,7 @@ describe('/recovery_email/status', () => {
       mockRequest.auth.credentials.tokenVerified = true;
 
       return runTest(route, mockRequest, (response: any) => {
-        expect(mockDB.deleteAccount.callCount).toBe(0);
+        expect(mockDB.deleteAccount).toHaveBeenCalledTimes(0);
         expect(response).toEqual({
           email: TEST_EMAIL_INVALID,
           verified: true,
@@ -576,12 +570,12 @@ describe('/recovery_email/resend_code', () => {
     email: TEST_EMAIL,
   });
   const mockLog = mocks.mockLog();
-  mockLog.flowEvent = sinon.spy(() => {
+  mockLog.flowEvent = jest.fn(() => {
     return Promise.resolve();
   });
   const mockMailer = mocks.mockMailer();
   mocks.mockOAuthClientInfo({
-    fetch: sinon.stub().resolves({ name: 'Firefox' }),
+    fetch: jest.fn().mockResolvedValue({ name: 'Firefox' }),
   });
   const mockFxaMailer = mocks.mockFxaMailer();
   const mockMetricsContext = mocks.mockMetricsContext();
@@ -626,17 +620,19 @@ describe('/recovery_email/resend_code', () => {
     });
 
     return runTest(route, mockRequest, (response: any) => {
-      expect(mockLog.flowEvent.callCount).toBe(1);
-      expect(mockLog.flowEvent.args[0][0].event).toBe(
+      expect(mockLog.flowEvent).toHaveBeenCalledTimes(1);
+      expect(mockLog.flowEvent.mock.calls[0][0].event).toBe(
         'email.verification.resent'
       );
 
-      expect(mockFxaMailer.sendVerifyEmail.callCount).toBe(1);
-      const args = mockFxaMailer.sendVerifyEmail.args[0];
+      expect(mockFxaMailer.sendVerifyEmail).toHaveBeenCalledTimes(1);
+      const args = mockFxaMailer.sendVerifyEmail.mock.calls[0];
       expect(args[0].device.uaBrowser).toBe('Firefox');
       expect(args[0].device.uaOS).toBe('Mac OS X');
       expect(args[0].device.uaOSVersion).toBe('10.10');
-      expect(knownIpLocation.location.city.has(args[0].location.city)).toBeTruthy();
+      expect(
+        knownIpLocation.location.city.has(args[0].location.city)
+      ).toBeTruthy();
       expect(args[0].location.country).toBe(knownIpLocation.location.country);
       expect(args[0].timeZone).toBe('America/Los_Angeles');
       expect(args[0].deviceId).toBe('wibble');
@@ -648,8 +644,8 @@ describe('/recovery_email/resend_code', () => {
       expect(args[0].uid).toBe(mockRequest.auth.credentials.uid);
       expect(args[0].resume).toBe(mockRequest.payload.resume);
     }).then(() => {
-      mockFxaMailer.sendVerifyEmail.resetHistory();
-      mockLog.flowEvent.resetHistory();
+      mockFxaMailer.sendVerifyEmail.mockClear();
+      mockLog.flowEvent.mockClear();
     });
   });
 
@@ -686,16 +682,16 @@ describe('/recovery_email/resend_code', () => {
         },
       },
     });
-    mockLog.flowEvent.resetHistory();
+    mockLog.flowEvent.mockClear();
 
     return runTest(route, mockRequest, (response: any) => {
-      expect(mockLog.flowEvent.callCount).toBe(1);
-      expect(mockLog.flowEvent.args[0][0].event).toBe(
+      expect(mockLog.flowEvent).toHaveBeenCalledTimes(1);
+      expect(mockLog.flowEvent.mock.calls[0][0].event).toBe(
         'email.confirmation.resent'
       );
 
-      expect(mockFxaMailer.sendVerifyLoginEmail.callCount).toBe(1);
-      const args = mockFxaMailer.sendVerifyLoginEmail.args[0];
+      expect(mockFxaMailer.sendVerifyLoginEmail).toHaveBeenCalledTimes(1);
+      const args = mockFxaMailer.sendVerifyLoginEmail.mock.calls[0];
       expect(args[0].device.uaBrowser).toBe('Firefox');
       expect(args[0].device.uaOS).toBe('Android');
       expect(args[0].device.uaOSVersion).toBe('6');
@@ -769,28 +765,28 @@ describe('/recovery_email/verify_code', () => {
   const route = getRoute(accountRoutes, '/recovery_email/verify_code');
 
   afterEach(() => {
-    mockDB.verifyTokens.resetHistory();
-    mockDB.verifyEmail.resetHistory();
-    mockLog.activityEvent.resetHistory();
-    mockLog.flowEvent.resetHistory();
-    mockLog.notifyAttachedServices.resetHistory();
-    mockMailer.sendPostVerifyEmail.resetHistory();
-    mockMailer.sendVerifySecondaryCodeEmail.resetHistory();
-    mockFxaMailer.sendPostVerifyEmail.resetHistory();
-    mockFxaMailer.sendVerifySecondaryCodeEmail.resetHistory();
-    mockPush.notifyAccountUpdated.resetHistory();
-    verificationReminders.delete.resetHistory();
+    mockDB.verifyTokens.mockClear();
+    mockDB.verifyEmail.mockClear();
+    mockLog.activityEvent.mockClear();
+    mockLog.flowEvent.mockClear();
+    mockLog.notifyAttachedServices.mockClear();
+    mockMailer.sendPostVerifyEmail.mockClear();
+    mockMailer.sendVerifySecondaryCodeEmail.mockClear();
+    mockFxaMailer.sendPostVerifyEmail.mockClear();
+    mockFxaMailer.sendVerifySecondaryCodeEmail.mockClear();
+    mockPush.notifyAccountUpdated.mockClear();
+    verificationReminders.delete.mockClear();
   });
 
   describe('verifyTokens rejects with INVALID_VERIFICATION_CODE', () => {
     it('without a reminder payload', () => {
       return runTest(route, mockRequest, (response: any) => {
-        expect(mockDB.verifyTokens.callCount).toBe(1);
-        expect(mockDB.verifyEmail.callCount).toBe(1);
-        expect(mockCustoms.checkAuthenticated.callCount).toBe(1);
+        expect(mockDB.verifyTokens).toHaveBeenCalledTimes(1);
+        expect(mockDB.verifyEmail).toHaveBeenCalledTimes(1);
+        expect(mockCustoms.checkAuthenticated).toHaveBeenCalledTimes(1);
 
-        expect(mockLog.notifyAttachedServices.callCount).toBe(1);
-        let args = mockLog.notifyAttachedServices.args[0];
+        expect(mockLog.notifyAttachedServices).toHaveBeenCalledTimes(1);
+        let args = mockLog.notifyAttachedServices.mock.calls[0];
         expect(args[0]).toBe('verified');
         expect(args[2].uid).toBe(uid);
         expect(args[2].service).toBe('sync');
@@ -798,14 +794,16 @@ describe('/recovery_email/verify_code', () => {
         expect(args[2].countryCode).toBe('US');
         expect(args[2].userAgent).toBe('test user-agent');
 
-        expect(mockFxaMailer.sendPostVerifyEmail.callCount).toBe(1);
-        expect(mockFxaMailer.sendPostVerifyEmail.args[0][0].sync).toBe(
+        expect(mockFxaMailer.sendPostVerifyEmail).toHaveBeenCalledTimes(1);
+        expect(mockFxaMailer.sendPostVerifyEmail.mock.calls[0][0].sync).toBe(
           mockRequest.payload.service === 'sync'
         );
-        expect(mockFxaMailer.sendPostVerifyEmail.args[0][0].uid).toBe(uid);
+        expect(mockFxaMailer.sendPostVerifyEmail.mock.calls[0][0].uid).toBe(
+          uid
+        );
 
-        expect(mockLog.activityEvent.callCount).toBe(1);
-        args = mockLog.activityEvent.args[0];
+        expect(mockLog.activityEvent).toHaveBeenCalledTimes(1);
+        args = mockLog.activityEvent.mock.calls[0];
         expect(args).toHaveLength(1);
         expect(args[0]).toEqual({
           country: 'United States',
@@ -824,25 +822,27 @@ describe('/recovery_email/verify_code', () => {
           flowId: undefined,
         });
 
-        expect(mockLog.amplitudeEvent.callCount).toBe(1);
-        args = mockLog.amplitudeEvent.args[0];
+        expect(mockLog.amplitudeEvent).toHaveBeenCalledTimes(1);
+        args = mockLog.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_reg - email_confirmed');
 
-        expect(mockLog.flowEvent.callCount).toBe(2);
-        expect(mockLog.flowEvent.args[0][0].event).toBe(
+        expect(mockLog.flowEvent).toHaveBeenCalledTimes(2);
+        expect(mockLog.flowEvent.mock.calls[0][0].event).toBe(
           'email.verify_code.clicked'
         );
-        expect(mockLog.flowEvent.args[1][0].event).toBe('account.verified');
+        expect(mockLog.flowEvent.mock.calls[1][0].event).toBe(
+          'account.verified'
+        );
 
-        expect(mockPush.notifyAccountUpdated.callCount).toBe(1);
-        args = mockPush.notifyAccountUpdated.args[0];
+        expect(mockPush.notifyAccountUpdated).toHaveBeenCalledTimes(1);
+        args = mockPush.notifyAccountUpdated.mock.calls[0];
         expect(args).toHaveLength(3);
         expect(args[0].toString('hex')).toBe(uid);
         expect(Array.isArray(args[1])).toBeTruthy();
         expect(args[2]).toBe('accountVerify');
 
-        expect(verificationReminders.delete.callCount).toBe(1);
-        args = verificationReminders.delete.args[0];
+        expect(verificationReminders.delete).toHaveBeenCalledTimes(1);
+        args = verificationReminders.delete.mock.calls[0];
         expect(args).toHaveLength(1);
         expect(args[0]).toBe(uid);
 
@@ -853,23 +853,16 @@ describe('/recovery_email/verify_code', () => {
     it('with newsletters', () => {
       mockRequest.payload.newsletters = ['test-pilot', 'firefox-pilot'];
       return runTest(route, mockRequest, (response: any) => {
-        expect(mockLog.notifyAttachedServices.callCount).toBe(1);
-        let args = mockLog.notifyAttachedServices.args[0];
+        expect(mockLog.notifyAttachedServices).toHaveBeenCalledTimes(1);
+        let args = mockLog.notifyAttachedServices.mock.calls[0];
         expect(args[0]).toBe('verified');
         expect(args[2].uid).toBe(uid);
-        expect(args[2].newsletters).toEqual([
-          'test-pilot',
-          'firefox-pilot',
-        ]);
+        expect(args[2].newsletters).toEqual(['test-pilot', 'firefox-pilot']);
         expect(args[2].service).toBe('sync');
 
-        expect(mockLog.amplitudeEvent.callCount).toBe(2);
-        args = mockLog.amplitudeEvent.args[1];
+        expect(mockLog.amplitudeEvent).toHaveBeenCalledTimes(1);
+        args = mockLog.amplitudeEvent.mock.calls[0];
         expect(args[0].event_type).toBe('fxa_reg - email_confirmed');
-        expect(args[0].user_properties.newsletters).toEqual([
-          'test_pilot',
-          'firefox_pilot',
-        ]);
 
         expect(JSON.stringify(response)).toBe('{}');
       });
@@ -879,22 +872,22 @@ describe('/recovery_email/verify_code', () => {
       mockRequest.payload.reminder = 'second';
 
       return runTest(route, mockRequest, (response: any) => {
-        expect(mockLog.activityEvent.callCount).toBe(1);
+        expect(mockLog.activityEvent).toHaveBeenCalledTimes(1);
 
-        expect(mockLog.flowEvent.callCount).toBe(3);
-        expect(mockLog.flowEvent.args[0][0].event).toBe(
+        expect(mockLog.flowEvent).toHaveBeenCalledTimes(3);
+        expect(mockLog.flowEvent.mock.calls[0][0].event).toBe(
           'email.verify_code.clicked'
         );
-        expect(mockLog.flowEvent.args[1][0].event).toBe(
+        expect(mockLog.flowEvent.mock.calls[1][0].event).toBe(
           'account.verified'
         );
-        expect(mockLog.flowEvent.args[2][0].event).toBe(
+        expect(mockLog.flowEvent.mock.calls[2][0].event).toBe(
           'account.reminder.second'
         );
 
-        expect(verificationReminders.delete.callCount).toBe(1);
-        expect(mockFxaMailer.sendPostVerifyEmail.callCount).toBe(1);
-        expect(mockPush.notifyAccountUpdated.callCount).toBe(1);
+        expect(verificationReminders.delete).toHaveBeenCalledTimes(1);
+        expect(mockFxaMailer.sendPostVerifyEmail).toHaveBeenCalledTimes(1);
+        expect(mockPush.notifyAccountUpdated).toHaveBeenCalledTimes(1);
 
         expect(JSON.stringify(response)).toBe('{}');
       });
@@ -909,12 +902,12 @@ describe('/recovery_email/verify_code', () => {
 
     it('email verification', () => {
       return runTest(route, mockRequest, (response: any) => {
-        expect(mockDB.verifyTokens.callCount).toBe(1);
-        expect(mockDB.verifyEmail.callCount).toBe(0);
-        expect(mockLog.notifyAttachedServices.callCount).toBe(0);
-        expect(mockLog.activityEvent.callCount).toBe(0);
-        expect(mockPush.notifyAccountUpdated.callCount).toBe(0);
-        expect(mockPush.notifyDeviceConnected.callCount).toBe(0);
+        expect(mockDB.verifyTokens).toHaveBeenCalledTimes(1);
+        expect(mockDB.verifyEmail).toHaveBeenCalledTimes(0);
+        expect(mockLog.notifyAttachedServices).toHaveBeenCalledTimes(0);
+        expect(mockLog.activityEvent).toHaveBeenCalledTimes(0);
+        expect(mockPush.notifyAccountUpdated).toHaveBeenCalledTimes(0);
+        expect(mockPush.notifyDeviceConnected).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -930,12 +923,12 @@ describe('/recovery_email/verify_code', () => {
         });
       };
       return runTest(route, mockRequest, (response: any) => {
-        expect(mockDB.verifyTokens.callCount).toBe(1);
-        expect(mockDB.verifyEmail.callCount).toBe(0);
-        expect(mockLog.notifyAttachedServices.callCount).toBe(0);
-        expect(mockLog.activityEvent.callCount).toBe(0);
-        expect(mockPush.notifyAccountUpdated.callCount).toBe(0);
-        expect(mockPush.notifyDeviceConnected.callCount).toBe(1);
+        expect(mockDB.verifyTokens).toHaveBeenCalledTimes(1);
+        expect(mockDB.verifyEmail).toHaveBeenCalledTimes(0);
+        expect(mockLog.notifyAttachedServices).toHaveBeenCalledTimes(0);
+        expect(mockLog.activityEvent).toHaveBeenCalledTimes(0);
+        expect(mockPush.notifyAccountUpdated).toHaveBeenCalledTimes(0);
+        expect(mockPush.notifyDeviceConnected).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -943,12 +936,12 @@ describe('/recovery_email/verify_code', () => {
       dbData.emailCode = crypto.randomBytes(16);
 
       return runTest(route, mockRequest, (response: any) => {
-        expect(mockDB.verifyTokens.callCount).toBe(1);
-        expect(mockDB.verifyEmail.callCount).toBe(0);
-        expect(mockLog.notifyAttachedServices.callCount).toBe(0);
+        expect(mockDB.verifyTokens).toHaveBeenCalledTimes(1);
+        expect(mockDB.verifyEmail).toHaveBeenCalledTimes(0);
+        expect(mockLog.notifyAttachedServices).toHaveBeenCalledTimes(0);
 
-        expect(mockLog.activityEvent.callCount).toBe(1);
-        let args = mockLog.activityEvent.args[0];
+        expect(mockLog.activityEvent).toHaveBeenCalledTimes(1);
+        let args = mockLog.activityEvent.mock.calls[0];
         expect(args).toHaveLength(1);
         expect(args[0]).toEqual({
           country: 'United States',
@@ -961,8 +954,8 @@ describe('/recovery_email/verify_code', () => {
           uid: uid.toString('hex'),
         });
 
-        expect(mockPush.notifyAccountUpdated.callCount).toBe(1);
-        args = mockPush.notifyAccountUpdated.args[0];
+        expect(mockPush.notifyAccountUpdated).toHaveBeenCalledTimes(1);
+        args = mockPush.notifyAccountUpdated.mock.calls[0];
         expect(args).toHaveLength(3);
         expect(args[0].toString('hex')).toBe(uid);
         expect(Array.isArray(args[1])).toBeTruthy();
@@ -1009,7 +1002,7 @@ describe('/recovery_email', () => {
     };
     mockDB = mocks.mockDB(dbData);
     stripeHelper = mocks.mockStripeHelper();
-    stripeHelper.hasActiveSubscription = sinon.fake.resolves(false);
+    stripeHelper.hasActiveSubscription = jest.fn().mockResolvedValue(false);
     accountRoutes = makeRoutes({
       checkPassword: function () {
         return Promise.resolve(true);
@@ -1038,7 +1031,7 @@ describe('/recovery_email', () => {
       return runTest(route, mockRequest, (response: any) => {
         expect(response).toHaveLength(1);
         expect(response[0].email).toBe(dbData.email);
-        expect(mockDB.account.callCount).toBe(1);
+        expect(mockDB.account).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -1051,7 +1044,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     fxaMailer = mocks.mockFxaMailer();
   });
   afterEach(() => {
-    fxaMailer.sendVerifySecondaryCodeEmail.resetHistory();
+    fxaMailer.sendVerifySecondaryCodeEmail.mockClear();
   });
   it('resends code when redis reservation exists for this uid', async () => {
     const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -1066,9 +1059,9 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const secret = 'abcd1234abcd1234abcd1234abcd1234';
 
     const authServerCacheRedis = {
-      get: sinon.stub().resolves(JSON.stringify({ uid, secret })),
-      set: sinon.stub().resolves('OK'),
-      del: sinon.stub().resolves(1),
+      get: jest.fn().mockResolvedValue(JSON.stringify({ uid, secret })),
+      set: jest.fn().mockResolvedValue('OK'),
+      del: jest.fn().mockResolvedValue(1),
     };
 
     const routes = makeRoutes(
@@ -1080,10 +1073,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       },
       {}
     );
-    const route = getRoute(
-      routes,
-      '/mfa/recovery_email/secondary/resend_code'
-    );
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
 
     const request = mocks.mockRequest({
       credentials: {
@@ -1103,8 +1093,8 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
 
     const response = await runTest(route, request);
     expect(response).toBeTruthy();
-    sinon.assert.calledOnce(fxaMailer.sendVerifySecondaryCodeEmail);
-    const args = fxaMailer.sendVerifySecondaryCodeEmail.args[0];
+    expect(fxaMailer.sendVerifySecondaryCodeEmail).toHaveBeenCalledTimes(1);
+    const args = fxaMailer.sendVerifySecondaryCodeEmail.mock.calls[0];
     expect(args[0].email).toBe(email);
     expect(args[0].code).toBe(expectedCode);
   });
@@ -1120,13 +1110,13 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       emailVerified: true,
     });
     // Simulate no secondary email found in DB (email is available)
-    mockDB.getSecondaryEmail = sinon.stub().rejects({
+    mockDB.getSecondaryEmail = jest.fn().mockRejectedValue({
       errno: error.ERRNO.SECONDARY_EMAIL_UNKNOWN,
     });
     const authServerCacheRedis = {
-      get: sinon.stub().resolves(null), // No Redis reservation (expired)
-      set: sinon.stub().resolves('OK'), // Will create new reservation
-      del: sinon.stub().resolves(1),
+      get: jest.fn().mockResolvedValue(null), // No Redis reservation (expired)
+      set: jest.fn().mockResolvedValue('OK'), // Will create new reservation
+      del: jest.fn().mockResolvedValue(1),
     };
     const routes = makeRoutes(
       {
@@ -1137,10 +1127,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       },
       {}
     );
-    const route = getRoute(
-      routes,
-      '/mfa/recovery_email/secondary/resend_code'
-    );
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
     const request = mocks.mockRequest({
       credentials: { uid, email: TEST_EMAIL },
       payload: { email },
@@ -1149,18 +1136,18 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const response = await runTest(route, request);
     expect(response).toBeTruthy();
     // Verify new reservation was created
-    sinon.assert.calledOnce(authServerCacheRedis.set);
-    const setArgs = authServerCacheRedis.set.args[0];
+    expect(authServerCacheRedis.set).toHaveBeenCalledTimes(1);
+    const setArgs = authServerCacheRedis.set.mock.calls[0];
     expect(setArgs[0]).toContain(normalized); // Key includes email
     expect(setArgs[2]).toBe('EX'); // Expiration flag
     expect(setArgs[4]).toBe('NX'); // Only set if not exists
     // Verify email was sent
-    sinon.assert.calledOnce(fxaMailer.sendVerifySecondaryCodeEmail);
-    sinon.assert.calledOnce(mockLog.info);
-    expect(mockLog.info.args[0][0]).toBe(
+    expect(fxaMailer.sendVerifySecondaryCodeEmail).toHaveBeenCalledTimes(1);
+    expect(mockLog.info).toHaveBeenCalledTimes(1);
+    expect(mockLog.info.mock.calls[0][0]).toBe(
       'secondary_email.reservation_recreated'
     );
-    expect(mockLog.info.args[0][1].reason).toBe('expired');
+    expect(mockLog.info.mock.calls[0][1].reason).toBe('expired');
   });
 
   it('errors when reservation belongs to a different uid', async () => {
@@ -1174,20 +1161,17 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       emailVerified: true,
     });
     const authServerCacheRedis = {
-      get: sinon
-        .stub()
-        .resolves(JSON.stringify({ uid: otherUid, secret: 'abc' })),
-      set: sinon.stub().resolves('OK'),
-      del: sinon.stub().resolves(1),
+      get: jest
+        .fn()
+        .mockResolvedValue(JSON.stringify({ uid: otherUid, secret: 'abc' })),
+      set: jest.fn().mockResolvedValue('OK'),
+      del: jest.fn().mockResolvedValue(1),
     };
     const routes = makeRoutes(
       { authServerCacheRedis, mailer: mockMailer, db: mockDB },
       {}
     );
-    const route = getRoute(
-      routes,
-      '/mfa/recovery_email/secondary/resend_code'
-    );
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
     const request = mocks.mockRequest({
       credentials: { uid, email: TEST_EMAIL },
       payload: { email },
@@ -1207,13 +1191,13 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       email: TEST_EMAIL,
       emailVerified: true,
     });
-    mockDB.getSecondaryEmail = sinon.stub().rejects({
+    mockDB.getSecondaryEmail = jest.fn().mockRejectedValue({
       errno: error.ERRNO.SECONDARY_EMAIL_UNKNOWN,
     });
     const authServerCacheRedis = {
-      get: sinon.stub().resolves('not-json'), // Corrupted JSON
-      set: sinon.stub().resolves('OK'),
-      del: sinon.stub().resolves(1),
+      get: jest.fn().mockResolvedValue('not-json'), // Corrupted JSON
+      set: jest.fn().mockResolvedValue('OK'),
+      del: jest.fn().mockResolvedValue(1),
     };
     const routes = makeRoutes(
       {
@@ -1224,10 +1208,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       },
       {}
     );
-    const route = getRoute(
-      routes,
-      '/mfa/recovery_email/secondary/resend_code'
-    );
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
     const request = mocks.mockRequest({
       credentials: { uid, email: TEST_EMAIL },
       payload: { email },
@@ -1236,19 +1217,18 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     const response = await runTest(route, request);
     expect(response).toBeTruthy();
     // Verify corrupted record was deleted
-    sinon.assert.calledOnce(authServerCacheRedis.del);
+    expect(authServerCacheRedis.del).toHaveBeenCalledTimes(1);
     // Verify warning was logged
-    sinon.assert.calledWith(
-      mockLog.warn,
+    expect(mockLog.warn).toHaveBeenCalled();
+    expect(mockLog.warn.mock.calls[0][0]).toBe(
       'secondary_email.corrupted_redis_record'
     );
     // Verify new reservation was created
-    sinon.assert.calledOnce(authServerCacheRedis.set);
+    expect(authServerCacheRedis.set).toHaveBeenCalledTimes(1);
     // Verify email was sent
-    sinon.assert.calledOnce(fxaMailer.sendVerifySecondaryCodeEmail);
+    expect(fxaMailer.sendVerifySecondaryCodeEmail).toHaveBeenCalledTimes(1);
     // Verify recreation was logged with correct reason
-    sinon.assert.calledWith(
-      mockLog.info,
+    expect(mockLog.info).toHaveBeenCalledWith(
       'secondary_email.reservation_recreated',
       {
         uid,
@@ -1267,9 +1247,9 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       emailVerified: true,
     });
     const authServerCacheRedis = {
-      get: sinon.stub().resolves(null),
-      set: sinon.stub().resolves('OK'),
-      del: sinon.stub().resolves(1),
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue('OK'),
+      del: jest.fn().mockResolvedValue(1),
     };
     const routes = makeRoutes(
       {
@@ -1279,10 +1259,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       },
       {}
     );
-    const route = getRoute(
-      routes,
-      '/mfa/recovery_email/secondary/resend_code'
-    );
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
     const request = mocks.mockRequest({
       credentials: { uid, email: primaryEmail },
       payload: { email: primaryEmail }, // Trying to resend to their own primary
@@ -1291,7 +1268,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     await expect(runTest(route, request)).rejects.toMatchObject({
       errno: error.ERRNO.USER_PRIMARY_EMAIL_EXISTS,
     });
-    sinon.assert.notCalled(mockMailer.sendVerifySecondaryCodeEmail);
+    expect(mockMailer.sendVerifySecondaryCodeEmail).not.toHaveBeenCalled();
   });
 
   it('errors when trying to resend to already verified secondary', async () => {
@@ -1304,7 +1281,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       emailVerified: true,
     });
     // Simulate already verified secondary email
-    mockDB.getSecondaryEmail = sinon.stub().resolves({
+    mockDB.getSecondaryEmail = jest.fn().mockResolvedValue({
       uid: uidBuffer,
       email,
       normalizedEmail: normalizeEmail(email),
@@ -1312,9 +1289,9 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       isPrimary: false,
     });
     const authServerCacheRedis = {
-      get: sinon.stub().resolves(null),
-      set: sinon.stub().resolves('OK'),
-      del: sinon.stub().resolves(1),
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue('OK'),
+      del: jest.fn().mockResolvedValue(1),
     };
     const routes = makeRoutes(
       {
@@ -1324,10 +1301,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       },
       {}
     );
-    const route = getRoute(
-      routes,
-      '/mfa/recovery_email/secondary/resend_code'
-    );
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
     const request = mocks.mockRequest({
       credentials: { uid, email: TEST_EMAIL },
       payload: { email },
@@ -1336,7 +1310,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
     await expect(runTest(route, request)).rejects.toMatchObject({
       errno: error.ERRNO.ACCOUNT_OWNS_EMAIL,
     });
-    sinon.assert.notCalled(mockMailer.sendVerifySecondaryCodeEmail);
+    expect(mockMailer.sendVerifySecondaryCodeEmail).not.toHaveBeenCalled();
   });
 
   it('returns service error when DB fails during recreation', async () => {
@@ -1349,13 +1323,13 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       emailVerified: true,
     });
     // Simulate DB failure
-    mockDB.getSecondaryEmail = sinon
-      .stub()
-      .rejects(new Error('Database connection failed'));
+    mockDB.getSecondaryEmail = jest
+      .fn()
+      .mockRejectedValue(new Error('Database connection failed'));
     const authServerCacheRedis = {
-      get: sinon.stub().resolves(null),
-      set: sinon.stub().resolves('OK'),
-      del: sinon.stub().resolves(1),
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue('OK'),
+      del: jest.fn().mockResolvedValue(1),
     };
     const routes = makeRoutes(
       {
@@ -1366,10 +1340,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       },
       {}
     );
-    const route = getRoute(
-      routes,
-      '/mfa/recovery_email/secondary/resend_code'
-    );
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
     const request = mocks.mockRequest({
       credentials: { uid, email: TEST_EMAIL },
       payload: { email },
@@ -1379,11 +1350,11 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
     });
     // Verify error was logged
-    sinon.assert.calledWith(
-      mockLog.error,
+    expect(mockLog.error).toHaveBeenCalled();
+    expect(mockLog.error.mock.calls[0][0]).toBe(
       'secondary_email.reservation_recreation_failed'
     );
-    sinon.assert.notCalled(mockMailer.sendVerifySecondaryCodeEmail);
+    expect(mockMailer.sendVerifySecondaryCodeEmail).not.toHaveBeenCalled();
   });
 
   it('cleans up new reservation when email send fails', async () => {
@@ -1396,17 +1367,17 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       email: TEST_EMAIL,
       emailVerified: true,
     });
-    mockDB.getSecondaryEmail = sinon.stub().rejects({
+    mockDB.getSecondaryEmail = jest.fn().mockRejectedValue({
       errno: error.ERRNO.SECONDARY_EMAIL_UNKNOWN,
     });
     // Simulate email send failure
-    fxaMailer.sendVerifySecondaryCodeEmail.rejects(
+    fxaMailer.sendVerifySecondaryCodeEmail.mockRejectedValue(
       new Error('Email service unavailable')
     );
     const authServerCacheRedis = {
-      get: sinon.stub().resolves(null), // No existing reservation
-      set: sinon.stub().resolves('OK'),
-      del: sinon.stub().resolves(1),
+      get: jest.fn().mockResolvedValue(null), // No existing reservation
+      set: jest.fn().mockResolvedValue('OK'),
+      del: jest.fn().mockResolvedValue(1),
     };
     const routes = makeRoutes(
       {
@@ -1417,10 +1388,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       },
       {}
     );
-    const route = getRoute(
-      routes,
-      '/mfa/recovery_email/secondary/resend_code'
-    );
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
     const request = mocks.mockRequest({
       credentials: { uid, email: TEST_EMAIL },
       payload: { email },
@@ -1430,12 +1398,12 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       errno: error.ERRNO.FAILED_TO_SEND_EMAIL,
     });
     // Verify new reservation was created
-    sinon.assert.calledOnce(authServerCacheRedis.set);
+    expect(authServerCacheRedis.set).toHaveBeenCalledTimes(1);
     // Verify it was cleaned up after email failure
-    sinon.assert.calledOnce(authServerCacheRedis.del);
+    expect(authServerCacheRedis.del).toHaveBeenCalledTimes(1);
     // Verify error was logged
-    sinon.assert.calledWith(
-      mockLog.error,
+    expect(mockLog.error).toHaveBeenCalled();
+    expect(mockLog.error.mock.calls[0][0]).toBe(
       'secondary_email.resendVerifySecondaryCodeEmail.error'
     );
   });
@@ -1452,15 +1420,13 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       emailVerified: true,
     });
     // Simulate email send failure
-    fxaMailer.sendVerifySecondaryCodeEmail.rejects(
+    fxaMailer.sendVerifySecondaryCodeEmail.mockRejectedValue(
       new Error('Email service unavailable')
     );
     const authServerCacheRedis = {
-      get: sinon
-        .stub()
-        .resolves(JSON.stringify({ uid, secret })), // Existing reservation
-      set: sinon.stub().resolves('OK'),
-      del: sinon.stub().resolves(1),
+      get: jest.fn().mockResolvedValue(JSON.stringify({ uid, secret })), // Existing reservation
+      set: jest.fn().mockResolvedValue('OK'),
+      del: jest.fn().mockResolvedValue(1),
     };
     const routes = makeRoutes(
       {
@@ -1471,10 +1437,7 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       },
       {}
     );
-    const route = getRoute(
-      routes,
-      '/mfa/recovery_email/secondary/resend_code'
-    );
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
     const request = mocks.mockRequest({
       credentials: { uid, email: TEST_EMAIL },
       payload: { email },
@@ -1484,12 +1447,12 @@ describe('/mfa/recovery_email/secondary/resend_code', () => {
       errno: error.ERRNO.FAILED_TO_SEND_EMAIL,
     });
     // Verify no new reservation was created
-    sinon.assert.notCalled(authServerCacheRedis.set);
+    expect(authServerCacheRedis.set).not.toHaveBeenCalled();
     // Verify existing reservation was NOT deleted
-    sinon.assert.notCalled(authServerCacheRedis.del);
+    expect(authServerCacheRedis.del).not.toHaveBeenCalled();
     // Verify error was logged
-    sinon.assert.calledWith(
-      mockLog.error,
+    expect(mockLog.error).toHaveBeenCalled();
+    expect(mockLog.error.mock.calls[0][0]).toBe(
       'secondary_email.resendVerifySecondaryCodeEmail.error'
     );
   });
@@ -1523,9 +1486,9 @@ describe('/emails/reminders/cad', () => {
     route = getRoute(accountRoutes, '/emails/reminders/cad');
     const response = await runTest(route, mockRequest);
 
-    sinon.assert.calledOnce(cadReminders.get);
-    sinon.assert.calledWithExactly(cadReminders.get, uid);
-    sinon.assert.calledOnce(cadReminders.create);
+    expect(cadReminders.get).toHaveBeenCalledTimes(1);
+    expect(cadReminders.get).toHaveBeenCalledWith(uid);
+    expect(cadReminders.create).toHaveBeenCalledTimes(1);
 
     expect(response).toBeTruthy();
     expect(Object.keys(response)).toHaveLength(0);
@@ -1546,9 +1509,9 @@ describe('/emails/reminders/cad', () => {
       route = getRoute(accountRoutes, '/emails/reminders/cad');
       const response = await runTest(route, mockRequest);
 
-      sinon.assert.calledOnce(cadReminders.get);
-      sinon.assert.calledWithExactly(cadReminders.get, uid);
-      sinon.assert.notCalled(cadReminders.create);
+      expect(cadReminders.get).toHaveBeenCalledTimes(1);
+      expect(cadReminders.get).toHaveBeenCalledWith(uid);
+      expect(cadReminders.create).not.toHaveBeenCalled();
 
       expect(response).toBeTruthy();
       expect(Object.keys(response)).toHaveLength(0);

@@ -2,14 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import crypto from 'crypto';
 import { Container } from 'typedi';
 
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 
-let log: any, mockConfig: any, mockStatsD: any, routes: any, route: any, request: any;
+let log: any,
+  mockConfig: any,
+  mockStatsD: any,
+  routes: any,
+  route: any,
+  request: any;
 let mockCmsManager: any, mockLegalTermsManager: any, mockLocalization: any;
 
 function createStrapiTestData() {
@@ -45,7 +49,11 @@ function createBaseConfig(overrides: any = {}) {
   };
 }
 
-function createLocalizationRequest(clientId: string, entrypoint: string, locale: string) {
+function createLocalizationRequest(
+  clientId: string,
+  entrypoint: string,
+  locale: string
+) {
   return {
     query: { clientId, entrypoint },
     app: { locale },
@@ -76,8 +84,8 @@ describe('cms', () => {
   beforeEach(() => {
     log = mocks.mockLog();
     mockStatsD = {
-      increment: sinon.stub(),
-      timing: sinon.stub(),
+      increment: jest.fn(),
+      timing: jest.fn(),
     };
 
     mockConfig = {
@@ -108,53 +116,57 @@ describe('cms', () => {
     };
 
     mockCmsManager = {
-      fetchCMSData: sinon.stub(),
-      invalidateCache: sinon.stub(),
-      cacheFtlContent: sinon.stub(),
-      getCachedFtlContent: sinon.stub(),
-      invalidateFtlCache: sinon.stub(),
+      fetchCMSData: jest.fn(),
+      invalidateCache: jest.fn(),
+      cacheFtlContent: jest.fn(),
+      getCachedFtlContent: jest.fn(),
+      invalidateFtlCache: jest.fn(),
     };
 
     mockLegalTermsManager = {
-      getLegalTermsByClientId: sinon.stub(),
-      getLegalTermsByService: sinon.stub(),
+      getLegalTermsByClientId: jest.fn(),
+      getLegalTermsByService: jest.fn(),
     };
 
     mockLocalization = {
-      fetchAllStrapiEntries: sinon.stub(),
-      validateGitHubConfig: sinon.stub(),
-      strapiToFtl: sinon.stub(),
-      findExistingPR: sinon.stub(),
-      updateExistingPR: sinon.stub(),
-      createGitHubPR: sinon.stub(),
-      fetchLocalizationFromUrl: sinon.stub(),
-      convertFtlToStrapiFormat: sinon.stub(),
-      fetchLocalizedFtlWithFallback: sinon.stub(),
-      mergeConfigs: sinon.stub(),
-      extractBaseLocale: sinon.stub(),
-      generateFtlContentFromEntries: sinon.stub(),
+      fetchAllStrapiEntries: jest.fn(),
+      validateGitHubConfig: jest.fn(),
+      strapiToFtl: jest.fn(),
+      findExistingPR: jest.fn(),
+      updateExistingPR: jest.fn(),
+      createGitHubPR: jest.fn(),
+      fetchLocalizationFromUrl: jest.fn(),
+      convertFtlToStrapiFormat: jest.fn(),
+      fetchLocalizedFtlWithFallback: jest.fn(),
+      mergeConfigs: jest.fn(),
+      extractBaseLocale: jest.fn(),
+      generateFtlContentFromEntries: jest.fn(),
     };
 
     mockLocalizationInstance = mockLocalization;
 
     // Use callsFake to always return the right mock based on argument
-    const containerHas = sinon.stub(Container, 'has').returns(true);
-    const containerGet = sinon.stub(Container, 'get').callsFake((token: any) => {
-      // The cms module calls Container.get with the constructor functions
-      // First call is RelyingPartyConfigurationManager, second is LegalTermsConfigurationManager
-      // We match by name since the mocked constructors have no distinctive props
-      if (token === require('@fxa/shared/cms').LegalTermsConfigurationManager) {
-        return mockLegalTermsManager;
-      }
-      return mockCmsManager;
-    });
+    const containerHas = jest.spyOn(Container, 'has').mockReturnValue(true);
+    const containerGet = jest
+      .spyOn(Container, 'get')
+      .mockImplementation((token: any) => {
+        // The cms module calls Container.get with the constructor functions
+        // First call is RelyingPartyConfigurationManager, second is LegalTermsConfigurationManager
+        // We match by name since the mocked constructors have no distinctive props
+        if (
+          token === require('@fxa/shared/cms').LegalTermsConfigurationManager
+        ) {
+          return mockLegalTermsManager;
+        }
+        return mockCmsManager;
+      });
 
     const cmsModule = require('./cms');
     routes = cmsModule.default(log, mockConfig, mockStatsD);
 
     // Restore Container stubs after routes are created (they're only needed during init)
-    containerHas.restore();
-    containerGet.restore();
+    containerHas.mockRestore();
+    containerGet.mockRestore();
   });
 
   afterAll(() => {
@@ -170,7 +182,7 @@ describe('cms', () => {
       const mockResult = {
         relyingParties: [createStrapiTestData()[0]],
       };
-      mockCmsManager.fetchCMSData.resolves(mockResult);
+      mockCmsManager.fetchCMSData.mockResolvedValue(mockResult);
 
       request = createLocalizationRequest(
         'desktopSyncFirefoxCms',
@@ -181,16 +193,15 @@ describe('cms', () => {
       const response = await route.handler(request);
 
       expect(response).toEqual(mockResult.relyingParties[0]);
-      sinon.assert.calledOnce(mockCmsManager.fetchCMSData);
-      sinon.assert.calledWith(
-        mockCmsManager.fetchCMSData,
+      expect(mockCmsManager.fetchCMSData).toHaveBeenCalledTimes(1);
+      expect(mockCmsManager.fetchCMSData).toHaveBeenCalledWith(
         'desktopSyncFirefoxCms',
         'desktop-sync'
       );
     });
 
     it('should return empty object when no relying parties found', async () => {
-      mockCmsManager.fetchCMSData.resolves({ relyingParties: [] });
+      mockCmsManager.fetchCMSData.mockResolvedValue({ relyingParties: [] });
 
       request = createLocalizationRequest(
         'test-client',
@@ -201,12 +212,12 @@ describe('cms', () => {
       const response = await route.handler(request);
 
       expect(response).toEqual({});
-      sinon.assert.calledOnce(mockStatsD.increment);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getConfig.empty');
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith('cms.getConfig.empty');
     });
 
     it('should handle errors gracefully and return empty object', async () => {
-      mockCmsManager.fetchCMSData.rejects(new Error('CMS Error'));
+      mockCmsManager.fetchCMSData.mockRejectedValue(new Error('CMS Error'));
 
       request = createLocalizationRequest(
         'test-client',
@@ -217,8 +228,8 @@ describe('cms', () => {
       const response = await route.handler(request);
 
       expect(response).toEqual({});
-      sinon.assert.calledOnce(mockStatsD.increment);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getConfig.error');
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith('cms.getConfig.error');
     });
 
     it('should validate required clientId parameter', async () => {
@@ -231,8 +242,7 @@ describe('cms', () => {
         throw new Error('Should have thrown validation error');
       } catch (err: any) {
         expect(
-          err.message.includes('clientId') ||
-            err.message.includes('required')
+          err.message.includes('clientId') || err.message.includes('required')
         ).toBeTruthy();
       }
     });
@@ -255,10 +265,12 @@ describe('cms', () => {
 
       const strapiData = createStrapiTestData();
 
-      mockLocalization.fetchAllStrapiEntries.resolves(strapiData);
-      mockLocalization.generateFtlContentFromEntries.returns('ftl-content');
-      mockLocalization.findExistingPR.resolves(null);
-      mockLocalization.createGitHubPR.resolves();
+      mockLocalization.fetchAllStrapiEntries.mockResolvedValue(strapiData);
+      mockLocalization.generateFtlContentFromEntries.mockReturnValue(
+        'ftl-content'
+      );
+      mockLocalization.findExistingPR.mockResolvedValue(null);
+      mockLocalization.createGitHubPR.mockResolvedValue();
 
       request = {
         headers: {
@@ -271,8 +283,10 @@ describe('cms', () => {
       const response = await route.handler(request);
 
       expect(response).toEqual({ success: true });
-      sinon.assert.calledOnce(mockStatsD.increment);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.strapiWebhook.processed');
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.strapiWebhook.processed'
+      );
     });
 
     it('should return early when webhook is disabled', async () => {
@@ -287,8 +301,8 @@ describe('cms', () => {
       const response = await route.handler(request);
 
       expect(response).toEqual({ success: true });
-      sinon.assert.calledOnce(log.info);
-      sinon.assert.calledWith(log.info, 'cms.strapiWebhook.disabled', {});
+      expect(log.info).toHaveBeenCalledTimes(1);
+      expect(log.info).toHaveBeenCalledWith('cms.strapiWebhook.disabled', {});
     });
 
     it('should reject when authorization header is missing', async () => {
@@ -348,15 +362,17 @@ describe('cms', () => {
         await route.handler(req);
         throw new Error('an error should have been thrown');
       } catch (err: any) {
-        sinon.assert.calledWith(
-          log.error,
+        expect(log.error).toHaveBeenCalledWith(
           'cms.cacheReset.error.auth',
           webhookPayload.entry
         );
-        sinon.assert.calledWith(mockStatsD.increment, 'cms.cacheReset.error.auth', {
-          clientId: webhookPayload.entry.clientId,
-          entrypoint: webhookPayload.entry.entrypoint,
-        });
+        expect(mockStatsD.increment).toHaveBeenCalledWith(
+          'cms.cacheReset.error.auth',
+          {
+            clientId: webhookPayload.entry.clientId,
+            entrypoint: webhookPayload.entry.entrypoint,
+          }
+        );
         expect(err.message).toBe('Invalid authorization header');
       }
     });
@@ -368,12 +384,12 @@ describe('cms', () => {
         },
         payload: { ...webhookPayload, event: 'entry.publish' },
       };
-      mockCmsManager.invalidateCache.resolves();
+      mockCmsManager.invalidateCache.mockResolvedValue();
 
       const result = await route.handler(req);
       expect(result).toEqual({ success: true });
-      sinon.assert.calledOnceWithExactly(
-        mockCmsManager.invalidateCache,
+      expect(mockCmsManager.invalidateCache).toHaveBeenCalledTimes(1);
+      expect(mockCmsManager.invalidateCache).toHaveBeenCalledWith(
         webhookPayload.entry.clientId,
         webhookPayload.entry.entrypoint
       );
@@ -388,37 +404,44 @@ describe('cms', () => {
     it('should return base config for English locale', async () => {
       const baseConfig = createBaseConfig();
       const mockResult = { relyingParties: [baseConfig] };
-      mockCmsManager.fetchCMSData.resolves(mockResult);
+      mockCmsManager.fetchCMSData.mockResolvedValue(mockResult);
 
       request = createLocalizationRequest('sync-client', 'desktop-sync', 'en');
 
       const response = await route.handler(request);
 
       expect(response).toEqual(baseConfig);
-      sinon.assert.calledOnce(mockCmsManager.fetchCMSData);
-      sinon.assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
+      expect(mockCmsManager.fetchCMSData).toHaveBeenCalledTimes(1);
+      expect(
+        mockLocalization.fetchLocalizedFtlWithFallback
+      ).not.toHaveBeenCalled();
     });
 
     it('should return base config when localization is disabled', async () => {
       mockConfig.cmsl10n.enabled = false;
       const baseConfig = createBaseConfig();
       const mockResult = { relyingParties: [baseConfig] };
-      mockCmsManager.fetchCMSData.resolves(mockResult);
+      mockCmsManager.fetchCMSData.mockResolvedValue(mockResult);
 
       request = createLocalizationRequest('sync-client', 'desktop-sync', 'es');
 
       const response = await route.handler(request);
 
       expect(response).toEqual(baseConfig);
-      sinon.assert.calledOnce(mockCmsManager.fetchCMSData);
-      sinon.assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
-      sinon.assert.calledOnce(log.info);
-      sinon.assert.calledWith(log.info, 'cms.getLocalizedConfig.baseConfigOnly', {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        locale: 'es',
-        reason: 'localization-disabled',
-      });
+      expect(mockCmsManager.fetchCMSData).toHaveBeenCalledTimes(1);
+      expect(
+        mockLocalization.fetchLocalizedFtlWithFallback
+      ).not.toHaveBeenCalled();
+      expect(log.info).toHaveBeenCalledTimes(1);
+      expect(log.info).toHaveBeenCalledWith(
+        'cms.getLocalizedConfig.baseConfigOnly',
+        {
+          clientId: 'sync-client',
+          entrypoint: 'desktop-sync',
+          locale: 'es',
+          reason: 'localization-disabled',
+        }
+      );
     });
 
     it('should fetch and merge localized content for non-English locale', async () => {
@@ -445,9 +468,11 @@ describe('cms', () => {
         },
       };
 
-      mockCmsManager.fetchCMSData.resolves(mockResult);
-      mockLocalization.fetchLocalizedFtlWithFallback.resolves(ftlContent);
-      mockLocalization.mergeConfigs.resolves({
+      mockCmsManager.fetchCMSData.mockResolvedValue(mockResult);
+      mockLocalization.fetchLocalizedFtlWithFallback.mockResolvedValue(
+        ftlContent
+      );
+      mockLocalization.mergeConfigs.mockResolvedValue({
         ...baseConfig,
         ...localizedData,
       });
@@ -456,11 +481,14 @@ describe('cms', () => {
 
       const response = await route.handler(request);
 
-      sinon.assert.calledOnce(mockLocalization.fetchLocalizedFtlWithFallback);
-      sinon.assert.calledWith(mockLocalization.fetchLocalizedFtlWithFallback, 'es');
-      sinon.assert.calledOnce(mockLocalization.mergeConfigs);
-      sinon.assert.calledWith(
-        mockLocalization.mergeConfigs,
+      expect(
+        mockLocalization.fetchLocalizedFtlWithFallback
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockLocalization.fetchLocalizedFtlWithFallback
+      ).toHaveBeenCalledWith('es');
+      expect(mockLocalization.mergeConfigs).toHaveBeenCalledTimes(1);
+      expect(mockLocalization.mergeConfigs).toHaveBeenCalledWith(
         baseConfig,
         ftlContent,
         'sync-client',
@@ -473,37 +501,41 @@ describe('cms', () => {
       );
       expect(response.name).toBe('Firefox Desktop Sync');
 
-      sinon.assert.calledOnce(mockStatsD.increment);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLocalizedConfig.success');
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.getLocalizedConfig.success'
+      );
     });
 
     it('should fallback to base config when FTL content is empty', async () => {
       const baseConfig = createBaseConfig();
       const mockResult = { relyingParties: [baseConfig] };
 
-      mockCmsManager.fetchCMSData.resolves(mockResult);
-      mockLocalization.fetchLocalizedFtlWithFallback.resolves('');
+      mockCmsManager.fetchCMSData.mockResolvedValue(mockResult);
+      mockLocalization.fetchLocalizedFtlWithFallback.mockResolvedValue('');
 
       request = createLocalizationRequest('sync-client', 'desktop-sync', 'fr');
 
       const response = await route.handler(request);
 
       expect(response).toEqual(baseConfig);
-      sinon.assert.calledOnce(log.info);
-      sinon.assert.calledWith(log.info, 'cms.getLocalizedConfig.fallbackToBase', {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        locale: 'fr',
-      });
-      sinon.assert.calledOnce(mockStatsD.increment);
-      sinon.assert.calledWith(
-        mockStatsD.increment,
+      expect(log.info).toHaveBeenCalledTimes(1);
+      expect(log.info).toHaveBeenCalledWith(
+        'cms.getLocalizedConfig.fallbackToBase',
+        {
+          clientId: 'sync-client',
+          entrypoint: 'desktop-sync',
+          locale: 'fr',
+        }
+      );
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.fallback'
       );
     });
 
     it('should return early when base config is empty object', async () => {
-      mockCmsManager.fetchCMSData.resolves({ relyingParties: [] });
+      mockCmsManager.fetchCMSData.mockResolvedValue({ relyingParties: [] });
 
       request = createLocalizationRequest('sync-client', 'desktop-sync', 'es');
 
@@ -511,13 +543,14 @@ describe('cms', () => {
 
       expect(response).toEqual({});
 
-      sinon.assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
-      sinon.assert.notCalled(mockLocalization.mergeConfigs);
+      expect(
+        mockLocalization.fetchLocalizedFtlWithFallback
+      ).not.toHaveBeenCalled();
+      expect(mockLocalization.mergeConfigs).not.toHaveBeenCalled();
 
-      sinon.assert.calledTwice(log.info);
+      expect(log.info).toHaveBeenCalledTimes(2);
 
-      sinon.assert.calledWith(
-        log.info.firstCall,
+      expect(log.info).toHaveBeenCalledWith(
         'cms.getConfig: No relying parties found',
         {
           clientId: 'sync-client',
@@ -525,8 +558,7 @@ describe('cms', () => {
         }
       );
 
-      sinon.assert.calledWith(
-        log.info.secondCall,
+      expect(log.info).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.noBaseConfig',
         {
           clientId: 'sync-client',
@@ -535,19 +567,19 @@ describe('cms', () => {
         }
       );
 
-      sinon.assert.calledOnce(mockStatsD.increment);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getConfig.empty');
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith('cms.getConfig.empty');
     });
   });
 
   describe('GET /cms/legal-terms', () => {
     beforeEach(() => {
       route = getRoute(routes, '/cms/legal-terms', 'GET');
-      mockLegalTermsManager.getLegalTermsByClientId.reset();
-      mockLegalTermsManager.getLegalTermsByService.reset();
-      mockLocalization.fetchLocalizedFtlWithFallback.reset();
-      mockLocalization.mergeConfigs.reset();
-      mockStatsD.increment.resetHistory();
+      mockLegalTermsManager.getLegalTermsByClientId.mockReset();
+      mockLegalTermsManager.getLegalTermsByService.mockReset();
+      mockLocalization.fetchLocalizedFtlWithFallback.mockReset();
+      mockLocalization.mergeConfigs.mockReset();
+      mockStatsD.increment.mockClear();
     });
 
     const mockLegalTermsResult = {
@@ -565,19 +597,22 @@ describe('cms', () => {
         log: log,
       };
 
-      mockLegalTermsManager.getLegalTermsByClientId.resolves({
+      mockLegalTermsManager.getLegalTermsByClientId.mockResolvedValue({
         getLegalTerms: () => mockLegalTermsResult,
       });
 
       const response = await route.handler(request);
 
-      sinon.assert.calledOnce(mockLegalTermsManager.getLegalTermsByClientId);
-      sinon.assert.calledWith(
-        mockLegalTermsManager.getLegalTermsByClientId,
-        clientId
-      );
+      expect(
+        mockLegalTermsManager.getLegalTermsByClientId
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockLegalTermsManager.getLegalTermsByClientId
+      ).toHaveBeenCalledWith(clientId);
       expect(response).toEqual(mockLegalTermsResult);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.getLegalTerms.success'
+      );
     });
 
     it('should return legal terms when found by service', async () => {
@@ -588,16 +623,22 @@ describe('cms', () => {
         log: log,
       };
 
-      mockLegalTermsManager.getLegalTermsByService.resolves({
+      mockLegalTermsManager.getLegalTermsByService.mockResolvedValue({
         getLegalTerms: () => mockLegalTermsResult,
       });
 
       const response = await route.handler(request);
 
-      sinon.assert.calledOnce(mockLegalTermsManager.getLegalTermsByService);
-      sinon.assert.calledWith(mockLegalTermsManager.getLegalTermsByService, service);
+      expect(
+        mockLegalTermsManager.getLegalTermsByService
+      ).toHaveBeenCalledTimes(1);
+      expect(mockLegalTermsManager.getLegalTermsByService).toHaveBeenCalledWith(
+        service
+      );
       expect(response).toEqual(mockLegalTermsResult);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.getLegalTerms.success'
+      );
     });
 
     it('should return null when no legal terms found', async () => {
@@ -608,14 +649,16 @@ describe('cms', () => {
         log: log,
       };
 
-      mockLegalTermsManager.getLegalTermsByClientId.resolves({
+      mockLegalTermsManager.getLegalTermsByClientId.mockResolvedValue({
         getLegalTerms: () => null,
       });
 
       const response = await route.handler(request);
 
       expect(response).toBeNull();
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.empty');
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.getLegalTerms.empty'
+      );
     });
 
     it('should throw error when both clientId and service provided', async () => {
@@ -663,23 +706,33 @@ describe('cms', () => {
         log: log,
       };
 
-      mockLegalTermsManager.getLegalTermsByClientId.resolves({
+      mockLegalTermsManager.getLegalTermsByClientId.mockResolvedValue({
         getLegalTerms: () => mockLegalTermsResult,
       });
 
-      mockLocalization.fetchLocalizedFtlWithFallback.resolves(ftlContent);
-      mockLocalization.mergeConfigs.resolves({
+      mockLocalization.fetchLocalizedFtlWithFallback.mockResolvedValue(
+        ftlContent
+      );
+      mockLocalization.mergeConfigs.mockResolvedValue({
         ...mockLegalTermsResult,
         label: 'Conditions générales',
       });
 
       const response = await route.handler(request);
 
-      sinon.assert.calledOnce(mockLocalization.fetchLocalizedFtlWithFallback);
-      sinon.assert.calledWith(mockLocalization.fetchLocalizedFtlWithFallback, locale);
-      sinon.assert.calledOnce(mockLocalization.mergeConfigs);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.localized');
+      expect(
+        mockLocalization.fetchLocalizedFtlWithFallback
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockLocalization.fetchLocalizedFtlWithFallback
+      ).toHaveBeenCalledWith(locale);
+      expect(mockLocalization.mergeConfigs).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.getLegalTerms.success'
+      );
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.getLegalTerms.localized'
+      );
       expect(response.label).toBe('Conditions générales');
     });
 
@@ -693,17 +746,21 @@ describe('cms', () => {
         log: log,
       };
 
-      mockLegalTermsManager.getLegalTermsByClientId.resolves({
+      mockLegalTermsManager.getLegalTermsByClientId.mockResolvedValue({
         getLegalTerms: () => mockLegalTermsResult,
       });
 
-      mockLocalization.fetchLocalizedFtlWithFallback.resolves(null);
+      mockLocalization.fetchLocalizedFtlWithFallback.mockResolvedValue(null);
 
       const response = await route.handler(request);
 
       expect(response).toEqual(mockLegalTermsResult);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.fallback');
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.getLegalTerms.fallback'
+      );
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.getLegalTerms.success'
+      );
     });
 
     it('should return base legal terms when localization is disabled', async () => {
@@ -718,15 +775,19 @@ describe('cms', () => {
         log: log,
       };
 
-      mockLegalTermsManager.getLegalTermsByClientId.resolves({
+      mockLegalTermsManager.getLegalTermsByClientId.mockResolvedValue({
         getLegalTerms: () => mockLegalTermsResult,
       });
 
       const response = await route.handler(request);
 
       expect(response).toEqual(mockLegalTermsResult);
-      sinon.assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.success');
+      expect(
+        mockLocalization.fetchLocalizedFtlWithFallback
+      ).not.toHaveBeenCalled();
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.getLegalTerms.success'
+      );
 
       mockConfig.cmsl10n.enabled = true;
     });
@@ -739,14 +800,16 @@ describe('cms', () => {
         log: log,
       };
 
-      mockLegalTermsManager.getLegalTermsByClientId.rejects(
+      mockLegalTermsManager.getLegalTermsByClientId.mockRejectedValue(
         new Error('Strapi error')
       );
 
       const response = await route.handler(request);
 
       expect(response).toBeNull();
-      sinon.assert.calledWith(mockStatsD.increment, 'cms.getLegalTerms.error');
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
+        'cms.getLegalTerms.error'
+      );
     });
   });
 

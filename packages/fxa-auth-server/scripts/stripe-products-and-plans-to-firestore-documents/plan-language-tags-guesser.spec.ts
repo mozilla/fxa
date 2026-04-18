@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
-const sandbox = sinon.createSandbox();
-
 const googleTranslate = require('@google-cloud/translate');
-const googleTranslateV2Mock: any = sandbox.createStubInstance(
-  googleTranslate.v2.Translate
-);
-sandbox.stub(googleTranslate.v2, 'Translate').returns(googleTranslateV2Mock);
+const googleTranslateV2Mock: any = {
+  detect: jest.fn(),
+};
+jest
+  .spyOn(googleTranslate.v2, 'Translate')
+  .mockReturnValue(googleTranslateV2Mock);
 const supportedLanguages = [
   'de',
   'de-ch',
@@ -34,8 +32,8 @@ describe('getLanguageTagFromPlanMetadata', () => {
   };
 
   beforeEach(() => {
-    googleTranslateV2Mock.detect.reset();
-    googleTranslateV2Mock.detect.resolves([
+    googleTranslateV2Mock.detect.mockReset();
+    googleTranslateV2Mock.detect.mockResolvedValue([
       { confidence: 0.9, language: 'en' },
     ]);
   });
@@ -50,8 +48,8 @@ describe('getLanguageTagFromPlanMetadata', () => {
 
   it('throws an error when the Google Translate result confidence is lower than the min', async () => {
     try {
-      googleTranslateV2Mock.detect.reset();
-      googleTranslateV2Mock.detect.resolves([
+      googleTranslateV2Mock.detect.mockReset();
+      googleTranslateV2Mock.detect.mockResolvedValue([
         { confidence: 0.3, language: 'en' },
       ]);
       await getLanguageTagFromPlanMetadata(plan, supportedLanguages);
@@ -88,8 +86,8 @@ describe('getLanguageTagFromPlanMetadata', () => {
   });
 
   it('returns the Google Translate detected language', async () => {
-    googleTranslateV2Mock.detect.reset();
-    googleTranslateV2Mock.detect.resolves([
+    googleTranslateV2Mock.detect.mockReset();
+    googleTranslateV2Mock.detect.mockResolvedValue([
       { confidence: 0.9, language: 'es' },
     ]);
     const actual = await getLanguageTagFromPlanMetadata(
@@ -113,8 +111,8 @@ describe('getLanguageTagFromPlanMetadata', () => {
   });
 
   it('returns a language tag with the subtag found in the plan title', async () => {
-    googleTranslateV2Mock.detect.reset();
-    googleTranslateV2Mock.detect.resolves([
+    googleTranslateV2Mock.detect.mockReset();
+    googleTranslateV2Mock.detect.mockResolvedValue([
       { confidence: 0.9, language: 'nl' },
     ]);
     const p = {
@@ -126,8 +124,8 @@ describe('getLanguageTagFromPlanMetadata', () => {
   });
 
   it('returns a Swiss language tag based on the plan currency', async () => {
-    googleTranslateV2Mock.detect.reset();
-    googleTranslateV2Mock.detect.resolves([
+    googleTranslateV2Mock.detect.mockReset();
+    googleTranslateV2Mock.detect.mockResolvedValue([
       { confidence: 0.9, language: 'de' },
     ]);
     const p = {

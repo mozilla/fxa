@@ -6,10 +6,12 @@ import base64url from 'base64url';
 import crypto from 'crypto';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
 import IORedis from 'ioredis';
-import sinon from 'sinon';
 import * as uuid from 'uuid';
 
-import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  getSharedTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import { AuthServerError } from '../support/helpers/test-utils';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -517,15 +519,16 @@ describe('#integration - remote db', () => {
       );
     } catch (err: unknown) {
       expect((err as AuthServerError).errno).toBe(124);
-      expect((err as any).output.payload.deviceId).toBe(conflictingDeviceInfo.id);
+      expect((err as any).output.payload.deviceId).toBe(
+        conflictingDeviceInfo.id
+      );
     }
 
     // Fetch all of the devices for the account
     devices = await db.devices(account.uid);
     expect(devices.length).toBe(2);
 
-    fetchedDevice =
-      devices[0].id === deviceInfo.id ? devices[0] : devices[1];
+    fetchedDevice = devices[0].id === deviceInfo.id ? devices[0] : devices[1];
 
     // Fetch a single device
     const singleDevice = await db.device(account.uid, fetchedDevice.id);
@@ -679,8 +682,7 @@ describe('#integration - remote db', () => {
 
   it('db.forgotPasswordVerified', async () => {
     const emailRecord = await db.emailRecord(account.email);
-    const passwordForgotToken =
-      await db.createPasswordForgotToken(emailRecord);
+    const passwordForgotToken = await db.createPasswordForgotToken(emailRecord);
     const accountResetToken =
       await db.forgotPasswordVerified(passwordForgotToken);
 
@@ -702,8 +704,7 @@ describe('#integration - remote db', () => {
     emailRecord.uaDeviceType = emailRecord.uaFormFactor = null;
 
     const sessionToken = await db.createSessionToken(emailRecord);
-    const accountResetToken =
-      await db.forgotPasswordVerified(sessionToken);
+    const accountResetToken = await db.forgotPasswordVerified(sessionToken);
     await db.resetAccount(accountResetToken, account);
 
     const redisResult = await redis.get(account.uid);
@@ -748,7 +749,9 @@ describe('#integration - remote db', () => {
     // Consume with invalid code
     try {
       await db.consumeUnblockCode(account.uid, 'NOTREAL');
-      fail('consumeUnblockCode() with an invalid unblock code should not succeed');
+      fail(
+        'consumeUnblockCode() with an invalid unblock code should not succeed'
+      );
     } catch (err: unknown) {
       expect((err as AuthServerError).errno).toBe(127);
       expect(`${err}`).toBe('Error: Invalid unblock code');
@@ -773,23 +776,22 @@ describe('#integration - remote db', () => {
     // Create a signinCode without a flowId
     const previousCode = await db.createSigninCode(account.uid);
     expect(typeof previousCode).toBe('string');
-    expect(Buffer.from(previousCode, 'hex').length).toBe(
-      config.signinCodeSize
-    );
+    expect(Buffer.from(previousCode, 'hex').length).toBe(config.signinCodeSize);
 
     // Stub crypto.randomBytes to return a duplicate code
-    const stub = sinon
-      .stub(crypto, 'randomBytes')
-      .callsFake((size: number, callback?: any) => {
-        if (!callback) {
-          return previousCode;
-        }
-        callback(null, previousCode);
-      });
+    const stub = jest.spyOn(crypto, 'randomBytes').mockImplementation(((
+      size: number,
+      callback?: any
+    ) => {
+      if (!callback) {
+        return previousCode;
+      }
+      callback(null, previousCode);
+    }) as any);
 
     // Create a signinCode with crypto.randomBytes rigged to return a duplicate
     const code = await db.createSigninCode(account.uid, flowId);
-    stub.restore();
+    stub.mockRestore();
     expect(typeof code).toBe('string');
     expect(code).not.toBe(previousCode);
     expect(Buffer.from(code, 'hex').length).toBe(config.signinCodeSize);
@@ -871,9 +873,7 @@ describe('#integration - remote db', () => {
         db.accountRecord(secondEmail),
       ]);
       expect(accountRecordFromSecondEmail.email).toBe(accountRecord.email);
-      expect(accountRecordFromSecondEmail.emails).toEqual(
-        accountRecord.emails
-      );
+      expect(accountRecordFromSecondEmail.emails).toEqual(accountRecord.emails);
       expect(accountRecordFromSecondEmail.primaryEmail).toEqual(
         accountRecord.primaryEmail
       );

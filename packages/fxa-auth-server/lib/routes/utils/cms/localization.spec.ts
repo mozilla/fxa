@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 // @octokit/rest is ESM-only; mock to avoid parse errors in Jest
 jest.mock('@octokit/rest', () => ({
   Octokit: class Octokit {
@@ -19,25 +17,24 @@ jest.mock('@fxa/shared/cms', () => ({
 const { CMSLocalization } = require('./localization');
 
 describe('CMSLocalization', () => {
-  const sandbox = sinon.createSandbox();
   let mockLog: any;
   let mockConfig: any;
   let mockStatsd: any;
   let localization: any;
 
   beforeEach(() => {
-    sandbox.reset();
+    jest.clearAllMocks();
 
     mockLog = {
-      info: sandbox.stub(),
-      warn: sandbox.stub(),
-      error: sandbox.stub(),
-      debug: sandbox.stub(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
     };
 
     mockStatsd = {
-      increment: sandbox.stub(),
-      timing: sandbox.stub(),
+      increment: jest.fn(),
+      timing: jest.fn(),
     };
 
     mockConfig = {
@@ -69,10 +66,10 @@ describe('CMSLocalization', () => {
     };
 
     const mockCmsManager = {
-      getCachedFtlContent: sandbox.stub(),
-      cacheFtlContent: sandbox.stub(),
-      invalidateFtlCache: sandbox.stub(),
-      getFtlContent: sandbox.stub(),
+      getCachedFtlContent: jest.fn(),
+      cacheFtlContent: jest.fn(),
+      invalidateFtlCache: jest.fn(),
+      getFtlContent: jest.fn(),
     };
 
     localization = new CMSLocalization(
@@ -249,36 +246,35 @@ describe('CMSLocalization', () => {
     beforeEach(() => {
       localization.octokit = {
         repos: {
-          get: sandbox.stub(),
-          createOrUpdateFileContents: sandbox.stub(),
-          getContent: sandbox.stub(),
+          get: jest.fn(),
+          createOrUpdateFileContents: jest.fn(),
+          getContent: jest.fn(),
         },
         git: {
-          getRef: sandbox.stub(),
-          createRef: sandbox.stub(),
+          getRef: jest.fn(),
+          createRef: jest.fn(),
         },
         pulls: {
-          create: sandbox.stub(),
-          get: sandbox.stub(),
-          list: sandbox.stub(),
+          create: jest.fn(),
+          get: jest.fn(),
+          list: jest.fn(),
         },
       };
     });
 
     describe('validateGitHubConfig', () => {
       it('validates GitHub configuration successfully', async () => {
-        localization.octokit.repos.get.resolves({
+        localization.octokit.repos.get.mockResolvedValue({
           data: { default_branch: 'main' },
         });
 
         await localization.validateGitHubConfig();
 
-        sinon.assert.calledWith(localization.octokit.repos.get, {
+        expect(localization.octokit.repos.get).toHaveBeenCalledWith({
           owner: 'test-owner',
           repo: 'test-repo',
         });
-        sinon.assert.calledWith(
-          mockLog.info,
+        expect(mockLog.info).toHaveBeenCalledWith(
           'cms.integrations.github.config.validated',
           {}
         );
@@ -302,14 +298,13 @@ describe('CMSLocalization', () => {
 
       it('throws error when GitHub API call fails', async () => {
         const error = new Error('API Error');
-        localization.octokit.repos.get.rejects(error);
+        localization.octokit.repos.get.mockRejectedValue(error);
 
         await expect(localization.validateGitHubConfig()).rejects.toThrow(
           /API Error/
         );
 
-        sinon.assert.calledWith(
-          mockLog.error,
+        expect(mockLog.error).toHaveBeenCalledWith(
           'cms.integrations.github.config.validation.failed',
           {
             error: 'API Error',
@@ -325,7 +320,7 @@ describe('CMSLocalization', () => {
           { number: 124, title: 'Other PR', state: 'open' },
         ];
 
-        localization.octokit.pulls.list.resolves({ data: mockPRs });
+        localization.octokit.pulls.list.mockResolvedValue({ data: mockPRs });
 
         const result = await localization.findExistingPR(
           'test-owner',
@@ -333,8 +328,7 @@ describe('CMSLocalization', () => {
         );
 
         expect(result).toEqual(mockPRs[0]);
-        sinon.assert.calledWith(
-          mockLog.info,
+        expect(mockLog.info).toHaveBeenCalledWith(
           'cms.integrations.github.pr.found',
           {
             prNumber: 123,
@@ -353,7 +347,7 @@ describe('CMSLocalization', () => {
           { number: 124, title: 'Other PR', state: 'open' },
         ];
 
-        localization.octokit.pulls.list.resolves({ data: mockPRs });
+        localization.octokit.pulls.list.mockResolvedValue({ data: mockPRs });
 
         const result = await localization.findExistingPR(
           'test-owner',
@@ -361,8 +355,7 @@ describe('CMSLocalization', () => {
         );
 
         expect(result).toEqual(mockPRs[0]);
-        sinon.assert.calledWith(
-          mockLog.info,
+        expect(mockLog.info).toHaveBeenCalledWith(
           'cms.integrations.github.pr.found',
           {
             prNumber: 123,
@@ -374,7 +367,7 @@ describe('CMSLocalization', () => {
       it('returns null when no matching PR found', async () => {
         const mockPRs = [{ number: 124, title: 'Other PR', state: 'open' }];
 
-        localization.octokit.pulls.list.resolves({ data: mockPRs });
+        localization.octokit.pulls.list.mockResolvedValue({ data: mockPRs });
 
         const result = await localization.findExistingPR(
           'test-owner',
@@ -382,8 +375,7 @@ describe('CMSLocalization', () => {
         );
 
         expect(result).toBeNull();
-        sinon.assert.calledWith(
-          mockLog.info,
+        expect(mockLog.info).toHaveBeenCalledWith(
           'cms.integrations.github.pr.notFound',
           {}
         );
@@ -391,14 +383,13 @@ describe('CMSLocalization', () => {
 
       it('handles API errors', async () => {
         const error = new Error('API Error');
-        localization.octokit.pulls.list.rejects(error);
+        localization.octokit.pulls.list.mockRejectedValue(error);
 
         await expect(
           localization.findExistingPR('test-owner', 'test-repo')
         ).rejects.toThrow(/API Error/);
 
-        sinon.assert.calledWith(
-          mockLog.error,
+        expect(mockLog.error).toHaveBeenCalledWith(
           'cms.integrations.github.pr.search.error',
           {
             error: 'API Error',
@@ -412,49 +403,51 @@ describe('CMSLocalization', () => {
         const mockPR = { head: { ref: 'test-branch' } };
         const mockFileData = { sha: 'existing-sha' };
 
-        localization.octokit.pulls.get.resolves({ data: mockPR });
-        localization.octokit.repos.getContent.resolves({ data: mockFileData });
-        localization.octokit.repos.createOrUpdateFileContents.resolves();
+        localization.octokit.pulls.get.mockResolvedValue({ data: mockPR });
+        localization.octokit.repos.getContent.mockResolvedValue({
+          data: mockFileData,
+        });
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue();
 
         await localization.updateExistingPR(123, 'test content');
 
-        sinon.assert.calledWith(
-          localization.octokit.repos.createOrUpdateFileContents,
-          {
-            owner: 'test-owner',
-            repo: 'test-repo',
-            path: 'locales/en/cms.ftl',
-            message:
-              '🔄 Update CMS localization file (cms.ftl) - Strapi webhook sync',
-            content: sinon.match.string,
-            sha: 'existing-sha',
-            branch: 'test-branch',
-          }
-        );
+        expect(
+          localization.octokit.repos.createOrUpdateFileContents
+        ).toHaveBeenCalledWith({
+          owner: 'test-owner',
+          repo: 'test-repo',
+          path: 'locales/en/cms.ftl',
+          message:
+            '🔄 Update CMS localization file (cms.ftl) - Strapi webhook sync',
+          content: expect.any(String),
+          sha: 'existing-sha',
+          branch: 'test-branch',
+        });
       });
 
       it('creates new file when file does not exist', async () => {
         const mockPR = { head: { ref: 'test-branch' } };
 
-        localization.octokit.pulls.get.resolves({ data: mockPR });
-        localization.octokit.repos.getContent.rejects(new Error('Not Found'));
-        localization.octokit.repos.createOrUpdateFileContents.resolves();
+        localization.octokit.pulls.get.mockResolvedValue({ data: mockPR });
+        localization.octokit.repos.getContent.mockRejectedValue(
+          new Error('Not Found')
+        );
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue();
 
         await localization.updateExistingPR(123, 'test content');
 
-        sinon.assert.calledWith(
-          localization.octokit.repos.createOrUpdateFileContents,
-          {
-            owner: 'test-owner',
-            repo: 'test-repo',
-            path: 'locales/en/cms.ftl',
-            message:
-              '🌐 Add CMS localization file (cms.ftl) - Strapi webhook generated',
-            content: sinon.match.string,
-            sha: undefined,
-            branch: 'test-branch',
-          }
-        );
+        expect(
+          localization.octokit.repos.createOrUpdateFileContents
+        ).toHaveBeenCalledWith({
+          owner: 'test-owner',
+          repo: 'test-repo',
+          path: 'locales/en/cms.ftl',
+          message:
+            '🌐 Add CMS localization file (cms.ftl) - Strapi webhook generated',
+          content: expect.any(String),
+          sha: undefined,
+          branch: 'test-branch',
+        });
       });
     });
 
@@ -466,30 +459,35 @@ describe('CMSLocalization', () => {
           html_url: 'https://github.com/test/pr/123',
         };
 
-        localization.octokit.git.getRef.resolves({ data: mockRefData });
-        localization.octokit.git.createRef.resolves();
-        localization.octokit.repos.getContent.rejects(new Error('Not Found'));
-        localization.octokit.repos.createOrUpdateFileContents.resolves();
-        localization.octokit.pulls.create.resolves({ data: mockPRData });
+        localization.octokit.git.getRef.mockResolvedValue({
+          data: mockRefData,
+        });
+        localization.octokit.git.createRef.mockResolvedValue();
+        localization.octokit.repos.getContent.mockRejectedValue(
+          new Error('Not Found')
+        );
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue();
+        localization.octokit.pulls.create.mockResolvedValue({
+          data: mockPRData,
+        });
 
         await localization.createGitHubPR('test content', 'desktop-sync');
 
-        sinon.assert.calledWith(localization.octokit.pulls.create, {
+        expect(localization.octokit.pulls.create).toHaveBeenCalledWith({
           owner: 'test-owner',
           repo: 'test-repo',
           title: '🌐 Add CMS localization file (cms.ftl)',
-          body: sinon.match.string,
-          head: sinon.match.string,
+          body: expect.any(String),
+          head: expect.any(String),
           base: 'main',
         });
 
-        sinon.assert.calledWith(
-          mockLog.info,
+        expect(mockLog.info).toHaveBeenCalledWith(
           'cms.integrations.github.pr.created',
           {
             prNumber: 123,
             prUrl: 'https://github.com/test/pr/123',
-            branchName: sinon.match.string,
+            branchName: expect.any(String),
             fileName: 'cms.ftl',
             webhookDetails: undefined,
           }
@@ -504,27 +502,32 @@ describe('CMSLocalization', () => {
         };
         const mockFileData = { sha: 'existing-file-sha' };
 
-        localization.octokit.git.getRef.resolves({ data: mockRefData });
-        localization.octokit.git.createRef.resolves();
-        localization.octokit.repos.getContent.resolves({ data: mockFileData });
-        localization.octokit.repos.createOrUpdateFileContents.resolves();
-        localization.octokit.pulls.create.resolves({ data: mockPRData });
+        localization.octokit.git.getRef.mockResolvedValue({
+          data: mockRefData,
+        });
+        localization.octokit.git.createRef.mockResolvedValue();
+        localization.octokit.repos.getContent.mockResolvedValue({
+          data: mockFileData,
+        });
+        localization.octokit.repos.createOrUpdateFileContents.mockResolvedValue();
+        localization.octokit.pulls.create.mockResolvedValue({
+          data: mockPRData,
+        });
 
         await localization.createGitHubPR('test content', 'desktop-sync');
 
-        sinon.assert.calledWith(
-          localization.octokit.repos.createOrUpdateFileContents,
-          {
-            owner: 'test-owner',
-            repo: 'test-repo',
-            path: 'locales/en/cms.ftl',
-            message:
-              '🌐 Add CMS localization file (cms.ftl) - Strapi webhook generated',
-            content: sinon.match.string,
-            sha: 'existing-file-sha',
-            branch: sinon.match.string,
-          }
-        );
+        expect(
+          localization.octokit.repos.createOrUpdateFileContents
+        ).toHaveBeenCalledWith({
+          owner: 'test-owner',
+          repo: 'test-repo',
+          path: 'locales/en/cms.ftl',
+          message:
+            '🌐 Add CMS localization file (cms.ftl) - Strapi webhook generated',
+          content: expect.any(String),
+          sha: 'existing-file-sha',
+          branch: expect.any(String),
+        });
       });
     });
   });
@@ -541,29 +544,28 @@ describe('CMSLocalization', () => {
       ];
 
       const originalFetch = global.fetch;
-      global.fetch = sandbox.stub() as any;
-
-      (global.fetch as any)
-        .withArgs('http://localhost:1337/api/relying-parties?populate=*')
-        .resolves({
-          ok: true,
-          status: 200,
-          json: () => Promise.resolve({ data: relyingPartyEntries }),
-        });
-
-      (global.fetch as any)
-        .withArgs('http://localhost:1337/api/legal-notices?populate=*')
-        .resolves({
-          ok: true,
-          status: 200,
-          json: () => Promise.resolve({ data: legalNoticeEntries }),
-        });
+      global.fetch = jest.fn().mockImplementation((url: string) => {
+        if (url === 'http://localhost:1337/api/relying-parties?populate=*') {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({ data: relyingPartyEntries }),
+          });
+        }
+        if (url === 'http://localhost:1337/api/legal-notices?populate=*') {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({ data: legalNoticeEntries }),
+          });
+        }
+        return Promise.reject(new Error(`Unexpected fetch URL: ${url}`));
+      }) as any;
 
       try {
         const result = await localization.fetchAllStrapiEntries();
 
-        sinon.assert.calledWith(
-          global.fetch as any,
+        expect(global.fetch as any).toHaveBeenCalledWith(
           'http://localhost:1337/api/relying-parties?populate=*',
           {
             headers: {
@@ -573,8 +575,7 @@ describe('CMSLocalization', () => {
           }
         );
 
-        sinon.assert.calledWith(
-          global.fetch as any,
+        expect(global.fetch as any).toHaveBeenCalledWith(
           'http://localhost:1337/api/legal-notices?populate=*',
           {
             headers: {
@@ -586,8 +587,7 @@ describe('CMSLocalization', () => {
 
         expect(result).toEqual([...relyingPartyEntries, ...legalNoticeEntries]);
 
-        sinon.assert.calledWith(
-          mockLog.info,
+        expect(mockLog.info).toHaveBeenCalledWith(
           'cms.integrations.strapi.fetchedAllEntries',
           {
             totalCount: 3,
@@ -604,31 +604,30 @@ describe('CMSLocalization', () => {
       ];
 
       const originalFetch = global.fetch;
-      global.fetch = sandbox.stub() as any;
-
-      (global.fetch as any)
-        .withArgs('http://localhost:1337/api/relying-parties?populate=*')
-        .resolves({
-          ok: true,
-          status: 200,
-          json: () => Promise.resolve({ data: relyingPartyEntries }),
-        });
-
-      (global.fetch as any)
-        .withArgs('http://localhost:1337/api/legal-notices?populate=*')
-        .resolves({
-          ok: false,
-          status: 500,
-          statusText: 'Internal Server Error',
-        });
+      global.fetch = jest.fn().mockImplementation((url: string) => {
+        if (url === 'http://localhost:1337/api/relying-parties?populate=*') {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({ data: relyingPartyEntries }),
+          });
+        }
+        if (url === 'http://localhost:1337/api/legal-notices?populate=*') {
+          return Promise.resolve({
+            ok: false,
+            status: 500,
+            statusText: 'Internal Server Error',
+          });
+        }
+        return Promise.reject(new Error(`Unexpected fetch URL: ${url}`));
+      }) as any;
 
       try {
         const result = await localization.fetchAllStrapiEntries();
 
         expect(result).toEqual(relyingPartyEntries);
 
-        sinon.assert.calledWith(
-          mockLog.warn,
+        expect(mockLog.warn).toHaveBeenCalledWith(
           'cms.integrations.strapi.fetchCollectionError',
           {
             collection: 'legal-notices',
@@ -637,8 +636,7 @@ describe('CMSLocalization', () => {
           }
         );
 
-        sinon.assert.calledWith(
-          mockLog.info,
+        expect(mockLog.info).toHaveBeenCalledWith(
           'cms.integrations.strapi.fetchedAllEntries',
           {
             totalCount: 1,
@@ -679,9 +677,9 @@ describe('CMSLocalization', () => {
 
     beforeEach(() => {
       mockCmsManager = {
-        getCachedFtlContent: sandbox.stub(),
-        cacheFtlContent: sandbox.stub(),
-        getFtlContent: sandbox.stub(),
+        getCachedFtlContent: jest.fn(),
+        cacheFtlContent: jest.fn(),
+        getFtlContent: jest.fn(),
       };
       localization.cmsManager = mockCmsManager;
     });
@@ -690,14 +688,16 @@ describe('CMSLocalization', () => {
       const locale = 'es';
       const cachedContent = 'cached FTL content';
 
-      mockCmsManager.getFtlContent.resolves(cachedContent);
+      mockCmsManager.getFtlContent.mockResolvedValue(cachedContent);
 
       const result = await localization.fetchLocalizedFtlWithFallback(locale);
 
       expect(result).toBe(cachedContent);
-      sinon.assert.calledWith(mockCmsManager.getFtlContent, locale, mockConfig);
-      sinon.assert.calledWith(
-        mockStatsd.increment,
+      expect(mockCmsManager.getFtlContent).toHaveBeenCalledWith(
+        locale,
+        mockConfig
+      );
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.ftl.success'
       );
     });
@@ -706,14 +706,16 @@ describe('CMSLocalization', () => {
       const locale = 'fr';
       const ftlContent = 'fresh FTL content';
 
-      mockCmsManager.getFtlContent.resolves(ftlContent);
+      mockCmsManager.getFtlContent.mockResolvedValue(ftlContent);
 
       const result = await localization.fetchLocalizedFtlWithFallback(locale);
 
       expect(result).toBe(ftlContent);
-      sinon.assert.calledWith(mockCmsManager.getFtlContent, locale, mockConfig);
-      sinon.assert.calledWith(
-        mockStatsd.increment,
+      expect(mockCmsManager.getFtlContent).toHaveBeenCalledWith(
+        locale,
+        mockConfig
+      );
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.ftl.success'
       );
     });
@@ -724,23 +726,20 @@ describe('CMSLocalization', () => {
       const ftlContent = 'fallback content';
 
       mockCmsManager.getFtlContent
-        .onFirstCall()
-        .rejects(new Error('Specific locale failed'));
-      mockCmsManager.getFtlContent.onSecondCall().resolves(ftlContent);
+        .mockRejectedValueOnce(new Error('Specific locale failed'))
+        .mockResolvedValueOnce(ftlContent);
 
       const result = await localization.fetchLocalizedFtlWithFallback(locale);
 
       expect(result).toBe(ftlContent);
-      sinon.assert.calledWith(
-        mockLog.error,
+      expect(mockLog.error).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.locale.failed',
         {
           locale,
           error: 'Specific locale failed',
         }
       );
-      sinon.assert.calledWith(
-        mockLog.info,
+      expect(mockLog.info).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.locale.fallback',
         {
           originalLocale: locale,
@@ -755,25 +754,23 @@ describe('CMSLocalization', () => {
       const fallbackContent = 'base locale content';
 
       mockCmsManager.getFtlContent
-        .onFirstCall()
-        .rejects(new Error('Specific locale failed'));
-      mockCmsManager.getFtlContent.onSecondCall().resolves(fallbackContent);
+        .mockRejectedValueOnce(new Error('Specific locale failed'))
+        .mockResolvedValueOnce(fallbackContent);
 
       const result = await localization.fetchLocalizedFtlWithFallback(locale);
 
       expect(result).toBe(fallbackContent);
-      sinon.assert.calledWith(
-        mockCmsManager.getFtlContent.firstCall,
+      expect(mockCmsManager.getFtlContent).toHaveBeenNthCalledWith(
+        1,
         locale,
         mockConfig
       );
-      sinon.assert.calledWith(
-        mockCmsManager.getFtlContent.secondCall,
+      expect(mockCmsManager.getFtlContent).toHaveBeenNthCalledWith(
+        2,
         baseLocale,
         mockConfig
       );
-      sinon.assert.calledWith(
-        mockLog.info,
+      expect(mockLog.info).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.locale.fallback',
         {
           originalLocale: locale,
@@ -788,23 +785,20 @@ describe('CMSLocalization', () => {
       const baseContent = 'base content';
 
       mockCmsManager.getFtlContent
-        .onFirstCall()
-        .rejects(new Error('Specific locale failed'));
-      mockCmsManager.getFtlContent.onSecondCall().resolves(baseContent);
+        .mockRejectedValueOnce(new Error('Specific locale failed'))
+        .mockResolvedValueOnce(baseContent);
 
       const result = await localization.fetchLocalizedFtlWithFallback(locale);
 
       expect(result).toBe(baseContent);
-      sinon.assert.calledWith(
-        mockLog.info,
+      expect(mockLog.info).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.locale.fallback',
         {
           originalLocale: locale,
           fallbackLocale: baseLocale,
         }
       );
-      sinon.assert.calledWith(
-        mockStatsd.increment,
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.ftl.success'
       );
     });
@@ -813,17 +807,13 @@ describe('CMSLocalization', () => {
       const locale = 'pt-BR';
 
       mockCmsManager.getFtlContent
-        .onFirstCall()
-        .rejects(new Error('Specific locale failed'));
-      mockCmsManager.getFtlContent
-        .onSecondCall()
-        .rejects(new Error('Base locale failed'));
+        .mockRejectedValueOnce(new Error('Specific locale failed'))
+        .mockRejectedValueOnce(new Error('Base locale failed'));
 
       const result = await localization.fetchLocalizedFtlWithFallback(locale);
 
       expect(result).toBe('');
-      sinon.assert.calledWith(
-        mockStatsd.increment,
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.ftl.fallback'
       );
     });
@@ -832,25 +822,20 @@ describe('CMSLocalization', () => {
       const locale = 'it-IT';
 
       mockCmsManager.getFtlContent
-        .onFirstCall()
-        .rejects(new Error('Specific locale failed'));
-      mockCmsManager.getFtlContent
-        .onSecondCall()
-        .rejects(new Error('Base locale failed'));
+        .mockRejectedValueOnce(new Error('Specific locale failed'))
+        .mockRejectedValueOnce(new Error('Base locale failed'));
 
       const result = await localization.fetchLocalizedFtlWithFallback(locale);
 
       expect(result).toBe('');
-      sinon.assert.calledWith(
-        mockLog.error,
+      expect(mockLog.error).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.locale.failed',
         {
           locale,
           error: 'Specific locale failed',
         }
       );
-      sinon.assert.calledWith(
-        mockLog.error,
+      expect(mockLog.error).toHaveBeenCalledWith(
         'cms.getLocalizedConfig.locale.fallback.failed',
         {
           originalLocale: locale,
@@ -1032,7 +1017,7 @@ describe('CMSLocalization', () => {
 
   describe('generateFtlContentFromEntries', () => {
     beforeEach(() => {
-      sandbox.stub(localization, 'strapiToFtl');
+      jest.spyOn(localization, 'strapiToFtl');
     });
 
     it('delegates to strapiToFtl method', () => {
@@ -1042,24 +1027,24 @@ describe('CMSLocalization', () => {
       ];
       const expectedFtl = 'Generated FTL content';
 
-      localization.strapiToFtl.returns(expectedFtl);
+      localization.strapiToFtl.mockReturnValue(expectedFtl);
 
       const result = localization.generateFtlContentFromEntries(entries);
 
       expect(result).toBe(expectedFtl);
-      sinon.assert.calledWith(localization.strapiToFtl, entries);
+      expect(localization.strapiToFtl).toHaveBeenCalledWith(entries);
     });
 
     it('handles empty entries array', () => {
       const entries: any[] = [];
       const expectedFtl = 'Empty FTL content';
 
-      localization.strapiToFtl.returns(expectedFtl);
+      localization.strapiToFtl.mockReturnValue(expectedFtl);
 
       const result = localization.generateFtlContentFromEntries(entries);
 
       expect(result).toBe(expectedFtl);
-      sinon.assert.calledWith(localization.strapiToFtl, entries);
+      expect(localization.strapiToFtl).toHaveBeenCalledWith(entries);
     });
 
     it('passes through all entries without modification', () => {
@@ -1071,10 +1056,10 @@ describe('CMSLocalization', () => {
         },
       ];
 
-      localization.strapiToFtl.returns('FTL output');
+      localization.strapiToFtl.mockReturnValue('FTL output');
       localization.generateFtlContentFromEntries(entries);
 
-      sinon.assert.calledWith(localization.strapiToFtl, entries);
+      expect(localization.strapiToFtl).toHaveBeenCalledWith(entries);
     });
   });
 
