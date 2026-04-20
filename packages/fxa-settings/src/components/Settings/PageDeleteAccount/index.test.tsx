@@ -22,7 +22,10 @@ import { typeByTestIdFn } from '../../../lib/test-utils';
 import { Account, AppContext } from '../../../models';
 import { MOCK_EMAIL } from '../../../pages/mocks';
 import GleanMetrics from '../../../lib/glean';
-import { discardSessionToken, clearSignedInAccountUid } from '../../../lib/cache';
+import {
+  discardSessionToken,
+  clearSignedInAccountUid,
+} from '../../../lib/cache';
 
 jest.mock('../../../lib/cache', () => ({
   ...jest.requireActual('../../../lib/cache'),
@@ -266,10 +269,42 @@ describe('PageDeleteAccount', () => {
           })
         );
         expect(GleanMetrics.deleteAccount.engage).toHaveBeenCalled();
-        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Delete account' })
+        );
         expect(GleanMetrics.deleteAccount.submit).toHaveBeenCalled();
         expect(GleanMetrics.deleteAccount.passwordView).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('step 1 action button', () => {
+    it('renders as "Continue" with primary style when account has a password', () => {
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account, session })}>
+          <PageDeleteAccount />
+        </AppContext.Provider>
+      );
+
+      const button = screen.getByTestId('continue-button');
+      expect(button.textContent).toContain('Continue');
+      expect(button).toHaveClass('cta-primary');
+      expect(button).not.toHaveClass('cta-caution');
+    });
+
+    it('renders as "Delete account" with caution style when account has no password', () => {
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({ account: pwdlessAccount, session })}
+        >
+          <PageDeleteAccount />
+        </AppContext.Provider>
+      );
+
+      const button = screen.getByTestId('continue-button');
+      expect(button.textContent).toContain('Delete account');
+      expect(button).toHaveClass('cta-caution');
+      expect(button).not.toHaveClass('cta-primary');
     });
   });
 });

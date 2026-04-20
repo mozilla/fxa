@@ -24,6 +24,10 @@ export class DeleteAccountPage extends SettingsLayout {
     return this.page.getByRole('button', { name: 'Continue' });
   }
 
+  get passwordlessDeleteButton() {
+    return this.page.getByRole('button', { name: 'Delete account' });
+  }
+
   get step2Heading() {
     return this.page.getByRole('heading', { name: 'Step 2 of 2' });
   }

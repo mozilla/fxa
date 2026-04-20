@@ -30,6 +30,7 @@ delete-account-chk-box-4 =
 
 
 delete-account-continue-button = Continue
+delete-account-delete-button-passwordless = Delete account
 
 delete-account-password-input =
  .label = Enter password
