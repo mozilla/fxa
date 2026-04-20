@@ -19,6 +19,7 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import {
+  ConfirmationTokenManager,
   CustomerManager,
   InvoiceManager,
   PaymentIntentManager,
@@ -73,6 +74,7 @@ import {
   InvalidInvoiceStateCheckoutError,
   InvalidIntentStateError,
   LatestInvoiceNotFoundOnSubscriptionError,
+  NewAccountPrepaidCardFreeTrialNotAllowedError,
   PaymentMethodUpdateFailedError,
   UpgradeForSubscriptionNotFoundError,
   DetermineCheckoutAmountCustomerRequiredError,
@@ -97,6 +99,8 @@ import {
 import { isCancelInterstitialOffer } from './util/isCancelInterstitialOffer';
 import { FreeTrialManager } from './free-trial.manager';
 
+const FREE_TRIAL_PREPAID_CARD_BLOCKED_HOURS = 24;
+
 @Injectable()
 export class CheckoutService {
   constructor(
@@ -105,6 +109,7 @@ export class CheckoutService {
     @Inject(AsyncLocalStorageCart)
     private cartAsyncLocalStorage: AsyncLocalStorage<CartStore>,
     private cartManager: CartManager,
+    private confirmationTokenManager: ConfirmationTokenManager,
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
@@ -174,6 +179,7 @@ export class CheckoutService {
       throw new CartAccountNotFoundError(cart.id);
     }
     const email = fxaAccounts[0].email;
+    const accountCreatedAt = fxaAccounts[0].createdAt;
 
     let stripeCustomerId = cart.stripeCustomerId;
     let customer: StripeCustomer;
@@ -297,6 +303,7 @@ export class CheckoutService {
 
     return {
       uid: uid,
+      accountCreatedAt,
       customer,
       enableAutomaticTax,
       promotionCode,
@@ -362,6 +369,7 @@ export class CheckoutService {
   ) {
     const {
       uid,
+      accountCreatedAt,
       customer,
       enableAutomaticTax,
       promotionCode,
@@ -384,6 +392,20 @@ export class CheckoutService {
       unitAmountForCurrency,
       new PayWithStripeNullCurrencyError(cart.id, price.id)
     );
+
+    if (
+      freeTrial &&
+      Date.now() - accountCreatedAt <
+        FREE_TRIAL_PREPAID_CARD_BLOCKED_HOURS * 60 * 60 * 1000
+    ) {
+      const confirmationToken =
+        await this.confirmationTokenManager.retrieve(confirmationTokenId);
+      if (
+        confirmationToken.payment_method_preview?.card?.funding === 'prepaid'
+      ) {
+        throw new NewAccountPrepaidCardFreeTrialNotAllowedError(cart.id, uid);
+      }
+    }
 
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE

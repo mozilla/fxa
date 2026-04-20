@@ -50,6 +50,7 @@ export enum CartErrorReasonId {
   INTENT_FAILED_INSUFFICIENT_FUNDS = 'intent-payment-error-insufficient-funds',
   PAYPAL_ACTIVE_SUBSCRIPTION_NO_BILLING_AGREEMENT = 'paypal-active-subscription-no-billing-agreement-error',
   GENERAL_PAYPAL_ERROR = 'general-paypal-error',
+  NEW_ACCOUNT_PREPAID_CARD_FREE_TRIAL_NOT_ALLOWED = 'new-account-prepaid-card-free-trial-not-allowed',
   UNKNOWN = 'unknown',
 }
 

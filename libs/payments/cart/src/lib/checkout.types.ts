@@ -9,6 +9,7 @@ import { FreeTrial } from '@fxa/shared/cms';
 
 export type PrePayStepsResult = Pick<ResultCart, 'version'> & {
   uid: string;
+  accountCreatedAt: number;
   customer: StripeCustomer;
   enableAutomaticTax: boolean;
   promotionCode?: StripePromotionCode;

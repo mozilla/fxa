@@ -371,6 +371,12 @@ export type StripeSetupIntent = NegotiateExpanded<
   | 'single_use_mandate'
 >;
 
+export type StripeConfirmationToken = NegotiateExpanded<
+  never,
+  Stripe.ConfirmationToken,
+  'payment_intent' | 'setup_intent'
+>;
+
 export type StripeAddress = Stripe.Address;
 export type StripeApiList<T> = Stripe.ApiList<T>;
 export type StripeApiListPromise<T> = Stripe.ApiListPromise<T>;

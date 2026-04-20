@@ -9,6 +9,7 @@ import { Cacheable } from '@type-cacheable/core';
 
 import {
   StripeApiList,
+  type StripeConfirmationToken,
   StripeCustomer,
   StripeCustomerSession,
   StripeDeletedCustomer,
@@ -464,5 +465,12 @@ export class StripeClient {
       expand: undefined,
     });
     return result as StripeResponse<StripeSetupIntent>;
+  }
+
+  @CaptureTimingWithStatsD()
+  async confirmationTokenRetrieve(confirmationTokenId: string) {
+    const result =
+      await this.stripe.confirmationTokens.retrieve(confirmationTokenId);
+    return result as StripeResponse<StripeConfirmationToken>;
   }
 }

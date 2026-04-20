@@ -162,6 +162,15 @@ export function getErrorFtlInfo(
           'An unexpected error has occurred while processing your payment, please try again.',
         messageFtl: 'general-paypal-error',
       };
+    case CartErrorReasonId.NEW_ACCOUNT_PREPAID_CARD_FREE_TRIAL_NOT_ALLOWED:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
+        message:
+          'Prepaid cards cannot be used to start a free trial on new accounts. Please try a different payment method.',
+        messageFtl: 'new-account-prepaid-card-free-trial-not-allowed',
+      };
     case CartErrorReasonId.BASIC_ERROR:
     default:
       return {
