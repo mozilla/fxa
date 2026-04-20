@@ -51,7 +51,6 @@ import {
   TrialSubscriptionContentFactory,
 } from '@fxa/payments/management';
 import {
-  BillingAgreementFactory,
   MockPaypalClientConfigProvider,
   PaypalBillingAgreementManager,
   PayPalClient,
@@ -2242,7 +2241,6 @@ describe('SubscriptionManagementService', () => {
           collection_method: 'send_invoice',
         })
       );
-      const mockBillingAgreement = BillingAgreementFactory();
       const mockStripeCustomer = StripeResponseFactory(StripeCustomerFactory());
 
       jest
@@ -2266,12 +2264,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paypalBillingAgreementManager, 'create')
         .mockResolvedValue(faker.string.uuid());
-      jest
-        .spyOn(paypalBillingAgreementManager, 'retrieve')
-        .mockResolvedValue(mockBillingAgreement);
-      jest
-        .spyOn(currencyManager, 'assertCurrencyCompatibleWithCountry')
-        .mockReturnValue();
       jest
         .spyOn(customerManager, 'update')
         .mockResolvedValue(mockStripeCustomer);
