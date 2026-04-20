@@ -671,6 +671,9 @@ describe('CartService', () => {
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.CREATE,
       });
+      jest
+        .spyOn(checkoutService, 'getFreeTrialEligibility')
+        .mockResolvedValue(null);
     });
 
     it('calls createCart with expected parameters', async () => {
@@ -699,6 +702,7 @@ describe('CartService', () => {
         currency: mockResolvedCurrency,
         eligibilityStatus: CartEligibilityStatus.CREATE,
         couponCode: args.promoCode,
+        isFreeTrial: false,
       });
       expect(result).toEqual(mockResultCart);
     });
@@ -773,6 +777,7 @@ describe('CartService', () => {
         taxAddress,
         currency: mockResolvedCurrency,
         eligibilityStatus: CartEligibilityStatus.UPGRADE,
+        isFreeTrial: false,
       });
       expect(result).toEqual(mockResultCart);
       expect(result.couponCode).toBeNull();
@@ -835,6 +840,7 @@ describe('CartService', () => {
           currency: mockResolvedCurrency,
           eligibilityStatus: CartEligibilityStatus.BLOCKED_IAP,
           couponCode: args.promoCode,
+          isFreeTrial: false,
         },
         CartErrorReasonId.IAP_BLOCKED_CONTACT_SUPPORT
       );
@@ -877,6 +883,7 @@ describe('CartService', () => {
           currency: mockResolvedCurrency,
           eligibilityStatus: CartEligibilityStatus.DOWNGRADE,
           couponCode: args.promoCode,
+          isFreeTrial: false,
         },
         CartErrorReasonId.CART_ELIGIBILITY_STATUS_DOWNGRADE
       );
@@ -917,6 +924,7 @@ describe('CartService', () => {
           currency: mockResolvedCurrency,
           eligibilityStatus: CartEligibilityStatus.INVALID,
           couponCode: args.promoCode,
+          isFreeTrial: false,
         },
         CartErrorReasonId.CART_ELIGIBILITY_STATUS_INVALID
       );
@@ -957,6 +965,7 @@ describe('CartService', () => {
           currency: mockResolvedCurrency,
           eligibilityStatus: CartEligibilityStatus.INVALID,
           couponCode: args.promoCode,
+          isFreeTrial: false,
         },
         CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME
       );
@@ -1053,6 +1062,7 @@ describe('CartService', () => {
         stripeCustomerId: mockAccountCustomer.stripeCustomerId,
         amount: mockOldCart.amount,
         eligibilityStatus: mockOldCart.eligibilityStatus,
+        isFreeTrial: mockOldCart.isFreeTrial,
       });
       expect(result).toEqual(mockNewCart);
     });
@@ -1348,6 +1358,7 @@ describe('CartService', () => {
       const mockCart = ResultCartFactory({
         stripeSubscriptionId: undefined,
         currency: mockCurrency,
+        eligibilityStatus: CartEligibilityStatus.INVALID,
       });
       const mockUpdateCartInput = UpdateCartInputFactory({
         taxAddress: {
@@ -1360,6 +1371,7 @@ describe('CartService', () => {
       const expectedUpdateCart = {
         ...mockUpdateCartInput,
         currency: mockCurrency,
+        isFreeTrial: false,
       };
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
 
@@ -1380,6 +1392,9 @@ describe('CartService', () => {
         jest
           .spyOn(invoiceManager, 'previewUpcoming')
           .mockResolvedValue(mockPreviewInvoice);
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue(null);
       });
 
       it('calls cartManager.updateFreshCart with no currency change', async () => {
@@ -1487,6 +1502,7 @@ describe('CartService', () => {
       });
       const expectedUpdateCart = {
         ...mockUpdateCartInput,
+        isFreeTrial: false,
       };
 
       beforeEach(async () => {
@@ -1497,12 +1513,16 @@ describe('CartService', () => {
           .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
           .mockResolvedValue(undefined);
         jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue(null);
       });
 
       it('success if coupon is valid for new customer', async () => {
         const mockCart = ResultCartFactory({
           stripeCustomerId: undefined,
           stripeSubscriptionId: undefined,
+          eligibilityStatus: CartEligibilityStatus.INVALID,
         });
 
         jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
@@ -1525,6 +1545,7 @@ describe('CartService', () => {
           stripeCustomerId: mockCustomer.id,
           stripeSubscriptionId: undefined,
           taxAddress: TaxAddressFactory(),
+          eligibilityStatus: CartEligibilityStatus.INVALID,
         });
         const mockPreviewInvoice = InvoicePreviewFactory();
 
@@ -2445,6 +2466,7 @@ describe('CartService', () => {
         state: CartState.START,
         stripeSubscriptionId: null,
         eligibilityStatus: CartEligibilityStatus.CREATE,
+        isFreeTrial: true,
       });
       const mockInvoicePreview = InvoicePreviewFactory();
 
@@ -2468,6 +2490,33 @@ describe('CartService', () => {
         interval: mockCart.interval,
         eligibilityStatus: EligibilityStatus.CREATE,
       });
+    });
+
+    it('does not call getFreeTrialEligibility when cart was not promised a trial', async () => {
+      const mockFreeTrial = FreeTrialFactory({ trialLengthDays: 7 });
+      const mockCart = ResultCartFactory({
+        uid: faker.string.uuid(),
+        state: CartState.START,
+        stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+        isFreeTrial: false,
+      });
+      const mockInvoicePreview = InvoicePreviewFactory();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+      jest
+        .spyOn(invoiceManager, 'previewUpcoming')
+        .mockResolvedValue(mockInvoicePreview);
+      jest
+        .spyOn(checkoutService, 'getFreeTrialEligibility')
+        .mockResolvedValue(mockFreeTrial);
+
+      const result = await cartService.getCart(mockCart.id);
+      expect(result.freeTrialEligibility).toBeNull();
+      expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
     });
 
     it('sets freeTrialEligibility to null when cart has no uid', async () => {

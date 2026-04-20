@@ -5,6 +5,7 @@
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import {
   CartCurrencyNotFoundError,
+  CartFreeTrialMismatchError,
   CartStateProcessingError,
   CartTotalMismatchError,
 } from '../cart.error';
@@ -37,6 +38,8 @@ export function resolveErrorInstance(error: Error) {
       return CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR;
     case error instanceof CartTotalMismatchError:
       return CartErrorReasonId.CART_TOTAL_MISMATCH;
+    case error instanceof CartFreeTrialMismatchError:
+      return CartErrorReasonId.CART_FREE_TRIAL_ELIGIBILITY_MISMATCH;
 
     // Payment failed errors
     case error instanceof IntentCardDeclinedError:

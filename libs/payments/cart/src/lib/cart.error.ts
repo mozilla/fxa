@@ -229,6 +229,21 @@ export class CartEligibilityMismatchError extends CartError {
   }
 }
 
+export class CartFreeTrialMismatchError extends CartError {
+  constructor(
+    cartId: string,
+    cartIsFreeTrial: boolean,
+    incomingIsFreeTrial: boolean
+  ) {
+    super('Cart free trial eligibility mismatch', {
+      cartId,
+      cartIsFreeTrial,
+      incomingIsFreeTrial,
+    });
+    this.name = 'CartFreeTrialMismatchError';
+  }
+}
+
 export class CartAccountNotFoundError extends CartError {
   constructor(cartId: string) {
     super('Cart account not found for uid', {

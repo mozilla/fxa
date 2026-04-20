@@ -22,6 +22,7 @@ export const PrePayStepsResultFactory = (
     eligibility: SubscriptionEligibilityResultFactory({
       subscriptionEligibilityResult: EligibilityStatus.CREATE,
     }),
+    freeTrial: null,
     ...override,
   };
 };

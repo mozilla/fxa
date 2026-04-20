@@ -5,6 +5,7 @@ import {
 } from '@fxa/payments/stripe';
 import { ResultCart } from './cart.types';
 import { SubscriptionEligibilityResult } from '@fxa/payments/eligibility';
+import { FreeTrial } from '@fxa/shared/cms';
 
 export type PrePayStepsResult = Pick<ResultCart, 'version'> & {
   uid: string;
@@ -13,6 +14,7 @@ export type PrePayStepsResult = Pick<ResultCart, 'version'> & {
   promotionCode?: StripePromotionCode;
   price: StripePrice;
   eligibility: SubscriptionEligibilityResult;
+  freeTrial: FreeTrial | null;
 };
 
 export type SubscriptionAttributionParams = {

@@ -81,6 +81,7 @@ export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
     postalCode: faker.location.zipCode(),
   },
   currency: faker.finance.currencyCode().toLowerCase(),
+  isFreeTrial: false,
   ...override,
 });
 
@@ -150,6 +151,7 @@ export const ResultCartFactory = (
   amount: faker.number.int(),
   version: faker.number.int(),
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
+  isFreeTrial: false,
   ...override,
 });
 
