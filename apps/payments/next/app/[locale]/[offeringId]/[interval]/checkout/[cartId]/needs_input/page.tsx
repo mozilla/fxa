@@ -54,9 +54,11 @@ export default async function NeedsInputPage({
   const l10n = getApp().getL10n(acceptLanguage, locale);
 
   const sessionPromise = auth();
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/checkout/${resolvedParams.cartId}/needs_input`;
   const cartPromise = getCartOrRedirectAction(
     resolvedParams.cartId,
     SupportedPages.NEEDS_INPUT,
+    currentPathname,
     resolvedSearchParams
   );
   const [session, cart] = await Promise.all([sessionPromise, cartPromise]);

@@ -13,7 +13,7 @@ import {
 import { useEffect } from 'react';
 import { useStripe } from '@stripe/react-stripe-js';
 import { SupportedPages } from '@fxa/payments/ui';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 export function PaymentInputHandler({
   cartId,
   isFreeTrial,
@@ -23,6 +23,7 @@ export function PaymentInputHandler({
 }) {
   const stripe = useStripe();
   const params = useParams();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
   const searchParamsRecord: Record<string, string> = {};
@@ -41,12 +42,13 @@ export function PaymentInputHandler({
             await stripe.handleNextAction({
               clientSecret: inputRequest.data.clientSecret,
             });
-            await submitNeedsInputAndRedirectAction(cartId, params, searchParamsRecord, isFreeTrial);
+            await submitNeedsInputAndRedirectAction(cartId, params, pathname, searchParamsRecord, isFreeTrial);
             break;
           case 'notRequired':
             const redirectResponse = await validateCartStateAndRedirectAction(
               cartId,
               SupportedPages.NEEDS_INPUT,
+              pathname,
               searchParamsRecord
             );
 

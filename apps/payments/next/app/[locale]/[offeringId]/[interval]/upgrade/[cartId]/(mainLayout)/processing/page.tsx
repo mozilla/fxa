@@ -48,9 +48,11 @@ export default async function ProcessingPage({
   const { locale } = resolvedParams;
   const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/upgrade/${resolvedParams.cartId}/processing`;
   await validateCartStateAndRedirectAction(
     resolvedParams.cartId,
     SupportedPages.PROCESSING,
+    currentPathname,
     resolvedSearchParams
   );
   return (

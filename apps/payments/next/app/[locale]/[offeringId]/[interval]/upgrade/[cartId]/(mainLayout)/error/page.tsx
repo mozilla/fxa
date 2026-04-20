@@ -56,9 +56,11 @@ export default async function UpgradeError({
   const acceptLanguage = (await headers()).get('accept-language');
 
   const sessionPromise = auth();
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/upgrade/${resolvedParams.cartId}/error`;
   const cartPromise = getCartOrRedirectAction(
     resolvedParams.cartId,
     SupportedPages.ERROR,
+    currentPathname,
     resolvedSearchParams
   );
   const l10n = getApp().getL10n(acceptLanguage, locale);

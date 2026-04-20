@@ -52,9 +52,11 @@ export default async function NeedsInputPage({
   const { locale } = resolvedParams;
   const acceptLanguage = (await headers()).get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/upgrade/${resolvedParams.cartId}/needs_input`;
   const cartPromise = getCartOrRedirectAction(
     resolvedParams.cartId,
     SupportedPages.NEEDS_INPUT,
+    currentPathname,
     resolvedSearchParams
   );
   const sessionPromise = auth();

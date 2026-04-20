@@ -72,9 +72,11 @@ export default async function Checkout({
     acceptLanguage,
     locale
   );
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/checkout/${resolvedParams.cartId}/start`;
   const cartPromise = getCartOrRedirectAction(
     resolvedParams.cartId,
     SupportedPages.START,
+    currentPathname,
     resolvedSearchParams
   );
   //TODO - Replace with cartPromise as part of FXA-8903

@@ -9,10 +9,12 @@ import { redirect } from 'next/navigation';
 import { URLSearchParams } from 'url';
 import { recordEmitterEventAction } from './recordEmitterEvent';
 import { flattenRouteParams } from '../utils/flatParam';
+import { sanitizePathname } from '../utils/sanitizePathname';
 
 export const submitNeedsInputAndRedirectAction = async (
   cartId: string,
   params: Record<string, string | string[] | undefined>,
+  currentPathname: string,
   searchParams?: Record<string, string | string[] | undefined>,
   isFreeTrial?: boolean
 ) => {
@@ -49,5 +51,13 @@ export const submitNeedsInputAndRedirectAction = async (
     redirectPath = 'error';
   }
 
-  redirect(`${redirectPath}${searchParamsString}`);
+  // Sanitize pathname to prevent open redirect vulnerabilities
+  const safePath = sanitizePathname(currentPathname);
+  
+  // Replace the last segment with the redirect path to maintain the full path structure
+  const pathSegments = safePath.split('/');
+  pathSegments[pathSegments.length - 1] = redirectPath;
+  const fullRedirectPath = pathSegments.join('/');
+
+  redirect(`${fullRedirectPath}${searchParamsString}`);
 };
