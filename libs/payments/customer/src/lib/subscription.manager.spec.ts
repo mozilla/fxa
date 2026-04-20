@@ -99,6 +99,27 @@ describe('SubscriptionManager', () => {
     });
   });
 
+  describe('listActiveForCustomer', () => {
+    it('returns only subscriptions in active statuses', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const active = StripeSubscriptionFactory({ status: 'active' });
+      const trialing = StripeSubscriptionFactory({ status: 'trialing' });
+      const pastDue = StripeSubscriptionFactory({ status: 'past_due' });
+      const incomplete = StripeSubscriptionFactory({ status: 'incomplete' });
+      const canceled = StripeSubscriptionFactory({ status: 'canceled' });
+
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([active, trialing, pastDue, incomplete, canceled]);
+
+      const result = await subscriptionManager.listActiveForCustomer(
+        mockCustomer.id
+      );
+
+      expect(result).toEqual([active, trialing, pastDue]);
+    });
+  });
+
   describe('listCancelOnDateGenerator', () => {
     const mockCurrentPeriodEnd = StripeRangeQueryParamFactory();
     it('returns generator that yields subscriptions', async () => {

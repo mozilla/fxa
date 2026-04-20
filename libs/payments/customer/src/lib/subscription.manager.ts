@@ -54,6 +54,15 @@ export class SubscriptionManager {
     return result.data;
   }
 
+  async listActiveForCustomer(
+    customerId: string
+  ): Promise<StripeSubscription[]> {
+    const all = await this.listForCustomer(customerId);
+    return all.filter((sub) =>
+      ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
+    );
+  }
+
   async *listCancelOnDateGenerator(currentPeriodEnd: Stripe.RangeQueryParam) {
     for await (const subscription of this.stripeClient.subscriptionsListGenerator(
       { current_period_end: currentPeriodEnd }

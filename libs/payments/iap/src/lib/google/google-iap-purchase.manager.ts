@@ -3,7 +3,7 @@ import { GoogleIapClientConfig } from './google-iap.client.config';
 import { FirestoreService } from '@fxa/shared/db/firestore';
 import type { CollectionReference, Firestore } from '@google-cloud/firestore';
 import {
-  mergePurchaseWithFirestorePurchaseRecord,
+  mergeGooglePurchaseWithFirestorePurchaseRecord,
   PlayStoreSubscriptionPurchase,
 } from './subscription-purchase';
 import {
@@ -158,7 +158,7 @@ export class GoogleIapPurchaseManager {
         );
 
         // STEP 4a. Merge other fields of our purchase record in Firestore (such as userId) with our SubscriptionPurchase object and return to caller.
-        mergePurchaseWithFirestorePurchaseRecord(
+        mergeGooglePurchaseWithFirestorePurchaseRecord(
           subscriptionPurchase,
           firestorePurchaseRecord
         );

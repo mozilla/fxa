@@ -15,10 +15,10 @@ import {
   SubscriptionStatus,
   TransactionType,
 } from 'app-store-server-api';
+import { APPLE_APP_STORE_FORM_OF_PAYMENT } from '../constants';
 import type { FirestoreAppleIapPurchaseRecord } from '../types';
 
 const FIRESTORE_OBJECT_INTERNAL_KEYS = ['formOfPayment'];
-export const APPLE_APP_STORE_FORM_OF_PAYMENT = 'APPLE_APP_STORE';
 
 export const SUBSCRIPTION_PURCHASE_REQUIRED_PROPERTIES = [
   'autoRenewStatus',
@@ -62,7 +62,7 @@ function purchaseToFirestoreObject(
  * updated representation of a purchase. We only skip our internal shopkeeping
  * metadata that the library consumer doesn't have to worry about.
  */
-export function mergePurchaseWithFirestorePurchaseRecord(
+export function mergeApplePurchaseWithFirestorePurchaseRecord(
   purchase: AppStoreSubscriptionPurchase,
   firestoreObject: FirestoreAppleIapPurchaseRecord
 ) {
@@ -215,7 +215,7 @@ export class AppStoreSubscriptionPurchase {
   }
 
   mergeWithFirestorePurchaseRecord(firestoreObject: any) {
-    mergePurchaseWithFirestorePurchaseRecord(this, firestoreObject);
+    mergeApplePurchaseWithFirestorePurchaseRecord(this, firestoreObject);
   }
 
   isEntitlementActive() {
