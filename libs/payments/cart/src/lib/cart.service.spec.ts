@@ -2491,6 +2491,7 @@ describe('CartService', () => {
         countryCode: mockCart.taxAddress?.countryCode,
         interval: mockCart.interval,
         eligibilityStatus: EligibilityStatus.CREATE,
+        searchParams: undefined,
       });
     });
 

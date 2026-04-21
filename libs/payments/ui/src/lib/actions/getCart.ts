@@ -5,10 +5,15 @@
 'use server';
 
 import { getApp } from '../nestapp/app';
+import { parseSearchParams } from '../utils/searchParams';
 
-export const getCartAction = async (cartId: string) => {
+export const getCartAction = async (
+  cartId: string,
+  searchParams?: Record<string, string | string[] | undefined>
+) => {
   const cart = await getApp().getActionsService().getCart({
     cartId,
+    searchParams: parseSearchParams(searchParams),
   });
 
   return cart;
