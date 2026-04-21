@@ -459,6 +459,7 @@ export class SubscriptionManagementService {
       this.invoiceManager.previewUpcomingSubscription({
         customer,
         subscription,
+        excludeDiscounts: true,
       }),
       this.churnInterventionService.determineStaySubscribedEligibility(
         uid,
@@ -501,11 +502,12 @@ export class SubscriptionManagementService {
 
     const {
       nextInvoiceDate,
-      promotionName: nextPromotionName,
       subsequentAmount,
       subsequentAmountExcludingTax,
       subsequentTax,
     } = upcomingInvoice;
+
+    const nextPromotionName = subscription.discount?.coupon.name ?? null;
 
     const totalExclusiveTax = taxAmounts
       .filter((tax) => !tax.inclusive)
@@ -791,6 +793,7 @@ export class SubscriptionManagementService {
         await this.invoiceManager.previewUpcomingSubscription({
           customer: stripeCustomer,
           subscription,
+          excludeDiscounts: true,
         });
 
       if (!upcomingInvoice) {
@@ -912,6 +915,7 @@ export class SubscriptionManagementService {
         await this.invoiceManager.previewUpcomingSubscription({
           customer: stripeCustomer,
           subscription,
+          excludeDiscounts: true,
         });
 
       if (!upcomingInvoice) {
