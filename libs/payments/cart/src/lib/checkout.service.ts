@@ -991,14 +991,30 @@ export class CheckoutService {
       return null;
     }
 
-    const [nimbusResult, freeTrialUtil] = await Promise.all([
+    const fetchResult = await Promise.all([
       this.nimbusManager.fetchExperiments({
         nimbusUserId: this.nimbusManager.generateNimbusId(uid),
         preview: false,
       }),
       this.productConfigurationManager.getFreeTrial(offeringConfigId),
-    ]);
+    ]).catch((error) => {
+      Sentry.captureException(error, {
+        extra: {
+          uid: uid,
+          offeringConfigId: offeringConfigId,
+          countryCode: countryCode,
+          interval: interval,
+          eligibilityStatus: eligibilityStatus,
+        },
+      });
+      return null;
+    });
 
+    if (!fetchResult) {
+      return null;
+    }
+
+    const [nimbusResult, freeTrialUtil] = fetchResult;
     if (
       !nimbusResult?.Features?.['free-trial-feature']?.enabled
     ) {
