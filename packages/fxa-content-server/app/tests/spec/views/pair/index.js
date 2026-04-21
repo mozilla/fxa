@@ -187,6 +187,8 @@ describe('views/pair/index', () => {
         const subheading = view.$('#pair-header');
         assert.strictEqual(subheading.text(), 'Sync your Firefox experience');
         assert.equal(view.$('#pair-header-mobile').length, 0);
+        // Description paragraph should be present in the non-Send-Tab flow.
+        assert.include(view.$el.text(), 'View your saved passwords');
 
         assert.strictEqual(view.$('#form-ask-mobile-status').length, 1);
 
@@ -233,6 +235,30 @@ describe('views/pair/index', () => {
 
       it('logs Glean view event on render', () => {
         sinon.assert.calledOnce(viewChoiceEventStub);
+      });
+
+      describe('Send Tab variant', () => {
+        beforeEach(() => {
+          view.render.restore && view.render.restore();
+          const origGetSearchParam = view.getSearchParam.bind(view);
+          sinon.stub(view, 'getSearchParam').callsFake((name) => {
+            if (name === 'entrypoint') {
+              return 'send-tab-toolbar-icon';
+            }
+            return origGetSearchParam(name);
+          });
+          return view.render();
+        });
+
+        it('renders the send-tab heading without the grey "Connect another device" text', () => {
+          assert.strictEqual(view.$('#cad-header').length, 0);
+          assert.strictEqual(
+            view.$('#pair-header').text(),
+            'Download or open Firefox on the device where you want to send tabs'
+          );
+          // Description paragraph is suppressed in Send-Tab flow.
+          assert.notInclude(view.$el.text(), 'View your saved passwords');
+        });
       });
 
       describe('handleRadioEngage', () => {

@@ -9,6 +9,7 @@ import {
   isBase32Crockford,
   isMobileDevice,
   isValidCmsUrl,
+  isSendTabEntrypoint,
   navigateWithQueryHelper,
   once,
   resetOnce,
@@ -16,6 +17,7 @@ import {
   searchParams,
   toGenericOSName,
 } from './utilities';
+import { SEND_TAB_ENTRYPOINTS } from '../constants';
 
 describe('deepMerge', () => {
   it('recursively merges multiple objects', () => {
@@ -347,5 +349,24 @@ describe('isValidCmsUrl', () => {
     undefined,
   ])('returns false for %s', (value) => {
     expect(isValidCmsUrl(value as string | null | undefined)).toBe(false);
+  });
+});
+
+describe('isSendTabEntrypoint', () => {
+  it('returns true for all send-tab entrypoints', () => {
+    for (const entrypoint of SEND_TAB_ENTRYPOINTS) {
+      expect(isSendTabEntrypoint(entrypoint)).toBe(true);
+    }
+  });
+
+  it('returns false for other entrypoints', () => {
+    expect(isSendTabEntrypoint('preferences')).toBe(false);
+    expect(isSendTabEntrypoint('fxa_app_menu')).toBe(false);
+  });
+
+  it('returns false for nullish values', () => {
+    expect(isSendTabEntrypoint(undefined)).toBe(false);
+    expect(isSendTabEntrypoint(null)).toBe(false);
+    expect(isSendTabEntrypoint('')).toBe(false);
   });
 });

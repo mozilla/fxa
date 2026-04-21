@@ -1,7 +1,7 @@
 ## Pair index page
 
 pair-sync-header = Sync { -brand-firefox } on your phone or tablet
-pair-cad-header = Connect { -brand-firefox } on another device
+pair-cad-header-v2 = Connect another device
 pair-already-have-firefox-paragraph = Already have { -brand-firefox } on a phone or tablet?
 # Clicking this button initiates the pairing process, usually by directing the user to the `about:preferences` page in Firefox
 pair-sync-your-device-button = Sync your device
@@ -23,6 +23,8 @@ pair-qr-code-aria-label = QR code
 pair-choice-subheader = Sync your { -brand-firefox } experience
 # Description shown on the choice screen
 pair-choice-description = View your saved passwords, tabs, browsing history and more — across all your devices.
+# Heading shown on the choice screen when the user arrived via a Send Tab entrypoint
+pair-choice-header-send-tab = Download or open { -brand-firefox } on the device where you want to send tabs
 # Legend for the radio button fieldset
 pair-choice-legend = Select an option to continue:
 # Radio option: user already has Firefox for mobile — title
@@ -37,6 +39,10 @@ pair-choice-needs-mobile-description = Download { -brand-firefox } on your mobil
 pair-choice-continue-button = Continue
 # Success banner shown after signing in
 pair-signed-in-successfully = Signed in successfully!
+# Success banner shown after signing up and verifying email via a Send Tab flow
+pair-account-created-now-syncing = Account created. You’re now syncing.
+# Success banner shown after creating a password for a passwordless account via a Send Tab flow
+pair-password-created-now-syncing = Password created. You’re now syncing.
 
 ## Download screen — shown after selecting "I don’t have Firefox for mobile"
 

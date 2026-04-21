@@ -174,6 +174,18 @@ module.exports = {
   FIREFOX_TABS_SIDEBAR_ENTRYPOINT: 'tabs-sidebar',
   FIREFOX_FX_VIEW_ENTRYPOINT: 'fx-view',
 
+  // Keep in sync with packages/fxa-settings/src/constants/index.tsx SEND_TAB_ENTRYPOINTS
+  // We're removing all this code soon enough ;)
+  SEND_TAB_ENTRYPOINTS: [
+    'send-tab-tab-context-menu',
+    'send-tab-account-menu',
+    'send-tab-app-menu',
+    'send-tab-firefox-view-three-dots',
+    'send-tab-link-context-menu',
+    'send-tab-page-context-menu',
+    'send-tab-toolbar-icon',
+  ],
+
   // This is compared against all secondary email
   // records, both verified and unverified
   MAX_SECONDARY_EMAILS: 3,
