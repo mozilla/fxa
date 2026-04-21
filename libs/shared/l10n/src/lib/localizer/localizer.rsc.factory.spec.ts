@@ -5,7 +5,7 @@
 import { Test } from '@nestjs/testing';
 import { LocalizerRscFactory } from './localizer.rsc.factory';
 import { ILocalizerBindings } from './localizer.interfaces';
-import supportedLanguages from '../supported-languages.json';
+const supportedLanguages: string[] = require('../supported-languages.json');
 import { LocalizerRsc } from './localizer.rsc';
 
 describe('LocalizerRscFactory', () => {

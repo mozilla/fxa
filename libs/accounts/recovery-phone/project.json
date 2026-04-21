@@ -6,14 +6,21 @@
   "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/accounts/recovery-phone",
         "main": "libs/accounts/recovery-phone/src/index.ts",
         "tsConfig": "libs/accounts/recovery-phone/tsconfig.lib.json",
         "assets": ["libs/accounts/recovery-phone/*.md"],
-        "format": ["cjs"]
+        "generatePackageJson": true
       }
     },
     "test-unit": {

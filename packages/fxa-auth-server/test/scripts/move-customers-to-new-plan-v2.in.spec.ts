@@ -22,7 +22,7 @@ const execOptions = {
 describe('starting script - move-customers-to-new-plan-v2', () => {
   it('does not fail', async () => {
     await execAsync(
-      'node -r esbuild-register scripts/move-customers-to-new-plan-v2.ts --help',
+      'node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/move-customers-to-new-plan-v2.ts --help',
       execOptions
     );
   });

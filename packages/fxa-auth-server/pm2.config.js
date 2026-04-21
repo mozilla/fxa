@@ -9,7 +9,8 @@ const PATH = process.env.PATH.split(':')
 const apps = [
   {
     name: 'auth',
-    script: 'node -r esbuild-register bin/key_server.js',
+    script:
+      'node -r ts-node/register/transpile-only -r tsconfig-paths/register bin/key_server.js',
     cwd: __dirname,
     env: {
       DB: 'mysql',
@@ -41,7 +42,8 @@ const apps = [
   },
   {
     name: 'inbox',
-    script: 'node -r esbuild-register test/mail_helper.js',
+    script:
+      'node -r ts-node/register/transpile-only -r tsconfig-paths/register test/mail_helper.js',
     cwd: __dirname,
     env: {
       NODE_ENV: 'dev',

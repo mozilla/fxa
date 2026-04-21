@@ -6,19 +6,21 @@
   "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/shared/nestjs/customs",
         "main": "libs/shared/nestjs/customs/src/index.ts",
         "tsConfig": "libs/shared/nestjs/customs/tsconfig.lib.json",
-        "external": [
-          "@nestjs/websockets/socket-module",
-          "@nestjs/microservices/microservices-module",
-          "@nestjs/microservices"
-        ],
         "assets": ["libs/shared/nestjs/customs/*.md"],
-        "format": ["cjs"]
+        "generatePackageJson": true
       }
     },
     "test-unit": {

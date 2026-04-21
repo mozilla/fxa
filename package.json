@@ -193,7 +193,6 @@
     "@nestjs/cli": "^11.0.1",
     "@nestjs/schematics": "11.0.9",
     "@nestjs/testing": "^10.3.4",
-    "@nx/esbuild": "21.2.4",
     "@nx/eslint-plugin": "21.2.4",
     "@nx/jest": "21.2.4",
     "@nx/js": "21.2.4",
@@ -252,8 +251,6 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "29.7.0",
     "copyfiles": "^2.4.1",
-    "esbuild": "^0.17.15",
-    "esbuild-register": "^3.5.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "15.5.14",
     "eslint-config-prettier": "^10.1.5",
@@ -322,12 +319,5 @@
   "resolutionComments": {
     "multer": "^2.1.1 — remove when @nestjs/platform-express is upgraded to 11.x (ships multer 2.1.1 natively)"
   },
-  "packageManager": "yarn@4.9.2",
-  "_moduleAliases": {
-    "@fxa/vendored/jwtool": "./dist/libs/vendored/jwtool/main.cjs",
-    "@fxa/vendored/crypto-relier": "./dist/libs/vendored/crypto-relier/main.cjs",
-    "@fxa/vendored/crypto-relier/esm": "./dist/libs/vendored/crypto-relier/main.js",
-    "@fxa/shared/pem-jwk": "./dist/libs/shared/pem-jwk/main.cjs",
-    "@fxa/shared/l10n": "./dist/libs/shared/l10n/main.cjs"
-  }
+  "packageManager": "yarn@4.9.2"
 }

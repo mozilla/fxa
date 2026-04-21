@@ -187,7 +187,7 @@ describe('#integration - scripts/prune-tokens', () => {
 
   it('prints help', async () => {
     const { stdout } = await exec(
-      'NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts --help',
+      'NODE_ENV=dev node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/prune-tokens.ts --help',
       {
         cwd,
       }
@@ -198,7 +198,7 @@ describe('#integration - scripts/prune-tokens', () => {
 
   it('prints warnings when args are missing', async () => {
     const { stderr } = await exec(
-      `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts `,
+      `NODE_ENV=dev node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/prune-tokens.ts `,
       {
         cwd,
         shell: '/bin/bash',
@@ -210,7 +210,7 @@ describe('#integration - scripts/prune-tokens', () => {
 
   it('parses args', async () => {
     const { stderr } = await exec(
-      `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts --maxTokenAge=0 --maxTokenAgeWindowSize=0 --maxCodeAge=0 --maxSessions=0 --maxSessionsMaxAccounts=0 --maxSessionsMaxDeletions=0  --maxSessionsBatchSize=0 --wait=1`,
+      `NODE_ENV=dev node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/prune-tokens.ts --maxTokenAge=0 --maxTokenAgeWindowSize=0 --maxCodeAge=0 --maxSessions=0 --maxSessionsMaxAccounts=0 --maxSessionsMaxDeletions=0  --maxSessionsBatchSize=0 --wait=1`,
       {
         cwd,
         shell: '/bin/bash',
@@ -251,7 +251,7 @@ describe('#integration - scripts/prune-tokens', () => {
     it('prunes tokens', async () => {
       // Note that logger output, directs to standard err.
       const { stderr } = await exec(
-        `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts '--maxTokenAge=${maxAge}-days' '--maxCodeAge=${maxAge}-days' `,
+        `NODE_ENV=dev node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/prune-tokens.ts '--maxTokenAge=${maxAge}-days' '--maxCodeAge=${maxAge}-days' `,
         {
           cwd,
           shell: '/bin/bash',
@@ -352,7 +352,7 @@ describe('#integration - scripts/prune-tokens', () => {
     ) {
       // Note that logger output, directs to standard err.
       const { stderr } = await exec(
-        `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts ${args}`,
+        `NODE_ENV=dev node -r ts-node/register/transpile-only -r tsconfig-paths/register  scripts/prune-tokens.ts ${args}`,
         {
           cwd,
           shell: '/bin/bash',

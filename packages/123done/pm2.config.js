@@ -10,7 +10,8 @@ module.exports = {
   apps: [
     {
       name: '123done',
-      script: 'node server.js',
+      script:
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register server.js',
       cwd: __dirname,
       max_restarts: '1',
       env: {
@@ -26,7 +27,8 @@ module.exports = {
     },
     {
       name: '321done',
-      script: 'node server.js',
+      script:
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register server.js',
       cwd: __dirname,
       max_restarts: '1',
       env: {

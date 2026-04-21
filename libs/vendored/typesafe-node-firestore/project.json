@@ -6,31 +6,26 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/vendored/typesafe-node-firestore/src/index.ts",
         "outputPath": "dist/libs/vendored/typesafe-node-firestore",
-        "outputFileName": "main.js",
         "tsConfig": "libs/vendored/typesafe-node-firestore/tsconfig.lib.json",
-        "declaration": true,
         "assets": [
           {
             "glob": "libs/vendored/typesafe-node-firestore/README.md",
             "input": ".",
             "output": "."
           }
-        ],
-        "platform": "node"
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        ]
       }
     },
     "test": {

@@ -28,7 +28,7 @@ import type {
   StripePrice,
   StripeSubscription,
 } from '@fxa/payments/stripe';
-import { getPriceFromSubscription } from 'libs/payments/customer/src/lib/util/getPriceFromSubscription';
+import { getPriceFromSubscription } from '@fxa/payments/customer';
 import { PaymentsGleanManager } from './glean.manager';
 import { Logger, Injectable } from '@nestjs/common';
 

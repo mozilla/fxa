@@ -12,7 +12,8 @@ module.exports = {
     {
       name: 'admin',
       cwd: resolve(__dirname, 'server'),
-      script: 'node -r esbuild-register bin/fxa-admin-panel.ts',
+      script:
+        'node -r ts-node/register/transpile-only -r tsconfig-paths/register bin/fxa-admin-panel.ts',
       max_restarts: '1',
       min_uptime: '2m',
       env: {
