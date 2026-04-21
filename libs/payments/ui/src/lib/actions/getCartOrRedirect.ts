@@ -10,6 +10,7 @@ import { getRedirect, validateCartState } from '../utils/get-cart';
 import { SupportedPages } from '../utils/types';
 import { URLSearchParams } from 'url';
 import { sanitizePathname } from '../utils/sanitizePathname';
+import { parseSearchParams } from '../utils/searchParams';
 import {
   StartCartDTO,
   ProcessingCartDTO,
@@ -68,6 +69,7 @@ async function getCartOrRedirectAction(
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
   const cart = await getApp().getActionsService().getCart({
     cartId,
+    searchParams: parseSearchParams(searchParams),
   });
 
   if (!validateCartState(cart.state, page)) {
