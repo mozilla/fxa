@@ -186,7 +186,7 @@ const Pair = ({
           <FtlMsg id="pair-download-description">
             <p className="text-base mt-2">
               To sync Firefox on your phone or tablet, you first need to
-              download Firefox for mobile. Here's how:
+              download Firefox for mobile. Here’s how:
             </p>
           </FtlMsg>
           <ol>
@@ -214,7 +214,7 @@ const Pair = ({
                 elems={{ b: <b /> }}
               >
                 <p className="text-base mb-5">
-                  <b>Step 2</b>: Select "Continue to sync" to sync your Firefox
+                  <b>Step 2</b>: Select “Continue to sync” to sync your Firefox
                   experience on your mobile device.
                 </p>
               </FtlMsg>

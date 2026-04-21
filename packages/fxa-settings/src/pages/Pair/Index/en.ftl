@@ -43,10 +43,10 @@ pair-signed-in-successfully = Signed in successfully!
 # Subheader for the download screen
 pair-download-subheader = Download { -brand-firefox } for mobile
 # Description for the download screen
-pair-download-description = To sync { -brand-firefox } on your phone or tablet, you first need to download { -brand-firefox } for mobile. Here's how:
+pair-download-description = To sync { -brand-firefox } on your phone or tablet, you first need to download { -brand-firefox } for mobile. Here’s how:
 # Step 1: scan QR code. $stepNumber is the step number (1)
 pair-download-step-scan-qr = <b>Step { $stepNumber }</b>: Download { -brand-firefox } by scanning this QR code with the camera on your mobile device:
 # Step 2: continue to sync. $stepNumber is the step number (2)
-pair-download-step-continue-sync = <b>Step { $stepNumber }</b>: Select "Continue to sync" to sync your { -brand-firefox } experience on your mobile device.
+pair-download-step-continue-sync = <b>Step { $stepNumber }</b>: Select “Continue to sync” to sync your { -brand-firefox } experience on your mobile device.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = Continue to sync
