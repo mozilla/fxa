@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import fs from 'fs';
+import path from 'path';
 import {
   categorizeWebAuthnError,
+  ERROR_MAP,
   handleWebAuthnError,
   WebAuthnErrorCategory,
   WebAuthnErrorType,
@@ -30,8 +33,9 @@ describe('categorizeWebAuthnError — user-action errors (no Sentry)', () => {
         expect(result.category).toBe(WebAuthnErrorCategory.UserAction);
         expect(result.errorType).toBe(errorType);
         expect(result.logToSentry).toBe(false);
-        expect(result.userMessageKey).toContain(operation);
-        expect(result.userMessageKey).toMatch(/passkey-.+-error-.+/);
+        expect(result.ftlId).toContain(operation);
+        expect(result.ftlId).toMatch(/passkey-.+-error-.+/);
+        expect(result.fallbackText).toMatch(/passkey/i);
       }
     );
   });
@@ -42,9 +46,10 @@ describe('categorizeWebAuthnError — user-action errors (no Sentry)', () => {
       dom('NotAllowedError'),
       'authentication'
     );
-    expect(reg.userMessageKey).not.toBe(auth.userMessageKey);
-    expect(reg.userMessageKey).toContain('registration');
-    expect(auth.userMessageKey).toContain('authentication');
+    expect(reg.ftlId).not.toBe(auth.ftlId);
+    expect(reg.ftlId).toContain('registration');
+    expect(auth.ftlId).toContain('authentication');
+    expect(reg.fallbackText).not.toBe(auth.fallbackText);
   });
 });
 
@@ -64,6 +69,10 @@ describe('categorizeWebAuthnError — device/platform errors (no Sentry)', () =>
         expect(result.category).toBe(WebAuthnErrorCategory.DevicePlatform);
         expect(result.errorType).toBe(errorType);
         expect(result.logToSentry).toBe(false);
+        expect(result.fallbackText.length).toBeGreaterThan(0);
+        expect(result.fallbackText).toMatch(
+          /passkey|authenticator|secure site/i
+        );
       }
     );
   });
@@ -77,8 +86,8 @@ describe('categorizeWebAuthnError — device/platform errors (no Sentry)', () =>
       dom('InvalidStateError'),
       'authentication'
     );
-    expect(reg.userMessageKey).toContain('registration');
-    expect(auth.userMessageKey).toContain('authentication');
+    expect(reg.ftlId).toContain('registration');
+    expect(auth.ftlId).toContain('authentication');
   });
 });
 
@@ -123,7 +132,8 @@ describe('categorizeWebAuthnError — unexpected errors (Sentry enabled)', () =>
       expect(result.category).toBe(WebAuthnErrorCategory.Unexpected);
       expect(result.errorType).toBe(WebAuthnErrorType.Unknown);
       expect(result.logToSentry).toBe(true);
-      expect(result.userMessageKey).toContain(operation);
+      expect(result.ftlId).toContain(operation);
+      expect(result.fallbackText).toMatch(/try|went wrong/i);
     }
   );
 
@@ -133,9 +143,9 @@ describe('categorizeWebAuthnError — unexpected errors (Sentry enabled)', () =>
       dom('ConstraintError'),
       'authentication'
     );
-    expect(reg.userMessageKey).toContain('registration');
-    expect(reg.userMessageKey).toContain('constraint');
-    expect(auth.userMessageKey).toContain('unexpected');
+    expect(reg.ftlId).toContain('registration');
+    expect(reg.ftlId).toContain('constraint');
+    expect(auth.ftlId).toContain('unexpected');
   });
 });
 
@@ -161,6 +171,31 @@ describe('categorizeWebAuthnError — non-DOMException inputs default to unexpec
       expect(result.logToSentry).toBe(true);
     }
   );
+});
+
+describe('fallbackText matches FTL strings', () => {
+  const ftlPath = path.resolve(__dirname, 'en.ftl');
+  const ftlContent = fs.readFileSync(ftlPath, 'utf-8');
+
+  const ftlMessages = new Map<string, string>();
+  for (const line of ftlContent.split('\n')) {
+    const match = line.match(
+      /^(passkey-(?:registration|authentication)-error-\S+)\s*=\s*(.+)$/
+    );
+    if (match) {
+      ftlMessages.set(match[1], match[2].trim());
+    }
+  }
+
+  const entries = Object.entries(ERROR_MAP);
+
+  describe.each(OPERATIONS)('operation: %s', (operation) => {
+    test.each(entries)('%s fallbackText matches FTL', (_, entry) => {
+      const ftlValue = ftlMessages.get(entry.ftlId[operation]);
+      expect(ftlValue).toBeDefined();
+      expect(entry.fallbackText[operation]).toBe(ftlValue);
+    });
+  });
 });
 
 describe('handleWebAuthnError', () => {

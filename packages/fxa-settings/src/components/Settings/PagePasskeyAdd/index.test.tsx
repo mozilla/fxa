@@ -179,7 +179,9 @@ describe('PagePasskeyAdd', () => {
     mockHandleWebAuthnError.mockReturnValue({
       category: WebAuthnErrorCategory.UserAction,
       errorType: WebAuthnErrorType.NotAllowed,
-      userMessageKey: 'passkey-registration-error-not-allowed',
+      ftlId: 'passkey-registration-error-not-allowed',
+      fallbackText:
+        'Passkey setup failed or is unavailable. Try again or choose another method.',
       logToSentry: false,
     });
 
@@ -198,7 +200,8 @@ describe('PagePasskeyAdd', () => {
     mockHandleWebAuthnError.mockReturnValue({
       category: WebAuthnErrorCategory.UserAction,
       errorType: WebAuthnErrorType.Timeout,
-      userMessageKey: 'passkey-registration-error-timeout',
+      ftlId: 'passkey-registration-error-timeout',
+      fallbackText: 'Passkey setup was canceled. Try again.',
       logToSentry: false,
     });
 

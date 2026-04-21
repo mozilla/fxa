@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Which WebAuthn ceremony produced the error. Determines user-facing message. */
 export type WebAuthnOperation = 'registration' | 'authentication';
 
 /**
@@ -37,13 +36,10 @@ export enum WebAuthnErrorType {
 }
 
 export interface CategorizedWebAuthnError {
-  /** High-level grouping for Sentry routing and UI messaging strategy. */
   category: WebAuthnErrorCategory;
-  /** Specific error type, useful for metrics and fine-grained UI messaging. */
   errorType: WebAuthnErrorType;
-  /** FTL key for the user-facing error message. Operation-specific where messages differ. */
-  userMessageKey: string;
-  /** When true, the caller should report this error to Sentry. */
+  ftlId: string;
+  fallbackText: string;
   logToSentry: boolean;
 }
 
@@ -51,27 +47,48 @@ interface ErrorEntry {
   category: WebAuthnErrorCategory;
   errorType: WebAuthnErrorType;
   logToSentry: boolean;
-  /** Per-operation FTL keys. Separate keys allow distinct user-facing copy per context. */
-  messageKeys: Record<WebAuthnOperation, string>;
+  ftlId: Record<WebAuthnOperation, string>;
+  fallbackText: Record<WebAuthnOperation, string>;
 }
 
-const ERROR_MAP: Readonly<Record<string, ErrorEntry>> = {
+const UNEXPECTED_FALLBACK: Record<WebAuthnOperation, string> = {
+  registration: 'Passkey setup failed. Try again or choose another method.',
+  authentication:
+    'Something went wrong. Try again or choose another sign-in method.',
+};
+
+const UNEXPECTED_FTL_ID: Record<WebAuthnOperation, string> = {
+  registration: 'passkey-registration-error-unexpected',
+  authentication: 'passkey-authentication-error-unexpected',
+};
+
+export const ERROR_MAP: Record<string, ErrorEntry> = {
   NotAllowedError: {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.NotAllowed,
     logToSentry: false,
-    messageKeys: {
+    ftlId: {
       registration: 'passkey-registration-error-not-allowed',
       authentication: 'passkey-authentication-error-not-allowed',
+    },
+    fallbackText: {
+      registration:
+        'Passkey setup failed or is unavailable. Try again or choose another method.',
+      authentication:
+        'Sign-in with passkey failed or is unavailable. Try again or choose another method.',
     },
   },
   TimeoutError: {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.Timeout,
     logToSentry: false,
-    messageKeys: {
+    ftlId: {
       registration: 'passkey-registration-error-timeout',
       authentication: 'passkey-authentication-error-timeout',
+    },
+    fallbackText: {
+      registration: 'Passkey setup was canceled. Try again.',
+      authentication: 'Passkey request timed out. Please try again.',
     },
   },
 
@@ -79,108 +96,108 @@ const ERROR_MAP: Readonly<Record<string, ErrorEntry>> = {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.NotSupported,
     logToSentry: false,
-    messageKeys: {
+    ftlId: {
       registration: 'passkey-registration-error-not-supported',
       authentication: 'passkey-authentication-error-not-supported',
+    },
+    fallbackText: {
+      registration: `Passkeys aren’t supported here. Try another method or device.`,
+      authentication: `Passkeys aren’t supported. Try another method or device.`,
     },
   },
   SecurityError: {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.Security,
     logToSentry: false,
-    messageKeys: {
+    ftlId: {
       registration: 'passkey-registration-error-security',
       authentication: 'passkey-authentication-error-security',
     },
+    fallbackText: {
+      registration: `Passkeys can’t be set up on this page. Use the secure site and try again.`,
+      authentication: `Passkeys can’t be used on this page. Check you’re on the correct secure site and try again.`,
+    },
   },
-  // Registration: credential already exists on this authenticator for this RP.
   InvalidStateError: {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.InvalidState,
     logToSentry: false,
-    messageKeys: {
+    ftlId: {
       registration: 'passkey-registration-error-invalid-state',
       authentication: 'passkey-authentication-error-invalid-state',
     },
+    fallbackText: {
+      registration:
+        'This passkey is already registered. Use it to sign in or add a different passkey.',
+      authentication:
+        'Something went wrong with your passkey. Try again or use another sign-in method.',
+    },
   },
-  // Authenticator I/O failure (e.g., security key unplugged mid-ceremony).
   NotReadableError: {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.NotReadable,
     logToSentry: false,
-    messageKeys: {
+    ftlId: {
       registration: 'passkey-registration-error-not-readable',
       authentication: 'passkey-authentication-error-not-readable',
     },
+    fallbackText: {
+      registration: `We couldn’t access the authenticator. Try again or choose another method.`,
+      authentication: `We couldn’t access the authenticator. Try again or use another sign-in method.`,
+    },
   },
 
-  // TypeError is not a DOMException — handled via instanceof in categorizeWebAuthnError.
   TypeError: {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Type,
     logToSentry: true,
-    messageKeys: {
-      registration: 'passkey-registration-error-unexpected',
-      authentication: 'passkey-authentication-error-unexpected',
-    },
+    ftlId: UNEXPECTED_FTL_ID,
+    fallbackText: UNEXPECTED_FALLBACK,
   },
-  // Malformed encoding in create()/get() options (invalid base64url, bad credential ID format).
   DataError: {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Data,
     logToSentry: true,
-    messageKeys: {
-      registration: 'passkey-registration-error-unexpected',
-      authentication: 'passkey-authentication-error-unexpected',
-    },
+    ftlId: UNEXPECTED_FTL_ID,
+    fallbackText: UNEXPECTED_FALLBACK,
   },
-  // Thrown by parseCreationOptionsFromJSON() / parseRequestOptionsFromJSON() for malformed options.
   EncodingError: {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Encoding,
     logToSentry: true,
-    messageKeys: {
-      registration: 'passkey-registration-error-unexpected',
-      authentication: 'passkey-authentication-error-unexpected',
-    },
+    ftlId: UNEXPECTED_FTL_ID,
+    fallbackText: UNEXPECTED_FALLBACK,
   },
-  // Registration has distinct copy: "not available with this device".
   ConstraintError: {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Constraint,
     logToSentry: true,
-    messageKeys: {
+    ftlId: {
       registration: 'passkey-registration-error-constraint',
       authentication: 'passkey-authentication-error-unexpected',
+    },
+    fallbackText: {
+      registration: `Passkey setup isn’t available with this device. Try another method or device.`,
+      authentication: UNEXPECTED_FALLBACK.authentication,
     },
   },
   OperationError: {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Operation,
     logToSentry: true,
-    messageKeys: {
-      registration: 'passkey-registration-error-unexpected',
-      authentication: 'passkey-authentication-error-unexpected',
-    },
+    ftlId: UNEXPECTED_FTL_ID,
+    fallbackText: UNEXPECTED_FALLBACK,
   },
-  // Thrown by our wrappers when the browser returns a null or unexpected credential type.
   UnknownError: {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Unknown,
     logToSentry: true,
-    messageKeys: {
-      registration: 'passkey-registration-error-unexpected',
-      authentication: 'passkey-authentication-error-unexpected',
-    },
+    ftlId: UNEXPECTED_FTL_ID,
+    fallbackText: UNEXPECTED_FALLBACK,
   },
 };
 
-/**
- * Translates a raw error thrown by createCredential() or getCredential() into
- * a semantic, UI-safe error category with an operation-specific FTL message key.
- *
- * Never throws; unrecognized errors default to the 'unexpected' category.
- */
+/** Never throws; unrecognized errors default to the 'unexpected' category. */
 export function categorizeWebAuthnError(
   error: unknown,
   operation: WebAuthnOperation
@@ -198,7 +215,8 @@ export function categorizeWebAuthnError(
       return {
         category: entry.category,
         errorType: entry.errorType,
-        userMessageKey: entry.messageKeys[operation],
+        ftlId: entry.ftlId[operation],
+        fallbackText: entry.fallbackText[operation],
         logToSentry: entry.logToSentry,
       };
     }
@@ -207,17 +225,13 @@ export function categorizeWebAuthnError(
   return {
     category: WebAuthnErrorCategory.Unexpected,
     errorType: WebAuthnErrorType.Unknown,
-    userMessageKey: `passkey-${operation}-error-unexpected`,
+    ftlId: UNEXPECTED_FTL_ID[operation],
+    fallbackText: UNEXPECTED_FALLBACK[operation],
     logToSentry: true,
   };
 }
 
-/**
- * Categorizes a WebAuthn error and fires captureException when logToSentry is
- * true. Intended as the single call site in each flow's error handler.
- *
- * @param captureException — pass Sentry.captureException or equivalent.
- */
+/** Categorizes and reports to Sentry when logToSentry is true. */
 export function handleWebAuthnError(
   error: unknown,
   operation: WebAuthnOperation,
