@@ -12,6 +12,10 @@ import { useCallback, useState } from 'react';
 import { useFtlMsgResolver } from '../../../models';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import Banner from '../../../components/Banner';
+import {
+  getCmsHeadlineClassName,
+  getCmsHeadlineStyle,
+} from '../../../components/CardHeader';
 
 export const SetPassword = ({
   email,
@@ -58,12 +62,28 @@ export const SetPassword = ({
     });
 
   const cmsInfo = integration?.getCmsInfo?.();
+  const cmsPage = cmsInfo?.PostVerifySetPasswordPage;
+  const cmsHeadline = cmsPage?.headline;
+  const cmsDescription = cmsPage?.description;
+  const cmsButton = {
+    color: cmsInfo?.shared.buttonColor,
+    text: cmsPage?.primaryButtonText,
+  };
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
-      <FtlMsg id="set-password-heading-v2">
-        <h1 className="card-header">Create password to sync</h1>
-      </FtlMsg>
+    <AppLayout cmsInfo={cmsInfo} title={cmsPage?.pageTitle}>
+      {cmsHeadline ? (
+        <h1
+          className={getCmsHeadlineClassName(cmsInfo?.shared.headlineFontSize)}
+          style={getCmsHeadlineStyle(cmsInfo?.shared.headlineTextColor)}
+        >
+          {cmsHeadline}
+        </h1>
+      ) : (
+        <FtlMsg id="set-password-heading-v2">
+          <h1 className="card-header">Create password to sync</h1>
+        </FtlMsg>
+      )}
       <p className="break-all mt-2">{email}</p>
 
       {bannerErrorText && (
@@ -76,11 +96,13 @@ export const SetPassword = ({
             This password encrypts your synced data and keeps it secure.
           </p>
         </FtlMsg>
+      ) : cmsDescription ? (
+        <p className="text-sm mt-6 mb-5">{cmsDescription}</p>
       ) : (
         <FtlMsg id="set-password-info-v2">
           <p className="text-sm mt-6 mb-5">
-            This encrypts your data. It needs to be different from your Google or
-            Apple account password.
+            This encrypts your data. It needs to be different from your Google
+            or Apple account password.
           </p>
         </FtlMsg>
       )}
@@ -102,6 +124,7 @@ export const SetPassword = ({
         isSync={true}
         submitButtonGleanId="third-party-auth-set-password-submit"
         passwordFormType="post-verify-set-password"
+        cmsButton={cmsButton}
       />
     </AppLayout>
   );

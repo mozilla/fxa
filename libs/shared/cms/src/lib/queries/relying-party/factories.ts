@@ -242,5 +242,11 @@ export const RelyingPartyResultFactory = (
     },
     splitLayout: faker.datatype.boolean(),
   },
+  PostVerifySetPasswordPage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+  },
   ...override,
 });

@@ -636,12 +636,15 @@ export class CMSLocalization {
         strapiUrl: strapiBaseUrl,
       });
 
-      // Fetch from all collections that need localization
-      const collections = ['relying-parties', 'legal-notices'];
+      // Fetch from all collections that need localization.
+      // Collection types return `{ data: [...] }`; single types return
+      // `{ data: {...} }` at the singular path.
+      const collectionTypes = ['relying-parties', 'legal-notices'];
+      const singleTypes = ['default'];
 
       const allEntries: any[] = [];
 
-      for (const collection of collections) {
+      for (const collection of collectionTypes) {
         try {
           const response = await fetch(
             `${strapiBaseUrl}/api/${collection}?populate=*`,
@@ -673,6 +676,41 @@ export class CMSLocalization {
             error: error.message,
           });
           // Continue with other collections
+        }
+      }
+
+      for (const singleType of singleTypes) {
+        try {
+          const response = await fetch(
+            `${strapiBaseUrl}/api/${singleType}?populate=*`,
+            { headers }
+          );
+
+          if (!response.ok) {
+            this.log.warn('cms.integrations.strapi.fetchCollectionError', {
+              collection: singleType,
+              status: response.status,
+              statusText: response.statusText,
+            });
+            continue;
+          }
+
+          const data = await response.json();
+          // Singletons return a single object; entries without an `l10nId`
+          // are skipped downstream in `strapiToFtl`, so pulling the entry
+          // in is safe even when it has no localizable fields yet.
+          if (data.data) {
+            this.log.info('cms.integrations.strapi.fetchedCollection', {
+              collection: singleType,
+              count: 1,
+            });
+            allEntries.push(data.data);
+          }
+        } catch (error) {
+          this.log.warn('cms.integrations.strapi.fetchCollectionException', {
+            collection: singleType,
+            error: error.message,
+          });
         }
       }
 

@@ -13,12 +13,14 @@ import { StatsD } from 'hot-shots';
 import {
   RelyingPartyConfigurationManager,
   LegalTermsConfigurationManager,
+  DefaultCmsConfigurationManager,
 } from '@fxa/shared/cms';
 import { CMSLocalization, StrapiWebhookPayload } from './utils/cms';
 
 export class CMSHandler {
   private readonly cmsManager: RelyingPartyConfigurationManager;
   private readonly legalTermsManager: LegalTermsConfigurationManager;
+  private readonly defaultCmsManager: DefaultCmsConfigurationManager;
   private config: ConfigType;
   private statsd: StatsD;
   private localization: CMSLocalization;
@@ -30,6 +32,7 @@ export class CMSHandler {
   ) {
     this.cmsManager = Container.get(RelyingPartyConfigurationManager);
     this.legalTermsManager = Container.get(LegalTermsConfigurationManager);
+    this.defaultCmsManager = Container.get(DefaultCmsConfigurationManager);
     this.config = config;
     this.statsd = statsD;
     this.log = log;
@@ -192,6 +195,28 @@ export class CMSHandler {
     }
   }
 
+  async getDefault(request: AuthRequest) {
+    this.log.begin('cms.getDefault', request);
+
+    try {
+      const result = await this.defaultCmsManager.fetchDefault();
+      // Strapi exposes the singleType at the singularName root field.
+      const entry = (result as { default?: unknown }).default;
+      if (!entry) {
+        this.statsd.increment('cms.getDefault.empty');
+        return {};
+      }
+      this.statsd.increment('cms.getDefault.success');
+      return entry;
+    } catch (error) {
+      this.statsd.increment('cms.getDefault.error');
+      this.log.error('cms.getDefault: Error getting default CMS content', {
+        error,
+      });
+      return {};
+    }
+  }
+
   async getLegalTerms(request: AuthRequest) {
     this.log.begin('cms.getLegalTerms', request);
 
@@ -344,7 +369,7 @@ export class CMSHandler {
       // Only create PRs when entries are actually published
       // "model" here corresponds to the content type in Strapi
       const allowedEvents = ['entry.publish'];
-      const allowedModels = ['relying-party', 'legal-notice'];
+      const allowedModels = ['relying-party', 'legal-notice', 'default'];
 
       if (
         !eventType ||
@@ -463,6 +488,26 @@ export class CMSHandler {
     }
 
     if (
+      webhookPayload.model === 'default' &&
+      ['entry.delete', 'entry.publish', 'entry.unpublish'].includes(
+        webhookPayload.event
+      )
+    ) {
+      try {
+        await this.defaultCmsManager.invalidateCache();
+        this.log.info('cms.cacheReset.default.success', {});
+        this.statsd.increment('cms.cacheReset.default.success');
+      } catch (err) {
+        this.log.error('cms.cacheReset.default.error', {
+          error: err.message,
+        });
+        this.statsd.increment('cms.cacheReset.default.error');
+        throw err;
+      }
+      return { success: true };
+    }
+
+    if (
       webhookPayload.model === 'relying-party' &&
       ['entry.delete', 'entry.publish', 'entry.unpublish'].includes(
         webhookPayload.event
@@ -522,6 +567,14 @@ export const cmsRoutes = (
         },
       },
       handler: (request: AuthRequest) => cmsHandler.getLocalizedConfig(request),
+    },
+    {
+      method: 'GET',
+      path: '/cms/default',
+      options: {
+        pre: [{ method: featureEnabledCheck }],
+      },
+      handler: (request: AuthRequest) => cmsHandler.getDefault(request),
     },
     {
       method: 'GET',

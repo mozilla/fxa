@@ -20,11 +20,13 @@ export type CreatePasswordHandler = (
   newPassword: string
 ) => Promise<CreatePasswordHandlerError>;
 
+export type PostVerifySetPasswordIntegration = Pick<Integration, 'getCmsInfo'>;
+
 export interface SetPasswordProps {
   email: string;
   createPasswordHandler: CreatePasswordHandler;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
-  integration?: Integration;
+  integration?: PostVerifySetPasswordIntegration;
   isPasswordlessFlow?: boolean;
 }
 

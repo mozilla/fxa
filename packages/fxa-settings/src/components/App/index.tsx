@@ -31,6 +31,8 @@ import {
   useLocalSignedInQueryState,
   useSession,
   isProbablyFirefox,
+  useDefaultCmsState,
+  isWebIntegration,
 } from '../../models';
 import {
   initializeSettingsContext,
@@ -514,6 +516,9 @@ const AuthAndAccountSetupRoutes = ({
   }, [location.pathname, gleanEnabled]);
 
   const useFxAStatusResult = useFxAStatus(integration);
+  const defaultCmsState = useDefaultCmsState({
+    enabled: isWebIntegration(integration),
+  });
   try {
     // Handle getServiceName() errors that occur when OAuth scope validation fails.
     // This can happen when scopes are missing, invalid, or filtered out during
@@ -822,7 +827,10 @@ const AuthAndAccountSetupRoutes = ({
         <PairSuccess path="/oauth/success/:clientId/*" />
       </Router>
       {/* This must be placed after the routes so it's rendered at the bottom of the DOM. */}
-      <PromoQrMobile {...{ integration }} />
+      <PromoQrMobile
+        integration={integration}
+        promoQrImageUrl={defaultCmsState.data?.defaultCms?.promoQrImageUrl}
+      />
     </>
   );
 };

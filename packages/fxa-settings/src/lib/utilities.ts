@@ -261,6 +261,21 @@ export function toGenericOSName(os: string): string {
   return os || 'Unknown';
 }
 
+/**
+ * Intended as a loose guard for CMS-provided URLs before they're assigned to
+ * `<img src>`/`href` or similar sinks. Rejects `javascript:`, `data:`, `http:`,
+ * and malformed input.
+ */
+export function isValidCmsUrl(value: string | null | undefined) {
+  if (!value) return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 /** Default fallback message used across pairing pages when the error is not an Error instance. */
 export const DEFAULT_PAIRING_ERROR = 'An error occurred during pairing';
 

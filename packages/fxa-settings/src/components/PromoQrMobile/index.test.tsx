@@ -138,5 +138,43 @@ describe('PromoQrMobile', () => {
         screen.getByAltText(/QR code to download the Firefox mobile app/)
       ).toBeInTheDocument();
     });
+
+    it('uses the CMS-provided QR image URL when the prop is set', () => {
+      const history = createHistory(createMemorySource('/'));
+      renderWithRouter(
+        <PromoQrMobile
+          integration={createIntegration(IntegrationType.Web)}
+          promoQrImageUrl="https://example.com/custom-qr.svg"
+        />,
+        { history }
+      );
+
+      const img = screen.getByAltText(
+        /QR code to download the Firefox mobile app/
+      ) as HTMLImageElement;
+      expect(img).toBeInTheDocument();
+      expect(img.src).toBe('https://example.com/custom-qr.svg');
+    });
+
+    it.each([
+      'javascript:alert(1)',
+      'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=',
+      'not-a-url',
+      '',
+    ])('ignores invalid CMS URLs (%s) and falls back to local SVG', (url) => {
+      const history = createHistory(createMemorySource('/'));
+      renderWithRouter(
+        <PromoQrMobile
+          integration={createIntegration(IntegrationType.Web)}
+          promoQrImageUrl={url}
+        />,
+        { history }
+      );
+
+      const img = screen.getByAltText(
+        /QR code to download the Firefox mobile app/
+      ) as HTMLImageElement;
+      expect(img.src).toContain('qr-mobile-kit');
+    });
   });
 });

@@ -9,6 +9,7 @@ import ffLogo from '@fxa/shared/assets/images/ff-logo.svg';
 import qrMobileKitSrc from './qr-mobile-kit.svg';
 import { Integration, isWebIntegration } from '../../models/integrations';
 import GleanMetrics from '../../lib/glean';
+import { isValidCmsUrl } from '../../lib/utilities';
 
 export type PromoQrMobileIntegration = Pick<Integration, 'type'>;
 
@@ -33,8 +34,10 @@ function shouldShowPromo(pathname: string): boolean {
 
 export const PromoQrMobile = ({
   integration,
+  promoQrImageUrl,
 }: {
   integration: PromoQrMobileIntegration;
+  promoQrImageUrl?: string | null;
 }) => {
   const location = useLocation();
   const hasLoggedView = useRef(false);
@@ -55,6 +58,11 @@ export const PromoQrMobile = ({
 
   if (!visible) return <></>;
 
+  const qrSrc =
+    promoQrImageUrl && isValidCmsUrl(promoQrImageUrl)
+      ? promoQrImageUrl
+      : qrMobileKitSrc;
+
   return (
     <aside className="hidden desktop:fixed desktop:flex desktop:flex-col desktop:items-center desktop:bottom-8 desktop:end-12">
       {/* We use 'img' here instead of inlined SVGs since they are heavier SVG assets and
@@ -74,7 +82,7 @@ export const PromoQrMobile = ({
       </div>
       <FtlMsg id="promo-qr-mobile-qr-alt" attrs={{ alt: true }}>
         <img
-          src={qrMobileKitSrc}
+          src={qrSrc}
           alt="QR code to download the Firefox mobile app. Position your phone’s camera on the lower-right corner of your screen to scan it."
           className="mx-auto max-h-44 mt-1"
         />

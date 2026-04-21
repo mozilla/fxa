@@ -648,6 +648,54 @@ describe('CMSLocalization', () => {
         global.fetch = originalFetch;
       }
     });
+
+    it('also fetches the default singleType and appends its entry', async () => {
+      const relyingPartyEntries = [
+        { id: 1, attributes: { name: 'RP Entry 1' } },
+      ];
+      const defaultEntry = {
+        id: 10,
+        documentId: 'default-doc',
+        promoQrImageUrl: 'https://cdn.example/qr.svg',
+      };
+
+      const originalFetch = global.fetch;
+      global.fetch = sandbox.stub() as any;
+
+      (global.fetch as any)
+        .withArgs('http://localhost:1337/api/relying-parties?populate=*')
+        .resolves({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ data: relyingPartyEntries }),
+        });
+      (global.fetch as any)
+        .withArgs('http://localhost:1337/api/legal-notices?populate=*')
+        .resolves({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ data: [] }),
+        });
+      (global.fetch as any)
+        .withArgs('http://localhost:1337/api/default?populate=*')
+        .resolves({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ data: defaultEntry }),
+        });
+
+      try {
+        const result = await localization.fetchAllStrapiEntries();
+        expect(result).toEqual([...relyingPartyEntries, defaultEntry]);
+        sinon.assert.calledWith(
+          mockLog.info,
+          'cms.integrations.strapi.fetchedAllEntries',
+          { totalCount: 2 }
+        );
+      } finally {
+        global.fetch = originalFetch;
+      }
+    });
   });
 
   describe('extractBaseLocale', () => {
