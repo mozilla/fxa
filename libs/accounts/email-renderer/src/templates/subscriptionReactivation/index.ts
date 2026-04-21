@@ -12,14 +12,23 @@ export type TemplateData = IconTemplateData &
     nextInvoiceDateOnly: string;
     icon: string;
     subscriptionSupportUrl: string;
+    isFreeTrialReactivation: boolean;
   };
 
 export const template = 'subscriptionReactivation';
-export const version = 2;
+export const version = 3;
 export const layout = 'subscription';
-export const includes = {
-  subject: {
-    id: 'subscriptionReactivation-subject-2',
-    message: 'Your <%- productName %> subscription has been reactivated',
-  },
-};
+
+export function getIncludes(isFreeTrialReactivation: boolean) {
+  return {
+    subject: isFreeTrialReactivation
+      ? {
+          id: 'subscriptionReactivation-freeTrial-subject',
+          message: 'Your <%- productName %> trial has been reactivated',
+        }
+      : {
+          id: 'subscriptionReactivation-subject-2',
+          message: 'Your <%- productName %> subscription has been reactivated',
+        },
+  };
+}

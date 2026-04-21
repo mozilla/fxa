@@ -3380,6 +3380,7 @@ export class StripeHelper extends StripeHelperBase {
       nextInvoiceDate: nextInvoiceDate
         ? new Date(nextInvoiceDate * 1000)
         : null,
+      isFreeTrialReactivation: subscription.status === 'trialing',
       planConfig,
     };
   }

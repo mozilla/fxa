@@ -3092,6 +3092,7 @@ module.exports = function (log, config, bounces, statsd) {
       lastFour,
       nextInvoiceDate,
       payment_provider,
+      isFreeTrialReactivation = false,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -3142,6 +3143,7 @@ module.exports = function (log, config, bounces, statsd) {
         cardName: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
+        isFreeTrialReactivation,
       },
     });
   };

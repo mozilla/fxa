@@ -7237,6 +7237,7 @@ describe('StripeHelper', () => {
         cardType: card.brand,
         lastFour: card.last4,
         nextInvoiceDate: new Date(mockInvoice.lines.data[0].period.end * 1000),
+        isFreeTrialReactivation: false,
       };
 
       const { lastFour, cardType } = defaultExpected;
@@ -7277,6 +7278,24 @@ describe('StripeHelper', () => {
           [{ subscription: event.data.object.id }],
         ]);
         expect(result).toEqual(defaultExpected);
+      });
+
+      it('sets isFreeTrialReactivation to true when subscription status is trialing', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.status = 'trialing';
+        jest
+          .spyOn(stripeHelper, 'fetchCustomer')
+          .mockResolvedValue(reactivationMockCustomer);
+        const result =
+          await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
+            event.data.object,
+            expectedBaseUpdateDetails,
+            mockInvoice
+          );
+        expect(result).toEqual({
+          ...defaultExpected,
+          isFreeTrialReactivation: true,
+        });
       });
 
       it('does not throw an exception when payment method is missing', async () => {
