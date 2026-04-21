@@ -80,6 +80,7 @@ describe('NimbusClient', () => {
       nimbusUserId,
       language: mockContext.language || undefined,
       region: mockContext.region || undefined,
+      preview: false,
     };
 
     beforeEach(() => {
@@ -97,6 +98,7 @@ describe('NimbusClient', () => {
       expect(nimbusClient.fetchExperiments).toHaveBeenCalledWith({
         clientId: nimbusUserId,
         context: mockContext,
+        preview: false,
       });
     });
 
@@ -151,6 +153,49 @@ describe('NimbusClient', () => {
       expect(mockedGenerateNimbusId).toHaveBeenCalledWith(
         mockNimbusManagerConfig.namespace
       );
+    });
+  });
+
+  describe('generateAllNimbusIdsForDeletion', () => {
+    const mockFxaUid = faker.string.uuid();
+    const mockNimbusUserId = faker.string.uuid();
+
+    beforeEach(() => {
+      mockedGenerateNimbusId.mockReturnValue(mockNimbusUserId);
+    });
+
+    it('returns a nimbus id for the primary namespace and each deletion namespace', () => {
+      const result = nimbusManager.generateAllNimbusIdsForDeletion(mockFxaUid);
+
+      expect(result).toHaveLength(
+        mockNimbusManagerConfig.deletionNamespaces.length + 1
+      );
+      expect(mockedGenerateNimbusId).toHaveBeenCalledWith(
+        mockNimbusManagerConfig.namespace,
+        mockFxaUid
+      );
+      for (const ns of mockNimbusManagerConfig.deletionNamespaces) {
+        expect(mockedGenerateNimbusId).toHaveBeenCalledWith(ns, mockFxaUid);
+      }
+    });
+
+    it('returns only the primary namespace id when deletionNamespaces is undefined', () => {
+      const originalDeletionNamespaces =
+        mockNimbusManagerConfig.deletionNamespaces;
+      Object.defineProperty(mockNimbusManagerConfig, 'deletionNamespaces', {
+        value: undefined,
+        writable: true,
+      });
+
+      const result = nimbusManager.generateAllNimbusIdsForDeletion(mockFxaUid);
+
+      expect(result).toHaveLength(1);
+      expect(mockedGenerateNimbusId).toHaveBeenCalledWith(
+        mockNimbusManagerConfig.namespace,
+        mockFxaUid
+      );
+
+      mockNimbusManagerConfig.deletionNamespaces = originalDeletionNamespaces;
     });
   });
 });

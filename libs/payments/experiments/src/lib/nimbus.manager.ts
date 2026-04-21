@@ -60,4 +60,13 @@ export class NimbusManager {
       return generateNimbusId(this.nimbusManagerConfig.namespace);
     }
   }
+
+  // Returns a list of unique Nimbus IDs for a given fxaUid to be used for deletion
+  generateAllNimbusIdsForDeletion(fxaUid: string): string[] {
+    const namespaceSet = new Set([
+      this.nimbusManagerConfig.namespace,
+      ...(this.nimbusManagerConfig.deletionNamespaces ?? []),
+    ]);
+    return Array.from(namespaceSet).map((ns) => generateNimbusId(ns, fxaUid));
+  }
 }

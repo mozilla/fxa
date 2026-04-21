@@ -1,4 +1,3 @@
-import { jest } from '@jest/globals';
 import { CaptureTimingWithStatsD } from './statsd.decorator';
 import { StatsD } from 'hot-shots';
 
