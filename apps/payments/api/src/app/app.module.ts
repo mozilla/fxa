@@ -34,9 +34,12 @@ import { CurrencyManager } from '@fxa/payments/currency';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
 import { CartManager } from '@fxa/payments/cart';
-import { CmsContentValidationManager, ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
 import {
-  MockPaymentsGleanFactory,
+  CmsContentValidationManager,
+  ProductConfigurationManager,
+  StrapiClient,
+} from '@fxa/shared/cms';
+import {
   PaymentsGleanManager,
   PaymentsGleanService,
 } from '@fxa/payments/metrics';
@@ -60,7 +63,12 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
       }),
     }),
   ],
-  controllers: [AppController, CmsWebhooksController, FxaWebhooksController, StripeWebhooksController],
+  controllers: [
+    AppController,
+    CmsWebhooksController,
+    FxaWebhooksController,
+    StripeWebhooksController,
+  ],
   providers: [
     Logger,
     AccountDatabaseNestFactory,
@@ -96,7 +104,6 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
     NimbusManagerConfig,
     NimbusClient,
     NimbusClientConfig,
-    MockPaymentsGleanFactory,
   ],
 })
 export class AppModule {}
