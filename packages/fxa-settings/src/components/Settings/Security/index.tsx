@@ -68,7 +68,9 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
             }
             prefixDataTestId="password"
             ctaOnClickAction={() => {
-              GleanMetrics.accountPref.changePasswordSubmit();
+              GleanMetrics.accountPref.changePasswordSubmit({
+                event: { reason: hasPassword ? 'change' : 'create' },
+              });
             }}
           >
             {hasPassword ? (

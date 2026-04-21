@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
+import { GleanEventsHelper } from '../../lib/glean';
 import {
   relayDesktopOAuthQueryParams,
   syncDesktopOAuthQueryParams,
@@ -1032,6 +1033,13 @@ test.describe('severity-2', () => {
       syncOAuthBrowserPages: { page, signin, signinPasswordlessCode },
       testAccountTracker,
     }) => {
+      // syncOAuthBrowserPages runs in a separate Firefox instance, so the
+      // default gleanEventsHelper fixture (bound to the main page) does not
+      // capture pings from this flow. Attach a fresh helper to the sync page
+      // before any navigation so route interception is in place.
+      const gleanEventsHelper = new GleanEventsHelper(page);
+      await gleanEventsHelper.start();
+
       // Create passwordless account via API first (no password)
       const { email } = await testAccountTracker.signUpPasswordless();
       const password = (testAccountTracker.accounts[0] as any).password;
@@ -1065,6 +1073,23 @@ test.describe('severity-2', () => {
       await expect(
         page.getByRole('heading', { name: 'Sync is turned on' })
       ).toBeVisible();
+
+      // Verify every third_party_auth_set_password event emitted during the
+      // OTP flow carries reason='otp' so telemetry can distinguish this
+      // flow from the third-party-auth set-password path.
+      await gleanEventsHelper.waitForEvent(
+        'third_party_auth_set_password_success'
+      );
+      for (const eventName of [
+        'third_party_auth_set_password_view',
+        'third_party_auth_set_password_engage',
+        'third_party_auth_set_password_submit',
+        'third_party_auth_set_password_success',
+      ]) {
+        const pings = gleanEventsHelper.getEventsByName(eventName);
+        expect(pings.length).toBeGreaterThan(0);
+        expect(pings[0].extras.reason).toBe('otp');
+      }
     });
 
     test('passwordless signin - Sync with TOTP and set password', async ({

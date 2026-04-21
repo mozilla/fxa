@@ -35,6 +35,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { page, changePassword, settings, signin },
       testAccountTracker,
+      gleanEventsHelper,
     }) => {
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
@@ -50,6 +51,14 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText('Password updated');
+
+      // Account already has a password, so the change password CTA should
+      // emit reason='change' (vs 'create' for passwordless accounts).
+      const submitPings = gleanEventsHelper.getEventsByName(
+        'account_pref_change_password_submit'
+      );
+      expect(submitPings.length).toBeGreaterThan(0);
+      expect(submitPings[0].extras.reason).toBe('change');
 
       // Sign out and login with new password
       await settings.signOut();

@@ -2297,7 +2297,7 @@ third_party_auth_set_password:
   view:
     type: event
     description: |
-      User viewed the set password screen after authenticating with third party auth
+      User viewed the set password screen after authenticating with third party auth or OTP
     send_in_pings:
       - events
     notification_emails:
@@ -2305,16 +2305,21 @@ third_party_auth_set_password:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9116
+      - https://mozilla-hub.atlassian.net/browse/FXA-13429
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: Differentiates OTP/passwordless flows ('otp') from third-party auth flows ('third_party_auth').
+        type: string
   engage:
     type: event
     description: |
-      User engaged the set password form after authenticating with third party auth
+      User engaged the set password form after authenticating with third party auth or OTP
     send_in_pings:
       - events
     notification_emails:
@@ -2322,16 +2327,21 @@ third_party_auth_set_password:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9116
+      - https://mozilla-hub.atlassian.net/browse/FXA-13429
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: Differentiates OTP/passwordless flows ('otp') from third-party auth flows ('third_party_auth').
+        type: string
   submit:
     type: event
     description: |
-      User submitted the set password form after authenticating with third party auth
+      User submitted the set password form after authenticating with third party auth or OTP
     send_in_pings:
       - events
     notification_emails:
@@ -2339,16 +2349,21 @@ third_party_auth_set_password:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9116
+      - https://mozilla-hub.atlassian.net/browse/FXA-13429
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: Differentiates OTP/passwordless flows ('otp') from third-party auth flows ('third_party_auth').
+        type: string
   success:
     type: event
     description: |
-      User was able to successfully the set password form after authenticating with third party auth
+      User successfully set a password after authenticating with third party auth or OTP
     send_in_pings:
       - events
     notification_emails:
@@ -2356,12 +2371,17 @@ third_party_auth_set_password:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9116
+      - https://mozilla-hub.atlassian.net/browse/FXA-13429
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: Differentiates OTP/passwordless flows ('otp') from third-party auth flows ('third_party_auth').
+        type: string
 account_pref:
   view:
     type: event
@@ -2715,7 +2735,7 @@ account_pref:
   change_password_submit:
     type: event
     description: |
-      Click on "Change" on account settings page to change password for account
+      Click on "Change" or "Create" on account settings page to change or create a password for the account
     send_in_pings:
       - events
     notification_emails:
@@ -2723,12 +2743,17 @@ account_pref:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9577
+      - https://mozilla-hub.atlassian.net/browse/FXA-13429
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: Differentiates creating a password for an account without one ('create') from changing an existing password ('change').
+        type: string
   display_name_submit:
     type: event
     description: |
