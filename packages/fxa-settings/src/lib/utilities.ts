@@ -5,6 +5,7 @@
 import base32Encode from 'base32-encode';
 import { AttachedClient } from '../models/Account';
 import { navigate, NavigateFn, NavigateOptions } from '@reach/router';
+import { SEND_TAB_ENTRYPOINTS } from '../constants';
 
 // Various utilities that don't fit in a standalone lib
 
@@ -282,4 +283,11 @@ export const DEFAULT_PAIRING_ERROR = 'An error occurred during pairing';
 /** Extract a human-readable error message from an unknown thrown value. */
 export function getPairingErrorMessage(err: unknown): string {
   return err instanceof Error ? err.message : DEFAULT_PAIRING_ERROR;
+}
+
+/** Whether the given entrypoint originated from a Firefox "Send Tab" UI. */
+export function isSendTabEntrypoint(
+  entrypoint: string | null | undefined
+): boolean {
+  return !!entrypoint && SEND_TAB_ENTRYPOINTS.has(entrypoint);
 }

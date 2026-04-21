@@ -5,14 +5,16 @@
 import React from 'react';
 import Pair from '.';
 import { Meta } from '@storybook/react';
-import {
-  LocationProvider,
-  createHistory,
-  createMemorySource,
-} from '@reach/router';
+import { LocationProvider } from '@reach/router';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { createHistoryWithQuery } from '../../../models/mocks';
+import type { Integration } from '../../../models';
+
+const sendTabIntegration = {
+  data: { entrypoint: 'send-tab-toolbar-icon' },
+} as unknown as Integration;
 
 export default {
   title: 'Pages/Pair',
@@ -26,15 +28,45 @@ export const ChoiceScreen = () => (
   </LocationProvider>
 );
 
-export const ChoiceScreenWithSuccessMessage = () => {
-  // Simulate ?showSuccessMessage=true in the URL
-  const source = `/?showSuccessMessage=true`;
-  return (
-    <LocationProvider history={createHistory(createMemorySource(source))}>
-      <Pair />
-    </LocationProvider>
-  );
-};
+export const ChoiceScreenWithSigninBanner = () => (
+  <LocationProvider
+    history={createHistoryWithQuery('/', undefined, { origin: 'signin' })}
+  >
+    <Pair />
+  </LocationProvider>
+);
+
+export const ChoiceScreenWithSignupBanner = () => (
+  <LocationProvider
+    history={createHistoryWithQuery('/', undefined, { origin: 'signup' })}
+  >
+    <Pair />
+  </LocationProvider>
+);
+
+export const ChoiceScreenWithPasswordCreatedBanner = () => (
+  <LocationProvider
+    history={createHistoryWithQuery('/', undefined, {
+      origin: 'post-verify-set-password',
+    })}
+  >
+    <Pair />
+  </LocationProvider>
+);
+
+export const SendTabChoiceScreen = () => (
+  <LocationProvider>
+    <Pair integration={sendTabIntegration} />
+  </LocationProvider>
+);
+
+export const SendTabChoiceScreenWithSigninBanner = () => (
+  <LocationProvider
+    history={createHistoryWithQuery('/', undefined, { origin: 'signin' })}
+  >
+    <Pair integration={sendTabIntegration} />
+  </LocationProvider>
+);
 
 export const WithError = () => (
   <LocationProvider>

@@ -130,8 +130,9 @@ test.describe('severity-1 #smoke', () => {
       await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/pair/);
-      await expect(page).toHaveURL(/signupSuccess=true/);
-      await expect(page).toHaveURL(/showSuccessMessage=true/);
+      await expect(
+        page.getByText('Account created. You’re now syncing.')
+      ).toBeVisible();
       await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
   });
