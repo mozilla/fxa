@@ -59,9 +59,11 @@ export default async function Upgrade({
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const session = await auth();
 
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/upgrade/${resolvedParams.cartId}/start`;
   const cartDataPromise = getCartOrRedirectAction(
     resolvedParams.cartId,
     SupportedPages.START,
+    currentPathname,
     resolvedSearchParams
   );
   const cmsDataPromise = fetchCMSData(

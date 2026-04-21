@@ -21,6 +21,7 @@ import Image from 'next/image';
 import {
   ReadonlyURLSearchParams,
   useParams,
+  usePathname,
   useRouter,
   useSearchParams,
 } from 'next/navigation';
@@ -78,10 +79,10 @@ interface CheckoutFormProps {
     };
     paymentInfo?: {
       type:
-        | Stripe.PaymentMethod.Type
-        | 'google_iap'
-        | 'apple_iap'
-        | 'external_paypal';
+      | Stripe.PaymentMethod.Type
+      | 'google_iap'
+      | 'apple_iap'
+      | 'external_paypal';
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
@@ -111,6 +112,7 @@ export function CheckoutForm({
   const elements = useElements();
   const router = useRouter();
   const stripe = useStripe();
+  const pathname = usePathname();
   const rawParams = useParams();
   const params: Record<string, string | string[]> = {};
   for (const [key, value] of Object.entries(rawParams)) {
@@ -144,13 +146,13 @@ export function CheckoutForm({
     () =>
       isCancelInterstitialOffer
         ? {
-            offeringId: (params.offeringId as string) ?? undefined,
-            interval: (params.interval as Interval) ?? undefined,
-            utmSource: searchParams.get('utm_source') ?? undefined,
-            utmMedium: searchParams.get('utm_medium') ?? undefined,
-            utmCampaign: searchParams.get('utm_campaign') ?? undefined,
-            nimbusUserId: searchParams.get('nimbus_user_id') ?? undefined,
-          }
+          offeringId: (params.offeringId as string) ?? undefined,
+          interval: (params.interval as Interval) ?? undefined,
+          utmSource: searchParams.get('utm_source') ?? undefined,
+          utmMedium: searchParams.get('utm_medium') ?? undefined,
+          utmCampaign: searchParams.get('utm_campaign') ?? undefined,
+          nimbusUserId: searchParams.get('nimbus_user_id') ?? undefined,
+        }
         : null,
     [isCancelInterstitialOffer, params.interval, searchParams]
   );
@@ -280,12 +282,12 @@ export function CheckoutForm({
     const confirmationTokenParams: ConfirmationTokenCreateParams | undefined =
       !isSavedPaymentMethod
         ? {
-            payment_method_data: {
-              billing_details: {
-                email: sessionEmail || undefined,
-              },
+          payment_method_data: {
+            billing_details: {
+              email: sessionEmail || undefined,
             },
-          }
+          },
+        }
         : undefined;
 
     // Create the ConfirmationToken using the details collected by the Payment Element
@@ -304,6 +306,7 @@ export function CheckoutForm({
         await handleStripeErrorAction(
           cart.id,
           confirmationTokenError,
+          pathname,
           searchParamsRecord
         );
         setLoading(false);

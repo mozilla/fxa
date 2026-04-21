@@ -5,7 +5,7 @@
 'use client';
 
 import { SupportedPages } from '@fxa/payments/ui';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { validateCartStateAndRedirectAction } from '../../../actions/validateCartStateAndRedirect';
 import { recordEmitterEventAction } from '../../../actions';
@@ -21,6 +21,7 @@ export function PaymentStateObserver({
 }) {
   const searchParams = useSearchParams();
   const params = useParams();
+  const pathname = usePathname();
   const router = useRouter();
   const searchParamsRecord: Record<string, string> = {};
   for (const [key, value] of searchParams.entries()) {
@@ -36,6 +37,7 @@ export function PaymentStateObserver({
       const redirectResponse = await validateCartStateAndRedirectAction(
         cartId,
         SupportedPages.PROCESSING,
+        pathname,
         searchParamsRecord,
         false,
       );

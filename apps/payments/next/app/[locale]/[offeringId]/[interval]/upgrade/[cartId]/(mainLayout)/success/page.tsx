@@ -64,9 +64,11 @@ export default async function UpgradeSuccess({
     acceptLanguage,
     locale
   );
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/upgrade/${resolvedParams.cartId}/success`;
   const cartDataPromise = getCartOrRedirectAction(
     resolvedParams.cartId,
     SupportedPages.SUCCESS,
+    currentPathname,
     resolvedSearchParams
   );
   const sessionPromise = auth();

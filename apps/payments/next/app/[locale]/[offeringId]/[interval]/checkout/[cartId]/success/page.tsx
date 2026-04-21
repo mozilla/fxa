@@ -60,9 +60,11 @@ export default async function CheckoutSuccess({
     acceptLanguage,
     locale
   );
+  const currentPathname = `/${resolvedParams.locale}/${resolvedParams.offeringId}/${resolvedParams.interval}/checkout/${resolvedParams.cartId}/success`;
   const cartDataPromise = getCartOrRedirectAction(
     resolvedParams.cartId,
     SupportedPages.SUCCESS,
+    currentPathname,
     resolvedSearchParams
   );
   const sessionPromise = auth();
