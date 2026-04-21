@@ -38,6 +38,7 @@ export enum CartErrorReasonId {
   CART_ELIGIBILITY_STATUS_SAME = 'cart_eligibility_status_same',
   CART_ELIGIBILITY_STATUS_DOWNGRADE = 'cart_eligibility_status_downgrade',
   CART_ELIGIBILITY_STATUS_INVALID = 'cart_eligibility_status_invalid',
+  CART_FREE_TRIAL_ELIGIBILITY_MISMATCH = 'cart_free_trial_eligibility_mismatch',
   CART_CURRENCY_NOT_DETERMINED = 'cart_currency_not_determined',
   CART_PROCESSING_GENERAL_ERROR = 'cart_processing_general_error',
   CART_TOTAL_MISMATCH = 'cart_total_mismatch',
@@ -122,6 +123,7 @@ export interface Carts {
   amount: number;
   version: number;
   eligibilityStatus: CartEligibilityStatus;
+  isFreeTrial: boolean;
 }
 
 export interface DeviceCommandIdentifiers {

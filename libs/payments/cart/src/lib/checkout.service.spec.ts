@@ -93,6 +93,7 @@ import {
 } from '@fxa/shared/notifier';
 import {
   CartEligibilityMismatchError,
+  CartFreeTrialMismatchError,
   CartTotalMismatchError,
   CartAccountNotFoundError,
   CartCurrencyNotFoundError,
@@ -350,6 +351,9 @@ describe('CheckoutService', () => {
       jest
         .spyOn(accountManager, 'getAccounts')
         .mockResolvedValue([mockAccount]);
+      jest
+        .spyOn(checkoutService, 'getFreeTrialEligibility')
+        .mockResolvedValue(null);
     });
 
     describe('success - with stripeCustomerId attached to cart', () => {
@@ -491,6 +495,59 @@ describe('CheckoutService', () => {
         await expect(
           checkoutService.prePaySteps(mockCart, mockCart.uid)
         ).rejects.toBeInstanceOf(CartEligibilityMismatchError);
+      });
+
+      it('throws cart free trial mismatch error when cart promised a trial but user is no longer eligible', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            uid: uid,
+            couponCode: faker.string.uuid(),
+            stripeCustomerId: mockCustomer.id,
+            eligibilityStatus: CartEligibilityStatus.CREATE,
+            amount: mockInvoicePreview.subtotal,
+            isFreeTrial: true,
+          })
+        );
+
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue(null);
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, mockCart.uid)
+        ).rejects.toBeInstanceOf(CartFreeTrialMismatchError);
+      });
+
+      it('does not throw when cart did not promise a trial even if user is now eligible', async () => {
+        const mockFreeTrial: FreeTrial = {
+          internalName: 'test-free-trial',
+          intervals: ['monthly'],
+          trialLengthDays: 14,
+          countries: ['US - United States'],
+          cooldownPeriodMonths: 6,
+        };
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            uid: uid,
+            couponCode: faker.string.uuid(),
+            stripeCustomerId: mockCustomer.id,
+            eligibilityStatus: CartEligibilityStatus.CREATE,
+            amount: mockInvoicePreview.subtotal,
+            isFreeTrial: false,
+          })
+        );
+
+        const getFreeTrialEligibilitySpy = jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue(mockFreeTrial);
+
+        const result = await checkoutService.prePaySteps(
+          mockCart,
+          mockCart.uid
+        );
+
+        expect(result.freeTrial).toBeNull();
+        expect(getFreeTrialEligibilitySpy).not.toHaveBeenCalled();
       });
 
       it('throws invalid promo code error', async () => {
@@ -1189,9 +1246,10 @@ describe('CheckoutService', () => {
         );
 
         beforeEach(async () => {
-          jest
-            .spyOn(checkoutService, 'prePaySteps')
-            .mockResolvedValue(mockPrePayStepsResult);
+          jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
+            ...mockPrePayStepsResult,
+            freeTrial: mockFreeTrial,
+          });
           jest
             .spyOn(priceManager, 'retrievePricingForCurrency')
             .mockResolvedValue(mockPricingForCurrency);
@@ -1350,9 +1408,10 @@ describe('CheckoutService', () => {
           StripeSubscriptionFactory({ status: 'active' })
         );
 
-        jest
-          .spyOn(checkoutService, 'prePaySteps')
-          .mockResolvedValue(mockPrePayStepsResult);
+        jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
+          ...mockPrePayStepsResult,
+          freeTrial: mockFreeTrial,
+        });
         jest
           .spyOn(priceManager, 'retrievePricingForCurrency')
           .mockResolvedValue(mockPricingForCurrency);
@@ -1910,7 +1969,10 @@ describe('CheckoutService', () => {
           jest
             .spyOn(checkoutService, 'prePaySteps')
             .mockResolvedValue(
-              PrePayStepsResultFactory(mockPrePayStepsResult)
+              PrePayStepsResultFactory({
+                ...mockPrePayStepsResult,
+                freeTrial: mockFreeTrial,
+              })
             );
           jest
             .spyOn(subscriptionManager, 'getCustomerPayPalSubscriptions')
@@ -2099,7 +2161,10 @@ describe('CheckoutService', () => {
         jest
           .spyOn(checkoutService, 'prePaySteps')
           .mockResolvedValue(
-            PrePayStepsResultFactory(mockPrePayStepsResult)
+            PrePayStepsResultFactory({
+              ...mockPrePayStepsResult,
+              freeTrial: mockFreeTrial,
+            })
           );
         jest
           .spyOn(subscriptionManager, 'getCustomerPayPalSubscriptions')

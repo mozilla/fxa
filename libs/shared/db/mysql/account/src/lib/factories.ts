@@ -45,6 +45,7 @@ export const CartFactory = (override?: Partial<NewCart>): NewCart => ({
   amount: faker.number.int(10000),
   version: 0,
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
+  isFreeTrial: false,
   ...override,
 });
 

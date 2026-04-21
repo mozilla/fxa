@@ -444,6 +444,16 @@ export class CartService {
       }
     }
 
+    const freeTrial = args.uid
+      ? await this.checkoutService.getFreeTrialEligibility({
+          uid: args.uid,
+          offeringConfigId: args.offeringConfigId,
+          countryCode: args.taxAddress.countryCode,
+          interval: args.interval,
+          eligibilityStatus: eligibility.subscriptionEligibilityResult,
+        })
+      : null;
+
     const createCartParams: SetupCart = {
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
@@ -455,6 +465,7 @@ export class CartService {
       currency,
       eligibilityStatus: cartEligibilityStatus,
       couponCode,
+      isFreeTrial: !!freeTrial,
     };
 
     if (eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME) {
@@ -547,6 +558,7 @@ export class CartService {
         stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
         amount: oldCart.amount,
         eligibilityStatus: oldCart.eligibilityStatus,
+        isFreeTrial: oldCart.isFreeTrial,
       });
     });
   }
@@ -825,6 +837,27 @@ export class CartService {
           );
         }
 
+        const effectiveUid = cartDetailsInput.uid ?? oldCart.uid;
+        if (
+          effectiveUid &&
+          oldCart.eligibilityStatus === CartEligibilityStatus.CREATE
+        ) {
+          const freeTrial =
+            await this.checkoutService.getFreeTrialEligibility({
+              uid: effectiveUid,
+              offeringConfigId: oldCart.offeringConfigId,
+              countryCode:
+                cartDetailsInput.taxAddress?.countryCode ??
+                oldCart.taxAddress?.countryCode ??
+                '',
+              interval: oldCart.interval as SubplatInterval,
+              eligibilityStatus: EligibilityStatus.CREATE,
+            });
+          cartDetails.isFreeTrial = !!freeTrial;
+        } else {
+          cartDetails.isFreeTrial = false;
+        }
+
         await this.cartManager.updateFreshCart(cartId, version, cartDetails);
 
         return this.cartManager.fetchCartById(cartId);
@@ -897,7 +930,7 @@ export class CartService {
     const trialEndDate = trialSubscription?.trial_end ?? undefined;
 
     let freeTrialEligibility: FreeTrial | null = null;
-    if (cart.uid && cart.state === CartState.START) {
+    if (cart.uid && cart.state === CartState.START && cart.isFreeTrial) {
       freeTrialEligibility = await this.checkoutService.getFreeTrialEligibility(
         {
           uid: cart.uid,

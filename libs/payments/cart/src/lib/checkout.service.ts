@@ -51,6 +51,7 @@ import { NotifierService } from '@fxa/shared/notifier';
 import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,
+  CartFreeTrialMismatchError,
   CartAccountNotFoundError,
   CartUidNotFoundError,
   CartNoTaxAddressError,
@@ -241,6 +242,20 @@ export class CheckoutService {
       );
     }
 
+    let freeTrial: FreeTrial | null = null;
+    if (cart.isFreeTrial) {
+      freeTrial = await this.getFreeTrialEligibility({
+        uid,
+        offeringConfigId: cart.offeringConfigId,
+        countryCode: taxAddress.countryCode,
+        interval: cart.interval as SubplatInterval,
+        eligibilityStatus: eligibility.subscriptionEligibilityResult,
+      });
+      if (!freeTrial) {
+        throw new CartFreeTrialMismatchError(cart.id, true, false);
+      }
+    }
+
     // re-validate total amount against upcoming invoice
     // throws cart total mismatch error if no match found
     const price = await this.productConfigurationManager.retrieveStripePrice(
@@ -288,6 +303,7 @@ export class CheckoutService {
       version,
       price,
       eligibility,
+      freeTrial,
     };
   }
 
@@ -352,6 +368,7 @@ export class CheckoutService {
       version,
       price,
       eligibility,
+      freeTrial,
     } = await this.prePaySteps(cart, sessionUid);
 
     this.statsd.increment('stripe_subscription', {
@@ -367,18 +384,6 @@ export class CheckoutService {
       unitAmountForCurrency,
       new PayWithStripeNullCurrencyError(cart.id, price.id)
     );
-
-    const freeTrial =
-      eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
-        ? await this.getFreeTrialEligibility({
-            uid,
-            offeringConfigId: cart.offeringConfigId,
-            countryCode: cart.taxAddress?.countryCode || '',
-            interval: cart.interval as SubplatInterval,
-            eligibilityStatus:
-              eligibility.subscriptionEligibilityResult,
-          })
-        : null;
 
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
@@ -594,6 +599,7 @@ export class CheckoutService {
       price,
       version,
       eligibility,
+      freeTrial,
     } = await this.prePaySteps(cart, sessionUid);
 
     const paypalSubscriptions =
@@ -617,18 +623,6 @@ export class CheckoutService {
       unitAmountForCurrency,
       new PayWithPaypalNullCurrencyError(cart.id, price.id)
     );
-
-    const freeTrial =
-      eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
-        ? await this.getFreeTrialEligibility({
-            uid,
-            offeringConfigId: cart.offeringConfigId,
-            countryCode: cart.taxAddress?.countryCode || '',
-            interval: cart.interval as SubplatInterval,
-            eligibilityStatus:
-              eligibility.subscriptionEligibilityResult,
-          })
-        : null;
 
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'paypal',

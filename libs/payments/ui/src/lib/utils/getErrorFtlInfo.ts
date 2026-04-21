@@ -81,6 +81,15 @@ export function getErrorFtlInfo(
         message: 'The invoice amount has changed. Please try again.',
         messageFtl: 'cart-total-mismatch-error',
       };
+    case CartErrorReasonId.CART_FREE_TRIAL_ELIGIBILITY_MISMATCH:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
+        message:
+          'Your free trial eligibility has changed. Please try again.',
+        messageFtl: 'cart-free-trial-mismatch-error',
+      };
     case CartErrorReasonId.INTENT_FAILED_CARD_DECLINED:
       return {
         buttonFtl: 'next-payment-error-retry-button',

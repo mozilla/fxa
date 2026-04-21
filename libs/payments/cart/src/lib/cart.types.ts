@@ -128,6 +128,7 @@ export type SetupCart = {
   stripeCustomerId?: string;
   amount: number;
   eligibilityStatus: CartEligibilityStatus;
+  isFreeTrial: boolean;
 };
 
 export interface TaxAmount {
@@ -145,6 +146,7 @@ export type UpdateCart = {
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   stripeIntentId?: string;
+  isFreeTrial?: boolean;
 };
 
 export type UpdateCartInput = Pick<
