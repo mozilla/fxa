@@ -1,7 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Account, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
+import {
+  Account,
+  EmailBlocklist,
+  getAccountCustomerByUid,
+} from 'fxa-shared/db/models/auth';
 import {
   AppStoreSubscription,
   PlayStoreSubscription,
@@ -611,8 +615,20 @@ export class AccountHandler {
       throw error.accountExists(email);
     }
 
-    // Block creation if email is reserved for secondary email registration
+    // Block creation if email matches the admin-managed blocklist
     const normalizedEmail = normalizeEmail(email);
+    const blockedRegex =
+      await EmailBlocklist.findMatchingRegex(normalizedEmail);
+    if (blockedRegex !== null) {
+      this.log.info('account.create.blocked', {
+        domain: normalizedEmail.split('@')[1],
+        blockedRegex,
+      });
+      this.statsd.increment('account.create.blocked');
+      throw error.requestBlocked(false);
+    }
+
+    // Block creation if email is reserved for secondary email registration
     const existingSecondaryEmailRecord = await getExistingSecondaryEmailRecord(
       normalizedEmail,
       request,

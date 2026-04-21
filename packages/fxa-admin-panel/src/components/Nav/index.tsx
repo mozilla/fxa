@@ -7,6 +7,7 @@ import { NavLink } from 'react-router-dom';
 import accountIcon from '../../images/icon-account.svg';
 import keyIcon from '../../images/icon-key.svg';
 import logsIcon from '../../images/icon-logs.svg';
+import emailBlocklistIcon from '../../images/icon-email-blocklist.svg';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../Guard';
 
@@ -64,6 +65,21 @@ export const Nav = () => (
                 alt="account icon"
               />
               Account Reset
+            </NavLink>
+          </li>
+        </Guard>
+        <Guard features={[AdminPanelFeature.EmailBlocklist]}>
+          <li>
+            <NavLink
+              to="/email-blocklist"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={emailBlocklistIcon}
+                alt="blocklist icon"
+              />
+              Email Blocklist
             </NavLink>
           </li>
         </Guard>

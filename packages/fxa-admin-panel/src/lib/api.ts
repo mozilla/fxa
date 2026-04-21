@@ -14,6 +14,7 @@ import type {
   AccountDeleteResponse,
   AccountDeleteTaskStatus,
   AccountResetResponse,
+  EmailBlocklistEntry,
 } from 'fxa-admin-server/src/types';
 
 function baseUrl() {
@@ -248,5 +249,29 @@ export const adminApi = {
       `/api/relying-parties/${encodeURIComponent(id)}/previous-secret`,
       { method: 'DELETE' }
     );
+  },
+
+  // ---- Email blocklist ----
+
+  getEmailBlocklist(): Promise<EmailBlocklistEntry[]> {
+    return apiFetch('/api/email-blocklist');
+  },
+
+  addEmailBlocklistEntries(regexes: string[]): Promise<{ ok: boolean }> {
+    return apiFetch('/api/email-blocklist/add', {
+      method: 'POST',
+      body: JSON.stringify({ regexes }),
+    });
+  },
+
+  removeEmailBlocklistEntry(regex: string): Promise<{ removed: boolean }> {
+    return apiFetch('/api/email-blocklist', {
+      method: 'DELETE',
+      body: JSON.stringify({ regex }),
+    });
+  },
+
+  deleteAllEmailBlocklistEntries(): Promise<{ ok: boolean }> {
+    return apiFetch('/api/email-blocklist/all', { method: 'DELETE' });
   },
 };

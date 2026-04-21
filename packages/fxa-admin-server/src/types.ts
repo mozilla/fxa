@@ -284,3 +284,8 @@ export interface AccountResetResponse {
   locator: string;
   status: AccountResetStatus;
 }
+
+export interface EmailBlocklistEntry {
+  regex: string;
+  createdAt: number;
+}

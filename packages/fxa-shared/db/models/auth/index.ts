@@ -28,6 +28,7 @@ import { SignInCodes } from './sign-in-codes';
 import { UnblockCodes } from './unblock-codes';
 import { RecoveryCodes } from './recovery-codes';
 import { RecoveryPhones } from './recovery-phones';
+import { EmailBlocklist } from './email-blocklist';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -265,4 +266,5 @@ export {
   UnblockCodes,
   RecoveryCodes,
   RecoveryPhones,
+  EmailBlocklist,
 };

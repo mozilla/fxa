@@ -49,6 +49,7 @@ export enum AdminPanelFeature {
   UnsubscribeFromMailingLists = 'UnsubscribeFromMailingLists',
   RateLimiting = 'RateLimiting',
   DeleteRecoveryPhone = 'DeleteRecoveryPhone',
+  EmailBlocklist = 'EmailBlocklist',
 }
 
 /** Enum of known user groups */
@@ -207,6 +208,10 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.DeleteRecoveryPhone]: {
     name: 'Delete Recovery Phone',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.EmailBlocklist]: {
+    name: 'Manage Email Blocklist',
     level: PermissionLevel.Admin,
   },
 };
