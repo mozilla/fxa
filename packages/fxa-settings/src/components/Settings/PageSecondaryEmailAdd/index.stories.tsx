@@ -9,6 +9,8 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 import { MfaContext } from '../MfaGuard';
+import { AppContext } from '../../../models';
+import { mockAppContext } from '../../../models/mocks';
 
 export default {
   title: 'Pages/Settings/SecondaryEmailAdd',
@@ -18,10 +20,12 @@ export default {
 
 export const Default = () => (
   <LocationProvider>
-    <SettingsLayout>
-      <MfaContext.Provider value="email">
-        <PageSecondaryEmailAdd />
-      </MfaContext.Provider>
-    </SettingsLayout>
+    <AppContext.Provider value={mockAppContext()}>
+      <SettingsLayout>
+        <MfaContext.Provider value="email">
+          <PageSecondaryEmailAdd />
+        </MfaContext.Provider>
+      </SettingsLayout>
+    </AppContext.Provider>
   </LocationProvider>
 );
