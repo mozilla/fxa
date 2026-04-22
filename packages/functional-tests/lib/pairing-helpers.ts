@@ -14,7 +14,9 @@
  */
 
 import crypto from 'crypto';
-import { expect, Page } from '@playwright/test';
+import { Browser, expect, Page } from '@playwright/test';
+import { ConfigPage } from '../pages/config';
+import { BaseTarget } from './targets/base';
 import { MarionetteClient } from './marionette';
 import {
   PAIRING_CLIENT_ID,
@@ -26,22 +28,39 @@ import {
 import { getTotpCode } from './totp';
 
 /**
- * Fetch the content server's fxa-config and check whether React pairing
- * routes are enabled (showReactApp.pairRoutes). When enabled, the Backbone
- * /pair/* routes are deregistered and only React (fxa-settings) serves them.
+ * Check whether React pairing routes are enabled (showReactApp.pairRoutes).
+ * When enabled, the Backbone /pair/* routes are deregistered and only React
+ * (fxa-settings) serves them.
+ *
+ * Reuses the shared ConfigPage helper, which opens a real Playwright page and
+ * reads the fxa-config meta tag. This matters for stage and production,
+ * which are behind Fastly's Next-Gen WAF: a plain fetch() receives the
+ * JavaScript "Client Challenge" interstitial instead of the real HTML. A
+ * browser page executes the challenge and then renders the real page with
+ * the meta tag.
+ *
+ * Callers should invoke this from `test.beforeAll` so it runs once per
+ * worker; pair-route rollout is stable for the lifetime of a test run.
  */
 export async function isPairRoutesReact(
-  contentServerUrl: string
+  browser: Browser,
+  target: BaseTarget
 ): Promise<boolean> {
+  // Mirror playwright.config.ts's `use.extraHTTPHeaders` so requests made from
+  // this helper also carry the WAF bypass token in CI. Without this, the WAF
+  // serves its JS interstitial and the fxa-config meta tag never renders.
+  const extraHTTPHeaders: Record<string, string> = {};
+  target.ciHeader?.forEach((value, key) => {
+    extraHTTPHeaders[key] = value;
+  });
+  const context = await browser.newContext({ extraHTTPHeaders });
+  const page = await context.newPage();
   try {
-    const resp = await fetch(contentServerUrl);
-    const html = await resp.text();
-    const match = html.match(/name="fxa-config" content="([^"]+)"/);
-    if (!match) return false;
-    const config = JSON.parse(decodeURIComponent(match[1]));
-    return config.showReactApp?.pairRoutes === true;
-  } catch {
-    return false;
+    const configPage = new ConfigPage(page, target);
+    const config = await configPage.getConfig();
+    return config?.showReactApp?.pairRoutes === true;
+  } finally {
+    await context.close();
   }
 }
 

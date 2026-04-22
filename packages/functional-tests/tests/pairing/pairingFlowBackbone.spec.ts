@@ -122,14 +122,13 @@ test.describe('severity-2 #smoke', () => {
   test.describe.serial('Backbone pairing flow', () => {
     // Mutually exclusive with pairingFlow.spec.ts — only one of these suites
     // runs at a time, gated by the server's showReactApp.pairRoutes config.
-    test.beforeEach(async ({ target }, testInfo) => {
-      const isReact = await isPairRoutesReact(target.contentServerUrl);
-      if (isReact) {
-        testInfo.skip(
-          true,
-          'Backbone pair specs require showReactApp.pairRoutes=false'
-        );
-      }
+    // Runs once per worker. Pair-route rollout is env-stable.
+    test.beforeAll(async ({ browser, target }) => {
+      const isReact = await isPairRoutesReact(browser, target);
+      test.skip(
+        isReact,
+        'Backbone pair specs require showReactApp.pairRoutes=false'
+      );
     });
 
     test('authority generates QR URL and supplicant connects via Backbone templates', async ({
