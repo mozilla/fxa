@@ -17,7 +17,7 @@ import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
 import ProductPromo, {
   getProductPromoData,
-  MonitorPromoData,
+  VpnPromoData,
 } from '../ProductPromo';
 import SideBar from '../Sidebar';
 import Head from 'fxa-react/components/Head';
@@ -59,9 +59,7 @@ export const PageSettings = ({
     GleanMetrics.accountPref.view();
   }, []);
 
-  const [monitorPromo, setMonitorPromo] = useState<MonitorPromoData | null>(
-    null
-  );
+  const [vpnPromo, setVpnPromo] = useState<VpnPromoData | null>(null);
   const [productPromoGleanEventSent, setProductPromoGleanEventSent] =
     useState(false);
 
@@ -98,32 +96,27 @@ export const PageSettings = ({
 
   useEffect(() => {
     (async () => {
-      if (monitorPromo !== null) {
+      if (vpnPromo !== null) {
         return;
       }
 
       const promoData = getProductPromoData(account.attachedClients);
 
-      setMonitorPromo(promoData);
+      setVpnPromo(promoData);
     })();
-  }, [account, monitorPromo]);
+  }, [account, vpnPromo]);
 
   // -- Relying party promotion checks --
   useEffect(() => {
-    if (!monitorPromo) return;
+    if (!vpnPromo) return;
     // We want this view event to fire whenever the account settings page view
     // event fires, if the user is shown the promo.
-    if (!monitorPromo.hidePromo && !productPromoGleanEventSent) {
-      GleanMetrics.accountPref.promoMonitorView(monitorPromo.gleanEvent);
+    if (!vpnPromo.hidePromo && !productPromoGleanEventSent) {
+      GleanMetrics.accountPref.promoVpnView();
       // Keep track of this because `attachedClients` can change on disconnect
       setProductPromoGleanEventSent(true);
     }
-  }, [
-    attachedClients,
-    monitorPromo,
-    subscriptions,
-    productPromoGleanEventSent,
-  ]);
+  }, [attachedClients, vpnPromo, subscriptions, productPromoGleanEventSent]);
 
   useEffect(() => {
     const targetEmail = (() => {
@@ -187,7 +180,7 @@ export const PageSettings = ({
             connectedServicesRef,
             linkedAccountsRef,
             dataCollectionRef,
-            monitorPromo,
+            vpnPromo,
           }}
         />
       </div>
@@ -211,8 +204,8 @@ export const PageSettings = ({
             </Link>
           </Localized>
         </div>
-        {monitorPromo && !monitorPromo.hidePromo && (
-          <ProductPromo type="settings" {...{ monitorPromo }} />
+        {vpnPromo && !vpnPromo.hidePromo && (
+          <ProductPromo type="settings" {...{ vpnPromo }} />
         )}
       </div>
     </div>

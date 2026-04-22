@@ -4,7 +4,7 @@
 
 import React from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { ReactComponent as MonitorTextLogo } from './monitor-text-logo.svg';
+import { ReactComponent as VpnTextLogo } from './vpn-text-logo.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
 import { MozServices } from '../../../lib/types';
@@ -17,72 +17,62 @@ type ProductPromoType = 'sidebar' | 'settings';
 
 export interface ProductPromoProps {
   type?: ProductPromoType;
-  monitorPromo: MonitorPromoData;
+  vpnPromo: VpnPromoData;
 }
 
-export type MonitorPromoData = {
+export type VpnPromoData = {
   hidePromo?: boolean;
-  gleanEvent?: { event: { reason: string } };
 };
 
 export function getProductPromoData(
   attachedClients: AccountData['attachedClients']
 ) {
-  const hasMonitor = attachedClients.some(
+  const hasVpn = attachedClients.some(
     ({ name }) =>
-      name === MozServices.Monitor || name === MozServices.MonitorStage
+      name === MozServices.MozillaVPN || name === MozServices.VPNStage
   );
 
-  // Existing Monitor users should not see the promo
-  if (hasMonitor) {
-    return { hidePromo: true } as const;
-  }
-
-  const gleanEvent = { event: { reason: 'default' } };
-
-  return { hidePromo: false, gleanEvent };
+  return { hidePromo: hasVpn };
 }
 
 export const ProductPromo = ({
   type = 'sidebar',
-  monitorPromo,
+  vpnPromo,
 }: ProductPromoProps) => {
   const { sentry } = useConfig();
 
-  if (monitorPromo.hidePromo) {
+  if (vpnPromo.hidePromo) {
     return null;
   }
 
-  const MONITOR_PROMO_URL = constructHrefWithUtm(
+  const VPN_PROMO_URL = constructHrefWithUtm(
     // using sentry.env because it differentiates between 'dev', 'stage' and 'prod'
     // (vs 'env' which marks all hosted environments as 'production')
-    sentry.env !== 'stage' ? LINK.MONITOR : LINK.MONITOR_STAGE,
-    'referral',
+    sentry.env !== 'stage' ? LINK.VPN : LINK.VPN_STAGE,
+    'mozilla-websites',
     'moz-account',
-    type === 'sidebar' ? 'sidebar' : 'settings',
-    'get-free-scan-global',
+    'settings',
+    'vpn',
     'settings-promo'
   );
 
   const promoContent = (
     <>
       <p className="my-2">
-        <FtlMsg id="product-promo-monitor-description-v2">
-          Find where your private info is exposed and take control
+        <FtlMsg id="product-promo-vpn-description">
+          Discover an added layer of anonymous browsing and protection.
         </FtlMsg>
       </p>
       <LinkExternal
-        href={MONITOR_PROMO_URL}
+        href={VPN_PROMO_URL}
         className="link-blue"
         gleanDataAttrs={{
-          id: 'account_pref_promo_monitor_submit',
+          id: 'account_pref_promo_vpn_submit',
           type: 'default',
         }}
-        onClick={() =>
-          GleanMetrics.accountPref.promoMonitorSubmit(monitorPromo.gleanEvent)
-        }
+        onClick={() => GleanMetrics.accountPref.promoVpnSubmit()}
       >
-        <FtlMsg id="product-promo-monitor-cta">Get free scan</FtlMsg>
+        <FtlMsg id="product-promo-vpn-cta">Get VPN</FtlMsg>
       </LinkExternal>
     </>
   );
@@ -103,10 +93,10 @@ export const ProductPromo = ({
         )}
       >
         <h2>
-          <FtlMsg id="product-promo-monitor">
-            <MonitorTextLogo
+          <FtlMsg id="product-promo-vpn">
+            <VpnTextLogo
               role="img"
-              aria-label="Mozilla Monitor"
+              aria-label="Mozilla VPN"
               className="w-52 desktop:w-40 h-auto text-black dark:text-white"
             />
           </FtlMsg>

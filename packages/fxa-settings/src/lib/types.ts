@@ -63,6 +63,7 @@ export enum MozServices {
   Relay = 'Mozilla Relay',
   TestService = '123Done',
   MonitorStage = 'Mozilla Monitor Stage',
+  VPNStage = 'Firefox Private Network - Stage',
   Addons = 'Add-ons',
 }
 
