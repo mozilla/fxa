@@ -36,14 +36,13 @@ test.setTimeout(120_000);
 
 test.describe('severity-2 #smoke', () => {
   test.describe.serial('Firefox pairing flow — negative paths', () => {
-    test.beforeEach(async ({ target }, testInfo) => {
-      const isReact = await isPairRoutesReact(target.contentServerUrl);
-      if (!isReact) {
-        testInfo.skip(
-          true,
-          'React pair specs require showReactApp.pairRoutes=true'
-        );
-      }
+    // Runs once per worker. Pair-route rollout is env-stable.
+    test.beforeAll(async ({ browser, target }) => {
+      const isReact = await isPairRoutesReact(browser, target);
+      test.skip(
+        !isReact,
+        'React pair specs require showReactApp.pairRoutes=true'
+      );
     });
 
     test('supplicant cancels on /pair/supp/allow and lands on /pair/failure', async ({

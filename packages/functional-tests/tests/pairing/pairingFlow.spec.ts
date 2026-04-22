@@ -89,16 +89,13 @@ test.describe('severity-2 #smoke', () => {
     // because content-server reads showReactApp.pairRoutes at startup (see
     // add-routes.js) and pair routes have fullProdRollout: true, so a single
     // server instance only serves one stack.
-    test.beforeEach(async ({ target }, testInfo) => {
-      // Marionette launches a local Firefox binary configured to talk to
-      // the target environment via about:config prefs.
-      const isReact = await isPairRoutesReact(target.contentServerUrl);
-      if (!isReact) {
-        testInfo.skip(
-          true,
-          'React pair specs require showReactApp.pairRoutes=true'
-        );
-      }
+    // Runs once per worker. Pair-route rollout is env-stable.
+    test.beforeAll(async ({ browser, target }) => {
+      const isReact = await isPairRoutesReact(browser, target);
+      test.skip(
+        !isReact,
+        'React pair specs require showReactApp.pairRoutes=true'
+      );
     });
 
     test('authority generates QR URL and supplicant connects via channel', async ({
