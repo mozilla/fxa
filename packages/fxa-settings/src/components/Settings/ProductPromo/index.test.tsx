@@ -15,8 +15,8 @@ jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
     accountPref: {
-      promoMonitorView: jest.fn(),
-      promoMonitorSubmit: jest.fn(),
+      promoVpnView: jest.fn(),
+      promoVpnSubmit: jest.fn(),
     },
   },
 }));
@@ -28,32 +28,30 @@ describe('ProductPromo', () => {
 
   it('can hide the promo', async () => {
     renderWithLocalizationProvider(
-      <ProductPromo type="settings" monitorPromo={{ hidePromo: true }} />
+      <ProductPromo type="settings" vpnPromo={{ hidePromo: true }} />
     );
 
     // nothing should render
     await waitFor(() =>
-      expect(screen.queryByAltText('Mozilla Monitor')).toBeNull()
+      expect(screen.queryByAltText('Mozilla VPN')).toBeNull()
     );
   });
 
   it('can show promo', async () => {
     renderWithLocalizationProvider(
-      <ProductPromo type="settings" monitorPromo={{ hidePromo: false }} />
+      <ProductPromo type="settings" vpnPromo={{ hidePromo: false }} />
     );
 
     await waitFor(() =>
       expect(
         screen.getByText(
-          'Find where your private info is exposed and take control'
+          'Discover an added layer of anonymous browsing and protection.'
         )
       ).toBeVisible()
     );
-    expect(
-      screen.getByRole('link', { name: /Get free scan/i })
-    ).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Get VPN/i })).toHaveAttribute(
       'href',
-      'https://monitor.mozilla.org/?utm_source=moz-account&utm_medium=referral&utm_term=settings&utm_content=get-free-scan-global&utm_campaign=settings-promo'
+      'https://vpn.mozilla.org/?utm_source=moz-account&utm_medium=mozilla-websites&utm_term=settings&utm_content=vpn&utm_campaign=settings-promo'
     );
   });
 
@@ -62,9 +60,8 @@ describe('ProductPromo', () => {
     renderWithLocalizationProvider(
       <ProductPromo
         type="settings"
-        monitorPromo={{
+        vpnPromo={{
           hidePromo: false,
-          gleanEvent: { event: { reason: 'default' } },
         }}
       />
     );
@@ -72,49 +69,45 @@ describe('ProductPromo', () => {
     await waitFor(() =>
       expect(
         screen.getByText(
-          'Find where your private info is exposed and take control'
+          'Discover an added layer of anonymous browsing and protection.'
         )
       ).toBeVisible()
     );
     await user.click(
       screen.getByRole('link', {
-        name: /Get free scan/i,
+        name: /Get VPN/i,
       })
     );
     await waitFor(() => {
-      expect(GleanMetrics.accountPref.promoMonitorSubmit).toHaveBeenCalledWith({
-        event: { reason: 'default' },
-      });
+      expect(GleanMetrics.accountPref.promoVpnSubmit).toHaveBeenCalledWith();
     });
   });
 
   describe('getProductPromoData', () => {
-    it('hides promo when Monitor is present', () => {
+    it('hides promo when VPN is present', () => {
       const result = getProductPromoData([
-        { name: MozServices.Monitor },
+        { name: MozServices.MozillaVPN },
       ] as AttachedClient[]);
       expect(result).toEqual({ hidePromo: true });
     });
 
-    it('hides promo when Monitor Stage is present', () => {
+    it('hides promo when VPN Stage is present', () => {
       const result = getProductPromoData([
-        { name: MozServices.MonitorStage },
+        { name: MozServices.VPNStage },
       ] as AttachedClient[]);
       expect(result).toEqual({ hidePromo: true });
     });
 
-    it('shows promo and provides gleanEvent when Monitor not present', () => {
+    it('shows promo when VPN not present', () => {
       const result = getProductPromoData([
         { name: MozServices.Default },
       ] as AttachedClient[]);
       expect(result.hidePromo).toBe(false);
-      expect(result.gleanEvent).toEqual({ event: { reason: 'default' } });
     });
 
-    it('shows promo with gleanEvent when there are no attached clients', () => {
+    it('shows promo when there are no attached clients', () => {
       const result = getProductPromoData([] as AttachedClient[]);
       expect(result.hidePromo).toBe(false);
-      expect(result.gleanEvent).toEqual({ event: { reason: 'default' } });
     });
   });
 });

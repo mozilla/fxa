@@ -920,6 +920,30 @@ describe('lib/glean', () => {
         sinon.assert.called(spy);
       });
 
+      it('submits a ping with the account_pref_promo_vpn_view event name', async () => {
+        GleanMetrics.accountPref.promoVpnView();
+        const spy = sandbox.spy(accountPref.promoVpnView, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_promo_vpn_view'
+        );
+        sinon.assert.called(spy);
+      });
+
+      it('submits a ping with the account_pref_promo_vpn_submit event name', async () => {
+        GleanMetrics.accountPref.promoVpnSubmit();
+        const spy = sandbox.spy(accountPref.promoVpnSubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_promo_vpn_submit'
+        );
+        sinon.assert.called(spy);
+      });
+
       it('submits a ping with the account_pref_bento_view event name', async () => {
         GleanMetrics.accountPref.bentoView();
         const spy = sandbox.spy(accountPref.bentoView, 'record');

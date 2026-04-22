@@ -142,12 +142,12 @@ export function resetOnce() {
 /**
  * Constructs a URL with UTM parameters appended to the query string.
  *
- * @param {string} pathname - The base URL path.
- * @param {'mozilla-websites' | 'product-partnership' | 'referral'} utmMedium - The medium through which the link is being shared.
- * @param {'moz-account'} utmSource - The source of the traffic.
- * @param {'bento' | 'sidebar' | 'settings' } utmTerm - The search term or keyword associated with the campaign.
- * @param {'fx-desktop' | 'fx-mobile' | 'monitor' | 'monitor-free' | 'relay' | 'vpn' | 'get-free-scan-global' | 'get-year-round-protection-us' } utmContent - The specific content or product that the link is associated with.
- * @param {'permanent' | 'settings-promo' | 'connect-device'} utmCampaign - The name of the marketing campaign.
+ * @param pathname - The base URL path.
+ * @param utmMedium - The medium through which the link is being shared.
+ * @param utmSource - The source of the traffic.
+ * @param utmTerm - The search term or keyword associated with the campaign.
+ * @param utmContent - The specific content or product that the link is associated with.
+ * @param utmCampaign - The name of the marketing campaign.
  * @returns {string} - The constructed URL with UTM parameters.
  */
 export const constructHrefWithUtm = (

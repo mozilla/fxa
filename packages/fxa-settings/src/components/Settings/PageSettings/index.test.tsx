@@ -38,7 +38,7 @@ jest.mock('../../../lib/glean', () => ({
   default: {
     accountPref: {
       view: jest.fn(),
-      promoMonitorView: jest.fn(),
+      promoVpnView: jest.fn(),
     },
     deleteAccount: {
       settingsSubmit: jest.fn(),
@@ -53,7 +53,6 @@ jest.mock('../../../lib/glean', () => ({
 
 const mockGetProductPromoData = jest.fn().mockReturnValue({
   hidePromo: false,
-  gleanEvent: { event: { reason: 'default' } },
 });
 jest.mock('../ProductPromo', () => ({
   __esModule: true,
@@ -155,10 +154,9 @@ describe('PageSettings', () => {
     });
 
     describe('product promo event', () => {
-      it('user does not have Monitor, promo is shown and glean metric is called', async () => {
+      it('user does not have VPN, promo is shown and glean metric is called', async () => {
         mockGetProductPromoData.mockReturnValue({
           hidePromo: false,
-          gleanEvent: { event: { reason: 'default' } },
         });
         renderWithRouter(
           <AppContext.Provider
@@ -168,16 +166,11 @@ describe('PageSettings', () => {
           </AppContext.Provider>
         );
         await waitFor(() =>
-          expect(
-            GleanMetrics.accountPref.promoMonitorView
-          ).toHaveBeenCalledTimes(1)
+          expect(GleanMetrics.accountPref.promoVpnView).toHaveBeenCalledTimes(1)
         );
-        expect(GleanMetrics.accountPref.promoMonitorView).toHaveBeenCalledWith({
-          event: { reason: 'default' },
-        });
       });
 
-      it('user has Monitor, promo is not shown and glean metric is not called', async () => {
+      it('user has VPN, promo is not shown and glean metric is not called', async () => {
         mockGetProductPromoData.mockReturnValue({
           hidePromo: true,
         });
@@ -189,9 +182,7 @@ describe('PageSettings', () => {
           </AppContext.Provider>
         );
         await waitFor(() =>
-          expect(
-            GleanMetrics.accountPref.promoMonitorView
-          ).not.toHaveBeenCalled()
+          expect(GleanMetrics.accountPref.promoVpnView).not.toHaveBeenCalled()
         );
       });
     });

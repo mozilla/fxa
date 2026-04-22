@@ -235,6 +235,8 @@ export const eventsMap = {
     help: 'account_pref_help',
     promoMonitorView: 'account_pref_promo_monitor_view',
     promoMonitorSubmit: 'account_pref_promo_monitor_submit',
+    promoVpnView: 'account_pref_promo_vpn_view',
+    promoVpnSubmit: 'account_pref_promo_vpn_submit',
     bentoView: 'account_pref_bento_view',
     bentoFirefoxDesktop: 'account_pref_bento_firefox_desktop',
     bentoFirefoxMobile: 'account_pref_bento_firefox_mobile',

@@ -50,6 +50,7 @@ export const LINK = {
   MONITOR_STAGE: 'https://monitor-stage.allizom.org/',
   RELAY: 'https://relay.firefox.com/',
   VPN: 'https://vpn.mozilla.org/',
+  VPN_STAGE: 'https://www-dev.allizom.org/products/vpn/',
 };
 
 // DISPLAY_SAFE_UNICODE regex matches validation used for auth_server

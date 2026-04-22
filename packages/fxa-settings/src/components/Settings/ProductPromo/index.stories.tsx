@@ -28,14 +28,14 @@ function storyWithProps(props: ProductPromoProps, storyName?: string) {
 export const MobilePromo = storyWithProps(
   {
     type: 'settings',
-    monitorPromo: { hidePromo: false },
+    vpnPromo: { hidePromo: false },
   },
-  'Monitor promo - Banner - mobile only'
+  'VPN promo - Banner - mobile only'
 );
 export const DesktopPromo = storyWithProps(
   {
     type: 'sidebar',
-    monitorPromo: { hidePromo: false },
+    vpnPromo: { hidePromo: false },
   },
-  'Monitor promo - Sidebar - desktop'
+  'VPN promo - Sidebar - desktop'
 );

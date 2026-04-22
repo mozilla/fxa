@@ -357,6 +357,38 @@ export const promoMonitorView = new EventMetricType<{
 );
 
 /**
+ * User clicks on the Get VPN link on the VPN promotion in the account settings.
+ *
+ * Generated from `account_pref.promo_vpn_submit`.
+ */
+export const promoVpnSubmit = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'promo_vpn_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User sees the VPN promo on their settings page.
+ *
+ * Generated from `account_pref.promo_vpn_view`.
+ */
+export const promoVpnView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'promo_vpn_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Click on "Create" or "Change" button on account settings page to add a recovery
  * key to the account
  *

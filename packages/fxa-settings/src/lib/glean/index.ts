@@ -654,6 +654,12 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'account_pref_promo_vpn_view':
+      accountPref.promoVpnView.record();
+      break;
+    case 'account_pref_promo_vpn_submit':
+      accountPref.promoVpnSubmit.record();
+      break;
     case 'account_pref_mfa_guard_view':
       accountPref.mfaGuardView.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
