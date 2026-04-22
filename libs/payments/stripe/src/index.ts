@@ -12,7 +12,11 @@ export {
   StripeResponseFactory,
 } from './lib/factories/api-list.factory';
 export { StripeCardFactory } from './lib/factories/card.factory';
-export { StripeConfirmationTokenFactory } from './lib/factories/confirmation-token.factory';
+export {
+  StripeConfirmationTokenFactory,
+  StripeConfirmationTokenPaymentMethodPreviewCardFactory,
+  StripeConfirmationTokenPaymentMethodPreviewFactory,
+} from './lib/factories/confirmation-token.factory';
 export { StripeCouponFactory } from './lib/factories/coupon.factory';
 export { StripeDeletedCustomerFactory } from './lib/factories/deleted-customer.factory';
 export {

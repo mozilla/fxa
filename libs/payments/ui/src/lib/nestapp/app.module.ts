@@ -30,6 +30,7 @@ import {
   ContentServerManager,
 } from '@fxa/payments/content-server';
 import {
+  ConfirmationTokenManager,
   CustomerManager,
   InvoiceManager,
   PaymentMethodManager,
@@ -114,6 +115,7 @@ import { NimbusManager } from '@fxa/payments/experiments';
     CheckoutTokenManager,
     ChurnInterventionManager,
     ChurnInterventionService,
+    ConfirmationTokenManager,
     FreeTrialManager,
     ContentServerManager,
     ContentServerClient,

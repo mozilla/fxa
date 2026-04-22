@@ -17,6 +17,7 @@ import {
   IntentGetInTouchError,
   IntentTryAgainError,
   IntentInsufficientFundsError,
+  NewAccountPrepaidCardFreeTrialNotAllowedError,
 } from '../checkout.error';
 import { BaseError } from '@fxa/shared/error';
 import {
@@ -60,6 +61,8 @@ export function resolveErrorInstance(error: Error) {
       return CartErrorReasonId.GENERAL_PAYPAL_ERROR;
 
     // Checkout Errors
+    case error instanceof NewAccountPrepaidCardFreeTrialNotAllowedError:
+      return CartErrorReasonId.NEW_ACCOUNT_PREPAID_CARD_FREE_TRIAL_NOT_ALLOWED;
     case error instanceof CheckoutError:
       return CartErrorReasonId.BASIC_ERROR;
 

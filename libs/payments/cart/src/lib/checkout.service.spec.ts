@@ -12,6 +12,7 @@ import {
   CartManager,
   CartService,
   InvalidInvoiceStateCheckoutError,
+  NewAccountPrepaidCardFreeTrialNotAllowedError,
   ResultCartFactory,
   SubscriptionAttributionFactory,
   UnexpectedSubscriptionStatusForTrialError,
@@ -33,6 +34,7 @@ import {
   ResultPaypalCustomerFactory,
 } from '@fxa/payments/paypal';
 import {
+  ConfirmationTokenManager,
   CustomerManager,
   CustomerSessionManager,
   InvoiceManager,
@@ -67,6 +69,8 @@ import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
   StripeConfirmationTokenFactory,
+  StripeConfirmationTokenPaymentMethodPreviewCardFactory,
+  StripeConfirmationTokenPaymentMethodPreviewFactory,
   StripeSetupIntentFactory,
 } from '@fxa/payments/stripe';
 import {
@@ -152,6 +156,7 @@ describe('CheckoutService', () => {
   let asyncLocalStorage: AsyncLocalStorage<CartStore>;
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
+  let confirmationTokenManager: ConfirmationTokenManager;
   let customerManager: CustomerManager;
   let eligibilityService: EligibilityService;
   let invoiceManager: InvoiceManager;
@@ -185,6 +190,7 @@ describe('CheckoutService', () => {
         CartManager,
         CartService,
         CheckoutService,
+        ConfirmationTokenManager,
         CustomerManager,
         CustomerSessionManager,
         CurrencyManager,
@@ -251,6 +257,7 @@ describe('CheckoutService', () => {
     asyncLocalStorage = moduleRef.get(AsyncLocalStorageCart);
     cartManager = moduleRef.get(CartManager);
     checkoutService = moduleRef.get(CheckoutService);
+    confirmationTokenManager = moduleRef.get(ConfirmationTokenManager);
     customerManager = moduleRef.get(CustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
     invoiceManager = moduleRef.get(InvoiceManager);
@@ -1401,6 +1408,257 @@ describe('CheckoutService', () => {
         it('does not record free trial in Firestore', () => {
           expect(freeTrialManager.recordFreeTrial).not.toHaveBeenCalled();
         });
+      });
+
+      it('throws NewAccountPrepaidCardFreeTrialNotAllowedError when new account uses a prepaid card for a free trial', async () => {
+        const mockNewAccountPrePayStepsResult = PrePayStepsResultFactory({
+          uid: mockCart.uid,
+          accountCreatedAt: Date.now() - 60 * 60 * 1000,
+          customer: mockCustomer,
+          promotionCode: mockPromotionCode,
+          price: mockPrice,
+          eligibility: mockEligibilityResult,
+          freeTrial: mockFreeTrial,
+        });
+        const mockPrepaidConfirmationToken = StripeResponseFactory(
+          StripeConfirmationTokenFactory({
+            payment_method_preview:
+              StripeConfirmationTokenPaymentMethodPreviewFactory({
+                card: StripeConfirmationTokenPaymentMethodPreviewCardFactory({
+                  funding: 'prepaid',
+                }),
+              }),
+          })
+        );
+
+        jest
+          .spyOn(checkoutService, 'prePaySteps')
+          .mockResolvedValue(mockNewAccountPrePayStepsResult);
+        jest
+          .spyOn(priceManager, 'retrievePricingForCurrency')
+          .mockResolvedValue(mockPricingForCurrency);
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue(mockFreeTrial);
+        jest
+          .spyOn(confirmationTokenManager, 'retrieve')
+          .mockResolvedValue(mockPrepaidConfirmationToken);
+        jest.spyOn(subscriptionManager, 'create');
+        jest.spyOn(statsd, 'increment');
+
+        await expect(
+          checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockAttributionData,
+            mockRequestArgs,
+            mockCart.uid
+          )
+        ).rejects.toBeInstanceOf(NewAccountPrepaidCardFreeTrialNotAllowedError);
+
+        expect(subscriptionManager.create).not.toHaveBeenCalled();
+      });
+
+      it('does not block prepaid card for free trial when account is older than 24 hours', async () => {
+        const mockOldAccountPrePayStepsResult = PrePayStepsResultFactory({
+          uid: mockCart.uid,
+          accountCreatedAt: Date.now() - 25 * 60 * 60 * 1000,
+          customer: mockCustomer,
+          promotionCode: mockPromotionCode,
+          price: mockPrice,
+          eligibility: mockEligibilityResult,
+          freeTrial: mockFreeTrial,
+        });
+        const mockTrialSubscription = StripeResponseFactory(
+          StripeSubscriptionFactory({ status: 'trialing' })
+        );
+        const mockTrialInvoice = StripeResponseFactory(
+          StripeInvoiceFactory({
+            payment_intent: null,
+            amount_due: 0,
+          })
+        );
+        const mockSetupIntent = StripeResponseFactory(
+          StripeSetupIntentFactory({
+            status: 'succeeded',
+            payment_method: mockPaymentMethod.id,
+          })
+        );
+
+        jest
+          .spyOn(checkoutService, 'prePaySteps')
+          .mockResolvedValue(mockOldAccountPrePayStepsResult);
+        jest
+          .spyOn(priceManager, 'retrievePricingForCurrency')
+          .mockResolvedValue(mockPricingForCurrency);
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue(mockFreeTrial);
+        jest
+          .spyOn(subscriptionManager, 'create')
+          .mockResolvedValue(mockTrialSubscription);
+        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest
+          .spyOn(invoiceManager, 'retrieve')
+          .mockResolvedValue(mockTrialInvoice);
+        jest
+          .spyOn(setupIntentManager, 'createAndConfirm')
+          .mockResolvedValue(mockSetupIntent);
+        jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+        jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
+        jest
+          .spyOn(paymentMethodManager, 'retrieve')
+          .mockResolvedValue(mockPaymentMethod);
+        jest.spyOn(freeTrialManager, 'recordFreeTrial').mockResolvedValue();
+        jest.spyOn(statsd, 'increment');
+
+        await checkoutService.payWithStripe(
+          mockCart,
+          mockConfirmationToken.id,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid
+        );
+
+        expect(subscriptionManager.create).toHaveBeenCalled();
+      });
+
+      it('does not block new account with a non-prepaid card for a free trial', async () => {
+        const mockNewAccountPrePayStepsResult = PrePayStepsResultFactory({
+          uid: mockCart.uid,
+          accountCreatedAt: Date.now() - 60 * 60 * 1000,
+          customer: mockCustomer,
+          promotionCode: mockPromotionCode,
+          price: mockPrice,
+          eligibility: mockEligibilityResult,
+          freeTrial: mockFreeTrial,
+        });
+        const mockCreditConfirmationToken = StripeResponseFactory(
+          StripeConfirmationTokenFactory({
+            payment_method_preview:
+              StripeConfirmationTokenPaymentMethodPreviewFactory({
+                card: StripeConfirmationTokenPaymentMethodPreviewCardFactory({
+                  funding: 'credit',
+                }),
+              }),
+          })
+        );
+        const mockTrialSubscription = StripeResponseFactory(
+          StripeSubscriptionFactory({ status: 'trialing' })
+        );
+        const mockTrialInvoice = StripeResponseFactory(
+          StripeInvoiceFactory({
+            payment_intent: null,
+            amount_due: 0,
+          })
+        );
+        const mockSetupIntent = StripeResponseFactory(
+          StripeSetupIntentFactory({
+            status: 'succeeded',
+            payment_method: mockPaymentMethod.id,
+          })
+        );
+
+        jest
+          .spyOn(checkoutService, 'prePaySteps')
+          .mockResolvedValue(mockNewAccountPrePayStepsResult);
+        jest
+          .spyOn(priceManager, 'retrievePricingForCurrency')
+          .mockResolvedValue(mockPricingForCurrency);
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue(mockFreeTrial);
+        jest
+          .spyOn(confirmationTokenManager, 'retrieve')
+          .mockResolvedValue(mockCreditConfirmationToken);
+        jest
+          .spyOn(subscriptionManager, 'create')
+          .mockResolvedValue(mockTrialSubscription);
+        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest
+          .spyOn(invoiceManager, 'retrieve')
+          .mockResolvedValue(mockTrialInvoice);
+        jest
+          .spyOn(setupIntentManager, 'createAndConfirm')
+          .mockResolvedValue(mockSetupIntent);
+        jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+        jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
+        jest
+          .spyOn(paymentMethodManager, 'retrieve')
+          .mockResolvedValue(mockPaymentMethod);
+        jest.spyOn(freeTrialManager, 'recordFreeTrial').mockResolvedValue();
+        jest.spyOn(statsd, 'increment');
+
+        await checkoutService.payWithStripe(
+          mockCart,
+          mockConfirmationToken.id,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid
+        );
+
+        expect(subscriptionManager.create).toHaveBeenCalled();
+      });
+
+      it('does not retrieve the confirmation token when new account with prepaid card is not on a free trial', async () => {
+        const mockNewAccountPrePayStepsResult = PrePayStepsResultFactory({
+          uid: mockCart.uid,
+          accountCreatedAt: Date.now() - 60 * 60 * 1000,
+          customer: mockCustomer,
+          promotionCode: mockPromotionCode,
+          price: mockPrice,
+          eligibility: mockEligibilityResult,
+        });
+        const mockSubscription = StripeResponseFactory(
+          StripeSubscriptionFactory()
+        );
+        const mockPaymentIntent = StripeResponseFactory(
+          StripePaymentIntentFactory({
+            status: 'succeeded',
+            payment_method: mockPaymentMethod.id,
+          })
+        );
+        const mockInvoice = StripeResponseFactory(
+          StripeInvoiceFactory({
+            payment_intent: mockPaymentIntent.id,
+          })
+        );
+
+        jest
+          .spyOn(checkoutService, 'prePaySteps')
+          .mockResolvedValue(mockNewAccountPrePayStepsResult);
+        jest
+          .spyOn(priceManager, 'retrievePricingForCurrency')
+          .mockResolvedValue(mockPricingForCurrency);
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue(null);
+        jest.spyOn(confirmationTokenManager, 'retrieve');
+        jest
+          .spyOn(subscriptionManager, 'create')
+          .mockResolvedValue(mockSubscription);
+        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+        jest
+          .spyOn(paymentIntentManager, 'confirm')
+          .mockResolvedValue(mockPaymentIntent);
+        jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+        jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
+        jest
+          .spyOn(paymentMethodManager, 'retrieve')
+          .mockResolvedValue(mockPaymentMethod);
+        jest.spyOn(statsd, 'increment');
+
+        await checkoutService.payWithStripe(
+          mockCart,
+          mockConfirmationToken.id,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid
+        );
+
+        expect(confirmationTokenManager.retrieve).not.toHaveBeenCalled();
+        expect(subscriptionManager.create).toHaveBeenCalled();
       });
 
       it('throws UnexpectedSubscriptionStatusForTrialError when trial subscription is not trialing', async () => {

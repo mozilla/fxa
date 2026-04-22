@@ -261,6 +261,19 @@ export class IntentInsufficientFundsError extends IntentFailedHandledError {
   }
 }
 
+export class NewAccountPrepaidCardFreeTrialNotAllowedError extends CheckoutError {
+  constructor(cartId: string, uid: string) {
+    super(
+      'New accounts cannot start a free trial with a prepaid card',
+      {
+        cartId,
+        uid,
+      }
+    );
+    this.name = 'NewAccountPrepaidCardFreeTrialNotAllowedError';
+  }
+}
+
 export class UnexpectedSubscriptionStatusForTrialError extends CheckoutError {
   constructor(cartId: string, subscriptionId: string, actualStatus: string) {
     super(
