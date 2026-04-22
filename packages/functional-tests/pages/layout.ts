@@ -95,6 +95,12 @@ export abstract class BaseLayout {
     });
   }
 
+  async clearWebChannelEvents() {
+    await this.page.evaluate(() => {
+      sessionStorage.removeItem('webChannelEvents');
+    });
+  }
+
   /**
    * Asserts that a web channel message with the given command was sent
    * and contains the expected services object in its data.
@@ -113,6 +119,28 @@ export abstract class BaseLayout {
     if (JSON.stringify(services) !== JSON.stringify(expectedServices)) {
       throw new Error(
         `Expected services ${JSON.stringify(expectedServices)} but got ${JSON.stringify(services)}`
+      );
+    }
+  }
+
+  /**
+   * Asserts that a web channel message with the given command was sent
+   * and contains the expected scope string in its data.
+   */
+  async checkWebChannelMessageScopes(
+    command: FirefoxCommand,
+    expectedScope: string
+  ) {
+    await this.checkWebChannelMessage(command);
+    const events = await this.getWebChannelEvents();
+    const event = events.find((e) => e.command === command);
+    if (!event) {
+      throw new Error(`No web channel event found for command: ${command}`);
+    }
+    const scopes = (event.data as { scopes?: string })?.scopes;
+    if (!scopes?.includes(expectedScope)) {
+      throw new Error(
+        `Expected scopes to contain "${expectedScope}" but got "${scopes}"`
       );
     }
   }

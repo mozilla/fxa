@@ -68,7 +68,6 @@ export function createMockIndexOAuthNativeIntegration({
     isSync: () => isSync,
     getClientId: () => MOCK_CLIENT_ID,
     getService: () => MOCK_CLIENT_ID,
-    wantsKeys: () => false,
     isFirefoxClientServiceRelay: () => isFirefoxClientServiceRelay,
     isFirefoxClientServiceSmartWindow: () => isFirefoxClientServiceSmartWindow,
     isFirefoxClientServiceVpn: () => isFirefoxClientServiceVpn,
@@ -92,7 +91,6 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isSync: () => false,
     getClientId: () => undefined,
     getService: () => undefined,
-    wantsKeys: () => false,
     isFirefoxClientServiceRelay: () => false,
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
@@ -139,7 +137,7 @@ export const Subject = ({
   return (
     <LocationProvider>
       <Index
-        processEmailSubmission={async () => { }}
+        processEmailSubmission={async () => {}}
         {...{
           prefillEmail,
           integration,

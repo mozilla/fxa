@@ -305,7 +305,7 @@ export function useFinishOAuthFlowHandler(
  * to /signin instead of showing an error component? FXA-10889
  */
 export function useOAuthKeysCheck(
-  integration: Pick<OAuthIntegration, 'type' | 'wantsKeys'>,
+  integration: Pick<OAuthIntegration, 'type' | 'requiresKeys'>,
   keyFetchToken?: hexstring,
   unwrapBKey?: hexstring,
   isSignInWithThirdPartyAuth?: boolean
@@ -313,7 +313,7 @@ export function useOAuthKeysCheck(
   if (
     (isOAuthIntegration(integration) ||
       isSyncDesktopV3Integration(integration)) &&
-    integration.wantsKeys() &&
+    integration.requiresKeys() &&
     // If the user has 2FA enabled but chose to login to the browser via third party
     // auth, keys are not fetched because the user didn't enter a password.
     // For this case, skip the keys check, the browser expects them to be undefined.

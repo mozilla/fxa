@@ -106,6 +106,10 @@ export class GenericIntegration<
     return undefined;
   }
 
+  isFirefoxClient() {
+    return this.isFirefoxDesktopClient() || this.isFirefoxMobileClient();
+  }
+
   isFirefoxMobileClient() {
     return false;
   }
@@ -151,11 +155,8 @@ export class GenericIntegration<
   }
 
   /**
-   * Currently only Sync _requires_ keys (entering a password). Other
-   * services may see cached signin or choose to sign in with third party auth.
-   * However, for non-Sync browser service signins, if the password is entered,
-   * we go ahead and get Sync keys so users can turn Sync on in the browser
-   * without being bounced back to FxA.
+   * Whether this integration strictly requires keys, forcing password entry.
+   * Currently only Sync requires keys.
    *
    * Note, the Relay browser service login launched in Firefox desktop 135, and
    * the "keys optional" capability launched in Fx desktop 147, meaning all Relay
@@ -163,9 +164,41 @@ export class GenericIntegration<
    *
    * Desktop OAuth launched with Fx 134. SyncDesktopV3 users don't have non-Sync
    * browser support.
-   * */
-  wantsKeys(): boolean {
+   */
+  requiresKeys(): boolean {
     return false;
+  }
+
+  /**
+   * Whether this integration wants keys opportunistically — if the user
+   * enters a password for another reason, we should also fetch keys.
+   * This applies to non-Sync browser services (Relay, VPN, SmartWindow) that
+   * request the Sync scope so users can turn Sync on in the browser without
+   * being bounced back to FxA.
+   */
+  wantsKeysIfPasswordEntered(): boolean {
+    return false;
+  }
+
+  /**
+   * Whether this integration requests scoped keys. When true, `keys: true`
+   * is sent to the auth server, which may trigger email verification.
+   * Use `requiresKeys()` when you need to know if keys are mandatory
+   * (e.g., forcing password entry), and `wantsKeys()` when you need to
+   * know if scoped keys are being requested, either because they're
+   * required or because the user entered a password and keys can be
+   * derived opportunistically.
+   */
+  wantsKeys(): boolean {
+    return this.requiresKeys() || this.wantsKeysIfPasswordEntered();
+  }
+
+  /**
+   * Returns the scopes that were granted for this integration.
+   * Overridden in OAuthNativeIntegration; returns undefined for all other types.
+   */
+  getGrantedScopes(): string | undefined {
+    return undefined;
   }
 
   wantsLogin(): boolean {
