@@ -18,6 +18,7 @@ import { AccountController } from './account/account.controller';
 import { EmailBounceController } from './email-bounce/email-bounce.controller';
 import { RelyingPartyController } from './relying-party/relying-party.controller';
 import { RateLimitingController } from './rate-limiting/rate-limiting.controller';
+import { EmailBlocklistController } from './email-blocklist/email-blocklist.controller';
 import {
   RateLimitProvider,
   RateLimitRedisProvider,
@@ -39,6 +40,7 @@ import { CartModule } from './cart.module';
     EmailBounceController,
     RateLimitingController,
     RelyingPartyController,
+    EmailBlocklistController,
   ],
   providers: [
     RateLimitProvider,

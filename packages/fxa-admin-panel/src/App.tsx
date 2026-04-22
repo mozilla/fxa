@@ -15,6 +15,7 @@ import PageRelyingParties from './components/PageRelyingParties';
 import PageAccountDelete from './components/PageAccountDelete';
 import PageRateLimiting from './components/PageRateLimiting';
 import PageAccountReset from './components/PageAccountReset';
+import PageEmailBlocklist from './components/PageEmailBlocklist';
 
 const App = ({ config }: { config: IClientConfig }) => {
   const [guard, setGuard] = useState<AdminPanelGuard>(config.guard);
@@ -45,6 +46,12 @@ const App = ({ config }: { config: IClientConfig }) => {
               )}
               {guard.allow(AdminPanelFeature.AccountReset, user.group) && (
                 <Route path="/account-reset" element={<PageAccountReset />} />
+              )}
+              {guard.allow(AdminPanelFeature.EmailBlocklist, user.group) && (
+                <Route
+                  path="/email-blocklist"
+                  element={<PageEmailBlocklist />}
+                />
               )}
               <Route path="/permissions" element={<PagePermissions />} />
             </Routes>
