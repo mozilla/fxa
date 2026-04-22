@@ -8,8 +8,8 @@ import { LocationProvider } from '@reach/router';
 import UnitRowPasskey from './index';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Passkey } from 'fxa-auth-client/browser';
-
-const mockListPasskeys = jest.fn();
+import { Account, AppContext } from '../../../models';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 
 jest.mock('../SubRow', () => ({
   ...jest.requireActual('../SubRow'),
@@ -23,19 +23,6 @@ jest.mock('../../../models', () => ({
   useFtlMsgResolver: () => ({
     getMsg: (_id: string, fallback: string) => fallback,
   }),
-  useAuthClient: () => ({
-    listPasskeys: mockListPasskeys,
-  }),
-}));
-
-jest.mock('../../../lib/cache', () => ({
-  ...jest.requireActual('../../../lib/cache'),
-  JwtTokenCache: {
-    hasToken: jest.fn(() => true),
-    subscribe: jest.fn(() => () => {}),
-    getSnapshot: jest.fn(() => ({})),
-  },
-  sessionToken: jest.fn(() => 'session-123'),
 }));
 
 jest.mock('../../../lib/passkeys/webauthn', () => ({
@@ -71,17 +58,31 @@ const mockPasskeys: Passkey[] = [
   },
 ];
 
+let mockAccount = {
+  ...MOCK_ACCOUNT,
+  passkeys: mockPasskeys,
+};
+
 describe('UnitRowPasskey', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockListPasskeys.mockResolvedValue(mockPasskeys);
     isWebAuthnLevel3Supported.mockReturnValue(true);
+    mockAccount = {
+      ...MOCK_ACCOUNT,
+      passkeys: mockPasskeys,
+    };
   });
 
   const renderUnitRowPasskey = () => {
     return renderWithLocalizationProvider(
       <LocationProvider>
-        <UnitRowPasskey />
+        <AppContext.Provider
+          value={mockAppContext({
+            account: mockAccount as unknown as Account,
+          })}
+        >
+          <UnitRowPasskey />
+        </AppContext.Provider>
       </LocationProvider>
     );
   };
@@ -110,7 +111,7 @@ describe('UnitRowPasskey', () => {
   });
 
   it('displays "Not set" when no passkeys exist', async () => {
-    mockListPasskeys.mockResolvedValue([]);
+    mockAccount.passkeys = [];
     renderUnitRowPasskey();
     await waitFor(() => {
       expect(screen.getByText('Not set')).toBeInTheDocument();
@@ -165,11 +166,11 @@ describe('UnitRowPasskey', () => {
       backupState: false,
       prfEnabled: false,
     }));
-    mockListPasskeys.mockResolvedValue(atMaxPasskeys);
+    mockAccount.passkeys = atMaxPasskeys;
     renderUnitRowPasskey();
     await waitFor(() => {
       expect(
-        screen.getByText(/You\u2019ve used all 10 passkeys/)
+        screen.getByText(/You’ve used all 10 passkeys/)
       ).toBeInTheDocument();
     });
     expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();

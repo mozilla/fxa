@@ -13,6 +13,7 @@ import AuthClient, {
   getKeysV2,
   AttachedClient as RawAttachedClient,
 } from 'fxa-auth-client/browser';
+import type { Passkey } from 'fxa-auth-client/browser';
 import { MetricsContext } from '@fxa/shared/glean';
 import {
   currentAccount,
@@ -184,6 +185,7 @@ export interface AccountData {
   };
   subscriptions: Subscription[];
   securityEvents: SecurityEvent[];
+  passkeys: Passkey[];
 }
 
 export interface ProfileInfo {
@@ -314,6 +316,7 @@ export class Account implements AccountData {
           },
           subscriptions: [],
           securityEvents: [],
+          passkeys: [],
         } as AccountData;
       }
       const error = new Error('Account data not loaded from localStorage');
@@ -354,6 +357,7 @@ export class Account implements AccountData {
         nationalFormat: null,
         available: false,
       },
+      passkeys: accountData.passkeys || [],
     } as AccountData;
   }
 
@@ -448,6 +452,10 @@ export class Account implements AccountData {
     return this.data.securityEvents;
   }
 
+  get passkeys() {
+    return this.data.passkeys;
+  }
+
   get hasSecondaryVerifiedEmail() {
     return this.emails.length > 1 && this.emails[1].verified;
   }
@@ -462,6 +470,7 @@ export class Account implements AccountData {
       | 'backupCodes'
       | 'recoveryPhone'
       | 'emails'
+      | 'passkeys'
   ) {
     const token = sessionToken();
     if (!token) return;
@@ -545,6 +554,10 @@ export class Account implements AccountData {
                 verified: e.verified,
               })),
             });
+            break;
+          case 'passkeys':
+            const passkeys = await this.authClient.listPasskeys(token);
+            updateExtendedAccountState({ passkeys });
             break;
           case 'securityEvents':
             const events = await this.authClient.securityEvents(token);
@@ -1496,6 +1509,30 @@ export class Account implements AccountData {
         available: true,
       },
     });
+  }
+
+  /**
+   * Deletes the passkey identified by `credentialId`.
+   * Requires a cached MFA JWT with scope `passkey`.
+   */
+  async deletePasskey(credentialId: string): Promise<void> {
+    const jwt = this.getCachedJwtByScope('passkey');
+    await this.withLoadingStatus(
+      this.authClient.deletePasskey(jwt, credentialId)
+    );
+    await this.refresh('passkeys');
+  }
+
+  /**
+   * Renames the passkey identified by `credentialId`.
+   * Requires a cached MFA JWT with scope `passkey`.
+   */
+  async renamePasskey(credentialId: string, name: string): Promise<void> {
+    const jwt = this.getCachedJwtByScope('passkey');
+    await this.withLoadingStatus(
+      this.authClient.renamePasskey(jwt, credentialId, name)
+    );
+    await this.refresh('passkeys');
   }
 
   /**

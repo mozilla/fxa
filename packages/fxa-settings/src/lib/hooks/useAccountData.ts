@@ -21,6 +21,7 @@ import { AccountTotp, AccountBackupCodes, AccountAvatar } from '../interfaces';
 import config from '../config';
 import { ERRNO } from '@fxa/accounts/errors';
 import * as Sentry from '@sentry/browser';
+import type { Passkey } from 'fxa-auth-client/browser';
 
 /** OAuth token TTL in seconds for profile server requests */
 const PROFILE_OAUTH_TOKEN_TTL_SECONDS = 300;
@@ -90,6 +91,7 @@ interface AccountResponse {
     createdAt: number;
     verified?: boolean;
   }>;
+  passkeys?: Passkey[];
   metricsOptOutAt?: number | null;
   createdAt?: number;
   passwordCreatedAt?: number;
@@ -149,6 +151,8 @@ function transformAccountResponse(
     })
   );
 
+  const passkeys: Passkey[] = response.passkeys || [];
+
   return {
     emails,
     linkedAccounts,
@@ -162,6 +166,7 @@ function transformAccountResponse(
     recoveryKey,
     recoveryPhone,
     securityEvents,
+    passkeys,
   };
 }
 
@@ -312,6 +317,11 @@ export function useAccountData({
           case 'attachedClients': {
             const clients = await client.attachedClients(token);
             fieldData.attachedClients = clients.map(mapAttachedClient);
+            break;
+          }
+          case 'passkeys': {
+            const passkeys = await client.listPasskeys(token);
+            fieldData.passkeys = passkeys;
             break;
           }
           case 'displayName':

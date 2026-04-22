@@ -41,7 +41,7 @@ describe('passkeys routes', () => {
     mockPasskeyService: any,
     mockFxaMailer: any;
 
-  const UID = 'uid-123';
+  const UID = 'f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6';
   const SESSION_TOKEN_ID = 'session-token-456';
   const TEST_EMAIL = 'test@example.com';
   const CREDENTIAL_ID_B64 =
