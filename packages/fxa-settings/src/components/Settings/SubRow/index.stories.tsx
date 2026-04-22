@@ -14,7 +14,7 @@ import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import { CodeIcon } from '../../Icons';
 import { MOCK_NATIONAL_FORMAT_PHONE_NUMBER } from '../../../pages/mocks';
 import { AppContext } from '../../../models';
-import { mockAppContext } from '../../../models/mocks';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { initLocalAccount, mockAuthClient } from './mock';
 
 export default {
@@ -25,9 +25,16 @@ export default {
     withLocation(),
     (Story) => {
       initLocalAccount();
+      const mockAccount = {
+        ...MOCK_ACCOUNT,
+        deletePasskey: async () => {},
+      };
       return (
         <AppContext.Provider
-          value={mockAppContext({ authClient: mockAuthClient } as any)}
+          value={mockAppContext({
+            authClient: mockAuthClient,
+            account: mockAccount,
+          } as any)}
         >
           {/* @container/unitRow on the container div allows sub row to adjust based on the size of the parent container
           instead of the viewport. This fixes issues with the subrow and CTAs overflowing their parent container in mobileLandscape

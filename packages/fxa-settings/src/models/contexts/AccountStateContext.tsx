@@ -20,6 +20,7 @@ import {
   LinkedAccount,
   SecurityEvent,
 } from '../Account';
+import type { Passkey } from 'fxa-auth-client/browser';
 import { useLocalStorageSync } from '../../lib/hooks/useLocalStorageSync';
 import * as Sentry from '@sentry/browser';
 import {
@@ -64,6 +65,7 @@ export interface ExtendedAccountState {
   linkedAccounts: LinkedAccount[];
   subscriptions: Subscription[];
   securityEvents: SecurityEvent[];
+  passkeys: Passkey[];
 }
 
 export interface AccountState extends ExtendedAccountState {
@@ -111,6 +113,7 @@ const defaultAccountState: AccountState = {
   linkedAccounts: [],
   subscriptions: [],
   securityEvents: [],
+  passkeys: [],
   isLoading: false,
   loadingFields: new Set(),
   error: null,
@@ -164,6 +167,7 @@ function unifiedToAccountState(
     linkedAccounts: data.linkedAccounts,
     subscriptions: data.subscriptions,
     securityEvents: data.securityEvents,
+    passkeys: data.passkeys,
     isLoading: data.isLoading,
     loadingFields,
     error,
@@ -195,7 +199,9 @@ export function AccountStateProvider({
   // useLocalStorageSync triggers re-renders on storage changes;
   // we read from getAccountData() rather than the return value directly
   useLocalStorageSync('accounts');
-  let currentAccountUid = useLocalStorageSync('currentAccountUid') as string | undefined;
+  let currentAccountUid = useLocalStorageSync('currentAccountUid') as
+    | string
+    | undefined;
 
   // Recover UID when missing (iOS WKWebView storage eviction)
   if (!currentAccountUid) {
@@ -234,8 +240,12 @@ export function AccountStateProvider({
       ...rest,
       ...(dataUid !== undefined && { uid: dataUid ?? undefined }),
       ...(dataEmail !== undefined && { email: dataEmail ?? undefined }),
-      loadingFields: data.loadingFields ? Array.from(data.loadingFields) : undefined,
-      error: data.error ? { message: data.error.message, name: data.error.name } : undefined,
+      loadingFields: data.loadingFields
+        ? Array.from(data.loadingFields)
+        : undefined,
+      error: data.error
+        ? { message: data.error.message, name: data.error.name }
+        : undefined,
     };
     updateAccountData(storageData, uid);
   }, []);
@@ -245,14 +255,18 @@ export function AccountStateProvider({
       const uid = getCurrentAccountUid();
       if (!uid || field === 'primaryEmail') return;
 
-      let storageValue: UnifiedAccountData[keyof UnifiedAccountData] = value as UnifiedAccountData[keyof UnifiedAccountData];
+      let storageValue: UnifiedAccountData[keyof UnifiedAccountData] =
+        value as UnifiedAccountData[keyof UnifiedAccountData];
       if (field === 'loadingFields' && value instanceof Set) {
         storageValue = Array.from(value);
       }
       if (field === 'error' && value instanceof Error) {
         storageValue = { message: value.message, name: value.name };
       }
-      updateAccountData({ [field]: storageValue } as Partial<UnifiedAccountData>, uid);
+      updateAccountData(
+        { [field]: storageValue } as Partial<UnifiedAccountData>,
+        uid
+      );
     },
     []
   );
@@ -282,9 +296,12 @@ export function AccountStateProvider({
   const setError = useCallback((error: Error | null) => {
     const uid = getCurrentAccountUid();
     if (!uid) return;
-    updateAccountData({
-      error: error ? { message: error.message, name: error.name } : null,
-    }, uid);
+    updateAccountData(
+      {
+        error: error ? { message: error.message, name: error.name } : null,
+      },
+      uid
+    );
   }, []);
 
   const clearAccount = useCallback(() => {

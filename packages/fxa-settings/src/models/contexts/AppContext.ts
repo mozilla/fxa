@@ -132,6 +132,7 @@ export function defaultAppContext(context?: AppContextValue) {
     },
     linkedAccounts: [],
     securityEvents: [],
+    passkeys: [],
     recoveryPhone: {
       exists: false,
       phoneNumber: null,

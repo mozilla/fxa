@@ -75,7 +75,10 @@
   "featureFlags": {
     "recoveryCodeSetupOnSyncSignIn": true,
     "showLocaleToggle": true,
-    "paymentsNextSubscriptionManagement": true
+    "paymentsNextSubscriptionManagement": true,
+    "passkeysEnabled": true,
+    "passkeyRegistrationEnabled": true,
+    "passkeyAuthenticationEnabled": false
   },
   "darkMode": {
     "enabled": true
