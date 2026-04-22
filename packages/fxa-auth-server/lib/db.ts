@@ -33,6 +33,7 @@ import { Container } from 'typedi';
 import random, { base32 } from './crypto/random';
 import { AppError as error } from '@fxa/accounts/errors';
 import {
+  verificationMethodToNumber,
   verificationMethodToString,
   VerificationMethod,
 } from 'fxa-shared/db/models/auth/session-token';
@@ -177,6 +178,34 @@ export const createDB = (
       await RawSessionToken.create(sessionToken);
 
       this.metrics?.increment('db.sessionToken.created');
+      return sessionToken;
+    }
+
+    async createPasskeyVerifiedSessionToken(authToken: any) {
+      const { uid } = authToken;
+
+      log.trace('DB.createPasskeyVerifiedSessionToken', { uid });
+
+      const verifiedAt = Date.now();
+      const sessionToken = await SessionToken.create({
+        ...authToken,
+        mustVerify: false,
+        tokenVerificationId: null,
+        verificationMethod: verificationMethodToNumber('passkey'),
+        verifiedAt,
+      });
+
+      const { id } = sessionToken;
+
+      // Ensure there are no clashes with zombie tokens left behind in Redis
+      try {
+        await this.deleteSessionTokenFromRedis(uid, id);
+      } catch (unusedErr) {
+        // Ignore errors deleting the token.
+      }
+      await RawSessionToken.createVerified(sessionToken);
+
+      this.metrics?.increment('db.sessionToken.created', { method: 'passkey' });
       return sessionToken;
     }
 
