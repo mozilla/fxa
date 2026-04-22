@@ -135,10 +135,14 @@ export const BackupPhoneAvailableNoDelete: StoryFn = () => (
 export const PasskeyWithSync: StoryFn = () => (
   <PasskeySubRow
     passkey={{
-      id: '1',
+      credentialId: '1',
       name: 'MacBook Pro',
       createdAt: new Date('2026-01-01').getTime(),
-      lastUsed: new Date('2026-02-01').getTime(),
+      lastUsedAt: new Date('2026-02-01').getTime(),
+      transports: ['internal'],
+      aaguid: 'aaguid-1',
+      backupEligible: true,
+      backupState: true,
       prfEnabled: true,
     }}
   />
@@ -147,10 +151,14 @@ export const PasskeyWithSync: StoryFn = () => (
 export const PasskeyWithoutSync: StoryFn = () => (
   <PasskeySubRow
     passkey={{
-      id: '2',
+      credentialId: '2',
       name: 'iPhone 14 Pro',
       createdAt: new Date('2025-12-01').getTime(),
-      lastUsed: new Date('2026-01-31').getTime(),
+      lastUsedAt: new Date('2026-01-31').getTime(),
+      transports: ['hybrid'],
+      aaguid: 'aaguid-2',
+      backupEligible: true,
+      backupState: false,
       prfEnabled: false,
     }}
   />
@@ -159,9 +167,14 @@ export const PasskeyWithoutSync: StoryFn = () => (
 export const PasskeyNeverUsed: StoryFn = () => (
   <PasskeySubRow
     passkey={{
-      id: '3',
+      credentialId: '3',
       name: 'Windows PC',
       createdAt: new Date('2025-11-01').getTime(),
+      lastUsedAt: null,
+      transports: ['usb'],
+      aaguid: 'aaguid-3',
+      backupEligible: false,
+      backupState: false,
       prfEnabled: true,
     }}
   />

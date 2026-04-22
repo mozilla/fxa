@@ -7,10 +7,29 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
 import UnitRowPasskey from '.';
-import { PasskeyRowData } from '../SubRow';
 import { AppContext } from 'fxa-settings/src/models';
-import { mockAppContext } from 'fxa-settings/src/models/mocks';
-import { initLocalAccount, mockAuthClient } from '../SubRow/mock';
+import {
+  mockAppContext,
+  mockSettingsContext,
+} from 'fxa-settings/src/models/mocks';
+import { SettingsContext } from 'fxa-settings/src/models/contexts/SettingsContext';
+import { Passkey } from 'fxa-auth-client/browser';
+
+function initLocalAccount() {
+  const NS = '__fxa_storage';
+  const uid = 'abc123';
+  const accounts = {
+    [uid]: {
+      uid,
+      sessionToken: 'mock-session-token',
+      email: 'user@example.com',
+      verified: true,
+      lastLogin: Date.now(),
+    },
+  };
+  window.localStorage.setItem(`${NS}.accounts`, JSON.stringify(accounts));
+  window.localStorage.setItem(`${NS}.currentAccountUid`, JSON.stringify(uid));
+}
 
 export default {
   title: 'Components/Settings/UnitRowPasskey',
@@ -18,39 +37,59 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const mockPasskeys = [
+const mockPasskeys: Passkey[] = [
   {
-    id: 'passkey-1',
+    credentialId: 'passkey-1',
     name: 'MacBook Pro',
     createdAt: new Date('2026-01-01').getTime(),
-    lastUsed: new Date('2026-02-01').getTime(),
+    lastUsedAt: new Date('2026-02-01').getTime(),
+    transports: ['internal'],
+    aaguid: 'aaguid-1',
+    backupEligible: false,
+    backupState: false,
     prfEnabled: false,
   },
   {
-    id: 'passkey-2',
+    credentialId: 'passkey-2',
     name: 'iPhone 15',
     createdAt: new Date('2025-12-01').getTime(),
-    lastUsed: new Date('2026-01-31').getTime(),
-    prfEnabled: true,
-  },
-  {
-    id: 'passkey-3',
-    name: 'Work Laptop',
-    createdAt: new Date('2025-11-01').getTime(),
-    lastUsed: undefined,
+    lastUsedAt: new Date('2026-01-31').getTime(),
+    transports: ['internal', 'hybrid'],
+    aaguid: 'aaguid-2',
+    backupEligible: true,
+    backupState: true,
     prfEnabled: false,
   },
 ];
 
-const storyWithPasskeys = (passkeys: PasskeyRowData[]) => {
+const storyWithMockPasskeys = (
+  passkeys: Passkey[],
+  { webAuthnSupported = true }: { webAuthnSupported?: boolean } = {}
+) => {
+  const authClient = {
+    listPasskeys: () => Promise.resolve(passkeys),
+  };
   const story = () => {
     initLocalAccount();
+    // Stub the WebAuthn Level 3 feature check for storybook previews.
+    const w = window as any;
+    if (webAuthnSupported) {
+      w.PublicKeyCredential = {
+        ...(w.PublicKeyCredential || {}),
+        parseCreationOptionsFromJSON: () => ({}),
+        parseRequestOptionsFromJSON: () => ({}),
+      };
+    } else {
+      delete w.PublicKeyCredential;
+    }
     return (
       <LocationProvider>
         <AppContext.Provider
-          value={mockAppContext({ authClient: mockAuthClient } as any)}
+          value={mockAppContext({ authClient: authClient as any })}
         >
-          <UnitRowPasskey passkeys={passkeys} />
+          <SettingsContext.Provider value={mockSettingsContext()}>
+            <UnitRowPasskey />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       </LocationProvider>
     );
@@ -58,20 +97,26 @@ const storyWithPasskeys = (passkeys: PasskeyRowData[]) => {
   return story;
 };
 
-export const NoPasskeys = storyWithPasskeys([]);
+export const NoPasskeys = storyWithMockPasskeys([]);
 
-export const SinglePasskey = storyWithPasskeys([mockPasskeys[0]]);
+export const SinglePasskey = storyWithMockPasskeys([mockPasskeys[0]]);
 
-export const WithNeverUsedPasskey = storyWithPasskeys([mockPasskeys[2]]);
+export const MultiplePasskeys = storyWithMockPasskeys(mockPasskeys);
 
-export const MultiplePasskeys = storyWithPasskeys(mockPasskeys);
-
-export const AtMaxPasskeys = storyWithPasskeys(
+export const AtMaxPasskeys = storyWithMockPasskeys(
   Array.from({ length: 10 }, (_, i) => ({
-    id: `passkey-${i + 1}`,
+    credentialId: `passkey-${i + 1}`,
     name: `Passkey ${i + 1}`,
     createdAt: new Date('2026-01-01').getTime(),
-    lastUsed: new Date('2026-02-01').getTime(),
-    prfEnabled: i % 2 === 0,
+    lastUsedAt: new Date('2026-02-01').getTime(),
+    transports: ['internal'] as string[],
+    aaguid: `aaguid-${i + 1}`,
+    backupEligible: i % 2 === 0,
+    backupState: false,
+    prfEnabled: false,
   }))
 );
+
+export const WebAuthnNotSupported = storyWithMockPasskeys([], {
+  webAuthnSupported: false,
+});

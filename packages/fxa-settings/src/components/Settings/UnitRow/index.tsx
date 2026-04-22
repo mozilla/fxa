@@ -207,7 +207,8 @@ export const UnitRow = ({
             route ||
             revealModal ||
             secondaryCtaRoute ||
-            revealSecondaryModal) && (
+            revealSecondaryModal ||
+            disabled) && (
             <div className="unit-row-actions @mobileLandscape/unitRow:flex-1 @mobileLandscape/unitRow:flex @mobileLandscape/unitRow:justify-end ">
               <div className="flex items-center h-8 gap-2 mt-4 @mobileLandscape/unitRow:mt-0 ">
                 {/* Primary Action */}

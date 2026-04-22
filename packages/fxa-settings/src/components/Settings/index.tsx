@@ -7,7 +7,7 @@ import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
-import { useAccount, useAuthClient, useSession } from '../../models';
+import { useAccount, useAuthClient, useConfig, useSession } from '../../models';
 import {
   useAccountData,
   InvalidTokenError,
@@ -39,6 +39,7 @@ import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
 import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
+import { MfaGuardPagePasskeyAdd } from './PagePasskeyAdd';
 import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 
@@ -50,6 +51,7 @@ export const Settings = ({
   const session = useSession();
   const authClient = useAuthClient();
   const account = useAccount();
+  const config = useConfig();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>();
@@ -223,6 +225,11 @@ export const Settings = ({
 
           <MfaGuardPageRecoveryPhoneSetup path="/recovery_phone/setup" />
           <PageMfaGuardRecoveryPhoneRemove path="/recovery_phone/remove" />
+
+          {config.featureFlags?.passkeysEnabled &&
+            config.featureFlags?.passkeyRegistrationEnabled && (
+              <MfaGuardPagePasskeyAdd path="/passkeys/add" />
+            )}
 
           <PageMfaGuardTestWithAuthClient path="/mfa_guard/test/auth_client" />
         </ScrollToTop>
