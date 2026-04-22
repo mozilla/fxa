@@ -101,13 +101,7 @@ export const PagePasskeyAdd = () => {
             Sentry.captureException
           );
           alertBar.error(
-            ftlMsgResolver.getMsg(
-              categorized.userMessageKey,
-              ftlMsgResolver.getMsg(
-                'page-passkey-add-error-system',
-                'System not available. Try again later.'
-              )
-            )
+            ftlMsgResolver.getMsg(categorized.ftlId, categorized.fallbackText)
           );
           navigateToSettings();
           return;
