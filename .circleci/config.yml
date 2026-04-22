@@ -254,6 +254,12 @@ commands:
     # times, since the base image will have pre cached.
     steps:
       - run:
+          name: Recreate venv with glean_parser 19
+          command: |
+            rm -rf .venv
+            python3 -m venv .venv
+            .venv/bin/pip install 'glean_parser~=19.0'
+      - run:
           name: Base Install
           command: |
             ./_scripts/l10n/clone.sh
@@ -444,6 +450,7 @@ commands:
             - node_modules
             - packages/**/node_modules
             - packages/version.json
+            - .venv
 
   save-build-workspace:
     steps:

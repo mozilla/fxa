@@ -105,12 +105,14 @@ describe('lib/glean', () => {
   describe('disabled', () => {
     it('does not call Glean.initialize', () => {
       const initStub = sandbox.stub(Glean, 'initialize');
-      sandbox.stub(Glean, 'setUploadEnabled');
+      const setUploadEnabledStub = sandbox.stub(Glean, 'setUploadEnabled');
       const setEnabledSpy = sandbox.spy(GleanMetrics, 'setEnabled');
       GleanMetrics.initialize(mockConfig);
       sinon.assert.notCalled(initStub);
-      sinon.assert.calledOnce(setEnabledSpy);
-      sinon.assert.calledWith(setEnabledSpy, false);
+      // When disabled, initialize is fully inert: it does not touch the Glean
+      // singleton and does not call setEnabled.
+      sinon.assert.notCalled(setEnabledSpy);
+      sinon.assert.notCalled(setUploadEnabledStub);
     });
 
     it('does not submit a ping on an event', async () => {
