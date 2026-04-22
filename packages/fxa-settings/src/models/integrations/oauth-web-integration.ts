@@ -188,38 +188,6 @@ export class OAuthWebIntegration extends GenericIntegration<
     return tokens.includes(Constants.TWO_STEP_AUTHENTICATION_ACR);
   }
 
-  wantsKeys(): boolean {
-    if (!this.opts.scopedKeysEnabled) {
-      return false;
-    }
-    if (this.data.keysJwk == null) {
-      return false;
-    }
-    if (!this.data.scope) {
-      return false;
-    }
-
-    const validation = this.opts.scopedKeysValidation;
-    const individualScopes = scopeStrToArray(this.data.scope || '');
-
-    let wantsScopeThatHasKeys = false;
-    individualScopes.forEach((scope) => {
-      // eslint-disable-next-line no-prototype-builtins
-      if (validation.hasOwnProperty(scope)) {
-        if (
-          validation[scope].redirectUris.includes(this.clientInfo?.redirectUri)
-        ) {
-          wantsScopeThatHasKeys = true;
-        } else {
-          // Requesting keys, but trying to deliver them to an unexpected uri? Nope.
-          throw new Error('Invalid redirect parameter');
-        }
-      }
-    });
-
-    return wantsScopeThatHasKeys;
-  }
-
   getPermissions() {
     // Ported from content server, search for _normalizeScopesAndPermissions
     let permissions = Array.from(scopeStrToArray(this.data.scope || ''));
@@ -288,7 +256,7 @@ export class OAuthWebIntegration extends GenericIntegration<
       throw new OAuthError('PROMPT_NONE_NOT_ENABLED_FOR_CLIENT');
     }
 
-    if (this.wantsKeys()) {
+    if (this._scopeRequestsKeys()) {
       throw new OAuthError('PROMPT_NONE_WITH_KEYS');
     }
 
@@ -319,12 +287,57 @@ export class OAuthWebIntegration extends GenericIntegration<
     }
   }
 
+  // Currently only Firefox Sync requires scoped keys, but historically other
+  // redirect-based RPs have used them (e.g. Notes). Our functional tests verify
+  // this case. When keys are requested, `keys: true` must be sent to the auth
+  // server to trigger email verification.
+  wantsKeys(): boolean {
+    return this._scopeRequestsKeys();
+  }
+
+  /**
+   * Checks whether any requested scope has scoped keys configured,
+   * validating the redirect URI matches. Used by OAuthNativeIntegration's
+   * requiresKeys() and wantsKeysIfPasswordEntered(), and by
+   * validatePromptNoneRequest() to reject prompt=none with keys.
+   */
+  protected _scopeRequestsKeys(): boolean {
+    if (!this.opts.scopedKeysEnabled) {
+      return false;
+    }
+    if (this.data.keysJwk == null) {
+      return false;
+    }
+    if (!this.data.scope) {
+      return false;
+    }
+
+    const validation = this.opts.scopedKeysValidation;
+    const individualScopes = scopeStrToArray(this.data.scope || '');
+
+    let wantsScopeThatHasKeys = false;
+    individualScopes.forEach((scope) => {
+      // eslint-disable-next-line no-prototype-builtins
+      if (validation.hasOwnProperty(scope)) {
+        if (
+          validation[scope].redirectUris.includes(this.clientInfo?.redirectUri)
+        ) {
+          wantsScopeThatHasKeys = true;
+        } else {
+          throw new Error('Invalid redirect parameter');
+        }
+      }
+    });
+
+    return wantsScopeThatHasKeys;
+  }
+
   getRedirectTo(): string {
     return this.data.redirectTo || '';
   }
 }
 
-function scopeStrToArray(scopes: string) {
+export function scopeStrToArray(scopes: string) {
   const arrScopes = scopes
     .trim()
     .split(/\s+|\++/g)

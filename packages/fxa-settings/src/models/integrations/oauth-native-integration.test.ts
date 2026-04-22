@@ -131,9 +131,116 @@ describe('OAuthNativeIntegration', function () {
     });
   });
 
-  describe('wantsKeys', () => {
-    it('returns true', () => {
+  describe('requiresKeys', () => {
+    it('returns true for Sync when scope has scoped keys', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      model.data.keysJwk = 'mock-keys-jwk';
+      model.data.scope = 'https://identity.mozilla.com/apps/oldsync';
+      model = new OAuthNativeIntegration(data, oauthData, {
+        scopedKeysEnabled: true,
+        scopedKeysValidation: {
+          'https://identity.mozilla.com/apps/oldsync': {
+            redirectUris: [model.clientInfo?.redirectUri],
+          },
+        },
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      model.data.keysJwk = 'mock-keys-jwk';
+      model.data.scope = 'https://identity.mozilla.com/apps/oldsync';
+      expect(model.requiresKeys()).toBe(true);
+    });
+
+    it('returns false for non-Sync services', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      expect(model.requiresKeys()).toBe(false);
+    });
+
+    it('returns false when scopedKeysEnabled is false', () => {
+      model = new OAuthNativeIntegration(data, oauthData, {
+        scopedKeysEnabled: false,
+        scopedKeysValidation: {},
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.requiresKeys()).toBe(false);
+    });
+  });
+
+  describe('wantsKeysIfPasswordEntered', () => {
+    it('returns true for non-Sync browser services with scoped keys', () => {
+      model = new OAuthNativeIntegration(data, oauthData, {
+        scopedKeysEnabled: true,
+        scopedKeysValidation: {
+          'https://identity.mozilla.com/apps/oldsync': {
+            redirectUris: ['https://mock.com'],
+          },
+        },
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      model.data.keysJwk = 'mock-keys-jwk';
+      model.data.scope = 'https://identity.mozilla.com/apps/oldsync';
+      expect(model.wantsKeysIfPasswordEntered()).toBe(true);
+    });
+
+    it('returns false for Sync', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.wantsKeysIfPasswordEntered()).toBe(false);
+    });
+  });
+
+  describe('wantsKeys (combined)', () => {
+    it('returns true when requiresKeys is true', () => {
+      model = new OAuthNativeIntegration(data, oauthData, {
+        scopedKeysEnabled: true,
+        scopedKeysValidation: {
+          'https://identity.mozilla.com/apps/oldsync': {
+            redirectUris: ['https://mock.com'],
+          },
+        },
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      model.data.keysJwk = 'mock-keys-jwk';
+      model.data.scope = 'https://identity.mozilla.com/apps/oldsync';
       expect(model.wantsKeys()).toBe(true);
+      expect(model.requiresKeys()).toBe(true);
+    });
+
+    it('returns true when wantsKeysIfPasswordEntered is true', () => {
+      model = new OAuthNativeIntegration(data, oauthData, {
+        scopedKeysEnabled: true,
+        scopedKeysValidation: {
+          'https://identity.mozilla.com/apps/oldsync': {
+            redirectUris: ['https://mock.com'],
+          },
+        },
+        isPromptNoneEnabled: true,
+        isPromptNoneEnabledClientIds: [],
+      });
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      model.data.keysJwk = 'mock-keys-jwk';
+      model.data.scope = 'https://identity.mozilla.com/apps/oldsync';
+      expect(model.wantsKeys()).toBe(true);
+      expect(model.requiresKeys()).toBe(false);
+      expect(model.wantsKeysIfPasswordEntered()).toBe(true);
+    });
+
+    it('returns false when no scoped keys are requested', () => {
+      expect(model.wantsKeys()).toBe(false);
     });
   });
 

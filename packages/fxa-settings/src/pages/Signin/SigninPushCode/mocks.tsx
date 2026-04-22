@@ -50,6 +50,7 @@ export function createMockSyncIntegration() {
     type: IntegrationType.SyncDesktopV3,
     getService: () => MozServices.FirefoxSync,
     isSync: () => true,
+    requiresKeys: () => true,
     wantsKeys: () => true,
     getCmsInfo: () => undefined,
     data: {},

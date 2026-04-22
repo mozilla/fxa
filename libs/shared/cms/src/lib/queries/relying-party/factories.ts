@@ -175,6 +175,13 @@ export const RelyingPartyResultFactory = (
     pageTitle: faker.string.sample(),
     splitLayout: faker.datatype.boolean(),
   },
+  AuthorizePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
+  },
   SigninPasswordlessCodePage: {
     logoUrl: faker.internet.url(),
     logoAltText: faker.internet.url(),

@@ -238,7 +238,14 @@ describe('lib/integrations/integration-factory', () => {
         expect(integration.type).toEqual(IntegrationType.OAuthWeb);
         expect(integration.isSync()).toBeFalsy();
         expect(integration.wantsKeys()).toBeFalsy();
+        expect(integration.requiresKeys()).toBeFalsy();
         expect(integration.isTrusted()).toBeTruthy();
+      });
+
+      it('getGrantedScopes returns undefined for non-native integration', () => {
+        // This setup produces OAuthWeb (not OAuthNative) since
+        // isOAuthWebChannelContext is not set. Base class returns undefined.
+        expect(integration.getGrantedScopes()).toBeUndefined();
       });
     });
 
@@ -263,8 +270,29 @@ describe('lib/integrations/integration-factory', () => {
       it('has correct state', async () => {
         expect(integration.type).toEqual(IntegrationType.OAuthNative);
         expect(integration.isSync()).toBeTruthy();
-        expect(integration.wantsKeys()).toBeTruthy();
         expect(integration.isTrusted()).toBeTruthy();
+        expect(integration.isFirefoxClient()).toBeTruthy();
+      });
+
+      it('wantsKeys is false when keysJwk is not provided', () => {
+        // Without keysJwk in the data, _scopeRequestsKeys returns false
+        expect(integration.wantsKeys()).toBeFalsy();
+        expect(integration.requiresKeys()).toBeFalsy();
+      });
+
+      it('wantsKeys is true when keysJwk and scoped key validation are configured', () => {
+        integration.data.keysJwk = 'fakeKeysJwk';
+        sandbox.stub(integration, 'opts').value({
+          ...integration.opts,
+          scopedKeysEnabled: true,
+          scopedKeysValidation: {
+            [Constants.OAUTH_OLDSYNC_SCOPE]: {
+              redirectUris: [clientInfo.redirectUri],
+            },
+          },
+        });
+        expect(integration.requiresKeys()).toBeTruthy();
+        expect(integration.wantsKeys()).toBeTruthy();
       });
     });
   });

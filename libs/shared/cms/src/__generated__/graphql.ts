@@ -2029,6 +2029,7 @@ export type Query = {
 
 export type QueryCancelInterstitialOfferArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2036,6 +2037,7 @@ export type QueryCancelInterstitialOfferArgs = {
 
 export type QueryCancelInterstitialOffersArgs = {
   filters: InputMaybe<CancelInterstitialOfferFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -2045,6 +2047,7 @@ export type QueryCancelInterstitialOffersArgs = {
 
 export type QueryCancelInterstitialOffers_ConnectionArgs = {
   filters: InputMaybe<CancelInterstitialOfferFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -2054,6 +2057,7 @@ export type QueryCancelInterstitialOffers_ConnectionArgs = {
 
 export type QueryCapabilitiesArgs = {
   filters: InputMaybe<CapabilityFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2062,6 +2066,7 @@ export type QueryCapabilitiesArgs = {
 
 export type QueryCapabilities_ConnectionArgs = {
   filters: InputMaybe<CapabilityFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2070,12 +2075,14 @@ export type QueryCapabilities_ConnectionArgs = {
 
 export type QueryCapabilityArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryChurnInterventionArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2083,6 +2090,7 @@ export type QueryChurnInterventionArgs = {
 
 export type QueryChurnInterventionsArgs = {
   filters: InputMaybe<ChurnInterventionFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -2092,6 +2100,7 @@ export type QueryChurnInterventionsArgs = {
 
 export type QueryChurnInterventions_ConnectionArgs = {
   filters: InputMaybe<ChurnInterventionFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -2101,6 +2110,7 @@ export type QueryChurnInterventions_ConnectionArgs = {
 
 export type QueryCommonContentArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2108,6 +2118,7 @@ export type QueryCommonContentArgs = {
 
 export type QueryCommonContentsArgs = {
   filters: InputMaybe<CommonContentFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -2117,6 +2128,7 @@ export type QueryCommonContentsArgs = {
 
 export type QueryCommonContents_ConnectionArgs = {
   filters: InputMaybe<CommonContentFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -2126,12 +2138,14 @@ export type QueryCommonContents_ConnectionArgs = {
 
 export type QueryCouponConfigArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryCouponConfigsArgs = {
   filters: InputMaybe<CouponConfigFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2140,6 +2154,7 @@ export type QueryCouponConfigsArgs = {
 
 export type QueryCouponConfigs_ConnectionArgs = {
   filters: InputMaybe<CouponConfigFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2147,6 +2162,7 @@ export type QueryCouponConfigs_ConnectionArgs = {
 
 
 export type QueryDefaultArgs = {
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2154,12 +2170,14 @@ export type QueryDefaultArgs = {
 
 export type QueryFreeTrialArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryFreeTrialsArgs = {
   filters: InputMaybe<FreeTrialFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2168,6 +2186,7 @@ export type QueryFreeTrialsArgs = {
 
 export type QueryFreeTrials_ConnectionArgs = {
   filters: InputMaybe<FreeTrialFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2176,12 +2195,14 @@ export type QueryFreeTrials_ConnectionArgs = {
 
 export type QueryI18NLocaleArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryI18NLocalesArgs = {
   filters: InputMaybe<I18NLocaleFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2190,6 +2211,7 @@ export type QueryI18NLocalesArgs = {
 
 export type QueryI18NLocales_ConnectionArgs = {
   filters: InputMaybe<I18NLocaleFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2198,12 +2220,14 @@ export type QueryI18NLocales_ConnectionArgs = {
 
 export type QueryIapArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryIapsArgs = {
   filters: InputMaybe<IapFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2212,6 +2236,7 @@ export type QueryIapsArgs = {
 
 export type QueryIaps_ConnectionArgs = {
   filters: InputMaybe<IapFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2220,12 +2245,14 @@ export type QueryIaps_ConnectionArgs = {
 
 export type QueryLegalNoticeArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryLegalNoticesArgs = {
   filters: InputMaybe<LegalNoticeFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2234,6 +2261,7 @@ export type QueryLegalNoticesArgs = {
 
 export type QueryLegalNotices_ConnectionArgs = {
   filters: InputMaybe<LegalNoticeFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2242,12 +2270,14 @@ export type QueryLegalNotices_ConnectionArgs = {
 
 export type QueryOfferingArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryOfferingsArgs = {
   filters: InputMaybe<OfferingFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2256,6 +2286,7 @@ export type QueryOfferingsArgs = {
 
 export type QueryOfferings_ConnectionArgs = {
   filters: InputMaybe<OfferingFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2264,12 +2295,14 @@ export type QueryOfferings_ConnectionArgs = {
 
 export type QueryPurchaseArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryPurchaseDetailArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
@@ -2277,6 +2310,7 @@ export type QueryPurchaseDetailArgs = {
 
 export type QueryPurchaseDetailsArgs = {
   filters: InputMaybe<PurchaseDetailFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -2286,6 +2320,7 @@ export type QueryPurchaseDetailsArgs = {
 
 export type QueryPurchaseDetails_ConnectionArgs = {
   filters: InputMaybe<PurchaseDetailFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -2295,6 +2330,7 @@ export type QueryPurchaseDetails_ConnectionArgs = {
 
 export type QueryPurchasesArgs = {
   filters: InputMaybe<PurchaseFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2303,6 +2339,7 @@ export type QueryPurchasesArgs = {
 
 export type QueryPurchases_ConnectionArgs = {
   filters: InputMaybe<PurchaseFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2311,6 +2348,7 @@ export type QueryPurchases_ConnectionArgs = {
 
 export type QueryRelyingPartiesArgs = {
   filters: InputMaybe<RelyingPartyFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2319,6 +2357,7 @@ export type QueryRelyingPartiesArgs = {
 
 export type QueryRelyingParties_ConnectionArgs = {
   filters: InputMaybe<RelyingPartyFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2327,24 +2366,28 @@ export type QueryRelyingParties_ConnectionArgs = {
 
 export type QueryRelyingPartyArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryReviewWorkflowsWorkflowArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryReviewWorkflowsWorkflowStageArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryReviewWorkflowsWorkflowStagesArgs = {
   filters: InputMaybe<ReviewWorkflowsWorkflowStageFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2353,6 +2396,7 @@ export type QueryReviewWorkflowsWorkflowStagesArgs = {
 
 export type QueryReviewWorkflowsWorkflowStages_ConnectionArgs = {
   filters: InputMaybe<ReviewWorkflowsWorkflowStageFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2361,6 +2405,7 @@ export type QueryReviewWorkflowsWorkflowStages_ConnectionArgs = {
 
 export type QueryReviewWorkflowsWorkflowsArgs = {
   filters: InputMaybe<ReviewWorkflowsWorkflowFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2369,6 +2414,7 @@ export type QueryReviewWorkflowsWorkflowsArgs = {
 
 export type QueryReviewWorkflowsWorkflows_ConnectionArgs = {
   filters: InputMaybe<ReviewWorkflowsWorkflowFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2377,12 +2423,14 @@ export type QueryReviewWorkflowsWorkflows_ConnectionArgs = {
 
 export type QueryServiceArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryServicesArgs = {
   filters: InputMaybe<ServiceFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2391,6 +2439,7 @@ export type QueryServicesArgs = {
 
 export type QueryServices_ConnectionArgs = {
   filters: InputMaybe<ServiceFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2399,12 +2448,14 @@ export type QueryServices_ConnectionArgs = {
 
 export type QuerySubgroupArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QuerySubgroupsArgs = {
   filters: InputMaybe<SubgroupFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2413,6 +2464,7 @@ export type QuerySubgroupsArgs = {
 
 export type QuerySubgroups_ConnectionArgs = {
   filters: InputMaybe<SubgroupFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2421,12 +2473,14 @@ export type QuerySubgroups_ConnectionArgs = {
 
 export type QueryUploadFileArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryUploadFilesArgs = {
   filters: InputMaybe<UploadFileFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2435,6 +2489,7 @@ export type QueryUploadFilesArgs = {
 
 export type QueryUploadFiles_ConnectionArgs = {
   filters: InputMaybe<UploadFileFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2443,12 +2498,14 @@ export type QueryUploadFiles_ConnectionArgs = {
 
 export type QueryUsersPermissionsRoleArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryUsersPermissionsRolesArgs = {
   filters: InputMaybe<UsersPermissionsRoleFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2457,6 +2514,7 @@ export type QueryUsersPermissionsRolesArgs = {
 
 export type QueryUsersPermissionsRoles_ConnectionArgs = {
   filters: InputMaybe<UsersPermissionsRoleFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2465,12 +2523,14 @@ export type QueryUsersPermissionsRoles_ConnectionArgs = {
 
 export type QueryUsersPermissionsUserArgs = {
   documentId: Scalars['ID']['input'];
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<PublicationStatus>;
 };
 
 
 export type QueryUsersPermissionsUsersArgs = {
   filters: InputMaybe<UsersPermissionsUserFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2479,6 +2539,7 @@ export type QueryUsersPermissionsUsersArgs = {
 
 export type QueryUsersPermissionsUsers_ConnectionArgs = {
   filters: InputMaybe<UsersPermissionsUserFiltersInput>;
+  hasPublishedVersion: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<PublicationStatus>;
@@ -2486,6 +2547,7 @@ export type QueryUsersPermissionsUsers_ConnectionArgs = {
 
 export type RelyingParty = {
   __typename?: 'RelyingParty';
+  AuthorizePage: Maybe<ComponentAccountsPageConfig>;
   EmailFirstPage: ComponentAccountsPageConfig;
   NewDeviceLoginEmail: Maybe<ComponentAccountsEmailConfig>;
   PasswordlessSigninOtpEmail: Maybe<ComponentAccountsEmailConfig>;
@@ -2524,6 +2586,7 @@ export type RelyingPartyEntityResponseCollection = {
 };
 
 export type RelyingPartyFiltersInput = {
+  AuthorizePage: InputMaybe<ComponentAccountsPageConfigFiltersInput>;
   EmailFirstPage: InputMaybe<ComponentAccountsPageConfigFiltersInput>;
   NewDeviceLoginEmail: InputMaybe<ComponentAccountsEmailConfigFiltersInput>;
   PasswordlessSigninOtpEmail: InputMaybe<ComponentAccountsEmailConfigFiltersInput>;
@@ -2559,6 +2622,7 @@ export type RelyingPartyFiltersInput = {
 };
 
 export type RelyingPartyInput = {
+  AuthorizePage: InputMaybe<ComponentAccountsPageConfigInput>;
   EmailFirstPage: InputMaybe<ComponentAccountsPageConfigInput>;
   NewDeviceLoginEmail: InputMaybe<ComponentAccountsEmailConfigInput>;
   PasswordlessSigninOtpEmail: InputMaybe<ComponentAccountsEmailConfigInput>;
@@ -2833,6 +2897,7 @@ export type UploadFile = {
   createdAt: Maybe<Scalars['DateTime']['output']>;
   documentId: Scalars['ID']['output'];
   ext: Maybe<Scalars['String']['output']>;
+  focalPoint: Maybe<Scalars['JSON']['output']>;
   formats: Maybe<Scalars['JSON']['output']>;
   hash: Scalars['String']['output'];
   height: Maybe<Scalars['Int']['output']>;
@@ -2862,6 +2927,7 @@ export type UploadFileFiltersInput = {
   createdAt: InputMaybe<DateTimeFilterInput>;
   documentId: InputMaybe<IdFilterInput>;
   ext: InputMaybe<StringFilterInput>;
+  focalPoint: InputMaybe<JsonFilterInput>;
   formats: InputMaybe<JsonFilterInput>;
   hash: InputMaybe<StringFilterInput>;
   height: InputMaybe<IntFilterInput>;
@@ -3205,7 +3271,7 @@ export type RelyingPartiesQueryVariables = Exact<{
 }>;
 
 
-export type RelyingPartiesQuery = { __typename?: 'Query', relyingParties: Array<{ __typename?: 'RelyingParty', clientId: string | null, entrypoint: string | null, name: string | null, l10nId: string | null, shared: { __typename?: 'ComponentAccountsShared', buttonColor: string | null, logoUrl: string | null, logoAltText: string | null, emailFromName: string | null, emailLogoUrl: string | null, emailLogoAltText: string | null, emailLogoWidth: string | null, pageTitle: string | null, headerLogoUrl: string | null, headerLogoAltText: string | null, favicon: string | null, headlineFontSize: Enum_Componentaccountsshared_Headlinefontsize | null, headlineTextColor: string | null, additionalAccessibilityInfo: string | null, featureFlags: { __typename?: 'ComponentAccountsFeatureFlags', syncConfirmedPageHideCTA: boolean | null, syncHidePromoAfterLogin: boolean | null } | null, backgrounds: { __typename?: 'ComponentAccountsSharedBackgrounds', defaultLayout: string | null, header: string | null, splitLayout: string | null, splitLayoutAltText: string | null } | null, illustrationsTheme: { __typename?: 'ComponentAccountsIllustrationsTheme', primary: string | null, primaryAlt: string | null, secondary: string | null, accentBg: string | null, accentFg: string | null, cloudPrimary: string | null, cloudShadow: string | null, hideClouds: boolean | null } | null }, EmailFirstPage: { __typename?: 'ComponentAccountsPageConfig', logoUrl: string | null, logoAltText: string | null, headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null }, SignupSetPasswordPage: { __typename?: 'ComponentAccountsPageConfig', logoUrl: string | null, logoAltText: string | null, headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null }, SignupConfirmCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null }, SignupConfirmedSyncPage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null, primaryImage: { __typename?: 'ComponentAccountsImage', url: string, altText: string } | null } | null, SignupPasswordlessCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null, primaryImage: { __typename?: 'ComponentAccountsImage', url: string, altText: string } | null } | null, SigninPage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null }, SigninCachedPage: { __typename?: 'ComponentAccountsPageConfig', logoUrl: string | null, logoAltText: string | null, headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, SigninPasswordlessCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null, primaryImage: { __typename?: 'ComponentAccountsImage', url: string, altText: string } | null } | null, SigninTokenCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, SigninUnblockCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, SigninTotpCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, SigninRecoveryChoicePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, SigninRecoveryCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null, primaryImage: { __typename?: 'ComponentAccountsImage', url: string, altText: string } | null } | null, SigninRecoveryPhonePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null, primaryImage: { __typename?: 'ComponentAccountsImage', url: string, altText: string } | null } | null, PostVerifySetPasswordPage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null } | null, NewDeviceLoginEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, PasswordlessSigninOtpEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, PasswordlessSignupOtpEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, VerifyLoginCodeEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, VerifyShortCodeEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null } | null> };
+export type RelyingPartiesQuery = { __typename?: 'Query', relyingParties: Array<{ __typename?: 'RelyingParty', clientId: string | null, entrypoint: string | null, name: string | null, l10nId: string | null, shared: { __typename?: 'ComponentAccountsShared', buttonColor: string | null, logoUrl: string | null, logoAltText: string | null, emailFromName: string | null, emailLogoUrl: string | null, emailLogoAltText: string | null, emailLogoWidth: string | null, pageTitle: string | null, headerLogoUrl: string | null, headerLogoAltText: string | null, favicon: string | null, headlineFontSize: Enum_Componentaccountsshared_Headlinefontsize | null, headlineTextColor: string | null, additionalAccessibilityInfo: string | null, featureFlags: { __typename?: 'ComponentAccountsFeatureFlags', syncConfirmedPageHideCTA: boolean | null, syncHidePromoAfterLogin: boolean | null } | null, backgrounds: { __typename?: 'ComponentAccountsSharedBackgrounds', defaultLayout: string | null, header: string | null, splitLayout: string | null, splitLayoutAltText: string | null } | null, illustrationsTheme: { __typename?: 'ComponentAccountsIllustrationsTheme', primary: string | null, primaryAlt: string | null, secondary: string | null, accentBg: string | null, accentFg: string | null, cloudPrimary: string | null, cloudShadow: string | null, hideClouds: boolean | null } | null }, EmailFirstPage: { __typename?: 'ComponentAccountsPageConfig', logoUrl: string | null, logoAltText: string | null, headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null }, SignupSetPasswordPage: { __typename?: 'ComponentAccountsPageConfig', logoUrl: string | null, logoAltText: string | null, headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null }, SignupConfirmCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null }, SignupConfirmedSyncPage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null, primaryImage: { __typename?: 'ComponentAccountsImage', url: string, altText: string } | null } | null, SignupPasswordlessCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null, primaryImage: { __typename?: 'ComponentAccountsImage', url: string, altText: string } | null } | null, SigninPage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null }, SigninCachedPage: { __typename?: 'ComponentAccountsPageConfig', logoUrl: string | null, logoAltText: string | null, headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, AuthorizePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, SigninPasswordlessCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null, primaryImage: { __typename?: 'ComponentAccountsImage', url: string, altText: string } | null } | null, SigninTokenCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, SigninUnblockCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, SigninTotpCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, SigninRecoveryChoicePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null } | null, SigninRecoveryCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null, primaryImage: { __typename?: 'ComponentAccountsImage', url: string, altText: string } | null } | null, SigninRecoveryPhonePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null, splitLayout: boolean | null, primaryImage: { __typename?: 'ComponentAccountsImage', url: string, altText: string } | null } | null, PostVerifySetPasswordPage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null } | null, NewDeviceLoginEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, PasswordlessSigninOtpEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, PasswordlessSignupOtpEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, VerifyLoginCodeEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, VerifyShortCodeEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null } | null> };
 
 export type ServicesWithCapabilitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3282,7 +3348,7 @@ export const OfferingDocument = {"kind":"Document","definitions":[{"kind":"Opera
 export const PageContentByPriceIdsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"pageContentByPriceIds"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchases"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoices"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoice"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offering"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlans"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlan"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"50"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"100"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}}]}},{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}}]}}]}}]} as unknown as DocumentNode<PageContentByPriceIdsQuery, PageContentByPriceIdsQueryVariables>;
 export const PageContentForOfferingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PageContentForOffering"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offerings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"apiIdentifier"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"apiIdentifier"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"countries"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"details"}},{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"subtitle"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"details"}},{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"subtitle"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeUrl"}},{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationUrl"}},{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonLabel"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterLabelTextCode"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterSlug"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeUrl"}},{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationUrl"}},{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonLabel"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterLabelTextCode"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterSlug"}}]}}]}}]}}]}}]} as unknown as DocumentNode<PageContentForOfferingQuery, PageContentForOfferingQueryVariables>;
 export const PurchaseWithDetailsOfferingContentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PurchaseWithDetailsOfferingContent"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchases"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoices"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripePlanChoice"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"offering"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlans"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stripeLegacyPlan"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stripePlanIds"}}}]}}]}}]}}]}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"500"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}},{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"details"}},{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"subtitle"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"details"}},{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"subtitle"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"offering"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeUrl"}},{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationUrl"}},{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonLabel"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterLabelTextCode"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterSlug"}},{"kind":"Field","name":{"kind":"Name","value":"localizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeUrl"}},{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationUrl"}},{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonLabel"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterLabelTextCode"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterSlug"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<PurchaseWithDetailsOfferingContentQuery, PurchaseWithDetailsOfferingContentQueryVariables>;
-export const RelyingPartiesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RelyingParties"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"clientId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"entrypoint"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"relyingParties"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"clientId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"clientId"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"entrypoint"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"entrypoint"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"clientId"}},{"kind":"Field","name":{"kind":"Name","value":"entrypoint"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"l10nId"}},{"kind":"Field","name":{"kind":"Name","value":"shared"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"buttonColor"}},{"kind":"Field","name":{"kind":"Name","value":"logoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"emailFromName"}},{"kind":"Field","name":{"kind":"Name","value":"emailLogoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"emailLogoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"emailLogoWidth"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"headerLogoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"headerLogoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"featureFlags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"syncConfirmedPageHideCTA"}},{"kind":"Field","name":{"kind":"Name","value":"syncHidePromoAfterLogin"}}]}},{"kind":"Field","name":{"kind":"Name","value":"backgrounds"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"defaultLayout"}},{"kind":"Field","name":{"kind":"Name","value":"header"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayoutAltText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"illustrationsTheme"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"primary"}},{"kind":"Field","name":{"kind":"Name","value":"primaryAlt"}},{"kind":"Field","name":{"kind":"Name","value":"secondary"}},{"kind":"Field","name":{"kind":"Name","value":"accentBg"}},{"kind":"Field","name":{"kind":"Name","value":"accentFg"}},{"kind":"Field","name":{"kind":"Name","value":"cloudPrimary"}},{"kind":"Field","name":{"kind":"Name","value":"cloudShadow"}},{"kind":"Field","name":{"kind":"Name","value":"hideClouds"}}]}},{"kind":"Field","name":{"kind":"Name","value":"favicon"}},{"kind":"Field","name":{"kind":"Name","value":"headlineFontSize"}},{"kind":"Field","name":{"kind":"Name","value":"headlineTextColor"}},{"kind":"Field","name":{"kind":"Name","value":"additionalAccessibilityInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"EmailFirstPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"logoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SignupSetPasswordPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"logoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SignupConfirmCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SignupConfirmedSyncPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"primaryImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SignupPasswordlessCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"primaryImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninCachedPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"logoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninPasswordlessCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"primaryImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninTokenCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninUnblockCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninTotpCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninRecoveryChoicePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninRecoveryCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"primaryImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninRecoveryPhonePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"primaryImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"PostVerifySetPasswordPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}}]}},{"kind":"Field","name":{"kind":"Name","value":"NewDeviceLoginEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"Field","name":{"kind":"Name","value":"PasswordlessSigninOtpEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"Field","name":{"kind":"Name","value":"PasswordlessSignupOtpEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"Field","name":{"kind":"Name","value":"VerifyLoginCodeEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"Field","name":{"kind":"Name","value":"VerifyShortCodeEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]}}]} as unknown as DocumentNode<RelyingPartiesQuery, RelyingPartiesQueryVariables>;
+export const RelyingPartiesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RelyingParties"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"clientId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"entrypoint"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"relyingParties"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"clientId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"clientId"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"entrypoint"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"entrypoint"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"clientId"}},{"kind":"Field","name":{"kind":"Name","value":"entrypoint"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"l10nId"}},{"kind":"Field","name":{"kind":"Name","value":"shared"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"buttonColor"}},{"kind":"Field","name":{"kind":"Name","value":"logoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"emailFromName"}},{"kind":"Field","name":{"kind":"Name","value":"emailLogoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"emailLogoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"emailLogoWidth"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"headerLogoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"headerLogoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"featureFlags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"syncConfirmedPageHideCTA"}},{"kind":"Field","name":{"kind":"Name","value":"syncHidePromoAfterLogin"}}]}},{"kind":"Field","name":{"kind":"Name","value":"backgrounds"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"defaultLayout"}},{"kind":"Field","name":{"kind":"Name","value":"header"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayoutAltText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"illustrationsTheme"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"primary"}},{"kind":"Field","name":{"kind":"Name","value":"primaryAlt"}},{"kind":"Field","name":{"kind":"Name","value":"secondary"}},{"kind":"Field","name":{"kind":"Name","value":"accentBg"}},{"kind":"Field","name":{"kind":"Name","value":"accentFg"}},{"kind":"Field","name":{"kind":"Name","value":"cloudPrimary"}},{"kind":"Field","name":{"kind":"Name","value":"cloudShadow"}},{"kind":"Field","name":{"kind":"Name","value":"hideClouds"}}]}},{"kind":"Field","name":{"kind":"Name","value":"favicon"}},{"kind":"Field","name":{"kind":"Name","value":"headlineFontSize"}},{"kind":"Field","name":{"kind":"Name","value":"headlineTextColor"}},{"kind":"Field","name":{"kind":"Name","value":"additionalAccessibilityInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"EmailFirstPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"logoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SignupSetPasswordPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"logoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SignupConfirmCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SignupConfirmedSyncPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"primaryImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SignupPasswordlessCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"primaryImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninCachedPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"logoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoAltText"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"AuthorizePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninPasswordlessCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"primaryImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninTokenCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninUnblockCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninTotpCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninRecoveryChoicePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninRecoveryCodePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"primaryImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"SigninRecoveryPhonePage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}},{"kind":"Field","name":{"kind":"Name","value":"primaryImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"altText"}}]}},{"kind":"Field","name":{"kind":"Name","value":"splitLayout"}}]}},{"kind":"Field","name":{"kind":"Name","value":"PostVerifySetPasswordPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"primaryButtonText"}},{"kind":"Field","name":{"kind":"Name","value":"pageTitle"}}]}},{"kind":"Field","name":{"kind":"Name","value":"NewDeviceLoginEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"Field","name":{"kind":"Name","value":"PasswordlessSigninOtpEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"Field","name":{"kind":"Name","value":"PasswordlessSignupOtpEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"Field","name":{"kind":"Name","value":"VerifyLoginCodeEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"Field","name":{"kind":"Name","value":"VerifyShortCodeEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"headline"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]}}]} as unknown as DocumentNode<RelyingPartiesQuery, RelyingPartiesQueryVariables>;
 export const ServicesWithCapabilitiesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ServicesWithCapabilities"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"services"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"500"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"oauthClientId"}},{"kind":"Field","name":{"kind":"Name","value":"capabilities"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}}]}}]} as unknown as DocumentNode<ServicesWithCapabilitiesQuery, ServicesWithCapabilitiesQueryVariables>;
 export const ValidationOfferingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ValidationOfferings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"offerings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"500"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"stripeProductId"}},{"kind":"Field","name":{"kind":"Name","value":"countries"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPurchase"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"details"}},{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"subtitle"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}},{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"commonContent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeUrl"}},{"kind":"Field","name":{"kind":"Name","value":"privacyNoticeDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"termsOfServiceDownloadUrl"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationUrl"}},{"kind":"Field","name":{"kind":"Name","value":"emailIcon"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonUrl"}},{"kind":"Field","name":{"kind":"Name","value":"successActionButtonLabel"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterLabelTextCode"}},{"kind":"Field","name":{"kind":"Name","value":"newsletterSlug"}},{"kind":"Field","name":{"kind":"Name","value":"supportUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"capabilities"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"services"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"oauthClientId"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripeLegacyPlan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"couponConfig"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"internalName"}},{"kind":"Field","name":{"kind":"Name","value":"stripePromotionCodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"PromoCode"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"subGroups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"internalName"}},{"kind":"Field","name":{"kind":"Name","value":"groupName"}}]}}]}}]}}]} as unknown as DocumentNode<ValidationOfferingsQuery, ValidationOfferingsQueryVariables>;
 export const ValidationPurchasesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ValidationPurchases"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"purchases"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"500"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"internalName"}},{"kind":"Field","name":{"kind":"Name","value":"purchaseDetails"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"details"}},{"kind":"Field","name":{"kind":"Name","value":"productName"}},{"kind":"Field","name":{"kind":"Name","value":"subtitle"}},{"kind":"Field","name":{"kind":"Name","value":"webIcon"}}]}},{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stripePlanChoice"}}]}}]}}]}}]} as unknown as DocumentNode<ValidationPurchasesQuery, ValidationPurchasesQueryVariables>;

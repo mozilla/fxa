@@ -73,7 +73,10 @@ export function createMockSigninWebSyncIntegration() {
     isSync: () => true,
     getService: () => MozServices.FirefoxSync,
     getClientId: () => undefined,
+    requiresKeys: () => true,
+    wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => true,
+    getGrantedScopes: () => undefined,
     wantsTwoStepAuthentication: () => false,
     data: new WebIntegrationData(new GenericData({})),
     isDesktopSync: () => true,
@@ -84,6 +87,8 @@ export function createMockSigninWebSyncIntegration() {
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     wantsLogin: () => false,
     getCmsInfo: () => undefined,
+    isFirefoxClient: () => true,
+    isFirefoxDesktopClient: () => true,
     getLegalTerms: () => undefined,
   };
 }

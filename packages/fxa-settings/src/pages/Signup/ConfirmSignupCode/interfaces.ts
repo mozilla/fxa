@@ -50,6 +50,8 @@ export type ConfirmSignupCodeBaseIntegration = Pick<
   | 'isFirefoxClientServiceVpn'
   | 'isFirefoxNonSync'
   | 'isSync'
+  | 'requiresKeys'
+  | 'getGrantedScopes'
   | 'getCmsInfo'
 >;
 
@@ -62,11 +64,13 @@ export type ConfirmSignupCodeOAuthIntegration = Pick<
   | 'getRedirectUri'
   | 'wantsTwoStepAuthentication'
   | 'isSync'
+  | 'requiresKeys'
   | 'getPermissions'
   | 'isFirefoxClientServiceRelay'
   | 'isFirefoxClientServiceSmartWindow'
   | 'isFirefoxClientServiceVpn'
   | 'isFirefoxNonSync'
+  | 'getGrantedScopes'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
 >;
