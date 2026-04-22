@@ -18,7 +18,7 @@ export type TemplateData = {
 };
 
 export const template = 'freeTrialEndingReminder';
-export const version = 1;
+export const version = 2;
 export const layout = 'subscription';
 export const includes = {
   subject: {
