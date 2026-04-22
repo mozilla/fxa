@@ -2,19 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import { AppConfig } from './types';
 import { AccountEventsManager } from './account-events';
 
-const sandbox = sinon.createSandbox();
-
 const mockEmailTasks = {
-  scheduleFirstEmail: sandbox.stub(),
-  scheduleSecondEmail: sandbox.stub(),
-  scheduleFinalEmail: sandbox.stub(),
+  scheduleFirstEmail: jest.fn(),
+  scheduleSecondEmail: jest.fn(),
+  scheduleFinalEmail: jest.fn(),
 };
-const notificationHandlerStub = sandbox.stub();
+const notificationHandlerStub = jest.fn();
 
 jest.mock('@fxa/shared/cloud-tasks', () => {
   const actual = jest.requireActual('@fxa/shared/cloud-tasks');
@@ -49,17 +46,17 @@ describe('EmailCloudTaskManager', () => {
   };
   const aDayInMs = 24 * 60 * 60 * 1000;
   let deliveryTime: number;
-  let mockStatsd: { increment: sinon.SinonStub };
+  let mockStatsd: { increment: jest.Mock };
   let emailCloudTaskManager: InstanceType<typeof EmailCloudTaskManager>;
 
   beforeEach(() => {
-    sandbox.stub(Date, 'now').returns(1736500000000);
+    jest.spyOn(Date, 'now').mockReturnValue(1736500000000);
     deliveryTime = Date.now() + 60 * aDayInMs;
 
     Container.set(AppConfig, mockConfig);
     const accountEventsManager = new AccountEventsManager();
     Container.set(AccountEventsManager, accountEventsManager);
-    mockStatsd = { increment: sandbox.stub() };
+    mockStatsd = { increment: jest.fn() };
     emailCloudTaskManager = new EmailCloudTaskManager({
       config: mockConfig,
       statsd: mockStatsd,
@@ -67,8 +64,7 @@ describe('EmailCloudTaskManager', () => {
   });
 
   afterEach(() => {
-    (Date.now as sinon.SinonStub).restore();
-    sandbox.reset();
+    jest.clearAllMocks();
     Container.reset();
   });
 
@@ -98,7 +94,8 @@ describe('EmailCloudTaskManager', () => {
           },
         },
       });
-      sinon.assert.calledOnceWithExactly(mockEmailTasks.scheduleFirstEmail, {
+      expect(mockEmailTasks.scheduleFirstEmail).toHaveBeenCalledTimes(1);
+      expect(mockEmailTasks.scheduleFirstEmail).toHaveBeenCalledWith({
         payload: mockTaskPayload,
         emailOptions: {
           deliveryTime,
@@ -107,8 +104,8 @@ describe('EmailCloudTaskManager', () => {
           taskId: `${mockTaskPayload.uid}-inactive-notification-reschedule-1`,
         },
       });
-      sinon.assert.calledOnceWithExactly(
-        mockStatsd.increment,
+      expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
         'cloud-tasks.send-email.rescheduled',
         { email_type: EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION }
       );
@@ -126,7 +123,8 @@ describe('EmailCloudTaskManager', () => {
           },
         },
       });
-      sinon.assert.calledOnceWithExactly(mockEmailTasks.scheduleFirstEmail, {
+      expect(mockEmailTasks.scheduleFirstEmail).toHaveBeenCalledTimes(1);
+      expect(mockEmailTasks.scheduleFirstEmail).toHaveBeenCalledWith({
         payload: mockTaskPayload,
         emailOptions: {
           deliveryTime,
@@ -150,10 +148,8 @@ describe('EmailCloudTaskManager', () => {
           },
         },
       });
-      sinon.assert.calledOnceWithExactly(
-        notificationHandlerStub,
-        mockTaskPayload
-      );
+      expect(notificationHandlerStub).toHaveBeenCalledTimes(1);
+      expect(notificationHandlerStub).toHaveBeenCalledWith(mockTaskPayload);
     });
 
     it('should handle the second notification', async () => {
@@ -167,8 +163,8 @@ describe('EmailCloudTaskManager', () => {
           },
         },
       });
-      sinon.assert.calledOnceWithExactly(
-        notificationHandlerStub,
+      expect(notificationHandlerStub).toHaveBeenCalledTimes(1);
+      expect(notificationHandlerStub).toHaveBeenCalledWith(
         mockSecondTaskPayload
       );
     });
@@ -184,8 +180,8 @@ describe('EmailCloudTaskManager', () => {
           },
         },
       });
-      sinon.assert.calledOnceWithExactly(
-        notificationHandlerStub,
+      expect(notificationHandlerStub).toHaveBeenCalledTimes(1);
+      expect(notificationHandlerStub).toHaveBeenCalledWith(
         mockFinalTaskPayload
       );
     });

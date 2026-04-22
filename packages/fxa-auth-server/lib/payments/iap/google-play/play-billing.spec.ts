@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 import { AuthFirestore, AuthLogger, AppConfig } from '../../../types';
@@ -25,16 +24,14 @@ const mockConfig = {
 };
 
 describe('PlayBilling', () => {
-  let sandbox: sinon.SinonSandbox;
   let firestore: any;
   let log: any;
   let purchasesDbRefMock: any;
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
     purchasesDbRefMock = {};
-    const collectionMock = sinon.stub();
-    collectionMock.returns(purchasesDbRefMock);
+    const collectionMock = jest.fn();
+    collectionMock.mockReturnValue(purchasesDbRefMock);
     firestore = {
       collection: collectionMock,
     };
@@ -47,7 +44,7 @@ describe('PlayBilling', () => {
 
   afterEach(() => {
     Container.reset();
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   it('can be instantiated', () => {

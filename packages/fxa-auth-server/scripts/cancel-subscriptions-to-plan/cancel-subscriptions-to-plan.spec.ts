@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 import { PlanCanceller } from './cancel-subscriptions-to-plan';
 import Stripe from 'stripe';
 import { StripeHelper } from '../../lib/payments/stripe';
@@ -25,7 +23,7 @@ describe('PlanCanceller', () => {
 
   beforeEach(() => {
     stripeStub = {
-      on: sinon.stub(),
+      on: jest.fn(),
       products: {},
       customers: {},
       subscriptions: {},
@@ -36,12 +34,12 @@ describe('PlanCanceller', () => {
     stripeHelperStub = {
       stripe: stripeStub,
       currencyHelper: {
-        isCurrencyCompatibleWithCountry: sinon.stub(),
+        isCurrencyCompatibleWithCountry: jest.fn(),
       },
     } as unknown as StripeHelper;
 
     paypalHelperStub = {
-      refundInvoice: sinon.stub(),
+      refundInvoice: jest.fn(),
     } as unknown as PayPalHelper;
 
     planCanceller = new PlanCanceller(
@@ -126,8 +124,8 @@ describe('PlanCanceller', () => {
   });
 
   describe('run', () => {
-    let processSubscriptionStub: sinon.SinonStub;
-    let writeReportHeaderStub: sinon.SinonStub;
+    let processSubscriptionStub: jest.Mock;
+    let writeReportHeaderStub: jest.Mock;
     const mockSubs = [mockSubscription];
 
     beforeEach(async () => {
@@ -140,33 +138,33 @@ describe('PlanCanceller', () => {
         },
       };
 
-      stripeStub.subscriptions.list = sinon
-        .stub()
-        .returns(asyncIterable) as any;
+      stripeStub.subscriptions.list = jest
+        .fn()
+        .mockReturnValue(asyncIterable) as any;
 
-      processSubscriptionStub = sinon.stub().resolves();
+      processSubscriptionStub = jest.fn().mockResolvedValue(undefined);
       planCanceller.processSubscription = processSubscriptionStub;
 
-      writeReportHeaderStub = sinon.stub().resolves();
+      writeReportHeaderStub = jest.fn().mockResolvedValue(undefined);
       planCanceller.writeReportHeader = writeReportHeaderStub;
 
       await planCanceller.run();
     });
 
     it('writes report header', () => {
-      expect(writeReportHeaderStub.calledOnce).toBe(true);
+      expect(writeReportHeaderStub).toHaveBeenCalledTimes(1);
     });
 
     it('calls Stripe subscriptions.list with correct parameters', () => {
-      sinon.assert.calledWith(stripeStub.subscriptions.list as any, {
+      expect(stripeStub.subscriptions.list as any).toHaveBeenCalledWith({
         price: 'planId',
         limit: 100,
       });
     });
 
     it('processes each subscription', () => {
-      sinon.assert.calledOnce(processSubscriptionStub);
-      sinon.assert.calledWith(processSubscriptionStub, mockSubscription);
+      expect(processSubscriptionStub).toHaveBeenCalledTimes(1);
+      expect(processSubscriptionStub).toHaveBeenCalledWith(mockSubscription);
     });
   });
 
@@ -179,37 +177,39 @@ describe('PlanCanceller', () => {
       },
       status: 'active',
     } as unknown as Stripe.Subscription;
-    let logStub: sinon.SinonStub;
-    let cancelStub: sinon.SinonStub;
-    let attemptFullRefundStub: sinon.SinonStub;
-    let attemptProratedRefundStub: sinon.SinonStub;
-    let isCustomerExcludedStub: sinon.SinonStub;
-    let writeReportStub: sinon.SinonStub;
+    let logStub: jest.Mock;
+    let cancelStub: jest.Mock;
+    let attemptFullRefundStub: jest.Mock;
+    let attemptProratedRefundStub: jest.Mock;
+    let isCustomerExcludedStub: jest.Mock;
+    let writeReportStub: jest.Mock;
 
     beforeEach(async () => {
-      stripeStub.products.retrieve = sinon.stub().resolves(mockProduct);
-      stripeStub.subscriptions.cancel = sinon.stub().resolves();
-      cancelStub = stripeStub.subscriptions.cancel as sinon.SinonStub;
+      stripeStub.products.retrieve = jest.fn().mockResolvedValue(mockProduct);
+      stripeStub.subscriptions.cancel = jest.fn().mockResolvedValue(undefined);
+      cancelStub = stripeStub.subscriptions.cancel as jest.Mock;
 
-      planCanceller.fetchCustomer = sinon.stub().resolves(mockCustomer) as any;
+      planCanceller.fetchCustomer = jest
+        .fn()
+        .mockResolvedValue(mockCustomer) as any;
 
-      attemptFullRefundStub = sinon.stub().resolves(1000);
+      attemptFullRefundStub = jest.fn().mockResolvedValue(1000);
       planCanceller.attemptFullRefund = attemptFullRefundStub;
 
-      attemptProratedRefundStub = sinon.stub().resolves(500);
+      attemptProratedRefundStub = jest.fn().mockResolvedValue(500);
       planCanceller.attemptProratedRefund = attemptProratedRefundStub;
 
-      isCustomerExcludedStub = sinon.stub().returns(false);
+      isCustomerExcludedStub = jest.fn().mockReturnValue(false);
       planCanceller.isCustomerExcluded = isCustomerExcludedStub;
 
-      writeReportStub = sinon.stub().resolves();
+      writeReportStub = jest.fn().mockResolvedValue(undefined);
       planCanceller.writeReport = writeReportStub;
 
-      logStub = sinon.stub(console, 'log');
+      logStub = jest.spyOn(console, 'log') as unknown as jest.Mock;
     });
 
     afterEach(() => {
-      logStub.restore();
+      logStub.mockRestore();
     });
 
     describe('success - not excluded', () => {
@@ -218,11 +218,13 @@ describe('PlanCanceller', () => {
       });
 
       it('fetches customer', () => {
-        sinon.assert.calledOnce(planCanceller.fetchCustomer as sinon.SinonStub);
+        expect(planCanceller.fetchCustomer as jest.Mock).toHaveBeenCalledTimes(
+          1
+        );
       });
 
       it('cancels subscription', () => {
-        sinon.assert.calledWith(cancelStub, 'test', {
+        expect(cancelStub).toHaveBeenCalledWith('test', {
           prorate: false,
           cancellation_details: {
             comment: 'administrative_cancellation:subplat_script',
@@ -231,9 +233,8 @@ describe('PlanCanceller', () => {
       });
 
       it('writes report', () => {
-        sinon.assert.calledWith(
-          writeReportStub,
-          sinon.match({
+        expect(writeReportStub).toHaveBeenCalledWith(
+          expect.objectContaining({
             subscription: mockSub,
             customer: mockCustomer,
             isExcluded: false,
@@ -247,14 +248,13 @@ describe('PlanCanceller', () => {
 
     describe('success - with refund', () => {
       beforeEach(async () => {
-        attemptFullRefundStub.resolves(1000);
+        attemptFullRefundStub.mockResolvedValue(1000);
         await planCanceller.processSubscription(mockSub);
       });
 
       it('writes report with refund amount', () => {
-        sinon.assert.calledWith(
-          writeReportStub,
-          sinon.match({
+        expect(writeReportStub).toHaveBeenCalledWith(
+          expect.objectContaining({
             subscription: mockSub,
             customer: mockCustomer,
             isExcluded: false,
@@ -273,17 +273,16 @@ describe('PlanCanceller', () => {
       });
 
       it('does not cancel subscription', () => {
-        sinon.assert.notCalled(cancelStub);
+        expect(cancelStub).not.toHaveBeenCalled();
       });
 
       it('attempts refund', () => {
-        sinon.assert.calledOnce(attemptFullRefundStub);
+        expect(attemptFullRefundStub).toHaveBeenCalledTimes(1);
       });
 
       it('writes report', () => {
-        sinon.assert.calledWith(
-          writeReportStub,
-          sinon.match({
+        expect(writeReportStub).toHaveBeenCalledWith(
+          expect.objectContaining({
             subscription: mockSub,
             customer: mockCustomer,
             isExcluded: false,
@@ -297,18 +296,17 @@ describe('PlanCanceller', () => {
 
     describe('customer excluded', () => {
       beforeEach(async () => {
-        isCustomerExcludedStub.returns(true);
+        isCustomerExcludedStub.mockReturnValue(true);
         await planCanceller.processSubscription(mockSub);
       });
 
       it('does not cancel subscription', () => {
-        sinon.assert.notCalled(cancelStub);
+        expect(cancelStub).not.toHaveBeenCalled();
       });
 
       it('writes report marking as excluded', () => {
-        sinon.assert.calledWith(
-          writeReportStub,
-          sinon.match({
+        expect(writeReportStub).toHaveBeenCalledWith(
+          expect.objectContaining({
             subscription: mockSub,
             customer: mockCustomer,
             isExcluded: true,
@@ -322,12 +320,11 @@ describe('PlanCanceller', () => {
 
     describe('invalid', () => {
       it('writes error report if customer does not exist', async () => {
-        planCanceller.fetchCustomer = sinon.stub().resolves(null) as any;
+        planCanceller.fetchCustomer = jest.fn().mockResolvedValue(null) as any;
         await planCanceller.processSubscription(mockSub);
 
-        sinon.assert.calledWith(
-          writeReportStub,
-          sinon.match({
+        expect(writeReportStub).toHaveBeenCalledWith(
+          expect.objectContaining({
             subscription: mockSub,
             customer: null,
             isExcluded: false,
@@ -339,12 +336,11 @@ describe('PlanCanceller', () => {
       });
 
       it('writes error report if unexpected error occurs', async () => {
-        cancelStub.rejects(new Error('test error'));
+        cancelStub.mockRejectedValue(new Error('test error'));
         await planCanceller.processSubscription(mockSub);
 
-        sinon.assert.calledWith(
-          writeReportStub,
-          sinon.match({
+        expect(writeReportStub).toHaveBeenCalledWith(
+          expect.objectContaining({
             subscription: mockSub,
             customer: null,
             isExcluded: false,
@@ -358,27 +354,25 @@ describe('PlanCanceller', () => {
   });
 
   describe('fetchCustomer', () => {
-    let customerRetrieveStub: sinon.SinonStub;
+    let customerRetrieveStub: jest.Mock;
     let result: Stripe.Customer | Stripe.DeletedCustomer | null;
 
     describe('customer exists', () => {
       beforeEach(async () => {
-        customerRetrieveStub = sinon.stub().resolves(mockCustomer);
+        customerRetrieveStub = jest.fn().mockResolvedValue(mockCustomer);
         stripeStub.customers.retrieve = customerRetrieveStub;
 
         result = await planCanceller.fetchCustomer(mockCustomer.id);
       });
 
       it('fetches customer from Stripe', () => {
-        expect(
-          customerRetrieveStub.calledWith(mockCustomer.id, {
-            expand: ['subscriptions'],
-          })
-        ).toBe(true);
+        expect(customerRetrieveStub).toHaveBeenCalledWith(mockCustomer.id, {
+          expand: ['subscriptions'],
+        });
       });
 
       it('returns customer', () => {
-        sinon.assert.match(result, mockCustomer);
+        expect(result).toEqual(mockCustomer);
       });
     });
 
@@ -388,14 +382,14 @@ describe('PlanCanceller', () => {
           ...mockCustomer,
           deleted: true,
         };
-        customerRetrieveStub = sinon.stub().resolves(deletedCustomer);
+        customerRetrieveStub = jest.fn().mockResolvedValue(deletedCustomer);
         stripeStub.customers.retrieve = customerRetrieveStub;
 
         result = await planCanceller.fetchCustomer(mockCustomer.id);
       });
 
       it('returns null', () => {
-        sinon.assert.match(result, null);
+        expect(result).toEqual(null);
       });
     });
   });
@@ -433,9 +427,9 @@ describe('PlanCanceller', () => {
   });
 
   describe('attemptFullRefund', () => {
-    let invoiceRetrieveStub: sinon.SinonStub;
-    let refundCreateStub: sinon.SinonStub;
-    let refundInvoiceStub: sinon.SinonStub;
+    let invoiceRetrieveStub: jest.Mock;
+    let refundCreateStub: jest.Mock;
+    let refundInvoiceStub: jest.Mock;
     const mockFullRefundInvoice = {
       charge: 'ch_123',
       amount_due: 1000,
@@ -443,13 +437,13 @@ describe('PlanCanceller', () => {
     };
 
     beforeEach(() => {
-      invoiceRetrieveStub = sinon.stub().resolves(mockFullRefundInvoice);
+      invoiceRetrieveStub = jest.fn().mockResolvedValue(mockFullRefundInvoice);
       stripeStub.invoices.retrieve = invoiceRetrieveStub;
 
-      refundCreateStub = sinon.stub().resolves();
+      refundCreateStub = jest.fn().mockResolvedValue(undefined);
       stripeStub.refunds.create = refundCreateStub;
 
-      refundInvoiceStub = sinon.stub().resolves();
+      refundInvoiceStub = jest.fn().mockResolvedValue(undefined);
       paypalHelperStub.refundInvoice = refundInvoiceStub;
     });
 
@@ -459,14 +453,13 @@ describe('PlanCanceller', () => {
       });
 
       it('retrieves invoice', () => {
-        sinon.assert.calledWith(
-          invoiceRetrieveStub,
+        expect(invoiceRetrieveStub).toHaveBeenCalledWith(
           mockSubscription.latest_invoice
         );
       });
 
       it('creates refund', () => {
-        sinon.assert.calledWith(refundCreateStub, {
+        expect(refundCreateStub).toHaveBeenCalledWith({
           charge: mockFullRefundInvoice.charge,
         });
       });
@@ -484,12 +477,12 @@ describe('PlanCanceller', () => {
       };
 
       beforeEach(async () => {
-        invoiceRetrieveStub.resolves(mockPaypalInvoice);
+        invoiceRetrieveStub.mockResolvedValue(mockPaypalInvoice);
         await planCanceller.attemptFullRefund(mockSubscription);
       });
 
       it('calls PayPal refund', () => {
-        sinon.assert.calledWith(refundInvoiceStub, mockPaypalInvoice);
+        expect(refundInvoiceStub).toHaveBeenCalledWith(mockPaypalInvoice);
       });
     });
 
@@ -500,7 +493,7 @@ describe('PlanCanceller', () => {
       });
 
       it('does not create refund', () => {
-        sinon.assert.notCalled(refundCreateStub);
+        expect(refundCreateStub).not.toHaveBeenCalled();
       });
     });
 
@@ -516,7 +509,7 @@ describe('PlanCanceller', () => {
       });
 
       it('throws if invoice has no charge', async () => {
-        invoiceRetrieveStub.resolves({
+        invoiceRetrieveStub.mockResolvedValue({
           ...mockFullRefundInvoice,
           charge: null,
         });
@@ -528,9 +521,9 @@ describe('PlanCanceller', () => {
   });
 
   describe('attemptProratedRefund', () => {
-    let invoiceRetrieveStub: sinon.SinonStub;
-    let refundCreateStub: sinon.SinonStub;
-    let refundInvoiceStub: sinon.SinonStub;
+    let invoiceRetrieveStub: jest.Mock;
+    let refundCreateStub: jest.Mock;
+    let refundInvoiceStub: jest.Mock;
     const now = Math.floor(Date.now() / 1000);
     const mockProratedSubscription = {
       ...mockSubscription,
@@ -546,13 +539,13 @@ describe('PlanCanceller', () => {
     };
 
     beforeEach(() => {
-      invoiceRetrieveStub = sinon.stub().resolves(mockProratedInvoice);
+      invoiceRetrieveStub = jest.fn().mockResolvedValue(mockProratedInvoice);
       stripeStub.invoices.retrieve = invoiceRetrieveStub;
 
-      refundCreateStub = sinon.stub().resolves();
+      refundCreateStub = jest.fn().mockResolvedValue(undefined);
       stripeStub.refunds.create = refundCreateStub;
 
-      refundInvoiceStub = sinon.stub().resolves();
+      refundInvoiceStub = jest.fn().mockResolvedValue(undefined);
       paypalHelperStub.refundInvoice = refundInvoiceStub;
 
       planCanceller = new PlanCanceller(
@@ -573,8 +566,7 @@ describe('PlanCanceller', () => {
         await planCanceller.attemptProratedRefund(
           mockProratedSubscription as any
         );
-        sinon.assert.calledWith(
-          invoiceRetrieveStub,
+        expect(invoiceRetrieveStub).toHaveBeenCalledWith(
           mockProratedSubscription.latest_invoice
         );
       });
@@ -593,9 +585,8 @@ describe('PlanCanceller', () => {
         const daysRemaining = Math.floor(timeRemainingMs / oneDayMs);
         const expectedRefund = daysRemaining * 100;
 
-        sinon.assert.calledWith(
-          refundCreateStub,
-          sinon.match({
+        expect(refundCreateStub).toHaveBeenCalledWith(
+          expect.objectContaining({
             charge: mockProratedInvoice.charge,
             amount: expectedRefund,
           })
@@ -610,7 +601,7 @@ describe('PlanCanceller', () => {
       };
 
       beforeEach(async () => {
-        invoiceRetrieveStub.resolves(mockPaypalInvoice);
+        invoiceRetrieveStub.mockResolvedValue(mockPaypalInvoice);
         await planCanceller.attemptProratedRefund(
           mockProratedSubscription as any
         );
@@ -626,7 +617,7 @@ describe('PlanCanceller', () => {
         const daysRemaining = Math.floor(timeRemainingMs / oneDayMs);
         const expectedRefund = daysRemaining * 100;
 
-        sinon.assert.calledWith(refundInvoiceStub, mockPaypalInvoice, {
+        expect(refundInvoiceStub).toHaveBeenCalledWith(mockPaypalInvoice, {
           refundType: 'Partial',
           amount: expectedRefund,
         });
@@ -642,7 +633,7 @@ describe('PlanCanceller', () => {
       });
 
       it('does not create refund', () => {
-        sinon.assert.notCalled(refundCreateStub);
+        expect(refundCreateStub).not.toHaveBeenCalled();
       });
     });
 
@@ -658,7 +649,7 @@ describe('PlanCanceller', () => {
       });
 
       it('throws if invoice is not paid', async () => {
-        invoiceRetrieveStub.resolves({
+        invoiceRetrieveStub.mockResolvedValue({
           ...mockProratedInvoice,
           paid: false,
         });
@@ -672,14 +663,14 @@ describe('PlanCanceller', () => {
           ...mockProratedInvoice,
           amount_due: 0,
         };
-        invoiceRetrieveStub.resolves(mockSmallInvoice);
+        invoiceRetrieveStub.mockResolvedValue(mockSmallInvoice);
         await expect(
           planCanceller.attemptProratedRefund(mockProratedSubscription as any)
         ).rejects.toThrow('eclipse the amount due');
       });
 
       it('throws if invoice has no charge for Stripe refund', async () => {
-        invoiceRetrieveStub.resolves({
+        invoiceRetrieveStub.mockResolvedValue({
           ...mockProratedInvoice,
           charge: null,
         });

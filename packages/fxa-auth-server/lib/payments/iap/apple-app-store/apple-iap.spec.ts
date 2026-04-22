@@ -7,7 +7,6 @@ jest.mock('./app-store-helper', () => ({
   AppStoreHelper: class MockAppStoreHelper {},
 }));
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 import { AuthFirestore, AuthLogger, AppConfig } from '../../../types';
@@ -33,21 +32,19 @@ const mockConfig = {
 };
 
 describe('AppleIAP', () => {
-  let collectionMock: sinon.SinonStub;
+  let collectionMock: jest.Mock;
   let purchasesDbRefMock: any;
-  let sandbox: sinon.SinonSandbox;
   let firestore: any;
   let log: any;
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
     log = mockLog();
-    collectionMock = sinon.stub();
+    collectionMock = jest.fn();
     firestore = {
       collection: collectionMock,
     };
     purchasesDbRefMock = {};
-    collectionMock.returns(purchasesDbRefMock);
+    collectionMock.mockReturnValue(purchasesDbRefMock);
     Container.set(AuthFirestore, firestore);
     Container.set(AuthLogger, log);
     Container.set(AppConfig, mockConfig);
@@ -56,7 +53,7 @@ describe('AppleIAP', () => {
 
   afterEach(() => {
     Container.reset();
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   it('can be instantiated', () => {

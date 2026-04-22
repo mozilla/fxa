@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const { Container } = require('typedi');
 const uuid = require('uuid');
 const mocks = require('../../../test/mocks');
@@ -21,10 +19,7 @@ const {
 } = require('@fxa/payments/customer');
 const uuidv4 = require('uuid').v4;
 
-const {
-  sanitizePlans,
-  handleAuth,
-} = require('.');
+const { sanitizePlans, handleAuth } = require('.');
 
 // Import the real buildTaxAddress for direct tests (not through the mock)
 const { buildTaxAddress: realBuildTaxAddress } = jest.requireActual('./utils');
@@ -45,8 +40,11 @@ jest.mock('./utils', () => ({
 const { StripeHandler: DirectStripeRoutes } = require('./stripe');
 
 const accountUtils = require('../utils/account');
-const { getAccountCustomerByUid: getAccountCustomerByUidStub } = require('fxa-shared/db/models/auth');
-const { deleteAccountIfUnverified: deleteAccountIfUnverifiedStub } = accountUtils;
+const {
+  getAccountCustomerByUid: getAccountCustomerByUidStub,
+} = require('fxa-shared/db/models/auth');
+const { deleteAccountIfUnverified: deleteAccountIfUnverifiedStub } =
+  accountUtils;
 const { buildTaxAddress: buildTaxAddressStub } = require('./utils');
 const { AuthLogger, AppConfig } = require('../../types');
 const { CapabilityService } = require('../../payments/capability');
@@ -76,7 +74,13 @@ const currencyHelper = new CurrencyHelper({
 const mockCapabilityService: any = {};
 const mockPromotionCodeManager: any = {};
 
-let config: any, log: any, db: any, customs: any, push: any, mailer: any, profile: any;
+let config: any,
+  log: any,
+  db: any,
+  customs: any,
+  push: any,
+  mailer: any,
+  profile: any;
 
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 const {
@@ -183,8 +187,8 @@ describe('subscriptions stripeRoutes', () => {
     const currencyHelper = new CurrencyHelper(config);
     Container.set(CurrencyHelper, currencyHelper);
 
-    mockCapabilityService.getClients = sinon.stub();
-    mockCapabilityService.getClients.resolves(mockCMSClients);
+    mockCapabilityService.getClients = jest.fn();
+    mockCapabilityService.getClients.mockResolvedValue(mockCMSClients);
     Container.set(CapabilityService, mockCapabilityService);
 
     log = mocks.mockLog();
@@ -198,35 +202,37 @@ describe('subscriptions stripeRoutes', () => {
       email: TEST_EMAIL,
       locale: ACCOUNT_LOCALE,
     });
-    db.createAccountSubscription = sinon.spy(async (data: any) => ({}));
-    db.deleteAccountSubscription = sinon.spy(
+    db.createAccountSubscription = jest.fn(async (data: any) => ({}));
+    db.deleteAccountSubscription = jest.fn(
       async (uid: any, subscriptionId: any) => ({})
     );
-    db.cancelAccountSubscription = sinon.spy(async () => ({}));
-    db.fetchAccountSubscriptions = sinon.spy(async (uid: any) =>
+    db.cancelAccountSubscription = jest.fn(async () => ({}));
+    db.fetchAccountSubscriptions = jest.fn(async (uid: any) =>
       ACTIVE_SUBSCRIPTIONS.filter((s) => s.uid === uid)
     );
-    db.getAccountSubscription = sinon.spy(async (uid: any, subscriptionId: any) => {
-      const subscription = ACTIVE_SUBSCRIPTIONS.filter(
-        (s) => s.uid === uid && s.subscriptionId === subscriptionId
-      )[0];
-      if (typeof subscription === 'undefined') {
-        throw { statusCode: 404, errno: 116 };
+    db.getAccountSubscription = jest.fn(
+      async (uid: any, subscriptionId: any) => {
+        const subscription = ACTIVE_SUBSCRIPTIONS.filter(
+          (s) => s.uid === uid && s.subscriptionId === subscriptionId
+        )[0];
+        if (typeof subscription === 'undefined') {
+          throw { statusCode: 404, errno: 116 };
+        }
+        return subscription;
       }
-      return subscription;
-    });
+    );
 
     push = mocks.mockPush();
     mailer = mocks.mockMailer();
 
     profile = mocks.mockProfile({
-      deleteCache: sinon.spy(async (uid: any) => ({})),
+      deleteCache: jest.fn(async (uid: any) => ({})),
     });
   });
 
   afterEach(() => {
     Container.reset();
-    sinon.restore();
+    jest.restoreAllMocks();
   });
 
   const VALID_REQUEST: any = {
@@ -246,7 +252,7 @@ describe('subscriptions stripeRoutes', () => {
     it('should list available subscription plans', async () => {
       const stripeHelper = mocks.mockStripeHelper(['allAbbrevPlans']);
 
-      stripeHelper.allAbbrevPlans = sinon.spy(async () => {
+      stripeHelper.allAbbrevPlans = jest.fn(async () => {
         return PLANS;
       });
 
@@ -270,7 +276,7 @@ describe('subscriptions stripeRoutes', () => {
     it('should list active subscriptions', async () => {
       const stripeHelper = mocks.mockStripeHelper(['fetchCustomer']);
 
-      stripeHelper.fetchCustomer = sinon.spy(async (uid: any, customer: any) => {
+      stripeHelper.fetchCustomer = jest.fn(async (uid: any, customer: any) => {
         return customerFixture;
       });
 
@@ -360,7 +366,7 @@ describe('handleAuth', () => {
     it('should propogate errors from database', async () => {
       let failed = false;
 
-      db.account = sinon.spy(async () => {
+      db.account = jest.fn(async () => {
         throw error.unknownAccount();
       });
 
@@ -378,7 +384,6 @@ describe('handleAuth', () => {
 });
 
 describe('DirectStripeRoutes', () => {
-  let sandbox: any;
   let directStripeRoutesInstance: any;
 
   const VALID_REQUEST: any = {
@@ -396,8 +401,6 @@ describe('DirectStripeRoutes', () => {
   };
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
-
     config = {
       subscriptions: {
         enabled: true,
@@ -412,7 +415,7 @@ describe('DirectStripeRoutes', () => {
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
     profile = mocks.mockProfile({
-      deleteCache: sinon.spy(async (uid: any) => ({})),
+      deleteCache: jest.fn(async (uid: any) => ({})),
     });
     mailer = mocks.mockMailer();
 
@@ -422,30 +425,43 @@ describe('DirectStripeRoutes', () => {
       locale: ACCOUNT_LOCALE,
       verifierSetAt: 0,
     });
-    const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
+    const stripeHelperMock: any = {};
+    // Mock all methods from the prototype chain (including parent classes)
+    let proto = StripeHelper.prototype;
+    while (proto && proto !== Object.prototype) {
+      Object.getOwnPropertyNames(proto).forEach((m) => {
+        if (m !== 'constructor' && !stripeHelperMock[m]) {
+          stripeHelperMock[m] = jest.fn();
+        }
+      });
+      proto = Object.getPrototypeOf(proto);
+    }
     stripeHelperMock.currencyHelper = currencyHelper;
     stripeHelperMock.stripe = {
       subscriptions: {
-        del: sinon.spy(async (uid: any) => undefined),
-        cancel: sinon.spy(async () => undefined),
+        del: jest.fn(async (uid: any) => undefined),
+        cancel: jest.fn(async () => undefined),
       },
     };
-    mockCapabilityService.getPlanEligibility = sinon.stub();
-    mockCapabilityService.getPlanEligibility.resolves({
+    mockCapabilityService.getPlanEligibility = jest.fn();
+    mockCapabilityService.getPlanEligibility.mockResolvedValue({
       subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
     });
-    mockCapabilityService.getClients = sinon.stub();
-    mockCapabilityService.getClients.resolves(mockCMSClients);
+    mockCapabilityService.getClients = jest.fn();
+    mockCapabilityService.getClients.mockResolvedValue(mockCMSClients);
     Container.set(CapabilityService, mockCapabilityService);
 
     const mockSubscription = deepCopy(subscription2);
-    mockPromotionCodeManager.applyPromoCodeToSubscription = sinon.stub();
-    mockPromotionCodeManager.applyPromoCodeToSubscription.resolves(
+    mockPromotionCodeManager.applyPromoCodeToSubscription = jest.fn();
+    mockPromotionCodeManager.applyPromoCodeToSubscription.mockResolvedValue(
       mockSubscription
     );
     Container.set(PromotionCodeManager, mockPromotionCodeManager);
     buildTaxAddressStub.mockReset();
-    buildTaxAddressStub.mockReturnValue({ countryCode: 'US', postalCode: '92841' });
+    buildTaxAddressStub.mockReturnValue({
+      countryCode: 'US',
+      postalCode: '92841',
+    });
 
     directStripeRoutesInstance = new DirectStripeRoutes(
       log,
@@ -460,13 +476,13 @@ describe('DirectStripeRoutes', () => {
   });
 
   afterEach(() => {
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   describe('extractPromotionCode', () => {
     it('should extract a valid PromotionCode', async () => {
       const promotionCode = { coupon: { id: 'test-code' } };
-      directStripeRoutesInstance.stripeHelper.findValidPromoCode.resolves(
+      directStripeRoutesInstance.stripeHelper.findValidPromoCode.mockResolvedValue(
         promotionCode
       );
       const res = await directStripeRoutesInstance.extractPromotionCode(
@@ -477,7 +493,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('should throw an error if on invalid promotion code', async () => {
-      directStripeRoutesInstance.stripeHelper.findValidPromoCode.resolves(
+      directStripeRoutesInstance.stripeHelper.findValidPromoCode.mockResolvedValue(
         undefined
       );
       try {
@@ -501,27 +517,26 @@ describe('DirectStripeRoutes', () => {
       );
 
       expect(
-        directStripeRoutesInstance.profile.deleteCache.calledOnceWith(UID)
-      ).toBe(true);
+        directStripeRoutesInstance.profile.deleteCache
+      ).toHaveBeenCalledWith(UID);
 
       expect(
-        directStripeRoutesInstance.push.notifyProfileUpdated.calledOnceWith(
-          UID,
-          VALID_REQUEST.app.devices
-        )
-      ).toBe(true);
+        directStripeRoutesInstance.push.notifyProfileUpdated
+      ).toHaveBeenCalledWith(UID, VALID_REQUEST.app.devices);
 
       expect(
-        directStripeRoutesInstance.profile.deleteCache.calledOnceWith(UID)
-      ).toBe(true);
+        directStripeRoutesInstance.profile.deleteCache
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.profile.deleteCache
+      ).toHaveBeenCalledWith(UID);
 
       expect(
-        directStripeRoutesInstance.log.notifyAttachedServices.calledOnceWith(
-          'profileDataChange',
-          VALID_REQUEST,
-          { uid: UID }
-        )
-      ).toBe(true);
+        directStripeRoutesInstance.log.notifyAttachedServices
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.log.notifyAttachedServices
+      ).toHaveBeenCalledWith('profileDataChange', VALID_REQUEST, { uid: UID });
     });
   });
 
@@ -536,7 +551,7 @@ describe('DirectStripeRoutes', () => {
   describe('createCustomer', () => {
     it('creates a stripe customer', async () => {
       const expected = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.createPlainCustomer.resolves(
+      directStripeRoutesInstance.stripeHelper.createPlainCustomer.mockResolvedValue(
         expected
       );
       VALID_REQUEST.payload = {
@@ -549,8 +564,8 @@ describe('DirectStripeRoutes', () => {
       const actual =
         await directStripeRoutesInstance.createCustomer(VALID_REQUEST);
       const callArgs =
-        directStripeRoutesInstance.stripeHelper.createPlainCustomer.getCall(0)
-          .args[0];
+        directStripeRoutesInstance.stripeHelper.createPlainCustomer.mock
+          .calls[0][0];
       expect(callArgs.taxAddress).toBe(undefined);
 
       expect(actual).toEqual(filterCustomer(expected));
@@ -558,7 +573,7 @@ describe('DirectStripeRoutes', () => {
 
     it('creates a stripe customer with the shipping address on automatic tax', async () => {
       const expected = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.createPlainCustomer.resolves(
+      directStripeRoutesInstance.stripeHelper.createPlainCustomer.mockResolvedValue(
         expected
       );
       VALID_REQUEST.payload = {
@@ -571,13 +586,16 @@ describe('DirectStripeRoutes', () => {
           postalCode: '92841',
         },
       };
-      buildTaxAddressStub.mockReturnValue({ countryCode: 'US', postalCode: '92841' });
+      buildTaxAddressStub.mockReturnValue({
+        countryCode: 'US',
+        postalCode: '92841',
+      });
 
       const actual =
         await directStripeRoutesInstance.createCustomer(VALID_REQUEST);
       const callArgs =
-        directStripeRoutesInstance.stripeHelper.createPlainCustomer.getCall(0)
-          .args[0];
+        directStripeRoutesInstance.stripeHelper.createPlainCustomer.mock
+          .calls[0][0];
       expect(callArgs.taxAddress?.countryCode).toBe('US');
       expect(callArgs.taxAddress?.postalCode).toBe('92841');
       expect(actual).toEqual(filterCustomer(expected));
@@ -587,7 +605,7 @@ describe('DirectStripeRoutes', () => {
   describe('previewInvoice', () => {
     it('returns the preview invoice', async () => {
       const expected = deepCopy(invoicePreviewTax);
-      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves([
+      directStripeRoutesInstance.stripeHelper.previewInvoice.mockResolvedValue([
         expected,
         undefined,
       ]);
@@ -599,29 +617,31 @@ describe('DirectStripeRoutes', () => {
       buildTaxAddressStub.mockReturnValue(undefined);
       const actual =
         await directStripeRoutesInstance.previewInvoice(VALID_REQUEST);
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkAuthenticated,
-        VALID_REQUEST,
-        UID,
-        TEST_EMAIL,
-        'previewInvoice'
-      );
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.fetchCustomer,
-        UID,
-        ['subscriptions', 'tax']
-      );
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.previewInvoice,
-        {
-          customer: undefined,
-          promotionCode: 'promotionCode',
-          priceId: 'priceId',
-          taxAddress: undefined,
-          isUpgrade: false,
-          sourcePlan: undefined,
-        }
-      );
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledWith(VALID_REQUEST, UID, TEST_EMAIL, 'previewInvoice');
+      expect(
+        directStripeRoutesInstance.stripeHelper.fetchCustomer
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.fetchCustomer
+      ).toHaveBeenCalledWith(UID, ['subscriptions', 'tax']);
+      expect(
+        directStripeRoutesInstance.stripeHelper.previewInvoice
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.previewInvoice
+      ).toHaveBeenCalledWith({
+        customer: undefined,
+        promotionCode: 'promotionCode',
+        priceId: 'priceId',
+        taxAddress: undefined,
+        isUpgrade: false,
+        sourcePlan: undefined,
+      });
       expect(actual).toEqual(
         stripeInvoiceToFirstInvoicePreviewDTO([expected, undefined])
       );
@@ -632,11 +652,11 @@ describe('DirectStripeRoutes', () => {
       mockCustomer.tax = {
         automatic_tax: 'supported',
       };
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
         mockCustomer
       );
       const expected = deepCopy(invoicePreviewTax);
-      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves([
+      directStripeRoutesInstance.stripeHelper.previewInvoice.mockResolvedValue([
         expected,
         undefined,
       ]);
@@ -648,29 +668,31 @@ describe('DirectStripeRoutes', () => {
       buildTaxAddressStub.mockReturnValue(undefined);
       const actual =
         await directStripeRoutesInstance.previewInvoice(VALID_REQUEST);
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkAuthenticated,
-        VALID_REQUEST,
-        UID,
-        TEST_EMAIL,
-        'previewInvoice'
-      );
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.fetchCustomer,
-        UID,
-        ['subscriptions', 'tax']
-      );
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.previewInvoice,
-        {
-          customer: mockCustomer,
-          promotionCode: 'promotionCode',
-          priceId: 'priceId',
-          taxAddress: undefined,
-          isUpgrade: false,
-          sourcePlan: undefined,
-        }
-      );
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledWith(VALID_REQUEST, UID, TEST_EMAIL, 'previewInvoice');
+      expect(
+        directStripeRoutesInstance.stripeHelper.fetchCustomer
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.fetchCustomer
+      ).toHaveBeenCalledWith(UID, ['subscriptions', 'tax']);
+      expect(
+        directStripeRoutesInstance.stripeHelper.previewInvoice
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.previewInvoice
+      ).toHaveBeenCalledWith({
+        customer: mockCustomer,
+        promotionCode: 'promotionCode',
+        priceId: 'priceId',
+        taxAddress: undefined,
+        isUpgrade: false,
+        sourcePlan: undefined,
+      });
       expect(actual).toEqual(
         stripeInvoiceToFirstInvoicePreviewDTO([expected, undefined])
       );
@@ -678,13 +700,17 @@ describe('DirectStripeRoutes', () => {
 
     it('returns the preview invoice even if fetch customer errors', async () => {
       const expected = deepCopy(invoicePreviewTax);
-      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves([
+      directStripeRoutesInstance.stripeHelper.previewInvoice.mockResolvedValue([
         expected,
         undefined,
       ]);
 
       const fetchError = new Error('test');
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.throws(fetchError);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockImplementation(
+        () => {
+          throw fetchError;
+        }
+      );
 
       VALID_REQUEST.payload = {
         promotionCode: 'promotionCode',
@@ -696,20 +722,22 @@ describe('DirectStripeRoutes', () => {
           postalCode: '92841',
         },
       };
-      buildTaxAddressStub.mockReturnValue({ countryCode: 'US', postalCode: '92841' });
+      buildTaxAddressStub.mockReturnValue({
+        countryCode: 'US',
+        postalCode: '92841',
+      });
 
       const actual =
         await directStripeRoutesInstance.previewInvoice(VALID_REQUEST);
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkAuthenticated,
-        VALID_REQUEST,
-        UID,
-        TEST_EMAIL,
-        'previewInvoice'
-      );
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.log.error,
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledWith(VALID_REQUEST, UID, TEST_EMAIL, 'previewInvoice');
+      expect(directStripeRoutesInstance.log.error).toHaveBeenCalledTimes(1);
+      expect(directStripeRoutesInstance.log.error).toHaveBeenCalledWith(
         'previewInvoice.fetchCustomer',
         {
           error: fetchError,
@@ -717,20 +745,22 @@ describe('DirectStripeRoutes', () => {
         }
       );
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.previewInvoice,
-        {
-          customer: undefined,
-          promotionCode: 'promotionCode',
-          priceId: 'priceId',
-          taxAddress: {
-            countryCode: 'US',
-            postalCode: '92841',
-          },
-          isUpgrade: false,
-          sourcePlan: undefined,
-        }
-      );
+      expect(
+        directStripeRoutesInstance.stripeHelper.previewInvoice
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.previewInvoice
+      ).toHaveBeenCalledWith({
+        customer: undefined,
+        promotionCode: 'promotionCode',
+        priceId: 'priceId',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
+        isUpgrade: false,
+        sourcePlan: undefined,
+      });
       expect(actual).toEqual(
         stripeInvoiceToFirstInvoicePreviewDTO([expected, undefined])
       );
@@ -738,7 +768,7 @@ describe('DirectStripeRoutes', () => {
 
     it('does not call fetchCustomer if no credentials are provided, and returns invoice preview', async () => {
       const expected = deepCopy(invoicePreviewTax);
-      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves([
+      directStripeRoutesInstance.stripeHelper.previewInvoice.mockResolvedValue([
         expected,
         undefined,
       ]);
@@ -759,33 +789,39 @@ describe('DirectStripeRoutes', () => {
         },
       };
       request.auth.credentials = undefined;
-      buildTaxAddressStub.mockReturnValue({ countryCode: 'DE', postalCode: '92841' });
+      buildTaxAddressStub.mockReturnValue({
+        countryCode: 'DE',
+        postalCode: '92841',
+      });
 
       const actual = await directStripeRoutesInstance.previewInvoice(request);
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkIpOnly,
-        request,
-        'previewInvoice'
-      );
-      sinon.assert.notCalled(
+      expect(
+        directStripeRoutesInstance.customs.checkIpOnly
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.customs.checkIpOnly
+      ).toHaveBeenCalledWith(request, 'previewInvoice');
+      expect(
         directStripeRoutesInstance.stripeHelper.fetchCustomer
-      );
+      ).not.toHaveBeenCalled();
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.previewInvoice,
-        {
-          customer: undefined,
-          promotionCode: 'promotionCode',
-          priceId: 'priceId',
-          taxAddress: {
-            countryCode: 'DE',
-            postalCode: '92841',
-          },
-          isUpgrade: false,
-          sourcePlan: undefined,
-        }
-      );
+      expect(
+        directStripeRoutesInstance.stripeHelper.previewInvoice
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.previewInvoice
+      ).toHaveBeenCalledWith({
+        customer: undefined,
+        promotionCode: 'promotionCode',
+        priceId: 'priceId',
+        taxAddress: {
+          countryCode: 'DE',
+          postalCode: '92841',
+        },
+        isUpgrade: false,
+        sourcePlan: undefined,
+      });
       expect(actual).toEqual(
         stripeInvoiceToFirstInvoicePreviewDTO([expected, undefined])
       );
@@ -794,7 +830,9 @@ describe('DirectStripeRoutes', () => {
     it('error with AppError invalidInvoicePreviewRequest', async () => {
       const appError: any = new Error('Stripe error');
       appError.type = 'StripeInvalidRequestError';
-      directStripeRoutesInstance.stripeHelper.previewInvoice.rejects(appError);
+      directStripeRoutesInstance.stripeHelper.previewInvoice.mockRejectedValue(
+        appError
+      );
 
       const request = deepCopy(VALID_REQUEST);
 
@@ -829,10 +867,10 @@ describe('DirectStripeRoutes', () => {
     expectedPreviewInvoiceBySubscriptionId: any
   ) {
     const expected = deepCopy(invoicePreviewTax);
-    directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId.resolves(
+    directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId.mockResolvedValue(
       expected
     );
-    directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
+    directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue({
       id: 'cus_id',
       subscriptions: customerSubscriptions,
     });
@@ -846,24 +884,26 @@ describe('DirectStripeRoutes', () => {
     const actual =
       await directStripeRoutesInstance.subsequentInvoicePreviews(VALID_REQUEST);
 
-    sinon.assert.calledOnceWithExactly(
-      directStripeRoutesInstance.customs.checkAuthenticated,
+    expect(
+      directStripeRoutesInstance.customs.checkAuthenticated
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      directStripeRoutesInstance.customs.checkAuthenticated
+    ).toHaveBeenCalledWith(
       VALID_REQUEST,
       UID,
       TEST_EMAIL,
       'subsequentInvoicePreviews'
     );
-    sinon.assert.calledTwice(
+    expect(
       directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
-    );
-    sinon.assert.calledWith(
-      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
-      expectedPreviewInvoiceBySubscriptionId[0]
-    );
-    sinon.assert.calledWith(
-      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId,
-      expectedPreviewInvoiceBySubscriptionId[1]
-    );
+    ).toHaveBeenCalledTimes(2);
+    expect(
+      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
+    ).toHaveBeenCalledWith(expectedPreviewInvoiceBySubscriptionId[0]);
+    expect(
+      directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
+    ).toHaveBeenCalledWith(expectedPreviewInvoiceBySubscriptionId[1]);
     expect(actual).toEqual(
       stripeInvoicesToSubsequentInvoicePreviewsDTO([expected, expected])
     );
@@ -908,7 +948,7 @@ describe('DirectStripeRoutes', () => {
 
     it('return empty array if customer has no subscriptions', async () => {
       const expected: any[] = [];
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves({
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue({
         id: 'cus_id',
         subscriptions: {
           data: [],
@@ -921,21 +961,27 @@ describe('DirectStripeRoutes', () => {
           VALID_REQUEST
         );
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkAuthenticated,
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledWith(
         VALID_REQUEST,
         UID,
         TEST_EMAIL,
         'subsequentInvoicePreviews'
       );
-      sinon.assert.notCalled(
+      expect(
         directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
-      );
+      ).not.toHaveBeenCalled();
       expect(actual).toEqual(expected);
     });
 
     it('returns empty array if customer is not found', async () => {
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(null);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
+        null
+      );
       VALID_REQUEST.app.geo = {};
       const expected: any[] = [];
       const actual =
@@ -943,16 +989,20 @@ describe('DirectStripeRoutes', () => {
           VALID_REQUEST
         );
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkAuthenticated,
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledWith(
         VALID_REQUEST,
         UID,
         TEST_EMAIL,
         'subsequentInvoicePreviews'
       );
-      sinon.assert.notCalled(
+      expect(
         directStripeRoutesInstance.stripeHelper.previewInvoiceBySubscriptionId
-      );
+      ).not.toHaveBeenCalled();
       expect(actual).toEqual(expected);
     });
   });
@@ -966,7 +1016,7 @@ describe('DirectStripeRoutes', () => {
         discountAmount: 50,
       };
 
-      directStripeRoutesInstance.stripeHelper.retrieveCouponDetails.resolves(
+      directStripeRoutesInstance.stripeHelper.retrieveCouponDetails.mockResolvedValue(
         expected
       );
 
@@ -983,25 +1033,33 @@ describe('DirectStripeRoutes', () => {
       const actual =
         await directStripeRoutesInstance.retrieveCouponDetails(VALID_REQUEST);
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkAuthenticated,
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledWith(
         VALID_REQUEST,
         UID,
         TEST_EMAIL,
         'retrieveCouponDetails'
       );
-      sinon.assert.notCalled(directStripeRoutesInstance.customs.checkIpOnly);
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.retrieveCouponDetails,
-        {
-          promotionCode: 'promotionCode',
-          priceId: 'priceId',
-          taxAddress: {
-            countryCode: 'US',
-            postalCode: '92841',
-          },
-        }
-      );
+      expect(
+        directStripeRoutesInstance.customs.checkIpOnly
+      ).not.toHaveBeenCalled();
+      expect(
+        directStripeRoutesInstance.stripeHelper.retrieveCouponDetails
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.retrieveCouponDetails
+      ).toHaveBeenCalledWith({
+        promotionCode: 'promotionCode',
+        priceId: 'priceId',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
+      });
 
       expect(actual).toEqual(expected);
     });
@@ -1011,12 +1069,13 @@ describe('DirectStripeRoutes', () => {
       request.auth.credentials = undefined;
       await directStripeRoutesInstance.retrieveCouponDetails(request);
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkIpOnly,
-        request,
-        'retrieveCouponDetails'
-      );
-      sinon.assert.notCalled(directStripeRoutesInstance.customs.check);
+      expect(
+        directStripeRoutesInstance.customs.checkIpOnly
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.customs.checkIpOnly
+      ).toHaveBeenCalledWith(request, 'retrieveCouponDetails');
+      expect(directStripeRoutesInstance.customs.check).not.toHaveBeenCalled();
     });
   });
 
@@ -1041,9 +1100,11 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('errors with AppError subscriptionPromotionCodeNotApplied if CustomerError returned from StripeService', async () => {
-      const sentryScope = { setContext: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sandbox.stub(sentryModule, 'reportSentryMessage');
+      const sentryScope = { setContext: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(sentryModule, 'reportSentryMessage');
 
       let mockSub = deepCopy(subscription2);
       const mockCustomer = deepCopy(customerFixture);
@@ -1060,7 +1121,7 @@ describe('DirectStripeRoutes', () => {
         ...mockPrice,
       };
 
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
         mockCustomer
       );
 
@@ -1070,8 +1131,8 @@ describe('DirectStripeRoutes', () => {
       };
 
       const stripeError = new CustomerError('Oh no.');
-      mockPromotionCodeManager.applyPromoCodeToSubscription = sinon.stub();
-      mockPromotionCodeManager.applyPromoCodeToSubscription.rejects(
+      mockPromotionCodeManager.applyPromoCodeToSubscription = jest.fn();
+      mockPromotionCodeManager.applyPromoCodeToSubscription.mockRejectedValue(
         stripeError
       );
 
@@ -1081,19 +1142,17 @@ describe('DirectStripeRoutes', () => {
         );
       } catch (err: any) {
         expect(err).toBeInstanceOf(error);
-        expect(err.errno).toBe(
-          error.ERRNO.SUBSCRIPTION_PROMO_CODE_NOT_APPLIED
-        );
+        expect(err.errno).toBe(error.ERRNO.SUBSCRIPTION_PROMO_CODE_NOT_APPLIED);
       }
 
-      sinon.assert.notCalled(Sentry.withScope);
+      expect(Sentry.withScope).not.toHaveBeenCalled();
     });
 
     it('throws error if fails', async () => {
       const mockSubscription = deepCopy(subscription2);
       const mockCustomer = mockSubscription.customer;
 
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
         mockCustomer
       );
 
@@ -1103,8 +1162,10 @@ describe('DirectStripeRoutes', () => {
       };
 
       const testError = new Error('Something went wrong');
-      mockPromotionCodeManager.applyPromoCodeToSubscription = sinon.stub();
-      mockPromotionCodeManager.applyPromoCodeToSubscription.rejects(testError);
+      mockPromotionCodeManager.applyPromoCodeToSubscription = jest.fn();
+      mockPromotionCodeManager.applyPromoCodeToSubscription.mockRejectedValue(
+        testError
+      );
 
       try {
         await directStripeRoutesInstance.applyPromotionCodeToSubscription(
@@ -1123,7 +1184,7 @@ describe('DirectStripeRoutes', () => {
       const mockCustomer = deepCopy(customerFixture);
       mockSubscription.customer = mockCustomer.id;
 
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
         mockCustomer
       );
 
@@ -1132,8 +1193,8 @@ describe('DirectStripeRoutes', () => {
         subscriptionId: mockSubscription.id,
       };
 
-      mockPromotionCodeManager.applyPromoCodeToSubscription = sinon.stub();
-      mockPromotionCodeManager.applyPromoCodeToSubscription.resolves(
+      mockPromotionCodeManager.applyPromoCodeToSubscription = jest.fn();
+      mockPromotionCodeManager.applyPromoCodeToSubscription.mockResolvedValue(
         mockSubscription
       );
 
@@ -1142,8 +1203,12 @@ describe('DirectStripeRoutes', () => {
           VALID_REQUEST
         );
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.checkAuthenticated,
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.customs.checkAuthenticated
+      ).toHaveBeenCalledWith(
         VALID_REQUEST,
         UID,
         TEST_EMAIL,
@@ -1151,12 +1216,15 @@ describe('DirectStripeRoutes', () => {
       );
 
       expect(
-        mockPromotionCodeManager.applyPromoCodeToSubscription.calledOnceWithExactly(
-          mockCustomer.id,
-          mockSubscription.id,
-          'promo_code1'
-        )
-      ).toBe(true);
+        mockPromotionCodeManager.applyPromoCodeToSubscription
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockPromotionCodeManager.applyPromoCodeToSubscription
+      ).toHaveBeenCalledWith(
+        mockCustomer.id,
+        mockSubscription.id,
+        'promo_code1'
+      );
 
       expect(actual).toEqual(mockSubscription);
     });
@@ -1168,31 +1236,41 @@ describe('DirectStripeRoutes', () => {
     beforeEach(() => {
       plan = deepCopy(PLANS[2]);
       plan.currency = 'USD';
-      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
-      sandbox.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.mockResolvedValue(
+        plan
+      );
+      jest
+        .spyOn(directStripeRoutesInstance, 'customerChanged')
+        .mockResolvedValue();
       paymentMethod = deepCopy(paymentMethodFixture);
-      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.mockResolvedValue(
         paymentMethod
       );
       customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
-      directStripeRoutesInstance.stripeHelper.findCustomerSubscriptionByPlanId.returns(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
+        customer
+      );
+      directStripeRoutesInstance.stripeHelper.findCustomerSubscriptionByPlanId.mockReturnValue(
         undefined
       );
-      directStripeRoutesInstance.stripeHelper.setCustomerLocation.resolves();
+      directStripeRoutesInstance.stripeHelper.setCustomerLocation.mockResolvedValue();
     });
 
     function setupCreateSuccessWithTaxIds() {
       const sourceCountry = 'US';
-      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.mockReturnValue(
         sourceCountry
       );
       const expected = deepCopy(subscription2);
-      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.mockResolvedValue(
         expected
       );
-      directStripeRoutesInstance.stripeHelper.customerTaxId.returns(false);
-      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
+      directStripeRoutesInstance.stripeHelper.customerTaxId.mockReturnValue(
+        false
+      );
+      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.mockResolvedValue(
+        {}
+      );
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
@@ -1202,12 +1280,13 @@ describe('DirectStripeRoutes', () => {
     }
 
     function assertSuccess(sourceCountry: any, actual: any, expected: any) {
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.getPaymentMethod,
-        VALID_REQUEST.payload.paymentMethodId
-      );
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.customerChanged,
+      expect(
+        directStripeRoutesInstance.stripeHelper.getPaymentMethod
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.getPaymentMethod
+      ).toHaveBeenCalledWith(VALID_REQUEST.payload.paymentMethodId);
+      expect(directStripeRoutesInstance.customerChanged).toHaveBeenCalledWith(
         VALID_REQUEST,
         UID,
         TEST_EMAIL
@@ -1221,72 +1300,80 @@ describe('DirectStripeRoutes', () => {
 
     it('creates a subscription with a payment method and promotion code', async () => {
       const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
-      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
+      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.mockReturnValue(
         true
       );
-      directStripeRoutesInstance.extractPromotionCode = sinon.stub().resolves({
-        coupon: { id: 'couponId' },
-      });
+      directStripeRoutesInstance.extractPromotionCode = jest
+        .fn()
+        .mockResolvedValue({
+          coupon: { id: 'couponId' },
+        });
       const actual =
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
-        {
-          customerId: 'cus_new',
-          priceId: 'Jane Doe',
-          paymentMethodId: 'pm_asdf',
-          promotionCode: {
-            coupon: { id: 'couponId' },
-          },
-          automaticTax: true,
-        }
-      );
+      expect(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI
+      ).toHaveBeenCalledWith({
+        customerId: 'cus_new',
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        promotionCode: {
+          coupon: { id: 'couponId' },
+        },
+        automaticTax: true,
+      });
       assertSuccess(sourceCountry, actual, expected);
     });
 
     it('creates a subscription with a payment method', async () => {
       const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
-      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
+      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.mockReturnValue(
         true
       );
       const actual =
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
-        {
-          customerId: 'cus_new',
-          priceId: 'Jane Doe',
-          paymentMethodId: 'pm_asdf',
-          promotionCode: undefined,
-          automaticTax: true,
-        }
-      );
+      expect(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI
+      ).toHaveBeenCalledWith({
+        customerId: 'cus_new',
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        promotionCode: undefined,
+        automaticTax: true,
+      });
       assertSuccess(sourceCountry, actual, expected);
     });
 
     it('creates a subscription with a payment method using automatic tax but in an unsupported region', async () => {
       const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
-      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
+      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.mockReturnValue(
         false
       );
       const actual =
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
-        {
-          customerId: 'cus_new',
-          priceId: 'Jane Doe',
-          paymentMethodId: 'pm_asdf',
-          promotionCode: undefined,
-          automaticTax: false,
-        }
-      );
+      expect(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI
+      ).toHaveBeenCalledWith({
+        customerId: 'cus_new',
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        promotionCode: undefined,
+        automaticTax: false,
+      });
       assertSuccess(sourceCountry, actual, expected);
     });
 
@@ -1307,7 +1394,9 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('errors when a customer has not been created', async () => {
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(undefined);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
+        undefined
+      );
       VALID_REQUEST.payload = {
         displayName: 'Jane Doe',
         idempotencyKey: uuidv4(),
@@ -1324,7 +1413,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('errors when customer is already subscribed to plan', async () => {
-      mockCapabilityService.getPlanEligibility.resolves(
+      mockCapabilityService.getPlanEligibility.mockResolvedValue(
         SubscriptionEligibilityResult.INVALID
       );
 
@@ -1336,19 +1425,23 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-        throw new Error('Create subscription when already subscribed should fail.');
+        throw new Error(
+          'Create subscription when already subscribed should fail.'
+        );
       } catch (err: any) {
         expect(err).toBeInstanceOf(error);
         expect(err.errno).toBe(error.ERRNO.SUBSCRIPTION_ALREADY_EXISTS);
-        sinon.assert.notCalled(
+        expect(
           directStripeRoutesInstance.stripeHelper.cancelSubscription
-        );
+        ).not.toHaveBeenCalled();
       }
     });
 
     it('errors if the planCurrency does not match the paymentMethod country', async () => {
       plan.currency = 'EUR';
-      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.mockResolvedValue(
+        plan
+      );
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
@@ -1358,7 +1451,9 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-        throw new Error('Create subscription with wrong planCurrency should fail.');
+        throw new Error(
+          'Create subscription with wrong planCurrency should fail.'
+        );
       } catch (err: any) {
         expect(err).toBeInstanceOf(error);
         expect(err.errno).toBe(error.ERRNO.INVALID_REGION);
@@ -1370,7 +1465,7 @@ describe('DirectStripeRoutes', () => {
 
     it('errors if the paymentMethod country does not match the planCurrency', async () => {
       paymentMethod.card.country = 'FR';
-      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.mockResolvedValue(
         paymentMethod
       );
       VALID_REQUEST.payload = {
@@ -1382,7 +1477,9 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-        throw new Error('Create subscription with wrong planCurrency should fail.');
+        throw new Error(
+          'Create subscription with wrong planCurrency should fail.'
+        );
       } catch (err: any) {
         expect(err).toBeInstanceOf(error);
         expect(err.errno).toBe(error.ERRNO.INVALID_REGION);
@@ -1394,7 +1491,7 @@ describe('DirectStripeRoutes', () => {
 
     it('calls deleteAccountIfUnverified when there is an error', async () => {
       paymentMethod.card.country = 'FR';
-      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.mockResolvedValue(
         paymentMethod
       );
       VALID_REQUEST.payload = {
@@ -1410,7 +1507,9 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-        throw new Error('Create subscription with wrong planCurrency should fail.');
+        throw new Error(
+          'Create subscription with wrong planCurrency should fail.'
+        );
       } catch (err: any) {
         expect(deleteAccountIfUnverifiedStub).toHaveBeenCalledTimes(1);
         expect(err).toBeInstanceOf(error);
@@ -1420,7 +1519,7 @@ describe('DirectStripeRoutes', () => {
 
     it('ignores account exists error from deleteAccountIfUnverified', async () => {
       paymentMethod.card.country = 'FR';
-      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.mockResolvedValue(
         paymentMethod
       );
       VALID_REQUEST.payload = {
@@ -1438,7 +1537,9 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-        throw new Error('Create subscription with wrong planCurrency should fail.');
+        throw new Error(
+          'Create subscription with wrong planCurrency should fail.'
+        );
       } catch (err: any) {
         expect(deleteAccountIfUnverifiedStub).toHaveBeenCalledTimes(1);
         expect(err).toBeInstanceOf(error);
@@ -1448,7 +1549,7 @@ describe('DirectStripeRoutes', () => {
 
     it('ignores verified email error from deleteAccountIfUnverified', async () => {
       paymentMethod.card.country = 'FR';
-      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.mockResolvedValue(
         paymentMethod
       );
       VALID_REQUEST.payload = {
@@ -1466,7 +1567,9 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-        throw new Error('Create subscription with wrong planCurrency should fail.');
+        throw new Error(
+          'Create subscription with wrong planCurrency should fail.'
+        );
       } catch (err: any) {
         expect(deleteAccountIfUnverifiedStub).toHaveBeenCalledTimes(1);
         expect(err).toBeInstanceOf(error);
@@ -1475,8 +1578,6 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('skips calling deleteAccountIfUnverified if verifiedSetAt is greater than 0', async () => {
-      sandbox = sinon.createSandbox();
-
       config = {
         subscriptions: {
           enabled: true,
@@ -1490,7 +1591,7 @@ describe('DirectStripeRoutes', () => {
       log = mocks.mockLog();
       customs = mocks.mockCustoms();
       profile = mocks.mockProfile({
-        deleteCache: sinon.spy(async (uid: any) => ({})),
+        deleteCache: jest.fn(async (uid: any) => ({})),
       });
       mailer = mocks.mockMailer();
 
@@ -1499,7 +1600,17 @@ describe('DirectStripeRoutes', () => {
         email: TEST_EMAIL,
         locale: ACCOUNT_LOCALE,
       });
-      const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
+      const stripeHelperMock: any = {};
+      for (
+        let p = StripeHelper.prototype;
+        p && p !== Object.prototype;
+        p = Object.getPrototypeOf(p)
+      ) {
+        Object.getOwnPropertyNames(p).forEach((m) => {
+          if (m !== 'constructor' && !stripeHelperMock[m])
+            stripeHelperMock[m] = jest.fn();
+        });
+      }
       stripeHelperMock.currencyHelper = currencyHelper;
 
       directStripeRoutesInstance = new DirectStripeRoutes(
@@ -1514,7 +1625,7 @@ describe('DirectStripeRoutes', () => {
       );
 
       paymentMethod.card.country = 'FR';
-      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.mockResolvedValue(
         paymentMethod
       );
       VALID_REQUEST.payload = {
@@ -1523,32 +1634,39 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey: uuidv4(),
       };
 
-      const localDeleteStub = sandbox
-        .stub(accountUtils, 'deleteAccountIfUnverified')
-        .throws(error.verifiedSecondaryEmailAlreadyExists());
+      const thrownError = error.verifiedSecondaryEmailAlreadyExists();
+      const localDeleteStub = jest
+        .spyOn(accountUtils, 'deleteAccountIfUnverified')
+        .mockImplementation(() => {
+          throw thrownError;
+        });
 
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-        throw new Error('Create subscription with wrong planCurrency should fail.');
+        throw new Error(
+          'Create subscription with wrong planCurrency should fail.'
+        );
       } catch (err: any) {
-        expect(localDeleteStub.calledOnce).toBe(false);
+        expect(localDeleteStub.mock.calls.length === 1).toBe(false);
       }
     });
 
     it('creates a subscription without an payment id in the request', async () => {
       const sourceCountry = 'us';
-      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.mockReturnValue(
         sourceCountry
       );
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
-      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
+        customer
+      );
+      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.mockReturnValue(
         true
       );
       const expected = deepCopy(subscription2);
-      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.mockResolvedValue(
         expected
       );
       const idempotencyKey = uuidv4();
@@ -1567,18 +1685,16 @@ describe('DirectStripeRoutes', () => {
         sourceCountry,
         subscription: filterSubscription(expected),
       });
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
-        {
-          customerId: customer.id,
-          priceId: 'quux',
-          promotionCode: undefined,
-          paymentMethodId: undefined,
-          automaticTax: true,
-        }
-      );
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.customerChanged,
+      expect(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI
+      ).toHaveBeenCalledWith({
+        customerId: customer.id,
+        priceId: 'quux',
+        promotionCode: undefined,
+        paymentMethodId: undefined,
+        automaticTax: true,
+      });
+      expect(directStripeRoutesInstance.customerChanged).toHaveBeenCalledWith(
         VALID_REQUEST,
         UID,
         TEST_EMAIL
@@ -1587,7 +1703,7 @@ describe('DirectStripeRoutes', () => {
 
     it('deletes incomplete subscription when creating new subscription', async () => {
       const invalidSubscriptionId = 'example';
-      directStripeRoutesInstance.stripeHelper.findCustomerSubscriptionByPlanId.returns(
+      directStripeRoutesInstance.stripeHelper.findCustomerSubscriptionByPlanId.mockReturnValue(
         {
           id: invalidSubscriptionId,
           status: 'incomplete',
@@ -1595,15 +1711,17 @@ describe('DirectStripeRoutes', () => {
       );
 
       const sourceCountry = 'us';
-      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.mockReturnValue(
         sourceCountry
       );
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
-      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
+        customer
+      );
+      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.mockReturnValue(
         true
       );
-      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.mockResolvedValue(
         deepCopy(subscription2)
       );
 
@@ -1614,38 +1732,42 @@ describe('DirectStripeRoutes', () => {
 
       await directStripeRoutesInstance.createSubscriptionWithPMI(VALID_REQUEST);
 
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
-        {
-          customerId: customer.id,
-          priceId: 'quux',
-          promotionCode: undefined,
-          paymentMethodId: undefined,
-          automaticTax: true,
-        }
-      );
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.stripeHelper.cancelSubscription,
-        invalidSubscriptionId
-      );
+      expect(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI
+      ).toHaveBeenCalledWith({
+        customerId: customer.id,
+        priceId: 'quux',
+        promotionCode: undefined,
+        paymentMethodId: undefined,
+        automaticTax: true,
+      });
+      expect(
+        directStripeRoutesInstance.stripeHelper.cancelSubscription
+      ).toHaveBeenCalledWith(invalidSubscriptionId);
     });
 
     it('does not report to Sentry if the customer has a payment method on file', async () => {
-      const sentryScope = { setContext: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sandbox.stub(sentryModule, 'reportSentryMessage');
+      const sentryScope = { setContext: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(sentryModule, 'reportSentryMessage');
 
       delete paymentMethod.billing_details.address;
       const sourceCountry = 'US';
-      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.mockReturnValue(
         sourceCountry
       );
       const expected = deepCopy(subscription2);
-      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.mockResolvedValue(
         subscription2
       );
-      directStripeRoutesInstance.stripeHelper.customerTaxId.returns(false);
-      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
+      directStripeRoutesInstance.stripeHelper.customerTaxId.mockReturnValue(
+        false
+      );
+      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.mockResolvedValue(
+        {}
+      );
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         idempotencyKey: uuidv4(),
@@ -1656,62 +1778,67 @@ describe('DirectStripeRoutes', () => {
           VALID_REQUEST
         );
 
-      sinon.assert.notCalled(
+      expect(
         directStripeRoutesInstance.stripeHelper.getPaymentMethod
-      );
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.customerChanged,
+      ).not.toHaveBeenCalled();
+      expect(directStripeRoutesInstance.customerChanged).toHaveBeenCalledWith(
         VALID_REQUEST,
         UID,
         TEST_EMAIL
       );
-      sinon.assert.notCalled(
+      expect(
         directStripeRoutesInstance.stripeHelper.taxRateByCountryCode
-      );
-      sinon.assert.notCalled(
+      ).not.toHaveBeenCalled();
+      expect(
         directStripeRoutesInstance.stripeHelper.customerTaxId
-      );
-      sinon.assert.notCalled(
+      ).not.toHaveBeenCalled();
+      expect(
         directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer
-      );
+      ).not.toHaveBeenCalled();
 
       expect(actual).toEqual({
         sourceCountry,
         subscription: filterSubscription(expected),
       });
-      sinon.assert.notCalled(
+      expect(
         directStripeRoutesInstance.stripeHelper.setCustomerLocation
-      );
-      sinon.assert.notCalled(sentryScope.setContext);
-      sinon.assert.notCalled(sentryModule.reportSentryMessage);
+      ).not.toHaveBeenCalled();
+      expect(sentryScope.setContext).not.toHaveBeenCalled();
+      expect(sentryModule.reportSentryMessage).not.toHaveBeenCalled();
     });
 
     it('skips location lookup when source country is not needed', async () => {
       const sourceCountry = 'DE';
-      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.mockReturnValue(
         sourceCountry
       );
       const expected = deepCopy(subscription2);
-      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.mockResolvedValue(
         expected
       );
-      directStripeRoutesInstance.stripeHelper.customerTaxId.returns(false);
-      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
+      directStripeRoutesInstance.stripeHelper.customerTaxId.mockReturnValue(
+        false
+      );
+      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.mockResolvedValue(
+        {}
+      );
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
         idempotencyKey: uuidv4(),
       };
 
-      const sentryScope = { setContext: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sandbox.stub(sentryModule, 'reportSentryMessage');
+      const sentryScope = { setContext: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(sentryModule, 'reportSentryMessage');
 
       await directStripeRoutesInstance.createSubscriptionWithPMI(VALID_REQUEST);
-      sinon.assert.notCalled(
+      expect(
         directStripeRoutesInstance.stripeHelper.setCustomerLocation
-      );
-      sinon.assert.notCalled(Sentry.withScope);
+      ).not.toHaveBeenCalled();
+      expect(Sentry.withScope).not.toHaveBeenCalled();
     });
   });
 
@@ -1722,10 +1849,12 @@ describe('DirectStripeRoutes', () => {
         stripeCustomerId: customer.id,
       });
       const expected = deepCopy(openInvoice);
-      directStripeRoutesInstance.stripeHelper.retryInvoiceWithPaymentId.resolves(
+      directStripeRoutesInstance.stripeHelper.retryInvoiceWithPaymentId.mockResolvedValue(
         expected
       );
-      sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+      jest
+        .spyOn(directStripeRoutesInstance, 'customerChanged')
+        .mockResolvedValue();
       VALID_REQUEST.payload = {
         invoiceId: 'in_testinvoice',
         paymentMethodId: 'pm_asdf',
@@ -1735,8 +1864,7 @@ describe('DirectStripeRoutes', () => {
       const actual =
         await directStripeRoutesInstance.retryInvoice(VALID_REQUEST);
 
-      sinon.assert.calledWith(
-        directStripeRoutesInstance.customerChanged,
+      expect(directStripeRoutesInstance.customerChanged).toHaveBeenCalledWith(
         VALID_REQUEST,
         UID,
         TEST_EMAIL
@@ -1768,7 +1896,7 @@ describe('DirectStripeRoutes', () => {
         stripeCustomerId: customer.id,
       });
       const expected = deepCopy(newSetupIntent);
-      directStripeRoutesInstance.stripeHelper.createSetupIntent.resolves(
+      directStripeRoutesInstance.stripeHelper.createSetupIntent.mockResolvedValue(
         expected
       );
       VALID_REQUEST.payload = {};
@@ -1796,7 +1924,7 @@ describe('DirectStripeRoutes', () => {
     let paymentMethod: any;
     beforeEach(() => {
       paymentMethod = deepCopy(paymentMethodFixture);
-      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.mockResolvedValue(
         paymentMethod
       );
     });
@@ -1809,19 +1937,19 @@ describe('DirectStripeRoutes', () => {
       const expected = deepCopy(emptyCustomer);
       expected.invoice_settings.default_payment_method = paymentMethodId;
 
-      directStripeRoutesInstance.stripeHelper.fetchCustomer
-        .onCall(0)
-        .resolves(customer);
-      directStripeRoutesInstance.stripeHelper.fetchCustomer
-        .onCall(1)
-        .resolves(expected);
-      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValueOnce(
+        customer
+      );
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValueOnce(
+        expected
+      );
+      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.mockResolvedValue(
         {
           ...customer,
           invoice_settings: { default_payment_method: paymentMethodId },
         }
       );
-      directStripeRoutesInstance.stripeHelper.removeSources.resolves([
+      directStripeRoutesInstance.stripeHelper.removeSources.mockResolvedValue([
         {},
         {},
         {},
@@ -1836,29 +1964,35 @@ describe('DirectStripeRoutes', () => {
           VALID_REQUEST
         );
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.getPaymentMethod,
-        VALID_REQUEST.payload.paymentMethodId
-      );
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.setCustomerLocation,
-        {
-          customerId: customer.id,
-          postalCode: paymentMethodFixture.billing_details.address.postal_code,
-          country: paymentMethodFixture.card.country,
-        }
-      );
+      expect(
+        directStripeRoutesInstance.stripeHelper.getPaymentMethod
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.getPaymentMethod
+      ).toHaveBeenCalledWith(VALID_REQUEST.payload.paymentMethodId);
+      expect(
+        directStripeRoutesInstance.stripeHelper.setCustomerLocation
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.setCustomerLocation
+      ).toHaveBeenCalledWith({
+        customerId: customer.id,
+        postalCode: paymentMethodFixture.billing_details.address.postal_code,
+        country: paymentMethodFixture.card.country,
+      });
       expect(actual).toEqual(filterCustomer(expected));
-      sinon.assert.calledOnce(
+      expect(
         directStripeRoutesInstance.stripeHelper.removeSources
-      );
+      ).toHaveBeenCalledTimes(1);
     });
 
     it('errors when a customer currency does not match new paymentMethod country', async () => {
       // Payment method country already set to US in beforeEach;
       const customer = deepCopy(emptyCustomer);
       customer.currency = 'EUR';
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
+        customer
+      );
 
       try {
         await directStripeRoutesInstance.updateDefaultPaymentMethod(
@@ -1890,9 +2024,11 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('reports to Sentry if when the customer location cannot be set', async () => {
-      const sentryScope = { setContext: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sandbox.stub(sentryModule, 'reportSentryMessage');
+      const sentryScope = { setContext: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(sentryModule, 'reportSentryMessage');
 
       delete paymentMethod.billing_details.address;
       const customer = deepCopy(emptyCustomer);
@@ -1902,19 +2038,19 @@ describe('DirectStripeRoutes', () => {
       const expected = deepCopy(emptyCustomer);
       expected.invoice_settings.default_payment_method = paymentMethodId;
 
-      directStripeRoutesInstance.stripeHelper.fetchCustomer
-        .onCall(0)
-        .resolves(customer);
-      directStripeRoutesInstance.stripeHelper.fetchCustomer
-        .onCall(1)
-        .resolves(expected);
-      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValueOnce(
+        customer
+      );
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValueOnce(
+        expected
+      );
+      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.mockResolvedValue(
         {
           ...customer,
           invoice_settings: { default_payment_method: paymentMethodId },
         }
       );
-      directStripeRoutesInstance.stripeHelper.removeSources.resolves([
+      directStripeRoutesInstance.stripeHelper.removeSources.mockResolvedValue([
         {},
         {},
         {},
@@ -1929,30 +2065,32 @@ describe('DirectStripeRoutes', () => {
           VALID_REQUEST
         );
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.getPaymentMethod,
-        VALID_REQUEST.payload.paymentMethodId
-      );
+      expect(
+        directStripeRoutesInstance.stripeHelper.getPaymentMethod
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.getPaymentMethod
+      ).toHaveBeenCalledWith(VALID_REQUEST.payload.paymentMethodId);
       expect(actual).toEqual(filterCustomer(expected));
-      sinon.assert.calledOnce(
+      expect(
         directStripeRoutesInstance.stripeHelper.removeSources
-      );
+      ).toHaveBeenCalledTimes(1);
 
       // Everything else worked but there was a Sentry error for not settinng
       // the location of the customer
-      sinon.assert.notCalled(
+      expect(
         directStripeRoutesInstance.stripeHelper.setCustomerLocation
-      );
-      sinon.assert.calledOnceWithExactly(
-        sentryScope.setContext,
+      ).not.toHaveBeenCalled();
+      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
+      expect(sentryScope.setContext).toHaveBeenCalledWith(
         'updateDefaultPaymentMethod',
         {
           customerId: customer.id,
           paymentMethodId: paymentMethod.id,
         }
       );
-      sinon.assert.calledOnceWithExactly(
-        sentryModule.reportSentryMessage,
+      expect(sentryModule.reportSentryMessage).toHaveBeenCalledTimes(1);
+      expect(sentryModule.reportSentryMessage).toHaveBeenCalledWith(
         `Cannot find a postal code or country for customer.`,
         'error'
       );
@@ -1963,26 +2101,28 @@ describe('DirectStripeRoutes', () => {
       customer.currency = 'USD';
       paymentMethod.card.country = 'GB';
       const paymentMethodId = 'card_1G9Vy3Kb9q6OnNsLYw9Zw0Du';
-      const sentryScope = { setContext: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sandbox.stub(sentryModule, 'reportSentryMessage');
+      const sentryScope = { setContext: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(sentryModule, 'reportSentryMessage');
 
       const expected = deepCopy(emptyCustomer);
       expected.invoice_settings.default_payment_method = paymentMethodId;
 
-      directStripeRoutesInstance.stripeHelper.fetchCustomer
-        .onCall(0)
-        .resolves(customer);
-      directStripeRoutesInstance.stripeHelper.fetchCustomer
-        .onCall(1)
-        .resolves(expected);
-      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValueOnce(
+        customer
+      );
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValueOnce(
+        expected
+      );
+      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.mockResolvedValue(
         {
           ...customer,
           invoice_settings: { default_payment_method: paymentMethodId },
         }
       );
-      directStripeRoutesInstance.stripeHelper.removeSources.resolves([
+      directStripeRoutesInstance.stripeHelper.removeSources.mockResolvedValue([
         {},
         {},
         {},
@@ -1996,10 +2136,10 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST
       );
 
-      sinon.assert.notCalled(
+      expect(
         directStripeRoutesInstance.stripeHelper.setCustomerLocation
-      );
-      sinon.assert.notCalled(Sentry.withScope);
+      ).not.toHaveBeenCalled();
+      expect(Sentry.withScope).not.toHaveBeenCalled();
     });
   });
 
@@ -2010,8 +2150,10 @@ describe('DirectStripeRoutes', () => {
       const paymentMethodId = 'pm_9001';
       const expected = { id: paymentMethodId, isGood: 'yep' };
 
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
-      directStripeRoutesInstance.stripeHelper.detachPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
+        customer
+      );
+      directStripeRoutesInstance.stripeHelper.detachPaymentMethod.mockResolvedValue(
         expected
       );
 
@@ -2025,10 +2167,12 @@ describe('DirectStripeRoutes', () => {
         );
 
       expect(actual).toEqual(expected);
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.detachPaymentMethod,
-        paymentMethodId
-      );
+      expect(
+        directStripeRoutesInstance.stripeHelper.detachPaymentMethod
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.detachPaymentMethod
+      ).toHaveBeenCalledWith(paymentMethodId);
     });
 
     it('does not detach if the subscription is not "incomplete"', async () => {
@@ -2036,8 +2180,10 @@ describe('DirectStripeRoutes', () => {
       const paymentMethodId = 'pm_9001';
       const resp = { id: paymentMethodId, isGood: 'yep' };
 
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
-      directStripeRoutesInstance.stripeHelper.detachPaymentMethod.resolves(
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
+        customer
+      );
+      directStripeRoutesInstance.stripeHelper.detachPaymentMethod.mockResolvedValue(
         resp
       );
 
@@ -2050,9 +2196,9 @@ describe('DirectStripeRoutes', () => {
         );
 
       expect(actual).toEqual({ id: paymentMethodId });
-      sinon.assert.notCalled(
+      expect(
         directStripeRoutesInstance.stripeHelper.detachPaymentMethod
-      );
+      ).not.toHaveBeenCalled();
     });
 
     it('errors when a customer has not been created', async () => {
@@ -2089,7 +2235,7 @@ describe('DirectStripeRoutes', () => {
     it('returns the subscription id', async () => {
       const expected = { subscriptionId: subscription2.id };
 
-      directStripeRoutesInstance.stripeHelper.cancelSubscriptionForCustomer.resolves();
+      directStripeRoutesInstance.stripeHelper.cancelSubscriptionForCustomer.mockResolvedValue();
       const actual =
         await directStripeRoutesInstance.deleteSubscription(deleteSubRequest);
 
@@ -2113,7 +2259,7 @@ describe('DirectStripeRoutes', () => {
     };
 
     it('returns an empty object', async () => {
-      directStripeRoutesInstance.stripeHelper.reactivateSubscriptionForCustomer.resolves();
+      directStripeRoutesInstance.stripeHelper.reactivateSubscriptionForCustomer.mockResolvedValue();
       const actual =
         await directStripeRoutesInstance.reactivateSubscription(
           reactivateRequest
@@ -2127,18 +2273,22 @@ describe('DirectStripeRoutes', () => {
     let plan: any;
 
     beforeEach(() => {
-      directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves(
+      directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.mockResolvedValue(
         subscription2
       );
       VALID_REQUEST.params = { subscriptionId: subscription2.subscriptionId };
 
       const customer = deepCopy(customerFixture);
       customer.currency = 'USD';
-      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
+        customer
+      );
 
       plan = deepCopy(PLANS[0]);
       plan.currency = 'USD';
-      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.mockResolvedValue(
+        plan
+      );
       VALID_REQUEST.payload = { planId: plan.planId };
     });
 
@@ -2147,15 +2297,17 @@ describe('DirectStripeRoutes', () => {
       const expected = { subscriptionId: subscriptionId };
       VALID_REQUEST.params = { subscriptionId: subscriptionId };
 
-      mockCapabilityService.getPlanEligibility = sinon.stub();
-      mockCapabilityService.getPlanEligibility.resolves({
+      mockCapabilityService.getPlanEligibility = jest.fn();
+      mockCapabilityService.getPlanEligibility.mockResolvedValue({
         subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
         eligibleSourcePlan: subscription2,
       });
 
-      directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
+      directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.mockResolvedValue();
 
-      sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+      jest
+        .spyOn(directStripeRoutesInstance, 'customerChanged')
+        .mockResolvedValue();
 
       const actual =
         await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
@@ -2167,8 +2319,8 @@ describe('DirectStripeRoutes', () => {
       const subscriptionId = 'sub_123';
       VALID_REQUEST.params = { subscriptionId: subscriptionId };
 
-      mockCapabilityService.getPlanEligibility = sinon.stub();
-      mockCapabilityService.getPlanEligibility.resolves({
+      mockCapabilityService.getPlanEligibility = jest.fn();
+      mockCapabilityService.getPlanEligibility.mockResolvedValue({
         subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
         eligibleSourcePlan: subscription2,
         redundantOverlaps: [
@@ -2181,38 +2333,44 @@ describe('DirectStripeRoutes', () => {
         ],
       });
 
-      directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
-      directStripeRoutesInstance.stripeHelper.updateSubscriptionAndBackfill.resolves();
+      directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.mockResolvedValue();
+      directStripeRoutesInstance.stripeHelper.updateSubscriptionAndBackfill.mockResolvedValue();
 
-      sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+      jest
+        .spyOn(directStripeRoutesInstance, 'customerChanged')
+        .mockResolvedValue();
 
       await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
 
       expect(
-        directStripeRoutesInstance.stripeHelper.updateSubscriptionAndBackfill.calledOnceWith(
-          customerFixture.subscriptions.data[0],
-          {
-            metadata: {
-              redundantCancellation: 'true',
-              autoCancelledRedundantFor: subscription2.id,
-              cancelled_for_customer_at: Math.floor(Date.now() / 1000),
-            },
-          }
-        )
-      ).toBe(true);
+        directStripeRoutesInstance.stripeHelper.updateSubscriptionAndBackfill
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.updateSubscriptionAndBackfill
+      ).toHaveBeenCalledWith(customerFixture.subscriptions.data[0], {
+        metadata: {
+          redundantCancellation: 'true',
+          autoCancelledRedundantFor: subscription2.id,
+          cancelled_for_customer_at: Math.floor(Date.now() / 1000),
+        },
+      });
 
       expect(
-        directStripeRoutesInstance.stripeHelper.stripe.subscriptions.cancel.calledOnceWith(
-          customerFixture.subscriptions.data[0].id
-        )
-      ).toBe(true);
+        directStripeRoutesInstance.stripeHelper.stripe.subscriptions.cancel
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        directStripeRoutesInstance.stripeHelper.stripe.subscriptions.cancel.mock
+          .calls[0][0]
+      ).toBe(customerFixture.subscriptions.data[0].id);
     });
 
     it('throws an error when the new plan is not an upgrade', async () => {
-      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.mockResolvedValue(
+        plan
+      );
 
-      mockCapabilityService.getPlanEligibility = sinon.stub();
-      mockCapabilityService.getPlanEligibility.resolves([
+      mockCapabilityService.getPlanEligibility = jest.fn();
+      mockCapabilityService.getPlanEligibility.mockResolvedValue([
         SubscriptionEligibilityResult.INVALID,
       ]);
 
@@ -2228,11 +2386,14 @@ describe('DirectStripeRoutes', () => {
 
     it("throws an error when the new plan currency doesn't match the customer's currency.", async () => {
       plan.currency = 'EUR';
-      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.mockResolvedValue(
+        plan
+      );
 
-      mockCapabilityService.getPlanEligibility = sinon.stub();
-      mockCapabilityService.getPlanEligibility.resolves({
+      mockCapabilityService.getPlanEligibility = jest.fn();
+      mockCapabilityService.getPlanEligibility.mockResolvedValue({
         subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
+        eligibleSourcePlan: subscription2,
       });
 
       try {
@@ -2248,7 +2409,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('throws an exception when the orginal subscription is not found', async () => {
-      directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves();
+      directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.mockResolvedValue();
       try {
         await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
         throw new Error('Method expected to reject');
@@ -2262,7 +2423,9 @@ describe('DirectStripeRoutes', () => {
 
   describe('getProductName', () => {
     it('should respond with product name for valid id', async () => {
-      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
+      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.mockResolvedValue(
+        PLANS
+      );
       const productId = PLANS[1].product_id;
       const expected = { product_name: PLANS[1].product_name };
       const result = await directStripeRoutesInstance.getProductName({
@@ -2273,7 +2436,9 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('should respond with an error for invalid id', async () => {
-      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
+      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.mockResolvedValue(
+        PLANS
+      );
       const productId = 'this-is-not-valid';
       try {
         await directStripeRoutesInstance.getProductName({
@@ -2293,7 +2458,9 @@ describe('DirectStripeRoutes', () => {
       const expected = sanitizePlans(PLANS);
       const request = {};
 
-      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
+      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.mockResolvedValue(
+        PLANS
+      );
       const actual = await directStripeRoutesInstance.listPlans(request);
 
       expect(actual).toEqual(expected);
@@ -2304,7 +2471,7 @@ describe('DirectStripeRoutes', () => {
     describe('customer is found', () => {
       describe('customer has no subscriptions', () => {
         it('returns an empty array', async () => {
-          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+          directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
             emptyCustomer
           );
           const expected: any[] = [];
@@ -2327,7 +2494,7 @@ describe('DirectStripeRoutes', () => {
             setToCancelSubscription,
           ];
 
-          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+          directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue(
             customer
           );
 
@@ -2366,7 +2533,7 @@ describe('DirectStripeRoutes', () => {
 
     describe('customer is not found', () => {
       it('returns an empty array', async () => {
-        directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves();
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.mockResolvedValue();
         const expected: any[] = [];
         const actual =
           await directStripeRoutesInstance.listActive(VALID_REQUEST);

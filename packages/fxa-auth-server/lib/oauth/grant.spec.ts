@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const { config } = require('../../config');
 
 function decodeJWT(b64: string) {
@@ -92,7 +90,7 @@ describe('validateRequestedGrant', () => {
   });
 
   it('should check key-bearing scopes in the database, and reject if not allowed for that client', async () => {
-    mockDB.getScope = sinon.stub().callsFake(async () => {
+    mockDB.getScope = jest.fn().mockImplementation(async () => {
       return { hasScopedKeys: true };
     });
     const requestedGrant = {
@@ -103,7 +101,7 @@ describe('validateRequestedGrant', () => {
     await expect(
       validateRequestedGrant(CLAIMS, CLIENT, requestedGrant)
     ).rejects.toThrow('Requested scopes are not allowed');
-    expect(mockDB.getScope.callCount).toBe(1);
+    expect(mockDB.getScope).toHaveBeenCalledTimes(1);
 
     const allowedClient = {
       ...CLIENT,
@@ -114,14 +112,14 @@ describe('validateRequestedGrant', () => {
       allowedClient,
       requestedGrant
     );
-    expect(mockDB.getScope.callCount).toBe(2);
+    expect(mockDB.getScope).toHaveBeenCalledTimes(2);
     expect(grant.scope.toString()).toBe(
       'https://identity.mozilla.com/apps/oldsync'
     );
   });
 
   it('should reject key-bearing scopes requested with claims from an unverified session', async () => {
-    mockDB.getScope = sinon.stub().callsFake(async () => {
+    mockDB.getScope = jest.fn().mockImplementation(async () => {
       return { hasScopedKeys: true };
     });
     const requestedGrant = {
@@ -192,16 +190,16 @@ describe('generateTokens', () => {
     };
 
     mockDB = {
-      generateAccessToken: sinon.spy(async () => mockAccessToken),
-      generateIdToken: sinon.spy(async () => ({ token: 'id_token' })),
-      generateRefreshToken: sinon.spy(async () => ({
+      generateAccessToken: jest.fn(async () => mockAccessToken),
+      generateIdToken: jest.fn(async () => ({ token: 'id_token' })),
+      generateRefreshToken: jest.fn(async () => ({
         token: 'refresh_token',
       })),
     };
     mockCapabilityService = {};
 
     mockJWTAccessToken = {
-      create: sinon.spy(async () => {
+      create: jest.fn(async () => {
         return {
           ...mockAccessToken,
           jwt_token: 'signed jwt access token',
@@ -215,9 +213,9 @@ describe('generateTokens', () => {
     // The sign function produces a fake JWT whose payload can be decoded by decodeJWT.
     jest.doMock('./jwt', () => ({
       sign(claims: any) {
-        const header = Buffer.from(
-          JSON.stringify({ alg: 'RS256' })
-        ).toString('base64');
+        const header = Buffer.from(JSON.stringify({ alg: 'RS256' })).toString(
+          'base64'
+        );
         const payload = Buffer.from(JSON.stringify(claims)).toString('base64');
         const signature = 'fakesig';
         return `${header}.${payload}.${signature}`;
@@ -240,10 +238,9 @@ describe('generateTokens', () => {
 
   it('should return required params in result, normal access token by default', async () => {
     const result = await generateTokens(requestedGrant);
-    expect(mockDB.generateAccessToken.calledOnceWith(requestedGrant)).toBe(
-      true
-    );
-    expect(mockJWTAccessToken.create.called).toBe(false);
+    expect(mockDB.generateAccessToken).toHaveBeenCalledTimes(1);
+    expect(mockDB.generateAccessToken).toHaveBeenCalledWith(requestedGrant);
+    expect(mockJWTAccessToken.create).not.toHaveBeenCalled();
 
     expect(result.access_token).toBe('token');
     expect(typeof result.expires_in).toBe('number');
@@ -261,24 +258,25 @@ describe('generateTokens', () => {
   it('should generate a JWT access token if enabled, client_id allowed, and direct Stripe access enabled', async () => {
     const clientId = '9876543210';
 
-    mockCapabilityService.subscriptionCapabilities = sinon.fake.resolves({
-      [`capabilities:${clientId}`]: 'cap1',
-    });
-    mockCapabilityService.determineClientVisibleSubscriptionCapabilities =
-      sinon.fake.resolves(['cap1']);
+    mockCapabilityService.subscriptionCapabilities = jest
+      .fn()
+      .mockResolvedValue({
+        [`capabilities:${clientId}`]: 'cap1',
+      });
+    mockCapabilityService.determineClientVisibleSubscriptionCapabilities = jest
+      .fn()
+      .mockResolvedValue(['cap1']);
 
     requestedGrant.clientId = Buffer.from(clientId, 'hex');
     const result = await generateTokens(requestedGrant);
-    expect(mockDB.generateAccessToken.calledOnceWith(requestedGrant)).toBe(
-      true
-    );
+    expect(mockDB.generateAccessToken).toHaveBeenCalledTimes(1);
+    expect(mockDB.generateAccessToken).toHaveBeenCalledWith(requestedGrant);
     expect(result.access_token).toBe('signed jwt access token');
-    expect(
-      mockJWTAccessToken.create.calledOnceWith(mockAccessToken, {
-        ...requestedGrant,
-        'fxa-subscriptions': ['cap1'],
-      })
-    ).toBe(true);
+    expect(mockJWTAccessToken.create).toHaveBeenCalledTimes(1);
+    expect(mockJWTAccessToken.create).toHaveBeenCalledWith(mockAccessToken, {
+      ...requestedGrant,
+      'fxa-subscriptions': ['cap1'],
+    });
 
     expect(typeof result.expires_in).toBe('number');
     expect(result.token_type).toBe('access_token');
@@ -338,8 +336,6 @@ describe('generateTokens', () => {
     const result = await generateTokens(requestedGrant);
     expect(result.id_token).toBeTruthy();
     const jwt = decodeJWT(result.id_token);
-    expect(jwt.claims.auth_time).toBe(
-      Math.floor(requestedGrant.authAt / 1000)
-    );
+    expect(jwt.claims.auth_time).toBe(Math.floor(requestedGrant.authAt / 1000));
   });
 });

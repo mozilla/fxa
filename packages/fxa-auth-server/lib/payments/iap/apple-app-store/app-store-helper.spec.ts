@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 import { AuthLogger, AppConfig } from '../../../types';
@@ -43,11 +42,9 @@ const mockConfig = {
 
 describe('AppStoreHelper', () => {
   let appStoreHelper: any;
-  let sandbox: sinon.SinonSandbox;
   let log: any;
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
     log = mockLog();
     Container.set(AuthLogger, log);
     Container.set(AppConfig, mockConfig);
@@ -56,7 +53,7 @@ describe('AppStoreHelper', () => {
 
   afterEach(() => {
     Container.reset();
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   it('can be instantiated', () => {
@@ -111,26 +108,28 @@ describe('AppStoreHelper', () => {
       const mockOriginalTransactionId = '100000000';
       // Mock App Store Client API response
       const expected = { data: 'wow' };
-      mockAppStoreServerAPI.getSubscriptionStatuses = sinon
-        .stub()
-        .resolves(expected);
-      appStoreHelper.clientByBundleId = sandbox
-        .stub()
-        .returns(mockAppStoreServerAPI);
+      mockAppStoreServerAPI.getSubscriptionStatuses = jest
+        .fn()
+        .mockResolvedValue(expected);
+      appStoreHelper.clientByBundleId = jest
+        .fn()
+        .mockReturnValue(mockAppStoreServerAPI);
       const actual = await appStoreHelper.getSubscriptionStatuses(
         mockBundleId,
         mockOriginalTransactionId
       );
       expect(actual).toEqual(expected);
 
-      sinon.assert.calledOnceWithExactly(
-        appStoreHelper.clientByBundleId,
+      expect(appStoreHelper.clientByBundleId).toHaveBeenCalledTimes(1);
+      expect(appStoreHelper.clientByBundleId).toHaveBeenCalledWith(
         mockBundleId
       );
-      sinon.assert.calledOnceWithExactly(
-        mockAppStoreServerAPI.getSubscriptionStatuses,
-        mockOriginalTransactionId
-      );
+      expect(
+        mockAppStoreServerAPI.getSubscriptionStatuses
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockAppStoreServerAPI.getSubscriptionStatuses
+      ).toHaveBeenCalledWith(mockOriginalTransactionId);
     });
   });
 });

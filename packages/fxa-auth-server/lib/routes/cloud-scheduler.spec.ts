@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 // p-queue is ESM-only; mock it to avoid parse errors in Jest
@@ -44,18 +43,17 @@ describe('CloudSchedulerHandler', () => {
       },
     };
     log = {
-      info: sinon.stub(),
+      info: jest.fn(),
     };
     statsd = {
-      increment: sinon.stub(),
+      increment: jest.fn(),
     };
 
     cloudSchedulerHandler = new CloudSchedulerHandler(log, config, statsd);
 
-    mockProcessAccountDeletionInRange = sinon.stub(
-      cloudSchedulerHandler,
-      'processAccountDeletionInRange'
-    );
+    mockProcessAccountDeletionInRange = jest
+      .spyOn(cloudSchedulerHandler, 'processAccountDeletionInRange')
+      .mockResolvedValue(undefined);
 
     dateNowSpy = jest
       .spyOn(Date, 'now')
@@ -78,8 +76,8 @@ describe('CloudSchedulerHandler', () => {
 
       await cloudSchedulerHandler.deleteUnverifiedAccounts();
 
-      sinon.assert.calledOnceWithExactly(
-        mockProcessAccountDeletionInRange,
+      expect(mockProcessAccountDeletionInRange).toHaveBeenCalledTimes(1);
+      expect(mockProcessAccountDeletionInRange).toHaveBeenCalledWith(
         config,
         undefined,
         reason,

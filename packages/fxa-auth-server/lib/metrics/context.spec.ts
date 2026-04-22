@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 import crypto from 'crypto';
 
 function hashToken(token: { uid: string; id: string }) {
@@ -118,9 +117,7 @@ describe('metricsContext', () => {
     );
 
     expect(cache.add).toHaveBeenCalledTimes(1);
-    expect(cache.add.mock.calls[0]).toHaveLength(2);
-    expect(cache.add.mock.calls[0][0]).toBe(hashToken(token));
-    expect(cache.add.mock.calls[0][1]).toEqual({
+    expect(cache.add).toHaveBeenCalledWith(hashToken(token), {
       foo: 'bar',
       service: 'baz',
     });
@@ -279,8 +276,7 @@ describe('metricsContext', () => {
     });
 
     expect(cache.get).toHaveBeenCalledTimes(1);
-    expect(cache.get.mock.calls[0]).toHaveLength(1);
-    expect(cache.get.mock.calls[0][0]).toBe(hashToken(token));
+    expect(cache.get).toHaveBeenCalledWith(hashToken(token));
   });
 
   it('metricsContext.get with fake token', async () => {
@@ -307,9 +303,8 @@ describe('metricsContext', () => {
     });
 
     expect(cache.get).toHaveBeenCalledTimes(1);
-    expect(cache.get.mock.calls[0]).toHaveLength(1);
-    expect(cache.get.mock.calls[0][0]).toBe(hashToken(token));
-    expect(cache.get.mock.calls[0][0]).toEqual(hashToken({ uid, id }));
+    expect(cache.get).toHaveBeenCalledWith(hashToken(token));
+    expect(hashToken(token)).toEqual(hashToken({ uid, id }));
   });
 
   it('metricsContext.get with bad token', async () => {
@@ -573,13 +568,10 @@ describe('metricsContext', () => {
     await metricsContext.propagate(oldToken, newToken);
 
     expect(cache.get).toHaveBeenCalledTimes(1);
-    expect(cache.get.mock.calls[0]).toHaveLength(1);
-    expect(cache.get.mock.calls[0][0]).toBe(hashToken(oldToken));
+    expect(cache.get).toHaveBeenCalledWith(hashToken(oldToken));
 
     expect(cache.add).toHaveBeenCalledTimes(1);
-    expect(cache.add.mock.calls[0]).toHaveLength(2);
-    expect(cache.add.mock.calls[0][0]).toBe(hashToken(newToken));
-    expect(cache.add.mock.calls[0][1]).toBe('wibble');
+    expect(cache.add).toHaveBeenCalledWith(hashToken(newToken), 'wibble');
 
     expect(cache.del).not.toHaveBeenCalled();
   });
@@ -635,8 +627,7 @@ describe('metricsContext', () => {
     });
 
     expect(cache.del).toHaveBeenCalledTimes(1);
-    expect(cache.del.mock.calls[0]).toHaveLength(1);
-    expect(cache.del.mock.calls[0][0]).toBe(hashToken(token));
+    expect(cache.del).toHaveBeenCalledWith(hashToken(token));
   });
 
   it('metricsContext.clear with fake token', async () => {
@@ -651,8 +642,7 @@ describe('metricsContext', () => {
     });
 
     expect(cache.del).toHaveBeenCalledTimes(1);
-    expect(cache.del.mock.calls[0]).toHaveLength(1);
-    expect(cache.del.mock.calls[0][0]).toEqual(hashToken({ uid, id }));
+    expect(cache.del).toHaveBeenCalledWith(hashToken({ uid, id }));
   });
 
   it('metricsContext.clear with no token', async () => {

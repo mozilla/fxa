@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 const mocks = require('../test/mocks');
 const { AppError: error } = require('@fxa/accounts/errors');
 const nock = require('nock');
@@ -20,7 +19,6 @@ describe('Customs', () => {
   let customsNoUrl: any;
   let customsWithUrl: any;
   let customsInvalidUrl: any;
-  const sandbox = sinon.createSandbox();
   const statsd = {
     increment: () => {},
     timing: () => {},
@@ -42,9 +40,9 @@ describe('Customs', () => {
   let action: string;
 
   beforeEach(() => {
-    sandbox.stub(statsd, 'increment');
-    sandbox.stub(statsd, 'timing');
-    sandbox.stub(statsd, 'gauge');
+    jest.spyOn(statsd, 'increment');
+    jest.spyOn(statsd, 'timing');
+    jest.spyOn(statsd, 'gauge');
     request = newRequest();
     ip = request.app.clientAddress;
     email = newEmail();
@@ -56,7 +54,7 @@ describe('Customs', () => {
 
   afterEach(() => {
     nock.cleanAll();
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   it("can create a customs object with url as 'none'", async () => {
@@ -132,7 +130,9 @@ describe('Customs', () => {
 
     try {
       await customsWithUrl.check(request, email, action);
-      throw new Error('This should have failed the check since it should be blocked');
+      throw new Error(
+        'This should have failed the check since it should be blocked'
+      );
     } catch (err: any) {
       expect(err.errno).toBe(error.ERRNO.THROTTLED);
       expect(err.message).toBe('Client has sent too many requests');
@@ -168,7 +168,9 @@ describe('Customs', () => {
 
     try {
       await customsWithUrl.check(request, email, action);
-      throw new Error('This should have failed the check since it should be blocked');
+      throw new Error(
+        'This should have failed the check since it should be blocked'
+      );
     } catch (err: any) {
       expect(err.errno).toBe(error.ERRNO.REQUEST_BLOCKED);
       expect(err.message).toBe('The request was blocked for security reasons');
@@ -201,11 +203,11 @@ describe('Customs', () => {
     ).rejects.toMatchObject({
       errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
     });
-    await expect(
-      customsInvalidUrl.reset(request, email)
-    ).rejects.toMatchObject({
-      errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
-    });
+    await expect(customsInvalidUrl.reset(request, email)).rejects.toMatchObject(
+      {
+        errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
+      }
+    );
   });
 
   it('can rate limit checkAccountStatus /check', async () => {
@@ -254,7 +256,9 @@ describe('Customs', () => {
 
     try {
       await customsWithUrl.check(request, email, action);
-      throw new Error('This should have failed the check since it should be blocked');
+      throw new Error(
+        'This should have failed the check since it should be blocked'
+      );
     } catch (err: any) {
       expect(err.errno).toBe(114);
       expect(err.message).toBe('Client has sent too many requests');
@@ -336,7 +340,9 @@ describe('Customs', () => {
 
     try {
       await customsWithUrl.checkAuthenticated(request, uid, email, action);
-      throw new Error('This should have failed the check since it should be blocked');
+      throw new Error(
+        'This should have failed the check since it should be blocked'
+      );
     } catch (err: any) {
       expect(err.errno).toBe(114);
       expect(err.message).toBe('Client has sent too many requests');
@@ -423,9 +429,9 @@ describe('Customs', () => {
 
   describe('customs v2', () => {
     const mockRateLimit = {
-      check: sinon.spy(),
-      skip: sinon.spy(),
-      supportsAction: sinon.spy(),
+      check: jest.fn(),
+      skip: jest.fn(),
+      supportsAction: jest.fn(),
     };
 
     const customs = new Customs(
@@ -437,23 +443,25 @@ describe('Customs', () => {
     );
 
     beforeEach(() => {
-      mockRateLimit.check = sinon.spy();
-      mockRateLimit.skip = sinon.spy(() => false);
-      mockRateLimit.supportsAction = sinon.spy(() => true);
-      const configGetStub = sandbox.stub(configModule.config, 'get');
-      configGetStub
-        .withArgs('rateLimit.emailAliasNormalization')
-        .returns(
-          JSON.stringify([
-            { domain: 'mozilla.com', regex: '\\+.*', replace: '' },
-          ])
-        );
-      configGetStub.callThrough();
+      mockRateLimit.check = jest.fn();
+      mockRateLimit.skip = jest.fn(() => false);
+      mockRateLimit.supportsAction = jest.fn(() => true);
+      const originalGet = configModule.config.get.bind(configModule.config);
+      jest
+        .spyOn(configModule.config, 'get')
+        .mockImplementation((key: string) => {
+          if (key === 'rateLimit.emailAliasNormalization') {
+            return JSON.stringify([
+              { domain: 'mozilla.com', regex: '\\+.*', replace: '' },
+            ]);
+          }
+          return originalGet(key);
+        });
       Customs._reloadEmailNormalization();
     });
 
     it('can allow checkAccountStatus with rate-limit lib', async () => {
-      mockRateLimit.check = sandbox.spy(async () => {
+      mockRateLimit.check = jest.fn(async () => {
         return await Promise.resolve(null);
       });
       await customs.checkAuthenticated(
@@ -463,9 +471,9 @@ describe('Customs', () => {
         'accountStatusCheck'
       );
 
-      sinon.assert.callCount(mockRateLimit.supportsAction, 1);
-      sinon.assert.callCount(mockRateLimit.check, 1);
-      sinon.assert.calledWith(mockRateLimit.check, 'accountStatusCheck', {
+      expect(mockRateLimit.supportsAction).toHaveBeenCalledTimes(1);
+      expect(mockRateLimit.check).toHaveBeenCalledTimes(1);
+      expect(mockRateLimit.check).toHaveBeenCalledWith('accountStatusCheck', {
         ip,
         email,
         uid,
@@ -475,7 +483,7 @@ describe('Customs', () => {
     });
 
     it('can block checkAccountStatus with rate-limit lib', async () => {
-      mockRateLimit.check = sandbox.spy(async (action: string) => {
+      mockRateLimit.check = jest.fn(async (action: string) => {
         if (action === 'accountStatusCheck') {
           return await Promise.resolve({
             retryAfter: 1000,
@@ -499,29 +507,26 @@ describe('Customs', () => {
         'Client has sent too many requests'
       );
 
-      sinon.assert.callCount(mockRateLimit.supportsAction, 2);
-      sinon.assert.calledWith(
-        mockRateLimit.supportsAction,
+      expect(mockRateLimit.supportsAction).toHaveBeenCalledTimes(2);
+      expect(mockRateLimit.supportsAction).toHaveBeenCalledWith(
         'accountStatusCheck'
       );
-      sinon.assert.calledWith(mockRateLimit.supportsAction, 'unblockEmail');
+      expect(mockRateLimit.supportsAction).toHaveBeenCalledWith('unblockEmail');
 
-      sinon.assert.callCount(mockRateLimit.check, 2);
-      sinon.assert.calledWith(
-        mockRateLimit.check,
+      expect(mockRateLimit.check).toHaveBeenCalledTimes(2);
+      expect(mockRateLimit.check).toHaveBeenCalledWith(
         'accountStatusCheck',
-        sinon.match({ ip, email, ip_email })
+        expect.objectContaining({ ip, email, ip_email })
       );
-      sinon.assert.calledWith(
-        mockRateLimit.check,
+      expect(mockRateLimit.check).toHaveBeenCalledWith(
         'unblockEmail',
-        sinon.match({ ip, email, ip_email })
+        expect.objectContaining({ ip, email, ip_email })
       );
     });
 
     it('can skip certain emails, ips, and uids', async () => {
-      mockRateLimit.skip = sandbox.spy(() => true);
-      mockRateLimit.check = sandbox.spy(async () => {
+      mockRateLimit.skip = jest.fn(() => true);
+      mockRateLimit.check = jest.fn(async () => {
         return await Promise.resolve({
           retryAfter: 1000,
           reason: 'too-many-attempts',
@@ -530,12 +535,12 @@ describe('Customs', () => {
 
       await customs.check(request, email, 'accountStatusCheck');
 
-      sinon.assert.calledWith(mockRateLimit.skip, { ip, email, ip_email });
-      sinon.assert.callCount(mockRateLimit.check, 0);
+      expect(mockRateLimit.skip).toHaveBeenCalledWith({ ip, email, ip_email });
+      expect(mockRateLimit.check).toHaveBeenCalledTimes(0);
     });
 
     it('normalizes emails with plus aliases for configured domains', async () => {
-      mockRateLimit.check = sandbox.spy(async () => Promise.resolve(null));
+      mockRateLimit.check = jest.fn(async () => Promise.resolve(null));
 
       const emailWithAlias = 'user+alias@mozilla.com';
       const normalizedEmail = 'user@mozilla.com';
@@ -543,10 +548,9 @@ describe('Customs', () => {
 
       await customs.check(request, emailWithAlias, 'accountStatusCheck');
 
-      sinon.assert.calledWith(
-        mockRateLimit.check,
+      expect(mockRateLimit.check).toHaveBeenCalledWith(
         'accountStatusCheck',
-        sinon.match({
+        expect.objectContaining({
           ip,
           email: normalizedEmail,
           ip_email: normalizedIpEmail,
@@ -555,7 +559,7 @@ describe('Customs', () => {
     });
 
     it('normalizes emails with different cases', async () => {
-      mockRateLimit.check = sandbox.spy(async () => Promise.resolve(null));
+      mockRateLimit.check = jest.fn(async () => Promise.resolve(null));
 
       const mixedCaseEmail = 'User+Alias@Mozilla.COM';
       const normalizedEmail = 'user@mozilla.com';
@@ -563,10 +567,9 @@ describe('Customs', () => {
 
       await customs.check(request, mixedCaseEmail, 'accountStatusCheck');
 
-      sinon.assert.calledWith(
-        mockRateLimit.check,
+      expect(mockRateLimit.check).toHaveBeenCalledWith(
         'accountStatusCheck',
-        sinon.match({
+        expect.objectContaining({
           ip,
           email: normalizedEmail,
           ip_email: normalizedIpEmail,
@@ -575,7 +578,7 @@ describe('Customs', () => {
     });
 
     it('does not remove aliases for non-configured domains', async () => {
-      mockRateLimit.check = sandbox.spy(async () => Promise.resolve(null));
+      mockRateLimit.check = jest.fn(async () => Promise.resolve(null));
 
       const emailWithAlias = 'user+alias@example.com';
       const normalizedEmail = 'user+alias@example.com';
@@ -583,10 +586,9 @@ describe('Customs', () => {
 
       await customs.check(request, emailWithAlias, 'accountStatusCheck');
 
-      sinon.assert.calledWith(
-        mockRateLimit.check,
+      expect(mockRateLimit.check).toHaveBeenCalledWith(
         'accountStatusCheck',
-        sinon.match({
+        expect.objectContaining({
           ip,
           email: normalizedEmail,
           ip_email: normalizedIpEmail,
@@ -595,7 +597,7 @@ describe('Customs', () => {
     });
 
     it('lowercases emails for all domains', async () => {
-      mockRateLimit.check = sandbox.spy(async () => Promise.resolve(null));
+      mockRateLimit.check = jest.fn(async () => Promise.resolve(null));
 
       const mixedCaseEmail = 'User@Example.COM';
       const normalizedEmail = 'user@example.com';
@@ -603,10 +605,9 @@ describe('Customs', () => {
 
       await customs.check(request, mixedCaseEmail, 'accountStatusCheck');
 
-      sinon.assert.calledWith(
-        mockRateLimit.check,
+      expect(mockRateLimit.check).toHaveBeenCalledWith(
         'accountStatusCheck',
-        sinon.match({
+        expect.objectContaining({
           ip,
           email: normalizedEmail,
           ip_email: normalizedIpEmail,
@@ -637,51 +638,44 @@ describe('Customs', () => {
     it('reports for /check', async () => {
       customsServer.post('/check').reply(200, tags);
 
-      await expect(customsWithUrl.check(request, email, action)).rejects.toThrow();
-      expect(
-        (statsd.increment as sinon.SinonStub).calledWithExactly(
-          'customs.request.check',
-          {
-            action,
-            ...validTags,
-          }
-        )
-      ).toBe(true);
-      expect(
-        (statsd.timing as sinon.SinonStub).calledWithMatch(
-          'customs.check.success'
-        )
-      ).toBe(true);
-      expect(
-        (statsd.gauge as sinon.SinonStub).calledWithMatch(
-          'httpAgent.createSocketCount'
-        )
-      ).toBe(true);
-      expect(
-        (statsd.gauge as sinon.SinonStub).calledWithMatch(
-          'httpsAgent.createSocketCount'
-        )
-      ).toBe(true);
+      await expect(
+        customsWithUrl.check(request, email, action)
+      ).rejects.toThrow();
+      expect(statsd.increment).toHaveBeenCalledWith('customs.request.check', {
+        action,
+        ...validTags,
+      });
+      expect(statsd.timing).toHaveBeenCalledWith(
+        expect.stringContaining('customs.check.success'),
+        expect.anything()
+      );
+      expect(statsd.gauge).toHaveBeenCalledWith(
+        expect.stringContaining('httpAgent.createSocketCount'),
+        expect.anything()
+      );
+      expect(statsd.gauge).toHaveBeenCalledWith(
+        expect.stringContaining('httpsAgent.createSocketCount'),
+        expect.anything()
+      );
     });
 
     it('reports for /checkIpOnly', async () => {
       customsServer.post('/checkIpOnly').reply(200, tags);
 
-      await expect(customsWithUrl.checkIpOnly(request, action)).rejects.toThrow();
-      expect(
-        (statsd.increment as sinon.SinonStub).calledWithExactly(
-          'customs.request.checkIpOnly',
-          {
-            action,
-            ...validTags,
-          }
-        )
-      ).toBe(true);
-      expect(
-        (statsd.timing as sinon.SinonStub).calledWithMatch(
-          'customs.checkIpOnly.success'
-        )
-      ).toBe(true);
+      await expect(
+        customsWithUrl.checkIpOnly(request, action)
+      ).rejects.toThrow();
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'customs.request.checkIpOnly',
+        {
+          action,
+          ...validTags,
+        }
+      );
+      expect(statsd.timing).toHaveBeenCalledWith(
+        expect.stringContaining('customs.checkIpOnly.success'),
+        expect.anything()
+      );
     });
 
     it('reports for /checkAuthenticated', async () => {
@@ -691,33 +685,36 @@ describe('Customs', () => {
       });
 
       await expect(
-        customsWithUrl.checkAuthenticated(request, 'uid', 'email@mozilla.com', action)
+        customsWithUrl.checkAuthenticated(
+          request,
+          'uid',
+          'email@mozilla.com',
+          action
+        )
       ).rejects.toThrow();
-      expect(
-        (statsd.increment as sinon.SinonStub).calledWithExactly(
-          'customs.request.checkAuthenticated',
-          {
-            action,
-            block: true,
-            blockReason: 'other',
-          }
-        )
-      ).toBe(true);
-      expect(
-        (statsd.timing as sinon.SinonStub).calledWithMatch(
-          'customs.checkAuthenticated.success'
-        )
-      ).toBe(true);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'customs.request.checkAuthenticated',
+        {
+          action,
+          block: true,
+          blockReason: 'other',
+        }
+      );
+      expect(statsd.timing).toHaveBeenCalledWith(
+        expect.stringContaining('customs.checkAuthenticated.success'),
+        expect.anything()
+      );
     });
 
     it('reports failure statsd timing', async () => {
       customsServer.post('/check').reply(400, tags);
-      await expect(customsWithUrl.check(request, email, action)).rejects.toThrow();
-      expect(
-        (statsd.timing as sinon.SinonStub).calledWithMatch(
-          'customs.check.failure'
-        )
-      ).toBe(true);
+      await expect(
+        customsWithUrl.check(request, email, action)
+      ).rejects.toThrow();
+      expect(statsd.timing).toHaveBeenCalledWith(
+        expect.stringContaining('customs.check.failure'),
+        expect.anything()
+      );
     });
   });
 });

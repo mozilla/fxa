@@ -2,17 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const knownIpLocation = require('../test/known-ip-location');
 
 function mockLog() {
   return {
-    info: sinon.stub(),
-    trace: sinon.stub(),
-    error: sinon.stub(),
-    warn: sinon.stub(),
-    debug: sinon.stub(),
+    info: jest.fn(),
+    trace: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
   };
 }
 

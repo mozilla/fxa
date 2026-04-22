@@ -22,12 +22,12 @@ elif [ "$TEST_TYPE" == 'integration' ]; then
   echo -e "\n\nRunning Jest integration tests (excluding test/scripts)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-integration-results.xml" \
-  npx jest --config jest.integration.config.js --forceExit --ci --silent --reporters=default --reporters=jest-junit
+  npx jest --config jest.integration.config.js --forceExit --ci --reporters=default --reporters=jest-junit
 
   echo -e "\n\nRunning Jest OAuth API integration tests (in-process server)"
   JEST_JUNIT_OUTPUT_DIR="../../artifacts/tests/fxa-auth-server" \
   JEST_JUNIT_OUTPUT_NAME="fxa-auth-server-jest-oauth-api-results.xml" \
-  npx jest --config jest.oauth-api.config.js --forceExit --ci --silent --reporters=default --reporters=jest-junit
+  npx jest --config jest.oauth-api.config.js --forceExit --ci --reporters=default --reporters=jest-junit
 
   yarn run clean-up-old-ci-stripe-customers
 

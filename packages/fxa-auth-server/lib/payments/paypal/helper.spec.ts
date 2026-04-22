@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 
@@ -26,7 +25,6 @@ import {
   PAYPAL_APP_ERRORS,
   PAYPAL_RETRY_ERRORS,
 } from './error-codes';
-import { RefundError } from './helper';
 
 const { mockLog } = require('../../../test/mocks');
 
@@ -85,7 +83,7 @@ describe('PayPalHelper', () => {
     mockStripeHelper = {};
     Container.set(StripeHelper, mockStripeHelper);
     // Make StatsD
-    const statsd = { increment: sinon.spy(), timing: sinon.spy() };
+    const statsd = { increment: jest.fn(), timing: jest.fn() };
     Container.set(StatsD, statsd);
     // Make PayPalClient
     const paypalClient = new PayPalClient(
@@ -111,7 +109,7 @@ describe('PayPalHelper', () => {
 
   describe('constructor', () => {
     it('sets client, statsd, logger, and currencyHelper', () => {
-      const statsd = { increment: sinon.spy(), timing: sinon.spy() };
+      const statsd = { increment: jest.fn(), timing: jest.fn() };
       const paypalClient = new PayPalClient(
         {
           user: 'user',
@@ -166,9 +164,9 @@ describe('PayPalHelper', () => {
     const validOptions = { currencyCode: 'USD' };
 
     it('it returns the token from doRequest', async () => {
-      paypalHelper.client.doRequest = sinon.fake.resolves(
-        successfulSetExpressCheckoutResponse
-      );
+      paypalHelper.client.doRequest = jest
+        .fn()
+        .mockResolvedValue(successfulSetExpressCheckoutResponse);
       const token = await paypalHelper.getCheckoutToken(validOptions);
       expect(token).toEqual(successfulSetExpressCheckoutResponse.TOKEN);
     });
@@ -178,24 +176,24 @@ describe('PayPalHelper', () => {
         message: 'oh no',
         errorCode: 123,
       });
-      paypalHelper.client.doRequest = sinon.fake.throws(
-        new PayPalClientError([nvpError], 'hi', {} as NVPErrorResponse)
-      );
+      paypalHelper.client.doRequest = jest.fn().mockImplementation(() => {
+        throw new PayPalClientError([nvpError], 'hi', {} as NVPErrorResponse);
+      });
       await expect(paypalHelper.getCheckoutToken(validOptions)).rejects.toThrow(
         PayPalClientError
       );
     });
 
     it('calls setExpressCheckout with passed options', async () => {
-      paypalHelper.client.setExpressCheckout = sinon.fake.resolves(
-        successfulSetExpressCheckoutResponse
-      );
+      paypalHelper.client.setExpressCheckout = jest
+        .fn()
+        .mockResolvedValue(successfulSetExpressCheckoutResponse);
       const currencyCode = 'EUR';
       await paypalHelper.getCheckoutToken({ currencyCode });
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.client.setExpressCheckout,
-        { currencyCode }
-      );
+      expect(paypalHelper.client.setExpressCheckout).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.client.setExpressCheckout).toHaveBeenCalledWith({
+        currencyCode,
+      });
     });
   });
 
@@ -210,11 +208,14 @@ describe('PayPalHelper', () => {
     };
 
     it('calls createBillingAgreement with passed options', async () => {
-      paypalHelper.client.createBillingAgreement =
-        sinon.fake.resolves(expectedResponse);
+      paypalHelper.client.createBillingAgreement = jest
+        .fn()
+        .mockResolvedValue(expectedResponse);
       const response = await paypalHelper.createBillingAgreement(validOptions);
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.client.createBillingAgreement,
+      expect(paypalHelper.client.createBillingAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(paypalHelper.client.createBillingAgreement).toHaveBeenCalledWith(
         validOptions
       );
       expect(response).toEqual('B-7FB31251F28061234');
@@ -232,9 +233,9 @@ describe('PayPalHelper', () => {
     };
 
     it('calls doReferenceTransaction with options and amount converted to string', async () => {
-      paypalHelper.client.doReferenceTransaction = sinon.fake.resolves(
-        successfulDoReferenceTransactionResponse
-      );
+      paypalHelper.client.doReferenceTransaction = jest
+        .fn()
+        .mockResolvedValue(successfulDoReferenceTransactionResponse);
       await paypalHelper.chargeCustomer(validOptions);
       const expectedOptions = {
         amount:
@@ -247,11 +248,9 @@ describe('PayPalHelper', () => {
         currencyCode: validOptions.currencyCode,
         countryCode: validOptions.countryCode,
       };
-      expect(
-        paypalHelper.client.doReferenceTransaction.calledOnceWith(
-          expectedOptions
-        )
-      ).toBeTruthy();
+      expect(paypalHelper.client.doReferenceTransaction).toHaveBeenCalledWith(
+        expectedOptions
+      );
     });
 
     it('it returns the data from doRequest', async () => {
@@ -268,9 +267,9 @@ describe('PayPalHelper', () => {
         transactionId: '51E835834L664664K',
         transactionType: 'merchtpmt',
       };
-      paypalHelper.client.doRequest = sinon.fake.resolves(
-        successfulDoReferenceTransactionResponse
-      );
+      paypalHelper.client.doRequest = jest
+        .fn()
+        .mockResolvedValue(successfulDoReferenceTransactionResponse);
       const response = await paypalHelper.chargeCustomer(validOptions);
       expect(response).toEqual(expectedResponse);
     });
@@ -278,9 +277,9 @@ describe('PayPalHelper', () => {
     it('calls doReferenceTransaction with taxAmount option and taxAmount converted to string', async () => {
       const options = deepCopy(validOptions);
       options.taxAmountInCents = '500';
-      paypalHelper.client.doReferenceTransaction = sinon.fake.resolves(
-        successfulDoReferenceTransactionResponse
-      );
+      paypalHelper.client.doReferenceTransaction = jest
+        .fn()
+        .mockResolvedValue(successfulDoReferenceTransactionResponse);
       await paypalHelper.chargeCustomer(options);
       const expectedOptions = {
         amount:
@@ -297,11 +296,9 @@ describe('PayPalHelper', () => {
             options.taxAmountInCents
           ),
       };
-      expect(
-        paypalHelper.client.doReferenceTransaction.calledOnceWith(
-          expectedOptions
-        )
-      ).toBeTruthy();
+      expect(paypalHelper.client.doReferenceTransaction).toHaveBeenCalledWith(
+        expectedOptions
+      );
     });
 
     it('if doRequest unsuccessful, throws an error', async () => {
@@ -309,9 +306,9 @@ describe('PayPalHelper', () => {
         message: 'oh no',
         errorCode: 123,
       });
-      paypalHelper.client.doRequest = sinon.fake.throws(
-        new PayPalClientError([nvpError], 'hi', {} as NVPErrorResponse)
-      );
+      paypalHelper.client.doRequest = jest.fn().mockImplementation(() => {
+        throw new PayPalClientError([nvpError], 'hi', {} as NVPErrorResponse);
+      });
       await expect(paypalHelper.chargeCustomer(validOptions)).rejects.toThrow(
         PayPalClientError
       );
@@ -326,9 +323,9 @@ describe('PayPalHelper', () => {
     };
 
     it('refunds entire transaction', async () => {
-      paypalHelper.client.doRequest = sinon.fake.resolves(
-        successfulRefundTransactionResponse
-      );
+      paypalHelper.client.doRequest = jest
+        .fn()
+        .mockResolvedValue(successfulRefundTransactionResponse);
       const response = await paypalHelper.refundTransaction({
         idempotencyKey: defaultData.MSGSUBID,
         transactionId: defaultData.TRANSACTIONID,
@@ -340,17 +337,17 @@ describe('PayPalHelper', () => {
         refundTransactionId:
           successfulRefundTransactionResponse.REFUNDTRANSACTIONID,
       });
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.client.doRequest,
+      expect(paypalHelper.client.doRequest).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.client.doRequest).toHaveBeenCalledWith(
         'RefundTransaction',
         defaultData
       );
     });
 
     it('refunds partial transaction', async () => {
-      paypalHelper.client.doRequest = sinon.fake.resolves(
-        successfulRefundTransactionResponse
-      );
+      paypalHelper.client.doRequest = jest
+        .fn()
+        .mockResolvedValue(successfulRefundTransactionResponse);
       const response = await paypalHelper.refundTransaction({
         idempotencyKey: defaultData.MSGSUBID,
         transactionId: defaultData.TRANSACTIONID,
@@ -363,8 +360,8 @@ describe('PayPalHelper', () => {
         refundTransactionId:
           successfulRefundTransactionResponse.REFUNDTRANSACTIONID,
       });
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.client.doRequest,
+      expect(paypalHelper.client.doRequest).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.client.doRequest).toHaveBeenCalledWith(
         'RefundTransaction',
         { ...defaultData, REFUNDTYPE: 'Partial', AMT: '1.23' }
       );
@@ -389,7 +386,7 @@ describe('PayPalHelper', () => {
           errorCode: 10009,
         }
       );
-      paypalHelper.client.refundTransaction = sinon.fake.rejects(
+      paypalHelper.client.refundTransaction = jest.fn().mockRejectedValue(
         new PayPalClientError([nvpError], 'hi', {
           ACK: PaypalNVPAckOptions.Failure,
           L: [
@@ -422,9 +419,10 @@ describe('PayPalHelper', () => {
     const transactionId = '9EG80664Y1384290G';
 
     it('successfully refunds completed transaction', async () => {
-      mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId =
-        sinon.fake.resolves({});
-      paypalHelper.refundTransaction = sinon.fake.resolves({
+      mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId = jest
+        .fn()
+        .mockResolvedValue({});
+      paypalHelper.refundTransaction = jest.fn().mockResolvedValue({
         pendingReason: successfulRefundTransactionResponse.PENDINGREASON,
         refundStatus: successfulRefundTransactionResponse.REFUNDSTATUS,
         refundTransactionId:
@@ -437,29 +435,35 @@ describe('PayPalHelper', () => {
       );
 
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(paypalHelper.refundTransaction, {
+      expect(paypalHelper.refundTransaction).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.refundTransaction).toHaveBeenCalledWith({
         idempotencyKey: invoice.id,
         transactionId: transactionId,
         refundType: RefundType.Full,
         amount: undefined,
       });
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId,
+      expect(
+        mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId
+      ).toHaveBeenCalledWith(
         invoice,
         successfulRefundTransactionResponse.REFUNDTRANSACTIONID
       );
     });
 
     it('unsuccessfully refunds completed transaction', async () => {
-      mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId =
-        sinon.fake.resolves({});
-      paypalHelper.refundTransaction = sinon.fake.resolves({
+      mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId = jest
+        .fn()
+        .mockResolvedValue({});
+      paypalHelper.refundTransaction = jest.fn().mockResolvedValue({
         pendingReason: successfulRefundTransactionResponse.PENDINGREASON,
         refundStatus: 'None',
         refundTransactionId:
           successfulRefundTransactionResponse.REFUNDTRANSACTIONID,
       });
-      paypalHelper.log = { error: sinon.fake.returns({}) };
+      paypalHelper.log = { error: jest.fn().mockReturnValue({}) };
 
       await expect(
         paypalHelper.issueRefund(invoice, transactionId, RefundType.Full)
@@ -468,7 +472,8 @@ describe('PayPalHelper', () => {
           message: 'PayPal refund transaction unsuccessful',
         })
       );
-      sinon.assert.calledOnceWithExactly(paypalHelper.refundTransaction, {
+      expect(paypalHelper.refundTransaction).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.refundTransaction).toHaveBeenCalledWith({
         idempotencyKey: invoice.id,
         transactionId: transactionId,
         refundType: RefundType.Full,
@@ -485,28 +490,26 @@ describe('PayPalHelper', () => {
     };
     beforeEach(() => {
       paypalHelper.log = {
-        debug: sinon.fake.returns({}),
-        info: sinon.fake.returns({}),
-        error: sinon.fake.returns({}),
+        debug: jest.fn().mockReturnValue({}),
+        info: jest.fn().mockReturnValue({}),
+        error: jest.fn().mockReturnValue({}),
       };
-      paypalHelper.refundInvoice = sinon.fake.resolves(undefined);
+      paypalHelper.refundInvoice = jest.fn().mockResolvedValue(undefined);
     });
     it('returns empty array if no payPalInvoices exist', async () => {
       await paypalHelper.refundInvoices([{ collection_method: 'notpaypal' }]);
-      sinon.assert.notCalled(paypalHelper.refundInvoice);
+      expect(paypalHelper.refundInvoice).not.toHaveBeenCalled();
     });
 
     it('returns on empty array input', async () => {
       await paypalHelper.refundInvoices([]);
-      sinon.assert.notCalled(paypalHelper.refundInvoice);
+      expect(paypalHelper.refundInvoice).not.toHaveBeenCalled();
     });
 
     it('calls refundInvoice for each invoice', async () => {
       await paypalHelper.refundInvoices([validInvoice]);
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.refundInvoice,
-        validInvoice
-      );
+      expect(paypalHelper.refundInvoice).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.refundInvoice).toHaveBeenCalledWith(validInvoice);
     });
   });
 
@@ -518,11 +521,11 @@ describe('PayPalHelper', () => {
     };
     beforeEach(() => {
       paypalHelper.log = {
-        debug: sinon.fake.returns({}),
-        info: sinon.fake.returns({}),
-        error: sinon.fake.returns({}),
+        debug: jest.fn().mockReturnValue({}),
+        info: jest.fn().mockReturnValue({}),
+        error: jest.fn().mockReturnValue({}),
       };
-      paypalHelper.issueRefund = sinon.fake.resolves(undefined);
+      paypalHelper.issueRefund = jest.fn().mockResolvedValue(undefined);
     });
 
     it('does not refund when created date older than 180 days', async () => {
@@ -537,14 +540,11 @@ describe('PayPalHelper', () => {
           ),
         })
       ).rejects.toThrow(expectedErrorMessage);
-      sinon.assert.notCalled(paypalHelper.issueRefund);
-      sinon.assert.calledWithExactly(
-        paypalHelper.log.error,
+      expect(paypalHelper.issueRefund).not.toHaveBeenCalled();
+      expect(paypalHelper.log.error).toHaveBeenCalledWith(
         'PayPalHelper.refundInvoice',
         {
-          error: sinon.match
-            .instanceOf(RefundError)
-            .and(sinon.match.has('message', expectedErrorMessage)),
+          error: expect.objectContaining({ message: expectedErrorMessage }),
           invoiceId: validInvoice.id,
         }
       );
@@ -552,19 +552,17 @@ describe('PayPalHelper', () => {
 
     it('throws error if transactionId is missing', async () => {
       const expectedErrorMessage = 'Missing transactionId';
-      mockStripeHelper.getInvoicePaypalTransactionId =
-        sinon.fake.returns(undefined);
+      mockStripeHelper.getInvoicePaypalTransactionId = jest
+        .fn()
+        .mockReturnValue(undefined);
       await expect(paypalHelper.refundInvoice(validInvoice)).rejects.toThrow(
         expectedErrorMessage
       );
-      sinon.assert.notCalled(paypalHelper.issueRefund);
-      sinon.assert.calledWithExactly(
-        paypalHelper.log.error,
+      expect(paypalHelper.issueRefund).not.toHaveBeenCalled();
+      expect(paypalHelper.log.error).toHaveBeenCalledWith(
         'PayPalHelper.refundInvoice',
         {
-          error: sinon.match
-            .instanceOf(RefundError)
-            .and(sinon.match.has('message', expectedErrorMessage)),
+          error: expect.objectContaining({ message: expectedErrorMessage }),
           invoiceId: validInvoice.id,
         }
       );
@@ -572,24 +570,26 @@ describe('PayPalHelper', () => {
 
     it('throws error if refundTransactionId exists', async () => {
       const expectedErrorMessage = 'Invoice already refunded with PayPal';
-      mockStripeHelper.getInvoicePaypalTransactionId = sinon.fake.returns(123);
-      mockStripeHelper.getInvoicePaypalRefundTransactionId =
-        sinon.fake.returns(123);
+      mockStripeHelper.getInvoicePaypalTransactionId = jest
+        .fn()
+        .mockReturnValue(123);
+      mockStripeHelper.getInvoicePaypalRefundTransactionId = jest
+        .fn()
+        .mockReturnValue(123);
       await expect(paypalHelper.refundInvoice(validInvoice)).rejects.toThrow(
         expectedErrorMessage
       );
-      sinon.assert.calledOnce(mockStripeHelper.getInvoicePaypalTransactionId);
-      sinon.assert.calledOnce(
+      expect(
+        mockStripeHelper.getInvoicePaypalTransactionId
+      ).toHaveBeenCalledTimes(1);
+      expect(
         mockStripeHelper.getInvoicePaypalRefundTransactionId
-      );
-      sinon.assert.notCalled(paypalHelper.issueRefund);
-      sinon.assert.calledWithExactly(
-        paypalHelper.log.error,
+      ).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.issueRefund).not.toHaveBeenCalled();
+      expect(paypalHelper.log.error).toHaveBeenCalledWith(
         'PayPalHelper.refundInvoice',
         {
-          error: sinon.match
-            .instanceOf(RefundError)
-            .and(sinon.match.has('message', expectedErrorMessage)),
+          error: expect.objectContaining({ message: expectedErrorMessage }),
           invoiceId: validInvoice.id,
         }
       );
@@ -601,20 +601,20 @@ describe('PayPalHelper', () => {
         'Helper error details',
         '10009'
       );
-      mockStripeHelper.getInvoicePaypalTransactionId = sinon.fake.returns(123);
-      mockStripeHelper.getInvoicePaypalRefundTransactionId =
-        sinon.fake.returns(undefined);
-      paypalHelper.issueRefund = sinon.fake.rejects(expectedError);
+      mockStripeHelper.getInvoicePaypalTransactionId = jest
+        .fn()
+        .mockReturnValue(123);
+      mockStripeHelper.getInvoicePaypalRefundTransactionId = jest
+        .fn()
+        .mockReturnValue(undefined);
+      paypalHelper.issueRefund = jest.fn().mockRejectedValue(expectedError);
       await expect(paypalHelper.refundInvoice(validInvoice)).rejects.toThrow(
         'Helper error'
       );
-      sinon.assert.calledWithExactly(
-        paypalHelper.log.error,
+      expect(paypalHelper.log.error).toHaveBeenCalledWith(
         'PayPalHelper.refundInvoice',
         {
-          error: sinon.match
-            .instanceOf(RefusedError)
-            .and(sinon.match.has('message', 'Helper error')),
+          error: expect.objectContaining({ message: 'Helper error' }),
           invoiceId: validInvoice.id,
         }
       );
@@ -631,27 +631,29 @@ describe('PayPalHelper', () => {
         ...validInvoice,
         ...expectedInvoiceResults,
       };
-      mockStripeHelper.getInvoicePaypalTransactionId =
-        sinon.fake.returns('123');
-      mockStripeHelper.getInvoicePaypalRefundTransactionId =
-        sinon.fake.returns(undefined);
-      mockStripeHelper.getPriceIdFromInvoice = sinon.fake.returns(
-        expectedInvoiceResults.priceId
-      );
+      mockStripeHelper.getInvoicePaypalTransactionId = jest
+        .fn()
+        .mockReturnValue('123');
+      mockStripeHelper.getInvoicePaypalRefundTransactionId = jest
+        .fn()
+        .mockReturnValue(undefined);
+      mockStripeHelper.getPriceIdFromInvoice = jest
+        .fn()
+        .mockReturnValue(expectedInvoiceResults.priceId);
       await paypalHelper.refundInvoice(invoice);
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.issueRefund,
+      expect(paypalHelper.issueRefund).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.issueRefund).toHaveBeenCalledWith(
         invoice,
         '123',
         RefundType.Full,
         undefined
       );
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.log.info,
+      expect(paypalHelper.log.info).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.log.info).toHaveBeenCalledWith(
         'refundInvoice',
         expectedInvoiceResults
       );
-      sinon.assert.notCalled(paypalHelper.log.error);
+      expect(paypalHelper.log.error).not.toHaveBeenCalled();
     });
 
     it('issues partial refund successfully', async () => {
@@ -660,25 +662,29 @@ describe('PayPalHelper', () => {
         id: 'inv_partial',
         amount_paid: 1000,
       };
-      mockStripeHelper.getInvoicePaypalTransactionId =
-        sinon.fake.returns('123');
-      mockStripeHelper.getInvoicePaypalRefundTransactionId =
-        sinon.fake.returns(undefined);
-      mockStripeHelper.getPriceIdFromInvoice = sinon.fake.returns('priceId1');
+      mockStripeHelper.getInvoicePaypalTransactionId = jest
+        .fn()
+        .mockReturnValue('123');
+      mockStripeHelper.getInvoicePaypalRefundTransactionId = jest
+        .fn()
+        .mockReturnValue(undefined);
+      mockStripeHelper.getPriceIdFromInvoice = jest
+        .fn()
+        .mockReturnValue('priceId1');
 
       await paypalHelper.refundInvoice(invoice, {
         refundType: RefundType.Partial,
         amount: 500,
       });
 
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.issueRefund,
+      expect(paypalHelper.issueRefund).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.issueRefund).toHaveBeenCalledWith(
         invoice,
         '123',
         RefundType.Partial,
         500
       );
-      sinon.assert.notCalled(paypalHelper.log.error);
+      expect(paypalHelper.log.error).not.toHaveBeenCalled();
     });
 
     it('throws error if partial refund amount is not less than amount paid', async () => {
@@ -689,10 +695,12 @@ describe('PayPalHelper', () => {
       };
       const expectedErrorMessage =
         'Partial refunds must be less than the amount due on the invoice';
-      mockStripeHelper.getInvoicePaypalTransactionId =
-        sinon.fake.returns('123');
-      mockStripeHelper.getInvoicePaypalRefundTransactionId =
-        sinon.fake.returns(undefined);
+      mockStripeHelper.getInvoicePaypalTransactionId = jest
+        .fn()
+        .mockReturnValue('123');
+      mockStripeHelper.getInvoicePaypalRefundTransactionId = jest
+        .fn()
+        .mockReturnValue(undefined);
 
       await expect(
         paypalHelper.refundInvoice(invoice, {
@@ -700,15 +708,15 @@ describe('PayPalHelper', () => {
           amount: 1000,
         })
       ).rejects.toThrow(expectedErrorMessage);
-      sinon.assert.notCalled(paypalHelper.issueRefund);
+      expect(paypalHelper.issueRefund).not.toHaveBeenCalled();
     });
   });
 
   describe('cancelBillingAgreement', () => {
     it('cancels an agreement', async () => {
-      paypalHelper.client.doRequest = sinon.fake.resolves(
-        successfulBAUpdateResponse
-      );
+      paypalHelper.client.doRequest = jest
+        .fn()
+        .mockResolvedValue(successfulBAUpdateResponse);
       const response = await paypalHelper.cancelBillingAgreement('test');
       expect(response).toBeNull();
     });
@@ -718,9 +726,9 @@ describe('PayPalHelper', () => {
         message: 'oh no',
         errorCode: 123,
       });
-      paypalHelper.client.doRequest = sinon.fake.throws(
-        new PayPalClientError([nvpError], 'hi', {} as NVPErrorResponse)
-      );
+      paypalHelper.client.doRequest = jest.fn().mockImplementation(() => {
+        throw new PayPalClientError([nvpError], 'hi', {} as NVPErrorResponse);
+      });
       const response = await paypalHelper.cancelBillingAgreement('test');
       expect(response).toBeNull();
     });
@@ -728,9 +736,9 @@ describe('PayPalHelper', () => {
 
   describe('searchTransactions', () => {
     it('returns the data from doRequest', async () => {
-      paypalHelper.client.doRequest = sinon.fake.resolves(
-        searchTransactionResponse
-      );
+      paypalHelper.client.doRequest = jest
+        .fn()
+        .mockResolvedValue(searchTransactionResponse);
       const expectedResponse = [
         {
           amount: '5.99',
@@ -779,22 +787,22 @@ describe('PayPalHelper', () => {
 
   describe('verifyIpnMessage', () => {
     it('validates IPN message', async () => {
-      paypalHelper.client.ipnVerify = sinon.fake.resolves('VERIFIED');
+      paypalHelper.client.ipnVerify = jest.fn().mockResolvedValue('VERIFIED');
       const response = await paypalHelper.verifyIpnMessage(
         sampleIpnMessage.message
       );
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.client.ipnVerify,
+      expect(paypalHelper.client.ipnVerify).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.client.ipnVerify).toHaveBeenCalledWith(
         sampleIpnMessage.message
       );
       expect(response).toBe(true);
     });
 
     it('invalidates IPN message', async () => {
-      paypalHelper.client.ipnVerify = sinon.fake.resolves('INVALID');
+      paypalHelper.client.ipnVerify = jest.fn().mockResolvedValue('INVALID');
       const response = await paypalHelper.verifyIpnMessage('invalid=True');
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.client.ipnVerify,
+      expect(paypalHelper.client.ipnVerify).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.client.ipnVerify).toHaveBeenCalledWith(
         'invalid=True'
       );
       expect(response).toBe(false);
@@ -850,16 +858,18 @@ describe('PayPalHelper', () => {
 
   describe('conditionallyRemoveBillingAgreement', () => {
     it('returns false with no billing agreement found', async () => {
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sinon.fake.returns(undefined);
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue(undefined);
       const result =
         await paypalHelper.conditionallyRemoveBillingAgreement(mockCustomer);
       expect(result).toBe(false);
     });
 
     it('returns false with no paypal subscriptions', async () => {
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sinon.fake.returns('ba-test');
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue('ba-test');
       mockCustomer.subscriptions = {
         data: [{ status: 'active', collection_method: 'send_invoice' }],
       };
@@ -869,24 +879,33 @@ describe('PayPalHelper', () => {
     });
 
     it('returns true if it cancelled and removed the billing agreement', async () => {
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sinon.fake.returns('ba-test');
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue('ba-test');
       mockCustomer.subscriptions = { data: [] };
-      paypalHelper.cancelBillingAgreement = sinon.fake.resolves({});
-      mockStripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
+      paypalHelper.cancelBillingAgreement = jest.fn().mockResolvedValue({});
+      mockStripeHelper.removeCustomerPaypalAgreement = jest
+        .fn()
+        .mockResolvedValue({});
       const result =
         await paypalHelper.conditionallyRemoveBillingAgreement(mockCustomer);
       expect(result).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         mockCustomer
       );
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.cancelBillingAgreement,
+      expect(paypalHelper.cancelBillingAgreement).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.cancelBillingAgreement).toHaveBeenCalledWith(
         'ba-test'
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.removeCustomerPaypalAgreement,
+      expect(
+        mockStripeHelper.removeCustomerPaypalAgreement
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockStripeHelper.removeCustomerPaypalAgreement
+      ).toHaveBeenCalledWith(
         mockCustomer.metadata.userid,
         mockCustomer.id,
         'ba-test'
@@ -896,8 +915,10 @@ describe('PayPalHelper', () => {
 
   describe('updateStripeNameFromBA', () => {
     it('updates the name on the stripe customer', async () => {
-      mockStripeHelper.updateCustomerBillingAddress = sinon.fake.resolves({});
-      paypalHelper.agreementDetails = sinon.fake.resolves({
+      mockStripeHelper.updateCustomerBillingAddress = jest
+        .fn()
+        .mockResolvedValue({});
+      paypalHelper.agreementDetails = jest.fn().mockResolvedValue({
         firstName: 'Test',
         lastName: 'User',
       });
@@ -906,16 +927,23 @@ describe('PayPalHelper', () => {
         'mock-agreement-id'
       );
       expect(result).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.updateCustomerBillingAddress,
-        { customerId: mockCustomer.id, name: 'Test User' }
-      );
-      sinon.assert.calledOnce(paypalHelper.metrics.increment);
+      expect(
+        mockStripeHelper.updateCustomerBillingAddress
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockStripeHelper.updateCustomerBillingAddress
+      ).toHaveBeenCalledWith({
+        customerId: mockCustomer.id,
+        name: 'Test User',
+      });
+      expect(paypalHelper.metrics.increment).toHaveBeenCalledTimes(1);
     });
 
     it('throws error if billing agreement status is cancelled', async () => {
-      mockStripeHelper.updateCustomerBillingAddress = sinon.fake.resolves({});
-      paypalHelper.agreementDetails = sinon.fake.resolves({
+      mockStripeHelper.updateCustomerBillingAddress = jest
+        .fn()
+        .mockResolvedValue({});
+      paypalHelper.agreementDetails = jest.fn().mockResolvedValue({
         firstName: 'Test',
         lastName: 'User',
         status: 'cancelled',
@@ -933,11 +961,11 @@ describe('PayPalHelper', () => {
 
   describe('processZeroInvoice', () => {
     it('finalize invoice that with no amount set to zero', async () => {
-      mockStripeHelper.finalizeInvoice = sinon.fake.resolves({});
-      mockStripeHelper.payInvoiceOutOfBand = sinon.fake.resolves({});
+      mockStripeHelper.finalizeInvoice = jest.fn().mockResolvedValue({});
+      mockStripeHelper.payInvoiceOutOfBand = jest.fn().mockResolvedValue({});
       const response = await paypalHelper.processZeroInvoice(mockInvoice);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.finalizeInvoice,
+      expect(mockStripeHelper.finalizeInvoice).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.finalizeInvoice).toHaveBeenCalledWith(
         mockInvoice
       );
       expect(response).toEqual({});
@@ -950,17 +978,21 @@ describe('PayPalHelper', () => {
     const transactionId = 'transaction-id';
 
     beforeEach(() => {
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sinon.fake.returns(agreementId);
-      mockStripeHelper.getPaymentAttempts = sinon.fake.returns(paymentAttempts);
-      paypalHelper.chargeCustomer = sinon.fake.resolves({
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue(agreementId);
+      mockStripeHelper.getPaymentAttempts = jest
+        .fn()
+        .mockReturnValue(paymentAttempts);
+      paypalHelper.chargeCustomer = jest.fn().mockResolvedValue({
         paymentStatus: 'Completed',
         transactionId,
       });
-      mockStripeHelper.updateInvoiceWithPaypalTransactionId =
-        sinon.fake.resolves({ transactionId });
-      mockStripeHelper.payInvoiceOutOfBand = sinon.fake.resolves({});
-      mockStripeHelper.updatePaymentAttempts = sinon.fake.resolves({});
+      mockStripeHelper.updateInvoiceWithPaypalTransactionId = jest
+        .fn()
+        .mockResolvedValue({ transactionId });
+      mockStripeHelper.payInvoiceOutOfBand = jest.fn().mockResolvedValue({});
+      mockStripeHelper.updatePaymentAttempts = jest.fn().mockResolvedValue({});
     });
 
     it('runs a open invoice successfully', async () => {
@@ -976,15 +1008,18 @@ describe('PayPalHelper', () => {
         invoice: validInvoice,
         ipaddress: '127.0.0.1',
       });
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         mockCustomer
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getPaymentAttempts,
+      expect(mockStripeHelper.getPaymentAttempts).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.getPaymentAttempts).toHaveBeenCalledWith(
         validInvoice
       );
-      sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledWith({
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
@@ -996,13 +1031,14 @@ describe('PayPalHelper', () => {
         ),
         ipaddress: '127.0.0.1',
       });
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.updateInvoiceWithPaypalTransactionId,
-        validInvoice,
-        transactionId
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.payInvoiceOutOfBand,
+      expect(
+        mockStripeHelper.updateInvoiceWithPaypalTransactionId
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockStripeHelper.updateInvoiceWithPaypalTransactionId
+      ).toHaveBeenCalledWith(validInvoice, transactionId);
+      expect(mockStripeHelper.payInvoiceOutOfBand).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.payInvoiceOutOfBand).toHaveBeenCalledWith(
         validInvoice
       );
       expect(response).toEqual([{ transactionId }, {}]);
@@ -1022,7 +1058,8 @@ describe('PayPalHelper', () => {
         invoice: validInvoice,
         ipaddress: '127.0.0.1',
       });
-      sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledWith({
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
@@ -1045,21 +1082,24 @@ describe('PayPalHelper', () => {
         amount_due: 499,
       };
 
-      mockStripeHelper.finalizeInvoice = sinon.fake.resolves({});
+      mockStripeHelper.finalizeInvoice = jest.fn().mockResolvedValue({});
 
       const response = await paypalHelper.processInvoice({
         customer: mockCustomer,
         invoice: validInvoice,
       });
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         mockCustomer
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getPaymentAttempts,
+      expect(mockStripeHelper.getPaymentAttempts).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.getPaymentAttempts).toHaveBeenCalledWith(
         validInvoice
       );
-      sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledWith({
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
@@ -1070,17 +1110,18 @@ describe('PayPalHelper', () => {
           paymentAttempts
         ),
       });
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.finalizeInvoice,
+      expect(mockStripeHelper.finalizeInvoice).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.finalizeInvoice).toHaveBeenCalledWith(
         validInvoice
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.updateInvoiceWithPaypalTransactionId,
-        validInvoice,
-        transactionId
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.payInvoiceOutOfBand,
+      expect(
+        mockStripeHelper.updateInvoiceWithPaypalTransactionId
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockStripeHelper.updateInvoiceWithPaypalTransactionId
+      ).toHaveBeenCalledWith(validInvoice, transactionId);
+      expect(mockStripeHelper.payInvoiceOutOfBand).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.payInvoiceOutOfBand).toHaveBeenCalledWith(
         validInvoice
       );
       expect(response).toEqual([{ transactionId }, {}]);
@@ -1092,7 +1133,7 @@ describe('PayPalHelper', () => {
         status: 'open',
         amount_due: 499,
       };
-      paypalHelper.chargeCustomer = sinon.fake.resolves({
+      paypalHelper.chargeCustomer = jest.fn().mockResolvedValue({
         paymentStatus: 'Pending',
         transactionId,
       });
@@ -1101,15 +1142,18 @@ describe('PayPalHelper', () => {
         customer: mockCustomer,
         invoice: validInvoice,
       });
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         mockCustomer
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getPaymentAttempts,
+      expect(mockStripeHelper.getPaymentAttempts).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.getPaymentAttempts).toHaveBeenCalledWith(
         validInvoice
       );
-      sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledWith({
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
@@ -1129,7 +1173,7 @@ describe('PayPalHelper', () => {
         status: 'open',
         amount_due: 499,
       };
-      paypalHelper.chargeCustomer = sinon.fake.resolves({
+      paypalHelper.chargeCustomer = jest.fn().mockResolvedValue({
         paymentStatus: 'Denied',
         transactionId,
       });
@@ -1140,15 +1184,18 @@ describe('PayPalHelper', () => {
           invoice: validInvoice,
         })
       ).rejects.toEqual(error.paymentFailed());
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         mockCustomer
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getPaymentAttempts,
+      expect(mockStripeHelper.getPaymentAttempts).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.getPaymentAttempts).toHaveBeenCalledWith(
         validInvoice
       );
-      sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledWith({
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
@@ -1159,8 +1206,8 @@ describe('PayPalHelper', () => {
           paymentAttempts
         ),
       });
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.updatePaymentAttempts,
+      expect(mockStripeHelper.updatePaymentAttempts).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.updatePaymentAttempts).toHaveBeenCalledWith(
         validInvoice
       );
     });
@@ -1172,8 +1219,8 @@ describe('PayPalHelper', () => {
         status: 'open',
         amount_due: 499,
       };
-      paypalHelper.log = { error: sinon.fake.returns({}) };
-      paypalHelper.chargeCustomer = sinon.fake.resolves({
+      paypalHelper.log = { error: jest.fn().mockReturnValue({}) };
+      paypalHelper.chargeCustomer = jest.fn().mockResolvedValue({
         paymentStatus,
         transactionId,
       });
@@ -1189,15 +1236,18 @@ describe('PayPalHelper', () => {
           transactionResponse: paymentStatus,
         })
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         mockCustomer
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getPaymentAttempts,
+      expect(mockStripeHelper.getPaymentAttempts).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.getPaymentAttempts).toHaveBeenCalledWith(
         validInvoice
       );
-      sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.chargeCustomer).toHaveBeenCalledWith({
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
@@ -1211,8 +1261,9 @@ describe('PayPalHelper', () => {
     });
 
     it('throws error for invoice without PayPal Billing Agreement ID', async () => {
-      mockStripeHelper.getCustomerPaypalAgreement =
-        sinon.fake.returns(undefined);
+      mockStripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue(undefined);
 
       await expect(
         paypalHelper.processInvoice({
@@ -1224,8 +1275,10 @@ describe('PayPalHelper', () => {
           message: 'Agreement ID not found.',
         })
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         mockCustomer
       );
     });
@@ -1246,8 +1299,10 @@ describe('PayPalHelper', () => {
           message: 'Invoice in invalid state.',
         })
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.getCustomerPaypalAgreement,
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.getCustomerPaypalAgreement).toHaveBeenCalledWith(
         mockCustomer
       );
     });
@@ -1269,7 +1324,7 @@ describe('PayPalHelper', () => {
           rawString,
           parsedNvpObject
         );
-        paypalHelper.chargeCustomer = sinon.fake.rejects(throwErr);
+        paypalHelper.chargeCustomer = jest.fn().mockRejectedValue(throwErr);
         return throwErr;
       }
 
@@ -1279,12 +1334,14 @@ describe('PayPalHelper', () => {
           status: 'open',
           amount_due: 499,
         };
-        mockStripeHelper.getCustomerPaypalAgreement =
-          sinon.fake.returns(agreementId);
-        mockStripeHelper.getPaymentAttempts =
-          sinon.fake.returns(paymentAttempts);
-        mockStripeHelper.updatePaymentAttempts = sinon.fake.returns({});
-        paypalHelper.log = { error: sinon.fake.returns({}) };
+        mockStripeHelper.getCustomerPaypalAgreement = jest
+          .fn()
+          .mockReturnValue(agreementId);
+        mockStripeHelper.getPaymentAttempts = jest
+          .fn()
+          .mockReturnValue(paymentAttempts);
+        mockStripeHelper.updatePaymentAttempts = jest.fn().mockReturnValue({});
+        paypalHelper.log = { error: jest.fn().mockReturnValue({}) };
       });
 
       it('payment failed error on invalid billing agreement', async () => {
@@ -1297,10 +1354,12 @@ describe('PayPalHelper', () => {
             invoice: validInvoice,
           })
         ).rejects.toEqual(failErr);
-        sinon.assert.calledOnceWithExactly(
-          mockStripeHelper.getCustomerPaypalAgreement,
-          mockCustomer
-        );
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledWith(mockCustomer);
       });
 
       it('backend service failure on paypal app error', async () => {
@@ -1320,10 +1379,12 @@ describe('PayPalHelper', () => {
             invoice: validInvoice,
           })
         ).rejects.toEqual(failErr);
-        sinon.assert.calledOnceWithExactly(
-          mockStripeHelper.getCustomerPaypalAgreement,
-          mockCustomer
-        );
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledWith(mockCustomer);
       });
 
       it('retry error on paypal retryable error', async () => {
@@ -1334,10 +1395,12 @@ describe('PayPalHelper', () => {
             invoice: validInvoice,
           })
         ).rejects.toEqual(error.serviceUnavailable());
-        sinon.assert.calledOnceWithExactly(
-          mockStripeHelper.getCustomerPaypalAgreement,
-          mockCustomer
-        );
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledWith(mockCustomer);
       });
 
       it('backend error on no paypal error code', async () => {
@@ -1357,10 +1420,12 @@ describe('PayPalHelper', () => {
             invoice: validInvoice,
           })
         ).rejects.toEqual(failErr);
-        sinon.assert.calledOnceWithExactly(
-          mockStripeHelper.getCustomerPaypalAgreement,
-          mockCustomer
-        );
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledWith(mockCustomer);
       });
 
       it('internal validation error on unexpected paypal error code', async () => {
@@ -1379,10 +1444,12 @@ describe('PayPalHelper', () => {
             invoice: validInvoice,
           })
         ).rejects.toEqual(failErr);
-        sinon.assert.calledOnceWithExactly(
-          mockStripeHelper.getCustomerPaypalAgreement,
-          mockCustomer
-        );
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledWith(mockCustomer);
       });
 
       it('skips auth-server error on batchProcessing service failure on paypal app error', async () => {
@@ -1394,10 +1461,12 @@ describe('PayPalHelper', () => {
             batchProcessing: true,
           })
         ).rejects.toEqual(throwErr);
-        sinon.assert.calledOnceWithExactly(
-          mockStripeHelper.getCustomerPaypalAgreement,
-          mockCustomer
-        );
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          mockStripeHelper.getCustomerPaypalAgreement
+        ).toHaveBeenCalledWith(mockCustomer);
       });
     });
   });

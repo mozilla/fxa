@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 const Joi = require('joi');
 const { Container } = require('typedi');
 const ScopeSet = require('fxa-shared').oauth.scopes;
@@ -37,9 +36,9 @@ const FIREFOX_IOS_CLIENT_ID = '1b1a3e44c54fbb58';
 
 const noop = () => {};
 const mockLog = { debug: noop, warn: noop, info: noop };
-const mockDb = { touchSessionToken: sinon.stub() };
-const mockStatsD = { increment: sinon.stub() };
-const mockGlean = { oauth: { tokenCreated: sinon.stub() } };
+const mockDb = { touchSessionToken: jest.fn() };
+const mockStatsD = { increment: jest.fn() };
+const mockGlean = { oauth: { tokenCreated: jest.fn() } };
 
 const tokenRoutesDepMocks = {
   '../../oauth/assertion': async () => true,
@@ -286,7 +285,7 @@ describe('/token POST', () => {
 
   describe('statsd metrics', () => {
     beforeEach(() => {
-      mockStatsD.increment.resetHistory();
+      mockStatsD.increment.mockClear();
     });
 
     it('increments count on scope keys usage', async () => {
@@ -300,11 +299,10 @@ describe('/token POST', () => {
         emitMetricsEvent: () => {},
       };
       await route.config.handler(request);
-      sinon.assert.calledOnceWithExactly(
-        mockStatsD.increment,
-        'oauth.rp.keys-jwe',
-        { clientId: CLIENT_ID }
-      );
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith('oauth.rp.keys-jwe', {
+        clientId: CLIENT_ID,
+      });
     });
 
     it('does not call statsd', async () => {
@@ -317,13 +315,13 @@ describe('/token POST', () => {
         emitMetricsEvent: () => {},
       };
       await route.config.handler(request);
-      sinon.assert.notCalled(mockStatsD.increment);
+      expect(mockStatsD.increment).not.toHaveBeenCalled();
     });
   });
 
   describe('Glean metrics', () => {
     beforeEach(() => {
-      mockGlean.oauth.tokenCreated.reset();
+      mockGlean.oauth.tokenCreated.mockClear();
     });
 
     it('logs the token created event', async () => {
@@ -337,16 +335,13 @@ describe('/token POST', () => {
         emitMetricsEvent: () => {},
       };
       await route.config.handler(request);
-      sinon.assert.calledOnceWithExactly(
-        mockGlean.oauth.tokenCreated,
-        request,
-        {
-          uid: UID,
-          oauthClientId: CLIENT_ID,
-          reason: 'authorization_code',
-          scopes: '',
-        }
-      );
+      expect(mockGlean.oauth.tokenCreated).toHaveBeenCalledTimes(1);
+      expect(mockGlean.oauth.tokenCreated).toHaveBeenCalledWith(request, {
+        uid: UID,
+        oauthClientId: CLIENT_ID,
+        reason: 'authorization_code',
+        scopes: '',
+      });
     });
 
     it('logs space-separated scopes from ScopeSet for the token created event', async () => {
@@ -362,7 +357,7 @@ describe('/token POST', () => {
           scope: ScopeSet.fromString(SMARTWINDOW_SCOPES),
         }),
       }));
-      const mockGleanLocal = { oauth: { tokenCreated: sinon.stub() } };
+      const mockGleanLocal = { oauth: { tokenCreated: jest.fn() } };
       const routes = require('./token')({
         ...tokenRoutesArgMocks,
         glean: mockGleanLocal,
@@ -376,16 +371,13 @@ describe('/token POST', () => {
         emitMetricsEvent: () => {},
       };
       await routes[0].config.handler(request);
-      sinon.assert.calledOnceWithExactly(
-        mockGleanLocal.oauth.tokenCreated,
-        request,
-        {
-          uid: UID,
-          oauthClientId: CLIENT_ID,
-          reason: 'fxa-credentials',
-          scopes: SMARTWINDOW_SCOPES,
-        }
-      );
+      expect(mockGleanLocal.oauth.tokenCreated).toHaveBeenCalledTimes(1);
+      expect(mockGleanLocal.oauth.tokenCreated).toHaveBeenCalledWith(request, {
+        uid: UID,
+        oauthClientId: CLIENT_ID,
+        reason: 'fxa-credentials',
+        scopes: SMARTWINDOW_SCOPES,
+      });
     });
   });
 });
@@ -656,7 +648,7 @@ describe('token exchange grant_type', () => {
 describe('/oauth/token POST', () => {
   describe('update session last access time', () => {
     beforeEach(() => {
-      mockDb.touchSessionToken.reset();
+      mockDb.touchSessionToken.mockClear();
     });
 
     it('updates last access time of a session', async () => {
@@ -671,8 +663,8 @@ describe('/oauth/token POST', () => {
         emitMetricsEvent: async () => {},
       };
       await tokenRoutes[1].handler(request);
-      sinon.assert.calledOnceWithExactly(
-        mockDb.touchSessionToken,
+      expect(mockDb.touchSessionToken).toHaveBeenCalledTimes(1);
+      expect(mockDb.touchSessionToken).toHaveBeenCalledWith(
         sessionToken,
         {},
         true
@@ -708,7 +700,7 @@ describe('/oauth/token POST', () => {
         emitMetricsEvent: async () => {},
       };
       await routes[1].handler(request);
-      sinon.assert.notCalled(mockDb.touchSessionToken);
+      expect(mockDb.touchSessionToken).not.toHaveBeenCalled();
     });
   });
 
@@ -718,10 +710,10 @@ describe('/oauth/token POST', () => {
 
     it('handles token exchange and passes existingDeviceId to newTokenNotification', async () => {
       const PROFILE_SCOPE = 'profile';
-      const newTokenNotificationStub = sinon.stub().resolves();
-      const sessionTokenStub = sinon
-        .stub()
-        .rejects(new Error('should not be called'));
+      const newTokenNotificationStub = jest.fn().mockResolvedValue();
+      const sessionTokenStub = jest
+        .fn()
+        .mockRejectedValue(new Error('should not be called'));
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
       jest.doMock(
@@ -746,7 +738,7 @@ describe('/oauth/token POST', () => {
         newTokenNotification: newTokenNotificationStub,
       }));
       jest.doMock('../../oauth/token', () => ({
-        verify: sinon.stub().resolves({ user: UID }),
+        verify: jest.fn().mockResolvedValue({ user: UID }),
       }));
       const routes = require('./token')({
         ...tokenRoutesArgMocks,
@@ -795,19 +787,26 @@ describe('/oauth/token POST', () => {
       expect(result.scope).toContain(OAUTH_SCOPE_RELAY);
       expect(result._clientId).toBeUndefined();
       expect(result._existingDeviceId).toBeUndefined();
-      sinon.assert.calledOnce(newTokenNotificationStub);
-      const callArgs = newTokenNotificationStub.firstCall.args;
-      expect(callArgs[5]).toEqual({
-        skipEmail: true,
-        existingDeviceId: MOCK_DEVICE_ID,
-        clientId: FIREFOX_IOS_CLIENT_ID,
-      });
-      sinon.assert.notCalled(sessionTokenStub);
+      expect(newTokenNotificationStub).toHaveBeenCalledTimes(1);
+      expect(newTokenNotificationStub).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        {
+          skipEmail: true,
+          existingDeviceId: MOCK_DEVICE_ID,
+          clientId: FIREFOX_IOS_CLIENT_ID,
+        }
+      );
+      expect(sessionTokenStub).not.toHaveBeenCalled();
     });
 
     it('handles token exchange when no existing device is found (existingDeviceId is undefined)', async () => {
       const PROFILE_SCOPE = 'profile';
-      const newTokenNotificationStub = sinon.stub().resolves();
+      const newTokenNotificationStub = jest.fn().mockResolvedValue();
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
       jest.doMock(
@@ -832,7 +831,7 @@ describe('/oauth/token POST', () => {
         newTokenNotification: newTokenNotificationStub,
       }));
       jest.doMock('../../oauth/token', () => ({
-        verify: sinon.stub().resolves({ user: UID }),
+        verify: jest.fn().mockResolvedValue({ user: UID }),
       }));
       const routes = require('./token')({
         ...tokenRoutesArgMocks,
@@ -877,22 +876,29 @@ describe('/oauth/token POST', () => {
       expect(result.refresh_token).toBe('new_refresh_token');
       expect(result._clientId).toBeUndefined();
       expect(result._existingDeviceId).toBeUndefined();
-      sinon.assert.calledOnce(newTokenNotificationStub);
-      const callArgs = newTokenNotificationStub.firstCall.args;
-      expect(callArgs[5]).toEqual({
-        skipEmail: true,
-        existingDeviceId: undefined,
-        clientId: FIREFOX_IOS_CLIENT_ID,
-      });
+      expect(newTokenNotificationStub).toHaveBeenCalledTimes(1);
+      expect(newTokenNotificationStub).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        {
+          skipEmail: true,
+          existingDeviceId: undefined,
+          clientId: FIREFOX_IOS_CLIENT_ID,
+        }
+      );
     });
   });
 
   describe('fxa-credentials with reason=token_migration', () => {
     it('calls newTokenNotification with skipEmail: true when reason is token_migration', async () => {
-      const newTokenNotificationStub = sinon.stub().resolves();
-      const sessionTokenStub = sinon
-        .stub()
-        .rejects(new Error('should not be called'));
+      const newTokenNotificationStub = jest.fn().mockResolvedValue();
+      const sessionTokenStub = jest
+        .fn()
+        .mockRejectedValue(new Error('should not be called'));
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
       jest.doMock(
@@ -936,18 +942,25 @@ describe('/oauth/token POST', () => {
       };
 
       await routes[1].handler(request);
-      sinon.assert.calledOnce(newTokenNotificationStub);
-      const callArgs = newTokenNotificationStub.firstCall.args;
-      expect(callArgs[5]).toEqual({
-        skipEmail: true,
-        existingDeviceId: undefined,
-        clientId: CLIENT_ID,
-      });
-      sinon.assert.notCalled(sessionTokenStub);
+      expect(newTokenNotificationStub).toHaveBeenCalledTimes(1);
+      expect(newTokenNotificationStub).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        {
+          skipEmail: true,
+          existingDeviceId: undefined,
+          clientId: CLIENT_ID,
+        }
+      );
+      expect(sessionTokenStub).not.toHaveBeenCalled();
     });
 
     it('calls newTokenNotification with skipEmail: false when reason is not provided', async () => {
-      const newTokenNotificationStub = sinon.stub().resolves();
+      const newTokenNotificationStub = jest.fn().mockResolvedValue();
       jest.resetModules();
       jest.doMock('../../oauth/assertion', () => async () => true);
       jest.doMock(
@@ -984,13 +997,20 @@ describe('/oauth/token POST', () => {
       };
 
       await routes[1].handler(request);
-      sinon.assert.calledOnce(newTokenNotificationStub);
-      const callArgs = newTokenNotificationStub.firstCall.args;
-      expect(callArgs[5]).toEqual({
-        skipEmail: false,
-        existingDeviceId: undefined,
-        clientId: CLIENT_ID,
-      });
+      expect(newTokenNotificationStub).toHaveBeenCalledTimes(1);
+      expect(newTokenNotificationStub).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        {
+          skipEmail: false,
+          existingDeviceId: undefined,
+          clientId: CLIENT_ID,
+        }
+      );
     });
   });
 });

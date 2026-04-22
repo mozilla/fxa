@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const sinon = require('sinon');
 const { default: Container } = require('typedi');
 const cloneDeep = require('lodash/cloneDeep');
 const retry = require('async-retry');
@@ -10,8 +9,6 @@ const { deleteCollection } = require('../../../local/payments/util');
 const {
   mergeConfigs,
 } = require('fxa-shared/subscriptions/configuration/utils');
-
-const sandbox = sinon.createSandbox();
 
 const {
   AuthFirestore,
@@ -166,7 +163,7 @@ describe('#integration - PaymentConfigManager', () => {
       planConfigDbRef,
       100
     );
-    sandbox.reset();
+    jest.clearAllMocks();
     Container.reset();
   });
 
@@ -225,7 +222,7 @@ describe('#integration - PaymentConfigManager', () => {
 
   describe('getDocumentIdByStripeId', () => {
     it('returns a matching product document id if found', async () => {
-      paymentConfigManager.allProducts = sandbox.stub().resolves([
+      paymentConfigManager.allProducts = jest.fn().mockResolvedValue([
         {
           ...productConfig,
           id: testProductId,
@@ -238,7 +235,7 @@ describe('#integration - PaymentConfigManager', () => {
     });
 
     it('returns a matching plan document id if found', async () => {
-      paymentConfigManager.allPlans = sandbox.stub().resolves([
+      paymentConfigManager.allPlans = jest.fn().mockResolvedValue([
         {
           ...planConfig,
           id: testPlanId,
@@ -251,13 +248,13 @@ describe('#integration - PaymentConfigManager', () => {
     });
 
     it('returns null if neither is found', async () => {
-      paymentConfigManager.allProducts = sandbox.stub().resolves([
+      paymentConfigManager.allProducts = jest.fn().mockResolvedValue([
         {
           ...productConfig,
           id: testProductId,
         },
       ]);
-      paymentConfigManager.allPlans = sandbox.stub().resolves([
+      paymentConfigManager.allPlans = jest.fn().mockResolvedValue([
         {
           ...planConfig,
           id: testPlanId,
@@ -273,11 +270,11 @@ describe('#integration - PaymentConfigManager', () => {
   describe('validateProductConfig', () => {
     it('validates a product config', async () => {
       const newProduct = cloneDeep(productConfig);
-      const spy = sandbox.spy(ProductConfig, 'validate');
+      const spy = jest.spyOn(ProductConfig, 'validate');
 
       await paymentConfigManager.validateProductConfig(newProduct);
 
-      expect(spy.calledOnce).toBe(true);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('throws error on invalid product config', async () => {
@@ -297,11 +294,11 @@ describe('#integration - PaymentConfigManager', () => {
     it('validates a plan config', async () => {
       const newPlan = cloneDeep(planConfig);
       const product = (await paymentConfigManager.allProducts())[0];
-      const spy = sandbox.spy(PlanConfig, 'validate');
+      const spy = jest.spyOn(PlanConfig, 'validate');
 
       await paymentConfigManager.validatePlanConfig(newPlan, product.id);
 
-      expect(spy.calledOnce).toBe(true);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('throws error on invalid plan config', async () => {

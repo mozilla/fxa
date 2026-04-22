@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 const validEvent = {
   op: 'amplitudeEvent',
   event_type: 'fxa_activity - access_token_checked',
@@ -15,8 +14,7 @@ const validEvent = {
     oauth_client_id: '98e6508e88680e1a',
   },
   user_properties: {
-    flow_id:
-      '1ce137da67f8d5a2e5e55fafaca0a14088f015f1d6cdf25400f9fe22226ad5a6',
+    flow_id: '1ce137da67f8d5a2e5e55fafaca0a14088f015f1d6cdf25400f9fe22226ad5a6',
     ua_browser: 'Firefox',
     ua_version: '76.0',
     $append: {
@@ -55,9 +53,13 @@ describe('log', () => {
 
     sentryScope = { setContext: jest.fn() };
     mockSentry = {
-      withScope: jest.fn().mockImplementation((cb: (scope: Record<string, jest.Mock>) => void) => {
-        cb(sentryScope);
-      }),
+      withScope: jest
+        .fn()
+        .mockImplementation(
+          (cb: (scope: Record<string, jest.Mock>) => void) => {
+            cb(sentryScope);
+          }
+        ),
       getActiveSpan: jest.fn().mockReturnValue(undefined),
     };
 
@@ -123,7 +125,7 @@ describe('log', () => {
     // mozlog instance was called once with no arguments
     const returnValue = mockMozlog.mock.results[0].value;
     expect(returnValue).toHaveBeenCalledTimes(1);
-    expect(returnValue.mock.calls[0]).toHaveLength(0);
+    expect(returnValue).toHaveBeenCalledWith();
 
     // No logger methods were called during init
     expect(logger.debug).not.toHaveBeenCalled();
@@ -200,10 +202,7 @@ describe('log', () => {
     });
 
     expect(logger.info).toHaveBeenCalledTimes(1);
-    const args = logger.info.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('activityEvent');
-    expect(args[1]).toEqual({
+    expect(logger.info).toHaveBeenCalledWith('activityEvent', {
       event: 'foo',
       uid: 'bar',
     });
@@ -218,10 +217,10 @@ describe('log', () => {
     log.activityEvent();
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    const args = logger.error.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('log.activityEvent');
-    expect(args[1]).toEqual(expect.objectContaining({ data: undefined }));
+    expect(logger.error).toHaveBeenCalledWith(
+      'log.activityEvent',
+      expect.objectContaining({ data: undefined })
+    );
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -233,10 +232,10 @@ describe('log', () => {
     log.activityEvent({ event: 'wibble' });
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    const args = logger.error.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('log.activityEvent');
-    expect(args[1]).toEqual(expect.objectContaining({ data: { event: 'wibble' } }));
+    expect(logger.error).toHaveBeenCalledWith(
+      'log.activityEvent',
+      expect.objectContaining({ data: { event: 'wibble' } })
+    );
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -248,10 +247,10 @@ describe('log', () => {
     log.activityEvent({ uid: 'wibble' });
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    const args = logger.error.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('log.activityEvent');
-    expect(args[1]).toEqual(expect.objectContaining({ data: { uid: 'wibble' } }));
+    expect(logger.error).toHaveBeenCalledWith(
+      'log.activityEvent',
+      expect.objectContaining({ data: { uid: 'wibble' } })
+    );
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -268,10 +267,7 @@ describe('log', () => {
     });
 
     expect(logger.info).toHaveBeenCalledTimes(1);
-    const args = logger.info.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('flowEvent');
-    expect(args[1]).toEqual({
+    expect(logger.info).toHaveBeenCalledWith('flowEvent', {
       event: 'wibble',
       flow_id: 'blee',
       flow_time: 1000,
@@ -354,10 +350,7 @@ describe('log', () => {
     log.amplitudeEvent(validEvent);
 
     expect(logger.info).toHaveBeenCalledTimes(1);
-    const args = logger.info.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitudeEvent');
-    expect(args[1]).toEqual(validEvent);
+    expect(logger.info).toHaveBeenCalledWith('amplitudeEvent', validEvent);
 
     expect(logger.debug).not.toHaveBeenCalled();
     expect(logger.error).not.toHaveBeenCalled();
@@ -369,10 +362,10 @@ describe('log', () => {
     log.amplitudeEvent();
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    const args = logger.error.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitude.missingData');
-    expect(args[1]).toEqual(expect.objectContaining({ data: undefined }));
+    expect(logger.error).toHaveBeenCalledWith(
+      'amplitude.missingData',
+      expect.objectContaining({ data: undefined })
+    );
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -384,12 +377,12 @@ describe('log', () => {
     log.amplitudeEvent({ device_id: 'foo', user_id: 'bar' });
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    const args = logger.error.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitude.missingData');
-    expect(args[1]).toEqual(expect.objectContaining({
-      data: { device_id: 'foo', user_id: 'bar' },
-    }));
+    expect(logger.error).toHaveBeenCalledWith(
+      'amplitude.missingData',
+      expect.objectContaining({
+        data: { device_id: 'foo', user_id: 'bar' },
+      })
+    );
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -401,10 +394,10 @@ describe('log', () => {
     log.amplitudeEvent({ event_type: 'foo' });
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    const args = logger.error.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitude.missingData');
-    expect(args[1]).toEqual(expect.objectContaining({ data: { event_type: 'foo' } }));
+    expect(logger.error).toHaveBeenCalledWith(
+      'amplitude.missingData',
+      expect.objectContaining({ data: { event_type: 'foo' } })
+    );
 
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.debug).not.toHaveBeenCalled();
@@ -417,10 +410,7 @@ describe('log', () => {
     log.amplitudeEvent(event);
 
     expect(logger.info).toHaveBeenCalledTimes(1);
-    const args = logger.info.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitudeEvent');
-    expect(args[1]).toEqual(event);
+    expect(logger.info).toHaveBeenCalledWith('amplitudeEvent', event);
 
     expect(logger.debug).not.toHaveBeenCalled();
     expect(logger.error).not.toHaveBeenCalled();
@@ -433,10 +423,7 @@ describe('log', () => {
     log.amplitudeEvent(event);
 
     expect(logger.info).toHaveBeenCalledTimes(1);
-    const args = logger.info.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('amplitudeEvent');
-    expect(args[1]).toEqual(event);
+    expect(logger.info).toHaveBeenCalledWith('amplitudeEvent', event);
 
     expect(logger.debug).not.toHaveBeenCalled();
     expect(logger.error).not.toHaveBeenCalled();
@@ -452,8 +439,7 @@ describe('log', () => {
     expect(logger.error).not.toHaveBeenCalled();
     expect(mockSentry.withScope).not.toHaveBeenCalled();
     expect(logger.info).toHaveBeenCalledTimes(1);
-    expect(logger.info.mock.calls[0][0]).toBe('amplitudeEvent');
-    expect(logger.info.mock.calls[0][1]).toEqual(event);
+    expect(logger.info).toHaveBeenCalledWith('amplitudeEvent', event);
   });
 
   it('.amplitudeEvent with invalid data is logged', () => {
@@ -498,8 +484,7 @@ describe('log', () => {
 
     // Event is still logged despite validation error
     expect(logger.info).toHaveBeenCalledTimes(1);
-    expect(logger.info.mock.calls[0][0]).toBe('amplitudeEvent');
-    expect(logger.info.mock.calls[0][1]).toEqual(event);
+    expect(logger.info).toHaveBeenCalledWith('amplitudeEvent', event);
   });
 
   it('.amplitudeEvent with multiple validation errors', () => {
@@ -539,8 +524,7 @@ describe('log', () => {
 
     // Event is still logged
     expect(logger.info).toHaveBeenCalledTimes(1);
-    expect(logger.info.mock.calls[0][0]).toBe('amplitudeEvent');
-    expect(logger.info.mock.calls[0][1]).toEqual(event);
+    expect(logger.info).toHaveBeenCalledWith('amplitudeEvent', event);
   });
 
   it('.error removes PII from error objects', () => {
@@ -602,8 +586,7 @@ describe('log', () => {
     expect(logger.info).not.toHaveBeenCalled();
 
     expect(emitRouteFlowEvent).toHaveBeenCalledTimes(1);
-    expect(emitRouteFlowEvent.mock.calls[0]).toHaveLength(1);
-    expect(emitRouteFlowEvent.mock.calls[0][0]).toEqual({
+    expect(emitRouteFlowEvent).toHaveBeenCalledWith({
       code: 200,
       errno: 109,
       statusCode: 201,
@@ -700,8 +683,7 @@ describe('log', () => {
 
     expect(mockGatherMetricsContext).toHaveBeenCalledTimes(1);
     expect(mockNotifierSend).toHaveBeenCalledTimes(1);
-    expect(mockNotifierSend.mock.calls[0]).toHaveLength(1);
-    expect(mockNotifierSend.mock.calls[0][0]).toEqual({
+    expect(mockNotifierSend).toHaveBeenCalledWith({
       event: 'login',
       data: {
         service: 'sync',
@@ -766,8 +748,7 @@ describe('log', () => {
 
     expect(mockGatherMetricsContext).toHaveBeenCalledTimes(1);
     expect(mockNotifierSend).toHaveBeenCalledTimes(1);
-    expect(mockNotifierSend.mock.calls[0]).toHaveLength(1);
-    expect(mockNotifierSend.mock.calls[0][0]).toEqual({
+    expect(mockNotifierSend).toHaveBeenCalledWith({
       event: 'login',
       data: {
         clientId: '0123456789abcdef',
@@ -833,8 +814,7 @@ describe('log', () => {
 
     expect(mockGatherMetricsContext).toHaveBeenCalledTimes(1);
     expect(mockNotifierSend).toHaveBeenCalledTimes(1);
-    expect(mockNotifierSend.mock.calls[0]).toHaveLength(1);
-    expect(mockNotifierSend.mock.calls[0][0]).toEqual({
+    expect(mockNotifierSend).toHaveBeenCalledWith({
       event: 'login',
       data: {
         service: 'unknown-clientid',

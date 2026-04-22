@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const { ERRNO } = require('@fxa/accounts/errors');
 const uuid = require('uuid');
-const sandbox = sinon.createSandbox();
 const { getRoute } = require('../../../test/routes_helpers');
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 const {
@@ -114,7 +111,7 @@ const mockPlayStoreSubscriptionPurchase = {
   purchaseToken: 'testToken',
   sku: 'sku',
   verifiedAt: Date.now(),
-  isEntitlementActive: sinon.fake.returns(true),
+  isEntitlementActive: jest.fn().mockReturnValue(true),
 };
 
 const mockAppendedPlayStoreSubscriptionPurchase = {
@@ -141,7 +138,7 @@ const mockAppStoreSubscriptionPurchase = {
   productId: 'wow',
   bundleId: 'hmm',
   currency: 'usd',
-  isEntitlementActive: sinon.fake.returns(true),
+  isEntitlementActive: jest.fn().mockReturnValue(true),
 };
 
 const mockAppendedAppStoreSubscriptionPurchase = {
@@ -186,21 +183,21 @@ const mockConfig = {
 let stripeHelper: any;
 let capabilityService: any;
 const iapOfferingUtil: any = {
-  getIapPageContentByStoreId: sandbox.stub(),
+  getIapPageContentByStoreId: jest.fn(),
 };
 let priceManager: any;
 let productConfigurationManager: any;
 
 async function runTest(routePath: any, routeDependencies: any = {}) {
   const playSubscriptions = {
-    getSubscriptions: sandbox
-      .stub()
-      .resolves([mockAppendedPlayStoreSubscriptionPurchase]),
+    getSubscriptions: jest
+      .fn()
+      .mockResolvedValue([mockAppendedPlayStoreSubscriptionPurchase]),
   };
   const appStoreSubscriptions = {
-    getSubscriptions: sandbox
-      .stub()
-      .resolves([mockAppendedAppStoreSubscriptionPurchase]),
+    getSubscriptions: jest
+      .fn()
+      .mockResolvedValue([mockAppendedAppStoreSubscriptionPurchase]),
   };
   const routes = mozillaSubscriptionRoutes({
     log,
@@ -222,13 +219,13 @@ describe('mozilla-subscriptions', () => {
   beforeEach(() => {
     capabilityService = {};
     stripeHelper = {
-      getBillingDetailsAndSubscriptions: sandbox
-        .stub()
-        .resolves(mockSubsAndBillingDetails),
-      fetchCustomer: sandbox.stub().resolves(mockCustomer),
-      formatSubscriptionsForSupport: sandbox
-        .stub()
-        .resolves([mockFormattedWebSubscription]),
+      getBillingDetailsAndSubscriptions: jest
+        .fn()
+        .mockResolvedValue(mockSubsAndBillingDetails),
+      fetchCustomer: jest.fn().mockResolvedValue(mockCustomer),
+      formatSubscriptionsForSupport: jest
+        .fn()
+        .mockResolvedValue([mockFormattedWebSubscription]),
     };
     (
       appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO as jest.Mock
@@ -238,18 +235,18 @@ describe('mozilla-subscriptions', () => {
     ).mockClear();
     priceManager = mocks.mockPriceManager();
     productConfigurationManager = mocks.mockProductConfigurationManager();
-    productConfigurationManager.getIapOfferings = sandbox
-      .stub()
-      .resolves(iapOfferingUtil);
-    iapOfferingUtil.getIapPageContentByStoreId = sandbox
-      .stub()
-      .returns(mockIapOffering);
-    priceManager.retrieve = sandbox.stub().resolves(mockPrice);
-    priceManager.retrieveByInterval = sandbox.stub().resolves(mockPrice);
+    productConfigurationManager.getIapOfferings = jest
+      .fn()
+      .mockResolvedValue(iapOfferingUtil);
+    iapOfferingUtil.getIapPageContentByStoreId = jest
+      .fn()
+      .mockReturnValue(mockIapOffering);
+    priceManager.retrieve = jest.fn().mockResolvedValue(mockPrice);
+    priceManager.retrieveByInterval = jest.fn().mockResolvedValue(mockPrice);
   });
 
   afterEach(() => {
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   describe('GET /customer/billing-and-subscriptions', () => {
@@ -275,14 +272,12 @@ describe('mozilla-subscriptions', () => {
         ],
       });
       expect(
-        (
-          playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO as jest.Mock
-        ).mock.calls.length
+        (playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO as jest.Mock)
+          .mock.calls.length
       ).toBe(1);
       expect(
-        (
-          appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO as jest.Mock
-        ).mock.calls.length
+        (appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO as jest.Mock)
+          .mock.calls.length
       ).toBe(1);
     });
 
@@ -311,25 +306,23 @@ describe('mozilla-subscriptions', () => {
         ],
       });
       expect(
-        (
-          playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO as jest.Mock
-        ).mock.calls.length
+        (playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO as jest.Mock)
+          .mock.calls.length
       ).toBe(1);
       expect(
-        (
-          appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO as jest.Mock
-        ).mock.calls.length
+        (appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO as jest.Mock)
+          .mock.calls.length
       ).toBe(1);
     });
 
     it('gets customer billing details and only Stripe subscriptions', async () => {
       const playSubscriptions = {
-        getSubscriptions: sandbox.stub().resolves([]),
+        getSubscriptions: jest.fn().mockResolvedValue([]),
       };
       const appStoreSubscriptions = {
-        getSubscriptions: sandbox.stub().resolves([]),
+        getSubscriptions: jest.fn().mockResolvedValue([]),
       };
-      stripeHelper.addPriceInfoToIapPurchases = sandbox.stub().resolves([]);
+      stripeHelper.addPriceInfoToIapPurchases = jest.fn().mockResolvedValue([]);
 
       const resp = await runTest(
         '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
@@ -351,13 +344,13 @@ describe('mozilla-subscriptions', () => {
 
     it('gets customer billing details and only Google Play subscriptions', async () => {
       const stripeHelper = {
-        getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        addPriceInfoToIapPurchases: sandbox
-          .stub()
-          .resolves([mockGooglePlaySubscription]),
+        getBillingDetailsAndSubscriptions: jest.fn().mockResolvedValue(null),
+        addPriceInfoToIapPurchases: jest
+          .fn()
+          .mockResolvedValue([mockGooglePlaySubscription]),
       };
       const appStoreSubscriptions = {
-        getSubscriptions: sandbox.stub().resolves([]),
+        getSubscriptions: jest.fn().mockResolvedValue([]),
       };
       const resp = await runTest(
         '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
@@ -378,13 +371,13 @@ describe('mozilla-subscriptions', () => {
 
     it('gets customer billing details and only App Store subscriptions', async () => {
       const stripeHelper = {
-        getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        addPriceInfoToIapPurchases: sandbox
-          .stub()
-          .resolves([mockAppStoreSubscription]),
+        getBillingDetailsAndSubscriptions: jest.fn().mockResolvedValue(null),
+        addPriceInfoToIapPurchases: jest
+          .fn()
+          .mockResolvedValue([mockAppStoreSubscription]),
       };
       const playSubscriptions = {
-        getSubscriptions: sandbox.stub().resolves([]),
+        getSubscriptions: jest.fn().mockResolvedValue([]),
       };
       const resp = await runTest(
         '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
@@ -405,14 +398,14 @@ describe('mozilla-subscriptions', () => {
 
     it('throws an error when there are no subscriptions', async () => {
       const playSubscriptions = {
-        getSubscriptions: sandbox.stub().resolves([]),
+        getSubscriptions: jest.fn().mockResolvedValue([]),
       };
       const appStoreSubscriptions = {
-        getSubscriptions: sandbox.stub().resolves([]),
+        getSubscriptions: jest.fn().mockResolvedValue([]),
       };
       const stripeHelper = {
-        getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        addPriceInfoToIapPurchases: sandbox.stub().resolves([]),
+        getBillingDetailsAndSubscriptions: jest.fn().mockResolvedValue(null),
+        addPriceInfoToIapPurchases: jest.fn().mockResolvedValue([]),
       };
       try {
         await runTest(
@@ -436,14 +429,14 @@ describe('plan-eligibility', () => {
     priceManager = mocks.mockPriceManager();
     productConfigurationManager = mocks.mockProductConfigurationManager();
     capabilityService = {
-      getPlanEligibility: sandbox.stub().resolves({
+      getPlanEligibility: jest.fn().mockResolvedValue({
         subscriptionEligibilityResult: 'eligibility',
       }),
     };
   });
 
   afterEach(() => {
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   describe('GET /customer/plan-eligibility/example-planid', () => {
@@ -462,10 +455,10 @@ describe('plan-eligibility', () => {
 describe('MozillaSubscriptionHandler', () => {
   let mozillaSubscriptionsHandler: any;
   const playSubscriptions = {
-    getSubscriptions: sandbox.stub(),
+    getSubscriptions: jest.fn(),
   };
   const appStoreSubscriptions = {
-    getSubscriptions: sandbox.stub(),
+    getSubscriptions: jest.fn(),
   };
 
   const mockSubId = 'sub_123';
@@ -508,18 +501,18 @@ describe('MozillaSubscriptionHandler', () => {
       appStoreSubscriptions,
       capabilityService
     );
-    productConfigurationManager.getIapOfferings = sandbox
-      .stub()
-      .resolves(iapOfferingUtil);
-    iapOfferingUtil.getIapPageContentByStoreId = sandbox
-      .stub()
-      .returns(mockIapOffering);
-    priceManager.retrieve = sandbox.stub().resolves(mockPrice);
-    priceManager.retrieveByInterval = sandbox.stub().resolves(mockPrice);
+    productConfigurationManager.getIapOfferings = jest
+      .fn()
+      .mockResolvedValue(iapOfferingUtil);
+    iapOfferingUtil.getIapPageContentByStoreId = jest
+      .fn()
+      .mockReturnValue(mockIapOffering);
+    priceManager.retrieve = jest.fn().mockResolvedValue(mockPrice);
+    priceManager.retrieveByInterval = jest.fn().mockResolvedValue(mockPrice);
   });
 
   afterEach(() => {
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   describe('fetchIapPriceInfo', () => {
@@ -544,9 +537,9 @@ describe('MozillaSubscriptionHandler', () => {
     });
 
     it('throws if IAP CMS config could not be found', async () => {
-      iapOfferingUtil.getIapPageContentByStoreId = sandbox
-        .stub()
-        .returns(undefined);
+      iapOfferingUtil.getIapPageContentByStoreId = jest
+        .fn()
+        .mockReturnValue(undefined);
       try {
         await mozillaSubscriptionsHandler.fetchIapPriceInfo([], []);
       } catch (error: any) {
@@ -556,7 +549,7 @@ describe('MozillaSubscriptionHandler', () => {
     });
 
     it('throws if Price not found for IAP', async () => {
-      priceManager.retrieveByInterval = sandbox.stub().resolves(undefined);
+      priceManager.retrieveByInterval = jest.fn().mockResolvedValue(undefined);
       try {
         await mozillaSubscriptionsHandler.fetchIapPriceInfo([], []);
       } catch (error: any) {

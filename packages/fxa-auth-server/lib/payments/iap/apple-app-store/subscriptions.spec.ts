@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
@@ -15,7 +14,6 @@ const { deepCopy } = require('../../../../test/local/payments/util');
 
 describe('AppStoreSubscriptions', () => {
   const UID = 'uid8675309';
-  const sandbox = sinon.createSandbox();
 
   let appStoreSubscriptions: any;
   let mockAppleIap: any;
@@ -26,7 +24,7 @@ describe('AppStoreSubscriptions', () => {
     autoRenewStatus: 1,
     productId: 'wow',
     bundleId: 'hmm',
-    isEntitlementActive: sinon.fake.returns(true),
+    isEntitlementActive: jest.fn().mockReturnValue(true),
   };
 
   const mockAppendedAppStoreSubscriptionPurchase = {
@@ -41,16 +39,16 @@ describe('AppStoreSubscriptions', () => {
     mockConfig = { subscriptions: { enabled: true } };
     mockAppleIap = {
       purchaseManager: {
-        queryCurrentSubscriptionPurchases: sinon
-          .stub()
-          .resolves([mockAppStoreSubscriptionPurchase]),
+        queryCurrentSubscriptionPurchases: jest
+          .fn()
+          .mockResolvedValue([mockAppStoreSubscriptionPurchase]),
       },
     };
     Container.set(AppleIAP, mockAppleIap);
     mockStripeHelper = {
-      addPriceInfoToIapPurchases: sinon
-        .stub()
-        .resolves([mockAppendedAppStoreSubscriptionPurchase]),
+      addPriceInfoToIapPurchases: jest
+        .fn()
+        .mockResolvedValue([mockAppendedAppStoreSubscriptionPurchase]),
     };
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(AppConfig, mockConfig);
@@ -59,7 +57,7 @@ describe('AppStoreSubscriptions', () => {
 
   afterEach(() => {
     Container.reset();
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   describe('constructor', () => {
@@ -80,12 +78,16 @@ describe('AppStoreSubscriptions', () => {
   describe('getSubscriptions', () => {
     it('returns active App Store subscription purchases', async () => {
       const result = await appStoreSubscriptions.getSubscriptions(UID);
-      sinon.assert.calledOnceWithExactly(
-        mockAppleIap.purchaseManager.queryCurrentSubscriptionPurchases,
-        UID
+      expect(
+        mockAppleIap.purchaseManager.queryCurrentSubscriptionPurchases
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockAppleIap.purchaseManager.queryCurrentSubscriptionPurchases
+      ).toHaveBeenCalledWith(UID);
+      expect(mockStripeHelper.addPriceInfoToIapPurchases).toHaveBeenCalledTimes(
+        1
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.addPriceInfoToIapPurchases,
+      expect(mockStripeHelper.addPriceInfoToIapPurchases).toHaveBeenCalledWith(
         [mockAppStoreSubscriptionPurchase],
         MozillaSubscriptionTypes.IAP_APPLE
       );
@@ -94,13 +96,17 @@ describe('AppStoreSubscriptions', () => {
     });
     it('returns [] if no active App Store subscriptions are found', async () => {
       const mockInactivePurchase = deepCopy(mockAppStoreSubscriptionPurchase);
-      mockInactivePurchase.isEntitlementActive = sinon.fake.returns(false);
-      mockAppleIap.purchaseManager.queryCurrentSubscriptionPurchases = sinon
-        .stub()
-        .resolves([mockInactivePurchase]);
+      mockInactivePurchase.isEntitlementActive = jest
+        .fn()
+        .mockReturnValue(false);
+      mockAppleIap.purchaseManager.queryCurrentSubscriptionPurchases = jest
+        .fn()
+        .mockResolvedValue([mockInactivePurchase]);
       // In this case, we expect the length of the array returned by
       // addPriceInfoToIapPurchases to equal the length the array passed into it.
-      mockStripeHelper.addPriceInfoToIapPurchases = sinon.stub().resolvesArg(0);
+      mockStripeHelper.addPriceInfoToIapPurchases = jest
+        .fn()
+        .mockImplementation((arg: any) => Promise.resolve(arg));
       const expected: any[] = [];
       const result = await appStoreSubscriptions.getSubscriptions(UID);
       expect(result).toEqual(expected);

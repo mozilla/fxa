@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 import { AuthLogger } from '../../../types';
@@ -19,7 +18,7 @@ const { mockLog } = require('../../../../test/mocks');
 // Use a delegating function pattern so the mock factory (hoisted by Jest)
 // can reference variables defined later.
 const mockSubscriptionPurchase: any = {};
-const mockMergePurchase = sinon.fake.returns({});
+const mockMergePurchase = jest.fn().mockReturnValue({});
 
 jest.mock('./subscription-purchase', () => ({
   get PlayStoreSubscriptionPurchase() {
@@ -81,41 +80,48 @@ describe('PurchaseManager', () => {
       mockPurchaseDoc = {
         exists: false,
         ref: {
-          set: sinon.fake.resolves({}),
-          update: sinon.fake.resolves({}),
+          set: jest.fn().mockResolvedValue({}),
+          update: jest.fn().mockResolvedValue({}),
         },
       };
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        get: sinon.fake.resolves(mockPurchaseDoc),
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(mockPurchaseDoc),
       });
       mockSubscription = {
-        toFirestoreObject: sinon.fake.returns(firestoreObject),
+        toFirestoreObject: jest.fn().mockReturnValue(firestoreObject),
         linkedPurchaseToken: undefined,
       };
-      mockSubscriptionPurchase.fromApiResponse =
-        sinon.fake.returns(mockSubscription);
+      mockSubscriptionPurchase.fromApiResponse = jest
+        .fn()
+        .mockReturnValue(mockSubscription);
 
       purchaseManager = new PurchaseManager(mockPurchaseDbRef, mockApiClient);
     });
 
     it('queries with no found firestore doc or linked purchase', async () => {
-      purchaseManager.disableReplacedSubscription = sinon.fake.resolves({});
+      purchaseManager.disableReplacedSubscription = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await purchaseManager.querySubscriptionPurchase(
         'testPackage',
         'testSku',
         'testToken'
       );
       expect(result).toBe(mockSubscription);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
-      sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
-      sinon.assert.calledOnce(mockSubscription.toFirestoreObject);
-      sinon.assert.notCalled(purchaseManager.disableReplacedSubscription);
-      sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, firestoreObject);
+      expect(mockPurchaseDbRef.doc).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDbRef.doc().get).toHaveBeenCalledTimes(1);
+      expect(mockSubscriptionPurchase.fromApiResponse).toHaveBeenCalledTimes(1);
+      expect(mockSubscription.toFirestoreObject).toHaveBeenCalledTimes(1);
+      expect(
+        purchaseManager.disableReplacedSubscription
+      ).not.toHaveBeenCalled();
+      expect(mockPurchaseDoc.ref.set).toHaveBeenCalledWith(firestoreObject);
     });
 
     it('queries with no found firestore doc with linked purchase', async () => {
-      purchaseManager.disableReplacedSubscription = sinon.fake.resolves({});
+      purchaseManager.disableReplacedSubscription = jest
+        .fn()
+        .mockResolvedValue({});
       mockSubscription.linkedPurchaseToken = 'testToken2';
       const result = await purchaseManager.querySubscriptionPurchase(
         'testPackage',
@@ -123,21 +129,20 @@ describe('PurchaseManager', () => {
         'testToken'
       );
       expect(result).toBe(mockSubscription);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
-      sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
-      sinon.assert.calledOnce(mockSubscription.toFirestoreObject);
-      sinon.assert.calledWithExactly(
-        purchaseManager.disableReplacedSubscription,
+      expect(mockPurchaseDbRef.doc).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDbRef.doc().get).toHaveBeenCalledTimes(1);
+      expect(mockSubscriptionPurchase.fromApiResponse).toHaveBeenCalledTimes(1);
+      expect(mockSubscription.toFirestoreObject).toHaveBeenCalledTimes(1);
+      expect(purchaseManager.disableReplacedSubscription).toHaveBeenCalledWith(
         'testPackage',
         'testSku',
         mockSubscription.linkedPurchaseToken
       );
-      sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, firestoreObject);
+      expect(mockPurchaseDoc.ref.set).toHaveBeenCalledWith(firestoreObject);
     });
 
     it('queries with found firestore doc', async () => {
-      mockPurchaseDoc.data = sinon.fake.returns({});
+      mockPurchaseDoc.data = jest.fn().mockReturnValue({});
       mockPurchaseDoc.exists = true;
       const result = await purchaseManager.querySubscriptionPurchase(
         'testPackage',
@@ -145,20 +150,17 @@ describe('PurchaseManager', () => {
         'testToken'
       );
       expect(result).toBe(mockSubscription);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
-      sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
-      sinon.assert.calledOnce(mockSubscription.toFirestoreObject);
-      sinon.assert.calledWithExactly(
-        mockPurchaseDoc.ref.update,
-        firestoreObject
-      );
-      sinon.assert.calledOnce(mockMergePurchase);
-      sinon.assert.calledOnce(mockPurchaseDoc.data);
+      expect(mockPurchaseDbRef.doc).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDbRef.doc().get).toHaveBeenCalledTimes(1);
+      expect(mockSubscriptionPurchase.fromApiResponse).toHaveBeenCalledTimes(1);
+      expect(mockSubscription.toFirestoreObject).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDoc.ref.update).toHaveBeenCalledWith(firestoreObject);
+      expect(mockMergePurchase).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDoc.data).toHaveBeenCalledTimes(1);
     });
 
     it('throws unexpected library error', async () => {
-      mockPurchaseDoc.ref.set = sinon.fake.rejects(new Error('test'));
+      mockPurchaseDoc.ref.set = jest.fn().mockRejectedValue(new Error('test'));
       await expect(
         purchaseManager.querySubscriptionPurchase(
           'testPackage',
@@ -186,21 +188,22 @@ describe('PurchaseManager', () => {
       };
       mockPurchaseDoc = {
         exists: true,
-        data: sinon.fake.returns({ replacedByAnotherPurchase: true }),
+        data: jest.fn().mockReturnValue({ replacedByAnotherPurchase: true }),
         ref: {
-          set: sinon.fake.resolves({}),
-          update: sinon.fake.resolves({}),
+          set: jest.fn().mockResolvedValue({}),
+          update: jest.fn().mockResolvedValue({}),
         },
       };
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        get: sinon.fake.resolves(mockPurchaseDoc),
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(mockPurchaseDoc),
       });
       mockSubscription = {
-        toFirestoreObject: sinon.fake.returns(firestoreObject),
+        toFirestoreObject: jest.fn().mockReturnValue(firestoreObject),
         linkedPurchaseToken: undefined,
       };
-      mockSubscriptionPurchase.fromApiResponse =
-        sinon.fake.returns(mockSubscription);
+      mockSubscriptionPurchase.fromApiResponse = jest
+        .fn()
+        .mockReturnValue(mockSubscription);
 
       purchaseManager = new PurchaseManager(mockPurchaseDbRef, mockApiClient);
     });
@@ -212,24 +215,24 @@ describe('PurchaseManager', () => {
         'testToken'
       );
       expect(result).toBeUndefined();
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
-      sinon.assert.calledOnce(mockPurchaseDoc.data);
-      sinon.assert.notCalled(mockPurchaseDoc.ref.update);
+      expect(mockPurchaseDbRef.doc).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDbRef.doc().get).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDoc.data).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDoc.ref.update).not.toHaveBeenCalled();
     });
 
     it('marks a cached purchase as replaced', async () => {
-      mockPurchaseDoc.data = sinon.fake.returns({});
+      mockPurchaseDoc.data = jest.fn().mockReturnValue({});
       const result = await purchaseManager.disableReplacedSubscription(
         'testPackage',
         'testSku',
         'testToken'
       );
       expect(result).toBeUndefined();
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
-      sinon.assert.calledOnce(mockPurchaseDoc.data);
-      sinon.assert.calledOnce(mockPurchaseDoc.ref.update);
+      expect(mockPurchaseDbRef.doc).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDbRef.doc().get).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDoc.data).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDoc.ref.update).toHaveBeenCalledTimes(1);
     });
 
     it('caches an unseen token as replaced with no linked purchase', async () => {
@@ -240,8 +243,8 @@ describe('PurchaseManager', () => {
         'testToken'
       );
       expect(result).toBeUndefined();
-      sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
-      sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, firestoreObject);
+      expect(mockSubscriptionPurchase.fromApiResponse).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDoc.ref.set).toHaveBeenCalledWith(firestoreObject);
     });
 
     it('caches an unseen token as replaced and calls self for linked purchase', async () => {
@@ -249,13 +252,14 @@ describe('PurchaseManager', () => {
       mockSubscription.linkedPurchaseToken = 'testToken2';
       const callFuncOne =
         purchaseManager.disableReplacedSubscription.bind(purchaseManager);
-      const callFuncTwo = sinon.fake.resolves({});
-      const purchaseStub = sinon.stub(
+      const callFuncTwo = jest.fn().mockResolvedValue({});
+      const purchaseStub = jest.spyOn(
         purchaseManager,
         'disableReplacedSubscription'
       );
-      purchaseStub.onFirstCall().callsFake(callFuncOne);
-      purchaseStub.onSecondCall().callsFake(callFuncTwo);
+      purchaseStub
+        .mockImplementationOnce(callFuncOne)
+        .mockImplementationOnce(callFuncTwo);
 
       const result = await purchaseManager.disableReplacedSubscription(
         'testPackage',
@@ -263,9 +267,9 @@ describe('PurchaseManager', () => {
         'testToken'
       );
       expect(result).toBeUndefined();
-      sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
-      sinon.assert.calledOnce(callFuncTwo);
-      sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, firestoreObject);
+      expect(mockSubscriptionPurchase.fromApiResponse).toHaveBeenCalledTimes(1);
+      expect(callFuncTwo).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDoc.ref.set).toHaveBeenCalledWith(firestoreObject);
     });
   });
 
@@ -273,8 +277,8 @@ describe('PurchaseManager', () => {
     let purchaseManager: any;
 
     beforeEach(() => {
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        update: sinon.fake.resolves({}),
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        update: jest.fn().mockResolvedValue({}),
       });
       purchaseManager = new PurchaseManager(mockPurchaseDbRef, mockApiClient);
     });
@@ -285,15 +289,15 @@ describe('PurchaseManager', () => {
         'testUserId'
       );
       expect(result).toBeUndefined();
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
-      sinon.assert.calledWithExactly(mockPurchaseDbRef.doc().update, {
+      expect(mockPurchaseDbRef.doc).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDbRef.doc().update).toHaveBeenCalledWith({
         userId: 'testUserId',
       });
     });
 
     it('throws library error on unknown', async () => {
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        update: sinon.fake.rejects(new Error('Oops')),
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        update: jest.fn().mockRejectedValue(new Error('Oops')),
       });
       await expect(
         purchaseManager.forceRegisterToUserAccount('testToken', 'testUserId')
@@ -308,14 +312,16 @@ describe('PurchaseManager', () => {
     beforeEach(() => {
       mockPurchaseDoc = {
         exists: true,
-        data: sinon.fake.returns({}),
+        data: jest.fn().mockReturnValue({}),
       };
 
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        get: sinon.fake.resolves(mockPurchaseDoc),
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(mockPurchaseDoc),
       });
       purchaseManager = new PurchaseManager(mockPurchaseDbRef, mockApiClient);
-      mockSubscriptionPurchase.fromFirestoreObject = sinon.fake.returns({});
+      mockSubscriptionPurchase.fromFirestoreObject = jest
+        .fn()
+        .mockReturnValue({});
     });
 
     it('returns an existing doc', async () => {
@@ -344,14 +350,14 @@ describe('PurchaseManager', () => {
         ],
       };
       mockBatch = {
-        delete: sinon.fake.resolves({}),
-        commit: sinon.fake.resolves({}),
+        delete: jest.fn().mockResolvedValue({}),
+        commit: jest.fn().mockResolvedValue({}),
       };
-      mockPurchaseDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves(mockPurchaseDoc),
+      mockPurchaseDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(mockPurchaseDoc),
       });
       mockPurchaseDbRef.firestore = {
-        batch: sinon.fake.returns(mockBatch),
+        batch: jest.fn().mockReturnValue(mockBatch),
       };
       purchaseManager = new PurchaseManager(mockPurchaseDbRef, mockApiClient);
     });
@@ -359,8 +365,9 @@ describe('PurchaseManager', () => {
     it('deletes a purchase', async () => {
       const result = await purchaseManager.deletePurchases('testToken');
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(mockBatch.delete, 'testRef');
-      sinon.assert.calledOnce(mockBatch.commit);
+      expect(mockBatch.delete).toHaveBeenCalledTimes(1);
+      expect(mockBatch.delete).toHaveBeenCalledWith('testRef');
+      expect(mockBatch.commit).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -372,21 +379,24 @@ describe('PurchaseManager', () => {
     beforeEach(() => {
       mockPurchaseDoc = {
         exists: false,
-        data: sinon.fake.returns({}),
+        data: jest.fn().mockReturnValue({}),
         ref: {
-          set: sinon.fake.resolves({}),
-          update: sinon.fake.resolves({}),
+          set: jest.fn().mockResolvedValue({}),
+          update: jest.fn().mockResolvedValue({}),
         },
       };
       mockSubscription = {};
-      mockSubscription.isRegisterable = sinon.fake.returns(true);
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        get: sinon.fake.resolves(mockPurchaseDoc),
+      mockSubscription.isRegisterable = jest.fn().mockReturnValue(true);
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(mockPurchaseDoc),
       });
       purchaseManager = new PurchaseManager(mockPurchaseDbRef, mockApiClient);
-      purchaseManager.querySubscriptionPurchase =
-        sinon.fake.resolves(mockSubscription);
-      purchaseManager.forceRegisterToUserAccount = sinon.fake.resolves({});
+      purchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockResolvedValue(mockSubscription);
+      purchaseManager.forceRegisterToUserAccount = jest
+        .fn()
+        .mockResolvedValue({});
     });
 
     it('registers successfully for non-cached token', async () => {
@@ -398,15 +408,20 @@ describe('PurchaseManager', () => {
         'testUserId'
       );
       expect(result).toBe(mockSubscription);
-      sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
-      sinon.assert.calledOnce(purchaseManager.forceRegisterToUserAccount);
+      expect(purchaseManager.querySubscriptionPurchase).toHaveBeenCalledTimes(
+        1
+      );
+      expect(purchaseManager.forceRegisterToUserAccount).toHaveBeenCalledTimes(
+        1
+      );
     });
 
     it('skips doing anything for cached token', async () => {
       mockPurchaseDoc.exists = true;
       mockSubscription.userId = 'testUserId';
-      mockSubscriptionPurchase.fromFirestoreObject =
-        sinon.fake.returns(mockSubscription);
+      mockSubscriptionPurchase.fromFirestoreObject = jest
+        .fn()
+        .mockReturnValue(mockSubscription);
       const result = await purchaseManager.registerToUserAccount(
         'testPackage',
         'testSku',
@@ -415,15 +430,16 @@ describe('PurchaseManager', () => {
         'testUserId'
       );
       expect(result).toBe(mockSubscription);
-      sinon.assert.notCalled(purchaseManager.querySubscriptionPurchase);
-      sinon.assert.notCalled(purchaseManager.forceRegisterToUserAccount);
+      expect(purchaseManager.querySubscriptionPurchase).not.toHaveBeenCalled();
+      expect(purchaseManager.forceRegisterToUserAccount).not.toHaveBeenCalled();
     });
 
     it('throws conflict error for existing token registered to other user', async () => {
       mockPurchaseDoc.exists = true;
       mockSubscription.userId = 'otherUserId';
-      mockSubscriptionPurchase.fromFirestoreObject =
-        sinon.fake.returns(mockSubscription);
+      mockSubscriptionPurchase.fromFirestoreObject = jest
+        .fn()
+        .mockReturnValue(mockSubscription);
       await expect(
         purchaseManager.registerToUserAccount(
           'testPackage',
@@ -433,11 +449,11 @@ describe('PurchaseManager', () => {
           'testUserId'
         )
       ).rejects.toMatchObject({ name: PurchaseUpdateError.CONFLICT });
-      sinon.assert.calledOnce(log.info);
+      expect(log.info).toHaveBeenCalledTimes(1);
     });
 
     it('throws invalid token error on non-registerable purchase', async () => {
-      mockSubscription.isRegisterable = sinon.fake.returns(false);
+      mockSubscription.isRegisterable = jest.fn().mockReturnValue(false);
       await expect(
         purchaseManager.registerToUserAccount(
           'testPackage',
@@ -447,13 +463,13 @@ describe('PurchaseManager', () => {
           'testUserId'
         )
       ).rejects.toMatchObject({ name: PurchaseUpdateError.INVALID_TOKEN });
-      sinon.assert.calledOnce(mockSubscription.isRegisterable);
+      expect(mockSubscription.isRegisterable).toHaveBeenCalledTimes(1);
     });
 
     it('throws invalid token error if purchase cant be queried', async () => {
-      purchaseManager.querySubscriptionPurchase = sinon.fake.rejects(
-        new Error('Oops')
-      );
+      purchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockRejectedValue(new Error('Oops'));
       await expect(
         purchaseManager.registerToUserAccount(
           'testPackage',
@@ -479,8 +495,9 @@ describe('PurchaseManager', () => {
       mockSubscription = {};
 
       purchaseManager = new PurchaseManager(mockPurchaseDbRef, mockApiClient);
-      purchaseManager.querySubscriptionPurchase =
-        sinon.fake.resolves(mockSubscription);
+      purchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockResolvedValue(mockSubscription);
     });
 
     it('returns null without a notification', async () => {
@@ -510,7 +527,9 @@ describe('PurchaseManager', () => {
         mockNotification
       );
       expect(result).toEqual(mockSubscription);
-      sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
+      expect(purchaseManager.querySubscriptionPurchase).toHaveBeenCalledTimes(
+        1
+      );
     });
   });
 });

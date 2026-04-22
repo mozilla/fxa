@@ -3,21 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { EventEmitter } from 'events';
-import sinon from 'sinon';
 
 const { mockLog, mockGlean } = require('../../test/mocks');
 const emailHelpers = require('./utils/helpers');
 const delivery = require('./delivery');
 const { requestForGlean } = require('../inactive-accounts');
 
-let sandbox: sinon.SinonSandbox;
 const mockDeliveryQueue = new EventEmitter() as EventEmitter & {
   start: () => void;
 };
 (mockDeliveryQueue as any).start = function start() {};
 
 function mockMessage(msg: any) {
-  msg.del = sandbox.spy();
+  msg.del = jest.fn();
   msg.headers = {};
   return msg;
 }
@@ -27,12 +25,10 @@ function mockedDelivery(log: any, glean: any) {
 }
 
 describe('delivery messages', () => {
-  beforeEach(() => {
-    sandbox = sinon.createSandbox();
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   it('should not log an error for headers', async () => {
@@ -41,7 +37,7 @@ describe('delivery messages', () => {
     await mockedDelivery(log, glean).handleDelivery(
       mockMessage({ junk: 'message' })
     );
-    expect(log.error.callCount).toBe(0);
+    expect(log.error).toHaveBeenCalledTimes(0);
   });
 
   it('should log an error for missing headers', async () => {
@@ -52,7 +48,7 @@ describe('delivery messages', () => {
     });
     message.headers = undefined;
     await mockedDelivery(log, glean).handleDelivery(message);
-    expect(log.error.callCount).toBe(1);
+    expect(log.error).toHaveBeenCalledTimes(1);
   });
 
   it('should ignore unknown message types', async () => {
@@ -63,8 +59,11 @@ describe('delivery messages', () => {
         junk: 'message',
       })
     );
-    expect(log.warn.callCount).toBe(1);
-    expect(log.warn.args[0][0]).toBe('emailHeaders.keys');
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.warn).toHaveBeenCalledWith(
+      'emailHeaders.keys',
+      expect.anything()
+    );
   });
 
   it('should log delivery', async () => {
@@ -91,15 +90,25 @@ describe('delivery messages', () => {
     });
 
     await mockedDelivery(log, glean).handleDelivery(mockMsg);
-    expect(log.info.callCount).toBe(2);
-    expect(log.info.args[0][0]).toBe('emailEvent');
-    expect(log.info.args[0][1].domain).toBe('other');
-    expect(log.info.args[0][1].type).toBe('delivered');
-    expect(log.info.args[0][1].template).toBe('verifyLoginEmail');
-    expect(log.info.args[1][1].email).toBe('jane@example.com');
-    expect(log.info.args[1][0]).toBe('handleDelivery');
-    expect(log.info.args[1][1].template).toBe('verifyLoginEmail');
-    expect(log.info.args[1][1].processingTimeMillis).toBe(546);
+    expect(log.info).toHaveBeenCalledTimes(2);
+    expect(log.info).toHaveBeenNthCalledWith(
+      1,
+      'emailEvent',
+      expect.objectContaining({
+        domain: 'other',
+        type: 'delivered',
+        template: 'verifyLoginEmail',
+      })
+    );
+    expect(log.info).toHaveBeenNthCalledWith(
+      2,
+      'handleDelivery',
+      expect.objectContaining({
+        email: 'jane@example.com',
+        template: 'verifyLoginEmail',
+        processingTimeMillis: 546,
+      })
+    );
   });
 
   it('should emit flow metrics', async () => {
@@ -138,21 +147,31 @@ describe('delivery messages', () => {
     });
 
     await mockedDelivery(log, glean).handleDelivery(mockMsg);
-    expect(log.flowEvent.callCount).toBe(1);
-    expect(log.flowEvent.args[0][0].event).toBe(
-      'email.verifyLoginEmail.delivered'
+    expect(log.flowEvent).toHaveBeenCalledTimes(1);
+    expect(log.flowEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: 'email.verifyLoginEmail.delivered',
+        flow_id: 'someFlowId',
+      })
     );
-    expect(log.flowEvent.args[0][0].flow_id).toBe('someFlowId');
-    expect(log.flowEvent.args[0][0].flow_time > 0).toBe(true);
-    expect(log.flowEvent.args[0][0].time > 0).toBe(true);
-    expect(log.info.callCount).toBe(2);
-    expect(log.info.args[0][0]).toBe('emailEvent');
-    expect(log.info.args[0][1].domain).toBe('other');
-    expect(log.info.args[0][1].type).toBe('delivered');
-    expect(log.info.args[0][1].template).toBe('verifyLoginEmail');
-    expect(log.info.args[0][1].flow_id).toBe('someFlowId');
-    expect(log.info.args[1][1].email).toBe('jane@example.com');
-    expect(log.info.args[1][1].domain).toBe('other');
+    expect(log.flowEvent.mock.calls[0][0].flow_time > 0).toBe(true);
+    expect(log.flowEvent.mock.calls[0][0].time > 0).toBe(true);
+    expect(log.info).toHaveBeenCalledTimes(2);
+    expect(log.info).toHaveBeenNthCalledWith(
+      1,
+      'emailEvent',
+      expect.objectContaining({
+        domain: 'other',
+        type: 'delivered',
+        template: 'verifyLoginEmail',
+        flow_id: 'someFlowId',
+      })
+    );
+    expect(log.info).toHaveBeenNthCalledWith(
+      2,
+      expect.anything(),
+      expect.objectContaining({ email: 'jane@example.com', domain: 'other' })
+    );
   });
 
   it('should log popular email domain', async () => {
@@ -191,28 +210,38 @@ describe('delivery messages', () => {
     });
 
     await mockedDelivery(log, glean).handleDelivery(mockMsg);
-    expect(log.flowEvent.callCount).toBe(1);
-    expect(log.flowEvent.args[0][0].event).toBe(
-      'email.verifyLoginEmail.delivered'
+    expect(log.flowEvent).toHaveBeenCalledTimes(1);
+    expect(log.flowEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: 'email.verifyLoginEmail.delivered',
+        flow_id: 'someFlowId',
+      })
     );
-    expect(log.flowEvent.args[0][0].flow_id).toBe('someFlowId');
-    expect(log.flowEvent.args[0][0].flow_time > 0).toBe(true);
-    expect(log.flowEvent.args[0][0].time > 0).toBe(true);
-    expect(log.info.callCount).toBe(2);
-    expect(log.info.args[0][0]).toBe('emailEvent');
-    expect(log.info.args[0][1].domain).toBe('aol.com');
-    expect(log.info.args[0][1].type).toBe('delivered');
-    expect(log.info.args[0][1].template).toBe('verifyLoginEmail');
-    expect(log.info.args[0][1].locale).toBe('en');
-    expect(log.info.args[0][1].flow_id).toBe('someFlowId');
-    expect(log.info.args[1][1].email).toBe('jane@aol.com');
-    expect(log.info.args[1][1].domain).toBe('aol.com');
+    expect(log.flowEvent.mock.calls[0][0].flow_time > 0).toBe(true);
+    expect(log.flowEvent.mock.calls[0][0].time > 0).toBe(true);
+    expect(log.info).toHaveBeenCalledTimes(2);
+    expect(log.info).toHaveBeenNthCalledWith(
+      1,
+      'emailEvent',
+      expect.objectContaining({
+        domain: 'aol.com',
+        type: 'delivered',
+        template: 'verifyLoginEmail',
+        locale: 'en',
+        flow_id: 'someFlowId',
+      })
+    );
+    expect(log.info).toHaveBeenNthCalledWith(
+      2,
+      expect.anything(),
+      expect.objectContaining({ email: 'jane@aol.com', domain: 'aol.com' })
+    );
   });
 
   it('should log account email event (emailDelivered)', async () => {
-    sandbox
-      .stub(emailHelpers, 'logAccountEventFromMessage')
-      .returns(Promise.resolve());
+    jest
+      .spyOn(emailHelpers, 'logAccountEventFromMessage')
+      .mockReturnValue(Promise.resolve());
     const log = mockLog();
     const glean = mockGlean();
     const mockMsg = mockMessage({
@@ -248,8 +277,8 @@ describe('delivery messages', () => {
     });
 
     await mockedDelivery(log, glean).handleDelivery(mockMsg);
-    sinon.assert.calledOnceWithExactly(
-      emailHelpers.logAccountEventFromMessage,
+    expect(emailHelpers.logAccountEventFromMessage).toHaveBeenCalledTimes(1);
+    expect(emailHelpers.logAccountEventFromMessage).toHaveBeenCalledWith(
       mockMsg,
       'emailDelivered'
     );
@@ -291,7 +320,8 @@ describe('delivery messages', () => {
     });
 
     await mockedDelivery(log, glean).handleDelivery(mockMsg);
-    sinon.assert.calledOnceWithExactly(glean.emailDelivery.success, requestForGlean, {
+    expect(glean.emailDelivery.success).toHaveBeenCalledTimes(1);
+    expect(glean.emailDelivery.success).toHaveBeenCalledWith(requestForGlean, {
       uid: 'en',
       reason: 'verifyLoginEmail',
     });

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import {
   NotificationType,
@@ -21,31 +20,31 @@ const { AppStoreSubscriptionPurchase } = jest.requireActual(
 
 const { mockLog } = require('../../../../test/mocks');
 
-const sandbox = sinon.createSandbox();
-
 const mockBundleId = 'testBundleId';
 const mockOriginalTransactionId = 'testOriginalTransactionId';
 const mockSubscriptionPurchase: any = {};
-const mockMergePurchase = sinon.fake.returns({});
+const mockMergePurchase = jest.fn().mockReturnValue({});
 const mockDecodedNotificationPayload = {
   data: {
     signedTransactionInfo: {},
   },
 };
-const mockDecodeNotificationPayload = sandbox.fake.resolves(
-  mockDecodedNotificationPayload
-);
+const mockDecodeNotificationPayload = jest
+  .fn()
+  .mockResolvedValue(mockDecodedNotificationPayload);
 const mockDecodedTransactionInfo = {
   bundleId: mockBundleId,
   originalTransactionId: mockOriginalTransactionId,
 };
-const mockDecodeTransactionInfo = sandbox.fake.resolves(
-  mockDecodedTransactionInfo
-);
+const mockDecodeTransactionInfo = jest
+  .fn()
+  .mockResolvedValue(mockDecodedTransactionInfo);
 const mockDecodedRenewalInfo = {
   autoRenewStatus: 0,
 };
-const mockDecodeRenewalInfo = sandbox.fake.resolves(mockDecodedRenewalInfo);
+const mockDecodeRenewalInfo = jest
+  .fn()
+  .mockResolvedValue(mockDecodedRenewalInfo);
 const mockApiResult = {
   bundleId: mockBundleId,
   data: [
@@ -144,31 +143,32 @@ describe('PurchaseManager', () => {
 
     beforeEach(() => {
       mockAppStoreHelper = {
-        getSubscriptionStatuses: sinon.fake.resolves(mockApiResult),
+        getSubscriptionStatuses: jest.fn().mockResolvedValue(mockApiResult),
       };
       mockPurchaseDoc = {
         exists: false,
         ref: {
-          set: sinon.fake.resolves({}),
+          set: jest.fn().mockResolvedValue({}),
         },
       };
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        get: sinon.fake.resolves(mockPurchaseDoc),
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(mockPurchaseDoc),
       });
-      mockSubscriptionPurchase.toFirestoreObject =
-        sinon.fake.returns(firestoreObject);
-      mockSubscriptionPurchase.fromApiResponse = sinon.fake.returns(
-        mockSubscriptionPurchase
-      );
+      mockSubscriptionPurchase.toFirestoreObject = jest
+        .fn()
+        .mockReturnValue(firestoreObject);
+      mockSubscriptionPurchase.fromApiResponse = jest
+        .fn()
+        .mockReturnValue(mockSubscriptionPurchase);
       purchaseManager = new PurchaseManager(
         mockPurchaseDbRef,
         mockAppStoreHelper
       );
-      mockMergePurchase.resetHistory();
+      mockMergePurchase.mockClear();
     });
 
     afterEach(() => {
-      sandbox.reset();
+      jest.clearAllMocks();
     });
 
     it('queries with no found firestore doc', async () => {
@@ -178,11 +178,13 @@ describe('PurchaseManager', () => {
       );
       expect(result).toBe(mockSubscriptionPurchase);
 
-      sinon.assert.calledOnce(mockAppStoreHelper.getSubscriptionStatuses);
-      sinon.assert.calledOnce(mockDecodeTransactionInfo);
-      sinon.assert.calledOnce(mockDecodeRenewalInfo);
-      sinon.assert.calledOnceWithExactly(
-        log.debug,
+      expect(mockAppStoreHelper.getSubscriptionStatuses).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockDecodeTransactionInfo).toHaveBeenCalledTimes(1);
+      expect(mockDecodeRenewalInfo).toHaveBeenCalledTimes(1);
+      expect(log.debug).toHaveBeenCalledTimes(1);
+      expect(log.debug).toHaveBeenCalledWith(
         'appleIap.querySubscriptionPurchase.getSubscriptionStatuses',
         {
           bundleId: mockBundleId,
@@ -192,12 +194,14 @@ describe('PurchaseManager', () => {
         }
       );
 
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
-      sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
-      sinon.assert.calledOnce(mockSubscriptionPurchase.toFirestoreObject);
+      expect(mockPurchaseDbRef.doc).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDbRef.doc().get).toHaveBeenCalledTimes(1);
+      expect(mockSubscriptionPurchase.fromApiResponse).toHaveBeenCalledTimes(1);
+      expect(mockSubscriptionPurchase.toFirestoreObject).toHaveBeenCalledTimes(
+        1
+      );
 
-      sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, firestoreObject);
+      expect(mockPurchaseDoc.ref.set).toHaveBeenCalledWith(firestoreObject);
     });
 
     it('logs the notification type and subtype if present', async () => {
@@ -210,8 +214,8 @@ describe('PurchaseManager', () => {
         mockTriggerNotificationSubtype
       );
 
-      sinon.assert.calledOnceWithExactly(
-        log.debug,
+      expect(log.debug).toHaveBeenCalledTimes(1);
+      expect(log.debug).toHaveBeenCalledWith(
         'appleIap.querySubscriptionPurchase.getSubscriptionStatuses',
         {
           bundleId: mockBundleId,
@@ -225,9 +229,9 @@ describe('PurchaseManager', () => {
     });
 
     it("throws if there's an App Store Server client or API error", async () => {
-      mockAppStoreHelper.getSubscriptionStatuses = sinon.fake.rejects(
-        new Error('Oops')
-      );
+      mockAppStoreHelper.getSubscriptionStatuses = jest
+        .fn()
+        .mockRejectedValue(new Error('Oops'));
       await expect(
         purchaseManager.querySubscriptionPurchase(
           mockBundleId,
@@ -237,7 +241,7 @@ describe('PurchaseManager', () => {
     });
 
     it('queries with found firestore doc with no userId', async () => {
-      mockPurchaseDoc.data = sinon.fake.returns({});
+      mockPurchaseDoc.data = jest.fn().mockReturnValue({});
       mockPurchaseDoc.exists = true;
       const result = await purchaseManager.querySubscriptionPurchase(
         mockBundleId,
@@ -245,22 +249,26 @@ describe('PurchaseManager', () => {
       );
       expect(result).toBe(mockSubscriptionPurchase);
 
-      sinon.assert.calledOnce(mockAppStoreHelper.getSubscriptionStatuses);
-      sinon.assert.calledOnce(mockDecodeTransactionInfo);
-      sinon.assert.calledOnce(mockDecodeRenewalInfo);
+      expect(mockAppStoreHelper.getSubscriptionStatuses).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockDecodeTransactionInfo).toHaveBeenCalledTimes(1);
+      expect(mockDecodeRenewalInfo).toHaveBeenCalledTimes(1);
 
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
-      sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
-      sinon.assert.calledOnce(mockSubscriptionPurchase.toFirestoreObject);
+      expect(mockPurchaseDbRef.doc).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDbRef.doc().get).toHaveBeenCalledTimes(1);
+      expect(mockSubscriptionPurchase.fromApiResponse).toHaveBeenCalledTimes(1);
+      expect(mockSubscriptionPurchase.toFirestoreObject).toHaveBeenCalledTimes(
+        1
+      );
 
-      sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, firestoreObject);
-      sinon.assert.calledOnce(mockMergePurchase);
-      sinon.assert.calledTwice(mockPurchaseDoc.data);
+      expect(mockPurchaseDoc.ref.set).toHaveBeenCalledWith(firestoreObject);
+      expect(mockMergePurchase).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDoc.data).toHaveBeenCalledTimes(2);
     });
 
     it('queries with found firestore doc with userId and preserves the userId', async () => {
-      mockPurchaseDoc.data = sinon.fake.returns({ userId: 'amazing' });
+      mockPurchaseDoc.data = jest.fn().mockReturnValue({ userId: 'amazing' });
       mockPurchaseDoc.exists = true;
       const result = await purchaseManager.querySubscriptionPurchase(
         mockBundleId,
@@ -268,25 +276,29 @@ describe('PurchaseManager', () => {
       );
       expect(result).toBe(mockSubscriptionPurchase);
 
-      sinon.assert.calledOnce(mockAppStoreHelper.getSubscriptionStatuses);
-      sinon.assert.calledOnce(mockDecodeTransactionInfo);
-      sinon.assert.calledOnce(mockDecodeRenewalInfo);
+      expect(mockAppStoreHelper.getSubscriptionStatuses).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockDecodeTransactionInfo).toHaveBeenCalledTimes(1);
+      expect(mockDecodeRenewalInfo).toHaveBeenCalledTimes(1);
 
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
-      sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
-      sinon.assert.calledOnce(mockSubscriptionPurchase.toFirestoreObject);
+      expect(mockPurchaseDbRef.doc).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDbRef.doc().get).toHaveBeenCalledTimes(1);
+      expect(mockSubscriptionPurchase.fromApiResponse).toHaveBeenCalledTimes(1);
+      expect(mockSubscriptionPurchase.toFirestoreObject).toHaveBeenCalledTimes(
+        1
+      );
 
-      sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, {
+      expect(mockPurchaseDoc.ref.set).toHaveBeenCalledWith({
         userId: 'amazing',
         ...firestoreObject,
       });
-      sinon.assert.calledOnce(mockMergePurchase);
-      sinon.assert.calledTwice(mockPurchaseDoc.data);
+      expect(mockMergePurchase).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDoc.data).toHaveBeenCalledTimes(2);
     });
 
     it('adds notification type and subtype to the purchase if passed in', async () => {
-      mockPurchaseDoc.data = sinon.fake.returns({});
+      mockPurchaseDoc.data = jest.fn().mockReturnValue({});
       mockPurchaseDoc.exists = true;
       const notificationType = 'foo';
       const notificationSubtype = 'bar';
@@ -305,7 +317,7 @@ describe('PurchaseManager', () => {
     });
 
     it('adds only notificationType to the purchase if notificationSubtype is undefined when passed in', async () => {
-      mockPurchaseDoc.data = sinon.fake.returns({});
+      mockPurchaseDoc.data = jest.fn().mockReturnValue({});
       mockPurchaseDoc.exists = true;
       const notificationType = 'foo';
       const notificationSubtype = undefined;
@@ -323,7 +335,7 @@ describe('PurchaseManager', () => {
     });
 
     it('throws unexpected library error', async () => {
-      mockPurchaseDoc.ref.set = sinon.fake.rejects(new Error('test'));
+      mockPurchaseDoc.ref.set = jest.fn().mockRejectedValue(new Error('test'));
       await expect(
         purchaseManager.querySubscriptionPurchase(
           mockBundleId,
@@ -337,8 +349,8 @@ describe('PurchaseManager', () => {
     let purchaseManager: any;
 
     beforeEach(() => {
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        update: sinon.fake.resolves({}),
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        update: jest.fn().mockResolvedValue({}),
       });
       purchaseManager = new PurchaseManager(
         mockPurchaseDbRef,
@@ -352,15 +364,15 @@ describe('PurchaseManager', () => {
         'testUserId'
       );
       expect(result).toBeUndefined();
-      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
-      sinon.assert.calledWithExactly(mockPurchaseDbRef.doc().update, {
+      expect(mockPurchaseDbRef.doc).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseDbRef.doc().update).toHaveBeenCalledWith({
         userId: 'testUserId',
       });
     });
 
     it('throws library error on unknown', async () => {
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        update: sinon.fake.rejects(new Error('Oops')),
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        update: jest.fn().mockRejectedValue(new Error('Oops')),
       });
       await expect(
         purchaseManager.forceRegisterToUserAccount(
@@ -378,17 +390,19 @@ describe('PurchaseManager', () => {
     beforeEach(() => {
       mockPurchaseDoc = {
         exists: true,
-        data: sinon.fake.returns({}),
+        data: jest.fn().mockReturnValue({}),
       };
 
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        get: sinon.fake.resolves(mockPurchaseDoc),
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(mockPurchaseDoc),
       });
       purchaseManager = new PurchaseManager(
         mockPurchaseDbRef,
         mockAppStoreHelper
       );
-      mockSubscriptionPurchase.fromFirestoreObject = sinon.fake.returns({});
+      mockSubscriptionPurchase.fromFirestoreObject = jest
+        .fn()
+        .mockReturnValue({});
     });
 
     it('returns an existing doc', async () => {
@@ -421,14 +435,14 @@ describe('PurchaseManager', () => {
         ],
       };
       mockBatch = {
-        delete: sinon.fake.resolves({}),
-        commit: sinon.fake.resolves({}),
+        delete: jest.fn().mockResolvedValue({}),
+        commit: jest.fn().mockResolvedValue({}),
       };
-      mockPurchaseDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves(mockPurchaseDoc),
+      mockPurchaseDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(mockPurchaseDoc),
       });
       mockPurchaseDbRef.firestore = {
-        batch: sinon.fake.returns(mockBatch),
+        batch: jest.fn().mockReturnValue(mockBatch),
       };
       purchaseManager = new PurchaseManager(
         mockPurchaseDbRef,
@@ -439,8 +453,9 @@ describe('PurchaseManager', () => {
     it('deletes a purchase', async () => {
       const result = await purchaseManager.deletePurchases('testToken');
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(mockBatch.delete, 'testRef');
-      sinon.assert.calledOnce(mockBatch.commit);
+      expect(mockBatch.delete).toHaveBeenCalledTimes(1);
+      expect(mockBatch.delete).toHaveBeenCalledWith('testRef');
+      expect(mockBatch.commit).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -452,24 +467,27 @@ describe('PurchaseManager', () => {
     beforeEach(() => {
       mockPurchaseDoc = {
         exists: false,
-        data: sinon.fake.returns({}),
+        data: jest.fn().mockReturnValue({}),
         ref: {
-          set: sinon.fake.resolves({}),
-          update: sinon.fake.resolves({}),
+          set: jest.fn().mockResolvedValue({}),
+          update: jest.fn().mockResolvedValue({}),
         },
       };
       mockSubscription = {};
-      mockSubscription.isRegisterable = sinon.fake.returns(true);
-      mockPurchaseDbRef.doc = sinon.fake.returns({
-        get: sinon.fake.resolves(mockPurchaseDoc),
+      mockSubscription.isRegisterable = jest.fn().mockReturnValue(true);
+      mockPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(mockPurchaseDoc),
       });
       purchaseManager = new PurchaseManager(
         mockPurchaseDbRef,
         mockAppStoreHelper
       );
-      purchaseManager.querySubscriptionPurchase =
-        sinon.fake.resolves(mockSubscription);
-      purchaseManager.forceRegisterToUserAccount = sinon.fake.resolves({});
+      purchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockResolvedValue(mockSubscription);
+      purchaseManager.forceRegisterToUserAccount = jest
+        .fn()
+        .mockResolvedValue({});
     });
 
     it('registers successfully for non-cached original transaction id', async () => {
@@ -479,30 +497,36 @@ describe('PurchaseManager', () => {
         'testUserId'
       );
       expect(result).toBe(mockSubscription);
-      sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
-      sinon.assert.calledOnce(purchaseManager.forceRegisterToUserAccount);
+      expect(purchaseManager.querySubscriptionPurchase).toHaveBeenCalledTimes(
+        1
+      );
+      expect(purchaseManager.forceRegisterToUserAccount).toHaveBeenCalledTimes(
+        1
+      );
     });
 
     it('skips doing anything for cached original transaction id', async () => {
       mockPurchaseDoc.exists = true;
       mockSubscription.userId = 'testUserId';
-      mockSubscriptionPurchase.fromFirestoreObject =
-        sinon.fake.returns(mockSubscription);
+      mockSubscriptionPurchase.fromFirestoreObject = jest
+        .fn()
+        .mockReturnValue(mockSubscription);
       const result = await purchaseManager.registerToUserAccount(
         mockBundleId,
         mockOriginalTransactionId,
         'testUserId'
       );
       expect(result).toBe(mockSubscription);
-      sinon.assert.notCalled(purchaseManager.querySubscriptionPurchase);
-      sinon.assert.notCalled(purchaseManager.forceRegisterToUserAccount);
+      expect(purchaseManager.querySubscriptionPurchase).not.toHaveBeenCalled();
+      expect(purchaseManager.forceRegisterToUserAccount).not.toHaveBeenCalled();
     });
 
     it('throws conflict error for existing original transaction id registered to other user', async () => {
       mockPurchaseDoc.exists = true;
       mockSubscription.userId = 'otherUserId';
-      mockSubscriptionPurchase.fromFirestoreObject =
-        sinon.fake.returns(mockSubscription);
+      mockSubscriptionPurchase.fromFirestoreObject = jest
+        .fn()
+        .mockReturnValue(mockSubscription);
       await expect(
         purchaseManager.registerToUserAccount(
           mockBundleId,
@@ -510,13 +534,13 @@ describe('PurchaseManager', () => {
           'testUserId'
         )
       ).rejects.toMatchObject({ name: PurchaseUpdateError.CONFLICT });
-      sinon.assert.calledOnce(log.info);
+      expect(log.info).toHaveBeenCalledTimes(1);
     });
 
     it('throws invalid original transaction id error if purchase cant be queried', async () => {
-      purchaseManager.querySubscriptionPurchase = sinon.fake.rejects(
-        new Error('Oops')
-      );
+      purchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockRejectedValue(new Error('Oops'));
       await expect(
         purchaseManager.registerToUserAccount(
           mockBundleId,
@@ -550,17 +574,17 @@ describe('PurchaseManager', () => {
       mockStatus = SubscriptionStatus.Active;
       localPurchaseDbRef = {
         where: () => localPurchaseDbRef,
-        get: sinon.fake.resolves(queryResult),
+        get: jest.fn().mockResolvedValue(queryResult),
       } as any;
       mockPurchaseDoc = {
         exists: false,
         ref: {
-          set: sinon.fake.resolves({}),
-          update: sinon.fake.resolves({}),
+          set: jest.fn().mockResolvedValue({}),
+          update: jest.fn().mockResolvedValue({}),
         },
       };
-      localPurchaseDbRef.doc = sinon.fake.returns({
-        get: sinon.fake.resolves(mockPurchaseDoc),
+      localPurchaseDbRef.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(mockPurchaseDoc),
       });
       // Use a fresh PurchaseManager that relies on internal mock for
       // subscription-purchase module via jest.mock at file top level.
@@ -588,13 +612,15 @@ describe('PurchaseManager', () => {
         mockVerifiedAt
       );
       const subscriptionSnapshot = {
-        data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
+        data: jest
+          .fn()
+          .mockReturnValue(subscriptionPurchase.toFirestoreObject()),
       };
       queryResult.docs.push(subscriptionSnapshot);
       const result =
         await purchaseManager.queryCurrentSubscriptionPurchases(USER_ID);
       expect(result).toEqual([subscriptionPurchase]);
-      sinon.assert.calledOnce(localPurchaseDbRef.get);
+      expect(localPurchaseDbRef.get).toHaveBeenCalledTimes(1);
     });
 
     it('queries expired subscription purchases', async () => {
@@ -623,15 +649,20 @@ describe('PurchaseManager', () => {
         mockVerifiedAt
       );
       const subscriptionSnapshot = {
-        data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
+        data: jest
+          .fn()
+          .mockReturnValue(subscriptionPurchase.toFirestoreObject()),
       };
       queryResult.docs.push(subscriptionSnapshot);
-      purchaseManager.querySubscriptionPurchase =
-        sinon.fake.resolves(subscriptionPurchase);
+      purchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockResolvedValue(subscriptionPurchase);
       const result =
         await purchaseManager.queryCurrentSubscriptionPurchases(USER_ID);
       expect(result).toEqual([]);
-      sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
+      expect(purchaseManager.querySubscriptionPurchase).toHaveBeenCalledTimes(
+        1
+      );
     });
 
     it('skips NOT_FOUND error for expired purchases', async () => {
@@ -660,19 +691,24 @@ describe('PurchaseManager', () => {
         mockVerifiedAt
       );
       const subscriptionSnapshot = {
-        data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
+        data: jest
+          .fn()
+          .mockReturnValue(subscriptionPurchase.toFirestoreObject()),
       };
       queryResult.docs.push(subscriptionSnapshot);
       const notFoundError = new Error('NOT_FOUND');
       notFoundError.name = PurchaseQueryError.NOT_FOUND;
-      purchaseManager.querySubscriptionPurchase =
-        sinon.fake.rejects(notFoundError);
+      purchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockRejectedValue(notFoundError);
 
       const result =
         await purchaseManager.queryCurrentSubscriptionPurchases(USER_ID);
 
       expect(result).toEqual([]);
-      sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
+      expect(purchaseManager.querySubscriptionPurchase).toHaveBeenCalledTimes(
+        1
+      );
     });
 
     it('throws library error on failure', async () => {
@@ -701,12 +737,14 @@ describe('PurchaseManager', () => {
         mockVerifiedAt
       );
       const subscriptionSnapshot = {
-        data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
+        data: jest
+          .fn()
+          .mockReturnValue(subscriptionPurchase.toFirestoreObject()),
       };
       queryResult.docs.push(subscriptionSnapshot);
-      purchaseManager.querySubscriptionPurchase = sinon.fake.rejects(
-        new Error('oops')
-      );
+      purchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockRejectedValue(new Error('oops'));
       await expect(
         purchaseManager.queryCurrentSubscriptionPurchases(USER_ID)
       ).rejects.toMatchObject({ name: PurchaseQueryError.OTHER_ERROR });
@@ -749,8 +787,9 @@ describe('PurchaseManager', () => {
         mockPurchaseDbRef,
         mockAppStoreHelper
       );
-      purchaseManager.querySubscriptionPurchase =
-        sinon.fake.resolves(mockSubscription);
+      purchaseManager.querySubscriptionPurchase = jest
+        .fn()
+        .mockResolvedValue(mockSubscription);
     });
 
     it('returns null for not applicable notifications', async () => {
@@ -783,7 +822,9 @@ describe('PurchaseManager', () => {
         mockNotification
       );
       expect(result).toEqual(mockSubscription);
-      sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
+      expect(purchaseManager.querySubscriptionPurchase).toHaveBeenCalledTimes(
+        1
+      );
     });
   });
 });

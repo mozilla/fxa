@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { AppError } from '@fxa/accounts/errors';
 
 const SharedSecretScheme = require('./shared-secret');
@@ -24,10 +23,11 @@ describe('lib/routes/auth-schemes/shared-secret', () => {
   });
 
   it('should call authenticated when the secrets match', () => {
-    const faker = sinon.fake();
+    const faker = jest.fn();
     const request = { headers: { authorization: 'goodsecret' } };
     authStrategy.authenticate(request, { authenticated: faker });
-    expect(faker.calledOnceWith({ credentials: {} })).toBe(true);
+    expect(faker).toHaveBeenCalledTimes(1);
+    expect(faker).toHaveBeenCalledWith({ credentials: {} });
   });
 
   it('should not throw if the secrets do not match', () => {

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import { DateTime, Duration, Interval } from 'luxon';
 
@@ -26,8 +25,6 @@ const planLength = 30; // days
 const planDuration = Duration.fromObject({ days: planLength });
 const reminderLength = 7; // days
 const reminderDuration = Duration.fromObject({ days: reminderLength });
-
-const sandbox = sinon.createSandbox();
 
 const MOCK_INTERVAL = Interval.fromDateTimes(
   DateTime.fromMillis(1622073600000),
@@ -116,7 +113,7 @@ describe('SubscriptionReminders', () => {
   afterEach(() => {
     Date.now = realDateNow;
     Container.reset();
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   describe('constructor', () => {
@@ -146,28 +143,24 @@ describe('SubscriptionReminders', () => {
     it('returns [] when no plans are eligible', async () => {
       const shortPlan2 = deepCopy(shortPlan1);
       shortPlan2.interval = 'week';
-      mockStripeHelper.allAbbrevPlans = sandbox.fake.resolves([
-        shortPlan1,
-        shortPlan2,
-      ]);
+      mockStripeHelper.allAbbrevPlans = jest
+        .fn()
+        .mockResolvedValue([shortPlan1, shortPlan2]);
       const result = await reminder.getEligiblePlans();
       expect(result).toEqual([]);
     });
     it('returns a partial list when some plans are eligible', async () => {
-      mockStripeHelper.allAbbrevPlans = sandbox.fake.resolves([
-        shortPlan1,
-        longPlan1,
-        longPlan2,
-      ]);
+      mockStripeHelper.allAbbrevPlans = jest
+        .fn()
+        .mockResolvedValue([shortPlan1, longPlan1, longPlan2]);
       const expected = [longPlan1, longPlan2];
       const actual = await reminder.getEligiblePlans();
       expect(actual).toEqual(expected);
     });
     it('returns all when all plans are eligible', async () => {
-      mockStripeHelper.allAbbrevPlans = sandbox.fake.resolves([
-        longPlan1,
-        longPlan2,
-      ]);
+      mockStripeHelper.allAbbrevPlans = jest
+        .fn()
+        .mockResolvedValue([longPlan1, longPlan2]);
       const expected = [longPlan1, longPlan2];
       const actual = await reminder.getEligiblePlans();
       expect(actual).toEqual(expected);
@@ -177,7 +170,7 @@ describe('SubscriptionReminders', () => {
   describe('getStartAndEndTimes', () => {
     it('returns a time period of 1 day reminderLength days from "now" in UTC', () => {
       const realDateTimeUtc = DateTime.utc.bind(DateTime);
-      DateTime.utc = sinon.fake(() =>
+      DateTime.utc = jest.fn(() =>
         DateTime.fromMillis(MOCK_DATETIME_MS, { zone: 'utc' })
       ) as any;
       const expected = MOCK_INTERVAL;
@@ -202,33 +195,35 @@ describe('SubscriptionReminders', () => {
     ];
     const sentEmailArgs = ['uid', EMAIL_TYPE, { subscriptionId: 'sub_123' }];
     it('returns true for email already sent for this cycle', async () => {
-      SentEmail.findLatestSentEmailByType = sandbox.fake.resolves({
+      SentEmail.findLatestSentEmailByType = jest.fn().mockResolvedValue({
         sentAt: 12346,
       });
       const result = await reminder.alreadySentEmail(...args);
       expect(result).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        SentEmail.findLatestSentEmailByType,
+      expect(SentEmail.findLatestSentEmailByType).toHaveBeenCalledTimes(1);
+      expect(SentEmail.findLatestSentEmailByType).toHaveBeenCalledWith(
         ...sentEmailArgs
       );
     });
     it('returns false for email that has not been sent during this billing cycle', async () => {
-      SentEmail.findLatestSentEmailByType = sandbox.fake.resolves({
+      SentEmail.findLatestSentEmailByType = jest.fn().mockResolvedValue({
         sentAt: 12344,
       });
       const result = await reminder.alreadySentEmail(...args);
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        SentEmail.findLatestSentEmailByType,
+      expect(SentEmail.findLatestSentEmailByType).toHaveBeenCalledTimes(1);
+      expect(SentEmail.findLatestSentEmailByType).toHaveBeenCalledWith(
         ...sentEmailArgs
       );
     });
     it('returns false for email that has never been sent', async () => {
-      SentEmail.findLatestSentEmailByType = sandbox.fake.resolves(undefined);
+      SentEmail.findLatestSentEmailByType = jest
+        .fn()
+        .mockResolvedValue(undefined);
       const result = await reminder.alreadySentEmail(...args);
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        SentEmail.findLatestSentEmailByType,
+      expect(SentEmail.findLatestSentEmailByType).toHaveBeenCalledTimes(1);
+      expect(SentEmail.findLatestSentEmailByType).toHaveBeenCalledWith(
         ...sentEmailArgs
       );
     });
@@ -237,16 +232,14 @@ describe('SubscriptionReminders', () => {
   describe('updateSentEmail', () => {
     it('creates a record in the SentEmails table', async () => {
       const sentEmailArgs = ['uid', EMAIL_TYPE, { subscriptionId: 'sub_123' }];
-      SentEmail.createSentEmail = sandbox.fake.resolves({});
+      SentEmail.createSentEmail = jest.fn().mockResolvedValue({});
       await reminder.updateSentEmail(
         'uid',
         { subscriptionId: 'sub_123' },
         EMAIL_TYPE
       );
-      sinon.assert.calledOnceWithExactly(
-        SentEmail.createSentEmail,
-        ...sentEmailArgs
-      );
+      expect(SentEmail.createSentEmail).toHaveBeenCalledTimes(1);
+      expect(SentEmail.createSentEmail).toHaveBeenCalledWith(...sentEmailArgs);
     });
   });
 
@@ -258,12 +251,12 @@ describe('SubscriptionReminders', () => {
           userid: null,
         },
       };
-      mockLog.error = sandbox.fake.returns({});
+      mockLog.error = jest.fn().mockReturnValue({});
       const result =
         await reminder.sendSubscriptionRenewalReminderEmail(subscription);
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        mockLog.error,
+      expect(mockLog.error).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith(
         'sendSubscriptionRenewalReminderEmail',
         {
           customer: subscription.customer,
@@ -280,14 +273,14 @@ describe('SubscriptionReminders', () => {
           userid: 'uid',
         },
       };
-      reminder.alreadySentEmail = sandbox.fake.resolves(true);
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(true);
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
         longPlan1.id
       );
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        reminder.alreadySentEmail,
+      expect(reminder.alreadySentEmail).toHaveBeenCalledTimes(1);
+      expect(reminder.alreadySentEmail).toHaveBeenCalledWith(
         subscription.customer.metadata.userid,
         Math.floor(subscription.current_period_start * 1000),
         {
@@ -306,29 +299,31 @@ describe('SubscriptionReminders', () => {
           userid: 'uid',
         },
       };
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
       const account = {
         emails: [],
         email: 'testo@test.test',
         locale: 'NZ',
       };
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves({
-        total_excluding_tax: invoicePreview.total_excluding_tax,
-        tax: invoicePreview.tax,
-        total: invoicePreview.total,
-        currency: invoicePreview.currency,
-        discount: null,
-        discounts: [],
-      });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves({
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue({
+          total_excluding_tax: invoicePreview.total_excluding_tax,
+          tax: invoicePreview.tax,
+          total: invoicePreview.total,
+          currency: invoicePreview.currency,
+          discount: null,
+          discounts: [],
+        });
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue({
         id: subscription.latest_invoice,
         discount: { id: 'discount_ending' },
         discounts: [],
@@ -344,44 +339,49 @@ describe('SubscriptionReminders', () => {
         },
         planConfig,
       };
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves(
-        formattedSubscription
-      );
-      mockStripeHelper.findPlanById = sandbox.fake.resolves({
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue(formattedSubscription);
+      mockStripeHelper.findPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
         longPlan1.id
       );
       expect(result).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        reminder.db.account,
+      expect(reminder.db.account).toHaveBeenCalledTimes(1);
+      expect(reminder.db.account).toHaveBeenCalledWith(
         subscription.customer.metadata.userid
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.formatSubscriptionForEmail,
+      expect(mockStripeHelper.formatSubscriptionForEmail).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.formatSubscriptionForEmail).toHaveBeenCalledWith(
         subscription
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.findAbbrevPlanById,
+      expect(mockStripeHelper.findAbbrevPlanById).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.findAbbrevPlanById).toHaveBeenCalledWith(
         longPlan1.id
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.previewInvoiceBySubscriptionId,
-        {
-          subscriptionId: subscription.id,
-        }
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockLog.info,
+      expect(
+        mockStripeHelper.previewInvoiceBySubscriptionId
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockStripeHelper.previewInvoiceBySubscriptionId
+      ).toHaveBeenCalledWith({
+        subscriptionId: subscription.id,
+      });
+      expect(mockLog.info).toHaveBeenCalledTimes(1);
+      expect(mockLog.info).toHaveBeenCalledWith(
         'sendSubscriptionRenewalReminderEmail',
         {
           message: 'Sending a renewal reminder email.',
@@ -392,30 +392,30 @@ describe('SubscriptionReminders', () => {
           reminderLength: 7,
         }
       );
-      sinon.assert.calledOnceWithExactly(
-        reminder.mailer.sendSubscriptionRenewalReminderEmail,
-        account.emails,
-        account,
-        {
-          acceptLanguage: account.locale,
-          uid: 'uid',
-          email: 'testo@test.test',
-          subscription: formattedSubscription,
-          reminderLength: 7,
-          planInterval: 'month',
-          showTax: false,
-          invoiceTotalExcludingTaxInCents: invoicePreview.total_excluding_tax,
-          invoiceTaxInCents: invoicePreview.tax,
-          invoiceTotalInCents: invoicePreview.total,
-          invoiceTotalCurrency: invoicePreview.currency,
-          productMetadata: formattedSubscription.productMetadata,
-          planConfig,
-          discountEnding: true,
-          hasDifferentDiscount: false,
-        }
-      );
-      sinon.assert.calledOnceWithExactly(
-        reminder.updateSentEmail,
+      expect(
+        reminder.mailer.sendSubscriptionRenewalReminderEmail
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        reminder.mailer.sendSubscriptionRenewalReminderEmail
+      ).toHaveBeenCalledWith(account.emails, account, {
+        acceptLanguage: account.locale,
+        uid: 'uid',
+        email: 'testo@test.test',
+        subscription: formattedSubscription,
+        reminderLength: 7,
+        planInterval: 'month',
+        showTax: false,
+        invoiceTotalExcludingTaxInCents: invoicePreview.total_excluding_tax,
+        invoiceTaxInCents: invoicePreview.tax,
+        invoiceTotalInCents: invoicePreview.total,
+        invoiceTotalCurrency: invoicePreview.currency,
+        productMetadata: formattedSubscription.productMetadata,
+        planConfig,
+        discountEnding: true,
+        hasDifferentDiscount: false,
+      });
+      expect(reminder.updateSentEmail).toHaveBeenCalledTimes(1);
+      expect(reminder.updateSentEmail).toHaveBeenCalledWith(
         subscription.customer.metadata.userid,
         { subscriptionId: subscription.id, reminderDays: 7 },
         'subscriptionRenewalReminder'
@@ -430,43 +430,48 @@ describe('SubscriptionReminders', () => {
           userid: 'uid',
         },
       };
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
       const account = {
         emails: [],
         email: 'testo@test.test',
         locale: 'NZ',
       };
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves({
-        total: invoicePreview.total,
-        currency: invoicePreview.currency,
-        discount: null,
-        discounts: [],
-      });
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue({
+          total: invoicePreview.total,
+          currency: invoicePreview.currency,
+          discount: null,
+          discounts: [],
+        });
       // Monthly plan with no discount - should skip
-      mockStripeHelper.getInvoice = sandbox.fake.resolves({
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue({
         id: subscription.latest_invoice,
         discount: null,
         discounts: [],
       });
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {
-          privacyUrl: 'http://privacy',
-          termsOfServiceUrl: 'http://tos',
-        },
-        planConfig: {},
-      });
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {
+            privacyUrl: 'http://privacy',
+            termsOfServiceUrl: 'http://tos',
+          },
+          planConfig: {},
+        });
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -474,18 +479,17 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.calledWithExactly(
-        mockLog.info,
+      expect(mockLog.info).toHaveBeenCalledWith(
         'sendSubscriptionRenewalReminderEmail.skippingMonthlyNoDiscount',
         {
           subscriptionId: subscription.id,
           planId: longPlan1.id,
         }
       );
-      sinon.assert.notCalled(
+      expect(
         reminder.mailer.sendSubscriptionRenewalReminderEmail
-      );
-      sinon.assert.notCalled(reminder.updateSentEmail);
+      ).not.toHaveBeenCalled();
+      expect(reminder.updateSentEmail).not.toHaveBeenCalled();
     });
 
     it('sends yearly reminder regardless of discount status', async () => {
@@ -497,28 +501,30 @@ describe('SubscriptionReminders', () => {
           userid: 'uid',
         },
       };
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
       const account = {
         emails: [],
         email: 'testo@test.test',
         locale: 'NZ',
       };
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: yearlyPlan.amount,
         currency: yearlyPlan.currency,
         interval_count: yearlyPlan.interval_count,
         interval: yearlyPlan.interval,
       });
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves({
-        total: invoicePreview.total,
-        currency: invoicePreview.currency,
-        discount: null,
-        discounts: [],
-      });
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue({
+          total: invoicePreview.total,
+          currency: invoicePreview.currency,
+          discount: null,
+          discounts: [],
+        });
       // Yearly plan with no discount - should still send
-      mockStripeHelper.getInvoice = sandbox.fake.resolves({
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue({
         id: subscription.latest_invoice,
         discount: null,
         discounts: [],
@@ -534,12 +540,13 @@ describe('SubscriptionReminders', () => {
         },
         planConfig,
       };
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves(
-        formattedSubscription
-      );
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue(formattedSubscription);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -547,10 +554,10 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      sinon.assert.calledOnce(
+      expect(
         reminder.mailer.sendSubscriptionRenewalReminderEmail
-      );
-      sinon.assert.calledOnce(reminder.updateSentEmail);
+      ).toHaveBeenCalledTimes(1);
+      expect(reminder.updateSentEmail).toHaveBeenCalledTimes(1);
     });
 
     it('returns false if an error is caught when trying to send a reminder email', async () => {
@@ -561,67 +568,76 @@ describe('SubscriptionReminders', () => {
           userid: 'uid',
         },
       };
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves({});
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({});
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue({});
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({});
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves({
-        total_excluding_tax: invoicePreview.total_excluding_tax,
-        tax: invoicePreview.tax,
-        total: invoicePreview.total,
-        currency: invoicePreview.currency,
-        discount: null,
-        discounts: [],
-      });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves({
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue({
+          total_excluding_tax: invoicePreview.total_excluding_tax,
+          tax: invoicePreview.tax,
+          total: invoicePreview.total,
+          currency: invoicePreview.currency,
+          discount: null,
+          discounts: [],
+        });
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue({
         id: subscription.latest_invoice,
         discount: { id: 'discount_ending' },
         discounts: [],
       });
-      mockLog.info = sandbox.fake.returns({});
-      mockLog.error = sandbox.fake.returns({});
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockLog.error = jest.fn().mockReturnValue({});
       const errMessage = 'Something went wrong.';
       const throwErr = new Error(errMessage);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.rejects(throwErr);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockRejectedValue(throwErr);
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
         longPlan1.id
       );
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        reminder.db.account,
+      expect(reminder.db.account).toHaveBeenCalledTimes(1);
+      expect(reminder.db.account).toHaveBeenCalledWith(
         subscription.customer.metadata.userid
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.formatSubscriptionForEmail,
+      expect(mockStripeHelper.formatSubscriptionForEmail).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.formatSubscriptionForEmail).toHaveBeenCalledWith(
         subscription
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.findAbbrevPlanById,
+      expect(mockStripeHelper.findAbbrevPlanById).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.findAbbrevPlanById).toHaveBeenCalledWith(
         longPlan1.id
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.previewInvoiceBySubscriptionId,
-        {
-          subscriptionId: subscription.id,
-        }
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockLog.error,
+      expect(
+        mockStripeHelper.previewInvoiceBySubscriptionId
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockStripeHelper.previewInvoiceBySubscriptionId
+      ).toHaveBeenCalledWith({
+        subscriptionId: subscription.id,
+      });
+      expect(mockLog.error).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith(
         'sendSubscriptionRenewalReminderEmail',
         {
           err: throwErr,
           subscriptionId: subscription.id,
         }
       );
-      sinon.assert.notCalled(reminder.updateSentEmail);
+      expect(reminder.updateSentEmail).not.toHaveBeenCalled();
     });
 
     it('detects when discount on latest invoice is ending', async () => {
@@ -653,30 +669,34 @@ describe('SubscriptionReminders', () => {
         discounts: [],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {
-          privacyUrl: 'http://privacy',
-          termsOfServiceUrl: 'http://tos',
-        },
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {
+            privacyUrl: 'http://privacy',
+            termsOfServiceUrl: 'http://tos',
+          },
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId =
-        sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -684,13 +704,13 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      sinon.assert.calledOnce(mockStripeHelper.getInvoice);
-      sinon.assert.calledWithExactly(mockStripeHelper.getInvoice, 'in_test123');
+      expect(mockStripeHelper.getInvoice).toHaveBeenCalledTimes(1);
+      expect(mockStripeHelper.getInvoice).toHaveBeenCalledWith('in_test123');
 
-      const mailerCall =
-        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
-      expect(mailerCall.args[2].discountEnding).toBe(true);
-      expect(mailerCall.args[2].hasDifferentDiscount).toBe(false);
+      const mailerCallArgs =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.mock.calls[0];
+      expect(mailerCallArgs[2].discountEnding).toBe(true);
+      expect(mailerCallArgs[2].hasDifferentDiscount).toBe(false);
     });
 
     it('detects when discount is ending with discounts array', async () => {
@@ -722,30 +742,34 @@ describe('SubscriptionReminders', () => {
         discounts: [],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {
-          privacyUrl: 'http://privacy',
-          termsOfServiceUrl: 'http://tos',
-        },
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {
+            privacyUrl: 'http://privacy',
+            termsOfServiceUrl: 'http://tos',
+          },
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId =
-        sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -753,10 +777,10 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall =
-        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
-      expect(mailerCall.args[2].discountEnding).toBe(true);
-      expect(mailerCall.args[2].hasDifferentDiscount).toBe(false);
+      const mailerCallArgs =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.mock.calls[0];
+      expect(mailerCallArgs[2].discountEnding).toBe(true);
+      expect(mailerCallArgs[2].hasDifferentDiscount).toBe(false);
     });
 
     it('skips monthly plan reminders when discount changes but does not end', async () => {
@@ -788,30 +812,34 @@ describe('SubscriptionReminders', () => {
         discounts: [],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {
-          privacyUrl: 'http://privacy',
-          termsOfServiceUrl: 'http://tos',
-        },
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {
+            privacyUrl: 'http://privacy',
+            termsOfServiceUrl: 'http://tos',
+          },
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId =
-        sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -819,9 +847,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.notCalled(
+      expect(
         reminder.mailer.sendSubscriptionRenewalReminderEmail
-      );
+      ).not.toHaveBeenCalled();
     });
 
     it('skips monthly plan reminders when discount remains the same', async () => {
@@ -853,30 +881,34 @@ describe('SubscriptionReminders', () => {
         discounts: [],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {
-          privacyUrl: 'http://privacy',
-          termsOfServiceUrl: 'http://tos',
-        },
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {
+            privacyUrl: 'http://privacy',
+            termsOfServiceUrl: 'http://tos',
+          },
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId =
-        sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -884,9 +916,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.notCalled(
+      expect(
         reminder.mailer.sendSubscriptionRenewalReminderEmail
-      );
+      ).not.toHaveBeenCalled();
     });
 
     it('handles when latest_invoice is an expanded object with discount ending', async () => {
@@ -916,30 +948,34 @@ describe('SubscriptionReminders', () => {
         discounts: [],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {
-          privacyUrl: 'http://privacy',
-          termsOfServiceUrl: 'http://tos',
-        },
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {
+            privacyUrl: 'http://privacy',
+            termsOfServiceUrl: 'http://tos',
+          },
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves({});
-      mockStripeHelper.previewInvoiceBySubscriptionId =
-        sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue({});
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -947,12 +983,12 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      sinon.assert.notCalled(mockStripeHelper.getInvoice);
+      expect(mockStripeHelper.getInvoice).not.toHaveBeenCalled();
 
-      const mailerCall =
-        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
-      expect(mailerCall.args[2].discountEnding).toBe(true);
-      expect(mailerCall.args[2].hasDifferentDiscount).toBe(false);
+      const mailerCallArgs =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.mock.calls[0];
+      expect(mailerCallArgs[2].discountEnding).toBe(true);
+      expect(mailerCallArgs[2].hasDifferentDiscount).toBe(false);
     });
 
     it('skips monthly plan reminders when no discount on either invoice', async () => {
@@ -984,30 +1020,34 @@ describe('SubscriptionReminders', () => {
         discounts: [],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {
-          privacyUrl: 'http://privacy',
-          termsOfServiceUrl: 'http://tos',
-        },
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {
+            privacyUrl: 'http://privacy',
+            termsOfServiceUrl: 'http://tos',
+          },
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId =
-        sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -1015,9 +1055,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.notCalled(
+      expect(
         reminder.mailer.sendSubscriptionRenewalReminderEmail
-      );
+      ).not.toHaveBeenCalled();
     });
 
     it('skips monthly plan reminders when adding a discount to a full-price plan', async () => {
@@ -1049,30 +1089,34 @@ describe('SubscriptionReminders', () => {
         discounts: [],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {
-          privacyUrl: 'http://privacy',
-          termsOfServiceUrl: 'http://tos',
-        },
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {
+            privacyUrl: 'http://privacy',
+            termsOfServiceUrl: 'http://tos',
+          },
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId =
-        sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -1080,9 +1124,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.notCalled(
+      expect(
         reminder.mailer.sendSubscriptionRenewalReminderEmail
-      );
+      ).not.toHaveBeenCalled();
     });
 
     it('handles discount as string in discounts array', async () => {
@@ -1114,30 +1158,34 @@ describe('SubscriptionReminders', () => {
         discounts: [],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {
-          privacyUrl: 'http://privacy',
-          termsOfServiceUrl: 'http://tos',
-        },
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {
+            privacyUrl: 'http://privacy',
+            termsOfServiceUrl: 'http://tos',
+          },
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId =
-        sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -1145,10 +1193,10 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall =
-        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
-      expect(mailerCall.args[2].discountEnding).toBe(true);
-      expect(mailerCall.args[2].hasDifferentDiscount).toBe(false);
+      const mailerCallArgs =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.mock.calls[0];
+      expect(mailerCallArgs[2].discountEnding).toBe(true);
+      expect(mailerCallArgs[2].hasDifferentDiscount).toBe(false);
     });
 
     it('skips monthly plan reminders with different discount in discounts arrays', async () => {
@@ -1180,30 +1228,34 @@ describe('SubscriptionReminders', () => {
         discounts: [{ id: 'discount_new' }],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {
-          privacyUrl: 'http://privacy',
-          termsOfServiceUrl: 'http://tos',
-        },
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {
+            privacyUrl: 'http://privacy',
+            termsOfServiceUrl: 'http://tos',
+          },
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId =
-        sandbox.fake.resolves(mockUpcomingInvoice);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoice);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -1211,9 +1263,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(false);
-      sinon.assert.notCalled(
+      expect(
         reminder.mailer.sendSubscriptionRenewalReminderEmail
-      );
+      ).not.toHaveBeenCalled();
     });
 
     it('includes tax information when invoice has tax', async () => {
@@ -1254,28 +1306,31 @@ describe('SubscriptionReminders', () => {
         ],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {},
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {},
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(
-        mockUpcomingInvoiceWithTax
-      );
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoiceWithTax);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -1283,9 +1338,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall =
-        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
-      const emailData = mailerCall.args[2];
+      const mailerCallArgs =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.mock.calls[0];
+      const emailData = mailerCallArgs[2];
       expect(emailData.showTax).toBe(true);
       expect(emailData.invoiceTotalExcludingTaxInCents).toBe(1000);
       expect(emailData.invoiceTaxInCents).toBe(200);
@@ -1324,28 +1379,31 @@ describe('SubscriptionReminders', () => {
         discounts: [],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {},
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {},
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(
-        mockUpcomingInvoiceNoTax
-      );
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoiceNoTax);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -1353,9 +1411,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall =
-        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
-      const emailData = mailerCall.args[2];
+      const mailerCallArgs =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.mock.calls[0];
+      const emailData = mailerCallArgs[2];
       expect(emailData.showTax).toBe(false);
       expect(emailData.invoiceTotalExcludingTaxInCents).toBe(1000);
       expect(emailData.invoiceTaxInCents).toBe(0);
@@ -1394,28 +1452,31 @@ describe('SubscriptionReminders', () => {
         discounts: [],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {},
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {},
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(
-        mockUpcomingInvoiceNullTax
-      );
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoiceNullTax);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -1423,9 +1484,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall =
-        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
-      const emailData = mailerCall.args[2];
+      const mailerCallArgs =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.mock.calls[0];
+      const emailData = mailerCallArgs[2];
       expect(emailData.showTax).toBe(false);
       expect(emailData.invoiceTotalExcludingTaxInCents).toBe(1000);
       expect(emailData.invoiceTaxInCents).toBeNull();
@@ -1467,28 +1528,31 @@ describe('SubscriptionReminders', () => {
         ],
       };
 
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.db.account = sandbox.fake.resolves(account);
-      mockLog.info = sandbox.fake.returns({});
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({
-        id: 'subscriptionId',
-        productMetadata: {},
-        planConfig: {},
-      });
-      mockStripeHelper.findAbbrevPlanById = sandbox.fake.resolves({
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.db.account = jest.fn().mockResolvedValue(account);
+      mockLog.info = jest.fn().mockReturnValue({});
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue({
+          id: 'subscriptionId',
+          productMetadata: {},
+          planConfig: {},
+        });
+      mockStripeHelper.findAbbrevPlanById = jest.fn().mockResolvedValue({
         amount: longPlan1.amount,
         currency: longPlan1.currency,
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
-      mockStripeHelper.getInvoice = sandbox.fake.resolves(mockInvoice);
-      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves(
-        mockUpcomingInvoiceWithInclusiveTax
-      );
-      reminder.mailer.sendSubscriptionRenewalReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves({});
-      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
+      mockStripeHelper.getInvoice = jest.fn().mockResolvedValue(mockInvoice);
+      mockStripeHelper.previewInvoiceBySubscriptionId = jest
+        .fn()
+        .mockResolvedValue(mockUpcomingInvoiceWithInclusiveTax);
+      reminder.mailer.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue({});
+      Date.now = jest.fn(() => MOCK_DATETIME_MS);
 
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription,
@@ -1496,9 +1560,9 @@ describe('SubscriptionReminders', () => {
       );
 
       expect(result).toBe(true);
-      const mailerCall =
-        reminder.mailer.sendSubscriptionRenewalReminderEmail.getCall(0);
-      const emailData = mailerCall.args[2];
+      const mailerCallArgs =
+        reminder.mailer.sendSubscriptionRenewalReminderEmail.mock.calls[0];
+      const emailData = mailerCallArgs[2];
       expect(emailData.showTax).toBe(false);
       expect(emailData.invoiceTotalExcludingTaxInCents).toBe(887);
       expect(emailData.invoiceTaxInCents).toBe(113);
@@ -1556,19 +1620,20 @@ describe('SubscriptionReminders', () => {
     let spyReportSentryError: any;
     let stubGetUidAndEmail: any;
     beforeEach(() => {
-      spyReportSentryError = sinon.spy(sentry, 'reportSentryError');
-      stubGetUidAndEmail = sinon
-        .stub(authDbModule, 'getUidAndEmailByStripeCustomerId')
-        .resolves({ uid: mockUid, email: mockAccount.email });
-      reminder.db.account = sandbox.fake.resolves(mockAccount);
-      reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      reminder.mailer.sendSubscriptionEndingReminderEmail =
-        sandbox.fake.resolves(true);
-      reminder.updateSentEmail = sandbox.fake.resolves();
-      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves(
-        mockFormattedSubscription
-      );
-      mockPurchaseForPriceId = sandbox.fake.returns({
+      spyReportSentryError = jest.spyOn(sentry, 'reportSentryError');
+      stubGetUidAndEmail = jest
+        .spyOn(authDbModule, 'getUidAndEmailByStripeCustomerId')
+        .mockResolvedValue({ uid: mockUid, email: mockAccount.email });
+      reminder.db.account = jest.fn().mockResolvedValue(mockAccount);
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(false);
+      reminder.mailer.sendSubscriptionEndingReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
+      reminder.updateSentEmail = jest.fn().mockResolvedValue();
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockResolvedValue(mockFormattedSubscription);
+      mockPurchaseForPriceId = jest.fn().mockReturnValue({
         offering: {
           commonContent: {
             supportUrl: mockSupportUrl,
@@ -1589,12 +1654,14 @@ describe('SubscriptionReminders', () => {
         },
         apiIdentifier: 'vpn',
       });
-      mockProductConfigurationManager.getPageContentByPriceIds =
-        sandbox.fake.resolves({
+      mockProductConfigurationManager.getPageContentByPriceIds = jest
+        .fn()
+        .mockResolvedValue({
           purchaseForPriceId: mockPurchaseForPriceId,
         });
-      mockChurnInterventionService.determineStaySubscribedEligibility =
-        sandbox.fake.resolves({
+      mockChurnInterventionService.determineStaySubscribedEligibility = jest
+        .fn()
+        .mockResolvedValue({
           isEligibile: true,
           cmsChurnInterventionEntry: {
             ctaMessage: mockCtaMessage,
@@ -1604,7 +1671,7 @@ describe('SubscriptionReminders', () => {
     });
 
     afterEach(() => {
-      sinon.restore();
+      jest.restoreAllMocks();
     });
 
     it('should return true if the email was sent successfully', async () => {
@@ -1612,36 +1679,42 @@ describe('SubscriptionReminders', () => {
         await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
 
       expect(actual).toBe(true);
-      sinon.assert.calledOnceWithExactly(stubGetUidAndEmail, mockCustomerId);
-      sinon.assert.calledOnceWithExactly(
-        reminder.alreadySentEmail,
+      expect(stubGetUidAndEmail).toHaveBeenCalledTimes(1);
+      expect(stubGetUidAndEmail).toHaveBeenCalledWith(mockCustomerId);
+      expect(reminder.alreadySentEmail).toHaveBeenCalledTimes(1);
+      expect(reminder.alreadySentEmail).toHaveBeenCalledWith(
         mockUid,
         mockSubCurrentPeriodStart * 1000,
         { subscriptionId: mockSubscriptionId },
         'subscriptionEndingReminder'
       );
-      sinon.assert.calledOnceWithExactly(reminder.db.account, mockUid);
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.formatSubscriptionForEmail,
+      expect(reminder.db.account).toHaveBeenCalledTimes(1);
+      expect(reminder.db.account).toHaveBeenCalledWith(mockUid);
+      expect(mockStripeHelper.formatSubscriptionForEmail).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockStripeHelper.formatSubscriptionForEmail).toHaveBeenCalledWith(
         mockSubscription
       );
-      sinon.assert.calledOnceWithExactly(
-        mockProductConfigurationManager.getPageContentByPriceIds,
-        [mockPlanId],
-        mockAccount.locale
-      );
-      sinon.assert.calledOnceWithExactly(mockPurchaseForPriceId, mockPlanId);
-      sinon.assert.calledOnceWithExactly(
-        mockChurnInterventionService.determineStaySubscribedEligibility,
-        mockUid,
-        mockSubscriptionId,
-        mockAccount.locale
-      );
-      sinon.assert.calledOnce(
+      expect(
+        mockProductConfigurationManager.getPageContentByPriceIds
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockProductConfigurationManager.getPageContentByPriceIds
+      ).toHaveBeenCalledWith([mockPlanId], mockAccount.locale);
+      expect(mockPurchaseForPriceId).toHaveBeenCalledTimes(1);
+      expect(mockPurchaseForPriceId).toHaveBeenCalledWith(mockPlanId);
+      expect(
+        mockChurnInterventionService.determineStaySubscribedEligibility
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockChurnInterventionService.determineStaySubscribedEligibility
+      ).toHaveBeenCalledWith(mockUid, mockSubscriptionId, mockAccount.locale);
+      expect(
         reminder.mailer.sendSubscriptionEndingReminderEmail
-      );
-      sinon.assert.calledOnceWithExactly(
-        reminder.updateSentEmail,
+      ).toHaveBeenCalledTimes(1);
+      expect(reminder.updateSentEmail).toHaveBeenCalledTimes(1);
+      expect(reminder.updateSentEmail).toHaveBeenCalledWith(
         mockUid,
         { subscriptionId: mockSubscriptionId },
         'subscriptionEndingReminder'
@@ -1649,96 +1722,99 @@ describe('SubscriptionReminders', () => {
     });
 
     it('should return false if customer uid is not provided', async () => {
-      stubGetUidAndEmail.resolves({ uid: null, email: null });
+      stubGetUidAndEmail.mockResolvedValue({ uid: null, email: null });
 
       const actual =
         await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
       expect(actual).toBe(false);
-      sinon.assert.calledOnce(stubGetUidAndEmail);
-      sinon.assert.notCalled(
+      expect(stubGetUidAndEmail).toHaveBeenCalledTimes(1);
+      expect(
         reminder.mailer.sendSubscriptionEndingReminderEmail
-      );
-      sinon.assert.calledOnce(spyReportSentryError);
+      ).not.toHaveBeenCalled();
+      expect(spyReportSentryError).toHaveBeenCalledTimes(1);
     });
 
     it('should return false if email already sent', async () => {
-      reminder.alreadySentEmail = sandbox.fake.resolves(true);
+      reminder.alreadySentEmail = jest.fn().mockResolvedValue(true);
 
       const actual =
         await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
       expect(actual).toBe(false);
-      sinon.assert.calledOnce(reminder.alreadySentEmail);
-      sinon.assert.notCalled(spyReportSentryError);
-      sinon.assert.notCalled(
+      expect(reminder.alreadySentEmail).toHaveBeenCalledTimes(1);
+      expect(spyReportSentryError).not.toHaveBeenCalled();
+      expect(
         reminder.mailer.sendSubscriptionEndingReminderEmail
-      );
+      ).not.toHaveBeenCalled();
     });
 
     it('should return false if an error occurs when sending the email', async () => {
       const mockError = new Error('Failed to send email');
-      mockStripeHelper.formatSubscriptionForEmail =
-        sandbox.fake.rejects(mockError);
+      mockStripeHelper.formatSubscriptionForEmail = jest
+        .fn()
+        .mockRejectedValue(mockError);
 
       const actual =
         await reminder.sendSubscriptionEndingReminderEmail(mockSubscription);
       expect(actual).toBe(false);
-      sinon.assert.calledOnceWithExactly(spyReportSentryError, mockError);
+      expect(spyReportSentryError).toHaveBeenCalledTimes(1);
+      expect(spyReportSentryError).toHaveBeenCalledWith(mockError);
     });
   });
 
   describe('sendReminders', () => {
     beforeEach(() => {
-      reminder.getEligiblePlans = sandbox.fake.resolves([longPlan1, longPlan2]);
-      reminder.getStartAndEndTimes = sandbox.fake.returns(MOCK_INTERVAL);
+      reminder.getEligiblePlans = jest
+        .fn()
+        .mockResolvedValue([longPlan1, longPlan2]);
+      reminder.getStartAndEndTimes = jest.fn().mockReturnValue(MOCK_INTERVAL);
       async function* genSubscriptionForPlan1() {
         yield longSubscription1;
       }
       async function* genSubscriptionForPlan2() {
         yield longSubscription2;
       }
-      const stub = sandbox.stub(
+      const stub = jest.spyOn(
         mockStripeHelper,
         'findActiveSubscriptionsByPlanId'
       );
-      stub.onFirstCall().callsFake(genSubscriptionForPlan1);
-      stub.onSecondCall().callsFake(genSubscriptionForPlan2);
+      stub
+        .mockImplementationOnce(genSubscriptionForPlan1)
+        .mockImplementationOnce(genSubscriptionForPlan2);
     });
     it('returns true if it can process all eligible subscriptions', async () => {
-      reminder.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves({});
+      reminder.sendSubscriptionRenewalReminderEmail = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await reminder.sendReminders();
       expect(result).toBe(true);
-      sinon.assert.calledOnce(reminder.getEligiblePlans);
-      sinon.assert.calledTwice(reminder.getStartAndEndTimes);
-      sinon.assert.calledWith(
-        reminder.getStartAndEndTimes,
+      expect(reminder.getEligiblePlans).toHaveBeenCalledTimes(1);
+      expect(reminder.getStartAndEndTimes).toHaveBeenCalledTimes(2);
+      expect(reminder.getStartAndEndTimes).toHaveBeenCalledWith(
         Duration.fromObject({ days: 15 })
       );
-      sinon.assert.calledWith(
-        reminder.getStartAndEndTimes,
+      expect(reminder.getStartAndEndTimes).toHaveBeenCalledWith(
         Duration.fromObject({ days: 7 })
       );
       // We iterate through each plan, longPlan1 and longPlan2, and there is one
       // subscription, longSubscription1 and longSubscription2 respectively,
       // returned for each plan.
-      sinon.assert.calledTwice(
+      expect(
         mockStripeHelper.findActiveSubscriptionsByPlanId
-      );
-      sinon.assert.calledTwice(reminder.sendSubscriptionRenewalReminderEmail);
+      ).toHaveBeenCalledTimes(2);
+      expect(
+        reminder.sendSubscriptionRenewalReminderEmail
+      ).toHaveBeenCalledTimes(2);
     });
     it('returns false and logs an error for any eligible subscription that it fails to process', async () => {
-      mockLog.error = sandbox.fake.returns({});
+      mockLog.error = jest.fn().mockReturnValue({});
       const errMessage = 'Something went wrong.';
       const throwErr = new Error(errMessage);
-      const stub = sandbox.stub(
-        reminder,
-        'sendSubscriptionRenewalReminderEmail'
-      );
-      stub.onFirstCall().rejects(throwErr);
-      stub.onSecondCall().resolves({});
+      const stub = jest.spyOn(reminder, 'sendSubscriptionRenewalReminderEmail');
+      stub.mockRejectedValueOnce(throwErr).mockResolvedValueOnce({});
       const result = await reminder.sendReminders();
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        mockLog.error,
+      expect(mockLog.error).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith(
         'sendSubscriptionRenewalReminderEmail',
         {
           err: throwErr,
@@ -1746,23 +1822,21 @@ describe('SubscriptionReminders', () => {
           reminderDuration: 7,
         }
       );
-      stub.firstCall.calledWithExactly(longSubscription1);
-      stub.secondCall.calledWithExactly(longSubscription2);
-      sinon.assert.calledTwice(stub);
+      expect(stub).toHaveBeenCalledTimes(2);
+      expect(stub.mock.calls[0][0]).toEqual(longSubscription1);
+      expect(stub.mock.calls[1][0]).toEqual(longSubscription2);
     });
 
     it('calls sendEndingReminders if enabled in config', async () => {
-      reminder.sendEndingReminders = sandbox.fake.resolves({});
+      reminder.sendEndingReminders = jest.fn().mockResolvedValue({});
       reminder.endingReminderEnabled = true;
       await reminder.sendReminders();
 
-      sinon.assert.calledWith(
-        reminder.sendEndingReminders,
+      expect(reminder.sendEndingReminders).toHaveBeenCalledWith(
         Duration.fromObject({ days: mockMonthlyReminderDuration }),
         'monthly'
       );
-      sinon.assert.calledWith(
-        reminder.sendEndingReminders,
+      expect(reminder.sendEndingReminders).toHaveBeenCalledWith(
         Duration.fromObject({ days: mockYearlyReminderDuration }),
         'yearly'
       );
@@ -1770,25 +1844,22 @@ describe('SubscriptionReminders', () => {
 
     it('calls sendEndingReminders for daily if dailyEndingReminderDuration is provided', async () => {
       const mockDailyReminderDays = 3;
-      reminder.sendEndingReminders = sandbox.fake.resolves({});
+      reminder.sendEndingReminders = jest.fn().mockResolvedValue({});
       reminder.endingReminderEnabled = true;
       reminder.dailyEndingReminderDuration = Duration.fromObject({
         days: mockDailyReminderDays,
       });
       await reminder.sendReminders();
 
-      sinon.assert.calledWith(
-        reminder.sendEndingReminders,
+      expect(reminder.sendEndingReminders).toHaveBeenCalledWith(
         Duration.fromObject({ days: mockDailyReminderDays }),
         'daily'
       );
-      sinon.assert.calledWith(
-        reminder.sendEndingReminders,
+      expect(reminder.sendEndingReminders).toHaveBeenCalledWith(
         Duration.fromObject({ days: mockMonthlyReminderDuration }),
         'monthly'
       );
-      sinon.assert.calledWith(
-        reminder.sendEndingReminders,
+      expect(reminder.sendEndingReminders).toHaveBeenCalledWith(
         Duration.fromObject({ days: mockYearlyReminderDuration }),
         'yearly'
       );
@@ -1796,36 +1867,36 @@ describe('SubscriptionReminders', () => {
 
     it('sends 15-day reminders only to yearly plans and 7-day reminders only to monthly plans', async () => {
       const yearlyPlan = require('../../test/local/payments/fixtures/stripe/plan_yearly.json');
-      reminder.getEligiblePlans = sandbox.fake.resolves([
+      reminder.getEligiblePlans = jest.fn().mockResolvedValue([
         longPlan1, // monthly
         longPlan2, // monthly
         yearlyPlan, // yearly
       ]);
-      reminder.getStartAndEndTimes = sandbox.fake.returns(MOCK_INTERVAL);
+      reminder.getStartAndEndTimes = jest.fn().mockReturnValue(MOCK_INTERVAL);
 
-      const sendRenewalStub = sandbox.stub(
+      const sendRenewalStub = jest.spyOn(
         reminder,
         'sendRenewalRemindersForDuration'
       );
-      sendRenewalStub.resolves(true);
+      sendRenewalStub.mockResolvedValue(true);
 
       await reminder.sendReminders();
 
       // Should be called twice: once for yearly plans, once for monthly plans
-      sinon.assert.calledTwice(sendRenewalStub);
+      expect(sendRenewalStub).toHaveBeenCalledTimes(2);
 
       // First call: yearly plans with 15-day duration
-      const firstCall = sendRenewalStub.getCall(0);
-      expect(firstCall.args[0].length).toEqual(1);
-      expect(firstCall.args[0][0].id).toEqual(yearlyPlan.id);
-      expect(firstCall.args[1].as('days')).toEqual(15);
+      const firstCallArgs = sendRenewalStub.mock.calls[0];
+      expect(firstCallArgs[0].length).toEqual(1);
+      expect(firstCallArgs[0][0].id).toEqual(yearlyPlan.id);
+      expect(firstCallArgs[1].as('days')).toEqual(15);
 
       // Second call: monthly plans with 7-day duration
-      const secondCall = sendRenewalStub.getCall(1);
-      expect(secondCall.args[0].length).toEqual(2);
-      expect(secondCall.args[0][0].id).toEqual(longPlan1.id);
-      expect(secondCall.args[0][1].id).toEqual(longPlan2.id);
-      expect(secondCall.args[1].as('days')).toEqual(7);
+      const secondCallArgs = sendRenewalStub.mock.calls[1];
+      expect(secondCallArgs[0].length).toEqual(2);
+      expect(secondCallArgs[0][0].id).toEqual(longPlan1.id);
+      expect(secondCallArgs[0][1].id).toEqual(longPlan2.id);
+      expect(secondCallArgs[1].as('days')).toEqual(7);
     });
   });
 
@@ -1856,34 +1927,36 @@ describe('SubscriptionReminders', () => {
     };
 
     beforeEach(() => {
-      mockStatsD.increment = sandbox.fake.returns({});
-      mockSubscriptionManager.listCancelOnDateGenerator = sandbox
-        .stub()
-        .callsFake(function* () {
+      mockStatsD.increment = jest.fn().mockReturnValue({});
+      mockSubscriptionManager.listCancelOnDateGenerator = jest
+        .fn()
+        .mockImplementation(function* () {
           yield mockSubscriptionMonthly;
           yield mockSubscriptionYearly;
         });
-      reminder.sendSubscriptionEndingReminderEmail =
-        sandbox.fake.resolves(true);
+      reminder.sendSubscriptionEndingReminderEmail = jest
+        .fn()
+        .mockResolvedValue(true);
     });
 
     afterEach(() => {
-      sinon.restore();
+      jest.restoreAllMocks();
     });
 
     it('successfully sends an email for monthly subscriptions and increments sendCount', async () => {
       await reminder.sendEndingReminders(mockDuration, mockSubplatInterval);
-      sinon.assert.calledOnceWithExactly(
-        mockStatsD.increment,
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
         'subscription-reminders.endingReminders.monthly'
       );
-      sinon.assert.calledOnceWithExactly(
-        reminder.sendSubscriptionEndingReminderEmail,
+      expect(
+        reminder.sendSubscriptionEndingReminderEmail
+      ).toHaveBeenCalledTimes(1);
+      expect(reminder.sendSubscriptionEndingReminderEmail).toHaveBeenCalledWith(
         mockSubscriptionMonthly
       );
-      sinon.assert.callCount(reminder.log.info, 2);
-      sinon.assert.calledWithExactly(
-        reminder.log.info,
+      expect(reminder.log.info).toHaveBeenCalledTimes(2);
+      expect(reminder.log.info).toHaveBeenCalledWith(
         'sendSubscriptionEndingReminderEmail.sendEndingReminders.end',
         {
           reminderLengthDays: 14,
@@ -1895,17 +1968,18 @@ describe('SubscriptionReminders', () => {
 
     it('successfully sends an email for yearly subscriptions and increments sendCount', async () => {
       await reminder.sendEndingReminders(mockDuration, 'yearly');
-      sinon.assert.calledOnceWithExactly(
-        mockStatsD.increment,
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
         'subscription-reminders.endingReminders.yearly'
       );
-      sinon.assert.calledOnceWithExactly(
-        reminder.sendSubscriptionEndingReminderEmail,
+      expect(
+        reminder.sendSubscriptionEndingReminderEmail
+      ).toHaveBeenCalledTimes(1);
+      expect(reminder.sendSubscriptionEndingReminderEmail).toHaveBeenCalledWith(
         mockSubscriptionYearly
       );
-      sinon.assert.callCount(reminder.log.info, 2);
-      sinon.assert.calledWithExactly(
-        reminder.log.info,
+      expect(reminder.log.info).toHaveBeenCalledTimes(2);
+      expect(reminder.log.info).toHaveBeenCalledWith(
         'sendSubscriptionEndingReminderEmail.sendEndingReminders.end',
         {
           reminderLengthDays: 14,
@@ -1917,13 +1991,14 @@ describe('SubscriptionReminders', () => {
 
     it('sends no emails if no subscriptions match subplat interval', async () => {
       await reminder.sendEndingReminders(mockDuration, 'weekly');
-      sinon.assert.calledOnceWithExactly(
-        mockStatsD.increment,
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
         'subscription-reminders.endingReminders.weekly'
       );
-      sinon.assert.notCalled(reminder.sendSubscriptionEndingReminderEmail);
-      sinon.assert.calledWithExactly(
-        reminder.log.info,
+      expect(
+        reminder.sendSubscriptionEndingReminderEmail
+      ).not.toHaveBeenCalled();
+      expect(reminder.log.info).toHaveBeenCalledWith(
         'sendSubscriptionEndingReminderEmail.sendEndingReminders.end',
         {
           reminderLengthDays: 14,
@@ -1934,20 +2009,22 @@ describe('SubscriptionReminders', () => {
     });
 
     it('it does not increment sendCount if no email is sent', async () => {
-      reminder.sendSubscriptionEndingReminderEmail =
-        sandbox.fake.resolves(false);
+      reminder.sendSubscriptionEndingReminderEmail = jest
+        .fn()
+        .mockResolvedValue(false);
 
       await reminder.sendEndingReminders(mockDuration, mockSubplatInterval);
-      sinon.assert.calledOnceWithExactly(
-        mockStatsD.increment,
+      expect(mockStatsD.increment).toHaveBeenCalledTimes(1);
+      expect(mockStatsD.increment).toHaveBeenCalledWith(
         'subscription-reminders.endingReminders.monthly'
       );
-      sinon.assert.calledOnceWithExactly(
-        reminder.sendSubscriptionEndingReminderEmail,
+      expect(
+        reminder.sendSubscriptionEndingReminderEmail
+      ).toHaveBeenCalledTimes(1);
+      expect(reminder.sendSubscriptionEndingReminderEmail).toHaveBeenCalledWith(
         mockSubscriptionMonthly
       );
-      sinon.assert.calledWithExactly(
-        reminder.log.info,
+      expect(reminder.log.info).toHaveBeenCalledWith(
         'sendSubscriptionEndingReminderEmail.sendEndingReminders.end',
         {
           reminderLengthDays: 14,
@@ -1971,9 +2048,9 @@ describe('SubscriptionReminders', () => {
           ],
         },
       };
-      mockSubscriptionManager.listCancelOnDateGenerator = sandbox
-        .stub()
-        .callsFake(function* () {
+      mockSubscriptionManager.listCancelOnDateGenerator = jest
+        .fn()
+        .mockImplementation(function* () {
           yield mockSubscriptionNoRecurring;
         });
       try {
@@ -1982,7 +2059,9 @@ describe('SubscriptionReminders', () => {
       } catch (error: any) {
         expect(error instanceof Error).toBe(true);
         expect(error.info.priceId).toEqual(mockPriceId);
-        sinon.assert.notCalled(reminder.sendSubscriptionEndingReminderEmail);
+        expect(
+          reminder.sendSubscriptionEndingReminderEmail
+        ).not.toHaveBeenCalled();
       }
     });
   });

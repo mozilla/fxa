@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { StatsD } from 'hot-shots';
 import { AccountEventsManager } from './account-events';
 import Container from 'typedi';
@@ -16,21 +15,21 @@ describe('Account Events', () => {
   let usersDbRefMock: any;
   let firestore: any;
   let accountEventsManager: AccountEventsManager;
-  let addMock: sinon.SinonStub;
+  let addMock: jest.Mock;
   let statsd: any;
   let mockDb: any;
 
   beforeEach(() => {
-    addMock = sinon.stub();
+    addMock = jest.fn();
     usersDbRefMock = {
-      doc: sinon.stub().returns({
-        collection: sinon.stub().returns({
+      doc: jest.fn().mockReturnValue({
+        collection: jest.fn().mockReturnValue({
           add: addMock,
         }),
       }),
     };
     firestore = {
-      collection: sinon.stub().returns(usersDbRefMock),
+      collection: jest.fn().mockReturnValue(usersDbRefMock),
     };
     const mockConfig = {
       authFirestore: {
@@ -47,7 +46,7 @@ describe('Account Events', () => {
     mockDb = mocks.mockDB();
     Container.set(AppConfig, mockConfig);
     Container.set(AuthFirestore, firestore);
-    statsd = { increment: sinon.spy() };
+    statsd = { increment: jest.fn() };
     Container.set(StatsD, statsd);
 
     accountEventsManager = new AccountEventsManager();
@@ -80,20 +79,26 @@ describe('Account Events', () => {
         eventType: 'emailEvent',
         name: 'emailSent',
       };
-      sinon.assert.calledOnceWithMatch(addMock, assertMessage);
-      sinon.assert.calledOnceWithExactly(usersDbRefMock.doc, UID);
+      expect(addMock).toHaveBeenCalledTimes(1);
+      expect(addMock).toHaveBeenCalledWith(
+        expect.objectContaining(assertMessage)
+      );
+      expect(usersDbRefMock.doc).toHaveBeenCalledTimes(1);
+      expect(usersDbRefMock.doc).toHaveBeenCalledWith(UID);
 
       expect(Date.now()).toBeGreaterThanOrEqual(
-        addMock.firstCall.firstArg.createdAt
+        addMock.mock.calls[0][0].createdAt
       );
-      sinon.assert.calledOnceWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledTimes(1);
+      expect(statsd.increment).toHaveBeenCalledWith(
         'accountEvents.recordEmailEvent.write'
       );
     });
 
     it('logs and does not throw on failure', async () => {
-      usersDbRefMock.doc = sinon.stub().throws();
+      usersDbRefMock.doc = jest.fn().mockImplementation(() => {
+        throw new Error();
+      });
       const message = {
         template: 'verifyLoginCode',
         deviceId: 'deviceId',
@@ -105,9 +110,9 @@ describe('Account Events', () => {
         message as any,
         'emailSent'
       );
-      expect(addMock.called).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        statsd.increment,
+      expect(addMock).not.toHaveBeenCalled();
+      expect(statsd.increment).toHaveBeenCalledTimes(1);
+      expect(statsd.increment).toHaveBeenCalledWith(
         'accountEvents.recordEmailEvent.error'
       );
     });
@@ -123,10 +128,10 @@ describe('Account Events', () => {
         message as any,
         'emailSent'
       );
-      expect(addMock.called).toBe(true);
-      expect(addMock.firstCall.firstArg.template).toBeUndefined();
-      expect(addMock.firstCall.firstArg.deviceId).toBeUndefined();
-      expect(addMock.firstCall.firstArg.flowId).toBeUndefined();
+      expect(addMock).toHaveBeenCalled();
+      expect(addMock.mock.calls[0][0].template).toBeUndefined();
+      expect(addMock.mock.calls[0][0].deviceId).toBeUndefined();
+      expect(addMock.mock.calls[0][0].flowId).toBeUndefined();
     });
   });
 
@@ -140,10 +145,11 @@ describe('Account Events', () => {
       };
       await accountEventsManager.recordSecurityEvent(mockDb, message);
 
-      sinon.assert.calledOnceWithExactly(mockDb.securityEvent, message);
+      expect(mockDb.securityEvent).toHaveBeenCalledTimes(1);
+      expect(mockDb.securityEvent).toHaveBeenCalledWith(message);
 
-      sinon.assert.calledOnceWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledTimes(1);
+      expect(statsd.increment).toHaveBeenCalledWith(
         'accountEvents.recordSecurityEvent.write.account.login',
         { clientId: 'none', service: 'none' }
       );
@@ -162,8 +168,8 @@ describe('Account Events', () => {
       };
       await accountEventsManager.recordSecurityEvent(mockDb, message);
 
-      sinon.assert.calledOnceWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledTimes(1);
+      expect(statsd.increment).toHaveBeenCalledWith(
         'accountEvents.recordSecurityEvent.write.account.login',
         { clientId: '5882386c6d801776', service: 'sync' }
       );
@@ -181,15 +187,17 @@ describe('Account Events', () => {
       };
       await accountEventsManager.recordSecurityEvent(mockDb, message);
 
-      sinon.assert.calledOnceWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledTimes(1);
+      expect(statsd.increment).toHaveBeenCalledWith(
         'accountEvents.recordSecurityEvent.write.account.login',
         { clientId: 'deadbeefdeadbeef', service: 'none' }
       );
     });
 
     it('logs and does not throw on failure', async () => {
-      mockDb.securityEvent = sinon.stub().throws();
+      mockDb.securityEvent = jest.fn().mockImplementation(() => {
+        throw new Error();
+      });
       const message = {
         name: 'account.login',
         uid: '000',
@@ -197,16 +205,18 @@ describe('Account Events', () => {
         tokenId: '123',
       };
       await accountEventsManager.recordSecurityEvent(mockDb, message as any);
-      expect(addMock.called).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        statsd.increment,
+      expect(addMock).not.toHaveBeenCalled();
+      expect(statsd.increment).toHaveBeenCalledTimes(1);
+      expect(statsd.increment).toHaveBeenCalledWith(
         'accountEvents.recordSecurityEvent.error.account.login',
         { clientId: 'none', service: 'none' }
       );
     });
 
     it('includes tags on error path', async () => {
-      mockDb.securityEvent = sinon.stub().throws();
+      mockDb.securityEvent = jest.fn().mockImplementation(() => {
+        throw new Error();
+      });
       const message = {
         name: 'account.login',
         uid: '000',
@@ -219,8 +229,8 @@ describe('Account Events', () => {
       };
       await accountEventsManager.recordSecurityEvent(mockDb, message as any);
 
-      sinon.assert.calledOnceWithExactly(
-        statsd.increment,
+      expect(statsd.increment).toHaveBeenCalledTimes(1);
+      expect(statsd.increment).toHaveBeenCalledWith(
         'accountEvents.recordSecurityEvent.error.account.login',
         { clientId: '5882386c6d801776', service: 'sync' }
       );

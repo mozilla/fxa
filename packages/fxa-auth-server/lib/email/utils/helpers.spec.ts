@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import Container from 'typedi';
 import { AccountEventsManager } from '../../account-events';
 
-const amplitude = sinon.spy();
+const amplitude = jest.fn();
 
 jest.mock('../../../lib/metrics/amplitude', () => () => amplitude);
 
@@ -14,7 +13,7 @@ const { mockLog } = require('../../../test/mocks');
 const emailHelpers = require('./helpers');
 
 describe('email utils helpers', () => {
-  afterEach(() => amplitude.resetHistory());
+  afterEach(() => amplitude.mockClear());
 
   describe('getHeaderValue', () => {
     it('works with message.mail.headers', () => {
@@ -59,8 +58,11 @@ describe('email utils helpers', () => {
         },
       };
       emailHelpers.logEmailEventSent(log, message);
-      expect(log.info.callCount).toBe(1);
-      expect(log.info.args[0][1].locale).toBe('ru');
+      expect(log.info).toHaveBeenCalledTimes(1);
+      expect(log.info).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ locale: 'ru' })
+      );
     });
 
     it('should log an event per CC email', () => {
@@ -71,10 +73,22 @@ describe('email utils helpers', () => {
         template: 'verifyEmail',
       };
       emailHelpers.logEmailEventSent(log, message);
-      expect(log.info.callCount).toBe(3);
-      expect(log.info.args[0][1].domain).toBe('other');
-      expect(log.info.args[1][1].domain).toBe('gmail.com');
-      expect(log.info.args[2][1].domain).toBe('yahoo.com');
+      expect(log.info).toHaveBeenCalledTimes(3);
+      expect(log.info).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.objectContaining({ domain: 'other' })
+      );
+      expect(log.info).toHaveBeenNthCalledWith(
+        2,
+        expect.anything(),
+        expect.objectContaining({ domain: 'gmail.com' })
+      );
+      expect(log.info).toHaveBeenNthCalledWith(
+        3,
+        expect.anything(),
+        expect.objectContaining({ domain: 'yahoo.com' })
+      );
     });
   });
 
@@ -93,8 +107,8 @@ describe('email utils helpers', () => {
       planId: 'planId',
       productId: 'productId',
     });
-    expect(amplitude.callCount).toBe(1);
-    const args = amplitude.args[0];
+    expect(amplitude).toHaveBeenCalledTimes(1);
+    const args = amplitude.mock.calls[0];
     expect(args).toHaveLength(4);
     expect(args[0]).toBe('email.verifyEmail.sent');
     args[1].app.devices = await args[1].app.devices;
@@ -147,8 +161,8 @@ describe('email utils helpers', () => {
       'bounced',
       'gmail'
     );
-    expect(amplitude.callCount).toBe(1);
-    const args = amplitude.args[0];
+    expect(amplitude).toHaveBeenCalledTimes(1);
+    const args = amplitude.mock.calls[0];
     expect(args).toHaveLength(4);
     expect(args[0]).toBe('email.verifyLoginEmail.bounced');
     args[1].app.devices = await args[1].app.devices;
@@ -187,13 +201,11 @@ describe('email utils helpers', () => {
 
     it('logs an error if message.mail is missing', () => {
       emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, {}, 'wibble');
-      expect(log.error.callCount).toBe(1);
-      expect(log.error.args[0]).toHaveLength(2);
-      expect(log.error.args[0][0]).toBe('emailHeaders.missing');
-      expect(log.error.args[0][1]).toEqual({
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledWith('emailHeaders.missing', {
         origin: 'wibble',
       });
-      expect(log.warn.callCount).toBe(0);
+      expect(log.warn).toHaveBeenCalledTimes(0);
     });
 
     it('logs an error if message.mail.headers is missing', () => {
@@ -202,12 +214,11 @@ describe('email utils helpers', () => {
         { mail: {} },
         'blee'
       );
-      expect(log.error.callCount).toBe(1);
-      expect(log.error.args[0][0]).toBe('emailHeaders.missing');
-      expect(log.error.args[0][1]).toEqual({
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledWith('emailHeaders.missing', {
         origin: 'blee',
       });
-      expect(log.warn.callCount).toBe(0);
+      expect(log.warn).toHaveBeenCalledTimes(0);
     });
 
     it('does not log an error/warning if message.mail.headers is object and deviceId is set', () => {
@@ -218,8 +229,8 @@ describe('email utils helpers', () => {
           },
         },
       });
-      expect(log.error.callCount).toBe(0);
-      expect(log.warn.callCount).toBe(0);
+      expect(log.error).toHaveBeenCalledTimes(0);
+      expect(log.warn).toHaveBeenCalledTimes(0);
     });
 
     it('does not log an error/warning if message.mail.headers is object and deviceId is set (lowercase)', () => {
@@ -230,8 +241,8 @@ describe('email utils helpers', () => {
           },
         },
       });
-      expect(log.error.callCount).toBe(0);
-      expect(log.warn.callCount).toBe(0);
+      expect(log.error).toHaveBeenCalledTimes(0);
+      expect(log.warn).toHaveBeenCalledTimes(0);
     });
 
     it('does not log an error/warning if message.mail.headers is object and uid is set', () => {
@@ -242,8 +253,8 @@ describe('email utils helpers', () => {
           },
         },
       });
-      expect(log.error.callCount).toBe(0);
-      expect(log.warn.callCount).toBe(0);
+      expect(log.error).toHaveBeenCalledTimes(0);
+      expect(log.warn).toHaveBeenCalledTimes(0);
     });
 
     it('does not log an error/warning if message.mail.headers is object and uid is set (lowercase)', () => {
@@ -254,8 +265,8 @@ describe('email utils helpers', () => {
           },
         },
       });
-      expect(log.error.callCount).toBe(0);
-      expect(log.warn.callCount).toBe(0);
+      expect(log.error).toHaveBeenCalledTimes(0);
+      expect(log.warn).toHaveBeenCalledTimes(0);
     });
 
     it('logs a warning if message.mail.headers is object and deviceId and uid are missing', () => {
@@ -273,11 +284,9 @@ describe('email utils helpers', () => {
         },
         'wibble'
       );
-      expect(log.error.callCount).toBe(0);
-      expect(log.warn.callCount).toBe(1);
-      expect(log.warn.args[0]).toHaveLength(2);
-      expect(log.warn.args[0][0]).toBe('emailHeaders.keys');
-      expect(log.warn.args[0][1]).toEqual({
+      expect(log.error).toHaveBeenCalledTimes(0);
+      expect(log.warn).toHaveBeenCalledTimes(1);
+      expect(log.warn).toHaveBeenCalledWith('emailHeaders.keys', {
         keys: 'X-Template-Name,X-Xxx,X-Yyy,X-Zzz',
         template: 'foo',
         origin: 'wibble',
@@ -294,10 +303,9 @@ describe('email utils helpers', () => {
         },
         'blee'
       );
-      expect(log.error.callCount).toBe(0);
-      expect(log.warn.callCount).toBe(1);
-      expect(log.warn.args[0][0]).toBe('emailHeaders.keys');
-      expect(log.warn.args[0][1]).toEqual({
+      expect(log.error).toHaveBeenCalledTimes(0);
+      expect(log.warn).toHaveBeenCalledTimes(1);
+      expect(log.warn).toHaveBeenCalledWith('emailHeaders.keys', {
         keys: 'x-template-name',
         template: 'wibble',
         origin: 'blee',
@@ -310,13 +318,12 @@ describe('email utils helpers', () => {
         { mail: { headers: 'foo' } },
         'wibble'
       );
-      expect(log.error.callCount).toBe(1);
-      expect(log.error.args[0][0]).toBe('emailHeaders.weird');
-      expect(log.error.args[0][1]).toEqual({
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledWith('emailHeaders.weird', {
         type: 'string',
         origin: 'wibble',
       });
-      expect(log.warn.callCount).toBe(0);
+      expect(log.warn).toHaveBeenCalledTimes(0);
     });
 
     it('logs an error if message.headers is non-object', () => {
@@ -325,13 +332,12 @@ describe('email utils helpers', () => {
         { mail: {}, headers: 42 },
         'wibble'
       );
-      expect(log.error.callCount).toBe(1);
-      expect(log.error.args[0][0]).toBe('emailHeaders.weird');
-      expect(log.error.args[0][1]).toEqual({
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledWith('emailHeaders.weird', {
         type: 'number',
         origin: 'wibble',
       });
-      expect(log.warn.callCount).toBe(0);
+      expect(log.warn).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -339,8 +345,8 @@ describe('email utils helpers', () => {
     let mockAccountEventsManager: any;
     beforeEach(() => {
       mockAccountEventsManager = {
-        recordEmailEvent: sinon.stub(),
-        recordSecurityEvent: sinon.stub().resolves({}),
+        recordEmailEvent: jest.fn(),
+        recordSecurityEvent: jest.fn().mockResolvedValue({}),
       };
       Container.set(AccountEventsManager, mockAccountEventsManager);
     });
@@ -361,8 +367,10 @@ describe('email utils helpers', () => {
         },
         'emailBounced'
       );
-      sinon.assert.calledOnceWithExactly(
-        mockAccountEventsManager.recordEmailEvent,
+      expect(mockAccountEventsManager.recordEmailEvent).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockAccountEventsManager.recordEmailEvent).toHaveBeenCalledWith(
         'uid',
         {
           template: 'recovery',
@@ -384,7 +392,7 @@ describe('email utils helpers', () => {
         },
         'emailBounced'
       );
-      sinon.assert.notCalled(mockAccountEventsManager.recordEmailEvent);
+      expect(mockAccountEventsManager.recordEmailEvent).not.toHaveBeenCalled();
     });
 
     it('not called if firestore disable', () => {
@@ -400,7 +408,7 @@ describe('email utils helpers', () => {
         },
         'emailBounced'
       );
-      sinon.assert.notCalled(mockAccountEventsManager.recordEmailEvent);
+      expect(mockAccountEventsManager.recordEmailEvent).not.toHaveBeenCalled();
     });
   });
 });

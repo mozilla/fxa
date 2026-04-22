@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import { AppError as error } from '@fxa/accounts/errors';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
@@ -24,12 +23,11 @@ let log: any,
 const TEST_EMAIL = 'test@email.com';
 const UID = 'uid';
 
-const sandbox = sinon.createSandbox();
 const mockBackupCodeManager = {
-  getCountForUserId: sandbox.fake(),
+  getCountForUserId: jest.fn(),
 };
 const mockAccountEventsManager = {
-  recordSecurityEvent: sandbox.fake(),
+  recordSecurityEvent: jest.fn(),
 };
 
 function runTest(routePath: string, requestOptions: any, method?: string) {
@@ -43,7 +41,7 @@ function runTest(routePath: string, requestOptions: any, method?: string) {
   routes = require('./recovery-codes')(log, db, config, customs, mailer, glean);
   route = getRoute(routes, routePath, method);
   request = mocks.mockRequest(requestOptions);
-  request.emitMetricsEvent = sandbox.spy(() => Promise.resolve({}));
+  request.emitMetricsEvent = jest.fn(() => Promise.resolve({}));
 
   return route.handler(request);
 }
@@ -79,7 +77,7 @@ describe('backup authentication codes', () => {
   });
 
   afterEach(() => {
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   afterAll(() => {
@@ -93,30 +91,29 @@ describe('backup authentication codes', () => {
         (res: any) => {
           expect(res.recoveryCodes).toHaveLength(2);
 
-          expect(db.replaceRecoveryCodes.callCount).toBe(1);
-          const args = db.replaceRecoveryCodes.args[0];
-          expect(args[0]).toBe(UID);
-          expect(args[1]).toBe(8);
-          sinon.assert.calledOnceWithExactly(
-            mockAccountEventsManager.recordSecurityEvent,
-            db,
-            {
-              name: 'account.recovery_codes_replaced',
-              uid: 'uid',
-              ipAddr: '63.245.221.32',
-              tokenId: undefined,
-              additionalInfo: {
-                userAgent: 'test user-agent',
-                location: {
-                  city: 'Mountain View',
-                  country: 'United States',
-                  countryCode: 'US',
-                  state: 'California',
-                  stateCode: 'CA',
-                },
+          expect(db.replaceRecoveryCodes).toHaveBeenCalledTimes(1);
+          expect(db.replaceRecoveryCodes).toHaveBeenNthCalledWith(1, UID, 8);
+          expect(
+            mockAccountEventsManager.recordSecurityEvent
+          ).toHaveBeenCalledTimes(1);
+          expect(
+            mockAccountEventsManager.recordSecurityEvent
+          ).toHaveBeenCalledWith(db, {
+            name: 'account.recovery_codes_replaced',
+            uid: 'uid',
+            ipAddr: '63.245.221.32',
+            tokenId: undefined,
+            additionalInfo: {
+              userAgent: 'test user-agent',
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA',
               },
-            }
-          );
+            },
+          });
         }
       );
     });
@@ -131,31 +128,31 @@ describe('backup authentication codes', () => {
         (res: any) => {
           expect(res.success).toBe(true);
 
-          expect(db.updateRecoveryCodes.callCount).toBe(1);
-
-          const args = db.updateRecoveryCodes.args[0];
-          expect(args[0]).toBe(UID);
-          expect(args[1]).toEqual(['123']);
-          sinon.assert.calledOnceWithExactly(
-            mockAccountEventsManager.recordSecurityEvent,
-            db,
-            {
-              name: 'account.recovery_codes_created',
-              uid: 'uid',
-              ipAddr: '63.245.221.32',
-              tokenId: undefined,
-              additionalInfo: {
-                userAgent: 'test user-agent',
-                location: {
-                  city: 'Mountain View',
-                  country: 'United States',
-                  countryCode: 'US',
-                  state: 'California',
-                  stateCode: 'CA',
-                },
+          expect(db.updateRecoveryCodes).toHaveBeenCalledTimes(1);
+          expect(db.updateRecoveryCodes).toHaveBeenNthCalledWith(1, UID, [
+            '123',
+          ]);
+          expect(
+            mockAccountEventsManager.recordSecurityEvent
+          ).toHaveBeenCalledTimes(1);
+          expect(
+            mockAccountEventsManager.recordSecurityEvent
+          ).toHaveBeenCalledWith(db, {
+            name: 'account.recovery_codes_created',
+            uid: 'uid',
+            ipAddr: '63.245.221.32',
+            tokenId: undefined,
+            additionalInfo: {
+              userAgent: 'test user-agent',
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA',
               },
-            }
-          );
+            },
+          });
         }
       );
     });
@@ -163,7 +160,7 @@ describe('backup authentication codes', () => {
 
   describe('GET /recoveryCodes/exists', () => {
     it('should return hasBackupCodes and count', async () => {
-      mockBackupCodeManager.getCountForUserId = sandbox.fake.returns({
+      mockBackupCodeManager.getCountForUserId = jest.fn().mockReturnValue({
         hasBackupCodes: true,
         count: 8,
       });
@@ -172,15 +169,12 @@ describe('backup authentication codes', () => {
       expect(res).toBeDefined();
       expect(res.hasBackupCodes).toBe(true);
       expect(res.count).toBe(8);
-      sinon.assert.calledOnce(mockBackupCodeManager.getCountForUserId);
-      sinon.assert.calledWithExactly(
-        mockBackupCodeManager.getCountForUserId,
-        UID
-      );
+      expect(mockBackupCodeManager.getCountForUserId).toHaveBeenCalledTimes(1);
+      expect(mockBackupCodeManager.getCountForUserId).toHaveBeenCalledWith(UID);
     });
 
     it('should handle empty response from backupCodeManager', async () => {
-      mockBackupCodeManager.getCountForUserId = sandbox.fake.returns({});
+      mockBackupCodeManager.getCountForUserId = jest.fn().mockReturnValue({});
 
       const res = await runTest('/recoveryCodes/exists', requestOptions, 'GET');
       expect(res.hasBackupCodes).toBeUndefined();
@@ -190,17 +184,20 @@ describe('backup authentication codes', () => {
 
   describe('POST /session/verify/recoveryCode', () => {
     it('sends email if backup authentication codes are low', async () => {
-      db.consumeRecoveryCode = sandbox.spy((_code: any) => {
+      db.consumeRecoveryCode = jest.fn((_code: any) => {
         return Promise.resolve({ remaining: 1 });
       });
       await runTest('/session/verify/recoveryCode', requestOptions);
-      expect(fxaMailer.sendLowRecoveryCodesEmail.callCount).toBe(1);
-      const args = fxaMailer.sendLowRecoveryCodesEmail.args[0];
-      expect(args).toHaveLength(1);
-      expect(args[0].numberRemaining).toBe(1);
+      expect(fxaMailer.sendLowRecoveryCodesEmail).toHaveBeenCalledTimes(1);
+      expect(fxaMailer.sendLowRecoveryCodesEmail).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ numberRemaining: 1 })
+      );
 
-      sinon.assert.calledOnceWithExactly(
-        mockAccountEventsManager.recordSecurityEvent,
+      expect(
+        mockAccountEventsManager.recordSecurityEvent
+      ).toHaveBeenCalledTimes(1);
+      expect(mockAccountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
         db,
         {
           name: 'account.recovery_codes_signin_complete',
@@ -223,7 +220,7 @@ describe('backup authentication codes', () => {
 
     it('should rate-limit attempts to use a backup authentication code via customs', async () => {
       requestOptions.payload.code = '1234567890';
-      db.consumeRecoveryCode = sandbox.spy((_code: any) => {
+      db.consumeRecoveryCode = jest.fn((_code: any) => {
         throw error.recoveryCodeNotFound();
       });
       try {
@@ -231,8 +228,7 @@ describe('backup authentication codes', () => {
         throw new Error('should have thrown');
       } catch (err: any) {
         expect(err.errno).toBe(error.ERRNO.RECOVERY_CODE_NOT_FOUND);
-        sinon.assert.calledWithExactly(
-          customs.checkAuthenticated,
+        expect(customs.checkAuthenticated).toHaveBeenCalledWith(
           request,
           UID,
           TEST_EMAIL,
@@ -242,26 +238,28 @@ describe('backup authentication codes', () => {
     });
 
     it('should emit a glean event on successful verification', async () => {
-      db.consumeRecoveryCode = sandbox.spy((_code: any) => {
+      db.consumeRecoveryCode = jest.fn((_code: any) => {
         return Promise.resolve({ remaining: 4 });
       });
       await runTest('/session/verify/recoveryCode', requestOptions);
-      sinon.assert.calledOnceWithExactly(
-        glean.login.recoveryCodeSuccess,
-        request,
-        { uid: UID }
-      );
+      expect(glean.login.recoveryCodeSuccess).toHaveBeenCalledTimes(1);
+      expect(glean.login.recoveryCodeSuccess).toHaveBeenCalledWith(request, {
+        uid: UID,
+      });
     });
 
     it('should emit the flow complete event', async () => {
-      db.consumeRecoveryCode = sandbox.spy((_code: any) => {
+      db.consumeRecoveryCode = jest.fn((_code: any) => {
         return Promise.resolve({ remaining: 4 });
       });
       await runTest('/session/verify/recoveryCode', requestOptions);
-      sinon.assert.calledTwice(request.emitMetricsEvent);
-      sinon.assert.calledWith(request.emitMetricsEvent, 'account.confirmed', {
-        uid: UID,
-      });
+      expect(request.emitMetricsEvent).toHaveBeenCalledTimes(2);
+      expect(request.emitMetricsEvent).toHaveBeenCalledWith(
+        'account.confirmed',
+        {
+          uid: UID,
+        }
+      );
     });
   });
 });

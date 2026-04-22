@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const TOKEN =
@@ -17,26 +16,23 @@ function joiRequired(err: any, param: string) {
 describe('/verify POST', () => {
   let mocks: any;
   let route: any;
-  let sandbox: sinon.SinonSandbox;
 
   beforeAll(() => {
-    sandbox = sinon.createSandbox();
-
     mocks = {
       log: {
-        debug: sandbox.spy(),
-        info: sandbox.spy(),
-        warn: sandbox.spy(),
+        debug: jest.fn(),
+        info: jest.fn(),
+        warn: jest.fn(),
       },
       token: {
-        verify: sandbox.spy(async () => ({
+        verify: jest.fn(async () => ({
           client_id: 'foo',
           scope: ScopeSet.fromArray(['bar:foo', 'clients:write']),
           user: 'bar',
         })),
       },
       glean: {
-        oauth: { tokenChecked: sandbox.stub() },
+        oauth: { tokenChecked: jest.fn() },
       },
     };
 
@@ -46,7 +42,7 @@ describe('/verify POST', () => {
   });
 
   afterEach(() => {
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   describe('validation', () => {
@@ -82,7 +78,7 @@ describe('/verify POST', () => {
         payload: {
           token: TOKEN,
         },
-        emitMetricsEvent: sinon.spy(),
+        emitMetricsEvent: jest.fn(),
       };
       resp = await route.config.handler(req);
     });
@@ -94,20 +90,19 @@ describe('/verify POST', () => {
     });
 
     it('verifies the token', () => {
-      expect(mocks.token.verify.calledOnceWith(TOKEN)).toBe(true);
+      expect(mocks.token.verify).toHaveBeenCalledWith(TOKEN);
     });
 
     it('logs an amplitude event', () => {
-      expect(
-        req.emitMetricsEvent.calledOnceWith('verify.success', {
-          service: 'foo',
-          uid: 'bar',
-        })
-      ).toBe(true);
+      expect(req.emitMetricsEvent).toHaveBeenCalledWith('verify.success', {
+        service: 'foo',
+        uid: 'bar',
+      });
     });
 
     it('logs a Glean event', () => {
-      sinon.assert.calledOnceWithExactly(mocks.glean.oauth.tokenChecked, req, {
+      expect(mocks.glean.oauth.tokenChecked).toHaveBeenCalledTimes(1);
+      expect(mocks.glean.oauth.tokenChecked).toHaveBeenCalledWith(req, {
         uid: 'bar',
         oauthClientId: 'foo',
         scopes: ['bar:foo', 'clients:write'],
