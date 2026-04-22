@@ -85,6 +85,7 @@ export const UnitRowPasskey = () => {
       headerId="passkeys"
       prefixDataTestId="passkey"
       ctaText={ftlMsgResolver.getMsg('passkey-row-action-create', 'Create')}
+      ctaGleanDataAttrs={{ id: 'account_pref_passkey_create_submit' }}
       route={
         webAuthnSupported && !isAtLimit ? '/settings/passkeys/add' : undefined
       }

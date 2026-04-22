@@ -3170,6 +3170,110 @@ account_pref:
         description: |
           Indicates which MFA protected action the user is being prompted the MFA Guard for.
         type: string
+  passkey_create_view:
+    type: event
+    description: |
+      User sees the passkey creation transition page (WebAuthn ceremony begins)
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13418
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  passkey_create_submit_frontend_error:
+    type: event
+    description: |
+      Passkey creation fails; error alert banner displays
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13418
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: Error type - not_allowed, not_supported, security, timeout, webauthn_unknown, or server_error
+        type: string
+  passkey_create_success_view:
+    type: event
+    description: |
+      Passkey successfully created; success alert banner displays
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13418
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  passkey_delete_view:
+    type: event
+    description: |
+      User sees the delete confirmation modal (after MFA verification)
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13418
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  passkey_delete_submit_frontend_error:
+    type: event
+    description: |
+      Passkey deletion fails; error alert banner displays
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13418
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: Error type - auth_error or server_error
+        type: string
+  passkey_delete_success_view:
+    type: event
+    description: |
+      Passkey successfully deleted; success alert banner displays
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13418
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
 account_banner:
   create_recovery_key_view:
     type: event

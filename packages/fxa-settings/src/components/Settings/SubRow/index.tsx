@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Passkey } from 'fxa-auth-client/browser';
 import { useAlertBar, useAccount, useFtlMsgResolver } from '../../../models';
@@ -31,6 +31,7 @@ import LinkExternal, {
 } from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import Modal from '../Modal';
+import GleanMetrics from '../../../lib/glean';
 
 type SubRowProps = {
   ctaMessage?: string;
@@ -369,13 +370,21 @@ const PasskeyDeleteModal = ({
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const handleMfaError = useMfaErrorHandler();
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  useEffect(() => {
+    GleanMetrics.accountPref.passkeyDeleteView();
+  }, []);
 
   const handleConfirmDelete = useCallback(async () => {
     setIsDeleting(true);
+    // MfaGuard validates the JWT at mount, but it can expire while the user
+    // lingers on the confirmation modal. Skip dismiss so MfaGuard re-prompts.
+    let shouldDismiss = true;
     try {
       await account.deletePasskey(passkey.credentialId);
+      GleanMetrics.accountPref.passkeyDeleteSuccessView();
       // a hack to avoid alert bar being immediately removed
       setTimeout(() => {
         alertBar.success(
@@ -384,8 +393,13 @@ const PasskeyDeleteModal = ({
       }, 0);
     } catch (error) {
       if (handleMfaError(error)) {
+        shouldDismiss = false;
         return;
       }
+      const gleanReason = isAuthUiError(error) ? 'auth_error' : 'server_error';
+      GleanMetrics.accountPref.passkeyDeleteSubmitFrontendError({
+        event: { reason: gleanReason },
+      });
       const localizedError = isAuthUiError(error)
         ? getLocalizedErrorMessage(ftlMsgResolver, error)
         : ftlMsgResolver.getMsg(
@@ -395,15 +409,15 @@ const PasskeyDeleteModal = ({
       setTimeout(() => alertBar.error(localizedError), 0);
     } finally {
       setIsDeleting(false);
-      onDismiss();
+      if (shouldDismiss) onDismiss();
     }
   }, [
     account,
     passkey.credentialId,
     alertBar,
     ftlMsgResolver,
-    onDismiss,
     handleMfaError,
+    onDismiss,
   ]);
 
   return (
@@ -432,6 +446,7 @@ const PasskeyDeleteModal = ({
           <button
             className="cta-neutral mx-2 flex-1 cta-xl"
             onClick={onDismiss}
+            data-glean-id="account_pref_passkey_delete_cancel"
           >
             Cancel
           </button>
@@ -441,8 +456,8 @@ const PasskeyDeleteModal = ({
             className="cta-caution mx-2 flex-1 cta-xl"
             onClick={handleConfirmDelete}
             disabled={isDeleting}
-            // to avoid clashing with other delete buttons
             data-testid="confirm-delete-passkey-button"
+            data-glean-id="account_pref_passkey_delete_submit_confirm"
           >
             Delete passkey
           </button>
@@ -506,6 +521,7 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
           'passkey-sub-row-delete-title',
           'Delete passkey'
         )}
+        deleteGleanId="account_pref_passkey_delete_submit"
       />
       {deleteModalRevealed && (
         <MfaGuard

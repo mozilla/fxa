@@ -1118,6 +1118,92 @@ describe('lib/glean', () => {
           'account_pref_two_step_auth_disable_success_view'
         );
       });
+
+      it('submits a ping with the account_pref_passkey_create_view event name', async () => {
+        const spy = sandbox.spy(accountPref.passkeyCreateView, 'record');
+        GleanMetrics.accountPref.passkeyCreateView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_passkey_create_view'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_passkey_create_submit_frontend_error event name and a reason', async () => {
+        const spy = sandbox.spy(
+          accountPref.passkeyCreateSubmitFrontendError,
+          'record'
+        );
+        GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
+          event: { reason: 'not_allowed' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_passkey_create_submit_frontend_error'
+        );
+        sinon.assert.calledOnce(spy);
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'not_allowed');
+      });
+
+      it('submits a ping with the account_pref_passkey_create_success_view event name', async () => {
+        const spy = sandbox.spy(accountPref.passkeyCreateSuccessView, 'record');
+        GleanMetrics.accountPref.passkeyCreateSuccessView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_passkey_create_success_view'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_passkey_delete_view event name', async () => {
+        const spy = sandbox.spy(accountPref.passkeyDeleteView, 'record');
+        GleanMetrics.accountPref.passkeyDeleteView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_passkey_delete_view'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_passkey_delete_submit_frontend_error event name and a reason', async () => {
+        const spy = sandbox.spy(
+          accountPref.passkeyDeleteSubmitFrontendError,
+          'record'
+        );
+        GleanMetrics.accountPref.passkeyDeleteSubmitFrontendError({
+          event: { reason: 'server_error' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_passkey_delete_submit_frontend_error'
+        );
+        sinon.assert.calledOnce(spy);
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'server_error');
+      });
+
+      it('submits a ping with the account_pref_passkey_delete_success_view event name', async () => {
+        const spy = sandbox.spy(accountPref.passkeyDeleteSuccessView, 'record');
+        GleanMetrics.accountPref.passkeyDeleteSuccessView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_passkey_delete_success_view'
+        );
+        sinon.assert.calledOnce(spy);
+      });
     });
 
     describe('accountBanner', () => {
