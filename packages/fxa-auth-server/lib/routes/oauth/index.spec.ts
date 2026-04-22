@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 // Mock the OAuth DB to prevent real MySQL connections
 jest.mock('../../oauth/db', () => ({
   getClient: jest.fn().mockResolvedValue(null),
@@ -29,7 +27,11 @@ const MOCK_JWT =
   '001122334455.66778899aabbccddeeff00112233445566778899.aabbccddeeff';
 
 describe('/oauth/ routes', () => {
-  let mockDB: any, mockLog: any, mockConfig: any, sessionToken: any, mockStatsD: any;
+  let mockDB: any,
+    mockLog: any,
+    mockConfig: any,
+    sessionToken: any,
+    mockStatsD: any;
 
   async function loadAndCallRoute(path: string, request: any) {
     const routes = require('./index')(
@@ -58,15 +60,11 @@ describe('/oauth/ routes', () => {
 
   async function mockSessionToken(props: any = {}) {
     const Token = require(`../../tokens/token`)(mockLog);
-    const SessionToken = require(`../../tokens/session_token`)(
-      mockLog,
-      Token,
-      {
-        tokenLifetimes: {
-          sessionTokenWithoutDevice: 2419200000,
-        },
-      }
-    );
+    const SessionToken = require(`../../tokens/session_token`)(mockLog, Token, {
+      tokenLifetimes: {
+        sessionTokenWithoutDevice: 2419200000,
+      },
+    });
     return await SessionToken.create({
       uid: MOCK_USER_ID,
       email: 'foo@example.com',
@@ -90,7 +88,7 @@ describe('/oauth/ routes', () => {
   });
 
   describe('/oauth/id-token-verify', () => {
-    let MOCK_ID_TOKEN_CLAIMS: any, mockVerify: sinon.SinonStub;
+    let MOCK_ID_TOKEN_CLAIMS: any, mockVerify: jest.Mock;
 
     beforeEach(() => {
       MOCK_ID_TOKEN_CLAIMS = {
@@ -105,11 +103,11 @@ describe('/oauth/ routes', () => {
         acr: 'AAL2',
         'fxa-aal': 2,
       };
-      mockVerify = sinon.stub(JWTIdToken, 'verify');
+      mockVerify = jest.spyOn(JWTIdToken, 'verify');
     });
 
     const _testRequest = async (claims: any, gracePeriod?: number) => {
-      mockVerify.returns(claims);
+      mockVerify.mockReturnValue(claims);
       const payload: any = {
         client_id: MOCK_CLIENT_ID,
         id_token: MOCK_JWT,
@@ -123,23 +121,21 @@ describe('/oauth/ routes', () => {
     };
 
     afterEach(() => {
-      mockVerify.restore();
+      jest.restoreAllMocks();
     });
 
     it('calls JWTIdToken.verify', async () => {
       const resp = await _testRequest(MOCK_ID_TOKEN_CLAIMS);
 
-      sinon.assert.calledOnce(mockVerify);
+      expect(mockVerify).toHaveBeenCalledTimes(1);
       expect(resp).toEqual(MOCK_ID_TOKEN_CLAIMS);
-      mockVerify.restore();
     });
 
     it('supports expiryGracePeriod option', async () => {
       const resp = await _testRequest(MOCK_ID_TOKEN_CLAIMS, 600);
 
-      sinon.assert.calledOnce(mockVerify);
+      expect(mockVerify).toHaveBeenCalledTimes(1);
       expect(resp).toEqual(MOCK_ID_TOKEN_CLAIMS);
-      mockVerify.restore();
     });
 
     it('allows extra claims', async () => {
@@ -147,9 +143,8 @@ describe('/oauth/ routes', () => {
 
       const resp = await _testRequest(MOCK_ID_TOKEN_CLAIMS);
 
-      sinon.assert.calledOnce(mockVerify);
+      expect(mockVerify).toHaveBeenCalledTimes(1);
       expect(resp).toEqual(MOCK_ID_TOKEN_CLAIMS);
-      mockVerify.restore();
     });
 
     it('allows missing claims', async () => {
@@ -157,9 +152,8 @@ describe('/oauth/ routes', () => {
 
       const resp = await _testRequest(MOCK_ID_TOKEN_CLAIMS);
 
-      sinon.assert.calledOnce(mockVerify);
+      expect(mockVerify).toHaveBeenCalledTimes(1);
       expect(resp).toEqual(MOCK_ID_TOKEN_CLAIMS);
-      mockVerify.restore();
     });
   });
 

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 jest.mock('fxa-shared/db/models/auth', () => ({
   Account: { metricsEnabled: jest.fn().mockResolvedValue(true) },
 }));
@@ -37,7 +36,7 @@ const events = eventsModule(
 
 describe('metrics/events', () => {
   beforeEach(() => {
-    glean.login.complete.reset();
+    glean.login.complete.mockClear();
   });
 
   afterEach(() => {
@@ -70,16 +69,15 @@ describe('metrics/events', () => {
     await events.emit.call(request, '', {});
 
     expect(log.error).toHaveBeenCalledTimes(1);
-    const args = log.error.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('metricsEvents.emit');
-    expect(args[1]).toEqual({ missingEvent: true });
+    expect(log.error).toHaveBeenCalledWith('metricsEvents.emit', {
+      missingEvent: true,
+    });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
-    expect(metricsContext.gather.callCount).toBe(0);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(0);
     expect(log.flowEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
   });
 
   it('.emit with activity event', async () => {
@@ -101,9 +99,7 @@ describe('metrics/events', () => {
     await events.emit.call(request, 'device.created', data);
 
     expect(log.activityEvent).toHaveBeenCalledTimes(1);
-    let args = log.activityEvent.mock.calls[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({
+    expect(log.activityEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'device.created',
       region: 'California',
@@ -114,14 +110,12 @@ describe('metrics/events', () => {
       clientJa4: 'test-ja4',
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
-    args = metricsContext.gather.args[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({});
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
+    expect(metricsContext.gather).toHaveBeenCalledWith({});
 
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
     expect(log.flowEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -136,9 +130,7 @@ describe('metrics/events', () => {
     await events.emit.call(request, 'device.created');
 
     expect(log.activityEvent).toHaveBeenCalledTimes(1);
-    const args = log.activityEvent.mock.calls[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({
+    expect(log.activityEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'device.created',
       region: 'California',
@@ -148,11 +140,11 @@ describe('metrics/events', () => {
       clientJa4: 'test-ja4',
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
     expect(log.flowEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -162,9 +154,7 @@ describe('metrics/events', () => {
     await events.emit.call(request, 'device.created', {});
 
     expect(log.activityEvent).toHaveBeenCalledTimes(1);
-    const args = log.activityEvent.mock.calls[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({
+    expect(log.activityEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'device.created',
       region: 'California',
@@ -174,11 +164,11 @@ describe('metrics/events', () => {
       clientJa4: 'test-ja4',
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
     expect(log.flowEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -212,17 +202,15 @@ describe('metrics/events', () => {
     });
     await events.emit.call(request, 'email.verification.sent');
 
-    expect(metricsContext.gather.callCount).toBe(1);
-    let args = metricsContext.gather.args[0];
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
+    const args = metricsContext.gather.mock.calls[0];
     expect(args).toHaveLength(1);
     expect(args[0].event).toBe('email.verification.sent');
     expect(args[0].locale).toBe(request.app.locale);
     expect(args[0].userAgent).toBe(request.headers['user-agent']);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
-    args = log.flowEvent.mock.calls[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({
+    expect(log.flowEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'email.verification.sent',
       entrypoint: 'wibble',
@@ -251,7 +239,7 @@ describe('metrics/events', () => {
 
     expect(log.activityEvent).not.toHaveBeenCalled();
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -291,12 +279,10 @@ describe('metrics/events', () => {
     };
     await events.emit.call(request, 'email.verification.sent');
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
-    const args = log.flowEvent.mock.calls[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({
+    expect(log.flowEvent).toHaveBeenCalledWith({
       country: 'United Kingdom',
       event: 'email.verification.sent',
       flow_id: 'bar',
@@ -314,7 +300,7 @@ describe('metrics/events', () => {
 
     expect(log.activityEvent).not.toHaveBeenCalled();
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -342,12 +328,10 @@ describe('metrics/events', () => {
       uid: 'deadbeef',
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
-    const args = log.flowEvent.mock.calls[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({
+    expect(log.flowEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'email.verification.sent',
       flow_id: 'bar',
@@ -366,7 +350,7 @@ describe('metrics/events', () => {
 
     expect(log.activityEvent).not.toHaveBeenCalled();
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -394,12 +378,10 @@ describe('metrics/events', () => {
       uid: 'deadbeef',
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
-    const args = log.flowEvent.mock.calls[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({
+    expect(log.flowEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'email.verification.sent',
       flow_id: 'bar',
@@ -418,7 +400,7 @@ describe('metrics/events', () => {
 
     expect(log.activityEvent).not.toHaveBeenCalled();
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -444,12 +426,10 @@ describe('metrics/events', () => {
     });
     await events.emit.call(request, 'email.verification.sent', { uid: null });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
-    const args = log.flowEvent.mock.calls[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({
+    expect(log.flowEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'email.verification.sent',
       flow_id: 'bar',
@@ -467,7 +447,7 @@ describe('metrics/events', () => {
 
     expect(log.activityEvent).not.toHaveBeenCalled();
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -498,10 +478,10 @@ describe('metrics/events', () => {
       uid: 'qux',
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(2);
-    expect(log.flowEvent.mock.calls[0][0]).toEqual({
+    expect(log.flowEvent).toHaveBeenNthCalledWith(1, {
       country: 'United States',
       event: 'email.verification.sent',
       flow_id: 'bar',
@@ -517,7 +497,7 @@ describe('metrics/events', () => {
       sigsciRequestId: 'test-sigsci-id',
       clientJa4: 'test-ja4',
     });
-    expect(log.flowEvent.mock.calls[1][0]).toEqual({
+    expect(log.flowEvent).toHaveBeenNthCalledWith(2, {
       country: 'United States',
       event: 'flow.complete',
       flow_id: 'bar',
@@ -540,8 +520,8 @@ describe('metrics/events', () => {
       'fxa_reg - complete'
     );
 
-    expect(metricsContext.clear.callCount).toBe(1);
-    expect(metricsContext.clear.args[0]).toHaveLength(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(1);
+    expect(metricsContext.clear).toHaveBeenCalledWith();
 
     expect(log.activityEvent).not.toHaveBeenCalled();
     expect(log.error).not.toHaveBeenCalled();
@@ -568,20 +548,17 @@ describe('metrics/events', () => {
     await events.emit.call(request, 'email.verification.sent');
 
     expect(log.trace).toHaveBeenCalledTimes(1);
-    const args = log.trace.mock.calls[0];
-    expect(args).toHaveLength(2);
-    expect(args[0]).toBe('metricsEvents.emitFlowEvent');
-    expect(args[1]).toEqual({
+    expect(log.trace).toHaveBeenCalledWith('metricsEvents.emitFlowEvent', {
       event: 'email.verification.sent',
       badRequest: true,
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.activityEvent).not.toHaveBeenCalled();
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
     expect(log.flowEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
   });
 
   it('.emit with flow event and missing flowId', async () => {
@@ -596,11 +573,10 @@ describe('metrics/events', () => {
     });
     await events.emit.call(request, 'email.verification.sent');
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.error).toHaveBeenCalledTimes(1);
-    expect(log.error.mock.calls[0][0]).toBe('metricsEvents.emitFlowEvent');
-    expect(log.error.mock.calls[0][1]).toEqual({
+    expect(log.error).toHaveBeenCalledWith('metricsEvents.emitFlowEvent', {
       event: 'email.verification.sent',
       missingFlowId: true,
     });
@@ -608,7 +584,7 @@ describe('metrics/events', () => {
     expect(log.activityEvent).not.toHaveBeenCalled();
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
     expect(log.flowEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
   });
 
   it('.emit with hybrid activity/flow event', async () => {
@@ -636,7 +612,7 @@ describe('metrics/events', () => {
     await events.emit.call(request, 'account.keyfetch', data);
 
     expect(log.activityEvent).toHaveBeenCalledTimes(1);
-    expect(log.activityEvent.mock.calls[0][0]).toEqual({
+    expect(log.activityEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'account.keyfetch',
       region: 'California',
@@ -647,10 +623,10 @@ describe('metrics/events', () => {
       clientJa4: 'test-ja4',
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
-    expect(log.flowEvent.mock.calls[0][0]).toEqual({
+    expect(log.flowEvent).toHaveBeenCalledWith({
       country: 'United States',
       time,
       event: 'account.keyfetch',
@@ -668,7 +644,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -688,19 +664,18 @@ describe('metrics/events', () => {
     await events.emit.call(request, 'account.keyfetch', data);
 
     expect(log.activityEvent).toHaveBeenCalledTimes(1);
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.amplitudeEvent).not.toHaveBeenCalled();
     expect(log.flowEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
   it('.emit with content-server account.signed event', async () => {
-    const sinon = require('sinon');
     const flowBeginTime = Date.now() - 1;
     const metricsContext = mocks.mockMetricsContext({
-      gather: sinon.spy(() => ({
+      gather: jest.fn(() => ({
         device_id: 'foo',
         flow_id: 'bar',
         flowBeginTime,
@@ -733,10 +708,10 @@ describe('metrics/events', () => {
       ua_version: request.app.ua.browserVersion,
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -765,9 +740,9 @@ describe('metrics/events', () => {
     );
 
     expect(log.activityEvent).toHaveBeenCalledTimes(1);
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -827,12 +802,12 @@ describe('metrics/events', () => {
     });
     await events.emit.call(request, 'account.signed', { uid: 'quux' });
 
-    // glean.login.complete is a sinon stub from mockGlean()
-    expect(glean.login.complete.calledOnce).toBe(true);
-    expect(glean.login.complete.calledWithExactly(request, {
+    // glean.login.complete is a jest mock from mockGlean()
+    expect(glean.login.complete).toHaveBeenCalledTimes(1);
+    expect(glean.login.complete).toHaveBeenCalledWith(request, {
       uid: 'quux',
       reason: 'email',
-    })).toBe(true);
+    });
   });
 
   it('.emitRouteFlowEvent with matching route and response.statusCode', async () => {
@@ -859,13 +834,11 @@ describe('metrics/events', () => {
     });
     await events.emitRouteFlowEvent.call(request, { statusCode: 200 });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(2);
 
-    let args = log.flowEvent.mock.calls[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({
+    expect(log.flowEvent).toHaveBeenNthCalledWith(1, {
       country: 'United States',
       event: 'route./account/create.200',
       flow_id: 'bar',
@@ -881,9 +854,7 @@ describe('metrics/events', () => {
       clientJa4: 'test-ja4',
     });
 
-    args = log.flowEvent.mock.calls[1];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toEqual({
+    expect(log.flowEvent).toHaveBeenNthCalledWith(2, {
       country: 'United States',
       event: 'route.performance./account/create',
       flow_id: 'bar',
@@ -900,7 +871,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -928,10 +899,10 @@ describe('metrics/events', () => {
       output: { statusCode: 399 },
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
-    expect(log.flowEvent.mock.calls[0][0]).toEqual({
+    expect(log.flowEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'route./account/login.399',
       flow_id: 'bar',
@@ -948,7 +919,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -974,10 +945,10 @@ describe('metrics/events', () => {
     });
     await events.emitRouteFlowEvent.call(request, { statusCode: 400 });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
-    expect(log.flowEvent.mock.calls[0][0]).toEqual({
+    expect(log.flowEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'route./recovery_email/resend_code.400.999',
       flow_id: 'bar',
@@ -994,7 +965,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -1020,10 +991,10 @@ describe('metrics/events', () => {
     });
     await events.emitRouteFlowEvent.call(request, { statusCode: 404 });
 
-    expect(metricsContext.gather.callCount).toBe(0);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(0);
     expect(log.flowEvent).not.toHaveBeenCalled();
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -1052,10 +1023,10 @@ describe('metrics/events', () => {
       errno: 42,
     });
 
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
 
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
-    expect(log.flowEvent.mock.calls[0][0]).toEqual({
+    expect(log.flowEvent).toHaveBeenCalledWith({
       country: 'United States',
       event: 'route./account/destroy.400.42',
       flow_id: 'bar',
@@ -1072,7 +1043,7 @@ describe('metrics/events', () => {
     });
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -1097,17 +1068,16 @@ describe('metrics/events', () => {
     });
     await events.emitRouteFlowEvent.call(request, { statusCode: 200 });
 
-    expect(metricsContext.gather.callCount).toBe(0);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(0);
     expect(log.flowEvent).not.toHaveBeenCalled();
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
   it('.emitRouteFlowEvent with matching route and invalid metrics context', async () => {
-    const sinon = require('sinon');
     const metricsContext = mocks.mockMetricsContext({
-      validate: sinon.spy(() => false),
+      validate: jest.fn(() => false),
     });
     const request = mocks.mockRequest({
       metricsContext,
@@ -1124,13 +1094,13 @@ describe('metrics/events', () => {
       errno: 107,
     });
 
-    expect(metricsContext.validate.callCount).toBe(1);
-    expect(metricsContext.validate.args[0]).toHaveLength(0);
+    expect(metricsContext.validate).toHaveBeenCalledTimes(1);
+    expect(metricsContext.validate).toHaveBeenCalledWith();
 
-    expect(metricsContext.gather.callCount).toBe(0);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(0);
     expect(log.flowEvent).not.toHaveBeenCalled();
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 
@@ -1151,12 +1121,12 @@ describe('metrics/events', () => {
       errno: 107,
     });
 
-    expect(metricsContext.validate.callCount).toBe(1);
-    expect(metricsContext.gather.callCount).toBe(1);
+    expect(metricsContext.validate).toHaveBeenCalledTimes(1);
+    expect(metricsContext.gather).toHaveBeenCalledTimes(1);
     expect(log.flowEvent).toHaveBeenCalledTimes(1);
 
     expect(log.activityEvent).not.toHaveBeenCalled();
-    expect(metricsContext.clear.callCount).toBe(0);
+    expect(metricsContext.clear).toHaveBeenCalledTimes(0);
     expect(log.error).not.toHaveBeenCalled();
   });
 });

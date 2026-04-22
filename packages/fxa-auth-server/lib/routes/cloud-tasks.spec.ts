@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import { ReasonForDeletion, EmailTypes } from '@fxa/shared/cloud-tasks';
 
@@ -23,11 +22,8 @@ const mockConfig = {
   },
 };
 
-const sandbox = sinon.createSandbox();
-const deleteAccountStub = sandbox
-  .stub()
-  .callsFake((uid: any, reason: any, customerId: any) => {});
-const inactiveNotificationStub = sandbox.stub();
+const deleteAccountStub = jest.fn();
+const inactiveNotificationStub = jest.fn();
 
 afterAll(() => {
   Container.reset();
@@ -40,7 +36,7 @@ describe('/cloud-tasks/accounts/delete', () => {
 
   beforeEach(() => {
     mockLog = mocks.mockLog();
-    sandbox.reset();
+    jest.clearAllMocks();
 
     Container.set(AccountDeleteManager, {
       deleteAccount: deleteAccountStub,
@@ -60,8 +56,8 @@ describe('/cloud-tasks/accounts/delete', () => {
 
     await route.handler(req);
 
-    sinon.assert.calledOnce(deleteAccountStub);
-    expect(deleteAccountStub.args[0][0]).toBe(uid);
+    expect(deleteAccountStub).toHaveBeenCalledTimes(1);
+    expect(deleteAccountStub.mock.calls[0][0]).toBe(uid);
   });
 });
 
@@ -70,7 +66,7 @@ describe('/cloud-tasks/emails/notify-inactive', () => {
   let routes: any, route: any;
 
   beforeEach(() => {
-    sandbox.reset();
+    jest.clearAllMocks();
     mockLog = mocks.mockLog();
 
     Container.set(AccountDeleteManager, {
@@ -101,6 +97,7 @@ describe('/cloud-tasks/emails/notify-inactive', () => {
     };
 
     await route.handler(req);
-    sinon.assert.calledOnceWithExactly(inactiveNotificationStub, req);
+    expect(inactiveNotificationStub).toHaveBeenCalledTimes(1);
+    expect(inactiveNotificationStub).toHaveBeenCalledWith(req);
   });
 });

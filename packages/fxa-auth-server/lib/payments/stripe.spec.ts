@@ -4,7 +4,6 @@
 
 /* eslint-disable no-undef */
 
-const sinon = require('sinon');
 const Sentry = require('@sentry/node');
 const Chance = require('chance');
 const { Container } = require('typedi');
@@ -89,6 +88,16 @@ jest.mock('fxa-shared/db/models/auth', () => {
 
 // Get a reference to the mocked db module so tests can configure stubs
 const dbStub = require('fxa-shared/db/models/auth');
+
+// Save the original mock implementations so they can be restored after
+// jest.restoreAllMocks() (which wipes jest.fn() implementations when
+// a jest.spyOn has been applied to the same property).
+const _dbMockImpls = {
+  createAccountCustomer: dbStub.createAccountCustomer.getMockImplementation(),
+  getAccountCustomerByUid:
+    dbStub.getAccountCustomerByUid.getMockImplementation(),
+  deleteAccountCustomer: dbStub.deleteAccountCustomer.getMockImplementation(),
+};
 
 // Alias for mockRedis - set in beforeEach, used throughout tests
 let mockRedis: any;
@@ -315,7 +324,7 @@ function createMockRedis(): any {
       return _data[key];
     },
   };
-  Object.keys(mock).forEach((key) => sinon.spy(mock, key));
+  Object.keys(mock).forEach((key) => jest.spyOn(mock, key));
   mock.options = {};
   return mock;
 }
@@ -335,7 +344,6 @@ const mockConfigCollection = (configDocs: any) => ({
 
 describe('StripeHelper', () => {
   let stripeHelper: any;
-  let sandbox: sinon.SinonSandbox;
   let listStripePlans: any;
   let log: any;
   let existingCustomer: any;
@@ -354,19 +362,18 @@ describe('StripeHelper', () => {
   });
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
     mockRedis = createMockRedis();
     (globalThis as any).__testMockRedis = mockRedis;
     log = mockLog();
     mockStatsd = {
-      increment: sandbox.fake.returns({}),
-      timing: sandbox.fake.returns({}),
-      close: sandbox.fake.returns({}),
+      increment: jest.fn().mockReturnValue({}),
+      timing: jest.fn().mockReturnValue({}),
+      close: jest.fn().mockReturnValue({}),
     };
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
     Container.set(AuthFirestore, {
-      collection: sandbox.stub().callsFake((arg: any) => {
+      collection: jest.fn().mockImplementation((arg: any) => {
         if (arg.endsWith('products')) {
           return mockConfigCollection([
             { id: 'doc1', stripeProductId: product1.id },
@@ -394,27 +401,41 @@ describe('StripeHelper', () => {
     Container.set(AuthLogger, log);
     Container.set(AppConfig, mockConfig);
     mockGoogleMapsService = {
-      getStateFromZip: sandbox.stub().resolves('ABD'),
+      getStateFromZip: jest.fn().mockResolvedValue('ABD'),
     };
     Container.set(GoogleMapsService, mockGoogleMapsService);
 
     stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
     stripeHelper.redis = mockRedis;
-    stripeHelper.stripeFirestore = stripeFirestore = {};
-    listStripePlans = sandbox
-      .stub(stripeHelper.stripe.plans, 'list')
-      .returns(asyncIterable([plan1, plan2, plan3]));
-    sandbox
-      .stub(stripeHelper.stripe.taxRates, 'list')
-      .returns(asyncIterable([taxRateDe, taxRateFr]));
-    sandbox
-      .stub(stripeHelper.stripe.products, 'list')
-      .returns(asyncIterable([product1, product2, product3]));
+    stripeHelper.stripeFirestore = stripeFirestore = {
+      retrievePaymentMethod: jest.fn().mockResolvedValue({}),
+      retrieveInvoice: jest.fn().mockResolvedValue({}),
+    };
+    listStripePlans = jest
+      .spyOn(stripeHelper.stripe.plans, 'list')
+      .mockReturnValue(asyncIterable([plan1, plan2, plan3]));
+    jest
+      .spyOn(stripeHelper.stripe.taxRates, 'list')
+      .mockReturnValue(asyncIterable([taxRateDe, taxRateFr]));
+    jest
+      .spyOn(stripeHelper.stripe.products, 'list')
+      .mockReturnValue(asyncIterable([product1, product2, product3]));
   });
 
   afterEach(() => {
     Container.reset();
-    sandbox.restore();
+    jest.restoreAllMocks();
+    // Re-establish db mock implementations that jest.restoreAllMocks() wipes
+    // when a jest.spyOn was applied to a jest.fn() property.
+    dbStub.createAccountCustomer.mockImplementation(
+      _dbMockImpls.createAccountCustomer
+    );
+    dbStub.getAccountCustomerByUid.mockImplementation(
+      _dbMockImpls.getAccountCustomerByUid
+    );
+    dbStub.deleteAccountCustomer.mockImplementation(
+      _dbMockImpls.deleteAccountCustomer
+    );
   });
 
   describe('constructor', () => {
@@ -427,8 +448,10 @@ describe('StripeHelper', () => {
   describe('createPlainCustomer', () => {
     it('creates a customer using stripe api', async () => {
       const expected = deepCopy(newCustomerPM);
-      sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
-      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'create')
+        .mockResolvedValue(expected);
+      stripeFirestore.insertCustomerRecord = jest.fn().mockResolvedValue({});
       const uid = chance.guid({ version: 4 }).replace(/-/g, '');
       const actual = await stripeHelper.createPlainCustomer({
         uid,
@@ -437,17 +460,17 @@ describe('StripeHelper', () => {
         idempotencyKey: uuidv4(),
       });
       expect(actual).toEqual(expected);
-      sinon.assert.calledWithExactly(
-        stripeHelper.stripeFirestore.insertCustomerRecord,
-        uid,
-        expected
-      );
+      expect(
+        stripeHelper.stripeFirestore.insertCustomerRecord
+      ).toHaveBeenCalledWith(uid, expected);
     });
 
     it('creates a customer using the stripe api with a shipping address', async () => {
       const expected = deepCopy(newCustomerPM);
-      sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
-      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'create')
+        .mockResolvedValue(expected);
+      stripeFirestore.insertCustomerRecord = jest.fn().mockResolvedValue({});
       const uid = chance.guid({ version: 4 }).replace(/-/g, '');
       const idempotencyKey = uuidv4();
       const actual = await stripeHelper.createPlainCustomer({
@@ -461,18 +484,18 @@ describe('StripeHelper', () => {
         },
       });
       expect(actual).toEqual(expected);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.customers.create,
+      expect(stripeHelper.stripe.customers.create).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.customers.create).toHaveBeenCalledWith(
         {
           email: 'joe@example.com',
           name: 'Joe Cool',
           description: uid,
           metadata: {
             userid: uid,
-            geoip_date: sinon.match.any,
+            geoip_date: expect.anything(),
           },
           shipping: {
-            name: sinon.match.any,
+            name: expect.anything(),
             address: {
               country: 'US',
               postal_code: '92841',
@@ -481,16 +504,16 @@ describe('StripeHelper', () => {
         },
         { idempotencyKey }
       );
-      sinon.assert.calledWithExactly(
-        stripeHelper.stripeFirestore.insertCustomerRecord,
-        uid,
-        expected
-      );
+      expect(
+        stripeHelper.stripeFirestore.insertCustomerRecord
+      ).toHaveBeenCalledWith(uid, expected);
     });
 
     it('surfaces stripe errors', async () => {
       const apiError = new stripeError.StripeAPIError();
-      sandbox.stub(stripeHelper.stripe.customers, 'create').rejects(apiError);
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'create')
+        .mockRejectedValue(apiError);
 
       return stripeHelper
         .createPlainCustomer({
@@ -535,9 +558,9 @@ describe('StripeHelper', () => {
   describe('createSetupIntent', () => {
     it('creates a setup intent', async () => {
       const expected = deepCopy(newSetupIntent);
-      sandbox
-        .stub(stripeHelper.stripe.setupIntents, 'create')
-        .resolves(expected);
+      jest
+        .spyOn(stripeHelper.stripe.setupIntents, 'create')
+        .mockResolvedValue(expected);
 
       const actual = await stripeHelper.createSetupIntent('cust_new');
 
@@ -547,9 +570,9 @@ describe('StripeHelper', () => {
 
     it('surfaces stripe errors', async () => {
       const apiError = new stripeError.StripeAPIError();
-      sandbox
-        .stub(stripeHelper.stripe.setupIntents, 'create')
-        .rejects(apiError);
+      jest
+        .spyOn(stripeHelper.stripe.setupIntents, 'create')
+        .mockRejectedValue(apiError);
 
       return stripeHelper.createSetupIntent('cust_new').then(
         () => Promise.reject(new Error('Method expected to reject')),
@@ -563,25 +586,30 @@ describe('StripeHelper', () => {
   describe('updateDefaultPaymentMethod', () => {
     it('updates the default payment method', async () => {
       const expected = deepCopy(newCustomerPM);
-      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves(expected);
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'update')
+        .mockResolvedValue(expected);
+      stripeFirestore.insertCustomerRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
       const actual = await stripeHelper.updateDefaultPaymentMethod(
         'cust_new',
         'pm_1H0FRp2eZvKYlo2CeIZoc0wj'
       );
       expect(actual).toEqual(expected);
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertCustomerRecordWithBackfill,
-        expected.metadata.userid,
-        expected
-      );
+      expect(
+        stripeFirestore.insertCustomerRecordWithBackfill
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.insertCustomerRecordWithBackfill
+      ).toHaveBeenCalledWith(expected.metadata.userid, expected);
     });
 
     it('surfaces stripe errors', async () => {
       const apiError = new stripeError.StripeAPIError();
-      sandbox.stub(stripeHelper.stripe.customers, 'update').rejects(apiError);
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'update')
+        .mockRejectedValue(apiError);
 
       return stripeHelper
         .updateDefaultPaymentMethod('cust_new', 'pm_1H0FRp2eZvKYlo2CeIZoc0wj')
@@ -597,10 +625,10 @@ describe('StripeHelper', () => {
   describe('getPaymentMethod', () => {
     it('calls the Stripe api', async () => {
       const paymentMethodId = 'pm_9001';
-      sandbox.stub(stripeHelper, 'expandResource');
+      jest.spyOn(stripeHelper, 'expandResource');
       await stripeHelper.getPaymentMethod(paymentMethodId);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.expandResource,
+      expect(stripeHelper.expandResource).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.expandResource).toHaveBeenCalledWith(
         paymentMethodId,
         PAYMENT_METHOD_RESOURCE
       );
@@ -649,14 +677,16 @@ describe('StripeHelper', () => {
 
           stripeHelper.stripe = {
             invoices: {
-              retrieve: sinon.stub().resolves({ payment_intent: 'pi_mock' }),
+              retrieve: jest
+                .fn()
+                .mockResolvedValue({ payment_intent: 'pi_mock' }),
             },
             paymentIntents: {
-              retrieve: sinon.stub().resolves({ payment_method: null }),
+              retrieve: jest.fn().mockResolvedValue({ payment_method: null }),
             },
           };
 
-          sandbox.stub(stripeHelper, 'getPaymentMethod').resolves(null);
+          jest.spyOn(stripeHelper, 'getPaymentMethod').mockResolvedValue(null);
 
           const result =
             await stripeHelper.getPaymentProvider(customerExpanded);
@@ -669,15 +699,19 @@ describe('StripeHelper', () => {
 
           stripeHelper.stripe = {
             paymentIntents: {
-              retrieve: sinon.stub().resolves({ payment_method: 'pm_mock' }),
+              retrieve: jest
+                .fn()
+                .mockResolvedValue({ payment_method: 'pm_mock' }),
             },
             invoices: {
-              retrieve: sinon.stub().resolves({ payment_intent: 'pi_mock' }),
+              retrieve: jest
+                .fn()
+                .mockResolvedValue({ payment_intent: 'pi_mock' }),
             },
           };
-          sandbox
-            .stub(stripeHelper, 'getPaymentMethod')
-            .resolves({ type: 'card', card: {} });
+          jest
+            .spyOn(stripeHelper, 'getPaymentMethod')
+            .mockResolvedValue({ type: 'card', card: {} });
 
           expect(await stripeHelper.getPaymentProvider(customerExpanded)).toBe(
             'card'
@@ -691,14 +725,18 @@ describe('StripeHelper', () => {
 
           stripeHelper.stripe = {
             invoices: {
-              retrieve: sinon.stub().resolves({ payment_intent: 'pi_mock' }),
+              retrieve: jest
+                .fn()
+                .mockResolvedValue({ payment_intent: 'pi_mock' }),
             },
             paymentIntents: {
-              retrieve: sinon.stub().resolves({ payment_method: 'pm_mock' }),
+              retrieve: jest
+                .fn()
+                .mockResolvedValue({ payment_method: 'pm_mock' }),
             },
           };
 
-          sandbox.stub(stripeHelper, 'getPaymentMethod').resolves({
+          jest.spyOn(stripeHelper, 'getPaymentMethod').mockResolvedValue({
             type: 'link',
           });
 
@@ -714,14 +752,18 @@ describe('StripeHelper', () => {
 
           stripeHelper.stripe = {
             invoices: {
-              retrieve: sinon.stub().resolves({ payment_intent: 'pi_mock' }),
+              retrieve: jest
+                .fn()
+                .mockResolvedValue({ payment_intent: 'pi_mock' }),
             },
             paymentIntents: {
-              retrieve: sinon.stub().resolves({ payment_method: 'pm_mock' }),
+              retrieve: jest
+                .fn()
+                .mockResolvedValue({ payment_method: 'pm_mock' }),
             },
           };
 
-          sandbox.stub(stripeHelper, 'getPaymentMethod').resolves({
+          jest.spyOn(stripeHelper, 'getPaymentMethod').mockResolvedValue({
             type: 'card',
             card: {
               wallet: {
@@ -742,14 +784,18 @@ describe('StripeHelper', () => {
 
           stripeHelper.stripe = {
             invoices: {
-              retrieve: sinon.stub().resolves({ payment_intent: 'pi_mock' }),
+              retrieve: jest
+                .fn()
+                .mockResolvedValue({ payment_intent: 'pi_mock' }),
             },
             paymentIntents: {
-              retrieve: sinon.stub().resolves({ payment_method: 'pm_mock' }),
+              retrieve: jest
+                .fn()
+                .mockResolvedValue({ payment_method: 'pm_mock' }),
             },
           };
 
-          sandbox.stub(stripeHelper, 'getPaymentMethod').resolves({
+          jest.spyOn(stripeHelper, 'getPaymentMethod').mockResolvedValue({
             type: 'card',
             card: {
               wallet: {
@@ -804,7 +850,9 @@ describe('StripeHelper', () => {
     it('returns true for an active subscription', async () => {
       subscription.status = 'active';
       customerExpanded.subscriptions.data[0] = subscription;
-      sandbox.stub(stripeHelper, 'expandResource').resolves(customerExpanded);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue(customerExpanded);
       expect(
         await stripeHelper.hasActiveSubscription(
           customerExpanded.metadata.userid
@@ -815,14 +863,18 @@ describe('StripeHelper', () => {
     it('returns false when there is no Stripe customer', async () => {
       const uid = uuidv4().replace(/-/g, '');
       customerExpanded = undefined;
-      sandbox.stub(stripeHelper, 'expandResource').resolves(customerExpanded);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue(customerExpanded);
       expect(await stripeHelper.hasActiveSubscription(uid)).toBe(false);
     });
 
     it('returns false when there is no active subscription', async () => {
       subscription.status = 'canceled';
       customerExpanded.subscriptions.data[0] = subscription;
-      sandbox.stub(stripeHelper, 'expandResource').resolves(customerExpanded);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue(customerExpanded);
       expect(
         await stripeHelper.hasActiveSubscription(
           customerExpanded.metadata.userid
@@ -841,7 +893,7 @@ describe('StripeHelper', () => {
       invoice = deepCopy(paidInvoice);
       subscription = deepCopy(subscription2);
       customerExpanded.subscriptions.data[0] = subscription;
-      sandbox.stub(stripeHelper, 'expandResource').resolves(invoice);
+      jest.spyOn(stripeHelper, 'expandResource').mockResolvedValue(invoice);
     });
 
     it('returns latest invoices for any active subscriptions', async () => {
@@ -887,25 +939,27 @@ describe('StripeHelper', () => {
       const openInvoice = deepCopy(invoice);
       openInvoice.status = 'open';
       openInvoice.metadata.paymentAttempts = 1;
-      sandbox
-        .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
-        .resolves([invoice, openInvoice]);
+      jest
+        .spyOn(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
+        .mockResolvedValue([invoice, openInvoice]);
       expect(
         await stripeHelper.hasOpenInvoiceWithPaymentAttempts(customerExpanded)
       ).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getLatestInvoicesForActiveSubscriptions,
-        customerExpanded
-      );
+      expect(
+        stripeHelper.getLatestInvoicesForActiveSubscriptions
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.getLatestInvoicesForActiveSubscriptions
+      ).toHaveBeenCalledWith(customerExpanded);
     });
 
     it('returns false for open invoices with no payment attempts', async () => {
       const openInvoice = deepCopy(invoice);
       openInvoice.status = 'open';
       openInvoice.metadata.paymentAttempts = 0;
-      sandbox
-        .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
-        .resolves([invoice]);
+      jest
+        .spyOn(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
+        .mockResolvedValue([invoice]);
       expect(
         await stripeHelper.hasOpenInvoiceWithPaymentAttempts(customerExpanded)
       ).toBe(false);
@@ -916,9 +970,9 @@ describe('StripeHelper', () => {
       openInvoice.status = 'open';
       openInvoice.metadata.paymentAttempts = 0;
       invoice.metadata.paymentAttempts = 1;
-      sandbox
-        .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
-        .resolves([invoice, openInvoice]);
+      jest
+        .spyOn(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
+        .mockResolvedValue([invoice, openInvoice]);
       expect(
         await stripeHelper.hasOpenInvoiceWithPaymentAttempts(customerExpanded)
       ).toBe(false);
@@ -929,14 +983,18 @@ describe('StripeHelper', () => {
     it('calls the Stripe api', async () => {
       const paymentMethodId = 'pm_9001';
       const expected = { id: paymentMethodId };
-      sandbox
-        .stub(stripeHelper.stripe.paymentMethods, 'detach')
-        .resolves(expected);
-      stripeFirestore.removePaymentMethodRecord = sandbox.stub().resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.paymentMethods, 'detach')
+        .mockResolvedValue(expected);
+      stripeFirestore.removePaymentMethodRecord = jest
+        .fn()
+        .mockResolvedValue({});
       const actual = await stripeHelper.detachPaymentMethod(paymentMethodId);
       expect(actual).toEqual(expected);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.paymentMethods.detach,
+      expect(stripeHelper.stripe.paymentMethods.detach).toHaveBeenCalledTimes(
+        1
+      );
+      expect(stripeHelper.stripe.paymentMethods.detach).toHaveBeenCalledWith(
         paymentMethodId
       );
     });
@@ -947,14 +1005,19 @@ describe('StripeHelper', () => {
       const ids = {
         data: [{ id: uuidv4() }, { id: uuidv4() }, { id: uuidv4() }],
       };
-      sandbox.stub(stripeHelper.stripe.customers, 'listSources').resolves(ids);
-      sandbox.stub(stripeHelper.stripe.customers, 'deleteSource').resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'listSources')
+        .mockResolvedValue(ids);
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'deleteSource')
+        .mockResolvedValue({});
       const result = await stripeHelper.removeSources('cust_new');
       expect(result).toEqual([{}, {}, {}]);
-      sinon.assert.calledThrice(stripeHelper.stripe.customers.deleteSource);
+      expect(stripeHelper.stripe.customers.deleteSource).toHaveBeenCalledTimes(
+        3
+      );
       for (const obj of ids.data) {
-        sinon.assert.calledWith(
-          stripeHelper.stripe.customers.deleteSource,
+        expect(stripeHelper.stripe.customers.deleteSource).toHaveBeenCalledWith(
           'cust_new',
           obj.id
         );
@@ -962,20 +1025,22 @@ describe('StripeHelper', () => {
     });
 
     it('returns if no sources', async () => {
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'listSources')
-        .resolves({ data: [] });
-      sandbox.stub(stripeHelper.stripe.customers, 'deleteSource').resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'listSources')
+        .mockResolvedValue({ data: [] });
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'deleteSource')
+        .mockResolvedValue({});
       const result = await stripeHelper.removeSources('cust_new');
       expect(result).toEqual([]);
-      sinon.assert.notCalled(stripeHelper.stripe.customers.deleteSource);
+      expect(stripeHelper.stripe.customers.deleteSource).not.toHaveBeenCalled();
     });
 
     it('surfaces stripe errors', async () => {
       const apiError = new stripeError.StripeAPIError();
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'listSources')
-        .rejects(apiError);
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'listSources')
+        .mockRejectedValue(apiError);
       return stripeHelper.removeSources('cust_new').then(
         () => Promise.reject(new Error('Method expected to reject')),
         (err: any) => {
@@ -990,23 +1055,25 @@ describe('StripeHelper', () => {
       const attachExpected = deepCopy(paymentMethodAttach);
       const customerExpected = deepCopy(newCustomerPM);
       const invoiceRetryExpected = deepCopy(invoiceRetry);
-      sandbox
-        .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .resolves(attachExpected);
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'update')
-        .resolves(customerExpected);
-      sandbox
-        .stub(stripeHelper.stripe.invoices, 'pay')
-        .resolves(invoiceRetryExpected);
-      sandbox
-        .stub(stripeHelper.stripe.invoices, 'retrieve')
-        .resolves(invoiceRetryExpected);
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
-      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.paymentMethods, 'attach')
+        .mockResolvedValue(attachExpected);
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'update')
+        .mockResolvedValue(customerExpected);
+      jest
+        .spyOn(stripeHelper.stripe.invoices, 'pay')
+        .mockResolvedValue(invoiceRetryExpected);
+      jest
+        .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+        .mockResolvedValue(invoiceRetryExpected);
+      stripeFirestore.insertCustomerRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
+      stripeFirestore.insertPaymentMethodRecord = jest
+        .fn()
+        .mockResolvedValue({});
+      stripeFirestore.insertInvoiceRecord = jest.fn().mockResolvedValue({});
       const actual = await stripeHelper.retryInvoiceWithPaymentId(
         'customerId',
         'invoiceId',
@@ -1015,8 +1082,12 @@ describe('StripeHelper', () => {
       );
 
       expect(actual).toEqual(invoiceRetryExpected);
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertCustomerRecordWithBackfill,
+      expect(
+        stripeFirestore.insertCustomerRecordWithBackfill
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.insertCustomerRecordWithBackfill
+      ).toHaveBeenCalledWith(
         customerExpected.metadata.userid,
         customerExpected
       );
@@ -1024,9 +1095,9 @@ describe('StripeHelper', () => {
 
     it('surfaces payment issues', async () => {
       const apiError = new stripeError.StripeCardError();
-      sandbox
-        .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .rejects(apiError);
+      jest
+        .spyOn(stripeHelper.stripe.paymentMethods, 'attach')
+        .mockRejectedValue(apiError);
 
       return stripeHelper
         .retryInvoiceWithPaymentId(
@@ -1047,9 +1118,9 @@ describe('StripeHelper', () => {
 
     it('surfaces stripe errors', async () => {
       const apiError = new stripeError.StripeAPIError();
-      sandbox
-        .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .rejects(apiError);
+      jest
+        .spyOn(stripeHelper.stripe.paymentMethods, 'attach')
+        .mockRejectedValue(apiError);
 
       return stripeHelper
         .retryInvoiceWithPaymentId(
@@ -1081,22 +1152,24 @@ describe('StripeHelper', () => {
     it('creates a subscription successfully', async () => {
       const attachExpected = deepCopy(paymentMethodAttach);
       const customerExpected = deepCopy(newCustomerPM);
-      sandbox
-        .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .resolves(attachExpected);
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'update')
-        .resolves(customerExpected);
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'create')
-        .resolves(subscriptionPMIExpanded);
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.paymentMethods, 'attach')
+        .mockResolvedValue(attachExpected);
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'update')
+        .mockResolvedValue(customerExpected);
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'create')
+        .mockResolvedValue(subscriptionPMIExpanded);
+      stripeFirestore.insertCustomerRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
+      stripeFirestore.insertSubscriptionRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
+      stripeFirestore.insertPaymentMethodRecord = jest
+        .fn()
+        .mockResolvedValue({});
       const expectedIdempotencyKey = generateIdempotencyKey([
         'customerId',
         'priceId',
@@ -1112,8 +1185,8 @@ describe('StripeHelper', () => {
       });
 
       expect(actual).toEqual(subscriptionPMIExpanded);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.create,
+      expect(stripeHelper.stripe.subscriptions.create).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.create).toHaveBeenCalledWith(
         {
           customer: 'customerId',
           items: [{ price: 'priceId' }],
@@ -1125,16 +1198,18 @@ describe('StripeHelper', () => {
         },
         { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertSubscriptionRecordWithBackfill,
-        {
-          ...subscriptionPMIExpanded,
-          latest_invoice: subscriptionPMIExpanded.latest_invoice
-            ? subscriptionPMIExpanded.latest_invoice.id
-            : null,
-        }
-      );
-      sinon.assert.callCount(mockStatsd.increment, 1);
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledWith({
+        ...subscriptionPMIExpanded,
+        latest_invoice: subscriptionPMIExpanded.latest_invoice
+          ? subscriptionPMIExpanded.latest_invoice.id
+          : null,
+      });
+      expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
     });
 
     it('uses the given promotion code', async () => {
@@ -1143,23 +1218,27 @@ describe('StripeHelper', () => {
       const customerExpected = deepCopy(newCustomerPM);
       const newSubscription = deepCopy(subscriptionPMIExpanded);
       newSubscription.latest_invoice.discount = {};
-      sandbox
-        .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .resolves(attachExpected);
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'update')
-        .resolves(customerExpected);
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'create')
-        .resolves(newSubscription);
-      sandbox.stub(stripeHelper.stripe.subscriptions, 'update').resolves({});
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.paymentMethods, 'attach')
+        .mockResolvedValue(attachExpected);
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'update')
+        .mockResolvedValue(customerExpected);
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'create')
+        .mockResolvedValue(newSubscription);
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'update')
+        .mockResolvedValue({});
+      stripeFirestore.insertCustomerRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
+      stripeFirestore.insertSubscriptionRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
+      stripeFirestore.insertPaymentMethodRecord = jest
+        .fn()
+        .mockResolvedValue({});
       const expectedIdempotencyKey = generateIdempotencyKey([
         'customerId',
         'priceId',
@@ -1183,8 +1262,8 @@ describe('StripeHelper', () => {
         },
       };
       expect(actual).toEqual(subWithPromotionCodeMetadata);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.create,
+      expect(stripeHelper.stripe.subscriptions.create).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.create).toHaveBeenCalledWith(
         {
           customer: 'customerId',
           items: [{ price: 'priceId' }],
@@ -1196,8 +1275,8 @@ describe('StripeHelper', () => {
         },
         { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.update,
+      expect(stripeHelper.stripe.subscriptions.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.update).toHaveBeenCalledWith(
         newSubscription.id,
         {
           metadata: {
@@ -1206,37 +1285,41 @@ describe('StripeHelper', () => {
           },
         }
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertSubscriptionRecordWithBackfill,
-        {
-          ...subWithPromotionCodeMetadata,
-          latest_invoice: subscriptionPMIExpanded.latest_invoice
-            ? subscriptionPMIExpanded.latest_invoice.id
-            : null,
-        }
-      );
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledWith({
+        ...subWithPromotionCodeMetadata,
+        latest_invoice: subscriptionPMIExpanded.latest_invoice
+          ? subscriptionPMIExpanded.latest_invoice.id
+          : null,
+      });
     });
 
     it('errors and deletes subscription when a cvc check fails on subscription creation', async () => {
       const attachExpected = deepCopy(paymentMethodAttach);
       const customerExpected = deepCopy(newCustomerPM);
-      sandbox
-        .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .resolves(attachExpected);
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'update')
-        .resolves(customerExpected);
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'create')
-        .resolves(subscriptionPMIExpandedIncompleteCVCFail);
-      sandbox.stub(stripeHelper, 'cancelSubscription').resolves({});
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.paymentMethods, 'attach')
+        .mockResolvedValue(attachExpected);
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'update')
+        .mockResolvedValue(customerExpected);
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'create')
+        .mockResolvedValue(subscriptionPMIExpandedIncompleteCVCFail);
+      jest.spyOn(stripeHelper, 'cancelSubscription').mockResolvedValue({});
+      stripeFirestore.insertCustomerRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
+      stripeFirestore.insertSubscriptionRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
+      stripeFirestore.insertPaymentMethodRecord = jest
+        .fn()
+        .mockResolvedValue({});
       const expectedIdempotencyKey = generateIdempotencyKey([
         'customerId',
         'priceId',
@@ -1251,12 +1334,12 @@ describe('StripeHelper', () => {
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
           automaticTax: true,
         });
-        sinon.assert.fail();
+        fail('should not reach here');
       } catch (err: any) {
         expect(err.errno).toBe(error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN);
       }
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.create,
+      expect(stripeHelper.stripe.subscriptions.create).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.create).toHaveBeenCalledWith(
         {
           customer: 'customerId',
           items: [{ price: 'priceId' }],
@@ -1268,21 +1351,21 @@ describe('StripeHelper', () => {
         },
         { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.cancelSubscription,
+      expect(stripeHelper.cancelSubscription).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.cancelSubscription).toHaveBeenCalledWith(
         subscriptionPMIExpandedIncompleteCVCFail.id
       );
-      sinon.assert.notCalled(
+      expect(
         stripeFirestore.insertSubscriptionRecordWithBackfill
-      );
-      sinon.assert.callCount(mockStatsd.increment, 1);
+      ).not.toHaveBeenCalled();
+      expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
     });
 
     it('surfaces payment issues', async () => {
       const apiError = new stripeError.StripeCardError();
-      sandbox
-        .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .rejects(apiError);
+      jest
+        .spyOn(stripeHelper.stripe.paymentMethods, 'attach')
+        .mockRejectedValue(apiError);
 
       return stripeHelper
         .createSubscriptionWithPMI({
@@ -1302,9 +1385,9 @@ describe('StripeHelper', () => {
 
     it('surfaces stripe errors', async () => {
       const apiError = new stripeError.StripeAPIError();
-      sandbox
-        .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .rejects(apiError);
+      jest
+        .spyOn(stripeHelper.stripe.paymentMethods, 'attach')
+        .mockRejectedValue(apiError);
 
       return stripeHelper
         .createSubscriptionWithPMI({
@@ -1323,16 +1406,16 @@ describe('StripeHelper', () => {
 
   describe('createSubscriptionWithPaypal', () => {
     it('creates a subscription successfully', async () => {
-      sandbox
-        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
-        .returns(undefined);
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'create')
-        .resolves(subscriptionPMIExpanded);
+      jest
+        .spyOn(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .mockReturnValue(undefined);
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'create')
+        .mockResolvedValue(subscriptionPMIExpanded);
       const subIdempotencyKey = uuidv4();
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
+      stripeFirestore.insertSubscriptionRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
       const actual = await stripeHelper.createSubscriptionWithPaypal({
         customer: customer1,
         priceId: 'priceId',
@@ -1341,17 +1424,19 @@ describe('StripeHelper', () => {
       });
 
       expect(actual).toEqual(subscriptionPMIExpanded);
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertSubscriptionRecordWithBackfill,
-        {
-          ...subscriptionPMIExpanded,
-          latest_invoice: subscriptionPMIExpanded.latest_invoice
-            ? subscriptionPMIExpanded.latest_invoice.id
-            : null,
-        }
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.create,
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledWith({
+        ...subscriptionPMIExpanded,
+        latest_invoice: subscriptionPMIExpanded.latest_invoice
+          ? subscriptionPMIExpanded.latest_invoice.id
+          : null,
+      });
+      expect(stripeHelper.stripe.subscriptions.create).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.create).toHaveBeenCalledWith(
         {
           customer: customer1.id,
           items: [{ price: 'priceId' }],
@@ -1365,24 +1450,26 @@ describe('StripeHelper', () => {
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );
-      sinon.assert.callCount(mockStatsd.increment, 1);
+      expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
     });
 
     it('uses the given promotion code to create a subscription', async () => {
       const promotionCode = { id: 'redpanda', code: 'firefox' };
       const newSubscription = deepCopy(subscriptionPMIExpanded);
       newSubscription.latest_invoice.discount = {};
-      sandbox
-        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
-        .returns(undefined);
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'create')
-        .resolves(newSubscription);
-      sandbox.stub(stripeHelper.stripe.subscriptions, 'update').resolves({});
+      jest
+        .spyOn(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .mockReturnValue(undefined);
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'create')
+        .mockResolvedValue(newSubscription);
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'update')
+        .mockResolvedValue({});
       const subIdempotencyKey = uuidv4();
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
+      stripeFirestore.insertSubscriptionRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
       const actual = await stripeHelper.createSubscriptionWithPaypal({
         customer: customer1,
         priceId: 'priceId',
@@ -1399,17 +1486,19 @@ describe('StripeHelper', () => {
         },
       };
       expect(actual).toEqual(subWithPromotionCodeMetadata);
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertSubscriptionRecordWithBackfill,
-        {
-          ...subWithPromotionCodeMetadata,
-          latest_invoice: subscriptionPMIExpanded.latest_invoice
-            ? subscriptionPMIExpanded.latest_invoice.id
-            : null,
-        }
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.create,
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledWith({
+        ...subWithPromotionCodeMetadata,
+        latest_invoice: subscriptionPMIExpanded.latest_invoice
+          ? subscriptionPMIExpanded.latest_invoice.id
+          : null,
+      });
+      expect(stripeHelper.stripe.subscriptions.create).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.create).toHaveBeenCalledWith(
         {
           customer: customer1.id,
           items: [{ price: 'priceId' }],
@@ -1423,16 +1512,16 @@ describe('StripeHelper', () => {
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );
-      sinon.assert.callCount(mockStatsd.increment, 1);
+      expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
     });
 
     it('returns a usable sub if one is active/past_due', async () => {
       const collectionSubscription = deepCopy(subscription1);
       collectionSubscription.collection_method = 'send_invoice';
-      sandbox
-        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
-        .returns(collectionSubscription);
-      sandbox.stub(stripeHelper, 'expandResource').returns({});
+      jest
+        .spyOn(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .mockReturnValue(collectionSubscription);
+      jest.spyOn(stripeHelper, 'expandResource').mockReturnValue({});
       const actual = await stripeHelper.createSubscriptionWithPaypal({
         customer: customer1,
         priceId: 'priceId',
@@ -1443,10 +1532,10 @@ describe('StripeHelper', () => {
     });
 
     it('throws an error for an existing charge subscription', async () => {
-      sandbox
-        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
-        .returns(subscription1);
-      sandbox.stub(stripeHelper, 'expandResource').returns({});
+      jest
+        .spyOn(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .mockReturnValue(subscription1);
+      jest.spyOn(stripeHelper, 'expandResource').mockReturnValue({});
       try {
         await stripeHelper.createSubscriptionWithPaypal({
           customer: customer1,
@@ -1462,16 +1551,18 @@ describe('StripeHelper', () => {
     it('deletes an incomplete subscription when creating', async () => {
       const collectionSubscription = deepCopy(subscription1);
       collectionSubscription.status = 'incomplete';
-      sandbox
-        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
-        .returns(collectionSubscription);
-      sandbox.stub(stripeHelper.stripe.subscriptions, 'cancel').resolves({});
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'create')
-        .resolves(subscription1);
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
+      jest
+        .spyOn(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .mockReturnValue(collectionSubscription);
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'cancel')
+        .mockResolvedValue({});
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'create')
+        .mockResolvedValue(subscription1);
+      stripeFirestore.insertSubscriptionRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
       const actual = await stripeHelper.createSubscriptionWithPaypal({
         customer: customer1,
         priceId: 'priceId',
@@ -1479,30 +1570,31 @@ describe('StripeHelper', () => {
       });
 
       expect(actual).toEqual(subscription1);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.cancel,
+      expect(stripeHelper.stripe.subscriptions.cancel).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.cancel).toHaveBeenCalledWith(
         collectionSubscription.id
       );
-      sinon.assert.calledWithExactly(
-        stripeFirestore.insertSubscriptionRecordWithBackfill,
-        {
-          ...subscription1,
-          latest_invoice: subscription1.latest_invoice
-            ? subscription1.latest_invoice.id
-            : null,
-        }
-      );
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledWith({
+        ...subscription1,
+        latest_invoice: subscription1.latest_invoice
+          ? subscription1.latest_invoice.id
+          : null,
+      });
     });
   });
 
   describe('getCoupon', () => {
     it('returns a coupon', async () => {
       const coupon = { id: 'couponId' };
-      sandbox.stub(stripeHelper.stripe.coupons, 'retrieve').resolves(coupon);
+      jest
+        .spyOn(stripeHelper.stripe.coupons, 'retrieve')
+        .mockResolvedValue(coupon);
       const actual = await stripeHelper.getCoupon('couponId');
       expect(actual).toEqual(coupon);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.coupons.retrieve,
+      expect(stripeHelper.stripe.coupons.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.coupons.retrieve).toHaveBeenCalledWith(
         coupon.id,
         { expand: ['applies_to'] }
       );
@@ -1512,11 +1604,13 @@ describe('StripeHelper', () => {
   describe('getInvoiceWithDiscount', () => {
     it('returns an invoice with discounts expanded', async () => {
       const invoice = { id: 'invoiceId' };
-      sandbox.stub(stripeHelper.stripe.invoices, 'retrieve').resolves(invoice);
+      jest
+        .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+        .mockResolvedValue(invoice);
       const actual = await stripeHelper.getInvoiceWithDiscount('invoiceId');
       expect(actual).toEqual(invoice);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.retrieve,
+      expect(stripeHelper.stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.retrieve).toHaveBeenCalledWith(
         invoice.id,
         { expand: ['discounts'] }
       );
@@ -1526,25 +1620,29 @@ describe('StripeHelper', () => {
   describe('findValidPromoCode', () => {
     it('finds a valid promotionCode with plan metadata', async () => {
       const promotionCode = { code: 'promo1', coupon: { valid: true } };
-      sandbox
-        .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest
+        .spyOn(stripeHelper.stripe.promotionCodes, 'list')
+        .mockResolvedValue({ data: [promotionCode] });
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
       });
       const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
       expect(actual).toEqual(promotionCode);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.promotionCodes.list as sinon.SinonStub,
-        {
-          active: true,
-          code: 'promo1',
-        }
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.findAbbrevPlanById as sinon.SinonStub,
+      expect(
+        stripeHelper.stripe.promotionCodes.list as jest.Mock
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripe.promotionCodes.list as jest.Mock
+      ).toHaveBeenCalledWith({
+        active: true,
+        code: 'promo1',
+      });
+      expect(
+        stripeHelper.findAbbrevPlanById as jest.Mock
+      ).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.findAbbrevPlanById as jest.Mock).toHaveBeenCalledWith(
         'planId'
       );
     });
@@ -1556,47 +1654,53 @@ describe('StripeHelper', () => {
         coupon: { valid: true },
         expires_at: expiredTime,
       };
-      sandbox
-        .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest
+        .spyOn(stripeHelper.stripe.promotionCodes, 'list')
+        .mockResolvedValue({ data: [promotionCode] });
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
       });
       const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
       expect(actual).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.promotionCodes.list as sinon.SinonStub,
-        {
-          active: true,
-          code: 'promo1',
-        }
-      );
-      sinon.assert.notCalled(
-        stripeHelper.findAbbrevPlanById as sinon.SinonStub
-      );
+      expect(
+        stripeHelper.stripe.promotionCodes.list as jest.Mock
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripe.promotionCodes.list as jest.Mock
+      ).toHaveBeenCalledWith({
+        active: true,
+        code: 'promo1',
+      });
+      expect(
+        stripeHelper.findAbbrevPlanById as jest.Mock
+      ).not.toHaveBeenCalled();
     });
 
     it('does not find a promotionCode with a different plan', async () => {
       const promotionCode = { code: 'promo1', coupon: { valid: true } };
-      sandbox
-        .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest
+        .spyOn(stripeHelper.stripe.promotionCodes, 'list')
+        .mockResolvedValue({ data: [promotionCode] });
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         plan_metadata: {},
       });
       const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
       expect(actual).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.promotionCodes.list as sinon.SinonStub,
-        {
-          active: true,
-          code: 'promo1',
-        }
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.findAbbrevPlanById as sinon.SinonStub,
+      expect(
+        stripeHelper.stripe.promotionCodes.list as jest.Mock
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripe.promotionCodes.list as jest.Mock
+      ).toHaveBeenCalledWith({
+        active: true,
+        code: 'promo1',
+      });
+      expect(
+        stripeHelper.findAbbrevPlanById as jest.Mock
+      ).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.findAbbrevPlanById as jest.Mock).toHaveBeenCalledWith(
         'planId'
       );
     });
@@ -1606,26 +1710,28 @@ describe('StripeHelper', () => {
         code: 'promo1',
         coupon: { valid: false },
       };
-      sandbox
-        .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest
+        .spyOn(stripeHelper.stripe.promotionCodes, 'list')
+        .mockResolvedValue({ data: [promotionCode] });
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
       });
       const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
       expect(actual).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.promotionCodes.list as sinon.SinonStub,
-        {
-          active: true,
-          code: 'promo1',
-        }
-      );
-      sinon.assert.notCalled(
-        stripeHelper.findAbbrevPlanById as sinon.SinonStub
-      );
+      expect(
+        stripeHelper.stripe.promotionCodes.list as jest.Mock
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripe.promotionCodes.list as jest.Mock
+      ).toHaveBeenCalledWith({
+        active: true,
+        code: 'promo1',
+      });
+      expect(
+        stripeHelper.findAbbrevPlanById as jest.Mock
+      ).not.toHaveBeenCalled();
     });
   });
 
@@ -1647,13 +1753,17 @@ describe('StripeHelper', () => {
     let sentryScope: any;
 
     const setDefaultFindPlanById = () =>
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves(planTemplate);
+      jest
+        .spyOn(stripeHelper, 'findAbbrevPlanById')
+        .mockResolvedValue(planTemplate);
 
     beforeEach(() => {
-      sentryScope = { setContext: sandbox.stub(), setExtra: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sandbox.stub(Sentry, 'setExtra');
-      sandbox.stub(Sentry, 'captureException');
+      sentryScope = { setContext: jest.fn(), setExtra: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(Sentry, 'setExtra');
+      jest.spyOn(Sentry, 'captureException');
     });
 
     it('coupon duration other than repeating', async () => {
@@ -1669,7 +1779,7 @@ describe('StripeHelper', () => {
 
     it('valid yearly plan interval', async () => {
       const coupon = { ...couponTemplate, duration_in_months: 12 };
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         ...planTemplate,
         interval: 'year',
         interval_count: 1,
@@ -1685,7 +1795,7 @@ describe('StripeHelper', () => {
     it('invalid yearly plan interval', async () => {
       const coupon = couponTemplate;
       const priceIntervalOverride = 'year';
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         ...planTemplate,
         interval: priceIntervalOverride,
       });
@@ -1695,8 +1805,8 @@ describe('StripeHelper', () => {
         coupon
       );
       expect(actual).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        sentryScope.setContext,
+      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
+      expect(sentryScope.setContext).toHaveBeenCalledWith(
         'validateCouponDurationForPlan',
         {
           promotionCode,
@@ -1723,7 +1833,7 @@ describe('StripeHelper', () => {
     it('invalid monthly plan interval', async () => {
       const coupon = couponTemplate;
       const priceIntervalCountOverride = 6;
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         ...planTemplate,
         interval_count: priceIntervalCountOverride,
       });
@@ -1733,8 +1843,8 @@ describe('StripeHelper', () => {
         coupon
       );
       expect(actual).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        sentryScope.setContext,
+      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
+      expect(sentryScope.setContext).toHaveBeenCalledWith(
         'validateCouponDurationForPlan',
         {
           promotionCode,
@@ -1749,7 +1859,7 @@ describe('StripeHelper', () => {
 
     it('invalid plan interval', async () => {
       const coupon = couponTemplate;
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         ...planTemplate,
         interval: 'week',
       });
@@ -1759,7 +1869,7 @@ describe('StripeHelper', () => {
         coupon
       );
       expect(actual).toBe(false);
-      sinon.assert.notCalled(Sentry.withScope as sinon.SinonStub);
+      expect(Sentry.withScope as jest.Mock).not.toHaveBeenCalled();
     });
 
     it('missing coupon duration in months', async () => {
@@ -1771,25 +1881,25 @@ describe('StripeHelper', () => {
         coupon
       );
       expect(actual).toBe(false);
-      sinon.assert.notCalled(Sentry.withScope as sinon.SinonStub);
+      expect(Sentry.withScope as jest.Mock).not.toHaveBeenCalled();
     });
   });
 
   describe('findPromoCodeByCode', () => {
     it('finds a promo code', async () => {
       const promotionCode = { code: 'code1' };
-      sandbox
-        .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promotionCode] });
+      jest
+        .spyOn(stripeHelper.stripe.promotionCodes, 'list')
+        .mockResolvedValue({ data: [promotionCode] });
       const actual = await stripeHelper.findPromoCodeByCode('code1');
       expect(actual).toEqual(promotionCode);
     });
 
     it('finds no promo code', async () => {
       const promotionCode = { code: 'code2' };
-      sandbox
-        .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promotionCode] });
+      jest
+        .spyOn(stripeHelper.stripe.promotionCodes, 'list')
+        .mockResolvedValue({ data: [promotionCode] });
       const actual = await stripeHelper.findPromoCodeByCode('code1');
       expect(actual).toBeUndefined();
     });
@@ -1815,26 +1925,30 @@ describe('StripeHelper', () => {
     let sentryScope: any;
 
     beforeEach(() => {
-      sentryScope = { setContext: sandbox.stub(), setExtra: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sandbox.stub(Sentry, 'setExtra');
-      sandbox.stub(Sentry, 'captureException');
+      sentryScope = { setContext: jest.fn(), setExtra: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(Sentry, 'setExtra');
+      jest.spyOn(Sentry, 'captureException');
     });
 
     it('retrieves coupon details', async () => {
       const expected = { ...expectedTemplate, discountAmount: 200 };
-      sandbox
-        .stub(stripeHelper, 'previewInvoice')
-        .resolves([validInvoicePreview, undefined]);
-      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
-        active: true,
-        coupon: {
-          id: 'promo',
-          duration: 'forever',
-          valid: true,
-          duration_in_months: null,
-        },
-      });
+      jest
+        .spyOn(stripeHelper, 'previewInvoice')
+        .mockResolvedValue([validInvoicePreview, undefined]);
+      jest
+        .spyOn(stripeHelper, 'retrievePromotionCodeForPlan')
+        .mockResolvedValue({
+          active: true,
+          coupon: {
+            id: 'promo',
+            duration: 'forever',
+            valid: true,
+            duration_in_months: null,
+          },
+        });
       const actual = await stripeHelper.retrieveCouponDetails({
         automaticTax: false,
         country: 'US',
@@ -1847,18 +1961,20 @@ describe('StripeHelper', () => {
 
     it('retrieves coupon details for 100% discount', async () => {
       const expected = { ...expectedTemplate, discountAmount: 200 };
-      sandbox
-        .stub(stripeHelper, 'previewInvoice')
-        .resolves([{ ...validInvoicePreview, total: 0 }, undefined]);
-      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
-        active: true,
-        coupon: {
-          id: 'promo',
-          duration: 'forever',
-          valid: true,
-          duration_in_months: null,
-        },
-      });
+      jest
+        .spyOn(stripeHelper, 'previewInvoice')
+        .mockResolvedValue([{ ...validInvoicePreview, total: 0 }, undefined]);
+      jest
+        .spyOn(stripeHelper, 'retrievePromotionCodeForPlan')
+        .mockResolvedValue({
+          active: true,
+          coupon: {
+            id: 'promo',
+            duration: 'forever',
+            valid: true,
+            duration_in_months: null,
+          },
+        });
       const actual = await stripeHelper.retrieveCouponDetails({
         priceId: 'planId',
         promotionCode: 'promo',
@@ -1869,19 +1985,22 @@ describe('StripeHelper', () => {
 
     it('retrieves details on an expired coupon', async () => {
       const expected = { ...expectedTemplate, valid: false, expired: true };
-      sandbox
-        .stub(stripeHelper, 'previewInvoice')
-        .resolves({ ...validInvoicePreview, total_discount_amounts: null });
-      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
-        active: true,
-        coupon: {
-          id: 'promo',
-          duration: 'forever',
-          valid: false,
-          redeem_by: 1000,
-          duration_in_months: null,
-        },
+      jest.spyOn(stripeHelper, 'previewInvoice').mockResolvedValue({
+        ...validInvoicePreview,
+        total_discount_amounts: null,
       });
+      jest
+        .spyOn(stripeHelper, 'retrievePromotionCodeForPlan')
+        .mockResolvedValue({
+          active: true,
+          coupon: {
+            id: 'promo',
+            duration: 'forever',
+            valid: false,
+            redeem_by: 1000,
+            duration_in_months: null,
+          },
+        });
       const actual = await stripeHelper.retrieveCouponDetails({
         country: 'US',
         priceId: 'planId',
@@ -1896,20 +2015,23 @@ describe('StripeHelper', () => {
         valid: false,
         maximallyRedeemed: true,
       };
-      sandbox
-        .stub(stripeHelper, 'previewInvoice')
-        .resolves({ ...validInvoicePreview, total_discount_amounts: null });
-      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
-        active: true,
-        coupon: {
-          id: 'promo',
-          duration: 'forever',
-          valid: false,
-          max_redemptions: 1,
-          times_redeemed: 1,
-          duration_in_months: null,
-        },
+      jest.spyOn(stripeHelper, 'previewInvoice').mockResolvedValue({
+        ...validInvoicePreview,
+        total_discount_amounts: null,
       });
+      jest
+        .spyOn(stripeHelper, 'retrievePromotionCodeForPlan')
+        .mockResolvedValue({
+          active: true,
+          coupon: {
+            id: 'promo',
+            duration: 'forever',
+            valid: false,
+            max_redemptions: 1,
+            times_redeemed: 1,
+            duration_in_months: null,
+          },
+        });
       const actual = await stripeHelper.retrieveCouponDetails({
         country: 'US',
         priceId: 'planId',
@@ -1924,19 +2046,22 @@ describe('StripeHelper', () => {
         valid: false,
         expired: true,
       };
-      sandbox
-        .stub(stripeHelper, 'previewInvoice')
-        .resolves({ ...validInvoicePreview, total_discount_amounts: null });
-      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
-        active: false,
-        expires_at: 1000,
-        coupon: {
-          id: 'promo',
-          duration: 'forever',
-          valid: true,
-          duration_in_months: null,
-        },
+      jest.spyOn(stripeHelper, 'previewInvoice').mockResolvedValue({
+        ...validInvoicePreview,
+        total_discount_amounts: null,
       });
+      jest
+        .spyOn(stripeHelper, 'retrievePromotionCodeForPlan')
+        .mockResolvedValue({
+          active: false,
+          expires_at: 1000,
+          coupon: {
+            id: 'promo',
+            duration: 'forever',
+            valid: true,
+            duration_in_months: null,
+          },
+        });
       const actual = await stripeHelper.retrieveCouponDetails({
         country: 'US',
         priceId: 'planId',
@@ -1951,20 +2076,23 @@ describe('StripeHelper', () => {
         valid: false,
         maximallyRedeemed: true,
       };
-      sandbox
-        .stub(stripeHelper, 'previewInvoice')
-        .resolves({ ...validInvoicePreview, total_discount_amounts: null });
-      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
-        active: false,
-        max_redemptions: 1,
-        times_redeemed: 1,
-        coupon: {
-          id: 'promo',
-          duration: 'forever',
-          valid: true,
-          duration_in_months: null,
-        },
+      jest.spyOn(stripeHelper, 'previewInvoice').mockResolvedValue({
+        ...validInvoicePreview,
+        total_discount_amounts: null,
       });
+      jest
+        .spyOn(stripeHelper, 'retrievePromotionCodeForPlan')
+        .mockResolvedValue({
+          active: false,
+          max_redemptions: 1,
+          times_redeemed: 1,
+          coupon: {
+            id: 'promo',
+            duration: 'forever',
+            valid: true,
+            duration_in_months: null,
+          },
+        });
       const actual = await stripeHelper.retrieveCouponDetails({
         country: 'US',
         priceId: 'planId',
@@ -1976,58 +2104,59 @@ describe('StripeHelper', () => {
     it('return coupon details even when previewInvoice rejects', async () => {
       const expected = { ...expectedTemplate, valid: false };
       const err = new error('previewInvoiceFailed');
-      sandbox.stub(stripeHelper, 'previewInvoice').rejects(err);
-      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
-        active: true,
-        coupon: {
-          id: 'promo',
-          duration: 'forever',
-          valid: true,
-          duration_in_months: null,
-        },
-      });
+      jest.spyOn(stripeHelper, 'previewInvoice').mockRejectedValue(err);
+      jest
+        .spyOn(stripeHelper, 'retrievePromotionCodeForPlan')
+        .mockResolvedValue({
+          active: true,
+          coupon: {
+            id: 'promo',
+            duration: 'forever',
+            valid: true,
+            duration_in_months: null,
+          },
+        });
       const actual = await stripeHelper.retrieveCouponDetails({
         country: 'US',
         priceId: 'planId',
         promotionCode: 'promo',
       });
       expect(actual).toEqual(expected);
-      sinon.assert.calledWithExactly(
-        sentryScope.setContext.getCall(0),
+      expect(sentryScope.setContext).toHaveBeenCalledWith(
         'retrieveCouponDetails',
         {
           priceId: 'planId',
           promotionCode: 'promo',
         }
       );
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureException as sinon.SinonStub,
-        err
-      );
+      expect(Sentry.captureException as jest.Mock).toHaveBeenCalledTimes(1);
+      expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(err);
     });
 
     it('return coupon details even when getMinAmount rejects', async () => {
       const expected = { ...expectedTemplate, valid: false };
-      sandbox
-        .stub(stripeHelper, 'previewInvoice')
-        .resolves({ ...validInvoicePreview, currency: 'fake' });
-      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
-        active: true,
-        coupon: {
-          id: 'promo',
-          duration: 'forever',
-          valid: true,
-          duration_in_months: null,
-        },
-      });
+      jest
+        .spyOn(stripeHelper, 'previewInvoice')
+        .mockResolvedValue({ ...validInvoicePreview, currency: 'fake' });
+      jest
+        .spyOn(stripeHelper, 'retrievePromotionCodeForPlan')
+        .mockResolvedValue({
+          active: true,
+          coupon: {
+            id: 'promo',
+            duration: 'forever',
+            valid: true,
+            duration_in_months: null,
+          },
+        });
       const actual = await stripeHelper.retrieveCouponDetails({
         country: 'US',
         priceId: 'planId',
         promotionCode: 'promo',
       });
       expect(actual).toEqual(expected);
-      sinon.assert.calledOnceWithExactly(
-        sentryScope.setContext,
+      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
+      expect(sentryScope.setContext).toHaveBeenCalledWith(
         'retrieveCouponDetails',
         {
           priceId: 'planId',
@@ -2037,18 +2166,20 @@ describe('StripeHelper', () => {
     });
 
     it('throw an error when previewInvoice returns total less than stripe minimums', async () => {
-      sandbox
-        .stub(stripeHelper, 'previewInvoice')
-        .resolves({ ...validInvoicePreview, total: 20 });
-      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
-        active: true,
-        coupon: {
-          id: 'promo',
-          duration: 'forever',
-          valid: true,
-          duration_in_months: null,
-        },
-      });
+      jest
+        .spyOn(stripeHelper, 'previewInvoice')
+        .mockResolvedValue({ ...validInvoicePreview, total: 20 });
+      jest
+        .spyOn(stripeHelper, 'retrievePromotionCodeForPlan')
+        .mockResolvedValue({
+          active: true,
+          coupon: {
+            id: 'promo',
+            duration: 'forever',
+            valid: true,
+            duration_in_months: null,
+          },
+        });
       try {
         await stripeHelper.retrieveCouponDetails({
           country: 'US',
@@ -2061,7 +2192,9 @@ describe('StripeHelper', () => {
     });
 
     it('throw an error when retrievePromotionCodeForPlan returns no coupon', async () => {
-      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves();
+      jest
+        .spyOn(stripeHelper, 'retrievePromotionCodeForPlan')
+        .mockResolvedValue();
       try {
         await stripeHelper.retrieveCouponDetails({
           country: 'US',
@@ -2076,26 +2209,27 @@ describe('StripeHelper', () => {
 
   describe('previewInvoice', () => {
     it('uses shipping address when present and no customer is provided', async () => {
-      const stripeStub = sandbox
-        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
-        .resolves();
-      sandbox
-        .stub(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
-        .returns(true);
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      const stripeStub = jest
+        .spyOn(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .mockResolvedValue();
+      jest
+        .spyOn(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
+        .mockReturnValue(true);
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         currency: 'USD',
       });
       await stripeHelper.previewInvoice({
         priceId: 'priceId',
         taxAddress: { countryCode: 'US', postalCode: '92841' },
       });
-      sinon.assert.calledOnceWithExactly(stripeStub, {
+      expect(stripeStub).toHaveBeenCalledTimes(1);
+      expect(stripeStub).toHaveBeenCalledWith({
         customer: undefined,
         automatic_tax: { enabled: true },
         customer_details: {
           tax_exempt: 'none',
           shipping: {
-            name: sinon.match.any,
+            name: expect.anything(),
             address: { country: 'US', postal_code: '92841' },
           },
         },
@@ -2105,17 +2239,18 @@ describe('StripeHelper', () => {
     });
 
     it('excludes shipping address when shipping address not passed', async () => {
-      const stripeStub = sandbox
-        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
-        .resolves();
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      const stripeStub = jest
+        .spyOn(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .mockResolvedValue();
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         currency: 'USD',
       });
       await stripeHelper.previewInvoice({
         priceId: 'priceId',
         taxAddress: undefined,
       });
-      sinon.assert.calledOnceWithExactly(stripeStub, {
+      expect(stripeStub).toHaveBeenCalledTimes(1);
+      expect(stripeStub).toHaveBeenCalledWith({
         customer: undefined,
         automatic_tax: { enabled: false },
         customer_details: {
@@ -2128,40 +2263,44 @@ describe('StripeHelper', () => {
     });
 
     it('disables stripe tax when currency is incompatible with country', async () => {
-      const stripeStub = sandbox
-        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
-        .resolves();
-      const findAbbrevPlanByIdStub = sandbox
-        .stub(stripeHelper, 'findAbbrevPlanById')
-        .resolves({ currency: 'USD' });
-      sandbox
-        .stub(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
-        .returns(false);
+      const stripeStub = jest
+        .spyOn(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .mockResolvedValue();
+      const findAbbrevPlanByIdStub = jest
+        .spyOn(stripeHelper, 'findAbbrevPlanById')
+        .mockResolvedValue({ currency: 'USD' });
+      jest
+        .spyOn(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
+        .mockReturnValue(false);
       await stripeHelper.previewInvoice({
         priceId: 'priceId',
         taxAddress: { countryCode: 'US', postalCode: '92841' },
       });
-      sinon.assert.calledOnceWithExactly(stripeStub, {
+      expect(stripeStub).toHaveBeenCalledTimes(1);
+      expect(stripeStub).toHaveBeenCalledWith({
         customer: undefined,
         automatic_tax: { enabled: false },
         customer_details: {
           tax_exempt: 'none',
           shipping: {
-            name: sinon.match.any,
+            name: expect.anything(),
             address: { country: 'US', postal_code: '92841' },
           },
         },
         subscription_items: [{ price: 'priceId' }],
         expand: ['total_tax_amounts.tax_rate'],
       });
-      sinon.assert.calledOnceWithExactly(findAbbrevPlanByIdStub, 'priceId');
+      expect(findAbbrevPlanByIdStub).toHaveBeenCalledTimes(1);
+      expect(findAbbrevPlanByIdStub).toHaveBeenCalledWith('priceId');
     });
 
     it('logs when there is an error', async () => {
-      sandbox
-        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
-        .throws(new Error());
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest
+        .spyOn(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .mockImplementation(() => {
+          throw new Error();
+        });
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         currency: 'USD',
       });
       try {
@@ -2170,16 +2309,16 @@ describe('StripeHelper', () => {
           taxAddress: { countryCode: 'US', postalCode: '92841' },
         });
       } catch (e) {
-        sinon.assert.calledOnce(stripeHelper.log.warn);
+        expect(stripeHelper.log.warn).toHaveBeenCalledTimes(1);
       }
     });
 
     it('retrieves both upcoming invoices with and without proration info', async () => {
-      const stripeStub = sandbox
-        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
-        .resolves();
-      sandbox.stub(Math, 'floor').returns(1);
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      const stripeStub = jest
+        .spyOn(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .mockResolvedValue();
+      jest.spyOn(Math, 'floor').mockReturnValue(1);
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         currency: 'USD',
       });
       await stripeHelper.previewInvoice({
@@ -2189,8 +2328,8 @@ describe('StripeHelper', () => {
         isUpgrade: true,
         sourcePlan: { plan_id: 'plan_test1' },
       });
-      sinon.assert.callCount(stripeStub, 2);
-      sinon.assert.calledWith(stripeStub, {
+      expect(stripeStub).toHaveBeenCalledTimes(2);
+      expect(stripeStub).toHaveBeenCalledWith({
         customer: 'cus_test1',
         automatic_tax: { enabled: false },
         customer_details: {
@@ -2213,26 +2352,28 @@ describe('StripeHelper', () => {
 
   describe('previewInvoiceBySubscriptionId', () => {
     it('fetches invoice preview', async () => {
-      const stripeStub = sandbox
-        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
-        .resolves();
+      const stripeStub = jest
+        .spyOn(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .mockResolvedValue();
       await stripeHelper.previewInvoiceBySubscriptionId({
         subscriptionId: 'sub123',
       });
-      sinon.assert.calledOnceWithExactly(stripeStub, {
+      expect(stripeStub).toHaveBeenCalledTimes(1);
+      expect(stripeStub).toHaveBeenCalledWith({
         subscription: 'sub123',
       });
     });
 
     it('fetches invoice preview for cancelled subscription', async () => {
-      const stripeStub = sandbox
-        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
-        .resolves();
+      const stripeStub = jest
+        .spyOn(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .mockResolvedValue();
       await stripeHelper.previewInvoiceBySubscriptionId({
         subscriptionId: 'sub123',
         includeCanceled: true,
       });
-      sinon.assert.calledOnceWithExactly(stripeStub, {
+      expect(stripeStub).toHaveBeenCalledTimes(1);
+      expect(stripeStub).toHaveBeenCalledWith({
         subscription: 'sub123',
         subscription_cancel_at_period_end: false,
       });
@@ -2242,10 +2383,10 @@ describe('StripeHelper', () => {
   describe('retrievePromotionCodeForPlan', () => {
     it('finds a stripe promotionCode object when a valid code is used', async () => {
       const promotionCode = { code: 'promo1', coupon: { valid: true } };
-      sandbox
-        .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest
+        .spyOn(stripeHelper.stripe.promotionCodes, 'list')
+        .mockResolvedValue({ data: [promotionCode] });
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
@@ -2259,10 +2400,10 @@ describe('StripeHelper', () => {
 
     it('returns undefined when an invalid promo code is used', async () => {
       const promotionCode = { code: 'promo1', coupon: { valid: true } };
-      sandbox
-        .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promotionCode] });
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest
+        .spyOn(stripeHelper.stripe.promotionCodes, 'list')
+        .mockResolvedValue({ data: [promotionCode] });
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo2',
         },
@@ -2297,9 +2438,9 @@ describe('StripeHelper', () => {
     };
 
     beforeEach(() => {
-      sandbox
-        .stub(stripeHelper, 'validateCouponDurationForPlan')
-        .resolves(true);
+      jest
+        .spyOn(stripeHelper, 'validateCouponDurationForPlan')
+        .mockResolvedValue(true);
     });
 
     it('return valid for valid coupon and promotion code', async () => {
@@ -2376,10 +2517,10 @@ describe('StripeHelper', () => {
 
     it('return invalid for invalid coupon duration for plan', async () => {
       const promotionCode = promotionCodeTemplate;
-      sandbox.restore();
-      sandbox
-        .stub(stripeHelper, 'validateCouponDurationForPlan')
-        .resolves(false);
+      jest.restoreAllMocks();
+      jest
+        .spyOn(stripeHelper, 'validateCouponDurationForPlan')
+        .mockResolvedValue(false);
 
       const expected = expectedTemplate;
       const actual = await stripeHelper.verifyPromotionAndCoupon(
@@ -2461,7 +2602,7 @@ describe('StripeHelper', () => {
 
     it('finds a promo code for a given plan', async () => {
       const promotionCode = 'promo1';
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
@@ -2476,12 +2617,12 @@ describe('StripeHelper', () => {
 
     it('finds a promo code in a Firestore config', async () => {
       const promotionCode = 'promo1';
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: '',
         },
       });
-      sandbox.stub(stripeHelper, 'maybeGetPlanConfig').resolves({
+      jest.spyOn(stripeHelper, 'maybeGetPlanConfig').mockResolvedValue({
         promotionCodes: ['promo1'],
       });
       const actual = await stripeHelper.checkPromotionCodeForPlan(
@@ -2494,7 +2635,7 @@ describe('StripeHelper', () => {
 
     it('does not find a promo code for a given plan', async () => {
       const promotionCode = 'promo1';
-      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+      jest.spyOn(stripeHelper, 'findAbbrevPlanById').mockResolvedValue({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo2',
         },
@@ -2515,7 +2656,7 @@ describe('StripeHelper', () => {
         subscription: 'sub-1234',
       };
       const mockSub = { collection_method: 'send_invoice' };
-      sandbox.stub(stripeHelper, 'expandResource').resolves(mockSub);
+      jest.spyOn(stripeHelper, 'expandResource').mockResolvedValue(mockSub);
       const actual = await stripeHelper.invoicePayableWithPaypal(mockInvoice);
       expect(actual).toBe(true);
     });
@@ -2523,10 +2664,10 @@ describe('StripeHelper', () => {
     it('returns false if invoice is sub create', async () => {
       const mockInvoice = { billing_reason: 'subscription_create' };
       const mockSub = { collection_method: 'send_invoice' };
-      sandbox.stub(stripeHelper, 'expandResource').resolves(mockSub);
+      jest.spyOn(stripeHelper, 'expandResource').mockResolvedValue(mockSub);
       const actual = await stripeHelper.invoicePayableWithPaypal(mockInvoice);
       expect(actual).toBe(false);
-      sinon.assert.notCalled(stripeHelper.expandResource as sinon.SinonStub);
+      expect(stripeHelper.expandResource as jest.Mock).not.toHaveBeenCalled();
     });
 
     it('returns false if subscription collection_method isnt invoice', async () => {
@@ -2535,7 +2676,7 @@ describe('StripeHelper', () => {
         subscription: 'sub-1234',
       };
       const mockSub = { collection_method: 'charge_automatically' };
-      sandbox.stub(stripeHelper, 'expandResource').resolves(mockSub);
+      jest.spyOn(stripeHelper, 'expandResource').mockResolvedValue(mockSub);
       const actual = await stripeHelper.invoicePayableWithPaypal(mockInvoice);
       expect(actual).toBe(false);
     });
@@ -2543,11 +2684,13 @@ describe('StripeHelper', () => {
 
   describe('getInvoice', () => {
     it('works successfully', async () => {
-      sandbox.stub(stripeHelper, 'expandResource').resolves(unpaidInvoice);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue(unpaidInvoice);
       const actual = await stripeHelper.getInvoice(unpaidInvoice.id);
       expect(actual).toEqual(unpaidInvoice);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.expandResource,
+      expect(stripeHelper.expandResource).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.expandResource).toHaveBeenCalledWith(
         unpaidInvoice.id,
         INVOICES_RESOURCE
       );
@@ -2556,13 +2699,15 @@ describe('StripeHelper', () => {
 
   describe('finalizeInvoice', () => {
     it('works successfully', async () => {
-      sandbox
-        .stub(stripeHelper.stripe.invoices, 'finalizeInvoice')
-        .resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.invoices, 'finalizeInvoice')
+        .mockResolvedValue({});
       const actual = await stripeHelper.finalizeInvoice(unpaidInvoice);
       expect(actual).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.finalizeInvoice,
+      expect(
+        stripeHelper.stripe.invoices.finalizeInvoice
+      ).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.finalizeInvoice).toHaveBeenCalledWith(
         unpaidInvoice.id,
         { auto_advance: false }
       );
@@ -2571,26 +2716,27 @@ describe('StripeHelper', () => {
 
   describe('refundInvoices', () => {
     it('refunds invoice with charge unexpanded', async () => {
-      sandbox.stub(stripeHelper.stripe.refunds, 'create').resolves({});
-      sandbox
-        .stub(stripeHelper.stripe.charges, 'retrieve')
-        .resolves({ refunded: false });
+      jest.spyOn(stripeHelper.stripe.refunds, 'create').mockResolvedValue({});
+      jest
+        .spyOn(stripeHelper.stripe.charges, 'retrieve')
+        .mockResolvedValue({ refunded: false });
       await stripeHelper.refundInvoices([
         {
           ...paidInvoice,
           collection_method: 'charge_automatically',
         },
       ]);
-      sinon.assert.calledOnceWithExactly(stripeHelper.stripe.refunds.create, {
+      expect(stripeHelper.stripe.refunds.create).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.refunds.create).toHaveBeenCalledWith({
         charge: paidInvoice.charge,
       });
     });
 
     it('refunds invoice with charge expanded', async () => {
-      sandbox.stub(stripeHelper.stripe.refunds, 'create').resolves({});
-      sandbox
-        .stub(stripeHelper.stripe.charges, 'retrieve')
-        .resolves({ refunded: false });
+      jest.spyOn(stripeHelper.stripe.refunds, 'create').mockResolvedValue({});
+      jest
+        .spyOn(stripeHelper.stripe.charges, 'retrieve')
+        .mockResolvedValue({ refunded: false });
       await stripeHelper.refundInvoices([
         {
           ...paidInvoice,
@@ -2600,33 +2746,34 @@ describe('StripeHelper', () => {
           },
         },
       ]);
-      sinon.assert.calledOnceWithExactly(stripeHelper.stripe.refunds.create, {
+      expect(stripeHelper.stripe.refunds.create).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.refunds.create).toHaveBeenCalledWith({
         charge: paidInvoice.charge,
       });
     });
 
     it('does not refund invoice from PayPal', async () => {
-      sandbox.stub(stripeHelper.stripe.refunds, 'create').resolves({});
+      jest.spyOn(stripeHelper.stripe.refunds, 'create').mockResolvedValue({});
       await stripeHelper.refundInvoices([
         {
           ...paidInvoice,
           collection_method: 'send_invoice',
         },
       ]);
-      sinon.assert.notCalled(stripeHelper.stripe.refunds.create);
+      expect(stripeHelper.stripe.refunds.create).not.toHaveBeenCalled();
     });
   });
 
   describe('updateInvoiceWithPaypalTransactionId', () => {
     it('works successfully', async () => {
-      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.invoices, 'update').mockResolvedValue({});
       const actual = await stripeHelper.updateInvoiceWithPaypalTransactionId(
         unpaidInvoice,
         'tid'
       );
       expect(actual).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.update,
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledWith(
         unpaidInvoice.id,
         { metadata: { paypalTransactionId: 'tid' } }
       );
@@ -2635,15 +2782,15 @@ describe('StripeHelper', () => {
 
   describe('updateInvoiceWithPaypalRefundTransactionId', () => {
     it('works successfully', async () => {
-      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.invoices, 'update').mockResolvedValue({});
       const actual =
         await stripeHelper.updateInvoiceWithPaypalRefundTransactionId(
           unpaidInvoice,
           'tid'
         );
       expect(actual).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.update,
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledWith(
         unpaidInvoice.id,
         { metadata: { paypalRefundTransactionId: 'tid' } }
       );
@@ -2652,14 +2799,14 @@ describe('StripeHelper', () => {
 
   describe('updateInvoiceWithPaypalRefundReason', () => {
     it('works successfully', async () => {
-      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.invoices, 'update').mockResolvedValue({});
       const actual = await stripeHelper.updateInvoiceWithPaypalRefundReason(
         unpaidInvoice,
         'reason'
       );
       expect(actual).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.update,
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledWith(
         unpaidInvoice.id,
         { metadata: { paypalRefundRefused: 'reason' } }
       );
@@ -2671,10 +2818,10 @@ describe('StripeHelper', () => {
       const attemptedInvoice = deepCopy(unpaidInvoice);
       const actual = stripeHelper.getPaymentAttempts(attemptedInvoice);
       expect(actual).toBe(0);
-      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.invoices, 'update').mockResolvedValue({});
       await stripeHelper.updatePaymentAttempts(attemptedInvoice);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.update,
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledWith(
         attemptedInvoice.id,
         { metadata: { paymentAttempts: '1' } }
       );
@@ -2685,10 +2832,10 @@ describe('StripeHelper', () => {
       attemptedInvoice.metadata.paymentAttempts = '1';
       const actual = stripeHelper.getPaymentAttempts(attemptedInvoice);
       expect(actual).toBe(1);
-      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.invoices, 'update').mockResolvedValue({});
       await stripeHelper.updatePaymentAttempts(attemptedInvoice);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.update,
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledWith(
         attemptedInvoice.id,
         { metadata: { paymentAttempts: '2' } }
       );
@@ -2699,10 +2846,10 @@ describe('StripeHelper', () => {
       attemptedInvoice.metadata.paymentAttempts = '1';
       const actual = stripeHelper.getPaymentAttempts(attemptedInvoice);
       expect(actual).toBe(1);
-      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.invoices, 'update').mockResolvedValue({});
       await stripeHelper.updatePaymentAttempts(attemptedInvoice, 3);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.update,
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledWith(
         attemptedInvoice.id,
         { metadata: { paymentAttempts: '3' } }
       );
@@ -2725,14 +2872,14 @@ describe('StripeHelper', () => {
 
     it('returns invoice updated with new email type', async () => {
       const emailSendInvoice = deepCopy(unpaidInvoice);
-      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.invoices, 'update').mockResolvedValue({});
       const actual = await stripeHelper.updateEmailSent(
         emailSendInvoice,
         'paymentFailed'
       );
       expect(actual).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.update,
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledWith(
         emailSendInvoice.id,
         { metadata: emailSentInvoice.metadata }
       );
@@ -2740,14 +2887,14 @@ describe('StripeHelper', () => {
 
     it('returns invoice updated with another email type', async () => {
       const emailSendInvoice = deepCopy(emailSentInvoice);
-      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.invoices, 'update').mockResolvedValue({});
       const actual = await stripeHelper.updateEmailSent(
         emailSendInvoice,
         'foo'
       );
       expect(actual).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.update,
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.update).toHaveBeenCalledWith(
         emailSendInvoice.id,
         {
           metadata: {
@@ -2760,10 +2907,10 @@ describe('StripeHelper', () => {
 
   describe('payInvoiceOutOfBand', () => {
     it('pays the invoice', async () => {
-      sandbox.stub(stripeHelper.stripe.invoices, 'pay').resolves({});
+      jest.spyOn(stripeHelper.stripe.invoices, 'pay').mockResolvedValue({});
       await stripeHelper.payInvoiceOutOfBand(unpaidInvoice);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.pay,
+      expect(stripeHelper.stripe.invoices.pay).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.pay).toHaveBeenCalledWith(
         unpaidInvoice.id,
         { paid_out_of_band: true }
       );
@@ -2771,24 +2918,24 @@ describe('StripeHelper', () => {
 
     it('ignores error if the invoice was already paid', async () => {
       const alreadyPaidInvoice = { ...deepCopy(unpaidInvoice), paid: true };
-      sandbox
-        .stub(stripeHelper.stripe.invoices, 'pay')
-        .rejects(new Error('Invoice is already paid'));
+      jest
+        .spyOn(stripeHelper.stripe.invoices, 'pay')
+        .mockRejectedValue(new Error('Invoice is already paid'));
       await stripeHelper.payInvoiceOutOfBand(alreadyPaidInvoice);
-      sinon.assert.calledOnce(
-        stripeHelper.stripe.invoices.pay as sinon.SinonStub
-      );
+      expect(
+        stripeHelper.stripe.invoices.pay as jest.Mock
+      ).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('updateCustomerBillingAddress', () => {
     it('updates Customer with empty PayPal billing address', async () => {
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'update')
-        .resolves({ metadata: {}, tax: {} });
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'update')
+        .mockResolvedValue({ metadata: {}, tax: {} });
+      stripeFirestore.insertCustomerRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await stripeHelper.updateCustomerBillingAddress({
         customerId: customer1.id,
         options: {
@@ -2801,8 +2948,8 @@ describe('StripeHelper', () => {
         },
       });
       expect(result).toEqual({ metadata: {}, tax: {} });
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.customers.update,
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledWith(
         customer1.id,
         {
           address: {
@@ -2816,11 +2963,12 @@ describe('StripeHelper', () => {
           expand: ['tax'],
         }
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertCustomerRecordWithBackfill as sinon.SinonStub,
-        undefined,
-        { metadata: {} }
-      );
+      expect(
+        stripeFirestore.insertCustomerRecordWithBackfill as jest.Mock
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.insertCustomerRecordWithBackfill as jest.Mock
+      ).toHaveBeenCalledWith(undefined, { metadata: {} });
     });
   });
 
@@ -2828,26 +2976,26 @@ describe('StripeHelper', () => {
     it('skips if the agreement id is already set', async () => {
       const paypalCustomer = deepCopy(customer1);
       paypalCustomer.metadata.paypalAgreementId = 'test-1234';
-      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.customers, 'update').mockResolvedValue({});
       await stripeHelper.updateCustomerPaypalAgreement(
         paypalCustomer,
         'test-1234'
       );
-      sinon.assert.callCount(stripeHelper.stripe.customers.update, 0);
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledTimes(0);
     });
 
     it('updates for a billing agreement id', async () => {
       const paypalCustomer = deepCopy(customer1);
-      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
+      jest.spyOn(stripeHelper.stripe.customers, 'update').mockResolvedValue({});
+      stripeFirestore.insertCustomerRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
       await stripeHelper.updateCustomerPaypalAgreement(
         paypalCustomer,
         'test-1234'
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.customers.update,
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledWith(
         paypalCustomer.id,
         { metadata: { paypalAgreementId: 'test-1234' } }
       );
@@ -2857,31 +3005,31 @@ describe('StripeHelper', () => {
   describe('removeCustomerPaypalAgreement', () => {
     it('removes billing agreement id', async () => {
       const paypalCustomer = deepCopy(customer1);
-      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.customers, 'update').mockResolvedValue({});
       const now = new Date();
-      const clock = sinon.useFakeTimers(now.getTime());
-      sandbox.stub(dbStub, 'updatePayPalBA').returns(0);
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
+      jest.useFakeTimers({ now: now.getTime() });
+      jest.spyOn(dbStub, 'updatePayPalBA').mockReturnValue(0);
+      stripeFirestore.insertCustomerRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
       await stripeHelper.removeCustomerPaypalAgreement(
         'uid',
         paypalCustomer.id,
         'billingAgreementId'
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.customers.update,
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledWith(
         paypalCustomer.id,
         { metadata: { paypalAgreementId: null } }
       );
-      sinon.assert.calledOnceWithExactly(
-        dbStub.updatePayPalBA,
+      expect(dbStub.updatePayPalBA).toHaveBeenCalledTimes(1);
+      expect(dbStub.updatePayPalBA).toHaveBeenCalledWith(
         'uid',
         'billingAgreementId',
         'Cancelled',
-        clock.now
+        Date.now()
       );
-      clock.restore();
+      jest.useRealTimers();
     });
   });
 
@@ -2895,47 +3043,55 @@ describe('StripeHelper', () => {
         yield invoice;
         yield invoice2;
       }
-      sandbox.stub(stripeHelper.stripe.invoices, 'list').returns(genInvoice());
+      jest
+        .spyOn(stripeHelper.stripe.invoices, 'list')
+        .mockReturnValue(genInvoice());
       const actual: any[] = [];
       for await (const item of stripeHelper.fetchOpenInvoices(0)) {
         actual.push(item);
       }
       expect(actual).toEqual([invoice]);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.list as sinon.SinonStub,
-        {
-          customer: undefined,
-          limit: 100,
-          collection_method: 'send_invoice',
-          status: 'open',
-          created: 0,
-          expand: ['data.customer', 'data.subscription'],
-        }
-      );
+      expect(
+        stripeHelper.stripe.invoices.list as jest.Mock
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripe.invoices.list as jest.Mock
+      ).toHaveBeenCalledWith({
+        customer: undefined,
+        limit: 100,
+        collection_method: 'send_invoice',
+        status: 'open',
+        created: 0,
+        expand: ['data.customer', 'data.subscription'],
+      });
     });
   });
 
   describe('markUncollectible', () => {
     it('returns an invoice marked uncollectible', async () => {
-      sandbox
-        .stub(stripeHelper.stripe.invoices, 'markUncollectible')
-        .resolves({});
-      sandbox.stub(stripeHelper.stripe.invoices, 'list').resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.invoices, 'markUncollectible')
+        .mockResolvedValue({});
+      jest.spyOn(stripeHelper.stripe.invoices, 'list').mockResolvedValue({});
       const actual = await stripeHelper.markUncollectible(unpaidInvoice);
       expect(actual).toEqual({});
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.markUncollectible,
-        unpaidInvoice.id
-      );
+      expect(
+        stripeHelper.stripe.invoices.markUncollectible
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripe.invoices.markUncollectible
+      ).toHaveBeenCalledWith(unpaidInvoice.id);
     });
   });
 
   describe('cancelSubscription', () => {
     it('sets subscription to cancelled', async () => {
-      sandbox.stub(stripeHelper.stripe.subscriptions, 'cancel').resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'cancel')
+        .mockResolvedValue({});
       await stripeHelper.cancelSubscription('subscriptionId');
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.cancel,
+      expect(stripeHelper.stripe.subscriptions.cancel).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.cancel).toHaveBeenCalledWith(
         'subscriptionId'
       );
     });
@@ -3039,10 +3195,14 @@ describe('StripeHelper', () => {
     });
 
     it('returns null and sends sentry error with no charges', () => {
-      const scopeContextSpy = sinon.fake();
+      const scopeContextSpy = jest.fn();
       const scopeSpy = { setContext: scopeContextSpy };
-      sandbox.replace(Sentry, 'withScope', ((fn: any) => fn(scopeSpy)) as any);
-      sandbox.replace(sentryModule, 'reportSentryMessage', sinon.stub());
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation(((fn: any) => fn(scopeSpy)) as any);
+      jest
+        .spyOn(sentryModule, 'reportSentryMessage')
+        .mockImplementation(jest.fn());
 
       const latest_invoice = {
         ...subscriptionCreatedInvoice,
@@ -3052,27 +3212,33 @@ describe('StripeHelper', () => {
       const result =
         stripeHelper.extractSourceCountryFromSubscription(subscription);
       expect(result).toBeNull();
-      expect(scopeContextSpy.calledOnce).toBe(true);
-      expect(sentryModule.reportSentryMessage.calledOnce).toBe(true);
+      expect(scopeContextSpy.mock.calls.length === 1).toBe(true);
+      expect(sentryModule.reportSentryMessage.mock.calls.length === 1).toBe(
+        true
+      );
     });
   });
 
   describe('allTaxRates', () => {
     it('pulls a list of tax rates and caches it', async () => {
       expect(await stripeHelper.allTaxRates()).toHaveLength(2);
-      expect(mockRedis.get.calledOnce).toBeTruthy();
+      expect(mockRedis.get.mock.calls.length === 1).toBeTruthy();
 
       expect(await stripeHelper.allTaxRates()).toHaveLength(2);
-      expect(mockRedis.get.calledTwice).toBeTruthy();
-      expect(mockRedis.set.calledOnce).toBeTruthy();
+      expect(mockRedis.get).toHaveBeenCalledTimes(2);
+      expect(mockRedis.set.mock.calls.length === 1).toBeTruthy();
 
       // Assert that a TTL was set for this cache entry
-      expect(mockRedis.set.args[0][2]).toEqual([
-        'EX',
-        mockConfig.subhub.stripeTaxRatesCacheTtlSeconds,
-      ]);
+      expect(mockRedis.set).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        ['EX', mockConfig.subhub.stripeTaxRatesCacheTtlSeconds]
+      );
 
-      expect(stripeHelper.stripe.taxRates.list.calledOnce).toBeTruthy();
+      expect(
+        stripeHelper.stripe.taxRates.list.mock.calls.length === 1
+      ).toBeTruthy();
 
       expect(await stripeHelper.allTaxRates()).toEqual(
         JSON.parse(await mockRedis.get('listStripeTaxRates'))
@@ -3084,10 +3250,12 @@ describe('StripeHelper', () => {
     it('updates the tax rates in the cache', async () => {
       const newList = ['xyz'];
       await stripeHelper.updateAllTaxRates(newList);
-      expect(mockRedis.set.args[0][2]).toEqual([
-        'EX',
-        mockConfig.subhub.stripeTaxRatesCacheTtlSeconds,
-      ]);
+      expect(mockRedis.set).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        ['EX', mockConfig.subhub.stripeTaxRatesCacheTtlSeconds]
+      );
       expect(newList).toEqual(
         JSON.parse(await mockRedis.get('listStripeTaxRates'))
       );
@@ -3116,8 +3284,8 @@ describe('StripeHelper', () => {
   describe('allConfiguredPlans', () => {
     it('gets a list of configured plans', async () => {
       const thePlans = await stripeHelper.allPlans();
-      sandbox.spy(stripeHelper, 'allPlans');
-      sandbox.spy(stripeHelper.paymentConfigManager, 'getMergedConfig');
+      jest.spyOn(stripeHelper, 'allPlans');
+      jest.spyOn(stripeHelper.paymentConfigManager, 'getMergedConfig');
       const actual = await stripeHelper.allConfiguredPlans();
       actual.forEach((p: any, idx: number) => {
         expect(p.id).toBe(thePlans[idx].id);
@@ -3129,31 +3297,35 @@ describe('StripeHelper', () => {
         }
       });
       expect(
-        (stripeHelper.allPlans as sinon.SinonStub).calledOnce
+        (stripeHelper.allPlans as jest.Mock).mock.calls.length === 1
       ).toBeTruthy();
       expect(
         // one of the plans does not have a matching ProductConfig
-        stripeHelper.paymentConfigManager.getMergedConfig.calledTwice
-      ).toBeTruthy();
+        stripeHelper.paymentConfigManager.getMergedConfig
+      ).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('allPlans', () => {
     it('pulls a list of plans and caches it', async () => {
       expect(await stripeHelper.allPlans()).toHaveLength(3);
-      expect(mockRedis.get.calledOnce).toBeTruthy();
+      expect(mockRedis.get.mock.calls.length === 1).toBeTruthy();
 
       expect(await stripeHelper.allPlans()).toHaveLength(3);
-      expect(mockRedis.get.calledTwice).toBeTruthy();
-      expect(mockRedis.set.calledOnce).toBeTruthy();
+      expect(mockRedis.get).toHaveBeenCalledTimes(2);
+      expect(mockRedis.set.mock.calls.length === 1).toBeTruthy();
 
       // Assert that a TTL was set for this cache entry
-      expect(mockRedis.set.args[0][2]).toEqual([
-        'EX',
-        mockConfig.subhub.plansCacheTtlSeconds,
-      ]);
+      expect(mockRedis.set).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        ['EX', mockConfig.subhub.plansCacheTtlSeconds]
+      );
 
-      expect(stripeHelper.stripe.plans.list.calledOnce).toBeTruthy();
+      expect(
+        stripeHelper.stripe.plans.list.mock.calls.length === 1
+      ).toBeTruthy();
 
       expect(await stripeHelper.allPlans()).toEqual(
         JSON.parse(await mockRedis.get('listStripePlans'))
@@ -3165,10 +3337,12 @@ describe('StripeHelper', () => {
     it('updates the plans in the cache', async () => {
       const newList = ['xyz'];
       await stripeHelper.updateAllPlans(newList);
-      expect(mockRedis.set.args[0][2]).toEqual([
-        'EX',
-        mockConfig.subhub.plansCacheTtlSeconds,
-      ]);
+      expect(mockRedis.set).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        ['EX', mockConfig.subhub.plansCacheTtlSeconds]
+      );
       expect(newList).toEqual(
         JSON.parse(await mockRedis.get('listStripePlans'))
       );
@@ -3189,7 +3363,7 @@ describe('StripeHelper', () => {
       },
     };
     beforeEach(() => {
-      sandbox.stub(stripeHelper, 'allProducts').resolves([mockProduct]);
+      jest.spyOn(stripeHelper, 'allProducts').mockResolvedValue([mockProduct]);
     });
 
     it('returns undefined if the product is not in allProducts', async () => {
@@ -3206,19 +3380,23 @@ describe('StripeHelper', () => {
   describe('allProducts', () => {
     it('pulls a list of products and caches it', async () => {
       expect(await stripeHelper.allProducts()).toHaveLength(3);
-      expect(mockRedis.get.calledOnce).toBeTruthy();
+      expect(mockRedis.get.mock.calls.length === 1).toBeTruthy();
 
       expect(await stripeHelper.allProducts()).toHaveLength(3);
-      expect(mockRedis.get.calledTwice).toBeTruthy();
-      expect(mockRedis.set.calledOnce).toBeTruthy();
+      expect(mockRedis.get).toHaveBeenCalledTimes(2);
+      expect(mockRedis.set.mock.calls.length === 1).toBeTruthy();
 
       // Assert that a TTL was set for this cache entry
-      expect(mockRedis.set.args[0][2]).toEqual([
-        'EX',
-        mockConfig.subhub.plansCacheTtlSeconds,
-      ]);
+      expect(mockRedis.set).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        ['EX', mockConfig.subhub.plansCacheTtlSeconds]
+      );
 
-      expect(stripeHelper.stripe.products.list.calledOnce).toBeTruthy();
+      expect(
+        stripeHelper.stripe.products.list.mock.calls.length === 1
+      ).toBeTruthy();
 
       expect(await stripeHelper.allProducts()).toEqual(
         JSON.parse(await mockRedis.get('listStripeProducts'))
@@ -3230,10 +3408,12 @@ describe('StripeHelper', () => {
     it('updates the products in the cache', async () => {
       const newList = ['x'];
       await stripeHelper.updateAllProducts(newList);
-      expect(mockRedis.set.args[0][2]).toEqual([
-        'EX',
-        mockConfig.subhub.plansCacheTtlSeconds,
-      ]);
+      expect(mockRedis.set).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        ['EX', mockConfig.subhub.plansCacheTtlSeconds]
+      );
       expect(newList).toEqual(
         JSON.parse(await mockRedis.get('listStripeProducts'))
       );
@@ -3242,10 +3422,12 @@ describe('StripeHelper', () => {
 
   describe('allAbbrevProducts', () => {
     it('returns a AbbrevProduct list based on allProducts', async () => {
-      sandbox.spy(stripeHelper, 'allProducts');
+      jest.spyOn(stripeHelper, 'allProducts');
       const actual = await stripeHelper.allAbbrevProducts();
-      expect(stripeHelper.stripe.products.list.calledOnce).toBeTruthy();
-      expect(stripeHelper.allProducts.calledOnce).toBeTruthy();
+      expect(
+        stripeHelper.stripe.products.list.mock.calls.length === 1
+      ).toBeTruthy();
+      expect(stripeHelper.allProducts.mock.calls.length === 1).toBeTruthy();
       expect(actual).toEqual(
         [product1, product2, product3].map((p: any) => ({
           product_id: p.id,
@@ -3309,10 +3491,10 @@ describe('StripeHelper', () => {
           goodPlan,
         ];
 
-        listStripePlans.restore();
-        sandbox
-          .stub(stripeHelper.stripe.plans, 'list')
-          .returns(planList as any);
+        listStripePlans.mockRestore();
+        jest
+          .spyOn(stripeHelper.stripe.plans, 'list')
+          .mockReturnValue(planList as any);
 
         const actual = await stripeHelper.fetchAllPlans();
 
@@ -3328,26 +3510,30 @@ describe('StripeHelper', () => {
         );
 
         /** Verify the error cases were handled properly */
-        expect(stripeHelper.log.error.callCount).toBe(4);
+        expect(stripeHelper.log.error).toHaveBeenCalledTimes(4);
         /** Plan.product is null */
-        expect(stripeHelper.log.error.getCall(0).args[0]).toBe(
-          `fetchAllPlans - Plan "${planMissingProduct.id}" missing Product`
+        expect(stripeHelper.log.error).toHaveBeenNthCalledWith(
+          1,
+          `fetchAllPlans - Plan "${planMissingProduct.id}" missing Product`,
+          expect.anything()
         );
         /** Plan.product is string */
-        expect(stripeHelper.log.error.getCall(1).args[0]).toBe(
-          `fetchAllPlans - Plan "${planUnloadedProduct.id}" failed to load Product`
+        expect(stripeHelper.log.error).toHaveBeenNthCalledWith(
+          2,
+          `fetchAllPlans - Plan "${planUnloadedProduct.id}" failed to load Product`,
+          expect.anything()
         );
         /** Plan.product is DeletedProduct */
-        expect(stripeHelper.log.error.getCall(2).args[0]).toBe(
-          `fetchAllPlans - Plan "${planDeletedProduct.id}" associated with Deleted Product`
+        expect(stripeHelper.log.error).toHaveBeenNthCalledWith(
+          3,
+          `fetchAllPlans - Plan "${planDeletedProduct.id}" associated with Deleted Product`,
+          expect.anything()
         );
         /** Plan.product has invalid metadata */
         expect(
-          stripeHelper.log.error
-            .getCall(3)
-            .args[0].includes(
-              `fetchAllPlans: ${planInvalidProductMetadata.id} metadata invalid:`
-            )
+          stripeHelper.log.error.mock.calls[3][0].includes(
+            `fetchAllPlans: ${planInvalidProductMetadata.id} metadata invalid:`
+          )
         ).toBe(true);
       });
     });
@@ -3359,25 +3545,27 @@ describe('StripeHelper', () => {
       const updatedSubscription = deepCopy(subscription1);
       updatedSubscription.cancel_at_period_end = false;
       const newProps = { cancel_at_period_end: false };
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'update')
-        .resolves(updatedSubscription);
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves();
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'update')
+        .mockResolvedValue(updatedSubscription);
+      stripeFirestore.insertSubscriptionRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue();
       const actual = await stripeHelper.updateSubscriptionAndBackfill(
         subscription,
         newProps
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.update,
+      expect(stripeHelper.stripe.subscriptions.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.update).toHaveBeenCalledWith(
         subscription.id,
         newProps
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertSubscriptionRecordWithBackfill,
-        updatedSubscription
-      );
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.insertSubscriptionRecordWithBackfill
+      ).toHaveBeenCalledWith(updatedSubscription);
       expect(actual).toEqual(updatedSubscription);
     });
   });
@@ -3393,10 +3581,10 @@ describe('StripeHelper', () => {
         previous_plan_id: 'plan_123',
         plan_change_date: 12345678,
       };
-      sandbox.stub(moment, 'unix').returns(unixTimestamp);
-      sandbox
-        .stub(stripeHelper, 'updateSubscriptionAndBackfill')
-        .resolves(subscription2);
+      jest.spyOn(moment, 'unix').mockReturnValue(unixTimestamp);
+      jest
+        .spyOn(stripeHelper, 'updateSubscriptionAndBackfill')
+        .mockResolvedValue(subscription2);
       const actual = await stripeHelper.changeSubscriptionPlan(
         subscription,
         'plan_G93mMKnIFCjZek',
@@ -3407,9 +3595,9 @@ describe('StripeHelper', () => {
     });
 
     it('throws an error if the user already upgraded', async () => {
-      sandbox
-        .stub(stripeHelper, 'updateSubscriptionAndBackfill')
-        .resolves(subscription2);
+      jest
+        .spyOn(stripeHelper, 'updateSubscriptionAndBackfill')
+        .mockResolvedValue(subscription2);
       let thrown: any;
       try {
         await stripeHelper.changeSubscriptionPlan(
@@ -3420,13 +3608,15 @@ describe('StripeHelper', () => {
         thrown = err;
       }
       expect(thrown.errno).toBe(error.ERRNO.SUBSCRIPTION_ALREADY_CHANGED);
-      sinon.assert.notCalled(stripeHelper.updateSubscriptionAndBackfill);
+      expect(stripeHelper.updateSubscriptionAndBackfill).not.toHaveBeenCalled();
     });
   });
 
   describe('cancelSubscriptionForCustomer', () => {
     beforeEach(() => {
-      sandbox.stub(stripeHelper, 'updateSubscriptionAndBackfill').resolves({});
+      jest
+        .spyOn(stripeHelper, 'updateSubscriptionAndBackfill')
+        .mockResolvedValue({});
     });
 
     describe('customer owns subscription', () => {
@@ -3434,17 +3624,19 @@ describe('StripeHelper', () => {
         const existingMetadata = { foo: 'bar' };
         const unixTimestamp = moment().unix();
         const subscription = { ...subscription2, metadata: existingMetadata };
-        sandbox.stub(moment, 'unix').returns(unixTimestamp);
-        sandbox
-          .stub(stripeHelper, 'subscriptionForCustomer')
-          .resolves(subscription);
+        jest.spyOn(moment, 'unix').mockReturnValue(unixTimestamp);
+        jest
+          .spyOn(stripeHelper, 'subscriptionForCustomer')
+          .mockResolvedValue(subscription);
         await stripeHelper.cancelSubscriptionForCustomer(
           '123',
           'test@example.com',
           subscription2.id
         );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.updateSubscriptionAndBackfill,
+        expect(
+          stripeHelper.updateSubscriptionAndBackfill
+        ).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.updateSubscriptionAndBackfill).toHaveBeenCalledWith(
           subscription,
           {
             cancel_at_period_end: true,
@@ -3459,7 +3651,7 @@ describe('StripeHelper', () => {
 
     describe('customer does not own the subscription', () => {
       it('throws an error', async () => {
-        sandbox.stub(stripeHelper, 'subscriptionForCustomer').resolves();
+        jest.spyOn(stripeHelper, 'subscriptionForCustomer').mockResolvedValue();
         try {
           await stripeHelper.cancelSubscriptionForCustomer(
             '123',
@@ -3469,7 +3661,9 @@ describe('StripeHelper', () => {
           throw new Error('Method expected to reject');
         } catch (err: any) {
           expect(err.errno).toBe(error.ERRNO.UNKNOWN_SUBSCRIPTION);
-          sinon.assert.notCalled(stripeHelper.updateSubscriptionAndBackfill);
+          expect(
+            stripeHelper.updateSubscriptionAndBackfill
+          ).not.toHaveBeenCalled();
         }
       });
     });
@@ -3484,12 +3678,12 @@ describe('StripeHelper', () => {
             ...deepCopy(subscription2),
             metadata: existingMetadata,
           };
-          sandbox
-            .stub(stripeHelper, 'updateSubscriptionAndBackfill')
-            .resolves(expected);
-          sandbox
-            .stub(stripeHelper, 'subscriptionForCustomer')
-            .resolves(expected);
+          jest
+            .spyOn(stripeHelper, 'updateSubscriptionAndBackfill')
+            .mockResolvedValue(expected);
+          jest
+            .spyOn(stripeHelper, 'subscriptionForCustomer')
+            .mockResolvedValue(expected);
           const actual = await stripeHelper.reactivateSubscriptionForCustomer(
             '123',
             'test@example.com',
@@ -3503,12 +3697,12 @@ describe('StripeHelper', () => {
         it('returns the updated subscription', async () => {
           const expected = deepCopy(subscription2);
           expected.status = 'trialing';
-          sandbox
-            .stub(stripeHelper, 'subscriptionForCustomer')
-            .resolves(expected);
-          sandbox
-            .stub(stripeHelper, 'updateSubscriptionAndBackfill')
-            .resolves(expected);
+          jest
+            .spyOn(stripeHelper, 'subscriptionForCustomer')
+            .mockResolvedValue(expected);
+          jest
+            .spyOn(stripeHelper, 'updateSubscriptionAndBackfill')
+            .mockResolvedValue(expected);
           const actual = await stripeHelper.reactivateSubscriptionForCustomer(
             '123',
             'test@example.com',
@@ -3522,12 +3716,12 @@ describe('StripeHelper', () => {
         it('throws an error', async () => {
           const expected = deepCopy(subscription2);
           expected.status = 'unpaid';
-          sandbox
-            .stub(stripeHelper, 'subscriptionForCustomer')
-            .resolves(expected);
-          sandbox
-            .stub(stripeHelper, 'updateSubscriptionAndBackfill')
-            .resolves(expected);
+          jest
+            .spyOn(stripeHelper, 'subscriptionForCustomer')
+            .mockResolvedValue(expected);
+          jest
+            .spyOn(stripeHelper, 'updateSubscriptionAndBackfill')
+            .mockResolvedValue(expected);
           try {
             await stripeHelper.reactivateSubscriptionForCustomer(
               '123',
@@ -3537,7 +3731,9 @@ describe('StripeHelper', () => {
             throw new Error('Method expected to reject');
           } catch (err: any) {
             expect(err.errno).toBe(error.ERRNO.BACKEND_SERVICE_FAILURE);
-            sinon.assert.notCalled(stripeHelper.updateSubscriptionAndBackfill);
+            expect(
+              stripeHelper.updateSubscriptionAndBackfill
+            ).not.toHaveBeenCalled();
           }
         });
       });
@@ -3545,8 +3741,10 @@ describe('StripeHelper', () => {
 
     describe('customer does not own the subscription', () => {
       it('throws an error', async () => {
-        sandbox.stub(stripeHelper, 'subscriptionForCustomer').resolves();
-        sandbox.stub(stripeHelper, 'updateSubscriptionAndBackfill').resolves();
+        jest.spyOn(stripeHelper, 'subscriptionForCustomer').mockResolvedValue();
+        jest
+          .spyOn(stripeHelper, 'updateSubscriptionAndBackfill')
+          .mockResolvedValue();
         try {
           await stripeHelper.reactivateSubscriptionForCustomer(
             '123',
@@ -3556,7 +3754,9 @@ describe('StripeHelper', () => {
           throw new Error('Method expected to reject');
         } catch (err: any) {
           expect(err.errno).toBe(error.ERRNO.UNKNOWN_SUBSCRIPTION);
-          sinon.assert.notCalled(stripeHelper.updateSubscriptionAndBackfill);
+          expect(
+            stripeHelper.updateSubscriptionAndBackfill
+          ).not.toHaveBeenCalled();
         }
       });
     });
@@ -3566,13 +3766,15 @@ describe('StripeHelper', () => {
     it('updates stripe if theres a tax id for the currency', async () => {
       const customer = deepCopy(customer1);
       stripeHelper.taxIds = { EUR: 'EU1234' };
-      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves(customer);
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'update')
+        .mockResolvedValue(customer);
+      stripeFirestore.insertCustomerRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
       await stripeHelper.addTaxIdToCustomer(customer, 'eur');
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.customers.update,
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledWith(
         customer.id,
         {
           invoice_settings: {
@@ -3586,13 +3788,15 @@ describe('StripeHelper', () => {
       const customer = deepCopy(customer1);
       stripeHelper.taxIds = { EUR: 'EU1234' };
       customer.currency = 'eur';
-      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves(customer);
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'update')
+        .mockResolvedValue(customer);
+      stripeFirestore.insertCustomerRecordWithBackfill = jest
+        .fn()
+        .mockResolvedValue({});
       await stripeHelper.addTaxIdToCustomer(customer);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.customers.update,
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.customers.update).toHaveBeenCalledWith(
         customer.id,
         {
           invoice_settings: {
@@ -3600,27 +3804,28 @@ describe('StripeHelper', () => {
           },
         }
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertCustomerRecordWithBackfill,
-        customer.metadata.userid,
-        customer
-      );
+      expect(
+        stripeFirestore.insertCustomerRecordWithBackfill
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.insertCustomerRecordWithBackfill
+      ).toHaveBeenCalledWith(customer.metadata.userid, customer);
     });
 
     it('does not update stripe with no tax id found', async () => {
       const customer = deepCopy(customer1);
       stripeHelper.taxIds = { EUR: 'EU1234' };
-      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+      jest.spyOn(stripeHelper.stripe.customers, 'update').mockResolvedValue({});
       await stripeHelper.addTaxIdToCustomer(customer, 'usd');
-      sinon.assert.notCalled(stripeHelper.stripe.customers.update);
+      expect(stripeHelper.stripe.customers.update).not.toHaveBeenCalled();
     });
   });
 
   describe('fetchInvoicesForActiveSubscriptions', () => {
     it('returns empty array if customer has no active subscriptions', async () => {
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'list')
-        .resolves({ data: [] });
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'list')
+        .mockResolvedValue({ data: [] });
       const result = await stripeHelper.fetchInvoicesForActiveSubscriptions(
         existingUid,
         'paid'
@@ -3633,10 +3838,10 @@ describe('StripeHelper', () => {
         id: 'idString',
         subscription: 'idSub',
       };
-      sandbox.stub(stripeHelper.stripe.subscriptions, 'list').resolves({
+      jest.spyOn(stripeHelper.stripe.subscriptions, 'list').mockResolvedValue({
         data: [{ id: 'idNull' }, { id: 'subIdExpanded' }, { id: 'idSub' }],
       });
-      sandbox.stub(stripeHelper.stripe.invoices, 'list').resolves({
+      jest.spyOn(stripeHelper.stripe.invoices, 'list').mockResolvedValue({
         data: [{ id: 'idNull', subscription: null }, { ...expectedString }],
       });
       const result = await stripeHelper.fetchInvoicesForActiveSubscriptions(
@@ -3647,10 +3852,12 @@ describe('StripeHelper', () => {
     });
 
     it('fetches invoices no older than earliestCreatedDate', async () => {
-      sandbox.stub(stripeHelper.stripe.subscriptions, 'list').resolves({
+      jest.spyOn(stripeHelper.stripe.subscriptions, 'list').mockResolvedValue({
         data: [{ id: 'idNull' }],
       });
-      sandbox.stub(stripeHelper.stripe.invoices, 'list').resolves({ data: [] });
+      jest
+        .spyOn(stripeHelper.stripe.invoices, 'list')
+        .mockResolvedValue({ data: [] });
       const expectedDateTime = 1706667661086;
       const expectedDate = new Date(expectedDateTime);
 
@@ -3661,7 +3868,8 @@ describe('StripeHelper', () => {
       );
 
       expect(result).toEqual([]);
-      sinon.assert.calledOnceWithExactly(stripeHelper.stripe.invoices.list, {
+      expect(stripeHelper.stripe.invoices.list).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.invoices.list).toHaveBeenCalledWith({
         customer: 'customerId',
         status: 'paid',
         created: { gte: Math.floor(expectedDateTime / 1000) },
@@ -3673,32 +3881,38 @@ describe('StripeHelper', () => {
     let stripeCustomerDel: any;
 
     beforeEach(() => {
-      stripeCustomerDel = sandbox
-        .stub(stripeHelper.stripe.customers, 'del')
-        .resolves();
+      stripeCustomerDel = jest
+        .spyOn(stripeHelper.stripe.customers, 'del')
+        .mockResolvedValue();
     });
 
     describe('when customer is found', () => {
       it('deletes customer in Stripe, removes AccountCustomer and cached records, detach payment method', async () => {
         const uid = chance.guid({ version: 4 }).replace(/-/g, '');
         const customerId = 'cus_1234456sdf';
-        sandbox.stub(stripeHelper, 'fetchCustomer').resolves({
+        jest.spyOn(stripeHelper, 'fetchCustomer').mockResolvedValue({
           invoice_settings: { default_payment_method: { id: 'pm9001' } },
         });
-        sandbox.stub(stripeHelper.stripe.paymentMethods, 'detach').resolves();
+        jest
+          .spyOn(stripeHelper.stripe.paymentMethods, 'detach')
+          .mockResolvedValue();
         const testAccount = await createAccountCustomer(uid, customerId);
         await stripeHelper.removeCustomer(testAccount.uid);
-        expect(stripeCustomerDel.calledOnce).toBeTruthy();
+        expect(stripeCustomerDel.mock.calls.length === 1).toBeTruthy();
         expect(await getAccountCustomerByUid(uid)).toBeUndefined();
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.fetchCustomer as sinon.SinonStub,
+        expect(stripeHelper.fetchCustomer as jest.Mock).toHaveBeenCalledTimes(
+          1
+        );
+        expect(stripeHelper.fetchCustomer as jest.Mock).toHaveBeenCalledWith(
           uid,
           ['invoice_settings.default_payment_method']
         );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripe.paymentMethods.detach as sinon.SinonStub,
-          'pm9001'
-        );
+        expect(
+          stripeHelper.stripe.paymentMethods.detach as jest.Mock
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          stripeHelper.stripe.paymentMethods.detach as jest.Mock
+        ).toHaveBeenCalledWith('pm9001');
       });
     });
 
@@ -3706,33 +3920,40 @@ describe('StripeHelper', () => {
       it('deletes everything and updates metadata', async () => {
         const uid = chance.guid({ version: 4 }).replace(/-/g, '');
         const customerId = 'cus_1234456sdf';
-        sandbox.stub(stripeHelper, 'fetchCustomer').resolves({
+        jest.spyOn(stripeHelper, 'fetchCustomer').mockResolvedValue({
           invoice_settings: { default_payment_method: { id: 'pm9001' } },
           subscriptions: {
             data: [{ id: 'sub_123', status: 'active' }],
           },
         });
-        sandbox.stub(stripeHelper.stripe.paymentMethods, 'detach').resolves();
-        sandbox.stub(stripeHelper.stripe.subscriptions, 'update').resolves();
+        jest
+          .spyOn(stripeHelper.stripe.paymentMethods, 'detach')
+          .mockResolvedValue();
+        jest
+          .spyOn(stripeHelper.stripe.subscriptions, 'update')
+          .mockResolvedValue();
         const testAccount = await createAccountCustomer(uid, customerId);
         await stripeHelper.removeCustomer(testAccount.uid, {
           cancellation_reason: 'test',
         });
-        expect(stripeCustomerDel.calledOnce).toBeTruthy();
+        expect(stripeCustomerDel.mock.calls.length === 1).toBeTruthy();
         expect(await getAccountCustomerByUid(uid)).toBeUndefined();
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripe.subscriptions.update as sinon.SinonStub,
-          'sub_123',
-          {
-            metadata: {
-              cancellation_reason: 'test',
-            },
-          }
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripe.paymentMethods.detach as sinon.SinonStub,
-          'pm9001'
-        );
+        expect(
+          stripeHelper.stripe.subscriptions.update as jest.Mock
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          stripeHelper.stripe.subscriptions.update as jest.Mock
+        ).toHaveBeenCalledWith('sub_123', {
+          metadata: {
+            cancellation_reason: 'test',
+          },
+        });
+        expect(
+          stripeHelper.stripe.paymentMethods.detach as jest.Mock
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          stripeHelper.stripe.paymentMethods.detach as jest.Mock
+        ).toHaveBeenCalledWith('pm9001');
       });
     });
 
@@ -3740,7 +3961,7 @@ describe('StripeHelper', () => {
       it('does not throw any errors', async () => {
         const uid = chance.guid({ version: 4 }).replace(/-/g, '');
         await stripeHelper.removeCustomer(uid);
-        expect(stripeCustomerDel.notCalled).toBeTruthy();
+        expect(stripeCustomerDel.mock.calls.length === 0).toBeTruthy();
       });
     });
 
@@ -3749,18 +3970,22 @@ describe('StripeHelper', () => {
         const uid = chance.guid({ version: 4 }).replace(/-/g, '');
         const customerId = 'cus_1234456sdf';
         const testAccount = await createAccountCustomer(uid, customerId);
-        sandbox.stub(stripeHelper, 'fetchCustomer').resolves({
+        jest.spyOn(stripeHelper, 'fetchCustomer').mockResolvedValue({
           invoice_settings: { default_payment_method: { id: 'pm9001' } },
         });
-        sandbox.stub(stripeHelper.stripe.paymentMethods, 'detach').resolves();
-        const deleteCustomer = sandbox
-          .stub(dbStub, 'deleteAccountCustomer')
-          .returns(0);
+        jest
+          .spyOn(stripeHelper.stripe.paymentMethods, 'detach')
+          .mockResolvedValue();
+        const deleteCustomer = jest
+          .spyOn(dbStub, 'deleteAccountCustomer')
+          .mockReturnValue(0);
         await stripeHelper.removeCustomer(testAccount.uid);
-        expect(deleteCustomer.calledOnce).toBeTruthy();
-        expect(stripeHelper.log.error.calledOnce).toBeTruthy();
-        expect(stripeHelper.log.error.getCall(0).args[0]).toBe(
-          `StripeHelper.removeCustomer failed to remove AccountCustomer record for uid ${uid}`
+        expect(deleteCustomer).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.log.error).toHaveBeenCalledTimes(1);
+        expect(stripeHelper.log.error).toHaveBeenNthCalledWith(
+          1,
+          `StripeHelper.removeCustomer failed to remove AccountCustomer record for uid ${uid}`,
+          expect.anything()
         );
       });
     });
@@ -3783,9 +4008,9 @@ describe('StripeHelper', () => {
         yield subscription2;
         yield subscription3;
       }
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'list')
-        .returns(genSubscription());
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'list')
+        .mockReturnValue(genSubscription());
       const actual: any[] = [];
       for await (const item of stripeHelper.findActiveSubscriptionsByPlanId(
         ...argsHelper
@@ -3793,8 +4018,8 @@ describe('StripeHelper', () => {
         actual.push(item);
       }
       expect(actual).toEqual([subscription1, subscription2]);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.list,
+      expect(stripeHelper.stripe.subscriptions.list).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.list).toHaveBeenCalledWith(
         argsStripe
       );
     });
@@ -3807,9 +4032,9 @@ describe('StripeHelper', () => {
         yield subscription2;
         yield subscription3;
       }
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'list')
-        .returns(genSubscription());
+      jest
+        .spyOn(stripeHelper.stripe.subscriptions, 'list')
+        .mockReturnValue(genSubscription());
       const actual: any[] = [];
       for await (const item of stripeHelper.findActiveSubscriptionsByPlanId(
         ...argsHelper
@@ -3817,8 +4042,8 @@ describe('StripeHelper', () => {
         actual.push(item);
       }
       expect(actual).toEqual([subscription1, subscription2]);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.list,
+      expect(stripeHelper.stripe.subscriptions.list).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripe.subscriptions.list).toHaveBeenCalledWith(
         argsStripe
       );
     });
@@ -3828,7 +4053,9 @@ describe('StripeHelper', () => {
     it('finds a valid plan', async () => {
       const planId = 'plan_G93lTs8hfK7NNG';
       const result = await stripeHelper.findAbbrevPlanById(planId);
-      expect(stripeHelper.stripe.plans.list.calledOnce).toBeTruthy();
+      expect(
+        stripeHelper.stripe.plans.list.mock.calls.length === 1
+      ).toBeTruthy();
       expect(result.plan_id).toBeTruthy();
     });
 
@@ -3840,7 +4067,9 @@ describe('StripeHelper', () => {
       } catch (err) {
         thrown = err;
       }
-      expect(stripeHelper.stripe.plans.list.calledOnce).toBeTruthy();
+      expect(
+        stripeHelper.stripe.plans.list.mock.calls.length === 1
+      ).toBeTruthy();
       expect(thrown).toBeInstanceOf(Error);
       expect(thrown.errno).toBe(error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
     });
@@ -3887,9 +4116,9 @@ describe('StripeHelper', () => {
   describe('constructWebhookEvent', () => {
     it('calls stripe.webhooks.construct event', () => {
       const expected = 'the expected result';
-      sandbox
-        .stub(stripeHelper.stripe.webhooks, 'constructEvent')
-        .returns(expected);
+      jest
+        .spyOn(stripeHelper.stripe.webhooks, 'constructEvent')
+        .mockReturnValue(expected);
 
       const actual = stripeHelper.constructWebhookEvent([], 'signature');
       expect(actual).toBe(expected);
@@ -3994,7 +4223,9 @@ describe('StripeHelper', () => {
 
   describe('fetchCustomer', () => {
     it('fetches an existing customer', async () => {
-      sandbox.stub(stripeHelper, 'expandResource').returns(deepCopy(customer1));
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockReturnValue(deepCopy(customer1));
       const result = await stripeHelper.fetchCustomer(existingCustomer.uid);
       expect(result).toEqual(customer1);
     });
@@ -4009,14 +4240,16 @@ describe('StripeHelper', () => {
     });
 
     it('returns void if the stripe customer is deleted and updates db', async () => {
-      sandbox.stub(stripeHelper, 'expandResource').returns(deletedCustomer);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockReturnValue(deletedCustomer);
       expect(await getAccountCustomerByUid(existingCustomer.uid)).toBeDefined();
       await stripeHelper.fetchCustomer(
         existingCustomer.uid,
         'test@example.com'
       );
 
-      expect(stripeHelper.expandResource.calledOnce).toBe(true);
+      expect(stripeHelper.expandResource.mock.calls.length === 1).toBe(true);
       expect(
         await getAccountCustomerByUid(existingCustomer.uid)
       ).toBeUndefined();
@@ -4029,23 +4262,26 @@ describe('StripeHelper', () => {
       const customer = deepCopy(customer1);
       customer.currency = null;
       const customerSecond = deepCopy(customer1);
-      const expandStub = sandbox.stub(stripeHelper, 'expandResource');
+      const expandStub = jest.spyOn(stripeHelper, 'expandResource');
       (stripeHelper as any).stripeFirestore = {
-        legacyFetchAndInsertCustomer: sandbox.stub().resolves({}),
+        legacyFetchAndInsertCustomer: jest.fn().mockResolvedValue({}),
       };
-      expandStub.onFirstCall().resolves(customer);
-      expandStub.onSecondCall().resolves(customerSecond);
+      expandStub
+        .mockResolvedValueOnce(customer)
+        .mockResolvedValueOnce(customerSecond);
       const result = await stripeHelper.fetchCustomer(existingCustomer.uid);
       expect(result).toEqual(customerSecond);
-      sinon.assert.calledOnceWithExactly(
-        (stripeHelper as any).stripeFirestore.legacyFetchAndInsertCustomer,
-        customer.id
-      );
-      sinon.assert.calledTwice(expandStub);
+      expect(
+        (stripeHelper as any).stripeFirestore.legacyFetchAndInsertCustomer
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        (stripeHelper as any).stripeFirestore.legacyFetchAndInsertCustomer
+      ).toHaveBeenCalledWith(customer.id);
+      expect(expandStub).toHaveBeenCalledTimes(2);
     });
 
     it('throws if the customer record has a fxa id mismatch', async () => {
-      sandbox.stub(stripeHelper, 'expandResource').returns(newCustomer);
+      jest.spyOn(stripeHelper, 'expandResource').mockReturnValue(newCustomer);
       let thrown: any;
       try {
         await stripeHelper.fetchCustomer(existingCustomer.uid);
@@ -4068,10 +4304,10 @@ describe('StripeHelper', () => {
         ip_address: null,
         automatic_tax: 'supported',
       };
-      sandbox.stub(stripeHelper, 'expandResource').returns(customer);
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'retrieve')
-        .resolves(customerSecond);
+      jest.spyOn(stripeHelper, 'expandResource').mockReturnValue(customer);
+      jest
+        .spyOn(stripeHelper.stripe.customers, 'retrieve')
+        .mockResolvedValue(customerSecond);
       const result = await stripeHelper.fetchCustomer(existingCustomer.uid, [
         'tax',
       ]);
@@ -4091,12 +4327,12 @@ describe('StripeHelper', () => {
     });
 
     it('expands the customer', async () => {
-      stripeFirestore.retrieveAndFetchCustomer = sandbox
-        .stub()
-        .resolves(deepCopy(customer));
-      stripeFirestore.retrieveCustomerSubscriptions = sandbox
-        .stub()
-        .resolves(deepCopy(customer.subscriptions.data));
+      stripeFirestore.retrieveAndFetchCustomer = jest
+        .fn()
+        .mockResolvedValue(deepCopy(customer));
+      stripeFirestore.retrieveCustomerSubscriptions = jest
+        .fn()
+        .mockResolvedValue(deepCopy(customer.subscriptions.data));
       const result = await stripeHelper.expandResource(
         customer.id,
         CUSTOMER_RESOURCE
@@ -4105,104 +4341,114 @@ describe('StripeHelper', () => {
       // without the object type.
       expect(result.subscriptions.data).toEqual(customer.subscriptions.data);
       expect(Object.keys(result).sort()).toEqual(Object.keys(customer).sort());
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
-        customer.id,
-        true
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
-        customer.id,
-        undefined
-      );
+      expect(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer
+      ).toHaveBeenCalledWith(customer.id, true);
+      expect(
+        stripeHelper.stripeFirestore.retrieveCustomerSubscriptions
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripeFirestore.retrieveCustomerSubscriptions
+      ).toHaveBeenCalledWith(customer.id, undefined);
     });
 
     it('includes the empty subscriptions list on the expanded customer', async () => {
-      stripeFirestore.retrieveAndFetchCustomer = sandbox
-        .stub()
-        .resolves(deepCopy(customer));
-      stripeFirestore.retrieveCustomerSubscriptions = sandbox
-        .stub()
-        .resolves([]);
+      stripeFirestore.retrieveAndFetchCustomer = jest
+        .fn()
+        .mockResolvedValue(deepCopy(customer));
+      stripeFirestore.retrieveCustomerSubscriptions = jest
+        .fn()
+        .mockResolvedValue([]);
       const result = await stripeHelper.expandResource(
         customer.id,
         CUSTOMER_RESOURCE
       );
       expect(result.subscriptions.data).toEqual([]);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
-        customer.id,
-        true
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
-        customer.id,
-        undefined
-      );
+      expect(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer
+      ).toHaveBeenCalledWith(customer.id, true);
+      expect(
+        stripeHelper.stripeFirestore.retrieveCustomerSubscriptions
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripeFirestore.retrieveCustomerSubscriptions
+      ).toHaveBeenCalledWith(customer.id, undefined);
     });
 
     it('expands the subscription', async () => {
-      stripeFirestore.retrieveAndFetchSubscription = sandbox
-        .stub()
-        .resolves(deepCopy(subscription1));
+      stripeFirestore.retrieveAndFetchSubscription = jest
+        .fn()
+        .mockResolvedValue(deepCopy(subscription1));
       const result = await stripeHelper.expandResource(
         subscription1.id,
         SUBSCRIPTIONS_RESOURCE
       );
       expect(result).toEqual(subscription1);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
-        subscription1.id,
-        true
-      );
+      expect(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription
+      ).toHaveBeenCalledWith(subscription1.id, true);
     });
 
     it('expands the invoice', async () => {
-      stripeFirestore.retrieveInvoice = sandbox
-        .stub()
-        .resolves(invoicePaidSubscriptionCreate);
+      stripeFirestore.retrieveInvoice = jest
+        .fn()
+        .mockResolvedValue(invoicePaidSubscriptionCreate);
       const result = await stripeHelper.expandResource(
         invoicePaidSubscriptionCreate.id,
         INVOICES_RESOURCE
       );
       expect(result).toEqual(invoicePaidSubscriptionCreate);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveInvoice,
+      expect(
+        stripeHelper.stripeFirestore.retrieveInvoice
+      ).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripeFirestore.retrieveInvoice).toHaveBeenCalledWith(
         invoicePaidSubscriptionCreate.id
       );
     });
 
     it('expands invoice when invoice isnt found and inserts it', async () => {
-      stripeFirestore.retrieveInvoice = sandbox
-        .stub()
-        .rejects(
+      stripeFirestore.retrieveInvoice = jest
+        .fn()
+        .mockRejectedValue(
           newFirestoreStripeError(
             'not found',
             FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
           )
         );
-      stripeFirestore.retrieveAndFetchCustomer = sandbox
-        .stub()
-        .resolves(customer);
-      stripeHelper.stripe.invoices.retrieve = sandbox
-        .stub()
-        .resolves(deepCopy(invoicePaidSubscriptionCreate));
-      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+      stripeFirestore.retrieveAndFetchCustomer = jest
+        .fn()
+        .mockResolvedValue(customer);
+      stripeHelper.stripe.invoices.retrieve = jest
+        .fn()
+        .mockResolvedValue(deepCopy(invoicePaidSubscriptionCreate));
+      stripeFirestore.insertInvoiceRecord = jest.fn().mockResolvedValue({});
 
       const result = await stripeHelper.expandResource(
         invoicePaidSubscriptionCreate.id,
         INVOICES_RESOURCE
       );
       expect(result).toEqual(invoicePaidSubscriptionCreate);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveInvoice,
+      expect(
+        stripeHelper.stripeFirestore.retrieveInvoice
+      ).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.stripeFirestore.retrieveInvoice).toHaveBeenCalledWith(
         invoicePaidSubscriptionCreate.id
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
-        invoicePaidSubscriptionCreate.customer,
-        true
-      );
+      expect(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer
+      ).toHaveBeenCalledWith(invoicePaidSubscriptionCreate.customer, true);
     });
   });
 
@@ -4244,20 +4490,22 @@ describe('StripeHelper', () => {
 
     it('returns an empty object when a config doc is not found', async () => {
       stripeHelper.paymentConfigManager = {
-        getMergedPlanConfiguration: sandbox.stub().resolves(undefined),
+        getMergedPlanConfiguration: jest.fn().mockResolvedValue(undefined),
       };
       const actual = await stripeHelper.maybeGetPlanConfig('testo');
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.paymentConfigManager.getMergedPlanConfiguration,
-        'testo'
-      );
+      expect(
+        stripeHelper.paymentConfigManager.getMergedPlanConfiguration
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.paymentConfigManager.getMergedPlanConfiguration
+      ).toHaveBeenCalledWith('testo');
       expect(actual).toEqual({});
     });
 
     it('returns the config from the config manager', async () => {
       const planConfig = { fizz: 'wibble' };
       stripeHelper.paymentConfigManager = {
-        getMergedPlanConfiguration: sandbox.stub().resolves(planConfig),
+        getMergedPlanConfiguration: jest.fn().mockResolvedValue(planConfig),
       };
       const actual = await stripeHelper.maybeGetPlanConfig('testo');
       expect(actual).toEqual(planConfig);
@@ -4267,40 +4515,40 @@ describe('StripeHelper', () => {
   describe('removeFirestoreCustomer', () => {
     it('completes successfully and returns array of deleted paths', async () => {
       const expected = ['/path', '/path/subpath'];
-      stripeFirestore.removeCustomerRecursive = sandbox
-        .stub()
-        .resolves(expected);
+      stripeFirestore.removeCustomerRecursive = jest
+        .fn()
+        .mockResolvedValue(expected);
       const actual = await stripeHelper.removeFirestoreCustomer('uid');
       expect(actual).toBe(expected);
     });
 
     it('does not report error to sentry and rejects with error', async () => {
-      sandbox.stub(Sentry, 'captureException');
+      jest.spyOn(Sentry, 'captureException');
       const expectedError = new Error('bad things');
-      stripeFirestore.removeCustomerRecursive = sandbox
-        .stub()
-        .rejects(expectedError);
+      stripeFirestore.removeCustomerRecursive = jest
+        .fn()
+        .mockRejectedValue(expectedError);
       try {
         await stripeHelper.removeFirestoreCustomer('uid');
       } catch (err: any) {
         expect(err.message).toBe(expectedError.message);
-        sinon.assert.notCalled(Sentry.captureException as sinon.SinonStub);
+        expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
       }
     });
 
     it('reports error to sentry and rejects with error', async () => {
-      sandbox.stub(Sentry, 'captureException');
+      jest.spyOn(Sentry, 'captureException');
       const primaryError = new Error('not good');
       const expectedError = new StripeFirestoreMultiError([primaryError]);
-      stripeFirestore.removeCustomerRecursive = sandbox
-        .stub()
-        .rejects(expectedError);
+      stripeFirestore.removeCustomerRecursive = jest
+        .fn()
+        .mockRejectedValue(expectedError);
       try {
         await stripeHelper.removeFirestoreCustomer('uid');
       } catch (err: any) {
         expect(err.message).toBe(expectedError.message);
-        sinon.assert.calledOnceWithExactly(
-          Sentry.captureException as sinon.SinonStub,
+        expect(Sentry.captureException as jest.Mock).toHaveBeenCalledTimes(1);
+        expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(
           expectedError
         );
       }
@@ -4312,7 +4560,9 @@ describe('StripeHelper', () => {
       it('returns the invoice if marked as paid', async () => {
         const expected = deepCopy(paidInvoice);
         expected.payment_intent = successfulPaymentIntent;
-        sandbox.stub(stripeHelper.stripe.invoices, 'pay').resolves(expected);
+        jest
+          .spyOn(stripeHelper.stripe.invoices, 'pay')
+          .mockResolvedValue(expected);
         const actual = await stripeHelper.payInvoice(paidInvoice.id);
         expect(actual).toEqual(expected);
       });
@@ -4320,7 +4570,9 @@ describe('StripeHelper', () => {
       it('throws an error if invoice is not marked as paid', async () => {
         const expected = deepCopy(paidInvoice);
         expected.payment_intent = unsuccessfulPaymentIntent;
-        sandbox.stub(stripeHelper.stripe.invoices, 'pay').resolves(expected);
+        jest
+          .spyOn(stripeHelper.stripe.invoices, 'pay')
+          .mockResolvedValue(expected);
         try {
           await stripeHelper.payInvoice(paidInvoice.id);
           throw new Error('Method expected to reject');
@@ -4335,9 +4587,9 @@ describe('StripeHelper', () => {
       it('returns payment failed error if card_declined is reason', async () => {
         const cardDeclinedError = new stripeError.StripeCardError();
         cardDeclinedError.code = 'card_declined';
-        sandbox
-          .stub(stripeHelper.stripe.invoices, 'pay')
-          .rejects(cardDeclinedError);
+        jest
+          .spyOn(stripeHelper.stripe.invoices, 'pay')
+          .mockRejectedValue(cardDeclinedError);
         try {
           await stripeHelper.payInvoice(paidInvoice.id);
           throw new Error('Method expected to reject');
@@ -4350,7 +4602,9 @@ describe('StripeHelper', () => {
       it('throws caught Stripe error if not card_declined', async () => {
         const apiError = new stripeError.StripeAPIError();
         apiError.code = 'api_error';
-        sandbox.stub(stripeHelper.stripe.invoices, 'pay').rejects(apiError);
+        jest
+          .spyOn(stripeHelper.stripe.invoices, 'pay')
+          .mockRejectedValue(apiError);
         try {
           await stripeHelper.payInvoice(paidInvoice.id);
           throw new Error('Method expected to reject');
@@ -4363,9 +4617,9 @@ describe('StripeHelper', () => {
 
   describe('fetchPaymentIntentFromInvoice', () => {
     beforeEach(() => {
-      sandbox
-        .stub(stripeHelper.stripe.paymentIntents, 'retrieve')
-        .resolves(unsuccessfulPaymentIntent);
+      jest
+        .spyOn(stripeHelper.stripe.paymentIntents, 'retrieve')
+        .mockResolvedValue(unsuccessfulPaymentIntent);
     });
 
     describe('when the payment_intent is loaded', () => {
@@ -4375,9 +4629,9 @@ describe('StripeHelper', () => {
         const actual =
           await stripeHelper.fetchPaymentIntentFromInvoice(invoice);
         expect(actual).toEqual(invoice.payment_intent);
-        expect(stripeHelper.stripe.paymentIntents.retrieve.notCalled).toBe(
-          true
-        );
+        expect(
+          stripeHelper.stripe.paymentIntents.retrieve.mock.calls.length === 0
+        ).toBe(true);
       });
     });
 
@@ -4387,9 +4641,9 @@ describe('StripeHelper', () => {
         const actual =
           await stripeHelper.fetchPaymentIntentFromInvoice(invoice);
         expect(actual).toEqual(unsuccessfulPaymentIntent);
-        expect(stripeHelper.stripe.paymentIntents.retrieve.calledOnce).toBe(
-          true
-        );
+        expect(
+          stripeHelper.stripe.paymentIntents.retrieve.mock.calls.length === 1
+        ).toBe(true);
       });
     });
   });
@@ -4425,12 +4679,15 @@ describe('StripeHelper', () => {
         describe('when the subscription is active', () => {
           it('formats the subscription', async () => {
             const input = { data: [subscription1] };
-            sandbox
-              .stub(stripeHelper.stripe.invoices, 'retrieve')
-              .resolves(paidInvoice);
-            const callback = sandbox.stub(stripeHelper, 'expandResource');
-            callback.onCall(0).resolves(paidInvoice);
-            callback.onCall(1).resolves({ id: productId, name: productName });
+            jest
+              .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+              .mockResolvedValue(paidInvoice);
+            const callback = jest.spyOn(stripeHelper, 'expandResource');
+            callback.mockResolvedValueOnce(paidInvoice);
+            callback.mockResolvedValueOnce({
+              id: productId,
+              name: productName,
+            });
             const actual = await stripeHelper.subscriptionsToResponse(input);
             expect(actual).toHaveLength(1);
             expect(actual[0].subscription_id).toBe(subscription1.id);
@@ -4446,12 +4703,15 @@ describe('StripeHelper', () => {
                 missingExcludingTaxPaidInvoice
               );
             const input = { data: [subscription1] };
-            sandbox
-              .stub(stripeHelper.stripe.invoices, 'retrieve')
-              .resolves(missingExcludingTaxPaidInvoice);
-            const callback = sandbox.stub(stripeHelper, 'expandResource');
-            callback.onCall(0).resolves(missingExcludingTaxPaidInvoice);
-            callback.onCall(1).resolves({ id: productId, name: productName });
+            jest
+              .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+              .mockResolvedValue(missingExcludingTaxPaidInvoice);
+            const callback = jest.spyOn(stripeHelper, 'expandResource');
+            callback.mockResolvedValueOnce(missingExcludingTaxPaidInvoice);
+            callback.mockResolvedValueOnce({
+              id: productId,
+              name: productName,
+            });
             const expected = [
               {
                 _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -4517,16 +4777,16 @@ describe('StripeHelper', () => {
         ];
 
         beforeEach(() => {
-          sandbox
-            .stub(stripeHelper.stripe.charges, 'retrieve')
-            .resolves(failedChargeCopy);
+          jest
+            .spyOn(stripeHelper.stripe.charges, 'retrieve')
+            .mockResolvedValue(failedChargeCopy);
         });
 
         describe('when the charge is already expanded', () => {
           it('includes charge failure information with the subscription data', async () => {
-            sandbox
-              .stub(stripeHelper, 'expandResource')
-              .resolves({ id: productId, name: productName });
+            jest
+              .spyOn(stripeHelper, 'expandResource')
+              .mockResolvedValue({ id: productId, name: productName });
             pastDueInvoice.charge = failedChargeCopy;
             pastDueSub.latest_invoice = pastDueInvoice;
             pastDueSub.plan.product = product1.id;
@@ -4534,8 +4794,8 @@ describe('StripeHelper', () => {
             const actual = await stripeHelper.subscriptionsToResponse(input);
             expect(actual).toEqual(expectedPastDue);
             expect(
-              (stripeHelper.stripe.charges.retrieve as sinon.SinonStub)
-                .notCalled
+              (stripeHelper.stripe.charges.retrieve as jest.Mock).mock.calls
+                .length === 0
             ).toBe(true);
             expect(actual[0].failure_code).toBeDefined();
             expect(actual[0].failure_message).toBeDefined();
@@ -4544,17 +4804,17 @@ describe('StripeHelper', () => {
 
         describe('when the charge is not expanded', () => {
           it('expands the charge and includes charge failure information with the subscription data', async () => {
-            sandbox
-              .stub(stripeHelper, 'expandResource')
-              .resolves({ id: productId, name: productName });
+            jest
+              .spyOn(stripeHelper, 'expandResource')
+              .mockResolvedValue({ id: productId, name: productName });
             pastDueInvoice.charge = 'ch_123';
             pastDueSub.latest_invoice = pastDueInvoice;
             const input = { data: [pastDueSub] };
             const actual = await stripeHelper.subscriptionsToResponse(input);
             expect(actual).toEqual(expectedPastDue);
             expect(
-              (stripeHelper.stripe.charges.retrieve as sinon.SinonStub)
-                .calledOnce
+              (stripeHelper.stripe.charges.retrieve as jest.Mock).mock.calls
+                .length === 1
             ).toBe(true);
             expect(actual[0].failure_code).toBeDefined();
             expect(actual[0].failure_message).toBeDefined();
@@ -4569,9 +4829,9 @@ describe('StripeHelper', () => {
           const sub = deepCopy(subscription1);
           sub.cancel_at_period_end = true;
           const input = { data: [sub] };
-          const callback = sandbox.stub(stripeHelper, 'expandResource');
-          callback.onCall(0).resolves(paidInvoice);
-          callback.onCall(1).resolves({ id: productId, name: productName });
+          const callback = jest.spyOn(stripeHelper, 'expandResource');
+          callback.mockResolvedValueOnce(paidInvoice);
+          callback.mockResolvedValueOnce({ id: productId, name: productName });
           const expectedCancel = [
             {
               _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -4609,12 +4869,12 @@ describe('StripeHelper', () => {
           const sub = deepCopy(cancelledSubscription);
           sub.plan.product = product1.id;
           const input = { data: [sub] };
-          sandbox
-            .stub(stripeHelper.stripe.invoices, 'retrieve')
-            .resolves(paidInvoice);
-          const callback = sandbox.stub(stripeHelper, 'expandResource');
-          callback.onCall(0).resolves(paidInvoice);
-          callback.onCall(1).resolves({ id: productId, name: productName });
+          jest
+            .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+            .mockResolvedValue(paidInvoice);
+          const callback = jest.spyOn(stripeHelper, 'expandResource');
+          callback.mockResolvedValueOnce(paidInvoice);
+          callback.mockResolvedValueOnce({ id: productId, name: productName });
           const expectedEnded = [
             {
               _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -4664,9 +4924,9 @@ describe('StripeHelper', () => {
         it('should throw an error for a latest_invoice without an invoice number', async () => {
           const subscription = deepCopy(subscription1);
           const input = { data: [subscription] };
-          sandbox
-            .stub(stripeHelper, 'expandResource')
-            .resolves({ ...paidInvoice, number: null });
+          jest
+            .spyOn(stripeHelper, 'expandResource')
+            .mockResolvedValue({ ...paidInvoice, number: null });
           try {
             await stripeHelper.subscriptionsToResponse(input);
             throw new Error('should have thrown');
@@ -4694,7 +4954,9 @@ describe('StripeHelper', () => {
         const incompleteSubscription = deepCopy(subscription1);
         incompleteSubscription.status = 'incomplete';
         incompleteSubscription.id = 'sub_incomplete';
-        sandbox.stub(stripeHelper, 'expandResource').resolves(paidInvoice);
+        jest
+          .spyOn(stripeHelper, 'expandResource')
+          .mockResolvedValue(paidInvoice);
         const input = {
           data: [subscription1, incompleteSubscription, subscription2],
         };
@@ -4721,12 +4983,12 @@ describe('StripeHelper', () => {
       it('"once" coupon duration do not include the promotion values in the returned value', async () => {
         const subscription = deepCopy(subscriptionCouponOnce);
         const input = { data: [subscription] };
-        sandbox
-          .stub(stripeHelper.stripe.invoices, 'retrieve')
-          .resolves(paidInvoice);
-        const callback = sandbox.stub(stripeHelper, 'expandResource');
-        callback.onCall(0).resolves(paidInvoice);
-        callback.onCall(1).resolves({ id: productId, name: productName });
+        jest
+          .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+          .mockResolvedValue(paidInvoice);
+        const callback = jest.spyOn(stripeHelper, 'expandResource');
+        callback.mockResolvedValueOnce(paidInvoice);
+        callback.mockResolvedValueOnce({ id: productId, name: productName });
         const expected = [
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -4759,12 +5021,12 @@ describe('StripeHelper', () => {
       it('forever coupon duration includes the promotion values in the returned value', async () => {
         const subscription = deepCopy(subscriptionCouponForever);
         const input = { data: [subscription] };
-        sandbox
-          .stub(stripeHelper.stripe.invoices, 'retrieve')
-          .resolves(paidInvoice);
-        const callback = sandbox.stub(stripeHelper, 'expandResource');
-        callback.onCall(0).resolves(paidInvoice);
-        callback.onCall(1).resolves({ id: productId, name: productName });
+        jest
+          .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+          .mockResolvedValue(paidInvoice);
+        const callback = jest.spyOn(stripeHelper, 'expandResource');
+        callback.mockResolvedValueOnce(paidInvoice);
+        callback.mockResolvedValueOnce({ id: productId, name: productName });
         const expected = [
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -4801,12 +5063,12 @@ describe('StripeHelper', () => {
       it('repeating coupon includes the promotion values in the returned value', async () => {
         const subscription = deepCopy(subscriptionCouponRepeating);
         const input = { data: [subscription] };
-        sandbox
-          .stub(stripeHelper.stripe.invoices, 'retrieve')
-          .resolves(paidInvoice);
-        const callback = sandbox.stub(stripeHelper, 'expandResource');
-        callback.onCall(0).resolves(paidInvoice);
-        callback.onCall(1).resolves({ id: productId, name: productName });
+        jest
+          .spyOn(stripeHelper.stripe.invoices, 'retrieve')
+          .mockResolvedValue(paidInvoice);
+        const callback = jest.spyOn(stripeHelper, 'expandResource');
+        callback.mockResolvedValueOnce(paidInvoice);
+        callback.mockResolvedValueOnce({ id: productId, name: productName });
         const expected = [
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -4847,9 +5109,9 @@ describe('StripeHelper', () => {
     const productId = 'prod_123';
 
     beforeEach(() => {
-      sandbox
-        .stub(stripeHelper, 'expandResource')
-        .resolves({ id: productId, name: productName });
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue({ id: productId, name: productName });
     });
 
     describe('when there are no subscriptions', () => {
@@ -4882,18 +5144,24 @@ describe('StripeHelper', () => {
 
     it('handles invoice operations with firestore invoice', async () => {
       const event = deepCopy(eventInvoiceCreated);
-      localStripeFirestore.retrieveAndFetchSubscription = sandbox
-        .stub()
-        .resolves({});
-      stripeHelper.stripe.invoices.retrieve = sandbox
-        .stub()
-        .resolves(invoicePaidSubscriptionCreate);
-      localStripeFirestore.retrieveInvoice = sandbox.stub().resolves({});
-      localStripeFirestore.fetchAndInsertInvoice = sandbox.stub().resolves({});
+      localStripeFirestore.retrieveAndFetchSubscription = jest
+        .fn()
+        .mockResolvedValue({});
+      stripeHelper.stripe.invoices.retrieve = jest
+        .fn()
+        .mockResolvedValue(invoicePaidSubscriptionCreate);
+      localStripeFirestore.retrieveInvoice = jest.fn().mockResolvedValue({});
+      localStripeFirestore.fetchAndInsertInvoice = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await stripeHelper.processWebhookEventToFirestore(event);
       expect(result).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.fetchAndInsertInvoice,
+      expect(
+        stripeHelper.stripeFirestore.fetchAndInsertInvoice
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripeFirestore.fetchAndInsertInvoice
+      ).toHaveBeenCalledWith(
         eventInvoiceCreated.data.object.id,
         eventInvoiceCreated.created
       );
@@ -4908,15 +5176,19 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerUpdated);
         event.type = type;
         event.request = null;
-        localStripeFirestore.fetchAndInsertCustomer = sandbox
-          .stub()
-          .resolves({});
+        localStripeFirestore.fetchAndInsertCustomer = jest
+          .fn()
+          .mockResolvedValue({});
         dbStub.getUidAndEmailByStripeCustomerId.mockResolvedValue({
           uid: newCustomer.metadata.userid,
         });
         await stripeHelper.processWebhookEventToFirestore(event);
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.fetchAndInsertCustomer,
+        expect(
+          stripeHelper.stripeFirestore.fetchAndInsertCustomer
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          stripeHelper.stripeFirestore.fetchAndInsertCustomer
+        ).toHaveBeenCalledWith(
           eventCustomerUpdated.data.object.id,
           event.created
         );
@@ -4932,40 +5204,47 @@ describe('StripeHelper', () => {
           const event = deepCopy(eventSubscriptionUpdated);
           event.type = type;
           delete event.data.previous_attributes;
-          stripeHelper.stripe.subscriptions.retrieve = sandbox
-            .stub()
-            .resolves(subscription1);
+          stripeHelper.stripe.subscriptions.retrieve = jest
+            .fn()
+            .mockResolvedValue(subscription1);
           const customer = deepCopy(newCustomer);
           if (hasCurrency) {
             customer.currency = 'usd';
           }
-          stripeHelper.expandResource = sandbox.stub().resolves(customer);
-          localStripeFirestore.retrieveSubscription = sandbox
-            .stub()
-            .resolves({});
-          localStripeFirestore.retrieveCustomer = sandbox
-            .stub()
-            .resolves(customer);
-          localStripeFirestore.fetchAndInsertCustomer = sandbox
-            .stub()
-            .resolves({});
-          localStripeFirestore.fetchAndInsertSubscription = sandbox
-            .stub()
-            .resolves({});
+          stripeHelper.expandResource = jest.fn().mockResolvedValue(customer);
+          localStripeFirestore.retrieveSubscription = jest
+            .fn()
+            .mockResolvedValue({});
+          localStripeFirestore.retrieveCustomer = jest
+            .fn()
+            .mockResolvedValue(customer);
+          localStripeFirestore.fetchAndInsertCustomer = jest
+            .fn()
+            .mockResolvedValue({});
+          localStripeFirestore.fetchAndInsertSubscription = jest
+            .fn()
+            .mockResolvedValue({});
           await stripeHelper.processWebhookEventToFirestore(event);
           if (!hasCurrency) {
-            sinon.assert.calledOnceWithExactly(
-              stripeHelper.stripe.subscriptions.retrieve,
-              event.data.object.id
-            );
-            sinon.assert.calledOnceWithExactly(
-              stripeHelper.stripeFirestore.fetchAndInsertCustomer,
-              event.data.object.customer,
-              event.created
-            );
+            expect(
+              stripeHelper.stripe.subscriptions.retrieve
+            ).toHaveBeenCalledTimes(1);
+            expect(
+              stripeHelper.stripe.subscriptions.retrieve
+            ).toHaveBeenCalledWith(event.data.object.id);
+            expect(
+              stripeHelper.stripeFirestore.fetchAndInsertCustomer
+            ).toHaveBeenCalledTimes(1);
+            expect(
+              stripeHelper.stripeFirestore.fetchAndInsertCustomer
+            ).toHaveBeenCalledWith(event.data.object.customer, event.created);
           } else {
-            sinon.assert.calledOnceWithExactly(
-              stripeHelper.stripeFirestore.fetchAndInsertSubscription,
+            expect(
+              stripeHelper.stripeFirestore.fetchAndInsertSubscription
+            ).toHaveBeenCalledTimes(1);
+            expect(
+              stripeHelper.stripeFirestore.fetchAndInsertSubscription
+            ).toHaveBeenCalledWith(
               event.data.object.id,
               customer.metadata.userid
             );
@@ -4983,15 +5262,16 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventPaymentMethodAttached);
         event.type = type;
         delete event.data.previous_attributes;
-        localStripeFirestore.fetchAndInsertPaymentMethod = sandbox
-          .stub()
-          .resolves({});
+        localStripeFirestore.fetchAndInsertPaymentMethod = jest
+          .fn()
+          .mockResolvedValue({});
         await stripeHelper.processWebhookEventToFirestore(event);
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.fetchAndInsertPaymentMethod,
-          event.data.object.id,
-          event.created
-        );
+        expect(
+          stripeHelper.stripeFirestore.fetchAndInsertPaymentMethod
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          stripeHelper.stripeFirestore.fetchAndInsertPaymentMethod
+        ).toHaveBeenCalledWith(event.data.object.id, event.created);
       });
 
       it(`ignores ${type} operations with no customer attached to event`, async () => {
@@ -4999,63 +5279,71 @@ describe('StripeHelper', () => {
         event.type = type;
         event.data.object.customer = null;
         delete event.data.previous_attributes;
-        localStripeFirestore.fetchAndInsertPaymentMethod = sandbox.stub();
+        localStripeFirestore.fetchAndInsertPaymentMethod = jest.fn();
         await stripeHelper.processWebhookEventToFirestore(event);
-        sinon.assert.notCalled(
+        expect(
           stripeHelper.stripeFirestore.fetchAndInsertPaymentMethod
-        );
+        ).not.toHaveBeenCalled();
       });
     }
 
     it('handles payment_method.detached operations', async () => {
       const event = deepCopy(eventPaymentMethodDetached);
-      localStripeFirestore.removePaymentMethodRecord = sandbox
-        .stub()
-        .resolves({});
+      localStripeFirestore.removePaymentMethodRecord = jest
+        .fn()
+        .mockResolvedValue({});
       await stripeHelper.processWebhookEventToFirestore(event);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.removePaymentMethodRecord,
-        event.data.object.id
-      );
+      expect(
+        stripeHelper.stripeFirestore.removePaymentMethodRecord
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.stripeFirestore.removePaymentMethodRecord
+      ).toHaveBeenCalledWith(event.data.object.id);
     });
 
     it('handles invoice operations with no firestore invoice', async () => {
       const event = deepCopy(eventInvoiceCreated);
-      localStripeFirestore.retrieveAndFetchSubscription = sandbox
-        .stub()
-        .resolves({});
-      const insertStub = sandbox.stub();
-      stripeHelper.stripe.invoices.retrieve = sandbox
-        .stub()
-        .resolves(invoicePaidSubscriptionCreate);
+      localStripeFirestore.retrieveAndFetchSubscription = jest
+        .fn()
+        .mockResolvedValue({});
+      const insertStub = jest.fn();
+      stripeHelper.stripe.invoices.retrieve = jest
+        .fn()
+        .mockResolvedValue(invoicePaidSubscriptionCreate);
       localStripeFirestore.fetchAndInsertInvoice = insertStub;
-      insertStub
-        .onCall(0)
-        .rejects(
-          newFirestoreStripeError(
-            'no invoice',
-            FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
-          )
-        );
-      insertStub.onCall(1).resolves({});
-      localStripeFirestore.fetchAndInsertCustomer = sandbox.stub().resolves({});
+      insertStub.mockRejectedValueOnce(
+        newFirestoreStripeError(
+          'no invoice',
+          FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+        )
+      );
+      insertStub.mockResolvedValueOnce({});
+      localStripeFirestore.fetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await stripeHelper.processWebhookEventToFirestore(event);
       expect(result).toBe(true);
-      sinon.assert.calledTwice(
+      expect(
         stripeHelper.stripeFirestore.fetchAndInsertInvoice
-      );
-      sinon.assert.calledWithExactly(
-        stripeHelper.stripeFirestore.fetchAndInsertInvoice.getCall(0),
+      ).toHaveBeenCalledTimes(2);
+      expect(
+        stripeHelper.stripeFirestore.fetchAndInsertInvoice
+      ).toHaveBeenNthCalledWith(
+        1,
         eventInvoiceCreated.data.object.id,
         eventInvoiceCreated.created
       );
-      sinon.assert.calledWithExactly(
-        stripeHelper.stripeFirestore.fetchAndInsertInvoice.getCall(1),
+      expect(
+        stripeHelper.stripeFirestore.fetchAndInsertInvoice
+      ).toHaveBeenNthCalledWith(
+        2,
         eventInvoiceCreated.data.object.id,
         eventInvoiceCreated.created
       );
-      sinon.assert.calledOnceWithExactly(
-        localStripeFirestore.fetchAndInsertCustomer,
+      expect(localStripeFirestore.fetchAndInsertCustomer).toHaveBeenCalledTimes(
+        1
+      );
+      expect(localStripeFirestore.fetchAndInsertCustomer).toHaveBeenCalledWith(
         event.data.object.customer,
         event.created
       );
@@ -5064,39 +5352,43 @@ describe('StripeHelper', () => {
     it('ignores the deleted stripe customer error when handling a payment method update event', async () => {
       const event = deepCopy(eventPaymentMethodAttached);
       event.type = 'payment_method.card_automatically_updated';
-      localStripeFirestore.fetchAndInsertPaymentMethod = sandbox
-        .stub()
-        .throws(
-          newFirestoreStripeError(
-            'Customer deleted.',
-            FirestoreStripeError.STRIPE_CUSTOMER_DELETED
-          )
-        );
-      await stripeHelper.processWebhookEventToFirestore(event);
-      sinon.assert.calledOnceWithExactly(
-        localStripeFirestore.fetchAndInsertPaymentMethod,
-        event.data.object.id,
-        event.created
+      const deletedError = newFirestoreStripeError(
+        'Customer deleted.',
+        FirestoreStripeError.STRIPE_CUSTOMER_DELETED
       );
+      localStripeFirestore.fetchAndInsertPaymentMethod = jest
+        .fn()
+        .mockImplementation(() => {
+          throw deletedError;
+        });
+      await stripeHelper.processWebhookEventToFirestore(event);
+      expect(
+        localStripeFirestore.fetchAndInsertPaymentMethod
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        localStripeFirestore.fetchAndInsertPaymentMethod
+      ).toHaveBeenCalledWith(event.data.object.id, event.created);
     });
 
     it('ignores the firestore record not found error when handling a payment method update event', async () => {
       const event = deepCopy(eventPaymentMethodAttached);
       event.type = 'payment_method.card_automatically_updated';
-      localStripeFirestore.fetchAndInsertPaymentMethod = sandbox
-        .stub()
-        .throws(
-          newFirestoreStripeError(
-            'Customer deleted.',
-            FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
-          )
-        );
-      await stripeHelper.processWebhookEventToFirestore(event);
-      sinon.assert.calledOnceWithExactly(
-        localStripeFirestore.fetchAndInsertPaymentMethod,
-        event.data.object.id,
-        event.created
+      const notFoundError = newFirestoreStripeError(
+        'Customer deleted.',
+        FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
       );
+      localStripeFirestore.fetchAndInsertPaymentMethod = jest
+        .fn()
+        .mockImplementation(() => {
+          throw notFoundError;
+        });
+      await stripeHelper.processWebhookEventToFirestore(event);
+      expect(
+        localStripeFirestore.fetchAndInsertPaymentMethod
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        localStripeFirestore.fetchAndInsertPaymentMethod
+      ).toHaveBeenCalledWith(event.data.object.id, event.created);
     });
 
     it('does not handle wibble events', async () => {
@@ -5120,59 +5412,67 @@ describe('StripeHelper', () => {
     let sentryScope: any;
 
     beforeEach(() => {
-      sentryScope = { setContext: sandbox.stub(), setExtra: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sandbox.stub(Sentry, 'setExtra');
-      sandbox.stub(Sentry, 'captureException');
+      sentryScope = { setContext: jest.fn(), setExtra: jest.fn() };
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(Sentry, 'setExtra');
+      jest.spyOn(Sentry, 'captureException');
     });
 
     it('updates the Stripe customer address', async () => {
-      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
+      jest
+        .spyOn(stripeHelper, 'updateCustomerBillingAddress')
+        .mockResolvedValue();
       const result = await stripeHelper.setCustomerLocation({
         customerId: customer1.id,
         postalCode: expectedAddressArg.postalCode,
         country: expectedAddressArg.country,
       });
       expect(result).toBe(true);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.googleMapsService.getStateFromZip,
-        '99999',
-        'GD'
+      expect(
+        stripeHelper.googleMapsService.getStateFromZip
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.googleMapsService.getStateFromZip
+      ).toHaveBeenCalledWith('99999', 'GD');
+      expect(stripeHelper.updateCustomerBillingAddress).toHaveBeenCalledTimes(
+        1
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.updateCustomerBillingAddress,
-        { customerId: customer1.id, options: expectedAddressArg }
-      );
+      expect(stripeHelper.updateCustomerBillingAddress).toHaveBeenCalledWith({
+        customerId: customer1.id,
+        options: expectedAddressArg,
+      });
     });
 
     it('fails when an error is thrown by Google Maps service', async () => {
-      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
-      mockGoogleMapsService.getStateFromZip = sandbox.stub().rejects(err);
+      jest
+        .spyOn(stripeHelper, 'updateCustomerBillingAddress')
+        .mockResolvedValue();
+      mockGoogleMapsService.getStateFromZip = jest.fn().mockRejectedValue(err);
       const result = await stripeHelper.setCustomerLocation({
         customerId: customer1.id,
         postalCode: expectedAddressArg.postalCode,
         country: expectedAddressArg.country,
       });
       expect(result).toBe(false);
-      sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureException as sinon.SinonStub,
-        err
-      );
+      expect(stripeHelper.updateCustomerBillingAddress).not.toHaveBeenCalled();
+      expect(Sentry.captureException as jest.Mock).toHaveBeenCalledTimes(1);
+      expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(err);
     });
 
     it('fails when an error is thrown while updating the customer address', async () => {
-      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').rejects(err);
+      jest
+        .spyOn(stripeHelper, 'updateCustomerBillingAddress')
+        .mockRejectedValue(err);
       const result = await stripeHelper.setCustomerLocation({
         customerId: customer1.id,
         postalCode: expectedAddressArg.postalCode,
         country: expectedAddressArg.country,
       });
       expect(result).toBe(false);
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureException as sinon.SinonStub,
-        err
-      );
+      expect(Sentry.captureException as jest.Mock).toHaveBeenCalledTimes(1);
+      expect(Sentry.captureException as jest.Mock).toHaveBeenCalledWith(err);
     });
   });
 
@@ -5208,7 +5508,9 @@ describe('StripeHelper', () => {
           product_metadata: {},
         },
       ];
-      sandbox.stub(stripeHelper, 'allAbbrevPlans').resolves(mockAllAbbrevPlans);
+      jest
+        .spyOn(stripeHelper, 'allAbbrevPlans')
+        .mockResolvedValue(mockAllAbbrevPlans);
     });
 
     describe('priceToIapIdentifiers', () => {
@@ -5328,7 +5630,9 @@ describe('StripeHelper', () => {
       it('returns price ids for the Play subscription purchase', async () => {
         const result = await stripeHelper.iapPurchasesToPriceIds([subPurchase]);
         expect(result).toEqual([priceId]);
-        sinon.assert.calledOnce(stripeHelper.allAbbrevPlans as sinon.SinonStub);
+        expect(stripeHelper.allAbbrevPlans as jest.Mock).toHaveBeenCalledTimes(
+          1
+        );
       });
 
       it('returns price ids for the App Store subscription purchase', async () => {
@@ -5347,23 +5651,27 @@ describe('StripeHelper', () => {
         );
         const result = await stripeHelper.iapPurchasesToPriceIds([subPurchase]);
         expect(result).toEqual([priceId]);
-        sinon.assert.calledOnce(stripeHelper.allAbbrevPlans as sinon.SinonStub);
+        expect(stripeHelper.allAbbrevPlans as jest.Mock).toHaveBeenCalledTimes(
+          1
+        );
       });
 
       it('returns no price ids for unknown subscription purchase', async () => {
         subPurchase.sku = 'wrongSku';
         const result = await stripeHelper.iapPurchasesToPriceIds([subPurchase]);
         expect(result).toEqual([]);
-        sinon.assert.calledOnce(stripeHelper.allAbbrevPlans as sinon.SinonStub);
+        expect(stripeHelper.allAbbrevPlans as jest.Mock).toHaveBeenCalledTimes(
+          1
+        );
       });
     });
   });
 
   describe('isCustomerTaxableWithSubscriptionCurrency', () => {
     it('returns true when currency is compatible with country and customer is stripe taxable', () => {
-      sandbox
-        .stub(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
-        .returns(true);
+      jest
+        .spyOn(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
+        .mockReturnValue(true);
       const actual = stripeHelper.isCustomerTaxableWithSubscriptionCurrency(
         {
           tax: {
@@ -5377,9 +5685,9 @@ describe('StripeHelper', () => {
     });
 
     it('returns false for a currency not compatible with the tax country', () => {
-      sandbox
-        .stub(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
-        .returns(false);
+      jest
+        .spyOn(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
+        .mockReturnValue(false);
       const actual = stripeHelper.isCustomerTaxableWithSubscriptionCurrency(
         {
           tax: {
@@ -5393,9 +5701,9 @@ describe('StripeHelper', () => {
     });
 
     it('returns false if customer does not have tax location', () => {
-      sandbox
-        .stub(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
-        .returns(false);
+      jest
+        .spyOn(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
+        .mockReturnValue(false);
       const actual = stripeHelper.isCustomerTaxableWithSubscriptionCurrency(
         {
           tax: {
@@ -5426,28 +5734,28 @@ describe('StripeHelper', () => {
     const mockInvoice = { status: 'paid' };
 
     beforeEach(() => {
-      sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer);
-      sandbox
-        .stub(stripeHelper, 'extractBillingDetails')
-        .resolves(billingDetails);
-      sandbox
-        .stub(stripeHelper, 'getCustomerPaypalAgreement')
-        .returns(billingAgreementId);
-      sandbox
-        .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
-        .returns(true);
-      sandbox
-        .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
-        .resolves([mockInvoice]);
-      sandbox
-        .stub(stripeHelper, 'hasOpenInvoiceWithPaymentAttempts')
-        .resolves(true);
-      sandbox.stub(stripeHelper, 'getPaymentAttempts').returns(0);
+      jest.spyOn(stripeHelper, 'fetchCustomer').mockResolvedValue(customer);
+      jest
+        .spyOn(stripeHelper, 'extractBillingDetails')
+        .mockResolvedValue(billingDetails);
+      jest
+        .spyOn(stripeHelper, 'getCustomerPaypalAgreement')
+        .mockReturnValue(billingAgreementId);
+      jest
+        .spyOn(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
+        .mockReturnValue(true);
+      jest
+        .spyOn(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
+        .mockResolvedValue([mockInvoice]);
+      jest
+        .spyOn(stripeHelper, 'hasOpenInvoiceWithPaymentAttempts')
+        .mockResolvedValue(true);
+      jest.spyOn(stripeHelper, 'getPaymentAttempts').mockReturnValue(0);
     });
 
     it('returns null when no customer is found', async () => {
-      stripeHelper.fetchCustomer.restore();
-      sandbox.stub(stripeHelper, 'fetchCustomer').resolves(undefined);
+      stripeHelper.fetchCustomer.mockRestore();
+      jest.spyOn(stripeHelper, 'fetchCustomer').mockResolvedValue(undefined);
       const actual =
         await stripeHelper.getBillingDetailsAndSubscriptions('uid');
       expect(actual).toBeNull();
@@ -5455,10 +5763,10 @@ describe('StripeHelper', () => {
 
     it('includes the customer Stripe billing details', async () => {
       const billingDetails = { payment_provider: 'stripe' };
-      stripeHelper.extractBillingDetails.restore();
-      sandbox
-        .stub(stripeHelper, 'extractBillingDetails')
-        .resolves(billingDetails);
+      stripeHelper.extractBillingDetails.mockRestore();
+      jest
+        .spyOn(stripeHelper, 'extractBillingDetails')
+        .mockResolvedValue(billingDetails);
       const actual =
         await stripeHelper.getBillingDetailsAndSubscriptions('uid');
       expect(actual).toEqual({
@@ -5470,10 +5778,10 @@ describe('StripeHelper', () => {
     });
 
     it('includes the customer PayPal billing details', async () => {
-      stripeHelper.hasSubscriptionRequiringPaymentMethod.restore();
-      sandbox
-        .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
-        .returns(false);
+      stripeHelper.hasSubscriptionRequiringPaymentMethod.mockRestore();
+      jest
+        .spyOn(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
+        .mockReturnValue(false);
       const actual =
         await stripeHelper.getBillingDetailsAndSubscriptions('uid');
       expect(actual).toEqual({
@@ -5486,8 +5794,10 @@ describe('StripeHelper', () => {
     });
 
     it('includes the missing billing agreement error state', async () => {
-      stripeHelper.getCustomerPaypalAgreement.restore();
-      sandbox.stub(stripeHelper, 'getCustomerPaypalAgreement').returns(null);
+      stripeHelper.getCustomerPaypalAgreement.mockRestore();
+      jest
+        .spyOn(stripeHelper, 'getCustomerPaypalAgreement')
+        .mockReturnValue(null);
       const actual =
         await stripeHelper.getBillingDetailsAndSubscriptions('uid');
       expect(actual).toEqual({
@@ -5501,17 +5811,17 @@ describe('StripeHelper', () => {
     });
 
     it('includes the funding source error state', async () => {
-      stripeHelper.hasOpenInvoiceWithPaymentAttempts.restore();
-      sandbox
-        .stub(stripeHelper, 'hasOpenInvoiceWithPaymentAttempts')
-        .resolves(true);
-      stripeHelper.getPaymentAttempts.restore();
-      sandbox.stub(stripeHelper, 'getPaymentAttempts').returns(1);
+      stripeHelper.hasOpenInvoiceWithPaymentAttempts.mockRestore();
+      jest
+        .spyOn(stripeHelper, 'hasOpenInvoiceWithPaymentAttempts')
+        .mockResolvedValue(true);
+      stripeHelper.getPaymentAttempts.mockRestore();
+      jest.spyOn(stripeHelper, 'getPaymentAttempts').mockReturnValue(1);
       const openInvoice = { status: 'open' };
-      stripeHelper.getLatestInvoicesForActiveSubscriptions.restore();
-      sandbox
-        .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
-        .resolves([openInvoice]);
+      stripeHelper.getLatestInvoicesForActiveSubscriptions.mockRestore();
+      jest
+        .spyOn(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
+        .mockResolvedValue([openInvoice]);
       const actual =
         await stripeHelper.getBillingDetailsAndSubscriptions('uid');
       expect(actual).toEqual({
@@ -5526,14 +5836,14 @@ describe('StripeHelper', () => {
 
     it('excludes funding source error state with open invoices but no payment attempts', async () => {
       const openInvoice = { status: 'open' };
-      stripeHelper.getLatestInvoicesForActiveSubscriptions.restore();
-      sandbox
-        .stub(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
-        .resolves([openInvoice]);
-      stripeHelper.hasOpenInvoiceWithPaymentAttempts.restore();
-      sandbox
-        .stub(stripeHelper, 'hasOpenInvoiceWithPaymentAttempts')
-        .returns(false);
+      stripeHelper.getLatestInvoicesForActiveSubscriptions.mockRestore();
+      jest
+        .spyOn(stripeHelper, 'getLatestInvoicesForActiveSubscriptions')
+        .mockResolvedValue([openInvoice]);
+      stripeHelper.hasOpenInvoiceWithPaymentAttempts.mockRestore();
+      jest
+        .spyOn(stripeHelper, 'hasOpenInvoiceWithPaymentAttempts')
+        .mockReturnValue(false);
       const actual =
         await stripeHelper.getBillingDetailsAndSubscriptions('uid');
       expect(actual).toEqual({
@@ -5549,17 +5859,17 @@ describe('StripeHelper', () => {
       const subscriptions: any = {
         data: [{ id: 'sub_testo', status: 'active' }],
       };
-      stripeHelper.fetchCustomer.restore();
-      sandbox
-        .stub(stripeHelper, 'fetchCustomer')
-        .resolves({ ...customer, subscriptions });
-      sandbox
-        .stub(stripeHelper, 'subscriptionsToResponse')
-        .resolves(subscriptions);
-      stripeHelper.hasSubscriptionRequiringPaymentMethod.restore();
-      sandbox
-        .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
-        .returns(false);
+      stripeHelper.fetchCustomer.mockRestore();
+      jest
+        .spyOn(stripeHelper, 'fetchCustomer')
+        .mockResolvedValue({ ...customer, subscriptions });
+      jest
+        .spyOn(stripeHelper, 'subscriptionsToResponse')
+        .mockResolvedValue(subscriptions);
+      stripeHelper.hasSubscriptionRequiringPaymentMethod.mockRestore();
+      jest
+        .spyOn(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
+        .mockReturnValue(false);
       const actual =
         await stripeHelper.getBillingDetailsAndSubscriptions('uid');
       expect(actual).toEqual({
@@ -5569,10 +5879,12 @@ describe('StripeHelper', () => {
         billing_agreement_id: billingAgreementId,
         ...billingDetails,
       });
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.subscriptionsToResponse as sinon.SinonStub,
-        subscriptions
-      );
+      expect(
+        stripeHelper.subscriptionsToResponse as jest.Mock
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.subscriptionsToResponse as jest.Mock
+      ).toHaveBeenCalledWith(subscriptions);
     });
 
     it('filters out canceled subscriptions', async () => {
@@ -5582,20 +5894,22 @@ describe('StripeHelper', () => {
           { id: 'sub_testo', status: 'canceled' },
         ],
       };
-      stripeHelper.fetchCustomer.restore();
-      sandbox
-        .stub(stripeHelper, 'fetchCustomer')
-        .resolves({ ...customer, subscriptions });
-      sandbox
-        .stub(stripeHelper, 'subscriptionsToResponse')
-        .resolves(subscriptions);
+      stripeHelper.fetchCustomer.mockRestore();
+      jest
+        .spyOn(stripeHelper, 'fetchCustomer')
+        .mockResolvedValue({ ...customer, subscriptions });
+      jest
+        .spyOn(stripeHelper, 'subscriptionsToResponse')
+        .mockResolvedValue(subscriptions);
       await stripeHelper.getBillingDetailsAndSubscriptions('uid');
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.subscriptionsToResponse as sinon.SinonStub,
-        {
-          data: [{ id: 'sub_testo', status: 'active' }],
-        }
-      );
+      expect(
+        stripeHelper.subscriptionsToResponse as jest.Mock
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.subscriptionsToResponse as jest.Mock
+      ).toHaveBeenCalledWith({
+        data: [{ id: 'sub_testo', status: 'active' }],
+      });
     });
   });
 
@@ -5680,7 +5994,6 @@ describe('StripeHelper', () => {
       },
     };
 
-    let billingEmailSandbox: any;
     let mockCustomer: any;
     let mockStripe: any;
     let mockAllAbbrevProducts: any[];
@@ -5688,8 +6001,6 @@ describe('StripeHelper', () => {
     let expandMock: any;
 
     beforeEach(() => {
-      billingEmailSandbox = sandbox;
-
       mockCustomer = {
         id: 'cus_00000000000000',
         email,
@@ -5725,14 +6036,16 @@ describe('StripeHelper', () => {
       mockAllAbbrevPlans = [
         { ...mockPlan, plan_id: planId, product_id: productId },
       ];
-      billingEmailSandbox
-        .stub(stripeHelper, 'allAbbrevProducts')
-        .resolves(mockAllAbbrevProducts);
-      billingEmailSandbox
-        .stub(stripeHelper, 'allAbbrevPlans')
-        .resolves(mockAllAbbrevPlans);
+      jest
+        .spyOn(stripeHelper, 'allAbbrevProducts')
+        .mockResolvedValue(mockAllAbbrevProducts);
+      jest
+        .spyOn(stripeHelper, 'allAbbrevPlans')
+        .mockResolvedValue(mockAllAbbrevPlans);
 
-      expandMock = billingEmailSandbox.stub(stripeHelper, 'expandResource');
+      expandMock = jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue({});
 
       mockStripe = Object.entries({
         plans: mockPlan,
@@ -5743,13 +6056,13 @@ describe('StripeHelper', () => {
       }).reduce(
         (acc: any, [resource, value]) => ({
           ...acc,
-          [resource]: { retrieve: sinon.stub().resolves(value) },
+          [resource]: { retrieve: jest.fn().mockResolvedValue(value) },
         }),
         {}
       );
-      mockStripe.invoices.retrieveUpcoming = sinon
-        .stub()
-        .resolves(mockInvoiceUpcoming);
+      mockStripe.invoices.retrieveUpcoming = jest
+        .fn()
+        .mockResolvedValue(mockInvoiceUpcoming);
       stripeHelper.stripe = mockStripe;
     });
 
@@ -5897,26 +6210,26 @@ describe('StripeHelper', () => {
           ...(stripeHelper.stripe || {}),
           paymentIntents: {
             ...(stripeHelper.stripe?.paymentIntents || {}),
-            retrieve: sinon.stub().resolves(successfulPaymentIntent),
+            retrieve: jest.fn().mockResolvedValue(successfulPaymentIntent),
           },
           invoices: {
             ...(stripeHelper.stripe?.invoices || {}),
-            retrieve: sinon.stub().resolves(mockInvoice),
+            retrieve: jest.fn().mockResolvedValue(mockInvoice),
           },
         };
 
-        expandMock.onCall(0).resolves(mockCustomer);
-        expandMock.onCall(1).resolves(mockCharge);
+        expandMock.mockResolvedValueOnce(mockCustomer);
+        expandMock.mockResolvedValueOnce(mockCharge);
       });
 
       it('extracts expected details from an invoice that requires requests to expand', async () => {
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual(expected);
       });
 
@@ -5924,11 +6237,11 @@ describe('StripeHelper', () => {
         mockAllAbbrevProducts[0].product_id = 'nope';
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(true);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(true);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual(expected);
       });
 
@@ -5944,11 +6257,11 @@ describe('StripeHelper', () => {
         expandedFixture.charge = mockCharge;
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(expandedFixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual(expected);
       });
 
@@ -5962,14 +6275,17 @@ describe('StripeHelper', () => {
         };
         noChargeFixture.customer = mockCustomer;
         noChargeFixture.charge = null;
-        expandMock.onCall(1).resolves(null);
+        // Reset the "once" queue from beforeEach and set up: customer, null (no charge), default
+        expandMock.mockReset().mockResolvedValue({});
+        expandMock.mockResolvedValueOnce(mockCustomer);
+        expandMock.mockResolvedValueOnce(null);
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(noChargeFixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual({
           ...expected,
           lastFour: null,
@@ -5986,11 +6302,11 @@ describe('StripeHelper', () => {
         upgradeFixture.lines.data[1].period.end = subscriptionPeriodEnd;
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(upgradeFixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual({
           ...expected,
           nextInvoiceDate: new Date(subscriptionPeriodEnd * 1000),
@@ -6000,22 +6316,22 @@ describe('StripeHelper', () => {
       it('extracts expected details from an invoice with invoiceitem for a previous subscription', async () => {
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureProrated);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual(expected);
       });
 
       it('extracts expected details from an invoice with discount', async () => {
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureDiscount);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual(expectedDiscount_foreverCoupon);
       });
 
@@ -6030,11 +6346,11 @@ describe('StripeHelper', () => {
         };
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureDiscount100);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual(expectedDiscount100);
       });
 
@@ -6049,17 +6365,17 @@ describe('StripeHelper', () => {
             },
           },
         ];
-        (stripeHelper.allAbbrevProducts as sinon.SinonStub).resolves(
+        (stripeHelper.allAbbrevProducts as jest.Mock).mockResolvedValue(
           customMockAllAbbrevProducts
         );
         const customFixture = deepCopy(invoicePaidSubscriptionCreate);
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(customFixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual({
           ...expected,
           productMetadata: {
@@ -6072,11 +6388,11 @@ describe('StripeHelper', () => {
       it('extracts expected details for an invoice with tax', async () => {
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureTax);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual({
           ...expected,
           invoiceTaxAmountInCents: 54,
@@ -6086,11 +6402,11 @@ describe('StripeHelper', () => {
       it('extracts expected details from an invoice with discount and tax', async () => {
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureTaxDiscount);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledThrice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(3);
         expect(result).toEqual({
           ...expectedDiscount_foreverCoupon,
           invoiceTaxAmountInCents: 48,
@@ -6101,11 +6417,11 @@ describe('StripeHelper', () => {
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixtureProrationRefund
         );
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledTwice(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(2);
         expect(result).toEqual({
           ...expected,
           invoiceStatus: 'draft',
@@ -6116,7 +6432,8 @@ describe('StripeHelper', () => {
       });
 
       it('throws an exception for deleted customer', async () => {
-        expandMock.onCall(0).resolves({ ...mockCustomer, deleted: true });
+        expandMock.mockReset().mockResolvedValue({});
+        expandMock.mockResolvedValueOnce({ ...mockCustomer, deleted: true });
         let thrownError: any = null;
         try {
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
@@ -6127,18 +6444,18 @@ describe('StripeHelper', () => {
         expect(thrownError.errno).toBe(
           error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER
         );
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          false
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
-        sinon.assert.calledOnce(expandMock);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(false);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(1);
       });
 
       it('throws an exception for deleted product', async () => {
         mockAllAbbrevProducts[0].product_id = 'nope';
-        mockStripe.products.retrieve = sinon
-          .stub()
-          .resolves({ ...mockProduct, deleted: true });
+        mockStripe.products.retrieve = jest
+          .fn()
+          .mockResolvedValue({ ...mockProduct, deleted: true });
         let thrownError: any = null;
         try {
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
@@ -6147,11 +6464,11 @@ describe('StripeHelper', () => {
         }
         expect(thrownError).not.toBeNull();
         expect(thrownError.errno).toBe(error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
-        expect(mockStripe.products.retrieve.calledWith(productId)).toBe(true);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        sinon.assert.calledTwice(expandMock);
+        expect(mockStripe.products.retrieve).toHaveBeenCalledWith(productId);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(expandMock).toHaveBeenCalledTimes(2);
       });
 
       it('throws an exception with unexpected data', async () => {
@@ -6228,19 +6545,17 @@ describe('StripeHelper', () => {
       it('extracts the correct discount type when discounts property needs to be expanded', async () => {
         const fixtureDiscountOneTime = deepCopy(fixture);
         fixtureDiscountOneTime.discounts = ['discountId'];
-        billingEmailSandbox
-          .stub(stripeHelper, 'getInvoiceWithDiscount')
-          .resolves({
-            ...fixtureDiscountOneTime,
-            discounts: [
-              {
-                coupon: {
-                  duration: 'once',
-                  duration_in_months: null,
-                },
+        jest.spyOn(stripeHelper, 'getInvoiceWithDiscount').mockResolvedValue({
+          ...fixtureDiscountOneTime,
+          discounts: [
+            {
+              coupon: {
+                duration: 'once',
+                duration_in_months: null,
               },
-            ],
-          });
+            },
+          ],
+        });
         const actual = await stripeHelper.extractInvoiceDetailsForEmail(
           fixtureDiscountOneTime
         );
@@ -6249,9 +6564,9 @@ describe('StripeHelper', () => {
       });
 
       it('uses and includes Firestore based configs when available', async () => {
-        billingEmailSandbox
-          .stub(stripeHelper, 'maybeGetPlanConfig')
-          .resolves(planConfig);
+        jest
+          .spyOn(stripeHelper, 'maybeGetPlanConfig')
+          .mockResolvedValue(planConfig);
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         const expectedWithPlanConfig = {
@@ -6260,9 +6575,9 @@ describe('StripeHelper', () => {
           planEmailIconURL: planConfig.urls.emailIcon,
           planSuccessActionButtonURL: planConfig.urls.successActionButton,
         };
-        sinon.assert.calledOnce(
-          stripeHelper.maybeGetPlanConfig as sinon.SinonStub
-        );
+        expect(
+          stripeHelper.maybeGetPlanConfig as jest.Mock
+        ).toHaveBeenCalledTimes(1);
         expect(result).toEqual(expectedWithPlanConfig);
       });
     });
@@ -6296,23 +6611,24 @@ describe('StripeHelper', () => {
       };
 
       beforeEach(() => {
-        expandMock.onCall(0).resolves(mockCustomer);
-        expandMock.onCall(1).resolves(mockPlan);
+        expandMock.mockResolvedValueOnce(mockCustomer);
+        expandMock.mockResolvedValueOnce(mockPlan);
       });
 
       it('extracts expected details from a source that requires requests to expand', async () => {
         const result =
           await stripeHelper.extractSourceDetailsForEmail(sourceFixture);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          true
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(true);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
         expect(result).toEqual(expectedSource);
-        sinon.assert.calledTwice(expandMock);
+        expect(expandMock).toHaveBeenCalledTimes(2);
       });
 
       it('throws an exception for deleted customer', async () => {
-        expandMock.onCall(0).resolves({ ...mockCustomer, deleted: true });
+        expandMock.mockReset().mockResolvedValue({});
+        expandMock.mockResolvedValueOnce({ ...mockCustomer, deleted: true });
         let thrownError: any = null;
         try {
           await stripeHelper.extractSourceDetailsForEmail(sourceFixture);
@@ -6323,11 +6639,11 @@ describe('StripeHelper', () => {
         expect(thrownError.errno).toBe(
           error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER
         );
-        sinon.assert.calledOnce(expandMock);
-        expect((stripeHelper.allAbbrevProducts as sinon.SinonStub).called).toBe(
-          false
-        );
-        expect(mockStripe.products.retrieve.called).toBe(false);
+        expect(expandMock).toHaveBeenCalledTimes(1);
+        expect(
+          (stripeHelper.allAbbrevProducts as jest.Mock).mock.calls.length > 0
+        ).toBe(false);
+        expect(mockStripe.products.retrieve.mock.calls.length > 0).toBe(false);
       });
 
       it('throws an exception when unable to find plan or product', async () => {
@@ -6419,17 +6735,17 @@ describe('StripeHelper', () => {
       it('returns subscription invoice details', async () => {
         const mockSubscription = deepCopy(subscription1);
         const mockSubInvoice = deepCopy(invoicePaidSubscriptionCreate);
-        billingEmailSandbox
-          .stub(stripeHelper, 'extractInvoiceDetailsForEmail')
-          .resolves(mockSubInvoice);
+        jest
+          .spyOn(stripeHelper, 'extractInvoiceDetailsForEmail')
+          .mockResolvedValue(mockSubInvoice);
         const result =
           await stripeHelper.extractSubscriptionDeletedEventDetailsForEmail(
             mockSubscription
           );
         expect(result).toBe(mockSubInvoice);
-        sinon.assert.calledOnce(
-          stripeHelper.extractInvoiceDetailsForEmail as sinon.SinonStub
-        );
+        expect(
+          stripeHelper.extractInvoiceDetailsForEmail as jest.Mock
+        ).toHaveBeenCalledTimes(1);
       });
 
       it('throws internalValidationError if latest_invoice is not present', async () => {
@@ -6454,32 +6770,32 @@ describe('StripeHelper', () => {
       const mockUpgradeDowngradeDetails = 'mockUpgradeDowngradeDetails';
 
       beforeEach(() => {
-        billingEmailSandbox
-          .stub(stripeHelper, 'getInvoice')
-          .resolves(mockOldInvoice);
-        billingEmailSandbox.stub(stripeHelper, 'getSubsequentPrices').resolves({
+        jest
+          .spyOn(stripeHelper, 'getInvoice')
+          .mockResolvedValue(mockOldInvoice);
+        jest.spyOn(stripeHelper, 'getSubsequentPrices').mockResolvedValue({
           exclusiveTax: 0,
           total: mockOldInvoice.total,
         });
-        billingEmailSandbox
-          .stub(
+        jest
+          .spyOn(
             stripeHelper,
             'extractSubscriptionUpdateCancellationDetailsForEmail'
           )
-          .resolves(mockCancellationDetails);
-        billingEmailSandbox
-          .stub(
+          .mockResolvedValue(mockCancellationDetails);
+        jest
+          .spyOn(
             stripeHelper,
             'extractSubscriptionUpdateReactivationDetailsForEmail'
           )
-          .resolves(mockReactivationDetails);
-        billingEmailSandbox
-          .stub(
+          .mockResolvedValue(mockReactivationDetails);
+        jest
+          .spyOn(
             stripeHelper,
             'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail'
           )
-          .resolves(mockUpgradeDowngradeDetails);
-        expandMock.onCall(0).resolves(mockCustomer);
+          .mockResolvedValue(mockUpgradeDowngradeDetails);
+        expandMock.mockResolvedValueOnce(mockCustomer);
       });
 
       function assertOnlyExpectedHelperCalledWith(
@@ -6493,10 +6809,16 @@ describe('StripeHelper', () => {
         ];
         for (const helperName of allHelperNames) {
           if (helperName !== expectedHelperName) {
-            expect((stripeHelper as any)[helperName].notCalled).toBe(true);
+            expect(
+              (stripeHelper as any)[helperName].mock.calls.length === 0
+            ).toBe(true);
           } else {
-            expect((stripeHelper as any)[helperName].called).toBe(true);
-            expect((stripeHelper as any)[helperName].args[0]).toEqual(args);
+            expect(
+              (stripeHelper as any)[helperName].mock.calls.length > 0
+            ).toBe(true);
+            expect((stripeHelper as any)[helperName].mock.calls[0]).toEqual(
+              args
+            );
           }
         }
       }
@@ -6505,7 +6827,9 @@ describe('StripeHelper', () => {
         const stripeErr: any = new Error('Stripe error');
         stripeErr.type = 'StripeInvalidRequestError';
         stripeErr.code = 'invoice_upcoming_none';
-        mockStripe.invoices.retrieveUpcoming = sinon.stub().rejects(stripeErr);
+        mockStripe.invoices.retrieveUpcoming = jest
+          .fn()
+          .mockRejectedValue(stripeErr);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
         event.data.previous_attributes = {
@@ -6529,7 +6853,9 @@ describe('StripeHelper', () => {
       it('rejects if invoices.retrieveUpcoming errors with unexpected error', async () => {
         const stripeErr: any = new Error('Stripe error');
         stripeErr.type = 'unexpected';
-        mockStripe.invoices.retrieveUpcoming = sinon.stub().rejects(stripeErr);
+        mockStripe.invoices.retrieveUpcoming = jest
+          .fn()
+          .mockRejectedValue(stripeErr);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
         event.data.previous_attributes = {
@@ -6545,7 +6871,8 @@ describe('StripeHelper', () => {
         }
         expect(
           (stripeHelper as any)
-            .extractSubscriptionUpdateCancellationDetailsForEmail.notCalled
+            .extractSubscriptionUpdateCancellationDetailsForEmail.mock.calls
+            .length === 0
         ).toBe(true);
       });
 
@@ -6556,9 +6883,9 @@ describe('StripeHelper', () => {
             data: [{ type: 'invoiceitem' }],
           },
         };
-        mockStripe.invoices.retrieveUpcoming = sinon
-          .stub()
-          .resolves(mockInvoiceUpcomingWithData);
+        mockStripe.invoices.retrieveUpcoming = jest
+          .fn()
+          .mockResolvedValue(mockInvoiceUpcomingWithData);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
         event.data.previous_attributes = {
@@ -6674,9 +7001,9 @@ describe('StripeHelper', () => {
 
       it('includes the Firestore based plan config when available', async () => {
         const mockPlanConfig = { firestore: 'yes' };
-        billingEmailSandbox
-          .stub(stripeHelper, 'maybeGetPlanConfig')
-          .resolves(mockPlanConfig);
+        jest
+          .spyOn(stripeHelper, 'maybeGetPlanConfig')
+          .mockResolvedValue(mockPlanConfig);
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
         event.data.previous_attributes = {
@@ -6763,12 +7090,10 @@ describe('StripeHelper', () => {
             }
           );
 
-          billingEmailSandbox
-            .stub(stripeHelper, 'getSubsequentPrices')
-            .resolves({
-              exclusiveTax: 0,
-              total: upcomingInvoice.total,
-            });
+          jest.spyOn(stripeHelper, 'getSubsequentPrices').mockResolvedValue({
+            exclusiveTax: 0,
+            total: upcomingInvoice.total,
+          });
 
           const result =
             await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
@@ -6934,21 +7259,21 @@ describe('StripeHelper', () => {
       };
 
       beforeEach(() => {
-        expandMock.onCall(0).returns(mockCharge.payment_method_details);
+        expandMock.mockReturnValueOnce(mockCharge.payment_method_details);
       });
 
       it('extracts expected details for a subscription reactivation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
-        billingEmailSandbox
-          .stub(stripeHelper, 'fetchCustomer')
-          .resolves(reactivationMockCustomer);
+        jest
+          .spyOn(stripeHelper, 'fetchCustomer')
+          .mockResolvedValue(reactivationMockCustomer);
         const result =
           await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
             event.data.object,
             expectedBaseUpdateDetails,
             mockInvoice
           );
-        expect(mockStripe.invoices.retrieveUpcoming.args).toEqual([
+        expect(mockStripe.invoices.retrieveUpcoming.mock.calls).toEqual([
           [{ subscription: event.data.object.id }],
         ]);
         expect(result).toEqual(defaultExpected);
@@ -6958,9 +7283,9 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         const customerNoPayment = deepCopy(reactivationMockCustomer);
         customerNoPayment.invoice_settings.default_payment_method = null;
-        billingEmailSandbox
-          .stub(stripeHelper, 'fetchCustomer')
-          .resolves(customerNoPayment);
+        jest
+          .spyOn(stripeHelper, 'fetchCustomer')
+          .mockResolvedValue(customerNoPayment);
         const result =
           await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
             event.data.object,
@@ -6983,28 +7308,30 @@ describe('StripeHelper', () => {
           country: 'GD',
           postalCode: '99999',
         };
-        billingEmailSandbox
-          .stub(stripeHelper, 'fetchCustomer')
-          .resolves(customer1);
-        billingEmailSandbox
-          .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
-          .resolves(paymentDetails);
+        jest.spyOn(stripeHelper, 'fetchCustomer').mockResolvedValue(customer1);
+        jest
+          .spyOn(stripeHelper, 'extractCustomerDefaultPaymentDetails')
+          .mockResolvedValue(paymentDetails);
         const actual =
           await stripeHelper.extractCustomerDefaultPaymentDetailsByUid(uid);
         expect(actual).toEqual(paymentDetails);
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.fetchCustomer as sinon.SinonStub,
+        expect(stripeHelper.fetchCustomer as jest.Mock).toHaveBeenCalledTimes(
+          1
+        );
+        expect(stripeHelper.fetchCustomer as jest.Mock).toHaveBeenCalledWith(
           uid,
           ['invoice_settings.default_payment_method']
         );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.extractCustomerDefaultPaymentDetails as sinon.SinonStub,
-          customer1
-        );
+        expect(
+          stripeHelper.extractCustomerDefaultPaymentDetails as jest.Mock
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          stripeHelper.extractCustomerDefaultPaymentDetails as jest.Mock
+        ).toHaveBeenCalledWith(customer1);
       });
 
       it('throws for a deleted customer', async () => {
-        billingEmailSandbox.stub(stripeHelper, 'fetchCustomer').resolves(null);
+        jest.spyOn(stripeHelper, 'fetchCustomer').mockResolvedValue(null);
         let thrown: any;
         try {
           await stripeHelper.extractCustomerDefaultPaymentDetailsByUid(uid);
@@ -7047,7 +7374,7 @@ describe('StripeHelper', () => {
       };
 
       beforeEach(() => {
-        expandMock.onCall(0).returns(mockPaymentMethod);
+        expandMock.mockReturnValueOnce(mockPaymentMethod);
       });
 
       it('extracts from default payment method first when available', async () => {
@@ -7078,7 +7405,7 @@ describe('StripeHelper', () => {
       });
 
       it('extracts from default source when available', async () => {
-        expandMock.onCall(0).resolves(mockPaymentMethod);
+        expandMock.mockResolvedValueOnce(mockPaymentMethod);
         const customerCopy = deepCopy(paymentMockCustomer);
         customerCopy.invoice_settings.default_payment_method = null;
         const result =
@@ -7094,7 +7421,8 @@ describe('StripeHelper', () => {
       it('does not include the postal code when address is not available in source', async () => {
         const noAddressPaymentMethod = deepCopy(mockPaymentMethod);
         delete noAddressPaymentMethod.billing_details.address;
-        expandMock.onCall(0).resolves(noAddressPaymentMethod);
+        expandMock.mockReset().mockResolvedValue({});
+        expandMock.mockResolvedValueOnce(noAddressPaymentMethod);
         const customerCopy = deepCopy(paymentMockCustomer);
         customerCopy.invoice_settings.default_payment_method = null;
         const result =
@@ -7248,15 +7576,15 @@ describe('StripeHelper', () => {
     const mockPaymentMethodBilling = { card };
 
     beforeEach(() => {
-      sandbox.stub(stripeHelper, 'getPaymentProvider').returns('stripe');
+      jest.spyOn(stripeHelper, 'getPaymentProvider').mockReturnValue('stripe');
     });
 
     it('returns the correct payment provider', async () => {
       const customer = { id: 'cus_xyz', invoice_settings: {} };
       const actual = await stripeHelper.extractBillingDetails(customer);
       expect(actual).toEqual(paymentProvider);
-      sinon.assert.calledOnceWithExactly(
-        await stripeHelper.getPaymentProvider,
+      expect(await stripeHelper.getPaymentProvider).toHaveBeenCalledTimes(1);
+      expect(await stripeHelper.getPaymentProvider).toHaveBeenCalledWith(
         customer
       );
     });
@@ -7277,16 +7605,16 @@ describe('StripeHelper', () => {
           customer.invoice_settings.default_payment_method.card.exp_year,
         brand: customer.invoice_settings.default_payment_method.card.brand,
       });
-      sinon.assert.calledOnceWithExactly(
-        await stripeHelper.getPaymentProvider,
+      expect(await stripeHelper.getPaymentProvider).toHaveBeenCalledTimes(1);
+      expect(await stripeHelper.getPaymentProvider).toHaveBeenCalledWith(
         customer
       );
     });
 
     it('returns the card details from default source', async () => {
-      sandbox
-        .stub(stripeHelper, 'expandResource')
-        .resolves(mockPaymentMethodBilling);
+      jest
+        .spyOn(stripeHelper, 'expandResource')
+        .mockResolvedValue(mockPaymentMethodBilling);
       const customer: any = {
         id: 'cus_xyz',
         default_source: card.id,
@@ -7303,8 +7631,8 @@ describe('StripeHelper', () => {
         exp_year: mockPaymentMethodBilling.card.exp_year,
         brand: mockPaymentMethodBilling.card.brand,
       });
-      sinon.assert.calledOnceWithExactly(
-        await stripeHelper.getPaymentProvider,
+      expect(await stripeHelper.getPaymentProvider).toHaveBeenCalledTimes(1);
+      expect(await stripeHelper.getPaymentProvider).toHaveBeenCalledWith(
         customer
       );
     });
@@ -7312,12 +7640,16 @@ describe('StripeHelper', () => {
 
   describe('allAbbrevPlans', () => {
     it('returns a AbbrevPlan list based on allPlans', async () => {
-      sandbox.spy(stripeHelper, 'allPlans');
-      sandbox.spy(stripeHelper, 'allConfiguredPlans');
+      jest.spyOn(stripeHelper, 'allPlans');
+      jest.spyOn(stripeHelper, 'allConfiguredPlans');
       const actual = await stripeHelper.allAbbrevPlans();
-      expect(stripeHelper.allConfiguredPlans.calledOnce).toBeTruthy();
-      expect(stripeHelper.allPlans.calledOnce).toBeTruthy();
-      expect(stripeHelper.stripe.plans.list.calledOnce).toBeTruthy();
+      expect(
+        stripeHelper.allConfiguredPlans.mock.calls.length === 1
+      ).toBeTruthy();
+      expect(stripeHelper.allPlans.mock.calls.length === 1).toBeTruthy();
+      expect(
+        stripeHelper.stripe.plans.list.mock.calls.length === 1
+      ).toBeTruthy();
 
       expect(actual).toEqual(
         [plan1, plan2]
@@ -7375,16 +7707,20 @@ describe('StripeHelper', () => {
         metadata: {},
         product: { ...plan3.product, metadata: {} },
       };
-      listStripePlans.restore();
-      sandbox
-        .stub(stripeHelper.stripe.plans, 'list')
-        .returns([first, second, third] as any);
-      sandbox.spy(stripeHelper, 'allPlans');
-      sandbox.spy(stripeHelper, 'allConfiguredPlans');
+      listStripePlans.mockRestore();
+      jest
+        .spyOn(stripeHelper.stripe.plans, 'list')
+        .mockReturnValue([first, second, third] as any);
+      jest.spyOn(stripeHelper, 'allPlans');
+      jest.spyOn(stripeHelper, 'allConfiguredPlans');
       const actual = await stripeHelper.allAbbrevPlans();
-      expect(stripeHelper.allConfiguredPlans.calledOnce).toBeTruthy();
-      expect(stripeHelper.allPlans.calledOnce).toBeTruthy();
-      expect(stripeHelper.stripe.plans.list.calledOnce).toBeTruthy();
+      expect(
+        stripeHelper.allConfiguredPlans.mock.calls.length === 1
+      ).toBeTruthy();
+      expect(stripeHelper.allPlans.mock.calls.length === 1).toBeTruthy();
+      expect(
+        stripeHelper.stripe.plans.list.mock.calls.length === 1
+      ).toBeTruthy();
 
       expect(actual).toEqual(
         [first]
@@ -7432,27 +7768,32 @@ describe('StripeHelper', () => {
     it('rejects and returns stripe values', async () => {
       const err = new Error('It is bad');
       const mockProductConfigurationManager = {
-        getPurchaseWithDetailsOfferingContentByPlanIds: sinon
-          .stub()
-          .rejects(err),
-        getSupportedLocale: sinon.fake.resolves('en'),
+        getPurchaseWithDetailsOfferingContentByPlanIds: jest
+          .fn()
+          .mockRejectedValue(err),
+        getSupportedLocale: jest.fn().mockResolvedValue('en'),
       };
       Container.set(
         ProductConfigurationManager,
         mockProductConfigurationManager
       );
       const localStripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
-      listStripePlans = sandbox
-        .stub(localStripeHelper.stripe.plans, 'list')
-        .returns(asyncIterable([plan1, plan2, plan3]) as any);
-      sandbox.spy(localStripeHelper, 'allPlans');
-      sandbox.spy(localStripeHelper, 'allConfiguredPlans');
-      sandbox.stub(Sentry, 'captureException');
+      listStripePlans = jest
+        .spyOn(localStripeHelper.stripe.plans, 'list')
+        .mockReturnValue(asyncIterable([plan1, plan2, plan3]) as any);
+      jest.spyOn(localStripeHelper, 'allPlans');
+      jest.spyOn(localStripeHelper, 'allConfiguredPlans');
+      jest.spyOn(Sentry, 'captureException');
       const actual = await localStripeHelper.allAbbrevPlans();
-      expect(localStripeHelper.allConfiguredPlans.calledOnce).toBeTruthy();
-      expect(localStripeHelper.allPlans.calledOnce).toBeTruthy();
-      expect(localStripeHelper.stripe.plans.list.calledOnce).toBeTruthy();
-      sinon.assert.calledOnceWithExactly(Sentry.captureException, err);
+      expect(
+        localStripeHelper.allConfiguredPlans.mock.calls.length === 1
+      ).toBeTruthy();
+      expect(localStripeHelper.allPlans.mock.calls.length === 1).toBeTruthy();
+      expect(
+        localStripeHelper.stripe.plans.list.mock.calls.length === 1
+      ).toBeTruthy();
+      expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+      expect(Sentry.captureException).toHaveBeenCalledWith(err);
 
       expect(actual).toEqual(
         [plan1, plan2]
@@ -7509,9 +7850,10 @@ describe('StripeHelper', () => {
         },
       };
       const mockProductConfigurationManager = {
-        getPurchaseWithDetailsOfferingContentByPlanIds:
-          sinon.fake.resolves(mockCMSConfigUtil),
-        getSupportedLocale: sinon.fake.resolves('en'),
+        getPurchaseWithDetailsOfferingContentByPlanIds: jest
+          .fn()
+          .mockResolvedValue(mockCMSConfigUtil),
+        getSupportedLocale: jest.fn().mockResolvedValue('en'),
       };
       Container.set(
         ProductConfigurationManager,
@@ -7520,48 +7862,60 @@ describe('StripeHelper', () => {
       const localStripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
       const newPlan1 = deepCopy(plan1);
       delete newPlan1.product.metadata['webIconURL'];
-      sandbox
-        .stub(localStripeHelper.stripe.plans, 'list')
-        .returns(asyncIterable([newPlan1, plan2, plan3]) as any);
-      sandbox.spy(localStripeHelper, 'allPlans');
-      sandbox.spy(localStripeHelper, 'allConfiguredPlans');
+      jest
+        .spyOn(localStripeHelper.stripe.plans, 'list')
+        .mockReturnValue(asyncIterable([newPlan1, plan2, plan3]) as any);
+      jest.spyOn(localStripeHelper, 'allPlans');
+      jest.spyOn(localStripeHelper, 'allConfiguredPlans');
       const sentryScope: any = {
-        setContext: sandbox.stub(),
-        setExtra: sandbox.stub(),
+        setContext: jest.fn(),
+        setExtra: jest.fn(),
       };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb: any) => cb(sentryScope));
-      sandbox.stub(sentryModule, 'reportSentryMessage');
+      jest
+        .spyOn(Sentry, 'withScope')
+        .mockImplementation((cb: any) => cb(sentryScope));
+      jest.spyOn(sentryModule, 'reportSentryMessage');
       const actual = await localStripeHelper.allAbbrevPlans();
-      expect(localStripeHelper.allConfiguredPlans.calledOnce).toBeTruthy();
-      expect(localStripeHelper.allPlans.calledOnce).toBeTruthy();
-      expect(localStripeHelper.stripe.plans.list.calledOnce).toBeTruthy();
+      expect(
+        localStripeHelper.allConfiguredPlans.mock.calls.length === 1
+      ).toBeTruthy();
+      expect(localStripeHelper.allPlans.mock.calls.length === 1).toBeTruthy();
+      expect(
+        localStripeHelper.stripe.plans.list.mock.calls.length === 1
+      ).toBeTruthy();
       expect(actual[0].plan_metadata['webIconURL']).toBe(newWebIconURL);
       expect(actual[0].product_metadata['webIconURL']).toBe(newWebIconURL);
-      sinon.assert.calledOnce(Sentry.withScope as sinon.SinonStub);
-      sinon.assert.calledOnce(sentryScope.setContext);
+      expect(Sentry.withScope as jest.Mock).toHaveBeenCalledTimes(1);
+      expect(sentryScope.setContext).toHaveBeenCalledTimes(1);
     });
 
     it('returns CMS values when flag is enabled', async () => {
       mockConfig.cms.enabled = true;
       const mockProductConfigurationManager = {
-        getPurchaseWithDetailsOfferingContentByPlanIds: sinon.fake.resolves(),
-        getSupportedLocale: sinon.fake.resolves('en'),
+        getPurchaseWithDetailsOfferingContentByPlanIds: jest
+          .fn()
+          .mockResolvedValue(),
+        getSupportedLocale: jest.fn().mockResolvedValue('en'),
       };
       Container.set(
         ProductConfigurationManager,
         mockProductConfigurationManager
       );
       const localStripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
-      sandbox
-        .stub(localStripeHelper.stripe.plans, 'list')
-        .returns(asyncIterable([plan1, plan2, plan3]) as any);
-      sandbox.spy(localStripeHelper, 'allPlans');
-      sandbox.spy(localStripeHelper, 'allConfiguredPlans');
+      jest
+        .spyOn(localStripeHelper.stripe.plans, 'list')
+        .mockReturnValue(asyncIterable([plan1, plan2, plan3]) as any);
+      jest.spyOn(localStripeHelper, 'allPlans');
+      jest.spyOn(localStripeHelper, 'allConfiguredPlans');
       await localStripeHelper.allAbbrevPlans();
       expect(mockConfig.cms.enabled).toBe(true);
-      expect(localStripeHelper.allConfiguredPlans.calledOnce).toBeTruthy();
-      expect(localStripeHelper.allPlans.calledOnce).toBeTruthy();
-      expect(localStripeHelper.stripe.plans.list.calledOnce).toBeTruthy();
+      expect(
+        localStripeHelper.allConfiguredPlans.mock.calls.length === 1
+      ).toBeTruthy();
+      expect(localStripeHelper.allPlans.mock.calls.length === 1).toBeTruthy();
+      expect(
+        localStripeHelper.stripe.plans.list.mock.calls.length === 1
+      ).toBeTruthy();
       // cleanup
       mockConfig.cms.enabled = false;
     });

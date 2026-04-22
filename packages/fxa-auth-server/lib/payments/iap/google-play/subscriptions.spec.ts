@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
@@ -15,7 +14,6 @@ const { deepCopy } = require('../../../../test/local/payments/util');
 
 describe('PlaySubscriptions', () => {
   const UID = 'uid8675309';
-  const sandbox = sinon.createSandbox();
 
   let playSubscriptions: any;
   let mockPlayBilling: any;
@@ -38,7 +36,7 @@ describe('PlaySubscriptions', () => {
     purchaseToken: 'testToken',
     sku: 'sku',
     verifiedAt: Date.now(),
-    isEntitlementActive: sinon.fake.returns(true),
+    isEntitlementActive: jest.fn().mockReturnValue(true),
   };
 
   const mockAppendedPlayStoreSubscriptionPurchase = {
@@ -53,17 +51,17 @@ describe('PlaySubscriptions', () => {
     mockConfig = { subscriptions: { enabled: true } };
     mockPlayBilling = {
       userManager: {
-        queryCurrentSubscriptions: sinon
-          .stub()
-          .resolves([mockPlayStoreSubscriptionPurchase]),
+        queryCurrentSubscriptions: jest
+          .fn()
+          .mockResolvedValue([mockPlayStoreSubscriptionPurchase]),
       },
       purchaseManager: {},
     };
     Container.set(PlayBilling, mockPlayBilling);
     mockStripeHelper = {
-      addPriceInfoToIapPurchases: sinon
-        .stub()
-        .resolves([mockAppendedPlayStoreSubscriptionPurchase]),
+      addPriceInfoToIapPurchases: jest
+        .fn()
+        .mockResolvedValue([mockAppendedPlayStoreSubscriptionPurchase]),
     };
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(AppConfig, mockConfig);
@@ -72,7 +70,7 @@ describe('PlaySubscriptions', () => {
 
   afterEach(() => {
     Container.reset();
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   describe('constructor', () => {
@@ -93,12 +91,16 @@ describe('PlaySubscriptions', () => {
   describe('getSubscriptions', () => {
     it('returns active Google Play subscription purchases', async () => {
       const result = await playSubscriptions.getSubscriptions(UID);
-      sinon.assert.calledOnceWithExactly(
-        mockPlayBilling.userManager.queryCurrentSubscriptions,
-        UID
+      expect(
+        mockPlayBilling.userManager.queryCurrentSubscriptions
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockPlayBilling.userManager.queryCurrentSubscriptions
+      ).toHaveBeenCalledWith(UID);
+      expect(mockStripeHelper.addPriceInfoToIapPurchases).toHaveBeenCalledTimes(
+        1
       );
-      sinon.assert.calledOnceWithExactly(
-        mockStripeHelper.addPriceInfoToIapPurchases,
+      expect(mockStripeHelper.addPriceInfoToIapPurchases).toHaveBeenCalledWith(
         [mockPlayStoreSubscriptionPurchase],
         MozillaSubscriptionTypes.IAP_GOOGLE
       );
@@ -108,13 +110,17 @@ describe('PlaySubscriptions', () => {
 
     it('returns [] if no active Play subscriptions are found', async () => {
       const mockInactivePurchase = deepCopy(mockPlayStoreSubscriptionPurchase);
-      mockInactivePurchase.isEntitlementActive = sinon.fake.returns(false);
-      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
-        .stub()
-        .resolves([mockInactivePurchase]);
+      mockInactivePurchase.isEntitlementActive = jest
+        .fn()
+        .mockReturnValue(false);
+      mockPlayBilling.userManager.queryCurrentSubscriptions = jest
+        .fn()
+        .mockResolvedValue([mockInactivePurchase]);
       // In this case, we expect the length of the array returned by
       // addPriceInfoToIapPurchases to equal the length the array passed into it.
-      mockStripeHelper.addPriceInfoToIapPurchases = sinon.stub().resolvesArg(0);
+      mockStripeHelper.addPriceInfoToIapPurchases = jest
+        .fn()
+        .mockImplementation((arg: any) => Promise.resolve(arg));
       const expected: any[] = [];
       const result = await playSubscriptions.getSubscriptions(UID);
       expect(result).toEqual(expected);

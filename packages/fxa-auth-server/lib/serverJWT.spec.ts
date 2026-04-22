@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const noop = () => {};
 
 function loadWithMock(overrides: any) {
@@ -16,7 +14,7 @@ function loadWithMock(overrides: any) {
 describe('lib/serverJWT', () => {
   describe('signJWT', () => {
     it('signs the JWT', async () => {
-      const signSpy = sinon.spy(function (
+      const signSpy = jest.fn(function (
         _claims: any,
         _key: any,
         _opts: any,
@@ -30,20 +28,26 @@ describe('lib/serverJWT', () => {
       const jwt = await serverJWT.signJWT({ foo: 'bar' }, 'biz', 'buz', 'zoom');
       expect(jwt).toBe('j.w.t');
 
-      sinon.assert.calledOnce(signSpy);
-      sinon.assert.calledWith(signSpy, { foo: 'bar' }, 'zoom', {
-        algorithm: 'HS256',
-        expiresIn: 60,
-        audience: 'biz',
-        issuer: 'buz',
-      });
+      expect(signSpy).toHaveBeenCalledTimes(1);
+      expect(signSpy).toHaveBeenNthCalledWith(
+        1,
+        { foo: 'bar' },
+        'zoom',
+        {
+          algorithm: 'HS256',
+          expiresIn: 60,
+          audience: 'biz',
+          issuer: 'buz',
+        },
+        expect.any(Function)
+      );
     });
   });
 
   describe('verifyJWT', () => {
     describe('signed with the current key', () => {
       it('returns the claims', async () => {
-        const verifySpy = sinon.spy(function (
+        const verifySpy = jest.fn(function (
           _jwt: any,
           _key: any,
           _opts: any,
@@ -61,18 +65,24 @@ describe('lib/serverJWT', () => {
 
         expect(claims).toEqual({ sub: 'foo' });
 
-        sinon.assert.calledOnce(verifySpy);
-        sinon.assert.calledWith(verifySpy, 'j.w.t', 'current', {
-          algorithms: ['HS256'],
-          audience: 'foo',
-          issuer: 'bar',
-        });
+        expect(verifySpy).toHaveBeenCalledTimes(1);
+        expect(verifySpy).toHaveBeenNthCalledWith(
+          1,
+          'j.w.t',
+          'current',
+          {
+            algorithms: ['HS256'],
+            audience: 'foo',
+            issuer: 'bar',
+          },
+          expect.any(Function)
+        );
       });
     });
 
     describe('signed with an old key', () => {
       it('returns the claims', async () => {
-        const verifySpy = sinon.spy(function (
+        const verifySpy = jest.fn(function (
           _jwt: any,
           key: any,
           _opts: any,
@@ -94,31 +104,37 @@ describe('lib/serverJWT', () => {
 
         expect(claims).toEqual({ sub: 'foo' });
 
-        expect(verifySpy.calledTwice).toBe(true);
+        expect(verifySpy).toHaveBeenCalledTimes(2);
 
-        let args = verifySpy.args[0];
-        expect(args[0]).toBe('j.w.t');
-        expect(args[1]).toBe('current');
-        expect(args[2]).toEqual({
-          algorithms: ['HS256'],
-          audience: 'foo',
-          issuer: 'bar',
-        });
+        expect(verifySpy).toHaveBeenNthCalledWith(
+          1,
+          'j.w.t',
+          'current',
+          {
+            algorithms: ['HS256'],
+            audience: 'foo',
+            issuer: 'bar',
+          },
+          expect.any(Function)
+        );
 
-        args = verifySpy.args[1];
-        expect(args[0]).toBe('j.w.t');
-        expect(args[1]).toBe('old');
-        expect(args[2]).toEqual({
-          algorithms: ['HS256'],
-          audience: 'foo',
-          issuer: 'bar',
-        });
+        expect(verifySpy).toHaveBeenNthCalledWith(
+          2,
+          'j.w.t',
+          'old',
+          {
+            algorithms: ['HS256'],
+            audience: 'foo',
+            issuer: 'bar',
+          },
+          expect.any(Function)
+        );
       });
     });
 
     describe('no key found', () => {
       it('throws an `Invalid jwt` error', async () => {
-        const verifySpy = sinon.spy(function (
+        const verifySpy = jest.fn(function (
           _jwt: any,
           _key: any,
           _opts: any,
@@ -137,7 +153,7 @@ describe('lib/serverJWT', () => {
 
     describe('invalid JWT', () => {
       it('re-throw the verification error', async () => {
-        const verifySpy = sinon.spy(function (
+        const verifySpy = jest.fn(function (
           _jwt: any,
           _key: any,
           _opts: any,

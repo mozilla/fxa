@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 import {
   FirestoreSubscription,
   StripeAutomaticTaxConverterHelpers,
@@ -45,28 +43,25 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
         'example-uid-2': '8.8.8.8',
       };
 
-      sinon.assert.match(result, expected);
+      expect(result).toEqual(expected);
     });
   });
 
   describe('getClientIPFromRemoteAddressChain', () => {
     it('returns the first IP address when it is non-local', () => {
-      sinon.assert.match(
-        helpers.getClientIPFromRemoteAddressChain('["1.1.1.1","8.8.8.8"]'),
-        '1.1.1.1'
-      );
+      expect(
+        helpers.getClientIPFromRemoteAddressChain('["1.1.1.1","8.8.8.8"]')
+      ).toEqual('1.1.1.1');
     });
 
     it('returns undefined if first IP address is local', () => {
-      sinon.assert.match(
-        helpers.getClientIPFromRemoteAddressChain('["192.168.1.1", "1.1.1.1"]'),
-        undefined
-      );
+      expect(
+        helpers.getClientIPFromRemoteAddressChain('["192.168.1.1", "1.1.1.1"]')
+      ).toEqual(undefined);
     });
 
     it('returns undefined if address chain is empty', () => {
-      sinon.assert.match(
-        helpers.getClientIPFromRemoteAddressChain('[]'),
+      expect(helpers.getClientIPFromRemoteAddressChain('[]')).toEqual(
         undefined
       );
     });
@@ -154,18 +149,18 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
   });
 
   describe('filterEligibleSubscriptions', () => {
-    let willBeRenewed: sinon.SinonStub;
-    let isStripeTaxDisabled: sinon.SinonStub;
-    let isWithinNoticePeriod: sinon.SinonStub;
+    let willBeRenewed: jest.Mock;
+    let isStripeTaxDisabled: jest.Mock;
+    let isWithinNoticePeriod: jest.Mock;
     let subscriptions: FirestoreSubscription[];
     let result: FirestoreSubscription[];
 
     beforeEach(() => {
-      willBeRenewed = sinon.stub().returns(true);
+      willBeRenewed = jest.fn().mockReturnValue(true);
       helpers.willBeRenewed = willBeRenewed;
-      isStripeTaxDisabled = sinon.stub().returns(true);
+      isStripeTaxDisabled = jest.fn().mockReturnValue(true);
       helpers.isStripeTaxDisabled = isStripeTaxDisabled;
-      isWithinNoticePeriod = sinon.stub().returns(true);
+      isWithinNoticePeriod = jest.fn().mockReturnValue(true);
       helpers.isWithinNoticePeriod = isWithinNoticePeriod;
 
       subscriptions = [mockSubscription];
@@ -174,13 +169,28 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
     });
 
     it('filters via helper methods', () => {
-      expect(willBeRenewed.calledWith(subscription1)).toBe(true);
-      expect(isStripeTaxDisabled.calledWith(subscription1)).toBe(true);
-      expect(isWithinNoticePeriod.calledWith(subscription1)).toBe(true);
+      expect(willBeRenewed).toHaveBeenNthCalledWith(
+        1,
+        subscription1,
+        expect.anything(),
+        expect.anything()
+      );
+      expect(isStripeTaxDisabled).toHaveBeenNthCalledWith(
+        1,
+        subscription1,
+        expect.anything(),
+        expect.anything()
+      );
+      expect(isWithinNoticePeriod).toHaveBeenNthCalledWith(
+        1,
+        subscription1,
+        expect.anything(),
+        expect.anything()
+      );
     });
 
     it('returns filtered results', () => {
-      sinon.assert.match(result, subscriptions);
+      expect(result).toEqual(subscriptions);
     });
   });
 
@@ -279,14 +289,12 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
         ],
       },
     };
-    let clock: sinon.SinonFakeTimers;
-
     beforeEach(() => {
-      clock = sinon.useFakeTimers(fakeToday.getTime());
+      jest.useFakeTimers({ now: fakeToday.getTime() });
     });
 
     afterEach(() => {
-      clock.restore();
+      jest.useRealTimers();
     });
 
     it('returns true for yearly when more than 30 days out', () => {
@@ -351,7 +359,7 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
     it('formats special tax amounts', () => {
       const result = helpers.getSpecialTaxAmounts(mockTaxAmounts);
 
-      sinon.assert.match(result, {
+      expect(result).toEqual({
         hst: 10,
         pst: 11,
         gst: 12,

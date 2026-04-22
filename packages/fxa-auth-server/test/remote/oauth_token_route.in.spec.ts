@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const buf = (v: any) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 const hex = (v: any) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 
@@ -16,9 +14,9 @@ const NON_DISABLED_CLIENT_ID = '98e6508e88680e1a';
 const CODE_WITH_KEYS = 'afafaf';
 const CODE_WITHOUT_KEYS = 'f0f0f0';
 
-const mockDb = { touchSessionToken: sinon.stub() };
-const mockStatsD = { increment: sinon.stub() };
-const mockGlean = { oauth: { tokenCreated: sinon.stub() } };
+const mockDb = { touchSessionToken: jest.fn() };
+const mockStatsD = { increment: jest.fn() };
+const mockGlean = { oauth: { tokenCreated: jest.fn() } };
 
 const tokenRoutesDepMocks = {
   '../../oauth/assertion': async () => true,

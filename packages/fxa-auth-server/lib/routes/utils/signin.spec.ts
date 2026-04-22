@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 
 const mocks = require('../../../test/mocks');
@@ -53,15 +52,15 @@ describe('checkPassword', () => {
     mocks.mockOAuthClientInfo();
     db = mocks.mockDB();
     customs = {
-      v2Enabled: sinon.spy(() => true),
-      check: sinon.spy(() => Promise.resolve(false)),
-      flag: sinon.spy(() => Promise.resolve({})),
+      v2Enabled: jest.fn(() => true),
+      check: jest.fn(() => Promise.resolve(false)),
+      flag: jest.fn(() => Promise.resolve({})),
     };
     signinUtils = makeSigninUtils({ db, customs });
   });
 
   it('should check with correct password', () => {
-    db.checkPassword = sinon.spy((uid: any) =>
+    db.checkPassword = jest.fn((uid: any) =>
       Promise.resolve({
         v1: true,
         v2: false,
@@ -87,16 +86,16 @@ describe('checkPassword', () => {
         .then((match: any) => {
           expect(match).toBeTruthy();
 
-          sinon.assert.calledOnce(db.checkPassword);
-          sinon.assert.calledWithExactly(db.checkPassword, TEST_UID, hash);
+          expect(db.checkPassword).toHaveBeenCalledTimes(1);
+          expect(db.checkPassword).toHaveBeenCalledWith(TEST_UID, hash);
 
-          sinon.assert.notCalled(customs.flag);
+          expect(customs.flag).not.toHaveBeenCalled();
         });
     });
   });
 
   it('should return false when check with incorrect password', () => {
-    db.checkPassword = sinon.spy((uid: any) => Promise.resolve(false));
+    db.checkPassword = jest.fn((uid: any) => Promise.resolve(false));
     const authPW = Buffer.from('aaaaaaaaaaaaaaaa');
     const accountRecord = {
       uid: TEST_UID,
@@ -128,11 +127,11 @@ describe('checkPassword', () => {
         .then((match: any) => {
           expect(!!match).toBe(false);
 
-          sinon.assert.calledOnce(db.checkPassword);
-          sinon.assert.calledWithExactly(db.checkPassword, TEST_UID, badHash);
+          expect(db.checkPassword).toHaveBeenCalledTimes(1);
+          expect(db.checkPassword).toHaveBeenCalledWith(TEST_UID, badHash);
 
-          sinon.assert.calledOnce(customs.flag);
-          sinon.assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
+          expect(customs.flag).toHaveBeenCalledTimes(1);
+          expect(customs.flag).toHaveBeenCalledWith(CLIENT_ADDRESS, {
             email: TEST_EMAIL,
             errno: error.ERRNO.INCORRECT_PASSWORD,
           });
@@ -165,11 +164,11 @@ describe('checkPassword', () => {
         (err: any) => {
           expect(err.errno).toBe(error.ERRNO.ACCOUNT_RESET);
 
-          sinon.assert.calledOnce(customs.check);
-          sinon.assert.notCalled(db.checkPassword);
+          expect(customs.check).toHaveBeenCalledTimes(1);
+          expect(db.checkPassword).not.toHaveBeenCalled();
 
-          sinon.assert.calledOnce(customs.flag);
-          sinon.assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
+          expect(customs.flag).toHaveBeenCalledTimes(1);
+          expect(customs.flag).toHaveBeenCalledWith(CLIENT_ADDRESS, {
             email: TEST_EMAIL,
             errno: error.ERRNO.ACCOUNT_RESET,
           });
@@ -243,10 +242,10 @@ describe('checkCustomsAndLoadAccount', () => {
     });
     log = mocks.mockLog();
     customs = {
-      v2Enabled: sinon.spy(() => true),
-      check: sinon.spy(() => Promise.resolve()),
-      flag: sinon.spy(() => Promise.resolve({})),
-      resetV2: sinon.spy(() => Promise.resolve()),
+      v2Enabled: jest.fn(() => true),
+      check: jest.fn(() => Promise.resolve()),
+      flag: jest.fn(() => Promise.resolve({})),
+      resetV2: jest.fn(() => Promise.resolve()),
     };
     config = {
       signinUnblock: {
@@ -259,7 +258,7 @@ describe('checkCustomsAndLoadAccount', () => {
       clientAddress: CLIENT_ADDRESS,
       payload: {},
     });
-    request.emitMetricsEvent = sinon.spy(() => Promise.resolve());
+    request.emitMetricsEvent = jest.fn(() => Promise.resolve());
     checkCustomsAndLoadAccount = makeSigninUtils({
       log,
       config,
@@ -274,23 +273,23 @@ describe('checkCustomsAndLoadAccount', () => {
       expect(res.accountRecord).toBeTruthy();
       expect(res.accountRecord.email).toBe(TEST_EMAIL);
 
-      sinon.assert.calledOnce(customs.check);
-      sinon.assert.calledWithExactly(
-        customs.check,
+      expect(customs.check).toHaveBeenCalledTimes(1);
+      expect(customs.check).toHaveBeenCalledWith(
         request,
         TEST_EMAIL,
         'accountLogin'
       );
 
-      sinon.assert.calledOnce(db.accountRecord);
-      sinon.assert.calledWithExactly(db.accountRecord, TEST_EMAIL);
+      expect(db.accountRecord).toHaveBeenCalledTimes(1);
+      expect(db.accountRecord).toHaveBeenCalledWith(TEST_EMAIL);
 
-      sinon.assert.callOrder(customs.check, db.accountRecord);
+      expect(customs.check).toHaveBeenCalled();
+      expect(db.accountRecord).toHaveBeenCalled();
     });
   });
 
   it('should throw non-customs errors directly back to the caller', () => {
-    customs.check = sinon.spy(() => {
+    customs.check = jest.fn(() => {
       throw new Error('unexpected!');
     });
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
@@ -299,27 +298,26 @@ describe('checkCustomsAndLoadAccount', () => {
       },
       (err: any) => {
         expect(err.message).toBe('unexpected!');
-        sinon.assert.calledOnce(customs.check);
-        sinon.assert.notCalled(db.accountRecord);
-        sinon.assert.notCalled(request.emitMetricsEvent);
+        expect(customs.check).toHaveBeenCalledTimes(1);
+        expect(db.accountRecord).not.toHaveBeenCalled();
+        expect(request.emitMetricsEvent).not.toHaveBeenCalled();
       }
     );
   });
 
   it('should re-throw customs errors when no unblock code is specified', () => {
     const origErr = error.tooManyRequests();
-    customs.check = sinon.spy(() => Promise.reject(origErr));
+    customs.check = jest.fn(() => Promise.reject(origErr));
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
         throw new Error('should not succeed');
       },
       (err: any) => {
         expect(err).toEqual(origErr);
-        sinon.assert.calledOnce(customs.check);
-        sinon.assert.notCalled(db.accountRecord);
-        sinon.assert.calledOnce(request.emitMetricsEvent);
-        sinon.assert.calledWithExactly(
-          request.emitMetricsEvent,
+        expect(customs.check).toHaveBeenCalledTimes(1);
+        expect(db.accountRecord).not.toHaveBeenCalled();
+        expect(request.emitMetricsEvent).toHaveBeenCalledTimes(1);
+        expect(request.emitMetricsEvent).toHaveBeenCalledWith(
           'account.login.blocked'
         );
       }
@@ -327,29 +325,27 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('login attempts on an unknown account should be flagged with customs', () => {
-    db.accountRecord = sinon.spy(() => Promise.reject(error.unknownAccount()));
+    db.accountRecord = jest.fn(() => Promise.reject(error.unknownAccount()));
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
         throw new Error('should not succeed');
       },
       (err: any) => {
         expect(err.errno).toBe(error.ERRNO.ACCOUNT_UNKNOWN);
-        sinon.assert.calledTwice(customs.check);
-        sinon.assert.calledWithMatch(
-          customs.check,
-          sinon.match.object,
+        expect(customs.check).toHaveBeenCalledTimes(2);
+        expect(customs.check).toHaveBeenCalledWith(
+          expect.any(Object),
           TEST_EMAIL,
           'accountLogin'
         );
-        sinon.assert.calledWithMatch(
-          customs.check,
-          sinon.match.object,
+        expect(customs.check).toHaveBeenCalledWith(
+          expect.any(Object),
           TEST_EMAIL,
           'loadAccountFailed'
         );
-        sinon.assert.calledOnce(db.accountRecord);
-        sinon.assert.calledOnce(customs.flag);
-        sinon.assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
+        expect(db.accountRecord).toHaveBeenCalledTimes(1);
+        expect(customs.flag).toHaveBeenCalledTimes(1);
+        expect(customs.flag).toHaveBeenCalledWith(CLIENT_ADDRESS, {
           email: TEST_EMAIL,
           errno: error.ERRNO.ACCOUNT_UNKNOWN,
         });
@@ -358,29 +354,27 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('login attempts on an unknown account should be flagged with customs (duplicate)', () => {
-    db.accountRecord = sinon.spy(() => Promise.reject(error.unknownAccount()));
+    db.accountRecord = jest.fn(() => Promise.reject(error.unknownAccount()));
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
         throw new Error('should not succeed');
       },
       (err: any) => {
         expect(err.errno).toBe(error.ERRNO.ACCOUNT_UNKNOWN);
-        sinon.assert.calledTwice(customs.check);
-        sinon.assert.calledWithMatch(
-          customs.check,
-          sinon.match.object,
+        expect(customs.check).toHaveBeenCalledTimes(2);
+        expect(customs.check).toHaveBeenCalledWith(
+          expect.any(Object),
           TEST_EMAIL,
           'accountLogin'
         );
-        sinon.assert.calledWithMatch(
-          customs.check,
-          sinon.match.object,
+        expect(customs.check).toHaveBeenCalledWith(
+          expect.any(Object),
           TEST_EMAIL,
           'loadAccountFailed'
         );
-        sinon.assert.calledOnce(db.accountRecord);
-        sinon.assert.calledOnce(customs.flag);
-        sinon.assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
+        expect(db.accountRecord).toHaveBeenCalledTimes(1);
+        expect(customs.flag).toHaveBeenCalledTimes(1);
+        expect(customs.flag).toHaveBeenCalledWith(CLIENT_ADDRESS, {
           email: TEST_EMAIL,
           errno: error.ERRNO.ACCOUNT_UNKNOWN,
         });
@@ -398,13 +392,12 @@ describe('checkCustomsAndLoadAccount', () => {
         expect(err.errno).toBe(error.ERRNO.REQUEST_BLOCKED);
         expect(err.output.payload.verificationMethod).toBe('email-captcha');
 
-        sinon.assert.notCalled(customs.check);
-        sinon.assert.notCalled(db.accountRecord);
-        sinon.assert.notCalled(customs.flag);
+        expect(customs.check).not.toHaveBeenCalled();
+        expect(db.accountRecord).not.toHaveBeenCalled();
+        expect(customs.flag).not.toHaveBeenCalled();
 
-        sinon.assert.calledOnce(request.emitMetricsEvent);
-        sinon.assert.calledWithExactly(
-          request.emitMetricsEvent,
+        expect(request.emitMetricsEvent).toHaveBeenCalledTimes(1);
+        expect(request.emitMetricsEvent).toHaveBeenCalledWith(
           'account.login.blocked'
         );
       }
@@ -412,11 +405,11 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('a valid unblock code can bypass a customs block', () => {
-    customs.check = sinon.spy(() =>
+    customs.check = jest.fn(() =>
       Promise.reject(error.tooManyRequests(60, null, true))
     );
     request.payload.unblockCode = 'VaLiD';
-    db.consumeUnblockCode = sinon.spy(() =>
+    db.consumeUnblockCode = jest.fn(() =>
       Promise.resolve({ createdAt: Date.now() })
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then((res: any) => {
@@ -424,30 +417,30 @@ describe('checkCustomsAndLoadAccount', () => {
       expect(res.accountRecord).toBeTruthy();
       expect(res.accountRecord.email).toBe(TEST_EMAIL);
 
-      sinon.assert.calledOnce(customs.check);
-      sinon.assert.calledOnce(db.accountRecord);
+      expect(customs.check).toHaveBeenCalledTimes(1);
+      expect(db.accountRecord).toHaveBeenCalledTimes(1);
 
-      sinon.assert.calledOnce(db.consumeUnblockCode);
-      sinon.assert.calledWithExactly(db.consumeUnblockCode, TEST_UID, 'VALID');
+      expect(db.consumeUnblockCode).toHaveBeenCalledTimes(1);
+      expect(db.consumeUnblockCode).toHaveBeenCalledWith(TEST_UID, 'VALID');
 
-      sinon.assert.calledTwice(request.emitMetricsEvent);
-      sinon.assert.calledWithExactly(
-        request.emitMetricsEvent.getCall(0),
+      expect(request.emitMetricsEvent).toHaveBeenCalledTimes(2);
+      expect(request.emitMetricsEvent).toHaveBeenNthCalledWith(
+        1,
         'account.login.blocked'
       );
-      sinon.assert.calledWithExactly(
-        request.emitMetricsEvent.getCall(1),
+      expect(request.emitMetricsEvent).toHaveBeenNthCalledWith(
+        2,
         'account.login.confirmedUnblockCode'
       );
     });
   });
 
   it('unblock codes are not checked for non-unblockable customs errors', () => {
-    customs.check = sinon.spy(() =>
+    customs.check = jest.fn(() =>
       Promise.reject(error.tooManyRequests(60, null, false))
     );
     request.payload.unblockCode = 'VALID';
-    db.consumeUnblockCode = sinon.spy(() =>
+    db.consumeUnblockCode = jest.fn(() =>
       Promise.resolve({ createdAt: Date.now() })
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
@@ -456,18 +449,18 @@ describe('checkCustomsAndLoadAccount', () => {
       },
       (err: any) => {
         expect(err.errno).toBe(error.ERRNO.THROTTLED);
-        sinon.assert.calledOnce(customs.check);
-        sinon.assert.notCalled(db.accountRecord);
-        sinon.assert.notCalled(db.consumeUnblockCode);
-        sinon.assert.notCalled(customs.flag);
+        expect(customs.check).toHaveBeenCalledTimes(1);
+        expect(db.accountRecord).not.toHaveBeenCalled();
+        expect(db.consumeUnblockCode).not.toHaveBeenCalled();
+        expect(customs.flag).not.toHaveBeenCalled();
       }
     );
   });
 
   it('unblock codes are not checked for non-customs errors', () => {
-    customs.check = sinon.spy(() => Promise.reject(error.serviceUnavailable()));
+    customs.check = jest.fn(() => Promise.reject(error.serviceUnavailable()));
     request.payload.unblockCode = 'VALID';
-    db.consumeUnblockCode = sinon.spy(() =>
+    db.consumeUnblockCode = jest.fn(() =>
       Promise.resolve({ createdAt: Date.now() })
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
@@ -476,24 +469,24 @@ describe('checkCustomsAndLoadAccount', () => {
       },
       (err: any) => {
         expect(err.errno).toBe(error.ERRNO.SERVER_BUSY);
-        sinon.assert.calledOnce(customs.check);
-        sinon.assert.notCalled(db.accountRecord);
-        sinon.assert.notCalled(db.consumeUnblockCode);
-        sinon.assert.notCalled(customs.flag);
+        expect(customs.check).toHaveBeenCalledTimes(1);
+        expect(db.accountRecord).not.toHaveBeenCalled();
+        expect(db.consumeUnblockCode).not.toHaveBeenCalled();
+        expect(customs.flag).not.toHaveBeenCalled();
       }
     );
   });
 
   it('unblock codes are not checked when the account does not exist', () => {
-    customs.check = sinon.spy((_request: any, _email: any, action: any) => {
+    customs.check = jest.fn((_request: any, _email: any, action: any) => {
       if (action === 'accountLogin') {
         return Promise.reject(error.tooManyRequests(60, null, true));
       }
       return Promise.resolve(false);
     });
     request.payload.unblockCode = 'VALID';
-    db.accountRecord = sinon.spy(() => Promise.reject(error.unknownAccount()));
-    db.consumeUnblockCode = sinon.spy(() =>
+    db.accountRecord = jest.fn(() => Promise.reject(error.unknownAccount()));
+    db.consumeUnblockCode = jest.fn(() =>
       Promise.resolve({ createdAt: Date.now() })
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
@@ -502,23 +495,21 @@ describe('checkCustomsAndLoadAccount', () => {
       },
       (err: any) => {
         expect(err.errno).toBe(error.ERRNO.THROTTLED);
-        sinon.assert.calledTwice(customs.check);
-        sinon.assert.calledWithMatch(
-          customs.check,
-          sinon.match.object,
+        expect(customs.check).toHaveBeenCalledTimes(2);
+        expect(customs.check).toHaveBeenCalledWith(
+          expect.any(Object),
           TEST_EMAIL,
           'accountLogin'
         );
-        sinon.assert.calledWithMatch(
-          customs.check,
-          sinon.match.object,
+        expect(customs.check).toHaveBeenCalledWith(
+          expect.any(Object),
           TEST_EMAIL,
           'loadAccountFailed'
         );
-        sinon.assert.calledOnce(db.accountRecord);
-        sinon.assert.notCalled(db.consumeUnblockCode);
-        sinon.assert.calledOnce(customs.flag);
-        sinon.assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
+        expect(db.accountRecord).toHaveBeenCalledTimes(1);
+        expect(db.consumeUnblockCode).not.toHaveBeenCalled();
+        expect(customs.flag).toHaveBeenCalledTimes(1);
+        expect(customs.flag).toHaveBeenCalledWith(CLIENT_ADDRESS, {
           email: TEST_EMAIL,
           errno: error.ERRNO.ACCOUNT_UNKNOWN,
         });
@@ -527,14 +518,14 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('invalid unblock codes are rejected and reported to customs', () => {
-    customs.check = sinon.spy((request: any, email: any, action: any) => {
+    customs.check = jest.fn((request: any, email: any, action: any) => {
       if (action === 'accountLogin') {
         return Promise.reject(error.requestBlocked(true));
       }
       return Promise.resolve(false);
     });
     request.payload.unblockCode = 'INVALID';
-    db.consumeUnblockCode = sinon.spy(() =>
+    db.consumeUnblockCode = jest.fn(() =>
       Promise.reject(error.invalidUnblockCode())
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
@@ -543,33 +534,31 @@ describe('checkCustomsAndLoadAccount', () => {
       },
       (err: any) => {
         expect(err.errno).toBe(error.ERRNO.INVALID_UNBLOCK_CODE);
-        sinon.assert.calledTwice(customs.check);
-        sinon.assert.calledWithMatch(
-          customs.check,
-          sinon.match.object,
+        expect(customs.check).toHaveBeenCalledTimes(2);
+        expect(customs.check).toHaveBeenCalledWith(
+          expect.any(Object),
           TEST_EMAIL,
           'accountLogin'
         );
-        sinon.assert.calledWithMatch(
-          customs.check,
-          sinon.match.object,
+        expect(customs.check).toHaveBeenCalledWith(
+          expect.any(Object),
           TEST_EMAIL,
           'unblockCodeFailed'
         );
-        sinon.assert.calledOnce(db.consumeUnblockCode);
+        expect(db.consumeUnblockCode).toHaveBeenCalledTimes(1);
 
-        sinon.assert.calledTwice(request.emitMetricsEvent);
-        sinon.assert.calledWithExactly(
-          request.emitMetricsEvent.getCall(0),
+        expect(request.emitMetricsEvent).toHaveBeenCalledTimes(2);
+        expect(request.emitMetricsEvent).toHaveBeenNthCalledWith(
+          1,
           'account.login.blocked'
         );
-        sinon.assert.calledWithExactly(
-          request.emitMetricsEvent.getCall(1),
+        expect(request.emitMetricsEvent).toHaveBeenNthCalledWith(
+          2,
           'account.login.invalidUnblockCode'
         );
 
-        sinon.assert.calledOnce(customs.flag);
-        sinon.assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
+        expect(customs.flag).toHaveBeenCalledTimes(1);
+        expect(customs.flag).toHaveBeenCalledWith(CLIENT_ADDRESS, {
           email: TEST_EMAIL,
           errno: error.ERRNO.INVALID_UNBLOCK_CODE,
         });
@@ -578,14 +567,14 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('expired unblock codes are rejected as invalid', () => {
-    customs.check = sinon.spy((_request: any, _email: any, action: any) => {
+    customs.check = jest.fn((_request: any, _email: any, action: any) => {
       if (action === 'accountLogin') {
         return Promise.reject(error.requestBlocked(true));
       }
       return Promise.resolve(false);
     });
     request.payload.unblockCode = 'EXPIRED';
-    db.consumeUnblockCode = sinon.spy(() =>
+    db.consumeUnblockCode = jest.fn(() =>
       Promise.resolve({
         createdAt: Date.now() - config.signinUnblock.codeLifetime * 2,
       })
@@ -596,34 +585,34 @@ describe('checkCustomsAndLoadAccount', () => {
       },
       (err: any) => {
         expect(err.errno).toBe(error.ERRNO.INVALID_UNBLOCK_CODE);
-        sinon.assert.calledTwice(customs.check);
-        sinon.assert.calledWithMatch(
-          customs.check.getCall(0),
-          sinon.match.object,
+        expect(customs.check).toHaveBeenCalledTimes(2);
+        expect(customs.check).toHaveBeenNthCalledWith(
+          1,
+          expect.any(Object),
           TEST_EMAIL,
           'accountLogin'
         );
-        sinon.assert.calledWithMatch(
-          customs.check.getCall(1),
-          sinon.match.object,
+        expect(customs.check).toHaveBeenNthCalledWith(
+          2,
+          expect.any(Object),
           TEST_EMAIL,
           'unblockCodeFailed'
         );
-        sinon.assert.calledOnce(db.accountRecord);
-        sinon.assert.calledOnce(db.consumeUnblockCode);
+        expect(db.accountRecord).toHaveBeenCalledTimes(1);
+        expect(db.consumeUnblockCode).toHaveBeenCalledTimes(1);
 
-        sinon.assert.calledTwice(request.emitMetricsEvent);
-        sinon.assert.calledWithExactly(
-          request.emitMetricsEvent.getCall(0),
+        expect(request.emitMetricsEvent).toHaveBeenCalledTimes(2);
+        expect(request.emitMetricsEvent).toHaveBeenNthCalledWith(
+          1,
           'account.login.blocked'
         );
-        sinon.assert.calledWithExactly(
-          request.emitMetricsEvent.getCall(1),
+        expect(request.emitMetricsEvent).toHaveBeenNthCalledWith(
+          2,
           'account.login.invalidUnblockCode'
         );
 
-        sinon.assert.calledOnce(customs.flag);
-        sinon.assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
+        expect(customs.flag).toHaveBeenCalledTimes(1);
+        expect(customs.flag).toHaveBeenCalledWith(CLIENT_ADDRESS, {
           email: TEST_EMAIL,
           errno: error.ERRNO.INVALID_UNBLOCK_CODE,
         });
@@ -632,9 +621,9 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('unexpected errors when checking an unblock code, cause the original customs error to be rethrown', () => {
-    customs.check = sinon.spy(() => Promise.reject(error.requestBlocked(true)));
+    customs.check = jest.fn(() => Promise.reject(error.requestBlocked(true)));
     request.payload.unblockCode = 'WHOOPSY';
-    db.consumeUnblockCode = sinon.spy(() =>
+    db.consumeUnblockCode = jest.fn(() =>
       Promise.reject(error.serviceUnavailable())
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
@@ -643,10 +632,10 @@ describe('checkCustomsAndLoadAccount', () => {
       },
       (err: any) => {
         expect(err.errno).toBe(error.ERRNO.REQUEST_BLOCKED);
-        sinon.assert.calledOnce(customs.check);
-        sinon.assert.calledOnce(db.accountRecord);
-        sinon.assert.calledOnce(db.consumeUnblockCode);
-        sinon.assert.notCalled(customs.flag);
+        expect(customs.check).toHaveBeenCalledTimes(1);
+        expect(db.accountRecord).toHaveBeenCalledTimes(1);
+        expect(db.consumeUnblockCode).toHaveBeenCalledTimes(1);
+        expect(customs.flag).not.toHaveBeenCalled();
       }
     );
   });
@@ -703,7 +692,7 @@ describe('sendSigninNotifications', () => {
 
   beforeEach(() => {
     // Freeze time at a specific timestamp for consistent test assertions
-    clock = sinon.useFakeTimers(1769555935958);
+    clock = jest.useFakeTimers({ now: 1769555935958 });
 
     db = mocks.mockDB();
     log = mocks.mockLog();
@@ -743,7 +732,7 @@ describe('sendSigninNotifications', () => {
 
   afterEach(() => {
     if (clock) {
-      clock.restore();
+      jest.useRealTimers();
     }
   });
 
@@ -758,21 +747,20 @@ describe('sendSigninNotifications', () => {
       sessionToken,
       undefined
     ).then(() => {
-      sinon.assert.calledOnce(metricsContext.setFlowCompleteSignal);
-      sinon.assert.calledWithExactly(
-        metricsContext.setFlowCompleteSignal,
+      expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
+      expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
         'account.login',
         'login'
       );
 
-      sinon.assert.calledOnce(metricsContext.stash);
-      sinon.assert.calledWithExactly(metricsContext.stash, sessionToken);
+      expect(metricsContext.stash).toHaveBeenCalledTimes(1);
+      expect(metricsContext.stash).toHaveBeenCalledWith(sessionToken);
 
-      sinon.assert.calledOnce(db.sessions);
-      sinon.assert.calledWithExactly(db.sessions, TEST_UID);
+      expect(db.sessions).toHaveBeenCalledTimes(1);
+      expect(db.sessions).toHaveBeenCalledWith(TEST_UID);
 
-      sinon.assert.calledOnce(log.activityEvent);
-      sinon.assert.calledWithExactly(log.activityEvent, {
+      expect(log.activityEvent).toHaveBeenCalledTimes(1);
+      expect(log.activityEvent).toHaveBeenCalledWith({
         country: 'United States',
         event: 'account.login',
         region: 'California',
@@ -783,17 +771,18 @@ describe('sendSigninNotifications', () => {
         uid: TEST_UID,
       });
 
-      sinon.assert.calledTwice(log.flowEvent);
-      sinon.assert.calledWithMatch(log.flowEvent.getCall(0), {
-        event: 'account.login',
-      });
-      sinon.assert.calledWithMatch(log.flowEvent.getCall(1), {
-        event: 'flow.complete',
-      });
+      expect(log.flowEvent).toHaveBeenCalledTimes(2);
+      expect(log.flowEvent).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ event: 'account.login' })
+      );
+      expect(log.flowEvent).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ event: 'flow.complete' })
+      );
 
-      sinon.assert.calledOnce(log.notifyAttachedServices);
-      sinon.assert.calledWithExactly(
-        log.notifyAttachedServices,
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      expect(log.notifyAttachedServices).toHaveBeenCalledWith(
         'login',
         request,
         {
@@ -807,12 +796,12 @@ describe('sendSigninNotifications', () => {
         }
       );
 
-      sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-      sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
-      sinon.assert.notCalled(fxaMailer.sendVerifyLoginCodeEmail);
+      expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+      expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
+      expect(fxaMailer.sendVerifyLoginCodeEmail).not.toHaveBeenCalled();
 
-      sinon.assert.calledOnce(db.securityEvent);
-      sinon.assert.calledWithExactly(db.securityEvent, {
+      expect(db.securityEvent).toHaveBeenCalledTimes(1);
+      expect(db.securityEvent).toHaveBeenCalledWith({
         name: 'account.login',
         uid: TEST_UID,
         ipAddr: CLIENT_ADDRESS,
@@ -844,17 +833,16 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         undefined
       ).then(() => {
-        sinon.assert.calledOnce(metricsContext.setFlowCompleteSignal);
-        sinon.assert.calledWithExactly(
-          metricsContext.setFlowCompleteSignal,
+        expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
+        expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
           'account.login',
           'login'
         );
 
-        sinon.assert.calledOnce(metricsContext.stash);
+        expect(metricsContext.stash).toHaveBeenCalledTimes(1);
 
-        sinon.assert.calledOnce(fxaMailer.sendVerifyEmail);
-        sinon.assert.calledWithExactly(fxaMailer.sendVerifyEmail, {
+        expect(fxaMailer.sendVerifyEmail).toHaveBeenCalledTimes(1);
+        expect(fxaMailer.sendVerifyEmail).toHaveBeenCalledWith({
           to: 'test@example.com',
           cc: [],
           metricsEnabled: true,
@@ -885,16 +873,19 @@ describe('sendSigninNotifications', () => {
           redirectTo: 'redirectMeTo',
         });
 
-        sinon.assert.calledThrice(log.flowEvent);
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(0), {
-          event: 'account.login',
-        });
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(1), {
-          event: 'flow.complete',
-        });
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(2), {
-          event: 'email.verification.sent',
-        });
+        expect(log.flowEvent).toHaveBeenCalledTimes(3);
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ event: 'account.login' })
+        );
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ event: 'flow.complete' })
+        );
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          3,
+          expect.objectContaining({ event: 'email.verification.sent' })
+        );
       });
     });
 
@@ -908,25 +899,21 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         undefined
       ).then(() => {
-        sinon.assert.calledOnce(metricsContext.setFlowCompleteSignal);
-        sinon.assert.calledWithExactly(
-          metricsContext.setFlowCompleteSignal,
+        expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
+        expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
           'account.confirmed',
           'login'
         );
 
-        sinon.assert.calledTwice(metricsContext.stash);
-        sinon.assert.calledWithExactly(
-          metricsContext.stash.getCall(0),
-          sessionToken
-        );
-        sinon.assert.calledWithExactly(metricsContext.stash.getCall(1), {
+        expect(metricsContext.stash).toHaveBeenCalledTimes(2);
+        expect(metricsContext.stash).toHaveBeenNthCalledWith(1, sessionToken);
+        expect(metricsContext.stash).toHaveBeenNthCalledWith(2, {
           uid: TEST_UID,
           id: 'tokenVerifyCode',
         });
 
-        sinon.assert.calledOnce(fxaMailer.sendVerifyEmail);
-        sinon.assert.calledWithExactly(fxaMailer.sendVerifyEmail, {
+        expect(fxaMailer.sendVerifyEmail).toHaveBeenCalledTimes(1);
+        expect(fxaMailer.sendVerifyEmail).toHaveBeenCalledWith({
           to: 'test@example.com',
           cc: [],
           metricsEnabled: true,
@@ -957,17 +944,18 @@ describe('sendSigninNotifications', () => {
           redirectTo: 'redirectMeTo',
         });
 
-        sinon.assert.calledTwice(log.flowEvent);
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(0), {
-          event: 'account.login',
-        });
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(1), {
-          event: 'email.verification.sent',
-        });
+        expect(log.flowEvent).toHaveBeenCalledTimes(2);
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ event: 'account.login' })
+        );
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ event: 'email.verification.sent' })
+        );
 
-        sinon.assert.calledOnce(log.notifyAttachedServices);
-        sinon.assert.calledWithExactly(
-          log.notifyAttachedServices,
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+        expect(log.notifyAttachedServices).toHaveBeenCalledWith(
           'login',
           request,
           {
@@ -984,13 +972,13 @@ describe('sendSigninNotifications', () => {
     });
 
     afterEach(() => {
-      sinon.assert.calledOnce(db.sessions);
-      sinon.assert.calledOnce(log.activityEvent);
+      expect(db.sessions).toHaveBeenCalledTimes(1);
+      expect(log.activityEvent).toHaveBeenCalledTimes(1);
 
-      sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
-      sinon.assert.notCalled(fxaMailer.sendVerifyLoginCodeEmail);
+      expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
+      expect(fxaMailer.sendVerifyLoginCodeEmail).not.toHaveBeenCalled();
 
-      sinon.assert.calledOnce(db.securityEvent);
+      expect(db.securityEvent).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1004,19 +992,17 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         undefined
       ).then(() => {
-        sinon.assert.calledOnce(metricsContext.setFlowCompleteSignal);
-        sinon.assert.calledWithExactly(
-          metricsContext.setFlowCompleteSignal,
+        expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
+        expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
           'account.login',
           'login'
         );
 
-        sinon.assert.calledOnce(metricsContext.stash);
-        sinon.assert.calledOnce(db.sessions);
-        sinon.assert.calledOnce(log.activityEvent);
-        sinon.assert.calledOnce(log.notifyAttachedServices);
-        sinon.assert.calledWithExactly(
-          log.notifyAttachedServices,
+        expect(metricsContext.stash).toHaveBeenCalledTimes(1);
+        expect(db.sessions).toHaveBeenCalledTimes(1);
+        expect(log.activityEvent).toHaveBeenCalledTimes(1);
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+        expect(log.notifyAttachedServices).toHaveBeenCalledWith(
           'login',
           request,
           {
@@ -1030,20 +1016,22 @@ describe('sendSigninNotifications', () => {
           }
         );
 
-        sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginCodeEmail);
-        sinon.assert.notCalled(fxaMailer.sendNewDeviceLoginEmail);
+        expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginCodeEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendNewDeviceLoginEmail).not.toHaveBeenCalled();
 
-        sinon.assert.calledTwice(log.flowEvent);
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(0), {
-          event: 'account.login',
-        });
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(1), {
-          event: 'flow.complete',
-        });
+        expect(log.flowEvent).toHaveBeenCalledTimes(2);
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ event: 'account.login' })
+        );
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ event: 'flow.complete' })
+        );
 
-        sinon.assert.calledOnce(db.securityEvent);
+        expect(db.securityEvent).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -1062,10 +1050,10 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         undefined
       ).then(() => {
-        sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-        sinon.assert.notCalled(mailer.sendVerifyLoginCodeEmail);
-        sinon.assert.calledOnce(fxaMailer.sendVerifyLoginEmail);
-        sinon.assert.calledWithExactly(fxaMailer.sendVerifyLoginEmail, {
+        expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+        expect(mailer.sendVerifyLoginCodeEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginEmail).toHaveBeenCalledTimes(1);
+        expect(fxaMailer.sendVerifyLoginEmail).toHaveBeenCalledWith({
           to: TEST_EMAIL,
           cc: [],
           metricsEnabled: true,
@@ -1096,13 +1084,15 @@ describe('sendSigninNotifications', () => {
           resume: request.payload.resume,
         });
 
-        sinon.assert.calledTwice(log.flowEvent);
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(0), {
-          event: 'account.login',
-        });
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(1), {
-          event: 'email.confirmation.sent',
-        });
+        expect(log.flowEvent).toHaveBeenCalledTimes(2);
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ event: 'account.login' })
+        );
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ event: 'email.confirmation.sent' })
+        );
       });
     });
 
@@ -1113,23 +1103,25 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email'
       ).then(() => {
-        sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginCodeEmail);
-        sinon.assert.calledOnce(fxaMailer.sendVerifyLoginEmail);
+        expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginCodeEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginEmail).toHaveBeenCalledTimes(1);
 
-        sinon.assert.calledTwice(log.flowEvent);
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(0), {
-          event: 'account.login',
-        });
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(1), {
-          event: 'email.confirmation.sent',
-        });
+        expect(log.flowEvent).toHaveBeenCalledTimes(2);
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ event: 'account.login' })
+        );
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ event: 'email.confirmation.sent' })
+        );
       });
     });
 
     it('emits correct notifications when verificationMethod=email-2fa', () => {
       const oauthClientInfoMock = mocks.mockOAuthClientInfo({
-        fetch: sinon.stub().resolves({ name: undefined }),
+        fetch: jest.fn().mockResolvedValue({ name: undefined }),
       });
       const localSendSigninNotifications = makeSigninUtils({
         log,
@@ -1143,34 +1135,38 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email-2fa'
       ).then(() => {
-        sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
-        sinon.assert.calledOnce(fxaMailer.sendVerifyLoginCodeEmail);
+        expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
 
         const expectedCode = otpUtils.generateOtpCode(
           accountRecord.primaryEmail.emailCode,
           otpOptions
         );
-        sinon.assert.calledWithMatch(fxaMailer.sendVerifyLoginCodeEmail, {
-          to: TEST_EMAIL,
-          cc: [],
-          metricsEnabled: true,
-          uid: TEST_UID,
-          code: expectedCode,
-          redirectTo: request.payload.redirectTo,
-          resume: request.payload.resume,
-          serviceName: undefined,
-        });
+        expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledWith(
+          expect.objectContaining({
+            to: TEST_EMAIL,
+            cc: [],
+            metricsEnabled: true,
+            uid: TEST_UID,
+            code: expectedCode,
+            redirectTo: request.payload.redirectTo,
+            resume: request.payload.resume,
+            serviceName: undefined,
+          })
+        );
 
-        sinon.assert.calledOnce(oauthClientInfoMock.fetch);
+        expect(oauthClientInfoMock.fetch).toHaveBeenCalledTimes(1);
 
-        sinon.assert.calledTwice(log.flowEvent);
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(0), {
-          event: 'account.login',
-        });
-        sinon.assert.calledWithMatch(log.flowEvent.getCall(1), {
-          event: 'email.tokencode.sent',
-        });
+        expect(log.flowEvent).toHaveBeenCalledTimes(2);
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ event: 'account.login' })
+        );
+        expect(log.flowEvent).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ event: 'email.tokencode.sent' })
+        );
       });
     });
 
@@ -1181,38 +1177,35 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email-captcha'
       ).then(() => {
-        sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginCodeEmail);
+        expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginCodeEmail).not.toHaveBeenCalled();
 
-        sinon.assert.calledOnce(log.flowEvent);
-        sinon.assert.calledWithMatch(log.flowEvent, { event: 'account.login' });
+        expect(log.flowEvent).toHaveBeenCalledTimes(1);
+        expect(log.flowEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ event: 'account.login' })
+        );
       });
     });
 
     afterEach(() => {
-      sinon.assert.calledOnce(metricsContext.setFlowCompleteSignal);
-      sinon.assert.calledWithExactly(
-        metricsContext.setFlowCompleteSignal,
+      expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
+      expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
         'account.confirmed',
         'login'
       );
 
-      sinon.assert.calledTwice(metricsContext.stash);
-      sinon.assert.calledWithExactly(
-        metricsContext.stash.getCall(0),
-        sessionToken
-      );
-      sinon.assert.calledWithExactly(metricsContext.stash.getCall(1), {
+      expect(metricsContext.stash).toHaveBeenCalledTimes(2);
+      expect(metricsContext.stash).toHaveBeenNthCalledWith(1, sessionToken);
+      expect(metricsContext.stash).toHaveBeenNthCalledWith(2, {
         uid: TEST_UID,
         id: 'tokenVerifyCode',
       });
 
-      sinon.assert.calledOnce(db.sessions);
-      sinon.assert.calledOnce(log.activityEvent);
-      sinon.assert.calledOnce(log.notifyAttachedServices);
-      sinon.assert.calledWithExactly(
-        log.notifyAttachedServices,
+      expect(db.sessions).toHaveBeenCalledTimes(1);
+      expect(log.activityEvent).toHaveBeenCalledTimes(1);
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      expect(log.notifyAttachedServices).toHaveBeenCalledWith(
         'login',
         request,
         {
@@ -1225,7 +1218,7 @@ describe('sendSigninNotifications', () => {
           countryCode: 'US',
         }
       );
-      sinon.assert.calledOnce(db.securityEvent);
+      expect(db.securityEvent).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1245,9 +1238,11 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email-otp'
       ).then(() => {
-        sinon.assert.calledOnce(fxaMailer.sendVerifyLoginCodeEmail);
-        const callArgs = fxaMailer.sendVerifyLoginCodeEmail.getCall(0).args[0];
-        expect(callArgs.serviceName).toBe('sync');
+        expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
+        expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ serviceName: 'sync' })
+        );
       });
     });
 
@@ -1268,9 +1263,9 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email-otp'
       ).then(() => {
-        sinon.assert.calledOnce(fxaMailer.sendVerifyLoginCodeEmail);
-        sinon.assert.calledOnce(oauthClientInfoMock.fetch);
-        sinon.assert.calledWith(oauthClientInfoMock.fetch, undefined);
+        expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
+        expect(oauthClientInfoMock.fetch).toHaveBeenCalledTimes(1);
+        expect(oauthClientInfoMock.fetch).toHaveBeenCalledWith(undefined);
       });
     });
 
@@ -1283,11 +1278,13 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email-2fa'
       ).then(() => {
-        sinon.assert.calledOnce(fxaMailer.sendVerifyLoginCodeEmail);
-        const callArgs = fxaMailer.sendVerifyLoginCodeEmail.getCall(0).args[0];
-        expect(callArgs.serviceName).toBe('sync');
-        sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
+        expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
+        expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ serviceName: 'sync' })
+        );
+        expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
       });
     });
 
@@ -1299,9 +1296,9 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email-otp'
       ).then(() => {
-        sinon.assert.calledOnce(fxaMailer.sendVerifyLoginCodeEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
+        expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
+        expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
       });
     });
 
@@ -1313,9 +1310,9 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email-otp'
       ).then(() => {
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginCodeEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
+        expect(fxaMailer.sendVerifyLoginCodeEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
       });
     });
 
@@ -1328,9 +1325,9 @@ describe('sendSigninNotifications', () => {
         'email-otp',
         true // passwordChangeRequired
       ).then(() => {
-        sinon.assert.calledOnce(fxaMailer.sendVerifyLoginCodeEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-        sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
+        expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
+        expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+        expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
       });
     });
   });
@@ -1341,7 +1338,7 @@ describe('sendSigninNotifications', () => {
       sessionToken.tokenVerificationId = 'tokenVerifyCode';
       sessionToken.mustVerify = true;
       mocks.mockOAuthClientInfo({
-        fetch: sinon.stub().resolves({ name: 'mockOauthClientName' }),
+        fetch: jest.fn().mockResolvedValue({ name: 'mockOauthClientName' }),
       });
       const rpCmsConfig = {
         clientId: '00f00f',
@@ -1356,7 +1353,7 @@ describe('sendSigninNotifications', () => {
         },
       };
       Container.set(RelyingPartyConfigurationManager, {
-        fetchCMSData: sinon.stub().resolves({
+        fetchCMSData: jest.fn().mockResolvedValue({
           relyingParties: [rpCmsConfig],
         }),
       });
@@ -1376,36 +1373,38 @@ describe('sendSigninNotifications', () => {
       return signinUtils
         .sendSigninNotifications(req, accountRecord, sessionToken, 'email-2fa')
         .then(() => {
-          sinon.assert.notCalled(fxaMailer.sendVerifyEmail);
-          sinon.assert.notCalled(fxaMailer.sendVerifyLoginEmail);
-          sinon.assert.calledOnce(fxaMailer.sendVerifyLoginCodeEmail);
+          expect(fxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+          expect(fxaMailer.sendVerifyLoginEmail).not.toHaveBeenCalled();
+          expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
 
           const expectedCode = otpUtils.generateOtpCode(
             accountRecord.primaryEmail.emailCode,
             otpOptions
           );
-          sinon.assert.calledWithMatch(fxaMailer.sendVerifyLoginCodeEmail, {
-            to: TEST_EMAIL,
-            cc: [],
-            metricsEnabled: true,
-            uid: TEST_UID,
-            code: expectedCode,
-            deviceId: req.payload.metricsContext.deviceId,
-            flowId: req.payload.metricsContext.flowId,
-            flowBeginTime: req.payload.metricsContext.flowBeginTime,
-            entrypoint: 'testo',
-            redirectTo: req.payload.redirectTo,
-            resume: req.payload.resume,
-            serviceName: 'mockOauthClientName',
-            cmsRpClientId: rpCmsConfig.clientId,
-            cmsRpFromName: rpCmsConfig.shared?.emailFromName,
-            logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-            logoAltText: (rpCmsConfig?.shared as any)?.emailLogoAltText,
-            logoWidth: (rpCmsConfig?.shared as any)?.emailLogoWidth,
-            subject: rpCmsConfig.VerifyLoginCodeEmail.subject,
-            headline: rpCmsConfig.VerifyLoginCodeEmail.headline,
-            description: rpCmsConfig.VerifyLoginCodeEmail.description,
-          });
+          expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledWith(
+            expect.objectContaining({
+              to: TEST_EMAIL,
+              cc: [],
+              metricsEnabled: true,
+              uid: TEST_UID,
+              code: expectedCode,
+              deviceId: req.payload.metricsContext.deviceId,
+              flowId: req.payload.metricsContext.flowId,
+              flowBeginTime: req.payload.metricsContext.flowBeginTime,
+              entrypoint: 'testo',
+              redirectTo: req.payload.redirectTo,
+              resume: req.payload.resume,
+              serviceName: 'mockOauthClientName',
+              cmsRpClientId: rpCmsConfig.clientId,
+              cmsRpFromName: rpCmsConfig.shared?.emailFromName,
+              logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
+              logoAltText: (rpCmsConfig?.shared as any)?.emailLogoAltText,
+              logoWidth: (rpCmsConfig?.shared as any)?.emailLogoWidth,
+              subject: rpCmsConfig.VerifyLoginCodeEmail.subject,
+              headline: rpCmsConfig.VerifyLoginCodeEmail.headline,
+              description: rpCmsConfig.VerifyLoginCodeEmail.description,
+            })
+          );
         });
     });
   });
@@ -1422,7 +1421,7 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email-2fa'
       );
-      sinon.assert.notCalled(log.notifyAttachedServices);
+      expect(log.notifyAttachedServices).not.toHaveBeenCalled();
     });
   });
 
@@ -1432,16 +1431,15 @@ describe('sendSigninNotifications', () => {
     });
 
     it('emits correct notifications with one active session', () => {
-      db.sessions = sinon.spy(() => Promise.resolve([sessionToken]));
+      db.sessions = jest.fn(() => Promise.resolve([sessionToken]));
       return sendSigninNotifications(
         request,
         accountRecord,
         sessionToken,
         undefined
       ).then(() => {
-        sinon.assert.calledOnce(log.notifyAttachedServices);
-        sinon.assert.calledWithExactly(
-          log.notifyAttachedServices,
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+        expect(log.notifyAttachedServices).toHaveBeenCalledWith(
           'login',
           request,
           {
@@ -1458,18 +1456,15 @@ describe('sendSigninNotifications', () => {
     });
 
     it('emits correct notifications  with many active sessions', () => {
-      db.sessions = sinon.spy(() =>
-        Promise.resolve([{}, {}, {}, sessionToken])
-      );
+      db.sessions = jest.fn(() => Promise.resolve([{}, {}, {}, sessionToken]));
       return sendSigninNotifications(
         request,
         accountRecord,
         sessionToken,
         undefined
       ).then(() => {
-        sinon.assert.calledOnce(log.notifyAttachedServices);
-        sinon.assert.calledWithExactly(
-          log.notifyAttachedServices,
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+        expect(log.notifyAttachedServices).toHaveBeenCalledWith(
           'login',
           request,
           {
@@ -1486,21 +1481,22 @@ describe('sendSigninNotifications', () => {
     });
 
     afterEach(() => {
-      sinon.assert.calledOnce(metricsContext.setFlowCompleteSignal);
-      sinon.assert.calledWithExactly(
-        metricsContext.setFlowCompleteSignal,
+      expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(1);
+      expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
         'account.signed',
         'login'
       );
 
-      sinon.assert.calledOnce(metricsContext.stash);
-      sinon.assert.calledOnce(db.sessions);
-      sinon.assert.calledOnce(log.activityEvent);
+      expect(metricsContext.stash).toHaveBeenCalledTimes(1);
+      expect(db.sessions).toHaveBeenCalledTimes(1);
+      expect(log.activityEvent).toHaveBeenCalledTimes(1);
 
-      sinon.assert.calledOnce(log.flowEvent);
-      sinon.assert.calledWithMatch(log.flowEvent, { event: 'account.login' });
+      expect(log.flowEvent).toHaveBeenCalledTimes(1);
+      expect(log.flowEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'account.login' })
+      );
 
-      sinon.assert.calledOnce(db.securityEvent);
+      expect(db.securityEvent).toHaveBeenCalledTimes(1);
     });
   });
 });
@@ -1518,9 +1514,9 @@ describe('createKeyFetchToken', () => {
     mocks.mockOAuthClientInfo();
     db = mocks.mockDB();
     password = {
-      unwrap: sinon.spy(() => Promise.resolve(Buffer.from('abcdef123456'))),
+      unwrap: jest.fn(() => Promise.resolve(Buffer.from('abcdef123456'))),
     };
-    db.createKeyFetchToken = sinon.spy(() =>
+    db.createKeyFetchToken = jest.fn(() =>
       Promise.resolve({ id: 'KEY_FETCH_TOKEN' })
     );
     metricsContext = mocks.mockMetricsContext();
@@ -1551,11 +1547,11 @@ describe('createKeyFetchToken', () => {
     ).then((res: any) => {
       expect(res).toEqual({ id: 'KEY_FETCH_TOKEN' });
 
-      sinon.assert.calledOnce(password.unwrap);
-      sinon.assert.calledWithExactly(password.unwrap, accountRecord.wrapWrapKb);
+      expect(password.unwrap).toHaveBeenCalledTimes(1);
+      expect(password.unwrap).toHaveBeenCalledWith(accountRecord.wrapWrapKb);
 
-      sinon.assert.calledOnce(db.createKeyFetchToken);
-      sinon.assert.calledWithExactly(db.createKeyFetchToken, {
+      expect(db.createKeyFetchToken).toHaveBeenCalledTimes(1);
+      expect(db.createKeyFetchToken).toHaveBeenCalledWith({
         uid: TEST_UID,
         kA: accountRecord.kA,
         wrapKb: Buffer.from('abcdef123456'),
@@ -1572,9 +1568,9 @@ describe('createKeyFetchToken', () => {
       password,
       sessionToken
     ).then(() => {
-      sinon.assert.calledOnce(metricsContext.stash);
-      sinon.assert.calledOn(metricsContext.stash, request);
-      sinon.assert.calledWithExactly(metricsContext.stash, {
+      expect(metricsContext.stash).toHaveBeenCalledTimes(1);
+      expect(metricsContext.stash).toHaveBeenCalled();
+      expect(metricsContext.stash).toHaveBeenCalledWith({
         id: 'KEY_FETCH_TOKEN',
       });
     });
@@ -1684,12 +1680,12 @@ describe('cleanupReminders', () => {
 
   it('correctly calls cadReminders delete for verified session', async () => {
     await cleanupReminders({ sessionVerified: true }, { uid: '123' });
-    sinon.assert.calledOnce(mockCadReminders.delete);
-    sinon.assert.calledWithExactly(mockCadReminders.delete, '123');
+    expect(mockCadReminders.delete).toHaveBeenCalledTimes(1);
+    expect(mockCadReminders.delete).toHaveBeenCalledWith('123');
   });
 
   it('does not call cadReminders delete for unverified session', async () => {
     await cleanupReminders({ sessionVerified: false }, { uid: '123' });
-    sinon.assert.notCalled(mockCadReminders.delete);
+    expect(mockCadReminders.delete).not.toHaveBeenCalled();
   });
 });

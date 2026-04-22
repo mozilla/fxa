@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import Container from 'typedi';
 
 import { ConfigType } from '../../config';
@@ -33,9 +32,9 @@ describe('FirestoreStripeSyncChecker', () => {
 
   beforeEach(() => {
     firestoreStub = {
-      collection: sinon.stub().returns({
-        doc: sinon.stub().returns({
-          get: sinon.stub(),
+      collection: jest.fn().mockReturnValue({
+        doc: jest.fn().mockReturnValue({
+          get: jest.fn(),
         }),
       }),
     };
@@ -44,10 +43,10 @@ describe('FirestoreStripeSyncChecker', () => {
     Container.set(AppConfig, mockConfig);
 
     stripeStub = {
-      on: sinon.stub(),
+      on: jest.fn(),
       customers: {
-        list: sinon.stub(),
-        update: sinon.stub(),
+        list: jest.fn(),
+        update: jest.fn(),
       },
     } as unknown as Stripe;
 
@@ -56,9 +55,9 @@ describe('FirestoreStripeSyncChecker', () => {
     } as unknown as StripeHelper;
 
     logStub = {
-      info: sinon.stub(),
-      warn: sinon.stub(),
-      error: sinon.stub(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
     };
 
     syncChecker = new FirestoreStripeSyncChecker(stripeHelperStub, 20, logStub);
@@ -69,70 +68,71 @@ describe('FirestoreStripeSyncChecker', () => {
   });
 
   describe('run', () => {
-    let autoPagingEachStub: sinon.SinonStub;
-    let checkCustomerSyncStub: sinon.SinonStub;
+    let autoPagingEachStub: jest.Mock;
+    let checkCustomerSyncStub: jest.Mock;
 
     beforeEach(async () => {
-      autoPagingEachStub = sinon.stub().callsFake(async (callback: any) => {
-        await callback(mockCustomer);
-      });
+      autoPagingEachStub = jest
+        .fn()
+        .mockImplementation(async (callback: any) => {
+          await callback(mockCustomer);
+        });
 
-      stripeStub.customers.list = sinon.stub().returns({
+      stripeStub.customers.list = jest.fn().mockReturnValue({
         autoPagingEach: autoPagingEachStub,
       }) as any;
 
-      checkCustomerSyncStub = sinon.stub().resolves();
+      checkCustomerSyncStub = jest.fn().mockResolvedValue(undefined);
       syncChecker.checkCustomerSync = checkCustomerSyncStub;
 
       await syncChecker.run();
     });
 
     it('calls Stripe customers.list', () => {
-      sinon.assert.calledWith(stripeStub.customers.list as any, {
+      expect(stripeStub.customers.list as any).toHaveBeenCalledWith({
         limit: 25,
       });
     });
 
     it('calls autoPagingEach to iterate through all customers', () => {
-      sinon.assert.calledOnce(autoPagingEachStub);
+      expect(autoPagingEachStub).toHaveBeenCalledTimes(1);
     });
 
     it('checks sync for each customer', () => {
-      sinon.assert.calledOnce(checkCustomerSyncStub);
-      sinon.assert.calledWith(checkCustomerSyncStub, mockCustomer);
+      expect(checkCustomerSyncStub).toHaveBeenCalledTimes(1);
+      expect(checkCustomerSyncStub).toHaveBeenCalledWith(mockCustomer);
     });
 
     it('logs summary', () => {
-      sinon.assert.calledWith(
-        logStub.info,
+      expect(logStub.info).toHaveBeenCalledWith(
         'firestore-stripe-sync-check-complete',
-        sinon.match.object
+        expect.any(Object)
       );
     });
   });
 
   describe('checkCustomerSync', () => {
-    let checkSubscriptionSyncStub: sinon.SinonStub;
+    let checkSubscriptionSyncStub: jest.Mock;
 
     beforeEach(() => {
-      checkSubscriptionSyncStub = sinon.stub().resolves();
+      checkSubscriptionSyncStub = jest.fn().mockResolvedValue(undefined);
     });
 
     describe('customer in sync', () => {
       const mockFirestoreCustomer = Object.assign({}, mockCustomer);
 
       beforeEach(async () => {
-        const collectionStub = sinon.stub().returns({
-          doc: sinon.stub().returns({
-            get: sinon.stub().resolves({
+        const collectionStub = jest.fn().mockReturnValue({
+          doc: jest.fn().mockReturnValue({
+            get: jest.fn().mockResolvedValue({
               exists: true,
-              data: sinon.stub().returns(mockFirestoreCustomer),
+              data: jest.fn().mockReturnValue(mockFirestoreCustomer),
             }),
-            collection: sinon.stub().returns({
-              doc: sinon.stub().returns({
-                get: sinon.stub().resolves({
+            collection: jest.fn().mockReturnValue({
+              doc: jest.fn().mockReturnValue({
+                get: jest.fn().mockResolvedValue({
                   exists: true,
-                  data: sinon.stub().returns({ status: 'active' }),
+                  data: jest.fn().mockReturnValue({ status: 'active' }),
                 }),
               }),
             }),
@@ -143,7 +143,7 @@ describe('FirestoreStripeSyncChecker', () => {
         Container.set(AuthFirestore, firestoreStub);
 
         stripeStub.subscriptions = {
-          list: sinon.stub().resolves({
+          list: jest.fn().mockResolvedValue({
             data: [mockSubscription],
           }),
         } as any;
@@ -159,8 +159,7 @@ describe('FirestoreStripeSyncChecker', () => {
       });
 
       it('checks subscription sync', () => {
-        sinon.assert.calledWith(
-          checkSubscriptionSyncStub,
+        expect(checkSubscriptionSyncStub).toHaveBeenCalledWith(
           mockCustomer.id,
           mockCustomer.metadata.userid,
           mockSubscription
@@ -168,17 +167,17 @@ describe('FirestoreStripeSyncChecker', () => {
       });
 
       it('does not log out of sync', () => {
-        sinon.assert.notCalled(logStub.warn);
+        expect(logStub.warn).not.toHaveBeenCalled();
       });
     });
 
     describe('customer missing in Firestore', () => {
-      let handleOutOfSyncStub: sinon.SinonStub;
+      let handleOutOfSyncStub: jest.Mock;
 
       beforeEach(async () => {
-        const collectionStub = sinon.stub().returns({
-          doc: sinon.stub().returns({
-            get: sinon.stub().resolves({
+        const collectionStub = jest.fn().mockReturnValue({
+          doc: jest.fn().mockReturnValue({
+            get: jest.fn().mockResolvedValue({
               exists: false,
             }),
           }),
@@ -187,7 +186,7 @@ describe('FirestoreStripeSyncChecker', () => {
         firestoreStub.collection = collectionStub;
         Container.set(AuthFirestore, firestoreStub);
 
-        handleOutOfSyncStub = sinon.stub();
+        handleOutOfSyncStub = jest.fn();
 
         syncChecker = new FirestoreStripeSyncChecker(
           stripeHelperStub,
@@ -200,8 +199,7 @@ describe('FirestoreStripeSyncChecker', () => {
       });
 
       it('handles out of sync', () => {
-        sinon.assert.calledWith(
-          handleOutOfSyncStub,
+        expect(handleOutOfSyncStub).toHaveBeenCalledWith(
           mockCustomer.id,
           'Customer exists in Stripe but not in Firestore',
           'customer_missing'
@@ -210,18 +208,18 @@ describe('FirestoreStripeSyncChecker', () => {
     });
 
     describe('customer metadata mismatch', () => {
-      let handleOutOfSyncStub: sinon.SinonStub;
+      let handleOutOfSyncStub: jest.Mock;
       const mismatchedFirestoreCustomer = {
         email: 'different@example.com',
         created: mockCustomer.created,
       };
 
       beforeEach(async () => {
-        const collectionStub = sinon.stub().returns({
-          doc: sinon.stub().returns({
-            get: sinon.stub().resolves({
+        const collectionStub = jest.fn().mockReturnValue({
+          doc: jest.fn().mockReturnValue({
+            get: jest.fn().mockResolvedValue({
               exists: true,
-              data: sinon.stub().returns(mismatchedFirestoreCustomer),
+              data: jest.fn().mockReturnValue(mismatchedFirestoreCustomer),
             }),
           }),
         });
@@ -229,7 +227,7 @@ describe('FirestoreStripeSyncChecker', () => {
         firestoreStub.collection = collectionStub;
         Container.set(AuthFirestore, firestoreStub);
 
-        handleOutOfSyncStub = sinon.stub();
+        handleOutOfSyncStub = jest.fn();
 
         syncChecker = new FirestoreStripeSyncChecker(
           stripeHelperStub,
@@ -242,8 +240,7 @@ describe('FirestoreStripeSyncChecker', () => {
       });
 
       it('handles out of sync', () => {
-        sinon.assert.calledWith(
-          handleOutOfSyncStub,
+        expect(handleOutOfSyncStub).toHaveBeenCalledWith(
           mockCustomer.id,
           'Customer mismatch',
           'customer_mismatch'
@@ -268,42 +265,43 @@ describe('FirestoreStripeSyncChecker', () => {
 
     describe('error checking customer', () => {
       beforeEach(async () => {
-        firestoreStub.collection = sinon.stub().returns({
-          doc: sinon.stub().throws(new Error('Firestore error')),
+        firestoreStub.collection = jest.fn().mockReturnValue({
+          doc: jest.fn().mockImplementation(() => {
+            throw new Error('Firestore error');
+          }),
         });
 
         await syncChecker.checkCustomerSync(mockCustomer);
       });
 
       it('logs error', () => {
-        sinon.assert.calledWith(
-          logStub.error,
+        expect(logStub.error).toHaveBeenCalledWith(
           'error-checking-customer',
-          sinon.match.object
+          expect.any(Object)
         );
       });
     });
   });
 
   describe('checkSubscriptionSync', () => {
-    let handleOutOfSyncStub: sinon.SinonStub;
+    let handleOutOfSyncStub: jest.Mock;
 
     const mockFirestoreSubscription = Object.assign({}, mockSubscription);
 
     beforeEach(() => {
-      handleOutOfSyncStub = sinon.stub();
+      handleOutOfSyncStub = jest.fn();
       syncChecker.handleOutOfSync = handleOutOfSyncStub;
     });
 
     describe('subscription in sync', () => {
       beforeEach(async () => {
-        const collectionStub = sinon.stub().returns({
-          doc: sinon.stub().returns({
-            collection: sinon.stub().returns({
-              doc: sinon.stub().returns({
-                get: sinon.stub().resolves({
+        const collectionStub = jest.fn().mockReturnValue({
+          doc: jest.fn().mockReturnValue({
+            collection: jest.fn().mockReturnValue({
+              doc: jest.fn().mockReturnValue({
+                get: jest.fn().mockResolvedValue({
                   exists: true,
-                  data: sinon.stub().returns(mockFirestoreSubscription),
+                  data: jest.fn().mockReturnValue(mockFirestoreSubscription),
                 }),
               }),
             }),
@@ -329,17 +327,17 @@ describe('FirestoreStripeSyncChecker', () => {
       });
 
       it('does not call handleOutOfSync', () => {
-        sinon.assert.notCalled(handleOutOfSyncStub);
+        expect(handleOutOfSyncStub).not.toHaveBeenCalled();
       });
     });
 
     describe('subscription missing in Firestore', () => {
       beforeEach(async () => {
-        const collectionStub = sinon.stub().returns({
-          doc: sinon.stub().returns({
-            collection: sinon.stub().returns({
-              doc: sinon.stub().returns({
-                get: sinon.stub().resolves({
+        const collectionStub = jest.fn().mockReturnValue({
+          doc: jest.fn().mockReturnValue({
+            collection: jest.fn().mockReturnValue({
+              doc: jest.fn().mockReturnValue({
+                get: jest.fn().mockResolvedValue({
                   exists: false,
                 }),
               }),
@@ -366,8 +364,7 @@ describe('FirestoreStripeSyncChecker', () => {
       });
 
       it('handles out of sync', () => {
-        sinon.assert.calledWith(
-          handleOutOfSyncStub,
+        expect(handleOutOfSyncStub).toHaveBeenCalledWith(
           mockCustomer.id,
           'Subscription exists in Stripe but not in Firestore',
           'subscription_missing',
@@ -383,13 +380,13 @@ describe('FirestoreStripeSyncChecker', () => {
           status: 'canceled',
         };
 
-        const collectionStub = sinon.stub().returns({
-          doc: sinon.stub().returns({
-            collection: sinon.stub().returns({
-              doc: sinon.stub().returns({
-                get: sinon.stub().resolves({
+        const collectionStub = jest.fn().mockReturnValue({
+          doc: jest.fn().mockReturnValue({
+            collection: jest.fn().mockReturnValue({
+              doc: jest.fn().mockReturnValue({
+                get: jest.fn().mockResolvedValue({
                   exists: true,
-                  data: sinon.stub().returns(mismatchedSubscription),
+                  data: jest.fn().mockReturnValue(mismatchedSubscription),
                 }),
               }),
             }),
@@ -415,8 +412,7 @@ describe('FirestoreStripeSyncChecker', () => {
       });
 
       it('handles out of sync', () => {
-        sinon.assert.calledWith(
-          handleOutOfSyncStub,
+        expect(handleOutOfSyncStub).toHaveBeenCalledWith(
           mockCustomer.id,
           'Subscription data mismatch',
           'subscription_mismatch',
@@ -505,10 +501,10 @@ describe('FirestoreStripeSyncChecker', () => {
   });
 
   describe('handleOutOfSync', () => {
-    let triggerResyncStub: sinon.SinonStub;
+    let triggerResyncStub: jest.Mock;
 
     beforeEach(() => {
-      triggerResyncStub = sinon.stub().resolves();
+      triggerResyncStub = jest.fn().mockResolvedValue(undefined);
       syncChecker.triggerResync = triggerResyncStub;
     });
 
@@ -553,12 +549,15 @@ describe('FirestoreStripeSyncChecker', () => {
         mockSubscription.id
       );
 
-      sinon.assert.calledWith(logStub.warn, 'firestore-stripe-out-of-sync', {
-        customerId: mockCustomer.id,
-        subscriptionId: mockSubscription.id,
-        reason: 'Test reason',
-        type: 'customer_missing',
-      });
+      expect(logStub.warn).toHaveBeenCalledWith(
+        'firestore-stripe-out-of-sync',
+        {
+          customerId: mockCustomer.id,
+          subscriptionId: mockSubscription.id,
+          reason: 'Test reason',
+          type: 'customer_missing',
+        }
+      );
     });
 
     it('triggers resync', () => {
@@ -567,38 +566,36 @@ describe('FirestoreStripeSyncChecker', () => {
         'Test reason',
         'customer_missing'
       );
-      sinon.assert.calledWith(triggerResyncStub, mockCustomer.id);
+      expect(triggerResyncStub).toHaveBeenCalledWith(mockCustomer.id);
     });
   });
 
   describe('triggerResync', () => {
     it('updates customer metadata with forcedResyncAt', async () => {
-      stripeStub.customers.update = sinon.stub().resolves();
+      stripeStub.customers.update = jest.fn().mockResolvedValue(undefined);
 
       await syncChecker.triggerResync(mockCustomer.id);
 
-      sinon.assert.calledWith(
-        stripeStub.customers.update as any,
+      expect(stripeStub.customers.update as any).toHaveBeenCalledWith(
         mockCustomer.id,
-        sinon.match({
+        expect.objectContaining({
           metadata: {
-            forcedResyncAt: sinon.match.string,
+            forcedResyncAt: expect.any(String),
           },
         })
       );
     });
 
     it('logs error on failure', async () => {
-      stripeStub.customers.update = sinon
-        .stub()
-        .rejects(new Error('Update failed'));
+      stripeStub.customers.update = jest
+        .fn()
+        .mockRejectedValue(new Error('Update failed'));
 
       await syncChecker.triggerResync(mockCustomer.id);
 
-      sinon.assert.calledWith(
-        logStub.error,
+      expect(logStub.error).toHaveBeenCalledWith(
         'failed-to-trigger-resync',
-        sinon.match.object
+        expect.any(Object)
       );
     });
   });

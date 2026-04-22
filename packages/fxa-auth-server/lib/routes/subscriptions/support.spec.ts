@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import nock from 'nock';
 
 const uuid = require('uuid');
@@ -219,22 +218,22 @@ describe('support', () => {
       it('should accept a first ticket for a subscriber', async () => {
         config.subscriptions.enabled = true;
         setupNockForSuccess();
-        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const spy = jest.spyOn(zendeskClient.requests, 'create');
         const res = await runTest('/support/ticket', requestOptions);
-        const zendeskReq = spy.firstCall.args[0].request;
+        const zendeskReq = spy.mock.calls[0][0].request;
         expect(zendeskReq.subject).toBe(
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         expect(zendeskReq.comment.body).toBe(requestOptions.payload.message);
-        expect(zendeskReq.custom_fields.map((field: any) => field.value)).toEqual(
-          customFieldsOnTicket
-        );
+        expect(
+          zendeskReq.custom_fields.map((field: any) => field.value)
+        ).toEqual(customFieldsOnTicket);
         expect(res).toEqual({ success: true, ticket: 91 });
 
-        sinon.assert.callCount(customs.check, 1);
+        expect(customs.check).toHaveBeenCalledTimes(1);
 
         nock.isDone();
-        spy.restore();
+        spy.mockRestore();
       });
 
       it('should accept a second ticket for a subscriber', async () => {
@@ -263,19 +262,19 @@ describe('support', () => {
         nock(`https://${SUBDOMAIN}.zendesk.com`)
           .put(`/api/v2/users/${REQUESTER_ID}.json`)
           .reply(200, MOCK_UPDATE_REPLY);
-        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const spy = jest.spyOn(zendeskClient.requests, 'create');
         const res = await runTest('/support/ticket', requestOptions);
-        const zendeskReq = spy.firstCall.args[0].request;
+        const zendeskReq = spy.mock.calls[0][0].request;
         expect(zendeskReq.subject).toBe(
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         expect(zendeskReq.comment.body).toBe(requestOptions.payload.message);
-        expect(zendeskReq.custom_fields.map((field: any) => field.value)).toEqual(
-          customFieldsOnTicket
-        );
+        expect(
+          zendeskReq.custom_fields.map((field: any) => field.value)
+        ).toEqual(customFieldsOnTicket);
         expect(res).toEqual({ success: true, ticket: 91 });
         nock.isDone();
-        spy.restore();
+        spy.mockRestore();
       });
 
       it('should reject tickets for a non-subscriber', async () => {
@@ -297,49 +296,51 @@ describe('support', () => {
       it('should accept a ticket from another service using a shared secret', async () => {
         config.subscriptions.enabled = true;
         setupNockForSuccess();
-        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const spy = jest.spyOn(zendeskClient.requests, 'create');
         const res = await runTest('/support/ticket', {
           ...requestOptions,
           auth: { strategy: 'supportSecret' },
           payload: { ...requestOptions.payload, email: TEST_EMAIL },
         });
-        const zendeskReq = spy.firstCall.args[0].request;
+        const zendeskReq = spy.mock.calls[0][0].request;
         expect(zendeskReq.subject).toBe(
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         expect(zendeskReq.comment.body).toBe(requestOptions.payload.message);
-        expect(zendeskReq.custom_fields.map((field: any) => field.value)).toEqual(
-          customFieldsOnTicket
-        );
-        sinon.assert.callCount(customs.check, 1);
+        expect(
+          zendeskReq.custom_fields.map((field: any) => field.value)
+        ).toEqual(customFieldsOnTicket);
+        expect(customs.check).toHaveBeenCalledTimes(1);
         expect(res).toEqual({ success: true, ticket: 91 });
         nock.isDone();
-        spy.restore();
+        spy.mockRestore();
       });
 
       it('should work for someone who is not a FxA user', async () => {
         const dbAccountRecord = db.accountRecord;
-        db.accountRecord = sinon.stub().throws(AppError.unknownAccount());
+        db.accountRecord = jest.fn(() => {
+          throw AppError.unknownAccount();
+        });
 
         config.subscriptions.enabled = true;
         setupNockForSuccess();
-        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const spy = jest.spyOn(zendeskClient.requests, 'create');
         const res = await runTest('/support/ticket', {
           ...requestOptions,
           auth: { strategy: 'supportSecret' },
           payload: { ...requestOptions.payload, email: TEST_EMAIL },
         });
-        const zendeskReq = spy.firstCall.args[0].request;
+        const zendeskReq = spy.mock.calls[0][0].request;
         expect(zendeskReq.subject).toBe(
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         expect(zendeskReq.comment.body).toBe(requestOptions.payload.message);
-        expect(zendeskReq.custom_fields.map((field: any) => field.value)).toEqual(
-          customFieldsOnTicket
-        );
+        expect(
+          zendeskReq.custom_fields.map((field: any) => field.value)
+        ).toEqual(customFieldsOnTicket);
         expect(res).toEqual({ success: true, ticket: 91 });
         nock.isDone();
-        spy.restore();
+        spy.mockRestore();
 
         db.accountRecord = dbAccountRecord;
       });
@@ -362,16 +363,16 @@ describe('support', () => {
         nock(`https://${SUBDOMAIN}.zendesk.com`)
           .get(`/api/v2/users/${REQUESTER_ID}.json`)
           .reply(200, MOCK_EXISTING_SHOW_REPLY);
-        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const spy = jest.spyOn(zendeskClient.requests, 'create');
         const res = await runTest('/support/ticket', {
           ...requestOptions,
           payload: { ...requestOptions.payload, brand_id: 12345 },
         });
-        const zendeskReq = spy.firstCall.args[0].request;
+        const zendeskReq = spy.mock.calls[0][0].request;
         expect(zendeskReq.brand_id).toBe(12345);
         expect(res).toEqual({ success: true, ticket: 91 });
         nock.isDone();
-        spy.restore();
+        spy.mockRestore();
       });
 
       it('should reject a ticket with a non-integer brand_id', async () => {

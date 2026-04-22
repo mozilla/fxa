@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
@@ -34,7 +32,7 @@ describe('/newsletters should emit newsletters update message', () => {
   let request: any, db: any, log: any, routes: any, route: any, response: any;
 
   describe('using session token', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
       log = mocks.mockLog();
       db = mocks.mockDB({
         email,
@@ -64,19 +62,18 @@ describe('/newsletters should emit newsletters update message', () => {
     });
 
     it('called log.begin correctly', () => {
-      sinon.assert.calledOnce(log.begin);
-      sinon.assert.calledWithExactly(log.begin, 'newsletters', request);
+      expect(log.begin).toHaveBeenCalledTimes(1);
+      expect(log.begin).toHaveBeenCalledWith('newsletters', request);
     });
 
     it('called db.account correctly', () => {
-      sinon.assert.calledOnce(db.account);
-      sinon.assert.calledWithExactly(db.account, uid);
+      expect(db.account).toHaveBeenCalledTimes(1);
+      expect(db.account).toHaveBeenCalledWith(uid);
     });
 
     it('called log.notifyAttachedServices correctly', () => {
-      sinon.assert.calledOnce(log.notifyAttachedServices);
-      sinon.assert.calledWithExactly(
-        log.notifyAttachedServices,
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      expect(log.notifyAttachedServices).toHaveBeenCalledWith(
         'newsletters:update',
         request,
         {
@@ -93,7 +90,7 @@ describe('/newsletters should emit newsletters update message', () => {
   });
 
   describe('using access token', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
       log = mocks.mockLog();
       db = mocks.mockDB({
         email,
@@ -115,13 +112,11 @@ describe('/newsletters should emit newsletters update message', () => {
         },
       });
 
-      sinon.stub(ScopeSet, 'fromArray').returns({ contains: () => true });
+      jest
+        .spyOn(ScopeSet, 'fromArray')
+        .mockReturnValue({ contains: () => true });
 
-      try {
-        response = await runTest(route, request);
-      } finally {
-        (ScopeSet.fromArray as sinon.SinonStub).restore();
-      }
+      response = await runTest(route, request);
     });
 
     it('returns correct response', () => {
@@ -129,19 +124,18 @@ describe('/newsletters should emit newsletters update message', () => {
     });
 
     it('called log.begin correctly', () => {
-      sinon.assert.calledOnce(log.begin);
-      sinon.assert.calledWithExactly(log.begin, 'newsletters', request);
+      expect(log.begin).toHaveBeenCalledTimes(1);
+      expect(log.begin).toHaveBeenCalledWith('newsletters', request);
     });
 
     it('called db.account correctly', () => {
-      sinon.assert.calledOnce(db.account);
-      sinon.assert.calledWithExactly(db.account, uid);
+      expect(db.account).toHaveBeenCalledTimes(1);
+      expect(db.account).toHaveBeenCalledWith(uid);
     });
 
     it('called log.notifyAttachedServices correctly', () => {
-      sinon.assert.calledOnce(log.notifyAttachedServices);
-      sinon.assert.calledWithExactly(
-        log.notifyAttachedServices,
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      expect(log.notifyAttachedServices).toHaveBeenCalledWith(
         'newsletters:update',
         request,
         {
@@ -179,14 +173,14 @@ describe('/newsletters should emit newsletters update message', () => {
           newsletters,
         },
       });
-      sinon.stub(ScopeSet, 'fromArray').returns({ contains: () => false });
+      jest
+        .spyOn(ScopeSet, 'fromArray')
+        .mockReturnValue({ contains: () => false });
       try {
         await runTest(route, request);
         throw new Error('An error should have been thrown.');
       } catch (e: any) {
         expect(e.output.payload.code).toBe(401);
-      } finally {
-        (ScopeSet.fromArray as sinon.SinonStub).restore();
       }
     });
   });
@@ -200,11 +194,13 @@ describe('/newsletters should emit newsletters update message', () => {
       });
       routes = makeRoutes({ log, db });
       route = getRoute(routes, '/newsletters');
-      sinon.stub(ScopeSet, 'fromArray').returns({ contains: () => true });
+      jest
+        .spyOn(ScopeSet, 'fromArray')
+        .mockReturnValue({ contains: () => true });
     });
 
     afterEach(() => {
-      (ScopeSet.fromArray as sinon.SinonStub).restore();
+      jest.restoreAllMocks();
     });
 
     it('throws a bad request error when "newsletters" is missing', async () => {

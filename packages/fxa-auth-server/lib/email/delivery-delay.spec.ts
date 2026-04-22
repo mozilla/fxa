@@ -3,20 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { EventEmitter } from 'events';
-import sinon from 'sinon';
 
 const { mockLog, mockStatsd } = require('../../test/mocks');
 const emailHelpers = require('./utils/helpers');
 const deliveryDelay = require('./delivery-delay');
 
-let sandbox: sinon.SinonSandbox;
 const mockDeliveryDelayQueue = new EventEmitter() as EventEmitter & {
   start: () => void;
 };
 (mockDeliveryDelayQueue as any).start = function start() {};
 
 function mockMessage(msg: any) {
-  msg.del = sandbox.spy();
+  msg.del = jest.fn();
   msg.headers = msg.headers || {};
   return msg;
 }
@@ -43,12 +41,10 @@ function mockedDeliveryDelay(log: any, statsd: any) {
 }
 
 describe('delivery delay messages', () => {
-  beforeEach(() => {
-    sandbox = sinon.createSandbox();
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   it('should not log an error for headers', async () => {
@@ -57,7 +53,7 @@ describe('delivery delay messages', () => {
     await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(
       mockMessage({ junk: 'message' })
     );
-    expect(log.error.callCount).toBe(0);
+    expect(log.error).toHaveBeenCalledTimes(0);
   });
 
   it('should log an error for missing headers', async () => {
@@ -66,7 +62,7 @@ describe('delivery delay messages', () => {
     const message = mockMessage({ junk: 'message' });
     message.headers = undefined;
     await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(message);
-    expect(log.error.callCount).toBe(1);
+    expect(log.error).toHaveBeenCalledTimes(1);
   });
 
   it('should log delivery delay with all fields', async () => {
@@ -96,8 +92,8 @@ describe('delivery delay messages', () => {
 
     await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(mockMsg);
 
-    sinon.assert.calledOnceWithExactly(
-      statsd.increment,
+    expect(statsd.increment).toHaveBeenCalledTimes(1);
+    expect(statsd.increment).toHaveBeenCalledWith(
       'email.deliveryDelay.message',
       {
         delayType: 'TransientCommunicationFailure',
@@ -106,18 +102,19 @@ describe('delivery delay messages', () => {
       }
     );
 
-    const loggedData = log.info.args[0][1];
-    expect(log.info.args[0][0]).toBe('handleDeliveryDelay');
-    expect(loggedData).toMatchObject({
-      email: 'recipient@example.com',
-      domain: 'other',
-      delayType: 'TransientCommunicationFailure',
-      status: '4.4.7',
-      template: 'verifyLoginEmail',
-      lang: 'en',
-      expirationTime: '2023-12-18T14:59:38.237Z',
-      reportingMTA: 'a1-23.smtp-out.amazonses.com',
-    });
+    expect(log.info).toHaveBeenCalledWith(
+      'handleDeliveryDelay',
+      expect.objectContaining({
+        email: 'recipient@example.com',
+        domain: 'other',
+        delayType: 'TransientCommunicationFailure',
+        status: '4.4.7',
+        template: 'verifyLoginEmail',
+        lang: 'en',
+        expirationTime: '2023-12-18T14:59:38.237Z',
+        reportingMTA: 'a1-23.smtp-out.amazonses.com',
+      })
+    );
   });
 
   it('should handle delivery delay with notificationType', async () => {
@@ -136,17 +133,23 @@ describe('delivery delay messages', () => {
 
     await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(mockMsg);
 
-    expect(statsd.increment.args[0][1].delayType).toBe('MailboxFull');
-    expect(log.info.args[0][1]).toMatchObject({
-      email: 'user@example.com',
-      status: '4.2.2',
-    });
+    expect(statsd.increment).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ delayType: 'MailboxFull' })
+    );
+    expect(log.info).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        email: 'user@example.com',
+        status: '4.2.2',
+      })
+    );
   });
 
   it('should log account email event (emailDelayed)', async () => {
-    sandbox
-      .stub(emailHelpers, 'logAccountEventFromMessage')
-      .returns(Promise.resolve());
+    jest
+      .spyOn(emailHelpers, 'logAccountEventFromMessage')
+      .mockReturnValue(Promise.resolve());
     const log = mockLog();
     const statsd = mockStatsd();
     const mockMsg = createDeliveryDelayMessage({
@@ -158,8 +161,8 @@ describe('delivery delay messages', () => {
     });
 
     await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(mockMsg);
-    sinon.assert.calledOnceWithExactly(
-      emailHelpers.logAccountEventFromMessage,
+    expect(emailHelpers.logAccountEventFromMessage).toHaveBeenCalledTimes(1);
+    expect(emailHelpers.logAccountEventFromMessage).toHaveBeenCalledWith(
       mockMsg,
       'emailDelayed'
     );
@@ -177,7 +180,10 @@ describe('delivery delay messages', () => {
 
     await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(mockMsg);
 
-    expect(log.info.args[0][1].domain).toBe('yahoo.com');
+    expect(log.info).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ domain: 'yahoo.com' })
+    );
   });
 
   it('should handle missing delayedRecipients gracefully', async () => {
@@ -192,9 +198,9 @@ describe('delivery delay messages', () => {
 
     await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(mockMsg);
 
-    sinon.assert.calledOnce(statsd.increment);
-    expect(log.info.callCount).toBe(0);
-    sinon.assert.calledOnce(mockMsg.del);
+    expect(statsd.increment).toHaveBeenCalledTimes(1);
+    expect(log.info).toHaveBeenCalledTimes(0);
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
   });
 
   it('should handle errors and still delete message', async () => {
@@ -202,18 +208,22 @@ describe('delivery delay messages', () => {
     const statsd = mockStatsd();
     const mockMsg = createDeliveryDelayMessage();
 
-    sandbox
-      .stub(emailHelpers, 'getAnonymizedEmailDomain')
-      .throws(new Error('Test error'));
+    jest
+      .spyOn(emailHelpers, 'getAnonymizedEmailDomain')
+      .mockImplementation(() => {
+        throw new Error('Test error');
+      });
 
     await mockedDeliveryDelay(log, statsd).handleDeliveryDelay(mockMsg);
 
-    sinon.assert.calledWith(log.error, 'handleDeliveryDelay.error');
-    expect(log.error.args[0][1]).toMatchObject({
-      messageId: 'test-message-id',
-    });
+    expect(log.error).toHaveBeenCalledWith(
+      'handleDeliveryDelay.error',
+      expect.objectContaining({
+        messageId: 'test-message-id',
+      })
+    );
 
-    sinon.assert.calledWith(statsd.increment, 'email.deliveryDelay.error');
-    sinon.assert.calledOnce(mockMsg.del);
+    expect(statsd.increment).toHaveBeenCalledWith('email.deliveryDelay.error');
+    expect(mockMsg.del).toHaveBeenCalledTimes(1);
   });
 });

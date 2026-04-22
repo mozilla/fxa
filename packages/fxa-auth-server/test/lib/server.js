@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { default: Container } = require('typedi');
-const sinon = require('sinon');
 
 process.env.CONFIG_FILES = require.resolve('./oauth-test.json');
 const { config } = require('../../config');
@@ -65,8 +64,10 @@ function wrapServer(server, close) {
 module.exports.start = async function () {
   if (!Container.has(CapabilityService)) {
     Container.set(CapabilityService, {
-      subscriptionCapabilities: sinon.fake.resolves([]),
-      determineClientVisibleSubscriptionCapabilities: sinon.fake.resolves(''),
+      subscriptionCapabilities: jest.fn().mockResolvedValue([]),
+      determineClientVisibleSubscriptionCapabilities: jest
+        .fn()
+        .mockResolvedValue(''),
     });
   }
   const { server, close } = await createServer(testConfig);

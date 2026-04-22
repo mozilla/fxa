@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { AppError } from '@fxa/accounts/errors';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
@@ -39,7 +38,7 @@ describe('lib/routes/auth-schemes/mfa', () => {
     getCredentialsFunc: any;
 
   beforeEach(() => {
-    sinon.reset();
+    jest.clearAllMocks();
 
     sessionToken = {
       uid: 'account-123',
@@ -66,15 +65,17 @@ describe('lib/routes/auth-schemes/mfa', () => {
     };
 
     db = {
-      account: sinon.fake.resolves({
+      account: jest.fn().mockResolvedValue({
         uid: 'uid123',
         primaryEmail: { isVerified: true },
       }),
-      totpToken: sinon.fake.resolves({ verified: false, enabled: false }),
+      totpToken: jest
+        .fn()
+        .mockResolvedValue({ verified: false, enabled: false }),
     };
 
     statsd = {
-      increment: sinon.fake(),
+      increment: jest.fn(),
     };
 
     jwtToken = makeJwt(account, sessionToken, config);
@@ -86,14 +87,14 @@ describe('lib/routes/auth-schemes/mfa', () => {
       },
     };
     h = {
-      authenticated: sinon.fake.returns(undefined),
+      authenticated: jest.fn().mockReturnValue(undefined),
     };
 
-    getCredentialsFunc = sinon.fake.resolves(sessionToken);
+    getCredentialsFunc = jest.fn().mockResolvedValue(sessionToken);
   });
 
   afterEach(() => {
-    sinon.restore();
+    jest.restoreAllMocks();
   });
 
   it('should authenticate with valid jwt token', async () => {
@@ -103,18 +104,17 @@ describe('lib/routes/auth-schemes/mfa', () => {
 
     // Important! Session token should be returned as credentials,
     // AND object reference should not change!
-    expect(
-      h.authenticated.calledOnceWithExactly({
-        credentials: sinon.match.same(sessionToken),
-      })
-    ).toBe(true);
+    expect(h.authenticated).toHaveBeenCalledTimes(1);
+    expect(h.authenticated).toHaveBeenCalledWith({
+      credentials: sessionToken,
+    });
 
     // Session token should be decorated with a scope.
     expect(sessionToken.scope[0]).toBe('mfa:test');
   });
 
   it('should throw an error if no authorization header is provided', async () => {
-    getCredentialsFunc = sinon.fake.resolves(null);
+    getCredentialsFunc = jest.fn().mockResolvedValue(null);
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
 
     const request: any = { headers: {}, auth: { mode: 'required' } };
@@ -132,7 +132,7 @@ describe('lib/routes/auth-schemes/mfa', () => {
   });
 
   it('should not authenticate if the parent session cannot be found', async () => {
-    const getCredentialsFunc = sinon.fake.resolves(null);
+    const getCredentialsFunc = jest.fn().mockResolvedValue(null);
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
 
     try {
@@ -148,7 +148,7 @@ describe('lib/routes/auth-schemes/mfa', () => {
   });
 
   it('should not authenticate with invalid jwt token due to sub mismatch', async () => {
-    getCredentialsFunc = sinon.fake.resolves({ sub: 'account-234' });
+    getCredentialsFunc = jest.fn().mockResolvedValue({ sub: 'account-234' });
 
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
 
@@ -165,7 +165,7 @@ describe('lib/routes/auth-schemes/mfa', () => {
   });
 
   it('fails when account email is not verified', async () => {
-    db.account = sinon.fake.resolves({
+    db.account = jest.fn().mockResolvedValue({
       uid: 'uid123',
       primaryEmail: { isVerified: false },
     });
@@ -179,17 +179,15 @@ describe('lib/routes/auth-schemes/mfa', () => {
       const payload = err.output.payload;
       expect(payload.code).toBe(400);
       expect(payload.errno).toBe(AppError.ERRNO.ACCOUNT_UNVERIFIED);
-      expect(
-        statsd.increment.calledWithExactly(
-          'verified_session_token.primary_email_not_verified.error',
-          ['path:/foo/{id}']
-        )
-      ).toBe(true);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'verified_session_token.primary_email_not_verified.error',
+        ['path:/foo/{id}']
+      );
     }
   });
 
   it('skips email verified check when configured', async () => {
-    db.account = sinon.fake.resolves({
+    db.account = jest.fn().mockResolvedValue({
       uid: 'uid123',
       primaryEmail: { isVerified: false },
     });
@@ -200,12 +198,11 @@ describe('lib/routes/auth-schemes/mfa', () => {
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
     await authStrategy.authenticate(request, h);
 
-    expect(
-      statsd.increment.calledOnceWithExactly(
-        'verified_session_token.primary_email_not_verified.skipped',
-        ['path:/foo/{id}']
-      )
-    ).toBe(true);
+    expect(statsd.increment).toHaveBeenCalledTimes(1);
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'verified_session_token.primary_email_not_verified.skipped',
+      ['path:/foo/{id}']
+    );
   });
 
   it('fails when session token is unverified', async () => {
@@ -220,12 +217,10 @@ describe('lib/routes/auth-schemes/mfa', () => {
       const payload = err.output.payload;
       expect(payload.code).toBe(400);
       expect(payload.errno).toBe(AppError.ERRNO.SESSION_UNVERIFIED);
-      expect(
-        statsd.increment.calledWithExactly(
-          'verified_session_token.token_verified.error',
-          ['path:/foo/{id}']
-        )
-      ).toBe(true);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'verified_session_token.token_verified.error',
+        ['path:/foo/{id}']
+      );
     }
   });
 
@@ -239,16 +234,17 @@ describe('lib/routes/auth-schemes/mfa', () => {
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
     await authStrategy.authenticate(request, h);
 
-    expect(
-      statsd.increment.calledOnceWithExactly(
-        'verified_session_token.token_verified.skipped',
-        ['path:/foo/{id}']
-      )
-    ).toBe(true);
+    expect(statsd.increment).toHaveBeenCalledTimes(1);
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'verified_session_token.token_verified.skipped',
+      ['path:/foo/{id}']
+    );
   });
 
   it('fails when AAL mismatch', async () => {
-    db.totpToken = sinon.fake.resolves({ verified: true, enabled: true });
+    db.totpToken = jest
+      .fn()
+      .mockResolvedValue({ verified: true, enabled: true });
     sessionToken.authenticatorAssuranceLevel = 1;
 
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
@@ -260,64 +256,66 @@ describe('lib/routes/auth-schemes/mfa', () => {
       const payload = err.output.payload;
       expect(payload.code).toBe(400);
       expect(payload.errno).toBe(AppError.ERRNO.INSUFFICIENT_AAL);
-      expect(
-        statsd.increment.calledWithExactly('verified_session_token.aal.error', [
-          'path:/foo/{id}',
-        ])
-      ).toBe(true);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'verified_session_token.aal.error',
+        ['path:/foo/{id}']
+      );
     }
   });
 
   it('succeeds when account does not require AAL2 (no TOTP) and session is AAL1', async () => {
-    db.totpToken = sinon.fake.resolves({ verified: false, enabled: false });
+    db.totpToken = jest
+      .fn()
+      .mockResolvedValue({ verified: false, enabled: false });
     sessionToken.authenticatorAssuranceLevel = 1;
 
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
     await authStrategy.authenticate(request, h);
 
-    expect(
-      h.authenticated.calledOnceWithExactly({
-        credentials: sinon.match.same(sessionToken),
-      })
-    ).toBe(true);
+    expect(h.authenticated).toHaveBeenCalledTimes(1);
+    expect(h.authenticated).toHaveBeenCalledWith({
+      credentials: sessionToken,
+    });
 
     expect(sessionToken.scope[0]).toBe('mfa:test');
   });
 
   it('succeeds when account requires AAL2 (TOTP enabled) and session is AAL2', async () => {
-    db.totpToken = sinon.fake.resolves({ verified: true, enabled: true });
+    db.totpToken = jest
+      .fn()
+      .mockResolvedValue({ verified: true, enabled: true });
     sessionToken.authenticatorAssuranceLevel = 2;
 
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
     await authStrategy.authenticate(request, h);
 
-    expect(
-      h.authenticated.calledOnceWithExactly({
-        credentials: sinon.match.same(sessionToken),
-      })
-    ).toBe(true);
+    expect(h.authenticated).toHaveBeenCalledTimes(1);
+    expect(h.authenticated).toHaveBeenCalledWith({
+      credentials: sessionToken,
+    });
 
     expect(sessionToken.scope[0]).toBe('mfa:test');
   });
 
   it('succeeds when session is AAL2 via passkey and account has no TOTP', async () => {
-    db.totpToken = sinon.fake.rejects(AppError.totpTokenNotFound());
+    db.totpToken = jest.fn().mockRejectedValue(AppError.totpTokenNotFound());
     sessionToken.authenticatorAssuranceLevel = 2;
 
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
     await authStrategy.authenticate(request, h);
 
-    expect(
-      h.authenticated.calledOnceWithExactly({
-        credentials: sinon.match.same(sessionToken),
-      })
-    ).toBe(true);
+    expect(h.authenticated).toHaveBeenCalledTimes(1);
+    expect(h.authenticated).toHaveBeenCalledWith({
+      credentials: sessionToken,
+    });
 
     expect(sessionToken.scope[0]).toBe('mfa:test');
   });
 
   it('skips AAL check when configured', async () => {
-    db.totpToken = sinon.fake.resolves({ verified: true, enabled: true });
+    db.totpToken = jest
+      .fn()
+      .mockResolvedValue({ verified: true, enabled: true });
     sessionToken.authenticatorAssuranceLevel = 1;
 
     config.authStrategies.verifiedSessionToken.skipAalCheckForRoutes = '/foo.*';
@@ -326,11 +324,10 @@ describe('lib/routes/auth-schemes/mfa', () => {
 
     await authStrategy.authenticate(request, h);
 
-    expect(
-      statsd.increment.calledOnceWithExactly(
-        'verified_session_token.aal.skipped',
-        ['path:/foo/{id}']
-      )
-    ).toBe(true);
+    expect(statsd.increment).toHaveBeenCalledTimes(1);
+    expect(statsd.increment).toHaveBeenCalledWith(
+      'verified_session_token.aal.skipped',
+      ['path:/foo/{id}']
+    );
   });
 });

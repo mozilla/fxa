@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 const uuid = require('uuid');
 
@@ -52,25 +51,27 @@ describe('GoogleIapHandler', () => {
       email: TEST_EMAIL,
       locale: ACCOUNT_LOCALE,
     });
-    db.account = sinon.fake.resolves({ primaryEmail: { email: TEST_EMAIL } });
+    db.account = jest
+      .fn()
+      .mockResolvedValue({ primaryEmail: { email: TEST_EMAIL } });
     mockCapabilityService = {};
-    mockCapabilityService.iapUpdate = sinon.fake.resolves({});
+    mockCapabilityService.iapUpdate = jest.fn().mockResolvedValue({});
     Container.set(CapabilityService, mockCapabilityService);
     googleIapHandler = new GoogleIapHandler(db);
   });
 
   afterEach(() => {
     Container.reset();
-    sinon.restore();
+    jest.restoreAllMocks();
   });
 
   describe('plans', () => {
     it('returns the plans', async () => {
-      iapConfig.plans = sinon.fake.resolves({ test: 'plan' });
+      iapConfig.plans = jest.fn().mockResolvedValue({ test: 'plan' });
       const result = await googleIapHandler.plans({
         params: { appName: 'test' },
       });
-      sinon.assert.calledOnce(iapConfig.plans);
+      expect(iapConfig.plans).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ test: 'plan' });
     });
   });
@@ -84,26 +85,28 @@ describe('GoogleIapHandler', () => {
 
     it('returns valid with new products', async () => {
       playBilling.purchaseManager = {
-        registerToUserAccount: sinon.fake.resolves({}),
+        registerToUserAccount: jest.fn().mockResolvedValue({}),
       };
-      iapConfig.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.packageName = jest.fn().mockResolvedValue('testPackage');
       const result = await googleIapHandler.registerToken(request);
-      sinon.assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
-      sinon.assert.calledOnce(iapConfig.packageName);
-      sinon.assert.calledOnce(mockCapabilityService.iapUpdate);
+      expect(
+        playBilling.purchaseManager.registerToUserAccount
+      ).toHaveBeenCalledTimes(1);
+      expect(iapConfig.packageName).toHaveBeenCalledTimes(1);
+      expect(mockCapabilityService.iapUpdate).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ tokenValid: true });
     });
 
     it('throws on invalid package', async () => {
       playBilling.purchaseManager = {
-        registerToUserAccount: sinon.fake.resolves({}),
+        registerToUserAccount: jest.fn().mockResolvedValue({}),
       };
-      iapConfig.packageName = sinon.fake.resolves(undefined);
+      iapConfig.packageName = jest.fn().mockResolvedValue(undefined);
       try {
         await googleIapHandler.registerToken(request);
         throw new Error('Expected failure');
       } catch (err: any) {
-        sinon.assert.calledOnce(iapConfig.packageName);
+        expect(iapConfig.packageName).toHaveBeenCalledTimes(1);
         expect(err.errno).toBe(error.ERRNO.IAP_UNKNOWN_APPNAME);
       }
     });
@@ -113,18 +116,18 @@ describe('GoogleIapHandler', () => {
       libraryError.name = PurchaseUpdateError.INVALID_TOKEN;
 
       playBilling.purchaseManager = {
-        registerToUserAccount: sinon.fake.rejects(libraryError),
+        registerToUserAccount: jest.fn().mockRejectedValue(libraryError),
       };
-      iapConfig.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.packageName = jest.fn().mockResolvedValue('testPackage');
       try {
         await googleIapHandler.registerToken(request);
         throw new Error('Expected failure');
       } catch (err: any) {
         expect(err.errno).toBe(error.ERRNO.IAP_INVALID_TOKEN);
-        sinon.assert.calledOnce(
+        expect(
           playBilling.purchaseManager.registerToUserAccount
-        );
-        sinon.assert.calledOnce(iapConfig.packageName);
+        ).toHaveBeenCalledTimes(1);
+        expect(iapConfig.packageName).toHaveBeenCalledTimes(1);
       }
     });
 
@@ -133,35 +136,37 @@ describe('GoogleIapHandler', () => {
       libraryError.name = PurchaseUpdateError.CONFLICT;
 
       playBilling.purchaseManager = {
-        registerToUserAccount: sinon.fake.rejects(libraryError),
+        registerToUserAccount: jest.fn().mockRejectedValue(libraryError),
       };
-      iapConfig.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.packageName = jest.fn().mockResolvedValue('testPackage');
       try {
         await googleIapHandler.registerToken(request);
         throw new Error('Expected failure');
       } catch (err: any) {
         expect(err.errno).toBe(error.ERRNO.IAP_INTERNAL_OTHER);
-        sinon.assert.calledOnce(
+        expect(
           playBilling.purchaseManager.registerToUserAccount
-        );
-        sinon.assert.calledOnce(iapConfig.packageName);
+        ).toHaveBeenCalledTimes(1);
+        expect(iapConfig.packageName).toHaveBeenCalledTimes(1);
       }
     });
 
     it('throws on unknown errors', async () => {
       playBilling.purchaseManager = {
-        registerToUserAccount: sinon.fake.rejects(new Error('Unknown error')),
+        registerToUserAccount: jest
+          .fn()
+          .mockRejectedValue(new Error('Unknown error')),
       };
-      iapConfig.packageName = sinon.fake.resolves('testPackage');
+      iapConfig.packageName = jest.fn().mockResolvedValue('testPackage');
       try {
         await googleIapHandler.registerToken(request);
         throw new Error('Expected failure');
       } catch (err: any) {
         expect(err.errno).toBe(error.ERRNO.BACKEND_SERVICE_FAILURE);
-        sinon.assert.calledOnce(
+        expect(
           playBilling.purchaseManager.registerToUserAccount
-        );
-        sinon.assert.calledOnce(iapConfig.packageName);
+        ).toHaveBeenCalledTimes(1);
+        expect(iapConfig.packageName).toHaveBeenCalledTimes(1);
       }
     });
   });

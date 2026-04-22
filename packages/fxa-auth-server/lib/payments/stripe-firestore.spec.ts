@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import sinon from 'sinon';
 
 import {
   StripeFirestore,
@@ -64,62 +63,78 @@ describe('StripeFirestore', () => {
 
   describe('retrieveAndFetchCustomer', () => {
     it('fetches a customer that was already retrieved', async () => {
-      stripeFirestore.retrieveCustomer = sinon.fake.resolves(customer);
-      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.retrieveCustomer = jest.fn().mockResolvedValue(customer);
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await stripeFirestore.retrieveAndFetchCustomer(
         customer.id
       );
       expect(result).toEqual(customer);
-      sinon.assert.calledOnce(stripeFirestore.retrieveCustomer);
-      sinon.assert.notCalled(stripeFirestore.legacyFetchAndInsertCustomer);
+      expect(stripeFirestore.retrieveCustomer).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).not.toHaveBeenCalled();
     });
 
     it('fetches a customer that hasnt been retrieved', async () => {
-      stripeFirestore.retrieveCustomer = sinon.fake.rejects(
-        newFirestoreStripeError(
-          'Not found',
-          FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
-        )
-      );
-      stripeFirestore.legacyFetchAndInsertCustomer =
-        sinon.fake.resolves(customer);
+      stripeFirestore.retrieveCustomer = jest
+        .fn()
+        .mockRejectedValue(
+          newFirestoreStripeError(
+            'Not found',
+            FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+          )
+        );
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue(customer);
       const result = await stripeFirestore.retrieveAndFetchCustomer(
         customer.id
       );
       expect(result).toEqual(customer);
-      sinon.assert.calledOnce(stripeFirestore.retrieveCustomer);
-      sinon.assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
+      expect(stripeFirestore.retrieveCustomer).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).toHaveBeenCalledTimes(1);
     });
 
     it('passes ignoreErrors through to legacyFetchAndInsertCustomer', async () => {
-      stripeFirestore.retrieveCustomer = sinon.fake.rejects(
-        newFirestoreStripeError(
-          'Not found',
-          FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
-        )
-      );
-      stripeFirestore.legacyFetchAndInsertCustomer =
-        sinon.fake.resolves(customer);
+      stripeFirestore.retrieveCustomer = jest
+        .fn()
+        .mockRejectedValue(
+          newFirestoreStripeError(
+            'Not found',
+            FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+          )
+        );
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue(customer);
       const result = await stripeFirestore.retrieveAndFetchCustomer(
         customer.id,
         true
       );
       expect(result).toEqual(customer);
-      sinon.assert.calledOnce(stripeFirestore.retrieveCustomer);
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.legacyFetchAndInsertCustomer,
+      expect(stripeFirestore.retrieveCustomer).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).toHaveBeenCalledTimes(1);
+      expect(stripeFirestore.legacyFetchAndInsertCustomer).toHaveBeenCalledWith(
         customer.id,
         true
       );
     });
 
     it('errors otherwise', async () => {
-      stripeFirestore.retrieveCustomer = sinon.fake.rejects(
-        newFirestoreStripeError(
-          'Not found',
-          FirestoreStripeError.STRIPE_CUSTOMER_DELETED
-        )
-      );
+      stripeFirestore.retrieveCustomer = jest
+        .fn()
+        .mockRejectedValue(
+          newFirestoreStripeError(
+            'Not found',
+            FirestoreStripeError.STRIPE_CUSTOMER_DELETED
+          )
+        );
       try {
         await stripeFirestore.retrieveAndFetchCustomer(customer.id);
         throw new Error('should have thrown');
@@ -137,74 +152,94 @@ describe('StripeFirestore', () => {
     });
 
     it('fetches a subscription that was already retrieved', async () => {
-      stripeFirestore.retrieveSubscription = sinon.fake.resolves(subscription);
-      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.retrieveSubscription = jest
+        .fn()
+        .mockResolvedValue(subscription);
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await stripeFirestore.retrieveAndFetchSubscription(
         subscription.id
       );
       expect(result).toEqual(subscription);
-      sinon.assert.calledOnce(stripeFirestore.retrieveSubscription);
-      sinon.assert.notCalled(stripeFirestore.legacyFetchAndInsertCustomer);
+      expect(stripeFirestore.retrieveSubscription).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).not.toHaveBeenCalled();
     });
 
     it('fetches a subscription that hasnt been retrieved', async () => {
-      stripeFirestore.retrieveSubscription = sinon.fake.rejects(
-        newFirestoreStripeError(
-          'Not found',
-          FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND
-        )
-      );
+      stripeFirestore.retrieveSubscription = jest
+        .fn()
+        .mockRejectedValue(
+          newFirestoreStripeError(
+            'Not found',
+            FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND
+          )
+        );
       stripe.subscriptions = {
-        retrieve: sinon.fake.resolves(subscription),
+        retrieve: jest.fn().mockResolvedValue(subscription),
       };
-      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await stripeFirestore.retrieveAndFetchSubscription(
         subscription.id
       );
       expect(result).toEqual(subscription);
-      sinon.assert.calledOnce(stripeFirestore.retrieveSubscription);
-      sinon.assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
-      sinon.assert.calledOnceWithExactly(
-        stripe.subscriptions.retrieve,
+      expect(stripeFirestore.retrieveSubscription).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).toHaveBeenCalledTimes(1);
+      expect(stripe.subscriptions.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith(
         subscription.id
       );
     });
 
     it('passes ignoreErrors through to legacyFetchAndInsertCustomer', async () => {
-      stripeFirestore.retrieveSubscription = sinon.fake.rejects(
-        newFirestoreStripeError(
-          'Not found',
-          FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND
-        )
-      );
+      stripeFirestore.retrieveSubscription = jest
+        .fn()
+        .mockRejectedValue(
+          newFirestoreStripeError(
+            'Not found',
+            FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND
+          )
+        );
       stripe.subscriptions = {
-        retrieve: sinon.fake.resolves(subscription),
+        retrieve: jest.fn().mockResolvedValue(subscription),
       };
-      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await stripeFirestore.retrieveAndFetchSubscription(
         subscription.id,
         true
       );
       expect(result).toEqual(subscription);
-      sinon.assert.calledOnce(stripeFirestore.retrieveSubscription);
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.legacyFetchAndInsertCustomer,
+      expect(stripeFirestore.retrieveSubscription).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).toHaveBeenCalledTimes(1);
+      expect(stripeFirestore.legacyFetchAndInsertCustomer).toHaveBeenCalledWith(
         subscription.customer,
         true
       );
-      sinon.assert.calledOnceWithExactly(
-        stripe.subscriptions.retrieve,
+      expect(stripe.subscriptions.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith(
         subscription.id
       );
     });
 
     it('errors otherwise', async () => {
-      stripeFirestore.retrieveSubscription = sinon.fake.rejects(
-        newFirestoreStripeError(
-          'Not found',
-          FirestoreStripeError.STRIPE_CUSTOMER_DELETED
-        )
-      );
+      stripeFirestore.retrieveSubscription = jest
+        .fn()
+        .mockRejectedValue(
+          newFirestoreStripeError(
+            'Not found',
+            FirestoreStripeError.STRIPE_CUSTOMER_DELETED
+          )
+        );
       try {
         await stripeFirestore.retrieveAndFetchSubscription(subscription.id);
         throw new Error('should have thrown');
@@ -219,16 +254,18 @@ describe('StripeFirestore', () => {
 
     beforeEach(() => {
       tx = {
-        get: sinon.stub().resolves({}),
-        set: sinon.stub(),
+        get: jest.fn().mockResolvedValue({}),
+        set: jest.fn(),
       };
 
-      firestore.runTransaction = sinon.stub().callsFake((fn: any) => fn(tx));
+      firestore.runTransaction = jest
+        .fn()
+        .mockImplementation((fn: any) => fn(tx));
 
       stripeFirestore.customerCollectionDbRef = {
-        doc: sinon.stub().callsFake((uid: any) => ({
-          collection: sinon.stub().callsFake(() => ({
-            doc: sinon.stub().callsFake((id: any) => ({
+        doc: jest.fn().mockImplementation((uid: any) => ({
+          collection: jest.fn().mockImplementation(() => ({
+            doc: jest.fn().mockImplementation((id: any) => ({
               id,
             })),
           })),
@@ -238,7 +275,7 @@ describe('StripeFirestore', () => {
 
     it('fetches and inserts the subscription', async () => {
       stripe.subscriptions = {
-        retrieve: sinon.stub().resolves(subscription1),
+        retrieve: jest.fn().mockResolvedValue(subscription1),
       };
 
       const result = await stripeFirestore.fetchAndInsertSubscription(
@@ -247,12 +284,12 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(subscription1);
-      sinon.assert.calledOnceWithExactly(
-        stripe.subscriptions.retrieve,
+      expect(stripe.subscriptions.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith(
         subscription1.id
       );
-      sinon.assert.callCount(tx.get, 1);
-      sinon.assert.callCount(tx.set, 1);
+      expect(tx.get).toHaveBeenCalledTimes(1);
+      expect(tx.set).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -261,22 +298,24 @@ describe('StripeFirestore', () => {
 
     beforeEach(() => {
       stripe.subscriptions = {
-        list: sinon.stub().returns({
-          autoPagingToArray: sinon.stub().resolves([subscription1]),
+        list: jest.fn().mockReturnValue({
+          autoPagingToArray: jest.fn().mockResolvedValue([subscription1]),
         }),
       };
 
       tx = {
-        get: sinon.stub().resolves({}),
-        set: sinon.stub(),
+        get: jest.fn().mockResolvedValue({}),
+        set: jest.fn(),
       };
 
-      firestore.runTransaction = sinon.stub().callsFake((fn: any) => fn(tx));
+      firestore.runTransaction = jest
+        .fn()
+        .mockImplementation((fn: any) => fn(tx));
 
       stripeFirestore.customerCollectionDbRef = {
-        doc: sinon.stub().callsFake((uid: any) => ({
-          collection: sinon.stub().callsFake(() => ({
-            doc: sinon.stub().callsFake((id: any) => ({
+        doc: jest.fn().mockImplementation((uid: any) => ({
+          collection: jest.fn().mockImplementation(() => ({
+            doc: jest.fn().mockImplementation((id: any) => ({
               id,
             })),
           })),
@@ -286,15 +325,13 @@ describe('StripeFirestore', () => {
 
     it('fetches and returns a customer', async () => {
       stripe.customers = {
-        retrieve: sinon
-          .stub()
-          .onFirstCall()
-          .resolves({
+        retrieve: jest
+          .fn()
+          .mockResolvedValueOnce({
             ...customer,
             subscriptions: { data: [subscription1] },
           })
-          .onSecondCall()
-          .resolves(customer),
+          .mockResolvedValueOnce(customer),
       };
 
       const result = await stripeFirestore.legacyFetchAndInsertCustomer(
@@ -302,28 +339,27 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(customer);
-      sinon.assert.calledTwice(stripe.customers.retrieve);
-      sinon.assert.calledOnceWithExactly(stripe.subscriptions.list, {
+      expect(stripe.customers.retrieve).toHaveBeenCalledTimes(2);
+      expect(stripe.subscriptions.list).toHaveBeenCalledTimes(1);
+      expect(stripe.subscriptions.list).toHaveBeenCalledWith({
         customer: customer.id,
         status: 'all',
         limit: 100,
       });
-      sinon.assert.callCount(tx.set, 2); // customer + subscription
-      sinon.assert.callCount(tx.get, 2); // customer + subscription
+      expect(tx.set).toHaveBeenCalledTimes(2); // customer + subscription
+      expect(tx.get).toHaveBeenCalledTimes(2); // customer + subscription
     });
 
     it('errors on customer deleted', async () => {
       const deletedCustomer = { ...customer, deleted: true };
       stripe.customers = {
-        retrieve: sinon
-          .stub()
-          .onFirstCall()
-          .resolves({
+        retrieve: jest
+          .fn()
+          .mockResolvedValueOnce({
             ...deletedCustomer,
             subscriptions: { data: [] },
           })
-          .onSecondCall()
-          .resolves(deletedCustomer),
+          .mockResolvedValueOnce(deletedCustomer),
       };
 
       try {
@@ -337,7 +373,7 @@ describe('StripeFirestore', () => {
     it('allows customer deleted when ignoreErrors is true', async () => {
       const deletedCustomer = { ...customer, deleted: true };
       stripe.customers = {
-        retrieve: sinon.stub().resolves(deletedCustomer),
+        retrieve: jest.fn().mockResolvedValue(deletedCustomer),
       };
 
       const result = await stripeFirestore.legacyFetchAndInsertCustomer(
@@ -346,19 +382,16 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(deletedCustomer);
-      sinon.assert.calledOnceWithExactly(
-        stripe.customers.retrieve,
-        customer.id,
-        {
-          expand: ['subscriptions'],
-        }
-      );
+      expect(stripe.customers.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.customers.retrieve).toHaveBeenCalledWith(customer.id, {
+        expand: ['subscriptions'],
+      });
     });
 
     it('allows customer with no uid when ignoreErrors is true', async () => {
       const noMetadataCustomer = { ...customer, metadata: {} };
       stripe.customers = {
-        retrieve: sinon.stub().resolves(noMetadataCustomer),
+        retrieve: jest.fn().mockResolvedValue(noMetadataCustomer),
       };
 
       const result = await stripeFirestore.legacyFetchAndInsertCustomer(
@@ -367,27 +400,22 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(noMetadataCustomer);
-      sinon.assert.calledOnceWithExactly(
-        stripe.customers.retrieve,
-        customer.id,
-        {
-          expand: ['subscriptions'],
-        }
-      );
+      expect(stripe.customers.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.customers.retrieve).toHaveBeenCalledWith(customer.id, {
+        expand: ['subscriptions'],
+      });
     });
 
     it('errors on missing uid', async () => {
       const missingUidCustomer = { ...customer, metadata: {} };
       stripe.customers = {
-        retrieve: sinon
-          .stub()
-          .onFirstCall()
-          .resolves({
+        retrieve: jest
+          .fn()
+          .mockResolvedValueOnce({
             ...missingUidCustomer,
             subscriptions: { data: [] },
           })
-          .onSecondCall()
-          .resolves(missingUidCustomer),
+          .mockResolvedValueOnce(missingUidCustomer),
       };
 
       try {
@@ -401,31 +429,40 @@ describe('StripeFirestore', () => {
 
   describe('insertCustomerRecordWithBackfill', () => {
     it('retrieves a record', async () => {
-      stripeFirestore.retrieveCustomer = sinon.fake.resolves(customer);
-      stripeFirestore.legacyFetchAndInsertCustomer =
-        sinon.fake.resolves(customer);
+      stripeFirestore.retrieveCustomer = jest.fn().mockResolvedValue(customer);
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue(customer);
       await stripeFirestore.insertCustomerRecordWithBackfill(
         'fxauid',
         customer
       );
-      sinon.assert.calledOnce(stripeFirestore.retrieveCustomer);
-      sinon.assert.notCalled(stripeFirestore.legacyFetchAndInsertCustomer);
+      expect(stripeFirestore.retrieveCustomer).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).not.toHaveBeenCalled();
     });
 
     it('backfills on customer not found', async () => {
-      stripeFirestore.retrieveCustomer = sinon.fake.rejects(
-        newFirestoreStripeError(
-          'no customer',
-          FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
-        )
-      );
-      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.retrieveCustomer = jest
+        .fn()
+        .mockRejectedValue(
+          newFirestoreStripeError(
+            'no customer',
+            FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+          )
+        );
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue({});
       await stripeFirestore.insertCustomerRecordWithBackfill(
         'fxauid',
         customer
       );
-      sinon.assert.calledOnce(stripeFirestore.retrieveCustomer);
-      sinon.assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
+      expect(stripeFirestore.retrieveCustomer).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -436,27 +473,29 @@ describe('StripeFirestore', () => {
         docs: [
           {
             ref: {
-              collection: sinon.fake.returns({
-                doc: sinon.fake.returns({ set: sinon.fake.resolves({}) }),
+              collection: jest.fn().mockReturnValue({
+                doc: jest
+                  .fn()
+                  .mockReturnValue({ set: jest.fn().mockResolvedValue({}) }),
               }),
             },
           },
         ],
       };
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves(customerSnap),
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(customerSnap),
       });
       const result = await stripeFirestore.insertSubscriptionRecord(
         deepCopy(subscription1)
       );
       expect(result).toEqual({});
-      sinon.assert.calledOnce(customerCollectionDbRef.where);
-      sinon.assert.calledOnce(customerSnap.docs[0].ref.collection);
+      expect(customerCollectionDbRef.where).toHaveBeenCalledTimes(1);
+      expect(customerSnap.docs[0].ref.collection).toHaveBeenCalledTimes(1);
     });
 
     it('errors on customer not found', async () => {
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves({ empty: true }),
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({ empty: true }),
       });
       try {
         await stripeFirestore.insertSubscriptionRecord(deepCopy(subscription1));
@@ -465,35 +504,43 @@ describe('StripeFirestore', () => {
         expect(err.name).toBe(
           FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
         );
-        sinon.assert.calledOnce(customerCollectionDbRef.where);
+        expect(customerCollectionDbRef.where).toHaveBeenCalledTimes(1);
       }
     });
   });
 
   describe('insertSubscriptionRecordWithBackfill', () => {
     it('inserts a record', async () => {
-      stripeFirestore.insertSubscriptionRecord = sinon.fake.resolves({});
+      stripeFirestore.insertSubscriptionRecord = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await stripeFirestore.insertSubscriptionRecordWithBackfill(
         deepCopy(subscription1)
       );
       expect(result).toBeUndefined();
-      sinon.assert.calledOnce(stripeFirestore.insertSubscriptionRecord);
+      expect(stripeFirestore.insertSubscriptionRecord).toHaveBeenCalledTimes(1);
     });
 
     it('backfills on customer not found', async () => {
-      stripeFirestore.insertSubscriptionRecord = sinon.fake.rejects(
-        newFirestoreStripeError(
-          'no customer',
-          FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
-        )
-      );
-      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.insertSubscriptionRecord = jest
+        .fn()
+        .mockRejectedValue(
+          newFirestoreStripeError(
+            'no customer',
+            FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+          )
+        );
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue({});
       const result = await stripeFirestore.insertSubscriptionRecordWithBackfill(
         deepCopy(subscription1)
       );
       expect(result).toBeUndefined();
-      sinon.assert.calledOnce(stripeFirestore.insertSubscriptionRecord);
-      sinon.assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
+      expect(stripeFirestore.insertSubscriptionRecord).toHaveBeenCalledTimes(1);
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -511,11 +558,13 @@ describe('StripeFirestore', () => {
           {
             ref: {
               // subscriptions call
-              collection: sinon.fake.returns({
-                doc: sinon.fake.returns({
+              collection: jest.fn().mockReturnValue({
+                doc: jest.fn().mockReturnValue({
                   // invoice call
-                  collection: sinon.fake.returns({
-                    doc: sinon.fake.returns({ set: sinon.fake.resolves({}) }),
+                  collection: jest.fn().mockReturnValue({
+                    doc: jest.fn().mockReturnValue({
+                      set: jest.fn().mockResolvedValue({}),
+                    }),
                   }),
                 }),
               }),
@@ -523,18 +572,18 @@ describe('StripeFirestore', () => {
           },
         ],
       };
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves(customerSnap),
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(customerSnap),
       });
       const result = await stripeFirestore.insertInvoiceRecord(invoice);
       expect(result).toEqual({});
-      sinon.assert.calledOnce(customerCollectionDbRef.where);
-      sinon.assert.calledOnce(customerSnap.docs[0].ref.collection);
+      expect(customerCollectionDbRef.where).toHaveBeenCalledTimes(1);
+      expect(customerSnap.docs[0].ref.collection).toHaveBeenCalledTimes(1);
     });
 
     it('errors on customer not found', async () => {
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves({ empty: true }),
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({ empty: true }),
       });
       try {
         await stripeFirestore.insertInvoiceRecord(invoice);
@@ -543,13 +592,13 @@ describe('StripeFirestore', () => {
         expect(err.name).toBe(
           FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
         );
-        sinon.assert.calledOnce(customerCollectionDbRef.where);
+        expect(customerCollectionDbRef.where).toHaveBeenCalledTimes(1);
       }
     });
 
     it('ignores customer not found when ignoreErrors is true', async () => {
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves({ empty: true }),
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({ empty: true }),
       });
       const result = await stripeFirestore.insertInvoiceRecord(invoice, true);
       expect(result).toEqual(invoice);
@@ -570,23 +619,25 @@ describe('StripeFirestore', () => {
 
     beforeEach(() => {
       tx = {
-        get: sinon.stub().resolves({}),
-        set: sinon.stub(),
+        get: jest.fn().mockResolvedValue({}),
+        set: jest.fn(),
       };
 
-      firestore.runTransaction = sinon.stub().callsFake((fn: any) => fn(tx));
+      firestore.runTransaction = jest
+        .fn()
+        .mockImplementation((fn: any) => fn(tx));
 
       stripe.invoices = {
-        retrieve: sinon.stub(),
+        retrieve: jest.fn(),
       };
 
       stripeFirestore.customerCollectionDbRef = {
-        where: sinon.stub(),
-        doc: sinon.stub().callsFake((uid: any) => ({
-          collection: sinon.stub().callsFake(() => ({
-            doc: sinon.stub().callsFake(() => ({
-              collection: sinon.stub().callsFake(() => ({
-                doc: sinon.stub().callsFake(() => ({})),
+        where: jest.fn(),
+        doc: jest.fn().mockImplementation((uid: any) => ({
+          collection: jest.fn().mockImplementation(() => ({
+            doc: jest.fn().mockImplementation(() => ({
+              collection: jest.fn().mockImplementation(() => ({
+                doc: jest.fn().mockImplementation(() => ({})),
               })),
             })),
           })),
@@ -595,7 +646,7 @@ describe('StripeFirestore', () => {
     });
 
     it('fetches and inserts an invoice for an existing customer and subscription', async () => {
-      stripe.invoices.retrieve.resolves(mockInvoice);
+      stripe.invoices.retrieve.mockResolvedValue(mockInvoice);
 
       const customerSnap = {
         empty: false,
@@ -605,30 +656,29 @@ describe('StripeFirestore', () => {
           },
         ],
       };
-      stripeFirestore.customerCollectionDbRef.where.returns({
-        get: sinon.stub().resolves(customerSnap),
+      stripeFirestore.customerCollectionDbRef.where.mockReturnValue({
+        get: jest.fn().mockResolvedValue(customerSnap),
       });
-      tx.get.resolves({
+      tx.get.mockResolvedValue({
         data: () => mockInvoice,
       });
 
       await stripeFirestore.fetchAndInsertInvoice(invoiceId, eventTime);
 
-      sinon.assert.calledOnce(stripe.invoices.retrieve);
-      sinon.assert.calledWithExactly(
-        stripe.invoices.retrieve.firstCall,
-        invoiceId
-      );
-      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
-      sinon.assert.callCount(tx.get, 1);
-      sinon.assert.callCount(tx.set, 1);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId);
+      expect(
+        stripeFirestore.customerCollectionDbRef.where
+      ).toHaveBeenCalledTimes(1);
+      expect(tx.get).toHaveBeenCalledTimes(1);
+      expect(tx.set).toHaveBeenCalledTimes(1);
     });
 
     it('errors on customer not found', async () => {
-      stripe.invoices.retrieve.resolves(mockInvoice);
+      stripe.invoices.retrieve.mockResolvedValue(mockInvoice);
 
-      stripeFirestore.customerCollectionDbRef.where.returns({
-        get: sinon.stub().resolves({ empty: true }),
+      stripeFirestore.customerCollectionDbRef.where.mockReturnValue({
+        get: jest.fn().mockResolvedValue({ empty: true }),
       });
 
       try {
@@ -638,18 +688,20 @@ describe('StripeFirestore', () => {
         expect(err.name).toBe(
           FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
         );
-        sinon.assert.calledOnce(stripe.invoices.retrieve);
-        sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
-        expect(tx.get.callCount).toBe(0);
-        expect(tx.set.callCount).toBe(0);
+        expect(stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
+        expect(
+          stripeFirestore.customerCollectionDbRef.where
+        ).toHaveBeenCalledTimes(1);
+        expect(tx.get).toHaveBeenCalledTimes(0);
+        expect(tx.set).toHaveBeenCalledTimes(0);
       }
     });
 
     it('ignores customer not found when ignoreErrors is true', async () => {
-      stripe.invoices.retrieve.resolves(mockInvoice);
+      stripe.invoices.retrieve.mockResolvedValue(mockInvoice);
 
-      stripeFirestore.customerCollectionDbRef.where.returns({
-        get: sinon.stub().resolves({ empty: true }),
+      stripeFirestore.customerCollectionDbRef.where.mockReturnValue({
+        get: jest.fn().mockResolvedValue({ empty: true }),
       });
 
       const result = await stripeFirestore.fetchAndInsertInvoice(
@@ -659,10 +711,13 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(mockInvoice);
-      sinon.assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
-      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
-      expect(tx.get.callCount).toBe(0);
-      expect(tx.set.callCount).toBe(0);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId);
+      expect(
+        stripeFirestore.customerCollectionDbRef.where
+      ).toHaveBeenCalledTimes(1);
+      expect(tx.get).toHaveBeenCalledTimes(0);
+      expect(tx.set).toHaveBeenCalledTimes(0);
     });
 
     it('returns invoice as-is when it has no subscription', async () => {
@@ -670,7 +725,9 @@ describe('StripeFirestore', () => {
         ...mockInvoice,
         subscription: null,
       };
-      stripe.invoices.retrieve.resolves(mockInvoiceWithoutSubscription);
+      stripe.invoices.retrieve.mockResolvedValue(
+        mockInvoiceWithoutSubscription
+      );
 
       const result = await stripeFirestore.fetchAndInsertInvoice(
         invoiceId,
@@ -678,14 +735,17 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(mockInvoiceWithoutSubscription);
-      sinon.assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
-      expect(stripeFirestore.customerCollectionDbRef.where.callCount).toBe(0);
-      expect(tx.get.callCount).toBe(0);
-      expect(tx.set.callCount).toBe(0);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId);
+      expect(
+        stripeFirestore.customerCollectionDbRef.where
+      ).toHaveBeenCalledTimes(0);
+      expect(tx.get).toHaveBeenCalledTimes(0);
+      expect(tx.set).toHaveBeenCalledTimes(0);
     });
 
     it('errors on missing uid', async () => {
-      stripe.invoices.retrieve.resolves(mockInvoice);
+      stripe.invoices.retrieve.mockResolvedValue(mockInvoice);
 
       const customerSnap = {
         empty: false,
@@ -695,8 +755,8 @@ describe('StripeFirestore', () => {
           },
         ],
       };
-      stripeFirestore.customerCollectionDbRef.where.returns({
-        get: sinon.stub().resolves(customerSnap),
+      stripeFirestore.customerCollectionDbRef.where.mockReturnValue({
+        get: jest.fn().mockResolvedValue(customerSnap),
       });
 
       try {
@@ -704,15 +764,17 @@ describe('StripeFirestore', () => {
         throw new Error('should have thrown');
       } catch (err: any) {
         expect(err.name).toBe(FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID);
-        sinon.assert.calledOnce(stripe.invoices.retrieve);
-        sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
-        expect(tx.get.callCount).toBe(0);
-        expect(tx.set.callCount).toBe(0);
+        expect(stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
+        expect(
+          stripeFirestore.customerCollectionDbRef.where
+        ).toHaveBeenCalledTimes(1);
+        expect(tx.get).toHaveBeenCalledTimes(0);
+        expect(tx.set).toHaveBeenCalledTimes(0);
       }
     });
 
     it('allows missing uid when ignoreErrors is true', async () => {
-      stripe.invoices.retrieve.resolves(mockInvoice);
+      stripe.invoices.retrieve.mockResolvedValue(mockInvoice);
 
       const customerSnap = {
         empty: false,
@@ -722,8 +784,8 @@ describe('StripeFirestore', () => {
           },
         ],
       };
-      stripeFirestore.customerCollectionDbRef.where.returns({
-        get: sinon.stub().resolves(customerSnap),
+      stripeFirestore.customerCollectionDbRef.where.mockReturnValue({
+        get: jest.fn().mockResolvedValue(customerSnap),
       });
 
       const result = await stripeFirestore.fetchAndInsertInvoice(
@@ -733,10 +795,13 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(mockInvoice);
-      sinon.assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
-      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
-      expect(tx.get.callCount).toBe(0);
-      expect(tx.set.callCount).toBe(0);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.invoices.retrieve).toHaveBeenCalledWith(invoiceId);
+      expect(
+        stripeFirestore.customerCollectionDbRef.where
+      ).toHaveBeenCalledTimes(1);
+      expect(tx.get).toHaveBeenCalledTimes(0);
+      expect(tx.set).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -747,27 +812,29 @@ describe('StripeFirestore', () => {
         docs: [
           {
             ref: {
-              collection: sinon.fake.returns({
-                doc: sinon.fake.returns({ set: sinon.fake.resolves({}) }),
+              collection: jest.fn().mockReturnValue({
+                doc: jest
+                  .fn()
+                  .mockReturnValue({ set: jest.fn().mockResolvedValue({}) }),
               }),
             },
           },
         ],
       };
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves(customerSnap),
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue(customerSnap),
       });
       const result = await stripeFirestore.insertPaymentMethodRecord(
         deepCopy(paymentMethod)
       );
       expect(result).toEqual({});
-      sinon.assert.calledOnce(customerCollectionDbRef.where);
-      sinon.assert.calledOnce(customerSnap.docs[0].ref.collection);
+      expect(customerCollectionDbRef.where).toHaveBeenCalledTimes(1);
+      expect(customerSnap.docs[0].ref.collection).toHaveBeenCalledTimes(1);
     });
 
     it('ignores customer not found when ignoreErrors is true', async () => {
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves({ empty: true }),
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({ empty: true }),
       });
       const result = await stripeFirestore.insertPaymentMethodRecord(
         deepCopy(paymentMethod),
@@ -777,8 +844,8 @@ describe('StripeFirestore', () => {
     });
 
     it('errors on customer not found', async () => {
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves({ empty: true }),
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({ empty: true }),
       });
       try {
         await stripeFirestore.insertPaymentMethodRecord(paymentMethod);
@@ -787,7 +854,7 @@ describe('StripeFirestore', () => {
         expect(err.name).toBe(
           FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
         );
-        sinon.assert.calledOnce(customerCollectionDbRef.where);
+        expect(customerCollectionDbRef.where).toHaveBeenCalledTimes(1);
       }
     });
   });
@@ -812,28 +879,30 @@ describe('StripeFirestore', () => {
 
     beforeEach(() => {
       tx = {
-        get: sinon.stub().resolves({}),
-        set: sinon.stub(),
+        get: jest.fn().mockResolvedValue({}),
+        set: jest.fn(),
       };
 
-      firestore.runTransaction = sinon.stub().callsFake((fn: any) => fn(tx));
+      firestore.runTransaction = jest
+        .fn()
+        .mockImplementation((fn: any) => fn(tx));
 
       stripe.paymentMethods = {
-        retrieve: sinon.stub(),
+        retrieve: jest.fn(),
       };
 
       stripeFirestore.customerCollectionDbRef = {
-        where: sinon.stub(),
-        doc: sinon.stub().callsFake((uid: any) => ({
-          collection: sinon.stub().callsFake(() => ({
-            doc: sinon.stub().callsFake(() => ({})),
+        where: jest.fn(),
+        doc: jest.fn().mockImplementation((uid: any) => ({
+          collection: jest.fn().mockImplementation(() => ({
+            doc: jest.fn().mockImplementation(() => ({})),
           })),
         })),
       };
     });
 
     it('fetches and inserts an attached payment method when customer exists and has uid', async () => {
-      stripe.paymentMethods.retrieve.resolves(mockPaymentMethod);
+      stripe.paymentMethods.retrieve.mockResolvedValue(mockPaymentMethod);
 
       const customerSnap = {
         empty: false,
@@ -843,10 +912,10 @@ describe('StripeFirestore', () => {
           },
         ],
       };
-      stripeFirestore.customerCollectionDbRef.where.returns({
-        get: sinon.stub().resolves(customerSnap),
+      stripeFirestore.customerCollectionDbRef.where.mockReturnValue({
+        get: jest.fn().mockResolvedValue(customerSnap),
       });
-      tx.get.resolves({
+      tx.get.mockResolvedValue({
         data: () => mockPaymentMethod,
       });
 
@@ -856,14 +925,15 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(mockPaymentMethod);
-      sinon.assert.calledOnce(stripe.paymentMethods.retrieve);
-      sinon.assert.calledWithExactly(
-        stripe.paymentMethods.retrieve.firstCall,
+      expect(stripe.paymentMethods.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.paymentMethods.retrieve).toHaveBeenCalledWith(
         paymentMethodId
       );
-      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
-      sinon.assert.callCount(tx.get, 1);
-      sinon.assert.callCount(tx.set, 1);
+      expect(
+        stripeFirestore.customerCollectionDbRef.where
+      ).toHaveBeenCalledTimes(1);
+      expect(tx.get).toHaveBeenCalledTimes(1);
+      expect(tx.set).toHaveBeenCalledTimes(1);
     });
 
     it('returns payment method when it is not attached to a customer', async () => {
@@ -871,7 +941,9 @@ describe('StripeFirestore', () => {
         ...mockPaymentMethod,
         customer: null,
       };
-      stripe.paymentMethods.retrieve.resolves(mockPaymentMethodWithoutCustomer);
+      stripe.paymentMethods.retrieve.mockResolvedValue(
+        mockPaymentMethodWithoutCustomer
+      );
 
       const result = await stripeFirestore.fetchAndInsertPaymentMethod(
         paymentMethodId,
@@ -879,20 +951,22 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(mockPaymentMethodWithoutCustomer);
-      sinon.assert.calledOnceWithExactly(
-        stripe.paymentMethods.retrieve,
+      expect(stripe.paymentMethods.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.paymentMethods.retrieve).toHaveBeenCalledWith(
         paymentMethodId
       );
-      expect(stripeFirestore.customerCollectionDbRef.where.callCount).toBe(0);
-      expect(tx.get.callCount).toBe(0);
-      expect(tx.set.callCount).toBe(0);
+      expect(
+        stripeFirestore.customerCollectionDbRef.where
+      ).toHaveBeenCalledTimes(0);
+      expect(tx.get).toHaveBeenCalledTimes(0);
+      expect(tx.set).toHaveBeenCalledTimes(0);
     });
 
     it('errors on customer not found', async () => {
-      stripe.paymentMethods.retrieve.resolves(mockPaymentMethod);
+      stripe.paymentMethods.retrieve.mockResolvedValue(mockPaymentMethod);
 
-      stripeFirestore.customerCollectionDbRef.where.returns({
-        get: sinon.stub().resolves({ empty: true }),
+      stripeFirestore.customerCollectionDbRef.where.mockReturnValue({
+        get: jest.fn().mockResolvedValue({ empty: true }),
       });
 
       try {
@@ -905,21 +979,23 @@ describe('StripeFirestore', () => {
         expect(err.name).toBe(
           FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
         );
-        sinon.assert.calledOnceWithExactly(
-          stripe.paymentMethods.retrieve,
+        expect(stripe.paymentMethods.retrieve).toHaveBeenCalledTimes(1);
+        expect(stripe.paymentMethods.retrieve).toHaveBeenCalledWith(
           paymentMethodId
         );
-        sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
-        expect(tx.get.callCount).toBe(0);
-        expect(tx.set.callCount).toBe(0);
+        expect(
+          stripeFirestore.customerCollectionDbRef.where
+        ).toHaveBeenCalledTimes(1);
+        expect(tx.get).toHaveBeenCalledTimes(0);
+        expect(tx.set).toHaveBeenCalledTimes(0);
       }
     });
 
     it('ignores customer not found when ignoreErrors is true', async () => {
-      stripe.paymentMethods.retrieve.resolves(mockPaymentMethod);
+      stripe.paymentMethods.retrieve.mockResolvedValue(mockPaymentMethod);
 
-      stripeFirestore.customerCollectionDbRef.where.returns({
-        get: sinon.stub().resolves({ empty: true }),
+      stripeFirestore.customerCollectionDbRef.where.mockReturnValue({
+        get: jest.fn().mockResolvedValue({ empty: true }),
       });
 
       const result = await stripeFirestore.fetchAndInsertPaymentMethod(
@@ -929,17 +1005,19 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(mockPaymentMethod);
-      sinon.assert.calledOnceWithExactly(
-        stripe.paymentMethods.retrieve,
+      expect(stripe.paymentMethods.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.paymentMethods.retrieve).toHaveBeenCalledWith(
         paymentMethodId
       );
-      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
-      expect(tx.get.callCount).toBe(0);
-      expect(tx.set.callCount).toBe(0);
+      expect(
+        stripeFirestore.customerCollectionDbRef.where
+      ).toHaveBeenCalledTimes(1);
+      expect(tx.get).toHaveBeenCalledTimes(0);
+      expect(tx.set).toHaveBeenCalledTimes(0);
     });
 
     it('errors on missing uid', async () => {
-      stripe.paymentMethods.retrieve.resolves(mockPaymentMethod);
+      stripe.paymentMethods.retrieve.mockResolvedValue(mockPaymentMethod);
 
       const customerSnap = {
         empty: false,
@@ -949,8 +1027,8 @@ describe('StripeFirestore', () => {
           },
         ],
       };
-      stripeFirestore.customerCollectionDbRef.where.returns({
-        get: sinon.stub().resolves(customerSnap),
+      stripeFirestore.customerCollectionDbRef.where.mockReturnValue({
+        get: jest.fn().mockResolvedValue(customerSnap),
       });
 
       try {
@@ -961,18 +1039,20 @@ describe('StripeFirestore', () => {
         throw new Error('should have thrown');
       } catch (err: any) {
         expect(err.name).toBe(FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID);
-        sinon.assert.calledOnceWithExactly(
-          stripe.paymentMethods.retrieve,
+        expect(stripe.paymentMethods.retrieve).toHaveBeenCalledTimes(1);
+        expect(stripe.paymentMethods.retrieve).toHaveBeenCalledWith(
           paymentMethodId
         );
-        sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
-        expect(tx.get.callCount).toBe(0);
-        expect(tx.set.callCount).toBe(0);
+        expect(
+          stripeFirestore.customerCollectionDbRef.where
+        ).toHaveBeenCalledTimes(1);
+        expect(tx.get).toHaveBeenCalledTimes(0);
+        expect(tx.set).toHaveBeenCalledTimes(0);
       }
     });
 
     it('allows missing uid when ignoreErrors is true', async () => {
-      stripe.paymentMethods.retrieve.resolves(mockPaymentMethod);
+      stripe.paymentMethods.retrieve.mockResolvedValue(mockPaymentMethod);
 
       const customerSnap = {
         empty: false,
@@ -982,8 +1062,8 @@ describe('StripeFirestore', () => {
           },
         ],
       };
-      stripeFirestore.customerCollectionDbRef.where.returns({
-        get: sinon.stub().resolves(customerSnap),
+      stripeFirestore.customerCollectionDbRef.where.mockReturnValue({
+        get: jest.fn().mockResolvedValue(customerSnap),
       });
 
       const result = await stripeFirestore.fetchAndInsertPaymentMethod(
@@ -993,47 +1073,62 @@ describe('StripeFirestore', () => {
       );
 
       expect(result).toEqual(mockPaymentMethod);
-      sinon.assert.calledOnceWithExactly(
-        stripe.paymentMethods.retrieve,
+      expect(stripe.paymentMethods.retrieve).toHaveBeenCalledTimes(1);
+      expect(stripe.paymentMethods.retrieve).toHaveBeenCalledWith(
         paymentMethodId
       );
-      sinon.assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
-      expect(tx.get.callCount).toBe(0);
-      expect(tx.set.callCount).toBe(0);
+      expect(
+        stripeFirestore.customerCollectionDbRef.where
+      ).toHaveBeenCalledTimes(1);
+      expect(tx.get).toHaveBeenCalledTimes(0);
+      expect(tx.set).toHaveBeenCalledTimes(0);
     });
   });
 
   describe('insertPaymentMethodRecordWithBackfill', () => {
     it('inserts a record', async () => {
-      stripeFirestore.insertPaymentMethodRecord = sinon.fake.resolves({});
-      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
+      stripeFirestore.insertPaymentMethodRecord = jest
+        .fn()
+        .mockResolvedValue({});
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue({});
       const result =
         await stripeFirestore.insertPaymentMethodRecordWithBackfill(
           deepCopy(paymentMethod)
         );
       expect(result).toBeUndefined();
-      sinon.assert.calledOnce(stripeFirestore.insertPaymentMethodRecord);
-      sinon.assert.notCalled(stripeFirestore.legacyFetchAndInsertCustomer);
+      expect(stripeFirestore.insertPaymentMethodRecord).toHaveBeenCalledTimes(
+        1
+      );
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).not.toHaveBeenCalled();
     });
 
     it('backfills on customer not found', async () => {
-      const insertStub = sinon.stub();
+      const insertStub = jest.fn();
       stripeFirestore.insertPaymentMethodRecord = insertStub;
       insertStub
-        .onCall(0)
-        .rejects(
+        .mockRejectedValueOnce(
           newFirestoreStripeError(
             'no customer',
             FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
           )
-        );
-      insertStub.onCall(1).resolves({});
-      stripeFirestore.legacyFetchAndInsertCustomer = sinon.fake.resolves({});
+        )
+        .mockResolvedValueOnce({});
+      stripeFirestore.legacyFetchAndInsertCustomer = jest
+        .fn()
+        .mockResolvedValue({});
       await stripeFirestore.insertPaymentMethodRecordWithBackfill(
         deepCopy(paymentMethod)
       );
-      sinon.assert.calledTwice(stripeFirestore.insertPaymentMethodRecord);
-      sinon.assert.calledOnce(stripeFirestore.legacyFetchAndInsertCustomer);
+      expect(stripeFirestore.insertPaymentMethodRecord).toHaveBeenCalledTimes(
+        2
+      );
+      expect(
+        stripeFirestore.legacyFetchAndInsertCustomer
+      ).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1044,26 +1139,26 @@ describe('StripeFirestore', () => {
         docs: [
           {
             ref: {
-              delete: sinon.fake.resolves({}),
+              delete: jest.fn().mockResolvedValue({}),
             },
           },
         ],
       };
-      firestore.collectionGroup = sinon.fake.returns({
-        where: sinon.fake.returns({
-          get: sinon.fake.resolves(paymentMethodSnap),
+      firestore.collectionGroup = jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          get: jest.fn().mockResolvedValue(paymentMethodSnap),
         }),
       });
       await stripeFirestore.removePaymentMethodRecord(deepCopy(paymentMethod));
-      sinon.assert.calledOnce(firestore.collectionGroup);
-      sinon.assert.calledOnce(paymentMethodSnap.docs[0].ref.delete);
+      expect(firestore.collectionGroup).toHaveBeenCalledTimes(1);
+      expect(paymentMethodSnap.docs[0].ref.delete).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('retrieveCustomer', () => {
     it('fetches a customer by uid', async () => {
-      customerCollectionDbRef.doc = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      customerCollectionDbRef.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           exists: true,
           data: () => customer,
         }),
@@ -1075,12 +1170,12 @@ describe('StripeFirestore', () => {
     });
 
     it('fetches a customer by customerId', async () => {
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           empty: false,
           docs: [
             {
-              data: sinon.fake.returns(customer),
+              data: jest.fn().mockReturnValue(customer),
             },
           ],
         }),
@@ -1092,8 +1187,8 @@ describe('StripeFirestore', () => {
     });
 
     it('errors when customer is not found', async () => {
-      customerCollectionDbRef.doc = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      customerCollectionDbRef.doc = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           exists: false,
         }),
       });
@@ -1116,14 +1211,14 @@ describe('StripeFirestore', () => {
         const subscriptionSnap = {
           docs: [{ data: () => ({ ...customer.subscriptions.data[0] }) }],
         };
-        customerCollectionDbRef.where = sinon.fake.returns({
-          get: sinon.fake.resolves({
+        customerCollectionDbRef.where = jest.fn().mockReturnValue({
+          get: jest.fn().mockResolvedValue({
             empty: false,
             docs: [
               {
                 ref: {
-                  collection: sinon.fake.returns({
-                    get: sinon.fake.resolves(subscriptionSnap),
+                  collection: jest.fn().mockReturnValue({
+                    get: jest.fn().mockResolvedValue(subscriptionSnap),
                   }),
                 },
               },
@@ -1160,14 +1255,14 @@ describe('StripeFirestore', () => {
       const subscriptionSnap = {
         docs: [{ data: () => sub1 }, { data: () => sub2 }],
       };
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           empty: false,
           docs: [
             {
               ref: {
-                collection: sinon.fake.returns({
-                  get: sinon.fake.resolves(subscriptionSnap),
+                collection: jest.fn().mockReturnValue({
+                  get: jest.fn().mockResolvedValue(subscriptionSnap),
                 }),
               },
             },
@@ -1181,8 +1276,8 @@ describe('StripeFirestore', () => {
     });
 
     it('errors on customer not found', async () => {
-      customerCollectionDbRef.where = sinon.fake.returns({
-        get: sinon.fake.resolves({
+      customerCollectionDbRef.where = jest.fn().mockReturnValue({
+        get: jest.fn().mockResolvedValue({
           empty: true,
         }),
       });
@@ -1207,9 +1302,9 @@ describe('StripeFirestore', () => {
           },
         ],
       };
-      firestore.collectionGroup = sinon.fake.returns({
-        where: sinon.fake.returns({
-          get: sinon.fake.resolves(subscriptionSnap),
+      firestore.collectionGroup = jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          get: jest.fn().mockResolvedValue(subscriptionSnap),
         }),
       });
       const result = await stripeFirestore.retrieveSubscription(
@@ -1219,9 +1314,9 @@ describe('StripeFirestore', () => {
     });
 
     it('errors on subscription not found', async () => {
-      firestore.collectionGroup = sinon.fake.returns({
-        where: sinon.fake.returns({
-          get: sinon.fake.resolves({ empty: true }),
+      firestore.collectionGroup = jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          get: jest.fn().mockResolvedValue({ empty: true }),
         }),
       });
       try {
@@ -1251,9 +1346,9 @@ describe('StripeFirestore', () => {
           },
         ],
       };
-      firestore.collectionGroup = sinon.fake.returns({
-        where: sinon.fake.returns({
-          get: sinon.fake.resolves(invoiceSnap),
+      firestore.collectionGroup = jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          get: jest.fn().mockResolvedValue(invoiceSnap),
         }),
       });
       const result = await stripeFirestore.retrieveInvoice(invoice.id);
@@ -1261,9 +1356,9 @@ describe('StripeFirestore', () => {
     });
 
     it('errors on invoice not found', async () => {
-      firestore.collectionGroup = sinon.fake.returns({
-        where: sinon.fake.returns({
-          get: sinon.fake.resolves({ empty: true }),
+      firestore.collectionGroup = jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          get: jest.fn().mockResolvedValue({ empty: true }),
         }),
       });
       try {
@@ -1285,9 +1380,9 @@ describe('StripeFirestore', () => {
           },
         ],
       };
-      firestore.collectionGroup = sinon.fake.returns({
-        where: sinon.fake.returns({
-          get: sinon.fake.resolves(paymentMethodSnap),
+      firestore.collectionGroup = jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          get: jest.fn().mockResolvedValue(paymentMethodSnap),
         }),
       });
       const result = await stripeFirestore.retrievePaymentMethod(
@@ -1297,9 +1392,9 @@ describe('StripeFirestore', () => {
     });
 
     it('errors on payment method not found', async () => {
-      firestore.collectionGroup = sinon.fake.returns({
-        where: sinon.fake.returns({
-          get: sinon.fake.resolves({ empty: true }),
+      firestore.collectionGroup = jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          get: jest.fn().mockResolvedValue({ empty: true }),
         }),
       });
       try {
@@ -1316,8 +1411,8 @@ describe('StripeFirestore', () => {
   describe('removeCustomerRecursive', () => {
     beforeEach(() => {
       const bulkWriterMock = new BulkWriterMock();
-      firestore.bulkWriter = sinon.fake.returns(bulkWriterMock);
-      customerCollectionDbRef.doc = sinon.fake.returns({
+      firestore.bulkWriter = jest.fn().mockReturnValue(bulkWriterMock);
+      customerCollectionDbRef.doc = jest.fn().mockReturnValue({
         path: '/test/path',
       });
     });

@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 let hashResult = Array(40).fill('0').join('');
 const hash = {
-  update: sinon.spy(),
-  digest: sinon.spy(() => hashResult),
+  update: jest.fn(),
+  digest: jest.fn(() => hashResult),
 };
 const mockCrypto = {
-  createHash: sinon.spy(() => hash),
+  createHash: jest.fn(() => hash),
 };
 
 jest.mock('crypto', () => mockCrypto);
@@ -28,9 +26,9 @@ const features = featuresModule(config);
 
 describe('features', () => {
   beforeEach(() => {
-    mockCrypto.createHash.resetHistory();
-    hash.update.resetHistory();
-    hash.digest.resetHistory();
+    mockCrypto.createHash.mockClear();
+    hash.update.mockClear();
+    hash.digest.mockClear();
   });
 
   it('interface is correct', () => {
@@ -50,9 +48,9 @@ describe('features', () => {
 
     expect(features.isSampledUser(sampleRate, uid, 'foo')).toBe(true);
 
-    expect(mockCrypto.createHash.callCount).toBe(0);
-    expect(hash.update.callCount).toBe(0);
-    expect(hash.digest.callCount).toBe(0);
+    expect(mockCrypto.createHash).toHaveBeenCalledTimes(0);
+    expect(hash.update).toHaveBeenCalledTimes(0);
+    expect(hash.digest).toHaveBeenCalledTimes(0);
   });
 
   it('isSampledUser returns false when sample rate is 0', () => {
@@ -62,9 +60,9 @@ describe('features', () => {
 
     expect(features.isSampledUser(sampleRate, uid, 'foo')).toBe(false);
 
-    expect(mockCrypto.createHash.callCount).toBe(0);
-    expect(hash.update.callCount).toBe(0);
-    expect(hash.digest.callCount).toBe(0);
+    expect(mockCrypto.createHash).toHaveBeenCalledTimes(0);
+    expect(hash.update).toHaveBeenCalledTimes(0);
+    expect(hash.digest).toHaveBeenCalledTimes(0);
   });
 
   it('isSampledUser returns true when sample rate is greater than cohort value', () => {
@@ -75,23 +73,15 @@ describe('features', () => {
 
     expect(features.isSampledUser(sampleRate, uid, 'foo')).toBe(true);
 
-    expect(mockCrypto.createHash.callCount).toBe(1);
-    let args: any = mockCrypto.createHash.args[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toBe('sha1');
+    expect(mockCrypto.createHash).toHaveBeenCalledTimes(1);
+    expect(mockCrypto.createHash).toHaveBeenNthCalledWith(1, 'sha1');
 
-    expect(hash.update.callCount).toBe(2);
-    args = hash.update.args[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toBe(uid.toString());
-    args = hash.update.args[1];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toBe('foo');
+    expect(hash.update).toHaveBeenCalledTimes(2);
+    expect(hash.update).toHaveBeenNthCalledWith(1, uid.toString());
+    expect(hash.update).toHaveBeenNthCalledWith(2, 'foo');
 
-    expect(hash.digest.callCount).toBe(1);
-    args = hash.digest.args[0];
-    expect(args).toHaveLength(1);
-    expect(args[0]).toBe('hex');
+    expect(hash.digest).toHaveBeenCalledTimes(1);
+    expect(hash.digest).toHaveBeenNthCalledWith(1, 'hex');
   });
 
   it('isSampledUser returns false when sample rate equals cohort value', () => {
@@ -101,11 +91,11 @@ describe('features', () => {
 
     expect(features.isSampledUser(sampleRate, uid, 'bar')).toBe(false);
 
-    expect(mockCrypto.createHash.callCount).toBe(1);
-    expect(hash.update.callCount).toBe(2);
-    expect(hash.update.args[0][0]).toBe(uid.toString());
-    expect(hash.update.args[1][0]).toBe('bar');
-    expect(hash.digest.callCount).toBe(1);
+    expect(mockCrypto.createHash).toHaveBeenCalledTimes(1);
+    expect(hash.update).toHaveBeenCalledTimes(2);
+    expect(hash.update).toHaveBeenNthCalledWith(1, uid.toString());
+    expect(hash.update).toHaveBeenNthCalledWith(2, 'bar');
+    expect(hash.digest).toHaveBeenCalledTimes(1);
   });
 
   it('isSampledUser returns false when sample rate is less than cohort value', () => {
@@ -121,15 +111,15 @@ describe('features', () => {
     // First 27 characters are ignored, last 13 are 0.02 * 0xfffffffffffff
     hashResult = '000000000000000000000000000051eb851eb852';
 
-    mockCrypto.createHash.resetHistory();
-    hash.update.resetHistory();
-    hash.digest.resetHistory();
+    mockCrypto.createHash.mockClear();
+    hash.update.mockClear();
+    hash.digest.mockClear();
 
     expect(features.isSampledUser(sampleRate, uid, 'wibble')).toBe(true);
 
-    expect(hash.update.callCount).toBe(2);
-    expect(hash.update.args[0][0]).toBe(uid);
-    expect(hash.update.args[1][0]).toBe('wibble');
+    expect(hash.update).toHaveBeenCalledTimes(2);
+    expect(hash.update).toHaveBeenNthCalledWith(1, uid);
+    expect(hash.update).toHaveBeenNthCalledWith(2, 'wibble');
   });
 
   it('isLastAccessTimeEnabledForUser', () => {

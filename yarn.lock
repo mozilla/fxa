@@ -20143,7 +20143,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:*, @types/sinon@npm:^17.0.0, @types/sinon@npm:^17.0.3":
+"@types/sinon@npm:*, @types/sinon@npm:^17.0.0":
   version: 17.0.4
   resolution: "@types/sinon@npm:17.0.4"
   dependencies:
@@ -31824,7 +31824,6 @@ __metadata:
     "@types/nodemailer": "npm:^7.0.4"
     "@types/request": "npm:2.48.5"
     "@types/sass": "npm:^1"
-    "@types/sinon": "npm:^17.0.3"
     "@types/uuid": "npm:^10.0.0"
     "@types/verror": "npm:^1.10.4"
     "@types/webpack": "npm:5.28.5"
@@ -31897,7 +31896,6 @@ __metadata:
     pm2: "npm:^6.0.14"
     poolee: "npm:^1.0.1"
     prettier: "npm:^3.5.3"
-    proxyquire: "npm:^2.1.3"
     punycode.js: "npm:2.3.0"
     qrcode: "npm:^1.5.1"
     read: "npm:3.0.1"
@@ -31906,7 +31904,6 @@ __metadata:
     rimraf: "npm:^6.0.1"
     sass: "npm:^1.80.4"
     simplesmtp: "npm:0.3.35"
-    sinon: "npm:^9.0.3"
     storybook: "npm:^8.0.0"
     through: "npm:2.3.8"
     ts-jest: "npm:^29.1.2"

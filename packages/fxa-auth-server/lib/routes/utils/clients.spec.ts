@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import moment from 'moment';
 
 const mocks = require('../../../test/mocks');
@@ -10,7 +9,6 @@ const mocks = require('../../../test/mocks');
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
 /**
- * Simplified mockRequest — the shared mocks.mockRequest() uses proxyquire
  * with relative paths that don't resolve from lib/routes/.
  */
 function mockRequest(data: any) {
@@ -45,12 +43,12 @@ function mockRequest(data: any) {
     auth: {
       credentials: data.credentials,
     },
-    clearMetricsContext: sinon.stub(),
-    emitMetricsEvent: sinon.stub().resolves(),
-    emitRouteFlowEvent: sinon.stub().resolves(),
-    gatherMetricsContext: sinon
-      .stub()
-      .callsFake((d: any) => Promise.resolve(d)),
+    clearMetricsContext: jest.fn(),
+    emitMetricsEvent: jest.fn().mockResolvedValue(),
+    emitRouteFlowEvent: jest.fn().mockResolvedValue(),
+    gatherMetricsContext: jest
+      .fn()
+      .mockImplementation((d: any) => Promise.resolve(d)),
     headers: {
       'user-agent': 'test user-agent',
     },
@@ -89,7 +87,7 @@ describe('clientUtils.formatLocation', () => {
     const client: any = {};
     clientUtils.formatLocation(client, request);
     expect(client.location).toEqual({});
-    expect(log.warn.callCount).toBe(0);
+    expect(log.warn).toHaveBeenCalledTimes(0);
   });
 
   it('sets empty location if location is null', () => {
@@ -98,7 +96,7 @@ describe('clientUtils.formatLocation', () => {
     };
     clientUtils.formatLocation(client, request);
     expect(client.location).toEqual({});
-    expect(log.warn.callCount).toBe(0);
+    expect(log.warn).toHaveBeenCalledTimes(0);
   });
 
   it('leaves location info untranslated by default', () => {
@@ -118,7 +116,7 @@ describe('clientUtils.formatLocation', () => {
       country: 'USA',
       stateCode: '1234',
     });
-    expect(log.warn.callCount).toBe(0);
+    expect(log.warn).toHaveBeenCalledTimes(0);
   });
 
   it('leaves location info untranslated for english', () => {
@@ -139,7 +137,7 @@ describe('clientUtils.formatLocation', () => {
       country: 'USA',
       stateCode: '1234',
     });
-    expect(log.warn.callCount).toBe(0);
+    expect(log.warn).toHaveBeenCalledTimes(0);
   });
 
   it('translates only the country name for other languages', () => {
@@ -157,7 +155,7 @@ describe('clientUtils.formatLocation', () => {
     expect(client.location).toEqual({
       country: 'Royaume-Uni',
     });
-    expect(log.warn.callCount).toBe(0);
+    expect(log.warn).toHaveBeenCalledTimes(0);
   });
 });
 

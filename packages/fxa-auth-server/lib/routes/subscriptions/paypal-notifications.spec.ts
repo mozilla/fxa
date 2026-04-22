@@ -2,16 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import * as uuid from 'uuid';
 import { Container } from 'typedi';
 
-const sandbox = sinon.createSandbox();
-
 const dbStub = {
-  getPayPalBAByBAId: sandbox.stub(),
+  getPayPalBAByBAId: jest.fn(),
   Account: {} as any,
-  updatePayPalBA: sandbox.stub(),
+  updatePayPalBA: jest.fn(),
 };
 
 jest.mock('fxa-shared/db/models/auth', () => dbStub);
@@ -74,7 +71,7 @@ describe('PayPalNotificationHandler', () => {
     mailer = mocks.mockMailer();
 
     profile = mocks.mockProfile({
-      deleteCache: sinon.spy(async (uid: any) => ({})),
+      deleteCache: jest.fn(async (uid: any) => ({})),
     });
 
     stripeHelper = {};
@@ -97,14 +94,15 @@ describe('PayPalNotificationHandler', () => {
 
   afterEach(() => {
     Container.reset();
-    sandbox.reset();
+    jest.clearAllMocks();
   });
 
   describe('handleIpnEvent', () => {
     it('handles a request successfully', () => {
-      handler.verifyAndDispatchEvent = sinon.fake.returns({});
+      handler.verifyAndDispatchEvent = jest.fn().mockReturnValue({});
       const result = handler.handleIpnEvent({});
-      sinon.assert.calledOnceWithExactly(handler.verifyAndDispatchEvent, {});
+      expect(handler.verifyAndDispatchEvent).toHaveBeenCalledTimes(1);
+      expect(handler.verifyAndDispatchEvent).toHaveBeenCalledWith({});
       expect(result).toEqual({});
     });
   });
@@ -117,17 +115,15 @@ describe('PayPalNotificationHandler', () => {
       const ipnMessage = {
         txn_type: 'merch_pmt',
       };
-      paypalHelper.verifyIpnMessage = sinon.fake.resolves(true);
-      paypalHelper.extractIpnMessage = sinon.fake.returns(ipnMessage);
-      handler.handleMerchPayment = sinon.fake.resolves({});
+      paypalHelper.verifyIpnMessage = jest.fn().mockResolvedValue(true);
+      paypalHelper.extractIpnMessage = jest.fn().mockReturnValue(ipnMessage);
+      handler.handleMerchPayment = jest.fn().mockResolvedValue({});
       const result = await handler.verifyAndDispatchEvent(request);
       expect(result).toEqual({});
-      sinon.assert.calledOnce(paypalHelper.verifyIpnMessage);
-      sinon.assert.calledOnce(paypalHelper.extractIpnMessage);
-      sinon.assert.calledOnceWithExactly(
-        handler.handleMerchPayment,
-        ipnMessage
-      );
+      expect(paypalHelper.verifyIpnMessage).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.extractIpnMessage).toHaveBeenCalledTimes(1);
+      expect(handler.handleMerchPayment).toHaveBeenCalledTimes(1);
+      expect(handler.handleMerchPayment).toHaveBeenCalledWith(ipnMessage);
     });
 
     it('handles a mp_cancel request successfully', async () => {
@@ -137,14 +133,15 @@ describe('PayPalNotificationHandler', () => {
       const ipnMessage = {
         txn_type: 'mp_cancel',
       };
-      paypalHelper.verifyIpnMessage = sinon.fake.resolves(true);
-      paypalHelper.extractIpnMessage = sinon.fake.returns(ipnMessage);
-      handler.handleMpCancel = sinon.fake.resolves({});
+      paypalHelper.verifyIpnMessage = jest.fn().mockResolvedValue(true);
+      paypalHelper.extractIpnMessage = jest.fn().mockReturnValue(ipnMessage);
+      handler.handleMpCancel = jest.fn().mockResolvedValue({});
       const result = await handler.verifyAndDispatchEvent(request);
       expect(result).toEqual({});
-      sinon.assert.calledOnce(paypalHelper.verifyIpnMessage);
-      sinon.assert.calledOnce(paypalHelper.extractIpnMessage);
-      sinon.assert.calledOnceWithExactly(handler.handleMpCancel, ipnMessage);
+      expect(paypalHelper.verifyIpnMessage).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.extractIpnMessage).toHaveBeenCalledTimes(1);
+      expect(handler.handleMpCancel).toHaveBeenCalledTimes(1);
+      expect(handler.handleMpCancel).toHaveBeenCalledWith(ipnMessage);
     });
 
     it('handles an unknown IPN request successfully', async () => {
@@ -154,14 +151,14 @@ describe('PayPalNotificationHandler', () => {
       const ipnMessage = {
         txn_type: 'other',
       };
-      paypalHelper.verifyIpnMessage = sinon.fake.resolves(true);
-      paypalHelper.extractIpnMessage = sinon.fake.returns(ipnMessage);
-      handler.handleMerchPayment = sinon.fake.resolves({});
+      paypalHelper.verifyIpnMessage = jest.fn().mockResolvedValue(true);
+      paypalHelper.extractIpnMessage = jest.fn().mockReturnValue(ipnMessage);
+      handler.handleMerchPayment = jest.fn().mockResolvedValue({});
       const result = await handler.verifyAndDispatchEvent(request);
       expect(result).toEqual(false);
-      sinon.assert.calledOnce(paypalHelper.verifyIpnMessage);
-      sinon.assert.calledOnce(paypalHelper.extractIpnMessage);
-      sinon.assert.calledWithExactly(log.info, 'Unhandled Ipn message', {
+      expect(paypalHelper.verifyIpnMessage).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.extractIpnMessage).toHaveBeenCalledTimes(1);
+      expect(log.info).toHaveBeenCalledWith('Unhandled Ipn message', {
         payload: ipnMessage,
       });
     });
@@ -173,24 +170,24 @@ describe('PayPalNotificationHandler', () => {
       const ipnMessage = {
         txn_type: 'mp_signup',
       };
-      paypalHelper.verifyIpnMessage = sinon.fake.resolves(true);
-      paypalHelper.extractIpnMessage = sinon.fake.returns(ipnMessage);
-      handler.handleMerchPayment = sinon.fake.resolves({});
+      paypalHelper.verifyIpnMessage = jest.fn().mockResolvedValue(true);
+      paypalHelper.extractIpnMessage = jest.fn().mockReturnValue(ipnMessage);
+      handler.handleMerchPayment = jest.fn().mockResolvedValue({});
       const result = await handler.verifyAndDispatchEvent(request);
       expect(result).toEqual(false);
-      sinon.assert.calledOnce(paypalHelper.verifyIpnMessage);
-      sinon.assert.calledOnce(paypalHelper.extractIpnMessage);
+      expect(paypalHelper.verifyIpnMessage).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.extractIpnMessage).toHaveBeenCalledTimes(1);
     });
 
     it('handles an invalid request successfully', async () => {
       const request = {
         payload: 'samplepayload',
       };
-      paypalHelper.verifyIpnMessage = sinon.fake.resolves(false);
+      paypalHelper.verifyIpnMessage = jest.fn().mockResolvedValue(false);
       const result = await handler.verifyAndDispatchEvent(request);
       expect(result).toEqual(false);
-      sinon.assert.calledOnce(paypalHelper.verifyIpnMessage);
-      sinon.assert.calledOnce(log.error);
+      expect(paypalHelper.verifyIpnMessage).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -212,10 +209,13 @@ describe('PayPalNotificationHandler', () => {
     const refundReturn = undefined;
 
     beforeEach(() => {
-      stripeHelper.getInvoicePaypalTransactionId =
-        sinon.fake.returns(ipnTransactionId);
-      stripeHelper.payInvoiceOutOfBand = sinon.fake.resolves(paidInvoice);
-      paypalHelper.issueRefund = sinon.fake.resolves(refundReturn);
+      stripeHelper.getInvoicePaypalTransactionId = jest
+        .fn()
+        .mockReturnValue(ipnTransactionId);
+      stripeHelper.payInvoiceOutOfBand = jest
+        .fn()
+        .mockResolvedValue(paidInvoice);
+      paypalHelper.issueRefund = jest.fn().mockResolvedValue(refundReturn);
     });
 
     it('should update invoice to paid', async () => {
@@ -225,11 +225,9 @@ describe('PayPalNotificationHandler', () => {
       const result = await handler.handleSuccessfulPayment(invoice, message);
 
       expect(result).toEqual(paidInvoice);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.payInvoiceOutOfBand,
-        invoice
-      );
-      sinon.assert.notCalled(paypalHelper.issueRefund);
+      expect(stripeHelper.payInvoiceOutOfBand).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.payInvoiceOutOfBand).toHaveBeenCalledWith(invoice);
+      expect(paypalHelper.issueRefund).not.toHaveBeenCalled();
     });
 
     it('should update Invoice with paypalTransactionId if not already there', async () => {
@@ -239,24 +237,25 @@ describe('PayPalNotificationHandler', () => {
         },
       };
       const message = validMessage;
-      stripeHelper.getInvoicePaypalTransactionId =
-        sinon.fake.returns(undefined);
-      stripeHelper.updateInvoiceWithPaypalTransactionId =
-        sinon.fake.resolves(validInvoice);
+      stripeHelper.getInvoicePaypalTransactionId = jest
+        .fn()
+        .mockReturnValue(undefined);
+      stripeHelper.updateInvoiceWithPaypalTransactionId = jest
+        .fn()
+        .mockResolvedValue(validInvoice);
 
       const result = await handler.handleSuccessfulPayment(invoice, message);
 
       expect(result).toEqual(paidInvoice);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.updateInvoiceWithPaypalTransactionId,
-        invoice,
-        ipnTransactionId
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.payInvoiceOutOfBand,
-        invoice
-      );
-      sinon.assert.notCalled(paypalHelper.issueRefund);
+      expect(
+        stripeHelper.updateInvoiceWithPaypalTransactionId
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        stripeHelper.updateInvoiceWithPaypalTransactionId
+      ).toHaveBeenCalledWith(invoice, ipnTransactionId);
+      expect(stripeHelper.payInvoiceOutOfBand).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.payInvoiceOutOfBand).toHaveBeenCalledWith(invoice);
+      expect(paypalHelper.issueRefund).not.toHaveBeenCalled();
     });
 
     it('should throw an error when paypalTransactionId and IPN txn_id dont match', async () => {
@@ -267,7 +266,9 @@ describe('PayPalNotificationHandler', () => {
 
       try {
         await handler.handleSuccessfulPayment(invoice, message);
-        throw new Error('Error should throw error with transactionId not matching');
+        throw new Error(
+          'Error should throw error with transactionId not matching'
+        );
       } catch (err: any) {
         expect(err).toEqual(
           error.internalValidationError('handleSuccessfulPayment', {
@@ -277,8 +278,8 @@ describe('PayPalNotificationHandler', () => {
             paypalIPNTxnId: message.txn_id,
           })
         );
-        sinon.assert.notCalled(stripeHelper.payInvoiceOutOfBand);
-        sinon.assert.notCalled(paypalHelper.issueRefund);
+        expect(stripeHelper.payInvoiceOutOfBand).not.toHaveBeenCalled();
+        expect(paypalHelper.issueRefund).not.toHaveBeenCalled();
       }
     });
 
@@ -292,19 +293,19 @@ describe('PayPalNotificationHandler', () => {
         },
       };
       const message = validMessage;
-      stripeHelper.expandResource = sinon.spy();
+      stripeHelper.expandResource = jest.fn();
 
       const result = await handler.handleSuccessfulPayment(invoice, message);
 
       expect(result).toEqual(refundReturn);
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.issueRefund,
+      expect(paypalHelper.issueRefund).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.issueRefund).toHaveBeenCalledWith(
         invoice,
         validMessage.txn_id,
         RefundType.Full
       );
-      sinon.assert.notCalled(stripeHelper.expandResource);
-      sinon.assert.notCalled(stripeHelper.payInvoiceOutOfBand);
+      expect(stripeHelper.expandResource).not.toHaveBeenCalled();
+      expect(stripeHelper.payInvoiceOutOfBand).not.toHaveBeenCalled();
     });
 
     it('should expand subscription and refund the invoice if the subscription has status canceled', async () => {
@@ -315,23 +316,25 @@ describe('PayPalNotificationHandler', () => {
         subscription: 'sub_id',
       };
       const message = validMessage;
-      stripeHelper.expandResource = sinon.fake.resolves({ status: 'canceled' });
+      stripeHelper.expandResource = jest
+        .fn()
+        .mockResolvedValue({ status: 'canceled' });
 
       const result = await handler.handleSuccessfulPayment(invoice, message);
 
       expect(result).toEqual(refundReturn);
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.issueRefund,
+      expect(paypalHelper.issueRefund).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.issueRefund).toHaveBeenCalledWith(
         invoice,
         validMessage.txn_id,
         RefundType.Full
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.expandResource,
+      expect(stripeHelper.expandResource).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.expandResource).toHaveBeenCalledWith(
         invoice.subscription,
         SUBSCRIPTIONS_RESOURCE
       );
-      sinon.assert.notCalled(stripeHelper.payInvoiceOutOfBand);
+      expect(stripeHelper.payInvoiceOutOfBand).not.toHaveBeenCalled();
     });
   });
 
@@ -344,19 +347,21 @@ describe('PayPalNotificationHandler', () => {
     it('receives IPN message with successful payment status', async () => {
       const invoice = { status: 'open' };
       const paidInvoice = { status: 'paid' };
-      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
-      handler.handleSuccessfulPayment = sinon.fake.resolves(paidInvoice);
+      stripeHelper.getInvoice = jest.fn().mockResolvedValue(invoice);
+      handler.handleSuccessfulPayment = jest
+        .fn()
+        .mockResolvedValue(paidInvoice);
 
       const result = await handler.handleMerchPayment(
         completedMerchantPaymentNotification
       );
       expect(result).toEqual(paidInvoice);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getInvoice,
+      expect(stripeHelper.getInvoice).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledWith(
         completedMerchantPaymentNotification.invoice
       );
-      sinon.assert.calledOnceWithExactly(
-        handler.handleSuccessfulPayment,
+      expect(handler.handleSuccessfulPayment).toHaveBeenCalledTimes(1);
+      expect(handler.handleSuccessfulPayment).toHaveBeenCalledWith(
         invoice,
         completedMerchantPaymentNotification
       );
@@ -364,13 +369,13 @@ describe('PayPalNotificationHandler', () => {
 
     it('receives IPN message with pending payment status', async () => {
       const invoice = { status: 'open' };
-      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      stripeHelper.getInvoice = jest.fn().mockResolvedValue(invoice);
       const result = await handler.handleMerchPayment(
         pendingMerchantPaymentNotification
       );
       expect(result).toEqual(undefined);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getInvoice,
+      expect(stripeHelper.getInvoice).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledWith(
         pendingMerchantPaymentNotification.invoice
       );
     });
@@ -382,7 +387,7 @@ describe('PayPalNotificationHandler', () => {
         payment_status: 'Denied',
         custom: '',
       };
-      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      stripeHelper.getInvoice = jest.fn().mockResolvedValue(invoice);
       try {
         await handler.handleMerchPayment(deniedMessage);
         throw new Error('Error should throw no idempotency key response.');
@@ -393,16 +398,14 @@ describe('PayPalNotificationHandler', () => {
           })
         );
       }
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getInvoice,
-        message.invoice
-      );
-      sinon.assert.calledOnce(log.error);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledWith(message.invoice);
+      expect(log.error).toHaveBeenCalledTimes(1);
     });
 
     it('receives IPN message with unexpected payment status', async () => {
       const invoice = { status: 'open' };
-      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      stripeHelper.getInvoice = jest.fn().mockResolvedValue(invoice);
       try {
         await handler.handleMerchPayment({
           ...message,
@@ -419,15 +422,13 @@ describe('PayPalNotificationHandler', () => {
           })
         );
       }
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getInvoice,
-        message.invoice
-      );
-      sinon.assert.calledOnce(log.error);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledWith(message.invoice);
+      expect(log.error).toHaveBeenCalledTimes(1);
     });
 
     it('receives IPN message with invoice not found', async () => {
-      stripeHelper.getInvoice = sinon.fake.resolves(undefined);
+      stripeHelper.getInvoice = jest.fn().mockResolvedValue(undefined);
       try {
         await handler.handleMerchPayment(message);
         throw new Error('Error should throw invoice not found response.');
@@ -438,39 +439,33 @@ describe('PayPalNotificationHandler', () => {
           })
         );
       }
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getInvoice,
-        message.invoice
-      );
-      sinon.assert.calledOnce(log.error);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledWith(message.invoice);
+      expect(log.error).toHaveBeenCalledTimes(1);
     });
 
     it('receives IPN message with invoice not in draft or open status', async () => {
       const invoice = { status: null };
-      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      stripeHelper.getInvoice = jest.fn().mockResolvedValue(invoice);
       const result = await handler.handleMerchPayment(message);
       expect(result).toEqual(undefined);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getInvoice,
-        message.invoice
-      );
+      expect(stripeHelper.getInvoice).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledWith(message.invoice);
     });
 
     it('successfully refunds completed transaction with invoice in uncollectible status', async () => {
       const invoice = { status: 'uncollectible' };
-      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
-      paypalHelper.issueRefund = sinon.fake.resolves(undefined);
+      stripeHelper.getInvoice = jest.fn().mockResolvedValue(invoice);
+      paypalHelper.issueRefund = jest.fn().mockResolvedValue(undefined);
 
       const result = await handler.handleMerchPayment(
         completedMerchantPaymentNotification
       );
       expect(result).toEqual(undefined);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getInvoice,
-        message.invoice
-      );
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.issueRefund,
+      expect(stripeHelper.getInvoice).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledWith(message.invoice);
+      expect(paypalHelper.issueRefund).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.issueRefund).toHaveBeenCalledWith(
         invoice,
         completedMerchantPaymentNotification.txn_id,
         RefundType.Full
@@ -479,10 +474,10 @@ describe('PayPalNotificationHandler', () => {
 
     it('unsuccessfully refunds completed transaction with invoice in uncollectible status', async () => {
       const invoice = { status: 'uncollectible' };
-      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
-      paypalHelper.issueRefund = sinon.fake.throws(
-        error.internalValidationError('Fake', {})
-      );
+      stripeHelper.getInvoice = jest.fn().mockResolvedValue(invoice);
+      paypalHelper.issueRefund = jest.fn().mockImplementation(() => {
+        throw error.internalValidationError('Fake', {});
+      });
       try {
         await handler.handleMerchPayment(completedMerchantPaymentNotification);
         throw new Error(
@@ -492,12 +487,10 @@ describe('PayPalNotificationHandler', () => {
         expect(err).toBeInstanceOf(error);
         expect(err.message).toBe('An internal validation check failed.');
       }
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getInvoice,
-        message.invoice
-      );
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.issueRefund,
+      expect(stripeHelper.getInvoice).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getInvoice).toHaveBeenCalledWith(message.invoice);
+      expect(paypalHelper.issueRefund).toHaveBeenCalledTimes(1);
+      expect(paypalHelper.issueRefund).toHaveBeenCalledWith(
         invoice,
         completedMerchantPaymentNotification.txn_id,
         RefundType.Full
@@ -516,10 +509,12 @@ describe('PayPalNotificationHandler', () => {
       id: 'customer_id_123',
     };
     it('should removeCustomerPaypalAgreement when IPN and Customer BA ID match', async () => {
-      stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves(undefined);
-      stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
-        ipnBillingAgreement.billingAgreementId
-      );
+      stripeHelper.removeCustomerPaypalAgreement = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      stripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue(ipnBillingAgreement.billingAgreementId);
 
       const result = await handler.removeBillingAgreement(
         customer,
@@ -528,8 +523,10 @@ describe('PayPalNotificationHandler', () => {
       );
 
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.removeCustomerPaypalAgreement,
+      expect(stripeHelper.removeCustomerPaypalAgreement).toHaveBeenCalledTimes(
+        1
+      );
+      expect(stripeHelper.removeCustomerPaypalAgreement).toHaveBeenCalledWith(
         account.uid,
         customer.id,
         ipnBillingAgreement.billingAgreementId
@@ -537,8 +534,10 @@ describe('PayPalNotificationHandler', () => {
     });
 
     it('should only update the database BA if the IPN and Customer BA ID dont match', async () => {
-      dbStub.updatePayPalBA.resolves();
-      stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
+      dbStub.updatePayPalBA.mockResolvedValue();
+      stripeHelper.getCustomerPaypalAgreement = jest
+        .fn()
+        .mockReturnValue(undefined);
 
       const result = await handler.removeBillingAgreement(
         customer,
@@ -547,10 +546,13 @@ describe('PayPalNotificationHandler', () => {
       );
 
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithMatch(
-        dbStub.updatePayPalBA,
+      expect(dbStub.updatePayPalBA).toHaveBeenCalledTimes(1);
+      expect(dbStub.updatePayPalBA).toHaveBeenNthCalledWith(
+        1,
         account.uid,
-        ipnBillingAgreement.billingAgreementId
+        ipnBillingAgreement.billingAgreementId,
+        expect.anything(),
+        expect.anything()
       );
     });
   });
@@ -577,61 +579,60 @@ describe('PayPalNotificationHandler', () => {
         ...customer,
         subscriptions,
       };
-      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
-      dbStub.Account.findByUid = sandbox.stub().resolves(account);
-      stripeHelper.fetchCustomer = sinon.fake.resolves(fetchCustomer);
-      handler.removeBillingAgreement = sinon.stub().resolves();
-      stripeHelper.getPaymentProvider = sinon.fake.resolves('paypal');
-      stripeHelper.formatSubscriptionsForEmails = sinon.fake.returns([]);
+      dbStub.getPayPalBAByBAId.mockResolvedValue(billingAgreement);
+      dbStub.Account.findByUid = jest.fn().mockResolvedValue(account);
+      stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(fetchCustomer);
+      handler.removeBillingAgreement = jest.fn().mockResolvedValue();
+      stripeHelper.getPaymentProvider = jest.fn().mockResolvedValue('paypal');
+      stripeHelper.formatSubscriptionsForEmails = jest.fn().mockReturnValue([]);
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
       );
 
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(
-        dbStub.getPayPalBAByBAId,
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledTimes(1);
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledWith(
         billingAgreementCancelNotification.mp_id
       );
-      sinon.assert.calledOnceWithExactly(
-        dbStub.Account.findByUid,
+      expect(dbStub.Account.findByUid).toHaveBeenCalledTimes(1);
+      expect(dbStub.Account.findByUid).toHaveBeenCalledWith(
         billingAgreement.uid,
         { include: ['emails'] }
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.fetchCustomer,
-        account.uid,
-        ['subscriptions']
-      );
-      sinon.assert.calledOnceWithExactly(
-        handler.removeBillingAgreement,
+      expect(stripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.fetchCustomer).toHaveBeenCalledWith(account.uid, [
+        'subscriptions',
+      ]);
+      expect(handler.removeBillingAgreement).toHaveBeenCalledTimes(1);
+      expect(handler.removeBillingAgreement).toHaveBeenCalledWith(
         fetchCustomer,
         billingAgreement,
         account
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getPaymentProvider,
+      expect(stripeHelper.getPaymentProvider).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.getPaymentProvider).toHaveBeenCalledWith(
         fetchCustomer
       );
     });
 
     it('receives IPN message with billing agreement not found', async () => {
-      dbStub.getPayPalBAByBAId.resolves(undefined);
+      dbStub.getPayPalBAByBAId.mockResolvedValue(undefined);
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
       );
 
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(
-        dbStub.getPayPalBAByBAId,
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledTimes(1);
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledWith(
         billingAgreementCancelNotification.mp_id
       );
-      sinon.assert.calledOnce(log.error);
+      expect(log.error).toHaveBeenCalledTimes(1);
     });
 
     it('receives IPN message for billing agreement already cancelled', async () => {
-      dbStub.getPayPalBAByBAId.resolves({
+      dbStub.getPayPalBAByBAId.mockResolvedValue({
         ...billingAgreement,
         status: 'Cancelled',
       });
@@ -641,59 +642,58 @@ describe('PayPalNotificationHandler', () => {
       );
 
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(
-        dbStub.getPayPalBAByBAId,
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledTimes(1);
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledWith(
         billingAgreementCancelNotification.mp_id
       );
-      sinon.assert.calledOnce(log.error);
+      expect(log.error).toHaveBeenCalledTimes(1);
     });
 
     it('receives IPN message for billing agreement with no FXA account', async () => {
-      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
-      dbStub.Account.findByUid = sandbox.stub().resolves(null);
+      dbStub.getPayPalBAByBAId.mockResolvedValue(billingAgreement);
+      dbStub.Account.findByUid = jest.fn().mockResolvedValue(null);
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
       );
 
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(
-        dbStub.getPayPalBAByBAId,
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledTimes(1);
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledWith(
         billingAgreementCancelNotification.mp_id
       );
-      sinon.assert.calledOnceWithExactly(
-        dbStub.Account.findByUid,
+      expect(dbStub.Account.findByUid).toHaveBeenCalledTimes(1);
+      expect(dbStub.Account.findByUid).toHaveBeenCalledWith(
         billingAgreement.uid,
         { include: ['emails'] }
       );
-      sinon.assert.calledOnce(log.error);
+      expect(log.error).toHaveBeenCalledTimes(1);
     });
 
     it('receives IPN message for billing agreement with no Stripe customer', async () => {
-      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
-      dbStub.Account.findByUid = sinon.stub().resolves(account);
-      stripeHelper.fetchCustomer = sinon.fake.resolves(undefined);
+      dbStub.getPayPalBAByBAId.mockResolvedValue(billingAgreement);
+      dbStub.Account.findByUid = jest.fn().mockResolvedValue(account);
+      stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(undefined);
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
       );
 
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(
-        dbStub.getPayPalBAByBAId,
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledTimes(1);
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledWith(
         billingAgreementCancelNotification.mp_id
       );
-      sinon.assert.calledOnceWithExactly(
-        dbStub.Account.findByUid,
+      expect(dbStub.Account.findByUid).toHaveBeenCalledTimes(1);
+      expect(dbStub.Account.findByUid).toHaveBeenCalledWith(
         billingAgreement.uid,
         { include: ['emails'] }
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.fetchCustomer,
-        account.uid,
-        ['subscriptions']
-      );
-      sinon.assert.calledOnce(log.error);
+      expect(stripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.fetchCustomer).toHaveBeenCalledWith(account.uid, [
+        'subscriptions',
+      ]);
+      expect(log.error).toHaveBeenCalledTimes(1);
     });
 
     it('receives IPN message for inactive subscription and email not sent', async () => {
@@ -701,39 +701,38 @@ describe('PayPalNotificationHandler', () => {
         ...customer,
         subscriptions: undefined,
       };
-      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
-      dbStub.Account.findByUid = sandbox.stub().resolves(account);
-      stripeHelper.fetchCustomer = sinon.fake.resolves(fetchCustomer);
-      handler.removeBillingAgreement = sinon.stub().resolves();
-      stripeHelper.getPaymentProvider = sinon.fake.resolves('paypal');
+      dbStub.getPayPalBAByBAId.mockResolvedValue(billingAgreement);
+      dbStub.Account.findByUid = jest.fn().mockResolvedValue(account);
+      stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(fetchCustomer);
+      handler.removeBillingAgreement = jest.fn().mockResolvedValue();
+      stripeHelper.getPaymentProvider = jest.fn().mockResolvedValue('paypal');
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
       );
 
       expect(result).toBeUndefined();
-      sinon.assert.calledOnceWithExactly(
-        dbStub.getPayPalBAByBAId,
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledTimes(1);
+      expect(dbStub.getPayPalBAByBAId).toHaveBeenCalledWith(
         billingAgreementCancelNotification.mp_id
       );
-      sinon.assert.calledOnceWithExactly(
-        dbStub.Account.findByUid,
+      expect(dbStub.Account.findByUid).toHaveBeenCalledTimes(1);
+      expect(dbStub.Account.findByUid).toHaveBeenCalledWith(
         billingAgreement.uid,
         { include: ['emails'] }
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.fetchCustomer,
-        account.uid,
-        ['subscriptions']
-      );
-      sinon.assert.calledOnceWithExactly(
-        handler.removeBillingAgreement,
+      expect(stripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
+      expect(stripeHelper.fetchCustomer).toHaveBeenCalledWith(account.uid, [
+        'subscriptions',
+      ]);
+      expect(handler.removeBillingAgreement).toHaveBeenCalledTimes(1);
+      expect(handler.removeBillingAgreement).toHaveBeenCalledWith(
         fetchCustomer,
         billingAgreement,
         account
       );
-      sinon.assert.calledOnceWithExactly(
-        await stripeHelper.getPaymentProvider,
+      expect(await stripeHelper.getPaymentProvider).toHaveBeenCalledTimes(1);
+      expect(await stripeHelper.getPaymentProvider).toHaveBeenCalledWith(
         fetchCustomer
       );
     });
@@ -745,35 +744,39 @@ describe('PayPalNotificationHandler', () => {
       };
       const mockFormattedSubs = { productId: 'quux' };
       const mockAcct = { ...account, emails: [account.email, 'bar@baz.gd'] };
-      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
-      dbStub.Account.findByUid = sandbox.stub().resolves(mockAcct);
-      stripeHelper.fetchCustomer = sinon.fake.resolves(mockCustomer);
-      handler.removeBillingAgreement = sinon.stub().resolves();
-      stripeHelper.getPaymentProvider = sinon.fake.returns('paypal');
-      stripeHelper.formatSubscriptionsForEmails =
-        sinon.fake.resolves(mockFormattedSubs);
-      mailer.sendSubscriptionPaymentProviderCancelledEmail =
-        sinon.fake.resolves(undefined);
+      dbStub.getPayPalBAByBAId.mockResolvedValue(billingAgreement);
+      dbStub.Account.findByUid = jest.fn().mockResolvedValue(mockAcct);
+      stripeHelper.fetchCustomer = jest.fn().mockResolvedValue(mockCustomer);
+      handler.removeBillingAgreement = jest.fn().mockResolvedValue();
+      stripeHelper.getPaymentProvider = jest.fn().mockReturnValue('paypal');
+      stripeHelper.formatSubscriptionsForEmails = jest
+        .fn()
+        .mockResolvedValue(mockFormattedSubs);
+      mailer.sendSubscriptionPaymentProviderCancelledEmail = jest
+        .fn()
+        .mockResolvedValue(undefined);
 
       await handler.handleMpCancel(billingAgreementCancelNotification);
 
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.formatSubscriptionsForEmails,
+      expect(stripeHelper.formatSubscriptionsForEmails).toHaveBeenCalledTimes(
+        1
+      );
+      expect(stripeHelper.formatSubscriptionsForEmails).toHaveBeenCalledWith(
         mockCustomer
       );
-      sinon.assert.calledOnceWithExactly(
-        mailer.sendSubscriptionPaymentProviderCancelledEmail,
-        mockAcct.emails,
-        mockAcct,
-        {
-          uid: mockAcct.uid,
-          email: mockAcct.email,
-          acceptLanguage: mockAcct.locale,
-          subscriptions: mockFormattedSubs,
-        }
-      );
+      expect(
+        mailer.sendSubscriptionPaymentProviderCancelledEmail
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mailer.sendSubscriptionPaymentProviderCancelledEmail
+      ).toHaveBeenCalledWith(mockAcct.emails, mockAcct, {
+        uid: mockAcct.uid,
+        email: mockAcct.email,
+        acceptLanguage: mockAcct.locale,
+        subscriptions: mockFormattedSubs,
+      });
 
-      sandbox.restore();
+      jest.restoreAllMocks();
     });
   });
 });

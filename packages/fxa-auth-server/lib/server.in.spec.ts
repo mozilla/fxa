@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Account } from 'fxa-shared/db/models/auth/account';
 
 const mockReportValidationError = jest.fn();
@@ -18,8 +17,6 @@ const server = require('./server');
 
 const glean = mocks.mockGlean();
 const customs = mocks.mockCustoms();
-
-const sandbox = sinon.createSandbox();
 
 describe('lib/server', () => {
   describe('trimLocale', () => {
@@ -115,7 +112,7 @@ describe('lib/server', () => {
       config = getConfig();
       log = mocks.mockLog();
       routes = getRoutes();
-      statsd = { timing: sinon.fake() };
+      statsd = { timing: jest.fn() };
     });
 
     describe('create:', () => {
@@ -143,11 +140,11 @@ describe('lib/server', () => {
         afterEach(() => instance.stop());
 
         it('did not call log.begin', () => {
-          expect(log.begin.callCount).toBe(0);
+          expect(log.begin).toHaveBeenCalledTimes(0);
         });
 
         it('did not call log.summary', () => {
-          expect(log.summary.callCount).toBe(0);
+          expect(log.summary).toHaveBeenCalledTimes(0);
         });
 
         it('rejected invalid subscription shared secret', async () => {
@@ -161,13 +158,13 @@ describe('lib/server', () => {
           expect(statusCode).toBe(401);
           expect(result.code).toBe(401);
           expect(result.errno).toBe(error.ERRNO.INVALID_TOKEN);
-          expect(statsd.timing.getCall(0).args[0]).toBe('url_request');
-          expect(statsd.timing.getCall(0).args[3].path).toBe(
+          expect(statsd.timing.mock.calls[0][0]).toBe('url_request');
+          expect(statsd.timing.mock.calls[0][3].path).toBe(
             'oauth_subscriptions_clients'
           );
-          expect(statsd.timing.getCall(0).args[3].statusCode).toBe(statusCode);
-          expect(statsd.timing.getCall(0).args[3].method).toBe('GET');
-          expect(statsd.timing.getCall(0).args[3].errno).toBe(
+          expect(statsd.timing.mock.calls[0][3].statusCode).toBe(statusCode);
+          expect(statsd.timing.mock.calls[0][3].method).toBe('GET');
+          expect(statsd.timing.mock.calls[0][3].errno).toBe(
             error.ERRNO.INVALID_TOKEN
           );
         });
@@ -204,31 +201,31 @@ describe('lib/server', () => {
             request = res.request;
           });
           afterEach(() => {
-            sandbox.restore();
+            jest.restoreAllMocks();
           });
 
           it('should return request.auth.credentials.metricsOptOutAt', async () => {
-            const accountStub = sandbox
-              .stub(Account, 'metricsEnabled')
-              .resolves(false);
+            const accountStub = jest
+              .spyOn(Account, 'metricsEnabled')
+              .mockResolvedValue(false);
             request.auth.credentials.uid = 'fake uid';
             request.auth.credentials.metricsOptOutAt = 123456789;
 
             const expected = !request.auth.credentials.metricsOptOutAt;
             const result = await request.app.isMetricsEnabled;
             expect(result).toBe(expected);
-            sinon.assert.notCalled(accountStub);
+            expect(accountStub).not.toHaveBeenCalled();
           });
 
           it('should return Account.metricsEnabled if request.auth.credentials.user is provided', async () => {
             request.auth.credentials.uid = null;
             request.auth.credentials.user = 'fake uid';
             const expected = false;
-            const accountStub = sandbox
-              .stub(Account, 'metricsEnabled')
-              .resolves(expected);
+            const accountStub = jest
+              .spyOn(Account, 'metricsEnabled')
+              .mockResolvedValue(expected);
             const result = await request.app.isMetricsEnabled;
-            sinon.assert.called(accountStub);
+            expect(accountStub).toHaveBeenCalled();
             expect(result).toBe(expected);
           });
 
@@ -236,11 +233,11 @@ describe('lib/server', () => {
             request.auth.credentials.uid = null;
             request.payload.uid = 'fake uid';
             const expected = false;
-            const accountStub = sandbox
-              .stub(Account, 'metricsEnabled')
-              .resolves(expected);
+            const accountStub = jest
+              .spyOn(Account, 'metricsEnabled')
+              .mockResolvedValue(expected);
             const result = await request.app.isMetricsEnabled;
-            sinon.assert.called(accountStub);
+            expect(accountStub).toHaveBeenCalled();
             expect(result).toBe(expected);
           });
 
@@ -248,11 +245,11 @@ describe('lib/server', () => {
             request.auth.credentials.uid = null;
             request.app.metricsEventUid = 'fake uid';
             const expected = false;
-            const accountStub = sandbox
-              .stub(Account, 'metricsEnabled')
-              .resolves(expected);
+            const accountStub = jest
+              .spyOn(Account, 'metricsEnabled')
+              .mockResolvedValue(expected);
             const result = await request.app.isMetricsEnabled;
-            sinon.assert.called(accountStub);
+            expect(accountStub).toHaveBeenCalled();
             expect(result).toBe(expected);
           });
 
@@ -260,15 +257,15 @@ describe('lib/server', () => {
             request.auth.credentials.uid = null;
             request.payload.email = 'fake@email.com';
             const expected = false;
-            const accountStub = sandbox
-              .stub(Account, 'metricsEnabled')
-              .resolves(expected);
-            const accountEmailStub = sandbox
-              .stub(Account, 'findByPrimaryEmail')
-              .resolves({ uid: 'emailUID' });
+            const accountStub = jest
+              .spyOn(Account, 'metricsEnabled')
+              .mockResolvedValue(expected);
+            const accountEmailStub = jest
+              .spyOn(Account, 'findByPrimaryEmail')
+              .mockResolvedValue({ uid: 'emailUID' });
             const result = await request.app.isMetricsEnabled;
-            sinon.assert.called(accountStub);
-            sinon.assert.called(accountEmailStub);
+            expect(accountStub).toHaveBeenCalled();
+            expect(accountEmailStub).toHaveBeenCalled();
             expect(result).toBe(expected);
           });
 
@@ -276,26 +273,28 @@ describe('lib/server', () => {
             request.auth.credentials.uid = null;
             request.payload.email = 'fake@email.com';
             const expected = true;
-            const accountStub = sandbox
-              .stub(Account, 'metricsEnabled')
-              .resolves(expected);
-            const accountEmailStub = sandbox
-              .stub(Account, 'findByPrimaryEmail')
-              .throws();
+            const accountStub = jest
+              .spyOn(Account, 'metricsEnabled')
+              .mockResolvedValue(expected);
+            const accountEmailStub = jest
+              .spyOn(Account, 'findByPrimaryEmail')
+              .mockImplementation(() => {
+                throw new Error();
+              });
             const result = await request.app.isMetricsEnabled;
-            sinon.assert.called(accountEmailStub);
-            sinon.assert.notCalled(accountStub);
+            expect(accountEmailStub).toHaveBeenCalled();
+            expect(accountStub).not.toHaveBeenCalled();
             expect(result).toBe(expected);
           });
 
           it('should return true if no uid is found', async () => {
             request.auth.credentials.uid = null;
             const expected = true;
-            const accountStub = sandbox
-              .stub(Account, 'metricsEnabled')
-              .resolves(expected);
+            const accountStub = jest
+              .spyOn(Account, 'metricsEnabled')
+              .mockResolvedValue(expected);
             const result = await request.app.isMetricsEnabled;
-            sinon.assert.notCalled(accountStub);
+            expect(accountStub).not.toHaveBeenCalled();
             expect(result).toBe(expected);
           });
         });
@@ -329,8 +328,8 @@ describe('lib/server', () => {
           });
 
           it('called log.begin correctly', () => {
-            expect(log.begin.callCount).toBe(1);
-            const args = log.begin.args[0];
+            expect(log.begin).toHaveBeenCalledTimes(1);
+            const args = log.begin.mock.calls[0];
             expect(args.length).toBe(2);
             expect(args[0]).toBe('server.onRequest');
             expect(args[1]).toBeTruthy();
@@ -339,10 +338,10 @@ describe('lib/server', () => {
           });
 
           it('called log.summary correctly', () => {
-            expect(log.summary.callCount).toBe(1);
-            const args = log.summary.args[0];
+            expect(log.summary).toHaveBeenCalledTimes(1);
+            const args = log.summary.mock.calls[0];
             expect(args.length).toBe(2);
-            expect(args[0]).toBe(log.begin.args[0][1]);
+            expect(args[0]).toBe(log.begin.mock.calls[0][1]);
             expect(args[1]).toBeTruthy();
             expect(args[1].isBoom).toBeUndefined();
             expect(args[1].errno).toBeUndefined();
@@ -351,7 +350,7 @@ describe('lib/server', () => {
           });
 
           it('did not call log.error', () => {
-            expect(log.error.callCount).toBe(0);
+            expect(log.error).toHaveBeenCalledTimes(0);
           });
 
           it('parsed features correctly', () => {
@@ -402,9 +401,7 @@ describe('lib/server', () => {
             expect(knownIpLocation.location.city.has(geo.location.city)).toBe(
               true
             );
-            expect(geo.location.country).toBe(
-              knownIpLocation.location.country
-            );
+            expect(geo.location.country).toBe(knownIpLocation.location.country);
             expect(geo.location.countryCode).toBe(
               knownIpLocation.location.countryCode
             );
@@ -418,9 +415,8 @@ describe('lib/server', () => {
           it('fetched devices correctly', async () => {
             expect(request.app.devices).toBeTruthy();
             expect(typeof request.app.devices.then).toBe('function');
-            expect(db.devices.callCount).toBe(1);
-            expect(db.devices.args[0].length).toBe(1);
-            expect(db.devices.args[0][0]).toBe('fake uid');
+            expect(db.devices).toHaveBeenCalledTimes(1);
+            expect(db.devices).toHaveBeenNthCalledWith(1, 'fake uid');
             const devices = await request.app.devices;
             expect(devices).toEqual([{ id: 'fake device id' }]);
           });
@@ -493,9 +489,9 @@ describe('lib/server', () => {
             it('second request has its own location info', () => {
               const geo = secondRequest.app.geo;
               expect(request.app.geo).not.toBe(secondRequest.app.geo);
-              expect(
-                knownIpLocation.location.city.has(geo.location.city)
-              ).toBe(true);
+              expect(knownIpLocation.location.city.has(geo.location.city)).toBe(
+                true
+              );
               expect(geo.location.country).toBe(
                 knownIpLocation.location.country
               );
@@ -511,9 +507,8 @@ describe('lib/server', () => {
 
             it('second request fetched devices correctly', async () => {
               expect(request.app.devices).not.toBe(secondRequest.app.devices);
-              expect(db.devices.callCount).toBe(2);
-              expect(db.devices.args[1].length).toBe(1);
-              expect(db.devices.args[1][0]).toBe('another fake uid');
+              expect(db.devices).toHaveBeenCalledTimes(2);
+              expect(db.devices).toHaveBeenNthCalledWith(2, 'another fake uid');
               const devices = await secondRequest.app.devices;
               expect(devices).toEqual([{ id: 'fake device id' }]);
             });
@@ -540,8 +535,8 @@ describe('lib/server', () => {
           });
 
           it('called log.begin correctly', () => {
-            expect(log.begin.callCount).toBe(1);
-            const args = log.begin.args[0];
+            expect(log.begin).toHaveBeenCalledTimes(1);
+            const args = log.begin.mock.calls[0];
             expect(args[1].app.locale).toBe('fr');
             expect(args[1].app.ua.browser).toBe('Chrome Mobile iOS');
             expect(args[1].app.ua.browserVersion).toBe('56.0.2924');
@@ -552,11 +547,11 @@ describe('lib/server', () => {
           });
 
           it('called log.summary once', () => {
-            expect(log.summary.callCount).toBe(1);
+            expect(log.summary).toHaveBeenCalledTimes(1);
           });
 
           it('did not call log.error', () => {
-            expect(log.error.callCount).toBe(0);
+            expect(log.error).toHaveBeenCalledTimes(0);
           });
 
           it('parsed features correctly', () => {
@@ -580,8 +575,8 @@ describe('lib/server', () => {
             retryAfterLocalized: undefined,
           };
           beforeEach(async () => {
-            glean.registration.error.reset();
-            sinon.stub(Date, 'now').returns(1584397692000);
+            glean.registration.error.mockClear();
+            jest.spyOn(Date, 'now').mockReturnValue(1584397692000);
             response = error.requestBlocked();
             try {
               await instance.inject({
@@ -593,17 +588,17 @@ describe('lib/server', () => {
               // expected
             }
           });
-          afterEach(() => (Date.now as sinon.SinonStub).restore());
+          afterEach(() => (Date.now as jest.Mock).mockRestore());
 
           it('called log.begin', () => {
-            expect(log.begin.callCount).toBe(1);
+            expect(log.begin).toHaveBeenCalledTimes(1);
           });
 
           it('called log.summary correctly', () => {
-            expect(log.summary.callCount).toBe(1);
-            const args = log.summary.args[0];
+            expect(log.summary).toHaveBeenCalledTimes(1);
+            const args = log.summary.mock.calls[0];
             expect(args.length).toBe(2);
-            expect(args[0]).toBe(log.begin.args[0][1]);
+            expect(args[0]).toBe(log.begin.mock.calls[0][1]);
             expect(args[1]).toBeTruthy();
             expect(args[1].statusCode).toBe(400);
             expect(String(args[1].headers.Timestamp)).toBe('1584397692');
@@ -611,11 +606,11 @@ describe('lib/server', () => {
           });
 
           it('did not call log.error', () => {
-            expect(log.error.callCount).toBe(0);
+            expect(log.error).toHaveBeenCalledTimes(0);
           });
 
           it('did log an error with glean', () => {
-            sinon.assert.calledOnce(glean.registration.error);
+            expect(glean.registration.error).toHaveBeenCalledTimes(1);
           });
         });
 
@@ -636,22 +631,23 @@ describe('lib/server', () => {
           });
 
           it('called log.begin', () => {
-            expect(log.begin.callCount).toBe(1);
+            expect(log.begin).toHaveBeenCalledTimes(1);
           });
 
           it('called log.summary', () => {
-            expect(log.summary.callCount).toBe(1);
+            expect(log.summary).toHaveBeenCalledTimes(1);
           });
 
           it('called log.error correctly', () => {
-            expect(log.error.callCount).toBeGreaterThanOrEqual(1);
-            const args = log.error.args[0];
-            expect(args.length).toBe(2);
-            expect(args[0]).toBe('server.EndpointError');
-            expect(args[1]).toEqual({
-              message: 'request failed',
-              reason: 'because i said so',
-            });
+            expect(log.error.mock.calls.length).toBeGreaterThanOrEqual(1);
+            expect(log.error).toHaveBeenNthCalledWith(
+              1,
+              'server.EndpointError',
+              {
+                message: 'request failed',
+                reason: 'because i said so',
+              }
+            );
           });
         });
 
@@ -669,21 +665,19 @@ describe('lib/server', () => {
           });
 
           it('called db.sessionToken correctly', () => {
-            expect(db.sessionToken.callCount).toBe(1);
-            const args = db.sessionToken.args[0];
-            expect(args.length).toBe(1);
-            expect(args[0]).toBe('deadbeef');
+            expect(db.sessionToken).toHaveBeenCalledTimes(1);
+            expect(db.sessionToken).toHaveBeenNthCalledWith(1, 'deadbeef');
           });
 
           it('did not call db.pruneSessionTokens', () => {
-            expect(db.pruneSessionTokens.callCount).toBe(0);
+            expect(db.pruneSessionTokens).toHaveBeenCalledTimes(0);
           });
         });
 
         describe('general rate limiting error', () => {
           beforeEach(() => {
-            customs.checkIpOnly.resetHistory();
-            customs.v2Enabled.resetHistory();
+            customs.checkIpOnly.mockClear();
+            customs.v2Enabled.mockClear();
           });
 
           afterEach(() => {
@@ -708,22 +702,23 @@ describe('lib/server', () => {
           it('called customs', async () => {
             await query('/account/status');
 
-            expect(customs.checkIpOnly.callCount).toBe(1);
-            const args = customs.checkIpOnly.args[0];
-            expect(args.length).toBe(2);
-            expect(typeof args[0]).toBe('object');
-            expect(args[1]).toBe('get__account_status');
-            expect(log.error.callCount).toBe(0);
+            expect(customs.checkIpOnly).toHaveBeenCalledTimes(1);
+            expect(customs.checkIpOnly).toHaveBeenNthCalledWith(
+              1,
+              expect.any(Object),
+              'get__account_status'
+            );
+            expect(log.error).toHaveBeenCalledTimes(0);
           });
 
           it('handles customs block', async () => {
-            customs.checkIpOnly = sinon.spy(async () => {
+            customs.checkIpOnly = jest.fn(async () => {
               throw error.tooManyRequests(100, 'foo');
             });
 
             const { statusCode, result } = await query('/account/status');
 
-            expect(customs.checkIpOnly.callCount).toBe(1);
+            expect(customs.checkIpOnly).toHaveBeenCalledTimes(1);
             expect(statusCode).toBe(429);
             expect(result).toEqual({
               code: 429,
@@ -743,11 +738,11 @@ describe('lib/server', () => {
             '/__version__',
           ]) {
             it('will skip ' + endpoint, async () => {
-              customs.checkIpOnly = sinon.spy(async () => {
+              customs.checkIpOnly = jest.fn(async () => {
                 throw error.tooManyRequests(100, 'foo');
               });
               await query(endpoint);
-              expect(customs.checkIpOnly.callCount).toBe(0);
+              expect(customs.checkIpOnly).toHaveBeenCalledTimes(0);
             });
           }
         });
@@ -764,7 +759,7 @@ describe('lib/server', () => {
           uid: 'blee',
           expired: true,
         });
-        statsd = { increment: sinon.fake(), timing: sinon.fake() };
+        statsd = { increment: jest.fn(), timing: jest.fn() };
 
         instance = await server.create(
           log,
@@ -792,12 +787,12 @@ describe('lib/server', () => {
       afterEach(() => instance.stop());
 
       it('called db.sessionToken', () => {
-        expect(db.sessionToken.callCount).toBe(1);
+        expect(db.sessionToken).toHaveBeenCalledTimes(1);
       });
 
       it('called db.pruneSessionTokens correctly', () => {
-        expect(db.pruneSessionTokens.callCount).toBe(1);
-        const args = db.pruneSessionTokens.args[0];
+        expect(db.pruneSessionTokens).toHaveBeenCalledTimes(1);
+        const args = db.pruneSessionTokens.mock.calls[0];
         expect(args.length).toBe(2);
         expect(args[0]).toBe('blee');
         expect(Array.isArray(args[1])).toBe(true);

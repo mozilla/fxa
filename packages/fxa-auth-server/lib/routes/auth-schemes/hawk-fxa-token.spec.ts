@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { AppError } from '@fxa/accounts/errors';
 import { strategy } from './hawk-fxa-token';
 
@@ -10,7 +9,7 @@ const HAWK_HEADER = 'Hawk id="123", ts="123", nonce="123", mac="123"';
 
 describe('lib/routes/auth-schemes/hawk-fxa-token', () => {
   it('should throw an error if no authorization header is provided', async () => {
-    const getCredentialsFunc = sinon.fake.resolves(null);
+    const getCredentialsFunc = jest.fn().mockResolvedValue(null);
     const authStrategy = strategy(getCredentialsFunc)();
 
     const request = { headers: {}, auth: { mode: 'required' } };
@@ -30,23 +29,26 @@ describe('lib/routes/auth-schemes/hawk-fxa-token', () => {
   });
 
   it('should authenticate with parsable Hawk header and valid token', async () => {
-    const getCredentialsFunc = sinon.fake.resolves({ id: 'validToken' });
+    const getCredentialsFunc = jest
+      .fn()
+      .mockResolvedValue({ id: 'validToken' });
     const authStrategy = strategy(getCredentialsFunc)();
 
     const request = {
       headers: { authorization: HAWK_HEADER },
       auth: { mode: 'required' },
     };
-    const h = { authenticated: sinon.fake() };
+    const h = { authenticated: jest.fn() };
 
     await authStrategy.authenticate(request, h);
-    expect(
-      h.authenticated.calledOnceWith({ credentials: { id: 'validToken' } })
-    ).toBe(true);
+    expect(h.authenticated).toHaveBeenCalledTimes(1);
+    expect(h.authenticated).toHaveBeenCalledWith({
+      credentials: { id: 'validToken' },
+    });
   });
 
   it('should not authenticate with parsable Hawk header and invalid token', async () => {
-    const getCredentialsFunc = sinon.fake.resolves(null);
+    const getCredentialsFunc = jest.fn().mockResolvedValue(null);
     const authStrategy = strategy(getCredentialsFunc)();
 
     const request = {
@@ -69,7 +71,7 @@ describe('lib/routes/auth-schemes/hawk-fxa-token', () => {
   });
 
   it('should not authenticate with unparseable Hawk header', async () => {
-    const getCredentialsFunc = sinon.fake.resolves(null);
+    const getCredentialsFunc = jest.fn().mockResolvedValue(null);
     const authStrategy = strategy(getCredentialsFunc)();
 
     const request = {

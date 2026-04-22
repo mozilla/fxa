@@ -2,19 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 const { isRecognizedDevice } = require('./security-event');
 
 describe('isRecognizedDevice', () => {
-  let sandbox: sinon.SinonSandbox;
-
-  beforeEach(() => {
-    sandbox = sinon.createSandbox();
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   it('should return true when user agent matches in verified login events', async () => {
@@ -36,7 +30,7 @@ describe('isRecognizedDevice', () => {
     ];
 
     const mockDb = {
-      verifiedLoginSecurityEventsByUid: sandbox.stub().resolves(mockEvents),
+      verifiedLoginSecurityEventsByUid: jest.fn().mockResolvedValue(mockEvents),
     };
 
     const result = await isRecognizedDevice(
@@ -47,10 +41,11 @@ describe('isRecognizedDevice', () => {
     );
 
     expect(result).toBe(true);
-    sinon.assert.calledOnceWithExactly(
-      mockDb.verifiedLoginSecurityEventsByUid,
-      { uid, skipTimeframeMs }
-    );
+    expect(mockDb.verifiedLoginSecurityEventsByUid).toHaveBeenCalledTimes(1);
+    expect(mockDb.verifiedLoginSecurityEventsByUid).toHaveBeenCalledWith({
+      uid,
+      skipTimeframeMs,
+    });
   });
 
   it('should return false when user agent does not match in verified login events', async () => {
@@ -74,7 +69,7 @@ describe('isRecognizedDevice', () => {
     ];
 
     const mockDb = {
-      verifiedLoginSecurityEventsByUid: sandbox.stub().resolves(mockEvents),
+      verifiedLoginSecurityEventsByUid: jest.fn().mockResolvedValue(mockEvents),
     };
 
     const result = await isRecognizedDevice(
@@ -94,7 +89,7 @@ describe('isRecognizedDevice', () => {
     const skipTimeframeMs = 604800000;
 
     const mockDb = {
-      verifiedLoginSecurityEventsByUid: sandbox.stub().resolves([]),
+      verifiedLoginSecurityEventsByUid: jest.fn().mockResolvedValue([]),
     };
 
     const result = await isRecognizedDevice(
@@ -114,7 +109,7 @@ describe('isRecognizedDevice', () => {
     const skipTimeframeMs = 604800000;
 
     const mockDb = {
-      verifiedLoginSecurityEventsByUid: sandbox.stub().resolves(null),
+      verifiedLoginSecurityEventsByUid: jest.fn().mockResolvedValue(null),
     };
 
     const result = await isRecognizedDevice(
@@ -152,7 +147,7 @@ describe('isRecognizedDevice', () => {
     ];
 
     const mockDb = {
-      verifiedLoginSecurityEventsByUid: sandbox.stub().resolves(mockEvents),
+      verifiedLoginSecurityEventsByUid: jest.fn().mockResolvedValue(mockEvents),
     };
 
     const result = await isRecognizedDevice(
@@ -202,7 +197,7 @@ describe('isRecognizedDevice', () => {
     ];
 
     const mockDb = {
-      verifiedLoginSecurityEventsByUid: sandbox.stub().resolves(mockEvents),
+      verifiedLoginSecurityEventsByUid: jest.fn().mockResolvedValue(mockEvents),
     };
 
     const result = await isRecognizedDevice(
@@ -233,7 +228,7 @@ describe('isRecognizedDevice', () => {
     ];
 
     const mockDb = {
-      verifiedLoginSecurityEventsByUid: sandbox.stub().resolves(mockEvents),
+      verifiedLoginSecurityEventsByUid: jest.fn().mockResolvedValue(mockEvents),
     };
 
     const result = await isRecognizedDevice(
@@ -271,7 +266,7 @@ describe('isRecognizedDevice', () => {
     ];
 
     const mockDb = {
-      verifiedLoginSecurityEventsByUid: sandbox.stub().resolves(mockEvents),
+      verifiedLoginSecurityEventsByUid: jest.fn().mockResolvedValue(mockEvents),
     };
 
     const result = await isRecognizedDevice(

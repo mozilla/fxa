@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
-
 import { CustomerPlanMover } from './move-customers-to-new-plan-v2';
 import Stripe from 'stripe';
 import { PayPalHelper } from '../../lib/payments/paypal';
@@ -28,7 +26,7 @@ describe('CustomerPlanMover v2', () => {
 
   beforeEach(() => {
     stripeStub = {
-      on: sinon.stub(),
+      on: jest.fn(),
       products: {},
       customers: {},
       subscriptions: {},
@@ -37,7 +35,7 @@ describe('CustomerPlanMover v2', () => {
     } as unknown as Stripe;
 
     paypalHelperStub = {
-      refundInvoice: sinon.stub(),
+      refundInvoice: jest.fn(),
     } as unknown as PayPalHelper;
 
     customerPlanMover = new CustomerPlanMover(
@@ -120,8 +118,8 @@ describe('CustomerPlanMover v2', () => {
   });
 
   describe('convert', () => {
-    let convertSubscriptionStub: sinon.SinonStub;
-    let writeReportHeaderStub: sinon.SinonStub;
+    let convertSubscriptionStub: jest.Mock;
+    let writeReportHeaderStub: jest.Mock;
 
     beforeEach(async () => {
       // Mock the async iterable returned by stripe.subscriptions.list
@@ -131,34 +129,32 @@ describe('CustomerPlanMover v2', () => {
         },
       };
 
-      stripeStub.subscriptions.list = sinon
-        .stub()
-        .returns(asyncIterable) as any;
+      stripeStub.subscriptions.list = jest
+        .fn()
+        .mockReturnValue(asyncIterable) as any;
 
       stripeStub.prices = {
-        retrieve: sinon.stub().resolves(mockPrice),
+        retrieve: jest.fn().mockResolvedValue(mockPrice),
       } as any;
 
-      writeReportHeaderStub = sinon.stub().resolves();
+      writeReportHeaderStub = jest.fn().mockResolvedValue(undefined);
       customerPlanMover.writeReportHeader = writeReportHeaderStub;
 
-      convertSubscriptionStub = sinon.stub().resolves();
+      convertSubscriptionStub = jest.fn().mockResolvedValue(undefined);
       customerPlanMover.convertSubscription = convertSubscriptionStub;
 
       await customerPlanMover.convert();
     });
 
     it('writes report header', () => {
-      expect(writeReportHeaderStub.calledOnce).toBe(true);
+      expect(writeReportHeaderStub).toHaveBeenCalledTimes(1);
     });
 
     it('lists subscriptions with source price id', () => {
-      expect(
-        (stripeStub.subscriptions.list as sinon.SinonStub).calledWith({
-          price: 'source-price-id',
-          limit: 100,
-        })
-      ).toBe(true);
+      expect(stripeStub.subscriptions.list as jest.Mock).toHaveBeenCalledWith({
+        price: 'source-price-id',
+        limit: 100,
+      });
     });
   });
 
@@ -179,16 +175,16 @@ describe('CustomerPlanMover v2', () => {
       },
     } as unknown as Stripe.Subscription;
 
-    let logStub: sinon.SinonStub;
-    let errorStub: sinon.SinonStub;
-    let fetchCustomerStub: sinon.SinonStub;
-    let isCustomerExcludedStub: sinon.SinonStub;
-    let writeReportStub: sinon.SinonStub;
+    let logStub: jest.SpyInstance;
+    let errorStub: jest.SpyInstance;
+    let fetchCustomerStub: jest.Mock;
+    let isCustomerExcludedStub: jest.Mock;
+    let writeReportStub: jest.Mock;
 
     beforeEach(() => {
-      logStub = sinon.stub(console, 'log');
-      errorStub = sinon.stub(console, 'error');
-      fetchCustomerStub = sinon.stub().resolves({
+      logStub = jest.spyOn(console, 'log');
+      errorStub = jest.spyOn(console, 'error');
+      fetchCustomerStub = jest.fn().mockResolvedValue({
         ...mockCustomer,
         subscriptions: {
           data: [mockStripeSubscription],
@@ -196,23 +192,23 @@ describe('CustomerPlanMover v2', () => {
       });
       customerPlanMover.fetchCustomer = fetchCustomerStub;
 
-      isCustomerExcludedStub = sinon.stub().returns(false);
+      isCustomerExcludedStub = jest.fn().mockReturnValue(false);
       customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
 
-      writeReportStub = sinon.stub().resolves();
+      writeReportStub = jest.fn().mockResolvedValue(undefined);
       customerPlanMover.writeReport = writeReportStub;
     });
 
     afterEach(() => {
-      logStub.restore();
-      errorStub.restore();
+      logStub.mockRestore();
+      errorStub.mockRestore();
     });
 
     describe('success - not excluded', () => {
       beforeEach(async () => {
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .resolves(mockStripeSubscription);
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockResolvedValue(mockStripeSubscription);
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
@@ -221,31 +217,31 @@ describe('CustomerPlanMover v2', () => {
       });
 
       it('fetches customer', () => {
-        expect(fetchCustomerStub.calledWith('cus_123')).toBe(true);
+        expect(fetchCustomerStub).toHaveBeenCalledWith('cus_123');
       });
 
       it('updates subscription to destination price', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith(
-            'sub_123',
-            sinon.match({
-              items: [
-                {
-                  id: 'si_123',
-                  price: 'destination-price-id',
-                },
-              ],
-              discounts: undefined,
-              proration_behavior: 'none',
-              billing_cycle_anchor: 'unchanged',
-            })
-          )
-        ).toBe(true);
+          stripeStub.subscriptions.update as jest.Mock
+        ).toHaveBeenCalledWith(
+          'sub_123',
+          expect.objectContaining({
+            items: [
+              {
+                id: 'si_123',
+                price: 'destination-price-id',
+              },
+            ],
+            discounts: undefined,
+            proration_behavior: 'none',
+            billing_cycle_anchor: 'unchanged',
+          })
+        );
       });
 
       it('writes report', () => {
-        expect(writeReportStub.calledOnce).toBe(true);
-        const reportArgs = writeReportStub.firstCall.args[0];
+        expect(writeReportStub).toHaveBeenCalledTimes(1);
+        const reportArgs = writeReportStub.mock.calls[0][0];
         expect(reportArgs.subscription.id).toBe('sub_123');
         expect(reportArgs.isExcluded).toBe(false);
         expect(reportArgs.amountRefunded).toBe(null);
@@ -279,9 +275,9 @@ describe('CustomerPlanMover v2', () => {
         customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
         customerPlanMover.writeReport = writeReportStub;
 
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .resolves(mockStripeSubscription);
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockResolvedValue(mockStripeSubscription);
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
@@ -291,21 +287,21 @@ describe('CustomerPlanMover v2', () => {
 
       it('applies coupon to subscription', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith(
-            'sub_123',
-            sinon.match({
-              items: [
-                {
-                  id: 'si_123',
-                  price: 'destination-price-id',
-                },
-              ],
-              discounts: [{ coupon: 'test-coupon' }],
-              proration_behavior: 'none',
-              billing_cycle_anchor: 'unchanged',
-            })
-          )
-        ).toBe(true);
+          stripeStub.subscriptions.update as jest.Mock
+        ).toHaveBeenCalledWith(
+          'sub_123',
+          expect.objectContaining({
+            items: [
+              {
+                id: 'si_123',
+                price: 'destination-price-id',
+              },
+            ],
+            discounts: [{ coupon: 'test-coupon' }],
+            proration_behavior: 'none',
+            billing_cycle_anchor: 'unchanged',
+          })
+        );
       });
     });
 
@@ -330,9 +326,9 @@ describe('CustomerPlanMover v2', () => {
         customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
         customerPlanMover.writeReport = writeReportStub;
 
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .resolves(mockStripeSubscription);
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockResolvedValue(mockStripeSubscription);
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
@@ -342,21 +338,21 @@ describe('CustomerPlanMover v2', () => {
 
       it('uses specified proration behavior', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith(
-            'sub_123',
-            sinon.match({
-              items: [
-                {
-                  id: 'si_123',
-                  price: 'destination-price-id',
-                },
-              ],
-              discounts: undefined,
-              proration_behavior: 'create_prorations',
-              billing_cycle_anchor: 'unchanged',
-            })
-          )
-        ).toBe(true);
+          stripeStub.subscriptions.update as jest.Mock
+        ).toHaveBeenCalledWith(
+          'sub_123',
+          expect.objectContaining({
+            items: [
+              {
+                id: 'si_123',
+                price: 'destination-price-id',
+              },
+            ],
+            discounts: undefined,
+            proration_behavior: 'create_prorations',
+            billing_cycle_anchor: 'unchanged',
+          })
+        );
       });
     });
 
@@ -381,9 +377,9 @@ describe('CustomerPlanMover v2', () => {
         customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
         customerPlanMover.writeReport = writeReportStub;
 
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .resolves(mockStripeSubscription);
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockResolvedValue(mockStripeSubscription);
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
@@ -393,13 +389,13 @@ describe('CustomerPlanMover v2', () => {
 
       it('sets billing_cycle_anchor to "now"', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith(
-            'sub_123',
-            sinon.match({
-              billing_cycle_anchor: 'now',
-            })
-          )
-        ).toBe(true);
+          stripeStub.subscriptions.update as jest.Mock
+        ).toHaveBeenCalledWith(
+          'sub_123',
+          expect.objectContaining({
+            billing_cycle_anchor: 'now',
+          })
+        );
       });
     });
 
@@ -424,9 +420,9 @@ describe('CustomerPlanMover v2', () => {
         customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
         customerPlanMover.writeReport = writeReportStub;
 
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .resolves(mockStripeSubscription);
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockResolvedValue(mockStripeSubscription);
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
@@ -436,18 +432,18 @@ describe('CustomerPlanMover v2', () => {
 
       it('sets billing_cycle_anchor to "unchanged"', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).calledWith(
-            'sub_123',
-            sinon.match({
-              billing_cycle_anchor: 'unchanged',
-            })
-          )
-        ).toBe(true);
+          stripeStub.subscriptions.update as jest.Mock
+        ).toHaveBeenCalledWith(
+          'sub_123',
+          expect.objectContaining({
+            billing_cycle_anchor: 'unchanged',
+          })
+        );
       });
     });
 
     describe('success - with prorated refund', () => {
-      let attemptRefundStub: sinon.SinonStub;
+      let attemptRefundStub: jest.Mock;
 
       beforeEach(async () => {
         customerPlanMover = new CustomerPlanMover(
@@ -469,12 +465,12 @@ describe('CustomerPlanMover v2', () => {
         customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
         customerPlanMover.writeReport = writeReportStub;
 
-        attemptRefundStub = sinon.stub().resolves(500);
+        attemptRefundStub = jest.fn().mockResolvedValue(500);
         customerPlanMover.attemptRefund = attemptRefundStub;
 
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .resolves(mockStripeSubscription);
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockResolvedValue(mockStripeSubscription);
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
@@ -483,11 +479,11 @@ describe('CustomerPlanMover v2', () => {
       });
 
       it('attempts refund', () => {
-        expect(attemptRefundStub.calledWith(mockStripeSubscription)).toBe(true);
+        expect(attemptRefundStub).toHaveBeenCalledWith(mockStripeSubscription);
       });
 
       it('writes report with refund amount', () => {
-        const reportArgs = writeReportStub.firstCall.args[0];
+        const reportArgs = writeReportStub.mock.calls[0][0];
         expect(reportArgs.amountRefunded).toBe(500);
         expect(reportArgs.isOwed).toBe(false);
         expect(reportArgs.error).toBe(false);
@@ -495,7 +491,7 @@ describe('CustomerPlanMover v2', () => {
     });
 
     describe('refund failure', () => {
-      let attemptRefundStub: sinon.SinonStub;
+      let attemptRefundStub: jest.Mock;
 
       beforeEach(async () => {
         customerPlanMover = new CustomerPlanMover(
@@ -517,12 +513,14 @@ describe('CustomerPlanMover v2', () => {
         customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
         customerPlanMover.writeReport = writeReportStub;
 
-        attemptRefundStub = sinon.stub().rejects(new Error('Refund failed'));
+        attemptRefundStub = jest
+          .fn()
+          .mockRejectedValue(new Error('Refund failed'));
         customerPlanMover.attemptRefund = attemptRefundStub;
 
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .resolves(mockStripeSubscription);
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockResolvedValue(mockStripeSubscription);
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
@@ -531,7 +529,7 @@ describe('CustomerPlanMover v2', () => {
       });
 
       it('marks customer as owed', () => {
-        const reportArgs = writeReportStub.firstCall.args[0];
+        const reportArgs = writeReportStub.mock.calls[0][0];
         expect(reportArgs.isOwed).toBe(true);
         expect(reportArgs.amountRefunded).toBe(null);
         expect(reportArgs.error).toBe(false);
@@ -541,9 +539,9 @@ describe('CustomerPlanMover v2', () => {
     describe('dry run', () => {
       beforeEach(async () => {
         customerPlanMover.dryRun = true;
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .resolves(mockStripeSubscription);
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockResolvedValue(mockStripeSubscription);
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
@@ -553,21 +551,21 @@ describe('CustomerPlanMover v2', () => {
 
       it('does not update subscription', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).notCalled
-        ).toBe(true);
+          stripeStub.subscriptions.update as jest.Mock
+        ).not.toHaveBeenCalled();
       });
 
       it('still writes report', () => {
-        expect(writeReportStub.calledOnce).toBe(true);
+        expect(writeReportStub).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('customer excluded', () => {
       beforeEach(async () => {
-        isCustomerExcludedStub.returns(true);
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .resolves(mockStripeSubscription);
+        isCustomerExcludedStub.mockReturnValue(true);
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockResolvedValue(mockStripeSubscription);
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
@@ -577,12 +575,12 @@ describe('CustomerPlanMover v2', () => {
 
       it('does not update subscription', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).notCalled
-        ).toBe(true);
+          stripeStub.subscriptions.update as jest.Mock
+        ).not.toHaveBeenCalled();
       });
 
       it('writes report marking as excluded', () => {
-        const reportArgs = writeReportStub.firstCall.args[0];
+        const reportArgs = writeReportStub.mock.calls[0][0];
         expect(reportArgs.isExcluded).toBe(true);
         expect(reportArgs.error).toBe(false);
         expect(reportArgs.amountRefunded).toBe(null);
@@ -611,9 +609,9 @@ describe('CustomerPlanMover v2', () => {
         customerPlanMover.isCustomerExcluded = isCustomerExcludedStub;
         customerPlanMover.writeReport = writeReportStub;
 
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .resolves(mockStripeSubscription);
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockResolvedValue(mockStripeSubscription);
 
         const subscriptionSetToCancel = {
           ...mockStripeSubscription,
@@ -628,20 +626,18 @@ describe('CustomerPlanMover v2', () => {
 
       it('does not update subscription', () => {
         expect(
-          (stripeStub.subscriptions.update as sinon.SinonStub).notCalled
-        ).toBe(true);
+          stripeStub.subscriptions.update as jest.Mock
+        ).not.toHaveBeenCalled();
       });
 
       it('does not write report', () => {
-        expect(writeReportStub.notCalled).toBe(true);
+        expect(writeReportStub).not.toHaveBeenCalled();
       });
 
       it('logs skip message', () => {
-        expect(
-          logStub.calledWith(
-            sinon.match(/Skipping subscription.*set to cancel/)
-          )
-        ).toBe(true);
+        expect(logStub).toHaveBeenCalledWith(
+          expect.stringMatching(/Skipping subscription.*set to cancel/)
+        );
       });
     });
 
@@ -657,8 +653,8 @@ describe('CustomerPlanMover v2', () => {
           mockPrice
         );
 
-        expect(writeReportStub.calledOnce).toBe(true);
-        const reportArgs = writeReportStub.firstCall.args[0];
+        expect(writeReportStub).toHaveBeenCalledTimes(1);
+        const reportArgs = writeReportStub.mock.calls[0][0];
         expect(reportArgs.customer).toBe(null);
         expect(reportArgs.error).toBe(true);
         expect(reportArgs.isOwed).toBe(false);
@@ -666,15 +662,15 @@ describe('CustomerPlanMover v2', () => {
       });
 
       it('writes error report if customer does not exist', async () => {
-        customerPlanMover.fetchCustomer = sinon.stub().resolves(null);
+        customerPlanMover.fetchCustomer = jest.fn().mockResolvedValue(null);
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
           mockPrice
         );
 
-        expect(writeReportStub.calledOnce).toBe(true);
-        const reportArgs = writeReportStub.firstCall.args[0];
+        expect(writeReportStub).toHaveBeenCalledTimes(1);
+        const reportArgs = writeReportStub.mock.calls[0][0];
         expect(reportArgs.customer).toBe(null);
         expect(reportArgs.error).toBe(true);
         expect(reportArgs.isOwed).toBe(false);
@@ -682,7 +678,7 @@ describe('CustomerPlanMover v2', () => {
       });
 
       it('writes error report if customer has no subscriptions data', async () => {
-        customerPlanMover.fetchCustomer = sinon.stub().resolves({
+        customerPlanMover.fetchCustomer = jest.fn().mockResolvedValue({
           ...mockCustomer,
           subscriptions: undefined,
         });
@@ -692,42 +688,42 @@ describe('CustomerPlanMover v2', () => {
           mockPrice
         );
 
-        expect(writeReportStub.calledOnce).toBe(true);
-        const reportArgs = writeReportStub.firstCall.args[0];
+        expect(writeReportStub).toHaveBeenCalledTimes(1);
+        const reportArgs = writeReportStub.mock.calls[0][0];
         expect(reportArgs.error).toBe(true);
         expect(reportArgs.isOwed).toBe(false);
         expect(reportArgs.isExcluded).toBe(false);
       });
 
       it('writes error report if subscription update fails', async () => {
-        stripeStub.subscriptions.update = sinon
-          .stub()
-          .rejects(new Error('Update failed'));
+        stripeStub.subscriptions.update = jest
+          .fn()
+          .mockRejectedValue(new Error('Update failed'));
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
           mockPrice
         );
 
-        expect(writeReportStub.calledOnce).toBe(true);
-        const reportArgs = writeReportStub.firstCall.args[0];
+        expect(writeReportStub).toHaveBeenCalledTimes(1);
+        const reportArgs = writeReportStub.mock.calls[0][0];
         expect(reportArgs.error).toBe(true);
         expect(reportArgs.isOwed).toBe(false);
         expect(reportArgs.isExcluded).toBe(false);
       });
 
       it('writes error report if unexpected error occurs', async () => {
-        customerPlanMover.fetchCustomer = sinon
-          .stub()
-          .rejects(new Error('Unexpected error'));
+        customerPlanMover.fetchCustomer = jest
+          .fn()
+          .mockRejectedValue(new Error('Unexpected error'));
 
         await customerPlanMover.convertSubscription(
           mockStripeSubscription,
           mockPrice
         );
 
-        expect(writeReportStub.calledOnce).toBe(true);
-        const reportArgs = writeReportStub.firstCall.args[0];
+        expect(writeReportStub).toHaveBeenCalledTimes(1);
+        const reportArgs = writeReportStub.mock.calls[0][0];
         expect(reportArgs.error).toBe(true);
         expect(reportArgs.customer).toBe(null);
         expect(reportArgs.isOwed).toBe(false);
@@ -737,27 +733,25 @@ describe('CustomerPlanMover v2', () => {
   });
 
   describe('fetchCustomer', () => {
-    let customerRetrieveStub: sinon.SinonStub;
+    let customerRetrieveStub: jest.Mock;
     let result: Stripe.Customer | Stripe.DeletedCustomer | null;
 
     describe('customer exists', () => {
       beforeEach(async () => {
-        customerRetrieveStub = sinon.stub().resolves(mockCustomer);
+        customerRetrieveStub = jest.fn().mockResolvedValue(mockCustomer);
         stripeStub.customers.retrieve = customerRetrieveStub;
 
         result = await customerPlanMover.fetchCustomer(mockCustomer.id);
       });
 
       it('fetches customer from Stripe with subscriptions expanded', () => {
-        expect(
-          customerRetrieveStub.calledWith(mockCustomer.id, {
-            expand: ['subscriptions'],
-          })
-        ).toBe(true);
+        expect(customerRetrieveStub).toHaveBeenCalledWith(mockCustomer.id, {
+          expand: ['subscriptions'],
+        });
       });
 
       it('returns customer', () => {
-        sinon.assert.match(result, mockCustomer);
+        expect(result).toEqual(mockCustomer);
       });
     });
 
@@ -767,14 +761,14 @@ describe('CustomerPlanMover v2', () => {
           ...mockCustomer,
           deleted: true,
         };
-        customerRetrieveStub = sinon.stub().resolves(deletedCustomer);
+        customerRetrieveStub = jest.fn().mockResolvedValue(deletedCustomer);
         stripeStub.customers.retrieve = customerRetrieveStub;
 
         result = await customerPlanMover.fetchCustomer(mockCustomer.id);
       });
 
       it('returns null', () => {
-        sinon.assert.match(result, null);
+        expect(result).toEqual(null);
       });
     });
   });
@@ -799,8 +793,8 @@ describe('CustomerPlanMover v2', () => {
       paid_out_of_band: false,
     } as unknown as Stripe.Invoice;
 
-    let enqueueRequestStub: sinon.SinonStub;
-    let logStub: sinon.SinonStub;
+    let enqueueRequestStub: jest.Mock;
+    let logStub: jest.SpyInstance;
 
     beforeEach(() => {
       customerPlanMover = new CustomerPlanMover(
@@ -819,29 +813,30 @@ describe('CustomerPlanMover v2', () => {
         paypalHelperStub
       );
 
-      enqueueRequestStub = sinon.stub();
+      enqueueRequestStub = jest.fn();
       customerPlanMover.enqueueRequest = enqueueRequestStub;
-      logStub = sinon.stub(console, 'log');
+      logStub = jest.spyOn(console, 'log');
     });
 
     afterEach(() => {
-      logStub.restore();
+      logStub.mockRestore();
     });
 
     describe('Stripe refund', () => {
       beforeEach(async () => {
-        enqueueRequestStub.onFirstCall().resolves(mockPaidInvoice);
-        enqueueRequestStub.onSecondCall().resolves({});
+        enqueueRequestStub
+          .mockResolvedValueOnce(mockPaidInvoice)
+          .mockResolvedValueOnce({});
 
         await customerPlanMover.attemptRefund(mockSubscriptionWithInvoice);
       });
 
       it('retrieves invoice', () => {
-        expect(enqueueRequestStub.calledTwice).toBe(true);
+        expect(enqueueRequestStub).toHaveBeenCalledTimes(2);
       });
 
       it('creates refund', () => {
-        expect(enqueueRequestStub.calledTwice).toBe(true);
+        expect(enqueueRequestStub).toHaveBeenCalledTimes(2);
       });
     });
 
@@ -866,17 +861,17 @@ describe('CustomerPlanMover v2', () => {
           paid_out_of_band: true,
         } as unknown as Stripe.Invoice;
 
-        enqueueRequestStub.resolves(mockPayPalInvoice);
+        enqueueRequestStub.mockResolvedValue(mockPayPalInvoice);
 
         await customerPlanMover.attemptRefund(mockSubscriptionWithInvoice);
       });
 
       it('calls paypalHelper.refundInvoice with full refund', () => {
         expect(
-          (paypalHelperStub.refundInvoice as sinon.SinonStub).calledOnce
-        ).toBe(true);
-        const args = (paypalHelperStub.refundInvoice as sinon.SinonStub)
-          .firstCall.args;
+          paypalHelperStub.refundInvoice as jest.Mock
+        ).toHaveBeenCalledTimes(1);
+        const args = (paypalHelperStub.refundInvoice as jest.Mock).mock
+          .calls[0];
         expect(args[1].refundType).toBe('Full');
       });
     });
@@ -902,17 +897,17 @@ describe('CustomerPlanMover v2', () => {
           paid_out_of_band: true,
         } as unknown as Stripe.Invoice;
 
-        enqueueRequestStub.resolves(mockPayPalInvoice);
+        enqueueRequestStub.mockResolvedValue(mockPayPalInvoice);
 
         await customerPlanMover.attemptRefund(mockSubscriptionWithInvoice);
       });
 
       it('calls paypalHelper.refundInvoice with partial refund', () => {
         expect(
-          (paypalHelperStub.refundInvoice as sinon.SinonStub).calledOnce
-        ).toBe(true);
-        const args = (paypalHelperStub.refundInvoice as sinon.SinonStub)
-          .firstCall.args;
+          paypalHelperStub.refundInvoice as jest.Mock
+        ).toHaveBeenCalledTimes(1);
+        const args = (paypalHelperStub.refundInvoice as jest.Mock).mock
+          .calls[0];
         expect(args[1].refundType).toBe('Partial');
         expect(args[1].amount).toBe(calculatedRefundAmount);
       });
@@ -921,13 +916,13 @@ describe('CustomerPlanMover v2', () => {
     describe('dry run', () => {
       beforeEach(async () => {
         customerPlanMover.dryRun = true;
-        enqueueRequestStub.resolves(mockPaidInvoice);
+        enqueueRequestStub.mockResolvedValue(mockPaidInvoice);
 
         await customerPlanMover.attemptRefund(mockSubscriptionWithInvoice);
       });
 
       it('does not create refund', () => {
-        expect(enqueueRequestStub.callCount).toBe(1); // Only invoice retrieval
+        expect(enqueueRequestStub).toHaveBeenCalledTimes(1); // Only invoice retrieval
       });
     });
 
@@ -970,7 +965,7 @@ describe('CustomerPlanMover v2', () => {
           ...mockPaidInvoice,
           paid: false,
         } as Stripe.Invoice;
-        enqueueRequestStub.resolves(unpaidInvoice);
+        enqueueRequestStub.mockResolvedValue(unpaidInvoice);
 
         await expect(
           customerPlanMover.attemptRefund(mockSubscriptionWithInvoice)
@@ -983,7 +978,7 @@ describe('CustomerPlanMover v2', () => {
           amount_due: 100,
           created: Math.floor(Date.now() / 1000) - 86400 * 50, // 50 days ago
         } as Stripe.Invoice;
-        enqueueRequestStub.resolves(oldInvoice);
+        enqueueRequestStub.mockResolvedValue(oldInvoice);
 
         await expect(
           customerPlanMover.attemptRefund(mockSubscriptionWithInvoice)
@@ -995,7 +990,7 @@ describe('CustomerPlanMover v2', () => {
           ...mockPaidInvoice,
           charge: null,
         } as unknown as Stripe.Invoice;
-        enqueueRequestStub.resolves(invoiceNoCharge);
+        enqueueRequestStub.mockResolvedValue(invoiceNoCharge);
 
         await expect(
           customerPlanMover.attemptRefund(mockSubscriptionWithInvoice)

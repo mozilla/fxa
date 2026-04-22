@@ -7,12 +7,10 @@
  * It tests the IP profiling behavior in the account login route.
  *
  * This test uses shared mocks from test/mocks.js where possible, but keeps
- * mockRequest inline because the shared version uses proxyquire with relative
  * paths that don't work from lib/routes/.
  */
 
 import crypto from 'crypto';
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import { v4 as uuid } from 'uuid';
 
@@ -38,7 +36,6 @@ const KNOWN_LOCATION = {
 
 /**
  * Simplified mockRequest for this test file.
- * The shared mocks.mockRequest() uses proxyquire with relative paths
  * that don't resolve correctly when running from lib/routes/.
  */
 function mockRequest(data: any) {
@@ -69,10 +66,12 @@ function mockRequest(data: any) {
     auth: {
       credentials: data.credentials,
     },
-    clearMetricsContext: sinon.stub(),
-    emitMetricsEvent: sinon.stub().resolves(),
-    emitRouteFlowEvent: sinon.stub().resolves(),
-    gatherMetricsContext: sinon.stub().callsFake((d: any) => Promise.resolve(d)),
+    clearMetricsContext: jest.fn(),
+    emitMetricsEvent: jest.fn().mockResolvedValue(),
+    emitRouteFlowEvent: jest.fn().mockResolvedValue(),
+    gatherMetricsContext: jest
+      .fn()
+      .mockImplementation((d: any) => Promise.resolve(d)),
     headers: {
       'user-agent': 'test user-agent',
     },
@@ -83,11 +82,11 @@ function mockRequest(data: any) {
     params: {},
     path: data.path,
     payload: data.payload || {},
-    propagateMetricsContext: sinon.stub().resolves(),
+    propagateMetricsContext: jest.fn().mockResolvedValue(),
     query: data.query || {},
-    setMetricsFlowCompleteSignal: sinon.stub(),
-    stashMetricsContext: sinon.stub().resolves(),
-    validateMetricsContext: sinon.stub().returns(true),
+    setMetricsFlowCompleteSignal: jest.fn(),
+    stashMetricsContext: jest.fn().mockResolvedValue(),
+    validateMetricsContext: jest.fn().mockReturnValue(true),
   };
 }
 
@@ -106,7 +105,7 @@ function makeRoutes(options: { db: any; mailer: any }) {
   };
   const log = mocks.mockLog();
   mocks.mockAccountEventsManager();
-  Container.set(AccountDeleteManager, { enqueue: sinon.stub() });
+  Container.set(AccountDeleteManager, { enqueue: jest.fn() });
   Container.set(AppConfig, config);
   Container.set(AuthLogger, log);
   const cadReminders = mocks.mockCadReminders();
@@ -124,8 +123,8 @@ function makeRoutes(options: { db: any; mailer: any }) {
   const { accountRoutes } = require('./account');
 
   const authServerCacheRedis = {
-    get: sinon.stub().resolves(null),
-    del: sinon.stub().resolves(0),
+    get: jest.fn().mockResolvedValue(null),
+    del: jest.fn().mockResolvedValue(0),
   };
 
   return accountRoutes(
@@ -184,7 +183,9 @@ describe('IP Profiling', () => {
       ],
     });
     jest.clearAllMocks();
-    mockFxaMailerInstance = mocks.mockFxaMailer({ canSend: sinon.stub().resolves(true) });
+    mockFxaMailerInstance = mocks.mockFxaMailer({
+      canSend: jest.fn().mockResolvedValue(true),
+    });
     mocks.mockOAuthClientInfo();
     mockDBInstance = mocks.mockDB({
       email: TEST_EMAIL,
@@ -225,7 +226,7 @@ describe('IP Profiling', () => {
   });
 
   it('no previously verified session', async () => {
-    mockDBInstance.verifiedLoginSecurityEvents = sinon.stub().resolves([
+    mockDBInstance.verifiedLoginSecurityEvents = jest.fn().mockResolvedValue([
       {
         name: 'account.login',
         createdAt: Date.now(),
@@ -234,14 +235,18 @@ describe('IP Profiling', () => {
     ]);
 
     await runTest(route, mockRequestInstance, (response: any) => {
-      expect(mockFxaMailerInstance.sendVerifyLoginEmail.callCount).toBe(1);
-      expect(mockFxaMailerInstance.sendNewDeviceLoginEmail.callCount).toBe(0);
+      expect(mockFxaMailerInstance.sendVerifyLoginEmail).toHaveBeenCalledTimes(
+        1
+      );
+      expect(
+        mockFxaMailerInstance.sendNewDeviceLoginEmail
+      ).toHaveBeenCalledTimes(0);
       expect(response.sessionVerified).toBe(false);
     });
   });
 
   it('previously verified session', async () => {
-    mockDBInstance.verifiedLoginSecurityEvents = sinon.stub().resolves([
+    mockDBInstance.verifiedLoginSecurityEvents = jest.fn().mockResolvedValue([
       {
         name: 'account.login',
         createdAt: Date.now(),
@@ -250,14 +255,18 @@ describe('IP Profiling', () => {
     ]);
 
     await runTest(route, mockRequestInstance, (response: any) => {
-      expect(mockFxaMailerInstance.sendVerifyLoginEmail.callCount).toBe(0);
-      expect(mockFxaMailerInstance.sendNewDeviceLoginEmail.callCount).toBe(1);
+      expect(mockFxaMailerInstance.sendVerifyLoginEmail).toHaveBeenCalledTimes(
+        0
+      );
+      expect(
+        mockFxaMailerInstance.sendNewDeviceLoginEmail
+      ).toHaveBeenCalledTimes(1);
       expect(response.sessionVerified).toBe(true);
     });
   });
 
   it('previously verified session more than a day', async () => {
-    mockDBInstance.securityEvents = sinon.stub().resolves([
+    mockDBInstance.securityEvents = jest.fn().mockResolvedValue([
       {
         name: 'account.login',
         createdAt: Date.now() - MS_ONE_DAY * 2, // Created two days ago
@@ -266,8 +275,12 @@ describe('IP Profiling', () => {
     ]);
 
     await runTest(route, mockRequestInstance, (response: any) => {
-      expect(mockFxaMailerInstance.sendVerifyLoginEmail.callCount).toBe(1);
-      expect(mockFxaMailerInstance.sendNewDeviceLoginEmail.callCount).toBe(0);
+      expect(mockFxaMailerInstance.sendVerifyLoginEmail).toHaveBeenCalledTimes(
+        1
+      );
+      expect(
+        mockFxaMailerInstance.sendNewDeviceLoginEmail
+      ).toHaveBeenCalledTimes(0);
       expect(response.sessionVerified).toBe(false);
     });
   });
@@ -276,7 +289,7 @@ describe('IP Profiling', () => {
     const forceSigninEmail = 'forcedemail@mozilla.com';
     mockRequestInstance.payload.email = forceSigninEmail;
 
-    mockDBInstance.accountRecord = sinon.stub().resolves({
+    mockDBInstance.accountRecord = jest.fn().mockResolvedValue({
       authSalt: crypto.randomBytes(32),
       data: crypto.randomBytes(32),
       email: forceSigninEmail,
@@ -294,13 +307,17 @@ describe('IP Profiling', () => {
     });
 
     let response = await runTest(route, mockRequestInstance);
-    expect(mockFxaMailerInstance.sendVerifyLoginEmail.callCount).toBe(1);
-    expect(mockFxaMailerInstance.sendNewDeviceLoginEmail.callCount).toBe(0);
+    expect(mockFxaMailerInstance.sendVerifyLoginEmail).toHaveBeenCalledTimes(1);
+    expect(mockFxaMailerInstance.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(
+      0
+    );
     expect(response.sessionVerified).toBe(false);
 
     response = await runTest(route, mockRequestInstance);
-    expect(mockFxaMailerInstance.sendVerifyLoginEmail.callCount).toBe(2);
-    expect(mockFxaMailerInstance.sendNewDeviceLoginEmail.callCount).toBe(0);
+    expect(mockFxaMailerInstance.sendVerifyLoginEmail).toHaveBeenCalledTimes(2);
+    expect(mockFxaMailerInstance.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(
+      0
+    );
     expect(response.sessionVerified).toBe(false);
   });
 
@@ -309,13 +326,17 @@ describe('IP Profiling', () => {
     mockRequestInstance.app.isSuspiciousRequest = true;
 
     let response = await runTest(route, mockRequestInstance);
-    expect(mockFxaMailerInstance.sendVerifyLoginEmail.callCount).toBe(1);
-    expect(mockFxaMailerInstance.sendNewDeviceLoginEmail.callCount).toBe(0);
+    expect(mockFxaMailerInstance.sendVerifyLoginEmail).toHaveBeenCalledTimes(1);
+    expect(mockFxaMailerInstance.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(
+      0
+    );
     expect(response.sessionVerified).toBe(false);
 
     response = await runTest(route, mockRequestInstance);
-    expect(mockFxaMailerInstance.sendVerifyLoginEmail.callCount).toBe(2);
-    expect(mockFxaMailerInstance.sendNewDeviceLoginEmail.callCount).toBe(0);
+    expect(mockFxaMailerInstance.sendVerifyLoginEmail).toHaveBeenCalledTimes(2);
+    expect(mockFxaMailerInstance.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(
+      0
+    );
     expect(response.sessionVerified).toBe(false);
   });
 });

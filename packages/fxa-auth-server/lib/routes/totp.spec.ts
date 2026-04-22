@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
 import { Container } from 'typedi';
 import { AppError as authErrors } from '@fxa/accounts/errors';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
@@ -30,11 +29,11 @@ let log: any,
 
 const glean = mocks.mockGlean();
 const mockRecoveryPhoneService = {
-  hasConfirmed: sinon.fake(),
-  removePhoneNumber: sinon.fake.resolves(true),
+  hasConfirmed: jest.fn(),
+  removePhoneNumber: jest.fn().mockResolvedValue(true),
 };
 const mockBackupCodeManager = {
-  deleteRecoveryCodes: sinon.fake.resolves(true),
+  deleteRecoveryCodes: jest.fn().mockResolvedValue(true),
 };
 
 const TEST_EMAIL = 'test@email.com';
@@ -49,8 +48,8 @@ function setup(results: any, errors: any, routePath: string, reqOpts: any) {
   mailer = mocks.mockMailer();
   db = mocks.mockDB(results.db, errors.db);
   authServerCacheRedis = {
-    set: sinon.stub(),
-    get: sinon.stub((key: any) => {
+    set: jest.fn(),
+    get: jest.fn((key: any) => {
       if (results.redis) {
         if (key && key.includes(':secret:')) {
           return Promise.resolve(results.redis.secret || null);
@@ -61,11 +60,11 @@ function setup(results: any, errors: any, routePath: string, reqOpts: any) {
       }
       return Promise.resolve(results.redis ? results.redis.secret : null);
     }),
-    del: sinon.stub(),
+    del: jest.fn(),
   };
 
   profile = mocks.mockProfile();
-  db.consumeRecoveryCode = sinon.spy(() => {
+  db.consumeRecoveryCode = jest.fn(() => {
     if (errors.consumeRecoveryCode) {
       return Promise.reject(authErrors.recoveryCodeNotFound());
     }
@@ -73,16 +72,16 @@ function setup(results: any, errors: any, routePath: string, reqOpts: any) {
       remaining: reqOpts.remaining || 2,
     });
   });
-  db.createTotpToken = sinon.spy(() => {
+  db.createTotpToken = jest.fn(() => {
     return Promise.resolve({
       qrCodeUrl: 'some base64 encoded png',
       sharedSecret: secret,
     });
   });
-  db.verifyTokensWithMethod = sinon.spy(() => {
+  db.verifyTokensWithMethod = jest.fn(() => {
     return Promise.resolve();
   });
-  db.totpToken = sinon.spy(() => {
+  db.totpToken = jest.fn(() => {
     return Promise.resolve({
       verified: results?.totpTokenVerified || false,
       enabled: results?.totpTokenEnabled || false,
@@ -92,7 +91,7 @@ function setup(results: any, errors: any, routePath: string, reqOpts: any) {
           : undefined,
     });
   });
-  db.replaceTotpToken = sinon.spy(() => {
+  db.replaceTotpToken = jest.fn(() => {
     if (errors.replaceTotpToken) {
       return Promise.reject('Error replacing TOTP token');
     }
@@ -111,7 +110,7 @@ function setup(results: any, errors: any, routePath: string, reqOpts: any) {
   });
   route = getRoute(routes, routePath);
   request = mocks.mockRequest(reqOpts);
-  request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
+  request.emitMetricsEvent = jest.fn(() => Promise.resolve({}));
 
   return route.handler(request);
 }
@@ -169,7 +168,7 @@ describe('totp', () => {
       },
     };
     accountEventsManager = {
-      recordSecurityEvent: sinon.fake.resolves({}),
+      recordSecurityEvent: jest.fn().mockResolvedValue({}),
     };
 
     mocks.mockOAuthClientInfo();
@@ -178,7 +177,7 @@ describe('totp', () => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
     Container.set(BackupCodeManager, mockBackupCodeManager);
 
-    glean.twoStepAuthRemove.success.reset();
+    glean.twoStepAuthRemove.success.mockClear();
   });
 
   afterAll(() => {
@@ -195,13 +194,15 @@ describe('totp', () => {
       ).then((response: any) => {
         expect(response.qrCodeUrl).toBeTruthy();
         expect(response.secret).toBeTruthy();
-        expect(authServerCacheRedis.set.callCount).toBe(1);
+        expect(authServerCacheRedis.set).toHaveBeenCalledTimes(1);
 
         // emits correct metrics
-        expect(request.emitMetricsEvent.callCount).toBe(1);
-        const args = request.emitMetricsEvent.args[0];
-        expect(args[0]).toBe('totpToken.created');
-        expect(args[1]['uid']).toBe('uid');
+        expect(request.emitMetricsEvent).toHaveBeenCalledTimes(1);
+        expect(request.emitMetricsEvent).toHaveBeenNthCalledWith(
+          1,
+          'totpToken.created',
+          expect.objectContaining({ uid: 'uid' })
+        );
       });
     });
   });
@@ -215,7 +216,7 @@ describe('totp', () => {
         requestOptions
       ).then((response: any) => {
         expect(response).toBeTruthy();
-        expect(db.totpToken.callCount).toBe(1);
+        expect(db.totpToken).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -223,8 +224,8 @@ describe('totp', () => {
   // Note: this endpoint only verifies sessions; setup flow is covered by /totp/setup/* tests.
   describe('/session/verify/totp', () => {
     afterEach(() => {
-      glean.login.totpSuccess.reset();
-      glean.login.totpFailure.reset();
+      glean.login.totpSuccess.mockClear();
+      glean.login.totpFailure.mockClear();
     });
 
     it('should verify session with TOTP token - sync', () => {
@@ -248,36 +249,42 @@ describe('totp', () => {
         requestOptions
       ).then((response: any) => {
         expect(response.success).toBe(true);
-        expect(db.totpToken.callCount).toBe(1);
-        expect(db.updateTotpToken.callCount).toBe(0);
+        expect(db.totpToken).toHaveBeenCalledTimes(1);
+        expect(db.updateTotpToken).toHaveBeenCalledTimes(0);
 
-        expect(log.notifyAttachedServices.callCount).toBe(0);
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(0);
 
         // verifies session
-        expect(db.verifyTokensWithMethod.callCount).toBe(1);
-        const args = db.verifyTokensWithMethod.args[0];
-        expect(args[0]).toBe(sessionId);
-        expect(args[1]).toBe('totp-2fa');
+        expect(db.verifyTokensWithMethod).toHaveBeenCalledTimes(1);
+        expect(db.verifyTokensWithMethod).toHaveBeenNthCalledWith(
+          1,
+          sessionId,
+          'totp-2fa'
+        );
 
         // emits correct metrics
-        sinon.assert.calledTwice(request.emitMetricsEvent);
-        sinon.assert.calledWith(
-          request.emitMetricsEvent,
+        expect(request.emitMetricsEvent).toHaveBeenCalledTimes(2);
+        expect(request.emitMetricsEvent).toHaveBeenCalledWith(
           'totpToken.verified',
           { uid: 'uid' }
         );
-        sinon.assert.calledWith(request.emitMetricsEvent, 'account.confirmed', {
-          uid: 'uid',
-        });
-
-        // correct emails sent
-        expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(1);
-        expect(fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount).toBe(
-          0
+        expect(request.emitMetricsEvent).toHaveBeenCalledWith(
+          'account.confirmed',
+          {
+            uid: 'uid',
+          }
         );
 
-        sinon.assert.calledOnceWithExactly(
-          accountEventsManager.recordSecurityEvent,
+        // correct emails sent
+        expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(
+          fxaMailer.sendPostAddTwoStepAuthenticationEmail
+        ).toHaveBeenCalledTimes(0);
+
+        expect(accountEventsManager.recordSecurityEvent).toHaveBeenCalledTimes(
+          1
+        );
+        expect(accountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
           db,
           {
             name: 'account.two_factor_challenge_success',
@@ -297,7 +304,7 @@ describe('totp', () => {
           }
         );
 
-        sinon.assert.calledOnce(glean.login.totpSuccess);
+        expect(glean.login.totpSuccess).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -321,33 +328,37 @@ describe('totp', () => {
         requestOptions
       ).then((response: any) => {
         expect(response.success).toBe(true);
-        expect(db.totpToken.callCount).toBe(1);
-        expect(db.updateTotpToken.callCount).toBe(0);
+        expect(db.totpToken).toHaveBeenCalledTimes(1);
+        expect(db.updateTotpToken).toHaveBeenCalledTimes(0);
 
-        expect(log.notifyAttachedServices.callCount).toBe(0);
+        expect(log.notifyAttachedServices).toHaveBeenCalledTimes(0);
 
         // verifies session
-        expect(db.verifyTokensWithMethod.callCount).toBe(1);
-        const args = db.verifyTokensWithMethod.args[0];
-        expect(args[0]).toBe(sessionId);
-        expect(args[1]).toBe('totp-2fa');
+        expect(db.verifyTokensWithMethod).toHaveBeenCalledTimes(1);
+        expect(db.verifyTokensWithMethod).toHaveBeenNthCalledWith(
+          1,
+          sessionId,
+          'totp-2fa'
+        );
 
         // emits correct metrics
-        sinon.assert.calledTwice(request.emitMetricsEvent);
-        sinon.assert.calledWith(
-          request.emitMetricsEvent,
+        expect(request.emitMetricsEvent).toHaveBeenCalledTimes(2);
+        expect(request.emitMetricsEvent).toHaveBeenCalledWith(
           'totpToken.verified',
           { uid: 'uid' }
         );
-        sinon.assert.calledWith(request.emitMetricsEvent, 'account.confirmed', {
-          uid: 'uid',
-        });
+        expect(request.emitMetricsEvent).toHaveBeenCalledWith(
+          'account.confirmed',
+          {
+            uid: 'uid',
+          }
+        );
 
         // correct emails sent
-        expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(1);
-        expect(fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount).toBe(
-          0
-        );
+        expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(
+          fxaMailer.sendPostAddTwoStepAuthenticationEmail
+        ).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -366,22 +377,26 @@ describe('totp', () => {
         requestOptions
       ).then((response: any) => {
         expect(response.success).toBe(false);
-        expect(db.totpToken.callCount).toBe(1);
+        expect(db.totpToken).toHaveBeenCalledTimes(1);
 
         // emits correct metrics
-        expect(request.emitMetricsEvent.callCount).toBe(1);
-        const args = request.emitMetricsEvent.args[0];
-        expect(args[0]).toBe('totpToken.unverified');
-        expect(args[1]['uid']).toBe('uid');
-
-        // correct emails sent
-        expect(fxaMailer.sendNewDeviceLoginEmail.callCount).toBe(0);
-        expect(fxaMailer.sendPostAddTwoStepAuthenticationEmail.callCount).toBe(
-          0
+        expect(request.emitMetricsEvent).toHaveBeenCalledTimes(1);
+        expect(request.emitMetricsEvent).toHaveBeenNthCalledWith(
+          1,
+          'totpToken.unverified',
+          expect.objectContaining({ uid: 'uid' })
         );
 
-        sinon.assert.calledOnceWithExactly(
-          accountEventsManager.recordSecurityEvent,
+        // correct emails sent
+        expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(0);
+        expect(
+          fxaMailer.sendPostAddTwoStepAuthenticationEmail
+        ).toHaveBeenCalledTimes(0);
+
+        expect(accountEventsManager.recordSecurityEvent).toHaveBeenCalledTimes(
+          1
+        );
+        expect(accountEventsManager.recordSecurityEvent).toHaveBeenCalledWith(
           db,
           {
             name: 'account.two_factor_challenge_failure',
@@ -401,7 +416,7 @@ describe('totp', () => {
           }
         );
 
-        sinon.assert.calledOnce(glean.login.totpFailure);
+        expect(glean.login.totpFailure).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -409,8 +424,8 @@ describe('totp', () => {
   // This endpoint is used for code verification during TOTP setup only
   describe('/totp/setup/verify', () => {
     beforeEach(() => {
-      glean.twoFactorAuth.setupVerifySuccess.reset();
-      glean.twoFactorAuth.setupInvalidCodeError.reset();
+      glean.twoFactorAuth.setupVerifySuccess.mockClear();
+      glean.twoFactorAuth.setupInvalidCodeError.mockClear();
     });
 
     it('should verify a valid totp code', async () => {
@@ -431,10 +446,10 @@ describe('totp', () => {
       );
       expect(response.success).toBe(true);
       // Confirm we touched Redis to set both secret and verified digest
-      expect(authServerCacheRedis.set.callCount).toBe(2);
-      sinon.assert.calledOnce(glean.twoFactorAuth.setupVerifySuccess);
-      sinon.assert.calledOnceWithExactly(
-        customs.checkAuthenticated,
+      expect(authServerCacheRedis.set).toHaveBeenCalledTimes(2);
+      expect(glean.twoFactorAuth.setupVerifySuccess).toHaveBeenCalledTimes(1);
+      expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
         request,
         'uid',
         TEST_EMAIL,
@@ -460,8 +475,10 @@ describe('totp', () => {
         expect(err.errno).toBe(
           authErrors.ERRNO.INVALID_TOKEN_VERIFICATION_CODE
         );
-        expect(authServerCacheRedis.set.callCount).toBe(0);
-        sinon.assert.calledOnce(glean.twoFactorAuth.setupInvalidCodeError);
+        expect(authServerCacheRedis.set).toHaveBeenCalledTimes(0);
+        expect(glean.twoFactorAuth.setupInvalidCodeError).toHaveBeenCalledTimes(
+          1
+        );
       }
     });
 
@@ -481,7 +498,7 @@ describe('totp', () => {
 
   describe('/totp/setup/complete', () => {
     beforeEach(() => {
-      glean.twoFactorAuth.codeComplete.reset();
+      glean.twoFactorAuth.codeComplete.mockClear();
     });
 
     it('should complete the setup process', async () => {
@@ -500,13 +517,15 @@ describe('totp', () => {
         requestOptions
       );
       expect(response.success).toBe(true);
-      sinon.assert.calledOnce(db.replaceTotpToken);
-      sinon.assert.calledOnce(db.verifyTokensWithMethod);
-      expect(authServerCacheRedis.del.callCount).toBe(2);
-      sinon.assert.calledOnce(profile.deleteCache);
-      sinon.assert.calledOnce(log.notifyAttachedServices);
-      sinon.assert.calledOnce(glean.twoFactorAuth.codeComplete);
-      sinon.assert.calledOnce(fxaMailer.sendPostAddTwoStepAuthenticationEmail);
+      expect(db.replaceTotpToken).toHaveBeenCalledTimes(1);
+      expect(db.verifyTokensWithMethod).toHaveBeenCalledTimes(1);
+      expect(authServerCacheRedis.del).toHaveBeenCalledTimes(2);
+      expect(profile.deleteCache).toHaveBeenCalledTimes(1);
+      expect(log.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      expect(glean.twoFactorAuth.codeComplete).toHaveBeenCalledTimes(1);
+      expect(
+        fxaMailer.sendPostAddTwoStepAuthenticationEmail
+      ).toHaveBeenCalledTimes(1);
     });
 
     it('should fail for a missing secret', async () => {
@@ -559,11 +578,12 @@ describe('totp', () => {
         requestOptions
       );
 
-      sinon.assert.calledOnce(glean.resetPassword.twoFactorSuccess);
+      expect(glean.resetPassword.twoFactorSuccess).toHaveBeenCalledTimes(1);
       expect(response.success).toBe(true);
-      sinon.assert.calledOnceWithExactly(db.totpToken, 'uid');
-      sinon.assert.calledOnceWithExactly(
-        customs.checkAuthenticated,
+      expect(db.totpToken).toHaveBeenCalledTimes(1);
+      expect(db.totpToken).toHaveBeenCalledWith('uid');
+      expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
         request,
         'uid',
         TEST_EMAIL,
@@ -587,9 +607,10 @@ describe('totp', () => {
       );
 
       expect(response.success).toBe(false);
-      sinon.assert.calledOnceWithExactly(db.totpToken, 'uid');
-      sinon.assert.calledOnceWithExactly(
-        customs.checkAuthenticated,
+      expect(db.totpToken).toHaveBeenCalledTimes(1);
+      expect(db.totpToken).toHaveBeenCalledWith('uid');
+      expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
         request,
         'uid',
         TEST_EMAIL,
@@ -612,19 +633,20 @@ describe('totp', () => {
         requestOptions
       );
 
-      sinon.assert.calledOnce(glean.resetPassword.twoFactorRecoveryCodeSuccess);
+      expect(
+        glean.resetPassword.twoFactorRecoveryCodeSuccess
+      ).toHaveBeenCalledTimes(1);
 
-      sinon.assert.calledOnce(fxaMailer.sendPostConsumeRecoveryCodeEmail);
-      sinon.assert.notCalled(fxaMailer.sendLowRecoveryCodesEmail);
+      expect(fxaMailer.sendPostConsumeRecoveryCodeEmail).toHaveBeenCalledTimes(
+        1
+      );
+      expect(fxaMailer.sendLowRecoveryCodesEmail).not.toHaveBeenCalled();
 
       expect(response.remaining).toBe(2);
-      sinon.assert.calledOnceWithExactly(
-        db.consumeRecoveryCode,
-        'uid',
-        '1234567890'
-      );
-      sinon.assert.calledOnceWithExactly(
-        customs.checkAuthenticated,
+      expect(db.consumeRecoveryCode).toHaveBeenCalledTimes(1);
+      expect(db.consumeRecoveryCode).toHaveBeenCalledWith('uid', '1234567890');
+      expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
         request,
         'uid',
         TEST_EMAIL,
@@ -661,13 +683,10 @@ describe('totp', () => {
         requestOptions
       );
 
-      sinon.assert.calledOnce(fxaMailer.sendLowRecoveryCodesEmail);
+      expect(fxaMailer.sendLowRecoveryCodesEmail).toHaveBeenCalledTimes(1);
       expect(response.remaining).toBe(1);
-      sinon.assert.calledOnceWithExactly(
-        db.consumeRecoveryCode,
-        'uid',
-        '1234567890'
-      );
+      expect(db.consumeRecoveryCode).toHaveBeenCalledTimes(1);
+      expect(db.consumeRecoveryCode).toHaveBeenCalledWith('uid', '1234567890');
     });
   });
 });
