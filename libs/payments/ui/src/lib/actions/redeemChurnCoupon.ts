@@ -17,6 +17,19 @@ export const redeemChurnCouponAction = async (
   acceptLanguage?: string | null,
   selectedLanguage?: string
 ) => {
+  if (
+    typeof uid !== 'string' ||
+    typeof subscriptionId !== 'string' ||
+    (churnType !== 'cancel' && churnType !== 'stay_subscribed')
+  ) {
+    return {
+      redeemed: false,
+      reason: 'invalid_args',
+      updatedChurnInterventionEntryData: null,
+      cmsChurnInterventionEntry: null,
+    };
+  }
+
   const requestArgs = {
     ...(await getAdditionalRequestArgs()),
     params: flattenRouteParams(params),
