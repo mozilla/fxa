@@ -55,7 +55,6 @@
       "continuous": true,
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
-      "dependsOn": ["build"],
       "options": {
         "buildTarget": "payments-api:build",
         "runBuildTargetDependencies": false
@@ -70,7 +69,8 @@
       }
     },
     "start": {
-      "command": "pm2 start apps/payments/api/pm2.config.js && yarn check:url localhost:3037/__heartbeat__"
+      "command": "pm2 start apps/payments/api/pm2.config.js && yarn check:url localhost:3037/__heartbeat__",
+      "dependsOn": []
     },
     "stop": {
       "command": "pm2 stop apps/payments/api/pm2.config.js"
