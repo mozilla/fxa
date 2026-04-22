@@ -159,11 +159,14 @@ export const bentoVpn = new EventMetricType(
 );
 
 /**
- * Click on "Change" on account settings page to change password for account
+ * Click on "Change" or "Create" on account settings page to change or create a
+ * password for the account
  *
  * Generated from `account_pref.change_password_submit`.
  */
-export const changePasswordSubmit = new EventMetricType(
+export const changePasswordSubmit = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'account_pref',
     name: 'change_password_submit',
@@ -171,7 +174,7 @@ export const changePasswordSubmit = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**

@@ -16,6 +16,7 @@ import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
+import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -687,6 +688,45 @@ describe('lib/glean', () => {
       });
     });
 
+    describe('thirdPartyAuthSetPassword', () => {
+      // Each event is recorded with a `reason` extra key that distinguishes
+      // OTP/passwordless flows ('otp') from third-party auth flows
+      // ('third_party_auth'). Both values are asserted below so the bridge
+      // between GleanMetrics and the generated event metric stays in sync.
+      const cases: Array<{
+        method: 'view' | 'engage' | 'submit' | 'success';
+        eventName: string;
+      }> = [
+        { method: 'view', eventName: 'third_party_auth_set_password_view' },
+        { method: 'engage', eventName: 'third_party_auth_set_password_engage' },
+        { method: 'submit', eventName: 'third_party_auth_set_password_submit' },
+        {
+          method: 'success',
+          eventName: 'third_party_auth_set_password_success',
+        },
+      ];
+
+      for (const { method, eventName } of cases) {
+        for (const reason of ['otp', 'third_party_auth'] as const) {
+          it(`submits ${eventName} with reason='${reason}'`, async () => {
+            const spy = sandbox.spy(
+              thirdPartyAuthSetPassword[method],
+              'record'
+            );
+            GleanMetrics.thirdPartyAuthSetPassword[method]({
+              event: { reason },
+            });
+            await GleanMetrics.isDone();
+            sinon.assert.calledOnce(setEventNameStub);
+            sinon.assert.calledWith(setEventNameStub, eventName);
+            sinon.assert.calledOnce(setEventReasonStub);
+            sinon.assert.calledWith(setEventReasonStub, reason);
+            sinon.assert.calledWith(spy, { reason });
+          });
+        }
+      }
+    });
+
     describe('accountPref', () => {
       it('submits a ping with the account_pref_view event name', async () => {
         GleanMetrics.accountPref.view();
@@ -793,16 +833,30 @@ describe('lib/glean', () => {
         sinon.assert.called(spy);
       });
 
-      it('submits a ping with the account_pref_change_password_submit event name', async () => {
-        GleanMetrics.accountPref.changePasswordSubmit();
+      it('submits a ping with the account_pref_change_password_submit event name and forwards reason', async () => {
         const spy = sandbox.spy(accountPref.changePasswordSubmit, 'record');
+        GleanMetrics.accountPref.changePasswordSubmit({
+          event: { reason: 'change' },
+        });
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
           'account_pref_change_password_submit'
         );
-        sinon.assert.called(spy);
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'change');
+        sinon.assert.calledWith(spy, { reason: 'change' });
+      });
+
+      it('forwards reason="create" to account_pref_change_password_submit', async () => {
+        const spy = sandbox.spy(accountPref.changePasswordSubmit, 'record');
+        GleanMetrics.accountPref.changePasswordSubmit({
+          event: { reason: 'create' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledWith(setEventReasonStub, 'create');
+        sinon.assert.calledWith(spy, { reason: 'create' });
       });
 
       it('submits a ping with the account_pref_device_signout event name', async () => {

@@ -8,7 +8,7 @@ import AppLayout from '../../../components/AppLayout';
 import { FormSetupAccount } from '../../../components/FormSetupAccount';
 import { SetPasswordFormData, SetPasswordProps } from './interfaces';
 import { useForm } from 'react-hook-form';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useFtlMsgResolver } from '../../../models';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import Banner from '../../../components/Banner';
@@ -16,6 +16,7 @@ import {
   getCmsHeadlineClassName,
   getCmsHeadlineStyle,
 } from '../../../components/CardHeader';
+import GleanMetrics from '../../../lib/glean';
 
 export const SetPassword = ({
   email,
@@ -29,8 +30,19 @@ export const SetPassword = ({
     useState<boolean>(false);
   const [bannerErrorText, setBannerErrorText] = useState<string>('');
 
+  const gleanReason = isPasswordlessFlow ? 'otp' : 'third_party_auth';
+
+  useEffect(() => {
+    GleanMetrics.thirdPartyAuthSetPassword.view({
+      event: { reason: gleanReason },
+    });
+  }, [gleanReason]);
+
   const onSubmit = useCallback(
     async ({ newPassword }: SetPasswordFormData) => {
+      GleanMetrics.thirdPartyAuthSetPassword.submit({
+        event: { reason: gleanReason },
+      });
       setCreatePasswordLoading(true);
       setBannerErrorText('');
 
@@ -47,19 +59,40 @@ export const SetPassword = ({
         return;
       }
     },
-    [createPasswordHandler, ftlMsgResolver]
+    [createPasswordHandler, ftlMsgResolver, gleanReason]
   );
 
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
-    useForm<SetPasswordFormData>({
-      mode: 'onChange',
-      criteriaMode: 'all',
-      defaultValues: {
-        email,
-        newPassword: '',
-        confirmPassword: '',
-      },
-    });
+  const {
+    handleSubmit,
+    register,
+    getValues,
+    errors,
+    formState,
+    trigger,
+    watch,
+  } = useForm<SetPasswordFormData>({
+    mode: 'onChange',
+    criteriaMode: 'all',
+    defaultValues: {
+      email,
+      newPassword: '',
+      confirmPassword: '',
+    },
+  });
+
+  // Fire engage on the first keystroke into the password field (not on focus
+  // alone) so the event reflects actual user intent to type a password.
+  // Matches the engage pattern used by SigninPasswordlessCode.
+  const [hasEngaged, setHasEngaged] = useState(false);
+  const newPasswordValue = watch('newPassword');
+  useEffect(() => {
+    if (hasEngaged === false && newPasswordValue) {
+      setHasEngaged(true);
+      GleanMetrics.thirdPartyAuthSetPassword.engage({
+        event: { reason: gleanReason },
+      });
+    }
+  }, [hasEngaged, newPasswordValue, gleanReason]);
 
   const cmsInfo = integration?.getCmsInfo?.();
   const cmsPage = cmsInfo?.PostVerifySetPasswordPage;
@@ -122,7 +155,6 @@ export const SetPassword = ({
         onSubmit={handleSubmit(onSubmit)}
         // This page is only shown during the Sync flow
         isSync={true}
-        submitButtonGleanId="third-party-auth-set-password-submit"
         passwordFormType="post-verify-set-password"
         cmsButton={cmsButton}
       />
