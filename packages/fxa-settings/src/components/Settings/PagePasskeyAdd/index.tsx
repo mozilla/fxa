@@ -79,6 +79,7 @@ export const PagePasskeyAdd = () => {
           credential,
           challenge
         );
+        await account.refresh('passkeys');
 
         if (!isMounted.current) return;
 

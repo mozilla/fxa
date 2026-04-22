@@ -2,49 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import UnitRow, { UnitRowProps } from '../UnitRow';
-import { useAuthClient, useConfig, useFtlMsgResolver } from '../../../models';
+import { useAccount, useFtlMsgResolver, useConfig } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { PasskeySubRow } from '../SubRow';
-import { Passkey } from 'fxa-auth-client/browser';
 import { isWebAuthnLevel3Supported } from '../../../lib/passkeys/webauthn';
-import { sessionToken } from '../../../lib/cache';
 import { Banner } from '../../Banner';
 
 export const UnitRowPasskey = () => {
+  const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
-  const authClient = useAuthClient();
   const config = useConfig();
   const maxPasskeys = config.passkeys.maxPerUser;
-  const [passkeys, setPasskeys] = useState<Passkey[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showWebAuthnError, setShowWebAuthnError] = useState(false);
-
-  const fetchPasskeys = useCallback(async () => {
-    const token = sessionToken();
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const result = await authClient.listPasskeys(token);
-      setPasskeys(result);
-    } catch {
-      // Silently fail — passkeys list will appear empty
-    } finally {
-      setLoading(false);
-    }
-  }, [authClient]);
-
-  useEffect(() => {
-    fetchPasskeys();
-  }, [fetchPasskeys]);
-
+  const passkeys = account.passkeys;
   const hasPasskeys = passkeys.length > 0;
   const isAtLimit = passkeys.length >= maxPasskeys;
   const webAuthnSupported = isWebAuthnLevel3Supported();
+  const [showWebAuthnError, setShowWebAuthnError] = useState(false);
 
   const conditionalUnitRowProps: Partial<UnitRowProps> = hasPasskeys
     ? {
@@ -103,40 +79,34 @@ export const UnitRowPasskey = () => {
     </FtlMsg>
   );
 
-  if (loading) {
-    return <></>;
-  }
-
   return (
-    <>
-      <UnitRow
-        header={ftlMsgResolver.getMsg('passkey-row-header', 'Passkeys')}
-        headerId="passkeys"
-        prefixDataTestId="passkey"
-        ctaText={ftlMsgResolver.getMsg('passkey-row-action-create', 'Create')}
-        route={
-          webAuthnSupported && !isAtLimit ? '/settings/passkeys/add' : undefined
-        }
-        revealModal={
-          !webAuthnSupported ? () => setShowWebAuthnError(true) : undefined
-        }
-        disabled={webAuthnSupported && isAtLimit}
-        disabledReason={ftlMsgResolver.getMsg(
-          'passkey-row-max-limit-disabled-reason',
-          "You've reached the maximum number of passkeys."
-        )}
-        {...conditionalUnitRowProps}
-        subRows={getSubRows()}
-      >
-        <FtlMsg id="passkey-row-description">
-          <p className="text-sm my-2">
-            Make sign in easier and more secure by using your phone or other
-            supported device to get into your account.
-          </p>
-        </FtlMsg>
-        {learnMoreLink}
-      </UnitRow>
-    </>
+    <UnitRow
+      header={ftlMsgResolver.getMsg('passkey-row-header', 'Passkeys')}
+      headerId="passkeys"
+      prefixDataTestId="passkey"
+      ctaText={ftlMsgResolver.getMsg('passkey-row-action-create', 'Create')}
+      route={
+        webAuthnSupported && !isAtLimit ? '/settings/passkeys/add' : undefined
+      }
+      revealModal={
+        !webAuthnSupported ? () => setShowWebAuthnError(true) : undefined
+      }
+      disabled={webAuthnSupported && isAtLimit}
+      disabledReason={ftlMsgResolver.getMsg(
+        'passkey-row-max-limit-disabled-reason',
+        "You've reached the maximum number of passkeys."
+      )}
+      {...conditionalUnitRowProps}
+      subRows={getSubRows()}
+    >
+      <FtlMsg id="passkey-row-description">
+        <p className="text-sm my-2">
+          Make sign in easier and more secure by using your phone or other
+          supported device to get into your account.
+        </p>
+      </FtlMsg>
+      {learnMoreLink}
+    </UnitRow>
   );
 };
 

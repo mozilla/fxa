@@ -7,8 +7,9 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
 import UnitRowPasskey from '.';
-import { AppContext } from 'fxa-settings/src/models';
+import { Account, AppContext } from 'fxa-settings/src/models';
 import {
+  MOCK_ACCOUNT,
   mockAppContext,
   mockSettingsContext,
 } from 'fxa-settings/src/models/mocks';
@@ -66,9 +67,6 @@ const storyWithMockPasskeys = (
   passkeys: Passkey[],
   { webAuthnSupported = true }: { webAuthnSupported?: boolean } = {}
 ) => {
-  const authClient = {
-    listPasskeys: () => Promise.resolve(passkeys),
-  };
   const story = () => {
     initLocalAccount();
     // Stub the WebAuthn Level 3 feature check for storybook previews.
@@ -82,10 +80,17 @@ const storyWithMockPasskeys = (
     } else {
       delete w.PublicKeyCredential;
     }
+    const mockAccount = {
+      ...MOCK_ACCOUNT,
+      passkeys,
+      deletePasskey: async () => {},
+    };
     return (
       <LocationProvider>
         <AppContext.Provider
-          value={mockAppContext({ authClient: authClient as any })}
+          value={mockAppContext({
+            account: mockAccount as unknown as Account,
+          })}
         >
           <SettingsContext.Provider value={mockSettingsContext()}>
             <UnitRowPasskey />

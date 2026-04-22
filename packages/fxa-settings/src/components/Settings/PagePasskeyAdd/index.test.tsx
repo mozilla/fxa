@@ -85,6 +85,7 @@ const mockCredential = {
 function renderPage() {
   const account = {
     getCachedJwtByScope: jest.fn(() => 'mock-jwt'),
+    refresh: jest.fn(),
   } as unknown as Account;
 
   const authClient = {

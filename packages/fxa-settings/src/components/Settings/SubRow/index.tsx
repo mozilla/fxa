@@ -5,8 +5,10 @@
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { Passkey } from 'fxa-auth-client/browser';
-import { useAlertBar, useFtlMsgResolver } from '../../../models';
-import { MfaGuard } from '../MfaGuard';
+import { useAlertBar, useAccount, useFtlMsgResolver } from '../../../models';
+import { isAuthUiError } from '../../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { MfaReason } from '../../../lib/types';
 import {
   AlertFullIcon as AlertIcon,
@@ -345,8 +347,6 @@ export const BackupPhoneSubRow = ({
 
 export type PasskeySubRowProps = {
   passkey: Passkey;
-  // TODO: replace with actual auth client API call
-  deletePasskey?: (credentialId: string) => Promise<void>;
 };
 
 const formatDateText = (timestamp: number): string => {
@@ -357,20 +357,25 @@ const formatDateText = (timestamp: number): string => {
   }).format(new Date(timestamp));
 };
 
-export const PasskeySubRow = ({
+type PasskeyDeleteModalProps = {
+  passkey: Passkey;
+  onDismiss: () => void;
+};
+
+const PasskeyDeleteModal = ({
   passkey,
-  deletePasskey = async (passkeyId: string) => {},
-}: PasskeySubRowProps) => {
+  onDismiss,
+}: PasskeyDeleteModalProps) => {
+  const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
-  const [deleteModalRevealed, revealDeleteModal, hideDeleteModal] =
-    useBooleanState();
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const handleMfaError = useMfaErrorHandler();
 
   const handleConfirmDelete = useCallback(async () => {
     setIsDeleting(true);
     try {
-      await deletePasskey(passkey.credentialId);
+      await account.deletePasskey(passkey.credentialId);
       // a hack to avoid alert bar being immediately removed
       setTimeout(() => {
         alertBar.success(
@@ -378,26 +383,79 @@ export const PasskeySubRow = ({
         );
       }, 0);
     } catch (error) {
-      setTimeout(() => {
-        alertBar.error(
-          // TODO: replace with more specific error messages based on error type
-          ftlMsgResolver.getMsg(
+      if (handleMfaError(error)) {
+        return;
+      }
+      const localizedError = isAuthUiError(error)
+        ? getLocalizedErrorMessage(ftlMsgResolver, error)
+        : ftlMsgResolver.getMsg(
             'passkey-delete-error',
             'There was a problem deleting your passkey. Try again in a few minutes.'
-          )
-        );
-      }, 0);
+          );
+      setTimeout(() => alertBar.error(localizedError), 0);
     } finally {
       setIsDeleting(false);
-      hideDeleteModal();
+      onDismiss();
     }
   }, [
+    account,
     passkey.credentialId,
-    deletePasskey,
     alertBar,
     ftlMsgResolver,
-    hideDeleteModal,
+    onDismiss,
+    handleMfaError,
   ]);
+
+  return (
+    <Modal
+      onDismiss={onDismiss}
+      hasButtons={false}
+      headerId="passkey-delete-header"
+      descId="passkey-delete-desc"
+    >
+      <FtlMsg id="passkey-delete-modal-heading">
+        <h2
+          id="passkey-delete-header"
+          className="font-bold text-xl mb-2 -mt-2 mx-4"
+        >
+          Delete your passkey?
+        </h2>
+      </FtlMsg>
+      <FtlMsg id="passkey-delete-modal-content">
+        <p className="mb-10 mx-4">
+          This passkey will be removed from your account. You’ll need to sign in
+          using a different way.
+        </p>
+      </FtlMsg>
+      <div className="flex justify-center mx-2 mt-6">
+        <FtlMsg id="passkey-delete-modal-cancel-button">
+          <button
+            className="cta-neutral mx-2 flex-1 cta-xl"
+            onClick={onDismiss}
+          >
+            Cancel
+          </button>
+        </FtlMsg>
+        <FtlMsg id="passkey-delete-modal-confirm-button">
+          <button
+            className="cta-caution mx-2 flex-1 cta-xl"
+            onClick={handleConfirmDelete}
+            disabled={isDeleting}
+            // to avoid clashing with other delete buttons
+            data-testid="confirm-delete-passkey-button"
+          >
+            Delete passkey
+          </button>
+        </FtlMsg>
+      </div>
+    </Modal>
+  );
+};
+
+export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const [deleteModalRevealed, revealDeleteModal, hideDeleteModal] =
+    useBooleanState();
 
   const createdDateFluent = getLocalizedDate(
     passkey.createdAt,
@@ -410,9 +468,8 @@ export const PasskeySubRow = ({
     ? getLocalizedDate(passkey.lastUsedAt, LocalizedDateOptions.NumericDate)
     : undefined;
 
-  const lastUsedText = passkey.lastUsedAt
-    ? formatDateText(passkey.lastUsedAt)
-    : undefined;
+  const lastUsedText =
+    passkey.lastUsedAt != null ? formatDateText(passkey.lastUsedAt) : undefined;
 
   const localizedDescription = (
     <span className="flex flex-col gap-1 mobileLandscape:flex-row mobileLandscape:gap-12">
@@ -458,48 +515,7 @@ export const PasskeySubRow = ({
           }}
           reason={MfaReason.removePasskey}
         >
-          <Modal
-            onDismiss={hideDeleteModal}
-            hasButtons={false}
-            headerId="passkey-delete-header"
-            descId="passkey-delete-desc"
-          >
-            <FtlMsg id="passkey-delete-modal-heading">
-              <h2
-                id="passkey-delete-header"
-                className="font-bold text-xl mb-2 -mt-2 mx-4"
-              >
-                Delete your passkey?
-              </h2>
-            </FtlMsg>
-            <FtlMsg id="passkey-delete-modal-content">
-              <p className="mb-10 mx-4">
-                This passkey will be removed from your account. You’ll need to
-                sign in using a different way.
-              </p>
-            </FtlMsg>
-            <div className="flex justify-center mx-2 mt-6">
-              <FtlMsg id="passkey-delete-modal-cancel-button">
-                <button
-                  className="cta-neutral mx-2 flex-1 cta-xl"
-                  onClick={hideDeleteModal}
-                >
-                  Cancel
-                </button>
-              </FtlMsg>
-              <FtlMsg id="passkey-delete-modal-confirm-button">
-                <button
-                  className="cta-caution mx-2 flex-1 cta-xl"
-                  onClick={handleConfirmDelete}
-                  disabled={isDeleting}
-                  // to avoid clashing with other delete buttons
-                  data-testid="confirm-delete-passkey-button"
-                >
-                  Delete passkey
-                </button>
-              </FtlMsg>
-            </div>
-          </Modal>
+          <PasskeyDeleteModal passkey={passkey} onDismiss={hideDeleteModal} />
         </MfaGuard>
       )}
     </>
