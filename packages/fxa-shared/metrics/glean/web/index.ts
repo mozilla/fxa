@@ -245,6 +245,14 @@ export const eventsMap = {
     bentoVpn: 'account_pref_bento_vpn',
     mfaGuardView: 'account_pref_mfa_guard_view',
     mfaGuardSubmitSuccess: 'account_pref_mfa_guard_submit_success',
+    passkeyCreateView: 'account_pref_passkey_create_view',
+    passkeyCreateSubmitFrontendError:
+      'account_pref_passkey_create_submit_frontend_error',
+    passkeyCreateSuccessView: 'account_pref_passkey_create_success_view',
+    passkeyDeleteView: 'account_pref_passkey_delete_view',
+    passkeyDeleteSubmitFrontendError:
+      'account_pref_passkey_delete_submit_frontend_error',
+    passkeyDeleteSuccessView: 'account_pref_passkey_delete_success_view',
   },
 
   accountBanner: {

@@ -86,8 +86,8 @@ export class PasskeyHandler {
     private readonly customs: Customs,
     private readonly log: any,
     private readonly fxaMailer: FxaMailer,
-    private readonly statsd: any
-    // TODO: FXA-12914 - Require glean be passed in.
+    private readonly statsd: any,
+    private readonly glean: GleanMetricsType
   ) {}
 
   /**
@@ -117,9 +117,6 @@ export class PasskeyHandler {
       Buffer.from(uid, 'hex'),
       account.email
     );
-
-    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
-    // await this.glean.passkey.registrationStarted(request);
 
     return options;
   }
@@ -167,8 +164,7 @@ export class PasskeyHandler {
         request,
       });
 
-      // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
-      // await this.glean.passkey.registrationComplete(request);
+      await this.glean.passkey.createComplete(request);
 
       try {
         if (this.fxaMailer.canSend('postAddPasskey')) {
@@ -215,9 +211,6 @@ export class PasskeyHandler {
         db: this.db,
         request,
       });
-
-      // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
-      // await this.glean.passkey.registrationFailed(request);
 
       throw err;
     }
@@ -302,8 +295,7 @@ export class PasskeyHandler {
       request,
     });
 
-    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
-    // await this.glean.passkey.deleteSuccess(request, { uid });
+    await this.glean.passkey.deleteSuccess(request);
 
     try {
       if (this.fxaMailer.canSend('postRemovePasskey')) {
@@ -353,8 +345,7 @@ export class PasskeyHandler {
       name
     );
 
-    // TODO: FXA-12914 — Glean event name needs to be defined in the Glean schema
-    // await this.glean.passkey.renameSuccess(request, { uid });
+    await this.glean.passkey.renameSuccess(request);
 
     return {
       credentialId: passkey.credentialId.toString('base64url'),
@@ -477,7 +468,8 @@ export const passkeyRoutes = (
     customs,
     log,
     fxaMailer,
-    statsd
+    statsd,
+    glean
   );
 
   return [

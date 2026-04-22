@@ -21,8 +21,12 @@ import { mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { mockAuthClient } from './mock';
 import { LocationProvider } from '@reach/router';
+import GleanMetrics from '../../../lib/glean';
 
-const mockJwtState = {};
+let mockHasJwt = true;
+let mockJwtSnapshot: { hasToken: boolean } = { hasToken: true };
+const mockJwtListeners = new Set<() => void>();
+
 const mockAlertBar = {
   success: jest.fn(),
   error: jest.fn(),
@@ -33,12 +37,35 @@ let mockAccount = {
   deletePasskey: jest.fn(),
 };
 
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      passkeyDeleteView: jest.fn(),
+      passkeyDeleteSuccessView: jest.fn(),
+      passkeyDeleteSubmitFrontendError: jest.fn(),
+      mfaGuardView: jest.fn(),
+      mfaGuardSubmitSuccess: jest.fn(),
+    },
+  },
+}));
+
 jest.mock('../../../lib/cache', () => ({
   ...jest.requireActual('../../../lib/cache'),
   JwtTokenCache: {
-    hasToken: jest.fn(() => true),
-    subscribe: jest.fn((listener) => () => {}),
-    getSnapshot: jest.fn(() => mockJwtState),
+    hasToken: jest.fn(() => mockHasJwt),
+    subscribe: jest.fn((listener: () => void) => {
+      mockJwtListeners.add(listener);
+      return () => {
+        mockJwtListeners.delete(listener);
+      };
+    }),
+    getSnapshot: jest.fn(() => mockJwtSnapshot),
+    removeToken: jest.fn(() => {
+      mockHasJwt = false;
+      mockJwtSnapshot = { hasToken: false };
+      mockJwtListeners.forEach((l) => l());
+    }),
   },
   sessionToken: jest.fn(() => 'session-123'),
 }));
@@ -290,6 +317,16 @@ describe('PasskeySubRow', () => {
     mockAccount.deletePasskey.mockClear();
     mockAlertBar.success.mockClear();
     mockAlertBar.error.mockClear();
+    (GleanMetrics.accountPref.passkeyDeleteView as jest.Mock).mockClear();
+    (
+      GleanMetrics.accountPref.passkeyDeleteSuccessView as jest.Mock
+    ).mockClear();
+    (
+      GleanMetrics.accountPref.passkeyDeleteSubmitFrontendError as jest.Mock
+    ).mockClear();
+    mockHasJwt = true;
+    mockJwtSnapshot = { hasToken: true };
+    mockJwtListeners.clear();
   });
 
   const renderPasskeySubRow = (passkey: Passkey = mockPasskey) => {
@@ -332,6 +369,7 @@ describe('PasskeySubRow', () => {
     expect(
       screen.getByTestId('confirm-delete-passkey-button')
     ).toBeInTheDocument();
+    expect(GleanMetrics.accountPref.passkeyDeleteView).toHaveBeenCalledTimes(1);
   });
 
   it('closes modal when cancel button is clicked', async () => {
@@ -380,6 +418,9 @@ describe('PasskeySubRow', () => {
     await waitFor(() => {
       expect(mockAlertBar.success).toHaveBeenCalledWith('Passkey deleted');
     });
+    expect(
+      GleanMetrics.accountPref.passkeyDeleteSuccessView
+    ).toHaveBeenCalled();
 
     await waitFor(() => {
       expect(
@@ -405,6 +446,9 @@ describe('PasskeySubRow', () => {
         'There was a problem deleting your passkey. Try again in a few minutes.'
       );
     });
+    expect(
+      GleanMetrics.accountPref.passkeyDeleteSubmitFrontendError
+    ).toHaveBeenCalledWith({ event: { reason: 'server_error' } });
 
     await waitFor(() => {
       expect(
@@ -428,11 +472,42 @@ describe('PasskeySubRow', () => {
     await waitFor(() => {
       expect(mockAlertBar.error).toHaveBeenCalledWith('Passkey not found');
     });
+    expect(
+      GleanMetrics.accountPref.passkeyDeleteSubmitFrontendError
+    ).toHaveBeenCalledWith({ event: { reason: 'auth_error' } });
 
     await waitFor(() => {
       expect(
         screen.queryByText('Delete your passkey?')
       ).not.toBeInTheDocument();
     });
+  });
+
+  it('re-prompts for MFA without recording an error when the MFA JWT has expired', async () => {
+    mockAccount.deletePasskey.mockRejectedValue(AuthUiErrors.INVALID_MFA_TOKEN);
+    renderPasskeySubRow();
+
+    const deleteButtons = screen.getAllByTitle(/Delete passkey/);
+    await userEvent.click(deleteButtons[0]);
+
+    expect(await screen.findByText('Delete your passkey?')).toBeInTheDocument();
+
+    const confirmButton = screen.getByTestId('confirm-delete-passkey-button');
+    await userEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(mockAccount.deletePasskey).toHaveBeenCalledWith('passkey-1');
+    });
+    expect(mockAlertBar.error).not.toHaveBeenCalled();
+    expect(
+      GleanMetrics.accountPref.passkeyDeleteSubmitFrontendError
+    ).not.toHaveBeenCalled();
+
+    // MfaGuard renders the OTP prompt in place of its children, so the
+    // delete confirmation modal is no longer in the DOM.
+    expect(
+      await screen.findByText('Enter confirmation code')
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Delete your passkey?')).not.toBeInTheDocument();
   });
 });

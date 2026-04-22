@@ -16,10 +16,14 @@ import {
   useFtlMsgResolver,
 } from '../../../models';
 import { createCredential } from '../../../lib/passkeys/webauthn';
-import { handleWebAuthnError } from '../../../lib/passkeys/webauthn-errors';
+import {
+  handleWebAuthnError,
+  WebAuthnErrorType,
+} from '../../../lib/passkeys/webauthn-errors';
 import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import GleanMetrics from '../../../lib/glean';
 
 export const MfaGuardPagePasskeyAdd = (_: RouteComponentProps) => {
   return (
@@ -60,6 +64,7 @@ export const PagePasskeyAdd = () => {
     ceremonyStarted.current = true;
 
     const runCeremony = async () => {
+      GleanMetrics.accountPref.passkeyCreateView();
       try {
         // Step 1: Get registration options from server
         const jwt = account.getCachedJwtByScope('passkey');
@@ -84,6 +89,7 @@ export const PagePasskeyAdd = () => {
         if (!isMounted.current) return;
 
         // Success
+        GleanMetrics.accountPref.passkeyCreateSuccessView();
         alertBar.success(
           ftlMsgResolver.getMsg('page-passkey-add-success', 'Passkey created')
         );
@@ -101,6 +107,17 @@ export const PagePasskeyAdd = () => {
             'registration',
             Sentry.captureException
           );
+          const reasonMap: Record<string, string> = {
+            [WebAuthnErrorType.NotAllowed]: 'not_allowed',
+            [WebAuthnErrorType.Timeout]: 'timeout',
+            [WebAuthnErrorType.NotSupported]: 'not_supported',
+            [WebAuthnErrorType.Security]: 'security',
+          };
+          GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
+            event: {
+              reason: reasonMap[categorized.errorType] || 'webauthn_unknown',
+            },
+          });
           alertBar.error(
             ftlMsgResolver.getMsg(categorized.ftlId, categorized.fallbackText)
           );
@@ -109,6 +126,9 @@ export const PagePasskeyAdd = () => {
         }
 
         // Server error
+        GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
+          event: { reason: 'server_error' },
+        });
         Sentry.captureException(error);
         alertBar.error(
           ftlMsgResolver.getMsg(
@@ -149,6 +169,7 @@ export const PagePasskeyAdd = () => {
           onClick={handleCancel}
           className="link-blue text-sm"
           data-testid="passkey-add-cancel"
+          data-glean-id="account_pref_passkey_create_cancel"
         >
           Cancel
         </button>

@@ -102,7 +102,13 @@ describe('passkeys routes', () => {
     statsd = {
       increment: jest.fn(),
     };
-    glean = {};
+    glean = {
+      passkey: {
+        createComplete: jest.fn(),
+        deleteSuccess: jest.fn(),
+        renameSuccess: jest.fn(),
+      },
+    };
     db = {
       account: jest.fn().mockResolvedValue({
         email: TEST_EMAIL,
@@ -280,6 +286,49 @@ describe('passkeys routes', () => {
         'account.passkey.registration_success',
         expect.anything()
       );
+    });
+
+    it('records glean.passkey.createComplete on successful registration', async () => {
+      await runTest('/passkey/registration/finish', {
+        auth: {
+          credentials: {
+            uid: UID,
+            id: SESSION_TOKEN_ID,
+            email: TEST_EMAIL,
+          },
+        },
+        payload,
+      });
+
+      expect(glean.passkey.createComplete).toHaveBeenCalledTimes(1);
+      expect(glean.passkey.createComplete).toHaveBeenCalledWith(
+        expect.objectContaining({
+          auth: expect.objectContaining({
+            credentials: expect.objectContaining({ uid: UID }),
+          }),
+        })
+      );
+    });
+
+    it('does not record glean.passkey.createComplete when registration fails', async () => {
+      mockPasskeyService.createPasskeyFromRegistrationResponse = jest
+        .fn()
+        .mockRejectedValue(new Error('attestation verification failed'));
+
+      await expect(() =>
+        runTest('/passkey/registration/finish', {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          payload,
+        })
+      ).rejects.toThrow();
+
+      expect(glean.passkey.createComplete).not.toHaveBeenCalled();
     });
 
     it('records a failure security event and rethrows when service throws', async () => {
@@ -555,6 +604,57 @@ describe('passkeys routes', () => {
       );
     });
 
+    it('records glean.passkey.deleteSuccess on successful deletion', async () => {
+      await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+        },
+        'DELETE'
+      );
+
+      expect(glean.passkey.deleteSuccess).toHaveBeenCalledTimes(1);
+      expect(glean.passkey.deleteSuccess).toHaveBeenCalledWith(
+        expect.objectContaining({
+          auth: expect.objectContaining({
+            credentials: expect.objectContaining({ uid: UID }),
+          }),
+        })
+      );
+    });
+
+    it('does not record glean.passkey.deleteSuccess when deletion fails', async () => {
+      mockPasskeyService.deletePasskey.mockRejectedValue(
+        AppError.passkeyNotFound()
+      );
+
+      await expect(() =>
+        runTest(
+          '/passkey/{credentialId}',
+          {
+            auth: {
+              credentials: {
+                uid: UID,
+                id: SESSION_TOKEN_ID,
+                email: TEST_EMAIL,
+              },
+            },
+            params: { credentialId: CREDENTIAL_ID_B64 },
+          },
+          'DELETE'
+        )
+      ).rejects.toThrow();
+
+      expect(glean.passkey.deleteSuccess).not.toHaveBeenCalled();
+    });
+
     it('throws passkeyNotFound when service throws passkeyNotFound', async () => {
       mockPasskeyService.deletePasskey.mockRejectedValue(
         AppError.passkeyNotFound()
@@ -770,6 +870,59 @@ describe('passkeys routes', () => {
           'PATCH'
         )
       ).rejects.toThrow();
+    });
+
+    it('records glean.passkey.renameSuccess on successful rename', async () => {
+      await runTest(
+        '/passkey/{credentialId}',
+        {
+          auth: {
+            credentials: {
+              uid: UID,
+              id: SESSION_TOKEN_ID,
+              email: TEST_EMAIL,
+            },
+          },
+          params: { credentialId: CREDENTIAL_ID_B64 },
+          payload: { name: 'Renamed Key' },
+        },
+        'PATCH'
+      );
+
+      expect(glean.passkey.renameSuccess).toHaveBeenCalledTimes(1);
+      expect(glean.passkey.renameSuccess).toHaveBeenCalledWith(
+        expect.objectContaining({
+          auth: expect.objectContaining({
+            credentials: expect.objectContaining({ uid: UID }),
+          }),
+        })
+      );
+    });
+
+    it('does not record glean.passkey.renameSuccess when rename fails', async () => {
+      mockPasskeyService.renamePasskey.mockRejectedValue(
+        AppError.passkeyNotFound()
+      );
+
+      await expect(() =>
+        runTest(
+          '/passkey/{credentialId}',
+          {
+            auth: {
+              credentials: {
+                uid: UID,
+                id: SESSION_TOKEN_ID,
+                email: TEST_EMAIL,
+              },
+            },
+            params: { credentialId: CREDENTIAL_ID_B64 },
+            payload: { name: 'New Name' },
+          },
+          'PATCH'
+        )
+      ).rejects.toThrow();
+
+      expect(glean.passkey.renameSuccess).not.toHaveBeenCalled();
     });
 
     it('enforces rate limiting via customs.checkAuthenticated', async () => {

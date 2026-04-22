@@ -670,6 +670,28 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'account_pref_passkey_create_view':
+      accountPref.passkeyCreateView.record();
+      break;
+    case 'account_pref_passkey_create_submit_frontend_error':
+      accountPref.passkeyCreateSubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_passkey_create_success_view':
+      accountPref.passkeyCreateSuccessView.record();
+      break;
+    case 'account_pref_passkey_delete_view':
+      accountPref.passkeyDeleteView.record();
+      break;
+    case 'account_pref_passkey_delete_submit_frontend_error':
+      accountPref.passkeyDeleteSubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_passkey_delete_success_view':
+      accountPref.passkeyDeleteSuccessView.record();
+      break;
     case 'account_banner_create_recovery_key_view':
       accountBanner.createRecoveryKeyView.record();
       break;
