@@ -46,7 +46,6 @@
   "author": "",
   "license": "MPL-2.0",
   "devDependencies": {
-    "@types/assert": "^1.5.4",
     "@types/fast-text-encoding": "^1",
     "@types/mocha": "^10",
     "@types/node": "^22.13.5",
