@@ -52,25 +52,52 @@
       "command": "pm2 delete apps/payments/next/pm2.config.js"
     },
     "l10n-merge": {
+      "cache": true,
       "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' merge-ftl",
-      "dependsOn": ["l10n-prime"]
+      "dependsOn": ["l10n-prime"],
+      "inputs": ["{projectRoot}/gruntfile.js", "{projectRoot}/app/**/en.ftl"],
+      "outputs": [
+        "{projectRoot}/public/locales/en/payments-next.ftl"
+      ]
     },
     "l10n-prime": {
       "command": "./_scripts/l10n/prime.sh apps/payments/next"
     },
     "l10n-bundle": {
+      "cache": true,
       "dependsOn": ["l10n-merge"],
-      "command": "./_scripts/l10n/bundle.sh apps/payments/next branding,react,payments-next"
+      "command": "./_scripts/l10n/bundle.sh apps/payments/next branding,react,payments-next",
+      "inputs": [
+        "{projectRoot}/public/locales/**/branding.ftl",
+        "{projectRoot}/public/locales/**/react.ftl",
+        "{projectRoot}/public/locales/**/payments.ftl",
+        "{projectRoot}/public/locales/**/payments-next.ftl",
+        "{projectRoot}/public/locales/**/react.ftl"
+      ],
+      "outputs": [
+        "{projectRoot}/public/locales/**/main.ftl"
+      ]
     },
     "watchers": {
       "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' watchers"
     },
     "glean-generate": {
+      "cache": true,
       "dependsOn": ["glean-lint"],
-      "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml -f typescript_server -o libs/payments/metrics/src/lib/glean/__generated__"
+      "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml -f typescript_server -o libs/payments/metrics/src/lib/glean/__generated__",
+      "inputs": [
+        "{workspaceRoot}/libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
+      ],
+      "outputs": [
+        "{workspaceRoot}/libs/payments/metrics/src/lib/glean/__generated__"
+      ]
     },
     "glean-lint": {
-      "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
+      "cache": true,
+      "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml",
+      "inputs": [
+        "{workspaceRoot}/libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
+      ]
     }
   },
   "tags": ["app", "payments", "type:sp3"]
