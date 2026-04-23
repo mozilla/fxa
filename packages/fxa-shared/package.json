@@ -274,7 +274,7 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "5.5.3",
     "underscore": "^1.13.8",
-    "uuid": "^10.0.0"
+    "uuid": "^14.0.0"
   },
   "dependencies": {
     "@fluent/langneg": "^0.7.0",
