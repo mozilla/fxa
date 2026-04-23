@@ -640,6 +640,10 @@ describe('lib/glean', () => {
 
     describe('thirdPartyAuth', () => {
       it('submits a ping with the third_party_auth_google_reg_start event name', async () => {
+        GleanMetrics.initialize(
+          { ...mockConfig, enabled: true },
+          mockMetricsContext
+        );
         const spy = sandbox.spy(thirdPartyAuth.googleRegStart, 'record');
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromReg();
         await GleanMetrics.isDone();
