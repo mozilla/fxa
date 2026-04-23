@@ -32136,8 +32136,6 @@ __metadata:
     convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
-    esbuild: "npm:^0.17.15"
-    esbuild-register: "npm:^3.5.0"
     eslint: "npm:^7.32.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-config-react-app: "npm:^7.0.1"
