@@ -3312,7 +3312,7 @@ describe('#integration - /v1', function () {
         expect(clients2[0].client_id).toBe(client2Id.toString('hex'));
       });
 
-      it('should seperately list different refresh tokens from the same client', async () => {
+      it('should separately list different refresh tokens from the same client', async () => {
         await makeAccessToken(client1, user1, ['profile']);
         await makeAccessToken(client1, user1, ['other', 'scope']);
         await makeRefreshToken(client2, user1, ['profile']);
