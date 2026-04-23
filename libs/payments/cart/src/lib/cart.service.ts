@@ -107,6 +107,7 @@ import {
 } from './cart.utils';
 import { SubmitNeedsInputFailedError } from './checkout.error';
 import { CheckoutService } from './checkout.service';
+import type { PaymentsSearchParams } from './searchParams.schema';
 import { resolveErrorInstance } from './util/resolveErrorInstance';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
@@ -881,7 +882,10 @@ export class CartService {
    * Fetch a cart from the database by ID
    */
   @SanitizeExceptions()
-  async getCart(cartId: string): Promise<CartDTO> {
+  async getCart(
+    cartId: string,
+    searchParams?: PaymentsSearchParams
+  ): Promise<CartDTO> {
     const cart = (await this.cartManager.fetchCartById(
       cartId
     )) as ResultCart & { taxAddress: TaxAddress; currency: string };
@@ -938,6 +942,7 @@ export class CartService {
           countryCode: cart.taxAddress.countryCode || '',
           interval: cart.interval as SubplatInterval,
           eligibilityStatus: eligibility.subscriptionEligibilityResult,
+          searchParams,
         }
       );
     }

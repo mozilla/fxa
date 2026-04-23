@@ -98,6 +98,7 @@ import {
 } from '@fxa/payments/metrics';
 import { isCancelInterstitialOffer } from './util/isCancelInterstitialOffer';
 import { FreeTrialManager } from './free-trial.manager';
+import type { PaymentsSearchParams } from './searchParams.schema';
 
 const FREE_TRIAL_PREPAID_CARD_BLOCKED_HOURS = 24;
 
@@ -999,9 +1000,16 @@ export class CheckoutService {
     countryCode: string;
     interval: SubplatInterval;
     eligibilityStatus: EligibilityStatus;
+    searchParams?: PaymentsSearchParams;
   }): Promise<FreeTrial | null> {
-    const { uid, offeringConfigId, countryCode, interval, eligibilityStatus } =
-      args;
+    const {
+      uid,
+      offeringConfigId,
+      countryCode,
+      interval,
+      eligibilityStatus,
+      searchParams,
+    } = args;
 
     if (eligibilityStatus !== EligibilityStatus.CREATE) {
       return null;
@@ -1010,7 +1018,7 @@ export class CheckoutService {
     const fetchResult = await Promise.all([
       this.nimbusManager.fetchExperiments({
         nimbusUserId: this.nimbusManager.generateNimbusId(uid),
-        preview: false,
+        preview: searchParams?.experimentationPreview === 'true',
       }),
       this.productConfigurationManager.getFreeTrial(offeringConfigId),
     ]).catch((error) => {

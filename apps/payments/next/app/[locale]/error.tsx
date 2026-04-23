@@ -32,7 +32,8 @@ export default function Error({
   const [loading, setLoading] = useState(false);
   const { locale, offeringId, interval, cartId } = useParams<ErrorParams>();
   const hasProductData = locale && offeringId && interval;
-  const queryParams = useSearchParams().toString();
+  const searchParams = useSearchParams();
+  const queryParams = searchParams.toString();
 
   const SUPPORT_URL = process.env.SUPPORT_URL ?? 'https://support.mozilla.org';
 
@@ -40,7 +41,10 @@ export default function Error({
   async function redirectWithCart() {
     setLoading(true);
     try {
-      const cart = await getCartAction(cartId);
+      const cart = await getCartAction(
+        cartId,
+        Object.fromEntries(searchParams.entries())
+      );
       if (cart.state === 'start') {
         const newCart = await restartCartAction(cartId);
         setLoading(false);
