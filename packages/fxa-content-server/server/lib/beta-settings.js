@@ -8,7 +8,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const {
   supportedLanguages,
   rtlLocales,
-} = require('../../../../dist/libs/shared/l10n/main.js');
+} = require('../../../../dist/libs/shared/l10n');
 const config = require('./configuration');
 const FLOW_ID_KEY = config.get('flow_id_key');
 const flowMetrics = require('./flow-metrics');
