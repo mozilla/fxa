@@ -344,6 +344,62 @@ describe('verifyWebauthnAuthenticationResponse', () => {
     }
   });
 
+  it('rejects when sign count does not increase', async () => {
+    const { cred, stored } = await registerCredential(config);
+    stored.signCount += 1;
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnAuthenticationOptions(config, {
+      challenge,
+      allowCredentials: [stored.credentialId],
+    });
+
+    const assertion = VirtualAuthenticator.createAssertionResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: TEST_RP_ID,
+    });
+
+    await expect(
+      verifyWebauthnAuthenticationResponse(config, {
+        response: assertion,
+        challenge,
+        credentialId: stored.credentialId,
+        publicKey: stored.publicKey,
+        signCount: stored.signCount,
+      })
+    ).rejects.toThrow();
+  });
+
+  it('accepts sign count 0 -> 0', async () => {
+    const { cred, stored } = await registerCredential(config);
+
+    // Set to -1 so that createAssertionResponse's pre-increment emits 0
+    cred.signCount = -1;
+    const challenge = randomBytes(32).toString('base64url');
+
+    const options = await generateWebauthnAuthenticationOptions(config, {
+      challenge,
+      allowCredentials: [stored.credentialId],
+    });
+
+    const assertion = VirtualAuthenticator.createAssertionResponse(cred, {
+      challenge: options.challenge,
+      origin: TEST_ORIGIN,
+      rpId: TEST_RP_ID,
+    });
+
+    const result = await verifyWebauthnAuthenticationResponse(config, {
+      response: assertion,
+      challenge,
+      credentialId: stored.credentialId,
+      publicKey: stored.publicKey,
+      signCount: 0,
+    });
+
+    expect(result.verified).toBe(true);
+  });
+
   it('rejects a mismatched challenge', async () => {
     const { cred, stored } = await registerCredential(config);
     const realChallenge = randomBytes(32).toString('base64url');
