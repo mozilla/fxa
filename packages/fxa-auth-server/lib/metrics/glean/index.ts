@@ -441,16 +441,11 @@ export function gleanMetrics(config: ConfigType) {
       newAccount: createEventFn('login_confirm_skip_for_new_account'),
       knownDevice: createEventFn('login_confirm_skip_for_known_device'),
     },
-    // TODO: FXA-12914 — Passkey event names need to be defined in the Glean schema
-    // before these event functions can be activated. Uncomment once the schema
-    // methods (recordPasskeyRegistrationStarted, etc.) exist in server_events.ts.
-    // passkey: {
-    //   registrationStarted: createEventFn('passkey_registration_started'),
-    //   registrationComplete: createEventFn('passkey_registration_complete'),
-    //   registrationFailed: createEventFn('passkey_registration_failed'),
-    //   deleteSuccess: createEventFn('passkey_delete_success'),
-    //   renameSuccess: createEventFn('passkey_rename_success'),
-    // },
+    passkey: {
+      createComplete: createEventFn('passkey_create_complete'),
+      deleteSuccess: createEventFn('passkey_delete_success'),
+      renameSuccess: createEventFn('passkey_rename_success'),
+    },
   };
 }
 
@@ -490,6 +485,7 @@ export const logErrorWithGlean = ({
           | 'twoStepAuthRemove'
           | 'emailDelivery'
           | 'loginConfirmSkipFor'
+          | 'passkey'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

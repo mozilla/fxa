@@ -320,6 +320,106 @@ export const mfaGuardView = new EventMetricType<{
 );
 
 /**
+ * Passkey creation fails; error alert banner displays
+ *
+ * Generated from `account_pref.passkey_create_submit_frontend_error`.
+ */
+export const passkeyCreateSubmitFrontendError = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'passkey_create_submit_frontend_error',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * Passkey successfully created; success alert banner displays
+ *
+ * Generated from `account_pref.passkey_create_success_view`.
+ */
+export const passkeyCreateSuccessView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'passkey_create_success_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User sees the passkey creation transition page (WebAuthn ceremony begins)
+ *
+ * Generated from `account_pref.passkey_create_view`.
+ */
+export const passkeyCreateView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'passkey_create_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Passkey deletion fails; error alert banner displays
+ *
+ * Generated from `account_pref.passkey_delete_submit_frontend_error`.
+ */
+export const passkeyDeleteSubmitFrontendError = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'passkey_delete_submit_frontend_error',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * Passkey successfully deleted; success alert banner displays
+ *
+ * Generated from `account_pref.passkey_delete_success_view`.
+ */
+export const passkeyDeleteSuccessView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'passkey_delete_success_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User sees the delete confirmation modal (after MFA verification)
+ *
+ * Generated from `account_pref.passkey_delete_view`.
+ */
+export const passkeyDeleteView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'passkey_delete_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User clicks on the Get free scan link on the new Monitor promotion in the
  * account settings side panel
  *

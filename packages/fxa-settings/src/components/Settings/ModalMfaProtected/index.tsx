@@ -144,6 +144,7 @@ export const ModalMfaProtected = ({
               type="button"
               className="cta-neutral cta-xl flex-1 w-1/2"
               onClick={onDismiss}
+              data-glean-id="account_pref_mfa_guard_enter_code_cancel"
             >
               Cancel
             </button>

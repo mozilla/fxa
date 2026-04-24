@@ -15,6 +15,7 @@ import {
   WebAuthnErrorCategory,
   WebAuthnErrorType,
 } from '../../../lib/passkeys/webauthn-errors';
+import GleanMetrics from '../../../lib/glean';
 
 // Mock navigate
 const mockNavigateWithQuery = jest.fn();
@@ -43,6 +44,18 @@ const mockHandleWebAuthnError = jest.fn();
 jest.mock('../../../lib/passkeys/webauthn-errors', () => ({
   ...jest.requireActual('../../../lib/passkeys/webauthn-errors'),
   handleWebAuthnError: (...args: unknown[]) => mockHandleWebAuthnError(...args),
+}));
+
+// Mock Glean
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      passkeyCreateView: jest.fn(),
+      passkeyCreateSuccessView: jest.fn(),
+      passkeyCreateSubmitFrontendError: jest.fn(),
+    },
+  },
 }));
 
 // Mock cache
@@ -162,6 +175,10 @@ describe('PagePasskeyAdd', () => {
     await waitFor(() => {
       expect(mockAlertSuccess).toHaveBeenCalledWith('Passkey created');
     });
+    expect(GleanMetrics.accountPref.passkeyCreateView).toHaveBeenCalled();
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSuccessView
+    ).toHaveBeenCalled();
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });
@@ -190,6 +207,11 @@ describe('PagePasskeyAdd', () => {
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalled();
     });
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'not_allowed' },
+    });
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });
@@ -210,6 +232,11 @@ describe('PagePasskeyAdd', () => {
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalled();
     });
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'timeout' },
+    });
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });
@@ -224,6 +251,11 @@ describe('PagePasskeyAdd', () => {
       expect(mockAlertError).toHaveBeenCalledWith(
         'System not available. Try again later.'
       );
+    });
+    expect(
+      GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+    ).toHaveBeenCalledWith({
+      event: { reason: 'server_error' },
     });
     expect(mockCaptureException).toHaveBeenCalledWith(serverError);
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
