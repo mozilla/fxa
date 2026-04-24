@@ -112,7 +112,7 @@ import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
 import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { SubscriptionAttributionParams } from './checkout.types';
-import { handleException } from 'libs/shared/error/src/lib/sanitizeExceptionsDecorator';
+import { handleException } from '@fxa/shared/error';
 import type { AsyncLocalStorage } from 'async_hooks';
 import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
@@ -842,17 +842,16 @@ export class CartService {
           effectiveUid &&
           oldCart.eligibilityStatus === CartEligibilityStatus.CREATE
         ) {
-          const freeTrial =
-            await this.checkoutService.getFreeTrialEligibility({
-              uid: effectiveUid,
-              offeringConfigId: oldCart.offeringConfigId,
-              countryCode:
-                cartDetailsInput.taxAddress?.countryCode ??
-                oldCart.taxAddress?.countryCode ??
-                '',
-              interval: oldCart.interval as SubplatInterval,
-              eligibilityStatus: EligibilityStatus.CREATE,
-            });
+          const freeTrial = await this.checkoutService.getFreeTrialEligibility({
+            uid: effectiveUid,
+            offeringConfigId: oldCart.offeringConfigId,
+            countryCode:
+              cartDetailsInput.taxAddress?.countryCode ??
+              oldCart.taxAddress?.countryCode ??
+              '',
+            interval: oldCart.interval as SubplatInterval,
+            eligibilityStatus: EligibilityStatus.CREATE,
+          });
           cartDetails.isFreeTrial = !!freeTrial;
         } else {
           cartDetails.isFreeTrial = false;

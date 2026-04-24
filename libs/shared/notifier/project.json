@@ -6,36 +6,26 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "libs/shared/notifier/src/index.ts",
         "outputPath": "dist/libs/shared/notifier",
-        "outputFileName": "main.js",
         "tsConfig": "libs/shared/notifier/tsconfig.lib.json",
-        "declaration": true,
-        "external": [
-          "@nestjs/websockets/socket-module",
-          "@nestjs/microservices/microservices-module",
-          "@nestjs/microservices"
-        ],
         "assets": [
           {
             "glob": "libs/shared/notifier/README.md",
             "input": ".",
             "output": "."
           }
-        ],
-        "platform": "node"
-      },
-      "configurations": {
-        "development": {
-          "minify": false
-        },
-        "production": {
-          "minify": true
-        }
+        ]
       }
     },
     "lint": {

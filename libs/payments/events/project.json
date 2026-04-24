@@ -6,14 +6,21 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/payments/events",
         "main": "libs/payments/events/src/index.ts",
         "tsConfig": "libs/payments/events/tsconfig.lib.json",
         "assets": ["libs/payments/events/*.md"],
-        "declaration": true
+        "generatePackageJson": true
       }
     },
     "test-unit": {

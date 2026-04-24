@@ -6,14 +6,21 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/profile/client",
         "main": "libs/profile/client/src/index.ts",
         "tsConfig": "libs/profile/client/tsconfig.lib.json",
         "assets": ["libs/profile/client/*.md"],
-        "declaration": true
+        "generatePackageJson": true
       }
     },
     "test-unit": {
