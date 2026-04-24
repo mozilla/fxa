@@ -6,7 +6,6 @@ import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import {
   AccountDatabase,
   AccountDbProvider,
-  Passkey,
 } from '@fxa/shared/db/mysql/account';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
@@ -18,6 +17,8 @@ import {
   findPasskeysByUid,
   insertPasskey,
   isMysqlDupEntry,
+  NewPasskeyData,
+  PasskeyRecord,
   updatePasskeyCounterAndLastUsed,
   updatePasskeyName,
 } from './passkey.repository';
@@ -53,24 +54,23 @@ export class PasskeyManager {
    * caught from the database unique constraint and converted to
    * AppError.passkeyAlreadyRegistered().
    *
+   * @param uid - Owning user's ID as a hex string
+   * @param data - Passkey fields to persist (uid passed separately)
    * @throws {AppError} (passkeyLimitReached) if the user has reached the maximum passkey count
    * @throws {AppError} (passkeyAlreadyRegistered) if credentialId is already registered
    */
-  async registerPasskey(passkey: Passkey): Promise<void> {
-    const uidHex = passkey.uid.toString('hex');
-
-    await this.checkPasskeyCount(passkey.uid);
+  async registerPasskey(uid: string, data: NewPasskeyData): Promise<void> {
+    await this.checkPasskeyCount(uid);
 
     try {
-      await insertPasskey(this.db, passkey);
+      await insertPasskey(this.db, uid, data);
       this.metrics.increment('registerPasskey.success');
     } catch (err: unknown) {
       if (isMysqlDupEntry(err)) {
-        const credentialIdHex = passkey.credentialId.toString('hex');
         this.metrics.increment('registerPasskey.fail', { reason: 'duplicate' });
         this.log.error(
           'PasskeyManager.registerPasskey: duplicate credentialId',
-          { uid: uidHex, credentialId: credentialIdHex }
+          { uid, credentialId: data.credentialId }
         );
         throw AppError.passkeyAlreadyRegistered();
       }
@@ -90,15 +90,15 @@ export class PasskeyManager {
    * A false return indicates the credential was not found or a concurrent write
    * conflict — not a detected cloning attempt.
    *
-   * @param uid - User ID (16-byte Buffer)
-   * @param credentialId - WebAuthn credential ID
+   * @param uid - User ID as a hex string
+   * @param credentialId - WebAuthn credential ID as a base64url string
    * @param signCount - Verified new signature counter value from authenticator data
    * @param backupState - Current backup-state flag (BS) from authenticator data
    * @returns true if updated, false if not found or concurrent write conflict
    */
   async updatePasskeyAfterAuth(
-    uid: Buffer,
-    credentialId: Buffer,
+    uid: string,
+    credentialId: string,
     signCount: number,
     backupState: boolean
   ): Promise<boolean> {
@@ -107,7 +107,7 @@ export class PasskeyManager {
       uid,
       credentialId,
       signCount,
-      backupState ? 1 : 0
+      backupState
     );
   }
 
@@ -122,22 +122,22 @@ export class PasskeyManager {
    * passkey's uid matches the authenticated session uid before acting on
    * the result. Do not use the returned uid as proof of identity.
    *
-   * @param credentialId - WebAuthn credential ID (Buffer)
+   * @param credentialId - WebAuthn credential ID as a base64url string
    * @returns Passkey if found, undefined otherwise
    */
   async findPasskeyByCredentialId(
-    credentialId: Buffer
-  ): Promise<Passkey | undefined> {
+    credentialId: string
+  ): Promise<PasskeyRecord | undefined> {
     return repositoryFindPasskeyByCredentialId(this.db, credentialId);
   }
 
   /**
    * List all passkeys for a user, ordered by creation date newest-first.
    *
-   * @param uid - User ID (16-byte Buffer)
+   * @param uid - User ID as a hex string
    * @returns Array of passkeys ordered by createdAt descending
    */
-  async listPasskeysForUser(uid: Buffer): Promise<Passkey[]> {
+  async listPasskeysForUser(uid: string): Promise<PasskeyRecord[]> {
     return findPasskeysByUid(this.db, uid);
   }
 
@@ -150,8 +150,8 @@ export class PasskeyManager {
    * @returns true if the passkey was found and renamed, false if not found, wrong user, or name exceeds MAX_PASSKEY_NAME_LENGTH characters
    */
   async renamePasskey(
-    uid: Buffer,
-    credentialId: Buffer,
+    uid: string,
+    credentialId: string,
     newName: string
   ): Promise<boolean> {
     if (newName.length > MAX_PASSKEY_NAME_LENGTH) {
@@ -174,7 +174,7 @@ export class PasskeyManager {
    *
    * @returns true if the passkey was found and deleted, false otherwise
    */
-  async deletePasskey(uid: Buffer, credentialId: Buffer): Promise<boolean> {
+  async deletePasskey(uid: string, credentialId: string): Promise<boolean> {
     return repositoryDeletePasskey(this.db, uid, credentialId);
   }
 
@@ -183,10 +183,10 @@ export class PasskeyManager {
    *
    * Used during account deletion to remove all passkey credentials.
    *
-   * @param uid - User ID (16-byte Buffer)
+   * @param uid - User ID as a hex string
    * @returns Number of passkeys deleted
    */
-  async deleteAllPasskeysForUser(uid: Buffer): Promise<number> {
+  async deleteAllPasskeysForUser(uid: string): Promise<number> {
     return repositoryDeleteAllPasskeysForUser(this.db, uid);
   }
 
@@ -195,16 +195,15 @@ export class PasskeyManager {
    *
    * @returns Current passkey count for the user
    */
-  async countPasskeys(uid: Buffer): Promise<number> {
+  async countPasskeys(uid: string): Promise<number> {
     return countPasskeysByUid(this.db, uid);
   }
 
   /**
    * Checks if the user has exceeded the passkey limit and throws if so.
-   * @param uid - User ID (16-byte Buffer)
+   * @param uid - User ID as a hex string
    */
-  async checkPasskeyCount(uid: Buffer): Promise<void> {
-    const uidHex = uid.toString('hex');
+  async checkPasskeyCount(uid: string): Promise<void> {
     const count = await this.countPasskeys(uid);
 
     if (count >= this.maxPasskeysPerUser) {
@@ -212,7 +211,7 @@ export class PasskeyManager {
         reason: 'limit_reached',
       });
       this.log.error('PasskeyManager.passkeyLimitReached', {
-        uid: uidHex,
+        uid,
         limit: this.maxPasskeysPerUser,
       });
       throw AppError.passkeyLimitReached(this.maxPasskeysPerUser);

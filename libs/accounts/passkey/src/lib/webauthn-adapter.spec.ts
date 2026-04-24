@@ -8,7 +8,6 @@ import {
   verifyWebauthnRegistrationResponse,
   generateWebauthnAuthenticationOptions,
   verifyWebauthnAuthenticationResponse,
-  uuidToBuffer,
 } from './webauthn-adapter';
 import { PasskeyConfig } from './passkey.config';
 import { VirtualAuthenticator } from './virtual-authenticator';
@@ -39,7 +38,7 @@ async function registerCredential(config: PasskeyConfig) {
   const challenge = randomBytes(32).toString('base64url');
 
   const options = await generateWebauthnRegistrationOptions(config, {
-    uid: Buffer.alloc(16, 0xaa),
+    uid: Buffer.alloc(16, 0xaa).toString('hex'),
     email: 'test@example.com',
     challenge,
   });
@@ -59,43 +58,12 @@ async function registerCredential(config: PasskeyConfig) {
   return { cred, stored: result.data };
 }
 
-describe('uuidToBuffer', () => {
-  it('converts a standard AAGUID UUID string to a 16-byte Buffer', () => {
-    const result = uuidToBuffer('adce0002-35bc-c60a-648b-0b25f1f05503');
-
-    expect(result).toBeInstanceOf(Buffer);
-    expect(result.length).toBe(16);
-    expect(result[0]).toBe(0xad);
-    expect(result[1]).toBe(0xce);
-    expect(result[2]).toBe(0x00);
-    expect(result[3]).toBe(0x02);
-  });
-
-  it('converts the all-zeros AAGUID to a 16-byte zero Buffer', () => {
-    const result = uuidToBuffer('00000000-0000-0000-0000-000000000000');
-
-    expect(result).toBeInstanceOf(Buffer);
-    expect(result.length).toBe(16);
-    expect(result.equals(Buffer.alloc(16, 0))).toBe(true);
-  });
-
-  it('strips hyphens correctly regardless of position', () => {
-    const uuid = 'f1d0f1d0-f1d0-f1d0-f1d0-f1d0f1d0f1d0';
-    const result = uuidToBuffer(uuid);
-
-    expect(result.length).toBe(16);
-    for (let i = 0; i < 16; i++) {
-      expect(result[i]).toBe(i % 2 === 0 ? 0xf1 : 0xd0);
-    }
-  });
-});
-
 describe('generateWebauthnRegistrationOptions', () => {
   it('returns the original base64url challenge unchanged', async () => {
     const challenge = randomBytes(32).toString('base64url');
 
     const options = await generateWebauthnRegistrationOptions(testConfig(), {
-      uid: Buffer.alloc(16, 0xaa),
+      uid: Buffer.alloc(16, 0xaa).toString('hex'),
       email: 'test@example.com',
       challenge,
     });
@@ -107,7 +75,7 @@ describe('generateWebauthnRegistrationOptions', () => {
     const options = await generateWebauthnRegistrationOptions(
       testConfig({ rpId: 'example.com' }),
       {
-        uid: Buffer.alloc(16),
+        uid: Buffer.alloc(16).toString('hex'),
         email: 'alice@example.com',
         challenge: randomBytes(32).toString('base64url'),
       }
@@ -125,7 +93,7 @@ describe('generateWebauthnRegistrationOptions', () => {
         authenticatorAttachment: 'platform',
       }),
       {
-        uid: Buffer.alloc(16),
+        uid: Buffer.alloc(16).toString('hex'),
         email: 'alice@example.com',
         challenge: randomBytes(32).toString('base64url'),
       }
@@ -142,7 +110,7 @@ describe('generateWebauthnRegistrationOptions', () => {
 
   it('sets user name from email', async () => {
     const options = await generateWebauthnRegistrationOptions(testConfig(), {
-      uid: Buffer.alloc(16, 0xbb),
+      uid: Buffer.alloc(16, 0xbb).toString('hex'),
       email: 'bob@example.com',
       challenge: randomBytes(32).toString('base64url'),
     });
@@ -159,7 +127,7 @@ describe('verifyWebauthnRegistrationResponse', () => {
     const challenge = randomBytes(32).toString('base64url');
 
     const options = await generateWebauthnRegistrationOptions(config, {
-      uid: Buffer.alloc(16, 0xaa),
+      uid: Buffer.alloc(16, 0xaa).toString('hex'),
       email: 'test@example.com',
       challenge,
     });
@@ -178,14 +146,13 @@ describe('verifyWebauthnRegistrationResponse', () => {
     expect(result.verified).toBe(true);
     if (!result.verified) throw new Error('narrowing');
 
-    expect(result.data.credentialId).toBeInstanceOf(Buffer);
-    expect(result.data.credentialId.equals(cred.id)).toBe(true);
+    expect(typeof result.data.credentialId).toBe('string');
+    expect(result.data.credentialId).toBe(cred.id.toString('base64url'));
     expect(result.data.publicKey).toBeInstanceOf(Buffer);
     expect(result.data.signCount).toBe(0);
     expect(result.data.transports).toEqual(['internal']);
-    expect(result.data.aaguid).toBeInstanceOf(Buffer);
-    expect(result.data.aaguid.length).toBe(16);
-    expect(result.data.aaguid.equals(Buffer.alloc(16, 0))).toBe(true);
+    expect(typeof result.data.aaguid).toBe('string');
+    expect(result.data.aaguid).toBe('00000000-0000-0000-0000-000000000000');
     expect(result.data.backupEligible).toBe(false);
     expect(result.data.backupState).toBe(false);
     expect(result.data.prfEnabled).toBe(false);
@@ -197,7 +164,7 @@ describe('verifyWebauthnRegistrationResponse', () => {
     const wrongChallenge = randomBytes(32).toString('base64url');
 
     const options = await generateWebauthnRegistrationOptions(config, {
-      uid: Buffer.alloc(16, 0xaa),
+      uid: Buffer.alloc(16, 0xaa).toString('hex'),
       email: 'test@example.com',
       challenge: realChallenge,
     });
@@ -221,7 +188,7 @@ describe('verifyWebauthnRegistrationResponse', () => {
     const challenge = randomBytes(32).toString('base64url');
 
     const options = await generateWebauthnRegistrationOptions(config, {
-      uid: Buffer.alloc(16, 0xaa),
+      uid: Buffer.alloc(16, 0xaa).toString('hex'),
       email: 'test@example.com',
       challenge,
     });
@@ -245,7 +212,7 @@ describe('verifyWebauthnRegistrationResponse', () => {
     const challenge = randomBytes(32).toString('base64url');
 
     const options = await generateWebauthnRegistrationOptions(config, {
-      uid: Buffer.alloc(16, 0xaa),
+      uid: Buffer.alloc(16, 0xaa).toString('hex'),
       email: 'test@example.com',
       challenge,
     });
@@ -301,8 +268,8 @@ describe('generateWebauthnAuthenticationOptions', () => {
     expect(options.allowCredentials).toBeUndefined();
   });
 
-  it('converts Buffer credential IDs to base64url allow-list entries', async () => {
-    const credId = Buffer.from('helloworld');
+  it('passes base64url credential IDs through to allow-list entries', async () => {
+    const credId = Buffer.from('helloworld').toString('base64url');
 
     const options = await generateWebauthnAuthenticationOptions(config, {
       challenge: randomBytes(32).toString('base64url'),
@@ -310,7 +277,7 @@ describe('generateWebauthnAuthenticationOptions', () => {
     });
 
     expect(options.allowCredentials).toEqual([
-      expect.objectContaining({ id: credId.toString('base64url') }),
+      expect.objectContaining({ id: credId }),
     ]);
   });
 });

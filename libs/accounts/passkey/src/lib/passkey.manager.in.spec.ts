@@ -14,7 +14,11 @@ import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Test } from '@nestjs/testing';
 import { PasskeyManager } from './passkey.manager';
 import { PasskeyConfig, MAX_PASSKEY_NAME_LENGTH } from './passkey.config';
-import { findPasskeyByCredentialId, insertPasskey } from './passkey.repository';
+import {
+  bufferToAaguid,
+  findPasskeyByCredentialId,
+  insertPasskey,
+} from './passkey.repository';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { AppError } from '../../../errors/src';
 
@@ -83,10 +87,24 @@ describe('PasskeyManager (Integration)', () => {
     }
   });
 
-  async function createTestAccount(): Promise<Buffer> {
+  async function createTestAccount(): Promise<string> {
     const email = faker.internet.email();
-    const uidHex = await accountManager.createAccountStub(email, 1, 'en-US');
-    return Buffer.from(uidHex, 'hex');
+    return accountManager.createAccountStub(email, 1, 'en-US');
+  }
+
+  function uidBuffer(uid: string): Buffer {
+    return Buffer.from(uid, 'hex');
+  }
+
+  // PasskeyFactory produces the DB-row shape (credentialId/aaguid: Buffer);
+  // callers of registerPasskey / insertPasskey take NewPasskeyData
+  // (credentialId: base64url string, aaguid: hyphenated-UUID string).
+  function toNewPasskeyData(passkey: ReturnType<typeof PasskeyFactory>) {
+    return {
+      ...passkey,
+      credentialId: passkey.credentialId.toString('base64url'),
+      aaguid: bufferToAaguid(passkey.aaguid),
+    };
   }
 
   describe('registerPasskey', () => {
@@ -94,18 +112,23 @@ describe('PasskeyManager (Integration)', () => {
       const uid = await createTestAccount();
       // Pass lastUsedAt: null explicitly — PasskeyFactory may randomise it
       const passkey = PasskeyFactory({
-        uid,
+        uid: uidBuffer(uid),
         backupEligible: true,
         backupState: false,
         prfEnabled: false,
         lastUsedAt: null,
       });
 
-      await manager.registerPasskey(passkey);
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
-      expect(found?.uid).toEqual(uid);
-      expect(found?.credentialId).toEqual(passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
+      expect(found?.uid.toString('hex')).toEqual(uid);
+      expect(found?.credentialId).toEqual(
+        passkey.credentialId.toString('base64url')
+      );
       expect(found?.name).toBe(passkey.name);
       expect(found?.backupEligible).toBe(true);
       expect(found?.backupState).toBe(false);
@@ -117,11 +140,20 @@ describe('PasskeyManager (Integration)', () => {
       const uid = await createTestAccount();
 
       // Fill up to the limit (maxPasskeysPerUser = 2)
-      await manager.registerPasskey(PasskeyFactory({ uid }));
-      await manager.registerPasskey(PasskeyFactory({ uid }));
+      await manager.registerPasskey(
+        uid,
+        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid) }))
+      );
+      await manager.registerPasskey(
+        uid,
+        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid) }))
+      );
 
       await expect(
-        manager.registerPasskey(PasskeyFactory({ uid }))
+        manager.registerPasskey(
+          uid,
+          toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid) }))
+        )
       ).rejects.toMatchObject(
         AppError.passkeyLimitReached(testConfig.maxPasskeysPerUser)
       );
@@ -129,13 +161,13 @@ describe('PasskeyManager (Integration)', () => {
 
     it('throws passkeyAlreadyRegistered AppError on duplicate credentialId', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid });
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid) });
 
-      await manager.registerPasskey(passkey);
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
       // Attempt to register the same credentialId again
       await expect(
-        manager.registerPasskey({ ...passkey })
+        manager.registerPasskey(uid, toNewPasskeyData(passkey))
       ).rejects.toMatchObject(AppError.passkeyAlreadyRegistered());
     });
   });
@@ -143,19 +175,26 @@ describe('PasskeyManager (Integration)', () => {
   describe('updatePasskeyAfterAuth', () => {
     it('updates signCount, backupState, and lastUsedAt', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid, signCount: 0, backupState: false });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({
+        uid: uidBuffer(uid),
+        signCount: 0,
+        backupState: false,
+      });
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
       const updated = await manager.updatePasskeyAfterAuth(
-        passkey.uid,
-        passkey.credentialId,
+        passkey.uid.toString('hex'),
+        passkey.credentialId.toString('base64url'),
         5,
         true
       );
 
       expect(updated).toBe(true);
 
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
       expect(found?.signCount).toBe(5);
       expect(found?.backupState).toBe(true);
       expect(found?.lastUsedAt).toBeGreaterThan(0);
@@ -163,24 +202,30 @@ describe('PasskeyManager (Integration)', () => {
 
     it('sets backupState to false when passed false', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid, backupState: true });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({
+        uid: uidBuffer(uid),
+        backupState: true,
+      });
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
       await manager.updatePasskeyAfterAuth(
-        passkey.uid,
-        passkey.credentialId,
+        passkey.uid.toString('hex'),
+        passkey.credentialId.toString('base64url'),
         1,
         false
       );
 
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
       expect(found?.backupState).toBe(false);
     });
 
     it('returns false when credentialId not found', async () => {
       const result = await manager.updatePasskeyAfterAuth(
-        Buffer.alloc(16, 0xff),
-        Buffer.alloc(32, 0xff),
+        Buffer.alloc(16, 0xff).toString('hex'),
+        Buffer.alloc(32, 0xff).toString('base64url'),
         1,
         false
       );
@@ -189,49 +234,59 @@ describe('PasskeyManager (Integration)', () => {
 
     it('returns false and does not update when signCount regresses', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid, signCount: 10 });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid), signCount: 10 });
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
       // Attempt to set a lower signCount — should be rejected
       const result = await manager.updatePasskeyAfterAuth(
-        passkey.uid,
-        passkey.credentialId,
+        passkey.uid.toString('hex'),
+        passkey.credentialId.toString('base64url'),
         5,
         false
       );
 
       expect(result).toBe(false);
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
       expect(found?.signCount).toBe(10);
     });
 
     it('returns false and does not update when new signCount equals stored non-zero signCount', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid, signCount: 5 });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid), signCount: 5 });
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
       // Same non-zero signCount is a potential cloning signal — should be rejected
       const result = await manager.updatePasskeyAfterAuth(
-        passkey.uid,
-        passkey.credentialId,
+        passkey.uid.toString('hex'),
+        passkey.credentialId.toString('base64url'),
         5,
         false
       );
 
       expect(result).toBe(false);
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
       expect(found?.signCount).toBe(5);
     });
 
     it('succeeds when both stored and new signCount are zero', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid, signCount: 0, backupState: false });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({
+        uid: uidBuffer(uid),
+        signCount: 0,
+        backupState: false,
+      });
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
       // Authenticators that never increment always return 0 — this is valid per WebAuthn spec
       const result = await manager.updatePasskeyAfterAuth(
-        passkey.uid,
-        passkey.credentialId,
+        passkey.uid.toString('hex'),
+        passkey.credentialId.toString('base64url'),
         0,
         false
       );
@@ -242,19 +297,22 @@ describe('PasskeyManager (Integration)', () => {
     it('returns false and does not update when uid does not match credential owner', async () => {
       const uid1 = await createTestAccount();
       const uid2 = await createTestAccount();
-      const passkey = PasskeyFactory({ uid: uid1, signCount: 0 });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid1), signCount: 0 });
+      await manager.registerPasskey(uid1, toNewPasskeyData(passkey));
 
       // uid2 attempts to update uid1's credential — should be rejected
       const result = await manager.updatePasskeyAfterAuth(
         uid2,
-        passkey.credentialId,
+        passkey.credentialId.toString('base64url'),
         1,
         false
       );
 
       expect(result).toBe(false);
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
       expect(found?.signCount).toBe(0);
     });
   });
@@ -265,12 +323,18 @@ describe('PasskeyManager (Integration)', () => {
       const now = Date.now();
 
       // Insert directly via repository to control createdAt precisely
-      const older = PasskeyFactory({ uid, createdAt: now - 5000 });
-      const middle = PasskeyFactory({ uid, createdAt: now - 2000 });
-      const newest = PasskeyFactory({ uid, createdAt: now });
-      await insertPasskey(db, older);
-      await insertPasskey(db, middle);
-      await insertPasskey(db, newest);
+      const older = PasskeyFactory({
+        uid: uidBuffer(uid),
+        createdAt: now - 5000,
+      });
+      const middle = PasskeyFactory({
+        uid: uidBuffer(uid),
+        createdAt: now - 2000,
+      });
+      const newest = PasskeyFactory({ uid: uidBuffer(uid), createdAt: now });
+      await insertPasskey(db, uid, toNewPasskeyData(older));
+      await insertPasskey(db, uid, toNewPasskeyData(middle));
+      await insertPasskey(db, uid, toNewPasskeyData(newest));
 
       const result = await manager.listPasskeysForUser(uid);
 
@@ -292,59 +356,71 @@ describe('PasskeyManager (Integration)', () => {
       const uid1 = await createTestAccount();
       const uid2 = await createTestAccount();
 
-      await manager.registerPasskey(PasskeyFactory({ uid: uid1 }));
-      await manager.registerPasskey(PasskeyFactory({ uid: uid2 }));
+      await manager.registerPasskey(
+        uid1,
+        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid1) }))
+      );
+      await manager.registerPasskey(
+        uid2,
+        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid2) }))
+      );
 
       const result = await manager.listPasskeysForUser(uid1);
-      expect(result.every((p) => p.uid.equals(uid1))).toBe(true);
+      expect(result.every((p) => p.uid.toString('hex') === uid1)).toBe(true);
     });
   });
 
   describe('renamePasskey', () => {
     it('renames an existing passkey', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid) });
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
       const renamed = await manager.renamePasskey(
         uid,
-        passkey.credentialId,
+        passkey.credentialId.toString('base64url'),
         'New Name'
       );
 
       expect(renamed).toBe(true);
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
       expect(found?.name).toBe('New Name');
     });
 
     it('does not rename a passkey belonging to a different user', async () => {
       const uid1 = await createTestAccount();
       const uid2 = await createTestAccount();
-      const passkey = PasskeyFactory({ uid: uid1 });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid1) });
+      await manager.registerPasskey(uid1, toNewPasskeyData(passkey));
 
       // uid2 tries to rename uid1's passkey — should return false
       const renamed = await manager.renamePasskey(
         uid2,
-        passkey.credentialId,
+        passkey.credentialId.toString('base64url'),
         'Hijacked'
       );
       expect(renamed).toBe(false);
 
       // Name is unchanged
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
       expect(found?.name).toBe(passkey.name);
     });
 
     it(`accepts a name at exactly ${MAX_PASSKEY_NAME_LENGTH} characters`, async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid) });
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
       const exactName = 'x'.repeat(MAX_PASSKEY_NAME_LENGTH);
       const renamed = await manager.renamePasskey(
         uid,
-        passkey.credentialId,
+        passkey.credentialId.toString('base64url'),
         exactName
       );
       expect(renamed).toBe(true);
@@ -354,7 +430,7 @@ describe('PasskeyManager (Integration)', () => {
       const uid = await createTestAccount();
       const result = await manager.renamePasskey(
         uid,
-        Buffer.alloc(32, 0xff),
+        Buffer.alloc(32, 0xff).toString('base64url'),
         'Ghost'
       );
       expect(result).toBe(false);
@@ -364,34 +440,49 @@ describe('PasskeyManager (Integration)', () => {
   describe('deletePasskey', () => {
     it('deletes an existing passkey and returns true', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid) });
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
-      const deleted = await manager.deletePasskey(uid, passkey.credentialId);
+      const deleted = await manager.deletePasskey(
+        uid,
+        passkey.credentialId.toString('base64url')
+      );
 
       expect(deleted).toBe(true);
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
       expect(found).toBeUndefined();
     });
 
     it('returns false when passkey is not found', async () => {
       const uid = await createTestAccount();
-      const result = await manager.deletePasskey(uid, Buffer.alloc(32, 0xff));
+      const result = await manager.deletePasskey(
+        uid,
+        Buffer.alloc(32, 0xff).toString('base64url')
+      );
       expect(result).toBe(false);
     });
 
     it('does not delete a passkey belonging to a different user', async () => {
       const uid1 = await createTestAccount();
       const uid2 = await createTestAccount();
-      const passkey = PasskeyFactory({ uid: uid1 });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid1) });
+      await manager.registerPasskey(uid1, toNewPasskeyData(passkey));
 
       // uid2 tries to delete uid1's passkey — should return false
-      const deleted = await manager.deletePasskey(uid2, passkey.credentialId);
+      const deleted = await manager.deletePasskey(
+        uid2,
+        passkey.credentialId.toString('base64url')
+      );
       expect(deleted).toBe(false);
 
       // Passkey still exists
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
       expect(found).toBeDefined();
     });
   });
@@ -405,20 +496,29 @@ describe('PasskeyManager (Integration)', () => {
     it('increments as passkeys are added', async () => {
       const uid = await createTestAccount();
 
-      await manager.registerPasskey(PasskeyFactory({ uid }));
+      await manager.registerPasskey(
+        uid,
+        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid) }))
+      );
       expect(await manager.countPasskeys(uid)).toBe(1);
 
-      await manager.registerPasskey(PasskeyFactory({ uid }));
+      await manager.registerPasskey(
+        uid,
+        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid) }))
+      );
       expect(await manager.countPasskeys(uid)).toBe(2);
     });
 
     it('decrements after deletion', async () => {
       const uid = await createTestAccount();
-      const passkey = PasskeyFactory({ uid });
-      await manager.registerPasskey(passkey);
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid) });
+      await manager.registerPasskey(uid, toNewPasskeyData(passkey));
 
       expect(await manager.countPasskeys(uid)).toBe(1);
-      await manager.deletePasskey(uid, passkey.credentialId);
+      await manager.deletePasskey(
+        uid,
+        passkey.credentialId.toString('base64url')
+      );
       expect(await manager.countPasskeys(uid)).toBe(0);
     });
   });
@@ -426,8 +526,14 @@ describe('PasskeyManager (Integration)', () => {
   describe('deleteAllPasskeysForUser', () => {
     it('removes all passkeys for the user and returns the count deleted', async () => {
       const uid = await createTestAccount();
-      await manager.registerPasskey(PasskeyFactory({ uid }));
-      await manager.registerPasskey(PasskeyFactory({ uid }));
+      await manager.registerPasskey(
+        uid,
+        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid) }))
+      );
+      await manager.registerPasskey(
+        uid,
+        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid) }))
+      );
 
       const deleted = await manager.deleteAllPasskeysForUser(uid);
 
@@ -444,8 +550,14 @@ describe('PasskeyManager (Integration)', () => {
       const uid1 = await createTestAccount();
       const uid2 = await createTestAccount();
 
-      await manager.registerPasskey(PasskeyFactory({ uid: uid1 }));
-      await manager.registerPasskey(PasskeyFactory({ uid: uid2 }));
+      await manager.registerPasskey(
+        uid1,
+        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid1) }))
+      );
+      await manager.registerPasskey(
+        uid2,
+        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid2) }))
+      );
 
       await manager.deleteAllPasskeysForUser(uid1);
 

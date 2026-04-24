@@ -72,8 +72,7 @@ import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
-import { PasskeyService } from '@fxa/accounts/passkey';
-import type { Passkey } from '@fxa/shared/db/mysql/account';
+import { PasskeyService, PasskeyRecord } from '@fxa/accounts/passkey';
 import { BOUNCE_TYPE_HARD } from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
 
@@ -2457,9 +2456,7 @@ export class AccountHandler {
       this.db.devices(uid),
       listAuthorizedClients(uid),
       this.config.passkeys?.enabled
-        ? Container.get(PasskeyService).listPasskeysForUser(
-            Buffer.from(uid, 'hex')
-          )
+        ? Container.get(PasskeyService).listPasskeysForUser(uid)
         : Promise.resolve([]),
     ]);
 
@@ -2560,7 +2557,7 @@ export class AccountHandler {
 
     const passkeys =
       passkeysResult.status === 'fulfilled'
-        ? (passkeysResult.value as Passkey[]).map(
+        ? (passkeysResult.value as PasskeyRecord[]).map(
             ({
               credentialId,
               name,
@@ -2572,12 +2569,12 @@ export class AccountHandler {
               backupState,
               prfEnabled,
             }) => ({
-              credentialId: credentialId.toString('base64url'),
+              credentialId,
               name,
               createdAt,
               lastUsedAt,
               transports,
-              aaguid: aaguid.toString('base64url'),
+              aaguid,
               backupEligible,
               backupState,
               prfEnabled,

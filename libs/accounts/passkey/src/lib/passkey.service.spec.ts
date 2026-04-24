@@ -33,15 +33,19 @@ const mockVerifyWebauthnRegistrationResponse =
 describe('PasskeyService', () => {
   let service: PasskeyService;
 
-  const MOCK_UID = Buffer.alloc(16, 0xaa);
+  const MOCK_UID_BUFFER = Buffer.alloc(16, 0xaa);
+  const MOCK_UID = MOCK_UID_BUFFER.toString('hex');
   const MOCK_USER_NAME = 'user@example.com';
   const MOCK_CHALLENGE = 'mock-challenge-base64url';
-  const MOCK_CREDENTIAL_ID = Buffer.alloc(32, 0xbb);
+  const MOCK_CREDENTIAL_ID_BUFFER = Buffer.alloc(32, 0xbb);
+  const MOCK_CREDENTIAL_ID = MOCK_CREDENTIAL_ID_BUFFER.toString('base64url');
   const MOCK_PUBLIC_KEY = Buffer.alloc(64, 0xcc);
-  const MOCK_AAGUID_ZEROS = Buffer.alloc(16, 0x00);
+  const MOCK_AAGUID_ZEROS = '00000000-0000-0000-0000-000000000000';
 
+  // PasskeyRecord shape: uid is Buffer (DB-row); credentialId is base64url
+  // string; aaguid is hyphenated-UUID string.
   const mockPasskey = {
-    uid: MOCK_UID,
+    uid: MOCK_UID_BUFFER,
     credentialId: MOCK_CREDENTIAL_ID,
     publicKey: MOCK_PUBLIC_KEY,
     signCount: 5,
@@ -52,12 +56,12 @@ describe('PasskeyService', () => {
     createdAt: Date.now(),
     lastUsedAt: null,
     transports: [],
-    aaguid: Buffer.alloc(16),
+    aaguid: MOCK_AAGUID_ZEROS,
   };
 
   const mockResponse: AuthenticationResponseJSON = {
-    id: MOCK_CREDENTIAL_ID.toString('base64url'),
-    rawId: MOCK_CREDENTIAL_ID.toString('base64url'),
+    id: MOCK_CREDENTIAL_ID,
+    rawId: MOCK_CREDENTIAL_ID,
     response: {
       authenticatorData: 'mock-auth-data',
       clientDataJSON: 'mock-client-data-json',
@@ -177,7 +181,7 @@ describe('PasskeyService', () => {
 
       expect(
         mockChallengeManager.generateRegistrationChallenge
-      ).toHaveBeenCalledWith(MOCK_UID.toString('hex'));
+      ).toHaveBeenCalledWith(MOCK_UID);
 
       expect(
         webauthnAdapter.generateWebauthnRegistrationOptions
@@ -210,7 +214,7 @@ describe('PasskeyService', () => {
       mockChallengeManager.consumeRegistrationChallenge.mockResolvedValue({
         challenge: MOCK_CHALLENGE,
         type: 'registration',
-        uid: MOCK_UID.toString('hex'),
+        uid: MOCK_UID,
         createdAt: Date.now() - 1000,
         expiresAt: Date.now() + 299000,
       });
@@ -280,10 +284,10 @@ describe('PasskeyService', () => {
       );
       expect(
         mockChallengeManager.consumeRegistrationChallenge
-      ).toHaveBeenCalledWith(MOCK_CHALLENGE, MOCK_UID.toString('hex'));
+      ).toHaveBeenCalledWith(MOCK_CHALLENGE, MOCK_UID);
     });
 
-    it('calls passkeyManager.registerPasskey with correct Passkey shape', async () => {
+    it('calls passkeyManager.registerPasskey with the uid and passkey data', async () => {
       await service.createPasskeyFromRegistrationResponse(
         MOCK_UID,
         mockResponse,
@@ -291,8 +295,8 @@ describe('PasskeyService', () => {
       );
 
       expect(mockManager.registerPasskey).toHaveBeenCalledWith(
+        MOCK_UID,
         expect.objectContaining({
-          uid: MOCK_UID,
           createdAt: expect.any(Number),
           lastUsedAt: null,
           ...mockVerifiedData,
@@ -300,7 +304,7 @@ describe('PasskeyService', () => {
       );
     });
 
-    it('returns a Passkey object with correct shape', async () => {
+    it('returns the persisted passkey data', async () => {
       const result = await service.createPasskeyFromRegistrationResponse(
         MOCK_UID,
         mockResponse,
@@ -308,7 +312,6 @@ describe('PasskeyService', () => {
       );
       expect(result).toEqual(
         expect.objectContaining({
-          uid: MOCK_UID,
           name: expect.any(String),
           credentialId: MOCK_CREDENTIAL_ID,
           publicKey: MOCK_PUBLIC_KEY,
@@ -335,7 +338,7 @@ describe('PasskeyService', () => {
       );
       expect(mockLogger.log).toHaveBeenCalledWith(
         'passkey.registered',
-        expect.objectContaining({ uid: MOCK_UID.toString('hex') })
+        expect.objectContaining({ uid: MOCK_UID })
       );
     });
 
@@ -370,7 +373,7 @@ describe('PasskeyService', () => {
     describe('passkey name generation (via createPasskeyFromRegistrationResponse)', () => {
       async function getRegisteredPasskeyName(
         transports: string[],
-        aaguid: Buffer = MOCK_AAGUID_ZEROS
+        aaguid: string = MOCK_AAGUID_ZEROS
       ): Promise<string> {
         mockVerifyWebauthnRegistrationResponse.mockResolvedValue({
           verified: true,
@@ -381,8 +384,8 @@ describe('PasskeyService', () => {
           mockResponse,
           MOCK_CHALLENGE
         );
-        const call = mockManager.registerPasskey.mock.calls[0][0];
-        return call.name;
+        const [, data] = mockManager.registerPasskey.mock.calls[0];
+        return data.name;
       }
 
       it('returns "Platform Passkey" for transport ["internal"]', async () => {
@@ -578,7 +581,7 @@ describe('PasskeyService', () => {
       ).toHaveBeenCalledWith(mockConfig, {
         response: mockResponse,
         challenge: MOCK_CHALLENGE,
-        credentialId: mockPasskey.credentialId,
+        credentialId: MOCK_CREDENTIAL_ID,
         publicKey: mockPasskey.publicKey,
         signCount: mockPasskey.signCount,
       });
@@ -605,7 +608,7 @@ describe('PasskeyService', () => {
       await service.verifyAuthenticationResponse(mockResponse, MOCK_CHALLENGE);
       expect(mockLogger.log).toHaveBeenCalledWith(
         'passkey.authenticated',
-        expect.objectContaining({ uid: MOCK_UID.toString('hex') })
+        expect.objectContaining({ uid: MOCK_UID })
       );
     });
 
@@ -657,7 +660,7 @@ describe('PasskeyService', () => {
     });
 
     it('throws a passkeyAuthenticationFailed AppError when expectedUid does not match the passkey owner', async () => {
-      const wrongUid = Buffer.from('0000000000000000', 'hex');
+      const wrongUid = '00'.repeat(16);
 
       await expect(
         service.verifyAuthenticationResponse(
@@ -688,8 +691,8 @@ describe('PasskeyService', () => {
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'passkey.signCount.rollback',
         expect.objectContaining({
-          uid: MOCK_UID.toString('hex'),
-          credentialId: MOCK_CREDENTIAL_ID.toString('hex'),
+          uid: MOCK_UID,
+          credentialId: MOCK_CREDENTIAL_ID,
           oldCount: mockPasskey.signCount,
         })
       );
@@ -726,8 +729,8 @@ describe('PasskeyService', () => {
       expect(mockLogger.error).toHaveBeenCalledWith(
         'passkey.updateAfterAuth.failed',
         expect.objectContaining({
-          uid: MOCK_UID.toString('hex'),
-          credentialId: MOCK_CREDENTIAL_ID.toString('hex'),
+          uid: MOCK_UID,
+          credentialId: MOCK_CREDENTIAL_ID,
           newSignCount: 6,
         })
       );
@@ -739,8 +742,13 @@ describe('PasskeyService', () => {
   });
 
   describe('listPasskeysForUser', () => {
+    // PasskeyRecord shape: uid is Buffer (DB-row), credentialId is base64url string.
     const mockPasskeys = [
-      { uid: MOCK_UID, credentialId: MOCK_CREDENTIAL_ID, name: 'Passkey' },
+      {
+        uid: MOCK_UID_BUFFER,
+        credentialId: MOCK_CREDENTIAL_ID,
+        name: 'Passkey',
+      },
     ];
 
     it('returns passkeys from manager', async () => {
@@ -785,7 +793,7 @@ describe('PasskeyService', () => {
       );
       expect(mockLogger.log).toHaveBeenCalledWith(
         'passkey.renamed',
-        expect.objectContaining({ uid: MOCK_UID.toString('hex') })
+        expect.objectContaining({ uid: MOCK_UID })
       );
     });
 
@@ -927,7 +935,7 @@ describe('PasskeyService', () => {
       );
       expect(mockLogger.log).toHaveBeenCalledWith(
         'passkey.deleted',
-        expect.objectContaining({ uid: MOCK_UID.toString('hex') })
+        expect.objectContaining({ uid: MOCK_UID })
       );
     });
 

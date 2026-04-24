@@ -40,7 +40,7 @@ describe('webauthn-adapter (real @simplewebauthn/server)', () => {
       const challenge = randomBytes(32).toString('base64url');
 
       const options = await generateWebauthnRegistrationOptions(config, {
-        uid: Buffer.alloc(16, 0xaa),
+        uid: Buffer.alloc(16, 0xaa).toString('hex'),
         email: 'test@example.com',
         challenge,
       });
@@ -53,7 +53,7 @@ describe('webauthn-adapter (real @simplewebauthn/server)', () => {
       const challenge = randomBytes(32).toString('base64url');
 
       const options = await generateWebauthnRegistrationOptions(config, {
-        uid: Buffer.alloc(16, 0xaa),
+        uid: Buffer.alloc(16, 0xaa).toString('hex'),
         email: 'test@example.com',
         challenge,
       });
@@ -71,11 +71,13 @@ describe('webauthn-adapter (real @simplewebauthn/server)', () => {
 
       expect(result.verified).toBe(true);
       if (!result.verified) throw new Error('narrowing');
-      expect(result.data.credentialId).toBeInstanceOf(Buffer);
+      expect(typeof result.data.credentialId).toBe('string');
       expect(result.data.publicKey).toBeInstanceOf(Buffer);
       expect(result.data.signCount).toBe(0);
-      expect(result.data.aaguid).toBeInstanceOf(Buffer);
-      expect(result.data.aaguid.length).toBe(16);
+      expect(typeof result.data.aaguid).toBe('string');
+      expect(result.data.aaguid).toBe(
+        '00000000-0000-0000-0000-000000000000'
+      );
     });
 
     it('verifyWebauthnRegistrationResponse rejects a mismatched challenge', async () => {
@@ -84,7 +86,7 @@ describe('webauthn-adapter (real @simplewebauthn/server)', () => {
       const wrongChallenge = randomBytes(32).toString('base64url');
 
       const options = await generateWebauthnRegistrationOptions(config, {
-        uid: Buffer.alloc(16, 0xaa),
+        uid: Buffer.alloc(16, 0xaa).toString('hex'),
         email: 'test@example.com',
         challenge: realChallenge,
       });
@@ -109,7 +111,7 @@ describe('webauthn-adapter (real @simplewebauthn/server)', () => {
       const challenge = randomBytes(32).toString('base64url');
 
       const options = await generateWebauthnRegistrationOptions(config, {
-        uid: Buffer.alloc(16, 0xaa),
+        uid: Buffer.alloc(16, 0xaa).toString('hex'),
         email: 'test@example.com',
         challenge,
       });
@@ -130,7 +132,7 @@ describe('webauthn-adapter (real @simplewebauthn/server)', () => {
       const challenge = randomBytes(32).toString('base64url');
 
       const options = await generateWebauthnRegistrationOptions(config, {
-        uid: Buffer.alloc(16, 0xaa),
+        uid: Buffer.alloc(16, 0xaa).toString('hex'),
         email: 'test@example.com',
         challenge,
       });
@@ -153,7 +155,7 @@ describe('webauthn-adapter (real @simplewebauthn/server)', () => {
       const challenge = randomBytes(32).toString('base64url');
 
       const options = await generateWebauthnRegistrationOptions(config, {
-        uid: Buffer.alloc(16, 0xaa),
+        uid: Buffer.alloc(16, 0xaa).toString('hex'),
         email: 'test@example.com',
         challenge,
       });
@@ -171,7 +173,7 @@ describe('webauthn-adapter (real @simplewebauthn/server)', () => {
 
       expect(result.verified).toBe(true);
       if (!result.verified) throw new Error('narrowing');
-      expect(result.data.credentialId.equals(cred.id)).toBe(true);
+      expect(result.data.credentialId).toBe(cred.id.toString('base64url'));
       expect(result.data.transports).toEqual(['internal']);
       expect(typeof result.data.backupEligible).toBe('boolean');
       expect(typeof result.data.backupState).toBe('boolean');

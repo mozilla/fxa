@@ -10,7 +10,6 @@ import type {
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import * as Sentry from '@sentry/nestjs';
-import type { Passkey } from '@fxa/shared/db/mysql/account';
 import type {
   AuthenticatorTransportFuture,
   PublicKeyCredentialCreationOptionsJSON,
@@ -18,6 +17,7 @@ import type {
 } from '@simplewebauthn/server';
 import { PasskeyConfig } from './passkey.config';
 import { PasskeyManager } from './passkey.manager';
+import { NewPasskeyData, PasskeyRecord } from './passkey.repository';
 import { PasskeyChallengeManager } from './passkey.challenge.manager';
 import {
   generateWebauthnRegistrationOptions,
@@ -30,7 +30,8 @@ import {
 import { AppError } from '@fxa/accounts/errors';
 
 export interface AuthenticationResult {
-  uid: Buffer;
+  /** Authenticated user ID as a hex string. */
+  uid: string;
 }
 
 /**
@@ -104,20 +105,18 @@ export class PasskeyService {
    * Validates the user has not exceeded the passkey limit, then generates
    * a challenge and returns WebAuthn PublicKeyCredentialCreationOptions.
    *
-   * @param uid - User ID (16-byte Buffer)
+   * @param uid - User ID as a hex string
    * @param email - User's display name (e.g. email) for WebAuthn options
    * @returns WebAuthn registration options to pass to the browser
    */
   async generateRegistrationChallenge(
-    uid: Buffer,
+    uid: string,
     email: string
   ): Promise<PublicKeyCredentialCreationOptionsJSON> {
-    const uidHex = uid.toString('hex');
-
     await this.passkeyManager.checkPasskeyCount(uid);
 
     const challenge =
-      await this.challengeManager.generateRegistrationChallenge(uidHex);
+      await this.challengeManager.generateRegistrationChallenge(uid);
 
     const options = await generateWebauthnRegistrationOptions(this.config, {
       uid,
@@ -134,7 +133,7 @@ export class PasskeyService {
    * Validates the challenge, verifies the attestation, generates a passkey name,
    * and stores the credential in the database.
    *
-   * @param uid - User ID (16-byte Buffer)
+   * @param uid - User ID as a hex string
    * @param response - Raw registration response from the browser
    * @param challenge - Challenge that was issued for this registration
    * @returns The newly created passkey record as stored in the database.
@@ -144,17 +143,12 @@ export class PasskeyService {
    *   fails or the verified flag is false.
    */
   async createPasskeyFromRegistrationResponse(
-    uid: Buffer,
+    uid: string,
     response: RegistrationResponseJSON,
     challenge: string
-  ): Promise<Passkey> {
-    const uidHex = uid.toString('hex');
-
+  ): Promise<NewPasskeyData> {
     const storedChallenge =
-      await this.challengeManager.consumeRegistrationChallenge(
-        challenge,
-        uidHex
-      );
+      await this.challengeManager.consumeRegistrationChallenge(challenge, uid);
 
     if (!storedChallenge) {
       this.metrics.increment('passkey.registration.failed', {
@@ -192,29 +186,28 @@ export class PasskeyService {
 
     const name = this.generatePasskeyName(aaguid, transports, existingPasskeys);
 
-    const passkey: Passkey = {
-      uid,
+    const passkeyData: NewPasskeyData = {
       name,
       createdAt: Date.now(),
       lastUsedAt: null,
       ...result.data,
     };
 
-    await this.passkeyManager.registerPasskey(passkey);
+    await this.passkeyManager.registerPasskey(uid, passkeyData);
 
     this.metrics.increment('passkey.registration.success');
-    this.log?.log('passkey.registered', { uid: uidHex });
+    this.log?.log('passkey.registered', { uid });
 
-    return passkey;
+    return passkeyData;
   }
 
   /**
    * Returns all passkeys for a user, ordered by createdAt descending.
    *
-   * @param uid - User ID (16-byte Buffer)
+   * @param uid - User ID as a hex string
    * @returns Array of passkeys belonging to the user
    */
-  async listPasskeysForUser(uid: Buffer): Promise<Passkey[]> {
+  async listPasskeysForUser(uid: string): Promise<PasskeyRecord[]> {
     const passkeys = await this.passkeyManager.listPasskeysForUser(uid);
     this.metrics.increment('passkey.list.success');
     return passkeys;
@@ -224,17 +217,17 @@ export class PasskeyService {
    * Updates the friendly name for a passkey, ensuring the passkey belongs to the user.
    * The name is trimmed before validation and storage.
    *
-   * @param uid - User ID (16-byte Buffer)
-   * @param credentialId - Credential ID of the passkey to rename
+   * @param uid - User ID as a hex string
+   * @param credentialId - Credential ID (base64url) of the passkey to rename
    * @param newName - New display name for the passkey
    * @throws {AppError} (passkeyInvalidName) - when name is empty, whitespace-only, or exceeds 255 chars
    * @throws {AppError} (passkeyNotFound) - when passkey does not exist or does not belong to the user
    */
   async renamePasskey(
-    uid: Buffer,
-    credentialId: Buffer,
+    uid: string,
+    credentialId: string,
     newName: string
-  ): Promise<Passkey> {
+  ): Promise<PasskeyRecord> {
     const trimmed = newName.trim();
     if (
       !trimmed ||
@@ -274,7 +267,7 @@ export class PasskeyService {
     }
 
     this.metrics.increment('passkey.rename.success');
-    this.log?.log('passkey.renamed', { uid: uid.toString('hex') });
+    this.log?.log('passkey.renamed', { uid });
 
     return passkey;
   }
@@ -282,12 +275,12 @@ export class PasskeyService {
   /**
    * Deletes a passkey, ensuring the passkey belongs to the user.
    *
-   * @param uid - User ID (16-byte Buffer)
-   * @param credentialId - Credential ID of the passkey to delete
+   * @param uid - User ID as a hex string
+   * @param credentialId - Credential ID (base64url) of the passkey to delete
    * @throws {AppError} (passkeyNotFound) - when passkey does not exist or does not belong to the user
    * @throws {AppError} (passkeyDeleteFailed) - when a database error occurs during deletion
    */
-  async deletePasskey(uid: Buffer, credentialId: Buffer): Promise<void> {
+  async deletePasskey(uid: string, credentialId: string): Promise<void> {
     let deleted = false;
     try {
       deleted = await this.passkeyManager.deletePasskey(uid, credentialId);
@@ -306,7 +299,7 @@ export class PasskeyService {
     }
 
     this.metrics.increment('passkey.delete.success');
-    this.log?.log('passkey.deleted', { uid: uid.toString('hex') });
+    this.log?.log('passkey.deleted', { uid });
   }
 
   /**
@@ -317,9 +310,9 @@ export class PasskeyService {
    * (e.g., "Passkey", "Passkey 2", "Passkey 3").
    */
   private generatePasskeyName(
-    aaguid: Buffer,
+    aaguid: string,
     transports: AuthenticatorTransportFuture[],
-    existingPasskeys: Passkey[]
+    existingPasskeys: PasskeyRecord[]
   ): string {
     const baseName = this.getBasePasskeyName(aaguid, transports);
     return this.deduplicatePasskeyName(baseName, existingPasskeys);
@@ -334,10 +327,10 @@ export class PasskeyService {
    * 3. Generic fallback: "Passkey"
    */
   private getBasePasskeyName(
-    aaguid: Buffer,
+    aaguid: string,
     transports: AuthenticatorTransportFuture[]
   ): string {
-    const allZeros = aaguid.every((b) => b === 0);
+    const allZeros = aaguid === '00000000-0000-0000-0000-000000000000';
 
     if (!allZeros) {
       // TODO: FIDO MDS lookup — return device name if found
@@ -361,7 +354,7 @@ export class PasskeyService {
 
   private deduplicatePasskeyName(
     baseName: string,
-    existingPasskeys: Passkey[]
+    existingPasskeys: PasskeyRecord[]
   ): string {
     const existingNames = existingPasskeys.map((p) => p.name).filter(Boolean);
 
@@ -391,12 +384,12 @@ export class PasskeyService {
    * @returns WebAuthn authentication options
    */
   async generateAuthenticationChallenge(
-    uid?: Buffer
+    uid?: string
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
     const challenge =
       await this.challengeManager.generateAuthenticationChallenge();
 
-    let allowCredentials: Buffer[] = [];
+    let allowCredentials: string[] = [];
     if (uid) {
       const passkeys = await this.passkeyManager.listPasskeysForUser(uid);
       allowCredentials = passkeys.map((p) => p.credentialId);
@@ -424,9 +417,9 @@ export class PasskeyService {
   async verifyAuthenticationResponse(
     response: AuthenticationResponseJSON,
     challenge: string,
-    expectedUid?: Buffer
+    expectedUid?: string
   ): Promise<AuthenticationResult> {
-    const credentialId = Buffer.from(response.id, 'base64url');
+    const credentialId = response.id;
 
     const passkey =
       await this.passkeyManager.findPasskeyByCredentialId(credentialId);
@@ -437,7 +430,8 @@ export class PasskeyService {
       throw AppError.passkeyNotFound();
     }
 
-    if (expectedUid && !passkey.uid.equals(expectedUid)) {
+    const uid = passkey.uid.toString('hex');
+    if (expectedUid && uid !== expectedUid) {
       this.metrics.increment('passkey.authentication.failed', {
         reason: 'uidMismatch',
       });
@@ -450,9 +444,7 @@ export class PasskeyService {
       this.metrics.increment('passkey.authentication.failed', {
         reason: 'challengeNotFound',
       });
-      this.log?.warn('passkey.challengeNotFound', {
-        credentialId: credentialId.toString('hex'),
-      });
+      this.log?.warn('passkey.challengeNotFound', { credentialId });
       throw AppError.passkeyChallengeNotFound();
     }
 
@@ -461,7 +453,7 @@ export class PasskeyService {
       result = await verifyWebauthnAuthenticationResponse(this.config, {
         response,
         challenge: storedChallenge.challenge,
-        credentialId: passkey.credentialId,
+        credentialId,
         publicKey: passkey.publicKey,
         signCount: passkey.signCount,
       });
@@ -469,8 +461,8 @@ export class PasskeyService {
       // simplewebauthn throws when signCount decrements
       if (err instanceof Error && /^Response counter value/.test(err.message)) {
         this.log?.warn('passkey.signCount.rollback', {
-          uid: passkey.uid.toString('hex'),
-          credentialId: credentialId.toString('hex'),
+          uid,
+          credentialId,
           oldCount: passkey.signCount,
           error: err.message,
         });
@@ -492,15 +484,15 @@ export class PasskeyService {
     const { newSignCount, backupState } = result.data;
 
     const updated = await this.passkeyManager.updatePasskeyAfterAuth(
-      passkey.uid,
-      passkey.credentialId,
+      uid,
+      credentialId,
       newSignCount,
       backupState
     );
     if (!updated) {
       this.log?.error('passkey.updateAfterAuth.failed', {
-        uid: passkey.uid.toString('hex'),
-        credentialId: credentialId.toString('hex'),
+        uid,
+        credentialId,
         newSignCount,
       });
       this.metrics.increment('passkey.authentication.failed', {
@@ -510,10 +502,8 @@ export class PasskeyService {
     }
 
     this.metrics.increment('passkey.authentication.success');
-    this.log?.log('passkey.authenticated', {
-      uid: passkey.uid.toString('hex'),
-    });
+    this.log?.log('passkey.authenticated', { uid });
 
-    return { uid: passkey.uid };
+    return { uid };
   }
 }
