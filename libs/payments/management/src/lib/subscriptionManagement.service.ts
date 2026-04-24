@@ -67,7 +67,9 @@ import {
   ManagePaymentMethodIntentGetInTouchError,
   ManagePaymentMethodIntentTryAgainError,
   ManagePaymentMethodIntentInsufficientFundsError,
+  ManagePaymentMethodTaxAddressRequiredError,
 } from './manage-payment-method.error';
+import { TaxService } from '@fxa/payments/cart';
 import { NotifierService } from '@fxa/shared/notifier';
 import { ProfileClient } from '@fxa/profile/client';
 import {
@@ -105,10 +107,40 @@ export class SubscriptionManagementService {
     private productConfigurationManager: ProductConfigurationManager,
     private setupIntentManager: SetupIntentManager,
     private subscriptionManager: SubscriptionManager,
+    private taxService: TaxService,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
     @Inject(Logger) private log: LoggerService
   ) {}
+
+  private async ensureCustomerTaxAddress(
+    stripeCustomerId: string,
+    uid: string,
+    ipAddress: string
+  ) {
+    const customer = await this.customerManager.retrieve(stripeCustomerId);
+    const hasValidShipping =
+      !!customer.shipping?.address?.country &&
+      !!customer.shipping?.address?.postal_code;
+    if (hasValidShipping) return;
+
+    const taxAddress = await this.taxService.getTaxAddress(ipAddress, uid);
+    if (!taxAddress) {
+      throw new ManagePaymentMethodTaxAddressRequiredError(
+        'tax_address_required'
+      );
+    }
+
+    await this.customerManager.update(stripeCustomerId, {
+      shipping: {
+        name: customer.email || '',
+        address: {
+          country: taxAddress.countryCode,
+          postal_code: taxAddress.postalCode,
+        },
+      },
+    });
+  }
 
   @SanitizeExceptions()
   async cancelSubscriptionAtPeriodEnd(uid: string, subscriptionId: string) {
@@ -1087,15 +1119,26 @@ export class SubscriptionManagementService {
       ManagePaymentMethodIntentGetInTouchError,
       ManagePaymentMethodIntentTryAgainError,
       ManagePaymentMethodIntentInsufficientFundsError,
+      ManagePaymentMethodTaxAddressRequiredError,
     ],
   })
-  async updateStripePaymentDetails(uid: string, confirmationTokenId: string) {
+  async updateStripePaymentDetails(
+    uid: string,
+    confirmationTokenId: string,
+    ipAddress: string
+  ) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
 
     if (!accountCustomer.stripeCustomerId) {
       throw new UpdateAccountCustomerMissingStripeId(uid);
     }
+
+    await this.ensureCustomerTaxAddress(
+      accountCustomer.stripeCustomerId,
+      uid,
+      ipAddress
+    );
 
     let setupIntent;
     try {
@@ -1166,14 +1209,26 @@ export class SubscriptionManagementService {
     };
   }
 
-  @SanitizeExceptions()
-  async setDefaultStripePaymentDetails(uid: string, paymentMethodId: string) {
+  @SanitizeExceptions({
+    allowlist: [ManagePaymentMethodTaxAddressRequiredError],
+  })
+  async setDefaultStripePaymentDetails(
+    uid: string,
+    paymentMethodId: string,
+    ipAddress: string
+  ) {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
 
     if (!accountCustomer.stripeCustomerId) {
       throw new SetDefaultPaymentAccountCustomerMissingStripeId(uid);
     }
+
+    await this.ensureCustomerTaxAddress(
+      accountCustomer.stripeCustomerId,
+      uid,
+      ipAddress
+    );
 
     await this.customerManager.update(accountCustomer.stripeCustomerId, {
       invoice_settings: {
