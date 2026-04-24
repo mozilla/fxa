@@ -68,6 +68,7 @@ export class IntegrationFactory {
   protected readonly channelData: ModelDataStore;
   protected readonly storageData: ModelDataStore;
   protected readonly clientInfo?: RelierClientInfo;
+  protected readonly clientInfoLoadFailed: boolean;
   protected readonly cmsInfo?: RelierCmsInfo;
   protected readonly legalTerms?: RelierLegalTerms;
   protected readonly productInfo?: RelierSubscriptionInfo;
@@ -78,6 +79,7 @@ export class IntegrationFactory {
     window: ReachRouterWindow;
     productInfo?: RelierSubscriptionInfo;
     clientInfo?: RelierClientInfo;
+    clientInfoLoadFailed?: boolean;
     cmsInfo?: RelierCmsInfo;
     legalTerms?: RelierLegalTerms;
     data?: ModelDataStore;
@@ -96,6 +98,7 @@ export class IntegrationFactory {
         new StorageData(window)
       );
     this.clientInfo = opts.clientInfo;
+    this.clientInfoLoadFailed = opts.clientInfoLoadFailed ?? false;
     this.productInfo = opts.productInfo;
     this.cmsInfo = opts.cmsInfo;
     this.legalTerms = opts.legalTerms;
@@ -304,6 +307,13 @@ export class IntegrationFactory {
      * acts as a clientId, and we currently consider this an OAuth flow (in Backbone as well)
      * that does not want to redirect. In this case, createClientInfo with 'service'.
      */
+
+    // Without this flag, a failed `/v1/oauth/client/:id` fetch leaves every
+    // `clientInfo` field undefined, which reads as `trusted=false` and silently
+    // strips every requested scope. `useClientInfoState` is the source of truth
+    // — we don't infer from `integration.data.clientId` because some flows
+    // (e.g. `/oauth/success/:clientId`) populate it without a fetch.
+    integration.clientInfoLoadFailed = this.clientInfoLoadFailed;
 
     const redirectUris = this.clientInfo?.redirectUri?.split(',');
     const clientRedirectUri = getClientRedirect(
