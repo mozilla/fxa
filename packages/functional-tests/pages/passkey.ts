@@ -4,64 +4,65 @@
 
 import { Page } from '@playwright/test';
 import { BaseLayout } from './layout';
-import { PasskeyVirtualAuthenticator } from '../lib/passkeyVirtualAuthenticator';
+import { PasskeyPolyfill } from '../lib/passkeyPolyfill';
 
 /**
- * Abstract base class for page objects that use PasskeyVirtualAuthenticator.
- * Provides common initialization and cleanup patterns.
+ * Abstract base class for page objects that need a virtual WebAuthn
+ * authenticator. Uses a browser polyfill (injected via page.addInitScript)
+ * backed by the Node-side VirtualAuthenticator from @fxa/accounts/passkey, so
+ * tests work on both Firefox and Chromium.
  */
 export abstract class PasskeyPage extends BaseLayout {
-  protected passkeyVirtualAuth?: PasskeyVirtualAuthenticator;
+  protected passkeyPolyfill?: PasskeyPolyfill;
 
   /**
-   * Initialize the PasskeyVirtualAuthenticator with a CDP session.
-   * Call this before using passkey functionality.
+   * Install the passkey polyfill on the given page. Idempotent — safe to
+   * call more than once. Applies to the current page and all subsequent
+   * navigations.
    */
   async initPasskeys(page: Page) {
-    const client = await page.context().newCDPSession(page);
-    this.passkeyVirtualAuth = new PasskeyVirtualAuthenticator(client);
-    await this.passkeyVirtualAuth.create();
+    if (this.passkeyPolyfill) return;
+    this.passkeyPolyfill = new PasskeyPolyfill();
+    await this.passkeyPolyfill.install(page);
   }
 
   /**
-   * Cleanup the virtual authenticator and CDP session if initialized.
-   * Safe to call even if passkeys were never used.
+   * Clear minted credentials and release the polyfill. Safe to call even if
+   * passkeys were never initialised.
    */
   async cleanupPasskeys() {
-    if (this.passkeyVirtualAuth) {
-      await this.passkeyVirtualAuth.cleanup();
-      this.passkeyVirtualAuth = undefined;
+    if (this.passkeyPolyfill) {
+      await this.passkeyPolyfill.cleanup();
+      this.passkeyPolyfill = undefined;
     }
   }
 
-  /**
-   * Check if passkeys have been initialized.
-   */
   get hasPasskeysInitialized(): boolean {
-    return !!this.passkeyVirtualAuth;
+    return !!this.passkeyPolyfill;
   }
 
   /**
-   * Exposes the PasskeyVirtualAuthenticator.
-   * Must call initPasskeys() first.
+   * The polyfill, for orchestrating success/fail/credential checks. Must
+   * call initPasskeys() first.
    */
   get passkeyAuth() {
-    if (!this.passkeyVirtualAuth) {
+    if (!this.passkeyPolyfill) {
       throw new Error(
-        'PasskeyVirtualAuthenticator not initialized. Call initPasskeys() first.'
+        'Passkey polyfill not initialized. Call initPasskeys() first.'
       );
     }
-    return this.passkeyVirtualAuth;
+    return this.passkeyPolyfill;
   }
 }
 
 /**
- * Page object for interacting with Passkeys in tests.
- *
- * Just an example, and will be removed once passkey tests are integrated elsewhere.
+ * Example page object retained for compatibility with the skipped
+ * `tests/passkeys/passkeys.spec.ts` suite. The polyfill replaces the browser
+ * WebAuthn API, so third-party demo sites no longer round-trip — the demo
+ * test remains skipped until it is replaced by in-repo flows.
  */
 export class PasskeyExamplePage extends PasskeyPage {
   get path(): string {
-    return 'https://passkeys.eu'; // test page URL for passkeys
+    return 'https://passkeys.eu';
   }
 }

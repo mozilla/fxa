@@ -25,6 +25,7 @@ import { RelierPage } from './relier';
 import { ResetPasswordPage } from './resetPassword';
 import { SecondaryEmailPage } from './settings/secondaryEmail';
 import { SettingsPage } from './settings';
+import { SettingsPasskeyAddPage } from './settings/passkey';
 import { SigninPage } from './signin';
 import { SigninRecoveryChoicePage } from './signinRecoveryChoice';
 import { SigninRecoveryPhonePage } from './signinRecoveryPhone';
@@ -69,6 +70,7 @@ export function create(page: Page, target: BaseTarget) {
     resetPassword: new ResetPasswordPage(page, target),
     secondaryEmail: new SecondaryEmailPage(page, target),
     settings: new SettingsPage(page, target),
+    settingsPasskeyAdd: new SettingsPasskeyAddPage(page, target),
     signin: new SigninPage(page, target),
     signinRecoveryChoice: new SigninRecoveryChoicePage(page, target),
     signinRecoveryPhone: new SigninRecoveryPhonePage(page, target),

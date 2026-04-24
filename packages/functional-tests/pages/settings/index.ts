@@ -8,6 +8,7 @@ import {
   ConnectedServicesRow,
   DataCollectionRow,
   DisplayNameRow,
+  PasskeyRow,
   PasswordRow,
   PrimaryEmailRow,
   RecoveryKeyRow,
@@ -57,6 +58,10 @@ export class SettingsPage extends SettingsLayout {
 
   get totp() {
     return this.lazyRow('two-step', TotpRow);
+  }
+
+  get passkey() {
+    return this.lazyRow('passkey', PasskeyRow);
   }
 
   get connectedServiceName() {
@@ -151,5 +156,15 @@ export class SettingsPage extends SettingsLayout {
       .getByRole('textbox', { name: 'Enter 6-digit code' })
       .fill(code);
     await this.page.getByRole('button', { name: 'Confirm' }).click();
+  }
+
+  /**
+   * Confirms the MFA guard only if the modal is currently displayed. Safe to
+   * call when the cached JWT already satisfies the guard and no modal appears.
+   */
+  async confirmMfaGuardIfVisible(email: string) {
+    if (await this.isMfaGuardVisible()) {
+      await this.confirmMfaGuard(email);
+    }
   }
 }
