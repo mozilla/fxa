@@ -32546,8 +32546,6 @@ __metadata:
     chance: "npm:^1.1.8"
     cldr-localenames-full: "npm:46.0.0"
     cors: "npm:^2.8.5"
-    esbuild: "npm:^0.17.15"
-    esbuild-register: "npm:^3.5.0"
     eslint: "npm:^7.32.0"
     express: "npm:^4.21.2"
     find-up: "npm:^5.0.0"
