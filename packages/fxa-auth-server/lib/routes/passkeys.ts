@@ -114,7 +114,7 @@ export class PasskeyHandler {
     );
 
     const options = await this.service.generateRegistrationChallenge(
-      Buffer.from(uid, 'hex'),
+      uid,
       account.email
     );
 
@@ -154,7 +154,7 @@ export class PasskeyHandler {
 
     try {
       const passkey = await this.service.createPasskeyFromRegistrationResponse(
-        Buffer.from(uid, 'hex'),
+        uid,
         response,
         challenge
       );
@@ -196,12 +196,12 @@ export class PasskeyHandler {
       } = passkey;
 
       return {
-        credentialId: credentialId.toString('base64url'),
+        credentialId,
         name,
         createdAt,
         lastUsedAt,
         transports,
-        aaguid: aaguid.toString('base64url'),
+        aaguid,
         backupEligible,
         backupState,
         prfEnabled,
@@ -235,9 +235,7 @@ export class PasskeyHandler {
       'passkeysList'
     );
 
-    const passkeys = await this.service.listPasskeysForUser(
-      Buffer.from(uid, 'hex')
-    );
+    const passkeys = await this.service.listPasskeysForUser(uid);
 
     // omit publicKey and signCount
     return passkeys.map(
@@ -252,12 +250,12 @@ export class PasskeyHandler {
         backupState,
         prfEnabled,
       }) => ({
-        credentialId: credentialId.toString('base64url'),
+        credentialId,
         name,
         createdAt,
         lastUsedAt,
         transports,
-        aaguid: aaguid.toString('base64url'),
+        aaguid,
         backupEligible,
         backupState,
         prfEnabled,
@@ -274,7 +272,7 @@ export class PasskeyHandler {
    */
   async deletePasskey(request: AuthRequest) {
     const { uid } = request.auth.credentials as { uid: string };
-    const { credentialId: credentialIdParam } = request.params as {
+    const { credentialId } = request.params as {
       credentialId: string;
     };
 
@@ -286,9 +284,7 @@ export class PasskeyHandler {
       'passkeyDelete'
     );
 
-    const credentialId = Buffer.from(credentialIdParam, 'base64url');
-
-    await this.service.deletePasskey(Buffer.from(uid, 'hex'), credentialId);
+    await this.service.deletePasskey(uid, credentialId);
 
     await recordSecurityEvent('account.passkey.removed', {
       db: this.db,
@@ -324,7 +320,7 @@ export class PasskeyHandler {
    */
   async renamePasskey(request: AuthRequest) {
     const { uid } = request.auth.credentials as { uid: string };
-    const { credentialId: credentialIdParam } = request.params as {
+    const { credentialId } = request.params as {
       credentialId: string;
     };
     const { name } = request.payload as { name: string };
@@ -337,23 +333,17 @@ export class PasskeyHandler {
       'passkeysRename'
     );
 
-    const credentialId = Buffer.from(credentialIdParam, 'base64url');
-
-    const passkey = await this.service.renamePasskey(
-      Buffer.from(uid, 'hex'),
-      credentialId,
-      name
-    );
+    const passkey = await this.service.renamePasskey(uid, credentialId, name);
 
     await this.glean.passkey.renameSuccess(request);
 
     return {
-      credentialId: passkey.credentialId.toString('base64url'),
+      credentialId: passkey.credentialId,
       name: passkey.name,
       createdAt: passkey.createdAt,
       lastUsedAt: passkey.lastUsedAt,
       transports: passkey.transports,
-      aaguid: passkey.aaguid.toString('base64url'),
+      aaguid: passkey.aaguid,
       backupEligible: passkey.backupEligible,
       backupState: passkey.backupState,
       prfEnabled: passkey.prfEnabled,

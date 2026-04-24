@@ -27,7 +27,11 @@ import { PasskeyChallengeManager } from './passkey.challenge.manager';
 import { PasskeyConfig } from './passkey.config';
 import { AppError } from '@fxa/accounts/errors';
 import { PASSKEY_CHALLENGE_REDIS } from './passkey.provider';
-import { findPasskeyByCredentialId, insertPasskey } from './passkey.repository';
+import {
+  bufferToAaguid,
+  findPasskeyByCredentialId,
+  insertPasskey,
+} from './passkey.repository';
 
 const mockLogger = {
   log: jest.fn(),
@@ -83,27 +87,42 @@ describe('Passkey Security Tests', () => {
       }
     });
 
-    async function createTestAccount(): Promise<Buffer> {
+    async function createTestAccount(): Promise<string> {
       const email = faker.internet.email();
-      const uidHex = await accountManager.createAccountStub(email, 1, 'en-US');
-      return Buffer.from(uidHex, 'hex');
+      return accountManager.createAccountStub(email, 1, 'en-US');
+    }
+
+    function uidBuffer(uid: string): Buffer {
+      return Buffer.from(uid, 'hex');
+    }
+
+    // PasskeyFactory produces the DB-row shape (credentialId/aaguid: Buffer);
+    // callers of registerPasskey / insertPasskey take NewPasskeyData
+    // (credentialId: base64url string, aaguid: hyphenated-UUID string).
+    function toNewPasskeyData(passkey: ReturnType<typeof PasskeyFactory>) {
+      return {
+        ...passkey,
+        credentialId: passkey.credentialId.toString('base64url'),
+        aaguid: bufferToAaguid(passkey.aaguid),
+      };
     }
 
     // WebAuthn §4: https://www.w3.org/TR/webauthn-3/#credential-id
     it('credentialId uniqueness is globally scoped across users', async () => {
       const uid1 = await createTestAccount();
       const uid2 = await createTestAccount();
-      const passkey = PasskeyFactory({ uid: uid1 });
+      const passkey = PasskeyFactory({ uid: uidBuffer(uid1) });
+      const data = toNewPasskeyData(passkey);
 
-      await manager.registerPasskey(passkey);
+      await manager.registerPasskey(uid1, data);
 
       // Same user, same credentialId — also rejected
-      await expect(manager.registerPasskey(passkey)).rejects.toMatchObject(
+      await expect(manager.registerPasskey(uid1, data)).rejects.toMatchObject(
         AppError.passkeyAlreadyRegistered()
       );
       // Different user, same credentialId — UNIQUE INDEX is global, not per-user
       await expect(
-        manager.registerPasskey({ ...passkey, uid: uid2 })
+        manager.registerPasskey(uid2, { ...data })
       ).rejects.toMatchObject(AppError.passkeyAlreadyRegistered());
     });
 
@@ -112,11 +131,17 @@ describe('Passkey Security Tests', () => {
     it('publicKey survives DB round-trip as binary Buffer, not a base64 string', async () => {
       const uid = await createTestAccount();
       const knownKey = Buffer.from('deadbeefcafebabe'.repeat(8), 'hex');
-      const passkey = PasskeyFactory({ uid, publicKey: knownKey });
+      const passkey = PasskeyFactory({
+        uid: uidBuffer(uid),
+        publicKey: knownKey,
+      });
 
-      await insertPasskey(db, passkey);
+      await insertPasskey(db, uid, toNewPasskeyData(passkey));
 
-      const found = await findPasskeyByCredentialId(db, passkey.credentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        passkey.credentialId.toString('base64url')
+      );
       expect(found).toBeDefined();
       expect(Buffer.isBuffer(found?.publicKey)).toBe(true);
       expect(found?.publicKey).toEqual(knownKey);
@@ -132,13 +157,21 @@ describe('Passkey Security Tests', () => {
       const binaryCredentialId = Buffer.from(
         Array.from({ length: 32 }, (_, i) => 0x80 + i)
       );
-      const passkey = PasskeyFactory({ uid, credentialId: binaryCredentialId });
+      const passkey = PasskeyFactory({
+        uid: uidBuffer(uid),
+        credentialId: binaryCredentialId,
+      });
 
-      await insertPasskey(db, passkey);
+      await insertPasskey(db, uid, toNewPasskeyData(passkey));
 
-      const found = await findPasskeyByCredentialId(db, binaryCredentialId);
+      const found = await findPasskeyByCredentialId(
+        db,
+        binaryCredentialId.toString('base64url')
+      );
       expect(found).toBeDefined();
-      expect(found?.credentialId).toEqual(binaryCredentialId);
+      expect(found?.credentialId).toEqual(
+        binaryCredentialId.toString('base64url')
+      );
     });
   });
 

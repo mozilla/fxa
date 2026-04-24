@@ -63,15 +63,19 @@ describe('passkeys routes', () => {
     attestation: 'none',
   };
 
+  const MOCK_AAGUID = 'adce0002-35bc-c60a-648b-0b25f1f05503';
+  const MOCK_CREDENTIAL_ID = 'mock-credential-id-xyz';
+
+  // PasskeyRecord shape: credentialId and aaguid are strings.
   const mockPasskeyRecord = {
-    credentialId: Buffer.from('credential-id-xyz'),
+    credentialId: MOCK_CREDENTIAL_ID,
     name: 'My Passkey',
     createdAt: Date.now(),
     lastUsedAt: null,
     transports: ['internal'],
     publicKey: Buffer.from('public-key'),
     signCount: 42,
-    aaguid: Buffer.from('aaguid12345678ab'),
+    aaguid: MOCK_AAGUID,
     backupEligible: true,
     backupState: false,
     prfEnabled: true,
@@ -186,7 +190,7 @@ describe('passkeys routes', () => {
       ).toHaveBeenCalledTimes(1);
       expect(
         mockPasskeyService.generateRegistrationChallenge
-      ).toHaveBeenCalledWith(Buffer.from(UID, 'hex'), TEST_EMAIL);
+      ).toHaveBeenCalledWith(UID, TEST_EMAIL);
     });
 
     it('enforces rate limiting via customs.checkAuthenticated', async () => {
@@ -246,12 +250,12 @@ describe('passkeys routes', () => {
       });
 
       expect(result).toEqual({
-        credentialId: mockPasskeyRecord.credentialId.toString('base64url'),
+        credentialId: mockPasskeyRecord.credentialId,
         name: mockPasskeyRecord.name,
         createdAt: mockPasskeyRecord.createdAt,
         lastUsedAt: mockPasskeyRecord.lastUsedAt,
         transports: mockPasskeyRecord.transports,
-        aaguid: mockPasskeyRecord.aaguid.toString('base64url'),
+        aaguid: mockPasskeyRecord.aaguid,
         backupEligible: mockPasskeyRecord.backupEligible,
         backupState: mockPasskeyRecord.backupState,
         prfEnabled: mockPasskeyRecord.prfEnabled,
@@ -262,11 +266,7 @@ describe('passkeys routes', () => {
       ).toHaveBeenCalledTimes(1);
       expect(
         mockPasskeyService.createPasskeyFromRegistrationResponse
-      ).toHaveBeenCalledWith(
-        Buffer.from(UID, 'hex'),
-        payload.response,
-        payload.challenge
-      );
+      ).toHaveBeenCalledWith(UID, payload.response, payload.challenge);
     });
 
     it('records a success security event on successful registration', async () => {
@@ -470,7 +470,7 @@ describe('passkeys routes', () => {
 
       expect(result).toEqual(
         expect.objectContaining({
-          credentialId: mockPasskeyRecord.credentialId.toString('base64url'),
+          credentialId: mockPasskeyRecord.credentialId,
         })
       );
       expect(log.error).toHaveBeenCalledWith(
@@ -496,17 +496,15 @@ describe('passkeys routes', () => {
         'GET'
       );
 
-      expect(mockPasskeyService.listPasskeysForUser).toHaveBeenCalledWith(
-        Buffer.from(UID, 'hex')
-      );
+      expect(mockPasskeyService.listPasskeysForUser).toHaveBeenCalledWith(UID);
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
-        credentialId: mockPasskeyRecord.credentialId.toString('base64url'),
+        credentialId: mockPasskeyRecord.credentialId,
         name: mockPasskeyRecord.name,
         createdAt: mockPasskeyRecord.createdAt,
         lastUsedAt: mockPasskeyRecord.lastUsedAt,
         transports: mockPasskeyRecord.transports,
-        aaguid: mockPasskeyRecord.aaguid.toString('base64url'),
+        aaguid: mockPasskeyRecord.aaguid,
         backupEligible: mockPasskeyRecord.backupEligible,
         backupState: mockPasskeyRecord.backupState,
         prfEnabled: mockPasskeyRecord.prfEnabled,
@@ -577,8 +575,8 @@ describe('passkeys routes', () => {
       );
 
       expect(mockPasskeyService.deletePasskey).toHaveBeenCalledWith(
-        Buffer.from(UID, 'hex'),
-        Buffer.from(CREDENTIAL_ID_B64, 'base64url')
+        UID,
+        CREDENTIAL_ID_B64
       );
     });
 
@@ -812,8 +810,8 @@ describe('passkeys routes', () => {
       );
 
       expect(mockPasskeyService.renamePasskey).toHaveBeenCalledWith(
-        Buffer.from(UID, 'hex'),
-        Buffer.from(CREDENTIAL_ID_B64, 'base64url'),
+        UID,
+        CREDENTIAL_ID_B64,
         'Renamed Key'
       );
     });
@@ -836,12 +834,12 @@ describe('passkeys routes', () => {
       );
 
       expect(result).toEqual({
-        credentialId: mockPasskeyRecord.credentialId.toString('base64url'),
+        credentialId: mockPasskeyRecord.credentialId,
         name: mockPasskeyRecord.name,
         createdAt: mockPasskeyRecord.createdAt,
         lastUsedAt: mockPasskeyRecord.lastUsedAt,
         transports: mockPasskeyRecord.transports,
-        aaguid: mockPasskeyRecord.aaguid.toString('base64url'),
+        aaguid: mockPasskeyRecord.aaguid,
         backupEligible: mockPasskeyRecord.backupEligible,
         backupState: mockPasskeyRecord.backupState,
         prfEnabled: mockPasskeyRecord.prfEnabled,
