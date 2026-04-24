@@ -217,6 +217,80 @@ describe('lib/integrations/integration-factory', () => {
         expect(integration.wantsKeys()).toBeFalsy();
         expect(integration.isTrusted()).toBeTruthy();
       });
+
+      it('does not flag clientInfoLoadFailed when clientInfo is provided', () => {
+        expect(integration.clientInfoLoadFailed).toBe(false);
+      });
+    });
+
+    describe('when /v1/oauth/client/:id fetch failed', () => {
+      beforeEach(() => {
+        sandbox.restore();
+        sandbox.stub(flags, 'isOAuth').returns(true);
+        sandbox.stub(flags, 'isDevicePairingAsAuthority').returns(false);
+        sandbox.stub(flags, 'isDevicePairingAsSupplicant').returns(false);
+        sandbox.stub(flags, 'isServiceSync').returns(false);
+        sandbox.stub(flags, 'isV3DesktopContext').returns(false);
+        sandbox.stub(flags, 'isOAuthWebChannelContext').returns(false);
+
+        urlQueryData.set('scope', 'profile');
+        urlQueryData.set('client_id', '720bc80adfa6988d');
+        urlQueryData.set('redirect_uri', 'https://redirect.to');
+
+        const factory = new IntegrationFactory({
+          window,
+          data: urlQueryData,
+          channelData: urlHashData,
+          storageData,
+          flags,
+          clientInfo: undefined,
+          clientInfoLoadFailed: true,
+          productInfo,
+        });
+        integration = factory.getIntegration() as OAuthIntegration;
+      });
+
+      it('flags clientInfoLoadFailed so downstream code surfaces the error', () => {
+        expect(integration.clientInfoLoadFailed).toBe(true);
+      });
+    });
+
+    describe('when clientInfo is missing but the fetch did not fail', () => {
+      // Some flows populate `data.clientId` from non-URL-query sources
+      // (e.g. the `/oauth/success/:clientId` pathname via
+      // `initOAuthIntegration`). In those flows `useClientInfoState` never
+      // ran a fetch, so the factory should not flag clientInfoLoadFailed
+      // even though `clientInfo` is undefined and `data.clientId` is set.
+      beforeEach(() => {
+        sandbox.restore();
+        sandbox.stub(flags, 'isOAuth').returns(true);
+        sandbox.stub(flags, 'isDevicePairingAsAuthority').returns(false);
+        sandbox.stub(flags, 'isDevicePairingAsSupplicant').returns(false);
+        sandbox.stub(flags, 'isServiceSync').returns(false);
+        sandbox.stub(flags, 'isV3DesktopContext').returns(false);
+        sandbox.stub(flags, 'isOAuthWebChannelContext').returns(false);
+        sandbox.stub(flags, 'isOAuthSuccessFlow').returns({
+          status: true,
+          clientId: '720bc80adfa6988d',
+        });
+
+        const factory = new IntegrationFactory({
+          window,
+          data: urlQueryData,
+          channelData: urlHashData,
+          storageData,
+          flags,
+          clientInfo: undefined,
+          clientInfoLoadFailed: false,
+          productInfo,
+        });
+        integration = factory.getIntegration() as OAuthIntegration;
+      });
+
+      it('does not flag clientInfoLoadFailed', () => {
+        expect(integration.data.clientId).toEqual('720bc80adfa6988d');
+        expect(integration.clientInfoLoadFailed).toBe(false);
+      });
     });
 
     // TODO: Port remaining tests from content-server

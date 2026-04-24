@@ -51,6 +51,12 @@ export class GenericIntegration<
   subscriptionInfo: RelierSubscriptionInfo | undefined;
   cmsInfo: RelierCmsInfo | undefined;
   legalTerms: RelierLegalTerms | undefined;
+  // Set by IntegrationFactory.initClientInfo when the /v1/oauth/client/:id
+  // fetch in `useClientInfoState` failed (network, WAF challenge, 5xx,
+  // unknown client_id). Downstream code uses this to surface a discrete
+  // error instead of falling through to scope-validation paths with a
+  // half-populated clientInfo.
+  clientInfoLoadFailed: boolean = false;
 
   constructor(
     type: IntegrationType,

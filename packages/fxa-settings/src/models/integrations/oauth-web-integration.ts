@@ -221,6 +221,17 @@ export class OAuthWebIntegration extends GenericIntegration<
   }
 
   getPermissions() {
+    // If the /v1/oauth/client/:id fetch failed during factory initialisation,
+    // `isTrusted()` returns false and scope sanitisation would strip every
+    // scope a real RP typically asks for, throwing an errno-109 that looks
+    // like an RP misconfiguration. Surface the real cause (service
+    // unavailable) so the App-level catch renders OAuthDataError without a
+    // misleading Sentry capture here — the fetch failure is already logged
+    // from useClientInfoState.
+    if (this.clientInfoLoadFailed) {
+      throw new OAuthError(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+    }
+
     // Ported from content server, search for _normalizeScopesAndPermissions
     let permissions = Array.from(scopeStrToArray(this.data.scope || ''));
 

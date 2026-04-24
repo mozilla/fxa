@@ -251,6 +251,37 @@ describe('models/integrations/oauth-relier', function () {
       });
     });
 
+    describe('clientInfo fetch failed', () => {
+      beforeEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it('throws SERVICE_UNAVAILABLE and does not capture a scope-error to Sentry', () => {
+        const integration = new OAuthWebIntegration(
+          new GenericData({ scope: 'profile' }),
+          new GenericData({}),
+          {
+            scopedKeysEnabled: true,
+            scopedKeysValidation: {},
+            isPromptNoneEnabled: true,
+            isPromptNoneEnabledClientIds: [],
+          }
+        );
+        integration.clientInfoLoadFailed = true;
+
+        let caught: OAuthError | undefined;
+        try {
+          integration.getPermissions();
+        } catch (err) {
+          caught = err as OAuthError;
+        }
+
+        expect(caught).toBeInstanceOf(OAuthError);
+        expect(caught?.errno).toBe(OAUTH_ERRORS.SERVICE_UNAVAILABLE.errno);
+        expect(Sentry.captureException).not.toHaveBeenCalled();
+      });
+    });
+
     describe('trusted reliers that do not ask for consent', () => {
       function getIntegration(scope: string) {
         const integration = getIntegrationWithScope(scope);
