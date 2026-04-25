@@ -7,6 +7,7 @@ const webpack = require('webpack');
 const path = require('path');
 const config = require('./server/lib/configuration').getProperties();
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const ENV = config.env;
 const webpackConfig = {
@@ -56,6 +57,11 @@ const webpackConfig = {
       path.resolve(__dirname, 'node_modules'),
       'node_modules',
     ],
+    plugins: [
+      new TsconfigPathsPlugin({
+        configFile: path.resolve(__dirname, '../../tsconfig.base.json'),
+      }),
+    ],
     alias: {
       'chosen-js': require.resolve('chosen-js/public/chosen.jquery'),
       'cocktail-lib': require.resolve('backbone.cocktail/Cocktail'),
@@ -89,6 +95,10 @@ const webpackConfig = {
       '@fxa/vendored/incremental-encoder': path.resolve(
         __dirname,
         '../../libs/vendored/incremental-encoder/src/index.ts'
+      ),
+      '@fxa/shared/sentry-utils': path.resolve(
+        __dirname,
+        '../../libs/shared/sentry-utils/src/index.ts'
       ),
     },
   },

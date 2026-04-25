@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { initMonitoring } = require('fxa-shared/monitoring');
+const { initMonitoring } = require('@fxa/shared/monitoring');
 const Sentry = require('@sentry/node');
 const { config } = require('../config');
 const logger = require('./log')(

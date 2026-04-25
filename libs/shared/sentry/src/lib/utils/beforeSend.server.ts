@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { tagFxaName } from './tagFxaName';
-import { InitSentryOpts } from '../models/SentryConfigOpts';
+import { InitSentryOpts } from '@fxa/shared/sentry-utils';
 import { ErrorEvent } from '@sentry/core';
 
 const EXPECTED_ERRORS = new Set([
@@ -18,7 +18,7 @@ const EXPECTED_ERRORS = new Set([
   'IntentInsufficientFundsError',
   'PayPalPaymentMethodError',
   'PayPalServiceUnavailableError',
-  'PayPalActiveSubscriptionsMissingAgreementError'
+  'PayPalActiveSubscriptionsMissingAgreementError',
 ]);
 
 export const beforeSend = function (

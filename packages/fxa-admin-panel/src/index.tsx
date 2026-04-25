@@ -6,7 +6,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import { initSentry } from '@fxa/shared/sentry-browser';
 import { config, readConfigFromMeta } from './lib/config';
 import App from './App';
 import './styles/tailwind.out.css';
@@ -15,12 +15,15 @@ try {
   // Watch out! This mutates the config. Make sure it gets run first!
   readConfigFromMeta(headQuerySelector);
 
-  sentryMetrics.configure({
-    release: config.version,
-    sentry: {
-      ...config.sentry,
+  initSentry(
+    {
+      release: config.version,
+      sentry: {
+        ...config.sentry,
+      },
     },
-  });
+    console
+  );
 
   const root = createRoot(document.getElementById('root')!);
 

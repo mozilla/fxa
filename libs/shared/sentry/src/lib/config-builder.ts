@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Logger } from './sentry.types';
-import { SentryConfigOpts } from './models/SentryConfigOpts';
+import { SentryConfigOpts } from '@fxa/shared/sentry-utils';
 
 const sentryEnvMap: Record<string, string> = {
   test: 'test',
@@ -37,7 +37,6 @@ export function buildSentryConfig(config: SentryConfigOpts, log: Logger) {
     fxaName: config.sentry?.clientName || config.sentry?.serverName,
     tracesSampleRate: config.sentry?.tracesSampleRate,
     ignoreErrors: config.sentry?.ignoreErrors || [],
-    sendDefaultPii: config.sentry?.sendDefaultPii ?? true,
   };
 
   return opts;

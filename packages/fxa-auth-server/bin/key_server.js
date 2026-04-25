@@ -21,7 +21,7 @@ const {
   ProductConfigurationManager,
   StrapiClient,
 } = require('@fxa/shared/cms');
-const TracingProvider = require('fxa-shared/tracing/node-tracing');
+const { getCurrent: getCurrentTracingProvider } = require('@fxa/shared/otel');
 
 const { AppError: error } = require('@fxa/accounts/errors');
 const { JWTool } = require('@fxa/vendored/jwtool');
@@ -94,7 +94,7 @@ async function run(config) {
   const log = require('../lib/log')({
     ...config.log,
     statsd,
-    nodeTracer: TracingProvider.getCurrent(),
+    nodeTracer: getCurrentTracingProvider(),
   });
   Container.set(AuthLogger, log);
 
