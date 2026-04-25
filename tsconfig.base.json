@@ -37,6 +37,7 @@
       ],
       "@fxa/accounts/two-factor": ["libs/accounts/two-factor/src/index.ts"],
       "@fxa/google": ["libs/google/src/index.ts"],
+      "@fxa/payments/api-server": ["libs/payments/api-server/src/index.ts"],
       "@fxa/payments/auth": ["libs/payments/auth/src/index.ts"],
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],

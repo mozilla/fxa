@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import { IsDefined, ValidateNested } from 'class-validator';
 
 import { CurrencyConfig } from '@fxa/payments/currency';
+import { AppleIapClientConfig, GoogleIapClientConfig } from '@fxa/payments/iap';
 import { PaymentsGleanConfig } from '@fxa/payments/metrics';
 import { PaypalClientConfig } from '@fxa/payments/paypal';
 import { StripeConfig } from '@fxa/payments/stripe';
@@ -67,4 +68,14 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly fxaOAuthConfig!: Partial<FxaOAuthConfig>;
+
+  @Type(() => AppleIapClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly appleIapClientConfig!: Partial<AppleIapClientConfig>;
+
+  @Type(() => GoogleIapClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly googleIapClientConfig!: Partial<GoogleIapClientConfig>;
 }

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/auth.module';
+export * from './lib/current-user.decorator';
 export * from './lib/fxa-oauth-auth.guard';
 export * from './lib/fxa-access-token.schemas';
 export * from './lib/fxa-oauth.config';

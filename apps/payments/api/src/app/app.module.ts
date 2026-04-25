@@ -3,6 +3,10 @@ import { TypedConfigModule, dotenvLoader } from 'nest-typed-config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RootConfig } from '../config';
+import {
+  BillingAndSubscriptionsController,
+  BillingAndSubscriptionsService,
+} from '@fxa/payments/api-server';
 import { AuthModule } from '@fxa/payments/auth';
 import {
   CmsWebhooksController,
@@ -15,15 +19,23 @@ import {
   SubscriptionEventsService,
 } from '@fxa/payments/webhooks';
 import { FirestoreProvider } from '@fxa/shared/db/firestore';
-import { StripeClient } from '@fxa/payments/stripe';
+import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
+import { CapabilityManager } from '@fxa/payments/capability';
 import {
   CustomerManager,
   InvoiceManager,
   PaymentMethodManager,
   PriceManager,
+  ProductManager,
   SubscriptionManager,
 } from '@fxa/payments/customer';
+import {
+  AppleIapClient,
+  AppleIapPurchaseManager,
+  GoogleIapClient,
+  GoogleIapPurchaseManager,
+} from '@fxa/payments/iap';
 import {
   PaypalBillingAgreementManager,
   PayPalClient,
@@ -65,15 +77,21 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
   ],
   controllers: [
     AppController,
+    BillingAndSubscriptionsController,
     CmsWebhooksController,
     FxaWebhooksController,
     StripeWebhooksController,
   ],
   providers: [
     Logger,
+    AccountCustomerManager,
     AccountDatabaseNestFactory,
     AccountManager,
+    AppleIapClient,
+    AppleIapPurchaseManager,
     AppService,
+    BillingAndSubscriptionsService,
+    CapabilityManager,
     ProductConfigurationManager,
     CartManager,
     SubscriptionEventsService,
@@ -82,7 +100,10 @@ import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
     PaymentsGleanService,
     PaymentsEmitterService,
     PriceManager,
+    ProductManager,
     FirestoreProvider,
+    GoogleIapClient,
+    GoogleIapPurchaseManager,
     StatsDProvider,
     StripeClient,
     PayPalClient,
