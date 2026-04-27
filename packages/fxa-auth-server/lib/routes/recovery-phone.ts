@@ -977,7 +977,10 @@ class RecoveryPhoneHandler {
     // the session is not verified. e.g. The user has entered the correct password,
     // but failed to provide 2FA.
     const shouldStripNumber = (() => {
-      if (request.auth.strategy === 'multiStrategySessionToken') {
+      if (
+        request.auth.strategy === 'multiStrategySessionToken' ||
+        request.auth.strategy === 'multiStrategySessionTokenBearer'
+      ) {
         const { emailVerified, mustVerify, tokenVerified } = request.auth
           .credentials as SessionTokenAuthCredential;
         return !emailVerified || (mustVerify && !tokenVerified);
@@ -1122,7 +1125,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_CREATE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -1169,7 +1172,7 @@ export const recoveryPhoneRoutes = (
       options: {
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_AVAILABLE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
       },
       handler: function (request: AuthRequest) {
@@ -1184,7 +1187,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_CONFIRM_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -1248,7 +1251,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_SIGNIN_SEND_CODE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
       },
       handler: function (request: AuthRequest) {
@@ -1263,7 +1266,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_SIGNIN_CONFIRM_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           payload: isA.object({
@@ -1283,7 +1286,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_RESET_PASSWORD_SEND_CODE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: ['passwordForgotTokenBearer', 'passwordForgotToken'],
         },
       },
       handler: function (request: AuthRequest) {
@@ -1298,7 +1301,7 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_RESET_PASSWORD_CONFIRM_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'passwordForgotToken',
+          strategies: ['passwordForgotTokenBearer', 'passwordForgotToken'],
         },
       },
       handler: function (request: AuthRequest) {
@@ -1312,7 +1315,7 @@ export const recoveryPhoneRoutes = (
       options: {
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_DELETE,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
       },
@@ -1348,6 +1351,8 @@ export const recoveryPhoneRoutes = (
         ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_GET,
         auth: {
           strategies: [
+            'multiStrategySessionTokenBearer',
+            'multiStrategyPasswordForgotTokenBearer',
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
           ],

@@ -1811,7 +1811,10 @@ export class AccountHandler {
   async profile(request: AuthRequest) {
     const auth = request.auth;
     let uid, scope;
-    if (auth.strategy === 'sessionToken') {
+    if (
+      auth.strategy === 'sessionToken' ||
+      auth.strategy === 'sessionTokenBearer'
+    ) {
       uid = auth.credentials.uid;
       scope = { contains: () => true };
     } else {
@@ -2935,7 +2938,7 @@ export const accountRoutes = (
         ...ACCOUNT_DOCS.ACCOUNT_STATUS_GET,
         auth: {
           mode: 'optional',
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           query: {
@@ -2997,7 +3000,7 @@ export const accountRoutes = (
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_PROFILE_GET,
         auth: {
-          strategies: ['sessionToken', 'oauthToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'oauthToken'],
         },
         response: {
           schema: isA.object({
@@ -3025,7 +3028,10 @@ export const accountRoutes = (
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_KEYS_GET,
         auth: {
-          strategy: 'keyFetchTokenWithVerificationStatus',
+          strategies: [
+            'keyFetchTokenWithVerificationStatusBearer',
+            'keyFetchTokenWithVerificationStatus',
+          ],
         },
         response: {
           schema: isA.object({
@@ -3072,7 +3078,7 @@ export const accountRoutes = (
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_RESET_POST,
         auth: {
-          strategy: 'accountResetToken',
+          strategies: ['accountResetTokenBearer', 'accountResetToken'],
           payload: 'required',
         },
         validate: {
@@ -3144,7 +3150,7 @@ export const accountRoutes = (
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_DESTROY_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
@@ -3183,7 +3189,7 @@ export const accountRoutes = (
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_METRICS_OPT_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           payload: isA.object({
@@ -3199,7 +3205,7 @@ export const accountRoutes = (
       options: {
         ...MISC_DOCS.ACCOUNT_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         response: {
           schema: isA.object({

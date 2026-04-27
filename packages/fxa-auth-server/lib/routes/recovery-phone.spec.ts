@@ -227,13 +227,16 @@ describe('/recovery_phone', () => {
       expect(mockGlean.twoStepAuthPhoneCode.sendError).toHaveBeenCalledTimes(0);
     });
 
-    it('requires session authorization', () => {
+    it('requires session authorization (Bearer first, Hawk fallback)', () => {
       const route = getRoute(
         routes,
         '/recovery_phone/signin/send_code',
         'POST'
       );
-      expect(route.options.auth.strategy).toBe('sessionToken');
+      expect(route.options.auth.strategies).toEqual([
+        'sessionTokenBearer',
+        'sessionToken',
+      ]);
     });
   });
 
@@ -368,13 +371,16 @@ describe('/recovery_phone', () => {
       ).toHaveBeenCalledTimes(0);
     });
 
-    it('requires a passwordForgotToken', () => {
+    it('requires a passwordForgotToken (Bearer first, Hawk fallback)', () => {
       const route = getRoute(
         routes,
         '/recovery_phone/reset_password/send_code',
         'POST'
       );
-      expect(route.options.auth.strategy).toBe('passwordForgotToken');
+      expect(route.options.auth.strategies).toEqual([
+        'passwordForgotTokenBearer',
+        'passwordForgotToken',
+      ]);
     });
   });
 
@@ -544,9 +550,12 @@ describe('/recovery_phone', () => {
       );
     });
 
-    it('requires verified session authorization', () => {
+    it('requires verified session authorization (Bearer first, Hawk fallback)', () => {
       const route = getRoute(routes, '/recovery_phone/create', 'POST');
-      expect(route.options.auth.strategy).toBe('verifiedSessionToken');
+      expect(route.options.auth.strategies).toEqual([
+        'verifiedSessionTokenBearer',
+        'verifiedSessionToken',
+      ]);
     });
   });
 

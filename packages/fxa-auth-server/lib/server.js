@@ -418,31 +418,49 @@ async function create(
 
   const hawkFxAToken = require('./routes/auth-schemes/hawk-fxa-token');
   // Register auth strategies for all token types. These strategies support Hawk (without validation) and FxA token types.
+  // `statsd`+`kind` drive the `auth.strategy.used{scheme,kind}` metric that
+  // tracks Hawk vs Bearer traffic during the FXA-9392 migration.
   server.auth.scheme(
     'fxa-hawk-session-token',
-    hawkFxAToken.strategy(makeCredentialFn(db.sessionToken.bind(db)))
+    hawkFxAToken.strategy(makeCredentialFn(db.sessionToken.bind(db)), {
+      statsd,
+      kind: 'sessionToken',
+    })
   );
   server.auth.scheme(
     'fxa-hawk-keyFetch-token',
-    hawkFxAToken.strategy(makeCredentialFn(db.keyFetchToken.bind(db)))
+    hawkFxAToken.strategy(makeCredentialFn(db.keyFetchToken.bind(db)), {
+      statsd,
+      kind: 'keyFetchToken',
+    })
   );
   server.auth.scheme(
     'fxa-hawk-keyFetch-with-verification-token',
     hawkFxAToken.strategy(
-      makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db))
+      makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db)),
+      { statsd, kind: 'keyFetchTokenWithVerificationStatus' }
     )
   );
   server.auth.scheme(
     'fxa-hawk-accountReset-token',
-    hawkFxAToken.strategy(makeCredentialFn(db.accountResetToken.bind(db)))
+    hawkFxAToken.strategy(makeCredentialFn(db.accountResetToken.bind(db)), {
+      statsd,
+      kind: 'accountResetToken',
+    })
   );
   server.auth.scheme(
     'fxa-hawk-passwordForgot-token',
-    hawkFxAToken.strategy(makeCredentialFn(db.passwordForgotToken.bind(db)))
+    hawkFxAToken.strategy(makeCredentialFn(db.passwordForgotToken.bind(db)), {
+      statsd,
+      kind: 'passwordForgotToken',
+    })
   );
   server.auth.scheme(
     'fxa-hawk-passwordChange-token',
-    hawkFxAToken.strategy(makeCredentialFn(db.passwordChangeToken.bind(db)))
+    hawkFxAToken.strategy(makeCredentialFn(db.passwordChangeToken.bind(db)), {
+      statsd,
+      kind: 'passwordChangeToken',
+    })
   );
 
   // the recoveryKey/exists route accepts a session token or a password-forgot
@@ -454,12 +472,16 @@ async function create(
     'multi-strategy-fxa-hawk-session-token',
     hawkFxAToken.strategy(makeCredentialFn(db.sessionToken.bind(db)), {
       throwOnFailure: false,
+      statsd,
+      kind: 'sessionToken',
     })
   );
   server.auth.scheme(
     'multi-strategy-fxa-hawk-passwordForgot-token',
     hawkFxAToken.strategy(makeCredentialFn(db.passwordForgotToken.bind(db)), {
       throwOnFailure: false,
+      statsd,
+      kind: 'passwordForgotToken',
     })
   );
 
@@ -482,6 +504,105 @@ async function create(
   server.auth.strategy(
     'multiStrategyPasswordForgotToken',
     'multi-strategy-fxa-hawk-passwordForgot-token'
+  );
+
+  // Additive Bearer-token strategies for the Hawk -> Bearer migration
+  // (FXA-9392, ADR-0022). Wire format: `Authorization: Bearer <prefix>_<hex>`
+  // where `<prefix>` disambiguates token kinds. Routes are not wired yet; M2
+  // flips the client and the first route batch.
+  const bearerFxaToken = require('./routes/auth-schemes/bearer-fxa-token');
+  server.auth.scheme(
+    'fxa-bearer-session-token',
+    bearerFxaToken.strategy(
+      'sessionToken',
+      makeCredentialFn(db.sessionToken.bind(db)),
+      { statsd }
+    )
+  );
+  server.auth.scheme(
+    'fxa-bearer-keyFetch-token',
+    bearerFxaToken.strategy(
+      'keyFetchToken',
+      makeCredentialFn(db.keyFetchToken.bind(db)),
+      { statsd }
+    )
+  );
+  server.auth.scheme(
+    'fxa-bearer-keyFetch-with-verification-token',
+    bearerFxaToken.strategy(
+      'keyFetchTokenWithVerificationStatus',
+      makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db)),
+      { statsd }
+    )
+  );
+  server.auth.scheme(
+    'fxa-bearer-accountReset-token',
+    bearerFxaToken.strategy(
+      'accountResetToken',
+      makeCredentialFn(db.accountResetToken.bind(db)),
+      { statsd }
+    )
+  );
+  server.auth.scheme(
+    'fxa-bearer-passwordForgot-token',
+    bearerFxaToken.strategy(
+      'passwordForgotToken',
+      makeCredentialFn(db.passwordForgotToken.bind(db)),
+      { statsd }
+    )
+  );
+  server.auth.scheme(
+    'fxa-bearer-passwordChange-token',
+    bearerFxaToken.strategy(
+      'passwordChangeToken',
+      makeCredentialFn(db.passwordChangeToken.bind(db)),
+      { statsd }
+    )
+  );
+
+  // Non-throwing variants for routes that chain Bearer with another strategy.
+  server.auth.scheme(
+    'multi-strategy-fxa-bearer-session-token',
+    bearerFxaToken.strategy(
+      'sessionToken',
+      makeCredentialFn(db.sessionToken.bind(db)),
+      { throwOnFailure: false, statsd }
+    )
+  );
+  server.auth.scheme(
+    'multi-strategy-fxa-bearer-passwordForgot-token',
+    bearerFxaToken.strategy(
+      'passwordForgotToken',
+      makeCredentialFn(db.passwordForgotToken.bind(db)),
+      { throwOnFailure: false, statsd }
+    )
+  );
+
+  server.auth.strategy('sessionTokenBearer', 'fxa-bearer-session-token');
+  server.auth.strategy('keyFetchTokenBearer', 'fxa-bearer-keyFetch-token');
+  server.auth.strategy(
+    'keyFetchTokenWithVerificationStatusBearer',
+    'fxa-bearer-keyFetch-with-verification-token'
+  );
+  server.auth.strategy(
+    'accountResetTokenBearer',
+    'fxa-bearer-accountReset-token'
+  );
+  server.auth.strategy(
+    'passwordForgotTokenBearer',
+    'fxa-bearer-passwordForgot-token'
+  );
+  server.auth.strategy(
+    'passwordChangeTokenBearer',
+    'fxa-bearer-passwordChange-token'
+  );
+  server.auth.strategy(
+    'multiStrategySessionTokenBearer',
+    'multi-strategy-fxa-bearer-session-token'
+  );
+  server.auth.strategy(
+    'multiStrategyPasswordForgotTokenBearer',
+    'multi-strategy-fxa-bearer-passwordForgot-token'
   );
 
   server.auth.scheme(authOauth.AUTH_SCHEME, authOauth.strategy);
@@ -535,6 +656,28 @@ async function create(
     )
   );
   server.auth.strategy('verifiedSessionToken', 'verified-session-token');
+
+  // Bearer counterpart — same post-lookup guard (email verified, token
+  // verified, AAL2) as the Hawk-backed strategy above.
+  server.auth.scheme(
+    'verified-session-token-bearer',
+    bearerFxaToken.strategy(
+      'sessionToken',
+      makeCredentialFn(db.sessionToken.bind(db)),
+      {
+        statsd,
+        postAuthenticate: verifiedSessionToken.makePostLookupGuard(
+          db,
+          config,
+          statsd
+        ),
+      }
+    )
+  );
+  server.auth.strategy(
+    'verifiedSessionTokenBearer',
+    'verified-session-token-bearer'
+  );
 
   // register all plugins and Swagger configuration
   await server.register([

@@ -2,6 +2,10 @@
 
 - Deciders: Danny Coates, Ryan Kelly, Les Orchard, Ben Bangert
 - Date: 2020-05-27
+- Status: Partially Implemented (2026-04-23) — client-side Bearer migration complete
+  (FXA-9392, see `ai/docs/exec-plans/active/fxa-9392-hawk-to-bearer-migration.md`);
+  server-side Hawk support retained indefinitely for non-monorepo clients
+  (Firefox Desktop, iOS, Android, Sync).
 
 ## Context and Problem Statement
 
@@ -35,6 +39,20 @@ A leaked sessionToken would allow access to personal information, email addresse
 ## Decision Outcome
 
 We will stop using hawk in future work that requires authentication. Selecting a preferred scheme is out of scope of this ADR. Sharing the session token with trusted services is an acceptable interim solution.
+
+### 2026-04-23 update — client-side migration complete (FXA-9392)
+
+The interim scheme chosen was **prefixed Bearer tokens** on the Authorization header (`Authorization: Bearer <prefix>_<hex>`, where `<prefix>` identifies the token kind: `fxs_`, `fxk_`, `fxkv_`, `fxar_`, `fxpf_`, `fxpc_`). The prefix avoids collisions with the refresh-token Bearer strategy on routes that accept both. Routes use Hapi multi-strategy chains, trying Bearer first and falling back to Hawk.
+
+**Done:**
+
+- `fxa-auth-client` emits Bearer unconditionally (no Hawk signing code remains in the client).
+- All `fxa-auth-server` protected routes accept `Bearer <prefix>_<hex>` (preferred) and the legacy Hawk header (fallback) — around 65 route auth configs flipped across session / keyFetch / accountReset / passwordForgot / passwordChange / verifiedSession / multi-strategy chains.
+- StatsD emits `auth.strategy.used{scheme=bearer|hawk,kind=<kind>}` so the split is observable in production.
+
+**Not done (intentionally out of scope):**
+
+- Removing server-side Hawk. External clients (Firefox Desktop, iOS, Android, Sync) talk to auth-server via the Hawk wire protocol directly, not via `fxa-auth-client`, and will not migrate on our schedule. Hawk stays as a legacy compat layer.
 
 ## Pros and Cons of the Options
 

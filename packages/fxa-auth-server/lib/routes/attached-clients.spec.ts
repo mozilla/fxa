@@ -431,12 +431,15 @@ describe('/account/attached_client/destroy', () => {
     route = getRoute(accountRoutes, '/account/attached_client/destroy').handler;
   });
 
-  it('requires verifiedSessionToken auth strategy', () => {
+  it('requires verifiedSessionToken auth strategy (Bearer first, Hawk fallback)', () => {
     const routeConfig = getRoute(
       accountRoutes,
       '/account/attached_client/destroy'
     );
-    expect(routeConfig.options.auth.strategy).toBe('verifiedSessionToken');
+    expect(routeConfig.options.auth.strategies).toEqual([
+      'verifiedSessionTokenBearer',
+      'verifiedSessionToken',
+    ]);
   });
 
   it('can destroy by deviceId', async () => {

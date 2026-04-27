@@ -12,3 +12,4 @@ https.globalAgent = new https.Agent({
 export default AuthClient;
 export * from './lib/client';
 export * from './lib/hawk';
+export * from './lib/bearer';

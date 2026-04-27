@@ -11,14 +11,38 @@ const {
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
 
-// Anything with these keys containing these strings will be redacted.
-const SENSITIVE_KEY_TERMS = new Set(['auth', 'pw', 'kb', 'key']);
+// Explicit allowlist of keys (case-insensitive, lowercased) whose values must
+// always be redacted before reaching Sentry. This is the primary mechanism;
+// the substring fallback below catches anything new that follows the old
+// naming heuristics until it gets added here explicitly.
+const SENSITIVE_KEY_ALLOWLIST = new Set([
+  'authorization',
+  'cookie',
+  'set-cookie',
+]);
+
+// Fallback substring terms — preserve prior filter behavior for keys that
+// aren't in the explicit allowlist. Any key containing one of these is
+// redacted.
+const SENSITIVE_KEY_TERMS = ['auth', 'pw', 'kb', 'key'];
+
+// Prefixed bearer token format introduced by the Hawk -> Bearer migration
+// (FXA-9392). Any string value matching this shape is redacted even if its
+// key slipped both the allowlist and the substring fallback — a raw token
+// in Sentry extras is a replay credential.
+const TOKEN_VALUE_RE = /^fx[a-z]+_[0-9a-f]{64}$/;
 
 function filterExtras(obj, depth = 0) {
   return Object.fromEntries(
     Object.entries(obj).map(([k, v]) => {
       const lower = k.toLowerCase();
-      if ([...SENSITIVE_KEY_TERMS].some((term) => lower.includes(term))) {
+      if (SENSITIVE_KEY_ALLOWLIST.has(lower)) {
+        return [k, '[Filtered]'];
+      }
+      if (SENSITIVE_KEY_TERMS.some((term) => lower.includes(term))) {
+        return [k, '[Filtered]'];
+      }
+      if (typeof v === 'string' && TOKEN_VALUE_RE.test(v)) {
         return [k, '[Filtered]'];
       }
       if (v && typeof v === 'object' && !Array.isArray(v)) {

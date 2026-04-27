@@ -99,7 +99,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICE_POST,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         validate: {
           payload: isA
@@ -206,7 +206,7 @@ module.exports = (
           }),
         },
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         response: {
           schema: isA
@@ -296,7 +296,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICES_INVOKE_COMMAND_POST,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         validate: {
           payload: isA.object({
@@ -445,7 +445,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICES_NOTIFY_POST,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         validate: {
           payload: isA.alternatives().try(
@@ -588,7 +588,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICES_GET,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         validate: {
           query: isA.object({
@@ -831,7 +831,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICE_DESTROY_POST,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenBearer', 'sessionToken', 'refreshToken'],
         },
         validate: {
           payload: isA.object({

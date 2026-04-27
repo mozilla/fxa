@@ -36,7 +36,7 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -247,7 +247,7 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_VERIFY_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -336,7 +336,7 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_RECOVERYKEYID_GET,
         auth: {
-          strategy: 'accountResetToken',
+          strategies: ['accountResetTokenBearer', 'accountResetToken'],
         },
         validate: {
           params: isA.object({
@@ -366,6 +366,8 @@ module.exports = (
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_EXISTS_POST,
         auth: {
           strategies: [
+            'multiStrategySessionTokenBearer',
+            'multiStrategyPasswordForgotTokenBearer',
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
           ],
@@ -419,7 +421,7 @@ module.exports = (
         auth: {
           // hint update is only possible when authenticated
           // from /settings or (eventually) after signup, signin or successful password reset
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           payload: isA.object({
@@ -455,7 +457,7 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_DELETE,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
       },

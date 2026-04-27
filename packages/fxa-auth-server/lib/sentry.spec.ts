@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 import * as Hapi from '@hapi/hapi';
 import * as verror from 'verror';
 
@@ -108,6 +107,37 @@ describe('Sentry', () => {
         l1: { l2: { l3: { l4: { l5: { l6: { authPW: 'secret123' } } } } } },
       })
     ).toEqual({ l1: { l2: { l3: { l4: { l5: '[Filtered]' } } } } });
+  });
+
+  it('redacts cookie and set-cookie headers via explicit allowlist', () => {
+    expect(filterExtras({ cookie: 'session=abc; other=def' })).toEqual({
+      cookie: '[Filtered]',
+    });
+    expect(filterExtras({ Cookie: 'session=abc' })).toEqual({
+      Cookie: '[Filtered]',
+    });
+    expect(filterExtras({ 'set-cookie': 'session=abc; HttpOnly' })).toEqual({
+      'set-cookie': '[Filtered]',
+    });
+  });
+
+  it('redacts prefixed bearer token values regardless of key', () => {
+    const hex = 'a'.repeat(64);
+    expect(filterExtras({ harmlessLabel: `fxs_${hex}` })).toEqual({
+      harmlessLabel: '[Filtered]',
+    });
+    expect(filterExtras({ x: { y: `fxkv_${hex}` } })).toEqual({
+      x: { y: '[Filtered]' },
+    });
+    // Non-matching values are untouched.
+    expect(filterExtras({ harmlessLabel: 'not-a-token' })).toEqual({
+      harmlessLabel: 'not-a-token',
+    });
+    // Leading/trailing cruft must not match — allowlist/substring must catch
+    // keys like `authorization` for "Bearer <token>" payloads.
+    expect(filterExtras({ harmlessLabel: `Bearer fxs_${hex}` })).toEqual({
+      harmlessLabel: `Bearer fxs_${hex}`,
+    });
   });
 
   it('can be set up when sentry is enabled', async () => {

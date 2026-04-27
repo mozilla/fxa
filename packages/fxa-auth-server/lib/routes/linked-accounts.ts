@@ -717,7 +717,7 @@ export const linkedAccountRoutes = (
       options: {
         ...THIRD_PARTY_AUTH_DOCS.LINKED_ACCOUNT_UNLINK_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
         },
         validate: {
           payload: isA.object({

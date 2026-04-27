@@ -22,6 +22,10 @@
       "import": "./dist/server/esm/packages/fxa-auth-client/lib/hawk.js",
       "require": "./dist/server/cjs/packages/fxa-auth-client/lib/hawk.js"
     },
+    "./lib/bearer": {
+      "import": "./dist/server/esm/packages/fxa-auth-client/lib/bearer.js",
+      "require": "./dist/server/cjs/packages/fxa-auth-client/lib/bearer.js"
+    },
     "./lib/recoveryKey": {
       "import": "./dist/server/esm/packages/fxa-auth-client/lib/recoveryKey.js",
       "require": "./dist/server/cjs/packages/fxa-auth-client/lib/recoveryKey.js"

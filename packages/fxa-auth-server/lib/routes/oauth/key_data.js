@@ -130,7 +130,7 @@ module.exports = ({ log, oauthDB, statsd }) => {
       config: {
         ...OAUTH_DOCS.ACCOUNT_SCOPED_KEY_DATA_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {

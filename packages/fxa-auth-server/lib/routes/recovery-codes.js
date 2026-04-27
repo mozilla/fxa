@@ -37,7 +37,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       options: {
         ...RECOVERY_CODES_DOCS.RECOVERYCODES_GET,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         response: {
@@ -96,7 +96,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       options: {
         ...RECOVERY_CODES_DOCS.RECOVERY_CODES_POST,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -179,7 +179,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       options: {
         ...RECOVERY_CODES_DOCS.RECOVERY_CODES_PUT,
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         validate: {
@@ -272,6 +272,8 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       options: {
         auth: {
           strategies: [
+            'multiStrategySessionTokenBearer',
+            'multiStrategyPasswordForgotTokenBearer',
             'multiStrategySessionToken',
             'multiStrategyPasswordForgotToken',
           ],
@@ -305,7 +307,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       options: {
         ...RECOVERY_CODES_DOCS.SESSION_VERIFY_RECOVERYCODE_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {

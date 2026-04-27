@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import crypto from 'crypto';
 
 const Client = require('../client')();
@@ -328,6 +331,46 @@ describe.each(testVersions)(
       expect(res.authAt).toBeTruthy();
     });
 
+    it('should reset password after verifying totp via Bearer header (M2 FXA-9392)', async () => {
+      // Companion to the Hawk-path test above. Drives `/totp/verify`
+      // directly with a Bearer passwordForgotToken header to prove the
+      // M2 route flip wired the Bearer strategy end-to-end. The Hawk
+      // path is exercised by the preceding test.
+      const newPassword = 'anotherPassword';
+
+      const loginClient = await Client.login(
+        server.publicUrl,
+        email,
+        password,
+        { ...testOptions, keys: true }
+      );
+      await loginClient.forgotPassword();
+      const otpCode = await server.mailbox.waitForCode(email);
+      const result = await loginClient.verifyPasswordForgotOtp(otpCode);
+
+      const totpCode = authenticator.generate();
+      const pwForgotToken = await tokens.PasswordForgotToken.fromHex(
+        loginClient.passwordForgotToken
+      );
+      const res = await fetch(`${server.publicUrl}/v1/totp/verify`, {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer fxpf_${pwForgotToken.id}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ code: totpCode }),
+      });
+      expect(res.status).toBe(200);
+
+      await loginClient.verifyPasswordResetCode(result.code);
+      const resetRes = await loginClient.resetPassword(
+        newPassword,
+        {},
+        { keys: true }
+      );
+      expect(resetRes.sessionToken).toBeTruthy();
+    });
+
     describe('totp code verification', () => {
       beforeEach(async () => {
         client = await Client.login(
@@ -398,11 +441,9 @@ describe.each(testVersions)(
 
       it('should verify totp code from previous code window', async () => {
         const futureAuthenticator = new otplib.authenticator.Authenticator();
-        futureAuthenticator.options = Object.assign(
-          {},
-          authenticator.options,
-          { epoch: Date.now() / 1000 - 30 }
-        );
+        futureAuthenticator.options = Object.assign({}, authenticator.options, {
+          epoch: Date.now() / 1000 - 30,
+        });
         const code = futureAuthenticator.generate();
         const response = await client.verifyTotpCode(code, {
           metricsContext,
@@ -416,11 +457,9 @@ describe.each(testVersions)(
 
       it('should not verify totp code from future code window', async () => {
         const futureAuthenticator = new otplib.authenticator.Authenticator();
-        futureAuthenticator.options = Object.assign(
-          {},
-          authenticator.options,
-          { epoch: Date.now() / 1000 + 3000 }
-        );
+        futureAuthenticator.options = Object.assign({}, authenticator.options, {
+          epoch: Date.now() / 1000 + 3000,
+        });
         const code = futureAuthenticator.generate();
         const response = await client.verifyTotpCode(code, {
           metricsContext,

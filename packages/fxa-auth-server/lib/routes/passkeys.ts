@@ -611,7 +611,7 @@ export const passkeyRoutes = (
         ...PASSKEYS_API_DOCS.PASSKEYS_GET,
         pre: [{ method: passkeysEnabledCheck }],
         auth: {
-          strategy: 'verifiedSessionToken',
+          strategies: ['verifiedSessionTokenBearer', 'verifiedSessionToken'],
           payload: false,
         },
         response: {

@@ -345,7 +345,7 @@ module.exports = ({ log, oauthDB, config }) => {
       config: {
         ...OAUTH_DOCS.OAUTH_AUTHORIZATION_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionTokenBearer', 'sessionToken'],
           payload: 'required',
         },
         validate: {
