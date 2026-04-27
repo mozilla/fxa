@@ -85,6 +85,32 @@ export class RecoveryKeyRow extends UnitRow {
   }
 }
 
+export class PasskeyRow extends UnitRow {
+  // Renders as a route link when WebAuthn is supported, and as a modal
+  // trigger button when it is not — see UnitRow/index.tsx:234-260.
+  get createButton() {
+    return this.page
+      .getByTestId('passkey-unit-row-route')
+      .or(this.page.getByTestId('passkey-unit-row-modal-button'));
+  }
+
+  get subRow() {
+    return this.page.getByTestId('passkey-sub-row');
+  }
+
+  get deleteButton() {
+    return this.page.getByRole('button', { name: 'Delete passkey' });
+  }
+
+  get deleteModalHeading() {
+    return this.page.getByRole('heading', { name: 'Delete your passkey?' });
+  }
+
+  get confirmDeleteButton() {
+    return this.page.getByTestId('confirm-delete-passkey-button');
+  }
+}
+
 export class TotpRow extends UnitRow {
   get addButton() {
     return this.page.getByTestId('two-step-unit-row-modal-button');
