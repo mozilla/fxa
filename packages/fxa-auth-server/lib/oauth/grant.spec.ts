@@ -2,7 +2,65 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { config } = require('../../config');
+// `grant.js` captures `JWT_ACCESS_TOKENS_ENABLED` and the allow-list at
+// module load, so the config is fixed once here. validateRequestedGrant
+// tests don't depend on those values; generateTokens tests do.
+jest.mock('../../config', () => {
+  const realConfig = jest.requireActual('../../config').config;
+  return {
+    config: {
+      get(key: string) {
+        switch (key) {
+          case 'oauthServer.jwtAccessTokens.enabled':
+            return true;
+          case 'oauthServer.jwtAccessTokens.enabledClientIds':
+            return ['9876543210'];
+          default:
+            return realConfig.get(key);
+        }
+      },
+    },
+  };
+});
+
+jest.mock('./db', () => ({
+  getScope: jest.fn(),
+  generateAccessToken: jest.fn(),
+  generateIdToken: jest.fn(),
+  generateRefreshToken: jest.fn(),
+}));
+
+jest.mock('./jwt_access_token', () => ({
+  create: jest.fn(),
+}));
+
+// Fake signer producing a base64-decodable token; avoids needing a real
+// signing key for the OpenID ID-token tests.
+jest.mock('./jwt', () => ({
+  sign(claims: any) {
+    const header = Buffer.from(JSON.stringify({ alg: 'RS256' })).toString(
+      'base64'
+    );
+    const payload = Buffer.from(JSON.stringify(claims)).toString('base64');
+    const signature = 'fakesig';
+    return `${header}.${payload}.${signature}`;
+  },
+}));
+
+import fxaShared from 'fxa-shared';
+import { Container } from 'typedi';
+
+const ScopeSet = (fxaShared as any).oauth.scopes;
+import * as grantModule from './grant';
+import * as mockDBModule from './db';
+import * as mockJWTAccessTokenModule from './jwt_access_token';
+import { CapabilityService } from '../../lib/payments/capability';
+
+const { validateRequestedGrant, generateTokens, setStripeHelper } = grantModule;
+const mockDB = mockDBModule as unknown as Record<string, jest.Mock>;
+const mockJWTAccessToken = mockJWTAccessTokenModule as unknown as {
+  create: jest.Mock;
+};
 
 function decodeJWT(b64: string) {
   const jwt = b64.split('.');
@@ -32,16 +90,8 @@ const CLIENT = {
 };
 
 describe('validateRequestedGrant', () => {
-  let mockDB: any, validateRequestedGrant: any, FreshScopeSet: any;
-
   beforeEach(() => {
-    mockDB = {};
-    jest.resetModules();
-    jest.doMock('./db', () => mockDB);
-    validateRequestedGrant = require('./grant').validateRequestedGrant;
-    // Get ScopeSet from the same module registry as the freshly-required grant
-    // module, so that instanceof checks inside grant.js work correctly.
-    FreshScopeSet = require('fxa-shared').oauth.scopes;
+    mockDB.getScope.mockReset();
   });
 
   it('should allow unchecked AAL if not requested in acr_values', async () => {
@@ -90,13 +140,9 @@ describe('validateRequestedGrant', () => {
   });
 
   it('should check key-bearing scopes in the database, and reject if not allowed for that client', async () => {
-    mockDB.getScope = jest.fn().mockImplementation(async () => {
-      return { hasScopedKeys: true };
-    });
+    mockDB.getScope.mockImplementation(async () => ({ hasScopedKeys: true }));
     const requestedGrant = {
-      scope: FreshScopeSet.fromArray([
-        'https://identity.mozilla.com/apps/oldsync',
-      ]),
+      scope: ScopeSet.fromArray(['https://identity.mozilla.com/apps/oldsync']),
     };
     await expect(
       validateRequestedGrant(CLAIMS, CLIENT, requestedGrant)
@@ -119,13 +165,9 @@ describe('validateRequestedGrant', () => {
   });
 
   it('should reject key-bearing scopes requested with claims from an unverified session', async () => {
-    mockDB.getScope = jest.fn().mockImplementation(async () => {
-      return { hasScopedKeys: true };
-    });
+    mockDB.getScope.mockImplementation(async () => ({ hasScopedKeys: true }));
     const requestedGrant = {
-      scope: FreshScopeSet.fromArray([
-        'https://identity.mozilla.com/apps/oldsync',
-      ]),
+      scope: ScopeSet.fromArray(['https://identity.mozilla.com/apps/oldsync']),
     };
     await expect(
       validateRequestedGrant(
@@ -139,37 +181,12 @@ describe('validateRequestedGrant', () => {
 
 describe('generateTokens', () => {
   let mockAccessToken: any;
-  let mockDB: any;
-  let mockJWTAccessToken: any;
   let mockCapabilityService: any;
-
-  let generateTokens: any;
   let requestedGrant: any;
   let scope: any;
-  let FreshScopeSet: any;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.doMock('../../config', () => ({
-      config: {
-        get(key: string) {
-          switch (key) {
-            case 'oauthServer.jwtAccessTokens.enabled':
-              return true;
-            case 'oauthServer.jwtAccessTokens.enabledClientIds':
-              return ['9876543210'];
-            default:
-              return config.get(key);
-          }
-        },
-      },
-    }));
-
-    // Get ScopeSet from the same module registry as the freshly-required grant
-    // module, so that instanceof checks inside grant.js work correctly.
-    FreshScopeSet = require('fxa-shared').oauth.scopes;
-
-    scope = FreshScopeSet.fromArray([
+    scope = ScopeSet.fromArray([
       'profile:uid',
       'profile:email',
       'profile:subscriptions',
@@ -189,51 +206,24 @@ describe('generateTokens', () => {
       userId: Buffer.from('ABCDEF123456', 'hex'),
     };
 
-    mockDB = {
-      generateAccessToken: jest.fn(async () => mockAccessToken),
-      generateIdToken: jest.fn(async () => ({ token: 'id_token' })),
-      generateRefreshToken: jest.fn(async () => ({
-        token: 'refresh_token',
-      })),
-    };
-    mockCapabilityService = {};
+    mockDB.generateAccessToken
+      .mockReset()
+      .mockImplementation(async () => mockAccessToken);
+    mockDB.generateIdToken
+      .mockReset()
+      .mockImplementation(async () => ({ token: 'id_token' }));
+    mockDB.generateRefreshToken
+      .mockReset()
+      .mockImplementation(async () => ({ token: 'refresh_token' }));
 
-    mockJWTAccessToken = {
-      create: jest.fn(async () => {
-        return {
-          ...mockAccessToken,
-          jwt_token: 'signed jwt access token',
-        };
-      }),
-    };
-
-    jest.doMock('./db', () => mockDB);
-    jest.doMock('./jwt_access_token', () => mockJWTAccessToken);
-    // Mock the jwt module to avoid needing a real signing key for ID token tests.
-    // The sign function produces a fake JWT whose payload can be decoded by decodeJWT.
-    jest.doMock('./jwt', () => ({
-      sign(claims: any) {
-        const header = Buffer.from(JSON.stringify({ alg: 'RS256' })).toString(
-          'base64'
-        );
-        const payload = Buffer.from(JSON.stringify(claims)).toString('base64');
-        const signature = 'fakesig';
-        return `${header}.${payload}.${signature}`;
-      },
+    mockJWTAccessToken.create.mockReset().mockImplementation(async () => ({
+      ...mockAccessToken,
+      jwt_token: 'signed jwt access token',
     }));
 
-    const grantModule = require('./grant');
-    // After jest.resetModules(), we must get Container and CapabilityService
-    // from the same module registry used by the freshly-required grant module,
-    // otherwise Container.set() would target a stale Container instance.
-    const freshContainer = require('typedi').default;
-    const {
-      CapabilityService: FreshCapabilityService,
-    } = require('../../lib/payments/capability');
-    freshContainer.set(FreshCapabilityService, mockCapabilityService);
-    grantModule.setStripeHelper(undefined);
-
-    generateTokens = grantModule.generateTokens;
+    mockCapabilityService = {};
+    Container.set(CapabilityService, mockCapabilityService);
+    setStripeHelper(undefined);
   });
 
   it('should return required params in result, normal access token by default', async () => {
@@ -310,7 +300,7 @@ describe('generateTokens', () => {
   });
 
   it('should generate an OpenID ID token if requested', async () => {
-    requestedGrant.scope = FreshScopeSet.fromArray(['openid']);
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
     const result = await generateTokens(requestedGrant);
     expect(result.id_token).toBeTruthy();
 
@@ -319,7 +309,7 @@ describe('generateTokens', () => {
   });
 
   it('should propagate `resource` and `clientId` in the `aud` claim', async () => {
-    requestedGrant.scope = FreshScopeSet.fromArray(['openid']);
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
     requestedGrant.resource = 'https://resource.server1.com';
     const result = await generateTokens(requestedGrant);
     expect(result.id_token).toBeTruthy();
@@ -331,7 +321,7 @@ describe('generateTokens', () => {
   });
 
   it('should propagate auth_time in claims', async () => {
-    requestedGrant.scope = FreshScopeSet.fromArray(['openid']);
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
     requestedGrant.authAt = Date.now();
     const result = await generateTokens(requestedGrant);
     expect(result.id_token).toBeTruthy();

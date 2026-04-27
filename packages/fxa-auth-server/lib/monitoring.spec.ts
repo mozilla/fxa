@@ -2,58 +2,62 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const mockInitMonitoring = jest.fn();
+const mockIgnoreErrors = jest.fn();
+const mockLogger = {
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  debug: jest.fn(),
+  trace: jest.fn(),
+};
+const mockLog = jest.fn().mockReturnValue(mockLogger);
+const mockHapiIntegration = jest.fn().mockReturnValue({ name: 'Hapi' });
+const mockLinkedErrorsIntegration = jest
+  .fn()
+  .mockReturnValue({ name: 'LinkedErrors' });
+
+jest.mock('fxa-shared/monitoring', () => ({
+  initMonitoring: mockInitMonitoring,
+}));
+jest.mock('../config', () => ({
+  config: {
+    getProperties: jest.fn().mockReturnValue({
+      log: { level: 'debug' },
+      sentry: { dsn: 'https://test@sentry.io/123' },
+    }),
+  },
+}));
+jest.mock('./log', () => mockLog);
+jest.mock('../package.json', () => ({ version: '1.234.0' }), {
+  virtual: true,
+});
+jest.mock('@fxa/accounts/errors', () => ({
+  ignoreErrors: mockIgnoreErrors,
+}));
+jest.mock('@sentry/node', () => ({
+  hapiIntegration: mockHapiIntegration,
+  linkedErrorsIntegration: mockLinkedErrorsIntegration,
+}));
+
+// Importing the module triggers the top-level initMonitoring() call once.
+import './monitoring';
+
+// Snapshot one-shot call args before `clearMocks: true` wipes them
+// between tests; the module-load side-effect can't be replayed.
+const initMonitoringCallCount = mockInitMonitoring.mock.calls.length;
+const initMonitoringArg = mockInitMonitoring.mock.calls[0]?.[0];
+const hapiIntegrationCallCount = mockHapiIntegration.mock.calls.length;
+const linkedErrorsIntegrationCalls = mockLinkedErrorsIntegration.mock.calls.map(
+  (c) => c[0]
+);
+const logCalls = mockLog.mock.calls.map((c) => [...c]);
+const filterSentryEvent: (event: any, hint?: any) => any =
+  initMonitoringArg.config.eventFilters[0];
 
 describe('monitoring', () => {
-  let mockInitMonitoring: jest.Mock;
-  let mockIgnoreErrors: jest.Mock;
-  let mockLog: jest.Mock;
-  let mockLogger: Record<string, jest.Mock>;
-  let mockHapiIntegration: jest.Mock;
-  let mockLinkedErrorsIntegration: jest.Mock;
-
   beforeEach(() => {
-    jest.resetModules();
-
-    mockInitMonitoring = jest.fn();
-    mockIgnoreErrors = jest.fn();
-    mockLogger = {
-      info: jest.fn(),
-      error: jest.fn(),
-      warn: jest.fn(),
-      debug: jest.fn(),
-      trace: jest.fn(),
-    };
-    mockLog = jest.fn().mockReturnValue(mockLogger);
-    mockHapiIntegration = jest.fn().mockReturnValue({ name: 'Hapi' });
-    mockLinkedErrorsIntegration = jest
-      .fn()
-      .mockReturnValue({ name: 'LinkedErrors' });
-
-    jest.doMock('fxa-shared/monitoring', () => ({
-      initMonitoring: mockInitMonitoring,
-    }));
-    jest.doMock('../config', () => ({
-      config: {
-        getProperties: jest.fn().mockReturnValue({
-          log: { level: 'debug' },
-          sentry: { dsn: 'https://test@sentry.io/123' },
-        }),
-      },
-    }));
-    jest.doMock('./log', () => mockLog);
-    jest.doMock('../package.json', () => ({ version: '1.234.0' }), {
-      virtual: true,
-    });
-    jest.doMock('@fxa/accounts/errors', () => ({
-      ignoreErrors: mockIgnoreErrors,
-    }));
-    jest.doMock('@sentry/node', () => ({
-      hapiIntegration: mockHapiIntegration,
-      linkedErrorsIntegration: mockLinkedErrorsIntegration,
-    }));
-
-    // Requiring the module triggers the top-level initMonitoring() call.
-    require('./monitoring');
+    mockIgnoreErrors.mockReset();
   });
 
   afterEach(() => {
@@ -61,43 +65,33 @@ describe('monitoring', () => {
   });
 
   it('calls initMonitoring on module load', () => {
-    expect(mockInitMonitoring).toHaveBeenCalledTimes(1);
+    expect(initMonitoringCallCount).toBe(1);
 
-    const callArg = mockInitMonitoring.mock.calls[0][0];
-
-    // Logger is the return value of require('./log')(level, name)
-    expect(callArg.logger).toBe(mockLogger);
-    expect(mockLog).toHaveBeenCalledWith('debug', 'configure-sentry');
+    // Logger is the return value of the mocked log(level, name)
+    expect(initMonitoringArg.logger).toBe(mockLogger);
+    expect(logCalls).toContainEqual(['debug', 'configure-sentry']);
 
     // Config includes spread properties, release, eventFilters, integrations
-    expect(callArg.config).toEqual(
+    expect(initMonitoringArg.config).toEqual(
       expect.objectContaining({
         log: { level: 'debug' },
         sentry: { dsn: 'https://test@sentry.io/123' },
         release: '1.234.0',
       })
     );
-    expect(callArg.config.eventFilters).toHaveLength(1);
-    expect(typeof callArg.config.eventFilters[0]).toBe('function');
-    expect(callArg.config.integrations).toHaveLength(2);
+    expect(initMonitoringArg.config.eventFilters).toHaveLength(1);
+    expect(typeof initMonitoringArg.config.eventFilters[0]).toBe('function');
+    expect(initMonitoringArg.config.integrations).toHaveLength(2);
   });
 
   it('passes Sentry integrations with correct configuration', () => {
-    expect(mockHapiIntegration).toHaveBeenCalledTimes(1);
-    expect(mockLinkedErrorsIntegration).toHaveBeenCalledWith({
+    expect(hapiIntegrationCallCount).toBe(1);
+    expect(linkedErrorsIntegrationCalls).toContainEqual({
       key: 'jse_cause',
     });
   });
 
   describe('filterSentryEvent', () => {
-    let filterSentryEvent: (event: any, hint?: any) => any;
-
-    beforeEach(() => {
-      // Extract the filterSentryEvent function from the initMonitoring call
-      const callArg = mockInitMonitoring.mock.calls[0][0];
-      filterSentryEvent = callArg.config.eventFilters[0];
-    });
-
     it('returns null when ignoreErrors returns true', () => {
       mockIgnoreErrors.mockReturnValue(true);
 

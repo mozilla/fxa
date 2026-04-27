@@ -2,7 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const knownIpLocation = require('../test/known-ip-location');
+// `./geodb` captures the config object by reference at module load, so
+// per-test variation must mutate properties, not reassign the variable.
+const geodbConfig: { enabled: boolean; locationOverride: any } = {
+  enabled: true,
+  locationOverride: {},
+};
+
+jest.mock('../config', () => ({
+  default: {
+    get: function (item: string) {
+      if (item === 'geodb') {
+        return geodbConfig;
+      }
+      return undefined;
+    },
+  },
+}));
+
+import knownIpLocation from '../test/known-ip-location';
+import geodbFactory from './geodb';
 
 function mockLog() {
   return {
@@ -16,26 +35,12 @@ function mockLog() {
 
 describe('geodb', () => {
   beforeEach(() => {
-    jest.resetModules();
+    geodbConfig.enabled = true;
+    geodbConfig.locationOverride = {};
   });
 
   it('returns location data when enabled', () => {
-    jest.doMock('../config', () => ({
-      default: {
-        get: function (item: string) {
-          if (item === 'geodb') {
-            return {
-              enabled: true,
-              locationOverride: {},
-            };
-          }
-          return undefined;
-        },
-      },
-    }));
-
-    const thisMockLog = mockLog();
-    const getGeoData = require('./geodb')(thisMockLog);
+    const getGeoData = geodbFactory(mockLog());
     const geoData = getGeoData(knownIpLocation.ip);
 
     expect(knownIpLocation.location.city.has(geoData.location.city)).toBe(true);
@@ -49,21 +54,9 @@ describe('geodb', () => {
   });
 
   it('returns empty object data when disabled', () => {
-    jest.doMock('../config', () => ({
-      default: {
-        get: function (item: string) {
-          if (item === 'geodb') {
-            return {
-              enabled: false,
-            };
-          }
-          return undefined;
-        },
-      },
-    }));
+    geodbConfig.enabled = false;
 
-    const thisMockLog = mockLog();
-    const getGeoData = require('./geodb')(thisMockLog);
+    const getGeoData = geodbFactory(mockLog());
     const geoData = getGeoData('8.8.8.8');
 
     expect(geoData).toEqual({});

@@ -3,6 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
+import { MetricsRedis } from '../metricsCache';
+import mocks from '../../test/mocks';
+import contextFactory from './context';
+
+const cache = {
+  add: jest.fn(),
+  del: jest.fn(),
+  get: jest.fn(),
+};
+
+jest.mock('../metricsCache', () => ({
+  MetricsRedis: jest.fn().mockImplementation(() => cache),
+}));
 
 function hashToken(token: { uid: string; id: string }) {
   const hash = crypto.createHash('sha256');
@@ -13,28 +26,23 @@ function hashToken(token: { uid: string; id: string }) {
 
 describe('metricsContext', () => {
   let results: Record<string, any>;
-  let cache: Record<string, jest.Mock>;
-  let cacheFactory: jest.Mock;
   let log: any;
   let config: any;
   let metricsContext: any;
 
   beforeEach(() => {
-    jest.resetModules();
-
     results = {
       del: Promise.resolve(),
       get: Promise.resolve(),
       set: Promise.resolve(),
       exists: Promise.resolve(),
     };
-    cache = {
-      add: jest.fn().mockImplementation(() => results.add),
-      del: jest.fn().mockImplementation(() => results.del),
-      get: jest.fn().mockImplementation(() => results.get),
-    };
-    cacheFactory = jest.fn().mockReturnValue(cache);
-    log = require('../../test/mocks').mockLog();
+    cache.add.mockReset().mockImplementation(() => results.add);
+    cache.del.mockReset().mockImplementation(() => results.del);
+    cache.get.mockReset().mockImplementation(() => results.get);
+    (MetricsRedis as jest.Mock).mockClear();
+
+    log = mocks.mockLog();
     config = {
       redis: {
         metrics: {
@@ -45,12 +53,7 @@ describe('metricsContext', () => {
       },
     };
 
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: cacheFactory,
-    }));
-
-    const contextModule = require('./context');
-    metricsContext = contextModule(log, config);
+    metricsContext = contextFactory(log, config);
   });
 
   afterEach(() => {
@@ -58,12 +61,9 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext interface is correct', () => {
-    // Re-require un-mocked module for static exports check
-    const metricsContextModule = jest.requireActual('./context');
-
-    expect(typeof metricsContextModule).toBe('function');
-    expect(typeof metricsContextModule.schema).toBe('object');
-    expect(metricsContextModule.schema).not.toBeNull();
+    expect(typeof contextFactory).toBe('function');
+    expect(typeof contextFactory.schema).toBe('object');
+    expect(contextFactory.schema).not.toBeNull();
 
     expect(typeof metricsContext).toBe('object');
     expect(metricsContext).not.toBeNull();
@@ -92,8 +92,8 @@ describe('metricsContext', () => {
   });
 
   it('instantiated cache correctly', () => {
-    expect(cacheFactory).toHaveBeenCalledTimes(1);
-    expect(cacheFactory).toHaveBeenCalledWith(config);
+    expect(MetricsRedis).toHaveBeenCalledTimes(1);
+    expect(MetricsRedis).toHaveBeenCalledWith(config);
   });
 
   it('metricsContext.stash', async () => {
@@ -669,363 +669,260 @@ describe('metricsContext', () => {
     expect(cache.del).toHaveBeenCalledTimes(1);
   });
 
-  it('metricsContext.validate with valid data', () => {
-    const flowBeginTime = 1451566800000;
-    const flowId =
-      '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f';
-    jest.spyOn(Date, 'now').mockReturnValue(flowBeginTime + 59999);
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'S3CR37',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'test-agent',
-      },
-      payload: {
-        metricsContext: {
-          flowId,
-          flowBeginTime,
+  describe('metricsContext.validate', () => {
+    // Each `validate` test wants its own (log, config) but the same module
+    // graph; just call the already-loaded factory with a fresh config
+    // instead of re-requiring `./context`.
+    function makeValidateContext(flowIdKey = 'test') {
+      const mockLog = mocks.mockLog();
+      const mockConfig = {
+        redis: { metrics: {} },
+        metrics: {
+          flow_id_expiry: 60000,
+          flow_id_key: flowIdKey,
         },
-      },
-    };
+      };
+      return contextFactory(mockLog, mockConfig);
+    }
 
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const result = localContext.validate.call(mockRequest);
-
-    expect(result).toBe(true);
-    expect(mockRequest.payload.metricsContext.flowId).toBe(
-      '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f'
-    );
-  });
-
-  it('metricsContext.validate with missing payload', () => {
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'test',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'test-agent',
-      },
-    };
-
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const valid = localContext.validate.call(mockRequest);
-
-    expect(valid).toBe(false);
-  });
-
-  it('metricsContext.validate with missing data bundle', () => {
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'test',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'test-agent',
-      },
-      payload: {
-        email: 'test@example.com',
-        // note that 'metricsContext' key is absent
-      },
-    };
-
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const valid = localContext.validate.call(mockRequest);
-
-    expect(valid).toBe(false);
-  });
-
-  it('metricsContext.validate with missing flowId', () => {
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'test',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'test-agent',
-      },
-      payload: {
-        metricsContext: {
-          flowBeginTime: Date.now() - 1,
-        } as any,
-      },
-    };
-
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const valid = localContext.validate.call(mockRequest);
-
-    expect(valid).toBe(false);
-    expect(mockRequest.payload.metricsContext.flowBeginTime).toBeFalsy();
-  });
-
-  it('metricsContext.validate with missing flowBeginTime', () => {
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'test',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'test-agent',
-      },
-      payload: {
-        metricsContext: {
-          flowId:
-            'f1031df1031df1031df1031df1031df1031df1031df1031df1031df1031df103',
-        } as any,
-      },
-    };
-
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const valid = localContext.validate.call(mockRequest);
-
-    expect(valid).toBe(false);
-    expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
-  });
-
-  it('metricsContext.validate with flowBeginTime that is too old', () => {
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'test',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'test-agent',
-      },
-      payload: {
-        metricsContext: {
-          flowId:
-            'f1031df1031df1031df1031df1031df1031df1031df1031df1031df1031df103',
-          flowBeginTime: Date.now() - mockConfig.metrics.flow_id_expiry - 1,
+    it('with valid data', () => {
+      const flowBeginTime = 1451566800000;
+      const flowId =
+        '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f';
+      jest.spyOn(Date, 'now').mockReturnValue(flowBeginTime + 59999);
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent',
         },
-      },
-    };
-
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const valid = localContext.validate.call(mockRequest);
-
-    expect(valid).toBe(false);
-    expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
-  });
-
-  it('metricsContext.validate with an invalid flow signature', () => {
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'test',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'test-agent',
-      },
-      payload: {
-        metricsContext: {
-          flowId:
-            'f1031df1031df1031df1031df1031df1031df1031df1031df1031df1031df103',
-          flowBeginTime: Date.now() - 1,
+        payload: {
+          metricsContext: {
+            flowId,
+            flowBeginTime,
+          },
         },
-      },
-    };
+      };
 
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const valid = localContext.validate.call(mockRequest);
+      const localContext = makeValidateContext('S3CR37');
+      const result = localContext.validate.call(mockRequest);
 
-    expect(valid).toBe(false);
-    expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
-  });
+      expect(result).toBe(true);
+      expect(mockRequest.payload.metricsContext.flowId).toBe(
+        '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f'
+      );
+    });
 
-  it('metricsContext.validate with flow signature from different key', () => {
-    const expectedTime = 1451566800000;
-    const expectedSalt = '4d6f7a696c6c6146697265666f782121';
-    const expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'ThisIsTheWrongKey',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'Firefox',
-      },
-      payload: {
-        metricsContext: {
-          flowId: expectedSalt + expectedHmac,
-          flowBeginTime: expectedTime,
+    it('with missing payload', () => {
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent',
         },
-      },
-    };
-    jest.spyOn(Date, 'now').mockReturnValue(expectedTime + 20000);
+      };
 
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const valid = localContext.validate.call(mockRequest);
+      const localContext = makeValidateContext();
+      const valid = localContext.validate.call(mockRequest);
 
-    expect(valid).toBe(false);
-    expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
-  });
+      expect(valid).toBe(false);
+    });
 
-  it('metricsContext.validate with flow signature from different timestamp', () => {
-    const expectedTime = 1451566800000;
-    const expectedSalt = '4d6f7a696c6c6146697265666f782121';
-    const expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'S3CR37',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'Firefox',
-      },
-      payload: {
-        metricsContext: {
-          flowId: expectedSalt + expectedHmac,
-          flowBeginTime: expectedTime - 1,
+    it('with missing data bundle', () => {
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent',
         },
-      },
-    };
-    jest.spyOn(Date, 'now').mockReturnValue(expectedTime + 20000);
-
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const valid = localContext.validate.call(mockRequest);
-
-    expect(valid).toBe(false);
-    expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
-  });
-
-  it('metricsContext.validate with flow signature including user agent', () => {
-    const expectedTime = 1451566800000;
-    // This is the correct signature for the *old* recipe, where we used
-    // to include the user agent string in the hash. The test is expected
-    // to fail because we don't support that recipe any more.
-    const expectedSalt = '4d6f7a696c6c6146697265666f782121';
-    const expectedHmac = 'c89d56556d22039fbbf54d34e0baf206';
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'S3CR37',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'Firefox',
-      },
-      payload: {
-        metricsContext: {
-          flowId: expectedSalt + expectedHmac,
-          flowBeginTime: expectedTime,
+        payload: {
+          email: 'test@example.com',
+          // note that 'metricsContext' key is absent
         },
-      },
-    };
-    jest.spyOn(Date, 'now').mockReturnValue(expectedTime + 20000);
+      };
 
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const valid = localContext.validate.call(mockRequest);
+      const localContext = makeValidateContext();
+      const valid = localContext.validate.call(mockRequest);
 
-    expect(valid).toBe(false);
-    expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
-  });
+      expect(valid).toBe(false);
+    });
 
-  it('metricsContext.validate with flow signature compared without user agent', () => {
-    const flowBeginTime = 1451566800000;
-    const flowId =
-      '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f';
-    jest.spyOn(Date, 'now').mockReturnValue(flowBeginTime + 59999);
-    const mockLog = require('../../test/mocks').mockLog();
-    const mockConfig = {
-      redis: { metrics: {} },
-      metrics: {
-        flow_id_expiry: 60000,
-        flow_id_key: 'S3CR37',
-      },
-    };
-    const mockRequest = {
-      headers: {
-        'user-agent': 'some other user agent',
-      },
-      payload: {
-        metricsContext: {
-          flowId,
-          flowBeginTime,
+    it('with missing flowId', () => {
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent',
         },
-      },
-    };
+        payload: {
+          metricsContext: {
+            flowBeginTime: Date.now() - 1,
+          } as any,
+        },
+      };
 
-    jest.doMock('../metricsCache', () => ({
-      MetricsRedis: jest.fn().mockReturnValue(cache),
-    }));
-    const localContext = require('./context')(mockLog, mockConfig);
-    const result = localContext.validate.call(mockRequest);
+      const localContext = makeValidateContext();
+      const valid = localContext.validate.call(mockRequest);
 
-    expect(result).toBe(true);
-    expect(mockRequest.payload.metricsContext.flowId).toBe(
-      '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f'
-    );
+      expect(valid).toBe(false);
+      expect(mockRequest.payload.metricsContext.flowBeginTime).toBeFalsy();
+    });
+
+    it('with missing flowBeginTime', () => {
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent',
+        },
+        payload: {
+          metricsContext: {
+            flowId:
+              'f1031df1031df1031df1031df1031df1031df1031df1031df1031df1031df103',
+          } as any,
+        },
+      };
+
+      const localContext = makeValidateContext();
+      const valid = localContext.validate.call(mockRequest);
+
+      expect(valid).toBe(false);
+      expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
+    });
+
+    it('with flowBeginTime that is too old', () => {
+      const flowIdExpiry = 60000;
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent',
+        },
+        payload: {
+          metricsContext: {
+            flowId:
+              'f1031df1031df1031df1031df1031df1031df1031df1031df1031df1031df103',
+            flowBeginTime: Date.now() - flowIdExpiry - 1,
+          },
+        },
+      };
+
+      const localContext = makeValidateContext();
+      const valid = localContext.validate.call(mockRequest);
+
+      expect(valid).toBe(false);
+      expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
+    });
+
+    it('with an invalid flow signature', () => {
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent',
+        },
+        payload: {
+          metricsContext: {
+            flowId:
+              'f1031df1031df1031df1031df1031df1031df1031df1031df1031df1031df103',
+            flowBeginTime: Date.now() - 1,
+          },
+        },
+      };
+
+      const localContext = makeValidateContext();
+      const valid = localContext.validate.call(mockRequest);
+
+      expect(valid).toBe(false);
+      expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
+    });
+
+    it('with flow signature from different key', () => {
+      const expectedTime = 1451566800000;
+      const expectedSalt = '4d6f7a696c6c6146697265666f782121';
+      const expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
+      const mockRequest = {
+        headers: {
+          'user-agent': 'Firefox',
+        },
+        payload: {
+          metricsContext: {
+            flowId: expectedSalt + expectedHmac,
+            flowBeginTime: expectedTime,
+          },
+        },
+      };
+      jest.spyOn(Date, 'now').mockReturnValue(expectedTime + 20000);
+
+      const localContext = makeValidateContext('ThisIsTheWrongKey');
+      const valid = localContext.validate.call(mockRequest);
+
+      expect(valid).toBe(false);
+      expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
+    });
+
+    it('with flow signature from different timestamp', () => {
+      const expectedTime = 1451566800000;
+      const expectedSalt = '4d6f7a696c6c6146697265666f782121';
+      const expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
+      const mockRequest = {
+        headers: {
+          'user-agent': 'Firefox',
+        },
+        payload: {
+          metricsContext: {
+            flowId: expectedSalt + expectedHmac,
+            flowBeginTime: expectedTime - 1,
+          },
+        },
+      };
+      jest.spyOn(Date, 'now').mockReturnValue(expectedTime + 20000);
+
+      const localContext = makeValidateContext('S3CR37');
+      const valid = localContext.validate.call(mockRequest);
+
+      expect(valid).toBe(false);
+      expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
+    });
+
+    it('with flow signature including user agent', () => {
+      const expectedTime = 1451566800000;
+      // This is the correct signature for the *old* recipe, where we used
+      // to include the user agent string in the hash. The test is expected
+      // to fail because we don't support that recipe any more.
+      const expectedSalt = '4d6f7a696c6c6146697265666f782121';
+      const expectedHmac = 'c89d56556d22039fbbf54d34e0baf206';
+      const mockRequest = {
+        headers: {
+          'user-agent': 'Firefox',
+        },
+        payload: {
+          metricsContext: {
+            flowId: expectedSalt + expectedHmac,
+            flowBeginTime: expectedTime,
+          },
+        },
+      };
+      jest.spyOn(Date, 'now').mockReturnValue(expectedTime + 20000);
+
+      const localContext = makeValidateContext('S3CR37');
+      const valid = localContext.validate.call(mockRequest);
+
+      expect(valid).toBe(false);
+      expect(mockRequest.payload.metricsContext.flowId).toBeFalsy();
+    });
+
+    it('with flow signature compared without user agent', () => {
+      const flowBeginTime = 1451566800000;
+      const flowId =
+        '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f';
+      jest.spyOn(Date, 'now').mockReturnValue(flowBeginTime + 59999);
+      const mockRequest = {
+        headers: {
+          'user-agent': 'some other user agent',
+        },
+        payload: {
+          metricsContext: {
+            flowId,
+            flowBeginTime,
+          },
+        },
+      };
+
+      const localContext = makeValidateContext('S3CR37');
+      const result = localContext.validate.call(mockRequest);
+
+      expect(result).toBe(true);
+      expect(mockRequest.payload.metricsContext.flowId).toBe(
+        '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f'
+      );
+    });
   });
 
   it('setFlowCompleteSignal', () => {
