@@ -7,17 +7,17 @@
 mocha.setup('bdd');
 mocha.timeout(20000);
 
-// Disable Glean entirely in the in-browser mocha bundle. The real Glean
-// singleton serializes pings through an upload mutex; on CI each round trip
-// dominates per-spec runtime for the 3000+ spec runner. Tests that assert
-// ping behavior do so via sinon stubs, not the real singleton.
-import Glean from '@mozilla/glean/web';
-const gleanNoop = () => {};
-Glean.initialize = gleanNoop;
-Glean.setUploadEnabled = gleanNoop;
-Glean.setLogPings = gleanNoop;
-Glean.setDebugViewTag = gleanNoop;
-Glean.setSourceTags = gleanNoop;
+// Stub the GleanMetrics facade so the in-browser mocha suite cannot reach
+// the real Glean singleton via app-start.js. Glean v5 serializes ping
+// uploads through a mutex and the per-spec cost pushes the Playwright
+// wrapper (misc.spec.ts) past its 180s timeout on CI. spec/lib/glean.js
+// restores the originals from globalThis for its describe block, which is
+// the only suite that asserts on the real implementations.
+import GleanMetrics from 'lib/glean';
+globalThis.__FXA_REAL_GLEAN_METRICS_INITIALIZE__ = GleanMetrics.initialize;
+globalThis.__FXA_REAL_GLEAN_METRICS_SET_ENABLED__ = GleanMetrics.setEnabled;
+GleanMetrics.initialize = async () => {};
+GleanMetrics.setEnabled = () => {};
 
 //import Translator from 'lib/app-start';
 import Session from 'lib/session';

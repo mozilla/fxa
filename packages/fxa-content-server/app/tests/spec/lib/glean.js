@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals globalThis */
+
 import Glean from '@mozilla/glean/web';
 import { testResetGlean } from '@mozilla/glean/testing';
 import GleanMetrics from '../../../scripts/lib/glean';
@@ -35,6 +37,29 @@ const mockConfig = {
 };
 
 describe('lib/glean', () => {
+  // test_start.js replaces GleanMetrics.initialize and GleanMetrics.setEnabled
+  // with no-ops to keep the broader mocha suite from initializing the real
+  // Glean singleton. This describe block is the only one that asserts on
+  // those real implementations, so swap the originals back in for its scope.
+  let originalInitialize;
+  let originalSetEnabled;
+  before(() => {
+    originalInitialize = GleanMetrics.initialize;
+    originalSetEnabled = GleanMetrics.setEnabled;
+    if (globalThis.__FXA_REAL_GLEAN_METRICS_INITIALIZE__) {
+      GleanMetrics.initialize =
+        globalThis.__FXA_REAL_GLEAN_METRICS_INITIALIZE__;
+    }
+    if (globalThis.__FXA_REAL_GLEAN_METRICS_SET_ENABLED__) {
+      GleanMetrics.setEnabled =
+        globalThis.__FXA_REAL_GLEAN_METRICS_SET_ENABLED__;
+    }
+  });
+  after(() => {
+    GleanMetrics.initialize = originalInitialize;
+    GleanMetrics.setEnabled = originalSetEnabled;
+  });
+
   let mockFlowEventMetadata = {};
   let mockClientId, mockService;
   let mockDeviceType;
