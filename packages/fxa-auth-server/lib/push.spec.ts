@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Ajv = require('ajv');
-const ajv = new Ajv();
-const fs = require('fs');
-const path = require('path');
+import Ajv from 'ajv';
+import fs from 'fs';
+import path from 'path';
+import mocks from '../test/mocks';
 
-const mocks = require('../test/mocks');
+const ajv = new Ajv();
 const mockUid = 'deadbeef';
 
 const TTL = '42';
@@ -77,20 +77,24 @@ const WINDOWS_DESKTOP_PUSH_DEFAULTS = {
   pushEndpointExpired: false,
 } as const;
 
+jest.mock('web-push', () => ({
+  sendNotification: jest.fn(),
+}));
+
+import webPush from 'web-push';
+import pushFactory from './push';
+
+const mockSendNotification = webPush.sendNotification as jest.Mock;
+
 describe('push', () => {
   let mockDb: ReturnType<typeof mocks.mockDB>,
     mockLog: ReturnType<typeof mocks.mockLog>,
     mockConfig: Record<string, unknown>,
     mockStatsD: { increment: jest.Mock },
-    mockDevices: MockDevice[],
-    mockSendNotification: jest.Mock;
+    mockDevices: MockDevice[];
 
   function loadMockedPushModule() {
-    jest.resetModules();
-    jest.doMock('web-push', () => ({
-      sendNotification: mockSendNotification,
-    }));
-    return require('./push')(mockLog, mockDb, mockConfig, mockStatsD);
+    return pushFactory(mockLog, mockDb, mockConfig, mockStatsD);
   }
 
   beforeEach(() => {
@@ -135,7 +139,7 @@ describe('push', () => {
     mockStatsD = {
       increment: jest.fn(),
     };
-    mockSendNotification = jest.fn(async () => {});
+    mockSendNotification.mockReset().mockImplementation(async () => {});
   });
 
   it('sendPush does not reject on empty device array', async () => {
@@ -281,7 +285,7 @@ describe('push', () => {
 
   it('sendPush logs metrics about failed sends', async () => {
     let shouldFail = false;
-    mockSendNotification = jest.fn(async () => {
+    mockSendNotification.mockImplementation(async () => {
       try {
         if (shouldFail) {
           throw new Error('intermittent failure');
@@ -551,7 +555,7 @@ describe('push', () => {
   });
 
   it('push reports errors when web-push fails', async () => {
-    mockSendNotification = jest.fn(async () => {
+    mockSendNotification.mockImplementation(async () => {
       throw new Error('Failed with a nasty error');
     });
     const push = loadMockedPushModule();
@@ -588,7 +592,7 @@ describe('push', () => {
   });
 
   it('push resets device push data when push server responds with a 400 level error', async () => {
-    mockSendNotification = jest.fn(async () => {
+    mockSendNotification.mockImplementation(async () => {
       const err: Error & { statusCode?: number } = new Error('Failed');
       err.statusCode = 410;
       throw err;
@@ -618,7 +622,7 @@ describe('push', () => {
   });
 
   it('push resets device push data when a failure is caused by bad encryption keys', async () => {
-    mockSendNotification = jest.fn(async () => {
+    mockSendNotification.mockImplementation(async () => {
       throw new Error('Failed');
     });
     const push = loadMockedPushModule();
@@ -647,7 +651,7 @@ describe('push', () => {
   });
 
   it('push does not reset device push data after an unexpected failure', async () => {
-    mockSendNotification = jest.fn(async () => {
+    mockSendNotification.mockImplementation(async () => {
       throw new Error('Failed unexpectedly');
     });
     const push = loadMockedPushModule();
@@ -706,7 +710,7 @@ describe('push', () => {
   });
 
   it('notifyCommandReceived re-throws errors', async () => {
-    mockSendNotification = jest.fn(async () => {
+    mockSendNotification.mockImplementation(async () => {
       throw new Error('Failed with a nasty error');
     });
     const push = loadMockedPushModule();

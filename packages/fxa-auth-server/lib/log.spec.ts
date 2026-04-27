@@ -2,6 +2,64 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const logger = {
+  debug: jest.fn(),
+  error: jest.fn(),
+  critical: jest.fn(),
+  warn: jest.fn(),
+  info: jest.fn(),
+};
+
+const mockMozlogInstance = jest.fn();
+const mockMozlog = jest.fn();
+
+const sentryScope = { setContext: jest.fn() };
+const mockSentry = {
+  withScope: jest.fn(),
+  getActiveSpan: jest.fn(),
+};
+
+const mockReportSentryMessage = jest.fn();
+const mockValidate = jest.fn();
+const mockNotifierSend = jest.fn();
+const mockNotifierFactory = jest.fn();
+const mockAmplitudeConfig: { schemaValidation: boolean } = {
+  schemaValidation: true,
+};
+
+jest.mock('mozlog', () => mockMozlog);
+jest.mock('@sentry/node', () => mockSentry);
+jest.mock('../config', () => ({
+  config: {
+    get(name: string) {
+      switch (name) {
+        case 'log':
+          return { fmt: 'mozlog' };
+        case 'amplitude':
+          return mockAmplitudeConfig;
+        case 'domain':
+          return 'example.com';
+        case 'oauth.clientIds':
+          return { clientid: 'human readable name' };
+        default:
+          throw new Error(`unexpected config get: ${name}`);
+      }
+    },
+  },
+}));
+jest.mock('./notifier', () => mockNotifierFactory);
+jest.mock('./sentry', () => ({
+  reportSentryMessage: mockReportSentryMessage,
+}));
+jest.mock('./oauth/validators', () => ({
+  HEX_STRING: /^(?:[0-9a-f]{2})+$/,
+}));
+jest.mock('fxa-shared', () => ({
+  metrics: { amplitude: { validate: mockValidate } },
+}));
+
+import logModule from './log';
+
 const validEvent = {
   op: 'amplitudeEvent',
   event_type: 'fxa_activity - access_token_checked',
@@ -25,85 +83,43 @@ const validEvent = {
   },
 };
 
+// `./log` keeps a module-level `_registered` map of logger names to dedup
+// double-init; hand out a unique name per test to avoid spurious warnings.
+let nextTestId = 0;
+const nextLoggerName = () => `test-${++nextTestId}`;
+
 describe('log', () => {
-  let logger: Record<string, jest.Mock>;
-  let mockMozlog: jest.Mock;
-  let mockMozlogInstance: jest.Mock;
-  let mockSentry: Record<string, jest.Mock>;
-  let mockReportSentryMessage: jest.Mock;
-  let mockValidate: jest.Mock;
-  let mockNotifierSend: jest.Mock;
-  let mockAmplitudeConfig: { schemaValidation: boolean };
-  let sentryScope: { setContext: jest.Mock };
   let log: any;
+  let loggerName: string;
 
   beforeEach(() => {
-    jest.resetModules();
+    logger.debug.mockReset();
+    logger.error.mockReset();
+    logger.critical.mockReset();
+    logger.warn.mockReset();
+    logger.info.mockReset();
 
-    logger = {
-      debug: jest.fn(),
-      error: jest.fn(),
-      critical: jest.fn(),
-      warn: jest.fn(),
-      info: jest.fn(),
-    };
+    mockMozlogInstance.mockReset().mockReturnValue(logger);
+    mockMozlog.mockReset().mockReturnValue(mockMozlogInstance);
 
-    mockMozlogInstance = jest.fn().mockReturnValue(logger);
-    mockMozlog = jest.fn().mockReturnValue(mockMozlogInstance);
+    sentryScope.setContext.mockReset();
+    mockSentry.withScope
+      .mockReset()
+      .mockImplementation((cb: (scope: Record<string, jest.Mock>) => void) => {
+        cb(sentryScope);
+      });
+    mockSentry.getActiveSpan.mockReset().mockReturnValue(undefined);
 
-    sentryScope = { setContext: jest.fn() };
-    mockSentry = {
-      withScope: jest
-        .fn()
-        .mockImplementation(
-          (cb: (scope: Record<string, jest.Mock>) => void) => {
-            cb(sentryScope);
-          }
-        ),
-      getActiveSpan: jest.fn().mockReturnValue(undefined),
-    };
+    mockReportSentryMessage.mockReset().mockReturnValue({});
+    mockValidate.mockReset();
+    mockNotifierSend.mockReset();
+    mockNotifierFactory.mockReset().mockReturnValue({ send: mockNotifierSend });
+    mockAmplitudeConfig.schemaValidation = true;
 
-    mockReportSentryMessage = jest.fn().mockReturnValue({});
-    mockValidate = jest.fn();
-    mockNotifierSend = jest.fn();
-    mockAmplitudeConfig = { schemaValidation: true };
-
-    jest.doMock('mozlog', () => mockMozlog);
-    jest.doMock('@sentry/node', () => mockSentry);
-    jest.doMock('../config', () => ({
-      config: {
-        get(name: string) {
-          switch (name) {
-            case 'log':
-              return { fmt: 'mozlog' };
-            case 'amplitude':
-              return mockAmplitudeConfig;
-            case 'domain':
-              return 'example.com';
-            case 'oauth.clientIds':
-              return { clientid: 'human readable name' };
-            default:
-              throw new Error(`unexpected config get: ${name}`);
-          }
-        },
-      },
-    }));
-    jest.doMock('./notifier', () =>
-      jest.fn().mockReturnValue({ send: mockNotifierSend })
-    );
-    jest.doMock('./sentry', () => ({
-      reportSentryMessage: mockReportSentryMessage,
-    }));
-    jest.doMock('./oauth/validators', () => ({
-      HEX_STRING: /^(?:[0-9a-f]{2})+$/,
-    }));
-    jest.doMock('fxa-shared', () => ({
-      metrics: { amplitude: { validate: mockValidate } },
-    }));
-
-    log = require('./log')({
+    loggerName = nextLoggerName();
+    log = logModule({
       level: 'debug',
-      name: 'test',
+      name: loggerName,
       stdout: { on: jest.fn() },
     });
   });
@@ -118,7 +134,7 @@ describe('log', () => {
     const args = mockMozlog.mock.calls[0];
     expect(args).toHaveLength(1);
     expect(Object.keys(args[0])).toHaveLength(4);
-    expect(args[0].app).toBe('test');
+    expect(args[0].app).toBe(loggerName);
     expect(args[0].level).toBe('debug');
     expect(args[0].stream).toBe(process.stderr);
 
@@ -152,10 +168,10 @@ describe('log', () => {
   });
 
   it('warns and fixes duplicate logger names', () => {
-    const logModule = require('./log');
+    const dupName = `${loggerName}-duplicates`;
     const opts = {
       level: 'debug',
-      name: 'test-duplicates',
+      name: dupName,
       stdout: { on: jest.fn() },
     };
 
@@ -164,34 +180,34 @@ describe('log', () => {
     logModule(opts);
 
     // Edge case: user passes in already incremented name
-    logModule({ ...opts, name: 'test-duplicates-1' });
+    logModule({ ...opts, name: `${dupName}-1` });
 
-    // Initial 'test' call + 4 calls above = 5
+    // Initial beforeEach call + 4 calls above = 5
     expect(mockMozlog).toHaveBeenCalledTimes(5);
     expect(mockMozlog).toHaveBeenCalledWith(
-      expect.objectContaining({ app: 'test' })
+      expect.objectContaining({ app: loggerName })
     );
     expect(mockMozlog).toHaveBeenCalledWith(
-      expect.objectContaining({ app: opts.name })
+      expect.objectContaining({ app: dupName })
     );
     expect(mockMozlog).toHaveBeenCalledWith(
-      expect.objectContaining({ app: opts.name + '-1' })
+      expect.objectContaining({ app: `${dupName}-1` })
     );
     expect(mockMozlog).toHaveBeenCalledWith(
-      expect.objectContaining({ app: opts.name + '-2' })
+      expect.objectContaining({ app: `${dupName}-2` })
     );
     expect(mockMozlog).toHaveBeenCalledWith(
-      expect.objectContaining({ app: opts.name + '-1-1' })
+      expect.objectContaining({ app: `${dupName}-1-1` })
     );
 
     expect(logger.warn).toHaveBeenCalledWith('init', {
-      msg: `Logger with name of ${opts.name} already registered. Adjusting name to ${opts.name}-1 to prevent double log scenario.`,
+      msg: `Logger with name of ${dupName} already registered. Adjusting name to ${dupName}-1 to prevent double log scenario.`,
     });
     expect(logger.warn).toHaveBeenCalledWith('init', {
-      msg: `Logger with name of ${opts.name} already registered. Adjusting name to ${opts.name}-2 to prevent double log scenario.`,
+      msg: `Logger with name of ${dupName} already registered. Adjusting name to ${dupName}-2 to prevent double log scenario.`,
     });
     expect(logger.warn).toHaveBeenCalledWith('init', {
-      msg: `Logger with name of ${opts.name}-1 already registered. Adjusting name to ${opts.name}-1-1 to prevent double log scenario.`,
+      msg: `Logger with name of ${dupName}-1 already registered. Adjusting name to ${dupName}-1-1 to prevent double log scenario.`,
     });
   });
 
@@ -600,9 +616,9 @@ describe('log', () => {
   describe('traceId', () => {
     it("doesn't set if tracing is not enabled", () => {
       // Re-create log without nodeTracer
-      log = require('./log')({
+      log = logModule({
         level: 'debug',
-        name: 'test',
+        name: nextLoggerName(),
         stdout: { on: jest.fn() },
       });
 
@@ -616,9 +632,9 @@ describe('log', () => {
     });
 
     it('should set trace id', () => {
-      log = require('./log')({
+      log = logModule({
         level: 'debug',
-        name: 'test',
+        name: nextLoggerName(),
         stdout: { on: jest.fn() },
         nodeTracer: {
           getTraceId: jest.fn().mockReturnValue('fake trace id'),

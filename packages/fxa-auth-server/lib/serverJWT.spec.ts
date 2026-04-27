@@ -2,19 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const mockSign = jest.fn();
+const mockVerify = jest.fn();
+
+jest.mock('jsonwebtoken', () => ({
+  sign: mockSign,
+  verify: mockVerify,
+}));
+
+import * as serverJWT from './serverJWT';
+
 const noop = () => {};
 
-function loadWithMock(overrides: any) {
-  const mock = { sign: noop, verify: noop, ...overrides };
-  jest.resetModules();
-  jest.doMock('jsonwebtoken', () => mock);
-  return require('./serverJWT');
-}
-
 describe('lib/serverJWT', () => {
+  beforeEach(() => {
+    mockSign.mockReset().mockImplementation(noop);
+    mockVerify.mockReset().mockImplementation(noop);
+  });
+
   describe('signJWT', () => {
     it('signs the JWT', async () => {
-      const signSpy = jest.fn(function (
+      mockSign.mockImplementation(function (
         _claims: any,
         _key: any,
         _opts: any,
@@ -23,13 +31,11 @@ describe('lib/serverJWT', () => {
         callback(null, 'j.w.t');
       });
 
-      const serverJWT = loadWithMock({ sign: signSpy });
-
       const jwt = await serverJWT.signJWT({ foo: 'bar' }, 'biz', 'buz', 'zoom');
       expect(jwt).toBe('j.w.t');
 
-      expect(signSpy).toHaveBeenCalledTimes(1);
-      expect(signSpy).toHaveBeenNthCalledWith(
+      expect(mockSign).toHaveBeenCalledTimes(1);
+      expect(mockSign).toHaveBeenNthCalledWith(
         1,
         { foo: 'bar' },
         'zoom',
@@ -47,7 +53,7 @@ describe('lib/serverJWT', () => {
   describe('verifyJWT', () => {
     describe('signed with the current key', () => {
       it('returns the claims', async () => {
-        const verifySpy = jest.fn(function (
+        mockVerify.mockImplementation(function (
           _jwt: any,
           _key: any,
           _opts: any,
@@ -56,8 +62,6 @@ describe('lib/serverJWT', () => {
           callback(null, { sub: 'foo' });
         });
 
-        const serverJWT = loadWithMock({ verify: verifySpy });
-
         const claims = await serverJWT.verifyJWT('j.w.t', 'foo', 'bar', [
           'current',
           'old',
@@ -65,8 +69,8 @@ describe('lib/serverJWT', () => {
 
         expect(claims).toEqual({ sub: 'foo' });
 
-        expect(verifySpy).toHaveBeenCalledTimes(1);
-        expect(verifySpy).toHaveBeenNthCalledWith(
+        expect(mockVerify).toHaveBeenCalledTimes(1);
+        expect(mockVerify).toHaveBeenNthCalledWith(
           1,
           'j.w.t',
           'current',
@@ -82,7 +86,7 @@ describe('lib/serverJWT', () => {
 
     describe('signed with an old key', () => {
       it('returns the claims', async () => {
-        const verifySpy = jest.fn(function (
+        mockVerify.mockImplementation(function (
           _jwt: any,
           key: any,
           _opts: any,
@@ -95,8 +99,6 @@ describe('lib/serverJWT', () => {
           }
         });
 
-        const serverJWT = loadWithMock({ verify: verifySpy });
-
         const claims = await serverJWT.verifyJWT('j.w.t', 'foo', 'bar', [
           'current',
           'old',
@@ -104,9 +106,9 @@ describe('lib/serverJWT', () => {
 
         expect(claims).toEqual({ sub: 'foo' });
 
-        expect(verifySpy).toHaveBeenCalledTimes(2);
+        expect(mockVerify).toHaveBeenCalledTimes(2);
 
-        expect(verifySpy).toHaveBeenNthCalledWith(
+        expect(mockVerify).toHaveBeenNthCalledWith(
           1,
           'j.w.t',
           'current',
@@ -118,7 +120,7 @@ describe('lib/serverJWT', () => {
           expect.any(Function)
         );
 
-        expect(verifySpy).toHaveBeenNthCalledWith(
+        expect(mockVerify).toHaveBeenNthCalledWith(
           2,
           'j.w.t',
           'old',
@@ -134,7 +136,7 @@ describe('lib/serverJWT', () => {
 
     describe('no key found', () => {
       it('throws an `Invalid jwt` error', async () => {
-        const verifySpy = jest.fn(function (
+        mockVerify.mockImplementation(function (
           _jwt: any,
           _key: any,
           _opts: any,
@@ -142,8 +144,6 @@ describe('lib/serverJWT', () => {
         ) {
           callback(new Error('invalid signature'));
         });
-
-        const serverJWT = loadWithMock({ verify: verifySpy });
 
         await expect(
           serverJWT.verifyJWT('j.w.t', 'foo', 'bar', ['current', 'old'])
@@ -153,7 +153,7 @@ describe('lib/serverJWT', () => {
 
     describe('invalid JWT', () => {
       it('re-throw the verification error', async () => {
-        const verifySpy = jest.fn(function (
+        mockVerify.mockImplementation(function (
           _jwt: any,
           _key: any,
           _opts: any,
@@ -161,8 +161,6 @@ describe('lib/serverJWT', () => {
         ) {
           callback(new Error('invalid sub'));
         });
-
-        const serverJWT = loadWithMock({ verify: verifySpy });
 
         await expect(
           serverJWT.verifyJWT('j.w.t', 'foo', 'bar', ['current', 'old'])

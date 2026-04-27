@@ -2,16 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const jsonwebtoken = require('jsonwebtoken');
+// Wrap `publicPEM` in a jest fn delegating to the real implementation by
+// default; one test below overrides it via `mockImplementationOnce`.
+jest.mock('./keys', () => {
+  const real = jest.requireActual('./keys');
+  return {
+    ...real,
+    publicPEM: jest.fn((kid: string) => real.publicPEM(kid)),
+  };
+});
+
+import jsonwebtoken from 'jsonwebtoken';
+import * as JWT from './jwt';
+import * as keys from './keys';
 
 describe('lib/jwt', () => {
-  let JWT: any;
-
-  beforeEach(() => {
-    jest.resetModules();
-    JWT = require('./jwt');
-  });
-
   describe('sign', () => {
     it('signs the claims, passes on options', async () => {
       const jwt = await JWT.sign(
@@ -39,29 +44,15 @@ describe('lib/jwt', () => {
       });
 
       it('fails if kid is invalid', async () => {
-        const realKeys = require('./keys');
-        const { SIGNING_PEM, SIGNING_KID, SIGNING_ALG } = realKeys;
+        keys.publicPEM.mockImplementationOnce(() => {
+          throw new Error('PEM not found');
+        });
 
-        jest.resetModules();
-        jest.doMock('./keys', () => ({
-          SIGNING_PEM,
-          SIGNING_KID,
-          SIGNING_ALG,
-          publicPEM() {
-            throw new Error('PEM not found');
-          },
-        }));
-        const MockedJWT = require('./jwt');
+        const jwt = await JWT.sign({ foo: 'bar' });
 
-        const jwt = await MockedJWT.sign({ foo: 'bar' });
-
-        try {
-          await expect(MockedJWT.verify(jwt)).rejects.toThrow(
-            'error in secret or public key callback: Invalid kid'
-          );
-        } finally {
-          jest.dontMock('./keys');
-        }
+        await expect(JWT.verify(jwt)).rejects.toThrow(
+          'error in secret or public key callback: Invalid kid'
+        );
       });
 
       it('fails if signature does not match', async () => {
@@ -106,10 +97,7 @@ describe('lib/jwt', () => {
       });
 
       it('fails if header `typ` is not expected', async () => {
-        const jwt = await JWT.sign(
-          { foo: 'bar' },
-          { header: { typ: 'JWT' } }
-        );
+        const jwt = await JWT.sign({ foo: 'bar' }, { header: { typ: 'JWT' } });
         await expect(JWT.verify(jwt, { typ: 'custom JWT' })).rejects.toThrow(
           'error in secret or public key callback: Invalid typ'
         );
