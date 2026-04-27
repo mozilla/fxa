@@ -4784,12 +4784,12 @@ describe('/account', () => {
     const { PasskeyService } = require('@fxa/accounts/passkey');
 
     const mockPasskey = {
-      credentialId: Buffer.from('cred-id'),
+      credentialId: 'mock-cred-id',
       name: 'My Passkey',
       createdAt: 1000000,
       lastUsedAt: 2000000,
       transports: ['internal'],
-      aaguid: Buffer.from('aaguid12345678ab'),
+      aaguid: 'adce0002-35bc-c60a-648b-0b25f1f05503',
       backupEligible: true,
       backupState: false,
       prfEnabled: true,
@@ -4818,17 +4818,15 @@ describe('/account', () => {
       const route = buildPasskeysRoute(mockService);
       const result: any = await runTest(route, request);
 
-      expect(mockService.listPasskeysForUser).toHaveBeenCalledWith(
-        Buffer.from(uid, 'hex')
-      );
+      expect(mockService.listPasskeysForUser).toHaveBeenCalledWith(uid);
       expect(result.passkeys).toHaveLength(1);
       expect(result.passkeys[0]).toEqual({
-        credentialId: mockPasskey.credentialId.toString('base64url'),
+        credentialId: mockPasskey.credentialId,
         name: mockPasskey.name,
         createdAt: mockPasskey.createdAt,
         lastUsedAt: mockPasskey.lastUsedAt,
         transports: mockPasskey.transports,
-        aaguid: mockPasskey.aaguid.toString('base64url'),
+        aaguid: mockPasskey.aaguid,
         backupEligible: mockPasskey.backupEligible,
         backupState: mockPasskey.backupState,
         prfEnabled: mockPasskey.prfEnabled,

@@ -13,6 +13,7 @@ import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { PasskeyManager } from './passkey.manager';
 import { PasskeyConfig, MAX_PASSKEY_NAME_LENGTH } from './passkey.config';
 import * as PasskeyRepository from './passkey.repository';
+import { bufferToAaguid } from './passkey.repository';
 import { AppError } from '../../../errors/src';
 
 // Mock the repository module, keeping isMysqlDupEntry as the real implementation
@@ -73,23 +74,34 @@ describe('PasskeyManager', () => {
   });
 
   describe('registerPasskey', () => {
+    // PasskeyFactory produces the DB-row shape (credentialId: Buffer); the
+    // manager takes NewPasskeyData (credentialId: base64url string).
+    const newPasskeyData = (passkey: ReturnType<typeof PasskeyFactory>) => ({
+      ...passkey,
+      credentialId: passkey.credentialId.toString('base64url'),
+      aaguid: bufferToAaguid(passkey.aaguid),
+    });
+
     it('checks the limit and inserts the passkey', async () => {
       const passkey = PasskeyFactory();
+      const uid = passkey.uid.toString('hex');
+      const data = newPasskeyData(passkey);
 
       (PasskeyRepository.countPasskeysByUid as jest.Mock).mockResolvedValue(1);
       (PasskeyRepository.insertPasskey as jest.Mock).mockResolvedValue(
         undefined
       );
 
-      await manager.registerPasskey(passkey);
+      await manager.registerPasskey(uid, data);
 
       expect(PasskeyRepository.countPasskeysByUid).toHaveBeenCalledWith(
         mockDb,
-        passkey.uid
+        uid
       );
       expect(PasskeyRepository.insertPasskey).toHaveBeenCalledWith(
         mockDb,
-        passkey
+        uid,
+        data
       );
     });
 
@@ -98,8 +110,12 @@ describe('PasskeyManager', () => {
         MOCK_MAX_PASSKEYS_PER_USER
       );
 
+      const passkey = PasskeyFactory();
       await expect(
-        manager.registerPasskey(PasskeyFactory())
+        manager.registerPasskey(
+          passkey.uid.toString('hex'),
+          newPasskeyData(passkey)
+        )
       ).rejects.toMatchObject(
         AppError.passkeyLimitReached(MOCK_MAX_PASSKEYS_PER_USER)
       );
@@ -115,8 +131,12 @@ describe('PasskeyManager', () => {
         dupError
       );
 
+      const passkey = PasskeyFactory();
       await expect(
-        manager.registerPasskey(PasskeyFactory())
+        manager.registerPasskey(
+          passkey.uid.toString('hex'),
+          newPasskeyData(passkey)
+        )
       ).rejects.toMatchObject(AppError.passkeyAlreadyRegistered());
     });
 
@@ -127,20 +147,24 @@ describe('PasskeyManager', () => {
         unknownError
       );
 
-      await expect(manager.registerPasskey(PasskeyFactory())).rejects.toThrow(
-        'connection timeout'
-      );
+      const passkey = PasskeyFactory();
+      await expect(
+        manager.registerPasskey(
+          passkey.uid.toString('hex'),
+          newPasskeyData(passkey)
+        )
+      ).rejects.toThrow('connection timeout');
     });
   });
 
   describe('updatePasskeyAfterAuth', () => {
-    it('converts backupState=false to numeric 0', async () => {
+    it('passes backupState=false through to the repository', async () => {
       (
         PasskeyRepository.updatePasskeyCounterAndLastUsed as jest.Mock
       ).mockResolvedValue(true);
 
-      const uid = Buffer.alloc(16, 1);
-      const credId = Buffer.alloc(32, 2);
+      const uid = Buffer.alloc(16, 1).toString('hex');
+      const credId = Buffer.alloc(32, 2).toString('base64url');
       const result = await manager.updatePasskeyAfterAuth(
         uid,
         credId,
@@ -150,18 +174,18 @@ describe('PasskeyManager', () => {
 
       expect(
         PasskeyRepository.updatePasskeyCounterAndLastUsed
-      ).toHaveBeenCalledWith(mockDb, uid, credId, 0, 0);
+      ).toHaveBeenCalledWith(mockDb, uid, credId, 0, false);
       expect(result).toBe(true);
     });
 
-    it('converts backupState=true to numeric 1', async () => {
+    it('passes backupState=true through to the repository', async () => {
       (
         PasskeyRepository.updatePasskeyCounterAndLastUsed as jest.Mock
       ).mockResolvedValue(true);
 
       const result = await manager.updatePasskeyAfterAuth(
-        Buffer.alloc(16),
-        Buffer.alloc(32),
+        Buffer.alloc(16).toString('hex'),
+        Buffer.alloc(32).toString('base64url'),
         1,
         true
       );
@@ -170,10 +194,10 @@ describe('PasskeyManager', () => {
         PasskeyRepository.updatePasskeyCounterAndLastUsed
       ).toHaveBeenCalledWith(
         mockDb,
-        expect.any(Buffer),
-        expect.any(Buffer),
+        expect.any(String),
+        expect.any(String),
         1,
-        1
+        true
       );
       expect(result).toBe(true);
     });
@@ -185,7 +209,7 @@ describe('PasskeyManager', () => {
         MOCK_MAX_PASSKEYS_PER_USER - 1
       );
       await expect(
-        manager.checkPasskeyCount(Buffer.alloc(16, 1))
+        manager.checkPasskeyCount(Buffer.alloc(16, 1).toString('hex'))
       ).resolves.toBeUndefined();
     });
 
@@ -199,7 +223,7 @@ describe('PasskeyManager', () => {
           count
         );
         await expect(
-          manager.checkPasskeyCount(Buffer.alloc(16, 1))
+          manager.checkPasskeyCount(Buffer.alloc(16, 1).toString('hex'))
         ).rejects.toMatchObject({
           errno: 226,
           message: 'Maximum number of passkeys reached',
@@ -212,8 +236,8 @@ describe('PasskeyManager', () => {
   describe('renamePasskey', () => {
     it(`returns false without calling repository when name exceeds ${MAX_PASSKEY_NAME_LENGTH} characters`, async () => {
       const result = await manager.renamePasskey(
-        Buffer.alloc(16, 1),
-        Buffer.alloc(32, 2),
+        Buffer.alloc(16, 1).toString('hex'),
+        Buffer.alloc(32, 2).toString('base64url'),
         'x'.repeat(MAX_PASSKEY_NAME_LENGTH + 1)
       );
 

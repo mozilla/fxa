@@ -18,11 +18,13 @@ import type {
   AuthenticatorTransportFuture,
 } from '@simplewebauthn/server';
 
+import { uuidTransformer } from '@fxa/shared/db/mysql/core';
+
 import { PasskeyConfig } from './passkey.config';
 
 export interface RegistrationOptionsInput {
-  /** User's uid as a Buffer, used as the WebAuthn userID. */
-  uid: Buffer;
+  /** User's uid as a hex string, used as the WebAuthn userID. */
+  uid: string;
   /** User's email address, used as the WebAuthn userName. */
   email: string;
   /** Challenge from ChallengeManager. */
@@ -46,7 +48,7 @@ export async function generateWebauthnRegistrationOptions(
     rpID: config.rpId,
     userName: input.email,
     userDisplayName: input.email,
-    userID: input.uid,
+    userID: uuidTransformer.to(input.uid),
     // Challenge must be passed as a Buffer (Uint8Array) so that simplewebauthn
     // base64url-encodes the raw bytes. Passing a string causes the library to
     // UTF-8-encode the text first, producing a different base64url value than
@@ -68,11 +70,13 @@ export interface VerifyRegistrationInput {
 }
 
 export interface VerifiedRegistrationData {
-  credentialId: Buffer;
+  /** Credential ID as a base64url string, forwarded unchanged from SimpleWebAuthn. */
+  credentialId: string;
   publicKey: Buffer;
   signCount: number;
   transports: AuthenticatorTransportFuture[];
-  aaguid: Buffer;
+  /** aaguid as a hyphenated-UUID string, forwarded unchanged from SimpleWebAuthn. */
+  aaguid: string;
   backupEligible: boolean;
   backupState: boolean;
   prfEnabled: boolean;
@@ -127,11 +131,11 @@ export async function verifyWebauthnRegistrationResponse(
   return {
     verified: true,
     data: {
-      credentialId: Buffer.from(credential.id, 'base64url'),
+      credentialId: credential.id,
       publicKey: Buffer.from(credential.publicKey),
       signCount: credential.counter,
       transports: credential.transports ?? [],
-      aaguid: uuidToBuffer(aaguid),
+      aaguid,
       backupEligible: credentialDeviceType === 'multiDevice',
       backupState: credentialBackedUp,
       prfEnabled: extractPrfEnabled(authenticatorExtensionResults),
@@ -147,11 +151,11 @@ export interface AuthenticationOptionsInput {
   /** Challenge from ChallengeManager. */
   challenge: string;
   /**
-   * Credential IDs to restrict authentication to.
+   * Credential IDs (base64url) to restrict authentication to.
    * Pass the user's stored credential IDs for known-user flows.
    * Pass an empty array for usernameless/discoverable flows.
    */
-  allowCredentials: Buffer[];
+  allowCredentials: string[];
 }
 
 /**
@@ -171,7 +175,7 @@ export async function generateWebauthnAuthenticationOptions(
     challenge: Buffer.from(input.challenge, 'base64url'),
     allowCredentials:
       input.allowCredentials.length > 0
-        ? input.allowCredentials.map((id) => ({ id: id.toString('base64url') }))
+        ? input.allowCredentials.map((id) => ({ id }))
         : undefined,
   });
 }
@@ -181,7 +185,8 @@ export interface VerifyAuthenticationInput {
   response: AuthenticationResponseJSON;
   /** Challenge that was issued for this authentication. */
   challenge: string;
-  credentialId: Buffer;
+  /** Credential ID as a base64url string. */
+  credentialId: string;
   publicKey: Buffer;
   signCount: number;
 }
@@ -225,7 +230,7 @@ export async function verifyWebauthnAuthenticationResponse(
   input: VerifyAuthenticationInput
 ): Promise<AuthenticationVerificationResult> {
   const credential: WebAuthnCredential = {
-    id: input.credentialId.toString('base64url'),
+    id: input.credentialId,
     publicKey: input.publicKey,
     counter: input.signCount,
   };
@@ -251,14 +256,3 @@ export async function verifyWebauthnAuthenticationResponse(
   };
 }
 
-/**
- * Convert a UUID string to a 16-byte Buffer.
- *
- * SimpleWebAuthn returns `aaguid` as a lower-case hyphenated UUID string.
- * This strips the hyphens and parses the result to a Buffer.
- *
- * @param uuid - Lower-case hyphenated UUID string
- */
-export function uuidToBuffer(uuid: string): Buffer {
-  return Buffer.from(uuid.replace(/-/g, ''), 'hex');
-}
