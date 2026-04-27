@@ -99,7 +99,6 @@ Avoid over-simplification that could:
 - **Never modify CI/CD pipelines** without explicit approval
 - **Prefer `libs/*` over app-local code** for reusable logic
 - **Prefer `fxa-settings` over `fxa-content-server`** (legacy)
-- **Prefer SubPlat 3.0 over `fxa-payments-server`** (legacy)
 - **No duplication** — search for existing helpers/types before adding new ones
 
 ## 7. Focus Scope

@@ -14038,7 +14038,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rescripts/cli@npm:0.0.16, @rescripts/cli@npm:~0.0.16":
+"@rescripts/cli@npm:0.0.16":
   version: 0.0.16
   resolution: "@rescripts/cli@npm:0.0.16"
   dependencies:
@@ -18480,7 +18480,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/accept-language-parser@npm:^1.5.1, @types/accept-language-parser@npm:^1.5.3":
+"@types/accept-language-parser@npm:^1.5.3":
   version: 1.5.8
   resolution: "@types/accept-language-parser@npm:1.5.8"
   checksum: 10c0/acd6909999f8761d812e2eb8878bcb22c270937560766f6ba404f98e9b2c76144b4c556c76f78c0b0387ff1c2bef8665dae69c617d6ef87cd32c957f53e8b446
@@ -19008,16 +19008,6 @@ __metadata:
   version: 4.7.11
   resolution: "@types/history@npm:4.7.11"
   checksum: 10c0/3facf37c2493d1f92b2e93a22cac7ea70b06351c2ab9aaceaa3c56aa6099fb63516f6c4ec1616deb5c56b4093c026a043ea2d3373e6c0644d55710364d02c934
-  languageName: node
-  linkType: hard
-
-"@types/hoist-non-react-statics@npm:^3.3.0":
-  version: 3.3.6
-  resolution: "@types/hoist-non-react-statics@npm:3.3.6"
-  dependencies:
-    "@types/react": "npm:*"
-    hoist-non-react-statics: "npm:^3.3.0"
-  checksum: 10c0/149a4c217d81f21f8a1e152160a59d5b99b6a9aa6d354385d5f5bc02760cbf1e170a8442ba92eb653befff44b0c5bc2234bb77ce33e0d11a65f779e8bab5c321
   languageName: node
   linkType: hard
 
@@ -19661,15 +19651,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/postcss-import@npm:^12":
-  version: 12.0.1
-  resolution: "@types/postcss-import@npm:12.0.1"
-  dependencies:
-    postcss: "npm:^7.0.27"
-  checksum: 10c0/c0649f961445d566912c6e3a4c03a54890dd5d90b3f377e26055e6f3d66e015bacdfa046d6357b4feb1027f2d0eafa7831bfd1dd3dc23b0eda45ede0e45e0bcf
-  languageName: node
-  linkType: hard
-
 "@types/postcss-import@npm:^14":
   version: 14.0.3
   resolution: "@types/postcss-import@npm:14.0.3"
@@ -19783,18 +19764,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-redux@npm:^7.1.18":
-  version: 7.1.34
-  resolution: "@types/react-redux@npm:7.1.34"
-  dependencies:
-    "@types/hoist-non-react-statics": "npm:^3.3.0"
-    "@types/react": "npm:*"
-    hoist-non-react-statics: "npm:^3.3.0"
-    redux: "npm:^4.0.0"
-  checksum: 10c0/6750964ec656eb6973b0e4fda787549aee5dbc266a0f0e78fc9efb417b4965c0b060d10b99a7b7fa0c8812b8a0a07d97a1ef46d094bf64fee07144e8bbad781a
-  languageName: node
-  linkType: hard
-
 "@types/react-router@npm:^5.1.19":
   version: 5.1.20
   resolution: "@types/react-router@npm:5.1.20"
@@ -19802,16 +19771,6 @@ __metadata:
     "@types/history": "npm:^4.7.11"
     "@types/react": "npm:*"
   checksum: 10c0/1f7eee61981d2f807fa01a34a0ef98ebc0774023832b6611a69c7f28fdff01de5a38cabf399f32e376bf8099dcb7afaf724775bea9d38870224492bea4cb5737
-  languageName: node
-  linkType: hard
-
-"@types/react-stripe-elements@npm:^6.0.6":
-  version: 6.0.9
-  resolution: "@types/react-stripe-elements@npm:6.0.9"
-  dependencies:
-    "@types/react": "npm:*"
-    "@types/stripe-v3": "npm:*"
-  checksum: 10c0/aff4f2257c37e15f1aa61bc1d6eba35f321e6778fed912913aacb275ac059fda9c0f0625b45eccf7f9d06e2ab4521d8ca7fb75d6c483ff2bf242d43f210eee02
   languageName: node
   linkType: hard
 
@@ -19824,7 +19783,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-transition-group@npm:^4.2.0, @types/react-transition-group@npm:^4.4.2":
+"@types/react-transition-group@npm:^4.2.0":
   version: 4.4.12
   resolution: "@types/react-transition-group@npm:4.4.12"
   peerDependencies:
@@ -20117,13 +20076,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/stripe-v3@npm:*":
-  version: 3.1.33
-  resolution: "@types/stripe-v3@npm:3.1.33"
-  checksum: 10c0/4fe6221eeee803a9aec440679c8ee65525aee98bfaa0d7f497b8b5bc8f426cb3afafb672c35c9ac654b25bfa912941da2f25a4c0e4c21690e6be947f0225d1b8
-  languageName: node
-  linkType: hard
-
 "@types/superagent@npm:*":
   version: 8.1.9
   resolution: "@types/superagent@npm:8.1.9"
@@ -20244,13 +20196,6 @@ __metadata:
   version: 2.1.5
   resolution: "@types/upng-js@npm:2.1.5"
   checksum: 10c0/54829eb57f2670e12bb67986b597074c0a7e6ec256b5025c5a850f9c813544eee2897762597bb4827db7b6dbf96bdc3d62fee801aef68b2513cc8d0c1bc4c29a
-  languageName: node
-  linkType: hard
-
-"@types/use-sync-external-store@npm:^0.0.6":
-  version: 0.0.6
-  resolution: "@types/use-sync-external-store@npm:0.0.6"
-  checksum: 10c0/77c045a98f57488201f678b181cccd042279aff3da34540ad242f893acc52b358bd0a8207a321b8ac09adbcef36e3236944390e2df4fcedb556ce7bb2a88f2a8
   languageName: node
   linkType: hard
 
@@ -27002,7 +26947,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.11.5, dayjs@npm:^1.11.9":
+"dayjs@npm:^1.11.9":
   version: 1.11.13
   resolution: "dayjs@npm:1.11.13"
   checksum: 10c0/a3caf6ac8363c7dade9d1ee797848ddcf25c1ace68d9fe8678ecf8ba0675825430de5d793672ec87b24a69bf04a1544b176547b2539982275d5542a7955f35b7
@@ -31555,7 +31500,6 @@ __metadata:
     eslint-plugin-playwright: "npm:^0.22.2"
     fxa-auth-client: "workspace:*"
     fxa-content-server: "workspace:*"
-    fxa-payments-server: "workspace:*"
     fxa-settings: "workspace:*"
     jsqr: "npm:^1.4.0"
     pdf-parse: "npm:^1.1.1"
@@ -32095,95 +32039,6 @@ __metadata:
   checksum: 10c0/a53a7a9f764d4bab6c7cbd6a4feeade38d86f331d63dbe614cee726b27d96c996a53ab97173f4e403cbb1a98cf2af4cc918e0792d4926dc347f9357089a73532
   languageName: node
   linkType: hard
-
-"fxa-payments-server@workspace:*, fxa-payments-server@workspace:packages/fxa-payments-server":
-  version: 0.0.0-use.local
-  resolution: "fxa-payments-server@workspace:packages/fxa-payments-server"
-  dependencies:
-    "@fluent/bundle": "npm:^0.18.0"
-    "@fluent/langneg": "npm:^0.7.0"
-    "@rescripts/cli": "npm:~0.0.16"
-    "@storybook/addon-actions": "npm:^8.0.0"
-    "@storybook/addon-links": "npm:^8.0.0"
-    "@stripe/react-stripe-js": "npm:^2.7.1"
-    "@stripe/stripe-js": "npm:^4.9.0"
-    "@testing-library/jest-dom": "npm:^5.16.5"
-    "@types/accept-language-parser": "npm:^1.5.1"
-    "@types/jest": "npm:26.0.23"
-    "@types/node": "npm:^22.13.5"
-    "@types/postcss-import": "npm:^12"
-    "@types/react-redux": "npm:^7.1.18"
-    "@types/react-stripe-elements": "npm:^6.0.6"
-    "@types/react-transition-group": "npm:^4.4.2"
-    "@types/sinon": "npm:10.0.1"
-    "@types/uuid": "npm:^10.0.0"
-    "@types/webpack": "npm:5.28.5"
-    "@typescript-eslint/eslint-plugin": "npm:^5.59.0"
-    "@typescript-eslint/parser": "npm:^7.1.1"
-    accept-language-parser: "npm:^1.5.0"
-    audit-filter: "npm:^0.5.0"
-    babel-eslint: "npm:^10.1.0"
-    babel-loader: "npm:^9.1.3"
-    browserslist: "npm:^4.24.0"
-    convict: "npm:^6.2.5"
-    convict-format-with-moment: "npm:^6.2.0"
-    convict-format-with-validator: "npm:^6.2.0"
-    dayjs: "npm:^1.11.5"
-    eslint: "npm:^7.32.0"
-    eslint-config-react-app: "npm:^7.0.0"
-    eslint-plugin-import: "npm:^2.30.0"
-    eslint-plugin-jest: "npm:^27.6.0"
-    eslint-plugin-react: "npm:^7.32.2"
-    express: "npm:^4.21.2"
-    express-http-proxy: "npm:^2.0.0"
-    fxa-auth-server: "workspace:*"
-    fxa-geodb: "workspace:*"
-    fxa-react: "workspace:*"
-    fxa-settings: "workspace:*"
-    fxa-shared: "workspace:*"
-    grunt: "npm:^1.6.1"
-    grunt-cli: "npm:^1.4.3"
-    grunt-contrib-concat: "npm:^2.1.0"
-    grunt-contrib-watch: "npm:^1.1.0"
-    handlebars: "npm:^4.7.9"
-    helmet: "npm:^8.0.0"
-    hot-shots: "npm:^10.2.1"
-    intl: "npm:1.2.5"
-    jest: "npm:27.5.1"
-    jest-watch-typeahead: "npm:0.6.5"
-    joi: "npm:^17.13.3"
-    jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
-    morgan: "npm:^1.10.0"
-    mozlog: "npm:^3.0.2"
-    nocache: "npm:^4.0.0"
-    nock: "npm:^13.5.1"
-    node-fetch: "npm:^2.6.7"
-    normalize.css: "npm:8.0.1"
-    nx: "npm:21.2.4"
-    on-headers: "npm:^1.1.0"
-    pm2: "npm:^6.0.14"
-    postcss-import: "npm:16.1.0"
-    prettier: "npm:^3.5.3"
-    react-redux: "npm:^9.1.0"
-    react-router-dom: "npm:^6.26.0"
-    react-scripts: "npm:^5.0.1"
-    react-stripe-elements: "npm:^6.1.2"
-    react-transition-group: "npm:^4.4.2"
-    redux: "npm:^4.2.0"
-    redux-devtools-extension: "npm:^2.13.9"
-    redux-promise-middleware: "npm:^6.2.0"
-    redux-thunk: "npm:^2.4.1"
-    serve-static: "npm:^1.16.0"
-    sinon: "npm:^9.0.3"
-    storybook: "npm:^8.0.0"
-    supertest: "npm:^7.0.0"
-    tailwindcss: "npm:3.4.3"
-    typescript: "npm:5.5.3"
-    uuid: "npm:^10.0.0"
-    wait-for-expect: "npm:^3.0.2"
-    webpack: "npm:^5.104.1"
-  languageName: unknown
-  linkType: soft
 
 "fxa-profile-server@workspace:*, fxa-profile-server@workspace:packages/fxa-profile-server":
   version: 0.0.0-use.local
@@ -34390,7 +34245,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hoist-non-react-statics@npm:^3.3.0, hoist-non-react-statics@npm:^3.3.1, hoist-non-react-statics@npm:^3.3.2":
+"hoist-non-react-statics@npm:^3.3.1, hoist-non-react-statics@npm:^3.3.2":
   version: 3.3.2
   resolution: "hoist-non-react-statics@npm:3.3.2"
   dependencies:
@@ -35459,13 +35314,6 @@ __metadata:
   version: 1.1.0
   resolution: "interpret@npm:1.1.0"
   checksum: 10c0/b06552b92048b5077e700da3e203d4c10f1460f2e3aaa9bd4301782f42a82fb0fe8269b8766731dc9c22aedfa2fceb115380c6bbc739fa439d1672bc70fd334c
-  languageName: node
-  linkType: hard
-
-"intl@npm:1.2.5":
-  version: 1.2.5
-  resolution: "intl@npm:1.2.5"
-  checksum: 10c0/ee6b0ab274ab730b4947604eb9b155dfb32caf8f1d7826da2b3480fca42bf19092f6a723028f6a6751d90c0a709ec80a5149780acc24ebf6f1eb8a7a27cc54c8
   languageName: node
   linkType: hard
 
@@ -41999,13 +41847,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nocache@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "nocache@npm:4.0.0"
-  checksum: 10c0/b06d66d3906ed7d02e262f3c357e0305d7775c12825014a109e5e7d1e92975aee44aed1aedf8bad6c1d7f22488f1ffabf9e4a253f3636435703abd7bfa26de6b
-  languageName: node
-  linkType: hard
-
 "nock@npm:^13.5.1":
   version: 13.5.6
   resolution: "nock@npm:13.5.6"
@@ -44962,19 +44803,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-import@npm:16.1.0":
-  version: 16.1.0
-  resolution: "postcss-import@npm:16.1.0"
-  dependencies:
-    postcss-value-parser: "npm:^4.0.0"
-    read-cache: "npm:^1.0.0"
-    resolve: "npm:^1.1.7"
-  peerDependencies:
-    postcss: ^8.0.0
-  checksum: 10c0/60e6499354079a3f46242b861412a40c54be7ab99f4ad55096a07ffe5e57fcc01c2c626b5d1fbc7a18cd23adc82b320c205059d0c7ab09e91baba8dc45c88e29
-  languageName: node
-  linkType: hard
-
 "postcss-import@npm:^15.1.0":
   version: 15.1.0
   resolution: "postcss-import@npm:15.1.0"
@@ -45940,7 +45768,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^7.0.11, postcss@npm:^7.0.18, postcss@npm:^7.0.27, postcss@npm:^7.0.32, postcss@npm:^7.0.35":
+"postcss@npm:^7.0.11, postcss@npm:^7.0.18, postcss@npm:^7.0.32, postcss@npm:^7.0.35":
   version: 7.0.39
   resolution: "postcss@npm:7.0.39"
   dependencies:
@@ -46261,17 +46089,6 @@ __metadata:
     kleur: "npm:^3.0.3"
     sisteransi: "npm:^1.0.5"
   checksum: 10c0/16f1ac2977b19fe2cf53f8411cc98db7a3c8b115c479b2ca5c82b5527cd937aa405fa04f9a5960abeb9daef53191b53b4d13e35c1f5d50e8718c76917c5f1ea4
-  languageName: node
-  linkType: hard
-
-"prop-types@npm:15.7.2":
-  version: 15.7.2
-  resolution: "prop-types@npm:15.7.2"
-  dependencies:
-    loose-envify: "npm:^1.4.0"
-    object-assign: "npm:^4.1.1"
-    react-is: "npm:^16.8.1"
-  checksum: 10c0/4eb527daec962acd789c621ce3234a6f077ce202049291642d8efd13b19805adf07227672c570531cdb56a357640ea27e336527682b7ed4be0c5b392a01662ab
   languageName: node
   linkType: hard
 
@@ -47010,7 +46827,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.13.1, react-is@npm:^16.7.0, react-is@npm:^16.8.1":
+"react-is@npm:^16.13.1, react-is@npm:^16.7.0":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: 10c0/33977da7a5f1a287936a0c85639fec6ca74f4f15ef1e59a6bc20338fc73dc69555381e211f7a3529b8150a1f71e4225525b41b60b52965bda53ce7d47377ada1
@@ -47067,25 +46884,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: 10c0/3ae2e09804d7c1295643b5b3f15bee26cef04e38e0ed1d47c3b3d3d712ca2c37fbc3461ea0d22041b1f3bbf3656c96b8ec3c1df46280f714dcf8e4fe66146bc6
-  languageName: node
-  linkType: hard
-
-"react-redux@npm:^9.1.0":
-  version: 9.2.0
-  resolution: "react-redux@npm:9.2.0"
-  dependencies:
-    "@types/use-sync-external-store": "npm:^0.0.6"
-    use-sync-external-store: "npm:^1.4.0"
-  peerDependencies:
-    "@types/react": ^18.2.25 || ^19
-    react: ^18.0 || ^19
-    redux: ^5.0.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    redux:
-      optional: true
-  checksum: 10c0/00d485f9d9219ca1507b4d30dde5f6ff8fb68ba642458f742e0ec83af052f89e65cd668249b99299e1053cc6ad3d2d8ac6cb89e2f70d2ac5585ae0d7fa0ef259
   languageName: node
   linkType: hard
 
@@ -47250,18 +47048,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-stripe-elements@npm:^6.1.2":
-  version: 6.1.2
-  resolution: "react-stripe-elements@npm:6.1.2"
-  dependencies:
-    prop-types: "npm:15.7.2"
-  peerDependencies:
-    react: ^15.5.4 || ^16.0.0-0
-    react-dom: ^15.5.4 || ^16.0.0-0
-  checksum: 10c0/e29341be266979927be59637cdeea7fe87012b70f6e042c7469e0bd3106b76ad95f14c2e307bc1a3430e6688024aca92fdf0281a8e90cde9bfa452403da22139
-  languageName: node
-  linkType: hard
-
 "react-style-singleton@npm:^2.2.2, react-style-singleton@npm:^2.2.3":
   version: 2.2.3
   resolution: "react-style-singleton@npm:2.2.3"
@@ -47291,7 +47077,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-transition-group@npm:^4.4.0, react-transition-group@npm:^4.4.2":
+"react-transition-group@npm:^4.4.0":
   version: 4.4.5
   resolution: "react-transition-group@npm:4.4.5"
   dependencies:
@@ -47556,42 +47342,6 @@ __metadata:
     css-unit-converter: "npm:^1.1.1"
     postcss-value-parser: "npm:^3.3.0"
   checksum: 10c0/9f311cdb38d4a72d5dc9275b9558199e63a6ceff2892a309691e4281fe418730995910a2179a7dd1566c11138c834c6e5958203c629c9f4357600a478470b17b
-  languageName: node
-  linkType: hard
-
-"redux-devtools-extension@npm:^2.13.9":
-  version: 2.13.9
-  resolution: "redux-devtools-extension@npm:2.13.9"
-  peerDependencies:
-    redux: ^3.1.0 || ^4.0.0
-  checksum: 10c0/753611d40c5d8fd00af985a07122ab922ad8ec48ae617b6ed58594af08c8efaf54024a76da8f5293f9394002da977604da10e828d13f0e419c95d9edccf5c50a
-  languageName: node
-  linkType: hard
-
-"redux-promise-middleware@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "redux-promise-middleware@npm:6.2.0"
-  peerDependencies:
-    redux: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
-  checksum: 10c0/73f7610f9695ff47dd7e9b26b5cef6d65044061f0f50127889294882752669fb861beef3c95d1c9f10f74e01b70353abe8fd707e296b647a205d6514540f1de0
-  languageName: node
-  linkType: hard
-
-"redux-thunk@npm:^2.4.1":
-  version: 2.4.2
-  resolution: "redux-thunk@npm:2.4.2"
-  peerDependencies:
-    redux: ^4
-  checksum: 10c0/e202d6ef7dfa7df08ed24cb221aa89d6c84dbaa7d65fe90dbd8e826d0c10d801f48388f9a7598a4fd970ecbc93d335014570a61ca7bc8bf569eab5de77b31a3c
-  languageName: node
-  linkType: hard
-
-"redux@npm:^4.0.0, redux@npm:^4.2.0":
-  version: 4.2.1
-  resolution: "redux@npm:4.2.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.9.2"
-  checksum: 10c0/136d98b3d5dbed1cd6279c8c18a6a74c416db98b8a432a46836bdd668475de6279a2d4fd9d1363f63904e00f0678a8a3e7fa532c897163340baf1e71bb42c742
   languageName: node
   linkType: hard
 
@@ -54050,15 +53800,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:^1.4.0":
-  version: 1.5.0
-  resolution: "use-sync-external-store@npm:1.5.0"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/1b8663515c0be34fa653feb724fdcce3984037c78dd4a18f68b2c8be55cc1a1084c578d5b75f158d41b5ddffc2bf5600766d1af3c19c8e329bb20af2ec6f52f4
-  languageName: node
-  linkType: hard
-
 "use@npm:^3.1.0":
   version: 3.1.1
   resolution: "use@npm:3.1.1"
@@ -54435,13 +54176,6 @@ __metadata:
   dependencies:
     xml-name-validator: "npm:^5.0.0"
   checksum: 10c0/8712774c1aeb62dec22928bf1cdfd11426c2c9383a1a63f2bcae18db87ca574165a0fbe96b312b73652149167ac6c7f4cf5409f2eb101d9c805efe0e4bae798b
-  languageName: node
-  linkType: hard
-
-"wait-for-expect@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "wait-for-expect@npm:3.0.2"
-  checksum: 10c0/9616b82381f6571a0f3ed235a62ecdaf529816c9eef04f665ee1b8b515c3b7e1dc90d781111b6284bb777f45c4742f6c058d549a44d9d6e367ffd4d34f5f3b9e
   languageName: node
   linkType: hard
 

@@ -45,7 +45,7 @@ Evaluate the diff through these lenses, in order of priority:
 - Cross-package imports using relative paths instead of `@fxa/<domain>/<package>` aliases
 - Circular or bi-directional dependencies between packages/libs — breaks build ordering
 - Auth-server code importing from `fxa-auth-server/**` (ESLint blocks this)
-- New code added to legacy packages (`fxa-content-server`, `fxa-payments-server`) — should be in `fxa-settings` or SubPlat 3.0
+- New code added to legacy packages (`fxa-content-server`) — should be in `fxa-settings` or SubPlat 3.0
 - No new GraphQL — `fxa-graphql-api` was removed, `admin-server` GraphQL is legacy. Exception: CMS-related GraphQL.
 - Hardcoded values that should come from Convict config
 - New `require()` in `.ts` files — use `import` instead. Existing CJS patterns in auth-server `.js` files are fine.

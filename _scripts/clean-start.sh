@@ -37,7 +37,6 @@ ALL_PORTS=(
   8001   # Cirrus
   # Application services
   3030   # Content server
-  3031   # Payments server
   3032   # Payments React dev
   3035   # Payments Next
   3000   # Settings React (webpack dev server)
