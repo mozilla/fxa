@@ -10,10 +10,15 @@ const Boom = require('@hapi/boom');
 // Prefix per token kind. Uses a GitHub/Stripe-style typed prefix so the
 // refresh-token strategy (plain `Bearer <hex>`) and the FxA session/key/etc
 // strategies never collide on the same route — see ADR-0022 and FXA-9392.
+//
+// `keyFetchToken` and `keyFetchTokenWithVerificationStatus` deliberately
+// share `fxk_`. They differ only in which DB lookup the server-side
+// strategy runs (the latter joins verification state); the wire id is the
+// same and the client only ever derives one keyFetch credential.
 const KIND_PREFIXES = {
   sessionToken: 'fxs',
   keyFetchToken: 'fxk',
-  keyFetchTokenWithVerificationStatus: 'fxkv',
+  keyFetchTokenWithVerificationStatus: 'fxk',
   accountResetToken: 'fxar',
   passwordForgotToken: 'fxpf',
   passwordChangeToken: 'fxpc',

@@ -49,6 +49,14 @@ describe('lib/routes/auth-schemes/bearer-fxa-token', () => {
         expect(() => strategy(kind as any, jest.fn())).not.toThrow();
       }
     });
+
+    it('keyFetchToken and keyFetchTokenWithVerificationStatus share the fxk_ prefix', () => {
+      // The client only derives one keyFetch credential; the with-verification
+      // variant differs server-side only (different DB lookup). Splitting
+      // prefixes would make /account/keys 401 on every Bearer request.
+      expect(KIND_PREFIXES.keyFetchToken).toBe('fxk');
+      expect(KIND_PREFIXES.keyFetchTokenWithVerificationStatus).toBe('fxk');
+    });
   });
 
   describe('authenticate — happy path per kind', () => {
