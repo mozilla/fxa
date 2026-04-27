@@ -281,7 +281,7 @@
     "mocha-multi": "^1.1.7",
     "nx": "21.2.4",
     "nx-cloud": "19.1.0",
-    "postcss": "8.5.0",
+    "postcss": "8.5.10",
     "react-test-renderer": "^18.3.1",
     "reflect-metadata": "^0.2.1",
     "server-only": "^0.0.1",
