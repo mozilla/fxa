@@ -15,6 +15,7 @@ Security takes **absolute precedence**. This repository handles Mozilla authenti
 - **External network:** only with explicit approval to a trusted/documented endpoint.
 - **Pipelines & contracts:** flag breaking API/contract changes; do not alter CI/CD or git hooks without explicit, reviewed justification.
 - **Published DB migrations:** **NEVER edit** existing published migration files. Always add a new forward migration and a separate rollback.
+- **Workspace recommendations:** the repo deliberately ships no `.vscode/extensions.json`. Do not re-add one. Useful extensions are listed in `.vscode/README.md` so contributors install at their own discretion.
 
 ## 3) Do-not-touch paths (no read, no write)
 
