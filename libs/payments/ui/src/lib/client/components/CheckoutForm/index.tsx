@@ -94,6 +94,7 @@ interface CheckoutFormProps {
   sessionEmail?: string;
   isFreeTrial?: boolean;
   trialLengthDays?: number;
+  showTrialIneligibleNotice?: boolean;
   metricsEnabled?: boolean;
   isCancelInterstitialOffer?: boolean;
 }
@@ -106,6 +107,7 @@ export function CheckoutForm({
   sessionEmail,
   isFreeTrial,
   trialLengthDays,
+  showTrialIneligibleNotice,
   metricsEnabled,
   isCancelInterstitialOffer,
 }: CheckoutFormProps) {
@@ -356,6 +358,26 @@ export function CheckoutForm({
         engageGlean();
       }}
     >
+      {showTrialIneligibleNotice && (
+        <>
+          <div
+            className="border-b border-grey-200 my-6"
+            role="separator"
+            aria-hidden="true"
+          ></div>
+          <Localized id="free-trial-ineligible-notice">
+            <p className="leading-5 text-sm">
+              Your account is not eligible for a free trial. You may continue
+              with a paid subscription.
+            </p>
+          </Localized>
+          <div
+            className="border-b border-grey-200 my-6"
+            role="separator"
+            aria-hidden="true"
+          ></div>
+        </>
+      )}
       <CheckoutCheckbox
         isRequired={showConsentError}
         disabled={!cart.uid}

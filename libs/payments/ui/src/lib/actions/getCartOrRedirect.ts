@@ -4,6 +4,7 @@
 
 'use server';
 
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getApp } from '../nestapp/app';
 import { getRedirect, validateCartState } from '../utils/get-cart';
@@ -67,15 +68,17 @@ async function getCartOrRedirectAction(
     : undefined;
   const urlSearchParams = new URLSearchParams(filteredParams);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
+  const experimentationId = (await headers()).get('x-experimentation-id') || undefined;
   const cart = await getApp().getActionsService().getCart({
     cartId,
     searchParams: parseSearchParams(searchParams),
+    experimentationId,
   });
 
   if (!validateCartState(cart.state, page)) {
     // Sanitize pathname to prevent open redirect vulnerabilities
     const safePath = sanitizePathname(currentPathname);
-    
+
     // Replace the last segment with the redirect path to maintain the full path structure
     const pathSegments = safePath.split('/');
     pathSegments[pathSegments.length - 1] = getRedirect(cart.state);

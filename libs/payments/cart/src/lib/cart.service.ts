@@ -445,7 +445,7 @@ export class CartService {
       }
     }
 
-    const freeTrial = args.uid
+    const freeTrialResult = args.uid
       ? await this.checkoutService.getFreeTrialEligibility({
           uid: args.uid,
           offeringConfigId: args.offeringConfigId,
@@ -453,7 +453,7 @@ export class CartService {
           interval: args.interval,
           eligibilityStatus: eligibility.subscriptionEligibilityResult,
         })
-      : null;
+      : { offer: null, userEligible: false };
 
     const createCartParams: SetupCart = {
       interval: args.interval,
@@ -466,7 +466,7 @@ export class CartService {
       currency,
       eligibilityStatus: cartEligibilityStatus,
       couponCode,
-      isFreeTrial: !!freeTrial,
+      isFreeTrial: !!freeTrialResult.offer && !!freeTrialResult.userEligible,
     };
 
     if (eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME) {
@@ -843,7 +843,7 @@ export class CartService {
           effectiveUid &&
           oldCart.eligibilityStatus === CartEligibilityStatus.CREATE
         ) {
-          const freeTrial =
+          const freeTrialResult =
             await this.checkoutService.getFreeTrialEligibility({
               uid: effectiveUid,
               offeringConfigId: oldCart.offeringConfigId,
@@ -854,7 +854,7 @@ export class CartService {
               interval: oldCart.interval as SubplatInterval,
               eligibilityStatus: EligibilityStatus.CREATE,
             });
-          cartDetails.isFreeTrial = !!freeTrial;
+          cartDetails.isFreeTrial = !!freeTrialResult.offer && !!freeTrialResult.userEligible;
         } else {
           cartDetails.isFreeTrial = false;
         }
@@ -884,7 +884,8 @@ export class CartService {
   @SanitizeExceptions()
   async getCart(
     cartId: string,
-    searchParams?: PaymentsSearchParams
+    searchParams?: PaymentsSearchParams,
+    experimentationId?: string
   ): Promise<CartDTO> {
     const cart = (await this.cartManager.fetchCartById(
       cartId
@@ -933,18 +934,30 @@ export class CartService {
     const trialStartDate = trialSubscription?.trial_start ?? undefined;
     const trialEndDate = trialSubscription?.trial_end ?? undefined;
 
-    let freeTrialEligibility: FreeTrial | null = null;
-    if (cart.uid && cart.state === CartState.START && cart.isFreeTrial) {
-      freeTrialEligibility = await this.checkoutService.getFreeTrialEligibility(
-        {
-          uid: cart.uid,
+    let freeTrialOffer: FreeTrial | null = null;
+    let freeTrialUserEligible = false;
+    if (cart.state === CartState.START) {
+      if (cart.uid) {
+        const freeTrialResult =
+          await this.checkoutService.getFreeTrialEligibility({
+            uid: cart.uid,
+            offeringConfigId: cart.offeringConfigId,
+            countryCode: cart.taxAddress.countryCode || '',
+            interval: cart.interval as SubplatInterval,
+            eligibilityStatus: eligibility.subscriptionEligibilityResult,
+            searchParams,
+          });
+        freeTrialOffer = freeTrialResult.offer;
+        freeTrialUserEligible = freeTrialResult.userEligible;
+      } else {
+        freeTrialOffer = await this.checkoutService.getProductFreeTrialOffer({
           offeringConfigId: cart.offeringConfigId,
           countryCode: cart.taxAddress.countryCode || '',
           interval: cart.interval as SubplatInterval,
-          eligibilityStatus: eligibility.subscriptionEligibilityResult,
+          experimentationId,
           searchParams,
-        }
-      );
+        });
+      }
     }
 
     const { unitAmountForCurrency: offeringPrice } =
@@ -1084,7 +1097,8 @@ export class CartService {
         latestInvoicePreview,
         paymentInfo,
         hasActiveSubscriptions: !!subscriptions?.length,
-        freeTrialEligibility,
+        freeTrialOffer,
+        freeTrialUserEligible,
         trialStartDate,
         trialEndDate,
         isUpgradeFromTrial,
@@ -1139,7 +1153,8 @@ export class CartService {
           : undefined,
       fromPrice: 'fromPrice' in eligibility ? fromPrice : undefined,
       hasActiveSubscriptions: !!subscriptions?.length,
-      freeTrialEligibility,
+      freeTrialOffer,
+      freeTrialUserEligible,
       trialStartDate,
       trialEndDate,
       isUpgradeFromTrial,

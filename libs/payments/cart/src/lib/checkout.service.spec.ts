@@ -360,7 +360,7 @@ describe('CheckoutService', () => {
         .mockResolvedValue([mockAccount]);
       jest
         .spyOn(checkoutService, 'getFreeTrialEligibility')
-        .mockResolvedValue(null);
+        .mockResolvedValue({ offer: null, userEligible: false });
     });
 
     describe('success - with stripeCustomerId attached to cart', () => {
@@ -505,6 +505,13 @@ describe('CheckoutService', () => {
       });
 
       it('throws cart free trial mismatch error when cart promised a trial but user is no longer eligible', async () => {
+        const mockFreeTrial: FreeTrial = {
+          internalName: 'test-free-trial',
+          intervals: ['monthly'],
+          trialLengthDays: 14,
+          countries: ['US'],
+          cooldownPeriodMonths: 6,
+        };
         const mockCart = StripeResponseFactory(
           ResultCartFactory({
             uid: uid,
@@ -518,7 +525,28 @@ describe('CheckoutService', () => {
 
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(null);
+          .mockResolvedValue({ offer: mockFreeTrial, userEligible: false });
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, mockCart.uid)
+        ).rejects.toBeInstanceOf(CartFreeTrialMismatchError);
+      });
+
+      it('throws cart free trial mismatch error when cart promised a trial but offer no longer exists', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            uid: uid,
+            couponCode: faker.string.uuid(),
+            stripeCustomerId: mockCustomer.id,
+            eligibilityStatus: CartEligibilityStatus.CREATE,
+            amount: mockInvoicePreview.subtotal,
+            isFreeTrial: true,
+          })
+        );
+
+        jest
+          .spyOn(checkoutService, 'getFreeTrialEligibility')
+          .mockResolvedValue({ offer: null, userEligible: false });
 
         await expect(
           checkoutService.prePaySteps(mockCart, mockCart.uid)
@@ -546,7 +574,7 @@ describe('CheckoutService', () => {
 
         const getFreeTrialEligibilitySpy = jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(mockFreeTrial);
+          .mockResolvedValue({ offer: mockFreeTrial, userEligible: true });
 
         const result = await checkoutService.prePaySteps(
           mockCart,
@@ -811,7 +839,7 @@ describe('CheckoutService', () => {
         .mockResolvedValue(mockPaymentMethod);
       jest
         .spyOn(checkoutService, 'getFreeTrialEligibility')
-        .mockResolvedValue(null);
+        .mockResolvedValue({ offer: null, userEligible: false });
     });
 
     describe('succeeded', () => {
@@ -1139,7 +1167,7 @@ describe('CheckoutService', () => {
         jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(null);
+          .mockResolvedValue({ offer: null, userEligible: false });
 
         await checkoutService.payWithStripe(
           mockCart,
@@ -1262,7 +1290,7 @@ describe('CheckoutService', () => {
             .mockResolvedValue(mockPricingForCurrency);
           jest
             .spyOn(checkoutService, 'getFreeTrialEligibility')
-            .mockResolvedValue(mockFreeTrial);
+            .mockResolvedValue({ offer: mockFreeTrial, userEligible: true });
           jest
             .spyOn(subscriptionManager, 'create')
             .mockResolvedValue(mockTrialSubscription);
@@ -1363,7 +1391,7 @@ describe('CheckoutService', () => {
             .mockResolvedValue(mockPricingForCurrency);
           jest
             .spyOn(checkoutService, 'getFreeTrialEligibility')
-            .mockResolvedValue(null);
+            .mockResolvedValue({ offer: null, userEligible: false });
           jest
             .spyOn(subscriptionManager, 'create')
             .mockResolvedValue(mockSubscription);
@@ -1439,7 +1467,7 @@ describe('CheckoutService', () => {
           .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(mockFreeTrial);
+          .mockResolvedValue({ offer: mockFreeTrial, userEligible: true });
         jest
           .spyOn(confirmationTokenManager, 'retrieve')
           .mockResolvedValue(mockPrepaidConfirmationToken);
@@ -1493,7 +1521,7 @@ describe('CheckoutService', () => {
           .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(mockFreeTrial);
+          .mockResolvedValue({ offer: mockFreeTrial, userEligible: true });
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockTrialSubscription);
@@ -1567,7 +1595,7 @@ describe('CheckoutService', () => {
           .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(mockFreeTrial);
+          .mockResolvedValue({ offer: mockFreeTrial, userEligible: true });
         jest
           .spyOn(confirmationTokenManager, 'retrieve')
           .mockResolvedValue(mockCreditConfirmationToken);
@@ -1632,7 +1660,7 @@ describe('CheckoutService', () => {
           .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(null);
+          .mockResolvedValue({ offer: null, userEligible: false });
         jest.spyOn(confirmationTokenManager, 'retrieve');
         jest
           .spyOn(subscriptionManager, 'create')
@@ -1675,7 +1703,7 @@ describe('CheckoutService', () => {
           .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(mockFreeTrial);
+          .mockResolvedValue({ offer: mockFreeTrial, userEligible: true });
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockNonTrialingSubscription);
@@ -1729,7 +1757,7 @@ describe('CheckoutService', () => {
           .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(null);
+          .mockResolvedValue({ offer: null, userEligible: false });
         jest
           .spyOn(checkoutService, 'upgradeSubscription')
           .mockResolvedValue(mockSubscription);
@@ -1785,7 +1813,7 @@ describe('CheckoutService', () => {
           .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(mockFreeTrial);
+          .mockResolvedValue({ offer: mockFreeTrial, userEligible: true });
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockTrialSubscription);
@@ -1891,7 +1919,7 @@ describe('CheckoutService', () => {
         jest.spyOn(asyncLocalStorage, 'getStore');
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(null);
+          .mockResolvedValue({ offer: null, userEligible: false });
       });
 
       beforeEach(async () => {
@@ -2135,7 +2163,7 @@ describe('CheckoutService', () => {
           jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
           jest
             .spyOn(checkoutService, 'getFreeTrialEligibility')
-            .mockResolvedValue(null);
+            .mockResolvedValue({ offer: null, userEligible: false });
 
           await expect(
             checkoutService.payWithPaypal(
@@ -2243,7 +2271,7 @@ describe('CheckoutService', () => {
             .mockResolvedValue(mockPricingForCurrency);
           jest
             .spyOn(checkoutService, 'getFreeTrialEligibility')
-            .mockResolvedValue(mockFreeTrial);
+            .mockResolvedValue({ offer: mockFreeTrial, userEligible: true });
           jest.spyOn(statsd, 'increment');
           jest
             .spyOn(subscriptionManager, 'create')
@@ -2351,7 +2379,7 @@ describe('CheckoutService', () => {
             .mockResolvedValue(mockPricingForCurrency);
           jest
             .spyOn(checkoutService, 'getFreeTrialEligibility')
-            .mockResolvedValue(null);
+            .mockResolvedValue({ offer: null, userEligible: false });
           jest.spyOn(statsd, 'increment');
           jest
             .spyOn(subscriptionManager, 'create')
@@ -2435,7 +2463,7 @@ describe('CheckoutService', () => {
           .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(mockFreeTrial);
+          .mockResolvedValue({ offer: mockFreeTrial, userEligible: true });
         jest.spyOn(statsd, 'increment');
         jest
           .spyOn(subscriptionManager, 'create')
@@ -2497,7 +2525,7 @@ describe('CheckoutService', () => {
           .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(null);
+          .mockResolvedValue({ offer: null, userEligible: false });
         jest
           .spyOn(checkoutService, 'upgradeSubscription')
           .mockResolvedValue(mockSubscription);
@@ -2863,8 +2891,7 @@ describe('CheckoutService', () => {
     });
   });
 
-  describe('getFreeTrialEligibility', () => {
-    const mockUid = faker.string.uuid();
+  describe('getProductFreeTrialOffer', () => {
     const mockOfferingConfigId = faker.string.alphanumeric(10);
     const mockCountryCode = 'US';
     const mockInterval = 'monthly' as SubplatInterval;
@@ -2891,21 +2918,10 @@ describe('CheckoutService', () => {
     };
 
     const baseArgs = {
-      uid: mockUid,
       offeringConfigId: mockOfferingConfigId,
       countryCode: mockCountryCode,
       interval: mockInterval,
-      eligibilityStatus: EligibilityStatus.CREATE,
     };
-
-    it('returns null when eligibilityStatus is UPGRADE', async () => {
-      const result = await checkoutService.getFreeTrialEligibility({
-        ...baseArgs,
-        eligibilityStatus: EligibilityStatus.UPGRADE,
-      });
-
-      expect(result).toBeNull();
-    });
 
     it('returns null when Nimbus returns null', async () => {
       jest
@@ -2918,7 +2934,7 @@ describe('CheckoutService', () => {
         .spyOn(productConfigurationManager, 'getFreeTrial')
         .mockResolvedValue(mockFreeTrialUtil as any);
 
-      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+      const result = await checkoutService.getProductFreeTrialOffer(baseArgs);
 
       expect(result).toBeNull();
     });
@@ -2938,7 +2954,7 @@ describe('CheckoutService', () => {
         .spyOn(productConfigurationManager, 'getFreeTrial')
         .mockResolvedValue(mockFreeTrialUtil as any);
 
-      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+      const result = await checkoutService.getProductFreeTrialOffer(baseArgs);
 
       expect(result).toBeNull();
     });
@@ -2955,7 +2971,7 @@ describe('CheckoutService', () => {
         freeTrial: { freeTrials: [] },
       } as any);
 
-      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+      const result = await checkoutService.getProductFreeTrialOffer(baseArgs);
 
       expect(result).toBeNull();
     });
@@ -2971,7 +2987,7 @@ describe('CheckoutService', () => {
         .spyOn(productConfigurationManager, 'getFreeTrial')
         .mockResolvedValue(mockFreeTrialUtil as any);
 
-      const result = await checkoutService.getFreeTrialEligibility({
+      const result = await checkoutService.getProductFreeTrialOffer({
         ...baseArgs,
         countryCode: 'DE',
       });
@@ -2990,7 +3006,7 @@ describe('CheckoutService', () => {
         .spyOn(productConfigurationManager, 'getFreeTrial')
         .mockResolvedValue(mockFreeTrialUtil as any);
 
-      const result = await checkoutService.getFreeTrialEligibility({
+      const result = await checkoutService.getProductFreeTrialOffer({
         ...baseArgs,
         interval: 'yearly' as SubplatInterval,
       });
@@ -3012,26 +3028,7 @@ describe('CheckoutService', () => {
         freeTrial: { freeTrials: [{ ...mockFreeTrial, trialLengthDays: 0 }] },
       } as any);
 
-      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
-
-      expect(result).toBeNull();
-    });
-
-    it('returns null when blocked by cooldown', async () => {
-      jest
-        .spyOn(nimbusManager, 'fetchExperiments')
-        .mockResolvedValue(mockNimbusResult);
-      jest
-        .spyOn(nimbusManager, 'generateNimbusId')
-        .mockReturnValue('nimbus-id');
-      jest
-        .spyOn(productConfigurationManager, 'getFreeTrial')
-        .mockResolvedValue(mockFreeTrialUtil as any);
-      jest
-        .spyOn(freeTrialManager, 'isBlockedByCooldown')
-        .mockResolvedValue(true);
-
-      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+      const result = await checkoutService.getProductFreeTrialOffer(baseArgs);
 
       expect(result).toBeNull();
     });
@@ -3046,11 +3043,8 @@ describe('CheckoutService', () => {
       jest
         .spyOn(productConfigurationManager, 'getFreeTrial')
         .mockResolvedValue(mockFreeTrialUtil as any);
-      jest
-        .spyOn(freeTrialManager, 'isBlockedByCooldown')
-        .mockResolvedValue(false);
 
-      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+      const result = await checkoutService.getProductFreeTrialOffer(baseArgs);
 
       expect(result).toEqual(mockFreeTrial);
     });
@@ -3067,32 +3061,9 @@ describe('CheckoutService', () => {
         .spyOn(productConfigurationManager, 'getFreeTrial')
         .mockResolvedValue(mockFreeTrialUtil as any);
 
-      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+      const result = await checkoutService.getProductFreeTrialOffer(baseArgs);
 
       expect(result).toBeNull();
-    });
-
-    it('verifies arguments passed to isBlockedByCooldown', async () => {
-      jest
-        .spyOn(nimbusManager, 'fetchExperiments')
-        .mockResolvedValue(mockNimbusResult);
-      jest
-        .spyOn(nimbusManager, 'generateNimbusId')
-        .mockReturnValue('nimbus-id');
-      jest
-        .spyOn(productConfigurationManager, 'getFreeTrial')
-        .mockResolvedValue(mockFreeTrialUtil as any);
-      jest
-        .spyOn(freeTrialManager, 'isBlockedByCooldown')
-        .mockResolvedValue(false);
-
-      await checkoutService.getFreeTrialEligibility(baseArgs);
-
-      expect(freeTrialManager.isBlockedByCooldown).toHaveBeenCalledWith(
-        mockUid,
-        mockFreeTrial.internalName,
-        mockFreeTrial.cooldownPeriodMonths
-      );
     });
 
     it('returns first matching trial when multiple exist', async () => {
@@ -3117,11 +3088,8 @@ describe('CheckoutService', () => {
       jest
         .spyOn(productConfigurationManager, 'getFreeTrial')
         .mockResolvedValue(multiTrialUtil as any);
-      jest
-        .spyOn(freeTrialManager, 'isBlockedByCooldown')
-        .mockResolvedValue(false);
 
-      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+      const result = await checkoutService.getProductFreeTrialOffer(baseArgs);
 
       expect(result).toEqual(mockFreeTrial);
     });
@@ -3137,9 +3105,136 @@ describe('CheckoutService', () => {
         .spyOn(productConfigurationManager, 'getFreeTrial')
         .mockRejectedValue(new Error('CMS fetch failed'));
 
-      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+      const result = await checkoutService.getProductFreeTrialOffer(baseArgs);
 
       expect(result).toBeNull();
+    });
+
+    it('passes uid to generateNimbusId when provided', async () => {
+      const generateSpy = jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockNimbusResult);
+      jest
+        .spyOn(productConfigurationManager, 'getFreeTrial')
+        .mockResolvedValue(mockFreeTrialUtil as any);
+
+      await checkoutService.getProductFreeTrialOffer({
+        ...baseArgs,
+        uid: 'test-uid',
+        experimentationId: 'test-experiment-id',
+      });
+
+      expect(generateSpy).toHaveBeenCalledWith(
+        'test-uid',
+        'test-experiment-id'
+      );
+    });
+
+    it('passes only experimentationId for anonymous users', async () => {
+      const generateSpy = jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue('nimbus-id');
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockNimbusResult);
+      jest
+        .spyOn(productConfigurationManager, 'getFreeTrial')
+        .mockResolvedValue(mockFreeTrialUtil as any);
+
+      await checkoutService.getProductFreeTrialOffer({
+        ...baseArgs,
+        experimentationId: 'guest-abc-123',
+      });
+
+      expect(generateSpy).toHaveBeenCalledWith(undefined, 'guest-abc-123');
+    });
+  });
+
+  describe('getFreeTrialEligibility', () => {
+    const mockUid = faker.string.uuid();
+    const mockOfferingConfigId = faker.string.alphanumeric(10);
+    const mockCountryCode = 'US';
+    const mockInterval = 'monthly' as SubplatInterval;
+
+    const mockFreeTrial: FreeTrial = {
+      internalName: 'test-free-trial',
+      intervals: ['monthly'],
+      trialLengthDays: 30,
+      countries: ['US - United States', 'CA - Canada'],
+      cooldownPeriodMonths: 6,
+    };
+
+    const baseArgs = {
+      uid: mockUid,
+      offeringConfigId: mockOfferingConfigId,
+      countryCode: mockCountryCode,
+      interval: mockInterval,
+      eligibilityStatus: EligibilityStatus.CREATE,
+    };
+
+    it('returns {offer: null, userEligible: false} when eligibilityStatus is UPGRADE', async () => {
+      const result = await checkoutService.getFreeTrialEligibility({
+        ...baseArgs,
+        eligibilityStatus: EligibilityStatus.UPGRADE,
+      });
+
+      expect(result).toEqual({ offer: null, userEligible: false });
+    });
+
+    it('returns {offer: null, userEligible: false} when product has no offer', async () => {
+      jest
+        .spyOn(checkoutService, 'getProductFreeTrialOffer')
+        .mockResolvedValue(null);
+
+      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(result).toEqual({ offer: null, userEligible: false });
+    });
+
+    it('returns {offer, userEligible: false} when blocked by cooldown', async () => {
+      jest
+        .spyOn(checkoutService, 'getProductFreeTrialOffer')
+        .mockResolvedValue(mockFreeTrial);
+      jest
+        .spyOn(freeTrialManager, 'isBlockedByCooldown')
+        .mockResolvedValue(true);
+
+      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(result).toEqual({ offer: mockFreeTrial, userEligible: false });
+    });
+
+    it('returns {offer, userEligible: true} when product offers and user not blocked', async () => {
+      jest
+        .spyOn(checkoutService, 'getProductFreeTrialOffer')
+        .mockResolvedValue(mockFreeTrial);
+      jest
+        .spyOn(freeTrialManager, 'isBlockedByCooldown')
+        .mockResolvedValue(false);
+
+      const result = await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(result).toEqual({ offer: mockFreeTrial, userEligible: true });
+    });
+
+    it('verifies arguments passed to isBlockedByCooldown', async () => {
+      jest
+        .spyOn(checkoutService, 'getProductFreeTrialOffer')
+        .mockResolvedValue(mockFreeTrial);
+      jest
+        .spyOn(freeTrialManager, 'isBlockedByCooldown')
+        .mockResolvedValue(false);
+
+      await checkoutService.getFreeTrialEligibility(baseArgs);
+
+      expect(freeTrialManager.isBlockedByCooldown).toHaveBeenCalledWith(
+        mockUid,
+        mockFreeTrial.internalName,
+        mockFreeTrial.cooldownPeriodMonths
+      );
     });
   });
 });

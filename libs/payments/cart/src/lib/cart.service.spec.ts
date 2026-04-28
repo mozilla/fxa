@@ -675,7 +675,7 @@ describe('CartService', () => {
       });
       jest
         .spyOn(checkoutService, 'getFreeTrialEligibility')
-        .mockResolvedValue(null);
+        .mockResolvedValue({ offer: null, userEligible: false });
     });
 
     it('calls createCart with expected parameters', async () => {
@@ -1396,7 +1396,7 @@ describe('CartService', () => {
           .mockResolvedValue(mockPreviewInvoice);
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(null);
+          .mockResolvedValue({ offer: null, userEligible: false });
       });
 
       it('calls cartManager.updateFreshCart with no currency change', async () => {
@@ -1517,7 +1517,7 @@ describe('CartService', () => {
         jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
-          .mockResolvedValue(null);
+          .mockResolvedValue({ offer: null, userEligible: false });
       });
 
       it('success if coupon is valid for new customer', async () => {
@@ -1746,6 +1746,9 @@ describe('CartService', () => {
         .mockResolvedValue(mockLatestInvoicePreview);
       jest
         .spyOn(checkoutService, 'getFreeTrialEligibility')
+        .mockResolvedValue({ offer: null, userEligible: false });
+      jest
+        .spyOn(checkoutService, 'getProductFreeTrialOffer')
         .mockResolvedValue(null);
     });
 
@@ -1779,7 +1782,8 @@ describe('CartService', () => {
         },
         metricsOptedOut: false,
         hasActiveSubscriptions: true,
-        freeTrialEligibility: null,
+        freeTrialOffer: null,
+        freeTrialUserEligible: false,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -1842,7 +1846,8 @@ describe('CartService', () => {
           customerSessionClientSecret: mockCustomerSession.client_secret,
         },
         hasActiveSubscriptions: true,
-        freeTrialEligibility: null,
+        freeTrialOffer: null,
+        freeTrialUserEligible: false,
       });
       expect(
         'latestInvoicePreview' in result && result.latestInvoicePreview
@@ -1911,7 +1916,8 @@ describe('CartService', () => {
           customerSessionClientSecret: mockCustomerSession.client_secret,
         },
         hasActiveSubscriptions: true,
-        freeTrialEligibility: null,
+        freeTrialOffer: null,
+        freeTrialUserEligible: false,
       });
       expect(
         'latestInvoicePreview' in result && result.latestInvoicePreview
@@ -1962,7 +1968,8 @@ describe('CartService', () => {
         upcomingInvoicePreview: mockInvoicePreview,
         metricsOptedOut: false,
         hasActiveSubscriptions: false,
-        freeTrialEligibility: null,
+        freeTrialOffer: null,
+        freeTrialUserEligible: false,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -2035,7 +2042,8 @@ describe('CartService', () => {
           unitAmount: mockFromPrice.unit_amount,
         },
         hasActiveSubscriptions: true,
-        freeTrialEligibility: null,
+        freeTrialOffer: null,
+        freeTrialUserEligible: false,
         isUpgradeFromTrial: false,
       });
 
@@ -2481,10 +2489,11 @@ describe('CartService', () => {
         .mockResolvedValue(mockInvoicePreview);
       jest
         .spyOn(checkoutService, 'getFreeTrialEligibility')
-        .mockResolvedValue(mockFreeTrial);
+        .mockResolvedValue({ offer: mockFreeTrial, userEligible: true });
 
       const result = await cartService.getCart(mockCart.id);
-      expect(result.freeTrialEligibility).toEqual(mockFreeTrial);
+      expect(result.freeTrialOffer).toEqual(mockFreeTrial);
+      expect(result.freeTrialUserEligible).toBe(true);
       expect(checkoutService.getFreeTrialEligibility).toHaveBeenCalledWith({
         uid: mockCart.uid,
         offeringConfigId: mockCart.offeringConfigId,
@@ -2495,7 +2504,7 @@ describe('CartService', () => {
       });
     });
 
-    it('does not call getFreeTrialEligibility when cart was not promised a trial', async () => {
+    it('returns offer with userEligible false for signed-in cart when user is not eligible', async () => {
       const mockFreeTrial = FreeTrialFactory({ trialLengthDays: 7 });
       const mockCart = ResultCartFactory({
         uid: faker.string.uuid(),
@@ -2515,16 +2524,58 @@ describe('CartService', () => {
         .mockResolvedValue(mockInvoicePreview);
       jest
         .spyOn(checkoutService, 'getFreeTrialEligibility')
-        .mockResolvedValue(mockFreeTrial);
+        .mockResolvedValue({ offer: mockFreeTrial, userEligible: false });
 
       const result = await cartService.getCart(mockCart.id);
-      expect(result.freeTrialEligibility).toBeNull();
+      expect(result.freeTrialOffer).toEqual(mockFreeTrial);
+      expect(result.freeTrialUserEligible).toBe(false);
+    });
+
+    it('uses getProductFreeTrialOffer for anonymous cart in START state', async () => {
+      const mockFreeTrial = FreeTrialFactory({ trialLengthDays: 7 });
+      const mockCart = ResultCartFactory({
+        uid: undefined,
+        state: CartState.START,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+      });
+      const mockInvoicePreview = InvoicePreviewFactory();
+      const mockSearchParams = { experimentationPreview: 'true' };
+      const mockExperimentationId = 'guest-experiment-123';
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+      jest
+        .spyOn(invoiceManager, 'previewUpcoming')
+        .mockResolvedValue(mockInvoicePreview);
+      jest
+        .spyOn(checkoutService, 'getProductFreeTrialOffer')
+        .mockResolvedValue(mockFreeTrial);
+
+      const result = await cartService.getCart(
+        mockCart.id,
+        mockSearchParams,
+        mockExperimentationId
+      );
+      expect(result.freeTrialOffer).toEqual(mockFreeTrial);
+      expect(result.freeTrialUserEligible).toBe(false);
+      expect(checkoutService.getProductFreeTrialOffer).toHaveBeenCalledWith({
+        offeringConfigId: mockCart.offeringConfigId,
+        countryCode: mockCart.taxAddress?.countryCode,
+        interval: mockCart.interval,
+        experimentationId: mockExperimentationId,
+        searchParams: mockSearchParams,
+      });
       expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
     });
 
-    it('sets freeTrialEligibility to null when cart has no uid', async () => {
+    it('returns null offer for anonymous cart when product has no trial', async () => {
       const mockCart = ResultCartFactory({
         uid: undefined,
+        state: CartState.START,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
         eligibilityStatus: CartEligibilityStatus.CREATE,
@@ -2538,13 +2589,17 @@ describe('CartService', () => {
       jest
         .spyOn(invoiceManager, 'previewUpcoming')
         .mockResolvedValue(mockInvoicePreview);
+      jest
+        .spyOn(checkoutService, 'getProductFreeTrialOffer')
+        .mockResolvedValue(null);
 
       const result = await cartService.getCart(mockCart.id);
-      expect(result.freeTrialEligibility).toBeNull();
+      expect(result.freeTrialOffer).toBeNull();
+      expect(result.freeTrialUserEligible).toBe(false);
       expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
     });
 
-    it('does not call getFreeTrialEligibility when cart is not START and subscription has no trial_end', async () => {
+    it('does not call getFreeTrialEligibility when cart is not START', async () => {
       const mockCart = ResultCartFactory({
         uid: faker.string.uuid(),
         state: CartState.SUCCESS,
@@ -2566,9 +2621,10 @@ describe('CartService', () => {
       jest.spyOn(paymentMethodManager, 'retrieve').mockResolvedValue(mockPM);
 
       const result = await cartService.getCart(mockCart.id);
-      expect(result.freeTrialEligibility).toBeNull();
-
+      expect(result.freeTrialOffer).toBeNull();
+      expect(result.freeTrialUserEligible).toBe(false);
       expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
+      expect(checkoutService.getProductFreeTrialOffer).not.toHaveBeenCalled();
     });
 
     it('does not fetch trial config when cart is PROCESSING', async () => {
@@ -2589,8 +2645,10 @@ describe('CartService', () => {
         .mockResolvedValue(mockInvoicePreview);
 
       const result = await cartService.getCart(mockCart.id);
-      expect(result.freeTrialEligibility).toBeNull();
+      expect(result.freeTrialOffer).toBeNull();
+      expect(result.freeTrialUserEligible).toBe(false);
       expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
+      expect(checkoutService.getProductFreeTrialOffer).not.toHaveBeenCalled();
     });
 
     it('populates trialStartDate and trialEndDate from subscription when trial_end exists', async () => {
@@ -2616,7 +2674,8 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result.trialStartDate).toBe(mockTrialSubscription.trial_start);
       expect(result.trialEndDate).toBe(mockTrialSubscription.trial_end);
-      expect(result.freeTrialEligibility).toBeNull();
+      expect(result.freeTrialOffer).toBeNull();
+      expect(result.freeTrialUserEligible).toBe(false);
       expect(checkoutService.getFreeTrialEligibility).not.toHaveBeenCalled();
     });
   });
