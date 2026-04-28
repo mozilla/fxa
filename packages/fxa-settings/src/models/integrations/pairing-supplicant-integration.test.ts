@@ -4,6 +4,7 @@
 
 import { GenericData } from '../../lib/model-data';
 import {
+  PAIR_COMPLETE_STORAGE_PREFIX,
   PairingSupplicantIntegration,
   SupplicantState,
 } from './pairing-supplicant-integration';
@@ -70,6 +71,7 @@ describe('PairingSupplicantIntegration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     Object.keys(listeners).forEach((k) => delete listeners[k]);
+    sessionStorage.clear();
   });
 
   describe('openChannel', () => {
@@ -167,6 +169,26 @@ describe('PairingSupplicantIntegration', () => {
       expect(integration.state).toBe(SupplicantState.Failed);
       expect(integration.error?.message).toContain('without providing');
     });
+
+    it('sets sessionStorage completion marker on Complete', async () => {
+      const integration = createIntegration();
+      await integration.openChannel('wss://ch.example.com', 'chan-42', 'k');
+      emit('connected');
+      emit('remote:pair:auth:metadata', {
+        email: 'u@e.com',
+        remoteMetaData: { ua: '' },
+      });
+      emit('remote:pair:auth:authorize', {
+        code: VALID_OAUTH_CODE,
+        state: 'abc123',
+      });
+      await integration.supplicantApprove();
+
+      expect(integration.state).toBe(SupplicantState.Complete);
+      expect(
+        sessionStorage.getItem(PAIR_COMPLETE_STORAGE_PREFIX + 'chan-42')
+      ).toBe('1');
+    });
   });
 
   describe('error handling', () => {
@@ -206,11 +228,73 @@ describe('PairingSupplicantIntegration', () => {
       expect(onError).not.toHaveBeenCalled();
     });
 
-    it('channel error → Failed', async () => {
+    it('channel error after connect → Failed', async () => {
       const integration = createIntegration();
       await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      emit('connected');
       emit('error', new Error('WebSocket failed'));
       expect(integration.state).toBe(SupplicantState.Failed);
+    });
+
+    it('channel close while still Connecting → Failed when no completion marker', async () => {
+      // Without the post-completion sessionStorage marker, a close during
+      // initial connect is a real failure and must surface — otherwise the
+      // user sits on the loading screen forever.
+      const integration = createIntegration();
+      const onError = jest.fn();
+      integration.onError = onError;
+
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      // Do NOT emit 'connected'
+      emit('close');
+
+      expect(integration.state).toBe(SupplicantState.Failed);
+      expect(onError).toHaveBeenCalled();
+    });
+
+    it('channel error while still Connecting → Failed when no completion marker', async () => {
+      const integration = createIntegration();
+      const onError = jest.fn();
+      integration.onError = onError;
+
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      emit('error', new Error('WebSocket failed'));
+
+      expect(integration.state).toBe(SupplicantState.Failed);
+      expect(onError).toHaveBeenCalled();
+    });
+
+    it('channel close while still Connecting is ignored when completion marker is set', async () => {
+      // Matches legacy WaitForConnectionToChannelServer.socketClosed() no-op.
+      // Covers the Android Firefox post-OAuth reload case where the QR URL
+      // is re-entered after the channel has already been consumed.
+      sessionStorage.setItem(PAIR_COMPLETE_STORAGE_PREFIX + 'c', '1');
+      const integration = createIntegration();
+      const onError = jest.fn();
+      const onStateChange = jest.fn();
+      integration.onError = onError;
+      integration.onStateChange = onStateChange;
+
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      // Do NOT emit 'connected' — simulate channel rejecting the reconnection
+      emit('close');
+
+      expect(integration.state).toBe(SupplicantState.Connecting);
+      expect(onError).not.toHaveBeenCalled();
+      expect(onStateChange).not.toHaveBeenCalled();
+    });
+
+    it('channel error while still Connecting is ignored when completion marker is set', async () => {
+      sessionStorage.setItem(PAIR_COMPLETE_STORAGE_PREFIX + 'c', '1');
+      const integration = createIntegration();
+      const onError = jest.fn();
+      integration.onError = onError;
+
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      emit('error', new Error('WebSocket failed'));
+
+      expect(integration.state).toBe(SupplicantState.Connecting);
+      expect(onError).not.toHaveBeenCalled();
     });
 
     it('supplicantApprove send failure → Failed', async () => {

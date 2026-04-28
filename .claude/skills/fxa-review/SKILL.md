@@ -118,6 +118,7 @@ Tell this agent it is a QA engineer who understands FXA's testing patterns and c
 - Flag patterns likely to cause open handle warnings (unclosed connections, uncleared timers)
 - Flag missing `act()` wrapping in React test state updates
 - Flag over-mocking: mocking internal functions in the same package instead of at system boundaries
+- Flag when there is a jira ticket number in a test name. We do not put tickets in test names.
 
 Output JSON array with fields: severity, category ("Test Quality"), subcategory, file, line, issue, recommendation.
 

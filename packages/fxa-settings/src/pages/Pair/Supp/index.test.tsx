@@ -18,11 +18,34 @@ jest.mock('../../../models/integrations/pairing-supplicant-integration', () => {
   const { MOCK_SUPPLICANT_STATE: SupplicantState } = jest.requireActual(
     '../__mocks__/pairing-test-helpers'
   );
+  const PAIR_COMPLETE_STORAGE_PREFIX = 'fxa.pair.complete.';
   return {
     SupplicantState,
+    PAIR_COMPLETE_STORAGE_PREFIX,
+    isChannelComplete: (channelId: string) => {
+      try {
+        return (
+          globalThis.sessionStorage.getItem(
+            PAIR_COMPLETE_STORAGE_PREFIX + channelId
+          ) === '1'
+        );
+      } catch {
+        return false;
+      }
+    },
+    clearChannelComplete: (channelId: string) => {
+      try {
+        globalThis.sessionStorage.removeItem(
+          PAIR_COMPLETE_STORAGE_PREFIX + channelId
+        );
+      } catch {
+        // ignore
+      }
+    },
     PairingSupplicantIntegration: class {
       validatePairingClient = jest.fn().mockReturnValue(true);
       openChannel = jest.fn().mockResolvedValue(undefined);
+      getClientId = jest.fn().mockReturnValue('test-client');
       onStateChange: ((state: string) => void) | null = null;
       onError: ((err: unknown) => void) | null = null;
       state = SupplicantState.Connecting;
@@ -88,11 +111,13 @@ describe('Pair/Supp page', () => {
       );
       mockIntegration = new PSI();
       mockNavigateWithQuery.mockClear();
+      sessionStorage.clear();
       window.location.hash = '#channel_id=test-chan&channel_key=dGVzdA';
     });
 
     afterEach(() => {
       window.location.hash = '';
+      sessionStorage.clear();
     });
 
     it('shows error when hash params are missing', () => {
@@ -132,6 +157,27 @@ describe('Pair/Supp page', () => {
         mockIntegration.onStateChange?.('waiting_for_authorizations');
       });
       expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/supp/allow');
+    });
+
+    it('redirects to success when completion marker is set for this channel', () => {
+      sessionStorage.setItem('fxa.pair.complete.test-chan', '1');
+      renderWithLocalizationProvider(
+        <Supp integration={mockIntegration as unknown as Integration} />
+      );
+      expect(mockIntegration.openChannel).not.toHaveBeenCalled();
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith(
+        '/oauth/success/test-client'
+      );
+      expect(sessionStorage.getItem('fxa.pair.complete.test-chan')).toBeNull();
+    });
+
+    it('ignores completion marker for a different channel', () => {
+      sessionStorage.setItem('fxa.pair.complete.other-chan', '1');
+      renderWithLocalizationProvider(
+        <Supp integration={mockIntegration as unknown as Integration} />
+      );
+      expect(mockIntegration.openChannel).toHaveBeenCalled();
+      expect(mockNavigateWithQuery).not.toHaveBeenCalled();
     });
   });
 });
