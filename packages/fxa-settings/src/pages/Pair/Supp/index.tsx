@@ -12,15 +12,12 @@ import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import config from '../../../lib/config';
 import { Integration } from '../../../models';
 import {
+  clearChannelComplete,
+  isChannelComplete,
   PairingSupplicantIntegration,
   SupplicantState,
 } from '../../../models/integrations/pairing-supplicant-integration';
 
-// pair/supp is the gateway to the supplicant pairing flow.
-// It opens the WebSocket channel via the integration (which persists across
-// page transitions) and waits for connection + metadata before navigating
-// to pair/supp/allow.
-//
 // URL format: /pair/supp?client_id=...&scope=...#channel_id=...&channel_key=...
 
 export const viewName = 'pair.supp';
@@ -43,8 +40,7 @@ const Supp = ({
       return;
     }
 
-    // Supplicant receives channel_id and channel_key in the URL hash
-    // (never the query string) so they're not sent to the server.
+    // channel_id/key live in the URL hash so they're not sent to the server.
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const channelId = hashParams.get('channel_id');
     const channelKey = hashParams.get('channel_key');
@@ -55,13 +51,24 @@ const Supp = ({
       return;
     }
 
-    // Validate client_id against pairing allowlist (matching Backbone behavior)
     if (!integration.validatePairingClient()) {
       setError('Invalid pairing client');
       return;
     }
 
-    // Subscribe to state changes — navigate when metadata is received
+    if (isChannelComplete(channelId)) {
+      const clientId = integration.getClientId();
+      if (clientId) {
+        // We can now remove the flag, since we are about to navigate to the success page
+        clearChannelComplete(channelId);
+        navigateWithQuery(`/oauth/success/${clientId}`);
+        return;
+      }
+      // Without a clientId, fall through rather than build /oauth/success/.
+      // Don't clear the marker so isPostCompletionReconnect() can still
+      // suppress the consumed-channel close/error from the WS reconnect.
+    }
+
     integration.onStateChange = (state: SupplicantState) => {
       if (state === SupplicantState.WaitingForAuthorizations) {
         navigateWithQuery('/pair/supp/allow');
@@ -74,8 +81,7 @@ const Supp = ({
       navigateWithQuery('/pair/failure');
     };
 
-    // Open channel — the integration manages the WebSocket connection
-    // and it persists across page transitions (component unmounts)
+    // The integration owns the WebSocket and persists across page transitions.
     integration
       .openChannel(channelServerUri, channelId, channelKey)
       .catch(() => {
@@ -83,8 +89,7 @@ const Supp = ({
       });
 
     return () => {
-      // Don't close the channel — it needs to persist for SuppAllow/WaitForAuth.
-      // Just unsubscribe our callbacks.
+      // Unsubscribe only — the channel must outlive this component for SuppAllow.
       integration.onStateChange = null;
       integration.onError = null;
     };

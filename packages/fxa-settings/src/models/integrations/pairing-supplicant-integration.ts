@@ -22,6 +22,36 @@ import config from '../../lib/config';
 const OAUTH_WEBCHANNEL_REDIRECT =
   'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel';
 
+/** FXA-13616: marks a channel consumed so a post-OAuth webview reload can short-circuit. */
+export const PAIR_COMPLETE_STORAGE_PREFIX = 'fxa.pair.complete.';
+
+/** Read the channel-complete marker, tolerating an unavailable sessionStorage. */
+export function isChannelComplete(channelId: string): boolean {
+  try {
+    return (
+      sessionStorage.getItem(PAIR_COMPLETE_STORAGE_PREFIX + channelId) === '1'
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function clearChannelComplete(channelId: string): void {
+  try {
+    sessionStorage.removeItem(PAIR_COMPLETE_STORAGE_PREFIX + channelId);
+  } catch {
+    // sessionStorage may be unavailable (private mode, quota, SSR).
+  }
+}
+
+function setChannelComplete(channelId: string): void {
+  try {
+    sessionStorage.setItem(PAIR_COMPLETE_STORAGE_PREFIX + channelId, '1');
+  } catch {
+    // sessionStorage may be unavailable (private mode, quota, SSR).
+  }
+}
+
 /**
  * Supplicant state — mirrors the Backbone state machine but as a
  * simple enum that React components can switch on.
@@ -64,6 +94,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   private _error: Error | { errno: number; message: string } | null = null;
   private _email = '';
   private _deviceName = '';
+  private _channelId: string | null = null;
 
   public onStateChange: ((state: SupplicantState) => void) | null = null;
   public onError: ((error: unknown) => void) | null = null;
@@ -168,6 +199,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       return; // already open
     }
 
+    this._channelId = channelId;
     this._channel = new PairingChannelClient();
 
     // Listen for channel events
@@ -285,8 +317,19 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     }
   };
 
+  /** True when a close/error during connect is the FXA-13616 reload, not a real failure. */
+  private isPostCompletionReconnect(): boolean {
+    return (
+      this._state === SupplicantState.Connecting &&
+      this._channelId !== null &&
+      isChannelComplete(this._channelId)
+    );
+  }
+
   private handleClose = () => {
-    // Channel closed before reaching a terminal state — surface as an error.
+    if (this.isPostCompletionReconnect()) {
+      return;
+    }
     this.fail({
       errno: 1006,
       message: 'Connection to remote device closed, please try again',
@@ -294,6 +337,9 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   };
 
   private handleChannelError = (event: Event) => {
+    if (this.isPostCompletionReconnect()) {
+      return;
+    }
     this.fail((event as CustomEvent).detail);
   };
 
@@ -311,6 +357,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
         redirect: OAUTH_WEBCHANNEL_REDIRECT,
         action: 'pairing',
       });
+    }
+
+    if (this._channelId) {
+      setChannelComplete(this._channelId);
     }
 
     this.setState(SupplicantState.Complete);
