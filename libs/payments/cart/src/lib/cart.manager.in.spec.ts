@@ -24,6 +24,7 @@ import {
   FinishErrorCartFactory,
   SetupCartFactory,
   UpdateCartFactory,
+  UpdateProcessingCartFactory,
 } from './cart.factories';
 import { CartManager } from './cart.manager';
 import { ResultCart } from './cart.types';
@@ -233,6 +234,21 @@ describe('CartManager', () => {
       }
     });
 
+    it('fails - rejects PROCESSING state', async () => {
+      await directUpdate(db, { state: CartState.PROCESSING }, testCart.id);
+      testCart = await cartManager.fetchCartById(testCart.id);
+      try {
+        await cartManager.updateFreshCart(
+          testCart.id,
+          testCart.version,
+          UpdateCartFactory()
+        );
+        fail('Error in updateFreshCart');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CartInvalidStateForActionError);
+      }
+    });
+
     it('fails - cart could not be updated', async () => {
       await directUpdate(
         db,
@@ -246,6 +262,56 @@ describe('CartManager', () => {
           UpdateCartFactory()
         );
         fail('Error in updateFreshCart');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CartVersionMismatchError);
+      }
+    });
+  });
+
+  describe('updateProcessingCart', () => {
+    it('succeeds', async () => {
+      const updateItems = UpdateProcessingCartFactory({
+        stripeSubscriptionId: 'sub_test123',
+      });
+      await directUpdate(db, { state: CartState.PROCESSING }, testCart.id);
+      testCart = await cartManager.fetchCartById(testCart.id);
+
+      await cartManager.updateProcessingCart(
+        testCart.id,
+        testCart.version,
+        updateItems
+      );
+      const cart = await cartManager.fetchCartById(testCart.id);
+
+      expect(cart).toEqual(expect.objectContaining(updateItems));
+    });
+
+    it('fails - rejects START state', async () => {
+      try {
+        await cartManager.updateProcessingCart(
+          testCart.id,
+          testCart.version,
+          UpdateProcessingCartFactory()
+        );
+        fail('Error in updateProcessingCart');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CartInvalidStateForActionError);
+      }
+    });
+
+    it('fails - cart could not be updated', async () => {
+      await directUpdate(
+        db,
+        { state: CartState.PROCESSING, version: RANDOM_VERSION },
+        testCart.id
+      );
+      try {
+        await cartManager.updateProcessingCart(
+          testCart.id,
+          testCart.version,
+          UpdateProcessingCartFactory()
+        );
+        fail('Error in updateProcessingCart');
       } catch (error) {
         expect(error).toBeInstanceOf(CartVersionMismatchError);
       }

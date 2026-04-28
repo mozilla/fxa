@@ -19,6 +19,7 @@ import {
   TaxAmount,
   UpdateCart,
   UpdateCartInput,
+  UpdateProcessingCart,
   type BaseCartDTO,
   type FailCartDTO,
   type Invoice,
@@ -114,6 +115,12 @@ export const UpdateCartInputFactory = (
 export const UpdateCartFactory = (
   override?: Partial<UpdateCart>
 ): UpdateCart => ({
+  ...override,
+});
+
+export const UpdateProcessingCartFactory = (
+  override?: Partial<UpdateProcessingCart>
+): UpdateProcessingCart => ({
   ...override,
 });
 

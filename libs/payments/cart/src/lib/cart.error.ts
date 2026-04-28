@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseError } from '@fxa/shared/error';
-import { FinishErrorCart, SetupCart, UpdateCart } from './cart.types';
+import {
+  FinishErrorCart,
+  SetupCart,
+  UpdateCart,
+  UpdateProcessingCart,
+} from './cart.types';
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 
 /**
@@ -90,6 +95,20 @@ export class UpdateFreshCartFailedError extends CartError {
       cause
     );
     this.name = 'UpdateFreshCartFailedError';
+  }
+}
+
+export class UpdateProcessingCartFailedError extends CartError {
+  constructor(cartId: string, items: UpdateProcessingCart, cause?: Error) {
+    super(
+      'Update processing cart failed',
+      {
+        cartId,
+        items,
+      },
+      cause
+    );
+    this.name = 'UpdateProcessingCartFailedError';
   }
 }
 
