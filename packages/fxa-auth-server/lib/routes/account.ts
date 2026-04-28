@@ -2867,6 +2867,11 @@ export const accountRoutes = (
       },
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_LOGIN_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         validate: {
           query: isA.object({
             keys: isA.boolean().optional().description(DESCRIPTION.keys),
