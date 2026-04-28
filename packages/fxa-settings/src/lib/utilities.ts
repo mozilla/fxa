@@ -204,15 +204,20 @@ export function navigateWithQueryHelper(
   options?: NavigateOptions<{}>,
   includeHash: boolean = true
 ): Promise<void> {
-  let path = to;
+  const [destinationPath, destinationHash = ''] = to.split('#');
+  let path = destinationPath;
 
-  if (to.includes('?')) {
-    path = to;
-  } else if (location.search && location.search !== '?') {
-    path = `${to}${location.search}`;
+  if (
+    !destinationPath.includes('?') &&
+    location.search &&
+    location.search !== '?'
+  ) {
+    path = `${path}${location.search}`;
   }
 
-  if (includeHash && location.hash) {
+  if (to.includes('#')) {
+    path = `${path}#${destinationHash}`;
+  } else if (includeHash && location.hash) {
     path = `${path}${location.hash}`;
   }
 
