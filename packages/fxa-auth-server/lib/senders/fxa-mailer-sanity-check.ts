@@ -10,6 +10,7 @@ import {
   NodeRendererBindings,
 } from '@fxa/accounts/email-renderer';
 import { ConfigType } from '../../config';
+import { AccountEventsManager } from '../account-events';
 
 /**
  * This is jsut a strong typed driver that allows us to validate the params we pass into FxaMailer
@@ -22,7 +23,8 @@ const fxaMailer = new FxaMailer(
   {} as unknown as EmailSender,
   {} as unknown as EmailLinkBuilder,
   {} as unknown as ConfigType['smtp'],
-  {} as unknown as NodeRendererBindings
+  {} as unknown as NodeRendererBindings,
+  {} as unknown as AccountEventsManager
 );
 
 // Setup fake / mocked objects

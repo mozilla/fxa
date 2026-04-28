@@ -373,7 +373,8 @@ async function run(config) {
     emailSender,
     linkBuilder,
     config.smtp,
-    new NodeRendererBindings()
+    new NodeRendererBindings(),
+    accountEventsManager
   );
   Container.set(FxaMailer, fxaMailer);
 

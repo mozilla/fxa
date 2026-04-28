@@ -321,7 +321,8 @@ async function resetAccounts(
     emailSender,
     linkBuilder,
     config.smtp,
-    new NodeRendererBindings()
+    new NodeRendererBindings(),
+    accountEventManager
   );
 
   for (const acct of accountsToReset) {

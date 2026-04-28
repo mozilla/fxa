@@ -62,6 +62,7 @@ import {
 import { EmailSender } from '@fxa/accounts/email-sender';
 import { FxaEmailRenderer } from '@fxa/accounts/email-renderer';
 import { ConfigType } from '../../config';
+import { AccountEventsManager } from '../account-events';
 
 const SERVER = 'fxa-auth-server';
 
@@ -118,7 +119,8 @@ export class FxaMailer extends FxaEmailRenderer {
     private emailSender: EmailSender,
     private linkBuilder: EmailLinkBuilder,
     private mailerConfig: ConfigType['smtp'],
-    bindings: NodeRendererBindings
+    bindings: NodeRendererBindings,
+    private accountEventsManager?: AccountEventsManager
   ) {
     super(bindings);
   }
@@ -1820,7 +1822,14 @@ export class FxaMailer extends FxaEmailRenderer {
   }
 
   private async sendEmail(
-    opts: { to: string; cc?: string[]; cmsRpFromName?: string },
+    opts: {
+      to: string;
+      cc?: string[];
+      cmsRpFromName?: string;
+      uid?: string;
+      deviceId?: string;
+      flowId?: string;
+    },
     headers: Record<string, string>,
     rendered: RenderedTemplate,
     throwErrorOnSendFailure = true
@@ -1838,7 +1847,7 @@ export class FxaMailer extends FxaEmailRenderer {
       ? `${cmsRpFromName} <${senderEmail}>`
       : this.mailerConfig.sender;
 
-    return this.emailSender.send(
+    const result = await this.emailSender.send(
       {
         to,
         cc,
@@ -1848,5 +1857,24 @@ export class FxaMailer extends FxaEmailRenderer {
       },
       throwErrorOnSendFailure
     );
+
+    if (opts.uid) {
+      this.accountEventsManager?.recordEmailEvent(
+        opts.uid,
+        {
+          createdAt: Date.now(),
+          template: rendered.template,
+          deviceId: opts.deviceId,
+          flowId: opts.flowId,
+          service:
+            headers['X-Service-Id'] || headers['x-service-id'] || undefined,
+          name: rendered.template,
+          eventType: 'emailEvent',
+        },
+        'emailSent'
+      );
+    }
+
+    return result;
   }
 }
