@@ -389,6 +389,7 @@ export default class AuthClient {
 
     // For specific endpoints + HTTPS, upgrade credentials to include cookies for WAF challenges
     const includeCredentials = [
+      '/account/login',
       '/account/create',
       '/password/forgot/send_otp',
       '/account/passwordless/send_code',
