@@ -4,6 +4,7 @@
 
 'use server';
 
+import { headers } from 'next/headers';
 import { getApp } from '../nestapp/app';
 import { parseSearchParams } from '../utils/searchParams';
 
@@ -11,9 +12,11 @@ export const getCartAction = async (
   cartId: string,
   searchParams?: Record<string, string | string[] | undefined>
 ) => {
+  const experimentationId = (await headers()).get('x-experimentation-id') || undefined;
   const cart = await getApp().getActionsService().getCart({
     cartId,
     searchParams: parseSearchParams(searchParams),
+    experimentationId,
   });
 
   return cart;

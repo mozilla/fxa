@@ -80,7 +80,8 @@ export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   fromPrice?: FromPrice;
   taxAddress: TaxAddress;
   currency: string;
-  freeTrialEligibility?: FreeTrial | null;
+  freeTrialOffer?: FreeTrial | null;
+  freeTrialUserEligible?: boolean;
   trialStartDate?: number;
   trialEndDate?: number;
   isUpgradeFromTrial?: boolean;

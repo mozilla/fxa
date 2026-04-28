@@ -19,3 +19,5 @@ export const OFFERING_LINKS = {
   relay: 'https://relay.firefox.com/',
   vpn: 'https://vpn.mozilla.org/',
 };
+
+export const SAW_TRIAL_OFFER_COOKIE_PREFIX = 'saw_trial_offer_';
