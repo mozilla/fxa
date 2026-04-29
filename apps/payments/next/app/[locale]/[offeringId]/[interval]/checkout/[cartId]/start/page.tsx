@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import Image from 'next/image';
 import clsx from 'clsx';
 import {
@@ -10,6 +10,7 @@ import {
   buildRedirectUrl,
   ButtonVariant,
   PaymentSection,
+  SAW_TRIAL_OFFER_COOKIE_PREFIX,
   SignInForm,
 } from '@fxa/payments/ui';
 import {
@@ -63,8 +64,11 @@ export default async function Checkout({
   const { locale } = resolvedParams;
 
   const headersList = await headers();
+  const cookieStore = await cookies();
   const acceptLanguage = headersList.get('accept-language');
   const nonce = headersList.get('x-nonce') || undefined;
+  const sawTrialOfferCookieName = `${SAW_TRIAL_OFFER_COOKIE_PREFIX}${resolvedParams.offeringId}`;
+  const sawTrialOffer = !!cookieStore.get(sawTrialOfferCookieName);
   const sessionPromise = auth();
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const cmsDataPromise = fetchCMSData(
@@ -295,6 +299,7 @@ export default async function Checkout({
               paypalClientId={config.paypal.clientId}
               sessionUid={session?.user?.id}
               sessionEmail={session?.user?.email ?? undefined}
+              sawTrialOffer={sawTrialOffer}
             />
           )}
       </section>

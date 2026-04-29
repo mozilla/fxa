@@ -211,8 +211,13 @@ export class NextJSActionsService {
   async getCart(args: {
     cartId: string;
     searchParams?: PaymentsSearchParams;
+    experimentationId?: string;
   }) {
-    return this.cartService.getCart(args.cartId, args.searchParams);
+    return this.cartService.getCart(
+      args.cartId,
+      args.searchParams,
+      args.experimentationId
+    );
   }
 
   @SanitizeExceptions()

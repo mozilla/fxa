@@ -12,4 +12,8 @@ export class GetCartActionArgs {
   @IsObject()
   @IsOptional()
   searchParams?: PaymentsSearchParams;
+
+  @IsString()
+  @IsOptional()
+  experimentationId?: string;
 }

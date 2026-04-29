@@ -57,6 +57,12 @@ export default async function CheckoutLayout({
   const purchaseDetails =
     cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
     cms.defaultPurchase.purchaseDetails;
+  const showFreeTrialOffer =
+    !!cart.freeTrialOffer &&
+    (!session?.user || !!cart.freeTrialUserEligible);
+  const freeTrialOffer = showFreeTrialOffer
+    ? cart.freeTrialOffer
+    : null;
   return (
     <MetricsWrapper cart={cart}>
       <Header
@@ -82,7 +88,7 @@ export default async function CheckoutLayout({
           <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
             <PurchaseDetails
               invoice={
-                cart.trialEndDate || cart.freeTrialEligibility
+                cart.trialEndDate || freeTrialOffer
                   ? cart.upcomingInvoicePreview
                   : (cart.latestInvoicePreview ?? cart.upcomingInvoicePreview)
               }
@@ -115,7 +121,7 @@ export default async function CheckoutLayout({
                 cart.state === CartState.PROCESSING ||
                 cart.state === CartState.SUCCESS
               }
-              freeTrialEligibility={cart.freeTrialEligibility}
+              freeTrialOffer={freeTrialOffer}
               firstChargeAmount={cart.upcomingInvoicePreview.totalAmount}
               interval={cart.interval}
               cartState={cart.state}

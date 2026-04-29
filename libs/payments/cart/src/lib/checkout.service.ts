@@ -251,16 +251,17 @@ export class CheckoutService {
 
     let freeTrial: FreeTrial | null = null;
     if (cart.isFreeTrial) {
-      freeTrial = await this.getFreeTrialEligibility({
+      const freeTrialResult = await this.getFreeTrialEligibility({
         uid,
         offeringConfigId: cart.offeringConfigId,
         countryCode: taxAddress.countryCode,
         interval: cart.interval as SubplatInterval,
         eligibilityStatus: eligibility.subscriptionEligibilityResult,
       });
-      if (!freeTrial) {
+      if (!freeTrialResult.userEligible || !freeTrialResult.offer) {
         throw new CartFreeTrialMismatchError(cart.id, true, false);
       }
+      freeTrial = freeTrialResult.offer;
     }
 
     // re-validate total amount against upcoming invoice
@@ -994,12 +995,12 @@ export class CheckoutService {
     }
   }
 
-  async getFreeTrialEligibility(args: {
-    uid: string;
+  async getProductFreeTrialOffer(args: {
     offeringConfigId: string;
     countryCode: string;
     interval: SubplatInterval;
-    eligibilityStatus: EligibilityStatus;
+    uid?: string;
+    experimentationId?: string;
     searchParams?: PaymentsSearchParams;
   }): Promise<FreeTrial | null> {
     const {
@@ -1007,17 +1008,13 @@ export class CheckoutService {
       offeringConfigId,
       countryCode,
       interval,
-      eligibilityStatus,
+      experimentationId,
       searchParams,
     } = args;
 
-    if (eligibilityStatus !== EligibilityStatus.CREATE) {
-      return null;
-    }
-
     const fetchResult = await Promise.all([
       this.nimbusManager.fetchExperiments({
-        nimbusUserId: this.nimbusManager.generateNimbusId(uid),
+        nimbusUserId: this.nimbusManager.generateNimbusId(uid, experimentationId),
         preview: searchParams?.experimentationPreview === 'true',
       }),
       this.productConfigurationManager.getFreeTrial(offeringConfigId),
@@ -1028,7 +1025,6 @@ export class CheckoutService {
           offeringConfigId: offeringConfigId,
           countryCode: countryCode,
           interval: interval,
-          eligibilityStatus: eligibilityStatus,
         },
       });
       return null;
@@ -1056,21 +1052,44 @@ export class CheckoutService {
         trial.countries.some((country) => country.slice(0, 2) === countryCode) &&
         trial.intervals.includes(interval)
     );
+    return matchingTrial ?? null;
+  }
 
-    if (!matchingTrial) {
-      return null;
+  async getFreeTrialEligibility(args: {
+    uid: string;
+    offeringConfigId: string;
+    countryCode: string;
+    interval: SubplatInterval;
+    eligibilityStatus: EligibilityStatus;
+    experimentationId?: string;
+    searchParams?: PaymentsSearchParams;
+  }): Promise<{ offer: FreeTrial | null; userEligible: boolean }> {
+    if (args.eligibilityStatus !== EligibilityStatus.CREATE) {
+      return { offer: null, userEligible: false };
     }
+
+    const offer = await this.getProductFreeTrialOffer({
+      offeringConfigId: args.offeringConfigId,
+      countryCode: args.countryCode,
+      interval: args.interval,
+      uid: args.uid,
+      experimentationId: args.experimentationId,
+      searchParams: args.searchParams
+    });
+    if (!offer) {
+      return { offer: null, userEligible: false };
+    }
+    //return { offer: offer, userEligible: false }; USED FOR TESTING, remove when done
 
     const isBlockedByCooldown = await this.freeTrialManager.isBlockedByCooldown(
-      uid,
-      matchingTrial.internalName,
-      matchingTrial.cooldownPeriodMonths
+      args.uid,
+      offer.internalName,
+      offer.cooldownPeriodMonths
     );
 
-    if (isBlockedByCooldown) {
-      return null;
-    }
-
-    return matchingTrial;
+    return {
+      offer,
+      userEligible: !isBlockedByCooldown
+    };
   }
 }
