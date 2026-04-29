@@ -388,6 +388,7 @@ export default class AuthClient {
     };
 
     // For specific endpoints + HTTPS, upgrade credentials to include cookies for WAF challenges
+    const pathname = path.split('?')[0];
     const includeCredentials = [
       '/account/login',
       '/account/create',
@@ -395,7 +396,7 @@ export default class AuthClient {
       '/account/passwordless/send_code',
       '/account/passwordless/confirm_code',
       '/account/passwordless/resend_code',
-    ].some((endpoint) => path.startsWith(endpoint));
+    ].includes(pathname);
 
     if (includeCredentials && new URL(this.uri).protocol === 'https:') {
       requestOptions.credentials = 'include';
