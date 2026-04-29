@@ -212,9 +212,43 @@ describe('PagePasskeyAdd', () => {
     ).toHaveBeenCalledWith({
       event: { reason: 'not_allowed' },
     });
+    expect(mockHandleWebAuthnError).toHaveBeenCalledWith(
+      cancelError,
+      'registration',
+      expect.any(Function),
+      { hadExcludeCredentials: false }
+    );
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });
+  });
+
+  it('forwards hadExcludeCredentials=true when the server-sent options listed existing passkeys', async () => {
+    mockBeginPasskeyRegistration.mockResolvedValue({
+      ...mockCreationOptions,
+      excludeCredentials: [
+        { id: 'Y3JlZDE', type: 'public-key', transports: ['internal'] },
+      ],
+    });
+    const cancelError = new DOMException('not allowed', 'NotAllowedError');
+    mockCreateCredential.mockRejectedValue(cancelError);
+    mockHandleWebAuthnError.mockReturnValue({
+      category: WebAuthnErrorCategory.UserAction,
+      errorType: WebAuthnErrorType.NotAllowed,
+      userMessageKey: 'passkey-registration-error-not-allowed-existing',
+      logToSentry: false,
+    });
+
+    renderPage();
+    await waitFor(() => {
+      expect(mockAlertError).toHaveBeenCalled();
+    });
+    expect(mockHandleWebAuthnError).toHaveBeenCalledWith(
+      cancelError,
+      'registration',
+      expect.any(Function),
+      { hadExcludeCredentials: true }
+    );
   });
 
   it('handles timeout error', async () => {

@@ -62,6 +62,22 @@ const UNEXPECTED_FTL_ID: Record<WebAuthnOperation, string> = {
   authentication: 'passkey-authentication-error-unexpected',
 };
 
+const AUTHENTICATOR_ALREADY_REGISTERED_FTL_ID: Record<
+  WebAuthnOperation,
+  string
+> = {
+  registration: 'passkey-registration-error-not-allowed-existing',
+  authentication: 'passkey-authentication-error-not-allowed-existing',
+};
+
+const AUTHENTICATOR_ALREADY_REGISTERED_FALLBACK: Record<
+  WebAuthnOperation,
+  string
+> = {
+  registration: `Passkey setup isn’t available with this device. Either the device has already been registered or the setup process was cancelled.`,
+  authentication: `Passkey setup isn’t available with this device. Please try again or choose another method.`,
+};
+
 export const ERROR_MAP: Record<string, ErrorEntry> = {
   NotAllowedError: {
     category: WebAuthnErrorCategory.UserAction,
@@ -195,19 +211,57 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     ftlId: UNEXPECTED_FTL_ID,
     fallbackText: UNEXPECTED_FALLBACK,
   },
+  AuthenticatorAlreadyRegistered: {
+    category: WebAuthnErrorCategory.UserAction,
+    errorType: WebAuthnErrorType.NotSupported,
+    logToSentry: true,
+    ftlId: AUTHENTICATOR_ALREADY_REGISTERED_FTL_ID,
+    fallbackText: AUTHENTICATOR_ALREADY_REGISTERED_FALLBACK,
+  },
 };
+
+/**
+ * Extra ceremony context that refines error categorization. Currently used to
+ * disambiguate NotAllowedError during registration: Firefox collapses user-cancel
+ * and excludeCredentials-duplicate into the same DOMException, so we lean on
+ * context to choose a more helpful user-facing message.
+ */
+export interface WebAuthnErrorContext {
+  /**
+   * True when the registration options included a non-empty excludeCredentials
+   * list (i.e., the user already has passkeys registered for this account).
+   */
+  hadExcludeCredentials?: boolean;
+}
 
 /** Never throws; unrecognized errors default to the 'unexpected' category. */
 export function categorizeWebAuthnError(
   error: unknown,
-  operation: WebAuthnOperation
+  operation: WebAuthnOperation,
+  context?: { hadExcludeCredentials: boolean }
 ): CategorizedWebAuthnError {
-  const name =
-    error instanceof TypeError
-      ? 'TypeError'
-      : error instanceof DOMException
-        ? error.name
-        : null;
+  const name = (() => {
+    if (error instanceof TypeError) {
+      return 'TypeError';
+    }
+
+    // There is a special error message when authentication is not allowed due to the authenticator already being
+    // registered.
+    if (
+      error instanceof DOMException &&
+      error.name === 'NotAllowedError' &&
+      context?.hadExcludeCredentials === true
+    ) {
+      return 'AuthenticatorAlreadyRegistered';
+    }
+
+    // Otherise, just return the name of the name dom exception for look up.
+    if (error instanceof DOMException) {
+      return error.name;
+    }
+
+    return null;
+  })();
 
   if (name !== null) {
     const entry = ERROR_MAP[name];
@@ -235,9 +289,10 @@ export function categorizeWebAuthnError(
 export function handleWebAuthnError(
   error: unknown,
   operation: WebAuthnOperation,
-  captureException: (error: unknown) => void
+  captureException: (error: unknown) => void,
+  context?: { hadExcludeCredentials: boolean }
 ): CategorizedWebAuthnError {
-  const categorized = categorizeWebAuthnError(error, operation);
+  const categorized = categorizeWebAuthnError(error, operation, context);
   if (categorized.logToSentry) {
     captureException(error);
   }

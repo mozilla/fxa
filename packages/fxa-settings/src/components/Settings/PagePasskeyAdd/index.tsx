@@ -65,11 +65,18 @@ export const PagePasskeyAdd = () => {
 
     const runCeremony = async () => {
       GleanMetrics.accountPref.passkeyCreateView();
+
+      // Tracks whether the server sent an excludeCredentials list (i.e., the
+      // account already has passkeys). Used to bias NotAllowedError toward the
+      // "duplicate authenticator" interpretation on Firefox, which collapses
+      // that case and user-cancel into the same DOMException.
+      let hadExcludeCredentials = false;
       try {
         // Step 1: Get registration options from server
         const jwt = account.getCachedJwtByScope('passkey');
         const creationOptions = await authClient.beginPasskeyRegistration(jwt);
         const challenge = creationOptions.challenge;
+        hadExcludeCredentials = !!creationOptions.excludeCredentials?.length;
 
         if (!isMounted.current) return;
 
@@ -105,7 +112,8 @@ export const PagePasskeyAdd = () => {
           const categorized = handleWebAuthnError(
             error,
             'registration',
-            Sentry.captureException
+            Sentry.captureException,
+            { hadExcludeCredentials }
           );
           const reasonMap: Record<string, string> = {
             [WebAuthnErrorType.NotAllowed]: 'not_allowed',
