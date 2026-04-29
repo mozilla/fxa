@@ -1333,20 +1333,6 @@ FxaClientWrapper.prototype = {
   getActiveSubscriptions: createClientDelegate('getActiveSubscriptions'),
 
   /**
-   * Create a support ticket.
-   *
-   * @param {String} token A token from the OAuth server.
-   * @param {Object} [supportTicket={}]
-   *   @param {String} [supportTicket.topic]
-   *   @param {String} [supportTicket.subject] Optional subject
-   *   @param {String} [supportTicket.message]
-   * @returns {Promise} A promise that will be fulfilled with:
-   *   - `success`
-   *   - `ticket` OR `error`
-   */
-  createSupportTicket: createClientDelegate('createSupportTicket'),
-
-  /**
    * Update a user newsletters subscription.
    *
    * @param {String[]} [newsletters]

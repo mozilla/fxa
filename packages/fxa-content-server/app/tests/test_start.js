@@ -122,7 +122,6 @@ require('./spec/models/reliers/browser');
 require('./spec/models/resume-token');
 require('./spec/models/security-events');
 require('./spec/models/subscription');
-require('./spec/models/support-form');
 require('./spec/models/sync-engines');
 require('./spec/models/unique-user-id');
 require('./spec/models/user');
@@ -239,7 +238,6 @@ require('./spec/views/sign_in_totp_code');
 require('./spec/views/sign_up_password');
 require('./spec/views/subscriptions_management_redirect');
 require('./spec/views/subscriptions_product_redirect');
-require('./spec/views/support');
 require('./spec/views/tooltip');
 
 const runTests = function () {

@@ -2956,27 +2956,6 @@ describe('models/account', function () {
     });
   });
 
-  describe('createSupportTicket', () => {
-    it('delegates to the fxa-client', () => {
-      const token = 'tickettoride';
-      const ticket = { topic: 'TESTO', message: 'testo?' };
-      const ticketResp = { success: true, ticket: 123 };
-      sinon.stub(account, 'createOAuthToken').callsFake(function () {
-        return Promise.resolve(new OAuthToken({ token }));
-      });
-      const ticketStub = sinon
-        .stub(fxaClient, 'createSupportTicket')
-        .callsFake(function () {
-          return Promise.resolve(ticketResp);
-        });
-
-      account.createSupportTicket(ticket).then((resp) => {
-        assert.isTrue(ticketStub.calledWith(token, ticket));
-        assert.deepEqual(resp, ticketResp);
-      });
-    });
-  });
-
   describe('securityEvents', () => {
     const events = [
       {
