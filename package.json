@@ -158,10 +158,6 @@
     "*": [
       "yarn check:frozen"
     ],
-    "packages/!(fxa-payments-server)/**/*.js": [
-      "prettier --config _dev/.prettierrc --write",
-      "eslint"
-    ],
     "packages/!(fxa-shared)/**/*.{ts,tsx}": [
       "prettier --config _dev/.prettierrc --write",
       "eslint"

@@ -150,14 +150,6 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_ENABLED',
       default: false,
     },
-    paymentsServer: {
-      url: {
-        doc: 'The url of the corresponding fxa-payments-server instance',
-        env: 'PAYMENTS_SERVER_URL',
-        format: 'url',
-        default: 'https://subscriptions.firefox.com',
-      },
-    },
     paypalNvpSigCredentials: {
       enabled: {
         doc: 'Indicates whether PayPal APIs are enabled',

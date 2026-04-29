@@ -40,7 +40,6 @@ _Note:_ This list must mirror `.gitignore`. If there is a discrepancy, `.gitigno
   - `fxa-auth-server` — Core auth API (SRP/OAuth/sessions); talks to MySQL/Redis.
   - `fxa-settings` — React UI for sign-in/settings; uses `fxa-auth-client` and GraphQL.
   - `fxa-graphql-api` — NestJS BFF/gateway; aggregates server data for the UI.
-  - `fxa-payments-server` — Subscriptions UI; integrates with Stripe/PayPal (webhooks handled server-side).
   - `fxa-profile-server` — User profile API.
 
 - **Shared libraries (`libs/*`):**
@@ -57,7 +56,6 @@ _Note:_ This list must mirror `.gitignore`. If there is a discrepancy, `.gitigno
 
 - **Prefer `libs/*` over app-local code** for reusable logic. If a refactor touches multiple apps, extract to a library instead of duplicating.
 - **Prefer `fxa-settings` over `fxa-content-server`** for UI work (content-server is legacy). Do not add new features to content-server unless explicitly directed.
-- **Prefer SubPlat 3.0 (sp3)** over `fxa-payments-server` for subscriptions flows. Treat `fxa-payments-server` as legacy; avoid new investments there.
 - **Avoid partial refactors:** when moving logic, complete the path (call sites, tests, docs). If full migration is not feasible, provide a thin adapter and TODO with owner and date.
 - **No duplication:** before adding code, search the monorepo for existing helpers/types; reuse or consolidate.
 

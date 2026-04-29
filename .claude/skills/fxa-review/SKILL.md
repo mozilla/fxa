@@ -135,7 +135,6 @@ Tell this agent it is a senior architect who knows FXA's monorepo structure and 
 - Detect duplication: search `libs/**`, `fxa-shared/**`, and `packages/**` for functions/types with the same name or purpose
 - Flag new code in legacy packages:
   - `fxa-content-server` — should be in `fxa-settings`
-  - `fxa-payments-server` — should target SubPlat 3.0 (`libs/payments/*`, `apps/payments/*`)
   - No new GraphQL — `fxa-graphql-api` was removed, `admin-server` GraphQL is legacy. Exception: CMS-related GraphQL.
 - Verify database migrations:
   - Never edit existing published migration files

@@ -221,7 +221,6 @@ module.exports = function (log, config, bounces, statsd) {
     return time.format(formatString);
   }
 
-  // Borrowed from fxa-payments-server/src/lib/formats.ts
   // TODO: Would be nice to share this if/when TypeScript conversion reaches here.
   const baseCurrencyOptions = {
     style: 'currency',
@@ -231,7 +230,6 @@ module.exports = function (log, config, bounces, statsd) {
   /**
    * This returns a string that is formatted according to the given locale.
    *
-   * Borrowed from fxa-payments-server/src/lib/formats.ts
    * TODO: Would be nice to share this if/when TypeScript conversion reaches here.
    *
    * @param {number} amountInCents

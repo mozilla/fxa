@@ -22,7 +22,6 @@ NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     fxa-admin-server \
     fxa-auth-server \
     fxa-content-server \
-    fxa-payments-server \
     fxa-profile-server \
     fxa-settings \
     | tee ~/.pm2/logs/startup.log

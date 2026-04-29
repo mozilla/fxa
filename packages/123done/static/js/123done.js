@@ -35,39 +35,12 @@ $(document).ready(function () {
     prod: 'https://accounts.firefox.com/',
   };
 
-  const pwdlessPaymentURL = {
-    local: 'http://localhost:3031/checkout/',
-    stage: 'https://payments-server.allizom.org/checkout/',
-  };
-
   const subscriptionConfig = {
-    default: {
-      product: 'prod_GqM9ToKK62qjkK',
-      plans: {
-        usd: 'plan_GqM9N6qyhvxaVk',
-        usd6: 'price_1LTAC5BVqmGyQTManGVoSBsc',
-        usd12: 'price_1KbomlBVqmGyQTMaa0Tq7UaW',
-        eur: 'price_1H8NnnBVqmGyQTMaLwLRKbF3',
-        cad: 'price_1H8NoEBVqmGyQTMa5MtpqAUM',
-        myr: 'price_1H8NpGBVqmGyQTMaA6Znyu7U',
-      },
-      sp3links: {
-        'sp3-1m': '123donepro/monthly/landing',
-        'sp3-6m': '123donepro/halfyearly/landing',
-        'sp3-12m': '123donepro/yearly/landing',
-        'sp3-1m-gb': 'en-GB/123donepro/monthly/landing',
-      },
-    },
-    stage: {
-      product: 'prod_FfiuDs9u11ESbD',
-      plans: {
-        usd: 'plan_FfiupsKXZ3mMZ6',
-        usd6: 'price_1LOOaNKb9q6OnNsLet1Ow4MH',
-        usd12: 'price_1LOObPKb9q6OnNsLtscL1rMt',
-        eur: 'price_1H8OrbKb9q6OnNsLI1Hs9lBU',
-        cad: 'price_1H8OroKb9q6OnNsLbn5v95el',
-        myr: 'price_1H8Os8Kb9q6OnNsLTDqGHIbC',
-      },
+    sp3links: {
+      'sp3-1m': '123donepro/monthly/landing',
+      'sp3-6m': '123donepro/halfyearly/landing',
+      'sp3-12m': '123donepro/yearly/landing',
+      'sp3-1m-gb': 'en-GB/123donepro/monthly/landing',
     },
   };
 
@@ -75,21 +48,16 @@ $(document).ready(function () {
   switch (window.location.host) {
     case '123done-latest.dev.lcip.org':
       paymentConfig = {
-        env: paymentURL.dev,
         sp3Url: sp3URL.dev,
-        sp3links: subscriptionConfig.default.sp3links,
-        ...subscriptionConfig.default,
+        sp3links: subscriptionConfig.sp3links,
         contentEnv: contentURL.dev,
       };
       break;
     case 'stage-123done.herokuapp.com':
       paymentConfig = {
-        env: paymentURL.stage,
         sp3Url: sp3URL.stage,
-        sp3links: subscriptionConfig.default.sp3links,
-        ...subscriptionConfig.stage,
+        sp3links: subscriptionConfig.sp3links,
         contentEnv: contentURL.stage,
-        pwdlessURL: pwdlessPaymentURL.stage,
       };
       break;
     // TODO: Enable when functional-tests are setup for prod
@@ -101,11 +69,9 @@ $(document).ready(function () {
     //   break;
     default:
       paymentConfig = {
-        env: paymentURL.local,
         sp3Url: sp3URL.local,
-        ...subscriptionConfig.default,
+        sp3links: subscriptionConfig.sp3links,
         contentEnv: contentURL.local,
-        pwdlessURL: pwdlessPaymentURL.local,
       };
       break;
   }
