@@ -13,6 +13,11 @@ import {
   type StripeEventStoreEntry,
   type StripeEventStoreEntryFirestoreRecord,
 } from './types';
+import {
+  FxaProfileChangeEvent,
+  FxaSecurityEventTokenPayload,
+} from './fxa-webhooks.types';
+import { FXA_PROFILE_EVENT_URI } from './fxa-webhooks.types';
 import { Timestamp } from '@google-cloud/firestore';
 import { faker } from '@faker-js/faker';
 
@@ -72,3 +77,38 @@ export const StripeEventStoreEntryFirestoreRecordFactory = (
     ...override,
   };
 };
+
+export const FxaProfileChangeEventFactory = (
+  override?: Partial<FxaProfileChangeEvent>
+): FxaProfileChangeEvent => ({
+  email: faker.internet.email(),
+  ...override,
+});
+
+export const FxaSecurityEventTokenPayloadFactory = (
+  events: Record<string, Record<string, any>>,
+  override?: Partial<FxaSecurityEventTokenPayload>
+): FxaSecurityEventTokenPayload => ({
+  iss: faker.internet.url(),
+  sub: faker.string.hexadecimal({
+    length: 32,
+    prefix: '',
+    casing: 'lower',
+  }),
+  aud: faker.string.hexadecimal({ length: 16 }),
+  iat: Math.floor(Date.now() / 1000),
+  jti: faker.string.alphanumeric({ length: 16 }),
+  events,
+  ...override,
+});
+
+export const FxaProfileChangeSecurityEventTokenPayloadFactory = (
+  eventOverride?: Partial<FxaProfileChangeEvent>,
+  payloadOverride?: Partial<FxaSecurityEventTokenPayload>
+): FxaSecurityEventTokenPayload =>
+  FxaSecurityEventTokenPayloadFactory(
+    {
+      [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory(eventOverride),
+    },
+    payloadOverride
+  );
