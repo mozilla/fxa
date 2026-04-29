@@ -22,6 +22,7 @@ import { AuthError } from '../../lib/oauth';
 
 import {
   isOAuthNativeIntegration,
+  isProbablyFirefox,
   useAuthClient,
   useConfig,
   useFtlMsgResolver,
@@ -29,6 +30,7 @@ import {
 import { isOAuthWebIntegration } from '../../models/integrations/oauth-web-integration';
 import { isUnsupportedContext } from '../../models/integrations/utils';
 import { IndexQueryParams } from '../../models/pages/index';
+import { persistAccount, setCurrentAccount } from '../../lib/storage-utils';
 
 import Index from '.';
 import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
@@ -99,6 +101,44 @@ const IndexContainer = ({
 
   const { prefillEmail, deleteAccountSuccess, hasBounced } =
     location.state || {};
+
+  // sessionToken is dropped unless verified===true; the browser's flag can be
+  // stale (no follow-up fxaLogin after SyncOAuth token-code), so we re-prompt.
+  const [browserUserChecked, setBrowserUserChecked] = useState(false);
+  useEffect(() => {
+    if (browserUserChecked) {
+      return;
+    }
+    if (currentAccount() || lastStoredAccount() || !isProbablyFirefox()) {
+      setBrowserUserChecked(true);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const userFromBrowser = await firefox.requestSignedInUser(
+        integration.data?.context || '',
+        false,
+        integration.data?.service || ''
+      );
+      if (cancelled) {
+        return;
+      }
+      if (userFromBrowser?.uid && userFromBrowser.email) {
+        const { uid, email, sessionToken, verified } = userFromBrowser;
+        persistAccount({
+          uid,
+          email,
+          lastLogin: Date.now(),
+          ...(verified === true ? { sessionToken } : {}),
+        });
+        setCurrentAccount(uid);
+      }
+      setBrowserUserChecked(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [browserUserChecked, integration]);
 
   // Only used for suggestedEmail; handleSuccessNavigation reads fresh from
   // localStorage to avoid stale closures when checking session state.
@@ -338,6 +378,11 @@ const IndexContainer = ({
       return;
     }
 
+    // Wait for the WebChannel check; otherwise the email-first form flashes briefly.
+    if (!browserUserChecked) {
+      return;
+    }
+
     if (isUnsupportedContext(integration.data.context)) {
       hardNavigate('/update_firefox', {}, true);
     } else if (shouldTrySuggestedEmail && !attemptedEmailAutoSubmit.current) {
@@ -363,6 +408,7 @@ const IndexContainer = ({
   }, [
     ftlMsgResolver,
     attemptedEmailAutoSubmit,
+    browserUserChecked,
     navigateWithQuery,
     processEmailSubmission,
     suggestedEmail,

@@ -24,6 +24,7 @@ import { IndexQueryParams } from '../../models/pages/index';
 import { GenericData, ModelValidationErrors } from '../../lib/model-data';
 import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 import { firefox } from '../../lib/channels/firefox';
+import * as storageUtils from '../../lib/storage-utils';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -58,8 +59,18 @@ jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),
   firefox: {
     fxaCanLinkAccount: jest.fn(),
+    requestSignedInUser: jest.fn().mockResolvedValue(undefined),
   },
 }));
+
+jest.mock('../../lib/storage-utils', () => {
+  const actual = jest.requireActual('../../lib/storage-utils');
+  return {
+    ...actual,
+    persistAccount: jest.fn(),
+    setCurrentAccount: jest.fn(),
+  };
+});
 
 jest.mock('../../lib/email-domain-validator', () => ({
   checkEmailDomain: jest.fn(),
@@ -603,6 +614,172 @@ describe('IndexContainer', () => {
           true
         );
       });
+    });
+  });
+
+  describe('WebChannel browser-user fallback', () => {
+    let isProbablyFirefoxSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      isProbablyFirefoxSpy = jest
+        .spyOn(ModelsModule, 'isProbablyFirefox')
+        .mockReturnValue(true);
+      (firefox.requestSignedInUser as jest.Mock).mockReset();
+      (storageUtils.persistAccount as jest.Mock).mockReset();
+      (storageUtils.setCurrentAccount as jest.Mock).mockReset();
+    });
+
+    afterEach(() => {
+      isProbablyFirefoxSpy.mockRestore();
+    });
+
+    it('persists browser user (without sessionToken) when verified is false', async () => {
+      jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+      (firefox.requestSignedInUser as jest.Mock).mockResolvedValue({
+        uid: 'browseruid123',
+        email: 'browser@example.com',
+        sessionToken: 'untrusted-token',
+        verified: false,
+      });
+
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </LocationProvider>
+      );
+
+      await waitFor(() => {
+        expect(firefox.requestSignedInUser).toHaveBeenCalled();
+      });
+      await waitFor(() => {
+        expect(storageUtils.persistAccount).toHaveBeenCalledWith(
+          expect.objectContaining({
+            uid: 'browseruid123',
+            email: 'browser@example.com',
+          })
+        );
+      });
+      const persisted = (storageUtils.persistAccount as jest.Mock).mock
+        .calls[0][0];
+      expect(persisted.sessionToken).toBeUndefined();
+      expect(storageUtils.setCurrentAccount).toHaveBeenCalledWith(
+        'browseruid123'
+      );
+    });
+
+    it('persists browser sessionToken when verified is true', async () => {
+      jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+      (firefox.requestSignedInUser as jest.Mock).mockResolvedValue({
+        uid: 'browseruid123',
+        email: 'browser@example.com',
+        sessionToken: 'trusted-token',
+        verified: true,
+      });
+
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </LocationProvider>
+      );
+
+      await waitFor(() => {
+        expect(storageUtils.persistAccount).toHaveBeenCalledWith(
+          expect.objectContaining({
+            uid: 'browseruid123',
+            email: 'browser@example.com',
+            sessionToken: 'trusted-token',
+          })
+        );
+      });
+    });
+
+    it('does not query the browser when localStorage already has an account', async () => {
+      jest.spyOn(cache, 'currentAccount').mockReturnValue({
+        uid: 'cacheduid',
+        email: 'cached@example.com',
+        lastLogin: Date.now(),
+      });
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </LocationProvider>
+      );
+
+      // Cached account triggers auto-submit; navigation proves we skipped the WebChannel call.
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalled();
+      });
+      expect(firefox.requestSignedInUser).not.toHaveBeenCalled();
+      expect(storageUtils.persistAccount).not.toHaveBeenCalled();
+    });
+
+    it('does not query the browser when not running in Firefox', async () => {
+      isProbablyFirefoxSpy.mockReturnValue(false);
+      jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </LocationProvider>
+      );
+
+      await waitFor(() => {
+        expect(IndexModule.default).toHaveBeenCalled();
+      });
+      expect(firefox.requestSignedInUser).not.toHaveBeenCalled();
+    });
+
+    it('does not persist when the browser returns no signed-in user', async () => {
+      jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+      (firefox.requestSignedInUser as jest.Mock).mockResolvedValue(undefined);
+
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </LocationProvider>
+      );
+
+      await waitFor(() => {
+        expect(firefox.requestSignedInUser).toHaveBeenCalled();
+      });
+      expect(storageUtils.persistAccount).not.toHaveBeenCalled();
+      expect(storageUtils.setCurrentAccount).not.toHaveBeenCalled();
     });
   });
 
