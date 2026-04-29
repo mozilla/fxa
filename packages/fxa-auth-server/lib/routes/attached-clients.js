@@ -7,6 +7,8 @@
 const isA = require('joi');
 const validators = require('./validators');
 const authorizedClients = require('../oauth/authorized_clients');
+const oauthDB = require('../oauth/db');
+const { getAuthorizationScope } = require('../oauth/browser-services');
 const { AppError: error } = require('@fxa/accounts/errors');
 
 const HEX_STRING = validators.HEX_STRING;
@@ -16,6 +18,61 @@ const DEVICES_AND_SESSIONS_DOC =
 
 const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
 const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
+
+/**
+ * Walk the user's refresh tokens and return a Map<service, Set<tokenId>> of
+ * configured browser-service authorizations the user holds.
+ */
+async function snapshotAuthorizedServices(uid) {
+  const rows = await oauthDB.getRefreshTokensByUid(uid);
+  const out = new Map();
+  for (const row of rows) {
+    const clientIdHex = row.clientId ? row.clientId.toString('hex') : undefined;
+    for (const value of row.scope.getScopeValues()) {
+      const r = getAuthorizationScope(clientIdHex, undefined, value);
+      if (!r) continue;
+      if (!out.has(r.name)) {
+        out.set(r.name, {
+          authorizationScope: r.authorizationScope,
+          tokens: new Set(),
+        });
+      }
+      out
+        .get(r.name)
+        .tokens.add(row.tokenId ? row.tokenId.toString('hex') : 'unknown');
+    }
+  }
+  return out;
+}
+
+/**
+ * Compare a before-snapshot to a fresh post-destroy snapshot and remove
+ * accountAuthorizations rows for services whose last refresh token just
+ * went away. Errors are logged and swallowed so the destroy itself stays
+ * authoritative.
+ *
+ * Note: the read-then-delete is not atomic. A concurrent grant in the same
+ * window can race with the delete; the next refresh-token use will
+ * re-upsert via the throttled touch path within 24h.
+ */
+async function cleanupAccountAuthorizations(uid, before, log) {
+  try {
+    if (before.size === 0) return;
+    const after = await snapshotAuthorizedServices(uid);
+    for (const [serviceName, info] of before) {
+      if (after.has(serviceName)) continue;
+      await oauthDB.deleteAccountAuthorization(
+        uid,
+        info.authorizationScope,
+        serviceName
+      );
+    }
+  } catch (err) {
+    log?.warn?.('accountAuthorizations.cleanupFailed', {
+      err: err && err.message,
+    });
+  }
+}
 
 module.exports = (log, db, devices, clientUtils) => {
   return [
@@ -206,6 +263,19 @@ module.exports = (log, db, devices, clientUtils) => {
         const credentials = request.auth.credentials;
         const payload = request.payload;
 
+        // Snapshot the user's browser-service authorizations before destroy
+        // so we can detect any service whose last token just went away.
+        // Skip the snapshot for sessionTokenId-only destroys since they
+        // never affect refresh tokens.
+        const willTouchOAuth = !!(
+          payload.deviceId ||
+          payload.refreshTokenId ||
+          (payload.clientId && !payload.sessionTokenId)
+        );
+        const before = willTouchOAuth
+          ? await snapshotAuthorizedServices(credentials.uid)
+          : new Map();
+
         if (payload.deviceId) {
           // If we got a `deviceId`, then deleting that should also delete `sessionTokenId` and `refreshTokenId`,
           // assuming that they match the ones that were actually on the device record.
@@ -270,6 +340,10 @@ module.exports = (log, db, devices, clientUtils) => {
             }
             await db.deleteSessionToken(sessionToken);
           }
+        }
+
+        if (willTouchOAuth) {
+          await cleanupAccountAuthorizations(credentials.uid, before, log);
         }
 
         return {};

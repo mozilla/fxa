@@ -24,6 +24,8 @@ const REFRESH_LAST_USED_AT_UPDATE_AFTER_MS = config.get(
   'oauthServer.refreshToken.updateAfter'
 );
 
+const { touchAuthorizationsForRefresh } = require('./../browser-services');
+
 class OauthDB extends ConnectedServicesDb {
   get mysql() {
     return this.db;
@@ -128,6 +130,16 @@ class OauthDB extends ConnectedServicesDb {
           extraMetadata.lastUsedAt
         );
       }
+      // Bump lastUsedAt on any matching accountAuthorizations row. The
+      // throttle window is enforced at the SQL layer via column-comparison
+      // upsert so concurrent refreshes coalesce to a single update per day.
+      await touchAuthorizationsForRefresh(this, undefined, {
+        uid: t.userId,
+        scope: t.scope,
+        now: extraMetadata.lastUsedAt.getTime
+          ? extraMetadata.lastUsedAt.getTime()
+          : extraMetadata.lastUsedAt,
+      });
       Object.assign(t, extraMetadata || {});
     }
     return t;
@@ -234,12 +246,63 @@ class OauthDB extends ConnectedServicesDb {
     await this.redis.removeAccessTokensForUser(uid);
     await this.redis.removeRefreshTokensForUser(uid);
     await this.mysql._removeTokensAndCodes(uid);
+    await this.mysql._deleteAllAccountAuthorizationsForUser(uid);
   }
 
   async pruneAuthorizationCodes(ttlInMs) {
     return await this.mysql._pruneAuthorizationCodes(
       ttlInMs || config.get('oauthServer.expiration.code')
     );
+  }
+
+  async upsertAccountAuthorization(
+    uid,
+    scope,
+    service,
+    authorizedAt,
+    lastUsedAt
+  ) {
+    await this.ready();
+    return this.mysql._upsertAccountAuthorization(
+      uid,
+      scope,
+      service,
+      authorizedAt,
+      lastUsedAt,
+      0
+    );
+  }
+
+  async touchAccountAuthorization(uid, scope, service, now) {
+    await this.ready();
+    return this.mysql._upsertAccountAuthorization(
+      uid,
+      scope,
+      service,
+      now,
+      now,
+      REFRESH_LAST_USED_AT_UPDATE_AFTER_MS
+    );
+  }
+
+  async getAccountAuthorization(uid, scope, service) {
+    await this.ready();
+    return this.mysql._getAccountAuthorization(uid, scope, service);
+  }
+
+  async deleteAccountAuthorization(uid, scope, service) {
+    await this.ready();
+    return this.mysql._deleteAccountAuthorization(uid, scope, service);
+  }
+
+  async deleteAllAccountAuthorizationsForUser(uid) {
+    await this.ready();
+    return this.mysql._deleteAllAccountAuthorizationsForUser(uid);
+  }
+
+  async listAccountAuthorizationsByUid(uid) {
+    await this.ready();
+    return this.mysql._listAccountAuthorizationsByUid(uid);
   }
 }
 

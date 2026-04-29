@@ -57,6 +57,11 @@ const OAUTH_SERVER_DOCS =
 const DESCRIPTION =
   require('../../../docs/swagger/shared/descriptions').default;
 const { getClientServiceTags } = require('../../metrics/client-tags');
+const {
+  getAuthorizationScope,
+  shouldBypassAuthCheck,
+  recordAuthorizationOnLogin,
+} = require('../../oauth/browser-services');
 const updateLastAccessTime = config.get(
   'lastAccessTimeUpdates.onOAuthTokenCreation'
 );
@@ -430,14 +435,55 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       throw OauthError.unauthorizedTokenExchangeClient(originalClientId);
     }
 
-    // Validate requested scope is in allowlist
+    // Resolve the requested scope to a configured browser service. The
+    // accountAuthorizations table is the source of truth for "user X is
+    // connected to service Y"; an entry must exist before silent exchange
+    // is permitted. Resolve from the requested scope only — the bearer's
+    // clientId is just an authentication signal, not a service signal.
     const requestedScope = params.scope;
-    if (!TOKEN_EXCHANGE_ALLOWED_SCOPES.contains(requestedScope)) {
+    const resolution = getAuthorizationScope(
+      undefined,
+      undefined,
+      requestedScope
+    );
+
+    if (resolution && resolution.allowSilentExchange === false) {
+      // Services like Sync require scoped keys and must not be granted
+      // silently. Reject regardless of any authorization record.
+      log.debug('token_exchange.silent_exchange_disallowed', {
+        service: resolution.name,
+      });
+      throw OauthError.forbidden();
+    }
+
+    if (shouldBypassAuthCheck(resolution)) {
+      // Relay carve-out: application-services fxa-client does not yet handle
+      // a 4xx rejection from this endpoint. Until it does, accept Relay
+      // exchanges based on the legacy allowlist alone. Remove this branch
+      // once the client handles rejection.
+      log.info('token_exchange.relay_bypass', {
+        scope: resolution.authorizationScope,
+      });
+    } else if (resolution) {
+      const row = await oauthDB.getAccountAuthorization(
+        subjectToken.userId,
+        resolution.authorizationScope,
+        resolution.name
+      );
+      if (!row) {
+        log.debug('token_exchange.not_authorized', {
+          service: resolution.name,
+          scope: resolution.authorizationScope,
+        });
+        throw OauthError.forbidden();
+      }
+    } else if (!TOKEN_EXCHANGE_ALLOWED_SCOPES.contains(requestedScope)) {
+      // No configured browser service for this scope; fall back to the
+      // legacy allowlist for back-compat during the rollout window.
       log.debug('token_exchange.scope_not_allowed', {
         requested: requestedScope.toString(),
         allowed: TOKEN_EXCHANGE_ALLOWED_SCOPES.toString(),
       });
-      // TODO future auth table checks, FXA-12937
       throw OauthError.forbidden();
     }
 
@@ -518,6 +564,17 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           error: err.message,
         });
       }
+    }
+
+    // Record account-level authorization for browser services when a
+    // refresh token was issued. Token exchange is a consumer of these
+    // rows, not a writer, so it is excluded.
+    if (grant.offline && params.grant_type !== GRANT_TOKEN_EXCHANGE) {
+      await recordAuthorizationOnLogin(oauthDB, log, {
+        uid: grant.userId,
+        clientId: hex(grant.clientId),
+        scope: grant.scope,
+      });
     }
 
     const uid = hex(grant.userId);

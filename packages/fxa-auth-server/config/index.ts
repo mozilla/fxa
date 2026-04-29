@@ -1443,6 +1443,46 @@ const convictConf = convict({
         env: 'OAUTH_TOKEN_EXCHANGE_ALLOWED_SCOPES',
       },
     },
+    browserServices: {
+      doc: 'Mapping of FxA-trusted browser services to their authorization scope and access patterns. Drives the accountAuthorizations table writes/reads, the token-exchange authorization check, and the Connected Services listing.',
+      format: Object,
+      env: 'OAUTH_BROWSER_SERVICES',
+      default: {
+        relay: {
+          displayName: 'Firefox Relay',
+          authorizationScope: 'https://identity.mozilla.com/apps/relay',
+          clientIds: [
+            '9ebfe2c2f9ea3c58',
+            '41b4363ae36440a9',
+            '723aa3bce05884d8',
+          ],
+          serviceParams: ['relay'],
+          retentionDays: 1095,
+          allowSilentExchange: true,
+        },
+        smartwindow: {
+          displayName: 'Smart Window',
+          authorizationScope: 'https://identity.mozilla.com/apps/smartwindow',
+          clientIds: [],
+          serviceParams: ['smartwindow'],
+          retentionDays: 1095,
+          allowSilentExchange: true,
+        },
+        sync: {
+          displayName: 'Firefox Sync',
+          authorizationScope: 'https://identity.mozilla.com/apps/oldsync',
+          clientIds: [
+            '1b1a3e44c54fbb58',
+            '5882386c6d801776',
+            'a2270f727f45f648',
+            '3332a18d142636cb',
+          ],
+          serviceParams: ['sync'],
+          retentionDays: 1095,
+          allowSilentExchange: false,
+        },
+      },
+    },
     git: {
       commit: {
         doc: 'Commit SHA when in stage/production',

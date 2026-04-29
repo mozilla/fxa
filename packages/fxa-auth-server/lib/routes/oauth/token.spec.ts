@@ -568,6 +568,199 @@ describe('token exchange grant_type', () => {
       });
     });
 
+    it('Relay scope is allowed via the carve-out without an accountAuthorizations row', async () => {
+      // Verifies shouldBypassAuthCheck returns true for Relay and the table
+      // read is skipped. Relay carve-out exists until application-services
+      // fxa-client handles a 4xx rejection from this endpoint.
+      const getAuthCallSpy = jest.fn(async () => null);
+      jest.resetModules();
+      jest.doMock('../../oauth/assertion', () => async () => true);
+      jest.doMock('../../oauth/client', () => ({
+        authenticateClient: (_: any, params: any) => ({
+          id: buf(params.client_id),
+          canGrant: true,
+          publicClient: true,
+        }),
+        clientAuthValidators:
+          tokenRoutesDepMocks['../../oauth/client'].clientAuthValidators,
+      }));
+      jest.doMock('../../oauth/grant', () => ({
+        generateTokens: (grant: any) => ({
+          access_token: 'a',
+          token_type: 'bearer',
+          scope: grant.scope.toString(),
+          expires_in: 3600,
+          refresh_token: 'r',
+        }),
+        validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
+      }));
+      jest.doMock('../../oauth/util', () => ({
+        makeAssertionJWT: async () => ({}),
+      }));
+      const routes = require('./token')({
+        ...tokenRoutesArgMocks,
+        db: {
+          ...tokenRoutesArgMocks.db,
+          async deviceFromRefreshTokenId() {
+            return null;
+          },
+        },
+        oauthDB: {
+          ...tokenRoutesArgMocks.oauthDB,
+          async getRefreshToken() {
+            return {
+              userId: buf(UID),
+              clientId: buf(FIREFOX_IOS_CLIENT_ID),
+              tokenId: buf('1234567890abcdef'),
+              scope: ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC),
+              profileChangedAt: Date.now(),
+            };
+          },
+          async removeRefreshToken() {},
+          getAccountAuthorization: getAuthCallSpy,
+        },
+      });
+      const request = {
+        headers: {},
+        payload: {
+          grant_type: GRANT_TOKEN_EXCHANGE,
+          subject_token: REFRESH_TOKEN,
+          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+          scope: OAUTH_SCOPE_RELAY,
+        },
+        emitMetricsEvent: () => {},
+      };
+      await expect(routes[0].config.handler(request)).resolves.toBeTruthy();
+      expect(getAuthCallSpy).not.toHaveBeenCalled();
+    });
+
+    it('rejects a non-Relay configured scope when no accountAuthorizations row exists', async () => {
+      const SMARTWINDOW_SCOPE = 'https://identity.mozilla.com/apps/smartwindow';
+      jest.resetModules();
+      jest.doMock('../../oauth/assertion', () => async () => true);
+      jest.doMock('../../oauth/client', () => ({
+        authenticateClient: (_: any, params: any) => ({
+          id: buf(params.client_id),
+          canGrant: true,
+          publicClient: true,
+        }),
+        clientAuthValidators:
+          tokenRoutesDepMocks['../../oauth/client'].clientAuthValidators,
+      }));
+      jest.doMock(
+        '../../oauth/grant',
+        () => tokenRoutesDepMocks['../../oauth/grant']
+      );
+      jest.doMock(
+        '../../oauth/util',
+        () => tokenRoutesDepMocks['../../oauth/util']
+      );
+      const routes = require('./token')({
+        ...tokenRoutesArgMocks,
+        oauthDB: {
+          ...tokenRoutesArgMocks.oauthDB,
+          async getRefreshToken() {
+            return {
+              userId: buf(UID),
+              clientId: buf(FIREFOX_IOS_CLIENT_ID),
+              tokenId: buf('1234567890abcdef'),
+              scope: ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC),
+              profileChangedAt: Date.now(),
+            };
+          },
+          async getAccountAuthorization() {
+            return null;
+          },
+        },
+      });
+      const request = {
+        headers: {},
+        payload: {
+          grant_type: GRANT_TOKEN_EXCHANGE,
+          subject_token: REFRESH_TOKEN,
+          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+          scope: SMARTWINDOW_SCOPE,
+        },
+        emitMetricsEvent: () => {},
+      };
+      await expect(routes[0].config.handler(request)).rejects.toMatchObject({
+        errno: 112,
+      });
+    });
+
+    it('allows a non-Relay configured scope when an accountAuthorizations row exists', async () => {
+      const SMARTWINDOW_SCOPE = 'https://identity.mozilla.com/apps/smartwindow';
+      jest.resetModules();
+      jest.doMock('../../oauth/assertion', () => async () => true);
+      jest.doMock('../../oauth/client', () => ({
+        authenticateClient: (_: any, params: any) => ({
+          id: buf(params.client_id),
+          canGrant: true,
+          publicClient: true,
+        }),
+        clientAuthValidators:
+          tokenRoutesDepMocks['../../oauth/client'].clientAuthValidators,
+      }));
+      jest.doMock('../../oauth/grant', () => ({
+        generateTokens: (grant: any) => ({
+          access_token: 'a',
+          token_type: 'bearer',
+          scope: grant.scope.toString(),
+          expires_in: 3600,
+          refresh_token: 'r',
+        }),
+        validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
+      }));
+      jest.doMock(
+        '../../oauth/util',
+        () => tokenRoutesDepMocks['../../oauth/util']
+      );
+      const routes = require('./token')({
+        ...tokenRoutesArgMocks,
+        db: {
+          ...tokenRoutesArgMocks.db,
+          async deviceFromRefreshTokenId() {
+            return null;
+          },
+        },
+        oauthDB: {
+          ...tokenRoutesArgMocks.oauthDB,
+          async getRefreshToken() {
+            return {
+              userId: buf(UID),
+              clientId: buf(FIREFOX_IOS_CLIENT_ID),
+              tokenId: buf('1234567890abcdef'),
+              scope: ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC),
+              profileChangedAt: Date.now(),
+            };
+          },
+          async removeRefreshToken() {},
+          async getAccountAuthorization(_uid: any, scope: any, service: any) {
+            expect(scope).toBe(SMARTWINDOW_SCOPE);
+            expect(service).toBe('smartwindow');
+            return {
+              uid: UID,
+              scope,
+              service,
+              authorizedAt: Date.now() - 86400000,
+              lastUsedAt: Date.now() - 3600000,
+            };
+          },
+        },
+      });
+      const request = {
+        headers: {},
+        payload: {
+          grant_type: GRANT_TOKEN_EXCHANGE,
+          subject_token: REFRESH_TOKEN,
+          subject_token_type: SUBJECT_TOKEN_TYPE_REFRESH,
+          scope: SMARTWINDOW_SCOPE,
+        },
+        emitMetricsEvent: () => {},
+      };
+      await expect(routes[0].config.handler(request)).resolves.toBeTruthy();
+    });
+
     it('returns combined scopes on success', async () => {
       let removedTokenId: any = null;
       jest.resetModules();

@@ -176,6 +176,27 @@ const DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID =
 const PRUNE_AUTHZ_CODES =
   'DELETE FROM codes WHERE TIMESTAMPDIFF(SECOND, createdAt, NOW()) > ? LIMIT 10000';
 
+// Account-level authorizations.
+// CAST to SIGNED to avoid BIGINT UNSIGNED underflow when the new lastUsedAt
+// is older than the existing one (which happens for tests that backdate the
+// stored row, and could happen for slightly out-of-order updates).
+const QUERY_ACCOUNT_AUTH_UPSERT =
+  'INSERT INTO accountAuthorizations ' +
+  '(uid, scope, service, authorizedAt, lastUsedAt) ' +
+  'VALUES (?, ?, ?, ?, ?) ' +
+  'ON DUPLICATE KEY UPDATE ' +
+  'lastUsedAt = IF(CAST(VALUES(lastUsedAt) AS SIGNED) - CAST(lastUsedAt AS SIGNED) > ?, VALUES(lastUsedAt), lastUsedAt)';
+const QUERY_ACCOUNT_AUTH_FIND =
+  'SELECT uid, scope, service, authorizedAt, lastUsedAt ' +
+  'FROM accountAuthorizations WHERE uid=? AND scope=? AND service=?';
+const QUERY_ACCOUNT_AUTH_DELETE =
+  'DELETE FROM accountAuthorizations WHERE uid=? AND scope=? AND service=?';
+const QUERY_ACCOUNT_AUTH_DELETE_BY_UID =
+  'DELETE FROM accountAuthorizations WHERE uid=?';
+const QUERY_ACCOUNT_AUTH_LIST_BY_UID =
+  'SELECT uid, scope, service, authorizedAt, lastUsedAt ' +
+  'FROM accountAuthorizations WHERE uid=?';
+
 // Scope queries
 const QUERY_SCOPE_FIND = 'SELECT * ' + 'FROM scopes ' + 'WHERE scopes.scope=?;';
 const QUERY_SCOPES_INSERT =
@@ -605,6 +626,51 @@ class MysqlStore extends MysqlOAuthShared {
 
   _removeRefreshToken(id) {
     return this._write(QUERY_REFRESH_TOKEN_DELETE, [buf(id)]);
+  }
+
+  /**
+   * Insert or update an account-level authorization row. The throttle window
+   * is enforced in SQL: lastUsedAt is only advanced when the new value is
+   * more than `throttleMs` past the existing one. Pass `0` to disable
+   * throttling (fresh-write path).
+   */
+  _upsertAccountAuthorization(
+    uid,
+    scope,
+    service,
+    authorizedAt,
+    lastUsedAt,
+    throttleMs
+  ) {
+    return this._write(QUERY_ACCOUNT_AUTH_UPSERT, [
+      buf(uid),
+      scope,
+      service,
+      authorizedAt,
+      lastUsedAt,
+      throttleMs,
+    ]);
+  }
+
+  async _getAccountAuthorization(uid, scope, service) {
+    const rows = await this._read(QUERY_ACCOUNT_AUTH_FIND, [
+      buf(uid),
+      scope,
+      service,
+    ]);
+    return firstRow(rows) || null;
+  }
+
+  _deleteAccountAuthorization(uid, scope, service) {
+    return this._write(QUERY_ACCOUNT_AUTH_DELETE, [buf(uid), scope, service]);
+  }
+
+  _deleteAllAccountAuthorizationsForUser(uid) {
+    return this._write(QUERY_ACCOUNT_AUTH_DELETE_BY_UID, [buf(uid)]);
+  }
+
+  _listAccountAuthorizationsByUid(uid) {
+    return this._read(QUERY_ACCOUNT_AUTH_LIST_BY_UID, [buf(uid)]);
   }
 
   getEncodingInfo() {
