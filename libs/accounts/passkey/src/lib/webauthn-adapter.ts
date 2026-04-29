@@ -22,6 +22,18 @@ import { uuidTransformer } from '@fxa/shared/db/mysql/core';
 
 import { PasskeyConfig } from './passkey.config';
 
+/**
+ * A credential to exclude from a registration ceremony. When forwarded to the
+ * authenticator, the browser surfaces a native "already registered" prompt
+ * instead of completing the ceremony.
+ */
+export interface ExcludeCredential {
+  /** Existing credential ID as a string. */
+  id: string;
+  /** Stored transports for the credential. Optional — improves UX hints. */
+  transports?: AuthenticatorTransportFuture[];
+}
+
 export interface RegistrationOptionsInput {
   /** User's uid as a hex string, used as the WebAuthn userID. */
   uid: string;
@@ -29,6 +41,12 @@ export interface RegistrationOptionsInput {
   email: string;
   /** Challenge from ChallengeManager. */
   challenge: string;
+  /**
+   * Credentials already registered for this user. Forwarded to the authenticator
+   * so duplicate enrolments are short-circuited at the browser level rather than
+   * failing server-side on the unique constraint.
+   */
+  excludeCredentials?: ExcludeCredential[];
 }
 
 /**
@@ -59,6 +77,7 @@ export async function generateWebauthnRegistrationOptions(
       userVerification: config.userVerification,
       authenticatorAttachment: config.authenticatorAttachment,
     },
+    excludeCredentials: input.excludeCredentials,
   });
 }
 
@@ -255,4 +274,3 @@ export async function verifyWebauthnAuthenticationResponse(
     },
   };
 }
-

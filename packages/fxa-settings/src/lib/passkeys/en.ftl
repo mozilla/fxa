@@ -6,6 +6,11 @@
 # User cancelled or dismissed the browser prompt, or the authenticator could not satisfy the options
 passkey-registration-error-not-allowed = Passkey setup failed or is unavailable. Try again or choose another method.
 
+# Shown on NotAllowedError when the account already has passkeys (excludeCredentials was sent).
+# Firefox collapses user-cancel and duplicate-authenticator into the same error, but duplicate is
+# the far more likely cause when the user has existing passkeys, so we state it plainly.
+passkey-registration-error-not-allowed-existing = Passkey setup isn’t available with this device. Either the device has already been registered or the setup process was cancelled.
+
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Passkey setup was canceled. Try again.
 
@@ -31,6 +36,9 @@ passkey-registration-error-unexpected = Passkey setup failed. Try again or choos
 
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Sign-in with passkey failed or is unavailable. Try again or choose another method.
+
+# User already registered a device
+passkey-authentication-error-not-allowed-existing = Passkey setup isn’t available with this device. Please try again or choose another method.
 
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Passkey request timed out. Please try again.
