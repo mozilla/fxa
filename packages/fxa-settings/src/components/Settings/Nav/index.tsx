@@ -50,7 +50,7 @@ export const Nav = ({
     )}`;
   const subscriptionLink = config.featureFlags
     ?.paymentsNextSubscriptionManagement
-    ? `${config.servers.paymentsNext.url}/subscriptions/landing`
+    ? `${config.servers.paymentsNext.url}/subscriptions/landing?entrypoint=internal_nav`
     : '/subscriptions';
 
   useEffect(() => {
