@@ -231,4 +231,17 @@ describe('handleWebAuthnError', () => {
     handleWebAuthnError(error, 'registration', captureException);
     expect(captureException).toHaveBeenCalledWith(error);
   });
+
+  it('forwards ceremony context to categorization (duplicate-authenticator message)', () => {
+    const captureException = jest.fn();
+    const result = handleWebAuthnError(
+      dom('NotAllowedError'),
+      'registration',
+      captureException,
+      { hadExcludeCredentials: true }
+    );
+    expect(result.ftlId).toBe(
+      'passkey-registration-error-not-allowed-existing'
+    );
+  });
 });

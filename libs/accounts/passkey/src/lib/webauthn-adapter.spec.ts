@@ -117,6 +117,50 @@ describe('generateWebauthnRegistrationOptions', () => {
 
     expect(options.user.name).toBe('bob@example.com');
   });
+
+  it('omits excludeCredentials when input is not provided', async () => {
+    const options = await generateWebauthnRegistrationOptions(testConfig(), {
+      uid: Buffer.alloc(16, 0xbb).toString('hex'),
+      email: 'bob@example.com',
+      challenge: randomBytes(32).toString('base64url'),
+    });
+
+    expect(options.excludeCredentials).toEqual([]);
+  });
+
+  it('forwards excludeCredentials as base64url with type and transports', async () => {
+    const credId = Buffer.from('existing-credential').toString('base64url');
+
+    const options = await generateWebauthnRegistrationOptions(testConfig(), {
+      uid: Buffer.alloc(16, 0xbb).toString('hex'),
+      email: 'bob@example.com',
+      challenge: randomBytes(32).toString('base64url'),
+      excludeCredentials: [{ id: credId, transports: ['internal', 'hybrid'] }],
+    });
+
+    expect(options.excludeCredentials).toEqual([
+      {
+        id: credId,
+        type: 'public-key',
+        transports: ['internal', 'hybrid'],
+      },
+    ]);
+  });
+
+  it('forwards excludeCredentials without transports when not provided', async () => {
+    const credId = Buffer.from('existing-credential').toString('base64url');
+
+    const options = await generateWebauthnRegistrationOptions(testConfig(), {
+      uid: Buffer.alloc(16, 0xbb).toString('hex'),
+      email: 'bob@example.com',
+      challenge: randomBytes(32).toString('base64url'),
+      excludeCredentials: [{ id: credId }],
+    });
+
+    expect(options.excludeCredentials).toEqual([
+      { id: credId, type: 'public-key' },
+    ]);
+  });
 });
 
 describe('verifyWebauthnRegistrationResponse', () => {

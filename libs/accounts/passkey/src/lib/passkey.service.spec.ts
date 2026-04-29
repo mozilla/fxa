@@ -148,6 +148,7 @@ describe('PasskeyService', () => {
 
     beforeEach(() => {
       mockManager.checkPasskeyCount.mockResolvedValue(undefined);
+      mockManager.listPasskeysForUser.mockResolvedValue([]);
       mockChallengeManager.generateRegistrationChallenge.mockResolvedValue(
         MOCK_CHALLENGE
       );
@@ -191,6 +192,46 @@ describe('PasskeyService', () => {
           uid: MOCK_UID,
           email: MOCK_USER_NAME,
           challenge: MOCK_CHALLENGE,
+        })
+      );
+    });
+
+    it('passes empty excludeCredentials when user has no existing passkeys', async () => {
+      mockManager.listPasskeysForUser.mockResolvedValue([]);
+
+      await service.generateRegistrationChallenge(MOCK_UID, MOCK_USER_NAME);
+
+      expect(mockManager.listPasskeysForUser).toHaveBeenCalledWith(MOCK_UID);
+      expect(
+        webauthnAdapter.generateWebauthnRegistrationOptions
+      ).toHaveBeenCalledWith(
+        mockConfig,
+        expect.objectContaining({ excludeCredentials: [] })
+      );
+    });
+
+    it('forwards existing passkeys as excludeCredentials with id and transports', async () => {
+      const otherCredentialId = Buffer.alloc(32, 0xdd);
+      mockManager.listPasskeysForUser.mockResolvedValue([
+        { ...mockPasskey, transports: ['internal'] },
+        {
+          ...mockPasskey,
+          credentialId: otherCredentialId,
+          transports: ['usb', 'nfc'],
+        },
+      ]);
+
+      await service.generateRegistrationChallenge(MOCK_UID, MOCK_USER_NAME);
+
+      expect(
+        webauthnAdapter.generateWebauthnRegistrationOptions
+      ).toHaveBeenCalledWith(
+        mockConfig,
+        expect.objectContaining({
+          excludeCredentials: [
+            { id: MOCK_CREDENTIAL_ID, transports: ['internal'] },
+            { id: otherCredentialId, transports: ['usb', 'nfc'] },
+          ],
         })
       );
     });

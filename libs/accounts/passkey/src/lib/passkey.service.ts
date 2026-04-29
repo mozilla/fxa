@@ -115,6 +115,8 @@ export class PasskeyService {
   ): Promise<PublicKeyCredentialCreationOptionsJSON> {
     await this.passkeyManager.checkPasskeyCount(uid);
 
+    const existingPasskeys = await this.passkeyManager.listPasskeysForUser(uid);
+
     const challenge =
       await this.challengeManager.generateRegistrationChallenge(uid);
 
@@ -122,6 +124,10 @@ export class PasskeyService {
       uid,
       email,
       challenge,
+      excludeCredentials: existingPasskeys.map((p) => ({
+        id: p.credentialId,
+        transports: p.transports as AuthenticatorTransportFuture[],
+      })),
     });
 
     return options;
