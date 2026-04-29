@@ -9,7 +9,7 @@ import * as Form from '@radix-ui/react-form';
 import classNames from 'classnames';
 import countries from 'i18n-iso-countries';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import { BaseButton, ButtonVariant, SubmitButton } from '@fxa/payments/ui';
@@ -643,6 +643,7 @@ export function IsolatedSelectTaxLocation({
   currentCurrency?: string;
 }) {
   const queryParams = useSearchParams();
+  const router = useRouter();
 
   const countryCode = queryParams?.get('countryCode') ?? '';
   const postalCode = queryParams?.get('postalCode') ?? '';
@@ -656,7 +657,11 @@ export function IsolatedSelectTaxLocation({
       saveAction={async (countryCode: string, postalCode: string) => {
         setUpdatedCountryCode(countryCode);
         setUpdatedPostalCode(postalCode);
-        return await saveAction(countryCode, postalCode);
+        const result = await saveAction(countryCode, postalCode);
+        if (result?.ok && result.data?.redirectToUrl) {
+          router.push(result.data.redirectToUrl);
+        }
+        return result;
       }}
       cmsCountryCodes={cmsCountryCodes}
       locale={locale}
