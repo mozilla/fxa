@@ -138,6 +138,80 @@ test.describe('severity-1 #smoke', () => {
       await expect(page.getByText('Your browser or device')).toBeVisible();
     });
   });
+
+  test.describe('passkey management', () => {
+    test.beforeEach(async ({ pages: { configPage } }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        !config.featureFlags?.passkeysEnabled ||
+          !config.featureFlags?.passkeyRegistrationEnabled,
+        'Passkey feature flags are not enabled'
+      );
+    });
+
+    test('deletes a registered passkey', async ({
+      target,
+      pages: { page, settings, settingsPasskeyAdd, signin },
+      testAccountTracker,
+    }) => {
+      const { email } = await signInAccount(
+        target,
+        page,
+        settings,
+        signin,
+        testAccountTracker
+      );
+
+      await settings.goto();
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.passkey.status).toHaveText('Not set');
+
+      const credentialId = await settingsPasskeyAdd.registerNewPasskey(
+        settings,
+        email
+      );
+      expect(credentialId).toBeTruthy();
+
+      // The MFA JWT minted during registration covers the `passkey` scope,
+      // so deletion in the same session should bypass the MFA modal and go
+      // straight to the confirm-deletion dialog.
+      await settings.deletePasskey(email);
+
+      await expect(settings.alertBar).toHaveText('Passkey deleted');
+      await expect(settings.passkey.status).toHaveText('Not set');
+      await expect(settings.passkey.subRow).toHaveCount(0);
+    });
+
+    test('cancels passkey deletion via Cancel button', async ({
+      target,
+      pages: { page, settings, settingsPasskeyAdd, signin },
+      testAccountTracker,
+    }) => {
+      const { email } = await signInAccount(
+        target,
+        page,
+        settings,
+        signin,
+        testAccountTracker
+      );
+
+      await settings.goto();
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.passkey.status).toHaveText('Not set');
+
+      await settingsPasskeyAdd.registerNewPasskey(settings, email);
+
+      await settings.passkey.deleteButton.click();
+      await settings.confirmMfaGuardIfVisible(email);
+      await expect(settings.passkey.deleteModalHeading).toBeVisible();
+
+      await settings.passkey.cancelDeleteButton.click();
+
+      await expect(settings.passkey.deleteModalHeading).toBeHidden();
+      await expect(settings.passkey.status).toHaveText('Enabled');
+      await expect(settings.passkey.subRow).toBeVisible();
+    });
+  });
 });
 
 async function signInAccount(

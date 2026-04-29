@@ -131,6 +131,21 @@ export class SettingsPage extends SettingsLayout {
   }
 
   /**
+   * Drives the passkey-deletion flow: clicks the delete icon, satisfies the
+   * MFA guard if it is presented (the JWT cache may already cover the
+   * `passkey` scope from a prior add/delete in the same session), and
+   * confirms the deletion modal. Callers are responsible for asserting the
+   * resulting state (alert bar, row status, etc.) in their test steps.
+   */
+  async deletePasskey(email: string) {
+    await this.passkey.deleteButton.click();
+    await this.confirmMfaGuardIfVisible(email);
+
+    await expect(this.passkey.deleteModalHeading).toBeVisible();
+    await this.passkey.confirmDeleteButton.click();
+  }
+
+  /**
    * Indicates that the MFA guard's modal dialog is currently displayed.
    * @returns true if the MFA modal is open
    */
