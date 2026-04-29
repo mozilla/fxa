@@ -1188,12 +1188,15 @@ describe('/account/create', () => {
   describe('should accept `verficationMethod`', () => {
     describe('email-otp', () => {
       it('should send sign-up code from `email-otp` method', async () => {
-        const { config, emailCode, mockMailer, mockRequest, route } = setup();
+        const { config, emailCode, mockFxaMailer, mockRequest, route } =
+          setup();
 
         mockRequest.payload.verificationMethod = 'email-otp';
 
         await runTest(route, mockRequest, (res: any) => {
-          expect(mockMailer.sendVerifyShortCodeEmail).toHaveBeenCalledTimes(1);
+          expect(mockFxaMailer.sendVerifyShortCodeEmail).toHaveBeenCalledTimes(
+            1
+          );
 
           const authenticator = new otplib.authenticator.Authenticator();
           authenticator.options = Object.assign(
@@ -1203,13 +1206,13 @@ describe('/account/create', () => {
             { secret: emailCode }
           );
           const expectedCode = authenticator.generate();
-          const args = mockMailer.sendVerifyShortCodeEmail.mock.calls[0];
-          expect(args[2].code).toBe(expectedCode);
-          expect(args[2].acceptLanguage).toBe(mockRequest.app.acceptLanguage);
-
-          expect(args[2].location).toBe(mockRequest.app.geo.location);
-
-          expect(args[2].timeZone).toBe(mockRequest.app.geo.timeZone);
+          const args = mockFxaMailer.sendVerifyShortCodeEmail.mock.calls[0];
+          expect(args[0].code).toBe(expectedCode);
+          expect(args[0].location).toEqual({
+            stateCode: mockRequest.app.geo.location.stateCode,
+            country: mockRequest.app.geo.location.country,
+            city: mockRequest.app.geo.location.city,
+          });
 
           expect(res.verificationMethod).toBe(
             mockRequest.payload.verificationMethod
@@ -1289,17 +1292,16 @@ describe('/account/create', () => {
         verificationMethod: 'email-otp',
       },
     });
-    const { mockMailer, mockRequest, route } = setup({}, mockRequestOpts);
+    const { mockFxaMailer, mockRequest, route } = setup({}, mockRequestOpts);
 
     const now = Date.now();
     jest.useFakeTimers();
     jest.setSystemTime(now);
 
     return runTest(route, mockRequest, () => {
-      expect(mockMailer.sendVerifyShortCodeEmail).toHaveBeenCalledTimes(1);
-      const args = mockMailer.sendVerifyShortCodeEmail.mock.calls[0];
-      const emailMessage = args[2];
-      expect(emailMessage.target).toBe('strapi');
+      expect(mockFxaMailer.sendVerifyShortCodeEmail).toHaveBeenCalledTimes(1);
+      const args = mockFxaMailer.sendVerifyShortCodeEmail.mock.calls[0];
+      const emailMessage = args[0];
       expect(emailMessage.cmsRpClientId).toBe('00f00f');
       expect(emailMessage.cmsRpFromName).toBe('Testo Inc.');
       expect(emailMessage.entrypoint).toBe('testo');
@@ -2041,6 +2043,7 @@ describe('/account/set_password', () => {
       }
     );
     const mockMailer = mocks.mockMailer();
+    const mockFxaMailer = mocks.mockFxaMailer();
     const mockPush = mocks.mockPush();
     const verificationReminders = mocks.mockVerificationReminders();
     const subscriptionAccountReminders = mocks.mockVerificationReminders();
@@ -2087,6 +2090,7 @@ describe('/account/set_password', () => {
       mockDB,
       mockLog,
       mockMailer,
+      mockFxaMailer,
       mockMetricsContext,
       mockRequest,
       route,
@@ -2101,7 +2105,7 @@ describe('/account/set_password', () => {
       route,
       mockRequest,
       mockDB,
-      mockMailer,
+      mockFxaMailer,
       subscriptionAccountReminders,
       uid,
     } = setup({
@@ -2112,7 +2116,7 @@ describe('/account/set_password', () => {
     });
     return runTest(route, mockRequest, (response: any) => {
       expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
-      expect(mockMailer.sendVerifyShortCodeEmail).toHaveBeenCalledTimes(1);
+      expect(mockFxaMailer.sendVerifyShortCodeEmail).toHaveBeenCalledTimes(1);
       expect(subscriptionAccountReminders.create).toHaveBeenCalledTimes(1);
       expect(response.sessionToken).toBeTruthy();
       expect(response.uid).toBe(uid);

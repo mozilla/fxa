@@ -3,22 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { TemplateData as AutomatedEmailNoActionTemplateData } from '../../partials/automatedEmailNoAction';
+import { TemplateData as CmsEmailTemplateData } from '../../partials/cmsEmail';
 import { TemplateData as UserInfoTemplateData } from '../../partials/userInfo';
 
 export type TemplateData = AutomatedEmailNoActionTemplateData &
+  CmsEmailTemplateData &
   UserInfoTemplateData & {
     code: string;
     codeExpiryMinutes: number;
     time: string;
     date: string;
-
-    cmsRpClientId?: string;
-    cmsRpFromName?: string;
-    entrypoint?: string;
-    subject?: string;
-    headline?: string;
-    description?: string;
-    target: 'index' | 'strapi';
   };
 
 export const template = 'passwordlessSignupOtp';

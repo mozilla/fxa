@@ -391,11 +391,23 @@ export class AccountHandler {
           );
 
           if (!rpCmsConfig || !rpCmsConfig.VerifyShortCodeEmail) {
-            await this.mailer.sendVerifyShortCodeEmail(
-              [],
-              account,
-              emailContext
-            );
+            if (this.fxaMailer.canSend('verifyShortCode')) {
+              await this.fxaMailer.sendVerifyShortCodeEmail({
+                ...FxaMailerFormat.account(account),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.sync(form.service || query.service || false),
+                code,
+              });
+            } else {
+              await this.mailer.sendVerifyShortCodeEmail(
+                [],
+                account,
+                emailContext
+              );
+            }
           } else {
             const metricsContext = await request.app.metricsContext;
             const rpEmailContext = {
@@ -409,12 +421,28 @@ export class AccountHandler {
               logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
               ...rpCmsConfig.VerifyShortCodeEmail,
             };
-
-            await this.mailer.sendVerifyShortCodeEmail(
-              [],
-              account,
-              rpEmailContext
-            );
+            if (this.fxaMailer.canSend('verifyShortCode')) {
+              await this.fxaMailer.sendVerifyShortCodeEmail({
+                ...FxaMailerFormat.account(account),
+                ...(await FxaMailerFormat.metricsContext(request)),
+                ...FxaMailerFormat.localTime(request),
+                ...FxaMailerFormat.location(request),
+                ...FxaMailerFormat.device(request),
+                ...FxaMailerFormat.sync(form.service || query.service || false),
+                ...FxaMailerFormat.cmsLogo(rpCmsConfig.shared),
+                ...FxaMailerFormat.cmsEmailSubject(
+                  rpCmsConfig.VerifyShortCodeEmail
+                ),
+                ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
+                code,
+              });
+            } else {
+              await this.mailer.sendVerifyShortCodeEmail(
+                [],
+                account,
+                rpEmailContext
+              );
+            }
           }
           break;
         }
@@ -1476,6 +1504,7 @@ export class AccountHandler {
                   ...FxaMailerFormat.cmsRpInfo(rpCmsConfig),
                   clientName: clientInfo.name,
                   showBannerWarning: false,
+                  target: 'strapi',
                 });
               } else {
                 const rpEmailContext = {
