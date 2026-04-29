@@ -237,7 +237,9 @@ export class SubplatEmailRender extends EmailRenderer {
       template: SubscriptionReactivation.template,
       version: SubscriptionReactivation.version,
       layout: SubscriptionReactivation.layout,
-      includes: SubscriptionReactivation.includes,
+      includes: SubscriptionReactivation.getIncludes(
+        templateValues.isFreeTrialReactivation
+      ),
       ...templateValues,
       ...layoutTemplateValues,
     });

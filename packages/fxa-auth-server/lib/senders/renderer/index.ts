@@ -178,6 +178,11 @@ class Renderer extends Localizer {
           },
         };
       }
+      if (context.template === 'subscriptionReactivation') {
+        return (
+          await require(`../emails/templates/${context.template}/includes`)
+        ).getIncludes(context.isFreeTrialReactivation);
+      }
       return require(`../emails/templates/${context.template}/includes.json`);
     } catch (e) {
       throw e;
