@@ -67,11 +67,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
     useState(trialStartDate);
   const [stableTrialEndDate, setStableTrialEndDate] = useState(trialEndDate);
   useEffect(() => {
-    const isFreeTrial =
-      !!stableTrialEndDate ||
-      (!!stableFreeTrialEligibility &&
-        stableFreeTrialEligibility.trialLengthDays > 0);
-    if (cartState === 'start' || (cartState === 'success' && !isFreeTrial)) {
+    if (cartState === 'start' || cartState === 'success') {
       setStableInvoice(invoice);
       setStableTotalPrice(totalPrice);
       setStableFreeTrialEligibility(freeTrialEligibility);
