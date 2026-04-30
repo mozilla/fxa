@@ -1,9 +1,6 @@
 name: Docker
 
 on:
-  check_run:
-    types:
-      - completed
   workflow_dispatch:
     inputs:
       git_tag:
@@ -17,45 +14,18 @@ jobs:
     permissions: {}
     outputs:
       TAG: ${{ steps.determine.outputs.tag }}
-    if: |
-      github.event_name == 'workflow_dispatch'
-      || (
-        github.event_name == 'check_run'
-        && github.event.check_run.conclusion == 'success'
-        && github.event.check_run.app.client_id == 'Iv1.44befee49e3e76a4'
-        && github.event.check_run.name == 'test_and_deploy_tag'
-      )
     env:
-      CIRCLECI_EXTERNAL_ID: ${{ github.event.check_run.external_id }}
       GIT_TAG: ${{ inputs.git_tag }}
     steps:
       - id: determine
         run: |
-          tag=""
-
-          # Use the provided git tag
-          if [[ "${GITHUB_EVENT_NAME:-}" == "workflow_dispatch" && "${GIT_TAG:-}" != "" ]]; then
-            tag="${GIT_TAG}"
-          elif [[ "${GITHUB_EVENT_NAME:-}" == "check_run" ]]; then
-            CIRCLECI_WORKFLOW_ID=$(echo "${CIRCLECI_EXTERNAL_ID}" | jq -r '."workflow-id"')
-            CIRCLECI_WORKFLOW_DATA=$(curl "https://circleci.com/api/v2/workflow/${CIRCLECI_WORKFLOW_ID}")
-            CIRCLECI_PIPELINE_ID=$(echo "${CIRCLECI_WORKFLOW_DATA}" | jq -r '.pipeline_id')
-            CIRCLECI_PIPELINE_DATA=$(curl "https://circleci.com/api/v2/pipeline/${CIRCLECI_PIPELINE_ID}")
-            TAG=$(echo "${CIRCLECI_PIPELINE_DATA}" | jq -r '.vcs.tag')
-            if [[ "${TAG}" != "" ]]; then
-              tag="${TAG}"
-            fi
-          fi
-
-          if [[ "${tag}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-rc[0-9]+)?$ ]]; then
-            echo "tag=${tag}" >> "$GITHUB_OUTPUT"
-            echo "Trigger docker build & push on ${GITHUB_EVENT_NAME} and found tag ${tag}" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          else
-            echo "Cannot determine valid tag"
-            echo "Trigger docker build & push on ${GITHUB_EVENT_NAME} and cannot determine tag" >> "$GITHUB_STEP_SUMMARY"
+          if [[ ! "${GIT_TAG}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-rc[0-9]+)?$ ]]; then
+            echo "Invalid tag: ${GIT_TAG}"
+            echo "Invalid tag format: ${GIT_TAG}" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
+          echo "tag=${GIT_TAG}" >> "$GITHUB_OUTPUT"
+          echo "Building docker image for tag ${GIT_TAG}" >> "$GITHUB_STEP_SUMMARY"
 
   docker:
     name: Docker build and push to GAR
