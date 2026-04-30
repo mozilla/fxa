@@ -136,5 +136,60 @@ describe('EmailHelpers', () => {
       expect(resultDefault).toEqual('01/15/2024');
       expect(resultEst).toEqual('01/14/2024');
     });
+
+    it('does not leak locale between concurrent calls', async () => {
+      const date = new Date('2025-03-13T12:00:00Z');
+
+      const [enResult, gbResult] = await Promise.all([
+        Promise.resolve(constructLocalDateString(undefined, 'en', date)),
+        Promise.resolve(constructLocalDateString(undefined, 'en-GB', date)),
+      ]);
+
+      expect(enResult).toEqual('03/13/2025');
+      expect(gbResult).toEqual('13/03/2025');
+    });
+
+    it('does not leak locale into subsequent calls', () => {
+      const date = new Date('2025-03-13T12:00:00Z');
+
+      constructLocalDateString(undefined, 'en-GB', date);
+      const enResult = constructLocalDateString(undefined, 'en', date);
+
+      expect(enResult).toEqual('03/13/2025');
+    });
+  });
+
+  describe('constructLocalTimeAndDateStrings - locale isolation', () => {
+    it('does not leak locale between concurrent calls', async () => {
+      const [enResult, esResult] = await Promise.all([
+        Promise.resolve(
+          constructLocalTimeAndDateStrings('America/Los_Angeles', 'en')
+        ),
+        Promise.resolve(
+          constructLocalTimeAndDateStrings('America/Los_Angeles', 'es')
+        ),
+      ]);
+
+      const enDays = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday',
+      ];
+      const esDays = [
+        'lunes',
+        'martes',
+        'miércoles',
+        'jueves',
+        'viernes',
+        'sábado',
+        'domingo',
+      ];
+      expect(enDays).toContain(enResult.date.split(',')[0]);
+      expect(esDays).toContain(esResult.date.split(',')[0]);
+    });
   });
 });
