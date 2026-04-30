@@ -306,6 +306,31 @@ describe('navigateWithQueryHelper', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/signin?email=test@example.com');
   });
 
+  it('does not append the current hash when destination already has a hash', async () => {
+    mockLocation.search = '?';
+    mockLocation.hash = '#section';
+    await navigateWithQueryHelper(
+      mockLocation,
+      mockNavigate,
+      '/settings#two-step-authentication'
+    );
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/settings#two-step-authentication'
+    );
+  });
+
+  it('inserts preserved query params before the destination hash', async () => {
+    mockLocation.search = '?email=test@example.com';
+    await navigateWithQueryHelper(
+      mockLocation,
+      mockNavigate,
+      '/settings#two-step-authentication'
+    );
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/settings?email=test@example.com#two-step-authentication'
+    );
+  });
+
   it('does not add query params when path already contains them', async () => {
     mockLocation.search = '?email=old@example.com';
     await navigateWithQueryHelper(
