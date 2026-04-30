@@ -385,6 +385,10 @@ export class TestAccountTracker {
    * Once we have a valid sessionToken, we disconnect 2FA then destroy the account.
    */
   private async destroyAccount(account: AccountDetails | Credentials) {
+    // Clear any stale OTP/verify emails left behind by the test's UI flow,
+    // so the codes we issue below aren't shadowed by older inbox entries.
+    await this.target.emailClient.clear(account.email);
+
     // Handle passwordless accounts - they need a password set before we can destroy them
     const isPasswordless =
       'isPasswordless' in account && account.isPasswordless;
