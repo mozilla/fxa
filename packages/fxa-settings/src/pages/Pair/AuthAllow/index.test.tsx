@@ -54,16 +54,28 @@ jest.mock('../../../lib/glean', () => ({
   default: { cadApproveDevice: { view: jest.fn(), submit: jest.fn() } },
 }));
 
-// Mock getBasicAccountData to return null so TOTP check is skipped
+// Mock getBasicAccountData; default returns null so TOTP check is skipped.
+// Individual tests can override via the exported mock to exercise the gate.
+const mockGetBasicAccountData = jest.fn().mockReturnValue(null);
 jest.mock('../../../lib/account-storage', () => ({
-  getBasicAccountData: jest.fn().mockReturnValue(null),
+  getBasicAccountData: () => mockGetBasicAccountData(),
 }));
 
 const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
 
 // Helper to render with AppContext (authClient) and LocationProvider (useLocation)
-function renderWithAppContext(ui: React.ReactElement) {
+function renderWithAppContext(
+  ui: React.ReactElement,
+  overrides?: { checkTotpTokenExists?: jest.Mock }
+) {
   const appCtx = mockAppContext();
+  if (overrides?.checkTotpTokenExists) {
+    (
+      appCtx.authClient as unknown as {
+        checkTotpTokenExists: jest.Mock;
+      }
+    ).checkTotpTokenExists = overrides.checkTotpTokenExists;
+  }
   const history = createHistory(createMemorySource('/pair/auth/allow'));
   return renderWithLocalizationProvider(
     <AppContext.Provider value={appCtx}>
@@ -199,6 +211,58 @@ describe('Pair/AuthAllow page', () => {
       await waitFor(() => {
         expect(screen.getByText('Firefox on macOS')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('TOTP gate', () => {
+    const renderGate = (status: { exists: boolean; verified: boolean }) => {
+      const checkTotpTokenExists = jest.fn().mockResolvedValue(status);
+      renderWithAppContext(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        />,
+        { checkTotpTokenExists }
+      );
+      return checkTotpTokenExists;
+    };
+
+    beforeEach(() => {
+      mockNavigateWithQuery.mockClear();
+      mockGetBasicAccountData.mockReturnValue({ sessionToken: 'deadbeef' });
+    });
+
+    afterEach(() => mockGetBasicAccountData.mockReturnValue(null));
+
+    it('redirects when TOTP is fully enabled', async () => {
+      renderGate({ exists: true, verified: true });
+      await waitFor(() =>
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/auth/totp')
+      );
+    });
+
+    it.each([
+      ['partial row (exists, not verified)', { exists: true, verified: false }],
+      ['no row', { exists: false, verified: false }],
+    ])('does not redirect for %s', async (_, status) => {
+      const check = renderGate(status);
+      await waitFor(() => expect(check).toHaveBeenCalledWith('deadbeef'));
+      expect(mockNavigateWithQuery).not.toHaveBeenCalledWith('/pair/auth/totp');
+      await screen.findByRole('button', { name: 'Yes, approve device' });
+    });
+
+    it('proceeds when the TOTP check fails', async () => {
+      const check = jest.fn().mockRejectedValue(new Error('boom'));
+      renderWithAppContext(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        />,
+        { checkTotpTokenExists: check }
+      );
+      await waitFor(() => expect(check).toHaveBeenCalled());
+      expect(mockNavigateWithQuery).not.toHaveBeenCalledWith('/pair/auth/totp');
+      await screen.findByRole('button', { name: 'Yes, approve device' });
     });
   });
 });

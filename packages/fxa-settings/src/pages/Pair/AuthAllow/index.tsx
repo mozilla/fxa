@@ -83,7 +83,10 @@ const AuthAllow = ({
     (async () => {
       try {
         const status = await authClient.checkTotpTokenExists(sessionToken);
-        if (status.exists) {
+        // Only gate on TOTP when it is fully enabled (verified). Partial rows
+        // (exists but not verified) cannot satisfy a code prompt and would
+        // dead-end the pair flow, matching legacy authenticationMethods semantics.
+        if (status.exists && status.verified) {
           navigateWithQuery('/pair/auth/totp');
           return;
         }
