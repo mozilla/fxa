@@ -2,27 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
-import {
-  RouteComponentProps,
-  Link,
-  navigate,
-  useLocation,
-} from '@reach/router';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { RouteComponentProps, Link, useLocation } from '@reach/router';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
 import { HeartsVerifiedImage } from '../../components/images';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import Banner from '../../components/Banner';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useFtlMsgResolver } from '../../models';
 import { Constants } from '../../lib/constants';
 import { getBasicAccountData } from '../../lib/account-storage';
+import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
 
 export type ConnectAnotherDeviceProps = {
   email?: string;
-  forceView?: boolean;
   entrypoint?: ENTRYPOINTS;
   isSignedIn?: boolean;
   showSuccessMessage?: boolean;
@@ -89,13 +85,6 @@ function isSyncAuthSupported(): boolean {
   return (isDesktop && version >= 40) || (isAndroid && version >= 43);
 }
 
-// Check if the current UA is a mobile browser.
-function isMobile(): boolean {
-  const ua = navigator.userAgent;
-  return /Android|iPhone|iPad|iPod|FxiOS/i.test(ua);
-}
-
-// Entrypoints eligible for pairing redirect (module-level to avoid recreation per render).
 const PAIRING_ENTRYPOINTS = new Set([
   ENTRYPOINTS.FIREFOX_PREFERENCES_ENTRYPOINT,
   ENTRYPOINTS.FIREFOX_SYNCED_TABS_ENTRYPOINT,
@@ -107,7 +96,6 @@ const PAIRING_ENTRYPOINTS = new Set([
 export const viewName = 'connect-another-device';
 const ConnectAnotherDevice = ({
   email: emailProp,
-  forceView: forceViewProp,
   entrypoint: entrypointProp,
   isSignedIn: isSignedInProp,
   showSuccessMessage: showSuccessMessageProp,
@@ -120,17 +108,17 @@ const ConnectAnotherDevice = ({
 
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
+  const searchParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search]
+  );
   const locationState = (location.state || {}) as Record<string, unknown>;
 
-  // Derive values from hooks/params when props aren't provided
   const accountData = getBasicAccountData();
-
   const email = emailProp ?? accountData?.email ?? '';
   const isSignedIn = isSignedInProp ?? !!accountData?.sessionToken;
   const entrypoint =
     entrypointProp ?? getValidEntrypoint(searchParams.get('entrypoint'));
-  const forceView = forceViewProp ?? locationState.forceView === true;
   const showSuccessMessage =
     showSuccessMessageProp ??
     !!(
@@ -138,23 +126,34 @@ const ConnectAnotherDevice = ({
     );
   const isSignUp = isSignUpProp ?? locationState.type === 'sign_up';
   const isSignIn = isSignInProp ?? locationState.type === 'sign_in';
-  const canSignIn = canSignInProp ?? (!isSignedIn && isSyncAuthSupported());
+  // Set when the WebChannel sign-in attempt fails so the button stops
+  // rendering instead of leaving the user with a silent no-op click.
+  const [oauthFlowUnavailable, setOauthFlowUnavailable] = useState(false);
+  const canSignIn =
+    canSignInProp ??
+    (!isSignedIn && isSyncAuthSupported() && !oauthFlowUnavailable);
   const device = deviceProp ?? detectDevice();
 
-  // Construct the sign-in URL matching Backbone's _getEscapedSignInUrl + SyncAuthMixin.
-  const getEscapedSignInUrl = () => {
-    const params = new URLSearchParams({
-      context: Constants.FX_DESKTOP_V3_CONTEXT,
-      entrypoint: 'fxa:connect_another_device',
-      service: Constants.SYNC_SERVICE,
-      action: 'email',
-    });
-    if (email) {
-      params.set('email', email);
-    }
-    // Forward UTM params from the current URL (matches Backbone relier UTM forwarding).
-    // The utm_source is hard-coded to 'email' to reflect that users reach CAD from
-    // a verification email (see content-server #6258).
+  // Callers that pass rendering props (tests, post-verify flows) skip the
+  // bootstrap and render directly.
+  const propsDriveRender =
+    isSignedInProp !== undefined ||
+    showSuccessMessageProp !== undefined ||
+    canSignInProp !== undefined;
+  const [bootstrapping, setBootstrapping] = useState(!propsDriveRender);
+
+  // Ask Firefox for fresh Sync OAuth params and hard-navigate to / so the
+  // App re-instantiates with an oauth_webchannel_v1 Sync integration.
+  const startSyncOAuthFlow = useCallback(async (): Promise<boolean> => {
+    const oauthParams = await firefox
+      .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE])
+      .catch(() => null);
+    if (!oauthParams) return false;
+    const params = buildSyncOAuthSearch(oauthParams);
+    // Underscore form: the CMS endpoint validator rejects ':' in entrypoint.
+    params.set('entrypoint', 'fxa_connect_another_device');
+    if (email) params.set('email', email);
+    // Users reach CAD from a verification email (content-server #6258).
     params.set('utm_source', Constants.UTM_SOURCE_EMAIL);
     for (const key of [
       'utm_campaign',
@@ -163,59 +162,86 @@ const ConnectAnotherDevice = ({
       'utm_term',
     ]) {
       const val = searchParams.get(key);
-      if (val) {
-        params.set(key, val);
-      }
+      if (val) params.set(key, val);
     }
-    return `/?${params}`;
-  };
+    hardNavigate(`/?${params}`);
+    return true;
+  }, [email, searchParams]);
 
-  const isEligibleForPairing = () => {
+  const handleSignIn = useCallback(async () => {
+    const ok = await startSyncOAuthFlow();
+    if (!ok) setOauthFlowUnavailable(true);
+  }, [startSyncOAuthFlow]);
+
+  // Sync context + Firefox-chrome entrypoint required, else every direct
+  // visit would bounce to /pair.
+  const isEligibleForPairing = useCallback(() => {
     const context = searchParams.get('context') || '';
     const validContext =
       context === Constants.FX_DESKTOP_V3_CONTEXT ||
       context === Constants.OAUTH_WEBCHANNEL_CONTEXT;
-    if (!isSignedIn || !validContext) {
-      return false;
-    }
-    if (entrypoint === ENTRYPOINTS.FIREFOX_TOOLBAR_ENTRYPOINT) {
-      return true;
-    }
+    if (!validContext) return false;
+    if (entrypoint === ENTRYPOINTS.FIREFOX_TOOLBAR_ENTRYPOINT) return true;
     return (
       searchParams.get('action') !== 'email' &&
       PAIRING_ENTRYPOINTS.has(entrypoint)
     );
-  };
+  }, [entrypoint, searchParams]);
 
   useEffect(() => {
-    // Matches Backbone's beforeRender sequence.
-    if (forceView) {
+    if (propsDriveRender) {
       GleanMetrics.cad.view();
       return;
     }
 
-    if (isEligibleForPairing()) {
-      navigate('/pair');
+    // RPs that pass redirect_to + redirect_immediately=true expect /settings
+    // to validate the redirect URL and bounce the user back.
+    if (
+      searchParams.get('redirect_immediately') === 'true' &&
+      searchParams.get('redirect_to')
+    ) {
+      hardNavigate('/settings');
       return;
     }
 
-    // Some RPs specify redirect_to + redirect_immediately=true.
-    // Route through /settings which validates the redirect URL.
-    if (searchParams.get('redirect_immediately') === 'true') {
-      navigate('/settings');
-      return;
-    }
+    let cancelled = false;
+    (async () => {
+      const signedInUser = await firefox
+        .requestSignedInUser(
+          Constants.OAUTH_CONTEXT,
+          true,
+          Constants.SYNC_SERVICE
+        )
+        .catch(() => undefined);
+      if (cancelled) return;
+      const browserSignedIn = !!(
+        signedInUser?.sessionToken && signedInUser.verified
+      );
+      if (browserSignedIn && isEligibleForPairing()) {
+        hardNavigate('/pair');
+        return;
+      }
+      if (browserSignedIn) {
+        setBootstrapping(false);
+        GleanMetrics.cad.view();
+        return;
+      }
+      const redirected = await startSyncOAuthFlow();
+      if (cancelled || redirected) return;
+      // WebChannel didn't reply; reveal the page so the user isn't stuck.
+      setBootstrapping(false);
+      GleanMetrics.cad.view();
+    })();
 
-    // Signed-in desktop users should go directly to /pair.
-    if (isSignedIn && !isMobile()) {
-      navigate('/pair');
-      return;
-    }
-
-    // Log view metric only when the user actually stays on this page.
-    GleanMetrics.cad.view();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [forceView]);
+  }, []);
+
+  if (bootstrapping) {
+    return <LoadingSpinner fullScreen />;
+  }
 
   return (
     <AppLayout>
@@ -263,9 +289,13 @@ const ConnectAnotherDevice = ({
             </FtlMsg>
             <div className="flex">
               <FtlMsg id="connect-another-device-signin-link">
-                <Link className="cta-primary cta-xl" to={getEscapedSignInUrl()}>
+                <button
+                  type="button"
+                  className="cta-primary cta-xl"
+                  onClick={handleSignIn}
+                >
                   Sign in
-                </Link>
+                </button>
               </FtlMsg>
             </div>
           </>
