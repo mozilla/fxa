@@ -2350,6 +2350,9 @@ describe('StripeWebhookHandler', () => {
         StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.mockResolvedValue(
           mockInvoiceDetails
         );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+          { status: 'active' }
+        );
 
         const mockAccount: any = {
           emails: 'fakeemails',
@@ -2396,13 +2399,122 @@ describe('StripeWebhookHandler', () => {
       )
     );
 
+    it('does not send the first invoice email for a trialing subscription', async () => {
+      const invoice = eventInvoicePaid.data.object;
+      invoice.billing_reason = 'subscription_create';
+
+      const mockInvoiceDetails = { uid: '1234', test: 'fake' };
+      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.mockResolvedValue(
+        mockInvoiceDetails
+      );
+      StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+        { status: 'trialing' }
+      );
+
+      const mockAccount: any = {
+        emails: 'fakeemails',
+        locale: 'fakelocale',
+        verifierSetAt: Date.now(),
+      };
+      StripeWebhookHandlerInstance.db.account = jest.fn(
+        async () => mockAccount
+      );
+
+      await StripeWebhookHandlerInstance.sendSubscriptionInvoiceEmail(invoice);
+
+      expect(
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionFirstInvoiceEmail
+      ).not.toHaveBeenCalled();
+      expect(
+        StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail
+      ).toHaveBeenCalledWith(mockAccount.emails, mockAccount, {
+        acceptLanguage: mockAccount.locale,
+        ...mockInvoiceDetails,
+        email: mockAccount.primaryEmail,
+      });
+    });
+
     it(
-      'sends the subsequent invoice email for billing reasons besides creation',
+      'sends the subsequent invoice email for subscription_cycle without trial',
       commonSendSubscriptionInvoiceEmailTest(
         'sendSubscriptionSubsequentInvoiceEmail',
         'subscription_cycle'
       )
     );
+
+    it('sends the first invoice email for subscription_cycle after a free trial', async () => {
+      const invoice = eventInvoicePaid.data.object;
+      invoice.billing_reason = 'subscription_cycle';
+      invoice.period_start = 1234567890;
+
+      const mockInvoiceDetails = { uid: '1234', test: 'fake' };
+      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.mockResolvedValue(
+        mockInvoiceDetails
+      );
+      StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+        { status: 'active', trial_end: 1234567890 }
+      );
+
+      const mockAccount: any = {
+        emails: 'fakeemails',
+        locale: 'fakelocale',
+        verifierSetAt: Date.now(),
+      };
+      StripeWebhookHandlerInstance.db.account = jest.fn(
+        async () => mockAccount
+      );
+
+      await StripeWebhookHandlerInstance.sendSubscriptionInvoiceEmail(invoice);
+
+      expect(
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionFirstInvoiceEmail
+      ).toHaveBeenCalledWith(mockAccount.emails, mockAccount, {
+        acceptLanguage: mockAccount.locale,
+        ...mockInvoiceDetails,
+        email: mockAccount.primaryEmail,
+      });
+      expect(
+        StripeWebhookHandlerInstance.mailer
+          .sendSubscriptionSubsequentInvoiceEmail
+      ).not.toHaveBeenCalled();
+    });
+
+    it('sends the subsequent invoice email for later renewals on a subscription that had a trial', async () => {
+      const invoice = eventInvoicePaid.data.object;
+      invoice.billing_reason = 'subscription_cycle';
+      invoice.period_start = 1237246290; // later than trial_end
+
+      const mockInvoiceDetails = { uid: '1234', test: 'fake' };
+      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.mockResolvedValue(
+        mockInvoiceDetails
+      );
+      StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+        { status: 'active', trial_end: 1234567890 }
+      );
+
+      const mockAccount: any = {
+        emails: 'fakeemails',
+        locale: 'fakelocale',
+        verifierSetAt: Date.now(),
+      };
+      StripeWebhookHandlerInstance.db.account = jest.fn(
+        async () => mockAccount
+      );
+
+      await StripeWebhookHandlerInstance.sendSubscriptionInvoiceEmail(invoice);
+
+      expect(
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionFirstInvoiceEmail
+      ).not.toHaveBeenCalled();
+      expect(
+        StripeWebhookHandlerInstance.mailer
+          .sendSubscriptionSubsequentInvoiceEmail
+      ).toHaveBeenCalledWith(mockAccount.emails, mockAccount, {
+        acceptLanguage: mockAccount.locale,
+        ...mockInvoiceDetails,
+        email: mockAccount.primaryEmail,
+      });
+    });
 
     it('does not send email for subscription_update billing reason', async () => {
       const invoice = eventInvoicePaid.data.object;
@@ -2411,6 +2523,9 @@ describe('StripeWebhookHandler', () => {
       const mockInvoiceDetails = { uid: '1234', test: 'fake' };
       StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.mockResolvedValue(
         mockInvoiceDetails
+      );
+      StripeWebhookHandlerInstance.stripeHelper.expandResource.mockResolvedValue(
+        { status: 'active' }
       );
 
       const mockAccount = {
