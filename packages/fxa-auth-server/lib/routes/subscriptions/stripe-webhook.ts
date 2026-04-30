@@ -32,6 +32,7 @@ import {
   STRIPE_OBJECT_TYPE_TO_RESOURCE,
   StripeHelper,
   SUBSCRIPTION_UPDATE_TYPES,
+  SUBSCRIPTIONS_RESOURCE,
   VALID_RESOURCE_TYPES,
 } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
@@ -974,11 +975,34 @@ export class StripeWebhookHandler extends StripeHandler {
         email: account.primaryEmail,
       },
     ];
+    const subscription = invoice.subscription
+      ? await this.stripeHelper.expandResource(
+          invoice.subscription,
+          SUBSCRIPTIONS_RESOURCE
+        )
+      : null;
+
     switch (invoice.billing_reason) {
       case 'subscription_create':
-        await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        // Do not send the first invoice email for free trial,
+        // as no payment has been charged yet.
+        if (subscription?.status !== 'trialing') {
+          await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        }
 
         await this.mailer.sendDownloadSubscriptionEmail(...mailParams);
+        break;
+      case 'subscription_cycle':
+        if (
+          subscription?.trial_end &&
+          invoice.period_start === subscription.trial_end
+        ) {
+          await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        } else {
+          await this.mailer.sendSubscriptionSubsequentInvoiceEmail(
+            ...mailParams
+          );
+        }
         break;
       case 'subscription_update':
         // We already send an email for subscription updates. https://mozilla-hub.atlassian.net/browse/PAY-2290
