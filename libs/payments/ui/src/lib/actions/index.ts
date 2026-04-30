@@ -4,6 +4,7 @@
 
 export { applyCouponAction } from './applyCoupon';
 export { cancelSubscriptionAtPeriodEndAction } from './cancelSubscriptionAtPeriodEnd';
+export { cancelSubscriptionImmediatelyAction } from './cancelSubscriptionImmediately';
 export { checkoutCartWithPaypal } from './checkoutCartWithPaypal';
 export { checkoutCartWithStripe } from './checkoutCartWithStripe';
 export { determineCurrencyAction } from './determineCurrency';

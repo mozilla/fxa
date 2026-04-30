@@ -124,6 +124,8 @@ import { UpdateStripePaymentDetailsResult } from './validators/UpdateStripePayme
 import { SetDefaultStripePaymentDetailsActionArgs } from './validators/SetDefaultStripePaymentDetailsActionArgs';
 import { CancelSubscriptionAtPeriodEndActionArgs } from './validators/CancelSubscriptionAtPeriodEndActionArgs';
 import { CancelSubscriptionAtPeriodEndActionResult } from './validators/CancelSubscriptionAtPeriodEndActionResult';
+import { CancelSubscriptionImmediatelyActionArgs } from './validators/CancelSubscriptionImmediatelyActionArgs';
+import { CancelSubscriptionImmediatelyActionResult } from './validators/CancelSubscriptionImmediatelyActionResult';
 import { RedeemChurnCouponActionResult } from './validators/RedeemChurnCouponActionResult';
 import { ResubscribeSubscriptionActionArgs } from './validators/ResubscribeSubscriptionActionArgs';
 import { ResubscribeSubscriptionActionResult } from './validators/ResubscribeSubscriptionActionResult';
@@ -180,6 +182,33 @@ export class NextJSActionsService {
   }) {
     try {
       await this.subscriptionManagementService.cancelSubscriptionAtPeriodEnd(
+        args.uid,
+        args.subscriptionId
+      );
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+      };
+    }
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    CancelSubscriptionImmediatelyActionArgs,
+    CancelSubscriptionImmediatelyActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async cancelSubscriptionImmediately(args: {
+    uid: string;
+    subscriptionId: string;
+  }) {
+    try {
+      await this.subscriptionManagementService.cancelSubscriptionImmediately(
         args.uid,
         args.subscriptionId
       );
