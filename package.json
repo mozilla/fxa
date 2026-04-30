@@ -26,7 +26,10 @@
     "check:mysql": "_scripts/check-mysql.sh",
     "check:url": "_scripts/check-url.sh",
     "prepare": "husky",
-    "check:frozen": "ts-node _scripts/check-frozen.ts"
+    "check:frozen": "ts-node _scripts/check-frozen.ts",
+    "trigger:docker-push": "_scripts/trigger-docker-push.sh",
+    "trigger:smoke-tests": "_scripts/trigger-smoke-tests.sh",
+    "trigger:dot-release": "_scripts/trigger-dot-release.sh"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {
