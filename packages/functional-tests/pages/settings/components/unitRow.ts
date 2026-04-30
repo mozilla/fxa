@@ -109,6 +109,14 @@ export class PasskeyRow extends UnitRow {
   get confirmDeleteButton() {
     return this.page.getByTestId('confirm-delete-passkey-button');
   }
+
+  // Cancel button inside the delete-confirmation modal. Scoped to the
+  // dialog so it does not collide with other Cancel buttons on the page.
+  get cancelDeleteButton() {
+    return this.page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Cancel' });
+  }
 }
 
 export class TotpRow extends UnitRow {
