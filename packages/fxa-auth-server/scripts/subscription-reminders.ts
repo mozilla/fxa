@@ -115,7 +115,9 @@ async function init() {
       monthlyReminderDays: parseInt(program.endingReminderMonthlyLength),
       yearlyReminderDays: parseInt(program.endingReminderYearlyLength),
       freeTrialReminderDays: parseInt(program.freeTrialEndingReminderLength),
-      freeTrialEndRemindersEnabled: parseBooleanArg(program.enableFreeTrialEndingReminders),
+      freeTrialEndRemindersEnabled: parseBooleanArg(
+        program.enableFreeTrialEndingReminders
+      ),
     },
     {
       monthlyReminderDays: parseInt(program.monthlyRenewalReminderLength),
@@ -138,18 +140,8 @@ async function init() {
 }
 
 if (require.main === module) {
-  const checkInId = Sentry.captureCheckIn({
-    monitorSlug: 'subscription-reminders',
-    status: 'in_progress',
-  });
-
   init()
     .then(() => {
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'subscription-reminders',
-        status: 'ok',
-      });
       return Sentry.close(2000);
     })
     .then(() => {
@@ -157,11 +149,6 @@ if (require.main === module) {
     })
     .catch((err) => {
       console.error(err);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'subscription-reminders',
-        status: 'error',
-      });
       return Sentry.close(2000);
     })
     .then(() => {

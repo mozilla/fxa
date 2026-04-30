@@ -490,19 +490,9 @@ if (require.main === module) {
     },
   });
 
-  const checkInId = Sentry.captureCheckIn({
-    monitorSlug: 'audit-tokens',
-    status: 'in_progress',
-  });
-
   run()
     .then((result) => {
       log.info('result', { result });
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'audit-tokens',
-        status: 'ok',
-      });
     })
     .then(() => {
       // Make sure statsd closes cleanly so we don't lose any metrics
@@ -519,11 +509,6 @@ if (require.main === module) {
     })
     .catch((error) => {
       log.error('audit-tokens', { error });
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'audit-tokens',
-        status: 'error',
-      });
     })
     .then(() => {
       return Sentry.close(2000);
