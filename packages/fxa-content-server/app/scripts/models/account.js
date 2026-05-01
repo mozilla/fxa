@@ -1181,29 +1181,6 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Create a support ticket on Zendesk.
-     *
-     * @param {Object} [supportTicket={}]
-     *   @param {String} [supportTicket.plan]
-     *   @param {String} [supportTicket.topic]
-     *   @param {String} [supportTicket.subject] Optional subject
-     *   @param {String} [supportTicket.message]
-     * @returns {Promise} - resolves with:
-     *   - `success`
-     *   - `ticket` OR `error`
-     */
-    createSupportTicket(supportTicket) {
-      return this._fetchShortLivedSubscriptionsOAuthToken().then(
-        (accessToken) => {
-          return this._fxaClient.createSupportTicket(
-            accessToken.get('token'),
-            supportTicket
-          );
-        }
-      );
-    },
-
-    /**
      * Update a user newsletters subscription.
      *
      * @param {String[]} [newsletters]

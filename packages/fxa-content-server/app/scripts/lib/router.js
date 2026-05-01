@@ -18,7 +18,6 @@ import IndexView from '../views/index';
 import InlineTotpSetupView from '../views/inline_totp_setup';
 import InlineRecoverySetupView from '../views/inline_recovery_setup';
 import PermissionsView from '../views/permissions';
-import SupportView from '../views/support';
 import ReadyView from '../views/ready';
 import RedirectAuthView from '../views/authorization';
 import ReportSignInView from '../views/report_sign_in';
@@ -659,7 +658,6 @@ Router = Router.extend({
       SubscriptionsProductRedirectView
     ),
     'subscriptions(/)': createViewHandler(SubscriptionsManagementRedirectView),
-    'support(/)': createViewHandler(SupportView),
     'verify_email(/)': createViewHandler(CompleteSignUpView, {
       type: VerificationReasons.SIGN_UP,
     }),

@@ -10,6 +10,7 @@
  */
 
 import $ from 'jquery';
+import 'modal';
 import KeyCodes from '../../lib/key-codes';
 
 export default {
