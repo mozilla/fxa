@@ -11,6 +11,7 @@ import {
   PasskeyChallengeManager,
   PasskeyManager,
   VirtualAuthenticator,
+  VirtualCredential,
 } from '@fxa/accounts/passkey';
 import Config from '../../config';
 import {
@@ -95,6 +96,32 @@ beforeEach(() => {
 
 const password = 'pssssst';
 
+async function getMfaAccessTokenForPasskey(clientInstance: any) {
+  // Request an OTP email for the passkey MFA action
+  await clientInstance.api.doRequest(
+    'POST',
+    `${clientInstance.api.baseURL}/mfa/otp/request`,
+    await clientInstance.api.Token.SessionToken.fromHex(
+      clientInstance.sessionToken
+    ),
+    { action: 'passkey' }
+  );
+
+  // Read OTP code from mailbox
+  const code = await server.mailbox.waitForMfaCode(clientInstance.email);
+
+  // Verify OTP and get back a JWT access token
+  const verifyRes = await clientInstance.api.doRequest(
+    'POST',
+    `${clientInstance.api.baseURL}/mfa/otp/verify`,
+    await clientInstance.api.Token.SessionToken.fromHex(
+      clientInstance.sessionToken
+    ),
+    { action: 'passkey', code }
+  );
+  return verifyRes.accessToken;
+}
+
 describe('#integration - remote passkey registration', () => {
   let passkeyEmail: string;
   let passkeyClient: any;
@@ -111,32 +138,6 @@ describe('#integration - remote passkey registration', () => {
       }
     );
   });
-
-  async function getMfaAccessTokenForPasskey(clientInstance: any) {
-    // Request an OTP email for the passkey MFA action
-    await clientInstance.api.doRequest(
-      'POST',
-      `${clientInstance.api.baseURL}/mfa/otp/request`,
-      await clientInstance.api.Token.SessionToken.fromHex(
-        clientInstance.sessionToken
-      ),
-      { action: 'passkey' }
-    );
-
-    // Read OTP code from mailbox
-    const code = await server.mailbox.waitForMfaCode(clientInstance.email);
-
-    // Verify OTP and get back a JWT access token
-    const verifyRes = await clientInstance.api.doRequest(
-      'POST',
-      `${clientInstance.api.baseURL}/mfa/otp/verify`,
-      await clientInstance.api.Token.SessionToken.fromHex(
-        clientInstance.sessionToken
-      ),
-      { action: 'passkey', code }
-    );
-    return verifyRes.accessToken;
-  }
 
   it('POST /passkey/registration/start - without auth returns 401', async () => {
     await expect(async () => {
@@ -215,5 +216,119 @@ describe('#integration - remote passkey registration', () => {
     expect(result.credentialId).toBeDefined();
     expect(result.name).toBeDefined();
     expect(result.createdAt).toEqual(expect.any(Number));
+  });
+});
+
+describe('#integration - remote passkey authentication', () => {
+  let authEmail: string;
+  let authClient: any;
+  let registeredCred: VirtualCredential;
+
+  beforeEach(async () => {
+    authEmail = server.uniqueEmail();
+    authClient = await Client.createAndVerify(
+      server.publicUrl,
+      authEmail,
+      password,
+      server.mailbox,
+      { version: 'V2' }
+    );
+
+    // Register a passkey so authentication tests have a credential to use
+    const accessToken = await getMfaAccessTokenForPasskey(authClient);
+    const options = await authClient.api.doRequestWithBearerToken(
+      'POST',
+      `${authClient.api.baseURL}/passkey/registration/start`,
+      accessToken,
+      {}
+    );
+    registeredCred = VirtualAuthenticator.createCredential();
+    const registrationResponse = VirtualAuthenticator.createAttestationResponse(
+      registeredCred,
+      {
+        challenge: options.challenge,
+        origin: passkeyOrigin,
+        rpId: passkeyRpId,
+      }
+    );
+    await authClient.api.doRequestWithBearerToken(
+      'POST',
+      `${authClient.api.baseURL}/passkey/registration/finish`,
+      accessToken,
+      { response: registrationResponse, challenge: options.challenge }
+    );
+  });
+
+  it('POST /passkey/authentication/start - returns challenge and options', async () => {
+    const result = await authClient.api.doRequest(
+      'POST',
+      `${authClient.api.baseURL}/passkey/authentication/start`,
+      null,
+      {}
+    );
+    expect(result.challenge).toBeDefined();
+    expect(result.rpId).toBeDefined();
+  });
+
+  it('happy path: /passkey/authentication/start then /passkey/authentication/finish', async () => {
+    const startResult = await authClient.api.doRequest(
+      'POST',
+      `${authClient.api.baseURL}/passkey/authentication/start`,
+      null,
+      {}
+    );
+    expect(startResult.challenge).toBeDefined();
+
+    const assertionResponse = VirtualAuthenticator.createAssertionResponse(
+      registeredCred,
+      {
+        challenge: startResult.challenge,
+        origin: passkeyOrigin,
+        rpId: passkeyRpId,
+      }
+    );
+
+    const finishResult = await authClient.api.doRequest(
+      'POST',
+      `${authClient.api.baseURL}/passkey/authentication/finish`,
+      null,
+      { response: assertionResponse, challenge: startResult.challenge }
+    );
+
+    expect(finishResult.uid).toBeDefined();
+    expect(finishResult.sessionToken).toBeDefined();
+    expect(finishResult.verified).toBe(true);
+    expect(finishResult.hasPassword).toBe(true);
+    expect(finishResult.requiresPasswordForSync).toBe(false);
+  });
+
+  it('POST /passkey/authentication/finish - mismatched challenge returns error', async () => {
+    const startResult = await authClient.api.doRequest(
+      'POST',
+      `${authClient.api.baseURL}/passkey/authentication/start`,
+      null,
+      {}
+    );
+    const assertionResponse = VirtualAuthenticator.createAssertionResponse(
+      registeredCred,
+      {
+        challenge: startResult.challenge,
+        origin: passkeyOrigin,
+        rpId: passkeyRpId,
+      }
+    );
+    // The assertion was signed for startResult.challenge but we submit a
+    // different challenge string, so verifyAuthenticationResponse must fail.
+    await expect(async () => {
+      await authClient.api.doRequest(
+        'POST',
+        `${authClient.api.baseURL}/passkey/authentication/finish`,
+        null,
+        {
+          response: assertionResponse,
+          challenge: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        }
+      );
+    }).rejects.toBeDefined();
   });
 });
