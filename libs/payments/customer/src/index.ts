@@ -26,3 +26,4 @@ export * from './lib/util/getSubplatInterval';
 export * from './lib/util/getSubplatIntervalFromSubscription';
 export * from './lib/util/hasOpenInvoiceWithPaymentAttempts';
 export * from './lib/util/retrieveSubscriptionItem';
+export * from './lib/util/getPriceFromSubscription';

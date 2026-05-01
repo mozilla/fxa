@@ -6,15 +6,21 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/shared/metrics/glean",
         "main": "libs/shared/metrics/glean/src/index.ts",
         "tsConfig": "libs/shared/metrics/glean/tsconfig.lib.json",
         "assets": ["libs/shared/metrics/glean/*.md"],
-        "declaration": true,
-        "format": ["cjs"]
+        "generatePackageJson": true
       }
     },
     "test-unit": {

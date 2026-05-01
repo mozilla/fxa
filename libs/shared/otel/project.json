@@ -6,15 +6,21 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/shared/otel",
         "main": "libs/shared/otel/src/index.ts",
         "tsConfig": "libs/shared/otel/tsconfig.lib.json",
         "assets": ["libs/shared/otel/*.md"],
-        "declaration": true,
-        "platform": "node"
+        "generatePackageJson": true
       }
     },
     "test-unit": {
