@@ -3,12 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test } from '@nestjs/testing';
-import { Logger } from '@nestjs/common';
 import { MockPaymentsGleanServiceFactory } from '@fxa/payments/metrics';
+import {
+  AccountCustomerManager,
+  MockStripeConfigProvider,
+  StripeClient,
+} from '@fxa/payments/stripe';
+import { CustomerManager } from '@fxa/payments/customer';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockLoggerProvider } from '@fxa/shared/log';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { FxaWebhooksController } from './fxa-webhooks.controller';
 import { FxaWebhookService } from './fxa-webhooks.service';
 import { MockFxaWebhookConfigProvider } from './fxa-webhooks.config';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('FxaWebhooksController', () => {
   let controller: FxaWebhooksController;
@@ -17,12 +24,17 @@ describe('FxaWebhooksController', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        { provide: Logger, useValue: { error: jest.fn(), log: jest.fn() } },
         FxaWebhooksController,
         FxaWebhookService,
         MockFxaWebhookConfigProvider,
         MockStatsDProvider,
+        MockLoggerProvider,
         MockPaymentsGleanServiceFactory,
+        AccountCustomerManager,
+        MockAccountDatabaseNestFactory,
+        CustomerManager,
+        StripeClient,
+        MockStripeConfigProvider,
       ],
     }).compile();
 

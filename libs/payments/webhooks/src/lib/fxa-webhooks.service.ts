@@ -16,6 +16,11 @@ import {
 } from '@fxa/shared/db/type-cacheable';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { PaymentsGleanService } from '@fxa/payments/metrics';
+import {
+  AccountCustomerManager,
+  AccountCustomerNotFoundError,
+} from '@fxa/payments/stripe';
+import { CustomerManager, CustomerDeletedError } from '@fxa/payments/customer';
 import { FxaWebhookConfig } from './fxa-webhooks.config';
 import {
   FxaWebhookAuthError,
@@ -62,7 +67,9 @@ export class FxaWebhookService {
     private fxaWebhookConfig: FxaWebhookConfig,
     @Inject(StatsDService) private statsd: StatsD,
     @Inject(Logger) private log: LoggerService,
-    private paymentsGleanService: PaymentsGleanService
+    private paymentsGleanService: PaymentsGleanService,
+    private accountCustomerManager: AccountCustomerManager,
+    private customerManager: CustomerManager
   ) {
     this.memoryCacheAdapter = new MemoryAdapter();
     this.fallbackCacheAdapter = new MemoryAdapter();
@@ -276,6 +283,60 @@ export class FxaWebhookService {
     this.log.log('handleProfileChange', { sub, event });
     this.statsd.increment('fxa.webhook.event', {
       eventType: 'profile-change',
+    });
+
+    if (!event.email) {
+      return;
+    }
+
+    let accountCustomer;
+    try {
+      accountCustomer =
+        await this.accountCustomerManager.getAccountCustomerByUid(sub);
+    } catch (error) {
+      if (error instanceof AccountCustomerNotFoundError) {
+        this.statsd.increment('fxa.webhook.profile_change.email_sync', {
+          outcome: 'no_customer',
+        });
+        return;
+      }
+      throw error;
+    }
+
+    if (!accountCustomer.stripeCustomerId) {
+      this.statsd.increment('fxa.webhook.profile_change.email_sync', {
+        outcome: 'no_stripe_customer_id',
+      });
+      return;
+    }
+
+    let customer;
+    try {
+      customer = await this.customerManager.retrieve(
+        accountCustomer.stripeCustomerId
+      );
+    } catch (error) {
+      if (error instanceof CustomerDeletedError) {
+        this.statsd.increment('fxa.webhook.profile_change.email_sync', {
+          outcome: 'customer_deleted',
+        });
+        return;
+      }
+      throw error;
+    }
+
+    if (customer.email === event.email) {
+      this.statsd.increment('fxa.webhook.profile_change.email_sync', {
+        outcome: 'no_change',
+      });
+      return;
+    }
+
+    await this.customerManager.update(accountCustomer.stripeCustomerId, {
+      email: event.email,
+    });
+    this.statsd.increment('fxa.webhook.profile_change.email_sync', {
+      outcome: 'updated',
     });
   }
 
