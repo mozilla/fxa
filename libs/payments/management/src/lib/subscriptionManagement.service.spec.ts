@@ -9,7 +9,13 @@ import { Test } from '@nestjs/testing';
 import {
   ChurnInterventionManager,
   MockChurnInterventionConfigProvider,
+  TaxService,
 } from '@fxa/payments/cart';
+import {
+  GeoDBManager,
+  GeoDBManagerConfig,
+  MockGeoDBNestFactory,
+} from '@fxa/shared/geodb';
 import {
   CurrencyManager,
   MockCurrencyConfigProvider,
@@ -85,6 +91,7 @@ import {
   ChurnInterventionByProductIdResultFactory,
 } from '@fxa/shared/cms';
 import { ChurnInterventionService } from './churn-intervention.service';
+import { ManagePaymentMethodTaxAddressRequiredError } from './manage-payment-method.error';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -144,6 +151,7 @@ describe('SubscriptionManagementService', () => {
   let privateCustomerChanged: any;
   let paypalBillingAgreementManager: PaypalBillingAgreementManager;
   let paypalCustomerManager: PaypalCustomerManager;
+  let taxService: TaxService;
 
   const mockLogger = {
     error: jest.fn(),
@@ -198,6 +206,10 @@ describe('SubscriptionManagementService', () => {
         MockCurrencyConfigProvider,
         MockChurnInterventionConfigProvider,
         MockLocationConfigProvider,
+        TaxService,
+        GeoDBManager,
+        GeoDBManagerConfig,
+        MockGeoDBNestFactory,
         {
           provide: LOGGER_PROVIDER,
           useValue: mockLogger,
@@ -222,6 +234,7 @@ describe('SubscriptionManagementService', () => {
       PaypalBillingAgreementManager
     );
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
+    taxService = moduleRef.get(TaxService);
 
     privateCustomerChanged = jest
       .spyOn(subscriptionManagementService as any, 'customerChanged')
@@ -1776,6 +1789,27 @@ describe('SubscriptionManagementService', () => {
   });
 
   describe('updateStripePaymentDetails', () => {
+    const mockIp = '127.0.0.1';
+    const customerWithShipping = () =>
+      StripeResponseFactory(
+        StripeCustomerFactory({
+          shipping: {
+            name: 'test',
+            address: StripeAddressFactory({
+              country: 'US',
+              postal_code: '10001',
+            }),
+            phone: null,
+          },
+        })
+      );
+
+    beforeEach(() => {
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(customerWithShipping());
+    });
+
     it('updates the stripe customer payment method details', async () => {
       const mockPaymentMethod = StripeResponseFactory(
         StripePaymentMethodFactory()
@@ -1816,7 +1850,8 @@ describe('SubscriptionManagementService', () => {
       const result =
         await subscriptionManagementService.updateStripePaymentDetails(
           mockAccountCustomer.uid,
-          '123'
+          '123',
+          mockIp
         );
 
       expect(result).toEqual({
@@ -1837,7 +1872,8 @@ describe('SubscriptionManagementService', () => {
       await expect(
         subscriptionManagementService.updateStripePaymentDetails(
           mockAccountCustomer.uid,
-          '123'
+          '123',
+          mockIp
         )
       ).rejects.toBeInstanceOf(UpdateAccountCustomerMissingStripeId);
     });
@@ -1877,7 +1913,8 @@ describe('SubscriptionManagementService', () => {
       await expect(
         subscriptionManagementService.updateStripePaymentDetails(
           mockAccountCustomer.uid,
-          '123'
+          '123',
+          mockIp
         )
       ).rejects.toBeInstanceOf(SetupIntentInvalidStatusError);
     });
@@ -1917,7 +1954,8 @@ describe('SubscriptionManagementService', () => {
       await expect(
         subscriptionManagementService.updateStripePaymentDetails(
           mockAccountCustomer.uid,
-          '123'
+          '123',
+          mockIp
         )
       ).rejects.toBeInstanceOf(SetupIntentMissingPaymentMethodError);
     });
@@ -1956,7 +1994,8 @@ describe('SubscriptionManagementService', () => {
       await expect(
         subscriptionManagementService.updateStripePaymentDetails(
           mockAccountCustomer.uid,
-          '123'
+          '123',
+          mockIp
         )
       ).rejects.toBeInstanceOf(SetupIntentMissingCustomerError);
     });
@@ -2008,7 +2047,8 @@ describe('SubscriptionManagementService', () => {
 
       await subscriptionManagementService.updateStripePaymentDetails(
         mockAccountCustomer.uid,
-        '123'
+        '123',
+        mockIp
       );
 
       expect(customerManager.update).toHaveBeenCalledWith(
@@ -2021,9 +2061,126 @@ describe('SubscriptionManagementService', () => {
         }
       );
     });
+
+    it('puts a geoip-resolved shipping address when the customer has none', async () => {
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory()
+      );
+      const mockCustomerWithoutShipping = StripeResponseFactory(
+        StripeCustomerFactory({ shipping: null })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomerWithoutShipping.id,
+      });
+      const mockSetupIntent = StripeResponseFactory(
+        StripeSetupIntentFactory({
+          customer: mockCustomerWithoutShipping.id,
+          payment_method: mockPaymentMethod.id,
+          status: 'succeeded',
+        })
+      );
+      const resolvedTaxAddress = {
+        countryCode: 'US',
+        postalCode: '10001',
+      };
+
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(taxService, 'getTaxAddress')
+        .mockResolvedValue(resolvedTaxAddress);
+      jest
+        .spyOn(setupIntentManager, 'createAndConfirm')
+        .mockResolvedValue(mockSetupIntent);
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
+      jest
+        .spyOn(customerManager, 'update')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+
+      await subscriptionManagementService.updateStripePaymentDetails(
+        mockAccountCustomer.uid,
+        '123',
+        mockIp
+      );
+
+      expect(taxService.getTaxAddress).toHaveBeenCalledWith(
+        mockIp,
+        mockAccountCustomer.uid
+      );
+      expect(customerManager.update).toHaveBeenCalledWith(
+        mockCustomerWithoutShipping.id,
+        {
+          shipping: {
+            name: mockCustomerWithoutShipping.email || '',
+            address: {
+              country: resolvedTaxAddress.countryCode,
+              postal_code: resolvedTaxAddress.postalCode,
+            },
+          },
+        }
+      );
+    });
+
+    it('throws ManagePaymentMethodTaxAddressRequiredError when tax address is unresolvable', async () => {
+      const mockCustomerWithoutShipping = StripeResponseFactory(
+        StripeCustomerFactory({ shipping: null })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomerWithoutShipping.id,
+      });
+
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(taxService, 'getTaxAddress').mockResolvedValue(undefined);
+      const createAndConfirmSpy = jest.spyOn(
+        setupIntentManager,
+        'createAndConfirm'
+      );
+
+      await expect(
+        subscriptionManagementService.updateStripePaymentDetails(
+          mockAccountCustomer.uid,
+          '123',
+          mockIp
+        )
+      ).rejects.toBeInstanceOf(ManagePaymentMethodTaxAddressRequiredError);
+      expect(createAndConfirmSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('setDefaultStripePaymentDetails', () => {
+    const mockIp = '127.0.0.1';
+
+    const customerWithShipping = () =>
+      StripeResponseFactory(
+        StripeCustomerFactory({
+          shipping: {
+            name: 'test',
+            address: StripeAddressFactory({
+              country: 'US',
+              postal_code: '10001',
+            }),
+            phone: null,
+          },
+        })
+      );
+
+    beforeEach(() => {
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(customerWithShipping());
+    });
+
     it("updates the customer's payment details", async () => {
       const mockAccountCustomer = ResultAccountCustomerFactory();
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
@@ -2038,7 +2195,8 @@ describe('SubscriptionManagementService', () => {
 
       await subscriptionManagementService.setDefaultStripePaymentDetails(
         mockCustomer.id,
-        mockPaymentMethod.id
+        mockPaymentMethod.id,
+        mockIp
       );
 
       expect(customerManager.update).toHaveBeenCalledWith(
@@ -2062,9 +2220,94 @@ describe('SubscriptionManagementService', () => {
       await expect(
         subscriptionManagementService.setDefaultStripePaymentDetails(
           mockAccountCustomer.uid,
-          'pm_12345'
+          'pm_12345',
+          mockIp
         )
       ).rejects.toBeInstanceOf(SetDefaultPaymentAccountCustomerMissingStripeId);
+    });
+
+    it('stamps a geoip-resolved shipping address when the customer has none', async () => {
+      const mockCustomerWithoutShipping = StripeResponseFactory(
+        StripeCustomerFactory({ shipping: null })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomerWithoutShipping.id,
+      });
+      const resolvedTaxAddress = {
+        countryCode: 'US',
+        postalCode: '10001',
+      };
+
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(taxService, 'getTaxAddress')
+        .mockResolvedValue(resolvedTaxAddress);
+      jest
+        .spyOn(customerManager, 'update')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+
+      await subscriptionManagementService.setDefaultStripePaymentDetails(
+        mockAccountCustomer.uid,
+        'pm_12345',
+        mockIp
+      );
+
+      expect(taxService.getTaxAddress).toHaveBeenCalledWith(
+        mockIp,
+        mockAccountCustomer.uid
+      );
+      expect(customerManager.update).toHaveBeenNthCalledWith(
+        1,
+        mockCustomerWithoutShipping.id,
+        {
+          shipping: {
+            name: mockCustomerWithoutShipping.email || '',
+            address: {
+              country: resolvedTaxAddress.countryCode,
+              postal_code: resolvedTaxAddress.postalCode,
+            },
+          },
+        }
+      );
+      expect(customerManager.update).toHaveBeenNthCalledWith(
+        2,
+        mockCustomerWithoutShipping.id,
+        {
+          invoice_settings: { default_payment_method: 'pm_12345' },
+        }
+      );
+    });
+
+    it('throws ManagePaymentMethodTaxAddressRequiredError when tax address is unresolvable', async () => {
+      const mockCustomerWithoutShipping = StripeResponseFactory(
+        StripeCustomerFactory({ shipping: null })
+      );
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomerWithoutShipping.id,
+      });
+
+      jest
+        .spyOn(customerManager, 'retrieve')
+        .mockResolvedValue(mockCustomerWithoutShipping);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(taxService, 'getTaxAddress').mockResolvedValue(undefined);
+      jest.spyOn(customerManager, 'update');
+
+      await expect(
+        subscriptionManagementService.setDefaultStripePaymentDetails(
+          mockAccountCustomer.uid,
+          'pm_12345',
+          mockIp
+        )
+      ).rejects.toBeInstanceOf(ManagePaymentMethodTaxAddressRequiredError);
+      expect(customerManager.update).not.toHaveBeenCalled();
     });
   });
 

@@ -25,6 +25,7 @@ import {
   ManagePaymentMethodIntentGetInTouchError,
   ManagePaymentMethodIntentTryAgainError,
   ManagePaymentMethodIntentInsufficientFundsError,
+  ManagePaymentMethodTaxAddressRequiredError,
 } from '@fxa/payments/management';
 import {
   CheckoutTokenManager,
@@ -1112,6 +1113,7 @@ export class NextJSActionsService {
       ManagePaymentMethodIntentGetInTouchError,
       ManagePaymentMethodIntentTryAgainError,
       ManagePaymentMethodIntentInsufficientFundsError,
+      ManagePaymentMethodTaxAddressRequiredError,
     ],
   })
   @NextIOValidator(
@@ -1122,12 +1124,14 @@ export class NextJSActionsService {
   async updateStripePaymentDetails(args: {
     uid: string;
     confirmationTokenId: string;
+    ipAddress: string;
   }) {
     try {
       const result =
         await this.subscriptionManagementService.updateStripePaymentDetails(
           args.uid,
-          args.confirmationTokenId
+          args.confirmationTokenId,
+          args.ipAddress
         );
       return {
         ok: true,
@@ -1143,16 +1147,20 @@ export class NextJSActionsService {
     }
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [ManagePaymentMethodTaxAddressRequiredError],
+  })
   @NextIOValidator(SetDefaultStripePaymentDetailsActionArgs, undefined)
   @CaptureTimingWithStatsD()
   async setDefaultStripePaymentDetails(args: {
     uid: string;
     paymentMethodId: string;
+    ipAddress: string;
   }) {
     return await this.subscriptionManagementService.setDefaultStripePaymentDetails(
       args.uid,
-      args.paymentMethodId
+      args.paymentMethodId,
+      args.ipAddress
     );
   }
 

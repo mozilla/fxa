@@ -11,7 +11,8 @@ import {
   SetupIntentManager,
   SubscriptionManager,
 } from '@fxa/payments/customer';
-import { ChurnInterventionManager } from '@fxa/payments/cart';
+import { ChurnInterventionManager, TaxService } from '@fxa/payments/cart';
+import { GeoDBManager, setupGeoDB } from '@fxa/shared/geodb';
 import { AuthFirestore } from '@fxa/shared/db/firestore';
 import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
 import {
@@ -164,6 +165,17 @@ export async function initSubplat({
   );
   const accountCustomerManager = new AccountCustomerManager(accountDatabase);
   const customerSessionManager = new CustomerSessionManager(stripeClient);
+  const geodbReader = await setupGeoDB(config.geodb.dbPath);
+  const geodbManager = new GeoDBManager(geodbReader, {
+    locationOverride: {},
+  });
+  const taxService = new TaxService(
+    accountCustomerManager,
+    customerManager,
+    geodbManager,
+    subscriptionManager,
+    currencyManager
+  );
   const notifierService = new NotifierService(
     notifierSnsConfig,
     logger,
@@ -221,6 +233,7 @@ export async function initSubplat({
     productConfigurationManager,
     setupIntentManager,
     subscriptionManager,
+    taxService,
     paypalBillingAgreementManager,
     paypalCustomerManager,
     logger
