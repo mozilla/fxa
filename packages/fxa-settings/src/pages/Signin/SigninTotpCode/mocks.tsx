@@ -27,14 +27,19 @@ export const mockWebSigninIntegration = {
   type: IntegrationType.Web,
   getService: () => MozServices.Default,
   isSync: () => false,
+  requiresKeys: () => false,
+  wantsKeysIfPasswordEntered: () => false,
   wantsKeys: () => false,
+  getGrantedScopes: () => undefined,
   isFirefoxClientServiceRelay: () => false,
   isFirefoxClientServiceSmartWindow: () => false,
   isFirefoxClientServiceVpn: () => false,
   isFirefoxNonSync: () => false,
   getWebChannelServices: mockGetWebChannelServices(),
   getCmsInfo: () => undefined,
+  isFirefoxClient: () => false,
   isFirefoxMobileClient: () => false,
+  isFirefoxDesktopClient: () => false,
 } as SigninIntegration;
 
 export const mockOAuthNativeSigninIntegration = (
@@ -47,7 +52,10 @@ export const mockOAuthNativeSigninIntegration = (
     type: IntegrationType.OAuthNative,
     getService: () => (isSync ? MozServices.FirefoxSync : MozServices.Relay),
     isSync: () => isSync,
+    requiresKeys: () => false,
+    wantsKeysIfPasswordEntered: () => false,
     wantsKeys: () => false,
+    getGrantedScopes: () => undefined,
     isFirefoxClientServiceRelay: () => isRelay,
     isFirefoxClientServiceSmartWindow: () => false,
     isFirefoxClientServiceVpn: () => false,
@@ -59,7 +67,9 @@ export const mockOAuthNativeSigninIntegration = (
       })
     ),
     getCmsInfo: () => cmsInfo,
+    isFirefoxClient: () => true,
     isFirefoxMobileClient: () => false,
+    isFirefoxDesktopClient: () => true,
   } as SigninIntegration;
 };
 

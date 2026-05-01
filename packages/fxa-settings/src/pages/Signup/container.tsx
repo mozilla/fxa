@@ -85,6 +85,7 @@ const SignupContainer = ({
     queryParamModel.emailStatusChecked || location.state?.emailStatusChecked;
   const email = queryParamModel.email || location.state?.email;
 
+  const requiresKeys = integration.requiresKeys();
   const wantsKeys = integration.wantsKeys();
 
   const attemptedEmailStatusCheck = useRef(false);
@@ -115,7 +116,7 @@ const SignupContainer = ({
               hasPassword,
             },
           });
-        } else if (passwordlessSupported && !wantsKeys) {
+        } else if (passwordlessSupported && !requiresKeys) {
           // New account can use passwordless signup (non-Sync RPs only)
           navigateWithQuery('/signin_passwordless_code', {
             replace: true,

@@ -146,6 +146,9 @@ export type FxAOAuthLogin = {
   // eventually move to look at fxaLogin as well to prevent FXA-10596.
   declinedSyncEngines?: string[];
   offeredSyncEngines?: string[];
+  // Space-separated list of granted scopes, sent so the browser knows
+  // which scopes were authorized in this flow.
+  scopes?: string;
 };
 
 // ref: https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccountsWebChannel.sys.mjs#230

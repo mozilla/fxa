@@ -378,6 +378,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         code: oauthData.code,
         redirect: oauthData.redirect,
         state: oauthData.state,
+        scopes: integration.getGrantedScopes(),
       });
     }
     if (navigationOptions.performNavigation !== false) {

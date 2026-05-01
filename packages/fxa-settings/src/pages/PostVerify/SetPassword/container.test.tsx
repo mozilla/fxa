@@ -147,6 +147,7 @@ function mockSyncDesktopV3Integration() {
     getService: () => 'sync',
     getClientId: () => undefined,
     isSync: () => true,
+    requiresKeys: () => true,
     wantsKeys: () => true,
     data: { service: 'sync' },
     isDesktopSync: () => true,
@@ -169,7 +170,9 @@ function mockOAuthNativeIntegration(
     getService: () => 'sync',
     getClientId: () => undefined,
     isSync: () => true,
+    requiresKeys: () => true,
     wantsKeys: () => true,
+    getGrantedScopes: () => undefined,
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
@@ -292,6 +295,7 @@ describe('SetPassword-container', () => {
       expect(firefox.fxaOAuthLogin).toHaveBeenCalledWith({
         action: 'signin',
         ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+        scopes: undefined,
       });
     });
 
