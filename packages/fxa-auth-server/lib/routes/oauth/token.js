@@ -57,6 +57,11 @@ const OAUTH_SERVER_DOCS =
 const DESCRIPTION =
   require('../../../docs/swagger/shared/descriptions').default;
 const { getClientServiceTags } = require('../../metrics/client-tags');
+const {
+  getAuthorizationScope,
+  shouldBypassAuthCheck,
+  recordAuthorizationOnLogin,
+} = require('../../oauth/browser-services');
 const updateLastAccessTime = config.get(
   'lastAccessTimeUpdates.onOAuthTokenCreation'
 );
@@ -430,14 +435,47 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       throw OauthError.unauthorizedTokenExchangeClient(originalClientId);
     }
 
-    // Validate requested scope is in allowlist
+    // Resolve from the requested scope only; the bearer's clientId proves
+    // authentication, not which service the user is asking for.
     const requestedScope = params.scope;
-    if (!TOKEN_EXCHANGE_ALLOWED_SCOPES.contains(requestedScope)) {
+    const resolution = getAuthorizationScope(
+      undefined,
+      undefined,
+      requestedScope
+    );
+
+    if (resolution && resolution.allowSilentExchange === false) {
+      // Sync requires scoped keys; never grant silently.
+      log.debug('token_exchange.silent_exchange_disallowed', {
+        service: resolution.name,
+      });
+      throw OauthError.forbidden();
+    }
+
+    if (shouldBypassAuthCheck(resolution)) {
+      // Remove once application-services fxa-client handles a 4xx here.
+      log.info('token_exchange.relay_bypass', {
+        scope: resolution.authorizationScope,
+      });
+    } else if (resolution) {
+      const row = await oauthDB.getAccountAuthorization(
+        subjectToken.userId,
+        resolution.authorizationScope,
+        resolution.name
+      );
+      if (!row) {
+        log.debug('token_exchange.not_authorized', {
+          service: resolution.name,
+          scope: resolution.authorizationScope,
+        });
+        throw OauthError.forbidden();
+      }
+    } else if (!TOKEN_EXCHANGE_ALLOWED_SCOPES.contains(requestedScope)) {
+      // Fall back to the legacy allowlist for unconfigured scopes.
       log.debug('token_exchange.scope_not_allowed', {
         requested: requestedScope.toString(),
         allowed: TOKEN_EXCHANGE_ALLOWED_SCOPES.toString(),
       });
-      // TODO future auth table checks, FXA-12937
       throw OauthError.forbidden();
     }
 
@@ -518,6 +556,16 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           error: err.message,
         });
       }
+    }
+
+
+    // Record on every offline grant except token-exchange (which is a reader).
+    if (grant.offline && params.grant_type !== GRANT_TOKEN_EXCHANGE) {
+      await recordAuthorizationOnLogin(oauthDB, log, {
+        uid: grant.userId,
+        clientId: hex(grant.clientId),
+        scope: grant.scope,
+      });
     }
 
     const uid = hex(grant.userId);

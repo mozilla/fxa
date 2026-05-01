@@ -7,6 +7,8 @@
 const isA = require('joi');
 const validators = require('./validators');
 const authorizedClients = require('../oauth/authorized_clients');
+const oauthDB = require('../oauth/db');
+const { getAuthorizationScope } = require('../oauth/browser-services');
 const { AppError: error } = require('@fxa/accounts/errors');
 
 const HEX_STRING = validators.HEX_STRING;
@@ -16,6 +18,37 @@ const DEVICES_AND_SESSIONS_DOC =
 
 const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
 const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
+
+// Sign-out cleanup. After destroy, list the user's accountAuthorizations rows
+// and delete any whose service no longer has a backing refresh token. Walks
+// post-destroy refreshTokens to build the set of services still backed.
+//
+// Read-then-delete is not atomic; a parallel grant in the same window can
+// race the delete. Self-heals via the throttled touch on the next
+// refresh-token use.
+async function cleanupAccountAuthorizations(uid, log) {
+  try {
+    const refreshTokenRows = await oauthDB.getRefreshTokensByUid(uid);
+    const stillBacked = new Set();
+    for (const row of refreshTokenRows) {
+      const clientIdHex = row.clientId?.toString('hex');
+      for (const value of row.scope.getScopeValues()) {
+        const resolved = getAuthorizationScope(clientIdHex, undefined, value);
+        if (resolved) stillBacked.add(resolved.name);
+      }
+    }
+
+    const authzRows = await oauthDB.listAccountAuthorizationsByUid(uid);
+    for (const row of authzRows) {
+      if (stillBacked.has(row.service)) continue;
+      await oauthDB.deleteAccountAuthorization(uid, row.scope, row.service);
+    }
+  } catch (err) {
+    log?.warn?.('accountAuthorizations.cleanupFailed', {
+      err: err && err.message,
+    });
+  }
+}
 
 module.exports = (log, db, devices, clientUtils) => {
   return [
@@ -206,6 +239,14 @@ module.exports = (log, db, devices, clientUtils) => {
         const credentials = request.auth.credentials;
         const payload = request.payload;
 
+        // sessionTokenId-only destroys never affect refresh tokens, so skip
+        // the cleanup roundtrips for those.
+        const willTouchOAuth = !!(
+          payload.deviceId ||
+          payload.refreshTokenId ||
+          (payload.clientId && !payload.sessionTokenId)
+        );
+
         if (payload.deviceId) {
           // If we got a `deviceId`, then deleting that should also delete `sessionTokenId` and `refreshTokenId`,
           // assuming that they match the ones that were actually on the device record.
@@ -270,6 +311,10 @@ module.exports = (log, db, devices, clientUtils) => {
             }
             await db.deleteSessionToken(sessionToken);
           }
+        }
+
+        if (willTouchOAuth) {
+          await cleanupAccountAuthorizations(credentials.uid, log);
         }
 
         return {};
