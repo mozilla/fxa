@@ -7,7 +7,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { ReactNode, createElement } from 'react';
 import * as Sentry from '@sentry/browser';
 
-import { useCmsInfoState } from './hooks';
+import { useClientInfoState, useCmsInfoState } from './hooks';
 import { AppContext } from './contexts/AppContext';
 
 // Mock all external dependencies before importing the hook
@@ -528,5 +528,113 @@ describe('useCmsInfoState', () => {
     expect(result.current.data?.cmsInfo).toEqual({
       customization: 'english-selected-test',
     });
+  });
+});
+
+describe('useClientInfoState', () => {
+  let mockUrlQueryData: any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    const { UrlQueryData } = require('../lib/model-data');
+    mockUrlQueryData = { get: jest.fn() };
+    UrlQueryData.mockImplementation(() => mockUrlQueryData);
+
+    const { isHexadecimal, length } = require('class-validator');
+    isHexadecimal.mockReturnValue(true);
+    length.mockReturnValue(true);
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        id: '1234567890abcdef',
+        name: 'Test RP',
+        redirect_uri: 'https://example.test/redirect',
+        image_uri: '',
+        trusted: true,
+      }),
+    });
+  });
+
+  it('populates clientInfo from the fetch response', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.data?.clientInfo).toEqual({
+      clientId: '1234567890abcdef',
+      imageUri: null,
+      redirectUri: 'https://example.test/redirect',
+      serviceName: 'Test RP',
+      trusted: true,
+    });
+    expect(result.current.error).toBeUndefined();
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it('captures fetch errors to Sentry with a dedicated area tag', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+
+    const fetchError = new Error('Network error');
+    mockFetch.mockRejectedValue(fetchError);
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.error).toEqual(fetchError);
+    expect(result.current.data).toBeUndefined();
+    expect(Sentry.captureException).toHaveBeenCalledWith(fetchError, {
+      tags: { area: 'useClientInfoState.fetch' },
+      extra: { clientId: '1234567890abcdef' },
+    });
+  });
+
+  it('captures non-OK HTTP responses to Sentry', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+
+    mockFetch.mockResolvedValue({ ok: false, status: 403 });
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect(result.current.error?.message).toMatch(/403/);
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringMatching(/403/) }),
+      { tags: { area: 'useClientInfoState.fetch' }, extra: { clientId: '1234567890abcdef' } }
+    );
+  });
+
+  it('does not fetch when client_id is missing', async () => {
+    mockUrlQueryData.get.mockReturnValue(null);
+    const { isHexadecimal, length } = require('class-validator');
+    isHexadecimal.mockReturnValue(false);
+    length.mockReturnValue(false);
+
+    const { result } = renderHook(() => useClientInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 });

@@ -120,6 +120,11 @@ export function useIntegration() {
       flags,
       window: windowWrapper,
       clientInfo: clientInfoState.data?.clientInfo,
+      // useClientInfoState is the source of truth for whether the
+      // /v1/oauth/client/:id fetch was attempted and failed; the factory
+      // can't infer this from URL state alone because subsequent init
+      // steps may populate `data.clientId` from non-query sources.
+      clientInfoLoadFailed: !!clientInfoState.error,
       cmsInfo: cmsInfoState.data?.cmsInfo,
       legalTerms,
       productInfo: productInfoState.data?.productInfo,
@@ -320,11 +325,18 @@ export function useClientInfoState() {
           });
         }
       } catch (error) {
+        const err =
+          error instanceof Error ? error : new Error('Unknown error');
+        // Surface fetch failures as their own Sentry issue so the real cause
+        // (network, WAF challenge, 5xx, unknown client_id) is observable
+        // separately from the downstream scope-validation paths it used to
+        // be misattributed to — see FXA-13618.
+        Sentry.captureException(err, {
+          tags: { area: 'useClientInfoState.fetch' },
+          extra: { clientId },
+        });
         if (mounted) {
-          setState({
-            loading: false,
-            error: error instanceof Error ? error : new Error('Unknown error'),
-          });
+          setState({ loading: false, error: err });
         }
       }
     };
