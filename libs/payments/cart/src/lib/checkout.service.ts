@@ -222,7 +222,7 @@ export class CheckoutService {
         stripeCustomerId,
       });
 
-      await this.cartManager.updateFreshCart(cart.id, cart.version, {
+      await this.cartManager.updateProcessingCart(cart.id, cart.version, {
         uid,
         stripeCustomerId,
       });
@@ -534,14 +534,14 @@ export class CheckoutService {
 
       if (!intent) {
         // At least update the cart with the subscription ID before throwing
-        await this.cartManager.updateFreshCart(cart.id, version, {
+        await this.cartManager.updateProcessingCart(cart.id, version, {
           stripeSubscriptionId: subscription.id,
         });
         throw error;
       }
     }
 
-    await this.cartManager.updateFreshCart(cart.id, version, {
+    await this.cartManager.updateProcessingCart(cart.id, version, {
       stripeSubscriptionId: subscription.id,
       stripeIntentId: intent.id,
     });
@@ -729,7 +729,7 @@ export class CheckoutService {
           [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
         },
       }),
-      this.cartManager.updateFreshCart(cart.id, version, {
+      this.cartManager.updateProcessingCart(cart.id, version, {
         stripeSubscriptionId: subscription.id,
       }),
     ]);

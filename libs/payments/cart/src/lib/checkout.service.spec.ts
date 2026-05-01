@@ -336,7 +336,7 @@ describe('CheckoutService', () => {
       jest
         .spyOn(accountCustomerManager, 'createAccountCustomer')
         .mockResolvedValue(mockAccountCustomer);
-      jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+      jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.CREATE,
       });
@@ -407,7 +407,7 @@ describe('CheckoutService', () => {
       });
 
       it('does not update the cart', () => {
-        expect(cartManager.updateFreshCart).not.toHaveBeenCalled();
+        expect(cartManager.updateProcessingCart).not.toHaveBeenCalled();
       });
 
       it('checks that customer does not have existing subscription to price', () => {
@@ -796,7 +796,7 @@ describe('CheckoutService', () => {
       jest
         .spyOn(subscriptionManager, 'create')
         .mockResolvedValue(mockSubscription);
-      jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+      jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
       jest.spyOn(cartManager, 'setNeedsInputCart').mockResolvedValue();
       jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
       jest
@@ -877,8 +877,8 @@ describe('CheckoutService', () => {
         expect(asyncLocalStorage.getStore).toHaveBeenCalled();
       });
 
-      it('calls updateFreshCart', async () => {
-        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+      it('calls updateProcessingCart', async () => {
+        expect(cartManager.updateProcessingCart).toHaveBeenCalledWith(
           mockCart.id,
           mockPrePayStepsResult.version,
           {
@@ -1034,8 +1034,8 @@ describe('CheckoutService', () => {
           );
         });
 
-        it('calls updateFreshCart', async () => {
-          expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+        it('calls updateProcessingCart', async () => {
+          expect(cartManager.updateProcessingCart).toHaveBeenCalledWith(
             mockCart.id,
             mockPrePayStepsResult.version,
             {
@@ -1064,7 +1064,7 @@ describe('CheckoutService', () => {
             )
           ).rejects.toThrow();
 
-          expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          expect(cartManager.updateProcessingCart).toHaveBeenCalledWith(
             mockCart.id,
             mockPrePayStepsResult.version,
             {
@@ -1128,7 +1128,7 @@ describe('CheckoutService', () => {
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockSubscription);
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
         jest.spyOn(cartManager, 'setNeedsInputCart').mockResolvedValue();
         jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
         jest
@@ -1266,7 +1266,7 @@ describe('CheckoutService', () => {
           jest
             .spyOn(subscriptionManager, 'create')
             .mockResolvedValue(mockTrialSubscription);
-          jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+          jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
           jest.spyOn(cartManager, 'setNeedsInputCart').mockResolvedValue();
           jest
             .spyOn(invoiceManager, 'retrieve')
@@ -1367,7 +1367,7 @@ describe('CheckoutService', () => {
           jest
             .spyOn(subscriptionManager, 'create')
             .mockResolvedValue(mockSubscription);
-          jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+          jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
           jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
           jest
             .spyOn(paymentIntentManager, 'confirm')
@@ -1497,7 +1497,7 @@ describe('CheckoutService', () => {
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockTrialSubscription);
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
         jest
           .spyOn(invoiceManager, 'retrieve')
           .mockResolvedValue(mockTrialInvoice);
@@ -1574,7 +1574,7 @@ describe('CheckoutService', () => {
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockTrialSubscription);
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
         jest
           .spyOn(invoiceManager, 'retrieve')
           .mockResolvedValue(mockTrialInvoice);
@@ -1637,7 +1637,7 @@ describe('CheckoutService', () => {
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockSubscription);
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
         jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
         jest
           .spyOn(paymentIntentManager, 'confirm')
@@ -1679,7 +1679,7 @@ describe('CheckoutService', () => {
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockNonTrialingSubscription);
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
         jest.spyOn(asyncLocalStorage, 'getStore');
         jest.spyOn(statsd, 'increment');
 
@@ -1733,7 +1733,7 @@ describe('CheckoutService', () => {
         jest
           .spyOn(checkoutService, 'upgradeSubscription')
           .mockResolvedValue(mockSubscription);
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
         jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
         jest
           .spyOn(paymentIntentManager, 'confirm')
@@ -1789,7 +1789,7 @@ describe('CheckoutService', () => {
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockTrialSubscription);
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
         jest.spyOn(cartManager, 'setNeedsInputCart').mockResolvedValue();
         jest
           .spyOn(invoiceManager, 'retrieve')
@@ -1887,7 +1887,7 @@ describe('CheckoutService', () => {
         jest.spyOn(subscriptionManager, 'cancel');
         jest.spyOn(paypalBillingAgreementManager, 'cancel').mockResolvedValue();
         jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
         jest.spyOn(asyncLocalStorage, 'getStore');
         jest
           .spyOn(checkoutService, 'getFreeTrialEligibility')
@@ -1993,8 +1993,8 @@ describe('CheckoutService', () => {
           },
         });
       });
-      it('calls cartManager.updateFreshCart', () => {
-        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+      it('calls cartManager.updateProcessingCart', () => {
+        expect(cartManager.updateProcessingCart).toHaveBeenCalledWith(
           mockCart.id,
           mockPrePayStepsResult.version,
           { stripeSubscriptionId: mockSubscription.id }
@@ -2132,7 +2132,7 @@ describe('CheckoutService', () => {
             .spyOn(paypalBillingAgreementManager, 'cancel')
             .mockResolvedValue();
           jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
-          jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+          jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
           jest
             .spyOn(checkoutService, 'getFreeTrialEligibility')
             .mockResolvedValue(null);
@@ -2257,7 +2257,7 @@ describe('CheckoutService', () => {
           jest
             .spyOn(customerManager, 'update')
             .mockResolvedValue(mockCustomer);
-          jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+          jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
           jest.spyOn(asyncLocalStorage, 'getStore');
           jest
             .spyOn(freeTrialManager, 'recordFreeTrial')
@@ -2365,7 +2365,7 @@ describe('CheckoutService', () => {
           jest
             .spyOn(customerManager, 'update')
             .mockResolvedValue(mockCustomer);
-          jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+          jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
           jest.spyOn(asyncLocalStorage, 'getStore');
           jest
             .spyOn(freeTrialManager, 'recordFreeTrial')
@@ -2447,7 +2447,7 @@ describe('CheckoutService', () => {
           .spyOn(paypalCustomerManager, 'createPaypalCustomer')
           .mockResolvedValue(mockPaypalCustomer);
         jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
         jest.spyOn(asyncLocalStorage, 'getStore');
 
         await expect(
@@ -2508,7 +2508,7 @@ describe('CheckoutService', () => {
           .spyOn(paypalCustomerManager, 'createPaypalCustomer')
           .mockResolvedValue(mockPaypalCustomer);
         jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'updateProcessingCart').mockResolvedValue();
         jest.spyOn(asyncLocalStorage, 'getStore');
         jest.spyOn(statsd, 'increment');
         jest

@@ -149,6 +149,17 @@ export type UpdateCart = {
   isFreeTrial?: boolean;
 };
 
+/*
+ * This is intentionally narrow: a cart in PROCESSING is otherwise immutable, and
+ * widening this type re-opens the possibility of bugs which change the amount a customer
+ * will be charged during the process of billing the customer.
+ * Please consider carefully before adding fields here.
+ */
+export type UpdateProcessingCart = Pick<
+  UpdateCart,
+  'uid' | 'stripeCustomerId' | 'stripeSubscriptionId' | 'stripeIntentId'
+>;
+
 export type UpdateCartInput = Pick<
   UpdateCart,
   'uid' | 'taxAddress' | 'couponCode'
