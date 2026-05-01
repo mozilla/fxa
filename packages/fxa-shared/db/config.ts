@@ -445,7 +445,7 @@ export function makeRedisConfig() {
     passkey: {
       enabled: {
         default: true,
-        doc: 'Enable Redis for recovery phone library',
+        doc: 'Enable Redis for passkey library',
         format: Boolean,
         env: 'PASSKEY_REDIS_ENABLED',
       },
@@ -468,7 +468,7 @@ export function makeRedisConfig() {
       },
       prefix: {
         // Do not set a prefix! This is just here as an override.
-        // The recovery phone library prefixes its entries already!
+        // The passkey library prefixes its entries already!
         default: '',
         format: String,
         doc: 'Key prefix for Redis',
