@@ -153,26 +153,12 @@ export async function init() {
 
 if (require.main === module) {
   let exitStatus = 1;
-  const checkInId = Sentry.captureCheckIn({
-    monitorSlug: 'paypal-processsor',
-    status: 'in_progress',
-  });
   init()
     .then((result) => {
       exitStatus = result;
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'paypal-processsor',
-        status: 'ok',
-      });
     })
     .catch((err) => {
       console.error(err);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'paypal-processsor',
-        status: 'error',
-      });
     })
     .then(() => {
       return Sentry.close(2000);

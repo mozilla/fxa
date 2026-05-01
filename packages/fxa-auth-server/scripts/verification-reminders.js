@@ -47,19 +47,10 @@ Sentry.captureMessage('Verification reminders started', {
     env: config.env,
   },
 });
-const checkInId = Sentry.captureCheckIn({
-  monitorSlug: 'verification-reminders',
-  status: 'in_progress',
-});
 
 run()
   .then(() => {
     log.info('verificationReminders.done', {});
-    Sentry.captureCheckIn({
-      checkInId,
-      monitorSlug: 'verification-reminders',
-      status: 'ok',
-    });
     return Sentry.close(2000);
   })
   .then(() => {
@@ -67,11 +58,6 @@ run()
   })
   .catch((err) => {
     log.error('verificationReminders.fatal', { err });
-    Sentry.captureCheckIn({
-      checkInId,
-      monitorSlug: 'verification-reminders',
-      status: 'error',
-    });
     return Sentry.close(2000);
   })
   .then(() => {
